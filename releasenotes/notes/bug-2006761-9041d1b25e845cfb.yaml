@@ -1,0 +1,8 @@
+---
+fixes:
+  - |
+    Fixes the "No server with a name or ID of 'id' exists" error when running
+    ``server list --deleted --marker``. The fix removes using a name for
+    the marker when both ``--deleted`` and ``--marker`` are used. In
+    this scenario an ID must be supplied for the marker.
+    [Story `2006761 <https://storyboard.openstack.org/#!/story/2006761>`_]

@@ -1242,7 +1242,8 @@ class ListServer(command.Lister):
             default=None,
             help=_('The last server of the previous page. Display '
                    'list of servers after marker. Display all servers if not '
-                   'specified. (name or ID)')
+                   'specified. When used with ``--deleted``, the marker must '
+                   'be an ID, otherwise a name or ID can be used.'),
         )
         parser.add_argument(
             '--limit',
@@ -1450,9 +1451,17 @@ class ListServer(command.Lister):
             mixed_case_fields = []
 
         marker_id = None
+
         if parsed_args.marker:
-            marker_id = utils.find_resource(compute_client.servers,
-                                            parsed_args.marker).id
+            # Check if both "--marker" and "--deleted" are used.
+            # In that scenario a lookup is not needed as the marker
+            # needs to be an ID, because find_resource does not
+            # handle deleted resources
+            if parsed_args.deleted:
+                marker_id = parsed_args.marker
+            else:
+                marker_id = utils.find_resource(compute_client.servers,
+                                                parsed_args.marker).id
 
         data = compute_client.servers.list(search_opts=search_opts,
                                            marker=marker_id,
