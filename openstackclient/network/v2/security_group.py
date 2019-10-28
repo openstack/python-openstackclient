@@ -119,10 +119,13 @@ class CreateSecurityGroup(common.NetworkAndComputeShowOne):
         parser.add_argument(
             '--project',
             metavar='<project>',
-            help=_("Owner's project (name or ID)")
+            help=self.enhance_help_neutron(_("Owner's project (name or ID)"))
         )
-        identity_common.add_project_domain_option_to_parser(parser)
-        _tag.add_tag_option_to_parser_for_create(parser, _('security group'))
+        identity_common.add_project_domain_option_to_parser(
+            parser, enhance_help=self.enhance_help_neutron)
+        _tag.add_tag_option_to_parser_for_create(
+            parser, _('security group'),
+            enhance_help=self.enhance_help_neutron)
         return parser
 
     def _get_description(self, parsed_args):
@@ -202,22 +205,28 @@ class ListSecurityGroup(common.NetworkAndComputeLister):
     _description = _("List security groups")
 
     def update_parser_network(self, parser):
-        # Maintain and hide the argument for backwards compatibility.
-        # Network will always return all projects for an admin.
-        parser.add_argument(
-            '--all-projects',
-            action='store_true',
-            default=False,
-            help=argparse.SUPPRESS,
-        )
+        if not self.is_docs_build:
+            # Maintain and hide the argument for backwards compatibility.
+            # Network will always return all projects for an admin.
+            parser.add_argument(
+                '--all-projects',
+                action='store_true',
+                default=False,
+                help=argparse.SUPPRESS,
+            )
+
         parser.add_argument(
             '--project',
             metavar='<project>',
-            help=_("List security groups according to the project "
-                   "(name or ID)")
+            help=self.enhance_help_neutron(
+                _("List security groups according to the project (name or "
+                  "ID)"))
         )
-        identity_common.add_project_domain_option_to_parser(parser)
-        _tag.add_tag_filtering_option_to_parser(parser, _('security group'))
+        identity_common.add_project_domain_option_to_parser(
+            parser, enhance_help=self.enhance_help_neutron)
+        _tag.add_tag_filtering_option_to_parser(
+            parser, _('security group'),
+            enhance_help=self.enhance_help_neutron)
         return parser
 
     def update_parser_compute(self, parser):
@@ -225,7 +234,8 @@ class ListSecurityGroup(common.NetworkAndComputeLister):
             '--all-projects',
             action='store_true',
             default=False,
-            help=_("Display information from all projects (admin only)")
+            help=self.enhance_help_nova_network(
+                _("Display information from all projects (admin only)"))
         )
         return parser
 
@@ -307,7 +317,9 @@ class SetSecurityGroup(common.NetworkAndComputeCommand):
         return parser
 
     def update_parser_network(self, parser):
-        _tag.add_tag_option_to_parser_for_set(parser, _('security group'))
+        _tag.add_tag_option_to_parser_for_set(
+            parser, _('security group'),
+            enhance_help=self.enhance_help_neutron)
         return parser
 
     def take_action_network(self, client, parsed_args):

@@ -114,57 +114,65 @@ class CreateFloatingIP(common.NetworkAndComputeShowOne):
         parser.add_argument(
             '--subnet',
             metavar='<subnet>',
-            help=_("Subnet on which you want to create the floating IP "
-                   "(name or ID)")
+            help=self.enhance_help_neutron(
+                _("Subnet on which you want to create the floating IP "
+                  "(name or ID)"))
         )
         parser.add_argument(
             '--port',
             metavar='<port>',
-            help=_("Port to be associated with the floating IP "
-                   "(name or ID)")
+            help=self.enhance_help_neutron(
+                _("Port to be associated with the floating IP "
+                  "(name or ID)"))
         )
         parser.add_argument(
             '--floating-ip-address',
             metavar='<ip-address>',
             dest='floating_ip_address',
-            help=_("Floating IP address")
+            help=self.enhance_help_neutron(_("Floating IP address"))
         )
         parser.add_argument(
             '--fixed-ip-address',
             metavar='<ip-address>',
             dest='fixed_ip_address',
-            help=_("Fixed IP address mapped to the floating IP")
+            help=self.enhance_help_neutron(
+                _("Fixed IP address mapped to the floating IP"))
         )
         parser.add_argument(
             '--qos-policy',
             metavar='<qos-policy>',
-            help=_("Attach QoS policy to the floating IP (name or ID)")
+            help=self.enhance_help_neutron(
+                _("Attach QoS policy to the floating IP (name or ID)"))
         )
         parser.add_argument(
             '--description',
             metavar='<description>',
-            help=_('Set floating IP description')
+            help=self.enhance_help_neutron(_('Set floating IP description'))
         )
         parser.add_argument(
             '--project',
             metavar='<project>',
-            help=_("Owner's project (name or ID)")
+            help=self.enhance_help_neutron(_("Owner's project (name or ID)"))
         )
         parser.add_argument(
             '--dns-domain',
             metavar='<dns-domain>',
             dest='dns_domain',
-            help=_("Set DNS domain for this floating IP")
+            help=self.enhance_help_neutron(
+                _("Set DNS domain for this floating IP"))
         )
         parser.add_argument(
             '--dns-name',
             metavar='<dns-name>',
             dest='dns_name',
-            help=_("Set DNS name for this floating IP")
+            help=self.enhance_help_neutron(
+                _("Set DNS name for this floating IP"))
         )
 
-        identity_common.add_project_domain_option_to_parser(parser)
-        _tag.add_tag_option_to_parser_for_create(parser, _('floating IP'))
+        identity_common.add_project_domain_option_to_parser(
+            parser, enhance_help=self.enhance_help_neutron)
+        _tag.add_tag_option_to_parser_for_create(
+            parser, _('floating IP'), enhance_help=self.enhance_help_neutron)
         return parser
 
     def take_action_network(self, client, parsed_args):
@@ -217,60 +225,68 @@ class DeleteFloatingIP(common.NetworkAndComputeDelete):
 class ListFloatingIP(common.NetworkAndComputeLister):
     # TODO(songminglong): Use SDK resource mapped attribute names once
     # the OSC minimum requirements include SDK 1.0
+
     _description = _("List floating IP(s)")
 
     def update_parser_network(self, parser):
         parser.add_argument(
             '--network',
             metavar='<network>',
-            help=_("List floating IP(s) according to "
-                   "given network (name or ID)")
+            help=self.enhance_help_neutron(
+                _("List floating IP(s) according to "
+                  "given network (name or ID)"))
         )
         parser.add_argument(
             '--port',
             metavar='<port>',
-            help=_("List floating IP(s) according to "
-                   "given port (name or ID)")
+            help=self.enhance_help_neutron(
+                _("List floating IP(s) according to given port (name or ID)"))
         )
         parser.add_argument(
             '--fixed-ip-address',
             metavar='<ip-address>',
-            help=_("List floating IP(s) according to "
-                   "given fixed IP address")
+            help=self.enhance_help_neutron(
+                _("List floating IP(s) according to given fixed IP address"))
         )
         parser.add_argument(
             '--floating-ip-address',
             metavar='<ip-address>',
-            help=_("List floating IP(s) according to "
-                   "given floating IP address")
+            help=self.enhance_help_neutron(
+                _("List floating IP(s) according to given floating IP "
+                  "address"))
         )
         parser.add_argument(
             '--long',
             action='store_true',
             default=False,
-            help=_("List additional fields in output")
+            help=self.enhance_help_neutron(
+                _("List additional fields in output"))
         )
         parser.add_argument(
             '--status',
             metavar='<status>',
             choices=['ACTIVE', 'DOWN'],
-            help=_("List floating IP(s) according to "
-                   "given status ('ACTIVE', 'DOWN')")
+            help=self.enhance_help_neutron(
+                _("List floating IP(s) according to given status ('ACTIVE', "
+                  "'DOWN')"))
         )
         parser.add_argument(
             '--project',
             metavar='<project>',
-            help=_("List floating IP(s) according to "
-                   "given project (name or ID)")
+            help=self.enhance_help_neutron(
+                _("List floating IP(s) according to given project (name or "
+                  "ID)"))
         )
         identity_common.add_project_domain_option_to_parser(parser)
         parser.add_argument(
             '--router',
             metavar='<router>',
-            help=_("List floating IP(s) according to "
-                   "given router (name or ID)")
+            help=self.enhance_help_neutron(
+                _("List floating IP(s) according to given router (name or "
+                  "ID)"))
         )
-        _tag.add_tag_filtering_option_to_parser(parser, _('floating IP'))
+        _tag.add_tag_filtering_option_to_parser(
+            parser, _('floating IP'), enhance_help=self.enhance_help_neutron)
 
         return parser
 

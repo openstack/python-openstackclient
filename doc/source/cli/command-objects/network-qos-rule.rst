@@ -9,157 +9,20 @@ rules, each of them
 
 Network v2
 
-network qos rule create
------------------------
+.. NOTE(efried): have to list these out one by one; 'network qos rule *' pulls
+                 network qos rule type *.
 
-Create new Network QoS rule
+.. autoprogram-cliff:: openstack.network.v2
+   :command: network qos rule create
 
-.. program:: network qos rule create
-.. code:: bash
+.. autoprogram-cliff:: openstack.network.v2
+   :command: network qos rule delete
 
-    openstack network qos rule create
-        --type <type>
-        [--max-kbps <max-kbps>]
-        [--max-burst-kbits <max-burst-kbits>]
-        [--dscp-marks <dscp-marks>]
-        [--min-kbps <min-kbps>]
-        [--ingress | --egress]
-        <qos-policy>
+.. autoprogram-cliff:: openstack.network.v2
+   :command: network qos rule list
 
-.. option:: --type <type>
+.. autoprogram-cliff:: openstack.network.v2
+   :command: network qos rule set
 
-    QoS rule type (minimum-bandwidth, dscp-marking, bandwidth-limit)
-
-.. option:: --max-kbps <min-kbps>
-
-    Maximum bandwidth in kbps
-
-.. option:: --max-burst-kbits <max-burst-kbits>
-
-    Maximum burst in kilobits, 0 means automatic
-
-.. option:: --dscp-mark <dscp-mark>
-
-    DSCP mark: value can be 0, even numbers from 8-56, excluding 42, 44, 50,
-    52, and 54
-
-.. option:: --min-kbps <min-kbps>
-
-    Minimum guaranteed bandwidth in kbps
-
-.. option:: --ingress
-
-    Ingress traffic direction from the project point of view
-
-.. option:: --egress
-
-    Egress traffic direction from the project point of view
-
-.. describe:: <qos-policy>
-
-    QoS policy that contains the rule (name or ID)
-
-network qos rule delete
------------------------
-
-Delete Network QoS rule
-
-.. program:: network qos rule delete
-.. code:: bash
-
-    openstack network qos rule delete
-         <qos-policy>
-         <rule-id>
-
-.. describe:: <qos-policy>
-
-    QoS policy that contains the rule (name or ID)
-
-.. describe:: <rule-id>
-
-    Network QoS rule to delete (ID)
-
-network qos rule list
----------------------
-
-List Network QoS rules
-
-.. program:: network qos rule list
-.. code:: bash
-
-    openstack network qos rule list
-         <qos-policy>
-
-.. describe:: <qos-policy>
-
-    QoS policy that contains the rule (name or ID)
-
-network qos rule set
---------------------
-
-Set Network QoS rule properties
-
-.. program:: network qos rule set
-.. code:: bash
-
-    openstack network qos rule set
-        [--max-kbps <max-kbps>]
-        [--max-burst-kbits <max-burst-kbits>]
-        [--dscp-marks <dscp-marks>]
-        [--min-kbps <min-kbps>]
-        [--ingress | --egress]
-        <qos-policy>
-        <rule-id>
-
-.. option:: --max-kbps <min-kbps>
-
-    Maximum bandwidth in kbps
-
-.. option:: --max-burst-kbits <max-burst-kbits>
-
-    Maximum burst in kilobits, 0 means automatic
-
-.. option:: --dscp-mark <dscp-mark>
-
-    DSCP mark: value can be 0, even numbers from 8-56, excluding 42, 44, 50,
-    52, and 54
-
-.. option:: --min-kbps <min-kbps>
-
-    Minimum guaranteed bandwidth in kbps
-
-.. option:: --ingress
-
-    Ingress traffic direction from the project point of view
-
-.. option:: --egress
-
-    Egress traffic direction from the project point of view
-
-.. describe:: <qos-policy>
-
-    QoS policy that contains the rule (name or ID)
-
-.. describe:: <rule-id>
-
-    Network QoS rule to delete (ID)
-
-network qos rule show
----------------------
-
-Display Network QoS rule details
-
-.. program:: network qos rule show
-.. code:: bash
-
-    openstack network qos rule show
-        <qos-policy>
-        <rule-id>
-
-.. describe:: <qos-policy>
-
-    QoS policy that contains the rule (name or ID)
-
-.. describe:: <rule-id>
-
-    Network QoS rule to delete (ID)
+.. autoprogram-cliff:: openstack.network.v2
+   :command: network qos rule show

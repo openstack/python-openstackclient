@@ -9,12 +9,5 @@ Network v2
 
 .. _network_service_provider_list:
 
-network service provider list
------------------------------
-
-List service providers
-
-.. program:: network service provider list
-.. code:: bash
-
-    openstack network service provider list
+.. autoprogram-cliff:: openstack.network.v2
+   :command: network service provider list
