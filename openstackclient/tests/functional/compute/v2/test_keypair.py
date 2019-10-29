@@ -88,7 +88,7 @@ class KeypairTests(KeypairBase):
         1) Create keypair with given public key
         2) Delete keypair
         """
-        with tempfile.NamedTemporaryFile() as f:
+        with tempfile.NamedTemporaryFile(mode='w+') as f:
             f.write(self.PUBLIC_KEY)
             f.flush()
 
@@ -108,7 +108,7 @@ class KeypairTests(KeypairBase):
         1) Create keypair with private key file
         2) Delete keypair
         """
-        with tempfile.NamedTemporaryFile() as f:
+        with tempfile.NamedTemporaryFile(mode='w+') as f:
             cmd_output = json.loads(self.openstack(
                 'keypair create -f json --private-key %s tmpkey' % f.name,
             ))
