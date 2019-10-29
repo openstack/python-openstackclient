@@ -24,6 +24,7 @@ from osc_lib import utils
 import six
 
 from openstackclient.i18n import _
+from openstackclient.network import common
 
 
 LOG = logging.getLogger(__name__)
@@ -457,18 +458,37 @@ class ListQuota(command.Lister, BaseQuota):
         return ((), ())
 
 
-class SetQuota(command.Command):
+class SetQuota(common.NetDetectionMixin, command.Command):
     _description = _("Set quotas for project or class")
 
     def _build_options_list(self):
-        if self.app.client_manager.is_network_endpoint_enabled():
-            return itertools.chain(COMPUTE_QUOTAS.items(),
-                                   VOLUME_QUOTAS.items(),
-                                   NETWORK_QUOTAS.items())
-        else:
-            return itertools.chain(COMPUTE_QUOTAS.items(),
-                                   VOLUME_QUOTAS.items(),
-                                   NOVA_NETWORK_QUOTAS.items())
+        help_fmt = _('New value for the %s quota')
+        # Compute and volume quota options are always the same
+        rets = [(k, v, help_fmt % v) for k, v in itertools.chain(
+            COMPUTE_QUOTAS.items(),
+            VOLUME_QUOTAS.items(),
+        )]
+        # For docs build, we want to produce helps for both neutron and
+        # nova-network options. They overlap, so we have to figure out which
+        # need to be tagged as specific to one network type or the other.
+        if self.is_docs_build:
+            # NOTE(efried): This takes advantage of the fact that we know the
+            # nova-net options are a subset of the neutron options. If that
+            # ever changes, this algorithm will need to be adjusted accordingly
+            inv_compute = set(NOVA_NETWORK_QUOTAS.values())
+            for k, v in NETWORK_QUOTAS.items():
+                _help = help_fmt % v
+                if v not in inv_compute:
+                    # This one is unique to neutron
+                    _help = self.enhance_help_neutron(_help)
+                rets.append((k, v, _help))
+        elif self.is_neutron:
+            rets.extend(
+                [(k, v, help_fmt % v) for k, v in NETWORK_QUOTAS.items()])
+        elif self.is_nova_network:
+            rets.extend(
+                [(k, v, help_fmt % v) for k, v in NOVA_NETWORK_QUOTAS.items()])
+        return rets
 
     def get_parser(self, prog_name):
         parser = super(SetQuota, self).get_parser(prog_name)
@@ -484,13 +504,13 @@ class SetQuota(command.Command):
             default=False,
             help=_('Set quotas for <class>'),
         )
-        for k, v in self._build_options_list():
+        for k, v, h in self._build_options_list():
             parser.add_argument(
                 '--%s' % v,
                 metavar='<%s>' % v,
                 dest=k,
                 type=int,
-                help=_('New value for the %s quota') % v,
+                help=h,
             )
         parser.add_argument(
             '--volume-type',

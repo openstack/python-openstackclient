@@ -46,14 +46,21 @@ class ShowVersions(command.Lister):
         parser.add_argument(
             '--service',
             metavar='<service>',
-            help=_('Show versions for a specific service.'),
+            help=_('Show versions for a specific service. The argument should '
+                   'be either an exact match to what is in the catalog or a '
+                   'known official value or alias from '
+                   'service-types-authority '
+                   '(https://service-types.openstack.org/)'),
         )
         parser.add_argument(
             '--status',
             metavar='<status>',
-            help=_('Show versions for a specific status.'
-                   ' [Valid values are SUPPORTED, CURRENT,'
-                   ' DEPRECATED, EXPERIMENTAL]'),
+            help=_("""Show versions for a specific status. Valid values are:
+
+- SUPPORTED
+- CURRENT
+- DEPRECATED
+- EXPERIMENTAL""")
         )
         return parser
 
