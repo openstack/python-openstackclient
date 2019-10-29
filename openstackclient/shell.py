@@ -139,32 +139,6 @@ class OpenStackShell(shell.OpenStackShell):
             pw_func=shell.prompt_for_password,
         )
 
-    def prepare_to_run_command(self, cmd):
-        """Set up auth and API versions"""
-
-        # TODO(dtroyer): Move this to osc-lib, remove entire method when 1.4.0
-        #                release is minimum version is in global-requirements
-        # NOTE(dtroyer): If auth is not required for a command, skip
-        #                get_one_Cloud()'s validation to avoid loading plugins
-        validate = cmd.auth_required
-
-        # Force skipping auth for commands that do not need it
-        # NOTE(dtroyer): This is here because ClientManager does not have
-        #                visibility into the Command object to get
-        #                auth_required. It needs to move into osc-lib
-        self.client_manager._auth_required = cmd.auth_required
-
-        # Validate auth options
-        self.cloud = self.cloud_config.get_one_cloud(
-            cloud=self.options.cloud,
-            argparse=self.options,
-            validate=validate,
-        )
-        # Push the updated args into ClientManager
-        self.client_manager._cli_options = self.cloud
-
-        return super(OpenStackShell, self).prepare_to_run_command(cmd)
-
 
 def main(argv=None):
     if argv is None:
