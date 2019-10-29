@@ -11,6 +11,7 @@
 #    under the License.
 
 import os
+import unittest
 
 import fixtures
 from tempest.lib.common.utils import data_utils
@@ -62,7 +63,7 @@ class IdentityTests(base.TestCase):
             # TODO(dtroyer): Actually determine if Identity v2 admin is
             #                enabled in the target cloud.  Tuens out OSC
             #                doesn't make this easy as it should (yet).
-            raise cls.skipException('No Identity v2 admin endpoint?')
+            raise unittest.case.SkipTest('No Identity v2 admin endpoint?')
 
     @classmethod
     def tearDownClass(cls):
