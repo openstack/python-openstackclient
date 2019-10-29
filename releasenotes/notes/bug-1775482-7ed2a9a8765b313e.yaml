@@ -1,0 +1,6 @@
+---
+fixes:
+  - |
+    Re-open stdout in binary mode before writing object data in
+    ``object save --file -`` command.
+    [Bug `1775482 <https://bugs.launchpad.net/python-openstackclient/+bug/1775482>`_]

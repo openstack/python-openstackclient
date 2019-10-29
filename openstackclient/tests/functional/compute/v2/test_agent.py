@@ -21,10 +21,10 @@ class ComputeAgentTests(base.TestCase):
 
     # Generate two different md5hash
     MD5HASH1 = hashlib.md5()
-    MD5HASH1.update('agent_1')
+    MD5HASH1.update('agent_1'.encode('utf-8'))
     MD5HASH1 = MD5HASH1.hexdigest()
     MD5HASH2 = hashlib.md5()
-    MD5HASH2.update('agent_2')
+    MD5HASH2.update('agent_2'.encode('utf-8'))
     MD5HASH2 = MD5HASH2.hexdigest()
 
     def test_compute_agent_delete(self):
