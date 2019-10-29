@@ -33,7 +33,7 @@ class ObjectTests(common.ObjectStoreTests):
             self.skipTest("No object-store service present")
 
     def test_object(self):
-        with tempfile.NamedTemporaryFile() as f:
+        with tempfile.NamedTemporaryFile(mode='w+') as f:
             f.write('test content')
             f.flush()
             self._test_object(f.name)

@@ -84,7 +84,7 @@ class HelpTests(base.TestCase):
         """Check help commands without auth info."""
         # Pop all auth info. os.environ will be changed in loop, so do not
         # replace os.environ.keys() to os.environ
-        for key in os.environ.keys():
+        for key in list(os.environ):
             if key.startswith('OS_'):
                 self.useFixture(fixtures.EnvironmentVariable(key, None))
 

@@ -357,7 +357,7 @@ class IdentityTests(base.TestCase):
 
     def _extract_value_from_items(self, key, items):
         for d in items:
-            for k, v in d.iteritems():
+            for k, v in d.items():
                 if k == key:
                     return v
 
