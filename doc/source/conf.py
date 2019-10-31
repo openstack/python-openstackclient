@@ -263,6 +263,9 @@ autoprogram_cliff_ignored = [
     '--help', '--format', '--column', '--max-width', '--fit-width',
     '--print-empty', '--prefix', '--noindent', '--quote']
 
+# Prevent cliff from generating "This command is provided by the
+# python-openstackclient plugin."
+autoprogram_cliff_app_dist_name = 'python-openstackclient'
 
 # -- Options for sphinxcontrib.apidoc ----------------------------------------
 
