@@ -35,7 +35,9 @@ repository_name = 'openstack/python-openstackclient'
 use_storyboard = True
 
 # Add project 'foo' to this list to enable the :foo-doc: role
-# openstack_projects = []
+openstack_projects = [
+    'neutron',
+]
 
 # Add any paths that contain templates here, relative to this directory.
 #templates_path = ['_templates']
