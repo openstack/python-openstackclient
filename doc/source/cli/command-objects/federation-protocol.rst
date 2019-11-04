@@ -7,16 +7,4 @@ extension. It is used by **identity providers** and **mappings**. Applicable to
 Identity v3.
 
 .. autoprogram-cliff:: openstack.identity.v3
-   :command: federation protocol create
-
-.. autoprogram-cliff:: openstack.identity.v3
-   :command: federation protocol delete
-
-.. autoprogram-cliff:: openstack.identity.v3
-   :command: federation protocol list
-
-.. autoprogram-cliff:: openstack.identity.v3
-   :command: federation protocol set
-
-.. autoprogram-cliff:: openstack.identity.v3
-   :command: federation protocol show
+   :command: federation protocol *

@@ -7,7 +7,4 @@ is used by the **consumer** to request **access tokens**. Applicable to
 Identity v3.
 
 .. autoprogram-cliff:: openstack.identity.v3
-   :command: request token authorize
-
-.. autoprogram-cliff:: openstack.identity.v3
-   :command: request token create
+   :command: request token *
