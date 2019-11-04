@@ -133,3 +133,17 @@ Thus, a minimal set of environment variables would be:
     $ export OS_USERNAME=admin
     $ export OS_PASSWORD=secret
     $ export OS_PROJECT_NAME=admin
+
+Federated users support
+-----------------------
+
+The OpenStackClient also allows the use of Federated users to log in.
+It enables one to use the identity providers credentials such as Google or
+Facebook to log in the OpenStackClient instead of using the Keystone
+credentials.
+
+This is useful in a Federated environment where one credential give access
+to many applications/services that the Federation supports. To check how to
+configure the OpenStackClient to allow Federated users to log in, please check
+the
+:ref:`Authentication using federation. <manpage>`

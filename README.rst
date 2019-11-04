@@ -76,25 +76,63 @@ Configuration
 The CLI is configured via environment variables and command-line
 options as listed in  https://docs.openstack.org/python-openstackclient/latest/cli/authentication.html.
 
-Authentication using username/password is most commonly used::
+Authentication using username/password is most commonly used:
 
-   export OS_AUTH_URL=<url-to-openstack-identity>
-   export OS_IDENTITY_API_VERSION=3
-   export OS_PROJECT_NAME=<project-name>
-   export OS_PROJECT_DOMAIN_NAME=<project-domain-name>
-   export OS_USERNAME=<username>
-   export OS_USER_DOMAIN_NAME=<user-domain-name>
-   export OS_PASSWORD=<password>  # (optional)
+- For a local user, your configuration will look like the one below::
 
-The corresponding command-line options look very similar::
+    export OS_AUTH_URL=<url-to-openstack-identity>
+    export OS_IDENTITY_API_VERSION=3
+    export OS_PROJECT_NAME=<project-name>
+    export OS_PROJECT_DOMAIN_NAME=<project-domain-name>
+    export OS_USERNAME=<username>
+    export OS_USER_DOMAIN_NAME=<user-domain-name>
+    export OS_PASSWORD=<password>  # (optional)
 
-   --os-auth-url <url>
-   --os-identity-api-version 3
-   --os-project-name <project-name>
-   --os-project-domain-name <project-domain-name>
-   --os-username <username>
-   --os-user-domain-name <user-domain-name>
-   [--os-password <password>]
+  The corresponding command-line options look very similar::
+
+    --os-auth-url <url>
+    --os-identity-api-version 3
+    --os-project-name <project-name>
+    --os-project-domain-name <project-domain-name>
+    --os-username <username>
+    --os-user-domain-name <user-domain-name>
+    [--os-password <password>]
+
+- For a federated user, your configuration will look the so::
+
+    export OS_PROJECT_NAME=<project-name>
+    export OS_PROJECT_DOMAIN_NAME=<project-domain-name>
+    export OS_AUTH_URL=<url-to-openstack-identity>
+    export OS_IDENTITY_API_VERSION=3
+    export OS_AUTH_PLUGIN=openid
+    export OS_AUTH_TYPE=v3oidcpassword
+    export OS_USERNAME=<username-in-idp>
+    export OS_PASSWORD=<password-in-idp>
+    export OS_IDENTITY_PROVIDER=<the-desired-idp-in-keystone>
+    export OS_CLIENT_ID=<the-client-id-configured-in-the-idp>
+    export OS_CLIENT_SECRET=<the-client-secred-configured-in-the-idp>
+    export OS_OPENID_SCOPE=<the-scopes-of-desired-attributes-to-claim-from-idp>
+    export OS_PROTOCOL=<the-protocol-used-in-the-apache2-oidc-proxy>
+    export OS_ACCESS_TOKEN_TYPE=<the-access-token-type-used-by-your-idp>
+    export OS_DISCOVERY_ENDPOINT=<the-well-known-endpoint-of-the-idp>
+
+  The corresponding command-line options look very similar::
+
+    --os-project-name <project-name>
+    --os-project-domain-name <project-domain-name>
+    --os-auth-url <url-to-openstack-identity>
+    --os-identity-api-version 3
+    --os-auth-plugin openid
+    --os-auth-type v3oidcpassword
+    --os-username <username-in-idp>
+    --os-password <password-in-idp>
+    --os-identity-provider <the-desired-idp-in-keystone>
+    --os-client-id <the-client-id-configured-in-the-idp>
+    --os-client-secret <the-client-secred-configured-in-the-idp>
+    --os-openid-scope <the-scopes-of-desired-attributes-to-claim-from-idp>
+    --os-protocol <the-protocol-used-in-the-apache2-oidc-proxy>
+    --os-access-token-type <the-access-token-type-used-by-your-idp>
+    --os-discovery-endpoint <the-well-known-endpoint-of-the-idp>
 
 If a password is not provided above (in plaintext), you will be interactively
 prompted to provide one securely.

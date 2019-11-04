@@ -44,6 +44,7 @@ command line.  The primary difference is the use of 'project' in the name of the
 
 * ``token``: Authentication with a token
 * ``password``: Authentication with a username and a password
+* ``openid`` : Authentication using the protocol OpenID Connect
 
 Refer to the keystoneclient library documentation for more details about these plugins and their options, and for a complete list of available plugins.
 Please bear in mind that some plugins might not support all of the functionalities of :program:`openstack`; for example the v3unscopedsaml plugin can deliver only unscoped tokens, some commands might not be available through this authentication method.
@@ -52,6 +53,31 @@ Additionally, it is possible to use Keystone's service token to authenticate, by
 
 .. NOTE::
     To use the ``v3unscopedsaml`` method, the lxml package will need to be installed.
+
+AUTHENTICATION USING FEDERATION
+-------------------------------
+
+To use federated authentication, your configuration file needs the following:
+
+::
+
+    export OS_PROJECT_NAME=<project-name>
+    export OS_PROJECT_DOMAIN_NAME=<project-domain-name>
+    export OS_AUTH_URL=<url-to-openstack-identity>
+    export OS_IDENTITY_API_VERSION=3
+    export OS_AUTH_PLUGIN=openid
+    export OS_AUTH_TYPE=v3oidcpassword
+    export OS_USERNAME=<username-in-idp>
+    export OS_PASSWORD=<password-in-idp>
+    export OS_IDENTITY_PROVIDER=<the-desired-idp>
+    export OS_CLIENT_ID=<the-client-id-configured-in-the-idp>
+    export OS_CLIENT_SECRET=<the-client-secred-configured-in-the-idp>
+    export OS_OPENID_SCOPE=<the-scopes-of-desired-attributes-to-claim-from-idp>
+    export OS_PROTOCOL=<the-protocol-used-in-the-apache2-oidc-proxy>
+    export OS_ACCESS_TOKEN_TYPE=<the-access-token-type-used-by-your-idp>
+    export OS_DISCOVERY_ENDPOINT=<the-well-known-endpoint-of-the-idp>
+    export OS_ACCESS_TOKEN_ENDPOINT=<the-idp-access-token-url>
+
 
 OPTIONS
 =======
@@ -356,6 +382,24 @@ Show the detailed information for server ``appweb01``::
         --os-auth-url http://localhost:5000:/v2.0 \
         server show appweb01
 
+The same but using openid to authenticate in keystone::
+
+    openstack \
+        --os-project-name ExampleCo \
+        --os-auth-url http://localhost:5000:/v2.0 \
+        --os-auth-plugin openid \
+        --os-auth-type v3oidcpassword \
+        --os-username demo-idp \
+        --os-password secret-idp \
+        --os-identity-provider google \
+        --os-client-id the-id-assigned-to-keystone-in-google \
+        --os-client-secret 3315162f-2b28-4809-9369-cb54730ac837 \
+        --os-openid-scope 'openid email profile'\
+        --os-protocol openid \
+        --os-access-token-type access_token \
+        --os-discovery-endpoint https://accounts.google.com/.well-known/openid-configuration \
+        server show appweb01
+
 The same command if the auth environment variables (:envvar:`OS_AUTH_URL`, :envvar:`OS_PROJECT_NAME`,
 :envvar:`OS_USERNAME`, :envvar:`OS_PASSWORD`) are set::
 
@@ -403,6 +447,24 @@ The following environment variables can be set to alter the behaviour of :progra
 .. envvar:: OS_AUTH_URL
 
     Authentication URL
+
+.. envvar:: OS_AUTH_TYPE
+
+    Define the authentication plugin that will be used to handle the
+    authentication process. One of the following:
+
+    - ``v2password``
+    - ``v2token``
+    - ``v3password``
+    - ``v3token``
+    - ``v3oidcclientcredentials``
+    - ``v3oidcpassword``
+    - ``v3oidcauthorizationcode``
+    - ``v3oidcaccesstoken``
+    - ``v3totp``
+    - ``v3tokenlessauth``
+    - ``v3applicationcredential``
+    - ``v3multifactor``
 
 .. envvar:: OS_URL
 
@@ -472,6 +534,56 @@ The following environment variables can be set to alter the behaviour of :progra
 .. envvar:: OS_INTERFACE
 
     Interface type. Valid options are `public`, `admin` and `internal`.
+
+.. envvar:: OS_PROTOCOL
+
+    Define the protocol that is used to execute the federated authentication
+    process. It is used in the Keystone authentication URL generation process.
+
+.. envvar:: OS_IDENTITY_PROVIDER
+
+    Define the identity provider of your federation that will be used. It is
+    used by the Keystone authentication URL generation process. The available
+    Identity Providers can be listed using the
+    :program:`openstack identity provider list` command
+
+.. envvar:: OS_CLIENT_ID
+
+    Configure the ``CLIENT_ID`` that the CLI will use to authenticate the
+    application (OpenStack) in the Identity Provider. This value is defined on
+    the identity provider side. Do not confuse with the user ID.
+
+.. envvar:: OS_CLIENT_SECRET
+
+    Configure the OS_CLIENT_SECRET that the CLI will use to authenticate the
+    CLI (OpenStack secret in the identity provider).
+
+.. envvar:: OS_OPENID_SCOPE
+
+    Configure the attribute scopes that will be claimed by the Service Provider
+    (SP), in this case OpenStack, from the identity provider. These scopes and
+    which attributes each scope contains are defined in the identity provider
+    side. This parameter can receive multiple values separated by space.
+
+.. envvar:: OS_ACCESS_TOKEN_TYPE
+
+    Define the type of access token that is used in the token introspection
+    process.
+    This variable can assume only one of the states ("access_token" or
+    "id_token").
+
+.. envvar:: OS_DISCOVERY_ENDPOINT
+
+    Configure the identity provider's discovery URL. This URL will provide a
+    discover document that contains metadata describing the identity provider
+    endpoints. This variable is optional if the variable
+    ``OS_ACCESS_TOKEN_ENDPOINT`` is defined.
+
+.. envvar::  OS_ACCESS_TOKEN_ENDPOINT
+
+    Overrides the value presented in the discovery document retrieved from
+    ``OS_DISCOVERY_ENDPOINT`` URL request. This variable is optional if the
+    ``OS_DISCOVERY_ENDPOINT`` is configured.
 
 .. NOTE::
     If you switch to openstackclient from project specified clients, like:
