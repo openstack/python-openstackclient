@@ -34,11 +34,8 @@ extensions = ['sphinx.ext.autodoc',
 repository_name = 'openstack/python-openstackclient'
 use_storyboard = True
 
-openstack_projects = [
-    'python-octaviaclient',
-    'python-watcherclient',
-    'python-zunclient',
-]
+# Add project 'foo' to this list to enable the :foo-doc: role
+# openstack_projects = []
 
 # Add any paths that contain templates here, relative to this directory.
 #templates_path = ['_templates']
