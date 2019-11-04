@@ -36,13 +36,9 @@ class TestExtension(utils.TestCommand):
         self.identity_extensions_mock = identity_client.extensions
         self.identity_extensions_mock.reset_mock()
 
-        compute_client = compute_fakes.FakeComputev2Client(
-            endpoint=fakes.AUTH_URL,
-            token=fakes.AUTH_TOKEN,
-        )
-        self.app.client_manager.compute = compute_client
-        compute_client.list_extensions = mock.Mock()
-        self.compute_extensions_mock = compute_client.list_extensions
+        sdk_connection = mock.Mock()
+        self.app.client_manager.sdk_connection = sdk_connection
+        self.compute_extensions_mock = sdk_connection.compute.extensions
         self.compute_extensions_mock.reset_mock()
 
         volume_client = volume_fakes.FakeVolumeClient(
@@ -80,8 +76,7 @@ class TestExtensionList(TestExtension):
 
         self.identity_extensions_mock.list.return_value = [
             self.identity_extension]
-        self.compute_extensions_mock.show_all.return_value = [
-            self.compute_extension]
+        self.compute_extensions_mock.return_value = [self.compute_extension]
         self.volume_extensions_mock.show_all.return_value = [
             self.volume_extension]
         self.network_extensions_mock.return_value = [self.network_extension]
@@ -131,7 +126,7 @@ class TestExtensionList(TestExtension):
         )
         self._test_extension_list_helper(arglist, verifylist, datalist)
         self.identity_extensions_mock.list.assert_called_with()
-        self.compute_extensions_mock.show_all.assert_called_with()
+        self.compute_extensions_mock.assert_called_with()
         self.volume_extensions_mock.show_all.assert_called_with()
         self.network_extensions_mock.assert_called_with()
 
@@ -178,7 +173,7 @@ class TestExtensionList(TestExtension):
         )
         self._test_extension_list_helper(arglist, verifylist, datalist, True)
         self.identity_extensions_mock.list.assert_called_with()
-        self.compute_extensions_mock.show_all.assert_called_with()
+        self.compute_extensions_mock.assert_called_with()
         self.volume_extensions_mock.show_all.assert_called_with()
         self.network_extensions_mock.assert_called_with()
 
@@ -248,7 +243,7 @@ class TestExtensionList(TestExtension):
             self.compute_extension.description,
         ), )
         self._test_extension_list_helper(arglist, verifylist, datalist)
-        self.compute_extensions_mock.show_all.assert_called_with()
+        self.compute_extensions_mock.assert_called_with()
 
     def test_extension_list_compute_and_network(self):
         arglist = [
@@ -272,7 +267,7 @@ class TestExtensionList(TestExtension):
             ),
         )
         self._test_extension_list_helper(arglist, verifylist, datalist)
-        self.compute_extensions_mock.show_all.assert_called_with()
+        self.compute_extensions_mock.assert_called_with()
         self.network_extensions_mock.assert_called_with()
 
     def test_extension_list_volume(self):
