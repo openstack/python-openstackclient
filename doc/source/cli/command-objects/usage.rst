@@ -4,50 +4,5 @@ usage
 
 Compute v2
 
-usage list
-----------
-
-List resource usage per project
-
-Compute API v2.40+ returns all matching entities rather than being
-limited to the API server configured maximum (``CONF.api.max_limit``).
-
-.. program:: usage list
-.. code:: bash
-
-    openstack usage list
-        [--start <start>]
-        [--end <end>]
-
-.. option:: --start <start>
-
-    Usage range start date, ex 2012-01-20 (default: 4 weeks ago)
-
-.. option:: --end <end>
-
-    Usage range end date, ex 2012-01-20 (default: tomorrow)
-
-usage show
-----------
-
-Show resource usage for a single project
-
-.. program:: usage show
-.. code:: bash
-
-    openstack usage show
-        [--project <project>]
-        [--start <start>]
-        [--end <end>]
-
-.. option:: --project <project>
-
-    Name or ID of project to show usage for
-
-.. option:: --start <start>
-
-    Usage range start date, ex 2012-01-20 (default: 4 weeks ago)
-
-.. option:: --end <end>
-
-    Usage range end date, ex 2012-01-20 (default: tomorrow)
+.. autoprogram-cliff:: openstack.compute.v2
+   :command: usage *

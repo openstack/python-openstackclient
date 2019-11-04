@@ -23,7 +23,7 @@ Compute v2
    :command: server lock
 
 .. autoprogram-cliff:: openstack.compute.v2
-   :command: server migrate
+   :command: server migrate*
 
 .. autoprogram-cliff:: openstack.compute.v2
    :command: server pause
@@ -41,7 +41,7 @@ Compute v2
    :command: server rescue
 
 .. autoprogram-cliff:: openstack.compute.v2
-   :command: server resize
+   :command: server resize*
 
 .. autoprogram-cliff:: openstack.compute.v2
    :command: server restore
