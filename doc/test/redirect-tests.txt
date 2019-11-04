@@ -5,7 +5,7 @@
 /python-openstackclient/latest/commands.html 301 /python-openstackclient/latest/cli/commands.html
 /python-openstackclient/latest/decoder.html 301 /python-openstackclient/latest/cli/decoder.html
 /python-openstackclient/latest/interactive.html 301 /python-openstackclient/latest/cli/interactive.html
-/python-openstackclient/latest/plugin-commands.html 301 /python-openstackclient/latest/cli/plugin-commands.html
+/python-openstackclient/latest/plugin-commands.html 301 /python-openstackclient/latest/cli/plugin-commands/index.html
 /python-openstackclient/latest/specs/this-is-a-test.html 301 /python-openstackclient/latest/contributor/specs/this-is-a-test.html
 /python-openstackclient/latest/command-beta.html 301 /python-openstackclient/latest/contributor/command-beta.html
 /python-openstackclient/latest/command-errors.html 301 /python-openstackclient/latest/contributor/command-errors.html

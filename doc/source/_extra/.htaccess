@@ -2,22 +2,10 @@
 
 redirectmatch 301 ^/python-openstackclient/([^/]+)/command-objects/([^/.]+).html$ /python-openstackclient/$1/cli/command-objects/$2.html
 
-redirectmatch 301 ^/python-openstackclient/([^/]+)/authentication.html$ /python-openstackclient/$1/cli/authentication.html
-redirectmatch 301 ^/python-openstackclient/([^/]+)/backward-incompatible.html$ /python-openstackclient/$1/cli/backward-incompatible.html
-redirectmatch 301 ^/python-openstackclient/([^/]+)/command-list.html$ /python-openstackclient/$1/cli/command-list.html
-redirectmatch 301 ^/python-openstackclient/([^/]+)/commands.html$ /python-openstackclient/$1/cli/commands.html
-redirectmatch 301 ^/python-openstackclient/([^/]+)/decoder.html$ /python-openstackclient/$1/cli/decoder.html
-redirectmatch 301 ^/python-openstackclient/([^/]+)/interactive.html$ /python-openstackclient/$1/cli/interactive.html
-redirectmatch 301 ^/python-openstackclient/([^/]+)/plugin-commands.html$ /python-openstackclient/$1/cli/plugin-commands.html
+redirectmatch 301 ^/python-openstackclient/([^/]+)/(authentication|backward-incompatible|command-list|commands|decoder|interactive).html$ /python-openstackclient/$1/cli/$2.html
+redirectmatch 301 ^/python-openstackclient/([^/]+)/plugin-commands.html$ /python-openstackclient/$1/cli/plugin-commands/index.html
 
 redirectmatch 301 ^/python-openstackclient/([^/]+)/specs/([^/.]+).html$ /python-openstackclient/$1/contributor/specs/$2.html
 
-redirectmatch 301 ^/python-openstackclient/([^/]+)/command-beta.html$ /python-openstackclient/$1/contributor/command-beta.html
-redirectmatch 301 ^/python-openstackclient/([^/]+)/command-errors.html$ /python-openstackclient/$1/contributor/command-errors.html
-redirectmatch 301 ^/python-openstackclient/([^/]+)/command-logs.html$ /python-openstackclient/$1/contributor/command-logs.html
-redirectmatch 301 ^/python-openstackclient/([^/]+)/command-options.html$ /python-openstackclient/$1/contributor/command-options.html
-redirectmatch 301 ^/python-openstackclient/([^/]+)/command-wrappers.html$ /python-openstackclient/$1/contributor/command-wrappers.html
-redirectmatch 301 ^/python-openstackclient/([^/]+)/developing.html$ /python-openstackclient/$1/contributor/developing.html
-redirectmatch 301 ^/python-openstackclient/([^/]+)/humaninterfaceguide.html$ /python-openstackclient/$1/contributor/humaninterfaceguide.html
-redirectmatch 301 ^/python-openstackclient/([^/]+)/plugins.html$ /python-openstackclient/$1/contributor/plugins.html
+redirectmatch 301 ^/python-openstackclient/([^/]+)/(command-(beta|errors|logs|options|wrappers)|developing|humaninterfaceguide|plugins).html$ /python-openstackclient/$1/contributor/$2.html
 redirectmatch 301 ^/python-openstackclient/([^/]+)/cli/plugin-commands.html$ /python-openstackclient/$1/cli/plugin-commands/index.html
