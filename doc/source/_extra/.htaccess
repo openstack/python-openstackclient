@@ -9,6 +9,8 @@ redirectmatch 301 ^/python-openstackclient/([^/]+)/specs/([^/.]+).html$ /python-
 
 redirectmatch 301 ^/python-openstackclient/([^/]+)/(command-(beta|errors|logs|options|wrappers)|developing|humaninterfaceguide|plugins).html$ /python-openstackclient/$1/contributor/$2.html
 redirectmatch 301 ^/python-openstackclient/([^/]+)/cli/plugin-commands.html$ /python-openstackclient/$1/cli/plugin-commands/index.html
-# Identity pages were split into -v2 and -v3 for common subcommand names.
+# For common subcommand names:
+# - identity pages were split into -v2 and -v3
+# - image pages were split into -v1 and -v2
 # The unversioned page is hidden but contains links to the versioned pages so links in the wild redirect somewhere sane.
-redirectmatch 301 ^/python-openstackclient/([^/]+)/cli/command-objects/(ec2-credentials|endpoint|project|role|service|token|user).html$ /python-openstackclient/$1/cli/_hidden/$2.html
+redirectmatch 301 ^/python-openstackclient/([^/]+)/cli/command-objects/(ec2-credentials|endpoint|image|project|role|service|token|user).html$ /python-openstackclient/$1/cli/_hidden/$2.html
