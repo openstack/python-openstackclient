@@ -233,13 +233,13 @@ def add_group_domain_option_to_parser(parser):
     )
 
 
-def add_project_domain_option_to_parser(parser):
+def add_project_domain_option_to_parser(parser, enhance_help=lambda _h: _h):
     parser.add_argument(
         '--project-domain',
         metavar='<project-domain>',
-        help=_('Domain the project belongs to (name or ID). '
-               'This can be used in case collisions between project names '
-               'exist.'),
+        help=enhance_help(_('Domain the project belongs to (name or ID). This '
+                            'can be used in case collisions between project '
+                            'names exist.')),
     )
 
 

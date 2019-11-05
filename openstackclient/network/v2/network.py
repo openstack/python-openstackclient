@@ -219,27 +219,27 @@ class CreateNetwork(common.NetworkAndComputeShowOne):
             '--enable',
             action='store_true',
             default=True,
-            help=_("Enable network (default)")
+            help=self.enhance_help_neutron(_("Enable network (default)"))
         )
         admin_group.add_argument(
             '--disable',
             action='store_true',
-            help=_("Disable network")
+            help=self.enhance_help_neutron(_("Disable network"))
         )
         parser.add_argument(
             '--project',
             metavar='<project>',
-            help=_("Owner's project (name or ID)")
+            help=self.enhance_help_neutron(_("Owner's project (name or ID)"))
         )
         parser.add_argument(
             '--description',
             metavar='<description>',
-            help=_("Set network description")
+            help=self.enhance_help_neutron(_("Set network description"))
         )
         parser.add_argument(
             '--mtu',
             metavar='<mtu>',
-            help=_("Set network mtu")
+            help=self.enhance_help_neutron(_("Set network mtu"))
         )
         identity_common.add_project_domain_option_to_parser(parser)
         parser.add_argument(
@@ -247,65 +247,76 @@ class CreateNetwork(common.NetworkAndComputeShowOne):
             action='append',
             dest='availability_zone_hints',
             metavar='<availability-zone>',
-            help=_("Availability Zone in which to create this network "
-                   "(Network Availability Zone extension required, "
-                   "repeat option to set multiple availability zones)")
+            help=self.enhance_help_neutron(
+                _("Availability Zone in which to create this network "
+                  "(Network Availability Zone extension required, "
+                  "repeat option to set multiple availability zones)"))
         )
         port_security_group = parser.add_mutually_exclusive_group()
         port_security_group.add_argument(
             '--enable-port-security',
             action='store_true',
-            help=_("Enable port security by default for ports created on "
-                   "this network (default)")
+            help=self.enhance_help_neutron(
+                _("Enable port security by default for ports created on "
+                  "this network (default)"))
         )
         port_security_group.add_argument(
             '--disable-port-security',
             action='store_true',
-            help=_("Disable port security by default for ports created on "
-                   "this network")
+            help=self.enhance_help_neutron(
+                _("Disable port security by default for ports created on "
+                  "this network"))
         )
         external_router_grp = parser.add_mutually_exclusive_group()
         external_router_grp.add_argument(
             '--external',
             action='store_true',
-            help=_("Set this network as an external network "
-                   "(external-net extension required)")
+            help=self.enhance_help_neutron(
+                _("Set this network as an external network "
+                  "(external-net extension required)"))
         )
         external_router_grp.add_argument(
             '--internal',
             action='store_true',
-            help=_("Set this network as an internal network (default)")
+            help=self.enhance_help_neutron(
+                _("Set this network as an internal network (default)"))
         )
         default_router_grp = parser.add_mutually_exclusive_group()
         default_router_grp.add_argument(
             '--default',
             action='store_true',
-            help=_("Specify if this network should be used as "
-                   "the default external network")
+            help=self.enhance_help_neutron(
+                _("Specify if this network should be used as the default "
+                  "external network"))
         )
         default_router_grp.add_argument(
             '--no-default',
             action='store_true',
-            help=_("Do not use the network as the default external network "
-                   "(default)")
+            help=self.enhance_help_neutron(
+                _("Do not use the network as the default external network "
+                  "(default)"))
         )
         parser.add_argument(
             '--qos-policy',
             metavar='<qos-policy>',
-            help=_("QoS policy to attach to this network (name or ID)")
+            help=self.enhance_help_neutron(
+                _("QoS policy to attach to this network (name or ID)"))
         )
         vlan_transparent_grp = parser.add_mutually_exclusive_group()
         vlan_transparent_grp.add_argument(
             '--transparent-vlan',
             action='store_true',
-            help=_("Make the network VLAN transparent"))
+            help=self.enhance_help_neutron(
+                _("Make the network VLAN transparent")))
         vlan_transparent_grp.add_argument(
             '--no-transparent-vlan',
             action='store_true',
-            help=_("Do not make the network VLAN transparent"))
+            help=self.enhance_help_neutron(
+                _("Do not make the network VLAN transparent")))
 
         _add_additional_network_options(parser)
-        _tag.add_tag_option_to_parser_for_create(parser, _('network'))
+        _tag.add_tag_option_to_parser_for_create(
+            parser, _('network'), enhance_help=self.enhance_help_neutron)
         return parser
 
     def update_parser_compute(self, parser):
@@ -313,7 +324,8 @@ class CreateNetwork(common.NetworkAndComputeShowOne):
             '--subnet',
             metavar='<subnet>',
             required=True,
-            help=_("IPv4 subnet for fixed IPs (in CIDR notation)")
+            help=self.enhance_help_nova_network(
+                _("IPv4 subnet for fixed IPs (in CIDR notation)"))
         )
         return parser
 
@@ -376,87 +388,98 @@ class ListNetwork(common.NetworkAndComputeLister):
         router_ext_group.add_argument(
             '--external',
             action='store_true',
-            help=_("List external networks")
+            help=self.enhance_help_neutron(_("List external networks"))
         )
         router_ext_group.add_argument(
             '--internal',
             action='store_true',
-            help=_("List internal networks")
+            help=self.enhance_help_neutron(_("List internal networks"))
         )
         parser.add_argument(
             '--long',
             action='store_true',
-            help=_("List additional fields in output")
+            help=self.enhance_help_neutron(
+                _("List additional fields in output"))
         )
         parser.add_argument(
             '--name',
             metavar='<name>',
-            help=_("List networks according to their name")
+            help=self.enhance_help_neutron(
+                _("List networks according to their name"))
         )
         admin_state_group = parser.add_mutually_exclusive_group()
         admin_state_group.add_argument(
             '--enable',
             action='store_true',
-            help=_("List enabled networks")
+            help=self.enhance_help_neutron(_("List enabled networks"))
         )
         admin_state_group.add_argument(
             '--disable',
             action='store_true',
-            help=_("List disabled networks")
+            help=self.enhance_help_neutron(_("List disabled networks"))
         )
         parser.add_argument(
             '--project',
             metavar='<project>',
             help=_("List networks according to their project (name or ID)")
         )
-        identity_common.add_project_domain_option_to_parser(parser)
+        identity_common.add_project_domain_option_to_parser(
+            parser, enhance_help=self.enhance_help_neutron)
         shared_group = parser.add_mutually_exclusive_group()
         shared_group.add_argument(
             '--share',
             action='store_true',
-            help=_("List networks shared between projects")
+            help=self.enhance_help_neutron(
+                _("List networks shared between projects"))
         )
         shared_group.add_argument(
             '--no-share',
             action='store_true',
-            help=_("List networks not shared between projects")
+            help=self.enhance_help_neutron(
+                _("List networks not shared between projects"))
         )
         parser.add_argument(
             '--status',
             metavar='<status>',
             choices=['ACTIVE', 'BUILD', 'DOWN', 'ERROR'],
-            help=_("List networks according to their status "
-                   "('ACTIVE', 'BUILD', 'DOWN', 'ERROR')")
+            help=self.enhance_help_neutron(
+                _("List networks according to their status "
+                  "('ACTIVE', 'BUILD', 'DOWN', 'ERROR')"))
         )
         parser.add_argument(
             '--provider-network-type',
             metavar='<provider-network-type>',
             choices=['flat', 'geneve', 'gre', 'local',
                      'vlan', 'vxlan'],
-            help=_("List networks according to their physical mechanisms. "
-                   "The supported options are: flat, geneve, gre, local, "
-                   "vlan, vxlan.")
+            help=self.enhance_help_neutron(
+                _("List networks according to their physical mechanisms. The "
+                  "supported options are: flat, geneve, gre, local, vlan, "
+                  "vxlan."))
         )
         parser.add_argument(
             '--provider-physical-network',
             metavar='<provider-physical-network>',
             dest='physical_network',
-            help=_("List networks according to name of the physical network")
+            help=self.enhance_help_neutron(
+                _("List networks according to name of the physical network"))
         )
         parser.add_argument(
             '--provider-segment',
             metavar='<provider-segment>',
             dest='segmentation_id',
-            help=_("List networks according to VLAN ID for VLAN networks "
-                   "or Tunnel ID for GENEVE/GRE/VXLAN networks")
+            help=self.enhance_help_neutron(
+                _("List networks according to VLAN ID for VLAN networks or "
+                  "Tunnel ID for GENEVE/GRE/VXLAN networks"))
         )
         parser.add_argument(
             '--agent',
             metavar='<agent-id>',
             dest='agent_id',
-            help=_('List networks hosted by agent (ID only)')
+            help=self.enhance_help_neutron(
+                _('List networks hosted by agent (ID only)'))
         )
-        _tag.add_tag_filtering_option_to_parser(parser, _('networks'))
+        _tag.add_tag_filtering_option_to_parser(
+            parser, _('networks'), enhance_help=self.enhance_help_neutron)
         return parser
 
     def take_action_network(self, client, parsed_args):

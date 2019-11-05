@@ -4,12 +4,5 @@ floating ip pool
 
 Network v2
 
-floating ip pool list
----------------------
-
-List pools of floating IP addresses
-
-.. program:: floating ip pool list
-.. code:: bash
-
-    openstack floating ip pool list
+.. autoprogram-cliff:: openstack.network.v2
+   :command: floating ip pool *

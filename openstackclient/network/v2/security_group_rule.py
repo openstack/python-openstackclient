@@ -133,109 +133,120 @@ class CreateSecurityGroupRule(common.NetworkAndComputeShowOne):
             metavar="<group>",
             help=_("Remote security group (name or ID)"),
         )
+
+        # NOTE(efried): The --dst-port, --protocol, and --proto options exist
+        # for both nova-network and neutron, but differ slightly. For the sake
+        # of the docs build, which has to account for both variants, but only
+        # add each to the parser once, they are handled here rather than in the
+        # _network- or _compute-specific methods below.
+
+        # --dst-port has a default for nova-net only
+        if self.is_nova_network:
+            dst_port_default = dict(default=(0, 0))
+        else:
+            dst_port_default = {}
+        parser.add_argument(
+            '--dst-port',
+            metavar='<port-range>',
+            action=parseractions.RangeAction,
+            help=_("Destination port, may be a single port or a starting and "
+                   "ending port range: 137:139. Required for IP protocols TCP "
+                   "and UDP. Ignored for ICMP IP protocols."),
+            **dst_port_default
+        )
+
+        # NOTE(rtheis): Support either protocol option name for now.
+        # However, consider deprecating and then removing --proto in
+        # a future release.
+        protocol_group = parser.add_mutually_exclusive_group()
+        # --proto[col] has choices for nova-network only
+        if self.is_nova_network:
+            proto_choices = dict(choices=['icmp', 'tcp', 'udp'])
+        else:
+            proto_choices = {}
+        protocol_help_compute = _("IP protocol (icmp, tcp, udp; default: tcp)")
+        protocol_help_network = _(
+            "IP protocol (ah, dccp, egp, esp, gre, icmp, igmp, ipv6-encap, "
+            "ipv6-frag, ipv6-icmp, ipv6-nonxt, ipv6-opts, ipv6-route, ospf, "
+            "pgm, rsvp, sctp, tcp, udp, udplite, vrrp and integer "
+            "representations [0-255] or any; default: any (all protocols))")
+        if self.is_nova_network:
+            protocol_help = protocol_help_compute
+        elif self.is_neutron:
+            protocol_help = protocol_help_network
+        else:
+            # Docs build: compose help for both nova-network and neutron
+            protocol_help = self.split_help(
+                protocol_help_network, protocol_help_compute)
+
+        protocol_group.add_argument(
+            '--protocol',
+            metavar='<protocol>',
+            type=_convert_to_lowercase,
+            help=protocol_help,
+            **proto_choices
+        )
+        if not self.is_docs_build:
+            protocol_group.add_argument(
+                '--proto',
+                metavar='<proto>',
+                type=_convert_to_lowercase,
+                help=argparse.SUPPRESS,
+                **proto_choices
+            )
+
         return parser
 
     def update_parser_network(self, parser):
         parser.add_argument(
             '--description',
             metavar='<description>',
-            help=_("Set security group rule description")
-        )
-        parser.add_argument(
-            '--dst-port',
-            metavar='<port-range>',
-            action=parseractions.RangeAction,
-            help=_("Destination port, may be a single port or a starting and "
-                   "ending port range: 137:139. Required for IP protocols TCP "
-                   "and UDP. Ignored for ICMP IP protocols.")
+            help=self.enhance_help_neutron(
+                _("Set security group rule description"))
         )
         parser.add_argument(
             '--icmp-type',
             metavar='<icmp-type>',
             type=int,
-            help=_("ICMP type for ICMP IP protocols")
+            help=self.enhance_help_neutron(
+                _("ICMP type for ICMP IP protocols"))
         )
         parser.add_argument(
             '--icmp-code',
             metavar='<icmp-code>',
             type=int,
-            help=_("ICMP code for ICMP IP protocols")
-        )
-        # NOTE(rtheis): Support either protocol option name for now.
-        # However, consider deprecating and then removing --proto in
-        # a future release.
-        protocol_group = parser.add_mutually_exclusive_group()
-        protocol_group.add_argument(
-            '--protocol',
-            metavar='<protocol>',
-            type=_convert_to_lowercase,
-            help=_("IP protocol (ah, dccp, egp, esp, gre, icmp, igmp, "
-                   "ipv6-encap, ipv6-frag, ipv6-icmp, ipv6-nonxt, "
-                   "ipv6-opts, ipv6-route, ospf, pgm, rsvp, sctp, tcp, "
-                   "udp, udplite, vrrp and integer representations [0-255] "
-                   "or any; default: any (all protocols))")
-        )
-        protocol_group.add_argument(
-            '--proto',
-            metavar='<proto>',
-            type=_convert_to_lowercase,
-            help=argparse.SUPPRESS
+            help=self.enhance_help_neutron(
+                _("ICMP code for ICMP IP protocols"))
         )
         direction_group = parser.add_mutually_exclusive_group()
         direction_group.add_argument(
             '--ingress',
             action='store_true',
-            help=_("Rule applies to incoming network traffic (default)")
+            help=self.enhance_help_neutron(
+                _("Rule applies to incoming network traffic (default)"))
         )
         direction_group.add_argument(
             '--egress',
             action='store_true',
-            help=_("Rule applies to outgoing network traffic")
+            help=self.enhance_help_neutron(
+                _("Rule applies to outgoing network traffic"))
         )
         parser.add_argument(
             '--ethertype',
             metavar='<ethertype>',
             choices=['IPv4', 'IPv6'],
             type=_convert_ipvx_case,
-            help=_("Ethertype of network traffic "
-                   "(IPv4, IPv6; default: based on IP protocol)")
+            help=self.enhance_help_neutron(
+                _("Ethertype of network traffic "
+                  "(IPv4, IPv6; default: based on IP protocol)"))
         )
         parser.add_argument(
             '--project',
             metavar='<project>',
-            help=_("Owner's project (name or ID)")
+            help=self.enhance_help_neutron(_("Owner's project (name or ID)"))
         )
-        identity_common.add_project_domain_option_to_parser(parser)
-        return parser
-
-    def update_parser_compute(self, parser):
-        parser.add_argument(
-            '--dst-port',
-            metavar='<port-range>',
-            default=(0, 0),
-            action=parseractions.RangeAction,
-            help=_("Destination port, may be a single port or a starting and "
-                   "ending port range: 137:139. Required for IP protocols TCP "
-                   "and UDP. Ignored for ICMP IP protocols.")
-        )
-        # NOTE(rtheis): Support either protocol option name for now.
-        # However, consider deprecating and then removing --proto in
-        # a future release.
-        protocol_group = parser.add_mutually_exclusive_group()
-        protocol_group.add_argument(
-            '--protocol',
-            metavar='<protocol>',
-            choices=['icmp', 'tcp', 'udp'],
-            type=_convert_to_lowercase,
-            help=_("IP protocol (icmp, tcp, udp; default: tcp)")
-        )
-        protocol_group.add_argument(
-            '--proto',
-            metavar='<proto>',
-            choices=['icmp', 'tcp', 'udp'],
-            type=_convert_to_lowercase,
-            help=argparse.SUPPRESS
-        )
+        identity_common.add_project_domain_option_to_parser(
+            parser, enhance_help=self.enhance_help_neutron)
         return parser
 
     def _get_protocol(self, parsed_args, default_protocol='any'):
@@ -424,47 +435,53 @@ class ListSecurityGroupRule(common.NetworkAndComputeLister):
         return parser
 
     def update_parser_network(self, parser):
-        # Accept but hide the argument for consistency with compute.
-        # Network will always return all projects for an admin.
-        parser.add_argument(
-            '--all-projects',
-            action='store_true',
-            default=False,
-            help=argparse.SUPPRESS
-        )
+        if not self.is_docs_build:
+            # Accept but hide the argument for consistency with compute.
+            # Network will always return all projects for an admin.
+            parser.add_argument(
+                '--all-projects',
+                action='store_true',
+                default=False,
+                help=argparse.SUPPRESS
+            )
+
         parser.add_argument(
             '--protocol',
             metavar='<protocol>',
             type=_convert_to_lowercase,
-            help=_("List rules by the IP protocol ("
-                   "ah, dhcp, egp, esp, gre, icmp, igmp, "
-                   "ipv6-encap, ipv6-frag, ipv6-icmp, ipv6-nonxt, "
-                   "ipv6-opts, ipv6-route, ospf, pgm, rsvp, sctp, tcp, "
-                   "udp, udplite, vrrp and integer representations [0-255] "
-                   "or any; default: any (all protocols))")
+            help=self.enhance_help_neutron(
+                _("List rules by the IP protocol (ah, dhcp, egp, esp, gre, "
+                  "icmp, igmp, ipv6-encap, ipv6-frag, ipv6-icmp, ipv6-nonxt, "
+                  "ipv6-opts, ipv6-route, ospf, pgm, rsvp, sctp, tcp, udp, "
+                  "udplite, vrrp and integer representations [0-255] or any; "
+                  "default: any (all protocols))"))
         )
         parser.add_argument(
             '--ethertype',
             metavar='<ethertype>',
             type=_convert_to_lowercase,
-            help=_("List rules by the Ethertype (IPv4 or IPv6)")
+            help=self.enhance_help_neutron(
+                _("List rules by the Ethertype (IPv4 or IPv6)"))
         )
         direction_group = parser.add_mutually_exclusive_group()
         direction_group.add_argument(
             '--ingress',
             action='store_true',
-            help=_("List rules applied to incoming network traffic")
+            help=self.enhance_help_neutron(
+                _("List rules applied to incoming network traffic"))
         )
         direction_group.add_argument(
             '--egress',
             action='store_true',
-            help=_("List rules applied to outgoing network traffic")
+            help=self.enhance_help_neutron(
+                _("List rules applied to outgoing network traffic"))
         )
         parser.add_argument(
             '--long',
             action='store_true',
             default=False,
-            help=_("List additional fields in output")
+            help=self.enhance_help_neutron(
+                _("List additional fields in output"))
         )
         return parser
 
@@ -473,16 +490,18 @@ class ListSecurityGroupRule(common.NetworkAndComputeLister):
             '--all-projects',
             action='store_true',
             default=False,
-            help=_("Display information from all projects (admin only)")
+            help=self.enhance_help_nova_network(
+                _("Display information from all projects (admin only)"))
         )
-        # Accept but hide the argument for consistency with network.
-        # There are no additional fields to display at this time.
-        parser.add_argument(
-            '--long',
-            action='store_false',
-            default=False,
-            help=argparse.SUPPRESS
-        )
+        if not self.is_docs_build:
+            # Accept but hide the argument for consistency with network.
+            # There are no additional fields to display at this time.
+            parser.add_argument(
+                '--long',
+                action='store_false',
+                default=False,
+                help=argparse.SUPPRESS
+            )
         return parser
 
     def _get_column_headers(self, parsed_args):
