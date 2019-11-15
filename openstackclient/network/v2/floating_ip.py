@@ -12,6 +12,7 @@
 
 """IP Floating action implementations"""
 
+from openstack import exceptions as sdk_exceptions
 from osc_lib import utils
 from osc_lib.utils import tags as _tag
 
@@ -390,7 +391,10 @@ class ListFloatingIP(common.NetworkAndComputeLister):
 
         _tag.get_tag_filtering_args(parsed_args, query)
 
-        data = client.ips(**query)
+        try:
+            data = list(client.ips(**query))
+        except sdk_exceptions.NotFoundException:
+            data = []
 
         return (
             headers,
