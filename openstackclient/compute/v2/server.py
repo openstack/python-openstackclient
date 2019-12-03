@@ -35,6 +35,12 @@ from openstackclient.i18n import _
 from openstackclient.identity import common as identity_common
 from openstackclient.network import common as network_common
 
+from openstackoid.interpreter import get_interpreter
+from openstackoid.client.server import compute_create_scope
+from openstackoid.configuration import SERVICES_CATALOG_PATH
+
+
+interpreter = get_interpreter(SERVICES_CATALOG_PATH)
 
 LOG = logging.getLogger(__name__)
 
@@ -682,6 +688,7 @@ class CreateServer(command.ShowOne):
         )
         return parser
 
+    @compute_create_scope(interpreter)
     def take_action(self, parsed_args):
 
         def _show_progress(progress):
