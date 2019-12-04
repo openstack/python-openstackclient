@@ -49,7 +49,7 @@ class RouterInfoColumn(cliff_columns.FormattableColumn):
 class RoutesColumn(cliff_columns.FormattableColumn):
     def human_readable(self):
         # Map the route keys to match --route option.
-        for route in self._value:
+        for route in self._value or []:
             if 'nexthop' in route:
                 route['gateway'] = route.pop('nexthop')
         return utils.format_list_of_dicts(self._value)
