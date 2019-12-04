@@ -1285,6 +1285,24 @@ class TestShowRouter(TestRouter):
         self.assertNotIn("is_distributed", columns)
         self.assertNotIn("is_ha", columns)
 
+    def test_show_no_extra_route_extension(self):
+        _router = network_fakes.FakeRouter.create_one_router({'routes': None})
+
+        arglist = [
+            _router.name,
+        ]
+        verifylist = [
+            ('router', _router.name),
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        with mock.patch.object(
+                self.network, "find_router", return_value=_router):
+            columns, data = self.cmd.take_action(parsed_args)
+
+        self.assertIn("routes", columns)
+        self.assertIsNone(list(data)[columns.index('routes')].human_readable())
+
 
 class TestUnsetRouter(TestRouter):
 
