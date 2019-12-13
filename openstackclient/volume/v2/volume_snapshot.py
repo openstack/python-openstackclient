@@ -230,10 +230,10 @@ class ListVolumeSnapshot(command.Lister):
             '--status',
             metavar='<status>',
             choices=['available', 'error', 'creating', 'deleting',
-                     'error-deleting'],
+                     'error_deleting'],
             help=_("Filters results by a status. "
                    "('available', 'error', 'creating', 'deleting'"
-                   " or 'error-deleting')")
+                   " or 'error_deleting')")
         )
         parser.add_argument(
             '--volume',
@@ -345,7 +345,7 @@ class SetVolumeSnapshot(command.Command):
             '--state',
             metavar='<state>',
             choices=['available', 'error', 'creating', 'deleting',
-                     'error-deleting'],
+                     'error_deleting'],
             help=_('New snapshot state. ("available", "error", "creating", '
                    '"deleting", or "error_deleting") (admin only) '
                    '(This option simply changes the state of the snapshot '

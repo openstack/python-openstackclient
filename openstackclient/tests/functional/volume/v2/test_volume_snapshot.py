@@ -121,6 +121,24 @@ class VolumeSnapshotTests(common.BaseVolumeTests):
             cmd_output["size"],
         )
         self.wait_for_status('volume snapshot', name2, 'available')
+
+        raw_output = self.openstack(
+            'volume snapshot set ' +
+            '--state error_deleting ' +
+            name2
+        )
+        self.assertOutput('', raw_output)
+
+        # Test list --long, --status
+        cmd_output = json.loads(self.openstack(
+            'volume snapshot list -f json ' +
+            '--long ' +
+            '--status error_deleting'
+        ))
+        names = [x["Name"] for x in cmd_output]
+        self.assertNotIn(name1, names)
+        self.assertIn(name2, names)
+
         raw_output = self.openstack(
             'volume snapshot set ' +
             '--state error ' +

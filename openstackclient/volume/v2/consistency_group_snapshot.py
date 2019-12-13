@@ -129,7 +129,7 @@ class ListConsistencyGroupSnapshot(command.Lister):
             '--status',
             metavar="<status>",
             choices=['available', 'error', 'creating', 'deleting',
-                     'error-deleting'],
+                     'error_deleting'],
             help=_('Filters results by a status ("available", "error", '
                    '"creating", "deleting" or "error_deleting")')
         )
