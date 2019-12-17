@@ -13,9 +13,10 @@
 #   under the License.
 #
 
-import copy
 from unittest import mock
 import uuid
+
+from openstack.image.v1 import image
 
 from openstackclient.tests.unit import fakes
 from openstackclient.tests.unit import utils
@@ -111,13 +112,10 @@ class FakeImage(object):
                 'Alpha': 'a',
                 'Beta': 'b',
                 'Gamma': 'g'},
+            'status': 'status' + uuid.uuid4().hex
         }
 
         # Overwrite default attributes if there are some attributes set
         image_info.update(attrs)
 
-        image = fakes.FakeResource(
-            info=copy.deepcopy(image_info),
-            loaded=True)
-
-        return image
+        return image.Image(**image_info)

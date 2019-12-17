@@ -22,13 +22,13 @@ import os
 import sys
 
 from cliff import columns as cliff_columns
-from glanceclient.common import utils as gc_utils
 from osc_lib.api import utils as api_utils
 from osc_lib.cli import format_columns
 from osc_lib.cli import parseractions
 from osc_lib.command import command
 from osc_lib import utils
 
+from openstackclient.common import sdk_utils
 from openstackclient.i18n import _
 
 if os.name == "nt":
@@ -45,6 +45,36 @@ DISK_CHOICES = ["ami", "ari", "aki", "vhd", "vmdk", "raw", "qcow2", "vhdx",
 
 
 LOG = logging.getLogger(__name__)
+
+
+def _get_columns(item):
+    # Trick sdk_utils to return URI attribute
+    column_map = {
+        'is_protected': 'protected',
+        'owner_id': 'owner'
+    }
+    hidden_columns = ['location', 'checksum',
+                      'copy_from', 'created_at', 'status', 'updated_at']
+    return sdk_utils.get_osc_show_columns_for_sdk_resource(
+        item.to_dict(), column_map, hidden_columns)
+
+
+_formatters = {
+}
+
+
+class HumanReadableSizeColumn(cliff_columns.FormattableColumn):
+    def human_readable(self):
+        """Return a formatted visibility string
+
+        :rtype:
+            A string formatted to public/private
+        """
+
+        if self._value:
+            return utils.format_size(self._value)
+        else:
+            return ''
 
 
 class VisibilityColumn(cliff_columns.FormattableColumn):
@@ -210,7 +240,7 @@ class CreateImage(command.ShowOne):
         # Special case project option back to API attribute name 'owner'
         val = getattr(parsed_args, 'project', None)
         if val:
-            kwargs['owner'] = val
+            kwargs['owner_id'] = val
 
         # Handle exclusive booleans with care
         # Avoid including attributes in kwargs if an option is not
@@ -219,9 +249,9 @@ class CreateImage(command.ShowOne):
         # to do nothing when no options are present as opposed to always
         # setting a default.
         if parsed_args.protected:
-            kwargs['protected'] = True
+            kwargs['is_protected'] = True
         if parsed_args.unprotected:
-            kwargs['protected'] = False
+            kwargs['is_protected'] = False
         if parsed_args.public:
             kwargs['is_public'] = True
         if parsed_args.private:
@@ -250,27 +280,35 @@ class CreateImage(command.ShowOne):
                 kwargs["data"] = io.open(parsed_args.file, "rb")
             else:
                 # Read file from stdin
-                if sys.stdin.isatty() is not True:
+                if not sys.stdin.isatty():
                     if msvcrt:
                         msvcrt.setmode(sys.stdin.fileno(), os.O_BINARY)
-                    # Send an open file handle to glanceclient so it will
-                    # do a chunked transfer
-                    kwargs["data"] = sys.stdin
+                    if hasattr(sys.stdin, 'buffer'):
+                        kwargs['data'] = sys.stdin.buffer
+                    else:
+                        kwargs["data"] = sys.stdin
 
         if not parsed_args.volume:
             # Wrap the call to catch exceptions in order to close files
             try:
-                image = image_client.images.create(**kwargs)
+                image = image_client.create_image(**kwargs)
             finally:
                 # Clean up open files - make sure data isn't a string
                 if ('data' in kwargs and hasattr(kwargs['data'], 'close') and
                         kwargs['data'] != sys.stdin):
                     kwargs['data'].close()
 
+        if image:
+            display_columns, columns = _get_columns(image)
+            _formatters['properties'] = format_columns.DictColumn
+            data = utils.get_item_properties(image, columns,
+                                             formatters=_formatters)
+            return (display_columns, data)
+        elif info:
             info.update(image._info)
             info['properties'] = format_columns.DictColumn(
                 info.get('properties', {}))
-        return zip(*sorted(info.items()))
+            return zip(*sorted(info.items()))
 
 
 class DeleteImage(command.Command):
@@ -289,11 +327,8 @@ class DeleteImage(command.Command):
     def take_action(self, parsed_args):
         image_client = self.app.client_manager.image
         for image in parsed_args.images:
-            image_obj = utils.find_resource(
-                image_client.images,
-                image,
-            )
-            image_client.images.delete(image_obj.id)
+            image_obj = image_client.find_image(image)
+            image_client.delete_image(image_obj.id)
 
 
 class ListImage(command.Lister):
@@ -359,15 +394,9 @@ class ListImage(command.Lister):
 
         kwargs = {}
         if parsed_args.public:
-            kwargs['public'] = True
+            kwargs['is_public'] = True
         if parsed_args.private:
-            kwargs['private'] = True
-        # Note: We specifically need to do that below to get the 'status'
-        #       column.
-        #
-        # Always set kwargs['detailed'] to True, and then filter the columns
-        # according to whether the --long option is specified or not.
-        kwargs['detailed'] = True
+            kwargs['is_private'] = True
 
         if parsed_args.long:
             columns = (
@@ -379,8 +408,8 @@ class ListImage(command.Lister):
                 'Checksum',
                 'Status',
                 'is_public',
-                'protected',
-                'owner',
+                'is_protected',
+                'owner_id',
                 'properties',
             )
             column_headers = (
@@ -401,16 +430,7 @@ class ListImage(command.Lister):
             column_headers = columns
 
         # List of image data received
-        data = []
-        # No pages received yet, so start the page marker at None.
-        marker = None
-        while True:
-            page = image_client.api.image_list(marker=marker, **kwargs)
-            if not page:
-                break
-            data.extend(page)
-            # Set the marker to the id of the last item we received
-            marker = page[-1]['id']
+        data = list(image_client.images(**kwargs))
 
         if parsed_args.property:
             # NOTE(dtroyer): coerce to a list to subscript it in py3
@@ -426,7 +446,7 @@ class ListImage(command.Lister):
 
         return (
             column_headers,
-            (utils.get_dict_properties(
+            (utils.get_item_properties(
                 s,
                 columns,
                 formatters={
@@ -456,13 +476,9 @@ class SaveImage(command.Command):
 
     def take_action(self, parsed_args):
         image_client = self.app.client_manager.image
-        image = utils.find_resource(
-            image_client.images,
-            parsed_args.image,
-        )
-        data = image_client.images.data(image)
+        image = image_client.find_image(parsed_args.image)
 
-        gc_utils.save_image(data, parsed_args.file)
+        image_client.download_image(image.id, output=parsed_args.file)
 
 
 class SetImage(command.Command):
@@ -621,22 +637,17 @@ class SetImage(command.Command):
         # to do nothing when no options are present as opposed to always
         # setting a default.
         if parsed_args.protected:
-            kwargs['protected'] = True
+            kwargs['is_protected'] = True
         if parsed_args.unprotected:
-            kwargs['protected'] = False
+            kwargs['is_protected'] = False
         if parsed_args.public:
             kwargs['is_public'] = True
         if parsed_args.private:
             kwargs['is_public'] = False
-        if parsed_args.force:
-            kwargs['force'] = True
 
         # Wrap the call to catch exceptions in order to close files
         try:
-            image = utils.find_resource(
-                image_client.images,
-                parsed_args.image,
-            )
+            image = image_client.find_image(parsed_args.image)
 
             if not parsed_args.location and not parsed_args.copy_from:
                 if parsed_args.volume:
@@ -666,9 +677,10 @@ class SetImage(command.Command):
                         if parsed_args.stdin:
                             if msvcrt:
                                 msvcrt.setmode(sys.stdin.fileno(), os.O_BINARY)
-                            # Send an open file handle to glanceclient so it
-                            # will do a chunked transfer
-                            kwargs["data"] = sys.stdin
+                            if hasattr(sys.stdin, 'buffer'):
+                                kwargs['data'] = sys.stdin.buffer
+                            else:
+                                kwargs["data"] = sys.stdin
                         else:
                             LOG.warning(_('Use --stdin to enable read image '
                                           'data from standard input'))
@@ -677,7 +689,7 @@ class SetImage(command.Command):
                 image.properties.update(kwargs['properties'])
                 kwargs['properties'] = image.properties
 
-            image = image_client.images.update(image.id, **kwargs)
+            image = image_client.update_image(image.id, **kwargs)
         finally:
             # Clean up open files - make sure data isn't a string
             if ('data' in kwargs and hasattr(kwargs['data'], 'close') and
@@ -705,16 +717,12 @@ class ShowImage(command.ShowOne):
 
     def take_action(self, parsed_args):
         image_client = self.app.client_manager.image
-        image = utils.find_resource(
-            image_client.images,
-            parsed_args.image,
-        )
+        image = image_client.find_image(parsed_args.image)
 
-        info = {}
-        info.update(image._info)
         if parsed_args.human_readable:
-            if 'size' in info:
-                info['size'] = utils.format_size(info['size'])
-        info['properties'] = format_columns.DictColumn(
-            info.get('properties', {}))
-        return zip(*sorted(info.items()))
+            _formatters['size'] = HumanReadableSizeColumn
+        display_columns, columns = _get_columns(image)
+        _formatters['properties'] = format_columns.DictColumn
+        data = utils.get_item_properties(image, columns,
+                                         formatters=_formatters)
+        return (display_columns, data)
