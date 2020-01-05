@@ -650,7 +650,7 @@ class ShowQuota(command.ShowOne, BaseQuota):
         for k, v in itertools.chain(
                 COMPUTE_QUOTAS.items(), NOVA_NETWORK_QUOTAS.items(),
                 VOLUME_QUOTAS.items(), NETWORK_QUOTAS.items()):
-            if not k == v and info.get(k):
+            if not k == v and info.get(k) is not None:
                 info[v] = info[k]
                 info.pop(k)
 
