@@ -13,28 +13,6 @@
       - openstack/osc-lib
       - openstack/python-openstackclient
     vars:
-      tox_envlist: py27
-      # Set work dir to openstackclient so that if it's triggered by one of the
-      # other repos the tests will run in the same place
-      zuul_work_dir: src/opendev.org/openstack/python-openstackclient
-
-- job:
-    name: osc-tox-py27-tips
-    parent: openstack-tox-py27
-    description: |
-      Run unit tests for OpenStackClient with master branch of important libs.
-
-      Takes advantage of the base tox job's install-siblings feature.
-    # The job only tests the latest and shouldn't be run on the stable branches
-    branches: ^(?!stable)
-    required-projects:
-      - openstack/cliff
-      - openstack/keystoneauth
-      - openstack/openstacksdk
-      - openstack/os-client-config
-      - openstack/osc-lib
-      - openstack/python-openstackclient
-    vars:
       # Set work dir to openstackclient so that if it's triggered by one of the
       # other repos the tests will run in the same place
       zuul_work_dir: src/opendev.org/openstack/python-openstackclient
@@ -154,7 +132,6 @@
       - openstack/python-openstackclient
     vars:
       devstack_localrc:
-        USE_PYTHON3: true
         LIBS_FROM_GIT: python-openstackclient,openstacksdk,osc-lib,os-client-config
         # This is insufficient, but leaving it here as a reminder of what may
         # someday be all we need to make this work
@@ -179,11 +156,9 @@
     name: osc-tox-unit-tips
     check:
       jobs:
-        - osc-tox-py27-tips
         - osc-tox-py36-tips
     gate:
       jobs:
-        - osc-tox-py27-tips
         - osc-tox-py36-tips
 
 - project:
@@ -192,12 +167,10 @@
       - osc-tox-unit-tips
       - openstack-cover-jobs
       - openstack-lower-constraints-jobs
-      - openstack-python-jobs
-      - openstack-python3-train-jobs
+      - openstack-python3-ussuri-jobs
       - publish-openstack-docs-pti
       - check-requirements
       - release-notes-jobs-python3
-      - lib-forward-testing
       - lib-forward-testing-python3
     check:
       jobs:
