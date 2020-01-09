@@ -639,6 +639,7 @@ class FakePort(object):
             'security_group_ids': [],
             'status': 'ACTIVE',
             'tenant_id': 'project-id-' + uuid.uuid4().hex,
+            'qos_network_policy_id': 'qos-policy-id-' + uuid.uuid4().hex,
             'qos_policy_id': 'qos-policy-id-' + uuid.uuid4().hex,
             'tags': [],
             'uplink_status_propagation': False,
