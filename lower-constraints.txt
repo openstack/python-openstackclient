@@ -29,7 +29,7 @@ gitdb==0.6.4
 GitPython==1.0.1
 gnocchiclient==3.3.1
 greenlet==0.4.10
-hacking==1.1.0
+hacking==2.0.0
 httplib2==0.9.1
 idna==2.6
 iso8601==0.1.11
