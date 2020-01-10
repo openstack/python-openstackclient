@@ -13,9 +13,8 @@
 #   under the License.
 #
 
-import six
-
 from keystoneauth1 import session
+import six
 
 from openstackclient.api import object_store_v1 as object_store
 from openstackclient.tests.unit import utils

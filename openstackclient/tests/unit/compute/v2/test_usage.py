@@ -12,8 +12,8 @@
 #
 
 import datetime
+from unittest import mock
 
-import mock
 from novaclient import api_versions
 
 from openstackclient.compute.v2 import usage

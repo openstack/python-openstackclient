@@ -15,9 +15,9 @@
 
 import json
 import sys
+from unittest import mock
 
 from keystoneauth1 import fixture
-import mock
 import requests
 import six
 

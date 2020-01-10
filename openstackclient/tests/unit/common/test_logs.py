@@ -15,8 +15,7 @@
 #                or Jun 2017.
 
 import logging
-
-import mock
+from unittest import mock
 
 from osc_lib import logs
 

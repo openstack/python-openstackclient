@@ -13,11 +13,10 @@
 
 """Base API Library"""
 
-import simplejson as json
-
 from keystoneauth1 import exceptions as ks_exceptions
 from keystoneauth1 import session as ks_session
 from osc_lib import exceptions
+import simplejson as json
 
 from openstackclient.i18n import _
 

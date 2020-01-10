@@ -16,11 +16,10 @@
 
 import os
 
+from cliff import columns as cliff_columns
 import fixtures
 from six.moves import StringIO
 import testtools
-
-from cliff import columns as cliff_columns
 
 from openstackclient.tests.unit import fakes
 

@@ -13,7 +13,7 @@
 
 """Object Store v1 API Library Tests"""
 
-import mock
+from unittest import mock
 
 from keystoneauth1 import session
 from requests_mock.contrib import fixture

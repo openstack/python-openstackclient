@@ -14,9 +14,9 @@
 #
 
 import copy
+from unittest import mock
 import uuid
 
-import mock
 from novaclient import api_versions
 
 from openstackclient.api import compute_v2

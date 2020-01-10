@@ -13,8 +13,8 @@
 #   under the License.
 #
 
-import mock
-from mock import call
+from unittest import mock
+from unittest.mock import call
 
 import novaclient
 from osc_lib import exceptions

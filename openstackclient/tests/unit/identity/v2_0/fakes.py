@@ -14,11 +14,11 @@
 #
 
 import copy
+from unittest import mock
 import uuid
 
 from keystoneauth1 import access
 from keystoneauth1 import fixture
-import mock
 
 from openstackclient.tests.unit import fakes
 from openstackclient.tests.unit import utils

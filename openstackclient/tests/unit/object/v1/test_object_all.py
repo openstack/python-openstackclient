@@ -12,8 +12,8 @@
 #
 
 import copy
+from unittest import mock
 
-import mock
 from osc_lib import exceptions
 from requests_mock.contrib import fixture
 import six

@@ -13,7 +13,7 @@
 #    License for the specific language governing permissions and limitations
 #    under the License.
 
-import mock
+from unittest import mock
 
 from openstackclient.network.v2 import network_auto_allocated_topology
 from openstackclient.tests.unit.identity.v3 import fakes as identity_fakes

@@ -14,10 +14,10 @@
 #
 
 import copy
+from unittest import mock
 
 from glanceclient.common import utils as glanceclient_utils
 from glanceclient.v2 import schemas
-import mock
 from osc_lib.cli import format_columns
 from osc_lib import exceptions
 import warlock

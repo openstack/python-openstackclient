@@ -15,9 +15,8 @@ import argparse
 import copy
 from random import choice
 from random import randint
+from unittest import mock
 import uuid
-
-import mock
 
 from openstackclient.tests.unit import fakes
 from openstackclient.tests.unit.identity.v3 import fakes as identity_fakes_v3

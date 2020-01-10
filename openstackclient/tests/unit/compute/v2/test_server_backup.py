@@ -11,7 +11,7 @@
 #   under the License.
 #
 
-import mock
+from unittest import mock
 
 from osc_lib.cli import format_columns
 from osc_lib import exceptions
