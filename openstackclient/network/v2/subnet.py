@@ -230,6 +230,10 @@ def _get_attrs(client_manager, parsed_args, is_create=True):
         attrs['enable_dhcp'] = True
     if parsed_args.no_dhcp:
         attrs['enable_dhcp'] = False
+    if parsed_args.dns_publish_fixed_ip:
+        attrs['dns_publish_fixed_ip'] = True
+    if parsed_args.no_dns_publish_fixed_ip:
+        attrs['dns_publish_fixed_ip'] = False
     if ('dns_nameservers' in parsed_args and
        parsed_args.dns_nameservers is not None):
         attrs['dns_nameservers'] = parsed_args.dns_nameservers
@@ -302,6 +306,17 @@ class CreateSubnet(command.ShowOne):
             '--no-dhcp',
             action='store_true',
             help=_("Disable DHCP")
+        )
+        dns_publish_fixed_ip_group = parser.add_mutually_exclusive_group()
+        dns_publish_fixed_ip_group.add_argument(
+            '--dns-publish-fixed-ip',
+            action='store_true',
+            help=_("Enable publishing fixed IPs in DNS")
+        )
+        dns_publish_fixed_ip_group.add_argument(
+            '--no-dns-publish-fixed-ip',
+            action='store_true',
+            help=_("Disable publishing fixed IPs in DNS (default)")
         )
         parser.add_argument(
             '--gateway',
@@ -557,6 +572,17 @@ class SetSubnet(command.Command):
             '--no-dhcp',
             action='store_true',
             help=_("Disable DHCP")
+        )
+        dns_publish_fixed_ip_group = parser.add_mutually_exclusive_group()
+        dns_publish_fixed_ip_group.add_argument(
+            '--dns-publish-fixed-ip',
+            action='store_true',
+            help=_("Enable publishing fixed IPs in DNS")
+        )
+        dns_publish_fixed_ip_group.add_argument(
+            '--no-dns-publish-fixed-ip',
+            action='store_true',
+            help=_("Disable publishing fixed IPs in DNS")
         )
         parser.add_argument(
             '--gateway',
