@@ -14,9 +14,8 @@
 #
 
 import copy
+from unittest import mock
 import uuid
-
-import mock
 
 from openstackclient.tests.unit import fakes
 from openstackclient.tests.unit import utils

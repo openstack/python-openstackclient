@@ -16,9 +16,9 @@ import argparse
 import collections
 import copy
 import getpass
+from unittest import mock
+from unittest.mock import call
 
-import mock
-from mock import call
 from novaclient import api_versions
 from openstack import exceptions as sdk_exceptions
 from osc_lib import exceptions

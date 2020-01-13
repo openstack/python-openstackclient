@@ -13,7 +13,7 @@
 #   under the License.
 #
 
-import mock
+from unittest import mock
 
 from cinderclient.v3 import volume_snapshots
 from cinderclient.v3 import volumes

@@ -15,7 +15,7 @@
 
 """Test module module"""
 
-import mock
+from unittest import mock
 
 from openstackclient.common import module as osc_module
 from openstackclient.tests.unit import fakes

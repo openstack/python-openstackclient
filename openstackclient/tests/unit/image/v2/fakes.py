@@ -15,10 +15,10 @@
 
 import copy
 import random
+from unittest import mock
 import uuid
 
 from glanceclient.v2 import schemas
-import mock
 from osc_lib.cli import format_columns
 import warlock
 

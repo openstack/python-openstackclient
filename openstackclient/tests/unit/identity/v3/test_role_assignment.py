@@ -12,8 +12,7 @@
 #
 
 import copy
-
-import mock
+from unittest import mock
 
 from openstackclient.identity.v3 import role_assignment
 from openstackclient.tests.unit import fakes

@@ -11,7 +11,7 @@
 #   under the License.
 #
 
-import mock
+from unittest import mock
 
 from openstackclient.common import configuration
 from openstackclient.tests.unit import fakes

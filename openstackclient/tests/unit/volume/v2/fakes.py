@@ -14,9 +14,8 @@
 
 import copy
 import random
+from unittest import mock
 import uuid
-
-import mock
 
 from osc_lib.cli import format_columns
 

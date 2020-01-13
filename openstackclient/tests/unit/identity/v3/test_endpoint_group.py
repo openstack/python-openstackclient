@@ -11,7 +11,7 @@
 #   under the License.
 #
 
-import mock
+from unittest import mock
 
 from openstackclient.identity.v3 import endpoint_group
 from openstackclient.tests.unit.identity.v3 import fakes as identity_fakes

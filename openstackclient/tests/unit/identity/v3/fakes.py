@@ -15,11 +15,11 @@
 
 import copy
 import datetime
+from unittest import mock
 import uuid
 
 from keystoneauth1 import access
 from keystoneauth1 import fixture
-import mock
 from osc_lib.cli import format_columns
 
 from openstackclient.tests.unit import fakes

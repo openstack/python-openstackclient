@@ -13,7 +13,7 @@
 #   under the License.
 #
 
-import mock
+from unittest import mock
 
 from keystoneauth1 import exceptions as ks_exc
 from osc_lib import exceptions

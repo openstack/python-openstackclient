@@ -12,8 +12,8 @@
 #
 
 import argparse
+from unittest import mock
 
-import mock
 import openstack
 from osc_lib import exceptions
 

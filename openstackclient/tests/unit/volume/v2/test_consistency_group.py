@@ -12,8 +12,8 @@
 #   under the License.
 #
 
-import mock
-from mock import call
+from unittest import mock
+from unittest.mock import call
 
 from osc_lib.cli import format_columns
 from osc_lib import exceptions

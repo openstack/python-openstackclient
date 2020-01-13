@@ -15,8 +15,8 @@
 
 import os
 import sys
+from unittest import mock
 
-import mock
 from osc_lib.tests import utils as osc_lib_test_utils
 from oslo_utils import importutils
 import wrapt

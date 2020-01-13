@@ -15,9 +15,8 @@
 
 import copy
 import random
+from unittest import mock
 import uuid
-
-import mock
 
 from openstackclient.tests.unit import fakes
 from openstackclient.tests.unit.identity.v2_0 import fakes as identity_fakes

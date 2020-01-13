@@ -13,7 +13,7 @@
 #   under the License.
 #
 
-import mock
+from unittest import mock
 
 from openstackclient.identity.v3 import token
 from openstackclient.tests.unit.identity.v3 import fakes as identity_fakes

@@ -11,7 +11,7 @@
 #   under the License.
 #
 
-import mock
+from unittest import mock
 
 from openstackclient.network.v2 import floating_ip_pool
 from openstackclient.tests.unit.compute.v2 import fakes as compute_fakes

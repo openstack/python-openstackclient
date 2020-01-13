@@ -13,7 +13,7 @@
 #    License for the specific language governing permissions and limitations
 #    under the License.
 
-import mock
+from unittest import mock
 
 from openstackclient.network.v2 import network_qos_rule_type as _qos_rule_type
 from openstackclient.tests.unit.network.v2 import fakes as network_fakes

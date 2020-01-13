@@ -11,7 +11,7 @@
 #   under the License.
 #
 
-import mock
+from unittest import mock
 
 from openstackclient.common import extension
 from openstackclient.tests.unit.compute.v2 import fakes as compute_fakes
