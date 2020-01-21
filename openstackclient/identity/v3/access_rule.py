@@ -38,7 +38,7 @@ class DeleteAccessRule(command.Command):
             'access_rule',
             metavar='<access-rule>',
             nargs="+",
-            help=_('Application credentials(s) to delete (name or ID)'),
+            help=_('Access rule(s) to delete (name or ID)'),
         )
         return parser
 
@@ -104,7 +104,7 @@ class ShowAccessRule(command.ShowOne):
         parser.add_argument(
             'access_rule',
             metavar='<access-rule>',
-            help=_('Application credential to display (name or ID)'),
+            help=_('Access rule to display (name or ID)'),
         )
         return parser
 
