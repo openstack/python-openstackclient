@@ -5,12 +5,11 @@ Developing with OpenStackClient
 Communication
 -------------
 
-Meetings
-========
-The OpenStackClient team meets regularly on every Thursday.  For details
-please refer to the `OpenStack IRC meetings`_ page.
-
-.. _`OpenStack IRC meetings`: http://eavesdrop.openstack.org/#OpenStackClient_Team_Meeting
+IRC Channel
+===========
+The OpenStackClient team doesn't have regular meetings so if you have
+questions or anything you want to discuss, come to our channel:
+#openstack-sdks
 
 Testing
 -------
