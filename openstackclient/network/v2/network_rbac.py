@@ -58,6 +58,10 @@ def _get_attrs(client_manager, parsed_args):
         object_id = network_client.find_security_group(
             parsed_args.rbac_object,
             ignore_missing=False).id
+    if parsed_args.type == 'address_scope':
+        object_id = network_client.find_address_scope(
+            parsed_args.rbac_object,
+            ignore_missing=False).id
     attrs['object_id'] = object_id
 
     identity_client = client_manager.identity
@@ -97,9 +101,11 @@ class CreateNetworkRBAC(command.ShowOne):
             '--type',
             metavar="<type>",
             required=True,
-            choices=['security_group', 'qos_policy', 'network'],
+            choices=['address_scope', 'security_group',
+                     'qos_policy', 'network'],
             help=_('Type of the object that RBAC policy '
-                   'affects ("security_group", "qos_policy" or "network")')
+                   'affects ("address_scope", "security_group", '
+                   '"qos_policy" or "network")')
         )
         parser.add_argument(
             '--action',
@@ -188,10 +194,11 @@ class ListNetworkRBAC(command.Lister):
         parser.add_argument(
             '--type',
             metavar='<type>',
-            choices=['security_group', 'qos_policy', 'network'],
+            choices=['address_scope', 'security_group',
+                     'qos_policy', 'network'],
             help=_('List network RBAC policies according to '
-                   'given object type ("security_group", "qos_policy" '
-                   'or "network")')
+                   'given object type ("address_scope", "security_group", '
+                   '"qos_policy" or "network")')
         )
         parser.add_argument(
             '--action',
