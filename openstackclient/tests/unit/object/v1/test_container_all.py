@@ -70,6 +70,75 @@ class TestContainerCreate(TestContainerAll):
         )]
         self.assertEqual(datalist, list(data))
 
+    def test_object_create_container_storage_policy(self):
+        self.requests_mock.register_uri(
+            'PUT',
+            object_fakes.ENDPOINT + '/ernie',
+            headers={
+                'x-trans-id': '314159',
+                'x-storage-policy': 'o1--sr-r3'
+            },
+            status_code=200,
+        )
+
+        arglist = [
+            'ernie',
+            '--storage-policy',
+            'o1--sr-r3'
+        ]
+        verifylist = [
+            ('containers', ['ernie']),
+            ('storage_policy', 'o1--sr-r3')
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        # In base command class ShowOne in cliff, abstract method take_action()
+        # returns a two-part tuple with a tuple of column names and a tuple of
+        # data to be shown.
+        columns, data = self.cmd.take_action(parsed_args)
+
+        self.assertEqual(self.columns, columns)
+        datalist = [(
+            object_fakes.ACCOUNT_ID,
+            'ernie',
+            '314159',
+        )]
+        self.assertEqual(datalist, list(data))
+
+    def test_object_create_container_public(self):
+        self.requests_mock.register_uri(
+            'PUT',
+            object_fakes.ENDPOINT + '/ernie',
+            headers={
+                'x-trans-id': '314159',
+                'x-container-read': '.r:*,.rlistings'
+            },
+            status_code=200,
+        )
+
+        arglist = [
+            'ernie',
+            '--public'
+        ]
+        verifylist = [
+            ('containers', ['ernie']),
+            ('public', True)
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        # In base command class ShowOne in cliff, abstract method take_action()
+        # returns a two-part tuple with a tuple of column names and a tuple of
+        # data to be shown.
+        columns, data = self.cmd.take_action(parsed_args)
+
+        self.assertEqual(self.columns, columns)
+        datalist = [(
+            object_fakes.ACCOUNT_ID,
+            'ernie',
+            '314159',
+        )]
+        self.assertEqual(datalist, list(data))
+
     def test_object_create_container_more(self):
         self.requests_mock.register_uri(
             'PUT',
@@ -300,6 +369,7 @@ class TestContainerShow(TestContainerAll):
             'x-container-write': 'wsx',
             'x-container-sync-to': 'edc',
             'x-container-sync-key': 'rfv',
+            'x-storage-policy': 'o1--sr-r3'
         }
         self.requests_mock.register_uri(
             'HEAD',
@@ -327,6 +397,7 @@ class TestContainerShow(TestContainerAll):
             'container',
             'object_count',
             'read_acl',
+            'storage_policy',
             'sync_key',
             'sync_to',
             'write_acl',
@@ -338,6 +409,7 @@ class TestContainerShow(TestContainerAll):
             'ernie',
             '42',
             'qaz',
+            'o1--sr-r3',
             'rfv',
             'edc',
             'wsx',

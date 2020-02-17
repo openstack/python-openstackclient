@@ -34,6 +34,16 @@ class CreateContainer(command.Lister):
     def get_parser(self, prog_name):
         parser = super(CreateContainer, self).get_parser(prog_name)
         parser.add_argument(
+            '--public',
+            action='store_true',
+            default=False,
+            help="Make the container publicly accessible"
+        )
+        parser.add_argument(
+            '--storage-policy',
+            help="Specify a particular storage policy to use."
+        )
+        parser.add_argument(
             'containers',
             metavar='<container-name>',
             nargs="+",
@@ -51,6 +61,8 @@ class CreateContainer(command.Lister):
                       ' is 256'), len(container))
             data = self.app.client_manager.object_store.container_create(
                 container=container,
+                public=parsed_args.public,
+                storage_policy=parsed_args.storage_policy
             )
             results.append(data)
 
