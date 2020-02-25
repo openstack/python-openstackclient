@@ -480,7 +480,7 @@ class ListSecurityGroupRule(common.NetworkAndComputeLister):
             action='store_true',
             default=False,
             help=self.enhance_help_neutron(
-                _("List additional fields in output"))
+                _("**Deprecated** This argument is no longer needed"))
         )
         return parser
 
@@ -510,15 +510,19 @@ class ListSecurityGroupRule(common.NetworkAndComputeLister):
             'Ethertype',
             'IP Range',
             'Port Range',
+            'Direction',
+            'Remote Security Group',
         )
-        if parsed_args.long:
-            column_headers = column_headers + ('Direction',)
-        column_headers = column_headers + ('Remote Security Group',)
         if parsed_args.group is None:
             column_headers = column_headers + ('Security Group',)
         return column_headers
 
     def take_action_network(self, client, parsed_args):
+        if parsed_args.long:
+            self.log.warning(_(
+                "The --long option has been deprecated and is no longer needed"
+            ))
+
         column_headers = self._get_column_headers(parsed_args)
         columns = (
             'id',
@@ -526,10 +530,9 @@ class ListSecurityGroupRule(common.NetworkAndComputeLister):
             'ether_type',
             'remote_ip_prefix',
             'port_range',
+            'direction',
+            'remote_group_id',
         )
-        if parsed_args.long:
-            columns = columns + ('direction',)
-        columns = columns + ('remote_group_id',)
 
         # Get the security group rules using the requested query.
         query = {}
