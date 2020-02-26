@@ -23,7 +23,6 @@ from osc_lib.cli import format_columns
 from osc_lib.command import command
 from osc_lib import exceptions
 from osc_lib import utils
-import six
 
 from openstackclient.i18n import _
 from openstackclient.identity import common as identity_common
@@ -42,7 +41,7 @@ def _get_columns(item):
 
 
 def _get_ranges(item):
-    item = [int(i) if isinstance(i, six.string_types) else i for i in item]
+    item = sorted([int(i) for i in item])
     for a, b in itertools.groupby(enumerate(item), lambda xy: xy[1] - xy[0]):
         b = list(b)
         yield "%s-%s" % (b[0][1], b[-1][1]) if b[0][1] != b[-1][1] else \
