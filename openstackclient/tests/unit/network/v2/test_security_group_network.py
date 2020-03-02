@@ -285,7 +285,8 @@ class TestListSecurityGroupNetwork(TestSecurityGroupNetwork):
 
         columns, data = self.cmd.take_action(parsed_args)
 
-        self.network.security_groups.assert_called_once_with()
+        self.network.security_groups.assert_called_once_with(
+            fields=security_group.ListSecurityGroup.FIELDS_TO_RETRIEVE)
         self.assertEqual(self.columns, columns)
         self.assertListItemEqual(self.data, list(data))
 
@@ -300,7 +301,8 @@ class TestListSecurityGroupNetwork(TestSecurityGroupNetwork):
 
         columns, data = self.cmd.take_action(parsed_args)
 
-        self.network.security_groups.assert_called_once_with()
+        self.network.security_groups.assert_called_once_with(
+            fields=security_group.ListSecurityGroup.FIELDS_TO_RETRIEVE)
         self.assertEqual(self.columns, columns)
         self.assertListItemEqual(self.data, list(data))
 
@@ -316,7 +318,9 @@ class TestListSecurityGroupNetwork(TestSecurityGroupNetwork):
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
         columns, data = self.cmd.take_action(parsed_args)
-        filters = {'tenant_id': project.id, 'project_id': project.id}
+        filters = {
+            'tenant_id': project.id, 'project_id': project.id,
+            'fields': security_group.ListSecurityGroup.FIELDS_TO_RETRIEVE}
 
         self.network.security_groups.assert_called_once_with(**filters)
         self.assertEqual(self.columns, columns)
@@ -336,7 +340,9 @@ class TestListSecurityGroupNetwork(TestSecurityGroupNetwork):
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
         columns, data = self.cmd.take_action(parsed_args)
-        filters = {'tenant_id': project.id, 'project_id': project.id}
+        filters = {
+            'tenant_id': project.id, 'project_id': project.id,
+            'fields': security_group.ListSecurityGroup.FIELDS_TO_RETRIEVE}
 
         self.network.security_groups.assert_called_once_with(**filters)
         self.assertEqual(self.columns, columns)
@@ -362,7 +368,8 @@ class TestListSecurityGroupNetwork(TestSecurityGroupNetwork):
             **{'tags': 'red,blue',
                'any_tags': 'red,green',
                'not_tags': 'orange,yellow',
-               'not_any_tags': 'black,white'}
+               'not_any_tags': 'black,white',
+               'fields': security_group.ListSecurityGroup.FIELDS_TO_RETRIEVE}
         )
         self.assertEqual(self.columns, columns)
         self.assertEqual(self.data, list(data))
