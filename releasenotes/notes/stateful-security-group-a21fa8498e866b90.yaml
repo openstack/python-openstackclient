@@ -1,0 +1,6 @@
+---
+features:
+  - |
+    Add ``--stateful`` and ``--stateless`` option to the
+    ``security group create`` and ``security group set`` commands
+    to support stateful and stateless security groups.
