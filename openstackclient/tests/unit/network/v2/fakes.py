@@ -1226,6 +1226,7 @@ class FakeSecurityGroup(object):
             'id': 'security-group-id-' + uuid.uuid4().hex,
             'name': 'security-group-name-' + uuid.uuid4().hex,
             'description': 'security-group-description-' + uuid.uuid4().hex,
+            'stateful': True,
             'project_id': 'project-id-' + uuid.uuid4().hex,
             'security_group_rules': [],
             'tags': []

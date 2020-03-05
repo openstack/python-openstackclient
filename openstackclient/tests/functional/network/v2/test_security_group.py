@@ -42,7 +42,7 @@ class SecurityGroupTests(common.NetworkTests):
     def test_security_group_set(self):
         other_name = uuid.uuid4().hex
         raw_output = self.openstack(
-            'security group set --description NSA --name ' +
+            'security group set --description NSA --stateless --name ' +
             other_name + ' ' + self.NAME
         )
         self.assertEqual('', raw_output)
@@ -50,8 +50,10 @@ class SecurityGroupTests(common.NetworkTests):
         cmd_output = json.loads(self.openstack(
             'security group show -f json ' + other_name))
         self.assertEqual('NSA', cmd_output['description'])
+        self.assertFalse(cmd_output['stateful'])
 
     def test_security_group_show(self):
         cmd_output = json.loads(self.openstack(
             'security group show -f json ' + self.NAME))
         self.assertEqual(self.NAME, cmd_output['name'])
+        self.assertTrue(cmd_output['stateful'])

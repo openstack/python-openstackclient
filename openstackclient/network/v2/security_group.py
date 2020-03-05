@@ -120,6 +120,19 @@ class CreateSecurityGroup(common.NetworkAndComputeShowOne):
             metavar='<project>',
             help=self.enhance_help_neutron(_("Owner's project (name or ID)"))
         )
+        stateful_group = parser.add_mutually_exclusive_group()
+        stateful_group.add_argument(
+            "--stateful",
+            action='store_true',
+            default=None,
+            help=_("Security group is stateful (Default)")
+        )
+        stateful_group.add_argument(
+            "--stateless",
+            action='store_true',
+            default=None,
+            help=_("Security group is stateless")
+        )
         identity_common.add_project_domain_option_to_parser(
             parser, enhance_help=self.enhance_help_neutron)
         _tag.add_tag_option_to_parser_for_create(
@@ -138,6 +151,10 @@ class CreateSecurityGroup(common.NetworkAndComputeShowOne):
         attrs = {}
         attrs['name'] = parsed_args.name
         attrs['description'] = self._get_description(parsed_args)
+        if parsed_args.stateful:
+            attrs['stateful'] = True
+        if parsed_args.stateless:
+            attrs['stateful'] = False
         if parsed_args.project is not None:
             identity_client = self.app.client_manager.identity
             project_id = identity_common.find_project(
@@ -313,6 +330,19 @@ class SetSecurityGroup(common.NetworkAndComputeCommand):
             metavar="<description>",
             help=_("New security group description")
         )
+        stateful_group = parser.add_mutually_exclusive_group()
+        stateful_group.add_argument(
+            "--stateful",
+            action='store_true',
+            default=None,
+            help=_("Security group is stateful (Default)")
+        )
+        stateful_group.add_argument(
+            "--stateless",
+            action='store_true',
+            default=None,
+            help=_("Security group is stateless")
+        )
         return parser
 
     def update_parser_network(self, parser):
@@ -329,6 +359,10 @@ class SetSecurityGroup(common.NetworkAndComputeCommand):
             attrs['name'] = parsed_args.name
         if parsed_args.description is not None:
             attrs['description'] = parsed_args.description
+        if parsed_args.stateful:
+            attrs['stateful'] = True
+        if parsed_args.stateless:
+            attrs['stateful'] = False
         # NOTE(rtheis): Previous behavior did not raise a CommandError
         # if there were no updates. Maintain this behavior and issue
         # the update.

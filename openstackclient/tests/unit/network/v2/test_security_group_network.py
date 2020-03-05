@@ -49,6 +49,7 @@ class TestCreateSecurityGroupNetwork(TestSecurityGroupNetwork):
         'name',
         'project_id',
         'rules',
+        'stateful',
         'tags',
     )
 
@@ -58,6 +59,7 @@ class TestCreateSecurityGroupNetwork(TestSecurityGroupNetwork):
         _security_group.name,
         _security_group.project_id,
         security_group.NetworkSecurityGroupRulesColumn([]),
+        _security_group.stateful,
         _security_group.tags,
     )
 
@@ -101,6 +103,7 @@ class TestCreateSecurityGroupNetwork(TestSecurityGroupNetwork):
             '--description', self._security_group.description,
             '--project', self.project.name,
             '--project-domain', self.domain.name,
+            '--stateful',
             self._security_group.name,
         ]
         verifylist = [
@@ -108,6 +111,7 @@ class TestCreateSecurityGroupNetwork(TestSecurityGroupNetwork):
             ('name', self._security_group.name),
             ('project', self.project.name),
             ('project_domain', self.domain.name),
+            ('stateful', self._security_group.stateful),
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
@@ -115,6 +119,7 @@ class TestCreateSecurityGroupNetwork(TestSecurityGroupNetwork):
 
         self.network.create_security_group.assert_called_once_with(**{
             'description': self._security_group.description,
+            'stateful': self._security_group.stateful,
             'name': self._security_group.name,
             'tenant_id': self.project.id,
         })
@@ -414,11 +419,13 @@ class TestSetSecurityGroupNetwork(TestSecurityGroupNetwork):
         arglist = [
             '--name', new_name,
             '--description', new_description,
+            '--stateful',
             self._security_group.name,
         ]
         verifylist = [
             ('description', new_description),
             ('group', self._security_group.name),
+            ('stateful', self._security_group.stateful),
             ('name', new_name),
         ]
 
@@ -428,6 +435,7 @@ class TestSetSecurityGroupNetwork(TestSecurityGroupNetwork):
         attrs = {
             'description': new_description,
             'name': new_name,
+            'stateful': True,
         }
         self.network.update_security_group.assert_called_once_with(
             self._security_group,
@@ -482,6 +490,7 @@ class TestShowSecurityGroupNetwork(TestSecurityGroupNetwork):
         'name',
         'project_id',
         'rules',
+        'stateful',
         'tags',
     )
 
@@ -492,6 +501,7 @@ class TestShowSecurityGroupNetwork(TestSecurityGroupNetwork):
         _security_group.project_id,
         security_group.NetworkSecurityGroupRulesColumn(
             [_security_group_rule._info]),
+        _security_group.stateful,
         _security_group.tags,
     )
 
