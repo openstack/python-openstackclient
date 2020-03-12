@@ -274,9 +274,18 @@ class ListQuota(command.Lister, BaseQuota):
         return parser
 
     def take_action(self, parsed_args):
-        projects = self.app.client_manager.identity.projects.list()
         result = []
-        project_ids = [getattr(p, 'id', '') for p in projects]
+        project_ids = []
+        if parsed_args.project is None:
+            for p in self.app.client_manager.identity.projects.list():
+                project_ids.append(getattr(p, 'id', ''))
+        else:
+            identity_client = self.app.client_manager.identity
+            project = utils.find_resource(
+                identity_client.projects,
+                parsed_args.project,
+            )
+            project_ids.append(getattr(project, 'id', ''))
 
         if parsed_args.compute:
             if parsed_args.detail:
