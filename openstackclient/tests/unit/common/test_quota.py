@@ -392,6 +392,29 @@ class TestQuotaList(TestQuota):
             parsed_args,
         )
 
+    def test_quota_list_compute_by_project(self):
+        # Two projects with non-default quotas
+        self.compute.quotas.get = mock.Mock(
+            side_effect=self.compute_quotas,
+        )
+
+        arglist = [
+            '--compute',
+            '--project', self.projects[0].name,
+        ]
+        verifylist = [
+            ('compute', True),
+            ('project', self.projects[0].name),
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        columns, data = self.cmd.take_action(parsed_args)
+        ret_quotas = list(data)
+
+        self.assertEqual(self.compute_column_header, columns)
+        self.assertEqual(self.compute_reference_data, ret_quotas[0])
+        self.assertEqual(1, len(ret_quotas))
+
     def test_quota_list_network(self):
         # Two projects with non-default quotas
         self.network.get_quota = mock.Mock(
@@ -461,6 +484,29 @@ class TestQuotaList(TestQuota):
         self.assertEqual(self.network_reference_data, ret_quotas[0])
         self.assertEqual(1, len(ret_quotas))
 
+    def test_quota_list_network_by_project(self):
+        # Two projects with non-default quotas
+        self.network.get_quota = mock.Mock(
+            side_effect=self.network_quotas,
+        )
+
+        arglist = [
+            '--network',
+            '--project', self.projects[0].name,
+        ]
+        verifylist = [
+            ('network', True),
+            ('project', self.projects[0].name),
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        columns, data = self.cmd.take_action(parsed_args)
+        ret_quotas = list(data)
+
+        self.assertEqual(self.network_column_header, columns)
+        self.assertEqual(self.network_reference_data, ret_quotas[0])
+        self.assertEqual(1, len(ret_quotas))
+
     def test_quota_list_volume(self):
         # Two projects with non-default quotas
         self.volume.quotas.get = mock.Mock(
@@ -520,6 +566,29 @@ class TestQuotaList(TestQuota):
         ]
         verifylist = [
             ('volume', True),
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        columns, data = self.cmd.take_action(parsed_args)
+        ret_quotas = list(data)
+
+        self.assertEqual(self.volume_column_header, columns)
+        self.assertEqual(self.volume_reference_data, ret_quotas[0])
+        self.assertEqual(1, len(ret_quotas))
+
+    def test_quota_list_volume_by_project(self):
+        # Two projects with non-default quotas
+        self.volume.quotas.get = mock.Mock(
+            side_effect=self.volume_quotas,
+        )
+
+        arglist = [
+            '--volume',
+            '--project', self.projects[0].name,
+        ]
+        verifylist = [
+            ('volume', True),
+            ('project', self.projects[0].name),
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
