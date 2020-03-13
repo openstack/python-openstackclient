@@ -24,6 +24,11 @@ from six.moves import urllib
 from openstackclient.api import api
 
 
+GLOBAL_READ_ACL = ".r:*"
+LIST_CONTENTS_ACL = ".rlistings"
+PUBLIC_CONTAINER_ACLS = [GLOBAL_READ_ACL, LIST_CONTENTS_ACL]
+
+
 class APIv1(api.BaseAPI):
     """Object Store v1 API"""
 
@@ -33,15 +38,32 @@ class APIv1(api.BaseAPI):
     def container_create(
         self,
         container=None,
+        public=False,
+        storage_policy=None
     ):
         """Create a container
 
         :param string container:
             name of container to create
+        :param bool public:
+            Boolean value indicating if the container should be publicly
+            readable. Defaults to False.
+        :param string storage_policy:
+            Name of the a specific storage policy to use. If not specified
+            swift will use its default storage policy.
         :returns:
             dict of returned headers
         """
-        response = self.create(urllib.parse.quote(container), method='PUT')
+
+        headers = {}
+        if public:
+            headers['x-container-read'] = ",".join(PUBLIC_CONTAINER_ACLS)
+        if storage_policy is not None:
+            headers['x-storage-policy'] = storage_policy
+
+        response = self.create(
+            urllib.parse.quote(container), method='PUT', headers=headers)
+
         data = {
             'account': self._find_account_id(),
             'container': container,
@@ -173,7 +195,8 @@ class APIv1(api.BaseAPI):
             'object_count': response.headers.get(
                 'x-container-object-count'
             ),
-            'bytes_used': response.headers.get('x-container-bytes-used')
+            'bytes_used': response.headers.get('x-container-bytes-used'),
+            'storage_policy': response.headers.get('x-storage-policy'),
         }
 
         if 'x-container-read' in response.headers:

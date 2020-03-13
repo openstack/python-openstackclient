@@ -151,12 +151,14 @@ class TestContainer(TestObjectAPIv1):
             'X-Container-Meta-Owner': FAKE_ACCOUNT,
             'x-container-object-count': '1',
             'x-container-bytes-used': '577',
+            'x-storage-policy': 'o1--sr-r3'
         }
         resp = {
             'account': FAKE_ACCOUNT,
             'container': 'qaz',
             'object_count': '1',
             'bytes_used': '577',
+            'storage_policy': 'o1--sr-r3',
             'properties': {'Owner': FAKE_ACCOUNT},
         }
         self.requests_mock.register_uri(
