@@ -412,6 +412,11 @@ class SetFloatingIP(command.Command):
             help=_("Fixed IP of the port "
                    "(required only if port has multiple IPs)")
         )
+        parser.add_argument(
+            '--description',
+            metavar='<description>',
+            help=_('Set floating IP description')
+        )
         qos_policy_group = parser.add_mutually_exclusive_group()
         qos_policy_group.add_argument(
             '--qos-policy',
@@ -442,6 +447,9 @@ class SetFloatingIP(command.Command):
 
         if parsed_args.fixed_ip_address:
             attrs['fixed_ip_address'] = parsed_args.fixed_ip_address
+
+        if parsed_args.description:
+            attrs['description'] = parsed_args.description
 
         if parsed_args.qos_policy:
             attrs['qos_policy_id'] = client.find_qos_policy(

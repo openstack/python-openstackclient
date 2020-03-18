@@ -776,6 +776,32 @@ class TestSetFloatingIP(TestFloatingIPNetwork):
         self.network.update_ip.assert_called_once_with(
             self.floating_ip, **attrs)
 
+    def test_description_option(self):
+        arglist = [
+            self.floating_ip.id,
+            '--port', self.floating_ip.port_id,
+            '--description', self.floating_ip.description,
+        ]
+        verifylist = [
+            ('floating_ip', self.floating_ip.id),
+            ('port', self.floating_ip.port_id),
+            ('description', self.floating_ip.description),
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        self.cmd.take_action(parsed_args)
+
+        attrs = {
+            'port_id': self.floating_ip.port_id,
+            'description': self.floating_ip.description,
+        }
+        self.network.find_ip.assert_called_once_with(
+            self.floating_ip.id,
+            ignore_missing=False,
+        )
+        self.network.update_ip.assert_called_once_with(
+            self.floating_ip, **attrs)
+
     def test_qos_policy_option(self):
         qos_policy = network_fakes.FakeNetworkQosPolicy.create_one_qos_policy()
         self.network.find_qos_policy = mock.Mock(return_value=qos_policy)
