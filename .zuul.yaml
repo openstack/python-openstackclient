@@ -157,16 +157,16 @@
     data:
       username: osclientzuul
       password: !encrypted/pkcs1-oaep
-        - qQ0O7bXUWBhkygjSKcPHogWvR2ax67EgHZcYd27zgg6KvpdK9GsNTRTIeD5yeBb9Dzr/K
-          RcAf+0pQT3fRIsKyEx2odHNevGpePjmUZENd5vHTIvTuZWq+X5ehpXgkEYvw3jwYJg78F
-          ids1igEaHsE86OMHjWauyc1QUzYfwkf+ziK7TIOZ6RpVRHgq5Bf9S+Hz/QnVdxOLaIlO0
-          VC/bchKX/36vOQKd20KkNhBQAnUlDBQWMnZocvZKZYtkDs2w2vqlnUPRlzEppBWm5Yae6
-          5acyIHEEAIbECd/wC/OT8YndoeOUiqOZY0uSWtv4JgEKl6AexP+54VxPrsz7LayRMDJ4B
-          jVCZK6y1sss9mF6mNXvZipPEVgklGcGM76GfGdqTeuQ3i8CqaKmCTBo1IKlEmcslXR/5T
-          vjibWzvNHPpFcpYEEM6GLGg2K6nja1MCE1s/L76pN3FtxCZHdl8rZXU+mJH37uQk9zvdR
-          Y6qtWJ+3o5sbgYfjgdp/nPs1xXMUvuG83qykuzYgtOYvlEw51eqwd2SPXd3op/KApAhKR
-          Zlu8fBUkm/FyXToOpCl0s/eR4w1d+Spv0A+UhrS5pmV18+NlpNs0Krj5wS9KWMUIec0ae
-          opgPkQrFfj/zD45rrIUJRzT+alZlZeK+WQfeNOXt2i6MLtOPesHMukTc6ksXtA=
+        - n764ECFMGlEna6S5ezNyvW5nmq8IZCBts/7QRzdo2tWLQMp/mNFoaQensd797Ra3NLaS7
+          NzCFJwGQvgWF6hJJIUfnf3h2+RecCwHahLN4r95RtjhAltARzHSZVDCeNXhiRJqSDS4Qc
+          kmXR2NTNfz8kkWUhnWNVjaBhYdMk0LnqZjQCxiCaR+eNdmeecWlSuJXg0Uz6vObLNfGHO
+          KxV3RiGc4J0AATYpYFEpC/SyPbBk0pJv6JWJb7nNIe0CEVW/7hkCfA6o3hQ5PNAswn5ZP
+          sp/L8NdoRQe/fEWOm/9K2lZqQehEj6SKsk6jkx3Wiy5stqFcGfafrxWcfQoQWpKHY5TeP
+          R9U0jJy+ipnhfnm0flBIBt9XHYykrTuFwp5QVdRhRRQDwg5RZBX+VmaBeSQlS2Z0oJmCX
+          PXFQmUDfnoU5go0BALlXDdy1sYE+SrQH4Eydw+hgf2oDFh+EkdhXMFburxnU8B7t4ey14
+          EM1W4BdOBUgeI4fa/92BP6ipgUFvcJu19FYTdg4v7NZ/ApnwZnZ5KC4eYlDaKNQiPQUmW
+          pFJrnxxYXeDgmiXij8mCCgo8KEGvPCKHAghZ14iBCaWqvniLXuOSkFI1gYU+llg4i2jAp
+          ts3GfQqBe8jfROGPMexVuonqZxZBxvWmIgDsAaqAeJCtykS1xeIiAMtA8rNl40=
 
 - job:
     name: osc-build-image
@@ -191,19 +191,24 @@
       - python-builder-container-image
       - python-base-container-image
     provides: osc-container-image
-    vars: *osc_image_vars
-    secrets: &osc_image_secrets
+    secrets:
       - name: docker_credentials
         secret: osc-dockerhub
         pass-to-parent: true
+    vars: *osc_image_vars
 
 - job:
     name: osc-promote-image
     parent: opendev-promote-docker-image
     allowed-projects: openstack/python-openstackclient
     description: Promote previously uploaded Docker images.
+    secrets:
+      - name: docker_credentials
+        secret: osc-dockerhub
+        pass-to-parent: true
+    nodeset:
+      nodes: []
     vars: *osc_image_vars
-    secrets: *osc_image_secrets
 
 - project-template:
     name: osc-tox-unit-tips
