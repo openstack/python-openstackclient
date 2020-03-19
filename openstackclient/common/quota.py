@@ -516,6 +516,11 @@ class SetQuota(common.NetDetectionMixin, command.Command):
             metavar='<volume-type>',
             help=_('Set quotas for a specific <volume-type>'),
         )
+        parser.add_argument(
+            '--force',
+            action='store_true',
+            help=_('Force quota update (only supported by compute)')
+        )
         return parser
 
     def take_action(self, parsed_args):
@@ -528,6 +533,9 @@ class SetQuota(common.NetDetectionMixin, command.Command):
             value = getattr(parsed_args, k, None)
             if value is not None:
                 compute_kwargs[k] = value
+
+        if parsed_args.force:
+            compute_kwargs['force'] = True
 
         volume_kwargs = {}
         for k, v in VOLUME_QUOTAS.items():

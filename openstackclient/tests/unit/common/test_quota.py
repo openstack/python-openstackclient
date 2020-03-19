@@ -831,6 +831,56 @@ class TestQuotaSet(TestQuota):
         self.assertNotCalled(self.network_mock.update_quota)
         self.assertIsNone(result)
 
+    def test_quota_set_with_force(self):
+        arglist = [
+            '--cores', str(compute_fakes.core_num),
+            '--ram', str(compute_fakes.ram_num),
+            '--instances', str(compute_fakes.instance_num),
+            '--volumes', str(volume_fakes.QUOTA['volumes']),
+            '--subnets', str(network_fakes.QUOTA['subnet']),
+            '--force',
+            self.projects[0].name,
+        ]
+        verifylist = [
+            ('cores', compute_fakes.core_num),
+            ('ram', compute_fakes.ram_num),
+            ('instances', compute_fakes.instance_num),
+            ('volumes', volume_fakes.QUOTA['volumes']),
+            ('subnet', network_fakes.QUOTA['subnet']),
+            ('force', True),
+            ('project', self.projects[0].name),
+        ]
+        self.app.client_manager.network_endpoint_enabled = True
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        result = self.cmd.take_action(parsed_args)
+
+        kwargs_compute = {
+            'cores': compute_fakes.core_num,
+            'ram': compute_fakes.ram_num,
+            'instances': compute_fakes.instance_num,
+            'force': True,
+        }
+        kwargs_volume = {
+            'volumes': volume_fakes.QUOTA['volumes'],
+        }
+        kwargs_network = {
+            'subnet': network_fakes.QUOTA['subnet'],
+        }
+        self.compute_quotas_mock.update.assert_called_once_with(
+            self.projects[0].id,
+            **kwargs_compute
+        )
+        self.volume_quotas_mock.update.assert_called_once_with(
+            self.projects[0].id,
+            **kwargs_volume
+        )
+        self.network_mock.update_quota.assert_called_once_with(
+            self.projects[0].id,
+            **kwargs_network
+        )
+        self.assertIsNone(result)
+
 
 class TestQuotaShow(TestQuota):
 
