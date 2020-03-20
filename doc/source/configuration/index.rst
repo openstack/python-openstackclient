@@ -61,14 +61,14 @@ The keys match the :program:`openstack` global options but without the
     clouds:
       devstack:
         auth:
-          auth_url: http://192.168.122.10:35357/
+          auth_url: http://192.168.122.10:5000/
           project_name: demo
           username: demo
           password: 0penstack
         region_name: RegionOne
       ds-admin:
         auth:
-          auth_url: http://192.168.122.10:35357/
+          auth_url: http://192.168.122.10:5000/
           project_name: admin
           username: admin
           password: 0penstack
@@ -121,7 +121,7 @@ domain name as shown in the example below:
     clouds:
       devstack:
         auth:
-          auth_url: http://192.168.122.10:35357/
+          auth_url: http://192.168.122.10:5000/
           project_name: demo
           username: demo
           password: 0penstack
@@ -171,7 +171,7 @@ By setting `log_level` or `log_file` in the configuration
     clouds:
       devstack:
         auth:
-          auth_url: http://192.168.122.10:35357/
+          auth_url: http://192.168.122.10:5000/
           project_name: demo
           username: demo
           password: 0penstack
@@ -182,7 +182,7 @@ By setting `log_level` or `log_file` in the configuration
           level: info
       ds-admin:
         auth:
-          auth_url: http://192.168.122.10:35357/
+          auth_url: http://192.168.122.10:5000/
           project_name: admin
           username: admin
           password: 0penstack
