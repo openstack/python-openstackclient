@@ -176,18 +176,21 @@ or
 Standardize Import Format
 =========================
 
-.. _`Import Order Guide`: https://docs.openstack.org/hacking/latest/user/hacking.html#imports
+More information about Import Format, see `Import Order Guide
+<https://docs.openstack.org/hacking/latest/user/hacking.html#imports>`__.
 
 The import order shows below:
 
-* {{stdlib imports in human alphabetical order}}
-* \n
-* {{third-party lib imports in human alphabetical order}}
-* \n
-* {{project imports in human alphabetical order}}
-* \n
-* \n
-* {{begin your code}}
+.. code-block:: none
+
+   {{stdlib imports in human alphabetical order}}
+   \n
+   {{third-party lib imports in human alphabetical order}}
+   \n
+   {{project imports in human alphabetical order}}
+   \n
+   \n
+   {{begin your code}}
 
 Example
 ~~~~~~~
