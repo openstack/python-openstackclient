@@ -177,6 +177,11 @@ class CreateRole(command.ShowOne):
             help=_('New role name'),
         )
         parser.add_argument(
+            '--description',
+            metavar='<description>',
+            help=_('Add description about the role'),
+        )
+        parser.add_argument(
             '--domain',
             metavar='<domain>',
             help=_('Domain the role belongs to (name or ID)'),
@@ -198,7 +203,8 @@ class CreateRole(command.ShowOne):
 
         try:
             role = identity_client.roles.create(
-                name=parsed_args.name, domain=domain_id)
+                name=parsed_args.name, domain=domain_id,
+                description=parsed_args.description)
 
         except ks_exc.Conflict:
             if parsed_args.or_show:
@@ -346,6 +352,11 @@ class SetRole(command.Command):
             help=_('Role to modify (name or ID)'),
         )
         parser.add_argument(
+            '--description',
+            metavar='<description>',
+            help=_('Add description about the role'),
+        )
+        parser.add_argument(
             '--domain',
             metavar='<domain>',
             help=_('Domain the role belongs to (name or ID)'),
@@ -369,7 +380,8 @@ class SetRole(command.Command):
                                    parsed_args.role,
                                    domain_id=domain_id)
 
-        identity_client.roles.update(role.id, name=parsed_args.name)
+        identity_client.roles.update(role.id, name=parsed_args.name,
+                                     description=parsed_args.description)
 
 
 class ShowRole(command.ShowOne):

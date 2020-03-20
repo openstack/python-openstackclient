@@ -1,0 +1,8 @@
+---
+features:
+  - |
+    Now user can add the description when user create's
+    the role using OSC ``openstack role create`` command.
+    User can add the description by adding
+    `--description <Description>` to OSC
+    ``openstack role create`` command.

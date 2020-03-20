@@ -332,6 +332,7 @@ class TestRoleCreate(TestRole):
         kwargs = {
             'domain': None,
             'name': identity_fakes.role_name,
+            'description': None,
         }
 
         # RoleManager.create(name=, domain=)
@@ -375,6 +376,7 @@ class TestRoleCreate(TestRole):
         kwargs = {
             'domain': identity_fakes.domain_id,
             'name': identity_fakes.ROLE_2['name'],
+            'description': None,
         }
 
         # RoleManager.create(name=, domain=)
@@ -386,6 +388,49 @@ class TestRoleCreate(TestRole):
         self.assertEqual(collist, columns)
         datalist = (
             identity_fakes.domain_id,
+            identity_fakes.ROLE_2['id'],
+            identity_fakes.ROLE_2['name'],
+        )
+        self.assertEqual(datalist, data)
+
+    def test_role_create_with_description(self):
+
+        self.roles_mock.create.return_value = fakes.FakeResource(
+            None,
+            copy.deepcopy(identity_fakes.ROLE_2),
+            loaded=True,
+        )
+        arglist = [
+            '--description', identity_fakes.role_description,
+            identity_fakes.ROLE_2['name'],
+        ]
+        verifylist = [
+            ('description', identity_fakes.role_description),
+            ('name', identity_fakes.ROLE_2['name']),
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        # In base command class ShowOne in cliff, abstract method take_action()
+        # returns a two-part tuple with a tuple of column names and a tuple of
+        # data to be shown.
+        columns, data = self.cmd.take_action(parsed_args)
+
+        # Set expected values
+        kwargs = {
+            'description': identity_fakes.role_description,
+            'name': identity_fakes.ROLE_2['name'],
+            'domain': None,
+        }
+
+        # RoleManager.create(name=, domain=)
+        self.roles_mock.create.assert_called_with(
+            **kwargs
+        )
+
+        collist = ('domain', 'id', 'name')
+        self.assertEqual(collist, columns)
+        datalist = (
+            'd1',
             identity_fakes.ROLE_2['id'],
             identity_fakes.ROLE_2['name'],
         )
@@ -825,6 +870,7 @@ class TestRoleSet(TestRole):
         # Set expected values
         kwargs = {
             'name': 'over',
+            'description': None,
         }
         # RoleManager.update(role, name=)
         self.roles_mock.update.assert_called_with(
@@ -856,6 +902,39 @@ class TestRoleSet(TestRole):
         # Set expected values
         kwargs = {
             'name': 'over',
+            'description': None,
+        }
+        # RoleManager.update(role, name=)
+        self.roles_mock.update.assert_called_with(
+            identity_fakes.ROLE_2['id'],
+            **kwargs
+        )
+        self.assertIsNone(result)
+
+    def test_role_set_description(self):
+        self.roles_mock.get.return_value = fakes.FakeResource(
+            None,
+            copy.deepcopy(identity_fakes.ROLE_2),
+            loaded=True,
+        )
+        arglist = [
+            '--name', 'over',
+            '--description', identity_fakes.role_description,
+            identity_fakes.ROLE_2['name'],
+        ]
+        verifylist = [
+            ('name', 'over'),
+            ('description', identity_fakes.role_description),
+            ('role', identity_fakes.ROLE_2['name']),
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        result = self.cmd.take_action(parsed_args)
+
+        # Set expected values
+        kwargs = {
+            'name': 'over',
+            'description': identity_fakes.role_description,
         }
         # RoleManager.update(role, name=)
         self.roles_mock.update.assert_called_with(

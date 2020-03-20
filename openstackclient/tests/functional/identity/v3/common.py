@@ -33,7 +33,7 @@ class IdentityTests(base.TestCase):
                    'password_expires_at']
     PROJECT_FIELDS = ['description', 'id', 'domain_id', 'is_domain',
                       'enabled', 'name', 'parent_id']
-    ROLE_FIELDS = ['id', 'name', 'domain_id']
+    ROLE_FIELDS = ['id', 'name', 'domain_id', 'description']
     SERVICE_FIELDS = ['id', 'enabled', 'name', 'type', 'description']
     REGION_FIELDS = ['description', 'enabled', 'parent_region', 'region']
     ENDPOINT_FIELDS = ['id', 'region', 'region_id', 'service_id',
