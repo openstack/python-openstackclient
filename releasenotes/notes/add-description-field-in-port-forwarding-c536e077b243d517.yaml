@@ -1,0 +1,6 @@
+---
+features:
+  - |
+    Add a new option `--description` to
+    ``floating ip port forwarding create`` and
+    ``floating ip port forwarding set`` commands.

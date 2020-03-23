@@ -75,6 +75,12 @@ class CreateFloatingIPPortForwarding(command.ShowOne):
             required=True,
             help=_("The protocol used in the floating IP "
                    "port forwarding, for instance: TCP, UDP")
+        ),
+        parser.add_argument(
+            '--description',
+            metavar='<description>',
+            help=_("A text to describe/contextualize the use of the "
+                   "port forwarding configuration")
         )
         parser.add_argument(
             'floating_ip',
@@ -112,6 +118,9 @@ class CreateFloatingIPPortForwarding(command.ShowOne):
             attrs['internal_port_id'] = port.id
         attrs['internal_ip_address'] = parsed_args.internal_ip_address
         attrs['protocol'] = parsed_args.protocol
+
+        if parsed_args.description is not None:
+            attrs['description'] = parsed_args.description
 
         obj = client.create_floating_ip_port_forwarding(
             floating_ip.id,
@@ -212,6 +221,7 @@ class ListFloatingIPPortForwarding(command.Lister):
             'internal_port',
             'external_port',
             'protocol',
+            'description',
         )
         headers = (
             'ID',
@@ -220,6 +230,7 @@ class ListFloatingIPPortForwarding(command.Lister):
             'Internal Port',
             'External Port',
             'Protocol',
+            'Description',
         )
 
         query = {}
@@ -296,6 +307,12 @@ class SetFloatingIPPortForwarding(command.Command):
             metavar='<protocol>',
             choices=['tcp', 'udp'],
             help=_("The IP protocol used in the floating IP port forwarding")
+        ),
+        parser.add_argument(
+            '--description',
+            metavar='<description>',
+            help=_("A text to describe/contextualize the use of "
+                   "the port forwarding configuration")
         )
 
         return parser
@@ -331,6 +348,9 @@ class SetFloatingIPPortForwarding(command.Command):
 
         if parsed_args.protocol:
             attrs['protocol'] = parsed_args.protocol
+
+        if parsed_args.description is not None:
+            attrs['description'] = parsed_args.description
 
         client.update_floating_ip_port_forwarding(
             floating_ip.id, parsed_args.port_forwarding_id, **attrs)

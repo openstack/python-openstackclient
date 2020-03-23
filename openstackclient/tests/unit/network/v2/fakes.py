@@ -1843,6 +1843,7 @@ class FakeFloatingIPPortForwarding(object):
             'internal_port': randint(1, 65535),
             'external_port': randint(1, 65535),
             'protocol': 'tcp',
+            'description': 'some description',
         }
 
         # Overwrite default attributes.

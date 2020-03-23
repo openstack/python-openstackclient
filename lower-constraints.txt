@@ -24,7 +24,7 @@ fixtures==3.0.0
 flake8-import-order==0.13
 flake8==2.6.2
 future==0.16.0
-futurist==1.2.0
+futurist==2.1.0
 gitdb==0.6.4
 GitPython==1.0.1
 gnocchiclient==3.3.1
@@ -50,7 +50,7 @@ msgpack-python==0.4.0
 munch==2.1.0
 netaddr==0.7.18
 netifaces==0.10.4
-openstacksdk==0.38.0
+openstacksdk==0.44.0
 os-client-config==1.28.0
 os-service-types==1.7.0
 os-testr==1.0.0

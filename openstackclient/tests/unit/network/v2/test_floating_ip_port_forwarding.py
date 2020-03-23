@@ -62,6 +62,7 @@ class TestCreateFloatingIPPortForwarding(TestFloatingIPPortForwarding):
             self.app, self.namespace)
 
         self.columns = (
+            'description',
             'external_port',
             'floatingip_id',
             'id',
@@ -73,6 +74,7 @@ class TestCreateFloatingIPPortForwarding(TestFloatingIPPortForwarding):
         )
 
         self.data = (
+            self.new_port_forwarding.description,
             self.new_port_forwarding.external_port,
             self.new_port_forwarding.floatingip_id,
             self.new_port_forwarding.id,
@@ -102,6 +104,8 @@ class TestCreateFloatingIPPortForwarding(TestFloatingIPPortForwarding):
             self.new_port_forwarding.floatingip_id,
             '--internal-ip-address',
             self.new_port_forwarding.internal_ip_address,
+            '--description',
+            self.new_port_forwarding.description,
         ]
         verifylist = [
             ('port', self.new_port_forwarding.internal_port_id),
@@ -111,6 +115,7 @@ class TestCreateFloatingIPPortForwarding(TestFloatingIPPortForwarding):
             ('floating_ip', self.new_port_forwarding.floatingip_id),
             ('internal_ip_address', self.new_port_forwarding.
                 internal_ip_address),
+            ('description', self.new_port_forwarding.description),
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
         columns, data = self.cmd.take_action(parsed_args)
@@ -126,6 +131,7 @@ class TestCreateFloatingIPPortForwarding(TestFloatingIPPortForwarding):
                     'internal_port_id': self.new_port_forwarding.
                     internal_port_id,
                     'protocol': self.new_port_forwarding.protocol,
+                    'description': self.new_port_forwarding.description,
                 })
         self.assertEqual(self.columns, columns)
         self.assertEqual(self.data, data)
@@ -251,7 +257,8 @@ class TestListFloatingIPPortForwarding(TestFloatingIPPortForwarding):
         'Internal IP Address',
         'Internal Port',
         'External Port',
-        'Protocol'
+        'Protocol',
+        'Description',
     )
 
     def setUp(self):
@@ -273,6 +280,7 @@ class TestListFloatingIPPortForwarding(TestFloatingIPPortForwarding):
                 port_forwarding.internal_port,
                 port_forwarding.external_port,
                 port_forwarding.protocol,
+                port_forwarding.description,
             ))
         self.network.floating_ip_port_forwardings = mock.Mock(
             return_value=self.port_forwardings
@@ -393,6 +401,7 @@ class TestSetFloatingIPPortForwarding(TestFloatingIPPortForwarding):
             '--internal-protocol-port', '100',
             '--external-protocol-port', '200',
             '--protocol', 'tcp',
+            '--description', 'some description',
             self._port_forwarding.floatingip_id,
             self._port_forwarding.id,
         ]
@@ -402,6 +411,7 @@ class TestSetFloatingIPPortForwarding(TestFloatingIPPortForwarding):
             ('internal_protocol_port', 100),
             ('external_protocol_port', 200),
             ('protocol', 'tcp'),
+            ('description', 'some description'),
             ('floating_ip', self._port_forwarding.floatingip_id),
             ('port_forwarding_id', self._port_forwarding.id),
         ]
@@ -415,6 +425,7 @@ class TestSetFloatingIPPortForwarding(TestFloatingIPPortForwarding):
             'internal_port': 100,
             'external_port': 200,
             'protocol': 'tcp',
+            'description': 'some description',
         }
         self.network.update_floating_ip_port_forwarding.assert_called_with(
             self._port_forwarding.floatingip_id,
@@ -428,6 +439,7 @@ class TestShowFloatingIPPortForwarding(TestFloatingIPPortForwarding):
 
     # The port forwarding to show.
     columns = (
+        'description',
         'external_port',
         'floatingip_id',
         'id',
@@ -450,6 +462,7 @@ class TestShowFloatingIPPortForwarding(TestFloatingIPPortForwarding):
             )
         )
         self.data = (
+            self._port_forwarding.description,
             self._port_forwarding.external_port,
             self._port_forwarding.floatingip_id,
             self._port_forwarding.id,
