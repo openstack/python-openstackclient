@@ -157,16 +157,16 @@
     data:
       username: osclientzuul
       password: !encrypted/pkcs1-oaep
-        - n764ECFMGlEna6S5ezNyvW5nmq8IZCBts/7QRzdo2tWLQMp/mNFoaQensd797Ra3NLaS7
-          NzCFJwGQvgWF6hJJIUfnf3h2+RecCwHahLN4r95RtjhAltARzHSZVDCeNXhiRJqSDS4Qc
-          kmXR2NTNfz8kkWUhnWNVjaBhYdMk0LnqZjQCxiCaR+eNdmeecWlSuJXg0Uz6vObLNfGHO
-          KxV3RiGc4J0AATYpYFEpC/SyPbBk0pJv6JWJb7nNIe0CEVW/7hkCfA6o3hQ5PNAswn5ZP
-          sp/L8NdoRQe/fEWOm/9K2lZqQehEj6SKsk6jkx3Wiy5stqFcGfafrxWcfQoQWpKHY5TeP
-          R9U0jJy+ipnhfnm0flBIBt9XHYykrTuFwp5QVdRhRRQDwg5RZBX+VmaBeSQlS2Z0oJmCX
-          PXFQmUDfnoU5go0BALlXDdy1sYE+SrQH4Eydw+hgf2oDFh+EkdhXMFburxnU8B7t4ey14
-          EM1W4BdOBUgeI4fa/92BP6ipgUFvcJu19FYTdg4v7NZ/ApnwZnZ5KC4eYlDaKNQiPQUmW
-          pFJrnxxYXeDgmiXij8mCCgo8KEGvPCKHAghZ14iBCaWqvniLXuOSkFI1gYU+llg4i2jAp
-          ts3GfQqBe8jfROGPMexVuonqZxZBxvWmIgDsAaqAeJCtykS1xeIiAMtA8rNl40=
+        - X666jS/g43U4ykLzuQSNhl9XOVpKViT1bMQb/YJgTHj8AzigONu3+4BrxItS7mqwp9AWp
+          YtNHZ0Dju3piNw07ulnsOAYHpBcz+zFK5UzVMXzkHk5vu1W0WWYLVayU4HJKliAwPmNii
+          J3itt196sQ6IhIe/Hamcm715rP9cQd50w32lvAV4RNXoc4Gq7ZzOIzyA80UEl6HY7jiR9
+          WYFI4PoCrmNxKKV8YAaH1OlJW71WF0O+77+oostKwFG35bxIniUl1ZinxOgjC2va8j5nT
+          KKgVgQdjwjuMOXEA6iiLewAo39P+nL/81AheDGQNex6x1oJuVRklQmiznbQI3knTOeJIh
+          ncRJuE9RfS0xuR5J45WOdKWVjIYpMkTXF+5Kn/pEtNelA2ADzaloGidNxEOvOD74vVf68
+          mtZ1kffQi6d7yq57m0ZJ8WwTEo5g8Z+tmS40U2vdZ0vN5c/keGJisKbOpwavloP9owize
+          U9EgIAMIT6LE/fJWPGGugMR57z7gnCNiq970crTjWvsP1yFGvo/FQiUpplv5ni6C+s9jq
+          1rba4Ya0uxQa2r5zjFXNJ52zGoRVlpjSsfpEtvCmTzfF5p0fa2aSyDs8ZOjaiDCVSmTPn
+          SE9rutyH0XO7CP9RFetxirfgSQ8ZDpUmXpfKaTGa0glIfjmmf4yyaaJRKOkubg=
 
 - job:
     name: osc-build-image
