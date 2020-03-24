@@ -460,6 +460,44 @@ class TestCreateSubnet(TestSubnet):
         self.assertEqual(self.columns, columns)
         self.assertItemEqual(self.data, data)
 
+    def _test_create_with_dns(self, publish_dns=True):
+        arglist = [
+            "--subnet-range", self._subnet.cidr,
+            "--network", self._subnet.network_id,
+            self._subnet.name,
+        ]
+        if publish_dns:
+            arglist += ['--dns-publish-fixed-ip']
+        else:
+            arglist += ['--no-dns-publish-fixed-ip']
+        verifylist = [
+            ('name', self._subnet.name),
+            ('subnet_range', self._subnet.cidr),
+            ('network', self._subnet.network_id),
+            ('ip_version', self._subnet.ip_version),
+            ('gateway', 'auto'),
+        ]
+        verifylist.append(('dns_publish_fixed_ip', publish_dns))
+
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+        columns, data = (self.cmd.take_action(parsed_args))
+
+        self.network.create_subnet.assert_called_once_with(
+            cidr=self._subnet.cidr,
+            ip_version=self._subnet.ip_version,
+            name=self._subnet.name,
+            network_id=self._subnet.network_id,
+            dns_publish_fixed_ip=publish_dns,
+        )
+        self.assertEqual(self.columns, columns)
+        self.assertItemEqual(self.data, data)
+
+    def test_create_with_dns(self):
+        self._test_create_with_dns(publish_dns=True)
+
+    def test_create_with_no_dns(self):
+        self._test_create_with_dns(publish_dns=False)
+
     def _test_create_with_tag(self, add_tags=True):
         arglist = [
             "--subnet-range", self._subnet.cidr,

@@ -1,0 +1,8 @@
+---
+features:
+  - |
+    Add ``--dns-publish-fixed-ip`` and ``--no-dns-publish-fixed-ip``
+    options to ``create subnet`` and ``set subnet`` commands to
+    control the publishing of fixed IPs in DNS when the
+    ``subnet_dns_publish_fixed_ip`` Neutron extension is enabled.
+    [Bug `1784879 <https://bugs.launchpad.net/neutron/+bug/1784879>`_]
