@@ -67,11 +67,15 @@ def make_client(instance):
     # Remember interface only if it is set
     kwargs = utils.build_kwargs_dict('endpoint_type', instance.interface)
 
+    endpoint_override = instance.sdk_connection.config.get_endpoint(
+        'block-storage')
+
     client = volume_client(
         session=instance.session,
         extensions=extensions,
         http_log_debug=http_log_debug,
         region_name=instance.region_name,
+        endpoint_override=endpoint_override,
         **kwargs
     )
 
