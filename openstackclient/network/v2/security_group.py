@@ -202,6 +202,7 @@ class DeleteSecurityGroup(common.NetworkAndComputeDelete):
 # the OSC minimum requirements include SDK 1.0.
 class ListSecurityGroup(common.NetworkAndComputeLister):
     _description = _("List security groups")
+    FIELDS_TO_RETRIEVE = ['id', 'name', 'description', 'project_id', 'tags']
 
     def update_parser_network(self, parser):
         if not self.is_docs_build:
@@ -251,7 +252,8 @@ class ListSecurityGroup(common.NetworkAndComputeLister):
             filters['project_id'] = project_id
 
         _tag.get_tag_filtering_args(parsed_args, filters)
-        data = client.security_groups(**filters)
+        data = client.security_groups(fields=self.FIELDS_TO_RETRIEVE,
+                                      **filters)
 
         columns = (
             "ID",
