@@ -115,7 +115,7 @@ List volume snapshots
 .. option:: --status <status>
 
     Filters results by a status.
-    ('available', 'error', 'creating', 'deleting' or 'error-deleting')
+    ('available', 'error', 'creating', 'deleting' or 'error_deleting')
 
 .. option:: --name <name>
 
