@@ -1,0 +1,4 @@
+---
+features:
+  - |
+   Complete switch from glanceclient to the SDK for image service.

@@ -26,64 +26,18 @@ DEFAULT_API_VERSION = '2'
 API_VERSION_OPTION = 'os_image_api_version'
 API_NAME = "image"
 API_VERSIONS = {
-    "1": "glanceclient.v1.client.Client",
+    "1": "openstack.connection.Connection",
     "2": "openstack.connection.Connection",
-}
-
-IMAGE_API_TYPE = 'image'
-IMAGE_API_VERSIONS = {
-    '1': 'openstackclient.api.image_v1.APIv1',
-    '2': 'openstackclient.api.image_v2.APIv2',
 }
 
 
 def make_client(instance):
 
-    if instance._api_version[API_NAME] != '1':
-        LOG.debug(
-            'Image client initialized using OpenStack SDK: %s',
-            instance.sdk_connection.image,
-        )
-        return instance.sdk_connection.image
-    else:
-        """Returns an image service client"""
-        image_client = utils.get_client_class(
-            API_NAME,
-            instance._api_version[API_NAME],
-            API_VERSIONS)
-        LOG.debug('Instantiating image client: %s', image_client)
-
-        endpoint = instance.get_endpoint_for_service_type(
-            API_NAME,
-            region_name=instance.region_name,
-            interface=instance.interface,
-        )
-
-        client = image_client(
-            endpoint,
-            token=instance.auth.get_token(instance.session),
-            cacert=instance.cacert,
-            insecure=not instance.verify,
-        )
-
-        # Create the low-level API
-
-        image_api = utils.get_client_class(
-            API_NAME,
-            instance._api_version[API_NAME],
-            IMAGE_API_VERSIONS)
-        LOG.debug('Instantiating image api: %s', image_api)
-
-        client.api = image_api(
-            session=instance.session,
-            endpoint=instance.get_endpoint_for_service_type(
-                IMAGE_API_TYPE,
-                region_name=instance.region_name,
-                interface=instance.interface,
-            )
-        )
-
-        return client
+    LOG.debug(
+        'Image client initialized using OpenStack SDK: %s',
+        instance.sdk_connection.image,
+    )
+    return instance.sdk_connection.image
 
 
 def build_option_parser(parser):
