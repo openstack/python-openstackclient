@@ -41,8 +41,8 @@ class TestVolume(volume_fakes.TestVolume):
         self.users_mock = self.app.client_manager.identity.users
         self.users_mock.reset_mock()
 
-        self.images_mock = self.app.client_manager.image.images
-        self.images_mock.reset_mock()
+        self.find_image_mock = self.app.client_manager.image.find_image
+        self.find_image_mock.reset_mock()
 
         self.snapshots_mock = self.app.client_manager.volume.volume_snapshots
         self.snapshots_mock.reset_mock()
@@ -222,7 +222,7 @@ class TestVolumeCreate(TestVolume):
 
     def test_volume_create_image_id(self):
         image = image_fakes.FakeImage.create_one_image()
-        self.images_mock.get.return_value = image
+        self.find_image_mock.return_value = image
 
         arglist = [
             '--image', image.id,
@@ -260,7 +260,7 @@ class TestVolumeCreate(TestVolume):
 
     def test_volume_create_image_name(self):
         image = image_fakes.FakeImage.create_one_image()
-        self.images_mock.get.return_value = image
+        self.find_image_mock.return_value = image
 
         arglist = [
             '--image', image.name,

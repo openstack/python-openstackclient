@@ -31,8 +31,8 @@ class TestServerImage(compute_fakes.TestComputev2):
         self.servers_mock.reset_mock()
 
         # Get a shortcut to the image client ImageManager Mock
-        self.images_mock = self.app.client_manager.image.images
-        self.images_mock.reset_mock()
+        self.images_mock = self.app.client_manager.image
+        self.images_mock.find_image.reset_mock()
 
         # Set object attributes to be tested. Could be overwritten in subclass.
         self.attrs = {}
@@ -58,15 +58,18 @@ class TestServerImage(compute_fakes.TestComputev2):
 class TestServerImageCreate(TestServerImage):
 
     def image_columns(self, image):
-        columnlist = tuple(sorted(image.keys()))
+        # columnlist = tuple(sorted(image.keys()))
+        columnlist = (
+            'id', 'name', 'owner', 'protected', 'status', 'tags', 'visibility'
+        )
         return columnlist
 
     def image_data(self, image):
         datalist = (
             image['id'],
             image['name'],
-            image['owner'],
-            image['protected'],
+            image['owner_id'],
+            image['is_protected'],
             'active',
             format_columns.ListColumn(image.get('tags')),
             image['visibility'],
@@ -100,7 +103,7 @@ class TestServerImageCreate(TestServerImage):
                 count=count,
             )
 
-        self.images_mock.get = mock.Mock(side_effect=images)
+        self.images_mock.find_image = mock.Mock(side_effect=images)
         self.servers_mock.create_image = mock.Mock(
             return_value=images[0].id,
         )
@@ -188,7 +191,7 @@ class TestServerImageCreate(TestServerImage):
         )
 
         mock_wait_for_status.assert_called_once_with(
-            self.images_mock.get,
+            self.images_mock.get_image,
             images[0].id,
             callback=mock.ANY
         )
@@ -220,7 +223,7 @@ class TestServerImageCreate(TestServerImage):
         )
 
         mock_wait_for_status.assert_called_once_with(
-            self.images_mock.get,
+            self.images_mock.get_image,
             images[0].id,
             callback=mock.ANY
         )

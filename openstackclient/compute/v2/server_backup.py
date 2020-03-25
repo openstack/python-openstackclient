@@ -100,14 +100,11 @@ class CreateServerBackup(command.ShowOne):
         )
 
         image_client = self.app.client_manager.image
-        image = utils.find_resource(
-            image_client.images,
-            backup_name,
-        )
+        image = image_client.find_image(backup_name, ignore_missing=False)
 
         if parsed_args.wait:
             if utils.wait_for_status(
-                image_client.images.get,
+                image_client.get_image,
                 image.id,
                 callback=_show_progress,
             ):

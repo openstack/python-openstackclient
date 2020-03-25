@@ -32,8 +32,8 @@ class TestServerBackup(compute_fakes.TestComputev2):
         self.servers_mock.reset_mock()
 
         # Get a shortcut to the image client ImageManager Mock
-        self.images_mock = self.app.client_manager.image.images
-        self.images_mock.reset_mock()
+        self.images_mock = self.app.client_manager.image
+        self.images_mock.find_image.reset_mock()
 
         # Set object attributes to be tested. Could be overwritten in subclass.
         self.attrs = {}
@@ -60,15 +60,18 @@ class TestServerBackupCreate(TestServerBackup):
 
     # Just return whatever Image is testing with these days
     def image_columns(self, image):
-        columnlist = tuple(sorted(image.keys()))
+        # columnlist = tuple(sorted(image.keys()))
+        columnlist = (
+            'id', 'name', 'owner', 'protected', 'status', 'tags', 'visibility'
+        )
         return columnlist
 
     def image_data(self, image):
         datalist = (
             image['id'],
             image['name'],
-            image['owner'],
-            image['protected'],
+            image['owner_id'],
+            image['is_protected'],
             'active',
             format_columns.ListColumn(image.get('tags')),
             image['visibility'],
@@ -102,7 +105,8 @@ class TestServerBackupCreate(TestServerBackup):
                 count=count,
             )
 
-        self.images_mock.get = mock.Mock(side_effect=images)
+        # self.images_mock.get = mock.Mock(side_effect=images)
+        self.images_mock.find_image = mock.Mock(side_effect=images)
         return images
 
     def test_server_backup_defaults(self):
@@ -174,16 +178,18 @@ class TestServerBackupCreate(TestServerBackup):
     @mock.patch.object(common_utils, 'wait_for_status', return_value=False)
     def test_server_backup_wait_fail(self, mock_wait_for_status):
         servers = self.setup_servers_mock(count=1)
-        images = image_fakes.FakeImage.create_images(
-            attrs={
-                'name': servers[0].name,
-                'status': 'active',
-            },
-            count=5,
-        )
-
-        self.images_mock.get = mock.Mock(
-            side_effect=images,
+        images = self.setup_images_mock(count=1, servers=servers)
+#         images = image_fakes.FakeImage.create_images(
+#             attrs={
+#                 'name': servers[0].name,
+#                 'status': 'active',
+#             },
+#             count=1,
+#         )
+#
+#         self.images_mock.find_image.return_value = images[0]
+        self.images_mock.get_image = mock.Mock(
+            side_effect=images[0],
         )
 
         arglist = [
@@ -215,7 +221,7 @@ class TestServerBackupCreate(TestServerBackup):
         )
 
         mock_wait_for_status.assert_called_once_with(
-            self.images_mock.get,
+            self.images_mock.get_image,
             images[0].id,
             callback=mock.ANY
         )
@@ -223,16 +229,10 @@ class TestServerBackupCreate(TestServerBackup):
     @mock.patch.object(common_utils, 'wait_for_status', return_value=True)
     def test_server_backup_wait_ok(self, mock_wait_for_status):
         servers = self.setup_servers_mock(count=1)
-        images = image_fakes.FakeImage.create_images(
-            attrs={
-                'name': servers[0].name,
-                'status': 'active',
-            },
-            count=5,
-        )
+        images = self.setup_images_mock(count=1, servers=servers)
 
-        self.images_mock.get = mock.Mock(
-            side_effect=images,
+        self.images_mock.get_image = mock.Mock(
+            side_effect=images[0],
         )
 
         arglist = [
@@ -263,7 +263,7 @@ class TestServerBackupCreate(TestServerBackup):
         )
 
         mock_wait_for_status.assert_called_once_with(
-            self.images_mock.get,
+            self.images_mock.get_image,
             images[0].id,
             callback=mock.ANY
         )

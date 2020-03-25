@@ -14,13 +14,14 @@
 #
 
 import copy
+import io
+import os
+import tempfile
 from unittest import mock
 
-from glanceclient.common import utils as glanceclient_utils
-from glanceclient.v2 import schemas
+from openstack import exceptions as sdk_exceptions
 from osc_lib.cli import format_columns
 from osc_lib import exceptions
-import warlock
 
 from openstackclient.image.v2 import image
 from openstackclient.tests.unit.identity.v3 import fakes as identity_fakes
@@ -33,12 +34,16 @@ class TestImage(image_fakes.TestImagev2):
         super(TestImage, self).setUp()
 
         # Get shortcuts to the Mocks in image client
-        self.images_mock = self.app.client_manager.image.images
-        self.images_mock.reset_mock()
+        # SDK proxy mock
+        self.app.client_manager.image = mock.Mock()
+        self.client = self.app.client_manager.image
+
+        self.client.remove_member = mock.Mock()
+
+        self.client.create_image = mock.Mock()
+        self.client.update_image = mock.Mock()
         self.image_members_mock = self.app.client_manager.image.image_members
-        self.image_members_mock.reset_mock()
         self.image_tags_mock = self.app.client_manager.image.image_tags
-        self.image_tags_mock.reset_mock()
 
         # Get shortcut to the Mocks in identity client
         self.project_mock = self.app.client_manager.identity.projects
@@ -49,9 +54,6 @@ class TestImage(image_fakes.TestImagev2):
     def setup_images_mock(self, count):
         images = image_fakes.FakeImage.create_images(count=count)
 
-        self.images_mock.get = image_fakes.FakeImage.get_images(
-            images,
-            0)
         return images
 
 
@@ -64,26 +66,22 @@ class TestImageCreate(TestImage):
         super(TestImageCreate, self).setUp()
 
         self.new_image = image_fakes.FakeImage.create_one_image()
-        self.images_mock.create.return_value = self.new_image
+        self.client.create_image.return_value = self.new_image
 
         self.project_mock.get.return_value = self.project
 
         self.domain_mock.get.return_value = self.domain
 
-        # This is the return value for utils.find_resource()
-        self.images_mock.get.return_value = copy.deepcopy(
-            self.new_image
-        )
-        self.images_mock.update.return_value = self.new_image
+        self.client.update_image.return_value = self.new_image
+
+        (self.expected_columns, self.expected_data) = zip(
+            *sorted(image._format_image(self.new_image).items()))
 
         # Get the command object to test
         self.cmd = image.CreateImage(self.app, None)
 
-    def test_image_reserve_no_options(self):
-        mock_exception = {
-            'find.side_effect': exceptions.CommandError('x'),
-        }
-        self.images_mock.configure_mock(**mock_exception)
+    @mock.patch("sys.stdin", side_effect=[None])
+    def test_image_reserve_no_options(self, raw_input):
         arglist = [
             self.new_image.name
         ]
@@ -100,45 +98,34 @@ class TestImageCreate(TestImage):
         columns, data = self.cmd.take_action(parsed_args)
 
         # ImageManager.create(name=, **)
-        self.images_mock.create.assert_called_with(
+        self.client.create_image.assert_called_with(
             name=self.new_image.name,
             container_format=image.DEFAULT_CONTAINER_FORMAT,
             disk_format=image.DEFAULT_DISK_FORMAT,
         )
 
         # Verify update() was not called, if it was show the args
-        self.assertEqual(self.images_mock.update.call_args_list, [])
-
-        self.images_mock.upload.assert_called_with(
-            mock.ANY, mock.ANY,
-        )
+        self.assertEqual(self.client.update_image.call_args_list, [])
 
         self.assertEqual(
-            image_fakes.FakeImage.get_image_columns(self.new_image),
+            self.expected_columns,
             columns)
         self.assertItemEqual(
-            image_fakes.FakeImage.get_image_data(self.new_image),
+            self.expected_data,
             data)
 
-    @mock.patch('glanceclient.common.utils.get_data_file', name='Open')
-    def test_image_reserve_options(self, mock_open):
-        mock_file = mock.MagicMock(name='File')
-        mock_open.return_value = mock_file
-        mock_open.read.return_value = None
-        mock_exception = {
-            'find.side_effect': exceptions.CommandError('x'),
-        }
-        self.images_mock.configure_mock(**mock_exception)
+    @mock.patch('sys.stdin', side_effect=[None])
+    def test_image_reserve_options(self, raw_input):
         arglist = [
             '--container-format', 'ovf',
             '--disk-format', 'ami',
             '--min-disk', '10',
             '--min-ram', '4',
             ('--protected'
-                if self.new_image.protected else '--unprotected'),
+                if self.new_image.is_protected else '--unprotected'),
             ('--private'
                 if self.new_image.visibility == 'private' else '--public'),
-            '--project', self.new_image.owner,
+            '--project', self.new_image.owner_id,
             '--project-domain', self.domain.id,
             self.new_image.name,
         ]
@@ -147,11 +134,11 @@ class TestImageCreate(TestImage):
             ('disk_format', 'ami'),
             ('min_disk', 10),
             ('min_ram', 4),
-            ('protected', self.new_image.protected),
-            ('unprotected', not self.new_image.protected),
+            ('protected', self.new_image.is_protected),
+            ('unprotected', not self.new_image.is_protected),
             ('public', self.new_image.visibility == 'public'),
             ('private', self.new_image.visibility == 'private'),
-            ('project', self.new_image.owner),
+            ('project', self.new_image.owner_id),
             ('project_domain', self.domain.id),
             ('name', self.new_image.name),
         ]
@@ -163,29 +150,22 @@ class TestImageCreate(TestImage):
         columns, data = self.cmd.take_action(parsed_args)
 
         # ImageManager.create(name=, **)
-        self.images_mock.create.assert_called_with(
+        self.client.create_image.assert_called_with(
             name=self.new_image.name,
             container_format='ovf',
             disk_format='ami',
             min_disk=10,
             min_ram=4,
-            owner=self.project.id,
-            protected=self.new_image.protected,
+            owner_id=self.project.id,
+            is_protected=self.new_image.is_protected,
             visibility=self.new_image.visibility,
         )
 
-        # Verify update() was not called, if it was show the args
-        self.assertEqual(self.images_mock.update.call_args_list, [])
-
-        self.images_mock.upload.assert_called_with(
-            mock.ANY, mock.ANY,
-        )
-
         self.assertEqual(
-            image_fakes.FakeImage.get_image_columns(self.new_image),
+            self.expected_columns,
             columns)
         self.assertItemEqual(
-            image_fakes.FakeImage.get_image_data(self.new_image),
+            self.expected_data,
             data)
 
     def test_image_create_with_unexist_project(self):
@@ -222,21 +202,15 @@ class TestImageCreate(TestImage):
             parsed_args,
         )
 
-    @mock.patch('glanceclient.common.utils.get_data_file', name='Open')
-    def test_image_create_file(self, mock_open):
-        mock_file = mock.MagicMock(name='File')
-        mock_open.return_value = mock_file
-        mock_open.read.return_value = (
-            image_fakes.FakeImage.get_image_data(self.new_image))
-        mock_exception = {
-            'find.side_effect': exceptions.CommandError('x'),
-        }
-        self.images_mock.configure_mock(**mock_exception)
+    def test_image_create_file(self):
+        imagefile = tempfile.NamedTemporaryFile(delete=False)
+        imagefile.write(b'\0')
+        imagefile.close()
 
         arglist = [
-            '--file', 'filer',
+            '--file', imagefile.name,
             ('--unprotected'
-                if not self.new_image.protected else '--protected'),
+                if not self.new_image.is_protected else '--protected'),
             ('--public'
                 if self.new_image.visibility == 'public' else '--private'),
             '--property', 'Alpha=1',
@@ -246,9 +220,9 @@ class TestImageCreate(TestImage):
             self.new_image.name,
         ]
         verifylist = [
-            ('file', 'filer'),
-            ('protected', self.new_image.protected),
-            ('unprotected', not self.new_image.protected),
+            ('file', imagefile.name),
+            ('protected', self.new_image.is_protected),
+            ('unprotected', not self.new_image.is_protected),
             ('public', self.new_image.visibility == 'public'),
             ('private', self.new_image.visibility == 'private'),
             ('properties', {'Alpha': '1', 'Beta': '2'}),
@@ -263,29 +237,23 @@ class TestImageCreate(TestImage):
         columns, data = self.cmd.take_action(parsed_args)
 
         # ImageManager.create(name=, **)
-        self.images_mock.create.assert_called_with(
+        self.client.create_image.assert_called_with(
             name=self.new_image.name,
             container_format=image.DEFAULT_CONTAINER_FORMAT,
             disk_format=image.DEFAULT_DISK_FORMAT,
-            protected=self.new_image.protected,
+            is_protected=self.new_image.is_protected,
             visibility=self.new_image.visibility,
             Alpha='1',
             Beta='2',
             tags=self.new_image.tags,
-        )
-
-        # Verify update() was not called, if it was show the args
-        self.assertEqual(self.images_mock.update.call_args_list, [])
-
-        self.images_mock.upload.assert_called_with(
-            mock.ANY, mock.ANY,
+            filename=imagefile.name
         )
 
         self.assertEqual(
-            image_fakes.FakeImage.get_image_columns(self.new_image),
+            self.expected_columns,
             columns)
         self.assertItemEqual(
-            image_fakes.FakeImage.get_image_data(self.new_image),
+            self.expected_data,
             data)
 
     def test_image_create_dead_options(self):
@@ -315,25 +283,31 @@ class TestAddProjectToImage(TestImage):
     )
 
     columns = (
+        'created_at',
         'image_id',
         'member_id',
+        'schema',
         'status',
+        'updated_at'
     )
 
     datalist = (
+        new_member.created_at,
         _image.id,
         new_member.member_id,
+        new_member.schema,
         new_member.status,
+        new_member.updated_at
     )
 
     def setUp(self):
         super(TestAddProjectToImage, self).setUp()
 
         # This is the return value for utils.find_resource()
-        self.images_mock.get.return_value = self._image
+        self.client.find_image.return_value = self._image
 
         # Update the image_id in the MEMBER dict
-        self.image_members_mock.create.return_value = self.new_member
+        self.client.add_member.return_value = self.new_member
         self.project_mock.get.return_value = self.project
         self.domain_mock.get.return_value = self.domain
         # Get the command object to test
@@ -354,9 +328,9 @@ class TestAddProjectToImage(TestImage):
         # returns a two-part tuple with a tuple of column names and a tuple of
         # data to be shown.
         columns, data = self.cmd.take_action(parsed_args)
-        self.image_members_mock.create.assert_called_with(
-            self._image.id,
-            self.project.id
+        self.client.add_member.assert_called_with(
+            image=self._image.id,
+            member_id=self.project.id
         )
 
         self.assertEqual(self.columns, columns)
@@ -379,10 +353,11 @@ class TestAddProjectToImage(TestImage):
         # returns a two-part tuple with a tuple of column names and a tuple of
         # data to be shown.
         columns, data = self.cmd.take_action(parsed_args)
-        self.image_members_mock.create.assert_called_with(
-            self._image.id,
-            self.project.id
+        self.client.add_member.assert_called_with(
+            image=self._image.id,
+            member_id=self.project.id
         )
+
         self.assertEqual(self.columns, columns)
         self.assertEqual(self.datalist, data)
 
@@ -392,7 +367,7 @@ class TestImageDelete(TestImage):
     def setUp(self):
         super(TestImageDelete, self).setUp()
 
-        self.images_mock.delete.return_value = None
+        self.client.delete_image.return_value = None
 
         # Get the command object to test
         self.cmd = image.DeleteImage(self.app, None)
@@ -408,9 +383,11 @@ class TestImageDelete(TestImage):
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
+        self.client.find_image.side_effect = images
+
         result = self.cmd.take_action(parsed_args)
 
-        self.images_mock.delete.assert_called_with(images[0].id)
+        self.client.delete_image.assert_called_with(images[0].id)
         self.assertIsNone(result)
 
     def test_image_delete_multi_images(self):
@@ -422,10 +399,12 @@ class TestImageDelete(TestImage):
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
+        self.client.find_image.side_effect = images
+
         result = self.cmd.take_action(parsed_args)
 
         calls = [mock.call(i.id) for i in images]
-        self.images_mock.delete.assert_has_calls(calls)
+        self.client.delete_image.assert_has_calls(calls)
         self.assertIsNone(result)
 
     def test_image_delete_multi_images_exception(self):
@@ -449,15 +428,15 @@ class TestImageDelete(TestImage):
         ret_find = [
             images[0],
             images[1],
-            exceptions.NotFound('404'),
+            sdk_exceptions.ResourceNotFound()
         ]
 
-        self.images_mock.get = Exception()
-        self.images_mock.find.side_effect = ret_find
+        self.client.find_image.side_effect = ret_find
+
         self.assertRaises(exceptions.CommandError, self.cmd.take_action,
                           parsed_args)
         calls = [mock.call(i.id) for i in images]
-        self.images_mock.delete.assert_has_calls(calls)
+        self.client.delete_image.assert_has_calls(calls)
 
 
 class TestImageList(TestImage):
@@ -473,17 +452,17 @@ class TestImageList(TestImage):
     datalist = (
         _image.id,
         _image.name,
-        '',
+        None,
     ),
 
     def setUp(self):
         super(TestImageList, self).setUp()
 
         self.api_mock = mock.Mock()
-        self.api_mock.image_list.side_effect = [
+        self.api_mock.side_effect = [
             [self._image], [],
         ]
-        self.app.client_manager.image.api = self.api_mock
+        self.client.images = self.api_mock
 
         # Get the command object to test
         self.cmd = image.ListImage(self.app, None)
@@ -503,8 +482,8 @@ class TestImageList(TestImage):
         # returns a tuple containing the column names and an iterable
         # containing the data to be listed.
         columns, data = self.cmd.take_action(parsed_args)
-        self.api_mock.image_list.assert_called_with(
-            marker=self._image.id,
+        self.client.images.assert_called_with(
+            # marker=self._image.id,
         )
 
         self.assertEqual(self.columns, columns)
@@ -527,9 +506,8 @@ class TestImageList(TestImage):
         # returns a tuple containing the column names and an iterable
         # containing the data to be listed.
         columns, data = self.cmd.take_action(parsed_args)
-        self.api_mock.image_list.assert_called_with(
-            public=True,
-            marker=self._image.id,
+        self.client.images.assert_called_with(
+            visibility='public',
         )
 
         self.assertEqual(self.columns, columns)
@@ -552,9 +530,8 @@ class TestImageList(TestImage):
         # returns a tuple containing the column names and an iterable
         # containing the data to be listed.
         columns, data = self.cmd.take_action(parsed_args)
-        self.api_mock.image_list.assert_called_with(
-            private=True,
-            marker=self._image.id,
+        self.client.images.assert_called_with(
+            visibility='private',
         )
 
         self.assertEqual(self.columns, columns)
@@ -577,9 +554,8 @@ class TestImageList(TestImage):
         # returns a tuple containing the column names and an iterable
         # containing the data to be listed.
         columns, data = self.cmd.take_action(parsed_args)
-        self.api_mock.image_list.assert_called_with(
-            community=True,
-            marker=self._image.id,
+        self.client.images.assert_called_with(
+            visibility='community',
         )
 
         self.assertEqual(self.columns, columns)
@@ -602,9 +578,8 @@ class TestImageList(TestImage):
         # returns a tuple containing the column names and an iterable
         # containing the data to be listed.
         columns, data = self.cmd.take_action(parsed_args)
-        self.api_mock.image_list.assert_called_with(
-            shared=True,
-            marker=self._image.id,
+        self.client.images.assert_called_with(
+            visibility='shared',
         )
 
         self.assertEqual(self.columns, columns)
@@ -629,10 +604,9 @@ class TestImageList(TestImage):
         # returns a tuple containing the column names and an iterable
         # containing the data to be listed.
         columns, data = self.cmd.take_action(parsed_args)
-        self.api_mock.image_list.assert_called_with(
-            shared=True,
+        self.client.images.assert_called_with(
+            visibility='shared',
             member_status='all',
-            marker=self._image.id,
         )
 
         self.assertEqual(self.columns, columns)
@@ -666,8 +640,7 @@ class TestImageList(TestImage):
         # returns a tuple containing the column names and an iterable
         # containing the data to be listed.
         columns, data = self.cmd.take_action(parsed_args)
-        self.api_mock.image_list.assert_called_with(
-            marker=self._image.id,
+        self.client.images.assert_called_with(
         )
 
         collist = (
@@ -688,14 +661,14 @@ class TestImageList(TestImage):
         datalist = ((
             self._image.id,
             self._image.name,
-            '',
-            '',
-            '',
-            '',
-            '',
+            None,
+            None,
+            None,
+            None,
+            None,
             self._image.visibility,
-            self._image.protected,
-            self._image.owner,
+            self._image.is_protected,
+            self._image.owner_id,
             format_columns.ListColumn(self._image.tags),
         ), )
         self.assertListItemEqual(datalist, tuple(data))
@@ -716,8 +689,7 @@ class TestImageList(TestImage):
         # returns a tuple containing the column names and an iterable
         # containing the data to be listed.
         columns, data = self.cmd.take_action(parsed_args)
-        self.api_mock.image_list.assert_called_with(
-            marker=self._image.id,
+        self.client.images.assert_called_with(
         )
         sf_mock.assert_called_with(
             [self._image],
@@ -741,8 +713,7 @@ class TestImageList(TestImage):
         # returns a tuple containing the column names and an iterable
         # containing the data to be listed.
         columns, data = self.cmd.take_action(parsed_args)
-        self.api_mock.image_list.assert_called_with(
-            marker=self._image.id,
+        self.client.images.assert_called_with(
         )
         si_mock.assert_called_with(
             [self._image],
@@ -763,8 +734,10 @@ class TestImageList(TestImage):
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
         columns, data = self.cmd.take_action(parsed_args)
-        self.api_mock.image_list.assert_called_with(
-            limit=ret_limit, marker=None
+        self.client.images.assert_called_with(
+            limit=ret_limit,
+            paginated=False
+            # marker=None
         )
 
         self.assertEqual(self.columns, columns)
@@ -775,8 +748,9 @@ class TestImageList(TestImage):
         # tangchen: Since image_fakes.IMAGE is a dict, it cannot offer a .id
         #           operation. Will fix this by using FakeImage class instead
         #           of IMAGE dict.
-        fr_mock.return_value = mock.Mock()
-        fr_mock.return_value.id = image_fakes.image_id
+        self.client.find_image = mock.Mock(return_value=self._image)
+#         fr_mock.return_value = mock.Mock()
+#         fr_mock.return_value.id = image_fakes.image_id
 
         arglist = [
             '--marker', image_fakes.image_name,
@@ -787,9 +761,11 @@ class TestImageList(TestImage):
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
         columns, data = self.cmd.take_action(parsed_args)
-        self.api_mock.image_list.assert_called_with(
-            marker=image_fakes.image_id,
+        self.client.images.assert_called_with(
+            marker=self._image.id,
         )
+
+        self.client.find_image.assert_called_with(image_fakes.image_name)
 
     def test_image_list_name_option(self):
         arglist = [
@@ -801,8 +777,9 @@ class TestImageList(TestImage):
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
         columns, data = self.cmd.take_action(parsed_args)
-        self.api_mock.image_list.assert_called_with(
-            name='abc', marker=self._image.id
+        self.client.images.assert_called_with(
+            name='abc',
+            # marker=self._image.id
         )
 
     def test_image_list_status_option(self):
@@ -815,8 +792,8 @@ class TestImageList(TestImage):
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
         columns, data = self.cmd.take_action(parsed_args)
-        self.api_mock.image_list.assert_called_with(
-            status='active', marker=self._image.id
+        self.client.images.assert_called_with(
+            status='active'
         )
 
     def test_image_list_tag_option(self):
@@ -829,8 +806,8 @@ class TestImageList(TestImage):
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
         columns, data = self.cmd.take_action(parsed_args)
-        self.api_mock.image_list.assert_called_with(
-            tag='abc', marker=self._image.id
+        self.client.images.assert_called_with(
+            tag='abc'
         )
 
 
@@ -849,17 +826,17 @@ class TestListImageProjects(TestImage):
         "Status"
     )
 
-    datalist = ((
+    datalist = [(
         _image.id,
         member.member_id,
         member.status,
-    ))
+    )]
 
     def setUp(self):
         super(TestListImageProjects, self).setUp()
 
-        self.images_mock.get.return_value = self._image
-        self.image_members_mock.list.return_value = self.datalist
+        self.client.find_image.return_value = self._image
+        self.client.members.return_value = [self.member]
 
         self.cmd = image.ListImageProjects(self.app, None)
 
@@ -874,10 +851,10 @@ class TestListImageProjects(TestImage):
 
         columns, data = self.cmd.take_action(parsed_args)
 
-        self.image_members_mock.list.assert_called_with(self._image.id)
+        self.client.members.assert_called_with(image=self._image.id)
 
         self.assertEqual(self.columns, columns)
-        self.assertEqual(len(self.datalist), len(tuple(data)))
+        self.assertEqual(self.datalist, list(data))
 
 
 class TestRemoveProjectImage(TestImage):
@@ -890,11 +867,11 @@ class TestRemoveProjectImage(TestImage):
 
         self._image = image_fakes.FakeImage.create_one_image()
         # This is the return value for utils.find_resource()
-        self.images_mock.get.return_value = self._image
+        self.client.find_image.return_value = self._image
 
         self.project_mock.get.return_value = self.project
         self.domain_mock.get.return_value = self.domain
-        self.image_members_mock.delete.return_value = None
+        self.client.remove_member.return_value = None
         # Get the command object to test
         self.cmd = image.RemoveProjectImage(self.app, None)
 
@@ -911,9 +888,13 @@ class TestRemoveProjectImage(TestImage):
 
         result = self.cmd.take_action(parsed_args)
 
-        self.image_members_mock.delete.assert_called_with(
+        self.client.find_image.assert_called_with(
             self._image.id,
-            self.project.id,
+            ignore_missing=False)
+
+        self.client.remove_member.assert_called_with(
+            member=self.project.id,
+            image=self._image.id,
         )
         self.assertIsNone(result)
 
@@ -932,9 +913,9 @@ class TestRemoveProjectImage(TestImage):
 
         result = self.cmd.take_action(parsed_args)
 
-        self.image_members_mock.delete.assert_called_with(
-            self._image.id,
-            self.project.id,
+        self.client.remove_member.assert_called_with(
+            member=self.project.id,
+            image=self._image.id,
         )
         self.assertIsNone(result)
 
@@ -943,21 +924,16 @@ class TestImageSet(TestImage):
 
     project = identity_fakes.FakeProject.create_one_project()
     domain = identity_fakes.FakeDomain.create_one_domain()
+    _image = image_fakes.FakeImage.create_one_image({'tags': []})
 
     def setUp(self):
         super(TestImageSet, self).setUp()
-        # Set up the schema
-        self.model = warlock.model_factory(
-            image_fakes.IMAGE_schema,
-            schemas.SchemaBasedModel,
-        )
 
         self.project_mock.get.return_value = self.project
 
         self.domain_mock.get.return_value = self.domain
 
-        self.images_mock.get.return_value = self.model(**image_fakes.IMAGE)
-        self.images_mock.update.return_value = self.model(**image_fakes.IMAGE)
+        self.client.find_image.return_value = self._image
 
         self.app.client_manager.auth_ref = mock.Mock(
             project_id=self.project.id,
@@ -986,38 +962,38 @@ class TestImageSet(TestImage):
             attrs={'image_id': image_fakes.image_id,
                    'member_id': self.project.id}
         )
-        self.image_members_mock.update.return_value = membership
+        self.client.update_member.return_value = membership
 
         arglist = [
             '--accept',
-            image_fakes.image_id,
+            self._image.id,
         ]
         verifylist = [
             ('accept', True),
             ('reject', False),
             ('pending', False),
-            ('image', image_fakes.image_id)
+            ('image', self._image.id)
         ]
 
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
         self.cmd.take_action(parsed_args)
 
-        self.image_members_mock.update.assert_called_once_with(
-            image_fakes.image_id,
-            self.app.client_manager.auth_ref.project_id,
-            'accepted',
+        self.client.update_member.assert_called_once_with(
+            image=self._image.id,
+            member=self.app.client_manager.auth_ref.project_id,
+            status='accepted',
         )
 
         # Assert that the 'update image" route is also called, in addition to
         # the 'update membership' route.
-        self.images_mock.update.assert_called_with(image_fakes.image_id)
+        self.client.update_image.assert_called_with(self._image.id)
 
     def test_image_set_membership_option_reject(self):
         membership = image_fakes.FakeImage.create_one_image_member(
             attrs={'image_id': image_fakes.image_id,
                    'member_id': self.project.id}
         )
-        self.image_members_mock.update.return_value = membership
+        self.client.update_member.return_value = membership
 
         arglist = [
             '--reject',
@@ -1033,22 +1009,22 @@ class TestImageSet(TestImage):
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
         self.cmd.take_action(parsed_args)
 
-        self.image_members_mock.update.assert_called_once_with(
-            image_fakes.image_id,
-            self.app.client_manager.auth_ref.project_id,
-            'rejected',
+        self.client.update_member.assert_called_once_with(
+            image=self._image.id,
+            member=self.app.client_manager.auth_ref.project_id,
+            status='rejected',
         )
 
         # Assert that the 'update image" route is also called, in addition to
         # the 'update membership' route.
-        self.images_mock.update.assert_called_with(image_fakes.image_id)
+        self.client.update_image.assert_called_with(self._image.id)
 
     def test_image_set_membership_option_pending(self):
         membership = image_fakes.FakeImage.create_one_image_member(
             attrs={'image_id': image_fakes.image_id,
                    'member_id': self.project.id}
         )
-        self.image_members_mock.update.return_value = membership
+        self.client.update_member.return_value = membership
 
         arglist = [
             '--pending',
@@ -1064,15 +1040,15 @@ class TestImageSet(TestImage):
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
         self.cmd.take_action(parsed_args)
 
-        self.image_members_mock.update.assert_called_once_with(
-            image_fakes.image_id,
-            self.app.client_manager.auth_ref.project_id,
-            'pending',
+        self.client.update_member.assert_called_once_with(
+            image=self._image.id,
+            member=self.app.client_manager.auth_ref.project_id,
+            status='pending',
         )
 
         # Assert that the 'update image" route is also called, in addition to
         # the 'update membership' route.
-        self.images_mock.update.assert_called_with(image_fakes.image_id)
+        self.client.update_image.assert_called_with(self._image.id)
 
     def test_image_set_options(self):
         arglist = [
@@ -1083,7 +1059,7 @@ class TestImageSet(TestImage):
             '--disk-format', 'vmdk',
             '--project', self.project.name,
             '--project-domain', self.domain.id,
-            image_fakes.image_id,
+            self._image.id,
         ]
         verifylist = [
             ('name', 'new-name'),
@@ -1093,7 +1069,7 @@ class TestImageSet(TestImage):
             ('disk_format', 'vmdk'),
             ('project', self.project.name),
             ('project_domain', self.domain.id),
-            ('image', image_fakes.image_id),
+            ('image', self._image.id),
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
@@ -1101,15 +1077,15 @@ class TestImageSet(TestImage):
 
         kwargs = {
             'name': 'new-name',
-            'owner': self.project.id,
+            'owner_id': self.project.id,
             'min_disk': 2,
             'min_ram': 4,
             'container_format': 'ovf',
             'disk_format': 'vmdk',
         }
         # ImageManager.update(image, **kwargs)
-        self.images_mock.update.assert_called_with(
-            image_fakes.image_id, **kwargs)
+        self.client.update_image.assert_called_with(
+            self._image.id, **kwargs)
         self.assertIsNone(result)
 
     def test_image_set_with_unexist_project(self):
@@ -1148,12 +1124,12 @@ class TestImageSet(TestImage):
         result = self.cmd.take_action(parsed_args)
 
         kwargs = {
-            'protected': True,
+            'is_protected': True,
             'visibility': 'private',
         }
         # ImageManager.update(image, **kwargs)
-        self.images_mock.update.assert_called_with(
-            image_fakes.image_id,
+        self.client.update_image.assert_called_with(
+            self._image.id,
             **kwargs
         )
         self.assertIsNone(result)
@@ -1176,12 +1152,12 @@ class TestImageSet(TestImage):
         result = self.cmd.take_action(parsed_args)
 
         kwargs = {
-            'protected': False,
+            'is_protected': False,
             'visibility': 'public',
         }
         # ImageManager.update(image, **kwargs)
-        self.images_mock.update.assert_called_with(
-            image_fakes.image_id,
+        self.client.update_image.assert_called_with(
+            self._image.id,
             **kwargs
         )
         self.assertIsNone(result)
@@ -1205,8 +1181,8 @@ class TestImageSet(TestImage):
             'Beta': '2',
         }
         # ImageManager.update(image, **kwargs)
-        self.images_mock.update.assert_called_with(
-            image_fakes.image_id,
+        self.client.update_image.assert_called_with(
+            self._image.id,
             **kwargs
         )
         self.assertIsNone(result)
@@ -1243,8 +1219,8 @@ class TestImageSet(TestImage):
             'ramdisk_id': 'xyzpdq',
         }
         # ImageManager.update(image, **kwargs)
-        self.images_mock.update.assert_called_with(
-            image_fakes.image_id,
+        self.client.update_image.assert_called_with(
+            self._image.id,
             **kwargs
         )
         self.assertIsNone(result)
@@ -1266,8 +1242,8 @@ class TestImageSet(TestImage):
             'tags': ['test-tag'],
         }
         # ImageManager.update(image, **kwargs)
-        self.images_mock.update.assert_called_with(
-            image_fakes.image_id,
+        self.client.update_image.assert_called_with(
+            self._image.id,
             **kwargs
         )
         self.assertIsNone(result)
@@ -1290,12 +1266,12 @@ class TestImageSet(TestImage):
             'tags': ['test-tag'],
         }
 
-        self.images_mock.reactivate.assert_called_with(
-            image_fakes.image_id,
+        self.client.reactivate_image.assert_called_with(
+            self._image.id,
         )
         # ImageManager.update(image, **kwargs)
-        self.images_mock.update.assert_called_with(
-            image_fakes.image_id,
+        self.client.update_image.assert_called_with(
+            self._image.id,
             **kwargs
         )
         self.assertIsNone(result)
@@ -1318,20 +1294,20 @@ class TestImageSet(TestImage):
             'tags': ['test-tag'],
         }
 
-        self.images_mock.deactivate.assert_called_with(
-            image_fakes.image_id,
+        self.client.deactivate_image.assert_called_with(
+            self._image.id,
         )
         # ImageManager.update(image, **kwargs)
-        self.images_mock.update.assert_called_with(
-            image_fakes.image_id,
+        self.client.update_image.assert_called_with(
+            self._image.id,
             **kwargs
         )
         self.assertIsNone(result)
 
     def test_image_set_tag_merge(self):
-        old_image = copy.copy(image_fakes.IMAGE)
+        old_image = self._image
         old_image['tags'] = ['old1', 'new2']
-        self.images_mock.get.return_value = self.model(**old_image)
+        self.client.find_image.return_value = old_image
         arglist = [
             '--tag', 'test-tag',
             image_fakes.image_name,
@@ -1348,16 +1324,16 @@ class TestImageSet(TestImage):
             'tags': ['old1', 'new2', 'test-tag'],
         }
         # ImageManager.update(image, **kwargs)
-        a, k = self.images_mock.update.call_args
-        self.assertEqual(image_fakes.image_id, a[0])
+        a, k = self.client.update_image.call_args
+        self.assertEqual(self._image.id, a[0])
         self.assertIn('tags', k)
         self.assertEqual(set(kwargs['tags']), set(k['tags']))
         self.assertIsNone(result)
 
     def test_image_set_tag_merge_dupe(self):
-        old_image = copy.copy(image_fakes.IMAGE)
+        old_image = self._image
         old_image['tags'] = ['old1', 'new2']
-        self.images_mock.get.return_value = self.model(**old_image)
+        self.client.find_image.return_value = old_image
         arglist = [
             '--tag', 'old1',
             image_fakes.image_name,
@@ -1374,8 +1350,8 @@ class TestImageSet(TestImage):
             'tags': ['new2', 'old1'],
         }
         # ImageManager.update(image, **kwargs)
-        a, k = self.images_mock.update.call_args
-        self.assertEqual(image_fakes.image_id, a[0])
+        a, k = self.client.update_image.call_args
+        self.assertEqual(self._image.id, a[0])
         self.assertIn('tags', k)
         self.assertEqual(set(kwargs['tags']), set(k['tags']))
         self.assertIsNone(result)
@@ -1416,8 +1392,8 @@ class TestImageSet(TestImage):
             'min_ram': 0,
         }
         # ImageManager.update(image, **kwargs)
-        self.images_mock.update.assert_called_with(
-            image_fakes.image_id,
+        self.client.update_image.assert_called_with(
+            self._image.id,
             **kwargs
         )
         self.assertIsNone(result)
@@ -1428,16 +1404,25 @@ class TestImageShow(TestImage):
     new_image = image_fakes.FakeImage.create_one_image(
         attrs={'size': 1000})
 
+    _data = image_fakes.FakeImage.create_one_image()
+
+    columns = (
+        'id', 'name', 'owner', 'protected', 'tags', 'visibility'
+    )
+
+    data = (
+        _data.id,
+        _data.name,
+        _data.owner_id,
+        _data.is_protected,
+        format_columns.ListColumn(_data.tags),
+        _data.visibility
+    )
+
     def setUp(self):
         super(TestImageShow, self).setUp()
 
-        # Set up the schema
-        self.model = warlock.model_factory(
-            image_fakes.IMAGE_schema,
-            schemas.SchemaBasedModel,
-        )
-
-        self.images_mock.get.return_value = self.model(**image_fakes.IMAGE)
+        self.client.find_image = mock.Mock(return_value=self._data)
 
         # Get the command object to test
         self.cmd = image.ShowImage(self.app, None)
@@ -1455,15 +1440,16 @@ class TestImageShow(TestImage):
         # returns a two-part tuple with a tuple of column names and a tuple of
         # data to be shown.
         columns, data = self.cmd.take_action(parsed_args)
-        self.images_mock.get.assert_called_with(
+        self.client.find_image.assert_called_with(
             image_fakes.image_id,
+            ignore_missing=False
         )
 
-        self.assertEqual(image_fakes.IMAGE_columns, columns)
-        self.assertItemEqual(image_fakes.IMAGE_SHOW_data, data)
+        self.assertEqual(self.columns, columns)
+        self.assertItemEqual(self.data, data)
 
     def test_image_show_human_readable(self):
-        self.images_mock.get.return_value = self.new_image
+        self.client.find_image.return_value = self.new_image
         arglist = [
             '--human-readable',
             self.new_image.id,
@@ -1478,8 +1464,9 @@ class TestImageShow(TestImage):
         # returns a two-part tuple with a tuple of column names and a tuple of
         # data to be shown.
         columns, data = self.cmd.take_action(parsed_args)
-        self.images_mock.get.assert_called_with(
+        self.client.find_image.assert_called_with(
             self.new_image.id,
+            ignore_missing=False
         )
 
         size_index = columns.index('size')
@@ -1491,19 +1478,15 @@ class TestImageUnset(TestImage):
     attrs = {}
     attrs['tags'] = ['test']
     attrs['prop'] = 'test'
+    attrs['prop2'] = 'fake'
     image = image_fakes.FakeImage.create_one_image(attrs)
 
     def setUp(self):
         super(TestImageUnset, self).setUp()
 
-        # Set up the schema
-        self.model = warlock.model_factory(
-            image_fakes.IMAGE_schema,
-            schemas.SchemaBasedModel,
-        )
-
-        self.images_mock.get.return_value = self.image
-        self.image_tags_mock.delete.return_value = self.image
+        self.client.find_image.return_value = self.image
+        self.client.remove_tag.return_value = self.image
+        self.client.update_image.return_value = self.image
 
         # Get the command object to test
         self.cmd = image.UnsetImage(self.app, None)
@@ -1535,7 +1518,7 @@ class TestImageUnset(TestImage):
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
         result = self.cmd.take_action(parsed_args)
 
-        self.image_tags_mock.delete.assert_called_with(
+        self.client.remove_tag.assert_called_with(
             self.image.id, 'test'
         )
         self.assertIsNone(result)
@@ -1555,9 +1538,9 @@ class TestImageUnset(TestImage):
         result = self.cmd.take_action(parsed_args)
 
         kwargs = {}
-        self.images_mock.update.assert_called_with(
-            self.image.id,
-            parsed_args.properties,
+        self.client.update_image.assert_called_with(
+            self.image,
+            properties={'prop2': 'fake'},
             **kwargs)
 
         self.assertIsNone(result)
@@ -1579,12 +1562,12 @@ class TestImageUnset(TestImage):
         result = self.cmd.take_action(parsed_args)
 
         kwargs = {}
-        self.images_mock.update.assert_called_with(
-            self.image.id,
-            parsed_args.properties,
+        self.client.update_image.assert_called_with(
+            self.image,
+            properties={'prop2': 'fake'},
             **kwargs)
 
-        self.image_tags_mock.delete.assert_called_with(
+        self.client.remove_tag.assert_called_with(
             self.image.id, 'test'
         )
         self.assertIsNone(result)
@@ -1597,18 +1580,13 @@ class TestImageSave(TestImage):
     def setUp(self):
         super(TestImageSave, self).setUp()
 
-        # Generate a request id
-        self.resp = mock.MagicMock()
-        self.resp.headers['x-openstack-request-id'] = 'req_id'
+        self.client.find_image.return_value = self.image
+        self.client.download_image.return_value = self.image
 
         # Get the command object to test
         self.cmd = image.SaveImage(self.app, None)
 
     def test_save_data(self):
-        req_id_proxy = glanceclient_utils.RequestIdProxy(
-            ['some_data', self.resp]
-        )
-        self.images_mock.data.return_value = req_id_proxy
 
         arglist = ['--file', '/path/to/file', self.image.id]
 
@@ -1618,23 +1596,58 @@ class TestImageSave(TestImage):
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
-        with mock.patch('glanceclient.common.utils.save_image') as mocked_save:
-            self.cmd.take_action(parsed_args)
-            mocked_save.assert_called_once_with(req_id_proxy, '/path/to/file')
+        self.cmd.take_action(parsed_args)
 
-    def test_save_no_data(self):
-        req_id_proxy = glanceclient_utils.RequestIdProxy(
-            [None, self.resp]
-        )
-        self.images_mock.data.return_value = req_id_proxy
+        self.client.download_image.assert_called_once_with(
+            self.image.id,
+            output='/path/to/file')
 
-        arglist = ['--file', '/path/to/file', self.image.id]
 
-        verifylist = [
-            ('file', '/path/to/file'),
-            ('image', self.image.id)
-        ]
-        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+class TestImageGetData(TestImage):
 
-        # Raise SystemExit if no data was provided.
-        self.assertRaises(SystemExit, self.cmd.take_action, parsed_args)
+    def setUp(self):
+        super(TestImageGetData, self).setUp()
+        self.args = mock.Mock()
+
+    def test_get_data_file_file(self):
+        (fd, fname) = tempfile.mkstemp(prefix='osc_test_image')
+        self.args.file = fname
+
+        (test_fd, test_name) = image.get_data_file(self.args)
+
+        self.assertEqual(fname, test_name)
+        test_fd.close()
+
+        os.unlink(fname)
+
+    def test_get_data_file_2(self):
+
+        self.args.file = None
+
+        f = io.BytesIO(b"some initial binary data: \x00\x01")
+
+        with mock.patch('sys.stdin') as stdin:
+            stdin.return_value = f
+            stdin.isatty.return_value = False
+            stdin.buffer = f
+
+            (test_fd, test_name) = image.get_data_file(self.args)
+
+            # Ensure data written to temp file is correct
+            self.assertEqual(f, test_fd)
+            self.assertIsNone(test_name)
+
+    def test_get_data_file_3(self):
+
+        self.args.file = None
+
+        f = io.BytesIO(b"some initial binary data: \x00\x01")
+
+        with mock.patch('sys.stdin') as stdin:
+            # There is stdin, but interactive
+            stdin.return_value = f
+
+            (test_fd, test_fname) = image.get_data_file(self.args)
+
+            self.assertIsNone(test_fd)
+            self.assertIsNone(test_fname)

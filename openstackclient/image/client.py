@@ -27,7 +27,7 @@ API_VERSION_OPTION = 'os_image_api_version'
 API_NAME = "image"
 API_VERSIONS = {
     "1": "glanceclient.v1.client.Client",
-    "2": "glanceclient.v2.client.Client",
+    "2": "openstack.connection.Connection",
 }
 
 IMAGE_API_TYPE = 'image'
@@ -38,44 +38,52 @@ IMAGE_API_VERSIONS = {
 
 
 def make_client(instance):
-    """Returns an image service client"""
-    image_client = utils.get_client_class(
-        API_NAME,
-        instance._api_version[API_NAME],
-        API_VERSIONS)
-    LOG.debug('Instantiating image client: %s', image_client)
 
-    endpoint = instance.get_endpoint_for_service_type(
-        API_NAME,
-        region_name=instance.region_name,
-        interface=instance.interface,
-    )
+    if instance._api_version[API_NAME] != '1':
+        LOG.debug(
+            'Image client initialized using OpenStack SDK: %s',
+            instance.sdk_connection.image,
+        )
+        return instance.sdk_connection.image
+    else:
+        """Returns an image service client"""
+        image_client = utils.get_client_class(
+            API_NAME,
+            instance._api_version[API_NAME],
+            API_VERSIONS)
+        LOG.debug('Instantiating image client: %s', image_client)
 
-    client = image_client(
-        endpoint,
-        token=instance.auth.get_token(instance.session),
-        cacert=instance.cacert,
-        insecure=not instance.verify,
-    )
-
-    # Create the low-level API
-
-    image_api = utils.get_client_class(
-        API_NAME,
-        instance._api_version[API_NAME],
-        IMAGE_API_VERSIONS)
-    LOG.debug('Instantiating image api: %s', image_api)
-
-    client.api = image_api(
-        session=instance.session,
-        endpoint=instance.get_endpoint_for_service_type(
-            IMAGE_API_TYPE,
+        endpoint = instance.get_endpoint_for_service_type(
+            API_NAME,
             region_name=instance.region_name,
             interface=instance.interface,
         )
-    )
 
-    return client
+        client = image_client(
+            endpoint,
+            token=instance.auth.get_token(instance.session),
+            cacert=instance.cacert,
+            insecure=not instance.verify,
+        )
+
+        # Create the low-level API
+
+        image_api = utils.get_client_class(
+            API_NAME,
+            instance._api_version[API_NAME],
+            IMAGE_API_VERSIONS)
+        LOG.debug('Instantiating image api: %s', image_api)
+
+        client.api = image_api(
+            session=instance.session,
+            endpoint=instance.get_endpoint_for_service_type(
+                IMAGE_API_TYPE,
+                region_name=instance.region_name,
+                interface=instance.interface,
+            )
+        )
+
+        return client
 
 
 def build_option_parser(parser):
