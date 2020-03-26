@@ -174,8 +174,8 @@
     description: Build Docker images.
     allowed-projects: openstack/python-openstackclient
     requires:
-      - python-builder-container-image
-      - python-base-container-image
+      - python-builder-3.7-container-image
+      - python-base-3.7-container-image
     provides: osc-container-image
     vars: &osc_image_vars
       docker_images:
@@ -188,8 +188,8 @@
     description: Build Docker images and upload to Docker Hub.
     allowed-projects: openstack/python-openstackclient
     requires:
-      - python-builder-container-image
-      - python-base-container-image
+      - python-builder-3.7-container-image
+      - python-base-3.7-container-image
     provides: osc-container-image
     secrets:
       - name: docker_credentials
