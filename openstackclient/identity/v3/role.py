@@ -191,6 +191,7 @@ class CreateRole(command.ShowOne):
             action='store_true',
             help=_('Return existing role'),
         )
+        common.add_resource_option_to_parser(parser)
         return parser
 
     def take_action(self, parsed_args):
@@ -201,10 +202,12 @@ class CreateRole(command.ShowOne):
             domain_id = common.find_domain(identity_client,
                                            parsed_args.domain).id
 
+        options = common.get_immutable_options(parsed_args)
+
         try:
             role = identity_client.roles.create(
                 name=parsed_args.name, domain=domain_id,
-                description=parsed_args.description)
+                description=parsed_args.description, options=options)
 
         except ks_exc.Conflict:
             if parsed_args.or_show:
@@ -366,6 +369,7 @@ class SetRole(command.Command):
             metavar='<name>',
             help=_('Set role name'),
         )
+        common.add_resource_option_to_parser(parser)
         return parser
 
     def take_action(self, parsed_args):
@@ -376,12 +380,14 @@ class SetRole(command.Command):
             domain_id = common.find_domain(identity_client,
                                            parsed_args.domain).id
 
+        options = common.get_immutable_options(parsed_args)
         role = utils.find_resource(identity_client.roles,
                                    parsed_args.role,
                                    domain_id=domain_id)
 
         identity_client.roles.update(role.id, name=parsed_args.name,
-                                     description=parsed_args.description)
+                                     description=parsed_args.description,
+                                     options=options)
 
 
 class ShowRole(command.ShowOne):

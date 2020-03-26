@@ -97,6 +97,7 @@ Create new role
     openstack role create
         [--or-show]
         [--domain <domain>]
+        [--immutable | --no-immutable]
         <name>
 
 .. option:: --domain <domain>
@@ -118,6 +119,15 @@ Create new role
 .. option:: --description <description>
 
     Add description about the role
+
+.. option:: --immutable
+
+    Make role immutable. An immutable role may not be deleted or modified
+    except to remove the immutable flag
+
+.. option:: --no-immutable
+
+    Make role mutable (default)
 
 role delete
 -----------
@@ -253,6 +263,7 @@ Set role properties
     openstack role set
         [--name <name>]
         [--domain <domain>]
+        [--immutable | --no-immutable]
         <role>
 
 .. option:: --name <name>
@@ -268,6 +279,15 @@ Set role properties
 .. describe:: <role>
 
     Role to modify (name or ID)
+
+.. option:: --immutable
+
+    Make role immutable. An immutable role may not be deleted or modified
+    except to remove the immutable flag
+
+.. option:: --no-immutable
+
+    Make role mutable (default)
 
 role show
 ---------

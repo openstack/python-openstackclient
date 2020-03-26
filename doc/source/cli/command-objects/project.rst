@@ -16,6 +16,7 @@ Create new project
         [--domain <domain>]
         [--parent <project>]
         [--description <description>]
+        [--immutable | --no-immutable]
         [--enable | --disable]
         [--property <key=value>]
         [--or-show]
@@ -45,6 +46,15 @@ Create new project
 .. option:: --disable
 
     Disable project
+
+.. option:: --immutable
+
+    Make project immutable. An immutable project may not be deleted or
+    modified except to remove the immutable flag
+
+.. option:: --no-immutable
+
+    Make project mutable (default)
 
 .. option:: --property <key=value>
 
@@ -180,6 +190,7 @@ Set project properties
         [--name <name>]
         [--domain <domain>]
         [--description <description>]
+        [--immutable | --no-immutable]
         [--enable | --disable]
         [--property <key=value>]
         [--tag <tag> | --clear-tags | --remove-tags <tag>]
@@ -198,6 +209,15 @@ Set project properties
 .. option:: --description <description>
 
     Set project description
+
+.. option:: --immutable
+
+    Make project immutable. An immutable project may not be deleted or
+    modified except to remove the immutable flag
+
+.. option:: --no-immutable
+
+    Make project mutable (default)
 
 .. option:: --enable
 
