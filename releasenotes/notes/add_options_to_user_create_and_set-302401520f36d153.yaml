@@ -1,0 +1,19 @@
+---
+features:
+  - |
+    Added the below mentioned parameters to the user create and set commands.
+
+    * --ignore-lockout-failure-attempts
+    * --no-ignore-lockout-failure-attempts
+    * --ignore-password-expiry
+    * --no-ignore-password-expiry
+    * --ignore-change-password-upon-first-use
+    * --no-ignore-change-password-upon-first-use
+    * --enable-lock-password
+    * --disable-lock-password
+    * --enable-multi-factor-auth
+    * --disable-multi-factor-auth
+    * --multi-factor-auth-rule
+
+    This will now allow users to set user options via CLI.
+    <https://docs.openstack.org/keystone/latest/admin/resource-options.html#user-options>

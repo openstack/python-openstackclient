@@ -111,6 +111,7 @@ class TestUserCreate(TestUser):
             'description': None,
             'domain': None,
             'email': None,
+            'options': {},
             'enabled': True,
             'password': None,
         }
@@ -150,6 +151,7 @@ class TestUserCreate(TestUser):
             'description': None,
             'domain': None,
             'email': None,
+            'options': {},
             'enabled': True,
             'password': 'secret',
         }
@@ -190,6 +192,7 @@ class TestUserCreate(TestUser):
             'description': None,
             'domain': None,
             'email': None,
+            'options': {},
             'enabled': True,
             'password': 'abc123',
         }
@@ -228,6 +231,7 @@ class TestUserCreate(TestUser):
             'domain': None,
             'email': 'barney@example.com',
             'enabled': True,
+            'options': {},
             'password': None,
         }
         # UserManager.create(name=, domain=, project=, password=, email=,
@@ -265,6 +269,7 @@ class TestUserCreate(TestUser):
             'domain': None,
             'email': None,
             'enabled': True,
+            'options': {},
             'password': None,
         }
         # UserManager.create(name=, domain=, project=, password=, email=,
@@ -311,6 +316,7 @@ class TestUserCreate(TestUser):
             'description': None,
             'domain': None,
             'email': None,
+            'options': {},
             'enabled': True,
             'password': None,
         }
@@ -356,6 +362,7 @@ class TestUserCreate(TestUser):
             'description': None,
             'domain': self.domain.id,
             'email': None,
+            'options': {},
             'enabled': True,
             'password': None,
         }
@@ -392,6 +399,7 @@ class TestUserCreate(TestUser):
             'description': None,
             'domain': None,
             'email': None,
+            'options': {},
             'enabled': True,
             'password': None,
         }
@@ -428,6 +436,7 @@ class TestUserCreate(TestUser):
             'description': None,
             'domain': None,
             'email': None,
+            'options': {},
             'enabled': False,
             'password': None,
         }
@@ -435,6 +444,471 @@ class TestUserCreate(TestUser):
         self.users_mock.create.assert_called_with(
             **kwargs
         )
+        self.assertEqual(self.columns, columns)
+        self.assertEqual(self.datalist, data)
+
+    def test_user_create_ignore_lockout_failure_attempts(self):
+        arglist = [
+            '--ignore-lockout-failure-attempts',
+            self.user.name,
+        ]
+        verifylist = [
+            ('ignore_lockout_failure_attempts', True),
+            ('enable', False),
+            ('disable', False),
+            ('name', self.user.name),
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        # In base command class ShowOne in cliff, abstract method take_action()
+        # returns a two-part tuple with a tuple of column names and a tuple of
+        # data to be shown.
+        columns, data = self.cmd.take_action(parsed_args)
+
+        # Set expected values
+        kwargs = {
+            'name': self.user.name,
+            'default_project': None,
+            'description': None,
+            'domain': None,
+            'email': None,
+            'enabled': True,
+            'options': {'ignore_lockout_failure_attempts': True},
+            'password': None,
+        }
+        # UserManager.create(name=, domain=, project=, password=, email=,
+        #   description=, enabled=, default_project=)
+        self.users_mock.create.assert_called_with(
+            **kwargs
+        )
+
+        self.assertEqual(self.columns, columns)
+        self.assertEqual(self.datalist, data)
+
+    def test_user_create_no_ignore_lockout_failure_attempts(self):
+        arglist = [
+            '--no-ignore-lockout-failure-attempts',
+            self.user.name,
+        ]
+        verifylist = [
+            ('no_ignore_lockout_failure_attempts', True),
+            ('enable', False),
+            ('disable', False),
+            ('name', self.user.name),
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        # In base command class ShowOne in cliff, abstract method take_action()
+        # returns a two-part tuple with a tuple of column names and a tuple of
+        # data to be shown.
+        columns, data = self.cmd.take_action(parsed_args)
+
+        # Set expected values
+        kwargs = {
+            'name': self.user.name,
+            'default_project': None,
+            'description': None,
+            'domain': None,
+            'email': None,
+            'enabled': True,
+            'options': {'ignore_lockout_failure_attempts': False},
+            'password': None,
+        }
+        # UserManager.create(name=, domain=, project=, password=, email=,
+        #   description=, enabled=, default_project=)
+        self.users_mock.create.assert_called_with(
+            **kwargs
+        )
+
+        self.assertEqual(self.columns, columns)
+        self.assertEqual(self.datalist, data)
+
+    def test_user_create_ignore_password_expiry(self):
+        arglist = [
+            '--ignore-password-expiry',
+            self.user.name,
+        ]
+        verifylist = [
+            ('ignore_password_expiry', True),
+            ('enable', False),
+            ('disable', False),
+            ('name', self.user.name),
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        # In base command class ShowOne in cliff, abstract method take_action()
+        # returns a two-part tuple with a tuple of column names and a tuple of
+        # data to be shown.
+        columns, data = self.cmd.take_action(parsed_args)
+
+        # Set expected values
+        kwargs = {
+            'name': self.user.name,
+            'default_project': None,
+            'description': None,
+            'domain': None,
+            'email': None,
+            'enabled': True,
+            'options': {'ignore_password_expiry': True},
+            'password': None,
+        }
+        # UserManager.create(name=, domain=, project=, password=, email=,
+        #   description=, enabled=, default_project=)
+        self.users_mock.create.assert_called_with(
+            **kwargs
+        )
+
+        self.assertEqual(self.columns, columns)
+        self.assertEqual(self.datalist, data)
+
+    def test_user_create_no_ignore_password_expiry(self):
+        arglist = [
+            '--no-ignore-password-expiry',
+            self.user.name,
+        ]
+        verifylist = [
+            ('no_ignore_password_expiry', True),
+            ('enable', False),
+            ('disable', False),
+            ('name', self.user.name),
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        # In base command class ShowOne in cliff, abstract method take_action()
+        # returns a two-part tuple with a tuple of column names and a tuple of
+        # data to be shown.
+        columns, data = self.cmd.take_action(parsed_args)
+
+        # Set expected values
+        kwargs = {
+            'name': self.user.name,
+            'default_project': None,
+            'description': None,
+            'domain': None,
+            'email': None,
+            'enabled': True,
+            'options': {'ignore_password_expiry': False},
+            'password': None,
+        }
+        # UserManager.create(name=, domain=, project=, password=, email=,
+        #   description=, enabled=, default_project=)
+        self.users_mock.create.assert_called_with(
+            **kwargs
+        )
+
+        self.assertEqual(self.columns, columns)
+        self.assertEqual(self.datalist, data)
+
+    def test_user_create_ignore_change_password_upon_first_use(self):
+        arglist = [
+            '--ignore-change-password-upon-first-use',
+            self.user.name,
+        ]
+        verifylist = [
+            ('ignore_change_password_upon_first_use', True),
+            ('enable', False),
+            ('disable', False),
+            ('name', self.user.name),
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        # In base command class ShowOne in cliff, abstract method take_action()
+        # returns a two-part tuple with a tuple of column names and a tuple of
+        # data to be shown.
+        columns, data = self.cmd.take_action(parsed_args)
+
+        # Set expected values
+        kwargs = {
+            'name': self.user.name,
+            'default_project': None,
+            'description': None,
+            'domain': None,
+            'email': None,
+            'enabled': True,
+            'options': {'ignore_change_password_upon_first_use': True},
+            'password': None,
+        }
+        # UserManager.create(name=, domain=, project=, password=, email=,
+        #   description=, enabled=, default_project=)
+        self.users_mock.create.assert_called_with(
+            **kwargs
+        )
+
+        self.assertEqual(self.columns, columns)
+        self.assertEqual(self.datalist, data)
+
+    def test_user_create_no_ignore_change_password_upon_first_use(self):
+        arglist = [
+            '--no-ignore-change-password-upon-first-use',
+            self.user.name,
+        ]
+        verifylist = [
+            ('no_ignore_change_password_upon_first_use', True),
+            ('enable', False),
+            ('disable', False),
+            ('name', self.user.name),
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        # In base command class ShowOne in cliff, abstract method take_action()
+        # returns a two-part tuple with a tuple of column names and a tuple of
+        # data to be shown.
+        columns, data = self.cmd.take_action(parsed_args)
+
+        # Set expected values
+        kwargs = {
+            'name': self.user.name,
+            'default_project': None,
+            'description': None,
+            'domain': None,
+            'email': None,
+            'enabled': True,
+            'options': {'ignore_change_password_upon_first_use': False},
+            'password': None,
+        }
+        # UserManager.create(name=, domain=, project=, password=, email=,
+        #   description=, enabled=, default_project=)
+        self.users_mock.create.assert_called_with(
+            **kwargs
+        )
+
+        self.assertEqual(self.columns, columns)
+        self.assertEqual(self.datalist, data)
+
+    def test_user_create_enables_lock_password(self):
+        arglist = [
+            '--enable-lock-password',
+            self.user.name,
+        ]
+        verifylist = [
+            ('enable_lock_password', True),
+            ('enable', False),
+            ('disable', False),
+            ('name', self.user.name),
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        # In base command class ShowOne in cliff, abstract method take_action()
+        # returns a two-part tuple with a tuple of column names and a tuple of
+        # data to be shown.
+        columns, data = self.cmd.take_action(parsed_args)
+
+        # Set expected values
+        kwargs = {
+            'name': self.user.name,
+            'default_project': None,
+            'description': None,
+            'domain': None,
+            'email': None,
+            'enabled': True,
+            'options': {'lock_password': True},
+            'password': None,
+        }
+        # UserManager.create(name=, domain=, project=, password=, email=,
+        #   description=, enabled=, default_project=)
+        self.users_mock.create.assert_called_with(
+            **kwargs
+        )
+
+        self.assertEqual(self.columns, columns)
+        self.assertEqual(self.datalist, data)
+
+    def test_user_create_disables_lock_password(self):
+        arglist = [
+            '--disable-lock-password',
+            self.user.name,
+        ]
+        verifylist = [
+            ('disable_lock_password', True),
+            ('enable', False),
+            ('disable', False),
+            ('name', self.user.name),
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        # In base command class ShowOne in cliff, abstract method take_action()
+        # returns a two-part tuple with a tuple of column names and a tuple of
+        # data to be shown.
+        columns, data = self.cmd.take_action(parsed_args)
+
+        # Set expected values
+        kwargs = {
+            'name': self.user.name,
+            'default_project': None,
+            'description': None,
+            'domain': None,
+            'email': None,
+            'enabled': True,
+            'options': {'lock_password': False},
+            'password': None,
+        }
+        # UserManager.create(name=, domain=, project=, password=, email=,
+        #   description=, enabled=, default_project=)
+        self.users_mock.create.assert_called_with(
+            **kwargs
+        )
+
+        self.assertEqual(self.columns, columns)
+        self.assertEqual(self.datalist, data)
+
+    def test_user_create_enable_multi_factor_auth(self):
+        arglist = [
+            '--enable-multi-factor-auth',
+            self.user.name,
+        ]
+        verifylist = [
+            ('enable_multi_factor_auth', True),
+            ('enable', False),
+            ('disable', False),
+            ('name', self.user.name),
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        # In base command class ShowOne in cliff, abstract method take_action()
+        # returns a two-part tuple with a tuple of column names and a tuple of
+        # data to be shown.
+        columns, data = self.cmd.take_action(parsed_args)
+
+        # Set expected values
+        kwargs = {
+            'name': self.user.name,
+            'default_project': None,
+            'description': None,
+            'domain': None,
+            'email': None,
+            'enabled': True,
+            'options': {'multi_factor_auth_enabled': True},
+            'password': None,
+        }
+        # UserManager.create(name=, domain=, project=, password=, email=,
+        #   description=, enabled=, default_project=)
+        self.users_mock.create.assert_called_with(
+            **kwargs
+        )
+
+        self.assertEqual(self.columns, columns)
+        self.assertEqual(self.datalist, data)
+
+    def test_user_create_disable_multi_factor_auth(self):
+        arglist = [
+            '--disable-multi-factor-auth',
+            self.user.name,
+        ]
+        verifylist = [
+            ('disable_multi_factor_auth', True),
+            ('enable', False),
+            ('disable', False),
+            ('name', self.user.name),
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        # In base command class ShowOne in cliff, abstract method take_action()
+        # returns a two-part tuple with a tuple of column names and a tuple of
+        # data to be shown.
+        columns, data = self.cmd.take_action(parsed_args)
+
+        # Set expected values
+        kwargs = {
+            'name': self.user.name,
+            'default_project': None,
+            'description': None,
+            'domain': None,
+            'email': None,
+            'enabled': True,
+            'options': {'multi_factor_auth_enabled': False},
+            'password': None,
+        }
+        # UserManager.create(name=, domain=, project=, password=, email=,
+        #   description=, enabled=, default_project=)
+        self.users_mock.create.assert_called_with(
+            **kwargs
+        )
+
+        self.assertEqual(self.columns, columns)
+        self.assertEqual(self.datalist, data)
+
+    def test_user_create_option_with_multi_factor_auth_rule(self):
+        arglist = [
+            '--multi-factor-auth-rule', identity_fakes.mfa_opt1,
+            '--multi-factor-auth-rule', identity_fakes.mfa_opt2,
+            self.user.name,
+        ]
+        verifylist = [
+            ('multi_factor_auth_rule', [identity_fakes.mfa_opt1,
+                                        identity_fakes.mfa_opt2]),
+            ('enable', False),
+            ('disable', False),
+            ('name', self.user.name),
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        # In base command class ShowOne in cliff, abstract method take_action()
+        # returns a two-part tuple with a tuple of column names and a tuple of
+        # data to be shown.
+        columns, data = self.cmd.take_action(parsed_args)
+
+        # Set expected values
+        kwargs = {
+            'name': self.user.name,
+            'default_project': None,
+            'description': None,
+            'domain': None,
+            'email': None,
+            'enabled': True,
+            'options': {'multi_factor_auth_rules': [["password", "totp"],
+                                                    ["password"]]},
+            'password': None,
+        }
+        # UserManager.create(name=, domain=, project=, password=, email=,
+        #   description=, enabled=, default_project=)
+        self.users_mock.create.assert_called_with(
+            **kwargs
+        )
+
+        self.assertEqual(self.columns, columns)
+        self.assertEqual(self.datalist, data)
+
+    def test_user_create_with_multiple_options(self):
+        arglist = [
+            '--ignore-password-expiry',
+            '--disable-multi-factor-auth',
+            '--multi-factor-auth-rule', identity_fakes.mfa_opt1,
+            self.user.name,
+        ]
+        verifylist = [
+            ('ignore_password_expiry', True),
+            ('disable_multi_factor_auth', True),
+            ('multi_factor_auth_rule', [identity_fakes.mfa_opt1]),
+            ('enable', False),
+            ('disable', False),
+            ('name', self.user.name),
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        # In base command class ShowOne in cliff, abstract method take_action()
+        # returns a two-part tuple with a tuple of column names and a tuple of
+        # data to be shown.
+        columns, data = self.cmd.take_action(parsed_args)
+
+        # Set expected values
+        kwargs = {
+            'name': self.user.name,
+            'default_project': None,
+            'description': None,
+            'domain': None,
+            'email': None,
+            'enabled': True,
+            'options': {'ignore_password_expiry': True,
+                        'multi_factor_auth_enabled': False,
+                        'multi_factor_auth_rules': [["password", "totp"]]},
+            'password': None,
+        }
+        # UserManager.create(name=, domain=, project=, password=, email=,
+        #   description=, enabled=, default_project=)
+        self.users_mock.create.assert_called_with(
+            **kwargs
+        )
+
         self.assertEqual(self.columns, columns)
         self.assertEqual(self.datalist, data)
 
@@ -999,6 +1473,384 @@ class TestUserSet(TestUser):
         kwargs = {
             'enabled': False,
         }
+        # UserManager.update(user, name=, domain=, project=, password=,
+        #     email=, description=, enabled=, default_project=)
+        self.users_mock.update.assert_called_with(
+            self.user.id,
+            **kwargs
+        )
+        self.assertIsNone(result)
+
+    def test_user_set_ignore_lockout_failure_attempts(self):
+        arglist = [
+            '--ignore-lockout-failure-attempts',
+            self.user.name,
+        ]
+        verifylist = [
+            ('name', None),
+            ('password', None),
+            ('email', None),
+            ('ignore_lockout_failure_attempts', True),
+            ('project', None),
+            ('enable', False),
+            ('disable', False),
+            ('user', self.user.name),
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        result = self.cmd.take_action(parsed_args)
+        # Set expected values
+        kwargs = {
+            'enabled': True,
+            'options': {'ignore_lockout_failure_attempts': True},
+        }
+        # UserManager.update(user, name=, domain=, project=, password=,
+        #     email=, description=, enabled=, default_project=)
+        self.users_mock.update.assert_called_with(
+            self.user.id,
+            **kwargs
+        )
+        self.assertIsNone(result)
+
+    def test_user_set_no_ignore_lockout_failure_attempts(self):
+        arglist = [
+            '--no-ignore-lockout-failure-attempts',
+            self.user.name,
+        ]
+        verifylist = [
+            ('name', None),
+            ('password', None),
+            ('email', None),
+            ('no_ignore_lockout_failure_attempts', True),
+            ('project', None),
+            ('enable', False),
+            ('disable', False),
+            ('user', self.user.name),
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        result = self.cmd.take_action(parsed_args)
+        # Set expected values
+        kwargs = {
+            'enabled': True,
+            'options': {'ignore_lockout_failure_attempts': False},
+        }
+        # UserManager.update(user, name=, domain=, project=, password=,
+        #     email=, description=, enabled=, default_project=)
+        self.users_mock.update.assert_called_with(
+            self.user.id,
+            **kwargs
+        )
+        self.assertIsNone(result)
+
+    def test_user_set_ignore_password_expiry(self):
+        arglist = [
+            '--ignore-password-expiry',
+            self.user.name,
+        ]
+        verifylist = [
+            ('name', None),
+            ('password', None),
+            ('email', None),
+            ('ignore_password_expiry', True),
+            ('project', None),
+            ('enable', False),
+            ('disable', False),
+            ('user', self.user.name),
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        result = self.cmd.take_action(parsed_args)
+        # Set expected values
+        kwargs = {
+            'enabled': True,
+            'options': {'ignore_password_expiry': True},
+        }
+        # UserManager.update(user, name=, domain=, project=, password=,
+        #     email=, description=, enabled=, default_project=)
+        self.users_mock.update.assert_called_with(
+            self.user.id,
+            **kwargs
+        )
+        self.assertIsNone(result)
+
+    def test_user_set_no_ignore_password_expiry(self):
+        arglist = [
+            '--no-ignore-password-expiry',
+            self.user.name,
+        ]
+        verifylist = [
+            ('name', None),
+            ('password', None),
+            ('email', None),
+            ('no_ignore_password_expiry', True),
+            ('project', None),
+            ('enable', False),
+            ('disable', False),
+            ('user', self.user.name),
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        result = self.cmd.take_action(parsed_args)
+        # Set expected values
+        kwargs = {
+            'enabled': True,
+            'options': {'ignore_password_expiry': False},
+        }
+        # UserManager.update(user, name=, domain=, project=, password=,
+        #     email=, description=, enabled=, default_project=)
+        self.users_mock.update.assert_called_with(
+            self.user.id,
+            **kwargs
+        )
+        self.assertIsNone(result)
+
+    def test_user_set_ignore_change_password_upon_first_use(self):
+        arglist = [
+            '--ignore-change-password-upon-first-use',
+            self.user.name,
+        ]
+        verifylist = [
+            ('name', None),
+            ('password', None),
+            ('email', None),
+            ('ignore_change_password_upon_first_use', True),
+            ('project', None),
+            ('enable', False),
+            ('disable', False),
+            ('user', self.user.name),
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        result = self.cmd.take_action(parsed_args)
+        # Set expected values
+        kwargs = {
+            'enabled': True,
+            'options': {'ignore_change_password_upon_first_use': True},
+        }
+        # UserManager.update(user, name=, domain=, project=, password=,
+        #     email=, description=, enabled=, default_project=)
+        self.users_mock.update.assert_called_with(
+            self.user.id,
+            **kwargs
+        )
+        self.assertIsNone(result)
+
+    def test_user_set_no_ignore_change_password_upon_first_use(self):
+        arglist = [
+            '--no-ignore-change-password-upon-first-use',
+            self.user.name,
+        ]
+        verifylist = [
+            ('name', None),
+            ('password', None),
+            ('email', None),
+            ('no_ignore_change_password_upon_first_use', True),
+            ('project', None),
+            ('enable', False),
+            ('disable', False),
+            ('user', self.user.name),
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        result = self.cmd.take_action(parsed_args)
+        # Set expected values
+        kwargs = {
+            'enabled': True,
+            'options': {'ignore_change_password_upon_first_use': False},
+        }
+        # UserManager.update(user, name=, domain=, project=, password=,
+        #     email=, description=, enabled=, default_project=)
+        self.users_mock.update.assert_called_with(
+            self.user.id,
+            **kwargs
+        )
+        self.assertIsNone(result)
+
+    def test_user_set_enable_lock_password(self):
+        arglist = [
+            '--enable-lock-password',
+            self.user.name,
+        ]
+        verifylist = [
+            ('name', None),
+            ('password', None),
+            ('email', None),
+            ('enable_lock_password', True),
+            ('project', None),
+            ('enable', False),
+            ('disable', False),
+            ('user', self.user.name),
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        result = self.cmd.take_action(parsed_args)
+        # Set expected values
+        kwargs = {
+            'enabled': True,
+            'options': {'lock_password': True},
+        }
+        # UserManager.update(user, name=, domain=, project=, password=,
+        #     email=, description=, enabled=, default_project=)
+        self.users_mock.update.assert_called_with(
+            self.user.id,
+            **kwargs
+        )
+        self.assertIsNone(result)
+
+    def test_user_set_disable_lock_password(self):
+        arglist = [
+            '--disable-lock-password',
+            self.user.name,
+        ]
+        verifylist = [
+            ('name', None),
+            ('password', None),
+            ('email', None),
+            ('disable_lock_password', True),
+            ('project', None),
+            ('enable', False),
+            ('disable', False),
+            ('user', self.user.name),
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        result = self.cmd.take_action(parsed_args)
+        # Set expected values
+        kwargs = {
+            'enabled': True,
+            'options': {'lock_password': False},
+        }
+        # UserManager.update(user, name=, domain=, project=, password=,
+        #     email=, description=, enabled=, default_project=)
+        self.users_mock.update.assert_called_with(
+            self.user.id,
+            **kwargs
+        )
+        self.assertIsNone(result)
+
+    def test_user_set_enable_multi_factor_auth(self):
+        arglist = [
+            '--enable-multi-factor-auth',
+            self.user.name,
+        ]
+        verifylist = [
+            ('name', None),
+            ('password', None),
+            ('email', None),
+            ('enable_multi_factor_auth', True),
+            ('project', None),
+            ('enable', False),
+            ('disable', False),
+            ('user', self.user.name),
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        result = self.cmd.take_action(parsed_args)
+        # Set expected values
+        kwargs = {
+            'enabled': True,
+            'options': {'multi_factor_auth_enabled': True},
+        }
+        # UserManager.update(user, name=, domain=, project=, password=,
+        #     email=, description=, enabled=, default_project=)
+        self.users_mock.update.assert_called_with(
+            self.user.id,
+            **kwargs
+        )
+        self.assertIsNone(result)
+
+    def test_user_set_disable_multi_factor_auth(self):
+        arglist = [
+            '--disable-multi-factor-auth',
+            self.user.name,
+        ]
+        verifylist = [
+            ('name', None),
+            ('password', None),
+            ('email', None),
+            ('disable_multi_factor_auth', True),
+            ('project', None),
+            ('enable', False),
+            ('disable', False),
+            ('user', self.user.name),
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        result = self.cmd.take_action(parsed_args)
+        # Set expected values
+        kwargs = {
+            'enabled': True,
+            'options': {'multi_factor_auth_enabled': False},
+        }
+        # UserManager.update(user, name=, domain=, project=, password=,
+        #     email=, description=, enabled=, default_project=)
+        self.users_mock.update.assert_called_with(
+            self.user.id,
+            **kwargs
+        )
+        self.assertIsNone(result)
+
+    def test_user_set_option_multi_factor_auth_rule(self):
+        arglist = [
+            '--multi-factor-auth-rule', identity_fakes.mfa_opt1,
+            self.user.name,
+        ]
+        verifylist = [
+            ('name', None),
+            ('password', None),
+            ('email', None),
+            ('multi_factor_auth_rule', [identity_fakes.mfa_opt1]),
+            ('project', None),
+            ('enable', False),
+            ('disable', False),
+            ('user', self.user.name),
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        result = self.cmd.take_action(parsed_args)
+        # Set expected values
+        kwargs = {
+            'enabled': True,
+            'options': {'multi_factor_auth_rules': [["password", "totp"]]}}
+
+        # UserManager.update(user, name=, domain=, project=, password=,
+        #     email=, description=, enabled=, default_project=)
+        self.users_mock.update.assert_called_with(
+            self.user.id,
+            **kwargs
+        )
+        self.assertIsNone(result)
+
+    def test_user_set_with_multiple_options(self):
+        arglist = [
+            '--ignore-password-expiry',
+            '--enable-multi-factor-auth',
+            '--multi-factor-auth-rule', identity_fakes.mfa_opt1,
+            self.user.name,
+        ]
+        verifylist = [
+            ('name', None),
+            ('password', None),
+            ('email', None),
+            ('ignore_password_expiry', True),
+            ('enable_multi_factor_auth', True),
+            ('multi_factor_auth_rule', [identity_fakes.mfa_opt1]),
+            ('project', None),
+            ('enable', False),
+            ('disable', False),
+            ('user', self.user.name),
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        result = self.cmd.take_action(parsed_args)
+        # Set expected values
+        kwargs = {
+            'enabled': True,
+            'options': {'ignore_password_expiry': True,
+                        'multi_factor_auth_enabled': True,
+                        'multi_factor_auth_rules': [["password", "totp"]]}}
+
         # UserManager.update(user, name=, domain=, project=, password=,
         #     email=, description=, enabled=, default_project=)
         self.users_mock.update.assert_called_with(

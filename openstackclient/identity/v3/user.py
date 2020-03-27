@@ -30,6 +30,114 @@ from openstackclient.identity import common
 LOG = logging.getLogger(__name__)
 
 
+def _get_options_for_user(identity_client, parsed_args):
+    options = {}
+    if parsed_args.ignore_lockout_failure_attempts:
+        options['ignore_lockout_failure_attempts'] = True
+    if parsed_args.no_ignore_lockout_failure_attempts:
+        options['ignore_lockout_failure_attempts'] = False
+    if parsed_args.ignore_password_expiry:
+        options['ignore_password_expiry'] = True
+    if parsed_args.no_ignore_password_expiry:
+        options['ignore_password_expiry'] = False
+    if parsed_args.ignore_change_password_upon_first_use:
+        options['ignore_change_password_upon_first_use'] = True
+    if parsed_args.no_ignore_change_password_upon_first_use:
+        options['ignore_change_password_upon_first_use'] = False
+    if parsed_args.enable_lock_password:
+        options['lock_password'] = True
+    if parsed_args.disable_lock_password:
+        options['lock_password'] = False
+    if parsed_args.enable_multi_factor_auth:
+        options['multi_factor_auth_enabled'] = True
+    if parsed_args.disable_multi_factor_auth:
+        options['multi_factor_auth_enabled'] = False
+    if parsed_args.multi_factor_auth_rule:
+        auth_rules = [rule.split(",") for rule in
+                      parsed_args.multi_factor_auth_rule]
+        if auth_rules:
+            options['multi_factor_auth_rules'] = auth_rules
+    return options
+
+
+def _add_user_options(parser):
+    # Add additional user options
+
+    parser.add_argument(
+        '--ignore-lockout-failure-attempts',
+        action="store_true",
+        help=_('Opt into ignoring the number of times a user has '
+               'authenticated and locking out the user as a result'),
+    )
+    parser.add_argument(
+        '--no-ignore-lockout-failure-attempts',
+        action="store_true",
+        help=_('Opt out of ignoring the number of times a user has '
+               'authenticated and locking out the user as a result'),
+    )
+    parser.add_argument(
+        '--ignore-password-expiry',
+        action="store_true",
+        help=_('Opt into allowing user to continue using passwords that '
+               'may be expired'),
+    )
+    parser.add_argument(
+        '--no-ignore-password-expiry',
+        action="store_true",
+        help=_('Opt out of allowing user to continue using passwords '
+               'that may be expired'),
+    )
+    parser.add_argument(
+        '--ignore-change-password-upon-first-use',
+        action="store_true",
+        help=_('Control if a user should be forced to change their password '
+               'immediately after they log into keystone for the first time. '
+               'Opt into ignoring the user to change their password during '
+               'first time login in keystone'),
+    )
+    parser.add_argument(
+        '--no-ignore-change-password-upon-first-use',
+        action="store_true",
+        help=_('Control if a user should be forced to change their password '
+               'immediately after they log into keystone for the first time. '
+               'Opt out of ignoring the user to change their password during '
+               'first time login in keystone'),
+    )
+    parser.add_argument(
+        '--enable-lock-password',
+        action="store_true",
+        help=_('Disables the ability for a user to change its password '
+               'through self-service APIs'),
+    )
+    parser.add_argument(
+        '--disable-lock-password',
+        action="store_true",
+        help=_('Enables the ability for a user to change its password '
+               'through self-service APIs'),
+    )
+    parser.add_argument(
+        '--enable-multi-factor-auth',
+        action="store_true",
+        help=_('Enables the MFA (Multi Factor Auth)'),
+    )
+    parser.add_argument(
+        '--disable-multi-factor-auth',
+        action="store_true",
+        help=_('Disables the MFA (Multi Factor Auth)'),
+    )
+    parser.add_argument(
+        '--multi-factor-auth-rule',
+        metavar='<rule>',
+        action="append",
+        default=[],
+        help=_('Set multi-factor auth rules. For example, to set a rule '
+               'requiring the "password" and "totp" auth methods to be '
+               'provided, use: "--multi-factor-auth-rule password,totp". '
+               'May be provided multiple times to set different rule '
+               'combinations.')
+    )
+
+
 class CreateUser(command.ShowOne):
     _description = _("Create new user")
 
@@ -72,6 +180,8 @@ class CreateUser(command.ShowOne):
             metavar='<description>',
             help=_('User description'),
         )
+        _add_user_options(parser)
+
         enable_group = parser.add_mutually_exclusive_group()
         enable_group.add_argument(
             '--enable',
@@ -113,6 +223,7 @@ class CreateUser(command.ShowOne):
         if not parsed_args.password:
             LOG.warning(_("No password was supplied, authentication will fail "
                           "when a user does not have a password."))
+        options = _get_options_for_user(identity_client, parsed_args)
 
         try:
             user = identity_client.users.create(
@@ -122,7 +233,8 @@ class CreateUser(command.ShowOne):
                 password=parsed_args.password,
                 email=parsed_args.email,
                 description=parsed_args.description,
-                enabled=enabled
+                enabled=enabled,
+                options=options,
             )
         except ks_exc.Conflict:
             if parsed_args.or_show:
@@ -333,6 +445,8 @@ class SetUser(command.Command):
             metavar='<description>',
             help=_('Set user description'),
         )
+        _add_user_options(parser)
+
         enable_group = parser.add_mutually_exclusive_group()
         enable_group.add_argument(
             '--enable',
@@ -389,6 +503,10 @@ class SetUser(command.Command):
             kwargs['enabled'] = True
         if parsed_args.disable:
             kwargs['enabled'] = False
+
+        options = _get_options_for_user(identity_client, parsed_args)
+        if options:
+            kwargs['options'] = options
 
         identity_client.users.update(user.id, **kwargs)
 

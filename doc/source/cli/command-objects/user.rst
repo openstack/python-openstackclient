@@ -19,6 +19,12 @@ Create new user
         [--password-prompt]
         [--email <email-address>]
         [--description <description>]
+        [--multi-factor-auth-rule <rule>]
+        [--ignore-lockout-failure-attempts| --no-ignore-lockout-failure-attempts]
+        [--ignore-password-expiry| --no-ignore-password-expiry]
+        [--ignore-change-password-upon-first-use| --no-ignore-change-password-upon-first-use]
+        [--enable-lock-password| --disable-lock-password]
+        [--enable-multi-factor-auth| --disable-multi-factor-auth]
         [--enable | --disable]
         [--or-show]
         <user-name>
@@ -55,6 +61,63 @@ Create new user
     User description
 
     .. versionadded:: 3
+
+.. option:: --ignore-lockout-failure-attempts
+
+    Opt into ignoring the number of times a user has authenticated and
+    locking out the user as a result
+
+.. option:: --no-ignore-lockout-failure-attempts
+
+    Opt out of ignoring the number of times a user has authenticated
+    and locking out the user as a result
+
+.. option:: --ignore-change-password-upon-first-use
+
+    Control if a user should be forced to change their password immediately
+    after they log into keystone for the first time. Opt into ignoring
+    the user to change their password during first time login in keystone.
+
+.. option:: --no-ignore-change-password-upon-first-use
+
+    Control if a user should be forced to change their password immediately
+    after they log into keystone for the first time. Opt out of ignoring
+    the user to change their password during first time login in keystone.
+
+.. option:: --ignore-password-expiry
+
+    Opt into allowing user to continue using passwords that may be
+    expired
+
+.. option:: --no-ignore-password-expiry
+
+    Opt out of allowing user to continue using passwords that may be
+    expired
+
+.. option:: --enable-lock-password
+
+    Disables the ability for a user to change its password through
+    self-service APIs
+
+.. option:: --disable-lock-password
+
+    Enables the ability for a user to change its password through
+    self-service APIs
+
+.. option:: --enable-multi-factor-auth
+
+    Enables the MFA (Multi Factor Auth)
+
+.. option:: --disable-multi-factor-auth
+
+    Disables the MFA (Multi Factor Auth)
+
+.. option:: --multi-factor-auth-rule <rule>
+
+    Set multi-factor auth rules. For example, to set a rule requiring the
+    "password" and "totp" auth methods to be provided,
+    use: "--multi-factor-auth-rule password,totp".
+    May be provided multiple times to set different rule combinations.
 
 .. option:: --enable
 
@@ -146,6 +209,12 @@ Set user properties
         [--password-prompt]
         [--email <email-address>]
         [--description <description>]
+        [--multi-factor-auth-rule <rule>]
+        [--ignore-lockout-failure-attempts| --no-ignore-lockout-failure-attempts]
+        [--ignore-password-expiry| --no-ignore-password-expiry]
+        [--ignore-change-password-upon-first-use| --no-ignore-change-password-upon-first-use]
+        [--enable-lock-password| --disable-lock-password]
+        [--enable-multi-factor-auth| --disable-multi-factor-auth]
         [--enable|--disable]
         <user>
 
@@ -186,6 +255,63 @@ Set user properties
     Set user description
 
     .. versionadded:: 3
+
+.. option:: --ignore-lockout-failure-attempts
+
+    Opt into ignoring the number of times a user has authenticated and
+    locking out the user as a result
+
+.. option:: --no-ignore-lockout-failure-attempts
+
+    Opt out of ignoring the number of times a user has authenticated
+    and locking out the user as a result
+
+.. option:: --ignore-change-password-upon-first-use
+
+    Control if a user should be forced to change their password immediately
+    after they log into keystone for the first time. Opt into ignoring
+    the user to change their password during first time login in keystone.
+
+.. option:: --no-ignore-change-password-upon-first-use
+
+    Control if a user should be forced to change their password immediately
+    after they log into keystone for the first time. Opt out of ignoring
+    the user to change their password during first time login in keystone.
+
+.. option:: --ignore-password-expiry
+
+    Opt into allowing user to continue using passwords that may be
+    expired
+
+.. option:: --no-ignore-password-expiry
+
+    Opt out of allowing user to continue using passwords that may be
+    expired
+
+.. option:: --enable-lock-password
+
+    Disables the ability for a user to change its password through
+    self-service APIs
+
+.. option:: --disable-lock-password
+
+    Enables the ability for a user to change its password through
+    self-service APIs
+
+.. option:: --enable-multi-factor-auth
+
+    Enables the MFA (Multi Factor Auth)
+
+.. option:: --disable-multi-factor-auth
+
+    Disables the MFA (Multi Factor Auth)
+
+.. option:: --multi-factor-auth-rule <rule>
+
+    Set multi-factor auth rules. For example, to set a rule requiring the
+    "password" and "totp" auth methods to be provided,
+    use: "--multi-factor-auth-rule password,totp".
+    May be provided multiple times to set different rule combinations.
 
 .. option:: --enable
 

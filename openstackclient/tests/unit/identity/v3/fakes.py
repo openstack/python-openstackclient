@@ -108,6 +108,9 @@ MAPPING_RESPONSE_2 = {
     "rules": MAPPING_RULES_2
 }
 
+mfa_opt1 = 'password,totp'
+mfa_opt2 = 'password'
+
 project_id = '8-9-64'
 project_name = 'beatles'
 project_description = 'Fab Four'
