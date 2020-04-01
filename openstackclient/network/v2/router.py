@@ -168,6 +168,93 @@ class AddSubnetToRouter(command.Command):
             subnet_id=subnet.id)
 
 
+class AddExtraRoutesToRouter(command.ShowOne):
+    _description = _("Add extra static routes to a router's routing table.")
+
+    def get_parser(self, prog_name):
+        parser = super(AddExtraRoutesToRouter, self).get_parser(prog_name)
+        parser.add_argument(
+            'router',
+            metavar='<router>',
+            help=_("Router to which extra static routes "
+                   "will be added (name or ID).")
+        )
+        parser.add_argument(
+            '--route',
+            metavar='destination=<subnet>,gateway=<ip-address>',
+            action=parseractions.MultiKeyValueAction,
+            dest='routes',
+            default=[],
+            required_keys=['destination', 'gateway'],
+            help=_("Add extra static route to the router. "
+                   "destination: destination subnet (in CIDR notation), "
+                   "gateway: nexthop IP address. "
+                   "Repeat option to add multiple routes. "
+                   "Trying to add a route that's already present "
+                   "(exactly, including destination and nexthop) "
+                   "in the routing table is allowed and is considered "
+                   "a successful operation.")
+        )
+        return parser
+
+    def take_action(self, parsed_args):
+        if parsed_args.routes is not None:
+            for route in parsed_args.routes:
+                route['nexthop'] = route.pop('gateway')
+        client = self.app.client_manager.network
+        router_obj = client.add_extra_routes_to_router(
+            client.find_router(parsed_args.router, ignore_missing=False),
+            body={'router': {'routes': parsed_args.routes}})
+        display_columns, columns = _get_columns(router_obj)
+        data = utils.get_item_properties(
+            router_obj, columns, formatters=_formatters)
+        return (display_columns, data)
+
+
+class RemoveExtraRoutesFromRouter(command.ShowOne):
+    _description = _(
+        "Remove extra static routes from a router's routing table.")
+
+    def get_parser(self, prog_name):
+        parser = super(RemoveExtraRoutesFromRouter, self).get_parser(prog_name)
+        parser.add_argument(
+            'router',
+            metavar='<router>',
+            help=_("Router from which extra static routes "
+                   "will be removed (name or ID).")
+        )
+        parser.add_argument(
+            '--route',
+            metavar='destination=<subnet>,gateway=<ip-address>',
+            action=parseractions.MultiKeyValueAction,
+            dest='routes',
+            default=[],
+            required_keys=['destination', 'gateway'],
+            help=_("Remove extra static route from the router. "
+                   "destination: destination subnet (in CIDR notation), "
+                   "gateway: nexthop IP address. "
+                   "Repeat option to remove multiple routes. "
+                   "Trying to remove a route that's already missing "
+                   "(fully, including destination and nexthop) "
+                   "from the routing table is allowed and is considered "
+                   "a successful operation.")
+        )
+        return parser
+
+    def take_action(self, parsed_args):
+        if parsed_args.routes is not None:
+            for route in parsed_args.routes:
+                route['nexthop'] = route.pop('gateway')
+        client = self.app.client_manager.network
+        router_obj = client.remove_extra_routes_from_router(
+            client.find_router(parsed_args.router, ignore_missing=False),
+            body={'router': {'routes': parsed_args.routes}})
+        display_columns, columns = _get_columns(router_obj)
+        data = utils.get_item_properties(
+            router_obj, columns, formatters=_formatters)
+        return (display_columns, data)
+
+
 # TODO(yanxing'an): Use the SDK resource mapped attribute names once the
 # OSC minimum requirements include SDK 1.0.
 class CreateRouter(command.ShowOne):
@@ -540,17 +627,21 @@ class SetRouter(command.Command):
             dest='routes',
             default=None,
             required_keys=['destination', 'gateway'],
-            help=_("Routes associated with the router "
+            help=_("Add routes to the router "
                    "destination: destination subnet (in CIDR notation) "
                    "gateway: nexthop IP address "
-                   "(repeat option to set multiple routes)")
+                   "(repeat option to add multiple routes). "
+                   "This is deprecated in favor of 'router add/remove route' "
+                   "since it is prone to race conditions between concurrent "
+                   "clients when not used together with --no-route to "
+                   "overwrite the current value of 'routes'.")
         )
         parser.add_argument(
             '--no-route',
             action='store_true',
             help=_("Clear routes associated with the router. "
                    "Specify both --route and --no-route to overwrite "
-                   "current value of route.")
+                   "current value of routes.")
         )
         routes_ha = parser.add_mutually_exclusive_group()
         routes_ha.add_argument(

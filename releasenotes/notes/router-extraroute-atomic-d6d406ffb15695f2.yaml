@@ -1,0 +1,12 @@
+---
+features:
+  - |
+    Add new commands ``router add route`` and ``router remove route`` to
+    support new Neutron extension: ``extraroute-atomic`` (see `Neutron RFE
+    <https://bugs.launchpad.net/neutron/+bug/1826396>`_).
+deprecations:
+  - |
+    The use of ``router set --route`` to add extra routes next to already
+    existing extra routes is deprecated in favor of ``router add route
+    --route``, because ``router set --route`` if used from multiple clients
+    concurrently may lead to lost updates.
