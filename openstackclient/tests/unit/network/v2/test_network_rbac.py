@@ -14,6 +14,7 @@
 from unittest import mock
 from unittest.mock import call
 
+import ddt
 from osc_lib import exceptions
 
 from openstackclient.network.v2 import network_rbac
@@ -33,11 +34,13 @@ class TestNetworkRBAC(network_fakes.TestNetworkV2):
         self.projects_mock = self.app.client_manager.identity.projects
 
 
+@ddt.ddt
 class TestCreateNetworkRBAC(TestNetworkRBAC):
 
     network_object = network_fakes.FakeNetwork.create_one_network()
     qos_object = network_fakes.FakeNetworkQosPolicy.create_one_qos_policy()
     sg_object = network_fakes.FakeNetworkSecGroup.create_one_security_group()
+    as_object = network_fakes.FakeAddressScope.create_one_address_scope()
     project = identity_fakes_v3.FakeProject.create_one_project()
     rbac_policy = network_fakes.FakeNetworkRBAC.create_one_network_rbac(
         attrs={'tenant_id': project.id,
@@ -77,6 +80,8 @@ class TestCreateNetworkRBAC(TestNetworkRBAC):
             return_value=self.qos_object)
         self.network.find_security_group = mock.Mock(
             return_value=self.sg_object)
+        self.network.find_address_scope = mock.Mock(
+            return_value=self.as_object)
         self.projects_mock.get.return_value = self.project
 
     def test_network_rbac_create_no_type(self):
@@ -224,20 +229,28 @@ class TestCreateNetworkRBAC(TestNetworkRBAC):
         self.assertEqual(self.columns, columns)
         self.assertEqual(self.data, list(data))
 
-    def test_network_rbac_create_qos_object(self):
-        self.rbac_policy.object_type = 'qos_policy'
-        self.rbac_policy.object_id = self.qos_object.id
+    @ddt.data(
+        ('qos_policy', "qos_object"),
+        ('security_group', "sg_object"),
+        ('address_scope', "as_object")
+    )
+    @ddt.unpack
+    def test_network_rbac_create_object(self, obj_type, obj_fake_attr):
+        obj_fake = getattr(self, obj_fake_attr)
+
+        self.rbac_policy.object_type = obj_type
+        self.rbac_policy.object_id = obj_fake.id
         arglist = [
-            '--type', 'qos_policy',
+            '--type', obj_type,
             '--action', self.rbac_policy.action,
             '--target-project', self.rbac_policy.target_tenant,
-            self.qos_object.name,
+            obj_fake.name,
         ]
         verifylist = [
-            ('type', 'qos_policy'),
+            ('type', obj_type),
             ('action', self.rbac_policy.action),
             ('target_project', self.rbac_policy.target_tenant),
-            ('rbac_object', self.qos_object.name),
+            ('rbac_object', obj_fake.name),
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
@@ -245,53 +258,16 @@ class TestCreateNetworkRBAC(TestNetworkRBAC):
         columns, data = self.cmd.take_action(parsed_args)
 
         self.network.create_rbac_policy.assert_called_with(**{
-            'object_id': self.qos_object.id,
-            'object_type': 'qos_policy',
+            'object_id': obj_fake.id,
+            'object_type': obj_type,
             'action': self.rbac_policy.action,
             'target_tenant': self.rbac_policy.target_tenant,
         })
         self.data = [
             self.rbac_policy.action,
             self.rbac_policy.id,
-            self.qos_object.id,
-            'qos_policy',
-            self.rbac_policy.tenant_id,
-            self.rbac_policy.target_tenant,
-        ]
-        self.assertEqual(self.columns, columns)
-        self.assertEqual(self.data, list(data))
-
-    def test_network_rbac_create_security_group_object(self):
-        self.rbac_policy.object_type = 'security_group'
-        self.rbac_policy.object_id = self.sg_object.id
-        arglist = [
-            '--type', 'security_group',
-            '--action', self.rbac_policy.action,
-            '--target-project', self.rbac_policy.target_tenant,
-            self.sg_object.name,
-        ]
-        verifylist = [
-            ('type', 'security_group'),
-            ('action', self.rbac_policy.action),
-            ('target_project', self.rbac_policy.target_tenant),
-            ('rbac_object', self.sg_object.name),
-        ]
-        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
-
-        # DisplayCommandBase.take_action() returns two tuples
-        columns, data = self.cmd.take_action(parsed_args)
-
-        self.network.create_rbac_policy.assert_called_with(**{
-            'object_id': self.sg_object.id,
-            'object_type': 'security_group',
-            'action': self.rbac_policy.action,
-            'target_tenant': self.rbac_policy.target_tenant,
-        })
-        self.data = [
-            self.rbac_policy.action,
-            self.rbac_policy.id,
-            self.sg_object.id,
-            'security_group',
+            obj_fake.id,
+            obj_type,
             self.rbac_policy.tenant_id,
             self.rbac_policy.target_tenant,
         ]
