@@ -68,6 +68,7 @@ class TestDomainCreate(TestDomain):
         kwargs = {
             'name': self.domain.name,
             'description': None,
+            'options': {},
             'enabled': True,
         }
         self.domains_mock.create.assert_called_with(
@@ -97,6 +98,7 @@ class TestDomainCreate(TestDomain):
         kwargs = {
             'name': self.domain.name,
             'description': 'new desc',
+            'options': {},
             'enabled': True,
         }
         self.domains_mock.create.assert_called_with(
@@ -126,6 +128,7 @@ class TestDomainCreate(TestDomain):
         kwargs = {
             'name': self.domain.name,
             'description': None,
+            'options': {},
             'enabled': True,
         }
         self.domains_mock.create.assert_called_with(
@@ -155,7 +158,68 @@ class TestDomainCreate(TestDomain):
         kwargs = {
             'name': self.domain.name,
             'description': None,
+            'options': {},
             'enabled': False,
+        }
+        self.domains_mock.create.assert_called_with(
+            **kwargs
+        )
+
+        self.assertEqual(self.columns, columns)
+        self.assertEqual(self.datalist, data)
+
+    def test_domain_create_with_immutable(self):
+        arglist = [
+            '--immutable',
+            self.domain.name,
+        ]
+        verifylist = [
+            ('immutable', True),
+            ('name', self.domain.name),
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        # In base command class ShowOne in cliff, abstract method take_action()
+        # returns a two-part tuple with a tuple of column names and a tuple of
+        # data to be shown.
+        columns, data = self.cmd.take_action(parsed_args)
+
+        # Set expected values
+        kwargs = {
+            'name': self.domain.name,
+            'description': None,
+            'options': {'immutable': True},
+            'enabled': True,
+        }
+        self.domains_mock.create.assert_called_with(
+            **kwargs
+        )
+
+        self.assertEqual(self.columns, columns)
+        self.assertEqual(self.datalist, data)
+
+    def test_domain_create_with_no_immutable(self):
+        arglist = [
+            '--no-immutable',
+            self.domain.name,
+        ]
+        verifylist = [
+            ('no_immutable', True),
+            ('name', self.domain.name),
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        # In base command class ShowOne in cliff, abstract method take_action()
+        # returns a two-part tuple with a tuple of column names and a tuple of
+        # data to be shown.
+        columns, data = self.cmd.take_action(parsed_args)
+
+        # Set expected values
+        kwargs = {
+            'name': self.domain.name,
+            'description': None,
+            'options': {'immutable': False},
+            'enabled': True,
         }
         self.domains_mock.create.assert_called_with(
             **kwargs
@@ -347,6 +411,52 @@ class TestDomainSet(TestDomain):
         # Set expected values
         kwargs = {
             'enabled': False,
+        }
+        self.domains_mock.update.assert_called_with(
+            self.domain.id,
+            **kwargs
+        )
+        self.assertIsNone(result)
+
+    def test_domain_set_immutable_option(self):
+        arglist = [
+            '--immutable',
+            self.domain.id,
+        ]
+        verifylist = [
+            ('immutable', True),
+            ('domain', self.domain.id),
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        result = self.cmd.take_action(parsed_args)
+
+        # Set expected values
+        kwargs = {
+            'options': {'immutable': True},
+        }
+        self.domains_mock.update.assert_called_with(
+            self.domain.id,
+            **kwargs
+        )
+        self.assertIsNone(result)
+
+    def test_domain_set_no_immutable_option(self):
+        arglist = [
+            '--no-immutable',
+            self.domain.id,
+        ]
+        verifylist = [
+            ('no_immutable', True),
+            ('domain', self.domain.id),
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        result = self.cmd.take_action(parsed_args)
+
+        # Set expected values
+        kwargs = {
+            'options': {'immutable': False},
         }
         self.domains_mock.update.assert_called_with(
             self.domain.id,

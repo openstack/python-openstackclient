@@ -78,6 +78,7 @@ class CreateProject(command.ShowOne):
             action='store_true',
             help=_('Return existing project'),
         )
+        common.add_resource_option_to_parser(parser)
         tag.add_tag_option_to_parser_for_create(parser, _('project'))
         return parser
 
@@ -99,6 +100,9 @@ class CreateProject(command.ShowOne):
         enabled = True
         if parsed_args.disable:
             enabled = False
+
+        options = common.get_immutable_options(parsed_args)
+
         kwargs = {}
         if parsed_args.property:
             kwargs = parsed_args.property.copy()
@@ -111,6 +115,7 @@ class CreateProject(command.ShowOne):
                 parent=parent,
                 description=parsed_args.description,
                 enabled=enabled,
+                options=options,
                 **kwargs
             )
         except ks_exc.Conflict:
@@ -317,6 +322,7 @@ class SetProject(command.Command):
             help=_('Set a property on <project> '
                    '(repeat option to set multiple properties)'),
         )
+        common.add_resource_option_to_parser(parser)
         tag.add_tag_option_to_parser_for_set(parser, _('project'))
         return parser
 
@@ -336,6 +342,9 @@ class SetProject(command.Command):
             kwargs['enabled'] = True
         if parsed_args.disable:
             kwargs['enabled'] = False
+        options = common.get_immutable_options(parsed_args)
+        if options:
+            kwargs['options'] = options
         if parsed_args.property:
             kwargs.update(parsed_args.property)
         tag.update_tags_in_args(parsed_args, project, kwargs)

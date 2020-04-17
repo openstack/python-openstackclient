@@ -333,6 +333,7 @@ class TestRoleCreate(TestRole):
             'domain': None,
             'name': identity_fakes.role_name,
             'description': None,
+            'options': {},
         }
 
         # RoleManager.create(name=, domain=)
@@ -377,6 +378,7 @@ class TestRoleCreate(TestRole):
             'domain': identity_fakes.domain_id,
             'name': identity_fakes.ROLE_2['name'],
             'description': None,
+            'options': {},
         }
 
         # RoleManager.create(name=, domain=)
@@ -418,6 +420,97 @@ class TestRoleCreate(TestRole):
         # Set expected values
         kwargs = {
             'description': identity_fakes.role_description,
+            'name': identity_fakes.ROLE_2['name'],
+            'domain': None,
+            'options': {},
+        }
+
+        # RoleManager.create(name=, domain=)
+        self.roles_mock.create.assert_called_with(
+            **kwargs
+        )
+
+        collist = ('domain', 'id', 'name')
+        self.assertEqual(collist, columns)
+        datalist = (
+            'd1',
+            identity_fakes.ROLE_2['id'],
+            identity_fakes.ROLE_2['name'],
+        )
+        self.assertEqual(datalist, data)
+
+    def test_role_create_with_immutable_option(self):
+
+        self.roles_mock.create.return_value = fakes.FakeResource(
+            None,
+            copy.deepcopy(identity_fakes.ROLE_2),
+            loaded=True,
+        )
+        arglist = [
+            '--immutable',
+            identity_fakes.ROLE_2['name'],
+        ]
+        verifylist = [
+            ('immutable', True),
+            ('name', identity_fakes.ROLE_2['name']),
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        # In base command class ShowOne in cliff, abstract method take_action()
+        # returns a two-part tuple with a tuple of column names and a tuple of
+        # data to be shown.
+        columns, data = self.cmd.take_action(parsed_args)
+
+        # Set expected values
+        kwargs = {
+
+            'options': {'immutable': True},
+            'description': None,
+            'name': identity_fakes.ROLE_2['name'],
+            'domain': None,
+        }
+
+        # RoleManager.create(name=, domain=)
+        self.roles_mock.create.assert_called_with(
+            **kwargs
+        )
+
+        collist = ('domain', 'id', 'name')
+        self.assertEqual(collist, columns)
+        datalist = (
+            'd1',
+            identity_fakes.ROLE_2['id'],
+            identity_fakes.ROLE_2['name'],
+        )
+        self.assertEqual(datalist, data)
+
+    def test_role_create_with_no_immutable_option(self):
+
+        self.roles_mock.create.return_value = fakes.FakeResource(
+            None,
+            copy.deepcopy(identity_fakes.ROLE_2),
+            loaded=True,
+        )
+        arglist = [
+            '--no-immutable',
+            identity_fakes.ROLE_2['name'],
+        ]
+        verifylist = [
+            ('no_immutable', True),
+            ('name', identity_fakes.ROLE_2['name']),
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        # In base command class ShowOne in cliff, abstract method take_action()
+        # returns a two-part tuple with a tuple of column names and a tuple of
+        # data to be shown.
+        columns, data = self.cmd.take_action(parsed_args)
+
+        # Set expected values
+        kwargs = {
+
+            'options': {'immutable': False},
+            'description': None,
             'name': identity_fakes.ROLE_2['name'],
             'domain': None,
         }
@@ -871,6 +964,7 @@ class TestRoleSet(TestRole):
         kwargs = {
             'name': 'over',
             'description': None,
+            'options': {},
         }
         # RoleManager.update(role, name=)
         self.roles_mock.update.assert_called_with(
@@ -903,6 +997,7 @@ class TestRoleSet(TestRole):
         kwargs = {
             'name': 'over',
             'description': None,
+            'options': {},
         }
         # RoleManager.update(role, name=)
         self.roles_mock.update.assert_called_with(
@@ -935,6 +1030,73 @@ class TestRoleSet(TestRole):
         kwargs = {
             'name': 'over',
             'description': identity_fakes.role_description,
+            'options': {},
+        }
+        # RoleManager.update(role, name=)
+        self.roles_mock.update.assert_called_with(
+            identity_fakes.ROLE_2['id'],
+            **kwargs
+        )
+        self.assertIsNone(result)
+
+    def test_role_set_with_immutable(self):
+        self.roles_mock.get.return_value = fakes.FakeResource(
+            None,
+            copy.deepcopy(identity_fakes.ROLE_2),
+            loaded=True,
+        )
+        arglist = [
+            '--name', 'over',
+            '--immutable',
+            identity_fakes.ROLE_2['name'],
+        ]
+        verifylist = [
+            ('name', 'over'),
+            ('immutable', True),
+            ('role', identity_fakes.ROLE_2['name']),
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        result = self.cmd.take_action(parsed_args)
+
+        # Set expected values
+        kwargs = {
+            'name': 'over',
+            'description': None,
+            'options': {'immutable': True},
+        }
+        # RoleManager.update(role, name=)
+        self.roles_mock.update.assert_called_with(
+            identity_fakes.ROLE_2['id'],
+            **kwargs
+        )
+        self.assertIsNone(result)
+
+    def test_role_set_with_no_immutable(self):
+        self.roles_mock.get.return_value = fakes.FakeResource(
+            None,
+            copy.deepcopy(identity_fakes.ROLE_2),
+            loaded=True,
+        )
+        arglist = [
+            '--name', 'over',
+            '--no-immutable',
+            identity_fakes.ROLE_2['name'],
+        ]
+        verifylist = [
+            ('name', 'over'),
+            ('no_immutable', True),
+            ('role', identity_fakes.ROLE_2['name']),
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        result = self.cmd.take_action(parsed_args)
+
+        # Set expected values
+        kwargs = {
+            'name': 'over',
+            'description': None,
+            'options': {'immutable': False},
         }
         # RoleManager.update(role, name=)
         self.roles_mock.update.assert_called_with(

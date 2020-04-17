@@ -60,6 +60,7 @@ class CreateDomain(command.ShowOne):
             action='store_true',
             help=_('Return existing domain'),
         )
+        common.add_resource_option_to_parser(parser)
         return parser
 
     def take_action(self, parsed_args):
@@ -69,10 +70,13 @@ class CreateDomain(command.ShowOne):
         if parsed_args.disable:
             enabled = False
 
+        options = common.get_immutable_options(parsed_args)
+
         try:
             domain = identity_client.domains.create(
                 name=parsed_args.name,
                 description=parsed_args.description,
+                options=options,
                 enabled=enabled,
             )
         except ks_exc.Conflict:
@@ -163,6 +167,7 @@ class SetDomain(command.Command):
             action='store_true',
             help=_('Disable domain'),
         )
+        common.add_resource_option_to_parser(parser)
         return parser
 
     def take_action(self, parsed_args):
@@ -179,6 +184,10 @@ class SetDomain(command.Command):
             kwargs['enabled'] = True
         if parsed_args.disable:
             kwargs['enabled'] = False
+
+        options = common.get_immutable_options(parsed_args)
+        if options:
+            kwargs['options'] = options
 
         identity_client.domains.update(domain.id, **kwargs)
 

@@ -98,7 +98,8 @@ class TestProjectCreate(TestProject):
             'description': None,
             'enabled': True,
             'parent': None,
-            'tags': []
+            'tags': [],
+            'options': {},
         }
         # ProjectManager.create(name=, domain=, description=,
         #                       enabled=, **kwargs)
@@ -156,7 +157,8 @@ class TestProjectCreate(TestProject):
             'description': 'new desc',
             'enabled': True,
             'parent': None,
-            'tags': []
+            'tags': [],
+            'options': {},
         }
         # ProjectManager.create(name=, domain=, description=,
         #                       enabled=, **kwargs)
@@ -194,7 +196,8 @@ class TestProjectCreate(TestProject):
             'description': None,
             'enabled': True,
             'parent': None,
-            'tags': []
+            'tags': [],
+            'options': {},
         }
         # ProjectManager.create(name=, domain=, description=,
         #                       enabled=, **kwargs)
@@ -232,7 +235,8 @@ class TestProjectCreate(TestProject):
             'description': None,
             'enabled': True,
             'parent': None,
-            'tags': []
+            'tags': [],
+            'options': {},
         }
         self.projects_mock.create.assert_called_with(
             **kwargs
@@ -266,7 +270,8 @@ class TestProjectCreate(TestProject):
             'description': None,
             'enabled': True,
             'parent': None,
-            'tags': []
+            'tags': [],
+            'options': {},
         }
         # ProjectManager.create(name=, domain=, description=,
         #                       enabled=, **kwargs)
@@ -302,7 +307,8 @@ class TestProjectCreate(TestProject):
             'description': None,
             'enabled': False,
             'parent': None,
-            'tags': []
+            'tags': [],
+            'options': {},
         }
         # ProjectManager.create(name=, domain=,
         #                       description=, enabled=, **kwargs)
@@ -339,7 +345,8 @@ class TestProjectCreate(TestProject):
             'parent': None,
             'fee': 'fi',
             'fo': 'fum',
-            'tags': []
+            'tags': [],
+            'options': {},
         }
         # ProjectManager.create(name=, domain=, description=,
         #                       enabled=, **kwargs)
@@ -380,7 +387,8 @@ class TestProjectCreate(TestProject):
             'parent': self.parent.id,
             'description': None,
             'enabled': True,
-            'tags': []
+            'tags': [],
+            'options': {},
         }
 
         self.projects_mock.create.assert_called_with(
@@ -465,8 +473,89 @@ class TestProjectCreate(TestProject):
             'description': None,
             'enabled': True,
             'parent': None,
-            'tags': ['foo']
+            'tags': ['foo'],
+            'options': {},
         }
+        self.projects_mock.create.assert_called_with(
+            **kwargs
+        )
+
+        self.assertEqual(self.columns, columns)
+        self.assertEqual(self.datalist, data)
+
+    def test_project_create_with_immutable_option(self):
+        arglist = [
+            '--immutable',
+            self.project.name,
+        ]
+        verifylist = [
+            ('immutable', True),
+            ('description', None),
+            ('enable', False),
+            ('disable', False),
+            ('name', self.project.name),
+            ('parent', None),
+            ('tags', [])
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        # In base command class ShowOne in cliff, abstract method take_action()
+        # returns a two-part tuple with a tuple of column names and a tuple of
+        # data to be shown.
+        columns, data = self.cmd.take_action(parsed_args)
+
+        # Set expected values
+        kwargs = {
+            'name': self.project.name,
+            'domain': None,
+            'description': None,
+            'enabled': True,
+            'parent': None,
+            'tags': [],
+            'options': {'immutable': True},
+        }
+        # ProjectManager.create(name=, domain=, description=,
+        #                       enabled=, **kwargs)
+        self.projects_mock.create.assert_called_with(
+            **kwargs
+        )
+
+        self.assertEqual(self.columns, columns)
+        self.assertEqual(self.datalist, data)
+
+    def test_project_create_with_no_immutable_option(self):
+        arglist = [
+            '--no-immutable',
+            self.project.name,
+        ]
+        verifylist = [
+            ('no_immutable', True),
+            ('description', None),
+            ('enable', False),
+            ('disable', False),
+            ('name', self.project.name),
+            ('parent', None),
+            ('tags', [])
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        # In base command class ShowOne in cliff, abstract method take_action()
+        # returns a two-part tuple with a tuple of column names and a tuple of
+        # data to be shown.
+        columns, data = self.cmd.take_action(parsed_args)
+
+        # Set expected values
+        kwargs = {
+            'name': self.project.name,
+            'domain': None,
+            'description': None,
+            'enabled': True,
+            'parent': None,
+            'tags': [],
+            'options': {'immutable': False},
+        }
+        # ProjectManager.create(name=, domain=, description=,
+        #                       enabled=, **kwargs)
         self.projects_mock.create.assert_called_with(
             **kwargs
         )
@@ -921,6 +1010,60 @@ class TestProjectSet(TestProject):
         }
         # ProjectManager.update(project, name=, domain=, description=,
         #                       enabled=, **kwargs)
+        self.projects_mock.update.assert_called_with(
+            self.project.id,
+            **kwargs
+        )
+        self.assertIsNone(result)
+
+    def test_project_set_with_immutable_option(self):
+        arglist = [
+            '--domain', self.project.domain_id,
+            '--immutable',
+            self.project.name,
+        ]
+        verifylist = [
+            ('domain', self.project.domain_id),
+            ('immutable', True),
+            ('enable', False),
+            ('disable', False),
+            ('project', self.project.name),
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        result = self.cmd.take_action(parsed_args)
+
+        # Set expected values
+        kwargs = {
+            'options': {'immutable': True},
+        }
+        self.projects_mock.update.assert_called_with(
+            self.project.id,
+            **kwargs
+        )
+        self.assertIsNone(result)
+
+    def test_project_set_with_no_immutable_option(self):
+        arglist = [
+            '--domain', self.project.domain_id,
+            '--no-immutable',
+            self.project.name,
+        ]
+        verifylist = [
+            ('domain', self.project.domain_id),
+            ('no_immutable', True),
+            ('enable', False),
+            ('disable', False),
+            ('project', self.project.name),
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        result = self.cmd.take_action(parsed_args)
+
+        # Set expected values
+        kwargs = {
+            'options': {'immutable': False},
+        }
         self.projects_mock.update.assert_called_with(
             self.project.id,
             **kwargs

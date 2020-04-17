@@ -1,0 +1,9 @@
+---
+features:
+  - |
+    Added the below mentioned parameters to the role, project and domain commands.
+
+    * --immutable
+    * --no-immutable
+
+    This will allow user to set "immutable" resource option.
