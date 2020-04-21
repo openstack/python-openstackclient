@@ -2064,6 +2064,44 @@ class AbortMigration(command.Command):
             server.id, parsed_args.migration)
 
 
+class ForceCompleteMigration(command.Command):
+    """Force an ongoing live migration to complete.
+
+    This command requires ``--os-compute-api-version`` 2.22 or greater.
+    """
+
+    def get_parser(self, prog_name):
+        parser = super(ForceCompleteMigration, self).get_parser(prog_name)
+        parser.add_argument(
+            'server',
+            metavar='<server>',
+            help=_('Server (name or ID)'),
+        )
+        parser.add_argument(
+            'migration',
+            metavar='<migration>',
+            help=_('Migration (ID)')
+        )
+        return parser
+
+    def take_action(self, parsed_args):
+        compute_client = self.app.client_manager.compute
+
+        if compute_client.api_version < api_versions.APIVersion('2.22'):
+            msg = _(
+                '--os-compute-api-version 2.22 or greater is required to '
+                'support the server migration force complete command'
+            )
+            raise exceptions.CommandError(msg)
+
+        server = utils.find_resource(
+            compute_client.servers,
+            parsed_args.server,
+        )
+        compute_client.server_migrations.live_migrate_force_complete(
+            server.id, parsed_args.migration)
+
+
 class PauseServer(command.Command):
     _description = _("Pause server(s)")
 
