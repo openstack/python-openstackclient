@@ -454,12 +454,23 @@ class CreatePort(command.ShowOne):
         if parsed_args.qos_policy:
             attrs['qos_policy_id'] = client.find_qos_policy(
                 parsed_args.qos_policy, ignore_missing=False).id
+
+        set_tags_in_post = bool(
+            client.find_extension('tag-ports-during-bulk-creation'))
+        if set_tags_in_post:
+            if parsed_args.no_tag:
+                attrs['tags'] = []
+            if parsed_args.tags:
+                attrs['tags'] = list(set(parsed_args.tags))
+
         with common.check_missing_extension_if_error(
                 self.app.client_manager.network, attrs):
             obj = client.create_port(**attrs)
 
-        # tags cannot be set when created, so tags need to be set later.
-        _tag.update_tags_for_set(client, obj, parsed_args)
+        if not set_tags_in_post:
+            # tags cannot be set when created, so tags need to be set later.
+            _tag.update_tags_for_set(client, obj, parsed_args)
+
         display_columns, columns = _get_columns(obj)
         data = utils.get_item_properties(obj, columns, formatters=_formatters)
 

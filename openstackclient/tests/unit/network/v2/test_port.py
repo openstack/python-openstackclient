@@ -119,6 +119,7 @@ class TestCreatePort(TestPort):
         self.network.find_network = mock.Mock(return_value=fake_net)
         self.fake_subnet = network_fakes.FakeSubnet.create_one_subnet()
         self.network.find_subnet = mock.Mock(return_value=self.fake_subnet)
+        self.network.find_extension = mock.Mock(return_value=[])
         # Get the command object to test
         self.cmd = port.CreatePort(self.app, self.namespace)
 
@@ -534,7 +535,7 @@ class TestCreatePort(TestPort):
             'name': 'test-port',
         })
 
-    def _test_create_with_tag(self, add_tags=True):
+    def _test_create_with_tag(self, add_tags=True, add_tags_in_post=True):
         arglist = [
             '--network', self._port.network_id,
             'test-port',
@@ -553,28 +554,59 @@ class TestCreatePort(TestPort):
         else:
             verifylist.append(('no_tag', True))
 
+        self.network.find_extension = mock.Mock(return_value=add_tags_in_post)
+
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
         columns, data = (self.cmd.take_action(parsed_args))
 
-        self.network.create_port.assert_called_once_with(
-            admin_state_up=True,
-            network_id=self._port.network_id,
-            name='test-port'
-        )
-        if add_tags:
-            self.network.set_tags.assert_called_once_with(
-                self._port,
-                tests_utils.CompareBySet(['red', 'blue']))
+        args = {
+            'admin_state_up': True,
+            'network_id': self._port.network_id,
+            'name': 'test-port',
+        }
+        if add_tags_in_post:
+            if add_tags:
+                args['tags'] = sorted(['red', 'blue'])
+            else:
+                args['tags'] = []
+            self.network.create_port.assert_called_once()
+            # Now we need to verify if arguments to call create_port are as
+            # expected,
+            # But we can't simply use assert_called_once_with() method because
+            # duplicates from 'tags' are removed with
+            # list(set(parsed_args.tags)) and that don't quarantee order of
+            # tags list which is used to call create_port().
+            create_port_call_kwargs = self.network.create_port.call_args[1]
+            create_port_call_kwargs['tags'] = sorted(
+                create_port_call_kwargs['tags'])
+            self.assertDictEqual(args, create_port_call_kwargs)
         else:
-            self.assertFalse(self.network.set_tags.called)
+            self.network.create_port.assert_called_once_with(
+                admin_state_up=True,
+                network_id=self._port.network_id,
+                name='test-port'
+            )
+            if add_tags:
+                self.network.set_tags.assert_called_once_with(
+                    self._port,
+                    tests_utils.CompareBySet(['red', 'blue']))
+            else:
+                self.assertFalse(self.network.set_tags.called)
+
         self.assertEqual(self.columns, columns)
         self.assertItemEqual(self.data, data)
 
     def test_create_with_tags(self):
-        self._test_create_with_tag(add_tags=True)
+        self._test_create_with_tag(add_tags=True, add_tags_in_post=True)
 
     def test_create_with_no_tag(self):
-        self._test_create_with_tag(add_tags=False)
+        self._test_create_with_tag(add_tags=False, add_tags_in_post=True)
+
+    def test_create_with_tags_using_put(self):
+        self._test_create_with_tag(add_tags=True, add_tags_in_post=False)
+
+    def test_create_with_no_tag_using_put(self):
+        self._test_create_with_tag(add_tags=False, add_tags_in_post=False)
 
     def _test_create_with_uplink_status_propagation(self, enable=True):
         arglist = [
