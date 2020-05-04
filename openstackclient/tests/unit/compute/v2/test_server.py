@@ -3577,6 +3577,41 @@ class TestServerRebuild(TestServer):
 
         self.cmd = server.RebuildServer(self.app, None)
 
+    def test_rebuild_with_image_name(self):
+        image_name = 'my-custom-image'
+        user_image = image_fakes.FakeImage.create_one_image(
+            attrs={'name': image_name})
+        self.find_image_mock.return_value = user_image
+
+        attrs = {
+            'image': {
+                'id': user_image.id
+            },
+            'networks': {},
+            'adminPass': 'passw0rd',
+        }
+        new_server = compute_fakes.FakeServer.create_one_server(attrs=attrs)
+        self.server.rebuild.return_value = new_server
+
+        arglist = [
+            self.server.id,
+            '--image', image_name
+        ]
+        verifylist = [
+            ('server', self.server.id),
+            ('image', image_name)
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        # Get the command object to test.
+        self.cmd.take_action(parsed_args)
+
+        self.servers_mock.get.assert_called_with(self.server.id)
+        self.find_image_mock.assert_called_with(
+            image_name, ignore_missing=False)
+        self.get_image_mock.assert_called_with(user_image.id)
+        self.server.rebuild.assert_called_with(user_image, None)
+
     def test_rebuild_with_current_image(self):
         arglist = [
             self.server.id,
@@ -3590,6 +3625,7 @@ class TestServerRebuild(TestServer):
         self.cmd.take_action(parsed_args)
 
         self.servers_mock.get.assert_called_with(self.server.id)
+        self.find_image_mock.assert_not_called()
         self.get_image_mock.assert_called_with(self.image.id)
         self.server.rebuild.assert_called_with(self.image, None)
 

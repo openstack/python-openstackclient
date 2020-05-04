@@ -1921,9 +1921,12 @@ class RebuildServer(command.ShowOne):
             compute_client.servers, parsed_args.server)
 
         # If parsed_args.image is not set, default to the currently used one.
-        image_id = parsed_args.image or server.to_dict().get(
-            'image', {}).get('id')
-        image = image_client.get_image(image_id)
+        if parsed_args.image:
+            image = image_client.find_image(
+                parsed_args.image, ignore_missing=False)
+        else:
+            image_id = server.to_dict().get('image', {}).get('id')
+            image = image_client.get_image(image_id)
 
         kwargs = {}
         if parsed_args.property:
