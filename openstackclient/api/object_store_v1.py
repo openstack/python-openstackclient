@@ -328,7 +328,7 @@ class APIv1(api.BaseAPI):
             headers will be a dict and all header names will be lowercase.
         """
 
-        if container is None or object is None:
+        if container is None:
             return None
 
         params['format'] = 'json'
