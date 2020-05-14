@@ -1833,7 +1833,7 @@ class FakeFloatingIPPortForwarding(object):
         """
         attrs = attrs or {}
         floatingip_id = (
-            attrs.get('floatingip_id') or'floating-ip-id-' + uuid.uuid4().hex
+            attrs.get('floatingip_id') or 'floating-ip-id-' + uuid.uuid4().hex
         )
         # Set default attributes.
         port_forwarding_attrs = {
