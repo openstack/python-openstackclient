@@ -79,7 +79,6 @@ class ProjectTests(common.IdentityTests):
             '--disable '
             '--property k0=v0 '
             '%(name)s' % {'new_name': new_project_name,
-                          'domain': self.domain_name,
                           'name': project_name})
         self.assertEqual(0, len(raw_output))
         # check project details
