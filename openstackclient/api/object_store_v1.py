@@ -87,7 +87,7 @@ class APIv1(api.BaseAPI):
 
     def container_list(
         self,
-        all_data=False,
+        full_listing=False,
         limit=None,
         marker=None,
         end_marker=None,
@@ -96,7 +96,7 @@ class APIv1(api.BaseAPI):
     ):
         """Get containers in an account
 
-        :param boolean all_data:
+        :param boolean full_listing:
             if True, return a full listing, else returns a max of
             10000 listings
         :param integer limit:
@@ -113,7 +113,7 @@ class APIv1(api.BaseAPI):
 
         params['format'] = 'json'
 
-        if all_data:
+        if full_listing:
             data = listing = self.container_list(
                 limit=limit,
                 marker=marker,
@@ -299,7 +299,7 @@ class APIv1(api.BaseAPI):
     def object_list(
         self,
         container=None,
-        all_data=False,
+        full_listing=False,
         limit=None,
         marker=None,
         end_marker=None,
@@ -311,7 +311,7 @@ class APIv1(api.BaseAPI):
 
         :param string container:
             container name to get a listing for
-        :param boolean all_data:
+        :param boolean full_listing:
             if True, return a full listing, else returns a max of
             10000 listings
         :param integer limit:
@@ -332,7 +332,7 @@ class APIv1(api.BaseAPI):
             return None
 
         params['format'] = 'json'
-        if all_data:
+        if full_listing:
             data = listing = self.object_list(
                 container=container,
                 limit=limit,
