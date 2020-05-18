@@ -29,11 +29,12 @@ extensions = ['sphinx.ext.autodoc',
               ]
 
 # openstackdocstheme options
-repository_name = 'openstack/python-openstackclient'
-use_storyboard = True
+openstackdocs_repo_name = 'openstack/python-openstackclient'
+openstackdocs_use_storyboard = True
+openstackdocs_auto_name = False
 
 # Add project 'foo' to this list to enable the :foo-doc: role
-openstack_projects = [
+openstackdocs_projects = [
     'neutron',
 ]
 
@@ -83,7 +84,7 @@ exclude_patterns = ['**tests**']
 #show_authors = False
 
 # The name of the Pygments (syntax highlighting) style to use.
-pygments_style = 'sphinx'
+pygments_style = 'native'
 
 # A list of ignored prefixes for module index sorting.
 modindex_common_prefix = ['openstackclient.']
@@ -125,11 +126,6 @@ html_theme = 'openstackdocs'
 # relative to this directory. They are copied after the builtin static files,
 # so a file named "default.css" will overwrite the builtin "default.css".
 #html_static_path = ['_static']
-
-# If not '', a 'Last updated on:' timestamp is inserted at every page bottom,
-# using the given strftime format.
-#html_last_updated_fmt = '%b %d, %Y'
-html_last_updated_fmt = '%Y-%m-%d %H:%M'
 
 # If true, SmartyPants will be used to convert quotes and dashes to
 # typographically correct entities.

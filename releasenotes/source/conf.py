@@ -44,8 +44,9 @@ extensions = [
 ]
 
 # openstackdocstheme options
-repository_name = 'openstack/python-openstackclient'
-use_storyboard = True
+openstackdocs_repo_name = 'openstack/python-openstackclient'
+openstackdocs_use_storyboard = True
+openstackdocs_auto_name = False
 
 # Set aliases for extlinks
 # * lpbug - generic Launchpad bug        :lpbug:`123456`
@@ -118,7 +119,7 @@ exclude_patterns = []
 # show_authors = False
 
 # The name of the Pygments (syntax highlighting) style to use.
-pygments_style = 'sphinx'
+pygments_style = 'native'
 
 # A list of ignored prefixes for module index sorting.
 # modindex_common_prefix = []
@@ -168,11 +169,6 @@ html_static_path = ['_static']
 # .htaccess) here, relative to this directory. These files are copied
 # directly to the root of the documentation.
 # html_extra_path = []
-
-# If not '', a 'Last updated on:' timestamp is inserted at every page bottom,
-# using the given strftime format.
-# html_last_updated_fmt = '%b %d, %Y'
-html_last_updated_fmt = '%Y-%m-%d %H:%M'
 
 # If true, SmartyPants will be used to convert quotes and dashes to
 # typographically correct entities.
