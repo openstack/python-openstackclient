@@ -92,7 +92,7 @@ class TestMultiKeyValueAction(utils.TestCase):
             {'req1': 'aaa', 'req2': 'bbb'},
             {'req1': '', 'req2': ''},
         ]
-        self.assertItemsEqual(expect, actual)
+        self.assertCountEqual(expect, actual)
 
     def test_empty_required_optional(self):
         self.parser.add_argument(
@@ -116,7 +116,7 @@ class TestMultiKeyValueAction(utils.TestCase):
             {'req1': 'aaa', 'req2': 'bbb'},
             {'req1': '', 'req2': ''},
         ]
-        self.assertItemsEqual(expect, actual)
+        self.assertCountEqual(expect, actual)
 
     def test_error_values_with_comma(self):
         self.assertRaises(
