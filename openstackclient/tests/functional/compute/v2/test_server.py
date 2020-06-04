@@ -230,7 +230,7 @@ class ServerTests(common.ComputeTestCase):
         ))
         # Really, shouldn't this be a list?
         self.assertEqual(
-            "a='b', c='d'",
+            {'a': 'b', 'c': 'd'},
             cmd_output['properties'],
         )
 
@@ -244,7 +244,7 @@ class ServerTests(common.ComputeTestCase):
             name
         ))
         self.assertEqual(
-            "c='d'",
+            {'c': 'd'},
             cmd_output['properties'],
         )
 
@@ -619,8 +619,8 @@ class ServerTests(common.ComputeTestCase):
             server_name
         ))
         volumes_attached = cmd_output['volumes_attached']
-        self.assertTrue(volumes_attached.startswith('id='))
-        attached_volume_id = volumes_attached.replace('id=', '')
+        self.assertIsNotNone(volumes_attached)
+        attached_volume_id = volumes_attached[0]["id"]
 
         # check the volume that attached on server
         cmd_output = json.loads(self.openstack(
@@ -699,8 +699,8 @@ class ServerTests(common.ComputeTestCase):
             server_name
         ))
         volumes_attached = cmd_output['volumes_attached']
-        self.assertTrue(volumes_attached.startswith('id='))
-        attached_volume_id = volumes_attached.replace('id=', '')
+        self.assertIsNotNone(volumes_attached)
+        attached_volume_id = volumes_attached[0]["id"]
 
         # check the volume that attached on server
         cmd_output = json.loads(self.openstack(
@@ -773,10 +773,12 @@ class ServerTests(common.ComputeTestCase):
             server_name
         ))
         volumes_attached = cmd_output['volumes_attached']
-        self.assertTrue(volumes_attached.startswith('id='))
-        attached_volume_id = volumes_attached.replace('id=', '')
-        # Don't leak the volume when the test exits.
-        self.addCleanup(self.openstack, 'volume delete ' + attached_volume_id)
+        self.assertIsNotNone(volumes_attached)
+        attached_volume_id = volumes_attached[0]["id"]
+        for vol in volumes_attached:
+            self.assertIsNotNone(vol['id'])
+            # Don't leak the volume when the test exits.
+            self.addCleanup(self.openstack, 'volume delete ' + vol['id'])
 
         # Since the server is volume-backed the GET /servers/{server_id}
         # response will have image=''.
@@ -785,7 +787,7 @@ class ServerTests(common.ComputeTestCase):
         # check the volume that attached on server
         cmd_output = json.loads(self.openstack(
             'volume show -f json ' +
-            attached_volume_id
+            volumes_attached[0]["id"]
         ))
         # The volume size should be what we specified on the command line.
         self.assertEqual(1, int(cmd_output['size']))
@@ -879,14 +881,21 @@ class ServerTests(common.ComputeTestCase):
 
         self.assertIsNotNone(server['id'])
         self.assertEqual(server_name, server['name'])
-        self.assertIn(str(security_group1['id']), server['security_groups'])
-        self.assertIn(str(security_group2['id']), server['security_groups'])
+        sec_grp = ""
+        for sec in server['security_groups']:
+            sec_grp += sec['name']
+        self.assertIn(str(security_group1['id']), sec_grp)
+        self.assertIn(str(security_group2['id']), sec_grp)
         self.wait_for_status(server_name, 'ACTIVE')
         server = json.loads(self.openstack(
             'server show -f json ' + server_name
         ))
-        self.assertIn(sg_name1, server['security_groups'])
-        self.assertIn(sg_name2, server['security_groups'])
+        # check if security group exists in list
+        sec_grp = ""
+        for sec in server['security_groups']:
+            sec_grp += sec['name']
+        self.assertIn(sg_name1, sec_grp)
+        self.assertIn(sg_name2, sec_grp)
 
     def test_server_create_with_empty_network_option_latest(self):
         """Test server create with empty network option in nova 2.latest."""

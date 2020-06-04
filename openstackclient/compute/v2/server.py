@@ -24,6 +24,7 @@ import os
 from novaclient import api_versions
 from novaclient.v2 import servers
 from openstack import exceptions as sdk_exceptions
+from osc_lib.cli import format_columns
 from osc_lib.cli import parseractions
 from osc_lib.command import command
 from osc_lib import exceptions
@@ -166,14 +167,14 @@ def _prep_server_detail(compute_client, image_client, server, refresh=True):
     if 'os-extended-volumes:volumes_attached' in info:
         info.update(
             {
-                'volumes_attached': utils.format_list_of_dicts(
+                'volumes_attached': format_columns.ListDictColumn(
                     info.pop('os-extended-volumes:volumes_attached'))
             }
         )
     if 'security_groups' in info:
         info.update(
             {
-                'security_groups': utils.format_list_of_dicts(
+                'security_groups': format_columns.ListDictColumn(
                     info.pop('security_groups'))
             }
         )
@@ -182,9 +183,14 @@ def _prep_server_detail(compute_client, image_client, server, refresh=True):
     info['addresses'] = _format_servers_list_networks(server.networks)
 
     # Map 'metadata' field to 'properties'
-    info.update(
-        {'properties': utils.format_dict(info.pop('metadata'))}
-    )
+    if not info['metadata']:
+        info.update(
+            {'properties': utils.format_dict(info.pop('metadata'))}
+        )
+    else:
+        info.update(
+            {'properties': format_columns.DictColumn(info.pop('metadata'))}
+        )
 
     # Migrate tenant_id to project_id naming
     if 'tenant_id' in info:
@@ -2530,7 +2536,6 @@ class ShowServer(command.ShowOne):
             data = _prep_server_detail(compute_client,
                                        self.app.client_manager.image, server,
                                        refresh=False)
-
         return zip(*sorted(data.items()))
 
 

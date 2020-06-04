@@ -5166,6 +5166,8 @@ class TestServerGeneral(TestServer):
             'tenant_id': u'tenant-id-xxx',
             'networks': {u'public': [u'10.20.30.40', u'2001:db8::f']},
             'links': u'http://xxx.yyy.com',
+            'properties': '',
+            'volumes_attached': [{"id": "6344fe9d-ef20-45b2-91a6"}],
         }
         _server = compute_fakes.FakeServer.create_one_server(attrs=server_info)
         find_resource.side_effect = [_server, _flavor]
@@ -5182,6 +5184,7 @@ class TestServerGeneral(TestServer):
             'properties': '',
             'OS-EXT-STS:power_state': server._format_servers_list_power_state(
                 getattr(_server, 'OS-EXT-STS:power_state')),
+            'volumes_attached': [{"id": "6344fe9d-ef20-45b2-91a6"}],
         }
 
         # Call _prep_server_detail().

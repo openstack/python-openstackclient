@@ -1,0 +1,4 @@
+---
+fixes:
+  - The ``openstack server show -f json`` command was not outputting
+    json for security groups, volumes and properties  properly.
