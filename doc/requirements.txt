@@ -14,7 +14,6 @@ aodhclient>=0.9.0 # Apache-2.0
 gnocchiclient>=3.3.1 # Apache-2.0
 osc-placement>=1.7.0 # Apache-2.0
 python-barbicanclient>=4.5.2 # Apache-2.0
-python-congressclient<2000,>=1.9.0 # Apache-2.0
 python-designateclient>=2.7.0 # Apache-2.0
 python-heatclient>=1.10.0 # Apache-2.0
 python-ironicclient>=2.3.0 # Apache-2.0
