@@ -9,7 +9,6 @@ Plugin Commands
 
    aodh
    barbican
-   congress
    designate
    gnocchi
    heat
