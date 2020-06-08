@@ -20,16 +20,6 @@ from openstackclient import shell
 from openstackclient.tests.unit.integ import base as test_base
 from openstackclient.tests.unit import test_shell
 
-# NOTE(dtroyer): Attempt the import to detect if the SDK installed is new
-#                enough to contain the os_client_config code.  If so, use
-#                that path for mocks.
-CONFIG_MOCK_BASE = "openstack.config.loader"
-try:
-    from openstack.config import defaults   # noqa
-except ImportError:
-    # Fall back to os-client-config
-    CONFIG_MOCK_BASE = "os_client_config.config"
-
 
 class TestIntegShellCliNoAuth(test_base.TestInteg):
 
@@ -455,8 +445,8 @@ class TestIntegShellCliPrecedenceOCC(test_base.TestInteg):
         temp_dir = self.useFixture(fixtures.TempDir())
         return temp_dir.join(filename)
 
-    @mock.patch(CONFIG_MOCK_BASE + ".OpenStackConfig._load_vendor_file")
-    @mock.patch(CONFIG_MOCK_BASE + ".OpenStackConfig._load_config_file")
+    @mock.patch("openstack.config.loader.OpenStackConfig._load_vendor_file")
+    @mock.patch("openstack.config.loader.OpenStackConfig._load_config_file")
     def test_shell_args_precedence_1(self, config_mock, vendor_mock):
         """Precedence run 1
 
@@ -473,7 +463,6 @@ class TestIntegShellCliPrecedenceOCC(test_base.TestInteg):
             return ('file.yaml', copy.deepcopy(test_shell.PUBLIC_1))
         vendor_mock.side_effect = vendor_mock_return
 
-        print("CONFIG_MOCK_BASE=%s" % CONFIG_MOCK_BASE)
         _shell = shell.OpenStackShell()
         _shell.run(
             "--os-password qaz extension list".split(),
@@ -527,8 +516,8 @@ class TestIntegShellCliPrecedenceOCC(test_base.TestInteg):
         # +env, +cli, +occ
         # see test_shell_args_precedence_2()
 
-    @mock.patch(CONFIG_MOCK_BASE + ".OpenStackConfig._load_vendor_file")
-    @mock.patch(CONFIG_MOCK_BASE + ".OpenStackConfig._load_config_file")
+    @mock.patch("openstack.config.loader.OpenStackConfig._load_vendor_file")
+    @mock.patch("openstack.config.loader.OpenStackConfig._load_config_file")
     def test_shell_args_precedence_2(self, config_mock, vendor_mock):
         """Precedence run 2
 
@@ -545,7 +534,6 @@ class TestIntegShellCliPrecedenceOCC(test_base.TestInteg):
             return ('file.yaml', copy.deepcopy(test_shell.PUBLIC_1))
         vendor_mock.side_effect = vendor_mock_return
 
-        print("CONFIG_MOCK_BASE=%s" % CONFIG_MOCK_BASE)
         _shell = shell.OpenStackShell()
         _shell.run(
             "--os-username zarquon --os-password qaz "
