@@ -15,6 +15,7 @@ Plugin Commands
    ironic
    ironic-inspector
    karbor
+   manila
    mistral
    neutron
    octavia
