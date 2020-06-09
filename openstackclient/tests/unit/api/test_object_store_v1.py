@@ -30,8 +30,10 @@ FAKE_CONTAINER = 'rainbarrel'
 FAKE_OBJECT = 'spigot'
 
 LIST_CONTAINER_RESP = [
-    'qaz',
-    'fred',
+    {"name": "qaz", "count": 0, "bytes": 0,
+     "last_modified": "2020-05-16T05:52:07.377550"},
+    {"name": "fred", "count": 0, "bytes": 0,
+     "last_modified": "2020-05-16T05:55:07.377550"},
 ]
 
 LIST_OBJECT_RESP = [
@@ -117,34 +119,32 @@ class TestContainer(TestObjectAPIv1):
         )
         self.assertEqual(LIST_CONTAINER_RESP, ret)
 
-#     def test_container_list_full_listing(self):
-#         sess = self.app.client_manager.session
-#
-#         def side_effect(*args, **kwargs):
-#             rv = sess.get().json.return_value
-#             sess.get().json.return_value = []
-#             sess.get().json.side_effect = None
-#             return rv
-#
-#         resp = [{'name': 'is-name'}]
-#         sess.get().json.return_value = resp
-#         sess.get().json.side_effect = side_effect
-#
-#         data = lib_container.list_containers(
-#             self.app.client_manager.session,
-#             fake_url,
-#             full_listing=True,
-#         )
-#
-#         # Check expected values
-#         sess.get.assert_called_with(
-#             fake_url,
-#             params={
-#                 'format': 'json',
-#                 'marker': 'is-name',
-#             }
-#         )
-#         self.assertEqual(resp, data)
+    def test_container_list_full_listing(self):
+        self.requests_mock.register_uri(
+            'GET',
+            FAKE_URL + '?limit=1&format=json',
+            json=[LIST_CONTAINER_RESP[0]],
+            status_code=200,
+        )
+        self.requests_mock.register_uri(
+            'GET',
+            FAKE_URL +
+            '?marker=%s&limit=1&format=json' % LIST_CONTAINER_RESP[0]['name'],
+            json=[LIST_CONTAINER_RESP[1]],
+            status_code=200,
+        )
+        self.requests_mock.register_uri(
+            'GET',
+            FAKE_URL +
+            '?marker=%s&limit=1&format=json' % LIST_CONTAINER_RESP[1]['name'],
+            json=[],
+            status_code=200,
+        )
+        ret = self.api.container_list(
+            limit=1,
+            full_listing=True,
+        )
+        self.assertEqual(LIST_CONTAINER_RESP, ret)
 
     def test_container_show(self):
         headers = {
