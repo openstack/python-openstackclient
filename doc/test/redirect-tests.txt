@@ -16,3 +16,10 @@
 /python-openstackclient/latest/humaninterfaceguide.html 301 /python-openstackclient/latest/contributor/humaninterfaceguide.html
 /python-openstackclient/latest/plugins.html 301 /python-openstackclient/latest/contributor/plugins.html
 /python-openstackclient/latest/cli/plugin-commands.html 301 /python-openstackclient/latest/cli/plugin-commands/index.html
+/python-openstackclient/latest/cli/command-objects/ec2-credentials.html 301 /python-openstackclient/latest/cli/_hidden/ec2-credentials.html
+/python-openstackclient/latest/cli/command-objects/endpoint.html 301 /python-openstackclient/latest/cli/_hidden/endpoint.html
+/python-openstackclient/latest/cli/command-objects/project.html 301 /python-openstackclient/latest/cli/_hidden/project.html
+/python-openstackclient/latest/cli/command-objects/role.html 301 /python-openstackclient/latest/cli/_hidden/role.html
+/python-openstackclient/latest/cli/command-objects/service.html 301 /python-openstackclient/latest/cli/_hidden/service.html
+/python-openstackclient/latest/cli/command-objects/token.html 301 /python-openstackclient/latest/cli/_hidden/token.html
+/python-openstackclient/latest/cli/command-objects/user.html 301 /python-openstackclient/latest/cli/_hidden/user.html

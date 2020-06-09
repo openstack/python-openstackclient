@@ -13,3 +13,12 @@
    interactive
    decoder
    backwards-incompatible
+
+.. NOTE(efried): Everything must be in a toctree but we don't want these to
+   show up to the reader.
+
+.. toctree::
+   :glob:
+   :hidden:
+
+   _hidden/*
