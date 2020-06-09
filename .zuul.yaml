@@ -132,7 +132,7 @@
       - openstack/python-openstackclient
     vars:
       devstack_localrc:
-        LIBS_FROM_GIT: python-openstackclient,openstacksdk,osc-lib,os-client-config
+        LIBS_FROM_GIT: python-openstackclient,openstacksdk,osc-lib,os-client-config,cliff
         # This is insufficient, but leaving it here as a reminder of what may
         # someday be all we need to make this work
         # disable_python3_package swift
