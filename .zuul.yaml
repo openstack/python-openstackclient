@@ -9,7 +9,6 @@
       - openstack/cliff
       - openstack/keystoneauth
       - openstack/openstacksdk
-      - openstack/os-client-config
       - openstack/osc-lib
       - openstack/python-openstackclient
     vars:
@@ -30,7 +29,6 @@
       - openstack/cliff
       - openstack/keystoneauth
       - openstack/openstacksdk
-      - openstack/os-client-config
       - openstack/osc-lib
       - openstack/python-openstackclient
     vars:
@@ -127,12 +125,11 @@
       - openstack/cliff
       - openstack/keystoneauth
       - openstack/openstacksdk
-      - openstack/os-client-config
       - openstack/osc-lib
       - openstack/python-openstackclient
     vars:
       devstack_localrc:
-        LIBS_FROM_GIT: python-openstackclient,openstacksdk,osc-lib,os-client-config,cliff
+        LIBS_FROM_GIT: python-openstackclient,openstacksdk,osc-lib,cliff
         # This is insufficient, but leaving it here as a reminder of what may
         # someday be all we need to make this work
         # disable_python3_package swift
