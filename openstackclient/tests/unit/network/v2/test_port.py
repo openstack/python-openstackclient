@@ -1054,6 +1054,22 @@ class TestListPort(TestPort):
         self.assertEqual(self.columns_long, columns)
         self.assertListItemEqual(self.data_long, list(data))
 
+    def test_port_list_host(self):
+        arglist = [
+            '--host', 'foobar',
+        ]
+        verifylist = [
+            ('host', 'foobar'),
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        columns, data = self.cmd.take_action(parsed_args)
+        filters = {'binding:host_id': 'foobar'}
+
+        self.network.ports.assert_called_once_with(**filters)
+        self.assertEqual(self.columns, columns)
+        self.assertListItemEqual(self.data, list(data))
+
     def test_port_list_project(self):
         project = identity_fakes.FakeProject.create_one_project()
         self.projects_mock.get.return_value = project
