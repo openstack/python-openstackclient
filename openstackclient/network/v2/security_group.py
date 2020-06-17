@@ -16,7 +16,6 @@
 import argparse
 
 from cliff import columns as cliff_columns
-from osc_lib.cli import format_columns
 from osc_lib.command import command
 from osc_lib import utils
 from osc_lib.utils import tags as _tag
@@ -77,13 +76,11 @@ class ComputeSecurityGroupRulesColumn(cliff_columns.FormattableColumn):
 
 
 _formatters_network = {
-    'location': format_columns.DictColumn,
     'security_group_rules': NetworkSecurityGroupRulesColumn,
 }
 
 
 _formatters_compute = {
-    'location': format_columns.DictColumn,
     'rules': ComputeSecurityGroupRulesColumn,
 }
 

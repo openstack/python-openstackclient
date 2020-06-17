@@ -16,7 +16,6 @@
 import argparse
 import logging
 
-from osc_lib.cli import format_columns
 from osc_lib.cli import parseractions
 from osc_lib import exceptions
 from osc_lib import utils
@@ -29,11 +28,6 @@ from openstackclient.network import utils as network_utils
 
 
 LOG = logging.getLogger(__name__)
-
-
-_formatters = {
-    'location': format_columns.DictColumn,
-}
 
 
 def _format_security_group_rule_show(obj):
@@ -353,7 +347,7 @@ class CreateSecurityGroupRule(common.NetworkAndComputeShowOne):
         # Create and show the security group rule.
         obj = client.create_security_group_rule(**attrs)
         display_columns, columns = _get_columns(obj)
-        data = utils.get_item_properties(obj, columns, formatters=_formatters)
+        data = utils.get_item_properties(obj, columns)
         return (display_columns, data)
 
     def take_action_compute(self, client, parsed_args):
@@ -620,7 +614,7 @@ class ShowSecurityGroupRule(common.NetworkAndComputeShowOne):
         if not obj['remote_ip_prefix']:
             obj['remote_ip_prefix'] = _format_remote_ip_prefix(obj)
         display_columns, columns = _get_columns(obj)
-        data = utils.get_item_properties(obj, columns, formatters=_formatters)
+        data = utils.get_item_properties(obj, columns)
         return (display_columns, data)
 
     def take_action_compute(self, client, parsed_args):

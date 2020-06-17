@@ -15,7 +15,6 @@
 
 import logging
 
-from osc_lib.cli import format_columns
 from osc_lib.command import command
 from osc_lib import exceptions
 from osc_lib import utils
@@ -25,11 +24,6 @@ from openstackclient.identity import common as identity_common
 from openstackclient.network import sdk_utils
 
 LOG = logging.getLogger(__name__)
-
-
-_formatters = {
-    'location': format_columns.DictColumn,
-}
 
 
 def _get_columns(item):
@@ -122,7 +116,7 @@ class CreateMeterRule(command.ShowOne):
         attrs = _get_attrs(self.app.client_manager, parsed_args)
         obj = client.create_metering_label_rule(**attrs)
         display_columns, columns = _get_columns(obj)
-        data = utils.get_item_properties(obj, columns, formatters=_formatters)
+        data = utils.get_item_properties(obj, columns, formatters={})
 
         return (display_columns, data)
 
@@ -205,5 +199,5 @@ class ShowMeterRule(command.ShowOne):
         obj = client.find_metering_label_rule(parsed_args.meter_rule_id,
                                               ignore_missing=False)
         display_columns, columns = _get_columns(obj)
-        data = utils.get_item_properties(obj, columns, formatters=_formatters)
+        data = utils.get_item_properties(obj, columns)
         return display_columns, data

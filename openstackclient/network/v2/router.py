@@ -61,7 +61,6 @@ _formatters = {
     'external_gateway_info': RouterInfoColumn,
     'availability_zones': format_columns.ListColumn,
     'availability_zone_hints': format_columns.ListColumn,
-    'location': format_columns.DictColumn,
     'routes': RoutesColumn,
     'tags': format_columns.ListColumn,
 }

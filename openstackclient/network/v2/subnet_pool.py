@@ -42,7 +42,6 @@ def _get_columns(item):
 
 
 _formatters = {
-    'location': format_columns.DictColumn,
     'prefixes': format_columns.ListColumn,
     'tags': format_columns.ListColumn,
 }

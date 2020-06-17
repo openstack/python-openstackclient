@@ -21,9 +21,7 @@ from openstackclient.i18n import _
 from openstackclient.identity import common as identity_common
 from openstackclient.network import sdk_utils
 
-
 _formatters = {
-    'location': format_columns.DictColumn,
     'subnet_ip_availability': format_columns.ListDictColumn,
 }
 

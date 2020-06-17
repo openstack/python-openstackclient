@@ -15,7 +15,6 @@
 
 import logging
 
-from osc_lib.cli import format_columns
 from osc_lib.command import command
 from osc_lib import exceptions
 from osc_lib import utils
@@ -26,11 +25,6 @@ from openstackclient.network import sdk_utils
 
 
 LOG = logging.getLogger(__name__)
-
-
-_formatters = {
-    'location': format_columns.DictColumn,
-}
 
 
 def _get_columns(item):
@@ -125,7 +119,7 @@ class CreateNetworkQosPolicy(command.ShowOne):
         attrs = _get_attrs(self.app.client_manager, parsed_args)
         obj = client.create_qos_policy(**attrs)
         display_columns, columns = _get_columns(obj)
-        data = utils.get_item_properties(obj, columns, formatters=_formatters)
+        data = utils.get_item_properties(obj, columns, formatters={})
         return (display_columns, data)
 
 
@@ -285,5 +279,5 @@ class ShowNetworkQosPolicy(command.ShowOne):
         obj = client.find_qos_policy(parsed_args.policy,
                                      ignore_missing=False)
         display_columns, columns = _get_columns(obj)
-        data = utils.get_item_properties(obj, columns, formatters=_formatters)
+        data = utils.get_item_properties(obj, columns)
         return (display_columns, data)

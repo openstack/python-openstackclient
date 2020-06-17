@@ -19,7 +19,6 @@
 import itertools
 import logging
 
-from osc_lib.cli import format_columns
 from osc_lib.command import command
 from osc_lib import exceptions
 from osc_lib import utils
@@ -30,10 +29,6 @@ from openstackclient.network import sdk_utils
 
 
 LOG = logging.getLogger(__name__)
-
-_formatters = {
-    'location': format_columns.DictColumn,
-}
 
 
 def _get_columns(item):
@@ -216,7 +211,7 @@ class CreateNetworkSegmentRange(command.ShowOne):
             attrs['physical_network'] = parsed_args.physical_network
         obj = network_client.create_network_segment_range(**attrs)
         display_columns, columns = _get_columns(obj)
-        data = utils.get_item_properties(obj, columns, formatters=_formatters)
+        data = utils.get_item_properties(obj, columns)
         data = _update_additional_fields_from_props(columns, props=data)
         return (display_columns, data)
 
@@ -455,6 +450,6 @@ class ShowNetworkSegmentRange(command.ShowOne):
             ignore_missing=False
         )
         display_columns, columns = _get_columns(obj)
-        data = utils.get_item_properties(obj, columns, formatters=_formatters)
+        data = utils.get_item_properties(obj, columns)
         data = _update_additional_fields_from_props(columns, props=data)
         return (display_columns, data)
