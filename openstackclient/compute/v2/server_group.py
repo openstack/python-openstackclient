@@ -17,6 +17,7 @@
 
 import logging
 
+from novaclient import api_versions
 from osc_lib.command import command
 from osc_lib import exceptions
 from osc_lib import utils
@@ -67,9 +68,13 @@ class CreateServerGroup(command.ShowOne):
     def take_action(self, parsed_args):
         compute_client = self.app.client_manager.compute
         info = {}
+
+        policy_arg = {'policies': [parsed_args.policy]}
+        if compute_client.api_version >= api_versions.APIVersion("2.64"):
+            policy_arg = {'policy': parsed_args.policy}
         server_group = compute_client.server_groups.create(
-            name=parsed_args.name,
-            policies=[parsed_args.policy])
+            name=parsed_args.name, **policy_arg)
+
         info.update(server_group._info)
 
         columns = _get_columns(info)
