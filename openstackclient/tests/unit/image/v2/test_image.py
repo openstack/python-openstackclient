@@ -271,6 +271,28 @@ class TestImageCreate(TestImage):
             exceptions.CommandError,
             self.cmd.take_action, parsed_args)
 
+    @mock.patch('sys.stdin', side_effect=[None])
+    def test_image_create_import(self, raw_input):
+
+        arglist = [
+            '--import',
+            self.new_image.name,
+        ]
+        verifylist = [
+            ('name', self.new_image.name),
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        columns, data = self.cmd.take_action(parsed_args)
+
+        # ImageManager.create(name=, **)
+        self.client.create_image.assert_called_with(
+            name=self.new_image.name,
+            container_format=image.DEFAULT_CONTAINER_FORMAT,
+            disk_format=image.DEFAULT_DISK_FORMAT,
+            use_import=True
+        )
+
 
 class TestAddProjectToImage(TestImage):
 

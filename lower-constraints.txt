@@ -50,7 +50,7 @@ msgpack-python==0.4.0
 munch==2.1.0
 netaddr==0.7.18
 netifaces==0.10.4
-openstacksdk==0.44.0
+openstacksdk==0.48.0
 os-service-types==1.7.0
 os-testr==1.0.0
 osc-lib==2.0.0
