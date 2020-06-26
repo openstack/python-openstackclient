@@ -515,6 +515,10 @@ class ListPort(command.Lister):
                    "network:dhcp).")
         )
         parser.add_argument(
+            '--host',
+            metavar='<host-id>',
+            help=_("List only ports bound to this host ID"))
+        parser.add_argument(
             '--network',
             metavar='<network>',
             help=_("List only ports connected to this network (name or ID)"))
@@ -602,6 +606,8 @@ class ListPort(command.Lister):
             server = utils.find_resource(compute_client.servers,
                                          parsed_args.server)
             filters['device_id'] = server.id
+        if parsed_args.host:
+            filters['binding:host_id'] = parsed_args.host
         if parsed_args.network:
             network = network_client.find_network(parsed_args.network,
                                                   ignore_missing=False)
