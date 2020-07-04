@@ -51,8 +51,6 @@
     vars:
       devstack_localrc:
         LIBS_FROM_GIT: python-openstackclient
-        # NOTE(dtroyer): OSC needs to support Image v1 for a while yet so re-enable
-        GLANCE_V1_ENABLED: true
         # NOTE(dtroyer): Functional tests need a bit more volume headroom
         VOLUME_BACKING_FILE_SIZE: 20G
       devstack_local_conf:
