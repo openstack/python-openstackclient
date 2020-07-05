@@ -1,0 +1,5 @@
+---
+fixes:
+  - |
+    Makes ``volume backup record`` commands available in Volume API v3.
+    `Task 40279 <https://storyboard.openstack.org/#!/story/2007896>`__
