@@ -15,12 +15,12 @@
 
 """Compute v2 Server action implementations"""
 
+import importlib
 import logging
 
 from osc_lib.command import command
 from osc_lib import exceptions
 from osc_lib import utils
-from oslo_utils import importutils
 
 from openstackclient.i18n import _
 
@@ -99,7 +99,7 @@ class CreateServerImage(command.ShowOne):
             info['properties'] = utils.format_dict(info.get('properties', {}))
         else:
             # Get the right image module to format the output
-            image_module = importutils.import_module(
+            image_module = importlib.import_module(
                 self.IMAGE_API_VERSIONS[
                     self.app.client_manager._api_version['image']
                 ]

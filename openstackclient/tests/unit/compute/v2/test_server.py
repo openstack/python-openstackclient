@@ -19,11 +19,11 @@ import getpass
 from unittest import mock
 from unittest.mock import call
 
+import iso8601
 from novaclient import api_versions
 from openstack import exceptions as sdk_exceptions
 from osc_lib import exceptions
 from osc_lib import utils as common_utils
-from oslo_utils import timeutils
 
 from openstackclient.compute.v2 import server
 from openstackclient.tests.unit.compute.v2 import fakes as compute_fakes
@@ -2945,7 +2945,7 @@ class TestServerList(TestServer):
         self.assertEqual(self.columns, columns)
         self.assertEqual(tuple(self.data), tuple(data))
 
-    @mock.patch.object(timeutils, 'parse_isotime', side_effect=ValueError)
+    @mock.patch.object(iso8601, 'parse_date', side_effect=iso8601.ParseError)
     def test_server_list_with_invalid_changes_since(self, mock_parse_isotime):
 
         arglist = [
@@ -2988,7 +2988,7 @@ class TestServerList(TestServer):
         self.assertEqual(self.columns, columns)
         self.assertEqual(tuple(self.data), tuple(data))
 
-    @mock.patch.object(timeutils, 'parse_isotime', side_effect=ValueError)
+    @mock.patch.object(iso8601, 'parse_date', side_effect=iso8601.ParseError)
     def test_server_list_v266_with_invalid_changes_before(
             self, mock_parse_isotime):
         self.app.client_manager.compute.api_version = (

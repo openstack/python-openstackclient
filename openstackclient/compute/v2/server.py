@@ -21,6 +21,7 @@ import io
 import logging
 import os
 
+import iso8601
 from novaclient import api_versions
 from novaclient.v2 import servers
 from openstack import exceptions as sdk_exceptions
@@ -29,7 +30,6 @@ from osc_lib.cli import parseractions
 from osc_lib.command import command
 from osc_lib import exceptions
 from osc_lib import utils
-from oslo_utils import timeutils
 
 from openstackclient.i18n import _
 from openstackclient.identity import common as identity_common
@@ -1404,8 +1404,8 @@ class ListServer(command.Lister):
                 raise exceptions.CommandError(msg)
 
             try:
-                timeutils.parse_isotime(search_opts['changes-before'])
-            except ValueError:
+                iso8601.parse_date(search_opts['changes-before'])
+            except (TypeError, iso8601.ParseError):
                 raise exceptions.CommandError(
                     _('Invalid changes-before value: %s') %
                     search_opts['changes-before']
@@ -1413,8 +1413,8 @@ class ListServer(command.Lister):
 
         if search_opts['changes-since']:
             try:
-                timeutils.parse_isotime(search_opts['changes-since'])
-            except ValueError:
+                iso8601.parse_date(search_opts['changes-since'])
+            except (TypeError, iso8601.ParseError):
                 raise exceptions.CommandError(
                     _('Invalid changes-since value: %s') %
                     search_opts['changes-since']
