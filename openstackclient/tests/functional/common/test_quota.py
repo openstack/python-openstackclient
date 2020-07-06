@@ -165,3 +165,47 @@ class QuotaTests(base.TestCase):
         # returned attributes
         self.assertTrue(cmd_output["key-pairs"] >= 0)
         self.assertTrue(cmd_output["snapshots"] >= 0)
+
+    def test_quota_set_force(self):
+        """Test to set instance value by force """
+        json_output = json.loads(self.openstack(
+            'quota list -f json --detail --compute'
+        ))
+        in_use = limit = None
+        for j in json_output:
+            if j["Resource"] == "instances":
+                in_use = j["In Use"]
+                limit = j["Limit"]
+
+        # Reduce count of in_use
+        in_use = in_use - 1
+        # cannot have negative instances limit
+        if in_use < 0:
+            in_use = 0
+
+        # set the limit by force now
+        self.openstack(
+            'quota set ' + self.PROJECT_NAME +
+            '--instances ' + str(in_use) + ' --force'
+        )
+        cmd_output = json.loads(self.openstack(
+            'quota show -f json ' + self.PROJECT_NAME
+        ))
+        self.assertIsNotNone(cmd_output)
+        self.assertEqual(
+            in_use,
+            cmd_output["instances"]
+        )
+
+        # Set instances limit to original limit now
+        self.openstack(
+            'quota set ' + self.PROJECT_NAME + '--instances ' + str(limit)
+        )
+        cmd_output = json.loads(self.openstack(
+            'quota show -f json ' + self.PROJECT_NAME
+        ))
+        self.assertIsNotNone(cmd_output)
+        self.assertEqual(
+            limit,
+            cmd_output["instances"]
+        )

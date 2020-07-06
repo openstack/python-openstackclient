@@ -1,0 +1,6 @@
+---
+features:
+  - Add ``--force`` options to the ``openstack quota set``
+    command. The compute service allows us to to force set a quota, setting a
+    quota value that is less than the amount of the resource currently
+    consumed. Expose this feature by way of a ``--force`` boolean parameter.
