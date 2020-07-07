@@ -1,0 +1,7 @@
+---
+fixes:
+  - |
+    While uploading a signed image, a private key to sign that image must be
+    specified. The CLI client asks for the password of that private key. Due
+    to wrong encoding handling while using Python 3, the password is not
+    accepted, whether it is correct or not.

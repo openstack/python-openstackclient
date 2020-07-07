@@ -429,8 +429,14 @@ class CreateImage(command.ShowOne):
                         prompt=("Please enter private key password, leave "
                                 "empty if none: "),
                         confirm=False)
+
                     if not pw or len(pw) < 1:
                         pw = None
+                    else:
+                        # load_private_key() requires the password to be
+                        # passed as bytes
+                        pw = pw.encode()
+
                     signer.load_private_key(
                         sign_key_path,
                         password=pw)
