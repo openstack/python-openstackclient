@@ -1,0 +1,5 @@
+---
+features:
+  - |
+    Added ``--import`` flag to ``openstack image create`` to allow
+    the user to force use of the image import codepath.

@@ -324,6 +324,14 @@ class CreateImage(command.ShowOne):
             metavar="<project>",
             help=_("Set an alternate project on this image (name or ID)"),
         )
+        parser.add_argument(
+            "--import",
+            dest="use_import",
+            action="store_true",
+            help=_(
+                "Force the use of glance image import instead of"
+                " direct upload")
+        )
         common.add_project_domain_option_to_parser(parser)
         for deadopt in self.deadopts:
             parser.add_argument(
@@ -387,6 +395,9 @@ class CreateImage(command.ShowOne):
                 parsed_args.project,
                 parsed_args.project_domain,
             ).id
+
+        if parsed_args.use_import:
+            kwargs['use_import'] = True
 
         # open the file first to ensure any failures are handled before the
         # image is created. Get the file name (if it is file, and not stdin)
