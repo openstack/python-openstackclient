@@ -59,6 +59,7 @@ class TestPort(network_fakes.TestNetworkV2):
             'mac_address',
             'name',
             'network_id',
+            'numa_affinity_policy',
             'port_security_enabled',
             'project_id',
             'qos_network_policy_id',
@@ -90,6 +91,7 @@ class TestPort(network_fakes.TestNetworkV2):
             fake_port.mac_address,
             fake_port.name,
             fake_port.network_id,
+            fake_port.numa_affinity_policy,
             fake_port.port_security_enabled,
             fake_port.project_id,
             fake_port.qos_network_policy_id,
@@ -654,6 +656,50 @@ class TestCreatePort(TestPort):
             'extra_dhcp_opts': extra_dhcp_options,
             'name': 'test-port',
         })
+
+    def _test_create_with_numa_affinity_policy(self, policy=None):
+        arglist = [
+            '--network', self._port.network_id,
+            'test-port',
+        ]
+        if policy:
+            arglist += ['--numa-policy-%s' % policy]
+
+        numa_affinity_policy = None if not policy else policy
+        verifylist = [
+            ('network', self._port.network_id,),
+            ('name', 'test-port'),
+        ]
+        if policy:
+            verifylist.append(('numa_policy_%s' % policy, True))
+
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        columns, data = (self.cmd.take_action(parsed_args))
+
+        create_args = {
+            'admin_state_up': True,
+            'network_id': self._port.network_id,
+            'name': 'test-port',
+        }
+        if numa_affinity_policy:
+            create_args['numa_affinity_policy'] = numa_affinity_policy
+        self.network.create_port.assert_called_once_with(**create_args)
+
+        self.assertEqual(self.columns, columns)
+        self.assertItemEqual(self.data, data)
+
+    def test_create_with_numa_affinity_policy_required(self):
+        self._test_create_with_numa_affinity_policy(policy='required')
+
+    def test_create_with_numa_affinity_policy_preferred(self):
+        self._test_create_with_numa_affinity_policy(policy='preferred')
+
+    def test_create_with_numa_affinity_policy_legacy(self):
+        self._test_create_with_numa_affinity_policy(policy='legacy')
+
+    def test_create_with_numa_affinity_policy_null(self):
+        self._test_create_with_numa_affinity_policy()
 
 
 class TestDeletePort(TestPort):
@@ -1668,6 +1714,32 @@ class TestSetPort(TestPort):
     def test_set_with_no_tag(self):
         self._test_set_tags(with_tags=False)
 
+    def _test_create_with_numa_affinity_policy(self, policy):
+        arglist = [
+            '--numa-policy-%s' % policy,
+            self._port.id,
+        ]
+        verifylist = [
+            ('numa_policy_%s' % policy, True),
+            ('port', self._port.id,)
+        ]
+
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        self.cmd.take_action(parsed_args)
+
+        self.network.update_port.assert_called_once_with(
+            self._port, **{'numa_affinity_policy': policy})
+
+    def test_create_with_numa_affinity_policy_required(self):
+        self._test_create_with_numa_affinity_policy('required')
+
+    def test_create_with_numa_affinity_policy_preferred(self):
+        self._test_create_with_numa_affinity_policy('preferred')
+
+    def test_create_with_numa_affinity_policy_legacy(self):
+        self._test_create_with_numa_affinity_policy('legacy')
+
 
 class TestShowPort(TestPort):
 
@@ -1923,3 +1995,26 @@ class TestUnsetPort(TestPort):
 
     def test_unset_with_all_tag(self):
         self._test_unset_tags(with_tags=False)
+
+    def test_unset_numa_affinity_policy(self):
+        _fake_port = network_fakes.FakePort.create_one_port(
+            {'numa_affinity_policy': 'required'})
+        self.network.find_port = mock.Mock(return_value=_fake_port)
+        arglist = [
+            '--numa-policy',
+            _fake_port.name,
+        ]
+        verifylist = [
+            ('numa_policy', True),
+            ('port', _fake_port.name),
+        ]
+
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+        result = self.cmd.take_action(parsed_args)
+
+        attrs = {
+            'numa_affinity_policy': None,
+        }
+
+        self.network.update_port.assert_called_once_with(_fake_port, **attrs)
+        self.assertIsNone(result)

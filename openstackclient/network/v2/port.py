@@ -158,6 +158,16 @@ def _get_attrs(client_manager, parsed_args):
             parsed_args.disable_uplink_status_propagation):
         attrs['propagate_uplink_status'] = False
 
+    if ('numa_policy_required' in parsed_args and
+            parsed_args.numa_policy_required):
+        attrs['numa_affinity_policy'] = 'required'
+    elif ('numa_policy_preferred' in parsed_args and
+          parsed_args.numa_policy_preferred):
+        attrs['numa_affinity_policy'] = 'preferred'
+    elif ('numa_policy_legacy' in parsed_args and
+          parsed_args.numa_policy_legacy):
+        attrs['numa_affinity_policy'] = 'legacy'
+
     return attrs
 
 
@@ -264,6 +274,22 @@ def _add_updatable_args(parser):
         metavar='<dns-name>',
         help=_("Set DNS name for this port "
                "(requires DNS integration extension)")
+    )
+    numa_affinity_policy_group = parser.add_mutually_exclusive_group()
+    numa_affinity_policy_group.add_argument(
+        '--numa-policy-required',
+        action='store_true',
+        help=_("NUMA affinity policy required to schedule this port")
+    )
+    numa_affinity_policy_group.add_argument(
+        '--numa-policy-preferred',
+        action='store_true',
+        help=_("NUMA affinity policy preferred to schedule this port")
+    )
+    numa_affinity_policy_group.add_argument(
+        '--numa-policy-legacy',
+        action='store_true',
+        help=_("NUMA affinity policy using legacy mode to schedule this port")
     )
 
 
@@ -904,6 +930,11 @@ class UnsetPort(command.Command):
             action='store_true',
             help=_("Clear existing information of data plane status")
         )
+        parser.add_argument(
+            '--numa-policy',
+            action='store_true',
+            help=_("Clear existing NUMA affinity policy")
+        )
 
         _tag.add_tag_option_to_parser_for_unset(parser, _('port'))
 
@@ -959,6 +990,8 @@ class UnsetPort(command.Command):
             attrs['qos_policy_id'] = None
         if parsed_args.data_plane_status:
             attrs['data_plane_status'] = None
+        if parsed_args.numa_policy:
+            attrs['numa_affinity_policy'] = None
 
         if attrs:
             client.update_port(obj, **attrs)

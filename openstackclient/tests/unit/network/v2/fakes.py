@@ -634,6 +634,7 @@ class FakePort(object):
             'mac_address': 'fa:16:3e:a9:4e:72',
             'name': 'port-name-' + uuid.uuid4().hex,
             'network_id': 'network-id-' + uuid.uuid4().hex,
+            'numa_affinity_policy': 'required',
             'port_security_enabled': True,
             'security_group_ids': [],
             'status': 'ACTIVE',

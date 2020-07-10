@@ -1,0 +1,5 @@
+---
+features:
+  - |
+    Add NUMA affinity policy to ``port create``, ``port set`` and
+    ``port unset`` commands.
