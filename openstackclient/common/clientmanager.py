@@ -154,7 +154,10 @@ def get_plugin_modules(group):
         try:
             module_name = ep.entry_point.module_name
         except AttributeError:
-            module_name = ep.entry_point.module
+            try:
+                module_name = ep.entry_point.module
+            except AttributeError:
+                module_name = ep.entry_point.value
 
         try:
             module = importlib.import_module(module_name)

@@ -1,0 +1,6 @@
+---
+fixes:
+  - |
+    Fixes an issue with python 3.8 and entrypoint loading where the
+    new builtin importlib entrypoint support had a different
+    attribute api than expected.
