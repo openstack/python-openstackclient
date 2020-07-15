@@ -19,10 +19,6 @@ from tempest.lib import exceptions
 import testtools
 
 
-COMMON_DIR = os.path.dirname(os.path.abspath(__file__))
-FUNCTIONAL_DIR = os.path.normpath(os.path.join(COMMON_DIR, '..'))
-ROOT_DIR = os.path.normpath(os.path.join(FUNCTIONAL_DIR, '..'))
-EXAMPLE_DIR = os.path.join(ROOT_DIR, 'examples')
 ADMIN_CLOUD = os.environ.get('OS_ADMIN_CLOUD', 'devstack-admin')
 
 
