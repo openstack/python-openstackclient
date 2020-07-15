@@ -1,0 +1,4 @@
+---
+features:
+  - Add ``--c project_id | user_id | created_at`` to ``openstack server list``
+    command to get these columns as an output.

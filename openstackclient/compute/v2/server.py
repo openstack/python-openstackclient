@@ -1446,6 +1446,27 @@ class ListServer(command.Lister):
 
         marker_id = None
 
+        # support for additional columns
+        if parsed_args.columns:
+            # convert tuple to list to edit them
+            column_headers = list(column_headers)
+            columns = list(columns)
+
+            for c in parsed_args.columns:
+                if c in ('Project ID', 'project_id'):
+                    columns.append('tenant_id')
+                    column_headers.append('Project ID')
+                if c in ('User ID', 'user_id'):
+                    columns.append('user_id')
+                    column_headers.append('User ID')
+                if c in ('Created At', 'created_at'):
+                    columns.append('created_at')
+                    column_headers.append('Created At')
+
+            # convert back to tuple
+            column_headers = tuple(column_headers)
+            columns = tuple(columns)
+
         if parsed_args.marker:
             # Check if both "--marker" and "--deleted" are used.
             # In that scenario a lookup is not needed as the marker
