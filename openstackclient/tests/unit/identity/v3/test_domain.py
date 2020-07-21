@@ -293,6 +293,61 @@ class TestDomainList(TestDomain):
         ), )
         self.assertEqual(datalist, tuple(data))
 
+    def test_domain_list_with_option_name(self):
+        arglist = ['--name',
+                   self.domain.name]
+        verifylist = [
+            ('name', self.domain.name)
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        # In base command class Lister in cliff, abstract method take_action()
+        # returns a tuple containing the column names and an iterable
+        # containing the data to be listed.
+        columns, data = self.cmd.take_action(parsed_args)
+
+        kwargs = {
+            'name': self.domain.name
+        }
+        self.domains_mock.list.assert_called_with(**kwargs)
+
+        collist = ('ID', 'Name', 'Enabled', 'Description')
+        self.assertEqual(collist, columns)
+        datalist = ((
+            self.domain.id,
+            self.domain.name,
+            True,
+            self.domain.description,
+        ), )
+        self.assertEqual(datalist, tuple(data))
+
+    def test_domain_list_with_option_enabled(self):
+        arglist = ['--enabled']
+        verifylist = [
+            ('enabled', True)
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        # In base command class Lister in cliff, abstract method take_action()
+        # returns a tuple containing the column names and an iterable
+        # containing the data to be listed.
+        columns, data = self.cmd.take_action(parsed_args)
+
+        kwargs = {
+            'enabled': True
+        }
+        self.domains_mock.list.assert_called_with(**kwargs)
+
+        collist = ('ID', 'Name', 'Enabled', 'Description')
+        self.assertEqual(collist, columns)
+        datalist = ((
+            self.domain.id,
+            self.domain.name,
+            True,
+            self.domain.description,
+        ), )
+        self.assertEqual(datalist, tuple(data))
+
 
 class TestDomainSet(TestDomain):
 

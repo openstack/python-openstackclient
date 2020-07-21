@@ -1,0 +1,3 @@
+---
+features:
+  - Add ``--name`` and ``--domain`` option to ``domain list`` command.
