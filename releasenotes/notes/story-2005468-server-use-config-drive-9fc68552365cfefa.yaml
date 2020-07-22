@@ -1,0 +1,8 @@
+---
+deprecations:
+  - |
+    The ``--config-drive`` option on the ``openstack server create`` command
+    has been deprecated in favour of the ``--use-config-drive`` and
+    ``--no-config-drive`` arguments. The ``--config-drive`` option expected
+    either a string or bool-like argument, but the nova API has only supported
+    boolean values since API v2.1 was introduced.

@@ -857,6 +857,7 @@ class TestServerCreate(TestServer):
             '--key-name', 'keyname',
             '--property', 'Beta=b',
             '--security-group', 'securitygroup',
+            '--use-config-drive',
             '--hint', 'a=b',
             '--hint', 'a=c',
             self.new_server.name,
@@ -868,7 +869,7 @@ class TestServerCreate(TestServer):
             ('property', {'Beta': 'b'}),
             ('security_group', ['securitygroup']),
             ('hint', {'a': ['b', 'c']}),
-            ('config_drive', False),
+            ('config_drive', True),
             ('server_name', self.new_server.name),
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
@@ -900,7 +901,7 @@ class TestServerCreate(TestServer):
             block_device_mapping_v2=[],
             nics=[],
             scheduler_hints={'a': ['b', 'c']},
-            config_drive=None,
+            config_drive=True,
         )
         # ServerManager.create(name, image, flavor, **kwargs)
         self.servers_mock.create.assert_called_with(
