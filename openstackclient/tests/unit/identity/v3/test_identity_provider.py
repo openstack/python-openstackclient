@@ -384,6 +384,61 @@ class TestIdentityProviderList(TestIdentityProvider):
         ), )
         self.assertListItemEqual(datalist, tuple(data))
 
+    def test_identity_provider_list_ID_option(self):
+        arglist = ['--id',
+                   identity_fakes.idp_id]
+        verifylist = [
+            ('id', identity_fakes.idp_id)
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        # In base command class Lister in cliff, abstract method take_action()
+        # returns a tuple containing the column names and an iterable
+        # containing the data to be listed.
+        columns, data = self.cmd.take_action(parsed_args)
+
+        kwargs = {
+            'id': identity_fakes.idp_id
+        }
+        self.identity_providers_mock.list.assert_called_with(**kwargs)
+
+        collist = ('ID', 'Enabled', 'Domain ID', 'Description')
+        self.assertEqual(collist, columns)
+        datalist = ((
+            identity_fakes.idp_id,
+            True,
+            identity_fakes.domain_id,
+            identity_fakes.idp_description,
+        ), )
+        self.assertListItemEqual(datalist, tuple(data))
+
+    def test_identity_provider_list_enabled_option(self):
+        arglist = ['--enabled']
+        verifylist = [
+            ('enabled', True)
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        # In base command class Lister in cliff, abstract method take_action()
+        # returns a tuple containing the column names and an iterable
+        # containing the data to be listed.
+        columns, data = self.cmd.take_action(parsed_args)
+
+        kwargs = {
+            'enabled': True
+        }
+        self.identity_providers_mock.list.assert_called_with(**kwargs)
+
+        collist = ('ID', 'Enabled', 'Domain ID', 'Description')
+        self.assertEqual(collist, columns)
+        datalist = ((
+            identity_fakes.idp_id,
+            True,
+            identity_fakes.domain_id,
+            identity_fakes.idp_description,
+        ), )
+        self.assertListItemEqual(datalist, tuple(data))
+
 
 class TestIdentityProviderSet(TestIdentityProvider):
 
