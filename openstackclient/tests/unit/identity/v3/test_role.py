@@ -19,6 +19,7 @@ from unittest import mock
 from osc_lib import exceptions
 from osc_lib import utils
 
+from openstackclient.identity import common
 from openstackclient.identity.v3 import role
 from openstackclient.tests.unit import fakes
 from openstackclient.tests.unit.identity.v3 import fakes as identity_fakes
@@ -846,6 +847,47 @@ class TestRoleRemove(TestRole):
         )
         self.assertIsNone(result)
 
+    @mock.patch.object(common, 'find_user')
+    def test_role_remove_non_existent_user_system(self, find_mock):
+        # Simulate the user not being in keystone, the client should gracefully
+        # handle this exception and send the request to remove the role since
+        # keystone supports removing role assignments with non-existent actors
+        # (e.g., users or groups).
+        find_mock.side_effect = exceptions.CommandError
+
+        arglist = [
+            '--user', identity_fakes.user_id,
+            '--system', 'all',
+            identity_fakes.role_name
+        ]
+        if self._is_inheritance_testcase():
+            arglist.append('--inherited')
+        verifylist = [
+            ('user', identity_fakes.user_id),
+            ('group', None),
+            ('system', 'all'),
+            ('domain', None),
+            ('project', None),
+            ('role', identity_fakes.role_name),
+            ('inherited', self._is_inheritance_testcase()),
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        result = self.cmd.take_action(parsed_args)
+
+        # Set expected values
+        kwargs = {
+            'user': identity_fakes.user_id,
+            'system': 'all',
+            'os_inherit_extension_inherited': self._is_inheritance_testcase(),
+        }
+        # RoleManager.revoke(role, user=, group=, domain=, project=)
+        self.roles_mock.revoke.assert_called_with(
+            identity_fakes.role_id,
+            **kwargs
+        )
+        self.assertIsNone(result)
+
     def test_role_remove_user_domain(self):
         arglist = [
             '--user', identity_fakes.user_name,
@@ -879,6 +921,46 @@ class TestRoleRemove(TestRole):
         )
         self.assertIsNone(result)
 
+    @mock.patch.object(common, 'find_user')
+    def test_role_remove_non_existent_user_domain(self, find_mock):
+        # Simulate the user not being in keystone, the client the gracefully
+        # handle this exception and send the request to remove the role since
+        # keystone will validate.
+        find_mock.side_effect = exceptions.CommandError
+
+        arglist = [
+            '--user', identity_fakes.user_id,
+            '--domain', identity_fakes.domain_name,
+            identity_fakes.role_name
+        ]
+        if self._is_inheritance_testcase():
+            arglist.append('--inherited')
+        verifylist = [
+            ('user', identity_fakes.user_id),
+            ('group', None),
+            ('system', None),
+            ('domain', identity_fakes.domain_name),
+            ('project', None),
+            ('role', identity_fakes.role_name),
+            ('inherited', self._is_inheritance_testcase()),
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        result = self.cmd.take_action(parsed_args)
+
+        # Set expected values
+        kwargs = {
+            'user': identity_fakes.user_id,
+            'domain': identity_fakes.domain_id,
+            'os_inherit_extension_inherited': self._is_inheritance_testcase(),
+        }
+        # RoleManager.revoke(role, user=, group=, domain=, project=)
+        self.roles_mock.revoke.assert_called_with(
+            identity_fakes.role_id,
+            **kwargs
+        )
+        self.assertIsNone(result)
+
     def test_role_remove_user_project(self):
         arglist = [
             '--user', identity_fakes.user_name,
@@ -890,6 +972,46 @@ class TestRoleRemove(TestRole):
         verifylist = [
             ('user', identity_fakes.user_name),
             ('group', None),
+            ('domain', None),
+            ('project', identity_fakes.project_name),
+            ('role', identity_fakes.role_name),
+            ('inherited', self._is_inheritance_testcase()),
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        result = self.cmd.take_action(parsed_args)
+
+        # Set expected values
+        kwargs = {
+            'user': identity_fakes.user_id,
+            'project': identity_fakes.project_id,
+            'os_inherit_extension_inherited': self._is_inheritance_testcase(),
+        }
+        # RoleManager.revoke(role, user=, group=, domain=, project=)
+        self.roles_mock.revoke.assert_called_with(
+            identity_fakes.role_id,
+            **kwargs
+        )
+        self.assertIsNone(result)
+
+    @mock.patch.object(common, 'find_user')
+    def test_role_remove_non_existent_user_project(self, find_mock):
+        # Simulate the user not being in keystone, the client the gracefully
+        # handle this exception and send the request to remove the role since
+        # keystone will validate.
+        find_mock.side_effect = exceptions.CommandError
+
+        arglist = [
+            '--user', identity_fakes.user_id,
+            '--project', identity_fakes.project_name,
+            identity_fakes.role_name
+        ]
+        if self._is_inheritance_testcase():
+            arglist.append('--inherited')
+        verifylist = [
+            ('user', identity_fakes.user_id),
+            ('group', None),
+            ('system', None),
             ('domain', None),
             ('project', identity_fakes.project_name),
             ('role', identity_fakes.role_name),
@@ -947,6 +1069,46 @@ class TestRoleRemove(TestRole):
         )
         self.assertIsNone(result)
 
+    @mock.patch.object(common, 'find_group')
+    def test_role_remove_non_existent_group_system(self, find_mock):
+        # Simulate the user not being in keystone, the client the gracefully
+        # handle this exception and send the request to remove the role since
+        # keystone will validate.
+        find_mock.side_effect = exceptions.CommandError
+
+        arglist = [
+            '--group', identity_fakes.group_id,
+            '--system', 'all',
+            identity_fakes.role_name
+        ]
+        if self._is_inheritance_testcase():
+            arglist.append('--inherited')
+        verifylist = [
+            ('user', None),
+            ('group', identity_fakes.group_id),
+            ('system', 'all'),
+            ('domain', None),
+            ('project', None),
+            ('role', identity_fakes.role_name),
+            ('inherited', self._is_inheritance_testcase()),
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        result = self.cmd.take_action(parsed_args)
+
+        # Set expected values
+        kwargs = {
+            'group': identity_fakes.group_id,
+            'system': 'all',
+            'os_inherit_extension_inherited': self._is_inheritance_testcase(),
+        }
+        # RoleManager.revoke(role, user=, group=, domain=, project=)
+        self.roles_mock.revoke.assert_called_with(
+            identity_fakes.role_id,
+            **kwargs
+        )
+        self.assertIsNone(result)
+
     def test_role_remove_group_domain(self):
         arglist = [
             '--group', identity_fakes.group_name,
@@ -981,6 +1143,46 @@ class TestRoleRemove(TestRole):
         )
         self.assertIsNone(result)
 
+    @mock.patch.object(common, 'find_group')
+    def test_role_remove_non_existent_group_domain(self, find_mock):
+        # Simulate the user not being in keystone, the client the gracefully
+        # handle this exception and send the request to remove the role since
+        # keystone will validate.
+        find_mock.side_effect = exceptions.CommandError
+
+        arglist = [
+            '--group', identity_fakes.group_id,
+            '--domain', identity_fakes.domain_name,
+            identity_fakes.role_name
+        ]
+        if self._is_inheritance_testcase():
+            arglist.append('--inherited')
+        verifylist = [
+            ('user', None),
+            ('group', identity_fakes.group_id),
+            ('system', None),
+            ('domain', identity_fakes.domain_name),
+            ('project', None),
+            ('role', identity_fakes.role_name),
+            ('inherited', self._is_inheritance_testcase()),
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        result = self.cmd.take_action(parsed_args)
+
+        # Set expected values
+        kwargs = {
+            'group': identity_fakes.group_id,
+            'domain': identity_fakes.domain_id,
+            'os_inherit_extension_inherited': self._is_inheritance_testcase(),
+        }
+        # RoleManager.revoke(role, user=, group=, domain=, project=)
+        self.roles_mock.revoke.assert_called_with(
+            identity_fakes.role_id,
+            **kwargs
+        )
+        self.assertIsNone(result)
+
     def test_role_remove_group_project(self):
         arglist = [
             '--group', identity_fakes.group_name,
@@ -992,6 +1194,46 @@ class TestRoleRemove(TestRole):
         verifylist = [
             ('user', None),
             ('group', identity_fakes.group_name),
+            ('domain', None),
+            ('project', identity_fakes.project_name),
+            ('role', identity_fakes.role_name),
+            ('inherited', self._is_inheritance_testcase()),
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        result = self.cmd.take_action(parsed_args)
+
+        # Set expected values
+        kwargs = {
+            'group': identity_fakes.group_id,
+            'project': identity_fakes.project_id,
+            'os_inherit_extension_inherited': self._is_inheritance_testcase(),
+        }
+        # RoleManager.revoke(role, user=, group=, domain=, project=)
+        self.roles_mock.revoke.assert_called_with(
+            identity_fakes.role_id,
+            **kwargs
+        )
+        self.assertIsNone(result)
+
+    @mock.patch.object(common, 'find_group')
+    def test_role_remove_non_existent_group_project(self, find_mock):
+        # Simulate the user not being in keystone, the client the gracefully
+        # handle this exception and send the request to remove the role since
+        # keystone will validate.
+        find_mock.side_effect = exceptions.CommandError
+
+        arglist = [
+            '--group', identity_fakes.group_id,
+            '--project', identity_fakes.project_name,
+            identity_fakes.role_name
+        ]
+        if self._is_inheritance_testcase():
+            arglist.append('--inherited')
+        verifylist = [
+            ('user', None),
+            ('group', identity_fakes.group_id),
+            ('system', None),
             ('domain', None),
             ('project', identity_fakes.project_name),
             ('role', identity_fakes.role_name),
