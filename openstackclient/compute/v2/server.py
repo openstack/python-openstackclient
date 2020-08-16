@@ -751,19 +751,27 @@ class CreateServer(command.ShowOne):
                 images_matched = []
                 for img in image_list:
                     img_dict = {}
+
                     # exclude any unhashable entries
-                    for key, value in img.items():
+                    img_dict_items = list(img.items())
+                    if img.properties:
+                        img_dict_items.extend(list(img.properties.items()))
+                    for key, value in img_dict_items:
                         try:
                             set([key, value])
                         except TypeError:
+                            if key != 'properties':
+                                LOG.debug('Skipped the \'%s\' attribute. '
+                                          'That cannot be compared. '
+                                          '(image: %s, value: %s)',
+                                          key, img.id, value)
                             pass
                         else:
                             img_dict[key] = value
+
                     if all(k in img_dict and img_dict[k] == v
                            for k, v in wanted_properties.items()):
                         images_matched.append(img)
-                    else:
-                        return []
                 return images_matched
 
             images = _match_image(image_client, parsed_args.image_property)
