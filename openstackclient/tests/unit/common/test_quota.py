@@ -968,3 +968,26 @@ class TestQuotaShow(TestQuota):
             identity_fakes.project_id, details=False
         )
         self.assertNotCalled(self.network.get_quota_default)
+
+    def test_network_quota_show_remove_empty(self):
+        arglist = [
+            self.projects[0].name,
+        ]
+        verifylist = [
+            ('project', self.projects[0].name),
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        # First check that all regular values are returned
+        result = self.cmd.get_network_quota(parsed_args)
+        self.assertEqual(len(network_fakes.QUOTA), len(result))
+
+        # set 1 of the values to None, and verify it is not returned
+        orig_get_quota = self.network.get_quota
+        network_quotas = copy.copy(network_fakes.QUOTA)
+        network_quotas['healthmonitor'] = None
+        self.network.get_quota = mock.Mock(return_value=network_quotas)
+        result = self.cmd.get_network_quota(parsed_args)
+        self.assertEqual(len(network_fakes.QUOTA) - 1, len(result))
+        # Go back to default mock
+        self.network.get_quota = orig_get_quota
