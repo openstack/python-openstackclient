@@ -1,0 +1,4 @@
+---
+other:
+  - |
+    Remove deprecated neutron-lbaas results from ``quota show`` command.
