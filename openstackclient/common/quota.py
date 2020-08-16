@@ -161,6 +161,13 @@ class BaseQuota(object):
                 raise
         return quota._info
 
+    def _network_quota_to_dict(self, network_quota):
+        if type(network_quota) is not dict:
+            dict_quota = network_quota.to_dict()
+        else:
+            dict_quota = network_quota
+        return {k: v for k, v in dict_quota.items() if v is not None}
+
     def get_network_quota(self, parsed_args):
         quota_class = (
             parsed_args.quota_class if 'quota_class' in parsed_args else False)
@@ -174,13 +181,11 @@ class BaseQuota(object):
             client = self.app.client_manager.network
             if default:
                 network_quota = client.get_quota_default(project)
-                if type(network_quota) is not dict:
-                    network_quota = network_quota.to_dict()
+                network_quota = self._network_quota_to_dict(network_quota)
             else:
                 network_quota = client.get_quota(project,
                                                  details=detail)
-                if type(network_quota) is not dict:
-                    network_quota = network_quota.to_dict()
+                network_quota = self._network_quota_to_dict(network_quota)
                 if detail:
                     # NOTE(slaweq): Neutron returns values with key "used" but
                     # Nova for example returns same data with key "in_use"
