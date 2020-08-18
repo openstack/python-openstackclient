@@ -83,6 +83,79 @@ class TestNetworkV2(utils.TestCommand):
         )
 
 
+class FakeAddressGroup(object):
+    """Fake one or more address groups."""
+
+    @staticmethod
+    def create_one_address_group(attrs=None):
+        """Create a fake address group.
+
+        :param Dictionary attrs:
+            A dictionary with all attributes
+        :return:
+            A FakeResource object with name, id, etc.
+        """
+        attrs = attrs or {}
+
+        # Set default attributes.
+        address_group_attrs = {
+            'name': 'address-group-name-' + uuid.uuid4().hex,
+            'description': 'address-group-description-' + uuid.uuid4().hex,
+            'id': 'address-group-id-' + uuid.uuid4().hex,
+            'tenant_id': 'project-id-' + uuid.uuid4().hex,
+            'addresses': ['10.0.0.1/32'],
+        }
+
+        # Overwrite default attributes.
+        address_group_attrs.update(attrs)
+
+        address_group = fakes.FakeResource(
+            info=copy.deepcopy(address_group_attrs),
+            loaded=True)
+
+        # Set attributes with special mapping in OpenStack SDK.
+        address_group.project_id = address_group_attrs['tenant_id']
+
+        return address_group
+
+    @staticmethod
+    def create_address_groups(attrs=None, count=2):
+        """Create multiple fake address groups.
+
+        :param Dictionary attrs:
+            A dictionary with all attributes
+        :param int count:
+            The number of address groups to fake
+        :return:
+            A list of FakeResource objects faking the address groups
+        """
+        address_groups = []
+        for i in range(0, count):
+            address_groups.append(
+                FakeAddressGroup.create_one_address_group(attrs))
+
+        return address_groups
+
+    @staticmethod
+    def get_address_groups(address_groups=None, count=2):
+        """Get an iterable Mock object with a list of faked address groups.
+
+        If address groups list is provided, then initialize the Mock object
+        with the list. Otherwise create one.
+
+        :param List address_groups:
+            A list of FakeResource objects faking address groups
+        :param int count:
+            The number of address groups to fake
+        :return:
+            An iterable Mock object with side_effect set to a list of faked
+            address groups
+        """
+        if address_groups is None:
+            address_groups = FakeAddressGroup.create_address_groups(count)
+        return mock.Mock(side_effect=address_groups)
+
+
 class FakeAddressScope(object):
     """Fake one or more address scopes."""
 

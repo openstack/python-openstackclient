@@ -1,0 +1,7 @@
+---
+features:
+  - Add ``address group create``, ``address group delete``,
+    ``address group list``, ``address group set``, ``address group show``
+    and ``address group unset`` commands to support Neutron address group
+    CRUD operations.
+    [Blueprint `address-groups-in-sg-rules <https://blueprints.launchpad.net/neutron/+spec/address-groups-in-sg-rules>`_]
