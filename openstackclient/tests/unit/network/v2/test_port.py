@@ -62,12 +62,12 @@ class TestPort(network_fakes.TestNetworkV2):
             'numa_affinity_policy',
             'port_security_enabled',
             'project_id',
+            'propagate_uplink_status',
             'qos_network_policy_id',
             'qos_policy_id',
             'security_group_ids',
             'status',
             'tags',
-            'uplink_status_propagation',
         )
 
         data = (
@@ -94,12 +94,12 @@ class TestPort(network_fakes.TestNetworkV2):
             fake_port.numa_affinity_policy,
             fake_port.port_security_enabled,
             fake_port.project_id,
+            fake_port.propagate_uplink_status,
             fake_port.qos_network_policy_id,
             fake_port.qos_policy_id,
             format_columns.ListColumn(fake_port.security_group_ids),
             fake_port.status,
             format_columns.ListColumn(fake_port.tags),
-            fake_port.uplink_status_propagation,
         )
 
         return columns, data
