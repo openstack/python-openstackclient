@@ -33,6 +33,7 @@ Create new network
         [--provider-segment <provider-segment>]
         [--qos-policy <qos-policy>]
         [--transparent-vlan | --no-transparent-vlan]
+        [--dns-domain <dns-domain>]
         [--tag <tag> | --no-tag]
         <name>
 
@@ -172,6 +173,10 @@ Create new network
     Do not make the network VLAN transparent
 
     *Network version 2 only*
+
+.. option:: --dns-domain <dns-domain>
+
+    Set DNS domain for this network (requires DNS integration extension).
 
 .. option:: --tag <tag>
 
@@ -367,6 +372,7 @@ Set network properties
         [--provider-physical-network <provider-physical-network>]
         [--provider-segment <provider-segment>]
         [--qos-policy <qos-policy> | --no-qos-policy]
+        [--dns-domain <dns-domain>]
         [--tag <tag>] [--no-tag]
         <network>
 
@@ -445,6 +451,10 @@ Set network properties
 .. option:: --no-qos-policy
 
     Remove the QoS policy attached to this network
+
+.. option:: --dns-domain <dns-domain>
+
+    Set DNS domain for this network (requires DNS integration extension).
 
 .. option:: --tag <tag>
 

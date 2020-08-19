@@ -335,6 +335,7 @@ class FakeNetwork(object):
             'name': 'network-name-' + uuid.uuid4().hex,
             'status': 'ACTIVE',
             'description': 'network-description-' + uuid.uuid4().hex,
+            'dns_domain': 'example.org.',
             'mtu': '1350',
             'tenant_id': 'project-id-' + uuid.uuid4().hex,
             'admin_state_up': True,

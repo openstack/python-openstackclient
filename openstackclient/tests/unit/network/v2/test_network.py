@@ -60,6 +60,7 @@ class TestCreateNetworkIdentityV3(TestNetwork):
         'availability_zone_hints',
         'availability_zones',
         'description',
+        'dns_domain',
         'id',
         'ipv4_address_scope',
         'ipv6_address_scope',
@@ -84,6 +85,7 @@ class TestCreateNetworkIdentityV3(TestNetwork):
         utils.format_list(_network.availability_zone_hints),
         utils.format_list(_network.availability_zones),
         _network.description,
+        _network.dns_domain,
         _network.id,
         _network.ipv4_address_scope_id,
         _network.ipv6_address_scope_id,
@@ -162,6 +164,7 @@ class TestCreateNetworkIdentityV3(TestNetwork):
             "--qos-policy", self.qos_policy.id,
             "--transparent-vlan",
             "--enable-port-security",
+            "--dns-domain", "example.org.",
             self._network.name,
         ]
         verifylist = [
@@ -181,6 +184,7 @@ class TestCreateNetworkIdentityV3(TestNetwork):
             ('transparent_vlan', True),
             ('enable_port_security', True),
             ('name', self._network.name),
+            ('dns_domain', 'example.org.'),
         ]
 
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
@@ -204,6 +208,7 @@ class TestCreateNetworkIdentityV3(TestNetwork):
             'qos_policy_id': self.qos_policy.id,
             'vlan_transparent': True,
             'port_security_enabled': True,
+            'dns_domain': 'example.org.',
         })
         self.assertEqual(self.columns, columns)
         self.assertEqual(self.data, data)
@@ -287,6 +292,7 @@ class TestCreateNetworkIdentityV2(TestNetwork):
         'availability_zone_hints',
         'availability_zones',
         'description',
+        'dns_domain',
         'id',
         'ipv4_address_scope',
         'ipv6_address_scope',
@@ -311,6 +317,7 @@ class TestCreateNetworkIdentityV2(TestNetwork):
         utils.format_list(_network.availability_zone_hints),
         utils.format_list(_network.availability_zones),
         _network.description,
+        _network.dns_domain,
         _network.id,
         _network.ipv4_address_scope_id,
         _network.ipv6_address_scope_id,
@@ -901,6 +908,7 @@ class TestSetNetwork(TestNetwork):
             '--name', 'noob',
             '--share',
             '--description', self._network.description,
+            '--dns-domain', 'example.org.',
             '--external',
             '--default',
             '--provider-network-type', 'vlan',
@@ -922,6 +930,7 @@ class TestSetNetwork(TestNetwork):
             ('segmentation_id', '400'),
             ('enable_port_security', True),
             ('qos_policy', self.qos_policy.name),
+            ('dns_domain', 'example.org.'),
         ]
 
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
@@ -939,6 +948,7 @@ class TestSetNetwork(TestNetwork):
             'provider:segmentation_id': '400',
             'port_security_enabled': True,
             'qos_policy_id': self.qos_policy.id,
+            'dns_domain': 'example.org.',
         }
         self.network.update_network.assert_called_once_with(
             self._network, **attrs)
@@ -1026,6 +1036,7 @@ class TestShowNetwork(TestNetwork):
         'availability_zone_hints',
         'availability_zones',
         'description',
+        'dns_domain',
         'id',
         'ipv4_address_scope',
         'ipv6_address_scope',
@@ -1050,6 +1061,7 @@ class TestShowNetwork(TestNetwork):
         utils.format_list(_network.availability_zone_hints),
         utils.format_list(_network.availability_zones),
         _network.description,
+        _network.dns_domain,
         _network.id,
         _network.ipv4_address_scope_id,
         _network.ipv6_address_scope_id,

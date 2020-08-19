@@ -134,6 +134,9 @@ def _get_attrs_network(client_manager, parsed_args):
         attrs['qos_policy_id'] = _qos_policy.id
     if 'no_qos_policy' in parsed_args and parsed_args.no_qos_policy:
         attrs['qos_policy_id'] = None
+    # Update DNS network options
+    if parsed_args.dns_domain:
+        attrs['dns_domain'] = parsed_args.dns_domain
     return attrs
 
 
@@ -171,6 +174,13 @@ def _add_additional_network_options(parser):
         dest='segmentation_id',
         help=_("VLAN ID for VLAN networks or Tunnel ID for "
                "GENEVE/GRE/VXLAN networks"))
+    parser.add_argument(
+        '--dns-domain',
+        metavar='<dns-domain>',
+        dest='dns_domain',
+        help=_("Set DNS domain for this network "
+               "(requires DNS integration extension)")
+    )
 
 
 # TODO(sindhu): Use the SDK resource mapped attribute names once the
@@ -308,8 +318,10 @@ class CreateNetwork(common.NetworkAndComputeShowOne):
             attrs['vlan_transparent'] = True
         if parsed_args.no_transparent_vlan:
             attrs['vlan_transparent'] = False
+        with common.check_missing_extension_if_error(
+                self.app.client_manager.network, attrs):
+            obj = client.create_network(**attrs)
 
-        obj = client.create_network(**attrs)
         # tags cannot be set when created, so tags need to be set later.
         _tag.update_tags_for_set(client, obj, parsed_args)
         display_columns, columns = _get_columns_network(obj)
@@ -690,7 +702,9 @@ class SetNetwork(command.Command):
 
         attrs = _get_attrs_network(self.app.client_manager, parsed_args)
         if attrs:
-            client.update_network(obj, **attrs)
+            with common.check_missing_extension_if_error(
+                    self.app.client_manager.network, attrs):
+                client.update_network(obj, **attrs)
 
         # tags is a subresource and it needs to be updated separately.
         _tag.update_tags_for_set(client, obj, parsed_args)
