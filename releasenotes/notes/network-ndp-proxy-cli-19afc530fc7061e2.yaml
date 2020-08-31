@@ -1,0 +1,10 @@
+---
+features:
+  - |
+    Add new commands ``router ndp proxy create``, ``router ndp proxy set``,
+    ``router ndp proxy show``, ``router ndp proxy list`` and
+    ``router ndp proxy delete`` to support Neutron NDP proxy CRUD operations.
+  - |
+    Add new options ``--enable-ndp-proxy`` and ``--disable-ndp-proxy`` to
+    command ``router create`` and ``router set`` to support Neutron NDP proxy
+    feature.

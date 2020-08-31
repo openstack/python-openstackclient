@@ -26,6 +26,7 @@ from openstack.network.v2 import availability_zone as _availability_zone
 from openstack.network.v2 import flavor as _flavor
 from openstack.network.v2 import local_ip as _local_ip
 from openstack.network.v2 import local_ip_association as _local_ip_association
+from openstack.network.v2 import ndp_proxy as _ndp_proxy
 from openstack.network.v2 import network as _network
 from openstack.network.v2 import network_ip_availability as _ip_availability
 from openstack.network.v2 import network_segment_range as _segment_range
@@ -2079,3 +2080,75 @@ def get_local_ip_associations(local_ip_associations=None, count=2):
         local_ip_associations = create_local_ip_associations(count)
 
     return mock.Mock(side_effect=local_ip_associations)
+
+
+def create_one_ndp_proxy(attrs=None):
+    """Create a fake NDP proxy.
+
+    :param Dictionary attrs:
+        A dictionary with all attributes
+    :return:
+        A FakeResource object with router_id, port_id, etc.
+    """
+    attrs = attrs or {}
+    router_id = (
+        attrs.get('router_id') or 'router-id-' + uuid.uuid4().hex
+    )
+    port_id = (
+        attrs.get('port_id') or 'port-id-' + uuid.uuid4().hex
+    )
+    # Set default attributes.
+    np_attrs = {
+        'id': uuid.uuid4().hex,
+        'name': 'ndp-proxy-name-' + uuid.uuid4().hex,
+        'router_id': router_id,
+        'port_id': port_id,
+        'ip_address': '2001::1:2',
+        'description': 'ndp-proxy-description-' + uuid.uuid4().hex,
+        'project_id': 'project-id-' + uuid.uuid4().hex,
+        'location': 'MUNCHMUNCHMUNCH',
+    }
+
+    # Overwrite default attributes.
+    np_attrs.update(attrs)
+
+    return _ndp_proxy.NDPProxy(**np_attrs)
+
+
+def create_ndp_proxies(attrs=None, count=2):
+    """Create multiple fake NDP proxies.
+
+    :param Dictionary attrs:
+        A dictionary with all attributes
+    :param int count:
+        The number of NDP proxxy to fake
+    :return:
+        A list of FakeResource objects faking the NDP proxies
+    """
+    ndp_proxies = []
+    for i in range(0, count):
+        ndp_proxies.append(
+            create_one_ndp_proxy(attrs)
+        )
+    return ndp_proxies
+
+
+def get_ndp_proxies(ndp_proxies=None, count=2):
+    """Get a list of faked NDP proxies.
+
+    If ndp_proxy list is provided, then initialize the Mock object
+    with the list. Otherwise create one.
+
+    :param List ndp_proxies:
+        A list of FakeResource objects faking ndp proxy
+    :param int count:
+        The number of ndp proxy to fake
+    :return:
+        An iterable Mock object with side_effect set to a list of faked
+        ndp proxy
+    """
+    if ndp_proxies is None:
+        ndp_proxies = (
+            create_ndp_proxies(count)
+        )
+    return mock.Mock(side_effect=ndp_proxies)

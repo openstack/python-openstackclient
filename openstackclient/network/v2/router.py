@@ -369,6 +369,21 @@ class CreateRouter(command.ShowOne, common.NeutronCommandWithExtraArgs):
             action='store_true',
             help=_("Disable Source NAT on external gateway")
         )
+        ndp_proxy_group = parser.add_mutually_exclusive_group()
+        ndp_proxy_group.add_argument(
+            '--enable-ndp-proxy',
+            dest='enable_ndp_proxy',
+            default=None,
+            action='store_true',
+            help=_("Enable IPv6 NDP proxy on external gateway")
+        )
+        ndp_proxy_group.add_argument(
+            '--disable-ndp-proxy',
+            dest='enable_ndp_proxy',
+            default=None,
+            action='store_false',
+            help=_("Disable IPv6 NDP proxy on external gateway")
+        )
 
         return parser
 
@@ -382,6 +397,14 @@ class CreateRouter(command.ShowOne, common.NeutronCommandWithExtraArgs):
             attrs['ha'] = False
         attrs.update(
             self._parse_extra_properties(parsed_args.extra_properties))
+
+        if parsed_args.enable_ndp_proxy and not parsed_args.external_gateway:
+            msg = (_("You must specify '--external-gateway' in order "
+                     "to enable router's NDP proxy"))
+            raise exceptions.CommandError(msg)
+
+        if parsed_args.enable_ndp_proxy is not None:
+            attrs['enable_ndp_proxy'] = parsed_args.enable_ndp_proxy
 
         obj = client.create_router(**attrs)
         # tags cannot be set when created, so tags need to be set later.
@@ -737,6 +760,21 @@ class SetRouter(common.NeutronCommandWithExtraArgs):
             action='store_true',
             help=_("Disable Source NAT on external gateway")
         )
+        ndp_proxy_group = parser.add_mutually_exclusive_group()
+        ndp_proxy_group.add_argument(
+            '--enable-ndp-proxy',
+            dest='enable_ndp_proxy',
+            default=None,
+            action='store_true',
+            help=_("Enable IPv6 NDP proxy on external gateway")
+        )
+        ndp_proxy_group.add_argument(
+            '--disable-ndp-proxy',
+            dest='enable_ndp_proxy',
+            default=None,
+            action='store_false',
+            help=_("Disable IPv6 NDP proxy on external gateway")
+        )
         qos_policy_group = parser.add_mutually_exclusive_group()
         qos_policy_group.add_argument(
             '--qos-policy',
@@ -803,6 +841,9 @@ class SetRouter(common.NeutronCommandWithExtraArgs):
 
         attrs.update(
             self._parse_extra_properties(parsed_args.extra_properties))
+
+        if parsed_args.enable_ndp_proxy is not None:
+            attrs['enable_ndp_proxy'] = parsed_args.enable_ndp_proxy
 
         if attrs:
             client.update_router(obj, **attrs)
