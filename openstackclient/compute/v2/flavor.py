@@ -402,7 +402,7 @@ class SetFlavor(command.Command):
             if compute_client.api_version < api_versions.APIVersion("2.55"):
                 msg = _("--os-compute-api-version 2.55 or later is required")
                 raise exceptions.CommandError(msg)
-            compute_client.flavors.update(flavor=parsed_args.flavor,
+            compute_client.flavors.update(flavor=flavor.id,
                                           description=parsed_args.description)
 
 

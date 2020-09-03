@@ -749,6 +749,42 @@ class TestFlavorSet(TestFlavor):
             self.assertRaises(exceptions.CommandError, self.cmd.take_action,
                               parsed_args)
 
+    def test_flavor_set_description_using_name_api_newer(self):
+        arglist = [
+            '--description', 'description',
+            self.flavor.name,
+        ]
+        verifylist = [
+            ('description', 'description'),
+            ('flavor', self.flavor.name),
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+        self.app.client_manager.compute.api_version = 2.55
+        with mock.patch.object(novaclient.api_versions,
+                               'APIVersion',
+                               return_value=2.55):
+            result = self.cmd.take_action(parsed_args)
+            self.flavors_mock.update.assert_called_with(
+                flavor=self.flavor.id, description='description')
+            self.assertIsNone(result)
+
+    def test_flavor_set_description_using_name_api_older(self):
+        arglist = [
+            '--description', 'description',
+            self.flavor.name,
+        ]
+        verifylist = [
+            ('description', 'description'),
+            ('flavor', self.flavor.name),
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+        self.app.client_manager.compute.api_version = 2.54
+        with mock.patch.object(novaclient.api_versions,
+                               'APIVersion',
+                               return_value=2.55):
+            self.assertRaises(exceptions.CommandError, self.cmd.take_action,
+                              parsed_args)
+
 
 class TestFlavorShow(TestFlavor):
 
