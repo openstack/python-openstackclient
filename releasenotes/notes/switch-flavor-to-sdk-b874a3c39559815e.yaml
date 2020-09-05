@@ -1,0 +1,4 @@
+---
+features:
+  - Switch compute.flavor operations from direct API calls (novaclient) to
+    OpenStackSDK.

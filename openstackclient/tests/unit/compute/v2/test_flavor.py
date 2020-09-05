@@ -12,11 +12,11 @@
 #   License for the specific language governing permissions and limitations
 #   under the License.
 #
-
 from unittest import mock
-from unittest.mock import call
 
-import novaclient
+from openstack.compute.v2 import flavor as _flavor
+from openstack import exceptions as sdk_exceptions
+from openstack import utils as sdk_utils
 from osc_lib.cli import format_columns
 from osc_lib import exceptions
 
@@ -31,13 +31,19 @@ class TestFlavor(compute_fakes.TestComputev2):
     def setUp(self):
         super(TestFlavor, self).setUp()
 
-        # Get a shortcut to the FlavorManager Mock
-        self.flavors_mock = self.app.client_manager.compute.flavors
-        self.flavors_mock.reset_mock()
-
-        # Get a shortcut to the FlavorAccessManager Mock
-        self.flavor_access_mock = self.app.client_manager.compute.flavor_access
-        self.flavor_access_mock.reset_mock()
+        # SDK mock
+        self.app.client_manager.sdk_connection = mock.Mock()
+        self.app.client_manager.sdk_connection.compute = mock.Mock()
+        self.sdk_client = self.app.client_manager.sdk_connection.compute
+        self.sdk_client.flavors = mock.Mock()
+        self.sdk_client.find_flavor = mock.Mock()
+        self.sdk_client.delete_flavor = mock.Mock()
+        self.sdk_client.update_flavor = mock.Mock()
+        self.sdk_client.flavor_add_tenant_access = mock.Mock()
+        self.sdk_client.flavor_remove_tenant_access = mock.Mock()
+        self.sdk_client.create_flavor_extra_specs = mock.Mock()
+        self.sdk_client.update_flavor_extra_specs_property = mock.Mock()
+        self.sdk_client.delete_flavor_extra_specs_property = mock.Mock()
 
         self.projects_mock = self.app.client_manager.identity.projects
         self.projects_mock.reset_mock()
@@ -48,6 +54,7 @@ class TestFlavorCreate(TestFlavor):
     flavor = compute_fakes.FakeFlavor.create_one_flavor(
         attrs={'links': 'flavor-links'})
     project = identity_fakes.FakeProject.create_one_project()
+
     columns = (
         'OS-FLV-DISABLED:disabled',
         'OS-FLV-EXT-DATA:ephemeral',
@@ -60,17 +67,32 @@ class TestFlavorCreate(TestFlavor):
         'ram',
         'rxtx_factor',
         'swap',
-        'vcpus',
+        'vcpus'
     )
+
     data = (
-        flavor.disabled,
+        flavor.is_disabled,
         flavor.ephemeral,
         flavor.description,
         flavor.disk,
         flavor.id,
         flavor.name,
         flavor.is_public,
-        format_columns.DictColumn(flavor.properties),
+        format_columns.DictColumn(flavor.extra_specs),
+        flavor.ram,
+        flavor.rxtx_factor,
+        flavor.swap,
+        flavor.vcpus,
+    )
+    data_private = (
+        flavor.is_disabled,
+        flavor.ephemeral,
+        flavor.description,
+        flavor.disk,
+        flavor.id,
+        flavor.name,
+        False,
+        format_columns.DictColumn(flavor.extra_specs),
         flavor.ram,
         flavor.rxtx_factor,
         flavor.swap,
@@ -82,7 +104,7 @@ class TestFlavorCreate(TestFlavor):
 
         # Return a project
         self.projects_mock.get.return_value = self.project
-        self.flavors_mock.create.return_value = self.flavor
+        self.sdk_client.create_flavor.return_value = self.flavor
         self.cmd = flavor.CreateFlavor(self.app, None)
 
     def test_flavor_create_default_options(self):
@@ -95,20 +117,20 @@ class TestFlavorCreate(TestFlavor):
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
-        default_args = (
-            self.flavor.name,
-            256,
-            1,
-            0,
-            'auto',
-            0,
-            0,
-            1.0,
-            True,
-            None,
-        )
+        default_args = {
+            'name': self.flavor.name,
+            'ram': 256,
+            'vcpus': 1,
+            'disk': 0,
+            'id': None,
+            'ephemeral': 0,
+            'swap': 0,
+            'rxtx_factor': 1.0,
+            'is_public': True,
+        }
+
         columns, data = self.cmd.take_action(parsed_args)
-        self.flavors_mock.create.assert_called_once_with(*default_args)
+        self.sdk_client.create_flavor.assert_called_once_with(**default_args)
 
         self.assertEqual(self.columns, columns)
         self.assertItemEqual(self.data, data)
@@ -143,29 +165,44 @@ class TestFlavorCreate(TestFlavor):
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
-        args = (
-            self.flavor.name,
-            self.flavor.ram,
-            self.flavor.vcpus,
-            self.flavor.disk,
-            self.flavor.id,
-            self.flavor.ephemeral,
-            self.flavor.swap,
-            self.flavor.rxtx_factor,
-            self.flavor.is_public,
-            self.flavor.description,
-        )
-        self.app.client_manager.compute.api_version = 2.55
-        with mock.patch.object(novaclient.api_versions,
-                               'APIVersion',
-                               return_value=2.55):
-            columns, data = self.cmd.take_action(parsed_args)
-        self.flavors_mock.create.assert_called_once_with(*args)
-        self.flavor.set_keys.assert_called_once_with({'property': 'value'})
-        self.flavor.get_keys.assert_called_once_with()
+        args = {
+            'name': self.flavor.name,
+            'ram': self.flavor.ram,
+            'vcpus': self.flavor.vcpus,
+            'disk': self.flavor.disk,
+            'id': self.flavor.id,
+            'ephemeral': self.flavor.ephemeral,
+            'swap': self.flavor.swap,
+            'rxtx_factor': self.flavor.rxtx_factor,
+            'is_public': self.flavor.is_public,
+            'description': self.flavor.description
+        }
 
-        self.assertEqual(self.columns, columns)
-        self.assertItemEqual(self.data, data)
+        props = {'property': 'value'}
+
+        # SDK updates the flavor object instance. In order to make the
+        # verification clear and preciese let's create new flavor and change
+        # expected props this way
+        create_flavor = _flavor.Flavor(**self.flavor)
+        expected_flavor = _flavor.Flavor(**self.flavor)
+        expected_flavor.extra_specs = props
+        # convert expected data tuple to list to be able to modify it
+        cmp_data = list(self.data)
+        cmp_data[7] = format_columns.DictColumn(props)
+        self.sdk_client.create_flavor.return_value = create_flavor
+        self.sdk_client.create_flavor_extra_specs.return_value = \
+            expected_flavor
+
+        with mock.patch.object(sdk_utils, 'supports_microversion',
+                               return_value=True):
+            columns, data = self.cmd.take_action(parsed_args)
+            self.sdk_client.create_flavor.assert_called_once_with(**args)
+            self.sdk_client.create_flavor_extra_specs.assert_called_once_with(
+                create_flavor, props)
+            self.sdk_client.get_flavor_access.assert_not_called()
+
+            self.assertEqual(self.columns, columns)
+            self.assertItemEqual(tuple(cmp_data), data)
 
     def test_flavor_create_other_options(self):
 
@@ -200,33 +237,47 @@ class TestFlavorCreate(TestFlavor):
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
-        args = (
-            self.flavor.name,
-            self.flavor.ram,
-            self.flavor.vcpus,
-            self.flavor.disk,
-            'auto',
-            self.flavor.ephemeral,
-            self.flavor.swap,
-            self.flavor.rxtx_factor,
-            self.flavor.is_public,
-            self.flavor.description,
-        )
-        self.app.client_manager.compute.api_version = 2.55
-        with mock.patch.object(novaclient.api_versions,
-                               'APIVersion',
-                               return_value=2.55):
+        args = {
+            'name': self.flavor.name,
+            'ram': self.flavor.ram,
+            'vcpus': self.flavor.vcpus,
+            'disk': self.flavor.disk,
+            'id': 'auto',
+            'ephemeral': self.flavor.ephemeral,
+            'swap': self.flavor.swap,
+            'rxtx_factor': self.flavor.rxtx_factor,
+            'is_public': False,
+            'description': self.flavor.description
+        }
+
+        props = {'key1': 'value1', 'key2': 'value2'}
+
+        # SDK updates the flavor object instance. In order to make the
+        # verification clear and preciese let's create new flavor and change
+        # expected props this way
+        create_flavor = _flavor.Flavor(**self.flavor)
+        expected_flavor = _flavor.Flavor(**self.flavor)
+        expected_flavor.extra_specs = props
+        expected_flavor.is_public = False
+        # convert expected data tuple to list to be able to modify it
+        cmp_data = list(self.data_private)
+        cmp_data[7] = format_columns.DictColumn(props)
+        self.sdk_client.create_flavor.return_value = create_flavor
+        self.sdk_client.create_flavor_extra_specs.return_value = \
+            expected_flavor
+
+        with mock.patch.object(sdk_utils, 'supports_microversion',
+                               return_value=True):
             columns, data = self.cmd.take_action(parsed_args)
-        self.flavors_mock.create.assert_called_once_with(*args)
-        self.flavor_access_mock.add_tenant_access.assert_called_with(
+        self.sdk_client.create_flavor.assert_called_once_with(**args)
+        self.sdk_client.flavor_add_tenant_access.assert_called_with(
             self.flavor.id,
             self.project.id,
         )
-        self.flavor.set_keys.assert_called_with(
-            {'key1': 'value1', 'key2': 'value2'})
-        self.flavor.get_keys.assert_called_with()
+        self.sdk_client.create_flavor_extra_specs.assert_called_with(
+            create_flavor, props)
         self.assertEqual(self.columns, columns)
-        self.assertItemEqual(self.data, data)
+        self.assertItemEqual(cmp_data, data)
 
     def test_public_flavor_create_with_project(self):
         arglist = [
@@ -278,29 +329,28 @@ class TestFlavorCreate(TestFlavor):
             ('name', self.flavor.name),
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
-        self.app.client_manager.compute.api_version = 2.55
-        with mock.patch.object(novaclient.api_versions,
-                               'APIVersion',
-                               return_value=2.55):
+        with mock.patch.object(sdk_utils, 'supports_microversion',
+                               return_value=True):
+
             columns, data = self.cmd.take_action(parsed_args)
 
-        args = (
-            self.flavor.name,
-            self.flavor.ram,
-            self.flavor.vcpus,
-            self.flavor.disk,
-            self.flavor.id,
-            self.flavor.ephemeral,
-            self.flavor.swap,
-            self.flavor.rxtx_factor,
-            False,
-            'fake description',
-        )
+        args = {
+            'name': self.flavor.name,
+            'ram': self.flavor.ram,
+            'vcpus': self.flavor.vcpus,
+            'disk': self.flavor.disk,
+            'id': self.flavor.id,
+            'ephemeral': self.flavor.ephemeral,
+            'swap': self.flavor.swap,
+            'rxtx_factor': self.flavor.rxtx_factor,
+            'is_public': self.flavor.is_public,
+            'description': 'fake description'
+        }
 
-        self.flavors_mock.create.assert_called_once_with(*args)
+        self.sdk_client.create_flavor.assert_called_once_with(**args)
 
         self.assertEqual(self.columns, columns)
-        self.assertItemEqual(self.data, data)
+        self.assertItemEqual(self.data_private, data)
 
     def test_flavor_create_with_description_api_older(self):
         arglist = [
@@ -318,10 +368,8 @@ class TestFlavorCreate(TestFlavor):
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
-        self.app.client_manager.compute.api_version = 2.54
-        with mock.patch.object(novaclient.api_versions,
-                               'APIVersion',
-                               return_value=2.55):
+        with mock.patch.object(sdk_utils, 'supports_microversion',
+                               return_value=False):
             self.assertRaises(exceptions.CommandError, self.cmd.take_action,
                               parsed_args)
 
@@ -333,9 +381,7 @@ class TestFlavorDelete(TestFlavor):
     def setUp(self):
         super(TestFlavorDelete, self).setUp()
 
-        self.flavors_mock.get = (
-            compute_fakes.FakeFlavor.get_flavors(self.flavors))
-        self.flavors_mock.delete.return_value = None
+        self.sdk_client.delete_flavor.return_value = None
 
         self.cmd = flavor.DeleteFlavor(self.app, None)
 
@@ -348,9 +394,13 @@ class TestFlavorDelete(TestFlavor):
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
+        self.sdk_client.find_flavor.return_value = self.flavors[0]
+
         result = self.cmd.take_action(parsed_args)
 
-        self.flavors_mock.delete.assert_called_with(self.flavors[0].id)
+        self.sdk_client.find_flavor.assert_called_with(self.flavors[0].id,
+                                                       ignore_missing=False)
+        self.sdk_client.delete_flavor.assert_called_with(self.flavors[0].id)
         self.assertIsNone(result)
 
     def test_delete_multiple_flavors(self):
@@ -362,12 +412,17 @@ class TestFlavorDelete(TestFlavor):
         ]
 
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        self.sdk_client.find_flavor.side_effect = self.flavors
+
         result = self.cmd.take_action(parsed_args)
 
-        calls = []
-        for f in self.flavors:
-            calls.append(call(f.id))
-        self.flavors_mock.delete.assert_has_calls(calls)
+        find_calls = [
+            mock.call(i.id, ignore_missing=False) for i in self.flavors
+        ]
+        delete_calls = [mock.call(i.id) for i in self.flavors]
+        self.sdk_client.find_flavor.assert_has_calls(find_calls)
+        self.sdk_client.delete_flavor.assert_has_calls(delete_calls)
         self.assertIsNone(result)
 
     def test_multi_flavors_delete_with_exception(self):
@@ -380,11 +435,10 @@ class TestFlavorDelete(TestFlavor):
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
-        find_mock_result = [self.flavors[0], exceptions.CommandError]
-        self.flavors_mock.get = (
-            mock.Mock(side_effect=find_mock_result)
-        )
-        self.flavors_mock.find.side_effect = exceptions.NotFound(None)
+        self.sdk_client.find_flavor.side_effect = [
+            self.flavors[0],
+            sdk_exceptions.ResourceNotFound
+        ]
 
         try:
             self.cmd.take_action(parsed_args)
@@ -392,15 +446,18 @@ class TestFlavorDelete(TestFlavor):
         except exceptions.CommandError as e:
             self.assertEqual('1 of 2 flavors failed to delete.', str(e))
 
-        self.flavors_mock.get.assert_any_call(self.flavors[0].id)
-        self.flavors_mock.get.assert_any_call('unexist_flavor')
-        self.flavors_mock.delete.assert_called_once_with(self.flavors[0].id)
+        find_calls = [
+            mock.call(self.flavors[0].id, ignore_missing=False),
+            mock.call('unexist_flavor', ignore_missing=False),
+        ]
+        delete_calls = [mock.call(self.flavors[0].id)]
+        self.sdk_client.find_flavor.assert_has_calls(find_calls)
+        self.sdk_client.delete_flavor.assert_has_calls(delete_calls)
 
 
 class TestFlavorList(TestFlavor):
 
-    # Return value of self.flavors_mock.list().
-    flavors = compute_fakes.FakeFlavor.create_flavors(count=1)
+    _flavor = compute_fakes.FakeFlavor.create_one_flavor()
 
     columns = (
         'ID',
@@ -418,24 +475,27 @@ class TestFlavorList(TestFlavor):
     )
 
     data = ((
-        flavors[0].id,
-        flavors[0].name,
-        flavors[0].ram,
-        flavors[0].disk,
-        flavors[0].ephemeral,
-        flavors[0].vcpus,
-        flavors[0].is_public,
-    ), )
+        _flavor.id,
+        _flavor.name,
+        _flavor.ram,
+        _flavor.disk,
+        _flavor.ephemeral,
+        _flavor.vcpus,
+        _flavor.is_public,
+    ),)
     data_long = (data[0] + (
-        flavors[0].swap,
-        flavors[0].rxtx_factor,
-        format_columns.DictColumn(flavors[0].properties)
+        _flavor.swap,
+        _flavor.rxtx_factor,
+        format_columns.DictColumn(_flavor.extra_specs)
     ), )
 
     def setUp(self):
         super(TestFlavorList, self).setUp()
 
-        self.flavors_mock.list.return_value = self.flavors
+        self.api_mock = mock.Mock()
+        self.api_mock.side_effect = [[self._flavor], [], ]
+
+        self.sdk_client.flavors = self.api_mock
 
         # Get the command object to test
         self.cmd = flavor.ListFlavor(self.app, None)
@@ -458,16 +518,14 @@ class TestFlavorList(TestFlavor):
         # Set expected values
         kwargs = {
             'is_public': True,
-            'limit': None,
-            'marker': None
         }
 
-        self.flavors_mock.list.assert_called_with(
+        self.sdk_client.flavors.assert_called_with(
             **kwargs
         )
 
         self.assertEqual(self.columns, columns)
-        self.assertEqual(tuple(self.data), tuple(data))
+        self.assertEqual(self.data, tuple(data))
 
     def test_flavor_list_all_flavors(self):
         arglist = [
@@ -487,16 +545,14 @@ class TestFlavorList(TestFlavor):
         # Set expected values
         kwargs = {
             'is_public': None,
-            'limit': None,
-            'marker': None
         }
 
-        self.flavors_mock.list.assert_called_with(
+        self.sdk_client.flavors.assert_called_with(
             **kwargs
         )
 
         self.assertEqual(self.columns, columns)
-        self.assertEqual(tuple(self.data), tuple(data))
+        self.assertEqual(self.data, tuple(data))
 
     def test_flavor_list_private_flavors(self):
         arglist = [
@@ -516,16 +572,14 @@ class TestFlavorList(TestFlavor):
         # Set expected values
         kwargs = {
             'is_public': False,
-            'limit': None,
-            'marker': None
         }
 
-        self.flavors_mock.list.assert_called_with(
+        self.sdk_client.flavors.assert_called_with(
             **kwargs
         )
 
         self.assertEqual(self.columns, columns)
-        self.assertEqual(tuple(self.data), tuple(data))
+        self.assertEqual(self.data, tuple(data))
 
     def test_flavor_list_public_flavors(self):
         arglist = [
@@ -545,16 +599,14 @@ class TestFlavorList(TestFlavor):
         # Set expected values
         kwargs = {
             'is_public': True,
-            'limit': None,
-            'marker': None
         }
 
-        self.flavors_mock.list.assert_called_with(
+        self.sdk_client.flavors.assert_called_with(
             **kwargs
         )
 
         self.assertEqual(self.columns, columns)
-        self.assertEqual(tuple(self.data), tuple(data))
+        self.assertEqual(self.data, tuple(data))
 
     def test_flavor_list_long(self):
         arglist = [
@@ -574,11 +626,9 @@ class TestFlavorList(TestFlavor):
         # Set expected values
         kwargs = {
             'is_public': True,
-            'limit': None,
-            'marker': None
         }
 
-        self.flavors_mock.list.assert_called_with(
+        self.sdk_client.flavors.assert_called_with(
             **kwargs
         )
 
@@ -588,7 +638,7 @@ class TestFlavorList(TestFlavor):
 
 class TestFlavorSet(TestFlavor):
 
-    # Return value of self.flavors_mock.find().
+    # Return value of self.sdk_client.find_flavor().
     flavor = compute_fakes.FakeFlavor.create_one_flavor(
         attrs={'os-flavor-access:is_public': False})
     project = identity_fakes.FakeProject.create_one_project()
@@ -596,8 +646,7 @@ class TestFlavorSet(TestFlavor):
     def setUp(self):
         super(TestFlavorSet, self).setUp()
 
-        self.flavors_mock.find.return_value = self.flavor
-        self.flavors_mock.get.side_effect = exceptions.NotFound(None)
+        self.sdk_client.find_flavor.return_value = self.flavor
         # Return a project
         self.projects_mock.get.return_value = self.project
         self.cmd = flavor.SetFlavor(self.app, None)
@@ -614,9 +663,14 @@ class TestFlavorSet(TestFlavor):
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
         result = self.cmd.take_action(parsed_args)
-        self.flavors_mock.find.assert_called_with(name=parsed_args.flavor,
-                                                  is_public=None)
-        self.flavor.set_keys.assert_called_with({'FOO': '"B A R"'})
+        self.sdk_client.find_flavor.assert_called_with(
+            parsed_args.flavor,
+            get_extra_specs=True,
+            ignore_missing=False
+        )
+        self.sdk_client.create_flavor_extra_specs.assert_called_with(
+            self.flavor.id,
+            {'FOO': '"B A R"'})
         self.assertIsNone(result)
 
     def test_flavor_set_no_property(self):
@@ -631,9 +685,13 @@ class TestFlavorSet(TestFlavor):
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
         result = self.cmd.take_action(parsed_args)
-        self.flavors_mock.find.assert_called_with(name=parsed_args.flavor,
-                                                  is_public=None)
-        self.flavor.unset_keys.assert_called_with(['property'])
+        self.sdk_client.find_flavor.assert_called_with(
+            parsed_args.flavor,
+            get_extra_specs=True,
+            ignore_missing=False
+        )
+        self.sdk_client.delete_flavor_extra_specs_property.assert_called_with(
+            self.flavor.id, 'property')
         self.assertIsNone(result)
 
     def test_flavor_set_project(self):
@@ -649,13 +707,16 @@ class TestFlavorSet(TestFlavor):
 
         result = self.cmd.take_action(parsed_args)
 
-        self.flavors_mock.find.assert_called_with(name=parsed_args.flavor,
-                                                  is_public=None)
-        self.flavor_access_mock.add_tenant_access.assert_called_with(
+        self.sdk_client.find_flavor.assert_called_with(
+            parsed_args.flavor,
+            get_extra_specs=True,
+            ignore_missing=False
+        )
+        self.sdk_client.flavor_add_tenant_access.assert_called_with(
             self.flavor.id,
             self.project.id,
         )
-        self.flavor.set_keys.assert_not_called()
+        self.sdk_client.create_flavor_extra_specs.assert_not_called()
         self.assertIsNone(result)
 
     def test_flavor_set_no_project(self):
@@ -681,8 +742,9 @@ class TestFlavorSet(TestFlavor):
                           self.cmd, arglist, verifylist)
 
     def test_flavor_set_with_unexist_flavor(self):
-        self.flavors_mock.get.side_effect = exceptions.NotFound(None)
-        self.flavors_mock.find.side_effect = exceptions.NotFound(None)
+        self.sdk_client.find_flavor.side_effect = [
+            sdk_exceptions.ResourceNotFound()
+        ]
 
         arglist = [
             '--project', self.project.id,
@@ -708,9 +770,12 @@ class TestFlavorSet(TestFlavor):
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
         result = self.cmd.take_action(parsed_args)
 
-        self.flavors_mock.find.assert_called_with(name=parsed_args.flavor,
-                                                  is_public=None)
-        self.flavor_access_mock.add_tenant_access.assert_not_called()
+        self.sdk_client.find_flavor.assert_called_with(
+            parsed_args.flavor,
+            get_extra_specs=True,
+            ignore_missing=False
+        )
+        self.sdk_client.flavor_add_tenant_access.assert_not_called()
         self.assertIsNone(result)
 
     def test_flavor_set_description_api_newer(self):
@@ -724,11 +789,11 @@ class TestFlavorSet(TestFlavor):
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
         self.app.client_manager.compute.api_version = 2.55
-        with mock.patch.object(novaclient.api_versions,
-                               'APIVersion',
-                               return_value=2.55):
+        with mock.patch.object(sdk_utils,
+                               'supports_microversion',
+                               return_value=True):
             result = self.cmd.take_action(parsed_args)
-            self.flavors_mock.update.assert_called_with(
+            self.sdk_client.update_flavor.assert_called_with(
                 flavor=self.flavor.id, description='description')
             self.assertIsNone(result)
 
@@ -743,9 +808,9 @@ class TestFlavorSet(TestFlavor):
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
         self.app.client_manager.compute.api_version = 2.54
-        with mock.patch.object(novaclient.api_versions,
-                               'APIVersion',
-                               return_value=2.55):
+        with mock.patch.object(sdk_utils,
+                               'supports_microversion',
+                               return_value=False):
             self.assertRaises(exceptions.CommandError, self.cmd.take_action,
                               parsed_args)
 
@@ -760,11 +825,12 @@ class TestFlavorSet(TestFlavor):
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
         self.app.client_manager.compute.api_version = 2.55
-        with mock.patch.object(novaclient.api_versions,
-                               'APIVersion',
-                               return_value=2.55):
+
+        with mock.patch.object(sdk_utils,
+                               'supports_microversion',
+                               return_value=True):
             result = self.cmd.take_action(parsed_args)
-            self.flavors_mock.update.assert_called_with(
+            self.sdk_client.update_flavor.assert_called_with(
                 flavor=self.flavor.id, description='description')
             self.assertIsNone(result)
 
@@ -779,16 +845,17 @@ class TestFlavorSet(TestFlavor):
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
         self.app.client_manager.compute.api_version = 2.54
-        with mock.patch.object(novaclient.api_versions,
-                               'APIVersion',
-                               return_value=2.55):
+
+        with mock.patch.object(sdk_utils,
+                               'supports_microversion',
+                               return_value=False):
             self.assertRaises(exceptions.CommandError, self.cmd.take_action,
                               parsed_args)
 
 
 class TestFlavorShow(TestFlavor):
 
-    # Return value of self.flavors_mock.find().
+    # Return value of self.sdk_client.find_flavor().
     flavor_access = compute_fakes.FakeFlavorAccess.create_one_flavor_access()
     flavor = compute_fakes.FakeFlavor.create_one_flavor()
 
@@ -805,11 +872,11 @@ class TestFlavorShow(TestFlavor):
         'ram',
         'rxtx_factor',
         'swap',
-        'vcpus',
+        'vcpus'
     )
 
     data = (
-        flavor.disabled,
+        flavor.is_disabled,
         flavor.ephemeral,
         None,
         flavor.description,
@@ -817,7 +884,7 @@ class TestFlavorShow(TestFlavor):
         flavor.id,
         flavor.name,
         flavor.is_public,
-        format_columns.DictColumn(flavor.get_keys()),
+        format_columns.DictColumn(flavor.extra_specs),
         flavor.ram,
         flavor.rxtx_factor,
         flavor.swap,
@@ -828,9 +895,8 @@ class TestFlavorShow(TestFlavor):
         super(TestFlavorShow, self).setUp()
 
         # Return value of _find_resource()
-        self.flavors_mock.find.return_value = self.flavor
-        self.flavors_mock.get.side_effect = exceptions.NotFound(None)
-        self.flavor_access_mock.list.return_value = [self.flavor_access]
+        self.sdk_client.find_flavor.return_value = self.flavor
+        self.sdk_client.get_flavor_access.return_value = [self.flavor_access]
         self.cmd = flavor.ShowFlavor(self.app, None)
 
     def test_show_no_options(self):
@@ -862,7 +928,7 @@ class TestFlavorShow(TestFlavor):
                 'os-flavor-access:is_public': False,
             }
         )
-        self.flavors_mock.find.return_value = private_flavor
+        self.sdk_client.find_flavor.return_value = private_flavor
 
         arglist = [
             private_flavor.name,
@@ -872,7 +938,7 @@ class TestFlavorShow(TestFlavor):
         ]
 
         data_with_project = (
-            private_flavor.disabled,
+            private_flavor.is_disabled,
             private_flavor.ephemeral,
             [self.flavor_access.tenant_id],
             private_flavor.description,
@@ -880,7 +946,7 @@ class TestFlavorShow(TestFlavor):
             private_flavor.id,
             private_flavor.name,
             private_flavor.is_public,
-            format_columns.DictColumn(private_flavor.get_keys()),
+            format_columns.DictColumn(private_flavor.extra_specs),
             private_flavor.ram,
             private_flavor.rxtx_factor,
             private_flavor.swap,
@@ -891,7 +957,7 @@ class TestFlavorShow(TestFlavor):
 
         columns, data = self.cmd.take_action(parsed_args)
 
-        self.flavor_access_mock.list.assert_called_with(
+        self.sdk_client.get_flavor_access.assert_called_with(
             flavor=private_flavor.id)
         self.assertEqual(self.columns, columns)
         self.assertItemEqual(data_with_project, data)
@@ -899,7 +965,7 @@ class TestFlavorShow(TestFlavor):
 
 class TestFlavorUnset(TestFlavor):
 
-    # Return value of self.flavors_mock.find().
+    # Return value of self.sdk_client.find_flavor().
     flavor = compute_fakes.FakeFlavor.create_one_flavor(
         attrs={'os-flavor-access:is_public': False})
     project = identity_fakes.FakeProject.create_one_project()
@@ -907,11 +973,12 @@ class TestFlavorUnset(TestFlavor):
     def setUp(self):
         super(TestFlavorUnset, self).setUp()
 
-        self.flavors_mock.find.return_value = self.flavor
-        self.flavors_mock.get.side_effect = exceptions.NotFound(None)
+        self.sdk_client.find_flavor.return_value = self.flavor
         # Return a project
         self.projects_mock.get.return_value = self.project
         self.cmd = flavor.UnsetFlavor(self.app, None)
+
+        self.mock_shortcut = self.sdk_client.delete_flavor_extra_specs_property
 
     def test_flavor_unset_property(self):
         arglist = [
@@ -925,11 +992,48 @@ class TestFlavorUnset(TestFlavor):
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
         result = self.cmd.take_action(parsed_args)
-        self.flavors_mock.find.assert_called_with(name=parsed_args.flavor,
-                                                  is_public=None)
-        self.flavor.unset_keys.assert_called_with(['property'])
-        self.flavor_access_mock.remove_tenant_access.assert_not_called()
+        self.sdk_client.find_flavor.assert_called_with(
+            parsed_args.flavor,
+            get_extra_specs=True,
+            ignore_missing=False)
+        self.mock_shortcut.assert_called_with(
+            self.flavor.id, 'property')
+        self.sdk_client.flavor_remove_tenant_access.assert_not_called()
         self.assertIsNone(result)
+
+    def test_flavor_unset_properties(self):
+        arglist = [
+            '--property', 'property1',
+            '--property', 'property2',
+            'baremetal'
+        ]
+        verifylist = [
+            ('property', ['property1', 'property2']),
+            ('flavor', 'baremetal'),
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        self.cmd.take_action(parsed_args)
+        self.sdk_client.find_flavor.assert_called_with(
+            parsed_args.flavor,
+            get_extra_specs=True,
+            ignore_missing=False)
+        calls = [
+            mock.call(self.flavor.id, 'property1'),
+            mock.call(self.flavor.id, 'property2')
+        ]
+        self.mock_shortcut.assert_has_calls(
+            calls)
+
+        # A bit tricky way to ensure we do not unset other properties
+        calls.append(mock.call(self.flavor.id, 'property'))
+        self.assertRaises(
+            AssertionError,
+            self.mock_shortcut.assert_has_calls,
+            calls
+        )
+
+        self.sdk_client.flavor_remove_tenant_access.assert_not_called()
 
     def test_flavor_unset_project(self):
         arglist = [
@@ -945,13 +1049,14 @@ class TestFlavorUnset(TestFlavor):
         result = self.cmd.take_action(parsed_args)
         self.assertIsNone(result)
 
-        self.flavors_mock.find.assert_called_with(name=parsed_args.flavor,
-                                                  is_public=None)
-        self.flavor_access_mock.remove_tenant_access.assert_called_with(
+        self.sdk_client.find_flavor.assert_called_with(
+            parsed_args.flavor, get_extra_specs=True,
+            ignore_missing=False)
+        self.sdk_client.flavor_remove_tenant_access.assert_called_with(
             self.flavor.id,
             self.project.id,
         )
-        self.flavor.unset_keys.assert_not_called()
+        self.sdk_client.delete_flavor_extra_specs_proerty.assert_not_called()
         self.assertIsNone(result)
 
     def test_flavor_unset_no_project(self):
@@ -977,8 +1082,9 @@ class TestFlavorUnset(TestFlavor):
                           self.cmd, arglist, verifylist)
 
     def test_flavor_unset_with_unexist_flavor(self):
-        self.flavors_mock.get.side_effect = exceptions.NotFound(None)
-        self.flavors_mock.find.side_effect = exceptions.NotFound(None)
+        self.sdk_client.find_flavor.side_effect = [
+            sdk_exceptions.ResourceNotFound
+        ]
 
         arglist = [
             '--project', self.project.id,
@@ -1004,4 +1110,4 @@ class TestFlavorUnset(TestFlavor):
         result = self.cmd.take_action(parsed_args)
         self.assertIsNone(result)
 
-        self.flavor_access_mock.remove_tenant_access.assert_not_called()
+        self.sdk_client.flavor_remove_tenant_access.assert_not_called()
