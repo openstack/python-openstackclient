@@ -30,6 +30,7 @@ from osc_lib.command import command
 from osc_lib import exceptions
 from osc_lib import utils
 
+from openstackclient.common import progressbar
 from openstackclient.common import sdk_utils
 from openstackclient.i18n import _
 from openstackclient.identity import common
@@ -256,6 +257,12 @@ class CreateImage(command.ShowOne):
                    "(only meaningful with --volume)"),
         )
         parser.add_argument(
+            "--progress",
+            action="store_true",
+            default=False,
+            help=_("Show upload progress bar."),
+        )
+        parser.add_argument(
             '--sign-key-path',
             metavar="<sign-key-path>",
             default=[],
@@ -412,6 +419,11 @@ class CreateImage(command.ShowOne):
         if fp is None and parsed_args.file:
             LOG.warning(_("Failed to get an image file."))
             return {}, {}
+        if fp is not None and parsed_args.progress:
+            filesize = os.path.getsize(fname)
+            if filesize is not None:
+                kwargs['validate_checksum'] = False
+                kwargs['data'] = progressbar.VerboseFileWrapper(fp, filesize)
         elif fname:
             kwargs['filename'] = fname
         elif fp:

@@ -1,0 +1,5 @@
+---
+features:
+  - |
+    Add ``--progress`` option to ``image create`` command to enable a progress
+    bar when creating and uploading an image.
