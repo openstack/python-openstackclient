@@ -199,7 +199,6 @@ Example
 
     import copy
     import fixtures
-    import mock
     import os
 
     from osc_lib.api import auth
@@ -208,4 +207,5 @@ Example
 
     from openstackclient import shell
     from openstackclient.tests import utils
+    from unittest import mock
 
