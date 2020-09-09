@@ -44,19 +44,18 @@ class ShowConsoleLog(command.Command):
         return parser
 
     def take_action(self, parsed_args):
-        compute_client = self.app.client_manager.compute
+        compute_client = self.app.client_manager.sdk_connection.compute
 
-        server = utils.find_resource(
-            compute_client.servers,
-            parsed_args.server,
+        server = compute_client.find_server(
+            name_or_id=parsed_args.server,
+            ignore_missing=False
         )
-        length = parsed_args.lines
-        if length:
-            # NOTE(dtroyer): get_console_output() appears to shortchange the
-            #                output by one line
-            length += 1
 
-        data = server.get_console_output(length=length)
+        output = compute_client.get_server_console_output(
+            server.id, length=parsed_args.lines)
+        data = None
+        if output:
+            data = output.get('output', None)
 
         if data and data[-1] != '\n':
             data += '\n'
