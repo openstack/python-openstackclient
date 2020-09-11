@@ -22,6 +22,15 @@ from osc_lib import utils
 from openstackclient.i18n import _
 
 
+def _get_console_columns(item):
+    # To maintain backwards compatibility we need to rename sdk props to
+    # whatever OSC was using before
+    column_map = {}
+    hidden_columns = ['id', 'links', 'location', 'name']
+    return utils.get_osc_show_columns_for_sdk_resource(
+        item, column_map, hidden_columns)
+
+
 class ShowConsoleLog(command.Command):
     _description = _("Show server's console output")
 
@@ -119,21 +128,15 @@ class ShowConsoleURL(command.ShowOne):
         return parser
 
     def take_action(self, parsed_args):
-        compute_client = self.app.client_manager.compute
-        server = utils.find_resource(
-            compute_client.servers,
+        compute_client = self.app.client_manager.sdk_connection.compute
+        server = compute_client.find_server(
             parsed_args.server,
-        )
+            ignore_missing=False)
 
-        data = server.get_console_url(parsed_args.url_type)
-        if not data:
-            return ({}, {})
+        data = compute_client.create_console(server.id,
+                                             console_type=parsed_args.url_type)
 
-        info = {}
-        # NOTE(Rui Chen): Return 'remote_console' in compute microversion API
-        #                 2.6 and later, return 'console' in compute
-        #                 microversion API from 2.0 to 2.5, do compatibility
-        #                 handle for different microversion API.
-        console_data = data.get('remote_console', data.get('console'))
-        info.update(console_data)
-        return zip(*sorted(info.items()))
+        display_columns, columns = _get_console_columns(data)
+        data = utils.get_dict_properties(data, columns)
+
+        return (display_columns, data)

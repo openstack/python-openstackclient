@@ -5,7 +5,7 @@ asn1crypto==0.23.0
 bandit==1.1.0
 cachetools==2.0.0
 cffi==1.14.0
-cliff==2.8.0
+cliff==3.4.0
 cmd2==0.8.0
 contextlib2==0.4.0
 coverage==4.0
@@ -48,7 +48,7 @@ netifaces==0.10.4
 openstacksdk==0.48.0
 os-service-types==1.7.0
 os-testr==1.0.0
-osc-lib==2.0.0
+osc-lib==2.2.0
 osc-placement==1.7.0
 oslo.concurrency==3.26.0
 oslo.config==5.2.0
