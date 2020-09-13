@@ -91,6 +91,7 @@
         neutron-segments: true
         q-metering: true
         q-qos: true
+        neutron-tag-ports-during-bulk-creation: true
       tox_envlist: functional
 
 - job:
