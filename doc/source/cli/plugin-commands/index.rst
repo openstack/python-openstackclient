@@ -8,6 +8,7 @@ Plugin Commands
    :maxdepth: 1
 
    barbican
+   cyborg
    designate
    gnocchi
    heat
