@@ -665,7 +665,7 @@ class ListPort(command.Lister):
 
         _tag.get_tag_filtering_args(parsed_args, filters)
 
-        data = network_client.ports(**filters)
+        data = network_client.ports(fields=columns, **filters)
 
         headers, attrs = utils.calculate_header_and_attrs(
             column_headers, columns, parsed_args)
