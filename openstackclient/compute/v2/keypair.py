@@ -166,7 +166,8 @@ class ListKeypair(command.Lister):
 
     def get_parser(self, prog_name):
         parser = super().get_parser(prog_name)
-        parser.add_argument(
+        user_group = parser.add_mutually_exclusive_group()
+        user_group.add_argument(
             '--user',
             metavar='<user>',
             help=_(
@@ -175,15 +176,44 @@ class ListKeypair(command.Lister):
             ),
         )
         identity_common.add_user_domain_option_to_parser(parser)
+        user_group.add_argument(
+            '--project',
+            metavar='<project>',
+            help=_(
+                'Show keypairs for all users associated with project '
+                '(admin only) (name or ID). '
+                'Requires ``--os-compute-api-version`` 2.10 or greater.'
+            ),
+        )
+        identity_common.add_project_domain_option_to_parser(parser)
         return parser
 
     def take_action(self, parsed_args):
         compute_client = self.app.client_manager.compute
         identity_client = self.app.client_manager.identity
 
-        kwargs = {}
+        if parsed_args.project:
+            if compute_client.api_version < api_versions.APIVersion('2.10'):
+                msg = _(
+                    '--os-compute-api-version 2.10 or greater is required to '
+                    'support the --project option'
+                )
+                raise exceptions.CommandError(msg)
 
-        if parsed_args.user:
+            # NOTE(stephenfin): This is done client side because nova doesn't
+            # currently support doing so server-side. If this is slow, we can
+            # think about spinning up a threadpool or similar.
+            project = identity_common.find_project(
+                identity_client,
+                parsed_args.project,
+                parsed_args.project_domain,
+            ).id
+            users = identity_client.users.list(tenant_id=project)
+
+            data = []
+            for user in users:
+                data.extend(compute_client.keypairs.list(user_id=user.id))
+        elif parsed_args.user:
             if compute_client.api_version < api_versions.APIVersion('2.10'):
                 msg = _(
                     '--os-compute-api-version 2.10 or greater is required to '
@@ -191,13 +221,15 @@ class ListKeypair(command.Lister):
                 )
                 raise exceptions.CommandError(msg)
 
-            kwargs['user_id'] = identity_common.find_user(
+            user = identity_common.find_user(
                 identity_client,
                 parsed_args.user,
                 parsed_args.user_domain,
-            ).id
+            )
 
-        data = compute_client.keypairs.list(**kwargs)
+            data = compute_client.keypairs.list(user_id=user.id)
+        else:
+            data = compute_client.keypairs.list()
 
         columns = (
             "Name",

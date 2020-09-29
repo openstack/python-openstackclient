@@ -310,14 +310,6 @@ class TestKeypairList(TestKeypair):
     def setUp(self):
         super(TestKeypairList, self).setUp()
 
-        self.users_mock = self.app.client_manager.identity.users
-        self.users_mock.reset_mock()
-        self.users_mock.get.return_value = fakes.FakeResource(
-            None,
-            copy.deepcopy(identity_fakes.USER),
-            loaded=True,
-        )
-
         self.keypairs_mock.list.return_value = self.keypairs
 
         # Get the command object to test
@@ -378,6 +370,14 @@ class TestKeypairList(TestKeypair):
         self.app.client_manager.compute.api_version = \
             api_versions.APIVersion('2.10')
 
+        users_mock = self.app.client_manager.identity.users
+        users_mock.reset_mock()
+        users_mock.get.return_value = fakes.FakeResource(
+            None,
+            copy.deepcopy(identity_fakes.USER),
+            loaded=True,
+        )
+
         arglist = [
             '--user', identity_fakes.user_name,
         ]
@@ -388,7 +388,7 @@ class TestKeypairList(TestKeypair):
 
         columns, data = self.cmd.take_action(parsed_args)
 
-        self.users_mock.get.assert_called_with(identity_fakes.user_name)
+        users_mock.get.assert_called_with(identity_fakes.user_name)
         self.keypairs_mock.list.assert_called_with(
             user_id=identity_fakes.user_id,
         )
@@ -422,6 +422,83 @@ class TestKeypairList(TestKeypair):
             parsed_args)
         self.assertIn(
             '--os-compute-api-version 2.10 or greater is required', str(ex))
+
+    def test_keypair_list_with_project(self):
+
+        # Filtering by user is support for nova api 2.10 or above
+        self.app.client_manager.compute.api_version = \
+            api_versions.APIVersion('2.10')
+
+        projects_mock = self.app.client_manager.identity.tenants
+        projects_mock.reset_mock()
+        projects_mock.get.return_value = fakes.FakeResource(
+            None,
+            copy.deepcopy(identity_fakes.PROJECT),
+            loaded=True,
+        )
+
+        users_mock = self.app.client_manager.identity.users
+        users_mock.reset_mock()
+        users_mock.list.return_value = [
+            fakes.FakeResource(
+                None,
+                copy.deepcopy(identity_fakes.USER),
+                loaded=True,
+            ),
+        ]
+
+        arglist = ['--project', identity_fakes.project_name]
+        verifylist = [('project', identity_fakes.project_name)]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        columns, data = self.cmd.take_action(parsed_args)
+
+        projects_mock.get.assert_called_with(identity_fakes.project_name)
+        users_mock.list.assert_called_with(tenant_id=identity_fakes.project_id)
+        self.keypairs_mock.list.assert_called_with(
+            user_id=identity_fakes.user_id,
+        )
+
+        self.assertEqual(('Name', 'Fingerprint', 'Type'), columns)
+        self.assertEqual(
+            ((
+                self.keypairs[0].name,
+                self.keypairs[0].fingerprint,
+                self.keypairs[0].type,
+            ), ),
+            tuple(data)
+        )
+
+    def test_keypair_list_with_project_pre_v210(self):
+
+        self.app.client_manager.compute.api_version = \
+            api_versions.APIVersion('2.9')
+
+        arglist = ['--project', identity_fakes.project_name]
+        verifylist = [('project', identity_fakes.project_name)]
+
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+        ex = self.assertRaises(
+            exceptions.CommandError,
+            self.cmd.take_action,
+            parsed_args)
+        self.assertIn(
+            '--os-compute-api-version 2.10 or greater is required', str(ex))
+
+    def test_keypair_list_conflicting_user_options(self):
+
+        # Filtering by user is support for nova api 2.10 or above
+        self.app.client_manager.compute.api_version = \
+            api_versions.APIVersion('2.10')
+
+        arglist = [
+            '--user', identity_fakes.user_name,
+            '--project', identity_fakes.project_name,
+        ]
+
+        self.assertRaises(
+            tests_utils.ParserException,
+            self.check_parser, self.cmd, arglist, None)
 
 
 class TestKeypairShow(TestKeypair):
