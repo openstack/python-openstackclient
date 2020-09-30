@@ -16,6 +16,7 @@ import uuid
 
 from tempest.lib import exceptions
 
+from openstackclient.compute.v2 import server as v2_server
 from openstackclient.tests.functional.compute.v2 import common
 from openstackclient.tests.functional.volume.v2 import common as volume_common
 
@@ -509,6 +510,20 @@ class ServerTests(common.ComputeTestCase):
             server['name'],
         )
 
+        # check that image indicates server "booted from volume"
+        self.assertEqual(
+            v2_server.IMAGE_STRING_FOR_BFV,
+            server['image'],
+        )
+        # check server list too
+        servers = json.loads(self.openstack(
+            'server list -f json'
+        ))
+        self.assertEqual(
+            v2_server.IMAGE_STRING_FOR_BFV,
+            servers[0]['Image']
+        )
+
         # check volumes
         cmd_output = json.loads(self.openstack(
             'volume show -f json ' +
@@ -781,8 +796,8 @@ class ServerTests(common.ComputeTestCase):
             self.addCleanup(self.openstack, 'volume delete ' + vol['id'])
 
         # Since the server is volume-backed the GET /servers/{server_id}
-        # response will have image=''.
-        self.assertEqual('', cmd_output['image'])
+        # response will have image='N/A (booted from volume)'.
+        self.assertEqual(v2_server.IMAGE_STRING_FOR_BFV, cmd_output['image'])
 
         # check the volume that attached on server
         cmd_output = json.loads(self.openstack(

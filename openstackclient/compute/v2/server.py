@@ -39,6 +39,8 @@ from openstackclient.network import common as network_common
 
 LOG = logging.getLogger(__name__)
 
+IMAGE_STRING_FOR_BFV = 'N/A (booted from volume)'
+
 
 def _format_servers_list_networks(networks):
     """Return a formatted string of a server's networks
@@ -148,6 +150,12 @@ def _prep_server_detail(compute_client, image_client, server, refresh=True):
             info['image'] = "%s (%s)" % (image.name, image_id)
         except Exception:
             info['image'] = image_id
+    else:
+        # NOTE(melwitt): An server booted from a volume will have no image
+        # associated with it. We fill in the image with "N/A (booted from
+        # volume)" to help users who want to be able to grep for
+        # boot-from-volume servers when using the CLI.
+        info['image'] = IMAGE_STRING_FOR_BFV
 
     # Convert the flavor blob to a name
     flavor_info = info.get('flavor', {})
@@ -1526,8 +1534,12 @@ class ListServer(command.Lister):
                     s.image_name = image.name
                 s.image_id = s.image['id']
             else:
-                s.image_name = ''
-                s.image_id = ''
+                # NOTE(melwitt): An server booted from a volume will have no
+                # image associated with it. We fill in the Image Name and ID
+                # with "N/A (booted from volume)" to help users who want to be
+                # able to grep for boot-from-volume servers when using the CLI.
+                s.image_name = IMAGE_STRING_FOR_BFV
+                s.image_id = IMAGE_STRING_FOR_BFV
             if 'id' in s.flavor:
                 flavor = flavors.get(s.flavor['id'])
                 if flavor:

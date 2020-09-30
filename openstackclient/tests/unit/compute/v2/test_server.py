@@ -2609,7 +2609,7 @@ class TestServerList(TestServer):
                 s.status,
                 server._format_servers_list_networks(s.networks),
                 # Image will be an empty string if boot-from-volume
-                self.image.name if s.image else s.image,
+                self.image.name if s.image else server.IMAGE_STRING_FOR_BFV,
                 self.flavor.name,
             ))
             self.data_long.append((
@@ -2622,8 +2622,8 @@ class TestServerList(TestServer):
                 ),
                 server._format_servers_list_networks(s.networks),
                 # Image will be an empty string if boot-from-volume
-                self.image.name if s.image else s.image,
-                s.image['id'] if s.image else s.image,
+                self.image.name if s.image else server.IMAGE_STRING_FOR_BFV,
+                s.image['id'] if s.image else server.IMAGE_STRING_FOR_BFV,
                 self.flavor.name,
                 s.flavor['id'],
                 getattr(s, 'OS-EXT-AZ:availability_zone'),
@@ -2636,7 +2636,7 @@ class TestServerList(TestServer):
                 s.status,
                 server._format_servers_list_networks(s.networks),
                 # Image will be an empty string if boot-from-volume
-                s.image['id'] if s.image else s.image,
+                s.image['id'] if s.image else server.IMAGE_STRING_FOR_BFV,
                 s.flavor['id']
             ))
 
