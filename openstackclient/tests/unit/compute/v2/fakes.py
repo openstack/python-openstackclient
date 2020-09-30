@@ -1244,7 +1244,7 @@ class FakeServerGroup(object):
     """Fake one server group"""
 
     @staticmethod
-    def create_one_server_group(attrs=None):
+    def _create_one_server_group(attrs=None):
         """Create a fake server group
 
         :param Dictionary attrs:
@@ -1261,7 +1261,6 @@ class FakeServerGroup(object):
             'members': [],
             'metadata': {},
             'name': 'server-group-name-' + uuid.uuid4().hex,
-            'policies': [],
             'project_id': 'server-group-project-id-' + uuid.uuid4().hex,
             'user_id': 'server-group-user-id-' + uuid.uuid4().hex,
         }
@@ -1273,6 +1272,38 @@ class FakeServerGroup(object):
             info=copy.deepcopy(server_group_info),
             loaded=True)
         return server_group
+
+    @staticmethod
+    def create_one_server_group(attrs=None):
+        """Create a fake server group
+
+        :param Dictionary attrs:
+            A dictionary with all attributes
+        :return:
+            A FakeResource object, with id and other attributes
+        """
+        if attrs is None:
+            attrs = {}
+        attrs.setdefault('policies', ['policy1', 'policy2'])
+        return FakeServerGroup._create_one_server_group(attrs)
+
+
+class FakeServerGroupV264(object):
+    """Fake one server group fo API >= 2.64"""
+
+    @staticmethod
+    def create_one_server_group(attrs=None):
+        """Create a fake server group
+
+        :param Dictionary attrs:
+            A dictionary with all attributes
+        :return:
+            A FakeResource object, with id and other attributes
+        """
+        if attrs is None:
+            attrs = {}
+        attrs.setdefault('policy', 'policy1')
+        return FakeServerGroup._create_one_server_group(attrs)
 
 
 class FakeUsage(object):

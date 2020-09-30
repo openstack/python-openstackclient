@@ -17,6 +17,7 @@
 
 import logging
 
+from novaclient import api_versions
 from osc_lib.command import command
 from osc_lib import exceptions
 from osc_lib import utils
@@ -136,11 +137,15 @@ class ListServerGroup(command.Lister):
         compute_client = self.app.client_manager.compute
         data = compute_client.server_groups.list(parsed_args.all_projects)
 
+        policy_key = 'Policies'
+        if compute_client.api_version >= api_versions.APIVersion("2.64"):
+            policy_key = 'Policy'
+
         if parsed_args.long:
             column_headers = columns = (
                 'ID',
                 'Name',
-                'Policies',
+                policy_key,
                 'Members',
                 'Project Id',
                 'User Id',
@@ -149,7 +154,7 @@ class ListServerGroup(command.Lister):
             column_headers = columns = (
                 'ID',
                 'Name',
-                'Policies',
+                policy_key,
             )
 
         return (column_headers,
