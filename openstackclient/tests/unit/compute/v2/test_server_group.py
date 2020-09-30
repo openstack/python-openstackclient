@@ -108,6 +108,28 @@ class TestServerGroupCreate(TestServerGroup):
         self.assertEqual(self.columns, columns)
         self.assertEqual(self.data, data)
 
+    def test_server_group_create_v264(self):
+        self.app.client_manager.compute.api_version = api_versions.APIVersion(
+            '2.64')
+
+        arglist = [
+            '--policy', 'soft-anti-affinity',
+            'affinity_group',
+        ]
+        verifylist = [
+            ('policy', 'soft-anti-affinity'),
+            ('name', 'affinity_group'),
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+        columns, data = self.cmd.take_action(parsed_args)
+        self.server_groups_mock.create.assert_called_once_with(
+            name=parsed_args.name,
+            policy=parsed_args.policy,
+        )
+
+        self.assertEqual(self.columns, columns)
+        self.assertEqual(self.data, data)
+
 
 class TestServerGroupDelete(TestServerGroup):
 
