@@ -74,7 +74,8 @@ Configuration
 =============
 
 The CLI is configured via environment variables and command-line
-options as listed in  https://docs.openstack.org/python-openstackclient/latest/cli/authentication.html.
+options as listed in * `here`_ 
+.. here :https://docs.openstack.org/python-openstackclient/latest/cli/authentication.html.
 
 Authentication using username/password is most commonly used::
 
