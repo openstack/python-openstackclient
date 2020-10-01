@@ -59,13 +59,13 @@ To run the full suite of tests maintained within OpenStackClient.
     virtualenvs. You can later use the ``-r`` option with ``tox`` to rebuild
     your virtualenv in a similar manner.
 
-
-To run tests for one or more specific test environments(for example, the most common configuration of
-Python 2.7 and PEP-8), list the environments with the ``-e`` option, separated by spaces:
+To run tests for one or more specific test environments(for example, the most
+common configuration of the latest Python version and PEP-8), list the
+environments with the ``-e`` option, separated by spaces:
 
 .. code-block:: bash
 
-    $ tox -e py27,pep8
+    $ tox -e py38,pep8
 
 See ``tox.ini`` for the full list of available test environments.
 
@@ -96,9 +96,9 @@ Using PDB breakpoints with ``tox`` and ``testr`` normally does not work since
 the tests fail with a `BdbQuit` exception rather than stopping at the
 breakpoint.
 
-To run with PDB breakpoints during testing, use the `debug` ``tox`` environment
-rather than ``py27``. For example, passing a test name since you will normally
-only want to run the test that hits your breakpoint:
+To run with PDB breakpoints during testing, use the ``debug`` ``tox``
+environment. For example, passing a test name since you will normally only want
+to run the test that hits your breakpoint:
 
 .. code-block:: bash
 
@@ -207,4 +207,3 @@ Example
     from openstackclient import shell
     from openstackclient.tests import utils
     from unittest import mock
-

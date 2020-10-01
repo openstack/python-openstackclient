@@ -7,6 +7,7 @@ OpenStack Style Commandments
 
 General
 -------
+
 - thou shalt not violate causality in our time cone, or else
 
 Docstrings
@@ -85,23 +86,3 @@ commandline arguments, etc.) should be presumed to be encoded as utf-8.
     returntext = do_some_magic_with(mytext)
     returnstring = returntext.encode('utf-8')
     outfile.write(returnstring)
-
-Python 3.x Compatibility
-------------------------
-
-OpenStackClient strives to be Python 3.3 compatible.  Common guidelines:
-
-* Convert print statements to functions: print statements should be converted
-  to an appropriate log or other output mechanism.
-* Prefer to x.items() over six.iteritems(x).
-
-Running Tests
--------------
-
-Note: Oh boy, are we behind on writing tests.  But they are coming!
-
-The testing system is based on a combination of tox and testr. If you just
-want to run the whole suite, run `tox` and all will be fine. However, if
-you'd like to dig in a bit more, you might want to learn some things about
-testr itself. A basic walkthrough for OpenStack can be found at
-http://wiki.openstack.org/testr
