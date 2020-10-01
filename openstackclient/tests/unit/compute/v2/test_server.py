@@ -2048,6 +2048,65 @@ class TestServerCreate(TestServer):
                           self.cmd.take_action,
                           parsed_args)
 
+    def test_server_create_image_property_with_image_list(self):
+        arglist = [
+            '--image-property',
+            'owner_specified.openstack.object=image/cirros',
+            '--flavor', 'flavor1',
+            '--nic', 'none',
+            self.new_server.name,
+        ]
+
+        verifylist = [
+            ('image_property',
+                {'owner_specified.openstack.object': 'image/cirros'}),
+            ('flavor', 'flavor1'),
+            ('nic', ['none']),
+            ('server_name', self.new_server.name),
+        ]
+        # create a image_info as the side_effect of the fake image_list()
+        image_info = {
+            'properties': {
+                'owner_specified.openstack.object': 'image/cirros'
+            }
+        }
+
+        target_image = image_fakes.FakeImage.create_one_image(image_info)
+        another_image = image_fakes.FakeImage.create_one_image({})
+        self.images_mock.return_value = [target_image, another_image]
+
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        columns, data = self.cmd.take_action(parsed_args)
+
+        # Set expected values
+        kwargs = dict(
+            files={},
+            reservation_id=None,
+            min_count=1,
+            max_count=1,
+            security_groups=[],
+            userdata=None,
+            key_name=None,
+            availability_zone=None,
+            block_device_mapping_v2=[],
+            nics='none',
+            meta=None,
+            scheduler_hints={},
+            config_drive=None,
+        )
+
+        # ServerManager.create(name, image, flavor, **kwargs)
+        self.servers_mock.create.assert_called_with(
+            self.new_server.name,
+            target_image,
+            self.flavor,
+            **kwargs
+        )
+
+        self.assertEqual(self.columns, columns)
+        self.assertEqual(self.datalist(), data)
+
     def test_server_create_invalid_hint(self):
         # Not a key-value pair
         arglist = [

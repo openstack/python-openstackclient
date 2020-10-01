@@ -1,0 +1,6 @@
+---
+features:
+  - Support for image search via properties of image. Currently
+    "openstack server create --image-property" only takes image property.
+    Now it can also search image via properties (user defined) too.
+    Story https://storyboard.openstack.org/#!/story/2007860.
