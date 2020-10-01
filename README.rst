@@ -75,6 +75,7 @@ Configuration
 
 The CLI is configured via environment variables and command-line
 options as listed in [here](https://docs.openstack.org/python-openstackclient/latest/cli/authentication.html)
+`Sphinx hyperlinks <https://www.sphinx-doc.org/en/master/usage/restructuredtext/basics.html#hyperlinks>`__
 
 Authentication using username/password is most commonly used::
 
