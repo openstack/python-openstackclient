@@ -354,7 +354,7 @@ class CreateImage(command.ShowOne):
 
         # Build an attribute dict from the parsed args, only include
         # attributes that were actually set on the command line
-        kwargs = {}
+        kwargs = {'allow_duplicates': True}
         copy_attrs = ('name', 'id',
                       'container_format', 'disk_format',
                       'min_disk', 'min_ram', 'tags', 'visibility')
