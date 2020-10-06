@@ -16,13 +16,11 @@
 
 """Command-line interface to the OpenStack APIs"""
 
-import locale
 import sys
 
 from osc_lib.api import auth
 from osc_lib.command import commandmanager
 from osc_lib import shell
-import six
 
 import openstackclient
 from openstackclient.common import clientmanager
@@ -143,12 +141,6 @@ class OpenStackShell(shell.OpenStackShell):
 def main(argv=None):
     if argv is None:
         argv = sys.argv[1:]
-        if six.PY2:
-            # Emulate Py3, decode argv into Unicode based on locale so that
-            # commands always see arguments as text instead of binary data
-            encoding = locale.getpreferredencoding()
-            if encoding:
-                argv = map(lambda arg: arg.decode(encoding), argv)
 
     return OpenStackShell().run(argv)
 

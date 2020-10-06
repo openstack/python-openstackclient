@@ -24,7 +24,6 @@ from openstack import exceptions as sdk_exceptions
 from osc_lib import exceptions
 from osc_lib import utils as common_utils
 from oslo_utils import timeutils
-import six
 
 from openstackclient.compute.v2 import server
 from openstackclient.tests.unit.compute.v2 import fakes as compute_fakes
@@ -1907,7 +1906,7 @@ class TestServerCreate(TestServer):
                                self.cmd.take_action, parsed_args)
         # Assert it is the error we expect.
         self.assertIn('--volume is not allowed with --boot-from-volume',
-                      six.text_type(ex))
+                      str(ex))
 
     def test_server_create_image_property(self):
         arglist = [
@@ -3288,7 +3287,7 @@ class TestServerMigrate(TestServer):
         # Make sure it's the error we expect.
         self.assertIn('--os-compute-api-version 2.56 or greater is required '
                       'to use --host without --live-migration.',
-                      six.text_type(ex))
+                      str(ex))
 
         self.servers_mock.get.assert_called_with(self.server.id)
         self.assertNotCalled(self.servers_mock.live_migrate)
@@ -3323,7 +3322,7 @@ class TestServerMigrate(TestServer):
         # A warning should have been logged for using --live.
         mock_warning.assert_called_once()
         self.assertIn('The --live option has been deprecated.',
-                      six.text_type(mock_warning.call_args[0][0]))
+                      str(mock_warning.call_args[0][0]))
 
     def test_server_live_migrate_host_pre_2_30(self):
         # Tests that the --host option is not supported for --live-migration
@@ -3346,7 +3345,7 @@ class TestServerMigrate(TestServer):
 
         # Make sure it's the error we expect.
         self.assertIn('--os-compute-api-version 2.30 or greater is required '
-                      'when using --host', six.text_type(ex))
+                      'when using --host', str(ex))
 
         self.servers_mock.get.assert_called_with(self.server.id)
         self.assertNotCalled(self.servers_mock.live_migrate)
@@ -3436,7 +3435,7 @@ class TestServerMigrate(TestServer):
         # A warning should have been logged for using --live.
         mock_warning.assert_called_once()
         self.assertIn('The --live option has been deprecated.',
-                      six.text_type(mock_warning.call_args[0][0]))
+                      str(mock_warning.call_args[0][0]))
 
     def test_server_live_migrate_live_and_host_mutex(self):
         # Tests specifying both the --live and --host options which are in a
@@ -4352,7 +4351,7 @@ class TestServerResize(TestServer):
         # A warning should have been logged for using --confirm.
         mock_warning.assert_called_once()
         self.assertIn('The --confirm option has been deprecated.',
-                      six.text_type(mock_warning.call_args[0][0]))
+                      str(mock_warning.call_args[0][0]))
 
     def test_server_resize_revert(self):
         arglist = [
@@ -4377,7 +4376,7 @@ class TestServerResize(TestServer):
         # A warning should have been logged for using --revert.
         mock_warning.assert_called_once()
         self.assertIn('The --revert option has been deprecated.',
-                      six.text_type(mock_warning.call_args[0][0]))
+                      str(mock_warning.call_args[0][0]))
 
     @mock.patch.object(common_utils, 'wait_for_status', return_value=True)
     def test_server_resize_with_wait_ok(self, mock_wait_for_status):

@@ -18,7 +18,6 @@ import logging
 import openstack.exceptions
 from osc_lib.command import command
 from osc_lib import exceptions
-import six
 
 from openstackclient.i18n import _
 
@@ -54,8 +53,7 @@ def check_missing_extension_if_error(client_manager, attrs):
         raise
 
 
-@six.add_metaclass(abc.ABCMeta)
-class NetDetectionMixin(object):
+class NetDetectionMixin(metaclass=abc.ABCMeta):
     """Convenience methods for nova-network vs. neutron decisions.
 
     A live environment detects which network type it is running and creates its
@@ -166,8 +164,8 @@ class NetDetectionMixin(object):
         pass
 
 
-@six.add_metaclass(abc.ABCMeta)
-class NetworkAndComputeCommand(NetDetectionMixin, command.Command):
+class NetworkAndComputeCommand(NetDetectionMixin, command.Command,
+                               metaclass=abc.ABCMeta):
     """Network and Compute Command
 
     Command class for commands that support implementation via
@@ -178,8 +176,8 @@ class NetworkAndComputeCommand(NetDetectionMixin, command.Command):
     pass
 
 
-@six.add_metaclass(abc.ABCMeta)
-class NetworkAndComputeDelete(NetworkAndComputeCommand):
+class NetworkAndComputeDelete(NetworkAndComputeCommand,
+                              metaclass=abc.ABCMeta):
     """Network and Compute Delete
 
     Delete class for commands that support implementation via
@@ -222,8 +220,8 @@ class NetworkAndComputeDelete(NetworkAndComputeCommand):
             raise exceptions.CommandError(msg)
 
 
-@six.add_metaclass(abc.ABCMeta)
-class NetworkAndComputeLister(NetDetectionMixin, command.Lister):
+class NetworkAndComputeLister(NetDetectionMixin, command.Lister,
+                              metaclass=abc.ABCMeta):
     """Network and Compute Lister
 
     Lister class for commands that support implementation via
@@ -234,8 +232,8 @@ class NetworkAndComputeLister(NetDetectionMixin, command.Lister):
     pass
 
 
-@six.add_metaclass(abc.ABCMeta)
-class NetworkAndComputeShowOne(NetDetectionMixin, command.ShowOne):
+class NetworkAndComputeShowOne(NetDetectionMixin, command.ShowOne,
+                               metaclass=abc.ABCMeta):
     """Network and Compute ShowOne
 
     ShowOne class for commands that support implementation via
@@ -255,5 +253,5 @@ class NetworkAndComputeShowOne(NetDetectionMixin, command.ShowOne):
         except openstack.exceptions.HttpException as exc:
             msg = _("Error while executing command: %s") % exc.message
             if exc.details:
-                msg += ", " + six.text_type(exc.details)
+                msg += ", " + str(exc.details)
             raise exceptions.CommandError(msg)

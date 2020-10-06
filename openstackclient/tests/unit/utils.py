@@ -14,11 +14,11 @@
 #   under the License.
 #
 
+from io import StringIO
 import os
 
 from cliff import columns as cliff_columns
 import fixtures
-from six.moves import StringIO
 import testtools
 
 from openstackclient.tests.unit import fakes

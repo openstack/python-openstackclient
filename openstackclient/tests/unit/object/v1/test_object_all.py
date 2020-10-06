@@ -12,11 +12,11 @@
 #
 
 import copy
+import io
 from unittest import mock
 
 from osc_lib import exceptions
 from requests_mock.contrib import fixture
-import six
 
 from openstackclient.object.v1 import object as object_cmds
 from openstackclient.tests.unit.object.v1 import fakes as object_fakes
@@ -241,9 +241,9 @@ class TestObjectSave(TestObjectAll):
 
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
-        class FakeStdout(six.BytesIO):
+        class FakeStdout(io.BytesIO):
             def __init__(self):
-                six.BytesIO.__init__(self)
+                io.BytesIO.__init__(self)
                 self.context_manager_calls = []
 
             def __enter__(self):

@@ -19,7 +19,6 @@ from unittest import mock
 
 from keystoneauth1 import fixture
 import requests
-import six
 
 
 AUTH_TOKEN = "foobar"
@@ -253,7 +252,7 @@ class FakeResponse(requests.Response):
 
         self.headers.update(headers)
         self._content = json.dumps(data)
-        if not isinstance(self._content, six.binary_type):
+        if not isinstance(self._content, bytes):
             self._content = self._content.encode()
 
 
