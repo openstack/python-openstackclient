@@ -30,7 +30,6 @@ from osc_lib.command import command
 from osc_lib import exceptions
 from osc_lib import utils
 from oslo_utils import timeutils
-import six
 
 from openstackclient.i18n import _
 from openstackclient.identity import common as identity_common
@@ -97,7 +96,7 @@ def _get_ip_address(addresses, address_type, ip_address_family):
     for network in addresses:
         for addy in addresses[network]:
             # Case where it is list of strings
-            if isinstance(addy, six.string_types):
+            if isinstance(addy, str):
                 if new_address_type == 'fixed':
                     return addresses[network][0]
                 else:
@@ -894,7 +893,7 @@ class CreateServer(command.ShowOne):
         boot_args = [parsed_args.server_name, image, flavor]
 
         # Handle block device by device name order, like: vdb -> vdc -> vdd
-        for dev_name in sorted(six.iterkeys(parsed_args.block_device_mapping)):
+        for dev_name in sorted(parsed_args.block_device_mapping):
             dev_map = parsed_args.block_device_mapping[dev_name]
             dev_map = dev_map.split(':')
             if dev_map[0]:

@@ -14,7 +14,6 @@
 #
 
 from keystoneauth1 import session
-import six
 
 from openstackclient.api import object_store_v1 as object_store
 from openstackclient.tests.unit import utils
@@ -68,7 +67,7 @@ OBJECT = {
     'last_modified': object_modified_1,
 }
 
-object_1_content = six.b('object 1 content')
+object_1_content = b'object 1 content'
 
 OBJECT_2 = {
     'name': object_name_2,

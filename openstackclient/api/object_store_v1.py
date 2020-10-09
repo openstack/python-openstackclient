@@ -17,9 +17,9 @@ import io
 import logging
 import os
 import sys
+import urllib
 
 from osc_lib import utils
-from six.moves import urllib
 
 from openstackclient.api import api
 

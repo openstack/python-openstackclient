@@ -18,7 +18,6 @@ from unittest.mock import call
 
 from novaclient import api_versions
 from osc_lib import exceptions
-import six
 
 from openstackclient.compute.v2 import service
 from openstackclient.tests.unit.compute.v2 import fakes as compute_fakes
@@ -502,7 +501,7 @@ class TestServiceSet(TestService):
                                self.cmd._find_service_by_host_and_binary,
                                self.service_mock, 'fake-host', 'nova-compute')
         self.assertIn('Compute service for host "fake-host" and binary '
-                      '"nova-compute" not found.', six.text_type(ex))
+                      '"nova-compute" not found.', str(ex))
 
     def test_service_set_find_service_by_host_and_binary_many_results(self):
         # Tests that more than one compute service is found by host and binary.
@@ -512,4 +511,4 @@ class TestServiceSet(TestService):
                                self.service_mock, 'fake-host', 'nova-compute')
         self.assertIn('Multiple compute services found for host "fake-host" '
                       'and binary "nova-compute". Unable to proceed.',
-                      six.text_type(ex))
+                      str(ex))

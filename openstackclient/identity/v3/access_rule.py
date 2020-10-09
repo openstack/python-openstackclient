@@ -20,7 +20,6 @@ import logging
 from osc_lib.command import command
 from osc_lib import exceptions
 from osc_lib import utils
-import six
 
 from openstackclient.i18n import _
 from openstackclient.identity import common
@@ -115,4 +114,4 @@ class ShowAccessRule(command.ShowOne):
 
         access_rule._info.pop('links', None)
 
-        return zip(*sorted(six.iteritems(access_rule._info)))
+        return zip(*sorted(access_rule._info.items()))

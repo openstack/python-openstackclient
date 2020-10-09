@@ -203,7 +203,6 @@ Example
 
     from osc_lib.api import auth
     from osc_lib import utils
-    import six
 
     from openstackclient import shell
     from openstackclient.tests import utils

@@ -10,8 +10,6 @@
 #   License for the specific language governing permissions and limitations
 #   under the License.
 
-import six
-
 
 def get_osc_show_columns_for_sdk_resource(
     sdk_resource,
@@ -44,7 +42,7 @@ def get_osc_show_columns_for_sdk_resource(
     for col_name in invisible_columns:
         if col_name in display_columns:
             display_columns.remove(col_name)
-    for sdk_attr, osc_attr in six.iteritems(osc_column_map):
+    for sdk_attr, osc_attr in osc_column_map.items():
         if sdk_attr in display_columns:
             attr_map[osc_attr] = sdk_attr
             display_columns.remove(sdk_attr)
