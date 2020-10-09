@@ -707,12 +707,30 @@ class CreateServer(command.ShowOne):
             default={},
             help=_('Hints for the scheduler (optional extension)'),
         )
-        parser.add_argument(
+        config_drive_group = parser.add_mutually_exclusive_group()
+        config_drive_group.add_argument(
+            '--use-config-drive',
+            action='store_true',
+            dest='config_drive',
+            help=_("Enable config drive."),
+        )
+        config_drive_group.add_argument(
+            '--no-config-drive',
+            action='store_false',
+            dest='config_drive',
+            help=_("Disable config drive."),
+        )
+        # TODO(stephenfin): Drop support in the next major version bump after
+        # Victoria
+        config_drive_group.add_argument(
             '--config-drive',
             metavar='<config-drive-volume>|True',
             default=False,
-            help=_('Use specified volume as the config drive, '
-                   'or \'True\' to use an ephemeral drive'),
+            help=_(
+                "**Deprecated** Use specified volume as the config drive, "
+                "or 'True' to use an ephemeral drive. Replaced by "
+                "'--use-config-drive'."
+            ),
         )
         parser.add_argument(
             '--min',
@@ -1013,16 +1031,19 @@ class CreateServer(command.ShowOne):
             else:
                 hints[key] = values
 
-        # What does a non-boolean value for config-drive do?
-        # --config-drive argument is either a volume id or
-        # 'True' (or '1') to use an ephemeral volume
-        if str(parsed_args.config_drive).lower() in ("true", "1"):
-            config_drive = True
-        elif str(parsed_args.config_drive).lower() in ("false", "0",
-                                                       "", "none"):
-            config_drive = None
+        if isinstance(parsed_args.config_drive, bool):
+            # NOTE(stephenfin): The API doesn't accept False as a value :'(
+            config_drive = parsed_args.config_drive or None
         else:
-            config_drive = parsed_args.config_drive
+            # TODO(stephenfin): Remove when we drop support for
+            # '--config-drive'
+            if str(parsed_args.config_drive).lower() in ("true", "1"):
+                config_drive = True
+            elif str(parsed_args.config_drive).lower() in ("false", "0",
+                                                           "", "none"):
+                config_drive = None
+            else:
+                config_drive = parsed_args.config_drive
 
         boot_kwargs = dict(
             meta=parsed_args.property,
