@@ -1,0 +1,5 @@
+---
+features:
+  - |
+    Add ``server migration list`` command. This command allows
+    users to list the status of ongoing server migrations.
