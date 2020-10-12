@@ -1,3 +1,4 @@
+---
 - job:
     name: osc-tox-unit-tips
     parent: openstack-tox
@@ -225,7 +226,6 @@
       - publish-openstack-docs-pti
       - check-requirements
       - release-notes-jobs-python3
-      - lib-forward-testing-python3
     check:
       jobs:
         - osc-build-image
