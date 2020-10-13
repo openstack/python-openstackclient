@@ -607,6 +607,11 @@ class CreateServer(command.ShowOne):
                    'volume.'),
         )
         parser.add_argument(
+            '--password',
+            metavar='<password>',
+            help=_("Set the password to this server"),
+        )
+        parser.add_argument(
             '--flavor',
             metavar='<flavor>',
             required=True,
@@ -1105,6 +1110,7 @@ class CreateServer(command.ShowOne):
             userdata=userdata,
             key_name=parsed_args.key_name,
             availability_zone=parsed_args.availability_zone,
+            admin_pass=parsed_args.password,
             block_device_mapping_v2=block_device_mapping_v2,
             nics=nics,
             scheduler_hints=hints,

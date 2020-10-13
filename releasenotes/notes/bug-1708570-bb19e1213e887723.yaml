@@ -1,0 +1,5 @@
+---
+features:
+  - |
+    Add ``--password`` option to ``server create`` command, allowing users to
+    set the admin password when creating a new instance.
