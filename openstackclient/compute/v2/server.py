@@ -1890,6 +1890,14 @@ class ListMigration(command.Command):
             help=_('Filter migrations by status')
         )
         parser.add_argument(
+            '--type',
+            metavar='<type>',
+            choices=[
+                'evacuation', 'live-migration', 'cold-migration', 'resize',
+            ],
+            help=_('Filter migrations by type'),
+        )
+        parser.add_argument(
             '--marker',
             metavar='<marker>',
             help=_(
@@ -1964,10 +1972,6 @@ class ListMigration(command.Command):
         if compute_client.api_version >= api_versions.APIVersion("2.59"):
             columns.insert(0, "UUID")
 
-        # TODO(brinzhang): It also suppports filter migrations by type
-        # since 2.1. https://review.opendev.org/#/c/675117 supported
-        # filtering the migrations by 'migration_type' and 'source_compute'
-        # in novaclient, that will be added in OSC by follow-up.
         if compute_client.api_version >= api_versions.APIVersion("2.23"):
             columns.insert(0, "Id")
             columns.insert(len(columns) - 2, "Type")
@@ -1991,6 +1995,13 @@ class ListMigration(command.Command):
             'server': parsed_args.server,
             'status': parsed_args.status,
         }
+
+        if parsed_args.type:
+            migration_type = parsed_args.type
+            # we're using an alias because the default value is confusing
+            if migration_type == 'cold-migration':
+                migration_type = 'migration'
+            search_opts['type'] = migration_type
 
         if parsed_args.marker:
             if compute_client.api_version < api_versions.APIVersion('2.59'):
