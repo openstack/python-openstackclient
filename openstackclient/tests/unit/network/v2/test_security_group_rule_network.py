@@ -870,7 +870,7 @@ class TestListSecurityGroupRuleNetwork(TestSecurityGroupRuleNetwork):
     _security_group_rules = [_security_group_rule_tcp,
                              _security_group_rule_icmp]
 
-    expected_columns_with_group_and_long = (
+    expected_columns_with_group = (
         'ID',
         'IP Protocol',
         'Ethertype',
@@ -885,14 +885,15 @@ class TestListSecurityGroupRuleNetwork(TestSecurityGroupRuleNetwork):
         'Ethertype',
         'IP Range',
         'Port Range',
+        'Direction',
         'Remote Security Group',
         'Security Group',
     )
 
-    expected_data_with_group_and_long = []
+    expected_data_with_group = []
     expected_data_no_group = []
     for _security_group_rule in _security_group_rules:
-        expected_data_with_group_and_long.append((
+        expected_data_with_group.append((
             _security_group_rule.id,
             _security_group_rule.protocol,
             _security_group_rule.ether_type,
@@ -909,6 +910,7 @@ class TestListSecurityGroupRuleNetwork(TestSecurityGroupRuleNetwork):
             _security_group_rule.remote_ip_prefix,
             security_group_rule._format_network_port_range(
                 _security_group_rule),
+            _security_group_rule.direction,
             _security_group_rule.remote_group_id,
             _security_group_rule.security_group_id,
         ))
@@ -935,14 +937,12 @@ class TestListSecurityGroupRuleNetwork(TestSecurityGroupRuleNetwork):
         self.assertEqual(self.expected_columns_no_group, columns)
         self.assertEqual(self.expected_data_no_group, list(data))
 
-    def test_list_with_group_and_long(self):
+    def test_list_with_group(self):
         self._security_group_rule_tcp.port_range_min = 80
         arglist = [
-            '--long',
             self._security_group.id,
         ]
         verifylist = [
-            ('long', True),
             ('group', self._security_group.id),
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
@@ -952,8 +952,8 @@ class TestListSecurityGroupRuleNetwork(TestSecurityGroupRuleNetwork):
         self.network.security_group_rules.assert_called_once_with(**{
             'security_group_id': self._security_group.id,
         })
-        self.assertEqual(self.expected_columns_with_group_and_long, columns)
-        self.assertEqual(self.expected_data_with_group_and_long, list(data))
+        self.assertEqual(self.expected_columns_with_group, columns)
+        self.assertEqual(self.expected_data_with_group, list(data))
 
     def test_list_with_ignored_options(self):
         self._security_group_rule_tcp.port_range_min = 80

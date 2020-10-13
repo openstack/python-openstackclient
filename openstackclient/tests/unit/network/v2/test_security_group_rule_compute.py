@@ -362,6 +362,7 @@ class TestListSecurityGroupRuleCompute(TestSecurityGroupRuleCompute):
         'Ethertype',
         'IP Range',
         'Port Range',
+        'Direction',
         'Remote Security Group',
     )
     expected_columns_no_group = \

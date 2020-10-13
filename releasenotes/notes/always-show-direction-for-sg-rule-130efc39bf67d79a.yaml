@@ -1,0 +1,10 @@
+---
+features:
+  - |
+    By default listing security group rules now shows the direction.
+    The ``--long`` argument is now redundant and is now ignored as it
+    was only used to display the direction.
+deprecations:
+  - |
+    Deprecate the ``--long`` option for the ``security group list``
+    command. This is no longer needed to display all columns.
