@@ -734,6 +734,62 @@ class TestServerAddNetwork(TestServer):
         self._test_server_add_network('fake-network')
         self.find_network.assert_not_called()
 
+    def test_server_add_network_with_tag(self):
+        self.app.client_manager.compute.api_version = api_versions.APIVersion(
+            '2.49')
+
+        servers = self.setup_servers_mock(count=1)
+        self.find_network.return_value.id = 'fake-network'
+
+        arglist = [
+            servers[0].id,
+            'fake-network',
+            '--tag', 'tag1',
+        ]
+        verifylist = [
+            ('server', servers[0].id),
+            ('network', 'fake-network'),
+            ('tag', 'tag1'),
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        result = self.cmd.take_action(parsed_args)
+        self.assertIsNone(result)
+
+        servers[0].interface_attach.assert_called_once_with(
+            port_id=None,
+            net_id='fake-network',
+            fixed_ip=None,
+            tag='tag1'
+        )
+
+    def test_server_add_network_with_tag_pre_v249(self):
+        self.app.client_manager.compute.api_version = api_versions.APIVersion(
+            '2.48')
+
+        servers = self.setup_servers_mock(count=1)
+        self.find_network.return_value.id = 'fake-network'
+
+        arglist = [
+            servers[0].id,
+            'fake-network',
+            '--tag', 'tag1',
+        ]
+        verifylist = [
+            ('server', servers[0].id),
+            ('network', 'fake-network'),
+            ('tag', 'tag1'),
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        ex = self.assertRaises(
+            exceptions.CommandError,
+            self.cmd.take_action,
+            parsed_args)
+        self.assertIn(
+            '--os-compute-api-version 2.49 or greater is required',
+            str(ex))
+
 
 @mock.patch(
     'openstackclient.api.compute_v2.APIv2.security_group_find'
