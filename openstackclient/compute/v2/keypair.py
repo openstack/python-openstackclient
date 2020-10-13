@@ -20,6 +20,7 @@ import logging
 import os
 import sys
 
+from novaclient import api_versions
 from osc_lib.command import command
 from osc_lib import exceptions
 from osc_lib import utils
@@ -53,6 +54,15 @@ class CreateKeypair(command.ShowOne):
             help=_("Filename for private key to save. If not used, "
                    "print private key in console.")
         )
+        parser.add_argument(
+            '--type',
+            metavar='<type>',
+            choices=['ssh', 'x509'],
+            help=_(
+                "Keypair type. Can be ssh or x509. "
+                "(Supported by API versions '2.2' - '2.latest')"
+            ),
+        )
         return parser
 
     def take_action(self, parsed_args):
@@ -70,17 +80,28 @@ class CreateKeypair(command.ShowOne):
                            "exception": e}
                 )
 
-        keypair = compute_client.keypairs.create(
-            parsed_args.name,
-            public_key=public_key,
-        )
+        kwargs = {
+            'name': parsed_args.name,
+            'public_key': public_key,
+        }
+        if parsed_args.type:
+            if compute_client.api_version < api_versions.APIVersion('2.2'):
+                msg = _(
+                    '--os-compute-api-version 2.2 or greater is required to '
+                    'support the --type option.'
+                )
+                raise exceptions.CommandError(msg)
+
+            kwargs['key_type'] = parsed_args.type
+
+        keypair = compute_client.keypairs.create(**kwargs)
 
         private_key = parsed_args.private_key
         # Save private key into specified file
         if private_key:
             try:
                 with io.open(
-                        os.path.expanduser(parsed_args.private_key), 'w+'
+                    os.path.expanduser(parsed_args.private_key), 'w+'
                 ) as p:
                     p.write(keypair.private_key)
             except IOError as e:
@@ -150,10 +171,13 @@ class ListKeypair(command.Lister):
         )
         data = compute_client.keypairs.list()
 
-        return (columns,
-                (utils.get_item_properties(
-                    s, columns,
-                ) for s in data))
+        if compute_client.api_version >= api_versions.APIVersion('2.2'):
+            columns += ("Type", )
+
+        return (
+            columns,
+            (utils.get_item_properties(s, columns) for s in data),
+        )
 
 
 class ShowKeypair(command.ShowOne):

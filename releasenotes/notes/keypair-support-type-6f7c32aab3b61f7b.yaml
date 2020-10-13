@@ -1,0 +1,5 @@
+---
+features:
+  - Add ``--key-type`` option to ``keypair create`` command to set keypair
+    type. Can be ssh or x509. Note that ``--os-compute-api-version 2.2`` or
+    later is required.
