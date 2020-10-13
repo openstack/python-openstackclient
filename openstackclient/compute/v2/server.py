@@ -1866,99 +1866,99 @@ revert to release the new server and restart the old one.""")
 
 
 class ListMigration(command.Command):
-    _description = _("""List server migrations.""")
+    _description = _("""List server migrations""")
 
     def get_parser(self, prog_name):
         parser = super(ListMigration, self).get_parser(prog_name)
         parser.add_argument(
-            "--server",
-            metavar="<server>",
-            dest='server',
-            default=None,
-            help=_('Server to show migration details (name or ID).')
+            '--server',
+            metavar='<server>',
+            help=_(
+                'Filter migrations by server (name or ID)'
+            )
         )
         parser.add_argument(
-            "--host",
-            metavar="<host>",
-            default=None,
-            help=_('Fetch migrations for the given host.')
+            '--host',
+            metavar='<host>',
+            help=_(
+                'Filter migrations by source or destination host'
+            ),
         )
         parser.add_argument(
-            "--status",
-            metavar="<status>",
-            default=None,
-            help=_('Fetch migrations for the given status.')
+            '--status',
+            metavar='<status>',
+            help=_('Filter migrations by status')
         )
         parser.add_argument(
-            "--marker",
-            metavar="<marker>",
-            dest='marker',
-            default=None,
-            help=_("The last migration of the previous page; displays list "
-                   "of migrations after 'marker'. Note that the marker is "
-                   "the migration UUID. (Supported with "
-                   "``--os-compute-api-version`` 2.59 or greater.)")
+            '--marker',
+            metavar='<marker>',
+            help=_(
+                "The last migration of the previous page; displays list "
+                "of migrations after 'marker'. Note that the marker is "
+                "the migration UUID. "
+                "(supported with --os-compute-api-version 2.59 or above)"
+            ),
         )
         parser.add_argument(
-            "--limit",
-            metavar="<limit>",
-            dest='limit',
+            '--limit',
+            metavar='<limit>',
             type=int,
-            default=None,
-            help=_("Maximum number of migrations to display. Note that there "
-                   "is a configurable max limit on the server, and the limit "
-                   "that is used will be the minimum of what is requested "
-                   "here and what is configured in the server. "
-                   "(Supported with ``--os-compute-api-version`` 2.59 "
-                   "or greater.)")
+            help=_(
+                "Maximum number of migrations to display. Note that there "
+                "is a configurable max limit on the server, and the limit "
+                "that is used will be the minimum of what is requested "
+                "here and what is configured in the server. "
+                "(supported with --os-compute-api-version 2.59 or above)"
+            ),
         )
         parser.add_argument(
             '--changes-since',
             dest='changes_since',
             metavar='<changes-since>',
-            default=None,
-            help=_("List only migrations changed later or equal to a certain "
-                   "point of time. The provided time should be an ISO 8061 "
-                   "formatted time, e.g. ``2016-03-04T06:27:59Z``. "
-                   "(Supported with ``--os-compute-api-version`` 2.59 "
-                   "or greater.)")
+            help=_(
+                "List only migrations changed later or equal to a certain "
+                "point of time. The provided time should be an ISO 8061 "
+                "formatted time, e.g. ``2016-03-04T06:27:59Z``. "
+                "(supported with --os-compute-api-version 2.59 or above)"
+            ),
         )
         parser.add_argument(
             '--changes-before',
             dest='changes_before',
             metavar='<changes-before>',
-            default=None,
-            help=_("List only migrations changed earlier or equal to a "
-                   "certain point of time. The provided time should be an ISO "
-                   "8061 formatted time, e.g. ``2016-03-04T06:27:59Z``. "
-                   "(Supported with ``--os-compute-api-version`` 2.66 or "
-                   "greater.)")
+            help=_(
+                "List only migrations changed earlier or equal to a "
+                "certain point of time. The provided time should be an ISO "
+                "8061 formatted time, e.g. ``2016-03-04T06:27:59Z``. "
+                "(supported with --os-compute-api-version 2.66 or above)"
+            ),
         )
         parser.add_argument(
             '--project',
             metavar='<project>',
             dest='project_id',
-            default=None,
-            help=_("Filter the migrations by the given project ID. "
-                   "(Supported with ``--os-compute-api-version`` 2.80 "
-                   "or greater.)"),
+            help=_(
+                "Filter migrations by project (ID) "
+                "(supported with --os-compute-api-version 2.80 or above)"
+            ),
         )
         parser.add_argument(
             '--user',
             metavar='<user>',
             dest='user_id',
-            default=None,
-            help=_("Filter the migrations by the given user ID. "
-                   "(Supported with ``--os-compute-api-version`` 2.80 "
-                   "or greater.)"),
+            help=_(
+                "Filter migrations by user (ID) "
+                "(supported with --os-compute-api-version 2.80 or above)"
+            ),
         )
         return parser
 
     def print_migrations(self, parsed_args, compute_client, migrations):
-        columns = ['Source Node', 'Dest Node', 'Source Compute',
-                   'Dest Compute', 'Dest Host', 'Status',
-                   'Server UUID', 'Old Flavor', 'New Flavor',
-                   'Created At', 'Updated At']
+        columns = [
+            'Source Node', 'Dest Node', 'Source Compute', 'Dest Compute',
+            'Dest Host', 'Status', 'Server UUID', 'Old Flavor', 'New Flavor',
+            'Created At', 'Updated At',
+        ]
 
         # Insert migrations UUID after ID
         if compute_client.api_version >= api_versions.APIVersion("2.59"):
@@ -1978,48 +1978,73 @@ class ListMigration(command.Command):
             if parsed_args.user_id:
                 columns.insert(len(columns) - 2, "User")
 
-        columns_header = columns
-        return (columns_header, (utils.get_item_properties(
-            mig, columns) for mig in migrations))
+        return (
+            columns,
+            (utils.get_item_properties(mig, columns) for mig in migrations),
+        )
 
     def take_action(self, parsed_args):
         compute_client = self.app.client_manager.compute
 
         search_opts = {
-            "host": parsed_args.host,
-            "server": parsed_args.server,
-            "status": parsed_args.status,
+            'host': parsed_args.host,
+            'server': parsed_args.server,
+            'status': parsed_args.status,
         }
 
-        if (parsed_args.marker or parsed_args.limit or
-                parsed_args.changes_since):
-            if compute_client.api_version < api_versions.APIVersion("2.59"):
-                msg = _("marker, limit and/or changes_since is not supported "
-                        "for --os-compute-api-version less than 2.59")
+        if parsed_args.marker:
+            if compute_client.api_version < api_versions.APIVersion('2.59'):
+                msg = _(
+                    '--os-compute-api-version 2.59 or greater is required to '
+                    'support the --marker option'
+                )
                 raise exceptions.CommandError(msg)
-            if parsed_args.marker:
-                search_opts['marker'] = parsed_args.marker
-            if parsed_args.limit:
-                search_opts['limit'] = parsed_args.limit
-            if parsed_args.changes_since:
-                search_opts['changes_since'] = parsed_args.changes_since
+            search_opts['marker'] = parsed_args.marker
+
+        if parsed_args.limit:
+            if compute_client.api_version < api_versions.APIVersion('2.59'):
+                msg = _(
+                    '--os-compute-api-version 2.59 or greater is required to '
+                    'support the --limit option'
+                )
+                raise exceptions.CommandError(msg)
+            search_opts['limit'] = parsed_args.limit
+
+        if parsed_args.changes_since:
+            if compute_client.api_version < api_versions.APIVersion('2.59'):
+                msg = _(
+                    '--os-compute-api-version 2.59 or greater is required to '
+                    'support the --changes-since option'
+                )
+                raise exceptions.CommandError(msg)
+            search_opts['changes_since'] = parsed_args.changes_since
 
         if parsed_args.changes_before:
-            if compute_client.api_version < api_versions.APIVersion("2.66"):
-                msg = _("changes_before is not supported for "
-                        "--os-compute-api-version less than 2.66")
+            if compute_client.api_version < api_versions.APIVersion('2.66'):
+                msg = _(
+                    '--os-compute-api-version 2.66 or greater is required to '
+                    'support the --changes-before option'
+                )
                 raise exceptions.CommandError(msg)
             search_opts['changes_before'] = parsed_args.changes_before
 
-        if parsed_args.project_id or parsed_args.user_id:
-            if compute_client.api_version < api_versions.APIVersion("2.80"):
-                msg = _("Project and/or user is not supported for "
-                        "--os-compute-api-version less than 2.80")
+        if parsed_args.project_id:
+            if compute_client.api_version < api_versions.APIVersion('2.80'):
+                msg = _(
+                    '--os-compute-api-version 2.80 or greater is required to '
+                    'support the --project option'
+                )
                 raise exceptions.CommandError(msg)
-            if parsed_args.project_id:
-                search_opts['project_id'] = parsed_args.project_id
-            if parsed_args.user_id:
-                search_opts['user_id'] = parsed_args.user_id
+            search_opts['project_id'] = parsed_args.project_id
+
+        if parsed_args.user_id:
+            if compute_client.api_version < api_versions.APIVersion('2.80'):
+                msg = _(
+                    '--os-compute-api-version 2.80 or greater is required to '
+                    'support the --user option'
+                )
+                raise exceptions.CommandError(msg)
+            search_opts['user_id'] = parsed_args.user_id
 
         migrations = compute_client.migrations.list(**search_opts)
 
