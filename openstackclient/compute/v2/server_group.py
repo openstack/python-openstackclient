@@ -56,12 +56,18 @@ class CreateServerGroup(command.ShowOne):
         parser.add_argument(
             '--policy',
             metavar='<policy>',
+            choices=[
+                'affinity',
+                'anti-affinity',
+                'soft-affinity',
+                'soft-anti-affinity',
+            ],
             default='affinity',
-            help=_("Add a policy to <name> "
-                   "('affinity' or 'anti-affinity', "
-                   "defaults to 'affinity'). Specify --os-compute-api-version "
-                   "2.15 or higher for the 'soft-affinity' or "
-                   "'soft-anti-affinity' policy.")
+            help=_(
+                "Add a policy to <name> "
+                "Specify --os-compute-api-version 2.15 or higher for the "
+                "'soft-affinity' or 'soft-anti-affinity' policy."
+            )
         )
         return parser
 
@@ -69,9 +75,18 @@ class CreateServerGroup(command.ShowOne):
         compute_client = self.app.client_manager.compute
         info = {}
 
+        if parsed_args.policy in ('soft-affinity', 'soft-anti-affinity'):
+            if compute_client.api_version < api_versions.APIVersion('2.15'):
+                msg = _(
+                    '--os-compute-api-version 2.15 or greater is required to '
+                    'support the %s policy'
+                )
+                raise exceptions.CommandError(msg % parsed_args.policy)
+
         policy_arg = {'policies': [parsed_args.policy]}
         if compute_client.api_version >= api_versions.APIVersion("2.64"):
             policy_arg = {'policy': parsed_args.policy}
+
         server_group = compute_client.server_groups.create(
             name=parsed_args.name, **policy_arg)
 
