@@ -46,6 +46,10 @@ def _get_attrs(client_manager, parsed_args):
         attrs['direction'] = 'egress'
     if parsed_args.remote_ip_prefix is not None:
         attrs['remote_ip_prefix'] = parsed_args.remote_ip_prefix
+    if parsed_args.source_ip_prefix is not None:
+        attrs['source_ip_prefix'] = parsed_args.source_ip_prefix
+    if parsed_args.destination_ip_prefix is not None:
+        attrs['destination_ip_prefix'] = parsed_args.destination_ip_prefix
     if parsed_args.meter is not None:
         attrs['metering_label_id'] = parsed_args.meter
     if parsed_args.project is not None:
@@ -97,8 +101,20 @@ class CreateMeterRule(command.ShowOne):
         parser.add_argument(
             '--remote-ip-prefix',
             metavar='<remote-ip-prefix>',
-            required=True,
+            required=False,
             help=_('The remote IP prefix to associate with this rule'),
+        )
+        parser.add_argument(
+            '--source-ip-prefix',
+            metavar='<remote-ip-prefix>',
+            required=False,
+            help=_('The source IP prefix to associate with this rule'),
+        )
+        parser.add_argument(
+            '--destination-ip-prefix',
+            metavar='<remote-ip-prefix>',
+            required=False,
+            help=_('The destination IP prefix to associate with this rule'),
         )
         parser.add_argument(
             'meter',
@@ -168,12 +184,16 @@ class ListMeterRule(command.Lister):
             'excluded',
             'direction',
             'remote_ip_prefix',
+            'source_ip_prefix',
+            'destination_ip_prefix',
         )
         column_headers = (
             'ID',
             'Excluded',
             'Direction',
             'Remote IP Prefix',
+            'Source IP Prefix',
+            'Destination IP Prefix',
         )
         data = client.metering_label_rules()
         return (column_headers,

@@ -42,20 +42,24 @@ class TestCreateMeterRule(TestMeterRule):
     )
 
     columns = (
+        'destination_ip_prefix',
         'direction',
         'excluded',
         'id',
         'metering_label_id',
         'project_id',
         'remote_ip_prefix',
+        'source_ip_prefix',
     )
     data = (
+        new_rule.destination_ip_prefix,
         new_rule.direction,
         new_rule.excluded,
         new_rule.id,
         new_rule.metering_label_id,
         new_rule.project_id,
         new_rule.remote_ip_prefix,
+        new_rule.source_ip_prefix,
     )
 
     def setUp(self):
@@ -228,6 +232,8 @@ class TestListMeterRule(TestMeterRule):
         'Excluded',
         'Direction',
         'Remote IP Prefix',
+        'Source IP Prefix',
+        'Destination IP Prefix'
     )
 
     data = []
@@ -238,6 +244,8 @@ class TestListMeterRule(TestMeterRule):
             rule.excluded,
             rule.direction,
             rule.remote_ip_prefix,
+            rule.source_ip_prefix,
+            rule.destination_ip_prefix
         ))
 
     def setUp(self):
@@ -270,21 +278,25 @@ class TestShowMeterRule(TestMeterRule):
     )
 
     columns = (
+        'destination_ip_prefix',
         'direction',
         'excluded',
         'id',
         'metering_label_id',
         'project_id',
         'remote_ip_prefix',
+        'source_ip_prefix',
     )
 
     data = (
+        new_rule.destination_ip_prefix,
         new_rule.direction,
         new_rule.excluded,
         new_rule.id,
         new_rule.metering_label_id,
         new_rule.project_id,
         new_rule.remote_ip_prefix,
+        new_rule.source_ip_prefix,
     )
 
     def setUp(self):

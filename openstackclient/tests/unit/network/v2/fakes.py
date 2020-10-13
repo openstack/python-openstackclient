@@ -1591,6 +1591,8 @@ class FakeNetworkMeterRule(object):
             'excluded': False,
             'metering_label_id': 'meter-label-id-' + uuid.uuid4().hex,
             'remote_ip_prefix': '10.0.0.0/24',
+            'source_ip_prefix': '8.8.8.8/32',
+            'destination_ip_prefix': '10.0.0.0/24',
             'tenant_id': 'project-id-' + uuid.uuid4().hex,
         }
 
