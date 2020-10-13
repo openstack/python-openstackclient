@@ -13,12 +13,12 @@
 #   under the License.
 #
 
+import importlib
 import os
 import sys
 from unittest import mock
 
 from osc_lib.tests import utils as osc_lib_test_utils
-from oslo_utils import importutils
 import wrapt
 
 from openstackclient import shell
@@ -151,12 +151,13 @@ class TestShell(osc_lib_test_utils.TestShell):
         super(TestShell, self).setUp()
         # TODO(dtroyer): remove this once the shell_class_patch patch is
         #                released in osc-lib
-        self.shell_class = importutils.import_class(self.shell_class_name)
+        mod_str, _sep, class_str = self.shell_class_name.rpartition('.')
+        self.shell_class = getattr(importlib.import_module(mod_str), class_str)
 
     def _assert_admin_token_auth(self, cmd_options, default_args):
         with mock.patch(
-                self.shell_class_name + ".initialize_app",
-                self.app,
+            self.shell_class_name + ".initialize_app",
+            self.app,
         ):
             _shell = osc_lib_test_utils.make_shell(
                 shell_class=self.shell_class,
