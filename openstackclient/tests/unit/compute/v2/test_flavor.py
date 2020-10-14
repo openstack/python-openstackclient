@@ -635,6 +635,37 @@ class TestFlavorList(TestFlavor):
         self.assertEqual(self.columns_long, columns)
         self.assertListItemEqual(self.data_long, tuple(data))
 
+    def test_flavor_list_min_disk_min_ram(self):
+        arglist = [
+            '--min-disk', '10',
+            '--min-ram', '2048',
+        ]
+        verifylist = [
+            ('min_disk', 10),
+            ('min_ram', 2048),
+        ]
+
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        # In base command class Lister in cliff, abstract method take_action()
+        # returns a tuple containing the column names and an iterable
+        # containing the data to be listed.
+        columns, data = self.cmd.take_action(parsed_args)
+
+        # Set expected values
+        kwargs = {
+            'is_public': True,
+            'min_disk': 10,
+            'min_ram': 2048,
+        }
+
+        self.sdk_client.flavors.assert_called_with(
+            **kwargs
+        )
+
+        self.assertEqual(self.columns, columns)
+        self.assertEqual(tuple(self.data), tuple(data))
+
 
 class TestFlavorSet(TestFlavor):
 
