@@ -1382,6 +1382,7 @@ class FakeSecurityGroupRule(object):
             'port_range_min': None,
             'protocol': None,
             'remote_group_id': None,
+            'remote_address_group_id': None,
             'remote_ip_prefix': '0.0.0.0/0',
             'security_group_id': 'security-group-id-' + uuid.uuid4().hex,
             'tenant_id': 'project-id-' + uuid.uuid4().hex,

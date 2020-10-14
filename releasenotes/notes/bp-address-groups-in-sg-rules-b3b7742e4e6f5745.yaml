@@ -1,0 +1,9 @@
+---
+features:
+  - |
+    Add ``--remote-address-group`` option to ``security group rule create``
+    command for using an address group as the source/destination in security
+    group rules. Also add field ``remote_address_group_id`` to the output of
+    ``security group rule show`` and add column ``Remote Address Group`` to
+    the output of ``security group rule list``.
+    [Blueprint `address-groups-in-sg-rules <https://blueprints.launchpad.net/neutron/+spec/address-groups-in-sg-rules>`_]
