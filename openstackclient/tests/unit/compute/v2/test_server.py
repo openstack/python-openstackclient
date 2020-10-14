@@ -592,8 +592,57 @@ class TestServerVolume(TestServer):
             servers[0].id, self.volume.id, device='/dev/sdb')
         self.assertIsNone(result)
 
+    def test_server_add_volume_with_tag(self):
+        # requires API 2.49 or later
+        self.app.client_manager.compute.api_version = api_versions.APIVersion(
+            '2.49')
 
-class TestServerVolumeV279(TestServerVolume):
+        servers = self.setup_servers_mock(count=1)
+        arglist = [
+            '--device', '/dev/sdb',
+            '--tag', 'foo',
+            servers[0].id,
+            self.volume.id,
+        ]
+        verifylist = [
+            ('server', servers[0].id),
+            ('volume', self.volume.id),
+            ('device', '/dev/sdb'),
+            ('tag', 'foo'),
+        ]
+
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        result = self.cmd.take_action(parsed_args)
+
+        self.servers_volumes_mock.create_server_volume.assert_called_once_with(
+            servers[0].id, self.volume.id, device='/dev/sdb', tag='foo')
+        self.assertIsNone(result)
+
+    def test_server_add_volume_with_tag_pre_v249(self):
+        self.app.client_manager.compute.api_version = api_versions.APIVersion(
+            '2.48')
+
+        servers = self.setup_servers_mock(count=1)
+        arglist = [
+            servers[0].id,
+            self.volume.id,
+            '--tag', 'foo',
+        ]
+        verifylist = [
+            ('server', servers[0].id),
+            ('volume', self.volume.id),
+            ('tag', 'foo'),
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        ex = self.assertRaises(
+            exceptions.CommandError,
+            self.cmd.take_action,
+            parsed_args)
+        self.assertIn(
+            '--os-compute-api-version 2.49 or greater is required',
+            str(ex))
 
     def test_server_add_volume_with_enable_delete_on_termination(self):
         self.app.client_manager.compute.api_version = api_versions.APIVersion(
@@ -650,7 +699,8 @@ class TestServerVolumeV279(TestServerVolume):
         self.assertIsNone(result)
 
     def test_server_add_volume_with_enable_delete_on_termination_pre_v279(
-            self):
+        self,
+    ):
         self.app.client_manager.compute.api_version = api_versions.APIVersion(
             '2.78')
 
@@ -674,7 +724,8 @@ class TestServerVolumeV279(TestServerVolume):
                       str(ex))
 
     def test_server_add_volume_with_disable_delete_on_termination_pre_v279(
-            self):
+        self,
+    ):
         self.app.client_manager.compute.api_version = api_versions.APIVersion(
             '2.78')
 
@@ -698,7 +749,8 @@ class TestServerVolumeV279(TestServerVolume):
                       str(ex))
 
     def test_server_add_volume_with_disable_and_enable_delete_on_termination(
-            self):
+        self,
+    ):
         self.app.client_manager.compute.api_version = api_versions.APIVersion(
             '2.79')
 
