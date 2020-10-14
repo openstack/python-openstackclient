@@ -4288,6 +4288,57 @@ class TestServerMigrationAbort(TestServer):
             str(ex))
 
 
+class TestServerMigrationForceComplete(TestServer):
+
+    def setUp(self):
+        super(TestServerMigrationForceComplete, self).setUp()
+
+        self.server = compute_fakes.FakeServer.create_one_server()
+
+        # Return value for utils.find_resource for server.
+        self.servers_mock.get.return_value = self.server
+
+        # Get the command object to test
+        self.cmd = server.ForceCompleteMigration(self.app, None)
+
+    def test_migration_force_complete(self):
+        self.app.client_manager.compute.api_version = api_versions.APIVersion(
+            '2.22')
+
+        arglist = [
+            self.server.id,
+            '2',  # arbitrary migration ID
+        ]
+        verifylist = []
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        result = self.cmd.take_action(parsed_args)
+
+        self.servers_mock.get.assert_called_with(self.server.id)
+        self.server_migrations_mock.live_migrate_force_complete\
+            .assert_called_with(self.server.id, '2',)
+        self.assertIsNone(result)
+
+    def test_migration_force_complete_pre_v222(self):
+        self.app.client_manager.compute.api_version = api_versions.APIVersion(
+            '2.21')
+
+        arglist = [
+            self.server.id,
+            '2',  # arbitrary migration ID
+        ]
+        verifylist = []
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        ex = self.assertRaises(
+            exceptions.CommandError,
+            self.cmd.take_action,
+            parsed_args)
+        self.assertIn(
+            '--os-compute-api-version 2.22 or greater is required',
+            str(ex))
+
+
 class TestServerPause(TestServer):
 
     def setUp(self):

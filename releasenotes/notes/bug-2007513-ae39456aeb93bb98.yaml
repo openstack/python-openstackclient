@@ -1,0 +1,4 @@
+---
+features:
+  - Add ``server migration force complete`` command to force complete
+    ongoing live migrations.
