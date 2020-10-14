@@ -1,0 +1,6 @@
+---
+fixes:
+  - |
+    Fixes default behaviour of `openstack image create` in allowing images
+    with the same name. In version 5.2.0 this changed to not allow
+    duplicates by default.

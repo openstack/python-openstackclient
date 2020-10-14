@@ -100,6 +100,7 @@ class TestImageCreate(TestImage):
         # ImageManager.create(name=, **)
         self.client.create_image.assert_called_with(
             name=self.new_image.name,
+            allow_duplicates=True,
             container_format=image.DEFAULT_CONTAINER_FORMAT,
             disk_format=image.DEFAULT_DISK_FORMAT,
         )
@@ -152,6 +153,7 @@ class TestImageCreate(TestImage):
         # ImageManager.create(name=, **)
         self.client.create_image.assert_called_with(
             name=self.new_image.name,
+            allow_duplicates=True,
             container_format='ovf',
             disk_format='ami',
             min_disk=10,
@@ -239,6 +241,7 @@ class TestImageCreate(TestImage):
         # ImageManager.create(name=, **)
         self.client.create_image.assert_called_with(
             name=self.new_image.name,
+            allow_duplicates=True,
             container_format=image.DEFAULT_CONTAINER_FORMAT,
             disk_format=image.DEFAULT_DISK_FORMAT,
             is_protected=self.new_image.is_protected,
@@ -246,7 +249,7 @@ class TestImageCreate(TestImage):
             Alpha='1',
             Beta='2',
             tags=self.new_image.tags,
-            filename=imagefile.name
+            filename=imagefile.name,
         )
 
         self.assertEqual(
@@ -288,6 +291,7 @@ class TestImageCreate(TestImage):
         # ImageManager.create(name=, **)
         self.client.create_image.assert_called_with(
             name=self.new_image.name,
+            allow_duplicates=True,
             container_format=image.DEFAULT_CONTAINER_FORMAT,
             disk_format=image.DEFAULT_DISK_FORMAT,
             use_import=True
