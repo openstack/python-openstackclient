@@ -1,0 +1,4 @@
+---
+features:
+  - |
+    Add ``server migration abort`` command to abort ongoing live migrations.

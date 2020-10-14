@@ -196,6 +196,9 @@ class FakeComputev2Client(object):
         self.server_groups = mock.Mock()
         self.server_groups.resource_class = fakes.FakeResource(None, {})
 
+        self.server_migrations = mock.Mock()
+        self.server_migrations.resource_class = fakes.FakeResource(None, {})
+
         self.instance_action = mock.Mock()
         self.instance_action.resource_class = fakes.FakeResource(None, {})
 

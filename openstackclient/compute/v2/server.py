@@ -2032,6 +2032,44 @@ class ListMigration(command.Command):
         return self.print_migrations(parsed_args, compute_client, migrations)
 
 
+class AbortMigration(command.Command):
+    """Cancel an ongoing live migration.
+
+    This command requires ``--os-compute-api-version`` 2.24 or greater.
+    """
+
+    def get_parser(self, prog_name):
+        parser = super(AbortMigration, self).get_parser(prog_name)
+        parser.add_argument(
+            'server',
+            metavar='<server>',
+            help=_('Server (name or ID)'),
+        )
+        parser.add_argument(
+            'migration',
+            metavar='<migration>',
+            help=_("Migration (ID)"),
+        )
+        return parser
+
+    def take_action(self, parsed_args):
+        compute_client = self.app.client_manager.compute
+
+        if compute_client.api_version < api_versions.APIVersion('2.24'):
+            msg = _(
+                '--os-compute-api-version 2.24 or greater is required to '
+                'support the server migration abort command'
+            )
+            raise exceptions.CommandError(msg)
+
+        server = utils.find_resource(
+            compute_client.servers,
+            parsed_args.server,
+        )
+        compute_client.server_migrations.live_migration_abort(
+            server.id, parsed_args.migration)
+
+
 class PauseServer(command.Command):
     _description = _("Pause server(s)")
 

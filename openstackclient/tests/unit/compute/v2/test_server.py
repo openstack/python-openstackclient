@@ -42,6 +42,11 @@ class TestServer(compute_fakes.TestComputev2):
         self.servers_mock = self.app.client_manager.compute.servers
         self.servers_mock.reset_mock()
 
+        # Get a shortcut to the compute client ServerMigrationsManager Mock
+        self.server_migrations_mock = \
+            self.app.client_manager.compute.server_migrations
+        self.server_migrations_mock.reset_mock()
+
         # Get a shortcut to the compute client volumeManager Mock
         self.servers_volumes_mock = self.app.client_manager.compute.volumes
         self.servers_volumes_mock.reset_mock()
@@ -4230,6 +4235,57 @@ class TestListMigrationV280(TestListMigration):
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
         self.assertRaises(exceptions.CommandError, self.cmd.take_action,
                           parsed_args)
+
+
+class TestServerMigrationAbort(TestServer):
+
+    def setUp(self):
+        super(TestServerMigrationAbort, self).setUp()
+
+        self.server = compute_fakes.FakeServer.create_one_server()
+
+        # Return value for utils.find_resource for server.
+        self.servers_mock.get.return_value = self.server
+
+        # Get the command object to test
+        self.cmd = server.AbortMigration(self.app, None)
+
+    def test_migration_abort(self):
+        self.app.client_manager.compute.api_version = api_versions.APIVersion(
+            '2.24')
+
+        arglist = [
+            self.server.id,
+            '2',  # arbitrary migration ID
+        ]
+        verifylist = []
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        result = self.cmd.take_action(parsed_args)
+
+        self.servers_mock.get.assert_called_with(self.server.id)
+        self.server_migrations_mock.live_migration_abort.assert_called_with(
+            self.server.id, '2',)
+        self.assertIsNone(result)
+
+    def test_migration_abort_pre_v224(self):
+        self.app.client_manager.compute.api_version = api_versions.APIVersion(
+            '2.23')
+
+        arglist = [
+            self.server.id,
+            '2',  # arbitrary migration ID
+        ]
+        verifylist = []
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        ex = self.assertRaises(
+            exceptions.CommandError,
+            self.cmd.take_action,
+            parsed_args)
+        self.assertIn(
+            '--os-compute-api-version 2.24 or greater is required',
+            str(ex))
 
 
 class TestServerPause(TestServer):
