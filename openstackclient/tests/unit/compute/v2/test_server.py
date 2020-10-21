@@ -47,9 +47,13 @@ class TestServer(compute_fakes.TestComputev2):
             self.app.client_manager.compute.server_migrations
         self.server_migrations_mock.reset_mock()
 
-        # Get a shortcut to the compute client volumeManager Mock
+        # Get a shortcut to the compute client VolumeManager mock
         self.servers_volumes_mock = self.app.client_manager.compute.volumes
         self.servers_volumes_mock.reset_mock()
+
+        # Get a shortcut to the compute client MigrationManager mock
+        self.migrations_mock = self.app.client_manager.compute.migrations
+        self.migrations_mock.reset_mock()
 
         # Get a shortcut to the compute client FlavorManager Mock
         self.flavors_mock = self.app.client_manager.compute.flavors
@@ -4039,34 +4043,7 @@ class TestServerMigrate(TestServer):
         self.assertNotCalled(self.servers_mock.live_migrate)
 
 
-class TestServerMigration(TestServer):
-
-    def setUp(self):
-        super(TestServerMigration, self).setUp()
-
-        # Get a shortcut to the compute client ServerManager Mock
-        self.servers_mock = self.app.client_manager.compute.servers
-        self.servers_mock.reset_mock()
-
-        self.migrations_mock = (
-            self.app.client_manager.compute.migrations)
-        self.migrations_mock.reset_mock()
-
-        self.server = self.setup_servers_mock(1)[0]
-
-    def setup_servers_mock(self, count):
-        servers = compute_fakes.FakeServer.create_servers(count=count)
-
-        # This is the return value for utils.find_resource()
-        self.servers_mock.get = compute_fakes.FakeServer.get_servers(servers)
-        return servers
-
-    def setup_server_migrations_mock(self, count):
-        return compute_fakes.FakeServerMigration.create_server_migrations(
-            count=count)
-
-
-class TestListMigration(TestServerMigration):
+class TestListMigration(TestServer):
     """Test fetch all migrations."""
 
     MIGRATION_COLUMNS = [
@@ -4078,24 +4055,48 @@ class TestListMigration(TestServerMigration):
     def setUp(self):
         super(TestListMigration, self).setUp()
 
-        self.cmd = server.ListMigration(self.app, None)
-        self.migrations = self.setup_server_migrations_mock(3)
+        self.server = compute_fakes.FakeServer.create_one_server()
+        self.servers_mock.get.return_value = self.server
+
+        self.migrations = compute_fakes.FakeServerMigration\
+            .create_server_migrations(count=3)
         self.migrations_mock.list.return_value = self.migrations
-        self.setup_server_migrations_data(self.migrations)
 
-        self.app.client_manager.compute.api_version = api_versions.APIVersion(
-            '2.20')
-
-    def setup_server_migrations_data(self, migrations):
         self.data = (common_utils.get_item_properties(
-            s, self.MIGRATION_COLUMNS) for s in migrations)
+            s, self.MIGRATION_COLUMNS) for s in self.migrations)
 
-    def test_server_migraton_list(self):
+        # Get the command object to test
+        self.cmd = server.ListMigration(self.app, None)
+
+    def test_server_migration_list_no_options(self):
+        arglist = []
+        verifylist = []
+
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+        columns, data = self.cmd.take_action(parsed_args)
+
+        # Set expected values
+        kwargs = {
+            'status': None,
+            'host': None,
+            'server': None,
+        }
+
+        self.migrations_mock.list.assert_called_with(**kwargs)
+
+        self.assertEqual(self.MIGRATION_COLUMNS, columns)
+        self.assertEqual(tuple(self.data), tuple(data))
+
+    def test_server_migration_list(self):
         arglist = [
-            '--status', 'migrating'
+            '--server', 'server1',
+            '--host', 'host1',
+            '--status', 'migrating',
         ]
         verifylist = [
-            ('status', 'migrating')
+            ('server', 'server1'),
+            ('host', 'host1'),
+            ('status', 'migrating'),
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
         columns, data = self.cmd.take_action(parsed_args)
@@ -4103,8 +4104,8 @@ class TestListMigration(TestServerMigration):
         # Set expected values
         kwargs = {
             'status': 'migrating',
-            'host': None,
-            'server': None,
+            'host': 'host1',
+            'server': 'server1',
         }
 
         self.migrations_mock.list.assert_called_with(**kwargs)
@@ -4124,15 +4125,11 @@ class TestListMigrationV223(TestListMigration):
 
     def setUp(self):
         super(TestListMigrationV223, self).setUp()
-        self.cmd = server.ListMigration(self.app, None)
-        self.migrations = self.setup_server_migrations_mock(3)
-        self.migrations_mock.list.return_value = self.migrations
-        self.setup_server_migrations_data(self.migrations)
 
         self.app.client_manager.compute.api_version = api_versions.APIVersion(
             '2.23')
 
-    def test_server_migraton_list(self):
+    def test_server_migration_list(self):
         arglist = [
             '--status', 'migrating'
         ]
@@ -4169,15 +4166,11 @@ class TestListMigrationV259(TestListMigration):
 
     def setUp(self):
         super(TestListMigrationV259, self).setUp()
-        self.cmd = server.ListMigration(self.app, None)
-        self.migrations = self.setup_server_migrations_mock(3)
-        self.migrations_mock.list.return_value = self.migrations
-        self.setup_server_migrations_data(self.migrations)
 
         self.app.client_manager.compute.api_version = api_versions.APIVersion(
             '2.59')
 
-    def test_server_migraton_list(self):
+    def test_server_migration_list(self):
         arglist = [
             '--status', 'migrating',
             '--limit', '1',
@@ -4208,7 +4201,7 @@ class TestListMigrationV259(TestListMigration):
         self.assertEqual(self.MIGRATION_COLUMNS, columns)
         self.assertEqual(tuple(self.data), tuple(data))
 
-    def test_server_migraton_list_with_limit_pre_v259(self):
+    def test_server_migration_list_with_limit_pre_v259(self):
         self.app.client_manager.compute.api_version = api_versions.APIVersion(
             '2.58')
         arglist = [
@@ -4220,10 +4213,15 @@ class TestListMigrationV259(TestListMigration):
             ('limit', 1)
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
-        self.assertRaises(exceptions.CommandError, self.cmd.take_action,
-                          parsed_args)
+        ex = self.assertRaises(
+            exceptions.CommandError,
+            self.cmd.take_action,
+            parsed_args)
+        self.assertIn(
+            '--os-compute-api-version 2.59 or greater is required',
+            str(ex))
 
-    def test_server_migraton_list_with_marker_pre_v259(self):
+    def test_server_migration_list_with_marker_pre_v259(self):
         self.app.client_manager.compute.api_version = api_versions.APIVersion(
             '2.58')
         arglist = [
@@ -4235,10 +4233,15 @@ class TestListMigrationV259(TestListMigration):
             ('marker', 'test_kp')
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
-        self.assertRaises(exceptions.CommandError, self.cmd.take_action,
-                          parsed_args)
+        ex = self.assertRaises(
+            exceptions.CommandError,
+            self.cmd.take_action,
+            parsed_args)
+        self.assertIn(
+            '--os-compute-api-version 2.59 or greater is required',
+            str(ex))
 
-    def test_server_migraton_list_with_changes_since_pre_v259(self):
+    def test_server_migration_list_with_changes_since_pre_v259(self):
         self.app.client_manager.compute.api_version = api_versions.APIVersion(
             '2.58')
         arglist = [
@@ -4250,8 +4253,13 @@ class TestListMigrationV259(TestListMigration):
             ('changes_since', '2019-08-09T08:03:25Z')
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
-        self.assertRaises(exceptions.CommandError, self.cmd.take_action,
-                          parsed_args)
+        ex = self.assertRaises(
+            exceptions.CommandError,
+            self.cmd.take_action,
+            parsed_args)
+        self.assertIn(
+            '--os-compute-api-version 2.59 or greater is required',
+            str(ex))
 
 
 class TestListMigrationV266(TestListMigration):
@@ -4265,15 +4273,11 @@ class TestListMigrationV266(TestListMigration):
 
     def setUp(self):
         super(TestListMigrationV266, self).setUp()
-        self.cmd = server.ListMigration(self.app, None)
-        self.migrations = self.setup_server_migrations_mock(3)
-        self.migrations_mock.list.return_value = self.migrations
-        self.setup_server_migrations_data(self.migrations)
 
         self.app.client_manager.compute.api_version = api_versions.APIVersion(
             '2.66')
 
-    def test_server_migraton_list_with_changes_before(self):
+    def test_server_migration_list_with_changes_before(self):
         arglist = [
             '--status', 'migrating',
             '--limit', '1',
@@ -4307,7 +4311,7 @@ class TestListMigrationV266(TestListMigration):
         self.assertEqual(self.MIGRATION_COLUMNS, columns)
         self.assertEqual(tuple(self.data), tuple(data))
 
-    def test_server_migraton_list_with_changes_before_pre_v266(self):
+    def test_server_migration_list_with_changes_before_pre_v266(self):
         self.app.client_manager.compute.api_version = api_versions.APIVersion(
             '2.65')
         arglist = [
@@ -4319,8 +4323,13 @@ class TestListMigrationV266(TestListMigration):
             ('changes_before', '2019-08-09T08:03:25Z')
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
-        self.assertRaises(exceptions.CommandError, self.cmd.take_action,
-                          parsed_args)
+        ex = self.assertRaises(
+            exceptions.CommandError,
+            self.cmd.take_action,
+            parsed_args)
+        self.assertIn(
+            '--os-compute-api-version 2.66 or greater is required',
+            str(ex))
 
 
 class TestListMigrationV280(TestListMigration):
@@ -4334,15 +4343,11 @@ class TestListMigrationV280(TestListMigration):
 
     def setUp(self):
         super(TestListMigrationV280, self).setUp()
-        self.cmd = server.ListMigration(self.app, None)
-        self.migrations = self.setup_server_migrations_mock(3)
-        self.migrations_mock.list.return_value = self.migrations
-        self.setup_server_migrations_data(self.migrations)
 
         self.app.client_manager.compute.api_version = api_versions.APIVersion(
             '2.80')
 
-    def test_server_migraton_list_with_project(self):
+    def test_server_migration_list_with_project(self):
         arglist = [
             '--status', 'migrating',
             '--limit', '1',
@@ -4397,10 +4402,15 @@ class TestListMigrationV280(TestListMigration):
             ('project_id', '0c2accde-644a-45fa-8c10-e76debc7fbc3')
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
-        self.assertRaises(exceptions.CommandError, self.cmd.take_action,
-                          parsed_args)
+        ex = self.assertRaises(
+            exceptions.CommandError,
+            self.cmd.take_action,
+            parsed_args)
+        self.assertIn(
+            '--os-compute-api-version 2.80 or greater is required',
+            str(ex))
 
-    def test_server_migraton_list_with_user(self):
+    def test_server_migration_list_with_user(self):
         arglist = [
             '--status', 'migrating',
             '--limit', '1',
@@ -4455,11 +4465,15 @@ class TestListMigrationV280(TestListMigration):
             ('user_id', 'dd214878-ca12-40fb-b035-fa7d2c1e86d6')
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+        ex = self.assertRaises(
+            exceptions.CommandError,
+            self.cmd.take_action,
+            parsed_args)
+        self.assertIn(
+            '--os-compute-api-version 2.80 or greater is required',
+            str(ex))
 
-        self.assertRaises(exceptions.CommandError, self.cmd.take_action,
-                          parsed_args)
-
-    def test_server_migraton_list_with_project_and_user(self):
+    def test_server_migration_list_with_project_and_user(self):
         arglist = [
             '--status', 'migrating',
             '--limit', '1',
@@ -4519,8 +4533,13 @@ class TestListMigrationV280(TestListMigration):
             ('user_id', 'dd214878-ca12-40fb-b035-fa7d2c1e86d6')
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
-        self.assertRaises(exceptions.CommandError, self.cmd.take_action,
-                          parsed_args)
+        ex = self.assertRaises(
+            exceptions.CommandError,
+            self.cmd.take_action,
+            parsed_args)
+        self.assertIn(
+            '--os-compute-api-version 2.80 or greater is required',
+            str(ex))
 
 
 class TestServerMigrationAbort(TestServer):
