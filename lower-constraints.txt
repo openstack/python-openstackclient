@@ -21,15 +21,12 @@ eventlet==0.18.2
 extras==1.0.0
 fasteners==0.7.0
 fixtures==3.0.0
-flake8-import-order==0.13
-flake8==2.6.2
 future==0.16.0
 futurist==2.1.0
 gitdb==0.6.4
 GitPython==1.0.1
 gnocchiclient==3.3.1
 greenlet==0.4.15
-hacking==2.0.0
 httplib2==0.9.1
 idna==2.6
 iso8601==0.1.11
@@ -42,7 +39,6 @@ keystoneauth1==3.18.0
 kombu==4.0.0
 linecache2==1.0.0
 MarkupSafe==1.1.0
-mccabe==0.2.1
 monotonic==0.6
 mox3==0.20.0
 msgpack-python==0.4.0
@@ -78,7 +74,6 @@ prettytable==0.7.2
 pyasn1==0.1.8
 pycodestyle==2.0.0
 pycparser==2.18
-pyflakes==0.8.1
 pyinotify==0.9.6
 pyOpenSSL==17.1.0
 pyparsing==2.1.0
