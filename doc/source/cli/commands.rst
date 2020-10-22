@@ -306,7 +306,7 @@ Implementation
 --------------
 
 The command structure is designed to support seamless addition of plugin
-command modules via ``setuptools`` entry points.  The plugin commands must
+command modules via Python's *entry points* mechanism. The plugin commands must
 be subclasses of Cliff's ``command.Command`` object.  See :ref:`plugins` for
 more information.
 

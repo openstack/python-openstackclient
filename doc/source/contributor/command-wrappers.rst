@@ -7,7 +7,7 @@ We do this with a message logged at WARNING level before any command output
 is emitted.
 
 OpenStackClient command classes are derived from the ``cliff`` classes.
-Cliff uses ``setuptools`` entry points for dispatching the parsed command
+Cliff uses Python's *entry points* mechanism for dispatching the parsed command
 to the respective handler classes.  This lends itself to modifying the
 command execution at run-time.
 

@@ -5,9 +5,8 @@ Plugins
 =======
 
 The OpenStackClient plugin system is designed so that the plugin need only be
-properly installed for OSC to find and use it.  It utilizes the
-``setuptools`` entry points mechanism to advertise to OSC the
-plugin module and supported commands.
+properly installed for OSC to find and use it. It utilizes Python's *entry
+points* mechanism to advertise to OSC the plugin module and supported commands.
 
 Adoption
 ========
