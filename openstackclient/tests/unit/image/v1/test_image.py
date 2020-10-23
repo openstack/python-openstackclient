@@ -757,3 +757,50 @@ class TestImageShow(image_fakes.TestImagev1):
 
         size_index = columns.index('size')
         self.assertEqual(data[size_index].human_readable(), '2K')
+
+
+class TestImageSave(image_fakes.TestImagev1):
+    image = image_fakes.create_one_image({})
+
+    def setUp(self):
+        super().setUp()
+
+        self.image_client.find_image.return_value = self.image
+        self.image_client.download_image.return_value = self.image
+
+        # Get the command object to test
+        self.cmd = image.SaveImage(self.app, None)
+
+    def test_save_data(self):
+        arglist = ['--file', '/path/to/file', self.image.id]
+
+        verifylist = [('file', '/path/to/file'), ('image', self.image.id)]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        self.cmd.take_action(parsed_args)
+
+        self.image_client.download_image.assert_called_once_with(
+            self.image.id, output='/path/to/file', stream=True, chunk_size=1024
+        )
+
+    def test_save_data_with_chunk_size(self):
+        arglist = [
+            '--file',
+            '/path/to/file',
+            '--chunk-size',
+            '2048',
+            self.image.id,
+        ]
+
+        verifylist = [
+            ('file', '/path/to/file'),
+            ('chunk_size', 2048),
+            ('image', self.image.id),
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        self.cmd.take_action(parsed_args)
+
+        self.image_client.download_image.assert_called_once_with(
+            self.image.id, output='/path/to/file', stream=True, chunk_size=2048
+        )
