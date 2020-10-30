@@ -640,13 +640,15 @@ class CreateServer(command.ShowOne):
         disk_group.add_argument(
             '--volume',
             metavar='<volume>',
-            help=_('Create server using this volume as the boot disk (name '
-                   'or ID).\n'
-                   'This option automatically creates a block device mapping '
-                   'with a boot index of 0. On many hypervisors (libvirt/kvm '
-                   'for example) this will be device vda. Do not create a '
-                   'duplicate mapping using --block-device-mapping for this '
-                   'volume.'),
+            help=_(
+                'Create server using this volume as the boot disk (name or ID)'
+                '\n'
+                'This option automatically creates a block device mapping '
+                'with a boot index of 0. On many hypervisors (libvirt/kvm '
+                'for example) this will be device vda. Do not create a '
+                'duplicate mapping using --block-device-mapping for this '
+                'volume.'
+            ),
         )
         parser.add_argument(
             '--password',
@@ -664,28 +666,34 @@ class CreateServer(command.ShowOne):
             metavar='<security-group>',
             action='append',
             default=[],
-            help=_('Security group to assign to this server (name or ID) '
-                   '(repeat option to set multiple groups)'),
+            help=_(
+                'Security group to assign to this server (name or ID) '
+                '(repeat option to set multiple groups)'
+            ),
         )
         parser.add_argument(
             '--key-name',
             metavar='<key-name>',
-            help=_('Keypair to inject into this server (optional extension)'),
+            help=_('Keypair to inject into this server'),
         )
         parser.add_argument(
             '--property',
             metavar='<key=value>',
             action=parseractions.KeyValueAction,
-            help=_('Set a property on this server '
-                   '(repeat option to set multiple values)'),
+            help=_(
+                'Set a property on this server '
+                '(repeat option to set multiple values)'
+            ),
         )
         parser.add_argument(
             '--file',
             metavar='<dest-filename=source-filename>',
             action='append',
             default=[],
-            help=_('File to inject into image before boot '
-                   '(repeat option to set multiple files)'),
+            help=_(
+                'File to inject into image before boot '
+                '(repeat option to set multiple files)'
+            ),
         )
         parser.add_argument(
             '--user-data',
@@ -695,8 +703,10 @@ class CreateServer(command.ShowOne):
         parser.add_argument(
             '--description',
             metavar='<description>',
-            help=_('Set description for the server (supported by '
-                   '--os-compute-api-version 2.19 or above)'),
+            help=_(
+                'Set description for the server '
+                '(supported by --os-compute-api-version 2.19 or above)'
+            ),
         )
         parser.add_argument(
             '--availability-zone',
@@ -706,29 +716,35 @@ class CreateServer(command.ShowOne):
         parser.add_argument(
             '--host',
             metavar='<host>',
-            help=_('Requested host to create servers. Admin only '
-                   'by default. (supported by --os-compute-api-version 2.74 '
-                   'or above)'),
+            help=_(
+                'Requested host to create servers. '
+                '(admin only) '
+                '(supported by --os-compute-api-version 2.74 or above)'
+            ),
         )
         parser.add_argument(
             '--hypervisor-hostname',
             metavar='<hypervisor-hostname>',
-            help=_('Requested hypervisor hostname to create servers. Admin '
-                   'only by default. (supported by --os-compute-api-version '
-                   '2.74 or above)'),
+            help=_(
+                'Requested hypervisor hostname to create servers. '
+                '(admin only) '
+                '(supported by --os-compute-api-version 2.74 or above)'
+            ),
         )
         parser.add_argument(
             '--boot-from-volume',
             metavar='<volume-size>',
             type=int,
-            help=_('When used in conjunction with the ``--image`` or '
-                   '``--image-property`` option, this option automatically '
-                   'creates a block device mapping with a boot index of 0 '
-                   'and tells the compute service to create a volume of the '
-                   'given size (in GB) from the specified image and use it '
-                   'as the root disk of the server. The root volume will not '
-                   'be deleted when the server is deleted. This option is '
-                   'mutually exclusive with the ``--volume`` option.')
+            help=_(
+                'When used in conjunction with the ``--image`` or '
+                '``--image-property`` option, this option automatically '
+                'creates a block device mapping with a boot index of 0 '
+                'and tells the compute service to create a volume of the '
+                'given size (in GB) from the specified image and use it '
+                'as the root disk of the server. The root volume will not '
+                'be deleted when the server is deleted. This option is '
+                'mutually exclusive with the ``--volume`` option.'
+            )
         )
         parser.add_argument(
             '--block-device-mapping',
@@ -738,37 +754,40 @@ class CreateServer(command.ShowOne):
             # NOTE(RuiChen): Add '\n' at the end of line to put each item in
             #                the separated line, avoid the help message looks
             #                messy, see _SmartHelpFormatter in cliff.
-            help=_('Create a block device on the server.\n'
-                   'Block device mapping in the format\n'
-                   '<dev-name>=<id>:<type>:<size(GB)>:<delete-on-terminate>\n'
-                   '<dev-name>: block device name, like: vdb, xvdc '
-                   '(required)\n'
-                   '<id>: Name or ID of the volume, volume snapshot or image '
-                   '(required)\n'
-                   '<type>: volume, snapshot or image; default: volume '
-                   '(optional)\n'
-                   '<size(GB)>: volume size if create from image or snapshot '
-                   '(optional)\n'
-                   '<delete-on-terminate>: true or false; default: false '
-                   '(optional)\n'
-                   '(optional extension)'),
+            help=_(
+                'Create a block device on the server.\n'
+                'Block device mapping in the format\n'
+                '<dev-name>=<id>:<type>:<size(GB)>:<delete-on-terminate>\n'
+                '<dev-name>: block device name, like: vdb, xvdc '
+                '(required)\n'
+                '<id>: Name or ID of the volume, volume snapshot or image '
+                '(required)\n'
+                '<type>: volume, snapshot or image; default: volume '
+                '(optional)\n'
+                '<size(GB)>: volume size if create from image or snapshot '
+                '(optional)\n'
+                '<delete-on-terminate>: true or false; default: false '
+                '(optional)\n'
+            ),
         )
         parser.add_argument(
             '--nic',
             metavar="<net-id=net-uuid,v4-fixed-ip=ip-addr,v6-fixed-ip=ip-addr,"
                     "port-id=port-uuid,auto,none>",
             action='append',
-            help=_("Create a NIC on the server. "
-                   "Specify option multiple times to create multiple NICs. "
-                   "Either net-id or port-id must be provided, but not both. "
-                   "net-id: attach NIC to network with this UUID, "
-                   "port-id: attach NIC to port with this UUID, "
-                   "v4-fixed-ip: IPv4 fixed address for NIC (optional), "
-                   "v6-fixed-ip: IPv6 fixed address for NIC (optional), "
-                   "none: (v2.37+) no network is attached, "
-                   "auto: (v2.37+) the compute service will automatically "
-                   "allocate a network. Specifying a --nic of auto or none "
-                   "cannot be used with any other --nic value."),
+            help=_(
+                "Create a NIC on the server. "
+                "Specify option multiple times to create multiple NICs. "
+                "Either net-id or port-id must be provided, but not both. "
+                "net-id: attach NIC to network with this UUID, "
+                "port-id: attach NIC to port with this UUID, "
+                "v4-fixed-ip: IPv4 fixed address for NIC (optional), "
+                "v6-fixed-ip: IPv6 fixed address for NIC (optional), "
+                "none: (v2.37+) no network is attached, "
+                "auto: (v2.37+) the compute service will automatically "
+                "allocate a network. Specifying a --nic of auto or none "
+                "cannot be used with any other --nic value."
+            ),
         )
         parser.add_argument(
             '--network',
@@ -776,13 +795,15 @@ class CreateServer(command.ShowOne):
             action='append',
             dest='nic',
             type=_prefix_checked_value('net-id='),
-            help=_("Create a NIC on the server and connect it to network. "
-                   "Specify option multiple times to create multiple NICs. "
-                   "This is a wrapper for the '--nic net-id=<network>' "
-                   "parameter that provides simple syntax for the standard "
-                   "use case of connecting a new server to a given network. "
-                   "For more advanced use cases, refer to the '--nic' "
-                   "parameter."),
+            help=_(
+                "Create a NIC on the server and connect it to network. "
+                "Specify option multiple times to create multiple NICs. "
+                "This is a wrapper for the '--nic net-id=<network>' "
+                "parameter that provides simple syntax for the standard "
+                "use case of connecting a new server to a given network. "
+                "For more advanced use cases, refer to the '--nic' "
+                "parameter."
+            ),
         )
         parser.add_argument(
             '--port',
@@ -790,12 +811,14 @@ class CreateServer(command.ShowOne):
             action='append',
             dest='nic',
             type=_prefix_checked_value('port-id='),
-            help=_("Create a NIC on the server and connect it to port. "
-                   "Specify option multiple times to create multiple NICs. "
-                   "This is a wrapper for the '--nic port-id=<port>' "
-                   "parameter that provides simple syntax for the standard "
-                   "use case of connecting a new server to a given port. For "
-                   "more advanced use cases, refer to the '--nic' parameter."),
+            help=_(
+                "Create a NIC on the server and connect it to port. "
+                "Specify option multiple times to create multiple NICs. "
+                "This is a wrapper for the '--nic port-id=<port>' "
+                "parameter that provides simple syntax for the standard "
+                "use case of connecting a new server to a given port. For "
+                "more advanced use cases, refer to the '--nic' parameter."
+            ),
         )
         parser.add_argument(
             '--hint',
@@ -882,10 +905,13 @@ class CreateServer(command.ShowOne):
         if not image and parsed_args.image_property:
             def emit_duplicated_warning(img, image_property):
                 img_uuid_list = [str(image.id) for image in img]
-                LOG.warning(_('Multiple matching images: %(img_uuid_list)s\n'
-                              'Using image: %(chosen_one)s') %
-                            {'img_uuid_list': img_uuid_list,
-                             'chosen_one': img_uuid_list[0]})
+                LOG.warning(
+                    'Multiple matching images: %(img_uuid_list)s\n'
+                    'Using image: %(chosen_one)s',
+                    {
+                        'img_uuid_list': img_uuid_list,
+                        'chosen_one': img_uuid_list[0],
+                    })
 
             def _match_image(image_api, wanted_properties):
                 image_list = image_api.images()
@@ -902,45 +928,52 @@ class CreateServer(command.ShowOne):
                             set([key, value])
                         except TypeError:
                             if key != 'properties':
-                                LOG.debug('Skipped the \'%s\' attribute. '
-                                          'That cannot be compared. '
-                                          '(image: %s, value: %s)',
-                                          key, img.id, value)
+                                LOG.debug(
+                                    'Skipped the \'%s\' attribute. '
+                                    'That cannot be compared. '
+                                    '(image: %s, value: %s)',
+                                    key, img.id, value,
+                                )
                             pass
                         else:
                             img_dict[key] = value
 
-                    if all(k in img_dict and img_dict[k] == v
-                           for k, v in wanted_properties.items()):
+                    if all(
+                        k in img_dict and img_dict[k] == v
+                        for k, v in wanted_properties.items()
+                    ):
                         images_matched.append(img)
+
                 return images_matched
 
             images = _match_image(image_client, parsed_args.image_property)
             if len(images) > 1:
-                emit_duplicated_warning(images,
-                                        parsed_args.image_property)
+                emit_duplicated_warning(images, parsed_args.image_property)
             if images:
                 image = images[0]
             else:
-                raise exceptions.CommandError(_("No images match the "
-                                                "property expected by "
-                                                "--image-property"))
+                msg = _(
+                    'No images match the property expected by '
+                    '--image-property'
+                )
+                raise exceptions.CommandError(msg)
 
         # Lookup parsed_args.volume
         volume = None
         if parsed_args.volume:
             # --volume and --boot-from-volume are mutually exclusive.
             if parsed_args.boot_from_volume:
-                raise exceptions.CommandError(
-                    _('--volume is not allowed with --boot-from-volume'))
+                msg = _('--volume is not allowed with --boot-from-volume')
+                raise exceptions.CommandError(msg)
+
             volume = utils.find_resource(
                 volume_client.volumes,
                 parsed_args.volume,
             ).id
 
         # Lookup parsed_args.flavor
-        flavor = utils.find_resource(compute_client.flavors,
-                                     parsed_args.flavor)
+        flavor = utils.find_resource(
+            compute_client.flavors, parsed_args.flavor)
 
         files = {}
         for f in parsed_args.file:
@@ -950,16 +983,17 @@ class CreateServer(command.ShowOne):
             except IOError as e:
                 msg = _("Can't open '%(source)s': %(exception)s")
                 raise exceptions.CommandError(
-                    msg % {"source": src,
-                           "exception": e}
+                    msg % {'source': src, 'exception': e}
                 )
 
         if parsed_args.min > parsed_args.max:
             msg = _("min instances should be <= max instances")
             raise exceptions.CommandError(msg)
+
         if parsed_args.min < 1:
             msg = _("min instances should be > 0")
             raise exceptions.CommandError(msg)
+
         if parsed_args.max < 1:
             msg = _("max instances should be > 0")
             raise exceptions.CommandError(msg)
@@ -971,8 +1005,7 @@ class CreateServer(command.ShowOne):
             except IOError as e:
                 msg = _("Can't open '%(data)s': %(exception)s")
                 raise exceptions.CommandError(
-                    msg % {"data": parsed_args.user_data,
-                           "exception": e}
+                    msg % {'data': parsed_args.user_data, 'exception': e}
                 )
 
         if parsed_args.description:
@@ -983,11 +1016,12 @@ class CreateServer(command.ShowOne):
 
         block_device_mapping_v2 = []
         if volume:
-            block_device_mapping_v2 = [{'uuid': volume,
-                                        'boot_index': '0',
-                                        'source_type': 'volume',
-                                        'destination_type': 'volume'
-                                        }]
+            block_device_mapping_v2 = [{
+                'uuid': volume,
+                'boot_index': '0',
+                'source_type': 'volume',
+                'destination_type': 'volume'
+            }]
         elif parsed_args.boot_from_volume:
             # Tell nova to create a root volume from the image provided.
             block_device_mapping_v2 = [{
@@ -1008,13 +1042,16 @@ class CreateServer(command.ShowOne):
             dev_map = dev_map.split(':')
             if dev_map[0]:
                 mapping = {'device_name': dev_name}
+
                 # 1. decide source and destination type
                 if (len(dev_map) > 1 and
                         dev_map[1] in ('volume', 'snapshot', 'image')):
                     mapping['source_type'] = dev_map[1]
                 else:
                     mapping['source_type'] = 'volume'
+
                 mapping['destination_type'] = 'volume'
+
                 # 2. check target exist, update target uuid according by
                 #    source type
                 if mapping['source_type'] == 'volume':
@@ -1040,14 +1077,18 @@ class CreateServer(command.ShowOne):
                     image_id = image_client.find_image(dev_map[0],
                                                        ignore_missing=False).id
                     mapping['uuid'] = image_id
+
                 # 3. append size and delete_on_termination if exist
                 if len(dev_map) > 2 and dev_map[2]:
                     mapping['volume_size'] = dev_map[2]
+
                 if len(dev_map) > 3 and dev_map[3]:
                     mapping['delete_on_termination'] = dev_map[3]
             else:
-                msg = _("Volume, volume snapshot or image (name or ID) must "
-                        "be specified if --block-device-mapping is specified")
+                msg = _(
+                    'Volume, volume snapshot or image (name or ID) must '
+                    'be specified if --block-device-mapping is specified'
+                )
                 raise exceptions.CommandError(msg)
             block_device_mapping_v2.append(mapping)
 
@@ -1061,22 +1102,32 @@ class CreateServer(command.ShowOne):
                 auto_or_none = True
                 nics.append(nic_str)
             else:
-                nic_info = {"net-id": "", "v4-fixed-ip": "",
-                            "v6-fixed-ip": "", "port-id": ""}
+                nic_info = {
+                    'net-id': '',
+                    'v4-fixed-ip': '',
+                    'v6-fixed-ip': '',
+                    'port-id': '',
+                }
                 for kv_str in nic_str.split(","):
                     k, sep, v = kv_str.partition("=")
                     if k in nic_info and v:
                         nic_info[k] = v
                     else:
-                        msg = (_("Invalid nic argument '%s'. Nic arguments "
-                                 "must be of the form --nic <net-id=net-uuid"
-                                 ",v4-fixed-ip=ip-addr,v6-fixed-ip=ip-addr,"
-                                 "port-id=port-uuid>."))
+                        msg = _(
+                            "Invalid nic argument '%s'. Nic arguments "
+                            "must be of the form --nic <net-id=net-uuid"
+                            ",v4-fixed-ip=ip-addr,v6-fixed-ip=ip-addr,"
+                            "port-id=port-uuid>."
+                        )
                         raise exceptions.CommandError(msg % k)
+
                 if bool(nic_info["net-id"]) == bool(nic_info["port-id"]):
-                    msg = _("either network or port should be specified "
-                            "but not both")
+                    msg = _(
+                        'Either network or port should be specified '
+                        'but not both'
+                    )
                     raise exceptions.CommandError(msg)
+
                 if self.app.client_manager.is_network_endpoint_enabled():
                     network_client = self.app.client_manager.network
                     if nic_info["net-id"]:
@@ -1093,17 +1144,22 @@ class CreateServer(command.ShowOne):
                             nic_info["net-id"]
                         )['id']
                     if nic_info["port-id"]:
-                        msg = _("can't create server with port specified "
-                                "since network endpoint not enabled")
+                        msg = _(
+                            "Can't create server with port specified "
+                            "since network endpoint not enabled"
+                        )
                         raise exceptions.CommandError(msg)
+
                 nics.append(nic_info)
 
         if nics:
             if auto_or_none:
                 if len(nics) > 1:
-                    msg = _('Specifying a --nic of auto or none cannot '
-                            'be used with any other --nic, --network '
-                            'or --port value.')
+                    msg = _(
+                        'Specifying a --nic of auto or none cannot '
+                        'be used with any other --nic, --network '
+                        'or --port value.'
+                    )
                     raise exceptions.CommandError(msg)
                 nics = nics[0]
         else:
@@ -1185,16 +1241,22 @@ class CreateServer(command.ShowOne):
 
         if parsed_args.host:
             if compute_client.api_version < api_versions.APIVersion("2.74"):
-                msg = _("Specifying --host is not supported for "
-                        "--os-compute-api-version less than 2.74")
+                msg = _(
+                    '--os-compute-api-version 2.74 or greater is required to '
+                    'support the --host option'
+                )
                 raise exceptions.CommandError(msg)
+
             boot_kwargs['host'] = parsed_args.host
 
         if parsed_args.hypervisor_hostname:
             if compute_client.api_version < api_versions.APIVersion("2.74"):
-                msg = _("Specifying --hypervisor-hostname is not supported "
-                        "for --os-compute-api-version less than 2.74")
+                msg = _(
+                    '--os-compute-api-version 2.74 or greater is required to '
+                    'support the --hypervisor-hostname option'
+                )
                 raise exceptions.CommandError(msg)
+
             boot_kwargs['hypervisor_hostname'] = (
                 parsed_args.hypervisor_hostname)
 
@@ -1220,8 +1282,7 @@ class CreateServer(command.ShowOne):
             ):
                 self.app.stdout.write('\n')
             else:
-                LOG.error(_('Error creating server: %s'),
-                          parsed_args.server_name)
+                LOG.error('Error creating server: %s', parsed_args.server_name)
                 self.app.stdout.write(_('Error creating server\n'))
                 raise SystemExit
 
