@@ -54,6 +54,33 @@ class TestServerGroup(compute_fakes.TestComputev2):
         self.server_groups_mock.reset_mock()
 
 
+class TestServerGroupV264(TestServerGroup):
+
+    fake_server_group = \
+        compute_fakes.FakeServerGroupV264.create_one_server_group()
+
+    columns = (
+        'id',
+        'members',
+        'name',
+        'policy',
+        'project_id',
+        'user_id',
+    )
+
+    data = (
+        fake_server_group.id,
+        utils.format_list(fake_server_group.members),
+        fake_server_group.name,
+        fake_server_group.policy,
+        fake_server_group.project_id,
+        fake_server_group.user_id,
+    )
+
+    def setUp(self):
+        super(TestServerGroupV264, self).setUp()
+
+
 class TestServerGroupCreate(TestServerGroup):
 
     def setUp(self):
@@ -222,6 +249,76 @@ class TestServerGroupList(TestServerGroup):
 
         self.server_groups_mock.list.return_value = [self.fake_server_group]
         self.cmd = server_group.ListServerGroup(self.app, None)
+
+    def test_server_group_list(self):
+        arglist = []
+        verifylist = [
+            ('all_projects', False),
+            ('long', False),
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+        columns, data = self.cmd.take_action(parsed_args)
+        self.server_groups_mock.list.assert_called_once_with(False)
+
+        self.assertEqual(self.list_columns, columns)
+        self.assertEqual(self.list_data, tuple(data))
+
+    def test_server_group_list_with_all_projects_and_long(self):
+        arglist = [
+            '--all-projects',
+            '--long',
+        ]
+        verifylist = [
+            ('all_projects', True),
+            ('long', True),
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+        columns, data = self.cmd.take_action(parsed_args)
+        self.server_groups_mock.list.assert_called_once_with(True)
+
+        self.assertEqual(self.list_columns_long, columns)
+        self.assertEqual(self.list_data_long, tuple(data))
+
+
+class TestServerGroupListV264(TestServerGroupV264):
+
+    list_columns = (
+        'ID',
+        'Name',
+        'Policy',
+    )
+
+    list_columns_long = (
+        'ID',
+        'Name',
+        'Policy',
+        'Members',
+        'Project Id',
+        'User Id',
+    )
+
+    list_data = ((
+        TestServerGroupV264.fake_server_group.id,
+        TestServerGroupV264.fake_server_group.name,
+        TestServerGroupV264.fake_server_group.policy,
+    ),)
+
+    list_data_long = ((
+        TestServerGroupV264.fake_server_group.id,
+        TestServerGroupV264.fake_server_group.name,
+        TestServerGroupV264.fake_server_group.policy,
+        utils.format_list(TestServerGroupV264.fake_server_group.members),
+        TestServerGroupV264.fake_server_group.project_id,
+        TestServerGroupV264.fake_server_group.user_id,
+    ),)
+
+    def setUp(self):
+        super(TestServerGroupListV264, self).setUp()
+
+        self.server_groups_mock.list.return_value = [self.fake_server_group]
+        self.cmd = server_group.ListServerGroup(self.app, None)
+        self.app.client_manager.compute.api_version = api_versions.APIVersion(
+            '2.64')
 
     def test_server_group_list(self):
         arglist = []
