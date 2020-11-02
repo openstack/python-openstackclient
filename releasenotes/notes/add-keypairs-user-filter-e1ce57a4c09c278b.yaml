@@ -1,0 +1,6 @@
+---
+features:
+  - |
+    It is now possible to list the keypairs for a specific user using the
+    ``--user`` parameter. This is an admin-only action by default and requires
+    Compute API microversion 2.10 or later.

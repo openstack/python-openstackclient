@@ -13,6 +13,7 @@
 #   under the License.
 #
 
+import copy
 from unittest import mock
 from unittest.mock import call
 import uuid
@@ -23,6 +24,8 @@ from osc_lib import utils
 
 from openstackclient.compute.v2 import keypair
 from openstackclient.tests.unit.compute.v2 import fakes as compute_fakes
+from openstackclient.tests.unit import fakes
+from openstackclient.tests.unit.identity.v2_0 import fakes as identity_fakes
 from openstackclient.tests.unit import utils as tests_utils
 
 
@@ -307,6 +310,14 @@ class TestKeypairList(TestKeypair):
     def setUp(self):
         super(TestKeypairList, self).setUp()
 
+        self.users_mock = self.app.client_manager.identity.users
+        self.users_mock.reset_mock()
+        self.users_mock.get.return_value = fakes.FakeResource(
+            None,
+            copy.deepcopy(identity_fakes.USER),
+            loaded=True,
+        )
+
         self.keypairs_mock.list.return_value = self.keypairs
 
         # Get the command object to test
@@ -334,8 +345,8 @@ class TestKeypairList(TestKeypair):
         )
 
     def test_keypair_list_v22(self):
-        self.app.client_manager.compute.api_version = api_versions.APIVersion(
-            '2.2')
+        self.app.client_manager.compute.api_version = \
+            api_versions.APIVersion('2.2')
 
         arglist = []
         verifylist = []
@@ -360,6 +371,57 @@ class TestKeypairList(TestKeypair):
             ), ),
             tuple(data)
         )
+
+    def test_keypair_list_with_user(self):
+
+        # Filtering by user is support for nova api 2.10 or above
+        self.app.client_manager.compute.api_version = \
+            api_versions.APIVersion('2.10')
+
+        arglist = [
+            '--user', identity_fakes.user_name,
+        ]
+        verifylist = [
+            ('user', identity_fakes.user_name),
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        columns, data = self.cmd.take_action(parsed_args)
+
+        self.users_mock.get.assert_called_with(identity_fakes.user_name)
+        self.keypairs_mock.list.assert_called_with(
+            user_id=identity_fakes.user_id,
+        )
+
+        self.assertEqual(('Name', 'Fingerprint', 'Type'), columns)
+        self.assertEqual(
+            ((
+                self.keypairs[0].name,
+                self.keypairs[0].fingerprint,
+                self.keypairs[0].type,
+            ), ),
+            tuple(data)
+        )
+
+    def test_keypair_list_with_user_pre_v210(self):
+
+        self.app.client_manager.compute.api_version = \
+            api_versions.APIVersion('2.9')
+
+        arglist = [
+            '--user', identity_fakes.user_name,
+        ]
+        verifylist = [
+            ('user', identity_fakes.user_name),
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        ex = self.assertRaises(
+            exceptions.CommandError,
+            self.cmd.take_action,
+            parsed_args)
+        self.assertIn(
+            '--os-compute-api-version 2.10 or greater is required', str(ex))
 
 
 class TestKeypairShow(TestKeypair):

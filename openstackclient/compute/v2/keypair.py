@@ -26,6 +26,7 @@ from osc_lib import exceptions
 from osc_lib import utils
 
 from openstackclient.i18n import _
+from openstackclient.identity import common as identity_common
 
 
 LOG = logging.getLogger(__name__)
@@ -163,13 +164,45 @@ class DeleteKeypair(command.Command):
 class ListKeypair(command.Lister):
     _description = _("List key fingerprints")
 
+    def get_parser(self, prog_name):
+        parser = super().get_parser(prog_name)
+        parser.add_argument(
+            '--user',
+            metavar='<user>',
+            help=_(
+                'Show keypairs for another user (admin only) (name or ID). '
+                'Requires ``--os-compute-api-version`` 2.10 or greater.'
+            ),
+        )
+        identity_common.add_user_domain_option_to_parser(parser)
+        return parser
+
     def take_action(self, parsed_args):
         compute_client = self.app.client_manager.compute
+        identity_client = self.app.client_manager.identity
+
+        kwargs = {}
+
+        if parsed_args.user:
+            if compute_client.api_version < api_versions.APIVersion('2.10'):
+                msg = _(
+                    '--os-compute-api-version 2.10 or greater is required to '
+                    'support the --user option'
+                )
+                raise exceptions.CommandError(msg)
+
+            kwargs['user_id'] = identity_common.find_user(
+                identity_client,
+                parsed_args.user,
+                parsed_args.user_domain,
+            ).id
+
+        data = compute_client.keypairs.list(**kwargs)
+
         columns = (
             "Name",
             "Fingerprint"
         )
-        data = compute_client.keypairs.list()
 
         if compute_client.api_version >= api_versions.APIVersion('2.2'):
             columns += ("Type", )
