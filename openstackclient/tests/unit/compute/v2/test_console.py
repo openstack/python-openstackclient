@@ -32,9 +32,6 @@ class TestConsole(compute_fakes.TestComputev2):
         self.sdk_client.find_server = mock.Mock()
         self.sdk_client.get_server_console_output = mock.Mock()
 
-        self.servers_mock = self.app.client_manager.compute.servers
-        self.servers_mock.reset_mock()
-
 
 class TestConsoleLog(TestConsole):
     _server = compute_fakes.FakeServer.create_one_server()
@@ -107,18 +104,16 @@ class TestConsoleLog(TestConsole):
 
 
 class TestConsoleUrlShow(TestConsole):
+    _server = compute_fakes.FakeServer.create_one_server()
 
     def setUp(self):
         super(TestConsoleUrlShow, self).setUp()
-        fake_console_data = {'remote_console': {'url': 'http://localhost',
-                                                'protocol': 'fake_protocol',
-                                                'type': 'fake_type'}}
-        methods = {
-            'get_console_url': fake_console_data
-        }
-        self.fake_server = compute_fakes.FakeServer.create_one_server(
-            methods=methods)
-        self.servers_mock.get.return_value = self.fake_server
+        self.sdk_client.find_server.return_value = self._server
+        fake_console_data = {'url': 'http://localhost',
+                             'protocol': 'fake_protocol',
+                             'type': 'fake_type'}
+        self.sdk_client.create_console = mock.Mock(
+            return_value=fake_console_data)
 
         self.columns = (
             'protocol',
@@ -126,9 +121,9 @@ class TestConsoleUrlShow(TestConsole):
             'url',
         )
         self.data = (
-            fake_console_data['remote_console']['protocol'],
-            fake_console_data['remote_console']['type'],
-            fake_console_data['remote_console']['url']
+            fake_console_data['protocol'],
+            fake_console_data['type'],
+            fake_console_data['url']
         )
 
         self.cmd = console.ShowConsoleURL(self.app, None)
@@ -143,7 +138,9 @@ class TestConsoleUrlShow(TestConsole):
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
         columns, data = self.cmd.take_action(parsed_args)
-        self.fake_server.get_console_url.assert_called_once_with('novnc')
+        self.sdk_client.create_console.assert_called_once_with(
+            self._server.id,
+            console_type='novnc')
         self.assertEqual(self.columns, columns)
         self.assertEqual(self.data, data)
 
@@ -158,7 +155,9 @@ class TestConsoleUrlShow(TestConsole):
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
         columns, data = self.cmd.take_action(parsed_args)
-        self.fake_server.get_console_url.assert_called_once_with('novnc')
+        self.sdk_client.create_console.assert_called_once_with(
+            self._server.id,
+            console_type='novnc')
         self.assertEqual(self.columns, columns)
         self.assertEqual(self.data, data)
 
@@ -173,7 +172,9 @@ class TestConsoleUrlShow(TestConsole):
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
         columns, data = self.cmd.take_action(parsed_args)
-        self.fake_server.get_console_url.assert_called_once_with('xvpvnc')
+        self.sdk_client.create_console.assert_called_once_with(
+            self._server.id,
+            console_type='xvpvnc')
         self.assertEqual(self.columns, columns)
         self.assertEqual(self.data, data)
 
@@ -188,40 +189,11 @@ class TestConsoleUrlShow(TestConsole):
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
         columns, data = self.cmd.take_action(parsed_args)
-        self.fake_server.get_console_url.assert_called_once_with(
-            'spice-html5')
+        self.sdk_client.create_console.assert_called_once_with(
+            self._server.id,
+            console_type='spice-html5')
         self.assertEqual(self.columns, columns)
         self.assertEqual(self.data, data)
-
-    def test_console_url_show_compatible(self):
-        methods = {
-            'get_console_url': {'console': {'url': 'http://localhost',
-                                            'type': 'fake_type'}},
-        }
-        old_fake_server = compute_fakes.FakeServer.create_one_server(
-            methods=methods)
-        old_columns = (
-            'type',
-            'url',
-        )
-        old_data = (
-            methods['get_console_url']['console']['type'],
-            methods['get_console_url']['console']['url']
-        )
-        arglist = [
-            'foo_vm',
-        ]
-        verifylist = [
-            ('url_type', 'novnc'),
-            ('server', 'foo_vm'),
-        ]
-        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
-        with mock.patch.object(self.servers_mock, 'get',
-                               return_value=old_fake_server):
-            columns, data = self.cmd.take_action(parsed_args)
-            old_fake_server.get_console_url.assert_called_once_with('novnc')
-            self.assertEqual(old_columns, columns)
-            self.assertEqual(old_data, data)
 
     def test_console_url_show_with_rdp(self):
         arglist = [
@@ -234,8 +206,9 @@ class TestConsoleUrlShow(TestConsole):
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
         columns, data = self.cmd.take_action(parsed_args)
-        self.fake_server.get_console_url.assert_called_once_with(
-            'rdp-html5')
+        self.sdk_client.create_console.assert_called_once_with(
+            self._server.id,
+            console_type='rdp-html5')
         self.assertEqual(self.columns, columns)
         self.assertEqual(self.data, data)
 
@@ -250,8 +223,9 @@ class TestConsoleUrlShow(TestConsole):
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
         columns, data = self.cmd.take_action(parsed_args)
-        self.fake_server.get_console_url.assert_called_once_with(
-            'serial')
+        self.sdk_client.create_console.assert_called_once_with(
+            self._server.id,
+            console_type='serial')
         self.assertEqual(self.columns, columns)
         self.assertEqual(self.data, data)
 
@@ -266,6 +240,8 @@ class TestConsoleUrlShow(TestConsole):
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
         columns, data = self.cmd.take_action(parsed_args)
-        self.fake_server.get_console_url.assert_called_once_with('webmks')
+        self.sdk_client.create_console.assert_called_once_with(
+            self._server.id,
+            console_type='webmks')
         self.assertEqual(self.columns, columns)
         self.assertEqual(self.data, data)
