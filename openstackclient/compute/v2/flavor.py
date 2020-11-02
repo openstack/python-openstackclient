@@ -18,6 +18,7 @@
 import logging
 
 from novaclient import api_versions
+from osc_lib.cli import format_columns
 from osc_lib.cli import parseractions
 from osc_lib.command import command
 from osc_lib import exceptions
@@ -28,6 +29,31 @@ from openstackclient.identity import common as identity_common
 
 
 LOG = logging.getLogger(__name__)
+
+
+_formatters = {
+    'extra_specs': format_columns.DictColumn,
+    # Unless we finish switch to use SDK resources this need to be doubled this
+    # way
+    'properties': format_columns.DictColumn,
+    'Properties': format_columns.DictColumn
+}
+
+
+def _get_flavor_columns(item):
+    # To maintain backwards compatibility we need to rename sdk props to
+    # whatever OSC was using before
+    column_map = {
+        'extra_specs': 'properties',
+        'ephemeral': 'OS-FLV-EXT-DATA:ephemeral',
+        'is_disabled': 'OS-FLV-DISABLED:disabled',
+        'is_public': 'os-flavor-access:is_public'
+
+    }
+    hidden_columns = ['links', 'location']
+
+    return utils.get_osc_show_columns_for_sdk_resource(
+        item, column_map, hidden_columns)
 
 
 def _find_flavor(compute_client, flavor):
@@ -191,10 +217,16 @@ class CreateFlavor(command.ShowOne):
                 LOG.error(_("Failed to set flavor property: %s"), e)
 
         flavor_info = flavor._info.copy()
-        flavor_info.pop("links")
-        flavor_info['properties'] = utils.format_dict(flavor.get_keys())
+        flavor_info['properties'] = flavor.get_keys()
 
-        return zip(*sorted(flavor_info.items()))
+        display_columns, columns = _get_flavor_columns(flavor_info)
+        data = utils.get_dict_properties(
+            flavor_info, columns,
+            formatters=_formatters,
+            mixed_case_fields=['OS-FLV-DISABLED:disabled',
+                               'OS-FLV-EXT-DATA:ephemeral'])
+
+        return (display_columns, data)
 
 
 class DeleteFlavor(command.Command):
@@ -309,7 +341,7 @@ class ListFlavor(command.Lister):
 
         return (column_headers,
                 (utils.get_item_properties(
-                    s, columns, formatters={'Properties': utils.format_dict},
+                    s, columns, formatters=_formatters,
                 ) for s in data))
 
 
@@ -428,11 +460,8 @@ class ShowFlavor(command.ShowOne):
             try:
                 flavor_access = compute_client.flavor_access.list(
                     flavor=resource_flavor.id)
-                projects = [utils.get_field(access, 'tenant_id')
-                            for access in flavor_access]
-                # TODO(Huanxuan Ao): This format case can be removed after
-                # patch https://review.opendev.org/#/c/330223/ merged.
-                access_projects = utils.format_list(projects)
+                access_projects = [utils.get_field(access, 'tenant_id')
+                                   for access in flavor_access]
             except Exception as e:
                 msg = _("Failed to get access projects list "
                         "for flavor '%(flavor)s': %(e)s")
@@ -442,11 +471,17 @@ class ShowFlavor(command.ShowOne):
         flavor.update({
             'access_project_ids': access_projects
         })
-        flavor.pop("links", None)
 
-        flavor['properties'] = utils.format_dict(resource_flavor.get_keys())
+        flavor['properties'] = resource_flavor.get_keys()
 
-        return zip(*sorted(flavor.items()))
+        display_columns, columns = _get_flavor_columns(flavor)
+        data = utils.get_dict_properties(
+            flavor, columns,
+            formatters=_formatters,
+            mixed_case_fields=['OS-FLV-DISABLED:disabled',
+                               'OS-FLV-EXT-DATA:ephemeral'])
+
+        return (display_columns, data)
 
 
 class UnsetFlavor(command.Command):

@@ -1,0 +1,4 @@
+---
+fixes:
+    Fix '-f json' output of the flavor properties to return valid json object
+    instead of stringying it.

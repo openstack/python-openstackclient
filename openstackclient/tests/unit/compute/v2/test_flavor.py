@@ -17,8 +17,8 @@ from unittest import mock
 from unittest.mock import call
 
 import novaclient
+from osc_lib.cli import format_columns
 from osc_lib import exceptions
-from osc_lib import utils
 
 from openstackclient.compute.v2 import flavor
 from openstackclient.tests.unit.compute.v2 import fakes as compute_fakes
@@ -70,7 +70,7 @@ class TestFlavorCreate(TestFlavor):
         flavor.id,
         flavor.name,
         flavor.is_public,
-        utils.format_dict(flavor.properties),
+        format_columns.DictColumn(flavor.properties),
         flavor.ram,
         flavor.rxtx_factor,
         flavor.swap,
@@ -111,7 +111,7 @@ class TestFlavorCreate(TestFlavor):
         self.flavors_mock.create.assert_called_once_with(*default_args)
 
         self.assertEqual(self.columns, columns)
-        self.assertEqual(self.data, data)
+        self.assertItemEqual(self.data, data)
 
     def test_flavor_create_all_options(self):
 
@@ -165,7 +165,7 @@ class TestFlavorCreate(TestFlavor):
         self.flavor.get_keys.assert_called_once_with()
 
         self.assertEqual(self.columns, columns)
-        self.assertEqual(self.data, data)
+        self.assertItemEqual(self.data, data)
 
     def test_flavor_create_other_options(self):
 
@@ -226,7 +226,7 @@ class TestFlavorCreate(TestFlavor):
             {'key1': 'value1', 'key2': 'value2'})
         self.flavor.get_keys.assert_called_with()
         self.assertEqual(self.columns, columns)
-        self.assertEqual(self.data, data)
+        self.assertItemEqual(self.data, data)
 
     def test_public_flavor_create_with_project(self):
         arglist = [
@@ -300,7 +300,7 @@ class TestFlavorCreate(TestFlavor):
         self.flavors_mock.create.assert_called_once_with(*args)
 
         self.assertEqual(self.columns, columns)
-        self.assertEqual(self.data, data)
+        self.assertItemEqual(self.data, data)
 
     def test_flavor_create_with_description_api_older(self):
         arglist = [
@@ -429,7 +429,7 @@ class TestFlavorList(TestFlavor):
     data_long = (data[0] + (
         flavors[0].swap,
         flavors[0].rxtx_factor,
-        u'property=\'value\''
+        format_columns.DictColumn(flavors[0].properties)
     ), )
 
     def setUp(self):
@@ -583,7 +583,7 @@ class TestFlavorList(TestFlavor):
         )
 
         self.assertEqual(self.columns_long, columns)
-        self.assertEqual(tuple(self.data_long), tuple(data))
+        self.assertListItemEqual(self.data_long, tuple(data))
 
 
 class TestFlavorSet(TestFlavor):
@@ -817,7 +817,7 @@ class TestFlavorShow(TestFlavor):
         flavor.id,
         flavor.name,
         flavor.is_public,
-        utils.format_dict(flavor.get_keys()),
+        format_columns.DictColumn(flavor.get_keys()),
         flavor.ram,
         flavor.rxtx_factor,
         flavor.swap,
@@ -854,7 +854,7 @@ class TestFlavorShow(TestFlavor):
         columns, data = self.cmd.take_action(parsed_args)
 
         self.assertEqual(self.columns, columns)
-        self.assertEqual(self.data, data)
+        self.assertItemEqual(self.data, data)
 
     def test_private_flavor_show(self):
         private_flavor = compute_fakes.FakeFlavor.create_one_flavor(
@@ -874,13 +874,13 @@ class TestFlavorShow(TestFlavor):
         data_with_project = (
             private_flavor.disabled,
             private_flavor.ephemeral,
-            self.flavor_access.tenant_id,
+            [self.flavor_access.tenant_id],
             private_flavor.description,
             private_flavor.disk,
             private_flavor.id,
             private_flavor.name,
             private_flavor.is_public,
-            utils.format_dict(private_flavor.get_keys()),
+            format_columns.DictColumn(private_flavor.get_keys()),
             private_flavor.ram,
             private_flavor.rxtx_factor,
             private_flavor.swap,
@@ -894,7 +894,7 @@ class TestFlavorShow(TestFlavor):
         self.flavor_access_mock.list.assert_called_with(
             flavor=private_flavor.id)
         self.assertEqual(self.columns, columns)
-        self.assertEqual(data_with_project, data)
+        self.assertItemEqual(data_with_project, data)
 
 
 class TestFlavorUnset(TestFlavor):
