@@ -4092,6 +4092,7 @@ class TestListMigration(TestServer):
             '--server', 'server1',
             '--host', 'host1',
             '--status', 'migrating',
+            '--type', 'cold-migration',
         ]
         verifylist = [
             ('server', 'server1'),
@@ -4106,6 +4107,7 @@ class TestListMigration(TestServer):
             'status': 'migrating',
             'host': 'host1',
             'server': 'server1',
+            'type': 'migration',
         }
 
         self.migrations_mock.list.assert_called_with(**kwargs)
