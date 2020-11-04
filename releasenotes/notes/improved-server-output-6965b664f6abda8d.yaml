@@ -1,0 +1,10 @@
+---
+fixes:
+  - |
+    The ``addresses`` and ``flavor`` fields of the ``server show`` command will
+    now be correctly rendered as a list of objects and an object, respectively.
+  - |
+    The ``networks`` and ``properties`` fields of the ``server list`` command
+    will now be rendered as objects. In addition, the ``power_state`` field
+    will now be humanized and rendered as a string value when using the table
+    formatter.

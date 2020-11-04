@@ -10,6 +10,7 @@
 #    License for the specific language governing permissions and limitations
 #    under the License.
 
+import itertools
 import json
 import time
 import uuid
@@ -346,6 +347,14 @@ class ServerTests(common.ComputeTestCase):
             #                DevStack without cells.
             self.skipTest("No Network service present")
 
+        def _chain_addresses(addresses):
+            # Flatten a dict of lists mapping network names to IP addresses,
+            # returning only the IP addresses
+            #
+            # >>> _chain_addresses({'private': ['10.1.0.32', '172.24.5.41']})
+            # ['10.1.0.32', '172.24.5.41']
+            return itertools.chain(*[*addresses.values()])
+
         cmd_output = self.server_create()
         name = cmd_output['name']
         self.wait_for_status(name, "ACTIVE")
@@ -387,7 +396,7 @@ class ServerTests(common.ComputeTestCase):
                 'server show -f json ' +
                 name
             ))
-            if floating_ip not in cmd_output['addresses']:
+            if floating_ip not in _chain_addresses(cmd_output['addresses']):
                 # Hang out for a bit and try again
                 print('retrying floating IP check')
                 wait_time += 10
@@ -397,7 +406,7 @@ class ServerTests(common.ComputeTestCase):
 
         self.assertIn(
             floating_ip,
-            cmd_output['addresses'],
+            _chain_addresses(cmd_output['addresses']),
         )
 
         # detach ip
@@ -417,7 +426,7 @@ class ServerTests(common.ComputeTestCase):
                 'server show -f json ' +
                 name
             ))
-            if floating_ip in cmd_output['addresses']:
+            if floating_ip in _chain_addresses(cmd_output['addresses']):
                 # Hang out for a bit and try again
                 print('retrying floating IP check')
                 wait_time += 10
@@ -431,7 +440,7 @@ class ServerTests(common.ComputeTestCase):
         ))
         self.assertNotIn(
             floating_ip,
-            cmd_output['addresses'],
+            _chain_addresses(cmd_output['addresses']),
         )
 
     def test_server_reboot(self):
@@ -856,8 +865,7 @@ class ServerTests(common.ComputeTestCase):
         server = json.loads(self.openstack(
             'server show -f json ' + server_name
         ))
-        self.assertIsNotNone(server['addresses'])
-        self.assertEqual('', server['addresses'])
+        self.assertEqual({}, server['addresses'])
 
     def test_server_create_with_security_group(self):
         """Test server create with security group ID and name"""

@@ -21,6 +21,7 @@ import io
 import logging
 import os
 
+from cliff import columns as cliff_columns
 import iso8601
 from novaclient import api_versions
 from novaclient.v2 import servers
@@ -41,28 +42,9 @@ LOG = logging.getLogger(__name__)
 IMAGE_STRING_FOR_BFV = 'N/A (booted from volume)'
 
 
-def _format_servers_list_networks(networks):
-    """Return a formatted string of a server's networks
+class PowerStateColumn(cliff_columns.FormattableColumn):
+    """Generate a formatted string of a server's power state."""
 
-    :param networks: a Server.networks field
-    :rtype: a string of formatted network addresses
-    """
-    output = []
-    for (network, addresses) in networks.items():
-        if not addresses:
-            continue
-        addresses_csv = ', '.join(addresses)
-        group = "%s=%s" % (network, addresses_csv)
-        output.append(group)
-    return '; '.join(output)
-
-
-def _format_servers_list_power_state(state):
-    """Return a formatted string of a server's power state
-
-    :param state: the power state number of a server
-    :rtype: a string mapped to the power state number
-    """
     power_states = [
         'NOSTATE',      # 0x00
         'Running',      # 0x01
@@ -74,10 +56,11 @@ def _format_servers_list_power_state(state):
         'Suspended'     # 0x07
     ]
 
-    try:
-        return power_states[state]
-    except Exception:
-        return 'N/A'
+    def human_readable(self):
+        try:
+            return self.power_states[self._value]
+        except Exception:
+            return 'N/A'
 
 
 def _get_ip_address(addresses, address_type, ip_address_family):
@@ -169,7 +152,7 @@ def _prep_server_detail(compute_client, image_client, server, refresh=True):
         except Exception:
             info['flavor'] = flavor_id
     else:
-        info['flavor'] = utils.format_dict(flavor_info)
+        info['flavor'] = format_columns.DictColumn(flavor_info)
 
     if 'os-extended-volumes:volumes_attached' in info:
         info.update(
@@ -185,19 +168,15 @@ def _prep_server_detail(compute_client, image_client, server, refresh=True):
                     info.pop('security_groups'))
             }
         )
+    if 'tags' in info:
+        info.update({'tags': format_columns.ListColumn(info.pop('tags'))})
+
     # NOTE(dtroyer): novaclient splits these into separate entries...
     # Format addresses in a useful way
-    info['addresses'] = _format_servers_list_networks(server.networks)
+    info['addresses'] = format_columns.DictListColumn(server.networks)
 
     # Map 'metadata' field to 'properties'
-    if not info['metadata']:
-        info.update(
-            {'properties': utils.format_dict(info.pop('metadata'))}
-        )
-    else:
-        info.update(
-            {'properties': format_columns.DictColumn(info.pop('metadata'))}
-        )
+    info['properties'] = format_columns.DictColumn(info.pop('metadata'))
 
     # Migrate tenant_id to project_id naming
     if 'tenant_id' in info:
@@ -205,7 +184,7 @@ def _prep_server_detail(compute_client, image_client, server, refresh=True):
 
     # Map power state num to meaningful string
     if 'OS-EXT-STS:power_state' in info:
-        info['OS-EXT-STS:power_state'] = _format_servers_list_power_state(
+        info['OS-EXT-STS:power_state'] = PowerStateColumn(
             info['OS-EXT-STS:power_state'])
 
     # Remove values that are long and not too useful
@@ -1873,10 +1852,9 @@ class ListServer(command.Lister):
                     s, columns,
                     mixed_case_fields=mixed_case_fields,
                     formatters={
-                        'OS-EXT-STS:power_state':
-                            _format_servers_list_power_state,
-                        'Networks': _format_servers_list_networks,
-                        'Metadata': utils.format_dict,
+                        'OS-EXT-STS:power_state': PowerStateColumn,
+                        'Networks': format_columns.DictListColumn,
+                        'Metadata': format_columns.DictColumn,
                     },
                 ) for s in data
             ),

@@ -22,6 +22,7 @@ from unittest.mock import call
 import iso8601
 from novaclient import api_versions
 from openstack import exceptions as sdk_exceptions
+from osc_lib.cli import format_columns
 from osc_lib import exceptions
 from osc_lib import utils as common_utils
 
@@ -31,6 +32,29 @@ from openstackclient.tests.unit.image.v2 import fakes as image_fakes
 from openstackclient.tests.unit.network.v2 import fakes as network_fakes
 from openstackclient.tests.unit import utils
 from openstackclient.tests.unit.volume.v2 import fakes as volume_fakes
+
+
+class TestPowerStateColumn(utils.TestCase):
+
+    def test_human_readable(self):
+        self.assertEqual(
+            'NOSTATE', server.PowerStateColumn(0x00).human_readable())
+        self.assertEqual(
+            'Running', server.PowerStateColumn(0x01).human_readable())
+        self.assertEqual(
+            '', server.PowerStateColumn(0x02).human_readable())
+        self.assertEqual(
+            'Paused', server.PowerStateColumn(0x03).human_readable())
+        self.assertEqual(
+            'Shutdown', server.PowerStateColumn(0x04).human_readable())
+        self.assertEqual(
+            '', server.PowerStateColumn(0x05).human_readable())
+        self.assertEqual(
+            'Crashed', server.PowerStateColumn(0x06).human_readable())
+        self.assertEqual(
+            'Suspended', server.PowerStateColumn(0x07).human_readable())
+        self.assertEqual(
+            'N/A', server.PowerStateColumn(0x08).human_readable())
 
 
 class TestServer(compute_fakes.TestComputev2):
@@ -1015,15 +1039,15 @@ class TestServerCreate(TestServer):
 
     def datalist(self):
         datalist = (
-            server._format_servers_list_power_state(
+            server.PowerStateColumn(
                 getattr(self.new_server, 'OS-EXT-STS:power_state')),
-            '',
+            format_columns.DictListColumn({}),
             self.flavor.name + ' (' + self.new_server.flavor.get('id') + ')',
             self.new_server.id,
             self.image.name + ' (' + self.new_server.image.get('id') + ')',
             self.new_server.name,
             self.new_server.networks,
-            '',
+            format_columns.DictColumn(self.new_server.metadata),
         )
         return datalist
 
@@ -3041,7 +3065,7 @@ class TestServerList(TestServer):
                 s.id,
                 s.name,
                 s.status,
-                server._format_servers_list_networks(s.networks),
+                format_columns.DictListColumn(s.networks),
                 # Image will be an empty string if boot-from-volume
                 self.image.name if s.image else server.IMAGE_STRING_FOR_BFV,
                 self.flavor.name,
@@ -3051,10 +3075,10 @@ class TestServerList(TestServer):
                 s.name,
                 s.status,
                 getattr(s, 'OS-EXT-STS:task_state'),
-                server._format_servers_list_power_state(
+                server.PowerStateColumn(
                     getattr(s, 'OS-EXT-STS:power_state')
                 ),
-                server._format_servers_list_networks(s.networks),
+                format_columns.DictListColumn(s.networks),
                 # Image will be an empty string if boot-from-volume
                 self.image.name if s.image else server.IMAGE_STRING_FOR_BFV,
                 s.image['id'] if s.image else server.IMAGE_STRING_FOR_BFV,
@@ -3062,13 +3086,13 @@ class TestServerList(TestServer):
                 s.flavor['id'],
                 getattr(s, 'OS-EXT-AZ:availability_zone'),
                 getattr(s, 'OS-EXT-SRV-ATTR:host'),
-                s.Metadata,
+                format_columns.DictColumn({}),
             ))
             self.data_no_name_lookup.append((
                 s.id,
                 s.name,
                 s.status,
-                server._format_servers_list_networks(s.networks),
+                format_columns.DictListColumn(s.networks),
                 # Image will be an empty string if boot-from-volume
                 s.image['id'] if s.image else server.IMAGE_STRING_FOR_BFV,
                 s.flavor['id']
@@ -3128,7 +3152,7 @@ class TestServerList(TestServer):
 
         self.servers_mock.list.assert_called_with(**self.kwargs)
         self.assertEqual(self.columns_long, columns)
-        self.assertEqual(tuple(self.data_long), tuple(data))
+        self.assertCountEqual(tuple(self.data_long), tuple(data))
 
     def test_server_list_column_option(self):
         arglist = [
@@ -3429,9 +3453,11 @@ class TestServerList(TestServer):
     def test_server_list_v269_with_partial_constructs(self):
         self.app.client_manager.compute.api_version = \
             api_versions.APIVersion('2.69')
+
         arglist = []
         verifylist = []
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
         # include "partial results" from non-responsive part of
         # infrastructure.
         server_dict = {
@@ -3454,10 +3480,10 @@ class TestServerList(TestServer):
             # it will fail at formatting the networks info later on.
             "networks": {}
         }
-        server = compute_fakes.fakes.FakeResource(
+        _server = compute_fakes.fakes.FakeResource(
             info=server_dict,
         )
-        self.servers.append(server)
+        self.servers.append(_server)
         columns, data = self.cmd.take_action(parsed_args)
         # get the first three servers out since our interest is in the partial
         # server.
@@ -3466,8 +3492,13 @@ class TestServerList(TestServer):
         next(data)
         partial_server = next(data)
         expected_row = (
-            'server-id-95a56bfc4xxxxxx28d7e418bfd97813a', '',
-            'UNKNOWN', '', '', '')
+            'server-id-95a56bfc4xxxxxx28d7e418bfd97813a',
+            '',
+            'UNKNOWN',
+            format_columns.DictListColumn({}),
+            '',
+            '',
+        )
         self.assertEqual(expected_row, partial_server)
 
     def test_server_list_with_tag(self):
@@ -6292,15 +6323,16 @@ class TestServerShow(TestServer):
         )
 
         self.data = (
-            'Running',
-            'public=10.20.30.40, 2001:db8::f',
+            server.PowerStateColumn(
+                getattr(self.server, 'OS-EXT-STS:power_state')),
+            format_columns.DictListColumn(self.server.networks),
             self.flavor.name + " (" + self.flavor.id + ")",
             self.server.id,
             self.image.name + " (" + self.image.id + ")",
             self.server.name,
             {'public': ['10.20.30.40', '2001:db8::f']},
             'tenant-id-xxx',
-            '',
+            format_columns.DictColumn({}),
         )
 
     def test_show_no_options(self):
@@ -6323,7 +6355,7 @@ class TestServerShow(TestServer):
         columns, data = self.cmd.take_action(parsed_args)
 
         self.assertEqual(self.columns, columns)
-        self.assertEqual(self.data, data)
+        self.assertCountEqual(self.data, data)
 
     def test_show_embedded_flavor(self):
         # Tests using --os-compute-api-version >= 2.47 where the flavor
@@ -6350,7 +6382,7 @@ class TestServerShow(TestServer):
         self.assertEqual(self.columns, columns)
         # Since the flavor details are in a dict we can't be sure of the
         # ordering so just assert that one of the keys is in the output.
-        self.assertIn('original_name', data[2])
+        self.assertIn('original_name', data[2]._value)
 
     def test_show_diagnostics(self):
         arglist = [
@@ -6719,50 +6751,6 @@ class TestServerGeneral(TestServer):
         self.assertRaises(exceptions.CommandError,
                           server._get_ip_address, self.OLD, 'private', [6])
 
-    def test_format_servers_list_power_state(self):
-        self.assertEqual("NOSTATE",
-                         server._format_servers_list_power_state(0x00))
-        self.assertEqual("Running",
-                         server._format_servers_list_power_state(0x01))
-        self.assertEqual("",
-                         server._format_servers_list_power_state(0x02))
-        self.assertEqual("Paused",
-                         server._format_servers_list_power_state(0x03))
-        self.assertEqual("Shutdown",
-                         server._format_servers_list_power_state(0x04))
-        self.assertEqual("",
-                         server._format_servers_list_power_state(0x05))
-        self.assertEqual("Crashed",
-                         server._format_servers_list_power_state(0x06))
-        self.assertEqual("Suspended",
-                         server._format_servers_list_power_state(0x07))
-        self.assertEqual("N/A",
-                         server._format_servers_list_power_state(0x08))
-
-    def test_format_servers_list_networks(self):
-        # Setup network info to test.
-        networks = {
-            u'public': [u'10.20.30.40', u'2001:db8::f'],
-            u'private': [u'2001:db8::f', u'10.20.30.40'],
-        }
-
-        # Prepare expected data.
-        # Since networks is a dict, whose items are in random order, there
-        # could be two results after formatted.
-        data_1 = (u'private=2001:db8::f, 10.20.30.40; '
-                  u'public=10.20.30.40, 2001:db8::f')
-        data_2 = (u'public=10.20.30.40, 2001:db8::f; '
-                  u'private=2001:db8::f, 10.20.30.40')
-
-        # Call _format_servers_list_networks().
-        networks_format = server._format_servers_list_networks(networks)
-
-        msg = ('Network string is not formatted correctly.\n'
-               'reference = %s or %s\n'
-               'actual    = %s\n' %
-               (data_1, data_2, networks_format))
-        self.assertIn(networks_format, (data_1, data_2), msg)
-
     @mock.patch('osc_lib.utils.find_resource')
     def test_prep_server_detail(self, find_resource):
         # Setup mock method return value. utils.find_resource() will be called
@@ -6789,14 +6777,14 @@ class TestServerGeneral(TestServer):
         info = {
             'id': _server.id,
             'name': _server.name,
-            'addresses': u'public=10.20.30.40, 2001:db8::f',
-            'flavor': u'%s (%s)' % (_flavor.name, _flavor.id),
-            'image': u'%s (%s)' % (_image.name, _image.id),
-            'project_id': u'tenant-id-xxx',
-            'properties': '',
-            'OS-EXT-STS:power_state': server._format_servers_list_power_state(
+            'image': '%s (%s)' % (_image.name, _image.id),
+            'flavor': '%s (%s)' % (_flavor.name, _flavor.id),
+            'OS-EXT-STS:power_state': server.PowerStateColumn(
                 getattr(_server, 'OS-EXT-STS:power_state')),
+            'properties': '',
             'volumes_attached': [{"id": "6344fe9d-ef20-45b2-91a6"}],
+            'addresses': format_columns.DictListColumn(_server.networks),
+            'project_id': 'tenant-id-xxx',
         }
 
         # Call _prep_server_detail().
@@ -6809,4 +6797,4 @@ class TestServerGeneral(TestServer):
         server_detail.pop('networks')
 
         # Check the results.
-        self.assertEqual(info, server_detail)
+        self.assertCountEqual(info, server_detail)
