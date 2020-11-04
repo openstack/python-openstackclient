@@ -64,10 +64,20 @@ class CreateKeypair(command.ShowOne):
                 "(Supported by API versions '2.2' - '2.latest')"
             ),
         )
+        parser.add_argument(
+            '--user',
+            metavar='<user>',
+            help=_(
+                'The owner of the keypair. (admin only) (name or ID). '
+                'Requires ``--os-compute-api-version`` 2.10 or greater.'
+            ),
+        )
+        identity_common.add_user_domain_option_to_parser(parser)
         return parser
 
     def take_action(self, parsed_args):
         compute_client = self.app.client_manager.compute
+        identity_client = self.app.client_manager.identity
 
         public_key = parsed_args.public_key
         if public_key:
@@ -89,11 +99,25 @@ class CreateKeypair(command.ShowOne):
             if compute_client.api_version < api_versions.APIVersion('2.2'):
                 msg = _(
                     '--os-compute-api-version 2.2 or greater is required to '
-                    'support the --type option.'
+                    'support the --type option'
                 )
                 raise exceptions.CommandError(msg)
 
             kwargs['key_type'] = parsed_args.type
+
+        if parsed_args.user:
+            if compute_client.api_version < api_versions.APIVersion('2.10'):
+                msg = _(
+                    '--os-compute-api-version 2.10 or greater is required to '
+                    'support the --user option'
+                )
+                raise exceptions.CommandError(msg)
+
+            kwargs['user_id'] = identity_common.find_user(
+                identity_client,
+                parsed_args.user,
+                parsed_args.user_domain,
+            ).id
 
         keypair = compute_client.keypairs.create(**kwargs)
 
@@ -139,16 +163,43 @@ class DeleteKeypair(command.Command):
             nargs='+',
             help=_("Name of key(s) to delete (name only)")
         )
+        parser.add_argument(
+            '--user',
+            metavar='<user>',
+            help=_(
+                'The owner of the keypair. (admin only) (name or ID). '
+                'Requires ``--os-compute-api-version`` 2.10 or greater.'
+            ),
+        )
+        identity_common.add_user_domain_option_to_parser(parser)
         return parser
 
     def take_action(self, parsed_args):
         compute_client = self.app.client_manager.compute
+        identity_client = self.app.client_manager.identity
+
+        kwargs = {}
         result = 0
+
+        if parsed_args.user:
+            if compute_client.api_version < api_versions.APIVersion('2.10'):
+                msg = _(
+                    '--os-compute-api-version 2.10 or greater is required to '
+                    'support the --user option'
+                )
+                raise exceptions.CommandError(msg)
+
+            kwargs['user_id'] = identity_common.find_user(
+                identity_client,
+                parsed_args.user,
+                parsed_args.user_domain,
+            ).id
+
         for n in parsed_args.name:
             try:
                 data = utils.find_resource(
                     compute_client.keypairs, n)
-                compute_client.keypairs.delete(data.name)
+                compute_client.keypairs.delete(data.name, **kwargs)
             except Exception as e:
                 result += 1
                 LOG.error(_("Failed to delete key with name "
@@ -261,12 +312,39 @@ class ShowKeypair(command.ShowOne):
             default=False,
             help=_("Show only bare public key paired with the generated key")
         )
+        parser.add_argument(
+            '--user',
+            metavar='<user>',
+            help=_(
+                'The owner of the keypair. (admin only) (name or ID). '
+                'Requires ``--os-compute-api-version`` 2.10 or greater.'
+            ),
+        )
+        identity_common.add_user_domain_option_to_parser(parser)
         return parser
 
     def take_action(self, parsed_args):
         compute_client = self.app.client_manager.compute
-        keypair = utils.find_resource(compute_client.keypairs,
-                                      parsed_args.name)
+        identity_client = self.app.client_manager.identity
+
+        kwargs = {}
+
+        if parsed_args.user:
+            if compute_client.api_version < api_versions.APIVersion('2.10'):
+                msg = _(
+                    '--os-compute-api-version 2.10 or greater is required to '
+                    'support the --user option'
+                )
+                raise exceptions.CommandError(msg)
+
+            kwargs['user_id'] = identity_common.find_user(
+                identity_client,
+                parsed_args.user,
+                parsed_args.user_domain,
+            ).id
+
+        keypair = utils.find_resource(
+            compute_client.keypairs, parsed_args.name, **kwargs)
 
         info = {}
         info.update(keypair._info)

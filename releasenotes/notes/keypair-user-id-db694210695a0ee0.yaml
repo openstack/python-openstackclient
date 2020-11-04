@@ -1,0 +1,6 @@
+---
+features:
+  - |
+    Add ``--user`` option to the ``keypair create``, ``keypair delete``, and
+    ``keypair show`` commands. Only available starting with
+    ``--os-compute-api-version 2.10``.
