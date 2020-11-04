@@ -139,7 +139,7 @@ class TestServerBackupCreate(TestServerBackup):
         )
 
         self.assertEqual(self.image_columns(images[0]), columns)
-        self.assertItemEqual(self.image_data(images[0]), data)
+        self.assertItemsEqual(self.image_data(images[0]), data)
 
     def test_server_backup_create_options(self):
         servers = self.setup_servers_mock(count=1)
@@ -173,7 +173,7 @@ class TestServerBackupCreate(TestServerBackup):
         )
 
         self.assertEqual(self.image_columns(images[0]), columns)
-        self.assertItemEqual(self.image_data(images[0]), data)
+        self.assertItemsEqual(self.image_data(images[0]), data)
 
     @mock.patch.object(common_utils, 'wait_for_status', return_value=False)
     def test_server_backup_wait_fail(self, mock_wait_for_status):
@@ -269,4 +269,4 @@ class TestServerBackupCreate(TestServerBackup):
         )
 
         self.assertEqual(self.image_columns(images[0]), columns)
-        self.assertItemEqual(self.image_data(images[0]), data)
+        self.assertItemsEqual(self.image_data(images[0]), data)

@@ -88,7 +88,7 @@ class TestAggregateAddHost(TestAggregate):
         self.sdk_client.add_host_to_aggregate.assert_called_once_with(
             self.fake_ag.id, parsed_args.host)
         self.assertEqual(self.columns, columns)
-        self.assertItemEqual(self.data, data)
+        self.assertItemsEqual(self.data, data)
 
 
 class TestAggregateCreate(TestAggregate):
@@ -112,7 +112,7 @@ class TestAggregateCreate(TestAggregate):
         self.sdk_client.create_aggregate.assert_called_once_with(
             name=parsed_args.name)
         self.assertEqual(self.columns, columns)
-        self.assertItemEqual(self.data, data)
+        self.assertItemsEqual(self.data, data)
 
     def test_aggregate_create_with_zone(self):
         arglist = [
@@ -129,7 +129,7 @@ class TestAggregateCreate(TestAggregate):
         self.sdk_client.create_aggregate.assert_called_once_with(
             name=parsed_args.name, availability_zone=parsed_args.zone)
         self.assertEqual(self.columns, columns)
-        self.assertItemEqual(self.data, data)
+        self.assertItemsEqual(self.data, data)
 
     def test_aggregate_create_with_property(self):
         arglist = [
@@ -148,7 +148,7 @@ class TestAggregateCreate(TestAggregate):
         self.sdk_client.set_aggregate_metadata.assert_called_once_with(
             self.fake_ag.id, parsed_args.property)
         self.assertEqual(self.columns, columns)
-        self.assertItemEqual(self.data, data)
+        self.assertItemsEqual(self.data, data)
 
 
 class TestAggregateDelete(TestAggregate):
@@ -265,7 +265,7 @@ class TestAggregateList(TestAggregate):
         columns, data = self.cmd.take_action(parsed_args)
 
         self.assertEqual(self.list_columns, columns)
-        self.assertItemEqual(self.list_data, tuple(data))
+        self.assertItemsEqual(self.list_data, tuple(data))
 
     def test_aggregate_list_with_long(self):
         arglist = [
@@ -278,7 +278,7 @@ class TestAggregateList(TestAggregate):
         columns, data = self.cmd.take_action(parsed_args)
 
         self.assertEqual(self.list_columns_long, columns)
-        self.assertListItemEqual(self.list_data_long, tuple(data))
+        self.assertItemsEqual(self.list_data_long, tuple(data))
 
 
 class TestAggregateRemoveHost(TestAggregate):
@@ -306,7 +306,7 @@ class TestAggregateRemoveHost(TestAggregate):
         self.sdk_client.remove_host_from_aggregate.assert_called_once_with(
             self.fake_ag.id, parsed_args.host)
         self.assertEqual(self.columns, columns)
-        self.assertItemEqual(self.data, data)
+        self.assertItemsEqual(self.data, data)
 
 
 class TestAggregateSet(TestAggregate):
@@ -492,7 +492,7 @@ class TestAggregateShow(TestAggregate):
             parsed_args.aggregate, ignore_missing=False)
 
         self.assertEqual(self.columns, columns)
-        self.assertItemEqual(self.data, tuple(data))
+        self.assertItemsEqual(self.data, tuple(data))
 
 
 class TestAggregateUnset(TestAggregate):

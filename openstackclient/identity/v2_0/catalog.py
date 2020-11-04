@@ -91,7 +91,7 @@ class ShowCatalog(command.ShowOne):
         for service in auth_ref.service_catalog.catalog:
             if (service.get('name') == parsed_args.service or
                     service.get('type') == parsed_args.service):
-                data = service
+                data = service.copy()
                 data['endpoints'] = EndpointsColumn(data['endpoints'])
                 if 'endpoints_links' in data:
                     data.pop('endpoints_links')

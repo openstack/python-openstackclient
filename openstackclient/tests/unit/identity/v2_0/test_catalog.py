@@ -71,9 +71,10 @@ class TestCatalogList(TestCatalog):
         datalist = ((
             'supernova',
             'compute',
-            catalog.EndpointsColumn(self.service_catalog['endpoints']),
+            catalog.EndpointsColumn(
+                auth_ref.service_catalog.catalog[0]['endpoints']),
         ), )
-        self.assertListItemEqual(datalist, tuple(data))
+        self.assertItemsEqual(datalist, tuple(data))
 
     def test_catalog_list_with_endpoint_url(self):
         attr = {
@@ -113,9 +114,10 @@ class TestCatalogList(TestCatalog):
         datalist = ((
             'supernova',
             'compute',
-            catalog.EndpointsColumn(service_catalog['endpoints']),
+            catalog.EndpointsColumn(
+                auth_ref.service_catalog.catalog[0]['endpoints']),
         ), )
-        self.assertListItemEqual(datalist, tuple(data))
+        self.assertItemsEqual(datalist, tuple(data))
 
 
 class TestCatalogShow(TestCatalog):
@@ -150,16 +152,17 @@ class TestCatalogShow(TestCatalog):
         collist = ('endpoints', 'id', 'name', 'type')
         self.assertEqual(collist, columns)
         datalist = (
-            catalog.EndpointsColumn(self.service_catalog['endpoints']),
+            catalog.EndpointsColumn(
+                auth_ref.service_catalog.catalog[0]['endpoints']),
             self.service_catalog.id,
             'supernova',
             'compute',
         )
-        self.assertItemEqual(datalist, data)
+        self.assertItemsEqual(datalist, data)
 
 
 class TestFormatColumns(TestCatalog):
-    def test_endpoints_column_human_readabale(self):
+    def test_endpoints_column_human_readable(self):
         col = catalog.EndpointsColumn(self.service_catalog['endpoints'])
         self.assertEqual(
             'one\n  publicURL: https://public.one.example.com\n  '

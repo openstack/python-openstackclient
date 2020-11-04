@@ -75,7 +75,7 @@ class TestListIPAvailability(TestIPAvailability):
         self.network.network_ip_availabilities.assert_called_once_with(
             **filters)
         self.assertEqual(self.columns, columns)
-        self.assertListItemEqual(self.data, list(data))
+        self.assertItemsEqual(self.data, list(data))
 
     def test_list_ip_version(self):
         arglist = [
@@ -93,7 +93,7 @@ class TestListIPAvailability(TestIPAvailability):
         self.network.network_ip_availabilities.assert_called_once_with(
             **filters)
         self.assertEqual(self.columns, columns)
-        self.assertListItemEqual(self.data, list(data))
+        self.assertItemsEqual(self.data, list(data))
 
     def test_list_project(self):
         arglist = [
@@ -113,7 +113,7 @@ class TestListIPAvailability(TestIPAvailability):
         self.network.network_ip_availabilities.assert_called_once_with(
             **filters)
         self.assertEqual(self.columns, columns)
-        self.assertListItemEqual(self.data, list(data))
+        self.assertItemsEqual(self.data, list(data))
 
 
 class TestShowIPAvailability(TestIPAvailability):
@@ -176,4 +176,4 @@ class TestShowIPAvailability(TestIPAvailability):
             self._ip_availability.network_name,
             ignore_missing=False)
         self.assertEqual(self.columns, columns)
-        self.assertItemEqual(self.data, data)
+        self.assertItemsEqual(self.data, data)

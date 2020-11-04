@@ -112,7 +112,7 @@ class TestQosCreate(TestQos):
         )
 
         self.assertEqual(self.columns, columns)
-        self.assertItemEqual(self.data, data)
+        self.assertItemsEqual(self.data, data)
 
     def test_qos_create_with_consumer(self):
         arglist = [
@@ -133,7 +133,7 @@ class TestQosCreate(TestQos):
         )
 
         self.assertEqual(self.columns, columns)
-        self.assertItemEqual(self.data, data)
+        self.assertItemsEqual(self.data, data)
 
     def test_qos_create_with_properties(self):
         arglist = [
@@ -159,7 +159,7 @@ class TestQosCreate(TestQos):
         )
 
         self.assertEqual(self.columns, columns)
-        self.assertItemEqual(self.data, data)
+        self.assertItemsEqual(self.data, data)
 
 
 class TestQosDelete(TestQos):
@@ -342,7 +342,7 @@ class TestQosList(TestQos):
         self.qos_mock.list.assert_called_with()
 
         self.assertEqual(self.columns, columns)
-        self.assertListItemEqual(self.data, list(data))
+        self.assertItemsEqual(self.data, list(data))
 
     def test_qos_list_no_association(self):
         self.qos_mock.reset_mock()
@@ -369,7 +369,7 @@ class TestQosList(TestQos):
             format_columns.ListColumn(None),
             format_columns.DictColumn(self.qos_specs[1].specs),
         )
-        self.assertListItemEqual(ex_data, list(data))
+        self.assertItemsEqual(ex_data, list(data))
 
 
 class TestQosSet(TestQos):
@@ -449,7 +449,7 @@ class TestQosShow(TestQos):
         )
 
         self.assertEqual(self.columns, columns)
-        self.assertItemEqual(self.data, tuple(data))
+        self.assertItemsEqual(self.data, tuple(data))
 
 
 class TestQosUnset(TestQos):

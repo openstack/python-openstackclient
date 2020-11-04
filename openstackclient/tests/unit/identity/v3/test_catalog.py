@@ -91,9 +91,10 @@ class TestCatalogList(TestCatalog):
         datalist = ((
             'supernova',
             'compute',
-            catalog.EndpointsColumn(self.fake_service['endpoints']),
+            catalog.EndpointsColumn(
+                auth_ref.service_catalog.catalog[0]['endpoints']),
         ), )
-        self.assertListItemEqual(datalist, tuple(data))
+        self.assertItemsEqual(datalist, tuple(data))
 
 
 class TestCatalogShow(TestCatalog):
@@ -128,12 +129,13 @@ class TestCatalogShow(TestCatalog):
         collist = ('endpoints', 'id', 'name', 'type')
         self.assertEqual(collist, columns)
         datalist = (
-            catalog.EndpointsColumn(self.fake_service['endpoints']),
+            catalog.EndpointsColumn(
+                auth_ref.service_catalog.catalog[0]['endpoints']),
             'qwertyuiop',
             'supernova',
             'compute',
         )
-        self.assertItemEqual(datalist, data)
+        self.assertItemsEqual(datalist, data)
 
 
 class TestFormatColumns(TestCatalog):

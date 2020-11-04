@@ -184,7 +184,7 @@ class TestCreateRouter(TestRouter):
         })
         self.assertFalse(self.network.set_tags.called)
         self.assertEqual(self.columns, columns)
-        self.assertItemEqual(self.data, data)
+        self.assertItemsEqual(self.data, data)
 
     def _test_create_with_ha_options(self, option, ha):
         arglist = [
@@ -208,7 +208,7 @@ class TestCreateRouter(TestRouter):
             'ha': ha,
         })
         self.assertEqual(self.columns, columns)
-        self.assertItemEqual(self.data, data)
+        self.assertItemsEqual(self.data, data)
 
     def test_create_with_ha_option(self):
         self._test_create_with_ha_options('--ha', True)
@@ -237,7 +237,7 @@ class TestCreateRouter(TestRouter):
             'distributed': distributed,
         })
         self.assertEqual(self.columns, columns)
-        self.assertItemEqual(self.data, data)
+        self.assertItemsEqual(self.data, data)
 
     def test_create_with_distributed_option(self):
         self._test_create_with_distributed_options('--distributed', True)
@@ -268,7 +268,7 @@ class TestCreateRouter(TestRouter):
         })
 
         self.assertEqual(self.columns, columns)
-        self.assertItemEqual(self.data, data)
+        self.assertItemsEqual(self.data, data)
 
     def _test_create_with_tag(self, add_tags=True):
         arglist = [self.new_router.name]
@@ -301,7 +301,7 @@ class TestCreateRouter(TestRouter):
         else:
             self.assertFalse(self.network.set_tags.called)
         self.assertEqual(self.columns, columns)
-        self.assertItemEqual(self.data, data)
+        self.assertItemsEqual(self.data, data)
 
     def test_create_with_tags(self):
         self._test_create_with_tag(add_tags=True)
@@ -494,7 +494,7 @@ class TestListRouter(TestRouter):
 
         self.network.routers.assert_called_once_with()
         self.assertEqual(self.columns, columns)
-        self.assertListItemEqual(self.data, list(data))
+        self.assertItemsEqual(self.data, list(data))
 
     def test_router_list_no_ha_no_distributed(self):
         _routers = network_fakes.FakeRouter.create_routers({
@@ -531,7 +531,7 @@ class TestListRouter(TestRouter):
 
         self.network.routers.assert_called_once_with()
         self.assertEqual(self.columns_long, columns)
-        self.assertListItemEqual(self.data_long, list(data))
+        self.assertItemsEqual(self.data_long, list(data))
 
     def test_router_list_long_no_az(self):
         arglist = [
@@ -552,7 +552,7 @@ class TestListRouter(TestRouter):
 
         self.network.routers.assert_called_once_with()
         self.assertEqual(self.columns_long_no_az, columns)
-        self.assertListItemEqual(self.data_long_no_az, list(data))
+        self.assertItemsEqual(self.data_long_no_az, list(data))
 
     def test_list_name(self):
         test_name = "fakename"
@@ -570,7 +570,7 @@ class TestListRouter(TestRouter):
             **{'name': test_name}
         )
         self.assertEqual(self.columns, columns)
-        self.assertListItemEqual(self.data, list(data))
+        self.assertItemsEqual(self.data, list(data))
 
     def test_router_list_enable(self):
         arglist = [
@@ -587,7 +587,7 @@ class TestListRouter(TestRouter):
             **{'admin_state_up': True, 'is_admin_state_up': True}
         )
         self.assertEqual(self.columns, columns)
-        self.assertListItemEqual(self.data, list(data))
+        self.assertItemsEqual(self.data, list(data))
 
     def test_router_list_disable(self):
         arglist = [
@@ -605,7 +605,7 @@ class TestListRouter(TestRouter):
         )
 
         self.assertEqual(self.columns, columns)
-        self.assertListItemEqual(self.data, list(data))
+        self.assertItemsEqual(self.data, list(data))
 
     def test_router_list_project(self):
         project = identity_fakes_v3.FakeProject.create_one_project()
@@ -623,7 +623,7 @@ class TestListRouter(TestRouter):
 
         self.network.routers.assert_called_once_with(**filters)
         self.assertEqual(self.columns, columns)
-        self.assertListItemEqual(self.data, list(data))
+        self.assertItemsEqual(self.data, list(data))
 
     def test_router_list_project_domain(self):
         project = identity_fakes_v3.FakeProject.create_one_project()
@@ -643,7 +643,7 @@ class TestListRouter(TestRouter):
 
         self.network.routers.assert_called_once_with(**filters)
         self.assertEqual(self.columns, columns)
-        self.assertListItemEqual(self.data, list(data))
+        self.assertItemsEqual(self.data, list(data))
 
     def test_router_list_agents_no_args(self):
         arglist = [
@@ -671,7 +671,7 @@ class TestListRouter(TestRouter):
         self.network.agent_hosted_routers(
             *attrs)
         self.assertEqual(self.columns, columns)
-        self.assertListItemEqual(self.data, list(data))
+        self.assertItemsEqual(self.data, list(data))
 
     def test_list_with_tag_options(self):
         arglist = [
@@ -696,7 +696,7 @@ class TestListRouter(TestRouter):
                'not_any_tags': 'black,white'}
         )
         self.assertEqual(self.columns, columns)
-        self.assertListItemEqual(self.data, list(data))
+        self.assertItemsEqual(self.data, list(data))
 
 
 class TestRemovePortFromRouter(TestRouter):
@@ -1403,7 +1403,7 @@ class TestShowRouter(TestRouter):
             'device_id': self._router.id
         })
         self.assertEqual(self.columns, columns)
-        self.assertItemEqual(self.data, data)
+        self.assertItemsEqual(self.data, data)
 
     def test_show_no_ha_no_distributed(self):
         _router = network_fakes.FakeRouter.create_one_router({

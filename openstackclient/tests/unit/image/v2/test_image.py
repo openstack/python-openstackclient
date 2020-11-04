@@ -111,7 +111,7 @@ class TestImageCreate(TestImage):
         self.assertEqual(
             self.expected_columns,
             columns)
-        self.assertItemEqual(
+        self.assertItemsEqual(
             self.expected_data,
             data)
 
@@ -166,7 +166,7 @@ class TestImageCreate(TestImage):
         self.assertEqual(
             self.expected_columns,
             columns)
-        self.assertItemEqual(
+        self.assertItemsEqual(
             self.expected_data,
             data)
 
@@ -255,7 +255,7 @@ class TestImageCreate(TestImage):
         self.assertEqual(
             self.expected_columns,
             columns)
-        self.assertItemEqual(
+        self.assertItemsEqual(
             self.expected_data,
             data)
 
@@ -513,7 +513,7 @@ class TestImageList(TestImage):
         )
 
         self.assertEqual(self.columns, columns)
-        self.assertListItemEqual(self.datalist, tuple(data))
+        self.assertItemsEqual(self.datalist, tuple(data))
 
     def test_image_list_public_option(self):
         arglist = [
@@ -537,7 +537,7 @@ class TestImageList(TestImage):
         )
 
         self.assertEqual(self.columns, columns)
-        self.assertListItemEqual(self.datalist, tuple(data))
+        self.assertItemsEqual(self.datalist, tuple(data))
 
     def test_image_list_private_option(self):
         arglist = [
@@ -561,7 +561,7 @@ class TestImageList(TestImage):
         )
 
         self.assertEqual(self.columns, columns)
-        self.assertListItemEqual(self.datalist, tuple(data))
+        self.assertItemsEqual(self.datalist, tuple(data))
 
     def test_image_list_community_option(self):
         arglist = [
@@ -609,7 +609,7 @@ class TestImageList(TestImage):
         )
 
         self.assertEqual(self.columns, columns)
-        self.assertListItemEqual(self.datalist, tuple(data))
+        self.assertItemsEqual(self.datalist, tuple(data))
 
     def test_image_list_shared_member_status_option(self):
         arglist = [
@@ -697,7 +697,7 @@ class TestImageList(TestImage):
             self._image.owner_id,
             format_columns.ListColumn(self._image.tags),
         ), )
-        self.assertListItemEqual(datalist, tuple(data))
+        self.assertItemsEqual(datalist, tuple(data))
 
     @mock.patch('osc_lib.api.utils.simple_filter')
     def test_image_list_property_option(self, sf_mock):
@@ -725,7 +725,7 @@ class TestImageList(TestImage):
         )
 
         self.assertEqual(self.columns, columns)
-        self.assertListItemEqual(self.datalist, tuple(data))
+        self.assertItemsEqual(self.datalist, tuple(data))
 
     @mock.patch('osc_lib.utils.sort_items')
     def test_image_list_sort_option(self, si_mock):
@@ -747,7 +747,7 @@ class TestImageList(TestImage):
             str,
         )
         self.assertEqual(self.columns, columns)
-        self.assertListItemEqual(self.datalist, tuple(data))
+        self.assertItemsEqual(self.datalist, tuple(data))
 
     def test_image_list_limit_option(self):
         ret_limit = 1
@@ -1472,7 +1472,7 @@ class TestImageShow(TestImage):
         )
 
         self.assertEqual(self.columns, columns)
-        self.assertItemEqual(self.data, data)
+        self.assertItemsEqual(self.data, data)
 
     def test_image_show_human_readable(self):
         self.client.find_image.return_value = self.new_image

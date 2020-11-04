@@ -88,7 +88,7 @@ class TestCreateSecurityGroupCompute(TestSecurityGroupCompute):
             self._security_group['name'],
         )
         self.assertEqual(self.columns, columns)
-        self.assertItemEqual(self.data, data)
+        self.assertItemsEqual(self.data, data)
 
     def test_security_group_create_all_options(self, sg_mock):
         sg_mock.return_value = self._security_group
@@ -109,7 +109,7 @@ class TestCreateSecurityGroupCompute(TestSecurityGroupCompute):
             self._security_group['description'],
         )
         self.assertEqual(self.columns, columns)
-        self.assertItemEqual(self.data, data)
+        self.assertItemsEqual(self.data, data)
 
 
 @mock.patch(
@@ -255,7 +255,7 @@ class TestListSecurityGroupCompute(TestSecurityGroupCompute):
         kwargs = {'search_opts': {'all_tenants': False}}
         sg_mock.assert_called_once_with(**kwargs)
         self.assertEqual(self.columns, columns)
-        self.assertListItemEqual(self.data, list(data))
+        self.assertItemsEqual(self.data, list(data))
 
     def test_security_group_list_all_projects(self, sg_mock):
         sg_mock.return_value = self._security_groups
@@ -272,7 +272,7 @@ class TestListSecurityGroupCompute(TestSecurityGroupCompute):
         kwargs = {'search_opts': {'all_tenants': True}}
         sg_mock.assert_called_once_with(**kwargs)
         self.assertEqual(self.columns_all_projects, columns)
-        self.assertListItemEqual(self.data_all_projects, list(data))
+        self.assertItemsEqual(self.data_all_projects, list(data))
 
 
 @mock.patch(
@@ -401,4 +401,4 @@ class TestShowSecurityGroupCompute(TestSecurityGroupCompute):
 
         sg_mock.assert_called_once_with(self._security_group['id'])
         self.assertEqual(self.columns, columns)
-        self.assertItemEqual(self.data, data)
+        self.assertItemsEqual(self.data, data)

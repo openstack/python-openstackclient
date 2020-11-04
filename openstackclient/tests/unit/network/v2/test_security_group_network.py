@@ -96,7 +96,7 @@ class TestCreateSecurityGroupNetwork(TestSecurityGroupNetwork):
             'name': self._security_group.name,
         })
         self.assertEqual(self.columns, columns)
-        self.assertItemEqual(self.data, data)
+        self.assertItemsEqual(self.data, data)
 
     def test_create_all_options(self):
         arglist = [
@@ -124,7 +124,7 @@ class TestCreateSecurityGroupNetwork(TestSecurityGroupNetwork):
             'tenant_id': self.project.id,
         })
         self.assertEqual(self.columns, columns)
-        self.assertItemEqual(self.data, data)
+        self.assertItemsEqual(self.data, data)
 
     def _test_create_with_tag(self, add_tags=True):
         arglist = [self._security_group.name]
@@ -155,7 +155,7 @@ class TestCreateSecurityGroupNetwork(TestSecurityGroupNetwork):
         else:
             self.assertFalse(self.network.set_tags.called)
         self.assertEqual(self.columns, columns)
-        self.assertItemEqual(self.data, data)
+        self.assertItemsEqual(self.data, data)
 
     def test_create_with_tags(self):
         self._test_create_with_tag(add_tags=True)
@@ -293,7 +293,7 @@ class TestListSecurityGroupNetwork(TestSecurityGroupNetwork):
         self.network.security_groups.assert_called_once_with(
             fields=security_group.ListSecurityGroup.FIELDS_TO_RETRIEVE)
         self.assertEqual(self.columns, columns)
-        self.assertListItemEqual(self.data, list(data))
+        self.assertItemsEqual(self.data, list(data))
 
     def test_security_group_list_all_projects(self):
         arglist = [
@@ -309,7 +309,7 @@ class TestListSecurityGroupNetwork(TestSecurityGroupNetwork):
         self.network.security_groups.assert_called_once_with(
             fields=security_group.ListSecurityGroup.FIELDS_TO_RETRIEVE)
         self.assertEqual(self.columns, columns)
-        self.assertListItemEqual(self.data, list(data))
+        self.assertItemsEqual(self.data, list(data))
 
     def test_security_group_list_project(self):
         project = identity_fakes.FakeProject.create_one_project()
@@ -329,7 +329,7 @@ class TestListSecurityGroupNetwork(TestSecurityGroupNetwork):
 
         self.network.security_groups.assert_called_once_with(**filters)
         self.assertEqual(self.columns, columns)
-        self.assertListItemEqual(self.data, list(data))
+        self.assertItemsEqual(self.data, list(data))
 
     def test_security_group_list_project_domain(self):
         project = identity_fakes.FakeProject.create_one_project()
@@ -351,7 +351,7 @@ class TestListSecurityGroupNetwork(TestSecurityGroupNetwork):
 
         self.network.security_groups.assert_called_once_with(**filters)
         self.assertEqual(self.columns, columns)
-        self.assertListItemEqual(self.data, list(data))
+        self.assertItemsEqual(self.data, list(data))
 
     def test_list_with_tag_options(self):
         arglist = [
@@ -539,7 +539,7 @@ class TestShowSecurityGroupNetwork(TestSecurityGroupNetwork):
         self.network.find_security_group.assert_called_once_with(
             self._security_group.id, ignore_missing=False)
         self.assertEqual(self.columns, columns)
-        self.assertItemEqual(self.data, data)
+        self.assertItemsEqual(self.data, data)
 
 
 class TestUnsetSecurityGroupNetwork(TestSecurityGroupNetwork):

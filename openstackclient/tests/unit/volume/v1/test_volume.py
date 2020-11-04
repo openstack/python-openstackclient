@@ -135,7 +135,7 @@ class TestVolumeCreate(TestVolume):
             None,
         )
         self.assertEqual(self.columns, columns)
-        self.assertItemEqual(self.datalist, data)
+        self.assertItemsEqual(self.datalist, data)
 
     def test_volume_create_options(self):
         arglist = [
@@ -179,7 +179,7 @@ class TestVolumeCreate(TestVolume):
         )
 
         self.assertEqual(self.columns, columns)
-        self.assertItemEqual(self.datalist, data)
+        self.assertItemsEqual(self.datalist, data)
 
     def test_volume_create_user_project_id(self):
         # Return a project
@@ -226,7 +226,7 @@ class TestVolumeCreate(TestVolume):
         )
 
         self.assertEqual(self.columns, columns)
-        self.assertItemEqual(self.datalist, data)
+        self.assertItemsEqual(self.datalist, data)
 
     def test_volume_create_user_project_name(self):
         # Return a project
@@ -273,7 +273,7 @@ class TestVolumeCreate(TestVolume):
         )
 
         self.assertEqual(self.columns, columns)
-        self.assertItemEqual(self.datalist, data)
+        self.assertItemsEqual(self.datalist, data)
 
     def test_volume_create_properties(self):
         arglist = [
@@ -314,7 +314,7 @@ class TestVolumeCreate(TestVolume):
         )
 
         self.assertEqual(self.columns, columns)
-        self.assertItemEqual(self.datalist, data)
+        self.assertItemsEqual(self.datalist, data)
 
     def test_volume_create_image_id(self):
         image = image_fakes.FakeImage.create_one_image()
@@ -357,7 +357,7 @@ class TestVolumeCreate(TestVolume):
         )
 
         self.assertEqual(self.columns, columns)
-        self.assertItemEqual(self.datalist, data)
+        self.assertItemsEqual(self.datalist, data)
 
     def test_volume_create_image_name(self):
         image = image_fakes.FakeImage.create_one_image()
@@ -400,7 +400,7 @@ class TestVolumeCreate(TestVolume):
         )
 
         self.assertEqual(self.columns, columns)
-        self.assertItemEqual(self.datalist, data)
+        self.assertItemsEqual(self.datalist, data)
 
     def test_volume_create_with_source(self):
         self.volumes_mock.get.return_value = self.new_volume
@@ -430,7 +430,7 @@ class TestVolumeCreate(TestVolume):
             None,
         )
         self.assertEqual(self.columns, columns)
-        self.assertItemEqual(self.datalist, data)
+        self.assertItemsEqual(self.datalist, data)
 
     def test_volume_create_with_bootable_and_readonly(self):
         arglist = [
@@ -468,7 +468,7 @@ class TestVolumeCreate(TestVolume):
         )
 
         self.assertEqual(self.columns, columns)
-        self.assertItemEqual(self.datalist, data)
+        self.assertItemsEqual(self.datalist, data)
         self.volumes_mock.set_bootable.assert_called_with(
             self.new_volume.id, True)
         self.volumes_mock.update_readonly_flag.assert_called_with(
@@ -510,7 +510,7 @@ class TestVolumeCreate(TestVolume):
         )
 
         self.assertEqual(self.columns, columns)
-        self.assertItemEqual(self.datalist, data)
+        self.assertItemsEqual(self.datalist, data)
         self.volumes_mock.set_bootable.assert_called_with(
             self.new_volume.id, False)
         self.volumes_mock.update_readonly_flag.assert_called_with(
@@ -562,7 +562,7 @@ class TestVolumeCreate(TestVolume):
 
         self.assertEqual(2, mock_error.call_count)
         self.assertEqual(self.columns, columns)
-        self.assertItemEqual(self.datalist, data)
+        self.assertItemsEqual(self.datalist, data)
         self.volumes_mock.set_bootable.assert_called_with(
             self.new_volume.id, True)
         self.volumes_mock.update_readonly_flag.assert_called_with(
@@ -765,7 +765,7 @@ class TestVolumeList(TestVolume):
         columns, data = self.cmd.take_action(parsed_args)
 
         self.assertEqual(self.columns, columns)
-        self.assertListItemEqual(self.datalist, tuple(data))
+        self.assertItemsEqual(self.datalist, tuple(data))
 
     def test_volume_list_name(self):
         arglist = [
@@ -782,7 +782,7 @@ class TestVolumeList(TestVolume):
 
         columns, data = self.cmd.take_action(parsed_args)
         self.assertEqual(self.columns, tuple(columns))
-        self.assertListItemEqual(self.datalist, tuple(data))
+        self.assertItemsEqual(self.datalist, tuple(data))
 
     def test_volume_list_status(self):
         arglist = [
@@ -799,7 +799,7 @@ class TestVolumeList(TestVolume):
 
         columns, data = self.cmd.take_action(parsed_args)
         self.assertEqual(self.columns, tuple(columns))
-        self.assertListItemEqual(self.datalist, tuple(data))
+        self.assertItemsEqual(self.datalist, tuple(data))
 
     def test_volume_list_all_projects(self):
         arglist = [
@@ -816,7 +816,7 @@ class TestVolumeList(TestVolume):
 
         columns, data = self.cmd.take_action(parsed_args)
         self.assertEqual(self.columns, tuple(columns))
-        self.assertListItemEqual(self.datalist, tuple(data))
+        self.assertItemsEqual(self.datalist, tuple(data))
 
     def test_volume_list_long(self):
         arglist = [
@@ -856,7 +856,7 @@ class TestVolumeList(TestVolume):
             volume.AttachmentsColumn(self._volume.attachments),
             format_columns.DictColumn(self._volume.metadata),
         ), )
-        self.assertListItemEqual(datalist, tuple(data))
+        self.assertItemsEqual(datalist, tuple(data))
 
     def test_volume_list_with_limit(self):
         arglist = [
@@ -881,7 +881,7 @@ class TestVolumeList(TestVolume):
                 'all_tenants': False, }
         )
         self.assertEqual(self.columns, columns)
-        self.assertListItemEqual(self.datalist, tuple(data))
+        self.assertItemsEqual(self.datalist, tuple(data))
 
     def test_volume_list_negative_limit(self):
         arglist = [
@@ -1272,7 +1272,7 @@ class TestVolumeShow(TestVolume):
         self.volumes_mock.get.assert_called_with(self._volume.id)
 
         self.assertEqual(self.columns, columns)
-        self.assertItemEqual(self.datalist, data)
+        self.assertItemsEqual(self.datalist, data)
 
     def test_volume_show_backward_compatibility(self):
         arglist = [

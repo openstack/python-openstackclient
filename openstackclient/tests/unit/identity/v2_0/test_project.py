@@ -643,7 +643,7 @@ class TestProjectShow(TestProject):
             self.fake_proj_show.name,
             format_columns.DictColumn({}),
         )
-        self.assertItemEqual(datalist, data)
+        self.assertItemsEqual(datalist, data)
 
 
 class TestProjectUnset(TestProject):
