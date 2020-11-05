@@ -16,7 +16,7 @@ from unittest import mock
 
 from novaclient import api_versions
 
-from openstackclient.compute.v2 import usage
+from openstackclient.compute.v2 import usage as usage_cmds
 from openstackclient.tests.unit.compute.v2 import fakes as compute_fakes
 from openstackclient.tests.unit.identity.v3 import fakes as identity_fakes
 
@@ -49,11 +49,11 @@ class TestUsageList(TestUsage):
     )
 
     data = [(
-        usages[0].tenant_id,
-        len(usages[0].server_usages),
-        float("%.2f" % usages[0].total_memory_mb_usage),
-        float("%.2f" % usages[0].total_vcpus_usage),
-        float("%.2f" % usages[0].total_local_gb_usage),
+        usage_cmds.ProjectColumn(usages[0].tenant_id),
+        usage_cmds.CountColumn(usages[0].server_usages),
+        usage_cmds.FloatColumn(usages[0].total_memory_mb_usage),
+        usage_cmds.FloatColumn(usages[0].total_vcpus_usage),
+        usage_cmds.FloatColumn(usages[0].total_local_gb_usage),
     )]
 
     def setUp(self):
@@ -63,7 +63,7 @@ class TestUsageList(TestUsage):
 
         self.projects_mock.list.return_value = [self.project]
         # Get the command object to test
-        self.cmd = usage.ListUsage(self.app, None)
+        self.cmd = usage_cmds.ListUsage(self.app, None)
 
     def test_usage_list_no_options(self):
 
@@ -79,8 +79,8 @@ class TestUsageList(TestUsage):
 
         self.projects_mock.list.assert_called_with()
 
-        self.assertEqual(self.columns, columns)
-        self.assertEqual(tuple(self.data), tuple(data))
+        self.assertCountEqual(self.columns, columns)
+        self.assertCountEqual(tuple(self.data), tuple(data))
 
     def test_usage_list_with_options(self):
         arglist = [
@@ -102,8 +102,8 @@ class TestUsageList(TestUsage):
             datetime.datetime(2016, 12, 20, 0, 0),
             detailed=True)
 
-        self.assertEqual(self.columns, columns)
-        self.assertEqual(tuple(self.data), tuple(data))
+        self.assertCountEqual(self.columns, columns)
+        self.assertCountEqual(tuple(self.data), tuple(data))
 
     def test_usage_list_with_pagination(self):
         arglist = []
@@ -127,8 +127,8 @@ class TestUsageList(TestUsage):
             mock.call(mock.ANY, mock.ANY, detailed=True,
                       marker=self.usages[0]['server_usages'][0]['instance_id'])
         ])
-        self.assertEqual(self.columns, columns)
-        self.assertEqual(tuple(self.data), tuple(data))
+        self.assertCountEqual(self.columns, columns)
+        self.assertCountEqual(tuple(self.data), tuple(data))
 
 
 class TestUsageShow(TestUsage):
@@ -139,17 +139,19 @@ class TestUsageShow(TestUsage):
         attrs={'tenant_id': project.name})
 
     columns = (
+        'Project',
+        'Servers',
+        'RAM MB-Hours',
         'CPU Hours',
         'Disk GB-Hours',
-        'RAM MB-Hours',
-        'Servers',
     )
 
     data = (
-        float("%.2f" % usage.total_vcpus_usage),
-        float("%.2f" % usage.total_local_gb_usage),
-        float("%.2f" % usage.total_memory_mb_usage),
-        len(usage.server_usages),
+        usage_cmds.ProjectColumn(usage.tenant_id),
+        usage_cmds.CountColumn(usage.server_usages),
+        usage_cmds.FloatColumn(usage.total_memory_mb_usage),
+        usage_cmds.FloatColumn(usage.total_vcpus_usage),
+        usage_cmds.FloatColumn(usage.total_local_gb_usage),
     )
 
     def setUp(self):
@@ -159,7 +161,7 @@ class TestUsageShow(TestUsage):
 
         self.projects_mock.get.return_value = self.project
         # Get the command object to test
-        self.cmd = usage.ShowUsage(self.app, None)
+        self.cmd = usage_cmds.ShowUsage(self.app, None)
 
     def test_usage_show_no_options(self):
 

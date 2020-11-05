@@ -17,12 +17,65 @@
 
 import collections
 import datetime
+import functools
 
+from cliff import columns as cliff_columns
 from novaclient import api_versions
 from osc_lib.command import command
 from osc_lib import utils
 
 from openstackclient.i18n import _
+
+
+# TODO(stephenfin): This exists in a couple of places and should be moved to a
+# common module
+class ProjectColumn(cliff_columns.FormattableColumn):
+    """Formattable column for project column.
+
+    Unlike the parent FormattableColumn class, the initializer of the class
+    takes project_cache as the second argument.
+    ``osc_lib.utils.get_item_properties`` instantiates ``FormattableColumn``
+    objects with a single parameter, the column value, so you need to pass a
+    partially initialized class like ``functools.partial(ProjectColumn,
+    project_cache)`` to use this.
+    """
+
+    def __init__(self, value, project_cache=None):
+        super().__init__(value)
+        self.project_cache = project_cache or {}
+
+    def human_readable(self):
+        project = self._value
+        if not project:
+            return ''
+
+        if project in self.project_cache.keys():
+            return self.project_cache[project].name
+
+        return project
+
+
+class CountColumn(cliff_columns.FormattableColumn):
+
+    def human_readable(self):
+        return len(self._value)
+
+
+class FloatColumn(cliff_columns.FormattableColumn):
+
+    def human_readable(self):
+        return float("%.2f" % self._value)
+
+
+def _formatters(project_cache):
+    return {
+        'tenant_id': functools.partial(
+            ProjectColumn, project_cache=project_cache),
+        'server_usages': CountColumn,
+        'total_memory_mb_usage': FloatColumn,
+        'total_vcpus_usage': FloatColumn,
+        'total_local_gb_usage': FloatColumn,
+    }
 
 
 def _get_usage_marker(usage):
@@ -147,17 +200,15 @@ class ListUsage(command.Lister):
                 "end": end.strftime(dateformat),
             })
 
-        return (column_headers,
-                (utils.get_item_properties(
+        return (
+            column_headers,
+            (
+                utils.get_item_properties(
                     s, columns,
-                    formatters={
-                        'tenant_id': _format_project,
-                        'server_usages': lambda x: len(x),
-                        'total_memory_mb_usage': lambda x: float("%.2f" % x),
-                        'total_vcpus_usage': lambda x: float("%.2f" % x),
-                        'total_local_gb_usage': lambda x: float("%.2f" % x),
-                    },
-                ) for s in usage_list))
+                    formatters=_formatters(project_cache),
+                ) for s in usage_list
+            ),
+        )
 
 
 class ShowUsage(command.ShowOne):
@@ -222,17 +273,21 @@ class ShowUsage(command.ShowOne):
                 "project": project,
             })
 
-        info = {}
-        info['Servers'] = (
-            len(usage.server_usages)
-            if hasattr(usage, "server_usages") else None)
-        info['RAM MB-Hours'] = (
-            float("%.2f" % usage.total_memory_mb_usage)
-            if hasattr(usage, "total_memory_mb_usage") else None)
-        info['CPU Hours'] = (
-            float("%.2f" % usage.total_vcpus_usage)
-            if hasattr(usage, "total_vcpus_usage") else None)
-        info['Disk GB-Hours'] = (
-            float("%.2f" % usage.total_local_gb_usage)
-            if hasattr(usage, "total_local_gb_usage") else None)
-        return zip(*sorted(info.items()))
+        columns = (
+            "tenant_id",
+            "server_usages",
+            "total_memory_mb_usage",
+            "total_vcpus_usage",
+            "total_local_gb_usage"
+        )
+        column_headers = (
+            "Project",
+            "Servers",
+            "RAM MB-Hours",
+            "CPU Hours",
+            "Disk GB-Hours"
+        )
+
+        data = utils.get_item_properties(
+            usage, columns, formatters=_formatters(None))
+        return column_headers, data
