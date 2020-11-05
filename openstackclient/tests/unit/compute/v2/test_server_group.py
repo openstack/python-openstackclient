@@ -16,6 +16,7 @@
 from unittest import mock
 
 from novaclient import api_versions
+from osc_lib.cli import format_columns
 from osc_lib import exceptions
 from osc_lib import utils
 
@@ -39,9 +40,9 @@ class TestServerGroup(compute_fakes.TestComputev2):
 
     data = (
         fake_server_group.id,
-        utils.format_list(fake_server_group.members),
+        format_columns.ListColumn(fake_server_group.members),
         fake_server_group.name,
-        utils.format_list(fake_server_group.policies),
+        format_columns.ListColumn(fake_server_group.policies),
         fake_server_group.project_id,
         fake_server_group.user_id,
     )
@@ -70,7 +71,7 @@ class TestServerGroupV264(TestServerGroup):
 
     data = (
         fake_server_group.id,
-        utils.format_list(fake_server_group.members),
+        format_columns.ListColumn(fake_server_group.members),
         fake_server_group.name,
         fake_server_group.policy,
         fake_server_group.project_id,
@@ -105,8 +106,8 @@ class TestServerGroupCreate(TestServerGroup):
             policies=[parsed_args.policy],
         )
 
-        self.assertEqual(self.columns, columns)
-        self.assertEqual(self.data, data)
+        self.assertCountEqual(self.columns, columns)
+        self.assertCountEqual(self.data, data)
 
     def test_server_group_create_with_soft_policies(self):
         self.app.client_manager.compute.api_version = api_versions.APIVersion(
@@ -127,8 +128,8 @@ class TestServerGroupCreate(TestServerGroup):
             policies=[parsed_args.policy],
         )
 
-        self.assertEqual(self.columns, columns)
-        self.assertEqual(self.data, data)
+        self.assertCountEqual(self.columns, columns)
+        self.assertCountEqual(self.data, data)
 
     def test_server_group_create_with_soft_policies_pre_v215(self):
         self.app.client_manager.compute.api_version = api_versions.APIVersion(
@@ -170,8 +171,8 @@ class TestServerGroupCreate(TestServerGroup):
             policy=parsed_args.policy,
         )
 
-        self.assertEqual(self.columns, columns)
-        self.assertEqual(self.data, data)
+        self.assertCountEqual(self.columns, columns)
+        self.assertCountEqual(self.data, data)
 
 
 class TestServerGroupDelete(TestServerGroup):
@@ -275,14 +276,14 @@ class TestServerGroupList(TestServerGroup):
     list_data = ((
         TestServerGroup.fake_server_group.id,
         TestServerGroup.fake_server_group.name,
-        utils.format_list(TestServerGroup.fake_server_group.policies),
+        format_columns.ListColumn(TestServerGroup.fake_server_group.policies),
     ),)
 
     list_data_long = ((
         TestServerGroup.fake_server_group.id,
         TestServerGroup.fake_server_group.name,
-        utils.format_list(TestServerGroup.fake_server_group.policies),
-        utils.format_list(TestServerGroup.fake_server_group.members),
+        format_columns.ListColumn(TestServerGroup.fake_server_group.policies),
+        format_columns.ListColumn(TestServerGroup.fake_server_group.members),
         TestServerGroup.fake_server_group.project_id,
         TestServerGroup.fake_server_group.user_id,
     ),)
@@ -303,8 +304,8 @@ class TestServerGroupList(TestServerGroup):
         columns, data = self.cmd.take_action(parsed_args)
         self.server_groups_mock.list.assert_called_once_with(False)
 
-        self.assertEqual(self.list_columns, columns)
-        self.assertEqual(self.list_data, tuple(data))
+        self.assertCountEqual(self.list_columns, columns)
+        self.assertCountEqual(self.list_data, tuple(data))
 
     def test_server_group_list_with_all_projects_and_long(self):
         arglist = [
@@ -319,8 +320,8 @@ class TestServerGroupList(TestServerGroup):
         columns, data = self.cmd.take_action(parsed_args)
         self.server_groups_mock.list.assert_called_once_with(True)
 
-        self.assertEqual(self.list_columns_long, columns)
-        self.assertEqual(self.list_data_long, tuple(data))
+        self.assertCountEqual(self.list_columns_long, columns)
+        self.assertCountEqual(self.list_data_long, tuple(data))
 
 
 class TestServerGroupListV264(TestServerGroupV264):
@@ -350,7 +351,8 @@ class TestServerGroupListV264(TestServerGroupV264):
         TestServerGroupV264.fake_server_group.id,
         TestServerGroupV264.fake_server_group.name,
         TestServerGroupV264.fake_server_group.policy,
-        utils.format_list(TestServerGroupV264.fake_server_group.members),
+        format_columns.ListColumn(
+            TestServerGroupV264.fake_server_group.members),
         TestServerGroupV264.fake_server_group.project_id,
         TestServerGroupV264.fake_server_group.user_id,
     ),)
@@ -373,8 +375,8 @@ class TestServerGroupListV264(TestServerGroupV264):
         columns, data = self.cmd.take_action(parsed_args)
         self.server_groups_mock.list.assert_called_once_with(False)
 
-        self.assertEqual(self.list_columns, columns)
-        self.assertEqual(self.list_data, tuple(data))
+        self.assertCountEqual(self.list_columns, columns)
+        self.assertCountEqual(self.list_data, tuple(data))
 
     def test_server_group_list_with_all_projects_and_long(self):
         arglist = [
@@ -389,8 +391,8 @@ class TestServerGroupListV264(TestServerGroupV264):
         columns, data = self.cmd.take_action(parsed_args)
         self.server_groups_mock.list.assert_called_once_with(True)
 
-        self.assertEqual(self.list_columns_long, columns)
-        self.assertEqual(self.list_data_long, tuple(data))
+        self.assertCountEqual(self.list_columns_long, columns)
+        self.assertCountEqual(self.list_data_long, tuple(data))
 
 
 class TestServerGroupShow(TestServerGroup):
@@ -412,5 +414,5 @@ class TestServerGroupShow(TestServerGroup):
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
         columns, data = self.cmd.take_action(parsed_args)
 
-        self.assertEqual(self.columns, columns)
-        self.assertEqual(self.data, data)
+        self.assertCountEqual(self.columns, columns)
+        self.assertCountEqual(self.data, data)

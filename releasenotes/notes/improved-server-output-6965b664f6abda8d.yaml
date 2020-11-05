@@ -14,3 +14,7 @@ fixes:
     formatter. In addition, the ``server_usages``, ``total_memory_mb_usage``,
     ``total_vcpus_usage`` and ``total_local_gb_usage`` values will only be
     humanized when using the table formatter.
+  - |
+    The ``policies`` (or ``policy``, on newer microversions) and ``members``
+    fields of the ``server group list`` and ``server group show`` commands
+    will now be rendered correctly as lists.

@@ -33,7 +33,7 @@ class ServerGroupTests(base.TestCase):
             cmd_output['name']
         )
         self.assertEqual(
-            'affinity',
+            ['affinity'],
             cmd_output['policies']
         )
 
@@ -47,7 +47,7 @@ class ServerGroupTests(base.TestCase):
             cmd_output['name']
         )
         self.assertEqual(
-            'anti-affinity',
+            ['anti-affinity'],
             cmd_output['policies']
         )
 
@@ -74,7 +74,7 @@ class ServerGroupTests(base.TestCase):
             cmd_output['name']
         )
         self.assertEqual(
-            'affinity',
+            ['affinity'],
             cmd_output['policies']
         )
 
@@ -91,7 +91,7 @@ class ServerGroupTests(base.TestCase):
             cmd_output['name']
         )
         self.assertEqual(
-            'anti-affinity',
+            ['anti-affinity'],
             cmd_output['policies']
         )
 
@@ -102,5 +102,5 @@ class ServerGroupTests(base.TestCase):
         self.assertIn(name1, names)
         self.assertIn(name2, names)
         policies = [x["Policies"] for x in cmd_output]
-        self.assertIn('affinity', policies)
-        self.assertIn('anti-affinity', policies)
+        self.assertIn(['affinity'], policies)
+        self.assertIn(['anti-affinity'], policies)
