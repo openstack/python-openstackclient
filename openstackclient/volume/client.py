@@ -29,6 +29,7 @@ API_VERSIONS = {
     "1": "cinderclient.v1.client.Client",
     "2": "cinderclient.v2.client.Client",
     "3": "cinderclient.v3.client.Client",
+    "3.42": "cinderclient.v3.client.Client",
 }
 
 
@@ -47,14 +48,19 @@ def make_client(instance):
     except Exception:
         del API_VERSIONS['1']
 
-    if instance._api_version[API_NAME] == '1':
+    version = instance._api_version[API_NAME]
+    from cinderclient import api_versions
+    # convert to APIVersion object
+    version = api_versions.get_api_version(version)
+
+    if version.ver_major == '1':
         # Monkey patch for v1 cinderclient
         volumes.Volume.NAME_ATTR = 'display_name'
         volume_snapshots.Snapshot.NAME_ATTR = 'display_name'
 
     volume_client = utils.get_client_class(
         API_NAME,
-        instance._api_version[API_NAME],
+        version.ver_major,
         API_VERSIONS
     )
     LOG.debug('Instantiating volume client: %s', volume_client)
@@ -76,6 +82,7 @@ def make_client(instance):
         http_log_debug=http_log_debug,
         region_name=instance.region_name,
         endpoint_override=endpoint_override,
+        api_version=version,
         **kwargs
     )
 
