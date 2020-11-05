@@ -138,7 +138,7 @@ class TestAggregateCreate(TestAggregate):
             'ag1',
         ]
         verifylist = [
-            ('property', {'key1': 'value1', 'key2': 'value2'}),
+            ('properties', {'key1': 'value1', 'key2': 'value2'}),
             ('name', 'ag1'),
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
@@ -146,7 +146,7 @@ class TestAggregateCreate(TestAggregate):
         self.sdk_client.create_aggregate.assert_called_once_with(
             name=parsed_args.name)
         self.sdk_client.set_aggregate_metadata.assert_called_once_with(
-            self.fake_ag.id, parsed_args.property)
+            self.fake_ag.id, parsed_args.properties)
         self.assertEqual(self.columns, columns)
         self.assertItemsEqual(self.data, data)
 
@@ -378,7 +378,7 @@ class TestAggregateSet(TestAggregate):
             'ag1',
         ]
         verifylist = [
-            ('property', {'key1': 'value1', 'key2': 'value2'}),
+            ('properties', {'key1': 'value1', 'key2': 'value2'}),
             ('aggregate', 'ag1'),
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
@@ -388,7 +388,7 @@ class TestAggregateSet(TestAggregate):
             parsed_args.aggregate, ignore_missing=False)
         self.assertNotCalled(self.sdk_client.update_aggregate)
         self.sdk_client.set_aggregate_metadata.assert_called_once_with(
-            self.fake_ag.id, parsed_args.property)
+            self.fake_ag.id, parsed_args.properties)
         self.assertIsNone(result)
 
     def test_aggregate_set_with_no_property_and_property(self):
@@ -399,7 +399,7 @@ class TestAggregateSet(TestAggregate):
         ]
         verifylist = [
             ('no_property', True),
-            ('property', {'key2': 'value2'}),
+            ('properties', {'key2': 'value2'}),
             ('aggregate', 'ag1'),
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
@@ -509,14 +509,14 @@ class TestAggregateUnset(TestAggregate):
             'ag1',
         ]
         verifylist = [
-            ('property', ['unset_key']),
+            ('properties', ['unset_key']),
             ('aggregate', 'ag1'),
         ]
 
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
         result = self.cmd.take_action(parsed_args)
         self.sdk_client.set_aggregate_metadata.assert_called_once_with(
-            self.fake_ag, {'unset_key': None})
+            self.fake_ag.id, {'unset_key': None})
         self.assertIsNone(result)
 
     def test_aggregate_unset_multiple_properties(self):
@@ -526,14 +526,14 @@ class TestAggregateUnset(TestAggregate):
             'ag1',
         ]
         verifylist = [
-            ('property', ['unset_key1', 'unset_key2']),
+            ('properties', ['unset_key1', 'unset_key2']),
             ('aggregate', 'ag1'),
         ]
 
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
         result = self.cmd.take_action(parsed_args)
         self.sdk_client.set_aggregate_metadata.assert_called_once_with(
-            self.fake_ag, {'unset_key1': None, 'unset_key2': None})
+            self.fake_ag.id, {'unset_key1': None, 'unset_key2': None})
         self.assertIsNone(result)
 
     def test_aggregate_unset_no_option(self):
@@ -541,7 +541,7 @@ class TestAggregateUnset(TestAggregate):
             'ag1',
         ]
         verifylist = [
-            ('property', None),
+            ('properties', []),
             ('aggregate', 'ag1'),
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)

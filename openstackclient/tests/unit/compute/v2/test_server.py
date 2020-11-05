@@ -1159,7 +1159,7 @@ class TestServerCreate(TestServer):
             ('image', 'image1'),
             ('flavor', 'flavor1'),
             ('key_name', 'keyname'),
-            ('property', {'Beta': 'b'}),
+            ('properties', {'Beta': 'b'}),
             ('security_group', ['securitygroup']),
             ('hint', {'a': ['b', 'c']}),
             ('config_drive', True),
@@ -2227,7 +2227,7 @@ class TestServerCreate(TestServer):
             self.new_server.name,
         ]
         verifylist = [
-            ('image_property', {'hypervisor_type': 'qemu'}),
+            ('image_properties', {'hypervisor_type': 'qemu'}),
             ('flavor', 'flavor1'),
             ('nic', ['none']),
             ('config_drive', False),
@@ -2282,7 +2282,7 @@ class TestServerCreate(TestServer):
             self.new_server.name,
         ]
         verifylist = [
-            ('image_property', {'hypervisor_type': 'qemu',
+            ('image_properties', {'hypervisor_type': 'qemu',
              'hw_disk_bus': 'ide'}),
             ('flavor', 'flavor1'),
             ('nic', ['none']),
@@ -2338,7 +2338,7 @@ class TestServerCreate(TestServer):
             self.new_server.name,
         ]
         verifylist = [
-            ('image_property', {'hypervisor_type': 'qemu',
+            ('image_properties', {'hypervisor_type': 'qemu',
              'hw_disk_bus': 'virtio'}),
             ('flavor', 'flavor1'),
             ('nic', ['none']),
@@ -2370,7 +2370,7 @@ class TestServerCreate(TestServer):
         ]
 
         verifylist = [
-            ('image_property',
+            ('image_properties',
                 {'owner_specified.openstack.object': 'image/cirros'}),
             ('flavor', 'flavor1'),
             ('nic', ['none']),
@@ -4973,10 +4973,10 @@ class TestServerRebuild(TestServer):
             '--property', 'key1=value1',
             '--property', 'key2=value2'
         ]
-        expected_property = {'key1': 'value1', 'key2': 'value2'}
+        expected_properties = {'key1': 'value1', 'key2': 'value2'}
         verifylist = [
             ('server', self.server.id),
-            ('property', expected_property)
+            ('properties', expected_properties)
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
@@ -4986,7 +4986,7 @@ class TestServerRebuild(TestServer):
         self.servers_mock.get.assert_called_with(self.server.id)
         self.get_image_mock.assert_called_with(self.image.id)
         self.server.rebuild.assert_called_with(
-            self.image, None, meta=expected_property)
+            self.image, None, meta=expected_properties)
 
     def test_rebuild_with_keypair_name(self):
         self.app.client_manager.compute.api_version = \
@@ -6145,13 +6145,13 @@ class TestServerSet(TestServer):
             'foo_vm',
         ]
         verifylist = [
-            ('property', {'key1': 'value1', 'key2': 'value2'}),
+            ('properties', {'key1': 'value1', 'key2': 'value2'}),
             ('server', 'foo_vm'),
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
         result = self.cmd.take_action(parsed_args)
         self.servers_mock.set_meta.assert_called_once_with(
-            self.fake_servers[0], parsed_args.property)
+            self.fake_servers[0], parsed_args.properties)
         self.assertIsNone(result)
 
     @mock.patch.object(getpass, 'getpass',
@@ -6579,7 +6579,7 @@ class TestServerUnset(TestServer):
             'foo_vm',
         ]
         verifylist = [
-            ('property', ['key1', 'key2']),
+            ('properties', ['key1', 'key2']),
             ('server', 'foo_vm'),
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)

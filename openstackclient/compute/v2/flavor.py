@@ -128,6 +128,7 @@ class CreateFlavor(command.ShowOne):
             "--property",
             metavar="<key=value>",
             action=parseractions.KeyValueAction,
+            dest="properties",
             help=_("Property to add for this flavor "
                    "(repeat option to set multiple properties)")
         )
@@ -191,12 +192,12 @@ class CreateFlavor(command.ShowOne):
                 msg = _("Failed to add project %(project)s access to "
                         "flavor: %(e)s")
                 LOG.error(msg, {'project': parsed_args.project, 'e': e})
-        if parsed_args.property:
+        if parsed_args.properties:
             try:
                 flavor = compute_client.create_flavor_extra_specs(
-                    flavor, parsed_args.property)
+                    flavor, parsed_args.properties)
             except Exception as e:
-                LOG.error(_("Failed to set flavor property: %s"), e)
+                LOG.error(_("Failed to set flavor properties: %s"), e)
 
         display_columns, columns = _get_flavor_columns(flavor)
         data = utils.get_dict_properties(flavor, columns,
@@ -398,6 +399,7 @@ class SetFlavor(command.Command):
             "--property",
             metavar="<key=value>",
             action=parseractions.KeyValueAction,
+            dest="properties",
             help=_("Property to add or modify for this flavor "
                    "(repeat option to set multiple properties)")
         )
@@ -447,15 +449,15 @@ class SetFlavor(command.Command):
                     compute_client.delete_flavor_extra_specs_property(
                         flavor.id, key)
             except Exception as e:
-                LOG.error(_("Failed to clear flavor property: %s"), e)
+                LOG.error(_("Failed to clear flavor properties: %s"), e)
                 result += 1
 
-        if parsed_args.property:
+        if parsed_args.properties:
             try:
                 compute_client.create_flavor_extra_specs(
-                    flavor.id, parsed_args.property)
+                    flavor.id, parsed_args.properties)
             except Exception as e:
-                LOG.error(_("Failed to set flavor property: %s"), e)
+                LOG.error(_("Failed to set flavor properties: %s"), e)
                 result += 1
 
         if parsed_args.project:
@@ -537,6 +539,7 @@ class UnsetFlavor(command.Command):
             "--property",
             metavar="<key>",
             action='append',
+            dest="properties",
             help=_("Property to remove from flavor "
                    "(repeat option to unset multiple properties)")
         )
@@ -563,8 +566,8 @@ class UnsetFlavor(command.Command):
             raise exceptions.CommandError(_(e.message))
 
         result = 0
-        if parsed_args.property:
-            for key in parsed_args.property:
+        if parsed_args.properties:
+            for key in parsed_args.properties:
                 try:
                     compute_client.delete_flavor_extra_specs_property(
                         flavor.id, key)

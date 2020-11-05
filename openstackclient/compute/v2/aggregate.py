@@ -101,6 +101,7 @@ class CreateAggregate(command.ShowOne):
             "--property",
             metavar="<key=value>",
             action=parseractions.KeyValueAction,
+            dest="properties",
             help=_("Property to add to this aggregate "
                    "(repeat option to set multiple properties)")
         )
@@ -116,10 +117,10 @@ class CreateAggregate(command.ShowOne):
 
         aggregate = compute_client.create_aggregate(**attrs)
 
-        if parsed_args.property:
+        if parsed_args.properties:
             aggregate = compute_client.set_aggregate_metadata(
                 aggregate.id,
-                parsed_args.property,
+                parsed_args.properties,
             )
 
         display_columns, columns = _get_aggregate_columns(aggregate)
@@ -269,12 +270,12 @@ class SetAggregate(command.Command):
             "--property",
             metavar="<key=value>",
             action=parseractions.KeyValueAction,
+            dest="properties",
             help=_("Property to set on <aggregate> "
                    "(repeat option to set multiple properties)")
         )
         parser.add_argument(
             "--no-property",
-            dest="no_property",
             action="store_true",
             help=_("Remove all properties from <aggregate> "
                    "(specify both --property and --no-property to "
@@ -296,21 +297,20 @@ class SetAggregate(command.Command):
         if kwargs:
             compute_client.update_aggregate(aggregate.id, **kwargs)
 
-        set_property = {}
+        properties = {}
         if parsed_args.no_property:
             # NOTE(RuiChen): "availability_zone" can not be unset from
             # properties. It is already excluded from show and create output.
-            set_property.update({key: None
-                                 for key in aggregate.metadata.keys()
-                                 if key != 'availability_zone'})
-        if parsed_args.property:
-            set_property.update(parsed_args.property)
+            properties.update({
+                key: None for key in aggregate.metadata.keys()
+                if key != 'availability_zone'
+            })
 
-        if set_property:
-            compute_client.set_aggregate_metadata(
-                aggregate.id,
-                set_property
-            )
+        if parsed_args.properties:
+            properties.update(parsed_args.properties)
+
+        if properties:
+            compute_client.set_aggregate_metadata(aggregate.id, properties)
 
 
 class ShowAggregate(command.ShowOne):
@@ -354,7 +354,9 @@ class UnsetAggregate(command.Command):
         parser.add_argument(
             "--property",
             metavar="<key>",
-            action='append',
+            action="append",
+            default=[],
+            dest="properties",
             help=_("Property to remove from aggregate "
                    "(repeat option to remove multiple properties)")
         )
@@ -365,12 +367,10 @@ class UnsetAggregate(command.Command):
         aggregate = compute_client.find_aggregate(
             parsed_args.aggregate, ignore_missing=False)
 
-        unset_property = {}
-        if parsed_args.property:
-            unset_property.update({key: None for key in parsed_args.property})
-        if unset_property:
-            compute_client.set_aggregate_metadata(
-                aggregate, unset_property)
+        properties = {key: None for key in parsed_args.properties}
+
+        if properties:
+            compute_client.set_aggregate_metadata(aggregate.id, properties)
 
 
 class CacheImageForAggregate(command.Command):

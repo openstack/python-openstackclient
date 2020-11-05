@@ -614,6 +614,7 @@ class CreateServer(command.ShowOne):
             '--image-property',
             metavar='<key=value>',
             action=parseractions.KeyValueAction,
+            dest='image_properties',
             help=_("Image property to be matched"),
         )
         disk_group.add_argument(
@@ -659,6 +660,7 @@ class CreateServer(command.ShowOne):
             '--property',
             metavar='<key=value>',
             action=parseractions.KeyValueAction,
+            dest='properties',
             help=_(
                 'Set a property on this server '
                 '(repeat option to set multiple values)'
@@ -886,8 +888,8 @@ class CreateServer(command.ShowOne):
             image = image_client.find_image(
                 parsed_args.image, ignore_missing=False)
 
-        if not image and parsed_args.image_property:
-            def emit_duplicated_warning(img, image_property):
+        if not image and parsed_args.image_properties:
+            def emit_duplicated_warning(img):
                 img_uuid_list = [str(image.id) for image in img]
                 LOG.warning(
                     'Multiple matching images: %(img_uuid_list)s\n'
@@ -930,9 +932,9 @@ class CreateServer(command.ShowOne):
 
                 return images_matched
 
-            images = _match_image(image_client, parsed_args.image_property)
+            images = _match_image(image_client, parsed_args.image_properties)
             if len(images) > 1:
-                emit_duplicated_warning(images, parsed_args.image_property)
+                emit_duplicated_warning(images, parsed_args.image_properties)
             if images:
                 image = images[0]
             else:
@@ -1195,7 +1197,7 @@ class CreateServer(command.ShowOne):
                 config_drive = parsed_args.config_drive
 
         boot_kwargs = dict(
-            meta=parsed_args.property,
+            meta=parsed_args.properties,
             files=files,
             reservation_id=None,
             min_count=parsed_args.min,
@@ -2473,6 +2475,7 @@ class RebuildServer(command.ShowOne):
             '--property',
             metavar='<key=value>',
             action=parseractions.KeyValueAction,
+            dest='properties',
             help=_(
                 'Set a new property on the rebuilt server '
                 '(repeat option to set multiple values)'
@@ -2614,8 +2617,8 @@ class RebuildServer(command.ShowOne):
         if parsed_args.preserve_ephemeral is not None:
             kwargs['preserve_ephemeral'] = parsed_args.preserve_ephemeral
 
-        if parsed_args.property:
-            kwargs['meta'] = parsed_args.property
+        if parsed_args.properties:
+            kwargs['meta'] = parsed_args.properties
 
         if parsed_args.description:
             if compute_client.api_version < api_versions.APIVersion('2.19'):
@@ -3278,9 +3281,10 @@ class SetServer(command.Command):
             help=_('Set new root password (interactive only)'),
         )
         parser.add_argument(
-            "--property",
-            metavar="<key=value>",
+            '--property',
+            metavar='<key=value>',
             action=parseractions.KeyValueAction,
+            dest='properties',
             help=_('Property to add/change for this server '
                    '(repeat option to set multiple properties)'),
         )
@@ -3321,11 +3325,8 @@ class SetServer(command.Command):
         if parsed_args.name:
             server.update(name=parsed_args.name)
 
-        if parsed_args.property:
-            compute_client.servers.set_meta(
-                server,
-                parsed_args.property,
-            )
+        if parsed_args.properties:
+            compute_client.servers.set_meta(server, parsed_args.properties)
 
         if parsed_args.state:
             server.reset_state(state=parsed_args.state)
@@ -3740,6 +3741,7 @@ class UnsetServer(command.Command):
             metavar='<key>',
             action='append',
             default=[],
+            dest='properties',
             help=_('Property key to remove from server '
                    '(repeat option to remove multiple values)'),
         )
@@ -3771,11 +3773,8 @@ class UnsetServer(command.Command):
             parsed_args.server,
         )
 
-        if parsed_args.property:
-            compute_client.servers.delete_meta(
-                server,
-                parsed_args.property,
-            )
+        if parsed_args.properties:
+            compute_client.servers.delete_meta(server, parsed_args.properties)
 
         if parsed_args.description:
             if compute_client.api_version < api_versions.APIVersion("2.19"):

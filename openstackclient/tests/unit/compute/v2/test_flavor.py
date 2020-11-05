@@ -160,7 +160,7 @@ class TestFlavorCreate(TestFlavor):
             ('rxtx_factor', self.flavor.rxtx_factor),
             ('public', True),
             ('description', self.flavor.description),
-            ('property', {'property': 'value'}),
+            ('properties', {'property': 'value'}),
             ('name', self.flavor.name),
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
@@ -232,7 +232,7 @@ class TestFlavorCreate(TestFlavor):
             ('public', False),
             ('description', 'description'),
             ('project', self.project.id),
-            ('property', {'key1': 'value1', 'key2': 'value2'}),
+            ('properties', {'key1': 'value1', 'key2': 'value2'}),
             ('name', self.flavor.name),
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
@@ -688,7 +688,7 @@ class TestFlavorSet(TestFlavor):
             'baremetal'
         ]
         verifylist = [
-            ('property', {'FOO': '"B A R"'}),
+            ('properties', {'FOO': '"B A R"'}),
             ('flavor', 'baremetal')
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
@@ -1017,7 +1017,7 @@ class TestFlavorUnset(TestFlavor):
             'baremetal'
         ]
         verifylist = [
-            ('property', ['property']),
+            ('properties', ['property']),
             ('flavor', 'baremetal'),
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
@@ -1039,7 +1039,7 @@ class TestFlavorUnset(TestFlavor):
             'baremetal'
         ]
         verifylist = [
-            ('property', ['property1', 'property2']),
+            ('properties', ['property1', 'property2']),
             ('flavor', 'baremetal'),
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
