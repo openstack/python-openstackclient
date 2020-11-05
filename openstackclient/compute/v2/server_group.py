@@ -19,6 +19,7 @@ import logging
 
 from novaclient import api_versions
 from osc_lib.cli import format_columns
+from osc_lib.cli import parseractions
 from osc_lib.command import command
 from osc_lib import exceptions
 from osc_lib import utils
@@ -30,8 +31,9 @@ LOG = logging.getLogger(__name__)
 
 
 _formatters = {
-    'policies': format_columns.ListColumn,
     'members': format_columns.ListColumn,
+    'policies': format_columns.ListColumn,
+    'rules': format_columns.DictColumn,
 }
 
 
@@ -68,7 +70,19 @@ class CreateServerGroup(command.ShowOne):
                 "Add a policy to <name> "
                 "Specify --os-compute-api-version 2.15 or higher for the "
                 "'soft-affinity' or 'soft-anti-affinity' policy."
-            )
+            ),
+        )
+        parser.add_argument(
+            '--rule',
+            metavar='<key=value>',
+            action=parseractions.KeyValueAction,
+            default={},
+            dest='rules',
+            help=_(
+                "A rule for the policy. Currently, only the "
+                "'max_server_per_host' rule is supported for the "
+                "'anti-affinity' policy."
+            ),
         )
         return parser
 
@@ -84,12 +98,24 @@ class CreateServerGroup(command.ShowOne):
                 )
                 raise exceptions.CommandError(msg % parsed_args.policy)
 
-        policy_arg = {'policies': [parsed_args.policy]}
-        if compute_client.api_version >= api_versions.APIVersion("2.64"):
-            policy_arg = {'policy': parsed_args.policy}
+        if parsed_args.rules:
+            if compute_client.api_version < api_versions.APIVersion('2.64'):
+                msg = _(
+                    '--os-compute-api-version 2.64 or greater is required to '
+                    'support the --rule option'
+                )
+                raise exceptions.CommandError(msg)
+
+        if compute_client.api_version < api_versions.APIVersion('2.64'):
+            kwargs = {'policies': [parsed_args.policy]}
+        else:
+            kwargs = {
+                'policy': parsed_args.policy,
+                'rules': parsed_args.rules or None,
+            }
 
         server_group = compute_client.server_groups.create(
-            name=parsed_args.name, **policy_arg)
+            name=parsed_args.name, **kwargs)
 
         info.update(server_group._info)
 
@@ -161,31 +187,33 @@ class ListServerGroup(command.Lister):
         if compute_client.api_version >= api_versions.APIVersion("2.64"):
             policy_key = 'Policy'
 
+        columns = (
+            'id',
+            'name',
+            policy_key.lower(),
+        )
+        column_headers = (
+            'ID',
+            'Name',
+            policy_key,
+        )
         if parsed_args.long:
-            column_headers = columns = (
-                'ID',
-                'Name',
-                policy_key,
+            columns += (
+                'members',
+                'project_id',
+                'user_id',
+            )
+            column_headers += (
                 'Members',
                 'Project Id',
                 'User Id',
-            )
-        else:
-            column_headers = columns = (
-                'ID',
-                'Name',
-                policy_key,
             )
 
         return (
             column_headers,
             (
                 utils.get_item_properties(
-                    s, columns,
-                    formatters={
-                        'Policies': format_columns.ListColumn,
-                        'Members': format_columns.ListColumn,
-                    }
+                    s, columns, formatters=_formatters,
                 ) for s in data
             ),
         )

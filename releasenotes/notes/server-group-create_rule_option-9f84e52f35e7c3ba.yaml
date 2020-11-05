@@ -1,0 +1,4 @@
+---
+features:
+  - |
+    Add support for ``--rule`` option for ``server group create``.

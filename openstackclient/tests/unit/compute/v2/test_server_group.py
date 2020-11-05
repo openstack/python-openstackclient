@@ -152,27 +152,54 @@ class TestServerGroupCreate(TestServerGroup):
             '--os-compute-api-version 2.15 or greater is required',
             str(ex))
 
-    def test_server_group_create_v264(self):
+    def test_server_group_create_with_rules(self):
         self.app.client_manager.compute.api_version = api_versions.APIVersion(
             '2.64')
 
         arglist = [
             '--policy', 'soft-anti-affinity',
+            '--rule', 'max_server_per_host=2',
             'affinity_group',
         ]
         verifylist = [
             ('policy', 'soft-anti-affinity'),
+            ('rules', {'max_server_per_host': '2'}),
             ('name', 'affinity_group'),
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
         columns, data = self.cmd.take_action(parsed_args)
         self.server_groups_mock.create.assert_called_once_with(
             name=parsed_args.name,
-            policy=parsed_args.policy,
+            policy=parsed_args.policy,  # should be 'policy', not 'policies'
+            rules=parsed_args.rules,
         )
 
         self.assertCountEqual(self.columns, columns)
         self.assertCountEqual(self.data, data)
+
+    def test_server_group_create_with_rules_pre_v264(self):
+        self.app.client_manager.compute.api_version = api_versions.APIVersion(
+            '2.63')
+
+        arglist = [
+            '--policy', 'soft-anti-affinity',
+            '--rule', 'max_server_per_host=2',
+            'affinity_group',
+        ]
+        verifylist = [
+            ('policy', 'soft-anti-affinity'),
+            ('rules', {'max_server_per_host': '2'}),
+            ('name', 'affinity_group'),
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        ex = self.assertRaises(
+            exceptions.CommandError,
+            self.cmd.take_action,
+            parsed_args)
+        self.assertIn(
+            '--os-compute-api-version 2.64 or greater is required',
+            str(ex))
 
 
 class TestServerGroupDelete(TestServerGroup):
