@@ -20,7 +20,7 @@ import logging
 import os
 import sys
 
-from novaclient import api_versions
+from openstack import utils as sdk_utils
 from osc_lib.command import command
 from osc_lib import exceptions
 from osc_lib import utils
@@ -30,6 +30,19 @@ from openstackclient.identity import common as identity_common
 
 
 LOG = logging.getLogger(__name__)
+
+
+def _get_keypair_columns(item, hide_pub_key=False, hide_priv_key=False):
+    # To maintain backwards compatibility we need to rename sdk props to
+    # whatever OSC was using before
+    column_map = {}
+    hidden_columns = ['links', 'location']
+    if hide_pub_key:
+        hidden_columns.append('public_key')
+    if hide_priv_key:
+        hidden_columns.append('private_key')
+    return utils.get_osc_show_columns_for_sdk_resource(
+        item, column_map, hidden_columns)
 
 
 class CreateKeypair(command.ShowOne):
@@ -76,8 +89,12 @@ class CreateKeypair(command.ShowOne):
         return parser
 
     def take_action(self, parsed_args):
-        compute_client = self.app.client_manager.compute
+        compute_client = self.app.client_manager.sdk_connection.compute
         identity_client = self.app.client_manager.identity
+
+        kwargs = {
+            'name': parsed_args.name
+        }
 
         public_key = parsed_args.public_key
         if public_key:
@@ -91,12 +108,10 @@ class CreateKeypair(command.ShowOne):
                            "exception": e}
                 )
 
-        kwargs = {
-            'name': parsed_args.name,
-            'public_key': public_key,
-        }
+            kwargs['public_key'] = public_key
+
         if parsed_args.type:
-            if compute_client.api_version < api_versions.APIVersion('2.2'):
+            if not sdk_utils.supports_microversion(compute_client, '2.2'):
                 msg = _(
                     '--os-compute-api-version 2.2 or greater is required to '
                     'support the --type option'
@@ -106,7 +121,7 @@ class CreateKeypair(command.ShowOne):
             kwargs['key_type'] = parsed_args.type
 
         if parsed_args.user:
-            if compute_client.api_version < api_versions.APIVersion('2.10'):
+            if not sdk_utils.supports_microversion(compute_client, '2.10'):
                 msg = _(
                     '--os-compute-api-version 2.10 or greater is required to '
                     'support the --user option'
@@ -119,7 +134,7 @@ class CreateKeypair(command.ShowOne):
                 parsed_args.user_domain,
             ).id
 
-        keypair = compute_client.keypairs.create(**kwargs)
+        keypair = compute_client.create_keypair(**kwargs)
 
         private_key = parsed_args.private_key
         # Save private key into specified file
@@ -139,14 +154,12 @@ class CreateKeypair(command.ShowOne):
         # NOTE(dtroyer): how do we want to handle the display of the private
         #                key when it needs to be communicated back to the user
         #                For now, duplicate nova keypair-add command output
-        info = {}
         if public_key or private_key:
-            info.update(keypair._info)
-            if 'public_key' in info:
-                del info['public_key']
-            if 'private_key' in info:
-                del info['private_key']
-            return zip(*sorted(info.items()))
+            display_columns, columns = _get_keypair_columns(
+                keypair, hide_pub_key=True, hide_priv_key=True)
+            data = utils.get_item_properties(keypair, columns)
+
+            return (display_columns, data)
         else:
             sys.stdout.write(keypair.private_key)
             return ({}, {})
@@ -175,14 +188,14 @@ class DeleteKeypair(command.Command):
         return parser
 
     def take_action(self, parsed_args):
-        compute_client = self.app.client_manager.compute
+        compute_client = self.app.client_manager.sdk_connection.compute
         identity_client = self.app.client_manager.identity
 
         kwargs = {}
         result = 0
 
         if parsed_args.user:
-            if compute_client.api_version < api_versions.APIVersion('2.10'):
+            if not sdk_utils.supports_microversion(compute_client, '2.10'):
                 msg = _(
                     '--os-compute-api-version 2.10 or greater is required to '
                     'support the --user option'
@@ -197,9 +210,8 @@ class DeleteKeypair(command.Command):
 
         for n in parsed_args.name:
             try:
-                data = utils.find_resource(
-                    compute_client.keypairs, n)
-                compute_client.keypairs.delete(data.name, **kwargs)
+                compute_client.delete_keypair(
+                    n, **kwargs, ignore_missing=False)
             except Exception as e:
                 result += 1
                 LOG.error(_("Failed to delete key with name "
@@ -240,11 +252,11 @@ class ListKeypair(command.Lister):
         return parser
 
     def take_action(self, parsed_args):
-        compute_client = self.app.client_manager.compute
+        compute_client = self.app.client_manager.sdk_connection.compute
         identity_client = self.app.client_manager.identity
 
         if parsed_args.project:
-            if compute_client.api_version < api_versions.APIVersion('2.10'):
+            if not sdk_utils.supports_microversion(compute_client, '2.10'):
                 msg = _(
                     '--os-compute-api-version 2.10 or greater is required to '
                     'support the --project option'
@@ -263,9 +275,9 @@ class ListKeypair(command.Lister):
 
             data = []
             for user in users:
-                data.extend(compute_client.keypairs.list(user_id=user.id))
+                data.extend(compute_client.keypairs(user_id=user.id))
         elif parsed_args.user:
-            if compute_client.api_version < api_versions.APIVersion('2.10'):
+            if not sdk_utils.supports_microversion(compute_client, '2.10'):
                 msg = _(
                     '--os-compute-api-version 2.10 or greater is required to '
                     'support the --user option'
@@ -278,16 +290,16 @@ class ListKeypair(command.Lister):
                 parsed_args.user_domain,
             )
 
-            data = compute_client.keypairs.list(user_id=user.id)
+            data = compute_client.keypairs(user_id=user.id)
         else:
-            data = compute_client.keypairs.list()
+            data = compute_client.keypairs()
 
         columns = (
             "Name",
             "Fingerprint"
         )
 
-        if compute_client.api_version >= api_versions.APIVersion('2.2'):
+        if sdk_utils.supports_microversion(compute_client, '2.2'):
             columns += ("Type", )
 
         return (
@@ -324,13 +336,13 @@ class ShowKeypair(command.ShowOne):
         return parser
 
     def take_action(self, parsed_args):
-        compute_client = self.app.client_manager.compute
+        compute_client = self.app.client_manager.sdk_connection.compute
         identity_client = self.app.client_manager.identity
 
         kwargs = {}
 
         if parsed_args.user:
-            if compute_client.api_version < api_versions.APIVersion('2.10'):
+            if not sdk_utils.supports_microversion(compute_client, '2.10'):
                 msg = _(
                     '--os-compute-api-version 2.10 or greater is required to '
                     'support the --user option'
@@ -343,16 +355,14 @@ class ShowKeypair(command.ShowOne):
                 parsed_args.user_domain,
             ).id
 
-        keypair = utils.find_resource(
-            compute_client.keypairs, parsed_args.name, **kwargs)
+        keypair = compute_client.find_keypair(
+            parsed_args.name, **kwargs, ignore_missing=False)
 
-        info = {}
-        info.update(keypair._info)
         if not parsed_args.public_key:
-            del info['public_key']
-            return zip(*sorted(info.items()))
+            display_columns, columns = _get_keypair_columns(
+                keypair, hide_pub_key=True)
+            data = utils.get_item_properties(keypair, columns)
+            return (display_columns, data)
         else:
-            # NOTE(dtroyer): a way to get the public key in a similar form
-            #                as the private key in the create command
             sys.stdout.write(keypair.public_key)
             return ({}, {})
