@@ -1,0 +1,6 @@
+---
+features:
+  - |
+    Add ``server evacuate`` command. This command will recreate an instance
+    from scratch on a new host and is intended to be used when the original
+    host fails.

@@ -11,6 +11,9 @@ Compute v2
    :command: server create
 
 .. autoprogram-cliff:: openstack.compute.v2
+   :command: server evacuate
+
+.. autoprogram-cliff:: openstack.compute.v2
    :command: server delete
 
 .. autoprogram-cliff:: openstack.compute.v2
