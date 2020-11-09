@@ -4079,7 +4079,6 @@ class TestListMigration(TestServer):
         kwargs = {
             'status': None,
             'host': None,
-            'server': None,
         }
 
         self.migrations_mock.list.assert_called_with(**kwargs)
@@ -4106,10 +4105,11 @@ class TestListMigration(TestServer):
         kwargs = {
             'status': 'migrating',
             'host': 'host1',
-            'server': 'server1',
-            'type': 'migration',
+            'instance_uuid': self.server.id,
+            'migration_type': 'migration',
         }
 
+        self.servers_mock.get.assert_called_with('server1')
         self.migrations_mock.list.assert_called_with(**kwargs)
 
         self.assertEqual(self.MIGRATION_COLUMNS, columns)
@@ -4145,7 +4145,6 @@ class TestListMigrationV223(TestListMigration):
         kwargs = {
             'status': 'migrating',
             'host': None,
-            'server': None,
         }
 
         self.migrations_mock.list.assert_called_with(**kwargs)
@@ -4194,7 +4193,6 @@ class TestListMigrationV259(TestListMigration):
             'limit': 1,
             'marker': 'test_kp',
             'host': None,
-            'server': None,
             'changes_since': '2019-08-09T08:03:25Z',
         }
 
@@ -4303,7 +4301,6 @@ class TestListMigrationV266(TestListMigration):
             'limit': 1,
             'marker': 'test_kp',
             'host': None,
-            'server': None,
             'changes_since': '2019-08-07T08:03:25Z',
             'changes_before': '2019-08-09T08:03:25Z',
         }
@@ -4375,7 +4372,6 @@ class TestListMigrationV280(TestListMigration):
             'limit': 1,
             'marker': 'test_kp',
             'host': None,
-            'server': None,
             'project_id': '0c2accde-644a-45fa-8c10-e76debc7fbc3',
             'changes_since': '2019-08-07T08:03:25Z',
             'changes_before': "2019-08-09T08:03:25Z",
@@ -4438,7 +4434,6 @@ class TestListMigrationV280(TestListMigration):
             'limit': 1,
             'marker': 'test_kp',
             'host': None,
-            'server': None,
             'user_id': 'dd214878-ca12-40fb-b035-fa7d2c1e86d6',
             'changes_since': '2019-08-07T08:03:25Z',
             'changes_before': "2019-08-09T08:03:25Z",
@@ -4500,7 +4495,6 @@ class TestListMigrationV280(TestListMigration):
             'status': 'migrating',
             'limit': 1,
             'host': None,
-            'server': None,
             'project_id': '0c2accde-644a-45fa-8c10-e76debc7fbc3',
             'user_id': 'dd214878-ca12-40fb-b035-fa7d2c1e86d6',
             'changes_since': '2019-08-07T08:03:25Z',
