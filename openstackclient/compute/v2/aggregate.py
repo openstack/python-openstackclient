@@ -18,6 +18,7 @@
 
 import logging
 
+from openstack import utils as sdk_utils
 from osc_lib.cli import format_columns
 from osc_lib.cli import parseractions
 from osc_lib.command import command
@@ -28,6 +29,25 @@ from openstackclient.i18n import _
 
 
 LOG = logging.getLogger(__name__)
+
+
+_aggregate_formatters = {
+    'Hosts': format_columns.ListColumn,
+    'Metadata': format_columns.DictColumn,
+    'hosts': format_columns.ListColumn,
+    'metadata': format_columns.DictColumn,
+}
+
+
+def _get_aggregate_columns(item):
+    # To maintain backwards compatibility we need to rename sdk props to
+    # whatever OSC was using before
+    column_map = {
+        'metadata': 'properties',
+    }
+    hidden_columns = ['links', 'location']
+    return utils.get_osc_show_columns_for_sdk_resource(
+        item, column_map, hidden_columns)
 
 
 class AddAggregateHost(command.ShowOne):
@@ -48,26 +68,18 @@ class AddAggregateHost(command.ShowOne):
         return parser
 
     def take_action(self, parsed_args):
-        compute_client = self.app.client_manager.compute
+        compute_client = self.app.client_manager.sdk_connection.compute
 
-        aggregate = utils.find_resource(
-            compute_client.aggregates,
-            parsed_args.aggregate,
-        )
-        data = compute_client.aggregates.add_host(aggregate, parsed_args.host)
+        aggregate = compute_client.find_aggregate(
+            parsed_args.aggregate, ignore_missing=False)
 
-        info = {}
-        info.update(data._info)
+        aggregate = compute_client.add_host_to_aggregate(
+            aggregate.id, parsed_args.host)
 
-        # Special mapping for columns to make the output easier to read:
-        # 'metadata' --> 'properties'
-        info.update(
-            {
-                'hosts': format_columns.ListColumn(info.pop('hosts')),
-                'properties': format_columns.DictColumn(info.pop('metadata')),
-            },
-        )
-        return zip(*sorted(info.items()))
+        display_columns, columns = _get_aggregate_columns(aggregate)
+        data = utils.get_item_properties(
+            aggregate, columns, formatters=_aggregate_formatters)
+        return (display_columns, data)
 
 
 class CreateAggregate(command.ShowOne):
@@ -95,36 +107,25 @@ class CreateAggregate(command.ShowOne):
         return parser
 
     def take_action(self, parsed_args):
-        compute_client = self.app.client_manager.compute
+        compute_client = self.app.client_manager.sdk_connection.compute
 
-        info = {}
-        data = compute_client.aggregates.create(
-            parsed_args.name,
-            parsed_args.zone,
-        )
-        info.update(data._info)
+        attrs = {'name': parsed_args.name}
+
+        if parsed_args.zone:
+            attrs['availability_zone'] = parsed_args.zone
+
+        aggregate = compute_client.create_aggregate(**attrs)
 
         if parsed_args.property:
-            info.update(compute_client.aggregates.set_metadata(
-                data,
+            aggregate = compute_client.set_aggregate_metadata(
+                aggregate.id,
                 parsed_args.property,
-            )._info)
+            )
 
-        # Special mapping for columns to make the output easier to read:
-        # 'metadata' --> 'properties'
-        hosts = None
-        properties = None
-        if 'hosts' in info.keys():
-            hosts = format_columns.ListColumn(info.pop('hosts'))
-        if 'metadata' in info.keys():
-            properties = format_columns.DictColumn(info.pop('metadata'))
-        info.update(
-            {
-                'hosts': hosts,
-                'properties': properties,
-            },
-        )
-        return zip(*sorted(info.items()))
+        display_columns, columns = _get_aggregate_columns(aggregate)
+        data = utils.get_item_properties(
+            aggregate, columns, formatters=_aggregate_formatters)
+        return (display_columns, data)
 
 
 class DeleteAggregate(command.Command):
@@ -141,13 +142,14 @@ class DeleteAggregate(command.Command):
         return parser
 
     def take_action(self, parsed_args):
-        compute_client = self.app.client_manager.compute
+        compute_client = self.app.client_manager.sdk_connection.compute
         result = 0
         for a in parsed_args.aggregate:
             try:
-                data = utils.find_resource(
-                    compute_client.aggregates, a)
-                compute_client.aggregates.delete(data.id)
+                aggregate = compute_client.find_aggregate(
+                    a, ignore_missing=False)
+                compute_client.delete_aggregate(
+                    aggregate.id, ignore_missing=False)
             except Exception as e:
                 result += 1
                 LOG.error(_("Failed to delete aggregate with name or "
@@ -175,15 +177,15 @@ class ListAggregate(command.Lister):
         return parser
 
     def take_action(self, parsed_args):
-        compute_client = self.app.client_manager.compute
+        compute_client = self.app.client_manager.sdk_connection.compute
 
-        data = compute_client.aggregates.list()
+        aggregates = list(compute_client.aggregates())
 
         if parsed_args.long:
             # Remove availability_zone from metadata because Nova doesn't
-            for d in data:
-                if 'availability_zone' in d.metadata:
-                    d.metadata.pop('availability_zone')
+            for aggregate in aggregates:
+                if 'availability_zone' in aggregate.metadata:
+                    aggregate.metadata.pop('availability_zone')
             # This is the easiest way to change column headers
             column_headers = (
                 "ID",
@@ -204,14 +206,11 @@ class ListAggregate(command.Lister):
                 "Availability Zone",
             )
 
-        return (column_headers,
-                (utils.get_item_properties(
-                    s, columns,
-                    formatters={
-                        'Hosts': format_columns.ListColumn,
-                        'Metadata': format_columns.DictColumn,
-                    },
-                ) for s in data))
+        data = (
+            utils.get_item_properties(
+                s, columns, formatters=_aggregate_formatters
+            ) for s in aggregates)
+        return (column_headers, data)
 
 
 class RemoveAggregateHost(command.ShowOne):
@@ -232,29 +231,18 @@ class RemoveAggregateHost(command.ShowOne):
         return parser
 
     def take_action(self, parsed_args):
-        compute_client = self.app.client_manager.compute
+        compute_client = self.app.client_manager.sdk_connection.compute
 
-        aggregate = utils.find_resource(
-            compute_client.aggregates,
-            parsed_args.aggregate,
-        )
-        data = compute_client.aggregates.remove_host(
-            aggregate,
-            parsed_args.host,
-        )
+        aggregate = compute_client.find_aggregate(
+            parsed_args.aggregate, ignore_missing=False)
 
-        info = {}
-        info.update(data._info)
+        aggregate = compute_client.remove_host_from_aggregate(
+            aggregate.id, parsed_args.host)
 
-        # Special mapping for columns to make the output easier to read:
-        # 'metadata' --> 'properties'
-        info.update(
-            {
-                'hosts': format_columns.ListColumn(info.pop('hosts')),
-                'properties': format_columns.DictColumn(info.pop('metadata')),
-            },
-        )
-        return zip(*sorted(info.items()))
+        display_columns, columns = _get_aggregate_columns(aggregate)
+        data = utils.get_item_properties(
+            aggregate, columns, formatters=_aggregate_formatters)
+        return (display_columns, data)
 
 
 class SetAggregate(command.Command):
@@ -296,11 +284,9 @@ class SetAggregate(command.Command):
 
     def take_action(self, parsed_args):
 
-        compute_client = self.app.client_manager.compute
-        aggregate = utils.find_resource(
-            compute_client.aggregates,
-            parsed_args.aggregate,
-        )
+        compute_client = self.app.client_manager.sdk_connection.compute
+        aggregate = compute_client.find_aggregate(
+            parsed_args.aggregate, ignore_missing=False)
 
         kwargs = {}
         if parsed_args.name:
@@ -308,18 +294,12 @@ class SetAggregate(command.Command):
         if parsed_args.zone:
             kwargs['availability_zone'] = parsed_args.zone
         if kwargs:
-            compute_client.aggregates.update(
-                aggregate,
-                kwargs
-            )
+            compute_client.update_aggregate(aggregate.id, **kwargs)
 
         set_property = {}
         if parsed_args.no_property:
-            # NOTE(RuiChen): "availability_zone" is removed from response of
-            #                aggregate show and create commands, don't see it
-            #                anywhere, so pop it, avoid the unexpected server
-            #                exception(can't unset the availability zone from
-            #                aggregate metadata in nova).
+            # NOTE(RuiChen): "availability_zone" can not be unset from
+            # properties. It is already excluded from show and create output.
             set_property.update({key: None
                                  for key in aggregate.metadata.keys()
                                  if key != 'availability_zone'})
@@ -327,8 +307,8 @@ class SetAggregate(command.Command):
             set_property.update(parsed_args.property)
 
         if set_property:
-            compute_client.aggregates.set_metadata(
-                aggregate,
+            compute_client.set_aggregate_metadata(
+                aggregate.id,
                 set_property
             )
 
@@ -347,31 +327,18 @@ class ShowAggregate(command.ShowOne):
 
     def take_action(self, parsed_args):
 
-        compute_client = self.app.client_manager.compute
-        data = utils.find_resource(
-            compute_client.aggregates,
-            parsed_args.aggregate,
-        )
+        compute_client = self.app.client_manager.sdk_connection.compute
+        aggregate = compute_client.find_aggregate(
+            parsed_args.aggregate, ignore_missing=False)
+
         # Remove availability_zone from metadata because Nova doesn't
-        if 'availability_zone' in data.metadata:
-            data.metadata.pop('availability_zone')
+        if 'availability_zone' in aggregate.metadata:
+            aggregate.metadata.pop('availability_zone')
 
-        # Special mapping for columns to make the output easier to read:
-        # 'metadata' --> 'properties'
-        data._info.update(
-            {
-                'hosts': format_columns.ListColumn(
-                    data._info.pop('hosts')
-                ),
-                'properties': format_columns.DictColumn(
-                    data._info.pop('metadata')
-                ),
-            },
-        )
-
-        info = {}
-        info.update(data._info)
-        return zip(*sorted(info.items()))
+        display_columns, columns = _get_aggregate_columns(aggregate)
+        data = utils.get_item_properties(
+            aggregate, columns, formatters=_aggregate_formatters)
+        return (display_columns, data)
 
 
 class UnsetAggregate(command.Command):
@@ -394,14 +361,56 @@ class UnsetAggregate(command.Command):
         return parser
 
     def take_action(self, parsed_args):
-        compute_client = self.app.client_manager.compute
-        aggregate = utils.find_resource(
-            compute_client.aggregates,
-            parsed_args.aggregate)
+        compute_client = self.app.client_manager.sdk_connection.compute
+        aggregate = compute_client.find_aggregate(
+            parsed_args.aggregate, ignore_missing=False)
 
         unset_property = {}
         if parsed_args.property:
             unset_property.update({key: None for key in parsed_args.property})
         if unset_property:
-            compute_client.aggregates.set_metadata(aggregate,
-                                                   unset_property)
+            compute_client.set_aggregate_metadata(
+                aggregate, unset_property)
+
+
+class CacheImageForAggregate(command.Command):
+    _description = _("Request image caching for aggregate")
+    # NOTE(gtema): According to stephenfin and dansmith there is no and will
+    # not be anything to return.
+
+    def get_parser(self, prog_name):
+        parser = super(CacheImageForAggregate, self).get_parser(prog_name)
+        parser.add_argument(
+            'aggregate',
+            metavar='<aggregate>',
+            help=_("Aggregate (name or ID)")
+        )
+        parser.add_argument(
+            'image',
+            metavar='<image>',
+            nargs='+',
+            help=_("Image ID to request caching for aggregate (name or ID). "
+                   "May be specified multiple times.")
+        )
+        return parser
+
+    def take_action(self, parsed_args):
+        compute_client = self.app.client_manager.sdk_connection.compute
+
+        if not sdk_utils.supports_microversion(compute_client, '2.81'):
+            msg = _(
+                'This operation requires server support for '
+                'API microversion 2.81'
+            )
+            raise exceptions.CommandError(msg)
+
+        aggregate = compute_client.find_aggregate(
+            parsed_args.aggregate, ignore_missing=False)
+
+        images = []
+        for img in parsed_args.image:
+            image = self.app.client_manager.sdk_connection.image.find_image(
+                img, ignore_missing=False)
+            images.append(image.id)
+
+        compute_client.aggregate_precache_images(aggregate.id, images)
