@@ -43,7 +43,7 @@ class HelpTests(base.TestCase):
         ('server resize', 'Scale server to a new flavor'),
         ('server resume', 'Resume server(s)'),
         ('server set', 'Set server properties'),
-        ('server shelve', 'Shelve server(s)'),
+        ('server shelve', 'Shelve and optionally offload server(s)'),
         ('server show', 'Show server details'),
         ('server ssh', 'SSH to server'),
         ('server start', 'Start server(s).'),

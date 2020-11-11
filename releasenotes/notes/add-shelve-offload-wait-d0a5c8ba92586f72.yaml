@@ -1,0 +1,8 @@
+---
+features:
+  - |
+    Add support for ``--offload`` and ``--wait`` options for ``server shelve``.
+    ``--offload`` allows users to explicitly request offloading of a shelved
+    server in environments where automatic offloading is not configured, while
+    ``--wait`` allows users to wait for the shelve and/or shelve offload
+    operations to complete.

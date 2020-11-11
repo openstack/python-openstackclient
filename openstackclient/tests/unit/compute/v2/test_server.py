@@ -6434,16 +6434,126 @@ class TestServerShelve(TestServer):
         # Get the command object to test
         self.cmd = server.ShelveServer(self.app, None)
 
-        # Set shelve method to be tested.
-        self.methods = {
+    def test_shelve(self):
+        server_info = {'status': 'ACTIVE'}
+        server_methods = {
             'shelve': None,
+            'shelve_offload': None,
         }
 
-    def test_shelve_one_server(self):
-        self.run_method_with_servers('shelve', 1)
+        server = compute_fakes.FakeServer.create_one_server(
+            attrs=server_info, methods=server_methods)
+        self.servers_mock.get.return_value = server
 
-    def test_shelve_multi_servers(self):
-        self.run_method_with_servers('shelve', 3)
+        arglist = [server.name]
+        verifylist = [
+            ('servers', [server.name]),
+            ('wait', False),
+            ('offload', False),
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        result = self.cmd.take_action(parsed_args)
+        self.assertIsNone(result)
+
+        self.servers_mock.get.assert_called_once_with(server.name)
+        server.shelve.assert_called_once_with()
+        server.shelve_offload.assert_not_called()
+
+    def test_shelve_already_shelved(self):
+        server_info = {'status': 'SHELVED'}
+        server_methods = {
+            'shelve': None,
+            'shelve_offload': None,
+        }
+
+        server = compute_fakes.FakeServer.create_one_server(
+            attrs=server_info, methods=server_methods)
+        self.servers_mock.get.return_value = server
+
+        arglist = [server.name]
+        verifylist = [
+            ('servers', [server.name]),
+            ('wait', False),
+            ('offload', False),
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        result = self.cmd.take_action(parsed_args)
+        self.assertIsNone(result)
+
+        self.servers_mock.get.assert_called_once_with(server.name)
+        server.shelve.assert_not_called()
+        server.shelve_offload.assert_not_called()
+
+    @mock.patch.object(common_utils, 'wait_for_status', return_value=True)
+    def test_shelve_with_wait(self, mock_wait_for_status):
+        server_info = {'status': 'ACTIVE'}
+        server_methods = {
+            'shelve': None,
+            'shelve_offload': None,
+        }
+
+        server = compute_fakes.FakeServer.create_one_server(
+            attrs=server_info, methods=server_methods)
+        self.servers_mock.get.return_value = server
+
+        arglist = ['--wait', server.name]
+        verifylist = [
+            ('servers', [server.name]),
+            ('wait', True),
+            ('offload', False),
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        result = self.cmd.take_action(parsed_args)
+        self.assertIsNone(result)
+
+        self.servers_mock.get.assert_called_once_with(server.name)
+        server.shelve.assert_called_once_with()
+        server.shelve_offload.assert_not_called()
+        mock_wait_for_status.assert_called_once_with(
+            self.servers_mock.get,
+            server.id,
+            callback=mock.ANY,
+            success_status=('shelved', 'shelved_offloaded'),
+        )
+
+    @mock.patch.object(common_utils, 'wait_for_status', return_value=True)
+    def test_shelve_offload(self, mock_wait_for_status):
+        server_info = {'status': 'ACTIVE'}
+        server_methods = {
+            'shelve': None,
+            'shelve_offload': None,
+        }
+
+        server = compute_fakes.FakeServer.create_one_server(
+            attrs=server_info, methods=server_methods)
+        self.servers_mock.get.return_value = server
+
+        arglist = ['--offload', server.name]
+        verifylist = [
+            ('servers', [server.name]),
+            ('wait', False),
+            ('offload', True),
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        result = self.cmd.take_action(parsed_args)
+        self.assertIsNone(result)
+
+        self.servers_mock.get.assert_has_calls([
+            mock.call(server.name),
+            mock.call(server.name),
+        ])
+        server.shelve.assert_called_once_with()
+        server.shelve_offload.assert_called_once_with()
+        mock_wait_for_status.assert_called_once_with(
+            self.servers_mock.get,
+            server.id,
+            callback=mock.ANY,
+            success_status=('shelved', 'shelved_offloaded'),
+        )
 
 
 class TestServerShow(TestServer):

@@ -114,7 +114,7 @@ service-force-down,compute service set --force,Force service to down.
 service-list,compute service list,Show a list of all running services.
 set-password,server set --root-password,Change the admin password for a server.
 shelve,server shelve,Shelve a server.
-shelve-offload,,Remove a shelved server from the compute node.
+shelve-offload,shelve --offload,Remove a shelved server from the compute node.
 show,server show,Show details about the given server.
 ssh,server ssh,SSH into a server.
 start,server start,Start the server(s).
