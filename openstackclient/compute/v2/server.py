@@ -2041,7 +2041,7 @@ revert to release the new server and restart the old one.""")
                 raise SystemExit
 
 
-class ListMigration(command.Command):
+class ListMigration(command.Lister):
     _description = _("""List server migrations""")
 
     def get_parser(self, prog_name):
@@ -2168,16 +2168,21 @@ class ListMigration(command.Command):
 
         search_opts = {
             'host': parsed_args.host,
-            'server': parsed_args.server,
             'status': parsed_args.status,
         }
+
+        if parsed_args.server:
+            search_opts['instance_uuid'] = utils.find_resource(
+                compute_client.servers,
+                parsed_args.server,
+            ).id
 
         if parsed_args.type:
             migration_type = parsed_args.type
             # we're using an alias because the default value is confusing
             if migration_type == 'cold-migration':
                 migration_type = 'migration'
-            search_opts['type'] = migration_type
+            search_opts['migration_type'] = migration_type
 
         if parsed_args.marker:
             if compute_client.api_version < api_versions.APIVersion('2.59'):
