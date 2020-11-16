@@ -65,7 +65,7 @@ class TestShowVolumeCapability(volume_fakes.TestVolume):
 
         # confirming if all expected values are present in the result.
         for cap in data:
-            self.assertTrue(cap[0] in capabilities)
+            self.assertIn(cap[0], capabilities)
 
         # checking if proper call was made to get capabilities
         self.capability_mock.get.assert_called_with(
