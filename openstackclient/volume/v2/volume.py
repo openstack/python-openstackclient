@@ -605,13 +605,15 @@ class SetVolume(command.Command):
         result = 0
         if parsed_args.size:
             try:
-                if volume.status != 'available':
-                    msg = (_("Volume is in %s state, it must be available "
-                           "before size can be extended") % volume.status)
-                    raise exceptions.CommandError(msg)
                 if parsed_args.size <= volume.size:
                     msg = (_("New size must be greater than %s GB")
                            % volume.size)
+                    raise exceptions.CommandError(msg)
+                if volume.status != 'available' and \
+                        not volume_client.api_version.matches('3.42'):
+
+                    msg = (_("Volume is in %s state, it must be available "
+                           "before size can be extended") % volume.status)
                     raise exceptions.CommandError(msg)
                 volume_client.volumes.extend(volume.id, parsed_args.size)
             except Exception as e:
