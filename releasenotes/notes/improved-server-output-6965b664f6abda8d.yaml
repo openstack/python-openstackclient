@@ -18,3 +18,6 @@ fixes:
     The ``policies`` (or ``policy``, on newer microversions) and ``members``
     fields of the ``server group list`` and ``server group show`` commands
     will now be rendered correctly as lists.
+  - |
+    The ``cpu_info`` field of the ``hypervisor show`` output is now
+    correctly decoded and output as an object.

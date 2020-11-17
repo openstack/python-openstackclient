@@ -14,8 +14,11 @@
 #
 
 import copy
+import json
 
+from novaclient import api_versions
 from novaclient import exceptions as nova_exceptions
+from osc_lib.cli import format_columns
 from osc_lib import exceptions
 
 from openstackclient.compute.v2 import hypervisor
@@ -247,7 +250,7 @@ class TestHypervisorShow(TestHypervisor):
         )
         self.data = (
             [],
-            {'aaa': 'aaa'},
+            format_columns.DictColumn({'aaa': 'aaa'}),
             0,
             50,
             50,
@@ -278,6 +281,9 @@ class TestHypervisorShow(TestHypervisor):
         self.cmd = hypervisor.ShowHypervisor(self.app, None)
 
     def test_hypervisor_show(self):
+        self.app.client_manager.compute.api_version = \
+            api_versions.APIVersion('2.28')
+
         arglist = [
             self.hypervisor.hypervisor_hostname,
         ]
@@ -292,9 +298,38 @@ class TestHypervisorShow(TestHypervisor):
         columns, data = self.cmd.take_action(parsed_args)
 
         self.assertEqual(self.columns, columns)
-        self.assertEqual(self.data, data)
+        self.assertItemsEqual(self.data, data)
 
-    def test_hyprvisor_show_uptime_not_implemented(self):
+    def test_hypervisor_show_pre_v228(self):
+        self.app.client_manager.compute.api_version = \
+            api_versions.APIVersion('2.27')
+
+        # before microversion 2.28, nova returned a stringified version of this
+        # field
+        self.hypervisor._info['cpu_info'] = json.dumps(
+            self.hypervisor._info['cpu_info'])
+        self.hypervisors_mock.get.return_value = self.hypervisor
+
+        arglist = [
+            self.hypervisor.hypervisor_hostname,
+        ]
+        verifylist = [
+            ('hypervisor', self.hypervisor.hypervisor_hostname),
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        # In base command class ShowOne in cliff, abstract method take_action()
+        # returns a two-part tuple with a tuple of column names and a tuple of
+        # data to be shown.
+        columns, data = self.cmd.take_action(parsed_args)
+
+        self.assertEqual(self.columns, columns)
+        self.assertItemsEqual(self.data, data)
+
+    def test_hypervisor_show_uptime_not_implemented(self):
+        self.app.client_manager.compute.api_version = \
+            api_versions.APIVersion('2.28')
+
         arglist = [
             self.hypervisor.hypervisor_hostname,
         ]
@@ -337,7 +372,7 @@ class TestHypervisorShow(TestHypervisor):
         )
         expected_data = (
             [],
-            {'aaa': 'aaa'},
+            format_columns.DictColumn({'aaa': 'aaa'}),
             0,
             50,
             50,
@@ -361,4 +396,4 @@ class TestHypervisorShow(TestHypervisor):
         )
 
         self.assertEqual(expected_columns, columns)
-        self.assertEqual(expected_data, data)
+        self.assertItemsEqual(expected_data, data)

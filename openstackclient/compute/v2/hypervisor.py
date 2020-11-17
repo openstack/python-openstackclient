@@ -15,9 +15,12 @@
 
 """Hypervisor action implementations"""
 
+import json
 import re
 
+from novaclient import api_versions
 from novaclient import exceptions as nova_exceptions
+from osc_lib.cli import format_columns
 from osc_lib.command import command
 from osc_lib import utils
 
@@ -86,8 +89,8 @@ class ShowHypervisor(command.ShowOne):
         if aggregates:
             # Hypervisors in nova cells are prefixed by "<cell>@"
             if "@" in hypervisor['service']['host']:
-                cell, service_host = hypervisor['service']['host'].split('@',
-                                                                         1)
+                cell, service_host = hypervisor['service']['host'].split(
+                    '@', 1)
             else:
                 cell = None
                 service_host = hypervisor['service']['host']
@@ -125,4 +128,19 @@ class ShowHypervisor(command.ShowOne):
         hypervisor["service_host"] = hypervisor["service"]["host"]
         del hypervisor["service"]
 
-        return zip(*sorted(hypervisor.items()))
+        if compute_client.api_version < api_versions.APIVersion('2.28'):
+            # microversion 2.28 transformed this to a JSON blob rather than a
+            # string; on earlier fields, do this manually
+            if hypervisor['cpu_info']:
+                hypervisor['cpu_info'] = json.loads(hypervisor['cpu_info'])
+            else:
+                hypervisor['cpu_info'] = {}
+
+        columns = tuple(sorted(hypervisor))
+        data = utils.get_dict_properties(
+            hypervisor, columns,
+            formatters={
+                'cpu_info': format_columns.DictColumn,
+            })
+
+        return (columns, data)
