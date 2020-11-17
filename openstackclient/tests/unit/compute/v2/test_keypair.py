@@ -19,8 +19,8 @@ from unittest.mock import call
 import uuid
 
 from novaclient import api_versions
+from openstack import utils as sdk_utils
 from osc_lib import exceptions
-from osc_lib import utils
 
 from openstackclient.compute.v2 import keypair
 from openstackclient.tests.unit.compute.v2 import fakes as compute_fakes
@@ -34,10 +34,6 @@ class TestKeypair(compute_fakes.TestComputev2):
     def setUp(self):
         super(TestKeypair, self).setUp()
 
-        # Get a shortcut to the KeypairManager Mock
-        self.keypairs_mock = self.app.client_manager.compute.keypairs
-        self.keypairs_mock.reset_mock()
-
         # Initialize the user mock
         self.users_mock = self.app.client_manager.identity.users
         self.users_mock.reset_mock()
@@ -46,6 +42,14 @@ class TestKeypair(compute_fakes.TestComputev2):
             copy.deepcopy(identity_fakes.USER),
             loaded=True,
         )
+
+        self.app.client_manager.sdk_connection = mock.Mock()
+        self.app.client_manager.sdk_connection.compute = mock.Mock()
+        self.sdk_client = self.app.client_manager.sdk_connection.compute
+        self.sdk_client.keypairs = mock.Mock()
+        self.sdk_client.create_keypair = mock.Mock()
+        self.sdk_client.delete_keypair = mock.Mock()
+        self.sdk_client.find_keypair = mock.Mock()
 
 
 class TestKeypairCreate(TestKeypair):
@@ -71,7 +75,7 @@ class TestKeypairCreate(TestKeypair):
         # Get the command object to test
         self.cmd = keypair.CreateKeypair(self.app, None)
 
-        self.keypairs_mock.create.return_value = self.keypair
+        self.sdk_client.create_keypair.return_value = self.keypair
 
     def test_key_pair_create_no_options(self):
 
@@ -85,9 +89,8 @@ class TestKeypairCreate(TestKeypair):
 
         columns, data = self.cmd.take_action(parsed_args)
 
-        self.keypairs_mock.create.assert_called_with(
-            name=self.keypair.name,
-            public_key=None
+        self.sdk_client.create_keypair.assert_called_with(
+            name=self.keypair.name
         )
 
         self.assertEqual({}, columns)
@@ -97,7 +100,7 @@ class TestKeypairCreate(TestKeypair):
         # overwrite the setup one because we want to omit private_key
         self.keypair = compute_fakes.FakeKeypair.create_one_keypair(
             no_pri=True)
-        self.keypairs_mock.create.return_value = self.keypair
+        self.sdk_client.create_keypair.return_value = self.keypair
 
         self.data = (
             self.keypair.fingerprint,
@@ -124,7 +127,7 @@ class TestKeypairCreate(TestKeypair):
 
             columns, data = self.cmd.take_action(parsed_args)
 
-            self.keypairs_mock.create.assert_called_with(
+            self.sdk_client.create_keypair.assert_called_with(
                 name=self.keypair.name,
                 public_key=self.keypair.public_key,
             )
@@ -151,9 +154,8 @@ class TestKeypairCreate(TestKeypair):
 
             columns, data = self.cmd.take_action(parsed_args)
 
-            self.keypairs_mock.create.assert_called_with(
+            self.sdk_client.create_keypair.assert_called_with(
                 name=self.keypair.name,
-                public_key=None,
             )
 
             mock_open.assert_called_once_with(tmp_pk_file, 'w+')
@@ -162,14 +164,12 @@ class TestKeypairCreate(TestKeypair):
             self.assertEqual(self.columns, columns)
             self.assertEqual(self.data, data)
 
-    def test_keypair_create_with_key_type(self):
-        self.app.client_manager.compute.api_version = api_versions.APIVersion(
-            '2.2')
-
+    @mock.patch.object(sdk_utils, 'supports_microversion', return_value=True)
+    def test_keypair_create_with_key_type(self, sm_mock):
         for key_type in ['x509', 'ssh']:
             self.keypair = compute_fakes.FakeKeypair.create_one_keypair(
                 no_pri=True)
-            self.keypairs_mock.create.return_value = self.keypair
+            self.sdk_client.create_keypair.return_value = self.keypair
 
             self.data = (
                 self.keypair.fingerprint,
@@ -195,7 +195,7 @@ class TestKeypairCreate(TestKeypair):
                 m_file.read.return_value = 'dummy'
                 columns, data = self.cmd.take_action(parsed_args)
 
-            self.keypairs_mock.create.assert_called_with(
+            self.sdk_client.create_keypair.assert_called_with(
                 name=self.keypair.name,
                 public_key=self.keypair.public_key,
                 key_type=key_type,
@@ -204,10 +204,8 @@ class TestKeypairCreate(TestKeypair):
             self.assertEqual(self.columns, columns)
             self.assertEqual(self.data, data)
 
-    def test_keypair_create_with_key_type_pre_v22(self):
-        self.app.client_manager.compute.api_version = api_versions.APIVersion(
-            '2.1')
-
+    @mock.patch.object(sdk_utils, 'supports_microversion', return_value=False)
+    def test_keypair_create_with_key_type_pre_v22(self, sm_mock):
         for key_type in ['x509', 'ssh']:
             arglist = [
                 '--public-key', self.keypair.public_key,
@@ -235,11 +233,8 @@ class TestKeypairCreate(TestKeypair):
                 '--os-compute-api-version 2.2 or greater is required',
                 str(ex))
 
-    def test_key_pair_create_with_user(self):
-
-        self.app.client_manager.compute.api_version = \
-            api_versions.APIVersion('2.10')
-
+    @mock.patch.object(sdk_utils, 'supports_microversion', return_value=True)
+    def test_key_pair_create_with_user(self, sm_mock):
         arglist = [
             '--user', identity_fakes.user_name,
             self.keypair.name,
@@ -252,20 +247,16 @@ class TestKeypairCreate(TestKeypair):
 
         columns, data = self.cmd.take_action(parsed_args)
 
-        self.keypairs_mock.create.assert_called_with(
+        self.sdk_client.create_keypair.assert_called_with(
             name=self.keypair.name,
-            public_key=None,
             user_id=identity_fakes.user_id,
         )
 
         self.assertEqual({}, columns)
         self.assertEqual({}, data)
 
-    def test_key_pair_create_with_user_pre_v210(self):
-
-        self.app.client_manager.compute.api_version = \
-            api_versions.APIVersion('2.9')
-
+    @mock.patch.object(sdk_utils, 'supports_microversion', return_value=False)
+    def test_key_pair_create_with_user_pre_v210(self, sm_mock):
         arglist = [
             '--user', identity_fakes.user_name,
             self.keypair.name,
@@ -291,10 +282,6 @@ class TestKeypairDelete(TestKeypair):
     def setUp(self):
         super(TestKeypairDelete, self).setUp()
 
-        self.keypairs_mock.get = compute_fakes.FakeKeypair.get_keypairs(
-            self.keypairs)
-        self.keypairs_mock.delete.return_value = None
-
         self.cmd = keypair.DeleteKeypair(self.app, None)
 
     def test_keypair_delete(self):
@@ -310,7 +297,8 @@ class TestKeypairDelete(TestKeypair):
         ret = self.cmd.take_action(parsed_args)
 
         self.assertIsNone(ret)
-        self.keypairs_mock.delete.assert_called_with(self.keypairs[0].name)
+        self.sdk_client.delete_keypair.assert_called_with(
+            self.keypairs[0].name, ignore_missing=False)
 
     def test_delete_multiple_keypairs(self):
         arglist = []
@@ -325,8 +313,8 @@ class TestKeypairDelete(TestKeypair):
 
         calls = []
         for k in self.keypairs:
-            calls.append(call(k.name))
-        self.keypairs_mock.delete.assert_has_calls(calls)
+            calls.append(call(k.name, ignore_missing=False))
+        self.sdk_client.delete_keypair.assert_has_calls(calls)
         self.assertIsNone(result)
 
     def test_delete_multiple_keypairs_with_exception(self):
@@ -340,29 +328,21 @@ class TestKeypairDelete(TestKeypair):
 
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
-        find_mock_result = [self.keypairs[0], exceptions.CommandError]
-        with mock.patch.object(utils, 'find_resource',
-                               side_effect=find_mock_result) as find_mock:
-            try:
-                self.cmd.take_action(parsed_args)
-                self.fail('CommandError should be raised.')
-            except exceptions.CommandError as e:
-                self.assertEqual('1 of 2 keys failed to delete.', str(e))
+        self.sdk_client.delete_keypair.side_effect = [
+            None, exceptions.CommandError]
+        try:
+            self.cmd.take_action(parsed_args)
+            self.fail('CommandError should be raised.')
+        except exceptions.CommandError as e:
+            self.assertEqual('1 of 2 keys failed to delete.', str(e))
 
-            find_mock.assert_any_call(
-                self.keypairs_mock, self.keypairs[0].name)
-            find_mock.assert_any_call(self.keypairs_mock, 'unexist_keypair')
+        calls = []
+        for k in arglist:
+            calls.append(call(k, ignore_missing=False))
+        self.sdk_client.delete_keypair.assert_has_calls(calls)
 
-            self.assertEqual(2, find_mock.call_count)
-            self.keypairs_mock.delete.assert_called_once_with(
-                self.keypairs[0].name
-            )
-
-    def test_keypair_delete_with_user(self):
-
-        self.app.client_manager.compute.api_version = \
-            api_versions.APIVersion('2.10')
-
+    @mock.patch.object(sdk_utils, 'supports_microversion', return_value=True)
+    def test_keypair_delete_with_user(self, sm_mock):
         arglist = [
             '--user', identity_fakes.user_name,
             self.keypairs[0].name
@@ -376,12 +356,14 @@ class TestKeypairDelete(TestKeypair):
         ret = self.cmd.take_action(parsed_args)
 
         self.assertIsNone(ret)
-        self.keypairs_mock.delete.assert_called_with(
+        self.sdk_client.delete_keypair.assert_called_with(
             self.keypairs[0].name,
             user_id=identity_fakes.user_id,
+            ignore_missing=False
         )
 
-    def test_keypair_delete_with_user_pre_v210(self):
+    @mock.patch.object(sdk_utils, 'supports_microversion', return_value=False)
+    def test_keypair_delete_with_user_pre_v210(self, sm_mock):
 
         self.app.client_manager.compute.api_version = \
             api_versions.APIVersion('2.9')
@@ -406,18 +388,19 @@ class TestKeypairDelete(TestKeypair):
 
 class TestKeypairList(TestKeypair):
 
-    # Return value of self.keypairs_mock.list().
+    # Return value of self.sdk_client.keypairs().
     keypairs = compute_fakes.FakeKeypair.create_keypairs(count=1)
 
     def setUp(self):
         super(TestKeypairList, self).setUp()
 
-        self.keypairs_mock.list.return_value = self.keypairs
+        self.sdk_client.keypairs.return_value = self.keypairs
 
         # Get the command object to test
         self.cmd = keypair.ListKeypair(self.app, None)
 
-    def test_keypair_list_no_options(self):
+    @mock.patch.object(sdk_utils, 'supports_microversion', return_value=False)
+    def test_keypair_list_no_options(self, sm_mock):
         arglist = []
         verifylist = []
 
@@ -430,7 +413,7 @@ class TestKeypairList(TestKeypair):
 
         # Set expected values
 
-        self.keypairs_mock.list.assert_called_with()
+        self.sdk_client.keypairs.assert_called_with()
 
         self.assertEqual(('Name', 'Fingerprint'), columns)
         self.assertEqual(
@@ -438,10 +421,8 @@ class TestKeypairList(TestKeypair):
             tuple(data)
         )
 
-    def test_keypair_list_v22(self):
-        self.app.client_manager.compute.api_version = \
-            api_versions.APIVersion('2.2')
-
+    @mock.patch.object(sdk_utils, 'supports_microversion', return_value=True)
+    def test_keypair_list_v22(self, sm_mock):
         arglist = []
         verifylist = []
 
@@ -454,7 +435,7 @@ class TestKeypairList(TestKeypair):
 
         # Set expected values
 
-        self.keypairs_mock.list.assert_called_with()
+        self.sdk_client.keypairs.assert_called_with()
 
         self.assertEqual(('Name', 'Fingerprint', 'Type'), columns)
         self.assertEqual(
@@ -466,11 +447,8 @@ class TestKeypairList(TestKeypair):
             tuple(data)
         )
 
-    def test_keypair_list_with_user(self):
-
-        # Filtering by user is support for nova api 2.10 or above
-        self.app.client_manager.compute.api_version = \
-            api_versions.APIVersion('2.10')
+    @mock.patch.object(sdk_utils, 'supports_microversion', return_value=True)
+    def test_keypair_list_with_user(self, sm_mock):
 
         users_mock = self.app.client_manager.identity.users
         users_mock.reset_mock()
@@ -491,7 +469,7 @@ class TestKeypairList(TestKeypair):
         columns, data = self.cmd.take_action(parsed_args)
 
         users_mock.get.assert_called_with(identity_fakes.user_name)
-        self.keypairs_mock.list.assert_called_with(
+        self.sdk_client.keypairs.assert_called_with(
             user_id=identity_fakes.user_id,
         )
 
@@ -505,10 +483,8 @@ class TestKeypairList(TestKeypair):
             tuple(data)
         )
 
-    def test_keypair_list_with_user_pre_v210(self):
-
-        self.app.client_manager.compute.api_version = \
-            api_versions.APIVersion('2.9')
+    @mock.patch.object(sdk_utils, 'supports_microversion', return_value=False)
+    def test_keypair_list_with_user_pre_v210(self, sm_mock):
 
         arglist = [
             '--user', identity_fakes.user_name,
@@ -525,11 +501,8 @@ class TestKeypairList(TestKeypair):
         self.assertIn(
             '--os-compute-api-version 2.10 or greater is required', str(ex))
 
-    def test_keypair_list_with_project(self):
-
-        # Filtering by user is support for nova api 2.10 or above
-        self.app.client_manager.compute.api_version = \
-            api_versions.APIVersion('2.10')
+    @mock.patch.object(sdk_utils, 'supports_microversion', return_value=True)
+    def test_keypair_list_with_project(self, sm_mock):
 
         projects_mock = self.app.client_manager.identity.tenants
         projects_mock.reset_mock()
@@ -557,7 +530,7 @@ class TestKeypairList(TestKeypair):
 
         projects_mock.get.assert_called_with(identity_fakes.project_name)
         users_mock.list.assert_called_with(tenant_id=identity_fakes.project_id)
-        self.keypairs_mock.list.assert_called_with(
+        self.sdk_client.keypairs.assert_called_with(
             user_id=identity_fakes.user_id,
         )
 
@@ -571,10 +544,8 @@ class TestKeypairList(TestKeypair):
             tuple(data)
         )
 
-    def test_keypair_list_with_project_pre_v210(self):
-
-        self.app.client_manager.compute.api_version = \
-            api_versions.APIVersion('2.9')
+    @mock.patch.object(sdk_utils, 'supports_microversion', return_value=False)
+    def test_keypair_list_with_project_pre_v210(self, sm_mock):
 
         arglist = ['--project', identity_fakes.project_name]
         verifylist = [('project', identity_fakes.project_name)]
@@ -588,10 +559,6 @@ class TestKeypairList(TestKeypair):
             '--os-compute-api-version 2.10 or greater is required', str(ex))
 
     def test_keypair_list_conflicting_user_options(self):
-
-        # Filtering by user is support for nova api 2.10 or above
-        self.app.client_manager.compute.api_version = \
-            api_versions.APIVersion('2.10')
 
         arglist = [
             '--user', identity_fakes.user_name,
@@ -610,7 +577,7 @@ class TestKeypairShow(TestKeypair):
     def setUp(self):
         super(TestKeypairShow, self).setUp()
 
-        self.keypairs_mock.get.return_value = self.keypair
+        self.sdk_client.find_keypair.return_value = self.keypair
 
         self.cmd = keypair.ShowKeypair(self.app, None)
 
@@ -641,7 +608,7 @@ class TestKeypairShow(TestKeypair):
         # overwrite the setup one because we want to omit private_key
         self.keypair = compute_fakes.FakeKeypair.create_one_keypair(
             no_pri=True)
-        self.keypairs_mock.get.return_value = self.keypair
+        self.sdk_client.find_keypair.return_value = self.keypair
 
         self.data = (
             self.keypair.fingerprint,
@@ -660,8 +627,9 @@ class TestKeypairShow(TestKeypair):
 
         columns, data = self.cmd.take_action(parsed_args)
 
-        self.keypairs_mock.get.assert_called_with(
+        self.sdk_client.find_keypair.assert_called_with(
             self.keypair.name,
+            ignore_missing=False
         )
 
         self.assertEqual(self.columns, columns)
@@ -685,12 +653,13 @@ class TestKeypairShow(TestKeypair):
         self.assertEqual({}, columns)
         self.assertEqual({}, data)
 
-    def test_keypair_show_with_user(self):
+    @mock.patch.object(sdk_utils, 'supports_microversion', return_value=True)
+    def test_keypair_show_with_user(self, sm_mock):
 
         # overwrite the setup one because we want to omit private_key
         self.keypair = compute_fakes.FakeKeypair.create_one_keypair(
             no_pri=True)
-        self.keypairs_mock.get.return_value = self.keypair
+        self.sdk_client.find_keypair.return_value = self.keypair
 
         self.data = (
             self.keypair.fingerprint,
@@ -698,9 +667,6 @@ class TestKeypairShow(TestKeypair):
             self.keypair.type,
             self.keypair.user_id
         )
-
-        self.app.client_manager.compute.api_version = \
-            api_versions.APIVersion('2.10')
 
         arglist = [
             '--user', identity_fakes.user_name,
@@ -715,14 +681,17 @@ class TestKeypairShow(TestKeypair):
         columns, data = self.cmd.take_action(parsed_args)
 
         self.users_mock.get.assert_called_with(identity_fakes.user_name)
-        self.keypairs_mock.get.assert_called_with(
+        self.sdk_client.find_keypair.assert_called_with(
             self.keypair.name,
+            ignore_missing=False,
+            user_id=identity_fakes.user_id
         )
 
         self.assertEqual(self.columns, columns)
         self.assertEqual(self.data, data)
 
-    def test_keypair_show_with_user_pre_v210(self):
+    @mock.patch.object(sdk_utils, 'supports_microversion', return_value=False)
+    def test_keypair_show_with_user_pre_v210(self, sm_mock):
 
         arglist = [
             '--user', identity_fakes.user_name,
