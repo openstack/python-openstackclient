@@ -3129,6 +3129,25 @@ class TestServerList(TestServer):
         self.assertEqual(self.columns_long, columns)
         self.assertEqual(tuple(self.data_long), tuple(data))
 
+    def test_server_list_column_option(self):
+        arglist = [
+            '-c', 'Project ID',
+            '-c', 'User ID',
+            '-c', 'Created At',
+            '--long'
+        ]
+        verifylist = [
+            ('long', True),
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        columns, data = self.cmd.take_action(parsed_args)
+
+        self.servers_mock.list.assert_called_with(**self.kwargs)
+        self.assertIn('Project ID', columns)
+        self.assertIn('User ID', columns)
+        self.assertIn('Created At', columns)
+
     def test_server_list_no_name_lookup_option(self):
         arglist = [
             '--no-name-lookup',
