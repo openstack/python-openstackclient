@@ -249,11 +249,42 @@ class ListKeypair(command.Lister):
             ),
         )
         identity_common.add_project_domain_option_to_parser(parser)
+        parser.add_argument(
+            '--marker',
+            help=_('The last keypair ID of the previous page'),
+        )
+        parser.add_argument(
+            '--limit',
+            type=int,
+            help=_('Maximum number of keypairs to display'),
+        )
         return parser
 
     def take_action(self, parsed_args):
         compute_client = self.app.client_manager.sdk_connection.compute
         identity_client = self.app.client_manager.identity
+
+        kwargs = {}
+
+        if parsed_args.marker:
+            if not sdk_utils.supports_microversion(compute_client, '2.35'):
+                msg = _(
+                    '--os-compute-api-version 2.35 or greater is required '
+                    'to support the --marker option'
+                )
+                raise exceptions.CommandError(msg)
+
+            kwargs['marker'] = parsed_args.marker
+
+        if parsed_args.limit:
+            if not sdk_utils.supports_microversion(compute_client, '2.35'):
+                msg = _(
+                    '--os-compute-api-version 2.35 or greater is required '
+                    'to support the --limit option'
+                )
+                raise exceptions.CommandError(msg)
+
+            kwargs['limit'] = parsed_args.limit
 
         if parsed_args.project:
             if not sdk_utils.supports_microversion(compute_client, '2.10'):
@@ -262,6 +293,14 @@ class ListKeypair(command.Lister):
                     'support the --project option'
                 )
                 raise exceptions.CommandError(msg)
+
+            if parsed_args.marker:
+                # NOTE(stephenfin): Because we're doing this client-side, we
+                # can't really rely on the marker, because we don't know what
+                # user the marker is associated with
+                msg = _(
+                    '--project is not compatible with --marker'
+                )
 
             # NOTE(stephenfin): This is done client side because nova doesn't
             # currently support doing so server-side. If this is slow, we can
@@ -275,7 +314,8 @@ class ListKeypair(command.Lister):
 
             data = []
             for user in users:
-                data.extend(compute_client.keypairs(user_id=user.id))
+                kwargs['user_id'] = user.id
+                data.extend(compute_client.keypairs(**kwargs))
         elif parsed_args.user:
             if not sdk_utils.supports_microversion(compute_client, '2.10'):
                 msg = _(
@@ -289,10 +329,11 @@ class ListKeypair(command.Lister):
                 parsed_args.user,
                 parsed_args.user_domain,
             )
+            kwargs['user_id'] = user.id
 
-            data = compute_client.keypairs(user_id=user.id)
+            data = compute_client.keypairs(**kwargs)
         else:
-            data = compute_client.keypairs()
+            data = compute_client.keypairs(**kwargs)
 
         columns = (
             "Name",

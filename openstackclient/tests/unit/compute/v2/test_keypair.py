@@ -569,6 +569,74 @@ class TestKeypairList(TestKeypair):
             tests_utils.ParserException,
             self.check_parser, self.cmd, arglist, None)
 
+    @mock.patch.object(
+        sdk_utils, 'supports_microversion', new=mock.Mock(return_value=True))
+    def test_keypair_list_with_limit(self):
+        arglist = [
+            '--limit', '1',
+        ]
+        verifylist = [
+            ('limit', 1),
+        ]
+
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+        self.cmd.take_action(parsed_args)
+
+        self.sdk_client.keypairs.assert_called_with(limit=1)
+
+    @mock.patch.object(
+        sdk_utils, 'supports_microversion', new=mock.Mock(return_value=False))
+    def test_keypair_list_with_limit_pre_v235(self):
+        arglist = [
+            '--limit', '1',
+        ]
+        verifylist = [
+            ('limit', 1),
+        ]
+
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+        ex = self.assertRaises(
+            exceptions.CommandError,
+            self.cmd.take_action,
+            parsed_args)
+
+        self.assertIn(
+            '--os-compute-api-version 2.35 or greater is required', str(ex))
+
+    @mock.patch.object(
+        sdk_utils, 'supports_microversion', new=mock.Mock(return_value=True))
+    def test_keypair_list_with_marker(self):
+        arglist = [
+            '--marker', 'test_kp',
+        ]
+        verifylist = [
+            ('marker', 'test_kp'),
+        ]
+
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+        self.cmd.take_action(parsed_args)
+
+        self.sdk_client.keypairs.assert_called_with(marker='test_kp')
+
+    @mock.patch.object(
+        sdk_utils, 'supports_microversion', new=mock.Mock(return_value=False))
+    def test_keypair_list_with_marker_pre_v235(self):
+        arglist = [
+            '--marker', 'test_kp',
+        ]
+        verifylist = [
+            ('marker', 'test_kp'),
+        ]
+
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+        ex = self.assertRaises(
+            exceptions.CommandError,
+            self.cmd.take_action,
+            parsed_args)
+
+        self.assertIn(
+            '--os-compute-api-version 2.35 or greater is required', str(ex))
+
 
 class TestKeypairShow(TestKeypair):
 

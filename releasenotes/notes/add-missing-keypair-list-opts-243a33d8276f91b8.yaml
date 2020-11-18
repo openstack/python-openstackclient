@@ -1,0 +1,5 @@
+---
+features:
+  - |
+    Add ``--limit`` and ``--marker`` options to ``keypair list`` command, to
+    configure pagination of results.
