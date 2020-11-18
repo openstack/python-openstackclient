@@ -2986,7 +2986,6 @@ class TestServerList(TestServer):
         super(TestServerList, self).setUp()
 
         self.search_opts = {
-            'availability_zone': None,
             'reservation_id': None,
             'ip': None,
             'ip6': None,
@@ -3431,7 +3430,7 @@ class TestServerList(TestServer):
             'Invalid time value'
         )
 
-    def test_server_with_changes_before_older_version(self):
+    def test_server_with_changes_before_pre_v266(self):
         self.app.client_manager.compute.api_version = (
             api_versions.APIVersion('2.65'))
 
@@ -3586,6 +3585,143 @@ class TestServerList(TestServer):
         self.assertIn(
             '--os-compute-api-version 2.26 or greater is required',
             str(ex))
+
+    def test_server_list_with_availability_zone(self):
+        arglist = [
+            '--availability-zone', 'test-az',
+        ]
+        verifylist = [
+            ('availability_zone', 'test-az'),
+        ]
+
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+        columns, data = self.cmd.take_action(parsed_args)
+
+        self.search_opts['availability_zone'] = 'test-az'
+        self.servers_mock.list.assert_called_with(**self.kwargs)
+        self.assertEqual(self.columns, columns)
+        self.assertEqual(tuple(self.data), tuple(data))
+
+    def test_server_list_with_key_name(self):
+        arglist = [
+            '--key-name', 'test-key',
+        ]
+        verifylist = [
+            ('key_name', 'test-key'),
+        ]
+
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+        columns, data = self.cmd.take_action(parsed_args)
+
+        self.search_opts['key_name'] = 'test-key'
+        self.servers_mock.list.assert_called_with(**self.kwargs)
+        self.assertEqual(self.columns, columns)
+        self.assertEqual(tuple(self.data), tuple(data))
+
+    def test_server_list_with_config_drive(self):
+        arglist = [
+            '--config-drive',
+        ]
+        verifylist = [
+            ('has_config_drive', True),
+        ]
+
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+        columns, data = self.cmd.take_action(parsed_args)
+
+        self.search_opts['config_drive'] = True
+        self.servers_mock.list.assert_called_with(**self.kwargs)
+        self.assertEqual(self.columns, columns)
+        self.assertEqual(tuple(self.data), tuple(data))
+
+    def test_server_list_with_no_config_drive(self):
+        arglist = [
+            '--no-config-drive',
+        ]
+        verifylist = [
+            ('has_config_drive', False),
+        ]
+
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+        columns, data = self.cmd.take_action(parsed_args)
+
+        self.search_opts['config_drive'] = False
+        self.servers_mock.list.assert_called_with(**self.kwargs)
+        self.assertEqual(self.columns, columns)
+        self.assertEqual(tuple(self.data), tuple(data))
+
+    def test_server_list_with_progress(self):
+        arglist = [
+            '--progress', '100',
+        ]
+        verifylist = [
+            ('progress', 100),
+        ]
+
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+        columns, data = self.cmd.take_action(parsed_args)
+
+        self.search_opts['progress'] = '100'
+        self.servers_mock.list.assert_called_with(**self.kwargs)
+        self.assertEqual(self.columns, columns)
+        self.assertEqual(tuple(self.data), tuple(data))
+
+    def test_server_list_with_progress_invalid(self):
+        arglist = [
+            '--progress', '101',
+        ]
+
+        self.assertRaises(
+            utils.ParserException,
+            self.check_parser, self.cmd, arglist, verify_args=[])
+
+    def test_server_list_with_vm_state(self):
+        arglist = [
+            '--vm-state', 'active',
+        ]
+        verifylist = [
+            ('vm_state', 'active'),
+        ]
+
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+        columns, data = self.cmd.take_action(parsed_args)
+
+        self.search_opts['vm_state'] = 'active'
+        self.servers_mock.list.assert_called_with(**self.kwargs)
+        self.assertEqual(self.columns, columns)
+        self.assertEqual(tuple(self.data), tuple(data))
+
+    def test_server_list_with_task_state(self):
+        arglist = [
+            '--task-state', 'deleting',
+        ]
+        verifylist = [
+            ('task_state', 'deleting'),
+        ]
+
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+        columns, data = self.cmd.take_action(parsed_args)
+
+        self.search_opts['task_state'] = 'deleting'
+        self.servers_mock.list.assert_called_with(**self.kwargs)
+        self.assertEqual(self.columns, columns)
+        self.assertEqual(tuple(self.data), tuple(data))
+
+    def test_server_list_with_power_state(self):
+        arglist = [
+            '--power-state', 'running',
+        ]
+        verifylist = [
+            ('power_state', 'running'),
+        ]
+
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+        columns, data = self.cmd.take_action(parsed_args)
+
+        self.search_opts['power_state'] = 1
+        self.servers_mock.list.assert_called_with(**self.kwargs)
+        self.assertEqual(self.columns, columns)
+        self.assertEqual(tuple(self.data), tuple(data))
 
 
 class TestServerLock(TestServer):
