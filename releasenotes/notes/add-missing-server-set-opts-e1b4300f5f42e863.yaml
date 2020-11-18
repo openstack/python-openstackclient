@@ -1,0 +1,10 @@
+---
+features:
+  - |
+    Add ``--no-password`` option to ``server set`` command, allowing users
+    to clear the admin password from the metadata service. Note that this does
+    not actually change the server password.
+upgrade:
+  - |
+    The ``server set --root-password`` option has been deprecated in favour of
+    a non-interactive ``--password`` option.

@@ -3472,18 +3472,35 @@ class SetServer(command.Command):
             metavar='<new-name>',
             help=_('New server name'),
         )
-        parser.add_argument(
+        password_group = parser.add_mutually_exclusive_group()
+        password_group.add_argument(
+            '--password',
+            help=_('Set the server password'),
+        )
+        password_group.add_argument(
+            '--no-password',
+            action='store_true',
+            help=_(
+                'Clear the admin password for the server from the metadata '
+                'service; note that this action does not actually change the '
+                'server password'
+            ),
+        )
+        # TODO(stephenfin): Remove this in a future major version
+        password_group.add_argument(
             '--root-password',
             action="store_true",
-            help=_('Set new root password (interactive only)'),
+            help=argparse.SUPPRESS,
         )
         parser.add_argument(
             '--property',
             metavar='<key=value>',
             action=parseractions.KeyValueAction,
             dest='properties',
-            help=_('Property to add/change for this server '
-                   '(repeat option to set multiple properties)'),
+            help=_(
+                'Property to add/change for this server '
+                '(repeat option to set multiple properties)'
+            ),
         )
         parser.add_argument(
             '--state',
@@ -3494,8 +3511,10 @@ class SetServer(command.Command):
         parser.add_argument(
             '--description',
             metavar='<description>',
-            help=_('New server description (supported by '
-                   '--os-compute-api-version 2.19 or above)'),
+            help=_(
+                'New server description '
+                '(supported by --os-compute-api-version 2.19 or above)'
+            ),
         )
         parser.add_argument(
             '--tag',
@@ -3519,6 +3538,22 @@ class SetServer(command.Command):
             parsed_args.server,
         )
 
+        if parsed_args.description:
+            if server.api_version < api_versions.APIVersion("2.19"):
+                msg = _(
+                    '--os-compute-api-version 2.19 or greater is required to '
+                    'support the --description option'
+                )
+                raise exceptions.CommandError(msg)
+
+        if parsed_args.tags:
+            if server.api_version < api_versions.APIVersion('2.26'):
+                msg = _(
+                    '--os-compute-api-version 2.26 or greater is required to '
+                    'support the --tag option'
+                )
+                raise exceptions.CommandError(msg)
+
         if parsed_args.name:
             server.update(name=parsed_args.name)
 
@@ -3536,22 +3571,15 @@ class SetServer(command.Command):
             else:
                 msg = _("Passwords do not match, password unchanged")
                 raise exceptions.CommandError(msg)
+        elif parsed_args.password:
+            server.change_password(parsed_args.password)
+        elif parsed_args.no_password:
+            server.clear_password()
 
         if parsed_args.description:
-            if server.api_version < api_versions.APIVersion("2.19"):
-                msg = _("Description is not supported for "
-                        "--os-compute-api-version less than 2.19")
-                raise exceptions.CommandError(msg)
             server.update(description=parsed_args.description)
 
         if parsed_args.tags:
-            if server.api_version < api_versions.APIVersion('2.26'):
-                msg = _(
-                    '--os-compute-api-version 2.26 or greater is required to '
-                    'support the --tag option'
-                )
-                raise exceptions.CommandError(msg)
-
             for tag in parsed_args.tags:
                 server.add_tag(tag=tag)
 

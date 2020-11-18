@@ -6207,6 +6207,7 @@ class TestServerSet(TestServer):
             'update': None,
             'reset_state': None,
             'change_password': None,
+            'clear_password': None,
             'add_tag': None,
             'set_tags': None,
         }
@@ -6290,6 +6291,37 @@ class TestServerSet(TestServer):
             self.fake_servers[0], parsed_args.properties)
         self.assertIsNone(result)
 
+    def test_server_set_with_password(self):
+        arglist = [
+            '--password', 'foo',
+            'foo_vm',
+        ]
+        verifylist = [
+            ('password', 'foo'),
+            ('server', 'foo_vm'),
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        self.cmd.take_action(parsed_args)
+
+        self.fake_servers[0].change_password.assert_called_once_with('foo')
+
+    def test_server_set_with_no_password(self):
+        arglist = [
+            '--no-password',
+            'foo_vm',
+        ]
+        verifylist = [
+            ('no_password', True),
+            ('server', 'foo_vm'),
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        self.cmd.take_action(parsed_args)
+
+        self.fake_servers[0].clear_password.assert_called_once_with()
+
+    # TODO(stephenfin): Remove this in a future major version
     @mock.patch.object(getpass, 'getpass',
                        return_value=mock.sentinel.fake_pass)
     def test_server_set_with_root_password(self, mock_getpass):
