@@ -1,0 +1,13 @@
+---
+features:
+  - |
+    Add a number of additional options to the ``server rebuild`` command:
+
+    - ``--name``
+    - ``--preserve-ephemeral``, ``--no-preserve-ephemeral``
+    - ``--user-data``, ``--no-user-data``
+    - ``--trusted-image-cert``, ``--no-trusted-image-certs``
+upgrade:
+  - |
+    The ``--key-unset`` option of the ``server rebuild`` command has been
+    replaced by ``--no-key-name``. An alias is provided.

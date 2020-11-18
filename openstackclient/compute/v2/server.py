@@ -2446,9 +2446,14 @@ class RebuildServer(command.ShowOne):
             ),
         )
         parser.add_argument(
+            '--name',
+            metavar='<name>',
+            help=_('Set the new name of the rebuilt server'),
+        )
+        parser.add_argument(
             '--password',
             metavar='<password>',
-            help=_('Set a password on the rebuilt server'),
+            help=_('Set the password on the rebuilt server'),
         )
         parser.add_argument(
             '--property',
@@ -2467,6 +2472,24 @@ class RebuildServer(command.ShowOne):
                 '(supported by --os-compute-api-version 2.19 or above)'
             ),
         )
+        preserve_ephemeral_group = parser.add_mutually_exclusive_group()
+        preserve_ephemeral_group.add_argument(
+            '--preserve-ephemeral',
+            action='store_true',
+            default=None,
+            help=_(
+                'Preserve the default ephemeral storage partition on rebuild.'
+            ),
+        )
+        preserve_ephemeral_group.add_argument(
+            '--no-preserve-ephemeral',
+            action='store_false',
+            dest='preserve_ephemeral',
+            help=_(
+                'Do not preserve the default ephemeral storage partition on '
+                'rebuild.'
+            ),
+        )
         key_group = parser.add_mutually_exclusive_group()
         key_group.add_argument(
             '--key-name',
@@ -2478,13 +2501,67 @@ class RebuildServer(command.ShowOne):
             ),
         )
         key_group.add_argument(
-            '--key-unset',
+            '--no-key-name',
             action='store_true',
-            default=False,
+            dest='no_key_name',
             help=_(
                 'Unset the key name of key pair on the rebuilt server. '
                 'Cannot be specified with the --key-name option. '
                 '(supported by --os-compute-api-version 2.54 or above)'
+            ),
+        )
+        # TODO(stephenfin): Remove this in a future major version bump
+        key_group.add_argument(
+            '--key-unset',
+            action='store_true',
+            dest='no_key_name',
+            help=argparse.SUPPRESS,
+        )
+        user_data_group = parser.add_mutually_exclusive_group()
+        user_data_group.add_argument(
+            '--user-data',
+            metavar='<user-data>',
+            help=_(
+                'Add a new user data file to the rebuilt server. '
+                'Cannot be specified with the --no-user-data option. '
+                '(supported by --os-compute-api-version 2.57 or above)'
+            ),
+        )
+        user_data_group.add_argument(
+            '--no-user-data',
+            action='store_true',
+            default=False,
+            help=_(
+                'Remove existing user data when rebuilding server. '
+                'Cannot be specified with the --user-data option. '
+                '(supported by --os-compute-api-version 2.57 or above)'
+            ),
+        )
+        trusted_certs_group = parser.add_mutually_exclusive_group()
+        trusted_certs_group.add_argument(
+            '--trusted-image-cert',
+            metavar='<trusted-cert-id>',
+            action='append',
+            dest='trusted_image_certs',
+            help=_(
+                'Trusted image certificate IDs used to validate certificates '
+                'during the image signature verification process. '
+                'Defaults to env[OS_TRUSTED_IMAGE_CERTIFICATE_IDS]. '
+                'May be specified multiple times to pass multiple trusted '
+                'image certificate IDs. '
+                'Cannot be specified with the --no-trusted-certs option. '
+                '(supported by --os-compute-api-version 2.63 or above)'
+            ),
+        )
+        trusted_certs_group.add_argument(
+            '--no-trusted-image-certs',
+            action='store_true',
+            default=False,
+            help=_(
+                'Remove any existing trusted image certificates from the '
+                'server. '
+                'Cannot be specified with the --trusted-certs option. '
+                '(supported by --os-compute-api-version 2.63 or above)'
             ),
         )
         parser.add_argument(
@@ -2517,11 +2594,17 @@ class RebuildServer(command.ShowOne):
 
         kwargs = {}
 
+        if parsed_args.name is not None:
+            kwargs['name'] = parsed_args.name
+
+        if parsed_args.preserve_ephemeral is not None:
+            kwargs['preserve_ephemeral'] = parsed_args.preserve_ephemeral
+
         if parsed_args.property:
             kwargs['meta'] = parsed_args.property
 
         if parsed_args.description:
-            if server.api_version < api_versions.APIVersion("2.19"):
+            if compute_client.api_version < api_versions.APIVersion('2.19'):
                 msg = _(
                     '--os-compute-api-version 2.19 or greater is required to '
                     'support the --description option'
@@ -2539,7 +2622,7 @@ class RebuildServer(command.ShowOne):
                 raise exceptions.CommandError(msg)
 
             kwargs['key_name'] = parsed_args.key_name
-        elif parsed_args.key_unset:
+        elif parsed_args.no_key_name:
             if compute_client.api_version < api_versions.APIVersion('2.54'):
                 msg = _(
                     '--os-compute-api-version 2.54 or greater is required to '
@@ -2549,7 +2632,61 @@ class RebuildServer(command.ShowOne):
 
             kwargs['key_name'] = None
 
-        server = server.rebuild(image, parsed_args.password, **kwargs)
+        userdata = None
+        if parsed_args.user_data:
+            if compute_client.api_version < api_versions.APIVersion('2.54'):
+                msg = _(
+                    '--os-compute-api-version 2.54 or greater is required to '
+                    'support the --user-data option'
+                )
+                raise exceptions.CommandError(msg)
+
+            try:
+                userdata = io.open(parsed_args.user_data)
+            except IOError as e:
+                msg = _("Can't open '%(data)s': %(exception)s")
+                raise exceptions.CommandError(
+                    msg % {'data': parsed_args.user_data, 'exception': e}
+                )
+
+            kwargs['userdata'] = userdata
+        elif parsed_args.no_user_data:
+            if compute_client.api_version < api_versions.APIVersion('2.54'):
+                msg = _(
+                    '--os-compute-api-version 2.54 or greater is required to '
+                    'support the --no-user-data option'
+                )
+                raise exceptions.CommandError(msg)
+
+            kwargs['userdata'] = None
+
+        # TODO(stephenfin): Handle OS_TRUSTED_IMAGE_CERTIFICATE_IDS
+        if parsed_args.trusted_image_certs:
+            if compute_client.api_version < api_versions.APIVersion('2.63'):
+                msg = _(
+                    '--os-compute-api-version 2.63 or greater is required to '
+                    'support the --trusted-certs option'
+                )
+                raise exceptions.CommandError(msg)
+
+            certs = parsed_args.trusted_image_certs
+            kwargs['trusted_image_certificates'] = certs
+        elif parsed_args.no_trusted_image_certs:
+            if compute_client.api_version < api_versions.APIVersion('2.63'):
+                msg = _(
+                    '--os-compute-api-version 2.63 or greater is required to '
+                    'support the --no-trusted-certs option'
+                )
+                raise exceptions.CommandError(msg)
+
+            kwargs['trusted_image_certificates'] = None
+
+        try:
+            server = server.rebuild(image, parsed_args.password, **kwargs)
+        finally:
+            if userdata and hasattr(userdata, 'close'):
+                userdata.close()
+
         if parsed_args.wait:
             if utils.wait_for_status(
                 compute_client.servers.get,
