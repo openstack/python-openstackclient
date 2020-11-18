@@ -6,3 +6,5 @@ features:
     server in environments where automatic offloading is not configured, while
     ``--wait`` allows users to wait for the shelve and/or shelve offload
     operations to complete.
+  - |
+    Add support ``--wait`` option for ``server shelve``.

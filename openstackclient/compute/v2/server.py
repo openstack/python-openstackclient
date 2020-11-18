@@ -4131,25 +4131,54 @@ class UnshelveServer(command.Command):
                    'SHELVED_OFFLOADED server (supported by '
                    '--os-compute-api-version 2.77 or above)'),
         )
+        parser.add_argument(
+            '--wait',
+            action='store_true',
+            default=False,
+            help=_('Wait for unshelve operation to complete'),
+        )
         return parser
 
     def take_action(self, parsed_args):
+
+        def _show_progress(progress):
+            if progress:
+                self.app.stdout.write('\rProgress: %s' % progress)
+                self.app.stdout.flush()
+
         compute_client = self.app.client_manager.compute
-        support_az = compute_client.api_version >= api_versions.APIVersion(
-            '2.77')
-        if not support_az and parsed_args.availability_zone:
-            msg = _("--os-compute-api-version 2.77 or greater is required "
-                    "to support the '--availability-zone' option.")
-            raise exceptions.CommandError(msg)
+        kwargs = {}
+
+        if parsed_args.availability_zone:
+            if compute_client.api_version < api_versions.APIVersion('2.77'):
+                msg = _(
+                    '--os-compute-api-version 2.77 or greater is required '
+                    'to support the --availability-zone option'
+                )
+                raise exceptions.CommandError(msg)
+
+            kwargs['availability_zone'] = parsed_args.availability_zone
 
         for server in parsed_args.server:
-            if support_az:
-                utils.find_resource(
-                    compute_client.servers,
-                    server
-                ).unshelve(availability_zone=parsed_args.availability_zone)
-            else:
-                utils.find_resource(
-                    compute_client.servers,
-                    server,
-                ).unshelve()
+            server_obj = utils.find_resource(
+                compute_client.servers,
+                server,
+            )
+
+            if server_obj.status.lower() not in (
+                'shelved', 'shelved_offloaded',
+            ):
+                continue
+
+            server_obj.unshelve(**kwargs)
+
+            if parsed_args.wait:
+                if not utils.wait_for_status(
+                    compute_client.servers.get, server_obj.id,
+                    success_status=('active', 'shutoff'),
+                    callback=_show_progress,
+                ):
+                    LOG.error(_('Error unshelving server %s'), server_obj.id)
+                    self.app.stdout.write(
+                        _('Error unshelving server: %s\n') % server_obj.id)
+                    raise SystemExit
