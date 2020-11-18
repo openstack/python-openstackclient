@@ -28,7 +28,12 @@ LOG = logging.getLogger(__name__)
 
 
 class CreateAgent(command.ShowOne):
-    _description = _("Create compute agent")
+    """Create compute agent.
+
+    The compute agent functionality is hypervisor specific and is only
+    supported by the XenAPI hypervisor driver. It was removed from nova in the
+    23.0.0 (Wallaby) release.
+    """
 
     def get_parser(self, prog_name):
         parser = super(CreateAgent, self).get_parser(prog_name)
@@ -80,7 +85,12 @@ class CreateAgent(command.ShowOne):
 
 
 class DeleteAgent(command.Command):
-    _description = _("Delete compute agent(s)")
+    """Delete compute agent(s).
+
+    The compute agent functionality is hypervisor specific and is only
+    supported by the XenAPI hypervisor driver. It was removed from nova in the
+    23.0.0 (Wallaby) release.
+    """
 
     def get_parser(self, prog_name):
         parser = super(DeleteAgent, self).get_parser(prog_name)
@@ -111,7 +121,12 @@ class DeleteAgent(command.Command):
 
 
 class ListAgent(command.Lister):
-    _description = _("List compute agents")
+    """List compute agents.
+
+    The compute agent functionality is hypervisor specific and is only
+    supported by the XenAPI hypervisor driver. It was removed from nova in the
+    23.0.0 (Wallaby) release.
+    """
 
     def get_parser(self, prog_name):
         parser = super(ListAgent, self).get_parser(prog_name)
@@ -141,7 +156,12 @@ class ListAgent(command.Lister):
 
 
 class SetAgent(command.Command):
-    _description = _("Set compute agent properties")
+    """Set compute agent properties.
+
+    The compute agent functionality is hypervisor specific and is only
+    supported by the XenAPI hypervisor driver. It was removed from nova in the
+    23.0.0 (Wallaby) release.
+    """
 
     def get_parser(self, prog_name):
         parser = super(SetAgent, self).get_parser(prog_name)
