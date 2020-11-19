@@ -1,0 +1,7 @@
+---
+fixes:
+  - Stream image download to avoid buffering data in memory which rapidly
+    exhausts memory resulting in OOM kill or system crash for all but the
+    smallest of images. Fixes https://storyboard.openstack.org/#!/story/2007672
+  - Restore default behavior of 'openstack image save' to send data to stdout
+    Relates to https://storyboard.openstack.org/#!/story/2007672.
