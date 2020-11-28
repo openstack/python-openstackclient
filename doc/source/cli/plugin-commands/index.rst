@@ -22,7 +22,6 @@ Plugin Commands
    placement
    rsd
    sahara
-   searchlight
    senlin
    trove
    watcher
