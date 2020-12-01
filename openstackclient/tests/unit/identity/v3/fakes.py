@@ -523,6 +523,8 @@ class FakeIdentityv3Client(object):
         self.auth = FakeAuth()
         self.auth.client = mock.Mock()
         self.auth.client.resource_class = fakes.FakeResource(None, {})
+        self.inference_rules = mock.Mock()
+        self.inference_rules.resource_class = fakes.FakeResource(None, {})
 
 
 class FakeFederationManager(object):

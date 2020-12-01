@@ -71,7 +71,7 @@ class CreateImpliedRole(command.ShowOne):
         identity_client = self.app.client_manager.identity
         (prior_role_id, implied_role_id) = _get_role_ids(
             identity_client, parsed_args)
-        response = identity_client.roles.create_implied(
+        response = identity_client.inference_rules.create(
             prior_role_id, implied_role_id)
         response._info.pop('links', None)
         return zip(*sorted([(k, v['id'])
@@ -101,7 +101,7 @@ class DeleteImpliedRole(command.Command):
         identity_client = self.app.client_manager.identity
         (prior_role_id, implied_role_id) = _get_role_ids(
             identity_client, parsed_args)
-        identity_client.roles.delete_implied(
+        identity_client.inference_rules.delete(
             prior_role_id, implied_role_id)
 
 
@@ -125,5 +125,5 @@ class ListImpliedRole(command.Lister):
                            implies['name'])
 
         identity_client = self.app.client_manager.identity
-        response = identity_client.roles.list_inference_roles()
+        response = identity_client.inference_rules.list_inference_roles()
         return (self._COLUMNS, _list_implied(response))
