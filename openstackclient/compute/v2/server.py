@@ -1366,6 +1366,13 @@ class ListServer(command.Lister):
     def get_parser(self, prog_name):
         parser = super(ListServer, self).get_parser(prog_name)
         parser.add_argument(
+            '--availability-zone',
+            metavar='<availability-zone>',
+            help=_('Only return instances that match the availability zone. '
+                   'Note that this option will be ignored for non-admin users '
+                   'when using ``--os-compute-api-version`` prior to 2.83.'),
+        )
+        parser.add_argument(
             '--reservation-id',
             metavar='<reservation-id>',
             help=_('Only return instances that match the reservation'),
@@ -1574,6 +1581,7 @@ class ListServer(command.Lister):
                                                ignore_missing=False).id
 
         search_opts = {
+            'availability_zone': parsed_args.availability_zone,
             'reservation_id': parsed_args.reservation_id,
             'ip': parsed_args.ip,
             'ip6': parsed_args.ip6,

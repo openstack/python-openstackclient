@@ -2962,6 +2962,7 @@ class TestServerList(TestServer):
         super(TestServerList, self).setUp()
 
         self.search_opts = {
+            'availability_zone': None,
             'reservation_id': None,
             'ip': None,
             'ip6': None,
