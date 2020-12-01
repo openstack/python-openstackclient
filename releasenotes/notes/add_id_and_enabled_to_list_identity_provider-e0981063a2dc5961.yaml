@@ -1,0 +1,3 @@
+---
+features:
+  - Add ``--id`` and ``--enabled`` option to ``identity provider list`` command.
