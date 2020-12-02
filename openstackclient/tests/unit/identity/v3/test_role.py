@@ -102,6 +102,40 @@ class TestRoleAdd(TestRole):
         # Get the command object to test
         self.cmd = role.AddRole(self.app, None)
 
+    def test_role_add_user_system(self):
+        arglist = [
+            '--user', identity_fakes.user_name,
+            '--system', 'all',
+            identity_fakes.role_name,
+        ]
+        if self._is_inheritance_testcase():
+            arglist.append('--inherited')
+        verifylist = [
+            ('user', identity_fakes.user_name),
+            ('group', None),
+            ('system', 'all'),
+            ('domain', None),
+            ('project', None),
+            ('role', identity_fakes.role_name),
+            ('inherited', self._is_inheritance_testcase()),
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        result = self.cmd.take_action(parsed_args)
+
+        # Set expected values
+        kwargs = {
+            'user': identity_fakes.user_id,
+            'system': 'all',
+            'os_inherit_extension_inherited': self._is_inheritance_testcase(),
+        }
+        # RoleManager.grant(role, user=, group=, domain=, project=)
+        self.roles_mock.grant.assert_called_with(
+            identity_fakes.role_id,
+            **kwargs
+        )
+        self.assertIsNone(result)
+
     def test_role_add_user_domain(self):
         arglist = [
             '--user', identity_fakes.user_name,
@@ -159,6 +193,40 @@ class TestRoleAdd(TestRole):
         kwargs = {
             'user': identity_fakes.user_id,
             'project': identity_fakes.project_id,
+            'os_inherit_extension_inherited': self._is_inheritance_testcase(),
+        }
+        # RoleManager.grant(role, user=, group=, domain=, project=)
+        self.roles_mock.grant.assert_called_with(
+            identity_fakes.role_id,
+            **kwargs
+        )
+        self.assertIsNone(result)
+
+    def test_role_add_group_system(self):
+        arglist = [
+            '--group', identity_fakes.group_name,
+            '--system', 'all',
+            identity_fakes.role_name,
+        ]
+        if self._is_inheritance_testcase():
+            arglist.append('--inherited')
+        verifylist = [
+            ('user', None),
+            ('group', identity_fakes.group_name),
+            ('system', 'all'),
+            ('domain', None),
+            ('project', None),
+            ('role', identity_fakes.role_name),
+            ('inherited', self._is_inheritance_testcase()),
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        result = self.cmd.take_action(parsed_args)
+
+        # Set expected values
+        kwargs = {
+            'group': identity_fakes.group_id,
+            'system': 'all',
             'os_inherit_extension_inherited': self._is_inheritance_testcase(),
         }
         # RoleManager.grant(role, user=, group=, domain=, project=)
@@ -606,6 +674,40 @@ class TestRoleRemove(TestRole):
         # Get the command object to test
         self.cmd = role.RemoveRole(self.app, None)
 
+    def test_role_remove_user_system(self):
+        arglist = [
+            '--user', identity_fakes.user_name,
+            '--system', 'all',
+            identity_fakes.role_name
+        ]
+        if self._is_inheritance_testcase():
+            arglist.append('--inherited')
+        verifylist = [
+            ('user', identity_fakes.user_name),
+            ('group', None),
+            ('system', 'all'),
+            ('domain', None),
+            ('project', None),
+            ('role', identity_fakes.role_name),
+            ('inherited', self._is_inheritance_testcase()),
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        result = self.cmd.take_action(parsed_args)
+
+        # Set expected values
+        kwargs = {
+            'user': identity_fakes.user_id,
+            'system': 'all',
+            'os_inherit_extension_inherited': self._is_inheritance_testcase(),
+        }
+        # RoleManager.revoke(role, user=, group=, domain=, project=)
+        self.roles_mock.revoke.assert_called_with(
+            identity_fakes.role_id,
+            **kwargs
+        )
+        self.assertIsNone(result)
+
     def test_role_remove_user_domain(self):
         arglist = [
             '--user', identity_fakes.user_name,
@@ -663,6 +765,41 @@ class TestRoleRemove(TestRole):
         kwargs = {
             'user': identity_fakes.user_id,
             'project': identity_fakes.project_id,
+            'os_inherit_extension_inherited': self._is_inheritance_testcase(),
+        }
+        # RoleManager.revoke(role, user=, group=, domain=, project=)
+        self.roles_mock.revoke.assert_called_with(
+            identity_fakes.role_id,
+            **kwargs
+        )
+        self.assertIsNone(result)
+
+    def test_role_remove_group_system(self):
+        arglist = [
+            '--group', identity_fakes.group_name,
+            '--system', 'all',
+            identity_fakes.role_name,
+        ]
+        if self._is_inheritance_testcase():
+            arglist.append('--inherited')
+        verifylist = [
+            ('user', None),
+            ('group', identity_fakes.group_name),
+            ('system', 'all'),
+            ('domain', None),
+            ('project', None),
+            ('role', identity_fakes.role_name),
+            ('role', identity_fakes.role_name),
+            ('inherited', self._is_inheritance_testcase()),
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        result = self.cmd.take_action(parsed_args)
+
+        # Set expected values
+        kwargs = {
+            'group': identity_fakes.group_id,
+            'system': 'all',
             'os_inherit_extension_inherited': self._is_inheritance_testcase(),
         }
         # RoleManager.revoke(role, user=, group=, domain=, project=)
