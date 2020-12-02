@@ -803,7 +803,11 @@ class SaveImage(command.Command):
         image_client = self.app.client_manager.image
         image = image_client.find_image(parsed_args.image)
 
-        image_client.download_image(image.id, output=parsed_args.file)
+        output_file = parsed_args.file
+        if output_file is None:
+            output_file = getattr(sys.stdout, "buffer", sys.stdout)
+
+        image_client.download_image(image.id, stream=True, output=output_file)
 
 
 class SetImage(command.Command):
