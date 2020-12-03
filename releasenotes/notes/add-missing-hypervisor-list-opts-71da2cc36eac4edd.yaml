@@ -1,0 +1,5 @@
+---
+features:
+  - |
+    Add ``--limit`` and ``--marker`` options to ``hypervisor list`` command, to
+    configure pagination of results.
