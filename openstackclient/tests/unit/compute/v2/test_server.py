@@ -28,6 +28,7 @@ from osc_lib import utils as common_utils
 
 from openstackclient.compute.v2 import server
 from openstackclient.tests.unit.compute.v2 import fakes as compute_fakes
+from openstackclient.tests.unit.identity.v3 import fakes as identity_fakes
 from openstackclient.tests.unit.image.v2 import fakes as image_fakes
 from openstackclient.tests.unit.network.v2 import fakes as network_fakes
 from openstackclient.tests.unit import utils
@@ -4548,8 +4549,20 @@ class TestListMigrationV280(TestListMigration):
         'Old Flavor', 'New Flavor', 'Type', 'Created At', 'Updated At'
     ]
 
+    project = identity_fakes.FakeProject.create_one_project()
+    user = identity_fakes.FakeUser.create_one_user()
+
     def setUp(self):
         super(TestListMigrationV280, self).setUp()
+
+        self.projects_mock = self.app.client_manager.identity.projects
+        self.projects_mock.reset_mock()
+
+        self.users_mock = self.app.client_manager.identity.users
+        self.users_mock.reset_mock()
+
+        self.projects_mock.get.return_value = self.project
+        self.users_mock.get.return_value = self.user
 
         self.app.client_manager.compute.api_version = api_versions.APIVersion(
             '2.80')
@@ -4561,7 +4574,7 @@ class TestListMigrationV280(TestListMigration):
             '--marker', 'test_kp',
             '--changes-since', '2019-08-07T08:03:25Z',
             '--changes-before', '2019-08-09T08:03:25Z',
-            '--project', '0c2accde-644a-45fa-8c10-e76debc7fbc3'
+            '--project', self.project.id
         ]
         verifylist = [
             ('status', 'migrating'),
@@ -4569,7 +4582,7 @@ class TestListMigrationV280(TestListMigration):
             ('marker', 'test_kp'),
             ('changes_since', '2019-08-07T08:03:25Z'),
             ('changes_before', '2019-08-09T08:03:25Z'),
-            ('project_id', '0c2accde-644a-45fa-8c10-e76debc7fbc3')
+            ('project', self.project.id)
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
         columns, data = self.cmd.take_action(parsed_args)
@@ -4580,7 +4593,7 @@ class TestListMigrationV280(TestListMigration):
             'limit': 1,
             'marker': 'test_kp',
             'host': None,
-            'project_id': '0c2accde-644a-45fa-8c10-e76debc7fbc3',
+            'project_id': self.project.id,
             'changes_since': '2019-08-07T08:03:25Z',
             'changes_before': "2019-08-09T08:03:25Z",
         }
@@ -4605,7 +4618,7 @@ class TestListMigrationV280(TestListMigration):
         verifylist = [
             ('status', 'migrating'),
             ('changes_before', '2019-08-09T08:03:25Z'),
-            ('project_id', '0c2accde-644a-45fa-8c10-e76debc7fbc3')
+            ('project', '0c2accde-644a-45fa-8c10-e76debc7fbc3')
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
         ex = self.assertRaises(
@@ -4623,7 +4636,7 @@ class TestListMigrationV280(TestListMigration):
             '--marker', 'test_kp',
             '--changes-since', '2019-08-07T08:03:25Z',
             '--changes-before', '2019-08-09T08:03:25Z',
-            '--user', 'dd214878-ca12-40fb-b035-fa7d2c1e86d6'
+            '--user', self.user.id,
         ]
         verifylist = [
             ('status', 'migrating'),
@@ -4631,7 +4644,7 @@ class TestListMigrationV280(TestListMigration):
             ('marker', 'test_kp'),
             ('changes_since', '2019-08-07T08:03:25Z'),
             ('changes_before', '2019-08-09T08:03:25Z'),
-            ('user_id', 'dd214878-ca12-40fb-b035-fa7d2c1e86d6')
+            ('user', self.user.id),
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
         columns, data = self.cmd.take_action(parsed_args)
@@ -4642,7 +4655,7 @@ class TestListMigrationV280(TestListMigration):
             'limit': 1,
             'marker': 'test_kp',
             'host': None,
-            'user_id': 'dd214878-ca12-40fb-b035-fa7d2c1e86d6',
+            'user_id': self.user.id,
             'changes_since': '2019-08-07T08:03:25Z',
             'changes_before': "2019-08-09T08:03:25Z",
         }
@@ -4662,12 +4675,12 @@ class TestListMigrationV280(TestListMigration):
         arglist = [
             '--status', 'migrating',
             '--changes-before', '2019-08-09T08:03:25Z',
-            '--user', 'dd214878-ca12-40fb-b035-fa7d2c1e86d6'
+            '--user', self.user.id,
         ]
         verifylist = [
             ('status', 'migrating'),
             ('changes_before', '2019-08-09T08:03:25Z'),
-            ('user_id', 'dd214878-ca12-40fb-b035-fa7d2c1e86d6')
+            ('user', self.user.id),
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
         ex = self.assertRaises(
@@ -4684,16 +4697,16 @@ class TestListMigrationV280(TestListMigration):
             '--limit', '1',
             '--changes-since', '2019-08-07T08:03:25Z',
             '--changes-before', '2019-08-09T08:03:25Z',
-            '--project', '0c2accde-644a-45fa-8c10-e76debc7fbc3',
-            '--user', 'dd214878-ca12-40fb-b035-fa7d2c1e86d6'
+            '--project', self.project.id,
+            '--user', self.user.id,
         ]
         verifylist = [
             ('status', 'migrating'),
             ('limit', 1),
             ('changes_since', '2019-08-07T08:03:25Z'),
             ('changes_before', '2019-08-09T08:03:25Z'),
-            ('project_id', '0c2accde-644a-45fa-8c10-e76debc7fbc3'),
-            ('user_id', 'dd214878-ca12-40fb-b035-fa7d2c1e86d6')
+            ('project', self.project.id),
+            ('user', self.user.id),
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
         columns, data = self.cmd.take_action(parsed_args)
@@ -4703,8 +4716,8 @@ class TestListMigrationV280(TestListMigration):
             'status': 'migrating',
             'limit': 1,
             'host': None,
-            'project_id': '0c2accde-644a-45fa-8c10-e76debc7fbc3',
-            'user_id': 'dd214878-ca12-40fb-b035-fa7d2c1e86d6',
+            'project_id': self.project.id,
+            'user_id': self.user.id,
             'changes_since': '2019-08-07T08:03:25Z',
             'changes_before': "2019-08-09T08:03:25Z",
         }
@@ -4727,14 +4740,14 @@ class TestListMigrationV280(TestListMigration):
         arglist = [
             '--status', 'migrating',
             '--changes-before', '2019-08-09T08:03:25Z',
-            '--project', '0c2accde-644a-45fa-8c10-e76debc7fbc3',
-            '--user', 'dd214878-ca12-40fb-b035-fa7d2c1e86d6'
+            '--project', self.project.id,
+            '--user', self.user.id,
         ]
         verifylist = [
             ('status', 'migrating'),
             ('changes_before', '2019-08-09T08:03:25Z'),
-            ('project_id', '0c2accde-644a-45fa-8c10-e76debc7fbc3'),
-            ('user_id', 'dd214878-ca12-40fb-b035-fa7d2c1e86d6')
+            ('project', self.project.id),
+            ('user', self.user.id)
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
         ex = self.assertRaises(
