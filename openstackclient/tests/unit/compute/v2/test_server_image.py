@@ -130,6 +130,7 @@ class TestServerImageCreate(TestServerImage):
         self.servers_mock.create_image.assert_called_with(
             servers[0].id,
             servers[0].name,
+            None,
         )
 
         self.assertEqual(self.image_columns(images[0]), columns)
@@ -141,11 +142,13 @@ class TestServerImageCreate(TestServerImage):
 
         arglist = [
             '--name', 'img-nam',
+            '--property', 'key=value',
             servers[0].id,
         ]
         verifylist = [
             ('name', 'img-nam'),
             ('server', servers[0].id),
+            ('properties', {'key': 'value'}),
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
@@ -158,6 +161,7 @@ class TestServerImageCreate(TestServerImage):
         self.servers_mock.create_image.assert_called_with(
             servers[0].id,
             'img-nam',
+            {'key': 'value'},
         )
 
         self.assertEqual(self.image_columns(images[0]), columns)
@@ -188,6 +192,7 @@ class TestServerImageCreate(TestServerImage):
         self.servers_mock.create_image.assert_called_with(
             servers[0].id,
             servers[0].name,
+            None,
         )
 
         mock_wait_for_status.assert_called_once_with(
@@ -220,6 +225,7 @@ class TestServerImageCreate(TestServerImage):
         self.servers_mock.create_image.assert_called_with(
             servers[0].id,
             servers[0].name,
+            None,
         )
 
         mock_wait_for_status.assert_called_once_with(

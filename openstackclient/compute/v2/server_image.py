@@ -18,6 +18,7 @@
 import importlib
 import logging
 
+from osc_lib.cli import parseractions
 from osc_lib.command import command
 from osc_lib import exceptions
 from osc_lib import utils
@@ -49,6 +50,16 @@ class CreateServerImage(command.ShowOne):
             help=_('Name of new disk image (default: server name)'),
         )
         parser.add_argument(
+            '--property',
+            metavar='<key=value>',
+            dest='properties',
+            action=parseractions.KeyValueAction,
+            help=_(
+                'Set a new property to meta_data.json on the metadata server '
+                '(repeat option to set multiple values)'
+            ),
+        )
+        parser.add_argument(
             '--wait',
             action='store_true',
             help=_('Wait for operation to complete'),
@@ -76,6 +87,7 @@ class CreateServerImage(command.ShowOne):
         image_id = compute_client.servers.create_image(
             server.id,
             image_name,
+            parsed_args.properties,
         )
 
         image_client = self.app.client_manager.image
@@ -89,8 +101,8 @@ class CreateServerImage(command.ShowOne):
             ):
                 self.app.stdout.write('\n')
             else:
-                LOG.error(_('Error creating server image: %s'),
-                          parsed_args.server)
+                LOG.error(
+                    _('Error creating server image: %s'), parsed_args.server)
                 raise exceptions.CommandError
 
         if self.app.client_manager._api_version['image'] == '1':
@@ -105,4 +117,5 @@ class CreateServerImage(command.ShowOne):
                 ]
             )
             info = image_module._format_image(image)
+
         return zip(*sorted(info.items()))

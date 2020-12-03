@@ -1,0 +1,6 @@
+---
+features:
+  - |
+    Add ``--property`` option to ``server image create`` command, allowing
+    users to record arbitrary key/value metadata to ``meta_data.json`` on
+    the metadata server.
