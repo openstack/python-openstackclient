@@ -1,0 +1,5 @@
+---
+features:
+  - |
+    Add ``server volume list`` command, to list the volumes attached to an
+    instance.

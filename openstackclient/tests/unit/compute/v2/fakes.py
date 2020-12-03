@@ -1631,3 +1631,63 @@ class FakeServerMigration(object):
                     attrs, methods))
 
         return migrations
+
+
+class FakeVolumeAttachment(object):
+    """Fake one or more volume attachments (BDMs)."""
+
+    @staticmethod
+    def create_one_volume_attachment(attrs=None, methods=None):
+        """Create a fake volume attachment.
+
+        :param Dictionary attrs:
+            A dictionary with all attributes
+        :param Dictionary methods:
+            A dictionary with all methods
+        :return:
+            A FakeResource object, with id, device, and so on
+        """
+        attrs = attrs or {}
+        methods = methods or {}
+
+        # Set default attributes.
+        volume_attachment_info = {
+            "id": uuid.uuid4().hex,
+            "device": "/dev/sdb",
+            "serverId": uuid.uuid4().hex,
+            "volumeId": uuid.uuid4().hex,
+            # introduced in API microversion 2.70
+            "tag": "foo",
+            # introduced in API microversion 2.79
+            "delete_on_termination": True,
+        }
+
+        # Overwrite default attributes.
+        volume_attachment_info.update(attrs)
+
+        volume_attachment = fakes.FakeResource(
+            info=copy.deepcopy(volume_attachment_info),
+            methods=methods,
+            loaded=True)
+        return volume_attachment
+
+    @staticmethod
+    def create_volume_attachments(attrs=None, methods=None, count=2):
+        """Create multiple fake volume attachments (BDMs).
+
+        :param Dictionary attrs:
+            A dictionary with all attributes
+        :param Dictionary methods:
+            A dictionary with all methods
+        :param int count:
+            The number of server migrations to fake
+        :return:
+            A list of FakeResource objects faking the volume attachments.
+        """
+        volume_attachments = []
+        for i in range(0, count):
+            volume_attachments.append(
+                FakeVolumeAttachment.create_one_volume_attachment(
+                    attrs, methods))
+
+        return volume_attachments
