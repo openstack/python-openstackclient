@@ -1,0 +1,5 @@
+---
+features:
+  - |
+    Add ``--force`` option to ``server delete`` command, allowing users to
+    force delete a server. This is admin-only by default.

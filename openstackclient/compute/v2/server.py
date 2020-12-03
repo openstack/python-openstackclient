@@ -1318,6 +1318,11 @@ class DeleteServer(command.Command):
             help=_('Server(s) to delete (name or ID)'),
         )
         parser.add_argument(
+            '--force',
+            action='store_true',
+            help=_('Force delete server(s)'),
+        )
+        parser.add_argument(
             '--wait',
             action='store_true',
             help=_('Wait for delete to complete'),
@@ -1335,7 +1340,12 @@ class DeleteServer(command.Command):
         for server in parsed_args.server:
             server_obj = utils.find_resource(
                 compute_client.servers, server)
-            compute_client.servers.delete(server_obj.id)
+
+            if parsed_args.force:
+                compute_client.servers.force_delete(server_obj.id)
+            else:
+                compute_client.servers.delete(server_obj.id)
+
             if parsed_args.wait:
                 if not utils.wait_for_delete(compute_client.servers,
                                              server_obj.id,
