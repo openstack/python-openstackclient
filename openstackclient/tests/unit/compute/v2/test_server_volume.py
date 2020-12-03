@@ -12,6 +12,7 @@
 #
 
 from novaclient import api_versions
+from osc_lib import exceptions
 
 from openstackclient.compute.v2 import server_volume
 from openstackclient.tests.unit.compute.v2 import fakes as compute_fakes
@@ -165,3 +166,122 @@ class TestServerVolumeList(TestServerVolume):
         )
         self.servers_volumes_mock.get_server_volumes.assert_called_once_with(
             self.server.id)
+
+
+class TestServerVolumeUpdate(TestServerVolume):
+
+    def setUp(self):
+        super().setUp()
+
+        self.server = compute_fakes.FakeServer.create_one_server()
+        self.servers_mock.get.return_value = self.server
+
+        # Get the command object to test
+        self.cmd = server_volume.UpdateServerVolume(self.app, None)
+
+    def test_server_volume_update(self):
+
+        arglist = [
+            self.server.id,
+            'foo',
+        ]
+        verifylist = [
+            ('server', self.server.id),
+            ('volume', 'foo'),
+            ('delete_on_termination', None),
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        result = self.cmd.take_action(parsed_args)
+
+        # This is a no-op
+        self.servers_volumes_mock.update_server_volume.assert_not_called()
+        self.assertIsNone(result)
+
+    def test_server_volume_update_with_delete_on_termination(self):
+        self.app.client_manager.compute.api_version = \
+            api_versions.APIVersion('2.85')
+
+        arglist = [
+            self.server.id,
+            'foo',
+            '--delete-on-termination',
+        ]
+        verifylist = [
+            ('server', self.server.id),
+            ('volume', 'foo'),
+            ('delete_on_termination', True),
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        result = self.cmd.take_action(parsed_args)
+
+        self.servers_volumes_mock.update_server_volume.assert_called_once_with(
+            self.server.id, 'foo', 'foo',
+            delete_on_termination=True)
+        self.assertIsNone(result)
+
+    def test_server_volume_update_with_preserve_on_termination(self):
+        self.app.client_manager.compute.api_version = \
+            api_versions.APIVersion('2.85')
+
+        arglist = [
+            self.server.id,
+            'foo',
+            '--preserve-on-termination',
+        ]
+        verifylist = [
+            ('server', self.server.id),
+            ('volume', 'foo'),
+            ('delete_on_termination', False),
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        result = self.cmd.take_action(parsed_args)
+
+        self.servers_volumes_mock.update_server_volume.assert_called_once_with(
+            self.server.id, 'foo', 'foo',
+            delete_on_termination=False)
+        self.assertIsNone(result)
+
+    def test_server_volume_update_with_delete_on_termination_pre_v285(self):
+        self.app.client_manager.compute.api_version = \
+            api_versions.APIVersion('2.84')
+
+        arglist = [
+            self.server.id,
+            'foo',
+            '--delete-on-termination',
+        ]
+        verifylist = [
+            ('server', self.server.id),
+            ('volume', 'foo'),
+            ('delete_on_termination', True),
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        self.assertRaises(
+            exceptions.CommandError,
+            self.cmd.take_action,
+            parsed_args)
+
+    def test_server_volume_update_with_preserve_on_termination_pre_v285(self):
+        self.app.client_manager.compute.api_version = \
+            api_versions.APIVersion('2.84')
+
+        arglist = [
+            self.server.id,
+            'foo',
+            '--preserve-on-termination',
+        ]
+        verifylist = [
+            ('server', self.server.id),
+            ('volume', 'foo'),
+            ('delete_on_termination', False),
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        self.assertRaises(
+            exceptions.CommandError,
+            self.cmd.take_action,
+            parsed_args)

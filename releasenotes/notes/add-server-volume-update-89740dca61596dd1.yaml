@@ -3,3 +3,6 @@ features:
   - |
     Add ``server volume list`` command, to list the volumes attached to an
     instance.
+  - |
+    Add ``server volume update`` command, to update the volumes attached to
+    an instance.
