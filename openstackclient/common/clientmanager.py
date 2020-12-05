@@ -83,10 +83,12 @@ class ClientManager(clientmanager.ClientManager):
             self._cli_options._openstack_config._pw_callback = \
                 shell.prompt_for_password
             try:
-                self._cli_options._auth = \
-                    self._cli_options._openstack_config.load_auth_plugin(
-                        self._cli_options.config,
-                    )
+                # We might already get auth from SDK caching
+                if not self._cli_options._auth:
+                    self._cli_options._auth = \
+                        self._cli_options._openstack_config.load_auth_plugin(
+                            self._cli_options.config,
+                        )
             except TypeError as e:
                 self._fallback_load_auth_plugin(e)
 
