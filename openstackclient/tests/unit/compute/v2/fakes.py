@@ -19,6 +19,7 @@ from unittest import mock
 import uuid
 
 from novaclient import api_versions
+from openstack.compute.v2 import flavor as _flavor
 
 from openstackclient.api import compute_v2
 from openstackclient.tests.unit import fakes
@@ -164,7 +165,6 @@ class FakeComputev2Client(object):
         self.extensions.resource_class = fakes.FakeResource(None, {})
 
         self.flavors = mock.Mock()
-        self.flavors.resource_class = fakes.FakeResource(None, {})
 
         self.flavor_access = mock.Mock()
         self.flavor_access.resource_class = fakes.FakeResource(None, {})
@@ -777,27 +777,13 @@ class FakeFlavor(object):
             'os-flavor-access:is_public': True,
             'description': 'description',
             'OS-FLV-EXT-DATA:ephemeral': 0,
-            'properties': {'property': 'value'},
+            'extra_specs': {'property': 'value'},
         }
 
         # Overwrite default attributes.
         flavor_info.update(attrs)
 
-        # Set default methods.
-        flavor_methods = {
-            'set_keys': None,
-            'unset_keys': None,
-            'get_keys': {'property': 'value'},
-        }
-
-        flavor = fakes.FakeResource(info=copy.deepcopy(flavor_info),
-                                    methods=flavor_methods,
-                                    loaded=True)
-
-        # Set attributes with special mappings in nova client.
-        flavor.disabled = flavor_info['OS-FLV-DISABLED:disabled']
-        flavor.is_public = flavor_info['os-flavor-access:is_public']
-        flavor.ephemeral = flavor_info['OS-FLV-EXT-DATA:ephemeral']
+        flavor = _flavor.Flavor(**flavor_info)
 
         return flavor
 

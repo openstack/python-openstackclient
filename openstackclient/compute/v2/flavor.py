@@ -17,7 +17,8 @@
 
 import logging
 
-from novaclient import api_versions
+from openstack import exceptions as sdk_exceptions
+from openstack import utils as sdk_utils
 from osc_lib.cli import format_columns
 from osc_lib.cli import parseractions
 from osc_lib.command import command
@@ -33,10 +34,7 @@ LOG = logging.getLogger(__name__)
 
 _formatters = {
     'extra_specs': format_columns.DictColumn,
-    # Unless we finish switch to use SDK resources this need to be doubled this
-    # way
-    'properties': format_columns.DictColumn,
-    'Properties': format_columns.DictColumn
+    'properties': format_columns.DictColumn
 }
 
 
@@ -51,27 +49,8 @@ def _get_flavor_columns(item):
 
     }
     hidden_columns = ['links', 'location']
-
     return utils.get_osc_show_columns_for_sdk_resource(
         item, column_map, hidden_columns)
-
-
-def _find_flavor(compute_client, flavor):
-    try:
-        return compute_client.flavors.get(flavor)
-    except Exception as ex:
-        if type(ex).__name__ == 'NotFound':
-            pass
-        else:
-            raise
-    try:
-        return compute_client.flavors.find(name=flavor, is_public=None)
-    except Exception as ex:
-        if type(ex).__name__ == 'NotFound':
-            msg = _("No flavor with a name or ID of '%s' exists.") % flavor
-            raise exceptions.CommandError(msg)
-        else:
-            raise
 
 
 class CreateFlavor(command.ShowOne):
@@ -87,9 +66,7 @@ class CreateFlavor(command.ShowOne):
         parser.add_argument(
             "--id",
             metavar="<id>",
-            default='auto',
-            help=_("Unique flavor ID; 'auto' creates a UUID "
-                   "(default: auto)")
+            help=_("Unique flavor ID")
         )
         parser.add_argument(
             "--ram",
@@ -170,32 +147,36 @@ class CreateFlavor(command.ShowOne):
         return parser
 
     def take_action(self, parsed_args):
-        compute_client = self.app.client_manager.compute
+        compute_client = self.app.client_manager.sdk_connection.compute
         identity_client = self.app.client_manager.identity
 
         if parsed_args.project and parsed_args.public:
             msg = _("--project is only allowed with --private")
             raise exceptions.CommandError(msg)
 
+        args = {
+            'name': parsed_args.name,
+            'ram': parsed_args.ram,
+            'vcpus': parsed_args.vcpus,
+            'disk': parsed_args.disk,
+            'id': parsed_args.id,
+            'ephemeral': parsed_args.ephemeral,
+            'swap': parsed_args.swap,
+            'rxtx_factor': parsed_args.rxtx_factor,
+            'is_public': parsed_args.public,
+        }
+
         if parsed_args.description:
-            if compute_client.api_version < api_versions.APIVersion("2.55"):
-                msg = _("--os-compute-api-version 2.55 or later is required")
+            if not sdk_utils.supports_microversion(compute_client, '2.55'):
+                msg = _(
+                    'The --description parameter requires server support for '
+                    'API microversion 2.55'
+                )
                 raise exceptions.CommandError(msg)
 
-        args = (
-            parsed_args.name,
-            parsed_args.ram,
-            parsed_args.vcpus,
-            parsed_args.disk,
-            parsed_args.id,
-            parsed_args.ephemeral,
-            parsed_args.swap,
-            parsed_args.rxtx_factor,
-            parsed_args.public,
-            parsed_args.description
-        )
+            args['description'] = parsed_args.description
 
-        flavor = compute_client.flavors.create(*args)
+        flavor = compute_client.create_flavor(**args)
 
         if parsed_args.project:
             try:
@@ -204,7 +185,7 @@ class CreateFlavor(command.ShowOne):
                     parsed_args.project,
                     parsed_args.project_domain,
                 ).id
-                compute_client.flavor_access.add_tenant_access(
+                compute_client.flavor_add_tenant_access(
                     flavor.id, project_id)
             except Exception as e:
                 msg = _("Failed to add project %(project)s access to "
@@ -212,19 +193,14 @@ class CreateFlavor(command.ShowOne):
                 LOG.error(msg, {'project': parsed_args.project, 'e': e})
         if parsed_args.property:
             try:
-                flavor.set_keys(parsed_args.property)
+                flavor = compute_client.create_flavor_extra_specs(
+                    flavor, parsed_args.property)
             except Exception as e:
                 LOG.error(_("Failed to set flavor property: %s"), e)
 
-        flavor_info = flavor._info.copy()
-        flavor_info['properties'] = flavor.get_keys()
-
-        display_columns, columns = _get_flavor_columns(flavor_info)
-        data = utils.get_dict_properties(
-            flavor_info, columns,
-            formatters=_formatters,
-            mixed_case_fields=['OS-FLV-DISABLED:disabled',
-                               'OS-FLV-EXT-DATA:ephemeral'])
+        display_columns, columns = _get_flavor_columns(flavor)
+        data = utils.get_dict_properties(flavor, columns,
+                                         formatters=_formatters)
 
         return (display_columns, data)
 
@@ -243,12 +219,12 @@ class DeleteFlavor(command.Command):
         return parser
 
     def take_action(self, parsed_args):
-        compute_client = self.app.client_manager.compute
+        compute_client = self.app.client_manager.sdk_connection.compute
         result = 0
         for f in parsed_args.flavor:
             try:
-                flavor = _find_flavor(compute_client, f)
-                compute_client.flavors.delete(flavor.id)
+                flavor = compute_client.find_flavor(f, ignore_missing=False)
+                compute_client.delete_flavor(flavor.id)
             except Exception as e:
                 result += 1
                 LOG.error(_("Failed to delete flavor with name or "
@@ -307,37 +283,63 @@ class ListFlavor(command.Lister):
         return parser
 
     def take_action(self, parsed_args):
-        compute_client = self.app.client_manager.compute
-        columns = (
-            "ID",
-            "Name",
-            "RAM",
-            "Disk",
-            "Ephemeral",
-            "VCPUs",
-            "Is Public",
-        )
-
+        compute_client = self.app.client_manager.sdk_connection.compute
         # is_public is ternary - None means give all flavors,
         # True is public only and False is private only
         # By default Nova assumes True and gives admins public flavors
         # and flavors from their own projects only.
         is_public = None if parsed_args.all else parsed_args.public
 
-        data = compute_client.flavors.list(is_public=is_public,
-                                           marker=parsed_args.marker,
-                                           limit=parsed_args.limit)
+        query_attrs = {
+            'is_public': is_public
+        }
+        if parsed_args.marker:
+            query_attrs['marker'] = parsed_args.marker
+        if parsed_args.limit:
+            query_attrs['limit'] = parsed_args.limit
+        if parsed_args.limit or parsed_args.marker:
+            # User passed explicit pagination request, switch off SDK
+            # pagination
+            query_attrs['paginated'] = False
 
+        data = list(compute_client.flavors(**query_attrs))
+        # Even if server supports 2.61 some policy might stop it sending us
+        # extra_specs. So try to fetch them if they are absent
+        for f in data:
+            if not f.extra_specs:
+                compute_client.fetch_flavor_extra_specs(f)
+
+        columns = (
+            "id",
+            "name",
+            "ram",
+            "disk",
+            "ephemeral",
+            "vcpus",
+            "is_public"
+        )
         if parsed_args.long:
-            columns = columns + (
+            columns += (
+                "swap",
+                "rxtx_factor",
+                "extra_specs",
+            )
+
+        column_headers = (
+            "ID",
+            "Name",
+            "RAM",
+            "Disk",
+            "Ephemeral",
+            "VCPUs",
+            "Is Public"
+        )
+        if parsed_args.long:
+            column_headers += (
                 "Swap",
                 "RXTX Factor",
                 "Properties",
             )
-            for f in data:
-                f.properties = f.get_keys()
-
-        column_headers = columns
 
         return (column_headers,
                 (utils.get_item_properties(
@@ -387,24 +389,42 @@ class SetFlavor(command.Command):
         return parser
 
     def take_action(self, parsed_args):
-        compute_client = self.app.client_manager.compute
+        compute_client = self.app.client_manager.sdk_connection.compute
         identity_client = self.app.client_manager.identity
 
-        flavor = _find_flavor(compute_client, parsed_args.flavor)
+        try:
+            flavor = compute_client.find_flavor(
+                parsed_args.flavor,
+                get_extra_specs=True,
+                ignore_missing=False)
+        except sdk_exceptions.ResourceNotFound as e:
+            raise exceptions.CommandError(e.message)
+
+        if parsed_args.description:
+            if not sdk_utils.supports_microversion(compute_client, '2.55'):
+                msg = _(
+                    'The --description parameter requires server support for '
+                    'API microversion 2.55'
+                )
+                raise exceptions.CommandError(msg)
+
+            compute_client.update_flavor(
+                flavor=flavor.id, description=parsed_args.description)
 
         result = 0
-        key_list = []
         if parsed_args.no_property:
             try:
-                for key in flavor.get_keys().keys():
-                    key_list.append(key)
-                flavor.unset_keys(key_list)
+                for key in flavor.extra_specs.keys():
+                    compute_client.delete_flavor_extra_specs_property(
+                        flavor.id, key)
             except Exception as e:
                 LOG.error(_("Failed to clear flavor property: %s"), e)
                 result += 1
+
         if parsed_args.property:
             try:
-                flavor.set_keys(parsed_args.property)
+                compute_client.create_flavor_extra_specs(
+                    flavor.id, parsed_args.property)
             except Exception as e:
                 LOG.error(_("Failed to set flavor property: %s"), e)
                 result += 1
@@ -420,7 +440,7 @@ class SetFlavor(command.Command):
                         parsed_args.project,
                         parsed_args.project_domain,
                     ).id
-                    compute_client.flavor_access.add_tenant_access(
+                    compute_client.flavor_add_tenant_access(
                         flavor.id, project_id)
             except Exception as e:
                 LOG.error(_("Failed to set flavor access to project: %s"), e)
@@ -429,13 +449,6 @@ class SetFlavor(command.Command):
         if result > 0:
             raise exceptions.CommandError(_("Command Failed: One or more of"
                                             " the operations failed"))
-
-        if parsed_args.description:
-            if compute_client.api_version < api_versions.APIVersion("2.55"):
-                msg = _("--os-compute-api-version 2.55 or later is required")
-                raise exceptions.CommandError(msg)
-            compute_client.flavors.update(flavor=flavor.id,
-                                          description=parsed_args.description)
 
 
 class ShowFlavor(command.ShowOne):
@@ -451,35 +464,32 @@ class ShowFlavor(command.ShowOne):
         return parser
 
     def take_action(self, parsed_args):
-        compute_client = self.app.client_manager.compute
-        resource_flavor = _find_flavor(compute_client, parsed_args.flavor)
+        compute_client = self.app.client_manager.sdk_connection.compute
+        flavor = compute_client.find_flavor(
+            parsed_args.flavor, get_extra_specs=True, ignore_missing=False)
 
         access_projects = None
         # get access projects list of this flavor
-        if not resource_flavor.is_public:
+        if not flavor.is_public:
             try:
-                flavor_access = compute_client.flavor_access.list(
-                    flavor=resource_flavor.id)
-                access_projects = [utils.get_field(access, 'tenant_id')
-                                   for access in flavor_access]
+                flavor_access = compute_client.get_flavor_access(
+                    flavor=flavor.id)
+                access_projects = [
+                    utils.get_field(access, 'tenant_id')
+                    for access in flavor_access]
             except Exception as e:
                 msg = _("Failed to get access projects list "
                         "for flavor '%(flavor)s': %(e)s")
                 LOG.error(msg, {'flavor': parsed_args.flavor, 'e': e})
 
-        flavor = resource_flavor._info.copy()
-        flavor.update({
-            'access_project_ids': access_projects
-        })
-
-        flavor['properties'] = resource_flavor.get_keys()
+        # Since we need to inject "access_project_id" into resource - convert
+        # it to dict and treat it respectively
+        flavor = flavor.to_dict()
+        flavor['access_project_ids'] = access_projects
 
         display_columns, columns = _get_flavor_columns(flavor)
         data = utils.get_dict_properties(
-            flavor, columns,
-            formatters=_formatters,
-            mixed_case_fields=['OS-FLV-DISABLED:disabled',
-                               'OS-FLV-EXT-DATA:ephemeral'])
+            flavor, columns, formatters=_formatters)
 
         return (display_columns, data)
 
@@ -512,32 +522,40 @@ class UnsetFlavor(command.Command):
         return parser
 
     def take_action(self, parsed_args):
-        compute_client = self.app.client_manager.compute
+        compute_client = self.app.client_manager.sdk_connection.compute
         identity_client = self.app.client_manager.identity
 
-        flavor = _find_flavor(compute_client, parsed_args.flavor)
+        try:
+            flavor = compute_client.find_flavor(
+                parsed_args.flavor,
+                get_extra_specs=True,
+                ignore_missing=False)
+        except sdk_exceptions.ResourceNotFound as e:
+            raise exceptions.CommandError(_(e.message))
 
         result = 0
         if parsed_args.property:
-            try:
-                flavor.unset_keys(parsed_args.property)
-            except Exception as e:
-                LOG.error(_("Failed to unset flavor property: %s"), e)
-                result += 1
+            for key in parsed_args.property:
+                try:
+                    compute_client.delete_flavor_extra_specs_property(
+                        flavor.id, key)
+                except sdk_exceptions.SDKException as e:
+                    LOG.error(_("Failed to unset flavor property: %s"), e)
+                    result += 1
 
         if parsed_args.project:
             try:
                 if flavor.is_public:
                     msg = _("Cannot remove access for a public flavor")
                     raise exceptions.CommandError(msg)
-                else:
-                    project_id = identity_common.find_project(
-                        identity_client,
-                        parsed_args.project,
-                        parsed_args.project_domain,
-                    ).id
-                    compute_client.flavor_access.remove_tenant_access(
-                        flavor.id, project_id)
+
+                project_id = identity_common.find_project(
+                    identity_client,
+                    parsed_args.project,
+                    parsed_args.project_domain,
+                ).id
+                compute_client.flavor_remove_tenant_access(
+                    flavor.id, project_id)
             except Exception as e:
                 LOG.error(_("Failed to remove flavor access from project: %s"),
                           e)
