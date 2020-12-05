@@ -2440,47 +2440,57 @@ class RebuildServer(command.ShowOne):
         parser.add_argument(
             '--image',
             metavar='<image>',
-            help=_('Recreate server from the specified image (name or ID).'
-                   ' Defaults to the currently used one.'),
+            help=_(
+                'Recreate server from the specified image (name or ID).'
+                'Defaults to the currently used one.'
+            ),
         )
         parser.add_argument(
             '--password',
             metavar='<password>',
-            help=_("Set the password on the rebuilt instance"),
+            help=_('Set a password on the rebuilt server'),
         )
         parser.add_argument(
             '--property',
             metavar='<key=value>',
             action=parseractions.KeyValueAction,
-            help=_('Set a property on the rebuilt instance '
-                   '(repeat option to set multiple values)'),
+            help=_(
+                'Set a new property on the rebuilt server '
+                '(repeat option to set multiple values)'
+            ),
         )
         parser.add_argument(
             '--description',
             metavar='<description>',
-            help=_('New description for the server (supported by '
-                   '--os-compute-api-version 2.19 or above'),
-        )
-        parser.add_argument(
-            '--wait',
-            action='store_true',
-            help=_('Wait for rebuild to complete'),
+            help=_(
+                'Set a new description on the rebuilt server '
+                '(supported by --os-compute-api-version 2.19 or above)'
+            ),
         )
         key_group = parser.add_mutually_exclusive_group()
         key_group.add_argument(
             '--key-name',
             metavar='<key-name>',
-            help=_("Set the key name of key pair on the rebuilt instance."
-                   " Cannot be specified with the '--key-unset' option."
-                   " (Supported by API versions '2.54' - '2.latest')"),
+            help=_(
+                'Set the key name of key pair on the rebuilt server. '
+                'Cannot be specified with the --key-unset option. '
+                '(supported by --os-compute-api-version 2.54 or above)'
+            ),
         )
         key_group.add_argument(
             '--key-unset',
             action='store_true',
             default=False,
-            help=_("Unset the key name of key pair on the rebuilt instance."
-                   " Cannot be specified with the '--key-name' option."
-                   " (Supported by API versions '2.54' - '2.latest')"),
+            help=_(
+                'Unset the key name of key pair on the rebuilt server. '
+                'Cannot be specified with the --key-name option. '
+                '(supported by --os-compute-api-version 2.54 or above)'
+            ),
+        )
+        parser.add_argument(
+            '--wait',
+            action='store_true',
+            help=_('Wait for rebuild to complete'),
         )
         return parser
 
@@ -2506,24 +2516,38 @@ class RebuildServer(command.ShowOne):
             image = image_client.get_image(image_id)
 
         kwargs = {}
+
         if parsed_args.property:
             kwargs['meta'] = parsed_args.property
+
         if parsed_args.description:
             if server.api_version < api_versions.APIVersion("2.19"):
-                msg = _("Description is not supported for "
-                        "--os-compute-api-version less than 2.19")
+                msg = _(
+                    '--os-compute-api-version 2.19 or greater is required to '
+                    'support the --description option'
+                )
                 raise exceptions.CommandError(msg)
+
             kwargs['description'] = parsed_args.description
 
-        if parsed_args.key_name or parsed_args.key_unset:
+        if parsed_args.key_name:
             if compute_client.api_version < api_versions.APIVersion('2.54'):
-                msg = _('--os-compute-api-version 2.54 or later is required')
+                msg = _(
+                    '--os-compute-api-version 2.54 or greater is required to '
+                    'support the --key-name option'
+                )
                 raise exceptions.CommandError(msg)
 
-        if parsed_args.key_unset:
-            kwargs['key_name'] = None
-        if parsed_args.key_name:
             kwargs['key_name'] = parsed_args.key_name
+        elif parsed_args.key_unset:
+            if compute_client.api_version < api_versions.APIVersion('2.54'):
+                msg = _(
+                    '--os-compute-api-version 2.54 or greater is required to '
+                    'support the --no-key-name option'
+                )
+                raise exceptions.CommandError(msg)
+
+            kwargs['key_name'] = None
 
         server = server.rebuild(image, parsed_args.password, **kwargs)
         if parsed_args.wait:
@@ -2534,13 +2558,12 @@ class RebuildServer(command.ShowOne):
             ):
                 self.app.stdout.write(_('Complete\n'))
             else:
-                LOG.error(_('Error rebuilding server: %s'),
-                          server.id)
+                LOG.error(_('Error rebuilding server: %s'), server.id)
                 self.app.stdout.write(_('Error rebuilding server\n'))
                 raise SystemExit
 
-        details = _prep_server_detail(compute_client, image_client, server,
-                                      refresh=False)
+        details = _prep_server_detail(
+            compute_client, image_client, server, refresh=False)
         return zip(*sorted(details.items()))
 
 
