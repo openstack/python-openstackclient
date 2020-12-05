@@ -1,0 +1,4 @@
+---
+features:
+  - Switch aggregate operations to use SDK
+  - Adds 'aggregate cache image' operation

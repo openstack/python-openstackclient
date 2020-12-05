@@ -16,12 +16,14 @@
 from unittest import mock
 from unittest.mock import call
 
+from openstack import exceptions as sdk_exceptions
+from openstack import utils as sdk_utils
 from osc_lib.cli import format_columns
 from osc_lib import exceptions
-from osc_lib import utils
 
 from openstackclient.compute.v2 import aggregate
 from openstackclient.tests.unit.compute.v2 import fakes as compute_fakes
+from openstackclient.tests.unit.image.v2 import fakes as image_fakes
 
 
 class TestAggregate(compute_fakes.TestComputev2):
@@ -48,8 +50,17 @@ class TestAggregate(compute_fakes.TestComputev2):
         super(TestAggregate, self).setUp()
 
         # Get a shortcut to the AggregateManager Mock
-        self.aggregate_mock = self.app.client_manager.compute.aggregates
-        self.aggregate_mock.reset_mock()
+        self.app.client_manager.sdk_connection = mock.Mock()
+        self.app.client_manager.sdk_connection.compute = mock.Mock()
+        self.sdk_client = self.app.client_manager.sdk_connection.compute
+        self.sdk_client.aggregates = mock.Mock()
+        self.sdk_client.find_aggregate = mock.Mock()
+        self.sdk_client.create_aggregate = mock.Mock()
+        self.sdk_client.update_aggregate = mock.Mock()
+        self.sdk_client.update_aggregate = mock.Mock()
+        self.sdk_client.set_aggregate_metadata = mock.Mock()
+        self.sdk_client.add_host_to_aggregate = mock.Mock()
+        self.sdk_client.remove_host_from_aggregate = mock.Mock()
 
 
 class TestAggregateAddHost(TestAggregate):
@@ -57,8 +68,8 @@ class TestAggregateAddHost(TestAggregate):
     def setUp(self):
         super(TestAggregateAddHost, self).setUp()
 
-        self.aggregate_mock.get.return_value = self.fake_ag
-        self.aggregate_mock.add_host.return_value = self.fake_ag
+        self.sdk_client.find_aggregate.return_value = self.fake_ag
+        self.sdk_client.add_host_to_aggregate.return_value = self.fake_ag
         self.cmd = aggregate.AddAggregateHost(self.app, None)
 
     def test_aggregate_add_host(self):
@@ -72,9 +83,10 @@ class TestAggregateAddHost(TestAggregate):
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
         columns, data = self.cmd.take_action(parsed_args)
-        self.aggregate_mock.get.assert_called_once_with(parsed_args.aggregate)
-        self.aggregate_mock.add_host.assert_called_once_with(self.fake_ag,
-                                                             parsed_args.host)
+        self.sdk_client.find_aggregate.assert_called_once_with(
+            parsed_args.aggregate, ignore_missing=False)
+        self.sdk_client.add_host_to_aggregate.assert_called_once_with(
+            self.fake_ag.id, parsed_args.host)
         self.assertEqual(self.columns, columns)
         self.assertItemEqual(self.data, data)
 
@@ -84,8 +96,8 @@ class TestAggregateCreate(TestAggregate):
     def setUp(self):
         super(TestAggregateCreate, self).setUp()
 
-        self.aggregate_mock.create.return_value = self.fake_ag
-        self.aggregate_mock.set_metadata.return_value = self.fake_ag
+        self.sdk_client.create_aggregate.return_value = self.fake_ag
+        self.sdk_client.set_aggregate_metadata.return_value = self.fake_ag
         self.cmd = aggregate.CreateAggregate(self.app, None)
 
     def test_aggregate_create(self):
@@ -97,8 +109,8 @@ class TestAggregateCreate(TestAggregate):
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
         columns, data = self.cmd.take_action(parsed_args)
-        self.aggregate_mock.create.assert_called_once_with(parsed_args.name,
-                                                           None)
+        self.sdk_client.create_aggregate.assert_called_once_with(
+            name=parsed_args.name)
         self.assertEqual(self.columns, columns)
         self.assertItemEqual(self.data, data)
 
@@ -114,8 +126,8 @@ class TestAggregateCreate(TestAggregate):
 
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
         columns, data = self.cmd.take_action(parsed_args)
-        self.aggregate_mock.create.assert_called_once_with(parsed_args.name,
-                                                           parsed_args.zone)
+        self.sdk_client.create_aggregate.assert_called_once_with(
+            name=parsed_args.name, availability_zone=parsed_args.zone)
         self.assertEqual(self.columns, columns)
         self.assertItemEqual(self.data, data)
 
@@ -131,10 +143,10 @@ class TestAggregateCreate(TestAggregate):
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
         columns, data = self.cmd.take_action(parsed_args)
-        self.aggregate_mock.create.assert_called_once_with(parsed_args.name,
-                                                           None)
-        self.aggregate_mock.set_metadata.assert_called_once_with(
-            self.fake_ag, parsed_args.property)
+        self.sdk_client.create_aggregate.assert_called_once_with(
+            name=parsed_args.name)
+        self.sdk_client.set_aggregate_metadata.assert_called_once_with(
+            self.fake_ag.id, parsed_args.property)
         self.assertEqual(self.columns, columns)
         self.assertItemEqual(self.data, data)
 
@@ -146,7 +158,7 @@ class TestAggregateDelete(TestAggregate):
     def setUp(self):
         super(TestAggregateDelete, self).setUp()
 
-        self.aggregate_mock.get = (
+        self.sdk_client.find_aggregate = (
             compute_fakes.FakeAggregate.get_aggregates(self.fake_ags))
         self.cmd = aggregate.DeleteAggregate(self.app, None)
 
@@ -158,10 +170,11 @@ class TestAggregateDelete(TestAggregate):
             ('aggregate', [self.fake_ags[0].id]),
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
-        result = self.cmd.take_action(parsed_args)
-        self.aggregate_mock.get.assert_called_once_with(self.fake_ags[0].id)
-        self.aggregate_mock.delete.assert_called_once_with(self.fake_ags[0].id)
-        self.assertIsNone(result)
+        self.cmd.take_action(parsed_args)
+        self.sdk_client.find_aggregate.assert_called_once_with(
+            self.fake_ags[0].id, ignore_missing=False)
+        self.sdk_client.delete_aggregate.assert_called_once_with(
+            self.fake_ags[0].id, ignore_missing=False)
 
     def test_delete_multiple_aggregates(self):
         arglist = []
@@ -172,13 +185,13 @@ class TestAggregateDelete(TestAggregate):
         ]
 
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
-        result = self.cmd.take_action(parsed_args)
+        self.cmd.take_action(parsed_args)
 
         calls = []
         for a in self.fake_ags:
-            calls.append(call(a.id))
-        self.aggregate_mock.delete.assert_has_calls(calls)
-        self.assertIsNone(result)
+            calls.append(call(a.id, ignore_missing=False))
+        self.sdk_client.find_aggregate.assert_has_calls(calls)
+        self.sdk_client.delete_aggregate.assert_has_calls(calls)
 
     def test_delete_multiple_agggregates_with_exception(self):
         arglist = [
@@ -191,23 +204,21 @@ class TestAggregateDelete(TestAggregate):
 
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
-        find_mock_result = [self.fake_ags[0], exceptions.CommandError]
-        with mock.patch.object(utils, 'find_resource',
-                               side_effect=find_mock_result) as find_mock:
-            try:
-                self.cmd.take_action(parsed_args)
-                self.fail('CommandError should be raised.')
-            except exceptions.CommandError as e:
-                self.assertEqual('1 of 2 aggregates failed to delete.',
-                                 str(e))
+        self.sdk_client.find_aggregate.side_effect = [
+            self.fake_ags[0], sdk_exceptions.NotFoundException]
+        try:
+            self.cmd.take_action(parsed_args)
+            self.fail('CommandError should be raised.')
+        except exceptions.CommandError as e:
+            self.assertEqual('1 of 2 aggregates failed to delete.',
+                             str(e))
 
-            find_mock.assert_any_call(self.aggregate_mock, self.fake_ags[0].id)
-            find_mock.assert_any_call(self.aggregate_mock, 'unexist_aggregate')
-
-            self.assertEqual(2, find_mock.call_count)
-            self.aggregate_mock.delete.assert_called_once_with(
-                self.fake_ags[0].id
-            )
+        calls = []
+        for a in arglist:
+            calls.append(call(a, ignore_missing=False))
+        self.sdk_client.find_aggregate.assert_has_calls(calls)
+        self.sdk_client.delete_aggregate.assert_called_with(
+            self.fake_ags[0].id, ignore_missing=False)
 
 
 class TestAggregateList(TestAggregate):
@@ -245,7 +256,7 @@ class TestAggregateList(TestAggregate):
     def setUp(self):
         super(TestAggregateList, self).setUp()
 
-        self.aggregate_mock.list.return_value = [self.fake_ag]
+        self.sdk_client.aggregates.return_value = [self.fake_ag]
         self.cmd = aggregate.ListAggregate(self.app, None)
 
     def test_aggregate_list(self):
@@ -275,11 +286,11 @@ class TestAggregateRemoveHost(TestAggregate):
     def setUp(self):
         super(TestAggregateRemoveHost, self).setUp()
 
-        self.aggregate_mock.get.return_value = self.fake_ag
-        self.aggregate_mock.remove_host.return_value = self.fake_ag
+        self.sdk_client.find_aggregate.return_value = self.fake_ag
+        self.sdk_client.remove_host_from_aggregate.return_value = self.fake_ag
         self.cmd = aggregate.RemoveAggregateHost(self.app, None)
 
-    def test_aggregate_add_host(self):
+    def test_aggregate_remove_host(self):
         arglist = [
             'ag1',
             'host1',
@@ -290,9 +301,10 @@ class TestAggregateRemoveHost(TestAggregate):
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
         columns, data = self.cmd.take_action(parsed_args)
-        self.aggregate_mock.get.assert_called_once_with(parsed_args.aggregate)
-        self.aggregate_mock.remove_host.assert_called_once_with(
-            self.fake_ag, parsed_args.host)
+        self.sdk_client.find_aggregate.assert_called_once_with(
+            parsed_args.aggregate, ignore_missing=False)
+        self.sdk_client.remove_host_from_aggregate.assert_called_once_with(
+            self.fake_ag.id, parsed_args.host)
         self.assertEqual(self.columns, columns)
         self.assertItemEqual(self.data, data)
 
@@ -302,7 +314,7 @@ class TestAggregateSet(TestAggregate):
     def setUp(self):
         super(TestAggregateSet, self).setUp()
 
-        self.aggregate_mock.get.return_value = self.fake_ag
+        self.sdk_client.find_aggregate.return_value = self.fake_ag
         self.cmd = aggregate.SetAggregate(self.app, None)
 
     def test_aggregate_set_no_option(self):
@@ -315,9 +327,10 @@ class TestAggregateSet(TestAggregate):
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
         result = self.cmd.take_action(parsed_args)
 
-        self.aggregate_mock.get.assert_called_once_with(parsed_args.aggregate)
-        self.assertNotCalled(self.aggregate_mock.update)
-        self.assertNotCalled(self.aggregate_mock.set_metadata)
+        self.sdk_client.find_aggregate.assert_called_once_with(
+            parsed_args.aggregate, ignore_missing=False)
+        self.assertNotCalled(self.sdk_client.update_aggregate)
+        self.assertNotCalled(self.sdk_client.set_aggregate_metadata)
         self.assertIsNone(result)
 
     def test_aggregate_set_with_name(self):
@@ -332,10 +345,11 @@ class TestAggregateSet(TestAggregate):
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
         result = self.cmd.take_action(parsed_args)
 
-        self.aggregate_mock.get.assert_called_once_with(parsed_args.aggregate)
-        self.aggregate_mock.update.assert_called_once_with(
-            self.fake_ag, {'name': parsed_args.name})
-        self.assertNotCalled(self.aggregate_mock.set_metadata)
+        self.sdk_client.find_aggregate.assert_called_once_with(
+            parsed_args.aggregate, ignore_missing=False)
+        self.sdk_client.update_aggregate.assert_called_once_with(
+            self.fake_ag.id, name=parsed_args.name)
+        self.assertNotCalled(self.sdk_client.set_aggregate_metadata)
         self.assertIsNone(result)
 
     def test_aggregate_set_with_zone(self):
@@ -350,10 +364,11 @@ class TestAggregateSet(TestAggregate):
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
         result = self.cmd.take_action(parsed_args)
 
-        self.aggregate_mock.get.assert_called_once_with(parsed_args.aggregate)
-        self.aggregate_mock.update.assert_called_once_with(
-            self.fake_ag, {'availability_zone': parsed_args.zone})
-        self.assertNotCalled(self.aggregate_mock.set_metadata)
+        self.sdk_client.find_aggregate.assert_called_once_with(
+            parsed_args.aggregate, ignore_missing=False)
+        self.sdk_client.update_aggregate.assert_called_once_with(
+            self.fake_ag.id, availability_zone=parsed_args.zone)
+        self.assertNotCalled(self.sdk_client.set_aggregate_metadata)
         self.assertIsNone(result)
 
     def test_aggregate_set_with_property(self):
@@ -369,10 +384,11 @@ class TestAggregateSet(TestAggregate):
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
         result = self.cmd.take_action(parsed_args)
 
-        self.aggregate_mock.get.assert_called_once_with(parsed_args.aggregate)
-        self.assertNotCalled(self.aggregate_mock.update)
-        self.aggregate_mock.set_metadata.assert_called_once_with(
-            self.fake_ag, parsed_args.property)
+        self.sdk_client.find_aggregate.assert_called_once_with(
+            parsed_args.aggregate, ignore_missing=False)
+        self.assertNotCalled(self.sdk_client.update_aggregate)
+        self.sdk_client.set_aggregate_metadata.assert_called_once_with(
+            self.fake_ag.id, parsed_args.property)
         self.assertIsNone(result)
 
     def test_aggregate_set_with_no_property_and_property(self):
@@ -388,10 +404,11 @@ class TestAggregateSet(TestAggregate):
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
         result = self.cmd.take_action(parsed_args)
-        self.aggregate_mock.get.assert_called_once_with(parsed_args.aggregate)
-        self.assertNotCalled(self.aggregate_mock.update)
-        self.aggregate_mock.set_metadata.assert_called_once_with(
-            self.fake_ag, {'key1': None, 'key2': 'value2'})
+        self.sdk_client.find_aggregate.assert_called_once_with(
+            parsed_args.aggregate, ignore_missing=False)
+        self.assertNotCalled(self.sdk_client.update_aggregate)
+        self.sdk_client.set_aggregate_metadata.assert_called_once_with(
+            self.fake_ag.id, {'key1': None, 'key2': 'value2'})
         self.assertIsNone(result)
 
     def test_aggregate_set_with_no_property(self):
@@ -405,10 +422,11 @@ class TestAggregateSet(TestAggregate):
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
         result = self.cmd.take_action(parsed_args)
-        self.aggregate_mock.get.assert_called_once_with(parsed_args.aggregate)
-        self.assertNotCalled(self.aggregate_mock.update)
-        self.aggregate_mock.set_metadata.assert_called_once_with(
-            self.fake_ag, {'key1': None})
+        self.sdk_client.find_aggregate.assert_called_once_with(
+            parsed_args.aggregate, ignore_missing=False)
+        self.assertNotCalled(self.sdk_client.update_aggregate)
+        self.sdk_client.set_aggregate_metadata.assert_called_once_with(
+            self.fake_ag.id, {'key1': None})
         self.assertIsNone(result)
 
     def test_aggregate_set_with_zone_and_no_property(self):
@@ -424,11 +442,12 @@ class TestAggregateSet(TestAggregate):
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
         result = self.cmd.take_action(parsed_args)
-        self.aggregate_mock.get.assert_called_once_with(parsed_args.aggregate)
-        self.aggregate_mock.update.assert_called_once_with(
-            self.fake_ag, {'availability_zone': parsed_args.zone})
-        self.aggregate_mock.set_metadata.assert_called_once_with(
-            self.fake_ag, {'key1': None})
+        self.sdk_client.find_aggregate.assert_called_once_with(
+            parsed_args.aggregate, ignore_missing=False)
+        self.sdk_client.update_aggregate.assert_called_once_with(
+            self.fake_ag.id, availability_zone=parsed_args.zone)
+        self.sdk_client.set_aggregate_metadata.assert_called_once_with(
+            self.fake_ag.id, {'key1': None})
         self.assertIsNone(result)
 
 
@@ -457,7 +476,7 @@ class TestAggregateShow(TestAggregate):
     def setUp(self):
         super(TestAggregateShow, self).setUp()
 
-        self.aggregate_mock.get.return_value = self.fake_ag
+        self.sdk_client.find_aggregate.return_value = self.fake_ag
         self.cmd = aggregate.ShowAggregate(self.app, None)
 
     def test_aggregate_show(self):
@@ -469,7 +488,8 @@ class TestAggregateShow(TestAggregate):
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
         columns, data = self.cmd.take_action(parsed_args)
-        self.aggregate_mock.get.assert_called_once_with(parsed_args.aggregate)
+        self.sdk_client.find_aggregate.assert_called_once_with(
+            parsed_args.aggregate, ignore_missing=False)
 
         self.assertEqual(self.columns, columns)
         self.assertItemEqual(self.data, tuple(data))
@@ -480,7 +500,7 @@ class TestAggregateUnset(TestAggregate):
     def setUp(self):
         super(TestAggregateUnset, self).setUp()
 
-        self.aggregate_mock.get.return_value = self.fake_ag
+        self.sdk_client.find_aggregate.return_value = self.fake_ag
         self.cmd = aggregate.UnsetAggregate(self.app, None)
 
     def test_aggregate_unset(self):
@@ -495,7 +515,7 @@ class TestAggregateUnset(TestAggregate):
 
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
         result = self.cmd.take_action(parsed_args)
-        self.aggregate_mock.set_metadata.assert_called_once_with(
+        self.sdk_client.set_aggregate_metadata.assert_called_once_with(
             self.fake_ag, {'unset_key': None})
         self.assertIsNone(result)
 
@@ -512,7 +532,7 @@ class TestAggregateUnset(TestAggregate):
 
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
         result = self.cmd.take_action(parsed_args)
-        self.aggregate_mock.set_metadata.assert_called_once_with(
+        self.sdk_client.set_aggregate_metadata.assert_called_once_with(
             self.fake_ag, {'unset_key1': None, 'unset_key2': None})
         self.assertIsNone(result)
 
@@ -526,5 +546,72 @@ class TestAggregateUnset(TestAggregate):
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
         result = self.cmd.take_action(parsed_args)
-        self.assertNotCalled(self.aggregate_mock.set_metadata)
+        self.assertNotCalled(self.sdk_client.set_aggregate_metadata)
         self.assertIsNone(result)
+
+
+class TestAggregateCacheImage(TestAggregate):
+
+    images = image_fakes.FakeImage.create_images(count=2)
+
+    def setUp(self):
+        super(TestAggregateCacheImage, self).setUp()
+
+        self.sdk_client.find_aggregate.return_value = self.fake_ag
+        self.find_image_mock = mock.Mock(side_effect=self.images)
+        self.app.client_manager.sdk_connection.image.find_image = \
+            self.find_image_mock
+
+        self.cmd = aggregate.CacheImageForAggregate(self.app, None)
+
+    @mock.patch.object(sdk_utils, 'supports_microversion', return_value=False)
+    def test_aggregate_not_supported(self, sm_mock):
+        arglist = [
+            'ag1',
+            'im1'
+        ]
+        verifylist = [
+            ('aggregate', 'ag1'),
+            ('image', ['im1']),
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+        self.assertRaises(
+            exceptions.CommandError,
+            self.cmd.take_action,
+            parsed_args
+        )
+
+    @mock.patch.object(sdk_utils, 'supports_microversion', return_value=True)
+    def test_aggregate_add_single_image(self, sm_mock):
+        arglist = [
+            'ag1',
+            'im1'
+        ]
+        verifylist = [
+            ('aggregate', 'ag1'),
+            ('image', ['im1']),
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+        self.cmd.take_action(parsed_args)
+        self.sdk_client.find_aggregate.assert_called_once_with(
+            parsed_args.aggregate, ignore_missing=False)
+        self.sdk_client.aggregate_precache_images.assert_called_once_with(
+            self.fake_ag.id, [self.images[0].id])
+
+    @mock.patch.object(sdk_utils, 'supports_microversion', return_value=True)
+    def test_aggregate_add_multiple_images(self, sm_mock):
+        arglist = [
+            'ag1',
+            'im1',
+            'im2',
+        ]
+        verifylist = [
+            ('aggregate', 'ag1'),
+            ('image', ['im1', 'im2']),
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+        self.cmd.take_action(parsed_args)
+        self.sdk_client.find_aggregate.assert_called_once_with(
+            parsed_args.aggregate, ignore_missing=False)
+        self.sdk_client.aggregate_precache_images.assert_called_once_with(
+            self.fake_ag.id, [self.images[0].id, self.images[1].id])
