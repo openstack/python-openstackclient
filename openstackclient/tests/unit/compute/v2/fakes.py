@@ -1631,22 +1631,3 @@ class FakeServerMigration(object):
                     attrs, methods))
 
         return migrations
-
-    @staticmethod
-    def get_server_migrations(migrations=None, count=2):
-        """Get an iterable MagicMock object with a list of faked migrations.
-
-        If server migrations list is provided, then initialize the Mock object
-        with the list. Otherwise create one.
-
-        :param List migrations:
-            A list of FakeResource objects faking server migrations
-        :param int count:
-            The number of server migrations to fake
-        :return:
-            An iterable Mock object with side_effect set to a list of faked
-            server migrations
-        """
-        if migrations is None:
-            migrations = FakeServerMigration.create_server_migrations(count)
-        return mock.Mock(side_effect=migrations)
