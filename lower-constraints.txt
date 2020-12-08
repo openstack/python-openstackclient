@@ -113,7 +113,7 @@ python-watcherclient==2.5.0
 python-zaqarclient==1.0.0
 python-zunclient==3.6.0
 pytz==2013.6
-PyYAML==3.12
+PyYAML==3.13
 repoze.lru==0.7
 requests-mock==1.2.0
 requests==2.14.2
