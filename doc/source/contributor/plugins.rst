@@ -37,7 +37,6 @@ The following is a list of projects that are an OpenStackClient plugin.
 - python-octaviaclient
 - python-rsdclient
 - python-saharaclient
-- python-searchlightclient
 - python-senlinclient
 - python-tripleoclient\*\*
 - python-troveclient
