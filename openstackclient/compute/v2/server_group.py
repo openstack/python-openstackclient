@@ -150,11 +150,47 @@ class ListServerGroup(command.Lister):
             default=False,
             help=_("List additional fields in output")
         )
+        # TODO(stephenfin): This should really be a --marker option, but alas
+        # the API doesn't support that for some reason
+        parser.add_argument(
+            '--offset',
+            metavar='<offset>',
+            type=int,
+            default=None,
+            help=_(
+                'Index from which to start listing servers. This should '
+                'typically be a factor of --limit. Display all servers groups '
+                'if not specified.'
+            ),
+        )
+        parser.add_argument(
+            '--limit',
+            metavar='<limit>',
+            type=int,
+            default=None,
+            help=_(
+                "Maximum number of server groups to display. "
+                "If limit is greater than 'osapi_max_limit' option of Nova "
+                "API, 'osapi_max_limit' will be used instead."
+            ),
+        )
         return parser
 
     def take_action(self, parsed_args):
         compute_client = self.app.client_manager.compute
-        data = compute_client.server_groups.list(parsed_args.all_projects)
+
+        kwargs = {}
+
+        if parsed_args.all_projects:
+            kwargs['all_projects'] = parsed_args.all_projects
+
+        if parsed_args.offset:
+            kwargs['offset'] = parsed_args.offset
+
+        if parsed_args.limit:
+            kwargs['limit'] = parsed_args.limit
+
+        data = compute_client.server_groups.list(**kwargs)
 
         policy_key = 'Policies'
         if compute_client.api_version >= api_versions.APIVersion("2.64"):
