@@ -98,16 +98,6 @@ def _get_ip_address(addresses, address_type, ip_address_family):
     )
 
 
-def _prefix_checked_value(prefix):
-    def func(value):
-        if ',' in value or '=' in value:
-            msg = _("Invalid argument %s, "
-                    "characters ',' and '=' are not allowed") % value
-            raise argparse.ArgumentTypeError(msg)
-        return prefix + value
-    return func
-
-
 def _prep_server_detail(compute_client, image_client, server, refresh=True):
     """Prepare the detailed server dict for printing
 
@@ -611,6 +601,81 @@ class AddServerVolume(command.Command):
         )
 
 
+# TODO(stephenfin): Replace with 'MultiKeyValueAction' when we no longer
+# support '--nic=auto' and '--nic=none'
+class NICAction(argparse.Action):
+
+    def __init__(
+        self,
+        option_strings,
+        dest,
+        nargs=None,
+        const=None,
+        default=None,
+        type=None,
+        choices=None,
+        required=False,
+        help=None,
+        metavar=None,
+        key=None,
+    ):
+        self.key = key
+        super().__init__(
+            option_strings=option_strings, dest=dest, nargs=nargs, const=const,
+            default=default, type=type, choices=choices, required=required,
+            help=help, metavar=metavar,
+        )
+
+    def __call__(self, parser, namespace, values, option_string=None):
+        # Make sure we have an empty dict rather than None
+        if getattr(namespace, self.dest, None) is None:
+            setattr(namespace, self.dest, [])
+
+        # Handle the special auto/none cases
+        if values in ('auto', 'none'):
+            getattr(namespace, self.dest).append(values)
+            return
+
+        if self.key:
+            if ',' in values or '=' in values:
+                msg = _(
+                    "Invalid argument %s; characters ',' and '=' are not "
+                    "allowed"
+                )
+                raise argparse.ArgumentTypeError(msg % values)
+
+            values = '='.join([self.key, values])
+
+        info = {
+            'net-id': '',
+            'port-id': '',
+            'v4-fixed-ip': '',
+            'v6-fixed-ip': '',
+        }
+
+        for kv_str in values.split(','):
+            k, sep, v = kv_str.partition("=")
+
+            if k not in info or not v:
+                msg = _(
+                    "Invalid argument %s; argument must be of form "
+                    "'net-id=net-uuid,v4-fixed-ip=ip-addr,v6-fixed-ip=ip-addr,"
+                    "port-id=port-uuid'"
+                )
+                raise argparse.ArgumentTypeError(msg % values)
+
+            info[k] = v
+
+        if info['net-id'] and info['port-id']:
+            msg = _(
+                'Invalid argument %s; either network or port should be '
+                'specified but not both'
+            )
+            raise argparse.ArgumentTypeError(msg % values)
+
+        getattr(namespace, self.dest).append(info)
+
+
 class CreateServer(command.ShowOne):
     _description = _("Create a new server")
 
@@ -701,9 +766,10 @@ class CreateServer(command.ShowOne):
         parser.add_argument(
             '--network',
             metavar="<network>",
-            action='append',
-            dest='nic',
-            type=_prefix_checked_value('net-id='),
+            dest='nics',
+            default=[],
+            action=NICAction,
+            key='net-id',
             # NOTE(RuiChen): Add '\n' to the end of line to improve formatting;
             # see cliff's _SmartHelpFormatter for more details.
             help=_(
@@ -719,9 +785,10 @@ class CreateServer(command.ShowOne):
         parser.add_argument(
             '--port',
             metavar="<port>",
-            action='append',
-            dest='nic',
-            type=_prefix_checked_value('port-id='),
+            dest='nics',
+            default=[],
+            action=NICAction,
+            key='port-id',
             help=_(
                 "Create a NIC on the server and connect it to port. "
                 "Specify option multiple times to create multiple NICs. "
@@ -733,21 +800,28 @@ class CreateServer(command.ShowOne):
         )
         parser.add_argument(
             '--nic',
-            metavar="<net-id=net-uuid,v4-fixed-ip=ip-addr,v6-fixed-ip=ip-addr,"
-                    "port-id=port-uuid,auto,none>",
-            action='append',
+            metavar="<net-id=net-uuid,port-id=port-uuid,v4-fixed-ip=ip-addr,"
+                    "v6-fixed-ip=ip-addr,auto,none>",
+            action=NICAction,
+            dest='nics',
+            default=[],
             help=_(
-                "Create a NIC on the server. "
-                "Specify option multiple times to create multiple NICs. "
-                "Either net-id or port-id must be provided, but not both. "
-                "net-id: attach NIC to network with this UUID, "
-                "port-id: attach NIC to port with this UUID, "
-                "v4-fixed-ip: IPv4 fixed address for NIC (optional), "
-                "v6-fixed-ip: IPv6 fixed address for NIC (optional), "
-                "none: (v2.37+) no network is attached, "
+                "Create a NIC on the server.\n"
+                "NIC in the format:\n"
+                "net-id=<net-uuid>: attach NIC to network with this UUID,\n"
+                "port-id=<port-uuid>: attach NIC to port with this UUID,\n"
+                "v4-fixed-ip=<ip-addr>: IPv4 fixed address for NIC (optional),"
+                "\n"
+                "v6-fixed-ip=<ip-addr>: IPv6 fixed address for NIC (optional),"
+                "\n"
+                "none: (v2.37+) no network is attached,\n"
                 "auto: (v2.37+) the compute service will automatically "
-                "allocate a network. Specifying a --nic of auto or none "
-                "cannot be used with any other --nic value."
+                "allocate a network.\n"
+                "\n"
+                "Specify option multiple times to create multiple NICs.\n"
+                "Specifying a --nic of auto or none cannot be used with any "
+                "other --nic value.\n"
+                "Either net-id or port-id must be provided, but not both."
             ),
         )
         parser.add_argument(
@@ -1103,84 +1177,55 @@ class CreateServer(command.ShowOne):
                 raise exceptions.CommandError(msg)
             block_device_mapping_v2.append(mapping)
 
-        nics = []
-        auto_or_none = False
-        if parsed_args.nic is None:
-            parsed_args.nic = []
-        for nic_str in parsed_args.nic:
-            # Handle the special auto/none cases
-            if nic_str in ('auto', 'none'):
-                auto_or_none = True
-                nics.append(nic_str)
-            else:
-                nic_info = {
-                    'net-id': '',
-                    'v4-fixed-ip': '',
-                    'v6-fixed-ip': '',
-                    'port-id': '',
-                }
-                for kv_str in nic_str.split(","):
-                    k, sep, v = kv_str.partition("=")
-                    if k in nic_info and v:
-                        nic_info[k] = v
-                    else:
-                        msg = _(
-                            "Invalid nic argument '%s'. Nic arguments "
-                            "must be of the form --nic <net-id=net-uuid"
-                            ",v4-fixed-ip=ip-addr,v6-fixed-ip=ip-addr,"
-                            "port-id=port-uuid>."
-                        )
-                        raise exceptions.CommandError(msg % k)
+        nics = parsed_args.nics
 
-                if bool(nic_info["net-id"]) == bool(nic_info["port-id"]):
-                    msg = _(
-                        'Either network or port should be specified '
-                        'but not both'
-                    )
-                    raise exceptions.CommandError(msg)
+        if 'auto' in nics or 'none' in nics:
+            if len(nics) > 1:
+                msg = _(
+                    'Specifying a --nic of auto or none cannot '
+                    'be used with any other --nic, --network '
+                    'or --port value.'
+                )
+                raise exceptions.CommandError(msg)
 
+            nics = nics[0]
+        else:
+            for nic in nics:
                 if self.app.client_manager.is_network_endpoint_enabled():
                     network_client = self.app.client_manager.network
-                    if nic_info["net-id"]:
+
+                    if nic['net-id']:
                         net = network_client.find_network(
-                            nic_info["net-id"], ignore_missing=False)
-                        nic_info["net-id"] = net.id
-                    if nic_info["port-id"]:
+                            nic['net-id'], ignore_missing=False,
+                        )
+                        nic['net-id'] = net.id
+
+                    if nic['port-id']:
                         port = network_client.find_port(
-                            nic_info["port-id"], ignore_missing=False)
-                        nic_info["port-id"] = port.id
+                            nic['port-id'], ignore_missing=False,
+                        )
+                        nic['port-id'] = port.id
                 else:
-                    if nic_info["net-id"]:
-                        nic_info["net-id"] = compute_client.api.network_find(
-                            nic_info["net-id"]
+                    if nic['net-id']:
+                        nic['net-id'] = compute_client.api.network_find(
+                            nic['net-id'],
                         )['id']
-                    if nic_info["port-id"]:
+
+                    if nic['port-id']:
                         msg = _(
                             "Can't create server with port specified "
                             "since network endpoint not enabled"
                         )
                         raise exceptions.CommandError(msg)
 
-                nics.append(nic_info)
-
-        if nics:
-            if auto_or_none:
-                if len(nics) > 1:
-                    msg = _(
-                        'Specifying a --nic of auto or none cannot '
-                        'be used with any other --nic, --network '
-                        'or --port value.'
-                    )
-                    raise exceptions.CommandError(msg)
-                nics = nics[0]
-        else:
+        if not nics:
             # Compute API version >= 2.37 requires a value, so default to
             # 'auto' to maintain legacy behavior if a nic wasn't specified.
             if compute_client.api_version >= api_versions.APIVersion('2.37'):
                 nics = 'auto'
             else:
-                # Default to empty list if nothing was specified, let nova
-                # side to decide the default behavior.
+                # Default to empty list if nothing was specified and let nova
+                # decide the default behavior.
                 nics = []
 
         # Check security group exist and convert ID to name

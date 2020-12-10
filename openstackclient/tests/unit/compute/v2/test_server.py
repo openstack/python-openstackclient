@@ -1311,8 +1311,28 @@ class TestServerCreate(TestServer):
         verifylist = [
             ('image', 'image1'),
             ('flavor', 'flavor1'),
-            ('nic', ['net-id=net1', 'net-id=net1,v4-fixed-ip=10.0.0.2',
-                     'port-id=port1', 'net-id=net1', 'port-id=port2']),
+            ('nics', [
+                {
+                    'net-id': 'net1', 'port-id': '',
+                    'v4-fixed-ip': '', 'v6-fixed-ip': '',
+                },
+                {
+                    'net-id': 'net1', 'port-id': '',
+                    'v4-fixed-ip': '10.0.0.2', 'v6-fixed-ip': '',
+                },
+                {
+                    'net-id': '', 'port-id': 'port1',
+                    'v4-fixed-ip': '', 'v6-fixed-ip': '',
+                },
+                {
+                    'net-id': 'net1', 'port-id': '',
+                    'v4-fixed-ip': '', 'v6-fixed-ip': '',
+                },
+                {
+                    'net-id': '', 'port-id': 'port2',
+                    'v4-fixed-ip': '', 'v6-fixed-ip': '',
+                },
+            ]),
             ('config_drive', False),
             ('server_name', self.new_server.name),
         ]
@@ -1413,7 +1433,7 @@ class TestServerCreate(TestServer):
         verifylist = [
             ('image', 'image1'),
             ('flavor', 'flavor1'),
-            ('nic', ['auto']),
+            ('nics', ['auto']),
             ('config_drive', False),
             ('server_name', self.new_server.name),
         ]
@@ -1509,7 +1529,7 @@ class TestServerCreate(TestServer):
         verifylist = [
             ('image', 'image1'),
             ('flavor', 'flavor1'),
-            ('nic', ['none']),
+            ('nics', ['none']),
             ('config_drive', False),
             ('server_name', self.new_server.name),
         ]
@@ -1557,7 +1577,14 @@ class TestServerCreate(TestServer):
         verifylist = [
             ('image', 'image1'),
             ('flavor', 'flavor1'),
-            ('nic', ['none', 'auto', 'port-id=port1']),
+            ('nics', [
+                'none',
+                'auto',
+                {
+                    'net-id': '', 'port-id': 'port1',
+                    'v4-fixed-ip': '', 'v6-fixed-ip': '',
+                },
+            ]),
             ('config_drive', False),
             ('server_name', self.new_server.name),
         ]
@@ -1587,17 +1614,10 @@ class TestServerCreate(TestServer):
             '--nic', 'abcdefgh',
             self.new_server.name,
         ]
-        verifylist = [
-            ('image', 'image1'),
-            ('flavor', 'flavor1'),
-            ('nic', ['abcdefgh']),
-            ('config_drive', False),
-            ('server_name', self.new_server.name),
-        ]
-        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
-
-        self.assertRaises(exceptions.CommandError,
-                          self.cmd.take_action, parsed_args)
+        self.assertRaises(
+            argparse.ArgumentTypeError,
+            self.check_parser,
+            self.cmd, arglist, [])
         self.assertNotCalled(self.servers_mock.create)
 
     def test_server_create_with_invalid_network_key(self):
@@ -1607,17 +1627,10 @@ class TestServerCreate(TestServer):
             '--nic', 'abcdefgh=12324',
             self.new_server.name,
         ]
-        verifylist = [
-            ('image', 'image1'),
-            ('flavor', 'flavor1'),
-            ('nic', ['abcdefgh=12324']),
-            ('config_drive', False),
-            ('server_name', self.new_server.name),
-        ]
-        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
-
-        self.assertRaises(exceptions.CommandError,
-                          self.cmd.take_action, parsed_args)
+        self.assertRaises(
+            argparse.ArgumentTypeError,
+            self.check_parser,
+            self.cmd, arglist, [])
         self.assertNotCalled(self.servers_mock.create)
 
     def test_server_create_with_empty_network_key_value(self):
@@ -1627,17 +1640,10 @@ class TestServerCreate(TestServer):
             '--nic', 'net-id=',
             self.new_server.name,
         ]
-        verifylist = [
-            ('image', 'image1'),
-            ('flavor', 'flavor1'),
-            ('nic', ['net-id=']),
-            ('config_drive', False),
-            ('server_name', self.new_server.name),
-        ]
-        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
-
-        self.assertRaises(exceptions.CommandError,
-                          self.cmd.take_action, parsed_args)
+        self.assertRaises(
+            argparse.ArgumentTypeError,
+            self.check_parser,
+            self.cmd, arglist, [])
         self.assertNotCalled(self.servers_mock.create)
 
     def test_server_create_with_only_network_key(self):
@@ -1647,17 +1653,11 @@ class TestServerCreate(TestServer):
             '--nic', 'net-id',
             self.new_server.name,
         ]
-        verifylist = [
-            ('image', 'image1'),
-            ('flavor', 'flavor1'),
-            ('nic', ['net-id']),
-            ('config_drive', False),
-            ('server_name', self.new_server.name),
-        ]
-        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+        self.assertRaises(
+            argparse.ArgumentTypeError,
+            self.check_parser,
+            self.cmd, arglist, [])
 
-        self.assertRaises(exceptions.CommandError,
-                          self.cmd.take_action, parsed_args)
         self.assertNotCalled(self.servers_mock.create)
 
     @mock.patch.object(common_utils, 'wait_for_status', return_value=True)
@@ -2230,7 +2230,7 @@ class TestServerCreate(TestServer):
         verifylist = [
             ('image_properties', {'hypervisor_type': 'qemu'}),
             ('flavor', 'flavor1'),
-            ('nic', ['none']),
+            ('nics', ['none']),
             ('config_drive', False),
             ('server_name', self.new_server.name),
         ]
@@ -2286,7 +2286,7 @@ class TestServerCreate(TestServer):
             ('image_properties', {'hypervisor_type': 'qemu',
              'hw_disk_bus': 'ide'}),
             ('flavor', 'flavor1'),
-            ('nic', ['none']),
+            ('nics', ['none']),
             ('config_drive', False),
             ('server_name', self.new_server.name),
         ]
@@ -2342,7 +2342,7 @@ class TestServerCreate(TestServer):
             ('image_properties', {'hypervisor_type': 'qemu',
              'hw_disk_bus': 'virtio'}),
             ('flavor', 'flavor1'),
-            ('nic', ['none']),
+            ('nics', ['none']),
             ('config_drive', False),
             ('server_name', self.new_server.name),
         ]
@@ -2374,7 +2374,7 @@ class TestServerCreate(TestServer):
             ('image_properties',
                 {'owner_specified.openstack.object': 'image/cirros'}),
             ('flavor', 'flavor1'),
-            ('nic', ['none']),
+            ('nics', ['none']),
             ('server_name', self.new_server.name),
         ]
         # create a image_info as the side_effect of the fake image_list()
