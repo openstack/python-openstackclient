@@ -1,0 +1,6 @@
+---
+features:
+  - |
+    Add ``--limit``, ``--marker``, ``--change-since`` and ``--changes-before``
+    options to ``server group list`` command, to configure pagination of
+    results and filter results by last modification, respectively.
