@@ -1925,6 +1925,109 @@ class TestServerCreate(TestServer):
         self.assertEqual(self.columns, columns)
         self.assertEqual(self.datalist(), data)
 
+    def test_server_create_with_volume(self):
+        arglist = [
+            '--flavor', self.flavor.id,
+            '--volume', self.volume.name,
+            self.new_server.name,
+        ]
+        verifylist = [
+            ('flavor', self.flavor.id),
+            ('volume', self.volume.name),
+            ('server_name', self.new_server.name),
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        # CreateServer.take_action() returns two tuples
+        columns, data = self.cmd.take_action(parsed_args)
+
+        # Set expected values
+        kwargs = {
+            'meta': None,
+            'files': {},
+            'reservation_id': None,
+            'min_count': 1,
+            'max_count': 1,
+            'security_groups': [],
+            'userdata': None,
+            'key_name': None,
+            'availability_zone': None,
+            'admin_pass': None,
+            'block_device_mapping_v2': [{
+                'uuid': self.volume.id,
+                'boot_index': '0',
+                'source_type': 'volume',
+                'destination_type': 'volume',
+            }],
+            'nics': [],
+            'scheduler_hints': {},
+            'config_drive': None,
+        }
+        # ServerManager.create(name, image, flavor, **kwargs)
+        self.servers_mock.create.assert_called_with(
+            self.new_server.name,
+            None,
+            self.flavor,
+            **kwargs
+        )
+        self.volumes_mock.get.assert_called_once_with(
+            self.volume.name)
+
+        self.assertEqual(self.columns, columns)
+        self.assertEqual(self.datalist(), data)
+
+    def test_server_create_with_snapshot(self):
+        arglist = [
+            '--flavor', self.flavor.id,
+            '--snapshot', self.snapshot.name,
+            self.new_server.name,
+        ]
+        verifylist = [
+            ('flavor', self.flavor.id),
+            ('snapshot', self.snapshot.name),
+            ('server_name', self.new_server.name),
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        # CreateServer.take_action() returns two tuples
+        columns, data = self.cmd.take_action(parsed_args)
+
+        # Set expected values
+        kwargs = {
+            'meta': None,
+            'files': {},
+            'reservation_id': None,
+            'min_count': 1,
+            'max_count': 1,
+            'security_groups': [],
+            'userdata': None,
+            'key_name': None,
+            'availability_zone': None,
+            'admin_pass': None,
+            'block_device_mapping_v2': [{
+                'uuid': self.snapshot.id,
+                'boot_index': '0',
+                'source_type': 'snapshot',
+                'destination_type': 'volume',
+                'delete_on_termination': False,
+            }],
+            'nics': [],
+            'scheduler_hints': {},
+            'config_drive': None,
+        }
+        # ServerManager.create(name, image, flavor, **kwargs)
+        self.servers_mock.create.assert_called_with(
+            self.new_server.name,
+            None,
+            self.flavor,
+            **kwargs
+        )
+        self.snapshots_mock.get.assert_called_once_with(
+            self.snapshot.name)
+
+        self.assertEqual(self.columns, columns)
+        self.assertEqual(self.datalist(), data)
+
     def test_server_create_with_block_device_mapping(self):
         arglist = [
             '--image', 'image1',
@@ -2574,6 +2677,136 @@ class TestServerCreate(TestServer):
 
         self.assertEqual(self.columns, columns)
         self.assertEqual(self.datalist(), data)
+
+    def test_server_create_with_swap(self):
+        arglist = [
+            '--image', 'image1',
+            '--flavor', self.flavor.id,
+            '--swap', '1024',
+            self.new_server.name,
+        ]
+        verifylist = [
+            ('image', 'image1'),
+            ('flavor', self.flavor.id),
+            ('swap', 1024),
+            ('server_name', self.new_server.name),
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        # CreateServer.take_action() returns two tuples
+        columns, data = self.cmd.take_action(parsed_args)
+
+        # Set expected values
+        kwargs = {
+            'meta': None,
+            'files': {},
+            'reservation_id': None,
+            'min_count': 1,
+            'max_count': 1,
+            'security_groups': [],
+            'userdata': None,
+            'key_name': None,
+            'availability_zone': None,
+            'admin_pass': None,
+            'block_device_mapping_v2': [{
+                'boot_index': -1,
+                'source_type': 'blank',
+                'destination_type': 'local',
+                'guest_format': 'swap',
+                'volume_size': 1024,
+                'delete_on_termination': True,
+            }],
+            'nics': [],
+            'scheduler_hints': {},
+            'config_drive': None,
+        }
+        # ServerManager.create(name, image, flavor, **kwargs)
+        self.servers_mock.create.assert_called_with(
+            self.new_server.name,
+            self.image,
+            self.flavor,
+            **kwargs
+        )
+
+        self.assertEqual(self.columns, columns)
+        self.assertEqual(self.datalist(), data)
+
+    def test_server_create_with_ephemeral(self):
+        arglist = [
+            '--image', 'image1',
+            '--flavor', self.flavor.id,
+            '--ephemeral', 'size=1024,format=ext4',
+            self.new_server.name,
+        ]
+        verifylist = [
+            ('image', 'image1'),
+            ('flavor', self.flavor.id),
+            ('ephemerals', [{'size': '1024', 'format': 'ext4'}]),
+            ('server_name', self.new_server.name),
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        # CreateServer.take_action() returns two tuples
+        columns, data = self.cmd.take_action(parsed_args)
+
+        # Set expected values
+        kwargs = {
+            'meta': None,
+            'files': {},
+            'reservation_id': None,
+            'min_count': 1,
+            'max_count': 1,
+            'security_groups': [],
+            'userdata': None,
+            'key_name': None,
+            'availability_zone': None,
+            'admin_pass': None,
+            'block_device_mapping_v2': [{
+                'boot_index': -1,
+                'source_type': 'blank',
+                'destination_type': 'local',
+                'guest_format': 'ext4',
+                'volume_size': '1024',
+                'delete_on_termination': True,
+            }],
+            'nics': [],
+            'scheduler_hints': {},
+            'config_drive': None,
+        }
+        # ServerManager.create(name, image, flavor, **kwargs)
+        self.servers_mock.create.assert_called_with(
+            self.new_server.name,
+            self.image,
+            self.flavor,
+            **kwargs
+        )
+
+        self.assertEqual(self.columns, columns)
+        self.assertEqual(self.datalist(), data)
+
+    def test_server_create_with_ephemeral_missing_key(self):
+        arglist = [
+            '--image', 'image1',
+            '--flavor', self.flavor.id,
+            '--ephemeral', 'format=ext3',
+            self.new_server.name,
+        ]
+        self.assertRaises(
+            argparse.ArgumentTypeError,
+            self.check_parser,
+            self.cmd, arglist, [])
+
+    def test_server_create_with_ephemeral_invalid_key(self):
+        arglist = [
+            '--image', 'image1',
+            '--flavor', self.flavor.id,
+            '--ephemeral', 'size=1024,foo=bar',
+            self.new_server.name,
+        ]
+        self.assertRaises(
+            argparse.ArgumentTypeError,
+            self.check_parser,
+            self.cmd, arglist, [])
 
     def test_server_create_invalid_hint(self):
         # Not a key-value pair

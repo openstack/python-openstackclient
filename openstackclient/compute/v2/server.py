@@ -772,6 +772,19 @@ class CreateServer(command.ShowOne):
                 'volume.'
             ),
         )
+        disk_group.add_argument(
+            '--snapshot',
+            metavar='<snapshot>',
+            help=_(
+                'Create server using this snapshot as the boot disk (name or '
+                'ID)\n'
+                'This option automatically creates a block device mapping '
+                'with a boot index of 0. On many hypervisors (libvirt/kvm '
+                'for example) this will be device vda. Do not create a '
+                'duplicate mapping using --block-device-mapping for this '
+                'volume.'
+            ),
+        )
         parser.add_argument(
             '--boot-from-volume',
             metavar='<volume-size>',
@@ -784,7 +797,8 @@ class CreateServer(command.ShowOne):
                 'given size (in GB) from the specified image and use it '
                 'as the root disk of the server. The root volume will not '
                 'be deleted when the server is deleted. This option is '
-                'mutually exclusive with the ``--volume`` option.'
+                'mutually exclusive with the ``--volume`` and ``--snapshot`` '
+                'options.'
             )
         )
         parser.add_argument(
@@ -808,6 +822,28 @@ class CreateServer(command.ShowOne):
                 '(optional)\n'
                 '<delete-on-terminate>: true or false; default: false '
                 '(optional)\n'
+            ),
+        )
+        parser.add_argument(
+            '--swap',
+            metavar='<swap>',
+            type=int,
+            help=(
+                "Create and attach a local swap block device of <swap_size> "
+                "MiB."
+            ),
+        )
+        parser.add_argument(
+            '--ephemeral',
+            metavar='<size=size[,format=format]>',
+            action=parseractions.MultiKeyValueAction,
+            dest='ephemerals',
+            default=[],
+            required_keys=['size'],
+            optional_keys=['format'],
+            help=(
+                "Create and attach a local ephemeral block device of <size> "
+                "GiB and format it to <format>."
             ),
         )
         parser.add_argument(
@@ -929,12 +965,14 @@ class CreateServer(command.ShowOne):
         parser.add_argument(
             '--availability-zone',
             metavar='<zone-name>',
-            help=_('Select an availability zone for the server. '
-                   'Host and node are optional parameters. '
-                   'Availability zone in the format '
-                   '<zone-name>:<host-name>:<node-name>, '
-                   '<zone-name>::<node-name>, <zone-name>:<host-name> '
-                   'or <zone-name>'),
+            help=_(
+                'Select an availability zone for the server. '
+                'Host and node are optional parameters. '
+                'Availability zone in the format '
+                '<zone-name>:<host-name>:<node-name>, '
+                '<zone-name>::<node-name>, <zone-name>:<host-name> '
+                'or <zone-name>'
+            ),
         )
         parser.add_argument(
             '--host',
@@ -1001,11 +1039,6 @@ class CreateServer(command.ShowOne):
             help=_('Maximum number of servers to launch (default=1)'),
         )
         parser.add_argument(
-            '--wait',
-            action='store_true',
-            help=_('Wait for build to complete'),
-        )
-        parser.add_argument(
             '--tag',
             metavar='<tag>',
             action='append',
@@ -1016,6 +1049,11 @@ class CreateServer(command.ShowOne):
                 'Specify multiple times to add multiple tags. '
                 '(supported by --os-compute-api-version 2.52 or above)'
             ),
+        )
+        parser.add_argument(
+            '--wait',
+            action='store_true',
+            help=_('Wait for build to complete'),
         )
         return parser
 
@@ -1092,7 +1130,6 @@ class CreateServer(command.ShowOne):
                 )
                 raise exceptions.CommandError(msg)
 
-        # Lookup parsed_args.volume
         volume = None
         if parsed_args.volume:
             # --volume and --boot-from-volume are mutually exclusive.
@@ -1105,7 +1142,18 @@ class CreateServer(command.ShowOne):
                 parsed_args.volume,
             ).id
 
-        # Lookup parsed_args.flavor
+        snapshot = None
+        if parsed_args.snapshot:
+            # --snapshot and --boot-from-volume are mutually exclusive.
+            if parsed_args.boot_from_volume:
+                msg = _('--snapshot is not allowed with --boot-from-volume')
+                raise exceptions.CommandError(msg)
+
+            snapshot = utils.find_resource(
+                volume_client.volume_snapshots,
+                parsed_args.snapshot,
+            ).id
+
         flavor = utils.find_resource(
             compute_client.flavors, parsed_args.flavor)
 
@@ -1156,6 +1204,14 @@ class CreateServer(command.ShowOne):
                 'source_type': 'volume',
                 'destination_type': 'volume'
             }]
+        elif snapshot:
+            block_device_mapping_v2 = [{
+                'uuid': snapshot,
+                'boot_index': '0',
+                'source_type': 'snapshot',
+                'destination_type': 'volume',
+                'delete_on_termination': False
+            }]
         elif parsed_args.boot_from_volume:
             # Tell nova to create a root volume from the image provided.
             block_device_mapping_v2 = [{
@@ -1167,6 +1223,30 @@ class CreateServer(command.ShowOne):
             }]
             # If booting from volume we do not pass an image to compute.
             image = None
+
+        if parsed_args.swap:
+            block_device_mapping_v2.append({
+                'boot_index': -1,
+                'source_type': 'blank',
+                'destination_type': 'local',
+                'guest_format': 'swap',
+                'volume_size': parsed_args.swap,
+                'delete_on_termination': True,
+            })
+
+        for mapping in parsed_args.ephemerals:
+            block_device_mapping_dict = {
+                'boot_index': -1,
+                'source_type': 'blank',
+                'destination_type': 'local',
+                'delete_on_termination': True,
+                'volume_size': mapping['size'],
+            }
+
+            if 'format' in mapping:
+                block_device_mapping_dict['guest_format'] = mapping['format']
+
+            block_device_mapping_v2.append(block_device_mapping_dict)
 
         # Handle block device by device name order, like: vdb -> vdc -> vdd
         for mapping in parsed_args.block_device_mapping:
