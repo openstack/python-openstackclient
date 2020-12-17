@@ -168,6 +168,9 @@ def _get_attrs(client_manager, parsed_args):
           parsed_args.numa_policy_legacy):
         attrs['numa_affinity_policy'] = 'legacy'
 
+    if 'device_profile' in parsed_args and parsed_args.device_profile:
+        attrs['device_profile'] = parsed_args.device_profile
+
     return attrs
 
 
@@ -442,6 +445,11 @@ class CreatePort(command.ShowOne):
             help=_("Add allowed-address pair associated with this port: "
                    "ip-address=<ip-address>[,mac-address=<mac-address>] "
                    "(repeat option to set multiple allowed-address pairs)")
+        )
+        parser.add_argument(
+            '--device-profile',
+            metavar='<device-profile>',
+            help=_('Cyborg port device profile')
         )
         _tag.add_tag_option_to_parser_for_create(parser, _('port'))
         return parser

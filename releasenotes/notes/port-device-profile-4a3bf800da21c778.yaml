@@ -1,0 +1,4 @@
+---
+features:
+  - |
+    Add device profile to ``port create`` command.
