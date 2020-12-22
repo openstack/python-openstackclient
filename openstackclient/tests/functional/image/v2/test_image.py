@@ -119,6 +119,7 @@ class ImageTests(base.BaseImageTests):
             'image set ' +
             '--property a=b ' +
             '--property c=d ' +
+            '--property hw_rng_model=virtio ' +
             '--public ' +
             self.name
         )
@@ -133,6 +134,7 @@ class ImageTests(base.BaseImageTests):
             'image unset ' +
             '--property a ' +
             '--property c ' +
+            '--property hw_rng_model ' +
             self.name
         )
         json_output = json.loads(self.openstack(

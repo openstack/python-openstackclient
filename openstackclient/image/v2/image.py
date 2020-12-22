@@ -1166,7 +1166,7 @@ class UnsetImage(command.Command):
         if parsed_args.properties:
             for k in parsed_args.properties:
                 if k in image:
-                    kwargs[k] = None
+                    delattr(image, k)
                 elif k in image.properties:
                     # Since image is an "evil" object from SDK POV we need to
                     # pass modified properties object, so that SDK can figure
