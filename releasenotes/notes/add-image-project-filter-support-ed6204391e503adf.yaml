@@ -1,0 +1,5 @@
+---
+features:
+  - |
+    Add ``--project`` and ``--project-domain``options to ``image list``
+    command to filter by owner.

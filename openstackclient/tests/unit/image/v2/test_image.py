@@ -769,6 +769,21 @@ class TestImageList(TestImage):
         self.assertEqual(self.columns, columns)
         self.assertEqual(ret_limit, len(tuple(data)))
 
+    def test_image_list_project_option(self):
+        self.client.find_image = mock.Mock(return_value=self._image)
+        arglist = [
+            '--project', 'nova',
+        ]
+        verifylist = [
+            ('project', 'nova'),
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        columns, data = self.cmd.take_action(parsed_args)
+
+        self.assertEqual(self.columns, columns)
+        self.assertItemsEqual(self.datalist, tuple(data))
+
     @mock.patch('osc_lib.utils.find_resource')
     def test_image_list_marker_option(self, fr_mock):
         # tangchen: Since image_fakes.IMAGE is a dict, it cannot offer a .id

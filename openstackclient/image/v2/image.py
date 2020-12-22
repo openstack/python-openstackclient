@@ -592,6 +592,12 @@ class ListImage(command.Lister):
                   ', '.join(MEMBER_STATUS_CHOICES))
         )
         parser.add_argument(
+            '--project',
+            metavar='<project>',
+            help=_("Search by project (admin only) (name or ID)")
+        )
+        common.add_project_domain_option_to_parser(parser)
+        parser.add_argument(
             '--tag',
             metavar='<tag>',
             default=None,
@@ -636,6 +642,7 @@ class ListImage(command.Lister):
         return parser
 
     def take_action(self, parsed_args):
+        identity_client = self.app.client_manager.identity
         image_client = self.app.client_manager.image
 
         kwargs = {}
@@ -659,6 +666,14 @@ class ListImage(command.Lister):
             kwargs['member_status'] = parsed_args.member_status
         if parsed_args.tag:
             kwargs['tag'] = parsed_args.tag
+        project_id = None
+        if parsed_args.project:
+            project_id = common.find_project(
+                identity_client,
+                parsed_args.project,
+                parsed_args.project_domain,
+            ).id
+            kwargs['owner'] = project_id
         if parsed_args.long:
             columns = (
                 'ID',
