@@ -95,7 +95,8 @@ def _get_columns(item):
 
 # TODO(abhiraut): Use the SDK resource mapped attribute names once the
 # OSC minimum requirements include SDK 1.0.
-class CreateSecurityGroup(common.NetworkAndComputeShowOne):
+class CreateSecurityGroup(common.NetworkAndComputeShowOne,
+                          common.NeutronCommandWithExtraArgs):
     _description = _("Create a new security group")
 
     def update_parser_common(self, parser):
@@ -160,6 +161,8 @@ class CreateSecurityGroup(common.NetworkAndComputeShowOne):
                 parsed_args.project_domain,
             ).id
             attrs['tenant_id'] = project_id
+        attrs.update(
+            self._parse_extra_properties(parsed_args.extra_properties))
 
         # Create the security group and display the results.
         obj = client.create_security_group(**attrs)
@@ -310,7 +313,8 @@ class ListSecurityGroup(common.NetworkAndComputeLister):
                 ) for s in data))
 
 
-class SetSecurityGroup(common.NetworkAndComputeCommand):
+class SetSecurityGroup(common.NetworkAndComputeCommand,
+                       common.NeutronCommandWithExtraArgs):
     _description = _("Set security group properties")
 
     def update_parser_common(self, parser):
@@ -362,6 +366,8 @@ class SetSecurityGroup(common.NetworkAndComputeCommand):
             attrs['stateful'] = True
         if parsed_args.stateless:
             attrs['stateful'] = False
+        attrs.update(
+            self._parse_extra_properties(parsed_args.extra_properties))
         # NOTE(rtheis): Previous behavior did not raise a CommandError
         # if there were no updates. Maintain this behavior and issue
         # the update.

@@ -104,7 +104,8 @@ def _is_icmp_protocol(protocol):
 
 # TODO(abhiraut): Use the SDK resource mapped attribute names once the
 # OSC minimum requirements include SDK 1.0.
-class CreateSecurityGroupRule(common.NetworkAndComputeShowOne):
+class CreateSecurityGroupRule(common.NetworkAndComputeShowOne,
+                              common.NeutronCommandWithExtraArgs):
     _description = _("Create a new security group rule")
 
     def update_parser_common(self, parser):
@@ -354,6 +355,9 @@ class CreateSecurityGroupRule(common.NetworkAndComputeShowOne):
                 parsed_args.project_domain,
             ).id
             attrs['tenant_id'] = project_id
+
+        attrs.update(
+            self._parse_extra_properties(parsed_args.extra_properties))
 
         # Create and show the security group rule.
         obj = client.create_security_group_rule(**attrs)

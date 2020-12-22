@@ -19,6 +19,7 @@ from osc_lib import exceptions
 from osc_lib import utils
 
 from openstackclient.i18n import _
+from openstackclient.network import common
 from openstackclient.network import sdk_utils
 
 
@@ -32,7 +33,8 @@ def _get_columns(item):
     return sdk_utils.get_osc_show_columns_for_sdk_resource(item, column_map)
 
 
-class CreateFloatingIPPortForwarding(command.ShowOne):
+class CreateFloatingIPPortForwarding(command.ShowOne,
+                                     common.NeutronCommandWithExtraArgs):
     _description = _("Create floating IP port forwarding")
 
     def get_parser(self, prog_name):
@@ -121,6 +123,9 @@ class CreateFloatingIPPortForwarding(command.ShowOne):
 
         if parsed_args.description is not None:
             attrs['description'] = parsed_args.description
+
+        attrs.update(
+            self._parse_extra_properties(parsed_args.extra_properties))
 
         obj = client.create_floating_ip_port_forwarding(
             floating_ip.id,
@@ -258,7 +263,7 @@ class ListFloatingIPPortForwarding(command.Lister):
                 ) for s in data))
 
 
-class SetFloatingIPPortForwarding(command.Command):
+class SetFloatingIPPortForwarding(common.NeutronCommandWithExtraArgs):
     _description = _("Set floating IP Port Forwarding Properties")
 
     def get_parser(self, prog_name):
@@ -351,6 +356,9 @@ class SetFloatingIPPortForwarding(command.Command):
 
         if parsed_args.description is not None:
             attrs['description'] = parsed_args.description
+
+        attrs.update(
+            self._parse_extra_properties(parsed_args.extra_properties))
 
         client.update_floating_ip_port_forwarding(
             floating_ip.id, parsed_args.port_forwarding_id, **attrs)

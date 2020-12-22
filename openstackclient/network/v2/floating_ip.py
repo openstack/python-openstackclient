@@ -13,7 +13,6 @@
 
 """IP Floating action implementations"""
 
-from osc_lib.command import command
 from osc_lib import utils
 from osc_lib.utils import tags as _tag
 
@@ -94,7 +93,8 @@ def _get_attrs(client_manager, parsed_args):
     return attrs
 
 
-class CreateFloatingIP(common.NetworkAndComputeShowOne):
+class CreateFloatingIP(common.NetworkAndComputeShowOne,
+                       common.NeutronCommandWithExtraArgs):
     _description = _("Create floating IP")
 
     def update_parser_common(self, parser):
@@ -175,6 +175,8 @@ class CreateFloatingIP(common.NetworkAndComputeShowOne):
 
     def take_action_network(self, client, parsed_args):
         attrs = _get_attrs(self.app.client_manager, parsed_args)
+        attrs.update(
+            self._parse_extra_properties(parsed_args.extra_properties))
         with common.check_missing_extension_if_error(
                 self.app.client_manager.network, attrs):
             obj = client.create_ip(**attrs)
@@ -390,7 +392,7 @@ class ListFloatingIP(common.NetworkAndComputeLister):
                 ) for s in data))
 
 
-class SetFloatingIP(command.Command):
+class SetFloatingIP(common.NeutronCommandWithExtraArgs):
     _description = _("Set floating IP Properties")
 
     def get_parser(self, prog_name):
@@ -456,6 +458,9 @@ class SetFloatingIP(command.Command):
         if 'no_qos_policy' in parsed_args and parsed_args.no_qos_policy:
             attrs['qos_policy_id'] = None
 
+        attrs.update(
+            self._parse_extra_properties(parsed_args.extra_properties))
+
         if attrs:
             client.update_ip(obj, **attrs)
 
@@ -490,7 +495,7 @@ class ShowFloatingIP(common.NetworkAndComputeShowOne):
         return (columns, data)
 
 
-class UnsetFloatingIP(command.Command):
+class UnsetFloatingIP(common.NeutronCommandWithExtraArgs):
     _description = _("Unset floating IP Properties")
 
     def get_parser(self, prog_name):
@@ -526,6 +531,8 @@ class UnsetFloatingIP(command.Command):
             attrs['port_id'] = None
         if parsed_args.qos_policy:
             attrs['qos_policy_id'] = None
+        attrs.update(
+            self._parse_extra_properties(parsed_args.extra_properties))
 
         if attrs:
             client.update_ip(obj, **attrs)

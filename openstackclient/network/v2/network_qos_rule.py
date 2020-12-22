@@ -20,6 +20,7 @@ from osc_lib import exceptions
 from osc_lib import utils
 
 from openstackclient.i18n import _
+from openstackclient.network import common
 from openstackclient.network import sdk_utils
 
 
@@ -171,7 +172,8 @@ def _add_rule_arguments(parser):
     )
 
 
-class CreateNetworkQosRule(command.ShowOne):
+class CreateNetworkQosRule(command.ShowOne,
+                           common.NeutronCommandWithExtraArgs):
     _description = _("Create new Network QoS rule")
 
     def get_parser(self, prog_name):
@@ -198,6 +200,8 @@ class CreateNetworkQosRule(command.ShowOne):
     def take_action(self, parsed_args):
         network_client = self.app.client_manager.network
         attrs = _get_attrs(network_client, parsed_args, is_create=True)
+        attrs.update(
+            self._parse_extra_properties(parsed_args.extra_properties))
         try:
             obj = _rule_action_call(
                 network_client, ACTION_CREATE, parsed_args.type)(
@@ -285,7 +289,7 @@ class ListNetworkQosRule(command.Lister):
                 (_get_item_properties(s, columns) for s in data))
 
 
-class SetNetworkQosRule(command.Command):
+class SetNetworkQosRule(common.NeutronCommandWithExtraArgs):
     _description = _("Set Network QoS rule properties")
 
     def get_parser(self, prog_name):
@@ -312,6 +316,8 @@ class SetNetworkQosRule(command.Command):
             if not rule_type:
                 raise Exception('Rule not found')
             attrs = _get_attrs(network_client, parsed_args)
+            attrs.update(
+                self._parse_extra_properties(parsed_args.extra_properties))
             qos_id = attrs.pop('qos_policy_id')
             qos_rule = _rule_action_call(network_client, ACTION_FIND,
                                          rule_type)(attrs.pop('id'), qos_id)

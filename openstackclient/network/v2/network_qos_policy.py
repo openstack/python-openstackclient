@@ -21,6 +21,7 @@ from osc_lib import utils
 
 from openstackclient.i18n import _
 from openstackclient.identity import common as identity_common
+from openstackclient.network import common
 from openstackclient.network import sdk_utils
 
 
@@ -67,7 +68,8 @@ def _get_attrs(client_manager, parsed_args):
 
 # TODO(abhiraut): Use the SDK resource mapped attribute names once the
 # OSC minimum requirements include SDK 1.0.
-class CreateNetworkQosPolicy(command.ShowOne):
+class CreateNetworkQosPolicy(command.ShowOne,
+                             common.NeutronCommandWithExtraArgs):
     _description = _("Create a QoS policy")
 
     def get_parser(self, prog_name):
@@ -117,6 +119,8 @@ class CreateNetworkQosPolicy(command.ShowOne):
     def take_action(self, parsed_args):
         client = self.app.client_manager.network
         attrs = _get_attrs(self.app.client_manager, parsed_args)
+        attrs.update(
+            self._parse_extra_properties(parsed_args.extra_properties))
         obj = client.create_qos_policy(**attrs)
         display_columns, columns = _get_columns(obj)
         data = utils.get_item_properties(obj, columns, formatters={})
@@ -209,7 +213,7 @@ class ListNetworkQosPolicy(command.Lister):
 
 # TODO(abhiraut): Use the SDK resource mapped attribute names once the
 # OSC minimum requirements include SDK 1.0.
-class SetNetworkQosPolicy(command.Command):
+class SetNetworkQosPolicy(common.NeutronCommandWithExtraArgs):
     _description = _("Set QoS policy properties")
 
     def get_parser(self, prog_name):
@@ -259,6 +263,8 @@ class SetNetworkQosPolicy(command.Command):
             parsed_args.policy,
             ignore_missing=False)
         attrs = _get_attrs(self.app.client_manager, parsed_args)
+        attrs.update(
+            self._parse_extra_properties(parsed_args.extra_properties))
         client.update_qos_policy(obj, **attrs)
 
 

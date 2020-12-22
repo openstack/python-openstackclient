@@ -326,7 +326,7 @@ def _convert_extra_dhcp_options(parsed_args):
     return dhcp_options
 
 
-class CreatePort(command.ShowOne):
+class CreatePort(command.ShowOne, common.NeutronCommandWithExtraArgs):
     _description = _("Create a new port")
 
     def get_parser(self, prog_name):
@@ -500,6 +500,9 @@ class CreatePort(command.ShowOne):
                 attrs['tags'] = []
             if parsed_args.tags:
                 attrs['tags'] = list(set(parsed_args.tags))
+
+        attrs.update(
+            self._parse_extra_properties(parsed_args.extra_properties))
 
         with common.check_missing_extension_if_error(
                 self.app.client_manager.network, attrs):
@@ -697,7 +700,7 @@ class ListPort(command.Lister):
 
 # TODO(abhiraut): Use the SDK resource mapped attribute names once the
 # OSC minimum requirements include SDK 1.0.
-class SetPort(command.Command):
+class SetPort(common.NeutronCommandWithExtraArgs):
     _description = _("Set port properties")
 
     def get_parser(self, prog_name):
@@ -871,6 +874,9 @@ class SetPort(command.Command):
         if parsed_args.data_plane_status:
             attrs['data_plane_status'] = parsed_args.data_plane_status
 
+        attrs.update(
+            self._parse_extra_properties(parsed_args.extra_properties))
+
         if attrs:
             with common.check_missing_extension_if_error(
                     self.app.client_manager.network, attrs):
@@ -902,7 +908,7 @@ class ShowPort(command.ShowOne):
 
 # TODO(abhiraut): Use the SDK resource mapped attribute names once the
 # OSC minimum requirements include SDK 1.0.
-class UnsetPort(command.Command):
+class UnsetPort(common.NeutronUnsetCommandWithExtraArgs):
     _description = _("Unset port properties")
 
     def get_parser(self, prog_name):
@@ -1022,6 +1028,9 @@ class UnsetPort(command.Command):
             attrs['data_plane_status'] = None
         if parsed_args.numa_policy:
             attrs['numa_affinity_policy'] = None
+
+        attrs.update(
+            self._parse_extra_properties(parsed_args.extra_properties))
 
         if attrs:
             client.update_port(obj, **attrs)
