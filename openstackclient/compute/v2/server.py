@@ -1390,9 +1390,11 @@ class ListServer(command.Lister):
         parser.add_argument(
             '--ip6',
             metavar='<ip-address-regex>',
-            help=_('Regular expression to match IPv6 addresses. Note '
-                   'that this option only applies for non-admin users '
-                   'when using ``--os-compute-api-version`` 2.5 or greater.'),
+            help=_(
+                'Regular expression to match IPv6 addresses. Note '
+                'that this option only applies for non-admin users '
+                'when using ``--os-compute-api-version`` 2.5 or greater.'
+            ),
         )
         parser.add_argument(
             '--name',
@@ -1444,6 +1446,12 @@ class ListServer(command.Lister):
         )
         identity_common.add_user_domain_option_to_parser(parser)
         parser.add_argument(
+            '--deleted',
+            action='store_true',
+            default=False,
+            help=_('Only display deleted servers (admin only)'),
+        )
+        parser.add_argument(
             '--long',
             action='store_true',
             default=False,
@@ -1454,74 +1462,83 @@ class ListServer(command.Lister):
             '-n', '--no-name-lookup',
             action='store_true',
             default=False,
-            help=_('Skip flavor and image name lookup.'
-                   'Mutually exclusive with "--name-lookup-one-by-one"'
-                   ' option.'),
+            help=_(
+                'Skip flavor and image name lookup. '
+                'Mutually exclusive with "--name-lookup-one-by-one" option.'
+            ),
         )
         name_lookup_group.add_argument(
             '--name-lookup-one-by-one',
             action='store_true',
             default=False,
-            help=_('When looking up flavor and image names, look them up'
-                   'one by one as needed instead of all together (default). '
-                   'Mutually exclusive with "--no-name-lookup|-n" option.'),
+            help=_(
+                'When looking up flavor and image names, look them up'
+                'one by one as needed instead of all together (default). '
+                'Mutually exclusive with "--no-name-lookup|-n" option.'
+            ),
         )
         parser.add_argument(
             '--marker',
             metavar='<server>',
             default=None,
-            help=_('The last server of the previous page. Display '
-                   'list of servers after marker. Display all servers if not '
-                   'specified. When used with ``--deleted``, the marker must '
-                   'be an ID, otherwise a name or ID can be used.'),
+            help=_(
+                'The last server of the previous page. Display '
+                'list of servers after marker. Display all servers if not '
+                'specified. When used with ``--deleted``, the marker must '
+                'be an ID, otherwise a name or ID can be used.'
+            ),
         )
         parser.add_argument(
             '--limit',
             metavar='<num-servers>',
             type=int,
             default=None,
-            help=_("Maximum number of servers to display. If limit equals -1, "
-                   "all servers will be displayed. If limit is greater than "
-                   "'osapi_max_limit' option of Nova API, "
-                   "'osapi_max_limit' will be used instead."),
-        )
-        parser.add_argument(
-            '--deleted',
-            action="store_true",
-            default=False,
-            help=_('Only display deleted servers (Admin only).')
+            help=_(
+                "Maximum number of servers to display. If limit equals -1, "
+                "all servers will be displayed. If limit is greater than "
+                "'osapi_max_limit' option of Nova API, "
+                "'osapi_max_limit' will be used instead."
+            ),
         )
         parser.add_argument(
             '--changes-before',
             metavar='<changes-before>',
             default=None,
-            help=_("List only servers changed before a certain point of time. "
-                   "The provided time should be an ISO 8061 formatted time "
-                   "(e.g., 2016-03-05T06:27:59Z). "
-                   "(Supported by API versions '2.66' - '2.latest')")
+            help=_(
+                "List only servers changed before a certain point of time. "
+                "The provided time should be an ISO 8061 formatted time "
+                "(e.g., 2016-03-05T06:27:59Z). "
+                '(supported by --os-compute-api-version 2.66 or above)'
+            ),
         )
         parser.add_argument(
             '--changes-since',
             metavar='<changes-since>',
             default=None,
-            help=_("List only servers changed after a certain point of time."
-                   " The provided time should be an ISO 8061 formatted time"
-                   " (e.g., 2016-03-04T06:27:59Z).")
+            help=_(
+                "List only servers changed after a certain point of time. "
+                "The provided time should be an ISO 8061 formatted time "
+                "(e.g., 2016-03-04T06:27:59Z)."
+            ),
         )
         lock_group = parser.add_mutually_exclusive_group()
         lock_group.add_argument(
             '--locked',
             action='store_true',
             default=False,
-            help=_('Only display locked servers. '
-                   'Requires ``--os-compute-api-version`` 2.73 or greater.'),
+            help=_(
+                'Only display locked servers '
+                '(supported by --os-compute-api-version 2.73 or above)'
+            ),
         )
         lock_group.add_argument(
             '--unlocked',
             action='store_true',
             default=False,
-            help=_('Only display unlocked servers. '
-                   'Requires ``--os-compute-api-version`` 2.73 or greater.'),
+            help=_(
+                'Only display unlocked servers '
+                '(supported by --os-compute-api-version 2.73 or above)'
+            ),
         )
         parser.add_argument(
             '--tags',
@@ -1624,18 +1641,25 @@ class ListServer(command.Lister):
 
             search_opts['not-tags'] = parsed_args.not_tags
 
-        support_locked = (compute_client.api_version >=
-                          api_versions.APIVersion('2.73'))
-        if not support_locked and (parsed_args.locked or parsed_args.unlocked):
-            msg = _('--os-compute-api-version 2.73 or greater is required to '
-                    'use the (un)locked filter option.')
-            raise exceptions.CommandError(msg)
-        elif support_locked:
-            # Only from 2.73.
-            if parsed_args.locked:
-                search_opts['locked'] = True
-            if parsed_args.unlocked:
-                search_opts['locked'] = False
+        if parsed_args.locked:
+            if compute_client.api_version < api_versions.APIVersion('2.73'):
+                msg = _(
+                    '--os-compute-api-version 2.73 or greater is required to '
+                    'support the --locked option'
+                )
+                raise exceptions.CommandError(msg)
+
+            search_opts['locked'] = True
+        elif parsed_args.unlocked:
+            if compute_client.api_version < api_versions.APIVersion('2.73'):
+                msg = _(
+                    '--os-compute-api-version 2.73 or greater is required to '
+                    'support the --unlocked option'
+                )
+                raise exceptions.CommandError(msg)
+
+            search_opts['locked'] = False
+
         LOG.debug('search options: %s', search_opts)
 
         if search_opts['changes-before']:
@@ -1842,17 +1866,21 @@ class ListServer(command.Lister):
                 s.flavor_name = ''
                 s.flavor_id = ''
 
-        table = (column_headers,
-                 (utils.get_item_properties(
-                     s, columns,
-                     mixed_case_fields=mixed_case_fields,
-                     formatters={
-                         'OS-EXT-STS:power_state':
-                             _format_servers_list_power_state,
-                         'Networks': _format_servers_list_networks,
-                         'Metadata': utils.format_dict,
-                     },
-                 ) for s in data))
+        table = (
+            column_headers,
+            (
+                utils.get_item_properties(
+                    s, columns,
+                    mixed_case_fields=mixed_case_fields,
+                    formatters={
+                        'OS-EXT-STS:power_state':
+                            _format_servers_list_power_state,
+                        'Networks': _format_servers_list_networks,
+                        'Metadata': utils.format_dict,
+                    },
+                ) for s in data
+            ),
+        )
         return table
 
 
