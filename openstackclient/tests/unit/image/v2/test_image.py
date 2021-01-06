@@ -1516,14 +1516,15 @@ class TestImageShow(TestImage):
 
 class TestImageUnset(TestImage):
 
-    attrs = {}
-    attrs['tags'] = ['test']
-    attrs['prop'] = 'test'
-    attrs['prop2'] = 'fake'
-    image = image_fakes.FakeImage.create_one_image(attrs)
-
     def setUp(self):
         super(TestImageUnset, self).setUp()
+
+        attrs = {}
+        attrs['tags'] = ['test']
+        attrs['hw_rng_model'] = 'virtio'
+        attrs['prop'] = 'test'
+        attrs['prop2'] = 'fake'
+        self.image = image_fakes.FakeImage.create_one_image(attrs)
 
         self.client.find_image.return_value = self.image
         self.client.remove_tag.return_value = self.image
@@ -1567,22 +1568,20 @@ class TestImageUnset(TestImage):
     def test_image_unset_property_option(self):
 
         arglist = [
+            '--property', 'hw_rng_model',
             '--property', 'prop',
             self.image.id,
         ]
 
         verifylist = [
-            ('properties', ['prop']),
+            ('properties', ['hw_rng_model', 'prop']),
             ('image', self.image.id)
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
         result = self.cmd.take_action(parsed_args)
 
-        kwargs = {}
         self.client.update_image.assert_called_with(
-            self.image,
-            properties={'prop2': 'fake'},
-            **kwargs)
+            self.image, properties={'prop2': 'fake'})
 
         self.assertIsNone(result)
 
@@ -1590,23 +1589,21 @@ class TestImageUnset(TestImage):
 
         arglist = [
             '--tag', 'test',
+            '--property', 'hw_rng_model',
             '--property', 'prop',
             self.image.id,
         ]
 
         verifylist = [
             ('tags', ['test']),
-            ('properties', ['prop']),
+            ('properties', ['hw_rng_model', 'prop']),
             ('image', self.image.id)
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
         result = self.cmd.take_action(parsed_args)
 
-        kwargs = {}
         self.client.update_image.assert_called_with(
-            self.image,
-            properties={'prop2': 'fake'},
-            **kwargs)
+            self.image, properties={'prop2': 'fake'})
 
         self.client.remove_tag.assert_called_with(
             self.image.id, 'test'
