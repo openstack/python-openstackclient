@@ -4766,7 +4766,64 @@ class TestServerRebuild(TestServer):
         self.get_image_mock.assert_called_with(self.image.id)
         self.server.rebuild.assert_called_with(self.image, None)
 
-    def test_rebuild_with_current_image_and_password(self):
+    def test_rebuild_with_name(self):
+        name = 'test-server-xxx'
+        arglist = [
+            self.server.id,
+            '--name', name,
+        ]
+        verifylist = [
+            ('server', self.server.id),
+            ('name', name),
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        # Get the command object to test
+        self.cmd.take_action(parsed_args)
+
+        self.servers_mock.get.assert_called_with(self.server.id)
+        self.get_image_mock.assert_called_with(self.image.id)
+        self.server.rebuild.assert_called_with(self.image, None, name=name)
+
+    def test_rebuild_with_preserve_ephemeral(self):
+        arglist = [
+            self.server.id,
+            '--preserve-ephemeral',
+        ]
+        verifylist = [
+            ('server', self.server.id),
+            ('preserve_ephemeral', True),
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        # Get the command object to test
+        self.cmd.take_action(parsed_args)
+
+        self.servers_mock.get.assert_called_with(self.server.id)
+        self.get_image_mock.assert_called_with(self.image.id)
+        self.server.rebuild.assert_called_with(
+            self.image, None, preserve_ephemeral=True)
+
+    def test_rebuild_with_no_preserve_ephemeral(self):
+        arglist = [
+            self.server.id,
+            '--no-preserve-ephemeral',
+        ]
+        verifylist = [
+            ('server', self.server.id),
+            ('preserve_ephemeral', False),
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        # Get the command object to test
+        self.cmd.take_action(parsed_args)
+
+        self.servers_mock.get.assert_called_with(self.server.id)
+        self.get_image_mock.assert_called_with(self.image.id)
+        self.server.rebuild.assert_called_with(
+            self.image, None, preserve_ephemeral=False)
+
+    def test_rebuild_with_password(self):
         password = 'password-xxx'
         arglist = [
             self.server.id,
@@ -4785,32 +4842,9 @@ class TestServerRebuild(TestServer):
         self.get_image_mock.assert_called_with(self.image.id)
         self.server.rebuild.assert_called_with(self.image, password)
 
-    def test_rebuild_with_description_api_older(self):
-
-        # Description is not supported for nova api version below 2.19
-        self.server.api_version = 2.18
-
-        description = 'description1'
-        arglist = [
-            self.server.id,
-            '--description', description
-        ]
-        verifylist = [
-            ('server', self.server.id),
-            ('description', description)
-        ]
-        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
-
-        with mock.patch.object(api_versions,
-                               'APIVersion',
-                               return_value=2.19):
-            self.assertRaises(exceptions.CommandError, self.cmd.take_action,
-                              parsed_args)
-
-    def test_rebuild_with_description_api_newer(self):
-
-        # Description is supported for nova api version 2.19 or above
-        self.server.api_version = 2.19
+    def test_rebuild_with_description(self):
+        self.app.client_manager.compute.api_version = \
+            api_versions.APIVersion('2.19')
 
         description = 'description1'
         arglist = [
@@ -4823,16 +4857,32 @@ class TestServerRebuild(TestServer):
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
-        with mock.patch.object(api_versions,
-                               'APIVersion',
-                               return_value=2.19):
-            # Get the command object to test
-            self.cmd.take_action(parsed_args)
+        self.cmd.take_action(parsed_args)
 
         self.servers_mock.get.assert_called_with(self.server.id)
         self.get_image_mock.assert_called_with(self.image.id)
         self.server.rebuild.assert_called_with(self.image, None,
                                                description=description)
+
+    def test_rebuild_with_description_pre_v219(self):
+        self.app.client_manager.compute.api_version = \
+            api_versions.APIVersion('2.18')
+
+        description = 'description1'
+        arglist = [
+            self.server.id,
+            '--description', description
+        ]
+        verifylist = [
+            ('server', self.server.id),
+            ('description', description)
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        self.assertRaises(
+            exceptions.CommandError,
+            self.cmd.take_action,
+            parsed_args)
 
     @mock.patch.object(common_utils, 'wait_for_status', return_value=True)
     def test_rebuild_with_wait_ok(self, mock_wait_for_status):
@@ -4908,6 +4958,9 @@ class TestServerRebuild(TestServer):
             self.image, None, meta=expected_property)
 
     def test_rebuild_with_keypair_name(self):
+        self.app.client_manager.compute.api_version = \
+            api_versions.APIVersion('2.54')
+
         self.server.key_name = 'mykey'
         arglist = [
             self.server.id,
@@ -4919,23 +4972,17 @@ class TestServerRebuild(TestServer):
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
-        self.app.client_manager.compute.api_version = 2.54
-        with mock.patch.object(api_versions,
-                               'APIVersion',
-                               return_value=2.54):
-            self.cmd.take_action(parsed_args)
-            args = (
-                self.image,
-                None,
-            )
-            kwargs = dict(
-                key_name=self.server.key_name,
-            )
-            self.servers_mock.get.assert_called_with(self.server.id)
-            self.get_image_mock.assert_called_with(self.image.id)
-            self.server.rebuild.assert_called_with(*args, **kwargs)
+        self.cmd.take_action(parsed_args)
 
-    def test_rebuild_with_keypair_name_older_version(self):
+        self.servers_mock.get.assert_called_with(self.server.id)
+        self.get_image_mock.assert_called_with(self.image.id)
+        self.server.rebuild.assert_called_with(
+            self.image, None, key_name=self.server.key_name)
+
+    def test_rebuild_with_keypair_name_pre_v254(self):
+        self.app.client_manager.compute.api_version = \
+            api_versions.APIVersion('2.53')
+
         self.server.key_name = 'mykey'
         arglist = [
             self.server.id,
@@ -4947,55 +4994,230 @@ class TestServerRebuild(TestServer):
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
-        self.app.client_manager.compute.api_version = 2.53
-        with mock.patch.object(api_versions,
-                               'APIVersion',
-                               return_value=2.54):
-            self.assertRaises(exceptions.CommandError,
-                              self.cmd.take_action,
-                              parsed_args)
+        self.assertRaises(
+            exceptions.CommandError,
+            self.cmd.take_action,
+            parsed_args)
 
-    def test_rebuild_with_keypair_unset(self):
+    def test_rebuild_with_no_keypair_name(self):
+        self.app.client_manager.compute.api_version = \
+            api_versions.APIVersion('2.54')
+
         self.server.key_name = 'mykey'
         arglist = [
             self.server.id,
-            '--key-unset',
+            '--no-key-name',
         ]
         verifylist = [
             ('server', self.server.id),
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
-        self.app.client_manager.compute.api_version = 2.54
-        with mock.patch.object(api_versions,
-                               'APIVersion',
-                               return_value=2.54):
-            self.cmd.take_action(parsed_args)
-            args = (
-                self.image,
-                None,
-            )
-            kwargs = dict(
-                key_name=None,
-            )
-            self.servers_mock.get.assert_called_with(self.server.id)
-            self.get_image_mock.assert_called_with(self.image.id)
-            self.server.rebuild.assert_called_with(*args, **kwargs)
+        self.cmd.take_action(parsed_args)
+        self.servers_mock.get.assert_called_with(self.server.id)
+        self.get_image_mock.assert_called_with(self.image.id)
+        self.server.rebuild.assert_called_with(
+            self.image, None, key_name=None)
 
-    def test_rebuild_with_key_name_and_unset(self):
+    def test_rebuild_with_keypair_name_and_unset(self):
         self.server.key_name = 'mykey'
         arglist = [
             self.server.id,
             '--key-name', self.server.key_name,
-            '--key-unset',
+            '--no-key-name',
         ]
         verifylist = [
             ('server', self.server.id),
             ('key_name', self.server.key_name)
         ]
-        self.assertRaises(utils.ParserException,
-                          self.check_parser,
-                          self.cmd, arglist, verifylist)
+        self.assertRaises(
+            utils.ParserException,
+            self.check_parser,
+            self.cmd, arglist, verifylist)
+
+    @mock.patch('openstackclient.compute.v2.server.io.open')
+    def test_rebuild_with_user_data(self, mock_open):
+        self.app.client_manager.compute.api_version = \
+            api_versions.APIVersion('2.57')
+
+        mock_file = mock.Mock(name='File')
+        mock_open.return_value = mock_file
+        mock_open.read.return_value = '#!/bin/sh'
+
+        arglist = [
+            self.server.id,
+            '--user-data', 'userdata.sh',
+        ]
+        verifylist = [
+            ('server', self.server.id),
+            ('user_data', 'userdata.sh'),
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        self.cmd.take_action(parsed_args)
+
+        # Ensure the userdata file is opened
+        mock_open.assert_called_with('userdata.sh')
+
+        # Ensure the userdata file is closed
+        mock_file.close.assert_called_with()
+
+        self.servers_mock.get.assert_called_with(self.server.id)
+        self.get_image_mock.assert_called_with(self.image.id)
+        self.server.rebuild.assert_called_with(
+            self.image, None,
+            userdata=mock_file,)
+
+    def test_rebuild_with_user_data_pre_257(self):
+        self.app.client_manager.compute.api_version = \
+            api_versions.APIVersion('2.56')
+
+        arglist = [
+            self.server.id,
+            '--user-data', 'userdata.sh',
+        ]
+        verifylist = [
+            ('server', self.server.id),
+            ('user_data', 'userdata.sh'),
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        self.assertRaises(
+            exceptions.CommandError,
+            self.cmd.take_action,
+            parsed_args)
+
+    def test_rebuild_with_no_user_data(self):
+        self.app.client_manager.compute.api_version = \
+            api_versions.APIVersion('2.54')
+
+        self.server.key_name = 'mykey'
+        arglist = [
+            self.server.id,
+            '--no-user-data',
+        ]
+        verifylist = [
+            ('server', self.server.id),
+            ('no_user_data', True),
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        self.cmd.take_action(parsed_args)
+        self.servers_mock.get.assert_called_with(self.server.id)
+        self.get_image_mock.assert_called_with(self.image.id)
+        self.server.rebuild.assert_called_with(
+            self.image, None, userdata=None)
+
+    def test_rebuild_with_no_user_data_pre_254(self):
+        self.app.client_manager.compute.api_version = \
+            api_versions.APIVersion('2.53')
+
+        arglist = [
+            self.server.id,
+            '--no-user-data',
+        ]
+        verifylist = [
+            ('server', self.server.id),
+            ('no_user_data', True),
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        self.assertRaises(
+            exceptions.CommandError,
+            self.cmd.take_action,
+            parsed_args)
+
+    def test_rebuild_with_user_data_and_unset(self):
+        arglist = [
+            self.server.id,
+            '--user-data', 'userdata.sh',
+            '--no-user-data',
+        ]
+        self.assertRaises(
+            utils.ParserException,
+            self.check_parser,
+            self.cmd, arglist, None)
+
+    def test_rebuild_with_trusted_image_cert(self):
+        self.app.client_manager.compute.api_version = \
+            api_versions.APIVersion('2.63')
+
+        arglist = [
+            self.server.id,
+            '--trusted-image-cert', 'foo',
+            '--trusted-image-cert', 'bar',
+        ]
+        verifylist = [
+            ('server', self.server.id),
+            ('trusted_image_certs', ['foo', 'bar']),
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        self.cmd.take_action(parsed_args)
+
+        self.servers_mock.get.assert_called_with(self.server.id)
+        self.get_image_mock.assert_called_with(self.image.id)
+        self.server.rebuild.assert_called_with(
+            self.image, None, trusted_image_certificates=['foo', 'bar'])
+
+    def test_rebuild_with_trusted_image_cert_pre_v263(self):
+        self.app.client_manager.compute.api_version = \
+            api_versions.APIVersion('2.62')
+
+        arglist = [
+            self.server.id,
+            '--trusted-image-cert', 'foo',
+            '--trusted-image-cert', 'bar',
+        ]
+        verifylist = [
+            ('server', self.server.id),
+            ('trusted_image_certs', ['foo', 'bar']),
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        self.assertRaises(
+            exceptions.CommandError,
+            self.cmd.take_action,
+            parsed_args)
+
+    def test_rebuild_with_no_trusted_image_cert(self):
+        self.app.client_manager.compute.api_version = \
+            api_versions.APIVersion('2.63')
+
+        arglist = [
+            self.server.id,
+            '--no-trusted-image-certs',
+        ]
+        verifylist = [
+            ('server', self.server.id),
+            ('no_trusted_image_certs', True),
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        self.cmd.take_action(parsed_args)
+        self.servers_mock.get.assert_called_with(self.server.id)
+        self.get_image_mock.assert_called_with(self.image.id)
+        self.server.rebuild.assert_called_with(
+            self.image, None, trusted_image_certificates=None)
+
+    def test_rebuild_with_no_trusted_image_cert_pre_257(self):
+        self.app.client_manager.compute.api_version = \
+            api_versions.APIVersion('2.62')
+
+        arglist = [
+            self.server.id,
+            '--no-trusted-image-certs',
+        ]
+        verifylist = [
+            ('server', self.server.id),
+            ('no_trusted_image_certs', True),
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        self.assertRaises(
+            exceptions.CommandError,
+            self.cmd.take_action,
+            parsed_args)
 
 
 class TestEvacuateServer(TestServer):
