@@ -264,6 +264,18 @@ class ListFlavor(command.Lister):
             help=_("List all flavors, whether public or private")
         )
         parser.add_argument(
+            '--min-disk',
+            type=int,
+            metavar='<min-disk>',
+            help=_('Filters the flavors by a minimum disk space, in GiB.'),
+        )
+        parser.add_argument(
+            '--min-ram',
+            type=int,
+            metavar='<min-ram>',
+            help=_('Filters the flavors by a minimum RAM, in MiB.'),
+        )
+        parser.add_argument(
             '--long',
             action='store_true',
             default=False,
@@ -277,8 +289,13 @@ class ListFlavor(command.Lister):
         parser.add_argument(
             '--limit',
             type=int,
-            metavar="<num-flavors>",
-            help=_("Maximum number of flavors to display")
+            metavar='<num-flavors>',
+            help=_(
+                'Maximum number of flavors to display. This is also '
+                'configurable on the server. The actual limit used will be '
+                'the lower of the user-supplied value and the server '
+                'configuration-derived value'
+            ),
         )
         return parser
 
@@ -293,14 +310,23 @@ class ListFlavor(command.Lister):
         query_attrs = {
             'is_public': is_public
         }
+
         if parsed_args.marker:
             query_attrs['marker'] = parsed_args.marker
+
         if parsed_args.limit:
             query_attrs['limit'] = parsed_args.limit
+
         if parsed_args.limit or parsed_args.marker:
             # User passed explicit pagination request, switch off SDK
             # pagination
             query_attrs['paginated'] = False
+
+        if parsed_args.min_disk:
+            query_attrs['min_disk'] = parsed_args.min_disk
+
+        if parsed_args.min_ram:
+            query_attrs['min_ram'] = parsed_args.min_ram
 
         data = list(compute_client.flavors(**query_attrs))
         # Even if server supports 2.61 some policy might stop it sending us
@@ -341,10 +367,13 @@ class ListFlavor(command.Lister):
                 "Properties",
             )
 
-        return (column_headers,
-                (utils.get_item_properties(
-                    s, columns, formatters=_formatters,
-                ) for s in data))
+        return (
+            column_headers,
+            (
+                utils.get_item_properties(s, columns, formatters=_formatters)
+                for s in data
+            ),
+        )
 
 
 class SetFlavor(command.Command):
@@ -378,13 +407,13 @@ class SetFlavor(command.Command):
             help=_('Set flavor access to project (name or ID) '
                    '(admin only)'),
         )
+        identity_common.add_project_domain_option_to_parser(parser)
         parser.add_argument(
             '--description',
             metavar='<description>',
             help=_("Set description for the flavor.(Supported by API "
                    "versions '2.55' - '2.latest'")
         )
-        identity_common.add_project_domain_option_to_parser(parser)
 
         return parser
 

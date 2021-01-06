@@ -1,0 +1,6 @@
+---
+features:
+  - |
+    The ``openstack flavor list`` command now accepts two additional
+    options, ``--min-disk`` and ``--min-ram``, to filter flavor by
+    minimum disk and minimum RAM, respectively.
