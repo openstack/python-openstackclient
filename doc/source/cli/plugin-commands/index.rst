@@ -14,7 +14,6 @@ Plugin Commands
    heat
    ironic
    ironic-inspector
-   karbor
    manila
    mistral
    neutron
