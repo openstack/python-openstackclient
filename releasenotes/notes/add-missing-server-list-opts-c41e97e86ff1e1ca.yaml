@@ -1,0 +1,16 @@
+---
+features:
+  - |
+    Add a number of additional options to the ``server list`` command:
+
+    - ``--availability-zone``
+    - ``--key-name``
+    - ``--config-drive``, ``--no-config-drive``
+    - ``--progress``
+    - ``--vm-state``
+    - ``--task-state``
+    - ``--power-state``
+upgrade:
+  - |
+    The ``openstack server list --status`` parameter will now validate the
+    requested status.

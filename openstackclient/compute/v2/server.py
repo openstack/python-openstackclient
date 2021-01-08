@@ -1346,18 +1346,18 @@ class DeleteServer(command.Command):
                     raise SystemExit
 
 
+def percent_type(x):
+    x = int(x)
+    if not 0 < x <= 100:
+        raise argparse.ArgumentTypeError("Must be between 0 and 100")
+    return x
+
+
 class ListServer(command.Lister):
     _description = _("List servers")
 
     def get_parser(self, prog_name):
         parser = super(ListServer, self).get_parser(prog_name)
-        parser.add_argument(
-            '--availability-zone',
-            metavar='<availability-zone>',
-            help=_('Only return instances that match the availability zone. '
-                   'Note that this option will be ignored for non-admin users '
-                   'when using ``--os-compute-api-version`` prior to 2.83.'),
-        )
         parser.add_argument(
             '--reservation-id',
             metavar='<reservation-id>',
@@ -1387,10 +1387,35 @@ class ListServer(command.Lister):
             metavar='<server-name>',
             help=_('Regular expression to match instance name (admin only)'),
         )
+        # taken from 'task_and_vm_state_from_status' function in nova
+        # the API sadly reports these in upper case and while it would be
+        # wonderful to plaster over this ugliness client-side, there are
+        # already users in the wild doing this in upper case that we need to
+        # support
         parser.add_argument(
             '--status',
             metavar='<status>',
-            # FIXME(dhellmann): Add choices?
+            choices=(
+                'ACTIVE',
+                'BUILD',
+                'DELETED',
+                'ERROR',
+                'HARD_REBOOT',
+                'MIGRATING',
+                'PASSWORD',
+                'PAUSED',
+                'REBOOT',
+                'REBUILD',
+                'RESCUE',
+                'RESIZE',
+                'REVERT_RESIZE',
+                'SHELVED',
+                'SHELVED_OFFLOADED',
+                'SHUTOFF',
+                'SOFT_DELETED',
+                'SUSPENDED',
+                'VERIFY_RESIZE'
+            ),
             help=_('Search by server status'),
         )
         parser.add_argument(
@@ -1423,7 +1448,10 @@ class ListServer(command.Lister):
         parser.add_argument(
             '--user',
             metavar='<user>',
-            help=_('Search by user (admin only) (name or ID)'),
+            help=_(
+                'Search by user (name or ID) '
+                '(admin only before microversion 2.83)'
+            ),
         )
         identity_common.add_user_domain_option_to_parser(parser)
         parser.add_argument(
@@ -1431,6 +1459,146 @@ class ListServer(command.Lister):
             action='store_true',
             default=False,
             help=_('Only display deleted servers (admin only)'),
+        )
+        parser.add_argument(
+            '--availability-zone',
+            default=None,
+            help=_(
+                'Search by availability zone '
+                '(admin only before microversion 2.83)'
+            ),
+        )
+        parser.add_argument(
+            '--key-name',
+            help=_(
+                'Search by keypair name '
+                '(admin only before microversion 2.83)'
+            ),
+        )
+        config_drive_group = parser.add_mutually_exclusive_group()
+        config_drive_group.add_argument(
+            '--config-drive',
+            action='store_true',
+            dest='has_config_drive',
+            default=None,
+            help=_(
+                'Only display servers with a config drive attached '
+                '(admin only before microversion 2.83)'
+            ),
+        )
+        # NOTE(gibi): this won't actually do anything until bug 1871409 is
+        # fixed and the REST API is cleaned up regarding the values of
+        # config_drive
+        config_drive_group.add_argument(
+            '--no-config-drive',
+            action='store_false',
+            dest='has_config_drive',
+            help=_(
+                'Only display servers without a config drive attached '
+                '(admin only before microversion 2.83)'
+            ),
+        )
+        parser.add_argument(
+            '--progress',
+            type=percent_type,
+            default=None,
+            help=_(
+                'Search by progress value (%%) '
+                '(admin only before microversion 2.83)'
+            ),
+        )
+        parser.add_argument(
+            '--vm-state',
+            metavar='<state>',
+            # taken from 'InstanceState' object field in nova
+            choices=(
+                'active',
+                'building',
+                'deleted',
+                'error',
+                'paused',
+                'stopped',
+                'suspended',
+                'rescued',
+                'resized',
+                'shelved',
+                'shelved_offloaded',
+                'soft-delete',
+            ),
+            help=_(
+                'Search by vm_state value '
+                '(admin only before microversion 2.83)'
+            ),
+        )
+        parser.add_argument(
+            '--task-state',
+            metavar='<state>',
+            # taken from 'InstanceTaskState' object field in nova
+            choices=(
+                'block_device_mapping',
+                'deleting',
+                'image_backup',
+                'image_pending_upload',
+                'image_snapshot',
+                'image_snapshot_pending',
+                'image_uploading',
+                'migrating',
+                'networking',
+                'pausing',
+                'powering-off',
+                'powering-on',
+                'rebooting',
+                'reboot_pending',
+                'reboot_started',
+                'reboot_pending_hard',
+                'reboot_started_hard',
+                'rebooting_hard',
+                'rebuilding',
+                'rebuild_block_device_mapping',
+                'rebuild_spawning',
+                'rescuing',
+                'resize_confirming',
+                'resize_finish',
+                'resize_migrated',
+                'resize_migrating',
+                'resize_prep',
+                'resize_reverting',
+                'restoring',
+                'resuming',
+                'scheduling',
+                'shelving',
+                'shelving_image_pending_upload',
+                'shelving_image_uploading',
+                'shelving_offloading',
+                'soft-deleting',
+                'spawning',
+                'suspending',
+                'updating_password',
+                'unpausing',
+                'unrescuing',
+                'unshelving',
+            ),
+            help=_(
+                'Search by task_state value '
+                '(admin only before microversion 2.83)'
+            ),
+        )
+        parser.add_argument(
+            '--power-state',
+            metavar='<state>',
+            # taken from 'InstancePowerState' object field in nova
+            choices=(
+                'pending',
+                'running',
+                'paused',
+                'shutdown',
+                'crashed',
+                'suspended',
+            ),
+            help=_(
+                'Search by power_state value '
+                '(admin only before microversion 2.83)'
+            ),
         )
         parser.add_argument(
             '--long',
@@ -1584,7 +1752,6 @@ class ListServer(command.Lister):
                                                ignore_missing=False).id
 
         search_opts = {
-            'availability_zone': parsed_args.availability_zone,
             'reservation_id': parsed_args.reservation_id,
             'ip': parsed_args.ip,
             'ip6': parsed_args.ip6,
@@ -1601,6 +1768,36 @@ class ListServer(command.Lister):
             'changes-before': parsed_args.changes_before,
             'changes-since': parsed_args.changes_since,
         }
+
+        if parsed_args.availability_zone:
+            search_opts['availability_zone'] = parsed_args.availability_zone
+
+        if parsed_args.key_name:
+            search_opts['key_name'] = parsed_args.key_name
+
+        if parsed_args.has_config_drive is not None:
+            search_opts['config_drive'] = parsed_args.has_config_drive
+
+        if parsed_args.progress is not None:
+            search_opts['progress'] = str(parsed_args.progress)
+
+        if parsed_args.vm_state:
+            search_opts['vm_state'] = parsed_args.vm_state
+
+        if parsed_args.task_state:
+            search_opts['task_state'] = parsed_args.task_state
+
+        if parsed_args.power_state:
+            # taken from 'InstancePowerState' object field in nova
+            power_state = {
+                'pending': 0,
+                'running': 1,
+                'paused': 3,
+                'shutdown': 4,
+                'crashed': 6,
+                'suspended': 7,
+            }[parsed_args.power_state]
+            search_opts['power_state'] = power_state
 
         if parsed_args.tags:
             if compute_client.api_version < api_versions.APIVersion('2.26'):
