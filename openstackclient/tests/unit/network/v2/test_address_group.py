@@ -282,7 +282,7 @@ class TestListAddressGroup(TestAddressGroup):
         columns, data = self.cmd.take_action(parsed_args)
 
         self.network.address_groups.assert_called_once_with(
-            **{'tenant_id': project.id, 'project_id': project.id})
+            project_id=project.id)
         self.assertEqual(self.columns, columns)
         self.assertItemsEqual(self.data, list(data))
 
@@ -297,11 +297,10 @@ class TestListAddressGroup(TestAddressGroup):
             ('project', project.id),
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
-
         columns, data = self.cmd.take_action(parsed_args)
-        filters = {'tenant_id': project.id, 'project_id': project.id}
 
-        self.network.address_groups.assert_called_once_with(**filters)
+        self.network.address_groups.assert_called_once_with(
+            project_id=project.id)
         self.assertEqual(self.columns, columns)
         self.assertItemsEqual(self.data, list(data))
 
