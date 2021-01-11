@@ -6969,6 +6969,9 @@ class TestServerUnshelve(TestServer):
         self.methods = {
             'unshelve': None,
         }
+        self.attrs = {
+            'status': 'SHELVED',
+        }
 
     def test_unshelve_one_server(self):
         self.run_method_with_servers('unshelve', 1)
@@ -6976,8 +6979,34 @@ class TestServerUnshelve(TestServer):
     def test_unshelve_multi_servers(self):
         self.run_method_with_servers('unshelve', 3)
 
-    def test_unshelve_server_with_specified_az(self):
-        server = compute_fakes.FakeServer.create_one_server()
+    def test_unshelve_with_specified_az(self):
+        self.app.client_manager.compute.api_version = \
+            api_versions.APIVersion('2.77')
+
+        server = compute_fakes.FakeServer.create_one_server(
+            attrs=self.attrs, methods=self.methods)
+        self.servers_mock.get.return_value = server
+        arglist = [
+            '--availability-zone', "foo-az",
+            server.id,
+        ]
+        verifylist = [
+            ('availability_zone', "foo-az"),
+            ('server', [server.id])
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        self.cmd.take_action(parsed_args)
+
+        self.servers_mock.get.assert_called_with(server.id)
+        server.unshelve.assert_called_with(availability_zone="foo-az")
+
+    def test_unshelve_with_specified_az_pre_v277(self):
+        self.app.client_manager.compute.api_version = \
+            api_versions.APIVersion('2.76')
+
+        server = compute_fakes.FakeServer.create_one_server(
+            attrs=self.attrs, methods=self.methods)
         arglist = [
             server.id,
             '--availability-zone', "foo-az",
@@ -6987,44 +7016,37 @@ class TestServerUnshelve(TestServer):
             ('server', [server.id])
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
-        ex = self.assertRaises(exceptions.CommandError,
-                               self.cmd.take_action,
-                               parsed_args)
+        ex = self.assertRaises(
+            exceptions.CommandError,
+            self.cmd.take_action,
+            parsed_args)
         self.assertIn(
             '--os-compute-api-version 2.77 or greater is required', str(ex))
 
+    @mock.patch.object(common_utils, 'wait_for_status', return_value=True)
+    def test_unshelve_with_wait(self, mock_wait_for_status):
+        server = compute_fakes.FakeServer.create_one_server(
+            attrs=self.attrs, methods=self.methods)
+        self.servers_mock.get.return_value = server
 
-class TestServerUnshelveV277(TestServerUnshelve):
-
-    def setUp(self):
-        super(TestServerUnshelveV277, self).setUp()
-
-        self.server = compute_fakes.FakeServer.create_one_server(
-            methods=self.methods)
-
-        # This is the return value for utils.find_resource()
-        self.servers_mock.get.return_value = self.server
-
-        # Get the command object to test
-        self.cmd = server.UnshelveServer(self.app, None)
-
-    def test_specified_az_to_unshelve_with_v277(self):
-        self.app.client_manager.compute.api_version = api_versions.APIVersion(
-            '2.77')
-
-        arglist = [
-            '--availability-zone', "foo-az",
-            self.server.id,
-        ]
+        arglist = ['--wait', server.name]
         verifylist = [
-            ('availability_zone', "foo-az"),
-            ('server', [self.server.id])
+            ('server', [server.name]),
+            ('wait', True),
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
-        self.cmd.take_action(parsed_args)
-        self.servers_mock.get.assert_called_with(self.server.id)
-        self.server.unshelve.assert_called_with(availability_zone="foo-az")
+        result = self.cmd.take_action(parsed_args)
+        self.assertIsNone(result)
+
+        self.servers_mock.get.assert_called_once_with(server.name)
+        server.unshelve.assert_called_once_with()
+        mock_wait_for_status.assert_called_once_with(
+            self.servers_mock.get,
+            server.id,
+            callback=mock.ANY,
+            success_status=('active', 'shutoff'),
+        )
 
 
 class TestServerGeneral(TestServer):
