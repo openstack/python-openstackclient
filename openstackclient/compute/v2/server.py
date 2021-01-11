@@ -3585,25 +3585,115 @@ class SetServer(command.Command):
 
 
 class ShelveServer(command.Command):
-    _description = _("Shelve server(s)")
+    """Shelve and optionally offload server(s).
+
+    Shelving a server creates a snapshot of the server and stores this
+    snapshot before shutting down the server. This shelved server can then be
+    offloaded or deleted from the host, freeing up remaining resources on the
+    host, such as network interfaces. Shelved servers can be unshelved,
+    restoring the server from the snapshot. Shelving is therefore useful where
+    users wish to retain the UUID and IP of a server, without utilizing other
+    resources or disks.
+
+    Most clouds are configured to automatically offload shelved servers
+    immediately or after a small delay. For clouds where this is not
+    configured, or where the delay is larger, offloading can be manually
+    specified. This is an admin-only operation by default.
+    """
 
     def get_parser(self, prog_name):
         parser = super(ShelveServer, self).get_parser(prog_name)
         parser.add_argument(
-            'server',
+            'servers',
             metavar='<server>',
             nargs='+',
             help=_('Server(s) to shelve (name or ID)'),
         )
+        parser.add_argument(
+            '--offload',
+            action='store_true',
+            default=False,
+            help=_(
+                'Remove the shelved server(s) from the host (admin only). '
+                'Invoking this option on an unshelved server(s) will result '
+                'in the server being shelved first'
+            ),
+        )
+        parser.add_argument(
+            '--wait',
+            action='store_true',
+            default=False,
+            help=_('Wait for shelve and/or offload operation to complete'),
+        )
         return parser
 
     def take_action(self, parsed_args):
+
+        def _show_progress(progress):
+            if progress:
+                self.app.stdout.write('\rProgress: %s' % progress)
+                self.app.stdout.flush()
+
         compute_client = self.app.client_manager.compute
-        for server in parsed_args.server:
-            utils.find_resource(
+
+        for server in parsed_args.servers:
+            server_obj = utils.find_resource(
                 compute_client.servers,
                 server,
-            ).shelve()
+            )
+            if server_obj.status.lower() in ('shelved', 'shelved_offloaded'):
+                continue
+
+            server_obj.shelve()
+
+        # if we don't hav to wait, either because it was requested explicitly
+        # or is required implicitly, then our job is done
+        if not parsed_args.wait and not parsed_args.offload:
+            return
+
+        for server in parsed_args.servers:
+            # TODO(stephenfin): We should wait for these in parallel using e.g.
+            # https://review.opendev.org/c/openstack/osc-lib/+/762503/
+            if not utils.wait_for_status(
+                compute_client.servers.get, server_obj.id,
+                success_status=('shelved', 'shelved_offloaded'),
+                callback=_show_progress,
+            ):
+                LOG.error(_('Error shelving server: %s'), server_obj.id)
+                self.app.stdout.write(
+                    _('Error shelving server: %s\n') % server_obj.id)
+                raise SystemExit
+
+        if not parsed_args.offload:
+            return
+
+        for server in parsed_args.servers:
+            server_obj = utils.find_resource(
+                compute_client.servers,
+                server,
+            )
+            if server_obj.status.lower() == 'shelved_offloaded':
+                continue
+
+            server_obj.shelve_offload()
+
+        if not parsed_args.wait:
+            return
+
+        for server in parsed_args.servers:
+            # TODO(stephenfin): We should wait for these in parallel using e.g.
+            # https://review.opendev.org/c/openstack/osc-lib/+/762503/
+            if not utils.wait_for_status(
+                compute_client.servers.get, server_obj.id,
+                success_status=('shelved_offloaded',),
+                callback=_show_progress,
+            ):
+                LOG.error(
+                    _('Error offloading shelved server %s'), server_obj.id)
+                self.app.stdout.write(
+                    _('Error offloading shelved server: %s\n') % (
+                        server_obj.id))
+                raise SystemExit
 
 
 class ShowServer(command.ShowOne):
