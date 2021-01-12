@@ -36,10 +36,7 @@ def _get_columns(item):
 
 
 def _format_addresses(addresses):
-    ret = []
-    for addr in addresses:
-        ret.append(str(netaddr.IPNetwork(addr)))
-    return ret
+    return [str(netaddr.IPNetwork(addr)) for addr in addresses]
 
 
 def _get_attrs(client_manager, parsed_args):
@@ -185,7 +182,6 @@ class ListAddressGroup(command.Lister):
                 parsed_args.project,
                 parsed_args.project_domain,
             ).id
-            attrs['tenant_id'] = project_id
             attrs['project_id'] = project_id
         data = client.address_groups(**attrs)
 
