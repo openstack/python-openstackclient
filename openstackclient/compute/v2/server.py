@@ -513,27 +513,27 @@ class AddServerVolume(command.Command):
             '--tag',
             metavar='<tag>',
             help=_(
-                "Tag for the attached volume. "
-                "(Supported by API versions '2.49' - '2.latest')"
+                'Tag for the attached volume '
+                '(supported by --os-compute-api-version 2.49 or above)'
             ),
         )
+        # TODO(stephenfin): These should be called 'delete-on-termination' and
+        # 'preserve-on-termination'
         termination_group = parser.add_mutually_exclusive_group()
         termination_group.add_argument(
             '--enable-delete-on-termination',
             action='store_true',
             help=_(
-                "Specify if the attached volume should be deleted when the "
-                "server is destroyed. "
-                "(Supported by API versions '2.79' - '2.latest')"
+                'Delete the volume when the server is destroyed '
+                '(supported by --os-compute-api-version 2.79 or above)'
             ),
         )
         termination_group.add_argument(
             '--disable-delete-on-termination',
             action='store_true',
             help=_(
-                "Specify if the attached volume should not be deleted when "
-                "the server is destroyed. "
-                "(Supported by API versions '2.79' - '2.latest')"
+                'Do not delete the volume when the server is destroyed '
+                '(supported by --os-compute-api-version 2.79 or above)'
             ),
         )
         return parser

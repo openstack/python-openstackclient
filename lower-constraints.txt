@@ -71,7 +71,7 @@ python-cinderclient==3.3.0
 python-dateutil==2.5.3
 python-keystoneclient==3.22.0
 python-mimeparse==1.6.0
-python-novaclient==15.1.0
+python-novaclient==17.0.0
 python-subunit==1.0.0
 pytz==2013.6
 PyYAML==3.13
