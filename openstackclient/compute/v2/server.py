@@ -2369,21 +2369,21 @@ class ListMigration(command.Lister):
         parser.add_argument(
             '--project',
             metavar='<project>',
-            dest='project_id',
             help=_(
-                "Filter migrations by project (ID) "
+                "Filter migrations by project (name or ID) "
                 "(supported with --os-compute-api-version 2.80 or above)"
             ),
         )
+        identity_common.add_project_domain_option_to_parser(parser)
         parser.add_argument(
             '--user',
             metavar='<user>',
-            dest='user_id',
             help=_(
-                "Filter migrations by user (ID) "
+                "Filter migrations by user (name or ID) "
                 "(supported with --os-compute-api-version 2.80 or above)"
             ),
         )
+        identity_common.add_user_domain_option_to_parser(parser)
         return parser
 
     def print_migrations(self, parsed_args, compute_client, migrations):
@@ -2402,9 +2402,9 @@ class ListMigration(command.Lister):
             columns.insert(len(columns) - 2, "Type")
 
         if compute_client.api_version >= api_versions.APIVersion("2.80"):
-            if parsed_args.project_id:
+            if parsed_args.project:
                 columns.insert(len(columns) - 2, "Project")
-            if parsed_args.user_id:
+            if parsed_args.user:
                 columns.insert(len(columns) - 2, "User")
 
         return (
@@ -2414,6 +2414,7 @@ class ListMigration(command.Lister):
 
     def take_action(self, parsed_args):
         compute_client = self.app.client_manager.compute
+        identity_client = self.app.client_manager.identity
 
         search_opts = {
             'host': parsed_args.host,
@@ -2469,23 +2470,33 @@ class ListMigration(command.Lister):
                 raise exceptions.CommandError(msg)
             search_opts['changes_before'] = parsed_args.changes_before
 
-        if parsed_args.project_id:
+        if parsed_args.project:
             if compute_client.api_version < api_versions.APIVersion('2.80'):
                 msg = _(
                     '--os-compute-api-version 2.80 or greater is required to '
                     'support the --project option'
                 )
                 raise exceptions.CommandError(msg)
-            search_opts['project_id'] = parsed_args.project_id
 
-        if parsed_args.user_id:
+            search_opts['project_id'] = identity_common.find_project(
+                identity_client,
+                parsed_args.project,
+                parsed_args.project_domain,
+            ).id
+
+        if parsed_args.user:
             if compute_client.api_version < api_versions.APIVersion('2.80'):
                 msg = _(
                     '--os-compute-api-version 2.80 or greater is required to '
                     'support the --user option'
                 )
                 raise exceptions.CommandError(msg)
-            search_opts['user_id'] = parsed_args.user_id
+
+            search_opts['user_id'] = identity_common.find_user(
+                identity_client,
+                parsed_args.user,
+                parsed_args.user_domain,
+            ).id
 
         migrations = compute_client.migrations.list(**search_opts)
 
