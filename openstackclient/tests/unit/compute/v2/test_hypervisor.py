@@ -173,6 +173,30 @@ class TestHypervisorList(TestHypervisor):
                           self.cmd.take_action,
                           parsed_args)
 
+    def test_hypervisor_list_with_matching_and_pagination_options(self):
+        self.app.client_manager.compute.api_version = \
+            api_versions.APIVersion('2.32')
+
+        arglist = [
+            '--matching', self.hypervisors[0].hypervisor_hostname,
+            '--limit', '1',
+            '--marker', self.hypervisors[0].hypervisor_hostname,
+        ]
+        verifylist = [
+            ('matching', self.hypervisors[0].hypervisor_hostname),
+            ('limit', 1),
+            ('marker', self.hypervisors[0].hypervisor_hostname),
+        ]
+
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+        ex = self.assertRaises(
+            exceptions.CommandError,
+            self.cmd.take_action,
+            parsed_args)
+
+        self.assertIn(
+            '--matching is not compatible with --marker or --limit', str(ex))
+
     def test_hypervisor_list_long_option(self):
         arglist = [
             '--long',
@@ -190,6 +214,78 @@ class TestHypervisorList(TestHypervisor):
         self.hypervisors_mock.list.assert_called_with()
         self.assertEqual(self.columns_long, columns)
         self.assertEqual(self.data_long, tuple(data))
+
+    def test_hypervisor_list_with_limit(self):
+        self.app.client_manager.compute.api_version = \
+            api_versions.APIVersion('2.33')
+
+        arglist = [
+            '--limit', '1',
+        ]
+        verifylist = [
+            ('limit', 1),
+        ]
+
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+        self.cmd.take_action(parsed_args)
+
+        self.hypervisors_mock.list.assert_called_with(limit=1)
+
+    def test_hypervisor_list_with_limit_pre_v233(self):
+        self.app.client_manager.compute.api_version = \
+            api_versions.APIVersion('2.32')
+
+        arglist = [
+            '--limit', '1',
+        ]
+        verifylist = [
+            ('limit', 1),
+        ]
+
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+        ex = self.assertRaises(
+            exceptions.CommandError,
+            self.cmd.take_action,
+            parsed_args)
+
+        self.assertIn(
+            '--os-compute-api-version 2.33 or greater is required', str(ex))
+
+    def test_hypervisor_list_with_marker(self):
+        self.app.client_manager.compute.api_version = \
+            api_versions.APIVersion('2.33')
+
+        arglist = [
+            '--marker', 'test_hyp',
+        ]
+        verifylist = [
+            ('marker', 'test_hyp'),
+        ]
+
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+        self.cmd.take_action(parsed_args)
+
+        self.hypervisors_mock.list.assert_called_with(marker='test_hyp')
+
+    def test_hypervisor_list_with_marker_pre_v233(self):
+        self.app.client_manager.compute.api_version = \
+            api_versions.APIVersion('2.32')
+
+        arglist = [
+            '--marker', 'test_hyp',
+        ]
+        verifylist = [
+            ('marker', 'test_hyp'),
+        ]
+
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+        ex = self.assertRaises(
+            exceptions.CommandError,
+            self.cmd.take_action,
+            parsed_args)
+
+        self.assertIn(
+            '--os-compute-api-version 2.33 or greater is required', str(ex))
 
 
 class TestHypervisorShow(TestHypervisor):

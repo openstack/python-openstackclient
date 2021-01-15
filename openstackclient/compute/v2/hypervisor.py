@@ -22,6 +22,7 @@ from novaclient import api_versions
 from novaclient import exceptions as nova_exceptions
 from osc_lib.cli import format_columns
 from osc_lib.command import command
+from osc_lib import exceptions
 from osc_lib import utils
 
 from openstackclient.i18n import _
@@ -33,9 +34,30 @@ class ListHypervisor(command.Lister):
     def get_parser(self, prog_name):
         parser = super(ListHypervisor, self).get_parser(prog_name)
         parser.add_argument(
-            "--matching",
-            metavar="<hostname>",
+            '--matching',
+            metavar='<hostname>',
             help=_("Filter hypervisors using <hostname> substring")
+        )
+        parser.add_argument(
+            '--marker',
+            metavar='<marker>',
+            help=_(
+                "The UUID of the last hypervisor of the previous page; "
+                "displays list of hypervisors after 'marker'. "
+                "(supported with --os-compute-api-version 2.33 or above)"
+            ),
+        )
+        parser.add_argument(
+            '--limit',
+            metavar='<limit>',
+            type=int,
+            help=_(
+                "Maximum number of hypervisors to display. Note that there "
+                "is a configurable max limit on the server, and the limit "
+                "that is used will be the minimum of what is requested "
+                "here and what is configured in the server. "
+                "(supported with --os-compute-api-version 2.33 or above)"
+            ),
         )
         parser.add_argument(
             '--long',
@@ -46,6 +68,33 @@ class ListHypervisor(command.Lister):
 
     def take_action(self, parsed_args):
         compute_client = self.app.client_manager.compute
+
+        list_opts = {}
+
+        if parsed_args.matching and (parsed_args.marker or parsed_args.limit):
+            msg = _(
+                '--matching is not compatible with --marker or --limit'
+            )
+            raise exceptions.CommandError(msg)
+
+        if parsed_args.marker:
+            if compute_client.api_version < api_versions.APIVersion('2.33'):
+                msg = _(
+                    '--os-compute-api-version 2.33 or greater is required to '
+                    'support the --marker option'
+                )
+                raise exceptions.CommandError(msg)
+            list_opts['marker'] = parsed_args.marker
+
+        if parsed_args.limit:
+            if compute_client.api_version < api_versions.APIVersion('2.33'):
+                msg = _(
+                    '--os-compute-api-version 2.33 or greater is required to '
+                    'support the --limit option'
+                )
+                raise exceptions.CommandError(msg)
+            list_opts['limit'] = parsed_args.limit
+
         columns = (
             "ID",
             "Hypervisor Hostname",
@@ -59,12 +108,12 @@ class ListHypervisor(command.Lister):
         if parsed_args.matching:
             data = compute_client.hypervisors.search(parsed_args.matching)
         else:
-            data = compute_client.hypervisors.list()
+            data = compute_client.hypervisors.list(**list_opts)
 
-        return (columns,
-                (utils.get_item_properties(
-                    s, columns,
-                ) for s in data))
+        return (
+            columns,
+            (utils.get_item_properties(s, columns) for s in data),
+        )
 
 
 class ShowHypervisor(command.ShowOne):
