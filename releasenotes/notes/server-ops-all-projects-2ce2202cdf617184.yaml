@@ -1,0 +1,7 @@
+---
+features:
+  - |
+    The ``server delete``, ``server start`` and ``server stop`` commands now
+    support the ``--all-projects`` option. This allows you to perform the
+    specified action on a server in another project using the server name.
+    This is an admin-only action by default.

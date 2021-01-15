@@ -31,6 +31,7 @@ from osc_lib.cli import parseractions
 from osc_lib.command import command
 from osc_lib import exceptions
 from osc_lib import utils
+from oslo_utils import strutils
 
 from openstackclient.i18n import _
 from openstackclient.identity import common as identity_common
@@ -191,6 +192,24 @@ def _prep_server_detail(compute_client, image_client, server, refresh=True):
     info.pop('links', None)
 
     return info
+
+
+def boolenv(*vars, default=False):
+    """Search for the first defined of possibly many bool-like env vars.
+
+    Returns the first environment variable defined in vars, or returns the
+    default.
+
+    :param vars: Arbitrary strings to search for. Case sensitive.
+    :param default: The default to return if no value found.
+    :returns: A boolean corresponding to the value found, else the default if
+        no value found.
+    """
+    for v in vars:
+        value = os.environ.get(v, None)
+        if value:
+            return strutils.bool_from_string(value)
+    return default
 
 
 class AddFixedIP(command.Command):
@@ -1323,6 +1342,15 @@ class DeleteServer(command.Command):
             help=_('Force delete server(s)'),
         )
         parser.add_argument(
+            '--all-projects',
+            action='store_true',
+            default=boolenv('ALL_PROJECTS'),
+            help=_(
+                'Delete server(s) in another project by name (admin only)'
+                '(can be specified using the ALL_PROJECTS envvar)'
+            ),
+        )
+        parser.add_argument(
             '--wait',
             action='store_true',
             help=_('Wait for delete to complete'),
@@ -1339,7 +1367,8 @@ class DeleteServer(command.Command):
         compute_client = self.app.client_manager.compute
         for server in parsed_args.server:
             server_obj = utils.find_resource(
-                compute_client.servers, server)
+                compute_client.servers, server,
+                all_tenants=parsed_args.all_projects)
 
             if parsed_args.force:
                 compute_client.servers.force_delete(server_obj.id)
@@ -1347,11 +1376,13 @@ class DeleteServer(command.Command):
                 compute_client.servers.delete(server_obj.id)
 
             if parsed_args.wait:
-                if not utils.wait_for_delete(compute_client.servers,
-                                             server_obj.id,
-                                             callback=_show_progress):
-                    LOG.error(_('Error deleting server: %s'),
-                              server_obj.id)
+                if not utils.wait_for_delete(
+                    compute_client.servers,
+                    server_obj.id,
+                    callback=_show_progress,
+                ):
+                    msg = _('Error deleting server: %s')
+                    LOG.error(msg, server_obj.id)
                     self.app.stdout.write(_('Error deleting server\n'))
                     raise SystemExit
 
@@ -1446,8 +1477,11 @@ class ListServer(command.Lister):
         parser.add_argument(
             '--all-projects',
             action='store_true',
-            default=bool(int(os.environ.get("ALL_PROJECTS", 0))),
-            help=_('Include all projects (admin only)'),
+            default=boolenv('ALL_PROJECTS'),
+            help=_(
+                'Include all projects (admin only) '
+                '(can be specified using the ALL_PROJECTS envvar)'
+            ),
         )
         parser.add_argument(
             '--project',
@@ -3939,6 +3973,15 @@ class StartServer(command.Command):
             nargs="+",
             help=_('Server(s) to start (name or ID)'),
         )
+        parser.add_argument(
+            '--all-projects',
+            action='store_true',
+            default=boolenv('ALL_PROJECTS'),
+            help=_(
+                'Start server(s) in another project by name (admin only)'
+                '(can be specified using the ALL_PROJECTS envvar)'
+            ),
+        )
         return parser
 
     def take_action(self, parsed_args):
@@ -3947,6 +3990,7 @@ class StartServer(command.Command):
             utils.find_resource(
                 compute_client.servers,
                 server,
+                all_tenants=parsed_args.all_projects,
             ).start()
 
 
@@ -3961,6 +4005,15 @@ class StopServer(command.Command):
             nargs="+",
             help=_('Server(s) to stop (name or ID)'),
         )
+        parser.add_argument(
+            '--all-projects',
+            action='store_true',
+            default=boolenv('ALL_PROJECTS'),
+            help=_(
+                'Stop server(s) in another project by name (admin only)'
+                '(can be specified using the ALL_PROJECTS envvar)'
+            ),
+        )
         return parser
 
     def take_action(self, parsed_args):
@@ -3969,6 +4022,7 @@ class StopServer(command.Command):
             utils.find_resource(
                 compute_client.servers,
                 server,
+                all_tenants=parsed_args.all_projects,
             ).stop()
 
 
