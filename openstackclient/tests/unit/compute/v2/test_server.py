@@ -4396,8 +4396,8 @@ class TestListMigration(TestServer):
         self.server = compute_fakes.FakeServer.create_one_server()
         self.servers_mock.get.return_value = self.server
 
-        self.migrations = compute_fakes.FakeServerMigration\
-            .create_server_migrations(count=3)
+        self.migrations = compute_fakes.FakeMigration.create_migrations(
+            count=3)
         self.migrations_mock.list.return_value = self.migrations
 
         self.data = (common_utils.get_item_properties(

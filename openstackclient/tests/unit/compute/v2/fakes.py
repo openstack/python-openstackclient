@@ -1566,12 +1566,12 @@ class FakeRateLimit(object):
         self.next_available = next_available
 
 
-class FakeServerMigration(object):
-    """Fake one or more server migrations."""
+class FakeMigration(object):
+    """Fake one or more migrations."""
 
     @staticmethod
-    def create_one_server_migration(attrs=None, methods=None):
-        """Create a fake server migration.
+    def create_one_migration(attrs=None, methods=None):
+        """Create a fake migration.
 
         :param Dictionary attrs:
             A dictionary with all attributes
@@ -1612,22 +1612,22 @@ class FakeServerMigration(object):
         return migration
 
     @staticmethod
-    def create_server_migrations(attrs=None, methods=None, count=2):
-        """Create multiple fake server migrations.
+    def create_migrations(attrs=None, methods=None, count=2):
+        """Create multiple fake migrations.
 
         :param Dictionary attrs:
             A dictionary with all attributes
         :param Dictionary methods:
             A dictionary with all methods
         :param int count:
-            The number of server migrations to fake
+            The number of migrations to fake
         :return:
-            A list of FakeResource objects faking the server migrations
+            A list of FakeResource objects faking the migrations
         """
         migrations = []
         for i in range(0, count):
             migrations.append(
-                FakeServerMigration.create_one_server_migration(
+                FakeMigration.create_one_migration(
                     attrs, methods))
 
         return migrations
@@ -1680,7 +1680,7 @@ class FakeVolumeAttachment(object):
         :param Dictionary methods:
             A dictionary with all methods
         :param int count:
-            The number of server migrations to fake
+            The number of volume attachments to fake
         :return:
             A list of FakeResource objects faking the volume attachments.
         """
