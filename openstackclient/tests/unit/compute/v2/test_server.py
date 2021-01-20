@@ -1935,7 +1935,15 @@ class TestServerCreate(TestServer):
         verifylist = [
             ('image', 'image1'),
             ('flavor', self.flavor.id),
-            ('block_device_mapping', {'vda': self.volume.name + ':::false'}),
+            ('block_device_mapping', [
+                {
+                    'device_name': 'vda',
+                    'uuid': self.volume.name,
+                    'source_type': 'volume',
+                    'destination_type': 'volume',
+                    'delete_on_termination': 'false',
+                }
+            ]),
             ('config_drive', False),
             ('server_name', self.new_server.name),
         ]
@@ -1988,7 +1996,14 @@ class TestServerCreate(TestServer):
         verifylist = [
             ('image', 'image1'),
             ('flavor', self.flavor.id),
-            ('block_device_mapping', {'vdf': self.volume.name}),
+            ('block_device_mapping', [
+                {
+                    'device_name': 'vdf',
+                    'uuid': self.volume.name,
+                    'source_type': 'volume',
+                    'destination_type': 'volume',
+                }
+            ]),
             ('config_drive', False),
             ('server_name', self.new_server.name),
         ]
@@ -2040,7 +2055,14 @@ class TestServerCreate(TestServer):
         verifylist = [
             ('image', 'image1'),
             ('flavor', self.flavor.id),
-            ('block_device_mapping', {'vdf': self.volume.name + ':::'}),
+            ('block_device_mapping', [
+                {
+                    'device_name': 'vdf',
+                    'uuid': self.volume.name,
+                    'source_type': 'volume',
+                    'destination_type': 'volume',
+                }
+            ]),
             ('config_drive', False),
             ('server_name', self.new_server.name),
         ]
@@ -2093,8 +2115,16 @@ class TestServerCreate(TestServer):
         verifylist = [
             ('image', 'image1'),
             ('flavor', self.flavor.id),
-            ('block_device_mapping',
-             {'vde': self.volume.name + ':volume:3:true'}),
+            ('block_device_mapping', [
+                {
+                    'device_name': 'vde',
+                    'uuid': self.volume.name,
+                    'source_type': 'volume',
+                    'destination_type': 'volume',
+                    'volume_size': '3',
+                    'delete_on_termination': 'true',
+                }
+            ]),
             ('config_drive', False),
             ('server_name', self.new_server.name),
         ]
@@ -2149,8 +2179,16 @@ class TestServerCreate(TestServer):
         verifylist = [
             ('image', 'image1'),
             ('flavor', self.flavor.id),
-            ('block_device_mapping',
-             {'vds': self.volume.name + ':snapshot:5:true'}),
+            ('block_device_mapping', [
+                {
+                    'device_name': 'vds',
+                    'uuid': self.volume.name,
+                    'source_type': 'snapshot',
+                    'volume_size': '5',
+                    'destination_type': 'volume',
+                    'delete_on_termination': 'true',
+                }
+            ]),
             ('config_drive', False),
             ('server_name', self.new_server.name),
         ]
@@ -2205,8 +2243,22 @@ class TestServerCreate(TestServer):
         verifylist = [
             ('image', 'image1'),
             ('flavor', self.flavor.id),
-            ('block_device_mapping', {'vdb': self.volume.name + ':::false',
-                                      'vdc': self.volume.name + ':::true'}),
+            ('block_device_mapping', [
+                {
+                    'device_name': 'vdb',
+                    'uuid': self.volume.name,
+                    'source_type': 'volume',
+                    'destination_type': 'volume',
+                    'delete_on_termination': 'false',
+                },
+                {
+                    'device_name': 'vdc',
+                    'uuid': self.volume.name,
+                    'source_type': 'volume',
+                    'destination_type': 'volume',
+                    'delete_on_termination': 'true',
+                },
+            ]),
             ('config_drive', False),
             ('server_name', self.new_server.name),
         ]
@@ -2259,26 +2311,29 @@ class TestServerCreate(TestServer):
         self.assertEqual(self.datalist(), data)
 
     def test_server_create_with_block_device_mapping_invalid_format(self):
-        # 1. block device mapping don't contain equal sign "="
+        # block device mapping don't contain equal sign "="
         arglist = [
             '--image', 'image1',
             '--flavor', self.flavor.id,
             '--block-device-mapping', 'not_contain_equal_sign',
             self.new_server.name,
         ]
-        self.assertRaises(argparse.ArgumentTypeError,
-                          self.check_parser,
-                          self.cmd, arglist, [])
-        # 2. block device mapping don't contain device name "=uuid:::true"
+        self.assertRaises(
+            argparse.ArgumentTypeError,
+            self.check_parser,
+            self.cmd, arglist, [])
+
+        # block device mapping don't contain device name "=uuid:::true"
         arglist = [
             '--image', 'image1',
             '--flavor', self.flavor.id,
             '--block-device-mapping', '=uuid:::true',
             self.new_server.name,
         ]
-        self.assertRaises(argparse.ArgumentTypeError,
-                          self.check_parser,
-                          self.cmd, arglist, [])
+        self.assertRaises(
+            argparse.ArgumentTypeError,
+            self.check_parser,
+            self.cmd, arglist, [])
 
     def test_server_create_with_block_device_mapping_no_uuid(self):
         arglist = [
@@ -2287,18 +2342,10 @@ class TestServerCreate(TestServer):
             '--block-device-mapping', 'vdb=',
             self.new_server.name,
         ]
-        verifylist = [
-            ('image', 'image1'),
-            ('flavor', self.flavor.id),
-            ('block_device_mapping', {'vdb': ''}),
-            ('config_drive', False),
-            ('server_name', self.new_server.name),
-        ]
-        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
-
-        self.assertRaises(exceptions.CommandError,
-                          self.cmd.take_action,
-                          parsed_args)
+        self.assertRaises(
+            argparse.ArgumentTypeError,
+            self.check_parser,
+            self.cmd, arglist, [])
 
     def test_server_create_volume_boot_from_volume_conflict(self):
         # Tests that specifying --volume and --boot-from-volume results in
