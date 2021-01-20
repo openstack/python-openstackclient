@@ -126,6 +126,12 @@ class CreateSecurityGroupRule(common.NetworkAndComputeShowOne):
             metavar="<group>",
             help=_("Remote security group (name or ID)"),
         )
+        if self.is_neutron:
+            remote_group.add_argument(
+                "--remote-address-group",
+                metavar="<group>",
+                help=_("Remote address group (name or ID)"),
+            )
 
         # NOTE(efried): The --dst-port, --protocol, and --proto options exist
         # for both nova-network and neutron, but differ slightly. For the sake
@@ -328,6 +334,11 @@ class CreateSecurityGroupRule(common.NetworkAndComputeShowOne):
                 parsed_args.remote_group,
                 ignore_missing=False
             ).id
+        elif parsed_args.remote_address_group is not None:
+            attrs['remote_address_group_id'] = client.find_address_group(
+                parsed_args.remote_address_group,
+                ignore_missing=False
+            ).id
         elif parsed_args.remote_ip is not None:
             attrs['remote_ip_prefix'] = parsed_args.remote_ip
         elif attrs['ethertype'] == 'IPv4':
@@ -507,6 +518,8 @@ class ListSecurityGroupRule(common.NetworkAndComputeLister):
             'Direction',
             'Remote Security Group',
         )
+        if self.is_neutron:
+            column_headers = column_headers + ('Remote Address Group',)
         if parsed_args.group is None:
             column_headers = column_headers + ('Security Group',)
         return column_headers
@@ -526,6 +539,7 @@ class ListSecurityGroupRule(common.NetworkAndComputeLister):
             'port_range',
             'direction',
             'remote_group_id',
+            'remote_address_group_id',
         )
 
         # Get the security group rules using the requested query.

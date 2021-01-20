@@ -46,6 +46,9 @@ class TestCreateSecurityGroupRuleNetwork(TestSecurityGroupRuleNetwork):
     _security_group = \
         network_fakes.FakeSecurityGroup.create_one_security_group()
 
+    # The address group to be used in security group rules
+    _address_group = network_fakes.FakeAddressGroup.create_one_address_group()
+
     expected_columns = (
         'description',
         'direction',
@@ -55,6 +58,7 @@ class TestCreateSecurityGroupRuleNetwork(TestSecurityGroupRuleNetwork):
         'port_range_min',
         'project_id',
         'protocol',
+        'remote_address_group_id',
         'remote_group_id',
         'remote_ip_prefix',
         'security_group_id',
@@ -77,6 +81,7 @@ class TestCreateSecurityGroupRuleNetwork(TestSecurityGroupRuleNetwork):
             self._security_group_rule.port_range_min,
             self._security_group_rule.project_id,
             self._security_group_rule.protocol,
+            self._security_group_rule.remote_address_group_id,
             self._security_group_rule.remote_group_id,
             self._security_group_rule.remote_ip_prefix,
             self._security_group_rule.security_group_id,
@@ -87,6 +92,9 @@ class TestCreateSecurityGroupRuleNetwork(TestSecurityGroupRuleNetwork):
 
         self.network.find_security_group = mock.Mock(
             return_value=self._security_group)
+
+        self.network.find_address_group = mock.Mock(
+            return_value=self._address_group)
 
         self.projects_mock.get.return_value = self.project
         self.domains_mock.get.return_value = self.domain
@@ -103,6 +111,7 @@ class TestCreateSecurityGroupRuleNetwork(TestSecurityGroupRuleNetwork):
         arglist = [
             '--remote-ip', '10.10.0.0/24',
             '--remote-group', self._security_group.id,
+            '--remote-address-group', self._address_group.id,
             self._security_group.id,
         ]
         self.assertRaises(tests_utils.ParserException,
@@ -253,6 +262,34 @@ class TestCreateSecurityGroupRuleNetwork(TestSecurityGroupRuleNetwork):
             'ethertype': self._security_group_rule.ether_type,
             'protocol': self._security_group_rule.protocol,
             'remote_ip_prefix': self._security_group_rule.remote_ip_prefix,
+            'security_group_id': self._security_group.id,
+        })
+        self.assertEqual(self.expected_columns, columns)
+        self.assertEqual(self.expected_data, data)
+
+    def test_create_remote_address_group(self):
+        self._setup_security_group_rule({
+            'protocol': 'icmp',
+            'remote_address_group_id': self._address_group.id,
+        })
+        arglist = [
+            '--protocol', 'icmp',
+            '--remote-address-group', self._address_group.name,
+            self._security_group.id,
+        ]
+        verifylist = [
+            ('remote_address_group', self._address_group.name),
+            ('group', self._security_group.id),
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        columns, data = self.cmd.take_action(parsed_args)
+
+        self.network.create_security_group_rule.assert_called_once_with(**{
+            'direction': self._security_group_rule.direction,
+            'ethertype': self._security_group_rule.ether_type,
+            'protocol': self._security_group_rule.protocol,
+            'remote_address_group_id': self._address_group.id,
             'security_group_id': self._security_group.id,
         })
         self.assertEqual(self.expected_columns, columns)
@@ -878,6 +915,7 @@ class TestListSecurityGroupRuleNetwork(TestSecurityGroupRuleNetwork):
         'Port Range',
         'Direction',
         'Remote Security Group',
+        'Remote Address Group',
     )
     expected_columns_no_group = (
         'ID',
@@ -887,6 +925,7 @@ class TestListSecurityGroupRuleNetwork(TestSecurityGroupRuleNetwork):
         'Port Range',
         'Direction',
         'Remote Security Group',
+        'Remote Address Group',
         'Security Group',
     )
 
@@ -902,6 +941,7 @@ class TestListSecurityGroupRuleNetwork(TestSecurityGroupRuleNetwork):
                 _security_group_rule),
             _security_group_rule.direction,
             _security_group_rule.remote_group_id,
+            _security_group_rule.remote_address_group_id,
         ))
         expected_data_no_group.append((
             _security_group_rule.id,
@@ -912,6 +952,7 @@ class TestListSecurityGroupRuleNetwork(TestSecurityGroupRuleNetwork):
                 _security_group_rule),
             _security_group_rule.direction,
             _security_group_rule.remote_group_id,
+            _security_group_rule.remote_address_group_id,
             _security_group_rule.security_group_id,
         ))
 
@@ -1041,6 +1082,7 @@ class TestShowSecurityGroupRuleNetwork(TestSecurityGroupRuleNetwork):
         'port_range_min',
         'project_id',
         'protocol',
+        'remote_address_group_id',
         'remote_group_id',
         'remote_ip_prefix',
         'security_group_id',
@@ -1055,6 +1097,7 @@ class TestShowSecurityGroupRuleNetwork(TestSecurityGroupRuleNetwork):
         _security_group_rule.port_range_min,
         _security_group_rule.project_id,
         _security_group_rule.protocol,
+        _security_group_rule.remote_address_group_id,
         _security_group_rule.remote_group_id,
         _security_group_rule.remote_ip_prefix,
         _security_group_rule.security_group_id,
