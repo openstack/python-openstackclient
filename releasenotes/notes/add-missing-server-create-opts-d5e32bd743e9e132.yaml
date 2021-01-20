@@ -6,3 +6,12 @@ features:
     - ``--snapshot``
     - ``--ephemeral``
     - ``--swap``
+    - ``--block-device``
+deprecations:
+  - |
+    The ``--block-device-mapping`` option of the ``server create`` command
+    has been deprecated in favour of ``--block-device``. The format of the
+    ``--block-device-mapping`` option is based on the limited "BDM v1"
+    format for block device maps introduced way back in the v1 nova API. The
+    ``--block-device`` option instead exposes the richer key-value based
+    "BDM v2" format.
