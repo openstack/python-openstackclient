@@ -1,0 +1,5 @@
+---
+features:
+  - |
+    Add ``server migration show`` commands. This can be used to show detailed
+    information about an ongoing server migration.

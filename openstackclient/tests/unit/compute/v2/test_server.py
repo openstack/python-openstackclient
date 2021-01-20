@@ -4888,6 +4888,124 @@ class TestListMigrationV280(TestListMigration):
             str(ex))
 
 
+class TestServerMigrationShow(TestServer):
+
+    def setUp(self):
+        super().setUp()
+
+        self.server = compute_fakes.FakeServer.create_one_server()
+        self.servers_mock.get.return_value = self.server
+
+        self.server_migration = compute_fakes.FakeServerMigration\
+            .create_one_server_migration()
+        self.server_migrations_mock.get.return_value = self.server_migration
+
+        self.columns = (
+            'ID',
+            'Server UUID',
+            'Status',
+            'Source Compute',
+            'Source Node',
+            'Dest Compute',
+            'Dest Host',
+            'Dest Node',
+            'Memory Total Bytes',
+            'Memory Processed Bytes',
+            'Memory Remaining Bytes',
+            'Disk Total Bytes',
+            'Disk Processed Bytes',
+            'Disk Remaining Bytes',
+            'Created At',
+            'Updated At',
+        )
+
+        self.data = (
+            self.server_migration.id,
+            self.server_migration.server_uuid,
+            self.server_migration.status,
+            self.server_migration.source_compute,
+            self.server_migration.source_node,
+            self.server_migration.dest_compute,
+            self.server_migration.dest_host,
+            self.server_migration.dest_node,
+            self.server_migration.memory_total_bytes,
+            self.server_migration.memory_processed_bytes,
+            self.server_migration.memory_remaining_bytes,
+            self.server_migration.disk_total_bytes,
+            self.server_migration.disk_processed_bytes,
+            self.server_migration.disk_remaining_bytes,
+            self.server_migration.created_at,
+            self.server_migration.updated_at,
+        )
+
+        # Get the command object to test
+        self.cmd = server.ShowMigration(self.app, None)
+
+    def _test_server_migration_show(self):
+        arglist = [
+            self.server.id,
+            '2',  # arbitrary migration ID
+        ]
+        verifylist = []
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        columns, data = self.cmd.take_action(parsed_args)
+
+        self.assertEqual(self.columns, columns)
+        self.assertEqual(self.data, data)
+
+        self.servers_mock.get.assert_called_with(self.server.id)
+        self.server_migrations_mock.get.assert_called_with(
+            self.server.id, '2',)
+
+    def test_server_migration_show(self):
+        self.app.client_manager.compute.api_version = api_versions.APIVersion(
+            '2.24')
+
+        self._test_server_migration_show()
+
+    def test_server_migration_show_v259(self):
+        self.app.client_manager.compute.api_version = api_versions.APIVersion(
+            '2.59')
+
+        self.columns += ('UUID',)
+        self.data += (self.server_migration.uuid,)
+
+        self._test_server_migration_show()
+
+    def test_server_migration_show_v280(self):
+        self.app.client_manager.compute.api_version = api_versions.APIVersion(
+            '2.80')
+
+        self.columns += ('UUID', 'User ID', 'Project ID')
+        self.data += (
+            self.server_migration.uuid,
+            self.server_migration.user_id,
+            self.server_migration.project_id,
+        )
+
+        self._test_server_migration_show()
+
+    def test_server_migration_show_pre_v224(self):
+        self.app.client_manager.compute.api_version = api_versions.APIVersion(
+            '2.23')
+
+        arglist = [
+            self.server.id,
+            '2',  # arbitrary migration ID
+        ]
+        verifylist = []
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        ex = self.assertRaises(
+            exceptions.CommandError,
+            self.cmd.take_action,
+            parsed_args)
+        self.assertIn(
+            '--os-compute-api-version 2.24 or greater is required',
+            str(ex))
+
+
 class TestServerMigrationAbort(TestServer):
 
     def setUp(self):
