@@ -4524,7 +4524,7 @@ class TestServerMigrate(TestServer):
         ]
         verifylist = [
             ('live', None),
-            ('block_migration', False),
+            ('block_migration', None),
             ('disk_overcommit', False),
             ('wait', False),
         ]
@@ -4547,7 +4547,7 @@ class TestServerMigrate(TestServer):
             ('live', None),
             ('live_migration', False),
             ('host', 'fakehost'),
-            ('block_migration', False),
+            ('block_migration', None),
             ('disk_overcommit', False),
             ('wait', False),
         ]
@@ -4588,7 +4588,7 @@ class TestServerMigrate(TestServer):
         ]
         verifylist = [
             ('live', None),
-            ('block_migration', False),
+            ('block_migration', None),
             ('disk_overcommit', True),
             ('wait', False),
         ]
@@ -4611,7 +4611,7 @@ class TestServerMigrate(TestServer):
             ('live', None),
             ('live_migration', False),
             ('host', 'fakehost'),
-            ('block_migration', False),
+            ('block_migration', None),
             ('disk_overcommit', False),
             ('wait', False),
         ]
@@ -4637,7 +4637,7 @@ class TestServerMigrate(TestServer):
             ('live', 'fakehost'),
             ('live_migration', False),
             ('host', None),
-            ('block_migration', False),
+            ('block_migration', None),
             ('disk_overcommit', False),
             ('wait', False),
         ]
@@ -4670,7 +4670,7 @@ class TestServerMigrate(TestServer):
             ('live', None),
             ('live_migration', True),
             ('host', 'fakehost'),
-            ('block_migration', False),
+            ('block_migration', None),
             ('disk_overcommit', False),
             ('wait', False),
         ]
@@ -4696,7 +4696,7 @@ class TestServerMigrate(TestServer):
             ('live', None),
             ('live_migration', True),
             ('host', None),
-            ('block_migration', False),
+            ('block_migration', None),
             ('disk_overcommit', False),
             ('wait', False),
         ]
@@ -4724,7 +4724,7 @@ class TestServerMigrate(TestServer):
             ('live', None),
             ('live_migration', True),
             ('host', 'fakehost'),
-            ('block_migration', False),
+            ('block_migration', None),
             ('disk_overcommit', False),
             ('wait', False),
         ]
@@ -4736,9 +4736,10 @@ class TestServerMigrate(TestServer):
         result = self.cmd.take_action(parsed_args)
 
         self.servers_mock.get.assert_called_with(self.server.id)
-        # No disk_overcommit with microversion >= 2.25.
-        self.server.live_migrate.assert_called_with(block_migration=False,
-                                                    host='fakehost')
+        # No disk_overcommit and block_migration defaults to auto with
+        # microversion >= 2.25
+        self.server.live_migrate.assert_called_with(
+            block_migration='auto', host='fakehost')
         self.assertNotCalled(self.servers_mock.migrate)
         self.assertIsNone(result)
 
@@ -4753,7 +4754,7 @@ class TestServerMigrate(TestServer):
             ('live', 'fakehost'),
             ('live_migration', True),
             ('host', None),
-            ('block_migration', False),
+            ('block_migration', None),
             ('disk_overcommit', False),
             ('wait', False),
         ]
@@ -4779,8 +4780,9 @@ class TestServerMigrate(TestServer):
         arglist = [
             '--live', 'fakehost', '--host', 'fakehost', self.server.id,
         ]
-        self.assertRaises(utils.ParserException,
-                          self.check_parser, self.cmd, arglist, verify_args=[])
+        self.assertRaises(
+            utils.ParserException,
+            self.check_parser, self.cmd, arglist, verify_args=[])
 
     def test_server_block_live_migrate(self):
         arglist = [
@@ -4812,7 +4814,7 @@ class TestServerMigrate(TestServer):
         ]
         verifylist = [
             ('live', 'fakehost'),
-            ('block_migration', False),
+            ('block_migration', None),
             ('disk_overcommit', True),
             ('wait', False),
         ]
@@ -4861,7 +4863,7 @@ class TestServerMigrate(TestServer):
         ]
         verifylist = [
             ('live', 'fakehost'),
-            ('block_migration', False),
+            ('block_migration', None),
             ('wait', False),
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
@@ -4872,8 +4874,11 @@ class TestServerMigrate(TestServer):
         result = self.cmd.take_action(parsed_args)
 
         self.servers_mock.get.assert_called_with(self.server.id)
-        self.server.live_migrate.assert_called_with(block_migration=False,
-                                                    host='fakehost')
+        # No disk_overcommit and block_migration defaults to auto with
+        # microversion >= 2.25
+        self.server.live_migrate.assert_called_with(
+            block_migration='auto',
+            host='fakehost')
         self.assertNotCalled(self.servers_mock.migrate)
         self.assertIsNone(result)
 
@@ -4884,7 +4889,7 @@ class TestServerMigrate(TestServer):
         ]
         verifylist = [
             ('live', None),
-            ('block_migration', False),
+            ('block_migration', None),
             ('disk_overcommit', False),
             ('wait', True),
         ]
@@ -4904,7 +4909,7 @@ class TestServerMigrate(TestServer):
         ]
         verifylist = [
             ('live', None),
-            ('block_migration', False),
+            ('block_migration', None),
             ('disk_overcommit', False),
             ('wait', True),
         ]
