@@ -1,0 +1,7 @@
+---
+upgrade:
+  - |
+    The ``server create`` command will now error out if the ``--file`` option
+    is specified alongside ``--os-compute-api-version`` of ``2.57`` or greater.
+    This reflects the removal of this feature from the compute service in this
+    microversion.
