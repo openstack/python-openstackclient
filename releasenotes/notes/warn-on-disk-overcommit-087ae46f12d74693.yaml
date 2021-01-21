@@ -1,0 +1,9 @@
+---
+upgrade:
+  - |
+    A warning will now be emitted when using the ``--disk-overcommit``
+    or ``--no-disk-overcommit`` flags of the ``server migrate`` command on
+    Compute API microversion 2.25 or greater. This feature is only supported
+    before this microversion and previously the flag was silently ignored on
+    newer microversions. This warning will become an error in a future
+    release.
