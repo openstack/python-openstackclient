@@ -4523,7 +4523,7 @@ class TestServerMigrate(TestServer):
             self.server.id,
         ]
         verifylist = [
-            ('live', None),
+            ('live_migration', False),
             ('block_migration', None),
             ('disk_overcommit', False),
             ('wait', False),
@@ -4544,7 +4544,6 @@ class TestServerMigrate(TestServer):
             '--host', 'fakehost', self.server.id,
         ]
         verifylist = [
-            ('live', None),
             ('live_migration', False),
             ('host', 'fakehost'),
             ('block_migration', None),
@@ -4568,7 +4567,7 @@ class TestServerMigrate(TestServer):
             '--block-migration', self.server.id,
         ]
         verifylist = [
-            ('live', None),
+            ('live_migration', False),
             ('block_migration', True),
             ('disk_overcommit', False),
             ('wait', False),
@@ -4587,7 +4586,7 @@ class TestServerMigrate(TestServer):
             '--disk-overcommit', self.server.id,
         ]
         verifylist = [
-            ('live', None),
+            ('live_migration', False),
             ('block_migration', None),
             ('disk_overcommit', True),
             ('wait', False),
@@ -4608,7 +4607,6 @@ class TestServerMigrate(TestServer):
             '--host', 'fakehost', self.server.id,
         ]
         verifylist = [
-            ('live', None),
             ('live_migration', False),
             ('host', 'fakehost'),
             ('block_migration', None),
@@ -4630,70 +4628,11 @@ class TestServerMigrate(TestServer):
         self.assertNotCalled(self.servers_mock.migrate)
 
     def test_server_live_migrate(self):
-        arglist = [
-            '--live', 'fakehost', self.server.id,
-        ]
-        verifylist = [
-            ('live', 'fakehost'),
-            ('live_migration', False),
-            ('host', None),
-            ('block_migration', None),
-            ('disk_overcommit', False),
-            ('wait', False),
-        ]
-        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
-
-        self.app.client_manager.compute.api_version = \
-            api_versions.APIVersion('2.24')
-
-        with mock.patch.object(self.cmd.log, 'warning') as mock_warning:
-            result = self.cmd.take_action(parsed_args)
-
-        self.servers_mock.get.assert_called_with(self.server.id)
-        self.server.live_migrate.assert_called_with(block_migration=False,
-                                                    disk_over_commit=False,
-                                                    host='fakehost')
-        self.assertNotCalled(self.servers_mock.migrate)
-        self.assertIsNone(result)
-        # A warning should have been logged for using --live.
-        mock_warning.assert_called_once()
-        self.assertIn('The --live option has been deprecated.',
-                      str(mock_warning.call_args[0][0]))
-
-    def test_server_live_migrate_host_pre_2_30(self):
-        # Tests that the --host option is not supported for --live-migration
-        # before microversion 2.30 (the test defaults to 2.1).
-        arglist = [
-            '--live-migration', '--host', 'fakehost', self.server.id,
-        ]
-        verifylist = [
-            ('live', None),
-            ('live_migration', True),
-            ('host', 'fakehost'),
-            ('block_migration', None),
-            ('disk_overcommit', False),
-            ('wait', False),
-        ]
-        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
-
-        ex = self.assertRaises(exceptions.CommandError, self.cmd.take_action,
-                               parsed_args)
-
-        # Make sure it's the error we expect.
-        self.assertIn('--os-compute-api-version 2.30 or greater is required '
-                      'when using --host', str(ex))
-
-        self.servers_mock.get.assert_called_with(self.server.id)
-        self.assertNotCalled(self.servers_mock.live_migrate)
-        self.assertNotCalled(self.servers_mock.migrate)
-
-    def test_server_live_migrate_no_host(self):
         # Tests the --live-migration option without --host or --live.
         arglist = [
             '--live-migration', self.server.id,
         ]
         verifylist = [
-            ('live', None),
             ('live_migration', True),
             ('host', None),
             ('block_migration', None),
@@ -4702,26 +4641,22 @@ class TestServerMigrate(TestServer):
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
-        with mock.patch.object(self.cmd.log, 'warning') as mock_warning:
-            result = self.cmd.take_action(parsed_args)
+        result = self.cmd.take_action(parsed_args)
 
         self.servers_mock.get.assert_called_with(self.server.id)
-        self.server.live_migrate.assert_called_with(block_migration=False,
-                                                    disk_over_commit=False,
-                                                    host=None)
+        self.server.live_migrate.assert_called_with(
+            block_migration=False,
+            disk_over_commit=False,
+            host=None)
         self.assertNotCalled(self.servers_mock.migrate)
         self.assertIsNone(result)
-        # Since --live wasn't used a warning shouldn't have been logged.
-        mock_warning.assert_not_called()
 
     def test_server_live_migrate_with_host(self):
-        # Tests the --live-migration option with --host but no --live.
         # This requires --os-compute-api-version >= 2.30 so the test uses 2.30.
         arglist = [
             '--live-migration', '--host', 'fakehost', self.server.id,
         ]
         verifylist = [
-            ('live', None),
             ('live_migration', True),
             ('host', 'fakehost'),
             ('block_migration', None),
@@ -4743,53 +4678,42 @@ class TestServerMigrate(TestServer):
         self.assertNotCalled(self.servers_mock.migrate)
         self.assertIsNone(result)
 
-    def test_server_live_migrate_without_host_override_live(self):
-        # Tests the --live-migration option without --host and with --live.
-        # The --live-migration option will take precedence and a warning is
-        # logged for using --live.
+    def test_server_live_migrate_with_host_pre_v230(self):
+        # Tests that the --host option is not supported for --live-migration
+        # before microversion 2.30 (the test defaults to 2.1).
         arglist = [
-            '--live', 'fakehost', '--live-migration', self.server.id,
+            '--live-migration', '--host', 'fakehost', self.server.id,
         ]
         verifylist = [
-            ('live', 'fakehost'),
             ('live_migration', True),
-            ('host', None),
+            ('host', 'fakehost'),
             ('block_migration', None),
             ('disk_overcommit', False),
             ('wait', False),
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
-        with mock.patch.object(self.cmd.log, 'warning') as mock_warning:
-            result = self.cmd.take_action(parsed_args)
+        ex = self.assertRaises(
+            exceptions.CommandError, self.cmd.take_action,
+            parsed_args)
+
+        # Make sure it's the error we expect.
+        self.assertIn(
+            '--os-compute-api-version 2.30 or greater is required '
+            'when using --host', str(ex))
 
         self.servers_mock.get.assert_called_with(self.server.id)
-        self.server.live_migrate.assert_called_with(block_migration=False,
-                                                    disk_over_commit=False,
-                                                    host=None)
+        self.assertNotCalled(self.servers_mock.live_migrate)
         self.assertNotCalled(self.servers_mock.migrate)
-        self.assertIsNone(result)
-        # A warning should have been logged for using --live.
-        mock_warning.assert_called_once()
-        self.assertIn('The --live option has been deprecated.',
-                      str(mock_warning.call_args[0][0]))
-
-    def test_server_live_migrate_live_and_host_mutex(self):
-        # Tests specifying both the --live and --host options which are in a
-        # mutex group so argparse should fail.
-        arglist = [
-            '--live', 'fakehost', '--host', 'fakehost', self.server.id,
-        ]
-        self.assertRaises(
-            utils.ParserException,
-            self.check_parser, self.cmd, arglist, verify_args=[])
 
     def test_server_block_live_migrate(self):
         arglist = [
-            '--live', 'fakehost', '--block-migration', self.server.id,
+            '--live-migration',
+            '--block-migration',
+            self.server.id,
         ]
         verifylist = [
-            ('live', 'fakehost'),
+            ('live_migration', True),
             ('block_migration', True),
             ('disk_overcommit', False),
             ('wait', False),
@@ -4802,18 +4726,21 @@ class TestServerMigrate(TestServer):
         result = self.cmd.take_action(parsed_args)
 
         self.servers_mock.get.assert_called_with(self.server.id)
-        self.server.live_migrate.assert_called_with(block_migration=True,
-                                                    disk_over_commit=False,
-                                                    host='fakehost')
+        self.server.live_migrate.assert_called_with(
+            block_migration=True,
+            disk_over_commit=False,
+            host=None)
         self.assertNotCalled(self.servers_mock.migrate)
         self.assertIsNone(result)
 
     def test_server_live_migrate_with_disk_overcommit(self):
         arglist = [
-            '--live', 'fakehost', '--disk-overcommit', self.server.id,
+            '--live-migration',
+            '--disk-overcommit',
+            self.server.id,
         ]
         verifylist = [
-            ('live', 'fakehost'),
+            ('live_migration', True),
             ('block_migration', None),
             ('disk_overcommit', True),
             ('wait', False),
@@ -4826,9 +4753,10 @@ class TestServerMigrate(TestServer):
         result = self.cmd.take_action(parsed_args)
 
         self.servers_mock.get.assert_called_with(self.server.id)
-        self.server.live_migrate.assert_called_with(block_migration=False,
-                                                    disk_over_commit=True,
-                                                    host='fakehost')
+        self.server.live_migrate.assert_called_with(
+            block_migration=False,
+            disk_over_commit=True,
+            host=None)
         self.assertNotCalled(self.servers_mock.migrate)
         self.assertIsNone(result)
 
@@ -4839,7 +4767,6 @@ class TestServerMigrate(TestServer):
             self.server.id,
         ]
         verifylist = [
-            ('live', None),
             ('live_migration', True),
             ('block_migration', None),
             ('disk_overcommit', True),
@@ -4866,63 +4793,13 @@ class TestServerMigrate(TestServer):
             'The --disk-overcommit and --no-disk-overcommit options ',
             str(mock_warning.call_args[0][0]))
 
-    def test_server_live_migrate_with_false_value_options(self):
-        arglist = [
-            '--live', 'fakehost', '--no-disk-overcommit',
-            '--shared-migration', self.server.id,
-        ]
-        verifylist = [
-            ('live', 'fakehost'),
-            ('block_migration', False),
-            ('disk_overcommit', False),
-            ('wait', False),
-        ]
-        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
-
-        self.app.client_manager.compute.api_version = \
-            api_versions.APIVersion('2.24')
-
-        result = self.cmd.take_action(parsed_args)
-
-        self.servers_mock.get.assert_called_with(self.server.id)
-        self.server.live_migrate.assert_called_with(block_migration=False,
-                                                    disk_over_commit=False,
-                                                    host='fakehost')
-        self.assertNotCalled(self.servers_mock.migrate)
-        self.assertIsNone(result)
-
-    def test_server_live_migrate_225(self):
-        arglist = [
-            '--live', 'fakehost', self.server.id,
-        ]
-        verifylist = [
-            ('live', 'fakehost'),
-            ('block_migration', None),
-            ('wait', False),
-        ]
-        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
-
-        self.app.client_manager.compute.api_version = \
-            api_versions.APIVersion('2.25')
-
-        result = self.cmd.take_action(parsed_args)
-
-        self.servers_mock.get.assert_called_with(self.server.id)
-        # No disk_overcommit and block_migration defaults to auto with
-        # microversion >= 2.25
-        self.server.live_migrate.assert_called_with(
-            block_migration='auto',
-            host='fakehost')
-        self.assertNotCalled(self.servers_mock.migrate)
-        self.assertIsNone(result)
-
     @mock.patch.object(common_utils, 'wait_for_status', return_value=True)
     def test_server_migrate_with_wait(self, mock_wait_for_status):
         arglist = [
             '--wait', self.server.id,
         ]
         verifylist = [
-            ('live', None),
+            ('live_migration', False),
             ('block_migration', None),
             ('disk_overcommit', False),
             ('wait', True),
@@ -4942,7 +4819,7 @@ class TestServerMigrate(TestServer):
             '--wait', self.server.id,
         ]
         verifylist = [
-            ('live', None),
+            ('live_migration', False),
             ('block_migration', None),
             ('disk_overcommit', False),
             ('wait', True),

@@ -1,0 +1,8 @@
+---
+upgrade:
+  - |
+    The deprecated ``--live`` option of the ``server migrate`` command has
+    been removed. This was problematic as it required a host argument and
+    would result in a forced live migration to a host, bypassing the
+    scheduler. It has been replaced by a ``--live-migration`` option and
+    optional ``--host`` option.
