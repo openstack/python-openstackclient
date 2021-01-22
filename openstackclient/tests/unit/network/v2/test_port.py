@@ -54,6 +54,7 @@ class TestPort(network_fakes.TestNetworkV2):
             'description',
             'device_id',
             'device_owner',
+            'device_profile',
             'dns_assignment',
             'dns_domain',
             'dns_name',
@@ -86,6 +87,7 @@ class TestPort(network_fakes.TestNetworkV2):
             fake_port.description,
             fake_port.device_id,
             fake_port.device_owner,
+            fake_port.device_profile,
             format_columns.ListDictColumn(fake_port.dns_assignment),
             fake_port.dns_domain,
             fake_port.dns_name,
@@ -736,6 +738,33 @@ class TestCreatePort(TestPort):
 
     def test_create_with_numa_affinity_policy_null(self):
         self._test_create_with_numa_affinity_policy()
+
+    def test_create_with_device_profile(self):
+        arglist = [
+            '--network', self._port.network_id,
+            '--device-profile', 'cyborg_device_profile_1',
+            'test-port',
+        ]
+
+        verifylist = [
+            ('network', self._port.network_id,),
+            ('device_profile', self._port.device_profile,),
+            ('name', 'test-port'),
+        ]
+
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        columns, data = (self.cmd.take_action(parsed_args))
+
+        create_args = {
+            'admin_state_up': True,
+            'network_id': self._port.network_id,
+            'name': 'test-port',
+            'device_profile': 'cyborg_device_profile_1',
+        }
+        self.network.create_port.assert_called_once_with(**create_args)
+        self.assertEqual(self.columns, columns)
+        self.assertItemsEqual(self.data, data)
 
 
 class TestDeletePort(TestPort):

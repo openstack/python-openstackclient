@@ -697,6 +697,7 @@ class FakePort(object):
             'description': 'description-' + uuid.uuid4().hex,
             'device_id': 'device-id-' + uuid.uuid4().hex,
             'device_owner': 'compute:nova',
+            'device_profile': 'cyborg_device_profile_1',
             'dns_assignment': [{}],
             'dns_domain': 'dns-domain-' + uuid.uuid4().hex,
             'dns_name': 'dns-name-' + uuid.uuid4().hex,
