@@ -837,6 +837,20 @@ class TestImageList(TestImage):
             status='active'
         )
 
+    def test_image_list_hidden_option(self):
+        arglist = [
+            '--hidden',
+        ]
+        verifylist = [
+            ('hidden', True),
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        columns, data = self.cmd.take_action(parsed_args)
+        self.client.images.assert_called_with(
+            is_hidden=True
+        )
+
     def test_image_list_tag_option(self):
         arglist = [
             '--tag', 'abc',
@@ -1431,6 +1445,60 @@ class TestImageSet(TestImage):
         kwargs = {
             'min_disk': 0,
             'min_ram': 0,
+        }
+        # ImageManager.update(image, **kwargs)
+        self.client.update_image.assert_called_with(
+            self._image.id,
+            **kwargs
+        )
+        self.assertIsNone(result)
+
+    def test_image_set_hidden(self):
+        arglist = [
+            '--hidden',
+            '--public',
+            image_fakes.image_name,
+        ]
+        verifylist = [
+            ('hidden', True),
+            ('public', True),
+            ('private', False),
+            ('image', image_fakes.image_name),
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        result = self.cmd.take_action(parsed_args)
+
+        kwargs = {
+            'is_hidden': True,
+            'visibility': 'public',
+        }
+        # ImageManager.update(image, **kwargs)
+        self.client.update_image.assert_called_with(
+            self._image.id,
+            **kwargs
+        )
+        self.assertIsNone(result)
+
+    def test_image_set_unhidden(self):
+        arglist = [
+            '--unhidden',
+            '--public',
+            image_fakes.image_name,
+        ]
+        verifylist = [
+            ('hidden', False),
+            ('public', True),
+            ('private', False),
+            ('image', image_fakes.image_name),
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        result = self.cmd.take_action(parsed_args)
+
+        kwargs = {
+            'is_hidden': False,
+            'visibility': 'public',
         }
         # ImageManager.update(image, **kwargs)
         self.client.update_image.assert_called_with(
