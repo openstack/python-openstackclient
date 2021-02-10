@@ -60,6 +60,10 @@ def _get_attrs(client_manager, parsed_args):
         object_id = network_client.find_subnet_pool(
             parsed_args.rbac_object,
             ignore_missing=False).id
+    if parsed_args.type == 'address_group':
+        object_id = network_client.find_address_group(
+            parsed_args.rbac_object,
+            ignore_missing=False).id
 
     attrs['object_id'] = object_id
 
@@ -100,11 +104,12 @@ class CreateNetworkRBAC(command.ShowOne):
             '--type',
             metavar="<type>",
             required=True,
-            choices=['address_scope', 'security_group', 'subnetpool',
-                     'qos_policy', 'network'],
+            choices=['address_group', 'address_scope', 'security_group',
+                     'subnetpool', 'qos_policy', 'network'],
             help=_('Type of the object that RBAC policy '
-                   'affects ("address_scope", "security_group", "subnetpool",'
-                   ' "qos_policy" or "network")')
+                   'affects ("address_group", "address_scope", '
+                   '"security_group", "subnetpool", "qos_policy" or '
+                   '"network")')
         )
         parser.add_argument(
             '--action',
@@ -193,11 +198,12 @@ class ListNetworkRBAC(command.Lister):
         parser.add_argument(
             '--type',
             metavar='<type>',
-            choices=['address_scope', 'security_group', 'subnetpool',
-                     'qos_policy', 'network'],
+            choices=['address_group', 'address_scope', 'security_group',
+                     'subnetpool', 'qos_policy', 'network'],
             help=_('List network RBAC policies according to '
-                   'given object type ("address_scope", "security_group", '
-                   '"subnetpool", "qos_policy" or "network")')
+                   'given object type ("address_group", "address_scope", '
+                   '"security_group", "subnetpool", "qos_policy" or '
+                   '"network")')
         )
         parser.add_argument(
             '--action',

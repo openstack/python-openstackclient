@@ -42,6 +42,7 @@ class TestCreateNetworkRBAC(TestNetworkRBAC):
     sg_object = network_fakes.FakeNetworkSecGroup.create_one_security_group()
     as_object = network_fakes.FakeAddressScope.create_one_address_scope()
     snp_object = network_fakes.FakeSubnetPool.create_one_subnet_pool()
+    ag_object = network_fakes.FakeAddressGroup.create_one_address_group()
     project = identity_fakes_v3.FakeProject.create_one_project()
     rbac_policy = network_fakes.FakeNetworkRBAC.create_one_network_rbac(
         attrs={'tenant_id': project.id,
@@ -85,6 +86,8 @@ class TestCreateNetworkRBAC(TestNetworkRBAC):
             return_value=self.as_object)
         self.network.find_subnet_pool = mock.Mock(
             return_value=self.snp_object)
+        self.network.find_address_group = mock.Mock(
+            return_value=self.ag_object)
         self.projects_mock.get.return_value = self.project
 
     def test_network_rbac_create_no_type(self):
@@ -236,7 +239,8 @@ class TestCreateNetworkRBAC(TestNetworkRBAC):
         ('qos_policy', "qos_object"),
         ('security_group', "sg_object"),
         ('subnetpool', "snp_object"),
-        ('address_scope', "as_object")
+        ('address_scope', "as_object"),
+        ('address_group', "ag_object")
     )
     @ddt.unpack
     def test_network_rbac_create_object(self, obj_type, obj_fake_attr):
