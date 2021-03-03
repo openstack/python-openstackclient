@@ -600,6 +600,11 @@ class ListPort(command.Lister):
             metavar='<project>',
             help=_("List ports according to their project (name or ID)")
         )
+        parser.add_argument(
+            '--name',
+            metavar='<name>',
+            help=_("List ports according to their name")
+        )
         identity_common.add_project_domain_option_to_parser(parser)
         parser.add_argument(
             '--fixed-ip',
@@ -667,6 +672,8 @@ class ListPort(command.Lister):
             ).id
             filters['tenant_id'] = project_id
             filters['project_id'] = project_id
+        if parsed_args.name:
+            filters['name'] = parsed_args.name
         if parsed_args.fixed_ip:
             filters['fixed_ips'] = _prepare_filter_fixed_ips(
                 self.app.client_manager, parsed_args)

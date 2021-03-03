@@ -1250,6 +1250,26 @@ class TestListPort(TestPort):
         self.assertEqual(self.columns, columns)
         self.assertItemsEqual(self.data, list(data))
 
+    def test_port_list_name(self):
+        test_name = "fakename"
+        arglist = [
+            '--name', test_name,
+        ]
+        verifylist = [
+            ('name', test_name),
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        columns, data = self.cmd.take_action(parsed_args)
+        filters = {
+            'name': test_name,
+            'fields': LIST_FIELDS_TO_RETRIEVE,
+        }
+
+        self.network.ports.assert_called_once_with(**filters)
+        self.assertEqual(self.columns, columns)
+        self.assertItemsEqual(self.data, list(data))
+
     def test_list_with_tag_options(self):
         arglist = [
             '--tags', 'red,blue',
