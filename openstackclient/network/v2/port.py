@@ -255,11 +255,15 @@ def _add_updatable_args(parser):
     parser.add_argument(
         '--vnic-type',
         metavar='<vnic-type>',
-        choices=['direct', 'direct-physical', 'macvtap',
-                 'normal', 'baremetal', 'virtio-forwarder'],
-        help=_("VNIC type for this port (direct | direct-physical | "
-               "macvtap | normal | baremetal | virtio-forwarder, "
-               "default: normal)")
+        choices=(
+            'direct', 'direct-physical', 'macvtap',
+            'normal', 'baremetal', 'virtio-forwarder', 'vdpa'
+        ),
+        help=_(
+            "VNIC type for this port (direct | direct-physical | "
+            "macvtap | normal | baremetal | virtio-forwarder | vdpa, "
+            "default: normal)"
+        ),
     )
     parser.add_argument(
         '--host',
