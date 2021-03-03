@@ -91,6 +91,28 @@ class TestServerGroupCreate(TestServerGroup):
 
     def test_server_group_create(self):
         arglist = [
+            '--policy', 'anti-affinity',
+            'affinity_group',
+        ]
+        verifylist = [
+            ('policy', 'anti-affinity'),
+            ('name', 'affinity_group'),
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+        columns, data = self.cmd.take_action(parsed_args)
+        self.server_groups_mock.create.assert_called_once_with(
+            name=parsed_args.name,
+            policies=[parsed_args.policy],
+        )
+
+        self.assertEqual(self.columns, columns)
+        self.assertEqual(self.data, data)
+
+    def test_server_group_create_with_soft_policies(self):
+        self.app.client_manager.compute.api_version = api_versions.APIVersion(
+            '2.15')
+
+        arglist = [
             '--policy', 'soft-anti-affinity',
             'affinity_group',
         ]
@@ -107,6 +129,27 @@ class TestServerGroupCreate(TestServerGroup):
 
         self.assertEqual(self.columns, columns)
         self.assertEqual(self.data, data)
+
+    def test_server_group_create_with_soft_policies_pre_v215(self):
+        self.app.client_manager.compute.api_version = api_versions.APIVersion(
+            '2.14')
+
+        arglist = [
+            '--policy', 'soft-anti-affinity',
+            'affinity_group',
+        ]
+        verifylist = [
+            ('policy', 'soft-anti-affinity'),
+            ('name', 'affinity_group'),
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+        ex = self.assertRaises(
+            exceptions.CommandError,
+            self.cmd.take_action,
+            parsed_args)
+        self.assertIn(
+            '--os-compute-api-version 2.15 or greater is required',
+            str(ex))
 
     def test_server_group_create_v264(self):
         self.app.client_manager.compute.api_version = api_versions.APIVersion(
