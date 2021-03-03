@@ -899,6 +899,48 @@ class TestListSubnet(TestSubnet):
         self.assertEqual(self.columns, columns)
         self.assertItemsEqual(self.data, list(data))
 
+    def test_subnet_list_subnetpool_by_name(self):
+        subnet_pool = network_fakes.FakeSubnetPool.create_one_subnet_pool()
+        subnet = network_fakes.FakeSubnet.create_one_subnet(
+            {'subnetpool_id': subnet_pool.id})
+        self.network.find_network = mock.Mock(return_value=subnet)
+        self.network.find_subnet_pool = mock.Mock(return_value=subnet_pool)
+        arglist = [
+            '--subnet-pool', subnet_pool.name,
+        ]
+        verifylist = [
+            ('subnet_pool', subnet_pool.name),
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        columns, data = self.cmd.take_action(parsed_args)
+        filters = {'subnetpool_id': subnet_pool.id}
+
+        self.network.subnets.assert_called_once_with(**filters)
+        self.assertEqual(self.columns, columns)
+        self.assertItemsEqual(self.data, list(data))
+
+    def test_subnet_list_subnetpool_by_id(self):
+        subnet_pool = network_fakes.FakeSubnetPool.create_one_subnet_pool()
+        subnet = network_fakes.FakeSubnet.create_one_subnet(
+            {'subnetpool_id': subnet_pool.id})
+        self.network.find_network = mock.Mock(return_value=subnet)
+        self.network.find_subnet_pool = mock.Mock(return_value=subnet_pool)
+        arglist = [
+            '--subnet-pool', subnet_pool.id,
+        ]
+        verifylist = [
+            ('subnet_pool', subnet_pool.id),
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        columns, data = self.cmd.take_action(parsed_args)
+        filters = {'subnetpool_id': subnet_pool.id}
+
+        self.network.subnets.assert_called_once_with(**filters)
+        self.assertEqual(self.columns, columns)
+        self.assertItemsEqual(self.data, list(data))
+
     def test_list_with_tag_options(self):
         arglist = [
             '--tags', 'red,blue',

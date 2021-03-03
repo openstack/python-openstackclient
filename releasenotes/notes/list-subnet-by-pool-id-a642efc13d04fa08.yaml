@@ -1,0 +1,5 @@
+---
+features:
+  - |
+    Add ``--subnet-pool`` option to ``subnet list`` to filter
+    by subnets by subnet pool.
