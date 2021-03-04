@@ -3559,10 +3559,27 @@ Confirm (verify) success of resize operation and release the old server.""")
         server.confirm_resize()
 
 
+# TODO(stephenfin): Remove in OSC 7.0
 class MigrateConfirm(ResizeConfirm):
-    _description = _("""Confirm server migrate.
+    _description = _("""DEPRECATED: Confirm server migration.
 
-Confirm (verify) success of migrate operation and release the old server.""")
+Use 'server migration confirm' instead.""")
+
+    def take_action(self, parsed_args):
+        msg = _(
+            "The 'server migrate confirm' command has been deprecated in "
+            "favour of the 'server migration confirm' command."
+        )
+        self.log.warning(msg)
+
+        super().take_action(parsed_args)
+
+
+class ConfirmMigration(ResizeConfirm):
+    _description = _("""Confirm server migration.
+
+Confirm (verify) success of the migration operation and release the old
+server.""")
 
 
 class ResizeRevert(command.Command):
@@ -3590,10 +3607,26 @@ one.""")
         server.revert_resize()
 
 
+# TODO(stephenfin): Remove in OSC 7.0
 class MigrateRevert(ResizeRevert):
-    _description = _("""Revert server migrate.
+    _description = _("""Revert server migration.
 
-Revert the migrate operation. Release the new server and restart the old
+Use 'server migration revert' instead.""")
+
+    def take_action(self, parsed_args):
+        msg = _(
+            "The 'server migrate revert' command has been deprecated in "
+            "favour of the 'server migration revert' command."
+        )
+        self.log.warning(msg)
+
+        super().take_action(parsed_args)
+
+
+class RevertMigration(ResizeRevert):
+    _description = _("""Revert server migration.
+
+Revert the migration operation. Release the new server and restart the old
 one.""")
 
 

@@ -6401,6 +6401,82 @@ class TestServerResizeConfirm(TestServer):
         self.server.confirm_resize.assert_called_with()
 
 
+# TODO(stephenfin): Remove in OSC 7.0
+class TestServerMigrateConfirm(TestServer):
+
+    def setUp(self):
+        super().setUp()
+
+        methods = {
+            'confirm_resize': None,
+        }
+        self.server = compute_fakes.FakeServer.create_one_server(
+            methods=methods)
+
+        # This is the return value for utils.find_resource()
+        self.servers_mock.get.return_value = self.server
+
+        self.servers_mock.confirm_resize.return_value = None
+
+        # Get the command object to test
+        self.cmd = server.MigrateConfirm(self.app, None)
+
+    def test_migrate_confirm(self):
+        arglist = [
+            self.server.id,
+        ]
+        verifylist = [
+            ('server', self.server.id),
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        with mock.patch.object(self.cmd.log, 'warning') as mock_warning:
+            self.cmd.take_action(parsed_args)
+
+        self.servers_mock.get.assert_called_with(self.server.id)
+        self.server.confirm_resize.assert_called_with()
+
+        mock_warning.assert_called_once()
+        self.assertIn(
+            "The 'server migrate confirm' command has been deprecated",
+            str(mock_warning.call_args[0][0])
+        )
+
+
+class TestServerConfirmMigration(TestServerResizeConfirm):
+
+    def setUp(self):
+        super().setUp()
+
+        methods = {
+            'confirm_resize': None,
+        }
+        self.server = compute_fakes.FakeServer.create_one_server(
+            methods=methods)
+
+        # This is the return value for utils.find_resource()
+        self.servers_mock.get.return_value = self.server
+
+        self.servers_mock.confirm_resize.return_value = None
+
+        # Get the command object to test
+        self.cmd = server.ConfirmMigration(self.app, None)
+
+    def test_migration_confirm(self):
+        arglist = [
+            self.server.id,
+        ]
+        verifylist = [
+            ('server', self.server.id),
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        self.cmd.take_action(parsed_args)
+
+        self.servers_mock.get.assert_called_with(self.server.id)
+        self.server.confirm_resize.assert_called_with()
+
+
 class TestServerResizeRevert(TestServer):
 
     def setUp(self):
@@ -6421,6 +6497,82 @@ class TestServerResizeRevert(TestServer):
         self.cmd = server.ResizeRevert(self.app, None)
 
     def test_resize_revert(self):
+        arglist = [
+            self.server.id,
+        ]
+        verifylist = [
+            ('server', self.server.id),
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        self.cmd.take_action(parsed_args)
+
+        self.servers_mock.get.assert_called_with(self.server.id)
+        self.server.revert_resize.assert_called_with()
+
+
+# TODO(stephenfin): Remove in OSC 7.0
+class TestServerMigrateRevert(TestServer):
+
+    def setUp(self):
+        super().setUp()
+
+        methods = {
+            'revert_resize': None,
+        }
+        self.server = compute_fakes.FakeServer.create_one_server(
+            methods=methods)
+
+        # This is the return value for utils.find_resource()
+        self.servers_mock.get.return_value = self.server
+
+        self.servers_mock.revert_resize.return_value = None
+
+        # Get the command object to test
+        self.cmd = server.MigrateRevert(self.app, None)
+
+    def test_migrate_revert(self):
+        arglist = [
+            self.server.id,
+        ]
+        verifylist = [
+            ('server', self.server.id),
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        with mock.patch.object(self.cmd.log, 'warning') as mock_warning:
+            self.cmd.take_action(parsed_args)
+
+        self.servers_mock.get.assert_called_with(self.server.id)
+        self.server.revert_resize.assert_called_with()
+
+        mock_warning.assert_called_once()
+        self.assertIn(
+            "The 'server migrate revert' command has been deprecated",
+            str(mock_warning.call_args[0][0])
+        )
+
+
+class TestServerRevertMigration(TestServer):
+
+    def setUp(self):
+        super().setUp()
+
+        methods = {
+            'revert_resize': None,
+        }
+        self.server = compute_fakes.FakeServer.create_one_server(
+            methods=methods)
+
+        # This is the return value for utils.find_resource()
+        self.servers_mock.get.return_value = self.server
+
+        self.servers_mock.revert_resize.return_value = None
+
+        # Get the command object to test
+        self.cmd = server.RevertMigration(self.app, None)
+
+    def test_migration_revert(self):
         arglist = [
             self.server.id,
         ]
