@@ -1,0 +1,7 @@
+---
+features:
+  - |
+    The ``--nic`` option of the ``server create`` command now supports an
+    optional ``tag=<tag>`` key-value pair. This can be used to set a tag for
+    the interface in server metadata, which can be useful to maintain
+    persistent references to interfaces during various operations.

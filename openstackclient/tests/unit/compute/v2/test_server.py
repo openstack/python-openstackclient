@@ -1423,6 +1423,113 @@ class TestServerCreate(TestServer):
         self.assertEqual(self.columns, columns)
         self.assertEqual(self.datalist(), data)
 
+    def test_server_create_with_network_tag(self):
+        self.app.client_manager.compute.api_version = api_versions.APIVersion(
+            '2.43')
+
+        arglist = [
+            '--image', 'image1',
+            '--flavor', 'flavor1',
+            '--nic', 'net-id=net1,tag=foo',
+            self.new_server.name,
+        ]
+        verifylist = [
+            ('image', 'image1'),
+            ('flavor', 'flavor1'),
+            ('nics', [
+                {
+                    'net-id': 'net1', 'port-id': '',
+                    'v4-fixed-ip': '', 'v6-fixed-ip': '',
+                    'tag': 'foo',
+                },
+            ]),
+            ('server_name', self.new_server.name),
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        find_network = mock.Mock()
+        network_client = self.app.client_manager.network
+        network_client.find_network = find_network
+        network_resource = mock.Mock(id='net1_uuid')
+        find_network.return_value = network_resource
+
+        # Mock sdk APIs.
+        _network = mock.Mock(id='net1_uuid')
+        find_network = mock.Mock()
+        find_network.return_value = _network
+        self.app.client_manager.network.find_network = find_network
+
+        # In base command class ShowOne in cliff, abstract method take_action()
+        # returns a two-part tuple with a tuple of column names and a tuple of
+        # data to be shown.
+        columns, data = self.cmd.take_action(parsed_args)
+
+        # Set expected values
+        kwargs = dict(
+            meta=None,
+            files={},
+            reservation_id=None,
+            min_count=1,
+            max_count=1,
+            security_groups=[],
+            userdata=None,
+            key_name=None,
+            availability_zone=None,
+            admin_pass=None,
+            block_device_mapping_v2=[],
+            nics=[
+                {
+                    'net-id': 'net1_uuid',
+                    'v4-fixed-ip': '',
+                    'v6-fixed-ip': '',
+                    'port-id': '',
+                    'tag': 'foo',
+                },
+            ],
+            scheduler_hints={},
+            config_drive=None,
+        )
+        # ServerManager.create(name, image, flavor, **kwargs)
+        self.servers_mock.create.assert_called_with(
+            self.new_server.name,
+            self.image,
+            self.flavor,
+            **kwargs
+        )
+
+        self.assertEqual(self.columns, columns)
+        self.assertEqual(self.datalist(), data)
+
+        network_client.find_network.assert_called_once()
+        self.app.client_manager.network.find_network.assert_called_once()
+
+    def test_server_create_with_network_tag_pre_v243(self):
+        self.app.client_manager.compute.api_version = api_versions.APIVersion(
+            '2.42')
+
+        arglist = [
+            '--image', 'image1',
+            '--flavor', 'flavor1',
+            '--nic', 'net-id=net1,tag=foo',
+            self.new_server.name,
+        ]
+        verifylist = [
+            ('image', 'image1'),
+            ('flavor', 'flavor1'),
+            ('nics', [
+                {
+                    'net-id': 'net1', 'port-id': '',
+                    'v4-fixed-ip': '', 'v6-fixed-ip': '',
+                    'tag': 'foo',
+                },
+            ]),
+            ('server_name', self.new_server.name),
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        self.assertRaises(
+            exceptions.CommandError, self.cmd.take_action, parsed_args)
+
     def test_server_create_with_auto_network(self):
         arglist = [
             '--image', 'image1',

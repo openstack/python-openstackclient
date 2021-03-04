@@ -646,6 +646,8 @@ class NICAction(argparse.Action):
 
             values = '='.join([self.key, values])
 
+        # We don't include 'tag' here by default since that requires a
+        # particular microversion
         info = {
             'net-id': '',
             'port-id': '',
@@ -656,11 +658,11 @@ class NICAction(argparse.Action):
         for kv_str in values.split(','):
             k, sep, v = kv_str.partition("=")
 
-            if k not in info or not v:
+            if k not in list(info) + ['tag'] or not v:
                 msg = _(
                     "Invalid argument %s; argument must be of form "
-                    "'net-id=net-uuid,v4-fixed-ip=ip-addr,v6-fixed-ip=ip-addr,"
-                    "port-id=port-uuid'"
+                    "'net-id=net-uuid,port-id=port-uuid,v4-fixed-ip=ip-addr,"
+                    "v6-fixed-ip=ip-addr,tag=tag'"
                 )
                 raise argparse.ArgumentTypeError(msg % values)
 
@@ -801,7 +803,7 @@ class CreateServer(command.ShowOne):
         parser.add_argument(
             '--nic',
             metavar="<net-id=net-uuid,port-id=port-uuid,v4-fixed-ip=ip-addr,"
-                    "v6-fixed-ip=ip-addr,auto,none>",
+                    "v6-fixed-ip=ip-addr,tag=tag,auto,none>",
             action=NICAction,
             dest='nics',
             default=[],
@@ -814,6 +816,8 @@ class CreateServer(command.ShowOne):
                 "\n"
                 "v6-fixed-ip=<ip-addr>: IPv6 fixed address for NIC (optional),"
                 "\n"
+                "tag: interface metadata tag (optional) "
+                "(supported by --os-compute-api-version 2.43 or above),\n"
                 "none: (v2.37+) no network is attached,\n"
                 "auto: (v2.37+) the compute service will automatically "
                 "allocate a network.\n"
@@ -1191,6 +1195,17 @@ class CreateServer(command.ShowOne):
             nics = nics[0]
         else:
             for nic in nics:
+                if 'tag' in nic:
+                    if (
+                        compute_client.api_version <
+                        api_versions.APIVersion('2.43')
+                    ):
+                        msg = _(
+                            '--os-compute-api-version 2.43 or greater is '
+                            'required to support the --nic tag field'
+                        )
+                        raise exceptions.CommandError(msg)
+
                 if self.app.client_manager.is_network_endpoint_enabled():
                     network_client = self.app.client_manager.network
 
