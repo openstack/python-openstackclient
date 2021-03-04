@@ -1,0 +1,8 @@
+---
+features:
+  - |
+    Add a number of additional options to the ``server create`` command:
+
+    - ``--snapshot``
+    - ``--ephemeral``
+    - ``--swap``
