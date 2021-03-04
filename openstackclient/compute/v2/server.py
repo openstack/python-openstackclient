@@ -801,6 +801,7 @@ class CreateServer(command.ShowOne):
                 'options.'
             )
         )
+        # TODO(stephenfin): Remove this in the v7.0
         parser.add_argument(
             '--block-device-mapping',
             metavar='<dev-name=mapping>',
@@ -809,7 +810,7 @@ class CreateServer(command.ShowOne):
             # NOTE(RuiChen): Add '\n' to the end of line to improve formatting;
             # see cliff's _SmartHelpFormatter for more details.
             help=_(
-                'Create a block device on the server.\n'
+                '**Deprecated** Create a block device on the server.\n'
                 'Block device mapping in the format\n'
                 '<dev-name>=<id>:<type>:<size(GB)>:<delete-on-terminate>\n'
                 '<dev-name>: block device name, like: vdb, xvdc '
@@ -822,6 +823,49 @@ class CreateServer(command.ShowOne):
                 '(optional)\n'
                 '<delete-on-terminate>: true or false; default: false '
                 '(optional)\n'
+                'Replaced by --block-device'
+            ),
+        )
+        parser.add_argument(
+            '--block-device',
+            metavar='',
+            action=parseractions.MultiKeyValueAction,
+            dest='block_devices',
+            default=[],
+            required_keys=[
+                'boot_index',
+            ],
+            optional_keys=[
+                'uuid', 'source_type', 'destination_type',
+                'disk_bus', 'device_type', 'device_name', 'guest_format',
+                'volume_size', 'volume_type', 'delete_on_termination', 'tag',
+            ],
+            help=_(
+                'Create a block device on the server.\n'
+                'Block device in the format:\n'
+                'uuid=<uuid>: UUID of the volume, snapshot or ID '
+                '(required if using source image, snapshot or volume),\n'
+                'source_type=<source_type>: source type '
+                '(one of: image, snapshot, volume, blank),\n'
+                'destination_typ=<destination_type>: destination type '
+                '(one of: volume, local) (optional),\n'
+                'disk_bus=<disk_bus>: device bus '
+                '(one of: uml, lxc, virtio, ...) (optional),\n'
+                'device_type=<device_type>: device type '
+                '(one of: disk, cdrom, etc. (optional),\n'
+                'device_name=<device_name>: name of the device (optional),\n'
+                'volume_size=<volume_size>: size of the block device in MiB '
+                '(for swap) or GiB (for everything else) (optional),\n'
+                'guest_format=<guest_format>: format of device (optional),\n'
+                'boot_index=<boot_index>: index of disk used to order boot '
+                'disk '
+                '(required for volume-backed instances),\n'
+                'delete_on_termination=<true|false>: whether to delete the '
+                'volume upon deletion of server (optional),\n'
+                'tag=<tag>: device metadata tag (optional),\n'
+                'volume_type=<volume_type>: type of volume to create (name or '
+                'ID) when source if blank, image or snapshot and dest is '
+                'volume (optional)'
             ),
         )
         parser.add_argument(
@@ -1250,6 +1294,8 @@ class CreateServer(command.ShowOne):
 
         # Handle block device by device name order, like: vdb -> vdc -> vdd
         for mapping in parsed_args.block_device_mapping:
+            # The 'uuid' field isn't necessarily a UUID yet; let's validate it
+            # just in case
             if mapping['source_type'] == 'volume':
                 volume_id = utils.find_resource(
                     volume_client.volumes, mapping['uuid'],
@@ -1276,6 +1322,77 @@ class CreateServer(command.ShowOne):
                     mapping['uuid'], ignore_missing=False,
                 ).id
                 mapping['uuid'] = image_id
+
+            block_device_mapping_v2.append(mapping)
+
+        for mapping in parsed_args.block_devices:
+            try:
+                mapping['boot_index'] = int(mapping['boot_index'])
+            except ValueError:
+                msg = _(
+                    'The boot_index key of --block-device should be an '
+                    'integer'
+                )
+                raise exceptions.CommandError(msg)
+
+            if 'tag' in mapping and (
+                compute_client.api_version < api_versions.APIVersion('2.42')
+            ):
+                msg = _(
+                    '--os-compute-api-version 2.42 or greater is '
+                    'required to support the tag key of --block-device'
+                )
+                raise exceptions.CommandError(msg)
+
+            if 'volume_type' in mapping and (
+                compute_client.api_version < api_versions.APIVersion('2.67')
+            ):
+                msg = _(
+                    '--os-compute-api-version 2.67 or greater is '
+                    'required to support the volume_type key of --block-device'
+                )
+                raise exceptions.CommandError(msg)
+
+            if 'source_type' in mapping:
+                if mapping['source_type'] not in (
+                    'volume', 'image', 'snapshot', 'blank',
+                ):
+                    msg = _(
+                        'The source_type key of --block-device should be one '
+                        'of: volume, image, snapshot, blank'
+                    )
+                    raise exceptions.CommandError(msg)
+            else:
+                mapping['source_type'] = 'blank'
+
+            if 'destination_type' in mapping:
+                if mapping['destination_type'] not in ('local', 'volume'):
+                    msg = _(
+                        'The destination_type key of --block-device should be '
+                        'one of: local, volume'
+                    )
+                    raise exceptions.CommandError(msg)
+            else:
+                if mapping['source_type'] in ('image', 'blank'):
+                    mapping['destination_type'] = 'local'
+                else:  # volume, snapshot
+                    mapping['destination_type'] = 'volume'
+
+            if 'delete_on_termination' in mapping:
+                try:
+                    value = strutils.bool_from_string(
+                        mapping['delete_on_termination'], strict=True)
+                except ValueError:
+                    msg = _(
+                        'The delete_on_termination key of --block-device '
+                        'should be a boolean-like value'
+                    )
+                    raise exceptions.CommandError(msg)
+
+                mapping['delete_on_termination'] = value
+            else:
+                if mapping['destination_type'] == 'local':
+                    mapping['delete_on_termination'] = True
 
             block_device_mapping_v2.append(mapping)
 

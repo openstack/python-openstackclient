@@ -2028,6 +2028,262 @@ class TestServerCreate(TestServer):
         self.assertEqual(self.columns, columns)
         self.assertEqual(self.datalist(), data)
 
+    def test_server_create_with_block_device(self):
+        block_device = f'uuid={self.volume.id},source_type=volume,boot_index=1'
+        arglist = [
+            '--image', 'image1',
+            '--flavor', self.flavor.id,
+            '--block-device', block_device,
+            self.new_server.name,
+        ]
+        verifylist = [
+            ('image', 'image1'),
+            ('flavor', self.flavor.id),
+            ('block_devices', [
+                {
+                    'uuid': self.volume.id,
+                    'source_type': 'volume',
+                    'boot_index': '1',
+                },
+            ]),
+            ('server_name', self.new_server.name),
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        # CreateServer.take_action() returns two tuples
+        columns, data = self.cmd.take_action(parsed_args)
+
+        # Set expected values
+        kwargs = {
+            'meta': None,
+            'files': {},
+            'reservation_id': None,
+            'min_count': 1,
+            'max_count': 1,
+            'security_groups': [],
+            'userdata': None,
+            'key_name': None,
+            'availability_zone': None,
+            'admin_pass': None,
+            'block_device_mapping_v2': [{
+                'uuid': self.volume.id,
+                'source_type': 'volume',
+                'destination_type': 'volume',
+                'boot_index': 1,
+            }],
+            'nics': [],
+            'scheduler_hints': {},
+            'config_drive': None,
+        }
+        # ServerManager.create(name, image, flavor, **kwargs)
+        self.servers_mock.create.assert_called_with(
+            self.new_server.name,
+            self.image,
+            self.flavor,
+            **kwargs
+        )
+
+        self.assertEqual(self.columns, columns)
+        self.assertEqual(self.datalist(), data)
+
+    def test_server_create_with_block_device_full(self):
+        self.app.client_manager.compute.api_version = api_versions.APIVersion(
+            '2.67')
+
+        block_device = (
+            f'uuid={self.volume.id},source_type=volume,'
+            f'destination_type=volume,disk_bus=ide,device_type=disk,'
+            f'device_name=sdb,guest_format=ext4,volume_size=64,'
+            f'volume_type=foo,boot_index=1,delete_on_termination=true,'
+            f'tag=foo'
+        )
+
+        arglist = [
+            '--image', 'image1',
+            '--flavor', self.flavor.id,
+            '--block-device', block_device,
+            self.new_server.name,
+        ]
+        verifylist = [
+            ('image', 'image1'),
+            ('flavor', self.flavor.id),
+            ('block_devices', [
+                {
+                    'uuid': self.volume.id,
+                    'source_type': 'volume',
+                    'destination_type': 'volume',
+                    'disk_bus': 'ide',
+                    'device_type': 'disk',
+                    'device_name': 'sdb',
+                    'guest_format': 'ext4',
+                    'volume_size': '64',
+                    'volume_type': 'foo',
+                    'boot_index': '1',
+                    'delete_on_termination': 'true',
+                    'tag': 'foo',
+                },
+            ]),
+            ('server_name', self.new_server.name),
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        # CreateServer.take_action() returns two tuples
+        columns, data = self.cmd.take_action(parsed_args)
+
+        # Set expected values
+        kwargs = {
+            'meta': None,
+            'files': {},
+            'reservation_id': None,
+            'min_count': 1,
+            'max_count': 1,
+            'security_groups': [],
+            'userdata': None,
+            'key_name': None,
+            'availability_zone': None,
+            'admin_pass': None,
+            'block_device_mapping_v2': [{
+                'uuid': self.volume.id,
+                'source_type': 'volume',
+                'destination_type': 'volume',
+                'disk_bus': 'ide',
+                'device_name': 'sdb',
+                'volume_size': '64',
+                'guest_format': 'ext4',
+                'boot_index': 1,
+                'device_type': 'disk',
+                'delete_on_termination': True,
+                'tag': 'foo',
+                'volume_type': 'foo',
+            }],
+            'nics': 'auto',
+            'scheduler_hints': {},
+            'config_drive': None,
+        }
+        # ServerManager.create(name, image, flavor, **kwargs)
+        self.servers_mock.create.assert_called_with(
+            self.new_server.name,
+            self.image,
+            self.flavor,
+            **kwargs
+        )
+
+        self.assertEqual(self.columns, columns)
+        self.assertEqual(self.datalist(), data)
+
+    def test_server_create_with_block_device_no_boot_index(self):
+        block_device = \
+            f'uuid={self.volume.name},source_type=volume'
+        arglist = [
+            '--image', 'image1',
+            '--flavor', self.flavor.id,
+            '--block-device', block_device,
+            self.new_server.name,
+        ]
+        self.assertRaises(
+            argparse.ArgumentTypeError,
+            self.check_parser,
+            self.cmd, arglist, [])
+
+    def test_server_create_with_block_device_invalid_boot_index(self):
+        block_device = \
+            f'uuid={self.volume.name},source_type=volume,boot_index=foo'
+        arglist = [
+            '--image', 'image1',
+            '--flavor', self.flavor.id,
+            '--block-device', block_device,
+            self.new_server.name,
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, [])
+        ex = self.assertRaises(
+            exceptions.CommandError,
+            self.cmd.take_action, parsed_args)
+        self.assertIn('The boot_index key of --block-device ', str(ex))
+
+    def test_server_create_with_block_device_invalid_source_type(self):
+        block_device = f'uuid={self.volume.name},source_type=foo,boot_index=1'
+        arglist = [
+            '--image', 'image1',
+            '--flavor', self.flavor.id,
+            '--block-device', block_device,
+            self.new_server.name,
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, [])
+        ex = self.assertRaises(
+            exceptions.CommandError,
+            self.cmd.take_action, parsed_args)
+        self.assertIn('The source_type key of --block-device ', str(ex))
+
+    def test_server_create_with_block_device_invalid_destination_type(self):
+        block_device = \
+            f'uuid={self.volume.name},destination_type=foo,boot_index=1'
+        arglist = [
+            '--image', 'image1',
+            '--flavor', self.flavor.id,
+            '--block-device', block_device,
+            self.new_server.name,
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, [])
+        ex = self.assertRaises(
+            exceptions.CommandError,
+            self.cmd.take_action, parsed_args)
+        self.assertIn('The destination_type key of --block-device ', str(ex))
+
+    def test_server_create_with_block_device_invalid_shutdown(self):
+        block_device = \
+            f'uuid={self.volume.name},delete_on_termination=foo,boot_index=1'
+        arglist = [
+            '--image', 'image1',
+            '--flavor', self.flavor.id,
+            '--block-device', block_device,
+            self.new_server.name,
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, [])
+        ex = self.assertRaises(
+            exceptions.CommandError,
+            self.cmd.take_action, parsed_args)
+        self.assertIn(
+            'The delete_on_termination key of --block-device ', str(ex))
+
+    def test_server_create_with_block_device_tag_pre_v242(self):
+        self.app.client_manager.compute.api_version = api_versions.APIVersion(
+            '2.41')
+
+        block_device = \
+            f'uuid={self.volume.name},tag=foo,boot_index=1'
+        arglist = [
+            '--image', 'image1',
+            '--flavor', self.flavor.id,
+            '--block-device', block_device,
+            self.new_server.name,
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, [])
+        ex = self.assertRaises(
+            exceptions.CommandError,
+            self.cmd.take_action, parsed_args)
+        self.assertIn(
+            '--os-compute-api-version 2.42 or greater is required',
+            str(ex))
+
+    def test_server_create_with_block_device_volume_type_pre_v267(self):
+        self.app.client_manager.compute.api_version = api_versions.APIVersion(
+            '2.66')
+
+        block_device = f'uuid={self.volume.name},volume_type=foo,boot_index=1'
+        arglist = [
+            '--image', 'image1',
+            '--flavor', self.flavor.id,
+            '--block-device', block_device,
+            self.new_server.name,
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, [])
+        ex = self.assertRaises(
+            exceptions.CommandError,
+            self.cmd.take_action, parsed_args)
+        self.assertIn(
+            '--os-compute-api-version 2.67 or greater is required',
+            str(ex))
+
     def test_server_create_with_block_device_mapping(self):
         arglist = [
             '--image', 'image1',
