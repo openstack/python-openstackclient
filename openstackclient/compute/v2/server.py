@@ -621,6 +621,12 @@ class CreateServer(command.ShowOne):
             metavar='<server-name>',
             help=_('New server name'),
         )
+        parser.add_argument(
+            '--flavor',
+            metavar='<flavor>',
+            required=True,
+            help=_('Create server with this flavor (name or ID)'),
+        )
         disk_group = parser.add_mutually_exclusive_group(
             required=True,
         )
@@ -629,12 +635,17 @@ class CreateServer(command.ShowOne):
             metavar='<image>',
             help=_('Create server boot disk from this image (name or ID)'),
         )
+        # TODO(stephenfin): Is this actually useful? Looks like a straight port
+        # from 'nova boot --image-with'. Perhaps we should deprecate this.
         disk_group.add_argument(
             '--image-property',
             metavar='<key=value>',
             action=parseractions.KeyValueAction,
             dest='image_properties',
-            help=_("Image property to be matched"),
+            help=_(
+                "Create server using the image that matches the specified "
+                "property. Property must match exactly one property."
+            ),
         )
         disk_group.add_argument(
             '--volume',
@@ -650,15 +661,99 @@ class CreateServer(command.ShowOne):
             ),
         )
         parser.add_argument(
+            '--boot-from-volume',
+            metavar='<volume-size>',
+            type=int,
+            help=_(
+                'When used in conjunction with the ``--image`` or '
+                '``--image-property`` option, this option automatically '
+                'creates a block device mapping with a boot index of 0 '
+                'and tells the compute service to create a volume of the '
+                'given size (in GB) from the specified image and use it '
+                'as the root disk of the server. The root volume will not '
+                'be deleted when the server is deleted. This option is '
+                'mutually exclusive with the ``--volume`` option.'
+            )
+        )
+        parser.add_argument(
+            '--block-device-mapping',
+            metavar='<dev-name=mapping>',
+            action=parseractions.KeyValueAction,
+            default={},
+            # NOTE(RuiChen): Add '\n' to the end of line to improve formatting;
+            # see cliff's _SmartHelpFormatter for more details.
+            help=_(
+                'Create a block device on the server.\n'
+                'Block device mapping in the format\n'
+                '<dev-name>=<id>:<type>:<size(GB)>:<delete-on-terminate>\n'
+                '<dev-name>: block device name, like: vdb, xvdc '
+                '(required)\n'
+                '<id>: Name or ID of the volume, volume snapshot or image '
+                '(required)\n'
+                '<type>: volume, snapshot or image; default: volume '
+                '(optional)\n'
+                '<size(GB)>: volume size if create from image or snapshot '
+                '(optional)\n'
+                '<delete-on-terminate>: true or false; default: false '
+                '(optional)\n'
+            ),
+        )
+        parser.add_argument(
+            '--network',
+            metavar="<network>",
+            action='append',
+            dest='nic',
+            type=_prefix_checked_value('net-id='),
+            # NOTE(RuiChen): Add '\n' to the end of line to improve formatting;
+            # see cliff's _SmartHelpFormatter for more details.
+            help=_(
+                "Create a NIC on the server and connect it to network. "
+                "Specify option multiple times to create multiple NICs. "
+                "This is a wrapper for the '--nic net-id=<network>' "
+                "parameter that provides simple syntax for the standard "
+                "use case of connecting a new server to a given network. "
+                "For more advanced use cases, refer to the '--nic' "
+                "parameter."
+            ),
+        )
+        parser.add_argument(
+            '--port',
+            metavar="<port>",
+            action='append',
+            dest='nic',
+            type=_prefix_checked_value('port-id='),
+            help=_(
+                "Create a NIC on the server and connect it to port. "
+                "Specify option multiple times to create multiple NICs. "
+                "This is a wrapper for the '--nic port-id=<port>' "
+                "parameter that provides simple syntax for the standard "
+                "use case of connecting a new server to a given port. For "
+                "more advanced use cases, refer to the '--nic' parameter."
+            ),
+        )
+        parser.add_argument(
+            '--nic',
+            metavar="<net-id=net-uuid,v4-fixed-ip=ip-addr,v6-fixed-ip=ip-addr,"
+                    "port-id=port-uuid,auto,none>",
+            action='append',
+            help=_(
+                "Create a NIC on the server. "
+                "Specify option multiple times to create multiple NICs. "
+                "Either net-id or port-id must be provided, but not both. "
+                "net-id: attach NIC to network with this UUID, "
+                "port-id: attach NIC to port with this UUID, "
+                "v4-fixed-ip: IPv4 fixed address for NIC (optional), "
+                "v6-fixed-ip: IPv6 fixed address for NIC (optional), "
+                "none: (v2.37+) no network is attached, "
+                "auto: (v2.37+) the compute service will automatically "
+                "allocate a network. Specifying a --nic of auto or none "
+                "cannot be used with any other --nic value."
+            ),
+        )
+        parser.add_argument(
             '--password',
             metavar='<password>',
             help=_("Set the password to this server"),
-        )
-        parser.add_argument(
-            '--flavor',
-            metavar='<flavor>',
-            required=True,
-            help=_('Create server with this flavor (name or ID)'),
         )
         parser.add_argument(
             '--security-group',
@@ -734,95 +829,6 @@ class CreateServer(command.ShowOne):
                 'Requested hypervisor hostname to create servers. '
                 '(admin only) '
                 '(supported by --os-compute-api-version 2.74 or above)'
-            ),
-        )
-        parser.add_argument(
-            '--boot-from-volume',
-            metavar='<volume-size>',
-            type=int,
-            help=_(
-                'When used in conjunction with the ``--image`` or '
-                '``--image-property`` option, this option automatically '
-                'creates a block device mapping with a boot index of 0 '
-                'and tells the compute service to create a volume of the '
-                'given size (in GB) from the specified image and use it '
-                'as the root disk of the server. The root volume will not '
-                'be deleted when the server is deleted. This option is '
-                'mutually exclusive with the ``--volume`` option.'
-            )
-        )
-        parser.add_argument(
-            '--block-device-mapping',
-            metavar='<dev-name=mapping>',
-            action=parseractions.KeyValueAction,
-            default={},
-            # NOTE(RuiChen): Add '\n' at the end of line to put each item in
-            #                the separated line, avoid the help message looks
-            #                messy, see _SmartHelpFormatter in cliff.
-            help=_(
-                'Create a block device on the server.\n'
-                'Block device mapping in the format\n'
-                '<dev-name>=<id>:<type>:<size(GB)>:<delete-on-terminate>\n'
-                '<dev-name>: block device name, like: vdb, xvdc '
-                '(required)\n'
-                '<id>: Name or ID of the volume, volume snapshot or image '
-                '(required)\n'
-                '<type>: volume, snapshot or image; default: volume '
-                '(optional)\n'
-                '<size(GB)>: volume size if create from image or snapshot '
-                '(optional)\n'
-                '<delete-on-terminate>: true or false; default: false '
-                '(optional)\n'
-            ),
-        )
-        parser.add_argument(
-            '--nic',
-            metavar="<net-id=net-uuid,v4-fixed-ip=ip-addr,v6-fixed-ip=ip-addr,"
-                    "port-id=port-uuid,auto,none>",
-            action='append',
-            help=_(
-                "Create a NIC on the server. "
-                "Specify option multiple times to create multiple NICs. "
-                "Either net-id or port-id must be provided, but not both. "
-                "net-id: attach NIC to network with this UUID, "
-                "port-id: attach NIC to port with this UUID, "
-                "v4-fixed-ip: IPv4 fixed address for NIC (optional), "
-                "v6-fixed-ip: IPv6 fixed address for NIC (optional), "
-                "none: (v2.37+) no network is attached, "
-                "auto: (v2.37+) the compute service will automatically "
-                "allocate a network. Specifying a --nic of auto or none "
-                "cannot be used with any other --nic value."
-            ),
-        )
-        parser.add_argument(
-            '--network',
-            metavar="<network>",
-            action='append',
-            dest='nic',
-            type=_prefix_checked_value('net-id='),
-            help=_(
-                "Create a NIC on the server and connect it to network. "
-                "Specify option multiple times to create multiple NICs. "
-                "This is a wrapper for the '--nic net-id=<network>' "
-                "parameter that provides simple syntax for the standard "
-                "use case of connecting a new server to a given network. "
-                "For more advanced use cases, refer to the '--nic' "
-                "parameter."
-            ),
-        )
-        parser.add_argument(
-            '--port',
-            metavar="<port>",
-            action='append',
-            dest='nic',
-            type=_prefix_checked_value('port-id='),
-            help=_(
-                "Create a NIC on the server and connect it to port. "
-                "Specify option multiple times to create multiple NICs. "
-                "This is a wrapper for the '--nic port-id=<port>' "
-                "parameter that provides simple syntax for the standard "
-                "use case of connecting a new server to a given port. For "
-                "more advanced use cases, refer to the '--nic' parameter."
             ),
         )
         parser.add_argument(
