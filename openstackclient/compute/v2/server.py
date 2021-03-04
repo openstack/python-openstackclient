@@ -997,7 +997,7 @@ class CreateServer(command.ShowOne):
             metavar='<key=value>',
             action=parseractions.KeyValueAppendAction,
             default={},
-            help=_('Hints for the scheduler (optional extension)'),
+            help=_('Hints for the scheduler'),
         )
         config_drive_group = parser.add_mutually_exclusive_group()
         config_drive_group.add_argument(
