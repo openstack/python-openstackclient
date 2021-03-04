@@ -832,13 +832,12 @@ class CreateServer(command.ShowOne):
             action=parseractions.MultiKeyValueAction,
             dest='block_devices',
             default=[],
-            required_keys=[
-                'boot_index',
-            ],
+            required_keys=[],
             optional_keys=[
                 'uuid', 'source_type', 'destination_type',
-                'disk_bus', 'device_type', 'device_name', 'guest_format',
-                'volume_size', 'volume_type', 'delete_on_termination', 'tag',
+                'disk_bus', 'device_type', 'device_name', 'volume_size',
+                'guest_format', 'boot_index', 'delete_on_termination', 'tag',
+                'volume_type',
             ],
             help=_(
                 'Create a block device on the server.\n'
@@ -1336,14 +1335,15 @@ class CreateServer(command.ShowOne):
             block_device_mapping_v2.append(mapping)
 
         for mapping in parsed_args.block_devices:
-            try:
-                mapping['boot_index'] = int(mapping['boot_index'])
-            except ValueError:
-                msg = _(
-                    'The boot_index key of --block-device should be an '
-                    'integer'
-                )
-                raise exceptions.CommandError(msg)
+            if 'boot_index' in mapping:
+                try:
+                    mapping['boot_index'] = int(mapping['boot_index'])
+                except ValueError:
+                    msg = _(
+                        'The boot_index key of --block-device should be an '
+                        'integer'
+                    )
+                    raise exceptions.CommandError(msg)
 
             if 'tag' in mapping and (
                 compute_client.api_version < api_versions.APIVersion('2.42')
@@ -1383,9 +1383,9 @@ class CreateServer(command.ShowOne):
                     )
                     raise exceptions.CommandError(msg)
             else:
-                if mapping['source_type'] in ('image', 'blank'):
+                if mapping['source_type'] in ('blank',):
                     mapping['destination_type'] = 'local'
-                else:  # volume, snapshot
+                else:  # volume, image, snapshot
                     mapping['destination_type'] = 'volume'
 
             if 'delete_on_termination' in mapping:

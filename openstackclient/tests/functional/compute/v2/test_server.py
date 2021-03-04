@@ -574,7 +574,90 @@ class ServerTests(common.ComputeTestCase):
             cmd_output['status'],
         )
 
-    def test_server_boot_with_bdm_snapshot(self):
+    def _test_server_boot_with_bdm_volume(self, use_legacy):
+        """Test server create from volume, server delete"""
+        # get volume status wait function
+        volume_wait_for = volume_common.BaseVolumeTests.wait_for_status
+
+        # create source empty volume
+        volume_name = uuid.uuid4().hex
+        cmd_output = json.loads(self.openstack(
+            'volume create -f json ' +
+            '--size 1 ' +
+            volume_name
+        ))
+        volume_id = cmd_output["id"]
+        self.assertIsNotNone(volume_id)
+        self.addCleanup(self.openstack, 'volume delete ' + volume_name)
+        self.assertEqual(volume_name, cmd_output['name'])
+        volume_wait_for("volume", volume_name, "available")
+
+        if use_legacy:
+            bdm_arg = f'--block-device-mapping vdb={volume_name}'
+        else:
+            bdm_arg = (
+                f'--block-device '
+                f'device_name=vdb,source_type=volume,boot_index=1,'
+                f'uuid={volume_id}'
+            )
+
+        # create server
+        server_name = uuid.uuid4().hex
+        server = json.loads(self.openstack(
+            'server create -f json ' +
+            '--flavor ' + self.flavor_name + ' ' +
+            '--image ' + self.image_name + ' ' +
+            bdm_arg + ' ' +
+            self.network_arg + ' ' +
+            '--wait ' +
+            server_name
+        ))
+        self.assertIsNotNone(server["id"])
+        self.addCleanup(self.openstack, 'server delete --wait ' + server_name)
+        self.assertEqual(
+            server_name,
+            server['name'],
+        )
+
+        # check server volumes_attached, format is
+        # {"volumes_attached": "id='2518bc76-bf0b-476e-ad6b-571973745bb5'",}
+        cmd_output = json.loads(self.openstack(
+            'server show -f json ' +
+            server_name
+        ))
+        volumes_attached = cmd_output['volumes_attached']
+        self.assertIsNotNone(volumes_attached)
+
+        # check volumes
+        cmd_output = json.loads(self.openstack(
+            'volume show -f json ' +
+            volume_name
+        ))
+        attachments = cmd_output['attachments']
+        self.assertEqual(
+            1,
+            len(attachments),
+        )
+        self.assertEqual(
+            server['id'],
+            attachments[0]['server_id'],
+        )
+        self.assertEqual(
+            "in-use",
+            cmd_output['status'],
+        )
+
+    def test_server_boot_with_bdm_volume(self):
+        """Test server create from image with bdm volume, server delete"""
+        self._test_server_boot_with_bdm_volume(use_legacy=False)
+
+    # TODO(stephenfin): Remove when we drop support for the
+    # '--block-device-mapping' option
+    def test_server_boot_with_bdm_volume_legacy(self):
+        """Test server create from image with bdm volume, server delete"""
+        self._test_server_boot_with_bdm_volume(use_legacy=True)
+
+    def _test_server_boot_with_bdm_snapshot(self, use_legacy):
         """Test server create from image with bdm snapshot, server delete"""
         # get volume status wait function
         volume_wait_for = volume_common.BaseVolumeTests.wait_for_status
@@ -588,12 +671,8 @@ class ServerTests(common.ComputeTestCase):
             empty_volume_name
         ))
         self.assertIsNotNone(cmd_output["id"])
-        self.addCleanup(self.openstack,
-                        'volume delete ' + empty_volume_name)
-        self.assertEqual(
-            empty_volume_name,
-            cmd_output['name'],
-        )
+        self.addCleanup(self.openstack, 'volume delete ' + empty_volume_name)
+        self.assertEqual(empty_volume_name, cmd_output['name'])
         volume_wait_for("volume", empty_volume_name, "available")
 
         # create snapshot of source empty volume
@@ -603,7 +682,8 @@ class ServerTests(common.ComputeTestCase):
             '--volume ' + empty_volume_name + ' ' +
             empty_snapshot_name
         ))
-        self.assertIsNotNone(cmd_output["id"])
+        empty_snapshot_id = cmd_output["id"]
+        self.assertIsNotNone(empty_snapshot_id)
         # Deleting volume snapshot take time, so we need to wait until the
         # snapshot goes. Entries registered by self.addCleanup will be called
         # in the reverse order, so we need to register wait_for_delete first.
@@ -617,14 +697,26 @@ class ServerTests(common.ComputeTestCase):
         )
         volume_wait_for("volume snapshot", empty_snapshot_name, "available")
 
+        if use_legacy:
+            bdm_arg = (
+                f'--block-device-mapping '
+                f'vdb={empty_snapshot_name}:snapshot:1:true'
+            )
+        else:
+            bdm_arg = (
+                f'--block-device '
+                f'device_name=vdb,uuid={empty_snapshot_id},'
+                f'source_type=snapshot,volume_size=1,'
+                f'delete_on_termination=true,boot_index=1'
+            )
+
         # create server with bdm snapshot
         server_name = uuid.uuid4().hex
         server = json.loads(self.openstack(
             'server create -f json ' +
             '--flavor ' + self.flavor_name + ' ' +
             '--image ' + self.image_name + ' ' +
-            '--block-device-mapping '
-            'vdb=' + empty_snapshot_name + ':snapshot:1:true ' +
+            bdm_arg + ' ' +
             self.network_arg + ' ' +
             '--wait ' +
             server_name
@@ -681,13 +773,49 @@ class ServerTests(common.ComputeTestCase):
             # the attached volume had been deleted
             pass
 
-    def test_server_boot_with_bdm_image(self):
+    def test_server_boot_with_bdm_snapshot(self):
+        """Test server create from image with bdm snapshot, server delete"""
+        self._test_server_boot_with_bdm_snapshot(use_legacy=False)
+
+    # TODO(stephenfin): Remove when we drop support for the
+    # '--block-device-mapping' option
+    def test_server_boot_with_bdm_snapshot_legacy(self):
+        """Test server create from image with bdm snapshot, server delete"""
+        self._test_server_boot_with_bdm_snapshot(use_legacy=True)
+
+    def _test_server_boot_with_bdm_image(self, use_legacy):
         # Tests creating a server where the root disk is backed by the given
         # --image but a --block-device-mapping with type=image is provided so
         # that the compute service creates a volume from that image and
         # attaches it as a non-root volume on the server. The block device is
         # marked as delete_on_termination=True so it will be automatically
         # deleted when the server is deleted.
+
+        if use_legacy:
+            # This means create a 1GB volume from the specified image, attach
+            # it to the server at /dev/vdb and delete the volume when the
+            # server is deleted.
+            bdm_arg = (
+                f'--block-device-mapping '
+                f'vdb={self.image_name}:image:1:true '
+            )
+        else:
+            # get image ID
+            cmd_output = json.loads(self.openstack(
+                'image show -f json ' +
+                self.image_name
+            ))
+            image_id = cmd_output['id']
+
+            # This means create a 1GB volume from the specified image, attach
+            # it to the server at /dev/vdb and delete the volume when the
+            # server is deleted.
+            bdm_arg = (
+                f'--block-device '
+                f'device_name=vdb,uuid={image_id},'
+                f'source_type=image,volume_size=1,'
+                f'delete_on_termination=true,boot_index=1'
+            )
 
         # create server with bdm type=image
         # NOTE(mriedem): This test is a bit unrealistic in that specifying the
@@ -700,11 +828,7 @@ class ServerTests(common.ComputeTestCase):
             'server create -f json ' +
             '--flavor ' + self.flavor_name + ' ' +
             '--image ' + self.image_name + ' ' +
-            '--block-device-mapping '
-            # This means create a 1GB volume from the specified image, attach
-            # it to the server at /dev/vdb and delete the volume when the
-            # server is deleted.
-            'vdb=' + self.image_name + ':image:1:true ' +
+            bdm_arg + ' ' +
             self.network_arg + ' ' +
             '--wait ' +
             server_name
@@ -767,6 +891,14 @@ class ServerTests(common.ComputeTestCase):
         else:
             # the attached volume had been deleted
             pass
+
+    def test_server_boot_with_bdm_image(self):
+        self._test_server_boot_with_bdm_image(use_legacy=False)
+
+    # TODO(stephenfin): Remove when we drop support for the
+    # '--block-device-mapping' option
+    def test_server_boot_with_bdm_image_legacy(self):
+        self._test_server_boot_with_bdm_image(use_legacy=True)
 
     def test_boot_from_volume(self):
         # Tests creating a server using --image and --boot-from-volume where
