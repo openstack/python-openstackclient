@@ -2603,6 +2603,70 @@ class ListMigration(command.Lister):
         return self.print_migrations(parsed_args, compute_client, migrations)
 
 
+class ShowMigration(command.Command):
+    """Show a migration for a given server."""
+
+    def get_parser(self, prog_name):
+        parser = super().get_parser(prog_name)
+        parser.add_argument(
+            'server',
+            metavar='<server>',
+            help=_('Server (name or ID)'),
+        )
+        parser.add_argument(
+            'migration',
+            metavar='<migration>',
+            help=_("Migration (ID)"),
+        )
+        return parser
+
+    def take_action(self, parsed_args):
+        compute_client = self.app.client_manager.compute
+
+        if compute_client.api_version < api_versions.APIVersion('2.24'):
+            msg = _(
+                '--os-compute-api-version 2.24 or greater is required to '
+                'support the server migration show command'
+            )
+            raise exceptions.CommandError(msg)
+
+        server = utils.find_resource(
+            compute_client.servers,
+            parsed_args.server,
+        )
+        server_migration = compute_client.server_migrations.get(
+            server.id, parsed_args.migration,
+        )
+
+        columns = (
+            'ID',
+            'Server UUID',
+            'Status',
+            'Source Compute',
+            'Source Node',
+            'Dest Compute',
+            'Dest Host',
+            'Dest Node',
+            'Memory Total Bytes',
+            'Memory Processed Bytes',
+            'Memory Remaining Bytes',
+            'Disk Total Bytes',
+            'Disk Processed Bytes',
+            'Disk Remaining Bytes',
+            'Created At',
+            'Updated At',
+        )
+
+        if compute_client.api_version >= api_versions.APIVersion('2.59'):
+            columns += ('UUID',)
+
+        if compute_client.api_version >= api_versions.APIVersion('2.80'):
+            columns += ('User ID', 'Project ID')
+
+        data = utils.get_item_properties(server_migration, columns)
+        return columns, data
+
+
 class AbortMigration(command.Command):
     """Cancel an ongoing live migration.
 

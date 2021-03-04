@@ -1633,6 +1633,59 @@ class FakeMigration(object):
         return migrations
 
 
+class FakeServerMigration(object):
+    """Fake one or more server migrations."""
+
+    @staticmethod
+    def create_one_server_migration(attrs=None, methods=None):
+        """Create a fake server migration.
+
+        :param Dictionary attrs:
+            A dictionary with all attributes
+        :param Dictionary methods:
+            A dictionary with all methods
+        :return:
+            A FakeResource object, with id, type, and so on
+        """
+        attrs = attrs or {}
+        methods = methods or {}
+
+        # Set default attributes.
+
+        migration_info = {
+            "created_at": "2016-01-29T13:42:02.000000",
+            "dest_compute": "compute2",
+            "dest_host": "1.2.3.4",
+            "dest_node": "node2",
+            "id": random.randint(1, 999),
+            "server_uuid": uuid.uuid4().hex,
+            "source_compute": "compute1",
+            "source_node": "node1",
+            "status": "running",
+            "memory_total_bytes": random.randint(1, 99999),
+            "memory_processed_bytes": random.randint(1, 99999),
+            "memory_remaining_bytes": random.randint(1, 99999),
+            "disk_total_bytes": random.randint(1, 99999),
+            "disk_processed_bytes": random.randint(1, 99999),
+            "disk_remaining_bytes": random.randint(1, 99999),
+            "updated_at": "2016-01-29T13:42:02.000000",
+            # added in 2.59
+            "uuid": uuid.uuid4().hex,
+            # added in 2.80
+            "user_id": uuid.uuid4().hex,
+            "project_id": uuid.uuid4().hex,
+        }
+
+        # Overwrite default attributes.
+        migration_info.update(attrs)
+
+        migration = fakes.FakeResource(
+            info=copy.deepcopy(migration_info),
+            methods=methods,
+            loaded=True)
+        return migration
+
+
 class FakeVolumeAttachment(object):
     """Fake one or more volume attachments (BDMs)."""
 
