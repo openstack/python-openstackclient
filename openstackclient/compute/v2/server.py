@@ -989,8 +989,9 @@ class CreateServer(command.ShowOne):
             action='append',
             default=[],
             help=_(
-                'File to inject into image before boot '
+                'File(s) to inject into image before boot '
                 '(repeat option to set multiple files)'
+                '(supported by --os-compute-api-version 2.57 or below)'
             ),
         )
         parser.add_argument(
@@ -1200,6 +1201,15 @@ class CreateServer(command.ShowOne):
 
         flavor = utils.find_resource(
             compute_client.flavors, parsed_args.flavor)
+
+        if parsed_args.file:
+            if compute_client.api_version >= api_versions.APIVersion('2.57'):
+                msg = _(
+                    'Personality files are deprecated and are not supported '
+                    'for --os-compute-api-version greater than 2.56; use '
+                    'user data instead'
+                )
+                raise exceptions.CommandError(msg)
 
         files = {}
         for f in parsed_args.file:
