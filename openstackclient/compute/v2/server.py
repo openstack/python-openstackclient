@@ -678,6 +678,51 @@ class NICAction(argparse.Action):
         getattr(namespace, self.dest).append(info)
 
 
+class BDMLegacyAction(argparse.Action):
+
+    def __call__(self, parser, namespace, values, option_string=None):
+        # Make sure we have an empty dict rather than None
+        if getattr(namespace, self.dest, None) is None:
+            setattr(namespace, self.dest, [])
+
+        dev_name, sep, dev_map = values.partition('=')
+        dev_map = dev_map.split(':') if dev_map else dev_map
+        if not dev_name or not dev_map or len(dev_map) > 4:
+            msg = _(
+                "Invalid argument %s; argument must be of form "
+                "'dev-name=id[:type[:size[:delete-on-terminate]]]'"
+            )
+            raise argparse.ArgumentTypeError(msg % values)
+
+        mapping = {
+            'device_name': dev_name,
+            # store target; this may be a name and will need verification later
+            'uuid': dev_map[0],
+            'source_type': 'volume',
+            'destination_type': 'volume',
+        }
+
+        # decide source and destination type
+        if len(dev_map) > 1 and dev_map[1]:
+            if dev_map[1] not in ('volume', 'snapshot', 'image'):
+                msg = _(
+                    "Invalid argument %s; 'type' must be one of: volume, "
+                    "snapshot, image"
+                )
+                raise argparse.ArgumentTypeError(msg % values)
+
+            mapping['source_type'] = dev_map[1]
+
+        # 3. append size and delete_on_termination, if present
+        if len(dev_map) > 2 and dev_map[2]:
+            mapping['volume_size'] = dev_map[2]
+
+        if len(dev_map) > 3 and dev_map[3]:
+            mapping['delete_on_termination'] = dev_map[3]
+
+        getattr(namespace, self.dest).append(mapping)
+
+
 class CreateServer(command.ShowOne):
     _description = _("Create a new server")
 
@@ -745,8 +790,8 @@ class CreateServer(command.ShowOne):
         parser.add_argument(
             '--block-device-mapping',
             metavar='<dev-name=mapping>',
-            action=parseractions.KeyValueAction,
-            default={},
+            action=BDMLegacyAction,
+            default=[],
             # NOTE(RuiChen): Add '\n' to the end of line to improve formatting;
             # see cliff's _SmartHelpFormatter for more details.
             help=_(
@@ -1123,62 +1168,35 @@ class CreateServer(command.ShowOne):
             # If booting from volume we do not pass an image to compute.
             image = None
 
-        boot_args = [parsed_args.server_name, image, flavor]
-
         # Handle block device by device name order, like: vdb -> vdc -> vdd
-        for dev_name in sorted(parsed_args.block_device_mapping):
-            dev_map = parsed_args.block_device_mapping[dev_name]
-            dev_map = dev_map.split(':')
-            if dev_map[0]:
-                mapping = {'device_name': dev_name}
+        for mapping in parsed_args.block_device_mapping:
+            if mapping['source_type'] == 'volume':
+                volume_id = utils.find_resource(
+                    volume_client.volumes, mapping['uuid'],
+                ).id
+                mapping['uuid'] = volume_id
+            elif mapping['source_type'] == 'snapshot':
+                snapshot_id = utils.find_resource(
+                    volume_client.volume_snapshots, mapping['uuid'],
+                ).id
+                mapping['uuid'] = snapshot_id
+            elif mapping['source_type'] == 'image':
+                # NOTE(mriedem): In case --image is specified with the same
+                # image, that becomes the root disk for the server. If the
+                # block device is specified with a root device name, e.g.
+                # vda, then the compute API will likely fail complaining
+                # that there is a conflict. So if using the same image ID,
+                # which doesn't really make sense but it's allowed, the
+                # device name would need to be a non-root device, e.g. vdb.
+                # Otherwise if the block device image is different from the
+                # one specified by --image, then the compute service will
+                # create a volume from the image and attach it to the
+                # server as a non-root volume.
+                image_id = image_client.find_image(
+                    mapping['uuid'], ignore_missing=False,
+                ).id
+                mapping['uuid'] = image_id
 
-                # 1. decide source and destination type
-                if (len(dev_map) > 1 and
-                        dev_map[1] in ('volume', 'snapshot', 'image')):
-                    mapping['source_type'] = dev_map[1]
-                else:
-                    mapping['source_type'] = 'volume'
-
-                mapping['destination_type'] = 'volume'
-
-                # 2. check target exist, update target uuid according by
-                #    source type
-                if mapping['source_type'] == 'volume':
-                    volume_id = utils.find_resource(
-                        volume_client.volumes, dev_map[0]).id
-                    mapping['uuid'] = volume_id
-                elif mapping['source_type'] == 'snapshot':
-                    snapshot_id = utils.find_resource(
-                        volume_client.volume_snapshots, dev_map[0]).id
-                    mapping['uuid'] = snapshot_id
-                elif mapping['source_type'] == 'image':
-                    # NOTE(mriedem): In case --image is specified with the same
-                    # image, that becomes the root disk for the server. If the
-                    # block device is specified with a root device name, e.g.
-                    # vda, then the compute API will likely fail complaining
-                    # that there is a conflict. So if using the same image ID,
-                    # which doesn't really make sense but it's allowed, the
-                    # device name would need to be a non-root device, e.g. vdb.
-                    # Otherwise if the block device image is different from the
-                    # one specified by --image, then the compute service will
-                    # create a volume from the image and attach it to the
-                    # server as a non-root volume.
-                    image_id = image_client.find_image(dev_map[0],
-                                                       ignore_missing=False).id
-                    mapping['uuid'] = image_id
-
-                # 3. append size and delete_on_termination if exist
-                if len(dev_map) > 2 and dev_map[2]:
-                    mapping['volume_size'] = dev_map[2]
-
-                if len(dev_map) > 3 and dev_map[3]:
-                    mapping['delete_on_termination'] = dev_map[3]
-            else:
-                msg = _(
-                    'Volume, volume snapshot or image (name or ID) must '
-                    'be specified if --block-device-mapping is specified'
-                )
-                raise exceptions.CommandError(msg)
             block_device_mapping_v2.append(mapping)
 
         nics = parsed_args.nics
@@ -1280,6 +1298,8 @@ class CreateServer(command.ShowOne):
                 config_drive = None
             else:
                 config_drive = parsed_args.config_drive
+
+        boot_args = [parsed_args.server_name, image, flavor]
 
         boot_kwargs = dict(
             meta=parsed_args.properties,
