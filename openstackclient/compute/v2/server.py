@@ -2457,9 +2457,11 @@ revert to release the new server and restart the old one.""")
             '--live-migration',
             dest='live_migration',
             action='store_true',
-            help=_('Live migrate the server. Use the ``--host`` option to '
-                   'specify a target host for the migration which will be '
-                   'validated by the scheduler.'),
+            help=_(
+                'Live migrate the server; use the ``--host`` option to '
+                'specify a target host for the migration which will be '
+                'validated by the scheduler'
+            ),
         )
         # The --live and --host options are mutually exclusive ways of asking
         # for a target host during a live migration.
@@ -2469,37 +2471,48 @@ revert to release the new server and restart the old one.""")
         host_group.add_argument(
             '--live',
             metavar='<hostname>',
-            help=_('**Deprecated** This option is problematic in that it '
-                   'requires a host and prior to compute API version 2.30, '
-                   'specifying a host during live migration will bypass '
-                   'validation by the scheduler which could result in '
-                   'failures to actually migrate the server to the specified '
-                   'host or over-subscribe the host. Use the '
-                   '``--live-migration`` option instead. If both this option '
-                   'and ``--live-migration`` are used, ``--live-migration`` '
-                   'takes priority.'),
+            help=_(
+                '**Deprecated** This option is problematic in that it '
+                'requires a host and prior to compute API version 2.30, '
+                'specifying a host during live migration will bypass '
+                'validation by the scheduler which could result in '
+                'failures to actually migrate the server to the specified '
+                'host or over-subscribe the host. Use the '
+                '``--live-migration`` option instead. If both this option '
+                'and ``--live-migration`` are used, ``--live-migration`` '
+                'takes priority.'
+            ),
         )
         host_group.add_argument(
             '--host',
             metavar='<hostname>',
-            help=_('Migrate the server to the specified host. Requires '
-                   '``--os-compute-api-version`` 2.30 or greater when used '
-                   'with the ``--live-migration`` option, otherwise requires '
-                   '``--os-compute-api-version`` 2.56 or greater.'),
+            help=_(
+                'Migrate the server to the specified host. '
+                '(supported with --os-compute-api-version 2.30 or above '
+                'when used with the --live-migration option) '
+                '(supported with --os-compute-api-version 2.56 or above '
+                'when used without the --live-migration option)'
+            ),
         )
         migration_group = parser.add_mutually_exclusive_group()
         migration_group.add_argument(
             '--shared-migration',
             dest='block_migration',
             action='store_false',
-            default=False,
-            help=_('Perform a shared live migration (default)'),
+            default=None,
+            help=_(
+                'Perform a shared live migration '
+                '(default before --os-compute-api-version 2.25, auto after)'
+            ),
         )
         migration_group.add_argument(
             '--block-migration',
             dest='block_migration',
             action='store_true',
-            help=_('Perform a block live migration'),
+            help=_(
+                'Perform a block live migration '
+                '(auto-configured from --os-compute-api-version 2.25)'
+            ),
         )
         disk_group = parser.add_mutually_exclusive_group()
         disk_group.add_argument(
@@ -2513,8 +2526,9 @@ revert to release the new server and restart the old one.""")
             dest='disk_overcommit',
             action='store_false',
             default=False,
-            help=_('Do not over-commit disk on the'
-                   ' destination host (default)'),
+            help=_(
+                'Do not over-commit disk on the destination host (default)'
+            ),
         )
         parser.add_argument(
             '--wait',
@@ -2549,9 +2563,21 @@ revert to release the new server and restart the old one.""")
         if parsed_args.live or parsed_args.live_migration:
             # Always log a warning if --live is used.
             self._log_warning_for_live(parsed_args)
-            kwargs = {
-                'block_migration': parsed_args.block_migration
-            }
+
+            kwargs = {}
+
+            block_migration = parsed_args.block_migration
+            if block_migration is None:
+                if (
+                    compute_client.api_version <
+                    api_versions.APIVersion('2.25')
+                ):
+                    block_migration = False
+                else:
+                    block_migration = 'auto'
+
+            kwargs['block_migration'] = block_migration
+
             # Prefer --live-migration over --live if both are specified.
             if parsed_args.live_migration:
                 # Technically we could pass a non-None host with
@@ -2560,12 +2586,16 @@ revert to release the new server and restart the old one.""")
                 # want to support, so if the user is using --live-migration
                 # and --host, we want to enforce that they are using version
                 # 2.30 or greater.
-                if (parsed_args.host and
-                        compute_client.api_version <
-                        api_versions.APIVersion('2.30')):
+                if (
+                    parsed_args.host and
+                    compute_client.api_version <
+                    api_versions.APIVersion('2.30')
+                ):
                     raise exceptions.CommandError(
                         '--os-compute-api-version 2.30 or greater is required '
-                        'when using --host')
+                        'when using --host'
+                    )
+
                 # The host parameter is required in the API even if None.
                 kwargs['host'] = parsed_args.host
             else:
@@ -2573,6 +2603,7 @@ revert to release the new server and restart the old one.""")
 
             if compute_client.api_version < api_versions.APIVersion('2.25'):
                 kwargs['disk_over_commit'] = parsed_args.disk_overcommit
+
             server.live_migrate(**kwargs)
         else:
             if parsed_args.block_migration or parsed_args.disk_overcommit:

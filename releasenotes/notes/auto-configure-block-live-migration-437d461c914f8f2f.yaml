@@ -1,0 +1,6 @@
+---
+features:
+  - |
+    The ``server migrate`` command will now automatically determine whether
+    to use block or shared migration during a live migration operation. This
+    requires Compute API microversion 2.25 or greater.
