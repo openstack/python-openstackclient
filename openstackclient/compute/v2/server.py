@@ -2519,7 +2519,10 @@ revert to release the new server and restart the old one.""")
             '--disk-overcommit',
             action='store_true',
             default=False,
-            help=_('Allow disk over-commit on the destination host'),
+            help=_(
+                'Allow disk over-commit on the destination host'
+                '(supported with --os-compute-api-version 2.24 or below)'
+            ),
         )
         disk_group.add_argument(
             '--no-disk-overcommit',
@@ -2528,6 +2531,7 @@ revert to release the new server and restart the old one.""")
             default=False,
             help=_(
                 'Do not over-commit disk on the destination host (default)'
+                '(supported with --os-compute-api-version 2.24 or below)'
             ),
         )
         parser.add_argument(
@@ -2603,6 +2607,15 @@ revert to release the new server and restart the old one.""")
 
             if compute_client.api_version < api_versions.APIVersion('2.25'):
                 kwargs['disk_over_commit'] = parsed_args.disk_overcommit
+            elif parsed_args.disk_overcommit is not None:
+                # TODO(stephenfin): Raise an error here in OSC 7.0
+                msg = _(
+                    'The --disk-overcommit and --no-disk-overcommit '
+                    'options are only supported by '
+                    '--os-compute-api-version 2.24 or below; this will '
+                    'be an error in a future release'
+                )
+                self.log.warning(msg)
 
             server.live_migrate(**kwargs)
         else:

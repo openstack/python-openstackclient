@@ -4832,6 +4832,40 @@ class TestServerMigrate(TestServer):
         self.assertNotCalled(self.servers_mock.migrate)
         self.assertIsNone(result)
 
+    def test_server_live_migrate_with_disk_overcommit_post_v224(self):
+        arglist = [
+            '--live-migration',
+            '--disk-overcommit',
+            self.server.id,
+        ]
+        verifylist = [
+            ('live', None),
+            ('live_migration', True),
+            ('block_migration', None),
+            ('disk_overcommit', True),
+            ('wait', False),
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        self.app.client_manager.compute.api_version = \
+            api_versions.APIVersion('2.25')
+
+        with mock.patch.object(self.cmd.log, 'warning') as mock_warning:
+            result = self.cmd.take_action(parsed_args)
+
+        self.servers_mock.get.assert_called_with(self.server.id)
+        # There should be no 'disk_over_commit' value present
+        self.server.live_migrate.assert_called_with(
+            block_migration='auto',
+            host=None)
+        self.assertNotCalled(self.servers_mock.migrate)
+        self.assertIsNone(result)
+        # A warning should have been logged for using --disk-overcommit.
+        mock_warning.assert_called_once()
+        self.assertIn(
+            'The --disk-overcommit and --no-disk-overcommit options ',
+            str(mock_warning.call_args[0][0]))
+
     def test_server_live_migrate_with_false_value_options(self):
         arglist = [
             '--live', 'fakehost', '--no-disk-overcommit',
