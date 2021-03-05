@@ -1,0 +1,4 @@
+---
+fixes:
+  - |
+    Add missing ``openstack subnet unset --gateway <subnet-id>``.

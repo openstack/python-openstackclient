@@ -673,6 +673,11 @@ class UnsetSubnet(command.Command):
                    '(repeat option to unset multiple allocation pools)')
         )
         parser.add_argument(
+            '--gateway',
+            action='store_true',
+            help=_("Remove gateway IP from this subnet")
+        )
+        parser.add_argument(
             '--dns-nameserver',
             metavar='<dns-nameserver>',
             action='append',
@@ -715,6 +720,8 @@ class UnsetSubnet(command.Command):
         obj = client.find_subnet(parsed_args.subnet, ignore_missing=False)
 
         attrs = {}
+        if parsed_args.gateway:
+            attrs['gateway_ip'] = None
         if parsed_args.dns_nameservers:
             attrs['dns_nameservers'] = copy.deepcopy(obj.dns_nameservers)
             _update_arguments(attrs['dns_nameservers'],
