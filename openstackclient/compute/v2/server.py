@@ -18,8 +18,10 @@
 import argparse
 import getpass
 import io
+import json
 import logging
 import os
+import urllib.parse
 
 from cliff import columns as cliff_columns
 import iso8601
@@ -681,7 +683,7 @@ class NICAction(argparse.Action):
 class BDMLegacyAction(argparse.Action):
 
     def __call__(self, parser, namespace, values, option_string=None):
-        # Make sure we have an empty dict rather than None
+        # Make sure we have an empty list rather than None
         if getattr(namespace, self.dest, None) is None:
             setattr(namespace, self.dest, [])
 
@@ -721,6 +723,68 @@ class BDMLegacyAction(argparse.Action):
             mapping['delete_on_termination'] = dev_map[3]
 
         getattr(namespace, self.dest).append(mapping)
+
+
+class BDMAction(parseractions.MultiKeyValueAction):
+
+    def __init__(self, option_strings, dest, **kwargs):
+        required_keys = []
+        optional_keys = [
+            'uuid', 'source_type', 'destination_type',
+            'disk_bus', 'device_type', 'device_name', 'volume_size',
+            'guest_format', 'boot_index', 'delete_on_termination', 'tag',
+            'volume_type',
+        ]
+        super().__init__(
+            option_strings, dest, required_keys=required_keys,
+            optional_keys=optional_keys, **kwargs,
+        )
+
+    # TODO(stephenfin): Remove once I549d0897ef3704b7f47000f867d6731ad15d3f2b
+    # or similar lands in a release
+    def validate_keys(self, keys):
+        """Validate the provided keys.
+
+        :param keys: A list of keys to validate.
+        """
+        valid_keys = self.required_keys | self.optional_keys
+        invalid_keys = [k for k in keys if k not in valid_keys]
+        if invalid_keys:
+            msg = _(
+                "Invalid keys %(invalid_keys)s specified.\n"
+                "Valid keys are: %(valid_keys)s"
+            )
+            raise argparse.ArgumentTypeError(msg % {
+                'invalid_keys': ', '.join(invalid_keys),
+                'valid_keys': ', '.join(valid_keys),
+            })
+
+        missing_keys = [k for k in self.required_keys if k not in keys]
+        if missing_keys:
+            msg = _(
+                "Missing required keys %(missing_keys)s.\n"
+                "Required keys are: %(required_keys)s"
+            )
+            raise argparse.ArgumentTypeError(msg % {
+                'missing_keys': ', '.join(missing_keys),
+                'required_keys': ', '.join(self.required_keys),
+            })
+
+    def __call__(self, parser, namespace, values, option_string=None):
+        if getattr(namespace, self.dest, None) is None:
+            setattr(namespace, self.dest, [])
+
+        if values.startswith('file://'):
+            path = urllib.parse.urlparse(values).path
+            with open(path) as fh:
+                data = json.load(fh)
+
+            # Validate the keys - other validation is left to later
+            self.validate_keys(list(data))
+
+            getattr(namespace, self.dest, []).append(data)
+        else:
+            super().__call__(parser, namespace, values, option_string)
 
 
 class CreateServer(command.ShowOne):
@@ -829,19 +893,15 @@ class CreateServer(command.ShowOne):
         parser.add_argument(
             '--block-device',
             metavar='',
-            action=parseractions.MultiKeyValueAction,
+            action=BDMAction,
             dest='block_devices',
             default=[],
-            required_keys=[],
-            optional_keys=[
-                'uuid', 'source_type', 'destination_type',
-                'disk_bus', 'device_type', 'device_name', 'volume_size',
-                'guest_format', 'boot_index', 'delete_on_termination', 'tag',
-                'volume_type',
-            ],
             help=_(
                 'Create a block device on the server.\n'
-                'Block device in the format:\n'
+                'Either a URI-style path (\'file:\\\\{path}\') to a JSON file '
+                'or a CSV-serialized string describing the block device '
+                'mapping.\n'
+                'The following keys are accepted:\n'
                 'uuid=<uuid>: UUID of the volume, snapshot or ID '
                 '(required if using source image, snapshot or volume),\n'
                 'source_type=<source_type>: source type '
