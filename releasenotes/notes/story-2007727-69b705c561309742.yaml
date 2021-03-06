@@ -1,0 +1,6 @@
+---
+fixes:
+  - |
+    The ``openstack server group create`` command will now validate the policy
+    value requested with ``--policy``, restricting it to the valid values
+    allowed by given microversions.
