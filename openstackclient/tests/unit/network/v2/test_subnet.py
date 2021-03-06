@@ -1264,6 +1264,7 @@ class TestUnsetSubnet(TestSubnet):
                                    'end': '8.8.8.170'}],
              'service_types': ['network:router_gateway',
                                'network:floatingip_agent_gateway'],
+             'gateway_ip': 'fe80::a00a:0:c0de:0:1',
              'tags': ['green', 'red'], })
         self.network.find_subnet = mock.Mock(return_value=self._testsubnet)
         self.network.update_subnet = mock.Mock(return_value=None)
@@ -1277,6 +1278,7 @@ class TestUnsetSubnet(TestSubnet):
             '--host-route', 'destination=10.30.30.30/24,gateway=10.30.30.1',
             '--allocation-pool', 'start=8.8.8.100,end=8.8.8.150',
             '--service-type', 'network:router_gateway',
+            '--gateway',
             self._testsubnet.name,
         ]
         verifylist = [
@@ -1286,6 +1288,7 @@ class TestUnsetSubnet(TestSubnet):
             ('allocation_pools', [{
                 'start': '8.8.8.100', 'end': '8.8.8.150'}]),
             ('service_types', ['network:router_gateway']),
+            ('gateway', True),
         ]
 
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
@@ -1297,6 +1300,7 @@ class TestUnsetSubnet(TestSubnet):
                 "destination": "10.20.20.0/24", "nexthop": "10.20.20.1"}],
             'allocation_pools': [{'start': '8.8.8.160', 'end': '8.8.8.170'}],
             'service_types': ['network:floatingip_agent_gateway'],
+            'gateway_ip': None,
         }
         self.network.update_subnet.assert_called_once_with(
             self._testsubnet, **attrs)
