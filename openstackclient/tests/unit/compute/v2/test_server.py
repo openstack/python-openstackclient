@@ -2029,7 +2029,7 @@ class TestServerCreate(TestServer):
         self.assertEqual(self.datalist(), data)
 
     def test_server_create_with_block_device(self):
-        block_device = f'uuid={self.volume.id},source_type=volume,boot_index=1'
+        block_device = f'uuid={self.volume.id},source_type=volume'
         arglist = [
             '--image', 'image1',
             '--flavor', self.flavor.id,
@@ -2043,7 +2043,6 @@ class TestServerCreate(TestServer):
                 {
                     'uuid': self.volume.id,
                     'source_type': 'volume',
-                    'boot_index': '1',
                 },
             ]),
             ('server_name', self.new_server.name),
@@ -2069,7 +2068,6 @@ class TestServerCreate(TestServer):
                 'uuid': self.volume.id,
                 'source_type': 'volume',
                 'destination_type': 'volume',
-                'boot_index': 1,
             }],
             'nics': [],
             'scheduler_hints': {},
@@ -2171,20 +2169,6 @@ class TestServerCreate(TestServer):
         self.assertEqual(self.columns, columns)
         self.assertEqual(self.datalist(), data)
 
-    def test_server_create_with_block_device_no_boot_index(self):
-        block_device = \
-            f'uuid={self.volume.name},source_type=volume'
-        arglist = [
-            '--image', 'image1',
-            '--flavor', self.flavor.id,
-            '--block-device', block_device,
-            self.new_server.name,
-        ]
-        self.assertRaises(
-            argparse.ArgumentTypeError,
-            self.check_parser,
-            self.cmd, arglist, [])
-
     def test_server_create_with_block_device_invalid_boot_index(self):
         block_device = \
             f'uuid={self.volume.name},source_type=volume,boot_index=foo'
@@ -2201,7 +2185,7 @@ class TestServerCreate(TestServer):
         self.assertIn('The boot_index key of --block-device ', str(ex))
 
     def test_server_create_with_block_device_invalid_source_type(self):
-        block_device = f'uuid={self.volume.name},source_type=foo,boot_index=1'
+        block_device = f'uuid={self.volume.name},source_type=foo'
         arglist = [
             '--image', 'image1',
             '--flavor', self.flavor.id,
@@ -2216,7 +2200,7 @@ class TestServerCreate(TestServer):
 
     def test_server_create_with_block_device_invalid_destination_type(self):
         block_device = \
-            f'uuid={self.volume.name},destination_type=foo,boot_index=1'
+            f'uuid={self.volume.name},destination_type=foo'
         arglist = [
             '--image', 'image1',
             '--flavor', self.flavor.id,
@@ -2231,7 +2215,7 @@ class TestServerCreate(TestServer):
 
     def test_server_create_with_block_device_invalid_shutdown(self):
         block_device = \
-            f'uuid={self.volume.name},delete_on_termination=foo,boot_index=1'
+            f'uuid={self.volume.name},delete_on_termination=foo'
         arglist = [
             '--image', 'image1',
             '--flavor', self.flavor.id,
@@ -2250,7 +2234,7 @@ class TestServerCreate(TestServer):
             '2.41')
 
         block_device = \
-            f'uuid={self.volume.name},tag=foo,boot_index=1'
+            f'uuid={self.volume.name},tag=foo'
         arglist = [
             '--image', 'image1',
             '--flavor', self.flavor.id,
@@ -2269,7 +2253,7 @@ class TestServerCreate(TestServer):
         self.app.client_manager.compute.api_version = api_versions.APIVersion(
             '2.66')
 
-        block_device = f'uuid={self.volume.name},volume_type=foo,boot_index=1'
+        block_device = f'uuid={self.volume.name},volume_type=foo'
         arglist = [
             '--image', 'image1',
             '--flavor', self.flavor.id,
