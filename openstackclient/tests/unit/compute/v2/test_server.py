@@ -2197,7 +2197,7 @@ class TestServerCreate(TestServer):
             arglist = [
                 '--image', 'image1',
                 '--flavor', self.flavor.id,
-                '--block-device', f'file://{fp.name}',
+                '--block-device', fp.name,
                 self.new_server.name,
             ]
             verifylist = [

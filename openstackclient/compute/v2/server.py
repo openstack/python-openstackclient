@@ -21,7 +21,6 @@ import io
 import json
 import logging
 import os
-import urllib.parse
 
 from cliff import columns as cliff_columns
 import iso8601
@@ -774,9 +773,8 @@ class BDMAction(parseractions.MultiKeyValueAction):
         if getattr(namespace, self.dest, None) is None:
             setattr(namespace, self.dest, [])
 
-        if values.startswith('file://'):
-            path = urllib.parse.urlparse(values).path
-            with open(path) as fh:
+        if os.path.exists(values):
+            with open(values) as fh:
                 data = json.load(fh)
 
             # Validate the keys - other validation is left to later
@@ -898,10 +896,9 @@ class CreateServer(command.ShowOne):
             default=[],
             help=_(
                 'Create a block device on the server.\n'
-                'Either a URI-style path (\'file:\\\\{path}\') to a JSON file '
-                'or a CSV-serialized string describing the block device '
-                'mapping.\n'
-                'The following keys are accepted:\n'
+                'Either a path to a JSON file or a CSV-serialized string '
+                'describing the block device mapping.\n'
+                'The following keys are accepted for both:\n'
                 'uuid=<uuid>: UUID of the volume, snapshot or ID '
                 '(required if using source image, snapshot or volume),\n'
                 'source_type=<source_type>: source type '
