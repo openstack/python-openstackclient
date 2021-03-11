@@ -16,6 +16,8 @@ import argparse
 import collections
 import copy
 import getpass
+import json
+import tempfile
 from unittest import mock
 from unittest.mock import call
 
@@ -2147,6 +2149,87 @@ class TestServerCreate(TestServer):
                 'disk_bus': 'ide',
                 'device_name': 'sdb',
                 'volume_size': '64',
+                'guest_format': 'ext4',
+                'boot_index': 1,
+                'device_type': 'disk',
+                'delete_on_termination': True,
+                'tag': 'foo',
+                'volume_type': 'foo',
+            }],
+            'nics': 'auto',
+            'scheduler_hints': {},
+            'config_drive': None,
+        }
+        # ServerManager.create(name, image, flavor, **kwargs)
+        self.servers_mock.create.assert_called_with(
+            self.new_server.name,
+            self.image,
+            self.flavor,
+            **kwargs
+        )
+
+        self.assertEqual(self.columns, columns)
+        self.assertEqual(self.datalist(), data)
+
+    def test_server_create_with_block_device_from_file(self):
+        self.app.client_manager.compute.api_version = api_versions.APIVersion(
+            '2.67')
+
+        block_device = {
+            'uuid': self.volume.id,
+            'source_type': 'volume',
+            'destination_type': 'volume',
+            'disk_bus': 'ide',
+            'device_type': 'disk',
+            'device_name': 'sdb',
+            'guest_format': 'ext4',
+            'volume_size': 64,
+            'volume_type': 'foo',
+            'boot_index': 1,
+            'delete_on_termination': True,
+            'tag': 'foo',
+        }
+
+        with tempfile.NamedTemporaryFile(mode='w+') as fp:
+            json.dump(block_device, fp=fp)
+            fp.flush()
+
+            arglist = [
+                '--image', 'image1',
+                '--flavor', self.flavor.id,
+                '--block-device', f'file://{fp.name}',
+                self.new_server.name,
+            ]
+            verifylist = [
+                ('image', 'image1'),
+                ('flavor', self.flavor.id),
+                ('block_devices', [block_device]),
+                ('server_name', self.new_server.name),
+            ]
+            parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        # CreateServer.take_action() returns two tuples
+        columns, data = self.cmd.take_action(parsed_args)
+
+        # Set expected values
+        kwargs = {
+            'meta': None,
+            'files': {},
+            'reservation_id': None,
+            'min_count': 1,
+            'max_count': 1,
+            'security_groups': [],
+            'userdata': None,
+            'key_name': None,
+            'availability_zone': None,
+            'admin_pass': None,
+            'block_device_mapping_v2': [{
+                'uuid': self.volume.id,
+                'source_type': 'volume',
+                'destination_type': 'volume',
+                'disk_bus': 'ide',
+                'device_name': 'sdb',
+                'volume_size': 64,
                 'guest_format': 'ext4',
                 'boot_index': 1,
                 'device_type': 'disk',
