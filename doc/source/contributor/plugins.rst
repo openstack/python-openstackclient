@@ -226,15 +226,15 @@ Add the command checker to your CI
 Changes to python-openstackclient
 ---------------------------------
 
-#. In ``doc/source/plugins.rst``, update the `Adoption` section to reflect the
-   status of the project.
+#. In ``doc/source/contributor/plugins.rst``, update the `Adoption` section to
+   reflect the status of the project.
 
-#. Update ``doc/source/commands.rst`` to include objects that are defined by
-   fooclient's new plugin.
+#. Update ``doc/source/contributor/commands.rst`` to include objects that are
+   defined by fooclient's new plugin.
 
-#. Update ``doc/source/plugin-commands.rst`` to include the entry point defined
-   in fooclient. We use `sphinxext`_ to automatically document commands that
-   are used.
+#. Update ``doc/source/contributor/plugin-commands.rst`` to include the entry
+   point defined in fooclient. We use `sphinxext`_ to automatically document
+   commands that are used.
 
 #. Update ``test-requirements.txt`` to include fooclient. This is necessary
    to auto-document the commands in the previous step.
