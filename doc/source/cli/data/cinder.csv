@@ -72,9 +72,9 @@ list,volume list,Lists all volumes.
 list-filters,,List enabled filters. (Supported by API versions 3.33 - 3.latest)
 manage,volume create --remote-source k=v,Manage an existing volume.
 manageable-list,,Lists all manageable volumes. (Supported by API versions 3.8 - 3.latest)
-message-delete,,Removes one or more messages. (Supported by API versions 3.3 - 3.latest)
-message-list,,Lists all messages. (Supported by API versions 3.3 - 3.latest)
-message-show,,Shows message details. (Supported by API versions 3.3 - 3.latest)
+message-delete,volume message delete,Removes one or more messages. (Supported by API versions 3.3 - 3.latest)
+message-list,volume message list,Lists all messages. (Supported by API versions 3.3 - 3.latest)
+message-show,volume message show,Shows message details. (Supported by API versions 3.3 - 3.latest)
 metadata,volume set --property k=v / volume unset --property k,Sets or deletes volume metadata.
 metadata-show,volume show,Shows volume metadata.
 metadata-update-all,volume set --property k=v,Updates volume metadata.
