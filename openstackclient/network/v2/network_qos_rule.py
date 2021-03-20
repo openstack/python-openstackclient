@@ -84,9 +84,6 @@ def _get_attrs(network_client, parsed_args, is_create=False):
                    {'rule_id': parsed_args.id})
             raise exceptions.CommandError(msg)
     else:
-        if not parsed_args.type:
-            msg = _('"Create" rule command requires argument "type"')
-            raise exceptions.CommandError(msg)
         rule_type = parsed_args.type
     if parsed_args.max_kbps is not None:
         attrs['max_kbps'] = parsed_args.max_kbps
@@ -188,6 +185,7 @@ class CreateNetworkQosRule(command.ShowOne):
         parser.add_argument(
             '--type',
             metavar='<type>',
+            required=True,
             choices=[RULE_TYPE_MINIMUM_BANDWIDTH,
                      RULE_TYPE_DSCP_MARKING,
                      RULE_TYPE_BANDWIDTH_LIMIT],
