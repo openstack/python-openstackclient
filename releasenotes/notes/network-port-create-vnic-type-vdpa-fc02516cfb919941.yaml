@@ -1,0 +1,4 @@
+---
+features:
+  - |
+    The ``port create --vnic-type`` option now accepts a ``vdpa`` value.
