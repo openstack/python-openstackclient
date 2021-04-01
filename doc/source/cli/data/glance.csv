@@ -1,22 +1,58 @@
 explain,WONTFIX,Describe a specific model.
 image-create,image create,Create a new image.
+image-create-via-import,,EXPERIMENTAL: Create a new image via image import.
 image-deactivate,image set --deactivate,Deactivate specified image.
 image-delete,image delete,Delete specified image.
 image-download,image save,Download a specific image.
+image-import,,Initiate the image import taskflow.
 image-list,image list,List images you can access.
 image-reactivate,image set --activate,Reactivate specified image.
 image-show,image show,Describe a specific image.
+image-stage,,Upload data for a specific image to staging.
 image-tag-delete,image unset --tag <tag>,Delete the tag associated with the given image.
 image-tag-update,image set --tag <tag>,Update an image with the given tag.
 image-update,image set,Update an existing image.
 image-upload,,Upload data for a specific image.
+import-info,,Print import methods available from Glance.
 location-add,,Add a location (and related metadata) to an image.
 location-delete,,Remove locations (and related metadata) from an image.
 location-update,,Update metadata of an image's location.
+md-namespace-create,,Create a new metadata definitions namespace.
+md-namespace-delete,,Delete specified metadata definitions namespace with its contents.
+md-namespace-import,,Import a metadata definitions namespace from file or standard input.
+md-namespace-list,,List metadata definitions namespaces.
+md-namespace-objects-delete,,Delete all metadata definitions objects inside a specific namespace.
+md-namespace-properties-delete,,Delete all metadata definitions property inside a specific namespace.
+md-namespace-resource-type-list,,List resource types associated to specific namespace.
+md-namespace-show,,Describe a specific metadata definitions namespace.
+md-namespace-tags-delete,,Delete all metadata definitions tags inside a specific namespace.
+md-namespace-update,,Update an existing metadata definitions namespace.
+md-object-create,,Create a new metadata definitions object inside a namespace.
+md-object-delete,,Delete a specific metadata definitions object inside a namespace.
+md-object-list,,List metadata definitions objects inside a specific namespace.
+md-object-property-show,,Describe a specific metadata definitions property inside an object.
+md-object-show,,Describe a specific metadata definitions object inside a namespace.
+md-object-update,,Update metadata definitions object inside a namespace.
+md-property-create,,Create a new metadata definitions property inside a namespace.
+md-property-delete,,Delete a specific metadata definitions property inside a namespace.
+md-property-list,,List metadata definitions properties inside a specific namespace.
+md-property-show,,Describe a specific metadata definitions property inside a namespace.
+md-property-update,,Update metadata definitions property inside a namespace.
+md-resource-type-associate,,Associate resource type with a metadata definitions namespace.
+md-resource-type-deassociate,,Deassociate resource type with a metadata definitions namespace.
+md-resource-type-list,,List available resource type names.
+md-tag-create,,Add a new metadata definitions tag inside a namespace.
+md-tag-create-multiple,,Create new metadata definitions tags inside a namespace.
+md-tag-delete,,Delete a specific metadata definitions tag inside a namespace.
+md-tag-list,,List metadata definitions tags inside a specific namespace.
+md-tag-show,,Describe a specific metadata definitions tag inside a namespace.
+md-tag-update,,Rename a metadata definitions tag inside a namespace.
 member-create,image add project,Create member for a given image.
 member-delete,image remove project,Delete image member.
 member-list,,Describe sharing permissions by image.
 member-update,image set --accept --reject --status,Update the status of a member for a given image.
+stores-delete,,Delete image from specific store.
+stores-info,,Print available backends from Glance.
 task-create,,Create a new task.
 task-list,,List tasks you can access.
 task-show,,Describe a specific task.
