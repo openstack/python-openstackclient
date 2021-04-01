@@ -616,6 +616,12 @@ class ListImage(command.Lister):
             help=_('Filter images based on tag.'),
         )
         parser.add_argument(
+            '--hidden',
+            action='store_true',
+            default=False,
+            help=_('List hidden images'),
+        )
+        parser.add_argument(
             '--long',
             action='store_true',
             default=False,
@@ -686,6 +692,8 @@ class ListImage(command.Lister):
                 parsed_args.project_domain,
             ).id
             kwargs['owner'] = project_id
+        if parsed_args.hidden:
+            kwargs['is_hidden'] = True
         if parsed_args.long:
             columns = (
                 'ID',
@@ -1016,6 +1024,22 @@ class SetImage(command.Command):
             action="store_true",
             help=_("Reset the image membership to 'pending'"),
         )
+
+        hidden_group = parser.add_mutually_exclusive_group()
+        hidden_group.add_argument(
+            "--hidden",
+            dest='hidden',
+            default=None,
+            action="store_true",
+            help=_("Hide the image"),
+        )
+        hidden_group.add_argument(
+            "--unhidden",
+            dest='hidden',
+            default=None,
+            action="store_false",
+            help=_("Unhide the image"),
+        )
         return parser
 
     def take_action(self, parsed_args):
@@ -1105,6 +1129,9 @@ class SetImage(command.Command):
         if parsed_args.tags:
             # Tags should be extended, but duplicates removed
             kwargs['tags'] = list(set(image.tags).union(set(parsed_args.tags)))
+
+        if parsed_args.hidden is not None:
+            kwargs['is_hidden'] = parsed_args.hidden
 
         try:
             image = image_client.update_image(image.id, **kwargs)

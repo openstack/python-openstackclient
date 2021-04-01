@@ -1,0 +1,8 @@
+---
+features:
+  - |
+    Add mutually exclusive options ``--hidden`` and ``--unhidden`` to
+    ``image set`` command to hide or unhide an image (``is_hidden``
+    attribute).
+  - |
+    Add option ``--hidden`` to ``image list`` command to list hidden images.
