@@ -1,5 +1,12 @@
 absolute-limits,limits show --absolute,Lists absolute limits for a user.
+api-version,WONTFIX,Display the server API version information.
 availability-zone-list,availability zone list --volume,Lists all availability zones.
+attachment-complete,,Complete an attachment for a cinder volume. (Supported by API versions 3.44 - 3.latest)
+attachment-create,,Create an attachment for a cinder volume. (Supported by API versions 3.27 - 3.latest)
+attachment-delete,,Delete an attachment for a cinder volume. (Supported by API versions 3.27 - 3.latest)
+attachment-list,,Lists all attachments. (Supported by API versions 3.27 - 3.latest)
+attachment-show,,Show detailed information for attachment. (Supported by API versions 3.27 - 3.latest)
+attachment-update,,Update an attachment for a cinder volume. (Supported by API versions 3.27 - 3.latest)
 backup-create,volume backup create,Creates a volume backup.
 backup-delete,volume backup delete,Removes a backup.
 backup-export,volume backup record export,Export backup metadata record.
@@ -8,10 +15,15 @@ backup-list,volume backup list,Lists all backups.
 backup-reset-state,volume backup set --state,Explicitly updates the backup state.
 backup-restore,volume backup restore,Restores a backup.
 backup-show,volume backup show,Show backup details.
+backup-update,,Updates a backup. (Supported by API versions 3.9 - 3.latest)
 cgsnapshot-create,consistency group snapshot create,Creates a cgsnapshot.
 cgsnapshot-delete,consistency group snapshot delete,Removes one or more cgsnapshots.
 cgsnapshot-list,consistency group snapshot list,Lists all cgsnapshots.
 cgsnapshot-show,consistency group snapshot show,Shows cgsnapshot details.
+cluster-disable,,Disables clustered services. (Supported by API versions 3.7 - 3.latest)
+cluster-enable,,Enables clustered services. (Supported by API versions 3.7 - 3.latest)
+cluster-list,,Lists clustered services with optional filtering. (Supported by API versions 3.7 - 3.latest)
+cluster-show,,Show detailed information on a clustered service. (Supported by API versions 3.7 - 3.latest)
 consisgroup-create,consistency group create,Creates a consistency group.
 consisgroup-create-from-src,consistency group create --consistency-group-snapshot,Creates a consistency group from a cgsnapshot or a source CG
 consisgroup-delete,consistency group delete,Removes one or more consistency groups.
@@ -19,25 +31,50 @@ consisgroup-list,consistency group list,Lists all consistencygroups.
 consisgroup-show,consistency group show,Shows details of a consistency group.
 consisgroup-update,consistency group set,Updates a consistencygroup.
 create,volume create,Creates a volume.
-credentials,WONTFIX,Shows user credentials returned from auth.
 delete,volume delete,Removes one or more volumes.
 encryption-type-create,volume type create --encryption-provider --enc..,Creates encryption type for a volume type. Admin only.
 encryption-type-delete,volume type delete,Deletes encryption type for a volume type. Admin only.
 encryption-type-list,volume type list --encryption-type,Shows encryption type details for volume types. Admin only.
 encryption-type-show,volume type list --encryption-show,Shows encryption type details for volume type. Admin only.
 encryption-type-update,volume type set --encryption-provider --enc..,Update encryption type information for a volume type (Admin Only).
-endpoints,catalog list,Discovers endpoints registered by authentication service.
 extend,volume set --size,Attempts to extend size of an existing volume.
 extra-specs-list,volume type list --long,Lists current volume types and extra specs.
 failover-host,volume host failover,Failover a replicating cinder-volume host.
-force-delete,volume delete --force,"Attempts force-delete of volume, regardless of state."
+force-delete,volume delete --force,"Attempts force-delete of volume regardless of state."
 freeze-host,volume host set --disable,Freeze and disable the specified cinder-volume host.
 get-capabilities,volume backend capability show,Show capabilities of a volume backend. Admin only.
 get-pools,volume backend pool list,Show pool information for backends. Admin only.
+group-create,,Creates a group. (Supported by API versions 3.13 - 3.latest)
+group-create-from-src,,Creates a group from a group snapshot or a source group. (Supported by API versions 3.14 - 3.latest)
+group-delete,,Removes one or more groups. (Supported by API versions 3.13 - 3.latest)
+group-disable-replication,,Disables replication for group. (Supported by API versions 3.38 - 3.latest)
+group-enable-replication,,Enables replication for group. (Supported by API versions 3.38 - 3.latest)
+group-failover-replication,,Fails over replication for group. (Supported by API versions 3.38 - 3.latest)
+group-list,,Lists all groups. (Supported by API versions 3.13 - 3.latest)
+group-list-replication-targets,,Lists replication targets for group. (Supported by API versions 3.38 - 3.latest)
+group-show,,Shows details of a group. (Supported by API versions 3.13 - 3.latest)
+group-snapshot-create,,Creates a group snapshot. (Supported by API versions 3.14 - 3.latest)
+group-snapshot-delete,,Removes one or more group snapshots. (Supported by API versions 3.14 - 3.latest)
+group-snapshot-list,,Lists all group snapshots. (Supported by API versions 3.14 - 3.latest)
+group-snapshot-show,,Shows group snapshot details. (Supported by API versions 3.14 - 3.latest)
+group-specs-list,,Lists current group types and specs. (Supported by API versions 3.11 - 3.latest)
+group-type-create,,Creates a group type. (Supported by API versions 3.11 - 3.latest)
+group-type-default,,List the default group type. (Supported by API versions 3.11 - 3.latest)
+group-type-delete,,Deletes group type or types. (Supported by API versions 3.11 - 3.latest)
+group-type-key,,Sets or unsets group_spec for a group type. (Supported by API versions 3.11 - 3.latest)
+group-type-list,,Lists available 'group types'. (Admin only will see private types) (Supported by API versions 3.11 - 3.latest)
+group-type-show,,Show group type details. (Supported by API versions 3.11 - 3.latest)
+group-type-update,,Updates group type name description and/or is_public. (Supported by API versions 3.11 - 3.latest)
+group-update,,Updates a group. (Supported by API versions 3.13 - 3.latest)
 image-metadata,volume set --image-property,Sets or deletes volume image metadata.
 image-metadata-show,volume show,Shows volume image metadata.
 list,volume list,Lists all volumes.
+list-filters,,List enabled filters. (Supported by API versions 3.33 - 3.latest)
 manage,volume create --remote-source k=v,Manage an existing volume.
+manageable-list,,Lists all manageable volumes. (Supported by API versions 3.8 - 3.latest)
+message-delete,,Removes one or more messages. (Supported by API versions 3.3 - 3.latest)
+message-list,,Lists all messages. (Supported by API versions 3.3 - 3.latest)
+message-show,,Shows message details. (Supported by API versions 3.3 - 3.latest)
 metadata,volume set --property k=v / volume unset --property k,Sets or deletes volume metadata.
 metadata-show,volume show,Shows volume metadata.
 metadata-update-all,volume set --property k=v,Updates volume metadata.
@@ -61,19 +98,21 @@ quota-usage,,Lists quota usage for a tenant.
 rate-limits,limits show --rate,Lists rate limits for a user.
 readonly-mode-update,volume set --read-only-mode | --read-write-mode,Updates volume read-only access-mode flag.
 rename,volume set --name,Renames a volume.
-replication-promote,WONTFIX,Promote a secondary volume to primary for a relationship
-replication-reenable,WONTFIX,Sync the secondary volume with primary for a relationship
 reset-state,volume set --state,Explicitly updates the volume state.
 retype,volume type set --type,Changes the volume type for a volume.
+revert-to-snapshot,,Revert a volume to the specified snapshot. (Supported by API versions 3.40 - 3.latest)
 service-disable,volume service set --disable,Disables the service.
 service-enable,volume service set --enable,Enables the service.
+service-get-log,,(Supported by API versions 3.32 - 3.latest)
 service-list,volume service list,Lists all services. Filter by host and service binary.
+service-set-log,,(Supported by API versions 3.32 - 3.latest)
 set-bootable,volume set --bootable / --not-bootable,Update bootable status of a volume.
 show,volume show,Shows volume details.
 snapshot-create,snapshot create,Creates a snapshot.
 snapshot-delete,snapshot delete,Remove one or more snapshots.
 snapshot-list,snapshot list,Lists all snapshots.
 snapshot-manage,volume snapshot create --remote-source <key=value>,Manage an existing snapshot.
+snapshot-manageable-list,,Lists all manageable snapshots. (Supported by API versions 3.8 - 3.latest)
 snapshot-metadata,snapshot set --property k=v / snapshot unset --property k,Sets or deletes snapshot metadata.
 snapshot-metadata-show,snapshot show,Shows snapshot metadata.
 snapshot-metadata-update-all,snapshot set --property k=v,Updates snapshot metadata.
@@ -81,6 +120,7 @@ snapshot-rename,snapshot set --name,Renames a snapshot.
 snapshot-reset-state,snapshot set --state,Explicitly updates the snapshot state.
 snapshot-show,snapshot show,Shows snapshot details.
 snapshot-unmanage,volume snapshot delete --remote,Stop managing a snapshot.
+summary,,Get volumes summary. (Supported by API versions 3.12 - 3.latest)
 thaw-host,volume host set --enable,Thaw and enable the specified cinder-volume host.
 transfer-accept,volume transfer accept,Accepts a volume transfer.
 transfer-create,volume transfer create,Creates a volume transfer.
@@ -96,9 +136,11 @@ type-delete,volume type delete,Deletes a specified volume type.
 type-key,volume type set --property k=v / volume type unset --property k,Sets or unsets extra_spec for a volume type.
 type-list,volume type list,Lists available 'volume types'.
 type-show,volume type show,Show volume type details.
-type-update,volume type set,"Updates volume type name, description, and/or is_public."
+type-update,volume type set,"Updates volume type name description and/or is_public."
 unmanage,volume delete --remote,Stop managing a volume.
 upload-to-image,image create --volume,Uploads volume to Image Service as an image.
+version-list,,List all API versions. (Supported by API versions 3.0 - 3.latest)
+work-cleanup,,Request cleanup of services with optional filtering. (Supported by API versions 3.24 - 3.latest)
 bash-completion,complete,Prints arguments for bash_completion.
 help,help,Shows help about this program or one of its subcommands.
 list-extensions,extension list --volume,Lists all available os-api extensions.
