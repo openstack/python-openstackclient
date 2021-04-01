@@ -35,6 +35,23 @@ dhcp-agent-network-add,network agent add network,Add a network to a DHCP agent.
 dhcp-agent-network-remove,network agent remove network,Remove a network from a DHCP agent.
 ext-list,extension list,List all extensions.
 ext-show,extension show,Show information of a given resource.
+firewall-create,,Create a firewall.
+firewall-delete,,Delete a given firewall.
+firewall-list,,List firewalls that belong to a given tenant.
+firewall-policy-create,,Create a firewall policy.
+firewall-policy-delete,,Delete a given firewall policy.
+firewall-policy-insert-rule,,Insert a rule into a given firewall policy.
+firewall-policy-list,,List firewall policies that belong to a given tenant.
+firewall-policy-remove-rule,,Remove a rule from a given firewall policy.
+firewall-policy-show,,Show information of a given firewall policy.
+firewall-policy-update,,Update a given firewall policy.
+firewall-rule-create,,Create a firewall rule.
+firewall-rule-delete,,Delete a given firewall rule.
+firewall-rule-list,,List firewall rules that belong to a given tenant.
+firewall-rule-show,,Show information of a given firewall rule.
+firewall-rule-update,,Update a given firewall rule.
+firewall-show,,Show information of a given firewall.
+firewall-update,,Update a given firewall.
 flavor-associate,network flavor add profile,Add a Neutron service flavor with a flavor profile.
 flavor-create,network flavor create,Create a Neutron service flavor.
 flavor-delete,network flavor delete,Delete a given Neutron service flavor.
@@ -214,14 +231,6 @@ subnetpool-update,subnet pool set / subnet pool unset,Update subnetpool's inform
 tag-add,network set --tag,Add a tag into the resource.
 tag-remove,network unset --tag,Remove a tag on the resource.
 tag-replace,,Replace all tags on the resource.
-tap-flow-create,tapflow create,Create a tap flow
-tap-flow-delete,tapflow delete,Delete a tap flow
-tap-flow-list,tapflow list,List all tap flows
-tap-flow-show,tapflow show,Show details of the tap flow
-tap-service-create,tapservice create,Create a tap service
-tap-service-delete,tapservice delete,Delete a tap service
-tap-service-list,tapservice list,List all tap services
-tap-service-show,tapservice show,Show details of the tap service
 vpn-endpoint-group-create,,Create a VPN endpoint group.
 vpn-endpoint-group-delete,,Delete a given VPN endpoint group.
 vpn-endpoint-group-list,,List VPN endpoint groups that belong to a given tenant.
@@ -242,3 +251,12 @@ vpn-service-delete,,Delete a given VPN service.
 vpn-service-list,,List VPN service configurations that belong to a given tenant.
 vpn-service-show,,Show information of a given VPN service.
 vpn-service-update,,Update a given VPN service.
+
+tap-flow-create,tapflow create,Create a tap flow
+tap-flow-delete,tapflow delete,Delete a tap flow
+tap-flow-list,tapflow list,List all tap flows
+tap-flow-show,tapflow show,Show details of the tap flow
+tap-service-create,tapservice create,Create a tap service
+tap-service-delete,tapservice delete,Delete a tap service
+tap-service-list,tapservice list,List all tap services
+tap-service-show,tapservice show,Show details of the tap service
