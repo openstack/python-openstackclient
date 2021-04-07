@@ -1,0 +1,8 @@
+---
+features:
+  - |
+    Add new commands ``network l3 conntrack helper create``,
+    ``network l3 conntrack helper set``, ``network l3 conntrack helper show``,
+    ``network l3 conntrack helper set`` and
+    ``network l3 conntrack helper delete`` to support Neutron L3 conntrack
+    helper CRUD operations.

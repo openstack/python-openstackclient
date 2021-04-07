@@ -1973,3 +1973,78 @@ class FakeFloatingIPPortForwarding(object):
             )
 
         return mock.Mock(side_effect=port_forwardings)
+
+
+class FakeL3ConntrackHelper(object):
+    """"Fake one or more L3 conntrack helper"""
+
+    @staticmethod
+    def create_one_l3_conntrack_helper(attrs=None):
+        """Create a fake L3 conntrack helper.
+
+        :param Dictionary attrs:
+            A dictionary with all attributes
+        :return:
+            A FakeResource object with protocol, port, etc.
+        """
+        attrs = attrs or {}
+        router_id = (
+            attrs.get('router_id') or 'router-id-' + uuid.uuid4().hex
+        )
+        # Set default attributes.
+        ct_attrs = {
+            'id': uuid.uuid4().hex,
+            'router_id': router_id,
+            'helper': 'tftp',
+            'protocol': 'tcp',
+            'port': randint(1, 65535),
+        }
+
+        # Overwrite default attributes.
+        ct_attrs.update(attrs)
+
+        ct = fakes.FakeResource(
+            info=copy.deepcopy(ct_attrs),
+            loaded=True
+        )
+        return ct
+
+    @staticmethod
+    def create_l3_conntrack_helpers(attrs=None, count=2):
+        """Create multiple fake L3 Conntrack helpers.
+
+        :param Dictionary attrs:
+            A dictionary with all attributes
+        :param int count:
+            The number of L3 Conntrack helper rule to fake
+        :return:
+            A list of FakeResource objects faking the Conntrack helpers
+        """
+        ct_helpers = []
+        for i in range(0, count):
+            ct_helpers.append(
+                FakeL3ConntrackHelper.create_one_l3_conntrack_helper(attrs)
+            )
+        return ct_helpers
+
+    @staticmethod
+    def get_l3_conntrack_helpers(ct_helpers=None, count=2):
+        """Get a list of faked L3 Conntrack helpers.
+
+        If ct_helpers list is provided, then initialize the Mock object
+        with the list. Otherwise create one.
+
+        :param List ct_helpers:
+            A list of FakeResource objects faking conntrack helpers
+        :param int count:
+            The number of L3 conntrack helpers to fake
+        :return:
+            An iterable Mock object with side_effect set to a list of faked
+            L3 conntrack helpers
+        """
+        if ct_helpers is None:
+            ct_helpers = (
+                FakeL3ConntrackHelper.create_l3_conntrack_helpers(count)
+            )
+
+        return mock.Mock(side_effect=ct_helpers)

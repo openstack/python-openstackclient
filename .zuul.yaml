@@ -106,6 +106,7 @@
         q-metering: true
         q-qos: true
         neutron-tag-ports-during-bulk-creation: true
+        neutron-conntrack-helper: true
       devstack_localrc:
         Q_AGENT: openvswitch
         Q_ML2_TENANT_NETWORK_TYPE: vxlan
