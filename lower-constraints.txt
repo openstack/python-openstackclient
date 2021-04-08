@@ -41,7 +41,6 @@ netifaces==0.10.4
 openstacksdk==0.53.0
 os-client-config==2.1.0
 os-service-types==1.7.0
-os-testr==1.0.0
 osc-lib==2.3.0
 oslo.concurrency==3.26.0
 oslo.config==5.2.0
