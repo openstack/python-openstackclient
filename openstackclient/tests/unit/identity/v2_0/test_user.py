@@ -482,7 +482,7 @@ class TestUserList(TestUser):
         self.users_mock.list.assert_called_with(tenant_id=None)
 
         self.assertEqual(self.columns, columns)
-        self.assertItemsEqual(self.datalist, tuple(data))
+        self.assertCountEqual(self.datalist, tuple(data))
 
     def test_user_list_project(self):
         arglist = [
@@ -502,7 +502,7 @@ class TestUserList(TestUser):
         self.users_mock.list.assert_called_with(tenant_id=project_id)
 
         self.assertEqual(self.columns, columns)
-        self.assertItemsEqual(self.datalist, tuple(data))
+        self.assertCountEqual(self.datalist, tuple(data))
 
     def test_user_list_long(self):
         arglist = [
@@ -531,7 +531,7 @@ class TestUserList(TestUser):
             self.fake_user_l.email,
             True,
         ), )
-        self.assertItemsEqual(datalist, tuple(data))
+        self.assertCountEqual(datalist, tuple(data))
 
 
 class TestUserSet(TestUser):
@@ -819,4 +819,4 @@ class TestUserShow(TestUser):
             self.fake_user.name,
             self.fake_project.id,
         )
-        self.assertItemsEqual(datalist, data)
+        self.assertCountEqual(datalist, data)

@@ -314,7 +314,7 @@ class TestBackupList(TestBackup):
             limit=None,
         )
         self.assertEqual(self.columns, columns)
-        self.assertItemsEqual(self.data, list(data))
+        self.assertCountEqual(self.data, list(data))
 
     def test_backup_list_with_options(self):
         arglist = [
@@ -353,7 +353,7 @@ class TestBackupList(TestBackup):
             limit=3,
         )
         self.assertEqual(self.columns_long, columns)
-        self.assertItemsEqual(self.data_long, list(data))
+        self.assertCountEqual(self.data_long, list(data))
 
 
 class TestBackupRestore(TestBackup):

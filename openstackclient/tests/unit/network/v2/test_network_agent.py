@@ -246,7 +246,7 @@ class TestListNetworkAgent(TestNetworkAgent):
 
         self.network.agents.assert_called_once_with(**{})
         self.assertEqual(self.columns, columns)
-        self.assertItemsEqual(self.data, list(data))
+        self.assertCountEqual(self.data, list(data))
 
     def test_network_agents_list_agent_type(self):
         arglist = [
@@ -263,7 +263,7 @@ class TestListNetworkAgent(TestNetworkAgent):
             'agent_type': 'DHCP agent',
         })
         self.assertEqual(self.columns, columns)
-        self.assertItemsEqual(self.data, list(data))
+        self.assertCountEqual(self.data, list(data))
 
     def test_network_agents_list_host(self):
         arglist = [
@@ -280,7 +280,7 @@ class TestListNetworkAgent(TestNetworkAgent):
             'host': self.network_agents[0].host,
         })
         self.assertEqual(self.columns, columns)
-        self.assertItemsEqual(self.data, list(data))
+        self.assertCountEqual(self.data, list(data))
 
     def test_network_agents_list_networks(self):
         arglist = [
@@ -298,7 +298,7 @@ class TestListNetworkAgent(TestNetworkAgent):
         self.network.network_hosting_dhcp_agents.assert_called_once_with(
             *attrs)
         self.assertEqual(self.columns, columns)
-        self.assertItemsEqual(self.data, list(data))
+        self.assertCountEqual(self.data, list(data))
 
     def test_network_agents_list_routers(self):
         arglist = [
@@ -318,7 +318,7 @@ class TestListNetworkAgent(TestNetworkAgent):
             *attrs)
 
         self.assertEqual(self.columns, columns)
-        self.assertItemsEqual(self.data, list(data))
+        self.assertCountEqual(self.data, list(data))
 
     def test_network_agents_list_routers_with_long_option(self):
         arglist = [
@@ -343,7 +343,7 @@ class TestListNetworkAgent(TestNetworkAgent):
         router_agent_data = [d + ('',) for d in self.data]
 
         self.assertEqual(router_agent_columns, columns)
-        self.assertItemsEqual(router_agent_data, list(data))
+        self.assertCountEqual(router_agent_data, list(data))
 
 
 class TestRemoveNetworkFromAgent(TestNetworkAgent):
@@ -571,4 +571,4 @@ class TestShowNetworkAgent(TestNetworkAgent):
         self.network.get_agent.assert_called_once_with(
             self._network_agent.id)
         self.assertEqual(self.columns, columns)
-        self.assertItemsEqual(list(self.data), list(data))
+        self.assertCountEqual(list(self.data), list(data))

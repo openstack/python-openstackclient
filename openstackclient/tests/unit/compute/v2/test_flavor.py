@@ -133,7 +133,7 @@ class TestFlavorCreate(TestFlavor):
         self.sdk_client.create_flavor.assert_called_once_with(**default_args)
 
         self.assertEqual(self.columns, columns)
-        self.assertItemsEqual(self.data, data)
+        self.assertCountEqual(self.data, data)
 
     def test_flavor_create_all_options(self):
 
@@ -202,7 +202,7 @@ class TestFlavorCreate(TestFlavor):
             self.sdk_client.get_flavor_access.assert_not_called()
 
         self.assertEqual(self.columns, columns)
-        self.assertItemsEqual(tuple(cmp_data), data)
+        self.assertCountEqual(tuple(cmp_data), data)
 
     def test_flavor_create_other_options(self):
 
@@ -277,7 +277,7 @@ class TestFlavorCreate(TestFlavor):
         self.sdk_client.create_flavor_extra_specs.assert_called_with(
             create_flavor, props)
         self.assertEqual(self.columns, columns)
-        self.assertItemsEqual(cmp_data, data)
+        self.assertCountEqual(cmp_data, data)
 
     def test_public_flavor_create_with_project(self):
         arglist = [
@@ -350,7 +350,7 @@ class TestFlavorCreate(TestFlavor):
         self.sdk_client.create_flavor.assert_called_once_with(**args)
 
         self.assertEqual(self.columns, columns)
-        self.assertItemsEqual(self.data_private, data)
+        self.assertCountEqual(self.data_private, data)
 
     def test_flavor_create_with_description_api_older(self):
         arglist = [
@@ -633,7 +633,7 @@ class TestFlavorList(TestFlavor):
         )
 
         self.assertEqual(self.columns_long, columns)
-        self.assertItemsEqual(self.data_long, tuple(data))
+        self.assertCountEqual(self.data_long, tuple(data))
 
     def test_flavor_list_min_disk_min_ram(self):
         arglist = [
@@ -951,7 +951,7 @@ class TestFlavorShow(TestFlavor):
         columns, data = self.cmd.take_action(parsed_args)
 
         self.assertEqual(self.columns, columns)
-        self.assertItemsEqual(self.data, data)
+        self.assertCountEqual(self.data, data)
 
     def test_private_flavor_show(self):
         private_flavor = compute_fakes.FakeFlavor.create_one_flavor(
@@ -991,7 +991,7 @@ class TestFlavorShow(TestFlavor):
         self.sdk_client.get_flavor_access.assert_called_with(
             flavor=private_flavor.id)
         self.assertEqual(self.columns, columns)
-        self.assertItemsEqual(data_with_project, data)
+        self.assertCountEqual(data_with_project, data)
 
 
 class TestFlavorUnset(TestFlavor):
