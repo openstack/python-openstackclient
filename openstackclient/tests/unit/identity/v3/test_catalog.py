@@ -94,7 +94,7 @@ class TestCatalogList(TestCatalog):
             catalog.EndpointsColumn(
                 auth_ref.service_catalog.catalog[0]['endpoints']),
         ), )
-        self.assertItemsEqual(datalist, tuple(data))
+        self.assertCountEqual(datalist, tuple(data))
 
 
 class TestCatalogShow(TestCatalog):
@@ -135,7 +135,7 @@ class TestCatalogShow(TestCatalog):
             'supernova',
             'compute',
         )
-        self.assertItemsEqual(datalist, data)
+        self.assertCountEqual(datalist, data)
 
 
 class TestFormatColumns(TestCatalog):

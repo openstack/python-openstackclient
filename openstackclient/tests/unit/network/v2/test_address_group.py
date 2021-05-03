@@ -99,7 +99,7 @@ class TestCreateAddressGroup(TestAddressGroup):
             'addresses': [],
         })
         self.assertEqual(self.columns, columns)
-        self.assertItemsEqual(self.data, data)
+        self.assertCountEqual(self.data, data)
 
     def test_create_all_options(self):
         arglist = [
@@ -127,7 +127,7 @@ class TestCreateAddressGroup(TestAddressGroup):
             'description': self.new_address_group.description,
         })
         self.assertEqual(self.columns, columns)
-        self.assertItemsEqual(self.data, data)
+        self.assertCountEqual(self.data, data)
 
 
 class TestDeleteAddressGroup(TestAddressGroup):
@@ -252,7 +252,7 @@ class TestListAddressGroup(TestAddressGroup):
 
         self.network.address_groups.assert_called_once_with(**{})
         self.assertEqual(self.columns, columns)
-        self.assertItemsEqual(self.data, list(data))
+        self.assertCountEqual(self.data, list(data))
 
     def test_address_group_list_name(self):
         arglist = [
@@ -267,7 +267,7 @@ class TestListAddressGroup(TestAddressGroup):
         self.network.address_groups.assert_called_once_with(
             **{'name': self.address_groups[0].name})
         self.assertEqual(self.columns, columns)
-        self.assertItemsEqual(self.data, list(data))
+        self.assertCountEqual(self.data, list(data))
 
     def test_address_group_list_project(self):
         project = identity_fakes_v3.FakeProject.create_one_project()
@@ -284,7 +284,7 @@ class TestListAddressGroup(TestAddressGroup):
         self.network.address_groups.assert_called_once_with(
             project_id=project.id)
         self.assertEqual(self.columns, columns)
-        self.assertItemsEqual(self.data, list(data))
+        self.assertCountEqual(self.data, list(data))
 
     def test_address_group_project_domain(self):
         project = identity_fakes_v3.FakeProject.create_one_project()
@@ -302,7 +302,7 @@ class TestListAddressGroup(TestAddressGroup):
         self.network.address_groups.assert_called_once_with(
             project_id=project.id)
         self.assertEqual(self.columns, columns)
-        self.assertItemsEqual(self.data, list(data))
+        self.assertCountEqual(self.data, list(data))
 
 
 class TestSetAddressGroup(TestAddressGroup):
@@ -438,7 +438,7 @@ class TestShowAddressGroup(TestAddressGroup):
         self.network.find_address_group.assert_called_once_with(
             self._address_group.name, ignore_missing=False)
         self.assertEqual(self.columns, columns)
-        self.assertItemsEqual(self.data, list(data))
+        self.assertCountEqual(self.data, list(data))
 
 
 class TestUnsetAddressGroup(TestAddressGroup):

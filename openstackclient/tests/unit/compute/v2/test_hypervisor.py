@@ -394,7 +394,7 @@ class TestHypervisorShow(TestHypervisor):
         columns, data = self.cmd.take_action(parsed_args)
 
         self.assertEqual(self.columns, columns)
-        self.assertItemsEqual(self.data, data)
+        self.assertCountEqual(self.data, data)
 
     def test_hypervisor_show_pre_v228(self):
         self.app.client_manager.compute.api_version = \
@@ -420,7 +420,7 @@ class TestHypervisorShow(TestHypervisor):
         columns, data = self.cmd.take_action(parsed_args)
 
         self.assertEqual(self.columns, columns)
-        self.assertItemsEqual(self.data, data)
+        self.assertCountEqual(self.data, data)
 
     def test_hypervisor_show_uptime_not_implemented(self):
         self.app.client_manager.compute.api_version = \
@@ -492,4 +492,4 @@ class TestHypervisorShow(TestHypervisor):
         )
 
         self.assertEqual(expected_columns, columns)
-        self.assertItemsEqual(expected_data, data)
+        self.assertCountEqual(expected_data, data)

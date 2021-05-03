@@ -93,7 +93,7 @@ class TestTypeCreate(TestType):
         )
 
         self.assertEqual(self.columns, columns)
-        self.assertItemsEqual(self.data, data)
+        self.assertCountEqual(self.data, data)
 
     def test_type_create_private(self):
         arglist = [
@@ -119,7 +119,7 @@ class TestTypeCreate(TestType):
         )
 
         self.assertEqual(self.columns, columns)
-        self.assertItemsEqual(self.data, data)
+        self.assertCountEqual(self.data, data)
 
     def test_public_type_create_with_project(self):
         arglist = [
@@ -196,7 +196,7 @@ class TestTypeCreate(TestType):
             body,
         )
         self.assertEqual(encryption_columns, columns)
-        self.assertItemsEqual(encryption_data, data)
+        self.assertCountEqual(encryption_data, data)
 
 
 class TestTypeDelete(TestType):
@@ -330,7 +330,7 @@ class TestTypeList(TestType):
         columns, data = self.cmd.take_action(parsed_args)
         self.types_mock.list.assert_called_once_with(is_public=None)
         self.assertEqual(self.columns, columns)
-        self.assertItemsEqual(self.data, list(data))
+        self.assertCountEqual(self.data, list(data))
 
     def test_type_list_with_options(self):
         arglist = [
@@ -348,7 +348,7 @@ class TestTypeList(TestType):
         columns, data = self.cmd.take_action(parsed_args)
         self.types_mock.list.assert_called_once_with(is_public=True)
         self.assertEqual(self.columns_long, columns)
-        self.assertItemsEqual(self.data_long, list(data))
+        self.assertCountEqual(self.data_long, list(data))
 
     def test_type_list_with_private_option(self):
         arglist = [
@@ -365,7 +365,7 @@ class TestTypeList(TestType):
         columns, data = self.cmd.take_action(parsed_args)
         self.types_mock.list.assert_called_once_with(is_public=False)
         self.assertEqual(self.columns, columns)
-        self.assertItemsEqual(self.data, list(data))
+        self.assertCountEqual(self.data, list(data))
 
     def test_type_list_with_default_option(self):
         arglist = [
@@ -383,7 +383,7 @@ class TestTypeList(TestType):
         columns, data = self.cmd.take_action(parsed_args)
         self.types_mock.default.assert_called_once_with()
         self.assertEqual(self.columns, columns)
-        self.assertItemsEqual(self.data_with_default_type, list(data))
+        self.assertCountEqual(self.data_with_default_type, list(data))
 
     def test_type_list_with_encryption(self):
         encryption_type = volume_fakes.FakeType.create_one_encryption_type(
@@ -427,7 +427,7 @@ class TestTypeList(TestType):
         self.encryption_types_mock.list.assert_called_once_with()
         self.types_mock.list.assert_called_once_with(is_public=None)
         self.assertEqual(encryption_columns, columns)
-        self.assertItemsEqual(encryption_data, list(data))
+        self.assertCountEqual(encryption_data, list(data))
 
 
 class TestTypeSet(TestType):
@@ -713,7 +713,7 @@ class TestTypeShow(TestType):
         self.types_mock.get.assert_called_with(self.volume_type.id)
 
         self.assertEqual(self.columns, columns)
-        self.assertItemsEqual(self.data, data)
+        self.assertCountEqual(self.data, data)
 
     def test_type_show_with_access(self):
         arglist = [
@@ -746,7 +746,7 @@ class TestTypeShow(TestType):
             private_type.name,
             format_columns.DictColumn(private_type.extra_specs)
         )
-        self.assertItemsEqual(private_type_data, data)
+        self.assertCountEqual(private_type_data, data)
 
     def test_type_show_with_list_access_exec(self):
         arglist = [
@@ -778,7 +778,7 @@ class TestTypeShow(TestType):
             private_type.name,
             format_columns.DictColumn(private_type.extra_specs)
         )
-        self.assertItemsEqual(private_type_data, data)
+        self.assertCountEqual(private_type_data, data)
 
     def test_type_show_with_encryption(self):
         encryption_type = volume_fakes.FakeType.create_one_encryption_type()
@@ -824,7 +824,7 @@ class TestTypeShow(TestType):
         self.types_mock.get.assert_called_with(self.volume_type.id)
         self.encryption_types_mock.get.assert_called_with(self.volume_type.id)
         self.assertEqual(encryption_columns, columns)
-        self.assertItemsEqual(encryption_data, data)
+        self.assertCountEqual(encryption_data, data)
 
 
 class TestTypeUnset(TestType):

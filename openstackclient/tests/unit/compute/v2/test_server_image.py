@@ -134,7 +134,7 @@ class TestServerImageCreate(TestServerImage):
         )
 
         self.assertEqual(self.image_columns(images[0]), columns)
-        self.assertItemsEqual(self.image_data(images[0]), data)
+        self.assertCountEqual(self.image_data(images[0]), data)
 
     def test_server_image_create_options(self):
         servers = self.setup_servers_mock(count=1)
@@ -165,7 +165,7 @@ class TestServerImageCreate(TestServerImage):
         )
 
         self.assertEqual(self.image_columns(images[0]), columns)
-        self.assertItemsEqual(self.image_data(images[0]), data)
+        self.assertCountEqual(self.image_data(images[0]), data)
 
     @mock.patch.object(common_utils, 'wait_for_status', return_value=False)
     def test_server_create_image_wait_fail(self, mock_wait_for_status):
@@ -235,4 +235,4 @@ class TestServerImageCreate(TestServerImage):
         )
 
         self.assertEqual(self.image_columns(images[0]), columns)
-        self.assertItemsEqual(self.image_data(images[0]), data)
+        self.assertCountEqual(self.image_data(images[0]), data)

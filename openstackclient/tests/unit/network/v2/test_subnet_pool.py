@@ -133,7 +133,7 @@ class TestCreateSubnetPool(TestSubnetPool):
         })
         self.assertFalse(self.network.set_tags.called)
         self.assertEqual(self.columns, columns)
-        self.assertItemsEqual(self.data, data)
+        self.assertCountEqual(self.data, data)
 
     def test_create_prefixlen_options(self):
         arglist = [
@@ -163,7 +163,7 @@ class TestCreateSubnetPool(TestSubnetPool):
             'name': self._subnet_pool.name,
         })
         self.assertEqual(self.columns, columns)
-        self.assertItemsEqual(self.data, data)
+        self.assertCountEqual(self.data, data)
 
     def test_create_len_negative(self):
         arglist = [
@@ -201,7 +201,7 @@ class TestCreateSubnetPool(TestSubnetPool):
             'name': self._subnet_pool.name,
         })
         self.assertEqual(self.columns, columns)
-        self.assertItemsEqual(self.data, data)
+        self.assertCountEqual(self.data, data)
 
     def test_create_address_scope_option(self):
         arglist = [
@@ -224,7 +224,7 @@ class TestCreateSubnetPool(TestSubnetPool):
             'name': self._subnet_pool.name,
         })
         self.assertEqual(self.columns, columns)
-        self.assertItemsEqual(self.data, data)
+        self.assertCountEqual(self.data, data)
 
     def test_create_default_and_shared_options(self):
         arglist = [
@@ -250,7 +250,7 @@ class TestCreateSubnetPool(TestSubnetPool):
             'shared': True,
         })
         self.assertEqual(self.columns, columns)
-        self.assertItemsEqual(self.data, data)
+        self.assertCountEqual(self.data, data)
 
     def test_create_with_description(self):
         arglist = [
@@ -273,7 +273,7 @@ class TestCreateSubnetPool(TestSubnetPool):
             'description': self._subnet_pool.description,
         })
         self.assertEqual(self.columns, columns)
-        self.assertItemsEqual(self.data, data)
+        self.assertCountEqual(self.data, data)
 
     def test_create_with_default_quota(self):
         arglist = [
@@ -294,7 +294,7 @@ class TestCreateSubnetPool(TestSubnetPool):
             'default_quota': 10,
         })
         self.assertEqual(self.columns, columns)
-        self.assertItemsEqual(self.data, data)
+        self.assertCountEqual(self.data, data)
 
     def _test_create_with_tag(self, add_tags=True):
         arglist = [
@@ -328,7 +328,7 @@ class TestCreateSubnetPool(TestSubnetPool):
         else:
             self.assertFalse(self.network.set_tags.called)
         self.assertEqual(self.columns, columns)
-        self.assertItemsEqual(self.data, data)
+        self.assertCountEqual(self.data, data)
 
     def test_create_with_tags(self):
         self._test_create_with_tag(add_tags=True)
@@ -476,7 +476,7 @@ class TestListSubnetPool(TestSubnetPool):
 
         self.network.subnet_pools.assert_called_once_with()
         self.assertEqual(self.columns, columns)
-        self.assertItemsEqual(self.data, list(data))
+        self.assertCountEqual(self.data, list(data))
 
     def test_subnet_pool_list_long(self):
         arglist = [
@@ -491,7 +491,7 @@ class TestListSubnetPool(TestSubnetPool):
 
         self.network.subnet_pools.assert_called_once_with()
         self.assertEqual(self.columns_long, columns)
-        self.assertItemsEqual(self.data_long, list(data))
+        self.assertCountEqual(self.data_long, list(data))
 
     def test_subnet_pool_list_no_share(self):
         arglist = [
@@ -507,7 +507,7 @@ class TestListSubnetPool(TestSubnetPool):
 
         self.network.subnet_pools.assert_called_once_with(**filters)
         self.assertEqual(self.columns, columns)
-        self.assertItemsEqual(self.data, list(data))
+        self.assertCountEqual(self.data, list(data))
 
     def test_subnet_pool_list_share(self):
         arglist = [
@@ -523,7 +523,7 @@ class TestListSubnetPool(TestSubnetPool):
 
         self.network.subnet_pools.assert_called_once_with(**filters)
         self.assertEqual(self.columns, columns)
-        self.assertItemsEqual(self.data, list(data))
+        self.assertCountEqual(self.data, list(data))
 
     def test_subnet_pool_list_no_default(self):
         arglist = [
@@ -539,7 +539,7 @@ class TestListSubnetPool(TestSubnetPool):
 
         self.network.subnet_pools.assert_called_once_with(**filters)
         self.assertEqual(self.columns, columns)
-        self.assertItemsEqual(self.data, list(data))
+        self.assertCountEqual(self.data, list(data))
 
     def test_subnet_pool_list_default(self):
         arglist = [
@@ -555,7 +555,7 @@ class TestListSubnetPool(TestSubnetPool):
 
         self.network.subnet_pools.assert_called_once_with(**filters)
         self.assertEqual(self.columns, columns)
-        self.assertItemsEqual(self.data, list(data))
+        self.assertCountEqual(self.data, list(data))
 
     def test_subnet_pool_list_project(self):
         project = identity_fakes_v3.FakeProject.create_one_project()
@@ -573,7 +573,7 @@ class TestListSubnetPool(TestSubnetPool):
 
         self.network.subnet_pools.assert_called_once_with(**filters)
         self.assertEqual(self.columns, columns)
-        self.assertItemsEqual(self.data, list(data))
+        self.assertCountEqual(self.data, list(data))
 
     def test_subnet_pool_list_project_domain(self):
         project = identity_fakes_v3.FakeProject.create_one_project()
@@ -593,7 +593,7 @@ class TestListSubnetPool(TestSubnetPool):
 
         self.network.subnet_pools.assert_called_once_with(**filters)
         self.assertEqual(self.columns, columns)
-        self.assertItemsEqual(self.data, list(data))
+        self.assertCountEqual(self.data, list(data))
 
     def test_subnet_pool_list_name(self):
         subnet_pool = network_fakes.FakeSubnetPool.create_one_subnet_pool()
@@ -611,7 +611,7 @@ class TestListSubnetPool(TestSubnetPool):
 
         self.network.subnet_pools.assert_called_once_with(**filters)
         self.assertEqual(self.columns, columns)
-        self.assertItemsEqual(self.data, list(data))
+        self.assertCountEqual(self.data, list(data))
 
     def test_subnet_pool_list_address_scope(self):
         addr_scope = network_fakes.FakeAddressScope.create_one_address_scope()
@@ -629,7 +629,7 @@ class TestListSubnetPool(TestSubnetPool):
 
         self.network.subnet_pools.assert_called_once_with(**filters)
         self.assertEqual(self.columns, columns)
-        self.assertItemsEqual(self.data, list(data))
+        self.assertCountEqual(self.data, list(data))
 
     def test_list_with_tag_options(self):
         arglist = [
@@ -654,7 +654,7 @@ class TestListSubnetPool(TestSubnetPool):
                'not_any_tags': 'black,white'}
         )
         self.assertEqual(self.columns, columns)
-        self.assertItemsEqual(self.data, list(data))
+        self.assertCountEqual(self.data, list(data))
 
 
 class TestSetSubnetPool(TestSubnetPool):
@@ -1008,7 +1008,7 @@ class TestShowSubnetPool(TestSubnetPool):
             ignore_missing=False
         )
         self.assertEqual(self.columns, columns)
-        self.assertItemsEqual(self.data, data)
+        self.assertCountEqual(self.data, data)
 
 
 class TestUnsetSubnetPool(TestSubnetPool):

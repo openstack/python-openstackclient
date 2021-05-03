@@ -100,7 +100,7 @@ class TestImageCreate(TestImage):
         self.assertEqual(self.client.update_image.call_args_list, [])
 
         self.assertEqual(self.columns, columns)
-        self.assertItemsEqual(self.data, data)
+        self.assertCountEqual(self.data, data)
 
     @mock.patch('sys.stdin', side_effect=[None])
     def test_image_reserve_options(self, raw_input):
@@ -149,7 +149,7 @@ class TestImageCreate(TestImage):
         self.assertEqual(self.client.update_image.call_args_list, [])
 
         self.assertEqual(self.columns, columns)
-        self.assertItemsEqual(self.data, data)
+        self.assertCountEqual(self.data, data)
 
     @mock.patch('openstackclient.image.v1.image.io.open', name='Open')
     def test_image_create_file(self, mock_open):
@@ -205,7 +205,7 @@ class TestImageCreate(TestImage):
         self.assertEqual(self.client.update_image.call_args_list, [])
 
         self.assertEqual(self.columns, columns)
-        self.assertItemsEqual(self.data, data)
+        self.assertCountEqual(self.data, data)
 
 
 class TestImageDelete(TestImage):
@@ -386,7 +386,7 @@ class TestImageList(TestImage):
             format_columns.DictColumn(
                 {'Alpha': 'a', 'Beta': 'b', 'Gamma': 'g'}),
         ), )
-        self.assertItemsEqual(datalist, tuple(data))
+        self.assertCountEqual(datalist, tuple(data))
 
     @mock.patch('osc_lib.api.utils.simple_filter')
     def test_image_list_property_option(self, sf_mock):
@@ -737,7 +737,7 @@ class TestImageShow(TestImage):
         )
 
         self.assertEqual(self.columns, columns)
-        self.assertItemsEqual(self.data, data)
+        self.assertCountEqual(self.data, data)
 
     def test_image_show_human_readable(self):
         arglist = [
