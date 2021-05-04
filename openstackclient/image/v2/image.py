@@ -490,6 +490,8 @@ class CreateImage(command.ShowOne):
                 parsed_args.name,
                 parsed_args.container_format,
                 parsed_args.disk_format,
+                visibility=kwargs.get('visibility', 'private'),
+                protected=True if parsed_args.protected else False
             )
             info = body['os-volume_upload_image']
             try:
