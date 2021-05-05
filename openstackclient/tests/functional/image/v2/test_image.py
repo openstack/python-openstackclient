@@ -26,6 +26,7 @@ class ImageTests(base.BaseImageTests):
 
         self.name = uuid.uuid4().hex
         self.image_tag = 'my_tag'
+        self.image_tag1 = 'random'
         json_output = json.loads(self.openstack(
             '--os-image-api-version 2 '
             'image create -f json --tag {tag} {name}'.format(
@@ -78,11 +79,16 @@ class ImageTests(base.BaseImageTests):
 
     def test_image_list_with_tag_filter(self):
         json_output = json.loads(self.openstack(
-            'image list --tag ' + self.image_tag + ' --long -f json'
+            'image list --tag ' + self.image_tag + ' --tag ' +
+            self.image_tag1 + ' --long -f json'
         ))
         for taglist in [img['Tags'] for img in json_output]:
             self.assertIn(
                 self.image_tag,
+                taglist
+            )
+            self.assertIn(
+                self.image_tag1,
                 taglist
             )
 

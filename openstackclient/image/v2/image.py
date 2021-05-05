@@ -613,8 +613,10 @@ class ListImage(command.Lister):
         parser.add_argument(
             '--tag',
             metavar='<tag>',
-            default=None,
-            help=_('Filter images based on tag.'),
+            action='append',
+            default=[],
+            help=_('Filter images based on tag. '
+                   '(repeat option to filter on multiple tags)'),
         )
         parser.add_argument(
             '--hidden',
