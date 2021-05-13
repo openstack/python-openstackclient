@@ -88,11 +88,28 @@
         # NOTE(amotoki): Some neutron features are enabled by devstack plugin
         neutron: https://opendev.org/openstack/neutron
       devstack_services:
+        # Disable OVN services
+        br-ex-tcpdump: false
+        br-int-flows: false
+        ovn-controller: false
+        ovn-northd: false
+        ovs-vswitchd: false
+        ovsdb-server: false
+        q-ovn-metadata-agent: false
+        # Neutron services
+        q-agt: true
+        q-dhcp: true
+        q-l3: true
+        q-meta: true
         neutron-network-segment-range: true
         neutron-segments: true
         q-metering: true
         q-qos: true
         neutron-tag-ports-during-bulk-creation: true
+      devstack_localrc:
+        Q_AGENT: openvswitch
+        Q_ML2_TENANT_NETWORK_TYPE: vxlan
+        Q_ML2_PLUGIN_MECHANISM_DRIVERS: openvswitch
       tox_envlist: functional
 
 - job:
