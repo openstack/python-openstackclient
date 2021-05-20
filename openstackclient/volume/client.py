@@ -42,11 +42,15 @@ def make_client(instance):
     from cinderclient.v3 import volume_snapshots
     from cinderclient.v3 import volumes
 
-    # Try a small import to check if cinderclient v1 is supported
+    # Check whether the available cinderclient supports v1 or v2
     try:
         from cinderclient.v1 import services  # noqa
     except Exception:
         del API_VERSIONS['1']
+    try:
+        from cinderclient.v2 import services  # noqa
+    except Exception:
+        del API_VERSIONS['2']
 
     version = instance._api_version[API_NAME]
     from cinderclient import api_versions
