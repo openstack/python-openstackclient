@@ -1,12 +1,12 @@
 absolute-limits,limits show --absolute,Lists absolute limits for a user.
 api-version,WONTFIX,Display the server API version information.
 availability-zone-list,availability zone list --volume,Lists all availability zones.
-attachment-complete,,Complete an attachment for a cinder volume. (Supported by API versions 3.44 - 3.latest)
-attachment-create,,Create an attachment for a cinder volume. (Supported by API versions 3.27 - 3.latest)
-attachment-delete,,Delete an attachment for a cinder volume. (Supported by API versions 3.27 - 3.latest)
-attachment-list,,Lists all attachments. (Supported by API versions 3.27 - 3.latest)
-attachment-show,,Show detailed information for attachment. (Supported by API versions 3.27 - 3.latest)
-attachment-update,,Update an attachment for a cinder volume. (Supported by API versions 3.27 - 3.latest)
+attachment-complete,volume attachment complete,Complete an attachment for a cinder volume. (Supported by API versions 3.44 - 3.latest)
+attachment-create,volume attachment create,Create an attachment for a cinder volume. (Supported by API versions 3.27 - 3.latest)
+attachment-delete,volume attachment delete,Delete an attachment for a cinder volume. (Supported by API versions 3.27 - 3.latest)
+attachment-list,volume attachment list,Lists all attachments. (Supported by API versions 3.27 - 3.latest)
+attachment-show,volume attachment show,Show detailed information for attachment. (Supported by API versions 3.27 - 3.latest)
+attachment-update,volume attachment update,Update an attachment for a cinder volume. (Supported by API versions 3.27 - 3.latest)
 backup-create,volume backup create,Creates a volume backup.
 backup-delete,volume backup delete,Removes a backup.
 backup-export,volume backup record export,Export backup metadata record.

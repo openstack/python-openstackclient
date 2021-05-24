@@ -153,11 +153,12 @@ referring to both Compute and Volume quotas.
 * ``user``: (**Identity**) individual cloud resources users
 * ``user role``: (**Identity**) roles assigned to a user
 * ``volume``: (**Volume**) block volumes
+* ``volume attachment``: (**Volume**) an attachment of a volumes to a server
 * ``volume backup``: (**Volume**) backup for volumes
-* ``volume backend capability``: (**volume**) volume backend storage capabilities
-* ``volume backend pool``: (**volume**) volume backend storage pools
+* ``volume backend capability``: (**Volume**) volume backend storage capabilities
+* ``volume backend pool``: (**Volume**) volume backend storage pools
 * ``volume backup record``: (**Volume**) volume record that can be imported or exported
-* ``volume backend``: (**volume**) volume backend storage
+* ``volume backend``: (**Volume**) volume backend storage
 * ``volume host``: (**Volume**) the physical computer for volumes
 * ``volume qos``: (**Volume**) quality-of-service (QoS) specification for volumes
 * ``volume snapshot``: (**Volume**) a point-in-time copy of a volume

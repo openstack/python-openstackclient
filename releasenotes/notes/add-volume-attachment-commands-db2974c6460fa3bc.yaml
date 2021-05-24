@@ -1,0 +1,8 @@
+---
+features:
+  - |
+    Add ``volume attachment create``, ``volume attachment delete``,
+    ``volume attachment list``, ``volume attachment complete``,
+    ``volume attachment set`` and ``volume attachment show`` commands to
+    create, delete, list, complete, update and show volume attachments,
+    respectively.
