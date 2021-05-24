@@ -15,6 +15,7 @@
 
 import logging
 
+from osc_lib import exceptions
 from osc_lib import utils
 
 from openstackclient.i18n import _
@@ -29,8 +30,10 @@ API_VERSIONS = {
     "1": "cinderclient.v1.client.Client",
     "2": "cinderclient.v2.client.Client",
     "3": "cinderclient.v3.client.Client",
-    "3.42": "cinderclient.v3.client.Client",
 }
+
+# Save the microversion if in use
+_volume_api_version = None
 
 
 def make_client(instance):
@@ -48,10 +51,13 @@ def make_client(instance):
     except Exception:
         del API_VERSIONS['1']
 
-    version = instance._api_version[API_NAME]
-    from cinderclient import api_versions
-    # convert to APIVersion object
-    version = api_versions.get_api_version(version)
+    if _volume_api_version is not None:
+        version = _volume_api_version
+    else:
+        version = instance._api_version[API_NAME]
+        from cinderclient import api_versions
+        # convert to APIVersion object
+        version = api_versions.get_api_version(version)
 
     if version.ver_major == '1':
         # Monkey patch for v1 cinderclient
@@ -99,3 +105,42 @@ def build_option_parser(parser):
                '(Env: OS_VOLUME_API_VERSION)') % DEFAULT_API_VERSION
     )
     return parser
+
+
+def check_api_version(check_version):
+    """Validate version supplied by user
+
+    Returns:
+
+    * True if version is OK
+    * False if the version has not been checked and the previous plugin
+      check should be performed
+    * throws an exception if the version is no good
+    """
+
+    # Defer client imports until we actually need them
+    from cinderclient import api_versions
+
+    global _volume_api_version
+
+    # Copy some logic from novaclient 3.3.0 for basic version detection
+    # NOTE(dtroyer): This is only enough to resume operations using API
+    # version 3.0 or any valid version supplied by the user.
+    _volume_api_version = api_versions.get_api_version(check_version)
+
+    # Bypass X.latest format microversion
+    if not _volume_api_version.is_latest():
+        if _volume_api_version > api_versions.APIVersion("3.0"):
+            if not _volume_api_version.matches(
+                api_versions.MIN_VERSION,
+                api_versions.MAX_VERSION,
+            ):
+                msg = _("versions supported by client: %(min)s - %(max)s") % {
+                    "min": api_versions.MIN_VERSION,
+                    "max": api_versions.MAX_VERSION,
+                }
+                raise exceptions.CommandError(msg)
+
+            return True
+
+    return False
