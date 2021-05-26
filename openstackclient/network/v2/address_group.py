@@ -22,6 +22,7 @@ from osc_lib import utils
 
 from openstackclient.i18n import _
 from openstackclient.identity import common as identity_common
+from openstackclient.network import common
 from openstackclient.network import sdk_utils
 
 
@@ -57,7 +58,7 @@ def _get_attrs(client_manager, parsed_args):
     return attrs
 
 
-class CreateAddressGroup(command.ShowOne):
+class CreateAddressGroup(command.ShowOne, common.NeutronCommandWithExtraArgs):
     _description = _("Create a new Address Group")
 
     def get_parser(self, prog_name):
@@ -92,6 +93,9 @@ class CreateAddressGroup(command.ShowOne):
     def take_action(self, parsed_args):
         client = self.app.client_manager.network
         attrs = _get_attrs(self.app.client_manager, parsed_args)
+
+        attrs.update(
+            self._parse_extra_properties(parsed_args.extra_properties))
 
         obj = client.create_address_group(**attrs)
         display_columns, columns = _get_columns(obj)
@@ -191,7 +195,7 @@ class ListAddressGroup(command.Lister):
                 ) for s in data))
 
 
-class SetAddressGroup(command.Command):
+class SetAddressGroup(common.NeutronCommandWithExtraArgs):
     _description = _("Set address group properties")
 
     def get_parser(self, prog_name):
@@ -231,6 +235,9 @@ class SetAddressGroup(command.Command):
             attrs['name'] = parsed_args.name
         if parsed_args.description is not None:
             attrs['description'] = parsed_args.description
+        attrs.update(
+            self._parse_extra_properties(parsed_args.extra_properties))
+
         if attrs:
             client.update_address_group(obj, **attrs)
         if parsed_args.address:

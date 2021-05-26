@@ -25,6 +25,7 @@ from osc_lib import utils
 
 from openstackclient.i18n import _
 from openstackclient.identity import common as identity_common
+from openstackclient.network import common
 from openstackclient.network import sdk_utils
 
 
@@ -87,7 +88,8 @@ def _update_additional_fields_from_props(columns, props):
     return props
 
 
-class CreateNetworkSegmentRange(command.ShowOne):
+class CreateNetworkSegmentRange(command.ShowOne,
+                                common.NeutronCommandWithExtraArgs):
     _description = _("Create new network segment range")
 
     def get_parser(self, prog_name):
@@ -209,6 +211,10 @@ class CreateNetworkSegmentRange(command.ShowOne):
 
         if parsed_args.physical_network:
             attrs['physical_network'] = parsed_args.physical_network
+
+        attrs.update(
+            self._parse_extra_properties(parsed_args.extra_properties))
+
         obj = network_client.create_network_segment_range(**attrs)
         display_columns, columns = _get_columns(obj)
         data = utils.get_item_properties(obj, columns)
@@ -365,7 +371,7 @@ class ListNetworkSegmentRange(command.Lister):
         return headers, display_props
 
 
-class SetNetworkSegmentRange(command.Command):
+class SetNetworkSegmentRange(common.NeutronCommandWithExtraArgs):
     _description = _("Set network segment range properties")
 
     def get_parser(self, prog_name):
@@ -419,6 +425,8 @@ class SetNetworkSegmentRange(command.Command):
             attrs['minimum'] = parsed_args.minimum
         if parsed_args.maximum:
             attrs['maximum'] = parsed_args.maximum
+        attrs.update(
+            self._parse_extra_properties(parsed_args.extra_properties))
         network_client.update_network_segment_range(obj, **attrs)
 
 

@@ -27,6 +27,7 @@ from osc_lib.utils import tags as _tag
 
 from openstackclient.i18n import _
 from openstackclient.identity import common as identity_common
+from openstackclient.network import common
 from openstackclient.network import sdk_utils
 
 
@@ -256,7 +257,7 @@ class RemoveExtraRoutesFromRouter(command.ShowOne):
 
 # TODO(yanxing'an): Use the SDK resource mapped attribute names once the
 # OSC minimum requirements include SDK 1.0.
-class CreateRouter(command.ShowOne):
+class CreateRouter(command.ShowOne, common.NeutronCommandWithExtraArgs):
     _description = _("Create a new router")
 
     def get_parser(self, prog_name):
@@ -332,6 +333,9 @@ class CreateRouter(command.ShowOne):
             attrs['ha'] = True
         if parsed_args.no_ha:
             attrs['ha'] = False
+        attrs.update(
+            self._parse_extra_properties(parsed_args.extra_properties))
+
         obj = client.create_router(**attrs)
         # tags cannot be set when created, so tags need to be set later.
         _tag.update_tags_for_set(client, obj, parsed_args)
@@ -576,7 +580,7 @@ class RemoveSubnetFromRouter(command.Command):
 
 # TODO(yanxing'an): Use the SDK resource mapped attribute names once the
 # OSC minimum requirements include SDK 1.0.
-class SetRouter(command.Command):
+class SetRouter(common.NeutronCommandWithExtraArgs):
     _description = _("Set router properties")
 
     def get_parser(self, prog_name):
@@ -767,6 +771,10 @@ class SetRouter(command.Command):
 
         if 'no_qos_policy' in parsed_args and parsed_args.no_qos_policy:
             attrs['external_gateway_info']['qos_policy_id'] = None
+
+        attrs.update(
+            self._parse_extra_properties(parsed_args.extra_properties))
+
         if attrs:
             client.update_router(obj, **attrs)
         # tags is a subresource and it needs to be updated separately.
@@ -809,7 +817,7 @@ class ShowRouter(command.ShowOne):
         return (display_columns, data)
 
 
-class UnsetRouter(command.Command):
+class UnsetRouter(common.NeutronUnsetCommandWithExtraArgs):
     _description = _("Unset router properties")
 
     def get_parser(self, prog_name):
@@ -875,6 +883,10 @@ class UnsetRouter(command.Command):
 
         if parsed_args.external_gateway:
             attrs['external_gateway_info'] = {}
+
+        attrs.update(
+            self._parse_extra_properties(parsed_args.extra_properties))
+
         if attrs:
             client.update_router(obj, **attrs)
         # tags is a subresource and it needs to be updated separately.

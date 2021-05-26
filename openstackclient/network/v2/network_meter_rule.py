@@ -21,6 +21,7 @@ from osc_lib import utils
 
 from openstackclient.i18n import _
 from openstackclient.identity import common as identity_common
+from openstackclient.network import common
 from openstackclient.network import sdk_utils
 
 LOG = logging.getLogger(__name__)
@@ -64,7 +65,7 @@ def _get_attrs(client_manager, parsed_args):
     return attrs
 
 
-class CreateMeterRule(command.ShowOne):
+class CreateMeterRule(command.ShowOne, common.NeutronCommandWithExtraArgs):
     _description = _("Create a new meter rule")
 
     def get_parser(self, prog_name):
@@ -130,6 +131,8 @@ class CreateMeterRule(command.ShowOne):
                                             ignore_missing=False)
         parsed_args.meter = _meter.id
         attrs = _get_attrs(self.app.client_manager, parsed_args)
+        attrs.update(
+            self._parse_extra_properties(parsed_args.extra_properties))
         obj = client.create_metering_label_rule(**attrs)
         display_columns, columns = _get_columns(obj)
         data = utils.get_item_properties(obj, columns, formatters={})

@@ -26,6 +26,7 @@ from osc_lib.utils import tags as _tag
 
 from openstackclient.i18n import _
 from openstackclient.identity import common as identity_common
+from openstackclient.network import common
 from openstackclient.network import sdk_utils
 
 
@@ -250,7 +251,7 @@ def _get_attrs(client_manager, parsed_args, is_create=True):
 
 # TODO(abhiraut): Use the SDK resource mapped attribute names once the
 # OSC minimum requirements include SDK 1.0.
-class CreateSubnet(command.ShowOne):
+class CreateSubnet(command.ShowOne, common.NeutronCommandWithExtraArgs):
     _description = _("Create a subnet")
 
     def get_parser(self, prog_name):
@@ -373,6 +374,8 @@ class CreateSubnet(command.ShowOne):
     def take_action(self, parsed_args):
         client = self.app.client_manager.network
         attrs = _get_attrs(self.app.client_manager, parsed_args)
+        attrs.update(
+            self._parse_extra_properties(parsed_args.extra_properties))
         obj = client.create_subnet(**attrs)
         # tags cannot be set when created, so tags need to be set later.
         _tag.update_tags_for_set(client, obj, parsed_args)
@@ -545,7 +548,7 @@ class ListSubnet(command.Lister):
 
 # TODO(abhiraut): Use the SDK resource mapped attribute names once the
 # OSC minimum requirements include SDK 1.0.
-class SetSubnet(command.Command):
+class SetSubnet(common.NeutronCommandWithExtraArgs):
     _description = _("Set subnet properties")
 
     def get_parser(self, prog_name):
@@ -630,6 +633,8 @@ class SetSubnet(command.Command):
             attrs['allocation_pools'] = []
         if 'service_types' in attrs:
             attrs['service_types'] += obj.service_types
+        attrs.update(
+            self._parse_extra_properties(parsed_args.extra_properties))
         if attrs:
             client.update_subnet(obj, **attrs)
         # tags is a subresource and it needs to be updated separately.
@@ -657,7 +662,7 @@ class ShowSubnet(command.ShowOne):
         return (display_columns, data)
 
 
-class UnsetSubnet(command.Command):
+class UnsetSubnet(common.NeutronUnsetCommandWithExtraArgs):
     _description = _("Unset subnet properties")
 
     def get_parser(self, prog_name):
@@ -744,6 +749,9 @@ class UnsetSubnet(command.Command):
             _update_arguments(attrs['service_types'],
                               parsed_args.service_types,
                               'service-type')
+        attrs.update(
+            self._parse_extra_properties(parsed_args.extra_properties))
+
         if attrs:
             client.update_subnet(obj, **attrs)
 

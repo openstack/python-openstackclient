@@ -21,6 +21,7 @@ from osc_lib import utils
 
 from openstackclient.i18n import _
 from openstackclient.identity import common as identity_common
+from openstackclient.network import common
 from openstackclient.network import sdk_utils
 
 
@@ -88,7 +89,7 @@ class AddNetworkFlavorToProfile(command.Command):
 
 # TODO(dasanind): Use the SDK resource mapped attribute names once the
 # OSC minimum requirements include SDK 1.0.
-class CreateNetworkFlavor(command.ShowOne):
+class CreateNetworkFlavor(command.ShowOne, common.NeutronCommandWithExtraArgs):
     _description = _("Create new network flavor")
 
     def get_parser(self, prog_name):
@@ -134,6 +135,8 @@ class CreateNetworkFlavor(command.ShowOne):
     def take_action(self, parsed_args):
         client = self.app.client_manager.network
         attrs = _get_attrs(self.app.client_manager, parsed_args)
+        attrs.update(
+            self._parse_extra_properties(parsed_args.extra_properties))
         obj = client.create_flavor(**attrs)
         display_columns, columns = _get_columns(obj)
         data = utils.get_item_properties(obj, columns, formatters={})
@@ -234,7 +237,7 @@ class RemoveNetworkFlavorFromProfile(command.Command):
 
 # TODO(dasanind): Use only the SDK resource mapped attribute names once the
 # OSC minimum requirements include SDK 1.0.
-class SetNetworkFlavor(command.Command):
+class SetNetworkFlavor(common.NeutronCommandWithExtraArgs):
     _description = _("Set network flavor properties")
 
     def get_parser(self, prog_name):
@@ -281,6 +284,8 @@ class SetNetworkFlavor(command.Command):
             attrs['enabled'] = True
         if parsed_args.disable:
             attrs['enabled'] = False
+        attrs.update(
+            self._parse_extra_properties(parsed_args.extra_properties))
         client.update_flavor(obj, **attrs)
 
 

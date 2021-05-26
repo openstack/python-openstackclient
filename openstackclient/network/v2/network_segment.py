@@ -20,6 +20,7 @@ from osc_lib import exceptions
 from osc_lib import utils
 
 from openstackclient.i18n import _
+from openstackclient.network import common
 from openstackclient.network import sdk_utils
 
 
@@ -30,7 +31,8 @@ def _get_columns(item):
     return sdk_utils.get_osc_show_columns_for_sdk_resource(item, {})
 
 
-class CreateNetworkSegment(command.ShowOne):
+class CreateNetworkSegment(command.ShowOne,
+                           common.NeutronCommandWithExtraArgs):
     _description = _("Create new network segment")
 
     def get_parser(self, prog_name):
@@ -88,6 +90,8 @@ class CreateNetworkSegment(command.ShowOne):
             attrs['physical_network'] = parsed_args.physical_network
         if parsed_args.segment is not None:
             attrs['segmentation_id'] = parsed_args.segment
+        attrs.update(
+            self._parse_extra_properties(parsed_args.extra_properties))
         obj = client.create_segment(**attrs)
         display_columns, columns = _get_columns(obj)
         data = utils.get_item_properties(obj, columns)
@@ -189,7 +193,7 @@ class ListNetworkSegment(command.Lister):
                 ) for s in data))
 
 
-class SetNetworkSegment(command.Command):
+class SetNetworkSegment(common.NeutronCommandWithExtraArgs):
     _description = _("Set network segment properties")
 
     def get_parser(self, prog_name):
@@ -220,6 +224,8 @@ class SetNetworkSegment(command.Command):
             attrs['description'] = parsed_args.description
         if parsed_args.name is not None:
             attrs['name'] = parsed_args.name
+        attrs.update(
+            self._parse_extra_properties(parsed_args.extra_properties))
         client.update_segment(obj, **attrs)
 
 

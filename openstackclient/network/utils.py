@@ -11,6 +11,10 @@
 #   under the License.
 #
 
+from osc_lib import exceptions
+
+from openstackclient.i18n import _
+
 
 # Transform compute security group rule for display.
 def transform_compute_security_group_rule(sg_rule):
@@ -39,3 +43,41 @@ def transform_compute_security_group_rule(sg_rule):
     else:
         info['remote_security_group'] = ''
     return info
+
+
+def str2bool(strbool):
+    if strbool is None:
+        return None
+    return strbool.lower() == 'true'
+
+
+def str2list(strlist):
+    result = []
+    if strlist:
+        result = strlist.split(';')
+    return result
+
+
+def str2dict(strdict):
+    """Convert key1:value1;key2:value2;... string into dictionary.
+
+    :param strdict: string in the form of key1:value1;key2:value2
+    """
+    result = {}
+    if not strdict:
+        return result
+    i = 0
+    kvlist = []
+    for kv in strdict.split(';'):
+        if ':' in kv:
+            kvlist.append(kv)
+            i += 1
+        elif i == 0:
+            msg = _("missing value for key '%s'")
+            raise exceptions.CommandError(msg % kv)
+        else:
+            kvlist[i - 1] = "%s;%s" % (kvlist[i - 1], kv)
+    for kv in kvlist:
+        key, sep, value = kv.partition(':')
+        result[key] = value
+    return result

@@ -19,6 +19,7 @@ from osc_lib import utils
 
 from openstackclient.i18n import _
 from openstackclient.identity import common as identity_common
+from openstackclient.network import common
 from openstackclient.network import sdk_utils
 
 
@@ -60,7 +61,8 @@ def _get_attrs(client_manager, parsed_args):
 
 # TODO(ndahiwade): Use the SDK resource mapped attribute names once the
 # OSC minimum requirements include SDK 1.0.
-class CreateNetworkFlavorProfile(command.ShowOne):
+class CreateNetworkFlavorProfile(command.ShowOne,
+                                 common.NeutronCommandWithExtraArgs):
     _description = _("Create new network flavor profile")
 
     def get_parser(self, prog_name):
@@ -103,6 +105,8 @@ class CreateNetworkFlavorProfile(command.ShowOne):
     def take_action(self, parsed_args):
         client = self.app.client_manager.network
         attrs = _get_attrs(self.app.client_manager, parsed_args)
+        attrs.update(
+            self._parse_extra_properties(parsed_args.extra_properties))
 
         if parsed_args.driver is None and parsed_args.metainfo is None:
             msg = _("Either --driver or --metainfo or both are required")
@@ -180,7 +184,7 @@ class ListNetworkFlavorProfile(command.Lister):
 
 # TODO(ndahiwade): Use the SDK resource mapped attribute names once the
 # OSC minimum requirements include SDK 1.0.
-class SetNetworkFlavorProfile(command.Command):
+class SetNetworkFlavorProfile(common.NeutronCommandWithExtraArgs):
     _description = _("Set network flavor profile properties")
 
     def get_parser(self, prog_name):
@@ -225,6 +229,8 @@ class SetNetworkFlavorProfile(command.Command):
         obj = client.find_service_profile(parsed_args.flavor_profile,
                                           ignore_missing=False)
         attrs = _get_attrs(self.app.client_manager, parsed_args)
+        attrs.update(
+            self._parse_extra_properties(parsed_args.extra_properties))
 
         client.update_service_profile(obj, **attrs)
 

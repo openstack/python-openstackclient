@@ -24,6 +24,7 @@ from osc_lib.utils import tags as _tag
 
 from openstackclient.i18n import _
 from openstackclient.identity import common as identity_common
+from openstackclient.network import common
 from openstackclient.network import sdk_utils
 
 
@@ -146,7 +147,7 @@ def _add_default_options(parser):
 
 # TODO(rtheis): Use the SDK resource mapped attribute names once the
 # OSC minimum requirements include SDK 1.0.
-class CreateSubnetPool(command.ShowOne):
+class CreateSubnetPool(command.ShowOne, common.NeutronCommandWithExtraArgs):
     _description = _("Create subnet pool")
 
     def get_parser(self, prog_name):
@@ -203,6 +204,8 @@ class CreateSubnetPool(command.ShowOne):
         # NeutronServer expects prefixes to be a List
         if "prefixes" not in attrs:
             attrs['prefixes'] = []
+        attrs.update(
+            self._parse_extra_properties(parsed_args.extra_properties))
         obj = client.create_subnet_pool(**attrs)
         # tags cannot be set when created, so tags need to be set later.
         _tag.update_tags_for_set(client, obj, parsed_args)
@@ -351,7 +354,7 @@ class ListSubnetPool(command.Lister):
 
 # TODO(rtheis): Use the SDK resource mapped attribute names once the
 # OSC minimum requirements include SDK 1.0.
-class SetSubnetPool(command.Command):
+class SetSubnetPool(common.NeutronCommandWithExtraArgs):
     _description = _("Set subnet pool properties")
 
     def get_parser(self, prog_name):
@@ -407,6 +410,9 @@ class SetSubnetPool(command.Command):
         # Existing prefixes must be a subset of the new prefixes.
         if 'prefixes' in attrs:
             attrs['prefixes'].extend(obj.prefixes)
+
+        attrs.update(
+            self._parse_extra_properties(parsed_args.extra_properties))
 
         if attrs:
             client.update_subnet_pool(obj, **attrs)

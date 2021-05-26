@@ -15,7 +15,6 @@
 
 from cliff import columns as cliff_columns
 from osc_lib.cli import format_columns
-from osc_lib.command import command
 from osc_lib import utils
 from osc_lib.utils import tags as _tag
 
@@ -189,7 +188,8 @@ def _add_additional_network_options(parser):
 
 # TODO(sindhu): Use the SDK resource mapped attribute names once the
 # OSC minimum requirements include SDK 1.0.
-class CreateNetwork(common.NetworkAndComputeShowOne):
+class CreateNetwork(common.NetworkAndComputeShowOne,
+                    common.NeutronCommandWithExtraArgs):
     _description = _("Create new network")
 
     def update_parser_common(self, parser):
@@ -334,6 +334,8 @@ class CreateNetwork(common.NetworkAndComputeShowOne):
             attrs['vlan_transparent'] = True
         if parsed_args.no_transparent_vlan:
             attrs['vlan_transparent'] = False
+        attrs.update(
+            self._parse_extra_properties(parsed_args.extra_properties))
         with common.check_missing_extension_if_error(
                 self.app.client_manager.network, attrs):
             obj = client.create_network(**attrs)
@@ -623,7 +625,7 @@ class ListNetwork(common.NetworkAndComputeLister):
 
 # TODO(sindhu): Use the SDK resource mapped attribute names once the
 # OSC minimum requirements include SDK 1.0.
-class SetNetwork(command.Command):
+class SetNetwork(common.NeutronCommandWithExtraArgs):
     _description = _("Set network properties")
 
     def get_parser(self, prog_name):
@@ -728,6 +730,8 @@ class SetNetwork(command.Command):
         obj = client.find_network(parsed_args.network, ignore_missing=False)
 
         attrs = _get_attrs_network(self.app.client_manager, parsed_args)
+        attrs.update(
+            self._parse_extra_properties(parsed_args.extra_properties))
         if attrs:
             with common.check_missing_extension_if_error(
                     self.app.client_manager.network, attrs):
@@ -761,7 +765,7 @@ class ShowNetwork(common.NetworkAndComputeShowOne):
         return (display_columns, data)
 
 
-class UnsetNetwork(command.Command):
+class UnsetNetwork(common.NeutronUnsetCommandWithExtraArgs):
     _description = _("Unset network properties")
 
     def get_parser(self, prog_name):
@@ -778,8 +782,9 @@ class UnsetNetwork(command.Command):
         client = self.app.client_manager.network
         obj = client.find_network(parsed_args.network, ignore_missing=False)
 
-        # NOTE: As of now, UnsetNetwork has no attributes which need
-        # to be updated by update_network().
+        attrs = self._parse_extra_properties(parsed_args.extra_properties)
+        if attrs:
+            client.update_network(obj, **attrs)
 
         # tags is a subresource and it needs to be updated separately.
         _tag.update_tags_for_unset(client, obj, parsed_args)
