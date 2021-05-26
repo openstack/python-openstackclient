@@ -15,7 +15,7 @@ backup-list,volume backup list,Lists all backups.
 backup-reset-state,volume backup set --state,Explicitly updates the backup state.
 backup-restore,volume backup restore,Restores a backup.
 backup-show,volume backup show,Show backup details.
-backup-update,,Updates a backup. (Supported by API versions 3.9 - 3.latest)
+backup-update,volume backup set,Updates a backup. (Supported by API versions 3.9 - 3.latest)
 cgsnapshot-create,consistency group snapshot create,Creates a cgsnapshot.
 cgsnapshot-delete,consistency group snapshot delete,Removes one or more cgsnapshots.
 cgsnapshot-list,consistency group snapshot list,Lists all cgsnapshots.
