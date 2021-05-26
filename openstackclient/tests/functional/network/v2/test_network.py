@@ -335,6 +335,8 @@ class NetworkTests(common.NetworkTagTests):
     def test_network_dhcp_agent(self):
         if not self.haz_network:
             self.skipTest("No Network service present")
+        if not self.is_extension_enabled("dhcp_agent_scheduler"):
+            self.skipTest("No dhcp_agent_scheduler extension present")
 
         name1 = uuid.uuid4().hex
         cmd_output1 = json.loads(self.openstack(

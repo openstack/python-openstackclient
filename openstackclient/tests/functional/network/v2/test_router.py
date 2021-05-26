@@ -155,6 +155,10 @@ class RouterTests(common.NetworkTagTests):
 
     def test_router_list_l3_agent(self):
         """Tests create router, add l3 agent, list, delete"""
+
+        if not self.is_extension_enabled("l3_agent_scheduler"):
+            self.skipTest("No l3_agent_scheduler extension present")
+
         name = uuid.uuid4().hex
         cmd_output = json.loads(self.openstack(
             'router create -f json ' + name))
@@ -235,20 +239,7 @@ class RouterTests(common.NetworkTagTests):
         )
 
         # Test set --ha --distributed
-        cmd_output = self.openstack(
-            'router set ' +
-            '--distributed ' +
-            '--external-gateway public ' +
-            new_name
-        )
-        self.assertOutput('', cmd_output)
-
-        cmd_output = json.loads(self.openstack(
-            'router show -f json ' +
-            new_name
-        ))
-        self.assertTrue(cmd_output["distributed"])
-        self.assertIsNotNone(cmd_output["external_gateway_info"])
+        self._test_set_router_distributed(new_name)
 
         # Test unset
         cmd_output = self.openstack(
@@ -261,6 +252,25 @@ class RouterTests(common.NetworkTagTests):
             new_name
         ))
         self.assertIsNone(cmd_output["external_gateway_info"])
+
+    def _test_set_router_distributed(self, router_name):
+        if not self.is_extension_enabled("dvr"):
+            return
+
+        cmd_output = self.openstack(
+            'router set ' +
+            '--distributed ' +
+            '--external-gateway public ' +
+            router_name
+        )
+        self.assertOutput('', cmd_output)
+
+        cmd_output = json.loads(self.openstack(
+            'router show -f json ' +
+            router_name
+        ))
+        self.assertTrue(cmd_output["distributed"])
+        self.assertIsNotNone(cmd_output["external_gateway_info"])
 
     def test_router_add_remove_route(self):
         network_name = uuid.uuid4().hex

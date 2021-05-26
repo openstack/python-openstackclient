@@ -49,6 +49,11 @@ class NetworkAgentTests(common.NetworkTests):
             cmd_output['id'],
         )
 
+        if 'ovn' in agent_list[0]['Agent Type'].lower():
+            # NOTE(slaweq): OVN Neutron agents can't be updated so test can be
+            # finished here
+            return
+
         # agent set
         raw_output = self.openstack(
             'network agent set --disable %s' % agent_ids[0]
@@ -88,6 +93,9 @@ class NetworkAgentListTests(common.NetworkTests):
 
     def test_network_dhcp_agent_list(self):
         """Test network agent list"""
+
+        if not self.is_extension_enabled("dhcp_agent_scheduler"):
+            self.skipTest("No dhcp_agent_scheduler extension present")
 
         name1 = uuid.uuid4().hex
         cmd_output1 = json.loads(self.openstack(
@@ -131,6 +139,10 @@ class NetworkAgentListTests(common.NetworkTests):
 
     def test_network_agent_list_routers(self):
         """Add agent to router, list agents on router, delete."""
+
+        if not self.is_extension_enabled("l3_agent_scheduler"):
+            self.skipTest("No l3_agent_scheduler extension present")
+
         name = uuid.uuid4().hex
         cmd_output = json.loads(self.openstack(
             'router create -f json %s' % name))
