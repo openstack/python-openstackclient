@@ -42,6 +42,8 @@ class FakeVolumeClient(object):
         self.group_types.resource_class = fakes.FakeResource(None, {})
         self.messages = mock.Mock()
         self.messages.resource_class = fakes.FakeResource(None, {})
+        self.resource_filters = mock.Mock()
+        self.resource_filters.resource_class = fakes.FakeResource(None, {})
         self.volumes = mock.Mock()
         self.volumes.resource_class = fakes.FakeResource(None, {})
         self.volume_types = mock.Mock()
@@ -122,6 +124,53 @@ class FakeCluster:
             clusters.append(FakeCluster.create_one_cluster(attrs))
 
         return clusters
+
+
+class FakeResourceFilter:
+    """Fake one or more resource filters."""
+
+    @staticmethod
+    def create_one_resource_filter(attrs=None):
+        """Create a fake resource filter.
+
+        :param attrs: A dictionary with all attributes of resource filter
+        :return: A FakeResource object with id, name, status, etc.
+        """
+        attrs = attrs or {}
+
+        # Set default attribute
+
+        resource_filter_info = {
+            'filters': [
+                'name',
+                'status',
+                'image_metadata',
+                'bootable',
+                'migration_status',
+            ],
+            'resource': 'volume',
+        }
+
+        # Overwrite default attributes if there are some attributes set
+        resource_filter_info.update(attrs)
+
+        return fakes.FakeResource(None, resource_filter_info, loaded=True)
+
+    @staticmethod
+    def create_resource_filters(attrs=None, count=2):
+        """Create multiple fake resource filters.
+
+        :param attrs: A dictionary with all attributes of resource filter
+        :param count: The number of resource filters to be faked
+        :return: A list of FakeResource objects
+        """
+        resource_filters = []
+        for n in range(0, count):
+            resource_filters.append(
+                FakeResourceFilter.create_one_resource_filter(attrs)
+            )
+
+        return resource_filters
 
 
 class FakeVolumeGroup:
@@ -309,11 +358,10 @@ class FakeVolumeMessage:
         # Overwrite default attributes if there are some attributes set
         message_info.update(attrs)
 
-        message = fakes.FakeResource(
+        return fakes.FakeResource(
             None,
             message_info,
             loaded=True)
-        return message
 
     @staticmethod
     def create_volume_messages(attrs=None, count=2):
@@ -402,11 +450,10 @@ class FakeVolumeAttachment:
         # Overwrite default attributes if there are some attributes set
         attachment_info.update(attrs)
 
-        attachment = fakes.FakeResource(
+        return fakes.FakeResource(
             None,
             attachment_info,
             loaded=True)
-        return attachment
 
     @staticmethod
     def create_volume_attachments(attrs=None, count=2):
