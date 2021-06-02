@@ -903,7 +903,7 @@ class CreateServer(command.ShowOne):
                 '(required if using source image, snapshot or volume),\n'
                 'source_type=<source_type>: source type '
                 '(one of: image, snapshot, volume, blank),\n'
-                'destination_typ=<destination_type>: destination type '
+                'destination_type=<destination_type>: destination type '
                 '(one of: volume, local) (optional),\n'
                 'disk_bus=<disk_bus>: device bus '
                 '(one of: uml, lxc, virtio, ...) (optional),\n'
