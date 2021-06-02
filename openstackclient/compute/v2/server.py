@@ -3769,12 +3769,20 @@ release the new server and restart the old one.""")
         phase_group.add_argument(
             '--confirm',
             action="store_true",
-            help=_('Confirm server resize is complete'),
+            help=_(
+                "**Deprecated** Confirm server resize is complete. "
+                "Replaced by the 'openstack server resize confirm' and "
+                "'openstack server migration confirm' commands"
+            ),
         )
         phase_group.add_argument(
             '--revert',
             action="store_true",
-            help=_('Restore server state before resize'),
+            help=_(
+                '**Deprecated** Restore server state before resize'
+                "Replaced by the 'openstack server resize revert' and "
+                "'openstack server migration revert' commands"
+            ),
         )
         parser.add_argument(
             '--wait',
