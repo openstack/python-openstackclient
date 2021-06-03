@@ -129,10 +129,11 @@ class FakeVolumeGroupType:
     """Fake one or more volume group types."""
 
     @staticmethod
-    def create_one_volume_group_type(attrs=None):
+    def create_one_volume_group_type(attrs=None, methods=None):
         """Create a fake group type.
 
         :param attrs: A dictionary with all attributes of group type
+        :param methods: A dictionary with all methods
         :return: A FakeResource object with id, name, description, etc.
         """
         attrs = attrs or {}
@@ -152,6 +153,7 @@ class FakeVolumeGroupType:
         group_type = fakes.FakeResource(
             None,
             group_type_info,
+            methods=methods,
             loaded=True)
         return group_type
 
