@@ -1173,7 +1173,7 @@ class TestVolumeMigrate(TestVolume):
 
 class TestVolumeSet(TestVolume):
 
-    volume_type = volume_fakes.FakeType.create_one_type()
+    volume_type = volume_fakes.FakeVolumeType.create_one_volume_type()
 
     def setUp(self):
         super(TestVolumeSet, self).setUp()

@@ -148,7 +148,7 @@ class TestConsistencyGroupAddVolume(TestConsistencyGroup):
 
 class TestConsistencyGroupCreate(TestConsistencyGroup):
 
-    volume_type = volume_fakes.FakeType.create_one_type()
+    volume_type = volume_fakes.FakeVolumeType.create_one_volume_type()
     new_consistency_group = (
         volume_fakes.FakeConsistencyGroup.create_one_consistency_group())
     consistency_group_snapshot = (
