@@ -1,0 +1,6 @@
+---
+features:
+  - |
+    Add ``volume group snapshot create``, ``volume group snapshot delete``,
+    ``volume group snapshot list`` and ``volume group snapshot show`` commands
+    to create, delete, list, and show volume group snapshots, respectively.
