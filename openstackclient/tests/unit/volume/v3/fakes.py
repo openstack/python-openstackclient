@@ -32,10 +32,16 @@ class FakeVolumeClient(object):
 
         self.attachments = mock.Mock()
         self.attachments.resource_class = fakes.FakeResource(None, {})
+        self.groups = mock.Mock()
+        self.groups.resource_class = fakes.FakeResource(None, {})
+        self.group_types = mock.Mock()
+        self.group_types.resource_class = fakes.FakeResource(None, {})
         self.messages = mock.Mock()
         self.messages.resource_class = fakes.FakeResource(None, {})
         self.volumes = mock.Mock()
         self.volumes.resource_class = fakes.FakeResource(None, {})
+        self.volume_types = mock.Mock()
+        self.volume_types.resource_class = fakes.FakeResource(None, {})
 
 
 class TestVolume(utils.TestCommand):
@@ -59,6 +65,111 @@ class TestVolume(utils.TestCommand):
 
 # TODO(stephenfin): Check if the responses are actually the same
 FakeVolume = volume_v2_fakes.FakeVolume
+FakeVolumeType = volume_v2_fakes.FakeVolumeType
+
+
+class FakeVolumeGroup:
+    """Fake one or more volume groups."""
+
+    @staticmethod
+    def create_one_volume_group(attrs=None):
+        """Create a fake group.
+
+        :param attrs: A dictionary with all attributes of group
+        :return: A FakeResource object with id, name, status, etc.
+        """
+        attrs = attrs or {}
+
+        group_type = attrs.pop('group_type', None) or uuid.uuid4().hex
+        volume_types = attrs.pop('volume_types', None) or [uuid.uuid4().hex]
+
+        # Set default attribute
+        group_info = {
+            'id': uuid.uuid4().hex,
+            'status': random.choice([
+                'available',
+            ]),
+            'availability_zone': f'az-{uuid.uuid4().hex}',
+            'created_at': '2015-09-16T09:28:52.000000',
+            'name': 'first_group',
+            'description': f'description-{uuid.uuid4().hex}',
+            'group_type': group_type,
+            'volume_types': volume_types,
+            'volumes': [f'volume-{uuid.uuid4().hex}'],
+            'group_snapshot_id': None,
+            'source_group_id': None,
+            'project_id': f'project-{uuid.uuid4().hex}',
+        }
+
+        # Overwrite default attributes if there are some attributes set
+        group_info.update(attrs)
+
+        group = fakes.FakeResource(
+            None,
+            group_info,
+            loaded=True)
+        return group
+
+    @staticmethod
+    def create_volume_groups(attrs=None, count=2):
+        """Create multiple fake groups.
+
+        :param attrs: A dictionary with all attributes of group
+        :param count: The number of groups to be faked
+        :return: A list of FakeResource objects
+        """
+        groups = []
+        for n in range(0, count):
+            groups.append(FakeVolumeGroup.create_one_volume_group(attrs))
+
+        return groups
+
+
+class FakeVolumeGroupType:
+    """Fake one or more volume group types."""
+
+    @staticmethod
+    def create_one_volume_group_type(attrs=None):
+        """Create a fake group type.
+
+        :param attrs: A dictionary with all attributes of group type
+        :return: A FakeResource object with id, name, description, etc.
+        """
+        attrs = attrs or {}
+
+        # Set default attribute
+        group_type_info = {
+            'id': uuid.uuid4().hex,
+            'name': f'group-type-{uuid.uuid4().hex}',
+            'description': f'description-{uuid.uuid4().hex}',
+            'is_public': random.choice([True, False]),
+            'group_specs': {},
+        }
+
+        # Overwrite default attributes if there are some attributes set
+        group_type_info.update(attrs)
+
+        group_type = fakes.FakeResource(
+            None,
+            group_type_info,
+            loaded=True)
+        return group_type
+
+    @staticmethod
+    def create_volume_group_types(attrs=None, count=2):
+        """Create multiple fake group types.
+
+        :param attrs: A dictionary with all attributes of group type
+        :param count: The number of group types to be faked
+        :return: A list of FakeResource objects
+        """
+        group_types = []
+        for n in range(0, count):
+            group_types.append(
+                FakeVolumeGroupType.create_one_volume_group_type(attrs)
+            )
+
+        return group_types
 
 
 class FakeVolumeMessage:
