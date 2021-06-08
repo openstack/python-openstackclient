@@ -99,8 +99,8 @@ class DeleteConntrackHelper(command.Command):
             help=_('Router that the conntrack helper belong to')
         )
         parser.add_argument(
-            'conntrack_helper_ids',
-            metavar='<conntrack-helper-ids>',
+            'conntrack_helper_id',
+            metavar='<conntrack-helper-id>',
             nargs='+',
             help=_('The ID of the conntrack helper(s) to delete')
         )
@@ -112,7 +112,7 @@ class DeleteConntrackHelper(command.Command):
         result = 0
 
         router = client.find_router(parsed_args.router, ignore_missing=False)
-        for ct_helper in parsed_args.conntrack_helper_ids:
+        for ct_helper in parsed_args.conntrack_helper_id:
             try:
                 client.delete_conntrack_helper(
                     ct_helper, router.id, ignore_missing=False)
@@ -123,7 +123,7 @@ class DeleteConntrackHelper(command.Command):
                           {'ct_helper': ct_helper, 'e': e})
 
         if result > 0:
-            total = len(parsed_args.conntrack_helper_ids)
+            total = len(parsed_args.conntrack_helper_id)
             msg = (_("%(result)s of %(total)s L3 conntrack helpers failed "
                    "to delete.") % {'result': result, 'total': total})
             raise exceptions.CommandError(msg)
