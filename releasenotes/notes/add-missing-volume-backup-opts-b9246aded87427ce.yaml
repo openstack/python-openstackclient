@@ -6,8 +6,12 @@ features:
     non-incremental backup, set a metadata property on the created backup, and
     set an availability zone on the created backup, respectively.
   - |
-    Add ``--property`` option the ``volume backup set`` command to set a
-    metadata property on an existing backup.
+    Add ``--property`` and ``--no-property`` options to the
+    ``volume backup set`` command to set a metadata property or remove all
+    metadata properties from an existing backup.
+  - |
+    Add new ``volume backup unset`` command to allow unsetting of properties
+    from an existing volume backup.
 fixes:
   - |
     The ``--name`` and ``--description`` options of the ``volume backup set``
