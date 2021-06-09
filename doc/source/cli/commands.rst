@@ -76,6 +76,7 @@ referring to both Compute and Volume quotas.
 * ``address scope``: (**Network**) a scope of IPv4 or IPv6 addresses
 * ``aggregate``: (**Compute**) a grouping of compute hosts
 * ``availability zone``: (**Compute**, **Network**, **Volume**) a logical partition of hosts or block storage or network services
+* ``block storage cluster``: (**Volume**) clusters of volume services
 * ``catalog``: (**Identity**) service catalog
 * ``command``: (**Internal**) installed commands in the OSC process
 * ``compute agent``: (**Compute**) a cloud Compute agent available to a hypervisor

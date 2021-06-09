@@ -20,10 +20,10 @@ cgsnapshot-create,consistency group snapshot create,Creates a cgsnapshot.
 cgsnapshot-delete,consistency group snapshot delete,Removes one or more cgsnapshots.
 cgsnapshot-list,consistency group snapshot list,Lists all cgsnapshots.
 cgsnapshot-show,consistency group snapshot show,Shows cgsnapshot details.
-cluster-disable,,Disables clustered services. (Supported by API versions 3.7 - 3.latest)
-cluster-enable,,Enables clustered services. (Supported by API versions 3.7 - 3.latest)
-cluster-list,,Lists clustered services with optional filtering. (Supported by API versions 3.7 - 3.latest)
-cluster-show,,Show detailed information on a clustered service. (Supported by API versions 3.7 - 3.latest)
+cluster-disable,block storage cluster set --disable,Disables clustered services. (Supported by API versions 3.7 - 3.latest)
+cluster-enable,block storage cluster set --enable,Enables clustered services. (Supported by API versions 3.7 - 3.latest)
+cluster-list,block storage cluster list,Lists clustered services with optional filtering. (Supported by API versions 3.7 - 3.latest)
+cluster-show,block storage cluster show,Show detailed information on a clustered service. (Supported by API versions 3.7 - 3.latest)
 consisgroup-create,consistency group create,Creates a consistency group.
 consisgroup-create-from-src,consistency group create --consistency-group-snapshot,Creates a consistency group from a cgsnapshot or a source CG
 consisgroup-delete,consistency group delete,Removes one or more consistency groups.
