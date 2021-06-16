@@ -4023,7 +4023,12 @@ class SetServer(command.Command):
             '--state',
             metavar='<state>',
             choices=['active', 'error'],
-            help=_('New server state (valid value: active, error)'),
+            help=_(
+                'New server state '
+                '**WARNING** This can result in instances that are no longer '
+                'usable and should be used with caution '
+                '(admin only)'
+            ),
         )
         parser.add_argument(
             '--description',
