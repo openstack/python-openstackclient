@@ -1,10 +1,10 @@
-add-fixed-ip,server add fixed ip,Add new IP address on a network to server.
 add-secgroup,server add security group,Add a Security Group to a server.
 agent-create,compute agent create,Create new agent build.
 agent-delete,compute agent delete,Delete existing agent build.
 agent-list,compute agent list,List all builds.
 agent-modify,compute agent set,Modify existing agent build.
 aggregate-add-host,aggregate add host,Add the host to the specified aggregate.
+aggregate-cache-images,,Request images be cached. (Supported by API versions '2.81' - '2.latest') [hint: use '-- os-compute-api-version' flag to show help message for proper version]
 aggregate-create,aggregate create,Create a new aggregate with the specified details.
 aggregate-delete,aggregate delete,Delete the aggregate.
 aggregate-list,aggregate list,Print a list of all aggregates.
@@ -15,12 +15,7 @@ aggregate-update,aggregate set / unset,Update the aggregate's name and optionall
 availability-zone-list,availability zone list,List all the availability zones.
 backup,server backup create,Backup a server by creating a 'backup' type snapshot.
 boot,server create,Boot a new server.
-cell-capacities,,Get cell capacities for all cells or a given cell.
-cell-show,,Show details of a given cell.
-clear-password,server set --root-password,Clear the admin password for a server from the metadata server.
-cloudpipe-configure,WONTFIX,Update the VPN IP/port of a cloudpipe instance.
-cloudpipe-create,WONTFIX,Create a cloudpipe instance for the given project.
-cloudpipe-list,WONTFIX,Print a list of all cloudpipe instances.
+clear-password,server set --root-password,Clear the admin password for a server from the metadata server. This action does not actually change the instance server password.
 console-log,console log show,Get console log output of a server.
 delete,server delete,Immediately shut down and delete specified server(s).
 diagnostics,openstack server show --diagnostics,Retrieve server diagnostics.
@@ -33,24 +28,19 @@ flavor-delete,flavor delete,Delete a specific flavor
 flavor-key,flavor set / unset,Set or unset extra_spec for a flavor.
 flavor-list,flavor list,Print a list of available 'flavors'
 flavor-show,flavor show,Show details about the given flavor.
-floating-ip-associate,server add floating ip,Associate a floating IP address to a server.
-floating-ip-disassociate,server remove floating ip,Disassociate a floating IP address from a server.
+flavor-update,,Update the description of an existing flavor. (Supported by API versions '2.55' - '2.latest') [hint: use '--os-compute-api- version' flag to show help message for proper version]
 force-delete,server delete,Force delete a server.
-get-mks-console,console url show --mks,Get an MKS console to a server.
-get-password,WONTFIX,Get the admin password for a server.
+get-mks-console,console url show --mks,Get an MKS console to a server. (Supported by API versions '2.8' - '2.latest') [hint: use ' --os-compute-api-version' flag to show help message for proper version]
+get-password,WONTFIX,Get the admin password for a server. This operation calls the metadata service to query metadata information and does not read password information from the server itself.
 get-rdp-console,console url show --rdp,Get a rdp console to a server.
 get-serial-console,console url show --serial,Get a serial console to a server.
 get-spice-console,console url show --spice,Get a spice console to a server.
-get-vnc-console,console url show --novnc | --xvpvnc,Get a vnc console to a server.
-host-action,,Perform a power action on a host.
-host-describe,host show,Describe a specific host.
+get-vnc-console,console url show --novnc,Get a vnc console to a server.
 host-evacuate,,Evacuate all instances from failed host.
 host-evacuate-live,,Live migrate all instances off the specified host to other available hosts.
-host-list,host list,List all hosts by service.
 host-meta,,Set or Delete metadata on all instances of a host.
 host-servers-migrate,,Cold migrate all instances off the specified host to other available hosts.
-host-update,host set,Update host settings.
-hypervisor-list,hypervisor list,List hypervisors.
+hypervisor-list,hypervisor list,List hypervisors. (Supported by API versions '2.0' - '2.latest')
 hypervisor-servers,,List servers belonging to specific hypervisors.
 hypervisor-show,hypervisor show,Display the details of the specified hypervisor.
 hypervisor-stats,hypervisor stats show,Get hypervisor statistics over all compute nodes.
@@ -58,6 +48,7 @@ hypervisor-uptime,,Display the uptime of the specified hypervisor.
 image-create,server image create,Create a new image by taking a snapshot of a running server.
 instance-action,,Show an action.
 instance-action-list,,List actions on a server.
+instance-usage-audit-log,,List/Get server usage audits.
 interface-attach,,Attach a network interface to a server.
 interface-detach,,Detach a network interface from a server.
 interface-list,port list --server,List interfaces attached to a server.
@@ -67,7 +58,6 @@ keypair-list,keypair list,Print a list of keypairs for a user
 keypair-show,keypair show,Show details about the given keypair.
 limits,limits show,Print rate and absolute limits.
 list,server list,List active servers.
-list-extensions,extension list,List all the os-api extensions that are available.
 list-secgroup,security group list,List Security Group(s) of a server.
 live-migration,,Migrate running server to a new machine.
 live-migration-abort,,Abort an on-going live migration.
@@ -86,7 +76,6 @@ quota-update,quota set,Update the quotas for a tenant/user.
 reboot,server reboot,Reboot a server.
 rebuild,server rebuild,"Shutdown, re-image, and re-boot a server."
 refresh-network,WONTFIX,Refresh server network information.
-remove-fixed-ip,server remove fixed ip,Remove an IP address from a server.
 remove-secgroup,server remove security group,Remove a Security Group from a server.
 rescue,server rescue,Reboots a server into rescue mode.
 reset-network,WONTFIX,Reset network of a server.
@@ -107,6 +96,7 @@ server-tag-delete,,Delete one or more tags from a server.
 server-tag-delete-all,,Delete all tags from a server.
 server-tag-list,,Get list of tags from a server.
 server-tag-set,,Set list of tags to a server.
+server-topology,openstack server show --topology,Retrieve server topology. (Supported by API versions '2.78' - '2.latest') [hint: use '-- os-compute-api-version' flag to show help message for proper version]
 service-delete,compute service delete,Delete the service.
 service-disable,compute service set --disable,Disable the service.
 service-enable,compute service set --enable,Enable the service.
@@ -121,22 +111,17 @@ start,server start,Start the server(s).
 stop,server stop,Stop the server(s).
 suspend,server suspend,Suspend a server.
 trigger-crash-dump,server dump create,Trigger crash dump in an instance.
-topology,openstack server show --topology,Retrieve server NUMA topology.
 unlock,server unlock,Unlock a server.
 unpause,server unpause,Unpause a server.
 unrescue,server unrescue,Restart the server from normal boot disk again.
 unshelve,server unshelve,Unshelve a server.
-update,server set / unset --description,Update or unset the description for a server.
-update,server set --name,Update the name for a server.
+update,server set / unset,Update the name or the description for a server.
 usage,usage show,Show usage data for a single tenant.
 usage-list,usage list,List usage data for all tenants.
 version-list,,List all API versions.
-virtual-interface-list,,Show virtual interface info about the given server.
 volume-attach,server add volume,Attach a volume to a server.
 volume-attachments,server show,List all the volumes attached to a server.
 volume-detach,server remove volume,Detach a volume from a server.
 volume-update,,Update volume attachment.
-x509-create-cert,WONTFIX,Create x509 cert for a user in tenant.
-x509-get-root-cert,WONTFIX,Fetch the x509 root cert.
-bash-completion,complete,Prints all of the commands and options to
+bash-completion,complete,Prints all of the commands and options to stdout so that the nova.bash_completion script doesn't have to hard code them.
 help,help,Display help about this program or one of its subcommands.
