@@ -14,10 +14,10 @@
 
 """Volume v2 Backup action implementations"""
 
-import copy
 import functools
 import logging
 
+from cinderclient import api_versions
 from cliff import columns as cliff_columns
 from osc_lib.cli import parseractions
 from osc_lib.command import command
@@ -61,7 +61,7 @@ class CreateVolumeBackup(command.ShowOne):
     _description = _("Create new volume backup")
 
     def get_parser(self, prog_name):
-        parser = super(CreateVolumeBackup, self).get_parser(prog_name)
+        parser = super().get_parser(prog_name)
         parser.add_argument(
             "volume",
             metavar="<volume>",
@@ -99,16 +99,67 @@ class CreateVolumeBackup(command.ShowOne):
             default=False,
             help=_("Perform an incremental backup")
         )
+        parser.add_argument(
+            '--no-incremental',
+            action='store_false',
+            help=_("Do not perform an incremental backup")
+        )
+        parser.add_argument(
+            '--property',
+            metavar='<key=value>',
+            action=parseractions.KeyValueAction,
+            dest='properties',
+            help=_(
+                'Set a property on this backup '
+                '(repeat option to remove multiple values) '
+                '(supported by --os-volume-api-version 3.43 or above)'
+            ),
+        )
+        parser.add_argument(
+            '--availability-zone',
+            metavar='<zone-name>',
+            help=_(
+                'AZ where the backup should be stored; by default it will be '
+                'the same as the source '
+                '(supported by --os-volume-api-version 3.51 or above)'
+            ),
+        )
         return parser
 
     def take_action(self, parsed_args):
         volume_client = self.app.client_manager.volume
+
         volume_id = utils.find_resource(
-            volume_client.volumes, parsed_args.volume).id
-        snapshot_id = None
+            volume_client.volumes, parsed_args.volume,
+        ).id
+
+        kwargs = {}
+
         if parsed_args.snapshot:
-            snapshot_id = utils.find_resource(
-                volume_client.volume_snapshots, parsed_args.snapshot).id
+            kwargs['snapshot_id'] = utils.find_resource(
+                volume_client.volume_snapshots, parsed_args.snapshot,
+            ).id
+
+        if parsed_args.properties:
+            if volume_client.api_version < api_versions.APIVersion('3.43'):
+                msg = _(
+                    '--os-volume-api-version 3.43 or greater is required to '
+                    'support the --property option'
+                )
+                raise exceptions.CommandError(msg)
+
+            kwargs['metadata'] = parsed_args.properties
+
+        if parsed_args.availability_zone:
+            if volume_client.api_version < api_versions.APIVersion('3.51'):
+                msg = _(
+                    '--os-volume-api-version 3.51 or greater is required to '
+                    'support the --availability-zone option'
+                )
+                raise exceptions.CommandError(msg)
+
+            kwargs['availability_zone'] = parsed_args.availability_zone
+
         backup = volume_client.backups.create(
             volume_id,
             container=parsed_args.container,
@@ -116,7 +167,7 @@ class CreateVolumeBackup(command.ShowOne):
             description=parsed_args.description,
             force=parsed_args.force,
             incremental=parsed_args.incremental,
-            snapshot_id=snapshot_id,
+            **kwargs,
         )
         backup._info.pop("links", None)
         return zip(*sorted(backup._info.items()))
@@ -148,7 +199,8 @@ class DeleteVolumeBackup(command.Command):
         for i in parsed_args.backups:
             try:
                 backup_id = utils.find_resource(
-                    volume_client.backups, i).id
+                    volume_client.backups, i,
+                ).id
                 volume_client.backups.delete(backup_id, parsed_args.force)
             except Exception as e:
                 result += 1
@@ -158,8 +210,9 @@ class DeleteVolumeBackup(command.Command):
 
         if result > 0:
             total = len(parsed_args.backups)
-            msg = (_("%(result)s of %(total)s backups failed "
-                   "to delete.") % {'result': result, 'total': total})
+            msg = _("%(result)s of %(total)s backups failed to delete.") % {
+                'result': result, 'total': total,
+            }
             raise exceptions.CommandError(msg)
 
 
@@ -182,17 +235,22 @@ class ListVolumeBackup(command.Lister):
         parser.add_argument(
             "--status",
             metavar="<status>",
-            choices=['creating', 'available', 'deleting',
-                     'error', 'restoring', 'error_restoring'],
-            help=_("Filters results by the backup status "
-                   "('creating', 'available', 'deleting', "
-                   "'error', 'restoring' or 'error_restoring')")
+            choices=[
+                'creating', 'available', 'deleting',
+                'error', 'restoring', 'error_restoring',
+            ],
+            help=_(
+                "Filters results by the backup status, one of: "
+                "creating, available, deleting, error, restoring or "
+                "error_restoring"
+            ),
         )
         parser.add_argument(
             "--volume",
             metavar="<volume>",
-            help=_("Filters results by the volume which they "
-                   "backup (name or ID)")
+            help=_(
+                "Filters results by the volume which they backup (name or ID)"
+            ),
         )
         parser.add_argument(
             '--marker',
@@ -212,19 +270,30 @@ class ListVolumeBackup(command.Lister):
             default=False,
             help=_('Include all projects (admin only)'),
         )
+        # TODO(stephenfin): Add once we have an equivalent command for
+        # 'cinder list-filters'
+        # parser.add_argument(
+        #     '--filter',
+        #     metavar='<key=value>',
+        #     action=parseractions.KeyValueAction,
+        #     dest='filters',
+        #     help=_(
+        #         "Filter key and value pairs. Use 'foo' to "
+        #         "check enabled filters from server. Use 'key~=value' for "
+        #         "inexact filtering if the key supports "
+        #         "(supported by --os-volume-api-version 3.33 or above)"
+        #     ),
+        # )
         return parser
 
     def take_action(self, parsed_args):
         volume_client = self.app.client_manager.volume
 
+        columns = ('id', 'name', 'description', 'status', 'size')
+        column_headers = ('ID', 'Name', 'Description', 'Status', 'Size')
         if parsed_args.long:
-            columns = ['ID', 'Name', 'Description', 'Status', 'Size',
-                       'Availability Zone', 'Volume ID', 'Container']
-            column_headers = copy.deepcopy(columns)
-            column_headers[6] = 'Volume'
-        else:
-            columns = ['ID', 'Name', 'Description', 'Status', 'Size']
-            column_headers = columns
+            columns += ('availability_zone', 'volume_id', 'container')
+            column_headers += ('Availability Zone', 'Volume', 'Container')
 
         # Cache the volume list
         volume_cache = {}
@@ -234,17 +303,22 @@ class ListVolumeBackup(command.Lister):
         except Exception:
             # Just forget it if there's any trouble
             pass
-        _VolumeIdColumn = functools.partial(VolumeIdColumn,
-                                            volume_cache=volume_cache)
+
+        _VolumeIdColumn = functools.partial(
+            VolumeIdColumn, volume_cache=volume_cache)
 
         filter_volume_id = None
         if parsed_args.volume:
-            filter_volume_id = utils.find_resource(volume_client.volumes,
-                                                   parsed_args.volume).id
+            filter_volume_id = utils.find_resource(
+                volume_client.volumes, parsed_args.volume,
+            ).id
+
         marker_backup_id = None
         if parsed_args.marker:
-            marker_backup_id = utils.find_resource(volume_client.backups,
-                                                   parsed_args.marker).id
+            marker_backup_id = utils.find_resource(
+                volume_client.backups, parsed_args.marker,
+            ).id
+
         search_opts = {
             'name': parsed_args.name,
             'status': parsed_args.status,
@@ -257,11 +331,14 @@ class ListVolumeBackup(command.Lister):
             limit=parsed_args.limit,
         )
 
-        return (column_headers,
-                (utils.get_item_properties(
-                    s, columns,
-                    formatters={'Volume ID': _VolumeIdColumn},
-                ) for s in data))
+        return (
+            column_headers,
+            (
+                utils.get_item_properties(
+                    s, columns, formatters={'volume_id': _VolumeIdColumn},
+                ) for s in data
+            ),
+        )
 
 
 class RestoreVolumeBackup(command.ShowOne):
@@ -295,7 +372,7 @@ class SetVolumeBackup(command.Command):
     _description = _("Set volume backup properties")
 
     def get_parser(self, prog_name):
-        parser = super(SetVolumeBackup, self).get_parser(prog_name)
+        parser = super().get_parser(prog_name)
         parser.add_argument(
             "backup",
             metavar="<backup>",
@@ -304,28 +381,48 @@ class SetVolumeBackup(command.Command):
         parser.add_argument(
             '--name',
             metavar='<name>',
-            help=_('New backup name')
+            help=_(
+                'New backup name'
+                '(supported by --os-volume-api-version 3.9 or above)'
+            ),
         )
         parser.add_argument(
             '--description',
             metavar='<description>',
-            help=_('New backup description')
+            help=_(
+                'New backup description '
+                '(supported by --os-volume-api-version 3.9 or above)'
+            ),
         )
         parser.add_argument(
             '--state',
             metavar='<state>',
             choices=['available', 'error'],
-            help=_('New backup state ("available" or "error") (admin only) '
-                   '(This option simply changes the state of the backup '
-                   'in the database with no regard to actual status, '
-                   'exercise caution when using)'),
+            help=_(
+                'New backup state ("available" or "error") (admin only) '
+                '(This option simply changes the state of the backup '
+                'in the database with no regard to actual status; '
+                'exercise caution when using)'
+            ),
+        )
+        parser.add_argument(
+            '--property',
+            metavar='<key=value>',
+            action=parseractions.KeyValueAction,
+            dest='properties',
+            help=_(
+                'Set a property on this backup '
+                '(repeat option to set multiple values) '
+                '(supported by --os-volume-api-version 3.43 or above)'
+            ),
         )
         return parser
 
     def take_action(self, parsed_args):
         volume_client = self.app.client_manager.volume
-        backup = utils.find_resource(volume_client.backups,
-                                     parsed_args.backup)
+        backup = utils.find_resource(
+            volume_client.backups, parsed_args.backup)
+
         result = 0
         if parsed_args.state:
             try:
@@ -336,21 +433,47 @@ class SetVolumeBackup(command.Command):
                 result += 1
 
         kwargs = {}
+
         if parsed_args.name:
+            if volume_client.api_version < api_versions.APIVersion('3.9'):
+                msg = _(
+                    '--os-volume-api-version 3.9 or greater is required to '
+                    'support the --name option'
+                )
+                raise exceptions.CommandError(msg)
+
             kwargs['name'] = parsed_args.name
+
         if parsed_args.description:
+            if volume_client.api_version < api_versions.APIVersion('3.9'):
+                msg = _(
+                    '--os-volume-api-version 3.9 or greater is required to '
+                    'support the --description option'
+                )
+                raise exceptions.CommandError(msg)
+
             kwargs['description'] = parsed_args.description
+
+        if parsed_args.properties:
+            if volume_client.api_version < api_versions.APIVersion('3.43'):
+                msg = _(
+                    '--os-volume-api-version 3.43 or greater is required to '
+                    'support the --property option'
+                )
+                raise exceptions.CommandError(msg)
+
+            kwargs['metadata'] = parsed_args.properties
+
         if kwargs:
             try:
                 volume_client.backups.update(backup.id, **kwargs)
             except Exception as e:
-                LOG.error(_("Failed to update backup name "
-                          "or description: %s"), e)
+                LOG.error("Failed to update backup name or description: %s", e)
                 result += 1
 
         if result > 0:
-            raise exceptions.CommandError(_("One or more of the "
-                                          "set operations failed"))
+            msg = _("One or more of the set operations failed")
+            raise exceptions.CommandError(msg)
 
 
 class ShowVolumeBackup(command.ShowOne):
