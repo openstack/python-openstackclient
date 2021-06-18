@@ -44,15 +44,15 @@ force-delete,volume delete --force,"Attempts force-delete of volume regardless o
 freeze-host,volume host set --disable,Freeze and disable the specified cinder-volume host.
 get-capabilities,volume backend capability show,Show capabilities of a volume backend. Admin only.
 get-pools,volume backend pool list,Show pool information for backends. Admin only.
-group-create,,Creates a group. (Supported by API versions 3.13 - 3.latest)
+group-create,volume group create,Creates a group. (Supported by API versions 3.13 - 3.latest)
 group-create-from-src,,Creates a group from a group snapshot or a source group. (Supported by API versions 3.14 - 3.latest)
-group-delete,,Removes one or more groups. (Supported by API versions 3.13 - 3.latest)
-group-disable-replication,,Disables replication for group. (Supported by API versions 3.38 - 3.latest)
-group-enable-replication,,Enables replication for group. (Supported by API versions 3.38 - 3.latest)
-group-failover-replication,,Fails over replication for group. (Supported by API versions 3.38 - 3.latest)
-group-list,,Lists all groups. (Supported by API versions 3.13 - 3.latest)
-group-list-replication-targets,,Lists replication targets for group. (Supported by API versions 3.38 - 3.latest)
-group-show,,Shows details of a group. (Supported by API versions 3.13 - 3.latest)
+group-delete,volume group delete,Removes one or more groups. (Supported by API versions 3.13 - 3.latest)
+group-disable-replication,volume group set --disable-replication,Disables replication for group. (Supported by API versions 3.38 - 3.latest)
+group-enable-replication,volume group set --enable-replication,Enables replication for group. (Supported by API versions 3.38 - 3.latest)
+group-failover-replication,volume group failover,Fails over replication for group. (Supported by API versions 3.38 - 3.latest)
+group-list,volume group list,Lists all groups. (Supported by API versions 3.13 - 3.latest)
+group-list-replication-targets,volume group list --replication-targets,Lists replication targets for group. (Supported by API versions 3.38 - 3.latest)
+group-show,volume group show,Shows details of a group. (Supported by API versions 3.13 - 3.latest)
 group-snapshot-create,,Creates a group snapshot. (Supported by API versions 3.14 - 3.latest)
 group-snapshot-delete,,Removes one or more group snapshots. (Supported by API versions 3.14 - 3.latest)
 group-snapshot-list,,Lists all group snapshots. (Supported by API versions 3.14 - 3.latest)
@@ -65,7 +65,7 @@ group-type-key,,Sets or unsets group_spec for a group type. (Supported by API ve
 group-type-list,,Lists available 'group types'. (Admin only will see private types) (Supported by API versions 3.11 - 3.latest)
 group-type-show,,Show group type details. (Supported by API versions 3.11 - 3.latest)
 group-type-update,,Updates group type name description and/or is_public. (Supported by API versions 3.11 - 3.latest)
-group-update,,Updates a group. (Supported by API versions 3.13 - 3.latest)
+group-update,volume group set,Updates a group. (Supported by API versions 3.13 - 3.latest)
 image-metadata,volume set --image-property,Sets or deletes volume image metadata.
 image-metadata-show,volume show,Shows volume image metadata.
 list,volume list,Lists all volumes.

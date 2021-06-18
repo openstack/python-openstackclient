@@ -159,6 +159,7 @@ referring to both Compute and Volume quotas.
 * ``volume backend pool``: (**Volume**) volume backend storage pools
 * ``volume backup record``: (**Volume**) volume record that can be imported or exported
 * ``volume backend``: (**Volume**) volume backend storage
+* ``volume group``: (**Volume**) group of volumes
 * ``volume host``: (**Volume**) the physical computer for volumes
 * ``volume message``: (**Volume**) volume API internal messages detailing volume failure messages
 * ``volume qos``: (**Volume**) quality-of-service (QoS) specification for volumes
