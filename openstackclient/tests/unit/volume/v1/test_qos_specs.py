@@ -39,7 +39,7 @@ class TestQos(volume_fakes.TestVolumev1):
 
 class TestQosAssociate(TestQos):
 
-    volume_type = volume_fakes.FakeType.create_one_type()
+    volume_type = volume_fakes.FakeVolumeType.create_one_volume_type()
     qos_spec = volume_fakes.FakeQos.create_one_qos()
 
     def setUp(self):
@@ -263,7 +263,7 @@ class TestQosDelete(TestQos):
 
 class TestQosDisassociate(TestQos):
 
-    volume_type = volume_fakes.FakeType.create_one_type()
+    volume_type = volume_fakes.FakeVolumeType.create_one_volume_type()
     qos_spec = volume_fakes.FakeQos.create_one_qos()
 
     def setUp(self):

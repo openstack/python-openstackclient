@@ -400,12 +400,12 @@ class TestVolumev1(utils.TestCommand):
         )
 
 
-class FakeType(object):
+class FakeVolumeType(object):
     """Fake one or more type."""
 
     @staticmethod
-    def create_one_type(attrs=None, methods=None):
-        """Create a fake type.
+    def create_one_volume_type(attrs=None, methods=None):
+        """Create a fake volume type.
 
         :param Dictionary attrs:
             A dictionary with all attributes
@@ -418,7 +418,7 @@ class FakeType(object):
         methods = methods or {}
 
         # Set default attributes.
-        type_info = {
+        volume_type_info = {
             "id": 'type-id-' + uuid.uuid4().hex,
             "name": 'type-name-' + uuid.uuid4().hex,
             "description": 'type-description-' + uuid.uuid4().hex,
@@ -427,16 +427,16 @@ class FakeType(object):
         }
 
         # Overwrite default attributes.
-        type_info.update(attrs)
+        volume_type_info.update(attrs)
 
         volume_type = fakes.FakeResource(
-            info=copy.deepcopy(type_info),
+            info=copy.deepcopy(volume_type_info),
             methods=methods,
             loaded=True)
         return volume_type
 
     @staticmethod
-    def create_types(attrs=None, count=2):
+    def create_volume_types(attrs=None, count=2):
         """Create multiple fake types.
 
         :param Dictionary attrs:
@@ -448,19 +448,19 @@ class FakeType(object):
         """
         volume_types = []
         for i in range(0, count):
-            volume_type = FakeType.create_one_type(attrs)
+            volume_type = FakeVolumeType.create_one_volume_type(attrs)
             volume_types.append(volume_type)
 
         return volume_types
 
     @staticmethod
-    def get_types(types=None, count=2):
+    def get_volume_types(volume_types=None, count=2):
         """Get an iterable MagicMock object with a list of faked types.
 
         If types list is provided, then initialize the Mock object with the
         list. Otherwise create one.
 
-        :param List types:
+        :param List volume_types:
             A list of FakeResource objects faking types
         :param Integer count:
             The number of types to be faked
@@ -468,14 +468,14 @@ class FakeType(object):
             An iterable Mock object with side_effect set to a list of faked
             types
         """
-        if types is None:
-            types = FakeType.create_types(count)
+        if volume_types is None:
+            volume_types = FakeVolumeType.create_volume_types(count)
 
-        return mock.Mock(side_effect=types)
+        return mock.Mock(side_effect=volume_types)
 
     @staticmethod
-    def create_one_encryption_type(attrs=None):
-        """Create a fake encryption type.
+    def create_one_encryption_volume_type(attrs=None):
+        """Create a fake encryption volume type.
 
         :param Dictionary attrs:
             A dictionary with all attributes
