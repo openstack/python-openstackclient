@@ -1,0 +1,6 @@
+---
+features:
+  - |
+    Add ``volume message list``, ``volume message get`` and
+    ``volume message delete`` commands, to list, get and delete volume
+    failure messages, respectively.
