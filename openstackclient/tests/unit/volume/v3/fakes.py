@@ -34,6 +34,8 @@ class FakeVolumeClient(object):
         self.attachments.resource_class = fakes.FakeResource(None, {})
         self.groups = mock.Mock()
         self.groups.resource_class = fakes.FakeResource(None, {})
+        self.group_snapshots = mock.Mock()
+        self.group_snapshots.resource_class = fakes.FakeResource(None, {})
         self.group_types = mock.Mock()
         self.group_types.resource_class = fakes.FakeResource(None, {})
         self.messages = mock.Mock()
@@ -123,6 +125,57 @@ class FakeVolumeGroup:
             groups.append(FakeVolumeGroup.create_one_volume_group(attrs))
 
         return groups
+
+
+class FakeVolumeGroupSnapshot:
+    """Fake one or more volume group snapshots."""
+
+    @staticmethod
+    def create_one_volume_group_snapshot(attrs=None, methods=None):
+        """Create a fake group snapshot.
+
+        :param attrs: A dictionary with all attributes
+        :param methods: A dictionary with all methods
+        :return: A FakeResource object with id, name, description, etc.
+        """
+        attrs = attrs or {}
+
+        # Set default attribute
+        group_snapshot_info = {
+            'id': uuid.uuid4().hex,
+            'name': f'group-snapshot-{uuid.uuid4().hex}',
+            'description': f'description-{uuid.uuid4().hex}',
+            'status': random.choice(['available']),
+            'group_id': uuid.uuid4().hex,
+            'group_type_id': uuid.uuid4().hex,
+            'project_id': uuid.uuid4().hex,
+        }
+
+        # Overwrite default attributes if there are some attributes set
+        group_snapshot_info.update(attrs)
+
+        group_snapshot = fakes.FakeResource(
+            None,
+            group_snapshot_info,
+            methods=methods,
+            loaded=True)
+        return group_snapshot
+
+    @staticmethod
+    def create_volume_group_snapshots(attrs=None, count=2):
+        """Create multiple fake group snapshots.
+
+        :param attrs: A dictionary with all attributes of group snapshot
+        :param count: The number of group snapshots to be faked
+        :return: A list of FakeResource objects
+        """
+        group_snapshots = []
+        for n in range(0, count):
+            group_snapshots.append(
+                FakeVolumeGroupSnapshot.create_one_volume_group_snapshot(attrs)
+            )
+
+        return group_snapshots
 
 
 class FakeVolumeGroupType:
