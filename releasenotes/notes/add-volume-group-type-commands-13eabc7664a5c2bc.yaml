@@ -1,0 +1,7 @@
+---
+features:
+  - |
+    Add ``volume group type create``, ``volume group type delete``,
+    ``volume group type list``, ``volume group type set/unset`` and
+    ``volume group type show`` commands to create, delete, list, update,
+    and show volume group types, respectively.
