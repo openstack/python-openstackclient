@@ -14,6 +14,7 @@
 
 """Volume v2 Backup action implementations"""
 
+import copy
 import functools
 import logging
 
@@ -406,10 +407,20 @@ class SetVolumeBackup(command.Command):
             ),
         )
         parser.add_argument(
+            '--no-property',
+            action='store_true',
+            help=_(
+                'Remove all properties from this backup '
+                '(specify both --no-property and --property to remove the '
+                'current properties before setting new properties)'
+            ),
+        )
+        parser.add_argument(
             '--property',
             metavar='<key=value>',
             action=parseractions.KeyValueAction,
             dest='properties',
+            default={},
             help=_(
                 'Set a property on this backup '
                 '(repeat option to set multiple values) '
@@ -454,6 +465,14 @@ class SetVolumeBackup(command.Command):
 
             kwargs['description'] = parsed_args.description
 
+        if parsed_args.no_property:
+            if volume_client.api_version < api_versions.APIVersion('3.43'):
+                msg = _(
+                    '--os-volume-api-version 3.43 or greater is required to '
+                    'support the --no-property option'
+                )
+                raise exceptions.CommandError(msg)
+
         if parsed_args.properties:
             if volume_client.api_version < api_versions.APIVersion('3.43'):
                 msg = _(
@@ -462,18 +481,82 @@ class SetVolumeBackup(command.Command):
                 )
                 raise exceptions.CommandError(msg)
 
-            kwargs['metadata'] = parsed_args.properties
+        if volume_client.api_version >= api_versions.APIVersion('3.43'):
+            metadata = copy.deepcopy(backup.metadata)
+
+            if parsed_args.no_property:
+                metadata = {}
+
+            metadata.update(parsed_args.properties)
+            kwargs['metadata'] = metadata
 
         if kwargs:
             try:
                 volume_client.backups.update(backup.id, **kwargs)
             except Exception as e:
-                LOG.error("Failed to update backup name or description: %s", e)
+                LOG.error("Failed to update backup: %s", e)
                 result += 1
 
         if result > 0:
             msg = _("One or more of the set operations failed")
             raise exceptions.CommandError(msg)
+
+
+class UnsetVolumeBackup(command.Command):
+    """Unset volume backup properties.
+
+    This command requires ``--os-volume-api-version`` 3.43 or greater.
+    """
+
+    def get_parser(self, prog_name):
+        parser = super().get_parser(prog_name)
+        parser.add_argument(
+            'backup',
+            metavar='<backup>',
+            help=_('Backup to modify (name or ID)')
+        )
+        parser.add_argument(
+            '--property',
+            metavar='<key>',
+            action='append',
+            dest='properties',
+            help=_(
+                'Property to remove from this backup '
+                '(repeat option to unset multiple values) '
+            ),
+        )
+        return parser
+
+    def take_action(self, parsed_args):
+        volume_client = self.app.client_manager.volume
+
+        if volume_client.api_version < api_versions.APIVersion('3.43'):
+            msg = _(
+                '--os-volume-api-version 3.43 or greater is required to '
+                'support the --property option'
+            )
+            raise exceptions.CommandError(msg)
+
+        backup = utils.find_resource(
+            volume_client.backups, parsed_args.backup)
+        metadata = copy.deepcopy(backup.metadata)
+
+        for key in parsed_args.properties:
+            if key not in metadata:
+                # ignore invalid properties but continue
+                LOG.warning(
+                    "'%s' is not a valid property for backup '%s'",
+                    key, parsed_args.backup,
+                )
+                continue
+
+            del metadata[key]
+
+        kwargs = {
+            'metadata': metadata,
+        }
+
+        volume_client.backups.update(backup.id, **kwargs)
 
 
 class ShowVolumeBackup(command.ShowOne):

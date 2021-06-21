@@ -17,6 +17,7 @@ import random
 from unittest import mock
 import uuid
 
+from cinderclient import api_versions
 from osc_lib.cli import format_columns
 
 from openstackclient.tests.unit import fakes
@@ -292,6 +293,8 @@ class FakeVolumeClient(object):
     def __init__(self, **kwargs):
         self.auth_token = kwargs['token']
         self.management_url = kwargs['endpoint']
+        self.api_version = api_versions.APIVersion('2.0')
+
         self.availability_zones = mock.Mock()
         self.availability_zones.resource_class = fakes.FakeResource(None, {})
         self.backups = mock.Mock()

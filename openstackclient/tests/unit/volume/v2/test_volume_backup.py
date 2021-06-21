@@ -490,7 +490,9 @@ class TestBackupRestore(TestBackup):
 
 class TestBackupSet(TestBackup):
 
-    backup = volume_fakes.FakeBackup.create_one_backup()
+    backup = volume_fakes.FakeBackup.create_one_backup(
+        attrs={'metadata': {'wow': 'cool'}},
+    )
 
     def setUp(self):
         super(TestBackupSet, self).setUp()
@@ -626,6 +628,159 @@ class TestBackupSet(TestBackup):
                              str(e))
         self.backups_mock.reset_state.assert_called_with(
             self.backup.id, 'error')
+
+    def test_backup_set_no_property(self):
+        self.app.client_manager.volume.api_version = \
+            api_versions.APIVersion('3.43')
+
+        arglist = [
+            '--no-property',
+            self.backup.id,
+        ]
+        verifylist = [
+            ('no_property', True),
+            ('backup', self.backup.id),
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        result = self.cmd.take_action(parsed_args)
+
+        # Set expected values
+        kwargs = {
+            'metadata': {},
+        }
+        self.backups_mock.update.assert_called_once_with(
+            self.backup.id,
+            **kwargs
+        )
+        self.assertIsNone(result)
+
+    def test_backup_set_no_property_pre_v343(self):
+        self.app.client_manager.volume.api_version = \
+            api_versions.APIVersion('3.42')
+
+        arglist = [
+            '--no-property',
+            self.backup.id,
+        ]
+        verifylist = [
+            ('no_property', True),
+            ('backup', self.backup.id),
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        exc = self.assertRaises(
+            exceptions.CommandError,
+            self.cmd.take_action,
+            parsed_args)
+        self.assertIn("--os-volume-api-version 3.43 or greater", str(exc))
+
+    def test_backup_set_property(self):
+        self.app.client_manager.volume.api_version = \
+            api_versions.APIVersion('3.43')
+
+        arglist = [
+            '--property', 'foo=bar',
+            self.backup.id,
+        ]
+        verifylist = [
+            ('properties', {'foo': 'bar'}),
+            ('backup', self.backup.id),
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        result = self.cmd.take_action(parsed_args)
+
+        # Set expected values
+        kwargs = {
+            'metadata': {'wow': 'cool', 'foo': 'bar'},
+        }
+        self.backups_mock.update.assert_called_once_with(
+            self.backup.id,
+            **kwargs
+        )
+        self.assertIsNone(result)
+
+    def test_backup_set_property_pre_v343(self):
+        self.app.client_manager.volume.api_version = \
+            api_versions.APIVersion('3.42')
+
+        arglist = [
+            '--property', 'foo=bar',
+            self.backup.id,
+        ]
+        verifylist = [
+            ('properties', {'foo': 'bar'}),
+            ('backup', self.backup.id),
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        exc = self.assertRaises(
+            exceptions.CommandError,
+            self.cmd.take_action,
+            parsed_args)
+        self.assertIn("--os-volume-api-version 3.43 or greater", str(exc))
+
+
+class TestBackupUnset(TestBackup):
+
+    backup = volume_fakes.FakeBackup.create_one_backup(
+        attrs={'metadata': {'foo': 'bar'}},
+    )
+
+    def setUp(self):
+        super().setUp()
+
+        self.backups_mock.get.return_value = self.backup
+
+        # Get the command object to test
+        self.cmd = volume_backup.UnsetVolumeBackup(self.app, None)
+
+    def test_backup_unset_property(self):
+        self.app.client_manager.volume.api_version = \
+            api_versions.APIVersion('3.43')
+
+        arglist = [
+            '--property', 'foo',
+            self.backup.id,
+        ]
+        verifylist = [
+            ('properties', ['foo']),
+            ('backup', self.backup.id),
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        result = self.cmd.take_action(parsed_args)
+
+        # Set expected values
+        kwargs = {
+            'metadata': {},
+        }
+        self.backups_mock.update.assert_called_once_with(
+            self.backup.id,
+            **kwargs
+        )
+        self.assertIsNone(result)
+
+    def test_backup_unset_property_pre_v343(self):
+        self.app.client_manager.volume.api_version = \
+            api_versions.APIVersion('3.42')
+
+        arglist = [
+            '--property', 'foo',
+            self.backup.id,
+        ]
+        verifylist = [
+            ('properties', ['foo']),
+            ('backup', self.backup.id),
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        exc = self.assertRaises(
+            exceptions.CommandError,
+            self.cmd.take_action,
+            parsed_args)
+        self.assertIn("--os-volume-api-version 3.43 or greater", str(exc))
 
 
 class TestBackupShow(TestBackup):
