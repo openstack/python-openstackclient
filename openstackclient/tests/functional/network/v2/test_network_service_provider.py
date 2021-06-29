@@ -26,6 +26,14 @@ class TestNetworkServiceProvider(common.NetworkTests):
         # Nothing in this class works with Nova Network
         if not self.haz_network:
             self.skipTest("No Network service present")
+        # NOTE(slaweq):
+        # that tests should works only when "standard" Neutron L3 agent is
+        # used, as e.g. OVN L3 plugin don't supports that.
+        l3_agent_list = json.loads(self.openstack(
+            'network agent list -f json --agent-type l3 -c ID'
+        ))
+        if not l3_agent_list:
+            self.skipTest("No Neutron L3 Agents present")
 
     def test_network_service_provider_list(self):
         cmd_output = json.loads(self.openstack(
