@@ -3,6 +3,6 @@ features:
   - |
     Add ``volume group create``, ``volume group delete``,
     ``volume group list``, ``volume group failover``,
-    ``volume group set/unset`` and ``volume attachment show``
+    ``volume group set`` and ``volume attachment show``
     commands to create, delete, list, failover, update and show volume groups,
     respectively.
