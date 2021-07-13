@@ -1,0 +1,6 @@
+---
+features:
+  - |
+    The ``volume transfer request create`` command now accepts the
+    ``--snapshots`` / ``--no-snapshots`` option to configure whether to
+    create a transfer request for a volume without snapshots or not.

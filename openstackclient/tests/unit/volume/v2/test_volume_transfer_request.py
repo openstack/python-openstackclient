@@ -15,6 +15,7 @@
 from unittest import mock
 from unittest.mock import call
 
+from cinderclient import api_versions
 from osc_lib import exceptions
 from osc_lib import utils
 
@@ -171,6 +172,51 @@ class TestTransferCreate(TestTransfer):
             self.volume.id, self.volume_transfer.name,)
         self.assertEqual(self.columns, columns)
         self.assertEqual(self.data, data)
+
+    def test_transfer_create_with_no_snapshots(self):
+        self.app.client_manager.volume.api_version = \
+            api_versions.APIVersion('3.55')
+
+        arglist = [
+            '--no-snapshots',
+            self.volume.id,
+        ]
+        verifylist = [
+            ('name', None),
+            ('snapshots', False),
+            ('volume', self.volume.id),
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        columns, data = self.cmd.take_action(parsed_args)
+
+        self.transfer_mock.create.assert_called_once_with(
+            self.volume.id, None, no_snapshots=True)
+        self.assertEqual(self.columns, columns)
+        self.assertEqual(self.data, data)
+
+    def test_transfer_create_pre_v355(self):
+        self.app.client_manager.volume.api_version = \
+            api_versions.APIVersion('3.54')
+
+        arglist = [
+            '--no-snapshots',
+            self.volume.id,
+        ]
+        verifylist = [
+            ('name', None),
+            ('snapshots', False),
+            ('volume', self.volume.id),
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        exc = self.assertRaises(
+            exceptions.CommandError,
+            self.cmd.take_action,
+            parsed_args)
+        self.assertIn(
+            '--os-volume-api-version 3.55 or greater is required',
+            str(exc))
 
 
 class TestTransferDelete(TestTransfer):
