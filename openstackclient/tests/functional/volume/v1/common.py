@@ -20,25 +20,14 @@ class BaseVolumeTests(volume_base.BaseVolumeTests):
 
     @classmethod
     def setUpClass(cls):
-        super(BaseVolumeTests, cls).setUpClass()
-        # TODO(dtroyer): This needs to be updated to specifically check for
-        #                Volume v1 rather than just 'volume', but for now
-        #                that is enough until we get proper version negotiation
-        cls.haz_volume_v1 = cls.is_service_enabled('volume')
+        super().setUpClass()
+        cls.haz_volume_v1 = cls.is_service_enabled('block-storage', '1.0')
 
     def setUp(self):
-        super(BaseVolumeTests, self).setUp()
+        super().setUp()
 
-        # This class requires Volume v1
-        # if not self.haz_volume_v1:
-        #     self.skipTest("No Volume v1 service present")
-
-        # TODO(dtroyer): We really want the above to work but right now
-        #                (12Sep2017) DevStack still creates a 'volume'
-        #                service type even though there is no service behind
-        #                it.  Until that is fixed we need to just skip the
-        #                volume v1 functional tests in master.
-        self.skipTest("No Volume v1 service present")
+        if not self.haz_volume_v1:
+            self.skipTest("No Volume v1 service present")
 
         ver_fixture = fixtures.EnvironmentVariable(
             'OS_VOLUME_API_VERSION', '1'

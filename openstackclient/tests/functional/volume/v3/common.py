@@ -18,8 +18,17 @@ from openstackclient.tests.functional.volume import base
 class BaseVolumeTests(base.BaseVolumeTests):
     """Base class for Volume functional tests. """
 
+    @classmethod
+    def setUpClass(cls):
+        super().setUpClass()
+        cls.haz_volume_v3 = cls.is_service_enabled('block-storage', '3.0')
+
     def setUp(self):
-        super(BaseVolumeTests, self).setUp()
+        super().setUp()
+
+        if not self.haz_volume_v3:
+            self.skipTest("No Volume v3 service present")
+
         ver_fixture = fixtures.EnvironmentVariable(
             'OS_VOLUME_API_VERSION', '3'
         )

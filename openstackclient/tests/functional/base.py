@@ -68,17 +68,24 @@ class TestCase(testtools.TestCase):
             )
 
     @classmethod
-    def is_service_enabled(cls, service):
-        """Ask client cloud if service is available"""
-        cmd = ('service show -f value -c enabled {service}'
-               .format(service=service))
-        try:
-            return "True" in cls.openstack(cmd)
-        except exceptions.CommandFailed as e:
-            if "No service with a type, name or ID of" in str(e):
-                return False
-            else:
-                raise  # Unable to determine if service is enabled
+    def is_service_enabled(cls, service, version=None):
+        """Ask client cloud if service is available
+
+        :param service: The service name or type. This should be either an
+            exact match to what is in the catalog or a known official value or
+            alias from service-types-authority
+        :param version: Optional version. This should be a major version, e.g.
+            '2.0'
+        :returns: True if the service is enabled and optionally provides the
+            specified API version, else False
+        """
+        ret = cls.openstack(
+            f'versions show --service {service} -f value -c Version'
+        ).splitlines()
+        if version:
+            return version in ret
+
+        return bool(ret)
 
     @classmethod
     def is_extension_enabled(cls, alias):
