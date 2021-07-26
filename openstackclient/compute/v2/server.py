@@ -2781,28 +2781,41 @@ class ListMigration(command.Lister):
         return parser
 
     def print_migrations(self, parsed_args, compute_client, migrations):
-        columns = [
+        column_headers = [
             'Source Node', 'Dest Node', 'Source Compute', 'Dest Compute',
             'Dest Host', 'Status', 'Server UUID', 'Old Flavor', 'New Flavor',
             'Created At', 'Updated At',
         ]
 
+        # Response fields coming back from the REST API are not always exactly
+        # the same as the column header names.
+        columns = [
+            'source_node', 'dest_node', 'source_compute', 'dest_compute',
+            'dest_host', 'status', 'instance_uuid', 'old_instance_type_id',
+            'new_instance_type_id', 'created_at', 'updated_at',
+        ]
+
         # Insert migrations UUID after ID
         if compute_client.api_version >= api_versions.APIVersion("2.59"):
-            columns.insert(0, "UUID")
+            column_headers.insert(0, "UUID")
+            columns.insert(0, "uuid")
 
         if compute_client.api_version >= api_versions.APIVersion("2.23"):
-            columns.insert(0, "Id")
-            columns.insert(len(columns) - 2, "Type")
+            column_headers.insert(0, "Id")
+            columns.insert(0, "id")
+            column_headers.insert(len(column_headers) - 2, "Type")
+            columns.insert(len(columns) - 2, "migration_type")
 
         if compute_client.api_version >= api_versions.APIVersion("2.80"):
             if parsed_args.project:
-                columns.insert(len(columns) - 2, "Project")
+                column_headers.insert(len(column_headers) - 2, "Project")
+                columns.insert(len(columns) - 2, "project_id")
             if parsed_args.user:
-                columns.insert(len(columns) - 2, "User")
+                column_headers.insert(len(column_headers) - 2, "User")
+                columns.insert(len(columns) - 2, "user_id")
 
         return (
-            columns,
+            column_headers,
             (utils.get_item_properties(mig, columns) for mig in migrations),
         )
 

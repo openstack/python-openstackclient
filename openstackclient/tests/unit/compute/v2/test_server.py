@@ -4909,6 +4909,13 @@ class TestListMigration(TestServer):
         'Old Flavor', 'New Flavor', 'Created At', 'Updated At'
     ]
 
+    # These are the fields that come back in the response from the REST API.
+    MIGRATION_FIELDS = [
+        'source_node', 'dest_node', 'source_compute', 'dest_compute',
+        'dest_host', 'status', 'instance_uuid', 'old_instance_type_id',
+        'new_instance_type_id', 'created_at', 'updated_at'
+    ]
+
     def setUp(self):
         super(TestListMigration, self).setUp()
 
@@ -4920,7 +4927,7 @@ class TestListMigration(TestServer):
         self.migrations_mock.list.return_value = self.migrations
 
         self.data = (common_utils.get_item_properties(
-            s, self.MIGRATION_COLUMNS) for s in self.migrations)
+            s, self.MIGRATION_FIELDS) for s in self.migrations)
 
         # Get the command object to test
         self.cmd = server.ListMigration(self.app, None)
@@ -4982,6 +4989,13 @@ class TestListMigrationV223(TestListMigration):
         'Type', 'Created At', 'Updated At'
     ]
 
+    # These are the fields that come back in the response from the REST API.
+    MIGRATION_FIELDS = [
+        'id', 'source_node', 'dest_node', 'source_compute', 'dest_compute',
+        'dest_host', 'status', 'instance_uuid', 'old_instance_type_id',
+        'new_instance_type_id', 'migration_type', 'created_at', 'updated_at'
+    ]
+
     def setUp(self):
         super(TestListMigrationV223, self).setUp()
 
@@ -5017,6 +5031,14 @@ class TestListMigrationV259(TestListMigration):
         'Id', 'UUID', 'Source Node', 'Dest Node', 'Source Compute',
         'Dest Compute', 'Dest Host', 'Status', 'Server UUID',
         'Old Flavor', 'New Flavor', 'Type', 'Created At', 'Updated At'
+    ]
+
+    # These are the fields that come back in the response from the REST API.
+    MIGRATION_FIELDS = [
+        'id', 'uuid', 'source_node', 'dest_node', 'source_compute',
+        'dest_compute', 'dest_host', 'status', 'instance_uuid',
+        'old_instance_type_id', 'new_instance_type_id', 'migration_type',
+        'created_at', 'updated_at'
     ]
 
     def setUp(self):
@@ -5125,6 +5147,14 @@ class TestListMigrationV266(TestListMigration):
         'Old Flavor', 'New Flavor', 'Type', 'Created At', 'Updated At'
     ]
 
+    # These are the fields that come back in the response from the REST API.
+    MIGRATION_FIELDS = [
+        'id', 'uuid', 'source_node', 'dest_node', 'source_compute',
+        'dest_compute', 'dest_host', 'status', 'instance_uuid',
+        'old_instance_type_id', 'new_instance_type_id', 'migration_type',
+        'created_at', 'updated_at'
+    ]
+
     def setUp(self):
         super(TestListMigrationV266, self).setUp()
 
@@ -5194,6 +5224,14 @@ class TestListMigrationV280(TestListMigration):
         'Old Flavor', 'New Flavor', 'Type', 'Created At', 'Updated At'
     ]
 
+    # These are the fields that come back in the response from the REST API.
+    MIGRATION_FIELDS = [
+        'id', 'uuid', 'source_node', 'dest_node', 'source_compute',
+        'dest_compute', 'dest_host', 'status', 'instance_uuid',
+        'old_instance_type_id', 'new_instance_type_id', 'migration_type',
+        'created_at', 'updated_at'
+    ]
+
     project = identity_fakes.FakeProject.create_one_project()
     user = identity_fakes.FakeUser.create_one_user()
 
@@ -5247,10 +5285,14 @@ class TestListMigrationV280(TestListMigration):
 
         self.MIGRATION_COLUMNS.insert(
             len(self.MIGRATION_COLUMNS) - 2, "Project")
+        self.MIGRATION_FIELDS.insert(
+            len(self.MIGRATION_FIELDS) - 2, "project_id")
         self.assertEqual(self.MIGRATION_COLUMNS, columns)
         self.assertEqual(tuple(self.data), tuple(data))
         # Clean up global variables MIGRATION_COLUMNS
         self.MIGRATION_COLUMNS.remove('Project')
+        # Clean up global variables MIGRATION_FIELDS
+        self.MIGRATION_FIELDS.remove('project_id')
 
     def test_get_migrations_with_project_pre_v280(self):
         self.app.client_manager.compute.api_version = api_versions.APIVersion(
@@ -5309,10 +5351,14 @@ class TestListMigrationV280(TestListMigration):
 
         self.MIGRATION_COLUMNS.insert(
             len(self.MIGRATION_COLUMNS) - 2, "User")
+        self.MIGRATION_FIELDS.insert(
+            len(self.MIGRATION_FIELDS) - 2, "user_id")
         self.assertEqual(self.MIGRATION_COLUMNS, columns)
         self.assertEqual(tuple(self.data), tuple(data))
         # Clean up global variables MIGRATION_COLUMNS
         self.MIGRATION_COLUMNS.remove('User')
+        # Clean up global variables MIGRATION_FIELDS
+        self.MIGRATION_FIELDS.remove('user_id')
 
     def test_get_migrations_with_user_pre_v280(self):
         self.app.client_manager.compute.api_version = api_versions.APIVersion(
@@ -5371,13 +5417,19 @@ class TestListMigrationV280(TestListMigration):
 
         self.MIGRATION_COLUMNS.insert(
             len(self.MIGRATION_COLUMNS) - 2, "Project")
+        self.MIGRATION_FIELDS.insert(
+            len(self.MIGRATION_FIELDS) - 2, "project_id")
         self.MIGRATION_COLUMNS.insert(
             len(self.MIGRATION_COLUMNS) - 2, "User")
+        self.MIGRATION_FIELDS.insert(
+            len(self.MIGRATION_FIELDS) - 2, "user_id")
         self.assertEqual(self.MIGRATION_COLUMNS, columns)
         self.assertEqual(tuple(self.data), tuple(data))
         # Clean up global variables MIGRATION_COLUMNS
         self.MIGRATION_COLUMNS.remove('Project')
+        self.MIGRATION_FIELDS.remove('project_id')
         self.MIGRATION_COLUMNS.remove('User')
+        self.MIGRATION_FIELDS.remove('user_id')
 
     def test_get_migrations_with_project_and_user_pre_v280(self):
         self.app.client_manager.compute.api_version = api_versions.APIVersion(

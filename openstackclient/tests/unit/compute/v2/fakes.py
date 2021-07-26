@@ -1587,20 +1587,20 @@ class FakeMigration(object):
         migration_info = {
             "dest_host": "10.0.2.15",
             "status": "migrating",
-            "type": "migration",
+            "migration_type": "migration",
             "updated_at": "2017-01-31T08:03:25.000000",
             "created_at": "2017-01-31T08:03:21.000000",
             "dest_compute": "compute-" + uuid.uuid4().hex,
             "id": random.randint(1, 999),
             "source_node": "node-" + uuid.uuid4().hex,
-            "server": uuid.uuid4().hex,
+            "instance_uuid": uuid.uuid4().hex,
             "dest_node": "node-" + uuid.uuid4().hex,
             "source_compute": "compute-" + uuid.uuid4().hex,
             "uuid": uuid.uuid4().hex,
             "old_instance_type_id": uuid.uuid4().hex,
             "new_instance_type_id": uuid.uuid4().hex,
-            "project": uuid.uuid4().hex,
-            "user": uuid.uuid4().hex
+            "project_id": uuid.uuid4().hex,
+            "user_id": uuid.uuid4().hex
         }
 
         # Overwrite default attributes.
