@@ -950,6 +950,49 @@ class TestQuotaSet(TestQuota):
         )
         self.assertIsNone(result)
 
+    def test_quota_set_with_check_limit(self):
+        arglist = [
+            '--subnets', str(network_fakes.QUOTA['subnet']),
+            '--volumes', str(volume_fakes.QUOTA['volumes']),
+            '--cores', str(compute_fakes.core_num),
+            '--check-limit',
+            self.projects[0].name,
+        ]
+        verifylist = [
+            ('subnet', network_fakes.QUOTA['subnet']),
+            ('volumes', volume_fakes.QUOTA['volumes']),
+            ('cores', compute_fakes.core_num),
+            ('check_limit', True),
+            ('project', self.projects[0].name),
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        result = self.cmd.take_action(parsed_args)
+
+        kwargs_compute = {
+            'cores': compute_fakes.core_num,
+        }
+        kwargs_volume = {
+            'volumes': volume_fakes.QUOTA['volumes'],
+        }
+        kwargs_network = {
+            'subnet': network_fakes.QUOTA['subnet'],
+            'check_limit': True,
+        }
+        self.compute_quotas_mock.update.assert_called_once_with(
+            self.projects[0].id,
+            **kwargs_compute
+        )
+        self.volume_quotas_mock.update.assert_called_once_with(
+            self.projects[0].id,
+            **kwargs_volume
+        )
+        self.network_mock.update_quota.assert_called_once_with(
+            self.projects[0].id,
+            **kwargs_network
+        )
+        self.assertIsNone(result)
+
 
 class TestQuotaShow(TestQuota):
 

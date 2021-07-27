@@ -11,6 +11,9 @@
 #    under the License.
 
 import json
+import uuid
+
+from tempest.lib import exceptions
 
 from openstackclient.tests.functional import base
 
@@ -165,3 +168,25 @@ class QuotaTests(base.TestCase):
         # returned attributes
         self.assertTrue(cmd_output["key-pairs"] >= 0)
         self.assertTrue(cmd_output["snapshots"] >= 0)
+
+    def test_quota_network_set_with_check_limit(self):
+        if not self.haz_network:
+            self.skipTest('No Network service present')
+        if not self.is_extension_enabled('quota-check-limit'):
+            self.skipTest('No "quota-check-limit" extension present')
+
+        self.openstack('quota set --networks 40 ' + self.PROJECT_NAME)
+        cmd_output = json.loads(self.openstack(
+            'quota list -f json --network'
+        ))
+        self.assertIsNotNone(cmd_output)
+        self.assertEqual(40, cmd_output[0]['Networks'])
+
+        # That will ensure we have at least two networks in the system.
+        for _ in range(2):
+            self.openstack('network create --project %s %s' %
+                           (self.PROJECT_NAME, uuid.uuid4().hex))
+
+        self.assertRaises(exceptions.CommandFailed, self.openstack,
+                          'quota set --networks 1 --check-limit ' +
+                          self.PROJECT_NAME)

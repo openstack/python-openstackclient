@@ -1,0 +1,5 @@
+---
+features:
+  - Add ``--check-limit`` option to the ``openstack quota set`` command (only
+    for network commands). The network quota engine will check the resource
+    usage before setting the new quota limit.
