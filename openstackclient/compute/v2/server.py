@@ -33,6 +33,7 @@ from osc_lib.command import command
 from osc_lib import exceptions
 from osc_lib import utils
 
+from openstackclient.common import pagination
 from openstackclient.i18n import _
 from openstackclient.identity import common as identity_common
 from openstackclient.network import common as network_common
@@ -2370,29 +2371,7 @@ class ListServer(command.Lister):
                 'Mutually exclusive with "--no-name-lookup|-n" option.'
             ),
         )
-        parser.add_argument(
-            '--marker',
-            metavar='<server>',
-            default=None,
-            help=_(
-                'The last server of the previous page. Display '
-                'list of servers after marker. Display all servers if not '
-                'specified. When used with ``--deleted``, the marker must '
-                'be an ID, otherwise a name or ID can be used.'
-            ),
-        )
-        parser.add_argument(
-            '--limit',
-            metavar='<num-servers>',
-            type=int,
-            default=None,
-            help=_(
-                "Maximum number of servers to display. If limit equals -1, "
-                "all servers will be displayed. If limit is greater than "
-                "'osapi_max_limit' option of Nova API, "
-                "'osapi_max_limit' will be used instead."
-            ),
-        )
+        pagination.add_marker_pagination_option_to_parser(parser)
         parser.add_argument(
             '--changes-before',
             metavar='<changes-before>',

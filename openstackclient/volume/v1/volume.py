@@ -26,6 +26,7 @@ from osc_lib.command import command
 from osc_lib import exceptions
 from osc_lib import utils
 
+from openstackclient.common import pagination
 from openstackclient.i18n import _
 
 
@@ -372,20 +373,7 @@ class ListVolume(command.Lister):
             default=False,
             help=_('List additional fields in output'),
         )
-        parser.add_argument(
-            '--offset',
-            type=int,
-            action=parseractions.NonNegativeAction,
-            metavar='<offset>',
-            help=_('Index from which to start listing volumes'),
-        )
-        parser.add_argument(
-            '--limit',
-            type=int,
-            action=parseractions.NonNegativeAction,
-            metavar='<num-volumes>',
-            help=_('Maximum number of volumes to display'),
-        )
+        pagination.add_offset_pagination_option_to_parser(parser)
         return parser
 
     def take_action(self, parsed_args):

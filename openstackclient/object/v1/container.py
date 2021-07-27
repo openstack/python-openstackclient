@@ -22,8 +22,8 @@ from osc_lib.cli import parseractions
 from osc_lib.command import command
 from osc_lib import utils
 
+from openstackclient.common import pagination
 from openstackclient.i18n import _
-
 
 LOG = logging.getLogger(__name__)
 
@@ -127,21 +127,11 @@ class ListContainer(command.Lister):
             metavar="<prefix>",
             help=_("Filter list using <prefix>"),
         )
-        parser.add_argument(
-            "--marker",
-            metavar="<marker>",
-            help=_("Anchor for paging"),
-        )
+        pagination.add_marker_pagination_option_to_parser(parser)
         parser.add_argument(
             "--end-marker",
             metavar="<end-marker>",
             help=_("End anchor for paging"),
-        )
-        parser.add_argument(
-            "--limit",
-            metavar="<num-containers>",
-            type=int,
-            help=_("Limit the number of containers returned"),
         )
         parser.add_argument(
             '--long',

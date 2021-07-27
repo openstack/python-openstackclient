@@ -23,6 +23,7 @@ from osc_lib.command import command
 from osc_lib import exceptions
 from osc_lib import utils
 
+from openstackclient.common import pagination
 from openstackclient.i18n import _
 
 
@@ -140,21 +141,11 @@ class ListObject(command.Lister):
             metavar="<delimiter>",
             help=_("Roll up items with <delimiter>"),
         )
-        parser.add_argument(
-            "--marker",
-            metavar="<marker>",
-            help=_("Anchor for paging"),
-        )
+        pagination.add_marker_pagination_option_to_parser(parser)
         parser.add_argument(
             "--end-marker",
             metavar="<end-marker>",
             help=_("End anchor for paging"),
-        )
-        parser.add_argument(
-            "--limit",
-            metavar="<num-objects>",
-            type=int,
-            help=_("Limit the number of objects returned"),
         )
         parser.add_argument(
             '--long',

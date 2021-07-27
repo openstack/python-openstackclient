@@ -31,6 +31,7 @@ from osc_lib.command import command
 from osc_lib import exceptions
 from osc_lib import utils
 
+from openstackclient.common import pagination
 from openstackclient.common import progressbar
 from openstackclient.i18n import _
 from openstackclient.identity import common as identity_common
@@ -805,9 +806,9 @@ class ListImage(command.Lister):
             default=False,
             help=_('List additional fields in output'),
         )
-
         # --page-size has never worked, leave here for silent compatibility
         # We'll implement limit/marker differently later
+        # TODO(stephenfin): Remove this in the next major version bump
         parser.add_argument(
             "--page-size",
             metavar="<size>",
@@ -823,22 +824,7 @@ class ListImage(command.Lister):
                 "specified separated by comma"
             ),
         )
-        parser.add_argument(
-            "--limit",
-            metavar="<num-images>",
-            type=int,
-            help=_("Maximum number of images to display."),
-        )
-        parser.add_argument(
-            '--marker',
-            metavar='<image>',
-            default=None,
-            help=_(
-                "The last image of the previous page. Display "
-                "list of images after marker. Display all images if not "
-                "specified. (name or ID)"
-            ),
-        )
+        pagination.add_marker_pagination_option_to_parser(parser)
         return parser
 
     def take_action(self, parsed_args):
