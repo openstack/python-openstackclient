@@ -22,6 +22,7 @@ from osc_lib import exceptions
 from osc_lib import utils
 
 from openstackclient import command
+from openstackclient.common import pagination
 from openstackclient.i18n import _
 from openstackclient.network import common
 
@@ -169,6 +170,7 @@ class ListNetworkSegment(command.Lister):
                 'network (name or ID)'
             ),
         )
+        pagination.add_marker_pagination_option_to_parser(parser)
         return parser
 
     def take_action(
@@ -182,6 +184,11 @@ class ListNetworkSegment(command.Lister):
                 parsed_args.network, ignore_missing=False
             )
             filters = {'network_id': _network.id}
+        if parsed_args.marker is not None:
+            filters['marker'] = parsed_args.marker
+        if parsed_args.limit is not None:
+            filters['limit'] = parsed_args.limit
+
         data = network_client.segments(**filters)
 
         headers: tuple[str, ...] = (

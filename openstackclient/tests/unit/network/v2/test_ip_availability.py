@@ -73,6 +73,31 @@ class TestListIPAvailability(TestIPAvailability):
         self.assertEqual(self.columns, columns)
         self.assertCountEqual(self.data, list(data))
 
+    def test_list_pagination(self):
+        arglist = [
+            '--marker',
+            self._ip_availability[0].network_id,
+            '--limit',
+            '1',
+        ]
+        verifylist = [
+            ('marker', self._ip_availability[0].network_id),
+            ('limit', 1),
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        columns, data = self.cmd.take_action(parsed_args)
+
+        self.network_client.network_ip_availabilities.assert_called_once_with(
+            **{
+                'ip_version': 4,
+                'marker': self._ip_availability[0].network_id,
+                'limit': 1,
+            }
+        )
+        self.assertEqual(self.columns, columns)
+        self.assertEqual(self.data, list(data))
+
     def test_list_ip_version(self):
         arglist = [
             '--ip-version',

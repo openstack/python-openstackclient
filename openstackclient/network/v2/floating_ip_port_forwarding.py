@@ -22,6 +22,7 @@ from osc_lib import exceptions
 from osc_lib import utils
 
 from openstackclient import command
+from openstackclient.common import pagination
 from openstackclient.i18n import _
 from openstackclient.network import common
 
@@ -294,7 +295,7 @@ class ListFloatingIPPortForwarding(command.Lister):
                 "specified protocol number"
             ),
         )
-
+        pagination.add_marker_pagination_option_to_parser(parser)
         return parser
 
     def take_action(
@@ -340,6 +341,10 @@ class ListFloatingIPPortForwarding(command.Lister):
                 )
         if parsed_args.protocol is not None:
             query['protocol'] = parsed_args.protocol
+        if parsed_args.marker is not None:
+            query['marker'] = parsed_args.marker
+        if parsed_args.limit is not None:
+            query['limit'] = parsed_args.limit
 
         obj = client.find_ip(
             parsed_args.floating_ip,

@@ -24,6 +24,7 @@ from osc_lib import utils
 from osc_lib.utils import tags as _tag
 
 from openstackclient import command
+from openstackclient.common import pagination
 from openstackclient.i18n import _
 from openstackclient.identity import common as identity_common
 from openstackclient.network import common
@@ -538,6 +539,7 @@ class ListNetwork(command.Lister):
             help=_('List only networks hosted the specified agent (ID only)'),
         )
         _tag.add_tag_filtering_option_to_parser(parser, _('networks'))
+        pagination.add_marker_pagination_option_to_parser(parser)
         return parser
 
     def take_action(
@@ -649,6 +651,11 @@ class ListNetwork(command.Lister):
         if parsed_args.segmentation_id:
             args['provider:segmentation_id'] = parsed_args.segmentation_id
             args['provider_segmentation_id'] = parsed_args.segmentation_id
+
+        if parsed_args.marker is not None:
+            args['marker'] = parsed_args.marker
+        if parsed_args.limit is not None:
+            args['limit'] = parsed_args.limit
 
         _tag.get_tag_filtering_args(parsed_args, args)
 

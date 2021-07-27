@@ -513,6 +513,30 @@ class TestListFloatingIPPortForwarding(TestFloatingIPPortForwarding):
         self.assertEqual(self.columns, columns)
         self.assertEqual(self.data, list(data))
 
+    def test_port_forwarding_list_pagination(self):
+        arglist = [
+            '--marker',
+            self.port_forwardings[0].id,
+            '--limit',
+            '1',
+            self.floating_ip.id,
+        ]
+        verifylist = [
+            ('marker', self.port_forwardings[0].id),
+            ('limit', 1),
+            ('floating_ip', self.floating_ip.id),
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        columns, data = self.cmd.take_action(parsed_args)
+
+        self.network_client.floating_ip_port_forwardings.assert_called_once_with(
+            self.floating_ip,
+            **{'marker': self.port_forwardings[0].id, 'limit': 1},
+        )
+        self.assertEqual(self.columns, columns)
+        self.assertEqual(self.data, list(data))
+
     def test_port_forwarding_list_all_options(self):
         arglist = [
             '--port',

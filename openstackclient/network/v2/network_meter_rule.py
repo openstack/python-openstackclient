@@ -22,6 +22,7 @@ from osc_lib import exceptions
 from osc_lib import utils
 
 from openstackclient import command
+from openstackclient.common import pagination
 from openstackclient.i18n import _
 from openstackclient.identity import common as identity_common
 from openstackclient.network import common
@@ -189,6 +190,11 @@ class DeleteMeterRule(command.Command):
 class ListMeterRule(command.Lister):
     _description = _("List meter rules")
 
+    def get_parser(self, prog_name: str) -> argparse.ArgumentParser:
+        parser = super().get_parser(prog_name)
+        pagination.add_marker_pagination_option_to_parser(parser)
+        return parser
+
     def take_action(
         self, parsed_args: argparse.Namespace
     ) -> tuple[tuple[str, ...], Iterable[tuple[Any, ...]]]:
@@ -210,7 +216,14 @@ class ListMeterRule(command.Lister):
             'Source IP Prefix',
             'Destination IP Prefix',
         )
-        data = client.metering_label_rules()
+
+        filters = {}
+        if parsed_args.marker is not None:
+            filters['marker'] = parsed_args.marker
+        if parsed_args.limit is not None:
+            filters['limit'] = parsed_args.limit
+
+        data = client.metering_label_rules(**filters)
         return (
             column_headers,
             (

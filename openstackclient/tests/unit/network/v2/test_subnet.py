@@ -790,7 +790,7 @@ class TestDeleteSubnet(TestSubnet):
 
 class TestListSubnet(TestSubnet):
     # The subnets going to be listed up.
-    _subnet = network_fakes.FakeSubnet.create_subnets(count=3)
+    _subnets = network_fakes.FakeSubnet.create_subnets(count=3)
 
     columns = (
         'ID',
@@ -812,7 +812,7 @@ class TestListSubnet(TestSubnet):
     )
 
     data = []
-    for subnet in _subnet:
+    for subnet in _subnets:
         data.append(
             (
                 subnet.id,
@@ -823,7 +823,7 @@ class TestListSubnet(TestSubnet):
         )
 
     data_long = []
-    for subnet in _subnet:
+    for subnet in _subnets:
         data_long.append(
             (
                 subnet.id,
@@ -848,7 +848,7 @@ class TestListSubnet(TestSubnet):
         # Get the command object to test
         self.cmd = subnet_v2.ListSubnet(self.app, None)
 
-        self.network_client.subnets.return_value = self._subnet
+        self.network_client.subnets.return_value = self._subnets
 
     def test_subnet_list_no_options(self):
         arglist = []
@@ -877,6 +877,30 @@ class TestListSubnet(TestSubnet):
         self.network_client.subnets.assert_called_once_with()
         self.assertEqual(self.columns_long, columns)
         self.assertCountEqual(self.data_long, list(data))
+
+    def test_subnet_list_pagination(self):
+        arglist = [
+            '--marker',
+            self._subnets[0].id,
+            '--limit',
+            '1',
+        ]
+        verifylist = [
+            ('marker', self._subnets[0].id),
+            ('limit', 1),
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        columns, data = self.cmd.take_action(parsed_args)
+
+        self.network_client.subnets.assert_called_once_with(
+            **{
+                'marker': self._subnets[0].id,
+                'limit': 1,
+            }
+        )
+        self.assertEqual(self.columns, columns)
+        self.assertEqual(self.data, list(data))
 
     def test_subnet_list_ip_version(self):
         arglist = [

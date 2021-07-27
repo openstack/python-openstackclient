@@ -155,7 +155,7 @@ class TestListL3ConntrackHelper(TestConntrackHelper):
     def setUp(self):
         super().setUp()
         attrs = {'router_id': self.router.id}
-        ct_helpers = (
+        self.conntrack_helpers = (
             network_fakes.FakeL3ConntrackHelper.create_l3_conntrack_helpers(
                 attrs, count=3
             )
@@ -168,7 +168,7 @@ class TestListL3ConntrackHelper(TestConntrackHelper):
             'Port',
         )
         self.data = []
-        for ct_helper in ct_helpers:
+        for ct_helper in self.conntrack_helpers:
             self.data.append(
                 (
                     ct_helper.id,
@@ -178,7 +178,9 @@ class TestListL3ConntrackHelper(TestConntrackHelper):
                     ct_helper.port,
                 )
             )
-        self.network_client.conntrack_helpers.return_value = ct_helpers
+        self.network_client.conntrack_helpers.return_value = (
+            self.conntrack_helpers
+        )
 
         # Get the command object to test
         self.cmd = l3_conntrack_helper.ListConntrackHelper(self.app, None)
@@ -200,6 +202,30 @@ class TestListL3ConntrackHelper(TestConntrackHelper):
         self.assertEqual(len(self.data), len(list_data))
         for index in range(len(list_data)):
             self.assertEqual(self.data[index], list_data[index])
+
+    def test_conntrack_helpers_list_pagination(self):
+        arglist = [
+            '--marker',
+            self.conntrack_helpers[0].id,
+            '--limit',
+            '1',
+            self.router.id,
+        ]
+        verifylist = [
+            ('marker', self.conntrack_helpers[0].id),
+            ('limit', 1),
+            ('router', self.router.id),
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        columns, data = self.cmd.take_action(parsed_args)
+
+        self.network_client.conntrack_helpers.assert_called_once_with(
+            self.router.id,
+            **{'marker': self.conntrack_helpers[0].id, 'limit': 1},
+        )
+        self.assertEqual(self.columns, columns)
+        self.assertEqual(self.data, list(data))
 
 
 class TestSetL3ConntrackHelper(TestConntrackHelper):

@@ -23,6 +23,7 @@ from osc_lib import exceptions
 from osc_lib import utils
 
 from openstackclient import command
+from openstackclient.common import pagination
 from openstackclient.i18n import _
 from openstackclient.identity import common as identity_common
 from openstackclient.network import common
@@ -342,6 +343,7 @@ class ListSecurityGroupRule(command.Lister):
             help=_("List only rules with the specified project (name or ID)"),
         )
         identity_common.add_project_domain_option_to_parser(parser)
+        pagination.add_marker_pagination_option_to_parser(parser)
         return parser
 
     def _get_column_headers(
@@ -410,6 +412,11 @@ class ListSecurityGroupRule(command.Lister):
                 parsed_args.project_domain,
             ).id
             query['project_id'] = project_id
+
+        if parsed_args.marker is not None:
+            query['marker'] = parsed_args.marker
+        if parsed_args.limit is not None:
+            query['limit'] = parsed_args.limit
 
         rules = [
             self._format_network_security_group_rule(r)

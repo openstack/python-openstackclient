@@ -1349,6 +1349,28 @@ class TestListPort(compute_fakes.FakeClientMixin, TestPort):
         self.assertEqual(self.columns, columns)
         self.assertCountEqual(self.data, list(data))
 
+    def test_port_list_pagination(self):
+        arglist = [
+            '--marker',
+            self._ports[0].id,
+            '--limit',
+            '1',
+        ]
+        verifylist = [
+            ('marker', self._ports[0].id),
+            ('limit', 1),
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        columns, data = self.cmd.take_action(parsed_args)
+
+        self.network_client.ports.assert_called_once_with(
+            fields=LIST_FIELDS_TO_RETRIEVE,
+            **{'marker': self._ports[0].id, 'limit': 1},
+        )
+        self.assertEqual(self.columns, columns)
+        self.assertEqual(self.data, list(data))
+
     def test_port_list_router_opt(self):
         arglist = [
             '--router',

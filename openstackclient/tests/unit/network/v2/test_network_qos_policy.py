@@ -280,6 +280,30 @@ class TestListNetworkQosPolicy(TestQosPolicy):
         self.assertEqual(self.columns, columns)
         self.assertEqual(self.data, list(data))
 
+    def test_qos_policy_list_pagination(self):
+        arglist = [
+            '--marker',
+            self.qos_policies[0].id,
+            '--limit',
+            '1',
+        ]
+        verifylist = [
+            ('marker', self.qos_policies[0].id),
+            ('limit', 1),
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        columns, data = self.cmd.take_action(parsed_args)
+
+        self.network_client.qos_policies.assert_called_once_with(
+            **{
+                'marker': self.qos_policies[0].id,
+                'limit': 1,
+            }
+        )
+        self.assertEqual(self.columns, columns)
+        self.assertEqual(self.data, list(data))
+
     def test_qos_policy_list_share(self):
         arglist = [
             '--share',

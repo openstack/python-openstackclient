@@ -22,6 +22,7 @@ from osc_lib import exceptions
 from osc_lib import utils
 
 from openstackclient import command
+from openstackclient.common import pagination
 from openstackclient.i18n import _
 from openstackclient.identity import common as identity_common
 from openstackclient.network import common
@@ -268,6 +269,7 @@ class ListNetworkRBAC(command.Lister):
             default=False,
             help=_("List additional fields in output"),
         )
+        pagination.add_marker_pagination_option_to_parser(parser)
         return parser
 
     def take_action(
@@ -304,6 +306,10 @@ class ListNetworkRBAC(command.Lister):
                     parsed_args.target_project,
                 ).id
             query['target_project_id'] = project_id
+        if parsed_args.marker is not None:
+            query['marker'] = parsed_args.marker
+        if parsed_args.limit is not None:
+            query['limit'] = parsed_args.limit
 
         data = client.rbac_policies(**query)
 

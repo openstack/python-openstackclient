@@ -280,6 +280,30 @@ class TestListAddressScope(TestAddressScope):
         self.assertEqual(self.columns, columns)
         self.assertEqual(self.data, list(data))
 
+    def test_address_scope_list_pagination(self):
+        arglist = [
+            '--marker',
+            self.address_scopes[0].id,
+            '--limit',
+            '1',
+        ]
+        verifylist = [
+            ('marker', self.address_scopes[0].id),
+            ('limit', 1),
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        columns, data = self.cmd.take_action(parsed_args)
+
+        self.network_client.address_scopes.assert_called_once_with(
+            **{
+                'marker': self.address_scopes[0].id,
+                'limit': 1,
+            }
+        )
+        self.assertEqual(self.columns, columns)
+        self.assertEqual(self.data, list(data))
+
     def test_address_scope_list_name(self):
         arglist = [
             '--name',

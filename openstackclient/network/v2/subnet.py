@@ -27,6 +27,7 @@ from osc_lib import utils
 from osc_lib.utils import tags as _tag
 
 from openstackclient import command
+from openstackclient.common import pagination
 from openstackclient.i18n import _
 from openstackclient.identity import common as identity_common
 from openstackclient.network import common
@@ -577,6 +578,7 @@ class ListSubnet(command.Lister):
             ),
         )
         _tag.add_tag_filtering_option_to_parser(parser, _('subnets'))
+        pagination.add_marker_pagination_option_to_parser(parser)
         return parser
 
     def take_action(
@@ -584,7 +586,9 @@ class ListSubnet(command.Lister):
     ) -> tuple[tuple[str, ...], Iterable[tuple[Any, ...]]]:
         identity_client = self.app.client_manager.identity
         network_client = self.app.client_manager.network
+
         filters = {}
+
         if parsed_args.ip_version:
             filters['ip_version'] = parsed_args.ip_version
         if parsed_args.dhcp:
@@ -618,7 +622,12 @@ class ListSubnet(command.Lister):
                 parsed_args.subnet_pool, ignore_missing=False
             ).id
             filters['subnetpool_id'] = subnetpool_id
+        if parsed_args.marker is not None:
+            filters['marker'] = parsed_args.marker
+        if parsed_args.limit is not None:
+            filters['limit'] = parsed_args.limit
         _tag.get_tag_filtering_args(parsed_args, filters)
+
         data = network_client.subnets(**filters)
 
         headers: tuple[str, ...] = ('ID', 'Name', 'Network', 'Subnet')
