@@ -328,6 +328,13 @@ class ListVolume(command.Lister):
             help=_('List additional fields in output'),
         )
         parser.add_argument(
+            '--offset',
+            type=int,
+            action=parseractions.NonNegativeAction,
+            metavar='<offset>',
+            help=_('Index from which to start listing volumes'),
+        )
+        parser.add_argument(
             '--limit',
             type=int,
             action=parseractions.NonNegativeAction,
@@ -394,6 +401,9 @@ class ListVolume(command.Lister):
             'display_name': parsed_args.name,
             'status': parsed_args.status,
         }
+
+        if parsed_args.offset:
+            search_opts['offset'] = parsed_args.offset
 
         data = volume_client.volumes.list(
             search_opts=search_opts,

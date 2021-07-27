@@ -858,9 +858,10 @@ class TestVolumeList(TestVolume):
         ), )
         self.assertItemsEqual(datalist, tuple(data))
 
-    def test_volume_list_with_limit(self):
+    def test_volume_list_with_limit_and_offset(self):
         arglist = [
             '--limit', '2',
+            '--offset', '5',
         ]
         verifylist = [
             ('long', False),
@@ -868,6 +869,7 @@ class TestVolumeList(TestVolume):
             ('name', None),
             ('status', None),
             ('limit', 2),
+            ('offset', 5),
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
@@ -876,9 +878,11 @@ class TestVolumeList(TestVolume):
         self.volumes_mock.list.assert_called_once_with(
             limit=2,
             search_opts={
+                'offset': 5,
                 'status': None,
                 'display_name': None,
-                'all_tenants': False, }
+                'all_tenants': False,
+            },
         )
         self.assertEqual(self.columns, columns)
         self.assertItemsEqual(self.datalist, tuple(data))
