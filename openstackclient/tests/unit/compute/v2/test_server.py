@@ -4977,9 +4977,9 @@ class TestListMigrationV223(TestListMigration):
     """Test fetch all migrations. """
 
     MIGRATION_COLUMNS = [
-        'Source Node', 'Dest Node', 'Source Compute',
-        'Dest Compute', 'Dest Host', 'Status', 'Server UUID',
-        'Old Flavor', 'New Flavor', 'Created At', 'Updated At'
+        'Id', 'Source Node', 'Dest Node', 'Source Compute', 'Dest Compute',
+        'Dest Host', 'Status', 'Server UUID', 'Old Flavor', 'New Flavor',
+        'Type', 'Created At', 'Updated At'
     ]
 
     def setUp(self):
@@ -5006,9 +5006,6 @@ class TestListMigrationV223(TestListMigration):
 
         self.migrations_mock.list.assert_called_with(**kwargs)
 
-        self.MIGRATION_COLUMNS.insert(0, "Id")
-        self.MIGRATION_COLUMNS.insert(
-            len(self.MIGRATION_COLUMNS) - 2, 'Type')
         self.assertEqual(self.MIGRATION_COLUMNS, columns)
         self.assertEqual(tuple(self.data), tuple(data))
 
