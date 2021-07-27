@@ -1012,7 +1012,10 @@ class CreateServer(command.ShowOne):
         parser.add_argument(
             '--password',
             metavar='<password>',
-            help=_("Set the password to this server"),
+            help=_(
+                'Set the password to this server. '
+                'This option requires cloud support.'
+            ),
         )
         parser.add_argument(
             '--security-group',
@@ -3142,7 +3145,10 @@ class RebuildServer(command.ShowOne):
         parser.add_argument(
             '--password',
             metavar='<password>',
-            help=_('Set the password on the rebuilt server'),
+            help=_(
+                'Set the password on the rebuilt server. '
+                'This option requires cloud support.'
+            ),
         )
         parser.add_argument(
             '--property',
@@ -3435,7 +3441,8 @@ host.""")
             '--password', metavar='<password>', default=None,
             help=_(
                 'Set the password on the evacuated instance. This option is '
-                'mutually exclusive with the --shared-storage option'
+                'mutually exclusive with the --shared-storage option. '
+                'This option requires cloud support.'
             ),
         )
         shared_storage_group.add_argument(
@@ -3725,7 +3732,10 @@ class RescueServer(command.Command):
         parser.add_argument(
             '--password',
             metavar='<password>',
-            help=_("Set the password on the rescued instance"),
+            help=_(
+                'Set the password on the rescued instance. '
+                'This option requires cloud support.'
+            ),
         )
         return parser
 
@@ -3992,7 +4002,10 @@ class SetServer(command.Command):
         password_group = parser.add_mutually_exclusive_group()
         password_group.add_argument(
             '--password',
-            help=_('Set the server password'),
+            help=_(
+                'Set the server password. '
+                'This option requires cloud support.'
+            ),
         )
         password_group.add_argument(
             '--no-password',
