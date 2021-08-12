@@ -167,6 +167,55 @@ class TestServerVolumeList(TestServerVolume):
         self.servers_volumes_mock.get_server_volumes.assert_called_once_with(
             self.server.id)
 
+    def test_server_volume_list_with_attachment_ids(self):
+        self.app.client_manager.compute.api_version = \
+            api_versions.APIVersion('2.89')
+
+        arglist = [
+            self.server.id,
+        ]
+        verifylist = [
+            ('server', self.server.id),
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        columns, data = self.cmd.take_action(parsed_args)
+
+        self.assertEqual(
+            (
+                'Device', 'Server ID', 'Volume ID', 'Tag',
+                'Delete On Termination?', 'Attachment ID',
+                'BlockDeviceMapping UUID',
+            ),
+            columns,
+        )
+        self.assertEqual(
+            (
+                (
+                    self.volume_attachments[0].device,
+                    self.volume_attachments[0].serverId,
+                    self.volume_attachments[0].volumeId,
+                    self.volume_attachments[0].tag,
+                    self.volume_attachments[0].delete_on_termination,
+                    self.volume_attachments[0].attachment_id,
+                    self.volume_attachments[0].bdm_uuid
+
+                ),
+                (
+                    self.volume_attachments[1].device,
+                    self.volume_attachments[1].serverId,
+                    self.volume_attachments[1].volumeId,
+                    self.volume_attachments[1].tag,
+                    self.volume_attachments[1].delete_on_termination,
+                    self.volume_attachments[1].attachment_id,
+                    self.volume_attachments[1].bdm_uuid
+                ),
+            ),
+            tuple(data),
+        )
+        self.servers_volumes_mock.get_server_volumes.assert_called_once_with(
+            self.server.id)
+
 
 class TestServerVolumeUpdate(TestServerVolume):
 

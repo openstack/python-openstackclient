@@ -1715,6 +1715,9 @@ class FakeVolumeAttachment(object):
             "tag": "foo",
             # introduced in API microversion 2.79
             "delete_on_termination": True,
+            # introduced in API microversion 2.89
+            "attachment_id": uuid.uuid4().hex,
+            "bdm_uuid": uuid.uuid4().hex
         }
 
         # Overwrite default attributes.

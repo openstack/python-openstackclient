@@ -44,18 +44,24 @@ class ListServerVolume(command.Lister):
 
         volumes = compute_client.volumes.get_server_volumes(server.id)
 
-        columns = (
-            'id',
+        columns = ()
+        column_headers = ()
+
+        if compute_client.api_version < api_versions.APIVersion('2.89'):
+            columns += ('id',)
+            column_headers += ('ID',)
+
+        columns += (
             'device',
             'serverId',
             'volumeId',
         )
-        column_headers = (
-            'ID',
+        column_headers += (
             'Device',
             'Server ID',
             'Volume ID',
         )
+
         if compute_client.api_version >= api_versions.APIVersion('2.70'):
             columns += ('tag',)
             column_headers += ('Tag',)
@@ -63,6 +69,10 @@ class ListServerVolume(command.Lister):
         if compute_client.api_version >= api_versions.APIVersion('2.79'):
             columns += ('delete_on_termination',)
             column_headers += ('Delete On Termination?',)
+
+        if compute_client.api_version >= api_versions.APIVersion('2.89'):
+            columns += ('attachment_id', 'bdm_uuid')
+            column_headers += ('Attachment ID', 'BlockDeviceMapping UUID')
 
         return (
             column_headers,
