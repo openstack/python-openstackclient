@@ -190,6 +190,38 @@ class TestServiceList(TestService):
         self.assertEqual(self.columns_long, columns)
         self.assertEqual(self.data_long, list(data))
 
+    def test_service_list_with_long_option_2_11(self):
+        arglist = [
+            '--host', self.service.host,
+            '--service', self.service.binary,
+            '--long'
+        ]
+        verifylist = [
+            ('host', self.service.host),
+            ('service', self.service.binary),
+            ('long', True)
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+        self.app.client_manager.compute.api_version = api_versions.APIVersion(
+            '2.11')
+
+        # In base command class Lister in cliff, abstract method take_action()
+        # returns a tuple containing the column names and an iterable
+        # containing the data to be listed.
+        columns, data = self.cmd.take_action(parsed_args)
+
+        self.service_mock.list.assert_called_with(
+            self.service.host,
+            self.service.binary,
+        )
+
+        # In 2.11 there is also a forced_down column.
+        columns_long = self.columns_long + ('Forced Down',)
+        data_long = [self.data_long[0] + (self.service.forced_down,)]
+
+        self.assertEqual(columns_long, columns)
+        self.assertEqual(data_long, list(data))
+
 
 class TestServiceSet(TestService):
 

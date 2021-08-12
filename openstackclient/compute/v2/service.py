@@ -103,6 +103,10 @@ class ListService(command.Lister):
                 "Updated At",
                 "Disabled Reason"
             )
+            has_forced_down = (
+                compute_client.api_version >= api_versions.APIVersion('2.11'))
+            if has_forced_down:
+                columns += ("Forced Down",)
         else:
             columns = (
                 "ID",

@@ -722,6 +722,8 @@ class FakeService(object):
             'state': 'state-' + uuid.uuid4().hex,
             'updated_at': 'time-' + uuid.uuid4().hex,
             'disabled_reason': 'earthquake',
+            # Introduced in API microversion 2.11
+            'forced_down': False,
         }
 
         # Overwrite default attributes.

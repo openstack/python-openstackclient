@@ -1,0 +1,5 @@
+---
+features:
+  - |
+    Add column ``Forced Down`` to the output of ``compute service list
+    --long``. Only available starting with ``--os-compute-api-version 2.11``.
