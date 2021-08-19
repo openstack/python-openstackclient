@@ -17,13 +17,10 @@ Create new volume
         [--type <volume-type>]
         [--image <image> | --snapshot <snapshot> | --source <volume> ]
         [--description <description>]
-        [--user <user>]
-        [--project <project>]
         [--availability-zone <availability-zone>]
         [--consistency-group <consistency-group>]
         [--property <key=value> [...] ]
         [--hint <key=value> [...] ]
-        [--multi-attach]
         [--bootable | --non-bootable]
         [--read-only | --read-write]
         <name>
@@ -58,14 +55,6 @@ Create new volume
 
     Volume description
 
-.. option:: --user <user>
-
-    Specify an alternate user (name or ID)
-
-.. option:: --project <project>
-
-    Specify an alternate project (name or ID)
-
 .. option:: --availability-zone <availability-zone>
 
     Create volume in ``<availability-zone>``
@@ -82,10 +71,6 @@ Create new volume
 
     Arbitrary scheduler hint key-value pairs to help boot an instance
     (repeat option to set multiple hints)
-
-.. option:: --multi-attach
-
-    Allow volume to be attached more than once (default to False)
 
 .. option:: --bootable
 
@@ -107,10 +92,6 @@ Create new volume
 .. describe:: <name>
 
     Volume name
-
-The :option:`--project` and :option:`--user`  options are typically only
-useful for admin users, but may be allowed for other users depending on
-the policy of the cloud and the roles granted to the user.
 
 volume delete
 -------------
