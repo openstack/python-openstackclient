@@ -251,7 +251,7 @@ class TestConsistencyGroupCreate(TestConsistencyGroup):
         )
 
         self.assertEqual(self.columns, columns)
-        self.assertItemsEqual(self.data, data)
+        self.assertCountEqual(self.data, data)
 
     def test_consistency_group_create_from_source(self):
         arglist = [
@@ -279,7 +279,7 @@ class TestConsistencyGroupCreate(TestConsistencyGroup):
         )
 
         self.assertEqual(self.columns, columns)
-        self.assertItemsEqual(self.data, data)
+        self.assertCountEqual(self.data, data)
 
     def test_consistency_group_create_from_snapshot(self):
         arglist = [
@@ -307,7 +307,7 @@ class TestConsistencyGroupCreate(TestConsistencyGroup):
         )
 
         self.assertEqual(self.columns, columns)
-        self.assertItemsEqual(self.data, data)
+        self.assertCountEqual(self.data, data)
 
 
 class TestConsistencyGroupDelete(TestConsistencyGroup):
@@ -463,7 +463,7 @@ class TestConsistencyGroupList(TestConsistencyGroup):
         self.consistencygroups_mock.list.assert_called_once_with(
             detailed=True, search_opts={'all_tenants': False})
         self.assertEqual(self.columns, columns)
-        self.assertItemsEqual(self.data, list(data))
+        self.assertCountEqual(self.data, list(data))
 
     def test_consistency_group_list_with_all_project(self):
         arglist = [
@@ -480,7 +480,7 @@ class TestConsistencyGroupList(TestConsistencyGroup):
         self.consistencygroups_mock.list.assert_called_once_with(
             detailed=True, search_opts={'all_tenants': True})
         self.assertEqual(self.columns, columns)
-        self.assertItemsEqual(self.data, list(data))
+        self.assertCountEqual(self.data, list(data))
 
     def test_consistency_group_list_with_long(self):
         arglist = [
@@ -497,7 +497,7 @@ class TestConsistencyGroupList(TestConsistencyGroup):
         self.consistencygroups_mock.list.assert_called_once_with(
             detailed=True, search_opts={'all_tenants': False})
         self.assertEqual(self.columns_long, columns)
-        self.assertItemsEqual(self.data_long, list(data))
+        self.assertCountEqual(self.data_long, list(data))
 
 
 class TestConsistencyGroupRemoveVolume(TestConsistencyGroup):
@@ -705,4 +705,4 @@ class TestConsistencyGroupShow(TestConsistencyGroup):
         self.consistencygroups_mock.get.assert_called_once_with(
             self.consistency_group.id)
         self.assertEqual(self.columns, columns)
-        self.assertItemsEqual(self.data, data)
+        self.assertCountEqual(self.data, data)

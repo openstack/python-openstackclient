@@ -707,7 +707,7 @@ class TestVolumeSnapshotShow(TestVolumeSnapshot):
         self.snapshots_mock.get.assert_called_with(self.snapshot.id)
 
         self.assertEqual(self.columns, columns)
-        self.assertItemsEqual(self.data, data)
+        self.assertCountEqual(self.data, data)
 
 
 class TestVolumeSnapshotUnset(TestVolumeSnapshot):

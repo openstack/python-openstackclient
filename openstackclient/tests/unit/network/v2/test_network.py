@@ -146,7 +146,7 @@ class TestCreateNetworkIdentityV3(TestNetwork):
         })
         self.assertFalse(self.network.set_tags.called)
         self.assertEqual(self.columns, columns)
-        self.assertItemsEqual(self.data, data)
+        self.assertCountEqual(self.data, data)
 
     def test_create_all_options(self):
         arglist = [
@@ -211,7 +211,7 @@ class TestCreateNetworkIdentityV3(TestNetwork):
             'dns_domain': 'example.org.',
         })
         self.assertEqual(self.columns, columns)
-        self.assertItemsEqual(self.data, data)
+        self.assertCountEqual(self.data, data)
 
     def test_create_other_options(self):
         arglist = [
@@ -238,7 +238,7 @@ class TestCreateNetworkIdentityV3(TestNetwork):
             'port_security_enabled': False,
         })
         self.assertEqual(self.columns, columns)
-        self.assertItemsEqual(self.data, data)
+        self.assertCountEqual(self.data, data)
 
     def _test_create_with_tag(self, add_tags=True):
         arglist = [self._network.name]
@@ -270,7 +270,7 @@ class TestCreateNetworkIdentityV3(TestNetwork):
         else:
             self.assertFalse(self.network.set_tags.called)
         self.assertEqual(self.columns, columns)
-        self.assertItemsEqual(self.data, data)
+        self.assertCountEqual(self.data, data)
 
     def test_create_with_tags(self):
         self._test_create_with_tag(add_tags=True)
@@ -385,7 +385,7 @@ class TestCreateNetworkIdentityV2(TestNetwork):
         })
         self.assertFalse(self.network.set_tags.called)
         self.assertEqual(self.columns, columns)
-        self.assertItemsEqual(self.data, data)
+        self.assertCountEqual(self.data, data)
 
     def test_create_with_domain_identityv2(self):
         arglist = [
@@ -577,7 +577,7 @@ class TestListNetwork(TestNetwork):
 
         self.network.networks.assert_called_once_with()
         self.assertEqual(self.columns, columns)
-        self.assertItemsEqual(self.data, list(data))
+        self.assertCountEqual(self.data, list(data))
 
     def test_list_external(self):
         arglist = [
@@ -598,7 +598,7 @@ class TestListNetwork(TestNetwork):
             **{'router:external': True, 'is_router_external': True}
         )
         self.assertEqual(self.columns, columns)
-        self.assertItemsEqual(self.data, list(data))
+        self.assertCountEqual(self.data, list(data))
 
     def test_list_internal(self):
         arglist = [
@@ -615,7 +615,7 @@ class TestListNetwork(TestNetwork):
             **{'router:external': False, 'is_router_external': False}
         )
         self.assertEqual(self.columns, columns)
-        self.assertItemsEqual(self.data, list(data))
+        self.assertCountEqual(self.data, list(data))
 
     def test_network_list_long(self):
         arglist = [
@@ -634,7 +634,7 @@ class TestListNetwork(TestNetwork):
 
         self.network.networks.assert_called_once_with()
         self.assertEqual(self.columns_long, columns)
-        self.assertItemsEqual(self.data_long, list(data))
+        self.assertCountEqual(self.data_long, list(data))
 
     def test_list_name(self):
         test_name = "fakename"
@@ -653,7 +653,7 @@ class TestListNetwork(TestNetwork):
             **{'name': test_name}
         )
         self.assertEqual(self.columns, columns)
-        self.assertItemsEqual(self.data, list(data))
+        self.assertCountEqual(self.data, list(data))
 
     def test_network_list_enable(self):
         arglist = [
@@ -671,7 +671,7 @@ class TestListNetwork(TestNetwork):
             **{'admin_state_up': True, 'is_admin_state_up': True}
         )
         self.assertEqual(self.columns, columns)
-        self.assertItemsEqual(self.data, list(data))
+        self.assertCountEqual(self.data, list(data))
 
     def test_network_list_disable(self):
         arglist = [
@@ -689,7 +689,7 @@ class TestListNetwork(TestNetwork):
             **{'admin_state_up': False, 'is_admin_state_up': False}
         )
         self.assertEqual(self.columns, columns)
-        self.assertItemsEqual(self.data, list(data))
+        self.assertCountEqual(self.data, list(data))
 
     def test_network_list_project(self):
         project = identity_fakes_v3.FakeProject.create_one_project()
@@ -708,7 +708,7 @@ class TestListNetwork(TestNetwork):
         )
 
         self.assertEqual(self.columns, columns)
-        self.assertItemsEqual(self.data, list(data))
+        self.assertCountEqual(self.data, list(data))
 
     def test_network_list_project_domain(self):
         project = identity_fakes_v3.FakeProject.create_one_project()
@@ -727,7 +727,7 @@ class TestListNetwork(TestNetwork):
 
         self.network.networks.assert_called_once_with(**filters)
         self.assertEqual(self.columns, columns)
-        self.assertItemsEqual(self.data, list(data))
+        self.assertCountEqual(self.data, list(data))
 
     def test_network_list_share(self):
         arglist = [
@@ -744,7 +744,7 @@ class TestListNetwork(TestNetwork):
             **{'shared': True, 'is_shared': True}
         )
         self.assertEqual(self.columns, columns)
-        self.assertItemsEqual(self.data, list(data))
+        self.assertCountEqual(self.data, list(data))
 
     def test_network_list_no_share(self):
         arglist = [
@@ -761,7 +761,7 @@ class TestListNetwork(TestNetwork):
             **{'shared': False, 'is_shared': False}
         )
         self.assertEqual(self.columns, columns)
-        self.assertItemsEqual(self.data, list(data))
+        self.assertCountEqual(self.data, list(data))
 
     def test_network_list_status(self):
         choices = ['ACTIVE', 'BUILD', 'DOWN', 'ERROR']
@@ -780,7 +780,7 @@ class TestListNetwork(TestNetwork):
             **{'status': test_status}
         )
         self.assertEqual(self.columns, columns)
-        self.assertItemsEqual(self.data, list(data))
+        self.assertCountEqual(self.data, list(data))
 
     def test_network_list_provider_network_type(self):
         network_type = self._network[0].provider_network_type
@@ -798,7 +798,7 @@ class TestListNetwork(TestNetwork):
                'provider_network_type': network_type}
         )
         self.assertEqual(self.columns, columns)
-        self.assertItemsEqual(self.data, list(data))
+        self.assertCountEqual(self.data, list(data))
 
     def test_network_list_provider_physical_network(self):
         physical_network = self._network[0].provider_physical_network
@@ -816,7 +816,7 @@ class TestListNetwork(TestNetwork):
                'provider_physical_network': physical_network}
         )
         self.assertEqual(self.columns, columns)
-        self.assertItemsEqual(self.data, list(data))
+        self.assertCountEqual(self.data, list(data))
 
     def test_network_list_provider_segment(self):
         segmentation_id = self._network[0].provider_segmentation_id
@@ -834,7 +834,7 @@ class TestListNetwork(TestNetwork):
                'provider_segmentation_id': segmentation_id}
         )
         self.assertEqual(self.columns, columns)
-        self.assertItemsEqual(self.data, list(data))
+        self.assertCountEqual(self.data, list(data))
 
     def test_network_list_dhcp_agent(self):
         arglist = [
@@ -853,7 +853,7 @@ class TestListNetwork(TestNetwork):
             *attrs)
 
         self.assertEqual(self.columns, columns)
-        self.assertItemsEqual(list(data), list(self.data))
+        self.assertCountEqual(list(data), list(self.data))
 
     def test_list_with_tag_options(self):
         arglist = [
@@ -878,7 +878,7 @@ class TestListNetwork(TestNetwork):
                'not_any_tags': 'black,white'}
         )
         self.assertEqual(self.columns, columns)
-        self.assertItemsEqual(self.data, list(data))
+        self.assertCountEqual(self.data, list(data))
 
 
 class TestSetNetwork(TestNetwork):
@@ -1111,7 +1111,7 @@ class TestShowNetwork(TestNetwork):
             self._network.name, ignore_missing=False)
 
         self.assertEqual(self.columns, columns)
-        self.assertItemsEqual(self.data, data)
+        self.assertCountEqual(self.data, data)
 
 
 class TestUnsetNetwork(TestNetwork):

@@ -136,7 +136,7 @@ class TestVolumeCreate(TestVolume):
         )
 
         self.assertEqual(self.columns, columns)
-        self.assertItemsEqual(self.datalist, data)
+        self.assertCountEqual(self.datalist, data)
 
     def test_volume_create_options(self):
         consistency_group = (
@@ -182,7 +182,7 @@ class TestVolumeCreate(TestVolume):
         )
 
         self.assertEqual(self.columns, columns)
-        self.assertItemsEqual(self.datalist, data)
+        self.assertCountEqual(self.datalist, data)
 
     def test_volume_create_properties(self):
         arglist = [
@@ -218,7 +218,7 @@ class TestVolumeCreate(TestVolume):
         )
 
         self.assertEqual(self.columns, columns)
-        self.assertItemsEqual(self.datalist, data)
+        self.assertCountEqual(self.datalist, data)
 
     def test_volume_create_image_id(self):
         image = image_fakes.FakeImage.create_one_image()
@@ -256,7 +256,7 @@ class TestVolumeCreate(TestVolume):
         )
 
         self.assertEqual(self.columns, columns)
-        self.assertItemsEqual(self.datalist, data)
+        self.assertCountEqual(self.datalist, data)
 
     def test_volume_create_image_name(self):
         image = image_fakes.FakeImage.create_one_image()
@@ -294,7 +294,7 @@ class TestVolumeCreate(TestVolume):
         )
 
         self.assertEqual(self.columns, columns)
-        self.assertItemsEqual(self.datalist, data)
+        self.assertCountEqual(self.datalist, data)
 
     def test_volume_create_with_snapshot(self):
         snapshot = volume_fakes.FakeSnapshot.create_one_snapshot()
@@ -331,7 +331,7 @@ class TestVolumeCreate(TestVolume):
         )
 
         self.assertEqual(self.columns, columns)
-        self.assertItemsEqual(self.datalist, data)
+        self.assertCountEqual(self.datalist, data)
 
     def test_volume_create_with_bootable_and_readonly(self):
         arglist = [
@@ -369,7 +369,7 @@ class TestVolumeCreate(TestVolume):
         )
 
         self.assertEqual(self.columns, columns)
-        self.assertItemsEqual(self.datalist, data)
+        self.assertCountEqual(self.datalist, data)
         self.volumes_mock.set_bootable.assert_called_with(
             self.new_volume.id, True)
         self.volumes_mock.update_readonly_flag.assert_called_with(
@@ -411,7 +411,7 @@ class TestVolumeCreate(TestVolume):
         )
 
         self.assertEqual(self.columns, columns)
-        self.assertItemsEqual(self.datalist, data)
+        self.assertCountEqual(self.datalist, data)
         self.volumes_mock.set_bootable.assert_called_with(
             self.new_volume.id, False)
         self.volumes_mock.update_readonly_flag.assert_called_with(
@@ -463,7 +463,7 @@ class TestVolumeCreate(TestVolume):
 
         self.assertEqual(2, mock_error.call_count)
         self.assertEqual(self.columns, columns)
-        self.assertItemsEqual(self.datalist, data)
+        self.assertCountEqual(self.datalist, data)
         self.volumes_mock.set_bootable.assert_called_with(
             self.new_volume.id, True)
         self.volumes_mock.update_readonly_flag.assert_called_with(
@@ -680,7 +680,7 @@ class TestVolumeList(TestVolume):
             self.mock_volume.size,
             volume.AttachmentsColumn(self.mock_volume.attachments),
         ), )
-        self.assertItemsEqual(datalist, tuple(data))
+        self.assertCountEqual(datalist, tuple(data))
 
     def test_volume_list_project(self):
         arglist = [
@@ -720,7 +720,7 @@ class TestVolumeList(TestVolume):
             self.mock_volume.size,
             volume.AttachmentsColumn(self.mock_volume.attachments),
         ), )
-        self.assertItemsEqual(datalist, tuple(data))
+        self.assertCountEqual(datalist, tuple(data))
 
     def test_volume_list_project_domain(self):
         arglist = [
@@ -762,7 +762,7 @@ class TestVolumeList(TestVolume):
             self.mock_volume.size,
             volume.AttachmentsColumn(self.mock_volume.attachments),
         ), )
-        self.assertItemsEqual(datalist, tuple(data))
+        self.assertCountEqual(datalist, tuple(data))
 
     def test_volume_list_user(self):
         arglist = [
@@ -801,7 +801,7 @@ class TestVolumeList(TestVolume):
             self.mock_volume.size,
             volume.AttachmentsColumn(self.mock_volume.attachments),
         ), )
-        self.assertItemsEqual(datalist, tuple(data))
+        self.assertCountEqual(datalist, tuple(data))
 
     def test_volume_list_user_domain(self):
         arglist = [
@@ -843,7 +843,7 @@ class TestVolumeList(TestVolume):
             self.mock_volume.size,
             volume.AttachmentsColumn(self.mock_volume.attachments),
         ), )
-        self.assertItemsEqual(datalist, tuple(data))
+        self.assertCountEqual(datalist, tuple(data))
 
     def test_volume_list_name(self):
         arglist = [
@@ -883,7 +883,7 @@ class TestVolumeList(TestVolume):
             self.mock_volume.size,
             volume.AttachmentsColumn(self.mock_volume.attachments),
         ), )
-        self.assertItemsEqual(datalist, tuple(data))
+        self.assertCountEqual(datalist, tuple(data))
 
     def test_volume_list_status(self):
         arglist = [
@@ -923,7 +923,7 @@ class TestVolumeList(TestVolume):
             self.mock_volume.size,
             volume.AttachmentsColumn(self.mock_volume.attachments),
         ), )
-        self.assertItemsEqual(datalist, tuple(data))
+        self.assertCountEqual(datalist, tuple(data))
 
     def test_volume_list_all_projects(self):
         arglist = [
@@ -963,7 +963,7 @@ class TestVolumeList(TestVolume):
             self.mock_volume.size,
             volume.AttachmentsColumn(self.mock_volume.attachments),
         ), )
-        self.assertItemsEqual(datalist, tuple(data))
+        self.assertCountEqual(datalist, tuple(data))
 
     def test_volume_list_long(self):
         arglist = [
@@ -1017,7 +1017,7 @@ class TestVolumeList(TestVolume):
             volume.AttachmentsColumn(self.mock_volume.attachments),
             format_columns.DictColumn(self.mock_volume.metadata),
         ), )
-        self.assertItemsEqual(datalist, tuple(data))
+        self.assertCountEqual(datalist, tuple(data))
 
     def test_volume_list_with_marker_and_limit(self):
         arglist = [
@@ -1056,7 +1056,7 @@ class TestVolumeList(TestVolume):
                 'name': None,
                 'all_tenants': False, }
         )
-        self.assertItemsEqual(datalist, tuple(data))
+        self.assertCountEqual(datalist, tuple(data))
 
     def test_volume_list_negative_limit(self):
         arglist = [
@@ -1450,7 +1450,7 @@ class TestVolumeShow(TestVolume):
             volume_fakes.FakeVolume.get_volume_columns(self._volume),
             columns)
 
-        self.assertItemsEqual(
+        self.assertCountEqual(
             volume_fakes.FakeVolume.get_volume_data(self._volume),
             data)
 
