@@ -18,6 +18,9 @@ from random import randint
 from unittest import mock
 import uuid
 
+from openstack.network.v2 import local_ip as _local_ip
+from openstack.network.v2 import local_ip_association as _local_ip_association
+
 from openstackclient.tests.unit import fakes
 from openstackclient.tests.unit.identity.v3 import fakes as identity_fakes_v3
 from openstackclient.tests.unit import utils
@@ -2033,3 +2036,138 @@ class FakeL3ConntrackHelper(object):
             )
 
         return mock.Mock(side_effect=ct_helpers)
+
+
+def create_one_local_ip(attrs=None):
+    """Create a fake local ip.
+
+    :param Dictionary attrs:
+        A dictionary with all attributes
+    :return:
+        A FakeResource object with name, id, etc.
+    """
+    attrs = attrs or {}
+
+    # Set default attributes.
+    local_ip_attrs = {
+        'created_at': '2021-11-29T10:10:23.000000',
+        'name': 'local-ip-name-' + uuid.uuid4().hex,
+        'description': 'local-ip-description-' + uuid.uuid4().hex,
+        'id': 'local-ip-id-' + uuid.uuid4().hex,
+        'project_id': 'project-id-' + uuid.uuid4().hex,
+        'local_port_id': 'local_port_id-' + uuid.uuid4().hex,
+        'network_id': 'network_id-' + uuid.uuid4().hex,
+        'local_ip_address': '10.0.0.1',
+        'ip_mode': 'translate',
+        'revision_number': 'local-ip-revision-number-' + uuid.uuid4().hex,
+        'updated_at': '2021-11-29T10:10:25.000000',
+    }
+
+    # Overwrite default attributes.
+    local_ip_attrs.update(attrs)
+
+    local_ip = _local_ip.LocalIP(**local_ip_attrs)
+
+    return local_ip
+
+
+def create_local_ips(attrs=None, count=2):
+    """Create multiple fake local ips.
+
+    :param Dictionary attrs:
+        A dictionary with all attributes
+    :param int count:
+        The number of local ips to fake
+    :return:
+        A list of FakeResource objects faking the local ips
+    """
+    local_ips = []
+    for i in range(0, count):
+        local_ips.append(create_one_local_ip(attrs))
+
+    return local_ips
+
+
+def get_local_ips(local_ips=None, count=2):
+    """Get an iterable Mock object with a list of faked local ips.
+
+    If local ip list is provided, then initialize the Mock object
+    with the list. Otherwise create one.
+
+    :param List local_ips:
+        A list of FakeResource objects faking local ips
+    :param int count:
+        The number of local ips to fake
+    :return:
+        An iterable Mock object with side_effect set to a list of faked
+        local ips
+    """
+    if local_ips is None:
+        local_ips = create_local_ips(count)
+    return mock.Mock(side_effect=local_ips)
+
+
+def create_one_local_ip_association(attrs=None):
+    """Create a fake local ip association.
+
+    :param Dictionary attrs:
+        A dictionary with all attributes
+    :return:
+        A FakeResource object with local_ip_id, local_ip_address, etc.
+    """
+    attrs = attrs or {}
+
+    # Set default attributes.
+    local_ip_association_attrs = {
+        'local_ip_id': 'local-ip-id-' + uuid.uuid4().hex,
+        'local_ip_address': '172.24.4.228',
+        'fixed_port_id': 'fixed-port-id-' + uuid.uuid4().hex,
+        'fixed_ip': '10.0.0.5',
+        'host': 'host-' + uuid.uuid4().hex,
+    }
+
+    # Overwrite default attributes.
+    local_ip_association_attrs.update(attrs)
+
+    local_ip_association = (
+        _local_ip_association.LocalIPAssociation(
+            **local_ip_association_attrs))
+
+    return local_ip_association
+
+
+def create_local_ip_associations(attrs=None, count=2):
+    """Create multiple fake local ip associations.
+
+    :param Dictionary attrs:
+        A dictionary with all attributes
+    :param int count:
+        The number of address groups to fake
+    :return:
+        A list of FakeResource objects faking the local ip associations
+    """
+    local_ip_associations = []
+    for i in range(0, count):
+        local_ip_associations.append(create_one_local_ip_association(attrs))
+
+    return local_ip_associations
+
+
+def get_local_ip_associations(local_ip_associations=None, count=2):
+    """Get a list of faked local ip associations
+
+    If local ip association list is provided, then initialize
+    the Mock object with the list. Otherwise create one.
+
+    :param List local_ip_associations:
+        A list of FakeResource objects faking local ip associations
+    :param int count:
+        The number of local ip associations to fake
+    :return:
+        An iterable Mock object with side_effect set to a list of faked
+        local ip associations
+    """
+    if local_ip_associations is None:
+        local_ip_associations = create_local_ip_associations(count)
+
+    return mock.Mock(side_effect=local_ip_associations)
