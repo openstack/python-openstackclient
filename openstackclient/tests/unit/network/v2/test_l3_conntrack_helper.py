@@ -127,7 +127,7 @@ class TestDeleteL3ConntrackHelper(TestConntrackHelper):
             self.ct_helper.id
         ]
         verifylist = [
-            ('conntrack_helper_ids', [self.ct_helper.id]),
+            ('conntrack_helper_id', [self.ct_helper.id]),
             ('router', self.ct_helper.router_id),
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
@@ -143,7 +143,7 @@ class TestDeleteL3ConntrackHelper(TestConntrackHelper):
             self.ct_helper.id
         ]
         verifylist = [
-            ('conntrack_helper_ids', [self.ct_helper.id]),
+            ('conntrack_helper_id', [self.ct_helper.id]),
             ('router', self.router.id),
         ]
         self.network.delete_conntrack_helper.side_effect = Exception(
