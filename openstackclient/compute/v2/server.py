@@ -2338,7 +2338,7 @@ class ListServer(command.Lister):
                     columns.append('user_id')
                     column_headers.append('User ID')
                 if c in ('Created At', 'created_at'):
-                    columns.append('created_at')
+                    columns.append('created')
                     column_headers.append('Created At')
 
             # convert back to tuple
