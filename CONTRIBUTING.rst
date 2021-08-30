@@ -1,16 +1,27 @@
-If you would like to contribute to the development of OpenStack,
-you must follow the steps documented at:
+The source repository for this project can be found at:
 
-   https://docs.openstack.org/infra/manual/developers.html
+   https://opendev.org/openstack/python-openstackclient
 
-Once those steps have been completed, changes to OpenStack
-should be submitted for review via the Gerrit tool, following
-the workflow documented at:
+Pull requests submitted through GitHub are not monitored.
 
-   https://docs.openstack.org/infra/manual/developers.html#development-workflow
+To start contributing to OpenStack, follow the steps in the contribution guide
+to set up and use Gerrit:
 
-Pull requests submitted through GitHub will be ignored.
+   https://docs.openstack.org/contributors/code-and-documentation/quick-start.html
 
-Bugs should be filed on Storyboard, not GitHub or Launchpad:
+Bugs should be filed on StoryBoard:
 
    https://storyboard.openstack.org/#!/project/openstack/python-openstackclient
+
+Developers should also join the discussion on the mailing list, at:
+
+  http://lists.openstack.org/cgi-bin/mailman/listinfo/openstack-discuss
+
+or join the IRC channel on
+
+  #openstack-sdks on OFTC (irc.oftc.net)
+
+For more specific information about contributing to this repository, see the
+openstacksdk contributor guide:
+
+   https://docs.openstack.org/openstacksdk/latest/contributor/index.html
