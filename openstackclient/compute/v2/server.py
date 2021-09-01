@@ -1155,6 +1155,18 @@ class CreateServer(command.ShowOne):
             ),
         )
         parser.add_argument(
+            '--hostname',
+            metavar='<hostname>',
+            help=_(
+                'Hostname configured for the server in the metadata service. '
+                'If unset, a hostname will be automatically generated from '
+                'the server name. '
+                'A utility such as cloud-init is required to propagate the '
+                'hostname in the metadata service to the guest OS itself. '
+                '(supported by --os-compute-api-version 2.90 or above)'
+            ),
+        )
+        parser.add_argument(
             '--wait',
             action='store_true',
             help=_('Wait for build to complete'),
@@ -1617,6 +1629,16 @@ class CreateServer(command.ShowOne):
 
             boot_kwargs['hypervisor_hostname'] = (
                 parsed_args.hypervisor_hostname)
+
+        if parsed_args.hostname:
+            if compute_client.api_version < api_versions.APIVersion("2.90"):
+                msg = _(
+                    '--os-compute-api-version 2.90 or greater is required to '
+                    'support the --hostname option'
+                )
+                raise exceptions.CommandError(msg)
+
+            boot_kwargs['hostname'] = parsed_args.hostname
 
         LOG.debug('boot_args: %s', boot_args)
         LOG.debug('boot_kwargs: %s', boot_kwargs)
@@ -3274,6 +3296,16 @@ class RebuildServer(command.ShowOne):
             ),
         )
         parser.add_argument(
+            '--hostname',
+            metavar='<hostname>',
+            help=_(
+                'Hostname configured for the server in the metadata service. '
+                'A separate utility running in the guest is required to '
+                'propagate changes to this value to the guest OS itself. '
+                '(supported by --os-compute-api-version 2.90 or above)'
+            ),
+        )
+        parser.add_argument(
             '--wait',
             action='store_true',
             help=_('Wait for rebuild to complete'),
@@ -3389,6 +3421,16 @@ class RebuildServer(command.ShowOne):
                 raise exceptions.CommandError(msg)
 
             kwargs['trusted_image_certificates'] = None
+
+        if parsed_args.hostname:
+            if compute_client.api_version < api_versions.APIVersion('2.90'):
+                msg = _(
+                    '--os-compute-api-version 2.90 or greater is required to '
+                    'support the --hostname option'
+                )
+                raise exceptions.CommandError(msg)
+
+            kwargs['hostname'] = parsed_args.hostname
 
         try:
             server = server.rebuild(image, parsed_args.password, **kwargs)
@@ -4076,6 +4118,16 @@ class SetServer(command.Command):
                 '(supported by --os-compute-api-version 2.26 or above)'
             ),
         )
+        parser.add_argument(
+            '--hostname',
+            metavar='<hostname>',
+            help=_(
+                'Hostname configured for the server in the metadata service. '
+                'A separate utility running in the guest is required to '
+                'propagate changes to this value to the guest OS itself. '
+                '(supported by --os-compute-api-version 2.90 or above)'
+            ),
+        )
         return parser
 
     def take_action(self, parsed_args):
@@ -4102,8 +4154,27 @@ class SetServer(command.Command):
                 )
                 raise exceptions.CommandError(msg)
 
+        if parsed_args.hostname:
+            if server.api_version < api_versions.APIVersion('2.90'):
+                msg = _(
+                    '--os-compute-api-version 2.90 or greater is required to '
+                    'support the --hostname option'
+                )
+                raise exceptions.CommandError(msg)
+
+        update_kwargs = {}
+
         if parsed_args.name:
-            server.update(name=parsed_args.name)
+            update_kwargs['name'] = parsed_args.name
+
+        if parsed_args.description:
+            update_kwargs['description'] = parsed_args.description
+
+        if parsed_args.hostname:
+            update_kwargs['hostname'] = parsed_args.hostname
+
+        if update_kwargs:
+            server.update(**update_kwargs)
 
         if parsed_args.properties:
             compute_client.servers.set_meta(server, parsed_args.properties)
@@ -4123,9 +4194,6 @@ class SetServer(command.Command):
             server.change_password(parsed_args.password)
         elif parsed_args.no_password:
             server.clear_password()
-
-        if parsed_args.description:
-            server.update(description=parsed_args.description)
 
         if parsed_args.tags:
             for tag in parsed_args.tags:
