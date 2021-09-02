@@ -1,0 +1,8 @@
+---
+features:
+  - |
+    The ``server create``, ``server set`` and ``server rebuild`` commands now
+    accept an optional ``--hostname HOSTNAME`` option. This can be used to
+    configure the hostname stored in the metadata service and/or config drive.
+    Utilities such as ``cloud-init`` can then consume this information to set
+    the hostname within the guest OS.

@@ -3554,6 +3554,76 @@ class TestServerCreate(TestServer):
         self.assertFalse(self.images_mock.called)
         self.assertFalse(self.flavors_mock.called)
 
+    def test_server_create_with_hostname_v290(self):
+        self.app.client_manager.compute.api_version = \
+            api_versions.APIVersion('2.90')
+
+        arglist = [
+            '--image', 'image1',
+            '--flavor', 'flavor1',
+            '--hostname', 'hostname',
+            self.new_server.name,
+        ]
+        verifylist = [
+            ('image', 'image1'),
+            ('flavor', 'flavor1'),
+            ('hostname', 'hostname'),
+            ('config_drive', False),
+            ('server_name', self.new_server.name),
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+        columns, data = self.cmd.take_action(parsed_args)
+
+        # ServerManager.create(name, image, flavor, **kwargs)
+        self.servers_mock.create.assert_called_with(
+            self.new_server.name,
+            self.image,
+            self.flavor,
+            meta=None,
+            files={},
+            reservation_id=None,
+            min_count=1,
+            max_count=1,
+            security_groups=[],
+            userdata=None,
+            key_name=None,
+            availability_zone=None,
+            admin_pass=None,
+            block_device_mapping_v2=[],
+            nics='auto',
+            scheduler_hints={},
+            config_drive=None,
+            hostname='hostname',
+        )
+
+        self.assertEqual(self.columns, columns)
+        self.assertEqual(self.datalist(), data)
+        self.assertFalse(self.images_mock.called)
+        self.assertFalse(self.flavors_mock.called)
+
+    def test_server_create_with_hostname_pre_v290(self):
+        self.app.client_manager.compute.api_version = \
+            api_versions.APIVersion('2.89')
+
+        arglist = [
+            '--image', 'image1',
+            '--flavor', 'flavor1',
+            '--hostname', 'hostname',
+            self.new_server.name,
+        ]
+        verifylist = [
+            ('image', 'image1'),
+            ('flavor', 'flavor1'),
+            ('hostname', 'hostname'),
+            ('config_drive', False),
+            ('server_name', self.new_server.name),
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        self.assertRaises(
+            exceptions.CommandError, self.cmd.take_action,
+            parsed_args)
+
 
 class TestServerDelete(TestServer):
 
@@ -6235,6 +6305,46 @@ class TestServerRebuild(TestServer):
             self.cmd.take_action,
             parsed_args)
 
+    def test_rebuild_with_hostname(self):
+        self.app.client_manager.compute.api_version = \
+            api_versions.APIVersion('2.90')
+
+        arglist = [
+            self.server.id,
+            '--hostname', 'new-hostname'
+        ]
+        verifylist = [
+            ('server', self.server.id),
+            ('hostname', 'new-hostname')
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        self.cmd.take_action(parsed_args)
+
+        self.servers_mock.get.assert_called_with(self.server.id)
+        self.get_image_mock.assert_called_with(self.image.id)
+        self.server.rebuild.assert_called_with(
+            self.image, None, hostname='new-hostname')
+
+    def test_rebuild_with_hostname_pre_v290(self):
+        self.app.client_manager.compute.api_version = \
+            api_versions.APIVersion('2.89')
+
+        arglist = [
+            self.server.id,
+            '--hostname', 'new-hostname',
+        ]
+        verifylist = [
+            ('server', self.server.id),
+            ('hostname', 'new-hostname')
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        self.assertRaises(
+            exceptions.CommandError,
+            self.cmd.take_action,
+            parsed_args)
+
 
 class TestEvacuateServer(TestServer):
 
@@ -7340,10 +7450,10 @@ class TestServerSet(TestServer):
             mock.sentinel.fake_pass)
         self.assertIsNone(result)
 
-    def test_server_set_with_description_api_newer(self):
+    def test_server_set_with_description(self):
 
         # Description is supported for nova api version 2.19 or above
-        self.fake_servers[0].api_version = 2.19
+        self.fake_servers[0].api_version = api_versions.APIVersion('2.19')
 
         arglist = [
             '--description', 'foo_description',
@@ -7354,18 +7464,15 @@ class TestServerSet(TestServer):
             ('server', 'foo_vm'),
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
-        with mock.patch.object(api_versions,
-                               'APIVersion',
-                               return_value=2.19):
-            result = self.cmd.take_action(parsed_args)
-            self.fake_servers[0].update.assert_called_once_with(
-                description='foo_description')
-            self.assertIsNone(result)
+        result = self.cmd.take_action(parsed_args)
+        self.fake_servers[0].update.assert_called_once_with(
+            description='foo_description')
+        self.assertIsNone(result)
 
-    def test_server_set_with_description_api_older(self):
+    def test_server_set_with_description_pre_v219(self):
 
         # Description is not supported for nova api version below 2.19
-        self.fake_servers[0].api_version = 2.18
+        self.fake_servers[0].api_version = api_versions.APIVersion('2.18')
 
         arglist = [
             '--description', 'foo_description',
@@ -7376,11 +7483,8 @@ class TestServerSet(TestServer):
             ('server', 'foo_vm'),
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
-        with mock.patch.object(api_versions,
-                               'APIVersion',
-                               return_value=2.19):
-            self.assertRaises(exceptions.CommandError, self.cmd.take_action,
-                              parsed_args)
+        self.assertRaises(exceptions.CommandError, self.cmd.take_action,
+                          parsed_args)
 
     def test_server_set_with_tag(self):
         self.fake_servers[0].api_version = api_versions.APIVersion('2.26')
@@ -7425,6 +7529,41 @@ class TestServerSet(TestServer):
         self.assertIn(
             '--os-compute-api-version 2.26 or greater is required',
             str(ex))
+
+    def test_server_set_with_hostname(self):
+
+        self.fake_servers[0].api_version = api_versions.APIVersion('2.90')
+
+        arglist = [
+            '--hostname', 'foo-hostname',
+            'foo_vm',
+        ]
+        verifylist = [
+            ('hostname', 'foo-hostname'),
+            ('server', 'foo_vm'),
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+        result = self.cmd.take_action(parsed_args)
+        self.fake_servers[0].update.assert_called_once_with(
+            hostname='foo-hostname')
+        self.assertIsNone(result)
+
+    def test_server_set_with_hostname_pre_v290(self):
+
+        self.fake_servers[0].api_version = api_versions.APIVersion('2.89')
+
+        arglist = [
+            '--hostname', 'foo-hostname',
+            'foo_vm',
+        ]
+        verifylist = [
+            ('hostname', 'foo-hostname'),
+            ('server', 'foo_vm'),
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+        self.assertRaises(
+            exceptions.CommandError, self.cmd.take_action,
+            parsed_args)
 
 
 class TestServerShelve(TestServer):
