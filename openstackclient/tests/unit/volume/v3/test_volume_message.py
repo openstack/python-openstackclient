@@ -198,7 +198,7 @@ class TestVolumeMessageList(TestVolumeMessage):
             limit=None,
         )
         self.assertEqual(self.columns, columns)
-        self.assertItemsEqual(self.data, list(data))
+        self.assertCountEqual(self.data, list(data))
 
     def test_message_list_with_options(self):
         self.app.client_manager.volume.api_version = \
@@ -227,7 +227,7 @@ class TestVolumeMessageList(TestVolumeMessage):
             limit=3,
         )
         self.assertEqual(self.columns, columns)
-        self.assertItemsEqual(self.data, list(data))
+        self.assertCountEqual(self.data, list(data))
 
     def test_message_list_pre_v33(self):
         self.app.client_manager.volume.api_version = \
