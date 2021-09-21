@@ -58,9 +58,11 @@ QUOTA = {
 RULE_TYPE_BANDWIDTH_LIMIT = 'bandwidth-limit'
 RULE_TYPE_DSCP_MARKING = 'dscp-marking'
 RULE_TYPE_MINIMUM_BANDWIDTH = 'minimum-bandwidth'
+RULE_TYPE_MINIMUM_PACKET_RATE = 'minimum-packet-rate'
 VALID_QOS_RULES = [RULE_TYPE_BANDWIDTH_LIMIT,
                    RULE_TYPE_DSCP_MARKING,
-                   RULE_TYPE_MINIMUM_BANDWIDTH]
+                   RULE_TYPE_MINIMUM_BANDWIDTH,
+                   RULE_TYPE_MINIMUM_PACKET_RATE]
 VALID_DSCP_MARKS = [0, 8, 10, 12, 14, 16, 18, 20, 22, 24, 26, 28, 30, 32,
                     34, 36, 38, 40, 46, 48, 56]
 
@@ -273,6 +275,9 @@ class FakeNetworkQosRule(object):
             qos_rule_attrs['dscp_mark'] = choice(VALID_DSCP_MARKS)
         elif type == RULE_TYPE_MINIMUM_BANDWIDTH:
             qos_rule_attrs['min_kbps'] = randint(1, 10000)
+            qos_rule_attrs['direction'] = 'egress'
+        elif type == RULE_TYPE_MINIMUM_PACKET_RATE:
+            qos_rule_attrs['min_kpps'] = randint(1, 10000)
             qos_rule_attrs['direction'] = 'egress'
 
         # Overwrite default attributes.
