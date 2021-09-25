@@ -88,7 +88,7 @@ To run a specific functional test:
 
 .. code-block:: bash
 
-    $ tox -e functional -- --regex functional.tests.compute.v2.test_server
+    $ tox -e functional -- --regex tests.functional.compute.v2.test_server
 
 Running with PDB
 ~~~~~~~~~~~~~~~~
