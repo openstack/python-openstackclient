@@ -1171,6 +1171,19 @@ class CreateServer(command.ShowOne):
             action='store_true',
             help=_('Wait for build to complete'),
         )
+        parser.add_argument(
+            '--trusted-image-cert',
+            metavar='<trusted-cert-id>',
+            action='append',
+            dest='trusted_image_certs',
+            help=_(
+                'Trusted image certificate IDs used to validate certificates '
+                'during the image signature verification process. '
+                'May be specified multiple times to pass multiple trusted '
+                'image certificate IDs. '
+                '(supported by --os-compute-api-version 2.63 or above)'
+            ),
+        )
         return parser
 
     def take_action(self, parsed_args):
@@ -1639,6 +1652,24 @@ class CreateServer(command.ShowOne):
                 raise exceptions.CommandError(msg)
 
             boot_kwargs['hostname'] = parsed_args.hostname
+
+        # TODO(stephenfin): Handle OS_TRUSTED_IMAGE_CERTIFICATE_IDS
+        if parsed_args.trusted_image_certs:
+            if not (image and not parsed_args.boot_from_volume):
+                msg = _(
+                    '--trusted-image-cert option is only supported for '
+                    'servers booted directly from images'
+                )
+                raise exceptions.CommandError(msg)
+            if compute_client.api_version < api_versions.APIVersion('2.63'):
+                msg = _(
+                    '--os-compute-api-version 2.63 or greater is required to '
+                    'support the --trusted-image-cert option'
+                )
+                raise exceptions.CommandError(msg)
+
+            certs = parsed_args.trusted_image_certs
+            boot_kwargs['trusted_image_certificates'] = certs
 
         LOG.debug('boot_args: %s', boot_args)
         LOG.debug('boot_kwargs: %s', boot_kwargs)
@@ -3277,7 +3308,6 @@ class RebuildServer(command.ShowOne):
             help=_(
                 'Trusted image certificate IDs used to validate certificates '
                 'during the image signature verification process. '
-                'Defaults to env[OS_TRUSTED_IMAGE_CERTIFICATE_IDS]. '
                 'May be specified multiple times to pass multiple trusted '
                 'image certificate IDs. '
                 'Cannot be specified with the --no-trusted-certs option. '

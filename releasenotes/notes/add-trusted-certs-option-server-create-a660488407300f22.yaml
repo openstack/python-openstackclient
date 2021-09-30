@@ -1,0 +1,7 @@
+---
+features:
+  - |
+    Added ``--trusted-image-cert`` option for server create. It is available
+    only when directly booting server from image (not from volume, not from
+    snapshot and not via image converted to volume first).
+    This option is supported for Compute API version >=2.63
