@@ -25,10 +25,10 @@ flavor-access-list,,Print access information about the given flavor.
 flavor-access-remove,,Remove flavor access for the given tenant.
 flavor-create,flavor create,Create a new flavor.
 flavor-delete,flavor delete,Delete a specific flavor
-flavor-key,flavor set / unset,Set or unset extra_spec for a flavor.
+flavor-key,flavor set / unset --property,Set or unset extra_spec for a flavor.
 flavor-list,flavor list,Print a list of available 'flavors'
 flavor-show,flavor show,Show details about the given flavor.
-flavor-update,,Update the description of an existing flavor. (Supported by API versions '2.55' - '2.latest') [hint: use '--os-compute-api- version' flag to show help message for proper version]
+flavor-update,flavor set --description,Update the description of an existing flavor. (Supported by API versions '2.55' - '2.latest') [hint: use '--os-compute-api-version' flag to show help message for proper version]
 force-delete,server delete,Force delete a server.
 get-mks-console,console url show --mks,Get an MKS console to a server. (Supported by API versions '2.8' - '2.latest') [hint: use ' --os-compute-api-version' flag to show help message for proper version]
 get-password,WONTFIX,Get the admin password for a server. This operation calls the metadata service to query metadata information and does not read password information from the server itself.
@@ -49,8 +49,8 @@ image-create,server image create,Create a new image by taking a snapshot of a ru
 instance-action,,Show an action.
 instance-action-list,,List actions on a server.
 instance-usage-audit-log,,List/Get server usage audits.
-interface-attach,,Attach a network interface to a server.
-interface-detach,,Detach a network interface from a server.
+interface-attach,server add port / server add floating ip / server add fixed ip,Attach a network interface to a server.
+interface-detach,server remove port,Detach a network interface from a server.
 interface-list,port list --server,List interfaces attached to a server.
 keypair-add,keypair create,Create a new key pair for use with servers.
 keypair-delete,keypair delete,Delete keypair given by its name.
