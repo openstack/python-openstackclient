@@ -3624,6 +3624,156 @@ class TestServerCreate(TestServer):
             exceptions.CommandError, self.cmd.take_action,
             parsed_args)
 
+    def test_server_create_with_trusted_image_cert(self):
+        self.app.client_manager.compute.api_version = \
+            api_versions.APIVersion('2.63')
+
+        arglist = [
+            '--image', 'image1',
+            '--flavor', 'flavor1',
+            '--trusted-image-cert', 'foo',
+            '--trusted-image-cert', 'bar',
+            self.new_server.name,
+        ]
+        verifylist = [
+            ('image', 'image1'),
+            ('flavor', 'flavor1'),
+            ('config_drive', False),
+            ('trusted_image_certs', ['foo', 'bar']),
+            ('server_name', self.new_server.name),
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+        columns, data = self.cmd.take_action(parsed_args)
+
+        # Set expected values
+        kwargs = dict(
+            meta=None,
+            files={},
+            reservation_id=None,
+            min_count=1,
+            max_count=1,
+            security_groups=[],
+            userdata=None,
+            key_name=None,
+            availability_zone=None,
+            admin_pass=None,
+            block_device_mapping_v2=[],
+            nics='auto',
+            scheduler_hints={},
+            config_drive=None,
+            trusted_image_certificates=['foo', 'bar'],
+        )
+        # ServerManager.create(name, image, flavor, **kwargs)
+        self.servers_mock.create.assert_called_with(
+            self.new_server.name,
+            self.image,
+            self.flavor,
+            **kwargs
+        )
+        self.assertEqual(self.columns, columns)
+        self.assertEqual(self.datalist(), data)
+        self.assertFalse(self.images_mock.called)
+        self.assertFalse(self.flavors_mock.called)
+
+    def test_server_create_with_trusted_image_cert_prev263(self):
+        self.app.client_manager.compute.api_version = \
+            api_versions.APIVersion('2.62')
+
+        arglist = [
+            '--image', 'image1',
+            '--flavor', 'flavor1',
+            '--trusted-image-cert', 'foo',
+            '--trusted-image-cert', 'bar',
+            self.new_server.name,
+        ]
+        verifylist = [
+            ('image', 'image1'),
+            ('flavor', 'flavor1'),
+            ('config_drive', False),
+            ('trusted_image_certs', ['foo', 'bar']),
+            ('server_name', self.new_server.name),
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        self.assertRaises(
+            exceptions.CommandError,
+            self.cmd.take_action,
+            parsed_args)
+
+    def test_server_create_with_trusted_image_cert_from_volume(self):
+        self.app.client_manager.compute.api_version = \
+            api_versions.APIVersion('2.63')
+        arglist = [
+            '--volume', 'volume1',
+            '--flavor', 'flavor1',
+            '--trusted-image-cert', 'foo',
+            '--trusted-image-cert', 'bar',
+            self.new_server.name,
+        ]
+        verifylist = [
+            ('volume', 'volume1'),
+            ('flavor', 'flavor1'),
+            ('config_drive', False),
+            ('trusted_image_certs', ['foo', 'bar']),
+            ('server_name', self.new_server.name),
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        self.assertRaises(
+            exceptions.CommandError,
+            self.cmd.take_action,
+            parsed_args)
+
+    def test_server_create_with_trusted_image_cert_from_snapshot(self):
+        self.app.client_manager.compute.api_version = \
+            api_versions.APIVersion('2.63')
+        arglist = [
+            '--snapshot', 'snapshot1',
+            '--flavor', 'flavor1',
+            '--trusted-image-cert', 'foo',
+            '--trusted-image-cert', 'bar',
+            self.new_server.name,
+        ]
+        verifylist = [
+            ('snapshot', 'snapshot1'),
+            ('flavor', 'flavor1'),
+            ('config_drive', False),
+            ('trusted_image_certs', ['foo', 'bar']),
+            ('server_name', self.new_server.name),
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        self.assertRaises(
+            exceptions.CommandError,
+            self.cmd.take_action,
+            parsed_args)
+
+    def test_server_create_with_trusted_image_cert_boot_from_volume(self):
+        self.app.client_manager.compute.api_version = \
+            api_versions.APIVersion('2.63')
+        arglist = [
+            '--image', 'image1',
+            '--flavor', 'flavor1',
+            '--boot-from-volume', '1',
+            '--trusted-image-cert', 'foo',
+            '--trusted-image-cert', 'bar',
+            self.new_server.name,
+        ]
+        verifylist = [
+            ('image', 'image1'),
+            ('flavor', 'flavor1'),
+            ('boot_from_volume', 1),
+            ('config_drive', False),
+            ('trusted_image_certs', ['foo', 'bar']),
+            ('server_name', self.new_server.name),
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        self.assertRaises(
+            exceptions.CommandError,
+            self.cmd.take_action,
+            parsed_args)
+
 
 class TestServerDelete(TestServer):
 
