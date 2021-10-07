@@ -308,8 +308,3 @@ class FakeImage(object):
         image_member_info.update(attrs)
 
         return member.Member(**image_member_info)
-
-        image_member = fakes.FakeModel(
-            copy.deepcopy(image_member_info))
-
-        return image_member
