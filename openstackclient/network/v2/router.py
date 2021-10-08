@@ -28,8 +28,6 @@ from osc_lib.utils import tags as _tag
 from openstackclient.i18n import _
 from openstackclient.identity import common as identity_common
 from openstackclient.network import common
-from openstackclient.network import sdk_utils
-
 
 LOG = logging.getLogger(__name__)
 
@@ -83,7 +81,7 @@ def _get_columns(item):
     if item.is_distributed is None:
         invisible_columns.append('is_distributed')
         column_map.pop('is_distributed')
-    return sdk_utils.get_osc_show_columns_for_sdk_resource(
+    return utils.get_osc_show_columns_for_sdk_resource(
         item, column_map, invisible_columns)
 
 

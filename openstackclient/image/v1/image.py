@@ -28,7 +28,6 @@ from osc_lib.cli import parseractions
 from osc_lib.command import command
 from osc_lib import utils
 
-from openstackclient.common import sdk_utils
 from openstackclient.i18n import _
 
 if os.name == "nt":
@@ -48,15 +47,17 @@ LOG = logging.getLogger(__name__)
 
 
 def _get_columns(item):
-    # Trick sdk_utils to return URI attribute
     column_map = {
         'is_protected': 'protected',
         'owner_id': 'owner'
     }
-    hidden_columns = ['location', 'checksum',
-                      'copy_from', 'created_at', 'status', 'updated_at']
-    return sdk_utils.get_osc_show_columns_for_sdk_resource(
-        item.to_dict(), column_map, hidden_columns)
+    hidden_columns = [
+        'location', 'checksum', 'copy_from', 'created_at', 'status',
+        'updated_at',
+    ]
+    return utils.get_osc_show_columns_for_sdk_resource(
+        item.to_dict(), column_map, hidden_columns,
+    )
 
 
 _formatters = {

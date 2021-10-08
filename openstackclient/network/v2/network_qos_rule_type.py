@@ -17,7 +17,6 @@ from osc_lib.command import command
 from osc_lib import utils
 
 from openstackclient.i18n import _
-from openstackclient.network import sdk_utils
 
 
 def _get_columns(item):
@@ -26,7 +25,7 @@ def _get_columns(item):
         "drivers": "drivers",
     }
     invisible_columns = ["id", "name"]
-    return sdk_utils.get_osc_show_columns_for_sdk_resource(
+    return utils.get_osc_show_columns_for_sdk_resource(
         item, column_map, invisible_columns)
 
 

@@ -23,7 +23,6 @@ from osc_lib.utils import tags as _tag
 from openstackclient.i18n import _
 from openstackclient.identity import common as identity_common
 from openstackclient.network import common
-from openstackclient.network import sdk_utils
 from openstackclient.network import utils as network_utils
 
 
@@ -90,7 +89,7 @@ def _get_columns(item):
         'security_group_rules': 'rules',
         'tenant_id': 'project_id',
     }
-    return sdk_utils.get_osc_show_columns_for_sdk_resource(item, column_map)
+    return utils.get_osc_show_columns_for_sdk_resource(item, column_map)
 
 
 # TODO(abhiraut): Use the SDK resource mapped attribute names once the

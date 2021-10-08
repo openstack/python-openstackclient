@@ -22,8 +22,6 @@ from osc_lib import exceptions
 from osc_lib import utils
 
 from openstackclient.i18n import _
-from openstackclient.network import sdk_utils
-
 
 LOG = logging.getLogger(__name__)
 
@@ -52,7 +50,7 @@ def _get_network_columns(item):
         'is_admin_state_up': 'admin_state_up',
         'is_alive': 'alive',
     }
-    return sdk_utils.get_osc_show_columns_for_sdk_resource(item, column_map)
+    return utils.get_osc_show_columns_for_sdk_resource(item, column_map)
 
 
 class AddNetworkToAgent(command.Command):

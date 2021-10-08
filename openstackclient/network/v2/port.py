@@ -29,8 +29,6 @@ from osc_lib.utils import tags as _tag
 from openstackclient.i18n import _
 from openstackclient.identity import common as identity_common
 from openstackclient.network import common
-from openstackclient.network import sdk_utils
-
 
 LOG = logging.getLogger(__name__)
 
@@ -67,7 +65,7 @@ def _get_columns(item):
         'is_port_security_enabled': 'port_security_enabled',
         'tenant_id': 'project_id',
     }
-    return sdk_utils.get_osc_show_columns_for_sdk_resource(item, column_map)
+    return utils.get_osc_show_columns_for_sdk_resource(item, column_map)
 
 
 class JSONKeyValueAction(argparse.Action):

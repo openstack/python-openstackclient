@@ -12,6 +12,7 @@
 #
 
 """Floating IP Port Forwarding action implementations"""
+
 import logging
 
 from osc_lib.command import command
@@ -20,8 +21,6 @@ from osc_lib import utils
 
 from openstackclient.i18n import _
 from openstackclient.network import common
-from openstackclient.network import sdk_utils
-
 
 LOG = logging.getLogger(__name__)
 
@@ -30,7 +29,7 @@ def _get_columns(item):
     column_map = {
         'tenant_id': 'project_id',
     }
-    return sdk_utils.get_osc_show_columns_for_sdk_resource(item, column_map)
+    return utils.get_osc_show_columns_for_sdk_resource(item, column_map)
 
 
 class CreateFloatingIPPortForwarding(command.ShowOne,

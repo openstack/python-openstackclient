@@ -31,7 +31,6 @@ from osc_lib import exceptions
 from osc_lib import utils
 
 from openstackclient.common import progressbar
-from openstackclient.common import sdk_utils
 from openstackclient.i18n import _
 from openstackclient.identity import common
 
@@ -99,13 +98,13 @@ _formatters = {
 
 
 def _get_member_columns(item):
-    # Trick sdk_utils to return URI attribute
     column_map = {
         'image_id': 'image_id'
     }
     hidden_columns = ['id', 'location', 'name']
-    return sdk_utils.get_osc_show_columns_for_sdk_resource(
-        item.to_dict(), column_map, hidden_columns)
+    return utils.get_osc_show_columns_for_sdk_resource(
+        item.to_dict(), column_map, hidden_columns,
+    )
 
 
 def get_data_file(args):

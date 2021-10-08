@@ -19,7 +19,6 @@ from osc_lib.utils import tags as _tag
 from openstackclient.i18n import _
 from openstackclient.identity import common as identity_common
 from openstackclient.network import common
-from openstackclient.network import sdk_utils
 
 
 _formatters = {
@@ -31,7 +30,7 @@ def _get_network_columns(item):
     column_map = {
         'tenant_id': 'project_id',
     }
-    return sdk_utils.get_osc_show_columns_for_sdk_resource(item, column_map)
+    return utils.get_osc_show_columns_for_sdk_resource(item, column_map)
 
 
 def _get_columns(item):
