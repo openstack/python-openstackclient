@@ -81,7 +81,6 @@ requestsexceptions==1.2.0
 rfc3986==0.3.1
 Routes==2.3.1
 simplejson==3.5.1
-six==1.15.0
 statsd==3.2.1
 stestr==1.0.0
 stevedore==2.0.1

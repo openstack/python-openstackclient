@@ -11,9 +11,8 @@
 #   under the License.
 #
 
+import io
 import sys
-
-import six
 
 from openstackclient.common import progressbar
 from openstackclient.tests.unit import utils
@@ -23,7 +22,7 @@ class TestProgressBarWrapper(utils.TestCase):
 
     def test_iter_file_display_progress_bar(self):
         size = 98304
-        file_obj = six.StringIO('X' * size)
+        file_obj = io.StringIO('X' * size)
         saved_stdout = sys.stdout
         try:
             sys.stdout = output = FakeTTYStdout()
@@ -41,7 +40,7 @@ class TestProgressBarWrapper(utils.TestCase):
 
     def test_iter_file_no_tty(self):
         size = 98304
-        file_obj = six.StringIO('X' * size)
+        file_obj = io.StringIO('X' * size)
         saved_stdout = sys.stdout
         try:
             sys.stdout = output = FakeNoTTYStdout()
@@ -56,7 +55,7 @@ class TestProgressBarWrapper(utils.TestCase):
             sys.stdout = saved_stdout
 
 
-class FakeTTYStdout(six.StringIO):
+class FakeTTYStdout(io.StringIO):
     """A Fake stdout that try to emulate a TTY device as much as possible."""
 
     def isatty(self):
@@ -67,7 +66,7 @@ class FakeTTYStdout(six.StringIO):
         if data.startswith('\r'):
             self.seek(0)
             data = data[1:]
-        return six.StringIO.write(self, data)
+        return io.StringIO.write(self, data)
 
 
 class FakeNoTTYStdout(FakeTTYStdout):
