@@ -45,7 +45,6 @@ class ShowConfiguration(command.ShowOne):
         return parser
 
     def take_action(self, parsed_args):
-
         info = self.app.client_manager.get_configuration()
 
         # Assume a default secret list in case we do not have an auth_plugin
@@ -62,5 +61,10 @@ class ShowConfiguration(command.ShowOne):
             if parsed_args.mask and key.lower() in secret_opts:
                 value = REDACTED
             info['auth.' + key] = value
+
+        if parsed_args.mask:
+            for secret_opt in secret_opts:
+                if secret_opt in info:
+                    info[secret_opt] = REDACTED
 
         return zip(*sorted(info.items()))

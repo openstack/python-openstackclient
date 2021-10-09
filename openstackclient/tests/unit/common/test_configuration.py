@@ -35,11 +35,14 @@ class TestConfiguration(utils.TestCommand):
         fakes.REGION_NAME,
     )
 
-    opts = [mock.Mock(secret=True, dest="password"),
-            mock.Mock(secret=True, dest="token")]
+    opts = [
+        mock.Mock(secret=True, dest="password"),
+        mock.Mock(secret=True, dest="token"),
+    ]
 
-    @mock.patch("keystoneauth1.loading.base.get_plugin_options",
-                return_value=opts)
+    @mock.patch(
+        "keystoneauth1.loading.base.get_plugin_options", return_value=opts
+    )
     def test_show(self, m_get_plugin_opts):
         arglist = []
         verifylist = [('mask', True)]
@@ -51,12 +54,14 @@ class TestConfiguration(utils.TestCommand):
         self.assertEqual(self.columns, columns)
         self.assertEqual(self.datalist, data)
 
-    @mock.patch("keystoneauth1.loading.base.get_plugin_options",
-                return_value=opts)
+    @mock.patch(
+        "keystoneauth1.loading.base.get_plugin_options", return_value=opts
+    )
     def test_show_unmask(self, m_get_plugin_opts):
         arglist = ['--unmask']
         verifylist = [('mask', False)]
         cmd = configuration.ShowConfiguration(self.app, None)
+
         parsed_args = self.check_parser(cmd, arglist, verifylist)
 
         columns, data = cmd.take_action(parsed_args)
@@ -71,15 +76,49 @@ class TestConfiguration(utils.TestCommand):
         )
         self.assertEqual(datalist, data)
 
-    @mock.patch("keystoneauth1.loading.base.get_plugin_options",
-                return_value=opts)
-    def test_show_mask(self, m_get_plugin_opts):
+    @mock.patch(
+        "keystoneauth1.loading.base.get_plugin_options", return_value=opts
+    )
+    def test_show_mask_with_cloud_config(self, m_get_plugin_opts):
         arglist = ['--mask']
         verifylist = [('mask', True)]
+        self.app.client_manager.configuration_type = "cloud_config"
         cmd = configuration.ShowConfiguration(self.app, None)
+
         parsed_args = self.check_parser(cmd, arglist, verifylist)
 
         columns, data = cmd.take_action(parsed_args)
 
         self.assertEqual(self.columns, columns)
         self.assertEqual(self.datalist, data)
+
+    @mock.patch(
+        "keystoneauth1.loading.base.get_plugin_options", return_value=opts
+    )
+    def test_show_mask_with_global_env(self, m_get_plugin_opts):
+        arglist = ['--mask']
+        verifylist = [('mask', True)]
+        self.app.client_manager.configuration_type = "global_env"
+        column_list = (
+            'identity_api_version',
+            'password',
+            'region',
+            'token',
+            'username',
+        )
+        datalist = (
+            fakes.VERSION,
+            configuration.REDACTED,
+            fakes.REGION_NAME,
+            configuration.REDACTED,
+            fakes.USERNAME,
+        )
+
+        cmd = configuration.ShowConfiguration(self.app, None)
+
+        parsed_args = self.check_parser(cmd, arglist, verifylist)
+
+        columns, data = cmd.take_action(parsed_args)
+
+        self.assertEqual(column_list, columns)
+        self.assertEqual(datalist, data)
