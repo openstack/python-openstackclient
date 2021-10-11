@@ -18,6 +18,7 @@ import uuid
 
 from openstack.image.v2 import image
 from openstack.image.v2 import member
+from openstack.image.v2 import task
 
 from openstackclient.tests.unit import fakes
 from openstackclient.tests.unit.identity.v3 import fakes as identity_fakes
@@ -43,6 +44,9 @@ class FakeImagev2Client:
         self.update_member = mock.Mock()
 
         self.remove_tag = mock.Mock()
+
+        self.tasks = mock.Mock()
+        self.get_task = mock.Mock()
 
         self.auth_token = kwargs['token']
         self.management_url = kwargs['endpoint']
@@ -129,3 +133,53 @@ def create_one_image_member(attrs=None):
     image_member_info.update(attrs)
 
     return member.Member(**image_member_info)
+
+
+def create_one_task(attrs=None):
+    """Create a fake task.
+
+    :param attrs: A dictionary with all attributes of task
+    :type attrs: dict
+    :return: A fake Task object.
+    :rtype: `openstack.image.v2.task.Task`
+    """
+    attrs = attrs or {}
+
+    # Set default attribute
+    task_info = {
+        'created_at': '2016-06-29T16:13:07Z',
+        'expires_at': '2016-07-01T16:13:07Z',
+        'id': str(uuid.uuid4()),
+        'input': {
+            'image_properties': {
+                'container_format': 'ovf',
+                'disk_format': 'vhd'
+            },
+            'import_from': 'https://apps.openstack.org/excellent-image',
+            'import_from_format': 'qcow2'
+        },
+        'message': '',
+        'owner': str(uuid.uuid4()),
+        'result': {
+            'image_id': str(uuid.uuid4()),
+        },
+        'schema': '/v2/schemas/task',
+        'status': random.choice(
+            [
+                'pending',
+                'processing',
+                'success',
+                'failure',
+            ]
+        ),
+        # though not documented, the API only allows 'import'
+        # https://github.com/openstack/glance/blob/24.0.0/glance/api/v2/tasks.py#L186-L190
+        'type': 'import',
+        'updated_at': '2016-06-29T16:13:07Z',
+
+    }
+
+    # Overwrite default attributes if there are some attributes set
+    task_info.update(attrs)
+
+    return task.Task(**task_info)
