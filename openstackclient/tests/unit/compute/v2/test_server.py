@@ -4486,6 +4486,13 @@ class TestServerList(_TestServerList):
             '-c', 'User ID',
             '-c', 'Created At',
             '-c', 'Security Groups',
+            '-c', 'Task State',
+            '-c', 'Power State',
+            '-c', 'Image ID',
+            '-c', 'Flavor ID',
+            '-c', 'Availability Zone',
+            '-c', 'Host',
+            '-c', 'Properties',
             '--long'
         ]
         verifylist = [
@@ -4500,6 +4507,13 @@ class TestServerList(_TestServerList):
         self.assertIn('User ID', columns)
         self.assertIn('Created At', columns)
         self.assertIn('Security Groups', columns)
+        self.assertIn('Task State', columns)
+        self.assertIn('Power State', columns)
+        self.assertIn('Image ID', columns)
+        self.assertIn('Flavor ID', columns)
+        self.assertIn('Availability Zone', columns)
+        self.assertIn('Host', columns)
+        self.assertIn('Properties', columns)
 
     def test_server_list_no_name_lookup_option(self):
         self.data = tuple(

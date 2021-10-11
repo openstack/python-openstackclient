@@ -1,0 +1,16 @@
+---
+feature:
+    - |
+      The ``server list`` command now allows users to select the following
+      additional columns using the ``-c COLUMN`` option:
+
+      - Task State
+      - Power State
+      - Image ID
+      - Flavor ID
+      - Availability Zone
+      - Host
+      - Properties
+
+      These correspond to columns displayed by default when using the ``--long``
+      option.
