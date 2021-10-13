@@ -47,7 +47,7 @@ hypervisor-stats,hypervisor stats show,Get hypervisor statistics over all comput
 hypervisor-uptime,,Display the uptime of the specified hypervisor.
 image-create,server image create,Create a new image by taking a snapshot of a running server.
 instance-action,server event show,Show an action.
-instance-action-list,,List actions on a server.
+instance-action-list,server event list,List actions on a server.
 instance-usage-audit-log,,List/Get server usage audits.
 interface-attach,server add port / server add floating ip / server add fixed ip,Attach a network interface to a server.
 interface-detach,server remove port,Detach a network interface from a server.
