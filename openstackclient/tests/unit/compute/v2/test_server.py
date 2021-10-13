@@ -4489,7 +4489,7 @@ class TestServerList(TestServer):
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
         columns, data = self.cmd.take_action(parsed_args)
 
-        self.search_opts['tags'] = ['tag1', 'tag2']
+        self.search_opts['tags'] = 'tag1,tag2'
 
         self.servers_mock.list.assert_called_with(**self.kwargs)
 
@@ -4532,7 +4532,7 @@ class TestServerList(TestServer):
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
         columns, data = self.cmd.take_action(parsed_args)
 
-        self.search_opts['not-tags'] = ['tag1', 'tag2']
+        self.search_opts['not-tags'] = 'tag1,tag2'
 
         self.servers_mock.list.assert_called_with(**self.kwargs)
 
