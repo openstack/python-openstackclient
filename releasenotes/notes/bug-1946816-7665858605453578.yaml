@@ -1,0 +1,6 @@
+---
+fixes:
+  - |
+    Filtering servers by tags (``server list --tag``,
+    ``server list --not-tag``) now works correctly.
+    [Bug `1946816 <https://bugs.launchpad.net/bugs/1946816>`_]
