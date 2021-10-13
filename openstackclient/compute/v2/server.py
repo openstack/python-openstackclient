@@ -2201,7 +2201,7 @@ class ListServer(command.Lister):
                 )
                 raise exceptions.CommandError(msg)
 
-            search_opts['tags'] = parsed_args.tags
+            search_opts['tags'] = ','.join(parsed_args.tags)
 
         if parsed_args.not_tags:
             if compute_client.api_version < api_versions.APIVersion('2.26'):
@@ -2211,7 +2211,7 @@ class ListServer(command.Lister):
                 )
                 raise exceptions.CommandError(msg)
 
-            search_opts['not-tags'] = parsed_args.not_tags
+            search_opts['not-tags'] = ','.join(parsed_args.not_tags)
 
         if parsed_args.locked:
             if compute_client.api_version < api_versions.APIVersion('2.73'):
