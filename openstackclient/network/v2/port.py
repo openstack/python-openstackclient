@@ -259,11 +259,12 @@ def _add_updatable_args(parser):
         metavar='<vnic-type>',
         choices=(
             'direct', 'direct-physical', 'macvtap',
-            'normal', 'baremetal', 'virtio-forwarder', 'vdpa'
+            'normal', 'baremetal', 'virtio-forwarder', 'vdpa', 'remote-managed'
         ),
         help=_(
             "VNIC type for this port (direct | direct-physical | "
-            "macvtap | normal | baremetal | virtio-forwarder | vdpa, "
+            "macvtap | normal | baremetal | virtio-forwarder | vdpa | "
+            "remote-managed, "
             "default: normal)"
         ),
     )
