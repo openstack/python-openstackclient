@@ -1296,6 +1296,26 @@ class TestListPort(TestPort):
         self.assertEqual(self.columns, columns)
         self.assertCountEqual(self.data, list(data))
 
+    def test_port_list_security_group(self):
+        arglist = [
+            '--security-group', 'sg-id1',
+            '--security-group', 'sg-id2',
+        ]
+        verifylist = [
+            ('security_groups', ['sg-id1', 'sg-id2']),
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        columns, data = self.cmd.take_action(parsed_args)
+        filters = {
+            'security_groups': ['sg-id1', 'sg-id2'],
+            'fields': LIST_FIELDS_TO_RETRIEVE,
+        }
+
+        self.network.ports.assert_called_once_with(**filters)
+        self.assertEqual(self.columns, columns)
+        self.assertCountEqual(self.data, list(data))
+
 
 class TestSetPort(TestPort):
 
