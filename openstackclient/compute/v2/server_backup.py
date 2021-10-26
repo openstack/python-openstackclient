@@ -72,12 +72,9 @@ class CreateServerBackup(command.ShowOne):
                 self.app.stderr.write('\rProgress: %s' % progress)
                 self.app.stderr.flush()
 
-        compute_client = self.app.client_manager.compute
+        compute_client = self.app.client_manager.sdk_connection.compute
 
-        server = utils.find_resource(
-            compute_client.servers,
-            parsed_args.server,
-        )
+        server = compute_client.find_server(parsed_args.server)
 
         # Set sane defaults as this API wants all mouths to be fed
         if parsed_args.name is None:
@@ -93,7 +90,7 @@ class CreateServerBackup(command.ShowOne):
         else:
             backup_rotation = parsed_args.rotate
 
-        compute_client.servers.backup(
+        compute_client.backup_server(
             server.id,
             backup_name,
             backup_type,
