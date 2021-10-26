@@ -17,7 +17,7 @@ import sys
 
 
 class _ProgressBarBase(object):
-    """A progress bar provider for a wrapped obect.
+    """A progress bar provider for a wrapped object.
 
     Base abstract class used by specific class wrapper to show
     a progress bar when the wrapped object are consumed.

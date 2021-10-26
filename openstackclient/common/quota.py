@@ -205,7 +205,7 @@ class BaseQuota(object):
 class ListQuota(command.Lister, BaseQuota):
     _description = _(
         "List quotas for all projects with non-default quota values or "
-        "list detailed quota informations for requested project")
+        "list detailed quota information for requested project")
 
     def _get_detailed_quotas(self, parsed_args):
         columns = (
@@ -230,7 +230,7 @@ class ListQuota(command.Lister, BaseQuota):
         result = []
         for resource, values in quotas.items():
             # NOTE(slaweq): there is no detailed quotas info for some resources
-            # and it should't be displayed here
+            # and it shouldn't be displayed here
             if type(values) is dict:
                 result.append({
                     'resource': resource,

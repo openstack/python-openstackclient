@@ -2466,7 +2466,7 @@ class ListServer(command.Lister):
                 # and 'image' missing in the server response during
                 # infrastructure failure situations.
                 # For those servers with partial constructs we just skip the
-                # processing of the image and flavor informations.
+                # processing of the image and flavor information.
                 if not hasattr(s, 'image') or not hasattr(s, 'flavor'):
                     continue
             if 'id' in s.image:
@@ -4292,7 +4292,7 @@ class ShelveServer(command.Command):
 
             server_obj.shelve()
 
-        # if we don't hav to wait, either because it was requested explicitly
+        # if we don't have to wait, either because it was requested explicitly
         # or is required implicitly, then our job is done
         if not parsed_args.wait and not parsed_args.offload:
             return

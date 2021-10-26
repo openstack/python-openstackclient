@@ -411,7 +411,7 @@ class UnsetVolumeType(command.Command):
             "--encryption-type",
             action="store_true",
             help=_("Remove the encryption type for this volume type "
-                   "(admin oly)"),
+                   "(admin only)"),
         )
         return parser
 

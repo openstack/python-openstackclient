@@ -42,7 +42,7 @@ class TestCase(testtools.TestCase):
     def openstack(cls, cmd, cloud=ADMIN_CLOUD, fail_ok=False):
         """Executes openstackclient command for the given action
 
-        NOTE(dtroyer): There is a subtle distinction between pasing
+        NOTE(dtroyer): There is a subtle distinction between passing
         cloud=None and cloud='': for compatibility reasons passing
         cloud=None continues to include the option '--os-auth-type none'
         in the command while passing cloud='' omits the '--os-auth-type'
@@ -61,7 +61,7 @@ class TestCase(testtools.TestCase):
                 fail_ok=fail_ok
             )
         else:
-            # Execure command with an explicit cloud specified
+            # Execute command with an explicit cloud specified
             return execute(
                 'openstack --os-cloud=' + cloud + ' ' + cmd,
                 fail_ok=fail_ok

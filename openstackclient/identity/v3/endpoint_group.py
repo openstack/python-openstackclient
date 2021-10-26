@@ -268,7 +268,7 @@ class SetEndpointGroup(command.Command, _FiltersReader):
         parser.add_argument(
             '--name',
             metavar='<name>',
-            help=_('New enpoint group name'),
+            help=_('New endpoint group name'),
         )
         parser.add_argument(
             '--filters',

@@ -118,10 +118,10 @@ class VolumeTypeTests(common.BaseVolumeTests):
         raw_output = self.openstack(cmd)
         self.assertOutput('', raw_output)
 
-    # NOTE: Add some basic funtional tests with the old format to
+    # NOTE: Add some basic functional tests with the old format to
     #       make sure the command works properly, need to change
     #       these to new test format when beef up all tests for
-    #       volume tye commands.
+    #       volume type commands.
     def test_encryption_type(self):
         encryption_type = uuid.uuid4().hex
         # test create new encryption type
