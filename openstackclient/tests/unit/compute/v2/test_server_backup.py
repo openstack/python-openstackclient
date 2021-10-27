@@ -28,8 +28,9 @@ class TestServerBackup(compute_fakes.TestComputev2):
         super(TestServerBackup, self).setUp()
 
         # Get a shortcut to the compute client ServerManager Mock
-        self.servers_mock = self.app.client_manager.compute.servers
-        self.servers_mock.reset_mock()
+        self.app.client_manager.sdk_connection = mock.Mock()
+        self.app.client_manager.sdk_connection.compute = mock.Mock()
+        self.sdk_client = self.app.client_manager.sdk_connection.compute
 
         # Get a shortcut to the image client ImageManager Mock
         self.images_mock = self.app.client_manager.image
@@ -42,14 +43,14 @@ class TestServerBackup(compute_fakes.TestComputev2):
         self.methods = {}
 
     def setup_servers_mock(self, count):
-        servers = compute_fakes.FakeServer.create_servers(
+        servers = compute_fakes.FakeServer.create_sdk_servers(
             attrs=self.attrs,
             methods=self.methods,
             count=count,
         )
 
-        # This is the return value for utils.find_resource()
-        self.servers_mock.get = compute_fakes.FakeServer.get_servers(
+        # This is the return value for compute_client.find_server()
+        self.sdk_client.find_server = compute_fakes.FakeServer.get_servers(
             servers,
             0,
         )
@@ -130,8 +131,7 @@ class TestServerBackupCreate(TestServerBackup):
         # data to be shown.
         columns, data = self.cmd.take_action(parsed_args)
 
-        # ServerManager.backup(server, backup_name, backup_type, rotation)
-        self.servers_mock.backup.assert_called_with(
+        self.sdk_client.backup_server.assert_called_with(
             servers[0].id,
             servers[0].name,
             '',
@@ -164,8 +164,7 @@ class TestServerBackupCreate(TestServerBackup):
         # data to be shown.
         columns, data = self.cmd.take_action(parsed_args)
 
-        # ServerManager.backup(server, backup_name, backup_type, rotation)
-        self.servers_mock.backup.assert_called_with(
+        self.sdk_client.backup_server.assert_called_with(
             servers[0].id,
             'image',
             'daily',
@@ -212,8 +211,7 @@ class TestServerBackupCreate(TestServerBackup):
             parsed_args,
         )
 
-        # ServerManager.backup(server, backup_name, backup_type, rotation)
-        self.servers_mock.backup.assert_called_with(
+        self.sdk_client.backup_server.assert_called_with(
             servers[0].id,
             'image',
             'daily',
@@ -254,8 +252,7 @@ class TestServerBackupCreate(TestServerBackup):
         # data to be shown.
         columns, data = self.cmd.take_action(parsed_args)
 
-        # ServerManager.backup(server, backup_name, backup_type, rotation)
-        self.servers_mock.backup.assert_called_with(
+        self.sdk_client.backup_server.assert_called_with(
             servers[0].id,
             'image',
             'daily',

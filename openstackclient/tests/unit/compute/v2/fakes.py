@@ -20,6 +20,7 @@ import uuid
 
 from novaclient import api_versions
 from openstack.compute.v2 import flavor as _flavor
+from openstack.compute.v2 import server
 
 from openstackclient.api import compute_v2
 from openstackclient.tests.unit import fakes
@@ -73,7 +74,7 @@ class FakeAggregate(object):
     def create_one_aggregate(attrs=None):
         """Create a fake aggregate.
 
-        :param Dictionary attrs:
+        :param dict attrs:
             A dictionary with all attributes
         :return:
             A FakeResource object, with id and other attributes
@@ -104,7 +105,7 @@ class FakeAggregate(object):
     def create_aggregates(attrs=None, count=2):
         """Create multiple fake aggregates.
 
-        :param Dictionary attrs:
+        :param dict attrs:
             A dictionary with all attributes
         :param int count:
             The number of aggregates to fake
@@ -255,7 +256,7 @@ class FakeAgent(object):
     def create_one_agent(attrs=None):
         """Create a fake agent.
 
-        :param Dictionary attrs:
+        :param dict attrs:
             A dictionary with all attributes
         :return:
             A FakeResource object, with agent_id, os, and so on
@@ -285,7 +286,7 @@ class FakeAgent(object):
     def create_agents(attrs=None, count=2):
         """Create multiple fake agents.
 
-        :param Dictionary attrs:
+        :param dict attrs:
             A dictionary with all attributes
         :param int count:
             The number of agents to fake
@@ -306,7 +307,7 @@ class FakeExtension(object):
     def create_one_extension(attrs=None):
         """Create a fake extension.
 
-        :param Dictionary attrs:
+        :param dict attrs:
             A dictionary with all attributes
         :return:
             A FakeResource object with name, namespace, etc.
@@ -342,7 +343,7 @@ class FakeHypervisor(object):
     def create_one_hypervisor(attrs=None):
         """Create a fake hypervisor.
 
-        :param Dictionary attrs:
+        :param dict attrs:
             A dictionary with all attributes
         :return:
             A FakeResource object, with id, hypervisor_hostname, and so on
@@ -390,7 +391,7 @@ class FakeHypervisor(object):
     def create_hypervisors(attrs=None, count=2):
         """Create multiple fake hypervisors.
 
-        :param Dictionary attrs:
+        :param dict attrs:
             A dictionary with all attributes
         :param int count:
             The number of hypervisors to fake
@@ -411,7 +412,7 @@ class FakeHypervisorStats(object):
     def create_one_hypervisor_stats(attrs=None):
         """Create a fake hypervisor stats.
 
-        :param Dictionary attrs:
+        :param dict attrs:
             A dictionary with all attributes
         :return:
             A FakeResource object, with count, current_workload, and so on
@@ -450,7 +451,7 @@ class FakeHypervisorStats(object):
     def create_hypervisors_stats(attrs=None, count=2):
         """Create multiple fake hypervisors stats.
 
-        :param Dictionary attrs:
+        :param dict attrs:
             A dictionary with all attributes
         :param int count:
             The number of hypervisors to fake
@@ -472,7 +473,7 @@ class FakeSecurityGroup(object):
     def create_one_security_group(attrs=None):
         """Create a fake security group.
 
-        :param Dictionary attrs:
+        :param dict attrs:
             A dictionary with all attributes
         :return:
             A FakeResource object, with id, name, etc.
@@ -496,7 +497,7 @@ class FakeSecurityGroup(object):
     def create_security_groups(attrs=None, count=2):
         """Create multiple fake security groups.
 
-        :param Dictionary attrs:
+        :param dict attrs:
             A dictionary with all attributes
         :param int count:
             The number of security groups to fake
@@ -537,7 +538,7 @@ class FakeSecurityGroupRule(object):
     def create_one_security_group_rule(attrs=None):
         """Create a fake security group rule.
 
-        :param Dictionary attrs:
+        :param dict attrs:
             A dictionary with all attributes
         :return:
             A FakeResource object, with id, etc.
@@ -564,7 +565,7 @@ class FakeSecurityGroupRule(object):
     def create_security_group_rules(attrs=None, count=2):
         """Create multiple fake security group rules.
 
-        :param Dictionary attrs:
+        :param dict attrs:
             A dictionary with all attributes
         :param int count:
             The number of security group rules to fake
@@ -586,9 +587,9 @@ class FakeServer(object):
     def create_one_server(attrs=None, methods=None):
         """Create a fake server.
 
-        :param Dictionary attrs:
+        :param dict attrs:
             A dictionary with all attributes
-        :param Dictionary methods:
+        :param dict methods:
             A dictionary with all methods
         :return:
             A FakeResource object, with id, name, metadata, and so on
@@ -622,9 +623,9 @@ class FakeServer(object):
     def create_servers(attrs=None, methods=None, count=2):
         """Create multiple fake servers.
 
-        :param Dictionary attrs:
+        :param dict attrs:
             A dictionary with all attributes
-        :param Dictionary methods:
+        :param dict methods:
             A dictionary with all methods
         :param int count:
             The number of servers to fake
@@ -634,6 +635,59 @@ class FakeServer(object):
         servers = []
         for i in range(0, count):
             servers.append(FakeServer.create_one_server(attrs, methods))
+
+        return servers
+
+    @staticmethod
+    def create_one_sdk_server(attrs=None, methods=None):
+        """Create a fake server for testing migration to sdk
+
+        :param dict attrs:
+            A dictionary with all attributes
+        :param dict methods:
+            A dictionary with all methods
+        :return:
+            A openstack.compute.v2.server.Server object,
+            with id, name, metadata, and so on
+        """
+        attrs = attrs or {}
+        methods = methods or {}
+
+        # Set default attributes.
+        server_info = {
+            'id': 'server-id-' + uuid.uuid4().hex,
+            'name': 'server-name-' + uuid.uuid4().hex,
+            'metadata': {},
+            'image': {
+                'id': 'image-id-' + uuid.uuid4().hex,
+            },
+            'flavor': {
+                'id': 'flavor-id-' + uuid.uuid4().hex,
+            },
+            'OS-EXT-STS:power_state': 1,
+        }
+
+        # Overwrite default attributes.
+        server_info.update(attrs)
+        return server.Server(**server_info)
+
+    @staticmethod
+    def create_sdk_servers(attrs=None, methods=None, count=2):
+        """Create multiple fake servers for testing migration to sdk
+
+        :param dict attrs:
+            A dictionary with all attributes
+        :param dict methods:
+            A dictionary with all methods
+        :param int count:
+            The number of servers to fake
+        :return:
+            A list of openstack.compute.v2.server.Server objects
+            faking the servers
+        """
+        servers = []
+        for i in range(0, count):
+            servers.append(FakeServer.create_one_sdk_server(attrs, methods))
 
         return servers
 
@@ -705,7 +759,7 @@ class FakeService(object):
     def create_one_service(attrs=None):
         """Create a fake service.
 
-        :param Dictionary attrs:
+        :param dict attrs:
             A dictionary with all attributes
         :return:
             A FakeResource object, with id, host, binary, and so on
@@ -738,7 +792,7 @@ class FakeService(object):
     def create_services(attrs=None, count=2):
         """Create multiple fake services.
 
-        :param Dictionary attrs:
+        :param dict attrs:
             A dictionary with all attributes
         :param int count:
             The number of services to fake
@@ -759,7 +813,7 @@ class FakeFlavor(object):
     def create_one_flavor(attrs=None):
         """Create a fake flavor.
 
-        :param Dictionary attrs:
+        :param dict attrs:
             A dictionary with all attributes
         :return:
             A FakeResource object, with id, name, ram, vcpus, and so on
@@ -793,7 +847,7 @@ class FakeFlavor(object):
     def create_flavors(attrs=None, count=2):
         """Create multiple fake flavors.
 
-        :param Dictionary attrs:
+        :param dict attrs:
             A dictionary with all attributes
         :param int count:
             The number of flavors to fake
@@ -833,7 +887,7 @@ class FakeFlavorAccess(object):
     def create_one_flavor_access(attrs=None):
         """Create a fake flavor access.
 
-        :param Dictionary attrs:
+        :param dict attrs:
             A dictionary with all attributes
         :return:
             A FakeResource object, with flavor_id, tenat_id
@@ -862,7 +916,7 @@ class FakeKeypair(object):
     def create_one_keypair(attrs=None, no_pri=False):
         """Create a fake keypair
 
-        :param Dictionary attrs:
+        :param dict attrs:
             A dictionary with all attributes
         :return:
             A FakeResource object, name, fingerprint, and so on
@@ -892,7 +946,7 @@ class FakeKeypair(object):
     def create_keypairs(attrs=None, count=2):
         """Create multiple fake keypairs.
 
-        :param Dictionary attrs:
+        :param dict attrs:
             A dictionary with all attributes
         :param int count:
             The number of keypairs to fake
@@ -933,7 +987,7 @@ class FakeAvailabilityZone(object):
     def create_one_availability_zone(attrs=None):
         """Create a fake AZ.
 
-        :param Dictionary attrs:
+        :param dict attrs:
             A dictionary with all attributes
         :return:
             A FakeResource object with zoneName, zoneState, etc.
@@ -966,7 +1020,7 @@ class FakeAvailabilityZone(object):
     def create_availability_zones(attrs=None, count=2):
         """Create multiple fake AZs.
 
-        :param Dictionary attrs:
+        :param dict attrs:
             A dictionary with all attributes
         :param int count:
             The number of AZs to fake
@@ -989,7 +1043,7 @@ class FakeFloatingIP(object):
     def create_one_floating_ip(attrs=None):
         """Create a fake floating ip.
 
-        :param Dictionary attrs:
+        :param dict attrs:
             A dictionary with all attributes
         :return:
             A FakeResource object, with id, ip, and so on
@@ -1014,7 +1068,7 @@ class FakeFloatingIP(object):
     def create_floating_ips(attrs=None, count=2):
         """Create multiple fake floating ips.
 
-        :param Dictionary attrs:
+        :param dict attrs:
             A dictionary with all attributes
         :param int count:
             The number of floating ips to fake
@@ -1053,7 +1107,7 @@ class FakeFloatingIPPool(object):
     def create_one_floating_ip_pool(attrs=None):
         """Create a fake floating ip pool.
 
-        :param Dictionary attrs:
+        :param dict attrs:
             A dictionary with all attributes
         :return:
             A FakeResource object, with name, etc
@@ -1075,7 +1129,7 @@ class FakeFloatingIPPool(object):
     def create_floating_ip_pools(attrs=None, count=2):
         """Create multiple fake floating ip pools.
 
-        :param Dictionary attrs:
+        :param dict attrs:
             A dictionary with all attributes
         :param int count:
             The number of floating ip pools to fake
@@ -1097,7 +1151,7 @@ class FakeNetwork(object):
     def create_one_network(attrs=None):
         """Create a fake network.
 
-        :param Dictionary attrs:
+        :param dict attrs:
             A dictionary with all attributes
         :return:
             A FakeResource object, with id, label, cidr and so on
@@ -1149,7 +1203,7 @@ class FakeNetwork(object):
     def create_networks(attrs=None, count=2):
         """Create multiple fake networks.
 
-        :param Dictionary attrs:
+        :param dict attrs:
             A dictionary with all attributes
         :param int count:
             The number of networks to fake
@@ -1189,7 +1243,7 @@ class FakeHost(object):
     def create_one_host(attrs=None):
         """Create a fake host.
 
-        :param Dictionary attrs:
+        :param dict attrs:
             A dictionary with all attributes
         :return:
             A FakeResource object, with uuid and other attributes
@@ -1243,7 +1297,7 @@ class FakeServerGroup(object):
     def _create_one_server_group(attrs=None):
         """Create a fake server group
 
-        :param Dictionary attrs:
+        :param dict attrs:
             A dictionary with all attributes
         :return:
             A FakeResource object, with id and other attributes
@@ -1273,7 +1327,7 @@ class FakeServerGroup(object):
     def create_one_server_group(attrs=None):
         """Create a fake server group
 
-        :param Dictionary attrs:
+        :param dict attrs:
             A dictionary with all attributes
         :return:
             A FakeResource object, with id and other attributes
@@ -1291,7 +1345,7 @@ class FakeServerGroupV264(object):
     def create_one_server_group(attrs=None):
         """Create a fake server group
 
-        :param Dictionary attrs:
+        :param dict attrs:
             A dictionary with all attributes
         :return:
             A FakeResource object, with id and other attributes
@@ -1309,7 +1363,7 @@ class FakeUsage(object):
     def create_one_usage(attrs=None):
         """Create a fake usage.
 
-        :param Dictionary attrs:
+        :param dict attrs:
             A dictionary with all attributes
         :return:
             A FakeResource object, with tenant_id and other attributes
@@ -1351,7 +1405,7 @@ class FakeUsage(object):
     def create_usages(attrs=None, count=2):
         """Create multiple fake services.
 
-        :param Dictionary attrs:
+        :param dict attrs:
             A dictionary with all attributes
         :param int count:
             The number of services to fake
@@ -1575,9 +1629,9 @@ class FakeMigration(object):
     def create_one_migration(attrs=None, methods=None):
         """Create a fake migration.
 
-        :param Dictionary attrs:
+        :param dict attrs:
             A dictionary with all attributes
-        :param Dictionary methods:
+        :param dict methods:
             A dictionary with all methods
         :return:
             A FakeResource object, with id, type, and so on
@@ -1617,9 +1671,9 @@ class FakeMigration(object):
     def create_migrations(attrs=None, methods=None, count=2):
         """Create multiple fake migrations.
 
-        :param Dictionary attrs:
+        :param dict attrs:
             A dictionary with all attributes
-        :param Dictionary methods:
+        :param dict methods:
             A dictionary with all methods
         :param int count:
             The number of migrations to fake
@@ -1642,9 +1696,9 @@ class FakeServerMigration(object):
     def create_one_server_migration(attrs=None, methods=None):
         """Create a fake server migration.
 
-        :param Dictionary attrs:
+        :param dict attrs:
             A dictionary with all attributes
-        :param Dictionary methods:
+        :param dict methods:
             A dictionary with all methods
         :return:
             A FakeResource object, with id, type, and so on
@@ -1695,9 +1749,9 @@ class FakeVolumeAttachment(object):
     def create_one_volume_attachment(attrs=None, methods=None):
         """Create a fake volume attachment.
 
-        :param Dictionary attrs:
+        :param dict attrs:
             A dictionary with all attributes
-        :param Dictionary methods:
+        :param dict methods:
             A dictionary with all methods
         :return:
             A FakeResource object, with id, device, and so on
@@ -1733,9 +1787,9 @@ class FakeVolumeAttachment(object):
     def create_volume_attachments(attrs=None, methods=None, count=2):
         """Create multiple fake volume attachments (BDMs).
 
-        :param Dictionary attrs:
+        :param dict attrs:
             A dictionary with all attributes
-        :param Dictionary methods:
+        :param dict methods:
             A dictionary with all methods
         :param int count:
             The number of volume attachments to fake
