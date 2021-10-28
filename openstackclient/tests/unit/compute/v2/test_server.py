@@ -105,6 +105,9 @@ class TestServer(compute_fakes.TestComputev2):
         self.volumes_mock = self.app.client_manager.volume.volumes
         self.volumes_mock.reset_mock()
 
+        self.app.client_manager.sdk_connection.volume = mock.Mock()
+        self.sdk_volume_client = self.app.client_manager.sdk_connection.volume
+
         # Get a shortcut to the volume client VolumeManager Mock
         self.snapshots_mock = self.app.client_manager.volume.volume_snapshots
         self.snapshots_mock.reset_mock()
@@ -146,12 +149,17 @@ class TestServer(compute_fakes.TestComputev2):
         )
 
         # This is the return value for compute_client.find_server()
-        self.sdk_client.find_server = compute_fakes.FakeServer.get_servers(
-            servers,
-            0,
-        )
+        self.sdk_client.find_server.side_effect = servers
 
         return servers
+
+    def setup_sdk_volumes_mock(self, count):
+        volumes = volume_fakes.FakeVolume.create_sdk_volumes(count=count)
+
+        # This is the return value for volume_client.find_volume()
+        self.sdk_volume_client.find_volume.side_effect = volumes
+
+        return volumes
 
     def run_method_with_servers(self, method_name, server_count):
         servers = self.setup_servers_mock(server_count)
@@ -680,31 +688,38 @@ class TestServerVolume(TestServer):
     def setUp(self):
         super(TestServerVolume, self).setUp()
 
-        self.volume = volume_fakes.FakeVolume.create_one_volume()
-        self.volumes_mock.get.return_value = self.volume
-
         self.methods = {
-            'create_server_volume': None,
+            'create_volume_attachment': None,
         }
 
         # Get the command object to test
         self.cmd = server.AddServerVolume(self.app, None)
 
-    def test_server_add_volume(self):
-        servers = self.setup_servers_mock(count=1)
-        volume_attachment = \
-            compute_fakes.FakeVolumeAttachment.create_one_volume_attachment()
-        self.servers_volumes_mock.create_server_volume.return_value = \
-            volume_attachment
+        self.servers = self.setup_sdk_servers_mock(count=1)
+        self.volumes = self.setup_sdk_volumes_mock(count=1)
+
+        attrs = {
+            'server_id': self.servers[0].id,
+            'volume_id': self.volumes[0].id,
+        }
+        self.volume_attachment = \
+            compute_fakes.FakeVolumeAttachment.\
+            create_one_sdk_volume_attachment(attrs=attrs)
+
+        self.sdk_client.create_volume_attachment.return_value = \
+            self.volume_attachment
+
+    @mock.patch.object(sdk_utils, 'supports_microversion', return_value=False)
+    def test_server_add_volume(self, sm_mock):
 
         arglist = [
             '--device', '/dev/sdb',
-            servers[0].id,
-            self.volume.id,
+            self.servers[0].id,
+            self.volumes[0].id,
         ]
         verifylist = [
-            ('server', servers[0].id),
-            ('volume', self.volume.id),
+            ('server', self.servers[0].id),
+            ('volume', self.volumes[0].id),
             ('device', '/dev/sdb'),
         ]
 
@@ -712,39 +727,36 @@ class TestServerVolume(TestServer):
 
         expected_columns = ('ID', 'Server ID', 'Volume ID', 'Device')
         expected_data = (
-            volume_attachment.id,
-            volume_attachment.serverId,
-            volume_attachment.volumeId,
-            volume_attachment.device,
+            self.volume_attachment.id,
+            self.volume_attachment.server_id,
+            self.volume_attachment.volume_id,
+            '/dev/sdb',
         )
 
         columns, data = self.cmd.take_action(parsed_args)
 
-        self.servers_volumes_mock.create_server_volume.assert_called_once_with(
-            servers[0].id, self.volume.id, device='/dev/sdb')
         self.assertEqual(expected_columns, columns)
         self.assertEqual(expected_data, data)
+        self.sdk_client.create_volume_attachment.assert_called_once_with(
+            self.servers[0], volumeId=self.volumes[0].id, device='/dev/sdb')
 
-    def test_server_add_volume_with_tag(self):
-        # requires API 2.49 or later
-        self.app.client_manager.compute.api_version = api_versions.APIVersion(
-            '2.49')
-
-        servers = self.setup_servers_mock(count=1)
-        volume_attachment = \
-            compute_fakes.FakeVolumeAttachment.create_one_volume_attachment()
-        self.servers_volumes_mock.create_server_volume.return_value = \
-            volume_attachment
+    @mock.patch.object(sdk_utils, 'supports_microversion')
+    def test_server_add_volume_with_tag(self, sm_mock):
+        def side_effect(compute_client, version):
+            if version == '2.49':
+                return True
+            return False
+        sm_mock.side_effect = side_effect
 
         arglist = [
             '--device', '/dev/sdb',
             '--tag', 'foo',
-            servers[0].id,
-            self.volume.id,
+            self.servers[0].id,
+            self.volumes[0].id,
         ]
         verifylist = [
-            ('server', servers[0].id),
-            ('volume', self.volume.id),
+            ('server', self.servers[0].id),
+            ('volume', self.volumes[0].id),
             ('device', '/dev/sdb'),
             ('tag', 'foo'),
         ]
@@ -753,33 +765,33 @@ class TestServerVolume(TestServer):
 
         expected_columns = ('ID', 'Server ID', 'Volume ID', 'Device', 'Tag')
         expected_data = (
-            volume_attachment.id,
-            volume_attachment.serverId,
-            volume_attachment.volumeId,
-            volume_attachment.device,
-            volume_attachment.tag,
+            self.volume_attachment.id,
+            self.volume_attachment.server_id,
+            self.volume_attachment.volume_id,
+            self.volume_attachment.device,
+            self.volume_attachment.tag,
         )
 
         columns, data = self.cmd.take_action(parsed_args)
 
-        self.servers_volumes_mock.create_server_volume.assert_called_once_with(
-            servers[0].id, self.volume.id, device='/dev/sdb', tag='foo')
         self.assertEqual(expected_columns, columns)
         self.assertEqual(expected_data, data)
+        self.sdk_client.create_volume_attachment.assert_called_once_with(
+            self.servers[0],
+            volumeId=self.volumes[0].id,
+            device='/dev/sdb',
+            tag='foo')
 
-    def test_server_add_volume_with_tag_pre_v249(self):
-        self.app.client_manager.compute.api_version = api_versions.APIVersion(
-            '2.48')
-
-        servers = self.setup_servers_mock(count=1)
+    @mock.patch.object(sdk_utils, 'supports_microversion', return_value=False)
+    def test_server_add_volume_with_tag_pre_v249(self, sm_mock):
         arglist = [
-            servers[0].id,
-            self.volume.id,
+            self.servers[0].id,
+            self.volumes[0].id,
             '--tag', 'foo',
         ]
         verifylist = [
-            ('server', servers[0].id),
-            ('volume', self.volume.id),
+            ('server', self.servers[0].id),
+            ('volume', self.volumes[0].id),
             ('tag', 'foo'),
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
@@ -792,26 +804,22 @@ class TestServerVolume(TestServer):
             '--os-compute-api-version 2.49 or greater is required',
             str(ex))
 
-    def test_server_add_volume_with_enable_delete_on_termination(self):
-        self.app.client_manager.compute.api_version = api_versions.APIVersion(
-            '2.79')
-
-        servers = self.setup_servers_mock(count=1)
-        volume_attachment = \
-            compute_fakes.FakeVolumeAttachment.create_one_volume_attachment()
-        self.servers_volumes_mock.create_server_volume.return_value = \
-            volume_attachment
-
+    @mock.patch.object(sdk_utils, 'supports_microversion', return_value=True)
+    def test_server_add_volume_with_enable_delete_on_termination(
+        self,
+        sm_mock,
+    ):
+        self.volume_attachment.delete_on_termination = True
         arglist = [
             '--enable-delete-on-termination',
             '--device', '/dev/sdb',
-            servers[0].id,
-            self.volume.id,
+            self.servers[0].id,
+            self.volumes[0].id,
         ]
 
         verifylist = [
-            ('server', servers[0].id),
-            ('volume', self.volume.id),
+            ('server', self.servers[0].id),
+            ('volume', self.volumes[0].id),
             ('device', '/dev/sdb'),
             ('enable_delete_on_termination', True),
         ]
@@ -826,42 +834,40 @@ class TestServerVolume(TestServer):
             'Delete On Termination',
         )
         expected_data = (
-            volume_attachment.id,
-            volume_attachment.serverId,
-            volume_attachment.volumeId,
-            volume_attachment.device,
-            volume_attachment.tag,
-            volume_attachment.delete_on_termination,
+            self.volume_attachment.id,
+            self.volume_attachment.server_id,
+            self.volume_attachment.volume_id,
+            self.volume_attachment.device,
+            self.volume_attachment.tag,
+            self.volume_attachment.delete_on_termination,
         )
 
         columns, data = self.cmd.take_action(parsed_args)
-
-        self.servers_volumes_mock.create_server_volume.assert_called_once_with(
-            servers[0].id, self.volume.id,
-            device='/dev/sdb', delete_on_termination=True)
         self.assertEqual(expected_columns, columns)
         self.assertEqual(expected_data, data)
+        self.sdk_client.create_volume_attachment.assert_called_once_with(
+            self.servers[0],
+            volumeId=self.volumes[0].id,
+            device='/dev/sdb',
+            delete_on_termination=True)
 
-    def test_server_add_volume_with_disable_delete_on_termination(self):
-        self.app.client_manager.compute.api_version = api_versions.APIVersion(
-            '2.79')
-
-        servers = self.setup_servers_mock(count=1)
-        volume_attachment = \
-            compute_fakes.FakeVolumeAttachment.create_one_volume_attachment()
-        self.servers_volumes_mock.create_server_volume.return_value = \
-            volume_attachment
+    @mock.patch.object(sdk_utils, 'supports_microversion', return_value=True)
+    def test_server_add_volume_with_disable_delete_on_termination(
+        self,
+        sm_mock,
+    ):
+        self.volume_attachment.delete_on_termination = False
 
         arglist = [
             '--disable-delete-on-termination',
             '--device', '/dev/sdb',
-            servers[0].id,
-            self.volume.id,
+            self.servers[0].id,
+            self.volumes[0].id,
         ]
 
         verifylist = [
-            ('server', servers[0].id),
-            ('volume', self.volume.id),
+            ('server', self.servers[0].id),
+            ('volume', self.volumes[0].id),
             ('device', '/dev/sdb'),
             ('disable_delete_on_termination', True),
         ]
@@ -876,37 +882,43 @@ class TestServerVolume(TestServer):
             'Delete On Termination',
         )
         expected_data = (
-            volume_attachment.id,
-            volume_attachment.serverId,
-            volume_attachment.volumeId,
-            volume_attachment.device,
-            volume_attachment.tag,
-            volume_attachment.delete_on_termination,
+            self.volume_attachment.id,
+            self.volume_attachment.server_id,
+            self.volume_attachment.volume_id,
+            self.volume_attachment.device,
+            self.volume_attachment.tag,
+            self.volume_attachment.delete_on_termination,
         )
 
         columns, data = self.cmd.take_action(parsed_args)
 
-        self.servers_volumes_mock.create_server_volume.assert_called_once_with(
-            servers[0].id, self.volume.id,
-            device='/dev/sdb', delete_on_termination=False)
         self.assertEqual(expected_columns, columns)
         self.assertEqual(expected_data, data)
+        self.sdk_client.create_volume_attachment.assert_called_once_with(
+            self.servers[0],
+            volumeId=self.volumes[0].id,
+            device='/dev/sdb',
+            delete_on_termination=False)
 
+    @mock.patch.object(sdk_utils, 'supports_microversion')
     def test_server_add_volume_with_enable_delete_on_termination_pre_v279(
         self,
+        sm_mock,
     ):
-        self.app.client_manager.compute.api_version = api_versions.APIVersion(
-            '2.78')
+        def side_effect(compute_client, version):
+            if version == '2.79':
+                return False
+            return True
+        sm_mock.side_effect = side_effect
 
-        servers = self.setup_servers_mock(count=1)
         arglist = [
-            servers[0].id,
-            self.volume.id,
+            self.servers[0].id,
+            self.volumes[0].id,
             '--enable-delete-on-termination',
         ]
         verifylist = [
-            ('server', servers[0].id),
-            ('volume', self.volume.id),
+            ('server', self.servers[0].id),
+            ('volume', self.volumes[0].id),
             ('enable_delete_on_termination', True),
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
@@ -917,21 +929,25 @@ class TestServerVolume(TestServer):
         self.assertIn('--os-compute-api-version 2.79 or greater is required',
                       str(ex))
 
+    @mock.patch.object(sdk_utils, 'supports_microversion')
     def test_server_add_volume_with_disable_delete_on_termination_pre_v279(
         self,
+        sm_mock,
     ):
-        self.app.client_manager.compute.api_version = api_versions.APIVersion(
-            '2.78')
+        def side_effect(compute_client, version):
+            if version == '2.79':
+                return False
+            return True
+        sm_mock.side_effect = side_effect
 
-        servers = self.setup_servers_mock(count=1)
         arglist = [
-            servers[0].id,
-            self.volume.id,
+            self.servers[0].id,
+            self.volumes[0].id,
             '--disable-delete-on-termination',
         ]
         verifylist = [
-            ('server', servers[0].id),
-            ('volume', self.volume.id),
+            ('server', self.servers[0].id),
+            ('volume', self.volumes[0].id),
             ('disable_delete_on_termination', True),
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
@@ -942,24 +958,22 @@ class TestServerVolume(TestServer):
         self.assertIn('--os-compute-api-version 2.79 or greater is required',
                       str(ex))
 
+    @mock.patch.object(sdk_utils, 'supports_microversion', return_value=True)
     def test_server_add_volume_with_disable_and_enable_delete_on_termination(
         self,
+        sm_mock,
     ):
-        self.app.client_manager.compute.api_version = api_versions.APIVersion(
-            '2.79')
-
-        servers = self.setup_servers_mock(count=1)
         arglist = [
             '--enable-delete-on-termination',
             '--disable-delete-on-termination',
             '--device', '/dev/sdb',
-            servers[0].id,
-            self.volume.id,
+            self.servers[0].id,
+            self.volumes[0].id,
         ]
 
         verifylist = [
-            ('server', servers[0].id),
-            ('volume', self.volume.id),
+            ('server', self.servers[0].id),
+            ('volume', self.volumes[0].id),
             ('device', '/dev/sdb'),
             ('enable_delete_on_termination', True),
             ('disable_delete_on_termination', True),

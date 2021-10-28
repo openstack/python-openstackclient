@@ -548,24 +548,25 @@ class AddServerVolume(command.ShowOne):
         return parser
 
     def take_action(self, parsed_args):
-        compute_client = self.app.client_manager.compute
-        volume_client = self.app.client_manager.volume
+        compute_client = self.app.client_manager.sdk_connection.compute
+        volume_client = self.app.client_manager.sdk_connection.volume
 
-        server = utils.find_resource(
-            compute_client.servers,
+        server = compute_client.find_server(
             parsed_args.server,
+            ignore_missing=False,
         )
-        volume = utils.find_resource(
-            volume_client.volumes,
+        volume = volume_client.find_volume(
             parsed_args.volume,
+            ignore_missing=False,
         )
 
         kwargs = {
+            "volumeId": volume.id,
             "device": parsed_args.device
         }
 
         if parsed_args.tag:
-            if compute_client.api_version < api_versions.APIVersion('2.49'):
+            if not sdk_utils.supports_microversion(compute_client, '2.49'):
                 msg = _(
                     '--os-compute-api-version 2.49 or greater is required to '
                     'support the --tag option'
@@ -575,7 +576,7 @@ class AddServerVolume(command.ShowOne):
             kwargs['tag'] = parsed_args.tag
 
         if parsed_args.enable_delete_on_termination:
-            if compute_client.api_version < api_versions.APIVersion('2.79'):
+            if not sdk_utils.supports_microversion(compute_client, '2.79'):
                 msg = _(
                     '--os-compute-api-version 2.79 or greater is required to '
                     'support the --enable-delete-on-termination option.'
@@ -585,7 +586,7 @@ class AddServerVolume(command.ShowOne):
             kwargs['delete_on_termination'] = True
 
         if parsed_args.disable_delete_on_termination:
-            if compute_client.api_version < api_versions.APIVersion('2.79'):
+            if not sdk_utils.supports_microversion(compute_client, '2.79'):
                 msg = _(
                     '--os-compute-api-version 2.79 or greater is required to '
                     'support the --disable-delete-on-termination option.'
@@ -594,28 +595,23 @@ class AddServerVolume(command.ShowOne):
 
             kwargs['delete_on_termination'] = False
 
-        volume_attachment = compute_client.volumes.create_server_volume(
-            server.id,
-            volume.id,
-            **kwargs
+        volume_attachment = compute_client.create_volume_attachment(
+            server,
+            **kwargs,
         )
 
-        columns = ('id', 'serverId', 'volumeId', 'device')
+        columns = ('id', 'server id', 'volume id', 'device')
         column_headers = ('ID', 'Server ID', 'Volume ID', 'Device')
-        if compute_client.api_version >= api_versions.APIVersion('2.49'):
+        if sdk_utils.supports_microversion(compute_client, '2.49'):
             columns += ('tag',)
             column_headers += ('Tag',)
-        if compute_client.api_version >= api_versions.APIVersion('2.79'):
+        if sdk_utils.supports_microversion(compute_client, '2.79'):
             columns += ('delete_on_termination',)
             column_headers += ('Delete On Termination',)
 
         return (
             column_headers,
-            utils.get_item_properties(
-                volume_attachment,
-                columns,
-                mixed_case_fields=('serverId', 'volumeId'),
-            )
+            utils.get_item_properties(volume_attachment, columns,)
         )
 
 
