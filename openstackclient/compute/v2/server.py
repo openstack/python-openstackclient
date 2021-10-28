@@ -27,6 +27,7 @@ import iso8601
 from novaclient import api_versions
 from novaclient.v2 import servers
 from openstack import exceptions as sdk_exceptions
+from openstack import utils as sdk_utils
 from osc_lib.cli import format_columns
 from osc_lib.cli import parseractions
 from osc_lib.command import command
@@ -378,10 +379,10 @@ class AddPort(command.Command):
         return parser
 
     def take_action(self, parsed_args):
-        compute_client = self.app.client_manager.compute
+        compute_client = self.app.client_manager.sdk_connection.compute
 
-        server = utils.find_resource(
-            compute_client.servers, parsed_args.server)
+        server = compute_client.find_server(
+            parsed_args.server, ignore_missing=False)
 
         if self.app.client_manager.is_network_endpoint_enabled():
             network_client = self.app.client_manager.network
@@ -392,12 +393,11 @@ class AddPort(command.Command):
 
         kwargs = {
             'port_id': port_id,
-            'net_id': None,
             'fixed_ip': None,
         }
 
         if parsed_args.tag:
-            if compute_client.api_version < api_versions.APIVersion("2.49"):
+            if not sdk_utils.supports_microversion(compute_client, '2.49'):
                 msg = _(
                     '--os-compute-api-version 2.49 or greater is required to '
                     'support the --tag option'
@@ -405,7 +405,7 @@ class AddPort(command.Command):
                 raise exceptions.CommandError(msg)
             kwargs['tag'] = parsed_args.tag
 
-        server.interface_attach(**kwargs)
+        compute_client.create_server_interface(server, **kwargs)
 
 
 class AddNetwork(command.Command):
@@ -434,10 +434,10 @@ class AddNetwork(command.Command):
         return parser
 
     def take_action(self, parsed_args):
-        compute_client = self.app.client_manager.compute
+        compute_client = self.app.client_manager.sdk_connection.compute
 
-        server = utils.find_resource(
-            compute_client.servers, parsed_args.server)
+        server = compute_client.find_server(
+            parsed_args.server, ignore_missing=False)
 
         if self.app.client_manager.is_network_endpoint_enabled():
             network_client = self.app.client_manager.network
@@ -447,13 +447,12 @@ class AddNetwork(command.Command):
             net_id = parsed_args.network
 
         kwargs = {
-            'port_id': None,
             'net_id': net_id,
             'fixed_ip': None,
         }
 
         if parsed_args.tag:
-            if compute_client.api_version < api_versions.APIVersion('2.49'):
+            if not sdk_utils.supports_microversion(compute_client, '2.49'):
                 msg = _(
                     '--os-compute-api-version 2.49 or greater is required to '
                     'support the --tag option'
@@ -462,7 +461,7 @@ class AddNetwork(command.Command):
 
             kwargs['tag'] = parsed_args.tag
 
-        server.interface_attach(**kwargs)
+        compute_client.create_server_interface(server, **kwargs)
 
 
 class AddServerSecurityGroup(command.Command):

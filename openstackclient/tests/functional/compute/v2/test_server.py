@@ -1071,3 +1071,51 @@ class ServerTests(common.ComputeTestCase):
             # networks and the test didn't specify a specific network.
             self.assertNotIn('nics are required after microversion 2.36',
                              e.stderr)
+
+    def test_server_add_remove_network_port(self):
+        name = uuid.uuid4().hex
+        cmd_output = json.loads(self.openstack(
+            'server create -f json ' +
+            '--network private ' +
+            '--flavor ' + self.flavor_name + ' ' +
+            '--image ' + self.image_name + ' ' +
+            '--wait ' +
+            name
+        ))
+
+        self.assertIsNotNone(cmd_output['id'])
+        self.assertEqual(name, cmd_output['name'])
+
+        self.openstack(
+            'server add network ' + name + ' public')
+
+        cmd_output = json.loads(self.openstack(
+            'server show -f json ' + name
+        ))
+
+        addresses = cmd_output['addresses']
+        self.assertIn('public', addresses)
+
+        port_name = 'test-port'
+
+        cmd_output = json.loads(self.openstack(
+            'port list -f json'
+        ))
+        self.assertNotIn(port_name, cmd_output)
+
+        cmd_output = json.loads(self.openstack(
+            'port create -f json ' +
+            '--network private ' + port_name
+        ))
+        self.assertIsNotNone(cmd_output['id'])
+
+        self.openstack('server add port ' + name + ' ' + port_name)
+
+        cmd_output = json.loads(self.openstack(
+            'server show -f json ' + name
+        ))
+
+        # TODO(diwei): test remove network/port after the commands are switched
+
+        self.openstack('server delete ' + name)
+        self.openstack('port delete ' + port_name)
