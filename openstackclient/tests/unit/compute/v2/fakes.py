@@ -21,7 +21,7 @@ import uuid
 from novaclient import api_versions
 from openstack.compute.v2 import flavor as _flavor
 from openstack.compute.v2 import hypervisor as _hypervisor
-from openstack.compute.v2 import server
+from openstack.compute.v2 import server as _server
 from openstack.compute.v2 import server_group as _server_group
 from openstack.compute.v2 import server_interface as _server_interface
 from openstack.compute.v2 import service
@@ -605,7 +605,12 @@ class FakeServer(object):
 
         # Overwrite default attributes.
         server_info.update(attrs)
-        return server.Server(**server_info)
+        server = _server.Server(**server_info)
+
+        # Override methods
+        server.trigger_crash_dump = mock.MagicMock()
+
+        return server
 
     @staticmethod
     def create_sdk_servers(attrs=None, methods=None, count=2):

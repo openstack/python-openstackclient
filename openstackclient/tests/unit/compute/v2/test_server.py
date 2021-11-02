@@ -4464,21 +4464,36 @@ class TestServerDelete(TestServer):
 class TestServerDumpCreate(TestServer):
 
     def setUp(self):
-        super(TestServerDumpCreate, self).setUp()
+        super().setUp()
 
         # Get the command object to test
         self.cmd = server.CreateServerDump(self.app, None)
 
-        # Set methods to be tested.
-        self.methods = {
-            'trigger_crash_dump': None,
-        }
+    def run_test_server_dump(self, server_count):
+        servers = self.setup_sdk_servers_mock(server_count)
+
+        arglist = []
+        verifylist = []
+
+        for s in servers:
+            arglist.append(s.id)
+
+        verifylist = [
+            ('server', arglist),
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        result = self.cmd.take_action(parsed_args)
+
+        self.assertIsNone(result)
+        for s in servers:
+            s.trigger_crash_dump.assert_called_once_with(self.sdk_client)
 
     def test_server_dump_one_server(self):
-        self.run_method_with_servers('trigger_crash_dump', 1)
+        self.run_test_server_dump(1)
 
     def test_server_dump_multi_servers(self):
-        self.run_method_with_servers('trigger_crash_dump', 3)
+        self.run_test_server_dump(3)
 
 
 class _TestServerList(TestServer):

@@ -1874,12 +1874,10 @@ class CreateServerDump(command.Command):
         return parser
 
     def take_action(self, parsed_args):
-        compute_client = self.app.client_manager.compute
-        for server in parsed_args.server:
-            utils.find_resource(
-                compute_client.servers,
-                server,
-            ).trigger_crash_dump()
+        compute_client = self.app.client_manager.sdk_connection.compute
+        for name_or_id in parsed_args.server:
+            server = compute_client.find_server(name_or_id)
+            server.trigger_crash_dump(compute_client)
 
 
 class DeleteServer(command.Command):
