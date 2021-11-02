@@ -4812,7 +4812,7 @@ class TestServerMigrate(TestServer):
         verifylist = [
             ('live_migration', False),
             ('block_migration', None),
-            ('disk_overcommit', False),
+            ('disk_overcommit', None),
             ('wait', False),
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
@@ -4834,7 +4834,7 @@ class TestServerMigrate(TestServer):
             ('live_migration', False),
             ('host', 'fakehost'),
             ('block_migration', None),
-            ('disk_overcommit', False),
+            ('disk_overcommit', None),
             ('wait', False),
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
@@ -4856,7 +4856,7 @@ class TestServerMigrate(TestServer):
         verifylist = [
             ('live_migration', False),
             ('block_migration', True),
-            ('disk_overcommit', False),
+            ('disk_overcommit', None),
             ('wait', False),
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
@@ -4897,7 +4897,7 @@ class TestServerMigrate(TestServer):
             ('live_migration', False),
             ('host', 'fakehost'),
             ('block_migration', None),
-            ('disk_overcommit', False),
+            ('disk_overcommit', None),
             ('wait', False),
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
@@ -4923,7 +4923,7 @@ class TestServerMigrate(TestServer):
             ('live_migration', True),
             ('host', None),
             ('block_migration', None),
-            ('disk_overcommit', False),
+            ('disk_overcommit', None),
             ('wait', False),
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
@@ -4947,7 +4947,7 @@ class TestServerMigrate(TestServer):
             ('live_migration', True),
             ('host', 'fakehost'),
             ('block_migration', None),
-            ('disk_overcommit', False),
+            ('disk_overcommit', None),
             ('wait', False),
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
@@ -4975,7 +4975,7 @@ class TestServerMigrate(TestServer):
             ('live_migration', True),
             ('host', 'fakehost'),
             ('block_migration', None),
-            ('disk_overcommit', False),
+            ('disk_overcommit', None),
             ('wait', False),
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
@@ -5002,7 +5002,7 @@ class TestServerMigrate(TestServer):
         verifylist = [
             ('live_migration', True),
             ('block_migration', True),
-            ('disk_overcommit', False),
+            ('disk_overcommit', None),
             ('wait', False),
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
@@ -5088,7 +5088,7 @@ class TestServerMigrate(TestServer):
         verifylist = [
             ('live_migration', False),
             ('block_migration', None),
-            ('disk_overcommit', False),
+            ('disk_overcommit', None),
             ('wait', True),
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
@@ -5108,7 +5108,7 @@ class TestServerMigrate(TestServer):
         verifylist = [
             ('live_migration', False),
             ('block_migration', None),
-            ('disk_overcommit', False),
+            ('disk_overcommit', None),
             ('wait', True),
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
