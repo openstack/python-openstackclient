@@ -2967,8 +2967,13 @@ class ListMigration(command.Lister):
         return self.print_migrations(parsed_args, compute_client, migrations)
 
 
-class ShowMigration(command.Command):
-    """Show a migration for a given server."""
+class ShowMigration(command.ShowOne):
+    """Show an in-progress live migration for a given server.
+
+    Note that it is not possible to show cold migrations or completed
+    live-migrations. Use 'openstack server migration list' to get details for
+    these.
+    """
 
     def get_parser(self, prog_name):
         parser = super().get_parser(prog_name)
