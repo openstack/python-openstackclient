@@ -1,0 +1,5 @@
+---
+features:
+  - |
+    The ``server add volume`` command will now return details of the created
+    volume attachment upon successful attachment.

@@ -496,7 +496,7 @@ class AddServerSecurityGroup(command.Command):
         server.add_security_group(security_group['id'])
 
 
-class AddServerVolume(command.Command):
+class AddServerVolume(command.ShowOne):
     _description = _(
         "Add volume to server. "
         "Specify ``--os-compute-api-version 2.20`` or higher to add a volume "
@@ -595,10 +595,28 @@ class AddServerVolume(command.Command):
 
             kwargs['delete_on_termination'] = False
 
-        compute_client.volumes.create_server_volume(
+        volume_attachment = compute_client.volumes.create_server_volume(
             server.id,
             volume.id,
             **kwargs
+        )
+
+        columns = ('id', 'serverId', 'volumeId', 'device')
+        column_headers = ('ID', 'Server ID', 'Volume ID', 'Device')
+        if compute_client.api_version >= api_versions.APIVersion('2.49'):
+            columns += ('tag',)
+            column_headers += ('Tag',)
+        if compute_client.api_version >= api_versions.APIVersion('2.79'):
+            columns += ('delete_on_termination',)
+            column_headers += ('Delete On Termination',)
+
+        return (
+            column_headers,
+            utils.get_item_properties(
+                volume_attachment,
+                columns,
+                mixed_case_fields=('serverId', 'volumeId'),
+            )
         )
 
 

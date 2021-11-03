@@ -670,6 +670,11 @@ class TestServerVolume(TestServer):
 
     def test_server_add_volume(self):
         servers = self.setup_servers_mock(count=1)
+        volume_attachment = \
+            compute_fakes.FakeVolumeAttachment.create_one_volume_attachment()
+        self.servers_volumes_mock.create_server_volume.return_value = \
+            volume_attachment
+
         arglist = [
             '--device', '/dev/sdb',
             servers[0].id,
@@ -683,11 +688,20 @@ class TestServerVolume(TestServer):
 
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
-        result = self.cmd.take_action(parsed_args)
+        expected_columns = ('ID', 'Server ID', 'Volume ID', 'Device')
+        expected_data = (
+            volume_attachment.id,
+            volume_attachment.serverId,
+            volume_attachment.volumeId,
+            volume_attachment.device,
+        )
+
+        columns, data = self.cmd.take_action(parsed_args)
 
         self.servers_volumes_mock.create_server_volume.assert_called_once_with(
             servers[0].id, self.volume.id, device='/dev/sdb')
-        self.assertIsNone(result)
+        self.assertEqual(expected_columns, columns)
+        self.assertEqual(expected_data, data)
 
     def test_server_add_volume_with_tag(self):
         # requires API 2.49 or later
@@ -695,6 +709,11 @@ class TestServerVolume(TestServer):
             '2.49')
 
         servers = self.setup_servers_mock(count=1)
+        volume_attachment = \
+            compute_fakes.FakeVolumeAttachment.create_one_volume_attachment()
+        self.servers_volumes_mock.create_server_volume.return_value = \
+            volume_attachment
+
         arglist = [
             '--device', '/dev/sdb',
             '--tag', 'foo',
@@ -710,11 +729,21 @@ class TestServerVolume(TestServer):
 
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
-        result = self.cmd.take_action(parsed_args)
+        expected_columns = ('ID', 'Server ID', 'Volume ID', 'Device', 'Tag')
+        expected_data = (
+            volume_attachment.id,
+            volume_attachment.serverId,
+            volume_attachment.volumeId,
+            volume_attachment.device,
+            volume_attachment.tag,
+        )
+
+        columns, data = self.cmd.take_action(parsed_args)
 
         self.servers_volumes_mock.create_server_volume.assert_called_once_with(
             servers[0].id, self.volume.id, device='/dev/sdb', tag='foo')
-        self.assertIsNone(result)
+        self.assertEqual(expected_columns, columns)
+        self.assertEqual(expected_data, data)
 
     def test_server_add_volume_with_tag_pre_v249(self):
         self.app.client_manager.compute.api_version = api_versions.APIVersion(
@@ -746,6 +775,11 @@ class TestServerVolume(TestServer):
             '2.79')
 
         servers = self.setup_servers_mock(count=1)
+        volume_attachment = \
+            compute_fakes.FakeVolumeAttachment.create_one_volume_attachment()
+        self.servers_volumes_mock.create_server_volume.return_value = \
+            volume_attachment
+
         arglist = [
             '--enable-delete-on-termination',
             '--device', '/dev/sdb',
@@ -761,18 +795,41 @@ class TestServerVolume(TestServer):
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
-        result = self.cmd.take_action(parsed_args)
+        expected_columns = (
+            'ID',
+            'Server ID',
+            'Volume ID',
+            'Device',
+            'Tag',
+            'Delete On Termination',
+        )
+        expected_data = (
+            volume_attachment.id,
+            volume_attachment.serverId,
+            volume_attachment.volumeId,
+            volume_attachment.device,
+            volume_attachment.tag,
+            volume_attachment.delete_on_termination,
+        )
+
+        columns, data = self.cmd.take_action(parsed_args)
 
         self.servers_volumes_mock.create_server_volume.assert_called_once_with(
             servers[0].id, self.volume.id,
             device='/dev/sdb', delete_on_termination=True)
-        self.assertIsNone(result)
+        self.assertEqual(expected_columns, columns)
+        self.assertEqual(expected_data, data)
 
     def test_server_add_volume_with_disable_delete_on_termination(self):
         self.app.client_manager.compute.api_version = api_versions.APIVersion(
             '2.79')
 
         servers = self.setup_servers_mock(count=1)
+        volume_attachment = \
+            compute_fakes.FakeVolumeAttachment.create_one_volume_attachment()
+        self.servers_volumes_mock.create_server_volume.return_value = \
+            volume_attachment
+
         arglist = [
             '--disable-delete-on-termination',
             '--device', '/dev/sdb',
@@ -788,12 +845,30 @@ class TestServerVolume(TestServer):
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
-        result = self.cmd.take_action(parsed_args)
+        expected_columns = (
+            'ID',
+            'Server ID',
+            'Volume ID',
+            'Device',
+            'Tag',
+            'Delete On Termination',
+        )
+        expected_data = (
+            volume_attachment.id,
+            volume_attachment.serverId,
+            volume_attachment.volumeId,
+            volume_attachment.device,
+            volume_attachment.tag,
+            volume_attachment.delete_on_termination,
+        )
+
+        columns, data = self.cmd.take_action(parsed_args)
 
         self.servers_volumes_mock.create_server_volume.assert_called_once_with(
             servers[0].id, self.volume.id,
             device='/dev/sdb', delete_on_termination=False)
-        self.assertIsNone(result)
+        self.assertEqual(expected_columns, columns)
+        self.assertEqual(expected_data, data)
 
     def test_server_add_volume_with_enable_delete_on_termination_pre_v279(
         self,
