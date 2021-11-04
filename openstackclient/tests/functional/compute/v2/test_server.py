@@ -1291,10 +1291,8 @@ class ServerTests(common.ComputeTestCase):
             parse_output=True,
         )
 
-        self.assertIsNotNone(cmd_output['ID'])
         self.assertEqual(server_id, cmd_output['Server ID'])
         self.assertEqual(volume_id, cmd_output['Volume ID'])
-        volume_attachment_id = cmd_output['ID']
 
         cmd_output = self.openstack(
             'server volume list ' +
@@ -1302,7 +1300,6 @@ class ServerTests(common.ComputeTestCase):
             parse_output=True,
         )
 
-        self.assertEqual(volume_attachment_id, cmd_output[0]['ID'])
         self.assertEqual(server_id, cmd_output[0]['Server ID'])
         self.assertEqual(volume_id, cmd_output[0]['Volume ID'])
 
