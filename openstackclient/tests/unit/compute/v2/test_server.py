@@ -192,6 +192,22 @@ class TestServer(compute_fakes.TestComputev2):
                 method.assert_called_with()
         self.assertIsNone(result)
 
+    def run_method_with_sdk_servers(self, method_name, server_count):
+        servers = self.setup_sdk_servers_mock(count=server_count)
+
+        arglist = [s.id for s in servers]
+        verifylist = [
+            ('server', arglist),
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        result = self.cmd.take_action(parsed_args)
+
+        calls = [call(s.id) for s in servers]
+        method = getattr(self.sdk_client, method_name)
+        method.assert_has_calls(calls)
+        self.assertIsNone(result)
+
 
 class TestServerAddFixedIP(TestServer):
 
@@ -6062,10 +6078,10 @@ class TestServerPause(TestServer):
         }
 
     def test_server_pause_one_server(self):
-        self.run_method_with_servers('pause', 1)
+        self.run_method_with_sdk_servers('pause_server', 1)
 
     def test_server_pause_multi_servers(self):
-        self.run_method_with_servers('pause', 3)
+        self.run_method_with_sdk_servers('pause_server', 3)
 
 
 class TestServerRebuild(TestServer):
@@ -8308,10 +8324,10 @@ class TestServerUnpause(TestServer):
         }
 
     def test_server_unpause_one_server(self):
-        self.run_method_with_servers('unpause', 1)
+        self.run_method_with_sdk_servers('unpause_server', 1)
 
     def test_server_unpause_multi_servers(self):
-        self.run_method_with_servers('unpause', 3)
+        self.run_method_with_sdk_servers('unpause_server', 3)
 
 
 class TestServerUnset(TestServer):

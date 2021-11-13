@@ -1,0 +1,5 @@
+---
+features:
+  - |
+    Migrate ``server pause`` and ``server unpause`` commands from novaclient
+    to sdk.
