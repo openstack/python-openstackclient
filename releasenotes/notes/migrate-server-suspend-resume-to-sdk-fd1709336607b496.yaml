@@ -1,0 +1,5 @@
+---
+features:
+  - |
+    Migrate ``server suspend`` and ``server resume`` commands from novaclient
+    to sdk.
