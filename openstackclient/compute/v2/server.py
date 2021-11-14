@@ -3690,10 +3690,10 @@ class RemovePort(command.Command):
         return parser
 
     def take_action(self, parsed_args):
-        compute_client = self.app.client_manager.compute
+        compute_client = self.app.client_manager.sdk_connection.compute
 
-        server = utils.find_resource(
-            compute_client.servers, parsed_args.server)
+        server = compute_client.find_server(
+            parsed_args.server, ignore_missing=False)
 
         if self.app.client_manager.is_network_endpoint_enabled():
             network_client = self.app.client_manager.network
@@ -3702,7 +3702,11 @@ class RemovePort(command.Command):
         else:
             port_id = parsed_args.port
 
-        server.interface_detach(port_id)
+        compute_client.delete_server_interface(
+            port_id,
+            server=server,
+            ignore_missing=False,
+        )
 
 
 class RemoveNetwork(command.Command):
@@ -3723,10 +3727,10 @@ class RemoveNetwork(command.Command):
         return parser
 
     def take_action(self, parsed_args):
-        compute_client = self.app.client_manager.compute
+        compute_client = self.app.client_manager.sdk_connection.compute
 
-        server = utils.find_resource(
-            compute_client.servers, parsed_args.server)
+        server = compute_client.find_server(
+            parsed_args.server, ignore_missing=False)
 
         if self.app.client_manager.is_network_endpoint_enabled():
             network_client = self.app.client_manager.network
@@ -3735,9 +3739,12 @@ class RemoveNetwork(command.Command):
         else:
             net_id = parsed_args.network
 
-        for inf in server.interface_list():
+        for inf in compute_client.server_interfaces(server):
             if inf.net_id == net_id:
-                server.interface_detach(inf.port_id)
+                compute_client.delete_server_interface(
+                    inf.port_id,
+                    server=server,
+                )
 
 
 class RemoveServerSecurityGroup(command.Command):

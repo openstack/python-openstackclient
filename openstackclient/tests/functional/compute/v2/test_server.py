@@ -1072,7 +1072,7 @@ class ServerTests(common.ComputeTestCase):
             self.assertNotIn('nics are required after microversion 2.36',
                              e.stderr)
 
-    def test_server_add_remove_network_port(self):
+    def test_server_add_remove_network(self):
         name = uuid.uuid4().hex
         cmd_output = json.loads(self.openstack(
             'server create -f json ' +
@@ -1085,18 +1085,63 @@ class ServerTests(common.ComputeTestCase):
 
         self.assertIsNotNone(cmd_output['id'])
         self.assertEqual(name, cmd_output['name'])
+        self.addCleanup(self.openstack, 'server delete --wait ' + name)
 
+        # add network and check 'public' is in server show
         self.openstack(
             'server add network ' + name + ' public')
 
-        cmd_output = json.loads(self.openstack(
-            'server show -f json ' + name
-        ))
-
+        wait_time = 0
+        while wait_time < 60:
+            cmd_output = json.loads(self.openstack(
+                'server show -f json ' + name
+            ))
+            if 'public' not in cmd_output['addresses']:
+                # Hang out for a bit and try again
+                print('retrying add network check')
+                wait_time += 10
+                time.sleep(10)
+            else:
+                break
         addresses = cmd_output['addresses']
         self.assertIn('public', addresses)
 
-        port_name = 'test-port'
+        # remove network and check 'public' is not in server show
+        self.openstack('server remove network ' + name + ' public')
+
+        wait_time = 0
+        while wait_time < 60:
+            cmd_output = json.loads(self.openstack(
+                'server show -f json ' + name
+            ))
+            if 'public' in cmd_output['addresses']:
+                # Hang out for a bit and try again
+                print('retrying remove network check')
+                wait_time += 10
+                time.sleep(10)
+            else:
+                break
+
+        addresses = cmd_output['addresses']
+        self.assertNotIn('public', addresses)
+
+    def test_server_add_remove_port(self):
+        name = uuid.uuid4().hex
+        cmd_output = json.loads(self.openstack(
+            'server create -f json ' +
+            '--network private ' +
+            '--flavor ' + self.flavor_name + ' ' +
+            '--image ' + self.image_name + ' ' +
+            '--wait ' +
+            name
+        ))
+
+        self.assertIsNotNone(cmd_output['id'])
+        self.assertEqual(name, cmd_output['name'])
+        self.addCleanup(self.openstack, 'server delete --wait ' + name)
+
+        # create port, record one of its ip address
+        port_name = uuid.uuid4().hex
 
         cmd_output = json.loads(self.openstack(
             'port list -f json'
@@ -1108,17 +1153,44 @@ class ServerTests(common.ComputeTestCase):
             '--network private ' + port_name
         ))
         self.assertIsNotNone(cmd_output['id'])
+        ip_address = cmd_output['fixed_ips'][0]['ip_address']
+        self.addCleanup(self.openstack, 'port delete ' + port_name)
 
+        # add port to server, assert the ip address of the port appears
         self.openstack('server add port ' + name + ' ' + port_name)
 
-        cmd_output = json.loads(self.openstack(
-            'server show -f json ' + name
-        ))
+        wait_time = 0
+        while wait_time < 60:
+            cmd_output = json.loads(self.openstack(
+                'server show -f json ' + name
+            ))
+            if ip_address not in cmd_output['addresses']['private']:
+                # Hang out for a bit and try again
+                print('retrying add port check')
+                wait_time += 10
+                time.sleep(10)
+            else:
+                break
+        addresses = cmd_output['addresses']['private']
+        self.assertIn(ip_address, addresses)
 
-        # TODO(diwei): test remove network/port after the commands are switched
+        # remove port, assert the ip address of the port doesn't appear
+        self.openstack('server remove port ' + name + ' ' + port_name)
 
-        self.openstack('server delete ' + name)
-        self.openstack('port delete ' + port_name)
+        wait_time = 0
+        while wait_time < 60:
+            cmd_output = json.loads(self.openstack(
+                'server show -f json ' + name
+            ))
+            if ip_address in cmd_output['addresses']['private']:
+                # Hang out for a bit and try again
+                print('retrying add port check')
+                wait_time += 10
+                time.sleep(10)
+            else:
+                break
+        addresses = cmd_output['addresses']['private']
+        self.assertNotIn(ip_address, addresses)
 
     def test_server_add_remove_volume(self):
         volume_wait_for = volume_common.BaseVolumeTests.wait_for_status

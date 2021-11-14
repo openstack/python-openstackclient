@@ -6973,14 +6973,14 @@ class TestServerRemovePort(TestServer):
 
         # Set method to be tested.
         self.methods = {
-            'interface_detach': None,
+            'delete_server_interface': None,
         }
 
         self.find_port = mock.Mock()
         self.app.client_manager.network.find_port = self.find_port
 
     def _test_server_remove_port(self, port_id):
-        servers = self.setup_servers_mock(count=1)
+        servers = self.setup_sdk_servers_mock(count=1)
         port = 'fake-port'
 
         arglist = [
@@ -6995,7 +6995,8 @@ class TestServerRemovePort(TestServer):
 
         result = self.cmd.take_action(parsed_args)
 
-        servers[0].interface_detach.assert_called_once_with(port_id)
+        self.sdk_client.delete_server_interface.assert_called_with(
+            port_id, server=servers[0], ignore_missing=False)
         self.assertIsNone(result)
 
     def test_server_remove_port(self):
@@ -7020,17 +7021,18 @@ class TestServerRemoveNetwork(TestServer):
         # Set method to be tested.
         self.fake_inf = mock.Mock()
         self.methods = {
-            'interface_list': [self.fake_inf],
-            'interface_detach': None,
+            'server_interfaces': [self.fake_inf],
+            'delete_server_interface': None,
         }
 
         self.find_network = mock.Mock()
         self.app.client_manager.network.find_network = self.find_network
+        self.sdk_client.server_interfaces.return_value = [self.fake_inf]
 
     def _test_server_remove_network(self, network_id):
         self.fake_inf.net_id = network_id
         self.fake_inf.port_id = 'fake-port'
-        servers = self.setup_servers_mock(count=1)
+        servers = self.setup_sdk_servers_mock(count=1)
         network = 'fake-network'
 
         arglist = [
@@ -7045,8 +7047,9 @@ class TestServerRemoveNetwork(TestServer):
 
         result = self.cmd.take_action(parsed_args)
 
-        servers[0].interface_list.assert_called_once_with()
-        servers[0].interface_detach.assert_called_once_with('fake-port')
+        self.sdk_client.server_interfaces.assert_called_once_with(servers[0])
+        self.sdk_client.delete_server_interface.assert_called_once_with(
+            'fake-port', server=servers[0])
         self.assertIsNone(result)
 
     def test_server_remove_network(self):
