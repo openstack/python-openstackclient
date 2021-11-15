@@ -24,6 +24,7 @@ from unittest.mock import call
 import iso8601
 from novaclient import api_versions
 from openstack import exceptions as sdk_exceptions
+from openstack import utils as sdk_utils
 from osc_lib.cli import format_columns
 from osc_lib import exceptions
 from osc_lib import utils as common_utils
@@ -68,6 +69,10 @@ class TestServer(compute_fakes.TestComputev2):
         # Get a shortcut to the compute client ServerManager Mock
         self.servers_mock = self.app.client_manager.compute.servers
         self.servers_mock.reset_mock()
+
+        self.app.client_manager.sdk_connection = mock.Mock()
+        self.app.client_manager.sdk_connection.compute = mock.Mock()
+        self.sdk_client = self.app.client_manager.sdk_connection.compute
 
         # Get a shortcut to the compute client ServerMigrationsManager Mock
         self.server_migrations_mock = \
@@ -131,6 +136,21 @@ class TestServer(compute_fakes.TestComputev2):
         # This is the return value for utils.find_resource()
         self.servers_mock.get = compute_fakes.FakeServer.get_servers(servers,
                                                                      0)
+        return servers
+
+    def setup_sdk_servers_mock(self, count):
+        servers = compute_fakes.FakeServer.create_sdk_servers(
+            attrs=self.attrs,
+            methods=self.methods,
+            count=count,
+        )
+
+        # This is the return value for compute_client.find_server()
+        self.sdk_client.find_server = compute_fakes.FakeServer.get_servers(
+            servers,
+            0,
+        )
+
         return servers
 
     def run_method_with_servers(self, method_name, server_count):
@@ -570,7 +590,7 @@ class TestServerAddPort(TestServer):
         self.app.client_manager.network.find_port = self.find_port
 
     def _test_server_add_port(self, port_id):
-        servers = self.setup_servers_mock(count=1)
+        servers = self.setup_sdk_servers_mock(count=1)
         port = 'fake-port'
 
         arglist = [
@@ -585,8 +605,8 @@ class TestServerAddPort(TestServer):
 
         result = self.cmd.take_action(parsed_args)
 
-        servers[0].interface_attach.assert_called_once_with(
-            port_id=port_id, net_id=None, fixed_ip=None)
+        self.sdk_client.create_server_interface.assert_called_once_with(
+            servers[0], port_id=port_id, fixed_ip=None)
         self.assertIsNone(result)
 
     def test_server_add_port(self):
@@ -599,11 +619,12 @@ class TestServerAddPort(TestServer):
         self._test_server_add_port('fake-port')
         self.find_port.assert_not_called()
 
-    def test_server_add_port_with_tag(self):
+    @mock.patch.object(sdk_utils, 'supports_microversion', return_value=True)
+    def test_server_add_port_with_tag(self, sm_mock):
         self.app.client_manager.compute.api_version = api_versions.APIVersion(
             '2.49')
 
-        servers = self.setup_servers_mock(count=1)
+        servers = self.setup_sdk_servers_mock(count=1)
         self.find_port.return_value.id = 'fake-port'
         arglist = [
             servers[0].id,
@@ -620,13 +641,14 @@ class TestServerAddPort(TestServer):
         result = self.cmd.take_action(parsed_args)
         self.assertIsNone(result)
 
-        servers[0].interface_attach.assert_called_once_with(
+        self.sdk_client.create_server_interface.assert_called_once_with(
+            servers[0],
             port_id='fake-port',
-            net_id=None,
             fixed_ip=None,
             tag='tag1')
 
-    def test_server_add_port_with_tag_pre_v249(self):
+    @mock.patch.object(sdk_utils, 'supports_microversion', return_value=False)
+    def test_server_add_port_with_tag_pre_v249(self, sm_mock):
         self.app.client_manager.compute.api_version = api_versions.APIVersion(
             '2.48')
 
@@ -966,7 +988,7 @@ class TestServerAddNetwork(TestServer):
         self.app.client_manager.network.find_network = self.find_network
 
     def _test_server_add_network(self, net_id):
-        servers = self.setup_servers_mock(count=1)
+        servers = self.setup_sdk_servers_mock(count=1)
         network = 'fake-network'
 
         arglist = [
@@ -981,8 +1003,8 @@ class TestServerAddNetwork(TestServer):
 
         result = self.cmd.take_action(parsed_args)
 
-        servers[0].interface_attach.assert_called_once_with(
-            port_id=None, net_id=net_id, fixed_ip=None)
+        self.sdk_client.create_server_interface.assert_called_once_with(
+            servers[0], net_id=net_id, fixed_ip=None)
         self.assertIsNone(result)
 
     def test_server_add_network(self):
@@ -995,11 +1017,12 @@ class TestServerAddNetwork(TestServer):
         self._test_server_add_network('fake-network')
         self.find_network.assert_not_called()
 
-    def test_server_add_network_with_tag(self):
+    @mock.patch.object(sdk_utils, 'supports_microversion', return_value=True)
+    def test_server_add_network_with_tag(self, sm_mock):
         self.app.client_manager.compute.api_version = api_versions.APIVersion(
             '2.49')
 
-        servers = self.setup_servers_mock(count=1)
+        servers = self.setup_sdk_servers_mock(count=1)
         self.find_network.return_value.id = 'fake-network'
 
         arglist = [
@@ -1017,18 +1040,19 @@ class TestServerAddNetwork(TestServer):
         result = self.cmd.take_action(parsed_args)
         self.assertIsNone(result)
 
-        servers[0].interface_attach.assert_called_once_with(
-            port_id=None,
+        self.sdk_client.create_server_interface.assert_called_once_with(
+            servers[0],
             net_id='fake-network',
             fixed_ip=None,
             tag='tag1'
         )
 
-    def test_server_add_network_with_tag_pre_v249(self):
+    @mock.patch.object(sdk_utils, 'supports_microversion', return_value=False)
+    def test_server_add_network_with_tag_pre_v249(self, sm_mock):
         self.app.client_manager.compute.api_version = api_versions.APIVersion(
             '2.48')
 
-        servers = self.setup_servers_mock(count=1)
+        servers = self.setup_sdk_servers_mock(count=1)
         self.find_network.return_value.id = 'fake-network'
 
         arglist = [
