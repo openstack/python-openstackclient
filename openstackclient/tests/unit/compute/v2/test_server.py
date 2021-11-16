@@ -692,9 +692,6 @@ class TestServerVolume(TestServer):
             'create_volume_attachment': None,
         }
 
-        # Get the command object to test
-        self.cmd = server.AddServerVolume(self.app, None)
-
         self.servers = self.setup_sdk_servers_mock(count=1)
         self.volumes = self.setup_sdk_volumes_mock(count=1)
 
@@ -708,6 +705,15 @@ class TestServerVolume(TestServer):
 
         self.sdk_client.create_volume_attachment.return_value = \
             self.volume_attachment
+
+
+class TestServerAddVolume(TestServerVolume):
+
+    def setUp(self):
+        super(TestServerAddVolume, self).setUp()
+
+        # Get the command object to test
+        self.cmd = server.AddServerVolume(self.app, None)
 
     @mock.patch.object(sdk_utils, 'supports_microversion', return_value=False)
     def test_server_add_volume(self, sm_mock):
@@ -983,6 +989,39 @@ class TestServerVolume(TestServer):
                                self.cmd, arglist, verifylist)
         self.assertIn('argument --disable-delete-on-termination: not allowed '
                       'with argument --enable-delete-on-termination', str(ex))
+
+
+class TestServerRemoveVolume(TestServerVolume):
+
+    def setUp(self):
+        super(TestServerRemoveVolume, self).setUp()
+
+        # Get the command object to test
+        self.cmd = server.RemoveServerVolume(self.app, None)
+
+    def test_server_remove_volume(self):
+        self.sdk_client.volume_attachments.return_value = [
+            self.volume_attachment
+        ]
+
+        arglist = [
+            self.servers[0].id,
+            self.volumes[0].id,
+        ]
+
+        verifylist = [
+            ('server', self.servers[0].id),
+            ('volume', self.volumes[0].id),
+        ]
+
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        result = self.cmd.take_action(parsed_args)
+
+        self.assertIsNone(result)
+        self.sdk_client.delete_volume_attachment.assert_called_once_with(
+            self.volume_attachment,
+            self.servers[0])
 
 
 class TestServerAddNetwork(TestServer):

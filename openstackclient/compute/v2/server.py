@@ -3793,22 +3793,29 @@ class RemoveServerVolume(command.Command):
         return parser
 
     def take_action(self, parsed_args):
-        compute_client = self.app.client_manager.compute
-        volume_client = self.app.client_manager.volume
+        compute_client = self.app.client_manager.sdk_connection.compute
+        volume_client = self.app.client_manager.sdk_connection.volume
 
-        server = utils.find_resource(
-            compute_client.servers,
+        server = compute_client.find_server(
             parsed_args.server,
+            ignore_missing=False,
         )
-        volume = utils.find_resource(
-            volume_client.volumes,
+        volume = volume_client.find_volume(
             parsed_args.volume,
+            ignore_missing=False,
         )
 
-        compute_client.volumes.delete_server_volume(
-            server.id,
-            volume.id,
-        )
+        volume_attachments = compute_client.volume_attachments(server)
+        for volume_attachment in volume_attachments:
+            if volume_attachment.volume_id == volume.id:
+                compute_client.delete_volume_attachment(
+                    volume_attachment,
+                    server,
+                )
+                break
+        else:
+            msg = _('Target volume attachment not found.')
+            raise exceptions.CommandError(msg)
 
 
 class RescueServer(command.Command):

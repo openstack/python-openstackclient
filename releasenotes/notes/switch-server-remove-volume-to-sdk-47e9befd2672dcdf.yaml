@@ -1,0 +1,4 @@
+---
+features:
+  - |
+    Switch command server remove volume to using sdk.
