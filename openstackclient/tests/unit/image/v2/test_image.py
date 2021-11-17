@@ -32,17 +32,8 @@ class TestImage(image_fakes.TestImagev2):
     def setUp(self):
         super(TestImage, self).setUp()
 
-        # Get shortcuts to the Mocks in image client
-        # SDK proxy mock
-        self.app.client_manager.image = mock.Mock()
+        # Get shortcuts to mocked image client
         self.client = self.app.client_manager.image
-
-        self.client.remove_member = mock.Mock()
-
-        self.client.create_image = mock.Mock()
-        self.client.update_image = mock.Mock()
-        self.image_members_mock = self.app.client_manager.image.image_members
-        self.image_tags_mock = self.app.client_manager.image.image_tags
 
         # Get shortcut to the Mocks in identity client
         self.project_mock = self.app.client_manager.identity.projects
@@ -483,11 +474,7 @@ class TestImageList(TestImage):
     def setUp(self):
         super(TestImageList, self).setUp()
 
-        self.api_mock = mock.Mock()
-        self.api_mock.side_effect = [
-            [self._image], [],
-        ]
-        self.client.images = self.api_mock
+        self.client.images.side_effect = [[self._image], []]
 
         # Get the command object to test
         self.cmd = image.ListImage(self.app, None)
@@ -1003,8 +990,10 @@ class TestImageSet(TestImage):
         result = self.cmd.take_action(parsed_args)
 
         self.assertIsNone(result)
-
-        self.image_members_mock.update.assert_not_called()
+        # we'll have called this but not set anything
+        self.app.client_manager.image.update_image.called_once_with(
+            self._image.id,
+        )
 
     def test_image_set_membership_option_accept(self):
         membership = image_fakes.create_one_image_member(
