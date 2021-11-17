@@ -1012,17 +1012,26 @@ class SetImage(command.Command):
         membership_group = parser.add_mutually_exclusive_group()
         membership_group.add_argument(
             "--accept",
-            action="store_true",
+            action="store_const",
+            const="accepted",
+            dest="membership",
+            default=None,
             help=_("Accept the image membership"),
         )
         membership_group.add_argument(
             "--reject",
-            action="store_true",
+            action="store_const",
+            const="rejected",
+            dest="membership",
+            default=None,
             help=_("Reject the image membership"),
         )
         membership_group.add_argument(
             "--pending",
-            action="store_true",
+            action="store_const",
+            const="pending",
+            dest="membership",
+            default=None,
             help=_("Reset the image membership to 'pending'"),
         )
 
@@ -1052,6 +1061,43 @@ class SetImage(command.Command):
                 raise exceptions.CommandError(
                     _("ERROR: --%s was given, which is an Image v1 option"
                       " that is no longer supported in Image v2") % deadopt)
+
+        image = image_client.find_image(
+            parsed_args.image, ignore_missing=False,
+        )
+        project_id = None
+        if parsed_args.project:
+            project_id = common.find_project(
+                identity_client,
+                parsed_args.project,
+                parsed_args.project_domain,
+            ).id
+
+        # handle activation status changes
+
+        activation_status = None
+        if parsed_args.deactivate or parsed_args.activate:
+            if parsed_args.deactivate:
+                image_client.deactivate_image(image.id)
+                activation_status = "deactivated"
+            if parsed_args.activate:
+                image_client.reactivate_image(image.id)
+                activation_status = "activated"
+
+        # handle membership changes
+
+        if parsed_args.membership:
+            # If a specific project is not passed, assume we want to update
+            # our own membership
+            if not project_id:
+                project_id = self.app.client_manager.auth_ref.project_id
+            image_client.update_member(
+                image=image.id,
+                member=project_id,
+                status=parsed_args.membership,
+            )
+
+        # handle everything else
 
         kwargs = {}
         copy_attrs = ('architecture', 'container_format', 'disk_format',
@@ -1089,48 +1135,12 @@ class SetImage(command.Command):
             kwargs['visibility'] = 'community'
         if parsed_args.shared:
             kwargs['visibility'] = 'shared'
-        project_id = None
         if parsed_args.project:
-            project_id = common.find_project(
-                identity_client,
-                parsed_args.project,
-                parsed_args.project_domain,
-            ).id
+            # We already did the project lookup above
             kwargs['owner_id'] = project_id
-
-        image = image_client.find_image(parsed_args.image,
-                                        ignore_missing=False)
-
-        # image = utils.find_resource(
-        #     image_client.images, parsed_args.image)
-
-        activation_status = None
-        if parsed_args.deactivate:
-            image_client.deactivate_image(image.id)
-            activation_status = "deactivated"
-        if parsed_args.activate:
-            image_client.reactivate_image(image.id)
-            activation_status = "activated"
-
-        membership_group_args = ('accept', 'reject', 'pending')
-        membership_status = [status for status in membership_group_args
-                             if getattr(parsed_args, status)]
-        if membership_status:
-            # If a specific project is not passed, assume we want to update
-            # our own membership
-            if not project_id:
-                project_id = self.app.client_manager.auth_ref.project_id
-            # The mutually exclusive group of the arg parser ensure we have at
-            # most one item in the membership_status list.
-            if membership_status[0] != 'pending':
-                membership_status[0] += 'ed'  # Glance expects the past form
-            image_client.update_member(
-                image=image.id, member=project_id, status=membership_status[0])
-
         if parsed_args.tags:
             # Tags should be extended, but duplicates removed
             kwargs['tags'] = list(set(image.tags).union(set(parsed_args.tags)))
-
         if parsed_args.hidden is not None:
             kwargs['is_hidden'] = parsed_args.hidden
 

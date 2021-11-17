@@ -1007,9 +1007,7 @@ class TestImageSet(TestImage):
             self._image.id,
         ]
         verifylist = [
-            ('accept', True),
-            ('reject', False),
-            ('pending', False),
+            ('membership', 'accepted'),
             ('image', self._image.id)
         ]
 
@@ -1038,9 +1036,7 @@ class TestImageSet(TestImage):
             '0f41529e-7c12-4de8-be2d-181abb825b3c',
         ]
         verifylist = [
-            ('accept', False),
-            ('reject', True),
-            ('pending', False),
+            ('membership', 'rejected'),
             ('image', '0f41529e-7c12-4de8-be2d-181abb825b3c')
         ]
 
@@ -1069,9 +1065,7 @@ class TestImageSet(TestImage):
             '0f41529e-7c12-4de8-be2d-181abb825b3c',
         ]
         verifylist = [
-            ('accept', False),
-            ('reject', False),
-            ('pending', True),
+            ('membership', 'pending'),
             ('image', '0f41529e-7c12-4de8-be2d-181abb825b3c')
         ]
 
