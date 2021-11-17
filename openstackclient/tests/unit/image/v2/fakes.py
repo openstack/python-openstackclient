@@ -11,16 +11,13 @@
 #   WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
 #   License for the specific language governing permissions and limitations
 #   under the License.
-#
 
-import copy
 import random
 from unittest import mock
 import uuid
 
 from openstack.image.v2 import image
 from openstack.image.v2 import member
-from osc_lib.cli import format_columns
 
 from openstackclient.tests.unit import fakes
 from openstackclient.tests.unit.identity.v3 import fakes as identity_fakes
@@ -28,121 +25,6 @@ from openstackclient.tests.unit import utils
 
 image_id = '0f41529e-7c12-4de8-be2d-181abb825b3c'
 image_name = 'graven'
-image_owner = 'baal'
-image_protected = False
-image_visibility = 'public'
-image_tags = []
-image_size = 0
-
-IMAGE = {
-    'id': image_id,
-    'name': image_name,
-    'owner': image_owner,
-    'protected': image_protected,
-    'visibility': image_visibility,
-    'tags': image_tags,
-    'size': image_size
-}
-
-IMAGE_columns = tuple(sorted(IMAGE))
-IMAGE_data = tuple((IMAGE[x] for x in sorted(IMAGE)))
-
-IMAGE_SHOW = copy.copy(IMAGE)
-IMAGE_SHOW['tags'] = format_columns.ListColumn(IMAGE_SHOW['tags'])
-IMAGE_SHOW_data = tuple((IMAGE_SHOW[x] for x in sorted(IMAGE_SHOW)))
-
-# Just enough v2 schema to do some testing
-IMAGE_schema = {
-    "additionalProperties": {
-        "type": "string"
-    },
-    "name": "image",
-    "links": [
-        {
-            "href": "{self}",
-            "rel": "self"
-        },
-        {
-            "href": "{file}",
-            "rel": "enclosure"
-        },
-        {
-            "href": "{schema}",
-            "rel": "describedby"
-        }
-    ],
-    "properties": {
-        "id": {
-            "pattern": "^([0-9a-fA-F]){8}-([0-9a-fA-F]){4}-([0-9a-fA-F]){4}-([0-9a-fA-F]){4}-([0-9a-fA-F]){12}$",  # noqa
-            "type": "string",
-            "description": "An identifier for the image"
-        },
-        "name": {
-            "type": [
-                "null",
-                "string"
-            ],
-            "description": "Descriptive name for the image",
-            "maxLength": 255
-        },
-        "owner": {
-            "type": [
-                "null",
-                "string"
-            ],
-            "description": "Owner of the image",
-            "maxLength": 255
-        },
-        "protected": {
-            "type": "boolean",
-            "description": "If true, image will not be deletable."
-        },
-        "self": {
-            "type": "string",
-            "description": "(READ-ONLY)"
-        },
-        "schema": {
-            "type": "string",
-            "description": "(READ-ONLY)"
-        },
-        "size": {
-            "type": [
-                "null",
-                "integer",
-                "string"
-            ],
-            "description": "Size of image file in bytes (READ-ONLY)"
-        },
-        "status": {
-            "enum": [
-                "queued",
-                "saving",
-                "active",
-                "killed",
-                "deleted",
-                "pending_delete"
-            ],
-            "type": "string",
-            "description": "Status of the image (READ-ONLY)"
-        },
-        "tags": {
-            "items": {
-                "type": "string",
-                "maxLength": 255
-            },
-            "type": "array",
-            "description": "List of strings related to the image"
-        },
-        "visibility": {
-            "enum": [
-                "public",
-                "private"
-            ],
-            "type": "string",
-            "description": "Scope of image accessibility"
-        },
-    }
-}
 
 
 class FakeImagev2Client(object):
@@ -230,61 +112,6 @@ class FakeImage(object):
             images.append(FakeImage.create_one_image(attrs))
 
         return images
-
-    @staticmethod
-    def get_images(images=None, count=2):
-        """Get an iterable MagicMock object with a list of faked images.
-
-        If images list is provided, then initialize the Mock object with the
-        list. Otherwise create one.
-
-        :param List images:
-            A list of FakeResource objects faking images
-        :param Integer count:
-            The number of images to be faked
-        :return:
-            An iterable Mock object with side_effect set to a list of faked
-            images
-        """
-        if images is None:
-            images = FakeImage.create_images(count)
-
-        return mock.Mock(side_effect=images)
-
-    @staticmethod
-    def get_image_columns(image=None):
-        """Get the image columns from a faked image object.
-
-        :param image:
-            A FakeResource objects faking image
-        :return:
-            A tuple which may include the following keys:
-            ('id', 'name', 'owner', 'protected', 'visibility', 'tags')
-        """
-        if image is not None:
-            return tuple(sorted(image))
-        return IMAGE_columns
-
-    @staticmethod
-    def get_image_data(image=None):
-        """Get the image data from a faked image object.
-
-        :param image:
-            A FakeResource objects faking image
-        :return:
-            A tuple which may include the following values:
-            ('image-123', 'image-foo', 'admin', False, 'public', 'bar, baz')
-        """
-        data_list = []
-        if image is not None:
-            for x in sorted(image.keys()):
-                if x == 'tags':
-                    # The 'tags' should be format_list
-                    data_list.append(
-                        format_columns.ListColumn(getattr(image, x)))
-                else:
-                    data_list.append(getattr(image, x))
-        return tuple(data_list)
 
     @staticmethod
     def create_one_image_member(attrs=None):
