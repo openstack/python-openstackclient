@@ -91,7 +91,7 @@ class TestServerBackupCreate(TestServerBackup):
 
     def setup_images_mock(self, count, servers=None):
         if servers:
-            images = image_fakes.FakeImage.create_images(
+            images = image_fakes.create_images(
                 attrs={
                     'name': servers[0].name,
                     'status': 'active',
@@ -99,7 +99,7 @@ class TestServerBackupCreate(TestServerBackup):
                 count=count,
             )
         else:
-            images = image_fakes.FakeImage.create_images(
+            images = image_fakes.create_images(
                 attrs={
                     'status': 'active',
                 },
@@ -178,15 +178,6 @@ class TestServerBackupCreate(TestServerBackup):
     def test_server_backup_wait_fail(self, mock_wait_for_status):
         servers = self.setup_servers_mock(count=1)
         images = self.setup_images_mock(count=1, servers=servers)
-#         images = image_fakes.FakeImage.create_images(
-#             attrs={
-#                 'name': servers[0].name,
-#                 'status': 'active',
-#             },
-#             count=1,
-#         )
-#
-#         self.images_mock.find_image.return_value = images[0]
         self.images_mock.get_image = mock.Mock(
             side_effect=images[0],
         )

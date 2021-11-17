@@ -70,7 +70,7 @@ class TestProjectPurge(TestProjectPurgeInit):
 
     project = identity_fakes.FakeProject.create_one_project()
     server = compute_fakes.FakeServer.create_one_server()
-    image = image_fakes.FakeImage.create_one_image()
+    image = image_fakes.create_one_image()
     volume = volume_fakes.FakeVolume.create_one_volume()
     backup = volume_fakes.FakeBackup.create_one_backup()
     snapshot = volume_fakes.FakeSnapshot.create_one_snapshot()

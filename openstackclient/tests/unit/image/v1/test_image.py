@@ -34,7 +34,7 @@ class TestImage(image_fakes.TestImagev1):
 
 class TestImageCreate(TestImage):
 
-    new_image = image_fakes.FakeImage.create_one_image()
+    new_image = image_fakes.create_one_image()
     columns = (
         'container_format',
         'disk_format',
@@ -210,7 +210,7 @@ class TestImageCreate(TestImage):
 
 class TestImageDelete(TestImage):
 
-    _image = image_fakes.FakeImage.create_one_image()
+    _image = image_fakes.create_one_image()
 
     def setUp(self):
         super(TestImageDelete, self).setUp()
@@ -239,7 +239,7 @@ class TestImageDelete(TestImage):
 
 class TestImageList(TestImage):
 
-    _image = image_fakes.FakeImage.create_one_image()
+    _image = image_fakes.create_one_image()
 
     columns = (
         'ID',
@@ -443,7 +443,7 @@ class TestImageList(TestImage):
 
 class TestImageSet(TestImage):
 
-    _image = image_fakes.FakeImage.create_one_image()
+    _image = image_fakes.create_one_image()
 
     def setUp(self):
         super(TestImageSet, self).setUp()
@@ -682,8 +682,7 @@ class TestImageSet(TestImage):
 
 class TestImageShow(TestImage):
 
-    _image = image_fakes.FakeImage.create_one_image(
-        attrs={'size': 2000})
+    _image = image_fakes.create_one_image(attrs={'size': 2000})
     columns = (
         'container_format',
         'disk_format',

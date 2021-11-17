@@ -1168,7 +1168,7 @@ class TestServerCreate(TestServer):
 
         self.servers_mock.create.return_value = self.new_server
 
-        self.image = image_fakes.FakeImage.create_one_image()
+        self.image = image_fakes.create_one_image()
         self.find_image_mock.return_value = self.image
         self.get_image_mock.return_value = self.image
 
@@ -2918,7 +2918,7 @@ class TestServerCreate(TestServer):
             'hypervisor_type': 'qemu',
         }
 
-        _image = image_fakes.FakeImage.create_one_image(image_info)
+        _image = image_fakes.create_one_image(image_info)
         self.images_mock.return_value = [_image]
 
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
@@ -2974,7 +2974,7 @@ class TestServerCreate(TestServer):
             'hypervisor_type': 'qemu',
             'hw_disk_bus': 'ide',
         }
-        _image = image_fakes.FakeImage.create_one_image(image_info)
+        _image = image_fakes.create_one_image(image_info)
         self.images_mock.return_value = [_image]
 
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
@@ -3031,7 +3031,7 @@ class TestServerCreate(TestServer):
             'hw_disk_bus': 'ide',
         }
 
-        _image = image_fakes.FakeImage.create_one_image(image_info)
+        _image = image_fakes.create_one_image(image_info)
         self.images_mock.return_value = [_image]
 
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
@@ -3063,8 +3063,8 @@ class TestServerCreate(TestServer):
             }
         }
 
-        target_image = image_fakes.FakeImage.create_one_image(image_info)
-        another_image = image_fakes.FakeImage.create_one_image({})
+        target_image = image_fakes.create_one_image(image_info)
+        another_image = image_fakes.create_one_image({})
         self.images_mock.return_value = [target_image, another_image]
 
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
@@ -4102,7 +4102,7 @@ class TestServerList(TestServer):
         self.servers = self.setup_servers_mock(3)
         self.servers_mock.list.return_value = self.servers
 
-        self.image = image_fakes.FakeImage.create_one_image()
+        self.image = image_fakes.create_one_image()
 
         # self.images_mock.return_value = [self.image]
         self.find_image_mock.return_value = self.image
@@ -6021,7 +6021,7 @@ class TestServerRebuild(TestServer):
         super(TestServerRebuild, self).setUp()
 
         # Return value for utils.find_resource for image
-        self.image = image_fakes.FakeImage.create_one_image()
+        self.image = image_fakes.create_one_image()
         self.get_image_mock.return_value = self.image
 
         # Fake the rebuilt new server.
@@ -6051,7 +6051,7 @@ class TestServerRebuild(TestServer):
 
     def test_rebuild_with_image_name(self):
         image_name = 'my-custom-image'
-        user_image = image_fakes.FakeImage.create_one_image(
+        user_image = image_fakes.create_one_image(
             attrs={'name': image_name})
         self.find_image_mock.return_value = user_image
 
@@ -6600,7 +6600,7 @@ class TestEvacuateServer(TestServer):
     def setUp(self):
         super(TestEvacuateServer, self).setUp()
         # Return value for utils.find_resource for image
-        self.image = image_fakes.FakeImage.create_one_image()
+        self.image = image_fakes.create_one_image()
         self.images_mock.get.return_value = self.image
 
         # Fake the rebuilt new server.
@@ -6794,7 +6794,7 @@ class TestServerRescue(TestServer):
         super(TestServerRescue, self).setUp()
 
         # Return value for utils.find_resource for image
-        self.image = image_fakes.FakeImage.create_one_image()
+        self.image = image_fakes.create_one_image()
         self.get_image_mock.return_value = self.image
 
         new_server = compute_fakes.FakeServer.create_one_server()
@@ -6835,7 +6835,7 @@ class TestServerRescue(TestServer):
         self.server.rescue.assert_called_with(image=None, password=None)
 
     def test_rescue_with_new_image(self):
-        new_image = image_fakes.FakeImage.create_one_image()
+        new_image = image_fakes.create_one_image()
         self.find_image_mock.return_value = new_image
         arglist = [
             '--image', new_image.id,
@@ -7950,7 +7950,7 @@ class TestServerShow(TestServer):
     def setUp(self):
         super(TestServerShow, self).setUp()
 
-        self.image = image_fakes.FakeImage.create_one_image()
+        self.image = image_fakes.create_one_image()
         self.flavor = compute_fakes.FakeFlavor.create_one_flavor()
         self.topology = {
             'nodes': [{'vcpu_set': [0, 1]}, {'vcpu_set': [2, 3]}],
@@ -8540,7 +8540,7 @@ class TestServerGeneral(TestServer):
         # - The first time, return server info.
         # - The second time, return image info.
         # - The third time, return flavor info.
-        _image = image_fakes.FakeImage.create_one_image()
+        _image = image_fakes.create_one_image()
         _flavor = compute_fakes.FakeFlavor.create_one_flavor()
         server_info = {
             'image': {u'id': _image.id},
