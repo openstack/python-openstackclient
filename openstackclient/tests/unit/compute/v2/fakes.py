@@ -22,6 +22,7 @@ from novaclient import api_versions
 from openstack.compute.v2 import flavor as _flavor
 from openstack.compute.v2 import server
 from openstack.compute.v2 import server_interface as _server_interface
+from openstack.compute.v2 import service
 from openstack.compute.v2 import volume_attachment
 
 from openstackclient.api import compute_v2
@@ -764,7 +765,7 @@ class FakeService(object):
         :param dict attrs:
             A dictionary with all attributes
         :return:
-            A FakeResource object, with id, host, binary, and so on
+            A fake Service object, with id, host, binary, and so on
         """
         attrs = attrs or {}
 
@@ -774,21 +775,18 @@ class FakeService(object):
             'host': 'host-' + uuid.uuid4().hex,
             'binary': 'binary-' + uuid.uuid4().hex,
             'status': 'enabled',
-            'zone': 'zone-' + uuid.uuid4().hex,
+            'availability_zone': 'zone-' + uuid.uuid4().hex,
             'state': 'state-' + uuid.uuid4().hex,
             'updated_at': 'time-' + uuid.uuid4().hex,
             'disabled_reason': 'earthquake',
             # Introduced in API microversion 2.11
-            'forced_down': False,
+            'is_forced_down': False,
         }
 
         # Overwrite default attributes.
         service_info.update(attrs)
 
-        service = fakes.FakeResource(info=copy.deepcopy(service_info),
-                                     loaded=True)
-
-        return service
+        return service.Service(**service_info)
 
     @staticmethod
     def create_services(attrs=None, count=2):

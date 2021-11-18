@@ -1,0 +1,3 @@
+features:
+  - |
+    Switch the compute service commands from novaclient to SDK.

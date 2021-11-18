@@ -17,7 +17,7 @@
 
 import logging
 
-from novaclient import api_versions
+from openstack import utils as sdk_utils
 from osc_lib.command import command
 from osc_lib import exceptions
 from osc_lib import utils
@@ -40,16 +40,24 @@ class DeleteService(command.Command):
             help=_("Compute service(s) to delete (ID only). If using "
                    "``--os-compute-api-version`` 2.53 or greater, the ID is "
                    "a UUID which can be retrieved by listing compute services "
-                   "using the same 2.53+ microversion.")
+                   "using the same 2.53+ microversion. "
+                   "If deleting a compute service, be sure to stop the actual "
+                   "compute process on the physical host before deleting the "
+                   "service with this command. Failing to do so can lead to "
+                   "the running service re-creating orphaned compute_nodes "
+                   "table records in the database.")
         )
         return parser
 
     def take_action(self, parsed_args):
-        compute_client = self.app.client_manager.compute
+        compute_client = self.app.client_manager.sdk_connection.compute
         result = 0
         for s in parsed_args.service:
             try:
-                compute_client.services.delete(s)
+                compute_client.delete_service(
+                    s,
+                    ignore_missing=False
+                )
             except Exception as e:
                 result += 1
                 LOG.error(_("Failed to delete compute service with "
@@ -91,38 +99,40 @@ class ListService(command.Lister):
         return parser
 
     def take_action(self, parsed_args):
-        compute_client = self.app.client_manager.compute
+        compute_client = self.app.client_manager.sdk_connection.compute
+        columns = (
+            "id",
+            "binary",
+            "host",
+            "availability_zone",
+            "status",
+            "state",
+            "updated_at",
+        )
+        column_headers = (
+            "ID",
+            "Binary",
+            "Host",
+            "Zone",
+            "Status",
+            "State",
+            "Updated At",
+        )
         if parsed_args.long:
-            columns = (
-                "ID",
-                "Binary",
-                "Host",
-                "Zone",
-                "Status",
-                "State",
-                "Updated At",
-                "Disabled Reason"
-            )
-            has_forced_down = (
-                compute_client.api_version >= api_versions.APIVersion('2.11'))
-            if has_forced_down:
-                columns += ("Forced Down",)
-        else:
-            columns = (
-                "ID",
-                "Binary",
-                "Host",
-                "Zone",
-                "Status",
-                "State",
-                "Updated At"
-            )
-        data = compute_client.services.list(parsed_args.host,
-                                            parsed_args.service)
-        return (columns,
-                (utils.get_item_properties(
-                    s, columns,
-                ) for s in data))
+            columns += ("disabled_reason",)
+            column_headers += ("Disabled Reason",)
+            if sdk_utils.supports_microversion(compute_client, '2.11'):
+                columns += ("is_forced_down",)
+                column_headers += ("Forced Down",)
+
+        data = compute_client.services(
+            host=parsed_args.host,
+            binary=parsed_args.service
+        )
+        return (
+            column_headers,
+            (utils.get_item_properties(s, columns) for s in data)
+        )
 
 
 class SetService(command.Command):
@@ -175,7 +185,7 @@ class SetService(command.Command):
         return parser
 
     @staticmethod
-    def _find_service_by_host_and_binary(cs, host, binary):
+    def _find_service_by_host_and_binary(compute_client, host, binary):
         """Utility method to find a compute service by host and binary
 
         :param host: the name of the compute service host
@@ -183,7 +193,7 @@ class SetService(command.Command):
         :returns: novaclient.v2.services.Service dict-like object
         :raises: CommandError if no or multiple results were found
         """
-        services = cs.list(host=host, binary=binary)
+        services = list(compute_client.services(host=host, binary=binary))
         # Did we find anything?
         if not len(services):
             msg = _('Compute service for host "%(host)s" and binary '
@@ -202,8 +212,7 @@ class SetService(command.Command):
         return services[0]
 
     def take_action(self, parsed_args):
-        compute_client = self.app.client_manager.compute
-        cs = compute_client.services
+        compute_client = self.app.client_manager.sdk_connection.compute
 
         if (parsed_args.enable or not parsed_args.disable) and \
                 parsed_args.disable_reason:
@@ -216,14 +225,17 @@ class SetService(command.Command):
         # services. If 2.53+ is used we need to find the nova-compute
         # service using the --host and --service (binary) values.
         requires_service_id = (
-            compute_client.api_version >= api_versions.APIVersion('2.53'))
+            sdk_utils.supports_microversion(compute_client, '2.53'))
         service_id = None
         if requires_service_id:
             # TODO(mriedem): Add an --id option so users can pass the service
             # id (as a uuid) directly rather than make us look it up using
             # host/binary.
             service_id = SetService._find_service_by_host_and_binary(
-                cs, parsed_args.host, parsed_args.service).id
+                compute_client,
+                parsed_args.host,
+                parsed_args.service
+            ).id
 
         result = 0
         enabled = None
@@ -235,21 +247,18 @@ class SetService(command.Command):
 
             if enabled is not None:
                 if enabled:
-                    args = (service_id,) if requires_service_id else (
-                        parsed_args.host, parsed_args.service)
-                    cs.enable(*args)
+                    compute_client.enable_service(
+                        service_id,
+                        parsed_args.host,
+                        parsed_args.service
+                    )
                 else:
-                    if parsed_args.disable_reason:
-                        args = (service_id, parsed_args.disable_reason) if \
-                            requires_service_id else (
-                            parsed_args.host,
-                            parsed_args.service,
-                            parsed_args.disable_reason)
-                        cs.disable_log_reason(*args)
-                    else:
-                        args = (service_id,) if requires_service_id else (
-                            parsed_args.host, parsed_args.service)
-                        cs.disable(*args)
+                    compute_client.disable_service(
+                        service_id,
+                        parsed_args.host,
+                        parsed_args.service,
+                        parsed_args.disable_reason
+                    )
         except Exception:
             status = "enabled" if enabled else "disabled"
             LOG.error("Failed to set service status to %s", status)
@@ -261,15 +270,17 @@ class SetService(command.Command):
         if parsed_args.up:
             force_down = False
         if force_down is not None:
-            if compute_client.api_version < api_versions.APIVersion(
-                    '2.11'):
+            if not sdk_utils.supports_microversion(compute_client, '2.11'):
                 msg = _('--os-compute-api-version 2.11 or later is '
                         'required')
                 raise exceptions.CommandError(msg)
             try:
-                args = (service_id, force_down) if requires_service_id else (
-                    parsed_args.host, parsed_args.service, force_down)
-                cs.force_down(*args)
+                compute_client.update_service_forced_down(
+                    service_id,
+                    parsed_args.host,
+                    parsed_args.service,
+                    force_down
+                )
             except Exception:
                 state = "down" if force_down else "up"
                 LOG.error("Failed to set service state to %s", state)
