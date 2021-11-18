@@ -4885,6 +4885,99 @@ class TestServerList(_TestServerList):
         self.assertEqual(self.columns, columns)
         self.assertEqual(tuple(self.data), tuple(data))
 
+    def test_server_list_long_with_host_status_v216(self):
+        self.app.client_manager.compute.api_version = \
+            api_versions.APIVersion('2.16')
+
+        self.data1 = tuple(
+            (
+                s.id,
+                s.name,
+                s.status,
+                getattr(s, 'OS-EXT-STS:task_state'),
+                server.PowerStateColumn(
+                    getattr(s, 'OS-EXT-STS:power_state')
+                ),
+                format_columns.DictListColumn(s.networks),
+                # Image will be an empty string if boot-from-volume
+                self.image.name if s.image else server.IMAGE_STRING_FOR_BFV,
+                s.image['id'] if s.image else server.IMAGE_STRING_FOR_BFV,
+                self.flavor.name,
+                s.flavor['id'],
+                getattr(s, 'OS-EXT-AZ:availability_zone'),
+                getattr(s, 'OS-EXT-SRV-ATTR:host'),
+                s.Metadata,
+            ) for s in self.servers)
+
+        arglist = [
+            '--long'
+        ]
+        verifylist = [
+            ('long', True),
+        ]
+
+        # First test without host_status in the data -- the column should not
+        # be present in this case.
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+        columns, data = self.cmd.take_action(parsed_args)
+
+        self.servers_mock.list.assert_called_with(**self.kwargs)
+
+        self.assertEqual(self.columns_long, columns)
+        self.assertEqual(tuple(self.data1), tuple(data))
+
+        # Next test with host_status in the data -- the column should be
+        # present in this case.
+        self.servers_mock.reset_mock()
+
+        self.attrs['host_status'] = 'UP'
+        servers = self.setup_servers_mock(3)
+        self.servers_mock.list.return_value = servers
+
+        # Make sure the returned image and flavor IDs match the servers.
+        Image = collections.namedtuple('Image', 'id name')
+        self.images_mock.return_value = [
+            Image(id=s.image['id'], name=self.image.name)
+            # Image will be an empty string if boot-from-volume
+            for s in servers if s.image
+        ]
+
+        Flavor = collections.namedtuple('Flavor', 'id name')
+        self.flavors_mock.list.return_value = [
+            Flavor(id=s.flavor['id'], name=self.flavor.name)
+            for s in servers
+        ]
+
+        # Add the expected host_status column and data.
+        columns_long = self.columns_long + ('Host Status',)
+        self.data2 = tuple(
+            (
+                s.id,
+                s.name,
+                s.status,
+                getattr(s, 'OS-EXT-STS:task_state'),
+                server.PowerStateColumn(
+                    getattr(s, 'OS-EXT-STS:power_state')
+                ),
+                format_columns.DictListColumn(s.networks),
+                # Image will be an empty string if boot-from-volume
+                self.image.name if s.image else server.IMAGE_STRING_FOR_BFV,
+                s.image['id'] if s.image else server.IMAGE_STRING_FOR_BFV,
+                self.flavor.name,
+                s.flavor['id'],
+                getattr(s, 'OS-EXT-AZ:availability_zone'),
+                getattr(s, 'OS-EXT-SRV-ATTR:host'),
+                s.Metadata,
+                s.host_status,
+            ) for s in servers)
+
+        columns, data = self.cmd.take_action(parsed_args)
+
+        self.servers_mock.list.assert_called_with(**self.kwargs)
+
+        self.assertEqual(columns_long, columns)
+        self.assertEqual(tuple(self.data2), tuple(data))
+
 
 class TestServerListV273(_TestServerList):
 

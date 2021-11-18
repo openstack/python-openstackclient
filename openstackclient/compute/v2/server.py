@@ -2569,6 +2569,21 @@ class ListServer(command.Lister):
             else:
                 s.security_groups_name = []
 
+        # The host_status field contains the status of the compute host the
+        # server is on. It is only returned by the API when the nova-api
+        # policy allows. Users can look at the host_status field when, for
+        # example, their server has status ACTIVE but is unresponsive. The
+        # host_status field can indicate a possible problem on the host
+        # it's on, providing useful information to a user in this
+        # situation.
+        if (
+            compute_client.api_version >= api_versions.APIVersion('2.16') and
+            parsed_args.long
+        ):
+            if any([hasattr(s, 'host_status') for s in data]):
+                columns += ('Host Status',)
+                column_headers += ('Host Status',)
+
         table = (
             column_headers,
             (

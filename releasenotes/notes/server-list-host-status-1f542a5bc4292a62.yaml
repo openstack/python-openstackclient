@@ -1,0 +1,6 @@
+---
+features:
+  - |
+    The ``server list`` command will now display ``Host Status`` when the
+    ``--long`` option is specified and the compute API microversion is 2.16 or
+    greater.
