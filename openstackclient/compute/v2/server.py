@@ -21,6 +21,7 @@ import io
 import json
 import logging
 import os
+import subprocess
 
 from cliff import columns as cliff_columns
 import iso8601
@@ -4539,35 +4540,35 @@ class SshServer(command.Command):
         )
 
         # Build the command
-        cmd = "ssh"
+        cmd = [ "ssh" ]
 
         ip_address_family = [4, 6]
         if parsed_args.ipv4:
             ip_address_family = [4]
-            cmd += " -4"
+            cmd.append("-4")
         if parsed_args.ipv6:
             ip_address_family = [6]
-            cmd += " -6"
+            cmd.append("-6")
 
         if parsed_args.port:
-            cmd += " -p %d" % parsed_args.port
+            cmd.append("-p %d" % parsed_args.port)
         if parsed_args.identity:
-            cmd += " -i %s" % parsed_args.identity
+            cmd.append("-i %s" % parsed_args.identity)
         if parsed_args.option:
-            cmd += " -o %s" % parsed_args.option
+            cmd.append("-o %s" % parsed_args.option)
         if parsed_args.login:
             login = parsed_args.login
         else:
             login = self.app.client_manager.auth_ref.username
         if parsed_args.verbose:
-            cmd += " -v"
+            cmd.append("-v")
 
-        cmd += " %s@%s"
         ip_address = _get_ip_address(server.addresses,
                                      parsed_args.address_type,
                                      ip_address_family)
-        LOG.debug("ssh command: %s", (cmd % (login, ip_address)))
-        os.system(cmd % (login, ip_address))
+        cmd.append("%s@%s" % (login, ip_address))
+        LOG.debug("ssh command: %s", (" ".join(cmd)))
+        subprocess.check_call(cmd, shell=False)
 
 
 class StartServer(command.Command):
