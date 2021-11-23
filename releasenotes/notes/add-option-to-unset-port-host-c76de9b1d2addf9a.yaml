@@ -1,0 +1,5 @@
+---
+features:
+  - |
+    Add possibility to unbind Neutron's port from the host by unsetting its
+    host_id.
