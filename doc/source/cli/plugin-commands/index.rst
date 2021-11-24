@@ -7,7 +7,6 @@ Plugin Commands
 .. toctree::
    :maxdepth: 1
 
-   aodh
    barbican
    designate
    gnocchi
@@ -28,6 +27,10 @@ Plugin Commands
    zun
 
 .. TODO(efried): Make pages for the following once they're fixed.
+
+.. aodh
+.. # aodhclient docs build is failing with recent pyparsing
+.. # autoprogram-cliff:: openstack.alarming.v2
 
 .. cue
 .. # cueclient is not in global-requirements
