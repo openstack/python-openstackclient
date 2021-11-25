@@ -2455,6 +2455,9 @@ class ListServer(command.Lister):
                 if c in ('Created At', 'created_at'):
                     columns += ('created',)
                     column_headers += ('Created At',)
+                if c in ('Security Groups', 'security_groups'):
+                    columns += ('security_groups_name',)
+                    column_headers += ('Security Groups',)
 
             # convert back to tuple
             column_headers = tuple(column_headers)
@@ -2559,6 +2562,13 @@ class ListServer(command.Lister):
             else:
                 s.flavor_name = s.flavor['original_name']
 
+        # Add a list with security group name as attribute
+        for s in data:
+            if hasattr(s, 'security_groups'):
+                s.security_groups_name = [x["name"] for x in s.security_groups]
+            else:
+                s.security_groups_name = []
+
         table = (
             column_headers,
             (
@@ -2574,6 +2584,7 @@ class ListServer(command.Lister):
                         'OS-EXT-STS:power_state': PowerStateColumn,
                         'networks': format_columns.DictListColumn,
                         'metadata': format_columns.DictColumn,
+                        'security_groups_name': format_columns.ListColumn,
                     },
                 ) for s in data
             ),

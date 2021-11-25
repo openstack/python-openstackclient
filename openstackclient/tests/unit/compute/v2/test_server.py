@@ -4485,6 +4485,7 @@ class TestServerList(_TestServerList):
             '-c', 'Project ID',
             '-c', 'User ID',
             '-c', 'Created At',
+            '-c', 'Security Groups',
             '--long'
         ]
         verifylist = [
@@ -4498,6 +4499,7 @@ class TestServerList(_TestServerList):
         self.assertIn('Project ID', columns)
         self.assertIn('User ID', columns)
         self.assertIn('Created At', columns)
+        self.assertIn('Security Groups', columns)
 
     def test_server_list_no_name_lookup_option(self):
         self.data = tuple(
