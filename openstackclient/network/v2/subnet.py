@@ -489,6 +489,12 @@ class ListSubnet(command.Lister):
                    "(in CIDR notation) in output "
                    "e.g.: --subnet-range 10.10.0.0/16")
         )
+        parser.add_argument(
+            '--subnet-pool',
+            metavar='<subnet-pool>',
+            help=_("List only subnets which belong to a given subnet pool "
+                   "in output (Name or ID)")
+        )
         _tag.add_tag_filtering_option_to_parser(parser, _('subnets'))
         return parser
 
@@ -524,6 +530,10 @@ class ListSubnet(command.Lister):
             filters['name'] = parsed_args.name
         if parsed_args.subnet_range:
             filters['cidr'] = parsed_args.subnet_range
+        if parsed_args.subnet_pool:
+            subnetpool_id = network_client.find_subnet_pool(
+                parsed_args.subnet_pool, ignore_missing=False).id
+            filters['subnetpool_id'] = subnetpool_id
         _tag.get_tag_filtering_args(parsed_args, filters)
         data = network_client.subnets(**filters)
 
