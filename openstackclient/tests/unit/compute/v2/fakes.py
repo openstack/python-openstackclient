@@ -21,6 +21,7 @@ import uuid
 from novaclient import api_versions
 from openstack.compute.v2 import flavor as _flavor
 from openstack.compute.v2 import server
+from openstack.compute.v2 import volume_attachment
 
 from openstackclient.api import compute_v2
 from openstackclient.tests.unit import fakes
@@ -1800,6 +1801,61 @@ class FakeVolumeAttachment(object):
         for i in range(0, count):
             volume_attachments.append(
                 FakeVolumeAttachment.create_one_volume_attachment(
+                    attrs, methods))
+
+        return volume_attachments
+
+    @staticmethod
+    def create_one_sdk_volume_attachment(attrs=None, methods=None):
+        """Create a fake sdk VolumeAttachment.
+
+        :param dict attrs:
+            A dictionary with all attributes
+        :param dict methods:
+            A dictionary with all methods
+        :return:
+            A fake VolumeAttachment object, with id, device, and so on
+        """
+        attrs = attrs or {}
+        methods = methods or {}
+
+        # Set default attributes.
+        volume_attachment_info = {
+            "id": uuid.uuid4().hex,
+            "device": "/dev/sdb",
+            "server_id": uuid.uuid4().hex,
+            "volume_id": uuid.uuid4().hex,
+            # introduced in API microversion 2.70
+            "tag": "foo",
+            # introduced in API microversion 2.79
+            "delete_on_termination": True,
+            # introduced in API microversion 2.89
+            "attachment_id": uuid.uuid4().hex,
+            "bdm_uuid": uuid.uuid4().hex
+        }
+
+        # Overwrite default attributes.
+        volume_attachment_info.update(attrs)
+
+        return volume_attachment.VolumeAttachment(**volume_attachment_info)
+
+    @staticmethod
+    def create_sdk_volume_attachments(attrs=None, methods=None, count=2):
+        """Create multiple fake VolumeAttachment objects (BDMs).
+
+        :param dict attrs:
+            A dictionary with all attributes
+        :param dict methods:
+            A dictionary with all methods
+        :param int count:
+            The number of volume attachments to fake
+        :return:
+            A list of VolumeAttachment objects faking the volume attachments.
+        """
+        volume_attachments = []
+        for i in range(0, count):
+            volume_attachments.append(
+                FakeVolumeAttachment.create_one_sdk_volume_attachment(
                     attrs, methods))
 
         return volume_attachments

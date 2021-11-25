@@ -18,6 +18,7 @@ from unittest import mock
 import uuid
 
 from cinderclient import api_versions
+from openstack.block_storage.v3 import volume
 from osc_lib.cli import format_columns
 
 from openstackclient.tests.unit import fakes
@@ -46,7 +47,7 @@ class FakeTransfer(object):
     def create_one_transfer(attrs=None):
         """Create a fake transfer.
 
-        :param Dictionary attrs:
+        :param dict attrs:
             A dictionary with all attributes of Transfer Request
         :return:
             A FakeResource object with volume_id, name, id.
@@ -75,7 +76,7 @@ class FakeTransfer(object):
     def create_transfers(attrs=None, count=2):
         """Create multiple fake transfers.
 
-        :param Dictionary attrs:
+        :param dict attrs:
             A dictionary with all attributes of transfer
         :param Integer count:
             The number of transfers to be faked
@@ -116,7 +117,7 @@ class FakeTypeAccess(object):
     def create_one_type_access(attrs=None):
         """Create a fake volume type access for project.
 
-        :param Dictionary attrs:
+        :param dict attrs:
             A dictionary with all attributes
         :return:
             A FakeResource object, with  Volume_type_ID and Project_ID.
@@ -148,7 +149,7 @@ class FakeService(object):
     def create_one_service(attrs=None):
         """Create a fake service.
 
-        :param Dictionary attrs:
+        :param dict attrs:
             A dictionary with all attributes of service
         :return:
             A FakeResource object with host, status, etc.
@@ -180,7 +181,7 @@ class FakeService(object):
     def create_services(attrs=None, count=2):
         """Create multiple fake services.
 
-        :param Dictionary attrs:
+        :param dict attrs:
             A dictionary with all attributes of service
         :param Integer count:
             The number of services to be faked
@@ -201,7 +202,7 @@ class FakeCapability(object):
     def create_one_capability(attrs=None):
         """Create a fake volume backend capability.
 
-        :param Dictionary attrs:
+        :param dict attrs:
             A dictionary with all attributes of the Capabilities.
         :return:
             A FakeResource object with capability name and attrs.
@@ -260,7 +261,7 @@ class FakePool(object):
     def create_one_pool(attrs=None):
         """Create a fake pool.
 
-        :param Dictionary attrs:
+        :param dict attrs:
             A dictionary with all attributes of the pool
         :return:
             A FakeResource object with pool name and attrs.
@@ -362,7 +363,7 @@ class FakeVolume(object):
     def create_one_volume(attrs=None):
         """Create a fake volume.
 
-        :param Dictionary attrs:
+        :param dict attrs:
             A dictionary with all attributes of volume
         :return:
             A FakeResource object with id, name, status, etc.
@@ -405,7 +406,7 @@ class FakeVolume(object):
     def create_volumes(attrs=None, count=2):
         """Create multiple fake volumes.
 
-        :param Dictionary attrs:
+        :param dict attrs:
             A dictionary with all attributes of volume
         :param Integer count:
             The number of volumes to be faked
@@ -415,6 +416,61 @@ class FakeVolume(object):
         volumes = []
         for n in range(0, count):
             volumes.append(FakeVolume.create_one_volume(attrs))
+
+        return volumes
+
+    @staticmethod
+    def create_one_sdk_volume(attrs=None):
+        """Create a fake volume.
+
+        :param dict attrs:
+            A dictionary with all attributes of volume
+        :return:
+            A FakeResource object with id, name, status, etc.
+        """
+        attrs = attrs or {}
+
+        # Set default attribute
+        volume_info = {
+            'id': 'volume-id' + uuid.uuid4().hex,
+            'name': 'volume-name' + uuid.uuid4().hex,
+            'description': 'description' + uuid.uuid4().hex,
+            'status': random.choice(['available', 'in_use']),
+            'size': random.randint(1, 20),
+            'volume_type':
+                random.choice(['fake_lvmdriver-1', 'fake_lvmdriver-2']),
+            'bootable':
+                random.choice(['true', 'false']),
+            'metadata': {
+                'key' + uuid.uuid4().hex: 'val' + uuid.uuid4().hex,
+                'key' + uuid.uuid4().hex: 'val' + uuid.uuid4().hex,
+                'key' + uuid.uuid4().hex: 'val' + uuid.uuid4().hex},
+            'snapshot_id': random.randint(1, 5),
+            'availability_zone': 'zone' + uuid.uuid4().hex,
+            'attachments': [{
+                'device': '/dev/' + uuid.uuid4().hex,
+                'server_id': uuid.uuid4().hex,
+            }, ],
+        }
+
+        # Overwrite default attributes if there are some attributes set
+        volume_info.update(attrs)
+        return volume.Volume(**volume_info)
+
+    @staticmethod
+    def create_sdk_volumes(attrs=None, count=2):
+        """Create multiple fake volumes.
+
+        :param dict attrs:
+            A dictionary with all attributes of volume
+        :param Integer count:
+            The number of volumes to be faked
+        :return:
+            A list of FakeResource objects
+        """
+        volumes = []
+        for n in range(0, count):
+            volumes.append(FakeVolume.create_one_sdk_volume(attrs))
 
         return volumes
 
@@ -484,7 +540,7 @@ class FakeAvailabilityZone(object):
     def create_one_availability_zone(attrs=None):
         """Create a fake AZ.
 
-        :param Dictionary attrs:
+        :param dict attrs:
             A dictionary with all attributes
         :return:
             A FakeResource object with zoneName, zoneState, etc.
@@ -509,7 +565,7 @@ class FakeAvailabilityZone(object):
     def create_availability_zones(attrs=None, count=2):
         """Create multiple fake AZs.
 
-        :param Dictionary attrs:
+        :param dict attrs:
             A dictionary with all attributes
         :param int count:
             The number of AZs to fake
@@ -532,7 +588,7 @@ class FakeBackup(object):
     def create_one_backup(attrs=None):
         """Create a fake backup.
 
-        :param Dictionary attrs:
+        :param dict attrs:
             A dictionary with all attributes
         :return:
             A FakeResource object with id, name, volume_id, etc.
@@ -565,7 +621,7 @@ class FakeBackup(object):
     def create_backups(attrs=None, count=2):
         """Create multiple fake backups.
 
-        :param Dictionary attrs:
+        :param dict attrs:
             A dictionary with all attributes
         :param int count:
             The number of backups to fake
@@ -636,7 +692,7 @@ class FakeConsistencyGroup(object):
     def create_one_consistency_group(attrs=None):
         """Create a fake consistency group.
 
-        :param Dictionary attrs:
+        :param dict attrs:
             A dictionary with all attributes
         :return:
             A FakeResource object with id, name, description, etc.
@@ -666,7 +722,7 @@ class FakeConsistencyGroup(object):
     def create_consistency_groups(attrs=None, count=2):
         """Create multiple fake consistency groups.
 
-        :param Dictionary attrs:
+        :param dict attrs:
             A dictionary with all attributes
         :param int count:
             The number of consistency groups to fake
@@ -713,7 +769,7 @@ class FakeConsistencyGroupSnapshot(object):
     def create_one_consistency_group_snapshot(attrs=None):
         """Create a fake consistency group snapshot.
 
-        :param Dictionary attrs:
+        :param dict attrs:
             A dictionary with all attributes
         :return:
             A FakeResource object with id, name, description, etc.
@@ -742,7 +798,7 @@ class FakeConsistencyGroupSnapshot(object):
     def create_consistency_group_snapshots(attrs=None, count=2):
         """Create multiple fake consistency group snapshots.
 
-        :param Dictionary attrs:
+        :param dict attrs:
             A dictionary with all attributes
         :param int count:
             The number of consistency group snapshots to fake
@@ -789,7 +845,7 @@ class FakeExtension(object):
     def create_one_extension(attrs=None):
         """Create a fake extension.
 
-        :param Dictionary attrs:
+        :param dict attrs:
             A dictionary with all attributes
         :return:
             A FakeResource object with name, namespace, etc.
@@ -825,7 +881,7 @@ class FakeQos(object):
     def create_one_qos(attrs=None):
         """Create a fake Qos specification.
 
-        :param Dictionary attrs:
+        :param dict attrs:
             A dictionary with all attributes
         :return:
             A FakeResource object with id, name, consumer, etc.
@@ -852,7 +908,7 @@ class FakeQos(object):
     def create_one_qos_association(attrs=None):
         """Create a fake Qos specification association.
 
-        :param Dictionary attrs:
+        :param dict attrs:
             A dictionary with all attributes
         :return:
             A FakeResource object with id, name, association_type, etc.
@@ -878,7 +934,7 @@ class FakeQos(object):
     def create_qoses(attrs=None, count=2):
         """Create multiple fake Qos specifications.
 
-        :param Dictionary attrs:
+        :param dict attrs:
             A dictionary with all attributes
         :param int count:
             The number of Qos specifications to fake
@@ -920,7 +976,7 @@ class FakeSnapshot(object):
     def create_one_snapshot(attrs=None):
         """Create a fake snapshot.
 
-        :param Dictionary attrs:
+        :param dict attrs:
             A dictionary with all attributes
         :return:
             A FakeResource object with id, name, description, etc.
@@ -951,7 +1007,7 @@ class FakeSnapshot(object):
     def create_snapshots(attrs=None, count=2):
         """Create multiple fake snapshots.
 
-        :param Dictionary attrs:
+        :param dict attrs:
             A dictionary with all attributes
         :param int count:
             The number of snapshots to fake
@@ -993,9 +1049,9 @@ class FakeVolumeType(object):
     def create_one_volume_type(attrs=None, methods=None):
         """Create a fake volume type.
 
-        :param Dictionary attrs:
+        :param dict attrs:
             A dictionary with all attributes
-        :param Dictionary methods:
+        :param dict methods:
             A dictionary with all methods
         :return:
             A FakeResource object with id, name, description, etc.
@@ -1025,7 +1081,7 @@ class FakeVolumeType(object):
     def create_volume_types(attrs=None, count=2):
         """Create multiple fake volume_types.
 
-        :param Dictionary attrs:
+        :param dict attrs:
             A dictionary with all attributes
         :param int count:
             The number of types to fake
@@ -1063,7 +1119,7 @@ class FakeVolumeType(object):
     def create_one_encryption_volume_type(attrs=None):
         """Create a fake encryption volume type.
 
-        :param Dictionary attrs:
+        :param dict attrs:
             A dictionary with all attributes
         :return:
             A FakeResource object with volume_type_id etc.
