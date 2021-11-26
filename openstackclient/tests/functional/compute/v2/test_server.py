@@ -1119,3 +1119,62 @@ class ServerTests(common.ComputeTestCase):
 
         self.openstack('server delete ' + name)
         self.openstack('port delete ' + port_name)
+
+    def test_server_add_remove_volume(self):
+        volume_wait_for = volume_common.BaseVolumeTests.wait_for_status
+
+        name = uuid.uuid4().hex
+        cmd_output = json.loads(self.openstack(
+            'server create -f json ' +
+            '--network private ' +
+            '--flavor ' + self.flavor_name + ' ' +
+            '--image ' + self.image_name + ' ' +
+            '--wait ' +
+            name
+        ))
+
+        self.assertIsNotNone(cmd_output['id'])
+        self.assertEqual(name, cmd_output['name'])
+        self.addCleanup(self.openstack, 'server delete --wait ' + name)
+        server_id = cmd_output['id']
+
+        volume_name = uuid.uuid4().hex
+        cmd_output = json.loads(self.openstack(
+            'volume create -f json ' +
+            '--size 1 ' +
+            volume_name
+        ))
+
+        self.assertIsNotNone(cmd_output['id'])
+        self.assertEqual(volume_name, cmd_output['name'])
+        volume_wait_for('volume', volume_name, 'available')
+        self.addCleanup(self.openstack, 'volume delete ' + volume_name)
+        volume_id = cmd_output['id']
+
+        cmd_output = json.loads(self.openstack(
+            'server add volume -f json ' +
+            name + ' ' +
+            volume_name + ' ' +
+            '--tag bar'
+        ))
+
+        self.assertIsNotNone(cmd_output['ID'])
+        self.assertEqual(server_id, cmd_output['Server ID'])
+        self.assertEqual(volume_id, cmd_output['Volume ID'])
+        volume_attachment_id = cmd_output['ID']
+
+        cmd_output = json.loads(self.openstack(
+            'server volume list -f json ' +
+            name
+        ))
+
+        self.assertEqual(volume_attachment_id, cmd_output[0]['ID'])
+        self.assertEqual(server_id, cmd_output[0]['Server ID'])
+        self.assertEqual(volume_id, cmd_output[0]['Volume ID'])
+
+        volume_wait_for('volume', volume_name, 'in-use')
+        self.openstack('server remove volume ' + name + ' ' + volume_name)
+        volume_wait_for('volume', volume_name, 'available')
+
+        raw_output = self.openstack('server volume list ' + name)
+        self.assertEqual('\n', raw_output)
