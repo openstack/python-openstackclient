@@ -1,0 +1,4 @@
+---
+features:
+  - |
+    Migrate openstack server image create from novaclient to sdk.

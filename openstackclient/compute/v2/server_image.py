@@ -73,25 +73,23 @@ class CreateServerImage(command.ShowOne):
                 self.app.stdout.write('\rProgress: %s' % progress)
                 self.app.stdout.flush()
 
-        compute_client = self.app.client_manager.compute
+        compute_client = self.app.client_manager.sdk_connection.compute
+        image_client = self.app.client_manager.image
 
-        server = utils.find_resource(
-            compute_client.servers,
-            parsed_args.server,
+        server = compute_client.find_server(
+            parsed_args.server, ignore_missing=False,
         )
+
         if parsed_args.name:
             image_name = parsed_args.name
         else:
             image_name = server.name
 
-        image_id = compute_client.servers.create_image(
+        image_id = compute_client.create_server_image(
             server.id,
             image_name,
             parsed_args.properties,
-        )
-
-        image_client = self.app.client_manager.image
-        image = image_client.find_image(image_id)
+        ).id
 
         if parsed_args.wait:
             if utils.wait_for_status(
@@ -104,6 +102,8 @@ class CreateServerImage(command.ShowOne):
                 LOG.error(
                     _('Error creating server image: %s'), parsed_args.server)
                 raise exceptions.CommandError
+
+        image = image_client.find_image(image_id, ignore_missing=False)
 
         if self.app.client_manager._api_version['image'] == '1':
             info = {}
