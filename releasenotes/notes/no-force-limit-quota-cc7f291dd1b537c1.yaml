@@ -1,0 +1,13 @@
+---
+features:
+  - Add ``--no-force`` option to the ``openstack quota set`` command (only
+    for compute and network commands). When specified, the compute and network
+    quota engine will check the resource usage before setting the new quota
+    limit. This is the default behavior of the compute quota engine and will
+    become the default for the network quota engine in a future release.
+deprecations:
+  - The ``openstack quota set`` command currently defaults to ``--force``
+    behavior for network quotas. This behavior is now deprecated and a future
+    release will switch to ``--no-force`` behavior. Users should explicitly
+    specify one of these options to prevent a potentially breaking change in
+    behavior.

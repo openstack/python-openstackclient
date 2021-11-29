@@ -985,19 +985,19 @@ class TestQuotaSet(TestQuota):
         )
         self.assertIsNone(result)
 
-    def test_quota_set_with_check_limit(self):
+    def test_quota_set_with_no_force(self):
         arglist = [
             '--subnets', str(network_fakes.QUOTA['subnet']),
             '--volumes', str(volume_fakes.QUOTA['volumes']),
             '--cores', str(compute_fakes.core_num),
-            '--check-limit',
+            '--no-force',
             self.projects[0].name,
         ]
         verifylist = [
             ('subnet', network_fakes.QUOTA['subnet']),
             ('volumes', volume_fakes.QUOTA['volumes']),
             ('cores', compute_fakes.core_num),
-            ('check_limit', True),
+            ('force', False),
             ('project', self.projects[0].name),
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
@@ -1006,6 +1006,7 @@ class TestQuotaSet(TestQuota):
 
         kwargs_compute = {
             'cores': compute_fakes.core_num,
+            'force': False,
         }
         kwargs_volume = {
             'volumes': volume_fakes.QUOTA['volumes'],

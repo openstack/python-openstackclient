@@ -176,7 +176,7 @@ class QuotaTests(base.TestCase):
     def _restore_quota_limit(self, resource, limit, project):
         self.openstack('quota set --%s %s %s' % (resource, limit, project))
 
-    def test_quota_network_set_with_check_limit(self):
+    def test_quota_network_set_with_no_force(self):
         if not self.haz_network:
             self.skipTest('No Network service present')
         if not self.is_extension_enabled('quota-check-limit'):
@@ -201,7 +201,7 @@ class QuotaTests(base.TestCase):
                            (self.PROJECT_NAME, uuid.uuid4().hex))
 
         self.assertRaises(exceptions.CommandFailed, self.openstack,
-                          'quota set --networks 1 --check-limit ' +
+                          'quota set --networks 1 --no-force ' +
                           self.PROJECT_NAME)
 
     def test_quota_network_set_with_force(self):
