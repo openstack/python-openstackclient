@@ -11,7 +11,6 @@
 #   WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
 #   License for the specific language governing permissions and limitations
 #   under the License.
-#
 
 from unittest import mock
 import uuid
@@ -25,36 +24,6 @@ from openstackclient.tests.unit.volume.v1 import fakes as volume_fakes
 
 image_id = 'im1'
 image_name = 'graven'
-image_owner = 'baal'
-image_protected = False
-image_public = True
-image_properties = {
-    'Alpha': 'a',
-    'Beta': 'b',
-    'Gamma': 'g',
-}
-image_properties_str = "Alpha='a', Beta='b', Gamma='g'"
-image_data = 'line 1\nline 2\n'
-image_size = 0
-
-IMAGE = {
-    'id': image_id,
-    'name': image_name,
-    'container_format': '',
-    'disk_format': '',
-    'owner': image_owner,
-    'min_disk': 0,
-    'min_ram': 0,
-    'is_public': image_public,
-    'protected': image_protected,
-    'properties': image_properties,
-    'size': image_size,
-}
-
-IMAGE_columns = tuple(sorted(IMAGE))
-IMAGE_output = dict(IMAGE)
-IMAGE_output['properties'] = image_properties_str
-IMAGE_data = tuple((IMAGE_output[x] for x in sorted(IMAGE_output)))
 
 
 class FakeImagev1Client(object):
