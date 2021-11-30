@@ -3148,12 +3148,13 @@ class PauseServer(command.Command):
         return parser
 
     def take_action(self, parsed_args):
-        compute_client = self.app.client_manager.compute
+        compute_client = self.app.client_manager.sdk_connection.compute
         for server in parsed_args.server:
-            utils.find_resource(
-                compute_client.servers,
-                server
-            ).pause()
+            server_id = compute_client.find_server(
+                server,
+                ignore_missing=False,
+            ).id
+            compute_client.pause_server(server_id)
 
 
 class RebootServer(command.Command):
@@ -4692,7 +4693,6 @@ class UnlockServer(command.Command):
         return parser
 
     def take_action(self, parsed_args):
-
         compute_client = self.app.client_manager.compute
         for server in parsed_args.server:
             utils.find_resource(
@@ -4715,13 +4715,13 @@ class UnpauseServer(command.Command):
         return parser
 
     def take_action(self, parsed_args):
-
-        compute_client = self.app.client_manager.compute
+        compute_client = self.app.client_manager.sdk_connection.compute
         for server in parsed_args.server:
-            utils.find_resource(
-                compute_client.servers,
+            server_id = compute_client.find_server(
                 server,
-            ).unpause()
+                ignore_missing=False,
+            ).id
+            compute_client.unpause_server(server_id)
 
 
 class UnrescueServer(command.Command):
