@@ -111,6 +111,30 @@ def _get_attrs(client_manager, parsed_args):
             parsed_args.project_domain,
         ).id
         attrs['tenant_id'] = project_id
+    if parsed_args.external_gateway:
+        gateway_info = {}
+        n_client = client_manager.network
+        network = n_client.find_network(
+            parsed_args.external_gateway, ignore_missing=False)
+        gateway_info['network_id'] = network.id
+        if parsed_args.disable_snat:
+            gateway_info['enable_snat'] = False
+        if parsed_args.enable_snat:
+            gateway_info['enable_snat'] = True
+        if parsed_args.fixed_ip:
+            ips = []
+            for ip_spec in parsed_args.fixed_ip:
+                if ip_spec.get('subnet', False):
+                    subnet_name_id = ip_spec.pop('subnet')
+                    if subnet_name_id:
+                        subnet = n_client.find_subnet(subnet_name_id,
+                                                      ignore_missing=False)
+                        ip_spec['subnet_id'] = subnet.id
+                if ip_spec.get('ip-address', False):
+                    ip_spec['ip_address'] = ip_spec.pop('ip-address')
+                ips.append(ip_spec)
+            gateway_info['external_fixed_ips'] = ips
+        attrs['external_gateway_info'] = gateway_info
 
     return attrs
 
@@ -320,6 +344,32 @@ class CreateRouter(command.ShowOne, common.NeutronCommandWithExtraArgs):
                    "repeat option to set multiple availability zones)")
         )
         _tag.add_tag_option_to_parser_for_create(parser, _('router'))
+        parser.add_argument(
+            '--external-gateway',
+            metavar="<network>",
+            help=_("External Network used as router's gateway (name or ID)")
+        )
+        parser.add_argument(
+            '--fixed-ip',
+            metavar='subnet=<subnet>,ip-address=<ip-address>',
+            action=parseractions.MultiKeyValueAction,
+            optional_keys=['subnet', 'ip-address'],
+            help=_("Desired IP and/or subnet (name or ID) "
+                   "on external gateway: "
+                   "subnet=<subnet>,ip-address=<ip-address> "
+                   "(repeat option to set multiple fixed IP addresses)")
+        )
+        snat_group = parser.add_mutually_exclusive_group()
+        snat_group.add_argument(
+            '--enable-snat',
+            action='store_true',
+            help=_("Enable Source NAT on external gateway")
+        )
+        snat_group.add_argument(
+            '--disable-snat',
+            action='store_true',
+            help=_("Disable Source NAT on external gateway")
+        )
 
         return parser
 
@@ -337,6 +387,12 @@ class CreateRouter(command.ShowOne, common.NeutronCommandWithExtraArgs):
         obj = client.create_router(**attrs)
         # tags cannot be set when created, so tags need to be set later.
         _tag.update_tags_for_set(client, obj, parsed_args)
+
+        if (parsed_args.disable_snat or parsed_args.enable_snat or
+                parsed_args.fixed_ip) and not parsed_args.external_gateway:
+            msg = (_("You must specify '--external-gateway' in order "
+                     "to specify SNAT or fixed-ip values"))
+            raise exceptions.CommandError(msg)
 
         display_columns, columns = _get_columns(obj)
         data = utils.get_item_properties(obj, columns, formatters=_formatters)
@@ -725,29 +781,6 @@ class SetRouter(common.NeutronCommandWithExtraArgs):
             msg = (_("You must specify '--external-gateway' in order "
                      "to update the SNAT or fixed-ip values"))
             raise exceptions.CommandError(msg)
-        if parsed_args.external_gateway:
-            gateway_info = {}
-            network = client.find_network(
-                parsed_args.external_gateway, ignore_missing=False)
-            gateway_info['network_id'] = network.id
-            if parsed_args.disable_snat:
-                gateway_info['enable_snat'] = False
-            if parsed_args.enable_snat:
-                gateway_info['enable_snat'] = True
-            if parsed_args.fixed_ip:
-                ips = []
-                for ip_spec in parsed_args.fixed_ip:
-                    if ip_spec.get('subnet', False):
-                        subnet_name_id = ip_spec.pop('subnet')
-                        if subnet_name_id:
-                            subnet = client.find_subnet(subnet_name_id,
-                                                        ignore_missing=False)
-                            ip_spec['subnet_id'] = subnet.id
-                    if ip_spec.get('ip-address', False):
-                        ip_spec['ip_address'] = ip_spec.pop('ip-address')
-                    ips.append(ip_spec)
-                gateway_info['external_fixed_ips'] = ips
-            attrs['external_gateway_info'] = gateway_info
 
         if ((parsed_args.qos_policy or parsed_args.no_qos_policy) and
                 not parsed_args.external_gateway):

@@ -1,0 +1,8 @@
+---
+features:
+  - |
+    It is now possible to add an external gateway to a router
+    immediately on creation. Previously it could only be done by
+    modifying the router after it had been created. This includes
+    the options to en- or disable SNAT and to specify a fixed-ip
+    on the external network.
