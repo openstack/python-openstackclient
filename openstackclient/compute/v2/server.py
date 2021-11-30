@@ -4582,7 +4582,7 @@ class StartServer(command.Command):
     _description = _("Start server(s)")
 
     def get_parser(self, prog_name):
-        parser = super(StartServer, self).get_parser(prog_name)
+        parser = super().get_parser(prog_name)
         parser.add_argument(
             'server',
             metavar='<server>',
@@ -4601,20 +4601,28 @@ class StartServer(command.Command):
         return parser
 
     def take_action(self, parsed_args):
-        compute_client = self.app.client_manager.compute
+        compute_client = self.app.client_manager.sdk_connection.compute
         for server in parsed_args.server:
-            utils.find_resource(
-                compute_client.servers,
-                server,
-                all_tenants=parsed_args.all_projects,
-            ).start()
+            try:
+                server_id = compute_client.find_server(
+                    name=server,
+                    details=False,
+                    all_projects=parsed_args.all_projects,
+                    ignore_missing=False,
+                ).id
+            except sdk_exceptions.HttpException as exc:
+                if exc.status_code == 403:
+                    msg = _("Policy doesn't allow passing all-projects")
+                    raise exceptions.Forbidden(msg)
+
+            compute_client.start_server(server_id)
 
 
 class StopServer(command.Command):
     _description = _("Stop server(s)")
 
     def get_parser(self, prog_name):
-        parser = super(StopServer, self).get_parser(prog_name)
+        parser = super().get_parser(prog_name)
         parser.add_argument(
             'server',
             metavar='<server>',
@@ -4633,13 +4641,21 @@ class StopServer(command.Command):
         return parser
 
     def take_action(self, parsed_args):
-        compute_client = self.app.client_manager.compute
+        compute_client = self.app.client_manager.sdk_connection.compute
         for server in parsed_args.server:
-            utils.find_resource(
-                compute_client.servers,
-                server,
-                all_tenants=parsed_args.all_projects,
-            ).stop()
+            try:
+                server_id = compute_client.find_server(
+                    name=server,
+                    details=False,
+                    all_projects=parsed_args.all_projects,
+                    ignore_missing=False,
+                ).id
+            except sdk_exceptions.HttpException as exc:
+                if exc.status_code == 403:
+                    msg = _("Policy doesn't allow passing all-projects")
+                    raise exceptions.Forbidden(msg)
+
+            compute_client.stop_server(server_id)
 
 
 class SuspendServer(command.Command):
