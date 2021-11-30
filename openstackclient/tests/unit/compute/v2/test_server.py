@@ -7617,10 +7617,10 @@ class TestServerResume(TestServer):
         }
 
     def test_server_resume_one_server(self):
-        self.run_method_with_servers('resume', 1)
+        self.run_method_with_sdk_servers('resume_server', 1)
 
     def test_server_resume_multi_servers(self):
-        self.run_method_with_servers('resume', 3)
+        self.run_method_with_sdk_servers('resume_server', 3)
 
 
 class TestServerSet(TestServer):
@@ -8284,10 +8284,10 @@ class TestServerSuspend(TestServer):
         }
 
     def test_server_suspend_one_server(self):
-        self.run_method_with_servers('suspend', 1)
+        self.run_method_with_sdk_servers('suspend_server', 1)
 
     def test_server_suspend_multi_servers(self):
-        self.run_method_with_servers('suspend', 3)
+        self.run_method_with_sdk_servers('suspend_server', 3)
 
 
 class TestServerUnlock(TestServer):
