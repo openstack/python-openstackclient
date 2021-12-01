@@ -217,104 +217,104 @@ class TestServerAddFixedIP(TestServer):
         # Get the command object to test
         self.cmd = server.AddFixedIP(self.app, None)
 
+        # Mock network methods
+        self.find_network = mock.Mock()
+        self.app.client_manager.network.find_network = self.find_network
+
         # Set add_fixed_ip method to be tested.
         self.methods = {
             'interface_attach': None,
         }
 
-    def _test_server_add_fixed_ip(self, extralist, fixed_ip_address):
-        servers = self.setup_servers_mock(count=1)
-        network = compute_fakes.FakeNetwork.create_one_network()
-        with mock.patch(
-            'openstackclient.api.compute_v2.APIv2.network_find'
-        ) as net_mock:
-            net_mock.return_value = network
+    @mock.patch.object(sdk_utils, 'supports_microversion')
+    def test_server_add_fixed_ip_pre_2_44(self, sm_mock):
+        sm_mock.return_value = False
 
+        servers = self.setup_sdk_servers_mock(count=1)
+        network = compute_fakes.FakeNetwork.create_one_network()
+
+        with mock.patch.object(
+            self.app.client_manager,
+            'is_network_endpoint_enabled',
+            return_value=False
+        ):
             arglist = [
                 servers[0].id,
                 network['id'],
-            ] + extralist
+            ]
             verifylist = [
                 ('server', servers[0].id),
                 ('network', network['id']),
-                ('fixed_ip_address', fixed_ip_address),
+                ('fixed_ip_address', None),
             ]
             parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
             result = self.cmd.take_action(parsed_args)
 
-            servers[0].interface_attach.assert_called_once_with(
-                port_id=None,
-                net_id=network['id'],
-                fixed_ip=fixed_ip_address,
+            self.sdk_client.add_fixed_ip_to_server.assert_called_once_with(
+                servers[0].id,
+                network['id']
             )
             self.assertIsNone(result)
 
-    def test_server_add_fixed_ip(self):
-        self._test_server_add_fixed_ip([], None)
+    @mock.patch.object(sdk_utils, 'supports_microversion')
+    def test_server_add_fixed_ip_pre_2_44_with_fixed_ip(self, sm_mock):
+        sm_mock.return_value = False
 
-    def test_server_add_specific_fixed_ip(self):
-        extralist = ['--fixed-ip-address', '5.6.7.8']
-        self._test_server_add_fixed_ip(extralist, '5.6.7.8')
-
-    def test_server_add_fixed_ip_with_tag(self):
-        self.app.client_manager.compute.api_version = api_versions.APIVersion(
-            '2.49')
-
-        servers = self.setup_servers_mock(count=1)
+        servers = self.setup_sdk_servers_mock(count=1)
         network = compute_fakes.FakeNetwork.create_one_network()
-        with mock.patch(
-            'openstackclient.api.compute_v2.APIv2.network_find'
-        ) as net_mock:
-            net_mock.return_value = network
 
+        with mock.patch.object(
+            self.app.client_manager,
+            'is_network_endpoint_enabled',
+            return_value=False
+        ):
             arglist = [
                 servers[0].id,
                 network['id'],
-                '--fixed-ip-address', '5.6.7.8',
-                '--tag', 'tag1',
+                '--fixed-ip-address', '5.6.7.8'
             ]
             verifylist = [
                 ('server', servers[0].id),
                 ('network', network['id']),
                 ('fixed_ip_address', '5.6.7.8'),
-                ('tag', 'tag1'),
             ]
             parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
             result = self.cmd.take_action(parsed_args)
 
-            servers[0].interface_attach.assert_called_once_with(
-                port_id=None,
-                net_id=network['id'],
-                fixed_ip='5.6.7.8',
-                tag='tag1'
+            self.sdk_client.add_fixed_ip_to_server.assert_called_once_with(
+                servers[0].id,
+                network['id']
             )
             self.assertIsNone(result)
 
-    def test_server_add_fixed_ip_with_tag_pre_v249(self):
-        self.app.client_manager.compute.api_version = api_versions.APIVersion(
-            '2.48')
+    @mock.patch.object(sdk_utils, 'supports_microversion')
+    def test_server_add_fixed_ip_pre_2_44_with_tag(self, sm_mock):
+        sm_mock.return_value = False
 
-        servers = self.setup_servers_mock(count=1)
+        servers = self.setup_sdk_servers_mock(count=1)
         network = compute_fakes.FakeNetwork.create_one_network()
-        with mock.patch(
-            'openstackclient.api.compute_v2.APIv2.network_find'
-        ) as net_mock:
-            net_mock.return_value = network
 
+        with mock.patch.object(
+            self.app.client_manager,
+            'is_network_endpoint_enabled',
+            return_value=False
+        ):
             arglist = [
                 servers[0].id,
                 network['id'],
                 '--fixed-ip-address', '5.6.7.8',
-                '--tag', 'tag1',
+                '--tag', 'tag1'
             ]
             verifylist = [
                 ('server', servers[0].id),
                 ('network', network['id']),
                 ('fixed_ip_address', '5.6.7.8'),
-                ('tag', 'tag1'),
+                ('tag', 'tag1')
             ]
             parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
             ex = self.assertRaises(
                 exceptions.CommandError,
                 self.cmd.take_action,
@@ -322,6 +322,140 @@ class TestServerAddFixedIP(TestServer):
             self.assertIn(
                 '--os-compute-api-version 2.49 or greater is required',
                 str(ex))
+
+    @mock.patch.object(sdk_utils, 'supports_microversion')
+    def test_server_add_fixed_ip_pre_2_49_with_tag(self, sm_mock):
+        sm_mock.side_effect = [False, True]
+
+        servers = self.setup_sdk_servers_mock(count=1)
+        network = compute_fakes.FakeNetwork.create_one_network()
+
+        with mock.patch.object(
+            self.app.client_manager,
+            'is_network_endpoint_enabled',
+            return_value=False
+        ):
+            arglist = [
+                servers[0].id,
+                network['id'],
+                '--fixed-ip-address', '5.6.7.8',
+                '--tag', 'tag1'
+            ]
+            verifylist = [
+                ('server', servers[0].id),
+                ('network', network['id']),
+                ('fixed_ip_address', '5.6.7.8'),
+                ('tag', 'tag1')
+            ]
+            parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+            ex = self.assertRaises(
+                exceptions.CommandError,
+                self.cmd.take_action,
+                parsed_args)
+            self.assertIn(
+                '--os-compute-api-version 2.49 or greater is required',
+                str(ex))
+
+    @mock.patch.object(sdk_utils, 'supports_microversion')
+    def test_server_add_fixed_ip_post_2_49(self, sm_mock):
+        sm_mock.side_effect = [True, True]
+
+        servers = self.setup_sdk_servers_mock(count=1)
+        network = compute_fakes.FakeNetwork.create_one_network()
+
+        with mock.patch.object(
+            self.app.client_manager,
+            'is_network_endpoint_enabled',
+            return_value=False
+        ):
+            arglist = [
+                servers[0].id,
+                network['id']
+            ]
+            verifylist = [
+                ('server', servers[0].id),
+                ('network', network['id'])
+            ]
+            parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+            result = self.cmd.take_action(parsed_args)
+
+            self.sdk_client.create_server_interface.assert_called_once_with(
+                servers[0].id,
+                net_id=network['id'],
+                fixed_ip=None
+            )
+            self.assertIsNone(result)
+
+    @mock.patch.object(sdk_utils, 'supports_microversion')
+    def test_server_add_fixed_ip_post_2_49_with_fixedip(self, sm_mock):
+        sm_mock.side_effect = [True, True]
+
+        servers = self.setup_sdk_servers_mock(count=1)
+        network = compute_fakes.FakeNetwork.create_one_network()
+
+        with mock.patch.object(
+            self.app.client_manager,
+            'is_network_endpoint_enabled',
+            return_value=False
+        ):
+            arglist = [
+                servers[0].id,
+                network['id'],
+                '--fixed-ip-address', '5.6.7.8'
+            ]
+            verifylist = [
+                ('server', servers[0].id),
+                ('network', network['id']),
+                ('fixed_ip_address', '5.6.7.8')
+            ]
+            parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+            result = self.cmd.take_action(parsed_args)
+
+            self.sdk_client.create_server_interface.assert_called_once_with(
+                servers[0].id,
+                net_id=network['id'],
+                fixed_ip='5.6.7.8'
+            )
+            self.assertIsNone(result)
+
+    @mock.patch.object(sdk_utils, 'supports_microversion')
+    def test_server_add_fixed_ip_post_2_49_with_tag(self, sm_mock):
+        sm_mock.side_effect = [True, True]
+
+        servers = self.setup_sdk_servers_mock(count=1)
+        network = compute_fakes.FakeNetwork.create_one_network()
+
+        with mock.patch.object(
+            self.app.client_manager,
+            'is_network_endpoint_enabled',
+            return_value=False
+        ):
+            arglist = [
+                servers[0].id,
+                network['id'],
+                '--fixed-ip-address', '5.6.7.8',
+                '--tag', 'tag1'
+            ]
+            verifylist = [
+                ('server', servers[0].id),
+                ('network', network['id']),
+                ('fixed_ip_address', '5.6.7.8'),
+                ('tag', 'tag1')
+            ]
+            parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+            result = self.cmd.take_action(parsed_args)
+
+            self.sdk_client.create_server_interface.assert_called_once_with(
+                servers[0].id,
+                net_id=network['id'],
+                fixed_ip='5.6.7.8',
+                tag='tag1'
+            )
+            self.assertIsNone(result)
 
 
 @mock.patch(
