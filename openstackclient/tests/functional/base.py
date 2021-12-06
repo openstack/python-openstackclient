@@ -10,6 +10,7 @@
 #    License for the specific language governing permissions and limitations
 #    under the License.
 
+import logging
 import os
 import shlex
 import subprocess
@@ -18,22 +19,30 @@ from tempest.lib.cli import output_parser
 from tempest.lib import exceptions
 import testtools
 
-
 ADMIN_CLOUD = os.environ.get('OS_ADMIN_CLOUD', 'devstack-admin')
+LOG = logging.getLogger(__name__)
 
 
 def execute(cmd, fail_ok=False, merge_stderr=False):
     """Executes specified command for the given action."""
+    LOG.debug('Executing: %s', cmd)
     cmdlist = shlex.split(cmd)
     stdout = subprocess.PIPE
     stderr = subprocess.STDOUT if merge_stderr else subprocess.PIPE
+
     proc = subprocess.Popen(cmdlist, stdout=stdout, stderr=stderr)
-    result, result_err = proc.communicate()
-    result = result.decode('utf-8')
+
+    result_out, result_err = proc.communicate()
+    result_out = result_out.decode('utf-8')
+    LOG.debug('stdout: %s', result_out)
+    LOG.debug('stderr: %s', result_err)
+
     if not fail_ok and proc.returncode != 0:
-        raise exceptions.CommandFailed(proc.returncode, cmd, result,
-                                       result_err)
-    return result
+        raise exceptions.CommandFailed(
+            proc.returncode, cmd, result_out, result_err,
+        )
+
+    return result_out
 
 
 class TestCase(testtools.TestCase):
