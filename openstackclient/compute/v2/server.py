@@ -3833,17 +3833,11 @@ class RemoveServerVolume(command.Command):
             ignore_missing=False,
         )
 
-        volume_attachments = compute_client.volume_attachments(server)
-        for volume_attachment in volume_attachments:
-            if volume_attachment.volume_id == volume.id:
-                compute_client.delete_volume_attachment(
-                    volume_attachment,
-                    server,
-                )
-                break
-        else:
-            msg = _('Target volume attachment not found.')
-            raise exceptions.CommandError(msg)
+        compute_client.delete_volume_attachment(
+            volume,
+            server,
+            ignore_missing=False,
+        )
 
 
 class RescueServer(command.Command):

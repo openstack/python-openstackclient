@@ -1016,10 +1016,6 @@ class TestServerRemoveVolume(TestServerVolume):
         self.cmd = server.RemoveServerVolume(self.app, None)
 
     def test_server_remove_volume(self):
-        self.sdk_client.volume_attachments.return_value = [
-            self.volume_attachment
-        ]
-
         arglist = [
             self.servers[0].id,
             self.volumes[0].id,
@@ -1036,8 +1032,10 @@ class TestServerRemoveVolume(TestServerVolume):
 
         self.assertIsNone(result)
         self.sdk_client.delete_volume_attachment.assert_called_once_with(
-            self.volume_attachment,
-            self.servers[0])
+            self.volumes[0],
+            self.servers[0],
+            ignore_missing=False,
+        )
 
 
 class TestServerAddNetwork(TestServer):
