@@ -969,6 +969,12 @@ class UnsetPort(common.NeutronUnsetCommandWithExtraArgs):
             action='store_true',
             help=_("Clear existing NUMA affinity policy")
         )
+        parser.add_argument(
+            '--host',
+            action='store_true',
+            default=False,
+            help=_("Clear host binding for the port.")
+        )
 
         _tag.add_tag_option_to_parser_for_unset(parser, _('port'))
 
@@ -1026,6 +1032,8 @@ class UnsetPort(common.NeutronUnsetCommandWithExtraArgs):
             attrs['data_plane_status'] = None
         if parsed_args.numa_policy:
             attrs['numa_affinity_policy'] = None
+        if parsed_args.host:
+            attrs['binding:host_id'] = None
 
         attrs.update(
             self._parse_extra_properties(parsed_args.extra_properties))

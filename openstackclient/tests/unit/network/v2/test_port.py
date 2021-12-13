@@ -1923,6 +1923,7 @@ class TestUnsetPort(TestPort):
             'subnet=042eb10a-3a18-4658-ab-cf47c8d03152,ip-address=1.0.0.0',
             '--binding-profile', 'Superman',
             '--qos-policy',
+            '--host',
             self._testport.name,
         ]
         verifylist = [
@@ -1931,6 +1932,7 @@ class TestUnsetPort(TestPort):
                 'ip-address': '1.0.0.0'}]),
             ('binding_profile', ['Superman']),
             ('qos_policy', True),
+            ('host', True)
         ]
 
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
@@ -1941,7 +1943,8 @@ class TestUnsetPort(TestPort):
                 'subnet_id': '042eb10a-3a18-4658-ab-cf47c8d03152',
                 'ip_address': '0.0.0.1'}],
             'binding:profile': {'batman': 'Joker'},
-            'qos_policy_id': None
+            'qos_policy_id': None,
+            'binding:host_id': None
         }
         self.network.update_port.assert_called_once_with(
             self._testport, **attrs)
