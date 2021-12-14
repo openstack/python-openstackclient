@@ -19,6 +19,7 @@ from osc_lib import exceptions
 
 from openstackclient.compute.v2 import server_volume
 from openstackclient.tests.unit.compute.v2 import fakes as compute_fakes
+from openstackclient.tests.unit.volume.v2 import fakes as volume_fakes
 
 
 class TestServerVolume(compute_fakes.TestComputev2):
@@ -26,17 +27,11 @@ class TestServerVolume(compute_fakes.TestComputev2):
     def setUp(self):
         super().setUp()
 
-        # Get a shortcut to the compute client ServerManager Mock
-        self.servers_mock = self.app.client_manager.compute.servers
-        self.servers_mock.reset_mock()
-
-        # Get a shortcut to the compute client VolumeManager mock
-        self.servers_volumes_mock = self.app.client_manager.compute.volumes
-        self.servers_volumes_mock.reset_mock()
-
         self.app.client_manager.sdk_connection = mock.Mock()
         self.app.client_manager.sdk_connection.compute = mock.Mock()
-        self.sdk_client = self.app.client_manager.sdk_connection.compute
+        self.app.client_manager.sdk_connection.volume = mock.Mock()
+        self.compute_client = self.app.client_manager.sdk_connection.compute
+        self.volume_client = self.app.client_manager.sdk_connection.volume
 
 
 class TestServerVolumeList(TestServerVolume):
@@ -47,8 +42,8 @@ class TestServerVolumeList(TestServerVolume):
         self.server = compute_fakes.FakeServer.create_one_sdk_server()
         self.volume_attachments = compute_fakes.create_volume_attachments()
 
-        self.sdk_client.find_server.return_value = self.server
-        self.sdk_client.volume_attachments.return_value = (
+        self.compute_client.find_server.return_value = self.server
+        self.compute_client.volume_attachments.return_value = (
             self.volume_attachments)
 
         # Get the command object to test
@@ -88,7 +83,9 @@ class TestServerVolumeList(TestServerVolume):
             ),
             tuple(data),
         )
-        self.sdk_client.volume_attachments.assert_called_once_with(self.server)
+        self.compute_client.volume_attachments.assert_called_once_with(
+            self.server,
+        )
 
     @mock.patch.object(sdk_utils, 'supports_microversion')
     def test_server_volume_list_with_tags(self, sm_mock):
@@ -126,7 +123,9 @@ class TestServerVolumeList(TestServerVolume):
             ),
             tuple(data),
         )
-        self.sdk_client.volume_attachments.assert_called_once_with(self.server)
+        self.compute_client.volume_attachments.assert_called_once_with(
+            self.server,
+        )
 
     @mock.patch.object(sdk_utils, 'supports_microversion')
     def test_server_volume_list_with_delete_on_attachment(self, sm_mock):
@@ -169,7 +168,9 @@ class TestServerVolumeList(TestServerVolume):
             ),
             tuple(data),
         )
-        self.sdk_client.volume_attachments.assert_called_once_with(self.server)
+        self.compute_client.volume_attachments.assert_called_once_with(
+            self.server,
+        )
 
     @mock.patch.object(sdk_utils, 'supports_microversion')
     def test_server_volume_list_with_attachment_ids(self, sm_mock):
@@ -217,7 +218,9 @@ class TestServerVolumeList(TestServerVolume):
             ),
             tuple(data),
         )
-        self.sdk_client.volume_attachments.assert_called_once_with(self.server)
+        self.compute_client.volume_attachments.assert_called_once_with(
+            self.server,
+        )
 
 
 class TestServerVolumeUpdate(TestServerVolume):
@@ -225,21 +228,23 @@ class TestServerVolumeUpdate(TestServerVolume):
     def setUp(self):
         super().setUp()
 
-        self.server = compute_fakes.FakeServer.create_one_server()
-        self.servers_mock.get.return_value = self.server
+        self.server = compute_fakes.FakeServer.create_one_sdk_server()
+        self.compute_client.find_server.return_value = self.server
+
+        self.volume = volume_fakes.create_one_sdk_volume()
+        self.volume_client.find_volume.return_value = self.volume
 
         # Get the command object to test
         self.cmd = server_volume.UpdateServerVolume(self.app, None)
 
     def test_server_volume_update(self):
-
         arglist = [
             self.server.id,
-            'foo',
+            self.volume.id,
         ]
         verifylist = [
             ('server', self.server.id),
-            ('volume', 'foo'),
+            ('volume', self.volume.id),
             ('delete_on_termination', None),
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
@@ -247,67 +252,73 @@ class TestServerVolumeUpdate(TestServerVolume):
         result = self.cmd.take_action(parsed_args)
 
         # This is a no-op
-        self.servers_volumes_mock.update_server_volume.assert_not_called()
+        self.compute_client.update_volume_attachment.assert_not_called()
         self.assertIsNone(result)
 
-    def test_server_volume_update_with_delete_on_termination(self):
-        self.app.client_manager.compute.api_version = \
-            api_versions.APIVersion('2.85')
+    @mock.patch.object(sdk_utils, 'supports_microversion')
+    def test_server_volume_update_with_delete_on_termination(self, sm_mock):
+        sm_mock.return_value = True
 
         arglist = [
             self.server.id,
-            'foo',
+            self.volume.id,
             '--delete-on-termination',
         ]
         verifylist = [
             ('server', self.server.id),
-            ('volume', 'foo'),
+            ('volume', self.volume.id),
             ('delete_on_termination', True),
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
         result = self.cmd.take_action(parsed_args)
 
-        self.servers_volumes_mock.update_server_volume.assert_called_once_with(
-            self.server.id, 'foo', 'foo',
-            delete_on_termination=True)
+        self.compute_client.update_volume_attachment.assert_called_once_with(
+            self.server,
+            self.volume,
+            delete_on_termination=True,
+        )
         self.assertIsNone(result)
 
-    def test_server_volume_update_with_preserve_on_termination(self):
-        self.app.client_manager.compute.api_version = \
-            api_versions.APIVersion('2.85')
+    @mock.patch.object(sdk_utils, 'supports_microversion')
+    def test_server_volume_update_with_preserve_on_termination(self, sm_mock):
+        sm_mock.return_value = True
 
         arglist = [
             self.server.id,
-            'foo',
+            self.volume.id,
             '--preserve-on-termination',
         ]
         verifylist = [
             ('server', self.server.id),
-            ('volume', 'foo'),
+            ('volume', self.volume.id),
             ('delete_on_termination', False),
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
         result = self.cmd.take_action(parsed_args)
 
-        self.servers_volumes_mock.update_server_volume.assert_called_once_with(
-            self.server.id, 'foo', 'foo',
-            delete_on_termination=False)
+        self.compute_client.update_volume_attachment.assert_called_once_with(
+            self.server,
+            self.volume,
+            delete_on_termination=False
+        )
         self.assertIsNone(result)
 
-    def test_server_volume_update_with_delete_on_termination_pre_v285(self):
-        self.app.client_manager.compute.api_version = \
-            api_versions.APIVersion('2.84')
+    @mock.patch.object(sdk_utils, 'supports_microversion')
+    def test_server_volume_update_with_delete_on_termination_pre_v285(
+        self, sm_mock,
+    ):
+        sm_mock.return_value = False
 
         arglist = [
             self.server.id,
-            'foo',
+            self.volume.id,
             '--delete-on-termination',
         ]
         verifylist = [
             ('server', self.server.id),
-            ('volume', 'foo'),
+            ('volume', self.volume.id),
             ('delete_on_termination', True),
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
@@ -315,20 +326,24 @@ class TestServerVolumeUpdate(TestServerVolume):
         self.assertRaises(
             exceptions.CommandError,
             self.cmd.take_action,
-            parsed_args)
+            parsed_args,
+        )
+        self.compute_client.update_volume_attachment.assert_not_called()
 
-    def test_server_volume_update_with_preserve_on_termination_pre_v285(self):
-        self.app.client_manager.compute.api_version = \
-            api_versions.APIVersion('2.84')
+    @mock.patch.object(sdk_utils, 'supports_microversion')
+    def test_server_volume_update_with_preserve_on_termination_pre_v285(
+        self, sm_mock,
+    ):
+        sm_mock.return_value = False
 
         arglist = [
             self.server.id,
-            'foo',
+            self.volume.id,
             '--preserve-on-termination',
         ]
         verifylist = [
             ('server', self.server.id),
-            ('volume', 'foo'),
+            ('volume', self.volume.id),
             ('delete_on_termination', False),
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
@@ -336,4 +351,6 @@ class TestServerVolumeUpdate(TestServerVolume):
         self.assertRaises(
             exceptions.CommandError,
             self.cmd.take_action,
-            parsed_args)
+            parsed_args,
+        )
+        self.compute_client.update_volume_attachment.assert_not_called()

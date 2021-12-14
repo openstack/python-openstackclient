@@ -14,7 +14,6 @@
 
 """Compute v2 Server action implementations"""
 
-from novaclient import api_versions
 from openstack import utils as sdk_utils
 from osc_lib.command import command
 from osc_lib import exceptions
@@ -83,14 +82,14 @@ class UpdateServerVolume(command.Command):
     """Update a volume attachment on the server."""
 
     def get_parser(self, prog_name):
-        parser = super(UpdateServerVolume, self).get_parser(prog_name)
+        parser = super().get_parser(prog_name)
         parser.add_argument(
             'server',
             help=_('Server to update volume for (name or ID)'),
         )
         parser.add_argument(
             'volume',
-            help=_('Volume (ID)'),
+            help=_('Volume to update attachment for (name or ID)'),
         )
         termination_group = parser.add_mutually_exclusive_group()
         termination_group.add_argument(
@@ -115,31 +114,29 @@ class UpdateServerVolume(command.Command):
         return parser
 
     def take_action(self, parsed_args):
-
-        compute_client = self.app.client_manager.compute
+        compute_client = self.app.client_manager.sdk_connection.compute
+        volume_client = self.app.client_manager.sdk_connection.volume
 
         if parsed_args.delete_on_termination is not None:
-            if compute_client.api_version < api_versions.APIVersion('2.85'):
+            if not sdk_utils.supports_microversion(compute_client, '2.85'):
                 msg = _(
                     '--os-compute-api-version 2.85 or greater is required to '
-                    'support the --(no-)delete-on-termination option'
+                    'support the -delete-on-termination or '
+                    '--preserve-on-termination option'
                 )
                 raise exceptions.CommandError(msg)
 
-            server = utils.find_resource(
-                compute_client.servers,
+            server = compute_client.find_server(
                 parsed_args.server,
+                ignore_missing=False,
+            )
+            volume = volume_client.find_volume(
+                parsed_args.volume,
+                ignore_missing=False,
             )
 
-            # NOTE(stephenfin): This may look silly, and that's because it is.
-            # This API was originally used only for the swapping volumes, which
-            # is an internal operation that should only be done by
-            # orchestration software rather than a human. We're not going to
-            # expose that, but we are going to expose the ability to change the
-            # delete on termination behavior.
-            compute_client.volumes.update_server_volume(
-                server.id,
-                parsed_args.volume,
-                parsed_args.volume,
+            compute_client.update_volume_attachment(
+                server,
+                volume,
                 delete_on_termination=parsed_args.delete_on_termination,
             )
