@@ -4462,50 +4462,25 @@ class SshServer(command.Command):
             help=_('Server (name or ID)'),
         )
         parser.add_argument(
-            '--login',
+            '--login', '-l',
             metavar='<login-name>',
             help=_('Login name (ssh -l option)'),
         )
         parser.add_argument(
-            '-l',
-            dest='login',
-            metavar='<login-name>',
-            help=argparse.SUPPRESS,
-        )
-        parser.add_argument(
-            '--port',
+            '--port', '-p',
             metavar='<port>',
             type=int,
             help=_('Destination port (ssh -p option)'),
         )
         parser.add_argument(
-            '-p',
-            metavar='<port>',
-            dest='port',
-            type=int,
-            help=argparse.SUPPRESS,
-        )
-        parser.add_argument(
-            '--identity',
+            '--identity', '-i',
             metavar='<keyfile>',
             help=_('Private key file (ssh -i option)'),
         )
         parser.add_argument(
-            '-i',
-            metavar='<filename>',
-            dest='identity',
-            help=argparse.SUPPRESS,
-        )
-        parser.add_argument(
-            '--option',
+            '--option', '-o',
             metavar='<config-options>',
             help=_('Options in ssh_config(5) format (ssh -o option)'),
-        )
-        parser.add_argument(
-            '-o',
-            metavar='<option>',
-            dest='option',
-            help=argparse.SUPPRESS,
         )
         ip_group = parser.add_mutually_exclusive_group()
         ip_group.add_argument(

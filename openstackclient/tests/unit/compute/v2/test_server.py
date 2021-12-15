@@ -8265,6 +8265,83 @@ class TestServerShow(TestServer):
             exceptions.CommandError, self.cmd.take_action, parsed_args)
 
 
+@mock.patch('openstackclient.compute.v2.server.os.system')
+class TestServerSsh(TestServer):
+
+    def setUp(self):
+        super().setUp()
+
+        self.cmd = server.SshServer(self.app, None)
+
+        self.app.client_manager.auth_ref = mock.Mock()
+        self.app.client_manager.auth_ref.username = 'cloud'
+
+        self.attrs = {
+            'addresses': {
+                'public': [
+                    {
+                        'addr': '192.168.1.30',
+                        'OS-EXT-IPS-MAC:mac_addr': '00:0c:29:0d:11:74',
+                        'OS-EXT-IPS:type': 'fixed',
+                        'version': 4,
+                    },
+                ],
+            },
+        }
+        self.server = compute_fakes.FakeServer.create_one_server(
+            attrs=self.attrs, methods=self.methods,
+        )
+        self.servers_mock.get.return_value = self.server
+
+    def test_server_ssh_no_opts(self, mock_exec):
+        arglist = [
+            self.server.name,
+        ]
+        verifylist = [
+            ('server', self.server.name),
+            ('login', None),
+            ('port', None),
+            ('identity', None),
+            ('option', None),
+            ('ipv4', False),
+            ('ipv6', False),
+            ('address_type', 'public'),
+            ('verbose', False),
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        result = self.cmd.take_action(parsed_args)
+
+        self.assertIsNone(result)
+        mock_exec.assert_called_once_with('ssh cloud@192.168.1.30')
+
+    def test_server_ssh_opts(self, mock_exec):
+        arglist = [
+            self.server.name,
+            '-l', 'username',
+            '-p', '2222',
+        ]
+        verifylist = [
+            ('server', self.server.name),
+            ('login', 'username'),
+            ('port', 2222),
+            ('identity', None),
+            ('option', None),
+            ('ipv4', False),
+            ('ipv6', False),
+            ('address_type', 'public'),
+            ('verbose', False),
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        result = self.cmd.take_action(parsed_args)
+
+        self.assertIsNone(result)
+        mock_exec.assert_called_once_with(
+            'ssh -p 2222 username@192.168.1.30'
+        )
+
+
 class TestServerStart(TestServer):
 
     def setUp(self):
