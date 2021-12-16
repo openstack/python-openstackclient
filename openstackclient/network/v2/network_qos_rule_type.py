@@ -24,7 +24,7 @@ def _get_columns(item):
         "type": "rule_type_name",
         "drivers": "drivers",
     }
-    invisible_columns = ["id", "name"]
+    invisible_columns = ["id", "location", "name"]
     return utils.get_osc_show_columns_for_sdk_resource(
         item, column_map, invisible_columns)
 

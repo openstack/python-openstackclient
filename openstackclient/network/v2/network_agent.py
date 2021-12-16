@@ -50,7 +50,12 @@ def _get_network_columns(item):
         'is_admin_state_up': 'admin_state_up',
         'is_alive': 'alive',
     }
-    return utils.get_osc_show_columns_for_sdk_resource(item, column_map)
+    hidden_columns = ['location']
+    return utils.get_osc_show_columns_for_sdk_resource(
+        item,
+        column_map,
+        hidden_columns
+    )
 
 
 class AddNetworkToAgent(command.Command):

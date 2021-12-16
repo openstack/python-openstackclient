@@ -140,11 +140,15 @@ def _get_columns(item):
         'tenant_id': 'project_id',
     }
     # Do not show this column when displaying a subnet
-    invisible_columns = ['use_default_subnet_pool', 'prefix_length']
+    invisible_columns = [
+        'location',
+        'use_default_subnet_pool',
+        'prefix_length'
+    ]
     return utils.get_osc_show_columns_for_sdk_resource(
         item,
         column_map,
-        invisible_columns=invisible_columns
+        invisible_columns
     )
 
 

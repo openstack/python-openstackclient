@@ -74,7 +74,7 @@ def _get_columns(item):
     }
     if hasattr(item, 'interfaces_info'):
         column_map['interfaces_info'] = 'interfaces_info'
-    invisible_columns = []
+    invisible_columns = ['location']
     if item.is_ha is None:
         invisible_columns.append('is_ha')
         column_map.pop('is_ha')

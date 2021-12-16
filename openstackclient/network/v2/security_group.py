@@ -89,7 +89,12 @@ def _get_columns(item):
         'security_group_rules': 'rules',
         'tenant_id': 'project_id',
     }
-    return utils.get_osc_show_columns_for_sdk_resource(item, column_map)
+    hidden_columns = ['location']
+    return utils.get_osc_show_columns_for_sdk_resource(
+        item,
+        column_map,
+        hidden_columns
+    )
 
 
 # TODO(abhiraut): Use the SDK resource mapped attribute names once the
