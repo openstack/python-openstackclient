@@ -104,6 +104,7 @@ class FakeAddressGroup(object):
             'id': 'address-group-id-' + uuid.uuid4().hex,
             'tenant_id': 'project-id-' + uuid.uuid4().hex,
             'addresses': ['10.0.0.1/32'],
+            'location': 'MUNCHMUNCHMUNCH',
         }
 
         # Overwrite default attributes.
@@ -177,6 +178,7 @@ class FakeAddressScope(object):
             'tenant_id': 'project-id-' + uuid.uuid4().hex,
             'shared': False,
             'ip_version': 4,
+            'location': 'MUNCHMUNCHMUNCH',
         }
 
         # Overwrite default attributes.
@@ -326,6 +328,7 @@ class FakeIPAvailability(object):
             'subnet_ip_availability': [],
             'total_ips': 254,
             'used_ips': 6,
+            'location': 'MUNCHMUNCHMUNCH',
         }
         network_ip_attrs.update(attrs)
 
@@ -425,6 +428,7 @@ class FakeNetwork(object):
             'ipv4_address_scope': 'ipv4' + uuid.uuid4().hex,
             'ipv6_address_scope': 'ipv6' + uuid.uuid4().hex,
             'tags': [],
+            'location': 'MUNCHMUNCHMUNCH',
         }
 
         # Overwrite default attributes.
@@ -514,6 +518,7 @@ class FakeNetworkFlavor(object):
             'name': 'network-flavor-name-' + fake_uuid,
             'service_type': 'vpn',
             'tenant_id': 'project-id-' + uuid.uuid4().hex,
+            'location': 'MUNCHMUNCHMUNCH',
         }
 
         # Overwrite default attributes.
@@ -579,6 +584,7 @@ class FakeNetworkSegment(object):
             'network_type': 'vlan',
             'physical_network': 'physical-network-name-' + fake_uuid,
             'segmentation_id': 1024,
+            'location': 'MUNCHMUNCHMUNCH',
         }
 
         # Overwrite default attributes.
@@ -639,6 +645,7 @@ class FakeNetworkSegmentRange(object):
             'used': {104: '3312e4ba67864b2eb53f3f41432f8efc',
                      106: '3312e4ba67864b2eb53f3f41432f8efc'},
             'available': [100, 101, 102, 103, 105],
+            'location': 'MUNCHMUNCHMUNCH',
         }
 
         # Overwrite default attributes.
@@ -717,6 +724,7 @@ class FakePort(object):
             'qos_policy_id': 'qos-policy-id-' + uuid.uuid4().hex,
             'tags': [],
             'propagate_uplink_status': False,
+            'location': 'MUNCHMUNCHMUNCH',
         }
 
         # Overwrite default attributes.
@@ -802,6 +810,7 @@ class FakeNetworkAgent(object):
             'admin_state_up': True,
             'binary': 'binary-' + uuid.uuid4().hex,
             'configurations': {'subnet': 2, 'networks': 1},
+            'location': 'MUNCHMUNCHMUNCH',
         }
         agent_attrs.update(attrs)
         agent = fakes.FakeResource(info=copy.deepcopy(agent_attrs),
@@ -870,6 +879,7 @@ class FakeNetworkRBAC(object):
             'action': 'access_as_shared',
             'target_tenant': 'target-tenant-' + uuid.uuid4().hex,
             'tenant_id': 'tenant-id-' + uuid.uuid4().hex,
+            'location': 'MUNCHMUNCHMUNCH',
         }
         rbac_attrs.update(attrs)
         rbac = fakes.FakeResource(info=copy.deepcopy(rbac_attrs),
@@ -931,7 +941,8 @@ class FakeNetworkFlavorProfile(object):
             'tenant_id': 'project-id-' + uuid.uuid4().hex,
             'driver': 'driver-' + uuid.uuid4().hex,
             'metainfo': 'metainfo-' + uuid.uuid4().hex,
-            'enabled': True
+            'enabled': True,
+            'location': 'MUNCHMUNCHMUNCH',
         }
 
         flavor_profile_attrs.update(attrs)
@@ -990,6 +1001,7 @@ class FakeNetworkQosPolicy(object):
             'shared': False,
             'description': 'qos-policy-description-' + uuid.uuid4().hex,
             'rules': rules,
+            'location': 'MUNCHMUNCHMUNCH',
         }
 
         # Overwrite default attributes.
@@ -1063,7 +1075,8 @@ class FakeNetworkSecGroup(object):
             'name': 'security-group-name-' + uuid.uuid4().hex,
             'id': sg_id,
             'tenant_id': 'project-id-' + uuid.uuid4().hex,
-            'description': 'security-group-description-' + uuid.uuid4().hex
+            'description': 'security-group-description-' + uuid.uuid4().hex,
+            'location': 'MUNCHMUNCHMUNCH',
         }
 
         security_group = fakes.FakeResource(
@@ -1097,6 +1110,7 @@ class FakeNetworkQosRule(object):
             'qos_policy_id': 'qos-policy-id-' + uuid.uuid4().hex,
             'tenant_id': 'project-id-' + uuid.uuid4().hex,
             'type': type,
+            'location': 'MUNCHMUNCHMUNCH',
         }
         if type == RULE_TYPE_BANDWIDTH_LIMIT:
             qos_rule_attrs['max_kbps'] = randint(1, 10000)
@@ -1172,6 +1186,7 @@ class FakeNetworkQosRuleType(object):
         # Set default attributes.
         qos_rule_type_attrs = {
             'type': 'rule-type-' + uuid.uuid4().hex,
+            'location': 'MUNCHMUNCHMUNCH',
         }
 
         # Overwrite default attributes.
@@ -1230,6 +1245,7 @@ class FakeRouter(object):
             'availability_zone_hints': [],
             'availability_zones': [],
             'tags': [],
+            'location': 'MUNCHMUNCHMUNCH',
         }
 
         # Overwrite default attributes.
@@ -1305,7 +1321,8 @@ class FakeSecurityGroup(object):
             'stateful': True,
             'project_id': 'project-id-' + uuid.uuid4().hex,
             'security_group_rules': [],
-            'tags': []
+            'tags': [],
+            'location': 'MUNCHMUNCHMUNCH',
         }
 
         # Overwrite default attributes.
@@ -1387,6 +1404,7 @@ class FakeSecurityGroupRule(object):
             'remote_ip_prefix': '0.0.0.0/0',
             'security_group_id': 'security-group-id-' + uuid.uuid4().hex,
             'tenant_id': 'project-id-' + uuid.uuid4().hex,
+            'location': 'MUNCHMUNCHMUNCH',
         }
 
         # Overwrite default attributes.
@@ -1475,6 +1493,7 @@ class FakeSubnet(object):
             'subnetpool_id': None,
             'description': 'subnet-description-' + uuid.uuid4().hex,
             'tags': [],
+            'location': 'MUNCHMUNCHMUNCH',
         }
 
         # Overwrite default attributes.
@@ -1556,6 +1575,7 @@ class FakeFloatingIP(object):
             'description': 'floating-ip-description-' + uuid.uuid4().hex,
             'qos_policy_id': 'qos-policy-id-' + uuid.uuid4().hex,
             'tags': [],
+            'location': 'MUNCHMUNCHMUNCH',
         }
 
         # Overwrite default attributes.
@@ -1620,7 +1640,8 @@ class FakeNetworkMeter(object):
             'name': 'meter-name-' + uuid.uuid4().hex,
             'description': 'meter-description-' + uuid.uuid4().hex,
             'tenant_id': 'project-id-' + uuid.uuid4().hex,
-            'shared': False
+            'shared': False,
+            'location': 'MUNCHMUNCHMUNCH',
         }
 
         meter_attrs.update(attrs)
@@ -1669,6 +1690,7 @@ class FakeNetworkMeterRule(object):
             'source_ip_prefix': '8.8.8.8/32',
             'destination_ip_prefix': '10.0.0.0/24',
             'tenant_id': 'project-id-' + uuid.uuid4().hex,
+            'location': 'MUNCHMUNCHMUNCH',
         }
 
         meter_rule_attrs.update(attrs)
@@ -1730,6 +1752,7 @@ class FakeSubnetPool(object):
             'ip_version': '4',
             'description': 'subnet-pool-description-' + uuid.uuid4().hex,
             'tags': [],
+            'location': 'MUNCHMUNCHMUNCH',
         }
 
         # Overwrite default attributes.
@@ -1801,6 +1824,7 @@ class FakeNetworkServiceProvider(object):
             'name': 'provider-name-' + uuid.uuid4().hex,
             'service_type': 'service-type-' + uuid.uuid4().hex,
             'default': False,
+            'location': 'MUNCHMUNCHMUNCH',
         }
 
         service_provider.update(attrs)
@@ -1923,6 +1947,7 @@ class FakeFloatingIPPortForwarding(object):
             'external_port': randint(1, 65535),
             'protocol': 'tcp',
             'description': 'some description',
+            'location': 'MUNCHMUNCHMUNCH',
         }
 
         # Overwrite default attributes.
@@ -1998,6 +2023,7 @@ class FakeL3ConntrackHelper(object):
             'helper': 'tftp',
             'protocol': 'tcp',
             'port': randint(1, 65535),
+            'location': 'MUNCHMUNCHMUNCH',
         }
 
         # Overwrite default attributes.
