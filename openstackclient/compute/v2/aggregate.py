@@ -193,12 +193,14 @@ class ListAggregate(command.Lister):
                 "Name",
                 "Availability Zone",
                 "Properties",
+                "Hosts",
             )
             columns = (
                 "ID",
                 "Name",
                 "Availability Zone",
                 "Metadata",
+                "Hosts",
             )
         else:
             column_headers = columns = (

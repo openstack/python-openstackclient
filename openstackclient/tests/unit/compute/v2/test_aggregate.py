@@ -234,6 +234,7 @@ class TestAggregateList(TestAggregate):
         "Name",
         "Availability Zone",
         "Properties",
+        "Hosts",
     )
 
     list_data = ((
@@ -251,6 +252,7 @@ class TestAggregateList(TestAggregate):
             for key, value in TestAggregate.fake_ag.metadata.items()
             if key != 'availability_zone'
         }),
+        format_columns.ListColumn(TestAggregate.fake_ag.hosts),
     ), )
 
     def setUp(self):
