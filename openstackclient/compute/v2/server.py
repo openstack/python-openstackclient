@@ -237,30 +237,44 @@ class AddFixedIP(command.Command):
         return parser
 
     def take_action(self, parsed_args):
-        compute_client = self.app.client_manager.compute
-
-        server = utils.find_resource(
-            compute_client.servers, parsed_args.server)
-
-        network = compute_client.api.network_find(parsed_args.network)
-
-        kwargs = {
-            'port_id': None,
-            'net_id': network['id'],
-            'fixed_ip': parsed_args.fixed_ip_address,
-        }
+        compute_client = self.app.client_manager.sdk_connection.compute
+        server = compute_client.find_server(
+            parsed_args.server,
+            ignore_missing=False
+        )
 
         if parsed_args.tag:
-            if compute_client.api_version < api_versions.APIVersion('2.49'):
+            if not sdk_utils.supports_microversion(compute_client, '2.49'):
                 msg = _(
                     '--os-compute-api-version 2.49 or greater is required to '
                     'support the --tag option'
                 )
                 raise exceptions.CommandError(msg)
 
-            kwargs['tag'] = parsed_args.tag
+        if self.app.client_manager.is_network_endpoint_enabled():
+            network_client = self.app.client_manager.network
+            net_id = network_client.find_network(
+                parsed_args.network,
+                ignore_missing=False
+            ).id
+        else:
+            net_id = parsed_args.network
 
-        server.interface_attach(**kwargs)
+        if not sdk_utils.supports_microversion(compute_client, '2.44'):
+            compute_client.add_fixed_ip_to_server(
+                server.id,
+                net_id
+            )
+            return
+
+        kwargs = {
+            'net_id': net_id,
+            'fixed_ip': parsed_args.fixed_ip_address,
+        }
+
+        if parsed_args.tag:
+            kwargs['tag'] = parsed_args.tag
+        compute_client.create_server_interface(server.id, **kwargs)
 
 
 class AddFloatingIP(network_common.NetworkAndComputeCommand):

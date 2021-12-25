@@ -1,0 +1,3 @@
+features:
+  - |
+    Switch the add fixed IP command from novaclient to SDK.
