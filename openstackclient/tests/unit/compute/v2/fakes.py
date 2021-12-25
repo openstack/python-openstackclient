@@ -21,6 +21,7 @@ import uuid
 from novaclient import api_versions
 from openstack.compute.v2 import flavor as _flavor
 from openstack.compute.v2 import server
+from openstack.compute.v2 import server_interface as _server_interface
 from openstack.compute.v2 import volume_attachment
 
 from openstackclient.api import compute_v2
@@ -1859,3 +1860,30 @@ class FakeVolumeAttachment(object):
                     attrs, methods))
 
         return volume_attachments
+
+
+def create_one_server_interface(attrs=None):
+    """Create a fake SDK ServerInterface.
+
+    :param dict attrs: A dictionary with all attributes
+    :param dict methods: A dictionary with all methods
+    :return: A fake ServerInterface object with various attributes set
+    """
+    attrs = attrs or {}
+
+    # Set default attributes.
+    server_interface_info = {
+        "fixed_ips": uuid.uuid4().hex,
+        "mac_addr": "aa:aa:aa:aa:aa:aa",
+        "net_id": uuid.uuid4().hex,
+        "port_id": uuid.uuid4().hex,
+        "port_state": "ACTIVE",
+        "server_id": uuid.uuid4().hex,
+        # introduced in API microversion 2.70
+        "tag": "foo",
+    }
+
+    # Overwrite default attributes.
+    server_interface_info.update(attrs)
+
+    return _server_interface.ServerInterface(**server_interface_info)

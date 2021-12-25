@@ -204,7 +204,7 @@ def boolenv(*vars, default=False):
     return default
 
 
-class AddFixedIP(command.Command):
+class AddFixedIP(command.ShowOne):
     _description = _("Add fixed IP address to server")
 
     def get_parser(self, prog_name):
@@ -231,7 +231,7 @@ class AddFixedIP(command.Command):
             metavar='<tag>',
             help=_(
                 'Tag for the attached interface. '
-                '(supported by --os-compute-api-version 2.52 or above)'
+                '(supported by --os-compute-api-version 2.49 or above)'
             )
         )
         return parser
@@ -265,16 +265,39 @@ class AddFixedIP(command.Command):
                 server.id,
                 net_id
             )
-            return
+            return ((), ())
 
         kwargs = {
             'net_id': net_id,
             'fixed_ip': parsed_args.fixed_ip_address,
         }
-
         if parsed_args.tag:
             kwargs['tag'] = parsed_args.tag
-        compute_client.create_server_interface(server.id, **kwargs)
+
+        interface = compute_client.create_server_interface(server.id, **kwargs)
+
+        columns = (
+            'port_id', 'server_id', 'net_id', 'mac_addr', 'port_state',
+            'fixed_ips',
+        )
+        column_headers = (
+            'Port ID', 'Server ID', 'Network ID', 'MAC Address', 'Port State',
+            'Fixed IPs',
+        )
+        if sdk_utils.supports_microversion(compute_client, '2.49'):
+            columns += ('tag',)
+            column_headers += ('Tag',)
+
+        return (
+            column_headers,
+            utils.get_item_properties(
+                interface,
+                columns,
+                formatters={
+                    'fixed_ips': format_columns.ListDictColumn,
+                },
+            ),
+        )
 
 
 class AddFloatingIP(network_common.NetworkAndComputeCommand):
