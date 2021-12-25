@@ -1,0 +1,14 @@
+---
+features:
+  - |
+    Added the ability to pass arguments through to the ``ssh`` command When
+    using ``openstack server ssh``. This allows the user to use any ``ssh``
+    option without needing to add that option to the openstack client.
+    Existing openstackclient options that mirror SSH options are now
+    deprecated.
+deprecations:
+  - |
+    ``openstack server ssh`` options that mirror ``ssh`` options are now
+    deprecated (``--login, -l, --port, --identity, --option, -o, -vz``).
+    The ``ssh`` equivalent of each deprecated option should be used instead.
+    For example ``openstack server ssh instance -- -l user -i key``

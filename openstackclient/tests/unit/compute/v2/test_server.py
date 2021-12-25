@@ -8307,15 +8307,48 @@ class TestServerSsh(TestServer):
             ('ipv6', False),
             ('address_type', 'public'),
             ('verbose', False),
+            ('ssh_args', []),
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
-        result = self.cmd.take_action(parsed_args)
+        with mock.patch.object(self.cmd.log, 'warning') as mock_warning:
+            result = self.cmd.take_action(parsed_args)
 
         self.assertIsNone(result)
-        mock_exec.assert_called_once_with('ssh cloud@192.168.1.30')
+        mock_exec.assert_called_once_with('ssh 192.168.1.30 -l cloud')
+        mock_warning.assert_not_called()
 
-    def test_server_ssh_opts(self, mock_exec):
+    def test_server_ssh_passthrough_opts(self, mock_exec):
+        arglist = [
+            self.server.name,
+            '--',
+            '-l', 'username',
+            '-p', '2222',
+        ]
+        verifylist = [
+            ('server', self.server.name),
+            ('login', None),
+            ('port', None),
+            ('identity', None),
+            ('option', None),
+            ('ipv4', False),
+            ('ipv6', False),
+            ('address_type', 'public'),
+            ('verbose', False),
+            ('ssh_args', ['-l', 'username', '-p', '2222']),
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        with mock.patch.object(self.cmd.log, 'warning') as mock_warning:
+            result = self.cmd.take_action(parsed_args)
+
+        self.assertIsNone(result)
+        mock_exec.assert_called_once_with(
+            'ssh 192.168.1.30 -l username -p 2222'
+        )
+        mock_warning.assert_not_called()
+
+    def test_server_ssh_deprecated_opts(self, mock_exec):
         arglist = [
             self.server.name,
             '-l', 'username',
@@ -8331,14 +8364,21 @@ class TestServerSsh(TestServer):
             ('ipv6', False),
             ('address_type', 'public'),
             ('verbose', False),
+            ('ssh_args', []),
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
-        result = self.cmd.take_action(parsed_args)
+        with mock.patch.object(self.cmd.log, 'warning') as mock_warning:
+            result = self.cmd.take_action(parsed_args)
 
         self.assertIsNone(result)
         mock_exec.assert_called_once_with(
-            'ssh -p 2222 username@192.168.1.30'
+            'ssh 192.168.1.30 -p 2222 -l username'
+        )
+        mock_warning.assert_called_once()
+        self.assertIn(
+            'The ssh options have been deprecated.',
+            mock_warning.call_args[0][0],
         )
 
 
