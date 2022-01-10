@@ -152,6 +152,7 @@ class VolumeTests(common.BaseVolumeTests):
             name,
         )
         self.assertOutput('', raw_output)
+        self.wait_for_status("volume", new_name, "available")
 
         cmd_output = json.loads(self.openstack(
             'volume show -f json ' +
