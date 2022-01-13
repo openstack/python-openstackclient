@@ -615,6 +615,13 @@ class ListPort(command.Lister):
             metavar='<name>',
             help=_("List ports according to their name")
         )
+        parser.add_argument(
+            '--security-group',
+            action='append',
+            dest='security_groups',
+            metavar='<security-group>',
+            help=_("List only ports associated with this security group")
+        )
         identity_common.add_project_domain_option_to_parser(parser)
         parser.add_argument(
             '--fixed-ip',
@@ -687,6 +694,8 @@ class ListPort(command.Lister):
         if parsed_args.fixed_ip:
             filters['fixed_ips'] = _prepare_filter_fixed_ips(
                 self.app.client_manager, parsed_args)
+        if parsed_args.security_groups:
+            filters['security_groups'] = parsed_args.security_groups
 
         _tag.get_tag_filtering_args(parsed_args, filters)
 

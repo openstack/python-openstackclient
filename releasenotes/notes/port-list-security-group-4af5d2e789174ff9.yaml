@@ -1,0 +1,5 @@
+---
+features:
+  - |
+    Added ``--security-group`` option to the ``os port list`` command. This
+    option is appendable and multiple security group IDs can be provided.
