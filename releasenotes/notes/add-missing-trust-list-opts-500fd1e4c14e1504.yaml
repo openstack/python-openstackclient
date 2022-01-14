@@ -1,0 +1,9 @@
+---
+features:
+  - |
+    Add missing ``--trustee``, ``--trustee-domain``, ``--trustor``,
+    ``--trustor-domain`` options to ``trust list`` command, to allow
+    filtering trusts by trustee and trustor.
+  - |
+    Add ``--authuser`` option to ``trust list`` command, to allow
+    displaying only trusts related to current authenticated user
