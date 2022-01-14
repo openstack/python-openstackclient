@@ -112,7 +112,7 @@ class TestCreateMeter(TestMeter):
         self.network.create_metering_label.assert_called_once_with(
             **{'description': self.new_meter.description,
                'name': self.new_meter.name,
-               'tenant_id': self.project.id,
+               'project_id': self.project.id,
                'shared': True, }
         )
         self.assertEqual(self.columns, columns)

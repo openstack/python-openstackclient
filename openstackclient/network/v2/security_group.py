@@ -35,7 +35,6 @@ def _format_network_security_group_rules(sg_rules):
         for key in empty_keys:
             sg_rule.pop(key)
         sg_rule.pop('security_group_id', None)
-        sg_rule.pop('tenant_id', None)
         sg_rule.pop('project_id', None)
     return utils.format_list_of_dicts(sg_rules)
 
@@ -85,6 +84,7 @@ _formatters_compute = {
 
 
 def _get_columns(item):
+    # We still support Nova managed security groups, where we have tenant_id.
     column_map = {
         'security_group_rules': 'rules',
         'tenant_id': 'project_id',
@@ -164,7 +164,7 @@ class CreateSecurityGroup(common.NetworkAndComputeShowOne,
                 parsed_args.project,
                 parsed_args.project_domain,
             ).id
-            attrs['tenant_id'] = project_id
+            attrs['project_id'] = project_id
         attrs.update(
             self._parse_extra_properties(parsed_args.extra_properties))
 
@@ -269,7 +269,6 @@ class ListSecurityGroup(common.NetworkAndComputeLister):
                 parsed_args.project,
                 parsed_args.project_domain,
             ).id
-            filters['tenant_id'] = project_id
             filters['project_id'] = project_id
 
         _tag.get_tag_filtering_args(parsed_args, filters)

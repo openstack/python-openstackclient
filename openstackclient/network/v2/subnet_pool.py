@@ -36,7 +36,6 @@ def _get_columns(item):
         'is_shared': 'shared',
         'maximum_prefix_length': 'max_prefixlen',
         'minimum_prefix_length': 'min_prefixlen',
-        'tenant_id': 'project_id',
     }
     hidden_columns = ['location']
     return utils.get_osc_show_columns_for_sdk_resource(
@@ -91,7 +90,7 @@ def _get_attrs(client_manager, parsed_args):
             parsed_args.project,
             parsed_args.project_domain,
         ).id
-        attrs['tenant_id'] = project_id
+        attrs['project_id'] = project_id
 
     if parsed_args.description is not None:
         attrs['description'] = parsed_args.description
@@ -329,7 +328,6 @@ class ListSubnetPool(command.Lister):
                 parsed_args.project,
                 parsed_args.project_domain,
             ).id
-            filters['tenant_id'] = project_id
             filters['project_id'] = project_id
         if parsed_args.name is not None:
             filters['name'] = parsed_args.name

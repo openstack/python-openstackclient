@@ -137,7 +137,6 @@ def _get_columns(item):
     column_map = {
         'is_dhcp_enabled': 'enable_dhcp',
         'subnet_pool_id': 'subnetpool_id',
-        'tenant_id': 'project_id',
     }
     # Do not show this column when displaying a subnet
     invisible_columns = [
@@ -188,7 +187,7 @@ def _get_attrs(client_manager, parsed_args, is_create=True):
                 parsed_args.project,
                 parsed_args.project_domain,
             ).id
-            attrs['tenant_id'] = project_id
+            attrs['project_id'] = project_id
         attrs['network_id'] = client.find_network(parsed_args.network,
                                                   ignore_missing=False).id
         if parsed_args.subnet_pool is not None:
@@ -522,7 +521,6 @@ class ListSubnet(command.Lister):
                 parsed_args.project,
                 parsed_args.project_domain,
             ).id
-            filters['tenant_id'] = project_id
             filters['project_id'] = project_id
         if parsed_args.network:
             network_id = network_client.find_network(parsed_args.network,

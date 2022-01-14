@@ -63,7 +63,6 @@ def _get_columns(item):
         'binding:vnic_type': 'binding_vnic_type',
         'is_admin_state_up': 'admin_state_up',
         'is_port_security_enabled': 'port_security_enabled',
-        'tenant_id': 'project_id',
     }
     hidden_columns = ['location']
     return utils.get_osc_show_columns_for_sdk_resource(
@@ -139,7 +138,7 @@ def _get_attrs(client_manager, parsed_args):
             parsed_args.project,
             parsed_args.project_domain,
         ).id
-        attrs['tenant_id'] = project_id
+        attrs['project_id'] = project_id
 
     if parsed_args.disable_port_security:
         attrs['port_security_enabled'] = False
@@ -687,7 +686,6 @@ class ListPort(command.Lister):
                 parsed_args.project,
                 parsed_args.project_domain,
             ).id
-            filters['tenant_id'] = project_id
             filters['project_id'] = project_id
         if parsed_args.name:
             filters['name'] = parsed_args.name

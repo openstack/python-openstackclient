@@ -43,7 +43,7 @@ class TestCreateAddressGroup(TestAddressGroup):
     new_address_group = (
         network_fakes.FakeAddressGroup.create_one_address_group(
             attrs={
-                'tenant_id': project.id,
+                'project_id': project.id,
             }
         ))
     columns = (
@@ -122,7 +122,7 @@ class TestCreateAddressGroup(TestAddressGroup):
 
         self.network.create_address_group.assert_called_once_with(**{
             'addresses': ['10.0.0.1/32'],
-            'tenant_id': self.project.id,
+            'project_id': self.project.id,
             'name': self.new_address_group.name,
             'description': self.new_address_group.description,
         })

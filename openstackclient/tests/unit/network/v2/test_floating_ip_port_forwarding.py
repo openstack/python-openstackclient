@@ -39,7 +39,6 @@ class TestFloatingIPPortForwarding(network_fakes.TestNetworkV2):
 class TestCreateFloatingIPPortForwarding(TestFloatingIPPortForwarding):
 
     def setUp(self):
-        project_id = ''
         super(TestCreateFloatingIPPortForwarding, self).setUp()
         self.new_port_forwarding = (
             network_fakes.FakeFloatingIPPortForwarding.
@@ -69,7 +68,6 @@ class TestCreateFloatingIPPortForwarding(TestFloatingIPPortForwarding):
             'internal_ip_address',
             'internal_port',
             'internal_port_id',
-            'project_id',
             'protocol'
         )
 
@@ -81,7 +79,6 @@ class TestCreateFloatingIPPortForwarding(TestFloatingIPPortForwarding):
             self.new_port_forwarding.internal_ip_address,
             self.new_port_forwarding.internal_port,
             self.new_port_forwarding.internal_port_id,
-            project_id,
             self.new_port_forwarding.protocol,
         )
 
@@ -446,12 +443,10 @@ class TestShowFloatingIPPortForwarding(TestFloatingIPPortForwarding):
         'internal_ip_address',
         'internal_port',
         'internal_port_id',
-        'project_id',
         'protocol',
     )
 
     def setUp(self):
-        project_id = ''
         super(TestShowFloatingIPPortForwarding, self).setUp()
         self._port_forwarding = (
             network_fakes.FakeFloatingIPPortForwarding.
@@ -469,7 +464,6 @@ class TestShowFloatingIPPortForwarding(TestFloatingIPPortForwarding):
             self._port_forwarding.internal_ip_address,
             self._port_forwarding.internal_port,
             self._port_forwarding.internal_port_id,
-            project_id,
             self._port_forwarding.protocol,
         )
         self.network.find_floating_ip_port_forwarding = mock.Mock(

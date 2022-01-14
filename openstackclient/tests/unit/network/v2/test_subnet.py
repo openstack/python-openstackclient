@@ -44,7 +44,7 @@ class TestCreateSubnet(TestSubnet):
         # An IPv4 subnet to be created with mostly default values
         self._subnet = network_fakes.FakeSubnet.create_one_subnet(
             attrs={
-                'tenant_id': self.project.id,
+                'project_id': self.project.id,
             }
         )
 
@@ -55,7 +55,7 @@ class TestCreateSubnet(TestSubnet):
         # An IPv4 subnet to be created using a specific subnet pool
         self._subnet_from_pool = network_fakes.FakeSubnet.create_one_subnet(
             attrs={
-                'tenant_id': self.project.id,
+                'project_id': self.project.id,
                 'subnetpool_id': self._subnet_pool.id,
                 'dns_nameservers': ['8.8.8.8',
                                     '8.8.4.4'],
@@ -71,7 +71,7 @@ class TestCreateSubnet(TestSubnet):
         # An IPv6 subnet to be created with most options specified
         self._subnet_ipv6 = network_fakes.FakeSubnet.create_one_subnet(
             attrs={
-                'tenant_id': self.project.id,
+                'project_id': self.project.id,
                 'cidr': 'fe80:0:0:a00a::/64',
                 'enable_dhcp': True,
                 'dns_nameservers': ['fe80:27ff:a00a:f00f::ffff',
@@ -661,7 +661,7 @@ class TestListSubnet(TestSubnet):
             subnet.name,
             subnet.network_id,
             subnet.cidr,
-            subnet.tenant_id,
+            subnet.project_id,
             subnet.enable_dhcp,
             format_columns.ListColumn(subnet.dns_nameservers),
             subnet_v2.AllocationPoolsColumn(subnet.allocation_pools),
@@ -783,7 +783,7 @@ class TestListSubnet(TestSubnet):
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
         columns, data = self.cmd.take_action(parsed_args)
-        filters = {'tenant_id': project.id, 'project_id': project.id}
+        filters = {'project_id': project.id}
 
         self.network.subnets.assert_called_once_with(**filters)
         self.assertEqual(self.columns, columns)
@@ -821,7 +821,7 @@ class TestListSubnet(TestSubnet):
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
         columns, data = self.cmd.take_action(parsed_args)
-        filters = {'tenant_id': project.id, 'project_id': project.id}
+        filters = {'project_id': project.id}
 
         self.network.subnets.assert_called_once_with(**filters)
         self.assertEqual(self.columns, columns)
@@ -1247,7 +1247,7 @@ class TestShowSubnet(TestSubnet):
         _subnet.ipv6_ra_mode,
         _subnet.name,
         _subnet.network_id,
-        _subnet.tenant_id,
+        _subnet.project_id,
         _subnet.segment_id,
         format_columns.ListColumn(_subnet.service_types),
         _subnet.subnetpool_id,

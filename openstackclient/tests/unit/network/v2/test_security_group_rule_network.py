@@ -458,7 +458,7 @@ class TestCreateSecurityGroupRuleNetwork(TestSecurityGroupRuleNetwork):
             'protocol': self._security_group_rule.protocol,
             'remote_ip_prefix': self._security_group_rule.remote_ip_prefix,
             'security_group_id': self._security_group.id,
-            'tenant_id': self.project.id,
+            'project_id': self.project.id,
         })
         self.assertEqual(self.expected_columns, columns)
         self.assertEqual(self.expected_data, data)

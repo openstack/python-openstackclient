@@ -58,7 +58,6 @@ def _get_columns_network(item):
         'is_shared': 'shared',
         'ipv4_address_scope_id': 'ipv4_address_scope',
         'ipv6_address_scope_id': 'ipv6_address_scope',
-        'tenant_id': 'project_id',
         'tags': 'tags',
     }
     hidden_columns = ['location']
@@ -70,9 +69,7 @@ def _get_columns_network(item):
 
 
 def _get_columns_compute(item):
-    column_map = {
-        'tenant_id': 'project_id',
-    }
+    column_map = {}
     return utils.get_osc_show_columns_for_sdk_resource(item, column_map)
 
 
@@ -101,8 +98,6 @@ def _get_attrs_network(client_manager, parsed_args):
             parsed_args.project,
             parsed_args.project_domain,
         ).id
-        # TODO(dtroyer): Remove tenant_id when we clean up the SDK refactor
-        attrs['tenant_id'] = project_id
         attrs['project_id'] = project_id
 
     # "network set" command doesn't support setting availability zone hints.
@@ -573,7 +568,6 @@ class ListNetwork(common.NetworkAndComputeLister):
                 parsed_args.project,
                 parsed_args.project_domain,
             )
-            args['tenant_id'] = project.id
             args['project_id'] = project.id
 
         if parsed_args.share:

@@ -179,7 +179,7 @@ class TestCreateFloatingIPNetwork(TestFloatingIPNetwork):
 
         self.network.create_ip.assert_called_once_with(**{
             'floating_network_id': self.floating_ip.floating_network_id,
-            'tenant_id': project.id,
+            'project_id': project.id,
         })
         self.assertEqual(self.columns, columns)
         self.assertEqual(self.data, data)
@@ -205,7 +205,7 @@ class TestCreateFloatingIPNetwork(TestFloatingIPNetwork):
 
         self.network.create_ip.assert_called_once_with(**{
             'floating_network_id': self.floating_ip.floating_network_id,
-            'tenant_id': project.id,
+            'project_id': project.id,
         })
         self.assertEqual(self.columns, columns)
         self.assertEqual(self.data, data)
@@ -414,7 +414,7 @@ class TestListFloatingIPNetwork(TestFloatingIPNetwork):
             ip.fixed_ip_address,
             ip.port_id,
             ip.floating_network_id,
-            ip.tenant_id,
+            ip.project_id,
         ))
         data_long.append((
             ip.id,
@@ -422,7 +422,7 @@ class TestListFloatingIPNetwork(TestFloatingIPNetwork):
             ip.fixed_ip_address,
             ip.port_id,
             ip.floating_network_id,
-            ip.tenant_id,
+            ip.project_id,
             ip.router_id,
             ip.status,
             ip.description,
@@ -563,8 +563,7 @@ class TestListFloatingIPNetwork(TestFloatingIPNetwork):
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
         columns, data = self.cmd.take_action(parsed_args)
-        filters = {'tenant_id': project.id,
-                   'project_id': project.id, }
+        filters = {'project_id': project.id}
 
         self.network.ips.assert_called_once_with(**filters)
 
@@ -584,8 +583,7 @@ class TestListFloatingIPNetwork(TestFloatingIPNetwork):
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
         columns, data = self.cmd.take_action(parsed_args)
-        filters = {'tenant_id': project.id,
-                   'project_id': project.id, }
+        filters = {'project_id': project.id}
 
         self.network.ips.assert_called_once_with(**filters)
         self.assertEqual(self.columns, columns)

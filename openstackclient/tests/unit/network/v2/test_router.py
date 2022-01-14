@@ -141,7 +141,7 @@ class TestCreateRouter(TestRouter):
         new_router.ha,
         new_router.id,
         new_router.name,
-        new_router.tenant_id,
+        new_router.project_id,
         router.RoutesColumn(new_router.routes),
         new_router.status,
         format_columns.ListColumn(new_router.tags),
@@ -460,7 +460,7 @@ class TestListRouter(TestRouter):
             r.name,
             r.status,
             router.AdminStateColumn(r.admin_state_up),
-            r.tenant_id,
+            r.project_id,
             r.distributed,
             r.ha,
         ))
@@ -656,7 +656,7 @@ class TestListRouter(TestRouter):
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
         columns, data = self.cmd.take_action(parsed_args)
-        filters = {'tenant_id': project.id, 'project_id': project.id}
+        filters = {'project_id': project.id}
 
         self.network.routers.assert_called_once_with(**filters)
         self.assertEqual(self.columns, columns)
@@ -676,7 +676,7 @@ class TestListRouter(TestRouter):
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
         columns, data = self.cmd.take_action(parsed_args)
-        filters = {'tenant_id': project.id, 'project_id': project.id}
+        filters = {'project_id': project.id}
 
         self.network.routers.assert_called_once_with(**filters)
         self.assertEqual(self.columns, columns)
@@ -1401,7 +1401,7 @@ class TestShowRouter(TestRouter):
         _router.id,
         router.RouterInfoColumn(_router.interfaces_info),
         _router.name,
-        _router.tenant_id,
+        _router.project_id,
         router.RoutesColumn(_router.routes),
         _router.status,
         format_columns.ListColumn(_router.tags),

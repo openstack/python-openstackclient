@@ -27,7 +27,6 @@ LOG = logging.getLogger(__name__)
 def _get_columns(item):
     column_map = {
         'is_enabled': 'enabled',
-        'tenant_id': 'project_id',
     }
 
     hidden_columns = ['location']
@@ -57,7 +56,7 @@ def _get_attrs(client_manager, parsed_args):
             parsed_args.project,
             parsed_args.project_domain,
         ).id
-        attrs['tenant_id'] = project_id
+        attrs['project_id'] = project_id
 
     return attrs
 

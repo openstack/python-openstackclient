@@ -102,7 +102,7 @@ class FakeAddressGroup(object):
             'name': 'address-group-name-' + uuid.uuid4().hex,
             'description': 'address-group-description-' + uuid.uuid4().hex,
             'id': 'address-group-id-' + uuid.uuid4().hex,
-            'tenant_id': 'project-id-' + uuid.uuid4().hex,
+            'project_id': 'project-id-' + uuid.uuid4().hex,
             'addresses': ['10.0.0.1/32'],
             'location': 'MUNCHMUNCHMUNCH',
         }
@@ -113,9 +113,6 @@ class FakeAddressGroup(object):
         address_group = fakes.FakeResource(
             info=copy.deepcopy(address_group_attrs),
             loaded=True)
-
-        # Set attributes with special mapping in OpenStack SDK.
-        address_group.project_id = address_group_attrs['tenant_id']
 
         return address_group
 
@@ -175,7 +172,7 @@ class FakeAddressScope(object):
         address_scope_attrs = {
             'name': 'address-scope-name-' + uuid.uuid4().hex,
             'id': 'address-scope-id-' + uuid.uuid4().hex,
-            'tenant_id': 'project-id-' + uuid.uuid4().hex,
+            'project_id': 'project-id-' + uuid.uuid4().hex,
             'shared': False,
             'ip_version': 4,
             'location': 'MUNCHMUNCHMUNCH',
@@ -190,7 +187,6 @@ class FakeAddressScope(object):
 
         # Set attributes with special mapping in OpenStack SDK.
         address_scope.is_shared = address_scope_attrs['shared']
-        address_scope.project_id = address_scope_attrs['tenant_id']
 
         return address_scope
 
@@ -241,7 +237,7 @@ class FakeAutoAllocatedTopology(object):
 
         auto_allocated_topology_attrs = {
             'id': 'network-id-' + uuid.uuid4().hex,
-            'tenant_id': 'project-id-' + uuid.uuid4().hex,
+            'project_id': 'project-id-' + uuid.uuid4().hex,
         }
 
         auto_allocated_topology_attrs.update(attrs)
@@ -249,10 +245,6 @@ class FakeAutoAllocatedTopology(object):
         auto_allocated_topology = fakes.FakeResource(
             info=copy.deepcopy(auto_allocated_topology_attrs),
             loaded=True)
-
-        auto_allocated_topology.project_id = auto_allocated_topology_attrs[
-            'tenant_id'
-        ]
 
         return auto_allocated_topology
 
@@ -324,7 +316,7 @@ class FakeIPAvailability(object):
         network_ip_attrs = {
             'network_id': 'network-id-' + uuid.uuid4().hex,
             'network_name': 'network-name-' + uuid.uuid4().hex,
-            'tenant_id': '',
+            'project_id': '',
             'subnet_ip_availability': [],
             'total_ips': 254,
             'used_ips': 6,
@@ -335,7 +327,6 @@ class FakeIPAvailability(object):
         network_ip_availability = fakes.FakeResource(
             info=copy.deepcopy(network_ip_attrs),
             loaded=True)
-        network_ip_availability.project_id = network_ip_attrs['tenant_id']
 
         return network_ip_availability
 
@@ -412,7 +403,7 @@ class FakeNetwork(object):
             'description': 'network-description-' + uuid.uuid4().hex,
             'dns_domain': 'example.org.',
             'mtu': '1350',
-            'tenant_id': 'project-id-' + uuid.uuid4().hex,
+            'project_id': 'project-id-' + uuid.uuid4().hex,
             'admin_state_up': True,
             'shared': False,
             'subnets': ['a', 'b'],
@@ -438,7 +429,6 @@ class FakeNetwork(object):
                                      loaded=True)
 
         # Set attributes with special mapping in OpenStack SDK.
-        network.project_id = network_attrs['tenant_id']
         network.is_router_external = network_attrs['router:external']
         network.is_admin_state_up = network_attrs['admin_state_up']
         network.is_port_security_enabled = \
@@ -517,7 +507,7 @@ class FakeNetworkFlavor(object):
             'id': 'network-flavor-id-' + fake_uuid,
             'name': 'network-flavor-name-' + fake_uuid,
             'service_type': 'vpn',
-            'tenant_id': 'project-id-' + uuid.uuid4().hex,
+            'project_id': 'project-id-' + uuid.uuid4().hex,
             'location': 'MUNCHMUNCHMUNCH',
         }
 
@@ -529,7 +519,6 @@ class FakeNetworkFlavor(object):
             loaded=True
         )
 
-        network_flavor.project_id = network_flavor_attrs['tenant_id']
         network_flavor.is_enabled = network_flavor_attrs['enabled']
 
         return network_flavor
@@ -719,7 +708,7 @@ class FakePort(object):
             'port_security_enabled': True,
             'security_group_ids': [],
             'status': 'ACTIVE',
-            'tenant_id': 'project-id-' + uuid.uuid4().hex,
+            'project_id': 'project-id-' + uuid.uuid4().hex,
             'qos_network_policy_id': 'qos-policy-id-' + uuid.uuid4().hex,
             'qos_policy_id': 'qos-policy-id-' + uuid.uuid4().hex,
             'tags': [],
@@ -741,11 +730,6 @@ class FakePort(object):
         port.binding_vnic_type = port_attrs['binding:vnic_type']
         port.is_admin_state_up = port_attrs['admin_state_up']
         port.is_port_security_enabled = port_attrs['port_security_enabled']
-        port.project_id = port_attrs['tenant_id']
-        port.security_group_ids = port_attrs['security_group_ids']
-        port.qos_policy_id = port_attrs['qos_policy_id']
-        port.propagate_uplink_status = port_attrs[
-            'propagate_uplink_status']
 
         return port
 
@@ -867,7 +851,7 @@ class FakeNetworkRBAC(object):
             A dictionary with all attributes
         :return:
             A FakeResource object, with id, action, target_tenant,
-            tenant_id, type
+            project_id, type
         """
         attrs = attrs or {}
 
@@ -878,14 +862,13 @@ class FakeNetworkRBAC(object):
             'object_id': 'object-id-' + uuid.uuid4().hex,
             'action': 'access_as_shared',
             'target_tenant': 'target-tenant-' + uuid.uuid4().hex,
-            'tenant_id': 'tenant-id-' + uuid.uuid4().hex,
+            'project_id': 'project-id-' + uuid.uuid4().hex,
             'location': 'MUNCHMUNCHMUNCH',
         }
         rbac_attrs.update(attrs)
         rbac = fakes.FakeResource(info=copy.deepcopy(rbac_attrs),
                                   loaded=True)
         # Set attributes with special mapping in OpenStack SDK.
-        rbac.project_id = rbac_attrs['tenant_id']
         rbac.target_project_id = rbac_attrs['target_tenant']
         return rbac
 
@@ -938,7 +921,7 @@ class FakeNetworkFlavorProfile(object):
         flavor_profile_attrs = {
             'id': 'flavor-profile-id' + uuid.uuid4().hex,
             'description': 'flavor-profile-description-' + uuid.uuid4().hex,
-            'tenant_id': 'project-id-' + uuid.uuid4().hex,
+            'project_id': 'project-id-' + uuid.uuid4().hex,
             'driver': 'driver-' + uuid.uuid4().hex,
             'metainfo': 'metainfo-' + uuid.uuid4().hex,
             'enabled': True,
@@ -951,7 +934,6 @@ class FakeNetworkFlavorProfile(object):
             info=copy.deepcopy(flavor_profile_attrs),
             loaded=True)
 
-        flavor_profile.project_id = flavor_profile_attrs['tenant_id']
         flavor_profile.is_enabled = flavor_profile_attrs['enabled']
 
         return flavor_profile
@@ -997,7 +979,7 @@ class FakeNetworkQosPolicy(object):
             'name': 'qos-policy-name-' + uuid.uuid4().hex,
             'id': qos_id,
             'is_default': False,
-            'tenant_id': 'project-id-' + uuid.uuid4().hex,
+            'project_id': 'project-id-' + uuid.uuid4().hex,
             'shared': False,
             'description': 'qos-policy-description-' + uuid.uuid4().hex,
             'rules': rules,
@@ -1013,7 +995,6 @@ class FakeNetworkQosPolicy(object):
 
         # Set attributes with special mapping in OpenStack SDK.
         qos_policy.is_shared = qos_policy_attrs['shared']
-        qos_policy.project_id = qos_policy_attrs['tenant_id']
 
         return qos_policy
 
@@ -1074,7 +1055,7 @@ class FakeNetworkSecGroup(object):
         security_group_attrs = {
             'name': 'security-group-name-' + uuid.uuid4().hex,
             'id': sg_id,
-            'tenant_id': 'project-id-' + uuid.uuid4().hex,
+            'project_id': 'project-id-' + uuid.uuid4().hex,
             'description': 'security-group-description-' + uuid.uuid4().hex,
             'location': 'MUNCHMUNCHMUNCH',
         }
@@ -1082,9 +1063,6 @@ class FakeNetworkSecGroup(object):
         security_group = fakes.FakeResource(
             info=copy.deepcopy(security_group_attrs),
             loaded=True)
-
-        # Set attributes with special mapping in OpenStack SDK.
-        security_group.project_id = security_group_attrs['tenant_id']
 
         return security_group
 
@@ -1108,7 +1086,7 @@ class FakeNetworkQosRule(object):
         qos_rule_attrs = {
             'id': 'qos-rule-id-' + uuid.uuid4().hex,
             'qos_policy_id': 'qos-policy-id-' + uuid.uuid4().hex,
-            'tenant_id': 'project-id-' + uuid.uuid4().hex,
+            'project_id': 'project-id-' + uuid.uuid4().hex,
             'type': type,
             'location': 'MUNCHMUNCHMUNCH',
         }
@@ -1127,9 +1105,6 @@ class FakeNetworkQosRule(object):
 
         qos_rule = fakes.FakeResource(info=copy.deepcopy(qos_rule_attrs),
                                       loaded=True)
-
-        # Set attributes with special mapping in OpenStack SDK.
-        qos_rule.project_id = qos_rule['tenant_id']
 
         return qos_rule
 
@@ -1226,7 +1201,7 @@ class FakeRouter(object):
             A dictionary with all attributes
         :return:
             A FakeResource object, with id, name, admin_state_up,
-            status, tenant_id
+            status, project_id
         """
         attrs = attrs or {}
 
@@ -1239,7 +1214,7 @@ class FakeRouter(object):
             'description': 'router-description-' + uuid.uuid4().hex,
             'distributed': False,
             'ha': False,
-            'tenant_id': 'project-id-' + uuid.uuid4().hex,
+            'project_id': 'project-id-' + uuid.uuid4().hex,
             'routes': [],
             'external_gateway_info': {},
             'availability_zone_hints': [],
@@ -1255,7 +1230,6 @@ class FakeRouter(object):
                                     loaded=True)
 
         # Set attributes with special mapping in OpenStack SDK.
-        router.project_id = router_attrs['tenant_id']
         router.is_admin_state_up = router_attrs['admin_state_up']
         router.is_distributed = router_attrs['distributed']
         router.is_ha = router_attrs['ha']
@@ -1332,9 +1306,6 @@ class FakeSecurityGroup(object):
             info=copy.deepcopy(security_group_attrs),
             loaded=True)
 
-        # Set attributes with special mapping in OpenStack SDK.
-        security_group.project_id = security_group_attrs['project_id']
-
         return security_group
 
     @staticmethod
@@ -1403,7 +1374,7 @@ class FakeSecurityGroupRule(object):
             'remote_address_group_id': None,
             'remote_ip_prefix': '0.0.0.0/0',
             'security_group_id': 'security-group-id-' + uuid.uuid4().hex,
-            'tenant_id': 'project-id-' + uuid.uuid4().hex,
+            'project_id': 'project-id-' + uuid.uuid4().hex,
             'location': 'MUNCHMUNCHMUNCH',
         }
 
@@ -1413,9 +1384,6 @@ class FakeSecurityGroupRule(object):
         security_group_rule = fakes.FakeResource(
             info=copy.deepcopy(security_group_rule_attrs),
             loaded=True)
-
-        # Set attributes with special mapping in OpenStack SDK.
-        security_group_rule.project_id = security_group_rule_attrs['tenant_id']
 
         return security_group_rule
 
@@ -1479,7 +1447,7 @@ class FakeSubnet(object):
             'name': 'subnet-name-' + uuid.uuid4().hex,
             'network_id': 'network-id-' + uuid.uuid4().hex,
             'cidr': '10.10.10.0/24',
-            'tenant_id': project_id,
+            'project_id': project_id,
             'enable_dhcp': True,
             'dns_nameservers': [],
             'allocation_pools': [],
@@ -1505,7 +1473,6 @@ class FakeSubnet(object):
         # Set attributes with special mappings in OpenStack SDK.
         subnet.is_dhcp_enabled = subnet_attrs['enable_dhcp']
         subnet.subnet_pool_id = subnet_attrs['subnetpool_id']
-        subnet.project_id = subnet_attrs['tenant_id']
 
         return subnet
 
@@ -1571,7 +1538,7 @@ class FakeFloatingIP(object):
             'floating_network_id': 'network-id-' + uuid.uuid4().hex,
             'router_id': 'router-id-' + uuid.uuid4().hex,
             'port_id': 'port-id-' + uuid.uuid4().hex,
-            'tenant_id': 'project-id-' + uuid.uuid4().hex,
+            'project_id': 'project-id-' + uuid.uuid4().hex,
             'description': 'floating-ip-description-' + uuid.uuid4().hex,
             'qos_policy_id': 'qos-policy-id-' + uuid.uuid4().hex,
             'tags': [],
@@ -1585,9 +1552,6 @@ class FakeFloatingIP(object):
             info=copy.deepcopy(floating_ip_attrs),
             loaded=True
         )
-
-        # Set attributes with special mappings in OpenStack SDK.
-        floating_ip.project_id = floating_ip_attrs['tenant_id']
 
         return floating_ip
 
@@ -1639,7 +1603,7 @@ class FakeNetworkMeter(object):
             'id': 'meter-id-' + uuid.uuid4().hex,
             'name': 'meter-name-' + uuid.uuid4().hex,
             'description': 'meter-description-' + uuid.uuid4().hex,
-            'tenant_id': 'project-id-' + uuid.uuid4().hex,
+            'project_id': 'project-id-' + uuid.uuid4().hex,
             'shared': False,
             'location': 'MUNCHMUNCHMUNCH',
         }
@@ -1649,8 +1613,6 @@ class FakeNetworkMeter(object):
         meter = fakes.FakeResource(
             info=copy.deepcopy(meter_attrs),
             loaded=True)
-
-        meter.project_id = meter_attrs['tenant_id']
 
         return meter
 
@@ -1689,7 +1651,7 @@ class FakeNetworkMeterRule(object):
             'remote_ip_prefix': '10.0.0.0/24',
             'source_ip_prefix': '8.8.8.8/32',
             'destination_ip_prefix': '10.0.0.0/24',
-            'tenant_id': 'project-id-' + uuid.uuid4().hex,
+            'project_id': 'project-id-' + uuid.uuid4().hex,
             'location': 'MUNCHMUNCHMUNCH',
         }
 
@@ -1698,8 +1660,6 @@ class FakeNetworkMeterRule(object):
         meter_rule = fakes.FakeResource(
             info=copy.deepcopy(meter_rule_attrs),
             loaded=True)
-
-        meter_rule.project_id = meter_rule_attrs['tenant_id']
 
         return meter_rule
 
@@ -1743,7 +1703,7 @@ class FakeSubnetPool(object):
             'prefixes': ['10.0.0.0/24', '10.1.0.0/24'],
             'default_prefixlen': '8',
             'address_scope_id': 'address-scope-id-' + uuid.uuid4().hex,
-            'tenant_id': 'project-id-' + uuid.uuid4().hex,
+            'project_id': 'project-id-' + uuid.uuid4().hex,
             'is_default': False,
             'shared': False,
             'max_prefixlen': '32',
@@ -1769,7 +1729,6 @@ class FakeSubnetPool(object):
         subnet_pool.is_shared = subnet_pool_attrs['shared']
         subnet_pool.maximum_prefix_length = subnet_pool_attrs['max_prefixlen']
         subnet_pool.minimum_prefix_length = subnet_pool_attrs['min_prefixlen']
-        subnet_pool.project_id = subnet_pool_attrs['tenant_id']
 
         return subnet_pool
 

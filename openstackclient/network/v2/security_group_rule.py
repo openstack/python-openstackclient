@@ -71,9 +71,7 @@ def _format_remote_ip_prefix(rule):
 
 
 def _get_columns(item):
-    column_map = {
-        'tenant_id': 'project_id',
-    }
+    column_map = {}
     hidden_columns = ['location']
     return utils.get_osc_show_columns_for_sdk_resource(
         item,
@@ -357,7 +355,7 @@ class CreateSecurityGroupRule(common.NetworkAndComputeShowOne,
                 parsed_args.project,
                 parsed_args.project_domain,
             ).id
-            attrs['tenant_id'] = project_id
+            attrs['project_id'] = project_id
 
         attrs.update(
             self._parse_extra_properties(parsed_args.extra_properties))

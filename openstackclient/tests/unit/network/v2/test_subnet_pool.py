@@ -197,7 +197,7 @@ class TestCreateSubnetPool(TestSubnetPool):
 
         self.network.create_subnet_pool.assert_called_once_with(**{
             'prefixes': ['10.0.10.0/24'],
-            'tenant_id': self.project.id,
+            'project_id': self.project.id,
             'name': self._subnet_pool.name,
         })
         self.assertEqual(self.columns, columns)
@@ -569,7 +569,7 @@ class TestListSubnetPool(TestSubnetPool):
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
         columns, data = self.cmd.take_action(parsed_args)
-        filters = {'tenant_id': project.id, 'project_id': project.id}
+        filters = {'project_id': project.id}
 
         self.network.subnet_pools.assert_called_once_with(**filters)
         self.assertEqual(self.columns, columns)
@@ -589,7 +589,7 @@ class TestListSubnetPool(TestSubnetPool):
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
         columns, data = self.cmd.take_action(parsed_args)
-        filters = {'tenant_id': project.id, 'project_id': project.id}
+        filters = {'project_id': project.id}
 
         self.network.subnet_pools.assert_called_once_with(**filters)
         self.assertEqual(self.columns, columns)
@@ -970,7 +970,7 @@ class TestShowSubnetPool(TestSubnetPool):
         _subnet_pool.min_prefixlen,
         _subnet_pool.name,
         format_columns.ListColumn(_subnet_pool.prefixes),
-        _subnet_pool.tenant_id,
+        _subnet_pool.project_id,
         _subnet_pool.shared,
         format_columns.ListColumn(_subnet_pool.tags),
     )

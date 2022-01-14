@@ -46,9 +46,7 @@ ACTION_SHOW = 'get'
 
 
 def _get_columns(item):
-    column_map = {
-        'tenant_id': 'project_id',
-    }
+    column_map = {}
     hidden_columns = ['location']
     return utils.get_osc_show_columns_for_sdk_resource(
         item,
