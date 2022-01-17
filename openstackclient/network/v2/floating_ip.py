@@ -27,9 +27,7 @@ _formatters = {
 
 
 def _get_network_columns(item):
-    column_map = {
-        'tenant_id': 'project_id',
-    }
+    column_map = {}
     hidden_columns = ['location']
     return utils.get_osc_show_columns_for_sdk_resource(
         item,
@@ -40,9 +38,6 @@ def _get_network_columns(item):
 
 def _get_columns(item):
     columns = list(item.keys())
-    if 'tenant_id' in columns:
-        columns.remove('tenant_id')
-        columns.append('project_id')
     return tuple(sorted(columns))
 
 
@@ -86,7 +81,7 @@ def _get_attrs(client_manager, parsed_args):
             parsed_args.project,
             parsed_args.project_domain,
         ).id
-        attrs['tenant_id'] = project_id
+        attrs['project_id'] = project_id
 
     if parsed_args.dns_domain:
         attrs['dns_domain'] = parsed_args.dns_domain
@@ -354,7 +349,6 @@ class ListFloatingIP(common.NetworkAndComputeLister):
                 parsed_args.project,
                 parsed_args.project_domain,
             )
-            query['tenant_id'] = project.id
             query['project_id'] = project.id
         if parsed_args.router is not None:
             router = network_client.find_router(parsed_args.router,

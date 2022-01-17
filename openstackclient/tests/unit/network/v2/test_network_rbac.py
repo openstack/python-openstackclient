@@ -45,7 +45,7 @@ class TestCreateNetworkRBAC(TestNetworkRBAC):
     ag_object = network_fakes.FakeAddressGroup.create_one_address_group()
     project = identity_fakes_v3.FakeProject.create_one_project()
     rbac_policy = network_fakes.FakeNetworkRBAC.create_one_network_rbac(
-        attrs={'tenant_id': project.id,
+        attrs={'project_id': project.id,
                'target_tenant': project.id,
                'object_id': network_object.id}
     )
@@ -64,7 +64,7 @@ class TestCreateNetworkRBAC(TestNetworkRBAC):
         rbac_policy.id,
         rbac_policy.object_id,
         rbac_policy.object_type,
-        rbac_policy.tenant_id,
+        rbac_policy.project_id,
         rbac_policy.target_tenant,
     ]
 
@@ -206,7 +206,7 @@ class TestCreateNetworkRBAC(TestNetworkRBAC):
             '--type', self.rbac_policy.object_type,
             '--action', self.rbac_policy.action,
             '--target-project', self.rbac_policy.target_tenant,
-            '--project', self.rbac_policy.tenant_id,
+            '--project', self.rbac_policy.project_id,
             '--project-domain', self.project.domain_id,
             '--target-project-domain', self.project.domain_id,
             self.rbac_policy.object_id,
@@ -215,7 +215,7 @@ class TestCreateNetworkRBAC(TestNetworkRBAC):
             ('type', self.rbac_policy.object_type),
             ('action', self.rbac_policy.action),
             ('target_project', self.rbac_policy.target_tenant),
-            ('project', self.rbac_policy.tenant_id),
+            ('project', self.rbac_policy.project_id),
             ('project_domain', self.project.domain_id),
             ('target_project_domain', self.project.domain_id),
             ('rbac_object', self.rbac_policy.object_id),
@@ -230,7 +230,7 @@ class TestCreateNetworkRBAC(TestNetworkRBAC):
             'object_type': self.rbac_policy.object_type,
             'action': self.rbac_policy.action,
             'target_tenant': self.rbac_policy.target_tenant,
-            'tenant_id': self.rbac_policy.tenant_id,
+            'project_id': self.rbac_policy.project_id,
         })
         self.assertEqual(self.columns, columns)
         self.assertEqual(self.data, list(data))
@@ -276,7 +276,7 @@ class TestCreateNetworkRBAC(TestNetworkRBAC):
             self.rbac_policy.id,
             obj_fake.id,
             obj_type,
-            self.rbac_policy.tenant_id,
+            self.rbac_policy.project_id,
             self.rbac_policy.target_tenant,
         ]
         self.assertEqual(self.columns, columns)
@@ -541,7 +541,7 @@ class TestShowNetworkRBAC(TestNetworkRBAC):
         rbac_policy.id,
         rbac_policy.object_id,
         rbac_policy.object_type,
-        rbac_policy.tenant_id,
+        rbac_policy.project_id,
         rbac_policy.target_tenant,
     ]
 

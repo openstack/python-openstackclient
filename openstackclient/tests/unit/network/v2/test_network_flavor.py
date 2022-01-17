@@ -166,7 +166,7 @@ class TestCreateNetworkFlavor(TestNetworkFlavor):
         self.network.create_flavor.assert_called_once_with(**{
             'description': self.new_network_flavor.description,
             'enabled': True,
-            'tenant_id': self.project.id,
+            'project_id': self.project.id,
             'service_type': self.new_network_flavor.service_type,
             'name': self.new_network_flavor.name,
         })

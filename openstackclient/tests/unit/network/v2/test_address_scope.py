@@ -43,7 +43,7 @@ class TestCreateAddressScope(TestAddressScope):
     new_address_scope = (
         network_fakes.FakeAddressScope.create_one_address_scope(
             attrs={
-                'tenant_id': project.id,
+                'project_id': project.id,
             }
         ))
     columns = (
@@ -122,7 +122,7 @@ class TestCreateAddressScope(TestAddressScope):
         self.network.create_address_scope.assert_called_once_with(**{
             'ip_version': self.new_address_scope.ip_version,
             'shared': True,
-            'tenant_id': self.project.id,
+            'project_id': self.project.id,
             'name': self.new_address_scope.name,
         })
         self.assertEqual(self.columns, columns)
@@ -318,7 +318,7 @@ class TestListAddressScope(TestAddressScope):
         columns, data = self.cmd.take_action(parsed_args)
 
         self.network.address_scopes.assert_called_once_with(
-            **{'tenant_id': project.id, 'project_id': project.id})
+            **{'project_id': project.id})
         self.assertEqual(self.columns, columns)
         self.assertEqual(self.data, list(data))
 
@@ -335,7 +335,7 @@ class TestListAddressScope(TestAddressScope):
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
         columns, data = self.cmd.take_action(parsed_args)
-        filters = {'tenant_id': project.id, 'project_id': project.id}
+        filters = {'project_id': project.id}
 
         self.network.address_scopes.assert_called_once_with(**filters)
         self.assertEqual(self.columns, columns)

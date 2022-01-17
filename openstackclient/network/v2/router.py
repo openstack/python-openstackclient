@@ -67,7 +67,6 @@ _formatters = {
 
 def _get_columns(item):
     column_map = {
-        'tenant_id': 'project_id',
         'is_ha': 'ha',
         'is_distributed': 'distributed',
         'is_admin_state_up': 'admin_state_up',
@@ -110,7 +109,7 @@ def _get_attrs(client_manager, parsed_args):
             parsed_args.project,
             parsed_args.project_domain,
         ).id
-        attrs['tenant_id'] = project_id
+        attrs['project_id'] = project_id
     if parsed_args.external_gateway:
         gateway_info = {}
         n_client = client_manager.network
@@ -515,7 +514,6 @@ class ListRouter(command.Lister):
                 parsed_args.project,
                 parsed_args.project_domain,
             ).id
-            args['tenant_id'] = project_id
             args['project_id'] = project_id
 
         _tag.get_tag_filtering_args(parsed_args, args)

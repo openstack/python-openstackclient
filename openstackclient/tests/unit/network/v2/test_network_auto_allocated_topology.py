@@ -33,7 +33,7 @@ class TestCreateAutoAllocatedTopology(TestAutoAllocatedTopology):
 
     topology = network_fakes.FakeAutoAllocatedTopology.create_one_topology(
         attrs={'id': network_object.id,
-               'tenant_id': project.id}
+               'project_id': project.id}
     )
 
     columns = (
@@ -131,7 +131,7 @@ class TestValidateAutoAllocatedTopology(TestAutoAllocatedTopology):
 
     topology = network_fakes.FakeAutoAllocatedTopology.create_one_topology(
         attrs={'id': network_object.id,
-               'tenant_id': project.id}
+               'project_id': project.id}
     )
 
     columns = (
@@ -208,7 +208,7 @@ class TestDeleteAutoAllocatedTopology(TestAutoAllocatedTopology):
 
     topology = network_fakes.FakeAutoAllocatedTopology.create_one_topology(
         attrs={'id': network_object.id,
-               'tenant_id': project.id}
+               'project_id': project.id}
     )
 
     def setUp(self):

@@ -48,7 +48,7 @@ class TestCreateNetworkIdentityV3(TestNetwork):
     # The new network created.
     _network = network_fakes.FakeNetwork.create_one_network(
         attrs={
-            'tenant_id': project.id,
+            'project_id': project.id,
             'availability_zone_hints': ["nova"],
         }
     )
@@ -197,8 +197,6 @@ class TestCreateNetworkIdentityV3(TestNetwork):
             'shared': True,
             'description': self._network.description,
             'mtu': self._network.mtu,
-            # TODO(dtroyer): Remove tenant_id when we clean up the SDK refactor
-            'tenant_id': self.project.id,
             'project_id': self.project.id,
             'is_default': True,
             'router:external': True,
@@ -284,7 +282,7 @@ class TestCreateNetworkIdentityV2(TestNetwork):
     project = identity_fakes_v2.FakeProject.create_one_project()
     # The new network created.
     _network = network_fakes.FakeNetwork.create_one_network(
-        attrs={'tenant_id': project.id}
+        attrs={'project_id': project.id}
     )
 
     columns = (
@@ -379,8 +377,6 @@ class TestCreateNetworkIdentityV2(TestNetwork):
         self.network.create_network.assert_called_once_with(**{
             'admin_state_up': True,
             'name': self._network.name,
-            # TODO(dtroyer): Remove tenant_id when we clean up the SDK refactor
-            'tenant_id': self.project.id,
             'project_id': self.project.id,
         })
         self.assertFalse(self.network.set_tags.called)
@@ -704,7 +700,7 @@ class TestListNetwork(TestNetwork):
 
         columns, data = self.cmd.take_action(parsed_args)
         self.network.networks.assert_called_once_with(
-            **{'tenant_id': project.id, 'project_id': project.id}
+            **{'project_id': project.id}
         )
 
         self.assertEqual(self.columns, columns)
@@ -723,7 +719,7 @@ class TestListNetwork(TestNetwork):
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
         columns, data = self.cmd.take_action(parsed_args)
-        filters = {'tenant_id': project.id, 'project_id': project.id}
+        filters = {'project_id': project.id}
 
         self.network.networks.assert_called_once_with(**filters)
         self.assertEqual(self.columns, columns)

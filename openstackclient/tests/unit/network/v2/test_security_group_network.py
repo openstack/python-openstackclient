@@ -121,7 +121,7 @@ class TestCreateSecurityGroupNetwork(TestSecurityGroupNetwork):
             'description': self._security_group.description,
             'stateful': self._security_group.stateful,
             'name': self._security_group.name,
-            'tenant_id': self.project.id,
+            'project_id': self.project.id,
         })
         self.assertEqual(self.columns, columns)
         self.assertCountEqual(self.data, data)
@@ -324,7 +324,7 @@ class TestListSecurityGroupNetwork(TestSecurityGroupNetwork):
 
         columns, data = self.cmd.take_action(parsed_args)
         filters = {
-            'tenant_id': project.id, 'project_id': project.id,
+            'project_id': project.id,
             'fields': security_group.ListSecurityGroup.FIELDS_TO_RETRIEVE}
 
         self.network.security_groups.assert_called_once_with(**filters)
@@ -346,7 +346,7 @@ class TestListSecurityGroupNetwork(TestSecurityGroupNetwork):
 
         columns, data = self.cmd.take_action(parsed_args)
         filters = {
-            'tenant_id': project.id, 'project_id': project.id,
+            'project_id': project.id,
             'fields': security_group.ListSecurityGroup.FIELDS_TO_RETRIEVE}
 
         self.network.security_groups.assert_called_once_with(**filters)

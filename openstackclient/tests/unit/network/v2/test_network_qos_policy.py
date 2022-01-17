@@ -42,7 +42,7 @@ class TestCreateNetworkQosPolicy(TestQosPolicy):
     new_qos_policy = (
         network_fakes.FakeNetworkQosPolicy.create_one_qos_policy(
             attrs={
-                'tenant_id': project.id,
+                'project_id': project.id,
             }
         ))
     columns = (
@@ -123,7 +123,7 @@ class TestCreateNetworkQosPolicy(TestQosPolicy):
 
         self.network.create_qos_policy.assert_called_once_with(**{
             'shared': True,
-            'tenant_id': self.project.id,
+            'project_id': self.project.id,
             'name': self.new_qos_policy.name,
             'description': 'QoS policy description',
             'is_default': True,
@@ -325,7 +325,7 @@ class TestListNetworkQosPolicy(TestQosPolicy):
 
         columns, data = self.cmd.take_action(parsed_args)
         self.network.qos_policies.assert_called_once_with(
-            **{'tenant_id': project.id}
+            **{'project_id': project.id}
         )
 
         self.assertEqual(self.columns, columns)

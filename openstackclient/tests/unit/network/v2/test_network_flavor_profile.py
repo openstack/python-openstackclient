@@ -89,7 +89,7 @@ class TestCreateFlavorProfile(TestFlavorProfile):
 
         self.network.create_service_profile.assert_called_once_with(
             **{'description': self.new_flavor_profile.description,
-               'tenant_id': self.project.id,
+               'project_id': self.project.id,
                'enabled': self.new_flavor_profile.enabled,
                'driver': self.new_flavor_profile.driver,
                'metainfo': self.new_flavor_profile.metainfo}
@@ -119,7 +119,7 @@ class TestCreateFlavorProfile(TestFlavorProfile):
 
         self.network.create_service_profile.assert_called_once_with(
             **{'description': self.new_flavor_profile.description,
-               'tenant_id': self.project.id,
+               'project_id': self.project.id,
                'enabled': self.new_flavor_profile.enabled,
                'metainfo': self.new_flavor_profile.metainfo}
         )
@@ -148,7 +148,7 @@ class TestCreateFlavorProfile(TestFlavorProfile):
 
         self.network.create_service_profile.assert_called_once_with(
             **{'description': self.new_flavor_profile.description,
-               'tenant_id': self.project.id,
+               'project_id': self.project.id,
                'enabled': self.new_flavor_profile.enabled,
                'driver': self.new_flavor_profile.driver,
                }

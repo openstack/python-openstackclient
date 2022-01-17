@@ -1217,7 +1217,6 @@ class TestListPort(TestPort):
 
         columns, data = self.cmd.take_action(parsed_args)
         filters = {
-            'tenant_id': project.id,
             'project_id': project.id,
             'fields': LIST_FIELDS_TO_RETRIEVE,
         }
@@ -1241,7 +1240,6 @@ class TestListPort(TestPort):
 
         columns, data = self.cmd.take_action(parsed_args)
         filters = {
-            'tenant_id': project.id,
             'project_id': project.id,
             'fields': LIST_FIELDS_TO_RETRIEVE,
         }

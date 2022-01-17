@@ -26,9 +26,7 @@ _formatters = {
 
 
 def _get_columns(item):
-    column_map = {
-        'tenant_id': 'project_id',
-    }
+    column_map = {}
     hidden_columns = ['location']
     return utils.get_osc_show_columns_for_sdk_resource(
         item,
@@ -89,7 +87,6 @@ class ListIPAvailability(command.Lister):
                 parsed_args.project,
                 parsed_args.project_domain,
             ).id
-            filters['tenant_id'] = project_id
             filters['project_id'] = project_id
         data = client.network_ip_availabilities(**filters)
         return (column_headers,
