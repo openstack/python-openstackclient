@@ -48,7 +48,7 @@ def _get_flavor_columns(item):
         'is_public': 'os-flavor-access:is_public'
 
     }
-    hidden_columns = ['links', 'location']
+    hidden_columns = ['links', 'location', 'original_name']
     return utils.get_osc_show_columns_for_sdk_resource(
         item, column_map, hidden_columns)
 
