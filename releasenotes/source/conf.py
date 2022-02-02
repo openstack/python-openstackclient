@@ -37,6 +37,14 @@
 # Add any Sphinx extension module names here, as strings. They can be
 # extensions coming with Sphinx (named 'sphinx.ext.*') or your custom
 # ones.
+from sphinx.util import logging
+
+# According to the discussion in
+# https://github.com/sphinx-doc/sphinx/issues/10112 this may be applied as a
+# dirty hack until the issue with replacing extlinks is resolved
+linklogger = logging.getLogger('sphinx.ext.extlinks')
+linklogger.setLevel(40) # Ignore messages less severe than ERROR
+
 extensions = [
     'openstackdocstheme',
     'reno.sphinxext',
