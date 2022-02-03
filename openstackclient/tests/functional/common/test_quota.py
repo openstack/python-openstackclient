@@ -169,11 +169,20 @@ class QuotaTests(base.TestCase):
         self.assertTrue(cmd_output["key-pairs"] >= 0)
         self.assertTrue(cmd_output["snapshots"] >= 0)
 
+    def _restore_quota_limit(self, resource, limit, project):
+        self.openstack('quota set --%s %s %s' % (resource, limit, project))
+
     def test_quota_network_set_with_check_limit(self):
         if not self.haz_network:
             self.skipTest('No Network service present')
         if not self.is_extension_enabled('quota-check-limit'):
             self.skipTest('No "quota-check-limit" extension present')
+
+        cmd_output = json.loads(self.openstack(
+            'quota list -f json --network'
+        ))
+        self.addCleanup(self._restore_quota_limit, 'network',
+                        cmd_output[0]['Networks'], self.PROJECT_NAME)
 
         self.openstack('quota set --networks 40 ' + self.PROJECT_NAME)
         cmd_output = json.loads(self.openstack(
@@ -190,3 +199,41 @@ class QuotaTests(base.TestCase):
         self.assertRaises(exceptions.CommandFailed, self.openstack,
                           'quota set --networks 1 --check-limit ' +
                           self.PROJECT_NAME)
+
+    def test_quota_network_set_with_force(self):
+        if not self.haz_network:
+            self.skipTest('No Network service present')
+        # NOTE(ralonsoh): the Neutron support for the flag "check-limit" was
+        # added with the extension "quota-check-limit". The flag "force" was
+        # added too in order to change the behaviour of Neutron quota engine
+        # and mimic the Nova one: by default the engine will check the resource
+        # usage before setting the new limit; with "force", this check will be
+        # skipped (in Yoga, this behaviour is still NOT the default in
+        # Neutron).
+        if not self.is_extension_enabled('quota-check-limit'):
+            self.skipTest('No "quota-check-limit" extension present')
+
+        cmd_output = json.loads(self.openstack(
+            'quota list -f json --network'
+        ))
+        self.addCleanup(self._restore_quota_limit, 'network',
+                        cmd_output[0]['Networks'], self.PROJECT_NAME)
+
+        self.openstack('quota set --networks 40 ' + self.PROJECT_NAME)
+        cmd_output = json.loads(self.openstack(
+            'quota list -f json --network'
+        ))
+        self.assertIsNotNone(cmd_output)
+        self.assertEqual(40, cmd_output[0]['Networks'])
+
+        # That will ensure we have at least two networks in the system.
+        for _ in range(2):
+            self.openstack('network create --project %s %s' %
+                           (self.PROJECT_NAME, uuid.uuid4().hex))
+
+        self.openstack('quota set --networks 1 --force ' + self.PROJECT_NAME)
+        cmd_output = json.loads(self.openstack(
+            'quota list -f json --network'
+        ))
+        self.assertIsNotNone(cmd_output)
+        self.assertEqual(1, cmd_output[0]['Networks'])

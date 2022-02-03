@@ -935,6 +935,7 @@ class TestQuotaSet(TestQuota):
         }
         kwargs_network = {
             'subnet': network_fakes.QUOTA['subnet'],
+            'force': True,
         }
         self.compute_quotas_mock.update.assert_called_once_with(
             self.projects[0].id,

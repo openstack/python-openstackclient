@@ -533,7 +533,8 @@ class SetQuota(common.NetDetectionMixin, command.Command):
         parser.add_argument(
             '--force',
             action='store_true',
-            help=_('Force quota update (only supported by compute)')
+            help=_('Force quota update (only supported by compute and '
+                   'network)')
         )
         parser.add_argument(
             '--check-limit',
@@ -569,6 +570,8 @@ class SetQuota(common.NetDetectionMixin, command.Command):
         network_kwargs = {}
         if parsed_args.check_limit:
             network_kwargs['check_limit'] = True
+        if parsed_args.force:
+            network_kwargs['force'] = True
 
         if self.app.client_manager.is_network_endpoint_enabled():
             for k, v in NETWORK_QUOTAS.items():
