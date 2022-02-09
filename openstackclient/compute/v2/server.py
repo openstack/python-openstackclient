@@ -2691,7 +2691,7 @@ revert to release the new server and restart the old one.""")
         disk_group.add_argument(
             '--disk-overcommit',
             action='store_true',
-            default=False,
+            default=None,
             help=_(
                 'Allow disk over-commit on the destination host'
                 '(supported with --os-compute-api-version 2.24 or below)'
@@ -2701,7 +2701,6 @@ revert to release the new server and restart the old one.""")
             '--no-disk-overcommit',
             dest='disk_overcommit',
             action='store_false',
-            default=False,
             help=_(
                 'Do not over-commit disk on the destination host (default)'
                 '(supported with --os-compute-api-version 2.24 or below)'
@@ -2763,6 +2762,11 @@ revert to release the new server and restart the old one.""")
 
             if compute_client.api_version < api_versions.APIVersion('2.25'):
                 kwargs['disk_over_commit'] = parsed_args.disk_overcommit
+                # We can't use an argparse default value because then we can't
+                # distinguish between explicit 'False' and unset for the below
+                # case (microversion >= 2.25)
+                if kwargs['disk_over_commit'] is None:
+                    kwargs['disk_over_commit'] = False
             elif parsed_args.disk_overcommit is not None:
                 # TODO(stephenfin): Raise an error here in OSC 7.0
                 msg = _(
