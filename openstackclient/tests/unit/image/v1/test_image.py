@@ -25,11 +25,7 @@ from openstackclient.tests.unit.image.v1 import fakes as image_fakes
 
 class TestImage(image_fakes.TestImagev1):
 
-    def setUp(self):
-        super(TestImage, self).setUp()
-
-        self.app.client_manager.image = mock.Mock()
-        self.client = self.app.client_manager.image
+    pass
 
 
 class TestImageCreate(TestImage):
