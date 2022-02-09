@@ -11,7 +11,6 @@
 #   WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
 #   License for the specific language governing permissions and limitations
 #   under the License.
-#
 
 import copy
 import io
@@ -52,7 +51,7 @@ class TestImage(image_fakes.TestImagev2):
         self.domain_mock.reset_mock()
 
     def setup_images_mock(self, count):
-        images = image_fakes.FakeImage.create_images(count=count)
+        images = image_fakes.create_images(count=count)
 
         return images
 
@@ -65,7 +64,7 @@ class TestImageCreate(TestImage):
     def setUp(self):
         super(TestImageCreate, self).setUp()
 
-        self.new_image = image_fakes.FakeImage.create_one_image()
+        self.new_image = image_fakes.create_one_image()
         self.client.create_image.return_value = self.new_image
 
         self.project_mock.get.return_value = self.project
@@ -182,7 +181,7 @@ class TestImageCreate(TestImage):
             '--protected',
             '--private',
             '--project', 'unexist_owner',
-            image_fakes.image_name,
+            'graven',
         ]
         verifylist = [
             ('container_format', 'ovf'),
@@ -194,7 +193,7 @@ class TestImageCreate(TestImage):
             ('public', False),
             ('private', True),
             ('project', 'unexist_owner'),
-            ('name', image_fakes.image_name),
+            ('name', 'graven'),
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
@@ -302,8 +301,8 @@ class TestAddProjectToImage(TestImage):
 
     project = identity_fakes.FakeProject.create_one_project()
     domain = identity_fakes.FakeDomain.create_one_domain()
-    _image = image_fakes.FakeImage.create_one_image()
-    new_member = image_fakes.FakeImage.create_one_image_member(
+    _image = image_fakes.create_one_image()
+    new_member = image_fakes.create_one_image_member(
         attrs={'image_id': _image.id,
                'member_id': project.id}
     )
@@ -435,7 +434,7 @@ class TestImageDelete(TestImage):
 
     def test_image_delete_multi_images_exception(self):
 
-        images = image_fakes.FakeImage.create_images(count=2)
+        images = image_fakes.create_images(count=2)
         arglist = [
             images[0].id,
             images[1].id,
@@ -467,7 +466,7 @@ class TestImageDelete(TestImage):
 
 class TestImageList(TestImage):
 
-    _image = image_fakes.FakeImage.create_one_image()
+    _image = image_fakes.create_one_image()
 
     columns = (
         'ID',
@@ -786,18 +785,13 @@ class TestImageList(TestImage):
 
     @mock.patch('osc_lib.utils.find_resource')
     def test_image_list_marker_option(self, fr_mock):
-        # tangchen: Since image_fakes.IMAGE is a dict, it cannot offer a .id
-        #           operation. Will fix this by using FakeImage class instead
-        #           of IMAGE dict.
         self.client.find_image = mock.Mock(return_value=self._image)
-#         fr_mock.return_value = mock.Mock()
-#         fr_mock.return_value.id = image_fakes.image_id
 
         arglist = [
-            '--marker', image_fakes.image_name,
+            '--marker', 'graven',
         ]
         verifylist = [
-            ('marker', image_fakes.image_name),
+            ('marker', 'graven'),
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
@@ -806,7 +800,7 @@ class TestImageList(TestImage):
             marker=self._image.id,
         )
 
-        self.client.find_image.assert_called_with(image_fakes.image_name)
+        self.client.find_image.assert_called_with('graven')
 
     def test_image_list_name_option(self):
         arglist = [
@@ -869,8 +863,8 @@ class TestImageList(TestImage):
 class TestListImageProjects(TestImage):
 
     project = identity_fakes.FakeProject.create_one_project()
-    _image = image_fakes.FakeImage.create_one_image()
-    member = image_fakes.FakeImage.create_one_image_member(
+    _image = image_fakes.create_one_image()
+    member = image_fakes.create_one_image_member(
         attrs={'image_id': _image.id,
                'member_id': project.id}
     )
@@ -920,7 +914,7 @@ class TestRemoveProjectImage(TestImage):
     def setUp(self):
         super(TestRemoveProjectImage, self).setUp()
 
-        self._image = image_fakes.FakeImage.create_one_image()
+        self._image = image_fakes.create_one_image()
         # This is the return value for utils.find_resource()
         self.client.find_image.return_value = self._image
 
@@ -979,7 +973,7 @@ class TestImageSet(TestImage):
 
     project = identity_fakes.FakeProject.create_one_project()
     domain = identity_fakes.FakeDomain.create_one_domain()
-    _image = image_fakes.FakeImage.create_one_image({'tags': []})
+    _image = image_fakes.create_one_image({'tags': []})
 
     def setUp(self):
         super(TestImageSet, self).setUp()
@@ -999,10 +993,10 @@ class TestImageSet(TestImage):
 
     def test_image_set_no_options(self):
         arglist = [
-            image_fakes.image_id,
+            '0f41529e-7c12-4de8-be2d-181abb825b3c',
         ]
         verifylist = [
-            ('image', image_fakes.image_id)
+            ('image', '0f41529e-7c12-4de8-be2d-181abb825b3c')
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
@@ -1013,8 +1007,8 @@ class TestImageSet(TestImage):
         self.image_members_mock.update.assert_not_called()
 
     def test_image_set_membership_option_accept(self):
-        membership = image_fakes.FakeImage.create_one_image_member(
-            attrs={'image_id': image_fakes.image_id,
+        membership = image_fakes.create_one_image_member(
+            attrs={'image_id': '0f41529e-7c12-4de8-be2d-181abb825b3c',
                    'member_id': self.project.id}
         )
         self.client.update_member.return_value = membership
@@ -1044,21 +1038,21 @@ class TestImageSet(TestImage):
         self.client.update_image.assert_called_with(self._image.id)
 
     def test_image_set_membership_option_reject(self):
-        membership = image_fakes.FakeImage.create_one_image_member(
-            attrs={'image_id': image_fakes.image_id,
+        membership = image_fakes.create_one_image_member(
+            attrs={'image_id': '0f41529e-7c12-4de8-be2d-181abb825b3c',
                    'member_id': self.project.id}
         )
         self.client.update_member.return_value = membership
 
         arglist = [
             '--reject',
-            image_fakes.image_id,
+            '0f41529e-7c12-4de8-be2d-181abb825b3c',
         ]
         verifylist = [
             ('accept', False),
             ('reject', True),
             ('pending', False),
-            ('image', image_fakes.image_id)
+            ('image', '0f41529e-7c12-4de8-be2d-181abb825b3c')
         ]
 
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
@@ -1075,21 +1069,21 @@ class TestImageSet(TestImage):
         self.client.update_image.assert_called_with(self._image.id)
 
     def test_image_set_membership_option_pending(self):
-        membership = image_fakes.FakeImage.create_one_image_member(
-            attrs={'image_id': image_fakes.image_id,
+        membership = image_fakes.create_one_image_member(
+            attrs={'image_id': '0f41529e-7c12-4de8-be2d-181abb825b3c',
                    'member_id': self.project.id}
         )
         self.client.update_member.return_value = membership
 
         arglist = [
             '--pending',
-            image_fakes.image_id,
+            '0f41529e-7c12-4de8-be2d-181abb825b3c',
         ]
         verifylist = [
             ('accept', False),
             ('reject', False),
             ('pending', True),
-            ('image', image_fakes.image_id)
+            ('image', '0f41529e-7c12-4de8-be2d-181abb825b3c')
         ]
 
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
@@ -1149,11 +1143,11 @@ class TestImageSet(TestImage):
 
         arglist = [
             '--project', 'unexist_owner',
-            image_fakes.image_id,
+            '0f41529e-7c12-4de8-be2d-181abb825b3c',
         ]
         verifylist = [
             ('project', 'unexist_owner'),
-            ('image', image_fakes.image_id),
+            ('image', '0f41529e-7c12-4de8-be2d-181abb825b3c'),
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
@@ -1165,14 +1159,14 @@ class TestImageSet(TestImage):
         arglist = [
             '--protected',
             '--private',
-            image_fakes.image_name,
+            'graven',
         ]
         verifylist = [
             ('protected', True),
             ('unprotected', False),
             ('public', False),
             ('private', True),
-            ('image', image_fakes.image_name),
+            ('image', 'graven'),
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
@@ -1193,14 +1187,14 @@ class TestImageSet(TestImage):
         arglist = [
             '--unprotected',
             '--public',
-            image_fakes.image_name,
+            'graven',
         ]
         verifylist = [
             ('protected', False),
             ('unprotected', True),
             ('public', True),
             ('private', False),
-            ('image', image_fakes.image_name),
+            ('image', 'graven'),
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
@@ -1221,11 +1215,11 @@ class TestImageSet(TestImage):
         arglist = [
             '--property', 'Alpha=1',
             '--property', 'Beta=2',
-            image_fakes.image_name,
+            'graven',
         ]
         verifylist = [
             ('properties', {'Alpha': '1', 'Beta': '2'}),
-            ('image', image_fakes.image_name),
+            ('image', 'graven'),
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
@@ -1250,7 +1244,7 @@ class TestImageSet(TestImage):
             '--os-distro', 'cpm',
             '--os-version', '2.2H',
             '--ramdisk-id', 'xyzpdq',
-            image_fakes.image_name,
+            'graven',
         ]
         verifylist = [
             ('architecture', 'z80'),
@@ -1259,7 +1253,7 @@ class TestImageSet(TestImage):
             ('os_distro', 'cpm'),
             ('os_version', '2.2H'),
             ('ramdisk_id', 'xyzpdq'),
-            ('image', image_fakes.image_name),
+            ('image', 'graven'),
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
@@ -1283,11 +1277,11 @@ class TestImageSet(TestImage):
     def test_image_set_tag(self):
         arglist = [
             '--tag', 'test-tag',
-            image_fakes.image_name,
+            'graven',
         ]
         verifylist = [
             ('tags', ['test-tag']),
-            ('image', image_fakes.image_name),
+            ('image', 'graven'),
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
@@ -1307,11 +1301,11 @@ class TestImageSet(TestImage):
         arglist = [
             '--tag', 'test-tag',
             '--activate',
-            image_fakes.image_name,
+            'graven',
         ]
         verifylist = [
             ('tags', ['test-tag']),
-            ('image', image_fakes.image_name),
+            ('image', 'graven'),
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
@@ -1335,11 +1329,11 @@ class TestImageSet(TestImage):
         arglist = [
             '--tag', 'test-tag',
             '--deactivate',
-            image_fakes.image_name,
+            'graven',
         ]
         verifylist = [
             ('tags', ['test-tag']),
-            ('image', image_fakes.image_name),
+            ('image', 'graven'),
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
@@ -1365,11 +1359,11 @@ class TestImageSet(TestImage):
         self.client.find_image.return_value = old_image
         arglist = [
             '--tag', 'test-tag',
-            image_fakes.image_name,
+            'graven',
         ]
         verifylist = [
             ('tags', ['test-tag']),
-            ('image', image_fakes.image_name),
+            ('image', 'graven'),
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
@@ -1391,11 +1385,11 @@ class TestImageSet(TestImage):
         self.client.find_image.return_value = old_image
         arglist = [
             '--tag', 'old1',
-            image_fakes.image_name,
+            'graven',
         ]
         verifylist = [
             ('tags', ['old1']),
-            ('image', image_fakes.image_name),
+            ('image', 'graven'),
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
@@ -1415,11 +1409,11 @@ class TestImageSet(TestImage):
 
         arglist = [
             '--visibility', '1-mile',
-            image_fakes.image_name,
+            'graven',
         ]
         verifylist = [
             ('visibility', '1-mile'),
-            ('image', image_fakes.image_name),
+            ('image', 'graven'),
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
@@ -1431,12 +1425,12 @@ class TestImageSet(TestImage):
         arglist = [
             '--min-disk', '0',
             '--min-ram', '0',
-            image_fakes.image_name,
+            'graven',
         ]
         verifylist = [
             ('min_disk', 0),
             ('min_ram', 0),
-            ('image', image_fakes.image_name),
+            ('image', 'graven'),
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
@@ -1457,13 +1451,13 @@ class TestImageSet(TestImage):
         arglist = [
             '--hidden',
             '--public',
-            image_fakes.image_name,
+            'graven',
         ]
         verifylist = [
             ('hidden', True),
             ('public', True),
             ('private', False),
-            ('image', image_fakes.image_name),
+            ('image', 'graven'),
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
@@ -1484,13 +1478,13 @@ class TestImageSet(TestImage):
         arglist = [
             '--unhidden',
             '--public',
-            image_fakes.image_name,
+            'graven',
         ]
         verifylist = [
             ('hidden', False),
             ('public', True),
             ('private', False),
-            ('image', image_fakes.image_name),
+            ('image', 'graven'),
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
@@ -1510,10 +1504,10 @@ class TestImageSet(TestImage):
 
 class TestImageShow(TestImage):
 
-    new_image = image_fakes.FakeImage.create_one_image(
+    new_image = image_fakes.create_one_image(
         attrs={'size': 1000})
 
-    _data = image_fakes.FakeImage.create_one_image()
+    _data = image_fakes.create_one_image()
 
     columns = (
         'id', 'name', 'owner', 'protected', 'tags', 'visibility'
@@ -1538,10 +1532,10 @@ class TestImageShow(TestImage):
 
     def test_image_show(self):
         arglist = [
-            image_fakes.image_id,
+            '0f41529e-7c12-4de8-be2d-181abb825b3c',
         ]
         verifylist = [
-            ('image', image_fakes.image_id),
+            ('image', '0f41529e-7c12-4de8-be2d-181abb825b3c'),
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
@@ -1550,7 +1544,7 @@ class TestImageShow(TestImage):
         # data to be shown.
         columns, data = self.cmd.take_action(parsed_args)
         self.client.find_image.assert_called_with(
-            image_fakes.image_id,
+            '0f41529e-7c12-4de8-be2d-181abb825b3c',
             ignore_missing=False
         )
 
@@ -1592,7 +1586,7 @@ class TestImageUnset(TestImage):
         attrs['hw_rng_model'] = 'virtio'
         attrs['prop'] = 'test'
         attrs['prop2'] = 'fake'
-        self.image = image_fakes.FakeImage.create_one_image(attrs)
+        self.image = image_fakes.create_one_image(attrs)
 
         self.client.find_image.return_value = self.image
         self.client.remove_tag.return_value = self.image
@@ -1603,10 +1597,10 @@ class TestImageUnset(TestImage):
 
     def test_image_unset_no_options(self):
         arglist = [
-            image_fakes.image_id,
+            '0f41529e-7c12-4de8-be2d-181abb825b3c',
         ]
         verifylist = [
-            ('image', image_fakes.image_id)
+            ('image', '0f41529e-7c12-4de8-be2d-181abb825b3c')
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
@@ -1681,7 +1675,7 @@ class TestImageUnset(TestImage):
 
 class TestImageSave(TestImage):
 
-    image = image_fakes.FakeImage.create_one_image({})
+    image = image_fakes.create_one_image({})
 
     def setUp(self):
         super(TestImageSave, self).setUp()

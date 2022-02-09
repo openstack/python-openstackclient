@@ -317,7 +317,7 @@ class TestVolumeCreate(TestVolume):
         self.assertCountEqual(self.datalist, data)
 
     def test_volume_create_image_id(self):
-        image = image_fakes.FakeImage.create_one_image()
+        image = image_fakes.create_one_image()
         self.images_mock.get.return_value = image
 
         arglist = [
@@ -360,7 +360,7 @@ class TestVolumeCreate(TestVolume):
         self.assertCountEqual(self.datalist, data)
 
     def test_volume_create_image_name(self):
-        image = image_fakes.FakeImage.create_one_image()
+        image = image_fakes.create_one_image()
         self.images_mock.get.return_value = image
 
         arglist = [

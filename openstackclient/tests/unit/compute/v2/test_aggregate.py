@@ -554,7 +554,7 @@ class TestAggregateUnset(TestAggregate):
 
 class TestAggregateCacheImage(TestAggregate):
 
-    images = image_fakes.FakeImage.create_images(count=2)
+    images = image_fakes.create_images(count=2)
 
     def setUp(self):
         super(TestAggregateCacheImage, self).setUp()

@@ -22,10 +22,6 @@ from openstackclient.tests.unit import utils
 from openstackclient.tests.unit.volume.v1 import fakes as volume_fakes
 
 
-image_id = 'im1'
-image_name = 'graven'
-
-
 class FakeImagev1Client(object):
 
     def __init__(self, **kwargs):
@@ -51,40 +47,36 @@ class TestImagev1(utils.TestCommand):
         )
 
 
-class FakeImage(object):
-    """Fake one or more images."""
+def create_one_image(attrs=None):
+    """Create a fake image.
 
-    @staticmethod
-    def create_one_image(attrs=None):
-        """Create a fake image.
+    :param Dictionary attrs:
+        A dictionary with all attrbutes of image
+    :return:
+        A FakeResource object with id, name, owner, protected,
+        visibility and tags attrs
+    """
+    attrs = attrs or {}
 
-        :param Dictionary attrs:
-            A dictionary with all attrbutes of image
-        :return:
-            A FakeResource object with id, name, owner, protected,
-            visibility and tags attrs
-        """
-        attrs = attrs or {}
+    # Set default attribute
+    image_info = {
+        'id': str(uuid.uuid4()),
+        'name': 'image-name' + uuid.uuid4().hex,
+        'owner': 'image-owner' + uuid.uuid4().hex,
+        'container_format': '',
+        'disk_format': '',
+        'min_disk': 0,
+        'min_ram': 0,
+        'is_public': True,
+        'protected': False,
+        'properties': {
+            'Alpha': 'a',
+            'Beta': 'b',
+            'Gamma': 'g'},
+        'status': 'status' + uuid.uuid4().hex
+    }
 
-        # Set default attribute
-        image_info = {
-            'id': str(uuid.uuid4()),
-            'name': 'image-name' + uuid.uuid4().hex,
-            'owner': 'image-owner' + uuid.uuid4().hex,
-            'container_format': '',
-            'disk_format': '',
-            'min_disk': 0,
-            'min_ram': 0,
-            'is_public': True,
-            'protected': False,
-            'properties': {
-                'Alpha': 'a',
-                'Beta': 'b',
-                'Gamma': 'g'},
-            'status': 'status' + uuid.uuid4().hex
-        }
+    # Overwrite default attributes if there are some attributes set
+    image_info.update(attrs)
 
-        # Overwrite default attributes if there are some attributes set
-        image_info.update(attrs)
-
-        return image.Image(**image_info)
+    return image.Image(**image_info)

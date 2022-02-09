@@ -89,7 +89,7 @@ class TestServerImageCreate(TestServerImage):
 
     def setup_images_mock(self, count, servers=None):
         if servers:
-            images = image_fakes.FakeImage.create_images(
+            images = image_fakes.create_images(
                 attrs={
                     'name': servers[0].name,
                     'status': 'active',
@@ -97,7 +97,7 @@ class TestServerImageCreate(TestServerImage):
                 count=count,
             )
         else:
-            images = image_fakes.FakeImage.create_images(
+            images = image_fakes.create_images(
                 attrs={
                     'status': 'active',
                 },

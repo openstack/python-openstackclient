@@ -23,9 +23,6 @@ from openstackclient.tests.unit import fakes
 from openstackclient.tests.unit.identity.v3 import fakes as identity_fakes
 from openstackclient.tests.unit import utils
 
-image_id = '0f41529e-7c12-4de8-be2d-181abb825b3c'
-image_name = 'graven'
-
 
 class FakeImagev2Client(object):
 
@@ -63,75 +60,67 @@ class TestImagev2(utils.TestCommand):
         )
 
 
-class FakeImage(object):
-    """Fake one or more images.
+def create_one_image(attrs=None):
+    """Create a fake image.
 
-    TODO(xiexs): Currently, only image API v2 is supported by this class.
+    :param attrs: A dictionary with all attributes of image
+    :type attrs: dict
+    :return: A fake Image object.
+    :rtype: `openstack.image.v2.image.Image`
     """
+    attrs = attrs or {}
 
-    @staticmethod
-    def create_one_image(attrs=None):
-        """Create a fake image.
+    # Set default attribute
+    image_info = {
+        'id': str(uuid.uuid4()),
+        'name': 'image-name' + uuid.uuid4().hex,
+        'owner_id': 'image-owner' + uuid.uuid4().hex,
+        'is_protected': bool(random.choice([0, 1])),
+        'visibility': random.choice(['public', 'private']),
+        'tags': [uuid.uuid4().hex for r in range(2)],
+    }
 
-        :param Dictionary attrs:
-            A dictionary with all attrbutes of image
-        :return:
-            A FakeResource object with id, name, owner, protected,
-            visibility, tags and size attrs
-        """
-        attrs = attrs or {}
+    # Overwrite default attributes if there are some attributes set
+    image_info.update(attrs)
 
-        # Set default attribute
-        image_info = {
-            'id': str(uuid.uuid4()),
-            'name': 'image-name' + uuid.uuid4().hex,
-            'owner_id': 'image-owner' + uuid.uuid4().hex,
-            'is_protected': bool(random.choice([0, 1])),
-            'visibility': random.choice(['public', 'private']),
-            'tags': [uuid.uuid4().hex for r in range(2)],
-        }
+    return image.Image(**image_info)
 
-        # Overwrite default attributes if there are some attributes set
-        image_info.update(attrs)
 
-        return image.Image(**image_info)
+def create_images(attrs=None, count=2):
+    """Create multiple fake images.
 
-    @staticmethod
-    def create_images(attrs=None, count=2):
-        """Create multiple fake images.
+    :param attrs: A dictionary with all attributes of image
+    :type attrs: dict
+    :param count: The number of images to be faked
+    :type count: int
+    :return: A list of fake Image objects
+    :rtype: list
+    """
+    images = []
+    for n in range(0, count):
+        images.append(create_one_image(attrs))
 
-        :param Dictionary attrs:
-            A dictionary with all attributes of image
-        :param Integer count:
-            The number of images to be faked
-        :return:
-            A list of FakeResource objects
-        """
-        images = []
-        for n in range(0, count):
-            images.append(FakeImage.create_one_image(attrs))
+    return images
 
-        return images
 
-    @staticmethod
-    def create_one_image_member(attrs=None):
-        """Create a fake image member.
+def create_one_image_member(attrs=None):
+    """Create a fake image member.
 
-        :param Dictionary attrs:
-            A dictionary with all attributes of image member
-        :return:
-            A FakeResource object with member_id, image_id and so on
-        """
-        attrs = attrs or {}
+    :param attrs: A dictionary with all attributes of image member
+    :type attrs: dict
+    :return: A fake Member object.
+    :rtype: `openstack.image.v2.member.Member`
+    """
+    attrs = attrs or {}
 
-        # Set default attribute
-        image_member_info = {
-            'member_id': 'member-id-' + uuid.uuid4().hex,
-            'image_id': 'image-id-' + uuid.uuid4().hex,
-            'status': 'pending',
-        }
+    # Set default attribute
+    image_member_info = {
+        'member_id': 'member-id-' + uuid.uuid4().hex,
+        'image_id': 'image-id-' + uuid.uuid4().hex,
+        'status': 'pending',
+    }
 
-        # Overwrite default attributes if there are some attributes set
-        image_member_info.update(attrs)
+    # Overwrite default attributes if there are some attributes set
+    image_member_info.update(attrs)
 
-        return member.Member(**image_member_info)
+    return member.Member(**image_member_info)
