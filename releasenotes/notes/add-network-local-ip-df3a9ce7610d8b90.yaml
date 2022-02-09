@@ -1,0 +1,8 @@
+---
+features:
+  - Add ``local ip create``, ``local ip delete``,
+    ``local ip list``, ``local ip set``, ``local ip show``,
+    ``local ip association create``, ``local ip association delete``
+    and ``local ip association list`` commands to support Neutron Local IP
+    CRUD operations.
+    [`bug 1930200 <https://bugs.launchpad.net/neutron/+bug/1930200>`_]
