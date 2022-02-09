@@ -19,6 +19,7 @@ import logging
 
 import iso8601
 from novaclient import api_versions
+import openstack.cloud._utils
 from osc_lib.command import command
 from osc_lib import exceptions
 from osc_lib import utils
@@ -33,7 +34,7 @@ class ListServerEvent(command.Lister):
     """List recent events of a server.
 
     Specify ``--os-compute-api-version 2.21`` or higher to show events for a
-    deleted server.
+    deleted server, specified by ID only.
     """
 
     def get_parser(self, prog_name):
@@ -143,9 +144,18 @@ class ListServerEvent(command.Lister):
 
             kwargs['changes_before'] = parsed_args.changes_before
 
-        server_id = utils.find_resource(
-            compute_client.servers, parsed_args.server,
-        ).id
+        try:
+            server_id = utils.find_resource(
+                compute_client.servers, parsed_args.server,
+            ).id
+        except exceptions.CommandError:
+            # If we fail to find the resource, it is possible the server is
+            # deleted. Try once more using the <server> arg directly if it is a
+            # UUID.
+            if openstack.cloud._utils._is_uuid_like(parsed_args.server):
+                server_id = parsed_args.server
+            else:
+                raise
 
         data = compute_client.instance_action.list(server_id, **kwargs)
 
@@ -184,8 +194,9 @@ class ShowServerEvent(command.ShowOne):
     """Show server event details.
 
     Specify ``--os-compute-api-version 2.21`` or higher to show event details
-    for a deleted server. Specify ``--os-compute-api-version 2.51`` or higher
-    to show event details for non-admin users.
+    for a deleted server, specified by ID only. Specify
+    ``--os-compute-api-version 2.51`` or higher to show event details for
+    non-admin users.
     """
 
     def get_parser(self, prog_name):
@@ -205,9 +216,18 @@ class ShowServerEvent(command.ShowOne):
     def take_action(self, parsed_args):
         compute_client = self.app.client_manager.compute
 
-        server_id = utils.find_resource(
-            compute_client.servers, parsed_args.server,
-        ).id
+        try:
+            server_id = utils.find_resource(
+                compute_client.servers, parsed_args.server,
+            ).id
+        except exceptions.CommandError:
+            # If we fail to find the resource, it is possible the server is
+            # deleted. Try once more using the <server> arg directly if it is a
+            # UUID.
+            if openstack.cloud._utils._is_uuid_like(parsed_args.server):
+                server_id = parsed_args.server
+            else:
+                raise
 
         action_detail = compute_client.instance_action.get(
             server_id, parsed_args.request_id
