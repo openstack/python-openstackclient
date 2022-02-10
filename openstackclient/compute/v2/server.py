@@ -21,6 +21,7 @@ import io
 import json
 import logging
 import os
+import uuid
 
 from cliff import columns as cliff_columns
 import iso8601
@@ -3037,6 +3038,18 @@ class ListMigration(command.Lister):
         return self.print_migrations(parsed_args, compute_client, migrations)
 
 
+def _get_migration_by_uuid(compute_client, server_id, migration_uuid):
+    for migration in compute_client.server_migrations.list(server_id):
+        if migration.uuid == migration_uuid:
+            return migration
+            break
+    else:
+        msg = _(
+            'In-progress live migration %s is not found for server %s.'
+        )
+        raise exceptions.CommandError(msg % (migration_uuid, server_id))
+
+
 class ShowMigration(command.ShowOne):
     """Show an in-progress live migration for a given server.
 
@@ -3069,13 +3082,38 @@ class ShowMigration(command.ShowOne):
             )
             raise exceptions.CommandError(msg)
 
+        if not parsed_args.migration.isdigit():
+            try:
+                uuid.UUID(parsed_args.migration)
+            except ValueError:
+                msg = _(
+                    'The <migration> argument must be an ID or UUID'
+                )
+                raise exceptions.CommandError(msg)
+
+            if compute_client.api_version < api_versions.APIVersion('2.59'):
+                msg = _(
+                    '--os-compute-api-version 2.59 or greater is required to '
+                    'retrieve server migrations by UUID'
+                )
+                raise exceptions.CommandError(msg)
+
         server = utils.find_resource(
             compute_client.servers,
             parsed_args.server,
         )
-        server_migration = compute_client.server_migrations.get(
-            server.id, parsed_args.migration,
-        )
+
+        # the nova API doesn't currently allow retrieval by UUID but it's a
+        # reasonably common operation so emulate this behavior by listing
+        # migrations - the responses are identical
+        if not parsed_args.migration.isdigit():
+            server_migration = _get_migration_by_uuid(
+                compute_client, server.id, parsed_args.migration,
+            )
+        else:
+            server_migration = compute_client.server_migrations.get(
+                server.id, parsed_args.migration,
+            )
 
         columns = (
             'ID',
@@ -3136,12 +3174,39 @@ class AbortMigration(command.Command):
             )
             raise exceptions.CommandError(msg)
 
+        if not parsed_args.migration.isdigit():
+            try:
+                uuid.UUID(parsed_args.migration)
+            except ValueError:
+                msg = _(
+                    'The <migration> argument must be an ID or UUID'
+                )
+                raise exceptions.CommandError(msg)
+
+            if compute_client.api_version < api_versions.APIVersion('2.59'):
+                msg = _(
+                    '--os-compute-api-version 2.59 or greater is required to '
+                    'abort server migrations by UUID'
+                )
+                raise exceptions.CommandError(msg)
+
         server = utils.find_resource(
             compute_client.servers,
             parsed_args.server,
         )
+
+        # the nova API doesn't currently allow retrieval by UUID but it's a
+        # reasonably common operation so emulate this behavior by listing
+        # migrations - the responses are identical
+        migration_id = parsed_args.migration
+        if not parsed_args.migration.isdigit():
+            migration_id = _get_migration_by_uuid(
+                compute_client, server.id, parsed_args.migration,
+            ).id
+
         compute_client.server_migrations.live_migration_abort(
-            server.id, parsed_args.migration)
+            server.id, migration_id,
+        )
 
 
 class ForceCompleteMigration(command.Command):
@@ -3174,12 +3239,39 @@ class ForceCompleteMigration(command.Command):
             )
             raise exceptions.CommandError(msg)
 
+        if not parsed_args.migration.isdigit():
+            try:
+                uuid.UUID(parsed_args.migration)
+            except ValueError:
+                msg = _(
+                    'The <migration> argument must be an ID or UUID'
+                )
+                raise exceptions.CommandError(msg)
+
+            if compute_client.api_version < api_versions.APIVersion('2.59'):
+                msg = _(
+                    '--os-compute-api-version 2.59 or greater is required to '
+                    'abort server migrations by UUID'
+                )
+                raise exceptions.CommandError(msg)
+
         server = utils.find_resource(
             compute_client.servers,
             parsed_args.server,
         )
+
+        # the nova API doesn't currently allow retrieval by UUID but it's a
+        # reasonably common operation so emulate this behavior by listing
+        # migrations - the responses are identical
+        migration_id = parsed_args.migration
+        if not parsed_args.migration.isdigit():
+            migration_id = _get_migration_by_uuid(
+                compute_client, server.id, parsed_args.migration,
+            ).id
+
         compute_client.server_migrations.live_migrate_force_complete(
-            server.id, parsed_args.migration)
+            server.id, migration_id,
+        )
 
 
 class PauseServer(command.Command):

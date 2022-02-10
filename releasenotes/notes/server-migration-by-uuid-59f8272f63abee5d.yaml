@@ -1,0 +1,6 @@
+---
+features:
+  - |
+    The ``server migration abort``, ``server migration force complete`` and
+    ``server migration show`` commands will now accept a server migration UUID
+    in addition to an ID.

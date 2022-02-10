@@ -6232,6 +6232,88 @@ class TestServerMigrationShow(TestServer):
             '--os-compute-api-version 2.24 or greater is required',
             str(ex))
 
+    def test_server_migration_show_by_uuid(self):
+        self.app.client_manager.compute.api_version = api_versions.APIVersion(
+            '2.59')
+        self.server_migrations_mock.list.return_value = [self.server_migration]
+
+        self.columns += ('UUID',)
+        self.data += (self.server_migration.uuid,)
+
+        arglist = [
+            self.server.id,
+            self.server_migration.uuid,  # arbitrary migration UUID
+        ]
+        verifylist = []
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        columns, data = self.cmd.take_action(parsed_args)
+
+        self.assertEqual(self.columns, columns)
+        self.assertEqual(self.data, data)
+
+        self.servers_mock.get.assert_called_with(self.server.id)
+        self.server_migrations_mock.list.assert_called_with(self.server.id)
+        self.server_migrations_mock.get.assert_not_called()
+
+    def test_server_migration_show_by_uuid_no_matches(self):
+        self.app.client_manager.compute.api_version = api_versions.APIVersion(
+            '2.59')
+        self.server_migrations_mock.list.return_value = []
+
+        arglist = [
+            self.server.id,
+            '69f95745-bfe3-4302-90f7-5b0022cba1ce',  # arbitrary migration UUID
+        ]
+        verifylist = []
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        ex = self.assertRaises(
+            exceptions.CommandError,
+            self.cmd.take_action,
+            parsed_args)
+        self.assertIn(
+            'In-progress live migration 69f95745-bfe3-4302-90f7-5b0022cba1ce',
+            str(ex))
+
+    def test_server_migration_show_by_uuid_pre_v259(self):
+        self.app.client_manager.compute.api_version = api_versions.APIVersion(
+            '2.58')
+
+        arglist = [
+            self.server.id,
+            '69f95745-bfe3-4302-90f7-5b0022cba1ce',  # arbitrary migration UUID
+        ]
+        verifylist = []
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        ex = self.assertRaises(
+            exceptions.CommandError,
+            self.cmd.take_action,
+            parsed_args)
+        self.assertIn(
+            '--os-compute-api-version 2.59 or greater is required',
+            str(ex))
+
+    def test_server_migration_show_invalid_id(self):
+        self.app.client_manager.compute.api_version = api_versions.APIVersion(
+            '2.24')
+
+        arglist = [
+            self.server.id,
+            'foo',  # invalid migration ID
+        ]
+        verifylist = []
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        ex = self.assertRaises(
+            exceptions.CommandError,
+            self.cmd.take_action,
+            parsed_args)
+        self.assertIn(
+            'The <migration> argument must be an ID or UUID',
+            str(ex))
+
 
 class TestServerMigrationAbort(TestServer):
 
@@ -6283,6 +6365,69 @@ class TestServerMigrationAbort(TestServer):
             '--os-compute-api-version 2.24 or greater is required',
             str(ex))
 
+    def test_server_migration_abort_by_uuid(self):
+        self.app.client_manager.compute.api_version = api_versions.APIVersion(
+            '2.59')
+
+        self.server_migration = compute_fakes.FakeServerMigration\
+            .create_one_server_migration()
+        self.server_migrations_mock.list.return_value = [self.server_migration]
+
+        arglist = [
+            self.server.id,
+            self.server_migration.uuid,  # arbitrary migration UUID
+        ]
+        verifylist = []
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        result = self.cmd.take_action(parsed_args)
+
+        self.servers_mock.get.assert_called_with(self.server.id)
+        self.server_migrations_mock.list.assert_called_with(self.server.id)
+        self.server_migrations_mock.live_migration_abort.assert_called_with(
+            self.server.id, self.server_migration.id)
+        self.assertIsNone(result)
+
+    def test_server_migration_abort_by_uuid_no_matches(self):
+        self.app.client_manager.compute.api_version = api_versions.APIVersion(
+            '2.59')
+
+        self.server_migrations_mock.list.return_value = []
+
+        arglist = [
+            self.server.id,
+            '69f95745-bfe3-4302-90f7-5b0022cba1ce',  # arbitrary migration UUID
+        ]
+        verifylist = []
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        ex = self.assertRaises(
+            exceptions.CommandError,
+            self.cmd.take_action,
+            parsed_args)
+        self.assertIn(
+            'In-progress live migration 69f95745-bfe3-4302-90f7-5b0022cba1ce',
+            str(ex))
+
+    def test_server_migration_abort_by_uuid_pre_v259(self):
+        self.app.client_manager.compute.api_version = api_versions.APIVersion(
+            '2.58')
+
+        arglist = [
+            self.server.id,
+            '69f95745-bfe3-4302-90f7-5b0022cba1ce',  # arbitrary migration UUID
+        ]
+        verifylist = []
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        ex = self.assertRaises(
+            exceptions.CommandError,
+            self.cmd.take_action,
+            parsed_args)
+        self.assertIn(
+            '--os-compute-api-version 2.59 or greater is required',
+            str(ex))
+
 
 class TestServerMigrationForceComplete(TestServer):
 
@@ -6332,6 +6477,69 @@ class TestServerMigrationForceComplete(TestServer):
             parsed_args)
         self.assertIn(
             '--os-compute-api-version 2.22 or greater is required',
+            str(ex))
+
+    def test_server_migration_force_complete_by_uuid(self):
+        self.app.client_manager.compute.api_version = api_versions.APIVersion(
+            '2.59')
+
+        self.server_migration = compute_fakes.FakeServerMigration\
+            .create_one_server_migration()
+        self.server_migrations_mock.list.return_value = [self.server_migration]
+
+        arglist = [
+            self.server.id,
+            self.server_migration.uuid,  # arbitrary migration UUID
+        ]
+        verifylist = []
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        result = self.cmd.take_action(parsed_args)
+
+        self.servers_mock.get.assert_called_with(self.server.id)
+        self.server_migrations_mock.list.assert_called_with(self.server.id)
+        self.server_migrations_mock.live_migrate_force_complete\
+            .assert_called_with(self.server.id, self.server_migration.id)
+        self.assertIsNone(result)
+
+    def test_server_migration_force_complete_by_uuid_no_matches(self):
+        self.app.client_manager.compute.api_version = api_versions.APIVersion(
+            '2.59')
+
+        self.server_migrations_mock.list.return_value = []
+
+        arglist = [
+            self.server.id,
+            '69f95745-bfe3-4302-90f7-5b0022cba1ce',  # arbitrary migration UUID
+        ]
+        verifylist = []
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        ex = self.assertRaises(
+            exceptions.CommandError,
+            self.cmd.take_action,
+            parsed_args)
+        self.assertIn(
+            'In-progress live migration 69f95745-bfe3-4302-90f7-5b0022cba1ce',
+            str(ex))
+
+    def test_server_migration_force_complete_by_uuid_pre_v259(self):
+        self.app.client_manager.compute.api_version = api_versions.APIVersion(
+            '2.58')
+
+        arglist = [
+            self.server.id,
+            '69f95745-bfe3-4302-90f7-5b0022cba1ce',  # arbitrary migration UUID
+        ]
+        verifylist = []
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        ex = self.assertRaises(
+            exceptions.CommandError,
+            self.cmd.take_action,
+            parsed_args)
+        self.assertIn(
+            '--os-compute-api-version 2.59 or greater is required',
             str(ex))
 
 
