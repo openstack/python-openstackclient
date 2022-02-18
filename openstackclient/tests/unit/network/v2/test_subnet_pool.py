@@ -44,7 +44,7 @@ class TestCreateSubnetPool(TestSubnetPool):
     # The new subnet pool to create.
     _subnet_pool = network_fakes.FakeSubnetPool.create_one_subnet_pool()
 
-    _address_scope = network_fakes.FakeAddressScope.create_one_address_scope()
+    _address_scope = network_fakes.create_one_address_scope()
 
     columns = (
         'address_scope_id',
@@ -614,7 +614,7 @@ class TestListSubnetPool(TestSubnetPool):
         self.assertCountEqual(self.data, list(data))
 
     def test_subnet_pool_list_address_scope(self):
-        addr_scope = network_fakes.FakeAddressScope.create_one_address_scope()
+        addr_scope = network_fakes.create_one_address_scope()
         self.network.find_address_scope = mock.Mock(return_value=addr_scope)
         arglist = [
             '--address-scope', addr_scope.id,
@@ -665,7 +665,7 @@ class TestSetSubnetPool(TestSubnetPool):
          'tags': ['green', 'red']}
     )
 
-    _address_scope = network_fakes.FakeAddressScope.create_one_address_scope()
+    _address_scope = network_fakes.create_one_address_scope()
 
     def setUp(self):
         super(TestSetSubnetPool, self).setUp()

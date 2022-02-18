@@ -18,6 +18,10 @@ from random import randint
 from unittest import mock
 import uuid
 
+from openstack.network.v2 import address_group as _address_group
+from openstack.network.v2 import address_scope as _address_scope
+from openstack.network.v2 import auto_allocated_topology as allocated_topology
+from openstack.network.v2 import availability_zone as _availability_zone
 from openstack.network.v2 import local_ip as _local_ip
 from openstack.network.v2 import local_ip_association as _local_ip_association
 
@@ -84,221 +88,6 @@ class TestNetworkV2(utils.TestCommand):
                 token=fakes.AUTH_TOKEN,
             )
         )
-
-
-class FakeAddressGroup(object):
-    """Fake one or more address groups."""
-
-    @staticmethod
-    def create_one_address_group(attrs=None):
-        """Create a fake address group.
-
-        :param Dictionary attrs:
-            A dictionary with all attributes
-        :return:
-            A FakeResource object with name, id, etc.
-        """
-        attrs = attrs or {}
-
-        # Set default attributes.
-        address_group_attrs = {
-            'name': 'address-group-name-' + uuid.uuid4().hex,
-            'description': 'address-group-description-' + uuid.uuid4().hex,
-            'id': 'address-group-id-' + uuid.uuid4().hex,
-            'project_id': 'project-id-' + uuid.uuid4().hex,
-            'addresses': ['10.0.0.1/32'],
-            'location': 'MUNCHMUNCHMUNCH',
-        }
-
-        # Overwrite default attributes.
-        address_group_attrs.update(attrs)
-
-        address_group = fakes.FakeResource(
-            info=copy.deepcopy(address_group_attrs),
-            loaded=True)
-
-        return address_group
-
-    @staticmethod
-    def create_address_groups(attrs=None, count=2):
-        """Create multiple fake address groups.
-
-        :param Dictionary attrs:
-            A dictionary with all attributes
-        :param int count:
-            The number of address groups to fake
-        :return:
-            A list of FakeResource objects faking the address groups
-        """
-        address_groups = []
-        for i in range(0, count):
-            address_groups.append(
-                FakeAddressGroup.create_one_address_group(attrs))
-
-        return address_groups
-
-    @staticmethod
-    def get_address_groups(address_groups=None, count=2):
-        """Get an iterable Mock object with a list of faked address groups.
-
-        If address groups list is provided, then initialize the Mock object
-        with the list. Otherwise create one.
-
-        :param List address_groups:
-            A list of FakeResource objects faking address groups
-        :param int count:
-            The number of address groups to fake
-        :return:
-            An iterable Mock object with side_effect set to a list of faked
-            address groups
-        """
-        if address_groups is None:
-            address_groups = FakeAddressGroup.create_address_groups(count)
-        return mock.Mock(side_effect=address_groups)
-
-
-class FakeAddressScope(object):
-    """Fake one or more address scopes."""
-
-    @staticmethod
-    def create_one_address_scope(attrs=None):
-        """Create a fake address scope.
-
-        :param Dictionary attrs:
-            A dictionary with all attributes
-        :return:
-            A FakeResource object with name, id, etc.
-        """
-        attrs = attrs or {}
-
-        # Set default attributes.
-        address_scope_attrs = {
-            'name': 'address-scope-name-' + uuid.uuid4().hex,
-            'id': 'address-scope-id-' + uuid.uuid4().hex,
-            'project_id': 'project-id-' + uuid.uuid4().hex,
-            'shared': False,
-            'ip_version': 4,
-            'location': 'MUNCHMUNCHMUNCH',
-        }
-
-        # Overwrite default attributes.
-        address_scope_attrs.update(attrs)
-
-        address_scope = fakes.FakeResource(
-            info=copy.deepcopy(address_scope_attrs),
-            loaded=True)
-
-        # Set attributes with special mapping in OpenStack SDK.
-        address_scope.is_shared = address_scope_attrs['shared']
-
-        return address_scope
-
-    @staticmethod
-    def create_address_scopes(attrs=None, count=2):
-        """Create multiple fake address scopes.
-
-        :param Dictionary attrs:
-            A dictionary with all attributes
-        :param int count:
-            The number of address scopes to fake
-        :return:
-            A list of FakeResource objects faking the address scopes
-        """
-        address_scopes = []
-        for i in range(0, count):
-            address_scopes.append(
-                FakeAddressScope.create_one_address_scope(attrs))
-
-        return address_scopes
-
-    @staticmethod
-    def get_address_scopes(address_scopes=None, count=2):
-        """Get an iterable Mock object with a list of faked address scopes.
-
-        If address scopes list is provided, then initialize the Mock object
-        with the list. Otherwise create one.
-
-        :param List address_scopes:
-            A list of FakeResource objects faking address scopes
-        :param int count:
-            The number of address scopes to fake
-        :return:
-            An iterable Mock object with side_effect set to a list of faked
-            address scopes
-        """
-        if address_scopes is None:
-            address_scopes = FakeAddressScope.create_address_scopes(count)
-        return mock.Mock(side_effect=address_scopes)
-
-
-class FakeAutoAllocatedTopology(object):
-    """Fake Auto Allocated Topology"""
-
-    @staticmethod
-    def create_one_topology(attrs=None):
-        attrs = attrs or {}
-
-        auto_allocated_topology_attrs = {
-            'id': 'network-id-' + uuid.uuid4().hex,
-            'project_id': 'project-id-' + uuid.uuid4().hex,
-        }
-
-        auto_allocated_topology_attrs.update(attrs)
-
-        auto_allocated_topology = fakes.FakeResource(
-            info=copy.deepcopy(auto_allocated_topology_attrs),
-            loaded=True)
-
-        return auto_allocated_topology
-
-
-class FakeAvailabilityZone(object):
-    """Fake one or more network availability zones (AZs)."""
-
-    @staticmethod
-    def create_one_availability_zone(attrs=None):
-        """Create a fake AZ.
-
-        :param Dictionary attrs:
-            A dictionary with all attributes
-        :return:
-            A FakeResource object with name, state, etc.
-        """
-        attrs = attrs or {}
-
-        # Set default attributes.
-        availability_zone = {
-            'name': uuid.uuid4().hex,
-            'state': 'available',
-            'resource': 'network',
-        }
-
-        # Overwrite default attributes.
-        availability_zone.update(attrs)
-
-        availability_zone = fakes.FakeResource(
-            info=copy.deepcopy(availability_zone),
-            loaded=True)
-        return availability_zone
-
-    @staticmethod
-    def create_availability_zones(attrs=None, count=2):
-        """Create multiple fake AZs.
-
-        :param Dictionary attrs:
-            A dictionary with all attributes
-        :param int count:
-            The number of AZs to fake
-        :return:
-            A list of FakeResource objects faking the AZs
-        """
-        availability_zones = []
-        for i in range(0, count):
-            availability_zone = \
-                FakeAvailabilityZone.create_one_availability_zone(attrs)
-            availability_zones.append(availability_zone)
-
-        return availability_zones
 
 
 class FakeIPAvailability(object):
@@ -2036,6 +1825,198 @@ class FakeL3ConntrackHelper(object):
             )
 
         return mock.Mock(side_effect=ct_helpers)
+
+
+def create_one_address_group(attrs=None):
+    """Create a fake address group.
+
+    :param Dictionary attrs:
+        A dictionary with all attributes
+    :return:
+        An AddressGroup object with name, id, etc.
+    """
+    attrs = attrs or {}
+
+    # Set default attributes.
+    address_group_attrs = {
+        'name': 'address-group-name-' + uuid.uuid4().hex,
+        'description': 'address-group-description-' + uuid.uuid4().hex,
+        'id': 'address-group-id-' + uuid.uuid4().hex,
+        'project_id': 'project-id-' + uuid.uuid4().hex,
+        'addresses': ['10.0.0.1/32'],
+        'location': 'MUNCHMUNCHMUNCH',
+    }
+
+    # Overwrite default attributes.
+    address_group_attrs.update(attrs)
+
+    address_group = _address_group.AddressGroup(**address_group_attrs)
+
+    return address_group
+
+
+def create_address_groups(attrs=None, count=2):
+    """Create multiple fake address groups.
+
+    :param Dictionary attrs:
+        A dictionary with all attributes
+    :param int count:
+        The number of address groups to fake
+    :return:
+        A list of AddressGroup objects faking the address groups
+    """
+    address_groups = []
+    for i in range(0, count):
+        address_groups.append(create_one_address_group(attrs))
+
+    return address_groups
+
+
+def get_address_groups(address_groups=None, count=2):
+    """Get an iterable Mock object with a list of faked address groups.
+
+    If address groups list is provided, then initialize the Mock object
+    with the list. Otherwise create one.
+
+    :param List address_groups:
+        A list of FakeResource objects faking address groups
+    :param int count:
+        The number of address groups to fake
+    :return:
+        An iterable Mock object with side_effect set to a list of faked
+        AddressGroup objects
+    """
+    if address_groups is None:
+        address_groups = create_address_groups(count)
+    return mock.Mock(side_effect=address_groups)
+
+
+def create_one_address_scope(attrs=None):
+    """Create a fake address scope.
+
+    :param Dictionary attrs:
+        A dictionary with all attributes
+    :return:
+        An AddressScope object with name, id, etc.
+    """
+    attrs = attrs or {}
+
+    # Set default attributes.
+    address_scope_attrs = {
+        'name': 'address-scope-name-' + uuid.uuid4().hex,
+        'id': 'address-scope-id-' + uuid.uuid4().hex,
+        'project_id': 'project-id-' + uuid.uuid4().hex,
+        'shared': False,
+        'ip_version': 4,
+        'location': 'MUNCHMUNCHMUNCH',
+    }
+
+    # Overwrite default attributes.
+    address_scope_attrs.update(attrs)
+
+    address_scope = _address_scope.AddressScope(**address_scope_attrs)
+
+    # Set attributes with special mapping in OpenStack SDK.
+    address_scope.is_shared = address_scope_attrs['shared']
+
+    return address_scope
+
+
+def create_address_scopes(attrs=None, count=2):
+    """Create multiple fake address scopes.
+
+    :param Dictionary attrs:
+        A dictionary with all attributes
+    :param int count:
+        The number of address scopes to fake
+    :return:
+        A list of AddressScope objects faking the address scopes
+    """
+    address_scopes = []
+    for i in range(0, count):
+        address_scopes.append(create_one_address_scope(attrs))
+
+    return address_scopes
+
+
+def get_address_scopes(address_scopes=None, count=2):
+    """Get an iterable Mock object with a list of faked address scopes.
+
+    If address scopes list is provided, then initialize the Mock object
+    with the list. Otherwise create one.
+
+    :param List address_scopes:
+        A list of FakeResource objects faking address scopes
+    :param int count:
+        The number of address scopes to fake
+    :return:
+        An iterable Mock object with side_effect set to a list of faked
+        AddressScope objects
+    """
+    if address_scopes is None:
+        address_scopes = create_address_scopes(count)
+    return mock.Mock(side_effect=address_scopes)
+
+
+def create_one_topology(attrs=None):
+    attrs = attrs or {}
+
+    auto_allocated_topology_attrs = {
+        'id': 'network-id-' + uuid.uuid4().hex,
+        'project_id': 'project-id-' + uuid.uuid4().hex,
+    }
+
+    auto_allocated_topology_attrs.update(attrs)
+
+    auto_allocated_topology = allocated_topology.AutoAllocatedTopology(
+        **auto_allocated_topology_attrs
+    )
+
+    return auto_allocated_topology
+
+
+def create_one_availability_zone(attrs=None):
+    """Create a fake AZ.
+
+    :param Dictionary attrs:
+        A dictionary with all attributes
+    :return:
+        An AvailabilityZone object with name, state, etc.
+    """
+    attrs = attrs or {}
+
+    # Set default attributes.
+    availability_zone = {
+        'name': uuid.uuid4().hex,
+        'state': 'available',
+        'resource': 'network',
+    }
+
+    # Overwrite default attributes.
+    availability_zone.update(attrs)
+
+    availability_zone = _availability_zone.AvailabilityZone(
+        **availability_zone
+    )
+    return availability_zone
+
+
+def create_availability_zones(attrs=None, count=2):
+    """Create multiple fake AZs.
+
+    :param Dictionary attrs:
+        A dictionary with all attributes
+    :param int count:
+        The number of AZs to fake
+    :return:
+        A list of AvailabilityZone objects faking the AZs
+    """
+    availability_zones = []
+    for i in range(0, count):
+        availability_zone = create_one_availability_zone(attrs)
+        availability_zones.append(availability_zone)
+
+    return availability_zones
 
 
 def create_one_local_ip(attrs=None):

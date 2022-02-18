@@ -115,8 +115,7 @@ class TestAvailabilityZoneList(TestAvailabilityZone):
         compute_fakes.FakeAvailabilityZone.create_availability_zones()
     volume_azs = \
         volume_fakes.FakeAvailabilityZone.create_availability_zones(count=1)
-    network_azs = \
-        network_fakes.FakeAvailabilityZone.create_availability_zones()
+    network_azs = network_fakes.create_availability_zones()
 
     short_columnslist = ('Zone Name', 'Zone Status')
     long_columnslist = (

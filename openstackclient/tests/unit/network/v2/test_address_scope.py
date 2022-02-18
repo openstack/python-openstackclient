@@ -40,12 +40,10 @@ class TestCreateAddressScope(TestAddressScope):
     project = identity_fakes_v3.FakeProject.create_one_project()
     domain = identity_fakes_v3.FakeDomain.create_one_domain()
     # The new address scope created.
-    new_address_scope = (
-        network_fakes.FakeAddressScope.create_one_address_scope(
-            attrs={
-                'project_id': project.id,
-            }
-        ))
+    new_address_scope = network_fakes.create_one_address_scope(
+        attrs={
+            'project_id': project.id,
+        })
     columns = (
         'id',
         'ip_version',
@@ -58,7 +56,7 @@ class TestCreateAddressScope(TestAddressScope):
         new_address_scope.ip_version,
         new_address_scope.name,
         new_address_scope.project_id,
-        new_address_scope.shared,
+        new_address_scope.is_shared,
     )
 
     def setUp(self):
@@ -153,16 +151,13 @@ class TestCreateAddressScope(TestAddressScope):
 class TestDeleteAddressScope(TestAddressScope):
 
     # The address scope to delete.
-    _address_scopes = (
-        network_fakes.FakeAddressScope.create_address_scopes(count=2))
+    _address_scopes = network_fakes.create_address_scopes(count=2)
 
     def setUp(self):
         super(TestDeleteAddressScope, self).setUp()
         self.network.delete_address_scope = mock.Mock(return_value=None)
-        self.network.find_address_scope = (
-            network_fakes.FakeAddressScope.get_address_scopes(
-                address_scopes=self._address_scopes)
-        )
+        self.network.find_address_scope = network_fakes.get_address_scopes(
+            address_scopes=self._address_scopes)
 
         # Get the command object to test
         self.cmd = address_scope.DeleteAddressScope(self.app, self.namespace)
@@ -237,8 +232,7 @@ class TestDeleteAddressScope(TestAddressScope):
 class TestListAddressScope(TestAddressScope):
 
     # The address scopes to list up.
-    address_scopes = (
-        network_fakes.FakeAddressScope.create_address_scopes(count=3))
+    address_scopes = network_fakes.create_address_scopes(count=3)
     columns = (
         'ID',
         'Name',
@@ -252,7 +246,7 @@ class TestListAddressScope(TestAddressScope):
             scope.id,
             scope.name,
             scope.ip_version,
-            scope.shared,
+            scope.is_shared,
             scope.project_id,
         ))
 
@@ -377,7 +371,7 @@ class TestListAddressScope(TestAddressScope):
 class TestSetAddressScope(TestAddressScope):
 
     # The address scope to set.
-    _address_scope = network_fakes.FakeAddressScope.create_one_address_scope()
+    _address_scope = network_fakes.create_one_address_scope()
 
     def setUp(self):
         super(TestSetAddressScope, self).setUp()
@@ -448,7 +442,7 @@ class TestShowAddressScope(TestAddressScope):
 
     # The address scope to show.
     _address_scope = (
-        network_fakes.FakeAddressScope.create_one_address_scope())
+        network_fakes.create_one_address_scope())
     columns = (
         'id',
         'ip_version',
@@ -461,7 +455,7 @@ class TestShowAddressScope(TestAddressScope):
         _address_scope.ip_version,
         _address_scope.name,
         _address_scope.project_id,
-        _address_scope.shared,
+        _address_scope.is_shared,
     )
 
     def setUp(self):
