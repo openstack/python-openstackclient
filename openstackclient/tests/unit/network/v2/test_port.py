@@ -1727,6 +1727,27 @@ class TestSetPort(TestPort):
         self.network.update_port.assert_called_once_with(self._port, **attrs)
         self.assertIsNone(result)
 
+    def test_set_port_extra_dhcp_option(self):
+        arglist = [
+            '--extra-dhcp-option', 'name=foo,value=bar',
+            self._port.name,
+        ]
+        verifylist = [
+            ('extra_dhcp_options', [{'name': 'foo',
+                                     'value': 'bar'}]),
+            ('port', self._port.name),
+        ]
+
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+        result = self.cmd.take_action(parsed_args)
+
+        attrs = {
+            'extra_dhcp_opts': [{'opt_name': 'foo',
+                                 'opt_value': 'bar'}],
+        }
+        self.network.update_port.assert_called_once_with(self._port, **attrs)
+        self.assertIsNone(result)
+
     def test_set_port_security_enabled(self):
         arglist = [
             '--enable-port-security',
