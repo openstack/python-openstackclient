@@ -2142,7 +2142,7 @@ def create_local_ip_associations(attrs=None, count=2):
     :param Dictionary attrs:
         A dictionary with all attributes
     :param int count:
-        The number of address groups to fake
+        The number of local ip associations to fake
     :return:
         A list of FakeResource objects faking the local ip associations
     """

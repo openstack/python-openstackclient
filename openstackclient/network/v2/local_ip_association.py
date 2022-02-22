@@ -43,16 +43,16 @@ class CreateLocalIPAssociation(command.ShowOne):
             'local_ip',
             metavar='<local-ip>',
             help=_("Local IP that the port association belongs to "
-                   "(IP address or ID)")
+                   "(Name or ID)")
         )
         parser.add_argument(
             'fixed_port',
-            metavar='<fixed_port>',
+            metavar='<fixed-port>',
             help=_("The ID or Name of Port to allocate Local IP Association")
         )
         parser.add_argument(
             '--fixed-ip',
-            metavar='<fixed_ip>',
+            metavar='<fixed-ip>',
             help=_("Fixed IP for Local IP Association")
         )
 
@@ -87,14 +87,14 @@ class DeleteLocalIPAssociation(command.Command):
         parser = super().get_parser(prog_name)
         parser.add_argument(
             'local_ip',
-            metavar="<local_ip>",
+            metavar="<local-ip>",
             help=_("Local IP that the port association belongs to "
-                   "(IP address or ID)")
+                   "(Name or ID)")
         )
         parser.add_argument(
             'fixed_port_id',
             nargs="+",
-            metavar="<fixed_port_id>",
+            metavar="<fixed-port-id>",
             help=_("The fixed port ID of Local IP Association")
         )
         return parser
@@ -136,18 +136,18 @@ class ListLocalIPAssociation(command.Lister):
 
         parser.add_argument(
             'local_ip',
-            metavar='<local_ip>',
+            metavar='<local-ip>',
             help=_("Local IP that port associations belongs to")
         )
         parser.add_argument(
             '--fixed-port',
-            metavar='<fixed_port>',
+            metavar='<fixed-port>',
             help=_("Filter the list result by the ID or name of "
                    "the fixed port")
         )
         parser.add_argument(
             '--fixed-ip',
-            metavar='<fixed_ip>',
+            metavar='<fixed-ip>',
             help=_("Filter the list result by fixed ip")
         )
         parser.add_argument(
