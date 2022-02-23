@@ -1,0 +1,6 @@
+---
+features:
+  - |
+    Support for the ``remote-managed`` VNIC type has been added and can now be
+    passed to the ``--vnic-type`` option when used in conjunction with the
+    ``port create`` and ``port set`` commands.
