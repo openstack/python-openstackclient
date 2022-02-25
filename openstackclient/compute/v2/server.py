@@ -3092,6 +3092,28 @@ class RebuildServer(command.ShowOne):
             ),
         )
         parser.add_argument(
+            '--reimage-boot-volume',
+            action='store_true',
+            dest='reimage_boot_volume',
+            default=None,
+            help=_(
+                'Rebuild a volume-backed server. This will wipe the root '
+                'volume data and overwrite it with the provided image. '
+                'Defaults to False. '
+                '(supported by --os-compute-api-version 2.93 or above)'
+            ),
+        )
+        parser.add_argument(
+            '--no-reimage-boot-volume',
+            action='store_false',
+            dest='reimage_boot_volume',
+            default=None,
+            help=_(
+                'Do not rebuild a volume-backed server. '
+                '(supported by --os-compute-api-version 2.93 or above)'
+            ),
+        )
+        parser.add_argument(
             '--wait',
             action='store_true',
             help=_('Wait for rebuild to complete'),
@@ -3225,6 +3247,41 @@ class RebuildServer(command.ShowOne):
                 raise exceptions.CommandError(msg)
 
             kwargs['hostname'] = parsed_args.hostname
+
+        v2_93 = api_versions.APIVersion('2.93')
+        if parsed_args.reimage_boot_volume:
+            if compute_client.api_version < v2_93:
+                msg = _(
+                    '--os-compute-api-version 2.93 or greater is required to '
+                    'support the --reimage-boot-volume option'
+                )
+                raise exceptions.CommandError(msg)
+        else:
+            # force user to explicitly request reimaging of volume-backed
+            # server
+            if not server.image:
+                if compute_client.api_version >= v2_93:
+                    msg = (
+                        '--reimage-boot-volume is required to rebuild a '
+                        'volume-backed server'
+                    )
+                    raise exceptions.CommandError(msg)
+                else:  # microversion < 2.93
+                    # attempts to rebuild a volume-backed server before API
+                    # microversion 2.93 will fail in all cases except one: if
+                    # the user attempts the rebuild with the exact same image
+                    # that the server was initially built with. We can't check
+                    # for this since we don't have the original image ID to
+                    # hand, so we simply warn the user.
+                    # TODO(stephenfin): Make this a failure in a future
+                    # version
+                    self.log.warning(
+                        'Attempting to rebuild a volume-backed server using '
+                        '--os-compute-api-version 2.92 or earlier, which '
+                        'will only succeed if the image is identical to the '
+                        'one initially used. This will be an error in a '
+                        'future release.'
+                    )
 
         try:
             server = server.rebuild(image, parsed_args.password, **kwargs)

@@ -1,0 +1,8 @@
+---
+features:
+  - |
+    The ``server rebuild`` commands now accept two optional
+    ``--reimage-boot-volume`` and ``--no-reimage-boot-volume``option.
+    Passing these parameter will allow/disallow a user to rebuild a volume
+    backed server.
+    This is available from Compute microversion ``2.93`` and onwards.

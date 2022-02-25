@@ -6294,6 +6294,103 @@ class TestServerRebuild(TestServer):
             parsed_args)
 
 
+class TestServerRebuildVolumeBacked(TestServer):
+
+    def setUp(self):
+        super().setUp()
+
+        self.new_image = image_fakes.create_one_image()
+        self.find_image_mock.return_value = self.new_image
+
+        attrs = {
+            'image': '',
+            'networks': {},
+            'adminPass': 'passw0rd',
+        }
+        new_server = compute_fakes.FakeServer.create_one_server(attrs=attrs)
+
+        # Fake the server to be rebuilt. The IDs of them should be the same.
+        attrs['id'] = new_server.id
+        methods = {
+            'rebuild': new_server,
+        }
+        self.server = compute_fakes.FakeServer.create_one_server(
+            attrs=attrs,
+            methods=methods
+        )
+
+        # Return value for utils.find_resource for server.
+        self.servers_mock.get.return_value = self.server
+
+        self.cmd = server.RebuildServer(self.app, None)
+
+    def test_rebuild_with_reimage_boot_volume(self):
+        self.app.client_manager.compute.api_version = \
+            api_versions.APIVersion('2.93')
+
+        arglist = [
+            self.server.id,
+            '--reimage-boot-volume',
+            '--image', self.new_image.id
+        ]
+        verifylist = [
+            ('server', self.server.id),
+            ('reimage_boot_volume', True),
+            ('image', self.new_image.id)
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        self.cmd.take_action(parsed_args)
+
+        self.servers_mock.get.assert_called_with(self.server.id)
+        self.server.rebuild.assert_called_with(
+            self.new_image, None)
+
+    def test_rebuild_with_no_reimage_boot_volume(self):
+        self.app.client_manager.compute.api_version = \
+            api_versions.APIVersion('2.93')
+
+        arglist = [
+            self.server.id,
+            '--no-reimage-boot-volume',
+            '--image', self.new_image.id
+        ]
+        verifylist = [
+            ('server', self.server.id),
+            ('reimage_boot_volume', False),
+            ('image', self.new_image.id)
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        exc = self.assertRaises(
+            exceptions.CommandError,
+            self.cmd.take_action,
+            parsed_args)
+        self.assertIn('--reimage-boot-volume is required', str(exc))
+
+    def test_rebuild_with_reimage_boot_volume_pre_v293(self):
+        self.app.client_manager.compute.api_version = \
+            api_versions.APIVersion('2.92')
+
+        arglist = [
+            self.server.id,
+            '--reimage-boot-volume',
+            '--image', self.new_image.id
+        ]
+        verifylist = [
+            ('server', self.server.id),
+            ('reimage_boot_volume', True)
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        exc = self.assertRaises(
+            exceptions.CommandError,
+            self.cmd.take_action,
+            parsed_args)
+        self.assertIn(
+            '--os-compute-api-version 2.93 or greater is required', str(exc))
+
+
 class TestEvacuateServer(TestServer):
 
     def setUp(self):
