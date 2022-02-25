@@ -821,6 +821,17 @@ class SetPort(common.NeutronCommandWithExtraArgs):
                    "to overwrite the current allowed-address pairs)")
         )
         parser.add_argument(
+            '--extra-dhcp-option',
+            metavar='name=<name>[,value=<value>,ip-version={4,6}]',
+            default=[],
+            action=parseractions.MultiKeyValueCommaAction,
+            dest='extra_dhcp_options',
+            required_keys=['name'],
+            optional_keys=['value', "ip-version"],
+            help=_('Extra DHCP options to be assigned to this port: '
+                   'name=<name>[,value=<value>,ip-version={4,6}] '
+                   '(repeat option to set multiple extra DHCP options)'))
+        parser.add_argument(
             '--data-plane-status',
             metavar='<status>',
             choices=['ACTIVE', 'DOWN'],
@@ -882,6 +893,10 @@ class SetPort(common.NeutronCommandWithExtraArgs):
             attrs['allowed_address_pairs'].extend(
                 _convert_address_pairs(parsed_args)
             )
+
+        if parsed_args.extra_dhcp_options:
+            attrs["extra_dhcp_opts"] = _convert_extra_dhcp_options(parsed_args)
+
         if parsed_args.data_plane_status:
             attrs['data_plane_status'] = parsed_args.data_plane_status
 
