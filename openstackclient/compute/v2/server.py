@@ -4564,12 +4564,29 @@ class UnshelveServer(command.Command):
             nargs='+',
             help=_('Server(s) to unshelve (name or ID)'),
         )
-        parser.add_argument(
+        group = parser.add_mutually_exclusive_group()
+        group.add_argument(
             '--availability-zone',
             default=None,
             help=_('Name of the availability zone in which to unshelve a '
                    'SHELVED_OFFLOADED server (supported by '
                    '--os-compute-api-version 2.77 or above)'),
+        )
+        group.add_argument(
+            '--no-availability-zone',
+            action='store_true',
+            default=False,
+            help=_('Unpin the availability zone of a SHELVED_OFFLOADED '
+                   'server. Server will be unshelved on a host without '
+                   'availability zone constraint (supported by '
+                   '--os-compute-api-version 2.91 or above)'),
+        )
+        parser.add_argument(
+            '--host',
+            default=None,
+            help=_('Name of the destination host in which to unshelve a '
+                   'SHELVED_OFFLOADED server (supported by '
+                   '--os-compute-api-version 2.91 or above)'),
         )
         parser.add_argument(
             '--wait',
@@ -4598,6 +4615,26 @@ class UnshelveServer(command.Command):
                 raise exceptions.CommandError(msg)
 
             kwargs['availability_zone'] = parsed_args.availability_zone
+
+        if parsed_args.host:
+            if compute_client.api_version < api_versions.APIVersion('2.91'):
+                msg = _(
+                    '--os-compute-api-version 2.91 or greater is required '
+                    'to support the --host option'
+                )
+                raise exceptions.CommandError(msg)
+
+            kwargs['host'] = parsed_args.host
+
+        if parsed_args.no_availability_zone:
+            if compute_client.api_version < api_versions.APIVersion('2.91'):
+                msg = _(
+                    '--os-compute-api-version 2.91 or greater is required '
+                    'to support the --no-availability-zone option'
+                )
+                raise exceptions.CommandError(msg)
+
+            kwargs['availability_zone'] = None
 
         for server in parsed_args.server:
             server_obj = utils.find_resource(
