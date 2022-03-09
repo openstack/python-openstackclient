@@ -87,17 +87,17 @@ class CreateLocalIP(command.ShowOne):
         )
         parser.add_argument(
             '--local-port',
-            metavar='<local_port>',
+            metavar='<local-port>',
             help=_("Port to allocate Local IP (name or ID)")
         )
         parser.add_argument(
             "--local-ip-address",
-            metavar="<local_ip_address>",
+            metavar="<local-ip-address>",
             help=_("IP address or CIDR "),
         )
         parser.add_argument(
             '--ip-mode',
-            metavar='<ip_mode>',
+            metavar='<ip-mode>',
             help=_("local IP ip mode")
         )
 
@@ -212,13 +212,13 @@ class ListLocalIP(command.Lister):
         )
         parser.add_argument(
             '--local-port',
-            metavar='<local_port>',
+            metavar='<local-port>',
             help=_("List Local IP(s) according to "
                    "given port (name or ID)")
         )
         parser.add_argument(
             '--local-ip-address',
-            metavar='<local_ip_address>',
+            metavar='<local-ip-address>',
             help=_("List Local IP(s) according to "
                    "given Local IP Address")
         )
