@@ -82,3 +82,38 @@ class ServerEventTests(common.ComputeTestCase):
         self.assertEqual('reboot', cmd_output.get('action'))
         self.assertIsNotNone(cmd_output.get('events'))
         self.assertIsInstance(cmd_output.get('events'), list)
+
+    def test_server_event_list_and_show_deleted_server(self):
+        # Need to create a new server that will not attempt cleanup because we
+        # are going to delete it during the test and cleanup would fail with
+        # 404.
+        cmd_output = self.server_create(cleanup=False)
+        server_id = cmd_output['id']
+        # Delete the server
+        self.openstack('server delete --wait ' + server_id)
+        # And verify we can get the event list after it's deleted
+        # Test 'server event list' for deleting
+        cmd_output = json.loads(self.openstack(
+            '--os-compute-api-version 2.21 '
+            'server event list -f json ' + server_id
+        ))
+        request_id = None
+        for each_event in cmd_output:
+            self.assertNotIn('Message', each_event)
+            self.assertNotIn('Project ID', each_event)
+            self.assertNotIn('User ID', each_event)
+            if each_event.get('Action') == 'delete':
+                self.assertEqual(server_id, each_event.get('Server ID'))
+                request_id = each_event.get('Request ID')
+                break
+        self.assertIsNotNone(request_id)
+        # Test 'server event show' for deleting
+        cmd_output = json.loads(self.openstack(
+            '--os-compute-api-version 2.21 '
+            'server event show -f json ' + server_id + ' ' + request_id
+        ))
+        self.assertEqual(server_id, cmd_output.get('instance_uuid'))
+        self.assertEqual(request_id, cmd_output.get('request_id'))
+        self.assertEqual('delete', cmd_output.get('action'))
+        self.assertIsNotNone(cmd_output.get('events'))
+        self.assertIsInstance(cmd_output.get('events'), list)
