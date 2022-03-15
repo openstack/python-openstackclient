@@ -46,7 +46,7 @@ class TestCreateNetworkIdentityV3(TestNetwork):
     project = identity_fakes_v3.FakeProject.create_one_project()
     domain = identity_fakes_v3.FakeDomain.create_one_domain()
     # The new network created.
-    _network = network_fakes.FakeNetwork.create_one_network(
+    _network = network_fakes.create_one_network(
         attrs={
             'project_id': project.id,
             'availability_zone_hints': ["nova"],
@@ -59,12 +59,14 @@ class TestCreateNetworkIdentityV3(TestNetwork):
         'admin_state_up',
         'availability_zone_hints',
         'availability_zones',
+        'created_at',
         'description',
         'dns_domain',
         'id',
         'ipv4_address_scope',
         'ipv6_address_scope',
         'is_default',
+        'is_vlan_transparent',
         'mtu',
         'name',
         'port_security_enabled',
@@ -76,14 +78,18 @@ class TestCreateNetworkIdentityV3(TestNetwork):
         'router:external',
         'shared',
         'status',
+        'segments',
         'subnets',
         'tags',
+        'revision_number',
+        'updated_at',
     )
 
     data = (
-        network.AdminStateColumn(_network.admin_state_up),
+        network.AdminStateColumn(_network.is_admin_state_up),
         format_columns.ListColumn(_network.availability_zone_hints),
         format_columns.ListColumn(_network.availability_zones),
+        _network.created_at,
         _network.description,
         _network.dns_domain,
         _network.id,
@@ -99,10 +105,14 @@ class TestCreateNetworkIdentityV3(TestNetwork):
         _network.provider_segmentation_id,
         _network.qos_policy_id,
         network.RouterExternalColumn(_network.is_router_external),
-        _network.shared,
+        _network.is_shared,
+        _network.is_vlan_transparent,
         _network.status,
-        format_columns.ListColumn(_network.subnets),
+        _network.segments,
+        format_columns.ListColumn(_network.subnet_ids),
         format_columns.ListColumn(_network.tags),
+        _network.revision_number,
+        _network.updated_at,
     )
 
     def setUp(self):
@@ -145,7 +155,7 @@ class TestCreateNetworkIdentityV3(TestNetwork):
             'name': self._network.name,
         })
         self.assertFalse(self.network.set_tags.called)
-        self.assertEqual(self.columns, columns)
+        self.assertEqual(set(self.columns), set(columns))
         self.assertCountEqual(self.data, data)
 
     def test_create_all_options(self):
@@ -153,7 +163,7 @@ class TestCreateNetworkIdentityV3(TestNetwork):
             "--disable",
             "--share",
             "--description", self._network.description,
-            "--mtu", self._network.mtu,
+            "--mtu", str(self._network.mtu),
             "--project", self.project.name,
             "--project-domain", self.domain.name,
             "--availability-zone-hint", "nova",
@@ -171,7 +181,7 @@ class TestCreateNetworkIdentityV3(TestNetwork):
             ('disable', True),
             ('share', True),
             ('description', self._network.description),
-            ('mtu', self._network.mtu),
+            ('mtu', str(self._network.mtu)),
             ('project', self.project.name),
             ('project_domain', self.domain.name),
             ('availability_zone_hints', ["nova"]),
@@ -196,7 +206,7 @@ class TestCreateNetworkIdentityV3(TestNetwork):
             'name': self._network.name,
             'shared': True,
             'description': self._network.description,
-            'mtu': self._network.mtu,
+            'mtu': str(self._network.mtu),
             'project_id': self.project.id,
             'is_default': True,
             'router:external': True,
@@ -208,7 +218,7 @@ class TestCreateNetworkIdentityV3(TestNetwork):
             'port_security_enabled': True,
             'dns_domain': 'example.org.',
         })
-        self.assertEqual(self.columns, columns)
+        self.assertEqual(set(self.columns), set(columns))
         self.assertCountEqual(self.data, data)
 
     def test_create_other_options(self):
@@ -235,7 +245,7 @@ class TestCreateNetworkIdentityV3(TestNetwork):
             'shared': False,
             'port_security_enabled': False,
         })
-        self.assertEqual(self.columns, columns)
+        self.assertEqual(set(self.columns), set(columns))
         self.assertCountEqual(self.data, data)
 
     def _test_create_with_tag(self, add_tags=True):
@@ -267,7 +277,7 @@ class TestCreateNetworkIdentityV3(TestNetwork):
                 tests_utils.CompareBySet(['red', 'blue']))
         else:
             self.assertFalse(self.network.set_tags.called)
-        self.assertEqual(self.columns, columns)
+        self.assertEqual(set(self.columns), set(columns))
         self.assertCountEqual(self.data, data)
 
     def test_create_with_tags(self):
@@ -281,20 +291,21 @@ class TestCreateNetworkIdentityV2(TestNetwork):
 
     project = identity_fakes_v2.FakeProject.create_one_project()
     # The new network created.
-    _network = network_fakes.FakeNetwork.create_one_network(
+    _network = network_fakes.create_one_network(
         attrs={'project_id': project.id}
     )
-
     columns = (
         'admin_state_up',
         'availability_zone_hints',
         'availability_zones',
+        'created_at',
         'description',
         'dns_domain',
         'id',
         'ipv4_address_scope',
         'ipv6_address_scope',
         'is_default',
+        'is_vlan_transparent',
         'mtu',
         'name',
         'port_security_enabled',
@@ -306,14 +317,18 @@ class TestCreateNetworkIdentityV2(TestNetwork):
         'router:external',
         'shared',
         'status',
+        'segments',
         'subnets',
         'tags',
+        'revision_number',
+        'updated_at',
     )
 
     data = (
-        network.AdminStateColumn(_network.admin_state_up),
+        network.AdminStateColumn(_network.is_admin_state_up),
         format_columns.ListColumn(_network.availability_zone_hints),
         format_columns.ListColumn(_network.availability_zones),
+        _network.created_at,
         _network.description,
         _network.dns_domain,
         _network.id,
@@ -329,10 +344,14 @@ class TestCreateNetworkIdentityV2(TestNetwork):
         _network.provider_segmentation_id,
         _network.qos_policy_id,
         network.RouterExternalColumn(_network.is_router_external),
-        _network.shared,
+        _network.is_shared,
+        _network.is_vlan_transparent,
         _network.status,
-        format_columns.ListColumn(_network.subnets),
+        _network.segments,
+        format_columns.ListColumn(_network.subnet_ids),
         format_columns.ListColumn(_network.tags),
+        _network.revision_number,
+        _network.updated_at,
     )
 
     def setUp(self):
@@ -380,7 +399,7 @@ class TestCreateNetworkIdentityV2(TestNetwork):
             'project_id': self.project.id,
         })
         self.assertFalse(self.network.set_tags.called)
-        self.assertEqual(self.columns, columns)
+        self.assertEqual(set(self.columns), set(columns))
         self.assertCountEqual(self.data, data)
 
     def test_create_with_domain_identityv2(self):
@@ -413,11 +432,11 @@ class TestDeleteNetwork(TestNetwork):
         super(TestDeleteNetwork, self).setUp()
 
         # The networks to delete
-        self._networks = network_fakes.FakeNetwork.create_networks(count=3)
+        self._networks = network_fakes.create_networks(count=3)
 
         self.network.delete_network = mock.Mock(return_value=None)
 
-        self.network.find_network = network_fakes.FakeNetwork.get_networks(
+        self.network.find_network = network_fakes.get_networks(
             networks=self._networks)
 
         # Get the command object to test
@@ -495,7 +514,7 @@ class TestDeleteNetwork(TestNetwork):
 class TestListNetwork(TestNetwork):
 
     # The networks going to be listed up.
-    _network = network_fakes.FakeNetwork.create_networks(count=3)
+    _network = network_fakes.create_networks(count=3)
 
     columns = (
         'ID',
@@ -521,7 +540,7 @@ class TestListNetwork(TestNetwork):
         data.append((
             net.id,
             net.name,
-            format_columns.ListColumn(net.subnets),
+            format_columns.ListColumn(net.subnet_ids),
         ))
 
     data_long = []
@@ -531,9 +550,9 @@ class TestListNetwork(TestNetwork):
             net.name,
             net.status,
             net.project_id,
-            network.AdminStateColumn(net.admin_state_up),
-            net.shared,
-            format_columns.ListColumn(net.subnets),
+            network.AdminStateColumn(net.is_admin_state_up),
+            net.is_shared,
+            format_columns.ListColumn(net.subnet_ids),
             net.provider_network_type,
             network.RouterExternalColumn(net.is_router_external),
             format_columns.ListColumn(net.availability_zones),
@@ -880,7 +899,7 @@ class TestListNetwork(TestNetwork):
 class TestSetNetwork(TestNetwork):
 
     # The network to set.
-    _network = network_fakes.FakeNetwork.create_one_network(
+    _network = network_fakes.create_one_network(
         {'tags': ['green', 'red']})
     qos_policy = (network_fakes.FakeNetworkQosPolicy.
                   create_one_qos_policy(attrs={'id': _network.qos_policy_id}))
@@ -1025,18 +1044,19 @@ class TestSetNetwork(TestNetwork):
 class TestShowNetwork(TestNetwork):
 
     # The network to show.
-    _network = network_fakes.FakeNetwork.create_one_network()
-
+    _network = network_fakes.create_one_network()
     columns = (
         'admin_state_up',
         'availability_zone_hints',
         'availability_zones',
+        'created_at',
         'description',
         'dns_domain',
         'id',
         'ipv4_address_scope',
         'ipv6_address_scope',
         'is_default',
+        'is_vlan_transparent',
         'mtu',
         'name',
         'port_security_enabled',
@@ -1048,14 +1068,18 @@ class TestShowNetwork(TestNetwork):
         'router:external',
         'shared',
         'status',
+        'segments',
         'subnets',
         'tags',
+        'revision_number',
+        'updated_at',
     )
 
     data = (
-        network.AdminStateColumn(_network.admin_state_up),
+        network.AdminStateColumn(_network.is_admin_state_up),
         format_columns.ListColumn(_network.availability_zone_hints),
         format_columns.ListColumn(_network.availability_zones),
+        _network.created_at,
         _network.description,
         _network.dns_domain,
         _network.id,
@@ -1071,10 +1095,14 @@ class TestShowNetwork(TestNetwork):
         _network.provider_segmentation_id,
         _network.qos_policy_id,
         network.RouterExternalColumn(_network.is_router_external),
-        _network.shared,
+        _network.is_shared,
+        _network.is_vlan_transparent,
         _network.status,
-        format_columns.ListColumn(_network.subnets),
+        _network.segments,
+        format_columns.ListColumn(_network.subnet_ids),
         format_columns.ListColumn(_network.tags),
+        _network.revision_number,
+        _network.updated_at,
     )
 
     def setUp(self):
@@ -1106,14 +1134,14 @@ class TestShowNetwork(TestNetwork):
         self.network.find_network.assert_called_once_with(
             self._network.name, ignore_missing=False)
 
-        self.assertEqual(self.columns, columns)
+        self.assertEqual(set(self.columns), set(columns))
         self.assertCountEqual(self.data, data)
 
 
 class TestUnsetNetwork(TestNetwork):
 
     # The network to set.
-    _network = network_fakes.FakeNetwork.create_one_network(
+    _network = network_fakes.create_one_network(
         {'tags': ['green', 'red']})
     qos_policy = (network_fakes.FakeNetworkQosPolicy.
                   create_one_qos_policy(attrs={'id': _network.qos_policy_id}))

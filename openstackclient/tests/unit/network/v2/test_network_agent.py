@@ -33,7 +33,7 @@ class TestNetworkAgent(network_fakes.TestNetworkV2):
 
 class TestAddNetworkToAgent(TestNetworkAgent):
 
-    net = network_fakes.FakeNetwork.create_one_network()
+    net = network_fakes.create_one_network()
     agent = network_fakes.FakeNetworkAgent.create_one_network_agent()
 
     def setUp(self):
@@ -221,7 +221,7 @@ class TestListNetworkAgent(TestNetworkAgent):
             network_fakes.FakeNetworkAgent.create_one_network_agent()
         self.network.get_agent = mock.Mock(return_value=_testagent)
 
-        self._testnetwork = network_fakes.FakeNetwork.create_one_network()
+        self._testnetwork = network_fakes.create_one_network()
         self.network.find_network = mock.Mock(return_value=self._testnetwork)
         self.network.network_hosting_dhcp_agents = mock.Mock(
             return_value=self.network_agents)
@@ -290,13 +290,11 @@ class TestListNetworkAgent(TestNetworkAgent):
             ('network', self._testnetwork.id),
         ]
 
-        attrs = {self._testnetwork, }
-
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
         columns, data = self.cmd.take_action(parsed_args)
 
         self.network.network_hosting_dhcp_agents.assert_called_once_with(
-            *attrs)
+            self._testnetwork)
         self.assertEqual(self.columns, columns)
         self.assertCountEqual(self.data, list(data))
 
@@ -348,7 +346,7 @@ class TestListNetworkAgent(TestNetworkAgent):
 
 class TestRemoveNetworkFromAgent(TestNetworkAgent):
 
-    net = network_fakes.FakeNetwork.create_one_network()
+    net = network_fakes.create_one_network()
     agent = network_fakes.FakeNetworkAgent.create_one_network_agent()
 
     def setUp(self):

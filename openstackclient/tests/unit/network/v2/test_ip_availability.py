@@ -38,8 +38,7 @@ class TestIPAvailability(network_fakes.TestNetworkV2):
 
 class TestListIPAvailability(TestIPAvailability):
 
-    _ip_availability = \
-        network_fakes.FakeIPAvailability.create_ip_availability(count=3)
+    _ip_availability = network_fakes.create_ip_availability(count=3)
     columns = (
         'Network ID',
         'Network Name',
@@ -117,10 +116,9 @@ class TestListIPAvailability(TestIPAvailability):
 
 class TestShowIPAvailability(TestIPAvailability):
 
-    _network = network_fakes.FakeNetwork.create_one_network()
-    _ip_availability = \
-        network_fakes.FakeIPAvailability.create_one_ip_availability(
-            attrs={'network_id': _network.id})
+    _network = network_fakes.create_one_network()
+    _ip_availability = network_fakes.create_one_ip_availability(
+        attrs={'network_id': _network.id})
 
     columns = (
         'network_id',

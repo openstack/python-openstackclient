@@ -35,7 +35,7 @@ class TestCreateNetworkSegment(TestNetworkSegment):
     # The network segment to create along with associated network.
     _network_segment = \
         network_fakes.FakeNetworkSegment.create_one_network_segment()
-    _network = network_fakes.FakeNetwork.create_one_network({
+    _network = network_fakes.create_one_network({
         'id': _network_segment.network_id,
     })
 
@@ -240,7 +240,7 @@ class TestDeleteNetworkSegment(TestNetworkSegment):
 
 
 class TestListNetworkSegment(TestNetworkSegment):
-    _network = network_fakes.FakeNetwork.create_one_network()
+    _network = network_fakes.create_one_network()
     _network_segments = \
         network_fakes.FakeNetworkSegment.create_network_segments(count=3)
 
