@@ -218,6 +218,11 @@ class ListNetworkRBAC(command.Lister):
                    'action ("access_as_external" or "access_as_shared")')
         )
         parser.add_argument(
+            '--target-project',
+            metavar='<target-project>',
+            help=_('List network RBAC policies for a specific target project')
+        )
+        parser.add_argument(
             '--long',
             action='store_true',
             default=False,
@@ -247,6 +252,16 @@ class ListNetworkRBAC(command.Lister):
             query['object_type'] = parsed_args.type
         if parsed_args.action is not None:
             query['action'] = parsed_args.action
+        if parsed_args.target_project is not None:
+            project_id = "*"
+
+            if parsed_args.target_project != "*":
+                identity_client = self.app.client_manager.identity
+                project_id = identity_common.find_project(
+                    identity_client,
+                    parsed_args.target_project,
+                ).id
+            query['target_project_id'] = project_id
 
         data = client.rbac_policies(**query)
 

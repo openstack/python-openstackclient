@@ -405,6 +405,9 @@ class TestListNetworkRABC(TestNetworkRBAC):
 
         self.network.rbac_policies = mock.Mock(return_value=self.rbac_policies)
 
+        self.project = identity_fakes_v3.FakeProject.create_one_project()
+        self.projects_mock.get.return_value = self.project
+
     def test_network_rbac_list(self):
         arglist = []
         verifylist = []
@@ -465,6 +468,22 @@ class TestListNetworkRABC(TestNetworkRBAC):
         self.network.rbac_policies.assert_called_with()
         self.assertEqual(self.columns_long, columns)
         self.assertEqual(self.data_long, list(data))
+
+    def test_network_rbac_list_target_project_opt(self):
+        arglist = [
+            '--target-project', self.rbac_policies[0].target_project_id, ]
+        verifylist = [
+            ('target_project', self.rbac_policies[0].target_project_id)]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        # DisplayCommandBase.take_action() returns two tuples
+        columns, data = self.cmd.take_action(parsed_args)
+
+        self.network.rbac_policies.assert_called_with(**{
+            'target_project_id': self.project.id
+        })
+        self.assertEqual(self.columns, columns)
+        self.assertEqual(self.data, list(data))
 
 
 class TestSetNetworkRBAC(TestNetworkRBAC):
