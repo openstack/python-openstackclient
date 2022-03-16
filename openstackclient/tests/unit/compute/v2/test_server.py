@@ -592,7 +592,7 @@ class TestServerAddFloatingIPNetwork(
     def test_server_add_floating_ip(self):
         _server = compute_fakes.FakeServer.create_one_server()
         self.servers_mock.get.return_value = _server
-        _port = network_fakes.FakePort.create_one_port()
+        _port = network_fakes.create_one_port()
         _floating_ip = network_fakes.FakeFloatingIP.create_one_floating_ip()
         self.network.find_ip = mock.Mock(return_value=_floating_ip)
         self.network.ports = mock.Mock(return_value=[_port])
@@ -661,7 +661,7 @@ class TestServerAddFloatingIPNetwork(
     def test_server_add_floating_ip_no_external_gateway(self, success=False):
         _server = compute_fakes.FakeServer.create_one_server()
         self.servers_mock.get.return_value = _server
-        _port = network_fakes.FakePort.create_one_port()
+        _port = network_fakes.create_one_port()
         _floating_ip = network_fakes.FakeFloatingIP.create_one_floating_ip()
         self.network.find_ip = mock.Mock(return_value=_floating_ip)
         return_value = [_port]
@@ -717,7 +717,7 @@ class TestServerAddFloatingIPNetwork(
     def test_server_add_floating_ip_with_fixed_ip(self):
         _server = compute_fakes.FakeServer.create_one_server()
         self.servers_mock.get.return_value = _server
-        _port = network_fakes.FakePort.create_one_port()
+        _port = network_fakes.create_one_port()
         _floating_ip = network_fakes.FakeFloatingIP.create_one_floating_ip()
         self.network.find_ip = mock.Mock(return_value=_floating_ip)
         self.network.ports = mock.Mock(return_value=[_port])
@@ -759,7 +759,7 @@ class TestServerAddFloatingIPNetwork(
     def test_server_add_floating_ip_with_fixed_ip_no_port_found(self):
         _server = compute_fakes.FakeServer.create_one_server()
         self.servers_mock.get.return_value = _server
-        _port = network_fakes.FakePort.create_one_port()
+        _port = network_fakes.create_one_port()
         _floating_ip = network_fakes.FakeFloatingIP.create_one_floating_ip()
         self.network.find_ip = mock.Mock(return_value=_floating_ip)
         self.network.ports = mock.Mock(return_value=[_port])

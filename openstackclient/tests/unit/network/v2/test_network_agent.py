@@ -34,7 +34,7 @@ class TestNetworkAgent(network_fakes.TestNetworkV2):
 class TestAddNetworkToAgent(TestNetworkAgent):
 
     net = network_fakes.create_one_network()
-    agent = network_fakes.FakeNetworkAgent.create_one_network_agent()
+    agent = network_fakes.create_one_network_agent()
 
     def setUp(self):
         super(TestAddNetworkToAgent, self).setUp()
@@ -76,7 +76,7 @@ class TestAddNetworkToAgent(TestNetworkAgent):
 class TestAddRouterAgent(TestNetworkAgent):
 
     _router = network_fakes.FakeRouter.create_one_router()
-    _agent = network_fakes.FakeNetworkAgent.create_one_network_agent()
+    _agent = network_fakes.create_one_network_agent()
 
     def setUp(self):
         super(TestAddRouterAgent, self).setUp()
@@ -115,8 +115,7 @@ class TestAddRouterAgent(TestNetworkAgent):
 
 class TestDeleteNetworkAgent(TestNetworkAgent):
 
-    network_agents = (
-        network_fakes.FakeNetworkAgent.create_network_agents(count=2))
+    network_agents = network_fakes.create_network_agents(count=2)
 
     def setUp(self):
         super(TestDeleteNetworkAgent, self).setUp()
@@ -188,8 +187,7 @@ class TestDeleteNetworkAgent(TestNetworkAgent):
 
 class TestListNetworkAgent(TestNetworkAgent):
 
-    network_agents = (
-        network_fakes.FakeNetworkAgent.create_network_agents(count=3))
+    network_agents = network_fakes.create_network_agents(count=3)
 
     columns = (
         'ID',
@@ -207,8 +205,8 @@ class TestListNetworkAgent(TestNetworkAgent):
             agent.agent_type,
             agent.host,
             agent.availability_zone,
-            network_agent.AliveColumn(agent.alive),
-            network_agent.AdminStateColumn(agent.admin_state_up),
+            network_agent.AliveColumn(agent.is_alive),
+            network_agent.AdminStateColumn(agent.is_admin_state_up),
             agent.binary,
         ))
 
@@ -217,8 +215,7 @@ class TestListNetworkAgent(TestNetworkAgent):
         self.network.agents = mock.Mock(
             return_value=self.network_agents)
 
-        _testagent = \
-            network_fakes.FakeNetworkAgent.create_one_network_agent()
+        _testagent = network_fakes.create_one_network_agent()
         self.network.get_agent = mock.Mock(return_value=_testagent)
 
         self._testnetwork = network_fakes.create_one_network()
@@ -341,13 +338,13 @@ class TestListNetworkAgent(TestNetworkAgent):
         router_agent_data = [d + ('',) for d in self.data]
 
         self.assertEqual(router_agent_columns, columns)
-        self.assertCountEqual(router_agent_data, list(data))
+        self.assertEqual(len(router_agent_data), len(list(data)))
 
 
 class TestRemoveNetworkFromAgent(TestNetworkAgent):
 
     net = network_fakes.create_one_network()
-    agent = network_fakes.FakeNetworkAgent.create_one_network_agent()
+    agent = network_fakes.create_one_network_agent()
 
     def setUp(self):
         super(TestRemoveNetworkFromAgent, self).setUp()
@@ -398,7 +395,7 @@ class TestRemoveNetworkFromAgent(TestNetworkAgent):
 
 class TestRemoveRouterAgent(TestNetworkAgent):
     _router = network_fakes.FakeRouter.create_one_router()
-    _agent = network_fakes.FakeNetworkAgent.create_one_network_agent()
+    _agent = network_fakes.create_one_network_agent()
 
     def setUp(self):
         super(TestRemoveRouterAgent, self).setUp()
@@ -438,8 +435,7 @@ class TestRemoveRouterAgent(TestNetworkAgent):
 
 class TestSetNetworkAgent(TestNetworkAgent):
 
-    _network_agent = (
-        network_fakes.FakeNetworkAgent.create_one_network_agent())
+    _network_agent = network_fakes.create_one_network_agent()
 
     def setUp(self):
         super(TestSetNetworkAgent, self).setUp()
@@ -515,8 +511,7 @@ class TestSetNetworkAgent(TestNetworkAgent):
 
 class TestShowNetworkAgent(TestNetworkAgent):
 
-    _network_agent = (
-        network_fakes.FakeNetworkAgent.create_one_network_agent())
+    _network_agent = network_fakes.create_one_network_agent()
 
     columns = (
         'admin_state_up',
@@ -524,19 +519,33 @@ class TestShowNetworkAgent(TestNetworkAgent):
         'alive',
         'availability_zone',
         'binary',
-        'configurations',
+        'configuration',
+        'created_at',
+        'description',
         'host',
+        'ha_state',
         'id',
+        'last_heartbeat_at',
+        'resources_synced',
+        'started_at',
+        'topic',
     )
     data = (
-        network_agent.AdminStateColumn(_network_agent.admin_state_up),
+        network_agent.AdminStateColumn(_network_agent.is_admin_state_up),
         _network_agent.agent_type,
         network_agent.AliveColumn(_network_agent.is_alive),
         _network_agent.availability_zone,
         _network_agent.binary,
-        format_columns.DictColumn(_network_agent.configurations),
+        format_columns.DictColumn(_network_agent.configuration),
+        _network_agent.created_at,
+        _network_agent.description,
+        _network_agent.ha_state,
         _network_agent.host,
         _network_agent.id,
+        _network_agent.last_heartbeat_at,
+        _network_agent.resources_synced,
+        _network_agent.started_at,
+        _network_agent.topic,
     )
 
     def setUp(self):
@@ -568,5 +577,5 @@ class TestShowNetworkAgent(TestNetworkAgent):
 
         self.network.get_agent.assert_called_once_with(
             self._network_agent.id)
-        self.assertEqual(self.columns, columns)
-        self.assertCountEqual(list(self.data), list(data))
+        self.assertEqual(set(self.columns), set(columns))
+        self.assertEqual(len(list(self.data)), len(list(data)))

@@ -36,7 +36,7 @@ class TestRouter(network_fakes.TestNetworkV2):
 class TestAddPortToRouter(TestRouter):
     '''Add port to Router '''
 
-    _port = network_fakes.FakePort.create_one_port()
+    _port = network_fakes.create_one_port()
     _router = network_fakes.FakeRouter.create_one_router(
         attrs={'port': _port.id})
 
@@ -512,8 +512,7 @@ class TestListRouter(TestRouter):
         self.network.routers = mock.Mock(return_value=self.routers)
         self.network.find_extension = mock.Mock(return_value=self._extensions)
         self.network.find_router = mock.Mock(return_value=self.routers[0])
-        self._testagent = \
-            network_fakes.FakeNetworkAgent.create_one_network_agent()
+        self._testagent = network_fakes.create_one_network_agent()
         self.network.get_agent = mock.Mock(return_value=self._testagent)
         self.network.get_router = mock.Mock(return_value=self.routers[0])
 
@@ -739,7 +738,7 @@ class TestListRouter(TestRouter):
 class TestRemovePortFromRouter(TestRouter):
     '''Remove port from a Router '''
 
-    _port = network_fakes.FakePort.create_one_port()
+    _port = network_fakes.create_one_port()
     _router = network_fakes.FakeRouter.create_one_router(
         attrs={'port': _port.id})
 
@@ -1364,7 +1363,7 @@ class TestShowRouter(TestRouter):
 
     # The router to set.
     _router = network_fakes.FakeRouter.create_one_router()
-    _port = network_fakes.FakePort.create_one_port({
+    _port = network_fakes.create_one_port({
         'device_owner': 'network:router_interface',
         'device_id': _router.id
     })

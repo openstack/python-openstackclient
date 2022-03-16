@@ -41,7 +41,7 @@ class TestCreateLocalIP(TestLocalIP):
     project = identity_fakes_v3.FakeProject.create_one_project()
     domain = identity_fakes_v3.FakeDomain.create_one_domain()
     local_ip_network = network_fakes.create_one_network()
-    port = network_fakes.FakePort.create_one_port()
+    port = network_fakes.create_one_port()
     # The new local ip created.
     new_local_ip = network_fakes.create_one_local_ip(
         attrs={'project_id': project.id,

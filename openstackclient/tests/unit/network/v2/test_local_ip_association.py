@@ -29,7 +29,7 @@ class TestLocalIPAssociation(network_fakes.TestNetworkV2):
         super().setUp()
         self.network = self.app.client_manager.network
         self.local_ip = network_fakes.create_one_local_ip()
-        self.fixed_port = network_fakes.FakePort.create_one_port()
+        self.fixed_port = network_fakes.create_one_port()
         self.project = identity_fakes_v2.FakeProject.create_one_project()
         self.network.find_port = mock.Mock(return_value=self.fixed_port)
 

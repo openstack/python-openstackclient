@@ -42,7 +42,7 @@ class TestCreateFloatingIPNetwork(TestFloatingIPNetwork):
     # Fake data for option tests.
     floating_network = network_fakes.create_one_network()
     subnet = network_fakes.FakeSubnet.create_one_subnet()
-    port = network_fakes.FakePort.create_one_port()
+    port = network_fakes.create_one_port()
 
     # The floating ip created.
     floating_ip = network_fakes.FakeFloatingIP.create_one_floating_ip(
@@ -381,7 +381,7 @@ class TestListFloatingIPNetwork(TestFloatingIPNetwork):
     fake_network = network_fakes.create_one_network({
         'id': 'fake_network_id',
     })
-    fake_port = network_fakes.FakePort.create_one_port({
+    fake_port = network_fakes.create_one_port({
         'id': 'fake_port_id',
     })
     fake_router = network_fakes.FakeRouter.create_one_router({
@@ -702,7 +702,7 @@ class TestSetFloatingIP(TestFloatingIPNetwork):
     # Fake data for option tests.
     floating_network = network_fakes.create_one_network()
     subnet = network_fakes.FakeSubnet.create_one_subnet()
-    port = network_fakes.FakePort.create_one_port()
+    port = network_fakes.create_one_port()
 
     # The floating ip to be set.
     floating_ip = network_fakes.FakeFloatingIP.create_one_floating_ip(
@@ -934,7 +934,7 @@ class TestUnsetFloatingIP(TestFloatingIPNetwork):
 
     floating_network = network_fakes.create_one_network()
     subnet = network_fakes.FakeSubnet.create_one_subnet()
-    port = network_fakes.FakePort.create_one_port()
+    port = network_fakes.create_one_port()
 
     # The floating ip to be unset.
     floating_ip = network_fakes.FakeFloatingIP.create_one_floating_ip(

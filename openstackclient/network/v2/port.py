@@ -64,7 +64,7 @@ def _get_columns(item):
         'is_admin_state_up': 'admin_state_up',
         'is_port_security_enabled': 'port_security_enabled',
     }
-    hidden_columns = ['location']
+    hidden_columns = ['location', 'tenant_id']
     return utils.get_osc_show_columns_for_sdk_resource(
         item,
         column_map,
