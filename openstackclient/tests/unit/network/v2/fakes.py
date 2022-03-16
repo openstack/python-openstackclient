@@ -22,10 +22,13 @@ from openstack.network.v2 import address_group as _address_group
 from openstack.network.v2 import address_scope as _address_scope
 from openstack.network.v2 import auto_allocated_topology as allocated_topology
 from openstack.network.v2 import availability_zone as _availability_zone
+from openstack.network.v2 import flavor as _flavor
 from openstack.network.v2 import local_ip as _local_ip
 from openstack.network.v2 import local_ip_association as _local_ip_association
 from openstack.network.v2 import network as _network
 from openstack.network.v2 import network_ip_availability as _ip_availability
+from openstack.network.v2 import network_segment_range as _segment_range
+from openstack.network.v2 import segment as _segment
 
 from openstackclient.tests.unit import fakes
 from openstackclient.tests.unit.identity.v3 import fakes as identity_fakes_v3
@@ -123,186 +126,6 @@ class FakeExtension(object):
             info=copy.deepcopy(extension_info),
             loaded=True)
         return extension
-
-
-class FakeNetworkFlavor(object):
-    """Fake Network Flavor."""
-
-    @staticmethod
-    def create_one_network_flavor(attrs=None):
-        """Create a fake network flavor.
-
-        :param Dictionary attrs:
-            A dictionary with all attributes
-        :return:
-            A FakeResource object faking the network flavor
-        """
-        attrs = attrs or {}
-
-        fake_uuid = uuid.uuid4().hex
-        network_flavor_attrs = {
-            'description': 'network-flavor-description-' + fake_uuid,
-            'enabled': True,
-            'id': 'network-flavor-id-' + fake_uuid,
-            'name': 'network-flavor-name-' + fake_uuid,
-            'service_type': 'vpn',
-            'project_id': 'project-id-' + uuid.uuid4().hex,
-            'location': 'MUNCHMUNCHMUNCH',
-        }
-
-        # Overwrite default attributes.
-        network_flavor_attrs.update(attrs)
-
-        network_flavor = fakes.FakeResource(
-            info=copy.deepcopy(network_flavor_attrs),
-            loaded=True
-        )
-
-        network_flavor.is_enabled = network_flavor_attrs['enabled']
-
-        return network_flavor
-
-    @staticmethod
-    def create_flavor(attrs=None, count=2):
-        """Create multiple fake network flavors.
-
-        :param Dictionary attrs:
-            A dictionary with all attributes
-        :param int count:
-            The number of network flavors to fake
-        :return:
-            A list of FakeResource objects faking the network falvors
-        """
-        network_flavors = []
-        for i in range(0, count):
-            network_flavors.append(
-                FakeNetworkFlavor.create_one_network_flavor(attrs)
-            )
-        return network_flavors
-
-    @staticmethod
-    def get_flavor(network_flavors=None, count=2):
-        """Get a list of flavors."""
-        if network_flavors is None:
-            network_flavors = (FakeNetworkFlavor.create_flavor(count))
-        return mock.Mock(side_effect=network_flavors)
-
-
-class FakeNetworkSegment(object):
-    """Fake one or more network segments."""
-
-    @staticmethod
-    def create_one_network_segment(attrs=None):
-        """Create a fake network segment.
-
-        :param Dictionary attrs:
-            A dictionary with all attributes
-        :return:
-            A FakeResource object faking the network segment
-        """
-        attrs = attrs or {}
-
-        # Set default attributes.
-        fake_uuid = uuid.uuid4().hex
-        network_segment_attrs = {
-            'description': 'network-segment-description-' + fake_uuid,
-            'id': 'network-segment-id-' + fake_uuid,
-            'name': 'network-segment-name-' + fake_uuid,
-            'network_id': 'network-id-' + fake_uuid,
-            'network_type': 'vlan',
-            'physical_network': 'physical-network-name-' + fake_uuid,
-            'segmentation_id': 1024,
-            'location': 'MUNCHMUNCHMUNCH',
-        }
-
-        # Overwrite default attributes.
-        network_segment_attrs.update(attrs)
-
-        network_segment = fakes.FakeResource(
-            info=copy.deepcopy(network_segment_attrs),
-            loaded=True
-        )
-
-        return network_segment
-
-    @staticmethod
-    def create_network_segments(attrs=None, count=2):
-        """Create multiple fake network segments.
-
-        :param Dictionary attrs:
-            A dictionary with all attributes
-        :param int count:
-            The number of network segments to fake
-        :return:
-            A list of FakeResource objects faking the network segments
-        """
-        network_segments = []
-        for i in range(0, count):
-            network_segments.append(
-                FakeNetworkSegment.create_one_network_segment(attrs)
-            )
-        return network_segments
-
-
-class FakeNetworkSegmentRange(object):
-    """Fake one or more network segment ranges."""
-
-    @staticmethod
-    def create_one_network_segment_range(attrs=None):
-        """Create a fake network segment range.
-
-        :param Dictionary attrs:
-            A dictionary with all attributes
-        :return:
-            A FakeResource object faking the network segment range
-        """
-        attrs = attrs or {}
-
-        # Set default attributes.
-        fake_uuid = uuid.uuid4().hex
-        network_segment_range_attrs = {
-            'id': 'network-segment-range-id-' + fake_uuid,
-            'name': 'network-segment-name-' + fake_uuid,
-            'default': False,
-            'shared': False,
-            'project_id': 'project-id-' + fake_uuid,
-            'network_type': 'vlan',
-            'physical_network': 'physical-network-name-' + fake_uuid,
-            'minimum': 100,
-            'maximum': 106,
-            'used': {104: '3312e4ba67864b2eb53f3f41432f8efc',
-                     106: '3312e4ba67864b2eb53f3f41432f8efc'},
-            'available': [100, 101, 102, 103, 105],
-            'location': 'MUNCHMUNCHMUNCH',
-        }
-
-        # Overwrite default attributes.
-        network_segment_range_attrs.update(attrs)
-
-        network_segment_range = fakes.FakeResource(
-            info=copy.deepcopy(network_segment_range_attrs),
-            loaded=True
-        )
-
-        return network_segment_range
-
-    @staticmethod
-    def create_network_segment_ranges(attrs=None, count=2):
-        """Create multiple fake network segment ranges.
-
-        :param Dictionary attrs:
-            A dictionary with all attributes
-        :param int count:
-            The number of network segment ranges to fake
-        :return:
-            A list of FakeResource objects faking the network segment ranges
-        """
-        network_segment_ranges = []
-        for i in range(0, count):
-            network_segment_ranges.append(
-                FakeNetworkSegmentRange.create_one_network_segment_range(attrs)
-            )
-        return network_segment_ranges
 
 
 class FakePort(object):
@@ -1994,6 +1817,159 @@ def get_networks(networks=None, count=2):
     if networks is None:
         networks = create_networks(count)
     return mock.Mock(side_effect=networks)
+
+
+def create_one_network_flavor(attrs=None):
+    """Create a fake network flavor.
+
+    :param Dictionary attrs:
+        A dictionary with all attributes
+    :return:
+        A Flavor object faking the network flavor
+    """
+    attrs = attrs or {}
+
+    fake_uuid = uuid.uuid4().hex
+    network_flavor_attrs = {
+        'description': 'network-flavor-description-' + fake_uuid,
+        'is_enabled': True,
+        'id': 'network-flavor-id-' + fake_uuid,
+        'name': 'network-flavor-name-' + fake_uuid,
+        'service_type': 'vpn',
+        'location': 'MUNCHMUNCHMUNCH',
+    }
+
+    # Overwrite default attributes.
+    network_flavor_attrs.update(attrs)
+
+    network_flavor = _flavor.Flavor(**network_flavor_attrs)
+
+    return network_flavor
+
+
+def create_flavor(attrs=None, count=2):
+    """Create multiple fake network flavors.
+
+    :param Dictionary attrs:
+        A dictionary with all attributes
+    :param int count:
+        The number of network flavors to fake
+    :return:
+        A list of Flavor objects faking the network falvors
+    """
+    network_flavors = []
+    for i in range(0, count):
+        network_flavors.append(create_one_network_flavor(attrs))
+
+    return network_flavors
+
+
+def get_flavor(network_flavors=None, count=2):
+    """Get a list of flavors."""
+    if network_flavors is None:
+        network_flavors = create_flavor(count)
+    return mock.Mock(side_effect=network_flavors)
+
+
+def create_one_network_segment(attrs=None):
+    """Create a fake network segment.
+
+    :param Dictionary attrs:
+        A dictionary with all attributes
+    :return:
+        An Segment object faking the network segment
+    """
+    attrs = attrs or {}
+
+    # Set default attributes.
+    fake_uuid = uuid.uuid4().hex
+    network_segment_attrs = {
+        'description': 'network-segment-description-' + fake_uuid,
+        'id': 'network-segment-id-' + fake_uuid,
+        'name': 'network-segment-name-' + fake_uuid,
+        'network_id': 'network-id-' + fake_uuid,
+        'network_type': 'vlan',
+        'physical_network': 'physical-network-name-' + fake_uuid,
+        'segmentation_id': 1024,
+        'location': 'MUNCHMUNCHMUNCH',
+    }
+
+    # Overwrite default attributes.
+    network_segment_attrs.update(attrs)
+
+    network_segment = _segment.Segment(**network_segment_attrs)
+
+    return network_segment
+
+
+def create_network_segments(attrs=None, count=2):
+    """Create multiple fake network segments.
+
+    :param Dictionary attrs:
+        A dictionary with all attributes
+    :param int count:
+        The number of network segments to fake
+    :return:
+        A list of Segment objects faking the network segments
+    """
+    network_segments = []
+    for i in range(0, count):
+        network_segments.append(create_one_network_segment(attrs))
+    return network_segments
+
+
+def create_one_network_segment_range(attrs=None):
+    """Create a fake network segment range.
+
+    :param Dictionary attrs:
+        A dictionary with all attributes
+    :return:
+        A NetworkSegmentRange object faking the network segment range
+    """
+    attrs = attrs or {}
+
+    # Set default attributes.
+    fake_uuid = uuid.uuid4().hex
+    network_segment_range_attrs = {
+        'id': 'network-segment-range-id-' + fake_uuid,
+        'name': 'network-segment-name-' + fake_uuid,
+        'default': False,
+        'shared': False,
+        'project_id': 'project-id-' + fake_uuid,
+        'network_type': 'vlan',
+        'physical_network': 'physical-network-name-' + fake_uuid,
+        'minimum': 100,
+        'maximum': 106,
+        'used': {104: '3312e4ba67864b2eb53f3f41432f8efc',
+                 106: '3312e4ba67864b2eb53f3f41432f8efc'},
+        'available': [100, 101, 102, 103, 105],
+        'location': 'MUNCHMUNCHMUNCH',
+    }
+
+    # Overwrite default attributes.
+    network_segment_range_attrs.update(attrs)
+
+    network_segment_range = (
+        _segment_range.NetworkSegmentRange(**network_segment_range_attrs))
+
+    return network_segment_range
+
+
+def create_network_segment_ranges(attrs=None, count=2):
+    """Create multiple fake network segment ranges.
+
+    :param Dictionary attrs:
+        A dictionary with all attributes
+    :param int count:
+        The number of network segment ranges to fake
+    :return:
+        A list of NetworkSegmentRange objects faking
+        the network segment ranges
+    """
+    network_segment_ranges = []
+    for i in range(0, count):
+        network_segment_ranges.append(create_one_network_segment_range(attrs))
+    return network_segment_ranges
 
 
 def create_one_local_ip(attrs=None):

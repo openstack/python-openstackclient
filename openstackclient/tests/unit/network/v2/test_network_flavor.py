@@ -39,8 +39,7 @@ class TestNetworkFlavor(network_fakes.TestNetworkV2):
 
 class TestAddNetworkFlavorToProfile(TestNetworkFlavor):
 
-    network_flavor = \
-        network_fakes.FakeNetworkFlavor.create_one_network_flavor()
+    network_flavor = network_fakes.create_one_network_flavor()
     service_profile = \
         network_fakes.FakeNetworkFlavorProfile.create_one_service_profile()
 
@@ -84,23 +83,22 @@ class TestCreateNetworkFlavor(TestNetworkFlavor):
     project = identity_fakes_v3.FakeProject.create_one_project()
     domain = identity_fakes_v3.FakeDomain.create_one_domain()
     # The new network flavor created.
-    new_network_flavor = (
-        network_fakes.FakeNetworkFlavor.create_one_network_flavor())
+    new_network_flavor = network_fakes.create_one_network_flavor()
     columns = (
         'description',
         'enabled',
         'id',
         'name',
-        'project_id',
-        'service_type'
+        'service_type',
+        'service_profile_ids',
     )
     data = (
         new_network_flavor.description,
-        new_network_flavor.enabled,
+        new_network_flavor.is_enabled,
         new_network_flavor.id,
         new_network_flavor.name,
-        new_network_flavor.project_id,
         new_network_flavor.service_type,
+        new_network_flavor.service_profile_ids,
     )
 
     def setUp(self):
@@ -139,14 +137,14 @@ class TestCreateNetworkFlavor(TestNetworkFlavor):
             'service_type': self.new_network_flavor.service_type,
             'name': self.new_network_flavor.name,
         })
-        self.assertEqual(self.columns, columns)
-        self.assertEqual(self.data, data)
+        self.assertEqual(set(self.columns), set(columns))
+        self.assertEqual(set(self.data), set(data))
 
     def test_create_all_options(self):
         arglist = [
             '--description', self.new_network_flavor.description,
             '--enable',
-            '--project', self.new_network_flavor.project_id,
+            '--project', self.project.id,
             '--project-domain', self.domain.name,
             '--service-type', self.new_network_flavor.service_type,
             self.new_network_flavor.name,
@@ -154,7 +152,7 @@ class TestCreateNetworkFlavor(TestNetworkFlavor):
         verifylist = [
             ('description', self.new_network_flavor.description),
             ('enable', True),
-            ('project', self.new_network_flavor.project_id),
+            ('project', self.project.id),
             ('project_domain', self.domain.name),
             ('service_type', self.new_network_flavor.service_type),
             ('name', self.new_network_flavor.name),
@@ -170,8 +168,8 @@ class TestCreateNetworkFlavor(TestNetworkFlavor):
             'service_type': self.new_network_flavor.service_type,
             'name': self.new_network_flavor.name,
         })
-        self.assertEqual(self.columns, columns)
-        self.assertEqual(self.data, data)
+        self.assertEqual(set(self.columns), set(columns))
+        self.assertEqual(set(self.data), set(data))
 
     def test_create_disable(self):
         arglist = [
@@ -193,23 +191,20 @@ class TestCreateNetworkFlavor(TestNetworkFlavor):
             'service_type': self.new_network_flavor.service_type,
             'name': self.new_network_flavor.name,
         })
-        self.assertEqual(self.columns, columns)
-        self.assertEqual(self.data, data)
+        self.assertEqual(set(self.columns), set(columns))
+        self.assertEqual(set(self.data), set(data))
 
 
 class TestDeleteNetworkFlavor(TestNetworkFlavor):
 
     # The network flavor to delete.
-    _network_flavors = (
-        network_fakes.FakeNetworkFlavor.create_flavor(count=2))
+    _network_flavors = network_fakes.create_flavor(count=2)
 
     def setUp(self):
         super(TestDeleteNetworkFlavor, self).setUp()
         self.network.delete_flavor = mock.Mock(return_value=None)
-        self.network.find_flavor = (
-            network_fakes.FakeNetworkFlavor.get_flavor(
-                network_flavors=self._network_flavors)
-        )
+        self.network.find_flavor = network_fakes.get_flavor(
+            network_flavors=self._network_flavors)
 
         # Get the command object to test
         self.cmd = network_flavor.DeleteNetworkFlavor(self.app, self.namespace)
@@ -284,8 +279,7 @@ class TestDeleteNetworkFlavor(TestNetworkFlavor):
 class TestListNetworkFlavor(TestNetworkFlavor):
 
     # The network flavors to list up.
-    _network_flavors = (
-        network_fakes.FakeNetworkFlavor.create_flavor(count=2))
+    _network_flavors = network_fakes.create_flavor(count=2)
     columns = (
         'ID',
         'Name',
@@ -298,7 +292,7 @@ class TestListNetworkFlavor(TestNetworkFlavor):
         data.append((
             flavor.id,
             flavor.name,
-            flavor.enabled,
+            flavor.is_enabled,
             flavor.service_type,
             flavor.description,
         ))
@@ -319,14 +313,13 @@ class TestListNetworkFlavor(TestNetworkFlavor):
         columns, data = self.cmd.take_action(parsed_args)
 
         self.network.flavors.assert_called_once_with(**{})
-        self.assertEqual(self.columns, columns)
+        self.assertEqual(set(self.columns), set(columns))
         self.assertEqual(self.data, list(data))
 
 
 class TestRemoveNetworkFlavorFromProfile(TestNetworkFlavor):
 
-    network_flavor = \
-        network_fakes.FakeNetworkFlavor.create_one_network_flavor()
+    network_flavor = network_fakes.create_one_network_flavor()
     service_profile = \
         network_fakes.FakeNetworkFlavorProfile.create_one_service_profile()
 
@@ -368,23 +361,22 @@ class TestRemoveNetworkFlavorFromProfile(TestNetworkFlavor):
 class TestShowNetworkFlavor(TestNetworkFlavor):
 
     # The network flavor to show.
-    new_network_flavor = (
-        network_fakes.FakeNetworkFlavor.create_one_network_flavor())
+    new_network_flavor = network_fakes.create_one_network_flavor()
     columns = (
         'description',
         'enabled',
         'id',
         'name',
-        'project_id',
-        'service_type'
+        'service_type',
+        'service_profile_ids',
     )
     data = (
         new_network_flavor.description,
-        new_network_flavor.enabled,
+        new_network_flavor.is_enabled,
         new_network_flavor.id,
         new_network_flavor.name,
-        new_network_flavor.project_id,
         new_network_flavor.service_type,
+        new_network_flavor.service_profile_ids,
     )
 
     def setUp(self):
@@ -416,15 +408,15 @@ class TestShowNetworkFlavor(TestNetworkFlavor):
 
         self.network.find_flavor.assert_called_once_with(
             self.new_network_flavor.name, ignore_missing=False)
-        self.assertEqual(self.columns, columns)
-        self.assertEqual(self.data, data)
+        self.assertEqual(set(self.columns), set(columns))
+        self.assertEqual(set(self.data), set(data))
 
 
 class TestSetNetworkFlavor(TestNetworkFlavor):
 
     # The network flavor to set.
     new_network_flavor = (
-        network_fakes.FakeNetworkFlavor.create_one_network_flavor())
+        network_fakes.create_one_network_flavor())
 
     def setUp(self):
         super(TestSetNetworkFlavor, self).setUp()

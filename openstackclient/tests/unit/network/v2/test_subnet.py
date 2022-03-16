@@ -103,7 +103,7 @@ class TestCreateSubnet(TestSubnet):
 
         # The network segment to be returned from find_segment
         self._network_segment = \
-            network_fakes.FakeNetworkSegment.create_one_network_segment(
+            network_fakes.create_one_network_segment(
                 attrs={
                     'network_id': self._subnet.network_id,
                 }
@@ -1186,7 +1186,7 @@ class TestSetSubnet(TestSubnet):
 
     def test_set_segment(self):
         _net = network_fakes.create_one_network()
-        _segment = network_fakes.FakeNetworkSegment.create_one_network_segment(
+        _segment = network_fakes.create_one_network_segment(
             attrs={'network_id': _net.id})
         _subnet = network_fakes.FakeSubnet.create_one_subnet(
             {'host_routes': [{'destination': '10.20.20.0/24',
