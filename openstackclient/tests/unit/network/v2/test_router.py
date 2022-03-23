@@ -187,7 +187,7 @@ class TestCreateRouter(TestRouter):
         self.assertCountEqual(self.data, data)
 
     def test_create_with_gateway(self):
-        _network = network_fakes.FakeNetwork.create_one_network()
+        _network = network_fakes.create_one_network()
         _subnet = network_fakes.FakeSubnet.create_one_subnet()
         self.network.find_network = mock.Mock(return_value=_network)
         self.network.find_subnet = mock.Mock(return_value=_subnet)
@@ -957,7 +957,7 @@ class TestSetRouter(TestRouter):
 
     # The router to set.
     _default_route = {'destination': '10.20.20.0/24', 'nexthop': '10.20.30.1'}
-    _network = network_fakes.FakeNetwork.create_one_network()
+    _network = network_fakes.create_one_network()
     _subnet = network_fakes.FakeSubnet.create_one_subnet()
     _router = network_fakes.FakeRouter.create_one_router(
         attrs={'routes': [_default_route],
@@ -1485,7 +1485,7 @@ class TestUnsetRouter(TestRouter):
 
     def setUp(self):
         super(TestUnsetRouter, self).setUp()
-        self.fake_network = network_fakes.FakeNetwork.create_one_network()
+        self.fake_network = network_fakes.create_one_network()
         self.fake_qos_policy = (
             network_fakes.FakeNetworkQosPolicy.create_one_qos_policy())
         self._testrouter = network_fakes.FakeRouter.create_one_router(

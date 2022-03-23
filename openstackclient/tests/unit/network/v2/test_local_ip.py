@@ -40,7 +40,7 @@ class TestLocalIP(network_fakes.TestNetworkV2):
 class TestCreateLocalIP(TestLocalIP):
     project = identity_fakes_v3.FakeProject.create_one_project()
     domain = identity_fakes_v3.FakeDomain.create_one_domain()
-    local_ip_network = network_fakes.FakeNetwork.create_one_network()
+    local_ip_network = network_fakes.create_one_network()
     port = network_fakes.FakePort.create_one_port()
     # The new local ip created.
     new_local_ip = network_fakes.create_one_local_ip(
@@ -216,7 +216,7 @@ class TestListLocalIP(TestLocalIP):
     # The local ip to list up.
     local_ips = (
         network_fakes.create_local_ips(count=3))
-    fake_network = network_fakes.FakeNetwork.create_one_network(
+    fake_network = network_fakes.create_one_network(
         {'id': 'fake_network_id'}
     )
 

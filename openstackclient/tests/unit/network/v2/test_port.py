@@ -121,7 +121,7 @@ class TestCreatePort(TestPort):
 
         self.network.create_port = mock.Mock(return_value=self._port)
         self.network.set_tags = mock.Mock(return_value=None)
-        fake_net = network_fakes.FakeNetwork.create_one_network({
+        fake_net = network_fakes.create_one_network({
             'id': self._port.network_id,
         })
         self.network.find_network = mock.Mock(return_value=fake_net)
@@ -901,7 +901,7 @@ class TestListPort(TestPort):
         fake_router = network_fakes.FakeRouter.create_one_router({
             'id': 'fake-router-id',
         })
-        fake_network = network_fakes.FakeNetwork.create_one_network({
+        fake_network = network_fakes.create_one_network({
             'id': 'fake-network-id',
         })
         self.network.find_router = mock.Mock(return_value=fake_router)

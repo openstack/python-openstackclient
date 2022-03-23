@@ -24,6 +24,8 @@ from openstack.network.v2 import auto_allocated_topology as allocated_topology
 from openstack.network.v2 import availability_zone as _availability_zone
 from openstack.network.v2 import local_ip as _local_ip
 from openstack.network.v2 import local_ip_association as _local_ip_association
+from openstack.network.v2 import network as _network
+from openstack.network.v2 import network_ip_availability as _ip_availability
 
 from openstackclient.tests.unit import fakes
 from openstackclient.tests.unit.identity.v3 import fakes as identity_fakes_v3
@@ -90,56 +92,6 @@ class TestNetworkV2(utils.TestCommand):
         )
 
 
-class FakeIPAvailability(object):
-    """Fake one or more network ip availabilities."""
-
-    @staticmethod
-    def create_one_ip_availability(attrs=None):
-        """Create a fake list with ip availability stats of a network.
-
-        :param Dictionary attrs:
-            A dictionary with all attributes
-        :return:
-            A FakeResource object with network_name, network_id, etc.
-        """
-        attrs = attrs or {}
-
-        # Set default attributes.
-        network_ip_attrs = {
-            'network_id': 'network-id-' + uuid.uuid4().hex,
-            'network_name': 'network-name-' + uuid.uuid4().hex,
-            'project_id': '',
-            'subnet_ip_availability': [],
-            'total_ips': 254,
-            'used_ips': 6,
-            'location': 'MUNCHMUNCHMUNCH',
-        }
-        network_ip_attrs.update(attrs)
-
-        network_ip_availability = fakes.FakeResource(
-            info=copy.deepcopy(network_ip_attrs),
-            loaded=True)
-
-        return network_ip_availability
-
-    @staticmethod
-    def create_ip_availability(count=2):
-        """Create fake list of ip availability stats of multiple networks.
-
-        :param int count:
-            The number of networks to fake
-        :return:
-            A list of FakeResource objects faking network ip availability stats
-        """
-        network_ip_availabilities = []
-        for i in range(0, count):
-            network_ip_availability = \
-                FakeIPAvailability.create_one_ip_availability()
-            network_ip_availabilities.append(network_ip_availability)
-
-        return network_ip_availabilities
-
-
 class FakeExtension(object):
     """Fake one or more extension."""
 
@@ -171,111 +123,6 @@ class FakeExtension(object):
             info=copy.deepcopy(extension_info),
             loaded=True)
         return extension
-
-
-class FakeNetwork(object):
-    """Fake one or more networks."""
-
-    @staticmethod
-    def create_one_network(attrs=None):
-        """Create a fake network.
-
-        :param Dictionary attrs:
-            A dictionary with all attributes
-        :return:
-            A FakeResource object, with id, name, etc.
-        """
-        attrs = attrs or {}
-
-        # Set default attributes.
-        network_attrs = {
-            'id': 'network-id-' + uuid.uuid4().hex,
-            'name': 'network-name-' + uuid.uuid4().hex,
-            'status': 'ACTIVE',
-            'description': 'network-description-' + uuid.uuid4().hex,
-            'dns_domain': 'example.org.',
-            'mtu': '1350',
-            'project_id': 'project-id-' + uuid.uuid4().hex,
-            'admin_state_up': True,
-            'shared': False,
-            'subnets': ['a', 'b'],
-            'provider:network_type': 'vlan',
-            'provider:physical_network': 'physnet1',
-            'provider:segmentation_id': "400",
-            'router:external': True,
-            'availability_zones': [],
-            'availability_zone_hints': [],
-            'is_default': False,
-            'port_security_enabled': True,
-            'qos_policy_id': 'qos-policy-id-' + uuid.uuid4().hex,
-            'ipv4_address_scope': 'ipv4' + uuid.uuid4().hex,
-            'ipv6_address_scope': 'ipv6' + uuid.uuid4().hex,
-            'tags': [],
-            'location': 'MUNCHMUNCHMUNCH',
-        }
-
-        # Overwrite default attributes.
-        network_attrs.update(attrs)
-
-        network = fakes.FakeResource(info=copy.deepcopy(network_attrs),
-                                     loaded=True)
-
-        # Set attributes with special mapping in OpenStack SDK.
-        network.is_router_external = network_attrs['router:external']
-        network.is_admin_state_up = network_attrs['admin_state_up']
-        network.is_port_security_enabled = \
-            network_attrs['port_security_enabled']
-        network.subnet_ids = network_attrs['subnets']
-        network.is_shared = network_attrs['shared']
-        network.is_tags = network_attrs['tags']
-        network.provider_network_type = \
-            network_attrs['provider:network_type']
-        network.provider_physical_network = \
-            network_attrs['provider:physical_network']
-        network.provider_segmentation_id = \
-            network_attrs['provider:segmentation_id']
-        network.ipv4_address_scope_id = \
-            network_attrs['ipv4_address_scope']
-        network.ipv6_address_scope_id = \
-            network_attrs['ipv6_address_scope']
-
-        return network
-
-    @staticmethod
-    def create_networks(attrs=None, count=2):
-        """Create multiple fake networks.
-
-        :param Dictionary attrs:
-            A dictionary with all attributes
-        :param int count:
-            The number of networks to fake
-        :return:
-            A list of FakeResource objects faking the networks
-        """
-        networks = []
-        for i in range(0, count):
-            networks.append(FakeNetwork.create_one_network(attrs))
-
-        return networks
-
-    @staticmethod
-    def get_networks(networks=None, count=2):
-        """Get an iterable Mock object with a list of faked networks.
-
-        If networks list is provided, then initialize the Mock object with the
-        list. Otherwise create one.
-
-        :param List networks:
-            A list of FakeResource objects faking networks
-        :param int count:
-            The number of networks to fake
-        :return:
-            An iterable Mock object with side_effect set to a list of faked
-            networks
-        """
-        if networks is None:
-            networks = FakeNetwork.create_networks(count)
-        return mock.Mock(side_effect=networks)
 
 
 class FakeNetworkFlavor(object):
@@ -2017,6 +1864,136 @@ def create_availability_zones(attrs=None, count=2):
         availability_zones.append(availability_zone)
 
     return availability_zones
+
+
+def create_one_ip_availability(attrs=None):
+    """Create a fake list with ip availability stats of a network.
+
+    :param Dictionary attrs:
+        A dictionary with all attributes
+    :return:
+        A NetworkIPAvailability object with network_name, network_id, etc.
+    """
+    attrs = attrs or {}
+
+    # Set default attributes.
+    network_ip_attrs = {
+        'network_id': 'network-id-' + uuid.uuid4().hex,
+        'network_name': 'network-name-' + uuid.uuid4().hex,
+        'project_id': '',
+        'subnet_ip_availability': [],
+        'total_ips': 254,
+        'used_ips': 6,
+        'location': 'MUNCHMUNCHMUNCH',
+    }
+    network_ip_attrs.update(attrs)
+
+    network_ip_availability = _ip_availability.NetworkIPAvailability(
+        **network_ip_attrs)
+
+    return network_ip_availability
+
+
+def create_ip_availability(count=2):
+    """Create fake list of ip availability stats of multiple networks.
+
+    :param int count:
+        The number of networks to fake
+    :return:
+        A list of NetworkIPAvailability objects faking
+        network ip availability stats
+    """
+    network_ip_availabilities = []
+    for i in range(0, count):
+        network_ip_availability = create_one_ip_availability()
+        network_ip_availabilities.append(network_ip_availability)
+
+    return network_ip_availabilities
+
+
+def create_one_network(attrs=None):
+    """Create a fake network.
+
+    :param Dictionary attrs:
+        A dictionary with all attributes
+    :return:
+        An Network object, with id, name, etc.
+    """
+    attrs = attrs or {}
+
+    # Set default attributes.
+    network_attrs = {
+        'created_at': '2021-11-29T10:10:23.000000',
+        'id': 'network-id-' + uuid.uuid4().hex,
+        'name': 'network-name-' + uuid.uuid4().hex,
+        'status': 'ACTIVE',
+        'description': 'network-description-' + uuid.uuid4().hex,
+        'dns_domain': 'example.org.',
+        'mtu': '1350',
+        'project_id': 'project-id-' + uuid.uuid4().hex,
+        'admin_state_up': True,
+        'shared': False,
+        'subnets': ['a', 'b'],
+        'segments': 'network-segment-' + uuid.uuid4().hex,
+        'provider:network_type': 'vlan',
+        'provider:physical_network': 'physnet1',
+        'provider:segmentation_id': "400",
+        'router:external': True,
+        'availability_zones': [],
+        'availability_zone_hints': [],
+        'is_default': False,
+        'is_vlan_transparent': True,
+        'port_security_enabled': True,
+        'qos_policy_id': 'qos-policy-id-' + uuid.uuid4().hex,
+        'ipv4_address_scope': 'ipv4' + uuid.uuid4().hex,
+        'ipv6_address_scope': 'ipv6' + uuid.uuid4().hex,
+        'tags': [],
+        'location': 'MUNCHMUNCHMUNCH',
+        'updated_at': '2021-11-29T10:10:25.000000',
+    }
+
+    # Overwrite default attributes.
+    network_attrs.update(attrs)
+
+    network = _network.Network(**network_attrs)
+
+    return network
+
+
+def create_networks(attrs=None, count=2):
+    """Create multiple fake networks.
+
+    :param Dictionary attrs:
+        A dictionary with all attributes
+    :param int count:
+        The number of networks to fake
+    :return:
+        A list of Network objects faking the networks
+    """
+    networks = []
+    for i in range(0, count):
+        networks.append(create_one_network(attrs))
+
+    return networks
+
+
+def get_networks(networks=None, count=2):
+    """Get an iterable Mock object with a list of faked networks.
+
+    If networks list is provided, then initialize the Mock object with the
+    list. Otherwise create one.
+
+    :param List networks:
+        A list of Network objects faking networks
+    :param int count:
+        The number of networks to fake
+    :return:
+        An iterable Mock object with side_effect set to a list of faked
+        networks
+    """
+    if networks is None:
+        networks = create_networks(count)
+    return mock.Mock(side_effect=networks)
 
 
 def create_one_local_ip(attrs=None):

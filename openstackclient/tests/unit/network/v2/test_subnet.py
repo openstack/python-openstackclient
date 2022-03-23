@@ -95,7 +95,7 @@ class TestCreateSubnet(TestSubnet):
         )
 
         # The network to be returned from find_network
-        self._network = network_fakes.FakeNetwork.create_one_network(
+        self._network = network_fakes.create_one_network(
             attrs={
                 'id': self._subnet.network_id,
             }
@@ -828,7 +828,7 @@ class TestListSubnet(TestSubnet):
         self.assertCountEqual(self.data, list(data))
 
     def test_subnet_list_network(self):
-        network = network_fakes.FakeNetwork.create_one_network()
+        network = network_fakes.create_one_network()
         self.network.find_network = mock.Mock(return_value=network)
         arglist = [
             '--network', network.id,
@@ -1185,7 +1185,7 @@ class TestSetSubnet(TestSubnet):
         self._test_set_tags(with_tags=False)
 
     def test_set_segment(self):
-        _net = network_fakes.FakeNetwork.create_one_network()
+        _net = network_fakes.create_one_network()
         _segment = network_fakes.FakeNetworkSegment.create_one_network_segment(
             attrs={'network_id': _net.id})
         _subnet = network_fakes.FakeSubnet.create_one_subnet(
