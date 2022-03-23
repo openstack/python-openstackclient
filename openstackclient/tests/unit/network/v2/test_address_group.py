@@ -41,7 +41,7 @@ class TestCreateAddressGroup(TestAddressGroup):
     domain = identity_fakes_v3.FakeDomain.create_one_domain()
     # The new address group created.
     new_address_group = (
-        network_fakes.FakeAddressGroup.create_one_address_group(
+        network_fakes.create_one_address_group(
             attrs={
                 'project_id': project.id,
             }
@@ -133,16 +133,13 @@ class TestCreateAddressGroup(TestAddressGroup):
 class TestDeleteAddressGroup(TestAddressGroup):
 
     # The address group to delete.
-    _address_groups = (
-        network_fakes.FakeAddressGroup.create_address_groups(count=2))
+    _address_groups = network_fakes.create_address_groups(count=2)
 
     def setUp(self):
         super(TestDeleteAddressGroup, self).setUp()
         self.network.delete_address_group = mock.Mock(return_value=None)
-        self.network.find_address_group = (
-            network_fakes.FakeAddressGroup.get_address_groups(
-                address_groups=self._address_groups)
-        )
+        self.network.find_address_group = network_fakes.get_address_groups(
+            address_groups=self._address_groups)
 
         # Get the command object to test
         self.cmd = address_group.DeleteAddressGroup(self.app, self.namespace)
@@ -216,8 +213,7 @@ class TestDeleteAddressGroup(TestAddressGroup):
 class TestListAddressGroup(TestAddressGroup):
 
     # The address groups to list up.
-    address_groups = (
-        network_fakes.FakeAddressGroup.create_address_groups(count=3))
+    address_groups = network_fakes.create_address_groups(count=3)
     columns = (
         'ID',
         'Name',
@@ -308,7 +304,7 @@ class TestListAddressGroup(TestAddressGroup):
 class TestSetAddressGroup(TestAddressGroup):
 
     # The address group to set.
-    _address_group = network_fakes.FakeAddressGroup.create_one_address_group()
+    _address_group = network_fakes.create_one_address_group()
 
     def setUp(self):
         super(TestSetAddressGroup, self).setUp()
@@ -392,7 +388,7 @@ class TestSetAddressGroup(TestAddressGroup):
 class TestShowAddressGroup(TestAddressGroup):
 
     # The address group to show.
-    _address_group = network_fakes.FakeAddressGroup.create_one_address_group()
+    _address_group = network_fakes.create_one_address_group()
     columns = (
         'addresses',
         'description',
@@ -444,7 +440,7 @@ class TestShowAddressGroup(TestAddressGroup):
 class TestUnsetAddressGroup(TestAddressGroup):
 
     # The address group to unset.
-    _address_group = network_fakes.FakeAddressGroup.create_one_address_group()
+    _address_group = network_fakes.create_one_address_group()
 
     def setUp(self):
         super(TestUnsetAddressGroup, self).setUp()

@@ -31,7 +31,7 @@ class TestCreateAutoAllocatedTopology(TestAutoAllocatedTopology):
     project = identity_fakes.FakeProject.create_one_project()
     network_object = network_fakes.FakeNetwork.create_one_network()
 
-    topology = network_fakes.FakeAutoAllocatedTopology.create_one_topology(
+    topology = network_fakes.create_one_topology(
         attrs={'id': network_object.id,
                'project_id': project.id}
     )
@@ -129,7 +129,7 @@ class TestValidateAutoAllocatedTopology(TestAutoAllocatedTopology):
     project = identity_fakes.FakeProject.create_one_project()
     network_object = network_fakes.FakeNetwork.create_one_network()
 
-    topology = network_fakes.FakeAutoAllocatedTopology.create_one_topology(
+    topology = network_fakes.create_one_topology(
         attrs={'id': network_object.id,
                'project_id': project.id}
     )
@@ -206,7 +206,7 @@ class TestDeleteAutoAllocatedTopology(TestAutoAllocatedTopology):
     project = identity_fakes.FakeProject.create_one_project()
     network_object = network_fakes.FakeNetwork.create_one_network()
 
-    topology = network_fakes.FakeAutoAllocatedTopology.create_one_topology(
+    topology = network_fakes.create_one_topology(
         attrs={'id': network_object.id,
                'project_id': project.id}
     )

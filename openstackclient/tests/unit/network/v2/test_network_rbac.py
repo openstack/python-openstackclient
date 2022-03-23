@@ -40,9 +40,9 @@ class TestCreateNetworkRBAC(TestNetworkRBAC):
     network_object = network_fakes.FakeNetwork.create_one_network()
     qos_object = network_fakes.FakeNetworkQosPolicy.create_one_qos_policy()
     sg_object = network_fakes.FakeNetworkSecGroup.create_one_security_group()
-    as_object = network_fakes.FakeAddressScope.create_one_address_scope()
+    as_object = network_fakes.create_one_address_scope()
     snp_object = network_fakes.FakeSubnetPool.create_one_subnet_pool()
-    ag_object = network_fakes.FakeAddressGroup.create_one_address_group()
+    ag_object = network_fakes.create_one_address_group()
     project = identity_fakes_v3.FakeProject.create_one_project()
     rbac_policy = network_fakes.FakeNetworkRBAC.create_one_network_rbac(
         attrs={'project_id': project.id,

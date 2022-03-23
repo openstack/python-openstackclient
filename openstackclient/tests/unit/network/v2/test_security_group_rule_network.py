@@ -47,7 +47,7 @@ class TestCreateSecurityGroupRuleNetwork(TestSecurityGroupRuleNetwork):
         network_fakes.FakeSecurityGroup.create_one_security_group()
 
     # The address group to be used in security group rules
-    _address_group = network_fakes.FakeAddressGroup.create_one_address_group()
+    _address_group = network_fakes.create_one_address_group()
 
     expected_columns = (
         'description',
