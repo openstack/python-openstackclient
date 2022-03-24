@@ -50,8 +50,7 @@ class TestNetworkSegmentRange(network_fakes.TestNetworkV2):
 class TestCreateNetworkSegmentRange(TestNetworkSegmentRange):
 
     # The network segment range to create.
-    _network_segment_range = network_fakes.FakeNetworkSegmentRange.\
-        create_one_network_segment_range()
+    _network_segment_range = network_fakes.create_one_network_segment_range()
 
     columns = (
         'available',
@@ -310,8 +309,7 @@ class TestCreateNetworkSegmentRange(TestNetworkSegmentRange):
 class TestDeleteNetworkSegmentRange(TestNetworkSegmentRange):
 
     # The network segment ranges to delete.
-    _network_segment_ranges = \
-        network_fakes.FakeNetworkSegmentRange.create_network_segment_ranges()
+    _network_segment_ranges = network_fakes.create_network_segment_ranges()
 
     def setUp(self):
         super(TestDeleteNetworkSegmentRange, self).setUp()
@@ -396,8 +394,8 @@ class TestDeleteNetworkSegmentRange(TestNetworkSegmentRange):
 
 
 class TestListNetworkSegmentRange(TestNetworkSegmentRange):
-    _network_segment_ranges = network_fakes.FakeNetworkSegmentRange.\
-        create_network_segment_ranges(count=3)
+    _network_segment_ranges = (
+        network_fakes.create_network_segment_ranges(count=3))
 
     columns = (
         'ID',
@@ -496,14 +494,13 @@ class TestListNetworkSegmentRange(TestNetworkSegmentRange):
 class TestSetNetworkSegmentRange(TestNetworkSegmentRange):
 
     # The network segment range to set.
-    _network_segment_range = network_fakes.FakeNetworkSegmentRange.\
-        create_one_network_segment_range()
+    _network_segment_range = network_fakes.create_one_network_segment_range()
     # The network segment range updated.
     minimum_updated = _network_segment_range.minimum - 5
     maximum_updated = _network_segment_range.maximum + 5
     available_updated = (list(range(minimum_updated, 104)) + [105] +
                          list(range(107, maximum_updated + 1)))
-    _network_segment_range_updated = network_fakes.FakeNetworkSegmentRange.\
+    _network_segment_range_updated = network_fakes.\
         create_one_network_segment_range(
             attrs={'minimum': minimum_updated,
                    'maximum': maximum_updated,
@@ -577,8 +574,7 @@ class TestSetNetworkSegmentRange(TestNetworkSegmentRange):
 class TestShowNetworkSegmentRange(TestNetworkSegmentRange):
 
     # The network segment range to show.
-    _network_segment_range = network_fakes.FakeNetworkSegmentRange.\
-        create_one_network_segment_range()
+    _network_segment_range = network_fakes.create_one_network_segment_range()
 
     columns = (
         'available',

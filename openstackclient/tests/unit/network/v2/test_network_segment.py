@@ -33,8 +33,7 @@ class TestNetworkSegment(network_fakes.TestNetworkV2):
 class TestCreateNetworkSegment(TestNetworkSegment):
 
     # The network segment to create along with associated network.
-    _network_segment = \
-        network_fakes.FakeNetworkSegment.create_one_network_segment()
+    _network_segment = network_fakes.create_one_network_segment()
     _network = network_fakes.create_one_network({
         'id': _network_segment.network_id,
     })
@@ -156,8 +155,7 @@ class TestCreateNetworkSegment(TestNetworkSegment):
 class TestDeleteNetworkSegment(TestNetworkSegment):
 
     # The network segments to delete.
-    _network_segments = \
-        network_fakes.FakeNetworkSegment.create_network_segments()
+    _network_segments = network_fakes.create_network_segments()
 
     def setUp(self):
         super(TestDeleteNetworkSegment, self).setUp()
@@ -241,8 +239,7 @@ class TestDeleteNetworkSegment(TestNetworkSegment):
 
 class TestListNetworkSegment(TestNetworkSegment):
     _network = network_fakes.create_one_network()
-    _network_segments = \
-        network_fakes.FakeNetworkSegment.create_network_segments(count=3)
+    _network_segments = network_fakes.create_network_segments(count=3)
 
     columns = (
         'ID',
@@ -338,8 +335,7 @@ class TestListNetworkSegment(TestNetworkSegment):
 class TestSetNetworkSegment(TestNetworkSegment):
 
     # The network segment to show.
-    _network_segment = \
-        network_fakes.FakeNetworkSegment.create_one_network_segment()
+    _network_segment = network_fakes.create_one_network_segment()
 
     def setUp(self):
         super(TestSetNetworkSegment, self).setUp()
@@ -398,8 +394,7 @@ class TestSetNetworkSegment(TestNetworkSegment):
 class TestShowNetworkSegment(TestNetworkSegment):
 
     # The network segment to show.
-    _network_segment = \
-        network_fakes.FakeNetworkSegment.create_one_network_segment()
+    _network_segment = network_fakes.create_one_network_segment()
 
     columns = (
         'description',
