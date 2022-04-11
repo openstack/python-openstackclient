@@ -310,9 +310,17 @@ class ListVolumeBackup(command.Lister):
 
         filter_volume_id = None
         if parsed_args.volume:
-            filter_volume_id = utils.find_resource(
-                volume_client.volumes, parsed_args.volume,
-            ).id
+            try:
+                filter_volume_id = utils.find_resource(
+                    volume_client.volumes, parsed_args.volume,
+                ).id
+            except exceptions.CommandError:
+                # Volume with that ID does not exist, but search for backups
+                # for that volume nevertheless
+                LOG.debug("No volume with ID %s existing, continuing to "
+                          "search for backups for that volume ID",
+                          parsed_args.volume)
+                filter_volume_id = parsed_args.volume
 
         marker_backup_id = None
         if parsed_args.marker:
