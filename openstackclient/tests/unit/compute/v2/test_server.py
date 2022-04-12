@@ -4441,8 +4441,8 @@ class TestServerList(_TestServerList):
         columns, data = self.cmd.take_action(parsed_args)
 
         self.servers_mock.list.assert_called_with(**self.kwargs)
-        self.assertEqual(0, self.images_mock.list.call_count)
-        self.assertEqual(0, self.flavors_mock.list.call_count)
+        self.images_mock.assert_not_called()
+        self.flavors_mock.list.assert_not_called()
         self.assertEqual(self.columns, columns)
         self.assertEqual(self.data, tuple(data))
 
@@ -4465,7 +4465,8 @@ class TestServerList(_TestServerList):
                 getattr(s, 'OS-EXT-AZ:availability_zone'),
                 getattr(s, 'OS-EXT-SRV-ATTR:host'),
                 s.Metadata,
-            ) for s in self.servers)
+            ) for s in self.servers
+        )
         arglist = [
             '--long',
         ]
@@ -4477,6 +4478,11 @@ class TestServerList(_TestServerList):
 
         columns, data = self.cmd.take_action(parsed_args)
         self.servers_mock.list.assert_called_with(**self.kwargs)
+        image_ids = {s.image['id'] for s in self.servers if s.image}
+        self.images_mock.assert_called_once_with(
+            id=f'in:{",".join(image_ids)}',
+        )
+        self.flavors_mock.list.assert_called_once_with(is_public=None)
         self.assertEqual(self.columns_long, columns)
         self.assertEqual(self.data, tuple(data))
 
@@ -4526,6 +4532,8 @@ class TestServerList(_TestServerList):
         columns, data = self.cmd.take_action(parsed_args)
 
         self.servers_mock.list.assert_called_with(**self.kwargs)
+        self.images_mock.assert_not_called()
+        self.flavors_mock.list.assert_not_called()
         self.assertEqual(self.columns, columns)
         self.assertEqual(self.data, tuple(data))
 
@@ -4554,6 +4562,8 @@ class TestServerList(_TestServerList):
         columns, data = self.cmd.take_action(parsed_args)
 
         self.servers_mock.list.assert_called_with(**self.kwargs)
+        self.images_mock.assert_not_called()
+        self.flavors_mock.list.assert_not_called()
         self.assertEqual(self.columns, columns)
         self.assertEqual(self.data, tuple(data))
 
@@ -4571,8 +4581,8 @@ class TestServerList(_TestServerList):
         columns, data = self.cmd.take_action(parsed_args)
 
         self.servers_mock.list.assert_called_with(**self.kwargs)
-        self.assertFalse(self.images_mock.list.call_count)
-        self.assertFalse(self.flavors_mock.list.call_count)
+        self.images_mock.assert_not_called()
+        self.flavors_mock.list.assert_not_called()
         self.get_image_mock.assert_called()
         self.flavors_mock.get.assert_called()
 
@@ -4596,6 +4606,8 @@ class TestServerList(_TestServerList):
 
         self.search_opts['image'] = self.image.id
         self.servers_mock.list.assert_called_with(**self.kwargs)
+        self.images_mock.assert_not_called()
+        self.flavors_mock.list.assert_called_once()
 
         self.assertEqual(self.columns, columns)
         self.assertEqual(self.data, tuple(data))
@@ -4616,6 +4628,8 @@ class TestServerList(_TestServerList):
 
         self.search_opts['flavor'] = self.flavor.id
         self.servers_mock.list.assert_called_with(**self.kwargs)
+        self.images_mock.assert_called_once()
+        self.flavors_mock.list.assert_not_called()
 
         self.assertEqual(self.columns, columns)
         self.assertEqual(self.data, tuple(data))
