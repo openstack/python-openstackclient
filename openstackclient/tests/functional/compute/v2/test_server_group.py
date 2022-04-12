@@ -33,8 +33,8 @@ class ServerGroupTests(base.TestCase):
             cmd_output['name']
         )
         self.assertEqual(
-            ['affinity'],
-            cmd_output['policies']
+            'affinity',
+            cmd_output['policy']
         )
 
         cmd_output = json.loads(self.openstack(
@@ -47,8 +47,8 @@ class ServerGroupTests(base.TestCase):
             cmd_output['name']
         )
         self.assertEqual(
-            ['anti-affinity'],
-            cmd_output['policies']
+            'anti-affinity',
+            cmd_output['policy']
         )
 
         del_output = self.openstack(
@@ -60,7 +60,7 @@ class ServerGroupTests(base.TestCase):
         name1 = uuid.uuid4().hex
         name2 = uuid.uuid4().hex
 
-        # test server gorup show
+        # test server group show
         cmd_output = json.loads(self.openstack(
             'server group create -f json ' +
             '--policy affinity ' +
@@ -74,8 +74,8 @@ class ServerGroupTests(base.TestCase):
             cmd_output['name']
         )
         self.assertEqual(
-            ['affinity'],
-            cmd_output['policies']
+            'affinity',
+            cmd_output['policy']
         )
 
         cmd_output = json.loads(self.openstack(
@@ -91,8 +91,8 @@ class ServerGroupTests(base.TestCase):
             cmd_output['name']
         )
         self.assertEqual(
-            ['anti-affinity'],
-            cmd_output['policies']
+            'anti-affinity',
+            cmd_output['policy']
         )
 
         # test server group list
@@ -101,6 +101,6 @@ class ServerGroupTests(base.TestCase):
         names = [x["Name"] for x in cmd_output]
         self.assertIn(name1, names)
         self.assertIn(name2, names)
-        policies = [x["Policies"] for x in cmd_output]
-        self.assertIn(['affinity'], policies)
-        self.assertIn(['anti-affinity'], policies)
+        policies = [x["Policy"] for x in cmd_output]
+        self.assertIn('affinity', policies)
+        self.assertIn('anti-affinity', policies)

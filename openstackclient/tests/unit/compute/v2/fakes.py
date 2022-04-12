@@ -21,6 +21,7 @@ import uuid
 from novaclient import api_versions
 from openstack.compute.v2 import flavor as _flavor
 from openstack.compute.v2 import server
+from openstack.compute.v2 import server_group as _server_group
 from openstack.compute.v2 import server_interface as _server_interface
 from openstack.compute.v2 import service
 from openstack.compute.v2 import volume_attachment
@@ -1290,72 +1291,6 @@ class FakeHost(object):
         return host_info
 
 
-class FakeServerGroup(object):
-    """Fake one server group"""
-
-    @staticmethod
-    def _create_one_server_group(attrs=None):
-        """Create a fake server group
-
-        :param dict attrs:
-            A dictionary with all attributes
-        :return:
-            A FakeResource object, with id and other attributes
-        """
-        if attrs is None:
-            attrs = {}
-
-        # Set default attributes.
-        server_group_info = {
-            'id': 'server-group-id-' + uuid.uuid4().hex,
-            'members': [],
-            'metadata': {},
-            'name': 'server-group-name-' + uuid.uuid4().hex,
-            'project_id': 'server-group-project-id-' + uuid.uuid4().hex,
-            'user_id': 'server-group-user-id-' + uuid.uuid4().hex,
-        }
-
-        # Overwrite default attributes.
-        server_group_info.update(attrs)
-
-        server_group = fakes.FakeResource(
-            info=copy.deepcopy(server_group_info),
-            loaded=True)
-        return server_group
-
-    @staticmethod
-    def create_one_server_group(attrs=None):
-        """Create a fake server group
-
-        :param dict attrs:
-            A dictionary with all attributes
-        :return:
-            A FakeResource object, with id and other attributes
-        """
-        if attrs is None:
-            attrs = {}
-        attrs.setdefault('policies', ['policy1', 'policy2'])
-        return FakeServerGroup._create_one_server_group(attrs)
-
-
-class FakeServerGroupV264(object):
-    """Fake one server group for API >= 2.64"""
-
-    @staticmethod
-    def create_one_server_group(attrs=None):
-        """Create a fake server group
-
-        :param dict attrs:
-            A dictionary with all attributes
-        :return:
-            A FakeResource object, with id and other attributes
-        """
-        if attrs is None:
-            attrs = {}
-        attrs.setdefault('policy', 'policy1')
-        return FakeServerGroup._create_one_server_group(attrs)
-
-
 class FakeUsage(object):
     """Fake one or more usage."""
 
@@ -1858,6 +1793,34 @@ class FakeVolumeAttachment(object):
                     attrs, methods))
 
         return volume_attachments
+
+
+def create_one_server_group(attrs=None):
+    """Create a fake server group
+
+    :param dict attrs:
+        A dictionary with all attributes
+    :return:
+        A fake ServerGroup object, with id and other attributes
+    """
+    if attrs is None:
+        attrs = {}
+
+    # Set default attributes.
+    server_group_info = {
+        'id': 'server-group-id-' + uuid.uuid4().hex,
+        'member_ids': '',
+        'metadata': {},
+        'name': 'server-group-name-' + uuid.uuid4().hex,
+        'project_id': 'server-group-project-id-' + uuid.uuid4().hex,
+        'user_id': 'server-group-user-id-' + uuid.uuid4().hex,
+    }
+
+    # Overwrite default attributes.
+    server_group_info.update(attrs)
+
+    server_group = _server_group.ServerGroup(**server_group_info)
+    return server_group
 
 
 def create_one_server_interface(attrs=None):
