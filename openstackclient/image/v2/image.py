@@ -21,7 +21,6 @@ import logging
 import os
 import sys
 
-import openstack.cloud._utils
 from openstack.image import image_signer
 from osc_lib.api import utils as api_utils
 from osc_lib.cli import format_columns
@@ -29,6 +28,7 @@ from osc_lib.cli import parseractions
 from osc_lib.command import command
 from osc_lib import exceptions
 from osc_lib import utils
+from oslo_utils import uuidutils
 
 from openstackclient.common import progressbar
 from openstackclient.i18n import _
@@ -159,7 +159,7 @@ class AddProjectToImage(command.ShowOne):
         image_client = self.app.client_manager.image
         identity_client = self.app.client_manager.identity
 
-        if openstack.cloud._utils._is_uuid_like(parsed_args.project):
+        if uuidutils.is_uuid_like(parsed_args.project):
             project_id = parsed_args.project
         else:
             project_id = common.find_project(

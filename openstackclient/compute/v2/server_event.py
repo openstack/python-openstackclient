@@ -19,10 +19,10 @@ import logging
 
 import iso8601
 from novaclient import api_versions
-import openstack.cloud._utils
 from osc_lib.command import command
 from osc_lib import exceptions
 from osc_lib import utils
+from oslo_utils import uuidutils
 
 from openstackclient.i18n import _
 
@@ -152,7 +152,7 @@ class ListServerEvent(command.Lister):
             # If we fail to find the resource, it is possible the server is
             # deleted. Try once more using the <server> arg directly if it is a
             # UUID.
-            if openstack.cloud._utils._is_uuid_like(parsed_args.server):
+            if uuidutils.is_uuid_like(parsed_args.server):
                 server_id = parsed_args.server
             else:
                 raise
@@ -224,7 +224,7 @@ class ShowServerEvent(command.ShowOne):
             # If we fail to find the resource, it is possible the server is
             # deleted. Try once more using the <server> arg directly if it is a
             # UUID.
-            if openstack.cloud._utils._is_uuid_like(parsed_args.server):
+            if uuidutils.is_uuid_like(parsed_args.server):
                 server_id = parsed_args.server
             else:
                 raise
