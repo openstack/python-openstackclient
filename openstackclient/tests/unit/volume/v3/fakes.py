@@ -32,6 +32,8 @@ class FakeVolumeClient(object):
 
         self.attachments = mock.Mock()
         self.attachments.resource_class = fakes.FakeResource(None, {})
+        self.clusters = mock.Mock()
+        self.clusters.resource_class = fakes.FakeResource(None, {})
         self.groups = mock.Mock()
         self.groups.resource_class = fakes.FakeResource(None, {})
         self.group_snapshots = mock.Mock()
@@ -68,6 +70,58 @@ class TestVolume(utils.TestCommand):
 # TODO(stephenfin): Check if the responses are actually the same
 FakeVolume = volume_v2_fakes.FakeVolume
 FakeVolumeType = volume_v2_fakes.FakeVolumeType
+
+
+class FakeCluster:
+    """Fake one or more clusters."""
+
+    @staticmethod
+    def create_one_cluster(attrs=None):
+        """Create a fake service cluster.
+
+        :param attrs: A dictionary with all attributes of service cluster
+        :return: A FakeResource object with id, name, status, etc.
+        """
+        attrs = attrs or {}
+
+        # Set default attribute
+        cluster_info = {
+            'name': f'cluster-{uuid.uuid4().hex}',
+            'binary': f'binary-{uuid.uuid4().hex}',
+            'state': random.choice(['up', 'down']),
+            'status': random.choice(['enabled', 'disabled']),
+            'disabled_reason': None,
+            'num_hosts': random.randint(1, 64),
+            'num_down_hosts': random.randint(1, 64),
+            'last_heartbeat': '2015-09-16T09:28:52.000000',
+            'created_at': '2015-09-16T09:28:52.000000',
+            'updated_at': '2015-09-16T09:28:52.000000',
+            'replication_status': None,
+            'frozen': False,
+            'active_backend_id': None,
+        }
+
+        # Overwrite default attributes if there are some attributes set
+        cluster_info.update(attrs)
+
+        return fakes.FakeResource(
+            None,
+            cluster_info,
+            loaded=True)
+
+    @staticmethod
+    def create_clusters(attrs=None, count=2):
+        """Create multiple fake service clusters.
+
+        :param attrs: A dictionary with all attributes of service cluster
+        :param count: The number of service clusters to be faked
+        :return: A list of FakeResource objects
+        """
+        clusters = []
+        for n in range(0, count):
+            clusters.append(FakeCluster.create_one_cluster(attrs))
+
+        return clusters
 
 
 class FakeVolumeGroup:

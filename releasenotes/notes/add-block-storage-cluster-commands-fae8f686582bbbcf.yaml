@@ -1,0 +1,7 @@
+---
+features:
+  - |
+    Add ``block storage cluster create``, ``block storage cluster delete``,
+    ``block storage cluster list`` and ``block storage cluster show`` commands
+    to create, delete, list, and show block storage service clusters,
+    respectively.
