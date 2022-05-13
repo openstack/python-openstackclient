@@ -44,7 +44,7 @@ class TestCreateNetworkRBAC(TestNetworkRBAC):
     snp_object = network_fakes.FakeSubnetPool.create_one_subnet_pool()
     ag_object = network_fakes.create_one_address_group()
     project = identity_fakes_v3.FakeProject.create_one_project()
-    rbac_policy = network_fakes.FakeNetworkRBAC.create_one_network_rbac(
+    rbac_policy = network_fakes.create_one_network_rbac(
         attrs={'project_id': project.id,
                'target_tenant': project.id,
                'object_id': network_object.id}
@@ -65,7 +65,7 @@ class TestCreateNetworkRBAC(TestNetworkRBAC):
         rbac_policy.object_id,
         rbac_policy.object_type,
         rbac_policy.project_id,
-        rbac_policy.target_tenant,
+        rbac_policy.target_project_id,
     ]
 
     def setUp(self):
@@ -120,13 +120,13 @@ class TestCreateNetworkRBAC(TestNetworkRBAC):
         arglist = [
             '--action', self.rbac_policy.action,
             '--type', 'invalid_type',
-            '--target-project', self.rbac_policy.target_tenant,
+            '--target-project', self.rbac_policy.target_project_id,
             self.rbac_policy.object_id,
         ]
         verifylist = [
             ('action', self.rbac_policy.action),
             ('type', 'invalid_type'),
-            ('target-project', self.rbac_policy.target_tenant),
+            ('target-project', self.rbac_policy.target_project_id),
             ('rbac_policy', self.rbac_policy.id),
         ]
 
@@ -137,13 +137,13 @@ class TestCreateNetworkRBAC(TestNetworkRBAC):
         arglist = [
             '--type', self.rbac_policy.object_type,
             '--action', 'invalid_action',
-            '--target-project', self.rbac_policy.target_tenant,
+            '--target-project', self.rbac_policy.target_project_id,
             self.rbac_policy.object_id,
         ]
         verifylist = [
             ('type', self.rbac_policy.object_type),
             ('action', 'invalid_action'),
-            ('target-project', self.rbac_policy.target_tenant),
+            ('target-project', self.rbac_policy.target_project_id),
             ('rbac_policy', self.rbac_policy.id),
         ]
 
@@ -154,13 +154,13 @@ class TestCreateNetworkRBAC(TestNetworkRBAC):
         arglist = [
             '--type', self.rbac_policy.object_type,
             '--action', self.rbac_policy.action,
-            '--target-project', self.rbac_policy.target_tenant,
+            '--target-project', self.rbac_policy.target_project_id,
             self.rbac_policy.object_id,
         ]
         verifylist = [
             ('type', self.rbac_policy.object_type),
             ('action', self.rbac_policy.action),
-            ('target_project', self.rbac_policy.target_tenant),
+            ('target_project', self.rbac_policy.target_project_id),
             ('rbac_object', self.rbac_policy.object_id),
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
@@ -172,7 +172,7 @@ class TestCreateNetworkRBAC(TestNetworkRBAC):
             'object_id': self.rbac_policy.object_id,
             'object_type': self.rbac_policy.object_type,
             'action': self.rbac_policy.action,
-            'target_tenant': self.rbac_policy.target_tenant,
+            'target_tenant': self.rbac_policy.target_project_id,
         })
         self.assertEqual(self.columns, columns)
         self.assertEqual(self.data, list(data))
@@ -205,7 +205,7 @@ class TestCreateNetworkRBAC(TestNetworkRBAC):
         arglist = [
             '--type', self.rbac_policy.object_type,
             '--action', self.rbac_policy.action,
-            '--target-project', self.rbac_policy.target_tenant,
+            '--target-project', self.rbac_policy.target_project_id,
             '--project', self.rbac_policy.project_id,
             '--project-domain', self.project.domain_id,
             '--target-project-domain', self.project.domain_id,
@@ -214,7 +214,7 @@ class TestCreateNetworkRBAC(TestNetworkRBAC):
         verifylist = [
             ('type', self.rbac_policy.object_type),
             ('action', self.rbac_policy.action),
-            ('target_project', self.rbac_policy.target_tenant),
+            ('target_project', self.rbac_policy.target_project_id),
             ('project', self.rbac_policy.project_id),
             ('project_domain', self.project.domain_id),
             ('target_project_domain', self.project.domain_id),
@@ -229,7 +229,7 @@ class TestCreateNetworkRBAC(TestNetworkRBAC):
             'object_id': self.rbac_policy.object_id,
             'object_type': self.rbac_policy.object_type,
             'action': self.rbac_policy.action,
-            'target_tenant': self.rbac_policy.target_tenant,
+            'target_tenant': self.rbac_policy.target_project_id,
             'project_id': self.rbac_policy.project_id,
         })
         self.assertEqual(self.columns, columns)
@@ -251,13 +251,13 @@ class TestCreateNetworkRBAC(TestNetworkRBAC):
         arglist = [
             '--type', obj_type,
             '--action', self.rbac_policy.action,
-            '--target-project', self.rbac_policy.target_tenant,
+            '--target-project', self.rbac_policy.target_project_id,
             obj_fake.name,
         ]
         verifylist = [
             ('type', obj_type),
             ('action', self.rbac_policy.action),
-            ('target_project', self.rbac_policy.target_tenant),
+            ('target_project', self.rbac_policy.target_project_id),
             ('rbac_object', obj_fake.name),
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
@@ -269,7 +269,7 @@ class TestCreateNetworkRBAC(TestNetworkRBAC):
             'object_id': obj_fake.id,
             'object_type': obj_type,
             'action': self.rbac_policy.action,
-            'target_tenant': self.rbac_policy.target_tenant,
+            'target_tenant': self.rbac_policy.target_project_id,
         })
         self.data = [
             self.rbac_policy.action,
@@ -277,7 +277,7 @@ class TestCreateNetworkRBAC(TestNetworkRBAC):
             obj_fake.id,
             obj_type,
             self.rbac_policy.project_id,
-            self.rbac_policy.target_tenant,
+            self.rbac_policy.target_project_id,
         ]
         self.assertEqual(self.columns, columns)
         self.assertEqual(self.data, list(data))
@@ -285,13 +285,13 @@ class TestCreateNetworkRBAC(TestNetworkRBAC):
 
 class TestDeleteNetworkRBAC(TestNetworkRBAC):
 
-    rbac_policies = network_fakes.FakeNetworkRBAC.create_network_rbacs(count=2)
+    rbac_policies = network_fakes.create_network_rbacs(count=2)
 
     def setUp(self):
         super(TestDeleteNetworkRBAC, self).setUp()
         self.network.delete_rbac_policy = mock.Mock(return_value=None)
         self.network.find_rbac_policy = (
-            network_fakes.FakeNetworkRBAC.get_network_rbacs(
+            network_fakes.get_network_rbacs(
                 rbac_policies=self.rbac_policies)
         )
 
@@ -368,7 +368,7 @@ class TestDeleteNetworkRBAC(TestNetworkRBAC):
 class TestListNetworkRABC(TestNetworkRBAC):
 
     # The network rbac policies going to be listed up.
-    rbac_policies = network_fakes.FakeNetworkRBAC.create_network_rbacs(count=3)
+    rbac_policies = network_fakes.create_network_rbacs(count=3)
 
     columns = (
         'ID',
@@ -470,7 +470,7 @@ class TestListNetworkRABC(TestNetworkRBAC):
 class TestSetNetworkRBAC(TestNetworkRBAC):
 
     project = identity_fakes_v3.FakeProject.create_one_project()
-    rbac_policy = network_fakes.FakeNetworkRBAC.create_one_network_rbac(
+    rbac_policy = network_fakes.create_one_network_rbac(
         attrs={'target_tenant': project.id})
 
     def setUp(self):
@@ -525,7 +525,7 @@ class TestSetNetworkRBAC(TestNetworkRBAC):
 
 class TestShowNetworkRBAC(TestNetworkRBAC):
 
-    rbac_policy = network_fakes.FakeNetworkRBAC.create_one_network_rbac()
+    rbac_policy = network_fakes.create_one_network_rbac()
 
     columns = (
         'action',
@@ -542,7 +542,7 @@ class TestShowNetworkRBAC(TestNetworkRBAC):
         rbac_policy.object_id,
         rbac_policy.object_type,
         rbac_policy.project_id,
-        rbac_policy.target_tenant,
+        rbac_policy.target_project_id,
     ]
 
     def setUp(self):

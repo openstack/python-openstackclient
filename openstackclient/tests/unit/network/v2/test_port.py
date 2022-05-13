@@ -50,6 +50,7 @@ class TestPort(network_fakes.TestNetworkV2):
             'binding_vif_details',
             'binding_vif_type',
             'binding_vnic_type',
+            'created_at',
             'data_plane_status',
             'description',
             'device_id',
@@ -61,6 +62,7 @@ class TestPort(network_fakes.TestNetworkV2):
             'extra_dhcp_opts',
             'fixed_ips',
             'id',
+            'ip_allocation',
             'mac_address',
             'name',
             'network_id',
@@ -68,21 +70,26 @@ class TestPort(network_fakes.TestNetworkV2):
             'port_security_enabled',
             'project_id',
             'propagate_uplink_status',
+            'resource_request',
+            'revision_number',
             'qos_network_policy_id',
             'qos_policy_id',
             'security_group_ids',
             'status',
             'tags',
+            'trunk_details',
+            'updated_at',
         )
 
         data = (
-            port.AdminStateColumn(fake_port.admin_state_up),
+            port.AdminStateColumn(fake_port.is_admin_state_up),
             format_columns.ListDictColumn(fake_port.allowed_address_pairs),
             fake_port.binding_host_id,
             format_columns.DictColumn(fake_port.binding_profile),
             format_columns.DictColumn(fake_port.binding_vif_details),
             fake_port.binding_vif_type,
             fake_port.binding_vnic_type,
+            fake_port.created_at,
             fake_port.data_plane_status,
             fake_port.description,
             fake_port.device_id,
@@ -94,18 +101,23 @@ class TestPort(network_fakes.TestNetworkV2):
             format_columns.ListDictColumn(fake_port.extra_dhcp_opts),
             format_columns.ListDictColumn(fake_port.fixed_ips),
             fake_port.id,
+            fake_port.ip_allocation,
             fake_port.mac_address,
             fake_port.name,
             fake_port.network_id,
             fake_port.numa_affinity_policy,
-            fake_port.port_security_enabled,
+            fake_port.is_port_security_enabled,
             fake_port.project_id,
             fake_port.propagate_uplink_status,
+            fake_port.resource_request,
+            fake_port.revision_number,
             fake_port.qos_network_policy_id,
             fake_port.qos_policy_id,
             format_columns.ListColumn(fake_port.security_group_ids),
             fake_port.status,
             format_columns.ListColumn(fake_port.tags),
+            fake_port.trunk_details,
+            fake_port.updated_at,
         )
 
         return columns, data
@@ -113,7 +125,7 @@ class TestPort(network_fakes.TestNetworkV2):
 
 class TestCreatePort(TestPort):
 
-    _port = network_fakes.FakePort.create_one_port()
+    _port = network_fakes.create_one_port()
     columns, data = TestPort._get_common_cols_data(_port)
 
     def setUp(self):
@@ -152,7 +164,7 @@ class TestCreatePort(TestPort):
         })
         self.assertFalse(self.network.set_tags.called)
 
-        self.assertEqual(self.columns, columns)
+        self.assertEqual(set(self.columns), set(columns))
         self.assertCountEqual(self.data, data)
 
     def test_create_full_options(self):
@@ -210,7 +222,7 @@ class TestCreatePort(TestPort):
             'name': 'test-port',
         })
 
-        self.assertEqual(self.columns, columns)
+        self.assertEqual(set(self.columns), set(columns))
         self.assertCountEqual(self.data, data)
 
     def test_create_invalid_json_binding_profile(self):
@@ -261,7 +273,7 @@ class TestCreatePort(TestPort):
             'name': 'test-port',
         })
 
-        self.assertEqual(self.columns, columns)
+        self.assertEqual(set(self.columns), set(columns))
         self.assertCountEqual(self.data, data)
 
     def test_create_with_security_group(self):
@@ -290,7 +302,7 @@ class TestCreatePort(TestPort):
             'name': 'test-port',
         })
 
-        self.assertEqual(self.columns, columns)
+        self.assertEqual(set(self.columns), set(columns))
         self.assertCountEqual(self.data, data)
 
     def test_create_port_with_dns_name(self):
@@ -316,7 +328,7 @@ class TestCreatePort(TestPort):
             'name': 'test-port',
         })
 
-        self.assertEqual(self.columns, columns)
+        self.assertEqual(set(self.columns), set(columns))
         self.assertCountEqual(self.data, data)
 
     def test_create_with_security_groups(self):
@@ -346,7 +358,7 @@ class TestCreatePort(TestPort):
             'name': 'test-port',
         })
 
-        self.assertEqual(self.columns, columns)
+        self.assertEqual(set(self.columns), set(columns))
         self.assertCountEqual(self.data, data)
 
     def test_create_with_no_security_groups(self):
@@ -372,7 +384,7 @@ class TestCreatePort(TestPort):
             'name': 'test-port',
         })
 
-        self.assertEqual(self.columns, columns)
+        self.assertEqual(set(self.columns), set(columns))
         self.assertCountEqual(self.data, data)
 
     def test_create_with_no_fixed_ips(self):
@@ -398,7 +410,7 @@ class TestCreatePort(TestPort):
             'name': 'test-port',
         })
 
-        self.assertEqual(self.columns, columns)
+        self.assertEqual(set(self.columns), set(columns))
         self.assertCountEqual(self.data, data)
 
     def test_create_port_with_allowed_address_pair_ipaddr(self):
@@ -428,7 +440,7 @@ class TestCreatePort(TestPort):
             'name': 'test-port',
         })
 
-        self.assertEqual(self.columns, columns)
+        self.assertEqual(set(self.columns), set(columns))
         self.assertCountEqual(self.data, data)
 
     def test_create_port_with_allowed_address_pair(self):
@@ -464,7 +476,7 @@ class TestCreatePort(TestPort):
             'name': 'test-port',
         })
 
-        self.assertEqual(self.columns, columns)
+        self.assertEqual(set(self.columns), set(columns))
         self.assertCountEqual(self.data, data)
 
     def test_create_port_with_qos(self):
@@ -492,7 +504,7 @@ class TestCreatePort(TestPort):
             'name': 'test-port',
         })
 
-        self.assertEqual(self.columns, columns)
+        self.assertEqual(set(self.columns), set(columns))
         self.assertCountEqual(self.data, data)
 
     def test_create_port_security_enabled(self):
@@ -601,7 +613,7 @@ class TestCreatePort(TestPort):
             else:
                 self.assertFalse(self.network.set_tags.called)
 
-        self.assertEqual(self.columns, columns)
+        self.assertEqual(set(self.columns), set(columns))
         self.assertCountEqual(self.data, data)
 
     def test_create_with_tags(self):
@@ -644,7 +656,7 @@ class TestCreatePort(TestPort):
             'name': 'test-port',
         })
 
-        self.assertEqual(self.columns, columns)
+        self.assertEqual(set(self.columns), set(columns))
         self.assertCountEqual(self.data, data)
 
     def test_create_with_uplink_status_propagation_enabled(self):
@@ -724,7 +736,7 @@ class TestCreatePort(TestPort):
             create_args['numa_affinity_policy'] = numa_affinity_policy
         self.network.create_port.assert_called_once_with(**create_args)
 
-        self.assertEqual(self.columns, columns)
+        self.assertEqual(set(self.columns), set(columns))
         self.assertCountEqual(self.data, data)
 
     def test_create_with_numa_affinity_policy_required(self):
@@ -763,20 +775,20 @@ class TestCreatePort(TestPort):
             'device_profile': 'cyborg_device_profile_1',
         }
         self.network.create_port.assert_called_once_with(**create_args)
-        self.assertEqual(self.columns, columns)
+        self.assertEqual(set(self.columns), set(columns))
         self.assertCountEqual(self.data, data)
 
 
 class TestDeletePort(TestPort):
 
     # Ports to delete.
-    _ports = network_fakes.FakePort.create_ports(count=2)
+    _ports = network_fakes.create_ports(count=2)
 
     def setUp(self):
         super(TestDeletePort, self).setUp()
 
         self.network.delete_port = mock.Mock(return_value=None)
-        self.network.find_port = network_fakes.FakePort.get_ports(
+        self.network.find_port = network_fakes.get_ports(
             ports=self._ports)
         # Get the command object to test
         self.cmd = port.DeletePort(self.app, self.namespace)
@@ -848,7 +860,7 @@ class TestDeletePort(TestPort):
 
 class TestListPort(TestPort):
 
-    _ports = network_fakes.FakePort.create_ports(count=3)
+    _ports = network_fakes.create_ports(count=3)
 
     columns = (
         'ID',
@@ -1317,7 +1329,7 @@ class TestListPort(TestPort):
 
 class TestSetPort(TestPort):
 
-    _port = network_fakes.FakePort.create_one_port({'tags': ['green', 'red']})
+    _port = network_fakes.create_one_port({'tags': ['green', 'red']})
 
     def setUp(self):
         super(TestSetPort, self).setUp()
@@ -1345,7 +1357,7 @@ class TestSetPort(TestPort):
         self.assertIsNone(result)
 
     def test_set_port_fixed_ip(self):
-        _testport = network_fakes.FakePort.create_one_port(
+        _testport = network_fakes.create_one_port(
             {'fixed_ips': [{'ip_address': '0.0.0.1'}]})
         self.network.find_port = mock.Mock(return_value=_testport)
         arglist = [
@@ -1369,7 +1381,7 @@ class TestSetPort(TestPort):
         self.assertIsNone(result)
 
     def test_set_port_fixed_ip_clear(self):
-        _testport = network_fakes.FakePort.create_one_port(
+        _testport = network_fakes.create_one_port(
             {'fixed_ips': [{'ip_address': '0.0.0.1'}]})
         self.network.find_port = mock.Mock(return_value=_testport)
         arglist = [
@@ -1412,7 +1424,7 @@ class TestSetPort(TestPort):
         self.assertIsNone(result)
 
     def test_set_port_overwrite_binding_profile(self):
-        _testport = network_fakes.FakePort.create_one_port(
+        _testport = network_fakes.create_one_port(
             {'binding_profile': {'lok_i': 'visi_on'}})
         self.network.find_port = mock.Mock(return_value=_testport)
         arglist = [
@@ -1434,7 +1446,7 @@ class TestSetPort(TestPort):
         self.assertIsNone(result)
 
     def test_overwrite_mac_address(self):
-        _testport = network_fakes.FakePort.create_one_port(
+        _testport = network_fakes.create_one_port(
             {'mac_address': '11:22:33:44:55:66'})
         self.network.find_port = mock.Mock(return_value=_testport)
         arglist = [
@@ -1578,7 +1590,7 @@ class TestSetPort(TestPort):
         sg_2 = network_fakes.FakeSecurityGroup.create_one_security_group()
         sg_3 = network_fakes.FakeSecurityGroup.create_one_security_group()
         self.network.find_security_group = mock.Mock(side_effect=[sg_2, sg_3])
-        _testport = network_fakes.FakePort.create_one_port(
+        _testport = network_fakes.create_one_port(
             {'security_group_ids': [sg_1.id]})
         self.network.find_port = mock.Mock(return_value=_testport)
         arglist = [
@@ -1620,7 +1632,7 @@ class TestSetPort(TestPort):
     def test_set_port_security_group_replace(self):
         sg1 = network_fakes.FakeSecurityGroup.create_one_security_group()
         sg2 = network_fakes.FakeSecurityGroup.create_one_security_group()
-        _testport = network_fakes.FakePort.create_one_port(
+        _testport = network_fakes.create_one_port(
             {'security_group_ids': [sg1.id]})
         self.network.find_port = mock.Mock(return_value=_testport)
         self.network.find_security_group = mock.Mock(return_value=sg2)
@@ -1662,7 +1674,7 @@ class TestSetPort(TestPort):
         self.assertIsNone(result)
 
     def test_set_port_append_allowed_address_pair(self):
-        _testport = network_fakes.FakePort.create_one_port(
+        _testport = network_fakes.create_one_port(
             {'allowed_address_pairs': [{'ip_address': '192.168.1.123'}]})
         self.network.find_port = mock.Mock(return_value=_testport)
         arglist = [
@@ -1685,7 +1697,7 @@ class TestSetPort(TestPort):
         self.assertIsNone(result)
 
     def test_set_port_overwrite_allowed_address_pair(self):
-        _testport = network_fakes.FakePort.create_one_port(
+        _testport = network_fakes.create_one_port(
             {'allowed_address_pairs': [{'ip_address': '192.168.1.123'}]})
         self.network.find_port = mock.Mock(return_value=_testport)
         arglist = [
@@ -1787,7 +1799,7 @@ class TestSetPort(TestPort):
     def test_set_port_with_qos(self):
         qos_policy = network_fakes.FakeNetworkQosPolicy.create_one_qos_policy()
         self.network.find_qos_policy = mock.Mock(return_value=qos_policy)
-        _testport = network_fakes.FakePort.create_one_port(
+        _testport = network_fakes.create_one_port(
             {'qos_policy_id': None})
         self.network.find_port = mock.Mock(return_value=_testport)
         arglist = [
@@ -1809,7 +1821,7 @@ class TestSetPort(TestPort):
         self.assertIsNone(result)
 
     def test_set_port_data_plane_status(self):
-        _testport = network_fakes.FakePort.create_one_port(
+        _testport = network_fakes.create_one_port(
             {'data_plane_status': None})
         self.network.find_port = mock.Mock(return_value=_testport)
         arglist = [
@@ -1900,7 +1912,7 @@ class TestSetPort(TestPort):
 class TestShowPort(TestPort):
 
     # The port to show.
-    _port = network_fakes.FakePort.create_one_port()
+    _port = network_fakes.create_one_port()
     columns, data = TestPort._get_common_cols_data(_port)
 
     def setUp(self):
@@ -1932,7 +1944,7 @@ class TestShowPort(TestPort):
         self.network.find_port.assert_called_once_with(
             self._port.name, ignore_missing=False)
 
-        self.assertEqual(self.columns, columns)
+        self.assertEqual(set(self.columns), set(columns))
         self.assertCountEqual(self.data, data)
 
 
@@ -1940,7 +1952,7 @@ class TestUnsetPort(TestPort):
 
     def setUp(self):
         super(TestUnsetPort, self).setUp()
-        self._testport = network_fakes.FakePort.create_one_port(
+        self._testport = network_fakes.create_one_port(
             {'fixed_ips': [{'subnet_id': '042eb10a-3a18-4658-ab-cf47c8d03152',
                             'ip_address': '0.0.0.1'},
                            {'subnet_id': '042eb10a-3a18-4658-ab-cf47c8d03152',
@@ -2024,7 +2036,7 @@ class TestUnsetPort(TestPort):
     def test_unset_security_group(self):
         _fake_sg1 = network_fakes.FakeSecurityGroup.create_one_security_group()
         _fake_sg2 = network_fakes.FakeSecurityGroup.create_one_security_group()
-        _fake_port = network_fakes.FakePort.create_one_port(
+        _fake_port = network_fakes.create_one_port(
             {'security_group_ids': [_fake_sg1.id, _fake_sg2.id]})
         self.network.find_port = mock.Mock(return_value=_fake_port)
         self.network.find_security_group = mock.Mock(return_value=_fake_sg2)
@@ -2049,7 +2061,7 @@ class TestUnsetPort(TestPort):
     def test_unset_port_security_group_not_existent(self):
         _fake_sg1 = network_fakes.FakeSecurityGroup.create_one_security_group()
         _fake_sg2 = network_fakes.FakeSecurityGroup.create_one_security_group()
-        _fake_port = network_fakes.FakePort.create_one_port(
+        _fake_port = network_fakes.create_one_port(
             {'security_group_ids': [_fake_sg1.id]})
         self.network.find_security_group = mock.Mock(return_value=_fake_sg2)
         arglist = [
@@ -2066,7 +2078,7 @@ class TestUnsetPort(TestPort):
                           parsed_args)
 
     def test_unset_port_allowed_address_pair(self):
-        _fake_port = network_fakes.FakePort.create_one_port(
+        _fake_port = network_fakes.create_one_port(
             {'allowed_address_pairs': [{'ip_address': '192.168.1.123'}]})
         self.network.find_port = mock.Mock(return_value=_fake_port)
         arglist = [
@@ -2088,7 +2100,7 @@ class TestUnsetPort(TestPort):
         self.assertIsNone(result)
 
     def test_unset_port_allowed_address_pair_not_existent(self):
-        _fake_port = network_fakes.FakePort.create_one_port(
+        _fake_port = network_fakes.create_one_port(
             {'allowed_address_pairs': [{'ip_address': '192.168.1.123'}]})
         self.network.find_port = mock.Mock(return_value=_fake_port)
         arglist = [
@@ -2105,7 +2117,7 @@ class TestUnsetPort(TestPort):
                           parsed_args)
 
     def test_unset_port_data_plane_status(self):
-        _fake_port = network_fakes.FakePort.create_one_port(
+        _fake_port = network_fakes.create_one_port(
             {'data_plane_status': 'ACTIVE'})
         self.network.find_port = mock.Mock(return_value=_fake_port)
         arglist = [
@@ -2156,7 +2168,7 @@ class TestUnsetPort(TestPort):
         self._test_unset_tags(with_tags=False)
 
     def test_unset_numa_affinity_policy(self):
-        _fake_port = network_fakes.FakePort.create_one_port(
+        _fake_port = network_fakes.create_one_port(
             {'numa_affinity_policy': 'required'})
         self.network.find_port = mock.Mock(return_value=_fake_port)
         arglist = [

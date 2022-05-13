@@ -20,6 +20,7 @@ import uuid
 
 from openstack.network.v2 import address_group as _address_group
 from openstack.network.v2 import address_scope as _address_scope
+from openstack.network.v2 import agent as network_agent
 from openstack.network.v2 import auto_allocated_topology as allocated_topology
 from openstack.network.v2 import availability_zone as _availability_zone
 from openstack.network.v2 import flavor as _flavor
@@ -28,7 +29,10 @@ from openstack.network.v2 import local_ip_association as _local_ip_association
 from openstack.network.v2 import network as _network
 from openstack.network.v2 import network_ip_availability as _ip_availability
 from openstack.network.v2 import network_segment_range as _segment_range
+from openstack.network.v2 import port as _port
+from openstack.network.v2 import rbac_policy as network_rbac
 from openstack.network.v2 import segment as _segment
+from openstack.network.v2 import service_profile as _flavor_profile
 
 from openstackclient.tests.unit import fakes
 from openstackclient.tests.unit.identity.v3 import fakes as identity_fakes_v3
@@ -126,297 +130,6 @@ class FakeExtension(object):
             info=copy.deepcopy(extension_info),
             loaded=True)
         return extension
-
-
-class FakePort(object):
-    """Fake one or more ports."""
-
-    @staticmethod
-    def create_one_port(attrs=None):
-        """Create a fake port.
-
-        :param Dictionary attrs:
-            A dictionary with all attributes
-        :return:
-            A FakeResource object, with id, name, etc.
-        """
-        attrs = attrs or {}
-
-        # Set default attributes.
-        port_attrs = {
-            'admin_state_up': True,
-            'allowed_address_pairs': [{}],
-            'binding:host_id': 'binding-host-id-' + uuid.uuid4().hex,
-            'binding:profile': {},
-            'binding:vif_details': {},
-            'binding:vif_type': 'ovs',
-            'binding:vnic_type': 'normal',
-            'data_plane_status': None,
-            'description': 'description-' + uuid.uuid4().hex,
-            'device_id': 'device-id-' + uuid.uuid4().hex,
-            'device_owner': 'compute:nova',
-            'device_profile': 'cyborg_device_profile_1',
-            'dns_assignment': [{}],
-            'dns_domain': 'dns-domain-' + uuid.uuid4().hex,
-            'dns_name': 'dns-name-' + uuid.uuid4().hex,
-            'extra_dhcp_opts': [{}],
-            'fixed_ips': [{'ip_address': '10.0.0.3',
-                           'subnet_id': 'subnet-id-' + uuid.uuid4().hex}],
-            'id': 'port-id-' + uuid.uuid4().hex,
-            'mac_address': 'fa:16:3e:a9:4e:72',
-            'name': 'port-name-' + uuid.uuid4().hex,
-            'network_id': 'network-id-' + uuid.uuid4().hex,
-            'numa_affinity_policy': 'required',
-            'port_security_enabled': True,
-            'security_group_ids': [],
-            'status': 'ACTIVE',
-            'project_id': 'project-id-' + uuid.uuid4().hex,
-            'qos_network_policy_id': 'qos-policy-id-' + uuid.uuid4().hex,
-            'qos_policy_id': 'qos-policy-id-' + uuid.uuid4().hex,
-            'tags': [],
-            'propagate_uplink_status': False,
-            'location': 'MUNCHMUNCHMUNCH',
-        }
-
-        # Overwrite default attributes.
-        port_attrs.update(attrs)
-
-        port = fakes.FakeResource(info=copy.deepcopy(port_attrs),
-                                  loaded=True)
-
-        # Set attributes with special mappings in OpenStack SDK.
-        port.binding_host_id = port_attrs['binding:host_id']
-        port.binding_profile = port_attrs['binding:profile']
-        port.binding_vif_details = port_attrs['binding:vif_details']
-        port.binding_vif_type = port_attrs['binding:vif_type']
-        port.binding_vnic_type = port_attrs['binding:vnic_type']
-        port.is_admin_state_up = port_attrs['admin_state_up']
-        port.is_port_security_enabled = port_attrs['port_security_enabled']
-
-        return port
-
-    @staticmethod
-    def create_ports(attrs=None, count=2):
-        """Create multiple fake ports.
-
-        :param Dictionary attrs:
-            A dictionary with all attributes
-        :param int count:
-            The number of ports to fake
-        :return:
-            A list of FakeResource objects faking the ports
-        """
-        ports = []
-        for i in range(0, count):
-            ports.append(FakePort.create_one_port(attrs))
-
-        return ports
-
-    @staticmethod
-    def get_ports(ports=None, count=2):
-        """Get an iterable Mock object with a list of faked ports.
-
-        If ports list is provided, then initialize the Mock object with the
-        list. Otherwise create one.
-
-        :param List ports:
-            A list of FakeResource objects faking ports
-        :param int count:
-            The number of ports to fake
-        :return:
-            An iterable Mock object with side_effect set to a list of faked
-            ports
-        """
-        if ports is None:
-            ports = FakePort.create_ports(count)
-        return mock.Mock(side_effect=ports)
-
-
-class FakeNetworkAgent(object):
-    """Fake one or more network agents."""
-
-    @staticmethod
-    def create_one_network_agent(attrs=None):
-        """Create a fake network agent
-
-        :param Dictionary attrs:
-            A dictionary with all attributes
-        :return:
-            A FakeResource object, with id, agent_type, and so on.
-        """
-        attrs = attrs or {}
-
-        # Set default attributes
-        agent_attrs = {
-            'id': 'agent-id-' + uuid.uuid4().hex,
-            'agent_type': 'agent-type-' + uuid.uuid4().hex,
-            'host': 'host-' + uuid.uuid4().hex,
-            'availability_zone': 'zone-' + uuid.uuid4().hex,
-            'alive': True,
-            'admin_state_up': True,
-            'binary': 'binary-' + uuid.uuid4().hex,
-            'configurations': {'subnet': 2, 'networks': 1},
-            'location': 'MUNCHMUNCHMUNCH',
-        }
-        agent_attrs.update(attrs)
-        agent = fakes.FakeResource(info=copy.deepcopy(agent_attrs),
-                                   loaded=True)
-        agent.is_admin_state_up = agent_attrs['admin_state_up']
-        agent.is_alive = agent_attrs['alive']
-        return agent
-
-    @staticmethod
-    def create_network_agents(attrs=None, count=2):
-        """Create multiple fake network agents.
-
-        :param Dictionary attrs:
-            A dictionary with all attributes
-        :param int count:
-            The number of network agents to fake
-        :return:
-            A list of FakeResource objects faking the network agents
-        """
-        agents = []
-        for i in range(0, count):
-            agents.append(FakeNetworkAgent.create_one_network_agent(attrs))
-
-        return agents
-
-    @staticmethod
-    def get_network_agents(agents=None, count=2):
-        """Get an iterable Mock object with a list of faked network agents.
-
-        If network agents list is provided, then initialize the Mock object
-        with the list. Otherwise create one.
-
-        :param List agents:
-            A list of FakeResource objects faking network agents
-        :param int count:
-            The number of network agents to fake
-        :return:
-            An iterable Mock object with side_effect set to a list of faked
-            network agents
-        """
-        if agents is None:
-            agents = FakeNetworkAgent.create_network_agents(count)
-        return mock.Mock(side_effect=agents)
-
-
-class FakeNetworkRBAC(object):
-    """Fake one or more network rbac policies."""
-
-    @staticmethod
-    def create_one_network_rbac(attrs=None):
-        """Create a fake network rbac
-
-        :param Dictionary attrs:
-            A dictionary with all attributes
-        :return:
-            A FakeResource object, with id, action, target_tenant,
-            project_id, type
-        """
-        attrs = attrs or {}
-
-        # Set default attributes
-        rbac_attrs = {
-            'id': 'rbac-id-' + uuid.uuid4().hex,
-            'object_type': 'network',
-            'object_id': 'object-id-' + uuid.uuid4().hex,
-            'action': 'access_as_shared',
-            'target_tenant': 'target-tenant-' + uuid.uuid4().hex,
-            'project_id': 'project-id-' + uuid.uuid4().hex,
-            'location': 'MUNCHMUNCHMUNCH',
-        }
-        rbac_attrs.update(attrs)
-        rbac = fakes.FakeResource(info=copy.deepcopy(rbac_attrs),
-                                  loaded=True)
-        # Set attributes with special mapping in OpenStack SDK.
-        rbac.target_project_id = rbac_attrs['target_tenant']
-        return rbac
-
-    @staticmethod
-    def create_network_rbacs(attrs=None, count=2):
-        """Create multiple fake network rbac policies.
-
-        :param Dictionary attrs:
-            A dictionary with all attributes
-        :param int count:
-            The number of rbac policies to fake
-        :return:
-            A list of FakeResource objects faking the rbac policies
-        """
-        rbac_policies = []
-        for i in range(0, count):
-            rbac_policies.append(FakeNetworkRBAC.
-                                 create_one_network_rbac(attrs))
-
-        return rbac_policies
-
-    @staticmethod
-    def get_network_rbacs(rbac_policies=None, count=2):
-        """Get an iterable Mock object with a list of faked rbac policies.
-
-        If rbac policies list is provided, then initialize the Mock object
-        with the list. Otherwise create one.
-
-        :param List rbac_policies:
-            A list of FakeResource objects faking rbac policies
-        :param int count:
-            The number of rbac policies to fake
-        :return:
-            An iterable Mock object with side_effect set to a list of faked
-            rbac policies
-        """
-        if rbac_policies is None:
-            rbac_policies = FakeNetworkRBAC.create_network_rbacs(count)
-        return mock.Mock(side_effect=rbac_policies)
-
-
-class FakeNetworkFlavorProfile(object):
-    """Fake network flavor profile."""
-
-    @staticmethod
-    def create_one_service_profile(attrs=None):
-        """Create flavor profile."""
-        attrs = attrs or {}
-
-        flavor_profile_attrs = {
-            'id': 'flavor-profile-id' + uuid.uuid4().hex,
-            'description': 'flavor-profile-description-' + uuid.uuid4().hex,
-            'project_id': 'project-id-' + uuid.uuid4().hex,
-            'driver': 'driver-' + uuid.uuid4().hex,
-            'metainfo': 'metainfo-' + uuid.uuid4().hex,
-            'enabled': True,
-            'location': 'MUNCHMUNCHMUNCH',
-        }
-
-        flavor_profile_attrs.update(attrs)
-
-        flavor_profile = fakes.FakeResource(
-            info=copy.deepcopy(flavor_profile_attrs),
-            loaded=True)
-
-        flavor_profile.is_enabled = flavor_profile_attrs['enabled']
-
-        return flavor_profile
-
-    @staticmethod
-    def create_service_profile(attrs=None, count=2):
-        """Create multiple flavor profiles."""
-
-        flavor_profiles = []
-        for i in range(0, count):
-            flavor_profiles.append(FakeNetworkFlavorProfile.
-                                   create_one_service_profile(attrs))
-        return flavor_profiles
-
-    @staticmethod
-    def get_service_profile(flavor_profile=None, count=2):
-        """Get a list of flavor profiles."""
-        if flavor_profile is None:
-            flavor_profile = (FakeNetworkFlavorProfile.
-                              create_service_profile(count))
-        return mock.Mock(side_effect=flavor_profile)
 
 
 class FakeNetworkQosPolicy(object):
@@ -1970,6 +1683,262 @@ def create_network_segment_ranges(attrs=None, count=2):
     for i in range(0, count):
         network_segment_ranges.append(create_one_network_segment_range(attrs))
     return network_segment_ranges
+
+
+def create_one_port(attrs=None):
+    """Create a fake port.
+
+    :param Dictionary attrs:
+        A dictionary with all attributes
+    :return:
+        A Port object, with id, name, etc.
+    """
+    attrs = attrs or {}
+
+    # Set default attributes.
+    port_attrs = {
+        'is_admin_state_up': True,
+        'allowed_address_pairs': [{}],
+        'binding:host_id': 'binding-host-id-' + uuid.uuid4().hex,
+        'binding:profile': {},
+        'binding:vif_details': {},
+        'binding:vif_type': 'ovs',
+        'binding:vnic_type': 'normal',
+        'data_plane_status': None,
+        'description': 'description-' + uuid.uuid4().hex,
+        'device_id': 'device-id-' + uuid.uuid4().hex,
+        'device_owner': 'compute:nova',
+        'device_profile': 'cyborg_device_profile_1',
+        'dns_assignment': [{}],
+        'dns_domain': 'dns-domain-' + uuid.uuid4().hex,
+        'dns_name': 'dns-name-' + uuid.uuid4().hex,
+        'extra_dhcp_opts': [{}],
+        'fixed_ips': [{'ip_address': '10.0.0.3',
+                       'subnet_id': 'subnet-id-' + uuid.uuid4().hex}],
+        'id': 'port-id-' + uuid.uuid4().hex,
+        'mac_address': 'fa:16:3e:a9:4e:72',
+        'name': 'port-name-' + uuid.uuid4().hex,
+        'network_id': 'network-id-' + uuid.uuid4().hex,
+        'numa_affinity_policy': 'required',
+        'is_port_security_enabled': True,
+        'security_group_ids': [],
+        'status': 'ACTIVE',
+        'project_id': 'project-id-' + uuid.uuid4().hex,
+        'qos_network_policy_id': 'qos-policy-id-' + uuid.uuid4().hex,
+        'qos_policy_id': 'qos-policy-id-' + uuid.uuid4().hex,
+        'tags': [],
+        'propagate_uplink_status': False,
+        'location': 'MUNCHMUNCHMUNCH',
+    }
+
+    # Overwrite default attributes.
+    port_attrs.update(attrs)
+
+    port = _port.Port(**port_attrs)
+
+    return port
+
+
+def create_ports(attrs=None, count=2):
+    """Create multiple fake ports.
+
+    :param Dictionary attrs:
+        A dictionary with all attributes
+    :param int count:
+        The number of ports to fake
+    :return:
+        A list of Port objects faking the ports
+    """
+    ports = []
+    for i in range(0, count):
+        ports.append(create_one_port(attrs))
+
+    return ports
+
+
+def get_ports(ports=None, count=2):
+    """Get an iterable Mock object with a list of faked ports.
+
+    If ports list is provided, then initialize the Mock object with the
+    list. Otherwise create one.
+
+    :param List ports:
+        A list of Port objects faking ports
+    :param int count:
+        The number of ports to fake
+    :return:
+        An iterable Mock object with side_effect set to a list of faked
+        ports
+    """
+    if ports is None:
+        ports = create_ports(count)
+    return mock.Mock(side_effect=ports)
+
+
+def create_one_network_agent(attrs=None):
+    """Create a fake network agent
+
+    :param Dictionary attrs:
+        A dictionary with all attributes
+    :return:
+        An Agent object, with id, agent_type, and so on.
+    """
+    attrs = attrs or {}
+
+    # Set default attributes
+    agent_attrs = {
+        'id': 'agent-id-' + uuid.uuid4().hex,
+        'agent_type': 'agent-type-' + uuid.uuid4().hex,
+        'host': 'host-' + uuid.uuid4().hex,
+        'availability_zone': 'zone-' + uuid.uuid4().hex,
+        'alive': True,
+        'admin_state_up': True,
+        'binary': 'binary-' + uuid.uuid4().hex,
+        'configurations': {'subnet': 2, 'networks': 1},
+        'location': 'MUNCHMUNCHMUNCH',
+    }
+    agent_attrs.update(attrs)
+    agent = network_agent.Agent(**agent_attrs)
+
+    return agent
+
+
+def create_network_agents(attrs=None, count=2):
+    """Create multiple fake network agents.
+
+    :param Dictionary attrs:
+        A dictionary with all attributes
+    :param int count:
+        The number of network agents to fake
+    :return:
+        A list of Agent objects faking the network agents
+    """
+    agents = []
+    for i in range(0, count):
+        agents.append(create_one_network_agent(attrs))
+
+    return agents
+
+
+def get_network_agents(agents=None, count=2):
+    """Get an iterable Mock object with a list of faked network agents.
+
+    If network agents list is provided, then initialize the Mock object
+    with the list. Otherwise create one.
+
+    :param List agents:
+        A list of Agent objects faking network agents
+    :param int count:
+        The number of network agents to fake
+    :return:
+        An iterable Mock object with side_effect set to a list of faked
+        network agents
+    """
+    if agents is None:
+        agents = create_network_agents(count)
+    return mock.Mock(side_effect=agents)
+
+
+def create_one_network_rbac(attrs=None):
+    """Create a fake network rbac
+
+    :param Dictionary attrs:
+        A dictionary with all attributes
+    :return:
+        A RBACPolicy object, with id, action, target_tenant,
+        project_id, type
+    """
+    attrs = attrs or {}
+
+    # Set default attributes
+    rbac_attrs = {
+        'id': 'rbac-id-' + uuid.uuid4().hex,
+        'object_type': 'network',
+        'object_id': 'object-id-' + uuid.uuid4().hex,
+        'action': 'access_as_shared',
+        'target_tenant': 'target-tenant-' + uuid.uuid4().hex,
+        'project_id': 'project-id-' + uuid.uuid4().hex,
+        'location': 'MUNCHMUNCHMUNCH',
+    }
+
+    rbac_attrs.update(attrs)
+    rbac = network_rbac.RBACPolicy(**rbac_attrs)
+
+    return rbac
+
+
+def create_network_rbacs(attrs=None, count=2):
+    """Create multiple fake network rbac policies.
+
+    :param Dictionary attrs:
+        A dictionary with all attributes
+    :param int count:
+        The number of rbac policies to fake
+    :return:
+        A list of RBACPolicy objects faking the rbac policies
+    """
+    rbac_policies = []
+    for i in range(0, count):
+        rbac_policies.append(create_one_network_rbac(attrs))
+
+    return rbac_policies
+
+
+def get_network_rbacs(rbac_policies=None, count=2):
+    """Get an iterable Mock object with a list of faked rbac policies.
+
+    If rbac policies list is provided, then initialize the Mock object
+    with the list. Otherwise create one.
+
+    :param List rbac_policies:
+        A list of RBACPolicy objects faking rbac policies
+    :param int count:
+        The number of rbac policies to fake
+    :return:
+        An iterable Mock object with side_effect set to a list of faked
+        rbac policies
+    """
+    if rbac_policies is None:
+        rbac_policies = create_network_rbacs(count)
+    return mock.Mock(side_effect=rbac_policies)
+
+
+def create_one_service_profile(attrs=None):
+    """Create flavor profile."""
+    attrs = attrs or {}
+
+    flavor_profile_attrs = {
+        'id': 'flavor-profile-id' + uuid.uuid4().hex,
+        'description': 'flavor-profile-description-' + uuid.uuid4().hex,
+        'project_id': 'project-id-' + uuid.uuid4().hex,
+        'driver': 'driver-' + uuid.uuid4().hex,
+        'metainfo': 'metainfo-' + uuid.uuid4().hex,
+        'enabled': True,
+        'location': 'MUNCHMUNCHMUNCH',
+    }
+
+    flavor_profile_attrs.update(attrs)
+
+    flavor_profile = _flavor_profile.ServiceProfile(**flavor_profile_attrs)
+
+    return flavor_profile
+
+
+def create_service_profile(attrs=None, count=2):
+    """Create multiple flavor profiles."""
+
+    flavor_profiles = []
+    for i in range(0, count):
+        flavor_profiles.append(create_one_service_profile(attrs))
+    return flavor_profiles
+
+
+def get_service_profile(flavor_profile=None, count=2):
+    """Get a list of flavor profiles."""
+    if flavor_profile is None:
+        flavor_profile = create_service_profile(count)
+
+    return mock.Mock(side_effect=flavor_profile)
 
 
 def create_one_local_ip(attrs=None):

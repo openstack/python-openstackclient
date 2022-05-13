@@ -40,8 +40,7 @@ class TestNetworkFlavor(network_fakes.TestNetworkV2):
 class TestAddNetworkFlavorToProfile(TestNetworkFlavor):
 
     network_flavor = network_fakes.create_one_network_flavor()
-    service_profile = \
-        network_fakes.FakeNetworkFlavorProfile.create_one_service_profile()
+    service_profile = network_fakes.create_one_service_profile()
 
     def setUp(self):
         super(TestAddNetworkFlavorToProfile, self).setUp()
@@ -320,8 +319,7 @@ class TestListNetworkFlavor(TestNetworkFlavor):
 class TestRemoveNetworkFlavorFromProfile(TestNetworkFlavor):
 
     network_flavor = network_fakes.create_one_network_flavor()
-    service_profile = \
-        network_fakes.FakeNetworkFlavorProfile.create_one_service_profile()
+    service_profile = network_fakes.create_one_service_profile()
 
     def setUp(self):
         super(TestRemoveNetworkFlavorFromProfile, self).setUp()

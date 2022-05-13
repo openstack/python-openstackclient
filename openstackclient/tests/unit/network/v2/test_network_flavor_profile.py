@@ -34,25 +34,23 @@ class TestFlavorProfile(network_fakes.TestNetworkV2):
 class TestCreateFlavorProfile(TestFlavorProfile):
     project = identity_fakes_v3.FakeProject.create_one_project()
     domain = identity_fakes_v3.FakeDomain.create_one_domain()
-    new_flavor_profile = (
-        network_fakes.FakeNetworkFlavorProfile.
-        create_one_service_profile()
-    )
+    new_flavor_profile = network_fakes.create_one_service_profile()
+
     columns = (
         'description',
         'driver',
         'enabled',
         'id',
-        'metainfo',
+        'meta_info',
         'project_id',
     )
 
     data = (
         new_flavor_profile.description,
         new_flavor_profile.driver,
-        new_flavor_profile.enabled,
+        new_flavor_profile.is_enabled,
         new_flavor_profile.id,
-        new_flavor_profile.metainfo,
+        new_flavor_profile.meta_info,
         new_flavor_profile.project_id,
     )
 
@@ -72,7 +70,7 @@ class TestCreateFlavorProfile(TestFlavorProfile):
             '--project-domain', self.domain.name,
             "--enable",
             "--driver", self.new_flavor_profile.driver,
-            "--metainfo", self.new_flavor_profile.metainfo,
+            "--metainfo", self.new_flavor_profile.meta_info,
         ]
 
         verifylist = [
@@ -81,7 +79,7 @@ class TestCreateFlavorProfile(TestFlavorProfile):
             ('project_domain', self.domain.name),
             ('enable', True),
             ('driver', self.new_flavor_profile.driver),
-            ('metainfo', self.new_flavor_profile.metainfo)
+            ('metainfo', self.new_flavor_profile.meta_info)
         ]
 
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
@@ -90,9 +88,9 @@ class TestCreateFlavorProfile(TestFlavorProfile):
         self.network.create_service_profile.assert_called_once_with(
             **{'description': self.new_flavor_profile.description,
                'project_id': self.project.id,
-               'enabled': self.new_flavor_profile.enabled,
+               'enabled': self.new_flavor_profile.is_enabled,
                'driver': self.new_flavor_profile.driver,
-               'metainfo': self.new_flavor_profile.metainfo}
+               'metainfo': self.new_flavor_profile.meta_info}
         )
         self.assertEqual(self.columns, columns)
         self.assertEqual(self.data, data)
@@ -103,7 +101,7 @@ class TestCreateFlavorProfile(TestFlavorProfile):
             "--project", self.new_flavor_profile.project_id,
             '--project-domain', self.domain.name,
             "--enable",
-            "--metainfo", self.new_flavor_profile.metainfo,
+            "--metainfo", self.new_flavor_profile.meta_info,
         ]
 
         verifylist = [
@@ -111,7 +109,7 @@ class TestCreateFlavorProfile(TestFlavorProfile):
             ('project', self.new_flavor_profile.project_id),
             ('project_domain', self.domain.name),
             ('enable', True),
-            ('metainfo', self.new_flavor_profile.metainfo)
+            ('metainfo', self.new_flavor_profile.meta_info)
         ]
 
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
@@ -120,8 +118,8 @@ class TestCreateFlavorProfile(TestFlavorProfile):
         self.network.create_service_profile.assert_called_once_with(
             **{'description': self.new_flavor_profile.description,
                'project_id': self.project.id,
-               'enabled': self.new_flavor_profile.enabled,
-               'metainfo': self.new_flavor_profile.metainfo}
+               'enabled': self.new_flavor_profile.is_enabled,
+               'metainfo': self.new_flavor_profile.meta_info}
         )
         self.assertEqual(self.columns, columns)
         self.assertEqual(self.data, data)
@@ -149,7 +147,7 @@ class TestCreateFlavorProfile(TestFlavorProfile):
         self.network.create_service_profile.assert_called_once_with(
             **{'description': self.new_flavor_profile.description,
                'project_id': self.project.id,
-               'enabled': self.new_flavor_profile.enabled,
+               'enabled': self.new_flavor_profile.is_enabled,
                'driver': self.new_flavor_profile.driver,
                }
         )
@@ -203,14 +201,13 @@ class TestCreateFlavorProfile(TestFlavorProfile):
 class TestDeleteFlavorProfile(TestFlavorProfile):
 
     # The network flavor_profiles to delete.
-    _network_flavor_profiles = (
-        network_fakes.FakeNetworkFlavorProfile.create_service_profile(count=2))
+    _network_flavor_profiles = network_fakes.create_service_profile(count=2)
 
     def setUp(self):
         super(TestDeleteFlavorProfile, self).setUp()
         self.network.delete_service_profile = mock.Mock(return_value=None)
         self.network.find_service_profile = (
-            network_fakes.FakeNetworkFlavorProfile.get_service_profile(
+            network_fakes.get_service_profile(
                 flavor_profile=self._network_flavor_profiles)
         )
 
@@ -290,8 +287,7 @@ class TestDeleteFlavorProfile(TestFlavorProfile):
 class TestListFlavorProfile(TestFlavorProfile):
 
     # The network flavor profiles list
-    _network_flavor_profiles = (
-        network_fakes.FakeNetworkFlavorProfile.create_service_profile(count=2))
+    _network_flavor_profiles = network_fakes.create_service_profile(count=2)
 
     columns = (
         'ID',
@@ -305,8 +301,8 @@ class TestListFlavorProfile(TestFlavorProfile):
         data.append((
             flavor_profile.id,
             flavor_profile.driver,
-            flavor_profile.enabled,
-            flavor_profile.metainfo,
+            flavor_profile.is_enabled,
+            flavor_profile.meta_info,
             flavor_profile.description,
         ))
 
@@ -334,22 +330,21 @@ class TestListFlavorProfile(TestFlavorProfile):
 class TestShowFlavorProfile(TestFlavorProfile):
 
     # The network flavor profile to show.
-    network_flavor_profile = (
-        network_fakes.FakeNetworkFlavorProfile.create_one_service_profile())
+    network_flavor_profile = network_fakes.create_one_service_profile()
     columns = (
         'description',
         'driver',
         'enabled',
         'id',
-        'metainfo',
+        'meta_info',
         'project_id',
     )
     data = (
         network_flavor_profile.description,
         network_flavor_profile.driver,
-        network_flavor_profile.enabled,
+        network_flavor_profile.is_enabled,
         network_flavor_profile.id,
-        network_flavor_profile.metainfo,
+        network_flavor_profile.meta_info,
         network_flavor_profile.project_id,
     )
 
@@ -382,8 +377,7 @@ class TestShowFlavorProfile(TestFlavorProfile):
 class TestSetFlavorProfile(TestFlavorProfile):
 
     # The network flavor profile to set.
-    network_flavor_profile = (
-        network_fakes.FakeNetworkFlavorProfile.create_one_service_profile())
+    network_flavor_profile = network_fakes.create_one_service_profile()
 
     def setUp(self):
         super(TestSetFlavorProfile, self).setUp()

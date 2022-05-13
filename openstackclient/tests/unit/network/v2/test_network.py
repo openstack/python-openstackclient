@@ -568,7 +568,7 @@ class TestListNetwork(TestNetwork):
         self.network.networks = mock.Mock(return_value=self._network)
 
         self._agent = \
-            network_fakes.FakeNetworkAgent.create_one_network_agent()
+            network_fakes.create_one_network_agent()
         self.network.get_agent = mock.Mock(return_value=self._agent)
 
         self.network.dhcp_agent_hosting_networks = mock.Mock(
@@ -859,13 +859,12 @@ class TestListNetwork(TestNetwork):
             ('agent_id', self._agent.id),
         ]
 
-        attrs = {self._agent, }
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
         columns, data = self.cmd.take_action(parsed_args)
 
         self.network.dhcp_agent_hosting_networks.assert_called_once_with(
-            *attrs)
+            self._agent)
 
         self.assertEqual(self.columns, columns)
         self.assertCountEqual(list(data), list(self.data))

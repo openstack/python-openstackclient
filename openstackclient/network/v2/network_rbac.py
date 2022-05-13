@@ -30,7 +30,7 @@ def _get_columns(item):
     column_map = {
         'target_tenant': 'target_project_id',
     }
-    hidden_columns = ['location']
+    hidden_columns = ['location', 'name', 'tenant_id']
     return utils.get_osc_show_columns_for_sdk_resource(
         item,
         column_map,

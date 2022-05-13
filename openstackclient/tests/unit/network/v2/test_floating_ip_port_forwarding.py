@@ -31,7 +31,7 @@ class TestFloatingIPPortForwarding(network_fakes.TestNetworkV2):
         self.network = self.app.client_manager.network
         self.floating_ip = (network_fakes.FakeFloatingIP.
                             create_one_floating_ip())
-        self.port = network_fakes.FakePort.create_one_port()
+        self.port = network_fakes.create_one_port()
         self.project = identity_fakes_v2.FakeProject.create_one_project()
         self.network.find_port = mock.Mock(return_value=self.port)
 
