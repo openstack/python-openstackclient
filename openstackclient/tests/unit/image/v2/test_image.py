@@ -835,15 +835,16 @@ class TestImageList(TestImage):
     def test_image_list_tag_option(self):
         arglist = [
             '--tag', 'abc',
+            '--tag', 'cba'
         ]
         verifylist = [
-            ('tag', 'abc'),
+            ('tag', ['abc', 'cba']),
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
         columns, data = self.cmd.take_action(parsed_args)
         self.client.images.assert_called_with(
-            tag='abc'
+            tag=['abc', 'cba']
         )
 
 

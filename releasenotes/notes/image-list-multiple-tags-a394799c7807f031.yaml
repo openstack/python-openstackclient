@@ -1,0 +1,5 @@
+---
+features:
+  - |
+    The ``image list`` now accepts multiple ``--tag`` options, allowing you to
+    filter images on more than one tag.
