@@ -98,7 +98,7 @@ class CreateVolumeSnapshot(command.ShowOne):
             "--remote-source",
             metavar="<key=value>",
             action=parseractions.KeyValueAction,
-            help=_("The attribute(s) of the exsiting remote volume snapshot "
+            help=_("The attribute(s) of the existing remote volume snapshot "
                    "(admin required) (repeat option to specify multiple "
                    "attributes) e.g.: '--remote-source source-name=test_name "
                    "--remote-source source-id=test_id'"),

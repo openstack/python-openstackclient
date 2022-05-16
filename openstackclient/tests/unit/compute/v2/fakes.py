@@ -1339,7 +1339,7 @@ class FakeServerGroup(object):
 
 
 class FakeServerGroupV264(object):
-    """Fake one server group fo API >= 2.64"""
+    """Fake one server group for API >= 2.64"""
 
     @staticmethod
     def create_one_server_group(attrs=None):
@@ -1454,7 +1454,7 @@ class FakeQuota(object):
 
     @staticmethod
     def create_one_default_comp_quota(attrs=None):
-        """Crate one quota"""
+        """Create one quota"""
 
         attrs = attrs or {}
 
