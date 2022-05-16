@@ -73,8 +73,9 @@ class TestVolumeAttachmentCreate(TestVolumeAttachment):
 
         self.volumes_mock.get.return_value = self.volume
         self.servers_mock.get.return_value = self.server
+        # VolumeAttachmentManager.create returns a dict
         self.volume_attachments_mock.create.return_value = \
-            self.volume_attachment
+            self.volume_attachment.to_dict()
 
         self.cmd = volume_attachment.CreateVolumeAttachment(self.app, None)
 
