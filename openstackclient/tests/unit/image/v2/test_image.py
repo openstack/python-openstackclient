@@ -18,6 +18,7 @@ import os
 import tempfile
 from unittest import mock
 
+from cinderclient import api_versions
 from openstack import exceptions as sdk_exceptions
 from osc_lib.cli import format_columns
 from osc_lib import exceptions
@@ -25,9 +26,10 @@ from osc_lib import exceptions
 from openstackclient.image.v2 import image
 from openstackclient.tests.unit.identity.v3 import fakes as identity_fakes
 from openstackclient.tests.unit.image.v2 import fakes as image_fakes
+from openstackclient.tests.unit.volume.v3 import fakes as volume_fakes
 
 
-class TestImage(image_fakes.TestImagev2):
+class TestImage(image_fakes.TestImagev2, volume_fakes.TestVolume):
 
     def setUp(self):
         super(TestImage, self).setUp()
@@ -40,6 +42,13 @@ class TestImage(image_fakes.TestImagev2):
         self.project_mock.reset_mock()
         self.domain_mock = self.app.client_manager.identity.domains
         self.domain_mock.reset_mock()
+        self.volumes_mock = self.app.client_manager.volume.volumes
+        fake_body = {
+            'os-volume_upload_image':
+                {'volume_type': {'name': 'fake_type'}}}
+        self.volumes_mock.upload_to_image.return_value = (
+            200, fake_body)
+        self.volumes_mock.reset_mock()
 
     def setup_images_mock(self, count):
         images = image_fakes.create_images(count=count)
@@ -285,6 +294,101 @@ class TestImageCreate(TestImage):
             container_format=image.DEFAULT_CONTAINER_FORMAT,
             disk_format=image.DEFAULT_DISK_FORMAT,
             use_import=True
+        )
+
+    @mock.patch('osc_lib.utils.find_resource')
+    @mock.patch('openstackclient.image.v2.image.get_data_file')
+    def test_image_create_from_volume(self, mock_get_data_f, mock_get_vol):
+
+        fake_vol_id = 'fake-volume-id'
+        mock_get_data_f.return_value = (None, None)
+
+        class FakeVolume:
+            id = fake_vol_id
+
+        mock_get_vol.return_value = FakeVolume()
+
+        arglist = [
+            '--volume', fake_vol_id,
+            self.new_image.name,
+        ]
+        verifylist = [
+            ('name', self.new_image.name),
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        columns, data = self.cmd.take_action(parsed_args)
+
+        self.volumes_mock.upload_to_image.assert_called_with(
+            fake_vol_id,
+            False,
+            self.new_image.name,
+            'bare',
+            'raw'
+        )
+
+    @mock.patch('osc_lib.utils.find_resource')
+    @mock.patch('openstackclient.image.v2.image.get_data_file')
+    def test_image_create_from_volume_fail(self, mock_get_data_f,
+                                           mock_get_vol):
+
+        fake_vol_id = 'fake-volume-id'
+        mock_get_data_f.return_value = (None, None)
+
+        class FakeVolume:
+            id = fake_vol_id
+
+        mock_get_vol.return_value = FakeVolume()
+
+        arglist = [
+            '--volume', fake_vol_id,
+            self.new_image.name,
+            '--public'
+        ]
+        verifylist = [
+            ('name', self.new_image.name),
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        self.assertRaises(exceptions.CommandError, self.cmd.take_action,
+                          parsed_args)
+
+    @mock.patch('osc_lib.utils.find_resource')
+    @mock.patch('openstackclient.image.v2.image.get_data_file')
+    def test_image_create_from_volume_v31(self, mock_get_data_f,
+                                          mock_get_vol):
+
+        self.app.client_manager.volume.api_version = (
+            api_versions.APIVersion('3.1'))
+
+        fake_vol_id = 'fake-volume-id'
+        mock_get_data_f.return_value = (None, None)
+
+        class FakeVolume:
+            id = fake_vol_id
+
+        mock_get_vol.return_value = FakeVolume()
+
+        arglist = [
+            '--volume', fake_vol_id,
+            self.new_image.name,
+            '--public'
+        ]
+        verifylist = [
+            ('name', self.new_image.name),
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        columns, data = self.cmd.take_action(parsed_args)
+
+        self.volumes_mock.upload_to_image.assert_called_with(
+            fake_vol_id,
+            False,
+            self.new_image.name,
+            'bare',
+            'raw',
+            visibility='public',
+            protected=False
         )
 
 
