@@ -21,6 +21,7 @@ import logging
 import os
 import sys
 
+from cinderclient import api_versions
 import openstack.cloud._utils
 from openstack.image import image_signer
 from osc_lib.api import utils as api_utils
@@ -484,14 +485,27 @@ class CreateImage(command.ShowOne):
                 volume_client.volumes,
                 parsed_args.volume,
             )
+            mv_kwargs = {}
+            if volume_client.api_version >= api_versions.APIVersion('3.1'):
+                mv_kwargs.update(
+                    visibility=kwargs.get('visibility', 'private'),
+                    protected=bool(parsed_args.protected)
+                )
+            else:
+                if kwargs.get('visibility') or parsed_args.protected:
+                    msg = _(
+                        '--os-volume-api-version 3.1 or greater is required '
+                        'to support the --public, --private, --community, '
+                        '--shared or --protected option.'
+                    )
+                    raise exceptions.CommandError(msg)
             response, body = volume_client.volumes.upload_to_image(
                 source_volume.id,
                 parsed_args.force,
                 parsed_args.name,
                 parsed_args.container_format,
                 parsed_args.disk_format,
-                visibility=kwargs.get('visibility', 'private'),
-                protected=True if parsed_args.protected else False
+                **mv_kwargs
             )
             info = body['os-volume_upload_image']
             try:
