@@ -2458,6 +2458,27 @@ class ListServer(command.Lister):
                 if c in ('Security Groups', 'security_groups'):
                     columns += ('security_groups_name',)
                     column_headers += ('Security Groups',)
+                if c in ("Task State", "task_state"):
+                    columns += ('OS-EXT-STS:task_state',)
+                    column_headers += ('Task State',)
+                if c in ("Power State", "power_state"):
+                    columns += ('OS-EXT-STS:power_state',)
+                    column_headers += ('Power State',)
+                if c in ("Image ID", "image_id"):
+                    columns += ('Image ID',)
+                    column_headers += ('Image ID',)
+                if c in ("Flavor ID", "flavor_id"):
+                    columns += ('Flavor ID',)
+                    column_headers += ('Flavor ID',)
+                if c in ('Availability Zone', "availability_zone"):
+                    columns += ('OS-EXT-AZ:availability_zone',)
+                    column_headers += ('Availability Zone',)
+                if c in ('Host', "host"):
+                    columns += ('OS-EXT-SRV-ATTR:host',)
+                    column_headers += ('Host',)
+                if c in ('Properties', "properties"):
+                    columns += ('Metadata',)
+                    column_headers += ('Properties',)
 
             # convert back to tuple
             column_headers = tuple(column_headers)
