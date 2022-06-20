@@ -231,18 +231,23 @@ class RestoreVolumeBackup(command.Command):
         parser.add_argument(
             'volume',
             metavar='<volume>',
-            help=_('Volume to restore to (name or ID)')
+            nargs='?',
+            help=_('Volume to restore to (name or ID) (default to None)')
         )
         return parser
 
     def take_action(self, parsed_args):
         volume_client = self.app.client_manager.volume
-        backup = utils.find_resource(volume_client.backups,
-                                     parsed_args.backup)
-        destination_volume = utils.find_resource(volume_client.volumes,
-                                                 parsed_args.volume)
-        return volume_client.restores.restore(backup.id,
-                                              destination_volume.id)
+        backup = utils.find_resource(
+            volume_client.backups, parsed_args.backup,
+        )
+        volume_id = None
+        if parsed_args.volume is not None:
+            volume_id = utils.find_resource(
+                volume_client.volumes,
+                parsed_args.volume,
+            ).id
+        return volume_client.restores.restore(backup.id, volume_id)
 
 
 class ShowVolumeBackup(command.ShowOne):

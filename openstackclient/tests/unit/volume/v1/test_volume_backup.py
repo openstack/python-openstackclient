@@ -319,29 +319,69 @@ class TestBackupRestore(TestBackup):
         attrs={'volume_id': volume.id})
 
     def setUp(self):
-        super(TestBackupRestore, self).setUp()
+        super().setUp()
 
         self.backups_mock.get.return_value = self.backup
         self.volumes_mock.get.return_value = self.volume
-        self.restores_mock.restore.return_value = None
+        self.restores_mock.restore.return_value = (
+            volume_fakes.FakeVolume.create_one_volume(
+                {'id': self.volume['id']},
+            )
+        )
         # Get the command object to mock
         self.cmd = volume_backup.RestoreVolumeBackup(self.app, None)
 
     def test_backup_restore(self):
         arglist = [
             self.backup.id,
-            self.backup.volume_id
         ]
         verifylist = [
             ("backup", self.backup.id),
-            ("volume", self.backup.volume_id)
+            ("volume", None),
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
         result = self.cmd.take_action(parsed_args)
         self.restores_mock.restore.assert_called_with(self.backup.id,
-                                                      self.backup.volume_id)
-        self.assertIsNone(result)
+                                                      None)
+        self.assertIsNotNone(result)
+
+    def test_backup_restore_with_existing_volume(self):
+        arglist = [
+            self.backup.id,
+            self.backup.volume_id,
+        ]
+        verifylist = [
+            ("backup", self.backup.id),
+            ("volume", self.backup.volume_id),
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        result = self.cmd.take_action(parsed_args)
+        self.restores_mock.restore.assert_called_with(
+            self.backup.id, self.backup.volume_id,
+        )
+        self.assertIsNotNone(result)
+
+    def test_backup_restore_with_invalid_volume(self):
+        arglist = [
+            self.backup.id,
+            "unexist_volume",
+        ]
+        verifylist = [
+            ("backup", self.backup.id),
+            ("volume", "unexist_volume"),
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+        with mock.patch.object(
+            utils, 'find_resource',
+            side_effect=exceptions.CommandError(),
+        ):
+            self.assertRaises(
+                exceptions.CommandError,
+                self.cmd.take_action,
+                parsed_args,
+            )
 
 
 class TestBackupShow(TestBackup):

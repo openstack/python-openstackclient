@@ -363,18 +363,50 @@ class RestoreVolumeBackup(command.ShowOne):
         parser.add_argument(
             "volume",
             metavar="<volume>",
-            help=_("Volume to restore to (name or ID)")
+            nargs="?",
+            help=_(
+                "Volume to restore to "
+                "(name or ID for existing volume, name only for new volume) "
+                "(default to None)"
+            )
+        )
+        parser.add_argument(
+            "--force",
+            action="store_true",
+            help=_(
+                "Restore the backup to an existing volume "
+                "(default to False)"
+            )
         )
         return parser
 
     def take_action(self, parsed_args):
         volume_client = self.app.client_manager.volume
+
         backup = utils.find_resource(volume_client.backups, parsed_args.backup)
-        destination_volume = utils.find_resource(volume_client.volumes,
-                                                 parsed_args.volume)
-        backup = volume_client.restores.restore(backup.id,
-                                                destination_volume.id)
-        return zip(*sorted(backup._info.items()))
+
+        volume_name = None
+        volume_id = None
+        try:
+            volume_id = utils.find_resource(
+                volume_client.volumes,
+                parsed_args.volume,
+            ).id
+        except Exception:
+            volume_name = parsed_args.volume
+        else:
+            # If we didn't fail, the volume must already exist. We only allow
+            # this to work if the user forced things
+            if not parsed_args.force:
+                msg = _(
+                    "Volume '%s' already exists; if you want to restore the "
+                    "backup to it you need to specify the '--force' option"
+                ) % parsed_args.volume
+                raise exceptions.CommandError(msg)
+
+        return volume_client.restores.restore(
+            backup.id, volume_id, volume_name,
+        )
 
 
 class SetVolumeBackup(command.Command):
