@@ -575,6 +575,13 @@ class ListImage(command.Lister):
             default=False,
             help=_("List only shared images"),
         )
+        public_group.add_argument(
+            "--all",
+            dest="all",
+            action="store_true",
+            default=False,
+            help=_("List all images"),
+        )
         parser.add_argument(
             '--property',
             metavar='<key=value>',
@@ -675,6 +682,8 @@ class ListImage(command.Lister):
             kwargs['visibility'] = 'community'
         if parsed_args.shared:
             kwargs['visibility'] = 'shared'
+        if parsed_args.all:
+            kwargs['visibility'] = 'all'
         if parsed_args.limit:
             kwargs['limit'] = parsed_args.limit
         if parsed_args.marker:
