@@ -1614,7 +1614,7 @@ class TestImageSave(TestImage):
 
         verifylist = [
             ('file', '/path/to/file'),
-            ('image', self.image.id)
+            ('image', self.image.id),
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
@@ -1622,6 +1622,7 @@ class TestImageSave(TestImage):
 
         self.client.download_image.assert_called_once_with(
             self.image.id,
+            stream=True,
             output='/path/to/file')
 
 
