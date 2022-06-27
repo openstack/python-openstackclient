@@ -1,0 +1,6 @@
+---
+fixes:
+  - |
+    The ``volume attachment create`` command will now display information
+    for successfully created volume attachments. Previously an empty table was
+    returned.

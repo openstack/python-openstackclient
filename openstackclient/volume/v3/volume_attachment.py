@@ -51,18 +51,27 @@ def _format_attachment(attachment):
         'Properties',
     )
 
-    # TODO(stephenfin): Improve output with the nested connection_info
-    # field - cinderclient printed two things but that's equally ugly
-    return (
-        column_headers,
-        utils.get_item_properties(
+    # VolumeAttachmentManager.create returns a dict while everything else
+    # returns a VolumeAttachment object
+    if isinstance(attachment, dict):
+        data = []
+        for column in columns:
+            if column == 'connection_info':
+                data.append(format_columns.DictColumn(attachment[column]))
+                continue
+            data.append(attachment[column])
+    else:
+        data = utils.get_item_properties(
             attachment,
             columns,
             formatters={
                 'connection_info': format_columns.DictColumn,
             },
-        ),
-    )
+        )
+
+    # TODO(stephenfin): Improve output with the nested connection_info
+    # field - cinderclient printed two things but that's equally ugly
+    return (column_headers, data)
 
 
 class CreateVolumeAttachment(command.ShowOne):
