@@ -35,6 +35,7 @@ def _format_network_security_group_rules(sg_rules):
         for key in empty_keys:
             sg_rule.pop(key)
         sg_rule.pop('security_group_id', None)
+        sg_rule.pop('tenant_id', None)
         sg_rule.pop('project_id', None)
     return utils.format_list_of_dicts(sg_rules)
 

@@ -24,9 +24,9 @@ def _get_columns(item):
         "type": "rule_type_name",
         "drivers": "drivers",
     }
-    invisible_columns = ["id", "location", "name"]
+    hidden_columns = ["id", "location", "name", 'tenant_id']
     return utils.get_osc_show_columns_for_sdk_resource(
-        item, column_map, invisible_columns)
+        item, column_map, hidden_columns)
 
 
 class ListNetworkQosRuleType(command.Lister):

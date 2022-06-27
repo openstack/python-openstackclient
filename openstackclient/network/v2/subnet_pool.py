@@ -37,7 +37,7 @@ def _get_columns(item):
         'maximum_prefix_length': 'max_prefixlen',
         'minimum_prefix_length': 'min_prefixlen',
     }
-    hidden_columns = ['location']
+    hidden_columns = ['location', 'tenant_id']
     return utils.get_osc_show_columns_for_sdk_resource(
         item,
         column_map,

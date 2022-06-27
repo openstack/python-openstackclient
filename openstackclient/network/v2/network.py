@@ -60,6 +60,7 @@ def _get_columns_network(item):
         'ipv6_address_scope_id': 'ipv6_address_scope',
         'tags': 'tags',
     }
+    hidden_columns = ['location', 'tenant_id']
     hidden_columns = ['location']
     return utils.get_osc_show_columns_for_sdk_resource(
         item,

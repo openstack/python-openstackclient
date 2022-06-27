@@ -138,16 +138,17 @@ def _get_columns(item):
         'is_dhcp_enabled': 'enable_dhcp',
         'subnet_pool_id': 'subnetpool_id',
     }
-    # Do not show this column when displaying a subnet
-    invisible_columns = [
+    # Do not show these columns when displaying a subnet
+    hidden_columns = [
         'location',
         'use_default_subnet_pool',
-        'prefix_length'
+        'prefix_length',
+        'tenant_id',
     ]
     return utils.get_osc_show_columns_for_sdk_resource(
         item,
         column_map,
-        invisible_columns
+        hidden_columns
     )
 
 

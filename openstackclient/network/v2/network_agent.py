@@ -50,7 +50,7 @@ def _get_network_columns(item):
         'is_admin_state_up': 'admin_state_up',
         'is_alive': 'alive',
     }
-    hidden_columns = ['location', 'name']
+    hidden_columns = ['location', 'name', 'tenant_id']
     return utils.get_osc_show_columns_for_sdk_resource(
         item,
         column_map,
