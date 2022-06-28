@@ -201,6 +201,7 @@ class QuotaTests(base.TestCase):
                           self.PROJECT_NAME)
 
     def test_quota_network_set_with_force(self):
+        self.skipTest('story 2010110')
         if not self.haz_network:
             self.skipTest('No Network service present')
         # NOTE(ralonsoh): the Neutron support for the flag "check-limit" was
