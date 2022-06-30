@@ -408,17 +408,9 @@ class CreateImage(command.ShowOne):
             )
         return parser
 
-    def take_action(self, parsed_args):
+    def _take_action_image(self, parsed_args):
         identity_client = self.app.client_manager.identity
         image_client = self.app.client_manager.image
-
-        for deadopt in self.deadopts:
-            if getattr(parsed_args, deadopt.replace('-', '_'), None):
-                msg = _(
-                    "ERROR: --%s was given, which is an Image v1 option "
-                    "that is no longer supported in Image v2"
-                )
-                raise exceptions.CommandError(msg % deadopt)
 
         # Build an attribute dict from the parsed args, only include
         # attributes that were actually set on the command line
@@ -472,7 +464,6 @@ class CreateImage(command.ShowOne):
         # image is created. Get the file name (if it is file, and not stdin)
         # for easier further handling.
         fp, fname = get_data_file(parsed_args)
-        info = {}
 
         if fp is not None and parsed_args.volume:
             msg = _(
@@ -552,49 +543,92 @@ class CreateImage(command.ShowOne):
             if signer.padding_method:
                 kwargs['img_signature_key_type'] = signer.padding_method
 
-        # If a volume is specified.
-        if parsed_args.volume:
-            volume_client = self.app.client_manager.volume
-            source_volume = utils.find_resource(
-                volume_client.volumes,
-                parsed_args.volume,
-            )
-            mv_kwargs = {}
-            if volume_client.api_version >= api_versions.APIVersion('3.1'):
-                mv_kwargs.update(
-                    visibility=kwargs.get('visibility', 'private'),
-                    protected=bool(parsed_args.is_protected),
+        image = image_client.create_image(**kwargs)
+        return _format_image(image)
+
+    def _take_action_volume(self, parsed_args):
+        volume_client = self.app.client_manager.volume
+
+        unsupported_opts = {
+            # 'name',  # 'name' is a positional argument and will always exist
+            'id',
+            'min_disk',
+            'min_ram',
+            'file',
+            'force',
+            'progress',
+            'sign_key_path',
+            'sign_cert_id',
+            'properties',
+            'tags',
+            'project',
+            'use_import',
+        }
+        for unsupported_opt in unsupported_opts:
+            if getattr(parsed_args, unsupported_opt, None):
+                opt_name = unsupported_opt.replace('-', '_')
+                if unsupported_opt == 'use_import':
+                    opt_name = 'import'
+                msg = _(
+                    "'--%s' was given, which is not supported when "
+                    "creating an image from a volume. "
+                    "This will be an error in a future version."
                 )
-            else:
-                if (
-                    parsed_args.visibility or
-                    parsed_args.is_protected is not None
-                ):
-                    msg = _(
-                        '--os-volume-api-version 3.1 or greater is required '
-                        'to support the --public, --private, --community, '
-                        '--shared or --protected option.'
-                    )
-                    raise exceptions.CommandError(msg)
+                # TODO(stephenfin): These should be an error in a future
+                # version
+                LOG.warning(msg % opt_name)
 
-            response, body = volume_client.volumes.upload_to_image(
-                source_volume.id,
-                parsed_args.force,
-                parsed_args.name,
-                parsed_args.container_format,
-                parsed_args.disk_format,
-                **mv_kwargs
-            )
-            info = body['os-volume_upload_image']
-            try:
-                info['volume_type'] = info['volume_type']['name']
-            except TypeError:
-                info['volume_type'] = None
+        source_volume = utils.find_resource(
+            volume_client.volumes,
+            parsed_args.volume,
+        )
+        kwargs = {}
+        if volume_client.api_version < api_versions.APIVersion('3.1'):
+            if (
+                parsed_args.visibility or
+                parsed_args.is_protected is not None
+            ):
+                msg = _(
+                    '--os-volume-api-version 3.1 or greater is required '
+                    'to support the --public, --private, --community, '
+                    '--shared or --protected option.'
+                )
+                raise exceptions.CommandError(msg)
         else:
-            image = image_client.create_image(**kwargs)
+            kwargs.update(
+                visibility=parsed_args.visibility or 'private',
+                protected=parsed_args.is_protected or False,
+            )
 
-        if not info:
-            info = _format_image(image)
+        response, body = volume_client.volumes.upload_to_image(
+            source_volume.id,
+            parsed_args.force,
+            parsed_args.name,
+            parsed_args.container_format,
+            parsed_args.disk_format,
+            **kwargs
+        )
+        info = body['os-volume_upload_image']
+        try:
+            info['volume_type'] = info['volume_type']['name']
+        except TypeError:
+            info['volume_type'] = None
+
+        return info
+
+    def take_action(self, parsed_args):
+        for deadopt in self.deadopts:
+            if getattr(parsed_args, deadopt.replace('-', '_'), None):
+                msg = _(
+                    "ERROR: --%s was given, which is an Image v1 option "
+                    "that is no longer supported in Image v2"
+                )
+                raise exceptions.CommandError(msg % deadopt)
+
+        if parsed_args.volume:
+            info = self._take_action_volume(parsed_args)
+        else:
+            info = self._take_action_image(parsed_args)
 
         return zip(*sorted(info.items()))
 
