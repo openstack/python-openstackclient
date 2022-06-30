@@ -325,32 +325,44 @@ class CreateImage(command.ShowOne):
         protected_group.add_argument(
             "--protected",
             action="store_true",
+            dest="is_protected",
+            default=None,
             help=_("Prevent image from being deleted"),
         )
         protected_group.add_argument(
             "--unprotected",
-            action="store_true",
+            action="store_false",
+            dest="is_protected",
+            default=None,
             help=_("Allow image to be deleted (default)"),
         )
         public_group = parser.add_mutually_exclusive_group()
         public_group.add_argument(
             "--public",
-            action="store_true",
+            action="store_const",
+            const="public",
+            dest="visibility",
             help=_("Image is accessible to the public"),
         )
         public_group.add_argument(
             "--private",
-            action="store_true",
+            action="store_const",
+            const="private",
+            dest="visibility",
             help=_("Image is inaccessible to the public (default)"),
         )
         public_group.add_argument(
             "--community",
-            action="store_true",
+            action="store_const",
+            const="community",
+            dest="visibility",
             help=_("Image is accessible to the community"),
         )
         public_group.add_argument(
             "--shared",
-            action="store_true",
+            action="store_const",
+            const="shared",
+            dest="visibility",
             help=_("Image can be shared"),
         )
         parser.add_argument(
@@ -440,18 +452,12 @@ class CreateImage(command.ShowOne):
         # a single value for the pair of options because the default must be
         # to do nothing when no options are present as opposed to always
         # setting a default.
-        if parsed_args.protected:
-            kwargs['is_protected'] = True
-        if parsed_args.unprotected:
-            kwargs['is_protected'] = False
-        if parsed_args.public:
-            kwargs['visibility'] = 'public'
-        if parsed_args.private:
-            kwargs['visibility'] = 'private'
-        if parsed_args.community:
-            kwargs['visibility'] = 'community'
-        if parsed_args.shared:
-            kwargs['visibility'] = 'shared'
+        if parsed_args.is_protected is not None:
+            kwargs['is_protected'] = parsed_args.is_protected
+
+        if parsed_args.visibility is not None:
+            kwargs['visibility'] = parsed_args.visibility
+
         if parsed_args.project:
             kwargs['owner_id'] = common.find_project(
                 identity_client,
@@ -557,16 +563,20 @@ class CreateImage(command.ShowOne):
             if volume_client.api_version >= api_versions.APIVersion('3.1'):
                 mv_kwargs.update(
                     visibility=kwargs.get('visibility', 'private'),
-                    protected=bool(parsed_args.protected),
+                    protected=bool(parsed_args.is_protected),
                 )
             else:
-                if kwargs.get('visibility') or parsed_args.protected:
+                if (
+                    parsed_args.visibility or
+                    parsed_args.is_protected is not None
+                ):
                     msg = _(
                         '--os-volume-api-version 3.1 or greater is required '
                         'to support the --public, --private, --community, '
                         '--shared or --protected option.'
                     )
                     raise exceptions.CommandError(msg)
+
             response, body = volume_client.volumes.upload_to_image(
                 source_volume.id,
                 parsed_args.force,
@@ -637,37 +647,37 @@ class ListImage(command.Lister):
         public_group = parser.add_mutually_exclusive_group()
         public_group.add_argument(
             "--public",
-            dest="public",
-            action="store_true",
-            default=False,
+            action="store_const",
+            const="public",
+            dest="visibility",
             help=_("List only public images"),
         )
         public_group.add_argument(
             "--private",
-            dest="private",
-            action="store_true",
-            default=False,
+            action="store_const",
+            const="private",
+            dest="visibility",
             help=_("List only private images"),
         )
         public_group.add_argument(
             "--community",
-            dest="community",
-            action="store_true",
-            default=False,
+            action="store_const",
+            const="community",
+            dest="visibility",
             help=_("List only community images"),
         )
         public_group.add_argument(
             "--shared",
-            dest="shared",
-            action="store_true",
-            default=False,
+            action="store_const",
+            const="shared",
+            dest="visibility",
             help=_("List only shared images"),
         )
         public_group.add_argument(
             "--all",
-            dest="all",
-            action="store_true",
-            default=False,
+            action="store_const",
+            const="all",
+            dest="visibility",
             help=_("List all images"),
         )
         parser.add_argument(
@@ -724,6 +734,7 @@ class ListImage(command.Lister):
         parser.add_argument(
             '--hidden',
             action='store_true',
+            dest='is_hidden',
             default=False,
             help=_('List hidden images'),
         )
@@ -774,16 +785,8 @@ class ListImage(command.Lister):
         image_client = self.app.client_manager.image
 
         kwargs = {}
-        if parsed_args.public:
-            kwargs['visibility'] = 'public'
-        if parsed_args.private:
-            kwargs['visibility'] = 'private'
-        if parsed_args.community:
-            kwargs['visibility'] = 'community'
-        if parsed_args.shared:
-            kwargs['visibility'] = 'shared'
-        if parsed_args.all:
-            kwargs['visibility'] = 'all'
+        if parsed_args.visibility is not None:
+            kwargs['visibility'] = parsed_args.visibility
         if parsed_args.limit:
             kwargs['limit'] = parsed_args.limit
         if parsed_args.marker:
@@ -804,8 +807,8 @@ class ListImage(command.Lister):
                 parsed_args.project_domain,
             ).id
             kwargs['owner'] = project_id
-        if parsed_args.hidden:
-            kwargs['is_hidden'] = True
+        if parsed_args.is_hidden:
+            kwargs['is_hidden'] = parsed_args.is_hidden
         if parsed_args.long:
             columns = (
                 'ID',
@@ -1014,32 +1017,44 @@ class SetImage(command.Command):
         protected_group.add_argument(
             "--protected",
             action="store_true",
+            dest="is_protected",
+            default=None,
             help=_("Prevent image from being deleted"),
         )
         protected_group.add_argument(
             "--unprotected",
-            action="store_true",
+            action="store_false",
+            dest="is_protected",
+            default=None,
             help=_("Allow image to be deleted (default)"),
         )
         public_group = parser.add_mutually_exclusive_group()
         public_group.add_argument(
             "--public",
-            action="store_true",
+            action="store_const",
+            const="public",
+            dest="visibility",
             help=_("Image is accessible to the public"),
         )
         public_group.add_argument(
             "--private",
-            action="store_true",
+            action="store_const",
+            const="private",
+            dest="visibility",
             help=_("Image is inaccessible to the public (default)"),
         )
         public_group.add_argument(
             "--community",
-            action="store_true",
+            action="store_const",
+            const="community",
+            dest="visibility",
             help=_("Image is accessible to the community"),
         )
         public_group.add_argument(
             "--shared",
-            action="store_true",
+            action="store_const",
+            const="shared",
+            dest="visibility",
             help=_("Image can be shared"),
         )
         parser.add_argument(
@@ -1120,7 +1135,7 @@ class SetImage(command.Command):
             parser.add_argument(
                 "--%s" % deadopt,
                 metavar="<%s>" % deadopt,
-                dest=deadopt.replace('-', '_'),
+                dest=f"dead_{deadopt.replace('-', '_')}",
                 help=argparse.SUPPRESS,
             )
 
@@ -1153,14 +1168,14 @@ class SetImage(command.Command):
         hidden_group = parser.add_mutually_exclusive_group()
         hidden_group.add_argument(
             "--hidden",
-            dest='hidden',
+            dest="is_hidden",
             default=None,
             action="store_true",
             help=_("Hide the image"),
         )
         hidden_group.add_argument(
             "--unhidden",
-            dest='hidden',
+            dest="is_hidden",
             default=None,
             action="store_false",
             help=_("Unhide the image"),
@@ -1172,7 +1187,7 @@ class SetImage(command.Command):
         image_client = self.app.client_manager.image
 
         for deadopt in self.deadopts:
-            if getattr(parsed_args, deadopt.replace('-', '_'), None):
+            if getattr(parsed_args, f"dead_{deadopt.replace('-', '_')}", None):
                 raise exceptions.CommandError(
                     _(
                         "ERROR: --%s was given, which is an Image v1 option"
@@ -1258,26 +1273,22 @@ class SetImage(command.Command):
         # a single value for the pair of options because the default must be
         # to do nothing when no options are present as opposed to always
         # setting a default.
-        if parsed_args.protected:
-            kwargs['is_protected'] = True
-        if parsed_args.unprotected:
-            kwargs['is_protected'] = False
-        if parsed_args.public:
-            kwargs['visibility'] = 'public'
-        if parsed_args.private:
-            kwargs['visibility'] = 'private'
-        if parsed_args.community:
-            kwargs['visibility'] = 'community'
-        if parsed_args.shared:
-            kwargs['visibility'] = 'shared'
+        if parsed_args.is_protected is not None:
+            kwargs['is_protected'] = parsed_args.is_protected
+
+        if parsed_args.visibility is not None:
+            kwargs['visibility'] = parsed_args.visibility
+
         if parsed_args.project:
             # We already did the project lookup above
             kwargs['owner_id'] = project_id
+
         if parsed_args.tags:
             # Tags should be extended, but duplicates removed
             kwargs['tags'] = list(set(image.tags).union(set(parsed_args.tags)))
-        if parsed_args.hidden is not None:
-            kwargs['is_hidden'] = parsed_args.hidden
+
+        if parsed_args.is_hidden is not None:
+            kwargs['is_hidden'] = parsed_args.is_hidden
 
         try:
             image = image_client.update_image(image.id, **kwargs)

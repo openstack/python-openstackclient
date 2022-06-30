@@ -32,7 +32,7 @@ from openstackclient.tests.unit.volume.v3 import fakes as volume_fakes
 class TestImage(image_fakes.TestImagev2, volume_fakes.TestVolume):
 
     def setUp(self):
-        super(TestImage, self).setUp()
+        super().setUp()
 
         # Get shortcuts to mocked image client
         self.client = self.app.client_manager.image
@@ -62,7 +62,7 @@ class TestImageCreate(TestImage):
     domain = identity_fakes.FakeDomain.create_one_domain()
 
     def setUp(self):
-        super(TestImageCreate, self).setUp()
+        super().setUp()
 
         self.new_image = image_fakes.create_one_image()
         self.client.create_image.return_value = self.new_image
@@ -134,10 +134,8 @@ class TestImageCreate(TestImage):
             ('disk_format', 'ami'),
             ('min_disk', 10),
             ('min_ram', 4),
-            ('protected', self.new_image.is_protected),
-            ('unprotected', not self.new_image.is_protected),
-            ('public', self.new_image.visibility == 'public'),
-            ('private', self.new_image.visibility == 'private'),
+            ('is_protected', self.new_image.is_protected),
+            ('visibility', self.new_image.visibility),
             ('project', self.new_image.owner_id),
             ('project_domain', self.domain.id),
             ('name', self.new_image.name),
@@ -188,10 +186,8 @@ class TestImageCreate(TestImage):
             ('disk_format', 'ami'),
             ('min_disk', 10),
             ('min_ram', 4),
-            ('protected', True),
-            ('unprotected', False),
-            ('public', False),
-            ('private', True),
+            ('is_protected', True),
+            ('visibility', 'private'),
             ('project', 'unexist_owner'),
             ('name', 'graven'),
         ]
@@ -222,10 +218,8 @@ class TestImageCreate(TestImage):
         ]
         verifylist = [
             ('file', imagefile.name),
-            ('protected', self.new_image.is_protected),
-            ('unprotected', not self.new_image.is_protected),
-            ('public', self.new_image.visibility == 'public'),
-            ('private', self.new_image.visibility == 'private'),
+            ('is_protected', self.new_image.is_protected),
+            ('visibility', self.new_image.visibility),
             ('properties', {'Alpha': '1', 'Beta': '2'}),
             ('tags', self.new_image.tags),
             ('name', self.new_image.name),
@@ -421,7 +415,7 @@ class TestAddProjectToImage(TestImage):
     )
 
     def setUp(self):
-        super(TestAddProjectToImage, self).setUp()
+        super().setUp()
 
         # This is the return value for utils.find_resource()
         self.client.find_image.return_value = self._image
@@ -485,7 +479,7 @@ class TestAddProjectToImage(TestImage):
 class TestImageDelete(TestImage):
 
     def setUp(self):
-        super(TestImageDelete, self).setUp()
+        super().setUp()
 
         self.client.delete_image.return_value = None
 
@@ -576,7 +570,7 @@ class TestImageList(TestImage):
     ),
 
     def setUp(self):
-        super(TestImageList, self).setUp()
+        super().setUp()
 
         self.client.images.side_effect = [[self._image], []]
 
@@ -586,11 +580,7 @@ class TestImageList(TestImage):
     def test_image_list_no_options(self):
         arglist = []
         verifylist = [
-            ('public', False),
-            ('private', False),
-            ('community', False),
-            ('shared', False),
-            ('all', False),
+            ('visibility', None),
             ('long', False),
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
@@ -611,11 +601,7 @@ class TestImageList(TestImage):
             '--public',
         ]
         verifylist = [
-            ('public', True),
-            ('private', False),
-            ('community', False),
-            ('shared', False),
-            ('all', False),
+            ('visibility', 'public'),
             ('long', False),
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
@@ -636,11 +622,7 @@ class TestImageList(TestImage):
             '--private',
         ]
         verifylist = [
-            ('public', False),
-            ('private', True),
-            ('community', False),
-            ('shared', False),
-            ('all', False),
+            ('visibility', 'private'),
             ('long', False),
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
@@ -661,11 +643,7 @@ class TestImageList(TestImage):
             '--community',
         ]
         verifylist = [
-            ('public', False),
-            ('private', False),
-            ('community', True),
-            ('shared', False),
-            ('all', False),
+            ('visibility', 'community'),
             ('long', False),
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
@@ -686,11 +664,7 @@ class TestImageList(TestImage):
             '--shared',
         ]
         verifylist = [
-            ('public', False),
-            ('private', False),
-            ('community', False),
-            ('shared', True),
-            ('all', False),
+            ('visibility', 'shared'),
             ('long', False),
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
@@ -711,11 +685,7 @@ class TestImageList(TestImage):
             '--all',
         ]
         verifylist = [
-            ('public', False),
-            ('private', False),
-            ('community', False),
-            ('shared', False),
-            ('all', True),
+            ('visibility', 'all'),
             ('long', False),
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
@@ -737,11 +707,7 @@ class TestImageList(TestImage):
             '--member-status', 'all'
         ]
         verifylist = [
-            ('public', False),
-            ('private', False),
-            ('community', False),
-            ('shared', True),
-            ('all', False),
+            ('visibility', 'shared'),
             ('long', False),
             ('member_status', 'all')
         ]
@@ -765,11 +731,7 @@ class TestImageList(TestImage):
             '--member-status', 'ALl'
         ]
         verifylist = [
-            ('public', False),
-            ('private', False),
-            ('community', False),
-            ('shared', True),
-            ('all', False),
+            ('visibility', 'shared'),
             ('long', False),
             ('member_status', 'all')
         ]
@@ -959,7 +921,7 @@ class TestImageList(TestImage):
             '--hidden',
         ]
         verifylist = [
-            ('hidden', True),
+            ('is_hidden', True),
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
@@ -1006,7 +968,7 @@ class TestListImageProjects(TestImage):
     )]
 
     def setUp(self):
-        super(TestListImageProjects, self).setUp()
+        super().setUp()
 
         self.client.find_image.return_value = self._image
         self.client.members.return_value = [self.member]
@@ -1036,7 +998,7 @@ class TestRemoveProjectImage(TestImage):
     domain = identity_fakes.FakeDomain.create_one_domain()
 
     def setUp(self):
-        super(TestRemoveProjectImage, self).setUp()
+        super().setUp()
 
         self._image = image_fakes.create_one_image()
         # This is the return value for utils.find_resource()
@@ -1100,7 +1062,7 @@ class TestImageSet(TestImage):
     _image = image_fakes.create_one_image({'tags': []})
 
     def setUp(self):
-        super(TestImageSet, self).setUp()
+        super().setUp()
 
         self.project_mock.get.return_value = self.project
 
@@ -1282,10 +1244,8 @@ class TestImageSet(TestImage):
             'graven',
         ]
         verifylist = [
-            ('protected', True),
-            ('unprotected', False),
-            ('public', False),
-            ('private', True),
+            ('is_protected', True),
+            ('visibility', 'private'),
             ('image', 'graven'),
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
@@ -1310,10 +1270,8 @@ class TestImageSet(TestImage):
             'graven',
         ]
         verifylist = [
-            ('protected', False),
-            ('unprotected', True),
-            ('public', True),
-            ('private', False),
+            ('is_protected', False),
+            ('visibility', 'public'),
             ('image', 'graven'),
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
@@ -1532,7 +1490,7 @@ class TestImageSet(TestImage):
             'graven',
         ]
         verifylist = [
-            ('visibility', '1-mile'),
+            ('dead_visibility', '1-mile'),
             ('image', 'graven'),
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
@@ -1574,9 +1532,8 @@ class TestImageSet(TestImage):
             'graven',
         ]
         verifylist = [
-            ('hidden', True),
-            ('public', True),
-            ('private', False),
+            ('is_hidden', True),
+            ('visibility', 'public'),
             ('image', 'graven'),
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
@@ -1601,9 +1558,8 @@ class TestImageSet(TestImage):
             'graven',
         ]
         verifylist = [
-            ('hidden', False),
-            ('public', True),
-            ('private', False),
+            ('is_hidden', False),
+            ('visibility', 'public'),
             ('image', 'graven'),
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
@@ -1643,7 +1599,7 @@ class TestImageShow(TestImage):
     )
 
     def setUp(self):
-        super(TestImageShow, self).setUp()
+        super().setUp()
 
         self.client.find_image = mock.Mock(return_value=self._data)
 
@@ -1699,7 +1655,7 @@ class TestImageShow(TestImage):
 class TestImageUnset(TestImage):
 
     def setUp(self):
-        super(TestImageUnset, self).setUp()
+        super().setUp()
 
         attrs = {}
         attrs['tags'] = ['test']
@@ -1798,7 +1754,7 @@ class TestImageSave(TestImage):
     image = image_fakes.create_one_image({})
 
     def setUp(self):
-        super(TestImageSave, self).setUp()
+        super().setUp()
 
         self.client.find_image.return_value = self.image
         self.client.download_image.return_value = self.image
@@ -1827,7 +1783,7 @@ class TestImageSave(TestImage):
 class TestImageGetData(TestImage):
 
     def setUp(self):
-        super(TestImageGetData, self).setUp()
+        super().setUp()
         self.args = mock.Mock()
 
     def test_get_data_file_file(self):
