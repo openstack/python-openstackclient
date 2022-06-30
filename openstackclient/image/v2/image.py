@@ -44,8 +44,19 @@ else:
 CONTAINER_CHOICES = ["ami", "ari", "aki", "bare", "docker", "ova", "ovf"]
 DEFAULT_CONTAINER_FORMAT = 'bare'
 DEFAULT_DISK_FORMAT = 'raw'
-DISK_CHOICES = ["ami", "ari", "aki", "vhd", "vmdk", "raw", "qcow2", "vhdx",
-                "vdi", "iso", "ploop"]
+DISK_CHOICES = [
+    "ami",
+    "ari",
+    "aki",
+    "vhd",
+    "vmdk",
+    "raw",
+    "qcow2",
+    "vhdx",
+    "vdi",
+    "iso",
+    "ploop",
+]
 MEMBER_STATUS_CHOICES = ["accepted", "pending", "rejected", "all"]
 
 
@@ -59,10 +70,25 @@ def _format_image(image, human_readable=False):
     properties = {}
 
     # the only fields we're not including is "links", "tags" and the properties
-    fields_to_show = ['status', 'name', 'container_format', 'created_at',
-                      'size', 'disk_format', 'updated_at', 'visibility',
-                      'min_disk', 'protected', 'id', 'file', 'checksum',
-                      'owner', 'virtual_size', 'min_ram', 'schema']
+    fields_to_show = [
+        'status',
+        'name',
+        'container_format',
+        'created_at',
+        'size',
+        'disk_format',
+        'updated_at',
+        'visibility',
+        'min_disk',
+        'protected',
+        'id',
+        'file',
+        'checksum',
+        'owner',
+        'virtual_size',
+        'min_ram',
+        'schema',
+    ]
 
     # TODO(gtema/anybody): actually it should be possible to drop this method,
     # since SDK already delivers a proper object
@@ -99,12 +125,12 @@ _formatters = {
 
 
 def _get_member_columns(item):
-    column_map = {
-        'image_id': 'image_id'
-    }
+    column_map = {'image_id': 'image_id'}
     hidden_columns = ['id', 'location', 'name']
     return utils.get_osc_show_columns_for_sdk_resource(
-        item.to_dict(), column_map, hidden_columns,
+        item.to_dict(),
+        column_map,
+        hidden_columns,
     )
 
 
@@ -142,7 +168,7 @@ class AddProjectToImage(command.ShowOne):
     _description = _("Associate project with image")
 
     def get_parser(self, prog_name):
-        parser = super(AddProjectToImage, self).get_parser(prog_name)
+        parser = super().get_parser(prog_name)
         parser.add_argument(
             "image",
             metavar="<image>",
@@ -166,10 +192,12 @@ class AddProjectToImage(command.ShowOne):
             project_id = common.find_project(
                 identity_client,
                 parsed_args.project,
-                parsed_args.project_domain).id
+                parsed_args.project_domain,
+            ).id
 
-        image = image_client.find_image(parsed_args.image,
-                                        ignore_missing=False)
+        image = image_client.find_image(
+            parsed_args.image, ignore_missing=False
+        )
 
         obj = image_client.add_member(
             image=image.id,
@@ -188,7 +216,7 @@ class CreateImage(command.ShowOne):
     deadopts = ('size', 'location', 'copy-from', 'checksum', 'store')
 
     def get_parser(self, prog_name):
-        parser = super(CreateImage, self).get_parser(prog_name)
+        parser = super().get_parser(prog_name)
         # TODO(bunting): There are additional arguments that v1 supported
         # that v2 either doesn't support or supports weirdly.
         # --checksum - could be faked clientside perhaps?
@@ -211,19 +239,28 @@ class CreateImage(command.ShowOne):
             default=DEFAULT_CONTAINER_FORMAT,
             choices=CONTAINER_CHOICES,
             metavar="<container-format>",
-            help=(_("Image container format. "
+            help=(
+                _(
+                    "Image container format. "
                     "The supported options are: %(option_list)s. "
-                    "The default format is: %(default_opt)s") %
-                  {'option_list': ', '.join(CONTAINER_CHOICES),
-                   'default_opt': DEFAULT_CONTAINER_FORMAT})
+                    "The default format is: %(default_opt)s"
+                )
+                % {
+                    'option_list': ', '.join(CONTAINER_CHOICES),
+                    'default_opt': DEFAULT_CONTAINER_FORMAT,
+                }
+            ),
         )
         parser.add_argument(
             "--disk-format",
             default=DEFAULT_DISK_FORMAT,
             choices=DISK_CHOICES,
             metavar="<disk-format>",
-            help=_("Image disk format. The supported options are: %s. "
-                   "The default format is: raw") % ', '.join(DISK_CHOICES)
+            help=_(
+                "Image disk format. The supported options are: %s. "
+                "The default format is: raw"
+            )
+            % ', '.join(DISK_CHOICES),
         )
         parser.add_argument(
             "--min-disk",
@@ -253,8 +290,10 @@ class CreateImage(command.ShowOne):
             dest='force',
             action='store_true',
             default=False,
-            help=_("Force image creation if volume is in use "
-                   "(only meaningful with --volume)"),
+            help=_(
+                "Force image creation if volume is in use "
+                "(only meaningful with --volume)"
+            ),
         )
         parser.add_argument(
             "--progress",
@@ -266,17 +305,21 @@ class CreateImage(command.ShowOne):
             '--sign-key-path',
             metavar="<sign-key-path>",
             default=[],
-            help=_("Sign the image using the specified private key. "
-                   "Only use in combination with --sign-cert-id")
+            help=_(
+                "Sign the image using the specified private key. "
+                "Only use in combination with --sign-cert-id"
+            ),
         )
         parser.add_argument(
             '--sign-cert-id',
             metavar="<sign-cert-id>",
             default=[],
-            help=_("The specified certificate UUID is a reference to "
-                   "the certificate in the key manager that corresponds "
-                   "to the public key and is used for signature validation. "
-                   "Only use in combination with --sign-key-path")
+            help=_(
+                "The specified certificate UUID is a reference to "
+                "the certificate in the key manager that corresponds "
+                "to the public key and is used for signature validation. "
+                "Only use in combination with --sign-key-path"
+            ),
         )
         protected_group = parser.add_mutually_exclusive_group()
         protected_group.add_argument(
@@ -315,16 +358,20 @@ class CreateImage(command.ShowOne):
             dest="properties",
             metavar="<key=value>",
             action=parseractions.KeyValueAction,
-            help=_("Set a property on this image "
-                   "(repeat option to set multiple properties)"),
+            help=_(
+                "Set a property on this image "
+                "(repeat option to set multiple properties)"
+            ),
         )
         parser.add_argument(
             "--tag",
             dest="tags",
             metavar="<tag>",
             action='append',
-            help=_("Set a tag on this image "
-                   "(repeat option to set multiple tags)"),
+            help=_(
+                "Set a tag on this image "
+                "(repeat option to set multiple tags)"
+            ),
         )
         parser.add_argument(
             "--project",
@@ -336,8 +383,8 @@ class CreateImage(command.ShowOne):
             dest="use_import",
             action="store_true",
             help=_(
-                "Force the use of glance image import instead of"
-                " direct upload")
+                "Force the use of glance image import instead of direct upload"
+            ),
         )
         common.add_project_domain_option_to_parser(parser)
         for deadopt in self.deadopts:
@@ -355,16 +402,25 @@ class CreateImage(command.ShowOne):
 
         for deadopt in self.deadopts:
             if getattr(parsed_args, deadopt.replace('-', '_'), None):
-                raise exceptions.CommandError(
-                    _("ERROR: --%s was given, which is an Image v1 option"
-                      " that is no longer supported in Image v2") % deadopt)
+                msg = _(
+                    "ERROR: --%s was given, which is an Image v1 option "
+                    "that is no longer supported in Image v2"
+                )
+                raise exceptions.CommandError(msg % deadopt)
 
         # Build an attribute dict from the parsed args, only include
         # attributes that were actually set on the command line
         kwargs = {'allow_duplicates': True}
-        copy_attrs = ('name', 'id',
-                      'container_format', 'disk_format',
-                      'min_disk', 'min_ram', 'tags', 'visibility')
+        copy_attrs = (
+            'name',
+            'id',
+            'container_format',
+            'disk_format',
+            'min_disk',
+            'min_ram',
+            'tags',
+            'visibility',
+        )
         for attr in copy_attrs:
             if attr in parsed_args:
                 val = getattr(parsed_args, attr, None)
@@ -409,16 +465,20 @@ class CreateImage(command.ShowOne):
         # open the file first to ensure any failures are handled before the
         # image is created. Get the file name (if it is file, and not stdin)
         # for easier further handling.
-        (fp, fname) = get_data_file(parsed_args)
+        fp, fname = get_data_file(parsed_args)
         info = {}
 
         if fp is not None and parsed_args.volume:
-            raise exceptions.CommandError(_("Uploading data and using "
-                                            "container are not allowed at "
-                                            "the same time"))
+            msg = _(
+                "Uploading data and using container are not allowed at "
+                "the same time"
+            )
+            raise exceptions.CommandError(msg)
+
         if fp is None and parsed_args.file:
             LOG.warning(_("Failed to get an image file."))
             return {}, {}
+
         if fp is not None and parsed_args.progress:
             filesize = os.path.getsize(fname)
             if filesize is not None:
@@ -433,49 +493,58 @@ class CreateImage(command.ShowOne):
         # sign an image using a given local private key file
         if parsed_args.sign_key_path or parsed_args.sign_cert_id:
             if not parsed_args.file:
-                msg = (_("signing an image requires the --file option, "
-                         "passing files via stdin when signing is not "
-                         "supported."))
+                msg = _(
+                    "signing an image requires the --file option, "
+                    "passing files via stdin when signing is not "
+                    "supported."
+                )
                 raise exceptions.CommandError(msg)
-            if (len(parsed_args.sign_key_path) < 1 or
-                    len(parsed_args.sign_cert_id) < 1):
-                msg = (_("'sign-key-path' and 'sign-cert-id' must both be "
-                         "specified when attempting to sign an image."))
+
+            if (
+                len(parsed_args.sign_key_path) < 1 or
+                len(parsed_args.sign_cert_id) < 1
+            ):
+                msg = _(
+                    "'sign-key-path' and 'sign-cert-id' must both be "
+                    "specified when attempting to sign an image."
+                )
                 raise exceptions.CommandError(msg)
-            else:
-                sign_key_path = parsed_args.sign_key_path
-                sign_cert_id = parsed_args.sign_cert_id
-                signer = image_signer.ImageSigner()
-                try:
-                    pw = utils.get_password(
-                        self.app.stdin,
-                        prompt=("Please enter private key password, leave "
-                                "empty if none: "),
-                        confirm=False)
 
-                    if not pw or len(pw) < 1:
-                        pw = None
-                    else:
-                        # load_private_key() requires the password to be
-                        # passed as bytes
-                        pw = pw.encode()
+            sign_key_path = parsed_args.sign_key_path
+            sign_cert_id = parsed_args.sign_cert_id
+            signer = image_signer.ImageSigner()
+            try:
+                pw = utils.get_password(
+                    self.app.stdin,
+                    prompt=(
+                        "Please enter private key password, leave "
+                        "empty if none: "
+                    ),
+                    confirm=False,
+                )
 
-                    signer.load_private_key(
-                        sign_key_path,
-                        password=pw)
-                except Exception:
-                    msg = (_("Error during sign operation: private key "
-                             "could not be loaded."))
-                    raise exceptions.CommandError(msg)
+                if not pw or len(pw) < 1:
+                    pw = None
+                else:
+                    # load_private_key() requires the password to be
+                    # passed as bytes
+                    pw = pw.encode()
 
-                signature = signer.generate_signature(fp)
-                signature_b64 = b64encode(signature)
-                kwargs['img_signature'] = signature_b64
-                kwargs['img_signature_certificate_uuid'] = sign_cert_id
-                kwargs['img_signature_hash_method'] = signer.hash_method
-                if signer.padding_method:
-                    kwargs['img_signature_key_type'] = \
-                        signer.padding_method
+                signer.load_private_key(sign_key_path, password=pw)
+            except Exception:
+                msg = _(
+                    "Error during sign operation: private key "
+                    "could not be loaded."
+                )
+                raise exceptions.CommandError(msg)
+
+            signature = signer.generate_signature(fp)
+            signature_b64 = b64encode(signature)
+            kwargs['img_signature'] = signature_b64
+            kwargs['img_signature_certificate_uuid'] = sign_cert_id
+            kwargs['img_signature_hash_method'] = signer.hash_method
+            if signer.padding_method:
+                kwargs['img_signature_key_type'] = signer.padding_method
 
         # If a volume is specified.
         if parsed_args.volume:
@@ -488,7 +557,7 @@ class CreateImage(command.ShowOne):
             if volume_client.api_version >= api_versions.APIVersion('3.1'):
                 mv_kwargs.update(
                     visibility=kwargs.get('visibility', 'private'),
-                    protected=bool(parsed_args.protected)
+                    protected=bool(parsed_args.protected),
                 )
             else:
                 if kwargs.get('visibility') or parsed_args.protected:
@@ -524,7 +593,7 @@ class DeleteImage(command.Command):
     _description = _("Delete image(s)")
 
     def get_parser(self, prog_name):
-        parser = super(DeleteImage, self).get_parser(prog_name)
+        parser = super().get_parser(prog_name)
         parser.add_argument(
             "images",
             metavar="<image>",
@@ -539,19 +608,24 @@ class DeleteImage(command.Command):
         image_client = self.app.client_manager.image
         for image in parsed_args.images:
             try:
-                image_obj = image_client.find_image(image,
-                                                    ignore_missing=False)
+                image_obj = image_client.find_image(
+                    image, ignore_missing=False
+                )
                 image_client.delete_image(image_obj.id)
             except Exception as e:
                 del_result += 1
-                LOG.error(_("Failed to delete image with name or "
-                            "ID '%(image)s': %(e)s"),
-                          {'image': image, 'e': e})
+                msg = _(
+                    "Failed to delete image with name or "
+                    "ID '%(image)s': %(e)s"
+                )
+                LOG.error(msg, {'image': image, 'e': e})
 
         total = len(parsed_args.images)
-        if (del_result > 0):
-            msg = (_("Failed to delete %(dresult)s of %(total)s images.")
-                   % {'dresult': del_result, 'total': total})
+        if del_result > 0:
+            msg = _("Failed to delete %(dresult)s of %(total)s images.") % {
+                'dresult': del_result,
+                'total': total,
+            }
             raise exceptions.CommandError(msg)
 
 
@@ -559,7 +633,7 @@ class ListImage(command.Lister):
     _description = _("List available images")
 
     def get_parser(self, prog_name):
-        parser = super(ListImage, self).get_parser(prog_name)
+        parser = super().get_parser(prog_name)
         public_group = parser.add_mutually_exclusive_group()
         public_group.add_argument(
             "--public",
@@ -600,20 +674,22 @@ class ListImage(command.Lister):
             '--property',
             metavar='<key=value>',
             action=parseractions.KeyValueAction,
-            help=_('Filter output based on property '
-                   '(repeat option to filter on multiple properties)'),
+            help=_(
+                'Filter output based on property '
+                '(repeat option to filter on multiple properties)'
+            ),
         )
         parser.add_argument(
             '--name',
             metavar='<name>',
             default=None,
-            help=_("Filter images based on name.")
+            help=_("Filter images based on name."),
         )
         parser.add_argument(
             '--status',
             metavar='<status>',
             default=None,
-            help=_("Filter images based on status.")
+            help=_("Filter images based on status."),
         )
         parser.add_argument(
             '--member-status',
@@ -621,14 +697,18 @@ class ListImage(command.Lister):
             default=None,
             type=lambda s: s.lower(),
             choices=MEMBER_STATUS_CHOICES,
-            help=(_("Filter images based on member status. "
-                    "The supported options are: %s. ") %
-                  ', '.join(MEMBER_STATUS_CHOICES))
+            help=(
+                _(
+                    "Filter images based on member status. "
+                    "The supported options are: %s. "
+                )
+                % ', '.join(MEMBER_STATUS_CHOICES)
+            ),
         )
         parser.add_argument(
             '--project',
             metavar='<project>',
-            help=_("Search by project (admin only) (name or ID)")
+            help=_("Search by project (admin only) (name or ID)"),
         )
         common.add_project_domain_option_to_parser(parser)
         parser.add_argument(
@@ -636,8 +716,10 @@ class ListImage(command.Lister):
             metavar='<tag>',
             action='append',
             default=[],
-            help=_('Filter images based on tag. '
-                   '(repeat option to filter on multiple tags)'),
+            help=_(
+                'Filter images based on tag. '
+                '(repeat option to filter on multiple tags)'
+            ),
         )
         parser.add_argument(
             '--hidden',
@@ -663,9 +745,11 @@ class ListImage(command.Lister):
             '--sort',
             metavar="<key>[:<direction>]",
             default='name:asc',
-            help=_("Sort output by selected keys and directions(asc or desc) "
-                   "(default: name:asc), multiple keys and directions can be "
-                   "specified separated by comma"),
+            help=_(
+                "Sort output by selected keys and directions (asc or desc) "
+                "(default: name:asc), multiple keys and directions can be "
+                "specified separated by comma"
+            ),
         )
         parser.add_argument(
             "--limit",
@@ -677,9 +761,11 @@ class ListImage(command.Lister):
             '--marker',
             metavar='<image>',
             default=None,
-            help=_("The last image of the previous page. Display "
-                   "list of images after marker. Display all images if not "
-                   "specified. (name or ID)"),
+            help=_(
+                "The last image of the previous page. Display "
+                "list of images after marker. Display all images if not "
+                "specified. (name or ID)"
+            ),
         )
         return parser
 
@@ -770,11 +856,14 @@ class ListImage(command.Lister):
 
         return (
             column_headers,
-            (utils.get_item_properties(
-                s,
-                columns,
-                formatters=_formatters,
-            ) for s in data)
+            (
+                utils.get_item_properties(
+                    s,
+                    columns,
+                    formatters=_formatters,
+                )
+                for s in data
+            ),
         )
 
 
@@ -782,7 +871,7 @@ class ListImageProjects(command.Lister):
     _description = _("List projects associated with image")
 
     def get_parser(self, prog_name):
-        parser = super(ListImageProjects, self).get_parser(prog_name)
+        parser = super().get_parser(prog_name)
         parser.add_argument(
             "image",
             metavar="<image>",
@@ -793,27 +882,29 @@ class ListImageProjects(command.Lister):
 
     def take_action(self, parsed_args):
         image_client = self.app.client_manager.image
-        columns = (
-            "Image ID",
-            "Member ID",
-            "Status"
-        )
+        columns = ("Image ID", "Member ID", "Status")
 
         image_id = image_client.find_image(parsed_args.image).id
 
         data = image_client.members(image=image_id)
 
-        return (columns,
-                (utils.get_item_properties(
-                    s, columns,
-                ) for s in data))
+        return (
+            columns,
+            (
+                utils.get_item_properties(
+                    s,
+                    columns,
+                )
+                for s in data
+            ),
+        )
 
 
 class RemoveProjectImage(command.Command):
     _description = _("Disassociate project with image")
 
     def get_parser(self, prog_name):
-        parser = super(RemoveProjectImage, self).get_parser(prog_name)
+        parser = super().get_parser(prog_name)
         parser.add_argument(
             "image",
             metavar="<image>",
@@ -831,23 +922,22 @@ class RemoveProjectImage(command.Command):
         image_client = self.app.client_manager.image
         identity_client = self.app.client_manager.identity
 
-        project_id = common.find_project(identity_client,
-                                         parsed_args.project,
-                                         parsed_args.project_domain).id
+        project_id = common.find_project(
+            identity_client, parsed_args.project, parsed_args.project_domain
+        ).id
 
-        image = image_client.find_image(parsed_args.image,
-                                        ignore_missing=False)
+        image = image_client.find_image(
+            parsed_args.image, ignore_missing=False
+        )
 
-        image_client.remove_member(
-            member=project_id,
-            image=image.id)
+        image_client.remove_member(member=project_id, image=image.id)
 
 
 class SaveImage(command.Command):
     _description = _("Save an image locally")
 
     def get_parser(self, prog_name):
-        parser = super(SaveImage, self).get_parser(prog_name)
+        parser = super().get_parser(prog_name)
         parser.add_argument(
             "--file",
             metavar="<filename>",
@@ -877,7 +967,7 @@ class SetImage(command.Command):
     deadopts = ('visibility',)
 
     def get_parser(self, prog_name):
-        parser = super(SetImage, self).get_parser(prog_name)
+        parser = super().get_parser(prog_name)
         # TODO(bunting): There are additional arguments that v1 supported
         # --size - does not exist in v2
         # --store - does not exist in v2
@@ -889,20 +979,16 @@ class SetImage(command.Command):
         # --checksum - maybe could be done client side
         # --stdin - could be implemented
         parser.add_argument(
-            "image",
-            metavar="<image>",
-            help=_("Image to modify (name or ID)")
+            "image", metavar="<image>", help=_("Image to modify (name or ID)")
         )
         parser.add_argument(
-            "--name",
-            metavar="<name>",
-            help=_("New image name")
+            "--name", metavar="<name>", help=_("New image name")
         )
         parser.add_argument(
             "--min-disk",
             type=int,
             metavar="<disk-gb>",
-            help=_("Minimum disk size needed to boot image, in gigabytes")
+            help=_("Minimum disk size needed to boot image, in gigabytes"),
         )
         parser.add_argument(
             "--min-ram",
@@ -914,15 +1000,15 @@ class SetImage(command.Command):
             "--container-format",
             metavar="<container-format>",
             choices=CONTAINER_CHOICES,
-            help=_("Image container format. The supported options are: %s") %
-            ', '.join(CONTAINER_CHOICES)
+            help=_("Image container format. The supported options are: %s")
+            % ', '.join(CONTAINER_CHOICES),
         )
         parser.add_argument(
             "--disk-format",
             metavar="<disk-format>",
             choices=DISK_CHOICES,
-            help=_("Image disk format. The supported options are: %s") %
-            ', '.join(DISK_CHOICES)
+            help=_("Image disk format. The supported options are: %s")
+            % ', '.join(DISK_CHOICES),
         )
         protected_group = parser.add_mutually_exclusive_group()
         protected_group.add_argument(
@@ -961,8 +1047,10 @@ class SetImage(command.Command):
             dest="properties",
             metavar="<key=value>",
             action=parseractions.KeyValueAction,
-            help=_("Set a property on this image "
-                   "(repeat option to set multiple properties)"),
+            help=_(
+                "Set a property on this image "
+                "(repeat option to set multiple properties)"
+            ),
         )
         parser.add_argument(
             "--tag",
@@ -970,8 +1058,10 @@ class SetImage(command.Command):
             metavar="<tag>",
             default=None,
             action='append',
-            help=_("Set a tag on this image "
-                   "(repeat option to set multiple tags)"),
+            help=_(
+                "Set a tag on this image "
+                "(repeat option to set multiple tags)"
+            ),
         )
         parser.add_argument(
             "--architecture",
@@ -1084,11 +1174,16 @@ class SetImage(command.Command):
         for deadopt in self.deadopts:
             if getattr(parsed_args, deadopt.replace('-', '_'), None):
                 raise exceptions.CommandError(
-                    _("ERROR: --%s was given, which is an Image v1 option"
-                      " that is no longer supported in Image v2") % deadopt)
+                    _(
+                        "ERROR: --%s was given, which is an Image v1 option"
+                        " that is no longer supported in Image v2"
+                    )
+                    % deadopt
+                )
 
         image = image_client.find_image(
-            parsed_args.image, ignore_missing=False,
+            parsed_args.image,
+            ignore_missing=False,
         )
         project_id = None
         if parsed_args.project:
@@ -1125,10 +1220,25 @@ class SetImage(command.Command):
         # handle everything else
 
         kwargs = {}
-        copy_attrs = ('architecture', 'container_format', 'disk_format',
-                      'file', 'instance_id', 'kernel_id', 'locations',
-                      'min_disk', 'min_ram', 'name', 'os_distro', 'os_version',
-                      'prefix', 'progress', 'ramdisk_id', 'tags', 'visibility')
+        copy_attrs = (
+            'architecture',
+            'container_format',
+            'disk_format',
+            'file',
+            'instance_id',
+            'kernel_id',
+            'locations',
+            'min_disk',
+            'min_ram',
+            'name',
+            'os_distro',
+            'os_version',
+            'prefix',
+            'progress',
+            'ramdisk_id',
+            'tags',
+            'visibility',
+        )
         for attr in copy_attrs:
             if attr in parsed_args:
                 val = getattr(parsed_args, attr, None)
@@ -1173,8 +1283,10 @@ class SetImage(command.Command):
             image = image_client.update_image(image.id, **kwargs)
         except Exception:
             if activation_status is not None:
-                LOG.info(_("Image %(id)s was %(status)s."),
-                         {'id': image.id, 'status': activation_status})
+                LOG.info(
+                    _("Image %(id)s was %(status)s."),
+                    {'id': image.id, 'status': activation_status},
+                )
             raise
 
 
@@ -1182,7 +1294,7 @@ class ShowImage(command.ShowOne):
     _description = _("Display image details")
 
     def get_parser(self, prog_name):
-        parser = super(ShowImage, self).get_parser(prog_name)
+        parser = super().get_parser(prog_name)
         parser.add_argument(
             "--human-readable",
             default=False,
@@ -1199,8 +1311,9 @@ class ShowImage(command.ShowOne):
     def take_action(self, parsed_args):
         image_client = self.app.client_manager.image
 
-        image = image_client.find_image(parsed_args.image,
-                                        ignore_missing=False)
+        image = image_client.find_image(
+            parsed_args.image, ignore_missing=False
+        )
 
         info = _format_image(image, parsed_args.human_readable)
         return zip(*sorted(info.items()))
@@ -1210,7 +1323,7 @@ class UnsetImage(command.Command):
     _description = _("Unset image tags and properties")
 
     def get_parser(self, prog_name):
-        parser = super(UnsetImage, self).get_parser(prog_name)
+        parser = super().get_parser(prog_name)
         parser.add_argument(
             "image",
             metavar="<image>",
@@ -1222,8 +1335,10 @@ class UnsetImage(command.Command):
             metavar="<tag>",
             default=[],
             action='append',
-            help=_("Unset a tag on this image "
-                   "(repeat option to unset multiple tags)"),
+            help=_(
+                "Unset a tag on this image "
+                "(repeat option to unset multiple tags)"
+            ),
         )
         parser.add_argument(
             "--property",
@@ -1231,15 +1346,18 @@ class UnsetImage(command.Command):
             metavar="<property-key>",
             default=[],
             action='append',
-            help=_("Unset a property on this image "
-                   "(repeat option to unset multiple properties)"),
+            help=_(
+                "Unset a property on this image "
+                "(repeat option to unset multiple properties)"
+            ),
         )
         return parser
 
     def take_action(self, parsed_args):
         image_client = self.app.client_manager.image
-        image = image_client.find_image(parsed_args.image,
-                                        ignore_missing=False)
+        image = image_client.find_image(
+            parsed_args.image, ignore_missing=False
+        )
 
         kwargs = {}
         tagret = 0
@@ -1249,8 +1367,9 @@ class UnsetImage(command.Command):
                 try:
                     image_client.remove_tag(image.id, k)
                 except Exception:
-                    LOG.error(_("tag unset failed, '%s' is a "
-                                "nonexistent tag "), k)
+                    LOG.error(
+                        _("tag unset failed, '%s' is a " "nonexistent tag "), k
+                    )
                     tagret += 1
 
         if parsed_args.properties:
@@ -1262,35 +1381,46 @@ class UnsetImage(command.Command):
                     # pass modified properties object, so that SDK can figure
                     # out, what was changed inside
                     # NOTE: ping gtema to improve that in SDK
-                    new_props = kwargs.get('properties',
-                                           image.get('properties').copy())
+                    new_props = kwargs.get(
+                        'properties', image.get('properties').copy()
+                    )
                     new_props.pop(k, None)
                     kwargs['properties'] = new_props
                 else:
-                    LOG.error(_("property unset failed, '%s' is a "
-                                "nonexistent property "), k)
+                    LOG.error(
+                        _(
+                            "property unset failed, '%s' is a "
+                            "nonexistent property "
+                        ),
+                        k,
+                    )
                     propret += 1
 
             # We must give to update a current image for the reference on what
             # has changed
-            image_client.update_image(
-                image,
-                **kwargs)
+            image_client.update_image(image, **kwargs)
 
         tagtotal = len(parsed_args.tags)
         proptotal = len(parsed_args.properties)
-        if (tagret > 0 and propret > 0):
-            msg = (_("Failed to unset %(tagret)s of %(tagtotal)s tags,"
-                   "Failed to unset %(propret)s of %(proptotal)s properties.")
-                   % {'tagret': tagret, 'tagtotal': tagtotal,
-                      'propret': propret, 'proptotal': proptotal})
+        if tagret > 0 and propret > 0:
+            msg = _(
+                "Failed to unset %(tagret)s of %(tagtotal)s tags,"
+                "Failed to unset %(propret)s of %(proptotal)s properties."
+            ) % {
+                'tagret': tagret,
+                'tagtotal': tagtotal,
+                'propret': propret,
+                'proptotal': proptotal,
+            }
             raise exceptions.CommandError(msg)
         elif tagret > 0:
-            msg = (_("Failed to unset %(tagret)s of %(tagtotal)s tags.")
-                   % {'tagret': tagret, 'tagtotal': tagtotal})
+            msg = _("Failed to unset %(tagret)s of %(tagtotal)s tags.") % {
+                'tagret': tagret,
+                'tagtotal': tagtotal,
+            }
             raise exceptions.CommandError(msg)
         elif propret > 0:
-            msg = (_("Failed to unset %(propret)s of %(proptotal)s"
-                   " properties.")
-                   % {'propret': propret, 'proptotal': proptotal})
+            msg = _(
+                "Failed to unset %(propret)s of %(proptotal)s" " properties."
+            ) % {'propret': propret, 'proptotal': proptotal}
             raise exceptions.CommandError(msg)
