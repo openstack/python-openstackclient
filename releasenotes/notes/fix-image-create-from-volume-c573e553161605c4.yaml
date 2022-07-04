@@ -1,0 +1,7 @@
+---
+fixes:
+  - |
+    Fixed create image from volume command. If user wants to
+    pass ``visibility`` and ``protected`` fields, they need to
+    specify volume microversion 3.1 or greater by passing
+    ``os-volume-api-version 3.1`` with the command.
