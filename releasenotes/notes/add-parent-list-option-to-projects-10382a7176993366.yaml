@@ -1,0 +1,5 @@
+---
+features:
+  - |
+    Add ``--parent`` option to ``project list`` command to filter projects
+    by the specified parent project.

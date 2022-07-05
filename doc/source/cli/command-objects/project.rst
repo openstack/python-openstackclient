@@ -102,6 +102,7 @@ List projects
 
     openstack project list
         [--domain <domain>]
+        [--parent <parent>]
         [--user <user>]
         [--my-projects]
         [--long]
@@ -112,6 +113,12 @@ List projects
 .. option:: --domain <domain>
 
     Filter projects by :option:`\<domain\> <--domain>` (name or ID)
+
+    .. versionadded:: 3
+
+.. option:: --parent <parent>
+
+    Filter projects whose parent is :option:`\<parent\> <--parent>` (name or ID)
 
     .. versionadded:: 3
 
