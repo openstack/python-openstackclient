@@ -1,0 +1,8 @@
+---
+features:
+  - |
+    Add support for compute API microversion 2.47, which changes how flavor
+    details are included in server detail responses. In 2.46 and below,
+    only the flavor ID was shown in the server detail response. Starting in
+    2.47, flavor information is embedded in the server response. The newer
+    behavior is now supported.
