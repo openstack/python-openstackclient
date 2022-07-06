@@ -1422,21 +1422,28 @@ class ListServer(command.Lister):
                 columns += ('image_name',)
             column_headers += ('Image',)
 
-        if parsed_args.long:
-            columns += (
-                'flavor_name',
-                'flavor_id',
-            )
-            column_headers += (
-                'Flavor Name',
-                'Flavor ID',
-            )
-        else:
-            if parsed_args.no_name_lookup:
-                columns += ('flavor_id',)
-            else:
-                columns += ('flavor_name',)
+        # microversion 2.47 puts the embedded flavor into the server response
+        # body but omits the id, so if not present we just expose the original
+        # flavor name in the output
+        if compute_client.api_version >= api_versions.APIVersion('2.47'):
+            columns += ('flavor_name',)
             column_headers += ('Flavor',)
+        else:
+            if parsed_args.long:
+                columns += (
+                    'flavor_name',
+                    'flavor_id',
+                )
+                column_headers += (
+                    'Flavor Name',
+                    'Flavor ID',
+                )
+            else:
+                if parsed_args.no_name_lookup:
+                    columns += ('flavor_id',)
+                else:
+                    columns += ('flavor_name',)
+                column_headers += ('Flavor',)
 
         if parsed_args.long:
             columns += (
@@ -1539,18 +1546,13 @@ class ListServer(command.Lister):
                 s.image_name = ''
                 s.image_id = ''
 
-            if 'id' in s.flavor:
+            if compute_client.api_version < api_versions.APIVersion('2.47'):
                 flavor = flavors.get(s.flavor['id'])
                 if flavor:
                     s.flavor_name = flavor.name
                 s.flavor_id = s.flavor['id']
             else:
-                # TODO(mriedem): Fix this for microversion >= 2.47 where the
-                # flavor is embedded in the server response without the id.
-                # We likely need to drop the Flavor ID column in that case if
-                # --long is specified.
-                s.flavor_name = ''
-                s.flavor_id = ''
+                s.flavor_name = s.flavor['original_name']
 
         table = (column_headers,
                  (utils.get_item_properties(

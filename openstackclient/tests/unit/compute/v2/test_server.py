@@ -2498,7 +2498,7 @@ class TestServerDumpCreate(TestServer):
         self.run_method_with_servers('trigger_crash_dump', 3)
 
 
-class TestServerList(TestServer):
+class _TestServerList(TestServer):
 
     # Columns to be listed up.
     columns = (
@@ -2526,7 +2526,7 @@ class TestServerList(TestServer):
     )
 
     def setUp(self):
-        super(TestServerList, self).setUp()
+        super(_TestServerList, self).setUp()
 
         self.search_opts = {
             'reservation_id': None,
@@ -2584,10 +2584,11 @@ class TestServerList(TestServer):
         # Get the command object to test
         self.cmd = server.ListServer(self.app, None)
 
-        # Prepare data returned by fake Nova API.
-        self.data = []
-        self.data_long = []
-        self.data_no_name_lookup = []
+
+class TestServerList(_TestServerList):
+
+    def setUp(self):
+        super(TestServerList, self).setUp()
 
         Image = collections.namedtuple('Image', 'id name')
         self.images_mock.return_value = [
@@ -2602,8 +2603,8 @@ class TestServerList(TestServer):
             for s in self.servers
         ]
 
-        for s in self.servers:
-            self.data.append((
+        self.data = tuple(
+            (
                 s.id,
                 s.name,
                 s.status,
@@ -2611,34 +2612,8 @@ class TestServerList(TestServer):
                 # Image will be an empty string if boot-from-volume
                 self.image.name if s.image else s.image,
                 self.flavor.name,
-            ))
-            self.data_long.append((
-                s.id,
-                s.name,
-                s.status,
-                getattr(s, 'OS-EXT-STS:task_state'),
-                server._format_servers_list_power_state(
-                    getattr(s, 'OS-EXT-STS:power_state')
-                ),
-                server._format_servers_list_networks(s.networks),
-                # Image will be an empty string if boot-from-volume
-                self.image.name if s.image else s.image,
-                s.image['id'] if s.image else s.image,
-                self.flavor.name,
-                s.flavor['id'],
-                getattr(s, 'OS-EXT-AZ:availability_zone'),
-                getattr(s, 'OS-EXT-SRV-ATTR:host'),
-                s.Metadata,
-            ))
-            self.data_no_name_lookup.append((
-                s.id,
-                s.name,
-                s.status,
-                server._format_servers_list_networks(s.networks),
-                # Image will be an empty string if boot-from-volume
-                s.image['id'] if s.image else s.image,
-                s.flavor['id']
-            ))
+            ) for s in self.servers
+        )
 
     def test_server_list_no_option(self):
         arglist = []
@@ -2659,7 +2634,7 @@ class TestServerList(TestServer):
         self.assertFalse(self.flavors_mock.get.call_count)
         self.assertFalse(self.get_image_mock.call_count)
         self.assertEqual(self.columns, columns)
-        self.assertEqual(tuple(self.data), tuple(data))
+        self.assertEqual(self.data, tuple(data))
 
     def test_server_list_no_servers(self):
         arglist = []
@@ -2678,9 +2653,28 @@ class TestServerList(TestServer):
         self.assertEqual(0, self.images_mock.list.call_count)
         self.assertEqual(0, self.flavors_mock.list.call_count)
         self.assertEqual(self.columns, columns)
-        self.assertEqual(tuple(self.data), tuple(data))
+        self.assertEqual(self.data, tuple(data))
 
     def test_server_list_long_option(self):
+        self.data = tuple(
+            (
+                s.id,
+                s.name,
+                s.status,
+                getattr(s, 'OS-EXT-STS:task_state'),
+                server._format_servers_list_power_state(
+                    getattr(s, 'OS-EXT-STS:power_state')
+                ),
+                server._format_servers_list_networks(s.networks),
+                # Image will be an empty string if boot-from-volume
+                self.image.name if s.image else s.image,
+                s.image['id'] if s.image else s.image,
+                self.flavor.name,
+                s.flavor['id'],
+                getattr(s, 'OS-EXT-AZ:availability_zone'),
+                getattr(s, 'OS-EXT-SRV-ATTR:host'),
+                s.Metadata,
+            ) for s in self.servers)
         arglist = [
             '--long',
         ]
@@ -2691,12 +2685,23 @@ class TestServerList(TestServer):
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
         columns, data = self.cmd.take_action(parsed_args)
-
         self.servers_mock.list.assert_called_with(**self.kwargs)
         self.assertEqual(self.columns_long, columns)
-        self.assertEqual(tuple(self.data_long), tuple(data))
+        self.assertEqual(self.data, tuple(data))
 
     def test_server_list_no_name_lookup_option(self):
+        self.data = tuple(
+            (
+                s.id,
+                s.name,
+                s.status,
+                server._format_servers_list_networks(s.networks),
+                # Image will be an empty string if boot-from-volume
+                s.image['id'] if s.image else s.image,
+                s.flavor['id']
+            ) for s in self.servers
+        )
+
         arglist = [
             '--no-name-lookup',
         ]
@@ -2710,9 +2715,21 @@ class TestServerList(TestServer):
 
         self.servers_mock.list.assert_called_with(**self.kwargs)
         self.assertEqual(self.columns, columns)
-        self.assertEqual(tuple(self.data_no_name_lookup), tuple(data))
+        self.assertEqual(self.data, tuple(data))
 
     def test_server_list_n_option(self):
+        self.data = tuple(
+            (
+                s.id,
+                s.name,
+                s.status,
+                server._format_servers_list_networks(s.networks),
+                # Image will be an empty string if boot-from-volume
+                s.image['id'] if s.image else s.image,
+                s.flavor['id']
+            ) for s in self.servers
+        )
+
         arglist = [
             '-n',
         ]
@@ -2726,7 +2743,7 @@ class TestServerList(TestServer):
 
         self.servers_mock.list.assert_called_with(**self.kwargs)
         self.assertEqual(self.columns, columns)
-        self.assertEqual(tuple(self.data_no_name_lookup), tuple(data))
+        self.assertEqual(self.data, tuple(data))
 
     def test_server_list_name_lookup_one_by_one(self):
         arglist = [
@@ -2748,7 +2765,7 @@ class TestServerList(TestServer):
         self.flavors_mock.get.assert_called()
 
         self.assertEqual(self.columns, columns)
-        self.assertEqual(tuple(self.data), tuple(data))
+        self.assertEqual(self.data, tuple(data))
 
     def test_server_list_with_image(self):
 
@@ -2769,81 +2786,7 @@ class TestServerList(TestServer):
         self.servers_mock.list.assert_called_with(**self.kwargs)
 
         self.assertEqual(self.columns, columns)
-        self.assertEqual(tuple(self.data), tuple(data))
-
-    def test_server_list_with_locked_pre_v273(self):
-
-        arglist = [
-            '--locked'
-        ]
-        verifylist = [
-            ('locked', True)
-        ]
-
-        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
-        ex = self.assertRaises(exceptions.CommandError,
-                               self.cmd.take_action,
-                               parsed_args)
-        self.assertIn(
-            '--os-compute-api-version 2.73 or greater is required', str(ex))
-
-    def test_server_list_with_locked_v273(self):
-
-        self.app.client_manager.compute.api_version = \
-            api_versions.APIVersion('2.73')
-        arglist = [
-            '--locked'
-        ]
-        verifylist = [
-            ('locked', True)
-        ]
-
-        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
-        columns, data = self.cmd.take_action(parsed_args)
-
-        self.search_opts['locked'] = True
-        self.servers_mock.list.assert_called_with(**self.kwargs)
-
-        self.assertEqual(self.columns, columns)
-        self.assertEqual(tuple(self.data), tuple(data))
-
-    def test_server_list_with_unlocked_v273(self):
-
-        self.app.client_manager.compute.api_version = \
-            api_versions.APIVersion('2.73')
-        arglist = [
-            '--unlocked'
-        ]
-        verifylist = [
-            ('unlocked', True)
-        ]
-
-        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
-        columns, data = self.cmd.take_action(parsed_args)
-
-        self.search_opts['locked'] = False
-        self.servers_mock.list.assert_called_with(**self.kwargs)
-
-        self.assertEqual(self.columns, columns)
-        self.assertEqual(tuple(self.data), tuple(data))
-
-    def test_server_list_with_locked_and_unlocked_v273(self):
-
-        self.app.client_manager.compute.api_version = \
-            api_versions.APIVersion('2.73')
-        arglist = [
-            '--locked',
-            '--unlocked'
-        ]
-        verifylist = [
-            ('locked', True),
-            ('unlocked', True)
-        ]
-
-        ex = self.assertRaises(
-            utils.ParserException,
-            self.check_parser, self.cmd, arglist, verifylist)
-        self.assertIn('Argument parse failed', str(ex))
+        self.assertEqual(self.data, tuple(data))
 
     def test_server_list_with_flavor(self):
 
@@ -2863,7 +2806,7 @@ class TestServerList(TestServer):
         self.servers_mock.list.assert_called_with(**self.kwargs)
 
         self.assertEqual(self.columns, columns)
-        self.assertEqual(tuple(self.data), tuple(data))
+        self.assertEqual(self.data, tuple(data))
 
     def test_server_list_with_changes_since(self):
 
@@ -2884,7 +2827,7 @@ class TestServerList(TestServer):
         self.servers_mock.list.assert_called_with(**self.kwargs)
 
         self.assertEqual(self.columns, columns)
-        self.assertEqual(tuple(self.data), tuple(data))
+        self.assertEqual(self.data, tuple(data))
 
     @mock.patch.object(timeutils, 'parse_isotime', side_effect=ValueError)
     def test_server_list_with_invalid_changes_since(self, mock_parse_isotime):
@@ -2907,7 +2850,149 @@ class TestServerList(TestServer):
             'Invalid time value'
         )
 
-    def test_server_list_v266_with_changes_before(self):
+
+class TestServerListV273(_TestServerList):
+
+    # Columns to be listed up.
+    columns = (
+        'ID',
+        'Name',
+        'Status',
+        'Networks',
+        'Image',
+        'Flavor',
+    )
+    columns_long = (
+        'ID',
+        'Name',
+        'Status',
+        'Task State',
+        'Power State',
+        'Networks',
+        'Image Name',
+        'Image ID',
+        'Flavor',
+        'Availability Zone',
+        'Host',
+        'Properties',
+    )
+
+    def setUp(self):
+        super(TestServerListV273, self).setUp()
+
+        # The fake servers' attributes. Use the original attributes names in
+        # nova, not the ones printed by "server list" command.
+        self.attrs['flavor'] = {
+            'vcpus': self.flavor.vcpus,
+            'ram': self.flavor.ram,
+            'disk': self.flavor.disk,
+            'ephemeral': self.flavor.ephemeral,
+            'swap': self.flavor.swap,
+            'original_name': self.flavor.name,
+            'extra_specs': self.flavor.properties,
+        }
+
+        # The servers to be listed.
+        self.servers = self.setup_servers_mock(3)
+        self.servers_mock.list.return_value = self.servers
+
+        Image = collections.namedtuple('Image', 'id name')
+        self.images_mock.return_value = [
+            Image(id=s.image['id'], name=self.image.name)
+            # Image will be an empty string if boot-from-volume
+            for s in self.servers if s.image
+        ]
+
+        # The flavor information is embedded, so now reason for this to be
+        # called
+        self.flavors_mock.list = mock.NonCallableMock()
+
+        self.data = tuple(
+            (
+                s.id,
+                s.name,
+                s.status,
+                server._format_servers_list_networks(s.networks),
+                # Image will be an empty string if boot-from-volume
+                self.image.name if s.image else s.image,
+                self.flavor.name,
+            ) for s in self.servers)
+
+    def test_server_list_with_locked_pre_v273(self):
+
+        arglist = [
+            '--locked'
+        ]
+        verifylist = [
+            ('locked', True)
+        ]
+
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+        ex = self.assertRaises(exceptions.CommandError,
+                               self.cmd.take_action,
+                               parsed_args)
+        self.assertIn(
+            '--os-compute-api-version 2.73 or greater is required', str(ex))
+
+    def test_server_list_with_locked(self):
+
+        self.app.client_manager.compute.api_version = \
+            api_versions.APIVersion('2.73')
+        arglist = [
+            '--locked'
+        ]
+        verifylist = [
+            ('locked', True)
+        ]
+
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+        columns, data = self.cmd.take_action(parsed_args)
+
+        self.search_opts['locked'] = True
+        self.servers_mock.list.assert_called_with(**self.kwargs)
+
+        self.assertItemsEqual(self.columns, columns)
+        self.assertItemsEqual(self.data, tuple(data))
+
+    def test_server_list_with_unlocked_v273(self):
+
+        self.app.client_manager.compute.api_version = \
+            api_versions.APIVersion('2.73')
+        arglist = [
+            '--unlocked'
+        ]
+        verifylist = [
+            ('unlocked', True)
+        ]
+
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+        columns, data = self.cmd.take_action(parsed_args)
+
+        self.search_opts['locked'] = False
+        self.servers_mock.list.assert_called_with(**self.kwargs)
+
+        self.assertItemsEqual(self.columns, columns)
+        self.assertItemsEqual(self.data, tuple(data))
+
+    def test_server_list_with_locked_and_unlocked(self):
+
+        self.app.client_manager.compute.api_version = \
+            api_versions.APIVersion('2.73')
+        arglist = [
+            '--locked',
+            '--unlocked'
+        ]
+        verifylist = [
+            ('locked', True),
+            ('unlocked', True)
+        ]
+
+        ex = self.assertRaises(
+            utils.ParserException,
+            self.check_parser, self.cmd, arglist, verifylist)
+        self.assertIn('Argument parse failed', str(ex))
+
+    def test_server_list_with_changes_before(self):
         self.app.client_manager.compute.api_version = (
             api_versions.APIVersion('2.66'))
         arglist = [
@@ -2924,13 +3009,14 @@ class TestServerList(TestServer):
 
         self.search_opts['changes-before'] = '2016-03-05T06:27:59Z'
         self.search_opts['deleted'] = True
+
         self.servers_mock.list.assert_called_with(**self.kwargs)
 
-        self.assertEqual(self.columns, columns)
-        self.assertEqual(tuple(self.data), tuple(data))
+        self.assertItemsEqual(self.columns, columns)
+        self.assertItemsEqual(self.data, tuple(data))
 
     @mock.patch.object(timeutils, 'parse_isotime', side_effect=ValueError)
-    def test_server_list_v266_with_invalid_changes_before(
+    def test_server_list_with_invalid_changes_before(
             self, mock_parse_isotime):
         self.app.client_manager.compute.api_version = (
             api_versions.APIVersion('2.66'))
