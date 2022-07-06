@@ -1337,15 +1337,19 @@ class ListServer(command.Lister):
         # flavor name is given, map it to ID.
         flavor_id = None
         if parsed_args.flavor:
-            flavor_id = utils.find_resource(compute_client.flavors,
-                                            parsed_args.flavor).id
+            flavor_id = utils.find_resource(
+                compute_client.flavors,
+                parsed_args.flavor,
+            ).id
 
         # Nova only supports list servers searching by image ID. So if a
         # image name is given, map it to ID.
         image_id = None
         if parsed_args.image:
-            image_id = image_client.find_image(parsed_args.image,
-                                               ignore_missing=False).id
+            image_id = image_client.find_image(
+                parsed_args.image,
+                ignore_missing=False,
+            ).id
 
         search_opts = {
             'reservation_id': parsed_args.reservation_id,
@@ -1395,76 +1399,78 @@ class ListServer(command.Lister):
             try:
                 timeutils.parse_isotime(search_opts['changes-since'])
             except ValueError:
+                msg = _('Invalid changes-since value: %s')
                 raise exceptions.CommandError(
-                    _('Invalid changes-since value: %s') %
-                    search_opts['changes-since']
+                    msg % search_opts['changes-since']
                 )
 
+        columns = (
+            'id',
+            'name',
+            'status',
+        )
+        column_headers = (
+            'ID',
+            'Name',
+            'Status',
+        )
+
         if parsed_args.long:
-            columns = (
-                'ID',
-                'Name',
-                'Status',
+            columns += (
                 'OS-EXT-STS:task_state',
                 'OS-EXT-STS:power_state',
-                'Networks',
-                'Image Name',
-                'Image ID',
-                'Flavor Name',
-                'Flavor ID',
-                'OS-EXT-AZ:availability_zone',
-                'OS-EXT-SRV-ATTR:host',
-                'Metadata',
             )
-            column_headers = (
-                'ID',
-                'Name',
-                'Status',
+            column_headers += (
                 'Task State',
                 'Power State',
-                'Networks',
+            )
+
+        columns += ('networks',)
+        column_headers += ('Networks',)
+
+        if parsed_args.long:
+            columns += (
+                'image_name',
+                'image_id',
+            )
+            column_headers += (
                 'Image Name',
                 'Image ID',
+            )
+        else:
+            if parsed_args.no_name_lookup:
+                columns += ('image_id',)
+            else:
+                columns += ('image_name',)
+            column_headers += ('Image',)
+
+        if parsed_args.long:
+            columns += (
+                'flavor_name',
+                'flavor_id',
+            )
+            column_headers += (
                 'Flavor Name',
                 'Flavor ID',
+            )
+        else:
+            if parsed_args.no_name_lookup:
+                columns += ('flavor_id',)
+            else:
+                columns += ('flavor_name',)
+            column_headers += ('Flavor',)
+
+        if parsed_args.long:
+            columns += (
+                'OS-EXT-AZ:availability_zone',
+                'OS-EXT-SRV-ATTR:host',
+                'metadata',
+            )
+            column_headers += (
                 'Availability Zone',
                 'Host',
                 'Properties',
             )
-            mixed_case_fields = [
-                'OS-EXT-STS:task_state',
-                'OS-EXT-STS:power_state',
-                'OS-EXT-AZ:availability_zone',
-                'OS-EXT-SRV-ATTR:host',
-            ]
-        else:
-            if parsed_args.no_name_lookup:
-                columns = (
-                    'ID',
-                    'Name',
-                    'Status',
-                    'Networks',
-                    'Image ID',
-                    'Flavor ID',
-                )
-            else:
-                columns = (
-                    'ID',
-                    'Name',
-                    'Status',
-                    'Networks',
-                    'Image Name',
-                    'Flavor Name',
-                )
-            column_headers = (
-                'ID',
-                'Name',
-                'Status',
-                'Networks',
-                'Image',
-                'Flavor',
-            )
-            mixed_case_fields = []
 
         marker_id = None
 
@@ -1476,25 +1482,29 @@ class ListServer(command.Lister):
             if parsed_args.deleted:
                 marker_id = parsed_args.marker
             else:
-                marker_id = utils.find_resource(compute_client.servers,
-                                                parsed_args.marker).id
+                marker_id = utils.find_resource(
+                    compute_client.servers,
+                    parsed_args.marker,
+                ).id
 
-        data = compute_client.servers.list(search_opts=search_opts,
-                                           marker=marker_id,
-                                           limit=parsed_args.limit)
+        data = compute_client.servers.list(
+            search_opts=search_opts,
+            marker=marker_id,
+            limit=parsed_args.limit)
 
         images = {}
         flavors = {}
         if data and not parsed_args.no_name_lookup:
-            # Create a dict that maps image_id to image object.
-            # Needed so that we can display the "Image Name" column.
-            # "Image Name" is not crucial, so we swallow any exceptions.
-            # The 'image' attribute can be an empty string if the server was
-            # booted from a volume.
+            # create a dict that maps image_id to image object, which is used
+            # to display the "Image Name" column. Note that 'image.id' can be
+            # empty for BFV instances and 'image' can be missing entirely if
+            # there are infra failures
             if parsed_args.name_lookup_one_by_one or image_id:
-                for i_id in set(filter(lambda x: x is not None,
-                                       (s.image.get('id') for s in data
-                                        if s.image))):
+                for i_id in set(
+                    s.image['id'] for s in data
+                    if s.image and s.image.get('id')
+                ):
+                    # "Image Name" is not crucial, so we swallow any exceptions
                     try:
                         images[i_id] = image_client.get_image(i_id)
                     except Exception:
@@ -1507,12 +1517,17 @@ class ListServer(command.Lister):
                 except Exception:
                     pass
 
-            # Create a dict that maps flavor_id to flavor object.
-            # Needed so that we can display the "Flavor Name" column.
-            # "Flavor Name" is not crucial, so we swallow any exceptions.
+            # create a dict that maps flavor_id to flavor object, which is used
+            # to display the "Flavor Name" column. Note that 'flavor.id' is not
+            # present on microversion 2.47 or later and 'flavor' won't be
+            # present if there are infra failures
             if parsed_args.name_lookup_one_by_one or flavor_id:
-                for f_id in set(filter(lambda x: x is not None,
-                                       (s.flavor.get('id') for s in data))):
+                for f_id in set(
+                    s.flavor['id'] for s in data
+                    if s.flavor and s.flavor.get('id')
+                ):
+                    # "Flavor Name" is not crucial, so we swallow any
+                    # exceptions
                     try:
                         flavors[f_id] = compute_client.flavors.get(f_id)
                     except Exception:
@@ -1536,6 +1551,7 @@ class ListServer(command.Lister):
                 # processing of the image and flavor informations.
                 if not hasattr(s, 'image') or not hasattr(s, 'flavor'):
                     continue
+
             if 'id' in s.image:
                 image = images.get(s.image['id'])
                 if image:
@@ -1548,6 +1564,7 @@ class ListServer(command.Lister):
                 # able to grep for boot-from-volume servers when using the CLI.
                 s.image_name = IMAGE_STRING_FOR_BFV
                 s.image_id = IMAGE_STRING_FOR_BFV
+
             if 'id' in s.flavor:
                 flavor = flavors.get(s.flavor['id'])
                 if flavor:
@@ -1564,12 +1581,17 @@ class ListServer(command.Lister):
         table = (column_headers,
                  (utils.get_item_properties(
                      s, columns,
-                     mixed_case_fields=mixed_case_fields,
+                     mixed_case_fields=(
+                         'OS-EXT-STS:task_state',
+                         'OS-EXT-STS:power_state',
+                         'OS-EXT-AZ:availability_zone',
+                         'OS-EXT-SRV-ATTR:host',
+                     ),
                      formatters={
                          'OS-EXT-STS:power_state':
                              _format_servers_list_power_state,
-                         'Networks': _format_servers_list_networks,
-                         'Metadata': utils.format_dict,
+                         'networks': _format_servers_list_networks,
+                         'metadata': utils.format_dict,
                      },
                  ) for s in data))
         return table
