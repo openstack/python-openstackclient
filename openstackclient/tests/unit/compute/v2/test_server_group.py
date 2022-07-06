@@ -255,10 +255,13 @@ class TestServerGroupList(TestServerGroup):
         verifylist = [
             ('all_projects', False),
             ('long', False),
+            ('limit', None),
+            ('offset', None),
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
         columns, data = self.cmd.take_action(parsed_args)
-        self.server_groups_mock.list.assert_called_once_with(False)
+
+        self.server_groups_mock.list.assert_called_once_with()
 
         self.assertEqual(self.list_columns, columns)
         self.assertEqual(self.list_data, tuple(data))
@@ -271,13 +274,48 @@ class TestServerGroupList(TestServerGroup):
         verifylist = [
             ('all_projects', True),
             ('long', True),
+            ('limit', None),
+            ('offset', None),
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
         columns, data = self.cmd.take_action(parsed_args)
-        self.server_groups_mock.list.assert_called_once_with(True)
+        self.server_groups_mock.list.assert_called_once_with(
+            all_projects=True)
 
         self.assertEqual(self.list_columns_long, columns)
         self.assertEqual(self.list_data_long, tuple(data))
+
+    def test_server_group_list_with_limit(self):
+        arglist = [
+            '--limit', '1',
+        ]
+        verifylist = [
+            ('all_projects', False),
+            ('long', False),
+            ('limit', 1),
+            ('offset', None),
+        ]
+
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+        self.cmd.take_action(parsed_args)
+
+        self.server_groups_mock.list.assert_called_once_with(limit=1)
+
+    def test_server_group_list_with_offset(self):
+        arglist = [
+            '--offset', '5',
+        ]
+        verifylist = [
+            ('all_projects', False),
+            ('long', False),
+            ('limit', None),
+            ('offset', 5),
+        ]
+
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+        self.cmd.take_action(parsed_args)
+
+        self.server_groups_mock.list.assert_called_once_with(offset=5)
 
 
 class TestServerGroupListV264(TestServerGroupV264):
@@ -328,7 +366,7 @@ class TestServerGroupListV264(TestServerGroupV264):
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
         columns, data = self.cmd.take_action(parsed_args)
-        self.server_groups_mock.list.assert_called_once_with(False)
+        self.server_groups_mock.list.assert_called_once_with()
 
         self.assertEqual(self.list_columns, columns)
         self.assertEqual(self.list_data, tuple(data))
@@ -344,7 +382,8 @@ class TestServerGroupListV264(TestServerGroupV264):
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
         columns, data = self.cmd.take_action(parsed_args)
-        self.server_groups_mock.list.assert_called_once_with(True)
+        self.server_groups_mock.list.assert_called_once_with(
+            all_projects=True)
 
         self.assertEqual(self.list_columns_long, columns)
         self.assertEqual(self.list_data_long, tuple(data))
