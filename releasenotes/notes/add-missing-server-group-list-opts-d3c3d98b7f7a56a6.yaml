@@ -1,0 +1,5 @@
+---
+features:
+  - |
+    Add ``--limit`` and ``--offset`` options to ``server group list`` command,
+    to configure pagination of results.
