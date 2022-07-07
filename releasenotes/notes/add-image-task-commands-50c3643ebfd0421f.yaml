@@ -2,3 +2,5 @@
 features:
   - |
     Add ``image task show`` command to show a task for the image service.
+  - |
+    Add ``image task list`` command to list tasks for the image service.
