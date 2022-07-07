@@ -230,7 +230,7 @@ subnetpool-show,subnet pool show,Show information of a given subnetpool.
 subnetpool-update,subnet pool set / subnet pool unset,Update subnetpool's information.
 tag-add,network set --tag,Add a tag into the resource.
 tag-remove,network unset --tag,Remove a tag on the resource.
-tag-replace,,Replace all tags on the resource.
+tag-replace,network set --no-tag --tag,Replace all tags on the resource.
 vpn-endpoint-group-create,,Create a VPN endpoint group.
 vpn-endpoint-group-delete,,Delete a given VPN endpoint group.
 vpn-endpoint-group-list,,List VPN endpoint groups that belong to a given tenant.

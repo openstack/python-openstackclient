@@ -4,7 +4,7 @@ agent-delete,compute agent delete,Delete existing agent build.
 agent-list,compute agent list,List all builds.
 agent-modify,compute agent set,Modify existing agent build.
 aggregate-add-host,aggregate add host,Add the host to the specified aggregate.
-aggregate-cache-images,,Request images be cached. (Supported by API versions '2.81' - '2.latest') [hint: use '-- os-compute-api-version' flag to show help message for proper version]
+aggregate-cache-images,WONTFIX,Request images be cached. (Supported by API versions '2.81' - '2.latest') [hint: use '-- os-compute-api-version' flag to show help message for proper version]
 aggregate-create,aggregate create,Create a new aggregate with the specified details.
 aggregate-delete,aggregate delete,Delete the aggregate.
 aggregate-list,aggregate list,Print a list of all aggregates.
@@ -44,7 +44,7 @@ hypervisor-list,hypervisor list,List hypervisors. (Supported by API versions '2.
 hypervisor-servers,,List servers belonging to specific hypervisors.
 hypervisor-show,hypervisor show,Display the details of the specified hypervisor.
 hypervisor-stats,hypervisor stats show,Get hypervisor statistics over all compute nodes.
-hypervisor-uptime,,Display the uptime of the specified hypervisor.
+hypervisor-uptime,hypervisor show,Display the uptime of the specified hypervisor.
 image-create,server image create,Create a new image by taking a snapshot of a running server.
 instance-action,server event show,Show an action.
 instance-action-list,,List actions on a server.
@@ -65,7 +65,7 @@ live-migration-force-comp,server migration force complete,Force on-going live mi
 lock,server lock,Lock a server.
 meta,server set --property / unset,Set or delete metadata on a server.
 migrate,server migrate,Migrate a server. The new host will be selected by the scheduler.
-migration-list,,Print a list of migrations.
+migration-list,server migration list,Print a list of migrations.
 pause,server pause,Pause a server.
 quota-class-show,quota show --class,List the quotas for a quota class.
 quota-class-update,quota set --class,Update the quotas for a quota class.
@@ -120,8 +120,8 @@ usage,usage show,Show usage data for a single tenant.
 usage-list,usage list,List usage data for all tenants.
 version-list,,List all API versions.
 volume-attach,server add volume,Attach a volume to a server.
-volume-attachments,server show,List all the volumes attached to a server.
+volume-attachments,server volume list,List all the volumes attached to a server.
 volume-detach,server remove volume,Detach a volume from a server.
-volume-update,,Update volume attachment.
+volume-update,server volume update,Update volume attachment.
 bash-completion,complete,Prints all of the commands and options to stdout so that the nova.bash_completion script doesn't have to hard code them.
 help,help,Display help about this program or one of its subcommands.
