@@ -63,6 +63,16 @@ class CreateIdentityProvider(command.ShowOne):
                    'specified, a domain will be created automatically. '
                    '(Name or ID)'),
         )
+        parser.add_argument(
+            '--authorization-ttl',
+            metavar='<authorization-ttl>',
+            type=int,
+            help=_('Time to keep the role assignments for users '
+                   'authenticating via this identity provider. '
+                   'When not provided, global default configured in the '
+                   'Identity service will be used. '
+                   'Available since Identity API version 3.14 (Ussuri).'),
+        )
         enable_identity_provider = parser.add_mutually_exclusive_group()
         enable_identity_provider.add_argument(
             '--enable',
@@ -95,12 +105,23 @@ class CreateIdentityProvider(command.ShowOne):
             domain_id = common.find_domain(identity_client,
                                            parsed_args.domain).id
 
+        # TODO(pas-ha) actually check for 3.14 microversion
+        kwargs = {}
+        auth_ttl = parsed_args.authorization_ttl
+        if auth_ttl is not None:
+            if auth_ttl < 0:
+                msg = (_("%(param)s must be positive integer or zero."
+                         ) % {"param": "authorization-ttl"})
+                raise exceptions.CommandError(msg)
+            kwargs['authorization_ttl'] = auth_ttl
+
         idp = identity_client.federation.identity_providers.create(
             id=parsed_args.identity_provider_id,
             remote_ids=remote_ids,
             description=parsed_args.description,
             domain_id=domain_id,
-            enabled=parsed_args.enabled)
+            enabled=parsed_args.enabled,
+            **kwargs)
 
         idp._info.pop('links', None)
         remote_ids = format_columns.ListColumn(idp._info.pop('remote_ids', []))
@@ -205,6 +226,14 @@ class SetIdentityProvider(command.Command):
             help=_('Name of a file that contains many remote IDs to associate '
                    'with the identity provider, one per line'),
         )
+        parser.add_argument(
+            '--authorization-ttl',
+            metavar='<authorization-ttl>',
+            type=int,
+            help=_('Time to keep the role assignments for users '
+                   'authenticating via this identity provider. '
+                   'Available since Identity API version 3.14 (Ussuri).'),
+        )
         enable_identity_provider = parser.add_mutually_exclusive_group()
         enable_identity_provider.add_argument(
             '--enable',
@@ -240,6 +269,20 @@ class SetIdentityProvider(command.Command):
             kwargs['enabled'] = False
         if parsed_args.remote_id_file or parsed_args.remote_id:
             kwargs['remote_ids'] = remote_ids
+
+        # TODO(pas-ha) actually check for 3.14 microversion
+        # TODO(pas-ha) make it possible to reset authorization_ttl
+        # back to None value.
+        # Currently not possible as filter_kwargs decorator in
+        # keystoneclient/base.py explicitly drops the None-valued keys
+        # from kwargs, and 'update' method is wrapped in this decorator.
+        auth_ttl = parsed_args.authorization_ttl
+        if auth_ttl is not None:
+            if auth_ttl < 0:
+                msg = (_("%(param)s must be positive integer or zero."
+                         ) % {"param": "authorization-ttl"})
+                raise exceptions.CommandError(msg)
+            kwargs['authorization_ttl'] = auth_ttl
 
         federation_client.identity_providers.update(
             parsed_args.identity_provider,
