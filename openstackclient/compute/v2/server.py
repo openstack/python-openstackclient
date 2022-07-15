@@ -3335,7 +3335,7 @@ host.""")
         server = utils.find_resource(
             compute_client.servers, parsed_args.server)
 
-        server = server.evacuate(**kwargs)
+        server.evacuate(**kwargs)
 
         if parsed_args.wait:
             if utils.wait_for_status(
@@ -3350,7 +3350,7 @@ host.""")
                 raise SystemExit
 
         details = _prep_server_detail(
-            compute_client, image_client, server, refresh=False)
+            compute_client, image_client, server, refresh=True)
         return zip(*sorted(details.items()))
 
 
