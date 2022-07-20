@@ -25,16 +25,20 @@ from openstackclient.network import common
 RULE_TYPE_BANDWIDTH_LIMIT = 'bandwidth-limit'
 RULE_TYPE_DSCP_MARKING = 'dscp-marking'
 RULE_TYPE_MINIMUM_BANDWIDTH = 'minimum-bandwidth'
+RULE_TYPE_MINIMUM_PACKET_RATE = 'minimum-packet-rate'
 MANDATORY_PARAMETERS = {
     RULE_TYPE_MINIMUM_BANDWIDTH: {'min_kbps', 'direction'},
+    RULE_TYPE_MINIMUM_PACKET_RATE: {'min_kpps', 'direction'},
     RULE_TYPE_DSCP_MARKING: {'dscp_mark'},
     RULE_TYPE_BANDWIDTH_LIMIT: {'max_kbps'}}
 OPTIONAL_PARAMETERS = {
     RULE_TYPE_MINIMUM_BANDWIDTH: set(),
+    RULE_TYPE_MINIMUM_PACKET_RATE: set(),
     RULE_TYPE_DSCP_MARKING: set(),
     RULE_TYPE_BANDWIDTH_LIMIT: {'direction', 'max_burst_kbps'}}
 DIRECTION_EGRESS = 'egress'
 DIRECTION_INGRESS = 'ingress'
+DIRECTION_ANY = 'any'
 DSCP_VALID_MARKS = [0, 8, 10, 12, 14, 16, 18, 20, 22, 24, 26, 28, 30, 32,
                     34, 36, 38, 40, 46, 48, 56]
 
@@ -98,10 +102,20 @@ def _get_attrs(network_client, parsed_args, is_create=False):
         attrs['dscp_mark'] = parsed_args.dscp_mark
     if parsed_args.min_kbps is not None:
         attrs['min_kbps'] = parsed_args.min_kbps
+    if parsed_args.min_kpps is not None:
+        attrs['min_kpps'] = parsed_args.min_kpps
     if parsed_args.ingress:
-        attrs['direction'] = 'ingress'
+        attrs['direction'] = DIRECTION_INGRESS
     if parsed_args.egress:
-        attrs['direction'] = 'egress'
+        attrs['direction'] = DIRECTION_EGRESS
+    if parsed_args.any:
+        if rule_type == RULE_TYPE_MINIMUM_PACKET_RATE:
+            attrs['direction'] = DIRECTION_ANY
+        else:
+            msg = (_('Direction "any" can only be used with '
+                     '%(rule_type_min_pps)s rule type') %
+                   {'rule_type_min_pps': RULE_TYPE_MINIMUM_PACKET_RATE})
+            raise exceptions.CommandError(msg)
     _check_type_parameters(attrs, rule_type, is_create)
     return attrs
 
@@ -160,6 +174,13 @@ def _add_rule_arguments(parser):
         type=int,
         help=_('Minimum guaranteed bandwidth in kbps')
     )
+    parser.add_argument(
+        '--min-kpps',
+        dest='min_kpps',
+        metavar='<min-kpps>',
+        type=int,
+        help=_('Minimum guaranteed packet rate in kpps')
+    )
     direction_group = parser.add_mutually_exclusive_group()
     direction_group.add_argument(
         '--ingress',
@@ -170,6 +191,12 @@ def _add_rule_arguments(parser):
         '--egress',
         action='store_true',
         help=_("Egress traffic direction from the project point of view")
+    )
+    direction_group.add_argument(
+        '--any',
+        action='store_true',
+        help=_("Any traffic direction from the project point of view. Can be "
+               "used only with minimum packet rate rule.")
     )
 
 
@@ -190,6 +217,7 @@ class CreateNetworkQosRule(command.ShowOne,
             metavar='<type>',
             required=True,
             choices=[RULE_TYPE_MINIMUM_BANDWIDTH,
+                     RULE_TYPE_MINIMUM_PACKET_RATE,
                      RULE_TYPE_DSCP_MARKING,
                      RULE_TYPE_BANDWIDTH_LIMIT],
             help=(_('QoS rule type (%s)') %
@@ -200,10 +228,10 @@ class CreateNetworkQosRule(command.ShowOne,
 
     def take_action(self, parsed_args):
         network_client = self.app.client_manager.network
-        attrs = _get_attrs(network_client, parsed_args, is_create=True)
-        attrs.update(
-            self._parse_extra_properties(parsed_args.extra_properties))
         try:
+            attrs = _get_attrs(network_client, parsed_args, is_create=True)
+            attrs.update(
+                self._parse_extra_properties(parsed_args.extra_properties))
             obj = _rule_action_call(
                 network_client, ACTION_CREATE, parsed_args.type)(
                 attrs.pop('qos_policy_id'), **attrs)
@@ -270,6 +298,7 @@ class ListNetworkQosRule(command.Lister):
             'max_kbps',
             'max_burst_kbps',
             'min_kbps',
+            'min_kpps',
             'dscp_mark',
             'direction',
         )
@@ -280,6 +309,7 @@ class ListNetworkQosRule(command.Lister):
             'Max Kbps',
             'Max Burst Kbits',
             'Min Kbps',
+            'Min Kpps',
             'DSCP mark',
             'Direction',
         )

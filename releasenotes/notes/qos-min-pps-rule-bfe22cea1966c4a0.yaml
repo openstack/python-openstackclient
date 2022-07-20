@@ -1,0 +1,7 @@
+---
+features:
+  - |
+    Add support for QoS minimum packet rate rule to following commands:
+    ``network qos rule create``, ``network qos rule delete``,
+    ``network qos rule list``, ``network qos rule show`` and
+    ``network qos rule set``
