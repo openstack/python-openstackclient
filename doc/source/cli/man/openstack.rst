@@ -49,7 +49,7 @@ command line.  The primary difference is the use of 'project' in the name of the
 Refer to the keystoneclient library documentation for more details about these plugins and their options, and for a complete list of available plugins.
 Please bear in mind that some plugins might not support all of the functionalities of :program:`openstack`; for example the v3unscopedsaml plugin can deliver only unscoped tokens, some commands might not be available through this authentication method.
 
-Additionally, it is possible to use Keystone's service token to authenticate, by setting the options :option:`--os-token` and :option:`--os-url` (or the environment variables :envvar:`OS_TOKEN` and :envvar:`OS_URL` respectively). This method takes precedence over authentication plugins.
+Additionally, it is possible to use Keystone's service token to authenticate, by setting the options :option:`--os-token` and :option:`--os-endpoint` (or the environment variables :envvar:`OS_TOKEN` and :envvar:`OS_ENDPOINT` respectively). This method takes precedence over authentication plugins.
 
 .. NOTE::
     To use the ``v3unscopedsaml`` method, the lxml package will need to be installed.
@@ -106,9 +106,9 @@ OPTIONS
 
     Authentication URL
 
-.. option:: --os-url <service-url>
+.. option:: --os-endpoint <service-url>
 
-    Service URL, when using a service token for authentication
+    Service ENDPOINT, when using a service token for authentication
 
 .. option:: --os-domain-name <auth-domain-name>
 
@@ -349,7 +349,7 @@ file, but if those are incomplete it may be impossible to know which
 auth type is intended.  The :option:`--os-auth-type` option can always be
 used to force a specific type.
 
-When :option:`--os-token` and :option:`--os-url` are both present the
+When :option:`--os-token` and :option:`--os-endpoint` are both present the
 ``token_endpoint`` auth type is selected automatically.  If
 :option:`--os-auth-url` and :option:`--os-username` are present ``password``
 auth type is selected.
@@ -466,9 +466,9 @@ The following environment variables can be set to alter the behaviour of :progra
     - ``v3applicationcredential``
     - ``v3multifactor``
 
-.. envvar:: OS_URL
+.. envvar:: OS_ENDPOINT
 
-    Service URL (when using the service token)
+    Service ENDPOINT (when using the service token)
 
 .. envvar:: OS_DOMAIN_NAME
 

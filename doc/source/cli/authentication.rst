@@ -36,7 +36,7 @@ There are at least three authentication types that are always available:
   URL for the Identity service is also required. [Required: ``--os-auth-url``,
   ``--os-project-name``, ``--os-username``; Optional: ``--os-password``]
 * **Token**: This is slightly different from the usual token authentication
-  (described below as token/endpoint) in that a token and an authentication
+  in that a token and an authentication
   URL are supplied and the plugin retrieves a new token.
   [Required: ``--os-auth-url``, ``--os-token``]
 * **Others**: Other authentication plugins such as SAML, Kerberos, and OAuth1.0
