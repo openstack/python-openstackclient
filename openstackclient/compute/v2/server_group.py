@@ -17,7 +17,7 @@
 
 import logging
 
-from novaclient import api_versions
+from openstack import utils as sdk_utils
 from osc_lib.cli import format_columns
 from osc_lib.cli import parseractions
 from osc_lib.command import command
@@ -31,19 +31,24 @@ LOG = logging.getLogger(__name__)
 
 
 _formatters = {
-    'members': format_columns.ListColumn,
+    'member_ids': format_columns.ListColumn,
     'policies': format_columns.ListColumn,
     'rules': format_columns.DictColumn,
 }
 
 
-def _get_columns(info):
-    columns = list(info.keys())
-    if 'metadata' in columns:
-        # NOTE(RuiChen): The metadata of server group is always empty since API
-        #                compatible, so hide it in order to avoid confusion.
-        columns.remove('metadata')
-    return tuple(sorted(columns))
+def _get_server_group_columns(item, client):
+    column_map = {'member_ids': 'members'}
+    hidden_columns = ['metadata', 'location']
+
+    if sdk_utils.supports_microversion(client, '2.64'):
+        hidden_columns.append('policies')
+    else:
+        hidden_columns.append('policy')
+        hidden_columns.append('rules')
+
+    return utils.get_osc_show_columns_for_sdk_resource(
+        item, column_map, hidden_columns)
 
 
 class CreateServerGroup(command.ShowOne):
@@ -54,7 +59,7 @@ class CreateServerGroup(command.ShowOne):
         parser.add_argument(
             'name',
             metavar='<name>',
-            help=_("New server group name")
+            help=_("New server group name"),
         )
         parser.add_argument(
             '--policy',
@@ -87,11 +92,10 @@ class CreateServerGroup(command.ShowOne):
         return parser
 
     def take_action(self, parsed_args):
-        compute_client = self.app.client_manager.compute
-        info = {}
+        compute_client = self.app.client_manager.sdk_connection.compute
 
         if parsed_args.policy in ('soft-affinity', 'soft-anti-affinity'):
-            if compute_client.api_version < api_versions.APIVersion('2.15'):
+            if not sdk_utils.supports_microversion(compute_client, '2.15'):
                 msg = _(
                     '--os-compute-api-version 2.15 or greater is required to '
                     'support the %s policy'
@@ -99,30 +103,39 @@ class CreateServerGroup(command.ShowOne):
                 raise exceptions.CommandError(msg % parsed_args.policy)
 
         if parsed_args.rules:
-            if compute_client.api_version < api_versions.APIVersion('2.64'):
+            if not sdk_utils.supports_microversion(compute_client, '2.64'):
                 msg = _(
                     '--os-compute-api-version 2.64 or greater is required to '
                     'support the --rule option'
                 )
                 raise exceptions.CommandError(msg)
 
-        if compute_client.api_version < api_versions.APIVersion('2.64'):
-            kwargs = {'policies': [parsed_args.policy]}
+        if not sdk_utils.supports_microversion(compute_client, '2.64'):
+            kwargs = {
+                'name': parsed_args.name,
+                'policies': [parsed_args.policy],
+            }
         else:
             kwargs = {
+                'name': parsed_args.name,
                 'policy': parsed_args.policy,
-                'rules': parsed_args.rules or None,
             }
 
-        server_group = compute_client.server_groups.create(
-            name=parsed_args.name, **kwargs)
+            if parsed_args.rules:
+                kwargs['rules'] = parsed_args.rules
 
-        info.update(server_group._info)
+        server_group = compute_client.create_server_group(**kwargs)
 
-        columns = _get_columns(info)
-        data = utils.get_dict_properties(
-            info, columns, formatters=_formatters)
-        return columns, data
+        display_columns, columns = _get_server_group_columns(
+            server_group,
+            compute_client,
+        )
+        data = utils.get_item_properties(
+            server_group,
+            columns,
+            formatters=_formatters,
+        )
+        return display_columns, data
 
 
 class DeleteServerGroup(command.Command):
@@ -134,18 +147,17 @@ class DeleteServerGroup(command.Command):
             'server_group',
             metavar='<server-group>',
             nargs='+',
-            help=_("server group(s) to delete (name or ID)")
+            help=_("server group(s) to delete (name or ID)"),
         )
         return parser
 
     def take_action(self, parsed_args):
-        compute_client = self.app.client_manager.compute
+        compute_client = self.app.client_manager.sdk_connection.compute
         result = 0
         for group in parsed_args.server_group:
             try:
-                group_obj = utils.find_resource(compute_client.server_groups,
-                                                group)
-                compute_client.server_groups.delete(group_obj.id)
+                group_obj = compute_client.find_server_group(group)
+                compute_client.delete_server_group(group_obj.id)
             # Catch all exceptions in order to avoid to block the next deleting
             except Exception as e:
                 result += 1
@@ -169,13 +181,13 @@ class ListServerGroup(command.Lister):
             '--all-projects',
             action='store_true',
             default=False,
-            help=_("Display information from all projects (admin only)")
+            help=_("Display information from all projects (admin only)"),
         )
         parser.add_argument(
             '--long',
             action='store_true',
             default=False,
-            help=_("List additional fields in output")
+            help=_("List additional fields in output"),
         )
         # TODO(stephenfin): This should really be a --marker option, but alas
         # the API doesn't support that for some reason
@@ -204,7 +216,7 @@ class ListServerGroup(command.Lister):
         return parser
 
     def take_action(self, parsed_args):
-        compute_client = self.app.client_manager.compute
+        compute_client = self.app.client_manager.sdk_connection.compute
 
         kwargs = {}
 
@@ -217,10 +229,10 @@ class ListServerGroup(command.Lister):
         if parsed_args.limit:
             kwargs['limit'] = parsed_args.limit
 
-        data = compute_client.server_groups.list(**kwargs)
+        data = compute_client.server_groups(**kwargs)
 
         policy_key = 'Policies'
-        if compute_client.api_version >= api_versions.APIVersion("2.64"):
+        if sdk_utils.supports_microversion(compute_client, '2.64'):
             policy_key = 'Policy'
 
         columns = (
@@ -235,7 +247,7 @@ class ListServerGroup(command.Lister):
         )
         if parsed_args.long:
             columns += (
-                'members',
+                'member_ids',
                 'project_id',
                 'user_id',
             )
@@ -263,17 +275,18 @@ class ShowServerGroup(command.ShowOne):
         parser.add_argument(
             'server_group',
             metavar='<server-group>',
-            help=_("server group to display (name or ID)")
+            help=_("server group to display (name or ID)"),
         )
         return parser
 
     def take_action(self, parsed_args):
-        compute_client = self.app.client_manager.compute
-        group = utils.find_resource(compute_client.server_groups,
-                                    parsed_args.server_group)
-        info = {}
-        info.update(group._info)
-        columns = _get_columns(info)
-        data = utils.get_dict_properties(
-            info, columns, formatters=_formatters)
-        return columns, data
+        compute_client = self.app.client_manager.sdk_connection.compute
+        group = compute_client.find_server_group(parsed_args.server_group)
+        display_columns, columns = _get_server_group_columns(
+            group,
+            compute_client,
+        )
+        data = utils.get_item_properties(
+            group, columns, formatters=_formatters
+        )
+        return display_columns, data
