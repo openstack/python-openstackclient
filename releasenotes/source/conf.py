@@ -88,8 +88,8 @@ source_suffix = '.rst'
 master_doc = 'index'
 
 # General information about the project.
-project = u'OpenStackClient Release Notes'
-copyright = u'2015, OpenStackClient Developers'
+project = 'OpenStackClient Release Notes'
+copyright = '2015, OpenStackClient Developers'
 
 # Release notes are version independent.
 # The full version, including alpha/beta/rc tags.
@@ -238,8 +238,8 @@ latex_elements = {
 latex_documents = [(
     'index',
     'OpenStackClientReleaseNotes.tex',
-    u'OpenStackClient Release Notes Documentation',
-    u'OpenStackClient  Developers',
+    'OpenStackClient Release Notes Documentation',
+    'OpenStackClient  Developers',
     'manual',
 )]
 
@@ -271,8 +271,8 @@ latex_documents = [(
 man_pages = [(
     'index',
     'openstackclientreleasenotes',
-    u'OpenStackClient Release Notes Documentation',
-    [u'OpenStackClient Developers'],
+    'OpenStackClient Release Notes Documentation',
+    ['OpenStackClient Developers'],
     1,
 )]
 
@@ -288,8 +288,8 @@ man_pages = [(
 texinfo_documents = [(
     'index',
     'OpenStackClientReleaseNotes',
-    u'OpenStackclient Release Notes Documentation',
-    u'OpenStackclient Developers',
+    'OpenStackclient Release Notes Documentation',
+    'OpenStackclient Developers',
     'OpenStackClientReleaseNotes',
     'A unified command-line client for OpenStack.',
     'Miscellaneous',
