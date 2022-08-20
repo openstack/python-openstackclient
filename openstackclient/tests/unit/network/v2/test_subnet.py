@@ -918,7 +918,7 @@ class TestListSubnet(TestSubnet):
 
         self.network.subnets.assert_called_once_with(**filters)
         self.assertEqual(self.columns, columns)
-        self.assertItemsEqual(self.data, list(data))
+        self.assertCountEqual(self.data, list(data))
 
     def test_subnet_list_subnetpool_by_id(self):
         subnet_pool = network_fakes.FakeSubnetPool.create_one_subnet_pool()
@@ -939,7 +939,7 @@ class TestListSubnet(TestSubnet):
 
         self.network.subnets.assert_called_once_with(**filters)
         self.assertEqual(self.columns, columns)
-        self.assertItemsEqual(self.data, list(data))
+        self.assertCountEqual(self.data, list(data))
 
     def test_list_with_tag_options(self):
         arglist = [

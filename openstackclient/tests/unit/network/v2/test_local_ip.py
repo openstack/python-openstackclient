@@ -96,7 +96,7 @@ class TestCreateLocalIP(TestLocalIP):
 
         self.network.create_local_ip.assert_called_once_with(**{})
         self.assertEqual(set(self.columns), set(columns))
-        self.assertItemsEqual(self.data, data)
+        self.assertCountEqual(self.data, data)
 
     def test_create_all_options(self):
         arglist = [
@@ -130,7 +130,7 @@ class TestCreateLocalIP(TestLocalIP):
             'ip_mode': self.new_local_ip.ip_mode,
         })
         self.assertEqual(set(self.columns), set(columns))
-        self.assertItemsEqual(self.data, data)
+        self.assertCountEqual(self.data, data)
 
 
 class TestDeleteLocalIP(TestLocalIP):
@@ -263,7 +263,7 @@ class TestListLocalIP(TestLocalIP):
 
         self.network.local_ips.assert_called_once_with(**{})
         self.assertEqual(self.columns, columns)
-        self.assertItemsEqual(self.data, list(data))
+        self.assertCountEqual(self.data, list(data))
 
     def test_local_ip_list_name(self):
         arglist = [
@@ -278,7 +278,7 @@ class TestListLocalIP(TestLocalIP):
         self.network.local_ips.assert_called_once_with(
             **{'name': self.local_ips[0].name})
         self.assertEqual(self.columns, columns)
-        self.assertItemsEqual(self.data, list(data))
+        self.assertCountEqual(self.data, list(data))
 
     def test_local_ip_list_project(self):
         project = identity_fakes_v3.FakeProject.create_one_project()
@@ -295,7 +295,7 @@ class TestListLocalIP(TestLocalIP):
         self.network.local_ips.assert_called_once_with(
             **{'project_id': project.id})
         self.assertEqual(self.columns, columns)
-        self.assertItemsEqual(self.data, list(data))
+        self.assertCountEqual(self.data, list(data))
 
     def test_local_ip_project_domain(self):
         project = identity_fakes_v3.FakeProject.create_one_project()
@@ -314,7 +314,7 @@ class TestListLocalIP(TestLocalIP):
 
         self.network.local_ips.assert_called_once_with(**filters)
         self.assertEqual(self.columns, columns)
-        self.assertItemsEqual(self.data, list(data))
+        self.assertCountEqual(self.data, list(data))
 
     def test_local_ip_list_network(self):
         arglist = [
@@ -477,4 +477,4 @@ class TestShowLocalIP(TestLocalIP):
         self.network.find_local_ip.assert_called_once_with(
             self._local_ip.name, ignore_missing=False)
         self.assertEqual(set(self.columns), set(columns))
-        self.assertItemsEqual(self.data, list(data))
+        self.assertCountEqual(self.data, list(data))
