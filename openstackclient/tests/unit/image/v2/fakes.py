@@ -18,6 +18,7 @@ import uuid
 
 from openstack.image.v2 import image
 from openstack.image.v2 import member
+from openstack.image.v2 import metadef_namespace
 from openstack.image.v2 import task
 
 from openstackclient.tests.unit import fakes
@@ -44,6 +45,7 @@ class FakeImagev2Client:
         self.update_member = mock.Mock()
 
         self.remove_tag = mock.Mock()
+        self.metadef_namespaces = mock.Mock()
 
         self.tasks = mock.Mock()
         self.get_task = mock.Mock()
@@ -54,6 +56,8 @@ class FakeImagev2Client:
 
         self.tasks = mock.Mock()
         self.tasks.resource_class = fakes.FakeResource(None, {})
+
+        self.metadef_namespaces = mock.Mock()
 
 
 class TestImagev2(utils.TestCommand):
@@ -202,3 +206,53 @@ def create_tasks(attrs=None, count=2):
         tasks.append(create_one_task(attrs))
 
     return tasks
+
+
+class FakeMetadefNamespaceClient:
+
+    def __init__(self, **kwargs):
+        self.metadef_namespaces = mock.Mock()
+
+        self.auth_token = kwargs['token']
+        self.management_url = kwargs['endpoint']
+        self.version = 2.0
+
+
+class TestMetadefNamespaces(utils.TestCommand):
+
+    def setUp(self):
+        super().setUp()
+
+        self.app.client_manager.image = FakeMetadefNamespaceClient(
+            endpoint=fakes.AUTH_URL,
+            token=fakes.AUTH_TOKEN,
+        )
+
+        self.app.client_manager.identity = identity_fakes.FakeIdentityv3Client(
+            endpoint=fakes.AUTH_URL,
+            token=fakes.AUTH_TOKEN,
+        )
+
+
+def create_one_metadef_namespace(attrs=None):
+    """Create a fake MetadefNamespace member.
+
+    :param attrs: A dictionary with all attributes of metadef_namespace member
+    :type attrs: dict
+    :return: a list of MetadefNamespace objects
+    :rtype: list of `metadef_namespace.MetadefNamespace`
+    """
+    attrs = attrs or {}
+
+    metadef_namespace_list = {
+        'created_at': '2022-08-17T11:30:22Z',
+        'display_name': 'Flavor Quota',
+        'namespace': 'OS::Compute::Quota',
+        'owner': 'admin',
+        'resource_type_associations': ['OS::Nova::Flavor'],
+        'visibility': 'public',
+    }
+
+    # Overwrite default attributes if there are some attributes set
+    metadef_namespace_list.update(attrs)
+    return metadef_namespace.MetadefNamespace(metadef_namespace_list)
