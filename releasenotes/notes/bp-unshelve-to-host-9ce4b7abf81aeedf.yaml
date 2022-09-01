@@ -1,0 +1,7 @@
+---
+features:
+  - Add ``--host`` and ``--no-availability-zone`` options to the
+    ``server unshelve`` command to enable administrators to specify a
+    destination host or unset the availability zone during a server
+    unshelve, respectively. Both options require the server to be
+    shelved offload and ``--os-compute-api-version 2.91`` or greater.

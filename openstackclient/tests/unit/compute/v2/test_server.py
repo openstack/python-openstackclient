@@ -161,6 +161,10 @@ class TestServer(compute_fakes.TestComputev2):
         return volumes
 
     def run_method_with_servers(self, method_name, server_count):
+        # Starting with v2.91, the nova api needs to be call with a sentinel
+        # as availability_zone=None will unpin the server az.
+        _sentinel = object()
+
         servers = self.setup_servers_mock(server_count)
 
         arglist = []
@@ -183,7 +187,11 @@ class TestServer(compute_fakes.TestComputev2):
                     method.assert_called_with(reason=None)
             elif method_name == 'unshelve':
                 version = self.app.client_manager.compute.api_version
-                if version >= api_versions.APIVersion('2.77'):
+                if version >= api_versions.APIVersion('2.91'):
+                    method.assert_called_with(availability_zone=_sentinel,
+                                              host=None)
+                elif (version >= api_versions.APIVersion('2.77') and
+                      version < api_versions.APIVersion('2.91')):
                     method.assert_called_with(availability_zone=None)
                 else:
                     method.assert_called_with()
@@ -8204,7 +8212,23 @@ class TestServerUnshelve(TestServer):
     def test_unshelve_multi_servers(self):
         self.run_method_with_servers('unshelve', 3)
 
-    def test_unshelve_with_specified_az(self):
+    def test_unshelve_v277(self):
+        self.app.client_manager.compute.api_version = \
+            api_versions.APIVersion('2.77')
+
+        server = compute_fakes.FakeServer.create_one_server(
+            attrs=self.attrs, methods=self.methods)
+        self.servers_mock.get.return_value = server
+        arglist = [server.id]
+        verifylist = [('server', [server.id])]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        self.cmd.take_action(parsed_args)
+
+        self.servers_mock.get.assert_called_with(server.id)
+        server.unshelve.assert_called_with()
+
+    def test_unshelve_with_specified_az_v277(self):
         self.app.client_manager.compute.api_version = \
             api_versions.APIVersion('2.77')
 
@@ -8247,6 +8271,157 @@ class TestServerUnshelve(TestServer):
             parsed_args)
         self.assertIn(
             '--os-compute-api-version 2.77 or greater is required', str(ex))
+
+    def test_unshelve_v291(self):
+        self.app.client_manager.compute.api_version = (
+            api_versions.APIVersion('2.91'))
+
+        server = compute_fakes.FakeServer.create_one_server(
+            attrs=self.attrs, methods=self.methods)
+        self.servers_mock.get.return_value = server
+        arglist = [server.id]
+        verifylist = [('server', [server.id])]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        self.cmd.take_action(parsed_args)
+
+        self.servers_mock.get.assert_called_with(server.id)
+        server.unshelve.assert_called_with()
+
+    def test_unshelve_with_specified_az_v291(self):
+        self.app.client_manager.compute.api_version = (
+            api_versions.APIVersion('2.91'))
+
+        server = compute_fakes.FakeServer.create_one_server(
+            attrs=self.attrs, methods=self.methods)
+        self.servers_mock.get.return_value = server
+        arglist = [
+            '--availability-zone', "foo-az",
+            server.id,
+        ]
+        verifylist = [
+            ('availability_zone', "foo-az"),
+            ('server', [server.id])
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        self.cmd.take_action(parsed_args)
+
+        self.servers_mock.get.assert_called_with(server.id)
+        server.unshelve.assert_called_with(availability_zone="foo-az")
+
+    def test_unshelve_with_specified_host_v291(self):
+        self.app.client_manager.compute.api_version = (
+            api_versions.APIVersion('2.91'))
+
+        server = compute_fakes.FakeServer.create_one_server(
+            attrs=self.attrs, methods=self.methods)
+        self.servers_mock.get.return_value = server
+        arglist = [
+            '--host', "server1",
+            server.id,
+        ]
+        verifylist = [
+            ('host', "server1"),
+            ('server', [server.id])
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        self.cmd.take_action(parsed_args)
+
+        self.servers_mock.get.assert_called_with(server.id)
+        server.unshelve.assert_called_with(host="server1")
+
+    def test_unshelve_with_unpin_az_v291(self):
+        self.app.client_manager.compute.api_version = (
+            api_versions.APIVersion('2.91'))
+
+        server = compute_fakes.FakeServer.create_one_server(
+            attrs=self.attrs, methods=self.methods)
+        self.servers_mock.get.return_value = server
+        arglist = ['--no-availability-zone', server.id]
+        verifylist = [
+            ('no_availability_zone', True),
+            ('server', [server.id])
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        self.cmd.take_action(parsed_args)
+
+        self.servers_mock.get.assert_called_with(server.id)
+        server.unshelve.assert_called_with(availability_zone=None)
+
+    def test_unshelve_with_specified_az_and_host_v291(self):
+        self.app.client_manager.compute.api_version = (
+            api_versions.APIVersion('2.91'))
+
+        server = compute_fakes.FakeServer.create_one_server(
+            attrs=self.attrs, methods=self.methods)
+        self.servers_mock.get.return_value = server
+        arglist = [
+            '--host', "server1",
+            '--availability-zone', "foo-az",
+            server.id,
+        ]
+        verifylist = [
+            ('host', "server1"),
+            ('availability_zone', "foo-az"),
+            ('server', [server.id])
+        ]
+
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        self.cmd.take_action(parsed_args)
+
+        self.servers_mock.get.assert_called_with(server.id)
+
+    def test_unshelve_with_unpin_az_and_host_v291(self):
+        self.app.client_manager.compute.api_version = (
+            api_versions.APIVersion('2.91'))
+
+        server = compute_fakes.FakeServer.create_one_server(
+            attrs=self.attrs, methods=self.methods)
+        self.servers_mock.get.return_value = server
+        arglist = [
+            '--host', "server1",
+            '--no-availability-zone',
+            server.id,
+        ]
+        verifylist = [
+            ('host', "server1"),
+            ('no_availability_zone', True),
+            ('server', [server.id])
+        ]
+
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        self.cmd.take_action(parsed_args)
+
+        self.servers_mock.get.assert_called_with(server.id)
+
+    def test_unshelve_fails_with_unpin_az_and_az_v291(self):
+        self.app.client_manager.compute.api_version = (
+            api_versions.APIVersion('2.91'))
+
+        server = compute_fakes.FakeServer.create_one_server(
+            attrs=self.attrs, methods=self.methods)
+        self.servers_mock.get.return_value = server
+        arglist = [
+            '--availability-zone', "foo-az",
+            '--no-availability-zone',
+            server.id,
+        ]
+        verifylist = [
+            ('availability_zone', "foo-az"),
+            ('no_availability_zone', True),
+            ('server', [server.id])
+        ]
+
+        ex = self.assertRaises(utils.ParserException,
+                               self.check_parser,
+                               self.cmd, arglist, verifylist)
+        self.assertIn('argument --no-availability-zone: not allowed '
+                      'with argument --availability-zone', str(ex))
 
     @mock.patch.object(common_utils, 'wait_for_status', return_value=True)
     def test_unshelve_with_wait(self, mock_wait_for_status):
