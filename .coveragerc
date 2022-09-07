@@ -1,6 +1,7 @@
 [run]
 branch = True
 source = openstackclient
+omit = openstackclient/tests/*
 
 [report]
 ignore_errors = True
