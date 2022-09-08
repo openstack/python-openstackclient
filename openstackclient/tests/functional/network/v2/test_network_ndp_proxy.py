@@ -32,8 +32,26 @@ class L3NDPProxyTests(common.NetworkTests):
         self.INT_NET_NAME = self.getUniqueString()
         self.INT_SUB_NAME = self.getUniqueString()
         self.INT_PORT_NAME = self.getUniqueString()
+        self.ADDR_SCOPE_NAME = self.getUniqueString()
+        self.SUBNET_P_NAME = self.getUniqueString()
         self.created_ndp_proxies = []
 
+        json_output = json.loads(
+            self.openstack(
+                'address scope create -f json --ip-version 6 '
+                '%(address_s_name)s' % {
+                    'address_s_name': self.ADDR_SCOPE_NAME}))
+        self.assertIsNotNone(json_output['id'])
+        self.ADDRESS_SCOPE_ID = json_output['id']
+        json_output = json.loads(
+            self.openstack(
+                'subnet pool create -f json %(subnet_p_name)s '
+                '--address-scope %(address_scope)s '
+                '--pool-prefix 2001:db8::/96 --default-prefix-length 112' % {
+                    'subnet_p_name': self.SUBNET_P_NAME,
+                    'address_scope': self.ADDRESS_SCOPE_ID}))
+        self.assertIsNotNone(json_output['id'])
+        self.SUBNET_POOL_ID = json_output['id']
         json_output = json.loads(
             self.openstack('network create -f json '
                            '--external ' + self.EXT_NET_NAME))
@@ -41,8 +59,9 @@ class L3NDPProxyTests(common.NetworkTests):
         self.EXT_NET_ID = json_output['id']
         json_output = json.loads(
             self.openstack(
-                'subnet create -f json --ip-version 6 --subnet-range '
-                '2002::1:0/112 --network %(net_id)s %(sub_name)s' % {
+                'subnet create -f json --ip-version 6 --subnet-pool '
+                '%(subnet_pool)s --network %(net_id)s %(sub_name)s' % {
+                    'subnet_pool': self.SUBNET_POOL_ID,
                     'net_id': self.EXT_NET_ID,
                     'sub_name': self.EXT_SUB_NAME}))
         self.assertIsNotNone(json_output['id'])
@@ -68,8 +87,9 @@ class L3NDPProxyTests(common.NetworkTests):
         self.INT_NET_ID = json_output['id']
         json_output = json.loads(
             self.openstack(
-                'subnet create -f json --ip-version 6 --subnet-range '
-                '2002::2:0/112 --network %(net_id)s %(sub_name)s' % {
+                'subnet create -f json --ip-version 6 --subnet-pool '
+                '%(subnet_pool)s --network %(net_id)s %(sub_name)s' % {
+                    'subnet_pool': self.SUBNET_POOL_ID,
                     'net_id': self.INT_NET_ID,
                     'sub_name': self.INT_SUB_NAME}))
         self.assertIsNotNone(json_output['id'])
@@ -112,6 +132,11 @@ class L3NDPProxyTests(common.NetworkTests):
         output = self.openstack('subnet delete ' + self.EXT_SUB_ID)
         self.assertEqual('', output)
         output = self.openstack('network delete ' + self.EXT_NET_ID)
+        self.assertEqual('', output)
+        output = self.openstack('subnet pool delete ' + self.SUBNET_POOL_ID)
+        self.assertEqual('', output)
+        output = self.openstack('address scope delete ' +
+                                self.ADDRESS_SCOPE_ID)
         self.assertEqual('', output)
         super().tearDown()
 
