@@ -4634,7 +4634,7 @@ class TestServerList(_TestServerList):
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
         columns, data = self.cmd.take_action(parsed_args)
 
-        self.flavors_mock.get.has_calls(self.flavor.id)
+        self.flavors_mock.get.assert_has_calls([mock.call(self.flavor.id)])
 
         self.search_opts['flavor'] = self.flavor.id
         self.servers_mock.list.assert_called_with(**self.kwargs)
