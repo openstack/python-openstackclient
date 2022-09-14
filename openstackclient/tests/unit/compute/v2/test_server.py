@@ -5781,6 +5781,25 @@ class TestServerRebuild(TestServer):
         self.get_image_mock.assert_called_with(self.image.id)
         self.server.rebuild.assert_called_with(self.image, None)
 
+    def test_rebuild_with_volume_backed_server_no_image(self):
+        # the volume-backed server will have the image attribute set to an
+        # empty string, not null/None
+        self.server.image = ''
+
+        arglist = [
+            self.server.id,
+        ]
+        verifylist = [
+            ('server', self.server.id),
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        exc = self.assertRaises(
+            exceptions.CommandError,
+            self.cmd.take_action,
+            parsed_args)
+        self.assertIn('The --image option is required', str(exc))
+
     def test_rebuild_with_name(self):
         name = 'test-server-xxx'
         arglist = [
