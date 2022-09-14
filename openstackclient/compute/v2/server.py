@@ -3111,13 +3111,21 @@ class RebuildServer(command.ShowOne):
         server = utils.find_resource(
             compute_client.servers, parsed_args.server)
 
-        # If parsed_args.image is not set, default to the currently used one.
+        # If parsed_args.image is not set and if the instance is image backed,
+        # default to the currently used one. If the instance is volume backed,
+        # it is not trivial to fetch the current image and probably better
+        # to error out in this case and ask user to supply the image.
         if parsed_args.image:
             image = image_client.find_image(
                 parsed_args.image, ignore_missing=False)
         else:
-            image_id = server.to_dict().get('image', {}).get('id')
-            image = image_client.get_image(image_id)
+            if not server.image:
+                msg = _(
+                    'The --image option is required when rebuilding a '
+                    'volume-backed server'
+                )
+                raise exceptions.CommandError(msg)
+            image = image_client.get_image(server.image['id'])
 
         kwargs = {}
 
