@@ -108,11 +108,9 @@ class TestVolumeCreate(TestVolume):
     def test_volume_create_min_options(self):
         arglist = [
             '--size', str(self.new_volume.size),
-            self.new_volume.name,
         ]
         verifylist = [
             ('size', self.new_volume.size),
-            ('name', self.new_volume.name),
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
@@ -124,7 +122,7 @@ class TestVolumeCreate(TestVolume):
         self.volumes_mock.create.assert_called_with(
             size=self.new_volume.size,
             snapshot_id=None,
-            name=self.new_volume.name,
+            name=None,
             description=None,
             volume_type=None,
             availability_zone=None,
