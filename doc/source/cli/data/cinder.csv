@@ -139,7 +139,7 @@ type-show,volume type show,Show volume type details.
 type-update,volume type set,"Updates volume type name description and/or is_public."
 unmanage,volume delete --remote,Stop managing a volume.
 upload-to-image,image create --volume,Uploads volume to Image Service as an image.
-version-list,,List all API versions. (Supported by API versions 3.0 - 3.latest)
+version-list,versions show --service block-storage,List all API versions. (Supported by API versions 3.0 - 3.latest)
 work-cleanup,,Request cleanup of services with optional filtering. (Supported by API versions 3.24 - 3.latest)
 bash-completion,complete,Prints arguments for bash_completion.
 help,help,Shows help about this program or one of its subcommands.

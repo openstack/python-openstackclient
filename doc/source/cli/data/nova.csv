@@ -118,7 +118,7 @@ unshelve,server unshelve,Unshelve a server.
 update,server set / unset,Update the name or the description for a server.
 usage,usage show,Show usage data for a single tenant.
 usage-list,usage list,List usage data for all tenants.
-version-list,,List all API versions.
+version-list,versions show --service compute,List all API versions.
 volume-attach,server add volume,Attach a volume to a server.
 volume-attachments,server show,List all the volumes attached to a server.
 volume-detach,server remove volume,Detach a volume from a server.

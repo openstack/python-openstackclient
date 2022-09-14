@@ -49,7 +49,7 @@ md-tag-show,,Describe a specific metadata definitions tag inside a namespace.
 md-tag-update,,Rename a metadata definitions tag inside a namespace.
 member-create,image add project,Create member for a given image.
 member-delete,image remove project,Delete image member.
-member-list,,Describe sharing permissions by image.
+member-list,image member list,Describe sharing permissions by image.
 member-update,image set --accept --reject --status,Update the status of a member for a given image.
 stores-delete,,Delete image from specific store.
 stores-info,,Print available backends from Glance.
