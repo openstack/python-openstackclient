@@ -1,0 +1,4 @@
+---
+features:
+  - |
+    Add a ``project unset`` command to unset properties on a project.

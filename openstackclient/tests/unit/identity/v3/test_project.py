@@ -1572,6 +1572,68 @@ class TestProjectSet(identity_fakes.TestIdentity):
         self.assertIsNone(result)
 
 
+class TestProjectUnset(identity_fakes.TestIdentity):
+    domain = sdk_fakes.generate_fake_resource(_domain.Domain)
+
+    project_kwargs_no_options = {
+        'domain_id': domain.id,
+        'tags': ['tag1', 'tag2', 'tag3'],
+    }
+    project = sdk_fakes.generate_fake_resource(
+        _project.Project, **project_kwargs_no_options
+    )
+
+    def setUp(self):
+        super().setUp()
+
+        self.identity_sdk_client.find_domain.return_value = self.domain
+        self.identity_sdk_client.find_project.return_value = self.project
+
+        # Get the command object to test
+        self.cmd = project.UnsetProject(self.app, None)
+
+    def test_project_unset_no_options(self):
+        arglist = [
+            self.project.name,
+        ]
+        verifylist = [
+            ('project', self.project.name),
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        result = self.cmd.take_action(parsed_args)
+
+        self.identity_sdk_client.update_project.assert_not_called()
+        self.assertIsNone(result)
+
+    def test_project_unset_properties(self):
+        arglist = [
+            '--property',
+            'foo',
+            '--property',
+            'bar',
+            self.project.name,
+        ]
+        verifylist = [
+            ('project', self.project.name),
+            ('properties', ['foo', 'bar']),
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        result = self.cmd.take_action(parsed_args)
+
+        # Set expected values
+        kwargs = {
+            'foo': None,
+            'bar': None,
+        }
+
+        self.identity_sdk_client.update_project.assert_called_with(
+            self.project.id, **kwargs
+        )
+        self.assertIsNone(result)
+
+
 class TestProjectShow(identity_fakes.TestIdentity):
     domain = sdk_fakes.generate_fake_resource(_domain.Domain)
 
