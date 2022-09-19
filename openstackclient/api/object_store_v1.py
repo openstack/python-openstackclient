@@ -14,6 +14,7 @@
 """Object Store v1 API Library"""
 
 import io
+import json
 import logging
 import os
 import sys
@@ -598,3 +599,15 @@ class APIv1(api.BaseAPI):
             if k.lower().startswith(header_tag):
                 properties[k[len(header_tag):]] = v
         return properties
+
+    def info_show(self):
+        """List activated capabilities
+
+        :returns:
+            dict of activated capabilities for Object Storage
+        """
+
+        pos = self.endpoint.find('/v1/AUTH_')
+        self.endpoint = self.endpoint[:pos]
+        response = self._request('GET', 'info')
+        return json.loads(response.text)
