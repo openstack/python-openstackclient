@@ -1,0 +1,5 @@
+---
+features:
+  - |
+    Added a new command, ``quota delete``, that will allow admins delete quotas
+    set for projects. Supported by the compute, volume, and network services.

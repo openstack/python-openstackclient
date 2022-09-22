@@ -70,7 +70,7 @@ pause,server pause,Pause a server.
 quota-class-show,quota show --class,List the quotas for a quota class.
 quota-class-update,quota set --class,Update the quotas for a quota class.
 quota-defaults,quota list,List the default quotas for a tenant.
-quota-delete,quota set,Delete quota for a tenant/user so their quota will Revert back to default.
+quota-delete,quota delete --compute,Delete quota for a tenant/user so their quota will Revert back to default.
 quota-show,quota show,List the quotas for a tenant/user.
 quota-update,quota set,Update the quotas for a tenant/user.
 reboot,server reboot,Reboot a server.

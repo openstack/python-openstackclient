@@ -62,6 +62,9 @@ class TestQuota(compute_fakes.TestComputev2):
             self.app.client_manager.volume.quota_classes
         self.volume_quotas_class_mock.reset_mock()
 
+        self.app.client_manager.network.quotas = mock.Mock()
+        self.network_quotas_mock = self.app.client_manager.network.quotas
+
         self.app.client_manager.auth_ref = mock.Mock()
         self.app.client_manager.auth_ref.service_catalog = mock.Mock()
         self.service_catalog_mock = \
@@ -1154,3 +1157,107 @@ class TestQuotaShow(TestQuota):
         self.assertEqual(len(network_fakes.QUOTA) - 1, len(result))
         # Go back to default mock
         self.network.get_quota = orig_get_quota
+
+
+class TestQuotaDelete(TestQuota):
+    """Test cases for quota delete command"""
+
+    def setUp(self):
+        super().setUp()
+
+        self.cmd = quota.DeleteQuota(self.app, None)
+
+    def test_delete(self):
+        """Delete all quotas"""
+        arglist = [
+            self.projects[0].id,
+        ]
+        verifylist = [
+            ('service', 'all'),
+            ('project', self.projects[0].id),
+        ]
+
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        result = self.cmd.take_action(parsed_args)
+
+        self.assertIsNone(result)
+        self.projects_mock.get.assert_called_once_with(self.projects[0].id)
+        self.compute_quotas_mock.delete.assert_called_once_with(
+            self.projects[0],
+        )
+        self.volume_quotas_mock.delete.assert_called_once_with(
+            self.projects[0],
+        )
+        self.network_quotas_mock.delete.assert_called_once_with(
+            self.projects[0],
+        )
+
+    def test_delete__compute(self):
+        """Delete compute quotas only"""
+        arglist = [
+            '--compute',
+            self.projects[0].id,
+        ]
+        verifylist = [
+            ('service', 'compute'),
+            ('project', self.projects[0].id),
+        ]
+
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        result = self.cmd.take_action(parsed_args)
+
+        self.assertIsNone(result)
+        self.projects_mock.get.assert_called_once_with(self.projects[0].id)
+        self.compute_quotas_mock.delete.assert_called_once_with(
+            self.projects[0],
+        )
+        self.volume_quotas_mock.delete.assert_not_called()
+        self.network_quotas_mock.delete.assert_not_called()
+
+    def test_delete__volume(self):
+        """Delete volume quotas only"""
+        arglist = [
+            '--volume',
+            self.projects[0].id,
+        ]
+        verifylist = [
+            ('service', 'volume'),
+            ('project', self.projects[0].id),
+        ]
+
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        result = self.cmd.take_action(parsed_args)
+
+        self.assertIsNone(result)
+        self.projects_mock.get.assert_called_once_with(self.projects[0].id)
+        self.compute_quotas_mock.delete.assert_not_called()
+        self.volume_quotas_mock.delete.assert_called_once_with(
+            self.projects[0],
+        )
+        self.network_quotas_mock.delete.assert_not_called()
+
+    def test_delete__network(self):
+        """Delete network quotas only"""
+        arglist = [
+            '--network',
+            self.projects[0].id,
+        ]
+        verifylist = [
+            ('service', 'network'),
+            ('project', self.projects[0].id),
+        ]
+
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        result = self.cmd.take_action(parsed_args)
+
+        self.assertIsNone(result)
+        self.projects_mock.get.assert_called_once_with(self.projects[0].id)
+        self.compute_quotas_mock.delete.assert_not_called()
+        self.volume_quotas_mock.delete.assert_not_called()
+        self.network_quotas_mock.delete.assert_called_once_with(
+            self.projects[0],
+        )

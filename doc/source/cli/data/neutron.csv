@@ -188,7 +188,7 @@ qos-policy-list,network qos policy list,List QoS policies that belong to a given
 qos-policy-show,network qos policy show,Show information of a given qos policy.
 qos-policy-update,network qos policy set,Update a given qos policy.
 quota-default-show,quota show --default,Show default quotas for a given tenant.
-quota-delete,,Delete defined quotas of a given tenant.
+quota-delete,quota delete --network,Delete defined quotas of a given tenant.
 quota-list,quota list,List quotas of all tenants who have non-default quota values.
 quota-show,quota show,Show quotas for a given tenant.
 quota-update,quota set,Define tenant's quotas not to use defaults.

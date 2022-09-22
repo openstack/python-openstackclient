@@ -697,3 +697,82 @@ class ShowQuota(command.ShowOne, BaseQuota):
             info['project_name'] = project_name
 
         return zip(*sorted(info.items()))
+
+
+class DeleteQuota(command.Command):
+    _description = _(
+        "Delete configured quota for a project and revert to defaults."
+    )
+
+    def get_parser(self, prog_name):
+        parser = super().get_parser(prog_name)
+        parser.add_argument(
+            'project',
+            metavar='<project>',
+            help=_('Delete quotas for this project (name or ID)'),
+        )
+        option = parser.add_mutually_exclusive_group()
+        option.add_argument(
+            '--all',
+            action='store_const',
+            const='all',
+            dest='service',
+            default='all',
+            help=_('Delete project quotas for all services (default)'),
+        )
+        option.add_argument(
+            '--compute',
+            action='store_const',
+            const='compute',
+            dest='service',
+            default='all',
+            help=_(
+                'Delete compute quotas for the project '
+                '(including network quotas when using nova-network)'
+            ),
+        )
+        option.add_argument(
+            '--volume',
+            action='store_const',
+            const='volume',
+            dest='service',
+            default='all',
+            help=_('Delete volume quotas for the project'),
+        )
+        option.add_argument(
+            '--network',
+            action='store_const',
+            const='network',
+            dest='service',
+            default='all',
+            help=_('Delete network quotas for the project'),
+        )
+        return parser
+
+    def take_action(self, parsed_args):
+        identity_client = self.app.client_manager.identity
+        project = utils.find_resource(
+            identity_client.projects,
+            parsed_args.project,
+        )
+
+        # compute quotas
+        if parsed_args.service in {'all', 'compute'}:
+            compute_client = self.app.client_manager.compute
+            compute_client.quotas.delete(project)
+
+        # volume quotas
+        if parsed_args.service in {'all', 'volume'}:
+            volume_client = self.app.client_manager.volume
+            volume_client.quotas.delete(project)
+
+        # network quotas (but only if we're not using nova-network, otherwise
+        # we already deleted the quotas in the compute step)
+        if (
+            parsed_args.service in {'all', 'network'}
+            and self.app.client_manager.is_network_endpoint_enabled()
+        ):
+            network_client = self.app.client_manager.network
+            network_client.quotas.delete(project)
+
+        return None
