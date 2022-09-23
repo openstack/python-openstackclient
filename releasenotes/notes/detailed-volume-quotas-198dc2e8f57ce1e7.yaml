@@ -1,0 +1,7 @@
+---
+features:
+  - |
+    The ``quota list`` command can now provide detailed quotas for the volume
+    service, e.g.::
+
+        $ openstack quota list --detail --volume

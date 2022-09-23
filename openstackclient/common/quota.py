@@ -143,6 +143,7 @@ class BaseQuota(object):
     def get_volume_quota(self, client, parsed_args):
         quota_class = (
             parsed_args.quota_class if 'quota_class' in parsed_args else False)
+        detail = parsed_args.detail if 'detail' in parsed_args else False
         default = parsed_args.default if 'default' in parsed_args else False
         try:
             if quota_class:
@@ -153,7 +154,7 @@ class BaseQuota(object):
                 if default:
                     quota = client.quotas.defaults(project)
                 else:
-                    quota = client.quotas.get(project)
+                    quota = client.quotas.get(project, usage=detail)
         except Exception as e:
             if type(e).__name__ == 'EndpointNotFound':
                 return {}
@@ -195,7 +196,7 @@ class BaseQuota(object):
                     # more consistent
                     for key, values in network_quota.items():
                         if type(values) is dict and "used" in values:
-                            values[u'in_use'] = values.pop("used")
+                            values['in_use'] = values.pop("used")
                         network_quota[key] = values
             return network_quota
         else:
@@ -205,7 +206,8 @@ class BaseQuota(object):
 class ListQuota(command.Lister, BaseQuota):
     _description = _(
         "List quotas for all projects with non-default quota values or "
-        "list detailed quota information for requested project")
+        "list detailed quota information for requested project"
+    )
 
     def _get_detailed_quotas(self, parsed_args):
         columns = (
@@ -222,10 +224,21 @@ class ListQuota(command.Lister, BaseQuota):
         )
         quotas = {}
         if parsed_args.compute:
-            quotas.update(self.get_compute_quota(
-                self.app.client_manager.compute, parsed_args))
+            quotas.update(
+                self.get_compute_quota(
+                    self.app.client_manager.compute,
+                    parsed_args,
+                )
+            )
         if parsed_args.network:
             quotas.update(self.get_network_quota(parsed_args))
+        if parsed_args.volume:
+            quotas.update(
+                self.get_volume_quota(
+                    self.app.client_manager.volume,
+                    parsed_args,
+                ),
+            )
 
         result = []
         for resource, values in quotas.items():
@@ -359,8 +372,7 @@ class ListQuota(command.Lister, BaseQuota):
 
         if parsed_args.volume:
             if parsed_args.detail:
-                LOG.warning("Volume service doesn't provide detailed quota"
-                            " information")
+                return self._get_detailed_quotas(parsed_args)
             volume_client = self.app.client_manager.volume
             for p in project_ids:
                 try:

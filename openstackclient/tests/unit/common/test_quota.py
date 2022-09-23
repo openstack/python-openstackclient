@@ -279,6 +279,37 @@ class TestQuotaList(TestQuota):
         self.assertEqual(
             sorted(detailed_reference_data), sorted(ret_quotas))
 
+    def test_quota_list_details_volume(self):
+        detailed_quota = (
+            volume_fakes.FakeQuota.create_one_detailed_quota())
+
+        detailed_column_header = (
+            'Resource',
+            'In Use',
+            'Reserved',
+            'Limit',
+        )
+        detailed_reference_data = (
+            self._get_detailed_reference_data(detailed_quota))
+
+        self.volume.quotas.get = mock.Mock(return_value=detailed_quota)
+
+        arglist = [
+            '--detail',
+            '--volume',
+        ]
+        verifylist = [
+            ('detail', True),
+            ('volume', True),
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        columns, data = self.cmd.take_action(parsed_args)
+        ret_quotas = list(data)
+
+        self.assertEqual(detailed_column_header, columns)
+        self.assertEqual(sorted(detailed_reference_data), sorted(ret_quotas))
+
     def test_quota_list_compute(self):
         # Two projects with non-default quotas
         self.compute.quotas.get = mock.Mock(
@@ -1001,7 +1032,7 @@ class TestQuotaSet(TestQuota):
 class TestQuotaShow(TestQuota):
 
     def setUp(self):
-        super(TestQuotaShow, self).setUp()
+        super().setUp()
 
         self.compute_quota = compute_fakes.FakeQuota.create_one_comp_quota()
         self.compute_quotas_mock.get.return_value = self.compute_quota
@@ -1066,7 +1097,7 @@ class TestQuotaShow(TestQuota):
             self.projects[0].id, detail=False
         )
         self.volume_quotas_mock.get.assert_called_once_with(
-            self.projects[0].id,
+            self.projects[0].id, usage=False
         )
         self.network.get_quota.assert_called_once_with(
             self.projects[0].id, details=False
@@ -1128,7 +1159,7 @@ class TestQuotaShow(TestQuota):
             identity_fakes.project_id, detail=False
         )
         self.volume_quotas_mock.get.assert_called_once_with(
-            identity_fakes.project_id,
+            identity_fakes.project_id, usage=False
         )
         self.network.get_quota.assert_called_once_with(
             identity_fakes.project_id, details=False
