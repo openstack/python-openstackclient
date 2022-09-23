@@ -585,14 +585,20 @@ class SetQuota(common.NetDetectionMixin, command.Command):
         parser.add_argument(
             'project',
             metavar='<project/class>',
-            help=_('Set quotas for this project or class (name/ID)'),
+            help=_('Set quotas for this project or class (name or ID)'),
         )
+        # TODO(stephenfin): Remove in OSC 8.0
         parser.add_argument(
             '--class',
             dest='quota_class',
             action='store_true',
             default=False,
-            help=_('Set quotas for <class>'),
+            help=_(
+                '**Deprecated** Set quotas for <class>. '
+                'Deprecated as quota classes were never fully implemented '
+                'and only the default class is supported. '
+                '(compute and volume only)'
+            ),
         )
         for k, v, h in self._build_options_list():
             parser.add_argument(
@@ -624,6 +630,15 @@ class SetQuota(common.NetDetectionMixin, command.Command):
         return parser
 
     def take_action(self, parsed_args):
+        if parsed_args.quota_class:
+            msg = _(
+                "The '--class' option has been deprecated. Quota classes were "
+                "never fully implemented and the compute and volume services "
+                "only support a single 'default' quota class while the "
+                "network service does not support quota classes at all. "
+                "Please use 'openstack quota show --default' instead."
+            )
+            self.log.warning(msg)
 
         identity_client = self.app.client_manager.identity
         compute_client = self.app.client_manager.compute
@@ -718,12 +733,20 @@ class ShowQuota(command.Lister):
             ),
         )
         type_group = parser.add_mutually_exclusive_group()
+        # TODO(stephenfin): Remove in OSC 8.0
         type_group.add_argument(
             '--class',
             dest='quota_class',
             action='store_true',
             default=False,
-            help=_('Show quotas for <class>'),
+            help=_(
+                '**Deprecated** Show quotas for <class>. '
+                'Deprecated as quota classes were never fully implemented '
+                'and only the default class is supported. '
+                'Use --default instead which is also supported by the network '
+                'service. '
+                '(compute and volume only)'
+            ),
         )
         type_group.add_argument(
             '--default',
@@ -778,7 +801,16 @@ class ShowQuota(command.Lister):
     def take_action(self, parsed_args):
         project = parsed_args.project
 
-        if not parsed_args.quota_class:
+        if parsed_args.quota_class:
+            msg = _(
+                "The '--class' option has been deprecated. Quota classes were "
+                "never fully implemented and the compute and volume services "
+                "only support a single 'default' quota class while the "
+                "network service does not support quota classes at all. "
+                "Please use 'openstack quota show --default' instead."
+            )
+            self.log.warning(msg)
+        else:
             project_info = get_project(self.app, parsed_args.project)
             project = project_info['id']
 
