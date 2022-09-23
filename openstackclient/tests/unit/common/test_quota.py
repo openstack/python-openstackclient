@@ -1087,6 +1087,7 @@ class TestQuotaShow(TestQuota):
             self.projects[0].name,
         ]
         verifylist = [
+            ('service', 'all'),
             ('project', self.projects[0].name),
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
@@ -1101,6 +1102,67 @@ class TestQuotaShow(TestQuota):
             self.projects[0].id,
             usage=False,
         )
+        self.network.get_quota.assert_called_once_with(
+            self.projects[0].id,
+            details=False,
+        )
+        self.assertNotCalled(self.network.get_quota_default)
+
+    def test_quota_show__with_compute(self):
+        arglist = [
+            '--compute',
+            self.projects[0].name,
+        ]
+        verifylist = [
+            ('service', 'compute'),
+            ('project', self.projects[0].name),
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        self.cmd.take_action(parsed_args)
+
+        self.compute_quotas_mock.get.assert_called_once_with(
+            self.projects[0].id,
+            detail=False,
+        )
+        self.volume_quotas_mock.get.assert_not_called()
+        self.network.get_quota.assert_not_called()
+
+    def test_quota_show__with_volume(self):
+        arglist = [
+            '--volume',
+            self.projects[0].name,
+        ]
+        verifylist = [
+            ('service', 'volume'),
+            ('project', self.projects[0].name),
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        self.cmd.take_action(parsed_args)
+
+        self.compute_quotas_mock.get.assert_not_called()
+        self.volume_quotas_mock.get.assert_called_once_with(
+            self.projects[0].id,
+            usage=False,
+        )
+        self.network.get_quota.assert_not_called()
+
+    def test_quota_show__with_network(self):
+        arglist = [
+            '--network',
+            self.projects[0].name,
+        ]
+        verifylist = [
+            ('service', 'network'),
+            ('project', self.projects[0].name),
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        self.cmd.take_action(parsed_args)
+
+        self.compute_quotas_mock.get.assert_not_called()
+        self.volume_quotas_mock.get.assert_not_called()
         self.network.get_quota.assert_called_once_with(
             self.projects[0].id,
             details=False,
