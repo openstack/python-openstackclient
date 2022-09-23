@@ -94,7 +94,7 @@ quota-defaults,quota show --default,Lists default quotas for a tenant.
 quota-delete,quota delete --volume,Delete the quotas for a tenant.
 quota-show,quota show,Lists quotas for a tenant.
 quota-update,quota set,Updates quotas for a tenant.
-quota-usage,quota list --detail,Lists quota usage for a tenant.
+quota-usage,quota show --usage,Lists quota usage for a tenant.
 rate-limits,limits show --rate,Lists rate limits for a user.
 readonly-mode-update,volume set --read-only-mode | --read-write-mode,Updates volume read-only access-mode flag.
 rename,volume set --name,Renames a volume.

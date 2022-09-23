@@ -233,19 +233,26 @@ class ListQuota(command.Lister):
 
     def get_parser(self, prog_name):
         parser = super().get_parser(prog_name)
+        # TODO(stephenfin): Remove in OSC 8.0
         parser.add_argument(
             '--project',
             metavar='<project>',
-            help=_('List quotas for this project <project> (name or ID)'),
+            help=_(
+                "**Deprecated** List quotas for this project <project> "
+                "(name or ID). "
+                "Use 'quota show' instead."
+            ),
         )
-        # TODO(stephenfin): This doesn't belong here. We should put it into the
-        # 'quota show' command and deprecate this.
+        # TODO(stephenfin): Remove in OSC 8.0
         parser.add_argument(
             '--detail',
             dest='detail',
             action='store_true',
             default=False,
-            help=_('Show details about quotas usage'),
+            help=_(
+                "**Deprecated** Show details about quotas usage. "
+                "Use 'quota show --usage' instead."
+            ),
         )
         option = parser.add_mutually_exclusive_group(required=True)
         option.add_argument(
@@ -332,6 +339,19 @@ class ListQuota(command.Lister):
         )
 
     def take_action(self, parsed_args):
+        if parsed_args.detail:
+            msg = _(
+                "The --detail option has been deprecated. "
+                "Use 'openstack quota show --usage' instead."
+            )
+            self.log.warning(msg)
+        elif parsed_args.project:  # elif to avoid being too noisy
+            msg = _(
+                "The --project option has been deprecated. "
+                "Use 'openstack quota show' instead."
+            )
+            self.log.warning(msg)
+
         result = []
         project_ids = []
         if parsed_args.project is None:
@@ -678,7 +698,7 @@ class SetQuota(common.NetDetectionMixin, command.Command):
                     **network_kwargs)
 
 
-class ShowQuota(command.ShowOne):
+class ShowQuota(command.Lister):
     _description = _(
         "Show quotas for project or class. "
         "Specify ``--os-compute-api-version 2.50`` or higher to see "
@@ -692,7 +712,10 @@ class ShowQuota(command.ShowOne):
             'project',
             metavar='<project/class>',
             nargs='?',
-            help=_('Show quotas for this project or class (name or ID)'),
+            help=_(
+                'Show quotas for this project or class (name or ID) '
+                '(defaults to current project)'
+            ),
         )
         type_group = parser.add_mutually_exclusive_group()
         type_group.add_argument(
@@ -708,6 +731,13 @@ class ShowQuota(command.ShowOne):
             action='store_true',
             default=False,
             help=_('Show default quotas for <project>'),
+        )
+        type_group.add_argument(
+            '--usage',
+            dest='usage',
+            action='store_true',
+            default=False,
+            help=_('Show details about quotas usage'),
         )
         return parser
 
@@ -726,18 +756,21 @@ class ShowQuota(command.ShowOne):
         compute_quota_info = get_compute_quotas(
             self.app,
             project,
+            detail=parsed_args.usage,
             quota_class=parsed_args.quota_class,
             default=parsed_args.default,
         )
         volume_quota_info = get_volume_quotas(
             self.app,
             project,
+            detail=parsed_args.usage,
             quota_class=parsed_args.quota_class,
             default=parsed_args.default,
         )
         network_quota_info = get_network_quotas(
             self.app,
             project,
+            detail=parsed_args.usage,
             quota_class=parsed_args.quota_class,
             default=parsed_args.default,
         )
@@ -762,20 +795,46 @@ class ShowQuota(command.ShowOne):
                 info[v] = info[k]
                 info.pop(k)
 
+        # Remove the 'id' field since it's not very useful
+        if 'id' in info:
+            del info['id']
+
         # Remove the 'location' field for resources from openstacksdk
         if 'location' in info:
             del info['location']
 
-        # Handle class or project ID specially as they only appear in output
-        if parsed_args.quota_class:
-            info.pop('id', None)
-        elif 'id' in info:
-            info['project'] = info.pop('id')
-            if 'project_id' in info:
-                del info['project_id']
-            info['project_name'] = project_info['name']
+        if not parsed_args.usage:
+            result = [
+                {'resource': k, 'limit': v} for k, v in info.items()
+            ]
+        else:
+            result = [
+                {'resource': k, **v} for k, v in info.items()
+            ]
 
-        return zip(*sorted(info.items()))
+        columns = (
+            'resource',
+            'limit',
+        )
+        column_headers = (
+            'Resource',
+            'Limit',
+        )
+
+        if parsed_args.usage:
+            columns += (
+                'in_use',
+                'reserved',
+            )
+            column_headers += (
+                'In Use',
+                'Reserved',
+            )
+
+        return (
+            column_headers,
+            (utils.get_dict_properties(s, columns) for s in result),
+        )
 
 
 class DeleteQuota(command.Command):

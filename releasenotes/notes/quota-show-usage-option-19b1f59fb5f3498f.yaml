@@ -1,0 +1,18 @@
+---
+features:
+  - |
+    The ``quota show`` command now supports a ``--usage`` option. When
+    provided, this will result in the command returning usage information for
+    each quota. This replaces the ``quota list --detail`` command which is now
+    deprecated for removal.
+deprecations:
+  - |
+    The ``--detail`` option for the ``quota list`` command has been deprecated
+    for removal. When used without the ``--detail`` option, the ``quota list``
+    command returned quota information for multiple projects yet when used with
+    this option it only returned (detailed) quota information for a single
+    project. This detailed quota information is now available via the
+    ``quota show --usage`` command.
+  - |
+    The ``--project`` option for the ``quota list`` command has been deprecated
+    for removal. Use the ``quota show`` command instead.
