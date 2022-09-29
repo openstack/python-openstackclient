@@ -176,12 +176,12 @@ class TestQuotaList(TestQuota):
         )
 
         self.volume_quotas = [
-            volume_fakes.FakeQuota.create_one_vol_quota(),
-            volume_fakes.FakeQuota.create_one_vol_quota(),
+            volume_fakes.create_one_vol_quota(),
+            volume_fakes.create_one_vol_quota(),
         ]
         self.volume_default_quotas = [
-            volume_fakes.FakeQuota.create_one_default_vol_quota(),
-            volume_fakes.FakeQuota.create_one_default_vol_quota(),
+            volume_fakes.create_one_default_vol_quota(),
+            volume_fakes.create_one_default_vol_quota(),
         ]
         self.volume = self.app.client_manager.volume
         self.volume.quotas.defaults = mock.Mock(
@@ -280,8 +280,7 @@ class TestQuotaList(TestQuota):
             sorted(detailed_reference_data), sorted(ret_quotas))
 
     def test_quota_list_details_volume(self):
-        detailed_quota = (
-            volume_fakes.FakeQuota.create_one_detailed_quota())
+        detailed_quota = volume_fakes.create_one_detailed_quota()
 
         detailed_column_header = (
             'Resource',
@@ -567,7 +566,7 @@ class TestQuotaList(TestQuota):
         self.volume.quotas.get = mock.Mock(
             side_effect=[
                 self.volume_quotas[0],
-                volume_fakes.FakeQuota.create_one_default_vol_quota(),
+                volume_fakes.create_one_default_vol_quota(),
             ],
         )
 
@@ -591,7 +590,7 @@ class TestQuotaList(TestQuota):
         self.volume.quotas.get = mock.Mock(
             side_effect=[
                 self.volume_quotas[0],
-                volume_fakes.FakeQuota.create_one_default_vol_quota(),
+                volume_fakes.create_one_default_vol_quota(),
             ],
         )
 
@@ -1046,10 +1045,9 @@ class TestQuotaShow(TestQuota):
             loaded=True,
         )
 
-        self.volume_quota = volume_fakes.FakeQuota.create_one_vol_quota()
+        self.volume_quota = volume_fakes.create_one_vol_quota()
         self.volume_quotas_mock.get.return_value = self.volume_quota
-        self.volume_default_quota = \
-            volume_fakes.FakeQuota.create_one_default_vol_quota()
+        self.volume_default_quota = volume_fakes.create_one_default_vol_quota()
         self.volume_quotas_mock.defaults.return_value = \
             self.volume_default_quota
         self.volume_quotas_class_mock.get.return_value = FakeQuotaResource(
@@ -1217,8 +1215,7 @@ class TestQuotaShow(TestQuota):
         self.compute_quota = \
             compute_fakes.FakeQuota.create_one_comp_detailed_quota()
         self.compute_quotas_mock.get.return_value = self.compute_quota
-        self.volume_quota = \
-            volume_fakes.FakeQuota.create_one_detailed_quota()
+        self.volume_quota = volume_fakes.create_one_detailed_quota()
         self.volume_quotas_mock.get.return_value = self.volume_quota
         self.network.get_quota.return_value = \
             network_fakes.FakeQuota.create_one_net_detailed_quota()

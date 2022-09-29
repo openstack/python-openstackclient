@@ -25,7 +25,7 @@ from openstackclient.volume.v1 import volume_backup
 class TestBackup(volume_fakes.TestVolumev1):
 
     def setUp(self):
-        super(TestBackup, self).setUp()
+        super().setUp()
 
         self.backups_mock = self.app.client_manager.volume.backups
         self.backups_mock.reset_mock()
@@ -39,7 +39,7 @@ class TestBackup(volume_fakes.TestVolumev1):
 
 class TestBackupCreate(TestBackup):
 
-    volume = volume_fakes.FakeVolume.create_one_volume()
+    volume = volume_fakes.create_one_volume()
 
     columns = (
         'availability_zone',
@@ -55,9 +55,10 @@ class TestBackupCreate(TestBackup):
     )
 
     def setUp(self):
-        super(TestBackupCreate, self).setUp()
-        self.new_backup = volume_fakes.FakeBackup.create_one_backup(
-            attrs={'volume_id': self.volume.id})
+        super().setUp()
+        self.new_backup = volume_fakes.create_one_backup(
+            attrs={'volume_id': self.volume.id},
+        )
         self.data = (
             self.new_backup.availability_zone,
             self.new_backup.container,
@@ -129,13 +130,12 @@ class TestBackupCreate(TestBackup):
 
 class TestBackupDelete(TestBackup):
 
-    backups = volume_fakes.FakeBackup.create_backups(count=2)
+    backups = volume_fakes.create_backups(count=2)
 
     def setUp(self):
-        super(TestBackupDelete, self).setUp()
+        super().setUp()
 
-        self.backups_mock.get = (
-            volume_fakes.FakeBackup.get_backups(self.backups))
+        self.backups_mock.get = volume_fakes.get_backups(self.backups)
         self.backups_mock.delete.return_value = None
 
         # Get the command object to mock
@@ -205,9 +205,11 @@ class TestBackupDelete(TestBackup):
 
 class TestBackupList(TestBackup):
 
-    volume = volume_fakes.FakeVolume.create_one_volume()
-    backups = volume_fakes.FakeBackup.create_backups(
-        attrs={'volume_id': volume.display_name}, count=3)
+    volume = volume_fakes.create_one_volume()
+    backups = volume_fakes.create_backups(
+        attrs={'volume_id': volume.display_name},
+        count=3,
+    )
 
     columns = [
         'ID',
@@ -245,7 +247,7 @@ class TestBackupList(TestBackup):
         ))
 
     def setUp(self):
-        super(TestBackupList, self).setUp()
+        super().setUp()
 
         self.volumes_mock.list.return_value = [self.volume]
         self.backups_mock.list.return_value = self.backups
@@ -314,9 +316,10 @@ class TestBackupList(TestBackup):
 
 class TestBackupRestore(TestBackup):
 
-    volume = volume_fakes.FakeVolume.create_one_volume()
-    backup = volume_fakes.FakeBackup.create_one_backup(
-        attrs={'volume_id': volume.id})
+    volume = volume_fakes.create_one_volume()
+    backup = volume_fakes.create_one_backup(
+        attrs={'volume_id': volume.id},
+    )
 
     def setUp(self):
         super().setUp()
@@ -324,7 +327,7 @@ class TestBackupRestore(TestBackup):
         self.backups_mock.get.return_value = self.backup
         self.volumes_mock.get.return_value = self.volume
         self.restores_mock.restore.return_value = (
-            volume_fakes.FakeVolume.create_one_volume(
+            volume_fakes.create_one_volume(
                 {'id': self.volume['id']},
             )
         )
@@ -400,8 +403,8 @@ class TestBackupShow(TestBackup):
     )
 
     def setUp(self):
-        super(TestBackupShow, self).setUp()
-        self.backup = volume_fakes.FakeBackup.create_one_backup()
+        super().setUp()
+        self.backup = volume_fakes.create_one_backup()
         self.data = (
             self.backup.availability_zone,
             self.backup.container,

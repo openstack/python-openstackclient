@@ -26,7 +26,7 @@ from openstackclient.tests.unit.volume.v2 import fakes as volume_fakes
 class TestProjectPurgeInit(tests_utils.TestCommand):
 
     def setUp(self):
-        super(TestProjectPurgeInit, self).setUp()
+        super().setUp()
         compute_client = compute_fakes.FakeComputev2Client(
             endpoint=fakes.AUTH_URL,
             token=fakes.AUTH_TOKEN,
@@ -71,12 +71,12 @@ class TestProjectPurge(TestProjectPurgeInit):
     project = identity_fakes.FakeProject.create_one_project()
     server = compute_fakes.FakeServer.create_one_server()
     image = image_fakes.create_one_image()
-    volume = volume_fakes.FakeVolume.create_one_volume()
-    backup = volume_fakes.FakeBackup.create_one_backup()
-    snapshot = volume_fakes.FakeSnapshot.create_one_snapshot()
+    volume = volume_fakes.create_one_volume()
+    backup = volume_fakes.create_one_backup()
+    snapshot = volume_fakes.create_one_snapshot()
 
     def setUp(self):
-        super(TestProjectPurge, self).setUp()
+        super().setUp()
         self.projects_mock.get.return_value = self.project
         self.projects_mock.delete.return_value = None
         self.images_mock.list.return_value = [self.image]

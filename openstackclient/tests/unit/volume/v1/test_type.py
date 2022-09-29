@@ -27,7 +27,7 @@ from openstackclient.volume.v1 import volume_type
 class TestType(volume_fakes.TestVolumev1):
 
     def setUp(self):
-        super(TestType, self).setUp()
+        super().setUp()
 
         self.types_mock = self.app.client_manager.volume.volume_types
         self.types_mock.reset_mock()
@@ -47,11 +47,11 @@ class TestTypeCreate(TestType):
     )
 
     def setUp(self):
-        super(TestTypeCreate, self).setUp()
+        super().setUp()
 
-        self.new_volume_type = \
-            volume_fakes.FakeVolumeType.create_one_volume_type(
-                methods={'set_keys': {'myprop': 'myvalue'}})
+        self.new_volume_type = volume_fakes.create_one_volume_type(
+            methods={'set_keys': {'myprop': 'myvalue'}},
+        )
         self.data = (
             self.new_volume_type.description,
             self.new_volume_type.id,
@@ -87,12 +87,12 @@ class TestTypeCreate(TestType):
             'key_size': '128',
             'control_location': 'front-end',
         }
-        encryption_type = \
-            volume_fakes.FakeVolumeType.create_one_encryption_volume_type(
-                attrs=encryption_info)
-        self.new_volume_type = \
-            volume_fakes.FakeVolumeType.create_one_volume_type(
-                attrs={'encryption': encryption_info})
+        encryption_type = volume_fakes.create_one_encryption_volume_type(
+            attrs=encryption_info,
+        )
+        self.new_volume_type = volume_fakes.create_one_volume_type(
+            attrs={'encryption': encryption_info},
+        )
         self.types_mock.create.return_value = self.new_volume_type
         self.encryption_types_mock.create.return_value = encryption_type
         encryption_columns = (
@@ -145,13 +145,12 @@ class TestTypeCreate(TestType):
 
 class TestTypeDelete(TestType):
 
-    volume_types = volume_fakes.FakeVolumeType.create_volume_types(count=2)
+    volume_types = volume_fakes.create_volume_types(count=2)
 
     def setUp(self):
-        super(TestTypeDelete, self).setUp()
+        super().setUp()
 
-        self.types_mock.get = volume_fakes.FakeVolumeType.get_volume_types(
-            self.volume_types)
+        self.types_mock.get = volume_fakes.get_volume_types(self.volume_types)
         self.types_mock.delete.return_value = None
 
         # Get the command object to mock
@@ -221,7 +220,7 @@ class TestTypeDelete(TestType):
 
 class TestTypeList(TestType):
 
-    volume_types = volume_fakes.FakeVolumeType.create_volume_types()
+    volume_types = volume_fakes.create_volume_types()
 
     columns = [
         "ID",
@@ -252,7 +251,7 @@ class TestTypeList(TestType):
         ))
 
     def setUp(self):
-        super(TestTypeList, self).setUp()
+        super().setUp()
 
         self.types_mock.list.return_value = self.volume_types
         self.encryption_types_mock.create.return_value = None
@@ -288,9 +287,9 @@ class TestTypeList(TestType):
         self.assertCountEqual(self.data_long, list(data))
 
     def test_type_list_with_encryption(self):
-        encryption_type = \
-            volume_fakes.FakeVolumeType.create_one_encryption_volume_type(
-                attrs={'volume_type_id': self.volume_types[0].id})
+        encryption_type = volume_fakes.create_one_encryption_volume_type(
+            attrs={'volume_type_id': self.volume_types[0].id},
+        )
         encryption_info = {
             'provider': 'LuksEncryptor',
             'cipher': None,
@@ -335,11 +334,12 @@ class TestTypeList(TestType):
 
 class TestTypeSet(TestType):
 
-    volume_type = volume_fakes.FakeVolumeType.create_one_volume_type(
-        methods={'set_keys': None})
+    volume_type = volume_fakes.create_one_volume_type(
+        methods={'set_keys': None},
+    )
 
     def setUp(self):
-        super(TestTypeSet, self).setUp()
+        super().setUp()
 
         self.types_mock.get.return_value = self.volume_type
 
@@ -441,9 +441,9 @@ class TestTypeShow(TestType):
     )
 
     def setUp(self):
-        super(TestTypeShow, self).setUp()
+        super().setUp()
 
-        self.volume_type = volume_fakes.FakeVolumeType.create_one_volume_type()
+        self.volume_type = volume_fakes.create_one_volume_type()
         self.data = (
             self.volume_type.description,
             self.volume_type.id,
@@ -474,16 +474,16 @@ class TestTypeShow(TestType):
         self.assertCountEqual(self.data, data)
 
     def test_type_show_with_encryption(self):
-        encryption_type = \
-            volume_fakes.FakeVolumeType.create_one_encryption_volume_type()
+        encryption_type = volume_fakes.create_one_encryption_volume_type()
         encryption_info = {
             'provider': 'LuksEncryptor',
             'cipher': None,
             'key_size': None,
             'control_location': 'front-end',
         }
-        self.volume_type = volume_fakes.FakeVolumeType.create_one_volume_type(
-            attrs={'encryption': encryption_info})
+        self.volume_type = volume_fakes.create_one_volume_type(
+            attrs={'encryption': encryption_info},
+        )
         self.types_mock.get.return_value = self.volume_type
         self.encryption_types_mock.get.return_value = encryption_type
         encryption_columns = (
@@ -521,11 +521,12 @@ class TestTypeShow(TestType):
 
 class TestTypeUnset(TestType):
 
-    volume_type = volume_fakes.FakeVolumeType.create_one_volume_type(
-        methods={'unset_keys': None})
+    volume_type = volume_fakes.create_one_volume_type(
+        methods={'unset_keys': None},
+    )
 
     def setUp(self):
-        super(TestTypeUnset, self).setUp()
+        super().setUp()
 
         self.types_mock.get.return_value = self.volume_type
 
@@ -599,7 +600,7 @@ class TestTypeUnset(TestType):
 class TestColumns(TestType):
 
     def test_encryption_info_column_with_info(self):
-        fake_volume_type = volume_fakes.FakeVolumeType.create_one_volume_type()
+        fake_volume_type = volume_fakes.create_one_volume_type()
         type_id = fake_volume_type.id
 
         encryption_info = {
@@ -615,7 +616,7 @@ class TestColumns(TestType):
         self.assertEqual(encryption_info, col.machine_readable())
 
     def test_encryption_info_column_without_info(self):
-        fake_volume_type = volume_fakes.FakeVolumeType.create_one_volume_type()
+        fake_volume_type = volume_fakes.create_one_volume_type()
         type_id = fake_volume_type.id
 
         col = volume_type.EncryptionInfoColumn(type_id, {})

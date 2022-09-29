@@ -28,7 +28,7 @@ from openstackclient.volume.v1 import qos_specs
 class TestQos(volume_fakes.TestVolumev1):
 
     def setUp(self):
-        super(TestQos, self).setUp()
+        super().setUp()
 
         self.qos_mock = self.app.client_manager.volume.qos_specs
         self.qos_mock.reset_mock()
@@ -39,11 +39,11 @@ class TestQos(volume_fakes.TestVolumev1):
 
 class TestQosAssociate(TestQos):
 
-    volume_type = volume_fakes.FakeVolumeType.create_one_volume_type()
-    qos_spec = volume_fakes.FakeQos.create_one_qos()
+    volume_type = volume_fakes.create_one_volume_type()
+    qos_spec = volume_fakes.create_one_qos()
 
     def setUp(self):
-        super(TestQosAssociate, self).setUp()
+        super().setUp()
 
         self.qos_mock.get.return_value = self.qos_spec
         self.types_mock.get.return_value = self.volume_type
@@ -80,8 +80,8 @@ class TestQosCreate(TestQos):
     )
 
     def setUp(self):
-        super(TestQosCreate, self).setUp()
-        self.new_qos_spec = volume_fakes.FakeQos.create_one_qos()
+        super().setUp()
+        self.new_qos_spec = volume_fakes.create_one_qos()
         self.datalist = (
             self.new_qos_spec.consumer,
             self.new_qos_spec.id,
@@ -160,13 +160,13 @@ class TestQosCreate(TestQos):
 
 class TestQosDelete(TestQos):
 
-    qos_specs = volume_fakes.FakeQos.create_qoses(count=2)
+    qos_specs = volume_fakes.create_qoses(count=2)
 
     def setUp(self):
-        super(TestQosDelete, self).setUp()
+        super().setUp()
 
         self.qos_mock.get = (
-            volume_fakes.FakeQos.get_qoses(self.qos_specs))
+            volume_fakes.get_qoses(self.qos_specs))
         # Get the command object to test
         self.cmd = qos_specs.DeleteQos(self.app, None)
 
@@ -263,11 +263,11 @@ class TestQosDelete(TestQos):
 
 class TestQosDisassociate(TestQos):
 
-    volume_type = volume_fakes.FakeVolumeType.create_one_volume_type()
-    qos_spec = volume_fakes.FakeQos.create_one_qos()
+    volume_type = volume_fakes.create_one_volume_type()
+    qos_spec = volume_fakes.create_one_qos()
 
     def setUp(self):
-        super(TestQosDisassociate, self).setUp()
+        super().setUp()
 
         self.qos_mock.get.return_value = self.qos_spec
         self.types_mock.get.return_value = self.volume_type
@@ -311,8 +311,8 @@ class TestQosDisassociate(TestQos):
 
 class TestQosList(TestQos):
 
-    qos_specs = volume_fakes.FakeQos.create_qoses(count=2)
-    qos_association = volume_fakes.FakeQos.create_one_qos_association()
+    qos_specs = volume_fakes.create_qoses(count=2)
+    qos_association = volume_fakes.create_one_qos_association()
 
     columns = (
         'ID',
@@ -332,7 +332,7 @@ class TestQosList(TestQos):
         ))
 
     def setUp(self):
-        super(TestQosList, self).setUp()
+        super().setUp()
 
         self.qos_mock.list.return_value = self.qos_specs
         self.qos_mock.get_associations.return_value = [self.qos_association]
@@ -382,10 +382,10 @@ class TestQosList(TestQos):
 
 class TestQosSet(TestQos):
 
-    qos_spec = volume_fakes.FakeQos.create_one_qos()
+    qos_spec = volume_fakes.create_one_qos()
 
     def setUp(self):
-        super(TestQosSet, self).setUp()
+        super().setUp()
 
         self.qos_mock.get.return_value = self.qos_spec
         # Get the command object to test
@@ -414,11 +414,11 @@ class TestQosSet(TestQos):
 
 class TestQosShow(TestQos):
 
-    qos_spec = volume_fakes.FakeQos.create_one_qos()
-    qos_association = volume_fakes.FakeQos.create_one_qos_association()
+    qos_spec = volume_fakes.create_one_qos()
+    qos_association = volume_fakes.create_one_qos_association()
 
     def setUp(self):
-        super(TestQosShow, self).setUp()
+        super().setUp()
         self.qos_mock.get.return_value = self.qos_spec
         self.qos_mock.get_associations.return_value = [self.qos_association]
         # Get the command object to test
@@ -459,10 +459,10 @@ class TestQosShow(TestQos):
 
 class TestQosUnset(TestQos):
 
-    qos_spec = volume_fakes.FakeQos.create_one_qos()
+    qos_spec = volume_fakes.create_one_qos()
 
     def setUp(self):
-        super(TestQosUnset, self).setUp()
+        super().setUp()
 
         self.qos_mock.get.return_value = self.qos_spec
         # Get the command object to test

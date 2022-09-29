@@ -34,15 +34,14 @@ class TestVolumeMessage(volume_fakes.TestVolume):
 
 class TestVolumeMessageDelete(TestVolumeMessage):
 
-    fake_messages = volume_fakes.FakeVolumeMessage.create_volume_messages(
-        count=2)
+    fake_messages = volume_fakes.create_volume_messages(count=2)
 
     def setUp(self):
         super().setUp()
 
-        self.volume_messages_mock.get = \
-            volume_fakes.FakeVolumeMessage.get_volume_messages(
-                self.fake_messages)
+        self.volume_messages_mock.get = volume_fakes.get_volume_messages(
+            self.fake_messages,
+        )
         self.volume_messages_mock.delete.return_value = None
 
         # Get the command object to mock
@@ -139,8 +138,7 @@ class TestVolumeMessageDelete(TestVolumeMessage):
 class TestVolumeMessageList(TestVolumeMessage):
 
     fake_project = identity_fakes.FakeProject.create_one_project()
-    fake_messages = volume_fakes.FakeVolumeMessage.create_volume_messages(
-        count=3)
+    fake_messages = volume_fakes.create_volume_messages(count=3)
 
     columns = (
         'ID',
@@ -253,7 +251,7 @@ class TestVolumeMessageList(TestVolumeMessage):
 
 class TestVolumeMessageShow(TestVolumeMessage):
 
-    fake_message = volume_fakes.FakeVolumeMessage.create_one_volume_message()
+    fake_message = volume_fakes.create_one_volume_message()
 
     columns = (
         'created_at',

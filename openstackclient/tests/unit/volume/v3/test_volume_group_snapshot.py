@@ -32,9 +32,9 @@ class TestVolumeGroupSnapshot(volume_fakes.TestVolume):
 
 class TestVolumeGroupSnapshotCreate(TestVolumeGroupSnapshot):
 
-    fake_volume_group = volume_fakes.FakeVolumeGroup.create_one_volume_group()
+    fake_volume_group = volume_fakes.create_one_volume_group()
     fake_volume_group_snapshot = \
-        volume_fakes.FakeVolumeGroupSnapshot.create_one_volume_group_snapshot()
+        volume_fakes.create_one_volume_group_snapshot()
 
     columns = (
         'ID',
@@ -141,7 +141,7 @@ class TestVolumeGroupSnapshotCreate(TestVolumeGroupSnapshot):
 class TestVolumeGroupSnapshotDelete(TestVolumeGroupSnapshot):
 
     fake_volume_group_snapshot = \
-        volume_fakes.FakeVolumeGroupSnapshot.create_one_volume_group_snapshot()
+        volume_fakes.create_one_volume_group_snapshot()
 
     def setUp(self):
         super().setUp()
@@ -195,8 +195,7 @@ class TestVolumeGroupSnapshotDelete(TestVolumeGroupSnapshot):
 
 class TestVolumeGroupSnapshotList(TestVolumeGroupSnapshot):
 
-    fake_volume_group_snapshots = \
-        volume_fakes.FakeVolumeGroupSnapshot.create_volume_group_snapshots()
+    fake_volume_group_snapshots = volume_fakes.create_volume_group_snapshots()
 
     columns = (
         'ID',

@@ -78,7 +78,7 @@ def _build_network_az_datalist(network_az, long_datalist=False):
 class TestAvailabilityZone(utils.TestCommand):
 
     def setUp(self):
-        super(TestAvailabilityZone, self).setUp()
+        super().setUp()
 
         compute_client = compute_fakes.FakeComputev2Client(
             endpoint=fakes.AUTH_URL,
@@ -113,8 +113,7 @@ class TestAvailabilityZoneList(TestAvailabilityZone):
 
     compute_azs = \
         compute_fakes.FakeAvailabilityZone.create_availability_zones()
-    volume_azs = \
-        volume_fakes.FakeAvailabilityZone.create_availability_zones(count=1)
+    volume_azs = volume_fakes.create_availability_zones(count=1)
     network_azs = network_fakes.create_availability_zones()
 
     short_columnslist = ('Zone Name', 'Zone Status')
@@ -128,7 +127,7 @@ class TestAvailabilityZoneList(TestAvailabilityZone):
     )
 
     def setUp(self):
-        super(TestAvailabilityZoneList, self).setUp()
+        super().setUp()
 
         self.compute_azs_mock.list.return_value = self.compute_azs
         self.volume_azs_mock.list.return_value = self.volume_azs

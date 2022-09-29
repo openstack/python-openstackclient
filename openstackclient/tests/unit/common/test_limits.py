@@ -33,7 +33,7 @@ class TestComputeLimits(compute_fakes.TestComputev2):
     ]
 
     def setUp(self):
-        super(TestComputeLimits, self).setUp()
+        super().setUp()
         self.app.client_manager.volume_endpoint_enabled = False
         self.compute = self.app.client_manager.compute
 
@@ -87,7 +87,7 @@ class TestVolumeLimits(volume_fakes.TestVolume):
     ]
 
     def setUp(self):
-        super(TestVolumeLimits, self).setUp()
+        super().setUp()
         self.app.client_manager.compute_endpoint_enabled = False
         self.volume = self.app.client_manager.volume
 

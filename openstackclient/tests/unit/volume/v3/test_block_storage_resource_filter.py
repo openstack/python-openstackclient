@@ -31,8 +31,7 @@ class TestBlockStorageResourceFilter(volume_fakes.TestVolume):
 class TestBlockStorageResourceFilterList(TestBlockStorageResourceFilter):
 
     # The resource filters to be listed
-    fake_resource_filters = \
-        volume_fakes.FakeResourceFilter.create_resource_filters()
+    fake_resource_filters = volume_fakes.create_resource_filters()
 
     def setUp(self):
         super().setUp()
@@ -86,8 +85,7 @@ class TestBlockStorageResourceFilterList(TestBlockStorageResourceFilter):
 class TestBlockStorageResourceFilterShow(TestBlockStorageResourceFilter):
 
     # The resource filters to be listed
-    fake_resource_filter = \
-        volume_fakes.FakeResourceFilter.create_one_resource_filter()
+    fake_resource_filter = volume_fakes.create_one_resource_filter()
 
     def setUp(self):
         super().setUp()
