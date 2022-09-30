@@ -1090,7 +1090,7 @@ class TestImageSet(TestImage):
 
         self.assertIsNone(result)
         # we'll have called this but not set anything
-        self.app.client_manager.image.update_image.called_once_with(
+        self.app.client_manager.image.update_image.assert_called_once_with(
             self._image.id,
         )
 
