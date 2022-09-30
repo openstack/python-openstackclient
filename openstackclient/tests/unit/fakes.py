@@ -11,7 +11,6 @@
 #   WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
 #   License for the specific language governing permissions and limitations
 #   under the License.
-#
 
 import json
 import sys
@@ -47,21 +46,6 @@ TEST_RESPONSE_DICT_V3 = fixture.V3Token(user_name=USERNAME)
 TEST_RESPONSE_DICT_V3.set_project_scope()
 
 TEST_VERSIONS = fixture.DiscoveryList(href=AUTH_URL)
-
-
-def to_unicode_dict(catalog_dict):
-    """Converts dict to unicode dict
-
-    """
-    if isinstance(catalog_dict, dict):
-        return {to_unicode_dict(key): to_unicode_dict(value)
-                for key, value in catalog_dict.items()}
-    elif isinstance(catalog_dict, list):
-        return [to_unicode_dict(element) for element in catalog_dict]
-    elif isinstance(catalog_dict, str):
-        return catalog_dict + u""
-    else:
-        return catalog_dict
 
 
 class FakeStdout(object):
@@ -142,17 +126,29 @@ class FakeClientManager(object):
         self.network_endpoint_enabled = True
         self.compute_endpoint_enabled = True
         self.volume_endpoint_enabled = True
+        # The source of configuration. This is either 'cloud_config' (a
+        # clouds.yaml file) or 'global_env' ('OS_'-prefixed envvars)
+        self.configuration_type = 'cloud_config'
 
     def get_configuration(self):
-        return {
-            'auth': {
-                'username': USERNAME,
-                'password': PASSWORD,
-                'token': AUTH_TOKEN,
-            },
+
+        config = {
             'region': REGION_NAME,
             'identity_api_version': VERSION,
         }
+
+        if self.configuration_type == 'cloud_config':
+            config['auth'] = {
+                'username': USERNAME,
+                'password': PASSWORD,
+                'token': AUTH_TOKEN,
+            }
+        elif self.configuration_type == 'global_env':
+            config['username'] = USERNAME
+            config['password'] = PASSWORD
+            config['token'] = AUTH_TOKEN
+
+        return config
 
     def is_network_endpoint_enabled(self):
         return self.network_endpoint_enabled
