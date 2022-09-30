@@ -1,0 +1,4 @@
+---
+features:
+  - |
+    Add ``image task show`` command to show a task for the image service.
