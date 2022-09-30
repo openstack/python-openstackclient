@@ -1,0 +1,5 @@
+---
+features:
+  - |
+    Add a new argument ``--target-project`` to the ``network rbac list``
+    command to filter for a specific target project.
