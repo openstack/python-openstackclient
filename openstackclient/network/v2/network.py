@@ -271,14 +271,16 @@ class CreateNetwork(common.NetworkAndComputeShowOne,
             '--external',
             action='store_true',
             help=self.enhance_help_neutron(
-                _("Set this network as an external network "
+                _("The network has an external routing facility that's not "
+                  "managed by Neutron and can be used as in: "
+                  "openstack router set --external-gateway NETWORK "
                   "(external-net extension required)"))
         )
         external_router_grp.add_argument(
             '--internal',
             action='store_true',
             help=self.enhance_help_neutron(
-                _("Set this network as an internal network (default)"))
+                _("Opposite of '--external' (default)"))
         )
         default_router_grp = parser.add_mutually_exclusive_group()
         default_router_grp.add_argument(
@@ -690,13 +692,15 @@ class SetNetwork(common.NeutronCommandWithExtraArgs):
         external_router_grp.add_argument(
             '--external',
             action='store_true',
-            help=_("Set this network as an external network "
+            help=_("The network has an external routing facility that's not "
+                   "managed by Neutron and can be used as in: "
+                   "openstack router set --external-gateway NETWORK "
                    "(external-net extension required)")
         )
         external_router_grp.add_argument(
             '--internal',
             action='store_true',
-            help=_("Set this network as an internal network")
+            help=_("Opposite of '--external'")
         )
         default_router_grp = parser.add_mutually_exclusive_group()
         default_router_grp.add_argument(
