@@ -23,7 +23,7 @@ from openstackclient.tests.unit import utils
 from openstackclient.tests.unit.volume.v2 import fakes as volume_v2_fakes
 
 
-class FakeVolumeClient(object):
+class FakeVolumeClient:
 
     def __init__(self, **kwargs):
         self.auth_token = kwargs['token']
