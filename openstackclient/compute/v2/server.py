@@ -2500,28 +2500,45 @@ class ListServer(command.Lister):
         data = compute_client.servers.list(
             search_opts=search_opts,
             marker=marker_id,
-            limit=parsed_args.limit)
+            limit=parsed_args.limit,
+        )
 
         images = {}
         flavors = {}
         if data and not parsed_args.no_name_lookup:
+            # partial responses from down cells will not have an image
+            # attribute so we use getattr
+            image_ids = {
+                s.image['id'] for s in data
+                if getattr(s, 'image', None) and s.image.get('id')
+            }
+
             # create a dict that maps image_id to image object, which is used
             # to display the "Image Name" column. Note that 'image.id' can be
             # empty for BFV instances and 'image' can be missing entirely if
             # there are infra failures
             if parsed_args.name_lookup_one_by_one or image_id:
-                for i_id in set(
-                    s.image['id'] for s in data
-                    if s.image and s.image.get('id')
-                ):
+                for image_id in image_ids:
                     # "Image Name" is not crucial, so we swallow any exceptions
                     try:
-                        images[i_id] = image_client.get_image(i_id)
+                        images[image_id] = image_client.get_image(image_id)
                     except Exception:
                         pass
             else:
                 try:
-                    images_list = image_client.images()
+                    # some deployments can have *loads* of images so we only
+                    # want to list the ones we care about. It would be better
+                    # to only retrun the *fields* we care about (name) but
+                    # glance doesn't support that
+                    # NOTE(stephenfin): This could result in super long URLs
+                    # but it seems unlikely to cause issues. Apache supports
+                    # URL lengths of up to 8190 characters by default, which
+                    # should allow for more than 220 unique image ID (different
+                    # servers are likely use the same image ID) in the filter.
+                    # Who'd need more than that in a single command?
+                    images_list = image_client.images(
+                        id=f"in:{','.join(image_ids)}"
+                    )
                     for i in images_list:
                         images[i.id] = i
                 except Exception:

@@ -1,0 +1,8 @@
+---
+features:
+  - |
+    The ``server list`` needs to query the image service API to retrieve
+    image names as part of the response. This command will now retrieve only
+    the images that are relevant, i.e. those used by the server included in
+    the output. This should result in signficantly faster responses when
+    using a deployment with a large number of public images.
