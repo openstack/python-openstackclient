@@ -665,12 +665,12 @@ class SetNetwork(common.NeutronCommandWithExtraArgs):
         )
         parser.add_argument(
             '--description',
-            metavar="<description",
+            metavar="<description>",
             help=_("Set network description")
         )
         parser.add_argument(
             '--mtu',
-            metavar="<mtu",
+            metavar="<mtu>",
             help=_("Set network mtu")
         )
         port_security_group = parser.add_mutually_exclusive_group()
