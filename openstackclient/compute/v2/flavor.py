@@ -333,7 +333,7 @@ class ListFlavor(command.Lister):
         # Even if server supports 2.61 some policy might stop it sending us
         # extra_specs. So try to fetch them if they are absent
         for f in data:
-            if not f.extra_specs:
+            if parsed_args.long and not f.extra_specs:
                 compute_client.fetch_flavor_extra_specs(f)
 
         columns = (

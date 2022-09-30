@@ -1,0 +1,8 @@
+---
+fixes:
+  - |
+    The ``flavor list`` command will no longer attempt to fetch extra specs
+    unless they are actually required (by using the ``--long``) option. This
+    should significantly improve performance on clouds with a large number of
+    flavors.
+    [Story `2010343 <https://storyboard.openstack.org/#!/story/2010343>`_]

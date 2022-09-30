@@ -523,6 +523,7 @@ class TestFlavorList(TestFlavor):
         self.sdk_client.flavors.assert_called_with(
             **kwargs
         )
+        self.sdk_client.fetch_flavor_extra_specs.assert_not_called()
 
         self.assertEqual(self.columns, columns)
         self.assertEqual(self.data, tuple(data))
@@ -550,6 +551,7 @@ class TestFlavorList(TestFlavor):
         self.sdk_client.flavors.assert_called_with(
             **kwargs
         )
+        self.sdk_client.fetch_flavor_extra_specs.assert_not_called()
 
         self.assertEqual(self.columns, columns)
         self.assertEqual(self.data, tuple(data))
@@ -577,6 +579,7 @@ class TestFlavorList(TestFlavor):
         self.sdk_client.flavors.assert_called_with(
             **kwargs
         )
+        self.sdk_client.fetch_flavor_extra_specs.assert_not_called()
 
         self.assertEqual(self.columns, columns)
         self.assertEqual(self.data, tuple(data))
@@ -604,6 +607,7 @@ class TestFlavorList(TestFlavor):
         self.sdk_client.flavors.assert_called_with(
             **kwargs
         )
+        self.sdk_client.fetch_flavor_extra_specs.assert_not_called()
 
         self.assertEqual(self.columns, columns)
         self.assertEqual(self.data, tuple(data))
@@ -631,6 +635,58 @@ class TestFlavorList(TestFlavor):
         self.sdk_client.flavors.assert_called_with(
             **kwargs
         )
+        self.sdk_client.fetch_flavor_extra_specs.assert_not_called()
+
+        self.assertEqual(self.columns_long, columns)
+        self.assertCountEqual(self.data_long, tuple(data))
+
+    def test_flavor_list_long_no_extra_specs(self):
+        # use flavor with no extra specs for this test
+        flavor = compute_fakes.FakeFlavor.create_one_flavor(
+            attrs={"extra_specs": {}})
+        self.data = ((
+            flavor.id,
+            flavor.name,
+            flavor.ram,
+            flavor.disk,
+            flavor.ephemeral,
+            flavor.vcpus,
+            flavor.is_public,
+        ),)
+        self.data_long = (self.data[0] + (
+            flavor.swap,
+            flavor.rxtx_factor,
+            format_columns.DictColumn(flavor.extra_specs)
+        ),)
+        self.api_mock.side_effect = [[flavor], [], ]
+
+        self.sdk_client.flavors = self.api_mock
+        self.sdk_client.fetch_flavor_extra_specs = mock.Mock(return_value=None)
+
+        arglist = [
+            '--long',
+        ]
+        verifylist = [
+            ('long', True),
+        ]
+
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        # In base command class Lister in cliff, abstract method take_action()
+        # returns a tuple containing the column names and an iterable
+        # containing the data to be listed.
+        columns, data = self.cmd.take_action(parsed_args)
+
+        # Set expected values
+        kwargs = {
+            'is_public': True,
+        }
+
+        self.sdk_client.flavors.assert_called_with(
+            **kwargs
+        )
+        self.sdk_client.fetch_flavor_extra_specs.assert_called_once_with(
+            flavor)
 
         self.assertEqual(self.columns_long, columns)
         self.assertCountEqual(self.data_long, tuple(data))
@@ -662,6 +718,7 @@ class TestFlavorList(TestFlavor):
         self.sdk_client.flavors.assert_called_with(
             **kwargs
         )
+        self.sdk_client.fetch_flavor_extra_specs.assert_not_called()
 
         self.assertEqual(self.columns, columns)
         self.assertEqual(tuple(self.data), tuple(data))
