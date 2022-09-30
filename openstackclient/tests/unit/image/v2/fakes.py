@@ -52,6 +52,9 @@ class FakeImagev2Client:
         self.management_url = kwargs['endpoint']
         self.version = 2.0
 
+        self.tasks = mock.Mock()
+        self.tasks.resource_class = fakes.FakeResource(None, {})
+
 
 class TestImagev2(utils.TestCommand):
 
@@ -176,10 +179,26 @@ def create_one_task(attrs=None):
         # https://github.com/openstack/glance/blob/24.0.0/glance/api/v2/tasks.py#L186-L190
         'type': 'import',
         'updated_at': '2016-06-29T16:13:07Z',
-
     }
 
     # Overwrite default attributes if there are some attributes set
     task_info.update(attrs)
 
     return task.Task(**task_info)
+
+
+def create_tasks(attrs=None, count=2):
+    """Create multiple fake tasks.
+
+    :param attrs: A dictionary with all attributes of Task
+    :type attrs: dict
+    :param count: The number of tasks to be faked
+    :type count: int
+    :return: A list of fake Task objects
+    :rtype: list
+    """
+    tasks = []
+    for n in range(0, count):
+        tasks.append(create_one_task(attrs))
+
+    return tasks

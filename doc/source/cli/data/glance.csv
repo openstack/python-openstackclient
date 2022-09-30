@@ -53,8 +53,8 @@ member-list,image member list,Describe sharing permissions by image.
 member-update,image set --accept --reject --status,Update the status of a member for a given image.
 stores-delete,,Delete image from specific store.
 stores-info,,Print available backends from Glance.
-task-create,,Create a new task.
-task-list,,List tasks you can access.
+task-create,WONTFIX,Create a new task.
+task-list,image task list,List tasks you can access.
 task-show,image task show,Describe a specific task.
 bash-completion,complete,Prints arguments for bash_completion.
 help,help,Display help about this program or one of its subcommands.
