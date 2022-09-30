@@ -5101,8 +5101,8 @@ class TestServerListV273(_TestServerList):
         self.search_opts['locked'] = True
         self.servers_mock.list.assert_called_with(**self.kwargs)
 
-        self.assertItemsEqual(self.columns, columns)
-        self.assertItemsEqual(self.data, tuple(data))
+        self.assertCountEqual(self.columns, columns)
+        self.assertCountEqual(self.data, tuple(data))
 
     def test_server_list_with_unlocked_v273(self):
 
@@ -5121,8 +5121,8 @@ class TestServerListV273(_TestServerList):
         self.search_opts['locked'] = False
         self.servers_mock.list.assert_called_with(**self.kwargs)
 
-        self.assertItemsEqual(self.columns, columns)
-        self.assertItemsEqual(self.data, tuple(data))
+        self.assertCountEqual(self.columns, columns)
+        self.assertCountEqual(self.data, tuple(data))
 
     def test_server_list_with_locked_and_unlocked(self):
 
@@ -5162,8 +5162,8 @@ class TestServerListV273(_TestServerList):
 
         self.servers_mock.list.assert_called_with(**self.kwargs)
 
-        self.assertItemsEqual(self.columns, columns)
-        self.assertItemsEqual(self.data, tuple(data))
+        self.assertCountEqual(self.columns, columns)
+        self.assertCountEqual(self.data, tuple(data))
 
     @mock.patch.object(iso8601, 'parse_date', side_effect=iso8601.ParseError)
     def test_server_list_with_invalid_changes_before(
