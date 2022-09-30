@@ -15,9 +15,12 @@
 import copy
 from unittest import mock
 
+from osc_lib import exceptions
+
 from openstackclient.identity.v3 import identity_provider
 from openstackclient.tests.unit import fakes
 from openstackclient.tests.unit.identity.v3 import fakes as identity_fakes
+from openstackclient.tests.unit import utils as test_utils
 
 
 class TestIdentityProvider(identity_fakes.TestFederatedIdentity):
@@ -307,6 +310,86 @@ class TestIdentityProviderCreate(TestIdentityProvider):
 
         self.assertEqual(self.columns, columns)
         self.assertCountEqual(self.datalist, data)
+
+    def test_create_identity_provider_authttl_positive(self):
+        arglist = [
+            '--authorization-ttl', '60',
+            identity_fakes.idp_id,
+        ]
+        verifylist = [
+            ('identity_provider_id', identity_fakes.idp_id),
+            ('authorization_ttl', 60),
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+        columns, data = self.cmd.take_action(parsed_args)
+
+        # Set expected values
+        kwargs = {
+            'remote_ids': None,
+            'description': None,
+            'domain_id': None,
+            'enabled': True,
+            'authorization_ttl': 60,
+        }
+
+        self.identity_providers_mock.create.assert_called_with(
+            id=identity_fakes.idp_id,
+            **kwargs
+        )
+
+        self.assertEqual(self.columns, columns)
+        self.assertCountEqual(self.datalist, data)
+
+    def test_create_identity_provider_authttl_zero(self):
+        arglist = [
+            '--authorization-ttl', '0',
+            identity_fakes.idp_id,
+        ]
+        verifylist = [
+            ('identity_provider_id', identity_fakes.idp_id),
+            ('authorization_ttl', 0),
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+        columns, data = self.cmd.take_action(parsed_args)
+
+        # Set expected values
+        kwargs = {
+            'remote_ids': None,
+            'description': None,
+            'domain_id': None,
+            'enabled': True,
+            'authorization_ttl': 0,
+        }
+
+        self.identity_providers_mock.create.assert_called_with(
+            id=identity_fakes.idp_id,
+            **kwargs
+        )
+
+        self.assertEqual(self.columns, columns)
+        self.assertCountEqual(self.datalist, data)
+
+    def test_create_identity_provider_authttl_negative(self):
+        arglist = [
+            '--authorization-ttl', '-60',
+            identity_fakes.idp_id,
+        ]
+        verifylist = [
+            ('identity_provider_id', identity_fakes.idp_id),
+            ('authorization_ttl', -60),
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+        self.assertRaises(exceptions.CommandError, self.cmd.take_action,
+                          parsed_args)
+
+    def test_create_identity_provider_authttl_not_int(self):
+        arglist = [
+            '--authorization-ttl', 'spam',
+            identity_fakes.idp_id,
+        ]
+        verifylist = []
+        self.assertRaises(test_utils.ParserException, self.check_parser,
+                          self.cmd, arglist, verifylist)
 
 
 class TestIdentityProviderDelete(TestIdentityProvider):
@@ -677,6 +760,93 @@ class TestIdentityProviderSet(TestIdentityProvider):
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
         self.cmd.take_action(parsed_args)
+
+    def test_identity_provider_set_authttl_positive(self):
+        def prepare(self):
+            """Prepare fake return objects before the test is executed"""
+            updated_idp = copy.deepcopy(identity_fakes.IDENTITY_PROVIDER)
+            updated_idp['authorization_ttl'] = 60
+            resources = fakes.FakeResource(
+                None,
+                updated_idp,
+                loaded=True
+            )
+            self.identity_providers_mock.update.return_value = resources
+
+        prepare(self)
+        arglist = [
+            '--authorization-ttl', '60',
+            identity_fakes.idp_id
+        ]
+        verifylist = [
+            ('identity_provider', identity_fakes.idp_id),
+            ('enable', False),
+            ('disable', False),
+            ('remote_id', None),
+            ('authorization_ttl', 60),
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+        self.cmd.take_action(parsed_args)
+        self.identity_providers_mock.update.assert_called_with(
+            identity_fakes.idp_id,
+            authorization_ttl=60,
+        )
+
+    def test_identity_provider_set_authttl_zero(self):
+        def prepare(self):
+            """Prepare fake return objects before the test is executed"""
+            updated_idp = copy.deepcopy(identity_fakes.IDENTITY_PROVIDER)
+            updated_idp['authorization_ttl'] = 0
+            resources = fakes.FakeResource(
+                None,
+                updated_idp,
+                loaded=True
+            )
+            self.identity_providers_mock.update.return_value = resources
+
+        prepare(self)
+        arglist = [
+            '--authorization-ttl', '0',
+            identity_fakes.idp_id
+        ]
+        verifylist = [
+            ('identity_provider', identity_fakes.idp_id),
+            ('enable', False),
+            ('disable', False),
+            ('remote_id', None),
+            ('authorization_ttl', 0),
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+        self.cmd.take_action(parsed_args)
+        self.identity_providers_mock.update.assert_called_with(
+            identity_fakes.idp_id,
+            authorization_ttl=0,
+        )
+
+    def test_identity_provider_set_authttl_negative(self):
+        arglist = [
+            '--authorization-ttl', '-1',
+            identity_fakes.idp_id
+        ]
+        verifylist = [
+            ('identity_provider', identity_fakes.idp_id),
+            ('enable', False),
+            ('disable', False),
+            ('remote_id', None),
+            ('authorization_ttl', -1),
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+        self.assertRaises(exceptions.CommandError, self.cmd.take_action,
+                          parsed_args)
+
+    def test_identity_provider_set_authttl_not_int(self):
+        arglist = [
+            '--authorization-ttl', 'spam',
+            identity_fakes.idp_id
+        ]
+        verifylist = []
+        self.assertRaises(test_utils.ParserException, self.check_parser,
+                          self.cmd, arglist, verifylist)
 
 
 class TestIdentityProviderShow(TestIdentityProvider):
