@@ -124,7 +124,7 @@ class DeleteLocalIPAssociation(command.Command):
                         "fixed port "
                         "name or ID '%(fixed_port_id)s': %(e)s"
                     ),
-                    {'fixed port ID': fixed_port_id, 'e': e},
+                    {'fixed_port_id': fixed_port_id, 'e': e},
                 )
 
         if result > 0:
