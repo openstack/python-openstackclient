@@ -1193,6 +1193,35 @@ class FakeQuota(object):
 
         return quota
 
+    @staticmethod
+    def create_one_detailed_quota(attrs=None):
+        """Create one quota"""
+        attrs = attrs or {}
+
+        quota_attrs = {
+            'volumes': {'limit': 3, 'in_use': 1, 'reserved': 0},
+            'per_volume_gigabytes': {'limit': -1, 'in_use': 0, 'reserved': 0},
+            'snapshots': {'limit': 10, 'in_use': 0, 'reserved': 0},
+            'gigabytes': {'limit': 1000, 'in_use': 5, 'reserved': 0},
+            'backups': {'limit': 10, 'in_use': 0, 'reserved': 0},
+            'backup_gigabytes': {'limit': 1000, 'in_use': 0, 'reserved': 0},
+            'volumes_lvmdriver-1': {'limit': -1, 'in_use': 1, 'reserved': 0},
+            'gigabytes_lvmdriver-1': {'limit': -1, 'in_use': 5, 'reserved': 0},
+            'snapshots_lvmdriver-1': {'limit': -1, 'in_use': 0, 'reserved': 0},
+            'volumes___DEFAULT__': {'limit': -1, 'in_use': 0, 'reserved': 0},
+            'gigabytes___DEFAULT__': {'limit': -1, 'in_use': 0, 'reserved': 0},
+            'snapshots___DEFAULT__': {'limit': -1, 'in_use': 0, 'reserved': 0},
+            'groups': {'limit': 10, 'in_use': 0, 'reserved': 0},
+            'id': uuid.uuid4().hex,
+        }
+        quota_attrs.update(attrs)
+
+        quota = fakes.FakeResource(
+            info=copy.deepcopy(quota_attrs),
+            loaded=True)
+
+        return quota
+
 
 class FakeLimits(object):
     """Fake limits"""
