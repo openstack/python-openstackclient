@@ -972,12 +972,12 @@ class DeleteQuota(command.Command):
         # compute quotas
         if parsed_args.service in {'all', 'compute'}:
             compute_client = self.app.client_manager.compute
-            compute_client.quotas.delete(project)
+            compute_client.quotas.delete(project.id)
 
         # volume quotas
         if parsed_args.service in {'all', 'volume'}:
             volume_client = self.app.client_manager.volume
-            volume_client.quotas.delete(project)
+            volume_client.quotas.delete(project.id)
 
         # network quotas (but only if we're not using nova-network, otherwise
         # we already deleted the quotas in the compute step)
@@ -986,6 +986,6 @@ class DeleteQuota(command.Command):
             and self.app.client_manager.is_network_endpoint_enabled()
         ):
             network_client = self.app.client_manager.network
-            network_client.quotas.delete(project)
+            network_client.delete_quota(project.id)
 
         return None
