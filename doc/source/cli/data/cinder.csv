@@ -91,7 +91,7 @@ qos-show,volume qos show,Shows a specified qos specs.
 quota-class-show,quota show --class,Lists quotas for a quota class.
 quota-class-update,quota set --class,Updates quotas for a quota class.
 quota-defaults,quota show --default,Lists default quotas for a tenant.
-quota-delete,,Delete the quotas for a tenant.
+quota-delete,quota delete --volume,Delete the quotas for a tenant.
 quota-show,quota show,Lists quotas for a tenant.
 quota-update,quota set,Updates quotas for a tenant.
 quota-usage,,Lists quota usage for a tenant.
