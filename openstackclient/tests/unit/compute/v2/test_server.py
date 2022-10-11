@@ -117,6 +117,21 @@ class TestServer(compute_fakes.TestComputev2):
         # Set object methods to be tested. Could be overwritten in subclass.
         self.methods = {}
 
+        patcher = mock.patch.object(
+            sdk_utils, 'supports_microversion', return_value=True)
+        self.addCleanup(patcher.stop)
+        self.supports_microversion_mock = patcher.start()
+        self._set_mock_microversion(
+            self.app.client_manager.compute.api_version.get_string())
+
+    def _set_mock_microversion(self, mock_v):
+        """Set a specific microversion for the mock supports_microversion()."""
+        self.supports_microversion_mock.reset_mock(return_value=True)
+
+        self.supports_microversion_mock.side_effect = (
+            lambda _, v:
+            api_versions.APIVersion(v) <= api_versions.APIVersion(mock_v))
+
     def setup_servers_mock(self, count):
         # If we are creating more than one server, make one of them
         # boot-from-volume
@@ -4448,30 +4463,23 @@ class _TestServerList(TestServer):
     def setUp(self):
         super(_TestServerList, self).setUp()
 
-        self.search_opts = {
+        # Default params of the core function of the command in the case of no
+        # commandline option specified.
+        self.kwargs = {
             'reservation_id': None,
             'ip': None,
             'ip6': None,
             'name': None,
-            'instance_name': None,
             'status': None,
             'flavor': None,
             'image': None,
             'host': None,
-            'tenant_id': None,
-            'all_tenants': False,
+            'project_id': None,
+            'all_projects': False,
             'user_id': None,
             'deleted': False,
             'changes-since': None,
             'changes-before': None,
-        }
-
-        # Default params of the core function of the command in the case of no
-        # commandline option specified.
-        self.kwargs = {
-            'search_opts': self.search_opts,
-            'marker': None,
-            'limit': None,
         }
 
         # The fake servers' attributes. Use the original attributes names in
@@ -4488,10 +4496,6 @@ class _TestServerList(TestServer):
             'Metadata': format_columns.DictColumn({}),
         }
 
-        # The servers to be listed.
-        self.servers = self.setup_servers_mock(3)
-        self.servers_mock.list.return_value = self.servers
-
         self.image = image_fakes.create_one_image()
 
         # self.images_mock.return_value = [self.image]
@@ -4499,7 +4503,12 @@ class _TestServerList(TestServer):
         self.get_image_mock.return_value = self.image
 
         self.flavor = compute_fakes.FakeFlavor.create_one_flavor()
-        self.flavors_mock.get.return_value = self.flavor
+        self.sdk_client.find_flavor.return_value = self.flavor
+        self.attrs['flavor'] = {'original_name': self.flavor.name}
+
+        # The servers to be listed.
+        self.servers = self.setup_sdk_servers_mock(3)
+        self.sdk_client.servers.return_value = self.servers
 
         # Get the command object to test
         self.cmd = server.ListServer(self.app, None)
@@ -4518,7 +4527,7 @@ class TestServerList(_TestServerList):
         ]
 
         Flavor = collections.namedtuple('Flavor', 'id name')
-        self.flavors_mock.list.return_value = [
+        self.sdk_client.flavors.return_value = [
             Flavor(id=s.flavor['id'], name=self.flavor.name)
             for s in self.servers
         ]
@@ -4528,7 +4537,7 @@ class TestServerList(_TestServerList):
                 s.id,
                 s.name,
                 s.status,
-                format_columns.DictListColumn(s.networks),
+                server.AddressesColumn(s.addresses),
                 # Image will be an empty string if boot-from-volume
                 self.image.name if s.image else server.IMAGE_STRING_FOR_BFV,
                 self.flavor.name,
@@ -4547,9 +4556,9 @@ class TestServerList(_TestServerList):
 
         columns, data = self.cmd.take_action(parsed_args)
 
-        self.servers_mock.list.assert_called_with(**self.kwargs)
+        self.sdk_client.servers.assert_called_with(**self.kwargs)
         self.images_mock.assert_called()
-        self.flavors_mock.list.assert_called()
+        self.sdk_client.flavors.assert_called()
         # we did not pass image or flavor, so gets on those must be absent
         self.assertFalse(self.flavors_mock.get.call_count)
         self.assertFalse(self.get_image_mock.call_count)
@@ -4564,14 +4573,14 @@ class TestServerList(_TestServerList):
             ('deleted', False),
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
-        self.servers_mock.list.return_value = []
+        self.sdk_client.servers.return_value = []
         self.data = ()
 
         columns, data = self.cmd.take_action(parsed_args)
 
-        self.servers_mock.list.assert_called_with(**self.kwargs)
+        self.sdk_client.servers.assert_called_with(**self.kwargs)
         self.images_mock.assert_not_called()
-        self.flavors_mock.list.assert_not_called()
+        self.sdk_client.flavors.assert_not_called()
         self.assertEqual(self.columns, columns)
         self.assertEqual(self.data, tuple(data))
 
@@ -4581,19 +4590,19 @@ class TestServerList(_TestServerList):
                 s.id,
                 s.name,
                 s.status,
-                getattr(s, 'OS-EXT-STS:task_state'),
+                getattr(s, 'task_state'),
                 server.PowerStateColumn(
-                    getattr(s, 'OS-EXT-STS:power_state')
+                    getattr(s, 'power_state')
                 ),
-                format_columns.DictListColumn(s.networks),
+                server.AddressesColumn(s.addresses),
                 # Image will be an empty string if boot-from-volume
                 self.image.name if s.image else server.IMAGE_STRING_FOR_BFV,
                 s.image['id'] if s.image else server.IMAGE_STRING_FOR_BFV,
                 self.flavor.name,
                 s.flavor['id'],
-                getattr(s, 'OS-EXT-AZ:availability_zone'),
-                getattr(s, 'OS-EXT-SRV-ATTR:host'),
-                s.Metadata,
+                getattr(s, 'availability_zone'),
+                server.HostColumn(getattr(s, 'hypervisor_hostname')),
+                format_columns.DictColumn(s.metadata),
             ) for s in self.servers
         )
         arglist = [
@@ -4606,12 +4615,12 @@ class TestServerList(_TestServerList):
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
         columns, data = self.cmd.take_action(parsed_args)
-        self.servers_mock.list.assert_called_with(**self.kwargs)
+        self.sdk_client.servers.assert_called_with(**self.kwargs)
         image_ids = {s.image['id'] for s in self.servers if s.image}
         self.images_mock.assert_called_once_with(
             id=f'in:{",".join(image_ids)}',
         )
-        self.flavors_mock.list.assert_called_once_with(is_public=None)
+        self.sdk_client.flavors.assert_called_once_with(is_public=None)
         self.assertEqual(self.columns_long, columns)
         self.assertEqual(self.data, tuple(data))
 
@@ -4637,7 +4646,7 @@ class TestServerList(_TestServerList):
 
         columns, data = self.cmd.take_action(parsed_args)
 
-        self.servers_mock.list.assert_called_with(**self.kwargs)
+        self.sdk_client.servers.assert_called_with(**self.kwargs)
         self.assertIn('Project ID', columns)
         self.assertIn('User ID', columns)
         self.assertIn('Created At', columns)
@@ -4656,7 +4665,7 @@ class TestServerList(_TestServerList):
                 s.id,
                 s.name,
                 s.status,
-                format_columns.DictListColumn(s.networks),
+                server.AddressesColumn(s.addresses),
                 # Image will be an empty string if boot-from-volume
                 s.image['id'] if s.image else server.IMAGE_STRING_FOR_BFV,
                 s.flavor['id']
@@ -4674,9 +4683,9 @@ class TestServerList(_TestServerList):
 
         columns, data = self.cmd.take_action(parsed_args)
 
-        self.servers_mock.list.assert_called_with(**self.kwargs)
+        self.sdk_client.servers.assert_called_with(**self.kwargs)
         self.images_mock.assert_not_called()
-        self.flavors_mock.list.assert_not_called()
+        self.sdk_client.flavors.assert_not_called()
         self.assertEqual(self.columns, columns)
         self.assertEqual(self.data, tuple(data))
 
@@ -4686,7 +4695,7 @@ class TestServerList(_TestServerList):
                 s.id,
                 s.name,
                 s.status,
-                format_columns.DictListColumn(s.networks),
+                server.AddressesColumn(s.addresses),
                 # Image will be an empty string if boot-from-volume
                 s.image['id'] if s.image else server.IMAGE_STRING_FOR_BFV,
                 s.flavor['id']
@@ -4704,9 +4713,9 @@ class TestServerList(_TestServerList):
 
         columns, data = self.cmd.take_action(parsed_args)
 
-        self.servers_mock.list.assert_called_with(**self.kwargs)
+        self.sdk_client.servers.assert_called_with(**self.kwargs)
         self.images_mock.assert_not_called()
-        self.flavors_mock.list.assert_not_called()
+        self.sdk_client.flavors.assert_not_called()
         self.assertEqual(self.columns, columns)
         self.assertEqual(self.data, tuple(data))
 
@@ -4723,11 +4732,11 @@ class TestServerList(_TestServerList):
 
         columns, data = self.cmd.take_action(parsed_args)
 
-        self.servers_mock.list.assert_called_with(**self.kwargs)
+        self.sdk_client.servers.assert_called_with(**self.kwargs)
         self.images_mock.assert_not_called()
-        self.flavors_mock.list.assert_not_called()
+        self.sdk_client.flavors.assert_not_called()
         self.get_image_mock.assert_called()
-        self.flavors_mock.get.assert_called()
+        self.sdk_client.find_flavor.assert_called()
 
         self.assertEqual(self.columns, columns)
         self.assertEqual(self.data, tuple(data))
@@ -4747,10 +4756,10 @@ class TestServerList(_TestServerList):
         self.find_image_mock.assert_called_with(self.image.id,
                                                 ignore_missing=False)
 
-        self.search_opts['image'] = self.image.id
-        self.servers_mock.list.assert_called_with(**self.kwargs)
+        self.kwargs['image'] = self.image.id
+        self.sdk_client.servers.assert_called_with(**self.kwargs)
         self.images_mock.assert_not_called()
-        self.flavors_mock.list.assert_called_once()
+        self.sdk_client.flavors.assert_called_once()
 
         self.assertEqual(self.columns, columns)
         self.assertEqual(self.data, tuple(data))
@@ -4767,12 +4776,13 @@ class TestServerList(_TestServerList):
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
         columns, data = self.cmd.take_action(parsed_args)
 
-        self.flavors_mock.get.assert_has_calls([mock.call(self.flavor.id)])
+        self.sdk_client.find_flavor.assert_has_calls(
+            [mock.call(self.flavor.id)])
 
-        self.search_opts['flavor'] = self.flavor.id
-        self.servers_mock.list.assert_called_with(**self.kwargs)
+        self.kwargs['flavor'] = self.flavor.id
+        self.sdk_client.servers.assert_called_with(**self.kwargs)
         self.images_mock.assert_called_once()
-        self.flavors_mock.list.assert_not_called()
+        self.sdk_client.flavors.assert_not_called()
 
         self.assertEqual(self.columns, columns)
         self.assertEqual(self.data, tuple(data))
@@ -4791,9 +4801,9 @@ class TestServerList(_TestServerList):
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
         columns, data = self.cmd.take_action(parsed_args)
 
-        self.search_opts['changes-since'] = '2016-03-04T06:27:59Z'
-        self.search_opts['deleted'] = True
-        self.servers_mock.list.assert_called_with(**self.kwargs)
+        self.kwargs['changes-since'] = '2016-03-04T06:27:59Z'
+        self.kwargs['deleted'] = True
+        self.sdk_client.servers.assert_called_with(**self.kwargs)
 
         self.assertEqual(self.columns, columns)
         self.assertEqual(self.data, tuple(data))
@@ -4820,8 +4830,7 @@ class TestServerList(_TestServerList):
         )
 
     def test_server_list_with_tag(self):
-        self.app.client_manager.compute.api_version = api_versions.APIVersion(
-            '2.26')
+        self._set_mock_microversion('2.26')
 
         arglist = [
             '--tag', 'tag1',
@@ -4834,16 +4843,15 @@ class TestServerList(_TestServerList):
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
         columns, data = self.cmd.take_action(parsed_args)
 
-        self.search_opts['tags'] = 'tag1,tag2'
+        self.kwargs['tags'] = 'tag1,tag2'
 
-        self.servers_mock.list.assert_called_with(**self.kwargs)
+        self.sdk_client.servers.assert_called_with(**self.kwargs)
 
         self.assertEqual(self.columns, columns)
         self.assertEqual(self.data, tuple(data))
 
     def test_server_list_with_tag_pre_v225(self):
-        self.app.client_manager.compute.api_version = api_versions.APIVersion(
-            '2.25')
+        self._set_mock_microversion('2.25')
 
         arglist = [
             '--tag', 'tag1',
@@ -4863,9 +4871,7 @@ class TestServerList(_TestServerList):
             str(ex))
 
     def test_server_list_with_not_tag(self):
-        self.app.client_manager.compute.api_version = api_versions.APIVersion(
-            '2.26')
-
+        self._set_mock_microversion('2.26')
         arglist = [
             '--not-tag', 'tag1',
             '--not-tag', 'tag2',
@@ -4877,16 +4883,15 @@ class TestServerList(_TestServerList):
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
         columns, data = self.cmd.take_action(parsed_args)
 
-        self.search_opts['not-tags'] = 'tag1,tag2'
+        self.kwargs['not-tags'] = 'tag1,tag2'
 
-        self.servers_mock.list.assert_called_with(**self.kwargs)
+        self.sdk_client.servers.assert_called_with(**self.kwargs)
 
         self.assertEqual(self.columns, columns)
         self.assertEqual(self.data, tuple(data))
 
     def test_server_list_with_not_tag_pre_v226(self):
-        self.app.client_manager.compute.api_version = api_versions.APIVersion(
-            '2.25')
+        self._set_mock_microversion('2.25')
 
         arglist = [
             '--not-tag', 'tag1',
@@ -4916,8 +4921,8 @@ class TestServerList(_TestServerList):
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
         columns, data = self.cmd.take_action(parsed_args)
 
-        self.search_opts['availability_zone'] = 'test-az'
-        self.servers_mock.list.assert_called_with(**self.kwargs)
+        self.kwargs['availability_zone'] = 'test-az'
+        self.sdk_client.servers.assert_called_with(**self.kwargs)
         self.assertEqual(self.columns, columns)
         self.assertEqual(tuple(self.data), tuple(data))
 
@@ -4932,8 +4937,8 @@ class TestServerList(_TestServerList):
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
         columns, data = self.cmd.take_action(parsed_args)
 
-        self.search_opts['key_name'] = 'test-key'
-        self.servers_mock.list.assert_called_with(**self.kwargs)
+        self.kwargs['key_name'] = 'test-key'
+        self.sdk_client.servers.assert_called_with(**self.kwargs)
         self.assertEqual(self.columns, columns)
         self.assertEqual(tuple(self.data), tuple(data))
 
@@ -4948,8 +4953,8 @@ class TestServerList(_TestServerList):
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
         columns, data = self.cmd.take_action(parsed_args)
 
-        self.search_opts['config_drive'] = True
-        self.servers_mock.list.assert_called_with(**self.kwargs)
+        self.kwargs['config_drive'] = True
+        self.sdk_client.servers.assert_called_with(**self.kwargs)
         self.assertEqual(self.columns, columns)
         self.assertEqual(tuple(self.data), tuple(data))
 
@@ -4964,8 +4969,8 @@ class TestServerList(_TestServerList):
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
         columns, data = self.cmd.take_action(parsed_args)
 
-        self.search_opts['config_drive'] = False
-        self.servers_mock.list.assert_called_with(**self.kwargs)
+        self.kwargs['config_drive'] = False
+        self.sdk_client.servers.assert_called_with(**self.kwargs)
         self.assertEqual(self.columns, columns)
         self.assertEqual(tuple(self.data), tuple(data))
 
@@ -4980,8 +4985,8 @@ class TestServerList(_TestServerList):
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
         columns, data = self.cmd.take_action(parsed_args)
 
-        self.search_opts['progress'] = '100'
-        self.servers_mock.list.assert_called_with(**self.kwargs)
+        self.kwargs['progress'] = '100'
+        self.sdk_client.servers.assert_called_with(**self.kwargs)
         self.assertEqual(self.columns, columns)
         self.assertEqual(tuple(self.data), tuple(data))
 
@@ -5005,8 +5010,8 @@ class TestServerList(_TestServerList):
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
         columns, data = self.cmd.take_action(parsed_args)
 
-        self.search_opts['vm_state'] = 'active'
-        self.servers_mock.list.assert_called_with(**self.kwargs)
+        self.kwargs['vm_state'] = 'active'
+        self.sdk_client.servers.assert_called_with(**self.kwargs)
         self.assertEqual(self.columns, columns)
         self.assertEqual(tuple(self.data), tuple(data))
 
@@ -5021,8 +5026,8 @@ class TestServerList(_TestServerList):
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
         columns, data = self.cmd.take_action(parsed_args)
 
-        self.search_opts['task_state'] = 'deleting'
-        self.servers_mock.list.assert_called_with(**self.kwargs)
+        self.kwargs['task_state'] = 'deleting'
+        self.sdk_client.servers.assert_called_with(**self.kwargs)
         self.assertEqual(self.columns, columns)
         self.assertEqual(tuple(self.data), tuple(data))
 
@@ -5037,33 +5042,31 @@ class TestServerList(_TestServerList):
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
         columns, data = self.cmd.take_action(parsed_args)
 
-        self.search_opts['power_state'] = 1
-        self.servers_mock.list.assert_called_with(**self.kwargs)
+        self.kwargs['power_state'] = 1
+        self.sdk_client.servers.assert_called_with(**self.kwargs)
         self.assertEqual(self.columns, columns)
         self.assertEqual(tuple(self.data), tuple(data))
 
     def test_server_list_long_with_host_status_v216(self):
-        self.app.client_manager.compute.api_version = \
-            api_versions.APIVersion('2.16')
-
+        self._set_mock_microversion('2.16')
         self.data1 = tuple(
             (
                 s.id,
                 s.name,
                 s.status,
-                getattr(s, 'OS-EXT-STS:task_state'),
+                getattr(s, 'task_state'),
                 server.PowerStateColumn(
-                    getattr(s, 'OS-EXT-STS:power_state')
+                    getattr(s, 'power_state')
                 ),
-                format_columns.DictListColumn(s.networks),
+                server.AddressesColumn(s.addresses),
                 # Image will be an empty string if boot-from-volume
                 self.image.name if s.image else server.IMAGE_STRING_FOR_BFV,
                 s.image['id'] if s.image else server.IMAGE_STRING_FOR_BFV,
                 self.flavor.name,
                 s.flavor['id'],
-                getattr(s, 'OS-EXT-AZ:availability_zone'),
-                getattr(s, 'OS-EXT-SRV-ATTR:host'),
-                s.Metadata,
+                getattr(s, 'availability_zone'),
+                server.HostColumn(getattr(s, 'hypervisor_hostname')),
+                format_columns.DictColumn(s.metadata),
             ) for s in self.servers)
 
         arglist = [
@@ -5078,18 +5081,18 @@ class TestServerList(_TestServerList):
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
         columns, data = self.cmd.take_action(parsed_args)
 
-        self.servers_mock.list.assert_called_with(**self.kwargs)
+        self.sdk_client.servers.assert_called_with(**self.kwargs)
 
         self.assertEqual(self.columns_long, columns)
         self.assertEqual(tuple(self.data1), tuple(data))
 
         # Next test with host_status in the data -- the column should be
         # present in this case.
-        self.servers_mock.reset_mock()
+        self.sdk_client.servers.reset_mock()
 
         self.attrs['host_status'] = 'UP'
-        servers = self.setup_servers_mock(3)
-        self.servers_mock.list.return_value = servers
+        servers = self.setup_sdk_servers_mock(3)
+        self.sdk_client.servers.return_value = servers
 
         # Make sure the returned image and flavor IDs match the servers.
         Image = collections.namedtuple('Image', 'id name')
@@ -5099,12 +5102,6 @@ class TestServerList(_TestServerList):
             for s in servers if s.image
         ]
 
-        Flavor = collections.namedtuple('Flavor', 'id name')
-        self.flavors_mock.list.return_value = [
-            Flavor(id=s.flavor['id'], name=self.flavor.name)
-            for s in servers
-        ]
-
         # Add the expected host_status column and data.
         columns_long = self.columns_long + ('Host Status',)
         self.data2 = tuple(
@@ -5112,25 +5109,25 @@ class TestServerList(_TestServerList):
                 s.id,
                 s.name,
                 s.status,
-                getattr(s, 'OS-EXT-STS:task_state'),
+                getattr(s, 'task_state'),
                 server.PowerStateColumn(
-                    getattr(s, 'OS-EXT-STS:power_state')
+                    getattr(s, 'power_state')
                 ),
-                format_columns.DictListColumn(s.networks),
+                server.AddressesColumn(s.addresses),
                 # Image will be an empty string if boot-from-volume
                 self.image.name if s.image else server.IMAGE_STRING_FOR_BFV,
                 s.image['id'] if s.image else server.IMAGE_STRING_FOR_BFV,
                 self.flavor.name,
                 s.flavor['id'],
-                getattr(s, 'OS-EXT-AZ:availability_zone'),
-                getattr(s, 'OS-EXT-SRV-ATTR:host'),
-                s.Metadata,
+                getattr(s, 'availability_zone'),
+                server.HostColumn(getattr(s, 'hypervisor_hostname')),
+                format_columns.DictColumn(s.metadata),
                 s.host_status,
             ) for s in servers)
 
         columns, data = self.cmd.take_action(parsed_args)
 
-        self.servers_mock.list.assert_called_with(**self.kwargs)
+        self.sdk_client.servers.assert_called_with(**self.kwargs)
 
         self.assertEqual(columns_long, columns)
         self.assertEqual(tuple(self.data2), tuple(data))
@@ -5178,8 +5175,8 @@ class TestServerListV273(_TestServerList):
         }
 
         # The servers to be listed.
-        self.servers = self.setup_servers_mock(3)
-        self.servers_mock.list.return_value = self.servers
+        self.servers = self.setup_sdk_servers_mock(3)
+        self.sdk_client.servers.return_value = self.servers
 
         Image = collections.namedtuple('Image', 'id name')
         self.images_mock.return_value = [
@@ -5190,14 +5187,14 @@ class TestServerListV273(_TestServerList):
 
         # The flavor information is embedded, so now reason for this to be
         # called
-        self.flavors_mock.list = mock.NonCallableMock()
+        self.sdk_client.flavors = mock.NonCallableMock()
 
         self.data = tuple(
             (
                 s.id,
                 s.name,
                 s.status,
-                format_columns.DictListColumn(s.networks),
+                server.AddressesColumn(s.addresses),
                 # Image will be an empty string if boot-from-volume
                 self.image.name if s.image else server.IMAGE_STRING_FOR_BFV,
                 self.flavor.name,
@@ -5221,8 +5218,7 @@ class TestServerListV273(_TestServerList):
 
     def test_server_list_with_locked(self):
 
-        self.app.client_manager.compute.api_version = \
-            api_versions.APIVersion('2.73')
+        self._set_mock_microversion('2.73')
         arglist = [
             '--locked'
         ]
@@ -5233,16 +5229,15 @@ class TestServerListV273(_TestServerList):
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
         columns, data = self.cmd.take_action(parsed_args)
 
-        self.search_opts['locked'] = True
-        self.servers_mock.list.assert_called_with(**self.kwargs)
+        self.kwargs['locked'] = True
+        self.sdk_client.servers.assert_called_with(**self.kwargs)
 
         self.assertCountEqual(self.columns, columns)
         self.assertCountEqual(self.data, tuple(data))
 
     def test_server_list_with_unlocked_v273(self):
+        self._set_mock_microversion('2.73')
 
-        self.app.client_manager.compute.api_version = \
-            api_versions.APIVersion('2.73')
         arglist = [
             '--unlocked'
         ]
@@ -5253,16 +5248,15 @@ class TestServerListV273(_TestServerList):
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
         columns, data = self.cmd.take_action(parsed_args)
 
-        self.search_opts['locked'] = False
-        self.servers_mock.list.assert_called_with(**self.kwargs)
+        self.kwargs['locked'] = False
+        self.sdk_client.servers.assert_called_with(**self.kwargs)
 
         self.assertCountEqual(self.columns, columns)
         self.assertCountEqual(self.data, tuple(data))
 
     def test_server_list_with_locked_and_unlocked(self):
 
-        self.app.client_manager.compute.api_version = \
-            api_versions.APIVersion('2.73')
+        self._set_mock_microversion('2.73')
         arglist = [
             '--locked',
             '--unlocked'
@@ -5278,8 +5272,7 @@ class TestServerListV273(_TestServerList):
         self.assertIn('Argument parse failed', str(ex))
 
     def test_server_list_with_changes_before(self):
-        self.app.client_manager.compute.api_version = (
-            api_versions.APIVersion('2.66'))
+        self._set_mock_microversion('2.66')
         arglist = [
             '--changes-before', '2016-03-05T06:27:59Z',
             '--deleted'
@@ -5292,10 +5285,10 @@ class TestServerListV273(_TestServerList):
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
         columns, data = self.cmd.take_action(parsed_args)
 
-        self.search_opts['changes-before'] = '2016-03-05T06:27:59Z'
-        self.search_opts['deleted'] = True
+        self.kwargs['changes-before'] = '2016-03-05T06:27:59Z'
+        self.kwargs['deleted'] = True
 
-        self.servers_mock.list.assert_called_with(**self.kwargs)
+        self.sdk_client.servers.assert_called_with(**self.kwargs)
 
         self.assertCountEqual(self.columns, columns)
         self.assertCountEqual(self.data, tuple(data))
@@ -5303,9 +5296,7 @@ class TestServerListV273(_TestServerList):
     @mock.patch.object(iso8601, 'parse_date', side_effect=iso8601.ParseError)
     def test_server_list_with_invalid_changes_before(
             self, mock_parse_isotime):
-        self.app.client_manager.compute.api_version = (
-            api_versions.APIVersion('2.66'))
-
+        self._set_mock_microversion('2.66')
         arglist = [
             '--changes-before', 'Invalid time value',
         ]
@@ -5325,8 +5316,7 @@ class TestServerListV273(_TestServerList):
         )
 
     def test_server_with_changes_before_pre_v266(self):
-        self.app.client_manager.compute.api_version = (
-            api_versions.APIVersion('2.65'))
+        self._set_mock_microversion('2.65')
 
         arglist = [
             '--changes-before', '2016-03-05T06:27:59Z',
@@ -5344,8 +5334,7 @@ class TestServerListV273(_TestServerList):
                           parsed_args)
 
     def test_server_list_v269_with_partial_constructs(self):
-        self.app.client_manager.compute.api_version = \
-            api_versions.APIVersion('2.69')
+        self._set_mock_microversion('2.69')
         arglist = []
         verifylist = []
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
@@ -5371,10 +5360,10 @@ class TestServerListV273(_TestServerList):
             # it will fail at formatting the networks info later on.
             "networks": {}
         }
-        server = compute_fakes.fakes.FakeResource(
+        fake_server = compute_fakes.fakes.FakeResource(
             info=server_dict,
         )
-        self.servers.append(server)
+        self.servers.append(fake_server)
         columns, data = self.cmd.take_action(parsed_args)
         # get the first three servers out since our interest is in the partial
         # server.
@@ -5384,7 +5373,7 @@ class TestServerListV273(_TestServerList):
         partial_server = next(data)
         expected_row = (
             'server-id-95a56bfc4xxxxxx28d7e418bfd97813a', '',
-            'UNKNOWN', format_columns.DictListColumn({}), '', '')
+            'UNKNOWN', server.AddressesColumn(''), '', '')
         self.assertEqual(expected_row, partial_server)
 
 

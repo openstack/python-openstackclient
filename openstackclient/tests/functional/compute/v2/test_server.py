@@ -105,7 +105,7 @@ class ServerTests(common.ComputeTestCase):
                 'server list -f json --deleted --marker ' + name2
             ))
         except exceptions.CommandFailed as e:
-            self.assertIn('marker [%s] not found (HTTP 400)' % (name2),
+            self.assertIn('marker [%s] not found' % (name2),
                           e.stderr.decode('utf-8'))
 
     def test_server_list_with_changes_before(self):
