@@ -25,7 +25,6 @@ from osc_lib import utils
 from openstackclient.i18n import _
 from openstackclient.network import common
 
-
 LOG = logging.getLogger(__name__)
 
 # List the quota items, map the internal argument name to the option
@@ -78,9 +77,17 @@ NETWORK_QUOTAS = {
     'subnetpool': 'subnetpools',
 }
 
-NETWORK_KEYS = ['floating_ips', 'networks', 'rbac_policies', 'routers',
-                'ports', 'security_group_rules', 'security_groups',
-                'subnet_pools', 'subnets']
+NETWORK_KEYS = [
+    'floating_ips',
+    'networks',
+    'rbac_policies',
+    'routers',
+    'ports',
+    'security_group_rules',
+    'security_groups',
+    'subnet_pools',
+    'subnets',
+]
 
 
 def _xform_get_quota(data, value, keys):
@@ -94,181 +101,151 @@ def _xform_get_quota(data, value, keys):
     return res
 
 
-class BaseQuota(object):
-    def _get_project(self, parsed_args):
-        if parsed_args.project is not None:
-            identity_client = self.app.client_manager.identity
-            project = utils.find_resource(
-                identity_client.projects,
-                parsed_args.project,
-            )
-            project_id = project.id
-            project_name = project.name
-        elif self.app.client_manager.auth_ref:
-            # Get the project from the current auth
-            project = self.app.client_manager.auth_ref
-            project_id = project.project_id
-            project_name = project.project_name
+def get_project(app, project):
+    if project is not None:
+        identity_client = app.client_manager.identity
+        project = utils.find_resource(
+            identity_client.projects,
+            project,
+        )
+        project_id = project.id
+        project_name = project.name
+    elif app.client_manager.auth_ref:
+        # Get the project from the current auth
+        project = app.client_manager.auth_ref
+        project_id = project.project_id
+        project_name = project.project_name
+    else:
+        project_id = None
+        project_name = None
+
+    return {
+        'id': project_id,
+        'name': project_name,
+    }
+
+
+def get_compute_quotas(
+    app,
+    project_id,
+    *,
+    quota_class=False,
+    detail=False,
+    default=False,
+):
+    try:
+        client = app.client_manager.compute
+        if quota_class:
+            # NOTE(stephenfin): The 'project' argument here could be anything
+            # as the nova API doesn't care what you pass in. We only pass the
+            # project in to avoid weirding people out :)
+            quota = client.quota_classes.get(project_id)
+        elif default:
+            quota = client.quotas.defaults(project_id)
         else:
-            project = None
-            project_id = None
-            project_name = None
-        project_info = {}
-        project_info['id'] = project_id
-        project_info['name'] = project_name
-        return project_info
+            quota = client.quotas.get(project_id, detail=detail)
+    except Exception as e:
+        if type(e).__name__ == 'EndpointNotFound':
+            return {}
+        raise
+    return quota._info
 
-    def get_compute_quota(self, client, parsed_args):
-        quota_class = (
-            parsed_args.quota_class if 'quota_class' in parsed_args else False)
-        detail = parsed_args.detail if 'detail' in parsed_args else False
-        default = parsed_args.default if 'default' in parsed_args else False
-        try:
-            if quota_class:
-                quota = client.quota_classes.get(parsed_args.project)
-            else:
-                project_info = self._get_project(parsed_args)
-                project = project_info['id']
-                if default:
-                    quota = client.quotas.defaults(project)
-                else:
-                    quota = client.quotas.get(project, detail=detail)
-        except Exception as e:
-            if type(e).__name__ == 'EndpointNotFound':
-                return {}
-            else:
-                raise
-        return quota._info
 
-    def get_volume_quota(self, client, parsed_args):
-        quota_class = (
-            parsed_args.quota_class if 'quota_class' in parsed_args else False)
-        detail = parsed_args.detail if 'detail' in parsed_args else False
-        default = parsed_args.default if 'default' in parsed_args else False
-        try:
-            if quota_class:
-                quota = client.quota_classes.get(parsed_args.project)
-            else:
-                project_info = self._get_project(parsed_args)
-                project = project_info['id']
-                if default:
-                    quota = client.quotas.defaults(project)
-                else:
-                    quota = client.quotas.get(project, usage=detail)
-        except Exception as e:
-            if type(e).__name__ == 'EndpointNotFound':
-                return {}
-            else:
-                raise
-        return quota._info
+def get_volume_quotas(
+    app,
+    project_id,
+    *,
+    quota_class=False,
+    detail=False,
+    default=False,
+):
+    try:
+        client = app.client_manager.volume
+        if quota_class:
+            quota = client.quota_classes.get(project_id)
+        elif default:
+            quota = client.quotas.defaults(project_id)
+        else:
+            quota = client.quotas.get(project_id, usage=detail)
+    except Exception as e:
+        if type(e).__name__ == 'EndpointNotFound':
+            return {}
+        else:
+            raise
+    return quota._info
 
-    def _network_quota_to_dict(self, network_quota):
+
+def get_network_quotas(
+    app,
+    project_id,
+    *,
+    quota_class=False,
+    detail=False,
+    default=False,
+):
+    def _network_quota_to_dict(network_quota, detail=False):
         if type(network_quota) is not dict:
             dict_quota = network_quota.to_dict()
         else:
             dict_quota = network_quota
-        return {k: v for k, v in dict_quota.items() if v is not None}
 
-    def get_network_quota(self, parsed_args):
-        quota_class = (
-            parsed_args.quota_class if 'quota_class' in parsed_args else False)
-        detail = parsed_args.detail if 'detail' in parsed_args else False
-        default = parsed_args.default if 'default' in parsed_args else False
-        if quota_class:
-            return {}
-        if self.app.client_manager.is_network_endpoint_enabled():
-            project_info = self._get_project(parsed_args)
-            project = project_info['id']
-            client = self.app.client_manager.network
-            if default:
-                network_quota = client.get_quota_default(project)
-                network_quota = self._network_quota_to_dict(network_quota)
-            else:
-                network_quota = client.get_quota(project,
-                                                 details=detail)
-                network_quota = self._network_quota_to_dict(network_quota)
-                if detail:
-                    # NOTE(slaweq): Neutron returns values with key "used" but
-                    # Nova for example returns same data with key "in_use"
-                    # instead.
-                    # Because of that we need to convert Neutron key to
-                    # the same as is returned from Nova to make result
-                    # more consistent
-                    for key, values in network_quota.items():
-                        if type(values) is dict and "used" in values:
-                            values['in_use'] = values.pop("used")
-                        network_quota[key] = values
-            return network_quota
-        else:
-            return {}
+        result = {}
+
+        for key, values in dict_quota.items():
+            if values is None:
+                continue
+
+            # NOTE(slaweq): Neutron returns values with key "used" but Nova for
+            # example returns same data with key "in_use" instead. Because of
+            # that we need to convert Neutron key to the same as is returned
+            # from Nova to make result more consistent
+            if isinstance(values, dict) and 'used' in values:
+                values['in_use'] = values.pop("used")
+
+            result[key] = values
+
+        return result
+
+    # neutron doesn't have the concept of quota classes and if we're using
+    # nova-network we already fetched this
+    if quota_class:
+        return {}
+
+    # we have nothing to return if we are not using neutron
+    if not app.client_manager.is_network_endpoint_enabled():
+        return {}
+
+    client = app.client_manager.network
+    if default:
+        network_quota = client.get_quota_default(project_id)
+        network_quota = _network_quota_to_dict(network_quota)
+    else:
+        network_quota = client.get_quota(project_id, details=detail)
+        network_quota = _network_quota_to_dict(network_quota, detail=detail)
+    return network_quota
 
 
-class ListQuota(command.Lister, BaseQuota):
+class ListQuota(command.Lister):
     _description = _(
         "List quotas for all projects with non-default quota values or "
         "list detailed quota information for requested project"
     )
 
-    def _get_detailed_quotas(self, parsed_args):
-        columns = (
-            'resource',
-            'in_use',
-            'reserved',
-            'limit'
-        )
-        column_headers = (
-            'Resource',
-            'In Use',
-            'Reserved',
-            'Limit'
-        )
-        quotas = {}
-        if parsed_args.compute:
-            quotas.update(
-                self.get_compute_quota(
-                    self.app.client_manager.compute,
-                    parsed_args,
-                )
-            )
-        if parsed_args.network:
-            quotas.update(self.get_network_quota(parsed_args))
-        if parsed_args.volume:
-            quotas.update(
-                self.get_volume_quota(
-                    self.app.client_manager.volume,
-                    parsed_args,
-                ),
-            )
-
-        result = []
-        for resource, values in quotas.items():
-            # NOTE(slaweq): there is no detailed quotas info for some resources
-            # and it shouldn't be displayed here
-            if type(values) is dict:
-                result.append({
-                    'resource': resource,
-                    'in_use': values.get('in_use'),
-                    'reserved': values.get('reserved'),
-                    'limit': values.get('limit')
-                })
-        return (column_headers,
-                (utils.get_dict_properties(
-                    s, columns,
-                ) for s in result))
-
     def get_parser(self, prog_name):
-        parser = super(ListQuota, self).get_parser(prog_name)
+        parser = super().get_parser(prog_name)
         parser.add_argument(
             '--project',
             metavar='<project>',
             help=_('List quotas for this project <project> (name or ID)'),
         )
+        # TODO(stephenfin): This doesn't belong here. We should put it into the
+        # 'quota show' command and deprecate this.
         parser.add_argument(
             '--detail',
             dest='detail',
             action='store_true',
             default=False,
-            help=_('Show details about quotas usage')
+            help=_('Show details about quotas usage'),
         )
         option = parser.add_mutually_exclusive_group(required=True)
         option.add_argument(
@@ -291,6 +268,69 @@ class ListQuota(command.Lister, BaseQuota):
         )
         return parser
 
+    def _get_detailed_quotas(self, parsed_args):
+        project_info = get_project(self.app, parsed_args.project)
+        project = project_info['id']
+
+        quotas = {}
+
+        if parsed_args.compute:
+            quotas.update(
+                get_compute_quotas(
+                    self.app,
+                    project,
+                    detail=parsed_args.detail,
+                )
+            )
+
+        if parsed_args.network:
+            quotas.update(
+                get_network_quotas(
+                    self.app,
+                    project,
+                    detail=parsed_args.detail,
+                )
+            )
+
+        if parsed_args.volume:
+            quotas.update(
+                get_volume_quotas(
+                    self.app,
+                    parsed_args,
+                    detail=parsed_args.detail,
+                ),
+            )
+
+        result = []
+        for resource, values in quotas.items():
+            # NOTE(slaweq): there is no detailed quotas info for some resources
+            # and it shouldn't be displayed here
+            if isinstance(values, dict):
+                result.append({
+                    'resource': resource,
+                    'in_use': values.get('in_use'),
+                    'reserved': values.get('reserved'),
+                    'limit': values.get('limit'),
+                })
+
+        columns = (
+            'resource',
+            'in_use',
+            'reserved',
+            'limit',
+        )
+        column_headers = (
+            'Resource',
+            'In Use',
+            'Reserved',
+            'Limit',
+        )
+
+        return (
+            column_headers,
+            (utils.get_dict_properties(s, columns) for s in result),
+        )
+
     def take_action(self, parsed_args):
         result = []
         project_ids = []
@@ -308,6 +348,7 @@ class ListQuota(command.Lister, BaseQuota):
         if parsed_args.compute:
             if parsed_args.detail:
                 return self._get_detailed_quotas(parsed_args)
+
             compute_client = self.app.client_manager.compute
             for p in project_ids:
                 try:
@@ -365,14 +406,15 @@ class ListQuota(command.Lister, BaseQuota):
                 'Server Groups',
                 'Server Group Members',
             )
-            return (column_headers,
-                    (utils.get_dict_properties(
-                        s, columns,
-                    ) for s in result))
+            return (
+                column_headers,
+                (utils.get_dict_properties(s, columns) for s in result),
+            )
 
         if parsed_args.volume:
             if parsed_args.detail:
                 return self._get_detailed_quotas(parsed_args)
+
             volume_client = self.app.client_manager.volume
             for p in project_ids:
                 try:
@@ -417,14 +459,16 @@ class ListQuota(command.Lister, BaseQuota):
                 'Snapshots',
                 'Volumes',
             )
-            return (column_headers,
-                    (utils.get_dict_properties(
-                        s, columns,
-                    ) for s in result))
+
+            return (
+                column_headers,
+                (utils.get_dict_properties(s, columns) for s in result),
+            )
 
         if parsed_args.network:
             if parsed_args.detail:
                 return self._get_detailed_quotas(parsed_args)
+
             client = self.app.client_manager.network
             for p in project_ids:
                 try:
@@ -475,10 +519,11 @@ class ListQuota(command.Lister, BaseQuota):
                 'Subnets',
                 'Subnet Pools'
             )
-            return (column_headers,
-                    (utils.get_dict_properties(
-                        s, columns,
-                    ) for s in result))
+
+            return (
+                column_headers,
+                (utils.get_dict_properties(s, columns) for s in result),
+            )
 
         return ((), ())
 
@@ -545,14 +590,16 @@ class SetQuota(common.NetDetectionMixin, command.Command):
         parser.add_argument(
             '--force',
             action='store_true',
-            help=_('Force quota update (only supported by compute and '
-                   'network)')
+            help=_(
+                'Force quota update (only supported by compute and network)'
+            ),
         )
         parser.add_argument(
             '--check-limit',
             action='store_true',
-            help=_('Check quota limit when updating (only supported by '
-                   'network)')
+            help=_(
+                'Check quota limit when updating (only supported by network)'
+            ),
         )
         return parser
 
@@ -631,14 +678,16 @@ class SetQuota(common.NetDetectionMixin, command.Command):
                     **network_kwargs)
 
 
-class ShowQuota(command.ShowOne, BaseQuota):
+class ShowQuota(command.ShowOne):
     _description = _(
-        "Show quotas for project or class. Specify "
-        "``--os-compute-api-version 2.50`` or higher to see ``server-groups`` "
-        "and ``server-group-members`` output for a given quota class.")
+        "Show quotas for project or class. "
+        "Specify ``--os-compute-api-version 2.50`` or higher to see "
+        "``server-groups`` and ``server-group-members`` output for a given "
+        "quota class."
+    )
 
     def get_parser(self, prog_name):
-        parser = super(ShowQuota, self).get_parser(prog_name)
+        parser = super().get_parser(prog_name)
         parser.add_argument(
             'project',
             metavar='<project/class>',
@@ -658,29 +707,40 @@ class ShowQuota(command.ShowOne, BaseQuota):
             dest='default',
             action='store_true',
             default=False,
-            help=_('Show default quotas for <project>')
+            help=_('Show default quotas for <project>'),
         )
         return parser
 
     def take_action(self, parsed_args):
+        project = parsed_args.project
 
-        compute_client = self.app.client_manager.compute
-        volume_client = self.app.client_manager.volume
-        # NOTE(dtroyer): These quota API calls do not validate the project
-        #                or class arguments and return what appears to be
-        #                the default quota values if the project or class
-        #                does not exist. If this is determined to be the
-        #                intended behaviour of the API we will validate
-        #                the argument with Identity ourselves later.
-        compute_quota_info = self.get_compute_quota(compute_client,
-                                                    parsed_args)
-        volume_quota_info = self.get_volume_quota(volume_client,
-                                                  parsed_args)
-        network_quota_info = self.get_network_quota(parsed_args)
-        # NOTE(reedip): Remove the below check once requirement for
-        #               Openstack SDK is fixed to version 0.9.12 and above
-        if type(network_quota_info) is not dict:
-            network_quota_info = network_quota_info.to_dict()
+        if not parsed_args.quota_class:
+            project_info = get_project(self.app, parsed_args.project)
+            project = project_info['id']
+
+        # NOTE(dtroyer): These quota API calls do not validate the project or
+        # class arguments and return what appears to be the default quota
+        # values if the project or class does not exist. If this is determined
+        # to be the intended behaviour of the API we will validate the argument
+        # with Identity ourselves later.
+        compute_quota_info = get_compute_quotas(
+            self.app,
+            project,
+            quota_class=parsed_args.quota_class,
+            default=parsed_args.default,
+        )
+        volume_quota_info = get_volume_quotas(
+            self.app,
+            project,
+            quota_class=parsed_args.quota_class,
+            default=parsed_args.default,
+        )
+        network_quota_info = get_network_quotas(
+            self.app,
+            project,
+            quota_class=parsed_args.quota_class,
+            default=parsed_args.default,
+        )
 
         info = {}
         info.update(compute_quota_info)
@@ -693,20 +753,27 @@ class ShowQuota(command.ShowOne, BaseQuota):
         # neutron is enabled, quotas of these three resources
         # in nova will be replaced by neutron's.
         for k, v in itertools.chain(
-                COMPUTE_QUOTAS.items(), NOVA_NETWORK_QUOTAS.items(),
-                VOLUME_QUOTAS.items(), NETWORK_QUOTAS.items()):
+            COMPUTE_QUOTAS.items(),
+            NOVA_NETWORK_QUOTAS.items(),
+            VOLUME_QUOTAS.items(),
+            NETWORK_QUOTAS.items(),
+        ):
             if not k == v and info.get(k) is not None:
                 info[v] = info[k]
                 info.pop(k)
 
-        # Handle project ID special as it only appears in output
-        if 'id' in info:
+        # Remove the 'location' field for resources from openstacksdk
+        if 'location' in info:
+            del info['location']
+
+        # Handle class or project ID specially as they only appear in output
+        if parsed_args.quota_class:
+            info.pop('id', None)
+        elif 'id' in info:
             info['project'] = info.pop('id')
             if 'project_id' in info:
                 del info['project_id']
-            project_info = self._get_project(parsed_args)
-            project_name = project_info['name']
-            info['project_name'] = project_name
+            info['project_name'] = project_info['name']
 
         return zip(*sorted(info.items()))
 
