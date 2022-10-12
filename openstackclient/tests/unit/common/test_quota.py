@@ -1094,17 +1094,20 @@ class TestQuotaShow(TestQuota):
         self.cmd.take_action(parsed_args)
 
         self.compute_quotas_mock.get.assert_called_once_with(
-            self.projects[0].id, detail=False
+            self.projects[0].id,
+            detail=False,
         )
         self.volume_quotas_mock.get.assert_called_once_with(
-            self.projects[0].id, usage=False
+            self.projects[0].id,
+            usage=False,
         )
         self.network.get_quota.assert_called_once_with(
-            self.projects[0].id, details=False
+            self.projects[0].id,
+            details=False,
         )
         self.assertNotCalled(self.network.get_quota_default)
 
-    def test_quota_show_with_default(self):
+    def test_quota_show__with_default(self):
         arglist = [
             '--default',
             self.projects[0].name,
@@ -1128,30 +1131,67 @@ class TestQuotaShow(TestQuota):
         )
         self.assertNotCalled(self.network.get_quota)
 
-    def test_quota_show_with_class(self):
+    def test_quota_show__with_class(self):
         arglist = [
             '--class',
-            self.projects[0].name,
+            'default',
         ]
         verifylist = [
             ('quota_class', True),
+            ('project', 'default'),  # project is actually a class here
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        self.cmd.take_action(parsed_args)
+
+        self.compute_quotas_class_mock.get.assert_called_once_with('default')
+        self.volume_quotas_class_mock.get.assert_called_once_with('default')
+        # neutron doesn't have the concept of quota classes
+        self.assertNotCalled(self.network.get_quota)
+        self.assertNotCalled(self.network.get_quota_default)
+
+    def test_quota_show__with_usage(self):
+        # update mocks to return detailed quota instead
+        self.compute_quota = \
+            compute_fakes.FakeQuota.create_one_comp_detailed_quota()
+        self.compute_quotas_mock.get.return_value = self.compute_quota
+        self.volume_quota = \
+            volume_fakes.FakeQuota.create_one_detailed_quota()
+        self.volume_quotas_mock.get.return_value = self.volume_quota
+        self.network.get_quota.return_value = \
+            network_fakes.FakeQuota.create_one_net_detailed_quota()
+
+        arglist = [
+            '--usage',
+            self.projects[0].name,
+        ]
+        verifylist = [
+            ('usage', True),
             ('project', self.projects[0].name),
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
         self.cmd.take_action(parsed_args)
 
-        self.compute_quotas_class_mock.get.assert_called_once_with(
-            self.projects[0].name,
+        self.compute_quotas_mock.get.assert_called_once_with(
+            self.projects[0].id,
+            detail=True,
         )
-        self.volume_quotas_class_mock.get.assert_called_once_with(
-            self.projects[0].name,
+        self.volume_quotas_mock.get.assert_called_once_with(
+            self.projects[0].id,
+            usage=True,
         )
-        self.assertNotCalled(self.network.get_quota)
-        self.assertNotCalled(self.network.get_quota_default)
+        self.network.get_quota.assert_called_once_with(
+            self.projects[0].id,
+            details=True,
+        )
 
-    def test_quota_show_no_project(self):
-        parsed_args = self.check_parser(self.cmd, [], [])
+    def test_quota_show__no_project(self):
+        arglist = []
+        verifylist = [
+            ('project', None),
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
         self.cmd.take_action(parsed_args)
 

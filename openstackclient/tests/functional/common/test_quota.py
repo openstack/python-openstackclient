@@ -114,6 +114,7 @@ class QuotaTests(base.TestCase):
         cmd_output = json.loads(self.openstack(
             'quota show -f json ' + self.PROJECT_NAME
         ))
+        cmd_output = {x['Resource']: x['Limit'] for x in cmd_output}
         self.assertIsNotNone(cmd_output)
         self.assertEqual(
             31,
@@ -136,6 +137,7 @@ class QuotaTests(base.TestCase):
         self.assertIsNotNone(cmd_output)
         # We don't necessarily know the default quotas, we're checking the
         # returned attributes
+        cmd_output = {x['Resource']: x['Limit'] for x in cmd_output}
         self.assertTrue(cmd_output["cores"] >= 0)
         self.assertTrue(cmd_output["backups"] >= 0)
         if self.haz_network:
@@ -150,6 +152,7 @@ class QuotaTests(base.TestCase):
             'quota show -f json --class default'
         ))
         self.assertIsNotNone(cmd_output)
+        cmd_output = {x['Resource']: x['Limit'] for x in cmd_output}
         self.assertEqual(
             33,
             cmd_output["key-pairs"],
@@ -166,6 +169,7 @@ class QuotaTests(base.TestCase):
         self.assertIsNotNone(cmd_output)
         # We don't necessarily know the default quotas, we're checking the
         # returned attributes
+        cmd_output = {x['Resource']: x['Limit'] for x in cmd_output}
         self.assertTrue(cmd_output["key-pairs"] >= 0)
         self.assertTrue(cmd_output["snapshots"] >= 0)
 
