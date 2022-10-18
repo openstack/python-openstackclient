@@ -15,12 +15,10 @@
 
 """Usage action implementations"""
 
-import collections
 import datetime
 import functools
 
 from cliff import columns as cliff_columns
-from novaclient import api_versions
 from osc_lib.command import command
 from osc_lib import utils
 
@@ -58,7 +56,7 @@ class ProjectColumn(cliff_columns.FormattableColumn):
 class CountColumn(cliff_columns.FormattableColumn):
 
     def human_readable(self):
-        return len(self._value)
+        return len(self._value) if self._value is not None else None
 
 
 class FloatColumn(cliff_columns.FormattableColumn):
@@ -69,7 +67,7 @@ class FloatColumn(cliff_columns.FormattableColumn):
 
 def _formatters(project_cache):
     return {
-        'tenant_id': functools.partial(
+        'project_id': functools.partial(
             ProjectColumn, project_cache=project_cache),
         'server_usages': CountColumn,
         'total_memory_mb_usage': FloatColumn,
@@ -102,10 +100,10 @@ def _merge_usage(usage, next_usage):
 
 def _merge_usage_list(usages, next_usage_list):
     for next_usage in next_usage_list:
-        if next_usage.tenant_id in usages:
-            _merge_usage(usages[next_usage.tenant_id], next_usage)
+        if next_usage.project_id in usages:
+            _merge_usage(usages[next_usage.project_id], next_usage)
         else:
-            usages[next_usage.tenant_id] = next_usage
+            usages[next_usage.project_id] = next_usage
 
 
 class ListUsage(command.Lister):
@@ -138,9 +136,9 @@ class ListUsage(command.Lister):
             else:
                 return project
 
-        compute_client = self.app.client_manager.compute
+        compute_client = self.app.client_manager.sdk_connection.compute
         columns = (
-            "tenant_id",
+            "project_id",
             "server_usages",
             "total_memory_mb_usage",
             "total_vcpus_usage",
@@ -154,36 +152,25 @@ class ListUsage(command.Lister):
             "Disk GB-Hours"
         )
 
-        dateformat = "%Y-%m-%d"
+        date_cli_format = "%Y-%m-%d"
+        date_api_format = "%Y-%m-%dT%H:%M:%S"
         now = datetime.datetime.utcnow()
 
         if parsed_args.start:
-            start = datetime.datetime.strptime(parsed_args.start, dateformat)
+            start = datetime.datetime.strptime(
+                parsed_args.start, date_cli_format)
         else:
             start = now - datetime.timedelta(weeks=4)
 
         if parsed_args.end:
-            end = datetime.datetime.strptime(parsed_args.end, dateformat)
+            end = datetime.datetime.strptime(parsed_args.end, date_cli_format)
         else:
             end = now + datetime.timedelta(days=1)
 
-        if compute_client.api_version < api_versions.APIVersion("2.40"):
-            usage_list = compute_client.usage.list(start, end, detailed=True)
-        else:
-            # If the number of instances used to calculate the usage is greater
-            # than CONF.api.max_limit, the usage will be split across multiple
-            # requests and the responses will need to be merged back together.
-            usages = collections.OrderedDict()
-            usage_list = compute_client.usage.list(start, end, detailed=True)
-            _merge_usage_list(usages, usage_list)
-            marker = _get_usage_list_marker(usage_list)
-            while marker:
-                next_usage_list = compute_client.usage.list(
-                    start, end, detailed=True, marker=marker)
-                marker = _get_usage_list_marker(next_usage_list)
-                if marker:
-                    _merge_usage_list(usages, next_usage_list)
-            usage_list = list(usages.values())
+        usage_list = list(compute_client.usages(
+            start=start.strftime(date_api_format),
+            end=end.strftime(date_api_format),
+            detailed=True))
 
         # Cache the project list
         project_cache = {}
@@ -196,8 +183,8 @@ class ListUsage(command.Lister):
 
         if parsed_args.formatter == 'table' and len(usage_list) > 0:
             self.app.stdout.write(_("Usage from %(start)s to %(end)s: \n") % {
-                "start": start.strftime(dateformat),
-                "end": end.strftime(dateformat),
+                "start": start.strftime(date_cli_format),
+                "end": end.strftime(date_cli_format),
             })
 
         return (
@@ -239,17 +226,19 @@ class ShowUsage(command.ShowOne):
 
     def take_action(self, parsed_args):
         identity_client = self.app.client_manager.identity
-        compute_client = self.app.client_manager.compute
-        dateformat = "%Y-%m-%d"
+        compute_client = self.app.client_manager.sdk_connection.compute
+        date_cli_format = "%Y-%m-%d"
+        date_api_format = "%Y-%m-%dT%H:%M:%S"
         now = datetime.datetime.utcnow()
 
         if parsed_args.start:
-            start = datetime.datetime.strptime(parsed_args.start, dateformat)
+            start = datetime.datetime.strptime(
+                parsed_args.start, date_cli_format)
         else:
             start = now - datetime.timedelta(weeks=4)
 
         if parsed_args.end:
-            end = datetime.datetime.strptime(parsed_args.end, dateformat)
+            end = datetime.datetime.strptime(parsed_args.end, date_cli_format)
         else:
             end = now + datetime.timedelta(days=1)
 
@@ -262,19 +251,21 @@ class ShowUsage(command.ShowOne):
             # Get the project from the current auth
             project = self.app.client_manager.auth_ref.project_id
 
-        usage = compute_client.usage.get(project, start, end)
+        usage = compute_client.get_usage(
+            project=project, start=start.strftime(date_api_format),
+            end=end.strftime(date_api_format))
 
         if parsed_args.formatter == 'table':
             self.app.stdout.write(_(
                 "Usage from %(start)s to %(end)s on project %(project)s: \n"
             ) % {
-                "start": start.strftime(dateformat),
-                "end": end.strftime(dateformat),
+                "start": start.strftime(date_cli_format),
+                "end": end.strftime(date_cli_format),
                 "project": project,
             })
 
         columns = (
-            "tenant_id",
+            "project_id",
             "server_usages",
             "total_memory_mb_usage",
             "total_vcpus_usage",
