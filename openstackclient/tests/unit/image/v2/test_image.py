@@ -22,7 +22,7 @@ from openstack import exceptions as sdk_exceptions
 from osc_lib.cli import format_columns
 from osc_lib import exceptions
 
-from openstackclient.image.v2 import image
+from openstackclient.image.v2 import image as _image
 from openstackclient.tests.unit.identity.v3 import fakes as identity_fakes
 from openstackclient.tests.unit.image.v2 import fakes as image_fakes
 from openstackclient.tests.unit.volume.v3 import fakes as volume_fakes
@@ -73,10 +73,10 @@ class TestImageCreate(TestImage):
         self.client.update_image.return_value = self.new_image
 
         (self.expected_columns, self.expected_data) = zip(
-            *sorted(image._format_image(self.new_image).items()))
+            *sorted(_image._format_image(self.new_image).items()))
 
         # Get the command object to test
-        self.cmd = image.CreateImage(self.app, None)
+        self.cmd = _image.CreateImage(self.app, None)
 
     @mock.patch("sys.stdin", side_effect=[None])
     def test_image_reserve_no_options(self, raw_input):
@@ -84,8 +84,8 @@ class TestImageCreate(TestImage):
             self.new_image.name
         ]
         verifylist = [
-            ('container_format', image.DEFAULT_CONTAINER_FORMAT),
-            ('disk_format', image.DEFAULT_DISK_FORMAT),
+            ('container_format', _image.DEFAULT_CONTAINER_FORMAT),
+            ('disk_format', _image.DEFAULT_DISK_FORMAT),
             ('name', self.new_image.name),
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
@@ -99,8 +99,8 @@ class TestImageCreate(TestImage):
         self.client.create_image.assert_called_with(
             name=self.new_image.name,
             allow_duplicates=True,
-            container_format=image.DEFAULT_CONTAINER_FORMAT,
-            disk_format=image.DEFAULT_DISK_FORMAT,
+            container_format=_image.DEFAULT_CONTAINER_FORMAT,
+            disk_format=_image.DEFAULT_DISK_FORMAT,
         )
 
         self.assertEqual(self.expected_columns, columns)
@@ -224,8 +224,8 @@ class TestImageCreate(TestImage):
         self.client.create_image.assert_called_with(
             name=self.new_image.name,
             allow_duplicates=True,
-            container_format=image.DEFAULT_CONTAINER_FORMAT,
-            disk_format=image.DEFAULT_DISK_FORMAT,
+            container_format=_image.DEFAULT_CONTAINER_FORMAT,
+            disk_format=_image.DEFAULT_DISK_FORMAT,
             is_protected=self.new_image.is_protected,
             visibility=self.new_image.visibility,
             Alpha='1',
@@ -245,7 +245,7 @@ class TestImageCreate(TestImage):
     def test_image_create__progress_ignore_with_stdin(
         self, mock_get_data_from_stdin,
     ):
-        fake_stdin = io.StringIO('fake-image-data')
+        fake_stdin = io.BytesIO(b'some fake data')
         mock_get_data_from_stdin.return_value = fake_stdin
 
         arglist = [
@@ -263,8 +263,8 @@ class TestImageCreate(TestImage):
         self.client.create_image.assert_called_with(
             name=self.new_image.name,
             allow_duplicates=True,
-            container_format=image.DEFAULT_CONTAINER_FORMAT,
-            disk_format=image.DEFAULT_DISK_FORMAT,
+            container_format=_image.DEFAULT_CONTAINER_FORMAT,
+            disk_format=_image.DEFAULT_DISK_FORMAT,
             data=fake_stdin,
             validate_checksum=False,
         )
@@ -305,8 +305,8 @@ class TestImageCreate(TestImage):
         self.client.create_image.assert_called_with(
             name=self.new_image.name,
             allow_duplicates=True,
-            container_format=image.DEFAULT_CONTAINER_FORMAT,
-            disk_format=image.DEFAULT_DISK_FORMAT,
+            container_format=_image.DEFAULT_CONTAINER_FORMAT,
+            disk_format=_image.DEFAULT_DISK_FORMAT,
             use_import=True
         )
 
@@ -445,7 +445,7 @@ class TestAddProjectToImage(TestImage):
         self.project_mock.get.return_value = self.project
         self.domain_mock.get.return_value = self.domain
         # Get the command object to test
-        self.cmd = image.AddProjectToImage(self.app, None)
+        self.cmd = _image.AddProjectToImage(self.app, None)
 
     def test_add_project_to_image_no_option(self):
         arglist = [
@@ -504,7 +504,7 @@ class TestImageDelete(TestImage):
         self.client.delete_image.return_value = None
 
         # Get the command object to test
-        self.cmd = image.DeleteImage(self.app, None)
+        self.cmd = _image.DeleteImage(self.app, None)
 
     def test_image_delete_no_options(self):
         images = self.setup_images_mock(count=1)
@@ -595,7 +595,7 @@ class TestImageList(TestImage):
         self.client.images.side_effect = [[self._image], []]
 
         # Get the command object to test
-        self.cmd = image.ListImage(self.app, None)
+        self.cmd = _image.ListImage(self.app, None)
 
     def test_image_list_no_options(self):
         arglist = []
@@ -993,7 +993,7 @@ class TestListImageProjects(TestImage):
         self.client.find_image.return_value = self._image
         self.client.members.return_value = [self.member]
 
-        self.cmd = image.ListImageProjects(self.app, None)
+        self.cmd = _image.ListImageProjects(self.app, None)
 
     def test_image_member_list(self):
         arglist = [
@@ -1028,7 +1028,7 @@ class TestRemoveProjectImage(TestImage):
         self.domain_mock.get.return_value = self.domain
         self.client.remove_member.return_value = None
         # Get the command object to test
-        self.cmd = image.RemoveProjectImage(self.app, None)
+        self.cmd = _image.RemoveProjectImage(self.app, None)
 
     def test_remove_project_image_no_options(self):
         arglist = [
@@ -1095,7 +1095,7 @@ class TestImageSet(TestImage):
         )
 
         # Get the command object to test
-        self.cmd = image.SetImage(self.app, None)
+        self.cmd = _image.SetImage(self.app, None)
 
     def test_image_set_no_options(self):
         arglist = [
@@ -1624,7 +1624,7 @@ class TestImageShow(TestImage):
         self.client.find_image = mock.Mock(return_value=self._data)
 
         # Get the command object to test
-        self.cmd = image.ShowImage(self.app, None)
+        self.cmd = _image.ShowImage(self.app, None)
 
     def test_image_show(self):
         arglist = [
@@ -1689,7 +1689,7 @@ class TestImageUnset(TestImage):
         self.client.update_image.return_value = self.image
 
         # Get the command object to test
-        self.cmd = image.UnsetImage(self.app, None)
+        self.cmd = _image.UnsetImage(self.app, None)
 
     def test_image_unset_no_options(self):
         arglist = [
@@ -1769,6 +1769,60 @@ class TestImageUnset(TestImage):
         self.assertIsNone(result)
 
 
+class TestImageStage(TestImage):
+
+    image = image_fakes.create_one_image({})
+
+    def setUp(self):
+        super().setUp()
+
+        self.client.find_image.return_value = self.image
+
+        self.cmd = _image.StageImage(self.app, None)
+
+    def test_stage_image__from_file(self):
+        imagefile = tempfile.NamedTemporaryFile(delete=False)
+        imagefile.write(b'\0')
+        imagefile.close()
+
+        arglist = [
+            '--file', imagefile.name,
+            self.image.name,
+        ]
+        verifylist = [
+            ('filename', imagefile.name),
+            ('image', self.image.name),
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        self.cmd.take_action(parsed_args)
+
+        self.client.stage_image.assert_called_once_with(
+            self.image,
+            filename=imagefile.name,
+        )
+
+    @mock.patch('openstackclient.image.v2.image.get_data_from_stdin')
+    def test_stage_image__from_stdin(self, mock_get_data_from_stdin):
+        fake_stdin = io.BytesIO(b"some initial binary data: \x00\x01")
+        mock_get_data_from_stdin.return_value = fake_stdin
+
+        arglist = [
+            self.image.name,
+        ]
+        verifylist = [
+            ('image', self.image.name),
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        self.cmd.take_action(parsed_args)
+
+        self.client.stage_image.assert_called_once_with(
+            self.image,
+            data=fake_stdin,
+        )
+
+
 class TestImageSave(TestImage):
 
     image = image_fakes.create_one_image({})
@@ -1780,7 +1834,7 @@ class TestImageSave(TestImage):
         self.client.download_image.return_value = self.image
 
         # Get the command object to test
-        self.cmd = image.SaveImage(self.app, None)
+        self.cmd = _image.SaveImage(self.app, None)
 
     def test_save_data(self):
 
@@ -1810,7 +1864,7 @@ class TestImageGetData(TestImage):
             stdin.isatty.return_value = False
             stdin.buffer = fd
 
-            test_fd = image.get_data_from_stdin()
+            test_fd = _image.get_data_from_stdin()
 
             # Ensure data written to temp file is correct
             self.assertEqual(fd, test_fd)
@@ -1822,6 +1876,6 @@ class TestImageGetData(TestImage):
             # There is stdin, but interactive
             stdin.return_value = fd
 
-            test_fd = image.get_data_from_stdin()
+            test_fd = _image.get_data_from_stdin()
 
             self.assertIsNone(test_fd)
