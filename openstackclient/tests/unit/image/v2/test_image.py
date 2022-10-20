@@ -1823,6 +1823,197 @@ class TestImageStage(TestImage):
         )
 
 
+class TestImageImport(TestImage):
+
+    image = image_fakes.create_one_image(
+        {
+            'container_format': 'bare',
+            'disk_format': 'qcow2',
+        }
+    )
+    import_info = image_fakes.create_one_import_info()
+
+    def setUp(self):
+        super().setUp()
+
+        self.client.find_image.return_value = self.image
+        self.client.get_import_info.return_value = self.import_info
+
+        self.cmd = _image.ImportImage(self.app, None)
+
+    def test_import_image__glance_direct(self):
+        self.image.status = 'uploading'
+        arglist = [
+            self.image.name,
+        ]
+        verifylist = [
+            ('image', self.image.name),
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        self.cmd.take_action(parsed_args)
+
+        self.client.import_image.assert_called_once_with(
+            self.image,
+            method='glance-direct',
+            stores=None,
+            all_stores=None,
+            all_stores_must_succeed=False,
+        )
+
+    def test_import_image__web_download(self):
+        self.image.status = 'queued'
+        arglist = [
+            self.image.name,
+            '--method', 'web-download',
+            '--uri', 'https://example.com/',
+        ]
+        verifylist = [
+            ('image', self.image.name),
+            ('import_method', 'web-download'),
+            ('uri', 'https://example.com/'),
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        self.cmd.take_action(parsed_args)
+
+        self.client.import_image.assert_called_once_with(
+            self.image,
+            method='web-download',
+            # uri='https://example.com/',
+            stores=None,
+            all_stores=None,
+            all_stores_must_succeed=False,
+        )
+
+    # NOTE(stephenfin): We don't do this for all combinations since that would
+    # be tedious af. You get the idea...
+    def test_import_image__web_download_missing_options(self):
+        arglist = [
+            self.image.name,
+            '--method', 'web-download',
+        ]
+        verifylist = [
+            ('image', self.image.name),
+            ('import_method', 'web-download'),
+            ('uri', None),
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        exc = self.assertRaises(
+            exceptions.CommandError,
+            self.cmd.take_action,
+            parsed_args,
+        )
+        self.assertIn("The '--uri' option is required ", str(exc))
+
+        self.client.import_image.assert_not_called()
+
+    # NOTE(stephenfin): Ditto
+    def test_import_image__web_download_invalid_options(self):
+        arglist = [
+            self.image.name,
+            '--method', 'glance-direct',  # != web-download
+            '--uri', 'https://example.com/',
+        ]
+        verifylist = [
+            ('image', self.image.name),
+            ('import_method', 'glance-direct'),
+            ('uri', 'https://example.com/'),
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        exc = self.assertRaises(
+            exceptions.CommandError,
+            self.cmd.take_action,
+            parsed_args,
+        )
+        self.assertIn("The '--uri' option is only supported ", str(exc))
+
+        self.client.import_image.assert_not_called()
+
+    def test_import_image__web_download_invalid_image_state(self):
+        self.image.status = 'uploading'  # != 'queued'
+        arglist = [
+            self.image.name,
+            '--method', 'web-download',
+            '--uri', 'https://example.com/',
+        ]
+        verifylist = [
+            ('image', self.image.name),
+            ('import_method', 'web-download'),
+            ('uri', 'https://example.com/'),
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        exc = self.assertRaises(
+            exceptions.CommandError,
+            self.cmd.take_action,
+            parsed_args,
+        )
+        self.assertIn(
+            "The 'web-download' import method can only be used with "
+            "an image in status 'queued'",
+            str(exc),
+        )
+
+        self.client.import_image.assert_not_called()
+
+    def test_import_image__copy_image(self):
+        self.image.status = 'active'
+        arglist = [
+            self.image.name,
+            '--method', 'copy-image',
+            '--store', 'fast',
+        ]
+        verifylist = [
+            ('image', self.image.name),
+            ('import_method', 'copy-image'),
+            ('stores', ['fast']),
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        self.cmd.take_action(parsed_args)
+
+        self.client.import_image.assert_called_once_with(
+            self.image,
+            method='copy-image',
+            stores=['fast'],
+            all_stores=None,
+            all_stores_must_succeed=False,
+        )
+
+    def test_import_image__glance_download(self):
+        arglist = [
+            self.image.name,
+            '--method', 'glance-download',
+            '--remote-region', 'eu/dublin',
+            '--remote-image', 'remote-image-id',
+            '--remote-service-interface', 'private',
+        ]
+        verifylist = [
+            ('image', self.image.name),
+            ('import_method', 'glance-download'),
+            ('remote_region', 'eu/dublin'),
+            ('remote_image', 'remote-image-id'),
+            ('remote_service_interface', 'private'),
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        self.cmd.take_action(parsed_args)
+
+        self.client.import_image.assert_called_once_with(
+            self.image,
+            method='glance-download',
+            # remote_region='eu/dublin',
+            # remote_image='remote-image-id',
+            # remote_service_interface='private',
+            stores=None,
+            all_stores=None,
+            all_stores_must_succeed=False,
+        )
+
+
 class TestImageSave(TestImage):
 
     image = image_fakes.create_one_image({})
