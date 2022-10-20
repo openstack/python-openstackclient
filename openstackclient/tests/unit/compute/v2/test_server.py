@@ -2455,7 +2455,7 @@ class TestServerCreate(TestServer):
             'admin_pass': None,
             'block_device_mapping_v2': [{
                 'uuid': self.volume.id,
-                'boot_index': '0',
+                'boot_index': 0,
                 'source_type': 'volume',
                 'destination_type': 'volume',
             }],
@@ -2506,7 +2506,7 @@ class TestServerCreate(TestServer):
             'admin_pass': None,
             'block_device_mapping_v2': [{
                 'uuid': self.snapshot.id,
-                'boot_index': '0',
+                'boot_index': 0,
                 'source_type': 'snapshot',
                 'destination_type': 'volume',
                 'delete_on_termination': False,
@@ -2529,20 +2529,20 @@ class TestServerCreate(TestServer):
         self.assertEqual(self.datalist(), data)
 
     def test_server_create_with_block_device(self):
-        block_device = f'uuid={self.volume.id},source_type=volume'
+        block_device = f'uuid={self.volume.id},source_type=volume,boot_index=0'
         arglist = [
-            '--image', 'image1',
             '--flavor', self.flavor.id,
             '--block-device', block_device,
             self.new_server.name,
         ]
         verifylist = [
-            ('image', 'image1'),
+            ('image', None),
             ('flavor', self.flavor.id),
             ('block_devices', [
                 {
                     'uuid': self.volume.id,
                     'source_type': 'volume',
+                    'boot_index': '0',
                 },
             ]),
             ('server_name', self.new_server.name),
@@ -2569,6 +2569,7 @@ class TestServerCreate(TestServer):
                     'uuid': self.volume.id,
                     'source_type': 'volume',
                     'destination_type': 'volume',
+                    'boot_index': 0,
                 },
             ],
             'nics': [],
@@ -2578,7 +2579,7 @@ class TestServerCreate(TestServer):
         # ServerManager.create(name, image, flavor, **kwargs)
         self.servers_mock.create.assert_called_with(
             self.new_server.name,
-            self.image,
+            None,
             self.flavor,
             **kwargs
         )
@@ -3505,6 +3506,37 @@ class TestServerCreate(TestServer):
 
         self.assertEqual(self.columns, columns)
         self.assertEqual(self.datalist(), data)
+
+    def test_server_create_no_boot_device(self):
+        block_device = f'uuid={self.volume.id},source_type=volume,boot_index=1'
+        arglist = [
+            '--block-device', block_device,
+            '--flavor', self.flavor.id,
+            self.new_server.name,
+        ]
+        verifylist = [
+            ('image', None),
+            ('flavor', self.flavor.id),
+            ('block_devices', [
+                {
+                    'uuid': self.volume.id,
+                    'source_type': 'volume',
+                    'boot_index': '1',
+                },
+            ]),
+            ('server_name', self.new_server.name),
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+        exc = self.assertRaises(
+            exceptions.CommandError,
+            self.cmd.take_action,
+            parsed_args,
+        )
+        self.assertIn(
+            'An image (--image, --image-property) or bootable volume '
+            '(--volume, --snapshot, --block-device) is required',
+            str(exc),
+        )
 
     def test_server_create_with_swap(self):
         arglist = [
