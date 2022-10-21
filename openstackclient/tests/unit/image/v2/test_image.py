@@ -14,7 +14,6 @@
 
 import copy
 import io
-import os
 import tempfile
 from unittest import mock
 
@@ -104,15 +103,8 @@ class TestImageCreate(TestImage):
             disk_format=image.DEFAULT_DISK_FORMAT,
         )
 
-        # Verify update() was not called, if it was show the args
-        self.assertEqual(self.client.update_image.call_args_list, [])
-
-        self.assertEqual(
-            self.expected_columns,
-            columns)
-        self.assertCountEqual(
-            self.expected_data,
-            data)
+        self.assertEqual(self.expected_columns, columns)
+        self.assertCountEqual(self.expected_data, data)
 
     @mock.patch('sys.stdin', side_effect=[None])
     def test_image_reserve_options(self, raw_input):
@@ -121,10 +113,11 @@ class TestImageCreate(TestImage):
             '--disk-format', 'ami',
             '--min-disk', '10',
             '--min-ram', '4',
-            ('--protected'
-                if self.new_image.is_protected else '--unprotected'),
-            ('--private'
-                if self.new_image.visibility == 'private' else '--public'),
+            '--protected' if self.new_image.is_protected else '--unprotected',
+            (
+                '--private'
+                if self.new_image.visibility == 'private' else '--public'
+            ),
             '--project', self.new_image.owner_id,
             '--project-domain', self.domain.id,
             self.new_image.name,
@@ -160,12 +153,8 @@ class TestImageCreate(TestImage):
             visibility=self.new_image.visibility,
         )
 
-        self.assertEqual(
-            self.expected_columns,
-            columns)
-        self.assertCountEqual(
-            self.expected_data,
-            data)
+        self.assertEqual(self.expected_columns, columns)
+        self.assertCountEqual(self.expected_data, data)
 
     def test_image_create_with_unexist_project(self):
         self.project_mock.get.side_effect = exceptions.NotFound(None)
@@ -217,7 +206,7 @@ class TestImageCreate(TestImage):
             self.new_image.name,
         ]
         verifylist = [
-            ('file', imagefile.name),
+            ('filename', imagefile.name),
             ('is_protected', self.new_image.is_protected),
             ('visibility', self.new_image.visibility),
             ('properties', {'Alpha': '1', 'Beta': '2'}),
@@ -252,12 +241,12 @@ class TestImageCreate(TestImage):
             self.expected_data,
             data)
 
-    @mock.patch('openstackclient.image.v2.image.get_data_file')
+    @mock.patch('openstackclient.image.v2.image.get_data_from_stdin')
     def test_image_create__progress_ignore_with_stdin(
-        self, mock_get_data_file,
+        self, mock_get_data_from_stdin,
     ):
         fake_stdin = io.StringIO('fake-image-data')
-        mock_get_data_file.return_value = (fake_stdin, None)
+        mock_get_data_from_stdin.return_value = fake_stdin
 
         arglist = [
             '--progress',
@@ -322,11 +311,11 @@ class TestImageCreate(TestImage):
         )
 
     @mock.patch('osc_lib.utils.find_resource')
-    @mock.patch('openstackclient.image.v2.image.get_data_file')
+    @mock.patch('openstackclient.image.v2.image.get_data_from_stdin')
     def test_image_create_from_volume(self, mock_get_data_f, mock_get_vol):
 
         fake_vol_id = 'fake-volume-id'
-        mock_get_data_f.return_value = (None, None)
+        mock_get_data_f.return_value = None
 
         class FakeVolume:
             id = fake_vol_id
@@ -353,12 +342,12 @@ class TestImageCreate(TestImage):
         )
 
     @mock.patch('osc_lib.utils.find_resource')
-    @mock.patch('openstackclient.image.v2.image.get_data_file')
+    @mock.patch('openstackclient.image.v2.image.get_data_from_stdin')
     def test_image_create_from_volume_fail(self, mock_get_data_f,
                                            mock_get_vol):
 
         fake_vol_id = 'fake-volume-id'
-        mock_get_data_f.return_value = (None, None)
+        mock_get_data_f.return_value = None
 
         class FakeVolume:
             id = fake_vol_id
@@ -379,7 +368,7 @@ class TestImageCreate(TestImage):
                           parsed_args)
 
     @mock.patch('osc_lib.utils.find_resource')
-    @mock.patch('openstackclient.image.v2.image.get_data_file')
+    @mock.patch('openstackclient.image.v2.image.get_data_from_stdin')
     def test_image_create_from_volume_v31(self, mock_get_data_f,
                                           mock_get_vol):
 
@@ -387,7 +376,7 @@ class TestImageCreate(TestImage):
             api_versions.APIVersion('3.1'))
 
         fake_vol_id = 'fake-volume-id'
-        mock_get_data_f.return_value = (None, None)
+        mock_get_data_f.return_value = None
 
         class FakeVolume:
             id = fake_vol_id
@@ -1798,7 +1787,7 @@ class TestImageSave(TestImage):
         arglist = ['--file', '/path/to/file', self.image.id]
 
         verifylist = [
-            ('file', '/path/to/file'),
+            ('filename', '/path/to/file'),
             ('image', self.image.id),
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
@@ -1813,49 +1802,26 @@ class TestImageSave(TestImage):
 
 class TestImageGetData(TestImage):
 
-    def setUp(self):
-        super().setUp()
-        self.args = mock.Mock()
-
-    def test_get_data_file_file(self):
-        (fd, fname) = tempfile.mkstemp(prefix='osc_test_image')
-        self.args.file = fname
-
-        (test_fd, test_name) = image.get_data_file(self.args)
-
-        self.assertEqual(fname, test_name)
-        test_fd.close()
-
-        os.unlink(fname)
-
-    def test_get_data_file_2(self):
-
-        self.args.file = None
-
-        f = io.BytesIO(b"some initial binary data: \x00\x01")
+    def test_get_data_from_stdin(self):
+        fd = io.BytesIO(b"some initial binary data: \x00\x01")
 
         with mock.patch('sys.stdin') as stdin:
-            stdin.return_value = f
+            stdin.return_value = fd
             stdin.isatty.return_value = False
-            stdin.buffer = f
+            stdin.buffer = fd
 
-            (test_fd, test_name) = image.get_data_file(self.args)
+            test_fd = image.get_data_from_stdin()
 
             # Ensure data written to temp file is correct
-            self.assertEqual(f, test_fd)
-            self.assertIsNone(test_name)
+            self.assertEqual(fd, test_fd)
 
-    def test_get_data_file_3(self):
-
-        self.args.file = None
-
-        f = io.BytesIO(b"some initial binary data: \x00\x01")
+    def test_get_data_from_stdin__interactive(self):
+        fd = io.BytesIO(b"some initial binary data: \x00\x01")
 
         with mock.patch('sys.stdin') as stdin:
             # There is stdin, but interactive
-            stdin.return_value = f
+            stdin.return_value = fd
 
-            (test_fd, test_fname) = image.get_data_file(self.args)
+            test_fd = image.get_data_from_stdin()
 
             self.assertIsNone(test_fd)
-            self.assertIsNone(test_fname)
