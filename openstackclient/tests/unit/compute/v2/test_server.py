@@ -4706,6 +4706,7 @@ class TestServerList(_TestServerList):
         self.assertIn('Availability Zone', columns)
         self.assertIn('Host', columns)
         self.assertIn('Properties', columns)
+        self.assertCountEqual(columns, set(columns))
 
     def test_server_list_no_name_lookup_option(self):
         self.data = tuple(

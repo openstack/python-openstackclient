@@ -2586,9 +2586,9 @@ class ListServer(command.Lister):
                     columns += ('Metadata',)
                     column_headers += ('Properties',)
 
-            # convert back to tuple
-            column_headers = tuple(column_headers)
-            columns = tuple(columns)
+            # remove duplicates
+            column_headers = tuple(dict.fromkeys(column_headers))
+            columns = tuple(dict.fromkeys(columns))
 
         if parsed_args.marker is not None:
             # Check if both "--marker" and "--deleted" are used.
