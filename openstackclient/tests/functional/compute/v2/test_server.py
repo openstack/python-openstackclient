@@ -1267,3 +1267,9 @@ class ServerTests(common.ComputeTestCase):
 
         raw_output = self.openstack('server volume list ' + server_name)
         self.assertEqual('\n', raw_output)
+
+    def test_server_migration_list(self):
+        # Verify that the command does not raise an exception when we list
+        # migrations, including when we specify a query.
+        self.openstack('server migration list')
+        self.openstack('server migration list --limit 1')

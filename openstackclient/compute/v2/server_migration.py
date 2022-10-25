@@ -15,6 +15,7 @@
 import uuid
 
 from novaclient import api_versions
+from openstack import utils as sdk_utils
 from osc_lib.command import command
 from osc_lib import exceptions
 from osc_lib import utils
@@ -130,22 +131,22 @@ class ListMigration(command.Lister):
         # the same as the column header names.
         columns = [
             'source_node', 'dest_node', 'source_compute', 'dest_compute',
-            'dest_host', 'status', 'instance_uuid', 'old_instance_type_id',
-            'new_instance_type_id', 'created_at', 'updated_at',
+            'dest_host', 'status', 'server_id', 'old_flavor_id',
+            'new_flavor_id', 'created_at', 'updated_at',
         ]
 
         # Insert migrations UUID after ID
-        if compute_client.api_version >= api_versions.APIVersion("2.59"):
+        if sdk_utils.supports_microversion(compute_client, "2.59"):
             column_headers.insert(0, "UUID")
             columns.insert(0, "uuid")
 
-        if compute_client.api_version >= api_versions.APIVersion("2.23"):
+        if sdk_utils.supports_microversion(compute_client, "2.23"):
             column_headers.insert(0, "Id")
             columns.insert(0, "id")
             column_headers.insert(len(column_headers) - 2, "Type")
             columns.insert(len(columns) - 2, "migration_type")
 
-        if compute_client.api_version >= api_versions.APIVersion("2.80"):
+        if sdk_utils.supports_microversion(compute_client, "2.80"):
             if parsed_args.project:
                 column_headers.insert(len(column_headers) - 2, "Project")
                 columns.insert(len(columns) - 2, "project_id")
@@ -159,19 +160,23 @@ class ListMigration(command.Lister):
         )
 
     def take_action(self, parsed_args):
-        compute_client = self.app.client_manager.compute
+        compute_client = self.app.client_manager.sdk_connection.compute
         identity_client = self.app.client_manager.identity
 
-        search_opts = {
-            'host': parsed_args.host,
-            'status': parsed_args.status,
-        }
+        search_opts = {}
+
+        if parsed_args.host is not None:
+            search_opts['host'] = parsed_args.host
+
+        if parsed_args.status is not None:
+            search_opts['status'] = parsed_args.status
 
         if parsed_args.server:
-            search_opts['instance_uuid'] = utils.find_resource(
-                compute_client.servers,
-                parsed_args.server,
-            ).id
+            server = compute_client.find_server(parsed_args.server)
+            if server is None:
+                msg = _('Unable to find server: %s') % parsed_args.server
+                raise exceptions.CommandError(msg)
+            search_opts['instance_uuid'] = server.id
 
         if parsed_args.type:
             migration_type = parsed_args.type
@@ -181,7 +186,7 @@ class ListMigration(command.Lister):
             search_opts['migration_type'] = migration_type
 
         if parsed_args.marker:
-            if compute_client.api_version < api_versions.APIVersion('2.59'):
+            if not sdk_utils.supports_microversion(compute_client, "2.59"):
                 msg = _(
                     '--os-compute-api-version 2.59 or greater is required to '
                     'support the --marker option'
@@ -190,16 +195,17 @@ class ListMigration(command.Lister):
             search_opts['marker'] = parsed_args.marker
 
         if parsed_args.limit:
-            if compute_client.api_version < api_versions.APIVersion('2.59'):
+            if not sdk_utils.supports_microversion(compute_client, "2.59"):
                 msg = _(
                     '--os-compute-api-version 2.59 or greater is required to '
                     'support the --limit option'
                 )
                 raise exceptions.CommandError(msg)
             search_opts['limit'] = parsed_args.limit
+            search_opts['paginated'] = False
 
         if parsed_args.changes_since:
-            if compute_client.api_version < api_versions.APIVersion('2.59'):
+            if not sdk_utils.supports_microversion(compute_client, "2.59"):
                 msg = _(
                     '--os-compute-api-version 2.59 or greater is required to '
                     'support the --changes-since option'
@@ -208,7 +214,7 @@ class ListMigration(command.Lister):
             search_opts['changes_since'] = parsed_args.changes_since
 
         if parsed_args.changes_before:
-            if compute_client.api_version < api_versions.APIVersion('2.66'):
+            if not sdk_utils.supports_microversion(compute_client, "2.66"):
                 msg = _(
                     '--os-compute-api-version 2.66 or greater is required to '
                     'support the --changes-before option'
@@ -217,7 +223,7 @@ class ListMigration(command.Lister):
             search_opts['changes_before'] = parsed_args.changes_before
 
         if parsed_args.project:
-            if compute_client.api_version < api_versions.APIVersion('2.80'):
+            if not sdk_utils.supports_microversion(compute_client, "2.80"):
                 msg = _(
                     '--os-compute-api-version 2.80 or greater is required to '
                     'support the --project option'
@@ -231,7 +237,7 @@ class ListMigration(command.Lister):
             ).id
 
         if parsed_args.user:
-            if compute_client.api_version < api_versions.APIVersion('2.80'):
+            if not sdk_utils.supports_microversion(compute_client, "2.80"):
                 msg = _(
                     '--os-compute-api-version 2.80 or greater is required to '
                     'support the --user option'
@@ -244,7 +250,7 @@ class ListMigration(command.Lister):
                 parsed_args.user_domain,
             ).id
 
-        migrations = compute_client.migrations.list(**search_opts)
+        migrations = list(compute_client.migrations(**search_opts))
 
         return self.print_migrations(parsed_args, compute_client, migrations)
 
