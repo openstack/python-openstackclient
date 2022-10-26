@@ -1,0 +1,6 @@
+---
+features:
+  - |
+    The ``server create`` command now accepts two new options, ``--no-network``
+    and ``--auto-network``. These are aliases for ``--nic none`` and
+    ``--nic auto``, respectively.

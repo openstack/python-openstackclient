@@ -409,8 +409,8 @@ class AddPort(command.Command):
             '--tag',
             metavar='<tag>',
             help=_(
-                "Tag for the attached interface. "
-                "(Supported by API versions '2.49' - '2.latest')"
+                'Tag for the attached interface '
+                '(supported by --os-compute-api-version 2.49 or later)'
             )
         )
         return parser
@@ -652,29 +652,68 @@ class AddServerVolume(command.ShowOne):
         )
 
 
-# TODO(stephenfin): Replace with 'MultiKeyValueAction' when we no longer
-# support '--nic=auto' and '--nic=none'
+class NoneNICAction(argparse.Action):
+
+    def __init__(self, option_strings, dest, help=None):
+        super().__init__(
+            option_strings=option_strings,
+            dest=dest,
+            nargs=0,
+            default=[],
+            required=False,
+            help=help,
+        )
+
+    def __call__(self, parser, namespace, values, option_string=None):
+        # Make sure we have an empty dict rather than None
+        if getattr(namespace, self.dest, None) is None:
+            setattr(namespace, self.dest, [])
+
+        getattr(namespace, self.dest).append('none')
+
+
+class AutoNICAction(argparse.Action):
+
+    def __init__(self, option_strings, dest, help=None):
+        super().__init__(
+            option_strings=option_strings,
+            dest=dest,
+            nargs=0,
+            default=[],
+            required=False,
+            help=help,
+        )
+
+    def __call__(self, parser, namespace, values, option_string=None):
+        # Make sure we have an empty dict rather than None
+        if getattr(namespace, self.dest, None) is None:
+            setattr(namespace, self.dest, [])
+
+        getattr(namespace, self.dest).append('auto')
+
+
 class NICAction(argparse.Action):
 
     def __init__(
         self,
         option_strings,
         dest,
-        nargs=None,
-        const=None,
-        default=None,
-        type=None,
-        choices=None,
-        required=False,
         help=None,
         metavar=None,
         key=None,
     ):
         self.key = key
         super().__init__(
-            option_strings=option_strings, dest=dest, nargs=nargs, const=const,
-            default=default, type=type, choices=choices, required=required,
-            help=help, metavar=metavar,
+            option_strings=option_strings,
+            dest=dest,
+            nargs=None,
+            const=None,
+            default=[],
+            type=None,
+            choices=None,
+            required=False,
+            help=help,
+            metavar=metavar,
         )
 
     def __call__(self, parser, namespace, values, option_string=None):
@@ -707,7 +746,7 @@ class NICAction(argparse.Action):
         }
 
         for kv_str in values.split(','):
-            k, sep, v = kv_str.partition("=")
+            k, sep, v = kv_str.partition('=')
 
             if k not in list(info) + ['tag'] or not v:
                 msg = _(
@@ -998,28 +1037,23 @@ class CreateServer(command.ShowOne):
         )
         parser.add_argument(
             '--network',
-            metavar="<network>",
+            metavar='<network>',
             dest='nics',
-            default=[],
             action=NICAction,
             key='net-id',
-            # NOTE(RuiChen): Add '\n' to the end of line to improve formatting;
-            # see cliff's _SmartHelpFormatter for more details.
             help=_(
                 "Create a NIC on the server and connect it to network. "
                 "Specify option multiple times to create multiple NICs. "
                 "This is a wrapper for the '--nic net-id=<network>' "
                 "parameter that provides simple syntax for the standard "
                 "use case of connecting a new server to a given network. "
-                "For more advanced use cases, refer to the '--nic' "
-                "parameter."
+                "For more advanced use cases, refer to the '--nic' parameter."
             ),
         )
         parser.add_argument(
             '--port',
-            metavar="<port>",
+            metavar='<port>',
             dest='nics',
-            default=[],
             action=NICAction,
             key='port-id',
             help=_(
@@ -1032,12 +1066,40 @@ class CreateServer(command.ShowOne):
             ),
         )
         parser.add_argument(
+            '--no-network',
+            dest='nics',
+            action=NoneNICAction,
+            help=_(
+                "Do not attach a network to the server. "
+                "This is a wrapper for the '--nic none' option that provides "
+                "a simple syntax for disabling network connectivity for a new "
+                "server. "
+                "For more advanced use cases, refer to the '--nic' parameter. "
+                "(supported by --os-compute-api-version 2.37 or above)"
+            ),
+        )
+        parser.add_argument(
+            '--auto-network',
+            dest='nics',
+            action=AutoNICAction,
+            help=_(
+                "Automatically allocate a network to the server. "
+                "This is the default network allocation policy. "
+                "This is a wrapper for the '--nic auto' option that provides "
+                "a simple syntax for enabling automatic configuration of "
+                "network connectivity for a new server. "
+                "For more advanced use cases, refer to the '--nic' parameter. "
+                "(supported by --os-compute-api-version 2.37 or above)"
+            ),
+        )
+        parser.add_argument(
             '--nic',
             metavar="<net-id=net-uuid,port-id=port-uuid,v4-fixed-ip=ip-addr,"
                     "v6-fixed-ip=ip-addr,tag=tag,auto,none>",
-            action=NICAction,
             dest='nics',
-            default=[],
+            action=NICAction,
+            # NOTE(RuiChen): Add '\n' to the end of line to improve formatting;
+            # see cliff's _SmartHelpFormatter for more details.
             help=_(
                 "Create a NIC on the server.\n"
                 "NIC in the format:\n"
