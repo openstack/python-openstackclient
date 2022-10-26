@@ -1,0 +1,4 @@
+---
+features:
+  - Adds ``openstack image metadef namespace list``.
+    The output is equivalent to glance md-namespace-list.
