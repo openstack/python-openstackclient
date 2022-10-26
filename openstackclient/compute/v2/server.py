@@ -1615,6 +1615,14 @@ class CreateServer(command.ShowOne):
                 )
                 raise exceptions.CommandError(msg)
 
+            if compute_client.api_version < api_versions.APIVersion('2.37'):
+                msg = _(
+                    '--os-compute-api-version 2.37 or greater is '
+                    'required to support explicit auto-allocation of a '
+                    'network or to disable network allocation'
+                )
+                raise exceptions.CommandError(msg)
+
             nics = nics[0]
         else:
             for nic in nics:

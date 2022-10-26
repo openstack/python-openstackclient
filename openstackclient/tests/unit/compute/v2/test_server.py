@@ -1926,6 +1926,10 @@ class TestServerCreate(TestServer):
             exceptions.CommandError, self.cmd.take_action, parsed_args)
 
     def _test_server_create_with_auto_network(self, arglist):
+        # requires API microversion 2.37 or later
+        self.app.client_manager.compute.api_version = api_versions.APIVersion(
+            '2.37')
+
         verifylist = [
             ('image', 'image1'),
             ('flavor', 'flavor1'),
@@ -1986,8 +1990,45 @@ class TestServerCreate(TestServer):
         ]
         self._test_server_create_with_auto_network(arglist)
 
+    def test_server_create_with_auto_network_pre_v237(self):
+        # use an API microversion that's too old
+        self.app.client_manager.compute.api_version = api_versions.APIVersion(
+            '2.36')
+
+        arglist = [
+            '--image', 'image1',
+            '--flavor', 'flavor1',
+            '--nic', 'auto',
+            self.new_server.name,
+        ]
+        verifylist = [
+            ('image', 'image1'),
+            ('flavor', 'flavor1'),
+            ('nics', ['auto']),
+            ('config_drive', False),
+            ('server_name', self.new_server.name),
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        exc = self.assertRaises(
+            exceptions.CommandError,
+            self.cmd.take_action,
+            parsed_args,
+        )
+        self.assertIn(
+            '--os-compute-api-version 2.37 or greater is required to support '
+            'explicit auto-allocation of a network or to disable network '
+            'allocation',
+            str(exc),
+        )
+        self.assertNotCalled(self.servers_mock.create)
+
     def test_server_create_with_auto_network_default_v2_37(self):
         """Tests creating a server without specifying --nic using 2.37."""
+        # requires API microversion 2.37 or later
+        self.app.client_manager.compute.api_version = api_versions.APIVersion(
+            '2.37')
+
         arglist = [
             '--image', 'image1',
             '--flavor', 'flavor1',
@@ -2001,12 +2042,7 @@ class TestServerCreate(TestServer):
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
-        # Since check_parser doesn't handle compute global options like
-        # --os-compute-api-version, we have to mock the construction of
-        # the novaclient client object with our own APIVersion.
-        with mock.patch.object(self.app.client_manager.compute, 'api_version',
-                               api_versions.APIVersion('2.37')):
-            columns, data = self.cmd.take_action(parsed_args)
+        columns, data = self.cmd.take_action(parsed_args)
 
         # Set expected values
         kwargs = dict(
@@ -2037,6 +2073,10 @@ class TestServerCreate(TestServer):
         self.assertEqual(self.datalist(), data)
 
     def _test_server_create_with_none_network(self, arglist):
+        # requires API microversion 2.37 or later
+        self.app.client_manager.compute.api_version = api_versions.APIVersion(
+            '2.37')
+
         verifylist = [
             ('image', 'image1'),
             ('flavor', 'flavor1'),
@@ -2096,6 +2136,40 @@ class TestServerCreate(TestServer):
             self.new_server.name,
         ]
         self._test_server_create_with_none_network(arglist)
+
+    def test_server_create_with_none_network_pre_v237(self):
+        # use an API microversion that's too old
+        self.app.client_manager.compute.api_version = api_versions.APIVersion(
+            '2.36')
+
+        arglist = [
+            '--image', 'image1',
+            '--flavor', 'flavor1',
+            '--nic', 'none',
+            self.new_server.name,
+        ]
+
+        verifylist = [
+            ('image', 'image1'),
+            ('flavor', 'flavor1'),
+            ('nics', ['none']),
+            ('config_drive', False),
+            ('server_name', self.new_server.name),
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        exc = self.assertRaises(
+            exceptions.CommandError,
+            self.cmd.take_action,
+            parsed_args,
+        )
+        self.assertIn(
+            '--os-compute-api-version 2.37 or greater is required to support '
+            'explicit auto-allocation of a network or to disable network '
+            'allocation',
+            str(exc),
+        )
+        self.assertNotCalled(self.servers_mock.create)
 
     def test_server_create_with_conflict_network_options(self):
         arglist = [
@@ -3227,13 +3301,11 @@ class TestServerCreate(TestServer):
         arglist = [
             '--image-property', 'hypervisor_type=qemu',
             '--flavor', 'flavor1',
-            '--nic', 'none',
             self.new_server.name,
         ]
         verifylist = [
             ('image_properties', {'hypervisor_type': 'qemu'}),
             ('flavor', 'flavor1'),
-            ('nics', ['none']),
             ('config_drive', False),
             ('server_name', self.new_server.name),
         ]
@@ -3261,7 +3333,7 @@ class TestServerCreate(TestServer):
             availability_zone=None,
             admin_pass=None,
             block_device_mapping_v2=[],
-            nics='none',
+            nics=[],
             meta=None,
             scheduler_hints={},
             config_drive=None,
@@ -3282,14 +3354,12 @@ class TestServerCreate(TestServer):
             '--image-property', 'hypervisor_type=qemu',
             '--image-property', 'hw_disk_bus=ide',
             '--flavor', 'flavor1',
-            '--nic', 'none',
             self.new_server.name,
         ]
         verifylist = [
             ('image_properties', {'hypervisor_type': 'qemu',
              'hw_disk_bus': 'ide'}),
             ('flavor', 'flavor1'),
-            ('nics', ['none']),
             ('config_drive', False),
             ('server_name', self.new_server.name),
         ]
@@ -3317,7 +3387,7 @@ class TestServerCreate(TestServer):
             availability_zone=None,
             admin_pass=None,
             block_device_mapping_v2=[],
-            nics='none',
+            nics=[],
             meta=None,
             scheduler_hints={},
             config_drive=None,
@@ -3338,14 +3408,12 @@ class TestServerCreate(TestServer):
             '--image-property', 'hypervisor_type=qemu',
             '--image-property', 'hw_disk_bus=virtio',
             '--flavor', 'flavor1',
-            '--nic', 'none',
             self.new_server.name,
         ]
         verifylist = [
             ('image_properties', {'hypervisor_type': 'qemu',
              'hw_disk_bus': 'virtio'}),
             ('flavor', 'flavor1'),
-            ('nics', ['none']),
             ('config_drive', False),
             ('server_name', self.new_server.name),
         ]
@@ -3369,7 +3437,6 @@ class TestServerCreate(TestServer):
             '--image-property',
             'owner_specified.openstack.object=image/cirros',
             '--flavor', 'flavor1',
-            '--nic', 'none',
             self.new_server.name,
         ]
 
@@ -3377,7 +3444,6 @@ class TestServerCreate(TestServer):
             ('image_properties',
                 {'owner_specified.openstack.object': 'image/cirros'}),
             ('flavor', 'flavor1'),
-            ('nics', ['none']),
             ('server_name', self.new_server.name),
         ]
         # create a image_info as the side_effect of the fake image_list()
@@ -3407,7 +3473,7 @@ class TestServerCreate(TestServer):
             availability_zone=None,
             admin_pass=None,
             block_device_mapping_v2=[],
-            nics='none',
+            nics=[],
             meta=None,
             scheduler_hints={},
             config_drive=None,
