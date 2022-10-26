@@ -1756,8 +1756,9 @@ class CreateServerDump(command.Command):
 
     Trigger crash dump in server(s) with features like kdump in Linux.
     It will create a dump file in the server(s) dumping the server(s)'
-    memory, and also crash the server(s). OSC sees the dump file
-    (server dump) as a kind of resource.
+    memory, and also crash the server(s). This is contingent on guest operating
+    system support, and the location of the dump file inside the guest will
+    depend on the exact guest operating system.
 
     This command requires ``--os-compute-api-version`` 2.17 or greater.
     """
