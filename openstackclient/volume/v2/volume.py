@@ -82,10 +82,11 @@ class CreateVolume(command.ShowOne):
     _description = _("Create new volume")
 
     def get_parser(self, prog_name):
-        parser = super(CreateVolume, self).get_parser(prog_name)
+        parser = super().get_parser(prog_name)
         parser.add_argument(
             "name",
             metavar="<name>",
+            nargs="?",
             help=_("Volume name"),
         )
         parser.add_argument(

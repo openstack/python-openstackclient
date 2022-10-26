@@ -1,0 +1,4 @@
+---
+features:
+  - |
+    The ``<name>`` argument for the ``volume create`` command is now optional.
