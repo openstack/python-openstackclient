@@ -1675,6 +1675,7 @@ class TestServerCreate(TestServer):
             '--nic', 'net-id=net1,v4-fixed-ip=10.0.0.2',
             '--port', 'port1',
             '--network', 'net1',
+            '--network', 'auto',  # this is a network called 'auto'
             '--nic', 'port-id=port2',
             self.new_server.name,
         ]
@@ -1683,24 +1684,40 @@ class TestServerCreate(TestServer):
             ('flavor', 'flavor1'),
             ('nics', [
                 {
-                    'net-id': 'net1', 'port-id': '',
-                    'v4-fixed-ip': '', 'v6-fixed-ip': '',
+                    'net-id': 'net1',
+                    'port-id': '',
+                    'v4-fixed-ip': '',
+                    'v6-fixed-ip': '',
                 },
                 {
-                    'net-id': 'net1', 'port-id': '',
-                    'v4-fixed-ip': '10.0.0.2', 'v6-fixed-ip': '',
+                    'net-id': 'net1',
+                    'port-id': '',
+                    'v4-fixed-ip': '10.0.0.2',
+                    'v6-fixed-ip': '',
                 },
                 {
-                    'net-id': '', 'port-id': 'port1',
-                    'v4-fixed-ip': '', 'v6-fixed-ip': '',
+                    'net-id': '',
+                    'port-id': 'port1',
+                    'v4-fixed-ip': '',
+                    'v6-fixed-ip': '',
                 },
                 {
-                    'net-id': 'net1', 'port-id': '',
-                    'v4-fixed-ip': '', 'v6-fixed-ip': '',
+                    'net-id': 'net1',
+                    'port-id': '',
+                    'v4-fixed-ip': '',
+                    'v6-fixed-ip': '',
                 },
                 {
-                    'net-id': '', 'port-id': 'port2',
-                    'v4-fixed-ip': '', 'v6-fixed-ip': '',
+                    'net-id': 'auto',
+                    'port-id': '',
+                    'v4-fixed-ip': '',
+                    'v6-fixed-ip': '',
+                },
+                {
+                    'net-id': '',
+                    'port-id': 'port2',
+                    'v4-fixed-ip': '',
+                    'v6-fixed-ip': '',
                 },
             ]),
             ('config_drive', False),
@@ -1729,12 +1746,16 @@ class TestServerCreate(TestServer):
                                   "port2": port2_resource}[port_id])
 
         # Mock sdk APIs.
-        _network = mock.Mock(id='net1_uuid')
+        _network_1 = mock.Mock(id='net1_uuid')
+        _network_auto = mock.Mock(id='auto_uuid')
         _port1 = mock.Mock(id='port1_uuid')
         _port2 = mock.Mock(id='port2_uuid')
         find_network = mock.Mock()
         find_port = mock.Mock()
-        find_network.return_value = _network
+        find_network.side_effect = lambda net_id, ignore_missing: {
+            "net1": _network_1,
+            "auto": _network_auto,
+        }[net_id]
         find_port.side_effect = (lambda port_id, ignore_missing:
                                  {"port1": _port1,
                                   "port2": _port2}[port_id])
@@ -1772,6 +1793,10 @@ class TestServerCreate(TestServer):
                    'v6-fixed-ip': '',
                    'port-id': 'port1_uuid'},
                   {'net-id': 'net1_uuid',
+                   'v4-fixed-ip': '',
+                   'v6-fixed-ip': '',
+                   'port-id': ''},
+                  {'net-id': 'auto_uuid',
                    'v4-fixed-ip': '',
                    'v6-fixed-ip': '',
                    'port-id': ''},
