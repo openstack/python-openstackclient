@@ -1,0 +1,11 @@
+---
+deprecations:
+  - |
+    The ``--class`` options of the ``quota show`` and ``quota set`` commands
+    are now deprecated. Quota classes were never fully implemented and the
+    compute and volume services only support a single ``default`` quota class
+    while the network service does not support quota classes at all. The
+    default quotas can be changed on a deployment-wide basis via configuration
+    and can be inspected using the ``openstack quota show --default`` command.
+    Quotas can still be set on a project-specific basis using the ``quota set``
+    command.
