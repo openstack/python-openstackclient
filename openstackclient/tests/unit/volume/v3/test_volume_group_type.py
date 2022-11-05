@@ -34,8 +34,7 @@ class TestVolumeGroupTypeCreate(TestVolumeGroupType):
 
     maxDiff = 2000
 
-    fake_volume_group_type = \
-        volume_fakes.FakeVolumeGroupType.create_one_volume_group_type()
+    fake_volume_group_type = volume_fakes.create_one_volume_group_type()
 
     columns = (
         'ID',
@@ -133,8 +132,7 @@ class TestVolumeGroupTypeCreate(TestVolumeGroupType):
 
 class TestVolumeGroupTypeDelete(TestVolumeGroupType):
 
-    fake_volume_group_type = \
-        volume_fakes.FakeVolumeGroupType.create_one_volume_group_type()
+    fake_volume_group_type = volume_fakes.create_one_volume_group_type()
 
     def setUp(self):
         super().setUp()
@@ -187,13 +185,13 @@ class TestVolumeGroupTypeDelete(TestVolumeGroupType):
 
 class TestVolumeGroupTypeSet(TestVolumeGroupType):
 
-    fake_volume_group_type = \
-        volume_fakes.FakeVolumeGroupType.create_one_volume_group_type(
-            methods={
-                'get_keys': {'foo': 'bar'},
-                'set_keys': None,
-                'unset_keys': None,
-            })
+    fake_volume_group_type = volume_fakes.create_one_volume_group_type(
+        methods={
+            'get_keys': {'foo': 'bar'},
+            'set_keys': None,
+            'unset_keys': None,
+        },
+    )
 
     columns = (
         'ID',
@@ -316,9 +314,9 @@ class TestVolumeGroupTypeSet(TestVolumeGroupType):
 
 class TestVolumeGroupTypeUnset(TestVolumeGroupType):
 
-    fake_volume_group_type = \
-        volume_fakes.FakeVolumeGroupType.create_one_volume_group_type(
-            methods={'unset_keys': None})
+    fake_volume_group_type = volume_fakes.create_one_volume_group_type(
+        methods={'unset_keys': None},
+    )
 
     columns = (
         'ID',
@@ -393,8 +391,7 @@ class TestVolumeGroupTypeUnset(TestVolumeGroupType):
 
 class TestVolumeGroupTypeList(TestVolumeGroupType):
 
-    fake_volume_group_types = \
-        volume_fakes.FakeVolumeGroupType.create_volume_group_types()
+    fake_volume_group_types = volume_fakes.create_volume_group_types()
 
     columns = (
         'ID',

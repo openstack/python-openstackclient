@@ -54,8 +54,8 @@ class TestVolumeSnapshotCreate(TestVolumeSnapshot):
     def setUp(self):
         super().setUp()
 
-        self.volume = volume_fakes.FakeVolume.create_one_volume()
-        self.new_snapshot = volume_fakes.FakeSnapshot.create_one_snapshot(
+        self.volume = volume_fakes.create_one_volume()
+        self.new_snapshot = volume_fakes.create_one_snapshot(
             attrs={'volume_id': self.volume.id})
 
         self.data = (
@@ -179,13 +179,13 @@ class TestVolumeSnapshotCreate(TestVolumeSnapshot):
 
 class TestVolumeSnapshotDelete(TestVolumeSnapshot):
 
-    snapshots = volume_fakes.FakeSnapshot.create_snapshots(count=2)
+    snapshots = volume_fakes.create_snapshots(count=2)
 
     def setUp(self):
         super().setUp()
 
         self.snapshots_mock.get = (
-            volume_fakes.FakeSnapshot.get_snapshots(self.snapshots))
+            volume_fakes.get_snapshots(self.snapshots))
         self.snapshots_mock.delete.return_value = None
 
         # Get the command object to mock
@@ -273,9 +273,9 @@ class TestVolumeSnapshotDelete(TestVolumeSnapshot):
 
 class TestVolumeSnapshotList(TestVolumeSnapshot):
 
-    volume = volume_fakes.FakeVolume.create_one_volume()
+    volume = volume_fakes.create_one_volume()
     project = project_fakes.FakeProject.create_one_project()
-    snapshots = volume_fakes.FakeSnapshot.create_snapshots(
+    snapshots = volume_fakes.create_snapshots(
         attrs={'volume_id': volume.name}, count=3)
 
     columns = [
@@ -495,7 +495,7 @@ class TestVolumeSnapshotList(TestVolumeSnapshot):
 
 class TestVolumeSnapshotSet(TestVolumeSnapshot):
 
-    snapshot = volume_fakes.FakeSnapshot.create_one_snapshot()
+    snapshot = volume_fakes.create_one_snapshot()
 
     def setUp(self):
         super().setUp()
@@ -677,7 +677,7 @@ class TestVolumeSnapshotShow(TestVolumeSnapshot):
     def setUp(self):
         super().setUp()
 
-        self.snapshot = volume_fakes.FakeSnapshot.create_one_snapshot()
+        self.snapshot = volume_fakes.create_one_snapshot()
 
         self.data = (
             self.snapshot.created_at,
@@ -712,7 +712,7 @@ class TestVolumeSnapshotShow(TestVolumeSnapshot):
 
 class TestVolumeSnapshotUnset(TestVolumeSnapshot):
 
-    snapshot = volume_fakes.FakeSnapshot.create_one_snapshot()
+    snapshot = volume_fakes.create_one_snapshot()
 
     def setUp(self):
         super().setUp()

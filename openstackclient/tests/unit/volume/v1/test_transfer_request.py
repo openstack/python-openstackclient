@@ -18,14 +18,14 @@ from unittest.mock import call
 from osc_lib import exceptions
 from osc_lib import utils
 
-from openstackclient.tests.unit.volume.v1 import fakes as transfer_fakes
+from openstackclient.tests.unit.volume.v1 import fakes as volume_fakes
 from openstackclient.volume.v1 import volume_transfer_request
 
 
-class TestTransfer(transfer_fakes.TestVolumev1):
+class TestTransfer(volume_fakes.TestVolumev1):
 
     def setUp(self):
-        super(TestTransfer, self).setUp()
+        super().setUp()
 
         # Get a shortcut to the TransferManager Mock
         self.transfer_mock = self.app.client_manager.volume.transfers
@@ -45,10 +45,9 @@ class TestTransferAccept(TestTransfer):
     )
 
     def setUp(self):
-        super(TestTransferAccept, self).setUp()
+        super().setUp()
 
-        self.volume_transfer = (
-            transfer_fakes.FakeTransfer.create_one_transfer())
+        self.volume_transfer = volume_fakes.create_one_transfer()
         self.data = (
             self.volume_transfer.id,
             self.volume_transfer.name,
@@ -103,7 +102,7 @@ class TestTransferAccept(TestTransfer):
 
 class TestTransferCreate(TestTransfer):
 
-    volume = transfer_fakes.FakeVolume.create_one_volume()
+    volume = volume_fakes.create_one_volume()
 
     columns = (
         'auth_key',
@@ -114,12 +113,14 @@ class TestTransferCreate(TestTransfer):
     )
 
     def setUp(self):
-        super(TestTransferCreate, self).setUp()
+        super().setUp()
 
-        self.volume_transfer = transfer_fakes.FakeTransfer.create_one_transfer(
-            attrs={'volume_id': self.volume.id,
-                   'auth_key': 'key',
-                   'created_at': 'time'}
+        self.volume_transfer = volume_fakes.create_one_transfer(
+            attrs={
+                'volume_id': self.volume.id,
+                'auth_key': 'key',
+                'created_at': 'time',
+            },
         )
         self.data = (
             self.volume_transfer.auth_key,
@@ -173,13 +174,14 @@ class TestTransferCreate(TestTransfer):
 
 class TestTransferDelete(TestTransfer):
 
-    volume_transfers = transfer_fakes.FakeTransfer.create_transfers(count=2)
+    volume_transfers = volume_fakes.create_transfers(count=2)
 
     def setUp(self):
-        super(TestTransferDelete, self).setUp()
+        super().setUp()
 
-        self.transfer_mock.get = (
-            transfer_fakes.FakeTransfer.get_transfers(self.volume_transfers))
+        self.transfer_mock.get = volume_fakes.get_transfers(
+            self.volume_transfers,
+        )
         self.transfer_mock.delete.return_value = None
 
         # Get the command object to mock
@@ -252,10 +254,10 @@ class TestTransferDelete(TestTransfer):
 class TestTransferList(TestTransfer):
 
     # The Transfers to be listed
-    volume_transfers = transfer_fakes.FakeTransfer.create_one_transfer()
+    volume_transfers = volume_fakes.create_one_transfer()
 
     def setUp(self):
-        super(TestTransferList, self).setUp()
+        super().setUp()
 
         self.transfer_mock.list.return_value = [self.volume_transfers]
 
@@ -346,11 +348,10 @@ class TestTransferShow(TestTransfer):
     )
 
     def setUp(self):
-        super(TestTransferShow, self).setUp()
+        super().setUp()
 
-        self.volume_transfer = (
-            transfer_fakes.FakeTransfer.create_one_transfer(
-                attrs={'created_at': 'time'})
+        self.volume_transfer = volume_fakes.create_one_transfer(
+            attrs={'created_at': 'time'}
         )
         self.data = (
             self.volume_transfer.created_at,

@@ -35,10 +35,9 @@ class TestVolumeGroup(volume_fakes.TestVolume):
 
 class TestVolumeGroupCreate(TestVolumeGroup):
 
-    fake_volume_type = volume_fakes.FakeVolumeType.create_one_volume_type()
-    fake_volume_group_type = \
-        volume_fakes.FakeVolumeGroupType.create_one_volume_group_type()
-    fake_volume_group = volume_fakes.FakeVolumeGroup.create_one_volume_group(
+    fake_volume_type = volume_fakes.create_one_volume_type()
+    fake_volume_group_type = volume_fakes.create_one_volume_group_type()
+    fake_volume_group = volume_fakes.create_one_volume_group(
         attrs={
             'group_type': fake_volume_group_type.id,
             'volume_types': [fake_volume_type.id],
@@ -180,8 +179,7 @@ class TestVolumeGroupCreate(TestVolumeGroup):
 
 class TestVolumeGroupDelete(TestVolumeGroup):
 
-    fake_volume_group = \
-        volume_fakes.FakeVolumeGroup.create_one_volume_group()
+    fake_volume_group = volume_fakes.create_one_volume_group()
 
     def setUp(self):
         super().setUp()
@@ -236,8 +234,7 @@ class TestVolumeGroupDelete(TestVolumeGroup):
 
 class TestVolumeGroupSet(TestVolumeGroup):
 
-    fake_volume_group = \
-        volume_fakes.FakeVolumeGroup.create_one_volume_group()
+    fake_volume_group = volume_fakes.create_one_volume_group()
 
     columns = (
         'ID',
@@ -368,8 +365,7 @@ class TestVolumeGroupSet(TestVolumeGroup):
 
 class TestVolumeGroupList(TestVolumeGroup):
 
-    fake_volume_groups = \
-        volume_fakes.FakeVolumeGroup.create_volume_groups()
+    fake_volume_groups = volume_fakes.create_volume_groups()
 
     columns = (
         'ID',
@@ -436,8 +432,7 @@ class TestVolumeGroupList(TestVolumeGroup):
 
 class TestVolumeGroupFailover(TestVolumeGroup):
 
-    fake_volume_group = \
-        volume_fakes.FakeVolumeGroup.create_one_volume_group()
+    fake_volume_group = volume_fakes.create_one_volume_group()
 
     def setUp(self):
         super().setUp()

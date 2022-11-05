@@ -26,7 +26,7 @@ from openstackclient.volume.v2 import consistency_group
 class TestConsistencyGroup(volume_fakes.TestVolume):
 
     def setUp(self):
-        super(TestConsistencyGroup, self).setUp()
+        super().setUp()
 
         # Get a shortcut to the TransferManager Mock
         self.consistencygroups_mock = (
@@ -47,11 +47,10 @@ class TestConsistencyGroup(volume_fakes.TestVolume):
 
 class TestConsistencyGroupAddVolume(TestConsistencyGroup):
 
-    _consistency_group = (
-        volume_fakes.FakeConsistencyGroup.create_one_consistency_group())
+    _consistency_group = volume_fakes.create_one_consistency_group()
 
     def setUp(self):
-        super(TestConsistencyGroupAddVolume, self).setUp()
+        super().setUp()
 
         self.consistencygroups_mock.get.return_value = (
             self._consistency_group)
@@ -60,7 +59,7 @@ class TestConsistencyGroupAddVolume(TestConsistencyGroup):
             consistency_group.AddVolumeToConsistencyGroup(self.app, None)
 
     def test_add_one_volume_to_consistency_group(self):
-        volume = volume_fakes.FakeVolume.create_one_volume()
+        volume = volume_fakes.create_one_volume()
         self.volumes_mock.get.return_value = volume
         arglist = [
             self._consistency_group.id,
@@ -85,8 +84,8 @@ class TestConsistencyGroupAddVolume(TestConsistencyGroup):
         self.assertIsNone(result)
 
     def test_add_multiple_volumes_to_consistency_group(self):
-        volumes = volume_fakes.FakeVolume.create_volumes(count=2)
-        self.volumes_mock.get = volume_fakes.FakeVolume.get_volumes(volumes)
+        volumes = volume_fakes.create_volumes(count=2)
+        self.volumes_mock.get = volume_fakes.get_volumes(volumes)
         arglist = [
             self._consistency_group.id,
             volumes[0].id,
@@ -112,8 +111,9 @@ class TestConsistencyGroupAddVolume(TestConsistencyGroup):
 
     @mock.patch.object(consistency_group.LOG, 'error')
     def test_add_multiple_volumes_to_consistency_group_with_exception(
-            self, mock_error):
-        volume = volume_fakes.FakeVolume.create_one_volume()
+        self, mock_error,
+    ):
+        volume = volume_fakes.create_one_volume()
         arglist = [
             self._consistency_group.id,
             volume.id,
@@ -148,13 +148,10 @@ class TestConsistencyGroupAddVolume(TestConsistencyGroup):
 
 class TestConsistencyGroupCreate(TestConsistencyGroup):
 
-    volume_type = volume_fakes.FakeVolumeType.create_one_volume_type()
-    new_consistency_group = (
-        volume_fakes.FakeConsistencyGroup.create_one_consistency_group())
+    volume_type = volume_fakes.create_one_volume_type()
+    new_consistency_group = volume_fakes.create_one_consistency_group()
     consistency_group_snapshot = (
-        volume_fakes.
-        FakeConsistencyGroupSnapshot.
-        create_one_consistency_group_snapshot()
+        volume_fakes.create_one_consistency_group_snapshot()
     )
 
     columns = (
@@ -177,7 +174,7 @@ class TestConsistencyGroupCreate(TestConsistencyGroup):
     )
 
     def setUp(self):
-        super(TestConsistencyGroupCreate, self).setUp()
+        super().setUp()
         self.consistencygroups_mock.create.return_value = (
             self.new_consistency_group)
         self.consistencygroups_mock.create_from_src.return_value = (
@@ -313,13 +310,14 @@ class TestConsistencyGroupCreate(TestConsistencyGroup):
 class TestConsistencyGroupDelete(TestConsistencyGroup):
 
     consistency_groups =\
-        volume_fakes.FakeConsistencyGroup.create_consistency_groups(count=2)
+        volume_fakes.create_consistency_groups(count=2)
 
     def setUp(self):
-        super(TestConsistencyGroupDelete, self).setUp()
+        super().setUp()
 
-        self.consistencygroups_mock.get = volume_fakes.FakeConsistencyGroup.\
-            get_consistency_groups(self.consistency_groups)
+        self.consistencygroups_mock.get = volume_fakes.get_consistency_groups(
+            self.consistency_groups,
+        )
         self.consistencygroups_mock.delete.return_value = None
 
         # Get the command object to mock
@@ -409,8 +407,7 @@ class TestConsistencyGroupDelete(TestConsistencyGroup):
 
 class TestConsistencyGroupList(TestConsistencyGroup):
 
-    consistency_groups = (
-        volume_fakes.FakeConsistencyGroup.create_consistency_groups(count=2))
+    consistency_groups = volume_fakes.create_consistency_groups(count=2)
 
     columns = [
         'ID',
@@ -444,7 +441,7 @@ class TestConsistencyGroupList(TestConsistencyGroup):
         ))
 
     def setUp(self):
-        super(TestConsistencyGroupList, self).setUp()
+        super().setUp()
 
         self.consistencygroups_mock.list.return_value = self.consistency_groups
         # Get the command to test
@@ -502,11 +499,10 @@ class TestConsistencyGroupList(TestConsistencyGroup):
 
 class TestConsistencyGroupRemoveVolume(TestConsistencyGroup):
 
-    _consistency_group = (
-        volume_fakes.FakeConsistencyGroup.create_one_consistency_group())
+    _consistency_group = volume_fakes.create_one_consistency_group()
 
     def setUp(self):
-        super(TestConsistencyGroupRemoveVolume, self).setUp()
+        super().setUp()
 
         self.consistencygroups_mock.get.return_value = (
             self._consistency_group)
@@ -515,7 +511,7 @@ class TestConsistencyGroupRemoveVolume(TestConsistencyGroup):
             consistency_group.RemoveVolumeFromConsistencyGroup(self.app, None)
 
     def test_remove_one_volume_from_consistency_group(self):
-        volume = volume_fakes.FakeVolume.create_one_volume()
+        volume = volume_fakes.create_one_volume()
         self.volumes_mock.get.return_value = volume
         arglist = [
             self._consistency_group.id,
@@ -540,8 +536,8 @@ class TestConsistencyGroupRemoveVolume(TestConsistencyGroup):
         self.assertIsNone(result)
 
     def test_remove_multi_volumes_from_consistency_group(self):
-        volumes = volume_fakes.FakeVolume.create_volumes(count=2)
-        self.volumes_mock.get = volume_fakes.FakeVolume.get_volumes(volumes)
+        volumes = volume_fakes.create_volumes(count=2)
+        self.volumes_mock.get = volume_fakes.get_volumes(volumes)
         arglist = [
             self._consistency_group.id,
             volumes[0].id,
@@ -567,8 +563,10 @@ class TestConsistencyGroupRemoveVolume(TestConsistencyGroup):
 
     @mock.patch.object(consistency_group.LOG, 'error')
     def test_remove_multiple_volumes_from_consistency_group_with_exception(
-            self, mock_error):
-        volume = volume_fakes.FakeVolume.create_one_volume()
+        self,
+        mock_error,
+    ):
+        volume = volume_fakes.create_one_volume()
         arglist = [
             self._consistency_group.id,
             volume.id,
@@ -603,11 +601,10 @@ class TestConsistencyGroupRemoveVolume(TestConsistencyGroup):
 
 class TestConsistencyGroupSet(TestConsistencyGroup):
 
-    consistency_group = (
-        volume_fakes.FakeConsistencyGroup.create_one_consistency_group())
+    consistency_group = volume_fakes.create_one_consistency_group()
 
     def setUp(self):
-        super(TestConsistencyGroupSet, self).setUp()
+        super().setUp()
 
         self.consistencygroups_mock.get.return_value = (
             self.consistency_group)
@@ -677,10 +674,9 @@ class TestConsistencyGroupShow(TestConsistencyGroup):
     )
 
     def setUp(self):
-        super(TestConsistencyGroupShow, self).setUp()
+        super().setUp()
 
-        self.consistency_group = (
-            volume_fakes.FakeConsistencyGroup.create_one_consistency_group())
+        self.consistency_group = volume_fakes.create_one_consistency_group()
         self.data = (
             self.consistency_group.availability_zone,
             self.consistency_group.created_at,

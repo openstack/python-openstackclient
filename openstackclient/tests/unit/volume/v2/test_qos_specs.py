@@ -39,8 +39,8 @@ class TestQos(volume_fakes.TestVolume):
 
 class TestQosAssociate(TestQos):
 
-    volume_type = volume_fakes.FakeVolumeType.create_one_volume_type()
-    qos_spec = volume_fakes.FakeQos.create_one_qos()
+    volume_type = volume_fakes.create_one_volume_type()
+    qos_spec = volume_fakes.create_one_qos()
 
     def setUp(self):
         super(TestQosAssociate, self).setUp()
@@ -82,7 +82,7 @@ class TestQosCreate(TestQos):
     def setUp(self):
         super(TestQosCreate, self).setUp()
 
-        self.new_qos_spec = volume_fakes.FakeQos.create_one_qos()
+        self.new_qos_spec = volume_fakes.create_one_qos()
         self.qos_mock.create.return_value = self.new_qos_spec
 
         self.data = (
@@ -164,13 +164,13 @@ class TestQosCreate(TestQos):
 
 class TestQosDelete(TestQos):
 
-    qos_specs = volume_fakes.FakeQos.create_qoses(count=2)
+    qos_specs = volume_fakes.create_qoses(count=2)
 
     def setUp(self):
         super(TestQosDelete, self).setUp()
 
         self.qos_mock.get = (
-            volume_fakes.FakeQos.get_qoses(self.qos_specs))
+            volume_fakes.get_qoses(self.qos_specs))
         # Get the command object to test
         self.cmd = qos_specs.DeleteQos(self.app, None)
 
@@ -255,8 +255,8 @@ class TestQosDelete(TestQos):
 
 class TestQosDisassociate(TestQos):
 
-    volume_type = volume_fakes.FakeVolumeType.create_one_volume_type()
-    qos_spec = volume_fakes.FakeQos.create_one_qos()
+    volume_type = volume_fakes.create_one_volume_type()
+    qos_spec = volume_fakes.create_one_qos()
 
     def setUp(self):
         super(TestQosDisassociate, self).setUp()
@@ -303,8 +303,8 @@ class TestQosDisassociate(TestQos):
 
 class TestQosList(TestQos):
 
-    qos_specs = volume_fakes.FakeQos.create_qoses(count=2)
-    qos_association = volume_fakes.FakeQos.create_one_qos_association()
+    qos_specs = volume_fakes.create_qoses(count=2)
+    qos_association = volume_fakes.create_one_qos_association()
 
     columns = (
         'ID',
@@ -374,7 +374,7 @@ class TestQosList(TestQos):
 
 class TestQosSet(TestQos):
 
-    qos_spec = volume_fakes.FakeQos.create_one_qos()
+    qos_spec = volume_fakes.create_one_qos()
 
     def setUp(self):
         super(TestQosSet, self).setUp()
@@ -406,8 +406,8 @@ class TestQosSet(TestQos):
 
 class TestQosShow(TestQos):
 
-    qos_spec = volume_fakes.FakeQos.create_one_qos()
-    qos_association = volume_fakes.FakeQos.create_one_qos_association()
+    qos_spec = volume_fakes.create_one_qos()
+    qos_association = volume_fakes.create_one_qos_association()
 
     columns = (
         'associations',
@@ -454,7 +454,7 @@ class TestQosShow(TestQos):
 
 class TestQosUnset(TestQos):
 
-    qos_spec = volume_fakes.FakeQos.create_one_qos()
+    qos_spec = volume_fakes.create_one_qos()
 
     def setUp(self):
         super(TestQosUnset, self).setUp()

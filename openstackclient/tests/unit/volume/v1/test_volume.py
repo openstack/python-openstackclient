@@ -31,7 +31,7 @@ from openstackclient.volume.v1 import volume
 class TestVolume(volume_fakes.TestVolumev1):
 
     def setUp(self):
-        super(TestVolume, self).setUp()
+        super().setUp()
 
         # Get a shortcut to the VolumeManager Mock
         self.volumes_mock = self.app.client_manager.volume.volumes
@@ -50,11 +50,9 @@ class TestVolume(volume_fakes.TestVolumev1):
         self.images_mock.reset_mock()
 
     def setup_volumes_mock(self, count):
-        volumes = volume_fakes.FakeVolume.create_volumes(count=count)
+        volumes = volume_fakes.create_volumes(count=count)
 
-        self.volumes_mock.get = volume_fakes.FakeVolume.get_volumes(
-            volumes,
-            0)
+        self.volumes_mock.get = volume_fakes.get_volumes(volumes, 0)
         return volumes
 
 
@@ -79,8 +77,8 @@ class TestVolumeCreate(TestVolume):
     )
 
     def setUp(self):
-        super(TestVolumeCreate, self).setUp()
-        self.new_volume = volume_fakes.FakeVolume.create_one_volume()
+        super().setUp()
+        self.new_volume = volume_fakes.create_one_volume()
         self.datalist = (
             self.new_volume.attachments,
             self.new_volume.availability_zone,
@@ -635,7 +633,7 @@ class TestVolumeCreate(TestVolume):
 class TestVolumeDelete(TestVolume):
 
     def setUp(self):
-        super(TestVolumeDelete, self).setUp()
+        super().setUp()
 
         self.volumes_mock.delete.return_value = None
 
@@ -725,7 +723,7 @@ class TestVolumeDelete(TestVolume):
 
 class TestVolumeList(TestVolume):
 
-    _volume = volume_fakes.FakeVolume.create_one_volume()
+    _volume = volume_fakes.create_one_volume()
     columns = (
         'ID',
         'Name',
@@ -744,7 +742,7 @@ class TestVolumeList(TestVolume):
     )
 
     def setUp(self):
-        super(TestVolumeList, self).setUp()
+        super().setUp()
 
         self.volumes_mock.list.return_value = [self._volume]
 
@@ -921,10 +919,10 @@ class TestVolumeList(TestVolume):
 
 class TestVolumeMigrate(TestVolume):
 
-    _volume = volume_fakes.FakeVolume.create_one_volume()
+    _volume = volume_fakes.create_one_volume()
 
     def setUp(self):
-        super(TestVolumeMigrate, self).setUp()
+        super().setUp()
 
         self.volumes_mock.get.return_value = self._volume
         self.volumes_mock.migrate_volume.return_value = None
@@ -983,10 +981,10 @@ class TestVolumeMigrate(TestVolume):
 
 class TestVolumeSet(TestVolume):
 
-    _volume = volume_fakes.FakeVolume.create_one_volume()
+    _volume = volume_fakes.create_one_volume()
 
     def setUp(self):
-        super(TestVolumeSet, self).setUp()
+        super().setUp()
 
         self.volumes_mock.get.return_value = self._volume
 
@@ -1243,8 +1241,8 @@ class TestVolumeShow(TestVolume):
     )
 
     def setUp(self):
-        super(TestVolumeShow, self).setUp()
-        self._volume = volume_fakes.FakeVolume.create_one_volume()
+        super().setUp()
+        self._volume = volume_fakes.create_one_volume()
         self.datalist = (
             self._volume.attachments,
             self._volume.availability_zone,
@@ -1300,10 +1298,10 @@ class TestVolumeShow(TestVolume):
 
 class TestVolumeUnset(TestVolume):
 
-    _volume = volume_fakes.FakeVolume.create_one_volume()
+    _volume = volume_fakes.create_one_volume()
 
     def setUp(self):
-        super(TestVolumeUnset, self).setUp()
+        super().setUp()
 
         self.volumes_mock.get.return_value = self._volume
 
@@ -1346,7 +1344,7 @@ class TestVolumeUnset(TestVolume):
 class TestColumns(TestVolume):
 
     def test_attachments_column_without_server_cache(self):
-        _volume = volume_fakes.FakeVolume.create_one_volume()
+        _volume = volume_fakes.create_one_volume()
         server_id = _volume.attachments[0]['server_id']
         device = _volume.attachments[0]['device']
 
@@ -1356,7 +1354,7 @@ class TestColumns(TestVolume):
         self.assertEqual(_volume.attachments, col.machine_readable())
 
     def test_attachments_column_with_server_cache(self):
-        _volume = volume_fakes.FakeVolume.create_one_volume()
+        _volume = volume_fakes.create_one_volume()
 
         server_id = _volume.attachments[0]['server_id']
         device = _volume.attachments[0]['device']

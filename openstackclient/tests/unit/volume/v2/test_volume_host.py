@@ -12,14 +12,14 @@
 #   under the License.
 #
 
-from openstackclient.tests.unit.volume.v2 import fakes as host_fakes
+from openstackclient.tests.unit.volume.v2 import fakes as volume_fakes
 from openstackclient.volume.v2 import volume_host
 
 
-class TestVolumeHost(host_fakes.TestVolume):
+class TestVolumeHost(volume_fakes.TestVolume):
 
     def setUp(self):
-        super(TestVolumeHost, self).setUp()
+        super().setUp()
 
         self.host_mock = self.app.client_manager.volume.services
         self.host_mock.reset_mock()
@@ -27,10 +27,10 @@ class TestVolumeHost(host_fakes.TestVolume):
 
 class TestVolumeHostSet(TestVolumeHost):
 
-    service = host_fakes.FakeService.create_one_service()
+    service = volume_fakes.create_one_service()
 
     def setUp(self):
-        super(TestVolumeHostSet, self).setUp()
+        super().setUp()
 
         self.host_mock.freeze_host.return_value = None
         self.host_mock.thaw_host.return_value = None
@@ -89,10 +89,10 @@ class TestVolumeHostSet(TestVolumeHost):
 
 class TestVolumeHostFailover(TestVolumeHost):
 
-    service = host_fakes.FakeService.create_one_service()
+    service = volume_fakes.create_one_service()
 
     def setUp(self):
-        super(TestVolumeHostFailover, self).setUp()
+        super().setUp()
 
         self.host_mock.failover_host.return_value = None
 

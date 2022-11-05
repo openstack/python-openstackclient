@@ -26,7 +26,7 @@ from openstackclient.tests.unit.volume.v2 import fakes as volume_fakes
 class TestExtension(utils.TestCommand):
 
     def setUp(self):
-        super(TestExtension, self).setUp()
+        super().setUp()
 
         identity_client = identity_fakes.FakeIdentityv2Client(
             endpoint=fakes.AUTH_URL,
@@ -66,13 +66,13 @@ class TestExtensionList(TestExtension):
     long_columns = ('Name', 'Alias', 'Description', 'Namespace', 'Updated',
                     'Links')
 
-    volume_extension = volume_fakes.FakeExtension.create_one_extension()
+    volume_extension = volume_fakes.create_one_extension()
     identity_extension = identity_fakes.FakeExtension.create_one_extension()
     compute_extension = compute_fakes.FakeExtension.create_one_extension()
     network_extension = network_fakes.FakeExtension.create_one_extension()
 
     def setUp(self):
-        super(TestExtensionList, self).setUp()
+        super().setUp()
 
         self.identity_extensions_mock.list.return_value = [
             self.identity_extension]
@@ -310,7 +310,7 @@ class TestExtensionShow(TestExtension):
     )
 
     def setUp(self):
-        super(TestExtensionShow, self).setUp()
+        super().setUp()
 
         self.cmd = extension.ShowExtension(self.app, None)
 

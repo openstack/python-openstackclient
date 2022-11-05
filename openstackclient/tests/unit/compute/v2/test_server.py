@@ -153,7 +153,7 @@ class TestServer(compute_fakes.TestComputev2):
         return servers
 
     def setup_sdk_volumes_mock(self, count):
-        volumes = volume_fakes.FakeVolume.create_sdk_volumes(count=count)
+        volumes = volume_fakes.create_sdk_volumes(count=count)
 
         # This is the return value for volume_client.find_volume()
         self.sdk_volume_client.find_volume.side_effect = volumes
@@ -1444,10 +1444,10 @@ class TestServerCreate(TestServer):
         self.flavor = compute_fakes.FakeFlavor.create_one_flavor()
         self.flavors_mock.get.return_value = self.flavor
 
-        self.volume = volume_fakes.FakeVolume.create_one_volume()
+        self.volume = volume_fakes.create_one_volume()
         self.volumes_mock.get.return_value = self.volume
 
-        self.snapshot = volume_fakes.FakeSnapshot.create_one_snapshot()
+        self.snapshot = volume_fakes.create_one_snapshot()
         self.snapshots_mock.get.return_value = self.snapshot
 
         # Get the command object to test

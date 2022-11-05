@@ -20,10 +20,10 @@ class TestShowVolumeCapability(volume_fakes.TestVolume):
     """Test backend capability functionality."""
 
     # The capability to be listed
-    capability = volume_fakes.FakeCapability.create_one_capability()
+    capability = volume_fakes.create_one_capability()
 
     def setUp(self):
-        super(TestShowVolumeCapability, self).setUp()
+        super().setUp()
 
         # Get a shortcut to the capability Mock
         self.capability_mock = self.app.client_manager.volume.capabilities
@@ -77,10 +77,10 @@ class TestListVolumePool(volume_fakes.TestVolume):
     """Tests for volume backend pool listing."""
 
     # The pool to be listed
-    pools = volume_fakes.FakePool.create_one_pool()
+    pools = volume_fakes.create_one_pool()
 
     def setUp(self):
-        super(TestListVolumePool, self).setUp()
+        super().setUp()
 
         self.pool_mock = self.app.client_manager.volume.pools
         self.pool_mock.list.return_value = [self.pools]

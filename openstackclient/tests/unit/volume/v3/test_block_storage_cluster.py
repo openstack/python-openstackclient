@@ -30,7 +30,7 @@ class TestBlockStorageCluster(volume_fakes.TestVolume):
 class TestBlockStorageClusterList(TestBlockStorageCluster):
 
     # The cluster to be listed
-    fake_clusters = volume_fakes.FakeCluster.create_clusters()
+    fake_clusters = volume_fakes.create_clusters()
 
     def setUp(self):
         super().setUp()
@@ -176,7 +176,7 @@ class TestBlockStorageClusterList(TestBlockStorageCluster):
 
 class TestBlockStorageClusterSet(TestBlockStorageCluster):
 
-    cluster = volume_fakes.FakeCluster.create_one_cluster()
+    cluster = volume_fakes.create_one_cluster()
     columns = (
         'Name',
         'Binary',
@@ -347,7 +347,7 @@ class TestBlockStorageClusterSet(TestBlockStorageCluster):
 
 class TestBlockStorageClusterShow(TestBlockStorageCluster):
 
-    cluster = volume_fakes.FakeCluster.create_one_cluster()
+    cluster = volume_fakes.create_one_cluster()
     columns = (
         'Name',
         'Binary',

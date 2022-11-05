@@ -14,14 +14,14 @@
 
 from osc_lib import exceptions
 
-from openstackclient.tests.unit.volume.v2 import fakes as service_fakes
+from openstackclient.tests.unit.volume.v2 import fakes as volume_fakes
 from openstackclient.volume.v2 import service
 
 
-class TestService(service_fakes.TestVolume):
+class TestService(volume_fakes.TestVolume):
 
     def setUp(self):
-        super(TestService, self).setUp()
+        super().setUp()
 
         # Get a shortcut to the ServiceManager Mock
         self.service_mock = self.app.client_manager.volume.services
@@ -31,10 +31,10 @@ class TestService(service_fakes.TestVolume):
 class TestServiceList(TestService):
 
     # The service to be listed
-    services = service_fakes.FakeService.create_one_service()
+    services = volume_fakes.create_one_service()
 
     def setUp(self):
-        super(TestServiceList, self).setUp()
+        super().setUp()
 
         self.service_mock.list.return_value = [self.services]
 
@@ -144,10 +144,10 @@ class TestServiceList(TestService):
 
 class TestServiceSet(TestService):
 
-    service = service_fakes.FakeService.create_one_service()
+    service = volume_fakes.create_one_service()
 
     def setUp(self):
-        super(TestServiceSet, self).setUp()
+        super().setUp()
 
         self.service_mock.enable.return_value = self.service
         self.service_mock.disable.return_value = self.service

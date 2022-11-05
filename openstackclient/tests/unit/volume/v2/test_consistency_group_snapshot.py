@@ -35,12 +35,9 @@ class TestConsistencyGroupSnapshot(volume_fakes.TestVolume):
 class TestConsistencyGroupSnapshotCreate(TestConsistencyGroupSnapshot):
 
     _consistency_group_snapshot = (
-        volume_fakes.
-        FakeConsistencyGroupSnapshot.
-        create_one_consistency_group_snapshot()
+        volume_fakes.create_one_consistency_group_snapshot()
     )
-    consistency_group = (
-        volume_fakes.FakeConsistencyGroup.create_one_consistency_group())
+    consistency_group = volume_fakes.create_one_consistency_group()
 
     columns = (
         'consistencygroup_id',
@@ -124,16 +121,16 @@ class TestConsistencyGroupSnapshotCreate(TestConsistencyGroupSnapshot):
 class TestConsistencyGroupSnapshotDelete(TestConsistencyGroupSnapshot):
 
     consistency_group_snapshots = (
-        volume_fakes.FakeConsistencyGroupSnapshot.
-        create_consistency_group_snapshots(count=2)
+        volume_fakes.create_consistency_group_snapshots(count=2)
     )
 
     def setUp(self):
         super(TestConsistencyGroupSnapshotDelete, self).setUp()
 
         self.cgsnapshots_mock.get = (
-            volume_fakes.FakeConsistencyGroupSnapshot.
-            get_consistency_group_snapshots(self.consistency_group_snapshots)
+            volume_fakes.get_consistency_group_snapshots(
+                self.consistency_group_snapshots
+            )
         )
         self.cgsnapshots_mock.delete.return_value = None
 
@@ -178,12 +175,9 @@ class TestConsistencyGroupSnapshotDelete(TestConsistencyGroupSnapshot):
 class TestConsistencyGroupSnapshotList(TestConsistencyGroupSnapshot):
 
     consistency_group_snapshots = (
-        volume_fakes.FakeConsistencyGroupSnapshot.
-        create_consistency_group_snapshots(count=2)
+        volume_fakes.create_consistency_group_snapshots(count=2)
     )
-    consistency_group = (
-        volume_fakes.FakeConsistencyGroup.create_one_consistency_group()
-    )
+    consistency_group = volume_fakes.create_one_consistency_group()
 
     columns = [
         'ID',
@@ -306,9 +300,7 @@ class TestConsistencyGroupSnapshotList(TestConsistencyGroupSnapshot):
 class TestConsistencyGroupSnapshotShow(TestConsistencyGroupSnapshot):
 
     _consistency_group_snapshot = (
-        volume_fakes.
-        FakeConsistencyGroupSnapshot.
-        create_one_consistency_group_snapshot()
+        volume_fakes.create_one_consistency_group_snapshot()
     )
 
     columns = (

@@ -41,11 +41,11 @@ class TestVolumeAttachment(volume_fakes.TestVolume):
 
 class TestVolumeAttachmentCreate(TestVolumeAttachment):
 
-    volume = volume_fakes.FakeVolume.create_one_volume()
+    volume = volume_fakes.create_one_volume()
     server = compute_fakes.FakeServer.create_one_server()
-    volume_attachment = \
-        volume_fakes.FakeVolumeAttachment.create_one_volume_attachment(
-            attrs={'instance': server.id, 'volume_id': volume.id})
+    volume_attachment = volume_fakes.create_one_volume_attachment(
+        attrs={'instance': server.id, 'volume_id': volume.id},
+    )
 
     columns = (
         'ID',
@@ -238,8 +238,7 @@ class TestVolumeAttachmentCreate(TestVolumeAttachment):
 
 class TestVolumeAttachmentDelete(TestVolumeAttachment):
 
-    volume_attachment = \
-        volume_fakes.FakeVolumeAttachment.create_one_volume_attachment()
+    volume_attachment = volume_fakes.create_one_volume_attachment()
 
     def setUp(self):
         super().setUp()
@@ -290,8 +289,7 @@ class TestVolumeAttachmentDelete(TestVolumeAttachment):
 
 class TestVolumeAttachmentSet(TestVolumeAttachment):
 
-    volume_attachment = \
-        volume_fakes.FakeVolumeAttachment.create_one_volume_attachment()
+    volume_attachment = volume_fakes.create_one_volume_attachment()
 
     columns = (
         'ID',
@@ -391,8 +389,7 @@ class TestVolumeAttachmentSet(TestVolumeAttachment):
 
 class TestVolumeAttachmentComplete(TestVolumeAttachment):
 
-    volume_attachment = \
-        volume_fakes.FakeVolumeAttachment.create_one_volume_attachment()
+    volume_attachment = volume_fakes.create_one_volume_attachment()
 
     def setUp(self):
         super().setUp()
@@ -444,8 +441,7 @@ class TestVolumeAttachmentComplete(TestVolumeAttachment):
 class TestVolumeAttachmentList(TestVolumeAttachment):
 
     project = identity_fakes.FakeProject.create_one_project()
-    volume_attachments = \
-        volume_fakes.FakeVolumeAttachment.create_volume_attachments()
+    volume_attachments = volume_fakes.create_volume_attachments()
 
     columns = (
         'ID',

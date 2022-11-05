@@ -30,7 +30,7 @@ from openstackclient.volume.v2 import volume
 class TestVolume(volume_fakes.TestVolume):
 
     def setUp(self):
-        super(TestVolume, self).setUp()
+        super().setUp()
 
         self.volumes_mock = self.app.client_manager.volume.volumes
         self.volumes_mock.reset_mock()
@@ -55,11 +55,9 @@ class TestVolume(volume_fakes.TestVolume):
         self.consistencygroups_mock.reset_mock()
 
     def setup_volumes_mock(self, count):
-        volumes = volume_fakes.FakeVolume.create_volumes(count=count)
+        volumes = volume_fakes.create_volumes(count=count)
 
-        self.volumes_mock.get = volume_fakes.FakeVolume.get_volumes(
-            volumes,
-            0)
+        self.volumes_mock.get = volume_fakes.get_volumes(volumes, 0)
         return volumes
 
 
@@ -83,9 +81,9 @@ class TestVolumeCreate(TestVolume):
     )
 
     def setUp(self):
-        super(TestVolumeCreate, self).setUp()
+        super().setUp()
 
-        self.new_volume = volume_fakes.FakeVolume.create_one_volume()
+        self.new_volume = volume_fakes.create_one_volume()
         self.volumes_mock.create.return_value = self.new_volume
 
         self.datalist = (
@@ -137,8 +135,7 @@ class TestVolumeCreate(TestVolume):
         self.assertCountEqual(self.datalist, data)
 
     def test_volume_create_options(self):
-        consistency_group = (
-            volume_fakes.FakeConsistencyGroup.create_one_consistency_group())
+        consistency_group = volume_fakes.create_one_consistency_group()
         self.consistencygroups_mock.get.return_value = consistency_group
         arglist = [
             '--size', str(self.new_volume.size),
@@ -295,7 +292,7 @@ class TestVolumeCreate(TestVolume):
         self.assertCountEqual(self.datalist, data)
 
     def test_volume_create_with_snapshot(self):
-        snapshot = volume_fakes.FakeSnapshot.create_one_snapshot()
+        snapshot = volume_fakes.create_one_snapshot()
         self.new_volume.snapshot_id = snapshot.id
         arglist = [
             '--snapshot', self.new_volume.snapshot_id,
@@ -502,7 +499,7 @@ class TestVolumeCreate(TestVolume):
 class TestVolumeDelete(TestVolume):
 
     def setUp(self):
-        super(TestVolumeDelete, self).setUp()
+        super().setUp()
 
         self.volumes_mock.delete.return_value = None
 
@@ -630,9 +627,9 @@ class TestVolumeList(TestVolume):
     ]
 
     def setUp(self):
-        super(TestVolumeList, self).setUp()
+        super().setUp()
 
-        self.mock_volume = volume_fakes.FakeVolume.create_one_volume()
+        self.mock_volume = volume_fakes.create_one_volume()
         self.volumes_mock.list.return_value = [self.mock_volume]
 
         self.users_mock.get.return_value = self.user
@@ -1105,10 +1102,10 @@ class TestVolumeList(TestVolume):
 
 class TestVolumeMigrate(TestVolume):
 
-    _volume = volume_fakes.FakeVolume.create_one_volume()
+    _volume = volume_fakes.create_one_volume()
 
     def setUp(self):
-        super(TestVolumeMigrate, self).setUp()
+        super().setUp()
 
         self.volumes_mock.get.return_value = self._volume
         self.volumes_mock.migrate_volume.return_value = None
@@ -1171,12 +1168,12 @@ class TestVolumeMigrate(TestVolume):
 
 class TestVolumeSet(TestVolume):
 
-    volume_type = volume_fakes.FakeVolumeType.create_one_volume_type()
+    volume_type = volume_fakes.create_one_volume_type()
 
     def setUp(self):
-        super(TestVolumeSet, self).setUp()
+        super().setUp()
 
-        self.new_volume = volume_fakes.FakeVolume.create_one_volume()
+        self.new_volume = volume_fakes.create_one_volume()
         self.volumes_mock.get.return_value = self.new_volume
         self.types_mock.get.return_value = self.volume_type
 
@@ -1425,9 +1422,9 @@ class TestVolumeSet(TestVolume):
 class TestVolumeShow(TestVolume):
 
     def setUp(self):
-        super(TestVolumeShow, self).setUp()
+        super().setUp()
 
-        self._volume = volume_fakes.FakeVolume.create_one_volume()
+        self._volume = volume_fakes.create_one_volume()
         self.volumes_mock.get.return_value = self._volume
         # Get the command object to test
         self.cmd = volume.ShowVolume(self.app, None)
@@ -1445,20 +1442,21 @@ class TestVolumeShow(TestVolume):
         self.volumes_mock.get.assert_called_with(self._volume.id)
 
         self.assertEqual(
-            volume_fakes.FakeVolume.get_volume_columns(self._volume),
-            columns)
-
+            volume_fakes.get_volume_columns(self._volume),
+            columns,
+        )
         self.assertCountEqual(
-            volume_fakes.FakeVolume.get_volume_data(self._volume),
-            data)
+            volume_fakes.get_volume_data(self._volume),
+            data,
+        )
 
 
 class TestVolumeUnset(TestVolume):
 
     def setUp(self):
-        super(TestVolumeUnset, self).setUp()
+        super().setUp()
 
-        self.new_volume = volume_fakes.FakeVolume.create_one_volume()
+        self.new_volume = volume_fakes.create_one_volume()
         self.volumes_mock.get.return_value = self.new_volume
 
         # Get the command object to set property
@@ -1536,7 +1534,7 @@ class TestVolumeUnset(TestVolume):
 class TestColumns(TestVolume):
 
     def test_attachments_column_without_server_cache(self):
-        _volume = volume_fakes.FakeVolume.create_one_volume()
+        _volume = volume_fakes.create_one_volume()
         server_id = _volume.attachments[0]['server_id']
         device = _volume.attachments[0]['device']
 
@@ -1546,7 +1544,7 @@ class TestColumns(TestVolume):
         self.assertEqual(_volume.attachments, col.machine_readable())
 
     def test_attachments_column_with_server_cache(self):
-        _volume = volume_fakes.FakeVolume.create_one_volume()
+        _volume = volume_fakes.create_one_volume()
 
         server_id = _volume.attachments[0]['server_id']
         device = _volume.attachments[0]['device']

@@ -19,7 +19,7 @@ from openstackclient.volume.v2 import backup_record
 class TestBackupRecord(volume_fakes.TestVolume):
 
     def setUp(self):
-        super(TestBackupRecord, self).setUp()
+        super().setUp()
 
         self.backups_mock = self.app.client_manager.volume.backups
         self.backups_mock.reset_mock()
@@ -27,12 +27,13 @@ class TestBackupRecord(volume_fakes.TestVolume):
 
 class TestBackupRecordExport(TestBackupRecord):
 
-    new_backup = volume_fakes.FakeBackup.create_one_backup(
-        attrs={'volume_id': 'a54708a2-0388-4476-a909-09579f885c25'})
-    new_record = volume_fakes.FakeBackup.create_backup_record()
+    new_backup = volume_fakes.create_one_backup(
+        attrs={'volume_id': 'a54708a2-0388-4476-a909-09579f885c25'},
+    )
+    new_record = volume_fakes.create_backup_record()
 
     def setUp(self):
-        super(TestBackupRecordExport, self).setUp()
+        super().setUp()
 
         self.backups_mock.export_record.return_value = self.new_record
         self.backups_mock.get.return_value = self.new_backup
@@ -81,12 +82,13 @@ class TestBackupRecordExport(TestBackupRecord):
 
 class TestBackupRecordImport(TestBackupRecord):
 
-    new_backup = volume_fakes.FakeBackup.create_one_backup(
-        attrs={'volume_id': 'a54708a2-0388-4476-a909-09579f885c25'})
-    new_import = volume_fakes.FakeBackup.import_backup_record()
+    new_backup = volume_fakes.create_one_backup(
+        attrs={'volume_id': 'a54708a2-0388-4476-a909-09579f885c25'},
+    )
+    new_import = volume_fakes.import_backup_record()
 
     def setUp(self):
-        super(TestBackupRecordImport, self).setUp()
+        super().setUp()
 
         self.backups_mock.import_record.return_value = self.new_import
 
