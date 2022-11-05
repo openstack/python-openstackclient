@@ -62,8 +62,8 @@ class TestQuota(compute_fakes.TestComputev2):
             self.app.client_manager.volume.quota_classes
         self.volume_quotas_class_mock.reset_mock()
 
-        self.app.client_manager.network.quotas = mock.Mock()
-        self.network_quotas_mock = self.app.client_manager.network.quotas
+        self.app.client_manager.network = mock.Mock()
+        self.network_mock = self.app.client_manager.network
 
         self.app.client_manager.auth_ref = mock.Mock()
         self.app.client_manager.auth_ref.service_catalog = mock.Mock()
@@ -660,7 +660,6 @@ class TestQuotaSet(TestQuota):
             loaded=True,
         )
 
-        self.network_mock = self.app.client_manager.network
         self.network_mock.update_quota = mock.Mock()
 
         self.cmd = quota.SetQuota(self.app, None)
@@ -1272,6 +1271,8 @@ class TestQuotaDelete(TestQuota):
     def setUp(self):
         super().setUp()
 
+        self.network_mock.delete_quota = mock.Mock()
+
         self.cmd = quota.DeleteQuota(self.app, None)
 
     def test_delete(self):
@@ -1291,13 +1292,13 @@ class TestQuotaDelete(TestQuota):
         self.assertIsNone(result)
         self.projects_mock.get.assert_called_once_with(self.projects[0].id)
         self.compute_quotas_mock.delete.assert_called_once_with(
-            self.projects[0],
+            self.projects[0].id,
         )
         self.volume_quotas_mock.delete.assert_called_once_with(
-            self.projects[0],
+            self.projects[0].id,
         )
-        self.network_quotas_mock.delete.assert_called_once_with(
-            self.projects[0],
+        self.network_mock.delete_quota.assert_called_once_with(
+            self.projects[0].id,
         )
 
     def test_delete__compute(self):
@@ -1318,10 +1319,10 @@ class TestQuotaDelete(TestQuota):
         self.assertIsNone(result)
         self.projects_mock.get.assert_called_once_with(self.projects[0].id)
         self.compute_quotas_mock.delete.assert_called_once_with(
-            self.projects[0],
+            self.projects[0].id,
         )
         self.volume_quotas_mock.delete.assert_not_called()
-        self.network_quotas_mock.delete.assert_not_called()
+        self.network_mock.delete_quota.assert_not_called()
 
     def test_delete__volume(self):
         """Delete volume quotas only"""
@@ -1342,9 +1343,9 @@ class TestQuotaDelete(TestQuota):
         self.projects_mock.get.assert_called_once_with(self.projects[0].id)
         self.compute_quotas_mock.delete.assert_not_called()
         self.volume_quotas_mock.delete.assert_called_once_with(
-            self.projects[0],
+            self.projects[0].id,
         )
-        self.network_quotas_mock.delete.assert_not_called()
+        self.network_mock.delete_quota.assert_not_called()
 
     def test_delete__network(self):
         """Delete network quotas only"""
@@ -1365,6 +1366,6 @@ class TestQuotaDelete(TestQuota):
         self.projects_mock.get.assert_called_once_with(self.projects[0].id)
         self.compute_quotas_mock.delete.assert_not_called()
         self.volume_quotas_mock.delete.assert_not_called()
-        self.network_quotas_mock.delete.assert_called_once_with(
-            self.projects[0],
+        self.network_mock.delete_quota.assert_called_once_with(
+            self.projects[0].id,
         )
