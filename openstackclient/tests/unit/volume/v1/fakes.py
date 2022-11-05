@@ -23,6 +23,61 @@ from openstackclient.tests.unit.identity.v2_0 import fakes as identity_fakes
 from openstackclient.tests.unit import utils
 
 
+class FakeImagev1Client:
+
+    def __init__(self, **kwargs):
+        self.images = mock.Mock()
+
+
+class FakeVolumev1Client:
+
+    def __init__(self, **kwargs):
+        self.volumes = mock.Mock()
+        self.volumes.resource_class = fakes.FakeResource(None, {})
+        self.services = mock.Mock()
+        self.services.resource_class = fakes.FakeResource(None, {})
+        self.extensions = mock.Mock()
+        self.extensions.resource_class = fakes.FakeResource(None, {})
+        self.qos_specs = mock.Mock()
+        self.qos_specs.resource_class = fakes.FakeResource(None, {})
+        self.volume_types = mock.Mock()
+        self.volume_types.resource_class = fakes.FakeResource(None, {})
+        self.volume_encryption_types = mock.Mock()
+        self.volume_encryption_types.resource_class = (
+            fakes.FakeResource(None, {}))
+        self.transfers = mock.Mock()
+        self.transfers.resource_class = fakes.FakeResource(None, {})
+        self.volume_snapshots = mock.Mock()
+        self.volume_snapshots.resource_class = fakes.FakeResource(None, {})
+        self.backups = mock.Mock()
+        self.backups.resource_class = fakes.FakeResource(None, {})
+        self.restores = mock.Mock()
+        self.restores.resource_class = fakes.FakeResource(None, {})
+        self.auth_token = kwargs['token']
+        self.management_url = kwargs['endpoint']
+
+
+class TestVolumev1(utils.TestCommand):
+
+    def setUp(self):
+        super().setUp()
+
+        self.app.client_manager.volume = FakeVolumev1Client(
+            endpoint=fakes.AUTH_URL,
+            token=fakes.AUTH_TOKEN,
+        )
+
+        self.app.client_manager.identity = identity_fakes.FakeIdentityv2Client(
+            endpoint=fakes.AUTH_URL,
+            token=fakes.AUTH_TOKEN,
+        )
+
+        self.app.client_manager.image = FakeImagev1Client(
+            endpoint=fakes.AUTH_URL,
+            token=fakes.AUTH_TOKEN,
+        )
+
+
 class FakeTransfer(object):
     """Fake one or more Transfer."""
 
@@ -343,61 +398,6 @@ class FakeVolume(object):
             volumes = FakeVolume.create_volumes(count)
 
         return mock.Mock(side_effect=volumes)
-
-
-class FakeImagev1Client(object):
-
-    def __init__(self, **kwargs):
-        self.images = mock.Mock()
-
-
-class FakeVolumev1Client(object):
-
-    def __init__(self, **kwargs):
-        self.volumes = mock.Mock()
-        self.volumes.resource_class = fakes.FakeResource(None, {})
-        self.services = mock.Mock()
-        self.services.resource_class = fakes.FakeResource(None, {})
-        self.extensions = mock.Mock()
-        self.extensions.resource_class = fakes.FakeResource(None, {})
-        self.qos_specs = mock.Mock()
-        self.qos_specs.resource_class = fakes.FakeResource(None, {})
-        self.volume_types = mock.Mock()
-        self.volume_types.resource_class = fakes.FakeResource(None, {})
-        self.volume_encryption_types = mock.Mock()
-        self.volume_encryption_types.resource_class = (
-            fakes.FakeResource(None, {}))
-        self.transfers = mock.Mock()
-        self.transfers.resource_class = fakes.FakeResource(None, {})
-        self.volume_snapshots = mock.Mock()
-        self.volume_snapshots.resource_class = fakes.FakeResource(None, {})
-        self.backups = mock.Mock()
-        self.backups.resource_class = fakes.FakeResource(None, {})
-        self.restores = mock.Mock()
-        self.restores.resource_class = fakes.FakeResource(None, {})
-        self.auth_token = kwargs['token']
-        self.management_url = kwargs['endpoint']
-
-
-class TestVolumev1(utils.TestCommand):
-
-    def setUp(self):
-        super(TestVolumev1, self).setUp()
-
-        self.app.client_manager.volume = FakeVolumev1Client(
-            endpoint=fakes.AUTH_URL,
-            token=fakes.AUTH_TOKEN,
-        )
-
-        self.app.client_manager.identity = identity_fakes.FakeIdentityv2Client(
-            endpoint=fakes.AUTH_URL,
-            token=fakes.AUTH_TOKEN,
-        )
-
-        self.app.client_manager.image = FakeImagev1Client(
-            endpoint=fakes.AUTH_URL,
-            token=fakes.AUTH_TOKEN,
-        )
 
 
 class FakeVolumeType(object):

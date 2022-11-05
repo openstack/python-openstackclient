@@ -40,6 +40,73 @@ QUOTA = {
 }
 
 
+class FakeVolumeClient:
+
+    def __init__(self, **kwargs):
+        self.auth_token = kwargs['token']
+        self.management_url = kwargs['endpoint']
+        self.api_version = api_versions.APIVersion('2.0')
+
+        self.availability_zones = mock.Mock()
+        self.availability_zones.resource_class = fakes.FakeResource(None, {})
+        self.backups = mock.Mock()
+        self.backups.resource_class = fakes.FakeResource(None, {})
+        self.capabilities = mock.Mock()
+        self.capabilities.resource_class = fakes.FakeResource(None, {})
+        self.cgsnapshots = mock.Mock()
+        self.cgsnapshots.resource_class = fakes.FakeResource(None, {})
+        self.consistencygroups = mock.Mock()
+        self.consistencygroups.resource_class = fakes.FakeResource(None, {})
+        self.extensions = mock.Mock()
+        self.extensions.resource_class = fakes.FakeResource(None, {})
+        self.limits = mock.Mock()
+        self.limits.resource_class = fakes.FakeResource(None, {})
+        self.pools = mock.Mock()
+        self.pools.resource_class = fakes.FakeResource(None, {})
+        self.qos_specs = mock.Mock()
+        self.qos_specs.resource_class = fakes.FakeResource(None, {})
+        self.quota_classes = mock.Mock()
+        self.quota_classes.resource_class = fakes.FakeResource(None, {})
+        self.quotas = mock.Mock()
+        self.quotas.resource_class = fakes.FakeResource(None, {})
+        self.restores = mock.Mock()
+        self.restores.resource_class = fakes.FakeResource(None, {})
+        self.services = mock.Mock()
+        self.services.resource_class = fakes.FakeResource(None, {})
+        self.transfers = mock.Mock()
+        self.transfers.resource_class = fakes.FakeResource(None, {})
+        self.volume_encryption_types = mock.Mock()
+        self.volume_encryption_types.resource_class = (
+            fakes.FakeResource(None, {}))
+        self.volume_snapshots = mock.Mock()
+        self.volume_snapshots.resource_class = fakes.FakeResource(None, {})
+        self.volume_type_access = mock.Mock()
+        self.volume_type_access.resource_class = fakes.FakeResource(None, {})
+        self.volume_types = mock.Mock()
+        self.volume_types.resource_class = fakes.FakeResource(None, {})
+        self.volumes = mock.Mock()
+        self.volumes.resource_class = fakes.FakeResource(None, {})
+
+
+class TestVolume(utils.TestCommand):
+
+    def setUp(self):
+        super().setUp()
+
+        self.app.client_manager.volume = FakeVolumeClient(
+            endpoint=fakes.AUTH_URL,
+            token=fakes.AUTH_TOKEN
+        )
+        self.app.client_manager.identity = identity_fakes.FakeIdentityv3Client(
+            endpoint=fakes.AUTH_URL,
+            token=fakes.AUTH_TOKEN
+        )
+        self.app.client_manager.image = image_fakes.FakeImagev2Client(
+            endpoint=fakes.AUTH_URL,
+            token=fakes.AUTH_TOKEN
+        )
+
+
 class FakeTransfer(object):
     """Fake one or more Transfer."""
 
@@ -287,73 +354,6 @@ class FakePool(object):
             loaded=True)
 
         return pool
-
-
-class FakeVolumeClient(object):
-
-    def __init__(self, **kwargs):
-        self.auth_token = kwargs['token']
-        self.management_url = kwargs['endpoint']
-        self.api_version = api_versions.APIVersion('2.0')
-
-        self.availability_zones = mock.Mock()
-        self.availability_zones.resource_class = fakes.FakeResource(None, {})
-        self.backups = mock.Mock()
-        self.backups.resource_class = fakes.FakeResource(None, {})
-        self.capabilities = mock.Mock()
-        self.capabilities.resource_class = fakes.FakeResource(None, {})
-        self.cgsnapshots = mock.Mock()
-        self.cgsnapshots.resource_class = fakes.FakeResource(None, {})
-        self.consistencygroups = mock.Mock()
-        self.consistencygroups.resource_class = fakes.FakeResource(None, {})
-        self.extensions = mock.Mock()
-        self.extensions.resource_class = fakes.FakeResource(None, {})
-        self.limits = mock.Mock()
-        self.limits.resource_class = fakes.FakeResource(None, {})
-        self.pools = mock.Mock()
-        self.pools.resource_class = fakes.FakeResource(None, {})
-        self.qos_specs = mock.Mock()
-        self.qos_specs.resource_class = fakes.FakeResource(None, {})
-        self.quota_classes = mock.Mock()
-        self.quota_classes.resource_class = fakes.FakeResource(None, {})
-        self.quotas = mock.Mock()
-        self.quotas.resource_class = fakes.FakeResource(None, {})
-        self.restores = mock.Mock()
-        self.restores.resource_class = fakes.FakeResource(None, {})
-        self.services = mock.Mock()
-        self.services.resource_class = fakes.FakeResource(None, {})
-        self.transfers = mock.Mock()
-        self.transfers.resource_class = fakes.FakeResource(None, {})
-        self.volume_encryption_types = mock.Mock()
-        self.volume_encryption_types.resource_class = (
-            fakes.FakeResource(None, {}))
-        self.volume_snapshots = mock.Mock()
-        self.volume_snapshots.resource_class = fakes.FakeResource(None, {})
-        self.volume_type_access = mock.Mock()
-        self.volume_type_access.resource_class = fakes.FakeResource(None, {})
-        self.volume_types = mock.Mock()
-        self.volume_types.resource_class = fakes.FakeResource(None, {})
-        self.volumes = mock.Mock()
-        self.volumes.resource_class = fakes.FakeResource(None, {})
-
-
-class TestVolume(utils.TestCommand):
-
-    def setUp(self):
-        super(TestVolume, self).setUp()
-
-        self.app.client_manager.volume = FakeVolumeClient(
-            endpoint=fakes.AUTH_URL,
-            token=fakes.AUTH_TOKEN
-        )
-        self.app.client_manager.identity = identity_fakes.FakeIdentityv3Client(
-            endpoint=fakes.AUTH_URL,
-            token=fakes.AUTH_TOKEN
-        )
-        self.app.client_manager.image = image_fakes.FakeImagev2Client(
-            endpoint=fakes.AUTH_URL,
-            token=fakes.AUTH_TOKEN
-        )
 
 
 class FakeVolume(object):
