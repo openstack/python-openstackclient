@@ -15,6 +15,7 @@
 
 """Quota action implementations"""
 
+import argparse
 import itertools
 import logging
 import sys
@@ -621,19 +622,36 @@ class SetQuota(common.NetDetectionMixin, command.Command):
             metavar='<volume-type>',
             help=_('Set quotas for a specific <volume-type>'),
         )
-        parser.add_argument(
+        force_group = parser.add_mutually_exclusive_group()
+        force_group.add_argument(
             '--force',
             action='store_true',
+            dest='force',
+            # TODO(stephenfin): Change the default to False in Z or later
+            default=None,
             help=_(
-                'Force quota update (only supported by compute and network)'
+                'Force quota update (only supported by compute and network) '
+                '(default for network)'
             ),
         )
-        parser.add_argument(
-            '--check-limit',
-            action='store_true',
+        force_group.add_argument(
+            '--no-force',
+            action='store_false',
+            dest='force',
+            default=None,
             help=_(
-                'Check quota limit when updating (only supported by network)'
+                'Do not force quota update '
+                '(only supported by compute and network) '
+                '(default for compute)'
             ),
+        )
+        # kept here for backwards compatibility/to keep the neutron folks happy
+        force_group.add_argument(
+            '--check-limit',
+            action='store_false',
+            dest='force',
+            default=None,
+            help=argparse.SUPPRESS,
         )
         return parser
 
@@ -657,8 +675,8 @@ class SetQuota(common.NetDetectionMixin, command.Command):
             if value is not None:
                 compute_kwargs[k] = value
 
-        if parsed_args.force:
-            compute_kwargs['force'] = True
+        if parsed_args.force is not None:
+            compute_kwargs['force'] = parsed_args.force
 
         volume_kwargs = {}
         for k, v in VOLUME_QUOTAS.items():
@@ -669,10 +687,21 @@ class SetQuota(common.NetDetectionMixin, command.Command):
                 volume_kwargs[k] = value
 
         network_kwargs = {}
-        if parsed_args.check_limit:
-            network_kwargs['check_limit'] = True
-        if parsed_args.force:
+        if parsed_args.force is True:
+            # Unlike compute, network doesn't provide a simple boolean option.
+            # Instead, it provides two options: 'force' and 'check_limit'
+            # (a.k.a. 'not force')
             network_kwargs['force'] = True
+        elif parsed_args.force is False:
+            network_kwargs['check_limit'] = True
+        else:
+            msg = _(
+                "This command currently defaults to '--force' when modifying "
+                "network quotas. This behavior will change in a future "
+                "release. Consider explicitly providing '--force' or "
+                "'--no-force' options to avoid changes in behavior."
+            )
+            self.log.warning(msg)
 
         if self.app.client_manager.is_network_endpoint_enabled():
             for k, v in NETWORK_QUOTAS.items():
