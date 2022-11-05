@@ -313,12 +313,14 @@ class ListQuota(command.Lister):
             # NOTE(slaweq): there is no detailed quotas info for some resources
             # and it shouldn't be displayed here
             if isinstance(values, dict):
-                result.append({
-                    'resource': resource,
-                    'in_use': values.get('in_use'),
-                    'reserved': values.get('reserved'),
-                    'limit': values.get('limit'),
-                })
+                result.append(
+                    {
+                        'resource': resource,
+                        'in_use': values.get('in_use'),
+                        'reserved': values.get('reserved'),
+                        'limit': values.get('limit'),
+                    }
+                )
 
         columns = (
             'resource',
@@ -375,8 +377,9 @@ class ListQuota(command.Lister):
                     data = compute_client.quotas.get(p)
                 except Exception as ex:
                     if (
-                        type(ex).__name__ == 'NotFound' or
-                        ex.http_status >= 400 and ex.http_status <= 499
+                        type(ex).__name__ == 'NotFound'
+                        or ex.http_status >= 400
+                        and ex.http_status <= 499
                     ):
                         # Project not found, move on to next one
                         LOG.warning("Project %s not found: %s" % (p, ex))
@@ -537,7 +540,7 @@ class ListQuota(command.Lister):
                 'Security Groups',
                 'Security Group Rules',
                 'Subnets',
-                'Subnet Pools'
+                'Subnet Pools',
             )
 
             return (
@@ -554,10 +557,13 @@ class SetQuota(common.NetDetectionMixin, command.Command):
     def _build_options_list(self):
         help_fmt = _('New value for the %s quota')
         # Compute and volume quota options are always the same
-        rets = [(k, v, help_fmt % v) for k, v in itertools.chain(
-            COMPUTE_QUOTAS.items(),
-            VOLUME_QUOTAS.items(),
-        )]
+        rets = [
+            (k, v, help_fmt % v)
+            for k, v in itertools.chain(
+                COMPUTE_QUOTAS.items(),
+                VOLUME_QUOTAS.items(),
+            )
+        ]
         # For docs build, we want to produce helps for both neutron and
         # nova-network options. They overlap, so we have to figure out which
         # need to be tagged as specific to one network type or the other.
@@ -574,10 +580,12 @@ class SetQuota(common.NetDetectionMixin, command.Command):
                 rets.append((k, v, _help))
         elif self.is_neutron:
             rets.extend(
-                [(k, v, help_fmt % v) for k, v in NETWORK_QUOTAS.items()])
+                [(k, v, help_fmt % v) for k, v in NETWORK_QUOTAS.items()]
+            )
         elif self.is_nova_network:
             rets.extend(
-                [(k, v, help_fmt % v) for k, v in NOVA_NETWORK_QUOTAS.items()])
+                [(k, v, help_fmt % v) for k, v in NOVA_NETWORK_QUOTAS.items()]
+            )
         return rets
 
     def get_parser(self, prog_name):
@@ -656,8 +664,7 @@ class SetQuota(common.NetDetectionMixin, command.Command):
         for k, v in VOLUME_QUOTAS.items():
             value = getattr(parsed_args, k, None)
             if value is not None:
-                if (parsed_args.volume_type and
-                        k in IMPACT_VOLUME_TYPE_QUOTAS):
+                if parsed_args.volume_type and k in IMPACT_VOLUME_TYPE_QUOTAS:
                     k = k + '_%s' % parsed_args.volume_type
                 volume_kwargs[k] = value
 
@@ -682,35 +689,34 @@ class SetQuota(common.NetDetectionMixin, command.Command):
             if compute_kwargs:
                 compute_client.quota_classes.update(
                     parsed_args.project,
-                    **compute_kwargs)
+                    **compute_kwargs,
+                )
             if volume_kwargs:
                 volume_client.quota_classes.update(
                     parsed_args.project,
-                    **volume_kwargs)
+                    **volume_kwargs,
+                )
             if network_kwargs:
-                sys.stderr.write("Network quotas are ignored since quota class"
-                                 " is not supported.")
+                sys.stderr.write(
+                    "Network quotas are ignored since quota classes are not "
+                    "supported."
+                )
         else:
             project = utils.find_resource(
                 identity_client.projects,
                 parsed_args.project,
             ).id
+
             if compute_kwargs:
-                compute_client.quotas.update(
-                    project,
-                    **compute_kwargs)
+                compute_client.quotas.update(project, **compute_kwargs)
             if volume_kwargs:
-                volume_client.quotas.update(
-                    project,
-                    **volume_kwargs)
+                volume_client.quotas.update(project, **volume_kwargs)
             if (
-                    network_kwargs and
-                    self.app.client_manager.is_network_endpoint_enabled()
+                network_kwargs
+                and self.app.client_manager.is_network_endpoint_enabled()
             ):
                 network_client = self.app.client_manager.network
-                network_client.update_quota(
-                    project,
-                    **network_kwargs)
+                network_client.update_quota(project, **network_kwargs)
 
 
 class ShowQuota(command.Lister):
@@ -877,13 +883,9 @@ class ShowQuota(command.Lister):
             del info['location']
 
         if not parsed_args.usage:
-            result = [
-                {'resource': k, 'limit': v} for k, v in info.items()
-            ]
+            result = [{'resource': k, 'limit': v} for k, v in info.items()]
         else:
-            result = [
-                {'resource': k, **v} for k, v in info.items()
-            ]
+            result = [{'resource': k, **v} for k, v in info.items()]
 
         columns = (
             'resource',
