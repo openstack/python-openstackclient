@@ -1,0 +1,5 @@
+---
+features:
+  - |
+    The ``quota show`` command now allows you to show quotas for a specific
+    service using the ``--compute``, ``--volume``, or ``--network`` options.

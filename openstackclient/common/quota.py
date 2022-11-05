@@ -739,6 +739,40 @@ class ShowQuota(command.Lister):
             default=False,
             help=_('Show details about quotas usage'),
         )
+        service_group = parser.add_mutually_exclusive_group()
+        service_group.add_argument(
+            '--all',
+            action='store_const',
+            const='all',
+            dest='service',
+            default='all',
+            help=_('Show quotas for all services'),
+        )
+        service_group.add_argument(
+            '--compute',
+            action='store_const',
+            const='compute',
+            dest='service',
+            default='all',
+            help=_('Show compute quota'),
+        )
+        service_group.add_argument(
+            '--volume',
+            action='store_const',
+            const='volume',
+            dest='service',
+            default='all',
+            help=_('Show volume quota'),
+        )
+        service_group.add_argument(
+            '--network',
+            action='store_const',
+            const='network',
+            dest='service',
+            default='all',
+            help=_('Show network quota'),
+        )
+
         return parser
 
     def take_action(self, parsed_args):
@@ -748,32 +782,39 @@ class ShowQuota(command.Lister):
             project_info = get_project(self.app, parsed_args.project)
             project = project_info['id']
 
-        # NOTE(dtroyer): These quota API calls do not validate the project or
-        # class arguments and return what appears to be the default quota
-        # values if the project or class does not exist. If this is determined
-        # to be the intended behaviour of the API we will validate the argument
-        # with Identity ourselves later.
-        compute_quota_info = get_compute_quotas(
-            self.app,
-            project,
-            detail=parsed_args.usage,
-            quota_class=parsed_args.quota_class,
-            default=parsed_args.default,
-        )
-        volume_quota_info = get_volume_quotas(
-            self.app,
-            project,
-            detail=parsed_args.usage,
-            quota_class=parsed_args.quota_class,
-            default=parsed_args.default,
-        )
-        network_quota_info = get_network_quotas(
-            self.app,
-            project,
-            detail=parsed_args.usage,
-            quota_class=parsed_args.quota_class,
-            default=parsed_args.default,
-        )
+        compute_quota_info = {}
+        volume_quota_info = {}
+        network_quota_info = {}
+
+        # NOTE(stephenfin): These quota API calls do not validate the project
+        # or class arguments and return what appears to be the default quota
+        # values if the project or class does not exist. This is expected
+        # behavior. However, we have already checked for the presence of the
+        # project above so it shouldn't be an issue.
+        if parsed_args.service in {'all', 'compute'}:
+            compute_quota_info = get_compute_quotas(
+                self.app,
+                project,
+                detail=parsed_args.usage,
+                quota_class=parsed_args.quota_class,
+                default=parsed_args.default,
+            )
+        if parsed_args.service in {'all', 'volume'}:
+            volume_quota_info = get_volume_quotas(
+                self.app,
+                project,
+                detail=parsed_args.usage,
+                quota_class=parsed_args.quota_class,
+                default=parsed_args.default,
+            )
+        if parsed_args.service in {'all', 'network'}:
+            network_quota_info = get_network_quotas(
+                self.app,
+                project,
+                detail=parsed_args.usage,
+                quota_class=parsed_args.quota_class,
+                default=parsed_args.default,
+            )
 
         info = {}
         info.update(compute_quota_info)
