@@ -149,22 +149,6 @@
     vars:
       devstack_localrc:
         LIBS_FROM_GIT: python-openstackclient,openstacksdk,osc-lib,cliff
-        # This is insufficient, but leaving it here as a reminder of what may
-        # someday be all we need to make this work
-        # disable_python3_package swift
-        DISABLED_PYTHON3_PACKAGES: swift
-      devstack_services:
-        # Swift is not ready for python3 yet: At a minimum keystonemiddleware needs
-        # to be installed in the py2 env, there are probably other things too...
-        s-account: false
-        s-container: false
-        s-object: false
-        s-proxy: false
-        # As swift is not available for this job, c-bak service won't be functional.
-        # The backup related tests can be handled by other jobs having swift enabled.
-        # The backup service along with swift services can be enabled once swift is
-        # compatible with py3
-        c-bak: false
       tox_envlist: functional
       tox_install_siblings: true
 
