@@ -10,8 +10,6 @@
 #    License for the specific language governing permissions and limitations
 #    under the License.
 
-import json
-
 from openstackclient.tests.functional import base
 
 
@@ -19,8 +17,10 @@ class AvailabilityZoneTests(base.TestCase):
     """Functional tests for availability zone. """
 
     def test_availability_zone_list(self):
-        cmd_output = json.loads(self.openstack(
-            'availability zone list -f json'))
+        cmd_output = self.openstack(
+            'availability zone list',
+            parse_output=True,
+        )
         zones = [x['Zone Name'] for x in cmd_output]
         self.assertIn(
             'internal',

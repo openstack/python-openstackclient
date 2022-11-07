@@ -10,7 +10,6 @@
 #    License for the specific language governing permissions and limitations
 #    under the License.
 
-import json
 import uuid
 
 from tempest.lib import exceptions
@@ -36,9 +35,10 @@ class QuotaTests(base.TestCase):
 
     def test_quota_list_details_compute(self):
         expected_headers = ["Resource", "In Use", "Reserved", "Limit"]
-        cmd_output = json.loads(self.openstack(
-            'quota list -f json --detail --compute'
-        ))
+        cmd_output = self.openstack(
+            'quota list --detail --compute',
+            parse_output=True,
+        )
         self.assertIsNotNone(cmd_output)
         resources = []
         for row in cmd_output:
@@ -52,9 +52,10 @@ class QuotaTests(base.TestCase):
 
     def test_quota_list_details_network(self):
         expected_headers = ["Resource", "In Use", "Reserved", "Limit"]
-        cmd_output = json.loads(self.openstack(
-            'quota list -f json --detail --network'
-        ))
+        cmd_output = self.openstack(
+            'quota list --detail --network',
+            parse_output=True,
+        )
         self.assertIsNotNone(cmd_output)
         resources = []
         for row in cmd_output:
@@ -70,9 +71,10 @@ class QuotaTests(base.TestCase):
         if not self.haz_network:
             self.skipTest("No Network service present")
         self.openstack('quota set --networks 40 ' + self.PROJECT_NAME)
-        cmd_output = json.loads(self.openstack(
-            'quota list -f json --network'
-        ))
+        cmd_output = self.openstack(
+            'quota list --network',
+            parse_output=True,
+        )
         self.assertIsNotNone(cmd_output)
         self.assertEqual(
             40,
@@ -81,9 +83,10 @@ class QuotaTests(base.TestCase):
 
     def test_quota_list_compute_option(self):
         self.openstack('quota set --instances 30 ' + self.PROJECT_NAME)
-        cmd_output = json.loads(self.openstack(
-            'quota list -f json --compute'
-        ))
+        cmd_output = self.openstack(
+            'quota list --compute',
+            parse_output=True,
+        )
         self.assertIsNotNone(cmd_output)
         self.assertEqual(
             30,
@@ -92,9 +95,10 @@ class QuotaTests(base.TestCase):
 
     def test_quota_list_volume_option(self):
         self.openstack('quota set --volumes 20 ' + self.PROJECT_NAME)
-        cmd_output = json.loads(self.openstack(
-            'quota list -f json --volume'
-        ))
+        cmd_output = self.openstack(
+            'quota list --volume',
+            parse_output=True,
+        )
         self.assertIsNotNone(cmd_output)
         self.assertEqual(
             20,
@@ -111,9 +115,10 @@ class QuotaTests(base.TestCase):
             network_option +
             self.PROJECT_NAME
         )
-        cmd_output = json.loads(self.openstack(
-            'quota show -f json ' + self.PROJECT_NAME
-        ))
+        cmd_output = self.openstack(
+            'quota show ' + self.PROJECT_NAME,
+            parse_output=True,
+        )
         cmd_output = {x['Resource']: x['Limit'] for x in cmd_output}
         self.assertIsNotNone(cmd_output)
         self.assertEqual(
@@ -131,9 +136,10 @@ class QuotaTests(base.TestCase):
             )
 
         # Check default quotas
-        cmd_output = json.loads(self.openstack(
-            'quota show -f json --default'
-        ))
+        cmd_output = self.openstack(
+            'quota show --default',
+            parse_output=True,
+        )
         self.assertIsNotNone(cmd_output)
         # We don't necessarily know the default quotas, we're checking the
         # returned attributes
@@ -148,9 +154,10 @@ class QuotaTests(base.TestCase):
             'quota set --key-pairs 33 --snapshots 43 ' +
             '--class default'
         )
-        cmd_output = json.loads(self.openstack(
-            'quota show -f json --class default'
-        ))
+        cmd_output = self.openstack(
+            'quota show --class default',
+            parse_output=True,
+        )
         self.assertIsNotNone(cmd_output)
         cmd_output = {x['Resource']: x['Limit'] for x in cmd_output}
         self.assertEqual(
@@ -163,9 +170,10 @@ class QuotaTests(base.TestCase):
         )
 
         # Check default quota class
-        cmd_output = json.loads(self.openstack(
-            'quota show -f json --class'
-        ))
+        cmd_output = self.openstack(
+            'quota show --class',
+            parse_output=True,
+        )
         self.assertIsNotNone(cmd_output)
         # We don't necessarily know the default quotas, we're checking the
         # returned attributes
@@ -182,16 +190,18 @@ class QuotaTests(base.TestCase):
         if not self.is_extension_enabled('quota-check-limit'):
             self.skipTest('No "quota-check-limit" extension present')
 
-        cmd_output = json.loads(self.openstack(
-            'quota list -f json --network'
-        ))
+        cmd_output = self.openstack(
+            'quota list --network',
+            parse_output=True,
+        )
         self.addCleanup(self._restore_quota_limit, 'network',
                         cmd_output[0]['Networks'], self.PROJECT_NAME)
 
         self.openstack('quota set --networks 40 ' + self.PROJECT_NAME)
-        cmd_output = json.loads(self.openstack(
-            'quota list -f json --network'
-        ))
+        cmd_output = self.openstack(
+            'quota list --network',
+            parse_output=True,
+        )
         self.assertIsNotNone(cmd_output)
         self.assertEqual(40, cmd_output[0]['Networks'])
 
@@ -218,16 +228,18 @@ class QuotaTests(base.TestCase):
         if not self.is_extension_enabled('quota-check-limit'):
             self.skipTest('No "quota-check-limit" extension present')
 
-        cmd_output = json.loads(self.openstack(
-            'quota list -f json --network'
-        ))
+        cmd_output = self.openstack(
+            'quota list --network',
+            parse_output=True,
+        )
         self.addCleanup(self._restore_quota_limit, 'network',
                         cmd_output[0]['Networks'], self.PROJECT_NAME)
 
         self.openstack('quota set --networks 40 ' + self.PROJECT_NAME)
-        cmd_output = json.loads(self.openstack(
-            'quota list -f json --network'
-        ))
+        cmd_output = self.openstack(
+            'quota list --network',
+            parse_output=True,
+        )
         self.assertIsNotNone(cmd_output)
         self.assertEqual(40, cmd_output[0]['Networks'])
 
@@ -237,8 +249,9 @@ class QuotaTests(base.TestCase):
                            (self.PROJECT_NAME, uuid.uuid4().hex))
 
         self.openstack('quota set --networks 1 --force ' + self.PROJECT_NAME)
-        cmd_output = json.loads(self.openstack(
-            'quota list -f json --network'
-        ))
+        cmd_output = self.openstack(
+            'quota list --network',
+            parse_output=True,
+        )
         self.assertIsNotNone(cmd_output)
         self.assertEqual(1, cmd_output[0]['Networks'])

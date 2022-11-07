@@ -13,8 +13,6 @@
 #    License for the specific language governing permissions and limitations
 #    under the License.
 
-import json
-
 from tempest.lib import exceptions as tempest_exc
 
 from openstackclient.tests.functional import base
@@ -30,11 +28,11 @@ class ExtensionTests(base.TestCase):
 
     def test_extension_list_compute(self):
         """Test compute extension list"""
-        json_output = json.loads(self.openstack(
-            'extension list -f json ' +
-            '--compute'
-        ))
-        name_list = [item.get('Name') for item in json_output]
+        output = self.openstack(
+            'extension list --compute',
+            parse_output=True,
+        )
+        name_list = [item.get('Name') for item in output]
         self.assertIn(
             'ImageSize',
             name_list,
@@ -42,11 +40,11 @@ class ExtensionTests(base.TestCase):
 
     def test_extension_list_volume(self):
         """Test volume extension list"""
-        json_output = json.loads(self.openstack(
-            'extension list -f json ' +
-            '--volume'
-        ))
-        name_list = [item.get('Name') for item in json_output]
+        output = self.openstack(
+            'extension list --volume',
+            parse_output=True,
+        )
+        name_list = [item.get('Name') for item in output]
         self.assertIn(
             'TypesManage',
             name_list,
@@ -57,29 +55,15 @@ class ExtensionTests(base.TestCase):
         if not self.haz_network:
             self.skipTest("No Network service present")
 
-        json_output = json.loads(self.openstack(
-            'extension list -f json ' +
-            '--network'
-        ))
-        name_list = [item.get('Name') for item in json_output]
+        output = self.openstack(
+            'extension list --network',
+            parse_output=True,
+        )
+        name_list = [item.get('Name') for item in output]
         self.assertIn(
             'Default Subnetpools',
             name_list,
         )
-
-    # NOTE(dtroyer): Only network extensions are currently supported but
-    #                I am going to leave this here anyway as a reminder
-    #                fix that.
-    # def test_extension_show_compute(self):
-    #     """Test compute extension show"""
-    #     json_output = json.loads(self.openstack(
-    #         'extension show -f json ' +
-    #         'ImageSize'
-    #     ))
-    #     self.assertEqual(
-    #         'OS-EXT-IMG-SIZE',
-    #         json_output.get('Alias'),
-    #     )
 
     def test_extension_show_network(self):
         """Test network extension show"""
@@ -87,13 +71,13 @@ class ExtensionTests(base.TestCase):
             self.skipTest("No Network service present")
 
         name = 'agent'
-        json_output = json.loads(self.openstack(
-            'extension show -f json ' +
-            name
-        ))
+        output = self.openstack(
+            'extension show ' + name,
+            parse_output=True,
+        )
         self.assertEqual(
             name,
-            json_output.get('alias'),
+            output.get('alias'),
         )
 
     def test_extension_show_not_exist(self):

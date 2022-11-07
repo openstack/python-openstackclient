@@ -10,8 +10,6 @@
 #    License for the specific language governing permissions and limitations
 #    under the License.
 
-import json
-
 from openstackclient.tests.functional import base
 
 
@@ -21,9 +19,7 @@ class VersionsTests(base.TestCase):
     def test_versions_show(self):
         # TODO(mordred) Make this better. The trick is knowing what in the
         # payload to test for.
-        cmd_output = json.loads(self.openstack(
-            'versions show -f json'
-        ))
+        cmd_output = self.openstack('versions show', parse_output=True)
         self.assertIsNotNone(cmd_output)
         self.assertIn(
             "Region Name",

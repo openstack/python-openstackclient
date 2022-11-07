@@ -10,7 +10,6 @@
 #    License for the specific language governing permissions and limitations
 #    under the License.
 
-import json
 import os
 
 from openstackclient.common import configuration
@@ -30,9 +29,7 @@ class ConfigurationTests(base.TestCase):
         items = self.parse_listing(raw_output)
         self.assert_table_structure(items, BASIC_CONFIG_HEADERS)
 
-        cmd_output = json.loads(self.openstack(
-            'configuration show -f json'
-        ))
+        cmd_output = self.openstack('configuration show', parse_output=True)
         self.assertEqual(
             configuration.REDACTED,
             cmd_output['auth.password']
@@ -43,18 +40,18 @@ class ConfigurationTests(base.TestCase):
         )
 
         # Test show --mask
-        cmd_output = json.loads(self.openstack(
-            'configuration show --mask -f json'
-        ))
+        cmd_output = self.openstack(
+            'configuration show --mask', parse_output=True,
+        )
         self.assertEqual(
             configuration.REDACTED,
             cmd_output['auth.password']
         )
 
         # Test show --unmask
-        cmd_output = json.loads(self.openstack(
-            'configuration show --unmask -f json'
-        ))
+        cmd_output = self.openstack(
+            'configuration show --unmask', parse_output=True,
+        )
         # If we are using os-client-config, this will not be set.  Rather than
         # parse clouds.yaml to get the right value, just make sure
         # we are not getting redacted.
@@ -84,10 +81,11 @@ class ConfigurationTestsNoAuth(base.TestCase):
         items = self.parse_listing(raw_output)
         self.assert_table_structure(items, BASIC_CONFIG_HEADERS)
 
-        cmd_output = json.loads(self.openstack(
-            'configuration show -f json',
+        cmd_output = self.openstack(
+            'configuration show',
             cloud=None,
-        ))
+            parse_output=True,
+        )
         self.assertNotIn(
             'auth.password',
             cmd_output,
