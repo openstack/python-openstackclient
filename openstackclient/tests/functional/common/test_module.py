@@ -11,9 +11,6 @@
 #   WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
 #   License for the specific language governing permissions and limitations
 #   under the License.
-#
-
-import json
 
 from openstackclient.tests.functional import base
 
@@ -31,14 +28,14 @@ class ModuleTest(base.TestCase):
 
     def test_module_list(self):
         # Test module list
-        cmd_output = json.loads(self.openstack('module list -f json'))
+        cmd_output = self.openstack('module list', parse_output=True)
         for one_module in self.CLIENTS:
             self.assertIn(one_module, cmd_output.keys())
         for one_module in self.LIBS:
             self.assertNotIn(one_module, cmd_output.keys())
 
         # Test module list --all
-        cmd_output = json.loads(self.openstack('module list --all -f json'))
+        cmd_output = self.openstack('module list --all', parse_output=True)
         for one_module in self.CLIENTS + self.LIBS:
             self.assertIn(one_module, cmd_output.keys())
 
@@ -56,7 +53,7 @@ class CommandTest(base.TestCase):
     ]
 
     def test_command_list_no_option(self):
-        cmd_output = json.loads(self.openstack('command list -f json'))
+        cmd_output = self.openstack('command list', parse_output=True)
         group_names = [each.get('Command Group') for each in cmd_output]
         for one_group in self.GROUPS:
             self.assertIn(one_group, group_names)
@@ -70,9 +67,10 @@ class CommandTest(base.TestCase):
             'compute.v2'
         ]
         for each_input in input_groups:
-            cmd_output = json.loads(self.openstack(
-                'command list --group %s -f json' % each_input
-            ))
+            cmd_output = self.openstack(
+                'command list --group %s' % each_input,
+                parse_output=True,
+            )
             group_names = [each.get('Command Group') for each in cmd_output]
             for each_name in group_names:
                 self.assertIn(each_input, each_name)
