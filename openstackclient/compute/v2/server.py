@@ -3645,7 +3645,11 @@ class RemoveServerVolume(command.Command):
 
 
 class RescueServer(command.Command):
-    _description = _("Put server in rescue mode")
+    _description = _(
+        "Put server in rescue mode. "
+        "Specify ``--os-compute-api-version 2.87`` or higher to rescue a "
+        "server booted from a volume."
+    )
 
     def get_parser(self, prog_name):
         parser = super(RescueServer, self).get_parser(prog_name)
