@@ -1900,13 +1900,7 @@ class TestServerCreate(TestServer):
         self.assertRaises(
             exceptions.CommandError, self.cmd.take_action, parsed_args)
 
-    def test_server_create_with_auto_network(self):
-        arglist = [
-            '--image', 'image1',
-            '--flavor', 'flavor1',
-            '--nic', 'auto',
-            self.new_server.name,
-        ]
+    def _test_server_create_with_auto_network(self, arglist):
         verifylist = [
             ('image', 'image1'),
             ('flavor', 'flavor1'),
@@ -1945,6 +1939,27 @@ class TestServerCreate(TestServer):
 
         self.assertEqual(self.columns, columns)
         self.assertEqual(self.datalist(), data)
+
+    # NOTE(stephenfin): '--auto-network' is an alias for '--nic auto' so the
+    # tests are nearly identical
+
+    def test_server_create_with_auto_network_legacy(self):
+        arglist = [
+            '--image', 'image1',
+            '--flavor', 'flavor1',
+            '--nic', 'auto',
+            self.new_server.name,
+        ]
+        self._test_server_create_with_auto_network(arglist)
+
+    def test_server_create_with_auto_network(self):
+        arglist = [
+            '--image', 'image1',
+            '--flavor', 'flavor1',
+            '--auto-network',
+            self.new_server.name,
+        ]
+        self._test_server_create_with_auto_network(arglist)
 
     def test_server_create_with_auto_network_default_v2_37(self):
         """Tests creating a server without specifying --nic using 2.37."""
@@ -1996,13 +2011,7 @@ class TestServerCreate(TestServer):
         self.assertEqual(self.columns, columns)
         self.assertEqual(self.datalist(), data)
 
-    def test_server_create_with_none_network(self):
-        arglist = [
-            '--image', 'image1',
-            '--flavor', 'flavor1',
-            '--nic', 'none',
-            self.new_server.name,
-        ]
+    def _test_server_create_with_none_network(self, arglist):
         verifylist = [
             ('image', 'image1'),
             ('flavor', 'flavor1'),
@@ -2041,6 +2050,27 @@ class TestServerCreate(TestServer):
 
         self.assertEqual(self.columns, columns)
         self.assertEqual(self.datalist(), data)
+
+    # NOTE(stephenfin): '--no-network' is an alias for '--nic none' so the
+    # tests are nearly identical
+
+    def test_server_create_with_none_network_legacy(self):
+        arglist = [
+            '--image', 'image1',
+            '--flavor', 'flavor1',
+            '--nic', 'none',
+            self.new_server.name,
+        ]
+        self._test_server_create_with_none_network(arglist)
+
+    def test_server_create_with_none_network(self):
+        arglist = [
+            '--image', 'image1',
+            '--flavor', 'flavor1',
+            '--no-network',
+            self.new_server.name,
+        ]
+        self._test_server_create_with_none_network(arglist)
 
     def test_server_create_with_conflict_network_options(self):
         arglist = [
