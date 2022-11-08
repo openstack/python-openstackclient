@@ -10,7 +10,6 @@
 #    License for the specific language governing permissions and limitations
 #    under the License.
 
-import json
 import random
 import uuid
 
@@ -61,10 +60,10 @@ class SubnetPoolTests(common.NetworkTagTests):
 
     def test_subnet_pool_list(self):
         """Test create, list filter"""
-        cmd_output = json.loads(self.openstack('token issue -f json'))
+        cmd_output = self.openstack('token issue', parse_output=True)
         auth_project_id = cmd_output['project_id']
 
-        cmd_output = json.loads(self.openstack('project list -f json'))
+        cmd_output = self.openstack('project list', parse_output=True)
         admin_project_id = None
         demo_project_id = None
         for p in cmd_output:
@@ -131,37 +130,41 @@ class SubnetPoolTests(common.NetworkTagTests):
         )
 
         # Test list --project
-        cmd_output = json.loads(self.openstack(
-            'subnet pool list -f json ' +
-            '--project ' + demo_project_id
-        ))
+        cmd_output = self.openstack(
+            'subnet pool list ' +
+            '--project ' + demo_project_id,
+            parse_output=True,
+        )
         names = [x["Name"] for x in cmd_output]
         self.assertIn(name1, names)
         self.assertNotIn(name2, names)
 
         # Test list --share
-        cmd_output = json.loads(self.openstack(
-            'subnet pool list -f json ' +
-            '--share'
-        ))
+        cmd_output = self.openstack(
+            'subnet pool list ' +
+            '--share',
+            parse_output=True,
+        )
         names = [x["Name"] for x in cmd_output]
         self.assertNotIn(name1, names)
         self.assertIn(name2, names)
 
         # Test list --name
-        cmd_output = json.loads(self.openstack(
-            'subnet pool list -f json ' +
-            '--name ' + name1
-        ))
+        cmd_output = self.openstack(
+            'subnet pool list ' +
+            '--name ' + name1,
+            parse_output=True,
+        )
         names = [x["Name"] for x in cmd_output]
         self.assertIn(name1, names)
         self.assertNotIn(name2, names)
 
         # Test list --long
-        cmd_output = json.loads(self.openstack(
-            'subnet pool list -f json ' +
-            '--long '
-        ))
+        cmd_output = self.openstack(
+            'subnet pool list ' +
+            '--long ',
+            parse_output=True,
+        )
         names = [x["Name"] for x in cmd_output]
         self.assertIn(name1, names)
         self.assertIn(name2, names)
@@ -227,10 +230,11 @@ class SubnetPoolTests(common.NetworkTagTests):
         )
         self.assertOutput('', cmd_output)
 
-        cmd_output = json.loads(self.openstack(
-            'subnet pool show -f json ' +
-            new_name
-        ))
+        cmd_output = self.openstack(
+            'subnet pool show ' +
+            new_name,
+            parse_output=True,
+        )
         self.assertEqual(
             new_name,
             cmd_output["name"],
@@ -307,12 +311,13 @@ class SubnetPoolTests(common.NetworkTagTests):
                 )) + ":0:0/96"
 
             try:
-                cmd_output = json.loads(self.openstack(
-                    'subnet pool create -f json ' +
+                cmd_output = self.openstack(
+                    'subnet pool create ' +
                     cmd + ' ' +
                     '--pool-prefix ' + pool_prefix + ' ' +
-                    name
-                ))
+                    name,
+                    parse_output=True,
+                )
             except Exception:
                 if (i == 3):
                     # Raise the exception the last time

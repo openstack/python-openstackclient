@@ -13,7 +13,6 @@
 #    License for the specific language governing permissions and limitations
 #    under the License.
 
-import json
 import uuid
 
 from openstackclient.tests.functional.network.v2 import common
@@ -31,10 +30,11 @@ class TestMeterRule(common.NetworkTests):
         if cls.haz_network:
             cls.METER_NAME = uuid.uuid4().hex
 
-            json_output = json.loads(cls.openstack(
-                'network meter create -f json ' +
-                cls.METER_NAME
-            ))
+            json_output = cls.openstack(
+                'network meter create ' +
+                cls.METER_NAME,
+                parse_output=True,
+            )
             cls.METER_ID = json_output.get('id')
 
     @classmethod
@@ -57,11 +57,12 @@ class TestMeterRule(common.NetworkTests):
 
     def test_meter_rule_delete(self):
         """test create, delete"""
-        json_output = json.loads(self.openstack(
-            'network meter rule create -f json ' +
+        json_output = self.openstack(
+            'network meter rule create ' +
             '--remote-ip-prefix 10.0.0.0/8 ' +
-            self.METER_ID
-        ))
+            self.METER_ID,
+            parse_output=True,
+        )
         rule_id = json_output.get('id')
         re_ip = json_output.get('remote_ip_prefix')
 
@@ -77,11 +78,12 @@ class TestMeterRule(common.NetworkTests):
 
     def test_meter_rule_list(self):
         """Test create, list, delete"""
-        json_output = json.loads(self.openstack(
-            'network meter rule create -f json ' +
+        json_output = self.openstack(
+            'network meter rule create ' +
             '--remote-ip-prefix 10.0.0.0/8 ' +
-            self.METER_ID
-        ))
+            self.METER_ID,
+            parse_output=True,
+        )
         rule_id_1 = json_output.get('id')
         self.addCleanup(
             self.openstack,
@@ -92,11 +94,12 @@ class TestMeterRule(common.NetworkTests):
             json_output.get('remote_ip_prefix')
         )
 
-        json_output_1 = json.loads(self.openstack(
-            'network meter rule create -f json ' +
+        json_output_1 = self.openstack(
+            'network meter rule create ' +
             '--remote-ip-prefix 11.0.0.0/8 ' +
-            self.METER_ID
-        ))
+            self.METER_ID,
+            parse_output=True,
+        )
         rule_id_2 = json_output_1.get('id')
         self.addCleanup(
             self.openstack,
@@ -107,9 +110,10 @@ class TestMeterRule(common.NetworkTests):
             json_output_1.get('remote_ip_prefix')
         )
 
-        json_output = json.loads(self.openstack(
-            'network meter rule list -f json'
-        ))
+        json_output = self.openstack(
+            'network meter rule list',
+            parse_output=True,
+        )
         rule_id_list = [item.get('ID') for item in json_output]
         ip_prefix_list = [item.get('Remote IP Prefix') for item in json_output]
         self.assertIn(rule_id_1, rule_id_list)
@@ -119,12 +123,13 @@ class TestMeterRule(common.NetworkTests):
 
     def test_meter_rule_show(self):
         """Test create, show, delete"""
-        json_output = json.loads(self.openstack(
-            'network meter rule create -f json ' +
+        json_output = self.openstack(
+            'network meter rule create ' +
             '--remote-ip-prefix 10.0.0.0/8 ' +
             '--egress ' +
-            self.METER_ID
-        ))
+            self.METER_ID,
+            parse_output=True,
+        )
         rule_id = json_output.get('id')
 
         self.assertEqual(
@@ -132,9 +137,10 @@ class TestMeterRule(common.NetworkTests):
             json_output.get('direction')
         )
 
-        json_output = json.loads(self.openstack(
-            'network meter rule show -f json ' + rule_id
-        ))
+        json_output = self.openstack(
+            'network meter rule show ' + rule_id,
+            parse_output=True,
+        )
         self.assertEqual(
             '10.0.0.0/8',
             json_output.get('remote_ip_prefix')

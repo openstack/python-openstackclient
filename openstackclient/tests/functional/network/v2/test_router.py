@@ -10,7 +10,6 @@
 #    License for the specific language governing permissions and limitations
 #    under the License.
 
-import json
 import uuid
 
 from openstackclient.tests.functional.network.v2 import common
@@ -31,18 +30,20 @@ class RouterTests(common.NetworkTagTests):
         """Test create options, delete multiple"""
         name1 = uuid.uuid4().hex
         name2 = uuid.uuid4().hex
-        cmd_output = json.loads(self.openstack(
-            'router create -f json ' +
-            name1
-        ))
+        cmd_output = self.openstack(
+            'router create ' +
+            name1,
+            parse_output=True,
+        )
         self.assertEqual(
             name1,
             cmd_output["name"],
         )
-        cmd_output = json.loads(self.openstack(
-            'router create -f json ' +
-            name2
-        ))
+        cmd_output = self.openstack(
+            'router create ' +
+            name2,
+            parse_output=True,
+        )
         self.assertEqual(
             name2,
             cmd_output["name"],
@@ -55,10 +56,10 @@ class RouterTests(common.NetworkTagTests):
     def test_router_list(self):
         """Test create, list filter"""
         # Get project IDs
-        cmd_output = json.loads(self.openstack('token issue -f json '))
+        cmd_output = self.openstack('token issue', parse_output=True)
         auth_project_id = cmd_output['project_id']
 
-        cmd_output = json.loads(self.openstack('project list -f json '))
+        cmd_output = self.openstack('project list', parse_output=True)
         admin_project_id = None
         demo_project_id = None
         for p in cmd_output:
@@ -78,11 +79,12 @@ class RouterTests(common.NetworkTagTests):
 
         name1 = uuid.uuid4().hex
         name2 = uuid.uuid4().hex
-        cmd_output = json.loads(self.openstack(
-            'router create -f json ' +
+        cmd_output = self.openstack(
+            'router create ' +
             '--disable ' +
-            name1
-        ))
+            name1,
+            parse_output=True,
+        )
 
         self.addCleanup(self.openstack, 'router delete ' + name1)
         self.assertEqual(
@@ -97,11 +99,12 @@ class RouterTests(common.NetworkTagTests):
             admin_project_id,
             cmd_output["project_id"],
         )
-        cmd_output = json.loads(self.openstack(
-            'router create -f json ' +
+        cmd_output = self.openstack(
+            'router create ' +
             '--project ' + demo_project_id +
-            ' ' + name2
-        ))
+            ' ' + name2,
+            parse_output=True,
+        )
 
         self.addCleanup(self.openstack, 'router delete ' + name2)
         self.assertEqual(
@@ -118,37 +121,41 @@ class RouterTests(common.NetworkTagTests):
         )
 
         # Test list --project
-        cmd_output = json.loads(self.openstack(
-            'router list -f json ' +
-            '--project ' + demo_project_id
-        ))
+        cmd_output = self.openstack(
+            'router list ' +
+            '--project ' + demo_project_id,
+            parse_output=True,
+        )
         names = [x["Name"] for x in cmd_output]
         self.assertNotIn(name1, names)
         self.assertIn(name2, names)
 
         # Test list --disable
-        cmd_output = json.loads(self.openstack(
-            'router list -f json ' +
-            '--disable '
-        ))
+        cmd_output = self.openstack(
+            'router list ' +
+            '--disable ',
+            parse_output=True,
+        )
         names = [x["Name"] for x in cmd_output]
         self.assertIn(name1, names)
         self.assertNotIn(name2, names)
 
         # Test list --name
-        cmd_output = json.loads(self.openstack(
-            'router list -f json ' +
-            '--name ' + name1
-        ))
+        cmd_output = self.openstack(
+            'router list ' +
+            '--name ' + name1,
+            parse_output=True,
+        )
         names = [x["Name"] for x in cmd_output]
         self.assertIn(name1, names)
         self.assertNotIn(name2, names)
 
         # Test list --long
-        cmd_output = json.loads(self.openstack(
-            'router list -f json ' +
-            '--long '
-        ))
+        cmd_output = self.openstack(
+            'router list ' +
+            '--long ',
+            parse_output=True,
+        )
         names = [x["Name"] for x in cmd_output]
         self.assertIn(name1, names)
         self.assertIn(name2, names)
@@ -160,15 +167,17 @@ class RouterTests(common.NetworkTagTests):
             self.skipTest("No l3_agent_scheduler extension present")
 
         name = uuid.uuid4().hex
-        cmd_output = json.loads(self.openstack(
-            'router create -f json ' + name))
+        cmd_output = self.openstack(
+            'router create ' + name,
+            parse_output=True,)
 
         self.addCleanup(self.openstack, 'router delete ' + name)
         # Get router ID
         router_id = cmd_output['id']
         # Get l3 agent id
-        cmd_output = json.loads(self.openstack(
-            'network agent list -f json --agent-type l3'))
+        cmd_output = self.openstack(
+            'network agent list --agent-type l3',
+            parse_output=True,)
 
         # Check at least one L3 agent is included in the response.
         self.assertTrue(cmd_output)
@@ -178,16 +187,18 @@ class RouterTests(common.NetworkTagTests):
         self.openstack(
             'network agent add router --l3 ' + agent_id + ' ' + router_id)
 
-        cmd_output = json.loads(self.openstack(
-            'router list -f json --agent ' + agent_id))
+        cmd_output = self.openstack(
+            'router list --agent ' + agent_id,
+            parse_output=True,)
         router_ids = [x['ID'] for x in cmd_output]
         self.assertIn(router_id, router_ids)
 
         # Remove router from agent
         self.openstack(
             'network agent remove router --l3 ' + agent_id + ' ' + router_id)
-        cmd_output = json.loads(self.openstack(
-            'router list -f json --agent ' + agent_id))
+        cmd_output = self.openstack(
+            'router list --agent ' + agent_id,
+            parse_output=True,)
         router_ids = [x['ID'] for x in cmd_output]
         self.assertNotIn(router_id, router_ids)
 
@@ -196,11 +207,12 @@ class RouterTests(common.NetworkTagTests):
 
         name = uuid.uuid4().hex
         new_name = name + "_"
-        cmd_output = json.loads(self.openstack(
-            'router create -f json ' +
+        cmd_output = self.openstack(
+            'router create ' +
             '--description aaaa ' +
-            name
-        ))
+            name,
+            parse_output=True,
+        )
         self.addCleanup(self.openstack, 'router delete ' + new_name)
         self.assertEqual(
             name,
@@ -221,10 +233,11 @@ class RouterTests(common.NetworkTagTests):
         )
         self.assertOutput('', cmd_output)
 
-        cmd_output = json.loads(self.openstack(
-            'router show -f json ' +
-            new_name
-        ))
+        cmd_output = self.openstack(
+            'router show ' +
+            new_name,
+            parse_output=True,
+        )
         self.assertEqual(
             new_name,
             cmd_output["name"],
@@ -247,10 +260,11 @@ class RouterTests(common.NetworkTagTests):
             '--external-gateway ' +
             new_name
         )
-        cmd_output = json.loads(self.openstack(
-            'router show -f json ' +
-            new_name
-        ))
+        cmd_output = self.openstack(
+            'router show ' +
+            new_name,
+            parse_output=True,
+        )
         self.assertIsNone(cmd_output["external_gateway_info"])
 
     def _test_set_router_distributed(self, router_name):
@@ -265,10 +279,11 @@ class RouterTests(common.NetworkTagTests):
         )
         self.assertOutput('', cmd_output)
 
-        cmd_output = json.loads(self.openstack(
-            'router show -f json ' +
-            router_name
-        ))
+        cmd_output = self.openstack(
+            'router show ' +
+            router_name,
+            parse_output=True,
+        )
         self.assertTrue(cmd_output["distributed"])
         self.assertIsNotNone(cmd_output["external_gateway_info"])
 
@@ -292,25 +307,28 @@ class RouterTests(common.NetworkTagTests):
         self.addCleanup(self.openstack, 'router remove subnet %s %s' % (
             router_name, subnet_name))
 
-        out1 = json.loads(self.openstack(
-            'router add route -f json %s '
+        out1 = self.openstack(
+            'router add route %s '
             '--route destination=10.0.10.0/24,gateway=10.0.0.10' %
-            router_name)),
+            router_name,
+            parse_output=True,),
         self.assertEqual(1, len(out1[0]['routes']))
 
         self.addCleanup(
             self.openstack, 'router set %s --no-route' % router_name)
 
-        out2 = json.loads(self.openstack(
-            'router add route -f json %s '
+        out2 = self.openstack(
+            'router add route %s '
             '--route destination=10.0.10.0/24,gateway=10.0.0.10 '
             '--route destination=10.0.11.0/24,gateway=10.0.0.11' %
-            router_name)),
+            router_name,
+            parse_output=True,),
         self.assertEqual(2, len(out2[0]['routes']))
 
-        out3 = json.loads(self.openstack(
-            'router remove route -f json %s '
+        out3 = self.openstack(
+            'router remove route %s '
             '--route destination=10.0.11.0/24,gateway=10.0.0.11 '
             '--route destination=10.0.12.0/24,gateway=10.0.0.12' %
-            router_name)),
+            router_name,
+            parse_output=True,),
         self.assertEqual(1, len(out3[0]['routes']))

@@ -10,7 +10,6 @@
 #    License for the specific language governing permissions and limitations
 #    under the License.
 
-import json
 import uuid
 
 from openstackclient.tests.functional.network.v2 import common
@@ -55,19 +54,21 @@ class PortTests(common.NetworkTagTests):
 
     def test_port_delete(self):
         """Test create, delete multiple"""
-        json_output = json.loads(self.openstack(
-            'port create -f json --network %s %s' %
-            (self.NETWORK_NAME, self.NAME)
-        ))
+        json_output = self.openstack(
+            'port create --network %s %s' %
+            (self.NETWORK_NAME, self.NAME),
+            parse_output=True,
+        )
         id1 = json_output.get('id')
         self.assertIsNotNone(id1)
         self.assertIsNotNone(json_output.get('mac_address'))
         self.assertEqual(self.NAME, json_output.get('name'))
 
-        json_output = json.loads(self.openstack(
-            'port create -f json --network %s %sx' %
-            (self.NETWORK_NAME, self.NAME)
-        ))
+        json_output = self.openstack(
+            'port create --network %s %sx' %
+            (self.NETWORK_NAME, self.NAME),
+            parse_output=True,
+        )
         id2 = json_output.get('id')
         self.assertIsNotNone(id2)
         self.assertIsNotNone(json_output.get('mac_address'))
@@ -79,10 +80,11 @@ class PortTests(common.NetworkTagTests):
 
     def test_port_list(self):
         """Test create defaults, list, delete"""
-        json_output = json.loads(self.openstack(
-            'port create -f json --network %s %s' %
-            (self.NETWORK_NAME, self.NAME)
-        ))
+        json_output = self.openstack(
+            'port create --network %s %s' %
+            (self.NETWORK_NAME, self.NAME),
+            parse_output=True,
+        )
         id1 = json_output.get('id')
         self.assertIsNotNone(id1)
         mac1 = json_output.get('mac_address')
@@ -90,10 +92,11 @@ class PortTests(common.NetworkTagTests):
         self.addCleanup(self.openstack, 'port delete %s' % id1)
         self.assertEqual(self.NAME, json_output.get('name'))
 
-        json_output = json.loads(self.openstack(
-            'port create -f json --network %s %sx' %
-            (self.NETWORK_NAME, self.NAME)
-        ))
+        json_output = self.openstack(
+            'port create --network %s %sx' %
+            (self.NETWORK_NAME, self.NAME),
+            parse_output=True,
+        )
         id2 = json_output.get('id')
         self.assertIsNotNone(id2)
         mac2 = json_output.get('mac_address')
@@ -102,9 +105,10 @@ class PortTests(common.NetworkTagTests):
         self.assertEqual(self.NAME + 'x', json_output.get('name'))
 
         # Test list
-        json_output = json.loads(self.openstack(
-            'port list -f json'
-        ))
+        json_output = self.openstack(
+            'port list',
+            parse_output=True,
+        )
         item_map = {item.get('ID'): item.get('MAC Address') for item in
                     json_output}
         self.assertIn(id1, item_map.keys())
@@ -113,17 +117,19 @@ class PortTests(common.NetworkTagTests):
         self.assertIn(mac2, item_map.values())
 
         # Test list --long
-        json_output = json.loads(self.openstack(
-            'port list --long -f json'
-        ))
+        json_output = self.openstack(
+            'port list --long',
+            parse_output=True,
+        )
         id_list = [item.get('ID') for item in json_output]
         self.assertIn(id1, id_list)
         self.assertIn(id2, id_list)
 
         # Test list --mac-address
-        json_output = json.loads(self.openstack(
-            'port list -f json --mac-address %s' % mac2
-        ))
+        json_output = self.openstack(
+            'port list --mac-address %s' % mac2,
+            parse_output=True,
+        )
         item_map = {item.get('ID'): item.get('MAC Address') for item in
                     json_output}
         self.assertNotIn(id1, item_map.keys())
@@ -132,9 +138,10 @@ class PortTests(common.NetworkTagTests):
         self.assertIn(mac2, item_map.values())
 
         # Test list with unknown fields
-        json_output = json.loads(self.openstack(
-            'port list -f json -c ID -c Name -c device_id'
-        ))
+        json_output = self.openstack(
+            'port list -c ID -c Name -c device_id',
+            parse_output=True,
+        )
         id_list = [p['ID'] for p in json_output]
         self.assertIn(id1, id_list)
         self.assertIn(id2, id_list)
@@ -144,13 +151,14 @@ class PortTests(common.NetworkTagTests):
     def test_port_set(self):
         """Test create, set, show, delete"""
         name = uuid.uuid4().hex
-        json_output = json.loads(self.openstack(
-            'port create -f json '
+        json_output = self.openstack(
+            'port create '
             '--network %s '
             '--description xyzpdq '
             '--disable %s' %
-            (self.NETWORK_NAME, name)
-        ))
+            (self.NETWORK_NAME, name),
+            parse_output=True,
+        )
         id1 = json_output.get('id')
         self.addCleanup(self.openstack, 'port delete %s' % id1)
         self.assertEqual(name, json_output.get('name'))
@@ -163,9 +171,10 @@ class PortTests(common.NetworkTagTests):
         )
         self.assertOutput('', raw_output)
 
-        json_output = json.loads(self.openstack(
-            'port show -f json %s' % name
-        ))
+        json_output = self.openstack(
+            'port show %s' % name,
+            parse_output=True,
+        )
         sg_id = json_output.get('security_group_ids')[0]
 
         self.assertEqual(name, json_output.get('name'))
@@ -177,17 +186,19 @@ class PortTests(common.NetworkTagTests):
             'port unset --security-group %s %s' % (sg_id, id1))
         self.assertOutput('', raw_output)
 
-        json_output = json.loads(self.openstack(
-            'port show -f json %s' % name
-        ))
+        json_output = self.openstack(
+            'port show %s' % name,
+            parse_output=True,
+        )
         self.assertEqual([], json_output.get('security_group_ids'))
 
     def test_port_admin_set(self):
         """Test create, set (as admin), show, delete"""
-        json_output = json.loads(self.openstack(
-            'port create -f json '
-            '--network %s %s' % (self.NETWORK_NAME, self.NAME)
-        ))
+        json_output = self.openstack(
+            'port create '
+            '--network %s %s' % (self.NETWORK_NAME, self.NAME),
+            parse_output=True,
+        )
         id_ = json_output.get('id')
         self.addCleanup(self.openstack, 'port delete %s' % id_)
 
@@ -196,36 +207,40 @@ class PortTests(common.NetworkTagTests):
             'port set --mac-address 11:22:33:44:55:66 %s' %
             self.NAME)
         self.assertOutput('', raw_output)
-        json_output = json.loads(self.openstack(
-            'port show -f json %s' % self.NAME
-        ))
+        json_output = self.openstack(
+            'port show %s' % self.NAME,
+            parse_output=True,
+        )
         self.assertEqual(json_output.get('mac_address'), '11:22:33:44:55:66')
 
     def test_port_set_sg(self):
         """Test create, set, show, delete"""
         sg_name1 = uuid.uuid4().hex
-        json_output = json.loads(self.openstack(
-            'security group create -f json %s' %
-            sg_name1
-        ))
+        json_output = self.openstack(
+            'security group create %s' %
+            sg_name1,
+            parse_output=True,
+        )
         sg_id1 = json_output.get('id')
         self.addCleanup(self.openstack, 'security group delete %s' % sg_id1)
 
         sg_name2 = uuid.uuid4().hex
-        json_output = json.loads(self.openstack(
-            'security group create -f json %s' %
-            sg_name2
-        ))
+        json_output = self.openstack(
+            'security group create %s' %
+            sg_name2,
+            parse_output=True,
+        )
         sg_id2 = json_output.get('id')
         self.addCleanup(self.openstack, 'security group delete %s' % sg_id2)
 
         name = uuid.uuid4().hex
-        json_output = json.loads(self.openstack(
-            'port create -f json '
+        json_output = self.openstack(
+            'port create '
             '--network %s '
             '--security-group %s %s' %
-            (self.NETWORK_NAME, sg_name1, name)
-        ))
+            (self.NETWORK_NAME, sg_name1, name),
+            parse_output=True,
+        )
         id1 = json_output.get('id')
         self.addCleanup(self.openstack, 'port delete %s' % id1)
         self.assertEqual(name, json_output.get('name'))
@@ -238,9 +253,10 @@ class PortTests(common.NetworkTagTests):
         )
         self.assertOutput('', raw_output)
 
-        json_output = json.loads(self.openstack(
-            'port show -f json %s' % name
-        ))
+        json_output = self.openstack(
+            'port show %s' % name,
+            parse_output=True,
+        )
         self.assertEqual(name, json_output.get('name'))
         # NOTE(amotoki): The order of the field is not predictable,
         self.assertIsInstance(json_output.get('security_group_ids'), list)
@@ -251,16 +267,18 @@ class PortTests(common.NetworkTagTests):
             'port unset --security-group %s %s' % (sg_id1, id1))
         self.assertOutput('', raw_output)
 
-        json_output = json.loads(self.openstack(
-            'port show -f json %s' % name
-        ))
+        json_output = self.openstack(
+            'port show %s' % name,
+            parse_output=True,
+        )
         self.assertEqual(
             [sg_id2],
             json_output.get('security_group_ids')
         )
 
     def _create_resource_for_tag_test(self, name, args):
-        return json.loads(self.openstack(
-            '{} create -f json --network {} {} {}'
-            .format(self.base_command, self.NETWORK_NAME, args, name)
-        ))
+        return self.openstack(
+            '{} create --network {} {} {}'
+            .format(self.base_command, self.NETWORK_NAME, args, name),
+            parse_output=True,
+        )

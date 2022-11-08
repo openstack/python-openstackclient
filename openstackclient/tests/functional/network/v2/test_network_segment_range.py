@@ -14,7 +14,6 @@
 #   under the License.
 #
 
-import json
 import uuid
 
 from openstackclient.tests.functional.network.v2 import common
@@ -34,18 +33,20 @@ class NetworkSegmentRangeTests(common.NetworkTests):
 
     def test_network_segment_range_create_delete(self):
         # Make a project
-        project_id = json.loads(self.openstack(
-            'project create -f json ' + self.PROJECT_NAME))['id']
+        project_id = self.openstack(
+            'project create ' + self.PROJECT_NAME,
+            parse_output=True,)['id']
         name = uuid.uuid4().hex
-        json_output = json.loads(self.openstack(
-            ' network segment range create -f json ' +
+        json_output = self.openstack(
+            ' network segment range create ' +
             '--private ' +
             "--project " + self.PROJECT_NAME + " " +
             '--network-type vxlan ' +
             '--minimum 2005 ' +
             '--maximum 2009 ' +
-            name
-        ))
+            name,
+            parse_output=True,
+        )
         self.assertEqual(
             name,
             json_output["name"],
@@ -65,14 +66,15 @@ class NetworkSegmentRangeTests(common.NetworkTests):
 
     def test_network_segment_range_list(self):
         name = uuid.uuid4().hex
-        json_output = json.loads(self.openstack(
-            ' network segment range create -f json ' +
+        json_output = self.openstack(
+            ' network segment range create ' +
             '--shared ' +
             '--network-type geneve ' +
             '--minimum 2013 ' +
             '--maximum 2017 ' +
-            name
-        ))
+            name,
+            parse_output=True,
+        )
         network_segment_range_id = json_output.get('id')
         network_segment_range_name = json_output.get('name')
         self.addCleanup(
@@ -84,9 +86,10 @@ class NetworkSegmentRangeTests(common.NetworkTests):
             json_output["name"],
         )
 
-        json_output = json.loads(self.openstack(
-            'network segment range list -f json'
-        ))
+        json_output = self.openstack(
+            'network segment range list',
+            parse_output=True,
+        )
         item_map = {
             item.get('ID'): item.get('Name') for item in json_output
         }
@@ -94,18 +97,20 @@ class NetworkSegmentRangeTests(common.NetworkTests):
         self.assertIn(network_segment_range_name, item_map.values())
 
     def test_network_segment_range_set_show(self):
-        project_id = json.loads(self.openstack(
-            'project create -f json ' + self.PROJECT_NAME))['id']
+        project_id = self.openstack(
+            'project create ' + self.PROJECT_NAME,
+            parse_output=True,)['id']
         name = uuid.uuid4().hex
-        json_output = json.loads(self.openstack(
-            ' network segment range create -f json ' +
+        json_output = self.openstack(
+            ' network segment range create ' +
             '--private ' +
             "--project " + self.PROJECT_NAME + " " +
             '--network-type geneve ' +
             '--minimum 2021 ' +
             '--maximum 2025 ' +
-            name
-        ))
+            name,
+            parse_output=True,
+        )
         self.addCleanup(
             self.openstack,
             'network segment range delete ' + name
@@ -127,10 +132,11 @@ class NetworkSegmentRangeTests(common.NetworkTests):
         )
         self.assertOutput('', cmd_output)
 
-        json_output = json.loads(self.openstack(
-            'network segment range show -f json ' +
-            name
-        ))
+        json_output = self.openstack(
+            'network segment range show ' +
+            name,
+            parse_output=True,
+        )
         self.assertEqual(
             new_minimum,
             json_output["minimum"],

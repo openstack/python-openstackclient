@@ -13,8 +13,6 @@
 #    License for the specific language governing permissions and limitations
 #    under the License.
 
-import json
-
 from openstackclient.tests.functional.network.v2 import common
 
 
@@ -31,14 +29,18 @@ class NetworkQosRuleTypeTests(common.NetworkTests):
             self.skipTest("No Network service present")
 
     def test_qos_rule_type_list(self):
-        cmd_output = json.loads(self.openstack(
-            'network qos rule type list -f json'))
+        cmd_output = self.openstack(
+            'network qos rule type list -f json',
+            parse_output=True,
+        )
         for rule_type in self.AVAILABLE_RULE_TYPES:
             self.assertIn(rule_type, [x['Type'] for x in cmd_output])
 
     def test_qos_rule_type_details(self):
         for rule_type in self.AVAILABLE_RULE_TYPES:
-            cmd_output = json.loads(self.openstack(
-                'network qos rule type show %s -f json' % rule_type))
+            cmd_output = self.openstack(
+                'network qos rule type show %s -f json' % rule_type,
+                parse_output=True,
+            )
             self.assertEqual(rule_type, cmd_output['rule_type_name'])
             self.assertIn("drivers", cmd_output.keys())

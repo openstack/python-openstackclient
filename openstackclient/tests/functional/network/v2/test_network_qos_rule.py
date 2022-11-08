@@ -13,7 +13,6 @@
 #    License for the specific language governing permissions and limitations
 #    under the License.
 
-import json
 import uuid
 
 from openstackclient.tests.functional.network.v2 import common
@@ -35,13 +34,14 @@ class NetworkQosRuleTestsMinimumBandwidth(common.NetworkTests):
         )
         self.addCleanup(self.openstack,
                         'network qos policy delete %s' % self.QOS_POLICY_NAME)
-        cmd_output = json.loads(self.openstack(
-            'network qos rule create -f json '
+        cmd_output = self.openstack(
+            'network qos rule create '
             '--type minimum-bandwidth '
             '--min-kbps 2800 '
             '--egress %s' %
-            self.QOS_POLICY_NAME
-        ))
+            self.QOS_POLICY_NAME,
+            parse_output=True,
+        )
         self.RULE_ID = cmd_output['id']
         self.addCleanup(self.openstack,
                         'network qos rule delete %s %s' %
@@ -51,37 +51,43 @@ class NetworkQosRuleTestsMinimumBandwidth(common.NetworkTests):
     def test_qos_rule_create_delete(self):
         # This is to check the output of qos rule delete
         policy_name = uuid.uuid4().hex
-        self.openstack('network qos policy create -f json %s' % policy_name)
+        self.openstack('network qos policy create %s' % policy_name)
         self.addCleanup(self.openstack,
                         'network qos policy delete %s' % policy_name)
-        rule = json.loads(self.openstack(
-            'network qos rule create -f json '
+        rule = self.openstack(
+            'network qos rule create '
             '--type minimum-bandwidth '
             '--min-kbps 2800 '
-            '--egress %s' % policy_name
-        ))
+            '--egress %s' % policy_name,
+            parse_output=True,
+        )
         raw_output = self.openstack(
             'network qos rule delete %s %s' %
             (policy_name, rule['id']))
         self.assertEqual('', raw_output)
 
     def test_qos_rule_list(self):
-        cmd_output = json.loads(self.openstack(
-            'network qos rule list -f json %s' % self.QOS_POLICY_NAME))
+        cmd_output = self.openstack(
+            'network qos rule list %s' % self.QOS_POLICY_NAME,
+            parse_output=True,)
         self.assertIn(self.RULE_ID, [rule['ID'] for rule in cmd_output])
 
     def test_qos_rule_show(self):
-        cmd_output = json.loads(self.openstack(
-            'network qos rule show -f json %s %s' %
-            (self.QOS_POLICY_NAME, self.RULE_ID)))
+        cmd_output = self.openstack(
+            'network qos rule show %s %s' %
+            (self.QOS_POLICY_NAME, self.RULE_ID),
+            parse_output=True,
+        )
         self.assertEqual(self.RULE_ID, cmd_output['id'])
 
     def test_qos_rule_set(self):
         self.openstack('network qos rule set --min-kbps 7500 %s %s' %
                        (self.QOS_POLICY_NAME, self.RULE_ID))
-        cmd_output = json.loads(self.openstack(
-            'network qos rule show -f json %s %s' %
-            (self.QOS_POLICY_NAME, self.RULE_ID)))
+        cmd_output = self.openstack(
+            'network qos rule show %s %s' %
+            (self.QOS_POLICY_NAME, self.RULE_ID),
+            parse_output=True,
+        )
         self.assertEqual(7500, cmd_output['min_kbps'])
 
 
@@ -101,13 +107,14 @@ class NetworkQosRuleTestsMinimumPacketRate(common.NetworkTests):
         )
         self.addCleanup(self.openstack,
                         'network qos policy delete %s' % self.QOS_POLICY_NAME)
-        cmd_output = json.loads(self.openstack(
-            'network qos rule create -f json '
+        cmd_output = self.openstack(
+            'network qos rule create '
             '--type minimum-packet-rate '
             '--min-kpps 2800 '
             '--egress %s' %
-            self.QOS_POLICY_NAME
-        ))
+            self.QOS_POLICY_NAME,
+            parse_output=True,
+        )
         self.RULE_ID = cmd_output['id']
         self.addCleanup(self.openstack,
                         'network qos rule delete %s %s' %
@@ -117,37 +124,43 @@ class NetworkQosRuleTestsMinimumPacketRate(common.NetworkTests):
     def test_qos_rule_create_delete(self):
         # This is to check the output of qos rule delete
         policy_name = uuid.uuid4().hex
-        self.openstack('network qos policy create -f json %s' % policy_name)
+        self.openstack('network qos policy create %s' % policy_name)
         self.addCleanup(self.openstack,
                         'network qos policy delete %s' % policy_name)
-        rule = json.loads(self.openstack(
-            'network qos rule create -f json '
+        rule = self.openstack(
+            'network qos rule create '
             '--type minimum-packet-rate '
             '--min-kpps 2800 '
-            '--egress %s' % policy_name
-        ))
+            '--egress %s' % policy_name,
+            parse_output=True,
+        )
         raw_output = self.openstack(
             'network qos rule delete %s %s' %
             (policy_name, rule['id']))
         self.assertEqual('', raw_output)
 
     def test_qos_rule_list(self):
-        cmd_output = json.loads(self.openstack(
-            'network qos rule list -f json %s' % self.QOS_POLICY_NAME))
+        cmd_output = self.openstack(
+            'network qos rule list %s' % self.QOS_POLICY_NAME,
+            parse_output=True,)
         self.assertIn(self.RULE_ID, [rule['ID'] for rule in cmd_output])
 
     def test_qos_rule_show(self):
-        cmd_output = json.loads(self.openstack(
-            'network qos rule show -f json %s %s' %
-            (self.QOS_POLICY_NAME, self.RULE_ID)))
+        cmd_output = self.openstack(
+            'network qos rule show %s %s' %
+            (self.QOS_POLICY_NAME, self.RULE_ID),
+            parse_output=True,
+        )
         self.assertEqual(self.RULE_ID, cmd_output['id'])
 
     def test_qos_rule_set(self):
         self.openstack('network qos rule set --min-kpps 7500 --any %s %s' %
                        (self.QOS_POLICY_NAME, self.RULE_ID))
-        cmd_output = json.loads(self.openstack(
-            'network qos rule show -f json %s %s' %
-            (self.QOS_POLICY_NAME, self.RULE_ID)))
+        cmd_output = self.openstack(
+            'network qos rule show %s %s' %
+            (self.QOS_POLICY_NAME, self.RULE_ID),
+            parse_output=True,
+        )
         self.assertEqual(7500, cmd_output['min_kpps'])
         self.assertEqual('any', cmd_output['direction'])
 
@@ -167,12 +180,13 @@ class NetworkQosRuleTestsDSCPMarking(common.NetworkTests):
         )
         self.addCleanup(self.openstack,
                         'network qos policy delete %s' % self.QOS_POLICY_NAME)
-        cmd_output = json.loads(self.openstack(
-            'network qos rule create -f json '
+        cmd_output = self.openstack(
+            'network qos rule create '
             '--type dscp-marking '
             '--dscp-mark 8 %s' %
-            self.QOS_POLICY_NAME
-        ))
+            self.QOS_POLICY_NAME,
+            parse_output=True,
+        )
         self.RULE_ID = cmd_output['id']
         self.addCleanup(self.openstack,
                         'network qos rule delete %s %s' %
@@ -182,36 +196,42 @@ class NetworkQosRuleTestsDSCPMarking(common.NetworkTests):
     def test_qos_rule_create_delete(self):
         # This is to check the output of qos rule delete
         policy_name = uuid.uuid4().hex
-        self.openstack('network qos policy create -f json %s' % policy_name)
+        self.openstack('network qos policy create %s' % policy_name)
         self.addCleanup(self.openstack,
                         'network qos policy delete %s' % policy_name)
-        rule = json.loads(self.openstack(
-            'network qos rule create -f json '
+        rule = self.openstack(
+            'network qos rule create '
             '--type dscp-marking '
-            '--dscp-mark 8 %s' % policy_name
-        ))
+            '--dscp-mark 8 %s' % policy_name,
+            parse_output=True,
+        )
         raw_output = self.openstack(
             'network qos rule delete %s %s' %
             (policy_name, rule['id']))
         self.assertEqual('', raw_output)
 
     def test_qos_rule_list(self):
-        cmd_output = json.loads(self.openstack(
-            'network qos rule list -f json %s' % self.QOS_POLICY_NAME))
+        cmd_output = self.openstack(
+            'network qos rule list %s' % self.QOS_POLICY_NAME,
+            parse_output=True,)
         self.assertIn(self.RULE_ID, [rule['ID'] for rule in cmd_output])
 
     def test_qos_rule_show(self):
-        cmd_output = json.loads(self.openstack(
-            'network qos rule show -f json %s %s' %
-            (self.QOS_POLICY_NAME, self.RULE_ID)))
+        cmd_output = self.openstack(
+            'network qos rule show %s %s' %
+            (self.QOS_POLICY_NAME, self.RULE_ID),
+            parse_output=True,
+        )
         self.assertEqual(self.RULE_ID, cmd_output['id'])
 
     def test_qos_rule_set(self):
         self.openstack('network qos rule set --dscp-mark 32 %s %s' %
                        (self.QOS_POLICY_NAME, self.RULE_ID))
-        cmd_output = json.loads(self.openstack(
-            'network qos rule show -f json %s %s' %
-            (self.QOS_POLICY_NAME, self.RULE_ID)))
+        cmd_output = self.openstack(
+            'network qos rule show %s %s' %
+            (self.QOS_POLICY_NAME, self.RULE_ID),
+            parse_output=True,
+        )
         self.assertEqual(32, cmd_output['dscp_mark'])
 
 
@@ -230,13 +250,14 @@ class NetworkQosRuleTestsBandwidthLimit(common.NetworkTests):
         )
         self.addCleanup(self.openstack,
                         'network qos policy delete %s' % self.QOS_POLICY_NAME)
-        cmd_output = json.loads(self.openstack(
-            'network qos rule create -f json '
+        cmd_output = self.openstack(
+            'network qos rule create '
             '--type bandwidth-limit '
             '--max-kbps 10000 '
             '--egress %s' %
-            self.QOS_POLICY_NAME
-        ))
+            self.QOS_POLICY_NAME,
+            parse_output=True,
+        )
         self.RULE_ID = cmd_output['id']
         self.addCleanup(self.openstack,
                         'network qos rule delete %s %s' %
@@ -246,31 +267,35 @@ class NetworkQosRuleTestsBandwidthLimit(common.NetworkTests):
     def test_qos_rule_create_delete(self):
         # This is to check the output of qos rule delete
         policy_name = uuid.uuid4().hex
-        self.openstack('network qos policy create -f json %s' % policy_name)
+        self.openstack('network qos policy create %s' % policy_name)
         self.addCleanup(self.openstack,
                         'network qos policy delete %s' % policy_name)
-        rule = json.loads(self.openstack(
-            'network qos rule create -f json '
+        rule = self.openstack(
+            'network qos rule create '
             '--type bandwidth-limit '
             '--max-kbps 10000 '
             '--max-burst-kbits 1400 '
-            '--egress %s' % policy_name
-        ))
+            '--egress %s' % policy_name,
+            parse_output=True,
+        )
         raw_output = self.openstack(
             'network qos rule delete %s %s' %
             (policy_name, rule['id']))
         self.assertEqual('', raw_output)
 
     def test_qos_rule_list(self):
-        cmd_output = json.loads(self.openstack(
-            'network qos rule list -f json %s' %
-            self.QOS_POLICY_NAME))
+        cmd_output = self.openstack(
+            'network qos rule list %s' %
+            self.QOS_POLICY_NAME,
+            parse_output=True,)
         self.assertIn(self.RULE_ID, [rule['ID'] for rule in cmd_output])
 
     def test_qos_rule_show(self):
-        cmd_output = json.loads(self.openstack(
-            'network qos rule show -f json %s %s' %
-            (self.QOS_POLICY_NAME, self.RULE_ID)))
+        cmd_output = self.openstack(
+            'network qos rule show %s %s' %
+            (self.QOS_POLICY_NAME, self.RULE_ID),
+            parse_output=True,
+        )
         self.assertEqual(self.RULE_ID, cmd_output['id'])
 
     def test_qos_rule_set(self):
@@ -278,9 +303,11 @@ class NetworkQosRuleTestsBandwidthLimit(common.NetworkTests):
                        '--max-burst-kbits 1800 '
                        '--ingress %s %s' %
                        (self.QOS_POLICY_NAME, self.RULE_ID))
-        cmd_output = json.loads(self.openstack(
-            'network qos rule show -f json %s %s' %
-            (self.QOS_POLICY_NAME, self.RULE_ID)))
+        cmd_output = self.openstack(
+            'network qos rule show %s %s' %
+            (self.QOS_POLICY_NAME, self.RULE_ID),
+            parse_output=True,
+        )
         self.assertEqual(15000, cmd_output['max_kbps'])
         self.assertEqual(1800, cmd_output['max_burst_kbps'])
         self.assertEqual('ingress', cmd_output['direction'])

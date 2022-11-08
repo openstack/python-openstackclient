@@ -13,7 +13,6 @@
 #    License for the specific language governing permissions and limitations
 #    under the License.
 
-import json
 import uuid
 
 from openstackclient.tests.functional.network.v2 import common
@@ -31,7 +30,7 @@ class NetworkQosPolicyTests(common.NetworkTests):
     def test_qos_rule_create_delete(self):
         # This is to check the output of qos policy delete
         policy_name = uuid.uuid4().hex
-        self.openstack('network qos policy create -f json ' + policy_name)
+        self.openstack('network qos policy create ' + policy_name)
         raw_output = self.openstack(
             'network qos policy delete ' +
             policy_name
@@ -40,25 +39,28 @@ class NetworkQosPolicyTests(common.NetworkTests):
 
     def test_qos_policy_list(self):
         policy_name = uuid.uuid4().hex
-        json_output = json.loads(self.openstack(
-            'network qos policy create -f json ' +
-            policy_name
-        ))
+        json_output = self.openstack(
+            'network qos policy create ' +
+            policy_name,
+            parse_output=True,
+        )
         self.addCleanup(self.openstack,
                         'network qos policy delete ' + policy_name)
         self.assertEqual(policy_name, json_output['name'])
 
-        json_output = json.loads(self.openstack(
-            'network qos policy list -f json'
-        ))
+        json_output = self.openstack(
+            'network qos policy list',
+            parse_output=True,
+        )
         self.assertIn(policy_name, [p['Name'] for p in json_output])
 
     def test_qos_policy_set(self):
         policy_name = uuid.uuid4().hex
-        json_output = json.loads(self.openstack(
-            'network qos policy create -f json ' +
-            policy_name
-        ))
+        json_output = self.openstack(
+            'network qos policy create ' +
+            policy_name,
+            parse_output=True,
+        )
         self.addCleanup(self.openstack,
                         'network qos policy delete ' + policy_name)
         self.assertEqual(policy_name, json_output['name'])
@@ -69,10 +71,11 @@ class NetworkQosPolicyTests(common.NetworkTests):
             policy_name
         )
 
-        json_output = json.loads(self.openstack(
-            'network qos policy show -f json ' +
-            policy_name
-        ))
+        json_output = self.openstack(
+            'network qos policy show ' +
+            policy_name,
+            parse_output=True,
+        )
         self.assertTrue(json_output['shared'])
 
         self.openstack(
@@ -81,9 +84,10 @@ class NetworkQosPolicyTests(common.NetworkTests):
             '--no-default ' +
             policy_name
         )
-        json_output = json.loads(self.openstack(
-            'network qos policy show -f json ' +
-            policy_name
-        ))
+        json_output = self.openstack(
+            'network qos policy show ' +
+            policy_name,
+            parse_output=True,
+        )
         self.assertFalse(json_output['shared'])
         self.assertFalse(json_output['is_default'])

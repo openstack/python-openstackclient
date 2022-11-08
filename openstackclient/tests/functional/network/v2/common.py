@@ -10,7 +10,6 @@
 #    License for the specific language governing permissions and limitations
 #    under the License.
 
-import json
 import uuid
 
 from openstackclient.tests.functional import base
@@ -32,7 +31,10 @@ class NetworkTagTests(NetworkTests):
 
     def test_tag_operation(self):
         # Get project IDs
-        cmd_output = json.loads(self.openstack('token issue -f json '))
+        cmd_output = self.openstack(
+            'token issue ',
+            parse_output=True,
+        )
         auth_project_id = cmd_output['project_id']
 
         # Network create with no options
@@ -63,17 +65,20 @@ class NetworkTagTests(NetworkTests):
         self._set_resource_and_tag_check('set', name2, '--no-tag', [])
 
     def _list_tag_check(self, project_id, expected):
-        cmd_output = json.loads(self.openstack(
-            '{} list --long --project {} -f json'.format(self.base_command,
-                                                         project_id)))
+        cmd_output = self.openstack(
+            '{} list --long --project {}'.format(self.base_command,
+                                                 project_id),
+            parse_output=True,
+        )
         for name, tags in expected:
             net = [n for n in cmd_output if n['Name'] == name][0]
             self.assertEqual(set(tags), set(net['Tags']))
 
     def _create_resource_for_tag_test(self, name, args):
-        return json.loads(self.openstack(
-            '{} create -f json {} {}'.format(self.base_command, args, name)
-        ))
+        return self.openstack(
+            '{} create {} {}'.format(self.base_command, args, name),
+            parse_output=True,
+        )
 
     def _create_resource_and_tag_check(self, args, expected):
         name = uuid.uuid4().hex
@@ -89,7 +94,8 @@ class NetworkTagTests(NetworkTests):
             '{} {} {} {}'.format(self.base_command, command, args, name)
         )
         self.assertFalse(cmd_output)
-        cmd_output = json.loads(self.openstack(
-            '{} show -f json {}'.format(self.base_command, name)
-        ))
+        cmd_output = self.openstack(
+            '{} show {}'.format(self.base_command, name),
+            parse_output=True,
+        )
         self.assertEqual(set(expected), set(cmd_output['tags']))
