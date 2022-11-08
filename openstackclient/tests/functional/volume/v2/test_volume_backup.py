@@ -10,7 +10,6 @@
 #    License for the specific language governing permissions and limitations
 #    under the License.
 
-import json
 import uuid
 
 from openstackclient.tests.functional.volume.v2 import common
@@ -22,7 +21,7 @@ class VolumeBackupTests(common.BaseVolumeTests):
     def setUp(self):
         super(VolumeBackupTests, self).setUp()
         self.backup_enabled = False
-        serv_list = json.loads(self.openstack('volume service list -f json'))
+        serv_list = self.openstack('volume service list', parse_output=True)
         for service in serv_list:
             if service['Binary'] == 'cinder-backup':
                 if service['Status'] == 'enabled':
@@ -34,24 +33,28 @@ class VolumeBackupTests(common.BaseVolumeTests):
             self.skipTest('Backup service is not enabled')
         vol_id = uuid.uuid4().hex
         # create a volume
-        json.loads(self.openstack(
-            'volume create -f json ' +
+        self.openstack(
+            'volume create ' +
             '--size 1 ' +
-            vol_id
-        ))
+            vol_id,
+            parse_output=True,
+        )
         self.wait_for_status("volume", vol_id, "available")
 
         # create a backup
-        backup = json.loads(self.openstack(
-            'volume backup create -f json ' +
-            vol_id
-        ))
+        backup = self.openstack(
+            'volume backup create ' +
+            vol_id,
+            parse_output=True,
+        )
         self.wait_for_status("volume backup", backup['id'], "available")
 
         # restore the backup
-        backup_restored = json.loads(self.openstack(
-            'volume backup restore -f json %s %s'
-            % (backup['id'], vol_id)))
+        backup_restored = self.openstack(
+            'volume backup restore %s %s'
+            % (backup['id'], vol_id),
+            parse_output=True,
+        )
         self.assertEqual(backup_restored['backup_id'], backup['id'])
         self.wait_for_status("volume backup", backup['id'], "available")
         self.wait_for_status("volume", backup_restored['volume_id'],

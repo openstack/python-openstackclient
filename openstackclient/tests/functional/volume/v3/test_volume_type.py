@@ -10,7 +10,6 @@
 #    License for the specific language governing permissions and limitations
 #    under the License.
 
-import json
 import time
 import uuid
 
@@ -22,36 +21,40 @@ class VolumeTypeTests(common.BaseVolumeTests):
 
     def test_volume_type_create_list(self):
         name = uuid.uuid4().hex
-        cmd_output = json.loads(self.openstack(
-            'volume type create -f json --private ' +
+        cmd_output = self.openstack(
+            'volume type create --private ' +
             name,
-        ))
+            parse_output=True,
+        )
         self.addCleanup(
             self.openstack,
             'volume type delete ' + name,
         )
         self.assertEqual(name, cmd_output['name'])
 
-        cmd_output = json.loads(self.openstack(
-            'volume type show -f json %s' % name
-        ))
+        cmd_output = self.openstack(
+            'volume type show %s' % name,
+            parse_output=True,
+        )
         self.assertEqual(name, cmd_output['name'])
 
-        cmd_output = json.loads(self.openstack('volume type list -f json'))
+        cmd_output = self.openstack('volume type list', parse_output=True)
         self.assertIn(name, [t['Name'] for t in cmd_output])
 
-        cmd_output = json.loads(self.openstack(
-            'volume type list -f json --default'
-        ))
+        cmd_output = self.openstack(
+            'volume type list --default',
+            parse_output=True,
+        )
         self.assertEqual(1, len(cmd_output))
         self.assertEqual('lvmdriver-1', cmd_output[0]['Name'])
 
     def test_volume_type_set_unset_properties(self):
         name = uuid.uuid4().hex
-        cmd_output = json.loads(self.openstack(
-            'volume type create -f json --private ' +
+        cmd_output = self.openstack(
+            'volume type create --private ' +
             name,
-        ))
+            parse_output=True,
+        )
         self.addCleanup(
             self.openstack,
             'volume type delete ' + name
@@ -62,26 +65,29 @@ class VolumeTypeTests(common.BaseVolumeTests):
             'volume type set --property a=b --property c=d %s' % name
         )
         self.assertEqual("", raw_output)
-        cmd_output = json.loads(self.openstack(
-            'volume type show -f json %s' % name
-        ))
+        cmd_output = self.openstack(
+            'volume type show %s' % name,
+            parse_output=True,
+        )
         self.assertEqual({'a': 'b', 'c': 'd'}, cmd_output['properties'])
 
         raw_output = self.openstack(
             'volume type unset --property a %s' % name
         )
         self.assertEqual("", raw_output)
-        cmd_output = json.loads(self.openstack(
-            'volume type show -f json %s' % name
-        ))
+        cmd_output = self.openstack(
+            'volume type show %s' % name,
+            parse_output=True,
+        )
         self.assertEqual({'c': 'd'}, cmd_output['properties'])
 
     def test_volume_type_set_unset_multiple_properties(self):
         name = uuid.uuid4().hex
-        cmd_output = json.loads(self.openstack(
-            'volume type create -f json --private ' +
+        cmd_output = self.openstack(
+            'volume type create --private ' +
             name,
-        ))
+            parse_output=True,
+        )
         self.addCleanup(
             self.openstack,
             'volume type delete ' + name
@@ -92,26 +98,29 @@ class VolumeTypeTests(common.BaseVolumeTests):
             'volume type set --property a=b --property c=d %s' % name
         )
         self.assertEqual("", raw_output)
-        cmd_output = json.loads(self.openstack(
-            'volume type show -f json %s' % name
-        ))
+        cmd_output = self.openstack(
+            'volume type show %s' % name,
+            parse_output=True,
+        )
         self.assertEqual({'a': 'b', 'c': 'd'}, cmd_output['properties'])
 
         raw_output = self.openstack(
             'volume type unset --property a --property c %s' % name
         )
         self.assertEqual("", raw_output)
-        cmd_output = json.loads(self.openstack(
-            'volume type show -f json %s' % name
-        ))
+        cmd_output = self.openstack(
+            'volume type show %s' % name,
+            parse_output=True,
+        )
         self.assertEqual({}, cmd_output['properties'])
 
     def test_volume_type_set_unset_project(self):
         name = uuid.uuid4().hex
-        cmd_output = json.loads(self.openstack(
-            'volume type create -f json --private ' +
+        cmd_output = self.openstack(
+            'volume type create --private ' +
             name,
-        ))
+            parse_output=True,
+        )
         self.addCleanup(
             self.openstack,
             'volume type delete ' + name
@@ -147,13 +156,15 @@ class VolumeTypeTests(common.BaseVolumeTests):
         name = uuid.uuid4().hex
         encryption_type = uuid.uuid4().hex
         # test create new encryption type
-        cmd_output = json.loads(self.openstack(
-            'volume type create -f json '
+        cmd_output = self.openstack(
+            'volume type create '
             '--encryption-provider LuksEncryptor '
             '--encryption-cipher aes-xts-plain64 '
             '--encryption-key-size 128 '
             '--encryption-control-location front-end ' +
-            encryption_type))
+            encryption_type,
+            parse_output=True,
+        )
         expected = {'provider': 'LuksEncryptor',
                     'cipher': 'aes-xts-plain64',
                     'key_size': 128,
@@ -161,8 +172,10 @@ class VolumeTypeTests(common.BaseVolumeTests):
         for attr, value in expected.items():
             self.assertEqual(value, cmd_output['encryption'][attr])
         # test show encryption type
-        cmd_output = json.loads(self.openstack(
-            'volume type show -f json --encryption-type ' + encryption_type))
+        cmd_output = self.openstack(
+            'volume type show --encryption-type ' + encryption_type,
+            parse_output=True,
+        )
         expected = {'provider': 'LuksEncryptor',
                     'cipher': 'aes-xts-plain64',
                     'key_size': 128,
@@ -170,8 +183,10 @@ class VolumeTypeTests(common.BaseVolumeTests):
         for attr, value in expected.items():
             self.assertEqual(value, cmd_output['encryption'][attr])
         # test list encryption type
-        cmd_output = json.loads(self.openstack(
-            'volume type list -f json --encryption-type'))
+        cmd_output = self.openstack(
+            'volume type list --encryption-type',
+            parse_output=True,
+        )
         encryption_output = [t['Encryption'] for t in cmd_output
                              if t['Name'] == encryption_type][0]
         expected = {'provider': 'LuksEncryptor',
@@ -187,8 +202,10 @@ class VolumeTypeTests(common.BaseVolumeTests):
             '--encryption-control-location back-end ' +
             encryption_type)
         self.assertEqual('', raw_output)
-        cmd_output = json.loads(self.openstack(
-            'volume type show -f json --encryption-type ' + encryption_type))
+        cmd_output = self.openstack(
+            'volume type show --encryption-type ' + encryption_type,
+            parse_output=True,
+        )
         expected = {'provider': 'LuksEncryptor',
                     'cipher': 'aes-xts-plain64',
                     'key_size': 256,
@@ -196,10 +213,11 @@ class VolumeTypeTests(common.BaseVolumeTests):
         for attr, value in expected.items():
             self.assertEqual(value, cmd_output['encryption'][attr])
         # test set new encryption type
-        cmd_output = json.loads(self.openstack(
-            'volume type create -f json --private ' +
+        cmd_output = self.openstack(
+            'volume type create --private ' +
             name,
-        ))
+            parse_output=True,
+        )
         self.addCleanup(
             self.openstack,
             'volume type delete ' + name,
@@ -215,9 +233,10 @@ class VolumeTypeTests(common.BaseVolumeTests):
             name)
         self.assertEqual('', raw_output)
 
-        cmd_output = json.loads(self.openstack(
-            'volume type show -f json --encryption-type ' + name
-        ))
+        cmd_output = self.openstack(
+            'volume type show --encryption-type ' + name,
+            parse_output=True,
+        )
         expected = {'provider': 'LuksEncryptor',
                     'cipher': 'aes-xts-plain64',
                     'key_size': 128,
@@ -229,9 +248,10 @@ class VolumeTypeTests(common.BaseVolumeTests):
             'volume type unset --encryption-type ' + name
         )
         self.assertEqual('', raw_output)
-        cmd_output = json.loads(self.openstack(
-            'volume type show -f json --encryption-type ' + name
-        ))
+        cmd_output = self.openstack(
+            'volume type show --encryption-type ' + name,
+            parse_output=True,
+        )
         self.assertEqual({}, cmd_output['encryption'])
         # test delete encryption type
         raw_output = self.openstack('volume type delete ' + encryption_type)

@@ -10,7 +10,6 @@
 #    License for the specific language governing permissions and limitations
 #    under the License.
 
-import json
 import uuid
 
 from openstackclient.tests.functional.volume.v1 import common
@@ -22,29 +21,32 @@ class QosTests(common.BaseVolumeTests):
     def test_volume_qos_create_list(self):
         """Test create, list, delete multiple"""
         name1 = uuid.uuid4().hex
-        cmd_output = json.loads(self.openstack(
-            'volume qos create -f json ' +
-            name1
-        ))
+        cmd_output = self.openstack(
+            'volume qos create ' +
+            name1,
+            parse_output=True,
+        )
         self.assertEqual(
             name1,
             cmd_output['name']
         )
 
         name2 = uuid.uuid4().hex
-        cmd_output = json.loads(self.openstack(
-            'volume qos create -f json ' +
-            name2
-        ))
+        cmd_output = self.openstack(
+            'volume qos create ' +
+            name2,
+            parse_output=True,
+        )
         self.assertEqual(
             name2,
             cmd_output['name']
         )
 
         # Test list
-        cmd_output = json.loads(self.openstack(
-            'volume qos list -f json'
-        ))
+        cmd_output = self.openstack(
+            'volume qos list',
+            parse_output=True,
+        )
         names = [x["Name"] for x in cmd_output]
         self.assertIn(name1, names)
         self.assertIn(name2, names)
@@ -57,12 +59,13 @@ class QosTests(common.BaseVolumeTests):
         """Tests create volume qos, set, unset, show, delete"""
 
         name = uuid.uuid4().hex
-        cmd_output = json.loads(self.openstack(
-            'volume qos create -f json ' +
+        cmd_output = self.openstack(
+            'volume qos create ' +
             '--consumer front-end '
             '--property Alpha=a ' +
-            name
-        ))
+            name,
+            parse_output=True,
+        )
         self.addCleanup(self.openstack, 'volume qos delete ' + name)
         self.assertEqual(
             name,
@@ -84,10 +87,11 @@ class QosTests(common.BaseVolumeTests):
         self.assertOutput('', raw_output)
 
         # Test volume qos show
-        cmd_output = json.loads(self.openstack(
-            'volume qos show -f json ' +
-            name
-        ))
+        cmd_output = self.openstack(
+            'volume qos show ' +
+            name,
+            parse_output=True,
+        )
         self.assertEqual(
             name,
             cmd_output['name']
@@ -105,10 +109,11 @@ class QosTests(common.BaseVolumeTests):
         )
         self.assertOutput('', raw_output)
 
-        cmd_output = json.loads(self.openstack(
-            'volume qos show -f json ' +
-            name
-        ))
+        cmd_output = self.openstack(
+            'volume qos show ' +
+            name,
+            parse_output=True,
+        )
         self.assertEqual(
             name,
             cmd_output['name']

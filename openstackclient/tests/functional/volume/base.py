@@ -10,7 +10,6 @@
 #    License for the specific language governing permissions and limitations
 #    under the License.
 
-import json
 import time
 
 from openstackclient.tests.functional import base
@@ -27,10 +26,12 @@ class BaseVolumeTests(base.TestCase):
             failures = ['error']
         total_sleep = 0
         while total_sleep < wait:
-            output = json.loads(cls.openstack(
-                check_type + ' show -f json ' + check_name))
+            output = cls.openstack(
+                check_type + ' show ' + check_name,
+                parse_output=True,
+            )
             current_status = output['status']
-            if (current_status == desired_status):
+            if current_status == desired_status:
                 print('{} {} now has status {}'
                       .format(check_type, check_name, current_status))
                 return
@@ -51,7 +52,7 @@ class BaseVolumeTests(base.TestCase):
         total_sleep = 0
         name_field = name_field or 'Name'
         while total_sleep < wait:
-            result = json.loads(cls.openstack(check_type + ' list -f json'))
+            result = cls.openstack(check_type + ' list', parse_output=True)
             names = [x[name_field] for x in result]
             if check_name not in names:
                 print('{} {} is now deleted'.format(check_type, check_name))

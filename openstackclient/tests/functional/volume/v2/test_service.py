@@ -10,8 +10,6 @@
 #    License for the specific language governing permissions and limitations
 #    under the License.
 
-import json
-
 from openstackclient.tests.functional.volume.v2 import common
 
 
@@ -19,19 +17,19 @@ class VolumeServiceTests(common.BaseVolumeTests):
     """Functional tests for volume service."""
 
     def test_volume_service_list(self):
-        cmd_output = json.loads(self.openstack(
-            'volume service list -f json'))
+        cmd_output = self.openstack('volume service list', parse_output=True)
 
         # Get the nonredundant services and hosts
         services = list(set([x['Binary'] for x in cmd_output]))
         hosts = list(set([x['Host'] for x in cmd_output]))
 
         # Test volume service list --service
-        cmd_output = json.loads(self.openstack(
-            'volume service list -f json ' +
+        cmd_output = self.openstack(
+            'volume service list ' +
             '--service ' +
-            services[0]
-        ))
+            services[0],
+            parse_output=True,
+        )
         for x in cmd_output:
             self.assertEqual(
                 services[0],
@@ -39,11 +37,12 @@ class VolumeServiceTests(common.BaseVolumeTests):
             )
 
         # Test volume service list --host
-        cmd_output = json.loads(self.openstack(
-            'volume service list -f json ' +
+        cmd_output = self.openstack(
+            'volume service list ' +
             '--host ' +
-            hosts[0]
-        ))
+            hosts[0],
+            parse_output=True,
+        )
         for x in cmd_output:
             self.assertIn(
                 hosts[0],
@@ -53,9 +52,10 @@ class VolumeServiceTests(common.BaseVolumeTests):
     def test_volume_service_set(self):
 
         # Get a service and host
-        cmd_output = json.loads(self.openstack(
-            'volume service list -f json'
-        ))
+        cmd_output = self.openstack(
+            'volume service list',
+            parse_output=True,
+        )
         service_1 = cmd_output[0]['Binary']
         host_1 = cmd_output[0]['Host']
 
@@ -67,9 +67,10 @@ class VolumeServiceTests(common.BaseVolumeTests):
         )
         self.assertOutput('', raw_output)
 
-        cmd_output = json.loads(self.openstack(
-            'volume service list -f json --long'
-        ))
+        cmd_output = self.openstack(
+            'volume service list --long',
+            parse_output=True,
+        )
         self.assertEqual(
             'enabled',
             cmd_output[0]['Status']
@@ -89,9 +90,10 @@ class VolumeServiceTests(common.BaseVolumeTests):
         )
         self.assertOutput('', raw_output)
 
-        cmd_output = json.loads(self.openstack(
-            'volume service list -f json --long'
-        ))
+        cmd_output = self.openstack(
+            'volume service list --long',
+            parse_output=True,
+        )
         self.assertEqual(
             'disabled',
             cmd_output[0]['Status']

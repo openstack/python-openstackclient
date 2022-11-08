@@ -10,7 +10,6 @@
 #    License for the specific language governing permissions and limitations
 #    under the License.
 
-import json
 import uuid
 
 from openstackclient.tests.functional.volume.v2 import common
@@ -25,11 +24,12 @@ class VolumeSnapshotTests(common.BaseVolumeTests):
     def setUpClass(cls):
         super(VolumeSnapshotTests, cls).setUpClass()
         # create a volume for all tests to create snapshot
-        cmd_output = json.loads(cls.openstack(
-            'volume create -f json ' +
+        cmd_output = cls.openstack(
+            'volume create ' +
             '--size 1 ' +
-            cls.VOLLY
-        ))
+            cls.VOLLY,
+            parse_output=True,
+        )
         cls.wait_for_status('volume', cls.VOLLY, 'available')
         cls.VOLUME_ID = cmd_output['id']
 
@@ -46,22 +46,24 @@ class VolumeSnapshotTests(common.BaseVolumeTests):
     def test_volume_snapshot_delete(self):
         """Test create, delete multiple"""
         name1 = uuid.uuid4().hex
-        cmd_output = json.loads(self.openstack(
-            'volume snapshot create -f json ' +
+        cmd_output = self.openstack(
+            'volume snapshot create ' +
             name1 +
-            ' --volume ' + self.VOLLY
-        ))
+            ' --volume ' + self.VOLLY,
+            parse_output=True,
+        )
         self.assertEqual(
             name1,
             cmd_output["name"],
         )
 
         name2 = uuid.uuid4().hex
-        cmd_output = json.loads(self.openstack(
-            'volume snapshot create -f json ' +
+        cmd_output = self.openstack(
+            'volume snapshot create ' +
             name2 +
-            ' --volume ' + self.VOLLY
-        ))
+            ' --volume ' + self.VOLLY,
+            parse_output=True,
+        )
         self.assertEqual(
             name2,
             cmd_output["name"],
@@ -79,11 +81,12 @@ class VolumeSnapshotTests(common.BaseVolumeTests):
     def test_volume_snapshot_list(self):
         """Test create, list filter"""
         name1 = uuid.uuid4().hex
-        cmd_output = json.loads(self.openstack(
-            'volume snapshot create -f json ' +
+        cmd_output = self.openstack(
+            'volume snapshot create ' +
             name1 +
-            ' --volume ' + self.VOLLY
-        ))
+            ' --volume ' + self.VOLLY,
+            parse_output=True,
+        )
         self.addCleanup(self.wait_for_delete, 'volume snapshot', name1)
         self.addCleanup(self.openstack, 'volume snapshot delete ' + name1)
         self.assertEqual(
@@ -101,11 +104,12 @@ class VolumeSnapshotTests(common.BaseVolumeTests):
         self.wait_for_status('volume snapshot', name1, 'available')
 
         name2 = uuid.uuid4().hex
-        cmd_output = json.loads(self.openstack(
-            'volume snapshot create -f json ' +
+        cmd_output = self.openstack(
+            'volume snapshot create ' +
             name2 +
-            ' --volume ' + self.VOLLY
-        ))
+            ' --volume ' + self.VOLLY,
+            parse_output=True,
+        )
         self.addCleanup(self.wait_for_delete, 'volume snapshot', name2)
         self.addCleanup(self.openstack, 'volume snapshot delete ' + name2)
         self.assertEqual(
@@ -130,11 +134,12 @@ class VolumeSnapshotTests(common.BaseVolumeTests):
         self.assertOutput('', raw_output)
 
         # Test list --long, --status
-        cmd_output = json.loads(self.openstack(
-            'volume snapshot list -f json ' +
+        cmd_output = self.openstack(
+            'volume snapshot list ' +
             '--long ' +
-            '--status error_deleting'
-        ))
+            '--status error_deleting',
+            parse_output=True,
+        )
         names = [x["Name"] for x in cmd_output]
         self.assertNotIn(name1, names)
         self.assertIn(name2, names)
@@ -147,29 +152,32 @@ class VolumeSnapshotTests(common.BaseVolumeTests):
         self.assertOutput('', raw_output)
 
         # Test list --long, --status
-        cmd_output = json.loads(self.openstack(
-            'volume snapshot list -f json ' +
+        cmd_output = self.openstack(
+            'volume snapshot list ' +
             '--long ' +
-            '--status error'
-        ))
+            '--status error',
+            parse_output=True,
+        )
         names = [x["Name"] for x in cmd_output]
         self.assertNotIn(name1, names)
         self.assertIn(name2, names)
 
         # Test list --volume
-        cmd_output = json.loads(self.openstack(
-            'volume snapshot list -f json ' +
-            '--volume ' + self.VOLLY
-        ))
+        cmd_output = self.openstack(
+            'volume snapshot list ' +
+            '--volume ' + self.VOLLY,
+            parse_output=True,
+        )
         names = [x["Name"] for x in cmd_output]
         self.assertIn(name1, names)
         self.assertIn(name2, names)
 
         # Test list --name
-        cmd_output = json.loads(self.openstack(
-            'volume snapshot list -f json ' +
-            '--name ' + name1
-        ))
+        cmd_output = self.openstack(
+            'volume snapshot list ' +
+            '--name ' + name1,
+            parse_output=True,
+        )
         names = [x["Name"] for x in cmd_output]
         self.assertIn(name1, names)
         self.assertNotIn(name2, names)
@@ -178,13 +186,14 @@ class VolumeSnapshotTests(common.BaseVolumeTests):
         """Test create, set, unset, show, delete volume snapshot"""
         name = uuid.uuid4().hex
         new_name = name + "_"
-        cmd_output = json.loads(self.openstack(
-            'volume snapshot create -f json ' +
+        cmd_output = self.openstack(
+            'volume snapshot create ' +
             '--volume ' + self.VOLLY +
             ' --description aaaa ' +
             '--property Alpha=a ' +
-            name
-        ))
+            name,
+            parse_output=True,
+        )
         self.addCleanup(self.wait_for_delete, 'volume snapshot', new_name)
         self.addCleanup(self.openstack, 'volume snapshot delete ' + new_name)
         self.assertEqual(
@@ -217,10 +226,11 @@ class VolumeSnapshotTests(common.BaseVolumeTests):
         self.assertOutput('', raw_output)
 
         # Show snapshot set result
-        cmd_output = json.loads(self.openstack(
-            'volume snapshot show -f json ' +
-            new_name
-        ))
+        cmd_output = self.openstack(
+            'volume snapshot show ' +
+            new_name,
+            parse_output=True,
+        )
         self.assertEqual(
             new_name,
             cmd_output["name"],
@@ -246,10 +256,11 @@ class VolumeSnapshotTests(common.BaseVolumeTests):
         )
         self.assertOutput('', raw_output)
 
-        cmd_output = json.loads(self.openstack(
-            'volume snapshot show -f json ' +
-            new_name
-        ))
+        cmd_output = self.openstack(
+            'volume snapshot show ' +
+            new_name,
+            parse_output=True,
+        )
         self.assertEqual(
             {'Beta': 'b'},
             cmd_output["properties"],
@@ -262,10 +273,11 @@ class VolumeSnapshotTests(common.BaseVolumeTests):
             new_name,
         )
         self.assertOutput('', raw_output)
-        cmd_output = json.loads(self.openstack(
-            'volume snapshot show -f json ' +
-            new_name
-        ))
+        cmd_output = self.openstack(
+            'volume snapshot show ' +
+            new_name,
+            parse_output=True,
+        )
         self.assertNotIn(
             {'Beta': 'b'},
             cmd_output["properties"],
