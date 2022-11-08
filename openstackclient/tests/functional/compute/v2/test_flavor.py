@@ -10,7 +10,6 @@
 #    License for the specific language governing permissions and limitations
 #    under the License.
 
-import json
 import uuid
 
 from openstackclient.tests.functional import base
@@ -25,9 +24,10 @@ class FlavorTests(base.TestCase):
     def setUpClass(cls):
         super(FlavorTests, cls).setUpClass()
         # Make a project
-        cmd_output = json.loads(cls.openstack(
-            "project create -f json --enable " + cls.PROJECT_NAME
-        ))
+        cmd_output = cls.openstack(
+            "project create --enable " + cls.PROJECT_NAME,
+            parse_output=True,
+        )
         cls.project_id = cmd_output["id"]
 
     @classmethod
@@ -41,22 +41,24 @@ class FlavorTests(base.TestCase):
     def test_flavor_delete(self):
         """Test create w/project, delete multiple"""
         name1 = uuid.uuid4().hex
-        cmd_output = json.loads(self.openstack(
-            "flavor create -f json " +
+        cmd_output = self.openstack(
+            "flavor create " +
             "--project " + self.PROJECT_NAME + " " +
             "--private " +
-            name1
-        ))
+            name1,
+            parse_output=True,
+        )
         self.assertIsNotNone(cmd_output["id"])
 
         name2 = uuid.uuid4().hex
-        cmd_output = json.loads(self.openstack(
-            "flavor create -f json " +
+        cmd_output = self.openstack(
+            "flavor create " +
             "--id qaz " +
             "--project " + self.PROJECT_NAME + " " +
             "--private " +
-            name2
-        ))
+            name2,
+            parse_output=True,
+        )
         self.assertIsNotNone(cmd_output["id"])
         self.assertEqual(
             "qaz",
@@ -71,12 +73,13 @@ class FlavorTests(base.TestCase):
     def test_flavor_list(self):
         """Test create defaults, list filters, delete"""
         name1 = uuid.uuid4().hex
-        cmd_output = json.loads(self.openstack(
-            "flavor create -f json " +
+        cmd_output = self.openstack(
+            "flavor create " +
             "--property a=b " +
             "--property c=d " +
-            name1
-        ))
+            name1,
+            parse_output=True,
+        )
         self.addCleanup(self.openstack, "flavor delete " + name1)
         self.assertIsNotNone(cmd_output["id"])
         self.assertEqual(
@@ -85,15 +88,16 @@ class FlavorTests(base.TestCase):
         )
 
         name2 = uuid.uuid4().hex
-        cmd_output = json.loads(self.openstack(
-            "flavor create -f json " +
+        cmd_output = self.openstack(
+            "flavor create " +
             "--id qaz " +
             "--ram 123 " +
             "--private " +
             "--property a=b2 " +
             "--property b=d2 " +
-            name2
-        ))
+            name2,
+            parse_output=True,
+        )
         self.addCleanup(self.openstack, "flavor delete " + name2)
         self.assertIsNotNone(cmd_output["id"])
         self.assertEqual(
@@ -121,18 +125,20 @@ class FlavorTests(base.TestCase):
         )
 
         # Test list
-        cmd_output = json.loads(self.openstack(
-            "flavor list -f json"
-        ))
+        cmd_output = self.openstack(
+            "flavor list",
+            parse_output=True,
+        )
         col_name = [x["Name"] for x in cmd_output]
         self.assertIn(name1, col_name)
         self.assertNotIn(name2, col_name)
 
         # Test list --long
-        cmd_output = json.loads(self.openstack(
-            "flavor list -f json " +
-            "--long"
-        ))
+        cmd_output = self.openstack(
+            "flavor list " +
+            "--long",
+            parse_output=True,
+        )
         # We have list of complex json objects
         # Iterate through the list setting flags
         found_expected = False
@@ -147,28 +153,31 @@ class FlavorTests(base.TestCase):
         self.assertTrue(found_expected)
 
         # Test list --public
-        cmd_output = json.loads(self.openstack(
-            "flavor list -f json " +
-            "--public"
-        ))
+        cmd_output = self.openstack(
+            "flavor list " +
+            "--public",
+            parse_output=True,
+        )
         col_name = [x["Name"] for x in cmd_output]
         self.assertIn(name1, col_name)
         self.assertNotIn(name2, col_name)
 
         # Test list --private
-        cmd_output = json.loads(self.openstack(
-            "flavor list -f json " +
-            "--private"
-        ))
+        cmd_output = self.openstack(
+            "flavor list " +
+            "--private",
+            parse_output=True,
+        )
         col_name = [x["Name"] for x in cmd_output]
         self.assertNotIn(name1, col_name)
         self.assertIn(name2, col_name)
 
         # Test list --all
-        cmd_output = json.loads(self.openstack(
-            "flavor list -f json " +
-            "--all"
-        ))
+        cmd_output = self.openstack(
+            "flavor list " +
+            "--all",
+            parse_output=True,
+        )
         col_name = [x["Name"] for x in cmd_output]
         self.assertIn(name1, col_name)
         self.assertIn(name2, col_name)
@@ -176,16 +185,17 @@ class FlavorTests(base.TestCase):
     def test_flavor_properties(self):
         """Test create defaults, list filters, delete"""
         name1 = uuid.uuid4().hex
-        cmd_output = json.loads(self.openstack(
-            "flavor create -f json " +
+        cmd_output = self.openstack(
+            "flavor create " +
             "--id qaz " +
             "--ram 123 " +
             "--disk 20 " +
             "--private " +
             "--property a=first " +
             "--property b=second " +
-            name1
-        ))
+            name1,
+            parse_output=True,
+        )
         self.addCleanup(self.openstack, "flavor delete " + name1)
         self.assertIsNotNone(cmd_output["id"])
         self.assertEqual(
@@ -220,10 +230,11 @@ class FlavorTests(base.TestCase):
         )
         self.assertEqual('', raw_output)
 
-        cmd_output = json.loads(self.openstack(
-            "flavor show -f json " +
-            name1
-        ))
+        cmd_output = self.openstack(
+            "flavor show " +
+            name1,
+            parse_output=True,
+        )
         self.assertEqual(
             "qaz",
             cmd_output["id"],
@@ -245,9 +256,10 @@ class FlavorTests(base.TestCase):
         )
         self.assertEqual('', raw_output)
 
-        cmd_output = json.loads(self.openstack(
-            "flavor show -f json " +
-            name1
-        ))
+        cmd_output = self.openstack(
+            "flavor show " +
+            name1,
+            parse_output=True,
+        )
 
         self.assertNotIn('b', cmd_output['properties'])

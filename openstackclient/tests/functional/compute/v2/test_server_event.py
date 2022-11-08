@@ -13,8 +13,6 @@
 #   under the License.
 #
 
-import json
-
 from openstackclient.tests.functional.compute.v2 import common
 
 
@@ -33,9 +31,10 @@ class ServerEventTests(common.ComputeTestCase):
     def test_server_event_list_and_show(self):
         """Test list, show server event"""
         # Test 'server event list' for creating
-        cmd_output = json.loads(self.openstack(
-            'server event list -f json ' + self.server_name
-        ))
+        cmd_output = self.openstack(
+            'server event list ' + self.server_name,
+            parse_output=True,
+        )
         request_id = None
         for each_event in cmd_output:
             self.assertNotIn('Message', each_event)
@@ -47,9 +46,10 @@ class ServerEventTests(common.ComputeTestCase):
                 break
         self.assertIsNotNone(request_id)
         # Test 'server event show' for creating
-        cmd_output = json.loads(self.openstack(
-            'server event show -f json ' + self.server_name + ' ' + request_id
-        ))
+        cmd_output = self.openstack(
+            'server event show ' + self.server_name + ' ' + request_id,
+            parse_output=True,
+        )
         self.assertEqual(self.server_id, cmd_output.get('instance_uuid'))
         self.assertEqual(request_id, cmd_output.get('request_id'))
         self.assertEqual('create', cmd_output.get('action'))
@@ -59,9 +59,10 @@ class ServerEventTests(common.ComputeTestCase):
         # Reboot server, trigger reboot event
         self.openstack('server reboot --wait ' + self.server_name)
         # Test 'server event list --long' for rebooting
-        cmd_output = json.loads(self.openstack(
-            'server event list --long -f json ' + self.server_name
-        ))
+        cmd_output = self.openstack(
+            'server event list --long ' + self.server_name,
+            parse_output=True,
+        )
         request_id = None
         for each_event in cmd_output:
             self.assertIn('Message', each_event)
@@ -73,9 +74,10 @@ class ServerEventTests(common.ComputeTestCase):
                 break
         self.assertIsNotNone(request_id)
         # Test 'server event show' for rebooting
-        cmd_output = json.loads(self.openstack(
-            'server event show -f json ' + self.server_name + ' ' + request_id
-        ))
+        cmd_output = self.openstack(
+            'server event show ' + self.server_name + ' ' + request_id,
+            parse_output=True,
+        )
 
         self.assertEqual(self.server_id, cmd_output.get('instance_uuid'))
         self.assertEqual(request_id, cmd_output.get('request_id'))
@@ -93,10 +95,11 @@ class ServerEventTests(common.ComputeTestCase):
         self.openstack('server delete --wait ' + server_id)
         # And verify we can get the event list after it's deleted
         # Test 'server event list' for deleting
-        cmd_output = json.loads(self.openstack(
+        cmd_output = self.openstack(
             '--os-compute-api-version 2.21 '
-            'server event list -f json ' + server_id
-        ))
+            'server event list ' + server_id,
+            parse_output=True,
+        )
         request_id = None
         for each_event in cmd_output:
             self.assertNotIn('Message', each_event)
@@ -108,10 +111,11 @@ class ServerEventTests(common.ComputeTestCase):
                 break
         self.assertIsNotNone(request_id)
         # Test 'server event show' for deleting
-        cmd_output = json.loads(self.openstack(
+        cmd_output = self.openstack(
             '--os-compute-api-version 2.21 '
-            'server event show -f json ' + server_id + ' ' + request_id
-        ))
+            'server event show ' + server_id + ' ' + request_id,
+            parse_output=True,
+        )
         self.assertEqual(server_id, cmd_output.get('instance_uuid'))
         self.assertEqual(request_id, cmd_output.get('request_id'))
         self.assertEqual('delete', cmd_output.get('action'))
