@@ -54,12 +54,6 @@
         LIBS_FROM_GIT: python-openstackclient
         # NOTE(dtroyer): Functional tests need a bit more volume headroom
         VOLUME_BACKING_FILE_SIZE: 20G
-      devstack_local_conf:
-        post-config:
-          $CINDER_CONF:
-            DEFAULT:
-              # NOTE(dtroyer): OSC needs to support Volume v1 for a while yet so re-enable
-              enable_v1_api: true
       devstack_services:
         ceilometer-acentral: false
         ceilometer-acompute: false
@@ -112,28 +106,6 @@
         Q_AGENT: openvswitch
         Q_ML2_TENANT_NETWORK_TYPE: vxlan
         Q_ML2_PLUGIN_MECHANISM_DRIVERS: openvswitch
-      tox_envlist: functional
-
-- job:
-    name: osc-functional-devstack-n-net
-    parent: osc-functional-devstack-base
-    timeout: 7800
-    vars:
-      devstack_localrc:
-        FLAT_INTERFACE: br_flat
-        PUBLIC_INTERFACE: br_pub
-      devstack_services:
-        n-cell: true
-        n-net: true
-        neutron: false
-        neutron-segments: false
-        q-agt: false
-        q-dhcp: false
-        q-l3: false
-        q-meta: false
-        q-metering: false
-        q-qos: false
-        q-svc: false
       tox_envlist: functional
 
 - job:
@@ -232,12 +204,6 @@
       jobs:
         - osc-build-image
         - osc-functional-devstack
-        # - osc-functional-devstack-n-net:
-        #     voting: false
-        #     # The job testing nova-network no longer works before Pike, and
-        #     # should be disabled until the New Way of testing against old clouds
-        #     # is ready and backported
-        #     branches: ^(?!stable/(newton|ocata)).*$
         - osc-functional-devstack-tips:
             # The functional-tips job only tests the latest and shouldn't be run
             # on the stable branches
