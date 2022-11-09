@@ -168,11 +168,11 @@ class ListNetworkAgent(command.Lister):
             metavar='<agent-type>',
             choices=["bgp", "dhcp", "open-vswitch", "linux-bridge", "ofa",
                      "l3", "loadbalancer", "metering", "metadata", "macvtap",
-                     "nic"],
+                     "nic", "baremetal"],
             help=_("List only agents with the specified agent type. "
                    "The supported agent types are: bgp, dhcp, open-vswitch, "
                    "linux-bridge, ofa, l3, loadbalancer, metering, "
-                   "metadata, macvtap, nic.")
+                   "metadata, macvtap, nic, baremetal.")
         )
         parser.add_argument(
             '--host',
@@ -231,7 +231,8 @@ class ListNetworkAgent(command.Lister):
             'metering': 'Metering agent',
             'metadata': 'Metadata agent',
             'macvtap': 'Macvtap agent',
-            'nic': 'NIC Switch agent'
+            'nic': 'NIC Switch agent',
+            'baremetal': 'Baremetal Node'
         }
 
         filters = {}

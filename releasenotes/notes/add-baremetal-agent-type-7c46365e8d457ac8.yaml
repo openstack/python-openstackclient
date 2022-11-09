@@ -1,0 +1,5 @@
+---
+features:
+  - |
+    Add ``baremetal`` agent type to ``--agent-type`` option for
+    ``network agent list`` command.
