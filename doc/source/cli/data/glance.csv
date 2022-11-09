@@ -1,6 +1,10 @@
+cache-clear,,"Clear all images from cache, queue or both."
+cache-delete,,Delete image from cache/caching queue.
+cache-list,,Get cache state.
+cache-queue,,Queue image(s) for caching.
 explain,WONTFIX,Describe a specific model.
 image-create,image create,Create a new image.
-image-create-via-import,,EXPERIMENTAL: Create a new image via image import.
+image-create-via-import, image create --import,"EXPERIMENTAL: Create a new image via image import using glance-direct import method. Missing support for web-download, copy-image and glance-download import methods. The OSC command is also missing support for importing image to specified store as well as all stores (--store, --stores, --all-stores) and skip or stop processing if import fails to one of the store (--allow-failure)"
 image-deactivate,image set --deactivate,Deactivate specified image.
 image-delete,image delete,Delete specified image.
 image-download,image save,Download a specific image.
@@ -11,6 +15,7 @@ image-show,image show,Describe a specific image.
 image-stage,,Upload data for a specific image to staging.
 image-tag-delete,image unset --tag <tag>,Delete the tag associated with the given image.
 image-tag-update,image set --tag <tag>,Update an image with the given tag.
+image-tasks,,Get tasks associated with image.
 image-update,image set,Update an existing image.
 image-upload,,Upload data for a specific image.
 import-info,,Print import methods available from Glance.
@@ -49,6 +54,7 @@ md-tag-show,,Describe a specific metadata definitions tag inside a namespace.
 md-tag-update,,Rename a metadata definitions tag inside a namespace.
 member-create,image add project,Create member for a given image.
 member-delete,image remove project,Delete image member.
+member-get,,Show details of an image member
 member-list,image member list,Describe sharing permissions by image.
 member-update,image set --accept --reject --status,Update the status of a member for a given image.
 stores-delete,,Delete image from specific store.
@@ -56,5 +62,6 @@ stores-info,,Print available backends from Glance.
 task-create,WONTFIX,Create a new task.
 task-list,image task list,List tasks you can access.
 task-show,image task show,Describe a specific task.
+usage,,Get quota usage information.
 bash-completion,complete,Prints arguments for bash_completion.
 help,help,Display help about this program or one of its subcommands.
