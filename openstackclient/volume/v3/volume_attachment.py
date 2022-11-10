@@ -82,7 +82,7 @@ class CreateVolumeAttachment(command.ShowOne):
     the volume to the server at the hypervisor level. As a result, it should
     typically only be used for troubleshooting issues with an existing server
     in combination with other tooling. For all other use cases, the 'server
-    volume add' command should be preferred.
+    add volume' command should be preferred.
     """
 
     def get_parser(self, prog_name):
