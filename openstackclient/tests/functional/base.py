@@ -10,6 +10,7 @@
 #    License for the specific language governing permissions and limitations
 #    under the License.
 
+import json
 import logging
 import os
 import shlex
@@ -48,33 +49,52 @@ def execute(cmd, fail_ok=False, merge_stderr=False):
 class TestCase(testtools.TestCase):
 
     @classmethod
-    def openstack(cls, cmd, cloud=ADMIN_CLOUD, fail_ok=False):
+    def openstack(
+        cls,
+        cmd,
+        *,
+        cloud=ADMIN_CLOUD,
+        fail_ok=False,
+        parse_output=False,
+    ):
         """Executes openstackclient command for the given action
 
-        NOTE(dtroyer): There is a subtle distinction between passing
-        cloud=None and cloud='': for compatibility reasons passing
-        cloud=None continues to include the option '--os-auth-type none'
-        in the command while passing cloud='' omits the '--os-auth-type'
-         option completely to let the default handlers be invoked.
+        :param cmd: A string representation of the command to execute.
+        :param cloud: The cloud to execute against. This can be a string, empty
+            string, or None. A string results in '--os-auth-type $cloud', an
+            empty string results in the '--os-auth-type' option being
+            omitted, and None resuts in '--os-auth-type none' for legacy
+            reasons.
+        :param fail_ok: If failure is permitted. If False (default), a command
+            failure will result in `~tempest.lib.exceptions.CommandFailed`
+            being raised.
+        :param parse_output: If true, pass the '-f json' parameter and decode
+            the output.
+        :returns: The output from the command.
+        :raises: `~tempest.lib.exceptions.CommandFailed` if the command failed
+            and ``fail_ok`` was ``False``.
         """
+        auth_args = []
         if cloud is None:
             # Execute command with no auth
-            return execute(
-                'openstack --os-auth-type none ' + cmd,
-                fail_ok=fail_ok
-            )
-        elif cloud == '':
-            # Execute command with no auth options at all
-            return execute(
-                'openstack ' + cmd,
-                fail_ok=fail_ok
-            )
-        else:
+            auth_args.append('--os-auth-type none')
+        elif cloud != '':
             # Execute command with an explicit cloud specified
-            return execute(
-                'openstack --os-cloud=' + cloud + ' ' + cmd,
-                fail_ok=fail_ok
-            )
+            auth_args.append(f'--os-cloud {cloud}')
+
+        format_args = []
+        if parse_output:
+            format_args.append('-f json')
+
+        output = execute(
+            ' '.join(['openstack'] + auth_args + [cmd] + format_args),
+            fail_ok=fail_ok,
+        )
+
+        if parse_output:
+            return json.loads(output)
+        else:
+            return output
 
     @classmethod
     def is_service_enabled(cls, service, version=None):
