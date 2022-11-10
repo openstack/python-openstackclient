@@ -10,8 +10,6 @@
 #    License for the specific language governing permissions and limitations
 #    under the License.
 
-import json
-
 from tempest.lib import exceptions as tempest_exc
 
 from openstackclient.tests.functional import base
@@ -21,10 +19,11 @@ class ArgumentTests(base.TestCase):
     """Functional tests for command line arguments"""
 
     def test_default_auth_type(self):
-        cmd_output = json.loads(self.openstack(
-            'configuration show -f json',
+        cmd_output = self.openstack(
+            'configuration show',
             cloud='',
-        ))
+            parse_output=True,
+        )
         self.assertIsNotNone(cmd_output)
         self.assertIn(
             'auth_type',
@@ -36,10 +35,11 @@ class ArgumentTests(base.TestCase):
         )
 
     def test_auth_type_none(self):
-        cmd_output = json.loads(self.openstack(
-            'configuration show -f json',
+        cmd_output = self.openstack(
+            'configuration show',
             cloud=None,
-        ))
+            parse_output=True,
+        )
         self.assertIsNotNone(cmd_output)
         self.assertIn(
             'auth_type',
@@ -54,7 +54,7 @@ class ArgumentTests(base.TestCase):
         # Make sure token_endpoint is really gone
         try:
             self.openstack(
-                'configuration show -f json --os-auth-type token_endpoint',
+                'configuration show --os-auth-type token_endpoint',
                 cloud=None,
             )
         except tempest_exc.CommandFailed as e:
@@ -64,10 +64,11 @@ class ArgumentTests(base.TestCase):
             self.fail('CommandFailed should be raised')
 
     def test_auth_type_password_opt(self):
-        cmd_output = json.loads(self.openstack(
-            'configuration show -f json --os-auth-type password',
+        cmd_output = self.openstack(
+            'configuration show --os-auth-type password',
             cloud=None,
-        ))
+            parse_output=True,
+        )
         self.assertIsNotNone(cmd_output)
         self.assertIn(
             'auth_type',
