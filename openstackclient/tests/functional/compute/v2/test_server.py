@@ -11,6 +11,7 @@
 #    under the License.
 
 import itertools
+import json
 import time
 import uuid
 
@@ -287,6 +288,33 @@ class ServerTests(common.ComputeTestCase):
             new_name
         )
         self.assertOutput("", raw_output)
+
+    def test_server_show(self):
+        """Test server show"""
+        cmd_output = self.server_create()
+        name = cmd_output['name']
+
+        # Simple show
+        cmd_output = json.loads(self.openstack(
+            f'server show -f json {name}'
+        ))
+        self.assertEqual(
+            name,
+            cmd_output["name"],
+        )
+
+        # Show diagnostics
+        cmd_output = json.loads(self.openstack(
+            f'server show -f json {name} --diagnostics'
+        ))
+        self.assertIn('driver', cmd_output)
+
+        # Show topology
+        cmd_output = json.loads(self.openstack(
+            f'server show -f json {name} --topology '
+            f'--os-compute-api-version 2.78'
+        ))
+        self.assertIn('topology', cmd_output)
 
     def test_server_actions(self):
         """Test server action pairs
