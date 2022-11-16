@@ -721,11 +721,6 @@ class NICAction(argparse.Action):
         if getattr(namespace, self.dest, None) is None:
             setattr(namespace, self.dest, [])
 
-        # Handle the special auto/none cases
-        if values in ('auto', 'none'):
-            getattr(namespace, self.dest).append(values)
-            return
-
         if self.key:
             if ',' in values or '=' in values:
                 msg = _(
@@ -735,6 +730,12 @@ class NICAction(argparse.Action):
                 raise argparse.ArgumentTypeError(msg % values)
 
             values = '='.join([self.key, values])
+        else:
+            # Handle the special auto/none cases but only when a key isn't set
+            # (otherwise those could be valid values for the key)
+            if values in ('auto', 'none'):
+                getattr(namespace, self.dest).append(values)
+                return
 
         # We don't include 'tag' here by default since that requires a
         # particular microversion
