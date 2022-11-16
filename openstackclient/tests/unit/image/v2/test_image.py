@@ -252,6 +252,37 @@ class TestImageCreate(TestImage):
             self.expected_data,
             data)
 
+    @mock.patch('openstackclient.image.v2.image.get_data_file')
+    def test_image_create__progress_ignore_with_stdin(
+        self, mock_get_data_file,
+    ):
+        fake_stdin = io.StringIO('fake-image-data')
+        mock_get_data_file.return_value = (fake_stdin, None)
+
+        arglist = [
+            '--progress',
+            self.new_image.name,
+        ]
+        verifylist = [
+            ('progress', True),
+            ('name', self.new_image.name),
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        columns, data = self.cmd.take_action(parsed_args)
+
+        self.client.create_image.assert_called_with(
+            name=self.new_image.name,
+            allow_duplicates=True,
+            container_format=image.DEFAULT_CONTAINER_FORMAT,
+            disk_format=image.DEFAULT_DISK_FORMAT,
+            data=fake_stdin,
+            validate_checksum=False,
+        )
+
+        self.assertEqual(self.expected_columns, columns)
+        self.assertCountEqual(self.expected_data, data)
+
     def test_image_create_dead_options(self):
 
         arglist = [

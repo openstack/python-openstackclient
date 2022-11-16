@@ -476,7 +476,9 @@ class CreateImage(command.ShowOne):
             LOG.warning(_("Failed to get an image file."))
             return {}, {}
 
-        if fp is not None and parsed_args.progress:
+        if parsed_args.progress and parsed_args.file:
+            # NOTE(stephenfin): we only show a progress bar if the user
+            # requested it *and* we're reading from a file (not stdin)
             filesize = os.path.getsize(fname)
             if filesize is not None:
                 kwargs['validate_checksum'] = False
