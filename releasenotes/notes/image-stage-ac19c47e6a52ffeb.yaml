@@ -1,0 +1,5 @@
+---
+features:
+  - |
+    Added a new command, ``image stage``, that will allow users to upload data
+    for an image to staging.

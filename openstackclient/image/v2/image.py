@@ -1484,3 +1484,80 @@ class UnsetImage(command.Command):
                 "Failed to unset %(propret)s of %(proptotal)s" " properties."
             ) % {'propret': propret, 'proptotal': proptotal}
             raise exceptions.CommandError(msg)
+
+
+class StageImage(command.Command):
+    _description = _(
+        "Upload data for a specific image to staging.\n"
+        "This requires support for the interoperable image import process, "
+        "which was first introduced in Image API version 2.6 "
+        "(Glance 16.0.0 (Queens))"
+    )
+
+    def get_parser(self, prog_name):
+        parser = super().get_parser(prog_name)
+
+        parser.add_argument(
+            '--file',
+            metavar='<file>',
+            dest='filename',
+            help=_(
+                'Local file that contains disk image to be uploaded. '
+                'Alternatively, images can be passed via stdin.'
+            ),
+        )
+        # NOTE(stephenfin): glanceclient had a --size argument but it didn't do
+        # anything so we have chosen not to port this
+        parser.add_argument(
+            '--progress',
+            action='store_true',
+            default=False,
+            help=_(
+                'Show upload progress bar '
+                '(ignored if passing data via stdin)'
+            ),
+        )
+        parser.add_argument(
+            'image',
+            metavar='<image>',
+            help=_('Image to upload data for (name or ID)'),
+        )
+
+        return parser
+
+    def take_action(self, parsed_args):
+        image_client = self.app.client_manager.image
+
+        image = image_client.find_image(
+            parsed_args.image,
+            ignore_missing=False,
+        )
+        # open the file first to ensure any failures are handled before the
+        # image is created. Get the file name (if it is file, and not stdin)
+        # for easier further handling.
+        if parsed_args.filename:
+            try:
+                fp = open(parsed_args.filename, 'rb')
+            except FileNotFoundError:
+                raise exceptions.CommandError(
+                    '%r is not a valid file' % parsed_args.filename,
+                )
+        else:
+            fp = get_data_from_stdin()
+
+        kwargs = {}
+
+        if parsed_args.progress and parsed_args.filename:
+            # NOTE(stephenfin): we only show a progress bar if the user
+            # requested it *and* we're reading from a file (not stdin)
+            filesize = os.path.getsize(parsed_args.filename)
+            if filesize is not None:
+                kwargs['data'] = progressbar.VerboseFileWrapper(fp, filesize)
+            else:
+                kwargs['data'] = fp
+        elif parsed_args.filename:
+            kwargs['filename'] = parsed_args.filename
+        elif fp:
+            kwargs['data'] = fp
+
+        image_client.stage_image(image, **kwargs)
