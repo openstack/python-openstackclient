@@ -134,34 +134,32 @@ def _get_member_columns(item):
     )
 
 
-def get_data_file(args):
-    if args.file:
-        return (open(args.file, 'rb'), args.file)
-    else:
-        # distinguish cases where:
-        # (1) stdin is not valid (as in cron jobs):
-        #    openstack ... <&-
-        # (2) image data is provided through stdin:
-        #    openstack ... < /tmp/file
-        # (3) no image data provided
-        #    openstack ...
-        try:
-            os.fstat(0)
-        except OSError:
-            # (1) stdin is not valid
-            return (None, None)
-        if not sys.stdin.isatty():
-            # (2) image data is provided through stdin
-            image = sys.stdin
-            if hasattr(sys.stdin, 'buffer'):
-                image = sys.stdin.buffer
-            if msvcrt:
-                msvcrt.setmode(sys.stdin.fileno(), os.O_BINARY)
+def get_data_from_stdin():
+    # distinguish cases where:
+    # (1) stdin is not valid (as in cron jobs):
+    #    openstack ... <&-
+    # (2) image data is provided through stdin:
+    #    openstack ... < /tmp/file
+    # (3) no image data provided
+    #    openstack ...
+    try:
+        os.fstat(0)
+    except OSError:
+        # (1) stdin is not valid
+        return None
 
-            return (image, None)
-        else:
-            # (3)
-            return (None, None)
+    if not sys.stdin.isatty():
+        # (2) image data is provided through stdin
+        image = sys.stdin
+        if hasattr(sys.stdin, 'buffer'):
+            image = sys.stdin.buffer
+        if msvcrt:
+            msvcrt.setmode(sys.stdin.fileno(), os.O_BINARY)
+
+        return image
+    else:
+        # (3)
+        return None
 
 
 class AddProjectToImage(command.ShowOne):
@@ -277,6 +275,7 @@ class CreateImage(command.ShowOne):
         source_group = parser.add_mutually_exclusive_group()
         source_group.add_argument(
             "--file",
+            dest="filename",
             metavar="<file>",
             help=_("Upload image from local file"),
         )
@@ -299,7 +298,10 @@ class CreateImage(command.ShowOne):
             "--progress",
             action="store_true",
             default=False,
-            help=_("Show upload progress bar."),
+            help=_(
+                "Show upload progress bar "
+                "(ignored if passing data via stdin)"
+            ),
         )
         parser.add_argument(
             '--sign-key-path',
@@ -463,7 +465,15 @@ class CreateImage(command.ShowOne):
         # open the file first to ensure any failures are handled before the
         # image is created. Get the file name (if it is file, and not stdin)
         # for easier further handling.
-        fp, fname = get_data_file(parsed_args)
+        if parsed_args.filename:
+            try:
+                fp = open(parsed_args.filename, 'rb')
+            except FileNotFoundError:
+                raise exceptions.CommandError(
+                    '%r is not a valid file' % parsed_args.filename,
+                )
+        else:
+            fp = get_data_from_stdin()
 
         if fp is not None and parsed_args.volume:
             msg = _(
@@ -472,26 +482,24 @@ class CreateImage(command.ShowOne):
             )
             raise exceptions.CommandError(msg)
 
-        if fp is None and parsed_args.file:
-            LOG.warning(_("Failed to get an image file."))
-            return {}, {}
-
-        if parsed_args.progress and parsed_args.file:
+        if parsed_args.progress and parsed_args.filename:
             # NOTE(stephenfin): we only show a progress bar if the user
             # requested it *and* we're reading from a file (not stdin)
-            filesize = os.path.getsize(fname)
+            filesize = os.path.getsize(parsed_args.filename)
             if filesize is not None:
                 kwargs['validate_checksum'] = False
                 kwargs['data'] = progressbar.VerboseFileWrapper(fp, filesize)
-        elif fname:
-            kwargs['filename'] = fname
+            else:
+                kwargs['data'] = fp
+        elif parsed_args.filename:
+            kwargs['filename'] = parsed_args.filename
         elif fp:
             kwargs['validate_checksum'] = False
             kwargs['data'] = fp
 
         # sign an image using a given local private key file
         if parsed_args.sign_key_path or parsed_args.sign_cert_id:
-            if not parsed_args.file:
+            if not parsed_args.filename:
                 msg = _(
                     "signing an image requires the --file option, "
                     "passing files via stdin when signing is not "
@@ -546,6 +554,10 @@ class CreateImage(command.ShowOne):
                 kwargs['img_signature_key_type'] = signer.padding_method
 
         image = image_client.create_image(**kwargs)
+
+        if parsed_args.filename:
+            fp.close()
+
         return _format_image(image)
 
     def _take_action_volume(self, parsed_args):
@@ -980,6 +992,7 @@ class SaveImage(command.Command):
         parser.add_argument(
             "--file",
             metavar="<filename>",
+            dest="filename",
             help=_("Downloaded image save filename (default: stdout)"),
         )
         parser.add_argument(
@@ -993,7 +1006,7 @@ class SaveImage(command.Command):
         image_client = self.app.client_manager.image
         image = image_client.find_image(parsed_args.image)
 
-        output_file = parsed_args.file
+        output_file = parsed_args.filename
         if output_file is None:
             output_file = getattr(sys.stdout, "buffer", sys.stdout)
 
