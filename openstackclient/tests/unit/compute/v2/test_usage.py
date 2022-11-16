@@ -11,10 +11,7 @@
 #   under the License.
 #
 
-import datetime
 from unittest import mock
-
-from novaclient import api_versions
 
 from openstackclient.compute.v2 import usage as usage_cmds
 from openstackclient.tests.unit.compute.v2 import fakes as compute_fakes
@@ -26,8 +23,9 @@ class TestUsage(compute_fakes.TestComputev2):
     def setUp(self):
         super(TestUsage, self).setUp()
 
-        self.usage_mock = self.app.client_manager.compute.usage
-        self.usage_mock.reset_mock()
+        self.app.client_manager.sdk_connection = mock.Mock()
+        self.app.client_manager.sdk_connection.compute = mock.Mock()
+        self.sdk_client = self.app.client_manager.sdk_connection.compute
 
         self.projects_mock = self.app.client_manager.identity.projects
         self.projects_mock.reset_mock()
@@ -38,7 +36,7 @@ class TestUsageList(TestUsage):
     project = identity_fakes.FakeProject.create_one_project()
     # Return value of self.usage_mock.list().
     usages = compute_fakes.FakeUsage.create_usages(
-        attrs={'tenant_id': project.name}, count=1)
+        attrs={'project_id': project.name}, count=1)
 
     columns = (
         "Project",
@@ -49,7 +47,7 @@ class TestUsageList(TestUsage):
     )
 
     data = [(
-        usage_cmds.ProjectColumn(usages[0].tenant_id),
+        usage_cmds.ProjectColumn(usages[0].project_id),
         usage_cmds.CountColumn(usages[0].server_usages),
         usage_cmds.FloatColumn(usages[0].total_memory_mb_usage),
         usage_cmds.FloatColumn(usages[0].total_vcpus_usage),
@@ -59,7 +57,7 @@ class TestUsageList(TestUsage):
     def setUp(self):
         super(TestUsageList, self).setUp()
 
-        self.usage_mock.list.return_value = self.usages
+        self.sdk_client.usages.return_value = self.usages
 
         self.projects_mock.list.return_value = [self.project]
         # Get the command object to test
@@ -97,9 +95,9 @@ class TestUsageList(TestUsage):
         columns, data = self.cmd.take_action(parsed_args)
 
         self.projects_mock.list.assert_called_with()
-        self.usage_mock.list.assert_called_with(
-            datetime.datetime(2016, 11, 11, 0, 0),
-            datetime.datetime(2016, 12, 20, 0, 0),
+        self.sdk_client.usages.assert_called_with(
+            start='2016-11-11T00:00:00',
+            end='2016-12-20T00:00:00',
             detailed=True)
 
         self.assertCountEqual(self.columns, columns)
@@ -112,20 +110,13 @@ class TestUsageList(TestUsage):
             ('end', None),
         ]
 
-        self.app.client_manager.compute.api_version = api_versions.APIVersion(
-            '2.40')
-        self.usage_mock.list.reset_mock()
-        self.usage_mock.list.side_effect = [self.usages, []]
-
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
         columns, data = self.cmd.take_action(parsed_args)
 
         self.projects_mock.list.assert_called_with()
-        self.usage_mock.list.assert_has_calls([
-            mock.call(mock.ANY, mock.ANY, detailed=True),
-            mock.call(mock.ANY, mock.ANY, detailed=True,
-                      marker=self.usages[0]['server_usages'][0]['instance_id'])
+        self.sdk_client.usages.assert_has_calls([
+            mock.call(start=mock.ANY, end=mock.ANY, detailed=True)
         ])
         self.assertCountEqual(self.columns, columns)
         self.assertCountEqual(tuple(self.data), tuple(data))
@@ -136,7 +127,7 @@ class TestUsageShow(TestUsage):
     project = identity_fakes.FakeProject.create_one_project()
     # Return value of self.usage_mock.list().
     usage = compute_fakes.FakeUsage.create_one_usage(
-        attrs={'tenant_id': project.name})
+        attrs={'project_id': project.name})
 
     columns = (
         'Project',
@@ -147,7 +138,7 @@ class TestUsageShow(TestUsage):
     )
 
     data = (
-        usage_cmds.ProjectColumn(usage.tenant_id),
+        usage_cmds.ProjectColumn(usage.project_id),
         usage_cmds.CountColumn(usage.server_usages),
         usage_cmds.FloatColumn(usage.total_memory_mb_usage),
         usage_cmds.FloatColumn(usage.total_vcpus_usage),
@@ -157,7 +148,7 @@ class TestUsageShow(TestUsage):
     def setUp(self):
         super(TestUsageShow, self).setUp()
 
-        self.usage_mock.get.return_value = self.usage
+        self.sdk_client.get_usage.return_value = self.usage
 
         self.projects_mock.get.return_value = self.project
         # Get the command object to test
@@ -199,10 +190,10 @@ class TestUsageShow(TestUsage):
 
         columns, data = self.cmd.take_action(parsed_args)
 
-        self.usage_mock.get.assert_called_with(
-            self.project.id,
-            datetime.datetime(2016, 11, 11, 0, 0),
-            datetime.datetime(2016, 12, 20, 0, 0))
+        self.sdk_client.get_usage.assert_called_with(
+            project=self.project.id,
+            start='2016-11-11T00:00:00',
+            end='2016-12-20T00:00:00')
 
         self.assertEqual(self.columns, columns)
         self.assertEqual(self.data, data)
