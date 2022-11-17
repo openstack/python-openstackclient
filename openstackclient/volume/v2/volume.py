@@ -71,10 +71,10 @@ def _check_size_arg(args):
     volume is not specified.
     """
 
-    if ((args.snapshot or args.source)
+    if ((args.snapshot or args.source or args.backup)
             is None and args.size is None):
-        msg = _("--size is a required option if snapshot "
-                "or source volume is not specified.")
+        msg = _("--size is a required option if snapshot, backup "
+                "or source volume are not specified.")
         raise exceptions.CommandError(msg)
 
 
@@ -116,6 +116,12 @@ class CreateVolume(command.ShowOne):
             "--source",
             metavar="<volume>",
             help=_("Volume to clone (name or ID)"),
+        )
+        source_group.add_argument(
+            "--backup",
+            metavar="<backup>",
+            help=_("Restore backup to a volume (name or ID) "
+                   "(supported by --os-volume-api-version 3.47 or later)"),
         )
         source_group.add_argument(
             "--source-replicated",
@@ -177,8 +183,15 @@ class CreateVolume(command.ShowOne):
 
     def take_action(self, parsed_args):
         _check_size_arg(parsed_args)
+
         volume_client = self.app.client_manager.volume
         image_client = self.app.client_manager.image
+
+        if parsed_args.backup and not (
+                volume_client.api_version.matches('3.47')):
+            msg = _("--os-volume-api-version 3.47 or greater is required "
+                    "to create a volume from backup.")
+            raise exceptions.CommandError(msg)
 
         source_volume = None
         if parsed_args.source:
@@ -213,6 +226,15 @@ class CreateVolume(command.ShowOne):
             # snapshot size.
             size = max(size or 0, snapshot_obj.size)
 
+        backup = None
+        if parsed_args.backup:
+            backup_obj = utils.find_resource(
+                volume_client.backups,
+                parsed_args.backup)
+            backup = backup_obj.id
+            # As above
+            size = max(size or 0, backup_obj.size)
+
         volume = volume_client.volumes.create(
             size=size,
             snapshot_id=snapshot,
@@ -225,6 +247,7 @@ class CreateVolume(command.ShowOne):
             source_volid=source_volume,
             consistencygroup_id=consistency_group,
             scheduler_hints=parsed_args.hint,
+            backup_id=backup,
         )
 
         if parsed_args.bootable or parsed_args.non_bootable:

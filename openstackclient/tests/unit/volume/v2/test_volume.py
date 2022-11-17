@@ -16,6 +16,7 @@ import argparse
 from unittest import mock
 from unittest.mock import call
 
+from cinderclient import api_versions
 from osc_lib.cli import format_columns
 from osc_lib import exceptions
 from osc_lib import utils
@@ -46,6 +47,9 @@ class TestVolume(volume_fakes.TestVolume):
 
         self.snapshots_mock = self.app.client_manager.volume.volume_snapshots
         self.snapshots_mock.reset_mock()
+
+        self.backups_mock = self.app.client_manager.volume.backups
+        self.backups_mock.reset_mock()
 
         self.types_mock = self.app.client_manager.volume.volume_types
         self.types_mock.reset_mock()
@@ -129,6 +133,7 @@ class TestVolumeCreate(TestVolume):
             source_volid=None,
             consistencygroup_id=None,
             scheduler_hints=None,
+            backup_id=None,
         )
 
         self.assertEqual(self.columns, columns)
@@ -174,6 +179,7 @@ class TestVolumeCreate(TestVolume):
             source_volid=None,
             consistencygroup_id=consistency_group.id,
             scheduler_hints={'k': 'v'},
+            backup_id=None,
         )
 
         self.assertEqual(self.columns, columns)
@@ -210,6 +216,7 @@ class TestVolumeCreate(TestVolume):
             source_volid=None,
             consistencygroup_id=None,
             scheduler_hints=None,
+            backup_id=None,
         )
 
         self.assertEqual(self.columns, columns)
@@ -248,6 +255,7 @@ class TestVolumeCreate(TestVolume):
             source_volid=None,
             consistencygroup_id=None,
             scheduler_hints=None,
+            backup_id=None,
         )
 
         self.assertEqual(self.columns, columns)
@@ -286,6 +294,7 @@ class TestVolumeCreate(TestVolume):
             source_volid=None,
             consistencygroup_id=None,
             scheduler_hints=None,
+            backup_id=None,
         )
 
         self.assertEqual(self.columns, columns)
@@ -323,10 +332,71 @@ class TestVolumeCreate(TestVolume):
             source_volid=None,
             consistencygroup_id=None,
             scheduler_hints=None,
+            backup_id=None,
         )
 
         self.assertEqual(self.columns, columns)
         self.assertCountEqual(self.datalist, data)
+
+    def test_volume_create_with_backup(self):
+        backup = volume_fakes.create_one_backup()
+        self.new_volume.backup_id = backup.id
+        arglist = [
+            '--backup', self.new_volume.backup_id,
+            self.new_volume.name,
+        ]
+        verifylist = [
+            ('backup', self.new_volume.backup_id),
+            ('name', self.new_volume.name),
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        self.backups_mock.get.return_value = backup
+
+        self.app.client_manager.volume.api_version = \
+            api_versions.APIVersion('3.47')
+
+        # In base command class ShowOne in cliff, abstract method take_action()
+        # returns a two-part tuple with a tuple of column names and a tuple of
+        # data to be shown.
+        columns, data = self.cmd.take_action(parsed_args)
+
+        self.volumes_mock.create.assert_called_once_with(
+            size=backup.size,
+            snapshot_id=None,
+            name=self.new_volume.name,
+            description=None,
+            volume_type=None,
+            availability_zone=None,
+            metadata=None,
+            imageRef=None,
+            source_volid=None,
+            consistencygroup_id=None,
+            scheduler_hints=None,
+            backup_id=backup.id,
+        )
+
+        self.assertEqual(self.columns, columns)
+        self.assertCountEqual(self.datalist, data)
+
+    def test_volume_create_with_backup_pre_347(self):
+        backup = volume_fakes.create_one_backup()
+        self.new_volume.backup_id = backup.id
+        arglist = [
+            '--backup', self.new_volume.backup_id,
+            self.new_volume.name,
+        ]
+        verifylist = [
+            ('backup', self.new_volume.backup_id),
+            ('name', self.new_volume.name),
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        self.backups_mock.get.return_value = backup
+
+        exc = self.assertRaises(exceptions.CommandError, self.cmd.take_action,
+                                parsed_args)
+        self.assertIn("--os-volume-api-version 3.47 or greater", str(exc))
 
     def test_volume_create_with_bootable_and_readonly(self):
         arglist = [
@@ -361,6 +431,7 @@ class TestVolumeCreate(TestVolume):
             source_volid=None,
             consistencygroup_id=None,
             scheduler_hints=None,
+            backup_id=None,
         )
 
         self.assertEqual(self.columns, columns)
@@ -403,6 +474,7 @@ class TestVolumeCreate(TestVolume):
             source_volid=None,
             consistencygroup_id=None,
             scheduler_hints=None,
+            backup_id=None,
         )
 
         self.assertEqual(self.columns, columns)
@@ -454,6 +526,7 @@ class TestVolumeCreate(TestVolume):
             source_volid=None,
             consistencygroup_id=None,
             scheduler_hints=None,
+            backup_id=None,
         )
 
         self.assertEqual(2, mock_error.call_count)

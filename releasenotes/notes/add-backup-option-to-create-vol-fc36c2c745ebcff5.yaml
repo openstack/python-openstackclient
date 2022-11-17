@@ -1,0 +1,4 @@
+---
+features:
+  - |
+    Added ``--backup`` option to the ``volume create`` command.
