@@ -93,8 +93,8 @@ class CreateVolume(command.ShowOne):
             "--size",
             metavar="<size>",
             type=int,
-            help=_("Volume size in GB (Required unless --snapshot or "
-                   "--source is specified)"),
+            help=_("Volume size in GB (required unless --snapshot, "
+                   "--source or --backup is specified)"),
         )
         parser.add_argument(
             "--type",
