@@ -117,14 +117,14 @@ interface to the user, not the user to the interface.
 
 Commands should be discoverable via the interface itself.
 
-To determine a list of available commands, use the :code:`-h` or
-:code:`--help` options:
+To determine a list of available commands, use the ``-h`` or
+``--help`` options:
 
 .. code-block:: bash
 
     $ openstack --help
 
-For help with an individual command, use the :code:`help` command:
+For help with an individual command, use the ``help`` command:
 
 .. code-block:: bash
 
@@ -167,7 +167,7 @@ Command Structure
 
 OpenStackClient has a consistent and predictable format for all of its commands.
 
-* The top level command name is :code:`openstack`
+* The top level command name is ``openstack``
 * Sub-commands take the form:
 
 .. code-block:: bash
@@ -193,50 +193,56 @@ invocation regardless of action to be performed.  They include authentication
 credentials and API version selection.  Most global options have a corresponding
 environment variable that may also be used to set the value.  If both are present,
 the command-line option takes priority.  The environment variable names are derived
-from the option name by dropping the leading dashes ('--'), converting each embedded
-dash ('-') to an underscore ('_'), and converting to upper case.
+from the option name by dropping the leading dashes (``--``), converting each embedded
+dash (``-``) to an underscore (``_``), and converting to upper case.
 
 * Global options shall always have a long option name, certain common options may
   also have short names.  Short names should be reserved for global options to limit
   the potential for duplication and multiple meanings between commands given the
   limited set of available short names.
-* All long options names shall begin with two dashes ('--') and use a single dash
-  ('-') internally between words (:code:`--like-this`).  Underscores ('_') shall not
+
+* All long options names shall begin with two dashes (``--``) and use a single dash
+  (``-`` internally between words (``--like-this``).  Underscores (``_``) shall not
   be used in option names.
+
 * Authentication options conform to the common CLI authentication guidelines in
   :ref:`authentication`.
 
-For example, :code:`--os-username` can be set from the environment via
-:code:`OS_USERNAME`.
+For example, ``--os-username`` can be set from the environment via
+``OS_USERNAME``.
 
---help
-++++++
+``--help``
+++++++++++
 
-The standard :code:`--help` global option displays the documentation for invoking
+The standard ``--help`` global option displays the documentation for invoking
 the program and a list of the available commands on standard output.  All other
 options and commands are ignored when this is present.  The traditional short
-form help option (:code:`-h`) is also available.
+form help option (``-h``) is also available.
 
---version
-+++++++++
+``--version``
++++++++++++++
 
-The standard :code:`--version` option displays the name and version on standard
+The standard ``--version`` option displays the name and version on standard
 output.  All other options and commands are ignored when this is present.
 
 Command Object(s) and Action
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-Commands consist of an object described by one or more words followed by an action.  Commands that require two objects have the primary object ahead of the action and the secondary object after the action. Any positional arguments identifying the objects shall appear in the same order as the objects.  In badly formed English it is expressed as "(Take) object1 (and perform) action (using) object2 (to it)."
+Commands consist of an object described by one or more words followed by an
+action.  Commands that require two objects have the primary object ahead of the
+action and the secondary object after the action. Any positional arguments
+identifying the objects shall appear in the same order as the objects.  In
+badly formed English it is expressed as "(Take) object-1 (and perform) action
+(using) object-2 (to it)."::
 
     <object-1> <action> [<object-2>]
 
 Examples:
 
-* :code:`group add user <group> <user>`
-* :code:`volume type list`   # Note that :code:`volume type` is a two-word
-  single object
+* ``group add user <group> <user>``
+* ``volume type list`` (note that ``volume type`` is a two-word single object)
 
-The :code:`help` command is unique as it appears in front of a normal command
+The ``help`` command is unique as it appears in front of a normal command
 and displays the help text for that command rather than execute it.
 
 Object names are always specified in command in their singular form.  This is
@@ -256,21 +262,21 @@ meaning across multiple commands.
 Option Forms
 ++++++++++++
 
-* **boolean**: boolean options shall use a form of :code:`--<true>|--<false>`
-  (preferred) or :code:`--<option>|--no-<option>`.  For example, the
-  :code:`enabled` state of a project is set with :code:`--enable|--disable`.
+* **boolean**: boolean options shall use a form of ``--<true>|--<false>``
+  (preferred) or ``--<option>|--no-<option>``.  For example, the
+  ``enabled`` state of a project is set with ``--enable|--disable``.
 
 Command Output
 --------------
 
 The default command output is pretty-printed using the Python
-:code:`prettytable` module.
+``prettytable`` module.
 
-Machine-parsable output format may be specified with the :code:`--format`
-option to :code:`list` and :code:`show` commands.  :code:`list` commands
-have an option (:code:`--format csv`) for CSV output and :code:`show` commands
-have an option (:code:`--format shell`) for the shell variable assignment
-syntax of :code:`var="value"`.  In both cases, all data fields are quoted with `"`
+Machine-parsable output format may be specified with the ``--format``
+option to ``list`` and ``show`` commands.  ``list`` commands
+have an option (``--format csv``) for CSV output and ``show`` commands
+have an option (``--format shell``) for the shell variable assignment
+syntax of ``var="value"``.  In both cases, all data fields are quoted with ``"``
 
 Help Commands
 -------------
@@ -278,13 +284,13 @@ Help Commands
 The help system is considered separately due to its special status
 among the commands.  Rather than performing tasks against a system, it
 provides information about the commands available to perform those
-tasks.  The format of the :code:`help` command therefore varies from the
-form for other commands in that the :code:`help` command appears in front
+tasks.  The format of the ``help`` command therefore varies from the
+form for other commands in that the ``help`` command appears in front
 of the first object in the command.
 
-The options :code:`--help` and :code:`-h` display the global options and a
+The options ``--help`` and ``-h`` display the global options and a
 list of the supported commands.  Note that the commands shown depend on the API
-versions that are in effect; i.e. if :code:`--os-identity-api-version=3` is
+versions that are in effect; i.e. if ``--os-identity-api-version=3`` is
 present Identity API v3 commands are shown.
 
 Examples
@@ -342,7 +348,7 @@ Using environment variables:
 Machine Output Format
 ---------------------
 
-Using the csv output format with a list command:
+Using the CSV output format with a list command:
 
 .. code-block:: bash
 
@@ -351,7 +357,7 @@ Using the csv output format with a list command:
     "ead97d84-6988-47fc-9637-3564fc36bc4b","appweb01","ACTIVE","10.4.128.13"
 
 Using the show command options of  shell output format and adding a prefix of
-:code:`my_` to avoid collisions with existing environment variables:
+``my_`` to avoid collisions with existing environment variables:
 
 .. code-block:: bash
 
