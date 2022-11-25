@@ -202,7 +202,7 @@ dash (``-``) to an underscore (``_``), and converting to upper case.
   limited set of available short names.
 
 * All long options names shall begin with two dashes (``--``) and use a single dash
-  (``-`` internally between words (``--like-this``).  Underscores (``_``) shall not
+  (``-``) internally between words (``--like-this``).  Underscores (``_``) shall not
   be used in option names.
 
 * Authentication options conform to the common CLI authentication guidelines in
