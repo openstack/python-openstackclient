@@ -1,0 +1,6 @@
+---
+features:
+  - |
+    Support of two commands was added in volume v3: "volume backend capability
+    show" and "volume backend pool list". These commands are present in v2
+    volume, but still absent in v3.
