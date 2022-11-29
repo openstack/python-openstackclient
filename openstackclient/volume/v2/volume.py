@@ -183,6 +183,11 @@ class CreateVolume(command.ShowOne):
 
     def take_action(self, parsed_args):
         _check_size_arg(parsed_args)
+        # size is validated in the above call to
+        # _check_size_arg where we check that size
+        # should be passed if we are not creating a
+        # volume from snapshot, backup or source volume
+        size = parsed_args.size
 
         volume_client = self.app.client_manager.volume
         image_client = self.app.client_manager.image
@@ -195,9 +200,11 @@ class CreateVolume(command.ShowOne):
 
         source_volume = None
         if parsed_args.source:
-            source_volume = utils.find_resource(
+            source_volume_obj = utils.find_resource(
                 volume_client.volumes,
-                parsed_args.source).id
+                parsed_args.source)
+            source_volume = source_volume_obj.id
+            size = max(size or 0, source_volume_obj.size)
 
         consistency_group = None
         if parsed_args.consistency_group:
@@ -209,8 +216,6 @@ class CreateVolume(command.ShowOne):
         if parsed_args.image:
             image = image_client.find_image(parsed_args.image,
                                             ignore_missing=False).id
-
-        size = parsed_args.size
 
         snapshot = None
         if parsed_args.snapshot:

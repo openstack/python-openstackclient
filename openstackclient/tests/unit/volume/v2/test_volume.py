@@ -398,6 +398,43 @@ class TestVolumeCreate(TestVolume):
                                 parsed_args)
         self.assertIn("--os-volume-api-version 3.47 or greater", str(exc))
 
+    def test_volume_create_with_source_volume(self):
+        source_vol = "source_vol"
+        arglist = [
+            '--source', self.new_volume.id,
+            source_vol,
+        ]
+        verifylist = [
+            ('source', self.new_volume.id),
+            ('name', source_vol),
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        self.volumes_mock.get.return_value = self.new_volume
+
+        # In base command class ShowOne in cliff, abstract method take_action()
+        # returns a two-part tuple with a tuple of column names and a tuple of
+        # data to be shown.
+        columns, data = self.cmd.take_action(parsed_args)
+
+        self.volumes_mock.create.assert_called_once_with(
+            size=self.new_volume.size,
+            snapshot_id=None,
+            name=source_vol,
+            description=None,
+            volume_type=None,
+            availability_zone=None,
+            metadata=None,
+            imageRef=None,
+            source_volid=self.new_volume.id,
+            consistencygroup_id=None,
+            scheduler_hints=None,
+            backup_id=None,
+        )
+
+        self.assertEqual(self.columns, columns)
+        self.assertCountEqual(self.datalist, data)
+
     def test_volume_create_with_bootable_and_readonly(self):
         arglist = [
             '--bootable',
