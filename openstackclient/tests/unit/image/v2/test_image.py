@@ -905,7 +905,10 @@ class TestImageList(TestImage):
             marker=self._image.id,
         )
 
-        self.client.find_image.assert_called_with('graven')
+        self.client.find_image.assert_called_with(
+            'graven',
+            ignore_missing=False,
+        )
 
     def test_image_list_name_option(self):
         arglist = [

@@ -190,7 +190,8 @@ class AddProjectToImage(command.ShowOne):
         ).id
 
         image = image_client.find_image(
-            parsed_args.image, ignore_missing=False
+            parsed_args.image,
+            ignore_missing=False,
         )
 
         obj = image_client.add_member(
@@ -663,7 +664,8 @@ class DeleteImage(command.Command):
         for image in parsed_args.images:
             try:
                 image_obj = image_client.find_image(
-                    image, ignore_missing=False
+                    image,
+                    ignore_missing=False,
                 )
                 image_client.delete_image(image_obj.id)
             except Exception as e:
@@ -834,7 +836,10 @@ class ListImage(command.Lister):
         if parsed_args.limit:
             kwargs['limit'] = parsed_args.limit
         if parsed_args.marker:
-            kwargs['marker'] = image_client.find_image(parsed_args.marker).id
+            kwargs['marker'] = image_client.find_image(
+                parsed_args.marker,
+                ignore_missing=False,
+            ).id
         if parsed_args.name:
             kwargs['name'] = parsed_args.name
         if parsed_args.status:
@@ -931,7 +936,10 @@ class ListImageProjects(command.Lister):
         image_client = self.app.client_manager.image
         columns = ("Image ID", "Member ID", "Status")
 
-        image_id = image_client.find_image(parsed_args.image).id
+        image_id = image_client.find_image(
+            parsed_args.image,
+            ignore_missing=False,
+        ).id
 
         data = image_client.members(image=image_id)
 
@@ -976,7 +984,8 @@ class RemoveProjectImage(command.Command):
         ).id
 
         image = image_client.find_image(
-            parsed_args.image, ignore_missing=False
+            parsed_args.image,
+            ignore_missing=False,
         )
 
         image_client.remove_member(member=project_id, image=image.id)
@@ -1002,7 +1011,10 @@ class SaveImage(command.Command):
 
     def take_action(self, parsed_args):
         image_client = self.app.client_manager.image
-        image = image_client.find_image(parsed_args.image)
+        image = image_client.find_image(
+            parsed_args.image,
+            ignore_missing=False,
+        )
 
         output_file = parsed_args.filename
         if output_file is None:
@@ -1370,7 +1382,8 @@ class ShowImage(command.ShowOne):
         image_client = self.app.client_manager.image
 
         image = image_client.find_image(
-            parsed_args.image, ignore_missing=False
+            parsed_args.image,
+            ignore_missing=False,
         )
 
         info = _format_image(image, parsed_args.human_readable)
@@ -1414,7 +1427,8 @@ class UnsetImage(command.Command):
     def take_action(self, parsed_args):
         image_client = self.app.client_manager.image
         image = image_client.find_image(
-            parsed_args.image, ignore_missing=False
+            parsed_args.image,
+            ignore_missing=False,
         )
 
         kwargs = {}
