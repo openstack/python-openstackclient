@@ -23,6 +23,7 @@ from openstack.compute.v2 import flavor as _flavor
 from openstack.compute.v2 import hypervisor as _hypervisor
 from openstack.compute.v2 import migration as _migration
 from openstack.compute.v2 import server as _server
+from openstack.compute.v2 import server_action as _server_action
 from openstack.compute.v2 import server_group as _server_group
 from openstack.compute.v2 import server_interface as _server_interface
 from openstack.compute.v2 import server_migration as _server_migration
@@ -593,45 +594,45 @@ class FakeServer(object):
         return mock.Mock(side_effect=servers)
 
 
-class FakeServerEvent(object):
-    """Fake one or more server event."""
+def create_one_server_action(attrs=None):
+    """Create a fake server action.
 
-    @staticmethod
-    def create_one_server_event(attrs=None):
-        """Create a fake server event.
+    :param attrs: A dictionary with all attributes
+    :return: A fake openstack.compute.v2.server_action.ServerAction object
+    """
+    attrs = attrs or {}
 
-        :param attrs:
-            A dictionary with all attributes
-        :return:
-            A FakeResource object, with id and other attributes
-        """
-        attrs = attrs or {}
+    # Set default attributes
+    server_action_info = {
+        "server_id": "server-event-" + uuid.uuid4().hex,
+        "user_id": "user-id-" + uuid.uuid4().hex,
+        "start_time": "2017-02-27T07:47:13.000000",
+        "request_id": "req-" + uuid.uuid4().hex,
+        "action": "create",
+        "message": None,
+        "project_id": "project-id-" + uuid.uuid4().hex,
+        "events": [{
+            "finish_time": "2017-02-27T07:47:25.000000",
+            "start_time": "2017-02-27T07:47:15.000000",
+            "traceback": None,
+            "event": "compute__do_build_and_run_instance",
+            "result": "Success"
+        }]
+    }
+    # Overwrite default attributes
+    server_action_info.update(attrs)
 
-        # Set default attributes
-        server_event_info = {
-            "instance_uuid": "server-event-" + uuid.uuid4().hex,
-            "user_id": "user-id-" + uuid.uuid4().hex,
-            "start_time": "2017-02-27T07:47:13.000000",
-            "request_id": "req-" + uuid.uuid4().hex,
-            "action": "create",
-            "message": None,
-            "project_id": "project-id-" + uuid.uuid4().hex,
-            "events": [{
-                "finish_time": "2017-02-27T07:47:25.000000",
-                "start_time": "2017-02-27T07:47:15.000000",
-                "traceback": None,
-                "event": "compute__do_build_and_run_instance",
-                "result": "Success"
-            }]
-        }
-        # Overwrite default attributes
-        server_event_info.update(attrs)
+    # We handle events separately since they're nested resources
+    events = [
+        _server_action.ServerActionEvent(**event)
+        for event in server_action_info.pop('events')
+    ]
 
-        server_event = fakes.FakeResource(
-            info=copy.deepcopy(server_event_info),
-            loaded=True,
-        )
-        return server_event
+    server_action = _server_action.ServerAction(
+        **server_action_info,
+        events=events,
+    )
+    return server_action
 
 
 class FakeService(object):

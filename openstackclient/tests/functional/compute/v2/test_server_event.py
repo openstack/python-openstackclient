@@ -50,7 +50,6 @@ class ServerEventTests(common.ComputeTestCase):
             'server event show ' + self.server_name + ' ' + request_id,
             parse_output=True,
         )
-        self.assertEqual(self.server_id, cmd_output.get('instance_uuid'))
         self.assertEqual(request_id, cmd_output.get('request_id'))
         self.assertEqual('create', cmd_output.get('action'))
         self.assertIsNotNone(cmd_output.get('events'))
@@ -78,8 +77,6 @@ class ServerEventTests(common.ComputeTestCase):
             'server event show ' + self.server_name + ' ' + request_id,
             parse_output=True,
         )
-
-        self.assertEqual(self.server_id, cmd_output.get('instance_uuid'))
         self.assertEqual(request_id, cmd_output.get('request_id'))
         self.assertEqual('reboot', cmd_output.get('action'))
         self.assertIsNotNone(cmd_output.get('events'))
@@ -116,7 +113,6 @@ class ServerEventTests(common.ComputeTestCase):
             'server event show ' + server_id + ' ' + request_id,
             parse_output=True,
         )
-        self.assertEqual(server_id, cmd_output.get('instance_uuid'))
         self.assertEqual(request_id, cmd_output.get('request_id'))
         self.assertEqual('delete', cmd_output.get('action'))
         self.assertIsNotNone(cmd_output.get('events'))
