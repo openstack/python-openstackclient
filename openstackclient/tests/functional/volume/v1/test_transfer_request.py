@@ -10,7 +10,6 @@
 #    License for the specific language governing permissions and limitations
 #    under the License.
 
-import json
 import uuid
 
 from openstackclient.tests.functional.volume.v1 import common
@@ -25,8 +24,10 @@ class TransferRequestTests(common.BaseVolumeTests):
     @classmethod
     def setUpClass(cls):
         super(TransferRequestTests, cls).setUpClass()
-        cmd_output = json.loads(cls.openstack(
-            'volume create -f json --size 1 ' + cls.VOLUME_NAME))
+        cmd_output = cls.openstack(
+            'volume create --size 1 ' + cls.VOLUME_NAME,
+            parse_output=True,
+        )
         cls.assertOutput(cls.VOLUME_NAME, cmd_output['name'])
 
         cls.wait_for_status("volume", cls.VOLUME_NAME, "available")
@@ -45,26 +46,31 @@ class TransferRequestTests(common.BaseVolumeTests):
         name = uuid.uuid4().hex
 
         # create a volume
-        cmd_output = json.loads(self.openstack(
-            'volume create -f json --size 1 ' + volume_name))
+        cmd_output = self.openstack(
+            'volume create --size 1 ' + volume_name,
+            parse_output=True,
+        )
         self.assertEqual(volume_name, cmd_output['name'])
 
         # create volume transfer request for the volume
         # and get the auth_key of the new transfer request
-        cmd_output = json.loads(self.openstack(
-            'volume transfer request create -f json ' +
+        cmd_output = self.openstack(
+            'volume transfer request create ' +
             volume_name +
-            ' --name ' + name))
+            ' --name ' + name,
+            parse_output=True,
+        )
         auth_key = cmd_output['auth_key']
         self.assertTrue(auth_key)
 
         # accept the volume transfer request
-        json_output = json.loads(self.openstack(
-            'volume transfer request accept -f json ' +
+        output = self.openstack(
+            'volume transfer request accept ' +
             name + ' ' +
-            '--auth-key ' + auth_key
-        ))
-        self.assertEqual(name, json_output.get('name'))
+            '--auth-key ' + auth_key,
+            parse_output=True,
+        )
+        self.assertEqual(name, output.get('name'))
 
         # the volume transfer will be removed by default after accepted
         # so just need to delete the volume here
@@ -74,11 +80,12 @@ class TransferRequestTests(common.BaseVolumeTests):
 
     def test_volume_transfer_request_list_show(self):
         name = uuid.uuid4().hex
-        cmd_output = json.loads(self.openstack(
-            'volume transfer request create -f json ' +
+        cmd_output = self.openstack(
+            'volume transfer request create ' +
             ' --name ' + name + ' ' +
-            self.VOLUME_NAME
-        ))
+            self.VOLUME_NAME,
+            parse_output=True,
+        )
         self.addCleanup(
             self.openstack,
             'volume transfer request delete ' + name
@@ -87,13 +94,15 @@ class TransferRequestTests(common.BaseVolumeTests):
         auth_key = cmd_output['auth_key']
         self.assertTrue(auth_key)
 
-        cmd_output = json.loads(self.openstack(
-            'volume transfer request list -f json'
-        ))
+        cmd_output = self.openstack(
+            'volume transfer request list',
+            parse_output=True,
+        )
         self.assertIn(name, [req['Name'] for req in cmd_output])
 
-        cmd_output = json.loads(self.openstack(
-            'volume transfer request show -f json ' +
-            name
-        ))
+        cmd_output = self.openstack(
+            'volume transfer request show ' +
+            name,
+            parse_output=True,
+        )
         self.assertEqual(name, cmd_output['name'])

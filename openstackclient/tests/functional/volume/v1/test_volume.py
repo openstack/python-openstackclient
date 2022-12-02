@@ -10,7 +10,6 @@
 #    License for the specific language governing permissions and limitations
 #    under the License.
 
-import json
 import uuid
 
 from openstackclient.tests.functional.volume.v1 import common
@@ -22,22 +21,24 @@ class VolumeTests(common.BaseVolumeTests):
     def test_volume_create_and_delete(self):
         """Test create, delete multiple"""
         name1 = uuid.uuid4().hex
-        cmd_output = json.loads(self.openstack(
-            'volume create -f json ' +
+        cmd_output = self.openstack(
+            'volume create ' +
             '--size 1 ' +
-            name1
-        ))
+            name1,
+            parse_output=True,
+        )
         self.assertEqual(
             1,
             cmd_output["size"],
         )
 
         name2 = uuid.uuid4().hex
-        cmd_output = json.loads(self.openstack(
-            'volume create -f json ' +
+        cmd_output = self.openstack(
+            'volume create ' +
             '--size 2 ' +
-            name2
-        ))
+            name2,
+            parse_output=True,
+        )
         self.assertEqual(
             2,
             cmd_output["size"],
@@ -51,11 +52,12 @@ class VolumeTests(common.BaseVolumeTests):
     def test_volume_list(self):
         """Test create, list filter"""
         name1 = uuid.uuid4().hex
-        cmd_output = json.loads(self.openstack(
-            'volume create -f json ' +
+        cmd_output = self.openstack(
+            'volume create ' +
             '--size 1 ' +
-            name1
-        ))
+            name1,
+            parse_output=True,
+        )
         self.addCleanup(self.openstack, 'volume delete ' + name1)
         self.assertEqual(
             1,
@@ -64,11 +66,12 @@ class VolumeTests(common.BaseVolumeTests):
         self.wait_for_status("volume", name1, "available")
 
         name2 = uuid.uuid4().hex
-        cmd_output = json.loads(self.openstack(
-            'volume create -f json ' +
+        cmd_output = self.openstack(
+            'volume create ' +
             '--size 2 ' +
-            name2
-        ))
+            name2,
+            parse_output=True,
+        )
         self.addCleanup(self.openstack, 'volume delete ' + name2)
         self.assertEqual(
             2,
@@ -77,25 +80,28 @@ class VolumeTests(common.BaseVolumeTests):
         self.wait_for_status("volume", name2, "available")
 
         # Test list
-        cmd_output = json.loads(self.openstack(
-            'volume list -f json '
-        ))
+        cmd_output = self.openstack(
+            'volume list ',
+            parse_output=True,
+        )
         names = [x["Name"] for x in cmd_output]
         self.assertIn(name1, names)
         self.assertIn(name2, names)
 
         # Test list --long
-        cmd_output = json.loads(self.openstack(
-            'volume list -f json --long'
-        ))
+        cmd_output = self.openstack(
+            'volume list --long',
+            parse_output=True,
+        )
         bootable = [x["Bootable"] for x in cmd_output]
         self.assertIn('false', bootable)
 
         # Test list --name
-        cmd_output = json.loads(self.openstack(
-            'volume list -f json ' +
-            '--name ' + name1
-        ))
+        cmd_output = self.openstack(
+            'volume list ' +
+            '--name ' + name1,
+            parse_output=True,
+        )
         names = [x["Name"] for x in cmd_output]
         self.assertIn(name1, names)
         self.assertNotIn(name2, names)
@@ -103,13 +109,14 @@ class VolumeTests(common.BaseVolumeTests):
     def test_volume_set_and_unset(self):
         """Tests create volume, set, unset, show, delete"""
         name = uuid.uuid4().hex
-        cmd_output = json.loads(self.openstack(
-            'volume create -f json ' +
+        cmd_output = self.openstack(
+            'volume create ' +
             '--size 1 ' +
             '--description aaaa ' +
             '--property Alpha=a ' +
-            name
-        ))
+            name,
+            parse_output=True,
+        )
         self.assertEqual(
             name,
             cmd_output["name"],
@@ -148,10 +155,11 @@ class VolumeTests(common.BaseVolumeTests):
         )
         self.assertOutput('', raw_output)
 
-        cmd_output = json.loads(self.openstack(
-            'volume show -f json ' +
-            new_name
-        ))
+        cmd_output = self.openstack(
+            'volume show ' +
+            new_name,
+            parse_output=True,
+        )
         self.assertEqual(
             new_name,
             cmd_output["name"],
@@ -181,10 +189,11 @@ class VolumeTests(common.BaseVolumeTests):
         )
         self.assertOutput('', raw_output)
 
-        cmd_output = json.loads(self.openstack(
-            'volume show -f json ' +
-            new_name
-        ))
+        cmd_output = self.openstack(
+            'volume show ' +
+            new_name,
+            parse_output=True,
+        )
         self.assertEqual(
             {'Gamma': 'c'},
             cmd_output["properties"],
@@ -193,42 +202,46 @@ class VolumeTests(common.BaseVolumeTests):
     def test_volume_create_and_list_and_show_backward_compatibility(self):
         """Test backward compatibility of create, list, show"""
         name1 = uuid.uuid4().hex
-        json_output = json.loads(self.openstack(
-            'volume create -f json ' +
+        output = self.openstack(
+            'volume create ' +
             '-c display_name -c id ' +
             '--size 1 ' +
-            name1
-        ))
-        self.assertIn('display_name', json_output)
-        self.assertEqual(name1, json_output['display_name'])
-        self.assertIn('id', json_output)
-        volume_id = json_output['id']
+            name1,
+            parse_output=True,
+        )
+        self.assertIn('display_name', output)
+        self.assertEqual(name1, output['display_name'])
+        self.assertIn('id', output)
+        volume_id = output['id']
         self.assertIsNotNone(volume_id)
-        self.assertNotIn('name', json_output)
+        self.assertNotIn('name', output)
         self.addCleanup(self.openstack, 'volume delete ' + volume_id)
 
         self.wait_for_status("volume", name1, "available")
 
-        json_output = json.loads(self.openstack(
-            'volume list -f json ' +
-            '-c "Display Name"'
-        ))
-        for each_volume in json_output:
+        output = self.openstack(
+            'volume list ' +
+            '-c "Display Name"',
+            parse_output=True,
+        )
+        for each_volume in output:
             self.assertIn('Display Name', each_volume)
 
-        json_output = json.loads(self.openstack(
-            'volume list -f json ' +
-            '-c "Name"'
-        ))
-        for each_volume in json_output:
+        output = self.openstack(
+            'volume list ' +
+            '-c "Name"',
+            parse_output=True,
+        )
+        for each_volume in output:
             self.assertIn('Name', each_volume)
 
-        json_output = json.loads(self.openstack(
-            'volume show -f json ' +
+        output = self.openstack(
+            'volume show ' +
             '-c display_name -c id ' +
-            name1
-        ))
-        self.assertIn('display_name', json_output)
-        self.assertEqual(name1, json_output['display_name'])
-        self.assertIn('id', json_output)
-        self.assertNotIn('name', json_output)
+            name1,
+            parse_output=True,
+        )
+        self.assertIn('display_name', output)
+        self.assertEqual(name1, output['display_name'])
+        self.assertIn('id', output)
+        self.assertNotIn('name', output)

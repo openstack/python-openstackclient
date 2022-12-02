@@ -10,7 +10,6 @@
 #    License for the specific language governing permissions and limitations
 #    under the License.
 
-import json
 import uuid
 
 from openstackclient.tests.functional.volume.v2 import common
@@ -26,11 +25,12 @@ class TransferRequestTests(common.BaseVolumeTests):
         xfer_name = uuid.uuid4().hex
 
         # create a volume
-        cmd_output = json.loads(self.openstack(
-            'volume create -f json ' +
+        cmd_output = self.openstack(
+            'volume create ' +
             '--size 1 ' +
-            volume_name
-        ))
+            volume_name,
+            parse_output=True,
+        )
         self.assertEqual(volume_name, cmd_output['name'])
         self.addCleanup(
             self.openstack,
@@ -42,12 +42,13 @@ class TransferRequestTests(common.BaseVolumeTests):
 
         # create volume transfer request for the volume
         # and get the auth_key of the new transfer request
-        cmd_output = json.loads(self.openstack(
+        cmd_output = self.openstack(
             '--os-volume-api-version ' + self.API_VERSION + ' ' +
-            'volume transfer request create -f json ' +
+            'volume transfer request create ' +
             ' --name ' + xfer_name + ' ' +
-            volume_name
-        ))
+            volume_name,
+            parse_output=True,
+        )
         self.assertEqual(xfer_name, cmd_output['name'])
         xfer_id = cmd_output['id']
         auth_key = cmd_output['auth_key']
@@ -55,12 +56,13 @@ class TransferRequestTests(common.BaseVolumeTests):
         self.wait_for_status("volume", volume_name, "awaiting-transfer")
 
         # accept the volume transfer request
-        cmd_output = json.loads(self.openstack(
+        cmd_output = self.openstack(
             '--os-volume-api-version ' + self.API_VERSION + ' ' +
-            'volume transfer request accept -f json ' +
+            'volume transfer request accept ' +
             '--auth-key ' + auth_key + ' ' +
-            xfer_id
-        ))
+            xfer_id,
+            parse_output=True,
+        )
         self.assertEqual(xfer_name, cmd_output['name'])
         self.wait_for_status("volume", volume_name, "available")
 
@@ -69,11 +71,12 @@ class TransferRequestTests(common.BaseVolumeTests):
         xfer_name = uuid.uuid4().hex
 
         # create a volume
-        cmd_output = json.loads(self.openstack(
-            'volume create -f json ' +
+        cmd_output = self.openstack(
+            'volume create ' +
             '--size 1 ' +
-            volume_name
-        ))
+            volume_name,
+            parse_output=True,
+        )
         self.assertEqual(volume_name, cmd_output['name'])
         self.addCleanup(
             self.openstack,
@@ -83,29 +86,32 @@ class TransferRequestTests(common.BaseVolumeTests):
         )
         self.wait_for_status("volume", volume_name, "available")
 
-        cmd_output = json.loads(self.openstack(
+        cmd_output = self.openstack(
             '--os-volume-api-version ' + self.API_VERSION + ' ' +
-            'volume transfer request create -f json ' +
+            'volume transfer request create ' +
             ' --name ' + xfer_name + ' ' +
-            volume_name
-        ))
+            volume_name,
+            parse_output=True,
+        )
         self.assertEqual(xfer_name, cmd_output['name'])
         xfer_id = cmd_output['id']
         auth_key = cmd_output['auth_key']
         self.assertTrue(auth_key)
         self.wait_for_status("volume", volume_name, "awaiting-transfer")
 
-        cmd_output = json.loads(self.openstack(
+        cmd_output = self.openstack(
             '--os-volume-api-version ' + self.API_VERSION + ' ' +
-            'volume transfer request list -f json'
-        ))
+            'volume transfer request list',
+            parse_output=True,
+        )
         self.assertIn(xfer_name, [req['Name'] for req in cmd_output])
 
-        cmd_output = json.loads(self.openstack(
+        cmd_output = self.openstack(
             '--os-volume-api-version ' + self.API_VERSION + ' ' +
-            'volume transfer request show -f json ' +
-            xfer_id
-        ))
+            'volume transfer request show ' +
+            xfer_id,
+            parse_output=True,
+        )
         self.assertEqual(xfer_name, cmd_output['name'])
 
         # NOTE(dtroyer): We need to delete the transfer request to allow the
