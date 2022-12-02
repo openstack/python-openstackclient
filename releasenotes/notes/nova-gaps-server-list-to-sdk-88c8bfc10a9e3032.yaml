@@ -1,0 +1,5 @@
+---
+features:
+  - |
+    The ``server list`` command now uses the OpenStack SDK instead of the
+    Python nova bindings.

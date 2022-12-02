@@ -66,6 +66,28 @@ class PowerStateColumn(cliff_columns.FormattableColumn):
             return 'N/A'
 
 
+class AddressesColumn(cliff_columns.FormattableColumn):
+    """Generate a formatted string of a server's addresses."""
+
+    def human_readable(self):
+        try:
+            return utils.format_dict_of_list({
+                k: [i['addr'] for i in v if 'addr' in i]
+                for k, v in self._value.items()})
+        except Exception:
+            return 'N/A'
+
+
+class HostColumn(cliff_columns.FormattableColumn):
+    """Generate a formatted string of a hostname."""
+
+    def human_readable(self):
+        if self._value is None:
+            return ''
+
+        return self._value
+
+
 def _get_ip_address(addresses, address_type, ip_address_family):
     # Old style addresses
     if address_type in addresses:
@@ -2288,7 +2310,7 @@ class ListServer(command.Lister):
         return parser
 
     def take_action(self, parsed_args):
-        compute_client = self.app.client_manager.compute
+        compute_client = self.app.client_manager.sdk_connection.compute
         identity_client = self.app.client_manager.identity
         image_client = self.app.client_manager.image
 
@@ -2313,10 +2335,11 @@ class ListServer(command.Lister):
         # flavor name is given, map it to ID.
         flavor_id = None
         if parsed_args.flavor:
-            flavor_id = utils.find_resource(
-                compute_client.flavors,
-                parsed_args.flavor,
-            ).id
+            flavor = compute_client.find_flavor(parsed_args.flavor)
+            if flavor is None:
+                msg = _('Unable to find flavor: %s') % parsed_args.flavor
+                raise exceptions.CommandError(msg)
+            flavor_id = flavor.id
 
         # Nova only supports list servers searching by image ID. So if a
         # image name is given, map it to ID.
@@ -2332,18 +2355,20 @@ class ListServer(command.Lister):
             'ip': parsed_args.ip,
             'ip6': parsed_args.ip6,
             'name': parsed_args.name,
-            'instance_name': parsed_args.instance_name,
             'status': parsed_args.status,
             'flavor': flavor_id,
             'image': image_id,
             'host': parsed_args.host,
-            'tenant_id': project_id,
-            'all_tenants': parsed_args.all_projects,
+            'project_id': project_id,
+            'all_projects': parsed_args.all_projects,
             'user_id': user_id,
             'deleted': parsed_args.deleted,
             'changes-before': parsed_args.changes_before,
             'changes-since': parsed_args.changes_since,
         }
+
+        if parsed_args.instance_name is not None:
+            search_opts['instance_name'] = parsed_args.instance_name
 
         if parsed_args.availability_zone:
             search_opts['availability_zone'] = parsed_args.availability_zone
@@ -2376,7 +2401,7 @@ class ListServer(command.Lister):
             search_opts['power_state'] = power_state
 
         if parsed_args.tags:
-            if compute_client.api_version < api_versions.APIVersion('2.26'):
+            if not sdk_utils.supports_microversion(compute_client, '2.26'):
                 msg = _(
                     '--os-compute-api-version 2.26 or greater is required to '
                     'support the --tag option'
@@ -2386,7 +2411,7 @@ class ListServer(command.Lister):
             search_opts['tags'] = ','.join(parsed_args.tags)
 
         if parsed_args.not_tags:
-            if compute_client.api_version < api_versions.APIVersion('2.26'):
+            if not sdk_utils.supports_microversion(compute_client, '2.26'):
                 msg = _(
                     '--os-compute-api-version 2.26 or greater is required to '
                     'support the --not-tag option'
@@ -2396,7 +2421,7 @@ class ListServer(command.Lister):
             search_opts['not-tags'] = ','.join(parsed_args.not_tags)
 
         if parsed_args.locked:
-            if compute_client.api_version < api_versions.APIVersion('2.73'):
+            if not sdk_utils.supports_microversion(compute_client, '2.73'):
                 msg = _(
                     '--os-compute-api-version 2.73 or greater is required to '
                     'support the --locked option'
@@ -2405,7 +2430,7 @@ class ListServer(command.Lister):
 
             search_opts['locked'] = True
         elif parsed_args.unlocked:
-            if compute_client.api_version < api_versions.APIVersion('2.73'):
+            if not sdk_utils.supports_microversion(compute_client, '2.73'):
                 msg = _(
                     '--os-compute-api-version 2.73 or greater is required to '
                     'support the --unlocked option'
@@ -2414,10 +2439,14 @@ class ListServer(command.Lister):
 
             search_opts['locked'] = False
 
+        if parsed_args.limit is not None:
+            search_opts['limit'] = parsed_args.limit
+            search_opts['paginated'] = False
+
         LOG.debug('search options: %s', search_opts)
 
         if search_opts['changes-before']:
-            if compute_client.api_version < api_versions.APIVersion('2.66'):
+            if not sdk_utils.supports_microversion(compute_client, '2.66'):
                 msg = _('--os-compute-api-version 2.66 or later is required')
                 raise exceptions.CommandError(msg)
 
@@ -2451,15 +2480,15 @@ class ListServer(command.Lister):
 
         if parsed_args.long:
             columns += (
-                'OS-EXT-STS:task_state',
-                'OS-EXT-STS:power_state',
+                'task_state',
+                'power_state',
             )
             column_headers += (
                 'Task State',
                 'Power State',
             )
 
-        columns += ('networks',)
+        columns += ('addresses',)
         column_headers += ('Networks',)
 
         if parsed_args.long:
@@ -2481,7 +2510,7 @@ class ListServer(command.Lister):
         # microversion 2.47 puts the embedded flavor into the server response
         # body but omits the id, so if not present we just expose the original
         # flavor name in the output
-        if compute_client.api_version >= api_versions.APIVersion('2.47'):
+        if sdk_utils.supports_microversion(compute_client, '2.47'):
             columns += ('flavor_name',)
             column_headers += ('Flavor',)
         else:
@@ -2503,8 +2532,8 @@ class ListServer(command.Lister):
 
         if parsed_args.long:
             columns += (
-                'OS-EXT-AZ:availability_zone',
-                'OS-EXT-SRV-ATTR:host',
+                'availability_zone',
+                'hypervisor_hostname',
                 'metadata',
             )
             column_headers += (
@@ -2513,40 +2542,38 @@ class ListServer(command.Lister):
                 'Properties',
             )
 
-        marker_id = None
-
         # support for additional columns
         if parsed_args.columns:
             for c in parsed_args.columns:
                 if c in ('Project ID', 'project_id'):
-                    columns += ('tenant_id',)
+                    columns += ('project_id',)
                     column_headers += ('Project ID',)
                 if c in ('User ID', 'user_id'):
                     columns += ('user_id',)
                     column_headers += ('User ID',)
                 if c in ('Created At', 'created_at'):
-                    columns += ('created',)
+                    columns += ('created_at',)
                     column_headers += ('Created At',)
                 if c in ('Security Groups', 'security_groups'):
                     columns += ('security_groups_name',)
                     column_headers += ('Security Groups',)
                 if c in ("Task State", "task_state"):
-                    columns += ('OS-EXT-STS:task_state',)
+                    columns += ('task_state',)
                     column_headers += ('Task State',)
                 if c in ("Power State", "power_state"):
-                    columns += ('OS-EXT-STS:power_state',)
+                    columns += ('power_state',)
                     column_headers += ('Power State',)
                 if c in ("Image ID", "image_id"):
                     columns += ('Image ID',)
                     column_headers += ('Image ID',)
                 if c in ("Flavor ID", "flavor_id"):
-                    columns += ('Flavor ID',)
+                    columns += ('flavor_id',)
                     column_headers += ('Flavor ID',)
                 if c in ('Availability Zone', "availability_zone"):
-                    columns += ('OS-EXT-AZ:availability_zone',)
+                    columns += ('availability_zone',)
                     column_headers += ('Availability Zone',)
                 if c in ('Host', "host"):
-                    columns += ('OS-EXT-SRV-ATTR:host',)
+                    columns += ('hypervisor_hostname',)
                     column_headers += ('Host',)
                 if c in ('Properties', "properties"):
                     columns += ('Metadata',)
@@ -2556,7 +2583,7 @@ class ListServer(command.Lister):
             column_headers = tuple(column_headers)
             columns = tuple(columns)
 
-        if parsed_args.marker:
+        if parsed_args.marker is not None:
             # Check if both "--marker" and "--deleted" are used.
             # In that scenario a lookup is not needed as the marker
             # needs to be an ID, because find_resource does not
@@ -2564,16 +2591,10 @@ class ListServer(command.Lister):
             if parsed_args.deleted:
                 marker_id = parsed_args.marker
             else:
-                marker_id = utils.find_resource(
-                    compute_client.servers,
-                    parsed_args.marker,
-                ).id
+                marker_id = compute_client.find_server(parsed_args.marker).id
+            search_opts['marker'] = marker_id
 
-        data = compute_client.servers.list(
-            search_opts=search_opts,
-            marker=marker_id,
-            limit=parsed_args.limit,
-        )
+        data = list(compute_client.servers(**search_opts))
 
         images = {}
         flavors = {}
@@ -2628,12 +2649,12 @@ class ListServer(command.Lister):
                     # "Flavor Name" is not crucial, so we swallow any
                     # exceptions
                     try:
-                        flavors[f_id] = compute_client.flavors.get(f_id)
+                        flavors[f_id] = compute_client.find_flavor(f_id)
                     except Exception:
                         pass
             else:
                 try:
-                    flavors_list = compute_client.flavors.list(is_public=None)
+                    flavors_list = compute_client.flavors(is_public=None)
                     for i in flavors_list:
                         flavors[i.id] = i
                 except Exception:
@@ -2642,7 +2663,7 @@ class ListServer(command.Lister):
         # Populate image_name, image_id, flavor_name and flavor_id attributes
         # of server objects so that we can display those columns.
         for s in data:
-            if compute_client.api_version >= api_versions.APIVersion('2.69'):
+            if sdk_utils.supports_microversion(compute_client, '2.69'):
                 # NOTE(tssurya): From 2.69, we will have the keys 'flavor'
                 # and 'image' missing in the server response during
                 # infrastructure failure situations.
@@ -2651,7 +2672,7 @@ class ListServer(command.Lister):
                 if not hasattr(s, 'image') or not hasattr(s, 'flavor'):
                     continue
 
-            if 'id' in s.image:
+            if 'id' in s.image and s.image.id is not None:
                 image = images.get(s.image['id'])
                 if image:
                     s.image_name = image.name
@@ -2664,7 +2685,7 @@ class ListServer(command.Lister):
                 s.image_name = IMAGE_STRING_FOR_BFV
                 s.image_id = IMAGE_STRING_FOR_BFV
 
-            if compute_client.api_version < api_versions.APIVersion('2.47'):
+            if not sdk_utils.supports_microversion(compute_client, '2.47'):
                 flavor = flavors.get(s.flavor['id'])
                 if flavor:
                     s.flavor_name = flavor.name
@@ -2674,7 +2695,7 @@ class ListServer(command.Lister):
 
         # Add a list with security group name as attribute
         for s in data:
-            if hasattr(s, 'security_groups'):
+            if hasattr(s, 'security_groups') and s.security_groups is not None:
                 s.security_groups_name = [x["name"] for x in s.security_groups]
             else:
                 s.security_groups_name = []
@@ -2687,10 +2708,10 @@ class ListServer(command.Lister):
         # it's on, providing useful information to a user in this
         # situation.
         if (
-            compute_client.api_version >= api_versions.APIVersion('2.16') and
+            sdk_utils.supports_microversion(compute_client, '2.16') and
             parsed_args.long
         ):
-            if any([hasattr(s, 'host_status') for s in data]):
+            if any([s.host_status is not None for s in data]):
                 columns += ('Host Status',)
                 column_headers += ('Host Status',)
 
@@ -2700,16 +2721,17 @@ class ListServer(command.Lister):
                 utils.get_item_properties(
                     s, columns,
                     mixed_case_fields=(
-                        'OS-EXT-STS:task_state',
-                        'OS-EXT-STS:power_state',
-                        'OS-EXT-AZ:availability_zone',
-                        'OS-EXT-SRV-ATTR:host',
+                        'task_state',
+                        'power_state',
+                        'availability_zone',
+                        'host',
                     ),
                     formatters={
-                        'OS-EXT-STS:power_state': PowerStateColumn,
-                        'networks': format_columns.DictListColumn,
+                        'power_state': PowerStateColumn,
+                        'addresses': AddressesColumn,
                         'metadata': format_columns.DictColumn,
                         'security_groups_name': format_columns.ListColumn,
+                        'hypervisor_hostname': HostColumn,
                     },
                 ) for s in data
             ),
