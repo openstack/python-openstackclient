@@ -10,7 +10,6 @@
 #    License for the specific language governing permissions and limitations
 #    under the License.
 
-import json
 import uuid
 
 import fixtures
@@ -24,65 +23,62 @@ class ImageTests(base.BaseImageTests):
     def setUp(self):
         super(ImageTests, self).setUp()
 
-        self.name = uuid.uuid4().hex
-        self.image_tag = 'my_tag'
-        self.image_tag1 = 'random'
-        json_output = json.loads(self.openstack(
-            '--os-image-api-version 2 '
-            'image create -f json --tag {tag} {name}'.format(
-                tag=self.image_tag, name=self.name)
-        ))
-        self.image_id = json_output["id"]
-        self.assertOutput(self.name, json_output['name'])
-
         ver_fixture = fixtures.EnvironmentVariable(
             'OS_IMAGE_API_VERSION', '2'
         )
         self.useFixture(ver_fixture)
 
+        self.name = uuid.uuid4().hex
+        self.image_tag = 'my_tag'
+        self.image_tag1 = 'random'
+        output = self.openstack(
+            'image create --tag {tag} {name}'.format(
+                tag=self.image_tag, name=self.name),
+            parse_output=True,
+        )
+        self.image_id = output["id"]
+        self.assertOutput(self.name, output['name'])
+
     def tearDown(self):
         try:
-            self.openstack(
-                '--os-image-api-version 2 '
-                'image delete ' +
-                self.image_id
-            )
+            self.openstack('image delete ' + self.image_id)
         finally:
-            super(ImageTests, self).tearDown()
+            super().tearDown()
 
     def test_image_list(self):
-        json_output = json.loads(self.openstack(
-            'image list -f json '
-        ))
+        output = self.openstack('image list', parse_output=True)
         self.assertIn(
             self.name,
-            [img['Name'] for img in json_output]
+            [img['Name'] for img in output]
         )
 
     def test_image_list_with_name_filter(self):
-        json_output = json.loads(self.openstack(
-            'image list --name ' + self.name + ' -f json'
-        ))
+        output = self.openstack(
+            'image list --name ' + self.name,
+            parse_output=True,
+        )
         self.assertIn(
             self.name,
-            [img['Name'] for img in json_output]
+            [img['Name'] for img in output]
         )
 
     def test_image_list_with_status_filter(self):
-        json_output = json.loads(self.openstack(
-            'image list ' + ' --status active -f json'
-        ))
+        output = self.openstack(
+            'image list --status active',
+            parse_output=True,
+        )
         self.assertIn(
             'active',
-            [img['Status'] for img in json_output]
+            [img['Status'] for img in output]
         )
 
     def test_image_list_with_tag_filter(self):
-        json_output = json.loads(self.openstack(
+        output = self.openstack(
             'image list --tag ' + self.image_tag + ' --tag ' +
-            self.image_tag1 + ' --long -f json'
-        ))
-        for taglist in [img['Tags'] for img in json_output]:
+            self.image_tag1 + ' --long',
+            parse_output=True,
+        )
+        for taglist in [img['Tags'] for img in output]:
             self.assertIn(
                 self.image_tag,
                 taglist
@@ -103,21 +99,21 @@ class ImageTests(base.BaseImageTests):
             '--public ' +
             self.name
         )
-        json_output = json.loads(self.openstack(
-            'image show -f json ' +
-            self.name
-        ))
+        output = self.openstack(
+            'image show ' + self.name,
+            parse_output=True,
+        )
         self.assertEqual(
             4,
-            json_output["min_disk"],
+            output["min_disk"],
         )
         self.assertEqual(
             5,
-            json_output["min_ram"],
+            output["min_ram"],
         )
         self.assertEqual(
             'public',
-            json_output["visibility"],
+            output["visibility"],
         )
 
         # Test properties
@@ -129,12 +125,12 @@ class ImageTests(base.BaseImageTests):
             '--public ' +
             self.name
         )
-        json_output = json.loads(self.openstack(
-            'image show -f json ' +
-            self.name
-        ))
-        self.assertIn("a", json_output["properties"])
-        self.assertIn("c", json_output["properties"])
+        output = self.openstack(
+            'image show ' + self.name,
+            parse_output=True,
+        )
+        self.assertIn("a", output["properties"])
+        self.assertIn("c", output["properties"])
 
         self.openstack(
             'image unset ' +
@@ -143,30 +139,30 @@ class ImageTests(base.BaseImageTests):
             '--property hw_rng_model ' +
             self.name
         )
-        json_output = json.loads(self.openstack(
-            'image show -f json ' +
-            self.name
-        ))
-        self.assertNotIn("a", json_output["properties"])
-        self.assertNotIn("c", json_output["properties"])
+        output = self.openstack(
+            'image show ' + self.name,
+            parse_output=True,
+        )
+        self.assertNotIn("a", output["properties"])
+        self.assertNotIn("c", output["properties"])
 
         # Test tags
         self.assertNotIn(
             '01',
-            json_output["tags"]
+            output["tags"]
         )
         self.openstack(
             'image set ' +
             '--tag 01 ' +
             self.name
         )
-        json_output = json.loads(self.openstack(
-            'image show -f json ' +
-            self.name
-        ))
+        output = self.openstack(
+            'image show ' + self.name,
+            parse_output=True,
+        )
         self.assertIn(
             '01',
-            json_output["tags"]
+            output["tags"]
         )
 
         self.openstack(
@@ -174,38 +170,38 @@ class ImageTests(base.BaseImageTests):
             '--tag 01 ' +
             self.name
         )
-        json_output = json.loads(self.openstack(
-            'image show -f json ' +
-            self.name
-        ))
+        output = self.openstack(
+            'image show ' + self.name,
+            parse_output=True,
+        )
         self.assertNotIn(
             '01',
-            json_output["tags"]
+            output["tags"]
         )
 
     def test_image_set_rename(self):
         name = uuid.uuid4().hex
-        json_output = json.loads(self.openstack(
-            'image create -f json ' +
-            name
-        ))
-        image_id = json_output["id"]
+        output = self.openstack(
+            'image create ' + name,
+            parse_output=True,
+        )
+        image_id = output["id"]
         self.assertEqual(
             name,
-            json_output["name"],
+            output["name"],
         )
         self.openstack(
             'image set ' +
             '--name ' + name + 'xx ' +
             image_id
         )
-        json_output = json.loads(self.openstack(
-            'image show -f json ' +
-            name + 'xx'
-        ))
+        output = self.openstack(
+            'image show ' + name + 'xx',
+            parse_output=True,
+        )
         self.assertEqual(
             name + 'xx',
-            json_output["name"],
+            output["name"],
         )
 
     # TODO(dtroyer): This test is incomplete and doesn't properly test
@@ -213,19 +209,21 @@ class ImageTests(base.BaseImageTests):
     #                properly added.
     def test_image_members(self):
         """Test member add, remove, accept"""
-        json_output = json.loads(self.openstack(
-            'token issue -f json'
-        ))
-        my_project_id = json_output['project_id']
+        output = self.openstack(
+            'token issue',
+            parse_output=True,
+        )
+        my_project_id = output['project_id']
 
-        json_output = json.loads(self.openstack(
+        output = self.openstack(
             'image show -f json ' +
-            self.name
-        ))
+            self.name,
+            parse_output=True,
+        )
         # NOTE(dtroyer): Until OSC supports --shared flags in create and set
         #                we can not properly test membership.  Sometimes the
         #                images are shared and sometimes they are not.
-        if json_output["visibility"] == 'shared':
+        if output["visibility"] == 'shared':
             self.openstack(
                 'image add project ' +
                 self.name + ' ' +
@@ -243,13 +241,14 @@ class ImageTests(base.BaseImageTests):
                 '--accept ' +
                 self.name
             )
-            json_output = json.loads(self.openstack(
+            output = self.openstack(
                 'image list -f json ' +
-                '--shared'
-            ))
+                '--shared',
+                parse_output=True,
+            )
             self.assertIn(
                 self.name,
-                [img['Name'] for img in json_output]
+                [img['Name'] for img in output]
             )
 
             self.openstack(
@@ -257,13 +256,14 @@ class ImageTests(base.BaseImageTests):
                 '--reject ' +
                 self.name
             )
-            json_output = json.loads(self.openstack(
+            output = self.openstack(
                 'image list -f json ' +
-                '--shared'
-            ))
+                '--shared',
+                parse_output=True,
+            )
             # self.assertNotIn(
             #     self.name,
-            #     [img['Name'] for img in json_output]
+            #     [img['Name'] for img in output]
             # )
 
             self.openstack(
