@@ -11,9 +11,7 @@
 #   WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
 #   License for the specific language governing permissions and limitations
 #   under the License.
-#
 
-import json
 import uuid
 
 from openstackclient.tests.functional.network.v2 import common
@@ -33,20 +31,22 @@ class LocalIPTests(common.NetworkTests):
     def test_local_ip_create_and_delete(self):
         """Test create, delete multiple"""
         name1 = uuid.uuid4().hex
-        cmd_output = json.loads(self.openstack(
-            'local ip create -f json ' +
-            name1
-        ))
+        cmd_output = self.openstack(
+            'local ip create ' +
+            name1,
+            parse_output=True,
+        )
         self.assertEqual(
             name1,
             cmd_output['name'],
         )
 
         name2 = uuid.uuid4().hex
-        cmd_output = json.loads(self.openstack(
-            'local ip create -f json ' +
-            name2
-        ))
+        cmd_output = self.openstack(
+            'local ip create ' +
+            name2,
+            parse_output=True,
+        )
         self.assertEqual(
             name2,
             cmd_output['name'],
@@ -60,10 +60,10 @@ class LocalIPTests(common.NetworkTests):
     def test_local_ip_list(self):
         """Test create, list filters, delete"""
         # Get project IDs
-        cmd_output = json.loads(self.openstack('token issue -f json '))
+        cmd_output = self.openstack('token issue ', parse_output=True)
         auth_project_id = cmd_output['project_id']
 
-        cmd_output = json.loads(self.openstack('project list -f json '))
+        cmd_output = self.openstack('project list ', parse_output=True)
         admin_project_id = None
         demo_project_id = None
         for p in cmd_output:
@@ -82,10 +82,11 @@ class LocalIPTests(common.NetworkTests):
         self.assertEqual(admin_project_id, auth_project_id)
 
         name1 = uuid.uuid4().hex
-        cmd_output = json.loads(self.openstack(
-            'local ip create -f json ' +
-            name1
-        ))
+        cmd_output = self.openstack(
+            'local ip create ' +
+            name1,
+            parse_output=True,
+        )
         self.addCleanup(self.openstack, 'local ip delete ' + name1)
         self.assertEqual(
             admin_project_id,
@@ -93,11 +94,12 @@ class LocalIPTests(common.NetworkTests):
         )
 
         name2 = uuid.uuid4().hex
-        cmd_output = json.loads(self.openstack(
-            'local ip create -f json ' +
+        cmd_output = self.openstack(
+            'local ip create ' +
             '--project ' + demo_project_id +
-            ' ' + name2
-        ))
+            ' ' + name2,
+            parse_output=True,
+        )
         self.addCleanup(self.openstack, 'local ip delete ' + name2)
         self.assertEqual(
             demo_project_id,
@@ -105,27 +107,30 @@ class LocalIPTests(common.NetworkTests):
         )
 
         # Test list
-        cmd_output = json.loads(self.openstack(
-            'local ip list -f json ',
-        ))
+        cmd_output = self.openstack(
+            'local ip list ',
+            parse_output=True,
+        )
         names = [x["Name"] for x in cmd_output]
         self.assertIn(name1, names)
         self.assertIn(name2, names)
 
         # Test list --project
-        cmd_output = json.loads(self.openstack(
-            'local ip list -f json ' +
-            '--project ' + demo_project_id
-        ))
+        cmd_output = self.openstack(
+            'local ip list ' +
+            '--project ' + demo_project_id,
+            parse_output=True,
+        )
         names = [x["Name"] for x in cmd_output]
         self.assertNotIn(name1, names)
         self.assertIn(name2, names)
 
         # Test list --name
-        cmd_output = json.loads(self.openstack(
-            'local ip list -f json ' +
-            '--name ' + name1
-        ))
+        cmd_output = self.openstack(
+            'local ip list ' +
+            '--name ' + name1,
+            parse_output=True,
+        )
         names = [x["Name"] for x in cmd_output]
         self.assertIn(name1, names)
         self.assertNotIn(name2, names)
@@ -134,11 +139,12 @@ class LocalIPTests(common.NetworkTests):
         """Tests create options, set, and show"""
         name = uuid.uuid4().hex
         newname = name + "_"
-        cmd_output = json.loads(self.openstack(
-            'local ip create -f json ' +
+        cmd_output = self.openstack(
+            'local ip create ' +
             '--description aaaa ' +
-            name
-        ))
+            name,
+            parse_output=True,
+        )
         self.addCleanup(self.openstack, 'local ip delete ' + newname)
         self.assertEqual(name, cmd_output['name'])
         self.assertEqual('aaaa', cmd_output['description'])
@@ -153,9 +159,10 @@ class LocalIPTests(common.NetworkTests):
         self.assertOutput('', raw_output)
 
         # Show the updated local ip
-        cmd_output = json.loads(self.openstack(
-            'local ip show -f json ' +
+        cmd_output = self.openstack(
+            'local ip show ' +
             newname,
-        ))
+            parse_output=True,
+        )
         self.assertEqual(newname, cmd_output['name'])
         self.assertEqual('bbbb', cmd_output['description'])

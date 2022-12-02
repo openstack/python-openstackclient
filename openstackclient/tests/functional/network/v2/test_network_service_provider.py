@@ -13,8 +13,6 @@
 #    License for the specific language governing permissions and limitations
 #    under the License.
 
-import json
-
 from openstackclient.tests.functional.network.v2 import common
 
 
@@ -29,13 +27,15 @@ class TestNetworkServiceProvider(common.NetworkTests):
         # NOTE(slaweq):
         # that tests should works only when "standard" Neutron L3 agent is
         # used, as e.g. OVN L3 plugin don't supports that.
-        l3_agent_list = json.loads(self.openstack(
-            'network agent list -f json --agent-type l3 -c ID'
-        ))
+        l3_agent_list = self.openstack(
+            'network agent list --agent-type l3 -c ID',
+            parse_output=True,
+        )
         if not l3_agent_list:
             self.skipTest("No Neutron L3 Agents present")
 
     def test_network_service_provider_list(self):
-        cmd_output = json.loads(self.openstack(
-            'network service provider list -f json'))
+        cmd_output = self.openstack(
+            'network service provider list',
+            parse_output=True,)
         self.assertIn('L3_ROUTER_NAT', [x['Service Type'] for x in cmd_output])

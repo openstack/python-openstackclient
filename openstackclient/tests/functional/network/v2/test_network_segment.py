@@ -10,7 +10,6 @@
 #    License for the specific language governing permissions and limitations
 #    under the License.
 
-import json
 import uuid
 
 from openstackclient.tests.functional.network.v2 import common
@@ -27,10 +26,9 @@ class NetworkSegmentTests(common.NetworkTests):
             cls.PHYSICAL_NETWORK_NAME = uuid.uuid4().hex
 
             # Create a network for the all subnet tests
-            cmd_output = json.loads(cls.openstack(
-                'network create -f json ' +
-                cls.NETWORK_NAME
-            ))
+            cmd_output = cls.openstack(
+                'network create ' + cls.NETWORK_NAME, parse_output=True,
+            )
             # Get network_id for assertEqual
             cls.NETWORK_ID = cmd_output["id"]
 
@@ -54,13 +52,14 @@ class NetworkSegmentTests(common.NetworkTests):
 
     def test_network_segment_create_delete(self):
         name = uuid.uuid4().hex
-        json_output = json.loads(self.openstack(
-            ' network segment create -f json ' +
+        json_output = self.openstack(
+            ' network segment create ' +
             '--network ' + self.NETWORK_ID + ' ' +
             '--network-type geneve ' +
             '--segment 2055 ' +
-            name
-        ))
+            name,
+            parse_output=True,
+        )
         self.assertEqual(
             name,
             json_output["name"],
@@ -73,13 +72,14 @@ class NetworkSegmentTests(common.NetworkTests):
 
     def test_network_segment_list(self):
         name = uuid.uuid4().hex
-        json_output = json.loads(self.openstack(
-            ' network segment create -f json ' +
+        json_output = self.openstack(
+            ' network segment create ' +
             '--network ' + self.NETWORK_ID + ' ' +
             '--network-type geneve ' +
             '--segment 2055 ' +
-            name
-        ))
+            name,
+            parse_output=True,
+        )
         network_segment_id = json_output.get('id')
         network_segment_name = json_output.get('name')
         self.addCleanup(
@@ -91,9 +91,10 @@ class NetworkSegmentTests(common.NetworkTests):
             json_output["name"],
         )
 
-        json_output = json.loads(self.openstack(
-            'network segment list -f json'
-        ))
+        json_output = self.openstack(
+            'network segment list',
+            parse_output=True,
+        )
         item_map = {
             item.get('ID'): item.get('Name') for item in json_output
         }
@@ -102,21 +103,23 @@ class NetworkSegmentTests(common.NetworkTests):
 
     def test_network_segment_set_show(self):
         name = uuid.uuid4().hex
-        json_output = json.loads(self.openstack(
-            ' network segment create -f json ' +
+        json_output = self.openstack(
+            ' network segment create ' +
             '--network ' + self.NETWORK_ID + ' ' +
             '--network-type geneve ' +
             '--segment 2055 ' +
-            name
-        ))
+            name,
+            parse_output=True,
+        )
         self.addCleanup(
             self.openstack,
             'network segment delete ' + name
         )
 
-        extension_output = json.loads(self.openstack(
-            "extension list -f json "
-        ))
+        extension_output = self.openstack(
+            "extension list ",
+            parse_output=True,
+        )
         ext_alias = [x["Alias"] for x in extension_output]
         if "standard-attr-segment" in ext_alias:
             self.assertEqual(
@@ -136,10 +139,11 @@ class NetworkSegmentTests(common.NetworkTests):
         )
         self.assertOutput('', cmd_output)
 
-        json_output = json.loads(self.openstack(
-            'network segment show -f json ' +
-            name
-        ))
+        json_output = self.openstack(
+            'network segment show ' +
+            name,
+            parse_output=True,
+        )
         self.assertEqual(
             new_description,
             json_output["description"],

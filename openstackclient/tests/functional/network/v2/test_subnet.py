@@ -10,7 +10,6 @@
 #    License for the specific language governing permissions and limitations
 #    under the License.
 
-import json
 import random
 import uuid
 
@@ -29,10 +28,11 @@ class SubnetTests(common.NetworkTagTests):
             cls.NETWORK_NAME = uuid.uuid4().hex
 
             # Create a network for the all subnet tests
-            cmd_output = json.loads(cls.openstack(
-                'network create -f json ' +
-                cls.NETWORK_NAME
-            ))
+            cmd_output = cls.openstack(
+                'network create ' +
+                cls.NETWORK_NAME,
+                parse_output=True,
+            )
             # Get network_id for assertEqual
             cls.NETWORK_ID = cmd_output["id"]
 
@@ -57,7 +57,7 @@ class SubnetTests(common.NetworkTagTests):
     def test_subnet_create_and_delete(self):
         """Test create, delete multiple"""
         name1 = uuid.uuid4().hex
-        cmd = ('subnet create -f json --network ' +
+        cmd = ('subnet create --network ' +
                self.NETWORK_NAME +
                ' --subnet-range')
         cmd_output = self._subnet_create(cmd, name1)
@@ -70,7 +70,7 @@ class SubnetTests(common.NetworkTagTests):
             cmd_output["network_id"],
         )
         name2 = uuid.uuid4().hex
-        cmd = ('subnet create -f json --network ' +
+        cmd = ('subnet create --network ' +
                self.NETWORK_NAME +
                ' --subnet-range')
         cmd_output = self._subnet_create(cmd, name2)
@@ -91,7 +91,7 @@ class SubnetTests(common.NetworkTagTests):
         """Test create, list filter"""
         name1 = uuid.uuid4().hex
         name2 = uuid.uuid4().hex
-        cmd = ('subnet create -f json ' +
+        cmd = ('subnet create ' +
                '--network ' + self.NETWORK_NAME +
                ' --dhcp --subnet-range')
         cmd_output = self._subnet_create(cmd, name1)
@@ -114,7 +114,7 @@ class SubnetTests(common.NetworkTagTests):
             cmd_output["ip_version"],
         )
 
-        cmd = ('subnet create -f json ' +
+        cmd = ('subnet create ' +
                '--network ' + self.NETWORK_NAME +
                ' --ip-version 6 --no-dhcp ' +
                '--subnet-range')
@@ -139,46 +139,51 @@ class SubnetTests(common.NetworkTagTests):
         )
 
         # Test list --long
-        cmd_output = json.loads(self.openstack(
-            'subnet list -f json ' +
-            '--long '
-        ))
+        cmd_output = self.openstack(
+            'subnet list ' +
+            '--long ',
+            parse_output=True,
+        )
         names = [x["Name"] for x in cmd_output]
         self.assertIn(name1, names)
         self.assertIn(name2, names)
 
         # Test list --name
-        cmd_output = json.loads(self.openstack(
-            'subnet list -f json ' +
-            '--name ' + name1
-        ))
+        cmd_output = self.openstack(
+            'subnet list ' +
+            '--name ' + name1,
+            parse_output=True,
+        )
         names = [x["Name"] for x in cmd_output]
         self.assertIn(name1, names)
         self.assertNotIn(name2, names)
 
         # Test list --ip-version
-        cmd_output = json.loads(self.openstack(
-            'subnet list -f json ' +
-            '--ip-version 6'
-        ))
+        cmd_output = self.openstack(
+            'subnet list ' +
+            '--ip-version 6',
+            parse_output=True,
+        )
         names = [x["Name"] for x in cmd_output]
         self.assertNotIn(name1, names)
         self.assertIn(name2, names)
 
         # Test list --network
-        cmd_output = json.loads(self.openstack(
-            'subnet list -f json ' +
-            '--network ' + self.NETWORK_ID
-        ))
+        cmd_output = self.openstack(
+            'subnet list ' +
+            '--network ' + self.NETWORK_ID,
+            parse_output=True,
+        )
         names = [x["Name"] for x in cmd_output]
         self.assertIn(name1, names)
         self.assertIn(name2, names)
 
         # Test list --no-dhcp
-        cmd_output = json.loads(self.openstack(
-            'subnet list -f json ' +
-            '--no-dhcp '
-        ))
+        cmd_output = self.openstack(
+            'subnet list ' +
+            '--no-dhcp ',
+            parse_output=True,
+        )
         names = [x["Name"] for x in cmd_output]
         self.assertNotIn(name1, names)
         self.assertIn(name2, names)
@@ -188,7 +193,7 @@ class SubnetTests(common.NetworkTagTests):
 
         name = uuid.uuid4().hex
         new_name = name + "_"
-        cmd = ('subnet create -f json ' +
+        cmd = ('subnet create ' +
                '--network ' + self.NETWORK_NAME +
                ' --description aaaa --subnet-range')
         cmd_output = self._subnet_create(cmd, name)
@@ -215,10 +220,11 @@ class SubnetTests(common.NetworkTagTests):
         )
         self.assertOutput('', cmd_output)
 
-        cmd_output = json.loads(self.openstack(
-            'subnet show -f json ' +
-            new_name
-        ))
+        cmd_output = self.openstack(
+            'subnet show ' +
+            new_name,
+            parse_output=True,
+        )
         self.assertEqual(
             new_name,
             cmd_output["name"],
@@ -248,10 +254,11 @@ class SubnetTests(common.NetworkTagTests):
         )
         self.assertOutput('', cmd_output)
 
-        cmd_output = json.loads(self.openstack(
-            'subnet show -f json ' +
-            new_name
-        ))
+        cmd_output = self.openstack(
+            'subnet show ' +
+            new_name,
+            parse_output=True,
+        )
         self.assertEqual(
             [],
             cmd_output["service_types"],
@@ -274,10 +281,11 @@ class SubnetTests(common.NetworkTagTests):
                     (hex(random.randint(0, 65535))[2:] for _ in range(7))
                 )) + ":0/112"
             try:
-                cmd_output = json.loads(self.openstack(
+                cmd_output = self.openstack(
                     cmd + ' ' + subnet + ' ' +
-                    name
-                ))
+                    name,
+                    parse_output=True,
+                )
             except Exception:
                 if (i == 3):
                     # raise the exception at the last time
@@ -289,7 +297,7 @@ class SubnetTests(common.NetworkTagTests):
         return cmd_output
 
     def _create_resource_for_tag_test(self, name, args):
-        cmd = ('subnet create -f json --network ' +
+        cmd = ('subnet create --network ' +
                self.NETWORK_NAME + ' ' + args +
                ' --subnet-range')
         return self._subnet_create(cmd, name)

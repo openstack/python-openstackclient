@@ -10,7 +10,6 @@
 #    License for the specific language governing permissions and limitations
 #    under the License.
 
-import json
 import uuid
 
 from openstackclient.tests.functional.network.v2 import common
@@ -28,32 +27,38 @@ class SecurityGroupRuleTests(common.NetworkTests):
         self.SECURITY_GROUP_NAME = uuid.uuid4().hex
 
         # Create the security group to hold the rule
-        cmd_output = json.loads(self.openstack(
-            'security group create -f json ' +
-            self.SECURITY_GROUP_NAME
-        ))
+        cmd_output = self.openstack(
+            'security group create ' +
+            self.SECURITY_GROUP_NAME,
+            parse_output=True,
+        )
         self.addCleanup(self.openstack,
                         'security group delete ' + self.SECURITY_GROUP_NAME)
         self.assertEqual(self.SECURITY_GROUP_NAME, cmd_output['name'])
 
         # Create the security group rule.
-        cmd_output = json.loads(self.openstack(
-            'security group rule create -f json ' +
+        cmd_output = self.openstack(
+            'security group rule create ' +
             self.SECURITY_GROUP_NAME + ' ' +
             '--protocol tcp --dst-port 80:80 ' +
-            '--ingress --ethertype IPv4 '
-        ))
+            '--ingress --ethertype IPv4 ',
+            parse_output=True,
+        )
         self.addCleanup(self.openstack,
                         'security group rule delete ' + cmd_output['id'])
         self.SECURITY_GROUP_RULE_ID = cmd_output['id']
 
     def test_security_group_rule_list(self):
-        cmd_output = json.loads(self.openstack(
-            'security group rule list -f json ' + self.SECURITY_GROUP_NAME))
+        cmd_output = self.openstack(
+            'security group rule list ' + self.SECURITY_GROUP_NAME,
+            parse_output=True,
+        )
         self.assertIn(self.SECURITY_GROUP_RULE_ID,
                       [rule['ID'] for rule in cmd_output])
 
     def test_security_group_rule_show(self):
-        cmd_output = json.loads(self.openstack(
-            'security group rule show -f json ' + self.SECURITY_GROUP_RULE_ID))
+        cmd_output = self.openstack(
+            'security group rule show ' + self.SECURITY_GROUP_RULE_ID,
+            parse_output=True,
+        )
         self.assertEqual(self.SECURITY_GROUP_RULE_ID, cmd_output['id'])

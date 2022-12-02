@@ -10,7 +10,6 @@
 #    License for the specific language governing permissions and limitations
 #    under the License.
 
-import json
 import uuid
 
 from openstackclient.tests.functional.network.v2 import common
@@ -32,41 +31,47 @@ class NetworkRBACTests(common.NetworkTests):
         self.NET_NAME = uuid.uuid4().hex
         self.PROJECT_NAME = uuid.uuid4().hex
 
-        cmd_output = json.loads(self.openstack(
-            'network create -f json ' + self.NET_NAME
-        ))
+        cmd_output = self.openstack(
+            'network create ' + self.NET_NAME,
+            parse_output=True,
+        )
         self.addCleanup(self.openstack,
                         'network delete ' + cmd_output['id'])
         self.OBJECT_ID = cmd_output['id']
 
-        cmd_output = json.loads(self.openstack(
-            'network rbac create -f json ' +
+        cmd_output = self.openstack(
+            'network rbac create ' +
             self.OBJECT_ID +
             ' --action access_as_shared' +
             ' --target-project admin' +
-            ' --type network'
-        ))
+            ' --type network',
+            parse_output=True,
+        )
         self.addCleanup(self.openstack,
                         'network rbac delete ' + cmd_output['id'])
         self.ID = cmd_output['id']
         self.assertEqual(self.OBJECT_ID, cmd_output['object_id'])
 
     def test_network_rbac_list(self):
-        cmd_output = json.loads(self.openstack('network rbac list -f json'))
+        cmd_output = self.openstack('network rbac list', parse_output=True)
         self.assertIn(self.ID, [rbac['ID'] for rbac in cmd_output])
 
     def test_network_rbac_show(self):
-        cmd_output = json.loads(self.openstack(
-            'network rbac show -f json ' + self.ID))
+        cmd_output = self.openstack(
+            'network rbac show ' + self.ID,
+            parse_output=True,)
         self.assertEqual(self.ID, cmd_output['id'])
 
     def test_network_rbac_set(self):
-        project_id = json.loads(self.openstack(
-            'project create -f json ' + self.PROJECT_NAME))['id']
+        project_id = self.openstack(
+            'project create ' + self.PROJECT_NAME,
+            parse_output=True,)['id']
         self.openstack('network rbac set ' + self.ID +
                        ' --target-project ' + self.PROJECT_NAME)
-        cmd_output_rbac = json.loads(self.openstack(
-            'network rbac show -f json ' + self.ID))
+        cmd_output_rbac = self.openstack(
+            'network rbac show ' + self.ID,
+            parse_output=True,
+        )
         self.assertEqual(project_id, cmd_output_rbac['target_project_id'])
         raw_output_project = self.openstack(
             'project delete ' + self.PROJECT_NAME)

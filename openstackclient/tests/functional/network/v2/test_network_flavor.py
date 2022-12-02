@@ -10,8 +10,6 @@
 #    License for the specific language governing permissions and limitations
 #    under the License.
 
-
-import json
 import uuid
 
 from openstackclient.tests.functional.network.v2 import common
@@ -30,17 +28,19 @@ class NetworkFlavorTests(common.NetworkTests):
         """Test add and remove network flavor to/from profile"""
         # Create Flavor
         name1 = uuid.uuid4().hex
-        cmd_output1 = json.loads(self.openstack(
-            'network flavor create -f json --description testdescription '
+        cmd_output1 = self.openstack(
+            'network flavor create --description testdescription '
             '--enable  --service-type L3_ROUTER_NAT ' + name1,
-        ))
+            parse_output=True,
+        )
         flavor_id = cmd_output1.get('id')
 
         # Create Service Flavor
-        cmd_output2 = json.loads(self.openstack(
-            'network flavor profile create -f json --description '
-            'fakedescription --enable --metainfo Extrainfo'
-        ))
+        cmd_output2 = self.openstack(
+            'network flavor profile create --description '
+            'fakedescription --enable --metainfo Extrainfo',
+            parse_output=True,
+        )
         service_profile_id = cmd_output2.get('id')
 
         self.addCleanup(self.openstack, 'network flavor delete %s' %
@@ -53,9 +53,10 @@ class NetworkFlavorTests(common.NetworkTests):
             flavor_id + ' ' + service_profile_id
         )
 
-        cmd_output4 = json.loads(self.openstack(
-            'network flavor show -f json ' + flavor_id
-        ))
+        cmd_output4 = self.openstack(
+            'network flavor show ' + flavor_id,
+            parse_output=True,
+        )
         service_profile_ids1 = cmd_output4.get('service_profile_ids')
 
         # Assert
@@ -68,9 +69,10 @@ class NetworkFlavorTests(common.NetworkTests):
             flavor_id + ' ' + service_profile_id
         )
 
-        cmd_output6 = json.loads(self.openstack(
-            'network flavor show -f json ' + flavor_id
-        ))
+        cmd_output6 = self.openstack(
+            'network flavor show ' + flavor_id,
+            parse_output=True,
+        )
         service_profile_ids2 = cmd_output6.get('service_profile_ids')
 
         # Assert
@@ -79,10 +81,11 @@ class NetworkFlavorTests(common.NetworkTests):
     def test_network_flavor_delete(self):
         """Test create, delete multiple"""
         name1 = uuid.uuid4().hex
-        cmd_output = json.loads(self.openstack(
-            'network flavor create -f json --description testdescription '
+        cmd_output = self.openstack(
+            'network flavor create --description testdescription '
             '--enable  --service-type L3_ROUTER_NAT ' + name1,
-        ))
+            parse_output=True,
+        )
         self.assertEqual(
             name1,
             cmd_output['name'],
@@ -94,10 +97,11 @@ class NetworkFlavorTests(common.NetworkTests):
         )
 
         name2 = uuid.uuid4().hex
-        cmd_output = json.loads(self.openstack(
-            'network flavor create -f json --description testdescription1 '
+        cmd_output = self.openstack(
+            'network flavor create --description testdescription1 '
             '--disable --service-type  L3_ROUTER_NAT ' + name2,
-        ))
+            parse_output=True,
+        )
         self.assertEqual(
             name2,
             cmd_output['name'],
@@ -114,10 +118,11 @@ class NetworkFlavorTests(common.NetworkTests):
     def test_network_flavor_list(self):
         """Test create defaults, list filters, delete"""
         name1 = uuid.uuid4().hex
-        cmd_output = json.loads(self.openstack(
-            'network flavor create -f json --description testdescription '
+        cmd_output = self.openstack(
+            'network flavor create --description testdescription '
             '--enable  --service-type  L3_ROUTER_NAT ' + name1,
-        ))
+            parse_output=True,
+        )
         self.addCleanup(self.openstack, "network flavor delete " + name1)
         self.assertEqual(
             name1,
@@ -133,10 +138,11 @@ class NetworkFlavorTests(common.NetworkTests):
         )
 
         name2 = uuid.uuid4().hex
-        cmd_output = json.loads(self.openstack(
-            'network flavor create -f json --description testdescription1 '
+        cmd_output = self.openstack(
+            'network flavor create --description testdescription1 '
             '--disable --service-type  L3_ROUTER_NAT ' + name2,
-        ))
+            parse_output=True,
+        )
         self.assertEqual(
             name2,
             cmd_output['name'],
@@ -152,8 +158,9 @@ class NetworkFlavorTests(common.NetworkTests):
         self.addCleanup(self.openstack, "network flavor delete " + name2)
 
         # Test list
-        cmd_output = json.loads(self.openstack(
-            'network flavor list -f json ',))
+        cmd_output = self.openstack(
+            'network flavor list ',
+            parse_output=True,)
         self.assertIsNotNone(cmd_output)
 
         name_list = [item.get('Name') for item in cmd_output]
@@ -164,10 +171,11 @@ class NetworkFlavorTests(common.NetworkTests):
         """Tests create options, set, show, delete"""
         name = uuid.uuid4().hex
         newname = name + "_"
-        cmd_output = json.loads(self.openstack(
-            'network flavor create -f json --description testdescription '
+        cmd_output = self.openstack(
+            'network flavor create --description testdescription '
             '--disable --service-type  L3_ROUTER_NAT ' + name,
-        ))
+            parse_output=True,
+        )
         self.addCleanup(self.openstack, "network flavor delete " + newname)
         self.assertEqual(
             name,
@@ -187,8 +195,9 @@ class NetworkFlavorTests(common.NetworkTests):
         )
         self.assertOutput('', raw_output)
 
-        cmd_output = json.loads(self.openstack(
-            'network flavor show -f json ' + newname,))
+        cmd_output = self.openstack(
+            'network flavor show ' + newname,
+            parse_output=True,)
         self.assertEqual(
             newname,
             cmd_output['name'],
@@ -205,13 +214,15 @@ class NetworkFlavorTests(common.NetworkTests):
     def test_network_flavor_show(self):
         """Test show network flavor"""
         name = uuid.uuid4().hex
-        cmd_output = json.loads(self.openstack(
-            'network flavor create -f json --description testdescription '
+        cmd_output = self.openstack(
+            'network flavor create --description testdescription '
             '--disable --service-type  L3_ROUTER_NAT ' + name,
-        ))
+            parse_output=True,
+        )
         self.addCleanup(self.openstack, "network flavor delete " + name)
-        cmd_output = json.loads(self.openstack(
-            'network flavor show -f json ' + name,))
+        cmd_output = self.openstack(
+            'network flavor show ' + name,
+            parse_output=True,)
         self.assertEqual(
             name,
             cmd_output['name'],

@@ -10,7 +10,6 @@
 #    License for the specific language governing permissions and limitations
 #    under the License.
 
-import json
 import uuid
 
 from openstackclient.tests.functional.network.v2 import common
@@ -34,11 +33,12 @@ class NetworkTests(common.NetworkTagTests):
 
         # Network create with minimum options
         name1 = uuid.uuid4().hex
-        cmd_output = json.loads(self.openstack(
-            'network create -f json ' +
+        cmd_output = self.openstack(
+            'network create ' +
             '--subnet 1.2.3.4/28 ' +
-            name1
-        ))
+            name1,
+            parse_output=True,
+        )
         self.addCleanup(self.openstack, 'network delete ' + name1)
         self.assertIsNotNone(cmd_output["id"])
 
@@ -53,12 +53,13 @@ class NetworkTests(common.NetworkTagTests):
 
         # Network create with more options
         name2 = uuid.uuid4().hex
-        cmd_output = json.loads(self.openstack(
-            'network create -f json ' +
+        cmd_output = self.openstack(
+            'network create ' +
             '--subnet 1.2.4.4/28 ' +
             '--share ' +
-            name2
-        ))
+            name2,
+            parse_output=True,
+        )
         self.addCleanup(self.openstack, 'network delete ' + name2)
         self.assertIsNotNone(cmd_output["id"])
 
@@ -80,10 +81,10 @@ class NetworkTests(common.NetworkTagTests):
             self.skipTest("No Network service present")
 
         # Get project IDs
-        cmd_output = json.loads(self.openstack('token issue -f json '))
+        cmd_output = self.openstack('token issue ', parse_output=True)
         auth_project_id = cmd_output['project_id']
 
-        cmd_output = json.loads(self.openstack('project list -f json '))
+        cmd_output = self.openstack('project list ', parse_output=True)
         admin_project_id = None
         demo_project_id = None
         for p in cmd_output:
@@ -103,10 +104,11 @@ class NetworkTests(common.NetworkTagTests):
 
         # Network create with no options
         name1 = uuid.uuid4().hex
-        cmd_output = json.loads(self.openstack(
-            'network create -f json ' +
-            name1
-        ))
+        cmd_output = self.openstack(
+            'network create ' +
+            name1,
+            parse_output=True,
+        )
         self.addCleanup(self.openstack, 'network delete ' + name1)
         self.assertIsNotNone(cmd_output["id"])
 
@@ -133,11 +135,12 @@ class NetworkTests(common.NetworkTagTests):
 
         # Network create with options
         name2 = uuid.uuid4().hex
-        cmd_output = json.loads(self.openstack(
-            'network create -f json ' +
+        cmd_output = self.openstack(
+            'network create ' +
             '--project demo ' +
-            name2
-        ))
+            name2,
+            parse_output=True,
+        )
         self.addCleanup(self.openstack, 'network delete ' + name2)
         self.assertIsNotNone(cmd_output["id"])
         self.assertEqual(
@@ -155,11 +158,12 @@ class NetworkTests(common.NetworkTagTests):
             self.skipTest("Skip Nova-net test")
 
         name1 = uuid.uuid4().hex
-        cmd_output = json.loads(self.openstack(
-            'network create -f json ' +
+        cmd_output = self.openstack(
+            'network create ' +
             '--subnet 9.8.7.6/28 ' +
-            name1
-        ))
+            name1,
+            parse_output=True,
+        )
         self.assertIsNotNone(cmd_output["id"])
         self.assertEqual(
             name1,
@@ -167,11 +171,12 @@ class NetworkTests(common.NetworkTagTests):
         )
 
         name2 = uuid.uuid4().hex
-        cmd_output = json.loads(self.openstack(
-            'network create -f json ' +
+        cmd_output = self.openstack(
+            'network create ' +
             '--subnet 8.7.6.5/28 ' +
-            name2
-        ))
+            name2,
+            parse_output=True,
+        )
         self.assertIsNotNone(cmd_output["id"])
         self.assertEqual(
             name2,
@@ -184,11 +189,12 @@ class NetworkTests(common.NetworkTagTests):
             self.skipTest("No Network service present")
 
         name1 = uuid.uuid4().hex
-        cmd_output = json.loads(self.openstack(
-            'network create -f json ' +
+        cmd_output = self.openstack(
+            'network create ' +
             '--description aaaa ' +
-            name1
-        ))
+            name1,
+            parse_output=True,
+        )
         self.assertIsNotNone(cmd_output["id"])
         self.assertEqual(
             'aaaa',
@@ -196,11 +202,12 @@ class NetworkTests(common.NetworkTagTests):
         )
 
         name2 = uuid.uuid4().hex
-        cmd_output = json.loads(self.openstack(
-            'network create -f json ' +
+        cmd_output = self.openstack(
+            'network create ' +
             '--description bbbb ' +
-            name2
-        ))
+            name2,
+            parse_output=True,
+        )
         self.assertIsNotNone(cmd_output["id"])
         self.assertEqual(
             'bbbb',
@@ -217,11 +224,12 @@ class NetworkTests(common.NetworkTagTests):
             network_options = '--description aaaa --no-default '
         else:
             network_options = '--subnet 3.4.5.6/28 '
-        cmd_output = json.loads(self.openstack(
-            'network create -f json ' +
+        cmd_output = self.openstack(
+            'network create ' +
             network_options +
-            name1
-        ))
+            name1,
+            parse_output=True,
+        )
         self.addCleanup(self.openstack, 'network delete %s' % name1)
         self.assertIsNotNone(cmd_output["id"])
         if self.haz_network:
@@ -254,10 +262,11 @@ class NetworkTests(common.NetworkTagTests):
             network_options = '--description bbbb --disable '
         else:
             network_options = '--subnet 4.5.6.7/28 '
-        cmd_output = json.loads(self.openstack(
-            'network create -f json --share %s%s' %
-            (network_options, name2)
-        ))
+        cmd_output = self.openstack(
+            'network create --share %s%s' %
+            (network_options, name2),
+            parse_output=True,
+        )
         self.addCleanup(self.openstack, 'network delete ' + name2)
         self.assertIsNotNone(cmd_output["id"])
         if self.haz_network:
@@ -280,54 +289,60 @@ class NetworkTests(common.NetworkTagTests):
             self.assertTrue(cmd_output["share_address"])
 
         # Test list
-        cmd_output = json.loads(self.openstack(
-            "network list -f json "
-        ))
+        cmd_output = self.openstack(
+            "network list ",
+            parse_output=True,
+        )
         col_name = [x["Name"] for x in cmd_output]
         self.assertIn(name1, col_name)
         self.assertIn(name2, col_name)
 
         # Test list --long
         if self.haz_network:
-            cmd_output = json.loads(self.openstack(
-                "network list -f json --long"
-            ))
+            cmd_output = self.openstack(
+                "network list --long",
+                parse_output=True,
+            )
             col_name = [x["Name"] for x in cmd_output]
             self.assertIn(name1, col_name)
             self.assertIn(name2, col_name)
 
         # Test list --long --enable
         if self.haz_network:
-            cmd_output = json.loads(self.openstack(
-                "network list -f json --enable --long"
-            ))
+            cmd_output = self.openstack(
+                "network list --enable --long",
+                parse_output=True,
+            )
             col_name = [x["Name"] for x in cmd_output]
             self.assertIn(name1, col_name)
             self.assertNotIn(name2, col_name)
 
         # Test list --long --disable
         if self.haz_network:
-            cmd_output = json.loads(self.openstack(
-                "network list -f json --disable --long"
-            ))
+            cmd_output = self.openstack(
+                "network list --disable --long",
+                parse_output=True,
+            )
             col_name = [x["Name"] for x in cmd_output]
             self.assertNotIn(name1, col_name)
             self.assertIn(name2, col_name)
 
         # Test list --share
         if self.haz_network:
-            cmd_output = json.loads(self.openstack(
-                "network list -f json --share "
-            ))
+            cmd_output = self.openstack(
+                "network list --share ",
+                parse_output=True,
+            )
             col_name = [x["Name"] for x in cmd_output]
             self.assertNotIn(name1, col_name)
             self.assertIn(name2, col_name)
 
         # Test list --no-share
         if self.haz_network:
-            cmd_output = json.loads(self.openstack(
-                "network list -f json --no-share "
-            ))
+            cmd_output = self.openstack(
+                "network list --no-share ",
+                parse_output=True,
+            )
             col_name = [x["Name"] for x in cmd_output]
             self.assertIn(name1, col_name)
             self.assertNotIn(name2, col_name)
@@ -339,9 +354,10 @@ class NetworkTests(common.NetworkTagTests):
             self.skipTest("No dhcp_agent_scheduler extension present")
 
         name1 = uuid.uuid4().hex
-        cmd_output1 = json.loads(self.openstack(
-            'network create -f json --description aaaa %s' % name1
-        ))
+        cmd_output1 = self.openstack(
+            'network create --description aaaa %s' % name1,
+            parse_output=True,
+        )
 
         self.addCleanup(self.openstack, 'network delete %s' % name1)
 
@@ -349,9 +365,10 @@ class NetworkTests(common.NetworkTagTests):
         network_id = cmd_output1['id']
 
         # Get DHCP Agent ID
-        cmd_output2 = json.loads(self.openstack(
-            'network agent list -f json --agent-type dhcp'
-        ))
+        cmd_output2 = self.openstack(
+            'network agent list --agent-type dhcp',
+            parse_output=True,
+        )
         agent_id = cmd_output2[0]['ID']
 
         # Add Agent to Network
@@ -360,9 +377,10 @@ class NetworkTests(common.NetworkTagTests):
         )
 
         # Test network list --agent
-        cmd_output3 = json.loads(self.openstack(
-            'network list -f json --agent %s' % agent_id
-        ))
+        cmd_output3 = self.openstack(
+            'network list --agent %s' % agent_id,
+            parse_output=True,
+        )
 
         # Cleanup
         # Remove Agent from Network
@@ -383,16 +401,17 @@ class NetworkTests(common.NetworkTagTests):
             self.skipTest("No Network service present")
 
         name = uuid.uuid4().hex
-        cmd_output = json.loads(self.openstack(
-            'network create -f json '
+        cmd_output = self.openstack(
+            'network create '
             '--description aaaa '
             '--enable '
             '--no-share '
             '--internal '
             '--no-default '
             '--enable-port-security %s' %
-            name
-        ))
+            name,
+            parse_output=True,
+        )
         self.addCleanup(self.openstack, 'network delete %s' % name)
         self.assertIsNotNone(cmd_output["id"])
         self.assertEqual(
@@ -425,9 +444,10 @@ class NetworkTests(common.NetworkTagTests):
         )
         self.assertOutput('', raw_output)
 
-        cmd_output = json.loads(self.openstack(
-            'network show -f json ' + name
-        ))
+        cmd_output = self.openstack(
+            'network show ' + name,
+            parse_output=True,
+        )
 
         self.assertEqual(
             'cccc',

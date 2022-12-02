@@ -10,9 +10,6 @@
 #    License for the specific language governing permissions and limitations
 #    under the License.
 
-
-import json
-
 from openstackclient.tests.functional.network.v2 import common
 
 
@@ -36,38 +33,45 @@ class L3NDPProxyTests(common.NetworkTests):
         self.SUBNET_P_NAME = self.getUniqueString()
         self.created_ndp_proxies = []
 
-        json_output = json.loads(
-            self.openstack(
-                'address scope create -f json --ip-version 6 '
-                '%(address_s_name)s' % {
-                    'address_s_name': self.ADDR_SCOPE_NAME}))
+        json_output = self.openstack(
+            'address scope create --ip-version 6 '
+            '%(address_s_name)s' % {'address_s_name': self.ADDR_SCOPE_NAME},
+            parse_output=True,
+        )
         self.assertIsNotNone(json_output['id'])
         self.ADDRESS_SCOPE_ID = json_output['id']
-        json_output = json.loads(
-            self.openstack(
-                'subnet pool create -f json %(subnet_p_name)s '
-                '--address-scope %(address_scope)s '
-                '--pool-prefix 2001:db8::/96 --default-prefix-length 112' % {
-                    'subnet_p_name': self.SUBNET_P_NAME,
-                    'address_scope': self.ADDRESS_SCOPE_ID}))
+        json_output = self.openstack(
+            'subnet pool create %(subnet_p_name)s '
+            '--address-scope %(address_scope)s '
+            '--pool-prefix 2001:db8::/96 --default-prefix-length 112' % {
+                'subnet_p_name': self.SUBNET_P_NAME,
+                'address_scope': self.ADDRESS_SCOPE_ID,
+            },
+            parse_output=True,
+        )
         self.assertIsNotNone(json_output['id'])
         self.SUBNET_POOL_ID = json_output['id']
-        json_output = json.loads(
-            self.openstack('network create -f json '
-                           '--external ' + self.EXT_NET_NAME))
+        json_output = self.openstack(
+            'network create --external ' + self.EXT_NET_NAME,
+            parse_output=True,
+        )
         self.assertIsNotNone(json_output['id'])
         self.EXT_NET_ID = json_output['id']
-        json_output = json.loads(
-            self.openstack(
-                'subnet create -f json --ip-version 6 --subnet-pool '
-                '%(subnet_pool)s --network %(net_id)s %(sub_name)s' % {
-                    'subnet_pool': self.SUBNET_POOL_ID,
-                    'net_id': self.EXT_NET_ID,
-                    'sub_name': self.EXT_SUB_NAME}))
+        json_output = self.openstack(
+            'subnet create --ip-version 6 --subnet-pool '
+            '%(subnet_pool)s --network %(net_id)s %(sub_name)s' % {
+                'subnet_pool': self.SUBNET_POOL_ID,
+                'net_id': self.EXT_NET_ID,
+                'sub_name': self.EXT_SUB_NAME,
+            },
+            parse_output=True,
+        )
         self.assertIsNotNone(json_output['id'])
         self.EXT_SUB_ID = json_output['id']
-        json_output = json.loads(
-            self.openstack('router create -f json ' + self.ROT_NAME))
+        json_output = self.openstack(
+            'router create ' + self.ROT_NAME,
+            parse_output=True,
+        )
         self.assertIsNotNone(json_output['id'])
         self.ROT_ID = json_output['id']
         output = self.openstack(
@@ -77,29 +81,36 @@ class L3NDPProxyTests(common.NetworkTests):
         self.assertEqual('', output)
         output = self.openstack('router set --enable-ndp-proxy ' + self.ROT_ID)
         self.assertEqual('', output)
-        json_output = json.loads(
-            self.openstack(
-                'router show -f json -c enable_ndp_proxy ' + self.ROT_ID))
+        json_output = self.openstack(
+            'router show -c enable_ndp_proxy ' + self.ROT_ID,
+            parse_output=True,
+        )
         self.assertTrue(json_output['enable_ndp_proxy'])
-        json_output = json.loads(
-            self.openstack('network create -f json ' + self.INT_NET_NAME))
+        json_output = self.openstack(
+            'network create ' + self.INT_NET_NAME,
+            parse_output=True,
+        )
         self.assertIsNotNone(json_output['id'])
         self.INT_NET_ID = json_output['id']
-        json_output = json.loads(
-            self.openstack(
-                'subnet create -f json --ip-version 6 --subnet-pool '
-                '%(subnet_pool)s --network %(net_id)s %(sub_name)s' % {
-                    'subnet_pool': self.SUBNET_POOL_ID,
-                    'net_id': self.INT_NET_ID,
-                    'sub_name': self.INT_SUB_NAME}))
+        json_output = self.openstack(
+            'subnet create --ip-version 6 --subnet-pool '
+            '%(subnet_pool)s --network %(net_id)s %(sub_name)s' % {
+                'subnet_pool': self.SUBNET_POOL_ID,
+                'net_id': self.INT_NET_ID,
+                'sub_name': self.INT_SUB_NAME,
+            },
+            parse_output=True,
+        )
         self.assertIsNotNone(json_output['id'])
         self.INT_SUB_ID = json_output['id']
-        json_output = json.loads(
-            self.openstack(
-                'port create -f json --network %(net_id)s '
-                '%(port_name)s' % {
-                    'net_id': self.INT_NET_ID,
-                    'port_name': self.INT_PORT_NAME}))
+        json_output = self.openstack(
+            'port create --network %(net_id)s '
+            '%(port_name)s' % {
+                'net_id': self.INT_NET_ID,
+                'port_name': self.INT_PORT_NAME,
+            },
+            parse_output=True,
+        )
         self.assertIsNotNone(json_output['id'])
         self.INT_PORT_ID = json_output['id']
         self.INT_PORT_ADDRESS = json_output['fixed_ips'][0]['ip_address']
@@ -142,14 +153,16 @@ class L3NDPProxyTests(common.NetworkTests):
 
     def _create_ndp_proxies(self, ndp_proxies):
         for ndp_proxy in ndp_proxies:
-            output = json.loads(
-                self.openstack(
-                    'router ndp proxy create %(router)s --name %(name)s '
-                    '--port %(port)s --ip-address %(address)s -f json' % {
-                        'router': ndp_proxy['router_id'],
-                        'name': ndp_proxy['name'],
-                        'port': ndp_proxy['port_id'],
-                        'address': ndp_proxy['address']}))
+            output = self.openstack(
+                'router ndp proxy create %(router)s --name %(name)s '
+                '--port %(port)s --ip-address %(address)s' % {
+                    'router': ndp_proxy['router_id'],
+                    'name': ndp_proxy['name'],
+                    'port': ndp_proxy['port_id'],
+                    'address': ndp_proxy['address'],
+                },
+                parse_output=True,
+            )
             self.assertEqual(ndp_proxy['router_id'], output['router_id'])
             self.assertEqual(ndp_proxy['port_id'], output['port_id'])
             self.assertEqual(ndp_proxy['address'], output['ip_address'])
@@ -173,8 +186,9 @@ class L3NDPProxyTests(common.NetworkTests):
             'port_id': self.INT_PORT_ID,
             'address': self.INT_PORT_ADDRESS}
         self._create_ndp_proxies([ndp_proxies])
-        ndp_proxy = json.loads(self.openstack(
-            'router ndp proxy list -f json'))[0]
+        ndp_proxy = self.openstack(
+            'router ndp proxy list',
+            parse_output=True,)[0]
         self.assertEqual(ndp_proxies['name'], ndp_proxy['Name'])
         self.assertEqual(ndp_proxies['router_id'], ndp_proxy['Router ID'])
         self.assertEqual(ndp_proxies['address'], ndp_proxy['IP Address'])
@@ -192,8 +206,10 @@ class L3NDPProxyTests(common.NetworkTests):
             'router ndp proxy set --description %s %s' % (
                 description, ndp_proxy_id))
         self.assertEqual('', output)
-        json_output = json.loads(
-            self.openstack('router ndp proxy show -f json ' + ndp_proxy_id))
+        json_output = self.openstack(
+            'router ndp proxy show ' + ndp_proxy_id,
+            parse_output=True,
+        )
         self.assertEqual(ndp_proxies['name'], json_output['name'])
         self.assertEqual(ndp_proxies['router_id'], json_output['router_id'])
         self.assertEqual(ndp_proxies['port_id'], json_output['port_id'])

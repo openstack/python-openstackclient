@@ -13,7 +13,6 @@
 #    License for the specific language governing permissions and limitations
 #    under the License.
 
-import json
 import uuid
 
 from openstackclient.tests.functional.network.v2 import common
@@ -38,11 +37,12 @@ class TestMeter(common.NetworkTests):
         name1 = uuid.uuid4().hex
         name2 = uuid.uuid4().hex
         description = 'fakedescription'
-        json_output = json.loads(self.openstack(
-            'network meter create -f json ' +
+        json_output = self.openstack(
+            'network meter create ' +
             ' --description ' + description + ' ' +
-            name1
-        ))
+            name1,
+            parse_output=True,
+        )
         self.assertEqual(
             name1,
             json_output.get('name'),
@@ -54,11 +54,12 @@ class TestMeter(common.NetworkTests):
             json_output.get('description'),
         )
 
-        json_output_2 = json.loads(self.openstack(
-            'network meter create -f json ' +
+        json_output_2 = self.openstack(
+            'network meter create ' +
             '--description ' + description + ' ' +
-            name2
-        ))
+            name2,
+            parse_output=True,
+        )
         self.assertEqual(
             name2,
             json_output_2.get('name'),
@@ -78,12 +79,13 @@ class TestMeter(common.NetworkTests):
     def test_meter_list(self):
         """Test create, list filters, delete"""
         name1 = uuid.uuid4().hex
-        json_output = json.loads(self.openstack(
-            'network meter create -f json ' +
+        json_output = self.openstack(
+            'network meter create ' +
             '--description Test1 ' +
             '--share ' +
-            name1
-        ))
+            name1,
+            parse_output=True,
+        )
         self.addCleanup(
             self.openstack,
             'network meter delete ' + name1
@@ -96,12 +98,13 @@ class TestMeter(common.NetworkTests):
         self.assertTrue(json_output.get('shared'))
 
         name2 = uuid.uuid4().hex
-        json_output_2 = json.loads(self.openstack(
-            'network meter create -f json ' +
+        json_output_2 = self.openstack(
+            'network meter create ' +
             '--description Test2 ' +
             '--no-share ' +
-            name2
-        ))
+            name2,
+            parse_output=True,
+        )
         self.addCleanup(self.openstack, 'network meter delete ' + name2)
 
         self.assertEqual(
@@ -112,7 +115,7 @@ class TestMeter(common.NetworkTests):
             json_output_2.get('shared'),
         )
 
-        raw_output = json.loads(self.openstack('network meter list -f json'))
+        raw_output = self.openstack('network meter list', parse_output=True)
         name_list = [item.get('Name') for item in raw_output]
         self.assertIn(name1, name_list)
         self.assertIn(name2, name_list)
@@ -121,18 +124,20 @@ class TestMeter(common.NetworkTests):
         """Test create, show, delete"""
         name1 = uuid.uuid4().hex
         description = 'fakedescription'
-        json_output = json.loads(self.openstack(
-            'network meter create -f json ' +
+        json_output = self.openstack(
+            'network meter create ' +
             ' --description ' + description + ' ' +
-            name1
-        ))
+            name1,
+            parse_output=True,
+        )
         meter_id = json_output.get('id')
         self.addCleanup(self.openstack, 'network meter delete ' + name1)
 
         # Test show with ID
-        json_output = json.loads(self.openstack(
-            'network meter show -f json ' + meter_id
-        ))
+        json_output = self.openstack(
+            'network meter show ' + meter_id,
+            parse_output=True,
+        )
         self.assertFalse(json_output.get('shared'))
         self.assertEqual(
             'fakedescription',
@@ -144,9 +149,10 @@ class TestMeter(common.NetworkTests):
         )
 
         # Test show with name
-        json_output = json.loads(self.openstack(
-            'network meter show -f json ' + name1
-        ))
+        json_output = self.openstack(
+            'network meter show ' + name1,
+            parse_output=True,
+        )
         self.assertEqual(
             meter_id,
             json_output.get('id'),

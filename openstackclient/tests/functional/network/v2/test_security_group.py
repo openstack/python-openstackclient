@@ -10,7 +10,6 @@
 #    License for the specific language governing permissions and limitations
 #    under the License.
 
-import json
 import uuid
 
 from openstackclient.tests.functional.network.v2 import common
@@ -27,16 +26,17 @@ class SecurityGroupTests(common.NetworkTests):
 
         self.NAME = uuid.uuid4().hex
         self.OTHER_NAME = uuid.uuid4().hex
-        cmd_output = json.loads(self.openstack(
-            'security group create -f json ' +
-            self.NAME
-        ))
+        cmd_output = self.openstack(
+            'security group create ' +
+            self.NAME,
+            parse_output=True,
+        )
         self.addCleanup(self.openstack,
                         'security group delete ' + cmd_output['id'])
         self.assertEqual(self.NAME, cmd_output['name'])
 
     def test_security_group_list(self):
-        cmd_output = json.loads(self.openstack('security group list -f json'))
+        cmd_output = self.openstack('security group list', parse_output=True)
         self.assertIn(self.NAME, [sg['Name'] for sg in cmd_output])
 
     def test_security_group_set(self):
@@ -47,13 +47,17 @@ class SecurityGroupTests(common.NetworkTests):
         )
         self.assertEqual('', raw_output)
 
-        cmd_output = json.loads(self.openstack(
-            'security group show -f json ' + other_name))
+        cmd_output = self.openstack(
+            'security group show ' + other_name,
+            parse_output=True,
+        )
         self.assertEqual('NSA', cmd_output['description'])
         self.assertFalse(cmd_output['stateful'])
 
     def test_security_group_show(self):
-        cmd_output = json.loads(self.openstack(
-            'security group show -f json ' + self.NAME))
+        cmd_output = self.openstack(
+            'security group show ' + self.NAME,
+            parse_output=True,
+        )
         self.assertEqual(self.NAME, cmd_output['name'])
         self.assertTrue(cmd_output['stateful'])

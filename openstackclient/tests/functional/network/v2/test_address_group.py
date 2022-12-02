@@ -10,7 +10,6 @@
 #    License for the specific language governing permissions and limitations
 #    under the License.
 
-import json
 import uuid
 
 from openstackclient.tests.functional.network.v2 import common
@@ -30,20 +29,22 @@ class AddressGroupTests(common.NetworkTests):
     def test_address_group_create_and_delete(self):
         """Test create, delete multiple"""
         name1 = uuid.uuid4().hex
-        cmd_output = json.loads(self.openstack(
-            'address group create -f json ' +
-            name1
-        ))
+        cmd_output = self.openstack(
+            'address group create ' +
+            name1,
+            parse_output=True,
+        )
         self.assertEqual(
             name1,
             cmd_output['name'],
         )
 
         name2 = uuid.uuid4().hex
-        cmd_output = json.loads(self.openstack(
-            'address group create -f json ' +
-            name2
-        ))
+        cmd_output = self.openstack(
+            'address group create ' +
+            name2,
+            parse_output=True,
+        )
         self.assertEqual(
             name2,
             cmd_output['name'],
@@ -57,10 +58,10 @@ class AddressGroupTests(common.NetworkTests):
     def test_address_group_list(self):
         """Test create, list filters, delete"""
         # Get project IDs
-        cmd_output = json.loads(self.openstack('token issue -f json '))
+        cmd_output = self.openstack('token issue ', parse_output=True)
         auth_project_id = cmd_output['project_id']
 
-        cmd_output = json.loads(self.openstack('project list -f json '))
+        cmd_output = self.openstack('project list ', parse_output=True)
         admin_project_id = None
         demo_project_id = None
         for p in cmd_output:
@@ -79,10 +80,11 @@ class AddressGroupTests(common.NetworkTests):
         self.assertEqual(admin_project_id, auth_project_id)
 
         name1 = uuid.uuid4().hex
-        cmd_output = json.loads(self.openstack(
-            'address group create -f json ' +
-            name1
-        ))
+        cmd_output = self.openstack(
+            'address group create ' +
+            name1,
+            parse_output=True,
+        )
         self.addCleanup(self.openstack, 'address group delete ' + name1)
         self.assertEqual(
             admin_project_id,
@@ -90,11 +92,12 @@ class AddressGroupTests(common.NetworkTests):
         )
 
         name2 = uuid.uuid4().hex
-        cmd_output = json.loads(self.openstack(
-            'address group create -f json ' +
+        cmd_output = self.openstack(
+            'address group create ' +
             '--project ' + demo_project_id +
-            ' ' + name2
-        ))
+            ' ' + name2,
+            parse_output=True,
+        )
         self.addCleanup(self.openstack, 'address group delete ' + name2)
         self.assertEqual(
             demo_project_id,
@@ -102,27 +105,30 @@ class AddressGroupTests(common.NetworkTests):
         )
 
         # Test list
-        cmd_output = json.loads(self.openstack(
-            'address group list -f json ',
-        ))
+        cmd_output = self.openstack(
+            'address group list ',
+            parse_output=True,
+        )
         names = [x["Name"] for x in cmd_output]
         self.assertIn(name1, names)
         self.assertIn(name2, names)
 
         # Test list --project
-        cmd_output = json.loads(self.openstack(
-            'address group list -f json ' +
-            '--project ' + demo_project_id
-        ))
+        cmd_output = self.openstack(
+            'address group list ' +
+            '--project ' + demo_project_id,
+            parse_output=True,
+        )
         names = [x["Name"] for x in cmd_output]
         self.assertNotIn(name1, names)
         self.assertIn(name2, names)
 
         # Test list --name
-        cmd_output = json.loads(self.openstack(
-            'address group list -f json ' +
-            '--name ' + name1
-        ))
+        cmd_output = self.openstack(
+            'address group list ' +
+            '--name ' + name1,
+            parse_output=True,
+        )
         names = [x["Name"] for x in cmd_output]
         self.assertIn(name1, names)
         self.assertNotIn(name2, names)
@@ -131,12 +137,13 @@ class AddressGroupTests(common.NetworkTests):
         """Tests create options, set, unset, and show"""
         name = uuid.uuid4().hex
         newname = name + "_"
-        cmd_output = json.loads(self.openstack(
-            'address group create -f json ' +
+        cmd_output = self.openstack(
+            'address group create ' +
             '--description aaaa ' +
             '--address 10.0.0.1 --address 2001::/16 ' +
-            name
-        ))
+            name,
+            parse_output=True,
+        )
         self.addCleanup(self.openstack, 'address group delete ' + newname)
         self.assertEqual(name, cmd_output['name'])
         self.assertEqual('aaaa', cmd_output['description'])
@@ -153,10 +160,11 @@ class AddressGroupTests(common.NetworkTests):
         self.assertOutput('', raw_output)
 
         # Show the updated address group
-        cmd_output = json.loads(self.openstack(
-            'address group show -f json ' +
+        cmd_output = self.openstack(
+            'address group show ' +
             newname,
-        ))
+            parse_output=True,
+        )
         self.assertEqual(newname, cmd_output['name'])
         self.assertEqual('bbbb', cmd_output['description'])
         self.assertEqual(4, len(cmd_output['addresses']))
@@ -170,8 +178,9 @@ class AddressGroupTests(common.NetworkTests):
         )
         self.assertEqual('', raw_output)
 
-        cmd_output = json.loads(self.openstack(
-            'address group show -f json ' +
+        cmd_output = self.openstack(
+            'address group show ' +
             newname,
-        ))
+            parse_output=True,
+        )
         self.assertEqual(0, len(cmd_output['addresses']))
