@@ -29,7 +29,6 @@ from osc_lib.cli import parseractions
 from osc_lib.command import command
 from osc_lib import exceptions
 from osc_lib import utils
-from oslo_utils import uuidutils
 
 from openstackclient.common import progressbar
 from openstackclient.i18n import _
@@ -184,14 +183,11 @@ class AddProjectToImage(command.ShowOne):
         image_client = self.app.client_manager.image
         identity_client = self.app.client_manager.identity
 
-        if uuidutils.is_uuid_like(parsed_args.project):
-            project_id = parsed_args.project
-        else:
-            project_id = common.find_project(
-                identity_client,
-                parsed_args.project,
-                parsed_args.project_domain,
-            ).id
+        project_id = common.find_project(
+            identity_client,
+            parsed_args.project,
+            parsed_args.project_domain,
+        ).id
 
         image = image_client.find_image(
             parsed_args.image, ignore_missing=False
