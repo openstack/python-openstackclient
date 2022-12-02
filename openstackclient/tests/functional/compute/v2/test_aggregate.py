@@ -10,7 +10,6 @@
 #    License for the specific language governing permissions and limitations
 #    under the License.
 
-import json
 import uuid
 
 from openstackclient.tests.functional import base
@@ -27,12 +26,13 @@ class AggregateTests(base.TestCase):
             'aggregate delete ' + name1,
             fail_ok=True,
         )
-        cmd_output = json.loads(self.openstack(
-            'aggregate create -f json ' +
+        cmd_output = self.openstack(
+            'aggregate create ' +
             '--zone nova ' +
             '--property a=b ' +
-            name1
-        ))
+            name1,
+            parse_output=True,
+        )
         self.assertEqual(
             name1,
             cmd_output['name']
@@ -45,8 +45,10 @@ class AggregateTests(base.TestCase):
             'a',
             cmd_output['properties']
         )
-        cmd_output = json.loads(self.openstack(
-            'aggregate show -f json ' + name1))
+        cmd_output = self.openstack(
+            'aggregate show ' + name1,
+            parse_output=True,
+        )
         self.assertEqual(name1, cmd_output['name'])
 
         name2 = uuid.uuid4().hex
@@ -55,11 +57,12 @@ class AggregateTests(base.TestCase):
             'aggregate delete ' + name2,
             fail_ok=True,
         )
-        cmd_output = json.loads(self.openstack(
-            'aggregate create -f json ' +
+        cmd_output = self.openstack(
+            'aggregate create ' +
             '--zone external ' +
-            name2
-        ))
+            name2,
+            parse_output=True,
+        )
         self.assertEqual(
             name2,
             cmd_output['name']
@@ -68,8 +71,10 @@ class AggregateTests(base.TestCase):
             'external',
             cmd_output['availability_zone']
         )
-        cmd_output = json.loads(self.openstack(
-            'aggregate show -f json ' + name2))
+        cmd_output = self.openstack(
+            'aggregate show ' + name2,
+            parse_output=True,
+        )
         self.assertEqual(name2, cmd_output['name'])
 
         # Test aggregate set
@@ -89,10 +94,11 @@ class AggregateTests(base.TestCase):
         )
         self.assertOutput('', raw_output)
 
-        cmd_output = json.loads(self.openstack(
-            'aggregate show -f json ' +
-            name3
-        ))
+        cmd_output = self.openstack(
+            'aggregate show ' +
+            name3,
+            parse_output=True,
+        )
         self.assertEqual(
             name3,
             cmd_output['name']
@@ -111,9 +117,10 @@ class AggregateTests(base.TestCase):
         )
 
         # Test aggregate list
-        cmd_output = json.loads(self.openstack(
-            'aggregate list -f json'
-        ))
+        cmd_output = self.openstack(
+            'aggregate list',
+            parse_output=True,
+        )
         names = [x['Name'] for x in cmd_output]
         self.assertIn(name3, names)
         self.assertIn(name2, names)
@@ -122,9 +129,10 @@ class AggregateTests(base.TestCase):
         self.assertIn('internal', zones)
 
         # Test aggregate list --long
-        cmd_output = json.loads(self.openstack(
-            'aggregate list --long -f json'
-        ))
+        cmd_output = self.openstack(
+            'aggregate list --long',
+            parse_output=True,
+        )
         names = [x['Name'] for x in cmd_output]
         self.assertIn(name3, names)
         self.assertIn(name2, names)
@@ -143,10 +151,11 @@ class AggregateTests(base.TestCase):
         )
         self.assertOutput('', raw_output)
 
-        cmd_output = json.loads(self.openstack(
-            'aggregate show -f json ' +
-            name3
-        ))
+        cmd_output = self.openstack(
+            'aggregate show ' +
+            name3,
+            parse_output=True,
+        )
         self.assertNotIn(
             "c='d'",
             cmd_output['properties']
@@ -163,9 +172,10 @@ class AggregateTests(base.TestCase):
     def test_aggregate_add_and_remove_host(self):
         """Test aggregate add and remove host"""
         # Get a host
-        cmd_output = json.loads(self.openstack(
-            'host list -f json'
-        ))
+        cmd_output = self.openstack(
+            'host list',
+            parse_output=True,
+        )
         host_name = cmd_output[0]['Host Name']
 
         # NOTE(dtroyer): Cells v1 is not operable with aggregates.  Hostnames
@@ -181,22 +191,24 @@ class AggregateTests(base.TestCase):
         )
 
         # Test add host
-        cmd_output = json.loads(self.openstack(
-            'aggregate add host -f json ' +
+        cmd_output = self.openstack(
+            'aggregate add host ' +
             name + ' ' +
-            host_name
-        ))
+            host_name,
+            parse_output=True,
+        )
         self.assertIn(
             host_name,
             cmd_output['hosts']
         )
 
         # Test remove host
-        cmd_output = json.loads(self.openstack(
-            'aggregate remove host -f json ' +
+        cmd_output = self.openstack(
+            'aggregate remove host ' +
             name + ' ' +
-            host_name
-        ))
+            host_name,
+            parse_output=True,
+        )
         self.assertNotIn(
             host_name,
             cmd_output['hosts']

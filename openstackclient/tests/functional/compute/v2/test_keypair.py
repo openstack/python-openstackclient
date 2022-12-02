@@ -10,7 +10,6 @@
 #    License for the specific language governing permissions and limitations
 #    under the License.
 
-import json
 import tempfile
 
 from tempest.lib.common.utils import data_utils
@@ -109,9 +108,10 @@ class KeypairTests(KeypairBase):
         2) Delete keypair
         """
         with tempfile.NamedTemporaryFile(mode='w+') as f:
-            cmd_output = json.loads(self.openstack(
-                'keypair create -f json --private-key %s tmpkey' % f.name,
-            ))
+            cmd_output = self.openstack(
+                'keypair create --private-key %s tmpkey' % f.name,
+                parse_output=True,
+            )
             self.addCleanup(self.openstack, 'keypair delete tmpkey')
             self.assertEqual('tmpkey', cmd_output.get('name'))
             self.assertIsNotNone(cmd_output.get('user_id'))

@@ -11,7 +11,6 @@
 #   under the License.
 #
 
-import json
 import time
 import uuid
 
@@ -38,9 +37,7 @@ class ComputeTestCase(base.TestCase):
     def get_flavor(cls):
         # NOTE(rtheis): Get cirros256 or m1.tiny flavors since functional
         #               tests may create other flavors.
-        flavors = json.loads(cls.openstack(
-            "flavor list -f json "
-        ))
+        flavors = cls.openstack("flavor list", parse_output=True)
         server_flavor = None
         for flavor in flavors:
             if flavor['Name'] in ['m1.tiny', 'cirros256']:
@@ -53,9 +50,7 @@ class ComputeTestCase(base.TestCase):
         # NOTE(rtheis): Get first Cirros image since functional tests may
         #               create other images.  Image may be named '-uec' or
         #               '-disk'.
-        images = json.loads(cls.openstack(
-            "image list -f json "
-        ))
+        images = cls.openstack("image list", parse_output=True)
         server_image = None
         for image in images:
             if (image['Name'].startswith('cirros-') and
@@ -70,9 +65,10 @@ class ComputeTestCase(base.TestCase):
         try:
             # NOTE(rtheis): Get private network since functional tests may
             #               create other networks.
-            cmd_output = json.loads(cls.openstack(
-                'network show private -f json'
-            ))
+            cmd_output = cls.openstack(
+                'network show private',
+                parse_output=True,
+            )
         except exceptions.CommandFailed:
             return ''
         return '--nic net-id=' + cmd_output['id']
@@ -86,14 +82,15 @@ class ComputeTestCase(base.TestCase):
         if not self.network_arg:
             self.network_arg = self.get_network()
         name = name or uuid.uuid4().hex
-        cmd_output = json.loads(self.openstack(
-            'server create -f json ' +
+        cmd_output = self.openstack(
+            'server create ' +
             '--flavor ' + self.flavor_name + ' ' +
             '--image ' + self.image_name + ' ' +
             self.network_arg + ' ' +
             '--wait ' +
-            name
-        ))
+            name,
+            parse_output=True,
+        )
         self.assertIsNotNone(cmd_output["id"])
         self.assertEqual(
             name,
@@ -120,10 +117,11 @@ class ComputeTestCase(base.TestCase):
         failures = ['ERROR']
         total_sleep = 0
         while total_sleep < wait:
-            cmd_output = json.loads(self.openstack(
-                'server show -f json ' +
-                name
-            ))
+            cmd_output = self.openstack(
+                'server show ' +
+                name,
+                parse_output=True,
+            )
             status = cmd_output['status']
             if status == expected_status:
                 print('Server {} now has status {}'.format(
@@ -135,10 +133,11 @@ class ComputeTestCase(base.TestCase):
             time.sleep(interval)
             total_sleep += interval
 
-        cmd_output = json.loads(self.openstack(
-            'server show -f json ' +
-            name
-        ))
+        cmd_output = self.openstack(
+            'server show ' +
+            name,
+            parse_output=True,
+        )
         status = cmd_output['status']
         self.assertEqual(status, expected_status)
         # give it a little bit more time
