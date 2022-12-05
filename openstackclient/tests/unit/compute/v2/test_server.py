@@ -1460,6 +1460,7 @@ class TestServerCreate(TestServer):
         self.flavors_mock.get.return_value = self.flavor
 
         self.volume = volume_fakes.create_one_volume()
+        self.volume_alt = volume_fakes.create_one_volume()
         self.volumes_mock.get.return_value = self.volume
 
         self.snapshot = volume_fakes.create_one_snapshot()
@@ -2578,11 +2579,13 @@ class TestServerCreate(TestServer):
             'key_name': None,
             'availability_zone': None,
             'admin_pass': None,
-            'block_device_mapping_v2': [{
-                'uuid': self.volume.id,
-                'source_type': 'volume',
-                'destination_type': 'volume',
-            }],
+            'block_device_mapping_v2': [
+                {
+                    'uuid': self.volume.id,
+                    'source_type': 'volume',
+                    'destination_type': 'volume',
+                },
+            ],
             'nics': [],
             'scheduler_hints': {},
             'config_drive': None,
@@ -2609,11 +2612,13 @@ class TestServerCreate(TestServer):
             f'volume_type=foo,boot_index=1,delete_on_termination=true,'
             f'tag=foo'
         )
+        block_device_alt = f'uuid={self.volume_alt.id},source_type=volume'
 
         arglist = [
             '--image', 'image1',
             '--flavor', self.flavor.id,
             '--block-device', block_device,
+            '--block-device', block_device_alt,
             self.new_server.name,
         ]
         verifylist = [
@@ -2633,6 +2638,10 @@ class TestServerCreate(TestServer):
                     'boot_index': '1',
                     'delete_on_termination': 'true',
                     'tag': 'foo',
+                },
+                {
+                    'uuid': self.volume_alt.id,
+                    'source_type': 'volume',
                 },
             ]),
             ('server_name', self.new_server.name),
@@ -2654,20 +2663,27 @@ class TestServerCreate(TestServer):
             'key_name': None,
             'availability_zone': None,
             'admin_pass': None,
-            'block_device_mapping_v2': [{
-                'uuid': self.volume.id,
-                'source_type': 'volume',
-                'destination_type': 'volume',
-                'disk_bus': 'ide',
-                'device_name': 'sdb',
-                'volume_size': '64',
-                'guest_format': 'ext4',
-                'boot_index': 1,
-                'device_type': 'disk',
-                'delete_on_termination': True,
-                'tag': 'foo',
-                'volume_type': 'foo',
-            }],
+            'block_device_mapping_v2': [
+                {
+                    'uuid': self.volume.id,
+                    'source_type': 'volume',
+                    'destination_type': 'volume',
+                    'disk_bus': 'ide',
+                    'device_name': 'sdb',
+                    'volume_size': '64',
+                    'guest_format': 'ext4',
+                    'boot_index': 1,
+                    'device_type': 'disk',
+                    'delete_on_termination': True,
+                    'tag': 'foo',
+                    'volume_type': 'foo',
+                },
+                {
+                    'uuid': self.volume_alt.id,
+                    'source_type': 'volume',
+                    'destination_type': 'volume',
+                },
+            ],
             'nics': 'auto',
             'scheduler_hints': {},
             'config_drive': None,
