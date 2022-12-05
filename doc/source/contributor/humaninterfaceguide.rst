@@ -246,7 +246,7 @@ Objects and Actions
 Commands consist of an object, described by one or more words, followed by an
 action. ::
 
-    <object> <action> [<name-or-id>]
+    <object> <action>
 
 For example:
 
@@ -411,7 +411,7 @@ For example:
 * ``server show <name-or-id>`` (compute servers have names or IDs and can be
   referenced by both)
 * ``consumer show <id>``  (identity consumers only have IDs, not names)
-* ``server show --toplogy <name-or-id>`` (additional information should be
+* ``server show --topology <name-or-id>`` (additional information should be
   provided as options)
 
 ``list``
