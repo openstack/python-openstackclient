@@ -185,6 +185,21 @@ Output formats:
 * user-friendly tables with headers, etc
 * machine-parsable delimited
 
+.. note::
+
+   A note on terminology. An **argument** is a positional parameter to the
+   command. As discussed later, these should be used sparingly in
+   OpenStackClient. An **option** - also known as a **flag** - is a named
+   parameter denoted with either a hyphen and a single-letter name (``-r``) or
+   a double hyphen and a multiple-letter name (``--recursive``). They may or
+   may not also include a user-specified value (``--file foo.txt`` or
+   ``--file=foo.txt``).
+
+   For more information on this topic and CLIs in general, refer to the
+   excellent `Command Line Interface Guidelines website`__.
+
+   .. __: https://clig.dev/#arguments-and-flags
+
 Global Options
 ~~~~~~~~~~~~~~
 
@@ -225,46 +240,107 @@ form help option (``-h``) is also available.
 The standard ``--version`` option displays the name and version on standard
 output.  All other options and commands are ignored when this is present.
 
-Command Object(s) and Action
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Objects and Actions
+~~~~~~~~~~~~~~~~~~~
 
-Commands consist of an object described by one or more words followed by an
-action.  Commands that require two objects have the primary object ahead of the
-action and the secondary object after the action. Any positional arguments
-identifying the objects shall appear in the same order as the objects.  In
-badly formed English it is expressed as "(Take) object-1 (and perform) action
-(using) object-2 (to it)."::
+Commands consist of an object, described by one or more words, followed by an
+action. ::
 
-    <object-1> <action> [<object-2>]
+    <object> <action> [<name-or-id>]
 
-Examples:
+For example:
 
-* ``group add user <group> <user>``
-* ``volume type list`` (note that ``volume type`` is a two-word single object)
+* ``group create``
+* ``server set``
+* ``volume type list``
 
-The ``help`` command is unique as it appears in front of a normal command
-and displays the help text for that command rather than execute it.
+(note that ``volume type`` is a two-word single object)
+
+Some commands require two objects. These commands have the primary object ahead of the
+action and the secondary object after the action. In badly formed English it is
+expressed as "(Take) object-1 (and perform) action (using) object-2 (to it)." ::
+
+    <object-1> <action> <object-2>
+
+For example:
+
+* ``group add user``
+* ``aggregate add host``
+* ``image remove project``
 
 Object names are always specified in command in their singular form.  This is
 contrary to natural language use.
 
-Command Arguments and Options
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+``help``
+++++++++
+
+The ``help`` command is unique as it appears in front of a normal command
+and displays the help text for that command rather than execute it.
+
+Arguments
+~~~~~~~~~
+
+Commands that interact with a specific instance of an object should accept a
+single argument. This argument should be a name or identifier for the object.
+::
+
+    <object> <action> [<name-or-id>]
+
+For example:
+
+* ``group create <group>``
+* ``server set <server>``
+
+(note that ``volume type`` is a two-word single object)
+
+For commands that require two objects, the commands should accept two
+arguments when interacting with specific instances of the two objects. These
+arguments should appear in the same order as the objects. ::
+
+    <object-1> <action> <object-2> [<object-1-name-or-id> <object-2-name-or-id>]
+
+For example:
+
+* ``group add user <group> <user>``
+* ``aggregate add host <aggregate> <host>``
+* ``image remove project <image> <project>``
+
+Options
+~~~~~~~
 
 Each command may have its own set of options distinct from the global options.
 They follow the same style as the global options and always appear between
-the command and any positional arguments the command requires.
+the command and any arguments the command requires.
 
-Command options shall only have long names.  The small range of available
-short names makes it hard for a single short option name to have a consistent
-meaning across multiple commands.
+Command options should only have long names. The small range of available short
+names makes it hard for a single short option name to have a consistent meaning
+across multiple commands.
 
 Option Forms
 ++++++++++++
 
-* **boolean**: boolean options shall use a form of ``--<true>|--<false>``
-  (preferred) or ``--<option>|--no-<option>``.  For example, the
-  ``enabled`` state of a project is set with ``--enable|--disable``.
+* **datetime**: Datetime options shall accept a value in `ISO-8061`__ format.
+  For example, you can list servers last modified before a given date using
+  ``--changes-before``. ::
+
+      server list --changes-before 2020-01-01T12:30:00+00:00
+
+* **list**: List options shall be passed via multiple options rather than as
+  a single delimited option. For example, you can set multiple properties on a
+  compute flavor using multiple ``--property`` options. ::
+
+      flavor set --property quota:read_bytes_sec=10240000 \
+          --property quota:write_bytes_sec=10240000 \
+          <flavor>
+
+* **boolean**: Boolean options shall use a form of ``--<true>|--<false>``
+  (preferred) or ``--<option>|--no-<option>``. These must be mutually
+  exclusive and should be adjective rather than verbs. For example, the
+  ``enabled`` state of a project is set with ``--enable|--disable``. ::
+
+      project set --enable <project>
+
+.. __: https://en.wikipedia.org/wiki/ISO_8601
 
 Command Output
 --------------
@@ -292,6 +368,147 @@ The options ``--help`` and ``-h`` display the global options and a
 list of the supported commands.  Note that the commands shown depend on the API
 versions that are in effect; i.e. if ``--os-identity-api-version=3`` is
 present Identity API v3 commands are shown.
+
+
+Common Actions
+==============
+
+There are a number of common actions or patterns in use across OpenStackClient.
+When adding new commands, they should aim to match one of these action formats.
+
+``create``
+----------
+
+``create`` will create a new instance of ``<object>``. Only a name should be
+accepted as an argument. All other required and optional information
+should be provided as options. If a name is not required, it can be marked as
+optional. If it is not possible to specify a name when creating a new instance,
+no arguments should be accepted. ::
+
+    <object> create <name>
+
+For example:
+
+* ``flavor create <name>`` (compute flavors require a name)
+* ``volume create [<name>] ...`` (block storage volumes don't *need* names)
+* ``consumer create ...`` (identity consumers don't have names)
+* ``container create --public <name>`` (additional information should be
+  provided as options)
+
+``show``
+--------
+
+``show`` will fetch a single instance of ``object``. Only a name or identifier
+should be accepted as a argument. Any filters or additional information should
+be provided as options. Where names are not unique or an instance is not found,
+an error must be shown so the user can try again using a unique or valid ID,
+respectively. ::
+
+    <object> show <name-or-id>
+
+For example:
+
+* ``server show <name-or-id>`` (compute servers have names or IDs and can be
+  referenced by both)
+* ``consumer show <id>``  (identity consumers only have IDs, not names)
+* ``server show --toplogy <name-or-id>`` (additional information should be
+  provided as options)
+
+``list``
+--------
+
+``list`` will list multiple instances of ``object``. No arguments should be
+accepted. Any filters or pagination requests should be requested via option
+arguments. ::
+
+    <object> list
+
+For example:
+
+* ``image list`` (no arguments should be accepted)
+* ``server list --status ACTIVE`` (filters should be provided as option
+  arguments)
+
+``delete``
+----------
+
+``delete`` will delete one or more instances of ``object``. Where possible,
+this command should handle deleting instances of ``object`` by either name or
+ID. Where names are not unique or an instance is not found, the command should
+continue deleting any other instances requested before returning an error
+indicating the instances that failed to delete. ::
+
+    <object> delete <name-or-id> [<name-or-id> ...]
+
+For example:
+
+* ``network delete <name-or-id>``
+* ``region delete <name-or-id>``
+
+``set``, ``unset``
+------------------
+
+``set`` and ``unset`` will add or remove one or more attributes of an instance
+of ``object``, respectively. Only a name or identifier should be accepted as a
+argument. All other information should be provided as option
+arguments. Where names are not unique or an instance is not found, an error
+must be shown so the user can try again using a unique or valid ID,
+respectively. This command may result in multiple API calls but it must not
+result in the creation or modification of child object. ::
+
+    <object> set <name-or-id>
+
+For example:
+
+* ``network set <name-or-id>``
+* ``floating ip unset --port <port> <name-or-id>`` (additional information
+  should be provided as options)
+
+``add``, ``remove``
+-------------------
+
+``add`` and ``remove`` will associate or disassociate a child object with a
+parent object. Only a name or identifier for both parent and child objects
+should be accepted as arguments. All other information should be provided as
+options. Where names are not unique or an instance is not found, an error must
+be shown so the user can try again using a unique or valid ID, respectively. ::
+
+    <parent-object> add <child-object> <parent-name-or-id> <child-name-or-id>
+    <parent-object> remove <child-object> <parent-name-or-id> <child-name-or-id>
+
+For example:
+
+* ``aggregate add host <aggregate-name-or-id> <host>``
+* ``consistency group add volume <consistency-group-name-or-id> <volume-name-or-id>``
+
+Other actions
+-------------
+
+There are other actions that do not fit neatly into any of the above actions.
+Typically, these are used where an action would create a child object but that
+child object is only exposed as part of the parent object. They are also used
+where fitting the action into one of the above actions, particularly ``set``,
+would be deemed to be confusing or otherwise inappropriate. These are permitted
+once this has been discussed among reviewers and context provided in either the
+commit message or via comments in the code.
+
+For example:
+
+* ``server ssh`` (this would not naturally fit into any of the other actions)
+* ``server migrate`` (this results in the creation of a server migration record
+  and could be implemented as ``server migration create`` but this feels
+  unnatural)
+* ``server migration confirm`` (this could be implemented as ``server migration
+  set --confirm`` but this feels unnatural)
+* ``volume backup record export`` (this could be implemented as ``volume backup
+  record show --exportable`` but this feels unnatural)
+
+.. note::
+
+    The guidelines below are best practices but exceptions do exist in
+    OpenStackClient and in various plugins. Where possible, these exceptions
+    should be addressed over time.
+
 
 Examples
 ========
