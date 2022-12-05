@@ -510,10 +510,142 @@ For example:
     should be addressed over time.
 
 
+API versioning
+==============
+
+OpenStackClient will strive to behave sensibly for services that version their
+API. The API versioning schemes in use vary between services and have evolved
+since the early days of OpenStack. There are two types of API versioning to
+consider: the major version and the minor version. Today, most OpenStack
+services have settled on a single major API version and have chosen to evolve
+the API without bumping the major API version any further. There are three API
+"minor" versioning schemes in common use.
+
+.. rubric:: Per-release versions
+
+This is used by the Image service (glance). All changes to the API during a
+given release cycle are gathered into a single new API version. As such, the
+API version will increase at most once per release. You can continue to request
+older versions.
+
+Example:
+
+.. list-table:: Image (glance) API versions per release
+
+   * - Release
+     - Supported 2.x API versions
+
+   * - Grizzly
+     - 2.0 - 2.1
+
+   * - Havana
+     - 2.0 - 2.2
+
+   * - Kilo
+     - 2.0 - 2.3
+
+   * - ...
+     - ...
+
+.. rubric:: Microversions
+
+This is used by multiple services including the Compute service (nova), Block
+Storage service (cinder), and Shared Filesystem service (manila). Each change
+to the API will result in a new API version. As such, the API version can
+increase multiple times per release. You can continue to request older
+versions.
+
+Example:
+
+.. list-table:: Compute (nova) API versions per release
+
+   * - Release
+     - Supported 2.x API versions
+
+   * - Kilo
+     - 2.1 - 2.3
+
+   * - Liberty
+     - 2.1 - 2.12
+
+   * - Mitaka
+     - 2.1 - 2.25
+
+   * - ...
+     - ...
+
+.. rubric:: Extensions
+
+This is used by the Networking service (neutron). It's a versioning scheme that
+doesn't use API versions. Instead, it exposes a list of available extensions.
+An extension can add, remove or modify features and vendor-specific
+functionality to the API. This can include API resources/routes as well as new
+fields in API requests and responses. If you want to depend on a feature added
+by an extension, you should check if the extension is present.
+
+Major API version support
+-------------------------
+
+Major API version support has become less important over time as the various
+OpenStack services have chosen to focus on the "minor" versioning mechanisms
+described above. However, OpenStackClient aims to support **all** OpenStack
+clouds, not just those running the most recent OpenStack release. This means it
+must aim to support older major API versions that have since been removed from
+the services in question. For example, the Volume service's (cinder) v2 API was
+deprecated in cinder 11.0.0 (Pike) and was removed in cinder 19.0.0 (Xena),
+however, OpenStackClient continues to support this API since not all OpenStack
+deployments have updated or will update to Xena or later. This should remain
+the case for as long as this support is technically feasible.
+
+.. note::
+
+    While OpenStackClient will continue to support existing command
+    implementations for older APIs, there is no requirement to add **new**
+    commands that implement support for deprecated or removed APIs.
+
+OpenStackClient provides different command implementations depending on the API
+version used. On startup, OpenStackClient will attempt to identify the API
+version using the service catalog. Where a service provides multiple API major
+versions, OpenStackClient defaults to the latest one. This can be configured by
+the user using options (``--os-{service}-api-version``), environment variables
+(``OS_{service}_API_VERSION``) or configuration in the ``clouds.yaml`` file.
+
+Minor API version and extension support
+---------------------------------------
+
+As most services implement some form of versioning and use this to both add new
+functionality and to modify or remove existing functionality, it is imperative
+that OpenStackClient provides a mechanism to configure the API version used.
+Unlike major API versions, support for API microversions or API extensions is
+implemented via logic in the command itself. OpenStackClient commands should
+indicate the minimum or maximum API microversion or the API extension required
+for given actions and options in the help string for same. Where a user
+attempts to use a feature that requires a particular microversion or extension
+that the service does not support, OpenStackClient should fail with an error
+message describing these requirements. Like API versions, the requested can be
+configured by the user using options (``--os-{service}-api-version``),
+environment variables (``OS_{service}_API_VERSION``) or configuration in
+``clouds.yaml`` file.
+
+.. important::
+
+   Historically, OpenStackClient has defaulted to the lowest supported
+   microversion for each service. This was not by design but rather a side
+   effect of relying on legacy clients who implement this behavior.
+   openstacksdk does not implement this behavior and instead auto-negotiates a
+   version based on the versions that SDK knows about. For now, this means we
+   have some commands that require explicit microversion configuration to get
+   the latest and greatest behavior, while others will handle this
+   transparently. For humans, this should not matter. For scripts, which are
+   more fragile, it is recommended that an explicit microversion is always
+   requested.
+
+
 Examples
 ========
 
-The following examples depict common command and output formats expected to be produces by the OpenStack client.
+The following examples depict common command and output formats expected to be
+produces by the OpenStackClient.
 
 Authentication
 --------------
