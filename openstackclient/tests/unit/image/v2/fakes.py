@@ -19,6 +19,7 @@ import uuid
 from openstack.image.v2 import image
 from openstack.image.v2 import member
 from openstack.image.v2 import metadef_namespace
+from openstack.image.v2 import service_info as _service_info
 from openstack.image.v2 import task
 
 from openstackclient.tests.unit import fakes
@@ -39,6 +40,7 @@ class FakeImagev2Client:
         self.reactivate_image = mock.Mock()
         self.deactivate_image = mock.Mock()
         self.stage_image = mock.Mock()
+        self.import_image = mock.Mock()
 
         self.members = mock.Mock()
         self.add_member = mock.Mock()
@@ -49,16 +51,14 @@ class FakeImagev2Client:
         self.metadef_namespaces = mock.Mock()
 
         self.tasks = mock.Mock()
+        self.tasks.resource_class = fakes.FakeResource(None, {})
         self.get_task = mock.Mock()
+
+        self.get_import_info = mock.Mock()
 
         self.auth_token = kwargs['token']
         self.management_url = kwargs['endpoint']
         self.version = 2.0
-
-        self.tasks = mock.Mock()
-        self.tasks.resource_class = fakes.FakeResource(None, {})
-
-        self.metadef_namespaces = mock.Mock()
 
 
 class TestImagev2(utils.TestCommand):
@@ -141,6 +141,33 @@ def create_one_image_member(attrs=None):
     image_member_info.update(attrs)
 
     return member.Member(**image_member_info)
+
+
+def create_one_import_info(attrs=None):
+    """Create a fake import info.
+
+    :param attrs: A dictionary with all attributes of import info
+    :type attrs: dict
+    :return: A fake Import object.
+    :rtype: `openstack.image.v2.service_info.Import`
+    """
+    attrs = attrs or {}
+
+    import_info = {
+        'import-methods': {
+            'description': 'Import methods available.',
+            'type': 'array',
+            'value': [
+                'glance-direct',
+                'web-download',
+                'glance-download',
+                'copy-image',
+            ]
+        }
+    }
+    import_info.update(attrs)
+
+    return _service_info.Import(**import_info)
 
 
 def create_one_task(attrs=None):

@@ -4,7 +4,7 @@ image-create-via-import,,EXPERIMENTAL: Create a new image via image import.
 image-deactivate,image set --deactivate,Deactivate specified image.
 image-delete,image delete,Delete specified image.
 image-download,image save,Download a specific image.
-image-import,,Initiate the image import taskflow.
+image-import,image import,Initiate the image import taskflow.
 image-list,image list,List images you can access.
 image-reactivate,image set --activate,Reactivate specified image.
 image-show,image show,Describe a specific image.

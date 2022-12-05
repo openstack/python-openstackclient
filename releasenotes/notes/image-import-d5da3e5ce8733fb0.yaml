@@ -1,0 +1,6 @@
+---
+features:
+  - |
+    Add ``image import`` command, allowing users to take advantage of the
+    interoperable image import functionality first introduced in Glance 16.0.0
+    (Queens).
