@@ -913,9 +913,7 @@ class CreateServer(command.ShowOne):
             required=True,
             help=_('Create server with this flavor (name or ID)'),
         )
-        disk_group = parser.add_mutually_exclusive_group(
-            required=True,
-        )
+        disk_group = parser.add_mutually_exclusive_group()
         disk_group.add_argument(
             '--image',
             metavar='<image>',
@@ -1473,14 +1471,14 @@ class CreateServer(command.ShowOne):
         if volume:
             block_device_mapping_v2 = [{
                 'uuid': volume,
-                'boot_index': '0',
+                'boot_index': 0,
                 'source_type': 'volume',
                 'destination_type': 'volume'
             }]
         elif snapshot:
             block_device_mapping_v2 = [{
                 'uuid': snapshot,
-                'boot_index': '0',
+                'boot_index': 0,
                 'source_type': 'snapshot',
                 'destination_type': 'volume',
                 'delete_on_termination': False
@@ -1489,7 +1487,7 @@ class CreateServer(command.ShowOne):
             # Tell nova to create a root volume from the image provided.
             block_device_mapping_v2 = [{
                 'uuid': image.id,
-                'boot_index': '0',
+                'boot_index': 0,
                 'source_type': 'image',
                 'destination_type': 'volume',
                 'volume_size': parsed_args.boot_from_volume
@@ -1625,6 +1623,15 @@ class CreateServer(command.ShowOne):
                     mapping['delete_on_termination'] = True
 
             block_device_mapping_v2.append(mapping)
+
+        if not image and not any(
+            [bdm.get('boot_index') == 0 for bdm in block_device_mapping_v2]
+        ):
+            msg = _(
+                'An image (--image, --image-property) or bootable volume '
+                '(--volume, --snapshot, --block-device) is required'
+            )
+            raise exceptions.CommandError(msg)
 
         nics = parsed_args.nics
 

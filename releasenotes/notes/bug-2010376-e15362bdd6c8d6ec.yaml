@@ -1,0 +1,7 @@
+---
+fixes:
+  - |
+    The ``server create`` command will no longer insist on an ``--image``,
+    ``--image-property``, ``--volume`` or ``--snapshot`` argument when a
+    volume is provided with a boot index of ``0`` via the ``--block-device``
+    option.
