@@ -341,67 +341,6 @@ class FakeExtension(object):
         return extension
 
 
-class FakeHypervisorStats(object):
-    """Fake one or more hypervisor stats."""
-
-    @staticmethod
-    def create_one_hypervisor_stats(attrs=None):
-        """Create a fake hypervisor stats.
-
-        :param dict attrs:
-            A dictionary with all attributes
-        :return:
-            A FakeResource object, with count, current_workload, and so on
-        """
-        attrs = attrs or {}
-
-        # Set default attributes.
-        stats_info = {
-            'count': 2,
-            'current_workload': 0,
-            'disk_available_least': 50,
-            'free_disk_gb': 100,
-            'free_ram_mb': 23000,
-            'local_gb': 100,
-            'local_gb_used': 0,
-            'memory_mb': 23800,
-            'memory_mb_used': 1400,
-            'running_vms': 3,
-            'vcpus': 8,
-            'vcpus_used': 3,
-        }
-
-        # Overwrite default attributes.
-        stats_info.update(attrs)
-
-        # Set default method.
-        hypervisor_stats_method = {'to_dict': stats_info}
-
-        hypervisor_stats = fakes.FakeResource(
-            info=copy.deepcopy(stats_info),
-            methods=copy.deepcopy(hypervisor_stats_method),
-            loaded=True)
-        return hypervisor_stats
-
-    @staticmethod
-    def create_hypervisors_stats(attrs=None, count=2):
-        """Create multiple fake hypervisors stats.
-
-        :param dict attrs:
-            A dictionary with all attributes
-        :param int count:
-            The number of hypervisors to fake
-        :return:
-            A list of FakeResource objects faking the hypervisors
-        """
-        hypervisors = []
-        for i in range(0, count):
-            hypervisors.append(
-                FakeHypervisorStats.create_one_hypervisor_stats(attrs))
-
-        return hypervisors
-
-
 class FakeSecurityGroup(object):
     """Fake one or more security groups."""
 
