@@ -22,10 +22,10 @@ from openstackclient.i18n import _
 
 
 class ListHost(command.Lister):
-    _description = _("List hosts")
+    _description = _("DEPRECATED: List hosts")
 
     def get_parser(self, prog_name):
-        parser = super(ListHost, self).get_parser(prog_name)
+        parser = super().get_parser(prog_name)
         parser.add_argument(
             "--zone",
             metavar="<zone>",
@@ -34,17 +34,33 @@ class ListHost(command.Lister):
         return parser
 
     def take_action(self, parsed_args):
-        compute_client = self.app.client_manager.compute
+        compute_client = self.app.client_manager.sdk_connection.compute
         columns = (
             "Host Name",
             "Service",
             "Zone"
         )
-        data = compute_client.api.host_list(parsed_args.zone)
-        return (columns,
-                (utils.get_dict_properties(
-                    s, columns,
-                ) for s in data))
+
+        self.log.warning(
+            "API has been deprecated. "
+            "Please consider using 'hypervisor list' instead."
+        )
+
+        # doing this since openstacksdk has decided not to support this
+        # deprecated command
+        hosts = compute_client.get(
+            '/os-hosts', microversion='2.1'
+        ).json().get('hosts')
+
+        if parsed_args.zone is not None:
+            filtered_hosts = []
+            for host in hosts:
+                if host['zone'] == parsed_args.zone:
+                    filtered_hosts.append(host)
+
+            hosts = filtered_hosts
+
+        return columns, (utils.get_dict_properties(s, columns) for s in hosts)
 
 
 class SetHost(command.Command):
@@ -102,10 +118,10 @@ class SetHost(command.Command):
 
 
 class ShowHost(command.Lister):
-    _description = _("Display host details")
+    _description = _("DEPRECATED: Display host details")
 
     def get_parser(self, prog_name):
-        parser = super(ShowHost, self).get_parser(prog_name)
+        parser = super().get_parser(prog_name)
         parser.add_argument(
             "host",
             metavar="<host>",
@@ -114,7 +130,7 @@ class ShowHost(command.Lister):
         return parser
 
     def take_action(self, parsed_args):
-        compute_client = self.app.client_manager.compute
+        compute_client = self.app.client_manager.sdk_connection.compute
         columns = (
             "Host",
             "Project",
@@ -123,9 +139,21 @@ class ShowHost(command.Lister):
             "Disk GB"
         )
 
-        data = compute_client.api.host_show(parsed_args.host)
+        self.log.warning(
+            "API has been deprecated. "
+            "Please consider using 'hypervisor show' instead."
+        )
 
-        return (columns,
-                (utils.get_dict_properties(
-                    s, columns,
-                ) for s in data))
+        # doing this since openstacksdk has decided not to support this
+        # deprecated command
+        resources = compute_client.get(
+            '/os-hosts/' + parsed_args.host,
+            microversion='2.1'
+        ).json().get('host')
+
+        data = []
+        if resources is not None:
+            for resource in resources:
+                data.append(resource['resource'])
+
+        return columns, (utils.get_dict_properties(s, columns) for s in data)

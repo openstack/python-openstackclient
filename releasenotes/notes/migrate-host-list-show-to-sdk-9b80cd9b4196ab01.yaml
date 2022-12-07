@@ -1,0 +1,4 @@
+---
+features:
+  - |
+    The ``host list`` and ``host show`` commands have been migrated to SDK.
