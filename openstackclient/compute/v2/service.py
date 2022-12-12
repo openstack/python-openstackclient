@@ -71,11 +71,11 @@ class DeleteService(command.Command):
 
 
 class ListService(command.Lister):
-    _description = _("List compute services. Using "
-                     "``--os-compute-api-version`` 2.53 or greater will "
-                     "return the ID as a UUID value which can be used to "
-                     "uniquely identify the service in a multi-cell "
-                     "deployment.")
+    _description = _("""List compute services.
+
+Using ``--os-compute-api-version`` 2.53 or greater will return the ID as a UUID
+value which can be used to uniquely identify the service in a multi-cell
+deployment.""")
 
     def get_parser(self, prog_name):
         parser = super(ListService, self).get_parser(prog_name)
