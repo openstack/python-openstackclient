@@ -2748,8 +2748,9 @@ class ListServer(command.Lister):
 
 class LockServer(command.Command):
 
-    _description = _("Lock server(s). A non-admin user will not be able to "
-                     "execute actions")
+    _description = _("""Lock server(s)
+
+A non-admin user will not be able to execute actions.""")
 
     def get_parser(self, prog_name):
         parser = super(LockServer, self).get_parser(prog_name)
@@ -4516,7 +4517,7 @@ class SshServer(command.Command):
 
 
 class StartServer(command.Command):
-    _description = _("Start server(s).")
+    _description = _("Start server(s)")
 
     def get_parser(self, prog_name):
         parser = super(StartServer, self).get_parser(prog_name)
@@ -4548,7 +4549,7 @@ class StartServer(command.Command):
 
 
 class StopServer(command.Command):
-    _description = _("Stop server(s).")
+    _description = _("Stop server(s)")
 
     def get_parser(self, prog_name):
         parser = super(StopServer, self).get_parser(prog_name)
