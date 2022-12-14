@@ -26,7 +26,7 @@ from openstackclient.tests.unit import utils as tests_utils
 class TestAgent(compute_fakes.TestComputev2):
     attr = {}
     attr['agent_id'] = 1
-    fake_agent = compute_fakes.FakeAgent.create_one_agent(attr)
+    fake_agent = compute_fakes.create_one_agent(attr)
 
     columns = (
         'agent_id',
@@ -96,7 +96,7 @@ class TestAgentCreate(TestAgent):
 
 
 class TestAgentDelete(TestAgent):
-    fake_agents = compute_fakes.FakeAgent.create_agents(count=2)
+    fake_agents = compute_fakes.create_agents(count=2)
 
     def setUp(self):
         super(TestAgentDelete, self).setUp()
@@ -172,7 +172,7 @@ class TestAgentDelete(TestAgent):
 
 
 class TestAgentList(TestAgent):
-    agents = compute_fakes.FakeAgent.create_agents(count=3)
+    agents = compute_fakes.create_agents(count=3)
     list_columns = (
         "Agent ID",
         "Hypervisor",

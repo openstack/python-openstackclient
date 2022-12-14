@@ -33,7 +33,7 @@ class TestUsage(compute_fakes.TestComputev2):
 class TestUsageList(TestUsage):
     project = identity_fakes.FakeProject.create_one_project()
     # Return value of self.usage_mock.list().
-    usages = compute_fakes.FakeUsage.create_usages(
+    usages = compute_fakes.create_usages(
         attrs={'project_id': project.name}, count=1
     )
 
@@ -128,9 +128,7 @@ class TestUsageList(TestUsage):
 class TestUsageShow(TestUsage):
     project = identity_fakes.FakeProject.create_one_project()
     # Return value of self.usage_mock.list().
-    usage = compute_fakes.FakeUsage.create_one_usage(
-        attrs={'project_id': project.name}
-    )
+    usage = compute_fakes.create_one_usage(attrs={'project_id': project.name})
 
     columns = (
         'Project',

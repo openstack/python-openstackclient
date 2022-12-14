@@ -35,7 +35,7 @@ class TestFloatingIPCompute(compute_fakes.TestComputev2):
 @mock.patch('openstackclient.api.compute_v2.APIv2.floating_ip_create')
 class TestCreateFloatingIPCompute(TestFloatingIPCompute):
     # The floating ip to be deleted.
-    _floating_ip = compute_fakes.FakeFloatingIP.create_one_floating_ip()
+    _floating_ip = compute_fakes.create_one_floating_ip()
 
     columns = (
         'fixed_ip',
@@ -95,7 +95,7 @@ class TestCreateFloatingIPCompute(TestFloatingIPCompute):
 @mock.patch('openstackclient.api.compute_v2.APIv2.floating_ip_delete')
 class TestDeleteFloatingIPCompute(TestFloatingIPCompute):
     # The floating ips to be deleted.
-    _floating_ips = compute_fakes.FakeFloatingIP.create_floating_ips(count=2)
+    _floating_ips = compute_fakes.create_floating_ips(count=2)
 
     def setUp(self):
         super(TestDeleteFloatingIPCompute, self).setUp()
@@ -171,7 +171,7 @@ class TestDeleteFloatingIPCompute(TestFloatingIPCompute):
 @mock.patch('openstackclient.api.compute_v2.APIv2.floating_ip_list')
 class TestListFloatingIPCompute(TestFloatingIPCompute):
     # The floating ips to be list up
-    _floating_ips = compute_fakes.FakeFloatingIP.create_floating_ips(count=3)
+    _floating_ips = compute_fakes.create_floating_ips(count=3)
 
     columns = (
         'ID',
@@ -217,7 +217,7 @@ class TestListFloatingIPCompute(TestFloatingIPCompute):
 @mock.patch('openstackclient.api.compute_v2.APIv2.floating_ip_find')
 class TestShowFloatingIPCompute(TestFloatingIPCompute):
     # The floating ip to display.
-    _floating_ip = compute_fakes.FakeFloatingIP.create_one_floating_ip()
+    _floating_ip = compute_fakes.create_one_floating_ip()
 
     columns = (
         'fixed_ip',

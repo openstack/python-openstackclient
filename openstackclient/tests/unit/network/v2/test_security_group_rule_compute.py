@@ -40,15 +40,11 @@ class TestCreateSecurityGroupRuleCompute(TestSecurityGroupRuleCompute):
     _security_group_rule = None
 
     # The security group that will contain the rule created.
-    _security_group = (
-        compute_fakes.FakeSecurityGroup.create_one_security_group()
-    )
+    _security_group = compute_fakes.create_one_security_group()
 
     def _setup_security_group_rule(self, attrs=None):
         self._security_group_rule = (
-            compute_fakes.FakeSecurityGroupRule.create_one_security_group_rule(
-                attrs
-            )
+            compute_fakes.create_one_security_group_rule(attrs)
         )
         (
             expected_columns,
@@ -311,11 +307,7 @@ class TestCreateSecurityGroupRuleCompute(TestSecurityGroupRuleCompute):
 @mock.patch('openstackclient.api.compute_v2.APIv2.security_group_rule_delete')
 class TestDeleteSecurityGroupRuleCompute(TestSecurityGroupRuleCompute):
     # The security group rule to be deleted.
-    _security_group_rules = (
-        compute_fakes.FakeSecurityGroupRule.create_security_group_rules(
-            count=2
-        )
-    )
+    _security_group_rules = compute_fakes.create_security_group_rules(count=2)
 
     def setUp(self):
         super(TestDeleteSecurityGroupRuleCompute, self).setUp()
@@ -383,33 +375,27 @@ class TestDeleteSecurityGroupRuleCompute(TestSecurityGroupRuleCompute):
 
 class TestListSecurityGroupRuleCompute(TestSecurityGroupRuleCompute):
     # The security group to hold the rules.
-    _security_group = (
-        compute_fakes.FakeSecurityGroup.create_one_security_group()
-    )
+    _security_group = compute_fakes.create_one_security_group()
 
     # The security group rule to be listed.
-    _security_group_rule_tcp = (
-        compute_fakes.FakeSecurityGroupRule.create_one_security_group_rule(
-            {
-                'ip_protocol': 'tcp',
-                'ethertype': 'IPv4',
-                'from_port': 80,
-                'to_port': 80,
-                'group': {'name': _security_group['name']},
-            }
-        )
+    _security_group_rule_tcp = compute_fakes.create_one_security_group_rule(
+        {
+            'ip_protocol': 'tcp',
+            'ethertype': 'IPv4',
+            'from_port': 80,
+            'to_port': 80,
+            'group': {'name': _security_group['name']},
+        }
     )
-    _security_group_rule_icmp = (
-        compute_fakes.FakeSecurityGroupRule.create_one_security_group_rule(
-            {
-                'ip_protocol': 'icmp',
-                'ethertype': 'IPv4',
-                'from_port': -1,
-                'to_port': -1,
-                'ip_range': {'cidr': '10.0.2.0/24'},
-                'group': {'name': _security_group['name']},
-            }
-        )
+    _security_group_rule_icmp = compute_fakes.create_one_security_group_rule(
+        {
+            'ip_protocol': 'icmp',
+            'ethertype': 'IPv4',
+            'from_port': -1,
+            'to_port': -1,
+            'ip_range': {'cidr': '10.0.2.0/24'},
+            'group': {'name': _security_group['name']},
+        }
     )
     _security_group['rules'] = [
         _security_group_rule_tcp,
@@ -525,9 +511,7 @@ class TestListSecurityGroupRuleCompute(TestSecurityGroupRuleCompute):
 
 class TestShowSecurityGroupRuleCompute(TestSecurityGroupRuleCompute):
     # The security group rule to be shown.
-    _security_group_rule = (
-        compute_fakes.FakeSecurityGroupRule.create_one_security_group_rule()
-    )
+    _security_group_rule = compute_fakes.create_one_security_group_rule()
 
     columns, data = security_group_rule._format_security_group_rule_show(
         _security_group_rule

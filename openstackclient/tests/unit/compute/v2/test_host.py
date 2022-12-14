@@ -34,7 +34,7 @@ class TestHost(compute_fakes.TestComputev2):
 
 @mock.patch('openstackclient.api.compute_v2.APIv2.host_list')
 class TestHostList(TestHost):
-    _host = compute_fakes.FakeHost.create_one_host()
+    _host = compute_fakes.create_one_host()
 
     def setUp(self):
         super(TestHostList, self).setUp()
@@ -92,7 +92,7 @@ class TestHostSet(TestHost):
     def setUp(self):
         super(TestHostSet, self).setUp()
 
-        self.host = compute_fakes.FakeHost.create_one_host()
+        self.host = compute_fakes.create_one_host()
 
         self.cmd = host.SetHost(self.app, None)
 
@@ -139,7 +139,7 @@ class TestHostSet(TestHost):
 
 @mock.patch('openstackclient.api.compute_v2.APIv2.host_show')
 class TestHostShow(TestHost):
-    _host = compute_fakes.FakeHost.create_one_host()
+    _host = compute_fakes.create_one_host()
 
     def setUp(self):
         super(TestHostShow, self).setUp()

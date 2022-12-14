@@ -34,7 +34,7 @@ class TestNetworkCompute(compute_fakes.TestComputev2):
 @mock.patch('openstackclient.api.compute_v2.APIv2.network_create')
 class TestCreateNetworkCompute(TestNetworkCompute):
     # The network to create.
-    _network = compute_fakes.FakeNetwork.create_one_network()
+    _network = compute_fakes.create_one_network()
 
     columns = (
         'bridge',
@@ -179,10 +179,10 @@ class TestDeleteNetworkCompute(TestNetworkCompute):
         self.app.client_manager.network_endpoint_enabled = False
 
         # The networks to delete
-        self._networks = compute_fakes.FakeNetwork.create_networks(count=3)
+        self._networks = compute_fakes.create_networks(count=3)
 
         # Return value of utils.find_resource()
-        self.compute.api.network_find = compute_fakes.FakeNetwork.get_networks(
+        self.compute.api.network_find = compute_fakes.get_networks(
             networks=self._networks
         )
 
@@ -254,7 +254,7 @@ class TestDeleteNetworkCompute(TestNetworkCompute):
 @mock.patch('openstackclient.api.compute_v2.APIv2.network_list')
 class TestListNetworkCompute(TestNetworkCompute):
     # The networks going to be listed up.
-    _networks = compute_fakes.FakeNetwork.create_networks(count=3)
+    _networks = compute_fakes.create_networks(count=3)
 
     columns = (
         'ID',
@@ -299,7 +299,7 @@ class TestListNetworkCompute(TestNetworkCompute):
 @mock.patch('openstackclient.api.compute_v2.APIv2.network_find')
 class TestShowNetworkCompute(TestNetworkCompute):
     # The network to show.
-    _network = compute_fakes.FakeNetwork.create_one_network()
+    _network = compute_fakes.create_one_network()
 
     columns = (
         'bridge',

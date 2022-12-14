@@ -184,416 +184,388 @@ class TestComputev2(utils.TestCommand):
         )
 
 
-class FakeAggregate(object):
-    """Fake one aggregate."""
+def create_one_aggregate(attrs=None):
+    """Create a fake aggregate.
 
-    @staticmethod
-    def create_one_aggregate(attrs=None):
-        """Create a fake aggregate.
+    :param dict attrs:
+        A dictionary with all attributes
+    :return:
+        A FakeResource object, with id and other attributes
+    """
+    attrs = attrs or {}
 
-        :param dict attrs:
-            A dictionary with all attributes
-        :return:
-            A FakeResource object, with id and other attributes
-        """
-        attrs = attrs or {}
-
-        # Set default attribute
-        aggregate_info = {
-            "name": "aggregate-name-" + uuid.uuid4().hex,
+    # Set default attribute
+    aggregate_info = {
+        "name": "aggregate-name-" + uuid.uuid4().hex,
+        "availability_zone": "ag_zone",
+        "hosts": [],
+        "id": "aggregate-id-" + uuid.uuid4().hex,
+        "metadata": {
             "availability_zone": "ag_zone",
-            "hosts": [],
-            "id": "aggregate-id-" + uuid.uuid4().hex,
-            "metadata": {
-                "availability_zone": "ag_zone",
-                "key1": "value1",
-            },
-        }
-
-        # Overwrite default attributes.
-        aggregate_info.update(attrs)
-
-        aggregate = fakes.FakeResource(
-            info=copy.deepcopy(aggregate_info), loaded=True
-        )
-        return aggregate
-
-    @staticmethod
-    def create_aggregates(attrs=None, count=2):
-        """Create multiple fake aggregates.
-
-        :param dict attrs:
-            A dictionary with all attributes
-        :param int count:
-            The number of aggregates to fake
-        :return:
-            A list of FakeResource objects faking the aggregates
-        """
-        aggregates = []
-        for i in range(0, count):
-            aggregates.append(FakeAggregate.create_one_aggregate(attrs))
-
-        return aggregates
-
-    @staticmethod
-    def get_aggregates(aggregates=None, count=2):
-        """Get an iterable MagicMock object with a list of faked aggregates.
-
-        If aggregates list is provided, then initialize the Mock object
-        with the list. Otherwise create one.
-
-        :param List aggregates:
-            A list of FakeResource objects faking aggregates
-        :param int count:
-            The number of aggregates to fake
-        :return:
-            An iterable Mock object with side_effect set to a list of faked
-            aggregates
-        """
-        if aggregates is None:
-            aggregates = FakeAggregate.create_aggregates(count)
-        return mock.Mock(side_effect=aggregates)
-
-
-class FakeAgent(object):
-    """Fake one or more agent."""
-
-    @staticmethod
-    def create_one_agent(attrs=None):
-        """Create a fake agent.
-
-        :param dict attrs:
-            A dictionary with all attributes
-        :return:
-            A FakeResource object, with agent_id, os, and so on
-        """
-
-        attrs = attrs or {}
-
-        # set default attributes.
-        agent_info = {
-            'agent_id': 'agent-id-' + uuid.uuid4().hex,
-            'os': 'agent-os-' + uuid.uuid4().hex,
-            'architecture': 'agent-architecture',
-            'version': '8.0',
-            'url': 'http://127.0.0.1',
-            'md5hash': 'agent-md5hash',
-            'hypervisor': 'hypervisor',
-        }
-
-        # Overwrite default attributes.
-        agent_info.update(attrs)
-
-        agent = fakes.FakeResource(info=copy.deepcopy(agent_info), loaded=True)
-        return agent
-
-    @staticmethod
-    def create_agents(attrs=None, count=2):
-        """Create multiple fake agents.
-
-        :param dict attrs:
-            A dictionary with all attributes
-        :param int count:
-            The number of agents to fake
-        :return:
-            A list of FakeResource objects faking the agents
-        """
-        agents = []
-        for i in range(0, count):
-            agents.append(FakeAgent.create_one_agent(attrs))
-
-        return agents
-
-
-class FakeExtension(object):
-    """Fake one or more extension."""
-
-    @staticmethod
-    def create_one_extension(attrs=None):
-        """Create a fake extension.
-
-        :param dict attrs:
-            A dictionary with all attributes
-        :return:
-            A FakeResource object with name, namespace, etc.
-        """
-        attrs = attrs or {}
-
-        # Set default attributes.
-        extension_info = {
-            'name': 'name-' + uuid.uuid4().hex,
-            'namespace': (
-                'http://docs.openstack.org/compute/ext/multinic/api/v1.1'
-            ),
-            'description': 'description-' + uuid.uuid4().hex,
-            'updated': '2014-01-07T12:00:0-00:00',
-            'alias': 'NMN',
-            'links': (
-                '[{"href":'
-                '"https://github.com/openstack/compute-api", "type":'
-                ' "text/html", "rel": "describedby"}]'
-            ),
-        }
-
-        # Overwrite default attributes.
-        extension_info.update(attrs)
-
-        extension = fakes.FakeResource(
-            info=copy.deepcopy(extension_info), loaded=True
-        )
-        return extension
-
-
-class FakeSecurityGroup(object):
-    """Fake one or more security groups."""
-
-    @staticmethod
-    def create_one_security_group(attrs=None):
-        """Create a fake security group.
-
-        :param dict attrs:
-            A dictionary with all attributes
-        :return:
-            A FakeResource object, with id, name, etc.
-        """
-        attrs = attrs or {}
-
-        # Set default attributes.
-        security_group_attrs = {
-            'id': 'security-group-id-' + uuid.uuid4().hex,
-            'name': 'security-group-name-' + uuid.uuid4().hex,
-            'description': 'security-group-description-' + uuid.uuid4().hex,
-            'tenant_id': 'project-id-' + uuid.uuid4().hex,
-            'rules': [],
-        }
-
-        # Overwrite default attributes.
-        security_group_attrs.update(attrs)
-        return security_group_attrs
-
-    @staticmethod
-    def create_security_groups(attrs=None, count=2):
-        """Create multiple fake security groups.
-
-        :param dict attrs:
-            A dictionary with all attributes
-        :param int count:
-            The number of security groups to fake
-        :return:
-            A list of FakeResource objects faking the security groups
-        """
-        security_groups = []
-        for i in range(0, count):
-            security_groups.append(
-                FakeSecurityGroup.create_one_security_group(attrs)
-            )
-
-        return security_groups
-
-    @staticmethod
-    def get_security_groups(security_groups=None, count=2):
-        """Get an iterable MagicMock with a list of faked security groups.
-
-        If security groups list is provided, then initialize the Mock object
-        with the list. Otherwise create one.
-
-        :param List security_groups:
-            A list of FakeResource objects faking security groups
-        :param int count:
-            The number of security groups to fake
-        :return:
-            An iterable Mock object with side_effect set to a list of faked
-            security groups
-        """
-        if security_groups is None:
-            security_groups = FakeSecurityGroup.create_security_groups(count)
-        return mock.Mock(side_effect=security_groups)
-
-
-class FakeSecurityGroupRule(object):
-    """Fake one or more security group rules."""
-
-    @staticmethod
-    def create_one_security_group_rule(attrs=None):
-        """Create a fake security group rule.
-
-        :param dict attrs:
-            A dictionary with all attributes
-        :return:
-            A FakeResource object, with id, etc.
-        """
-        attrs = attrs or {}
-
-        # Set default attributes.
-        security_group_rule_attrs = {
-            'from_port': 0,
-            'group': {},
-            'id': 'security-group-rule-id-' + uuid.uuid4().hex,
-            'ip_protocol': 'tcp',
-            'ip_range': {'cidr': '0.0.0.0/0'},
-            'parent_group_id': 'security-group-id-' + uuid.uuid4().hex,
-            'to_port': 0,
-        }
-
-        # Overwrite default attributes.
-        security_group_rule_attrs.update(attrs)
-
-        return security_group_rule_attrs
-
-    @staticmethod
-    def create_security_group_rules(attrs=None, count=2):
-        """Create multiple fake security group rules.
-
-        :param dict attrs:
-            A dictionary with all attributes
-        :param int count:
-            The number of security group rules to fake
-        :return:
-            A list of FakeResource objects faking the security group rules
-        """
-        security_group_rules = []
-        for i in range(0, count):
-            security_group_rules.append(
-                FakeSecurityGroupRule.create_one_security_group_rule(attrs)
-            )
-
-        return security_group_rules
-
-
-class FakeServer(object):
-    """Fake one or more compute servers."""
-
-    @staticmethod
-    def create_one_server(attrs=None, methods=None):
-        """Create a fake server.
-
-        :param dict attrs:
-            A dictionary with all attributes
-        :param dict methods:
-            A dictionary with all methods
-        :return:
-            A FakeResource object, with id, name, metadata, and so on
-        """
-        attrs = attrs or {}
-        methods = methods or {}
-
-        # Set default attributes.
-        server_info = {
-            'id': 'server-id-' + uuid.uuid4().hex,
-            'name': 'server-name-' + uuid.uuid4().hex,
-            'metadata': {},
-            'image': {
-                'id': 'image-id-' + uuid.uuid4().hex,
-            },
-            'flavor': {
-                'id': 'flavor-id-' + uuid.uuid4().hex,
-            },
-            'OS-EXT-STS:power_state': 1,
-        }
-
-        # Overwrite default attributes.
-        server_info.update(attrs)
-
-        server = fakes.FakeResource(
-            info=copy.deepcopy(server_info), methods=methods, loaded=True
-        )
-        return server
-
-    @staticmethod
-    def create_servers(attrs=None, methods=None, count=2):
-        """Create multiple fake servers.
-
-        :param dict attrs:
-            A dictionary with all attributes
-        :param dict methods:
-            A dictionary with all methods
-        :param int count:
-            The number of servers to fake
-        :return:
-            A list of FakeResource objects faking the servers
-        """
-        servers = []
-        for i in range(0, count):
-            servers.append(FakeServer.create_one_server(attrs, methods))
-
-        return servers
-
-    @staticmethod
-    def create_one_sdk_server(attrs=None, methods=None):
-        """Create a fake server for testing migration to sdk
-
-        :param dict attrs:
-            A dictionary with all attributes
-        :param dict methods:
-            A dictionary with all methods
-        :return:
-            A openstack.compute.v2.server.Server object,
-            with id, name, metadata, and so on
-        """
-        attrs = attrs or {}
-        methods = methods or {}
-
-        # Set default attributes.
-        server_info = {
-            'id': 'server-id-' + uuid.uuid4().hex,
-            'name': 'server-name-' + uuid.uuid4().hex,
-            'metadata': {},
-            'image': {
-                'id': 'image-id-' + uuid.uuid4().hex,
-            },
-            'flavor': {
-                'id': 'flavor-id-' + uuid.uuid4().hex,
-            },
-            'OS-EXT-STS:power_state': 1,
-        }
-
-        # Overwrite default attributes.
-        server_info.update(attrs)
-        server = _server.Server(**server_info)
-
-        # Override methods
-        server.trigger_crash_dump = mock.MagicMock()
-
-        return server
-
-    @staticmethod
-    def create_sdk_servers(attrs=None, methods=None, count=2):
-        """Create multiple fake servers for testing migration to sdk
-
-        :param dict attrs:
-            A dictionary with all attributes
-        :param dict methods:
-            A dictionary with all methods
-        :param int count:
-            The number of servers to fake
-        :return:
-            A list of openstack.compute.v2.server.Server objects
-            faking the servers
-        """
-        servers = []
-        for i in range(0, count):
-            servers.append(FakeServer.create_one_sdk_server(attrs, methods))
-
-        return servers
-
-    @staticmethod
-    def get_servers(servers=None, count=2):
-        """Get an iterable MagicMock object with a list of faked servers.
-
-        If servers list is provided, then initialize the Mock object with the
-        list. Otherwise create one.
-
-        :param List servers:
-            A list of FakeResource objects faking servers
-        :param int count:
-            The number of servers to fake
-        :return:
-            An iterable Mock object with side_effect set to a list of faked
-            servers
-        """
-        if servers is None:
-            servers = FakeServer.create_servers(count)
-        return mock.Mock(side_effect=servers)
+            "key1": "value1",
+        },
+    }
+
+    # Overwrite default attributes.
+    aggregate_info.update(attrs)
+
+    aggregate = fakes.FakeResource(
+        info=copy.deepcopy(aggregate_info), loaded=True
+    )
+    return aggregate
+
+
+def create_aggregates(attrs=None, count=2):
+    """Create multiple fake aggregates.
+
+    :param dict attrs:
+        A dictionary with all attributes
+    :param int count:
+        The number of aggregates to fake
+    :return:
+        A list of FakeResource objects faking the aggregates
+    """
+    aggregates = []
+    for i in range(0, count):
+        aggregates.append(create_one_aggregate(attrs))
+
+    return aggregates
+
+
+def get_aggregates(aggregates=None, count=2):
+    """Get an iterable MagicMock object with a list of faked aggregates.
+
+    If aggregates list is provided, then initialize the Mock object
+    with the list. Otherwise create one.
+
+    :param List aggregates:
+        A list of FakeResource objects faking aggregates
+    :param int count:
+        The number of aggregates to fake
+    :return:
+        An iterable Mock object with side_effect set to a list of faked
+        aggregates
+    """
+    if aggregates is None:
+        aggregates = create_aggregates(count)
+    return mock.Mock(side_effect=aggregates)
+
+
+def create_one_agent(attrs=None):
+    """Create a fake agent.
+
+    :param dict attrs:
+        A dictionary with all attributes
+    :return:
+        A FakeResource object, with agent_id, os, and so on
+    """
+
+    attrs = attrs or {}
+
+    # set default attributes.
+    agent_info = {
+        'agent_id': 'agent-id-' + uuid.uuid4().hex,
+        'os': 'agent-os-' + uuid.uuid4().hex,
+        'architecture': 'agent-architecture',
+        'version': '8.0',
+        'url': 'http://127.0.0.1',
+        'md5hash': 'agent-md5hash',
+        'hypervisor': 'hypervisor',
+    }
+
+    # Overwrite default attributes.
+    agent_info.update(attrs)
+
+    agent = fakes.FakeResource(info=copy.deepcopy(agent_info), loaded=True)
+    return agent
+
+
+def create_agents(attrs=None, count=2):
+    """Create multiple fake agents.
+
+    :param dict attrs:
+        A dictionary with all attributes
+    :param int count:
+        The number of agents to fake
+    :return:
+        A list of FakeResource objects faking the agents
+    """
+    agents = []
+    for i in range(0, count):
+        agents.append(create_one_agent(attrs))
+
+    return agents
+
+
+def create_one_extension(attrs=None):
+    """Create a fake extension.
+
+    :param dict attrs:
+        A dictionary with all attributes
+    :return:
+        A FakeResource object with name, namespace, etc.
+    """
+    attrs = attrs or {}
+
+    # Set default attributes.
+    extension_info = {
+        'name': 'name-' + uuid.uuid4().hex,
+        'namespace': (
+            'http://docs.openstack.org/compute/ext/multinic/api/v1.1'
+        ),
+        'description': 'description-' + uuid.uuid4().hex,
+        'updated': '2014-01-07T12:00:0-00:00',
+        'alias': 'NMN',
+        'links': (
+            '[{"href":'
+            '"https://github.com/openstack/compute-api", "type":'
+            ' "text/html", "rel": "describedby"}]'
+        ),
+    }
+
+    # Overwrite default attributes.
+    extension_info.update(attrs)
+
+    extension = fakes.FakeResource(
+        info=copy.deepcopy(extension_info), loaded=True
+    )
+    return extension
+
+
+def create_one_security_group(attrs=None):
+    """Create a fake security group.
+
+    :param dict attrs:
+        A dictionary with all attributes
+    :return:
+        A FakeResource object, with id, name, etc.
+    """
+    attrs = attrs or {}
+
+    # Set default attributes.
+    security_group_attrs = {
+        'id': 'security-group-id-' + uuid.uuid4().hex,
+        'name': 'security-group-name-' + uuid.uuid4().hex,
+        'description': 'security-group-description-' + uuid.uuid4().hex,
+        'tenant_id': 'project-id-' + uuid.uuid4().hex,
+        'rules': [],
+    }
+
+    # Overwrite default attributes.
+    security_group_attrs.update(attrs)
+    return security_group_attrs
+
+
+def create_security_groups(attrs=None, count=2):
+    """Create multiple fake security groups.
+
+    :param dict attrs:
+        A dictionary with all attributes
+    :param int count:
+        The number of security groups to fake
+    :return:
+        A list of FakeResource objects faking the security groups
+    """
+    security_groups = []
+    for i in range(0, count):
+        security_groups.append(create_one_security_group(attrs))
+
+    return security_groups
+
+
+def get_security_groups(security_groups=None, count=2):
+    """Get an iterable MagicMock with a list of faked security groups.
+
+    If security groups list is provided, then initialize the Mock object
+    with the list. Otherwise create one.
+
+    :param List security_groups:
+        A list of FakeResource objects faking security groups
+    :param int count:
+        The number of security groups to fake
+    :return:
+        An iterable Mock object with side_effect set to a list of faked
+        security groups
+    """
+    if security_groups is None:
+        security_groups = create_security_groups(count)
+    return mock.Mock(side_effect=security_groups)
+
+
+def create_one_security_group_rule(attrs=None):
+    """Create a fake security group rule.
+
+    :param dict attrs:
+        A dictionary with all attributes
+    :return:
+        A FakeResource object, with id, etc.
+    """
+    attrs = attrs or {}
+
+    # Set default attributes.
+    security_group_rule_attrs = {
+        'from_port': 0,
+        'group': {},
+        'id': 'security-group-rule-id-' + uuid.uuid4().hex,
+        'ip_protocol': 'tcp',
+        'ip_range': {'cidr': '0.0.0.0/0'},
+        'parent_group_id': 'security-group-id-' + uuid.uuid4().hex,
+        'to_port': 0,
+    }
+
+    # Overwrite default attributes.
+    security_group_rule_attrs.update(attrs)
+
+    return security_group_rule_attrs
+
+
+def create_security_group_rules(attrs=None, count=2):
+    """Create multiple fake security group rules.
+
+    :param dict attrs:
+        A dictionary with all attributes
+    :param int count:
+        The number of security group rules to fake
+    :return:
+        A list of FakeResource objects faking the security group rules
+    """
+    security_group_rules = []
+    for i in range(0, count):
+        security_group_rules.append(create_one_security_group_rule(attrs))
+
+    return security_group_rules
+
+
+def create_one_server(attrs=None, methods=None):
+    """Create a fake server.
+
+    :param dict attrs:
+        A dictionary with all attributes
+    :param dict methods:
+        A dictionary with all methods
+    :return:
+        A FakeResource object, with id, name, metadata, and so on
+    """
+    attrs = attrs or {}
+    methods = methods or {}
+
+    # Set default attributes.
+    server_info = {
+        'id': 'server-id-' + uuid.uuid4().hex,
+        'name': 'server-name-' + uuid.uuid4().hex,
+        'metadata': {},
+        'image': {
+            'id': 'image-id-' + uuid.uuid4().hex,
+        },
+        'flavor': {
+            'id': 'flavor-id-' + uuid.uuid4().hex,
+        },
+        'OS-EXT-STS:power_state': 1,
+    }
+
+    # Overwrite default attributes.
+    server_info.update(attrs)
+
+    server = fakes.FakeResource(
+        info=copy.deepcopy(server_info), methods=methods, loaded=True
+    )
+    return server
+
+
+def create_servers(attrs=None, methods=None, count=2):
+    """Create multiple fake servers.
+
+    :param dict attrs:
+        A dictionary with all attributes
+    :param dict methods:
+        A dictionary with all methods
+    :param int count:
+        The number of servers to fake
+    :return:
+        A list of FakeResource objects faking the servers
+    """
+    servers = []
+    for i in range(0, count):
+        servers.append(create_one_server(attrs, methods))
+
+    return servers
+
+
+def create_one_sdk_server(attrs=None, methods=None):
+    """Create a fake server for testing migration to sdk
+
+    :param dict attrs:
+        A dictionary with all attributes
+    :param dict methods:
+        A dictionary with all methods
+    :return:
+        A openstack.compute.v2.server.Server object,
+        with id, name, metadata, and so on
+    """
+    attrs = attrs or {}
+    methods = methods or {}
+
+    # Set default attributes.
+    server_info = {
+        'id': 'server-id-' + uuid.uuid4().hex,
+        'name': 'server-name-' + uuid.uuid4().hex,
+        'metadata': {},
+        'image': {
+            'id': 'image-id-' + uuid.uuid4().hex,
+        },
+        'flavor': {
+            'id': 'flavor-id-' + uuid.uuid4().hex,
+        },
+        'OS-EXT-STS:power_state': 1,
+    }
+
+    # Overwrite default attributes.
+    server_info.update(attrs)
+    server = _server.Server(**server_info)
+
+    # Override methods
+    server.trigger_crash_dump = mock.MagicMock()
+
+    return server
+
+
+def create_sdk_servers(attrs=None, methods=None, count=2):
+    """Create multiple fake servers for testing migration to sdk
+
+    :param dict attrs:
+        A dictionary with all attributes
+    :param dict methods:
+        A dictionary with all methods
+    :param int count:
+        The number of servers to fake
+    :return:
+        A list of openstack.compute.v2.server.Server objects
+        faking the servers
+    """
+    servers = []
+    for i in range(0, count):
+        servers.append(create_one_sdk_server(attrs, methods))
+
+    return servers
+
+
+def get_servers(servers=None, count=2):
+    """Get an iterable MagicMock object with a list of faked servers.
+
+    If servers list is provided, then initialize the Mock object with the
+    list. Otherwise create one.
+
+    :param List servers:
+        A list of FakeResource objects faking servers
+    :param int count:
+        The number of servers to fake
+    :return:
+        An iterable Mock object with side_effect set to a list of faked
+        servers
+    """
+    if servers is None:
+        servers = create_servers(count)
+    return mock.Mock(side_effect=servers)
 
 
 def create_one_server_action(attrs=None):
@@ -639,708 +611,652 @@ def create_one_server_action(attrs=None):
     return server_action
 
 
-class FakeService(object):
-    """Fake one or more services."""
+def create_one_service(attrs=None):
+    """Create a fake service.
 
-    @staticmethod
-    def create_one_service(attrs=None):
-        """Create a fake service.
+    :param dict attrs:
+        A dictionary with all attributes
+    :return:
+        A fake Service object, with id, host, binary, and so on
+    """
+    attrs = attrs or {}
 
-        :param dict attrs:
-            A dictionary with all attributes
-        :return:
-            A fake Service object, with id, host, binary, and so on
-        """
-        attrs = attrs or {}
+    # Set default attributes.
+    service_info = {
+        'id': 'id-' + uuid.uuid4().hex,
+        'host': 'host-' + uuid.uuid4().hex,
+        'binary': 'binary-' + uuid.uuid4().hex,
+        'status': 'enabled',
+        'availability_zone': 'zone-' + uuid.uuid4().hex,
+        'state': 'state-' + uuid.uuid4().hex,
+        'updated_at': 'time-' + uuid.uuid4().hex,
+        'disabled_reason': 'earthquake',
+        # Introduced in API microversion 2.11
+        'is_forced_down': False,
+    }
 
-        # Set default attributes.
-        service_info = {
-            'id': 'id-' + uuid.uuid4().hex,
-            'host': 'host-' + uuid.uuid4().hex,
-            'binary': 'binary-' + uuid.uuid4().hex,
-            'status': 'enabled',
-            'availability_zone': 'zone-' + uuid.uuid4().hex,
-            'state': 'state-' + uuid.uuid4().hex,
-            'updated_at': 'time-' + uuid.uuid4().hex,
-            'disabled_reason': 'earthquake',
-            # Introduced in API microversion 2.11
-            'is_forced_down': False,
-        }
+    # Overwrite default attributes.
+    service_info.update(attrs)
 
-        # Overwrite default attributes.
-        service_info.update(attrs)
-
-        return service.Service(**service_info)
-
-    @staticmethod
-    def create_services(attrs=None, count=2):
-        """Create multiple fake services.
-
-        :param dict attrs:
-            A dictionary with all attributes
-        :param int count:
-            The number of services to fake
-        :return:
-            A list of FakeResource objects faking the services
-        """
-        services = []
-        for i in range(0, count):
-            services.append(FakeService.create_one_service(attrs))
-
-        return services
+    return service.Service(**service_info)
 
 
-class FakeFlavor(object):
-    """Fake one or more flavors."""
+def create_services(attrs=None, count=2):
+    """Create multiple fake services.
 
-    @staticmethod
-    def create_one_flavor(attrs=None):
-        """Create a fake flavor.
+    :param dict attrs:
+        A dictionary with all attributes
+    :param int count:
+        The number of services to fake
+    :return:
+        A list of FakeResource objects faking the services
+    """
+    services = []
+    for i in range(0, count):
+        services.append(create_one_service(attrs))
 
-        :param dict attrs:
-            A dictionary with all attributes
-        :return:
-            A FakeResource object, with id, name, ram, vcpus, and so on
-        """
-        attrs = attrs or {}
-
-        # Set default attributes.
-        flavor_info = {
-            'id': 'flavor-id-' + uuid.uuid4().hex,
-            'name': 'flavor-name-' + uuid.uuid4().hex,
-            'ram': 8192,
-            'vcpus': 4,
-            'disk': 128,
-            'swap': 0,
-            'rxtx_factor': 1.0,
-            'OS-FLV-DISABLED:disabled': False,
-            'os-flavor-access:is_public': True,
-            'description': 'description',
-            'OS-FLV-EXT-DATA:ephemeral': 0,
-            'extra_specs': {'property': 'value'},
-        }
-
-        # Overwrite default attributes.
-        flavor_info.update(attrs)
-
-        flavor = _flavor.Flavor(**flavor_info)
-
-        return flavor
-
-    @staticmethod
-    def create_flavors(attrs=None, count=2):
-        """Create multiple fake flavors.
-
-        :param dict attrs:
-            A dictionary with all attributes
-        :param int count:
-            The number of flavors to fake
-        :return:
-            A list of FakeResource objects faking the flavors
-        """
-        flavors = []
-        for i in range(0, count):
-            flavors.append(FakeFlavor.create_one_flavor(attrs))
-
-        return flavors
-
-    @staticmethod
-    def get_flavors(flavors=None, count=2):
-        """Get an iterable MagicMock object with a list of faked flavors.
-
-        If flavors list is provided, then initialize the Mock object with the
-        list. Otherwise create one.
-
-        :param List flavors:
-            A list of FakeResource objects faking flavors
-        :param int count:
-            The number of flavors to fake
-        :return:
-            An iterable Mock object with side_effect set to a list of faked
-            flavors
-        """
-        if flavors is None:
-            flavors = FakeFlavor.create_flavors(count)
-        return mock.Mock(side_effect=flavors)
+    return services
 
 
-class FakeFlavorAccess(object):
-    """Fake one or more flavor accesses."""
+def create_one_flavor(attrs=None):
+    """Create a fake flavor.
 
-    @staticmethod
-    def create_one_flavor_access(attrs=None):
-        """Create a fake flavor access.
+    :param dict attrs:
+        A dictionary with all attributes
+    :return:
+        A FakeResource object, with id, name, ram, vcpus, and so on
+    """
+    attrs = attrs or {}
 
-        :param dict attrs:
-            A dictionary with all attributes
-        :return:
-            A FakeResource object, with flavor_id, tenat_id
-        """
-        attrs = attrs or {}
+    # Set default attributes.
+    flavor_info = {
+        'id': 'flavor-id-' + uuid.uuid4().hex,
+        'name': 'flavor-name-' + uuid.uuid4().hex,
+        'ram': 8192,
+        'vcpus': 4,
+        'disk': 128,
+        'swap': 0,
+        'rxtx_factor': 1.0,
+        'OS-FLV-DISABLED:disabled': False,
+        'os-flavor-access:is_public': True,
+        'description': 'description',
+        'OS-FLV-EXT-DATA:ephemeral': 0,
+        'extra_specs': {'property': 'value'},
+    }
 
-        # Set default attributes.
-        flavor_access_info = {
-            'flavor_id': 'flavor-id-' + uuid.uuid4().hex,
-            'tenant_id': 'tenant-id-' + uuid.uuid4().hex,
-        }
+    # Overwrite default attributes.
+    flavor_info.update(attrs)
 
-        # Overwrite default attributes.
-        flavor_access_info.update(attrs)
+    flavor = _flavor.Flavor(**flavor_info)
 
-        flavor_access = fakes.FakeResource(
-            info=copy.deepcopy(flavor_access_info), loaded=True
-        )
-
-        return flavor_access
-
-
-class FakeKeypair(object):
-    """Fake one or more keypairs."""
-
-    @staticmethod
-    def create_one_keypair(attrs=None):
-        """Create a fake keypair
-
-        :param dict attrs:
-            A dictionary with all attributes
-        :return:
-            A FakeResource object, name, fingerprint, and so on
-        """
-        attrs = attrs or {}
-
-        # Set default attributes.
-        keypair_info = {
-            'name': 'keypair-name-' + uuid.uuid4().hex,
-            'type': 'ssh',
-            'fingerprint': 'dummy',
-            'public_key': 'dummy',
-            'user_id': 'user',
-        }
-
-        # Overwrite default attributes.
-        keypair_info.update(attrs)
-
-        keypair = fakes.FakeResource(
-            info=copy.deepcopy(keypair_info), loaded=True
-        )
-
-        return keypair
-
-    @staticmethod
-    def create_keypairs(attrs=None, count=2):
-        """Create multiple fake keypairs.
-
-        :param dict attrs:
-            A dictionary with all attributes
-        :param int count:
-            The number of keypairs to fake
-        :return:
-            A list of FakeResource objects faking the keypairs
-        """
-
-        keypairs = []
-        for i in range(0, count):
-            keypairs.append(FakeKeypair.create_one_keypair(attrs))
-
-        return keypairs
-
-    @staticmethod
-    def get_keypairs(keypairs=None, count=2):
-        """Get an iterable MagicMock object with a list of faked keypairs.
-
-        If keypairs list is provided, then initialize the Mock object with the
-        list. Otherwise create one.
-
-        :param List keypairs:
-            A list of FakeResource objects faking keypairs
-        :param int count:
-            The number of keypairs to fake
-        :return:
-            An iterable Mock object with side_effect set to a list of faked
-            keypairs
-        """
-        if keypairs is None:
-            keypairs = FakeKeypair.create_keypairs(count)
-        return mock.Mock(side_effect=keypairs)
+    return flavor
 
 
-class FakeAvailabilityZone(object):
-    """Fake one or more compute availability zones (AZs)."""
+def create_flavors(attrs=None, count=2):
+    """Create multiple fake flavors.
 
-    @staticmethod
-    def create_one_availability_zone(attrs=None):
-        """Create a fake AZ.
+    :param dict attrs:
+        A dictionary with all attributes
+    :param int count:
+        The number of flavors to fake
+    :return:
+        A list of FakeResource objects faking the flavors
+    """
+    flavors = []
+    for i in range(0, count):
+        flavors.append(create_one_flavor(attrs))
 
-        :param dict attrs:
-            A dictionary with all attributes
-        :return:
-            A FakeResource object with zoneName, zoneState, etc.
-        """
-        attrs = attrs or {}
+    return flavors
 
-        # Set default attributes.
-        host_name = uuid.uuid4().hex
-        service_name = uuid.uuid4().hex
-        service_updated_at = uuid.uuid4().hex
-        availability_zone = {
-            'zoneName': uuid.uuid4().hex,
-            'zoneState': {'available': True},
-            'hosts': {
-                host_name: {
-                    service_name: {
-                        'available': True,
-                        'active': True,
-                        'updated_at': service_updated_at,
-                    }
+
+def get_flavors(flavors=None, count=2):
+    """Get an iterable MagicMock object with a list of faked flavors.
+
+    If flavors list is provided, then initialize the Mock object with the
+    list. Otherwise create one.
+
+    :param List flavors:
+        A list of FakeResource objects faking flavors
+    :param int count:
+        The number of flavors to fake
+    :return:
+        An iterable Mock object with side_effect set to a list of faked
+        flavors
+    """
+    if flavors is None:
+        flavors = create_flavors(count)
+    return mock.Mock(side_effect=flavors)
+
+
+def create_one_flavor_access(attrs=None):
+    """Create a fake flavor access.
+
+    :param dict attrs:
+        A dictionary with all attributes
+    :return:
+        A FakeResource object, with flavor_id, tenat_id
+    """
+    attrs = attrs or {}
+
+    # Set default attributes.
+    flavor_access_info = {
+        'flavor_id': 'flavor-id-' + uuid.uuid4().hex,
+        'tenant_id': 'tenant-id-' + uuid.uuid4().hex,
+    }
+
+    # Overwrite default attributes.
+    flavor_access_info.update(attrs)
+
+    flavor_access = fakes.FakeResource(
+        info=copy.deepcopy(flavor_access_info), loaded=True
+    )
+
+    return flavor_access
+
+
+def create_one_keypair(attrs=None):
+    """Create a fake keypair
+
+    :param dict attrs:
+        A dictionary with all attributes
+    :return:
+        A FakeResource object, name, fingerprint, and so on
+    """
+    attrs = attrs or {}
+
+    # Set default attributes.
+    keypair_info = {
+        'name': 'keypair-name-' + uuid.uuid4().hex,
+        'type': 'ssh',
+        'fingerprint': 'dummy',
+        'public_key': 'dummy',
+        'user_id': 'user',
+    }
+
+    # Overwrite default attributes.
+    keypair_info.update(attrs)
+
+    keypair = fakes.FakeResource(info=copy.deepcopy(keypair_info), loaded=True)
+
+    return keypair
+
+
+def create_keypairs(attrs=None, count=2):
+    """Create multiple fake keypairs.
+
+    :param dict attrs:
+        A dictionary with all attributes
+    :param int count:
+        The number of keypairs to fake
+    :return:
+        A list of FakeResource objects faking the keypairs
+    """
+
+    keypairs = []
+    for i in range(0, count):
+        keypairs.append(create_one_keypair(attrs))
+
+    return keypairs
+
+
+def get_keypairs(keypairs=None, count=2):
+    """Get an iterable MagicMock object with a list of faked keypairs.
+
+    If keypairs list is provided, then initialize the Mock object with the
+    list. Otherwise create one.
+
+    :param List keypairs:
+        A list of FakeResource objects faking keypairs
+    :param int count:
+        The number of keypairs to fake
+    :return:
+        An iterable Mock object with side_effect set to a list of faked
+        keypairs
+    """
+    if keypairs is None:
+        keypairs = create_keypairs(count)
+    return mock.Mock(side_effect=keypairs)
+
+
+def create_one_availability_zone(attrs=None):
+    """Create a fake AZ.
+
+    :param dict attrs:
+        A dictionary with all attributes
+    :return:
+        A FakeResource object with zoneName, zoneState, etc.
+    """
+    attrs = attrs or {}
+
+    # Set default attributes.
+    host_name = uuid.uuid4().hex
+    service_name = uuid.uuid4().hex
+    service_updated_at = uuid.uuid4().hex
+    availability_zone = {
+        'zoneName': uuid.uuid4().hex,
+        'zoneState': {'available': True},
+        'hosts': {
+            host_name: {
+                service_name: {
+                    'available': True,
+                    'active': True,
+                    'updated_at': service_updated_at,
                 }
-            },
-        }
-
-        # Overwrite default attributes.
-        availability_zone.update(attrs)
-
-        availability_zone = fakes.FakeResource(
-            info=copy.deepcopy(availability_zone), loaded=True
-        )
-        return availability_zone
-
-    @staticmethod
-    def create_availability_zones(attrs=None, count=2):
-        """Create multiple fake AZs.
-
-        :param dict attrs:
-            A dictionary with all attributes
-        :param int count:
-            The number of AZs to fake
-        :return:
-            A list of FakeResource objects faking the AZs
-        """
-        availability_zones = []
-        for i in range(0, count):
-            availability_zone = (
-                FakeAvailabilityZone.create_one_availability_zone(attrs)
-            )
-            availability_zones.append(availability_zone)
-
-        return availability_zones
-
-
-class FakeFloatingIP(object):
-    """Fake one or more floating ip."""
-
-    @staticmethod
-    def create_one_floating_ip(attrs=None):
-        """Create a fake floating ip.
-
-        :param dict attrs:
-            A dictionary with all attributes
-        :return:
-            A FakeResource object, with id, ip, and so on
-        """
-        attrs = attrs or {}
-
-        # Set default attributes.
-        floating_ip_attrs = {
-            'id': 'floating-ip-id-' + uuid.uuid4().hex,
-            'ip': '1.0.9.0',
-            'fixed_ip': '2.0.9.0',
-            'instance_id': 'server-id-' + uuid.uuid4().hex,
-            'pool': 'public',
-        }
-
-        # Overwrite default attributes.
-        floating_ip_attrs.update(attrs)
-
-        return floating_ip_attrs
-
-    @staticmethod
-    def create_floating_ips(attrs=None, count=2):
-        """Create multiple fake floating ips.
-
-        :param dict attrs:
-            A dictionary with all attributes
-        :param int count:
-            The number of floating ips to fake
-        :return:
-            A list of FakeResource objects faking the floating ips
-        """
-        floating_ips = []
-        for i in range(0, count):
-            floating_ips.append(FakeFloatingIP.create_one_floating_ip(attrs))
-        return floating_ips
-
-    @staticmethod
-    def get_floating_ips(floating_ips=None, count=2):
-        """Get an iterable MagicMock object with a list of faked floating ips.
-
-        If floating_ips list is provided, then initialize the Mock object
-        with the list. Otherwise create one.
-
-        :param List floating_ips:
-            A list of FakeResource objects faking floating ips
-        :param int count:
-            The number of floating ips to fake
-        :return:
-            An iterable Mock object with side_effect set to a list of faked
-            floating ips
-        """
-        if floating_ips is None:
-            floating_ips = FakeFloatingIP.create_floating_ips(count)
-        return mock.Mock(side_effect=floating_ips)
-
-
-class FakeFloatingIPPool(object):
-    """Fake one or more floating ip pools."""
-
-    @staticmethod
-    def create_one_floating_ip_pool(attrs=None):
-        """Create a fake floating ip pool.
-
-        :param dict attrs:
-            A dictionary with all attributes
-        :return:
-            A FakeResource object, with name, etc
-        """
-        if attrs is None:
-            attrs = {}
-
-        # Set default attributes.
-        floating_ip_pool_attrs = {
-            'name': 'floating-ip-pool-name-' + uuid.uuid4().hex,
-        }
-
-        # Overwrite default attributes.
-        floating_ip_pool_attrs.update(attrs)
-
-        return floating_ip_pool_attrs
-
-    @staticmethod
-    def create_floating_ip_pools(attrs=None, count=2):
-        """Create multiple fake floating ip pools.
-
-        :param dict attrs:
-            A dictionary with all attributes
-        :param int count:
-            The number of floating ip pools to fake
-        :return:
-            A list of FakeResource objects faking the floating ip pools
-        """
-        floating_ip_pools = []
-        for i in range(0, count):
-            floating_ip_pools.append(
-                FakeFloatingIPPool.create_one_floating_ip_pool(attrs)
-            )
-        return floating_ip_pools
-
-
-class FakeNetwork(object):
-    """Fake one or more networks."""
-
-    @staticmethod
-    def create_one_network(attrs=None):
-        """Create a fake network.
-
-        :param dict attrs:
-            A dictionary with all attributes
-        :return:
-            A FakeResource object, with id, label, cidr and so on
-        """
-        attrs = attrs or {}
-
-        # Set default attributes.
-        network_attrs = {
-            'bridge': 'br100',
-            'bridge_interface': None,
-            'broadcast': '10.0.0.255',
-            'cidr': '10.0.0.0/24',
-            'cidr_v6': None,
-            'created_at': '2016-02-11T11:17:37.000000',
-            'deleted': False,
-            'deleted_at': None,
-            'dhcp_server': '10.0.0.1',
-            'dhcp_start': '10.0.0.2',
-            'dns1': '8.8.4.4',
-            'dns2': None,
-            'enable_dhcp': True,
-            'gateway': '10.0.0.1',
-            'gateway_v6': None,
-            'host': None,
-            'id': 'network-id-' + uuid.uuid4().hex,
-            'injected': False,
-            'label': 'network-label-' + uuid.uuid4().hex,
-            'mtu': None,
-            'multi_host': False,
-            'netmask': '255.255.255.0',
-            'netmask_v6': None,
-            'priority': None,
-            'project_id': 'project-id-' + uuid.uuid4().hex,
-            'rxtx_base': None,
-            'share_address': False,
-            'updated_at': None,
-            'vlan': None,
-            'vpn_private_address': None,
-            'vpn_public_address': None,
-            'vpn_public_port': None,
-        }
-
-        # Overwrite default attributes.
-        network_attrs.update(attrs)
-
-        return network_attrs
-
-    @staticmethod
-    def create_networks(attrs=None, count=2):
-        """Create multiple fake networks.
-
-        :param dict attrs:
-            A dictionary with all attributes
-        :param int count:
-            The number of networks to fake
-        :return:
-            A list of FakeResource objects faking the networks
-        """
-        networks = []
-        for i in range(0, count):
-            networks.append(FakeNetwork.create_one_network(attrs))
-
-        return networks
-
-    @staticmethod
-    def get_networks(networks=None, count=2):
-        """Get an iterable MagicMock object with a list of faked networks.
-
-        If networks list is provided, then initialize the Mock object with the
-        list. Otherwise create one.
-
-        :param List networks:
-            A list of FakeResource objects faking networks
-        :param int count:
-            The number of networks to fake
-        :return:
-            An iterable Mock object with side_effect set to a list of faked
-            networks
-        """
-        if networks is None:
-            networks = FakeNetwork.create_networks(count=count)
-        return mock.Mock(side_effect=networks)
-
-
-class FakeHost(object):
-    """Fake one host."""
-
-    @staticmethod
-    def create_one_host(attrs=None):
-        """Create a fake host.
-
-        :param dict attrs:
-            A dictionary with all attributes
-        :return:
-            A FakeResource object, with uuid and other attributes
-        """
-        attrs = attrs or {}
-
-        # Set default attributes.
-        host_info = {
-            "service_id": 1,
-            "host": "host1",
-            "uuid": 'host-id-' + uuid.uuid4().hex,
-            "vcpus": 10,
-            "memory_mb": 100,
-            "local_gb": 100,
-            "vcpus_used": 5,
-            "memory_mb_used": 50,
-            "local_gb_used": 10,
-            "hypervisor_type": "xen",
-            "hypervisor_version": 1,
-            "hypervisor_hostname": "devstack1",
-            "free_ram_mb": 50,
-            "free_disk_gb": 50,
-            "current_workload": 10,
-            "running_vms": 1,
-            "cpu_info": "",
-            "disk_available_least": 1,
-            "host_ip": "10.10.10.10",
-            "supported_instances": "",
-            "metrics": "",
-            "pci_stats": "",
-            "extra_resources": "",
-            "stats": "",
-            "numa_topology": "",
-            "ram_allocation_ratio": 1.0,
-            "cpu_allocation_ratio": 1.0,
-            "zone": 'zone-' + uuid.uuid4().hex,
-            "host_name": 'name-' + uuid.uuid4().hex,
-            "service": 'service-' + uuid.uuid4().hex,
-            "cpu": 4,
-            "disk_gb": 100,
-            'project': 'project-' + uuid.uuid4().hex,
-        }
-        host_info.update(attrs)
-        return host_info
-
-
-class FakeUsage(object):
-    """Fake one or more usage."""
-
-    @staticmethod
-    def create_one_usage(attrs=None):
-        """Create a fake usage.
-
-        :param dict attrs:
-            A dictionary with all attributes
-        :return:
-            A FakeResource object, with tenant_id and other attributes
-        """
-        if attrs is None:
-            attrs = {}
-
-        # Set default attributes.
-        usage_info = {
-            'tenant_id': 'usage-tenant-id-' + uuid.uuid4().hex,
-            'total_memory_mb_usage': 512.0,
-            'total_vcpus_usage': 1.0,
-            'total_local_gb_usage': 1.0,
-            'server_usages': [
-                {
-                    'ended_at': None,
-                    'flavor': 'usage-flavor-' + uuid.uuid4().hex,
-                    'hours': 1.0,
-                    'local_gb': 1,
-                    'memory_mb': 512,
-                    'name': 'usage-name-' + uuid.uuid4().hex,
-                    'instance_id': uuid.uuid4().hex,
-                    'state': 'active',
-                    'uptime': 3600,
-                    'vcpus': 1,
-                }
-            ],
-        }
-
-        # Overwrite default attributes.
-        usage_info.update(attrs)
-
-        usage = fakes.FakeResource(info=copy.deepcopy(usage_info), loaded=True)
-
-        return usage
-
-    @staticmethod
-    def create_usages(attrs=None, count=2):
-        """Create multiple fake services.
-
-        :param dict attrs:
-            A dictionary with all attributes
-        :param int count:
-            The number of services to fake
-        :return:
-            A list of FakeResource objects faking the services
-        """
-        usages = []
-        for i in range(0, count):
-            usages.append(FakeUsage.create_one_usage(attrs))
-
-        return usages
-
-
-class FakeQuota(object):
-    """Fake quota"""
-
-    @staticmethod
-    def create_one_comp_quota(attrs=None):
-        """Create one quota"""
-
-        attrs = attrs or {}
-
-        quota_attrs = {
-            'id': 'project-id-' + uuid.uuid4().hex,
-            'cores': 20,
-            'fixed_ips': 30,
-            'injected_files': 100,
-            'injected_file_content_bytes': 10240,
-            'injected_file_path_bytes': 255,
-            'instances': 50,
-            'key_pairs': 20,
-            'metadata_items': 10,
-            'ram': 51200,
-            'server_groups': 10,
-            'server_group_members': 10,
-        }
-
-        quota_attrs.update(attrs)
-        quota = fakes.FakeResource(
-            info=copy.deepcopy(quota_attrs), loaded=True
-        )
-
-        quota.project_id = quota_attrs['id']
-
-        return quota
-
-    @staticmethod
-    def create_one_default_comp_quota(attrs=None):
-        """Create one quota"""
-
-        attrs = attrs or {}
-
-        quota_attrs = {
-            'id': 'project-id-' + uuid.uuid4().hex,
-            'cores': 10,
-            'fixed_ips': 10,
-            'injected_files': 100,
-            'injected_file_content_bytes': 10240,
-            'injected_file_path_bytes': 255,
-            'instances': 20,
-            'key_pairs': 20,
-            'metadata_items': 10,
-            'ram': 51200,
-            'server_groups': 10,
-            'server_group_members': 10,
-        }
-
-        quota_attrs.update(attrs)
-        quota = fakes.FakeResource(
-            info=copy.deepcopy(quota_attrs), loaded=True
-        )
-
-        quota.project_id = quota_attrs['id']
-
-        return quota
-
-    @staticmethod
-    def create_one_comp_detailed_quota(attrs=None):
-        """Create one quota"""
-
-        attrs = attrs or {}
-
-        quota_attrs = {
-            'id': 'project-id-' + uuid.uuid4().hex,
-            'cores': {'reserved': 0, 'in_use': 0, 'limit': 20},
-            'fixed_ips': {'reserved': 0, 'in_use': 0, 'limit': 30},
-            'injected_files': {'reserved': 0, 'in_use': 0, 'limit': 100},
-            'injected_file_content_bytes': {
-                'reserved': 0,
-                'in_use': 0,
-                'limit': 10240,
-            },
-            'injected_file_path_bytes': {
-                'reserved': 0,
-                'in_use': 0,
-                'limit': 255,
-            },
-            'instances': {'reserved': 0, 'in_use': 0, 'limit': 50},
-            'key_pairs': {'reserved': 0, 'in_use': 0, 'limit': 20},
-            'metadata_items': {'reserved': 0, 'in_use': 0, 'limit': 10},
-            'ram': {'reserved': 0, 'in_use': 0, 'limit': 51200},
-            'server_groups': {'reserved': 0, 'in_use': 0, 'limit': 10},
-            'server_group_members': {'reserved': 0, 'in_use': 0, 'limit': 10},
-        }
-
-        quota_attrs.update(attrs)
-        quota = fakes.FakeResource(
-            info=copy.deepcopy(quota_attrs), loaded=True
-        )
-
-        quota.project_id = quota_attrs['id']
-
-        return quota
+            }
+        },
+    }
+
+    # Overwrite default attributes.
+    availability_zone.update(attrs)
+
+    availability_zone = fakes.FakeResource(
+        info=copy.deepcopy(availability_zone), loaded=True
+    )
+    return availability_zone
+
+
+def create_availability_zones(attrs=None, count=2):
+    """Create multiple fake AZs.
+
+    :param dict attrs:
+        A dictionary with all attributes
+    :param int count:
+        The number of AZs to fake
+    :return:
+        A list of FakeResource objects faking the AZs
+    """
+    availability_zones = []
+    for i in range(0, count):
+        availability_zone = create_one_availability_zone(attrs)
+        availability_zones.append(availability_zone)
+
+    return availability_zones
+
+
+def create_one_floating_ip(attrs=None):
+    """Create a fake floating ip.
+
+    :param dict attrs:
+        A dictionary with all attributes
+    :return:
+        A FakeResource object, with id, ip, and so on
+    """
+    attrs = attrs or {}
+
+    # Set default attributes.
+    floating_ip_attrs = {
+        'id': 'floating-ip-id-' + uuid.uuid4().hex,
+        'ip': '1.0.9.0',
+        'fixed_ip': '2.0.9.0',
+        'instance_id': 'server-id-' + uuid.uuid4().hex,
+        'pool': 'public',
+    }
+
+    # Overwrite default attributes.
+    floating_ip_attrs.update(attrs)
+
+    return floating_ip_attrs
+
+
+def create_floating_ips(attrs=None, count=2):
+    """Create multiple fake floating ips.
+
+    :param dict attrs:
+        A dictionary with all attributes
+    :param int count:
+        The number of floating ips to fake
+    :return:
+        A list of FakeResource objects faking the floating ips
+    """
+    floating_ips = []
+    for i in range(0, count):
+        floating_ips.append(create_one_floating_ip(attrs))
+    return floating_ips
+
+
+def get_floating_ips(floating_ips=None, count=2):
+    """Get an iterable MagicMock object with a list of faked floating ips.
+
+    If floating_ips list is provided, then initialize the Mock object
+    with the list. Otherwise create one.
+
+    :param List floating_ips:
+        A list of FakeResource objects faking floating ips
+    :param int count:
+        The number of floating ips to fake
+    :return:
+        An iterable Mock object with side_effect set to a list of faked
+        floating ips
+    """
+    if floating_ips is None:
+        floating_ips = create_floating_ips(count)
+    return mock.Mock(side_effect=floating_ips)
+
+
+def create_one_floating_ip_pool(attrs=None):
+    """Create a fake floating ip pool.
+
+    :param dict attrs:
+        A dictionary with all attributes
+    :return:
+        A FakeResource object, with name, etc
+    """
+    if attrs is None:
+        attrs = {}
+
+    # Set default attributes.
+    floating_ip_pool_attrs = {
+        'name': 'floating-ip-pool-name-' + uuid.uuid4().hex,
+    }
+
+    # Overwrite default attributes.
+    floating_ip_pool_attrs.update(attrs)
+
+    return floating_ip_pool_attrs
+
+
+def create_floating_ip_pools(attrs=None, count=2):
+    """Create multiple fake floating ip pools.
+
+    :param dict attrs:
+        A dictionary with all attributes
+    :param int count:
+        The number of floating ip pools to fake
+    :return:
+        A list of FakeResource objects faking the floating ip pools
+    """
+    floating_ip_pools = []
+    for i in range(0, count):
+        floating_ip_pools.append(create_one_floating_ip_pool(attrs))
+    return floating_ip_pools
+
+
+def create_one_network(attrs=None):
+    """Create a fake network.
+
+    :param dict attrs:
+        A dictionary with all attributes
+    :return:
+        A FakeResource object, with id, label, cidr and so on
+    """
+    attrs = attrs or {}
+
+    # Set default attributes.
+    network_attrs = {
+        'bridge': 'br100',
+        'bridge_interface': None,
+        'broadcast': '10.0.0.255',
+        'cidr': '10.0.0.0/24',
+        'cidr_v6': None,
+        'created_at': '2016-02-11T11:17:37.000000',
+        'deleted': False,
+        'deleted_at': None,
+        'dhcp_server': '10.0.0.1',
+        'dhcp_start': '10.0.0.2',
+        'dns1': '8.8.4.4',
+        'dns2': None,
+        'enable_dhcp': True,
+        'gateway': '10.0.0.1',
+        'gateway_v6': None,
+        'host': None,
+        'id': 'network-id-' + uuid.uuid4().hex,
+        'injected': False,
+        'label': 'network-label-' + uuid.uuid4().hex,
+        'mtu': None,
+        'multi_host': False,
+        'netmask': '255.255.255.0',
+        'netmask_v6': None,
+        'priority': None,
+        'project_id': 'project-id-' + uuid.uuid4().hex,
+        'rxtx_base': None,
+        'share_address': False,
+        'updated_at': None,
+        'vlan': None,
+        'vpn_private_address': None,
+        'vpn_public_address': None,
+        'vpn_public_port': None,
+    }
+
+    # Overwrite default attributes.
+    network_attrs.update(attrs)
+
+    return network_attrs
+
+
+def create_networks(attrs=None, count=2):
+    """Create multiple fake networks.
+
+    :param dict attrs:
+        A dictionary with all attributes
+    :param int count:
+        The number of networks to fake
+    :return:
+        A list of FakeResource objects faking the networks
+    """
+    networks = []
+    for i in range(0, count):
+        networks.append(create_one_network(attrs))
+
+    return networks
+
+
+def get_networks(networks=None, count=2):
+    """Get an iterable MagicMock object with a list of faked networks.
+
+    If networks list is provided, then initialize the Mock object with the
+    list. Otherwise create one.
+
+    :param List networks:
+        A list of FakeResource objects faking networks
+    :param int count:
+        The number of networks to fake
+    :return:
+        An iterable Mock object with side_effect set to a list of faked
+        networks
+    """
+    if networks is None:
+        networks = create_networks(count=count)
+    return mock.Mock(side_effect=networks)
+
+
+def create_one_host(attrs=None):
+    """Create a fake host.
+
+    :param dict attrs:
+        A dictionary with all attributes
+    :return:
+        A FakeResource object, with uuid and other attributes
+    """
+    attrs = attrs or {}
+
+    # Set default attributes.
+    host_info = {
+        "service_id": 1,
+        "host": "host1",
+        "uuid": 'host-id-' + uuid.uuid4().hex,
+        "vcpus": 10,
+        "memory_mb": 100,
+        "local_gb": 100,
+        "vcpus_used": 5,
+        "memory_mb_used": 50,
+        "local_gb_used": 10,
+        "hypervisor_type": "xen",
+        "hypervisor_version": 1,
+        "hypervisor_hostname": "devstack1",
+        "free_ram_mb": 50,
+        "free_disk_gb": 50,
+        "current_workload": 10,
+        "running_vms": 1,
+        "cpu_info": "",
+        "disk_available_least": 1,
+        "host_ip": "10.10.10.10",
+        "supported_instances": "",
+        "metrics": "",
+        "pci_stats": "",
+        "extra_resources": "",
+        "stats": "",
+        "numa_topology": "",
+        "ram_allocation_ratio": 1.0,
+        "cpu_allocation_ratio": 1.0,
+        "zone": 'zone-' + uuid.uuid4().hex,
+        "host_name": 'name-' + uuid.uuid4().hex,
+        "service": 'service-' + uuid.uuid4().hex,
+        "cpu": 4,
+        "disk_gb": 100,
+        'project': 'project-' + uuid.uuid4().hex,
+    }
+    host_info.update(attrs)
+    return host_info
+
+
+def create_one_usage(attrs=None):
+    """Create a fake usage.
+
+    :param dict attrs:
+        A dictionary with all attributes
+    :return:
+        A FakeResource object, with tenant_id and other attributes
+    """
+    if attrs is None:
+        attrs = {}
+
+    # Set default attributes.
+    usage_info = {
+        'tenant_id': 'usage-tenant-id-' + uuid.uuid4().hex,
+        'total_memory_mb_usage': 512.0,
+        'total_vcpus_usage': 1.0,
+        'total_local_gb_usage': 1.0,
+        'server_usages': [
+            {
+                'ended_at': None,
+                'flavor': 'usage-flavor-' + uuid.uuid4().hex,
+                'hours': 1.0,
+                'local_gb': 1,
+                'memory_mb': 512,
+                'name': 'usage-name-' + uuid.uuid4().hex,
+                'instance_id': uuid.uuid4().hex,
+                'state': 'active',
+                'uptime': 3600,
+                'vcpus': 1,
+            }
+        ],
+    }
+
+    # Overwrite default attributes.
+    usage_info.update(attrs)
+
+    usage = fakes.FakeResource(info=copy.deepcopy(usage_info), loaded=True)
+
+    return usage
+
+
+def create_usages(attrs=None, count=2):
+    """Create multiple fake services.
+
+    :param dict attrs:
+        A dictionary with all attributes
+    :param int count:
+        The number of services to fake
+    :return:
+        A list of FakeResource objects faking the services
+    """
+    usages = []
+    for i in range(0, count):
+        usages.append(create_one_usage(attrs))
+
+    return usages
+
+
+def create_one_comp_quota(attrs=None):
+    """Create one quota"""
+
+    attrs = attrs or {}
+
+    quota_attrs = {
+        'id': 'project-id-' + uuid.uuid4().hex,
+        'cores': 20,
+        'fixed_ips': 30,
+        'injected_files': 100,
+        'injected_file_content_bytes': 10240,
+        'injected_file_path_bytes': 255,
+        'instances': 50,
+        'key_pairs': 20,
+        'metadata_items': 10,
+        'ram': 51200,
+        'server_groups': 10,
+        'server_group_members': 10,
+    }
+
+    quota_attrs.update(attrs)
+    quota = fakes.FakeResource(info=copy.deepcopy(quota_attrs), loaded=True)
+
+    quota.project_id = quota_attrs['id']
+
+    return quota
+
+
+def create_one_default_comp_quota(attrs=None):
+    """Create one quota"""
+
+    attrs = attrs or {}
+
+    quota_attrs = {
+        'id': 'project-id-' + uuid.uuid4().hex,
+        'cores': 10,
+        'fixed_ips': 10,
+        'injected_files': 100,
+        'injected_file_content_bytes': 10240,
+        'injected_file_path_bytes': 255,
+        'instances': 20,
+        'key_pairs': 20,
+        'metadata_items': 10,
+        'ram': 51200,
+        'server_groups': 10,
+        'server_group_members': 10,
+    }
+
+    quota_attrs.update(attrs)
+    quota = fakes.FakeResource(info=copy.deepcopy(quota_attrs), loaded=True)
+
+    quota.project_id = quota_attrs['id']
+
+    return quota
+
+
+def create_one_comp_detailed_quota(attrs=None):
+    """Create one quota"""
+
+    attrs = attrs or {}
+
+    quota_attrs = {
+        'id': 'project-id-' + uuid.uuid4().hex,
+        'cores': {'reserved': 0, 'in_use': 0, 'limit': 20},
+        'fixed_ips': {'reserved': 0, 'in_use': 0, 'limit': 30},
+        'injected_files': {'reserved': 0, 'in_use': 0, 'limit': 100},
+        'injected_file_content_bytes': {
+            'reserved': 0,
+            'in_use': 0,
+            'limit': 10240,
+        },
+        'injected_file_path_bytes': {
+            'reserved': 0,
+            'in_use': 0,
+            'limit': 255,
+        },
+        'instances': {'reserved': 0, 'in_use': 0, 'limit': 50},
+        'key_pairs': {'reserved': 0, 'in_use': 0, 'limit': 20},
+        'metadata_items': {'reserved': 0, 'in_use': 0, 'limit': 10},
+        'ram': {'reserved': 0, 'in_use': 0, 'limit': 51200},
+        'server_groups': {'reserved': 0, 'in_use': 0, 'limit': 10},
+        'server_group_members': {'reserved': 0, 'in_use': 0, 'limit': 10},
+    }
+
+    quota_attrs.update(attrs)
+    quota = fakes.FakeResource(info=copy.deepcopy(quota_attrs), loaded=True)
+
+    quota.project_id = quota_attrs['id']
+
+    return quota
 
 
 class FakeLimits(object):

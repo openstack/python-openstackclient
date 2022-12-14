@@ -49,9 +49,7 @@ class TestFlavor(compute_fakes.TestComputev2):
 
 
 class TestFlavorCreate(TestFlavor):
-    flavor = compute_fakes.FakeFlavor.create_one_flavor(
-        attrs={'links': 'flavor-links'}
-    )
+    flavor = compute_fakes.create_one_flavor(attrs={'links': 'flavor-links'})
     project = identity_fakes.FakeProject.create_one_project()
 
     columns = (
@@ -412,7 +410,7 @@ class TestFlavorCreate(TestFlavor):
 
 
 class TestFlavorDelete(TestFlavor):
-    flavors = compute_fakes.FakeFlavor.create_flavors(count=2)
+    flavors = compute_fakes.create_flavors(count=2)
 
     def setUp(self):
         super(TestFlavorDelete, self).setUp()
@@ -489,7 +487,7 @@ class TestFlavorDelete(TestFlavor):
 
 
 class TestFlavorList(TestFlavor):
-    _flavor = compute_fakes.FakeFlavor.create_one_flavor()
+    _flavor = compute_fakes.create_one_flavor()
 
     columns = (
         'ID',
@@ -668,9 +666,7 @@ class TestFlavorList(TestFlavor):
 
     def test_flavor_list_long_no_extra_specs(self):
         # use flavor with no extra specs for this test
-        flavor = compute_fakes.FakeFlavor.create_one_flavor(
-            attrs={"extra_specs": {}}
-        )
+        flavor = compute_fakes.create_one_flavor(attrs={"extra_specs": {}})
         self.data = (
             (
                 flavor.id,
@@ -760,7 +756,7 @@ class TestFlavorList(TestFlavor):
 
 class TestFlavorSet(TestFlavor):
     # Return value of self.sdk_client.find_flavor().
-    flavor = compute_fakes.FakeFlavor.create_one_flavor(
+    flavor = compute_fakes.create_one_flavor(
         attrs={'os-flavor-access:is_public': False}
     )
     project = identity_fakes.FakeProject.create_one_project()
@@ -982,8 +978,8 @@ class TestFlavorSet(TestFlavor):
 
 class TestFlavorShow(TestFlavor):
     # Return value of self.sdk_client.find_flavor().
-    flavor_access = compute_fakes.FakeFlavorAccess.create_one_flavor_access()
-    flavor = compute_fakes.FakeFlavor.create_one_flavor()
+    flavor_access = compute_fakes.create_one_flavor_access()
+    flavor = compute_fakes.create_one_flavor()
 
     columns = (
         'OS-FLV-DISABLED:disabled',
@@ -1054,7 +1050,7 @@ class TestFlavorShow(TestFlavor):
         self.assertCountEqual(self.data, data)
 
     def test_private_flavor_show(self):
-        private_flavor = compute_fakes.FakeFlavor.create_one_flavor(
+        private_flavor = compute_fakes.create_one_flavor(
             attrs={
                 'os-flavor-access:is_public': False,
             }
@@ -1097,7 +1093,7 @@ class TestFlavorShow(TestFlavor):
 
 class TestFlavorUnset(TestFlavor):
     # Return value of self.sdk_client.find_flavor().
-    flavor = compute_fakes.FakeFlavor.create_one_flavor(
+    flavor = compute_fakes.create_one_flavor(
         attrs={'os-flavor-access:is_public': False}
     )
     project = identity_fakes.FakeProject.create_one_project()

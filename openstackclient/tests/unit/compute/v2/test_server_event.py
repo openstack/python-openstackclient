@@ -24,7 +24,7 @@ from openstackclient.tests.unit.compute.v2 import fakes as compute_fakes
 
 
 class TestServerEvent(compute_fakes.TestComputev2):
-    fake_server = compute_fakes.FakeServer.create_one_server()
+    fake_server = compute_fakes.create_one_server()
 
     def setUp(self):
         super(TestServerEvent, self).setUp()

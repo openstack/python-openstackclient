@@ -91,7 +91,7 @@ class TestListMigration(TestServerMigration):
 
         self._set_mock_microversion('2.1')
 
-        self.server = compute_fakes.FakeServer.create_one_sdk_server()
+        self.server = compute_fakes.create_one_sdk_server()
         self.sdk_client.find_server.return_value = self.server
 
         self.migrations = compute_fakes.create_migrations(count=3)
@@ -724,7 +724,7 @@ class TestServerMigrationShow(TestServerMigration):
     def setUp(self):
         super().setUp()
 
-        self.server = compute_fakes.FakeServer.create_one_sdk_server()
+        self.server = compute_fakes.create_one_sdk_server()
         self.sdk_client.find_server.return_value = self.server
 
         self.server_migration = compute_fakes.create_one_server_migration()
@@ -924,7 +924,7 @@ class TestServerMigrationAbort(TestServerMigration):
     def setUp(self):
         super().setUp()
 
-        self.server = compute_fakes.FakeServer.create_one_sdk_server()
+        self.server = compute_fakes.create_one_sdk_server()
 
         # Return value for utils.find_resource for server.
         self.sdk_client.find_server.return_value = self.server
@@ -1037,7 +1037,7 @@ class TestServerMigrationForceComplete(TestServerMigration):
     def setUp(self):
         super().setUp()
 
-        self.server = compute_fakes.FakeServer.create_one_sdk_server()
+        self.server = compute_fakes.create_one_sdk_server()
 
         # Return value for utils.find_resource for server.
         self.sdk_client.find_server.return_value = self.server

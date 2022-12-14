@@ -72,7 +72,7 @@ class TestExtensionList(TestExtension):
 
     volume_extension = volume_fakes.create_one_extension()
     identity_extension = identity_fakes.FakeExtension.create_one_extension()
-    compute_extension = compute_fakes.FakeExtension.create_one_extension()
+    compute_extension = compute_fakes.create_one_extension()
     network_extension = network_fakes.FakeExtension.create_one_extension()
 
     def setUp(self):

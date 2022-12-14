@@ -33,7 +33,7 @@ class TestConsole(compute_fakes.TestComputev2):
 
 
 class TestConsoleLog(TestConsole):
-    _server = compute_fakes.FakeServer.create_one_server()
+    _server = compute_fakes.create_one_server()
 
     def setUp(self):
         super(TestConsoleLog, self).setUp()
@@ -89,7 +89,7 @@ class TestConsoleLog(TestConsole):
 
 
 class TestConsoleUrlShow(TestConsole):
-    _server = compute_fakes.FakeServer.create_one_server()
+    _server = compute_fakes.create_one_server()
 
     def setUp(self):
         super(TestConsoleUrlShow, self).setUp()

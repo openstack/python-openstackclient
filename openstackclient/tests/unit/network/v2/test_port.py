@@ -1113,7 +1113,7 @@ class TestListPort(TestPort):
 
     @mock.patch.object(utils, 'find_resource')
     def test_port_list_with_server_option(self, mock_find):
-        fake_server = compute_fakes.FakeServer.create_one_server()
+        fake_server = compute_fakes.create_one_server()
         mock_find.return_value = fake_server
 
         arglist = [

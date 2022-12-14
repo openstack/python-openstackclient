@@ -36,9 +36,7 @@ class TestCreateSecurityGroupCompute(TestSecurityGroupCompute):
     domain = identity_fakes.FakeDomain.create_one_domain()
 
     # The security group to be shown.
-    _security_group = (
-        compute_fakes.FakeSecurityGroup.create_one_security_group()
-    )
+    _security_group = compute_fakes.create_one_security_group()
 
     columns = (
         'description',
@@ -114,7 +112,7 @@ class TestCreateSecurityGroupCompute(TestSecurityGroupCompute):
 @mock.patch('openstackclient.api.compute_v2.APIv2.security_group_delete')
 class TestDeleteSecurityGroupCompute(TestSecurityGroupCompute):
     # The security groups to be deleted.
-    _security_groups = compute_fakes.FakeSecurityGroup.create_security_groups()
+    _security_groups = compute_fakes.create_security_groups()
 
     def setUp(self):
         super(TestDeleteSecurityGroupCompute, self).setUp()
@@ -122,9 +120,7 @@ class TestDeleteSecurityGroupCompute(TestSecurityGroupCompute):
         self.app.client_manager.network_endpoint_enabled = False
 
         self.compute.api.security_group_find = (
-            compute_fakes.FakeSecurityGroup.get_security_groups(
-                self._security_groups
-            )
+            compute_fakes.get_security_groups(self._security_groups)
         )
 
         # Get the command object to test
@@ -198,9 +194,7 @@ class TestDeleteSecurityGroupCompute(TestSecurityGroupCompute):
 @mock.patch('openstackclient.api.compute_v2.APIv2.security_group_list')
 class TestListSecurityGroupCompute(TestSecurityGroupCompute):
     # The security group to be listed.
-    _security_groups = compute_fakes.FakeSecurityGroup.create_security_groups(
-        count=3
-    )
+    _security_groups = compute_fakes.create_security_groups(count=3)
 
     columns = (
         'ID',
@@ -278,9 +272,7 @@ class TestListSecurityGroupCompute(TestSecurityGroupCompute):
 @mock.patch('openstackclient.api.compute_v2.APIv2.security_group_set')
 class TestSetSecurityGroupCompute(TestSecurityGroupCompute):
     # The security group to be set.
-    _security_group = (
-        compute_fakes.FakeSecurityGroup.create_one_security_group()
-    )
+    _security_group = compute_fakes.create_one_security_group()
 
     def setUp(self):
         super(TestSetSecurityGroupCompute, self).setUp()
@@ -347,15 +339,11 @@ class TestSetSecurityGroupCompute(TestSecurityGroupCompute):
 @mock.patch('openstackclient.api.compute_v2.APIv2.security_group_find')
 class TestShowSecurityGroupCompute(TestSecurityGroupCompute):
     # The security group rule to be shown with the group.
-    _security_group_rule = (
-        compute_fakes.FakeSecurityGroupRule.create_one_security_group_rule()
-    )
+    _security_group_rule = compute_fakes.create_one_security_group_rule()
 
     # The security group to be shown.
-    _security_group = (
-        compute_fakes.FakeSecurityGroup.create_one_security_group(
-            attrs={'rules': [_security_group_rule]}
-        )
+    _security_group = compute_fakes.create_one_security_group(
+        attrs={'rules': [_security_group_rule]}
     )
 
     columns = (

@@ -41,7 +41,7 @@ class TestVolumeAttachment(volume_fakes.TestVolume):
 
 class TestVolumeAttachmentCreate(TestVolumeAttachment):
     volume = volume_fakes.create_one_volume()
-    server = compute_fakes.FakeServer.create_one_server()
+    server = compute_fakes.create_one_server()
     volume_attachment = volume_fakes.create_one_volume_attachment(
         attrs={'instance': server.id, 'volume_id': volume.id},
     )

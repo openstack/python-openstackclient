@@ -31,9 +31,7 @@ class TestFloatingIPPoolCompute(compute_fakes.TestComputev2):
 @mock.patch('openstackclient.api.compute_v2.APIv2.floating_ip_pool_list')
 class TestListFloatingIPPoolCompute(TestFloatingIPPoolCompute):
     # The floating ip pools to list up
-    _floating_ip_pools = (
-        compute_fakes.FakeFloatingIPPool.create_floating_ip_pools(count=3)
-    )
+    _floating_ip_pools = compute_fakes.create_floating_ip_pools(count=3)
 
     columns = ('Name',)
 

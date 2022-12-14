@@ -141,7 +141,7 @@ class TestServer(compute_fakes.TestComputev2):
         # If we are creating more than one server, make one of them
         # boot-from-volume
         include_bfv = count > 1
-        servers = compute_fakes.FakeServer.create_servers(
+        servers = compute_fakes.create_servers(
             attrs=self.attrs,
             methods=self.methods,
             count=count - 1 if include_bfv else count,
@@ -149,19 +149,17 @@ class TestServer(compute_fakes.TestComputev2):
         if include_bfv:
             attrs = copy.deepcopy(self.attrs)
             attrs['image'] = ''
-            bfv_server = compute_fakes.FakeServer.create_one_server(
+            bfv_server = compute_fakes.create_one_server(
                 attrs=attrs, methods=self.methods
             )
             servers.append(bfv_server)
 
         # This is the return value for utils.find_resource()
-        self.servers_mock.get = compute_fakes.FakeServer.get_servers(
-            servers, 0
-        )
+        self.servers_mock.get = compute_fakes.get_servers(servers, 0)
         return servers
 
     def setup_sdk_servers_mock(self, count):
-        servers = compute_fakes.FakeServer.create_sdk_servers(
+        servers = compute_fakes.create_sdk_servers(
             attrs=self.attrs,
             methods=self.methods,
             count=count,
@@ -213,7 +211,7 @@ class TestServerAddFixedIP(TestServer):
         sm_mock.return_value = False
 
         servers = self.setup_sdk_servers_mock(count=1)
-        network = compute_fakes.FakeNetwork.create_one_network()
+        network = compute_fakes.create_one_network()
 
         with mock.patch.object(
             self.app.client_manager,
@@ -244,7 +242,7 @@ class TestServerAddFixedIP(TestServer):
         sm_mock.return_value = False
 
         servers = self.setup_sdk_servers_mock(count=1)
-        network = compute_fakes.FakeNetwork.create_one_network()
+        network = compute_fakes.create_one_network()
 
         with mock.patch.object(
             self.app.client_manager,
@@ -277,7 +275,7 @@ class TestServerAddFixedIP(TestServer):
         sm_mock.return_value = False
 
         servers = self.setup_sdk_servers_mock(count=1)
-        network = compute_fakes.FakeNetwork.create_one_network()
+        network = compute_fakes.create_one_network()
 
         with mock.patch.object(
             self.app.client_manager,
@@ -312,7 +310,7 @@ class TestServerAddFixedIP(TestServer):
         sm_mock.side_effect = [False, True]
 
         servers = self.setup_sdk_servers_mock(count=1)
-        network = compute_fakes.FakeNetwork.create_one_network()
+        network = compute_fakes.create_one_network()
 
         with mock.patch.object(
             self.app.client_manager,
@@ -347,7 +345,7 @@ class TestServerAddFixedIP(TestServer):
         sm_mock.side_effect = [True, False]
 
         servers = self.setup_sdk_servers_mock(count=1)
-        network = compute_fakes.FakeNetwork.create_one_network()
+        network = compute_fakes.create_one_network()
         interface = compute_fakes.create_one_server_interface()
         self.sdk_client.create_server_interface.return_value = interface
 
@@ -393,7 +391,7 @@ class TestServerAddFixedIP(TestServer):
         sm_mock.side_effect = [True, True]
 
         servers = self.setup_sdk_servers_mock(count=1)
-        network = compute_fakes.FakeNetwork.create_one_network()
+        network = compute_fakes.create_one_network()
         interface = compute_fakes.create_one_server_interface()
         self.sdk_client.create_server_interface.return_value = interface
 
@@ -449,7 +447,7 @@ class TestServerAddFixedIP(TestServer):
         sm_mock.side_effect = [True, True, True]
 
         servers = self.setup_sdk_servers_mock(count=1)
-        network = compute_fakes.FakeNetwork.create_one_network()
+        network = compute_fakes.create_one_network()
         interface = compute_fakes.create_one_server_interface()
         self.sdk_client.create_server_interface.return_value = interface
 
@@ -516,7 +514,7 @@ class TestServerAddFloatingIPCompute(compute_fakes.TestComputev2):
         self.cmd = server.AddFloatingIP(self.app, None)
 
     def test_server_add_floating_ip_default(self, fip_mock):
-        _floating_ip = compute_fakes.FakeFloatingIP.create_one_floating_ip()
+        _floating_ip = compute_fakes.create_one_floating_ip()
         arglist = [
             'server1',
             _floating_ip['ip'],
@@ -536,7 +534,7 @@ class TestServerAddFloatingIPCompute(compute_fakes.TestComputev2):
         )
 
     def test_server_add_floating_ip_fixed(self, fip_mock):
-        _floating_ip = compute_fakes.FakeFloatingIP.create_one_floating_ip()
+        _floating_ip = compute_fakes.create_one_floating_ip()
         arglist = [
             '--fixed-ip-address',
             _floating_ip['fixed_ip'],
@@ -574,7 +572,7 @@ class TestServerAddFloatingIPNetwork(
         self.cmd = server.AddFloatingIP(self.app, self.namespace)
 
     def test_server_add_floating_ip(self):
-        _server = compute_fakes.FakeServer.create_one_server()
+        _server = compute_fakes.create_one_server()
         self.servers_mock.get.return_value = _server
         _port = network_fakes.create_one_port()
         _floating_ip = network_fakes.FakeFloatingIP.create_one_floating_ip()
@@ -606,7 +604,7 @@ class TestServerAddFloatingIPNetwork(
         self.network.update_ip.assert_called_once_with(_floating_ip, **attrs)
 
     def test_server_add_floating_ip_no_ports(self):
-        server = compute_fakes.FakeServer.create_one_server()
+        server = compute_fakes.create_one_server()
         floating_ip = network_fakes.FakeFloatingIP.create_one_floating_ip()
 
         self.servers_mock.get.return_value = server
@@ -639,7 +637,7 @@ class TestServerAddFloatingIPNetwork(
         )
 
     def test_server_add_floating_ip_no_external_gateway(self, success=False):
-        _server = compute_fakes.FakeServer.create_one_server()
+        _server = compute_fakes.create_one_server()
         self.servers_mock.get.return_value = _server
         _port = network_fakes.create_one_port()
         _floating_ip = network_fakes.FakeFloatingIP.create_one_floating_ip()
@@ -697,7 +695,7 @@ class TestServerAddFloatingIPNetwork(
         self.test_server_add_floating_ip_no_external_gateway(success=True)
 
     def test_server_add_floating_ip_with_fixed_ip(self):
-        _server = compute_fakes.FakeServer.create_one_server()
+        _server = compute_fakes.create_one_server()
         self.servers_mock.get.return_value = _server
         _port = network_fakes.create_one_port()
         _floating_ip = network_fakes.FakeFloatingIP.create_one_floating_ip()
@@ -737,7 +735,7 @@ class TestServerAddFloatingIPNetwork(
         self.network.update_ip.assert_called_once_with(_floating_ip, **attrs)
 
     def test_server_add_floating_ip_with_fixed_ip_no_port_found(self):
-        _server = compute_fakes.FakeServer.create_one_server()
+        _server = compute_fakes.create_one_server()
         self.servers_mock.get.return_value = _server
         _port = network_fakes.create_one_port()
         _floating_ip = network_fakes.FakeFloatingIP.create_one_floating_ip()
@@ -1340,16 +1338,14 @@ class TestServerAddSecurityGroup(TestServer):
     def setUp(self):
         super(TestServerAddSecurityGroup, self).setUp()
 
-        self.security_group = (
-            compute_fakes.FakeSecurityGroup.create_one_security_group()
-        )
+        self.security_group = compute_fakes.create_one_security_group()
 
         attrs = {'security_groups': [{'name': self.security_group['id']}]}
         methods = {
             'add_security_group': None,
         }
 
-        self.server = compute_fakes.FakeServer.create_one_server(
+        self.server = compute_fakes.create_one_server(
             attrs=attrs, methods=methods
         )
         # This is the return value for utils.find_resource() for server
@@ -1410,9 +1406,7 @@ class TestServerCreate(TestServer):
         attrs = {
             'networks': {},
         }
-        self.new_server = compute_fakes.FakeServer.create_one_server(
-            attrs=attrs
-        )
+        self.new_server = compute_fakes.create_one_server(attrs=attrs)
 
         # This is the return value for utils.find_resource().
         # This is for testing --wait option.
@@ -1424,7 +1418,7 @@ class TestServerCreate(TestServer):
         self.find_image_mock.return_value = self.image
         self.get_image_mock.return_value = self.image
 
-        self.flavor = compute_fakes.FakeFlavor.create_one_flavor()
+        self.flavor = compute_fakes.create_one_flavor()
         self.flavors_mock.get.return_value = self.flavor
 
         self.volume = volume_fakes.create_one_volume()
@@ -4616,7 +4610,7 @@ class TestServerDelete(TestServer):
     @mock.patch.object(common_utils, 'find_resource')
     def test_server_delete_with_all_projects(self, mock_find_resource):
         servers = self.setup_servers_mock(count=1)
-        mock_find_resource.side_effect = compute_fakes.FakeServer.get_servers(
+        mock_find_resource.side_effect = compute_fakes.get_servers(
             servers,
             0,
         )
@@ -4778,7 +4772,7 @@ class _TestServerList(TestServer):
         self.find_image_mock.return_value = self.image
         self.get_image_mock.return_value = self.image
 
-        self.flavor = compute_fakes.FakeFlavor.create_one_flavor()
+        self.flavor = compute_fakes.create_one_flavor()
         self.sdk_client.find_flavor.return_value = self.flavor
         self.attrs['flavor'] = {'original_name': self.flavor.name}
 
@@ -5650,7 +5644,7 @@ class TestServerLock(TestServer):
     def setUp(self):
         super().setUp()
 
-        self.server = compute_fakes.FakeServer.create_one_sdk_server()
+        self.server = compute_fakes.create_one_sdk_server()
 
         self.app.client_manager.sdk_connection = mock.Mock()
         self.app.client_manager.sdk_connection.compute = mock.Mock()
@@ -5698,7 +5692,7 @@ class TestServerLock(TestServer):
     @mock.patch.object(sdk_utils, 'supports_microversion')
     def test_server_lock_with_reason_multi_servers(self, sm_mock):
         sm_mock.return_value = True
-        server2 = compute_fakes.FakeServer.create_one_sdk_server()
+        server2 = compute_fakes.create_one_sdk_server()
         arglist = [
             self.server.id,
             server2.id,
@@ -5721,7 +5715,7 @@ class TestServerLock(TestServer):
     @mock.patch.object(sdk_utils, 'supports_microversion')
     def test_server_lock_with_reason_pre_v273(self, sm_mock):
         sm_mock.return_value = False
-        server = compute_fakes.FakeServer.create_one_sdk_server()
+        server = compute_fakes.create_one_sdk_server()
         arglist = [
             server.id,
             '--reason',
@@ -5751,9 +5745,7 @@ class TestServerMigrate(TestServer):
             'migrate': None,
             'live_migrate': None,
         }
-        self.server = compute_fakes.FakeServer.create_one_server(
-            methods=methods
-        )
+        self.server = compute_fakes.create_one_server(methods=methods)
 
         # This is the return value for utils.find_resource()
         self.servers_mock.get.return_value = self.server
@@ -6246,14 +6238,14 @@ class TestServerRebuild(TestServer):
             'networks': {},
             'adminPass': 'passw0rd',
         }
-        new_server = compute_fakes.FakeServer.create_one_server(attrs=attrs)
+        new_server = compute_fakes.create_one_server(attrs=attrs)
 
         # Fake the server to be rebuilt. The IDs of them should be the same.
         attrs['id'] = new_server.id
         methods = {
             'rebuild': new_server,
         }
-        self.server = compute_fakes.FakeServer.create_one_server(
+        self.server = compute_fakes.create_one_server(
             attrs=attrs, methods=methods
         )
 
@@ -6272,7 +6264,7 @@ class TestServerRebuild(TestServer):
             'networks': {},
             'adminPass': 'passw0rd',
         }
-        new_server = compute_fakes.FakeServer.create_one_server(attrs=attrs)
+        new_server = compute_fakes.create_one_server(attrs=attrs)
         self.server.rebuild.return_value = new_server
 
         arglist = [self.server.id, '--image', image_name]
@@ -6833,14 +6825,14 @@ class TestServerRebuildVolumeBacked(TestServer):
             'networks': {},
             'adminPass': 'passw0rd',
         }
-        new_server = compute_fakes.FakeServer.create_one_server(attrs=attrs)
+        new_server = compute_fakes.create_one_server(attrs=attrs)
 
         # Fake the server to be rebuilt. The IDs of them should be the same.
         attrs['id'] = new_server.id
         methods = {
             'rebuild': new_server,
         }
-        self.server = compute_fakes.FakeServer.create_one_server(
+        self.server = compute_fakes.create_one_server(
             attrs=attrs, methods=methods
         )
 
@@ -6933,14 +6925,14 @@ class TestEvacuateServer(TestServer):
             'networks': {},
             'adminPass': 'passw0rd',
         }
-        new_server = compute_fakes.FakeServer.create_one_server(attrs=attrs)
+        new_server = compute_fakes.create_one_server(attrs=attrs)
 
         # Fake the server to be rebuilt. The IDs of them should be the same.
         attrs['id'] = new_server.id
         methods = {
             'evacuate': new_server,
         }
-        self.server = compute_fakes.FakeServer.create_one_server(
+        self.server = compute_fakes.create_one_server(
             attrs=attrs, methods=methods
         )
 
@@ -7123,7 +7115,7 @@ class TestServerRescue(TestServer):
         self.image = image_fakes.create_one_image()
         self.get_image_mock.return_value = self.image
 
-        new_server = compute_fakes.FakeServer.create_one_server()
+        new_server = compute_fakes.create_one_server()
         attrs = {
             'id': new_server.id,
             'image': {
@@ -7135,7 +7127,7 @@ class TestServerRescue(TestServer):
         methods = {
             'rescue': new_server,
         }
-        self.server = compute_fakes.FakeServer.create_one_server(
+        self.server = compute_fakes.create_one_server(
             attrs=attrs,
             methods=methods,
         )
@@ -7212,7 +7204,7 @@ class TestServerRemoveFloatingIPCompute(compute_fakes.TestComputev2):
         self.cmd = server.RemoveFloatingIP(self.app, None)
 
     def test_server_remove_floating_ip(self, fip_mock):
-        _floating_ip = compute_fakes.FakeFloatingIP.create_one_floating_ip()
+        _floating_ip = compute_fakes.create_one_floating_ip()
 
         arglist = [
             'server1',
@@ -7244,7 +7236,7 @@ class TestServerRemoveFloatingIPNetwork(network_fakes.TestNetworkV2):
         self.cmd = server.RemoveFloatingIP(self.app, self.namespace)
 
     def test_server_remove_floating_ip_default(self):
-        _server = compute_fakes.FakeServer.create_one_server()
+        _server = compute_fakes.create_one_server()
         _floating_ip = network_fakes.FakeFloatingIP.create_one_floating_ip()
         self.network.find_ip = mock.Mock(return_value=_floating_ip)
         arglist = [
@@ -7377,16 +7369,14 @@ class TestServerRemoveSecurityGroup(TestServer):
     def setUp(self):
         super(TestServerRemoveSecurityGroup, self).setUp()
 
-        self.security_group = (
-            compute_fakes.FakeSecurityGroup.create_one_security_group()
-        )
+        self.security_group = compute_fakes.create_one_security_group()
 
         attrs = {'security_groups': [{'name': self.security_group['id']}]}
         methods = {
             'remove_security_group': None,
         }
 
-        self.server = compute_fakes.FakeServer.create_one_server(
+        self.server = compute_fakes.create_one_server(
             attrs=attrs, methods=methods
         )
         # This is the return value for utils.find_resource() for server
@@ -7418,7 +7408,7 @@ class TestServerResize(TestServer):
     def setUp(self):
         super(TestServerResize, self).setUp()
 
-        self.server = compute_fakes.FakeServer.create_one_server()
+        self.server = compute_fakes.create_one_server()
 
         # This is the return value for utils.find_resource()
         self.servers_mock.get.return_value = self.server
@@ -7428,9 +7418,7 @@ class TestServerResize(TestServer):
         self.servers_mock.revert_resize.return_value = None
 
         # This is the return value for utils.find_resource()
-        self.flavors_get_return_value = (
-            compute_fakes.FakeFlavor.create_one_flavor()
-        )
+        self.flavors_get_return_value = compute_fakes.create_one_flavor()
         self.flavors_mock.get.return_value = self.flavors_get_return_value
 
         # Get the command object to test
@@ -7620,9 +7608,7 @@ class TestServerResizeConfirm(TestServer):
         methods = {
             'confirm_resize': None,
         }
-        self.server = compute_fakes.FakeServer.create_one_server(
-            methods=methods
-        )
+        self.server = compute_fakes.create_one_server(methods=methods)
 
         # This is the return value for utils.find_resource()
         self.servers_mock.get.return_value = self.server
@@ -7655,9 +7641,7 @@ class TestServerMigrateConfirm(TestServer):
         methods = {
             'confirm_resize': None,
         }
-        self.server = compute_fakes.FakeServer.create_one_server(
-            methods=methods
-        )
+        self.server = compute_fakes.create_one_server(methods=methods)
 
         # This is the return value for utils.find_resource()
         self.servers_mock.get.return_value = self.server
@@ -7696,9 +7680,7 @@ class TestServerConfirmMigration(TestServerResizeConfirm):
         methods = {
             'confirm_resize': None,
         }
-        self.server = compute_fakes.FakeServer.create_one_server(
-            methods=methods
-        )
+        self.server = compute_fakes.create_one_server(methods=methods)
 
         # This is the return value for utils.find_resource()
         self.servers_mock.get.return_value = self.server
@@ -7730,9 +7712,7 @@ class TestServerResizeRevert(TestServer):
         methods = {
             'revert_resize': None,
         }
-        self.server = compute_fakes.FakeServer.create_one_server(
-            methods=methods
-        )
+        self.server = compute_fakes.create_one_server(methods=methods)
 
         # This is the return value for utils.find_resource()
         self.servers_mock.get.return_value = self.server
@@ -7765,9 +7745,7 @@ class TestServerMigrateRevert(TestServer):
         methods = {
             'revert_resize': None,
         }
-        self.server = compute_fakes.FakeServer.create_one_server(
-            methods=methods
-        )
+        self.server = compute_fakes.create_one_server(methods=methods)
 
         # This is the return value for utils.find_resource()
         self.servers_mock.get.return_value = self.server
@@ -7806,9 +7784,7 @@ class TestServerRevertMigration(TestServer):
         methods = {
             'revert_resize': None,
         }
-        self.server = compute_fakes.FakeServer.create_one_server(
-            methods=methods
-        )
+        self.server = compute_fakes.create_one_server(methods=methods)
 
         # This is the return value for utils.find_resource()
         self.servers_mock.get.return_value = self.server
@@ -8143,7 +8119,7 @@ class TestServerShelve(TestServer):
     def setUp(self):
         super().setUp()
 
-        self.server = compute_fakes.FakeServer.create_one_sdk_server(
+        self.server = compute_fakes.create_one_sdk_server(
             attrs={'status': 'ACTIVE'},
         )
 
@@ -8261,7 +8237,7 @@ class TestServerShow(TestServer):
         super(TestServerShow, self).setUp()
 
         self.image = image_fakes.create_one_image()
-        self.flavor = compute_fakes.FakeFlavor.create_one_flavor()
+        self.flavor = compute_fakes.create_one_flavor()
         self.topology = {
             'nodes': [{'vcpu_set': [0, 1]}, {'vcpu_set': [2, 3]}],
             'pagesize_kb': None,
@@ -8276,7 +8252,7 @@ class TestServerShow(TestServer):
         server_method = {
             'fetch_topology': self.topology,
         }
-        self.server = compute_fakes.FakeServer.create_one_server(
+        self.server = compute_fakes.create_one_server(
             attrs=server_info, methods=server_method
         )
 
@@ -8450,7 +8426,7 @@ class TestServerSsh(TestServer):
                 ],
             },
         }
-        self.server = compute_fakes.FakeServer.create_one_server(
+        self.server = compute_fakes.create_one_server(
             attrs=self.attrs,
             methods=self.methods,
         )
@@ -8799,7 +8775,7 @@ class TestServerUnshelve(TestServer):
     def setUp(self):
         super().setUp()
 
-        self.server = compute_fakes.FakeServer.create_one_sdk_server(
+        self.server = compute_fakes.create_one_sdk_server(
             attrs={'status': 'SHELVED'},
         )
 
@@ -9115,7 +9091,7 @@ class TestServerGeneral(TestServer):
         # - The second time, return image info.
         # - The third time, return flavor info.
         _image = image_fakes.create_one_image()
-        _flavor = compute_fakes.FakeFlavor.create_one_flavor()
+        _flavor = compute_fakes.create_one_flavor()
         server_info = {
             'image': {u'id': _image.id},
             'flavor': {u'id': _flavor.id},
@@ -9125,7 +9101,7 @@ class TestServerGeneral(TestServer):
             'properties': '',
             'volumes_attached': [{"id": "6344fe9d-ef20-45b2-91a6"}],
         }
-        _server = compute_fakes.FakeServer.create_one_server(attrs=server_info)
+        _server = compute_fakes.create_one_server(attrs=server_info)
         find_resource.side_effect = [_server, _flavor]
         self.get_image_mock.return_value = _image
 

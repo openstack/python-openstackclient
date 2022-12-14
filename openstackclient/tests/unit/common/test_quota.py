@@ -123,12 +123,12 @@ class TestQuotaList(TestQuota):
         self.projects_mock.list.return_value = self.projects
 
         self.compute_quotas = [
-            compute_fakes.FakeQuota.create_one_comp_quota(),
-            compute_fakes.FakeQuota.create_one_comp_quota(),
+            compute_fakes.create_one_comp_quota(),
+            compute_fakes.create_one_comp_quota(),
         ]
         self.compute_default_quotas = [
-            compute_fakes.FakeQuota.create_one_default_comp_quota(),
-            compute_fakes.FakeQuota.create_one_default_comp_quota(),
+            compute_fakes.create_one_default_comp_quota(),
+            compute_fakes.create_one_default_comp_quota(),
         ]
         self.compute = self.app.client_manager.compute
         self.compute.quotas.defaults = mock.Mock(
@@ -216,9 +216,7 @@ class TestQuotaList(TestQuota):
         return reference_data
 
     def test_quota_list_details_compute(self):
-        detailed_quota = (
-            compute_fakes.FakeQuota.create_one_comp_detailed_quota()
-        )
+        detailed_quota = compute_fakes.create_one_comp_detailed_quota()
 
         detailed_column_header = (
             'Resource',
@@ -338,7 +336,7 @@ class TestQuotaList(TestQuota):
         self.compute.quotas.get = mock.Mock(
             side_effect=[
                 self.compute_quotas[0],
-                compute_fakes.FakeQuota.create_one_default_comp_quota(),
+                compute_fakes.create_one_default_comp_quota(),
             ],
         )
 
@@ -1087,10 +1085,10 @@ class TestQuotaShow(TestQuota):
     def setUp(self):
         super().setUp()
 
-        self.compute_quota = compute_fakes.FakeQuota.create_one_comp_quota()
+        self.compute_quota = compute_fakes.create_one_comp_quota()
         self.compute_quotas_mock.get.return_value = self.compute_quota
         self.compute_default_quota = (
-            compute_fakes.FakeQuota.create_one_default_comp_quota()
+            compute_fakes.create_one_default_comp_quota()
         )
         self.compute_quotas_mock.defaults.return_value = (
             self.compute_default_quota
@@ -1269,9 +1267,7 @@ class TestQuotaShow(TestQuota):
 
     def test_quota_show__with_usage(self):
         # update mocks to return detailed quota instead
-        self.compute_quota = (
-            compute_fakes.FakeQuota.create_one_comp_detailed_quota()
-        )
+        self.compute_quota = compute_fakes.create_one_comp_detailed_quota()
         self.compute_quotas_mock.get.return_value = self.compute_quota
         self.volume_quota = volume_fakes.create_one_detailed_quota()
         self.volume_quotas_mock.get.return_value = self.volume_quota

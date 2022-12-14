@@ -37,7 +37,7 @@ class TestServerVolumeList(TestServerVolume):
     def setUp(self):
         super().setUp()
 
-        self.server = compute_fakes.FakeServer.create_one_sdk_server()
+        self.server = compute_fakes.create_one_sdk_server()
         self.volume_attachments = compute_fakes.create_volume_attachments()
 
         self.compute_client.find_server.return_value = self.server
@@ -240,7 +240,7 @@ class TestServerVolumeUpdate(TestServerVolume):
     def setUp(self):
         super().setUp()
 
-        self.server = compute_fakes.FakeServer.create_one_sdk_server()
+        self.server = compute_fakes.create_one_sdk_server()
         self.compute_client.find_server.return_value = self.server
 
         self.volume = volume_fakes.create_one_sdk_volume()

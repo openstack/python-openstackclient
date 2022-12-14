@@ -55,7 +55,7 @@ class TestKeypairCreate(TestKeypair):
     def setUp(self):
         super().setUp()
 
-        self.keypair = compute_fakes.FakeKeypair.create_one_keypair()
+        self.keypair = compute_fakes.create_one_keypair()
 
         self.columns = ('fingerprint', 'name', 'type', 'user_id')
         self.data = (
@@ -288,7 +288,7 @@ class TestKeypairCreate(TestKeypair):
 
 
 class TestKeypairDelete(TestKeypair):
-    keypairs = compute_fakes.FakeKeypair.create_keypairs(count=2)
+    keypairs = compute_fakes.create_keypairs(count=2)
 
     def setUp(self):
         super(TestKeypairDelete, self).setUp()
@@ -394,7 +394,7 @@ class TestKeypairDelete(TestKeypair):
 
 class TestKeypairList(TestKeypair):
     # Return value of self.sdk_client.keypairs().
-    keypairs = compute_fakes.FakeKeypair.create_keypairs(count=1)
+    keypairs = compute_fakes.create_keypairs(count=1)
 
     def setUp(self):
         super(TestKeypairList, self).setUp()
@@ -661,7 +661,7 @@ class TestKeypairList(TestKeypair):
 
 
 class TestKeypairShow(TestKeypair):
-    keypair = compute_fakes.FakeKeypair.create_one_keypair()
+    keypair = compute_fakes.create_one_keypair()
 
     def setUp(self):
         super(TestKeypairShow, self).setUp()

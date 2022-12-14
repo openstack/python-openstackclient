@@ -114,9 +114,7 @@ class TestAvailabilityZone(utils.TestCommand):
 
 
 class TestAvailabilityZoneList(TestAvailabilityZone):
-    compute_azs = (
-        compute_fakes.FakeAvailabilityZone.create_availability_zones()
-    )
+    compute_azs = compute_fakes.create_availability_zones()
     volume_azs = volume_fakes.create_availability_zones(count=1)
     network_azs = network_fakes.create_availability_zones()
 

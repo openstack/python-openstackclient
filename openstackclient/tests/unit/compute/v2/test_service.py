@@ -34,7 +34,7 @@ class TestService(compute_fakes.TestComputev2):
 
 
 class TestServiceDelete(TestService):
-    services = compute_fakes.FakeService.create_services(count=2)
+    services = compute_fakes.create_services(count=2)
 
     def setUp(self):
         super(TestServiceDelete, self).setUp()
@@ -107,7 +107,7 @@ class TestServiceDelete(TestService):
 
 
 class TestServiceList(TestService):
-    service = compute_fakes.FakeService.create_one_service()
+    service = compute_fakes.create_one_service()
 
     columns = (
         'ID',
@@ -241,7 +241,7 @@ class TestServiceSet(TestService):
     def setUp(self):
         super(TestServiceSet, self).setUp()
 
-        self.service = compute_fakes.FakeService.create_one_service()
+        self.service = compute_fakes.create_one_service()
 
         self.sdk_client.enable_service.return_value = self.service
         self.sdk_client.disable_service.return_value = self.service

@@ -27,7 +27,7 @@ from openstackclient.tests.unit.image.v2 import fakes as image_fakes
 
 
 class TestAggregate(compute_fakes.TestComputev2):
-    fake_ag = compute_fakes.FakeAggregate.create_one_aggregate()
+    fake_ag = compute_fakes.create_one_aggregate()
 
     columns = (
         'availability_zone',
@@ -158,13 +158,13 @@ class TestAggregateCreate(TestAggregate):
 
 
 class TestAggregateDelete(TestAggregate):
-    fake_ags = compute_fakes.FakeAggregate.create_aggregates(count=2)
+    fake_ags = compute_fakes.create_aggregates(count=2)
 
     def setUp(self):
         super(TestAggregateDelete, self).setUp()
 
-        self.sdk_client.find_aggregate = (
-            compute_fakes.FakeAggregate.get_aggregates(self.fake_ags)
+        self.sdk_client.find_aggregate = compute_fakes.get_aggregates(
+            self.fake_ags
         )
         self.cmd = aggregate.DeleteAggregate(self.app, None)
 

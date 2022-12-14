@@ -42,14 +42,14 @@ class TestServerBackup(compute_fakes.TestComputev2):
         self.methods = {}
 
     def setup_servers_mock(self, count):
-        servers = compute_fakes.FakeServer.create_sdk_servers(
+        servers = compute_fakes.create_sdk_servers(
             attrs=self.attrs,
             methods=self.methods,
             count=count,
         )
 
         # This is the return value for compute_client.find_server()
-        self.sdk_client.find_server = compute_fakes.FakeServer.get_servers(
+        self.sdk_client.find_server = compute_fakes.get_servers(
             servers,
             0,
         )
