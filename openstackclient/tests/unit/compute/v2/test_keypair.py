@@ -57,9 +57,20 @@ class TestKeypairCreate(TestKeypair):
 
         self.keypair = compute_fakes.create_one_keypair()
 
-        self.columns = ('fingerprint', 'name', 'type', 'user_id')
+        self.columns = (
+            'created_at',
+            'fingerprint',
+            'id',
+            'is_deleted',
+            'name',
+            'type',
+            'user_id',
+        )
         self.data = (
+            self.keypair.created_at,
             self.keypair.fingerprint,
+            self.keypair.id,
+            self.keypair.is_deleted,
             self.keypair.name,
             self.keypair.type,
             self.keypair.user_id,
@@ -75,7 +86,7 @@ class TestKeypairCreate(TestKeypair):
         '_generate_keypair',
         return_value=keypair.Keypair('private', 'public'),
     )
-    def test_key_pair_create_no_options(self, mock_generate):
+    def test_keypair_create_no_options(self, mock_generate):
         arglist = [
             self.keypair.name,
         ]
@@ -96,7 +107,10 @@ class TestKeypairCreate(TestKeypair):
 
     def test_keypair_create_public_key(self):
         self.data = (
+            self.keypair.created_at,
             self.keypair.fingerprint,
+            self.keypair.id,
+            self.keypair.is_deleted,
             self.keypair.name,
             self.keypair.type,
             self.keypair.user_id,
@@ -173,7 +187,10 @@ class TestKeypairCreate(TestKeypair):
             self.sdk_client.create_keypair.return_value = self.keypair
 
             self.data = (
+                self.keypair.created_at,
                 self.keypair.fingerprint,
+                self.keypair.id,
+                self.keypair.is_deleted,
                 self.keypair.name,
                 self.keypair.type,
                 self.keypair.user_id,
@@ -291,7 +308,7 @@ class TestKeypairDelete(TestKeypair):
     keypairs = compute_fakes.create_keypairs(count=2)
 
     def setUp(self):
-        super(TestKeypairDelete, self).setUp()
+        super().setUp()
 
         self.cmd = keypair.DeleteKeypair(self.app, None)
 
@@ -397,7 +414,7 @@ class TestKeypairList(TestKeypair):
     keypairs = compute_fakes.create_keypairs(count=1)
 
     def setUp(self):
-        super(TestKeypairList, self).setUp()
+        super().setUp()
 
         self.sdk_client.keypairs.return_value = self.keypairs
 
@@ -661,23 +678,21 @@ class TestKeypairList(TestKeypair):
 
 
 class TestKeypairShow(TestKeypair):
-    keypair = compute_fakes.create_one_keypair()
-
     def setUp(self):
-        super(TestKeypairShow, self).setUp()
+        super().setUp()
 
-        self.sdk_client.find_keypair.return_value = self.keypair
+        self.columns = (
+            'created_at',
+            'fingerprint',
+            'id',
+            'is_deleted',
+            'name',
+            'private_key',
+            'type',
+            'user_id',
+        )
 
         self.cmd = keypair.ShowKeypair(self.app, None)
-
-        self.columns = ("fingerprint", "name", "type", "user_id")
-
-        self.data = (
-            self.keypair.fingerprint,
-            self.keypair.name,
-            self.keypair.type,
-            self.keypair.user_id,
-        )
 
     def test_keypair_show_no_options(self):
         arglist = []
@@ -693,11 +708,16 @@ class TestKeypairShow(TestKeypair):
         )
 
     def test_keypair_show(self):
+        self.keypair = compute_fakes.create_one_keypair()
         self.sdk_client.find_keypair.return_value = self.keypair
 
         self.data = (
+            self.keypair.created_at,
             self.keypair.fingerprint,
+            self.keypair.id,
+            self.keypair.is_deleted,
             self.keypair.name,
+            self.keypair.private_key,
             self.keypair.type,
             self.keypair.user_id,
         )
@@ -716,6 +736,9 @@ class TestKeypairShow(TestKeypair):
         self.assertEqual(self.data, data)
 
     def test_keypair_show_public(self):
+        self.keypair = compute_fakes.create_one_keypair()
+        self.sdk_client.find_keypair.return_value = self.keypair
+
         arglist = ['--public-key', self.keypair.name]
         verifylist = [('public_key', True), ('name', self.keypair.name)]
 
@@ -728,11 +751,16 @@ class TestKeypairShow(TestKeypair):
 
     @mock.patch.object(sdk_utils, 'supports_microversion', return_value=True)
     def test_keypair_show_with_user(self, sm_mock):
+        self.keypair = compute_fakes.create_one_keypair()
         self.sdk_client.find_keypair.return_value = self.keypair
 
         self.data = (
+            self.keypair.created_at,
             self.keypair.fingerprint,
+            self.keypair.id,
+            self.keypair.is_deleted,
             self.keypair.name,
+            self.keypair.private_key,
             self.keypair.type,
             self.keypair.user_id,
         )
@@ -762,6 +790,7 @@ class TestKeypairShow(TestKeypair):
 
     @mock.patch.object(sdk_utils, 'supports_microversion', return_value=False)
     def test_keypair_show_with_user_pre_v210(self, sm_mock):
+        self.keypair = compute_fakes.create_one_keypair()
         arglist = [
             '--user',
             identity_fakes.user_name,
@@ -774,8 +803,11 @@ class TestKeypairShow(TestKeypair):
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
         ex = self.assertRaises(
-            exceptions.CommandError, self.cmd.take_action, parsed_args
+            exceptions.CommandError,
+            self.cmd.take_action,
+            parsed_args,
         )
         self.assertIn(
-            '--os-compute-api-version 2.10 or greater is required', str(ex)
+            '--os-compute-api-version 2.10 or greater is required',
+            str(ex),
         )

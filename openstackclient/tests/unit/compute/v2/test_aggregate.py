@@ -31,18 +31,28 @@ class TestAggregate(compute_fakes.TestComputev2):
 
     columns = (
         'availability_zone',
+        'created_at',
+        'deleted_at',
         'hosts',
         'id',
+        'is_deleted',
         'name',
         'properties',
+        'updated_at',
+        'uuid',
     )
 
     data = (
         fake_ag.availability_zone,
+        fake_ag.created_at,
+        fake_ag.deleted_at,
         format_columns.ListColumn(fake_ag.hosts),
         fake_ag.id,
+        fake_ag.is_deleted,
         fake_ag.name,
         format_columns.DictColumn(fake_ag.metadata),
+        fake_ag.updated_at,
+        fake_ag.uuid,
     )
 
     def setUp(self):
@@ -488,24 +498,28 @@ class TestAggregateSet(TestAggregate):
 class TestAggregateShow(TestAggregate):
     columns = (
         'availability_zone',
+        'created_at',
+        'deleted_at',
         'hosts',
         'id',
+        'is_deleted',
         'name',
         'properties',
+        'updated_at',
+        'uuid',
     )
 
     data = (
         TestAggregate.fake_ag.availability_zone,
+        TestAggregate.fake_ag.created_at,
+        TestAggregate.fake_ag.deleted_at,
         format_columns.ListColumn(TestAggregate.fake_ag.hosts),
         TestAggregate.fake_ag.id,
+        TestAggregate.fake_ag.is_deleted,
         TestAggregate.fake_ag.name,
-        format_columns.DictColumn(
-            {
-                key: value
-                for key, value in TestAggregate.fake_ag.metadata.items()
-                if key != 'availability_zone'
-            }
-        ),
+        format_columns.DictColumn(TestAggregate.fake_ag.metadata),
+        TestAggregate.fake_ag.updated_at,
+        TestAggregate.fake_ag.uuid,
     )
 
     def setUp(self):

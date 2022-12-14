@@ -161,7 +161,6 @@ class TestServer(compute_fakes.TestComputev2):
     def setup_sdk_servers_mock(self, count):
         servers = compute_fakes.create_sdk_servers(
             attrs=self.attrs,
-            methods=self.methods,
             count=count,
         )
 

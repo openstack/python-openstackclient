@@ -23,7 +23,7 @@ from openstackclient.tests.unit.image.v2 import fakes as image_fakes
 
 class TestServerImage(compute_fakes.TestComputev2):
     def setUp(self):
-        super(TestServerImage, self).setUp()
+        super().setUp()
 
         # Get a shortcut to the compute client ServerManager Mock
         self.app.client_manager.sdk_connection = mock.Mock()
@@ -37,13 +37,9 @@ class TestServerImage(compute_fakes.TestComputev2):
         # Set object attributes to be tested. Could be overwritten in subclass.
         self.attrs = {}
 
-        # Set object methods to be tested. Could be overwritten in subclass.
-        self.methods = {}
-
     def setup_servers_mock(self, count):
         servers = compute_fakes.create_sdk_servers(
             attrs=self.attrs,
-            methods=self.methods,
             count=count,
         )
 
@@ -82,14 +78,10 @@ class TestServerImageCreate(TestServerImage):
         return datalist
 
     def setUp(self):
-        super(TestServerImageCreate, self).setUp()
+        super().setUp()
 
         # Get the command object to test
         self.cmd = server_image.CreateServerImage(self.app, None)
-
-        self.methods = {
-            'create_image': None,
-        }
 
     def setup_images_mock(self, count, servers=None):
         if servers:
