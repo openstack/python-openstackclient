@@ -13,6 +13,7 @@
 from unittest import mock
 
 from novaclient import api_versions
+from openstack import utils as sdk_utils
 from osc_lib import exceptions
 from osc_lib import utils as common_utils
 
@@ -35,10 +36,6 @@ class TestServerMigration(compute_fakes.TestComputev2):
             self.app.client_manager.compute.server_migrations
         self.server_migrations_mock.reset_mock()
 
-        # Get a shortcut to the compute client MigrationManager mock
-        self.migrations_mock = self.app.client_manager.compute.migrations
-        self.migrations_mock.reset_mock()
-
         self.app.client_manager.sdk_connection = mock.Mock()
         self.app.client_manager.sdk_connection.compute = mock.Mock()
         self.sdk_client = self.app.client_manager.sdk_connection.compute
@@ -53,28 +50,41 @@ class TestListMigration(TestServerMigration):
         'Old Flavor', 'New Flavor', 'Created At', 'Updated At'
     ]
 
-    # These are the fields that come back in the response from the REST API.
     MIGRATION_FIELDS = [
         'source_node', 'dest_node', 'source_compute', 'dest_compute',
-        'dest_host', 'status', 'instance_uuid', 'old_instance_type_id',
-        'new_instance_type_id', 'created_at', 'updated_at'
+        'dest_host', 'status', 'server_id', 'old_flavor_id',
+        'new_flavor_id', 'created_at', 'updated_at'
     ]
 
     def setUp(self):
         super().setUp()
 
         self.server = compute_fakes.FakeServer.create_one_server()
-        self.servers_mock.get.return_value = self.server
+        self.sdk_client.find_server.return_value = self.server
 
         self.migrations = compute_fakes.FakeMigration.create_migrations(
             count=3)
-        self.migrations_mock.list.return_value = self.migrations
+        self.sdk_client.migrations.return_value = self.migrations
 
         self.data = (common_utils.get_item_properties(
             s, self.MIGRATION_FIELDS) for s in self.migrations)
 
         # Get the command object to test
         self.cmd = server_migration.ListMigration(self.app, None)
+
+        patcher = mock.patch.object(
+            sdk_utils, 'supports_microversion', return_value=True)
+        self.addCleanup(patcher.stop)
+        self.supports_microversion_mock = patcher.start()
+        self._set_mock_microversion(
+            self.app.client_manager.compute.api_version.get_string())
+
+    def _set_mock_microversion(self, mock_v):
+        """Set a specific microversion for the mock supports_microversion()."""
+        self.supports_microversion_mock.reset_mock(return_value=True)
+        self.supports_microversion_mock.side_effect = (
+            lambda _, v:
+            api_versions.APIVersion(v) <= api_versions.APIVersion(mock_v))
 
     def test_server_migration_list_no_options(self):
         arglist = []
@@ -84,12 +94,9 @@ class TestListMigration(TestServerMigration):
         columns, data = self.cmd.take_action(parsed_args)
 
         # Set expected values
-        kwargs = {
-            'status': None,
-            'host': None,
-        }
+        kwargs = {}
 
-        self.migrations_mock.list.assert_called_with(**kwargs)
+        self.sdk_client.migrations.assert_called_with(**kwargs)
 
         self.assertEqual(self.MIGRATION_COLUMNS, columns)
         self.assertEqual(tuple(self.data), tuple(data))
@@ -117,8 +124,8 @@ class TestListMigration(TestServerMigration):
             'migration_type': 'migration',
         }
 
-        self.servers_mock.get.assert_called_with('server1')
-        self.migrations_mock.list.assert_called_with(**kwargs)
+        self.sdk_client.find_server.assert_called_with('server1')
+        self.sdk_client.migrations.assert_called_with(**kwargs)
 
         self.assertEqual(self.MIGRATION_COLUMNS, columns)
         self.assertEqual(tuple(self.data), tuple(data))
@@ -133,18 +140,17 @@ class TestListMigrationV223(TestListMigration):
         'Type', 'Created At', 'Updated At'
     ]
 
-    # These are the fields that come back in the response from the REST API.
+    # These are the Migration object fields.
     MIGRATION_FIELDS = [
         'id', 'source_node', 'dest_node', 'source_compute', 'dest_compute',
-        'dest_host', 'status', 'instance_uuid', 'old_instance_type_id',
-        'new_instance_type_id', 'migration_type', 'created_at', 'updated_at'
+        'dest_host', 'status', 'server_id', 'old_flavor_id',
+        'new_flavor_id', 'migration_type', 'created_at', 'updated_at'
     ]
 
     def setUp(self):
         super().setUp()
 
-        self.app.client_manager.compute.api_version = api_versions.APIVersion(
-            '2.23')
+        self._set_mock_microversion('2.23')
 
     def test_server_migration_list(self):
         arglist = [
@@ -159,10 +165,9 @@ class TestListMigrationV223(TestListMigration):
         # Set expected values
         kwargs = {
             'status': 'migrating',
-            'host': None,
         }
 
-        self.migrations_mock.list.assert_called_with(**kwargs)
+        self.sdk_client.migrations.assert_called_with(**kwargs)
 
         self.assertEqual(self.MIGRATION_COLUMNS, columns)
         self.assertEqual(tuple(self.data), tuple(data))
@@ -177,19 +182,18 @@ class TestListMigrationV259(TestListMigration):
         'Old Flavor', 'New Flavor', 'Type', 'Created At', 'Updated At'
     ]
 
-    # These are the fields that come back in the response from the REST API.
+    # These are the Migration object fields.
     MIGRATION_FIELDS = [
         'id', 'uuid', 'source_node', 'dest_node', 'source_compute',
-        'dest_compute', 'dest_host', 'status', 'instance_uuid',
-        'old_instance_type_id', 'new_instance_type_id', 'migration_type',
+        'dest_compute', 'dest_host', 'status', 'server_id',
+        'old_flavor_id', 'new_flavor_id', 'migration_type',
         'created_at', 'updated_at'
     ]
 
     def setUp(self):
         super().setUp()
 
-        self.app.client_manager.compute.api_version = api_versions.APIVersion(
-            '2.59')
+        self._set_mock_microversion('2.59')
 
     def test_server_migration_list(self):
         arglist = [
@@ -211,19 +215,18 @@ class TestListMigrationV259(TestListMigration):
         kwargs = {
             'status': 'migrating',
             'limit': 1,
+            'paginated': False,
             'marker': 'test_kp',
-            'host': None,
             'changes_since': '2019-08-09T08:03:25Z',
         }
 
-        self.migrations_mock.list.assert_called_with(**kwargs)
+        self.sdk_client.migrations.assert_called_with(**kwargs)
 
         self.assertEqual(self.MIGRATION_COLUMNS, columns)
         self.assertEqual(tuple(self.data), tuple(data))
 
     def test_server_migration_list_with_limit_pre_v259(self):
-        self.app.client_manager.compute.api_version = api_versions.APIVersion(
-            '2.58')
+        self._set_mock_microversion('2.58')
         arglist = [
             '--status', 'migrating',
             '--limit', '1'
@@ -242,8 +245,7 @@ class TestListMigrationV259(TestListMigration):
             str(ex))
 
     def test_server_migration_list_with_marker_pre_v259(self):
-        self.app.client_manager.compute.api_version = api_versions.APIVersion(
-            '2.58')
+        self._set_mock_microversion('2.58')
         arglist = [
             '--status', 'migrating',
             '--marker', 'test_kp'
@@ -262,8 +264,7 @@ class TestListMigrationV259(TestListMigration):
             str(ex))
 
     def test_server_migration_list_with_changes_since_pre_v259(self):
-        self.app.client_manager.compute.api_version = api_versions.APIVersion(
-            '2.58')
+        self._set_mock_microversion('2.58')
         arglist = [
             '--status', 'migrating',
             '--changes-since', '2019-08-09T08:03:25Z'
@@ -291,19 +292,18 @@ class TestListMigrationV266(TestListMigration):
         'Old Flavor', 'New Flavor', 'Type', 'Created At', 'Updated At'
     ]
 
-    # These are the fields that come back in the response from the REST API.
+    # These are the Migration object fields.
     MIGRATION_FIELDS = [
         'id', 'uuid', 'source_node', 'dest_node', 'source_compute',
-        'dest_compute', 'dest_host', 'status', 'instance_uuid',
-        'old_instance_type_id', 'new_instance_type_id', 'migration_type',
+        'dest_compute', 'dest_host', 'status', 'server_id',
+        'old_flavor_id', 'new_flavor_id', 'migration_type',
         'created_at', 'updated_at'
     ]
 
     def setUp(self):
         super().setUp()
 
-        self.app.client_manager.compute.api_version = api_versions.APIVersion(
-            '2.66')
+        self._set_mock_microversion('2.66')
 
     def test_server_migration_list_with_changes_before(self):
         arglist = [
@@ -327,20 +327,19 @@ class TestListMigrationV266(TestListMigration):
         kwargs = {
             'status': 'migrating',
             'limit': 1,
+            'paginated': False,
             'marker': 'test_kp',
-            'host': None,
             'changes_since': '2019-08-07T08:03:25Z',
             'changes_before': '2019-08-09T08:03:25Z',
         }
 
-        self.migrations_mock.list.assert_called_with(**kwargs)
+        self.sdk_client.migrations.assert_called_with(**kwargs)
 
         self.assertEqual(self.MIGRATION_COLUMNS, columns)
         self.assertEqual(tuple(self.data), tuple(data))
 
     def test_server_migration_list_with_changes_before_pre_v266(self):
-        self.app.client_manager.compute.api_version = api_versions.APIVersion(
-            '2.65')
+        self._set_mock_microversion('2.65')
         arglist = [
             '--status', 'migrating',
             '--changes-before', '2019-08-09T08:03:25Z'
@@ -368,11 +367,11 @@ class TestListMigrationV280(TestListMigration):
         'Old Flavor', 'New Flavor', 'Type', 'Created At', 'Updated At'
     ]
 
-    # These are the fields that come back in the response from the REST API.
+    # These are the Migration object fields.
     MIGRATION_FIELDS = [
         'id', 'uuid', 'source_node', 'dest_node', 'source_compute',
-        'dest_compute', 'dest_host', 'status', 'instance_uuid',
-        'old_instance_type_id', 'new_instance_type_id', 'migration_type',
+        'dest_compute', 'dest_host', 'status', 'server_id',
+        'old_flavor_id', 'new_flavor_id', 'migration_type',
         'created_at', 'updated_at'
     ]
 
@@ -391,8 +390,7 @@ class TestListMigrationV280(TestListMigration):
         self.projects_mock.get.return_value = self.project
         self.users_mock.get.return_value = self.user
 
-        self.app.client_manager.compute.api_version = api_versions.APIVersion(
-            '2.80')
+        self._set_mock_microversion('2.80')
 
     def test_server_migration_list_with_project(self):
         arglist = [
@@ -418,14 +416,14 @@ class TestListMigrationV280(TestListMigration):
         kwargs = {
             'status': 'migrating',
             'limit': 1,
+            'paginated': False,
             'marker': 'test_kp',
-            'host': None,
             'project_id': self.project.id,
             'changes_since': '2019-08-07T08:03:25Z',
             'changes_before': "2019-08-09T08:03:25Z",
         }
 
-        self.migrations_mock.list.assert_called_with(**kwargs)
+        self.sdk_client.migrations.assert_called_with(**kwargs)
 
         self.MIGRATION_COLUMNS.insert(
             len(self.MIGRATION_COLUMNS) - 2, "Project")
@@ -439,8 +437,7 @@ class TestListMigrationV280(TestListMigration):
         self.MIGRATION_FIELDS.remove('project_id')
 
     def test_get_migrations_with_project_pre_v280(self):
-        self.app.client_manager.compute.api_version = api_versions.APIVersion(
-            '2.79')
+        self._set_mock_microversion('2.79')
         arglist = [
             '--status', 'migrating',
             '--changes-before', '2019-08-09T08:03:25Z',
@@ -478,20 +475,21 @@ class TestListMigrationV280(TestListMigration):
             ('user', self.user.id),
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
         columns, data = self.cmd.take_action(parsed_args)
 
         # Set expected values
         kwargs = {
             'status': 'migrating',
             'limit': 1,
+            'paginated': False,
             'marker': 'test_kp',
-            'host': None,
             'user_id': self.user.id,
             'changes_since': '2019-08-07T08:03:25Z',
             'changes_before': "2019-08-09T08:03:25Z",
         }
 
-        self.migrations_mock.list.assert_called_with(**kwargs)
+        self.sdk_client.migrations.assert_called_with(**kwargs)
 
         self.MIGRATION_COLUMNS.insert(
             len(self.MIGRATION_COLUMNS) - 2, "User")
@@ -505,8 +503,7 @@ class TestListMigrationV280(TestListMigration):
         self.MIGRATION_FIELDS.remove('user_id')
 
     def test_get_migrations_with_user_pre_v280(self):
-        self.app.client_manager.compute.api_version = api_versions.APIVersion(
-            '2.79')
+        self._set_mock_microversion('2.79')
         arglist = [
             '--status', 'migrating',
             '--changes-before', '2019-08-09T08:03:25Z',
@@ -550,14 +547,14 @@ class TestListMigrationV280(TestListMigration):
         kwargs = {
             'status': 'migrating',
             'limit': 1,
-            'host': None,
+            'paginated': False,
             'project_id': self.project.id,
             'user_id': self.user.id,
             'changes_since': '2019-08-07T08:03:25Z',
             'changes_before': "2019-08-09T08:03:25Z",
         }
 
-        self.migrations_mock.list.assert_called_with(**kwargs)
+        self.sdk_client.migrations.assert_called_with(**kwargs)
 
         self.MIGRATION_COLUMNS.insert(
             len(self.MIGRATION_COLUMNS) - 2, "Project")
@@ -576,8 +573,7 @@ class TestListMigrationV280(TestListMigration):
         self.MIGRATION_FIELDS.remove('user_id')
 
     def test_get_migrations_with_project_and_user_pre_v280(self):
-        self.app.client_manager.compute.api_version = api_versions.APIVersion(
-            '2.79')
+        self._set_mock_microversion('2.79')
         arglist = [
             '--status', 'migrating',
             '--changes-before', '2019-08-09T08:03:25Z',

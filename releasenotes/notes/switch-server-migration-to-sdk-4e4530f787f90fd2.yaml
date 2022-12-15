@@ -1,0 +1,5 @@
+---
+features:
+  - |
+    The ``server migration *`` commands now use the OpenStackSDK instead of
+    novaclient.
