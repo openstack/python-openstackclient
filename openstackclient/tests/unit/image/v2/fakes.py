@@ -239,7 +239,11 @@ def create_tasks(attrs=None, count=2):
 class FakeMetadefNamespaceClient:
 
     def __init__(self, **kwargs):
+        self.create_metadef_namespace = mock.Mock()
+        self.delete_metadef_namespace = mock.Mock()
         self.metadef_namespaces = mock.Mock()
+        self.get_metadef_namespace = mock.Mock()
+        self.update_metadef_namespace = mock.Mock()
 
         self.auth_token = kwargs['token']
         self.management_url = kwargs['endpoint']
@@ -277,10 +281,11 @@ def create_one_metadef_namespace(attrs=None):
         'display_name': 'Flavor Quota',
         'namespace': 'OS::Compute::Quota',
         'owner': 'admin',
-        'resource_type_associations': ['OS::Nova::Flavor'],
+        # 'resource_type_associations': ['OS::Nova::Flavor'],
+        # The part that receives the list type factor is not implemented.
         'visibility': 'public',
     }
 
     # Overwrite default attributes if there are some attributes set
     metadef_namespace_list.update(attrs)
-    return metadef_namespace.MetadefNamespace(metadef_namespace_list)
+    return metadef_namespace.MetadefNamespace(**metadef_namespace_list)

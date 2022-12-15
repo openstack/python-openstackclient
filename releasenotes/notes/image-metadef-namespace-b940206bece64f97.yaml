@@ -1,0 +1,10 @@
+---
+features:
+  - Add ``openstack image metadef namespace create`` command
+    to create metadef namespace for the image service.
+  - Add ``openstack image metadef namespace delete`` command
+    to delete image metadef namespace.
+  - Add ``openstack image metadef namespace set`` command
+    to update metadef namespace for the image service.
+  - Add ``openstack image metadef namespace show`` command
+    to show metadef namespace for the image service.

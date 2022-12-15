@@ -30,8 +30,89 @@ class TestMetadefNamespaces(md_namespace_fakes.TestMetadefNamespaces):
         self.domain_mock.reset_mock()
 
 
-class TestMetadefNamespaceList(TestMetadefNamespaces):
+class TestMetadefNamespaceCreate(TestMetadefNamespaces):
+    _metadef_namespace = md_namespace_fakes.create_one_metadef_namespace()
 
+    expected_columns = (
+        'created_at',
+        'description',
+        'display_name',
+        'id',
+        'is_protected',
+        'location',
+        'name',
+        'namespace',
+        'owner',
+        'resource_type_associations',
+        'updated_at',
+        'visibility'
+    )
+    expected_data = (
+        _metadef_namespace.created_at,
+        _metadef_namespace.description,
+        _metadef_namespace.display_name,
+        _metadef_namespace.id,
+        _metadef_namespace.is_protected,
+        _metadef_namespace.location,
+        _metadef_namespace.name,
+        _metadef_namespace.namespace,
+        _metadef_namespace.owner,
+        _metadef_namespace.resource_type_associations,
+        _metadef_namespace.updated_at,
+        _metadef_namespace.visibility
+    )
+
+    def setUp(self):
+        super().setUp()
+
+        self.client.create_metadef_namespace.return_value \
+            = self._metadef_namespace
+        self.cmd = metadef_namespaces.CreateMetadefNameSpace(self.app, None)
+        self.datalist = self._metadef_namespace
+
+    def test_namespace_create(self):
+        arglist = [
+            self._metadef_namespace.namespace
+        ]
+
+        verifylist = [
+
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        columns, data = self.cmd.take_action(parsed_args)
+
+        self.assertEqual(self.expected_columns, columns)
+        self.assertEqual(self.expected_data, data)
+
+
+class TestMetadefNamespaceDelete(TestMetadefNamespaces):
+    _metadef_namespace = md_namespace_fakes.create_one_metadef_namespace()
+
+    def setUp(self):
+        super().setUp()
+
+        self.client.delete_metadef_namespace.return_value \
+            = self._metadef_namespace
+        self.cmd = metadef_namespaces.DeleteMetadefNameSpace(self.app, None)
+        self.datalist = self._metadef_namespace
+
+    def test_namespace_create(self):
+        arglist = [
+            self._metadef_namespace.namespace
+        ]
+
+        verifylist = [
+
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        result = self.cmd.take_action(parsed_args)
+
+        self.assertIsNone(result)
+
+
+class TestMetadefNamespaceList(TestMetadefNamespaces):
     _metadef_namespace = [md_namespace_fakes.create_one_metadef_namespace()]
 
     columns = [
@@ -65,3 +146,70 @@ class TestMetadefNamespaceList(TestMetadefNamespaces):
         self.assertEqual(self.columns, columns)
         self.assertEqual(getattr(self.datalist[0], 'namespace'),
                          next(data)[0])
+
+
+class TestMetadefNamespaceSet(TestMetadefNamespaces):
+    _metadef_namespace = md_namespace_fakes.create_one_metadef_namespace()
+
+    def setUp(self):
+        super().setUp()
+
+        self.client.update_metadef_namespace.return_value \
+            = self._metadef_namespace
+        self.cmd = metadef_namespaces.SetMetadefNameSpace(self.app, None)
+        self.datalist = self._metadef_namespace
+
+    def test_namespace_set_no_options(self):
+        arglist = [
+            self._metadef_namespace.namespace
+        ]
+        verifylist = [
+            ('namespace', self._metadef_namespace.namespace),
+        ]
+
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        result = self.cmd.take_action(parsed_args)
+
+        self.assertIsNone(result)
+
+
+class TestMetadefNamespaceShow(TestMetadefNamespaces):
+    _metadef_namespace = md_namespace_fakes.create_one_metadef_namespace()
+
+    expected_columns = (
+        'created_at',
+        'display_name',
+        'namespace',
+        'owner',
+        'visibility'
+    )
+    expected_data = (
+        _metadef_namespace.created_at,
+        _metadef_namespace.display_name,
+        _metadef_namespace.namespace,
+        _metadef_namespace.owner,
+        _metadef_namespace.visibility
+    )
+
+    def setUp(self):
+        super().setUp()
+
+        self.client.get_metadef_namespace.return_value \
+            = self._metadef_namespace
+        self.cmd = metadef_namespaces.ShowMetadefNameSpace(self.app, None)
+
+    def test_namespace_show_no_options(self):
+        arglist = [
+            self._metadef_namespace.namespace
+        ]
+
+        verifylist = [
+
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        columns, data = self.cmd.take_action(parsed_args)
+
+        self.assertEqual(self.expected_columns, columns)
+        self.assertEqual(self.expected_data, data)
