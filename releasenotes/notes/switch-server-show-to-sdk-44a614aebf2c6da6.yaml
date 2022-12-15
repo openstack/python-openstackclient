@@ -1,0 +1,7 @@
+---
+features:
+  - |
+    The ``server show`` command now uses the OpenStack SDK instead of the
+    Python nova bindings. The command prints data fields both by their
+    novaclient names used in previous releases as well as the names used in the
+    SDK.

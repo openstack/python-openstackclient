@@ -7931,20 +7931,15 @@ class TestServerShow(TestServer):
             'tenant_id': 'tenant-id-xxx',
             'networks': {'public': ['10.20.30.40', '2001:db8::f']},
         }
-        # Fake the server.diagnostics() method. The return value contains http
-        # response and data. The data is a dict. Sincce this method itself is
-        # faked, we don't need to fake everything of the return value exactly.
-        resp = mock.Mock()
-        resp.status_code = 200
+        self.sdk_client.get_server_diagnostics.return_value = {'test': 'test'}
         server_method = {
-            'diagnostics': (resp, {'test': 'test'}),
-            'topology': self.topology,
+            'fetch_topology': self.topology,
         }
         self.server = compute_fakes.FakeServer.create_one_server(
             attrs=server_info, methods=server_method)
 
         # This is the return value for utils.find_resource()
-        self.servers_mock.get.return_value = self.server
+        self.sdk_client.get_server.return_value = self.server
         self.get_image_mock.return_value = self.image
         self.flavors_mock.get.return_value = self.flavor
 
@@ -8045,8 +8040,7 @@ class TestServerShow(TestServer):
         self.assertEqual(('test',), data)
 
     def test_show_topology(self):
-        self.app.client_manager.compute.api_version = \
-            api_versions.APIVersion('2.78')
+        self._set_mock_microversion('2.78')
 
         arglist = [
             '--topology',
@@ -8068,8 +8062,7 @@ class TestServerShow(TestServer):
         self.assertCountEqual(self.data, data)
 
     def test_show_topology_pre_v278(self):
-        self.app.client_manager.compute.api_version = \
-            api_versions.APIVersion('2.77')
+        self._set_mock_microversion('2.77')
 
         arglist = [
             '--topology',

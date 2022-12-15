@@ -77,6 +77,10 @@ class AddressesColumn(cliff_columns.FormattableColumn):
         except Exception:
             return 'N/A'
 
+    def machine_readable(self):
+        return {k: [i['addr'] for i in v if 'addr' in i]
+                for k, v in self._value.items()}
+
 
 class HostColumn(cliff_columns.FormattableColumn):
     """Generate a formatted string of a hostname."""
@@ -133,14 +137,61 @@ def _prep_server_detail(compute_client, image_client, server, refresh=True):
                     the latest details of a server after creating it.
     :rtype: a dict of server details
     """
+    # Note: Some callers of this routine pass a novaclient server, and others
+    # pass an SDK server. Column names may be different across those cases.
     info = server.to_dict()
     if refresh:
         server = utils.find_resource(compute_client.servers, info['id'])
         info.update(server.to_dict())
 
+    # Some commands using this routine were originally implemented with the
+    # nova python wrappers, and were later migrated to use the SDK. Map the
+    # SDK's property names to the original property names to maintain backward
+    # compatibility for existing users. Data is duplicated under both the old
+    # and new name so users can consume the data by either name.
+    column_map = {
+        'access_ipv4': 'accessIPv4',
+        'access_ipv6': 'accessIPv6',
+        'admin_password': 'adminPass',
+        'admin_password': 'adminPass',
+        'volumes': 'os-extended-volumes:volumes_attached',
+        'availability_zone': 'OS-EXT-AZ:availability_zone',
+        'block_device_mapping': 'block_device_mapping_v2',
+        'compute_host': 'OS-EXT-SRV-ATTR:host',
+        'created_at': 'created',
+        'disk_config': 'OS-DCF:diskConfig',
+        'flavor_id': 'flavorRef',
+        'has_config_drive': 'config_drive',
+        'host_id': 'hostId',
+        'fault': 'fault',
+        'hostname': 'OS-EXT-SRV-ATTR:hostname',
+        'hypervisor_hostname': 'OS-EXT-SRV-ATTR:hypervisor_hostname',
+        'image_id': 'imageRef',
+        'instance_name': 'OS-EXT-SRV-ATTR:instance_name',
+        'is_locked': 'locked',
+        'kernel_id': 'OS-EXT-SRV-ATTR:kernel_id',
+        'launch_index': 'OS-EXT-SRV-ATTR:launch_index',
+        'launched_at': 'OS-SRV-USG:launched_at',
+        'power_state': 'OS-EXT-STS:power_state',
+        'project_id': 'tenant_id',
+        'ramdisk_id': 'OS-EXT-SRV-ATTR:ramdisk_id',
+        'reservation_id': 'OS-EXT-SRV-ATTR:reservation_id',
+        'root_device_name': 'OS-EXT-SRV-ATTR:root_device_name',
+        'scheduler_hints': 'OS-SCH-HNT:scheduler_hints',
+        'task_state': 'OS-EXT-STS:task_state',
+        'terminated_at': 'OS-SRV-USG:terminated_at',
+        'updated_at': 'updated',
+        'user_data': 'OS-EXT-SRV-ATTR:user_data',
+        'vm_state': 'OS-EXT-STS:vm_state',
+    }
+
+    info.update({
+        column_map[column]: data for column, data in info.items()
+        if column in column_map})
+
     # Convert the image blob to a name
     image_info = info.get('image', {})
-    if image_info:
+    if image_info and any(image_info.values()):
         image_id = image_info.get('id', '')
         try:
             image = image_client.get_image(image_id)
@@ -188,7 +239,9 @@ def _prep_server_detail(compute_client, image_client, server, refresh=True):
 
     # NOTE(dtroyer): novaclient splits these into separate entries...
     # Format addresses in a useful way
-    info['addresses'] = format_columns.DictListColumn(server.networks)
+    info['addresses'] = (
+        AddressesColumn(info['addresses']) if 'addresses' in info
+        else format_columns.DictListColumn(info.get('networks')))
 
     # Map 'metadata' field to 'properties'
     info['properties'] = format_columns.DictColumn(info.pop('metadata'))
@@ -4327,32 +4380,34 @@ class ShowServer(command.ShowOne):
         return parser
 
     def take_action(self, parsed_args):
-        compute_client = self.app.client_manager.compute
-        server = utils.find_resource(
-            compute_client.servers, parsed_args.server)
+        compute_client = self.app.client_manager.sdk_connection.compute
+
+        # Find by name or ID, then get the full details of the server
+        server = compute_client.find_server(
+            parsed_args.server, ignore_missing=False)
+        server = compute_client.get_server(server)
 
         if parsed_args.diagnostics:
-            (resp, data) = server.diagnostics()
-            if not resp.status_code == 200:
-                self.app.stderr.write(_(
-                    "Error retrieving diagnostics data\n"
-                ))
-                return ({}, {})
+            data = compute_client.get_server_diagnostics(server)
             return zip(*sorted(data.items()))
 
         topology = None
         if parsed_args.topology:
-            if compute_client.api_version < api_versions.APIVersion('2.78'):
+            if not sdk_utils.supports_microversion(compute_client, '2.78'):
                 msg = _(
                     '--os-compute-api-version 2.78 or greater is required to '
                     'support the --topology option'
                 )
                 raise exceptions.CommandError(msg)
 
-            topology = server.topology()
+            topology = server.fetch_topology(compute_client)
 
         data = _prep_server_detail(
-            compute_client, self.app.client_manager.image, server,
+            # TODO(dannosliwcd): Replace these clients with SDK clients after
+            # all callers of _prep_server_detail() are using the SDK.
+            self.app.client_manager.compute,
+            self.app.client_manager.image,
+            server,
             refresh=False)
 
         if topology:
