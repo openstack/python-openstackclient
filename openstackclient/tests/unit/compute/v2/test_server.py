@@ -423,8 +423,7 @@ class TestServerAddFixedIP(TestServer):
             self.assertEqual(expected_data, tuple(data))
             self.sdk_client.create_server_interface.assert_called_once_with(
                 servers[0].id,
-                net_id=network['id'],
-                fixed_ip=None
+                net_id=network['id']
             )
 
     @mock.patch.object(sdk_utils, 'supports_microversion')
@@ -479,7 +478,7 @@ class TestServerAddFixedIP(TestServer):
             self.sdk_client.create_server_interface.assert_called_once_with(
                 servers[0].id,
                 net_id=network['id'],
-                fixed_ip='5.6.7.8'
+                fixed_ips=[{'ip_address': '5.6.7.8'}]
             )
 
     @mock.patch.object(sdk_utils, 'supports_microversion')
@@ -536,7 +535,7 @@ class TestServerAddFixedIP(TestServer):
             self.sdk_client.create_server_interface.assert_called_once_with(
                 servers[0].id,
                 net_id=network['id'],
-                fixed_ip='5.6.7.8',
+                fixed_ips=[{'ip_address': '5.6.7.8'}],
                 tag='tag1',
             )
 
@@ -847,7 +846,7 @@ class TestServerAddPort(TestServer):
         result = self.cmd.take_action(parsed_args)
 
         self.sdk_client.create_server_interface.assert_called_once_with(
-            servers[0], port_id=port_id, fixed_ip=None)
+            servers[0], port_id=port_id)
         self.assertIsNone(result)
 
     def test_server_add_port(self):
@@ -885,7 +884,6 @@ class TestServerAddPort(TestServer):
         self.sdk_client.create_server_interface.assert_called_once_with(
             servers[0],
             port_id='fake-port',
-            fixed_ip=None,
             tag='tag1')
 
     @mock.patch.object(sdk_utils, 'supports_microversion', return_value=False)
@@ -1288,7 +1286,7 @@ class TestServerAddNetwork(TestServer):
         result = self.cmd.take_action(parsed_args)
 
         self.sdk_client.create_server_interface.assert_called_once_with(
-            servers[0], net_id=net_id, fixed_ip=None)
+            servers[0], net_id=net_id)
         self.assertIsNone(result)
 
     def test_server_add_network(self):
@@ -1327,7 +1325,6 @@ class TestServerAddNetwork(TestServer):
         self.sdk_client.create_server_interface.assert_called_once_with(
             servers[0],
             net_id='fake-network',
-            fixed_ip=None,
             tag='tag1'
         )
 

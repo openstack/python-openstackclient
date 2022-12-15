@@ -290,9 +290,11 @@ class AddFixedIP(command.ShowOne):
             return ((), ())
 
         kwargs = {
-            'net_id': net_id,
-            'fixed_ip': parsed_args.fixed_ip_address,
+            'net_id': net_id
         }
+        if parsed_args.fixed_ip_address:
+            kwargs['fixed_ips'] = [
+                {"ip_address": parsed_args.fixed_ip_address}]
         if parsed_args.tag:
             kwargs['tag'] = parsed_args.tag
 
@@ -451,8 +453,7 @@ class AddPort(command.Command):
             port_id = parsed_args.port
 
         kwargs = {
-            'port_id': port_id,
-            'fixed_ip': None,
+            'port_id': port_id
         }
 
         if parsed_args.tag:
@@ -506,8 +507,7 @@ class AddNetwork(command.Command):
             net_id = parsed_args.network
 
         kwargs = {
-            'net_id': net_id,
-            'fixed_ip': None,
+            'net_id': net_id
         }
 
         if parsed_args.tag:

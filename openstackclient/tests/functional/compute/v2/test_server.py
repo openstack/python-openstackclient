@@ -1250,6 +1250,62 @@ class ServerTests(common.ComputeTestCase):
         addresses = cmd_output['addresses']['private']
         self.assertNotIn(ip_address, addresses)
 
+    def test_server_add_fixed_ip(self):
+        name = uuid.uuid4().hex
+        cmd_output = self.openstack(
+            'server create ' +
+            '--network private ' +
+            '--flavor ' + self.flavor_name + ' ' +
+            '--image ' + self.image_name + ' ' +
+            '--wait ' +
+            name,
+            parse_output=True,
+        )
+
+        self.assertIsNotNone(cmd_output['id'])
+        self.assertEqual(name, cmd_output['name'])
+        self.addCleanup(self.openstack, 'server delete --wait ' + name)
+
+        # create port, record its ip address to use in later call,
+        # then delete - this is to figure out what should be a free ip
+        # in the subnet
+        port_name = uuid.uuid4().hex
+
+        cmd_output = self.openstack(
+            'port list',
+            parse_output=True,
+        )
+        self.assertNotIn(port_name, cmd_output)
+
+        cmd_output = self.openstack(
+            'port create ' +
+            '--network private ' + port_name,
+            parse_output=True,
+        )
+        self.assertIsNotNone(cmd_output['id'])
+        ip_address = cmd_output['fixed_ips'][0]['ip_address']
+        self.openstack('port delete ' + port_name)
+
+        # add fixed ip to server, assert the ip address appears
+        self.openstack('server add fixed ip --fixed-ip-address ' + ip_address +
+                       ' ' + name + ' private')
+
+        wait_time = 0
+        while wait_time < 60:
+            cmd_output = self.openstack(
+                'server show ' + name,
+                parse_output=True,
+            )
+            if ip_address not in cmd_output['addresses']['private']:
+                # Hang out for a bit and try again
+                print('retrying add fixed ip check')
+                wait_time += 10
+                time.sleep(10)
+            else:
+                break
+        addresses = cmd_output['addresses']['private']
+        self.assertIn(ip_address, addresses)
+
     def test_server_add_remove_volume(self):
         volume_wait_for = volume_common.BaseVolumeTests.wait_for_status
 
