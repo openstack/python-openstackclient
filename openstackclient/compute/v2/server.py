@@ -3907,9 +3907,7 @@ Confirm (verify) success of resize operation and release the old server.""")
 
 # TODO(stephenfin): Remove in OSC 7.0
 class MigrateConfirm(ResizeConfirm):
-    _description = _("""DEPRECATED: Confirm server migration.
-
-Use 'server migration confirm' instead.""")
+    _description = _("DEPRECATED: Use 'server migration confirm' instead.")
 
     def take_action(self, parsed_args):
         msg = _(
@@ -3955,9 +3953,7 @@ one.""")
 
 # TODO(stephenfin): Remove in OSC 7.0
 class MigrateRevert(ResizeRevert):
-    _description = _("""Revert server migration.
-
-Use 'server migration revert' instead.""")
+    _description = _("DEPRECATED: Use 'server migration revert' instead.")
 
     def take_action(self, parsed_args):
         msg = _(
