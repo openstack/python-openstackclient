@@ -5827,6 +5827,120 @@ class TestServerMigrate(TestServer):
         self.assertNotCalled(self.servers_mock.live_migrate)
 
 
+class TestServerReboot(TestServer):
+
+    def setUp(self):
+        super().setUp()
+
+        self.sdk_client.reboot_server.return_value = None
+
+        self.cmd = server.RebootServer(self.app, None)
+
+    def test_server_reboot(self):
+        servers = self.setup_sdk_servers_mock(count=1)
+
+        arglist = [
+            servers[0].id,
+        ]
+        verifylist = [
+            ('server', servers[0].id),
+            ('reboot_type', 'SOFT'),
+            ('wait', False),
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        result = self.cmd.take_action(parsed_args)
+
+        self.sdk_client.reboot_server.assert_called_once_with(
+            servers[0].id,
+            'SOFT',
+        )
+        self.assertIsNone(result)
+
+    def test_server_reboot_with_hard(self):
+        servers = self.setup_sdk_servers_mock(count=1)
+
+        arglist = [
+            '--hard',
+            servers[0].id,
+        ]
+        verifylist = [
+            ('server', servers[0].id),
+            ('reboot_type', 'HARD'),
+            ('wait', False),
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        result = self.cmd.take_action(parsed_args)
+
+        self.sdk_client.reboot_server.assert_called_once_with(
+            servers[0].id,
+            'HARD',
+        )
+        self.assertIsNone(result)
+
+    @mock.patch.object(common_utils, 'wait_for_status', return_value=True)
+    def test_server_reboot_with_wait(self, mock_wait_for_status):
+        servers = self.setup_sdk_servers_mock(count=1)
+
+        arglist = [
+            '--wait',
+            servers[0].id,
+        ]
+        verifylist = [
+            ('server', servers[0].id),
+            ('reboot_type', 'SOFT'),
+            ('wait', True),
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        result = self.cmd.take_action(parsed_args)
+
+        self.assertIsNone(result)
+        self.sdk_client.reboot_server.assert_called_once_with(
+            servers[0].id,
+            'SOFT',
+        )
+        mock_wait_for_status.assert_called_once_with(
+            self.sdk_client.get_server,
+            servers[0].id,
+            callback=mock.ANY,
+        )
+
+    @mock.patch.object(server.LOG, 'error')
+    @mock.patch.object(common_utils, 'wait_for_status', return_value=False)
+    def test_server_reboot_with_wait_fails(
+        self,
+        mock_wait_for_status,
+        mock_log,
+    ):
+        servers = self.setup_sdk_servers_mock(count=1)
+
+        arglist = [
+            '--wait',
+            servers[0].id,
+        ]
+        verifylist = [
+            ('server', servers[0].id),
+            ('reboot_type', 'SOFT'),
+            ('wait', True),
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        self.assertRaises(SystemExit, self.cmd.take_action, parsed_args)
+
+        self.assertIn('Error rebooting server', mock_log.call_args[0][0])
+        self.sdk_client.reboot_server.assert_called_once_with(
+            servers[0].id,
+            'SOFT',
+        )
+        mock_wait_for_status.assert_called_once_with(
+            self.sdk_client.get_server,
+            servers[0].id,
+            callback=mock.ANY,
+        )
+
+
 class TestServerPause(TestServer):
 
     def setUp(self):

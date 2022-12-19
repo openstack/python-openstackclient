@@ -25,7 +25,6 @@ import os
 from cliff import columns as cliff_columns
 import iso8601
 from novaclient import api_versions
-from novaclient.v2 import servers
 from openstack import exceptions as sdk_exceptions
 from openstack import utils as sdk_utils
 from osc_lib.cli import format_columns
@@ -3064,7 +3063,7 @@ class RebootServer(command.Command):
     _description = _("Perform a hard or soft server reboot")
 
     def get_parser(self, prog_name):
-        parser = super(RebootServer, self).get_parser(prog_name)
+        parser = super().get_parser(prog_name)
         parser.add_argument(
             'server',
             metavar='<server>',
@@ -3075,16 +3074,16 @@ class RebootServer(command.Command):
             '--hard',
             dest='reboot_type',
             action='store_const',
-            const=servers.REBOOT_HARD,
-            default=servers.REBOOT_SOFT,
+            const='HARD',
+            default='SOFT',
             help=_('Perform a hard reboot'),
         )
         group.add_argument(
             '--soft',
             dest='reboot_type',
             action='store_const',
-            const=servers.REBOOT_SOFT,
-            default=servers.REBOOT_SOFT,
+            const='SOFT',
+            default='SOFT',
             help=_('Perform a soft reboot'),
         )
         parser.add_argument(
@@ -3101,21 +3100,23 @@ class RebootServer(command.Command):
                 self.app.stdout.write('\rProgress: %s' % progress)
                 self.app.stdout.flush()
 
-        compute_client = self.app.client_manager.compute
-        server = utils.find_resource(
-            compute_client.servers, parsed_args.server)
-        server.reboot(parsed_args.reboot_type)
+        compute_client = self.app.client_manager.sdk_connection.compute
+        server_id = compute_client.find_server(
+            parsed_args.server,
+            ignore_missing=False,
+        ).id
+        compute_client.reboot_server(server_id, parsed_args.reboot_type)
 
         if parsed_args.wait:
+            # We use osc-lib's wait_for_status since that allows for a callback
             if utils.wait_for_status(
-                compute_client.servers.get,
-                server.id,
+                compute_client.get_server,
+                server_id,
                 callback=_show_progress,
             ):
                 self.app.stdout.write(_('Complete\n'))
             else:
-                LOG.error(_('Error rebooting server: %s'),
-                          server.id)
+                LOG.error(_('Error rebooting server: %s'), server_id)
                 self.app.stdout.write(_('Error rebooting server\n'))
                 raise SystemExit
 

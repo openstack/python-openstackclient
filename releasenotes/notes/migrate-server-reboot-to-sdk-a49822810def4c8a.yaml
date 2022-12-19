@@ -1,0 +1,4 @@
+---
+features:
+  - |
+    Migrate ``server reboot`` command from novaclient to SDK.
