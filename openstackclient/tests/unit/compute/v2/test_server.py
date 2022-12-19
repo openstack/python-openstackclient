@@ -5866,15 +5866,10 @@ class TestServerMigrate(TestServer):
 class TestServerPause(TestServer):
 
     def setUp(self):
-        super(TestServerPause, self).setUp()
+        super().setUp()
 
         # Get the command object to test
         self.cmd = server.PauseServer(self.app, None)
-
-        # Set methods to be tested.
-        self.methods = {
-            'pause': None,
-        }
 
     def test_server_pause_one_server(self):
         self.run_method_with_sdk_servers('pause_server', 1)
@@ -7524,15 +7519,10 @@ class TestServerRestore(TestServer):
 class TestServerResume(TestServer):
 
     def setUp(self):
-        super(TestServerResume, self).setUp()
+        super().setUp()
 
         # Get the command object to test
         self.cmd = server.ResumeServer(self.app, None)
-
-        # Set methods to be tested.
-        self.methods = {
-            'resume': None,
-        }
 
     def test_server_resume_one_server(self):
         self.run_method_with_sdk_servers('resume_server', 1)
@@ -8289,15 +8279,10 @@ class TestServerStop(TestServer):
 class TestServerSuspend(TestServer):
 
     def setUp(self):
-        super(TestServerSuspend, self).setUp()
+        super().setUp()
 
         # Get the command object to test
         self.cmd = server.SuspendServer(self.app, None)
-
-        # Set methods to be tested.
-        self.methods = {
-            'suspend': None,
-        }
 
     def test_server_suspend_one_server(self):
         self.run_method_with_sdk_servers('suspend_server', 1)
@@ -8324,15 +8309,10 @@ class TestServerUnlock(TestServer):
 class TestServerUnpause(TestServer):
 
     def setUp(self):
-        super(TestServerUnpause, self).setUp()
+        super().setUp()
 
         # Get the command object to test
         self.cmd = server.UnpauseServer(self.app, None)
-
-        # Set methods to be tested.
-        self.methods = {
-            'unpause': None,
-        }
 
     def test_server_unpause_one_server(self):
         self.run_method_with_sdk_servers('unpause_server', 1)
