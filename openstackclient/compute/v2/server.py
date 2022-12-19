@@ -4261,7 +4261,7 @@ class ShelveServer(command.Command):
     """
 
     def get_parser(self, prog_name):
-        parser = super(ShelveServer, self).get_parser(prog_name)
+        parser = super().get_parser(prog_name)
         parser.add_argument(
             'servers',
             metavar='<server>',
@@ -4293,17 +4293,17 @@ class ShelveServer(command.Command):
                 self.app.stdout.write('\rProgress: %s' % progress)
                 self.app.stdout.flush()
 
-        compute_client = self.app.client_manager.compute
+        compute_client = self.app.client_manager.sdk_connection.compute
 
         for server in parsed_args.servers:
-            server_obj = utils.find_resource(
-                compute_client.servers,
+            server_obj = compute_client.find_server(
                 server,
+                ignore_missing=False,
             )
             if server_obj.status.lower() in ('shelved', 'shelved_offloaded'):
                 continue
 
-            server_obj.shelve()
+            compute_client.shelve_server(server_obj.id)
 
         # if we don't have to wait, either because it was requested explicitly
         # or is required implicitly, then our job is done
@@ -4311,47 +4311,53 @@ class ShelveServer(command.Command):
             return
 
         for server in parsed_args.servers:
+            # We use osc-lib's wait_for_status since that allows for a callback
             # TODO(stephenfin): We should wait for these in parallel using e.g.
             # https://review.opendev.org/c/openstack/osc-lib/+/762503/
             if not utils.wait_for_status(
-                compute_client.servers.get, server_obj.id,
+                compute_client.get_server,
+                server_obj.id,
                 success_status=('shelved', 'shelved_offloaded'),
                 callback=_show_progress,
             ):
                 LOG.error(_('Error shelving server: %s'), server_obj.id)
                 self.app.stdout.write(
-                    _('Error shelving server: %s\n') % server_obj.id)
+                    _('Error shelving server: %s\n') % server_obj.id
+                )
                 raise SystemExit
 
         if not parsed_args.offload:
             return
 
         for server in parsed_args.servers:
-            server_obj = utils.find_resource(
-                compute_client.servers,
+            server_obj = compute_client.find_server(
                 server,
+                ignore_missing=False,
             )
             if server_obj.status.lower() == 'shelved_offloaded':
                 continue
 
-            server_obj.shelve_offload()
+            compute_client.shelve_offload_server(server_obj.id)
 
         if not parsed_args.wait:
             return
 
         for server in parsed_args.servers:
+            # We use osc-lib's wait_for_status since that allows for a callback
             # TODO(stephenfin): We should wait for these in parallel using e.g.
             # https://review.opendev.org/c/openstack/osc-lib/+/762503/
             if not utils.wait_for_status(
-                compute_client.servers.get, server_obj.id,
+                compute_client.get_server,
+                server_obj.id,
                 success_status=('shelved_offloaded',),
                 callback=_show_progress,
             ):
                 LOG.error(
-                    _('Error offloading shelved server %s'), server_obj.id)
+                    _('Error offloading shelved server %s'), server_obj.id,
+                )
                 self.app.stdout.write(
-                    _('Error offloading shelved server: %s\n') % (
-                        server_obj.id))
+                    _('Error offloading shelved server: %s\n') % server_obj.id
+                )
                 raise SystemExit
 
 
@@ -4825,7 +4831,7 @@ class UnshelveServer(command.Command):
     _description = _("Unshelve server(s)")
 
     def get_parser(self, prog_name):
-        parser = super(UnshelveServer, self).get_parser(prog_name)
+        parser = super().get_parser(prog_name)
         parser.add_argument(
             'server',
             metavar='<server>',
@@ -4836,25 +4842,31 @@ class UnshelveServer(command.Command):
         group.add_argument(
             '--availability-zone',
             default=None,
-            help=_('Name of the availability zone in which to unshelve a '
-                   'SHELVED_OFFLOADED server (supported by '
-                   '--os-compute-api-version 2.77 or above)'),
+            help=_(
+                'Name of the availability zone in which to unshelve a '
+                'SHELVED_OFFLOADED server '
+                '(supported by --os-compute-api-version 2.77 or above)'
+            ),
         )
         group.add_argument(
             '--no-availability-zone',
             action='store_true',
             default=False,
-            help=_('Unpin the availability zone of a SHELVED_OFFLOADED '
-                   'server. Server will be unshelved on a host without '
-                   'availability zone constraint (supported by '
-                   '--os-compute-api-version 2.91 or above)'),
+            help=_(
+                'Unpin the availability zone of a SHELVED_OFFLOADED '
+                'server. Server will be unshelved on a host without '
+                'availability zone constraint '
+                '(supported by --os-compute-api-version 2.91 or above)'
+            ),
         )
         parser.add_argument(
             '--host',
             default=None,
-            help=_('Name of the destination host in which to unshelve a '
-                   'SHELVED_OFFLOADED server (supported by '
-                   '--os-compute-api-version 2.91 or above)'),
+            help=_(
+                'Name of the destination host in which to unshelve a '
+                'SHELVED_OFFLOADED server '
+                '(supported by --os-compute-api-version 2.91 or above)'
+            ),
         )
         parser.add_argument(
             '--wait',
@@ -4871,11 +4883,11 @@ class UnshelveServer(command.Command):
                 self.app.stdout.write('\rProgress: %s' % progress)
                 self.app.stdout.flush()
 
-        compute_client = self.app.client_manager.compute
+        compute_client = self.app.client_manager.sdk_connection.compute
         kwargs = {}
 
         if parsed_args.availability_zone:
-            if compute_client.api_version < api_versions.APIVersion('2.77'):
+            if not sdk_utils.supports_microversion(compute_client, '2.77'):
                 msg = _(
                     '--os-compute-api-version 2.77 or greater is required '
                     'to support the --availability-zone option'
@@ -4885,7 +4897,7 @@ class UnshelveServer(command.Command):
             kwargs['availability_zone'] = parsed_args.availability_zone
 
         if parsed_args.host:
-            if compute_client.api_version < api_versions.APIVersion('2.91'):
+            if not sdk_utils.supports_microversion(compute_client, '2.91'):
                 msg = _(
                     '--os-compute-api-version 2.91 or greater is required '
                     'to support the --host option'
@@ -4895,7 +4907,7 @@ class UnshelveServer(command.Command):
             kwargs['host'] = parsed_args.host
 
         if parsed_args.no_availability_zone:
-            if compute_client.api_version < api_versions.APIVersion('2.91'):
+            if not sdk_utils.supports_microversion(compute_client, '2.91'):
                 msg = _(
                     '--os-compute-api-version 2.91 or greater is required '
                     'to support the --no-availability-zone option'
@@ -4905,9 +4917,9 @@ class UnshelveServer(command.Command):
             kwargs['availability_zone'] = None
 
         for server in parsed_args.server:
-            server_obj = utils.find_resource(
-                compute_client.servers,
+            server_obj = compute_client.find_server(
                 server,
+                ignore_missing=False,
             )
 
             if server_obj.status.lower() not in (
@@ -4915,15 +4927,17 @@ class UnshelveServer(command.Command):
             ):
                 continue
 
-            server_obj.unshelve(**kwargs)
+            compute_client.unshelve_server(server_obj.id, **kwargs)
 
             if parsed_args.wait:
                 if not utils.wait_for_status(
-                    compute_client.servers.get, server_obj.id,
+                    compute_client.get_server,
+                    server_obj.id,
                     success_status=('active', 'shutoff'),
                     callback=_show_progress,
                 ):
                     LOG.error(_('Error unshelving server %s'), server_obj.id)
                     self.app.stdout.write(
-                        _('Error unshelving server: %s\n') % server_obj.id)
+                        _('Error unshelving server: %s\n') % server_obj.id
+                    )
                     raise SystemExit

@@ -1,0 +1,5 @@
+---
+features:
+  - |
+    The ``server shelve`` and ``server unshelve`` commands have been migrated
+    to SDK.
