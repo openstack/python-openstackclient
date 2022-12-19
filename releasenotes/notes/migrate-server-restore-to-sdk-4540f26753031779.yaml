@@ -1,0 +1,4 @@
+---
+features:
+  - |
+    The ``server restore`` command has been migrated to SDK.

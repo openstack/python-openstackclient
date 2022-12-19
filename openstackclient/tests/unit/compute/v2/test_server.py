@@ -7499,21 +7499,16 @@ class TestServerRevertMigration(TestServer):
 class TestServerRestore(TestServer):
 
     def setUp(self):
-        super(TestServerRestore, self).setUp()
+        super().setUp()
 
         # Get the command object to test
         self.cmd = server.RestoreServer(self.app, None)
 
-        # Set methods to be tested.
-        self.methods = {
-            'restore': None,
-        }
-
     def test_server_restore_one_server(self):
-        self.run_method_with_servers('restore', 1)
+        self.run_method_with_sdk_servers('restore_server', 1)
 
     def test_server_restore_multi_servers(self):
-        self.run_method_with_servers('restore', 3)
+        self.run_method_with_sdk_servers('restore_server', 3)
 
 
 class TestServerResume(TestServer):

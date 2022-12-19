@@ -4050,12 +4050,13 @@ class RestoreServer(command.Command):
         return parser
 
     def take_action(self, parsed_args):
-        compute_client = self.app.client_manager.compute
+        compute_client = self.app.client_manager.sdk_connection.compute
         for server in parsed_args.server:
-            utils.find_resource(
-                compute_client.servers,
-                server
-            ).restore()
+            server_id = compute_client.find_server(
+                server,
+                ignore_missing=False,
+            ).id
+            compute_client.restore_server(server_id)
 
 
 class ResumeServer(command.Command):
