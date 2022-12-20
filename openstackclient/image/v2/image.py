@@ -33,7 +33,7 @@ from osc_lib import utils
 
 from openstackclient.common import progressbar
 from openstackclient.i18n import _
-from openstackclient.identity import common
+from openstackclient.identity import common as identity_common
 
 if os.name == "nt":
     import msvcrt
@@ -177,14 +177,14 @@ class AddProjectToImage(command.ShowOne):
             metavar="<project>",
             help=_("Project to associate with image (ID)"),
         )
-        common.add_project_domain_option_to_parser(parser)
+        identity_common.add_project_domain_option_to_parser(parser)
         return parser
 
     def take_action(self, parsed_args):
         image_client = self.app.client_manager.image
         identity_client = self.app.client_manager.identity
 
-        project_id = common.find_project(
+        project_id = identity_common.find_project(
             identity_client,
             parsed_args.project,
             parsed_args.project_domain,
@@ -397,7 +397,7 @@ class CreateImage(command.ShowOne):
                 "Force the use of glance image import instead of direct upload"
             ),
         )
-        common.add_project_domain_option_to_parser(parser)
+        identity_common.add_project_domain_option_to_parser(parser)
         for deadopt in self.deadopts:
             parser.add_argument(
                 "--%s" % deadopt,
@@ -450,7 +450,7 @@ class CreateImage(command.ShowOne):
             kwargs['visibility'] = parsed_args.visibility
 
         if parsed_args.project:
-            kwargs['owner_id'] = common.find_project(
+            kwargs['owner_id'] = identity_common.find_project(
                 identity_client,
                 parsed_args.project,
                 parsed_args.project_domain,
@@ -765,7 +765,7 @@ class ListImage(command.Lister):
             metavar='<project>',
             help=_("Search by project (admin only) (name or ID)"),
         )
-        common.add_project_domain_option_to_parser(parser)
+        identity_common.add_project_domain_option_to_parser(parser)
         parser.add_argument(
             '--tag',
             metavar='<tag>',
@@ -846,7 +846,7 @@ class ListImage(command.Lister):
             kwargs['tag'] = parsed_args.tag
         project_id = None
         if parsed_args.project:
-            project_id = common.find_project(
+            project_id = identity_common.find_project(
                 identity_client,
                 parsed_args.project,
                 parsed_args.project_domain,
@@ -925,7 +925,7 @@ class ListImageProjects(command.Lister):
             metavar="<image>",
             help=_("Image (name or ID)"),
         )
-        common.add_project_domain_option_to_parser(parser)
+        identity_common.add_project_domain_option_to_parser(parser)
         return parser
 
     def take_action(self, parsed_args):
@@ -963,15 +963,17 @@ class RemoveProjectImage(command.Command):
             metavar="<project>",
             help=_("Project to disassociate with image (name or ID)"),
         )
-        common.add_project_domain_option_to_parser(parser)
+        identity_common.add_project_domain_option_to_parser(parser)
         return parser
 
     def take_action(self, parsed_args):
         image_client = self.app.client_manager.image
         identity_client = self.app.client_manager.identity
 
-        project_id = common.find_project(
-            identity_client, parsed_args.project, parsed_args.project_domain
+        project_id = identity_common.find_project(
+            identity_client,
+            parsed_args.project,
+            parsed_args.project_domain,
         ).id
 
         image = image_client.find_image(
@@ -1176,7 +1178,7 @@ class SetImage(command.Command):
             metavar="<project>",
             help=_("Set an alternate project on this image (name or ID)"),
         )
-        common.add_project_domain_option_to_parser(parser)
+        identity_common.add_project_domain_option_to_parser(parser)
         for deadopt in self.deadopts:
             parser.add_argument(
                 "--%s" % deadopt,
@@ -1248,7 +1250,7 @@ class SetImage(command.Command):
         )
         project_id = None
         if parsed_args.project:
-            project_id = common.find_project(
+            project_id = identity_common.find_project(
                 identity_client,
                 parsed_args.project,
                 parsed_args.project_domain,
