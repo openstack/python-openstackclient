@@ -115,3 +115,37 @@ class TestListNetworkQosRuleType(TestNetworkQosRuleType):
         self.network.qos_rule_types.assert_called_once_with(**{})
         self.assertEqual(self.columns, columns)
         self.assertEqual(self.data, list(data))
+
+    def test_qos_rule_type_list_all_supported(self):
+        arglist = [
+            '--all-supported'
+        ]
+        verifylist = [
+            ('all_supported', True),
+        ]
+
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+        columns, data = self.cmd.take_action(parsed_args)
+
+        self.network.qos_rule_types.assert_called_once_with(
+            **{'all_supported': True}
+        )
+        self.assertEqual(self.columns, columns)
+        self.assertEqual(self.data, list(data))
+
+    def test_qos_rule_type_list_all_rules(self):
+        arglist = [
+            '--all-rules'
+        ]
+        verifylist = [
+            ('all_rules', True),
+        ]
+
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+        columns, data = self.cmd.take_action(parsed_args)
+
+        self.network.qos_rule_types.assert_called_once_with(
+            **{'all_rules': True}
+        )
+        self.assertEqual(self.columns, columns)
+        self.assertEqual(self.data, list(data))

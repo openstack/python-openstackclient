@@ -1,0 +1,8 @@
+---
+features:
+  - |
+    Added two new filter flags to ``openstack network qos rule type list``:
+    ``--all-supported``, to return any QoS rule type supported by at least
+    one loaded driver; ``--all-rules``, to return all QoS rule types
+    supported by the current version of Neutron server, regardless of the
+    loaded drivers.
