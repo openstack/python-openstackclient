@@ -163,6 +163,67 @@ def get_data_from_stdin():
         return None
 
 
+def _add_is_protected_args(parser):
+    protected_group = parser.add_mutually_exclusive_group()
+    protected_group.add_argument(
+        "--protected",
+        action="store_true",
+        dest="is_protected",
+        default=None,
+        help=_("Prevent image from being deleted"),
+    )
+    protected_group.add_argument(
+        "--unprotected",
+        action="store_false",
+        dest="is_protected",
+        default=None,
+        help=_("Allow image to be deleted (default)"),
+    )
+
+
+def _add_visibility_args(parser):
+    public_group = parser.add_mutually_exclusive_group()
+    public_group.add_argument(
+        "--public",
+        action="store_const",
+        const="public",
+        dest="visibility",
+        help=_("Image is accessible and visisble to all users"),
+    )
+    public_group.add_argument(
+        "--private",
+        action="store_const",
+        const="private",
+        dest="visibility",
+        help=_(
+            "Image is only accessible by the owner "
+            "(default until --os-image-api-version 2.5)"
+        ),
+    )
+    public_group.add_argument(
+        "--community",
+        action="store_const",
+        const="community",
+        dest="visibility",
+        help=_(
+            "Image is accessible by all users but does not appear in the "
+            "default image list of any user except the owner "
+            "(requires --os-image-api-version 2.5 or later)"
+        ),
+    )
+    public_group.add_argument(
+        "--shared",
+        action="store_const",
+        const="shared",
+        dest="visibility",
+        help=_(
+            "Image is only accessible by the owner and image members "
+            "(requires --os-image-api-version 2.5 or later) "
+            "(default since --os-image-api-version 2.5)"
+        ),
+    )
+
+
 class AddProjectToImage(command.ShowOne):
     _description = _("Associate project with image")
 
@@ -322,50 +383,8 @@ class CreateImage(command.ShowOne):
                 "Only use in combination with --sign-key-path"
             ),
         )
-        protected_group = parser.add_mutually_exclusive_group()
-        protected_group.add_argument(
-            "--protected",
-            action="store_true",
-            dest="is_protected",
-            default=None,
-            help=_("Prevent image from being deleted"),
-        )
-        protected_group.add_argument(
-            "--unprotected",
-            action="store_false",
-            dest="is_protected",
-            default=None,
-            help=_("Allow image to be deleted (default)"),
-        )
-        public_group = parser.add_mutually_exclusive_group()
-        public_group.add_argument(
-            "--public",
-            action="store_const",
-            const="public",
-            dest="visibility",
-            help=_("Image is accessible to the public"),
-        )
-        public_group.add_argument(
-            "--private",
-            action="store_const",
-            const="private",
-            dest="visibility",
-            help=_("Image is inaccessible to the public (default)"),
-        )
-        public_group.add_argument(
-            "--community",
-            action="store_const",
-            const="community",
-            dest="visibility",
-            help=_("Image is accessible to the community"),
-        )
-        public_group.add_argument(
-            "--shared",
-            action="store_const",
-            const="shared",
-            dest="visibility",
-            help=_("Image can be shared"),
-        )
+        _add_is_protected_args(parser)
+        _add_visibility_args(parser)
         parser.add_argument(
             "--property",
             dest="properties",
@@ -726,14 +745,20 @@ class ListImage(command.Lister):
             action="store_const",
             const="community",
             dest="visibility",
-            help=_("List only community images"),
+            help=_(
+                "List only community images "
+                "(requires --os-image-api-version 2.5 or later)"
+            ),
         )
         public_group.add_argument(
             "--shared",
             action="store_const",
             const="shared",
             dest="visibility",
-            help=_("List only shared images"),
+            help=_(
+                "List only shared images "
+                "(requires --os-image-api-version 2.5 or later)"
+            ),
         )
         public_group.add_argument(
             "--all",
@@ -1073,50 +1098,8 @@ class SetImage(command.Command):
             help=_("Image disk format. The supported options are: %s")
             % ', '.join(DISK_CHOICES),
         )
-        protected_group = parser.add_mutually_exclusive_group()
-        protected_group.add_argument(
-            "--protected",
-            action="store_true",
-            dest="is_protected",
-            default=None,
-            help=_("Prevent image from being deleted"),
-        )
-        protected_group.add_argument(
-            "--unprotected",
-            action="store_false",
-            dest="is_protected",
-            default=None,
-            help=_("Allow image to be deleted (default)"),
-        )
-        public_group = parser.add_mutually_exclusive_group()
-        public_group.add_argument(
-            "--public",
-            action="store_const",
-            const="public",
-            dest="visibility",
-            help=_("Image is accessible to the public"),
-        )
-        public_group.add_argument(
-            "--private",
-            action="store_const",
-            const="private",
-            dest="visibility",
-            help=_("Image is inaccessible to the public (default)"),
-        )
-        public_group.add_argument(
-            "--community",
-            action="store_const",
-            const="community",
-            dest="visibility",
-            help=_("Image is accessible to the community"),
-        )
-        public_group.add_argument(
-            "--shared",
-            action="store_const",
-            const="shared",
-            dest="visibility",
-            help=_("Image can be shared"),
-        )
+        _add_is_protected_args(parser)
+        _add_visibility_args(parser)
         parser.add_argument(
             "--property",
             dest="properties",
