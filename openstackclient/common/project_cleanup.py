@@ -28,16 +28,15 @@ from openstackclient.identity import common as identity_common
 LOG = logging.getLogger(__name__)
 
 
-def ask_user_yesno(msg, default=True):
+def ask_user_yesno(msg):
     """Ask user Y/N question
 
     :param str msg: question text
-    :param bool default: default value
     :return bool: User choice
     """
     while True:
         answer = getpass._raw_input(
-            '{} [{}]: '.format(msg, 'y/N' if not default else 'Y/n'))
+            '{} [{}]: '.format(msg, 'y/n'))
         if answer in ('y', 'Y', 'yes'):
             return True
         elif answer in ('n', 'N', 'no'):
@@ -129,8 +128,7 @@ class ProjectCleanup(command.Command):
                 return
 
             confirm = ask_user_yesno(
-                _("These resources will be deleted. Are you sure"),
-                default=False)
+                _("These resources will be deleted. Are you sure"))
 
             if confirm:
                 self.log.warning(_('Deleting resources'))
