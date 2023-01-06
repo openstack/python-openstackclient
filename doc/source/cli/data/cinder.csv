@@ -120,7 +120,7 @@ snapshot-rename,snapshot set --name,Renames a snapshot.
 snapshot-reset-state,snapshot set --state,Explicitly updates the snapshot state.
 snapshot-show,snapshot show,Shows snapshot details.
 snapshot-unmanage,volume snapshot delete --remote,Stop managing a snapshot.
-summary,,Get volumes summary. (Supported by API versions 3.12 - 3.latest)
+summary,volume summary,Get volumes summary. (Supported by API versions 3.12 - 3.latest)
 thaw-host,volume host set --enable,Thaw and enable the specified cinder-volume host.
 transfer-accept,volume transfer accept,Accepts a volume transfer.
 transfer-create,volume transfer create,Creates a volume transfer.

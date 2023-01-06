@@ -1,0 +1,5 @@
+---
+features:
+  - |
+    Added ``volume summary`` command to show the total size,
+    total count and metadata of volumes.

@@ -388,3 +388,8 @@ Unset volume properties
 .. describe:: <volume>
 
     Volume to modify (name or ID)
+
+Block Storage v3
+
+ .. autoprogram-cliff:: openstack.volume.v3
+     :command: volume summary
