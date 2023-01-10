@@ -13,10 +13,12 @@
 #
 
 import copy
+from unittest import mock
 
 from cinderclient import api_versions
 from osc_lib.cli import format_columns
 from osc_lib import exceptions
+from osc_lib import utils
 
 from openstackclient.tests.unit.volume.v2 import fakes as volume_fakes
 from openstackclient.volume.v3 import volume
@@ -119,3 +121,59 @@ class TestVolumeSummary(volume_fakes.TestVolume):
             self.mock_vol_1.size + self.mock_vol_2.size,
             format_columns.DictColumn(combine_meta))
         self.assertCountEqual(datalist, tuple(data))
+
+
+class TestVolumeRevertToSnapshot(volume_fakes.TestVolume):
+
+    def setUp(self):
+        super().setUp()
+
+        self.volumes_mock = self.app.client_manager.volume.volumes
+        self.volumes_mock.reset_mock()
+        self.snapshots_mock = self.app.client_manager.volume.volume_snapshots
+        self.snapshots_mock.reset_mock()
+        self.mock_volume = volume_fakes.create_one_volume()
+        self.mock_snapshot = volume_fakes.create_one_snapshot(
+            attrs={'volume_id': self.volumes_mock.id})
+
+        # Get the command object to test
+        self.cmd = volume.VolumeRevertToSnapshot(self.app, None)
+
+    def test_volume_revert_to_snapshot_pre_340(self):
+        arglist = [
+            self.mock_snapshot.id,
+        ]
+        verifylist = [
+            ('snapshot', self.mock_snapshot.id),
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        exc = self.assertRaises(
+            exceptions.CommandError,
+            self.cmd.take_action,
+            parsed_args)
+        self.assertIn(
+            '--os-volume-api-version 3.40 or greater is required',
+            str(exc))
+
+    def test_volume_revert_to_snapshot(self):
+        self.app.client_manager.volume.api_version = \
+            api_versions.APIVersion('3.40')
+        arglist = [
+            self.mock_snapshot.id,
+        ]
+        verifylist = [
+            ('snapshot', self.mock_snapshot.id),
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        find_mock_result = [self.mock_snapshot, self.mock_volume]
+        with mock.patch.object(utils, 'find_resource',
+                               side_effect=find_mock_result) as find_mock:
+            self.cmd.take_action(parsed_args)
+
+            self.volumes_mock.revert_to_snapshot.assert_called_once_with(
+                volume=self.mock_volume,
+                snapshot=self.mock_snapshot,
+            )
+            self.assertEqual(2, find_mock.call_count)

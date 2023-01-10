@@ -100,7 +100,7 @@ readonly-mode-update,volume set --read-only-mode | --read-write-mode,Updates vol
 rename,volume set --name,Renames a volume.
 reset-state,volume set --state,Explicitly updates the volume state.
 retype,volume type set --type,Changes the volume type for a volume.
-revert-to-snapshot,,Revert a volume to the specified snapshot. (Supported by API versions 3.40 - 3.latest)
+revert-to-snapshot,volume revert,Revert a volume to the specified snapshot. (Supported by API versions 3.40 - 3.latest)
 service-disable,volume service set --disable,Disables the service.
 service-enable,volume service set --enable,Enables the service.
 service-get-log,,(Supported by API versions 3.32 - 3.latest)

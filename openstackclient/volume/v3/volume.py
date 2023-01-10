@@ -79,3 +79,36 @@ class VolumeSummary(command.ShowOne):
                 formatters={'metadata': format_columns.DictColumn},
             ),
         )
+
+
+class VolumeRevertToSnapshot(command.Command):
+    _description = _("Revert a volume to a snapshot.")
+
+    def get_parser(self, prog_name):
+        parser = super().get_parser(prog_name)
+        parser.add_argument(
+            'snapshot',
+            metavar="<snapshot>",
+            help=_('Name or ID of the snapshot to restore. The snapshot must '
+                   'be the most recent one known to cinder.'),
+        )
+        return parser
+
+    def take_action(self, parsed_args):
+
+        volume_client = self.app.client_manager.volume
+
+        if volume_client.api_version < api_versions.APIVersion('3.40'):
+            msg = _(
+                "--os-volume-api-version 3.40 or greater is required to "
+                "support the 'volume revert snapshot' command"
+            )
+            raise exceptions.CommandError(msg)
+
+        snapshot = utils.find_resource(
+            volume_client.volume_snapshots, parsed_args.snapshot)
+        volume = utils.find_resource(
+            volume_client.volumes, snapshot.volume_id)
+
+        volume_client.volumes.revert_to_snapshot(
+            volume=volume, snapshot=snapshot)

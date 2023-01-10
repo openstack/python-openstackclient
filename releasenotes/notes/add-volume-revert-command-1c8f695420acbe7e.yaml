@@ -1,0 +1,5 @@
+---
+features:
+  - |
+    Added ``volume revert`` command that reverts
+    the volume to the given snapshot.
