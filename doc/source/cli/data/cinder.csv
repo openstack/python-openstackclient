@@ -103,9 +103,9 @@ retype,volume type set --type,Changes the volume type for a volume.
 revert-to-snapshot,volume revert,Revert a volume to the specified snapshot. (Supported by API versions 3.40 - 3.latest)
 service-disable,volume service set --disable,Disables the service.
 service-enable,volume service set --enable,Enables the service.
-service-get-log,,(Supported by API versions 3.32 - 3.latest)
+service-get-log,block storage log level list,(Supported by API versions 3.32 - 3.latest)
 service-list,volume service list,Lists all services. Filter by host and service binary.
-service-set-log,,(Supported by API versions 3.32 - 3.latest)
+service-set-log,block storage log level set,(Supported by API versions 3.32 - 3.latest)
 set-bootable,volume set --bootable / --not-bootable,Update bootable status of a volume.
 show,volume show,Shows volume details.
 snapshot-create,snapshot create,Creates a snapshot.

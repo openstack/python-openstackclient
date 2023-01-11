@@ -47,6 +47,8 @@ class FakeVolumeClient:
         self.volumes.resource_class = fakes.FakeResource(None, {})
         self.volume_types = mock.Mock()
         self.volume_types.resource_class = fakes.FakeResource(None, {})
+        self.services = mock.Mock()
+        self.services.resource_class = fakes.FakeResource(None, {})
 
 
 class TestVolume(utils.TestCommand):
@@ -436,3 +438,20 @@ def get_volume_attachments(attachments=None, count=2):
         attachments = create_volume_attachments(count)
 
     return mock.Mock(side_effect=attachments)
+
+
+def create_service_log_level_entry(attrs=None):
+    service_log_level_info = {
+        'host': 'host_test',
+        'binary': 'cinder-api',
+        'prefix': 'cinder.api.common',
+        'level': 'DEBUG',
+    }
+    # Overwrite default attributes if there are some attributes set
+    attrs = attrs or {}
+
+    service_log_level_info.update(attrs)
+
+    service_log_level = fakes.FakeResource(
+        None, service_log_level_info, loaded=True)
+    return service_log_level

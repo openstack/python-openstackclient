@@ -1,0 +1,6 @@
+---
+features:
+  - |
+    Added ``block storage log level list`` and ``block storage log level set``
+    commands that allows operators to list and set log levels for cinder
+    services.
