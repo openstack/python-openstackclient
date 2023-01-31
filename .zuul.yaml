@@ -102,6 +102,7 @@
         neutron-tag-ports-during-bulk-creation: true
         neutron-conntrack-helper: true
         neutron-ndp-proxy: true
+        q-trunk: true
       devstack_localrc:
         Q_AGENT: openvswitch
         Q_ML2_TENANT_NETWORK_TYPE: vxlan

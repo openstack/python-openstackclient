@@ -34,6 +34,7 @@ from openstack.network.v2 import port as _port
 from openstack.network.v2 import rbac_policy as network_rbac
 from openstack.network.v2 import segment as _segment
 from openstack.network.v2 import service_profile as _flavor_profile
+from openstack.network.v2 import trunk as _trunk
 
 from openstackclient.tests.unit import fakes
 from openstackclient.tests.unit.identity.v3 import fakes as identity_fakes_v3
@@ -2152,3 +2153,71 @@ def get_ndp_proxies(ndp_proxies=None, count=2):
             create_ndp_proxies(count)
         )
     return mock.Mock(side_effect=ndp_proxies)
+
+
+def create_one_trunk(attrs=None):
+    """Create a fake trunk.
+
+    :param Dictionary attrs:
+        A dictionary with all attributes
+    :return:
+        A FakeResource object with name, id, etc.
+    """
+    attrs = attrs or {}
+
+    # Set default attributes.
+    trunk_attrs = {
+        'id': 'trunk-id-' + uuid.uuid4().hex,
+        'name': 'trunk-name-' + uuid.uuid4().hex,
+        'description': '',
+        'port_id': 'port-' + uuid.uuid4().hex,
+        'admin_state_up': True,
+        'project_id': 'project-id-' + uuid.uuid4().hex,
+        'status': 'ACTIVE',
+        'sub_ports': [{'port_id': 'subport-' +
+                       uuid.uuid4().hex,
+                       'segmentation_type': 'vlan',
+                       'segmentation_id': 100}],
+    }
+    # Overwrite default attributes.
+    trunk_attrs.update(attrs)
+
+    trunk = _trunk.Trunk(**trunk_attrs)
+
+    return trunk
+
+
+def create_trunks(attrs=None, count=2):
+    """Create multiple fake trunks.
+
+    :param Dictionary attrs:
+        A dictionary with all attributes
+    :param int count:
+        The number of trunks to fake
+    :return:
+        A list of FakeResource objects faking the trunks
+    """
+    trunks = []
+    for i in range(0, count):
+        trunks.append(create_one_trunk(attrs))
+
+    return trunks
+
+
+def get_trunks(trunks=None, count=2):
+    """Get an iterable Mock object with a list of faked trunks.
+
+    If trunk list is provided, then initialize the Mock object
+    with the list. Otherwise create one.
+
+    :param List trunks:
+        A list of FakeResource objects faking trunks
+    :param int count:
+        The number of trunks to fake
+    :return:
+        An iterable Mock object with side_effect set to a list of faked
+        trunks
+    """
+    if trunks is None:
+        trunks = create_trunks(count)
+    return mock.Mock(side_effect=trunks)
