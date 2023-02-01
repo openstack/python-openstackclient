@@ -49,6 +49,8 @@ class FakeVolumeClient:
         self.volume_types.resource_class = fakes.FakeResource(None, {})
         self.services = mock.Mock()
         self.services.resource_class = fakes.FakeResource(None, {})
+        self.workers = mock.Mock()
+        self.workers.resource_class = fakes.FakeResource(None, {})
 
 
 class TestVolume(utils.TestCommand):
@@ -455,3 +457,33 @@ def create_service_log_level_entry(attrs=None):
     service_log_level = fakes.FakeResource(
         None, service_log_level_info, loaded=True)
     return service_log_level
+
+
+def create_cleanup_records():
+    """Create fake service cleanup records.
+
+    :return: A list of FakeResource objects
+    """
+    cleaning_records = []
+    unavailable_records = []
+    cleaning_work_info = {
+        'id': 1,
+        'host': 'devstack@fakedriver-1',
+        'binary': 'cinder-volume',
+        'cluster_name': 'fake_cluster',
+    }
+    unavailable_work_info = {
+        'id': 2,
+        'host': 'devstack@fakedriver-2',
+        'binary': 'cinder-scheduler',
+        'cluster_name': 'new_cluster',
+    }
+    cleaning_records.append(cleaning_work_info)
+    unavailable_records.append(unavailable_work_info)
+
+    cleaning = [fakes.FakeResource(
+        None, obj, loaded=True) for obj in cleaning_records]
+    unavailable = [fakes.FakeResource(
+        None, obj, loaded=True) for obj in unavailable_records]
+
+    return cleaning, unavailable

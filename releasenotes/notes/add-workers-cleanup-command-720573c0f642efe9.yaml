@@ -1,0 +1,6 @@
+---
+features:
+  - |
+    Added ``block storage cleanup`` command that allows cleanup
+    of resources (volumes and snapshots) by services in other nodes
+    in a cluster in an Active-Active deployments.
