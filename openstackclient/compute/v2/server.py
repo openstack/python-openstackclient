@@ -1563,8 +1563,10 @@ class CreateServer(command.ShowOne):
                 'If unset, a hostname will be automatically generated from '
                 'the server name. '
                 'A utility such as cloud-init is required to propagate the '
-                'hostname in the metadata service to the guest OS itself. '
-                '(supported by --os-compute-api-version 2.90 or above)'
+                'hostname in the metadata service to the guest OS itself '
+                '(hostnames supported by --os-compute-api-version 2.90 or '
+                'above, FQDNs supported by --os-compute-api-version 2.94 or '
+                'above)'
             ),
         )
         parser.add_argument(
@@ -3676,8 +3678,10 @@ class RebuildServer(command.ShowOne):
             help=_(
                 'Hostname configured for the server in the metadata service. '
                 'A separate utility running in the guest is required to '
-                'propagate changes to this value to the guest OS itself. '
-                '(supported by --os-compute-api-version 2.90 or above)'
+                'propagate changes to this value to the guest OS itself '
+                '(hostnames supported by --os-compute-api-version 2.90 or '
+                'above, FQDNs supported by --os-compute-api-version 2.94 or '
+                'above)'
             ),
         )
         parser.add_argument(
@@ -4673,8 +4677,10 @@ class SetServer(command.Command):
             help=_(
                 'Hostname configured for the server in the metadata service. '
                 'A separate utility running in the guest is required to '
-                'propagate changes to this value to the guest OS itself. '
-                '(supported by --os-compute-api-version 2.90 or above)'
+                'propagate changes to this value to the guest OS itself '
+                '(hostnames supported by --os-compute-api-version 2.90 or '
+                'above, FQDNs supported by --os-compute-api-version 2.94 or '
+                'above)'
             ),
         )
         return parser
