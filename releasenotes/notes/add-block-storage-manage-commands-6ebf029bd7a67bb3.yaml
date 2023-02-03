@@ -1,0 +1,7 @@
+---
+features:
+  - |
+    Added ``block storage volume manageable list`` and
+    ``block storage snapshot manageable list`` commands that
+    allow operators to list the volumes and snapshots on a
+    particular host or cluster for management under OpenStack.

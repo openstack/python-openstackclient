@@ -71,7 +71,7 @@ image-metadata-show,volume show,Shows volume image metadata.
 list,volume list,Lists all volumes.
 list-filters,block storage resource filter list,List enabled filters. (Supported by API versions 3.33 - 3.latest)
 manage,volume create --remote-source k=v,Manage an existing volume.
-manageable-list,,Lists all manageable volumes. (Supported by API versions 3.8 - 3.latest)
+manageable-list,block storage volume manageable list,Lists all manageable volumes. (Supported by API versions 3.8 - 3.latest)
 message-delete,volume message delete,Removes one or more messages. (Supported by API versions 3.3 - 3.latest)
 message-list,volume message list,Lists all messages. (Supported by API versions 3.3 - 3.latest)
 message-show,volume message show,Shows message details. (Supported by API versions 3.3 - 3.latest)
@@ -112,7 +112,7 @@ snapshot-create,snapshot create,Creates a snapshot.
 snapshot-delete,snapshot delete,Remove one or more snapshots.
 snapshot-list,snapshot list,Lists all snapshots.
 snapshot-manage,volume snapshot create --remote-source <key=value>,Manage an existing snapshot.
-snapshot-manageable-list,,Lists all manageable snapshots. (Supported by API versions 3.8 - 3.latest)
+snapshot-manageable-list,block storage snapshot manageable list,Lists all manageable snapshots. (Supported by API versions 3.8 - 3.latest)
 snapshot-metadata,snapshot set --property k=v / snapshot unset --property k,Sets or deletes snapshot metadata.
 snapshot-metadata-show,snapshot show,Shows snapshot metadata.
 snapshot-metadata-update-all,snapshot set --property k=v,Updates snapshot metadata.

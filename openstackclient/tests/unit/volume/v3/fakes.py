@@ -487,3 +487,41 @@ def create_cleanup_records():
         None, obj, loaded=True) for obj in unavailable_records]
 
     return cleaning, unavailable
+
+
+def create_one_manage_record(attrs=None, snapshot=False):
+    manage_dict = {
+        'reference': {'source-name': 'fake-volume'},
+        'size': '1',
+        'safe_to_manage': False,
+        'reason_not_safe': 'already managed',
+        'cinder_id': 'fake-volume',
+        'extra_info': None,
+    }
+    if snapshot:
+        manage_dict['source_reference'] = {'source-name': 'fake-source'}
+
+    # Overwrite default attributes if there are some attributes set
+    attrs = attrs or {}
+
+    manage_dict.update(attrs)
+    manage_record = fakes.FakeResource(None, manage_dict, loaded=True)
+    return manage_record
+
+
+def create_volume_manage_list_records(count=2):
+    volume_manage_list = []
+    for i in range(count):
+        volume_manage_list.append(
+            create_one_manage_record({'size': str(i + 1)}))
+
+    return volume_manage_list
+
+
+def create_snapshot_manage_list_records(count=2):
+    snapshot_manage_list = []
+    for i in range(count):
+        snapshot_manage_list.append(
+            create_one_manage_record({'size': str(i + 1)}, snapshot=True))
+
+    return snapshot_manage_list
