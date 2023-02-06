@@ -82,15 +82,17 @@ class CreateVolumeGroup(command.ShowOne):
 
     def get_parser(self, prog_name):
         parser = super().get_parser(prog_name)
-        parser.add_argument(
+        source_parser = parser.add_mutually_exclusive_group()
+        source_parser.add_argument(
             'volume_group_type',
             metavar='<volume_group_type>',
+            nargs='?',
             help=_('Name or ID of volume group type to use.'),
         )
         parser.add_argument(
             'volume_types',
             metavar='<volume_type>',
-            nargs='+',
+            nargs='*',
             default=[],
             help=_('Name or ID of volume type(s) to use.'),
         )
@@ -107,44 +109,101 @@ class CreateVolumeGroup(command.ShowOne):
         parser.add_argument(
             '--availability-zone',
             metavar='<availability-zone>',
-            help=_('Availability zone for volume group.'),
+            help=_('Availability zone for volume group. '
+                   '(not available if creating group from source)'),
+        )
+        source_parser.add_argument(
+            '--source-group',
+            metavar='<source-group>',
+            help=_('Existing volume group (name or ID) '
+                   '(supported by --os-volume-api-version 3.14 or later)'),
+        )
+        source_parser.add_argument(
+            '--group-snapshot',
+            metavar='<group-snapshot>',
+            help=_('Existing group snapshot (name or ID) '
+                   '(supported by --os-volume-api-version 3.14 or later)'),
         )
         return parser
 
     def take_action(self, parsed_args):
         volume_client = self.app.client_manager.volume
 
-        if volume_client.api_version < api_versions.APIVersion('3.13'):
-            msg = _(
-                "--os-volume-api-version 3.13 or greater is required to "
-                "support the 'volume group create' command"
-            )
-            raise exceptions.CommandError(msg)
-
-        volume_group_type = utils.find_resource(
-            volume_client.group_types,
-            parsed_args.volume_group_type,
-        )
-
-        volume_types = []
-        for volume_type in parsed_args.volume_types:
-            volume_types.append(
-                utils.find_resource(
-                    volume_client.volume_types,
-                    volume_type,
+        if parsed_args.volume_group_type:
+            if volume_client.api_version < api_versions.APIVersion('3.13'):
+                msg = _(
+                    "--os-volume-api-version 3.13 or greater is required to "
+                    "support the 'volume group create' command"
                 )
+                raise exceptions.CommandError(msg)
+            if not parsed_args.volume_types:
+                msg = _(
+                    "<volume_types> is a required argument when creating a "
+                    "group from group type."
+                )
+                raise exceptions.CommandError(msg)
+
+            volume_group_type = utils.find_resource(
+                volume_client.group_types,
+                parsed_args.volume_group_type,
             )
+            volume_types = []
+            for volume_type in parsed_args.volume_types:
+                volume_types.append(
+                    utils.find_resource(
+                        volume_client.volume_types,
+                        volume_type,
+                    )
+                )
 
-        group = volume_client.groups.create(
-            volume_group_type.id,
-            ','.join(x.id for x in volume_types),
-            parsed_args.name,
-            parsed_args.description,
-            availability_zone=parsed_args.availability_zone)
+            group = volume_client.groups.create(
+                volume_group_type.id,
+                ','.join(x.id for x in volume_types),
+                parsed_args.name,
+                parsed_args.description,
+                availability_zone=parsed_args.availability_zone)
 
-        group = volume_client.groups.get(group.id)
+            group = volume_client.groups.get(group.id)
+            return _format_group(group)
 
-        return _format_group(group)
+        else:
+            if volume_client.api_version < api_versions.APIVersion('3.14'):
+                msg = _(
+                    "--os-volume-api-version 3.14 or greater is required to "
+                    "support the 'volume group create "
+                    "[--source-group|--group-snapshot]' command"
+                )
+                raise exceptions.CommandError(msg)
+            if (parsed_args.source_group is None and
+                    parsed_args.group_snapshot is None):
+                msg = _(
+                    "Either --source-group <source_group> or "
+                    "'--group-snapshot <group_snapshot>' needs to be "
+                    "provided to run the 'volume group create "
+                    "[--source-group|--group-snapshot]' command"
+                )
+                raise exceptions.CommandError(msg)
+            if parsed_args.availability_zone:
+                msg = _("'--availability-zone' option will not work "
+                        "if creating group from source.")
+                LOG.warning(msg)
+
+            source_group = None
+            if parsed_args.source_group:
+                source_group = utils.find_resource(volume_client.groups,
+                                                   parsed_args.source_group)
+            group_snapshot = None
+            if parsed_args.group_snapshot:
+                group_snapshot = utils.find_resource(
+                    volume_client.group_snapshots,
+                    parsed_args.group_snapshot)
+            group = volume_client.groups.create_from_src(
+                group_snapshot.id if group_snapshot else None,
+                source_group.id if source_group else None,
+                parsed_args.name,
+                parsed_args.description)
+            group = volume_client.groups.get(group.id)
+            return _format_group(group)
 
 
 class DeleteVolumeGroup(command.Command):

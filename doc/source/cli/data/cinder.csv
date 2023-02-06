@@ -45,7 +45,7 @@ freeze-host,volume host set --disable,Freeze and disable the specified cinder-vo
 get-capabilities,volume backend capability show,Show capabilities of a volume backend. Admin only.
 get-pools,volume backend pool list,Show pool information for backends. Admin only.
 group-create,volume group create,Creates a group. (Supported by API versions 3.13 - 3.latest)
-group-create-from-src,,Creates a group from a group snapshot or a source group. (Supported by API versions 3.14 - 3.latest)
+group-create-from-src,volume group create [--source-group|--group-snapshot],Creates a group from a group snapshot or a source group. (Supported by API versions 3.14 - 3.latest)
 group-delete,volume group delete,Removes one or more groups. (Supported by API versions 3.13 - 3.latest)
 group-disable-replication,volume group set --disable-replication,Disables replication for group. (Supported by API versions 3.38 - 3.latest)
 group-enable-replication,volume group set --enable-replication,Enables replication for group. (Supported by API versions 3.38 - 3.latest)

@@ -10,9 +10,12 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
+from unittest import mock
+
 from cinderclient import api_versions
 from osc_lib import exceptions
 
+from openstackclient.tests.unit import utils as tests_utils
 from openstackclient.tests.unit.volume.v3 import fakes as volume_fakes
 from openstackclient.volume.v3 import volume_group
 
@@ -32,6 +35,10 @@ class TestVolumeGroup(volume_fakes.TestVolume):
         self.volume_types_mock = self.app.client_manager.volume.volume_types
         self.volume_types_mock.reset_mock()
 
+        self.volume_group_snapshots_mock = \
+            self.app.client_manager.volume.group_snapshots
+        self.volume_group_snapshots_mock.reset_mock()
+
 
 class TestVolumeGroupCreate(TestVolumeGroup):
 
@@ -43,6 +50,8 @@ class TestVolumeGroupCreate(TestVolumeGroup):
             'volume_types': [fake_volume_type.id],
         },
     )
+    fake_volume_group_snapshot = \
+        volume_fakes.create_one_volume_group_snapshot()
 
     columns = (
         'ID',
@@ -79,6 +88,10 @@ class TestVolumeGroupCreate(TestVolumeGroup):
             self.fake_volume_group_type
         self.volume_groups_mock.create.return_value = self.fake_volume_group
         self.volume_groups_mock.get.return_value = self.fake_volume_group
+        self.volume_groups_mock.create_from_src.return_value = \
+            self.fake_volume_group
+        self.volume_group_snapshots_mock.get.return_value = \
+            self.fake_volume_group_snapshot
 
         self.cmd = volume_group.CreateVolumeGroup(self.app, None)
 
@@ -114,6 +127,29 @@ class TestVolumeGroupCreate(TestVolumeGroup):
         )
         self.assertEqual(self.columns, columns)
         self.assertCountEqual(self.data, data)
+
+    def test_volume_group_create_no_volume_type(self):
+        self.app.client_manager.volume.api_version = \
+            api_versions.APIVersion('3.13')
+
+        arglist = [
+            self.fake_volume_group_type.id
+        ]
+        verifylist = [
+            ('volume_group_type', self.fake_volume_group_type.id),
+            ('name', None),
+            ('description', None),
+            ('availability_zone', None),
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        exc = self.assertRaises(
+            exceptions.CommandError,
+            self.cmd.take_action,
+            parsed_args)
+        self.assertIn(
+            '<volume_types> is a required argument',
+            str(exc))
 
     def test_volume_group_create_with_options(self):
         self.app.client_manager.volume.api_version = \
@@ -174,6 +210,101 @@ class TestVolumeGroupCreate(TestVolumeGroup):
             parsed_args)
         self.assertIn(
             '--os-volume-api-version 3.13 or greater is required',
+            str(exc))
+
+    def test_volume_group_create_from_source_group(self):
+        self.app.client_manager.volume.api_version = \
+            api_versions.APIVersion('3.14')
+
+        arglist = [
+            '--source-group', self.fake_volume_group.id,
+        ]
+        verifylist = [
+            ('source_group', self.fake_volume_group.id),
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        columns, data = self.cmd.take_action(parsed_args)
+
+        self.volume_groups_mock.get.assert_has_calls(
+            [mock.call(self.fake_volume_group.id),
+             mock.call(self.fake_volume_group.id)])
+        self.volume_groups_mock.create_from_src.assert_called_once_with(
+            None,
+            self.fake_volume_group.id,
+            None,
+            None,
+        )
+        self.assertEqual(self.columns, columns)
+        self.assertCountEqual(self.data, data)
+
+    def test_volume_group_create_from_group_snapshot(self):
+        self.app.client_manager.volume.api_version = \
+            api_versions.APIVersion('3.14')
+
+        arglist = [
+            '--group-snapshot', self.fake_volume_group_snapshot.id,
+        ]
+        verifylist = [
+            ('group_snapshot', self.fake_volume_group_snapshot.id),
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        columns, data = self.cmd.take_action(parsed_args)
+
+        self.volume_group_snapshots_mock.get.assert_called_once_with(
+            self.fake_volume_group_snapshot.id)
+        self.volume_groups_mock.get.assert_called_once_with(
+            self.fake_volume_group.id)
+        self.volume_groups_mock.create_from_src.assert_called_once_with(
+            self.fake_volume_group_snapshot.id,
+            None,
+            None,
+            None,
+        )
+        self.assertEqual(self.columns, columns)
+        self.assertCountEqual(self.data, data)
+
+    def test_volume_group_create_from_src_pre_v314(self):
+        self.app.client_manager.volume.api_version = \
+            api_versions.APIVersion('3.13')
+
+        arglist = [
+            '--source-group', self.fake_volume_group.id,
+        ]
+        verifylist = [
+            ('source_group', self.fake_volume_group.id),
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        exc = self.assertRaises(
+            exceptions.CommandError,
+            self.cmd.take_action,
+            parsed_args)
+        self.assertIn(
+            '--os-volume-api-version 3.14 or greater is required',
+            str(exc))
+
+    def test_volume_group_create_from_src_source_group_group_snapshot(self):
+        self.app.client_manager.volume.api_version = \
+            api_versions.APIVersion('3.14')
+
+        arglist = [
+            '--source-group', self.fake_volume_group.id,
+            '--group-snapshot', self.fake_volume_group_snapshot.id,
+        ]
+        verifylist = [
+            ('source_group', self.fake_volume_group.id),
+            ('group_snapshot', self.fake_volume_group_snapshot.id),
+        ]
+
+        exc = self.assertRaises(tests_utils.ParserException,
+                                self.check_parser,
+                                self.cmd,
+                                arglist,
+                                verifylist)
+        self.assertIn(
+            '--group-snapshot: not allowed with argument --source-group',
             str(exc))
 
 

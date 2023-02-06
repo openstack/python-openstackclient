@@ -1,0 +1,6 @@
+---
+features:
+  - |
+    Added ``--source-group`` and ``--group-snapshot`` options to the
+    ``volume group create`` command to allow creating group from
+    a source group or a group snapshot.
