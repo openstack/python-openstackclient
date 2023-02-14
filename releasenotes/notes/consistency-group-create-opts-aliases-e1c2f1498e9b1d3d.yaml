@@ -1,0 +1,7 @@
+---
+upgrade:
+  - |
+    The ``--consistency-group-source`` and ``--consistency-group-snapshot``
+    options for the ``consistency group create`` command have been renamed to
+    ``--source`` and ``--snapshot``, respectively. Aliases are provided for the
+    older variants.
