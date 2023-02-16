@@ -1,0 +1,10 @@
+---
+deprecations:
+  - |
+    The ``<volume-group-type>`` and ``<volume-type> [<volume-type>...]``
+    positional arguments for the ``volume group create`` command have been
+    deprecated in favour of option arguments. For example::
+
+        openstack volume group create \
+          --volume-group-type <volume-group-type>
+          --volume-type <volume-type> [--volume-type <volume-type> ...]
