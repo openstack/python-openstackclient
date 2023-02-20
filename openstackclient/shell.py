@@ -17,6 +17,7 @@
 """Command-line interface to the OpenStack APIs"""
 
 import sys
+import warnings
 
 from osc_lib.api import auth
 from osc_lib.command import commandmanager
@@ -43,6 +44,10 @@ class OpenStackShell(shell.OpenStackShell):
 
         # Assume TLS host certificate verification is enabled
         self.verify = True
+
+        # ignore warnings from openstacksdk since our users can't do anything
+        # about them
+        warnings.filterwarnings('ignore', module='openstack')
 
     def build_option_parser(self, description, version):
         parser = super(OpenStackShell, self).build_option_parser(
