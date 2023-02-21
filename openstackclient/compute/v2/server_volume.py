@@ -78,7 +78,7 @@ class ListServerVolume(command.Lister):
         )
 
 
-class UpdateServerVolume(command.Command):
+class SetServerVolume(command.Command):
     """Update a volume attachment on the server."""
 
     def get_parser(self, prog_name):
@@ -140,3 +140,8 @@ class UpdateServerVolume(command.Command):
                 volume,
                 delete_on_termination=parsed_args.delete_on_termination,
             )
+
+
+# Legacy alias
+class UpdateServerVolume(SetServerVolume):
+    """DEPRECATED: Use 'server volume set' instead."""
