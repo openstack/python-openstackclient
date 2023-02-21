@@ -21,6 +21,7 @@ import uuid
 from novaclient import api_versions
 from openstack.compute.v2 import flavor as _flavor
 from openstack.compute.v2 import hypervisor as _hypervisor
+from openstack.compute.v2 import migration as _migration
 from openstack.compute.v2 import server as _server
 from openstack.compute.v2 import server_group as _server_group
 from openstack.compute.v2 import server_interface as _server_interface
@@ -1433,71 +1434,53 @@ class FakeRateLimit(object):
         self.next_available = next_available
 
 
-class FakeMigration(object):
-    """Fake one or more migrations."""
+def create_one_migration(attrs=None):
+    """Create a fake migration.
 
-    @staticmethod
-    def create_one_migration(attrs=None, methods=None):
-        """Create a fake migration.
+    :param dict attrs: A dictionary with all attributes
+    :return: A fake openstack.compute.v2.migration.Migration object
+    """
+    attrs = attrs or {}
 
-        :param dict attrs:
-            A dictionary with all attributes
-        :param dict methods:
-            A dictionary with all methods
-        :return:
-            A FakeResource object, with id, type, and so on
-        """
-        attrs = attrs or {}
-        methods = methods or {}
+    # Set default attributes.
+    migration_info = {
+        "created_at": "2017-01-31T08:03:21.000000",
+        "dest_compute": "compute-" + uuid.uuid4().hex,
+        "dest_host": "10.0.2.15",
+        "dest_node": "node-" + uuid.uuid4().hex,
+        "id": random.randint(1, 999),
+        "migration_type": "migration",
+        "new_flavor_id": uuid.uuid4().hex,
+        "old_flavor_id": uuid.uuid4().hex,
+        "project_id": uuid.uuid4().hex,
+        "server_id": uuid.uuid4().hex,
+        "source_compute": "compute-" + uuid.uuid4().hex,
+        "source_node": "node-" + uuid.uuid4().hex,
+        "status": "migrating",
+        "updated_at": "2017-01-31T08:03:25.000000",
+        "user_id": uuid.uuid4().hex,
+        "uuid": uuid.uuid4().hex,
+    }
 
-        # Set default attributes.
-        migration_info = {
-            "dest_host": "10.0.2.15",
-            "status": "migrating",
-            "migration_type": "migration",
-            "updated_at": "2017-01-31T08:03:25.000000",
-            "created_at": "2017-01-31T08:03:21.000000",
-            "dest_compute": "compute-" + uuid.uuid4().hex,
-            "id": random.randint(1, 999),
-            "source_node": "node-" + uuid.uuid4().hex,
-            "instance_uuid": uuid.uuid4().hex,
-            "dest_node": "node-" + uuid.uuid4().hex,
-            "source_compute": "compute-" + uuid.uuid4().hex,
-            "uuid": uuid.uuid4().hex,
-            "old_instance_type_id": uuid.uuid4().hex,
-            "new_instance_type_id": uuid.uuid4().hex,
-            "project_id": uuid.uuid4().hex,
-            "user_id": uuid.uuid4().hex
-        }
+    # Overwrite default attributes.
+    migration_info.update(attrs)
 
-        # Overwrite default attributes.
-        migration_info.update(attrs)
+    migration = _migration.Migration(**migration_info)
+    return migration
 
-        migration = fakes.FakeResource(info=copy.deepcopy(migration_info),
-                                       methods=methods,
-                                       loaded=True)
-        return migration
 
-    @staticmethod
-    def create_migrations(attrs=None, methods=None, count=2):
-        """Create multiple fake migrations.
+def create_migrations(attrs=None, count=2):
+    """Create multiple fake migrations.
 
-        :param dict attrs:
-            A dictionary with all attributes
-        :param dict methods:
-            A dictionary with all methods
-        :param int count:
-            The number of migrations to fake
-        :return:
-            A list of FakeResource objects faking the migrations
-        """
-        migrations = []
-        for i in range(0, count):
-            migrations.append(
-                FakeMigration.create_one_migration(
-                    attrs, methods))
+    :param dict attrs: A dictionary with all attributes
+    :param int count: The number of migrations to fake
+    :return: A list of fake openstack.compute.v2.migration.Migration objects
+    """
+    migrations = []
+    for i in range(0, count):
+        migrations.append(create_one_migration(attrs))
 
-        return migrations
+    return migrations
 
 
 class FakeServerMigration(object):

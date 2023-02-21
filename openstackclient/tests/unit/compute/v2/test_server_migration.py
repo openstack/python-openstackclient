@@ -59,11 +59,10 @@ class TestListMigration(TestServerMigration):
     def setUp(self):
         super().setUp()
 
-        self.server = compute_fakes.FakeServer.create_one_server()
+        self.server = compute_fakes.FakeServer.create_one_sdk_server()
         self.sdk_client.find_server.return_value = self.server
 
-        self.migrations = compute_fakes.FakeMigration.create_migrations(
-            count=3)
+        self.migrations = compute_fakes.create_migrations(count=3)
         self.sdk_client.migrations.return_value = self.migrations
 
         self.data = (common_utils.get_item_properties(
