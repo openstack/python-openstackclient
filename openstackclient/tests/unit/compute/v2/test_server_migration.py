@@ -40,6 +40,18 @@ class TestServerMigration(compute_fakes.TestComputev2):
         self.app.client_manager.sdk_connection.compute = mock.Mock()
         self.sdk_client = self.app.client_manager.sdk_connection.compute
 
+        patcher = mock.patch.object(
+            sdk_utils, 'supports_microversion', return_value=True)
+        self.addCleanup(patcher.stop)
+        self.supports_microversion_mock = patcher.start()
+
+    def _set_mock_microversion(self, mock_v):
+        """Set a specific microversion for the mock supports_microversion()."""
+        self.supports_microversion_mock.reset_mock(return_value=True)
+        self.supports_microversion_mock.side_effect = (
+            lambda _, v:
+            api_versions.APIVersion(v) <= api_versions.APIVersion(mock_v))
+
 
 class TestListMigration(TestServerMigration):
     """Test fetch all migrations."""
@@ -51,13 +63,15 @@ class TestListMigration(TestServerMigration):
     ]
 
     MIGRATION_FIELDS = [
-        'source_node', 'dest_node', 'source_compute', 'dest_compute',
-        'dest_host', 'status', 'server_id', 'old_flavor_id',
+        'source_node', 'dest_node', 'source_compute',
+        'dest_compute', 'dest_host', 'status', 'server_id', 'old_flavor_id',
         'new_flavor_id', 'created_at', 'updated_at'
     ]
 
     def setUp(self):
         super().setUp()
+
+        self._set_mock_microversion('2.1')
 
         self.server = compute_fakes.FakeServer.create_one_sdk_server()
         self.sdk_client.find_server.return_value = self.server
@@ -70,20 +84,6 @@ class TestListMigration(TestServerMigration):
 
         # Get the command object to test
         self.cmd = server_migration.ListMigration(self.app, None)
-
-        patcher = mock.patch.object(
-            sdk_utils, 'supports_microversion', return_value=True)
-        self.addCleanup(patcher.stop)
-        self.supports_microversion_mock = patcher.start()
-        self._set_mock_microversion(
-            self.app.client_manager.compute.api_version.get_string())
-
-    def _set_mock_microversion(self, mock_v):
-        """Set a specific microversion for the mock supports_microversion()."""
-        self.supports_microversion_mock.reset_mock(return_value=True)
-        self.supports_microversion_mock.side_effect = (
-            lambda _, v:
-            api_versions.APIVersion(v) <= api_versions.APIVersion(mock_v))
 
     def test_server_migration_list_no_options(self):
         arglist = []
@@ -600,12 +600,15 @@ class TestServerMigrationShow(TestServerMigration):
     def setUp(self):
         super().setUp()
 
-        self.server = compute_fakes.FakeServer.create_one_server()
-        self.servers_mock.get.return_value = self.server
+        self.server = compute_fakes.FakeServer.create_one_sdk_server()
+        self.sdk_client.find_server.return_value = self.server
 
-        self.server_migration = compute_fakes.FakeServerMigration\
-            .create_one_server_migration()
-        self.server_migrations_mock.get.return_value = self.server_migration
+        self.server_migration = compute_fakes.create_one_server_migration()
+        self.sdk_client.get_server_migration.return_value =\
+            self.server_migration
+        self.sdk_client.server_migrations.return_value = iter(
+            [self.server_migration]
+        )
 
         self.columns = (
             'ID',
@@ -628,7 +631,7 @@ class TestServerMigrationShow(TestServerMigration):
 
         self.data = (
             self.server_migration.id,
-            self.server_migration.server_uuid,
+            self.server_migration.server_id,
             self.server_migration.status,
             self.server_migration.source_compute,
             self.server_migration.source_node,
@@ -661,19 +664,18 @@ class TestServerMigrationShow(TestServerMigration):
         self.assertEqual(self.columns, columns)
         self.assertEqual(self.data, data)
 
-        self.servers_mock.get.assert_called_with(self.server.id)
-        self.server_migrations_mock.get.assert_called_with(
-            self.server.id, '2',)
+        self.sdk_client.find_server.assert_called_with(
+            self.server.id, ignore_missing=False)
+        self.sdk_client.get_server_migration.assert_called_with(
+            self.server.id, '2', ignore_missing=False)
 
     def test_server_migration_show(self):
-        self.app.client_manager.compute.api_version = api_versions.APIVersion(
-            '2.24')
+        self._set_mock_microversion('2.24')
 
         self._test_server_migration_show()
 
     def test_server_migration_show_v259(self):
-        self.app.client_manager.compute.api_version = api_versions.APIVersion(
-            '2.59')
+        self._set_mock_microversion('2.59')
 
         self.columns += ('UUID',)
         self.data += (self.server_migration.uuid,)
@@ -681,8 +683,7 @@ class TestServerMigrationShow(TestServerMigration):
         self._test_server_migration_show()
 
     def test_server_migration_show_v280(self):
-        self.app.client_manager.compute.api_version = api_versions.APIVersion(
-            '2.80')
+        self._set_mock_microversion('2.80')
 
         self.columns += ('UUID', 'User ID', 'Project ID')
         self.data += (
@@ -694,8 +695,7 @@ class TestServerMigrationShow(TestServerMigration):
         self._test_server_migration_show()
 
     def test_server_migration_show_pre_v224(self):
-        self.app.client_manager.compute.api_version = api_versions.APIVersion(
-            '2.23')
+        self._set_mock_microversion('2.23')
 
         arglist = [
             self.server.id,
@@ -713,9 +713,11 @@ class TestServerMigrationShow(TestServerMigration):
             str(ex))
 
     def test_server_migration_show_by_uuid(self):
-        self.app.client_manager.compute.api_version = api_versions.APIVersion(
-            '2.59')
-        self.server_migrations_mock.list.return_value = [self.server_migration]
+        self._set_mock_microversion('2.59')
+
+        self.sdk_client.server_migrations.return_value = iter(
+            [self.server_migration]
+        )
 
         self.columns += ('UUID',)
         self.data += (self.server_migration.uuid,)
@@ -732,14 +734,14 @@ class TestServerMigrationShow(TestServerMigration):
         self.assertEqual(self.columns, columns)
         self.assertEqual(self.data, data)
 
-        self.servers_mock.get.assert_called_with(self.server.id)
-        self.server_migrations_mock.list.assert_called_with(self.server.id)
-        self.server_migrations_mock.get.assert_not_called()
+        self.sdk_client.find_server.assert_called_with(
+            self.server.id, ignore_missing=False)
+        self.sdk_client.server_migrations.assert_called_with(self.server.id)
+        self.sdk_client.get_server_migration.assert_not_called()
 
     def test_server_migration_show_by_uuid_no_matches(self):
-        self.app.client_manager.compute.api_version = api_versions.APIVersion(
-            '2.59')
-        self.server_migrations_mock.list.return_value = []
+        self._set_mock_microversion('2.59')
+        self.sdk_client.server_migrations.return_value = iter([])
 
         arglist = [
             self.server.id,
@@ -757,8 +759,7 @@ class TestServerMigrationShow(TestServerMigration):
             str(ex))
 
     def test_server_migration_show_by_uuid_pre_v259(self):
-        self.app.client_manager.compute.api_version = api_versions.APIVersion(
-            '2.58')
+        self._set_mock_microversion('2.58')
 
         arglist = [
             self.server.id,
@@ -776,8 +777,7 @@ class TestServerMigrationShow(TestServerMigration):
             str(ex))
 
     def test_server_migration_show_invalid_id(self):
-        self.app.client_manager.compute.api_version = api_versions.APIVersion(
-            '2.24')
+        self._set_mock_microversion('2.24')
 
         arglist = [
             self.server.id,
@@ -800,17 +800,16 @@ class TestServerMigrationAbort(TestServerMigration):
     def setUp(self):
         super().setUp()
 
-        self.server = compute_fakes.FakeServer.create_one_server()
+        self.server = compute_fakes.FakeServer.create_one_sdk_server()
 
         # Return value for utils.find_resource for server.
-        self.servers_mock.get.return_value = self.server
+        self.sdk_client.find_server.return_value = self.server
 
         # Get the command object to test
         self.cmd = server_migration.AbortMigration(self.app, None)
 
     def test_migration_abort(self):
-        self.app.client_manager.compute.api_version = api_versions.APIVersion(
-            '2.24')
+        self._set_mock_microversion('2.24')
 
         arglist = [
             self.server.id,
@@ -821,14 +820,14 @@ class TestServerMigrationAbort(TestServerMigration):
 
         result = self.cmd.take_action(parsed_args)
 
-        self.servers_mock.get.assert_called_with(self.server.id)
-        self.server_migrations_mock.live_migration_abort.assert_called_with(
-            self.server.id, '2',)
+        self.sdk_client.find_server.assert_called_with(
+            self.server.id, ignore_missing=False)
+        self.sdk_client.abort_server_migration.assert_called_with(
+            '2', self.server.id, ignore_missing=False)
         self.assertIsNone(result)
 
     def test_migration_abort_pre_v224(self):
-        self.app.client_manager.compute.api_version = api_versions.APIVersion(
-            '2.23')
+        self._set_mock_microversion('2.23')
 
         arglist = [
             self.server.id,
@@ -846,12 +845,12 @@ class TestServerMigrationAbort(TestServerMigration):
             str(ex))
 
     def test_server_migration_abort_by_uuid(self):
-        self.app.client_manager.compute.api_version = api_versions.APIVersion(
-            '2.59')
+        self._set_mock_microversion('2.59')
 
-        self.server_migration = compute_fakes.FakeServerMigration\
-            .create_one_server_migration()
-        self.server_migrations_mock.list.return_value = [self.server_migration]
+        self.server_migration = compute_fakes.create_one_server_migration()
+        self.sdk_client.server_migrations.return_value = iter(
+            [self.server_migration]
+        )
 
         arglist = [
             self.server.id,
@@ -862,17 +861,19 @@ class TestServerMigrationAbort(TestServerMigration):
 
         result = self.cmd.take_action(parsed_args)
 
-        self.servers_mock.get.assert_called_with(self.server.id)
-        self.server_migrations_mock.list.assert_called_with(self.server.id)
-        self.server_migrations_mock.live_migration_abort.assert_called_with(
-            self.server.id, self.server_migration.id)
+        self.sdk_client.find_server.assert_called_with(
+            self.server.id, ignore_missing=False)
+        self.sdk_client.server_migrations.assert_called_with(self.server.id)
+        self.sdk_client.abort_server_migration.assert_called_with(
+            self.server_migration.id, self.server.id, ignore_missing=False)
         self.assertIsNone(result)
 
     def test_server_migration_abort_by_uuid_no_matches(self):
-        self.app.client_manager.compute.api_version = api_versions.APIVersion(
-            '2.59')
+        self._set_mock_microversion('2.59')
 
-        self.server_migrations_mock.list.return_value = []
+        self.sdk_client.server_migrations.return_value = iter(
+            []
+        )
 
         arglist = [
             self.server.id,
@@ -890,8 +891,7 @@ class TestServerMigrationAbort(TestServerMigration):
             str(ex))
 
     def test_server_migration_abort_by_uuid_pre_v259(self):
-        self.app.client_manager.compute.api_version = api_versions.APIVersion(
-            '2.58')
+        self._set_mock_microversion('2.58')
 
         arglist = [
             self.server.id,
@@ -914,17 +914,16 @@ class TestServerMigrationForceComplete(TestServerMigration):
     def setUp(self):
         super().setUp()
 
-        self.server = compute_fakes.FakeServer.create_one_server()
+        self.server = compute_fakes.FakeServer.create_one_sdk_server()
 
         # Return value for utils.find_resource for server.
-        self.servers_mock.get.return_value = self.server
+        self.sdk_client.find_server.return_value = self.server
 
         # Get the command object to test
         self.cmd = server_migration.ForceCompleteMigration(self.app, None)
 
     def test_migration_force_complete(self):
-        self.app.client_manager.compute.api_version = api_versions.APIVersion(
-            '2.22')
+        self._set_mock_microversion('2.22')
 
         arglist = [
             self.server.id,
@@ -935,14 +934,14 @@ class TestServerMigrationForceComplete(TestServerMigration):
 
         result = self.cmd.take_action(parsed_args)
 
-        self.servers_mock.get.assert_called_with(self.server.id)
-        self.server_migrations_mock.live_migrate_force_complete\
-            .assert_called_with(self.server.id, '2',)
+        self.sdk_client.find_server.assert_called_with(
+            self.server.id, ignore_missing=False)
+        self.sdk_client.force_complete_server_migration\
+            .assert_called_with('2', self.server.id)
         self.assertIsNone(result)
 
     def test_migration_force_complete_pre_v222(self):
-        self.app.client_manager.compute.api_version = api_versions.APIVersion(
-            '2.21')
+        self._set_mock_microversion('2.21')
 
         arglist = [
             self.server.id,
@@ -960,12 +959,12 @@ class TestServerMigrationForceComplete(TestServerMigration):
             str(ex))
 
     def test_server_migration_force_complete_by_uuid(self):
-        self.app.client_manager.compute.api_version = api_versions.APIVersion(
-            '2.59')
+        self._set_mock_microversion('2.59')
 
-        self.server_migration = compute_fakes.FakeServerMigration\
-            .create_one_server_migration()
-        self.server_migrations_mock.list.return_value = [self.server_migration]
+        self.server_migration = compute_fakes.create_one_server_migration()
+        self.sdk_client.server_migrations.return_value = iter(
+            [self.server_migration]
+        )
 
         arglist = [
             self.server.id,
@@ -976,17 +975,17 @@ class TestServerMigrationForceComplete(TestServerMigration):
 
         result = self.cmd.take_action(parsed_args)
 
-        self.servers_mock.get.assert_called_with(self.server.id)
-        self.server_migrations_mock.list.assert_called_with(self.server.id)
-        self.server_migrations_mock.live_migrate_force_complete\
-            .assert_called_with(self.server.id, self.server_migration.id)
+        self.sdk_client.find_server.assert_called_with(
+            self.server.id, ignore_missing=False)
+        self.sdk_client.server_migrations.assert_called_with(self.server.id)
+        self.sdk_client.force_complete_server_migration.\
+            assert_called_with(self.server_migration.id, self.server.id)
         self.assertIsNone(result)
 
     def test_server_migration_force_complete_by_uuid_no_matches(self):
-        self.app.client_manager.compute.api_version = api_versions.APIVersion(
-            '2.59')
+        self._set_mock_microversion('2.59')
 
-        self.server_migrations_mock.list.return_value = []
+        self.sdk_client.server_migrations.return_value = iter([])
 
         arglist = [
             self.server.id,
@@ -1004,8 +1003,7 @@ class TestServerMigrationForceComplete(TestServerMigration):
             str(ex))
 
     def test_server_migration_force_complete_by_uuid_pre_v259(self):
-        self.app.client_manager.compute.api_version = api_versions.APIVersion(
-            '2.58')
+        self._set_mock_microversion('2.58')
 
         arglist = [
             self.server.id,

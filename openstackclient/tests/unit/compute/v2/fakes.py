@@ -25,6 +25,7 @@ from openstack.compute.v2 import migration as _migration
 from openstack.compute.v2 import server as _server
 from openstack.compute.v2 import server_group as _server_group
 from openstack.compute.v2 import server_interface as _server_interface
+from openstack.compute.v2 import server_migration as _server_migration
 from openstack.compute.v2 import service
 from openstack.compute.v2 import volume_attachment
 
@@ -1483,57 +1484,61 @@ def create_migrations(attrs=None, count=2):
     return migrations
 
 
-class FakeServerMigration(object):
-    """Fake one or more server migrations."""
+def create_one_server_migration(attrs=None):
+    """Create a fake server migration.
 
-    @staticmethod
-    def create_one_server_migration(attrs=None, methods=None):
-        """Create a fake server migration.
+    :param dict attrs: A dictionary with all attributes
+    :return A fake openstack.compute.v2.server_migration.ServerMigration object
+    """
+    attrs = attrs or {}
 
-        :param dict attrs:
-            A dictionary with all attributes
-        :param dict methods:
-            A dictionary with all methods
-        :return:
-            A FakeResource object, with id, type, and so on
-        """
-        attrs = attrs or {}
-        methods = methods or {}
+    # Set default attributes.
 
-        # Set default attributes.
+    migration_info = {
+        "created_at": "2016-01-29T13:42:02.000000",
+        "dest_compute": "compute2",
+        "dest_host": "1.2.3.4",
+        "dest_node": "node2",
+        "id": random.randint(1, 999),
+        "server_uuid": uuid.uuid4().hex,
+        "source_compute": "compute1",
+        "source_node": "node1",
+        "status": "running",
+        "memory_total_bytes": random.randint(1, 99999),
+        "memory_processed_bytes": random.randint(1, 99999),
+        "memory_remaining_bytes": random.randint(1, 99999),
+        "disk_total_bytes": random.randint(1, 99999),
+        "disk_processed_bytes": random.randint(1, 99999),
+        "disk_remaining_bytes": random.randint(1, 99999),
+        "updated_at": "2016-01-29T13:42:02.000000",
+        # added in 2.59
+        "uuid": uuid.uuid4().hex,
+        # added in 2.80
+        "user_id": uuid.uuid4().hex,
+        "project_id": uuid.uuid4().hex,
+    }
 
-        migration_info = {
-            "created_at": "2016-01-29T13:42:02.000000",
-            "dest_compute": "compute2",
-            "dest_host": "1.2.3.4",
-            "dest_node": "node2",
-            "id": random.randint(1, 999),
-            "server_uuid": uuid.uuid4().hex,
-            "source_compute": "compute1",
-            "source_node": "node1",
-            "status": "running",
-            "memory_total_bytes": random.randint(1, 99999),
-            "memory_processed_bytes": random.randint(1, 99999),
-            "memory_remaining_bytes": random.randint(1, 99999),
-            "disk_total_bytes": random.randint(1, 99999),
-            "disk_processed_bytes": random.randint(1, 99999),
-            "disk_remaining_bytes": random.randint(1, 99999),
-            "updated_at": "2016-01-29T13:42:02.000000",
-            # added in 2.59
-            "uuid": uuid.uuid4().hex,
-            # added in 2.80
-            "user_id": uuid.uuid4().hex,
-            "project_id": uuid.uuid4().hex,
-        }
+    # Overwrite default attributes.
+    migration_info.update(attrs)
 
-        # Overwrite default attributes.
-        migration_info.update(attrs)
+    migration = _server_migration.ServerMigration(**migration_info)
+    return migration
 
-        migration = fakes.FakeResource(
-            info=copy.deepcopy(migration_info),
-            methods=methods,
-            loaded=True)
-        return migration
+
+def create_server_migrations(attrs=None, methods=None, count=2):
+    """Create multiple server migrations.
+
+    :param dict attrs: A dictionary with all attributes
+    :param int count: The number of server migrations to fake
+    :return A list of fake
+        openstack.compute.v2.server_migration.ServerMigration objects
+    """
+    migrations = []
+    for i in range(0, count):
+        migrations.append(
+            create_one_server_migration(attrs, methods))
+
+    return migrations
 
 
 def create_one_volume_attachment(attrs=None):

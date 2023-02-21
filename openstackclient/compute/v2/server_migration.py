@@ -14,7 +14,6 @@
 
 import uuid
 
-from novaclient import api_versions
 from openstack import utils as sdk_utils
 from osc_lib.command import command
 from osc_lib import exceptions
@@ -256,7 +255,7 @@ class ListMigration(command.Lister):
 
 
 def _get_migration_by_uuid(compute_client, server_id, migration_uuid):
-    for migration in compute_client.server_migrations.list(server_id):
+    for migration in compute_client.server_migrations(server_id):
         if migration.uuid == migration_uuid:
             return migration
             break
@@ -290,9 +289,9 @@ class ShowMigration(command.ShowOne):
         return parser
 
     def take_action(self, parsed_args):
-        compute_client = self.app.client_manager.compute
+        compute_client = self.app.client_manager.sdk_connection.compute
 
-        if compute_client.api_version < api_versions.APIVersion('2.24'):
+        if not sdk_utils.supports_microversion(compute_client, '2.24'):
             msg = _(
                 '--os-compute-api-version 2.24 or greater is required to '
                 'support the server migration show command'
@@ -308,16 +307,16 @@ class ShowMigration(command.ShowOne):
                 )
                 raise exceptions.CommandError(msg)
 
-            if compute_client.api_version < api_versions.APIVersion('2.59'):
+            if not sdk_utils.supports_microversion(compute_client, '2.59'):
                 msg = _(
                     '--os-compute-api-version 2.59 or greater is required to '
                     'retrieve server migrations by UUID'
                 )
                 raise exceptions.CommandError(msg)
 
-        server = utils.find_resource(
-            compute_client.servers,
+        server = compute_client.find_server(
             parsed_args.server,
+            ignore_missing=False,
         )
 
         # the nova API doesn't currently allow retrieval by UUID but it's a
@@ -328,11 +327,13 @@ class ShowMigration(command.ShowOne):
                 compute_client, server.id, parsed_args.migration,
             )
         else:
-            server_migration = compute_client.server_migrations.get(
-                server.id, parsed_args.migration,
+            server_migration = compute_client.get_server_migration(
+                server.id,
+                parsed_args.migration,
+                ignore_missing=False,
             )
 
-        columns = (
+        column_headers = (
             'ID',
             'Server UUID',
             'Status',
@@ -351,14 +352,35 @@ class ShowMigration(command.ShowOne):
             'Updated At',
         )
 
-        if compute_client.api_version >= api_versions.APIVersion('2.59'):
-            columns += ('UUID',)
+        columns = (
+            'id',
+            'server_id',
+            'status',
+            'source_compute',
+            'source_node',
+            'dest_compute',
+            'dest_host',
+            'dest_node',
+            'memory_total_bytes',
+            'memory_processed_bytes',
+            'memory_remaining_bytes',
+            'disk_total_bytes',
+            'disk_processed_bytes',
+            'disk_remaining_bytes',
+            'created_at',
+            'updated_at',
+        )
 
-        if compute_client.api_version >= api_versions.APIVersion('2.80'):
-            columns += ('User ID', 'Project ID')
+        if sdk_utils.supports_microversion(compute_client, '2.59'):
+            column_headers += ('UUID',)
+            columns += ('uuid',)
+
+        if sdk_utils.supports_microversion(compute_client, '2.80'):
+            column_headers += ('User ID', 'Project ID')
+            columns += ('user_id', 'project_id')
 
         data = utils.get_item_properties(server_migration, columns)
-        return columns, data
+        return column_headers, data
 
 
 class AbortMigration(command.Command):
@@ -382,9 +404,9 @@ class AbortMigration(command.Command):
         return parser
 
     def take_action(self, parsed_args):
-        compute_client = self.app.client_manager.compute
+        compute_client = self.app.client_manager.sdk_connection.compute
 
-        if compute_client.api_version < api_versions.APIVersion('2.24'):
+        if not sdk_utils.supports_microversion(compute_client, '2.24'):
             msg = _(
                 '--os-compute-api-version 2.24 or greater is required to '
                 'support the server migration abort command'
@@ -400,16 +422,16 @@ class AbortMigration(command.Command):
                 )
                 raise exceptions.CommandError(msg)
 
-            if compute_client.api_version < api_versions.APIVersion('2.59'):
+            if not sdk_utils.supports_microversion(compute_client, '2.59'):
                 msg = _(
                     '--os-compute-api-version 2.59 or greater is required to '
                     'abort server migrations by UUID'
                 )
                 raise exceptions.CommandError(msg)
 
-        server = utils.find_resource(
-            compute_client.servers,
+        server = compute_client.find_server(
             parsed_args.server,
+            ignore_missing=False,
         )
 
         # the nova API doesn't currently allow retrieval by UUID but it's a
@@ -421,8 +443,10 @@ class AbortMigration(command.Command):
                 compute_client, server.id, parsed_args.migration,
             ).id
 
-        compute_client.server_migrations.live_migration_abort(
-            server.id, migration_id,
+        compute_client.abort_server_migration(
+            migration_id,
+            server.id,
+            ignore_missing=False,
         )
 
 
@@ -447,9 +471,9 @@ class ForceCompleteMigration(command.Command):
         return parser
 
     def take_action(self, parsed_args):
-        compute_client = self.app.client_manager.compute
+        compute_client = self.app.client_manager.sdk_connection.compute
 
-        if compute_client.api_version < api_versions.APIVersion('2.22'):
+        if not sdk_utils.supports_microversion(compute_client, '2.22'):
             msg = _(
                 '--os-compute-api-version 2.22 or greater is required to '
                 'support the server migration force complete command'
@@ -465,16 +489,16 @@ class ForceCompleteMigration(command.Command):
                 )
                 raise exceptions.CommandError(msg)
 
-            if compute_client.api_version < api_versions.APIVersion('2.59'):
+            if not sdk_utils.supports_microversion(compute_client, '2.59'):
                 msg = _(
                     '--os-compute-api-version 2.59 or greater is required to '
                     'abort server migrations by UUID'
                 )
                 raise exceptions.CommandError(msg)
 
-        server = utils.find_resource(
-            compute_client.servers,
+        server = compute_client.find_server(
             parsed_args.server,
+            ignore_missing=False,
         )
 
         # the nova API doesn't currently allow retrieval by UUID but it's a
@@ -486,6 +510,6 @@ class ForceCompleteMigration(command.Command):
                 compute_client, server.id, parsed_args.migration,
             ).id
 
-        compute_client.server_migrations.live_migrate_force_complete(
-            server.id, migration_id,
+        compute_client.force_complete_server_migration(
+            migration_id, server.id
         )
