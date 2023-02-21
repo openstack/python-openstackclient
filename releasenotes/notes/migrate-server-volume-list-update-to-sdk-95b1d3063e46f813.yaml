@@ -1,0 +1,3 @@
+features:
+  - |
+    Switch the server volume list command from novaclient to SDK.

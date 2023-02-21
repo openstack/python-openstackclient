@@ -931,8 +931,7 @@ class TestServerVolume(TestServer):
             'volume_id': self.volumes[0].id,
         }
         self.volume_attachment = \
-            compute_fakes.FakeVolumeAttachment.\
-            create_one_sdk_volume_attachment(attrs=attrs)
+            compute_fakes.create_one_volume_attachment(attrs=attrs)
 
         self.sdk_client.create_volume_attachment.return_value = \
             self.volume_attachment

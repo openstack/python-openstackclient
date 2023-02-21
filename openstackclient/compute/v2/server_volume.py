@@ -15,6 +15,7 @@
 """Compute v2 Server action implementations"""
 
 from novaclient import api_versions
+from openstack import utils as sdk_utils
 from osc_lib.command import command
 from osc_lib import exceptions
 from osc_lib import utils
@@ -34,27 +35,25 @@ class ListServerVolume(command.Lister):
         return parser
 
     def take_action(self, parsed_args):
+        compute_client = self.app.client_manager.sdk_connection.compute
 
-        compute_client = self.app.client_manager.compute
-
-        server = utils.find_resource(
-            compute_client.servers,
+        server = compute_client.find_server(
             parsed_args.server,
+            ignore_missing=False,
         )
-
-        volumes = compute_client.volumes.get_server_volumes(server.id)
+        volumes = compute_client.volume_attachments(server)
 
         columns = ()
         column_headers = ()
 
-        if compute_client.api_version < api_versions.APIVersion('2.89'):
+        if not sdk_utils.supports_microversion(compute_client, '2.89'):
             columns += ('id',)
             column_headers += ('ID',)
 
         columns += (
             'device',
-            'serverId',
-            'volumeId',
+            'server_id',
+            'volume_id',
         )
         column_headers += (
             'Device',
@@ -62,25 +61,21 @@ class ListServerVolume(command.Lister):
             'Volume ID',
         )
 
-        if compute_client.api_version >= api_versions.APIVersion('2.70'):
+        if sdk_utils.supports_microversion(compute_client, '2.70'):
             columns += ('tag',)
             column_headers += ('Tag',)
 
-        if compute_client.api_version >= api_versions.APIVersion('2.79'):
+        if sdk_utils.supports_microversion(compute_client, '2.79'):
             columns += ('delete_on_termination',)
             column_headers += ('Delete On Termination?',)
 
-        if compute_client.api_version >= api_versions.APIVersion('2.89'):
-            columns += ('attachment_id', 'bdm_uuid')
+        if sdk_utils.supports_microversion(compute_client, '2.89'):
+            columns += ('attachment_id', 'bdm_id')
             column_headers += ('Attachment ID', 'BlockDeviceMapping UUID')
 
         return (
             column_headers,
-            (
-                utils.get_item_properties(
-                    s, columns, mixed_case_fields=('serverId', 'volumeId')
-                ) for s in volumes
-            ),
+            (utils.get_item_properties(s, columns) for s in volumes),
         )
 
 

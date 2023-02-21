@@ -1553,122 +1553,49 @@ class FakeServerMigration(object):
         return migration
 
 
-class FakeVolumeAttachment(object):
-    """Fake one or more volume attachments (BDMs)."""
+def create_one_volume_attachment(attrs=None):
+    """Create a fake volume attachment.
 
-    @staticmethod
-    def create_one_volume_attachment(attrs=None, methods=None):
-        """Create a fake volume attachment.
+    :param dict attrs: A dictionary with all attributes
+    :return: A fake openstack.compute.v2.volume_attachment.VolumeAttachment
+        object
+    """
+    attrs = attrs or {}
 
-        :param dict attrs:
-            A dictionary with all attributes
-        :param dict methods:
-            A dictionary with all methods
-        :return:
-            A FakeResource object, with id, device, and so on
-        """
-        attrs = attrs or {}
-        methods = methods or {}
+    # Set default attributes.
+    volume_attachment_info = {
+        "id": uuid.uuid4().hex,
+        "device": "/dev/sdb",
+        "server_id": uuid.uuid4().hex,
+        "volume_id": uuid.uuid4().hex,
+        # introduced in API microversion 2.70
+        "tag": "foo",
+        # introduced in API microversion 2.79
+        "delete_on_termination": True,
+        # introduced in API microversion 2.89
+        "attachment_id": uuid.uuid4().hex,
+        "bdm_id": uuid.uuid4().hex,
+    }
 
-        # Set default attributes.
-        volume_attachment_info = {
-            "id": uuid.uuid4().hex,
-            "device": "/dev/sdb",
-            "serverId": uuid.uuid4().hex,
-            "volumeId": uuid.uuid4().hex,
-            # introduced in API microversion 2.70
-            "tag": "foo",
-            # introduced in API microversion 2.79
-            "delete_on_termination": True,
-            # introduced in API microversion 2.89
-            "attachment_id": uuid.uuid4().hex,
-            "bdm_uuid": uuid.uuid4().hex
-        }
+    # Overwrite default attributes.
+    volume_attachment_info.update(attrs)
 
-        # Overwrite default attributes.
-        volume_attachment_info.update(attrs)
+    return volume_attachment.VolumeAttachment(**volume_attachment_info)
 
-        volume_attachment = fakes.FakeResource(
-            info=copy.deepcopy(volume_attachment_info),
-            methods=methods,
-            loaded=True)
-        return volume_attachment
 
-    @staticmethod
-    def create_volume_attachments(attrs=None, methods=None, count=2):
-        """Create multiple fake volume attachments (BDMs).
+def create_volume_attachments(attrs=None, count=2):
+    """Create multiple fake volume attachments.
 
-        :param dict attrs:
-            A dictionary with all attributes
-        :param dict methods:
-            A dictionary with all methods
-        :param int count:
-            The number of volume attachments to fake
-        :return:
-            A list of FakeResource objects faking the volume attachments.
-        """
-        volume_attachments = []
-        for i in range(0, count):
-            volume_attachments.append(
-                FakeVolumeAttachment.create_one_volume_attachment(
-                    attrs, methods))
+    :param dict attrs: A dictionary with all attributes
+    :param int count: The number of volume attachments to fake
+    :return: A list of fake
+        openstack.compute.v2.volume_attachment.VolumeAttachment objects
+    """
+    volume_attachments = []
+    for i in range(0, count):
+        volume_attachments.append(create_one_volume_attachment(attrs))
 
-        return volume_attachments
-
-    @staticmethod
-    def create_one_sdk_volume_attachment(attrs=None, methods=None):
-        """Create a fake sdk VolumeAttachment.
-
-        :param dict attrs:
-            A dictionary with all attributes
-        :param dict methods:
-            A dictionary with all methods
-        :return:
-            A fake VolumeAttachment object, with id, device, and so on
-        """
-        attrs = attrs or {}
-        methods = methods or {}
-
-        # Set default attributes.
-        volume_attachment_info = {
-            "id": uuid.uuid4().hex,
-            "device": "/dev/sdb",
-            "server_id": uuid.uuid4().hex,
-            "volume_id": uuid.uuid4().hex,
-            # introduced in API microversion 2.70
-            "tag": "foo",
-            # introduced in API microversion 2.79
-            "delete_on_termination": True,
-            # introduced in API microversion 2.89
-            "attachment_id": uuid.uuid4().hex,
-            "bdm_uuid": uuid.uuid4().hex
-        }
-
-        # Overwrite default attributes.
-        volume_attachment_info.update(attrs)
-
-        return volume_attachment.VolumeAttachment(**volume_attachment_info)
-
-    @staticmethod
-    def create_sdk_volume_attachments(attrs=None, methods=None, count=2):
-        """Create multiple fake VolumeAttachment objects (BDMs).
-
-        :param dict attrs:
-            A dictionary with all attributes
-        :param dict methods:
-            A dictionary with all methods
-        :param int count:
-            The number of volume attachments to fake
-        :return:
-            A list of VolumeAttachment objects faking the volume attachments.
-        """
-        volume_attachments = []
-        for i in range(0, count):
-            volume_attachments.append(
-                FakeVolumeAttachment.create_one_sdk_volume_attachment(
-                    attrs, methods))
-
-        return volume_attachments
+    return volume_attachments
 
 
 def create_one_hypervisor(attrs=None):

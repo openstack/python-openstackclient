@@ -11,7 +11,10 @@
 #   under the License.
 #
 
+from unittest import mock
+
 from novaclient import api_versions
+from openstack import utils as sdk_utils
 from osc_lib import exceptions
 
 from openstackclient.compute.v2 import server_volume
@@ -31,26 +34,31 @@ class TestServerVolume(compute_fakes.TestComputev2):
         self.servers_volumes_mock = self.app.client_manager.compute.volumes
         self.servers_volumes_mock.reset_mock()
 
+        self.app.client_manager.sdk_connection = mock.Mock()
+        self.app.client_manager.sdk_connection.compute = mock.Mock()
+        self.sdk_client = self.app.client_manager.sdk_connection.compute
+
 
 class TestServerVolumeList(TestServerVolume):
 
     def setUp(self):
         super().setUp()
 
-        self.server = compute_fakes.FakeServer.create_one_server()
-        self.volume_attachments = (
-            compute_fakes.FakeVolumeAttachment.create_volume_attachments())
+        self.server = compute_fakes.FakeServer.create_one_sdk_server()
+        self.volume_attachments = compute_fakes.create_volume_attachments()
 
-        self.servers_mock.get.return_value = self.server
-        self.servers_volumes_mock.get_server_volumes.return_value = (
+        self.sdk_client.find_server.return_value = self.server
+        self.sdk_client.volume_attachments.return_value = (
             self.volume_attachments)
 
         # Get the command object to test
         self.cmd = server_volume.ListServerVolume(self.app, None)
 
-    def test_server_volume_list(self):
+    @mock.patch.object(sdk_utils, 'supports_microversion')
+    def test_server_volume_list(self, sm_mock):
         self.app.client_manager.compute.api_version = \
             api_versions.APIVersion('2.1')
+        sm_mock.side_effect = [False, False, False, False]
 
         arglist = [
             self.server.id,
@@ -68,24 +76,23 @@ class TestServerVolumeList(TestServerVolume):
                 (
                     self.volume_attachments[0].id,
                     self.volume_attachments[0].device,
-                    self.volume_attachments[0].serverId,
-                    self.volume_attachments[0].volumeId,
+                    self.volume_attachments[0].server_id,
+                    self.volume_attachments[0].volume_id,
                 ),
                 (
                     self.volume_attachments[1].id,
                     self.volume_attachments[1].device,
-                    self.volume_attachments[1].serverId,
-                    self.volume_attachments[1].volumeId,
+                    self.volume_attachments[1].server_id,
+                    self.volume_attachments[1].volume_id,
                 ),
             ),
             tuple(data),
         )
-        self.servers_volumes_mock.get_server_volumes.assert_called_once_with(
-            self.server.id)
+        self.sdk_client.volume_attachments.assert_called_once_with(self.server)
 
-    def test_server_volume_list_with_tags(self):
-        self.app.client_manager.compute.api_version = \
-            api_versions.APIVersion('2.70')
+    @mock.patch.object(sdk_utils, 'supports_microversion')
+    def test_server_volume_list_with_tags(self, sm_mock):
+        sm_mock.side_effect = [False, True, False, False]
 
         arglist = [
             self.server.id,
@@ -105,27 +112,25 @@ class TestServerVolumeList(TestServerVolume):
                 (
                     self.volume_attachments[0].id,
                     self.volume_attachments[0].device,
-                    self.volume_attachments[0].serverId,
-                    self.volume_attachments[0].volumeId,
+                    self.volume_attachments[0].server_id,
+                    self.volume_attachments[0].volume_id,
                     self.volume_attachments[0].tag,
                 ),
                 (
                     self.volume_attachments[1].id,
                     self.volume_attachments[1].device,
-                    self.volume_attachments[1].serverId,
-                    self.volume_attachments[1].volumeId,
+                    self.volume_attachments[1].server_id,
+                    self.volume_attachments[1].volume_id,
                     self.volume_attachments[1].tag,
                 ),
             ),
             tuple(data),
         )
-        self.servers_volumes_mock.get_server_volumes.assert_called_once_with(
-            self.server.id)
+        self.sdk_client.volume_attachments.assert_called_once_with(self.server)
 
-    def test_server_volume_list_with_delete_on_attachment(self):
-        self.app.client_manager.compute.api_version = \
-            api_versions.APIVersion('2.79')
-
+    @mock.patch.object(sdk_utils, 'supports_microversion')
+    def test_server_volume_list_with_delete_on_attachment(self, sm_mock):
+        sm_mock.side_effect = [False, True, True, False]
         arglist = [
             self.server.id,
         ]
@@ -148,29 +153,28 @@ class TestServerVolumeList(TestServerVolume):
                 (
                     self.volume_attachments[0].id,
                     self.volume_attachments[0].device,
-                    self.volume_attachments[0].serverId,
-                    self.volume_attachments[0].volumeId,
+                    self.volume_attachments[0].server_id,
+                    self.volume_attachments[0].volume_id,
                     self.volume_attachments[0].tag,
                     self.volume_attachments[0].delete_on_termination,
                 ),
                 (
                     self.volume_attachments[1].id,
                     self.volume_attachments[1].device,
-                    self.volume_attachments[1].serverId,
-                    self.volume_attachments[1].volumeId,
+                    self.volume_attachments[1].server_id,
+                    self.volume_attachments[1].volume_id,
                     self.volume_attachments[1].tag,
                     self.volume_attachments[1].delete_on_termination,
                 ),
             ),
             tuple(data),
         )
-        self.servers_volumes_mock.get_server_volumes.assert_called_once_with(
-            self.server.id)
+        self.sdk_client.volume_attachments.assert_called_once_with(self.server)
 
-    def test_server_volume_list_with_attachment_ids(self):
-        self.app.client_manager.compute.api_version = \
-            api_versions.APIVersion('2.89')
+    @mock.patch.object(sdk_utils, 'supports_microversion')
+    def test_server_volume_list_with_attachment_ids(self, sm_mock):
 
+        sm_mock.side_effect = [True, True, True, True]
         arglist = [
             self.server.id,
         ]
@@ -193,28 +197,27 @@ class TestServerVolumeList(TestServerVolume):
             (
                 (
                     self.volume_attachments[0].device,
-                    self.volume_attachments[0].serverId,
-                    self.volume_attachments[0].volumeId,
+                    self.volume_attachments[0].server_id,
+                    self.volume_attachments[0].volume_id,
                     self.volume_attachments[0].tag,
                     self.volume_attachments[0].delete_on_termination,
                     self.volume_attachments[0].attachment_id,
-                    self.volume_attachments[0].bdm_uuid
+                    self.volume_attachments[0].bdm_id
 
                 ),
                 (
                     self.volume_attachments[1].device,
-                    self.volume_attachments[1].serverId,
-                    self.volume_attachments[1].volumeId,
+                    self.volume_attachments[1].server_id,
+                    self.volume_attachments[1].volume_id,
                     self.volume_attachments[1].tag,
                     self.volume_attachments[1].delete_on_termination,
                     self.volume_attachments[1].attachment_id,
-                    self.volume_attachments[1].bdm_uuid
+                    self.volume_attachments[1].bdm_id
                 ),
             ),
             tuple(data),
         )
-        self.servers_volumes_mock.get_server_volumes.assert_called_once_with(
-            self.server.id)
+        self.sdk_client.volume_attachments.assert_called_once_with(self.server)
 
 
 class TestServerVolumeUpdate(TestServerVolume):
