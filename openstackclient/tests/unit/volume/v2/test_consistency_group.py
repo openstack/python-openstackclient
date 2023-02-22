@@ -257,7 +257,7 @@ class TestConsistencyGroupCreate(TestConsistencyGroup):
             self.new_consistency_group.name,
         ]
         verifylist = [
-            ('consistency_group_source', self.new_consistency_group.id),
+            ('source', self.new_consistency_group.id),
             ('description', self.new_consistency_group.description),
             ('name', self.new_consistency_group.name),
         ]
@@ -285,7 +285,7 @@ class TestConsistencyGroupCreate(TestConsistencyGroup):
             self.new_consistency_group.name,
         ]
         verifylist = [
-            ('consistency_group_snapshot', self.consistency_group_snapshot.id),
+            ('snapshot', self.consistency_group_snapshot.id),
             ('description', self.new_consistency_group.description),
             ('name', self.new_consistency_group.name),
         ]

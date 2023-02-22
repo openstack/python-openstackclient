@@ -14,6 +14,7 @@
 
 """Volume v2 consistency group action implementations"""
 
+import argparse
 import logging
 
 from osc_lib.cli import format_columns
@@ -90,35 +91,51 @@ class CreateConsistencyGroup(command.ShowOne):
             "name",
             metavar="<name>",
             nargs="?",
-            help=_("Name of new consistency group (default to None)")
+            help=_("Name of new consistency group (default to None)"),
         )
         exclusive_group = parser.add_mutually_exclusive_group(required=True)
         exclusive_group.add_argument(
             "--volume-type",
             metavar="<volume-type>",
-            help=_("Volume type of this consistency group (name or ID)")
+            help=_("Volume type of this consistency group (name or ID)"),
         )
+        exclusive_group.add_argument(
+            "--source",
+            metavar="<consistency-group>",
+            help=_("Existing consistency group (name or ID)"),
+        )
+        # NOTE(stephenfin): Legacy alias
         exclusive_group.add_argument(
             "--consistency-group-source",
             metavar="<consistency-group>",
-            help=_("Existing consistency group (name or ID)")
+            dest='source',
+            help=argparse.SUPPRESS,
         )
+        exclusive_group.add_argument(
+            "--snapshot",
+            metavar="<consistency-group-snapshot>",
+            help=_("Existing consistency group snapshot (name or ID)"),
+        )
+        # NOTE(stephenfin): Legacy alias
         exclusive_group.add_argument(
             "--consistency-group-snapshot",
             metavar="<consistency-group-snapshot>",
-            help=_("Existing consistency group snapshot (name or ID)")
+            dest='snapshot',
+            help=argparse.SUPPRESS,
         )
         parser.add_argument(
             "--description",
             metavar="<description>",
-            help=_("Description of this consistency group")
+            help=_("Description of this consistency group"),
         )
         parser.add_argument(
             "--availability-zone",
             metavar="<availability-zone>",
-            help=_("Availability zone for this consistency group "
-                   "(not available if creating consistency group "
-                   "from source)"),
+            help=_(
+                "Availability zone for this consistency group "
+                "(not available if creating consistency group "
+                "from source)"
+            ),
         )
         return parser
 
@@ -142,21 +159,23 @@ class CreateConsistencyGroup(command.ShowOne):
 
             consistency_group_id = None
             consistency_group_snapshot = None
-            if parsed_args.consistency_group_source:
+            if parsed_args.source:
                 consistency_group_id = utils.find_resource(
                     volume_client.consistencygroups,
-                    parsed_args.consistency_group_source).id
-            elif parsed_args.consistency_group_snapshot:
+                    parsed_args.source,
+                ).id
+            elif parsed_args.snapshot:
                 consistency_group_snapshot = utils.find_resource(
                     volume_client.cgsnapshots,
-                    parsed_args.consistency_group_snapshot).id
+                    parsed_args.snapshot,
+                ).id
 
             consistency_group = (
                 volume_client.consistencygroups.create_from_src(
                     consistency_group_snapshot,
                     consistency_group_id,
                     name=parsed_args.name,
-                    description=parsed_args.description
+                    description=parsed_args.description,
                 )
             )
 
