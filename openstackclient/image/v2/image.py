@@ -1206,7 +1206,10 @@ class SetImage(command.Command):
             const="accepted",
             dest="membership",
             default=None,
-            help=_("Accept the image membership"),
+            help=_(
+                "Accept the image membership for either the project indicated "
+                "by '--project', if provided, or the current user's project"
+            ),
         )
         membership_group.add_argument(
             "--reject",
@@ -1214,7 +1217,10 @@ class SetImage(command.Command):
             const="rejected",
             dest="membership",
             default=None,
-            help=_("Reject the image membership"),
+            help=_(
+                "Reject the image membership for either the project indicated "
+                "by '--project', if provided, or the current user's project"
+            ),
         )
         membership_group.add_argument(
             "--pending",
