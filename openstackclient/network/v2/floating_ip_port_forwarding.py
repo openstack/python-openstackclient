@@ -25,6 +25,61 @@ from openstackclient.network import common
 LOG = logging.getLogger(__name__)
 
 
+def validate_ports_diff(ports):
+    if len(ports) == 0:
+        return 0
+
+    ports_diff = ports[-1] - ports[0]
+    if ports_diff < 0:
+        msg = _("The last number in port range must be"
+                " greater or equal to the first")
+        raise exceptions.CommandError(msg)
+    return ports_diff
+
+
+def validate_ports_match(internal_ports, external_ports):
+    internal_ports_diff = validate_ports_diff(internal_ports)
+    external_ports_diff = validate_ports_diff(external_ports)
+
+    if internal_ports_diff != 0 and internal_ports_diff != external_ports_diff:
+        msg = _("The relation between internal and external ports does not "
+                "match the pattern 1:N and N:N")
+        raise exceptions.CommandError(msg)
+
+
+def validate_and_assign_port_ranges(parsed_args, attrs):
+    internal_port_range = parsed_args.internal_protocol_port
+    external_port_range = parsed_args.external_protocol_port
+    external_ports = internal_ports = []
+    if external_port_range:
+        external_ports = list(map(int, str(external_port_range).split(':')))
+    if internal_port_range:
+        internal_ports = list(map(int, str(internal_port_range).split(':')))
+
+    validate_ports_match(internal_ports, external_ports)
+
+    for port in external_ports + internal_ports:
+        validate_port(port)
+
+    if internal_port_range:
+        if ':' in internal_port_range:
+            attrs['internal_port_range'] = internal_port_range
+        else:
+            attrs['internal_port'] = int(internal_port_range)
+
+    if external_port_range:
+        if ':' in external_port_range:
+            attrs['external_port_range'] = external_port_range
+        else:
+            attrs['external_port'] = int(external_port_range)
+
+
+def validate_port(port):
+    if port <= 0 or port > 65535:
+        msg = _("The port number range is <1-65535>")
+        raise exceptions.CommandError(msg)
+
+
 def _get_columns(item):
     column_map = {}
     hidden_columns = ['location', 'tenant_id']
@@ -58,7 +113,6 @@ class CreateFloatingIPPortForwarding(command.ShowOne,
         )
         parser.add_argument(
             '--internal-protocol-port',
-            type=int,
             metavar='<port-number>',
             required=True,
             help=_("The protocol port number "
@@ -67,7 +121,6 @@ class CreateFloatingIPPortForwarding(command.ShowOne,
         )
         parser.add_argument(
             '--external-protocol-port',
-            type=int,
             metavar='<port-number>',
             required=True,
             help=_("The protocol port number of "
@@ -92,6 +145,7 @@ class CreateFloatingIPPortForwarding(command.ShowOne,
             help=_("Floating IP that the port forwarding belongs to "
                    "(IP address or ID)")
         )
+
         return parser
 
     def take_action(self, parsed_args):
@@ -102,19 +156,7 @@ class CreateFloatingIPPortForwarding(command.ShowOne,
             ignore_missing=False,
         )
 
-        if parsed_args.internal_protocol_port is not None:
-            if (parsed_args.internal_protocol_port <= 0 or
-                    parsed_args.internal_protocol_port > 65535):
-                msg = _("The port number range is <1-65535>")
-                raise exceptions.CommandError(msg)
-            attrs['internal_port'] = parsed_args.internal_protocol_port
-
-        if parsed_args.external_protocol_port is not None:
-            if (parsed_args.external_protocol_port <= 0 or
-                    parsed_args.external_protocol_port > 65535):
-                msg = _("The port number range is <1-65535>")
-                raise exceptions.CommandError(msg)
-            attrs['external_port'] = parsed_args.external_protocol_port
+        validate_and_assign_port_ranges(parsed_args, attrs)
 
         if parsed_args.port:
             port = client.find_port(parsed_args.port,
@@ -226,7 +268,9 @@ class ListFloatingIPPortForwarding(command.Lister):
             'internal_port_id',
             'internal_ip_address',
             'internal_port',
+            'internal_port_range',
             'external_port',
+            'external_port_range',
             'protocol',
             'description',
         )
@@ -235,7 +279,9 @@ class ListFloatingIPPortForwarding(command.Lister):
             'Internal Port ID',
             'Internal IP Address',
             'Internal Port',
+            'Internal Port Range',
             'External Port',
+            'External Port Range',
             'Protocol',
             'Description',
         )
@@ -246,8 +292,13 @@ class ListFloatingIPPortForwarding(command.Lister):
             port = client.find_port(parsed_args.port,
                                     ignore_missing=False)
             query['internal_port_id'] = port.id
-        if parsed_args.external_protocol_port is not None:
-            query['external_port'] = parsed_args.external_protocol_port
+        external_port = parsed_args.external_protocol_port
+        if external_port:
+            if ':' in external_port:
+                query['external_port_range'] = external_port
+            else:
+                query['external_port'] = int(
+                    parsed_args.external_protocol_port)
         if parsed_args.protocol is not None:
             query['protocol'] = parsed_args.protocol
 
@@ -297,14 +348,12 @@ class SetFloatingIPPortForwarding(common.NeutronCommandWithExtraArgs):
         parser.add_argument(
             '--internal-protocol-port',
             metavar='<port-number>',
-            type=int,
             help=_("The TCP/UDP/other protocol port number of the "
                    "network port fixed IPv4 address associated to "
                    "the floating IP port forwarding")
         )
         parser.add_argument(
             '--external-protocol-port',
-            type=int,
             metavar='<port-number>',
             help=_("The TCP/UDP/other protocol port number of the "
                    "port forwarding's floating IP address")
@@ -339,19 +388,8 @@ class SetFloatingIPPortForwarding(common.NeutronCommandWithExtraArgs):
 
         if parsed_args.internal_ip_address:
             attrs['internal_ip_address'] = parsed_args.internal_ip_address
-        if parsed_args.internal_protocol_port is not None:
-            if (parsed_args.internal_protocol_port <= 0 or
-               parsed_args.internal_protocol_port > 65535):
-                msg = _("The port number range is <1-65535>")
-                raise exceptions.CommandError(msg)
-            attrs['internal_port'] = parsed_args.internal_protocol_port
 
-        if parsed_args.external_protocol_port is not None:
-            if (parsed_args.external_protocol_port <= 0 or
-               parsed_args.external_protocol_port > 65535):
-                msg = _("The port number range is <1-65535>")
-                raise exceptions.CommandError(msg)
-            attrs['external_port'] = parsed_args.external_protocol_port
+        validate_and_assign_port_ranges(parsed_args, attrs)
 
         if parsed_args.protocol:
             attrs['protocol'] = parsed_args.protocol

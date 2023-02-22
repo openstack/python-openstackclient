@@ -1,0 +1,4 @@
+---
+features:
+  - |
+    Add port ranges support to the ``floating ip port forwarding`` commands.
