@@ -4,7 +4,7 @@ agent-delete,compute agent delete,Delete existing agent build.
 agent-list,compute agent list,List all builds.
 agent-modify,compute agent set,Modify existing agent build.
 aggregate-add-host,aggregate add host,Add the host to the specified aggregate.
-aggregate-cache-images,WONTFIX,Request images be cached. (Supported by API versions '2.81' - '2.latest') [hint: use '-- os-compute-api-version' flag to show help message for proper version]
+aggregate-cache-images,aggregate cache image,Request images be cached. (Supported by API versions '2.81' - '2.latest') [hint: use '-- os-compute-api-version' flag to show help message for proper version]
 aggregate-create,aggregate create,Create a new aggregate with the specified details.
 aggregate-delete,aggregate delete,Delete the aggregate.
 aggregate-list,aggregate list,Print a list of all aggregates.
@@ -36,19 +36,19 @@ get-rdp-console,console url show --rdp,Get a rdp console to a server.
 get-serial-console,console url show --serial,Get a serial console to a server.
 get-spice-console,console url show --spice,Get a spice console to a server.
 get-vnc-console,console url show --novnc,Get a vnc console to a server.
-host-evacuate,,Evacuate all instances from failed host.
-host-evacuate-live,,Live migrate all instances off the specified host to other available hosts.
-host-meta,,Set or Delete metadata on all instances of a host.
-host-servers-migrate,,Cold migrate all instances off the specified host to other available hosts.
+host-evacuate,WONTFIX,Evacuate all instances from failed host.
+host-evacuate-live,WONTFIX,Live migrate all instances off the specified host to other available hosts.
+host-meta,WONTFIX,Set or Delete metadata on all instances of a host.
+host-servers-migrate,WONTFIX,Cold migrate all instances off the specified host to other available hosts.
 hypervisor-list,hypervisor list,List hypervisors. (Supported by API versions '2.0' - '2.latest')
-hypervisor-servers,,List servers belonging to specific hypervisors.
+hypervisor-servers,server list --host,List servers belonging to specific hypervisors.
 hypervisor-show,hypervisor show,Display the details of the specified hypervisor.
 hypervisor-stats,hypervisor stats show,Get hypervisor statistics over all compute nodes.
 hypervisor-uptime,hypervisor show,Display the uptime of the specified hypervisor.
 image-create,server image create,Create a new image by taking a snapshot of a running server.
 instance-action,server event show,Show an action.
 instance-action-list,server event list,List actions on a server.
-instance-usage-audit-log,,List/Get server usage audits.
+instance-usage-audit-log,WONTFIX,List/Get server usage audits.
 interface-attach,server add port / server add floating ip / server add fixed ip,Attach a network interface to a server.
 interface-detach,server remove port,Detach a network interface from a server.
 interface-list,port list --server,List interfaces attached to a server.
