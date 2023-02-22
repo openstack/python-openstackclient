@@ -100,8 +100,8 @@ class TestVolumeGroupCreate(TestVolumeGroup):
             api_versions.APIVersion('3.13')
 
         arglist = [
-            self.fake_volume_group_type.id,
-            self.fake_volume_type.id,
+            '--volume-group-type', self.fake_volume_group_type.id,
+            '--volume-type', self.fake_volume_type.id,
         ]
         verifylist = [
             ('volume_group_type', self.fake_volume_group_type.id),
@@ -128,12 +128,51 @@ class TestVolumeGroupCreate(TestVolumeGroup):
         self.assertEqual(self.columns, columns)
         self.assertCountEqual(self.data, data)
 
+    def test_volume_group_create__legacy(self):
+        self.app.client_manager.volume.api_version = \
+            api_versions.APIVersion('3.13')
+
+        arglist = [
+            self.fake_volume_group_type.id,
+            self.fake_volume_type.id,
+        ]
+        verifylist = [
+            ('volume_group_type_legacy', self.fake_volume_group_type.id),
+            ('volume_types_legacy', [self.fake_volume_type.id]),
+            ('name', None),
+            ('description', None),
+            ('availability_zone', None),
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        with mock.patch.object(self.cmd.log, 'warning') as mock_warning:
+            columns, data = self.cmd.take_action(parsed_args)
+
+        self.volume_group_types_mock.get.assert_called_once_with(
+            self.fake_volume_group_type.id)
+        self.volume_types_mock.get.assert_called_once_with(
+            self.fake_volume_type.id)
+        self.volume_groups_mock.create.assert_called_once_with(
+            self.fake_volume_group_type.id,
+            self.fake_volume_type.id,
+            None,
+            None,
+            availability_zone=None,
+        )
+        self.assertEqual(self.columns, columns)
+        self.assertCountEqual(self.data, data)
+        mock_warning.assert_called_once()
+        self.assertIn(
+            'Passing volume group type and volume types as positional ',
+            str(mock_warning.call_args[0][0]),
+        )
+
     def test_volume_group_create_no_volume_type(self):
         self.app.client_manager.volume.api_version = \
             api_versions.APIVersion('3.13')
 
         arglist = [
-            self.fake_volume_group_type.id
+            '--volume-group-type', self.fake_volume_group_type.id,
         ]
         verifylist = [
             ('volume_group_type', self.fake_volume_group_type.id),
@@ -148,7 +187,7 @@ class TestVolumeGroupCreate(TestVolumeGroup):
             self.cmd.take_action,
             parsed_args)
         self.assertIn(
-            '<volume_types> is a required argument',
+            '--volume-types is a required argument when creating ',
             str(exc))
 
     def test_volume_group_create_with_options(self):
@@ -156,8 +195,8 @@ class TestVolumeGroupCreate(TestVolumeGroup):
             api_versions.APIVersion('3.13')
 
         arglist = [
-            self.fake_volume_group_type.id,
-            self.fake_volume_type.id,
+            '--volume-group-type', self.fake_volume_group_type.id,
+            '--volume-type', self.fake_volume_type.id,
             '--name', 'foo',
             '--description', 'hello, world',
             '--availability-zone', 'bar',
@@ -192,8 +231,8 @@ class TestVolumeGroupCreate(TestVolumeGroup):
             api_versions.APIVersion('3.12')
 
         arglist = [
-            self.fake_volume_group_type.id,
-            self.fake_volume_type.id,
+            '--volume-group-type', self.fake_volume_group_type.id,
+            '--volume-type', self.fake_volume_type.id,
         ]
         verifylist = [
             ('volume_group_type', self.fake_volume_group_type.id),

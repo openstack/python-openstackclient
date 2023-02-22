@@ -10,7 +10,7 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
-import logging
+import argparse
 
 from cinderclient import api_versions
 from osc_lib.command import command
@@ -18,8 +18,6 @@ from osc_lib import exceptions
 from osc_lib import utils
 
 from openstackclient.i18n import _
-
-LOG = logging.getLogger(__name__)
 
 
 def _format_group(group):
@@ -82,19 +80,72 @@ class CreateVolumeGroup(command.ShowOne):
 
     def get_parser(self, prog_name):
         parser = super().get_parser(prog_name)
+        # This is a bit complicated. We accept two patterns: a legacy pattern
+        #
+        #   volume group create \
+        #     <volume-group-type> <volume-type> [<volume-type>...]
+        #
+        # and the modern approach
+        #
+        #   volume group create \
+        #     --volume-group-type <volume-group-type>
+        #     --volume-type <volume-type>
+        #    [--volume-type <volume-type> ...]
+        #
+        # Because argparse doesn't properly support nested exclusive groups, we
+        # use two groups: one to ensure users don't pass <volume-group-type> as
+        # both a positional and an option argument and another to ensure users
+        # don't pass <volume-type> this way. It's a bit weird but it catches
+        # everything we care about.
         source_parser = parser.add_mutually_exclusive_group()
+        # we use a different name purely so we can issue a deprecation warning
         source_parser.add_argument(
-            'volume_group_type',
+            'volume_group_type_legacy',
             metavar='<volume_group_type>',
             nargs='?',
-            help=_('Name or ID of volume group type to use.'),
+            help=argparse.SUPPRESS,
         )
-        parser.add_argument(
-            'volume_types',
+        volume_types_parser = parser.add_mutually_exclusive_group()
+        # We need to use a separate dest
+        # https://github.com/python/cpython/issues/101990
+        volume_types_parser.add_argument(
+            'volume_types_legacy',
             metavar='<volume_type>',
             nargs='*',
             default=[],
-            help=_('Name or ID of volume type(s) to use.'),
+            help=argparse.SUPPRESS,
+        )
+        source_parser.add_argument(
+            '--volume-group-type',
+            metavar='<volume_group_type>',
+            help=_('Volume group type to use (name or ID)'),
+        )
+        volume_types_parser.add_argument(
+            '--volume-type',
+            metavar='<volume_type>',
+            dest='volume_types',
+            action='append',
+            default=[],
+            help=_(
+                'Volume type(s) to use (name or ID) '
+                '(required with --volume-group-type)'
+            ),
+        )
+        source_parser.add_argument(
+            '--source-group',
+            metavar='<source-group>',
+            help=_(
+                'Existing volume group to use (name or ID) '
+                '(supported by --os-volume-api-version 3.14 or later)'
+            ),
+        )
+        source_parser.add_argument(
+            '--group-snapshot',
+            metavar='<group-snapshot>',
+            help=_(
+                'Existing group snapshot to use (name or ID) '
+                '(supported by --os-volume-api-version 3.14 or later)'
+            ),
         )
         parser.add_argument(
             '--name',
@@ -109,59 +160,63 @@ class CreateVolumeGroup(command.ShowOne):
         parser.add_argument(
             '--availability-zone',
             metavar='<availability-zone>',
-            help=_('Availability zone for volume group. '
-                   '(not available if creating group from source)'),
-        )
-        source_parser.add_argument(
-            '--source-group',
-            metavar='<source-group>',
-            help=_('Existing volume group (name or ID) '
-                   '(supported by --os-volume-api-version 3.14 or later)'),
-        )
-        source_parser.add_argument(
-            '--group-snapshot',
-            metavar='<group-snapshot>',
-            help=_('Existing group snapshot (name or ID) '
-                   '(supported by --os-volume-api-version 3.14 or later)'),
+            help=_(
+                'Availability zone for volume group. '
+                '(not available if creating group from source)'
+            ),
         )
         return parser
 
     def take_action(self, parsed_args):
         volume_client = self.app.client_manager.volume
 
-        if parsed_args.volume_group_type:
+        if parsed_args.volume_group_type_legacy:
+            msg = _(
+                "Passing volume group type and volume types as positional "
+                "arguments is deprecated. Use the --volume-group-type and "
+                "--volume-type option arguments instead."
+            )
+            self.log.warning(msg)
+
+        volume_group_type = parsed_args.volume_group_type or \
+            parsed_args.volume_group_type_legacy
+        volume_types = parsed_args.volume_types[:]
+        volume_types.extend(parsed_args.volume_types_legacy)
+
+        if volume_group_type:
             if volume_client.api_version < api_versions.APIVersion('3.13'):
                 msg = _(
                     "--os-volume-api-version 3.13 or greater is required to "
                     "support the 'volume group create' command"
                 )
                 raise exceptions.CommandError(msg)
-            if not parsed_args.volume_types:
+            if not volume_types:
                 msg = _(
-                    "<volume_types> is a required argument when creating a "
+                    "--volume-types is a required argument when creating a "
                     "group from group type."
                 )
                 raise exceptions.CommandError(msg)
 
-            volume_group_type = utils.find_resource(
+            volume_group_type_id = utils.find_resource(
                 volume_client.group_types,
-                parsed_args.volume_group_type,
-            )
-            volume_types = []
-            for volume_type in parsed_args.volume_types:
-                volume_types.append(
+                volume_group_type,
+            ).id
+            volume_types_ids = []
+            for volume_type in volume_types:
+                volume_types_ids.append(
                     utils.find_resource(
                         volume_client.volume_types,
                         volume_type,
-                    )
+                    ).id
                 )
 
             group = volume_client.groups.create(
-                volume_group_type.id,
-                ','.join(x.id for x in volume_types),
+                volume_group_type_id,
+                ','.join(volume_types_ids),
                 parsed_args.name,
                 parsed_args.description,
-                availability_zone=parsed_args.availability_zone)
+                availability_zone=parsed_args.availability_zone,
+            )
 
             group = volume_client.groups.get(group.id)
             return _format_group(group)
@@ -186,7 +241,7 @@ class CreateVolumeGroup(command.ShowOne):
             if parsed_args.availability_zone:
                 msg = _("'--availability-zone' option will not work "
                         "if creating group from source.")
-                LOG.warning(msg)
+                self.log.warning(msg)
 
             source_group = None
             if parsed_args.source_group:
