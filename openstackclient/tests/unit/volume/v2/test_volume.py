@@ -435,7 +435,8 @@ class TestVolumeCreate(TestVolume):
         self.assertEqual(self.columns, columns)
         self.assertCountEqual(self.datalist, data)
 
-    def test_volume_create_with_bootable_and_readonly(self):
+    @mock.patch.object(utils, 'wait_for_status', return_value=True)
+    def test_volume_create_with_bootable_and_readonly(self, mock_wait):
         arglist = [
             '--bootable',
             '--read-only',
@@ -478,7 +479,8 @@ class TestVolumeCreate(TestVolume):
         self.volumes_mock.update_readonly_flag.assert_called_with(
             self.new_volume.id, True)
 
-    def test_volume_create_with_nonbootable_and_readwrite(self):
+    @mock.patch.object(utils, 'wait_for_status', return_value=True)
+    def test_volume_create_with_nonbootable_and_readwrite(self, mock_wait):
         arglist = [
             '--non-bootable',
             '--read-write',
@@ -522,8 +524,9 @@ class TestVolumeCreate(TestVolume):
             self.new_volume.id, False)
 
     @mock.patch.object(volume.LOG, 'error')
+    @mock.patch.object(utils, 'wait_for_status', return_value=True)
     def test_volume_create_with_bootable_and_readonly_fail(
-            self, mock_error):
+            self, mock_wait, mock_error):
 
         self.volumes_mock.set_bootable.side_effect = (
             exceptions.CommandError())
@@ -573,6 +576,50 @@ class TestVolumeCreate(TestVolume):
             self.new_volume.id, True)
         self.volumes_mock.update_readonly_flag.assert_called_with(
             self.new_volume.id, True)
+
+    @mock.patch.object(volume.LOG, 'error')
+    @mock.patch.object(utils, 'wait_for_status', return_value=False)
+    def test_volume_create_non_available_with_readonly(
+        self, mock_wait, mock_error,
+    ):
+        arglist = [
+            '--non-bootable',
+            '--read-only',
+            '--size', str(self.new_volume.size),
+            self.new_volume.name,
+        ]
+        verifylist = [
+            ('bootable', False),
+            ('non_bootable', True),
+            ('read_only', True),
+            ('read_write', False),
+            ('size', self.new_volume.size),
+            ('name', self.new_volume.name),
+        ]
+
+        parsed_args = self.check_parser(
+            self.cmd, arglist, verifylist)
+
+        columns, data = self.cmd.take_action(parsed_args)
+
+        self.volumes_mock.create.assert_called_with(
+            size=self.new_volume.size,
+            snapshot_id=None,
+            name=self.new_volume.name,
+            description=None,
+            volume_type=None,
+            availability_zone=None,
+            metadata=None,
+            imageRef=None,
+            source_volid=None,
+            consistencygroup_id=None,
+            scheduler_hints=None,
+            backup_id=None,
+        )
+
+        self.assertEqual(2, mock_error.call_count)
+        self.assertEqual(self.columns, columns)
+        self.assertCountEqual(self.datalist, data)
 
     def test_volume_create_without_size(self):
         arglist = [

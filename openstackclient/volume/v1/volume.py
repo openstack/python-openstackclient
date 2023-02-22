@@ -224,15 +224,44 @@ class CreateVolume(command.ShowOne):
 
         if parsed_args.bootable or parsed_args.non_bootable:
             try:
-                volume_client.volumes.set_bootable(
-                    volume.id, parsed_args.bootable)
+                if utils.wait_for_status(
+                    volume_client.volumes.get,
+                    volume.id,
+                    success_status=['available'],
+                    error_status=['error'],
+                    sleep_time=1
+                ):
+                    volume_client.volumes.set_bootable(
+                        volume.id,
+                        parsed_args.bootable
+                    )
+                else:
+                    msg = _(
+                        "Volume status is not available for setting boot "
+                        "state"
+                    )
+                    raise exceptions.CommandError(msg)
             except Exception as e:
                 LOG.error(_("Failed to set volume bootable property: %s"), e)
         if parsed_args.read_only or parsed_args.read_write:
             try:
-                volume_client.volumes.update_readonly_flag(
+                if utils.wait_for_status(
+                    volume_client.volumes.get,
                     volume.id,
-                    parsed_args.read_only)
+                    success_status=['available'],
+                    error_status=['error'],
+                    sleep_time=1
+                ):
+                    volume_client.volumes.update_readonly_flag(
+                        volume.id,
+                        parsed_args.read_only
+                    )
+                else:
+                    msg = _(
+                        "Volume status is not available for setting it"
+                        "read only."
+                    )
+                    raise exceptions.CommandError(msg)
             except Exception as e:
                 LOG.error(_("Failed to set volume read-only access "
                             "mode flag: %s"), e)
