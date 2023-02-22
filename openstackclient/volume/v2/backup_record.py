@@ -26,9 +26,10 @@ LOG = logging.getLogger(__name__)
 
 
 class ExportBackupRecord(command.ShowOne):
-    _description = _('Export volume backup details. Backup information can be '
-                     'imported into a new service instance to be able to '
-                     'restore.')
+    _description = _("""Export volume backup details.
+
+Backup information can be imported into a new service instance to be able to
+restore.""")
 
     def get_parser(self, prog_name):
         parser = super(ExportBackupRecord, self).get_parser(prog_name)
@@ -54,9 +55,10 @@ class ExportBackupRecord(command.ShowOne):
 
 
 class ImportBackupRecord(command.ShowOne):
-    _description = _('Import volume backup details. Exported backup details '
-                     'contain the metadata necessary to restore to a new or '
-                     'rebuilt service instance')
+    _description = _("""Import volume backup details.
+
+Exported backup details contain the metadata necessary to restore to a new or
+rebuilt service instance""")
 
     def get_parser(self, prog_name):
         parser = super(ImportBackupRecord, self).get_parser(prog_name)
