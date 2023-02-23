@@ -38,11 +38,11 @@
       zuul_work_dir: src/opendev.org/openstack/python-openstackclient
 
 - job:
-    name: osc-functional-devstack-base
+    name: osc-functional-devstack
     parent: devstack-tox-functional
     description: |
-      Base job for devstack-based functional tests
-    timeout: 9000
+      Run functional tests for OpenStackClient.
+    timeout: 7800
     irrelevant-files:
       - ^.*\.rst$
       - ^doc/.*$
@@ -54,6 +54,12 @@
         LIBS_FROM_GIT: python-openstackclient
         # NOTE(dtroyer): Functional tests need a bit more volume headroom
         VOLUME_BACKING_FILE_SIZE: 20G
+        Q_AGENT: openvswitch
+        Q_ML2_TENANT_NETWORK_TYPE: vxlan
+        Q_ML2_PLUGIN_MECHANISM_DRIVERS: openvswitch
+      devstack_plugins:
+        # NOTE(amotoki): Some neutron features are enabled by devstack plugin
+        neutron: https://opendev.org/openstack/neutron
       devstack_services:
         ceilometer-acentral: false
         ceilometer-acompute: false
@@ -66,22 +72,6 @@
         s-container: true
         s-object: true
         s-proxy: true
-      osc_environment:
-        PYTHONUNBUFFERED: 'true'
-        OS_CLOUD: devstack-admin
-      zuul_work_dir: src/opendev.org/openstack/python-openstackclient
-
-# The Neutron bits are here rather than in osc-functional-devstack-base to
-# simplify removing Neutron in the osc-functional-devstack-n-net job.
-- job:
-    name: osc-functional-devstack
-    parent: osc-functional-devstack-base
-    timeout: 7800
-    vars:
-      devstack_plugins:
-        # NOTE(amotoki): Some neutron features are enabled by devstack plugin
-        neutron: https://opendev.org/openstack/neutron
-      devstack_services:
         # Disable OVN services
         br-ex-tcpdump: false
         br-int-flows: false
@@ -103,15 +93,19 @@
         neutron-conntrack-helper: true
         neutron-ndp-proxy: true
         q-trunk: true
-      devstack_localrc:
-        Q_AGENT: openvswitch
-        Q_ML2_TENANT_NETWORK_TYPE: vxlan
-        Q_ML2_PLUGIN_MECHANISM_DRIVERS: openvswitch
+      osc_environment:
+        PYTHONUNBUFFERED: 'true'
+        OS_CLOUD: devstack-admin
       tox_envlist: functional
+      zuul_work_dir: src/opendev.org/openstack/python-openstackclient
 
 - job:
     name: osc-functional-devstack-tips
     parent: osc-functional-devstack
+    description: |
+      Run functional tests for OpenStackClient with master branch of important libs.
+
+      Takes advantage of the base tox job's install-siblings feature.
     timeout: 7800
     required-projects:
       - openstack/cliff
