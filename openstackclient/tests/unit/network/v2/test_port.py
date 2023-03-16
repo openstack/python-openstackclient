@@ -1318,7 +1318,7 @@ class TestListPort(TestPort):
 
         columns, data = self.cmd.take_action(parsed_args)
         filters = {
-            'security_groups': ['sg-id1', 'sg-id2'],
+            'security_group_ids': ['sg-id1', 'sg-id2'],
             'fields': LIST_FIELDS_TO_RETRIEVE,
         }
 

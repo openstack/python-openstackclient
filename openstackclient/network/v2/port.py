@@ -694,7 +694,7 @@ class ListPort(command.Lister):
             filters['fixed_ips'] = _prepare_filter_fixed_ips(
                 self.app.client_manager, parsed_args)
         if parsed_args.security_groups:
-            filters['security_groups'] = parsed_args.security_groups
+            filters['security_group_ids'] = parsed_args.security_groups
 
         _tag.get_tag_filtering_args(parsed_args, filters)
 
