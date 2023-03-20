@@ -1380,7 +1380,6 @@ class TestServerCreate(TestServer):
         'id',
         'image',
         'name',
-        'networks',
         'properties',
     )
 
@@ -1394,7 +1393,6 @@ class TestServerCreate(TestServer):
             self.new_server.id,
             self.image.name + ' (' + self.new_server.image.get('id') + ')',
             self.new_server.name,
-            self.new_server.networks,
             format_columns.DictColumn(self.new_server.metadata),
         )
         return datalist
@@ -2399,7 +2397,7 @@ class TestServerCreate(TestServer):
             self.new_server.name, self.image, self.flavor, **kwargs
         )
         self.assertEqual(self.columns, columns)
-        self.assertEqual(self.datalist(), data)
+        self.assertTupleEqual(self.datalist(), data)
 
     @mock.patch.object(common_utils, 'wait_for_status', return_value=False)
     def test_server_create_with_wait_fails(self, mock_wait_for_status):
@@ -8245,7 +8243,7 @@ class TestServerShow(TestServer):
             'image': {'id': self.image.id},
             'flavor': {'id': self.flavor.id},
             'tenant_id': 'tenant-id-xxx',
-            'networks': {'public': ['10.20.30.40', '2001:db8::f']},
+            'addresses': {'public': ['10.20.30.40', '2001:db8::f']},
         }
         self.sdk_client.get_server_diagnostics.return_value = {'test': 'test'}
         server_method = {
@@ -8270,7 +8268,6 @@ class TestServerShow(TestServer):
             'id',
             'image',
             'name',
-            'networks',
             'project_id',
             'properties',
         )
@@ -8279,12 +8276,11 @@ class TestServerShow(TestServer):
             server.PowerStateColumn(
                 getattr(self.server, 'OS-EXT-STS:power_state')
             ),
-            format_columns.DictListColumn(self.server.networks),
             self.flavor.name + " (" + self.flavor.id + ")",
             self.server.id,
             self.image.name + " (" + self.image.id + ")",
             self.server.name,
-            {'public': ['10.20.30.40', '2001:db8::f']},
+            server.AddressesColumn({'public': ['10.20.30.40', '2001:db8::f']}),
             'tenant-id-xxx',
             format_columns.DictColumn({}),
         )
@@ -9095,7 +9091,7 @@ class TestServerGeneral(TestServer):
             'image': {u'id': _image.id},
             'flavor': {u'id': _flavor.id},
             'tenant_id': u'tenant-id-xxx',
-            'networks': {u'public': [u'10.20.30.40', u'2001:db8::f']},
+            'addresses': {u'public': [u'10.20.30.40', u'2001:db8::f']},
             'links': u'http://xxx.yyy.com',
             'properties': '',
             'volumes_attached': [{"id": "6344fe9d-ef20-45b2-91a6"}],
@@ -9115,7 +9111,7 @@ class TestServerGeneral(TestServer):
             ),
             'properties': '',
             'volumes_attached': [{"id": "6344fe9d-ef20-45b2-91a6"}],
-            'addresses': format_columns.DictListColumn(_server.networks),
+            'addresses': format_columns.DictListColumn(_server.addresses),
             'project_id': 'tenant-id-xxx',
         }
 
@@ -9125,8 +9121,6 @@ class TestServerGeneral(TestServer):
             self.app.client_manager.image,
             _server,
         )
-        # 'networks' is used to create _server. Remove it.
-        server_detail.pop('networks')
 
         # Check the results.
         self.assertCountEqual(info, server_detail)

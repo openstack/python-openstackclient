@@ -150,16 +150,13 @@ def _prep_server_detail(compute_client, image_client, server, refresh=True):
     # Some commands using this routine were originally implemented with the
     # nova python wrappers, and were later migrated to use the SDK. Map the
     # SDK's property names to the original property names to maintain backward
-    # compatibility for existing users. Data is duplicated under both the old
-    # and new name so users can consume the data by either name.
+    # compatibility for existing users.
     column_map = {
         'access_ipv4': 'accessIPv4',
         'access_ipv6': 'accessIPv6',
         'admin_password': 'adminPass',
-        'admin_password': 'adminPass',
-        'volumes': 'os-extended-volumes:volumes_attached',
+        'attached_volumes': 'volumes_attached',
         'availability_zone': 'OS-EXT-AZ:availability_zone',
-        'block_device_mapping': 'block_device_mapping_v2',
         'compute_host': 'OS-EXT-SRV-ATTR:host',
         'created_at': 'created',
         'disk_config': 'OS-DCF:diskConfig',
@@ -169,7 +166,6 @@ def _prep_server_detail(compute_client, image_client, server, refresh=True):
         'fault': 'fault',
         'hostname': 'OS-EXT-SRV-ATTR:hostname',
         'hypervisor_hostname': 'OS-EXT-SRV-ATTR:hypervisor_hostname',
-        'image_id': 'imageRef',
         'instance_name': 'OS-EXT-SRV-ATTR:instance_name',
         'is_locked': 'locked',
         'kernel_id': 'OS-EXT-SRV-ATTR:kernel_id',
@@ -180,21 +176,56 @@ def _prep_server_detail(compute_client, image_client, server, refresh=True):
         'ramdisk_id': 'OS-EXT-SRV-ATTR:ramdisk_id',
         'reservation_id': 'OS-EXT-SRV-ATTR:reservation_id',
         'root_device_name': 'OS-EXT-SRV-ATTR:root_device_name',
-        'scheduler_hints': 'OS-SCH-HNT:scheduler_hints',
         'task_state': 'OS-EXT-STS:task_state',
         'terminated_at': 'OS-SRV-USG:terminated_at',
         'updated_at': 'updated',
         'user_data': 'OS-EXT-SRV-ATTR:user_data',
         'vm_state': 'OS-EXT-STS:vm_state',
     }
+    # Some columns returned by openstacksdk should not be shown because they're
+    # either irrelevant or duplicates
+    ignored_columns = {
+        # computed columns
+        'interface_ip',
+        'location',
+        'private_v4',
+        'private_v6',
+        'public_v4',
+        'public_v6',
+        # create-only columns
+        'block_device_mapping',
+        'image_id',
+        'max_count',
+        'min_count',
+        'scheduler_hints',
+        # aliases
+        'volumes',
+        # unnecessary
+        'links',
+    }
+    # Some columns are only present in certain responses and should not be
+    # shown otherwise.
+    optional_columns = {
+        'admin_password',  # removed in 2.14
+        'fault',  # only present in errored servers
+        'flavor_id',  # removed in 2.47
+        'networks',  # only present in create responses
+        'security_groups',  # only present in create, detail responses
+    }
 
-    info.update(
-        {
-            column_map[column]: data
-            for column, data in info.items()
-            if column in column_map
-        }
-    )
+    data = {}
+    for key, value in info.items():
+        if key in ignored_columns:
+            continue
+
+        if key in optional_columns:
+            if info[key] is None:
+                continue
+
+        alias = column_map.get(key)
+        data[alias or key] = value
+
+    info = data
 
     # Convert the image blob to a name
     image_info = info.get('image', {})
@@ -215,46 +246,57 @@ def _prep_server_detail(compute_client, image_client, server, refresh=True):
     # Convert the flavor blob to a name
     flavor_info = info.get('flavor', {})
     # Microversion 2.47 puts the embedded flavor into the server response
-    # body but omits the id, so if not present we just expose the flavor
-    # dict in the server output.
-    if 'id' in flavor_info:
+    # body. The presence of the 'original_name' attribute indicates this.
+    if flavor_info.get('original_name') is None:  # microversion < 2.47
         flavor_id = flavor_info.get('id', '')
         try:
             flavor = utils.find_resource(compute_client.flavors, flavor_id)
             info['flavor'] = "%s (%s)" % (flavor.name, flavor_id)
         except Exception:
             info['flavor'] = flavor_id
-    else:
+    else:  # microversion >= 2.47
         info['flavor'] = format_columns.DictColumn(flavor_info)
 
-    if 'os-extended-volumes:volumes_attached' in info:
+    # there's a lot of redundant information in BDMs - strip it
+    if 'volumes_attached' in info:
         info.update(
             {
                 'volumes_attached': format_columns.ListDictColumn(
-                    info.pop('os-extended-volumes:volumes_attached')
+                    [
+                        {
+                            k: v
+                            for k, v in volume.items()
+                            if v is not None and k != 'location'
+                        }
+                        for volume in info.pop('volumes_attached') or []
+                    ]
                 )
             }
         )
+
     if 'security_groups' in info:
         info.update(
             {
                 'security_groups': format_columns.ListDictColumn(
-                    info.pop('security_groups')
+                    info.pop('security_groups'),
                 )
             }
         )
+
     if 'tags' in info:
         info.update({'tags': format_columns.ListColumn(info.pop('tags'))})
 
-    # NOTE(dtroyer): novaclient splits these into separate entries...
-    # Format addresses in a useful way
-    info['addresses'] = (
-        AddressesColumn(info['addresses'])
-        if 'addresses' in info
-        else format_columns.DictListColumn(info.get('networks'))
-    )
+    # Map 'networks' to 'addresses', if present. Note that the 'networks' key
+    # is used for create responses, otherwise it's 'addresses'. We know it'll
+    # be set because this is one of our optional columns.
+    if 'networks' in info:
+        info['addresses'] = format_columns.DictListColumn(
+            info.pop('networks', {}),
+        )
+    else:
+        info['addresses'] = AddressesColumn(info.get('addresses', {}))
 
-    # Map 'metadata' field to 'properties'
+    # Map 'metadata' field to 'properties' and format
     info['properties'] = format_columns.DictColumn(info.pop('metadata'))
 
     # Migrate tenant_id to project_id naming
@@ -266,9 +308,6 @@ def _prep_server_detail(compute_client, image_client, server, refresh=True):
         info['OS-EXT-STS:power_state'] = PowerStateColumn(
             info['OS-EXT-STS:power_state']
         )
-
-    # Remove values that are long and not too useful
-    info.pop('links', None)
 
     return info
 
