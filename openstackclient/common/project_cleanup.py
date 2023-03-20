@@ -48,10 +48,16 @@ class ProjectCleanup(command.Command):
 
     def get_parser(self, prog_name):
         parser = super(ProjectCleanup, self).get_parser(prog_name)
-        parser.add_argument(
+        action_group = parser.add_mutually_exclusive_group()
+        action_group.add_argument(
             '--dry-run',
             action='store_true',
-            help=_("List a project's resources")
+            help=_("List a project's resources but do not delete them")
+        )
+        action_group.add_argument(
+            '--auto-approve',
+            action='store_true',
+            help=_("Delete resources without asking for confirmation")
         )
         project_group = parser.add_mutually_exclusive_group(required=True)
         project_group.add_argument(
@@ -67,12 +73,12 @@ class ProjectCleanup(command.Command):
         parser.add_argument(
             '--created-before',
             metavar='<YYYY-MM-DDTHH24:MI:SS>',
-            help=_('Drop resources created before the given time')
+            help=_('Only delete resources created before the given time')
         )
         parser.add_argument(
             '--updated-before',
             metavar='<YYYY-MM-DDTHH24:MI:SS>',
-            help=_('Drop resources updated before the given time')
+            help=_('Only delete resources updated before the given time')
         )
         identity_common.add_project_domain_option_to_parser(parser)
         return parser
@@ -127,12 +133,13 @@ class ProjectCleanup(command.Command):
             if parsed_args.dry_run:
                 return
 
-            confirm = ask_user_yesno(
-                _("These resources will be deleted. Are you sure"))
+            if not parsed_args.auto_approve:
+                if not ask_user_yesno(
+                        _("These resources will be deleted. Are you sure")):
+                    return
 
-            if confirm:
-                self.log.warning(_('Deleting resources'))
+            self.log.warning(_('Deleting resources'))
 
-                project_connect.project_cleanup(dry_run=False,
-                                                status_queue=status_queue,
-                                                filters=filters)
+            project_connect.project_cleanup(dry_run=False,
+                                            status_queue=status_queue,
+                                            filters=filters)

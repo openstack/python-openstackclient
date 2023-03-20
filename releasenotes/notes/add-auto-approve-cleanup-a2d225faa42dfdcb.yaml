@@ -1,0 +1,6 @@
+---
+features:
+  - |
+    An ``--auto-approve`` option has been added to the
+    ``project cleanup`` command. This allows the interactive
+    confirmation of resource deletion to be skipped.
