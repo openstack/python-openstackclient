@@ -22,14 +22,14 @@ import-info,,Print import methods available from Glance.
 location-add,,Add a location (and related metadata) to an image.
 location-delete,,Remove locations (and related metadata) from an image.
 location-update,,Update metadata of an image's location.
-md-namespace-create,,Create a new metadata definitions namespace.
-md-namespace-delete,,Delete specified metadata definitions namespace with its contents.
+md-namespace-create,image metadef namespace create,Create a new metadata definitions namespace.
+md-namespace-delete,image metadef namespace delete,Delete specified metadata definitions namespace with its contents.
 md-namespace-import,,Import a metadata definitions namespace from file or standard input.
-md-namespace-list,,List metadata definitions namespaces.
+md-namespace-list,image metadef namespace list,List metadata definitions namespaces.
 md-namespace-objects-delete,,Delete all metadata definitions objects inside a specific namespace.
 md-namespace-properties-delete,,Delete all metadata definitions property inside a specific namespace.
 md-namespace-resource-type-list,,List resource types associated to specific namespace.
-md-namespace-show,,Describe a specific metadata definitions namespace.
+md-namespace-show,image metadef namespace show,Describe a specific metadata definitions namespace.
 md-namespace-tags-delete,,Delete all metadata definitions tags inside a specific namespace.
 md-namespace-update,,Update an existing metadata definitions namespace.
 md-object-create,,Create a new metadata definitions object inside a namespace.
