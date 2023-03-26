@@ -131,7 +131,8 @@ class TestHypervisorList(TestHypervisor):
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
         # Fake the return value of search()
-        self.sdk_client.find_hypervisor.return_value = [self.hypervisors[0]]
+        self.sdk_client.hypervisors.return_value = [self.hypervisors[0]]
+
         self.data = (
             (
                 self.hypervisors[0].id,
@@ -147,10 +148,9 @@ class TestHypervisorList(TestHypervisor):
         # containing the data to be listed.
         columns, data = self.cmd.take_action(parsed_args)
 
-        self.sdk_client.find_hypervisor.assert_called_with(
-            self.hypervisors[0].name,
-            ignore_missing=False
-        )
+        self.sdk_client.hypervisors.assert_called_with(
+            hypervisor_hostname_pattern=self.hypervisors[0].name,
+            details=True)
         self.assertEqual(self.columns, columns)
         self.assertEqual(self.data, tuple(data))
 
@@ -164,7 +164,7 @@ class TestHypervisorList(TestHypervisor):
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
         # Fake exception raised from search()
-        self.sdk_client.find_hypervisor.side_effect = \
+        self.sdk_client.hypervisors.side_effect = \
             exceptions.NotFound(None)
 
         self.assertRaises(exceptions.NotFound,
