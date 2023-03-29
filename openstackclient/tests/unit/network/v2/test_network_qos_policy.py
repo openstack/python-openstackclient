@@ -432,7 +432,7 @@ class TestShowNetworkQosPolicy(TestQosPolicy):
         _qos_policy.is_default,
         _qos_policy.name,
         _qos_policy.project_id,
-        _qos_policy.rules,
+        network_qos_policy.RulesColumn(_qos_policy.rules),
         _qos_policy.shared,
     )
 

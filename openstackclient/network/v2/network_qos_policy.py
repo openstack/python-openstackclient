@@ -15,6 +15,7 @@
 
 import logging
 
+from cliff import columns as cliff_columns
 from osc_lib.command import command
 from osc_lib import exceptions
 from osc_lib import utils
@@ -24,6 +25,16 @@ from openstackclient.identity import common as identity_common
 from openstackclient.network import common
 
 LOG = logging.getLogger(__name__)
+
+
+class RulesColumn(cliff_columns.FormattableColumn):
+    def human_readable(self):
+        return '\n'.join(str(v) for v in self._value)
+
+
+_formatters = {
+    'rules': RulesColumn,
+}
 
 
 def _get_columns(item):
@@ -287,5 +298,5 @@ class ShowNetworkQosPolicy(command.ShowOne):
         obj = client.find_qos_policy(parsed_args.policy,
                                      ignore_missing=False)
         display_columns, columns = _get_columns(obj)
-        data = utils.get_item_properties(obj, columns)
+        data = utils.get_item_properties(obj, columns, formatters=_formatters)
         return (display_columns, data)
