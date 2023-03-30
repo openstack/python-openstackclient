@@ -1,0 +1,5 @@
+---
+features:
+  - |
+    Migrate ``server start`` and ``server stop`` commands from novaclient to
+    sdk.

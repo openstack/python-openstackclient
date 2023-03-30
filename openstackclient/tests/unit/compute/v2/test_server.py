@@ -8216,28 +8216,19 @@ class TestServerSsh(TestServer):
 class TestServerStart(TestServer):
 
     def setUp(self):
-        super(TestServerStart, self).setUp()
+        super().setUp()
 
         # Get the command object to test
         self.cmd = server.StartServer(self.app, None)
 
-        # Set methods to be tested.
-        self.methods = {
-            'start': None,
-        }
-
     def test_server_start_one_server(self):
-        self.run_method_with_servers('start', 1)
+        self.run_method_with_sdk_servers('start_server', 1)
 
     def test_server_start_multi_servers(self):
-        self.run_method_with_servers('start', 3)
+        self.run_method_with_sdk_servers('start_server', 3)
 
-    @mock.patch.object(common_utils, 'find_resource')
-    def test_server_start_with_all_projects(self, mock_find_resource):
-        servers = self.setup_servers_mock(count=1)
-        mock_find_resource.side_effect = compute_fakes.FakeServer.get_servers(
-            servers, 0,
-        )
+    def test_server_start_with_all_projects(self):
+        servers = self.setup_sdk_servers_mock(count=1)
 
         arglist = [
             servers[0].id,
@@ -8250,36 +8241,30 @@ class TestServerStart(TestServer):
 
         self.cmd.take_action(parsed_args)
 
-        mock_find_resource.assert_called_once_with(
-            mock.ANY, servers[0].id, all_tenants=True,
+        self.sdk_client.find_server.assert_called_once_with(
+            name=servers[0].id,
+            details=False,
+            all_projects=True,
+            ignore_missing=False,
         )
 
 
 class TestServerStop(TestServer):
 
     def setUp(self):
-        super(TestServerStop, self).setUp()
+        super().setUp()
 
         # Get the command object to test
         self.cmd = server.StopServer(self.app, None)
 
-        # Set methods to be tested.
-        self.methods = {
-            'stop': None,
-        }
-
     def test_server_stop_one_server(self):
-        self.run_method_with_servers('stop', 1)
+        self.run_method_with_sdk_servers('stop_server', 1)
 
     def test_server_stop_multi_servers(self):
-        self.run_method_with_servers('stop', 3)
+        self.run_method_with_sdk_servers('stop_server', 3)
 
-    @mock.patch.object(common_utils, 'find_resource')
-    def test_server_start_with_all_projects(self, mock_find_resource):
+    def test_server_start_with_all_projects(self):
         servers = self.setup_servers_mock(count=1)
-        mock_find_resource.side_effect = compute_fakes.FakeServer.get_servers(
-            servers, 0,
-        )
 
         arglist = [
             servers[0].id,
@@ -8292,8 +8277,11 @@ class TestServerStop(TestServer):
 
         self.cmd.take_action(parsed_args)
 
-        mock_find_resource.assert_called_once_with(
-            mock.ANY, servers[0].id, all_tenants=True,
+        self.sdk_client.find_server.assert_called_once_with(
+            name=servers[0].id,
+            details=False,
+            all_projects=True,
+            ignore_missing=False,
         )
 
 
