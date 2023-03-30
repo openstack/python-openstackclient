@@ -1,0 +1,4 @@
+---
+features:
+  - |
+    The ``server lock`` and ``server unlock`` commands now use SDK.

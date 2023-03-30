@@ -2815,24 +2815,33 @@ A non-admin user will not be able to execute actions.""")
             '--reason',
             metavar='<reason>',
             default=None,
-            help=_("Reason for locking the server(s). Requires "
-                   "``--os-compute-api-version`` 2.73 or greater.")
+            help=_(
+                'Reason for locking the server(s) '
+                '(supported by --os-compute-api-version 2.73 or above)'
+            ),
         )
         return parser
 
     def take_action(self, parsed_args):
+        compute_client = self.app.client_manager.sdk_connection.compute
 
-        compute_client = self.app.client_manager.compute
-        support_reason = compute_client.api_version >= api_versions.APIVersion(
-            '2.73')
-        if not support_reason and parsed_args.reason:
-            msg = _('--os-compute-api-version 2.73 or greater is required to '
-                    'use the --reason option.')
-            raise exceptions.CommandError(msg)
+        kwargs = {}
+        if parsed_args.reason:
+            if not sdk_utils.supports_microversion(compute_client, '2.73'):
+                msg = _(
+                    '--os-compute-api-version 2.73 or greater is required to '
+                    'use the --reason option'
+                )
+                raise exceptions.CommandError(msg)
+
+            kwargs['locked_reason'] = parsed_args.reason
+
         for server in parsed_args.server:
-            serv = utils.find_resource(compute_client.servers, server)
-            (serv.lock(reason=parsed_args.reason) if support_reason
-                else serv.lock())
+            server_id = compute_client.find_server(
+                server,
+                ignore_missing=False
+            ).id
+            compute_client.lock_server(server_id, **kwargs)
 
 
 # FIXME(dtroyer): Here is what I want, how with argparse/cliff?
@@ -4654,7 +4663,7 @@ class UnlockServer(command.Command):
     _description = _("Unlock server(s)")
 
     def get_parser(self, prog_name):
-        parser = super(UnlockServer, self).get_parser(prog_name)
+        parser = super().get_parser(prog_name)
         parser.add_argument(
             'server',
             metavar='<server>',
@@ -4664,12 +4673,13 @@ class UnlockServer(command.Command):
         return parser
 
     def take_action(self, parsed_args):
-        compute_client = self.app.client_manager.compute
+        compute_client = self.app.client_manager.sdk_connection.compute
         for server in parsed_args.server:
-            utils.find_resource(
-                compute_client.servers,
+            server_id = compute_client.find_server(
                 server,
-            ).unlock()
+                ignore_missing=False,
+            ).id
+            compute_client.unlock_server(server_id)
 
 
 class UnpauseServer(command.Command):

@@ -196,11 +196,7 @@ class TestServer(compute_fakes.TestComputev2):
 
         for s in servers:
             method = getattr(s, method_name)
-            if method_name == 'lock':
-                version = self.app.client_manager.compute.api_version
-                if version >= api_versions.APIVersion('2.73'):
-                    method.assert_called_with(reason=None)
-            elif method_name == 'unshelve':
+            if method_name == 'unshelve':
                 version = self.app.client_manager.compute.api_version
                 if version >= api_versions.APIVersion('2.91'):
                     method.assert_called_with(availability_zone=_sentinel,
@@ -5440,87 +5436,94 @@ class TestServerListV273(_TestServerList):
 class TestServerLock(TestServer):
 
     def setUp(self):
-        super(TestServerLock, self).setUp()
+        super().setUp()
+
+        self.server = compute_fakes.FakeServer.create_one_sdk_server()
+
+        self.app.client_manager.sdk_connection = mock.Mock()
+        self.app.client_manager.sdk_connection.compute = mock.Mock()
+        self.sdk_client = self.app.client_manager.sdk_connection.compute
+
+        self.sdk_client.find_server.return_value = self.server
+        self.sdk_client.lock_server.return_value = None
 
         # Get the command object to test
         self.cmd = server.LockServer(self.app, None)
 
-        # Set methods to be tested.
-        self.methods = {
-            'lock': None,
-        }
+    @mock.patch.object(sdk_utils, 'supports_microversion')
+    def test_server_lock(self, sm_mock):
+        sm_mock.return_value = False
+        self.run_method_with_sdk_servers('lock_server', 1)
 
-    def test_server_lock_one_server(self):
-        self.run_method_with_servers('lock', 1)
+    @mock.patch.object(sdk_utils, 'supports_microversion')
+    def test_server_lock_multi_servers(self, sm_mock):
+        sm_mock.return_value = False
+        self.run_method_with_sdk_servers('lock_server', 3)
 
-    def test_server_lock_multi_servers(self):
-        self.run_method_with_servers('lock', 3)
+    @mock.patch.object(sdk_utils, 'supports_microversion')
+    def test_server_lock_with_reason(self, sm_mock):
+        sm_mock.return_value = True
+        arglist = [
+            self.server.id,
+            '--reason', 'blah',
+        ]
+        verifylist = [
+            ('server', [self.server.id]),
+            ('reason', 'blah'),
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+        self.cmd.take_action(parsed_args)
+        self.sdk_client.find_server.assert_called_with(
+            self.server.id,
+            ignore_missing=False,
+        )
+        self.sdk_client.lock_server.assert_called_with(
+            self.server.id,
+            locked_reason="blah",
+        )
 
-    def test_server_lock_with_reason(self):
-        server = compute_fakes.FakeServer.create_one_server()
+    @mock.patch.object(sdk_utils, 'supports_microversion')
+    def test_server_lock_with_reason_multi_servers(self, sm_mock):
+        sm_mock.return_value = True
+        server2 = compute_fakes.FakeServer.create_one_sdk_server()
+        arglist = [
+            self.server.id, server2.id,
+            '--reason', 'choo..choo',
+        ]
+        verifylist = [
+            ('server', [self.server.id, server2.id]),
+            ('reason', 'choo..choo'),
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+        self.cmd.take_action(parsed_args)
+        self.assertEqual(2, self.sdk_client.find_server.call_count)
+        self.sdk_client.lock_server.assert_called_with(
+            self.server.id,
+            locked_reason="choo..choo",
+        )
+        self.assertEqual(2, self.sdk_client.lock_server.call_count)
+
+    @mock.patch.object(sdk_utils, 'supports_microversion')
+    def test_server_lock_with_reason_pre_v273(self, sm_mock):
+        sm_mock.return_value = False
+        server = compute_fakes.FakeServer.create_one_sdk_server()
         arglist = [
             server.id,
             '--reason', "blah",
         ]
         verifylist = [
+            ('server', [server.id]),
             ('reason', "blah"),
-            ('server', [server.id])
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
-        ex = self.assertRaises(exceptions.CommandError,
-                               self.cmd.take_action,
-                               parsed_args)
+        ex = self.assertRaises(
+            exceptions.CommandError,
+            self.cmd.take_action,
+            parsed_args,
+        )
         self.assertIn(
-            '--os-compute-api-version 2.73 or greater is required', str(ex))
-
-
-class TestServerLockV273(TestServerLock):
-
-    def setUp(self):
-        super(TestServerLockV273, self).setUp()
-
-        self.server = compute_fakes.FakeServer.create_one_server(
-            methods=self.methods)
-
-        # This is the return value for utils.find_resource()
-        self.servers_mock.get.return_value = self.server
-
-        self.app.client_manager.compute.api_version = \
-            api_versions.APIVersion('2.73')
-
-        # Get the command object to test
-        self.cmd = server.LockServer(self.app, None)
-
-    def test_server_lock_with_reason(self):
-        arglist = [
-            self.server.id,
-            '--reason', "blah",
-        ]
-        verifylist = [
-            ('reason', "blah"),
-            ('server', [self.server.id])
-        ]
-        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
-        self.cmd.take_action(parsed_args)
-        self.servers_mock.get.assert_called_with(self.server.id)
-        self.server.lock.assert_called_with(reason="blah")
-
-    def test_server_lock_multi_servers_with_reason(self):
-        server2 = compute_fakes.FakeServer.create_one_server(
-            methods=self.methods)
-        arglist = [
-            self.server.id, server2.id,
-            '--reason', "choo..choo",
-        ]
-        verifylist = [
-            ('reason', "choo..choo"),
-            ('server', [self.server.id, server2.id])
-        ]
-        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
-        self.cmd.take_action(parsed_args)
-        self.assertEqual(2, self.servers_mock.get.call_count)
-        self.server.lock.assert_called_with(reason="choo..choo")
-        self.assertEqual(2, self.server.lock.call_count)
+            '--os-compute-api-version 2.73 or greater is required', str(ex),
+        )
 
 
 class TestServerMigrate(TestServer):
@@ -8317,21 +8320,16 @@ class TestServerSuspend(TestServer):
 class TestServerUnlock(TestServer):
 
     def setUp(self):
-        super(TestServerUnlock, self).setUp()
+        super().setUp()
 
         # Get the command object to test
         self.cmd = server.UnlockServer(self.app, None)
 
-        # Set methods to be tested.
-        self.methods = {
-            'unlock': None,
-        }
-
     def test_server_unlock_one_server(self):
-        self.run_method_with_servers('unlock', 1)
+        self.run_method_with_sdk_servers('unlock_server', 1)
 
     def test_server_unlock_multi_servers(self):
-        self.run_method_with_servers('unlock', 3)
+        self.run_method_with_sdk_servers('unlock_server', 3)
 
 
 class TestServerUnpause(TestServer):
