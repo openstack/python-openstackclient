@@ -35,6 +35,9 @@ class CompareBySet(list):
 
 
 class TestCase(testtools.TestCase):
+    # provide additional context for failures
+    maxDiff = None
+
     def setUp(self):
         testtools.TestCase.setUp(self)
 

@@ -193,9 +193,11 @@ def _prep_server_detail(compute_client, image_client, server, refresh=True):
         'public_v6',
         # create-only columns
         'block_device_mapping',
+        'host',
         'image_id',
         'max_count',
         'min_count',
+        'personality',
         'scheduler_hints',
         # aliases
         'volumes',
@@ -283,7 +285,9 @@ def _prep_server_detail(compute_client, image_client, server, refresh=True):
         )
 
     if 'tags' in info:
-        info.update({'tags': format_columns.ListColumn(info.pop('tags'))})
+        info.update(
+            {'tags': format_columns.ListColumn(info.pop('tags') or [])}
+        )
 
     # Map 'networks' to 'addresses', if present. Note that the 'networks' key
     # is used for create responses, otherwise it's 'addresses'. We know it'll

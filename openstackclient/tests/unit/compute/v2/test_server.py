@@ -8222,12 +8222,10 @@ class TestServerShow(TestServer):
         self.compute_sdk_client.get_server_diagnostics.return_value = {
             'test': 'test'
         }
-        server_method = {
-            'fetch_topology': self.topology,
-        }
-        self.server = compute_fakes.create_one_server(
-            attrs=server_info, methods=server_method
+        self.server = compute_fakes.create_one_sdk_server(
+            attrs=server_info,
         )
+        self.server.fetch_topology = mock.MagicMock(return_value=self.topology)
 
         # This is the return value for utils.find_resource()
         self.compute_sdk_client.get_server.return_value = self.server
@@ -8238,28 +8236,101 @@ class TestServerShow(TestServer):
         self.cmd = server.ShowServer(self.app, None)
 
         self.columns = (
+            'OS-DCF:diskConfig',
+            'OS-EXT-AZ:availability_zone',
+            'OS-EXT-SRV-ATTR:host',
+            'OS-EXT-SRV-ATTR:hostname',
+            'OS-EXT-SRV-ATTR:hypervisor_hostname',
+            'OS-EXT-SRV-ATTR:instance_name',
+            'OS-EXT-SRV-ATTR:kernel_id',
+            'OS-EXT-SRV-ATTR:launch_index',
+            'OS-EXT-SRV-ATTR:ramdisk_id',
+            'OS-EXT-SRV-ATTR:reservation_id',
+            'OS-EXT-SRV-ATTR:root_device_name',
+            'OS-EXT-SRV-ATTR:user_data',
             'OS-EXT-STS:power_state',
+            'OS-EXT-STS:task_state',
+            'OS-EXT-STS:vm_state',
+            'OS-SRV-USG:launched_at',
+            'OS-SRV-USG:terminated_at',
+            'accessIPv4',
+            'accessIPv6',
             'addresses',
+            'config_drive',
+            'created',
+            'description',
             'flavor',
+            'hostId',
+            'host_status',
             'id',
             'image',
+            'key_name',
+            'locked',
+            'locked_reason',
             'name',
+            'pinned_availability_zone',
+            'progress',
             'project_id',
             'properties',
+            'server_groups',
+            'status',
+            'tags',
+            'trusted_image_certificates',
+            'updated',
+            'user_id',
+            'volumes_attached',
         )
 
         self.data = (
+            None,  # OS-DCF:diskConfig
+            None,  # OS-EXT-AZ:availability_zone
+            None,  # OS-EXT-SRV-ATTR:host
+            None,  # OS-EXT-SRV-ATTR:hostname
+            None,  # OS-EXT-SRV-ATTR:hypervisor_hostname
+            None,  # OS-EXT-SRV-ATTR:instance_name
+            None,  # OS-EXT-SRV-ATTR:kernel_id
+            None,  # OS-EXT-SRV-ATTR:launch_index
+            None,  # OS-EXT-SRV-ATTR:ramdisk_id
+            None,  # OS-EXT-SRV-ATTR:reservation_id
+            None,  # OS-EXT-SRV-ATTR:root_device_name
+            None,  # OS-EXT-SRV-ATTR:user_data
             server.PowerStateColumn(
-                getattr(self.server, 'OS-EXT-STS:power_state')
-            ),
-            self.flavor.name + " (" + self.flavor.id + ")",
-            self.server.id,
-            self.image.name + " (" + self.image.id + ")",
+                self.server.power_state
+            ),  # OS-EXT-STS:power_state  # noqa: E501
+            None,  # OS-EXT-STS:task_state
+            None,  # OS-EXT-STS:vm_state
+            None,  # OS-SRV-USG:launched_at
+            None,  # OS-SRV-USG:terminated_at
+            None,  # accessIPv4
+            None,  # accessIPv6
+            server.AddressesColumn(
+                {'public': ['10.20.30.40', '2001:db8::f']}
+            ),  # addresses
+            None,  # config_drive
+            None,  # created
+            None,  # description
+            self.flavor.name + " (" + self.flavor.id + ")",  # flavor
+            None,  # hostId
+            None,  # host_status
+            self.server.id,  # id
+            self.image.name + " (" + self.image.id + ")",  # image
+            None,  # key_name
+            None,  # locked
+            None,  # locked_reason
             self.server.name,
-            server.AddressesColumn({'public': ['10.20.30.40', '2001:db8::f']}),
-            'tenant-id-xxx',
-            format_columns.DictColumn({}),
+            None,  # pinned_availability_zone
+            None,  # progress
+            'tenant-id-xxx',  # project_id
+            format_columns.DictColumn({}),  # properties
+            None,  # server_groups
+            None,  # status
+            format_columns.ListColumn([]),  # tags
+            None,  # trusted_image_certificates
+            None,  # updated
+            None,  # user_id
+            format_columns.ListDictColumn([]),  # volumes_attached
         )
+        self.assertEqual(len(self.columns), len(self.data))
 
     def test_show_no_options(self):
         arglist = []
@@ -8286,8 +8357,8 @@ class TestServerShow(TestServer):
 
         columns, data = self.cmd.take_action(parsed_args)
 
-        self.assertEqual(self.columns, columns)
-        self.assertCountEqual(self.data, data)
+        self.assertTupleEqual(self.columns, columns)
+        self.assertTupleEqual(self.data, data)
 
     def test_show_embedded_flavor(self):
         # Tests using --os-compute-api-version >= 2.47 where the flavor
@@ -8301,7 +8372,7 @@ class TestServerShow(TestServer):
             ('server', self.server.name),
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
-        self.server.info['flavor'] = {
+        self.server.flavor = {
             'ephemeral': 0,
             'ram': 512,
             'original_name': 'm1.tiny',
@@ -8315,7 +8386,7 @@ class TestServerShow(TestServer):
         self.assertEqual(self.columns, columns)
         # Since the flavor details are in a dict we can't be sure of the
         # ordering so just assert that one of the keys is in the output.
-        self.assertIn('original_name', data[2]._value)
+        self.assertIn('original_name', data[columns.index('flavor')]._value)
 
     def test_show_diagnostics(self):
         arglist = [

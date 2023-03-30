@@ -29,8 +29,6 @@ class TestVolumeGroupType(volume_fakes.TestVolume):
 
 
 class TestVolumeGroupTypeCreate(TestVolumeGroupType):
-    maxDiff = 2000
-
     fake_volume_group_type = volume_fakes.create_one_volume_group_type()
 
     columns = (
