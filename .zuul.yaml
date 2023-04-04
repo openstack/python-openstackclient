@@ -38,6 +38,26 @@
       zuul_work_dir: src/opendev.org/openstack/python-openstackclient
 
 - job:
+    name: osc-tox-py310-tips
+    parent: openstack-tox-py310
+    description: |
+      Run unit tests for OpenStackClient with master branch of important libs.
+
+      Takes advantage of the base tox job's install-siblings feature.
+    # The job only tests the latest and shouldn't be run on the stable branches
+    branches: ^(?!stable)
+    required-projects:
+      - openstack/cliff
+      - openstack/keystoneauth
+      - openstack/openstacksdk
+      - openstack/osc-lib
+      - openstack/python-openstackclient
+    vars:
+      # Set work dir to openstackclient so that if it's triggered by one of the
+      # other repos the tests will run in the same place
+      zuul_work_dir: src/opendev.org/openstack/python-openstackclient
+
+- job:
     name: osc-functional-devstack
     parent: devstack-tox-functional
     description: |
@@ -182,9 +202,11 @@
     check:
       jobs:
         - osc-tox-py38-tips
+        - osc-tox-py310-tips
     gate:
       jobs:
         - osc-tox-py38-tips
+        - osc-tox-py310-tips
 
 - project:
     templates:
