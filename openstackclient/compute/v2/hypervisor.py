@@ -69,7 +69,11 @@ class ListHypervisor(command.Lister):
         parser.add_argument(
             '--matching',
             metavar='<hostname>',
-            help=_("Filter hypervisors using <hostname> substring")
+            help=_(
+                "Filter hypervisors using <hostname> substring"
+                "Hypervisor Type and Host IP are not returned "
+                "when using microversion 2.52 or lower"
+            )
         )
         parser.add_argument(
             '--marker',
@@ -128,6 +132,9 @@ class ListHypervisor(command.Lister):
                 raise exceptions.CommandError(msg)
             list_opts['limit'] = parsed_args.limit
 
+        if parsed_args.matching:
+            list_opts['hypervisor_hostname_pattern'] = parsed_args.matching
+
         column_headers = (
             "ID",
             "Hypervisor Hostname",
@@ -142,6 +149,7 @@ class ListHypervisor(command.Lister):
             'host_ip',
             'state'
         )
+
         if parsed_args.long:
             if not sdk_utils.supports_microversion(compute_client, '2.88'):
                 column_headers += (
@@ -157,11 +165,7 @@ class ListHypervisor(command.Lister):
                     'memory_size'
                 )
 
-        if parsed_args.matching:
-            data = compute_client.find_hypervisor(
-                parsed_args.matching, ignore_missing=False)
-        else:
-            data = compute_client.hypervisors(**list_opts, details=True)
+        data = compute_client.hypervisors(**list_opts, details=True)
 
         return (
             column_headers,
