@@ -1813,7 +1813,7 @@ class ImportImage(command.ShowOne):
             method=parsed_args.import_method,
             uri=parsed_args.uri,
             remote_region=parsed_args.remote_region,
-            remote_image=parsed_args.remote_image,
+            remote_image_id=parsed_args.remote_image,
             remote_service_interface=parsed_args.remote_service_interface,
             stores=parsed_args.stores,
             all_stores=parsed_args.all_stores,
