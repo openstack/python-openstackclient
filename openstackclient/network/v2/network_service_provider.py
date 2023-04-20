@@ -26,18 +26,24 @@ class ListNetworkServiceProvider(command.Lister):
         client = self.app.client_manager.network
 
         columns = (
-            'service_type',
-            'name',
-            'is_default',
+            "service_type",
+            "name",
+            "is_default",
         )
         column_headers = (
-            'Service Type',
-            'Name',
-            'Default',
+            "Service Type",
+            "Name",
+            "Default",
         )
 
         data = client.service_providers()
-        return(column_headers,
-               (utils.get_item_properties(
-                   s, columns,
-               ) for s in data))
+        return (
+            column_headers,
+            (
+                utils.get_item_properties(
+                    s,
+                    columns,
+                )
+                for s in data
+            ),
+        )
