@@ -1,0 +1,5 @@
+---
+features:
+  - |
+    The ``server event list`` and ``server event show`` commands have been
+    migrated to SDK.

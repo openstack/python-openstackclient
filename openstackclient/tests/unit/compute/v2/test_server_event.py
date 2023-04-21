@@ -16,6 +16,7 @@ from unittest import mock
 
 import iso8601
 from novaclient import api_versions
+from openstack import utils as sdk_utils
 from osc_lib import exceptions
 
 from openstackclient.compute.v2 import server_event
@@ -29,17 +30,34 @@ class TestServerEvent(compute_fakes.TestComputev2):
     def setUp(self):
         super(TestServerEvent, self).setUp()
 
-        self.servers_mock = self.app.client_manager.compute.servers
-        self.servers_mock.reset_mock()
-        self.events_mock = self.app.client_manager.compute.instance_action
-        self.events_mock.reset_mock()
+        self.app.client_manager.sdk_connection = mock.Mock()
+        self.app.client_manager.sdk_connection.compute = mock.Mock()
+        self.sdk_client = self.app.client_manager.sdk_connection.compute
+        self.sdk_client.find_server = mock.Mock()
+        self.sdk_client.server_actions = mock.Mock()
+        self.sdk_client.get_server_action = mock.Mock()
+        self.sdk_client.reset_mock()
 
-        self.servers_mock.get.return_value = self.fake_server
+        patcher = mock.patch.object(
+            sdk_utils, 'supports_microversion', return_value=True)
+        self.addCleanup(patcher.stop)
+        self.supports_microversion_mock = patcher.start()
+        self._set_mock_microversion(
+            self.app.client_manager.compute.api_version.get_string())
+
+    def _set_mock_microversion(self, mock_v):
+        """Set a specific microversion for the mock supports_microversion()."""
+        self.supports_microversion_mock.reset_mock(return_value=True)
+
+        self.supports_microversion_mock.side_effect = (
+            lambda _, v:
+            api_versions.APIVersion(v) <= api_versions.APIVersion(mock_v)
+        )
 
 
 class TestListServerEvent(TestServerEvent):
 
-    fake_event = compute_fakes.FakeServerEvent.create_one_server_event()
+    fake_event = compute_fakes.create_one_server_action()
 
     columns = (
         'Request ID',
@@ -49,7 +67,7 @@ class TestListServerEvent(TestServerEvent):
     )
     data = ((
         fake_event.request_id,
-        fake_event.instance_uuid,
+        fake_event.server_id,
         fake_event.action,
         fake_event.start_time,
     ), )
@@ -65,7 +83,7 @@ class TestListServerEvent(TestServerEvent):
     )
     long_data = ((
         fake_event.request_id,
-        fake_event.instance_uuid,
+        fake_event.server_id,
         fake_event.action,
         fake_event.start_time,
         fake_event.message,
@@ -74,9 +92,11 @@ class TestListServerEvent(TestServerEvent):
     ), )
 
     def setUp(self):
-        super(TestListServerEvent, self).setUp()
+        super().setUp()
 
-        self.events_mock.list.return_value = [self.fake_event, ]
+        self.sdk_client.find_server.return_value = self.fake_server
+        self.sdk_client.server_actions.return_value = [self.fake_event, ]
+
         self.cmd = server_event.ListServerEvent(self.app, None)
 
     def test_server_event_list(self):
@@ -89,11 +109,13 @@ class TestListServerEvent(TestServerEvent):
         ]
 
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
-
         columns, data = self.cmd.take_action(parsed_args)
 
-        self.servers_mock.get.assert_called_once_with(self.fake_server.name)
-        self.events_mock.list.assert_called_once_with(self.fake_server.id)
+        self.sdk_client.find_server.assert_called_with(
+            self.fake_server.name,
+            ignore_missing=False,
+        )
+        self.sdk_client.server_actions.assert_called_with(self.fake_server.id)
 
         self.assertEqual(self.columns, columns)
         self.assertEqual(self.data, tuple(data))
@@ -109,18 +131,19 @@ class TestListServerEvent(TestServerEvent):
         ]
 
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
-
         columns, data = self.cmd.take_action(parsed_args)
 
-        self.servers_mock.get.assert_called_once_with(self.fake_server.name)
-        self.events_mock.list.assert_called_once_with(self.fake_server.id)
+        self.sdk_client.find_server.assert_called_with(
+            self.fake_server.name,
+            ignore_missing=False,
+        )
+        self.sdk_client.server_actions.assert_called_with(self.fake_server.id)
 
         self.assertEqual(self.long_columns, columns)
         self.assertEqual(self.long_data, tuple(data))
 
     def test_server_event_list_with_changes_since(self):
-        self.app.client_manager.compute.api_version = \
-            api_versions.APIVersion('2.58')
+        self._set_mock_microversion('2.58')
 
         arglist = [
             '--changes-since', '2016-03-04T06:27:59Z',
@@ -134,9 +157,14 @@ class TestListServerEvent(TestServerEvent):
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
         columns, data = self.cmd.take_action(parsed_args)
 
-        self.servers_mock.get.assert_called_once_with(self.fake_server.name)
-        self.events_mock.list.assert_called_once_with(
-            self.fake_server.id, changes_since='2016-03-04T06:27:59Z')
+        self.sdk_client.find_server.assert_called_with(
+            self.fake_server.name,
+            ignore_missing=False,
+        )
+        self.sdk_client.server_actions.assert_called_with(
+            self.fake_server.id,
+            changes_since='2016-03-04T06:27:59Z',
+        )
 
         self.assertEqual(self.columns, columns)
         self.assertEqual(tuple(self.data), tuple(data))
@@ -145,8 +173,7 @@ class TestListServerEvent(TestServerEvent):
     def test_server_event_list_with_changes_since_invalid(
         self, mock_parse_isotime,
     ):
-        self.app.client_manager.compute.api_version = \
-            api_versions.APIVersion('2.58')
+        self._set_mock_microversion('2.58')
 
         arglist = [
             '--changes-since', 'Invalid time value',
@@ -161,17 +188,16 @@ class TestListServerEvent(TestServerEvent):
         ex = self.assertRaises(
             exceptions.CommandError,
             self.cmd.take_action,
-            parsed_args)
+            parsed_args,
+        )
 
-        self.assertIn(
-            'Invalid changes-since value:', str(ex))
+        self.assertIn('Invalid changes-since value:', str(ex))
         mock_parse_isotime.assert_called_once_with(
             'Invalid time value'
         )
 
     def test_server_event_list_with_changes_since_pre_v258(self):
-        self.app.client_manager.compute.api_version = \
-            api_versions.APIVersion('2.57')
+        self._set_mock_microversion('2.57')
 
         arglist = [
             '--changes-since', '2016-03-04T06:27:59Z',
@@ -186,14 +212,15 @@ class TestListServerEvent(TestServerEvent):
         ex = self.assertRaises(
             exceptions.CommandError,
             self.cmd.take_action,
-            parsed_args)
+            parsed_args,
+        )
 
         self.assertIn(
-            '--os-compute-api-version 2.58 or greater is required', str(ex))
+            '--os-compute-api-version 2.58 or greater is required', str(ex),
+        )
 
     def test_server_event_list_with_changes_before(self):
-        self.app.client_manager.compute.api_version = \
-            api_versions.APIVersion('2.66')
+        self._set_mock_microversion('2.66')
 
         arglist = [
             '--changes-before', '2016-03-04T06:27:59Z',
@@ -207,9 +234,14 @@ class TestListServerEvent(TestServerEvent):
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
         columns, data = self.cmd.take_action(parsed_args)
 
-        self.servers_mock.get.assert_called_once_with(self.fake_server.name)
-        self.events_mock.list.assert_called_once_with(
-            self.fake_server.id, changes_before='2016-03-04T06:27:59Z')
+        self.sdk_client.find_server.assert_called_with(
+            self.fake_server.name,
+            ignore_missing=False,
+        )
+        self.sdk_client.server_actions.assert_called_with(
+            self.fake_server.id,
+            changes_before='2016-03-04T06:27:59Z',
+        )
 
         self.assertEqual(self.columns, columns)
         self.assertEqual(tuple(self.data), tuple(data))
@@ -218,8 +250,7 @@ class TestListServerEvent(TestServerEvent):
     def test_server_event_list_with_changes_before_invalid(
         self, mock_parse_isotime,
     ):
-        self.app.client_manager.compute.api_version = \
-            api_versions.APIVersion('2.66')
+        self._set_mock_microversion('2.66')
 
         arglist = [
             '--changes-before', 'Invalid time value',
@@ -236,15 +267,13 @@ class TestListServerEvent(TestServerEvent):
             self.cmd.take_action,
             parsed_args)
 
-        self.assertIn(
-            'Invalid changes-before value:', str(ex))
+        self.assertIn('Invalid changes-before value:', str(ex))
         mock_parse_isotime.assert_called_once_with(
             'Invalid time value'
         )
 
     def test_server_event_list_with_changes_before_pre_v266(self):
-        self.app.client_manager.compute.api_version = \
-            api_versions.APIVersion('2.65')
+        self._set_mock_microversion('2.65')
 
         arglist = [
             '--changes-before', '2016-03-04T06:27:59Z',
@@ -262,11 +291,12 @@ class TestListServerEvent(TestServerEvent):
             parsed_args)
 
         self.assertIn(
-            '--os-compute-api-version 2.66 or greater is required', str(ex))
+            '--os-compute-api-version 2.66 or greater is required',
+            str(ex),
+        )
 
     def test_server_event_list_with_limit(self):
-        self.app.client_manager.compute.api_version = \
-            api_versions.APIVersion('2.58')
+        self._set_mock_microversion('2.58')
 
         arglist = [
             '--limit', '1',
@@ -280,12 +310,14 @@ class TestListServerEvent(TestServerEvent):
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
         self.cmd.take_action(parsed_args)
 
-        self.events_mock.list.assert_called_once_with(
-            self.fake_server.id, limit=1)
+        self.sdk_client.server_actions.assert_called_with(
+            self.fake_server.id,
+            limit=1,
+            paginated=False,
+        )
 
     def test_server_event_list_with_limit_pre_v258(self):
-        self.app.client_manager.compute.api_version = \
-            api_versions.APIVersion('2.57')
+        self._set_mock_microversion('2.57')
 
         arglist = [
             '--limit', '1',
@@ -300,14 +332,16 @@ class TestListServerEvent(TestServerEvent):
         ex = self.assertRaises(
             exceptions.CommandError,
             self.cmd.take_action,
-            parsed_args)
+            parsed_args,
+        )
 
         self.assertIn(
-            '--os-compute-api-version 2.58 or greater is required', str(ex))
+            '--os-compute-api-version 2.58 or greater is required',
+            str(ex),
+        )
 
     def test_server_event_list_with_marker(self):
-        self.app.client_manager.compute.api_version = \
-            api_versions.APIVersion('2.58')
+        self._set_mock_microversion('2.58')
 
         arglist = [
             '--marker', 'test_event',
@@ -321,12 +355,13 @@ class TestListServerEvent(TestServerEvent):
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
         self.cmd.take_action(parsed_args)
 
-        self.events_mock.list.assert_called_once_with(
-            self.fake_server.id, marker='test_event')
+        self.sdk_client.server_actions.assert_called_with(
+            self.fake_server.id,
+            marker='test_event',
+        )
 
     def test_server_event_list_with_marker_pre_v258(self):
-        self.app.client_manager.compute.api_version = \
-            api_versions.APIVersion('2.57')
+        self._set_mock_microversion('2.57')
 
         arglist = [
             '--marker', 'test_event',
@@ -349,12 +384,11 @@ class TestListServerEvent(TestServerEvent):
 
 class TestShowServerEvent(TestServerEvent):
 
-    fake_event = compute_fakes.FakeServerEvent.create_one_server_event()
-
+    fake_event = compute_fakes.create_one_server_action()
     columns = (
         'action',
         'events',
-        'instance_uuid',
+        'id',
         'message',
         'project_id',
         'request_id',
@@ -363,8 +397,8 @@ class TestShowServerEvent(TestServerEvent):
     )
     data = (
         fake_event.action,
-        fake_event.events,
-        fake_event.instance_uuid,
+        server_event.ServerActionEventColumn(fake_event.events),
+        fake_event.id,
         fake_event.message,
         fake_event.project_id,
         fake_event.request_id,
@@ -373,9 +407,11 @@ class TestShowServerEvent(TestServerEvent):
     )
 
     def setUp(self):
-        super(TestShowServerEvent, self).setUp()
+        super().setUp()
 
-        self.events_mock.get.return_value = self.fake_event
+        self.sdk_client.find_server.return_value = self.fake_server
+        self.sdk_client.get_server_action.return_value = self.fake_event
+
         self.cmd = server_event.ShowServerEvent(self.app, None)
 
     def test_server_event_show(self):
@@ -389,12 +425,16 @@ class TestShowServerEvent(TestServerEvent):
         ]
 
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
-
         columns, data = self.cmd.take_action(parsed_args)
 
-        self.servers_mock.get.assert_called_once_with(self.fake_server.name)
-        self.events_mock.get.assert_called_once_with(
-            self.fake_server.id, self.fake_event.request_id)
+        self.sdk_client.find_server.assert_called_with(
+            self.fake_server.name,
+            ignore_missing=False,
+        )
+        self.sdk_client.get_server_action.assert_called_with(
+            self.fake_event.request_id,
+            self.fake_server.id,
+        )
 
         self.assertEqual(self.columns, columns)
         self.assertEqual(self.data, data)
