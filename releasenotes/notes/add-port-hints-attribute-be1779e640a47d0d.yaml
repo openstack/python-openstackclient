@@ -1,0 +1,7 @@
+---
+features:
+  - |
+    Enable management of Neutron port hints: ``port create --hint HINT``,
+    ``set port --hint HINT and ``unset port --hint``. Port hints allow
+    passing backend specific hints to Neutron mainly to tune backend
+    performance. The first hint controls Open vSwitch Tx steering.

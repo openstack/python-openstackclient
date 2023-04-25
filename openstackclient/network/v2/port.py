@@ -322,6 +322,22 @@ def _add_updatable_args(parser):
         action='store_true',
         help=_("NUMA affinity policy using legacy mode to schedule this port"),
     )
+    parser.add_argument(
+        '--hint',
+        metavar='<alias=value>',
+        action=JSONKeyValueAction,
+        default={},
+        help=_(
+            'Port hints as ALIAS=VALUE or as JSON. '
+            'Valid hint aliases/values: '
+            'ovs-tx-steering=thread, ovs-tx-steering=hash. '
+            'Valid JSON values are as specified by the Neutron API. '
+            '(requires port-hints extension) '
+            '(requires port-hint-ovs-tx-steering extension for alias: '
+            'ovs-tx-steering) '
+            '(repeat option to set multiple hints)'
+        ),
+    )
 
 
 # TODO(abhiraut): Use the SDK resource mapped attribute names once the
@@ -348,6 +364,34 @@ def _convert_extra_dhcp_options(parsed_args):
             option['ip_version'] = opt['ip-version']
         dhcp_options.append(option)
     return dhcp_options
+
+
+# When we have multiple hints, we'll need to refactor this to allow
+# arbitrary combinations. But until then let's have it as simple as possible.
+def _validate_port_hints(hints):
+    if hints not in (
+        {},
+        # by hint alias
+        {'ovs-tx-steering': 'thread'},
+        {'ovs-tx-steering': 'hash'},
+        # by fully specified value of the port's hints field
+        {'openvswitch': {'other_config': {'tx-steering': 'thread'}}},
+        {'openvswitch': {'other_config': {'tx-steering': 'hash'}}},
+    ):
+        msg = _("Invalid value to --hints, see --help for valid values.")
+        raise argparse.ArgumentTypeError(msg)
+
+
+# When we have multiple hints, we'll need to refactor this to expand aliases
+# without losing other hints. But until then let's have it as simple as
+# possible.
+def _expand_port_hint_aliases(hints):
+    if hints == {'ovs-tx-steering': 'thread'}:
+        return {'openvswitch': {'other_config': {'tx-steering': 'thread'}}}
+    elif hints == {'ovs-tx-steering': 'hash'}:
+        return {'openvswitch': {'other_config': {'tx-steering': 'hash'}}}
+    else:
+        return hints
 
 
 class CreatePort(command.ShowOne, common.NeutronCommandWithExtraArgs):
@@ -526,6 +570,29 @@ class CreatePort(command.ShowOne, common.NeutronCommandWithExtraArgs):
             attrs['qos_policy_id'] = client.find_qos_policy(
                 parsed_args.qos_policy, ignore_missing=False
             ).id
+
+        if parsed_args.hint:
+            _validate_port_hints(parsed_args.hint)
+            expanded_hints = _expand_port_hint_aliases(parsed_args.hint)
+            try:
+                client.find_extension('port-hints', ignore_missing=False)
+            except Exception as e:
+                msg = _('Not supported by Network API: %(e)s') % {'e': e}
+                raise exceptions.CommandError(msg)
+            if (
+                'openvswitch' in expanded_hints
+                and 'other_config' in expanded_hints['openvswitch']
+                and 'tx-steering'
+                in expanded_hints['openvswitch']['other_config']
+            ):
+                try:
+                    client.find_extension(
+                        'port-hint-ovs-tx-steering', ignore_missing=False
+                    )
+                except Exception as e:
+                    msg = _('Not supported by Network API: %(e)s') % {'e': e}
+                    raise exceptions.CommandError(msg)
+            attrs['hints'] = expanded_hints
 
         set_tags_in_post = bool(
             client.find_extension('tag-ports-during-bulk-creation')
@@ -972,6 +1039,29 @@ class SetPort(common.NeutronCommandWithExtraArgs):
         if parsed_args.data_plane_status:
             attrs['data_plane_status'] = parsed_args.data_plane_status
 
+        if parsed_args.hint:
+            _validate_port_hints(parsed_args.hint)
+            expanded_hints = _expand_port_hint_aliases(parsed_args.hint)
+            try:
+                client.find_extension('port-hints', ignore_missing=False)
+            except Exception as e:
+                msg = _('Not supported by Network API: %(e)s') % {'e': e}
+                raise exceptions.CommandError(msg)
+            if (
+                'openvswitch' in expanded_hints
+                and 'other_config' in expanded_hints['openvswitch']
+                and 'tx-steering'
+                in expanded_hints['openvswitch']['other_config']
+            ):
+                try:
+                    client.find_extension(
+                        'port-hint-ovs-tx-steering', ignore_missing=False
+                    )
+                except Exception as e:
+                    msg = _('Not supported by Network API: %(e)s') % {'e': e}
+                    raise exceptions.CommandError(msg)
+            attrs['hints'] = expanded_hints
+
         attrs.update(
             self._parse_extra_properties(parsed_args.extra_properties)
         )
@@ -1083,6 +1173,12 @@ class UnsetPort(common.NeutronUnsetCommandWithExtraArgs):
             default=False,
             help=_("Clear host binding for the port."),
         )
+        parser.add_argument(
+            '--hints',
+            action='store_true',
+            default=False,
+            help=_("Clear hints for the port."),
+        )
 
         _tag.add_tag_option_to_parser_for_unset(parser, _('port'))
 
@@ -1143,6 +1239,8 @@ class UnsetPort(common.NeutronUnsetCommandWithExtraArgs):
             attrs['numa_affinity_policy'] = None
         if parsed_args.host:
             attrs['binding:host_id'] = None
+        if parsed_args.hints:
+            attrs['hints'] = None
 
         attrs.update(
             self._parse_extra_properties(parsed_args.extra_properties)
