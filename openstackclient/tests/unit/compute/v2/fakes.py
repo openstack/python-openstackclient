@@ -29,7 +29,9 @@ from openstack.compute.v2 import server as _server
 from openstack.compute.v2 import server_action as _server_action
 from openstack.compute.v2 import server_interface as _server_interface
 from openstack.compute.v2 import server_migration as _server_migration
+from openstack.compute.v2 import server_share as _server_share
 from openstack.compute.v2 import volume_attachment as _volume_attachment
+from openstack.test import fakes as sdk_fakes
 
 from openstackclient.tests.unit.identity.v3 import fakes as identity_fakes
 from openstackclient.tests.unit.image.v2 import fakes as image_fakes
@@ -786,6 +788,29 @@ def create_volume_attachments(attrs=None, count=2):
         volume_attachments.append(create_one_volume_attachment(attrs))
 
     return volume_attachments
+
+
+def create_one_share(attrs=None):
+    """Create a fake share attachment.
+
+    :param dict attrs: A dictionary with all attributes
+    :return: A fake openstack.compute.v2.server_share.ShareMapping
+        object
+    """
+    return sdk_fakes.generate_fake_resource(
+        _server_share.ShareMapping, **(attrs or {})
+    )
+
+
+def create_shares(attrs=None, count=2):
+    """Create multiple fake share attachments.
+
+    :param dict attrs: A dictionary with all attributes
+    :param int count: The number of share attachments to fake
+    :return: A list of fake
+        openstack.compute.v2.server_share.ShareMapping objects
+    """
+    return [create_one_share(attrs) for _ in range(count)]
 
 
 def create_one_server_interface(attrs=None):

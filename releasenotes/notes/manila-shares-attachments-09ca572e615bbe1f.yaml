@@ -1,0 +1,8 @@
+---
+features:
+  - |
+    Manila is a service in OpenStack that enables shared filesystems.
+    Nova can now link the shared resources provided by Manila to instances
+    using virtiofs using the following
+    commands: ``server share list``, ``server share show``,
+    ``server add share``, ``server remove share``.
