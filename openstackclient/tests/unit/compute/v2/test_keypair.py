@@ -54,10 +54,10 @@ class TestKeypair(compute_fakes.TestComputev2):
 
 class TestKeypairCreate(TestKeypair):
 
-    keypair = compute_fakes.FakeKeypair.create_one_keypair()
-
     def setUp(self):
-        super(TestKeypairCreate, self).setUp()
+        super().setUp()
+
+        self.keypair = compute_fakes.FakeKeypair.create_one_keypair()
 
         self.columns = (
             'fingerprint',
@@ -77,8 +77,11 @@ class TestKeypairCreate(TestKeypair):
 
         self.sdk_client.create_keypair.return_value = self.keypair
 
-    def test_key_pair_create_no_options(self):
-
+    @mock.patch.object(
+        keypair, '_generate_keypair',
+        return_value=keypair.Keypair('private', 'public'),
+    )
+    def test_key_pair_create_no_options(self, mock_generate):
         arglist = [
             self.keypair.name,
         ]
@@ -90,18 +93,14 @@ class TestKeypairCreate(TestKeypair):
         columns, data = self.cmd.take_action(parsed_args)
 
         self.sdk_client.create_keypair.assert_called_with(
-            name=self.keypair.name
+            name=self.keypair.name,
+            public_key=mock_generate.return_value.public_key,
         )
 
         self.assertEqual({}, columns)
         self.assertEqual({}, data)
 
     def test_keypair_create_public_key(self):
-        # overwrite the setup one because we want to omit private_key
-        self.keypair = compute_fakes.FakeKeypair.create_one_keypair(
-            no_pri=True)
-        self.sdk_client.create_keypair.return_value = self.keypair
-
         self.data = (
             self.keypair.fingerprint,
             self.keypair.name,
@@ -135,7 +134,11 @@ class TestKeypairCreate(TestKeypair):
             self.assertEqual(self.columns, columns)
             self.assertEqual(self.data, data)
 
-    def test_keypair_create_private_key(self):
+    @mock.patch.object(
+        keypair, '_generate_keypair',
+        return_value=keypair.Keypair('private', 'public'),
+    )
+    def test_keypair_create_private_key(self, mock_generate):
         tmp_pk_file = '/tmp/kp-file-' + uuid.uuid4().hex
         arglist = [
             '--private-key', tmp_pk_file,
@@ -156,10 +159,13 @@ class TestKeypairCreate(TestKeypair):
 
             self.sdk_client.create_keypair.assert_called_with(
                 name=self.keypair.name,
+                public_key=mock_generate.return_value.public_key,
             )
 
             mock_open.assert_called_once_with(tmp_pk_file, 'w+')
-            m_file.write.assert_called_once_with(self.keypair.private_key)
+            m_file.write.assert_called_once_with(
+                mock_generate.return_value.private_key,
+            )
 
             self.assertEqual(self.columns, columns)
             self.assertEqual(self.data, data)
@@ -167,8 +173,6 @@ class TestKeypairCreate(TestKeypair):
     @mock.patch.object(sdk_utils, 'supports_microversion', return_value=True)
     def test_keypair_create_with_key_type(self, sm_mock):
         for key_type in ['x509', 'ssh']:
-            self.keypair = compute_fakes.FakeKeypair.create_one_keypair(
-                no_pri=True)
             self.sdk_client.create_keypair.return_value = self.keypair
 
             self.data = (
@@ -233,8 +237,12 @@ class TestKeypairCreate(TestKeypair):
                 '--os-compute-api-version 2.2 or greater is required',
                 str(ex))
 
+    @mock.patch.object(
+        keypair, '_generate_keypair',
+        return_value=keypair.Keypair('private', 'public'),
+    )
     @mock.patch.object(sdk_utils, 'supports_microversion', return_value=True)
-    def test_key_pair_create_with_user(self, sm_mock):
+    def test_key_pair_create_with_user(self, sm_mock, mock_generate):
         arglist = [
             '--user', identity_fakes.user_name,
             self.keypair.name,
@@ -250,6 +258,7 @@ class TestKeypairCreate(TestKeypair):
         self.sdk_client.create_keypair.assert_called_with(
             name=self.keypair.name,
             user_id=identity_fakes.user_id,
+            public_key=mock_generate.return_value.public_key,
         )
 
         self.assertEqual({}, columns)
@@ -673,9 +682,6 @@ class TestKeypairShow(TestKeypair):
                           self.cmd, arglist, verifylist)
 
     def test_keypair_show(self):
-        # overwrite the setup one because we want to omit private_key
-        self.keypair = compute_fakes.FakeKeypair.create_one_keypair(
-            no_pri=True)
         self.sdk_client.find_keypair.return_value = self.keypair
 
         self.data = (
@@ -704,7 +710,6 @@ class TestKeypairShow(TestKeypair):
         self.assertEqual(self.data, data)
 
     def test_keypair_show_public(self):
-
         arglist = [
             '--public-key',
             self.keypair.name
@@ -723,10 +728,6 @@ class TestKeypairShow(TestKeypair):
 
     @mock.patch.object(sdk_utils, 'supports_microversion', return_value=True)
     def test_keypair_show_with_user(self, sm_mock):
-
-        # overwrite the setup one because we want to omit private_key
-        self.keypair = compute_fakes.FakeKeypair.create_one_keypair(
-            no_pri=True)
         self.sdk_client.find_keypair.return_value = self.keypair
 
         self.data = (

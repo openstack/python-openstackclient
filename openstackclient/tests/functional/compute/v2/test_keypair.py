@@ -117,24 +117,28 @@ class KeypairTests(KeypairBase):
             self.assertIsNotNone(cmd_output.get('user_id'))
             self.assertIsNotNone(cmd_output.get('fingerprint'))
             pk_content = f.read()
-            self.assertInOutput('-----BEGIN RSA PRIVATE KEY-----', pk_content)
+            self.assertInOutput(
+                '-----BEGIN OPENSSH PRIVATE KEY-----', pk_content,
+            )
             self.assertRegex(pk_content, "[0-9A-Za-z+/]+[=]{0,3}\n")
-            self.assertInOutput('-----END RSA PRIVATE KEY-----', pk_content)
+            self.assertInOutput(
+                '-----END OPENSSH PRIVATE KEY-----', pk_content,
+            )
 
     def test_keypair_create(self):
         """Test keypair create command.
 
         Test steps:
         1) Create keypair in setUp
-        2) Check RSA private key in output
+        2) Check Ed25519 private key in output
         3) Check for new keypair in keypairs list
         """
         NewName = data_utils.rand_name('TestKeyPairCreated')
         raw_output = self.openstack('keypair create ' + NewName)
         self.addCleanup(self.openstack, 'keypair delete ' + NewName)
-        self.assertInOutput('-----BEGIN RSA PRIVATE KEY-----', raw_output)
+        self.assertInOutput('-----BEGIN OPENSSH PRIVATE KEY-----', raw_output)
         self.assertRegex(raw_output, "[0-9A-Za-z+/]+[=]{0,3}\n")
-        self.assertInOutput('-----END RSA PRIVATE KEY-----', raw_output)
+        self.assertInOutput('-----END OPENSSH PRIVATE KEY-----', raw_output)
         self.assertIn(NewName, self.keypair_list())
 
     def test_keypair_delete_not_existing(self):
