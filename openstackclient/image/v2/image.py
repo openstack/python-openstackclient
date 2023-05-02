@@ -653,6 +653,13 @@ class DeleteImage(command.Command):
             nargs="+",
             help=_("Image(s) to delete (name or ID)"),
         )
+        parser.add_argument(
+            '--store',
+            metavar='<STORE>',
+            # default=None,
+            dest='store',
+            help=_('Store to delete image(s) from.'),
+        )
         return parser
 
     def take_action(self, parsed_args):
@@ -664,7 +671,18 @@ class DeleteImage(command.Command):
                     image,
                     ignore_missing=False,
                 )
-                image_client.delete_image(image_obj.id)
+            except sdk_exceptions.ResourceNotFound as e:
+                msg = _("Unable to process request: %(e)s") % {'e': e}
+                raise exceptions.CommandError(msg)
+            try:
+                image_client.delete_image(
+                    image_obj.id,
+                    store=parsed_args.store,
+                    ignore_missing=False,
+                )
+            except sdk_exceptions.ResourceNotFound:
+                msg = _("Multi Backend support not enabled.")
+                raise exceptions.CommandError(msg)
             except Exception as e:
                 del_result += 1
                 msg = _(
