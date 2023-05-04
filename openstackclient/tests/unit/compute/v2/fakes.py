@@ -793,7 +793,7 @@ class FakeKeypair(object):
     """Fake one or more keypairs."""
 
     @staticmethod
-    def create_one_keypair(attrs=None, no_pri=False):
+    def create_one_keypair(attrs=None):
         """Create a fake keypair
 
         :param dict attrs:
@@ -811,8 +811,6 @@ class FakeKeypair(object):
             'public_key': 'dummy',
             'user_id': 'user'
         }
-        if not no_pri:
-            keypair_info['private_key'] = 'private_key'
 
         # Overwrite default attributes.
         keypair_info.update(attrs)

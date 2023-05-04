@@ -1,0 +1,11 @@
+---
+features:
+  - |
+    The ``openstack keypair create`` command will now generate keypairs on the
+    client side in ssh-ed25519 format. The Compute service no longer supports
+    server-side key generation starting with ``--os-compute-api-version 2.92``
+    while the use of ssh-ed25519 is necessary as support for ssh-rsa has been
+    disabled by default starting in OpenSSH 8.8, which prevents its use in
+    guests using this version of OpenSSH in the default configuration.
+    ssh-ed25519 support is widespread and is supported by OpenSSH 6.5 or later
+    and Dropbear 2020.79 or later.

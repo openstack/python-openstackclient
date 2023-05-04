@@ -15,11 +15,13 @@
 
 """Keypair action implementations"""
 
+import collections
 import io
 import logging
 import os
-import sys
 
+from cryptography.hazmat.primitives.asymmetric import ed25519
+from cryptography.hazmat.primitives import serialization
 from openstack import utils as sdk_utils
 from osc_lib.command import command
 from osc_lib import exceptions
@@ -30,6 +32,27 @@ from openstackclient.identity import common as identity_common
 
 
 LOG = logging.getLogger(__name__)
+Keypair = collections.namedtuple('Keypair', 'private_key public_key')
+
+
+def _generate_keypair():
+    """Generate a Ed25519 keypair in OpenSSH format.
+
+    :returns: A `Keypair` named tuple with the generated private and public
+    keys.
+    """
+    key = ed25519.Ed25519PrivateKey.generate()
+    private_key = key.private_bytes(
+        serialization.Encoding.PEM,
+        serialization.PrivateFormat.OpenSSH,
+        serialization.NoEncryption()
+    ).decode()
+    public_key = key.public_key().public_bytes(
+        serialization.Encoding.OpenSSH,
+        serialization.PublicFormat.OpenSSH
+    ).decode()
+
+    return Keypair(private_key, public_key)
 
 
 def _get_keypair_columns(item, hide_pub_key=False, hide_priv_key=False):
@@ -59,30 +82,37 @@ class CreateKeypair(command.ShowOne):
         key_group.add_argument(
             '--public-key',
             metavar='<file>',
-            help=_("Filename for public key to add. If not used, "
-                   "creates a private key.")
+            help=_(
+                "Filename for public key to add. "
+                "If not used, generates a private key in ssh-ed25519 format. "
+                "To generate keys in other formats, including the legacy "
+                "ssh-rsa format, you must use an external tool such as "
+                "ssh-keygen and specify this argument."
+            ),
         )
         key_group.add_argument(
             '--private-key',
             metavar='<file>',
-            help=_("Filename for private key to save. If not used, "
-                   "print private key in console.")
+            help=_(
+                "Filename for private key to save. "
+                "If not used, print private key in console."
+            )
         )
         parser.add_argument(
             '--type',
             metavar='<type>',
             choices=['ssh', 'x509'],
             help=_(
-                "Keypair type. Can be ssh or x509. "
-                "(Supported by API versions '2.2' - '2.latest')"
+                'Keypair type '
+                '(supported by --os-compute-api-version 2.2 or above)'
             ),
         )
         parser.add_argument(
             '--user',
             metavar='<user>',
             help=_(
-                'The owner of the keypair. (admin only) (name or ID). '
-                'Requires ``--os-compute-api-version`` 2.10 or greater.'
+                'The owner of the keypair (admin only) (name or ID) '
+                '(supported by --os-compute-api-version 2.10 or above)'
             ),
         )
         identity_common.add_user_domain_option_to_parser(parser)
@@ -96,19 +126,43 @@ class CreateKeypair(command.ShowOne):
             'name': parsed_args.name
         }
 
-        public_key = parsed_args.public_key
-        if public_key:
+        if parsed_args.public_key:
+            generated_keypair = None
             try:
                 with io.open(os.path.expanduser(parsed_args.public_key)) as p:
                     public_key = p.read()
             except IOError as e:
                 msg = _("Key file %(public_key)s not found: %(exception)s")
                 raise exceptions.CommandError(
-                    msg % {"public_key": parsed_args.public_key,
-                           "exception": e}
+                    msg % {
+                        "public_key": parsed_args.public_key,
+                        "exception": e,
+                    }
                 )
 
             kwargs['public_key'] = public_key
+        else:
+            generated_keypair = _generate_keypair()
+            kwargs['public_key'] = generated_keypair.public_key
+
+            # If user have us a file, save private key into specified file
+            if parsed_args.private_key:
+                try:
+                    with io.open(
+                        os.path.expanduser(parsed_args.private_key), 'w+'
+                    ) as p:
+                        p.write(generated_keypair.private_key)
+                except IOError as e:
+                    msg = _(
+                        "Key file %(private_key)s can not be saved: "
+                        "%(exception)s"
+                    )
+                    raise exceptions.CommandError(
+                        msg % {
+                            "private_key": parsed_args.private_key,
+                            "exception": e,
+                        }
+                    )
 
         if parsed_args.type:
             if not sdk_utils.supports_microversion(compute_client, '2.2'):
@@ -136,32 +190,17 @@ class CreateKeypair(command.ShowOne):
 
         keypair = compute_client.create_keypair(**kwargs)
 
-        private_key = parsed_args.private_key
-        # Save private key into specified file
-        if private_key:
-            try:
-                with io.open(
-                    os.path.expanduser(parsed_args.private_key), 'w+'
-                ) as p:
-                    p.write(keypair.private_key)
-            except IOError as e:
-                msg = _("Key file %(private_key)s can not be saved: "
-                        "%(exception)s")
-                raise exceptions.CommandError(
-                    msg % {"private_key": parsed_args.private_key,
-                           "exception": e}
-                )
         # NOTE(dtroyer): how do we want to handle the display of the private
         #                key when it needs to be communicated back to the user
         #                For now, duplicate nova keypair-add command output
-        if public_key or private_key:
+        if parsed_args.public_key or parsed_args.private_key:
             display_columns, columns = _get_keypair_columns(
                 keypair, hide_pub_key=True, hide_priv_key=True)
             data = utils.get_item_properties(keypair, columns)
 
             return (display_columns, data)
         else:
-            sys.stdout.write(keypair.private_key)
+            self.app.stdout.write(generated_keypair.private_key)
             return ({}, {})
 
 
@@ -405,5 +444,5 @@ class ShowKeypair(command.ShowOne):
             data = utils.get_item_properties(keypair, columns)
             return (display_columns, data)
         else:
-            sys.stdout.write(keypair.public_key)
+            self.app.stdout.write(keypair.public_key)
             return ({}, {})
