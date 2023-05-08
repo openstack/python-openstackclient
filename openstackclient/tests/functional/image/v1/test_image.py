@@ -26,9 +26,7 @@ class ImageTests(base.BaseImageTests):
         if not self.haz_v1_api:
             self.skipTest('No Image v1 API present')
 
-        ver_fixture = fixtures.EnvironmentVariable(
-            'OS_IMAGE_API_VERSION', '1'
-        )
+        ver_fixture = fixtures.EnvironmentVariable('OS_IMAGE_API_VERSION', '1')
         self.useFixture(ver_fixture)
 
         self.name = uuid.uuid4().hex
@@ -46,25 +44,20 @@ class ImageTests(base.BaseImageTests):
             super().tearDown()
 
     def test_image_list(self):
-        output = self.openstack(
-            'image list'
-        )
-        self.assertIn(
-            self.name,
-            [img['Name'] for img in output]
-        )
+        output = self.openstack('image list')
+        self.assertIn(self.name, [img['Name'] for img in output])
 
     def test_image_attributes(self):
         """Test set, unset, show on attributes, tags and properties"""
 
         # Test explicit attributes
         self.openstack(
-            'image set ' +
-            '--min-disk 4 ' +
-            '--min-ram 5 ' +
-            '--disk-format qcow2 ' +
-            '--public ' +
-            self.name
+            'image set '
+            + '--min-disk 4 '
+            + '--min-ram 5 '
+            + '--disk-format qcow2 '
+            + '--public '
+            + self.name
         )
         output = self.openstack(
             'image show ' + self.name,
@@ -88,11 +81,11 @@ class ImageTests(base.BaseImageTests):
 
         # Test properties
         self.openstack(
-            'image set ' +
-            '--property a=b ' +
-            '--property c=d ' +
-            '--public ' +
-            self.name
+            'image set '
+            + '--property a=b '
+            + '--property c=d '
+            + '--public '
+            + self.name
         )
         output = self.openstack(
             'image show ' + self.name,

@@ -52,8 +52,9 @@ def _format_namespace(namespace):
         if key in fields_to_show:
             info[key] = namespace.get(key)
         elif key == "resource_type_associations":
-            info[key] = [resource_type['name']
-                         for resource_type in namespace.get(key)]
+            info[key] = [
+                resource_type['name'] for resource_type in namespace.get(key)
+            ]
         elif key == 'properties':
             info['properties'] = list(namespace.get(key).keys())
 
@@ -114,11 +115,7 @@ class CreateMetadefNameSpace(command.ShowOne):
 
     def take_action(self, parsed_args):
         image_client = self.app.client_manager.image
-        filter_keys = [
-            'namespace',
-            'display_name',
-            'description'
-        ]
+        filter_keys = ['namespace', 'display_name', 'description']
         kwargs = {}
 
         for key in filter_keys:
@@ -160,15 +157,19 @@ class DeleteMetadefNameSpace(command.Command):
                 image_client.delete_metadef_namespace(namespace.id)
             except Exception as e:
                 result += 1
-                LOG.error(_("Failed to delete namespace with name or "
-                            "ID '%(namespace)s': %(e)s"),
-                          {'namespace': i, 'e': e}
-                          )
+                LOG.error(
+                    _(
+                        "Failed to delete namespace with name or "
+                        "ID '%(namespace)s': %(e)s"
+                    ),
+                    {'namespace': i, 'e': e},
+                )
 
         if result > 0:
             total = len(parsed_args.namespace_name)
-            msg = (_("%(result)s of %(total)s namespace failed "
-                     "to delete.") % {'result': result, 'total': total})
+            msg = _(
+                "%(result)s of %(total)s namespace failed " "to delete."
+            ) % {'result': result, 'total': total}
             raise exceptions.CommandError(msg)
 
 
@@ -203,11 +204,14 @@ class ListMetadefNameSpaces(command.Lister):
         column_headers = columns
         return (
             column_headers,
-            (utils.get_item_properties(
-                s,
-                columns,
-                formatters=_formatters,
-            ) for s in data)
+            (
+                utils.get_item_properties(
+                    s,
+                    columns,
+                    formatters=_formatters,
+                )
+                for s in data
+            ),
         )
 
 
@@ -268,11 +272,7 @@ class SetMetadefNameSpace(command.Command):
 
         namespace = parsed_args.namespace
 
-        filter_keys = [
-            'namespace',
-            'display_name',
-            'description'
-        ]
+        filter_keys = ['namespace', 'display_name', 'description']
         kwargs = {}
 
         for key in filter_keys:

@@ -23,7 +23,6 @@ from openstackclient.tests.unit.volume.v1 import fakes as volume_fakes
 
 
 class FakeImagev1Client:
-
     def __init__(self, **kwargs):
         self.images = mock.Mock()
 
@@ -33,7 +32,6 @@ class FakeImagev1Client:
 
 
 class TestImagev1(utils.TestCommand):
-
     def setUp(self):
         super().setUp()
 
@@ -71,11 +69,8 @@ def create_one_image(attrs=None):
         'min_ram': 0,
         'is_public': True,
         'protected': False,
-        'properties': {
-            'Alpha': 'a',
-            'Beta': 'b',
-            'Gamma': 'g'},
-        'status': 'status' + uuid.uuid4().hex
+        'properties': {'Alpha': 'a', 'Beta': 'b', 'Gamma': 'g'},
+        'status': 'status' + uuid.uuid4().hex,
     }
 
     # Overwrite default attributes if there are some attributes set

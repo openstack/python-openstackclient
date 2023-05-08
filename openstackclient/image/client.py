@@ -32,7 +32,6 @@ API_VERSIONS = {
 
 
 def make_client(instance):
-
     LOG.debug(
         'Image client initialized using OpenStack SDK: %s',
         instance.sdk_connection.image,
@@ -46,7 +45,7 @@ def build_option_parser(parser):
         '--os-image-api-version',
         metavar='<image-api-version>',
         default=utils.env('OS_IMAGE_API_VERSION'),
-        help=_('Image API version, default=%s (Env: OS_IMAGE_API_VERSION)') %
-        DEFAULT_API_VERSION,
+        help=_('Image API version, default=%s (Env: OS_IMAGE_API_VERSION)')
+        % DEFAULT_API_VERSION,
     )
     return parser

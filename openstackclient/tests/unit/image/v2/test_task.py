@@ -25,7 +25,6 @@ class TestTask(image_fakes.TestImagev2):
 
 
 class TestTaskShow(TestTask):
-
     task = image_fakes.create_one_task()
 
     columns = (
@@ -81,7 +80,6 @@ class TestTaskShow(TestTask):
 
 
 class TestTaskList(TestTask):
-
     tasks = image_fakes.create_tasks()
 
     columns = (

@@ -506,8 +506,8 @@ class CreateImage(command.ShowOne):
                 raise exceptions.CommandError(msg)
 
             if (
-                len(parsed_args.sign_key_path) < 1 or
-                len(parsed_args.sign_cert_id) < 1
+                len(parsed_args.sign_key_path) < 1
+                or len(parsed_args.sign_cert_id) < 1
             ):
                 msg = _(
                     "'sign-key-path' and 'sign-cert-id' must both be "
@@ -596,10 +596,7 @@ class CreateImage(command.ShowOne):
         )
         kwargs = {}
         if volume_client.api_version < api_versions.APIVersion('3.1'):
-            if (
-                parsed_args.visibility or
-                parsed_args.is_protected is not None
-            ):
+            if parsed_args.visibility or parsed_args.is_protected is not None:
                 msg = _(
                     '--os-volume-api-version 3.1 or greater is required '
                     'to support the --public, --private, --community, '
@@ -618,7 +615,7 @@ class CreateImage(command.ShowOne):
             parsed_args.name,
             parsed_args.container_format,
             parsed_args.disk_format,
-            **kwargs
+            **kwargs,
         )
         info = body['os-volume_upload_image']
         try:
@@ -659,7 +656,6 @@ class DeleteImage(command.Command):
         return parser
 
     def take_action(self, parsed_args):
-
         del_result = 0
         image_client = self.app.client_manager.image
         for image in parsed_args.images:

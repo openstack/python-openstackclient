@@ -24,12 +24,10 @@ from openstackclient.tests.unit.image.v1 import fakes as image_fakes
 
 
 class TestImage(image_fakes.TestImagev1):
-
     pass
 
 
 class TestImageCreate(TestImage):
-
     new_image = image_fakes.create_one_image()
     columns = (
         'container_format',
@@ -42,7 +40,7 @@ class TestImageCreate(TestImage):
         'owner',
         'properties',
         'protected',
-        'size'
+        'size',
     )
     data = (
         new_image.container_format,
@@ -55,7 +53,7 @@ class TestImageCreate(TestImage):
         new_image.owner_id,
         format_columns.DictColumn(new_image.properties),
         new_image.is_protected,
-        new_image.size
+        new_image.size,
     )
 
     def setUp(self):
@@ -89,7 +87,7 @@ class TestImageCreate(TestImage):
         self.client.create_image.assert_called_with(
             name=self.new_image.name,
             container_format=image.DEFAULT_CONTAINER_FORMAT,
-            disk_format=image.DEFAULT_DISK_FORMAT
+            disk_format=image.DEFAULT_DISK_FORMAT,
         )
 
         # Verify update() was not called, if it was show the args
@@ -101,13 +99,18 @@ class TestImageCreate(TestImage):
     @mock.patch('sys.stdin', side_effect=[None])
     def test_image_reserve_options(self, raw_input):
         arglist = [
-            '--container-format', 'ovf',
-            '--disk-format', 'ami',
-            '--min-disk', '10',
-            '--min-ram', '4',
+            '--container-format',
+            'ovf',
+            '--disk-format',
+            'ami',
+            '--min-disk',
+            '10',
+            '--min-ram',
+            '4',
             '--protected',
             '--private',
-            '--project', 'q',
+            '--project',
+            'q',
             self.new_image.name,
         ]
         verifylist = [
@@ -154,11 +157,14 @@ class TestImageCreate(TestImage):
         mock_open.read.return_value = self.data
 
         arglist = [
-            '--file', 'filer',
+            '--file',
+            'filer',
             '--unprotected',
             '--public',
-            '--property', 'Alpha=1',
-            '--property', 'Beta=2',
+            '--property',
+            'Alpha=1',
+            '--property',
+            'Beta=2',
             self.new_image.name,
         ]
         verifylist = [
@@ -205,7 +211,6 @@ class TestImageCreate(TestImage):
 
 
 class TestImageDelete(TestImage):
-
     _image = image_fakes.create_one_image()
 
     def setUp(self):
@@ -234,7 +239,6 @@ class TestImageDelete(TestImage):
 
 
 class TestImageList(TestImage):
-
     _image = image_fakes.create_one_image()
 
     columns = (
@@ -242,13 +246,7 @@ class TestImageList(TestImage):
         'Name',
         'Status',
     )
-    datalist = (
-        (
-            _image.id,
-            _image.name,
-            _image.status
-        ),
-    )
+    datalist = ((_image.id, _image.name, _image.status),)
 
     # create a image_info as the side_effect of the fake image_list()
     info = {
@@ -270,7 +268,8 @@ class TestImageList(TestImage):
 
         self.client.images = mock.Mock()
         self.client.images.side_effect = [
-            [self._image], [],
+            [self._image],
+            [],
         ]
 
         # Get the command object to test
@@ -368,30 +367,35 @@ class TestImageList(TestImage):
         )
 
         self.assertEqual(collist, columns)
-        datalist = ((
-            self._image.id,
-            self._image.name,
-            self._image.disk_format,
-            self._image.container_format,
-            self._image.size,
-            self._image.checksum,
-            self._image.status,
-            image.VisibilityColumn(self._image.is_public),
-            self._image.is_protected,
-            self._image.owner_id,
-            format_columns.DictColumn(
-                {'Alpha': 'a', 'Beta': 'b', 'Gamma': 'g'}),
-        ), )
+        datalist = (
+            (
+                self._image.id,
+                self._image.name,
+                self._image.disk_format,
+                self._image.container_format,
+                self._image.size,
+                self._image.checksum,
+                self._image.status,
+                image.VisibilityColumn(self._image.is_public),
+                self._image.is_protected,
+                self._image.owner_id,
+                format_columns.DictColumn(
+                    {'Alpha': 'a', 'Beta': 'b', 'Gamma': 'g'}
+                ),
+            ),
+        )
         self.assertCountEqual(datalist, tuple(data))
 
     @mock.patch('osc_lib.api.utils.simple_filter')
     def test_image_list_property_option(self, sf_mock):
         sf_mock.side_effect = [
-            [self.image_info], [],
+            [self.image_info],
+            [],
         ]
 
         arglist = [
-            '--property', 'a=1',
+            '--property',
+            'a=1',
         ]
         verifylist = [
             ('property', {'a': '1'}),
@@ -416,7 +420,8 @@ class TestImageList(TestImage):
     @mock.patch('osc_lib.utils.sort_items')
     def test_image_list_sort_option(self, si_mock):
         si_mock.side_effect = [
-            [self._image], [],
+            [self._image],
+            [],
         ]
 
         arglist = ['--sort', 'name:asc']
@@ -428,17 +433,13 @@ class TestImageList(TestImage):
         # containing the data to be listed.
         columns, data = self.cmd.take_action(parsed_args)
         self.client.images.assert_called_with()
-        si_mock.assert_called_with(
-            [self._image],
-            'name:asc'
-        )
+        si_mock.assert_called_with([self._image], 'name:asc')
 
         self.assertEqual(self.columns, columns)
         self.assertEqual(self.datalist, tuple(data))
 
 
 class TestImageSet(TestImage):
-
     _image = image_fakes.create_one_image()
 
     def setUp(self):
@@ -467,13 +468,20 @@ class TestImageSet(TestImage):
 
     def test_image_set_options(self):
         arglist = [
-            '--name', 'new-name',
-            '--min-disk', '2',
-            '--min-ram', '4',
-            '--container-format', 'ovf',
-            '--disk-format', 'vmdk',
-            '--size', '35165824',
-            '--project', 'new-owner',
+            '--name',
+            'new-name',
+            '--min-disk',
+            '2',
+            '--min-ram',
+            '4',
+            '--container-format',
+            'ovf',
+            '--disk-format',
+            'vmdk',
+            '--size',
+            '35165824',
+            '--project',
+            'new-owner',
             self._image.name,
         ]
         verifylist = [
@@ -497,13 +505,10 @@ class TestImageSet(TestImage):
             'min_ram': 4,
             'container_format': 'ovf',
             'disk_format': 'vmdk',
-            'size': 35165824
+            'size': 35165824,
         }
         # ImageManager.update(image, **kwargs)
-        self.client.update_image.assert_called_with(
-            self._image.id,
-            **kwargs
-        )
+        self.client.update_image.assert_called_with(self._image.id, **kwargs)
         self.assertIsNone(result)
 
     def test_image_set_bools1(self):
@@ -528,10 +533,7 @@ class TestImageSet(TestImage):
             'is_public': False,
         }
         # ImageManager.update(image, **kwargs)
-        self.client.update_image.assert_called_with(
-            self._image.id,
-            **kwargs
-        )
+        self.client.update_image.assert_called_with(self._image.id, **kwargs)
         self.assertIsNone(result)
 
     def test_image_set_bools2(self):
@@ -556,16 +558,15 @@ class TestImageSet(TestImage):
             'is_public': True,
         }
         # ImageManager.update(image, **kwargs)
-        self.client.update_image.assert_called_with(
-            self._image.id,
-            **kwargs
-        )
+        self.client.update_image.assert_called_with(self._image.id, **kwargs)
         self.assertIsNone(result)
 
     def test_image_set_properties(self):
         arglist = [
-            '--property', 'Alpha=1',
-            '--property', 'Beta=2',
+            '--property',
+            'Alpha=1',
+            '--property',
+            'Beta=2',
             self._image.name,
         ]
         verifylist = [
@@ -584,10 +585,7 @@ class TestImageSet(TestImage):
             },
         }
         # ImageManager.update(image, **kwargs)
-        self.client.update_image.assert_called_with(
-            self._image.id,
-            **kwargs
-        )
+        self.client.update_image.assert_called_with(self._image.id, **kwargs)
         self.assertIsNone(result)
 
     def test_image_update_volume(self):
@@ -614,8 +612,10 @@ class TestImageSet(TestImage):
         volumes_mock.upload_to_image.return_value = (201, full_response)
 
         arglist = [
-            '--volume', 'volly',
-            '--name', 'updated_image',
+            '--volume',
+            'volly',
+            '--name',
+            'updated_image',
             self._image.name,
         ]
         verifylist = [
@@ -651,8 +651,10 @@ class TestImageSet(TestImage):
 
     def test_image_set_numeric_options_to_zero(self):
         arglist = [
-            '--min-disk', '0',
-            '--min-ram', '0',
+            '--min-disk',
+            '0',
+            '--min-ram',
+            '0',
             self._image.name,
         ]
         verifylist = [
@@ -669,15 +671,11 @@ class TestImageSet(TestImage):
             'min_ram': 0,
         }
         # ImageManager.update(image, **kwargs)
-        self.client.update_image.assert_called_with(
-            self._image.id,
-            **kwargs
-        )
+        self.client.update_image.assert_called_with(self._image.id, **kwargs)
         self.assertIsNone(result)
 
 
 class TestImageShow(TestImage):
-
     _image = image_fakes.create_one_image(attrs={'size': 2000})
     columns = (
         'container_format',

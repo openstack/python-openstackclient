@@ -45,7 +45,7 @@ class TestMetadefNamespaceCreate(TestMetadefNamespaces):
         'owner',
         'resource_type_associations',
         'updated_at',
-        'visibility'
+        'visibility',
     )
     expected_data = (
         _metadef_namespace.created_at,
@@ -59,25 +59,22 @@ class TestMetadefNamespaceCreate(TestMetadefNamespaces):
         _metadef_namespace.owner,
         _metadef_namespace.resource_type_associations,
         _metadef_namespace.updated_at,
-        _metadef_namespace.visibility
+        _metadef_namespace.visibility,
     )
 
     def setUp(self):
         super().setUp()
 
-        self.client.create_metadef_namespace.return_value \
-            = self._metadef_namespace
+        self.client.create_metadef_namespace.return_value = (
+            self._metadef_namespace
+        )
         self.cmd = metadef_namespaces.CreateMetadefNameSpace(self.app, None)
         self.datalist = self._metadef_namespace
 
     def test_namespace_create(self):
-        arglist = [
-            self._metadef_namespace.namespace
-        ]
+        arglist = [self._metadef_namespace.namespace]
 
-        verifylist = [
-
-        ]
+        verifylist = []
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
         columns, data = self.cmd.take_action(parsed_args)
@@ -92,19 +89,16 @@ class TestMetadefNamespaceDelete(TestMetadefNamespaces):
     def setUp(self):
         super().setUp()
 
-        self.client.delete_metadef_namespace.return_value \
-            = self._metadef_namespace
+        self.client.delete_metadef_namespace.return_value = (
+            self._metadef_namespace
+        )
         self.cmd = metadef_namespaces.DeleteMetadefNameSpace(self.app, None)
         self.datalist = self._metadef_namespace
 
     def test_namespace_create(self):
-        arglist = [
-            self._metadef_namespace.namespace
-        ]
+        arglist = [self._metadef_namespace.namespace]
 
-        verifylist = [
-
-        ]
+        verifylist = []
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
         result = self.cmd.take_action(parsed_args)
@@ -115,9 +109,7 @@ class TestMetadefNamespaceDelete(TestMetadefNamespaces):
 class TestMetadefNamespaceList(TestMetadefNamespaces):
     _metadef_namespace = [md_namespace_fakes.create_one_metadef_namespace()]
 
-    columns = [
-        'namespace'
-    ]
+    columns = ['namespace']
 
     datalist = []
 
@@ -125,7 +117,9 @@ class TestMetadefNamespaceList(TestMetadefNamespaces):
         super().setUp()
 
         self.client.metadef_namespaces.side_effect = [
-            self._metadef_namespace, []]
+            self._metadef_namespace,
+            [],
+        ]
 
         # Get the command object to test
         self.client.metadef_namespaces.return_value = iter(
@@ -144,8 +138,7 @@ class TestMetadefNamespaceList(TestMetadefNamespaces):
         columns, data = self.cmd.take_action(parsed_args)
 
         self.assertEqual(self.columns, columns)
-        self.assertEqual(getattr(self.datalist[0], 'namespace'),
-                         next(data)[0])
+        self.assertEqual(getattr(self.datalist[0], 'namespace'), next(data)[0])
 
 
 class TestMetadefNamespaceSet(TestMetadefNamespaces):
@@ -154,15 +147,14 @@ class TestMetadefNamespaceSet(TestMetadefNamespaces):
     def setUp(self):
         super().setUp()
 
-        self.client.update_metadef_namespace.return_value \
-            = self._metadef_namespace
+        self.client.update_metadef_namespace.return_value = (
+            self._metadef_namespace
+        )
         self.cmd = metadef_namespaces.SetMetadefNameSpace(self.app, None)
         self.datalist = self._metadef_namespace
 
     def test_namespace_set_no_options(self):
-        arglist = [
-            self._metadef_namespace.namespace
-        ]
+        arglist = [self._metadef_namespace.namespace]
         verifylist = [
             ('namespace', self._metadef_namespace.namespace),
         ]
@@ -182,31 +174,28 @@ class TestMetadefNamespaceShow(TestMetadefNamespaces):
         'display_name',
         'namespace',
         'owner',
-        'visibility'
+        'visibility',
     )
     expected_data = (
         _metadef_namespace.created_at,
         _metadef_namespace.display_name,
         _metadef_namespace.namespace,
         _metadef_namespace.owner,
-        _metadef_namespace.visibility
+        _metadef_namespace.visibility,
     )
 
     def setUp(self):
         super().setUp()
 
-        self.client.get_metadef_namespace.return_value \
-            = self._metadef_namespace
+        self.client.get_metadef_namespace.return_value = (
+            self._metadef_namespace
+        )
         self.cmd = metadef_namespaces.ShowMetadefNameSpace(self.app, None)
 
     def test_namespace_show_no_options(self):
-        arglist = [
-            self._metadef_namespace.namespace
-        ]
+        arglist = [self._metadef_namespace.namespace]
 
-        verifylist = [
-
-        ]
+        verifylist = []
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
         columns, data = self.cmd.take_action(parsed_args)

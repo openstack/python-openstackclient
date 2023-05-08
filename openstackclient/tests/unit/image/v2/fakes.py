@@ -28,7 +28,6 @@ from openstackclient.tests.unit import utils
 
 
 class FakeImagev2Client:
-
     def __init__(self, **kwargs):
         self.images = mock.Mock()
         self.create_image = mock.Mock()
@@ -62,7 +61,6 @@ class FakeImagev2Client:
 
 
 class TestImagev2(utils.TestCommand):
-
     def setUp(self):
         super().setUp()
 
@@ -162,7 +160,7 @@ def create_one_import_info(attrs=None):
                 'web-download',
                 'glance-download',
                 'copy-image',
-            ]
+            ],
         }
     }
     import_info.update(attrs)
@@ -188,10 +186,10 @@ def create_one_task(attrs=None):
         'input': {
             'image_properties': {
                 'container_format': 'ovf',
-                'disk_format': 'vhd'
+                'disk_format': 'vhd',
             },
             'import_from': 'https://apps.openstack.org/excellent-image',
-            'import_from_format': 'qcow2'
+            'import_from_format': 'qcow2',
         },
         'message': '',
         'owner': str(uuid.uuid4()),
@@ -237,7 +235,6 @@ def create_tasks(attrs=None, count=2):
 
 
 class FakeMetadefNamespaceClient:
-
     def __init__(self, **kwargs):
         self.create_metadef_namespace = mock.Mock()
         self.delete_metadef_namespace = mock.Mock()
@@ -251,7 +248,6 @@ class FakeMetadefNamespaceClient:
 
 
 class TestMetadefNamespaces(utils.TestCommand):
-
     def setUp(self):
         super().setUp()
 

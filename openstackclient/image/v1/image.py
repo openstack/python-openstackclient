@@ -39,29 +39,42 @@ else:
 CONTAINER_CHOICES = ["ami", "ari", "aki", "bare", "docker", "ova", "ovf"]
 DEFAULT_CONTAINER_FORMAT = 'bare'
 DEFAULT_DISK_FORMAT = 'raw'
-DISK_CHOICES = ["ami", "ari", "aki", "vhd", "vmdk", "raw", "qcow2", "vhdx",
-                "vdi", "iso", "ploop"]
+DISK_CHOICES = [
+    "ami",
+    "ari",
+    "aki",
+    "vhd",
+    "vmdk",
+    "raw",
+    "qcow2",
+    "vhdx",
+    "vdi",
+    "iso",
+    "ploop",
+]
 
 
 LOG = logging.getLogger(__name__)
 
 
 def _get_columns(item):
-    column_map = {
-        'is_protected': 'protected',
-        'owner_id': 'owner'
-    }
+    column_map = {'is_protected': 'protected', 'owner_id': 'owner'}
     hidden_columns = [
-        'location', 'checksum', 'copy_from', 'created_at', 'status',
+        'location',
+        'checksum',
+        'copy_from',
+        'created_at',
+        'status',
         'updated_at',
     ]
     return utils.get_osc_show_columns_for_sdk_resource(
-        item.to_dict(), column_map, hidden_columns,
+        item.to_dict(),
+        column_map,
+        hidden_columns,
     )
 
 
-_formatters = {
-}
+_formatters = {}
 
 
 class HumanReadableSizeColumn(cliff_columns.FormattableColumn):
@@ -117,25 +130,36 @@ class CreateImage(command.ShowOne):
             default=DEFAULT_CONTAINER_FORMAT,
             metavar="<container-format>",
             choices=CONTAINER_CHOICES,
-            help=(_("Image container format. "
+            help=(
+                _(
+                    "Image container format. "
                     "The supported options are: %(option_list)s. "
-                    "The default format is: %(default_opt)s") %
-                  {'option_list': ', '.join(CONTAINER_CHOICES),
-                   'default_opt': DEFAULT_CONTAINER_FORMAT})
+                    "The default format is: %(default_opt)s"
+                )
+                % {
+                    'option_list': ', '.join(CONTAINER_CHOICES),
+                    'default_opt': DEFAULT_CONTAINER_FORMAT,
+                }
+            ),
         )
         parser.add_argument(
             "--disk-format",
             default=DEFAULT_DISK_FORMAT,
             metavar="<disk-format>",
             choices=DISK_CHOICES,
-            help=_("Image disk format. The supported options are: %s. "
-                   "The default format is: raw") % ', '.join(DISK_CHOICES)
+            help=_(
+                "Image disk format. The supported options are: %s. "
+                "The default format is: raw"
+            )
+            % ', '.join(DISK_CHOICES),
         )
         parser.add_argument(
             "--size",
             metavar="<size>",
-            help=_("Image size, in bytes (only used with --location and"
-                   " --copy-from)"),
+            help=_(
+                "Image size, in bytes (only used with --location and"
+                " --copy-from)"
+            ),
         )
         parser.add_argument(
             "--min-disk",
@@ -175,8 +199,10 @@ class CreateImage(command.ShowOne):
             dest='force',
             action='store_true',
             default=False,
-            help=_("Force image creation if volume is in use "
-                   "(only meaningful with --volume)"),
+            help=_(
+                "Force image creation if volume is in use "
+                "(only meaningful with --volume)"
+            ),
         )
         parser.add_argument(
             "--checksum",
@@ -210,8 +236,10 @@ class CreateImage(command.ShowOne):
             dest="properties",
             metavar="<key=value>",
             action=parseractions.KeyValueAction,
-            help=_("Set a property on this image "
-                   "(repeat option to set multiple properties)"),
+            help=_(
+                "Set a property on this image "
+                "(repeat option to set multiple properties)"
+            ),
         )
         parser.add_argument(
             "--project",
@@ -226,10 +254,23 @@ class CreateImage(command.ShowOne):
         # Build an attribute dict from the parsed args, only include
         # attributes that were actually set on the command line
         kwargs = {}
-        copy_attrs = ('name', 'id', 'store', 'container_format',
-                      'disk_format', 'owner', 'size', 'min_disk', 'min_ram',
-                      'location', 'copy_from', 'volume', 'force',
-                      'checksum', 'properties')
+        copy_attrs = (
+            'name',
+            'id',
+            'store',
+            'container_format',
+            'disk_format',
+            'owner',
+            'size',
+            'min_disk',
+            'min_ram',
+            'location',
+            'copy_from',
+            'volume',
+            'force',
+            'checksum',
+            'properties',
+        )
         for attr in copy_attrs:
             if attr in parsed_args:
                 val = getattr(parsed_args, attr, None)
@@ -295,20 +336,25 @@ class CreateImage(command.ShowOne):
                 image = image_client.create_image(**kwargs)
             finally:
                 # Clean up open files - make sure data isn't a string
-                if ('data' in kwargs and hasattr(kwargs['data'], 'close') and
-                        kwargs['data'] != sys.stdin):
+                if (
+                    'data' in kwargs
+                    and hasattr(kwargs['data'], 'close')
+                    and kwargs['data'] != sys.stdin
+                ):
                     kwargs['data'].close()
 
         if image:
             display_columns, columns = _get_columns(image)
             _formatters['properties'] = format_columns.DictColumn
-            data = utils.get_item_properties(image, columns,
-                                             formatters=_formatters)
+            data = utils.get_item_properties(
+                image, columns, formatters=_formatters
+            )
             return (display_columns, data)
         elif info:
             info.update(image._info)
             info['properties'] = format_columns.DictColumn(
-                info.get('properties', {}))
+                info.get('properties', {})
+            )
             return zip(*sorted(info.items()))
 
 
@@ -384,9 +430,11 @@ class ListImage(command.Lister):
             '--sort',
             metavar="<key>[:<direction>]",
             default='name:asc',
-            help=_("Sort output by selected keys and directions(asc or desc) "
-                   "(default: name:asc), multiple keys and directions can be "
-                   "specified separated by comma"),
+            help=_(
+                "Sort output by selected keys and directions(asc or desc) "
+                "(default: name:asc), multiple keys and directions can be "
+                "specified separated by comma"
+            ),
         )
         return parser
 
@@ -447,14 +495,17 @@ class ListImage(command.Lister):
 
         return (
             column_headers,
-            (utils.get_item_properties(
-                s,
-                columns,
-                formatters={
-                    'is_public': VisibilityColumn,
-                    'properties': format_columns.DictColumn,
-                },
-            ) for s in data)
+            (
+                utils.get_item_properties(
+                    s,
+                    columns,
+                    formatters={
+                        'is_public': VisibilityColumn,
+                        'properties': format_columns.DictColumn,
+                    },
+                )
+                for s in data
+            ),
         )
 
 
@@ -517,21 +568,21 @@ class SetImage(command.Command):
             "--container-format",
             metavar="<container-format>",
             choices=CONTAINER_CHOICES,
-            help=_("Image container format. The supported options are: %s") %
-            ', '.join(CONTAINER_CHOICES)
+            help=_("Image container format. The supported options are: %s")
+            % ', '.join(CONTAINER_CHOICES),
         )
         parser.add_argument(
             "--disk-format",
             metavar="<disk-format>",
             choices=DISK_CHOICES,
-            help=_("Image disk format. The supported options are: %s.") %
-            ', '.join(DISK_CHOICES)
+            help=_("Image disk format. The supported options are: %s.")
+            % ', '.join(DISK_CHOICES),
         )
         parser.add_argument(
             "--size",
             metavar="<size>",
             type=int,
-            help=_("Size of image data (in bytes)")
+            help=_("Size of image data (in bytes)"),
         )
         protected_group = parser.add_mutually_exclusive_group()
         protected_group.add_argument(
@@ -560,8 +611,10 @@ class SetImage(command.Command):
             dest="properties",
             metavar="<key=value>",
             action=parseractions.KeyValueAction,
-            help=_("Set a property on this image "
-                   "(repeat option to set multiple properties)"),
+            help=_(
+                "Set a property on this image "
+                "(repeat option to set multiple properties)"
+            ),
         )
         parser.add_argument(
             "--store",
@@ -593,8 +646,10 @@ class SetImage(command.Command):
             dest='force',
             action='store_true',
             default=False,
-            help=_("Force image change if volume is in use "
-                   "(only meaningful with --volume)"),
+            help=_(
+                "Force image change if volume is in use "
+                "(only meaningful with --volume)"
+            ),
         )
         parser.add_argument(
             "--stdin",
@@ -619,9 +674,21 @@ class SetImage(command.Command):
         image_client = self.app.client_manager.image
 
         kwargs = {}
-        copy_attrs = ('name', 'owner', 'min_disk', 'min_ram', 'properties',
-                      'container_format', 'disk_format', 'size', 'store',
-                      'location', 'copy_from', 'volume', 'checksum')
+        copy_attrs = (
+            'name',
+            'owner',
+            'min_disk',
+            'min_ram',
+            'properties',
+            'container_format',
+            'disk_format',
+            'size',
+            'store',
+            'location',
+            'copy_from',
+            'volume',
+            'checksum',
+        )
         for attr in copy_attrs:
             if attr in parsed_args:
                 val = getattr(parsed_args, attr, None)
@@ -665,12 +732,16 @@ class SetImage(command.Command):
                         source_volume.id,
                         parsed_args.force,
                         parsed_args.image,
-                        (parsed_args.container_format
-                         if parsed_args.container_format
-                         else image.container_format),
-                        (parsed_args.disk_format
-                         if parsed_args.disk_format
-                         else image.disk_format),
+                        (
+                            parsed_args.container_format
+                            if parsed_args.container_format
+                            else image.container_format
+                        ),
+                        (
+                            parsed_args.disk_format
+                            if parsed_args.disk_format
+                            else image.disk_format
+                        ),
                     )
                 elif parsed_args.file:
                     # Send an open file handle to glanceclient so it will
@@ -687,8 +758,12 @@ class SetImage(command.Command):
                             else:
                                 kwargs["data"] = sys.stdin
                         else:
-                            LOG.warning(_('Use --stdin to enable read image '
-                                          'data from standard input'))
+                            LOG.warning(
+                                _(
+                                    'Use --stdin to enable read image '
+                                    'data from standard input'
+                                )
+                            )
 
             if image.properties and parsed_args.properties:
                 image.properties.update(kwargs['properties'])
@@ -697,8 +772,11 @@ class SetImage(command.Command):
             image = image_client.update_image(image.id, **kwargs)
         finally:
             # Clean up open files - make sure data isn't a string
-            if ('data' in kwargs and hasattr(kwargs['data'], 'close') and
-                    kwargs['data'] != sys.stdin):
+            if (
+                'data' in kwargs
+                and hasattr(kwargs['data'], 'close')
+                and kwargs['data'] != sys.stdin
+            ):
                 kwargs['data'].close()
 
 
@@ -728,6 +806,7 @@ class ShowImage(command.ShowOne):
             _formatters['size'] = HumanReadableSizeColumn
         display_columns, columns = _get_columns(image)
         _formatters['properties'] = format_columns.DictColumn
-        data = utils.get_item_properties(image, columns,
-                                         formatters=_formatters)
+        data = utils.get_item_properties(
+            image, columns, formatters=_formatters
+        )
         return (display_columns, data)
