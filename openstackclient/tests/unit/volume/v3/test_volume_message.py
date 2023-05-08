@@ -21,7 +21,6 @@ from openstackclient.volume.v3 import volume_message
 
 
 class TestVolumeMessage(volume_fakes.TestVolume):
-
     def setUp(self):
         super().setUp()
 
@@ -33,7 +32,6 @@ class TestVolumeMessage(volume_fakes.TestVolume):
 
 
 class TestVolumeMessageDelete(TestVolumeMessage):
-
     fake_messages = volume_fakes.create_volume_messages(count=2)
 
     def setUp(self):
@@ -48,8 +46,9 @@ class TestVolumeMessageDelete(TestVolumeMessage):
         self.cmd = volume_message.DeleteMessage(self.app, None)
 
     def test_message_delete(self):
-        self.app.client_manager.volume.api_version = \
-            api_versions.APIVersion('3.3')
+        self.app.client_manager.volume.api_version = api_versions.APIVersion(
+            '3.3'
+        )
 
         arglist = [
             self.fake_messages[0].id,
@@ -62,12 +61,14 @@ class TestVolumeMessageDelete(TestVolumeMessage):
         result = self.cmd.take_action(parsed_args)
 
         self.volume_messages_mock.delete.assert_called_with(
-            self.fake_messages[0].id)
+            self.fake_messages[0].id
+        )
         self.assertIsNone(result)
 
     def test_message_delete_multiple_messages(self):
-        self.app.client_manager.volume.api_version = \
-            api_versions.APIVersion('3.3')
+        self.app.client_manager.volume.api_version = api_versions.APIVersion(
+            '3.3'
+        )
 
         arglist = [
             self.fake_messages[0].id,
@@ -87,8 +88,9 @@ class TestVolumeMessageDelete(TestVolumeMessage):
         self.assertIsNone(result)
 
     def test_message_delete_multiple_messages_with_exception(self):
-        self.app.client_manager.volume.api_version = \
-            api_versions.APIVersion('3.3')
+        self.app.client_manager.volume.api_version = api_versions.APIVersion(
+            '3.3'
+        )
 
         arglist = [
             self.fake_messages[0].id,
@@ -101,22 +103,26 @@ class TestVolumeMessageDelete(TestVolumeMessage):
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
         self.volume_messages_mock.delete.side_effect = [
-            self.fake_messages[0], exceptions.CommandError]
+            self.fake_messages[0],
+            exceptions.CommandError,
+        ]
 
         exc = self.assertRaises(
-            exceptions.CommandError,
-            self.cmd.take_action, parsed_args)
+            exceptions.CommandError, self.cmd.take_action, parsed_args
+        )
         self.assertEqual('Failed to delete 1 of 2 messages.', str(exc))
 
         self.volume_messages_mock.delete.assert_any_call(
-            self.fake_messages[0].id)
+            self.fake_messages[0].id
+        )
         self.volume_messages_mock.delete.assert_any_call('invalid_message')
 
         self.assertEqual(2, self.volume_messages_mock.delete.call_count)
 
     def test_message_delete_pre_v33(self):
-        self.app.client_manager.volume.api_version = \
-            api_versions.APIVersion('3.2')
+        self.app.client_manager.volume.api_version = api_versions.APIVersion(
+            '3.2'
+        )
 
         arglist = [
             self.fake_messages[0].id,
@@ -127,16 +133,14 @@ class TestVolumeMessageDelete(TestVolumeMessage):
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
         exc = self.assertRaises(
-            exceptions.CommandError,
-            self.cmd.take_action,
-            parsed_args)
+            exceptions.CommandError, self.cmd.take_action, parsed_args
+        )
         self.assertIn(
-            '--os-volume-api-version 3.3 or greater is required',
-            str(exc))
+            '--os-volume-api-version 3.3 or greater is required', str(exc)
+        )
 
 
 class TestVolumeMessageList(TestVolumeMessage):
-
     fake_project = identity_fakes.FakeProject.create_one_project()
     fake_messages = volume_fakes.create_volume_messages(count=3)
 
@@ -153,17 +157,19 @@ class TestVolumeMessageList(TestVolumeMessage):
     )
     data = []
     for fake_message in fake_messages:
-        data.append((
-            fake_message.id,
-            fake_message.event_id,
-            fake_message.resource_type,
-            fake_message.resource_uuid,
-            fake_message.message_level,
-            fake_message.user_message,
-            fake_message.request_id,
-            fake_message.created_at,
-            fake_message.guaranteed_until,
-        ))
+        data.append(
+            (
+                fake_message.id,
+                fake_message.event_id,
+                fake_message.resource_type,
+                fake_message.resource_uuid,
+                fake_message.message_level,
+                fake_message.user_message,
+                fake_message.request_id,
+                fake_message.created_at,
+                fake_message.guaranteed_until,
+            )
+        )
 
     def setUp(self):
         super().setUp()
@@ -174,8 +180,9 @@ class TestVolumeMessageList(TestVolumeMessage):
         self.cmd = volume_message.ListMessages(self.app, None)
 
     def test_message_list(self):
-        self.app.client_manager.volume.api_version = \
-            api_versions.APIVersion('3.3')
+        self.app.client_manager.volume.api_version = api_versions.APIVersion(
+            '3.3'
+        )
 
         arglist = []
         verifylist = [
@@ -199,13 +206,17 @@ class TestVolumeMessageList(TestVolumeMessage):
         self.assertCountEqual(self.data, list(data))
 
     def test_message_list_with_options(self):
-        self.app.client_manager.volume.api_version = \
-            api_versions.APIVersion('3.3')
+        self.app.client_manager.volume.api_version = api_versions.APIVersion(
+            '3.3'
+        )
 
         arglist = [
-            '--project', self.fake_project.name,
-            '--marker', self.fake_messages[0].id,
-            '--limit', '3',
+            '--project',
+            self.fake_project.name,
+            '--marker',
+            self.fake_messages[0].id,
+            '--limit',
+            '3',
         ]
         verifylist = [
             ('project', self.fake_project.name),
@@ -228,8 +239,9 @@ class TestVolumeMessageList(TestVolumeMessage):
         self.assertCountEqual(self.data, list(data))
 
     def test_message_list_pre_v33(self):
-        self.app.client_manager.volume.api_version = \
-            api_versions.APIVersion('3.2')
+        self.app.client_manager.volume.api_version = api_versions.APIVersion(
+            '3.2'
+        )
 
         arglist = []
         verifylist = [
@@ -241,16 +253,14 @@ class TestVolumeMessageList(TestVolumeMessage):
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
         exc = self.assertRaises(
-            exceptions.CommandError,
-            self.cmd.take_action,
-            parsed_args)
+            exceptions.CommandError, self.cmd.take_action, parsed_args
+        )
         self.assertIn(
-            '--os-volume-api-version 3.3 or greater is required',
-            str(exc))
+            '--os-volume-api-version 3.3 or greater is required', str(exc)
+        )
 
 
 class TestVolumeMessageShow(TestVolumeMessage):
-
     fake_message = volume_fakes.create_one_volume_message()
 
     columns = (
@@ -284,15 +294,12 @@ class TestVolumeMessageShow(TestVolumeMessage):
         self.cmd = volume_message.ShowMessage(self.app, None)
 
     def test_message_show(self):
-        self.app.client_manager.volume.api_version = \
-            api_versions.APIVersion('3.3')
+        self.app.client_manager.volume.api_version = api_versions.APIVersion(
+            '3.3'
+        )
 
-        arglist = [
-            self.fake_message.id
-        ]
-        verifylist = [
-            ('message_id', self.fake_message.id)
-        ]
+        arglist = [self.fake_message.id]
+        verifylist = [('message_id', self.fake_message.id)]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
         columns, data = self.cmd.take_action(parsed_args)
@@ -302,21 +309,17 @@ class TestVolumeMessageShow(TestVolumeMessage):
         self.assertEqual(self.data, data)
 
     def test_message_show_pre_v33(self):
-        self.app.client_manager.volume.api_version = \
-            api_versions.APIVersion('3.2')
+        self.app.client_manager.volume.api_version = api_versions.APIVersion(
+            '3.2'
+        )
 
-        arglist = [
-            self.fake_message.id
-        ]
-        verifylist = [
-            ('message_id', self.fake_message.id)
-        ]
+        arglist = [self.fake_message.id]
+        verifylist = [('message_id', self.fake_message.id)]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
         exc = self.assertRaises(
-            exceptions.CommandError,
-            self.cmd.take_action,
-            parsed_args)
+            exceptions.CommandError, self.cmd.take_action, parsed_args
+        )
         self.assertIn(
-            '--os-volume-api-version 3.3 or greater is required',
-            str(exc))
+            '--os-volume-api-version 3.3 or greater is required', str(exc)
+        )

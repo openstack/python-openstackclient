@@ -42,7 +42,6 @@ class VolumeSummary(command.ShowOne):
         return parser
 
     def take_action(self, parsed_args):
-
         volume_client = self.app.client_manager.volume
 
         if volume_client.api_version < api_versions.APIVersion('3.12'):
@@ -89,13 +88,14 @@ class VolumeRevertToSnapshot(command.Command):
         parser.add_argument(
             'snapshot',
             metavar="<snapshot>",
-            help=_('Name or ID of the snapshot to restore. The snapshot must '
-                   'be the most recent one known to cinder.'),
+            help=_(
+                'Name or ID of the snapshot to restore. The snapshot must '
+                'be the most recent one known to cinder.'
+            ),
         )
         return parser
 
     def take_action(self, parsed_args):
-
         volume_client = self.app.client_manager.volume
 
         if volume_client.api_version < api_versions.APIVersion('3.40'):
@@ -106,9 +106,10 @@ class VolumeRevertToSnapshot(command.Command):
             raise exceptions.CommandError(msg)
 
         snapshot = utils.find_resource(
-            volume_client.volume_snapshots, parsed_args.snapshot)
-        volume = utils.find_resource(
-            volume_client.volumes, snapshot.volume_id)
+            volume_client.volume_snapshots, parsed_args.snapshot
+        )
+        volume = utils.find_resource(volume_client.volumes, snapshot.volume_id)
 
         volume_client.volumes.revert_to_snapshot(
-            volume=volume, snapshot=snapshot)
+            volume=volume, snapshot=snapshot
+        )

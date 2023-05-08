@@ -16,11 +16,18 @@ from openstackclient.tests.functional import base
 
 
 class BaseVolumeTests(base.TestCase):
-    """Base class for Volume functional tests. """
+    """Base class for Volume functional tests."""
 
     @classmethod
-    def wait_for_status(cls, check_type, check_name, desired_status,
-                        wait=120, interval=5, failures=None):
+    def wait_for_status(
+        cls,
+        check_type,
+        check_name,
+        desired_status,
+        wait=120,
+        interval=5,
+        failures=None,
+    ):
         current_status = "notset"
         if failures is None:
             failures = ['error']
@@ -32,23 +39,31 @@ class BaseVolumeTests(base.TestCase):
             )
             current_status = output['status']
             if current_status == desired_status:
-                print('{} {} now has status {}'
-                      .format(check_type, check_name, current_status))
+                print(
+                    '{} {} now has status {}'.format(
+                        check_type, check_name, current_status
+                    )
+                )
                 return
-            print('Checking {} {} Waiting for {} current status: {}'
-                  .format(check_type, check_name,
-                          desired_status, current_status))
+            print(
+                'Checking {} {} Waiting for {} current status: {}'.format(
+                    check_type, check_name, desired_status, current_status
+                )
+            )
             if current_status in failures:
                 raise Exception(
-                    'Current status {} of {} {} is one of failures {}'
-                    .format(current_status, check_type, check_name, failures))
+                    'Current status {} of {} {} is one of failures {}'.format(
+                        current_status, check_type, check_name, failures
+                    )
+                )
             time.sleep(interval)
             total_sleep += interval
         cls.assertOutput(desired_status, current_status)
 
     @classmethod
-    def wait_for_delete(cls, check_type, check_name, wait=120, interval=5,
-                        name_field=None):
+    def wait_for_delete(
+        cls, check_type, check_name, wait=120, interval=5, name_field=None
+    ):
         total_sleep = 0
         name_field = name_field or 'Name'
         while total_sleep < wait:
@@ -57,9 +72,15 @@ class BaseVolumeTests(base.TestCase):
             if check_name not in names:
                 print('{} {} is now deleted'.format(check_type, check_name))
                 return
-            print('Checking {} {} Waiting for deleted'
-                  .format(check_type, check_name))
+            print(
+                'Checking {} {} Waiting for deleted'.format(
+                    check_type, check_name
+                )
+            )
             time.sleep(interval)
             total_sleep += interval
-        raise Exception('Timeout: {} {} was not deleted in {} seconds'
-                        .format(check_type, check_name, wait))
+        raise Exception(
+            'Timeout: {} {} was not deleted in {} seconds'.format(
+                check_type, check_name, wait
+            )
+        )

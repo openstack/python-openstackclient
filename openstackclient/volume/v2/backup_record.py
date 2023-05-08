@@ -26,17 +26,19 @@ LOG = logging.getLogger(__name__)
 
 
 class ExportBackupRecord(command.ShowOne):
-    _description = _("""Export volume backup details.
+    _description = _(
+        """Export volume backup details.
 
 Backup information can be imported into a new service instance to be able to
-restore.""")
+restore."""
+    )
 
     def get_parser(self, prog_name):
         parser = super(ExportBackupRecord, self).get_parser(prog_name)
         parser.add_argument(
             "backup",
             metavar="<backup>",
-            help=_("Backup to export (name or ID)")
+            help=_("Backup to export (name or ID)"),
         )
         return parser
 
@@ -55,29 +57,31 @@ restore.""")
 
 
 class ImportBackupRecord(command.ShowOne):
-    _description = _("""Import volume backup details.
+    _description = _(
+        """Import volume backup details.
 
 Exported backup details contain the metadata necessary to restore to a new or
-rebuilt service instance""")
+rebuilt service instance"""
+    )
 
     def get_parser(self, prog_name):
         parser = super(ImportBackupRecord, self).get_parser(prog_name)
         parser.add_argument(
             "backup_service",
             metavar="<backup_service>",
-            help=_("Backup service containing the backup.")
+            help=_("Backup service containing the backup."),
         )
         parser.add_argument(
             "backup_metadata",
             metavar="<backup_metadata>",
-            help=_("Encoded backup metadata from export.")
+            help=_("Encoded backup metadata from export."),
         )
         return parser
 
     def take_action(self, parsed_args):
         volume_client = self.app.client_manager.volume
         backup_data = volume_client.backups.import_record(
-            parsed_args.backup_service,
-            parsed_args.backup_metadata)
+            parsed_args.backup_service, parsed_args.backup_metadata
+        )
         backup_data.pop('links', None)
         return zip(*sorted(backup_data.items()))

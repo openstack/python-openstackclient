@@ -29,18 +29,18 @@ class ListService(command.Lister):
         parser.add_argument(
             "--host",
             metavar="<host>",
-            help=_("List services on specified host (name only)")
+            help=_("List services on specified host (name only)"),
         )
         parser.add_argument(
             "--service",
             metavar="<service>",
-            help=_("List only specified service (name only)")
+            help=_("List only specified service (name only)"),
         )
         parser.add_argument(
             "--long",
             action="store_true",
             default=False,
-            help=_("List additional fields in output")
+            help=_("List additional fields in output"),
         )
         return parser
 
@@ -55,7 +55,7 @@ class ListService(command.Lister):
                 "Status",
                 "State",
                 "Updated At",
-                "Disabled Reason"
+                "Disabled Reason",
             ]
         else:
             columns = [
@@ -64,15 +64,22 @@ class ListService(command.Lister):
                 "Zone",
                 "Status",
                 "State",
-                "Updated At"
+                "Updated At",
             ]
 
-        data = service_client.services.list(parsed_args.host,
-                                            parsed_args.service)
-        return (columns,
-                (utils.get_item_properties(
-                    s, columns,
-                ) for s in data))
+        data = service_client.services.list(
+            parsed_args.host, parsed_args.service
+        )
+        return (
+            columns,
+            (
+                utils.get_item_properties(
+                    s,
+                    columns,
+                )
+                for s in data
+            ),
+        )
 
 
 class SetService(command.Command):
@@ -80,51 +87,50 @@ class SetService(command.Command):
 
     def get_parser(self, prog_name):
         parser = super(SetService, self).get_parser(prog_name)
-        parser.add_argument(
-            "host",
-            metavar="<host>",
-            help=_("Name of host")
-        )
+        parser.add_argument("host", metavar="<host>", help=_("Name of host"))
         parser.add_argument(
             "service",
             metavar="<service>",
-            help=_("Name of service (Binary name)")
+            help=_("Name of service (Binary name)"),
         )
         enabled_group = parser.add_mutually_exclusive_group()
         enabled_group.add_argument(
-            "--enable",
-            action="store_true",
-            help=_("Enable volume service")
+            "--enable", action="store_true", help=_("Enable volume service")
         )
         enabled_group.add_argument(
-            "--disable",
-            action="store_true",
-            help=_("Disable volume service")
+            "--disable", action="store_true", help=_("Disable volume service")
         )
         parser.add_argument(
             "--disable-reason",
             metavar="<reason>",
-            help=_("Reason for disabling the service "
-                   "(should be used with --disable option)")
+            help=_(
+                "Reason for disabling the service "
+                "(should be used with --disable option)"
+            ),
         )
         return parser
 
     def take_action(self, parsed_args):
         if parsed_args.disable_reason and not parsed_args.disable:
-            msg = _("Cannot specify option --disable-reason without "
-                    "--disable specified.")
+            msg = _(
+                "Cannot specify option --disable-reason without "
+                "--disable specified."
+            )
             raise exceptions.CommandError(msg)
 
         service_client = self.app.client_manager.volume
         if parsed_args.enable:
             service_client.services.enable(
-                parsed_args.host, parsed_args.service)
+                parsed_args.host, parsed_args.service
+            )
         if parsed_args.disable:
             if parsed_args.disable_reason:
                 service_client.services.disable_log_reason(
                     parsed_args.host,
                     parsed_args.service,
-                    parsed_args.disable_reason)
+                    parsed_args.disable_reason,
+                )
             else:
                 service_client.services.disable(
-                    parsed_args.host, parsed_args.service)
+                    parsed_args.host, parsed_args.service
+                )

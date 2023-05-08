@@ -70,7 +70,7 @@ class CreateVolumeGroupType(command.ShowOne):
         parser.add_argument(
             '--description',
             metavar='<description>',
-            help=_('Description of the volume group type.')
+            help=_('Description of the volume group type.'),
         )
         type_group = parser.add_mutually_exclusive_group()
         type_group.add_argument(
@@ -86,7 +86,7 @@ class CreateVolumeGroupType(command.ShowOne):
             '--private',
             dest='is_public',
             action='store_false',
-            help=_('Volume group type is not available to other projects')
+            help=_('Volume group type is not available to other projects'),
         )
         return parser
 
@@ -101,9 +101,8 @@ class CreateVolumeGroupType(command.ShowOne):
             raise exceptions.CommandError(msg)
 
         group_type = volume_client.group_types.create(
-            parsed_args.name,
-            parsed_args.description,
-            parsed_args.is_public)
+            parsed_args.name, parsed_args.description, parsed_args.is_public
+        )
 
         return _format_group_type(group_type)
 
@@ -176,7 +175,7 @@ class SetVolumeGroupType(command.ShowOne):
             '--private',
             dest='is_public',
             action='store_false',
-            help=_('Make volume group type unavailable to other projects.')
+            help=_('Make volume group type unavailable to other projects.'),
         )
         parser.add_argument(
             '--no-property',
@@ -230,7 +229,8 @@ class SetVolumeGroupType(command.ShowOne):
         if kwargs:
             try:
                 group_type = volume_client.group_types.update(
-                    group_type.id, **kwargs)
+                    group_type.id, **kwargs
+                )
             except Exception as e:
                 LOG.error(_("Failed to update group type: %s"), e)
                 errors += 1
@@ -251,9 +251,7 @@ class SetVolumeGroupType(command.ShowOne):
                 errors += 1
 
         if errors > 0:
-            msg = _(
-                "Command Failed: One or more of the operations failed"
-            )
+            msg = _("Command Failed: One or more of the operations failed")
             raise exceptions.CommandError()
 
         return _format_group_type(group_type)
@@ -370,10 +368,7 @@ class ListVolumeGroupType(command.Lister):
 
         return (
             column_headers,
-            (
-                utils.get_item_properties(a, columns)
-                for a in group_types
-            ),
+            (utils.get_item_properties(a, columns) for a in group_types),
         )
 
 

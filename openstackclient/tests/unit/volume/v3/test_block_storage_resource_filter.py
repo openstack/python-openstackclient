@@ -18,34 +18,38 @@ from openstackclient.volume.v3 import block_storage_resource_filter
 
 
 class TestBlockStorageResourceFilter(volume_fakes.TestVolume):
-
     def setUp(self):
         super().setUp()
 
         # Get a shortcut to the ResourceFilterManager Mock
-        self.resource_filter_mock = \
+        self.resource_filter_mock = (
             self.app.client_manager.volume.resource_filters
+        )
         self.resource_filter_mock.reset_mock()
 
 
 class TestBlockStorageResourceFilterList(TestBlockStorageResourceFilter):
-
     # The resource filters to be listed
     fake_resource_filters = volume_fakes.create_resource_filters()
 
     def setUp(self):
         super().setUp()
 
-        self.resource_filter_mock.list.return_value = \
+        self.resource_filter_mock.list.return_value = (
             self.fake_resource_filters
+        )
 
         # Get the command object to test
-        self.cmd = block_storage_resource_filter\
-            .ListBlockStorageResourceFilter(self.app, None)
+        self.cmd = (
+            block_storage_resource_filter.ListBlockStorageResourceFilter(
+                self.app, None
+            )
+        )
 
     def test_resource_filter_list(self):
-        self.app.client_manager.volume.api_version = \
-            api_versions.APIVersion('3.33')
+        self.app.client_manager.volume.api_version = api_versions.APIVersion(
+            '3.33'
+        )
 
         arglist = []
         verifylist = []
@@ -56,7 +60,8 @@ class TestBlockStorageResourceFilterList(TestBlockStorageResourceFilter):
             (
                 resource_filter.resource,
                 resource_filter.filters,
-            ) for resource_filter in self.fake_resource_filters
+            )
+            for resource_filter in self.fake_resource_filters
         )
         columns, data = self.cmd.take_action(parsed_args)
 
@@ -67,39 +72,44 @@ class TestBlockStorageResourceFilterList(TestBlockStorageResourceFilter):
         self.resource_filter_mock.list.assert_called_with()
 
     def test_resource_filter_list_pre_v333(self):
-        self.app.client_manager.volume.api_version = \
-            api_versions.APIVersion('3.32')
+        self.app.client_manager.volume.api_version = api_versions.APIVersion(
+            '3.32'
+        )
 
         arglist = []
         verifylist = []
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
         exc = self.assertRaises(
-            exceptions.CommandError,
-            self.cmd.take_action,
-            parsed_args)
+            exceptions.CommandError, self.cmd.take_action, parsed_args
+        )
         self.assertIn(
-            '--os-volume-api-version 3.33 or greater is required', str(exc))
+            '--os-volume-api-version 3.33 or greater is required', str(exc)
+        )
 
 
 class TestBlockStorageResourceFilterShow(TestBlockStorageResourceFilter):
-
     # The resource filters to be listed
     fake_resource_filter = volume_fakes.create_one_resource_filter()
 
     def setUp(self):
         super().setUp()
 
-        self.resource_filter_mock.list.return_value = \
-            iter([self.fake_resource_filter])
+        self.resource_filter_mock.list.return_value = iter(
+            [self.fake_resource_filter]
+        )
 
         # Get the command object to test
-        self.cmd = block_storage_resource_filter\
-            .ShowBlockStorageResourceFilter(self.app, None)
+        self.cmd = (
+            block_storage_resource_filter.ShowBlockStorageResourceFilter(
+                self.app, None
+            )
+        )
 
     def test_resource_filter_show(self):
-        self.app.client_manager.volume.api_version = \
-            api_versions.APIVersion('3.33')
+        self.app.client_manager.volume.api_version = api_versions.APIVersion(
+            '3.33'
+        )
 
         arglist = [
             self.fake_resource_filter.resource,
@@ -123,8 +133,9 @@ class TestBlockStorageResourceFilterShow(TestBlockStorageResourceFilter):
         self.resource_filter_mock.list.assert_called_with(resource='volume')
 
     def test_resource_filter_show_pre_v333(self):
-        self.app.client_manager.volume.api_version = \
-            api_versions.APIVersion('3.32')
+        self.app.client_manager.volume.api_version = api_versions.APIVersion(
+            '3.32'
+        )
 
         arglist = [
             self.fake_resource_filter.resource,
@@ -135,8 +146,8 @@ class TestBlockStorageResourceFilterShow(TestBlockStorageResourceFilter):
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
         exc = self.assertRaises(
-            exceptions.CommandError,
-            self.cmd.take_action,
-            parsed_args)
+            exceptions.CommandError, self.cmd.take_action, parsed_args
+        )
         self.assertIn(
-            '--os-volume-api-version 3.33 or greater is required', str(exc))
+            '--os-volume-api-version 3.33 or greater is required', str(exc)
+        )

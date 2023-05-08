@@ -33,14 +33,17 @@ def _find_volumes(parsed_args_volumes, volume_client):
     uuid = ''
     for volume in parsed_args_volumes:
         try:
-            volume_id = utils.find_resource(
-                volume_client.volumes, volume).id
+            volume_id = utils.find_resource(volume_client.volumes, volume).id
             uuid += volume_id + ','
         except Exception as e:
             result += 1
-            LOG.error(_("Failed to find volume with "
-                        "name or ID '%(volume)s':%(e)s")
-                      % {'volume': volume, 'e': e})
+            LOG.error(
+                _(
+                    "Failed to find volume with "
+                    "name or ID '%(volume)s':%(e)s"
+                )
+                % {'volume': volume, 'e': e}
+            )
 
     return result, uuid
 
@@ -59,8 +62,10 @@ class AddVolumeToConsistencyGroup(command.Command):
             'volumes',
             metavar='<volume>',
             nargs='+',
-            help=_('Volume(s) to add to <consistency-group> (name or ID) '
-                   '(repeat option to add multiple volumes)'),
+            help=_(
+                'Volume(s) to add to <consistency-group> (name or ID) '
+                '(repeat option to add multiple volumes)'
+            ),
         )
         return parser
 
@@ -70,16 +75,19 @@ class AddVolumeToConsistencyGroup(command.Command):
 
         if result > 0:
             total = len(parsed_args.volumes)
-            LOG.error(_("%(result)s of %(total)s volumes failed "
-                      "to add.") % {'result': result, 'total': total})
+            LOG.error(
+                _("%(result)s of %(total)s volumes failed " "to add.")
+                % {'result': result, 'total': total}
+            )
 
         if add_uuid:
             add_uuid = add_uuid.rstrip(',')
             consistency_group_id = utils.find_resource(
-                volume_client.consistencygroups,
-                parsed_args.consistency_group).id
+                volume_client.consistencygroups, parsed_args.consistency_group
+            ).id
             volume_client.consistencygroups.update(
-                consistency_group_id, add_volumes=add_uuid)
+                consistency_group_id, add_volumes=add_uuid
+            )
 
 
 class CreateConsistencyGroup(command.ShowOne):
@@ -143,18 +151,20 @@ class CreateConsistencyGroup(command.ShowOne):
         volume_client = self.app.client_manager.volume
         if parsed_args.volume_type:
             volume_type_id = utils.find_resource(
-                volume_client.volume_types,
-                parsed_args.volume_type).id
+                volume_client.volume_types, parsed_args.volume_type
+            ).id
             consistency_group = volume_client.consistencygroups.create(
                 volume_type_id,
                 name=parsed_args.name,
                 description=parsed_args.description,
-                availability_zone=parsed_args.availability_zone
+                availability_zone=parsed_args.availability_zone,
             )
         else:
             if parsed_args.availability_zone:
-                msg = _("'--availability-zone' option will not work "
-                        "if creating consistency group from source")
+                msg = _(
+                    "'--availability-zone' option will not work "
+                    "if creating consistency group from source"
+                )
                 LOG.warning(msg)
 
             consistency_group_id = None
@@ -208,19 +218,27 @@ class DeleteConsistencyGroup(command.Command):
         for i in parsed_args.consistency_groups:
             try:
                 consistency_group_id = utils.find_resource(
-                    volume_client.consistencygroups, i).id
+                    volume_client.consistencygroups, i
+                ).id
                 volume_client.consistencygroups.delete(
-                    consistency_group_id, parsed_args.force)
+                    consistency_group_id, parsed_args.force
+                )
             except Exception as e:
                 result += 1
-                LOG.error(_("Failed to delete consistency group with "
-                            "name or ID '%(consistency_group)s':%(e)s")
-                          % {'consistency_group': i, 'e': e})
+                LOG.error(
+                    _(
+                        "Failed to delete consistency group with "
+                        "name or ID '%(consistency_group)s':%(e)s"
+                    )
+                    % {'consistency_group': i, 'e': e}
+                )
 
         if result > 0:
             total = len(parsed_args.consistency_groups)
-            msg = (_("%(result)s of %(total)s consistency groups failed "
-                   "to delete.") % {'result': result, 'total': total})
+            msg = _(
+                "%(result)s of %(total)s consistency groups failed "
+                "to delete."
+            ) % {'result': result, 'total': total}
             raise exceptions.CommandError(msg)
 
 
@@ -232,41 +250,56 @@ class ListConsistencyGroup(command.Lister):
         parser.add_argument(
             '--all-projects',
             action="store_true",
-            help=_('Show details for all projects. Admin only. '
-                   '(defaults to False)')
+            help=_(
+                'Show details for all projects. Admin only. '
+                '(defaults to False)'
+            ),
         )
         parser.add_argument(
             '--long',
             action="store_true",
-            help=_('List additional fields in output')
+            help=_('List additional fields in output'),
         )
         return parser
 
     def take_action(self, parsed_args):
         if parsed_args.long:
-            columns = ['ID', 'Status', 'Availability Zone',
-                       'Name', 'Description', 'Volume Types']
+            columns = [
+                'ID',
+                'Status',
+                'Availability Zone',
+                'Name',
+                'Description',
+                'Volume Types',
+            ]
         else:
             columns = ['ID', 'Status', 'Name']
         volume_client = self.app.client_manager.volume
         consistency_groups = volume_client.consistencygroups.list(
             detailed=True,
-            search_opts={'all_tenants': parsed_args.all_projects}
+            search_opts={'all_tenants': parsed_args.all_projects},
         )
 
-        return (columns, (
-            utils.get_item_properties(
-                s, columns,
-                formatters={'Volume Types': format_columns.ListColumn})
-            for s in consistency_groups))
+        return (
+            columns,
+            (
+                utils.get_item_properties(
+                    s,
+                    columns,
+                    formatters={'Volume Types': format_columns.ListColumn},
+                )
+                for s in consistency_groups
+            ),
+        )
 
 
 class RemoveVolumeFromConsistencyGroup(command.Command):
     _description = _("Remove volume(s) from consistency group")
 
     def get_parser(self, prog_name):
-        parser = \
-            super(RemoveVolumeFromConsistencyGroup, self).get_parser(prog_name)
+        parser = super(RemoveVolumeFromConsistencyGroup, self).get_parser(
+            prog_name
+        )
         parser.add_argument(
             'consistency_group',
             metavar="<consistency-group>",
@@ -276,8 +309,10 @@ class RemoveVolumeFromConsistencyGroup(command.Command):
             'volumes',
             metavar='<volume>',
             nargs='+',
-            help=_('Volume(s) to remove from <consistency-group> (name or ID) '
-                   '(repeat option to remove multiple volumes)'),
+            help=_(
+                'Volume(s) to remove from <consistency-group> (name or ID) '
+                '(repeat option to remove multiple volumes)'
+            ),
         )
         return parser
 
@@ -287,16 +322,19 @@ class RemoveVolumeFromConsistencyGroup(command.Command):
 
         if result > 0:
             total = len(parsed_args.volumes)
-            LOG.error(_("%(result)s of %(total)s volumes failed "
-                      "to remove.") % {'result': result, 'total': total})
+            LOG.error(
+                _("%(result)s of %(total)s volumes failed " "to remove.")
+                % {'result': result, 'total': total}
+            )
 
         if remove_uuid:
             remove_uuid = remove_uuid.rstrip(',')
             consistency_group_id = utils.find_resource(
-                volume_client.consistencygroups,
-                parsed_args.consistency_group).id
+                volume_client.consistencygroups, parsed_args.consistency_group
+            ).id
             volume_client.consistencygroups.update(
-                consistency_group_id, remove_volumes=remove_uuid)
+                consistency_group_id, remove_volumes=remove_uuid
+            )
 
 
 class SetConsistencyGroup(command.Command):
@@ -307,7 +345,7 @@ class SetConsistencyGroup(command.Command):
         parser.add_argument(
             'consistency_group',
             metavar='<consistency-group>',
-            help=_('Consistency group to modify (name or ID)')
+            help=_('Consistency group to modify (name or ID)'),
         )
         parser.add_argument(
             '--name',
@@ -330,10 +368,11 @@ class SetConsistencyGroup(command.Command):
             kwargs['description'] = parsed_args.description
         if kwargs:
             consistency_group_id = utils.find_resource(
-                volume_client.consistencygroups,
-                parsed_args.consistency_group).id
+                volume_client.consistencygroups, parsed_args.consistency_group
+            ).id
             volume_client.consistencygroups.update(
-                consistency_group_id, **kwargs)
+                consistency_group_id, **kwargs
+            )
 
 
 class ShowConsistencyGroup(command.ShowOne):
@@ -344,13 +383,13 @@ class ShowConsistencyGroup(command.ShowOne):
         parser.add_argument(
             "consistency_group",
             metavar="<consistency-group>",
-            help=_("Consistency group to display (name or ID)")
+            help=_("Consistency group to display (name or ID)"),
         )
         return parser
 
     def take_action(self, parsed_args):
         volume_client = self.app.client_manager.volume
         consistency_group = utils.find_resource(
-            volume_client.consistencygroups,
-            parsed_args.consistency_group)
+            volume_client.consistencygroups, parsed_args.consistency_group
+        )
         return zip(*sorted(consistency_group._info.items()))

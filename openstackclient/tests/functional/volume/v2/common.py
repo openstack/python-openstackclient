@@ -16,7 +16,7 @@ from openstackclient.tests.functional.volume import base
 
 
 class BaseVolumeTests(base.BaseVolumeTests):
-    """Base class for Volume functional tests. """
+    """Base class for Volume functional tests."""
 
     @classmethod
     def setUpClass(cls):

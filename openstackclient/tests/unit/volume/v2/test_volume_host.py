@@ -17,7 +17,6 @@ from openstackclient.volume.v2 import volume_host
 
 
 class TestVolumeHost(volume_fakes.TestVolume):
-
     def setUp(self):
         super().setUp()
 
@@ -26,7 +25,6 @@ class TestVolumeHost(volume_fakes.TestVolume):
 
 
 class TestVolumeHostSet(TestVolumeHost):
-
     service = volume_fakes.create_one_service()
 
     def setUp(self):
@@ -88,7 +86,6 @@ class TestVolumeHostSet(TestVolumeHost):
 
 
 class TestVolumeHostFailover(TestVolumeHost):
-
     service = volume_fakes.create_one_service()
 
     def setUp(self):
@@ -101,7 +98,8 @@ class TestVolumeHostFailover(TestVolumeHost):
 
     def test_volume_host_failover(self):
         arglist = [
-            '--volume-backend', 'backend_test',
+            '--volume-backend',
+            'backend_test',
             self.service.host,
         ]
         verifylist = [
@@ -113,5 +111,6 @@ class TestVolumeHostFailover(TestVolumeHost):
         result = self.cmd.take_action(parsed_args)
 
         self.host_mock.failover_host.assert_called_with(
-            self.service.host, 'backend_test')
+            self.service.host, 'backend_test'
+        )
         self.assertIsNone(result)

@@ -16,7 +16,7 @@ from openstackclient.tests.functional.volume.v2 import common
 
 
 class TransferRequestTests(common.BaseVolumeTests):
-    """Functional tests for transfer request. """
+    """Functional tests for transfer request."""
 
     API_VERSION = '2'
 
@@ -26,27 +26,31 @@ class TransferRequestTests(common.BaseVolumeTests):
 
         # create a volume
         cmd_output = self.openstack(
-            'volume create ' +
-            '--size 1 ' +
-            volume_name,
+            'volume create ' + '--size 1 ' + volume_name,
             parse_output=True,
         )
         self.assertEqual(volume_name, cmd_output['name'])
         self.addCleanup(
             self.openstack,
-            '--os-volume-api-version ' + self.API_VERSION + ' ' +
-            'volume delete ' +
-            volume_name
+            '--os-volume-api-version '
+            + self.API_VERSION
+            + ' '
+            + 'volume delete '
+            + volume_name,
         )
         self.wait_for_status("volume", volume_name, "available")
 
         # create volume transfer request for the volume
         # and get the auth_key of the new transfer request
         cmd_output = self.openstack(
-            '--os-volume-api-version ' + self.API_VERSION + ' ' +
-            'volume transfer request create ' +
-            ' --name ' + xfer_name + ' ' +
-            volume_name,
+            '--os-volume-api-version '
+            + self.API_VERSION
+            + ' '
+            + 'volume transfer request create '
+            + ' --name '
+            + xfer_name
+            + ' '
+            + volume_name,
             parse_output=True,
         )
         self.assertEqual(xfer_name, cmd_output['name'])
@@ -57,10 +61,14 @@ class TransferRequestTests(common.BaseVolumeTests):
 
         # accept the volume transfer request
         cmd_output = self.openstack(
-            '--os-volume-api-version ' + self.API_VERSION + ' ' +
-            'volume transfer request accept ' +
-            '--auth-key ' + auth_key + ' ' +
-            xfer_id,
+            '--os-volume-api-version '
+            + self.API_VERSION
+            + ' '
+            + 'volume transfer request accept '
+            + '--auth-key '
+            + auth_key
+            + ' '
+            + xfer_id,
             parse_output=True,
         )
         self.assertEqual(xfer_name, cmd_output['name'])
@@ -72,25 +80,29 @@ class TransferRequestTests(common.BaseVolumeTests):
 
         # create a volume
         cmd_output = self.openstack(
-            'volume create ' +
-            '--size 1 ' +
-            volume_name,
+            'volume create ' + '--size 1 ' + volume_name,
             parse_output=True,
         )
         self.assertEqual(volume_name, cmd_output['name'])
         self.addCleanup(
             self.openstack,
-            '--os-volume-api-version ' + self.API_VERSION + ' ' +
-            'volume delete ' +
-            volume_name
+            '--os-volume-api-version '
+            + self.API_VERSION
+            + ' '
+            + 'volume delete '
+            + volume_name,
         )
         self.wait_for_status("volume", volume_name, "available")
 
         cmd_output = self.openstack(
-            '--os-volume-api-version ' + self.API_VERSION + ' ' +
-            'volume transfer request create ' +
-            ' --name ' + xfer_name + ' ' +
-            volume_name,
+            '--os-volume-api-version '
+            + self.API_VERSION
+            + ' '
+            + 'volume transfer request create '
+            + ' --name '
+            + xfer_name
+            + ' '
+            + volume_name,
             parse_output=True,
         )
         self.assertEqual(xfer_name, cmd_output['name'])
@@ -100,16 +112,20 @@ class TransferRequestTests(common.BaseVolumeTests):
         self.wait_for_status("volume", volume_name, "awaiting-transfer")
 
         cmd_output = self.openstack(
-            '--os-volume-api-version ' + self.API_VERSION + ' ' +
-            'volume transfer request list',
+            '--os-volume-api-version '
+            + self.API_VERSION
+            + ' '
+            + 'volume transfer request list',
             parse_output=True,
         )
         self.assertIn(xfer_name, [req['Name'] for req in cmd_output])
 
         cmd_output = self.openstack(
-            '--os-volume-api-version ' + self.API_VERSION + ' ' +
-            'volume transfer request show ' +
-            xfer_id,
+            '--os-volume-api-version '
+            + self.API_VERSION
+            + ' '
+            + 'volume transfer request show '
+            + xfer_id,
             parse_output=True,
         )
         self.assertEqual(xfer_name, cmd_output['name'])
@@ -120,8 +136,10 @@ class TransferRequestTests(common.BaseVolumeTests):
         #                to become 'available' before attempting to  delete
         #                the volume.
         cmd_output = self.openstack(
-            '--os-volume-api-version ' + self.API_VERSION + ' ' +
-            'volume transfer request delete ' +
-            xfer_id
+            '--os-volume-api-version '
+            + self.API_VERSION
+            + ' '
+            + 'volume transfer request delete '
+            + xfer_id
         )
         self.wait_for_status("volume", volume_name, "available")

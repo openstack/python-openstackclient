@@ -17,19 +17,17 @@ from openstackclient.tests.functional.volume.v1 import common
 
 
 class VolumeTypeTests(common.BaseVolumeTests):
-    """Functional tests for volume type. """
+    """Functional tests for volume type."""
 
     def test_volume_type_create_list(self):
         name = uuid.uuid4().hex
         cmd_output = self.openstack(
-            'volume type create --private ' +
-            name,
+            'volume type create --private ' + name,
             parse_output=True,
         )
         self.addCleanup(
             self.openstack,
-            'volume type delete ' +
-            name,
+            'volume type delete ' + name,
         )
         self.assertEqual(name, cmd_output['name'])
 
@@ -52,14 +50,10 @@ class VolumeTypeTests(common.BaseVolumeTests):
     def test_volume_type_set_unset_properties(self):
         name = uuid.uuid4().hex
         cmd_output = self.openstack(
-            'volume type create --private ' +
-            name,
+            'volume type create --private ' + name,
             parse_output=True,
         )
-        self.addCleanup(
-            self.openstack,
-            'volume type delete ' + name
-        )
+        self.addCleanup(self.openstack, 'volume type delete ' + name)
         self.assertEqual(name, cmd_output['name'])
 
         raw_output = self.openstack(
@@ -72,9 +66,7 @@ class VolumeTypeTests(common.BaseVolumeTests):
         )
         self.assertEqual({'a': 'b', 'c': 'd'}, cmd_output['properties'])
 
-        raw_output = self.openstack(
-            'volume type unset --property a %s' % name
-        )
+        raw_output = self.openstack('volume type unset --property a %s' % name)
         self.assertEqual("", raw_output)
         cmd_output = self.openstack(
             'volume type show %s' % name,
@@ -85,14 +77,10 @@ class VolumeTypeTests(common.BaseVolumeTests):
     def test_volume_type_set_unset_multiple_properties(self):
         name = uuid.uuid4().hex
         cmd_output = self.openstack(
-            'volume type create --private ' +
-            name,
+            'volume type create --private ' + name,
             parse_output=True,
         )
-        self.addCleanup(
-            self.openstack,
-            'volume type delete ' + name
-        )
+        self.addCleanup(self.openstack, 'volume type delete ' + name)
         self.assertEqual(name, cmd_output['name'])
 
         raw_output = self.openstack(
@@ -138,12 +126,14 @@ class VolumeTypeTests(common.BaseVolumeTests):
             '--encryption-provider LuksEncryptor '
             '--encryption-cipher aes-xts-plain64 '
             '--encryption-key-size 128 '
-            '--encryption-control-location front-end ' +
-            encryption_type)
-        expected = {'provider': 'LuksEncryptor',
-                    'cipher': 'aes-xts-plain64',
-                    'key_size': 128,
-                    'control_location': 'front-end'}
+            '--encryption-control-location front-end ' + encryption_type
+        )
+        expected = {
+            'provider': 'LuksEncryptor',
+            'cipher': 'aes-xts-plain64',
+            'key_size': 128,
+            'control_location': 'front-end',
+        }
         for attr, value in expected.items():
             self.assertEqual(value, cmd_output['encryption'][attr])
         # test show encryption type
@@ -151,10 +141,12 @@ class VolumeTypeTests(common.BaseVolumeTests):
             'volume type show --encryption-type ' + encryption_type,
             parse_output=True,
         )
-        expected = {'provider': 'LuksEncryptor',
-                    'cipher': 'aes-xts-plain64',
-                    'key_size': 128,
-                    'control_location': 'front-end'}
+        expected = {
+            'provider': 'LuksEncryptor',
+            'cipher': 'aes-xts-plain64',
+            'key_size': 128,
+            'control_location': 'front-end',
+        }
         for attr, value in expected.items():
             self.assertEqual(value, cmd_output['encryption'][attr])
         # test list encryption type
@@ -162,12 +154,15 @@ class VolumeTypeTests(common.BaseVolumeTests):
             'volume type list --encryption-type',
             parse_output=True,
         )
-        encryption_output = [t['Encryption'] for t in cmd_output
-                             if t['Name'] == encryption_type][0]
-        expected = {'provider': 'LuksEncryptor',
-                    'cipher': 'aes-xts-plain64',
-                    'key_size': 128,
-                    'control_location': 'front-end'}
+        encryption_output = [
+            t['Encryption'] for t in cmd_output if t['Name'] == encryption_type
+        ][0]
+        expected = {
+            'provider': 'LuksEncryptor',
+            'cipher': 'aes-xts-plain64',
+            'key_size': 128,
+            'control_location': 'front-end',
+        }
         for attr, value in expected.items():
             self.assertEqual(value, encryption_output[attr])
         # test set new encryption type
@@ -176,8 +171,8 @@ class VolumeTypeTests(common.BaseVolumeTests):
             '--encryption-provider LuksEncryptor '
             '--encryption-cipher aes-xts-plain64 '
             '--encryption-key-size 128 '
-            '--encryption-control-location front-end ' +
-            self.NAME)
+            '--encryption-control-location front-end ' + self.NAME
+        )
         self.assertEqual('', raw_output)
 
         name = uuid.uuid4().hex
@@ -195,10 +190,12 @@ class VolumeTypeTests(common.BaseVolumeTests):
             'volume type show --encryption-type ' + name,
             parse_output=True,
         )
-        expected = {'provider': 'LuksEncryptor',
-                    'cipher': 'aes-xts-plain64',
-                    'key_size': 128,
-                    'control_location': 'front-end'}
+        expected = {
+            'provider': 'LuksEncryptor',
+            'cipher': 'aes-xts-plain64',
+            'key_size': 128,
+            'control_location': 'front-end',
+        }
         for attr, value in expected.items():
             self.assertEqual(value, cmd_output['encryption'][attr])
         # test unset encryption type

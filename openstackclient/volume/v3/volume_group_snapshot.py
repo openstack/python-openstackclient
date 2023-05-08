@@ -70,7 +70,7 @@ class CreateVolumeGroupSnapshot(command.ShowOne):
         parser.add_argument(
             '--description',
             metavar='<description>',
-            help=_('Description of a volume group snapshot.')
+            help=_('Description of a volume group snapshot.'),
         )
         return parser
 
@@ -90,9 +90,8 @@ class CreateVolumeGroupSnapshot(command.ShowOne):
         )
 
         snapshot = volume_client.group_snapshots.create(
-            volume_group.id,
-            parsed_args.name,
-            parsed_args.description)
+            volume_group.id, parsed_args.name, parsed_args.description
+        )
 
         return _format_group_snapshot(snapshot)
 
@@ -175,8 +174,7 @@ class ListVolumeGroupSnapshot(command.Lister):
             'all_tenants': parsed_args.all_projects,
         }
 
-        groups = volume_client.group_snapshots.list(
-            search_opts=search_opts)
+        groups = volume_client.group_snapshots.list(search_opts=search_opts)
 
         column_headers = (
             'ID',
@@ -191,10 +189,7 @@ class ListVolumeGroupSnapshot(command.Lister):
 
         return (
             column_headers,
-            (
-                utils.get_item_properties(a, columns)
-                for a in groups
-            ),
+            (utils.get_item_properties(a, columns) for a in groups),
         )
 
 

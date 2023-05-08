@@ -66,44 +66,42 @@ class CreateVolumeBackup(command.ShowOne):
         parser.add_argument(
             "volume",
             metavar="<volume>",
-            help=_("Volume to backup (name or ID)")
+            help=_("Volume to backup (name or ID)"),
         )
         parser.add_argument(
-            "--name",
-            metavar="<name>",
-            help=_("Name of the backup")
+            "--name", metavar="<name>", help=_("Name of the backup")
         )
         parser.add_argument(
             "--description",
             metavar="<description>",
-            help=_("Description of the backup")
+            help=_("Description of the backup"),
         )
         parser.add_argument(
             "--container",
             metavar="<container>",
-            help=_("Optional backup container name")
+            help=_("Optional backup container name"),
         )
         parser.add_argument(
             "--snapshot",
             metavar="<snapshot>",
-            help=_("Snapshot to backup (name or ID)")
+            help=_("Snapshot to backup (name or ID)"),
         )
         parser.add_argument(
             '--force',
             action='store_true',
             default=False,
-            help=_("Allow to back up an in-use volume")
+            help=_("Allow to back up an in-use volume"),
         )
         parser.add_argument(
             '--incremental',
             action='store_true',
             default=False,
-            help=_("Perform an incremental backup")
+            help=_("Perform an incremental backup"),
         )
         parser.add_argument(
             '--no-incremental',
             action='store_false',
-            help=_("Do not perform an incremental backup")
+            help=_("Do not perform an incremental backup"),
         )
         parser.add_argument(
             '--property',
@@ -131,14 +129,16 @@ class CreateVolumeBackup(command.ShowOne):
         volume_client = self.app.client_manager.volume
 
         volume_id = utils.find_resource(
-            volume_client.volumes, parsed_args.volume,
+            volume_client.volumes,
+            parsed_args.volume,
         ).id
 
         kwargs = {}
 
         if parsed_args.snapshot:
             kwargs['snapshot_id'] = utils.find_resource(
-                volume_client.volume_snapshots, parsed_args.snapshot,
+                volume_client.volume_snapshots,
+                parsed_args.snapshot,
             ).id
 
         if parsed_args.properties:
@@ -183,13 +183,13 @@ class DeleteVolumeBackup(command.Command):
             "backups",
             metavar="<backup>",
             nargs="+",
-            help=_("Backup(s) to delete (name or ID)")
+            help=_("Backup(s) to delete (name or ID)"),
         )
         parser.add_argument(
             '--force',
             action='store_true',
             default=False,
-            help=_("Allow delete in state other than error or available")
+            help=_("Allow delete in state other than error or available"),
         )
         return parser
 
@@ -200,19 +200,25 @@ class DeleteVolumeBackup(command.Command):
         for i in parsed_args.backups:
             try:
                 backup_id = utils.find_resource(
-                    volume_client.backups, i,
+                    volume_client.backups,
+                    i,
                 ).id
                 volume_client.backups.delete(backup_id, parsed_args.force)
             except Exception as e:
                 result += 1
-                LOG.error(_("Failed to delete backup with "
-                            "name or ID '%(backup)s': %(e)s")
-                          % {'backup': i, 'e': e})
+                LOG.error(
+                    _(
+                        "Failed to delete backup with "
+                        "name or ID '%(backup)s': %(e)s"
+                    )
+                    % {'backup': i, 'e': e}
+                )
 
         if result > 0:
             total = len(parsed_args.backups)
             msg = _("%(result)s of %(total)s backups failed to delete.") % {
-                'result': result, 'total': total,
+                'result': result,
+                'total': total,
             }
             raise exceptions.CommandError(msg)
 
@@ -226,19 +232,23 @@ class ListVolumeBackup(command.Lister):
             "--long",
             action="store_true",
             default=False,
-            help=_("List additional fields in output")
+            help=_("List additional fields in output"),
         )
         parser.add_argument(
             "--name",
             metavar="<name>",
-            help=_("Filters results by the backup name")
+            help=_("Filters results by the backup name"),
         )
         parser.add_argument(
             "--status",
             metavar="<status>",
             choices=[
-                'creating', 'available', 'deleting',
-                'error', 'restoring', 'error_restoring',
+                'creating',
+                'available',
+                'deleting',
+                'error',
+                'restoring',
+                'error_restoring',
             ],
             help=_(
                 "Filters results by the backup status, one of: "
@@ -306,26 +316,31 @@ class ListVolumeBackup(command.Lister):
             pass
 
         _VolumeIdColumn = functools.partial(
-            VolumeIdColumn, volume_cache=volume_cache)
+            VolumeIdColumn, volume_cache=volume_cache
+        )
 
         filter_volume_id = None
         if parsed_args.volume:
             try:
                 filter_volume_id = utils.find_resource(
-                    volume_client.volumes, parsed_args.volume,
+                    volume_client.volumes,
+                    parsed_args.volume,
                 ).id
             except exceptions.CommandError:
                 # Volume with that ID does not exist, but search for backups
                 # for that volume nevertheless
-                LOG.debug("No volume with ID %s existing, continuing to "
-                          "search for backups for that volume ID",
-                          parsed_args.volume)
+                LOG.debug(
+                    "No volume with ID %s existing, continuing to "
+                    "search for backups for that volume ID",
+                    parsed_args.volume,
+                )
                 filter_volume_id = parsed_args.volume
 
         marker_backup_id = None
         if parsed_args.marker:
             marker_backup_id = utils.find_resource(
-                volume_client.backups, parsed_args.marker,
+                volume_client.backups,
+                parsed_args.marker,
             ).id
 
         search_opts = {
@@ -344,8 +359,11 @@ class ListVolumeBackup(command.Lister):
             column_headers,
             (
                 utils.get_item_properties(
-                    s, columns, formatters={'volume_id': _VolumeIdColumn},
-                ) for s in data
+                    s,
+                    columns,
+                    formatters={'volume_id': _VolumeIdColumn},
+                )
+                for s in data
             ),
         )
 
@@ -358,7 +376,7 @@ class RestoreVolumeBackup(command.ShowOne):
         parser.add_argument(
             "backup",
             metavar="<backup>",
-            help=_("Backup to restore (name or ID)")
+            help=_("Backup to restore (name or ID)"),
         )
         parser.add_argument(
             "volume",
@@ -368,7 +386,7 @@ class RestoreVolumeBackup(command.ShowOne):
                 "Volume to restore to "
                 "(name or ID for existing volume, name only for new volume) "
                 "(default to None)"
-            )
+            ),
         )
         parser.add_argument(
             "--force",
@@ -376,7 +394,7 @@ class RestoreVolumeBackup(command.ShowOne):
             help=_(
                 "Restore the backup to an existing volume "
                 "(default to False)"
-            )
+            ),
         )
         return parser
 
@@ -401,11 +419,13 @@ class RestoreVolumeBackup(command.ShowOne):
                 msg = _(
                     "Volume '%s' already exists; if you want to restore the "
                     "backup to it you need to specify the '--force' option"
-                ) % parsed_args.volume
-                raise exceptions.CommandError(msg)
+                )
+                raise exceptions.CommandError(msg % parsed_args.volume)
 
         return volume_client.restores.restore(
-            backup.id, volume_id, volume_name,
+            backup.id,
+            volume_id,
+            volume_name,
         )
 
 
@@ -417,7 +437,7 @@ class SetVolumeBackup(command.Command):
         parser.add_argument(
             "backup",
             metavar="<backup>",
-            help=_("Backup to modify (name or ID)")
+            help=_("Backup to modify (name or ID)"),
         )
         parser.add_argument(
             '--name',
@@ -471,14 +491,12 @@ class SetVolumeBackup(command.Command):
 
     def take_action(self, parsed_args):
         volume_client = self.app.client_manager.volume
-        backup = utils.find_resource(
-            volume_client.backups, parsed_args.backup)
+        backup = utils.find_resource(volume_client.backups, parsed_args.backup)
 
         result = 0
         if parsed_args.state:
             try:
-                volume_client.backups.reset_state(
-                    backup.id, parsed_args.state)
+                volume_client.backups.reset_state(backup.id, parsed_args.state)
             except Exception as e:
                 LOG.error(_("Failed to set backup state: %s"), e)
                 result += 1
@@ -553,7 +571,7 @@ class UnsetVolumeBackup(command.Command):
         parser.add_argument(
             'backup',
             metavar='<backup>',
-            help=_('Backup to modify (name or ID)')
+            help=_('Backup to modify (name or ID)'),
         )
         parser.add_argument(
             '--property',
@@ -577,8 +595,7 @@ class UnsetVolumeBackup(command.Command):
             )
             raise exceptions.CommandError(msg)
 
-        backup = utils.find_resource(
-            volume_client.backups, parsed_args.backup)
+        backup = utils.find_resource(volume_client.backups, parsed_args.backup)
         metadata = copy.deepcopy(backup.metadata)
 
         for key in parsed_args.properties:
@@ -586,7 +603,8 @@ class UnsetVolumeBackup(command.Command):
                 # ignore invalid properties but continue
                 LOG.warning(
                     "'%s' is not a valid property for backup '%s'",
-                    key, parsed_args.backup,
+                    key,
+                    parsed_args.backup,
                 )
                 continue
 
@@ -607,13 +625,12 @@ class ShowVolumeBackup(command.ShowOne):
         parser.add_argument(
             "backup",
             metavar="<backup>",
-            help=_("Backup to display (name or ID)")
+            help=_("Backup to display (name or ID)"),
         )
         return parser
 
     def take_action(self, parsed_args):
         volume_client = self.app.client_manager.volume
-        backup = utils.find_resource(volume_client.backups,
-                                     parsed_args.backup)
+        backup = utils.find_resource(volume_client.backups, parsed_args.backup)
         backup._info.pop("links", None)
         return zip(*sorted(backup._info.items()))

@@ -25,7 +25,6 @@ from openstackclient.volume.v2 import volume_transfer_request
 
 
 class TestTransfer(volume_fakes.TestVolume):
-
     def setUp(self):
         super().setUp()
 
@@ -39,7 +38,6 @@ class TestTransfer(volume_fakes.TestVolume):
 
 
 class TestTransferAccept(TestTransfer):
-
     columns = (
         'id',
         'name',
@@ -61,11 +59,13 @@ class TestTransferAccept(TestTransfer):
 
         # Get the command object to test
         self.cmd = volume_transfer_request.AcceptTransferRequest(
-            self.app, None)
+            self.app, None
+        )
 
     def test_transfer_accept(self):
         arglist = [
-            '--auth-key', 'key_value',
+            '--auth-key',
+            'key_value',
             self.volume_transfer.id,
         ]
         verifylist = [
@@ -104,7 +104,6 @@ class TestTransferAccept(TestTransfer):
 
 
 class TestTransferCreate(TestTransfer):
-
     volume = volume_fakes.create_one_volume()
 
     columns = (
@@ -138,7 +137,8 @@ class TestTransferCreate(TestTransfer):
 
         # Get the command object to test
         self.cmd = volume_transfer_request.CreateTransferRequest(
-            self.app, None)
+            self.app, None
+        )
 
     def test_transfer_create_without_name(self):
         arglist = [
@@ -151,14 +151,14 @@ class TestTransferCreate(TestTransfer):
 
         columns, data = self.cmd.take_action(parsed_args)
 
-        self.transfer_mock.create.assert_called_once_with(
-            self.volume.id, None)
+        self.transfer_mock.create.assert_called_once_with(self.volume.id, None)
         self.assertEqual(self.columns, columns)
         self.assertEqual(self.data, data)
 
     def test_transfer_create_with_name(self):
         arglist = [
-            '--name', self.volume_transfer.name,
+            '--name',
+            self.volume_transfer.name,
             self.volume.id,
         ]
         verifylist = [
@@ -170,13 +170,16 @@ class TestTransferCreate(TestTransfer):
         columns, data = self.cmd.take_action(parsed_args)
 
         self.transfer_mock.create.assert_called_once_with(
-            self.volume.id, self.volume_transfer.name,)
+            self.volume.id,
+            self.volume_transfer.name,
+        )
         self.assertEqual(self.columns, columns)
         self.assertEqual(self.data, data)
 
     def test_transfer_create_with_no_snapshots(self):
-        self.app.client_manager.volume.api_version = \
-            api_versions.APIVersion('3.55')
+        self.app.client_manager.volume.api_version = api_versions.APIVersion(
+            '3.55'
+        )
 
         arglist = [
             '--no-snapshots',
@@ -192,13 +195,15 @@ class TestTransferCreate(TestTransfer):
         columns, data = self.cmd.take_action(parsed_args)
 
         self.transfer_mock.create.assert_called_once_with(
-            self.volume.id, None, no_snapshots=True)
+            self.volume.id, None, no_snapshots=True
+        )
         self.assertEqual(self.columns, columns)
         self.assertEqual(self.data, data)
 
     def test_transfer_create_pre_v355(self):
-        self.app.client_manager.volume.api_version = \
-            api_versions.APIVersion('3.54')
+        self.app.client_manager.volume.api_version = api_versions.APIVersion(
+            '3.54'
+        )
 
         arglist = [
             '--no-snapshots',
@@ -212,16 +217,14 @@ class TestTransferCreate(TestTransfer):
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
         exc = self.assertRaises(
-            exceptions.CommandError,
-            self.cmd.take_action,
-            parsed_args)
+            exceptions.CommandError, self.cmd.take_action, parsed_args
+        )
         self.assertIn(
-            '--os-volume-api-version 3.55 or greater is required',
-            str(exc))
+            '--os-volume-api-version 3.55 or greater is required', str(exc)
+        )
 
 
 class TestTransferDelete(TestTransfer):
-
     volume_transfers = volume_fakes.create_transfers(count=2)
 
     def setUp(self):
@@ -234,21 +237,19 @@ class TestTransferDelete(TestTransfer):
 
         # Get the command object to mock
         self.cmd = volume_transfer_request.DeleteTransferRequest(
-            self.app, None)
+            self.app, None
+        )
 
     def test_transfer_delete(self):
-        arglist = [
-            self.volume_transfers[0].id
-        ]
-        verifylist = [
-            ("transfer_request", [self.volume_transfers[0].id])
-        ]
+        arglist = [self.volume_transfers[0].id]
+        verifylist = [("transfer_request", [self.volume_transfers[0].id])]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
         result = self.cmd.take_action(parsed_args)
 
         self.transfer_mock.delete.assert_called_with(
-            self.volume_transfers[0].id)
+            self.volume_transfers[0].id
+        )
         self.assertIsNone(result)
 
     def test_delete_multiple_transfers(self):
@@ -280,17 +281,21 @@ class TestTransferDelete(TestTransfer):
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
         find_mock_result = [self.volume_transfers[0], exceptions.CommandError]
-        with mock.patch.object(utils, 'find_resource',
-                               side_effect=find_mock_result) as find_mock:
+        with mock.patch.object(
+            utils, 'find_resource', side_effect=find_mock_result
+        ) as find_mock:
             try:
                 self.cmd.take_action(parsed_args)
                 self.fail('CommandError should be raised.')
             except exceptions.CommandError as e:
-                self.assertEqual('1 of 2 volume transfer requests failed '
-                                 'to delete', str(e))
+                self.assertEqual(
+                    '1 of 2 volume transfer requests failed ' 'to delete',
+                    str(e),
+                )
 
             find_mock.assert_any_call(
-                self.transfer_mock, self.volume_transfers[0].id)
+                self.transfer_mock, self.volume_transfers[0].id
+            )
             find_mock.assert_any_call(self.transfer_mock, 'unexist_transfer')
 
             self.assertEqual(2, find_mock.call_count)
@@ -300,7 +305,6 @@ class TestTransferDelete(TestTransfer):
 
 
 class TestTransferList(TestTransfer):
-
     # The Transfers to be listed
     volume_transfers = volume_fakes.create_one_transfer()
 
@@ -331,28 +335,25 @@ class TestTransferList(TestTransfer):
         # confirming if all expected columns are present in the result.
         self.assertEqual(expected_columns, columns)
 
-        datalist = ((
-            self.volume_transfers.id,
-            self.volume_transfers.name,
-            self.volume_transfers.volume_id,
-        ), )
+        datalist = (
+            (
+                self.volume_transfers.id,
+                self.volume_transfers.name,
+                self.volume_transfers.volume_id,
+            ),
+        )
 
         # confirming if all expected values are present in the result.
         self.assertEqual(datalist, tuple(data))
 
         # checking if proper call was made to list volume_transfers
         self.transfer_mock.list.assert_called_with(
-            detailed=True,
-            search_opts={'all_tenants': 0}
+            detailed=True, search_opts={'all_tenants': 0}
         )
 
     def test_transfer_list_with_argument(self):
-        arglist = [
-            "--all-projects"
-        ]
-        verifylist = [
-            ("all_projects", True)
-        ]
+        arglist = ["--all-projects"]
+        verifylist = [("all_projects", True)]
 
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
@@ -370,24 +371,24 @@ class TestTransferList(TestTransfer):
         # confirming if all expected columns are present in the result.
         self.assertEqual(expected_columns, columns)
 
-        datalist = ((
-            self.volume_transfers.id,
-            self.volume_transfers.name,
-            self.volume_transfers.volume_id,
-        ), )
+        datalist = (
+            (
+                self.volume_transfers.id,
+                self.volume_transfers.name,
+                self.volume_transfers.volume_id,
+            ),
+        )
 
         # confirming if all expected values are present in the result.
         self.assertEqual(datalist, tuple(data))
 
         # checking if proper call was made to list volume_transfers
         self.transfer_mock.list.assert_called_with(
-            detailed=True,
-            search_opts={'all_tenants': 1}
+            detailed=True, search_opts={'all_tenants': 1}
         )
 
 
 class TestTransferShow(TestTransfer):
-
     columns = (
         'created_at',
         'id',
@@ -411,8 +412,7 @@ class TestTransferShow(TestTransfer):
         self.transfer_mock.get.return_value = self.volume_transfer
 
         # Get the command object to test
-        self.cmd = volume_transfer_request.ShowTransferRequest(
-            self.app, None)
+        self.cmd = volume_transfer_request.ShowTransferRequest(self.app, None)
 
     def test_transfer_show(self):
         arglist = [
@@ -425,7 +425,6 @@ class TestTransferShow(TestTransfer):
 
         columns, data = self.cmd.take_action(parsed_args)
 
-        self.transfer_mock.get.assert_called_once_with(
-            self.volume_transfer.id)
+        self.transfer_mock.get.assert_called_once_with(self.volume_transfer.id)
         self.assertEqual(self.columns, columns)
         self.assertEqual(self.data, data)

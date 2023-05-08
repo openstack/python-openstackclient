@@ -21,15 +21,15 @@ from openstackclient.volume.v3 import volume_attachment
 
 
 class TestVolumeAttachment(volume_fakes.TestVolume):
-
     def setUp(self):
         super().setUp()
 
         self.volumes_mock = self.app.client_manager.volume.volumes
         self.volumes_mock.reset_mock()
 
-        self.volume_attachments_mock = \
+        self.volume_attachments_mock = (
             self.app.client_manager.volume.attachments
+        )
         self.volume_attachments_mock.reset_mock()
 
         self.projects_mock = self.app.client_manager.identity.projects
@@ -40,7 +40,6 @@ class TestVolumeAttachment(volume_fakes.TestVolume):
 
 
 class TestVolumeAttachmentCreate(TestVolumeAttachment):
-
     volume = volume_fakes.create_one_volume()
     server = compute_fakes.FakeServer.create_one_server()
     volume_attachment = volume_fakes.create_one_volume_attachment(
@@ -74,14 +73,16 @@ class TestVolumeAttachmentCreate(TestVolumeAttachment):
         self.volumes_mock.get.return_value = self.volume
         self.servers_mock.get.return_value = self.server
         # VolumeAttachmentManager.create returns a dict
-        self.volume_attachments_mock.create.return_value = \
+        self.volume_attachments_mock.create.return_value = (
             self.volume_attachment.to_dict()
+        )
 
         self.cmd = volume_attachment.CreateVolumeAttachment(self.app, None)
 
     def test_volume_attachment_create(self):
-        self.app.client_manager.volume.api_version = \
-            api_versions.APIVersion('3.27')
+        self.app.client_manager.volume.api_version = api_versions.APIVersion(
+            '3.27'
+        )
 
         arglist = [
             self.volume.id,
@@ -107,27 +108,38 @@ class TestVolumeAttachmentCreate(TestVolumeAttachment):
         self.volumes_mock.get.assert_called_once_with(self.volume.id)
         self.servers_mock.get.assert_called_once_with(self.server.id)
         self.volume_attachments_mock.create.assert_called_once_with(
-            self.volume.id, {}, self.server.id, None,
+            self.volume.id,
+            {},
+            self.server.id,
+            None,
         )
         self.assertEqual(self.columns, columns)
         self.assertCountEqual(self.data, data)
 
     def test_volume_attachment_create_with_connect(self):
-        self.app.client_manager.volume.api_version = \
-            api_versions.APIVersion('3.54')
+        self.app.client_manager.volume.api_version = api_versions.APIVersion(
+            '3.54'
+        )
 
         arglist = [
             self.volume.id,
             self.server.id,
             '--connect',
-            '--initiator', 'iqn.1993-08.org.debian:01:cad181614cec',
-            '--ip', '192.168.1.20',
-            '--host', 'my-host',
-            '--platform', 'x86_64',
-            '--os-type', 'linux2',
+            '--initiator',
+            'iqn.1993-08.org.debian:01:cad181614cec',
+            '--ip',
+            '192.168.1.20',
+            '--host',
+            'my-host',
+            '--platform',
+            'x86_64',
+            '--os-type',
+            'linux2',
             '--multipath',
-            '--mountpoint', '/dev/vdb',
-            '--mode', 'null',
+            '--mountpoint',
+            '/dev/vdb',
+            '--mode',
+            'null',
         ]
         verifylist = [
             ('volume', self.volume.id),
@@ -146,27 +158,33 @@ class TestVolumeAttachmentCreate(TestVolumeAttachment):
 
         columns, data = self.cmd.take_action(parsed_args)
 
-        connect_info = dict([
-            ('initiator', 'iqn.1993-08.org.debian:01:cad181614cec'),
-            ('ip', '192.168.1.20'),
-            ('host', 'my-host'),
-            ('platform', 'x86_64'),
-            ('os_type', 'linux2'),
-            ('multipath', True),
-            ('mountpoint', '/dev/vdb'),
-        ])
+        connect_info = dict(
+            [
+                ('initiator', 'iqn.1993-08.org.debian:01:cad181614cec'),
+                ('ip', '192.168.1.20'),
+                ('host', 'my-host'),
+                ('platform', 'x86_64'),
+                ('os_type', 'linux2'),
+                ('multipath', True),
+                ('mountpoint', '/dev/vdb'),
+            ]
+        )
 
         self.volumes_mock.get.assert_called_once_with(self.volume.id)
         self.servers_mock.get.assert_called_once_with(self.server.id)
         self.volume_attachments_mock.create.assert_called_once_with(
-            self.volume.id, connect_info, self.server.id, 'null',
+            self.volume.id,
+            connect_info,
+            self.server.id,
+            'null',
         )
         self.assertEqual(self.columns, columns)
         self.assertCountEqual(self.data, data)
 
     def test_volume_attachment_create_pre_v327(self):
-        self.app.client_manager.volume.api_version = \
-            api_versions.APIVersion('3.26')
+        self.app.client_manager.volume.api_version = api_versions.APIVersion(
+            '3.26'
+        )
 
         arglist = [
             self.volume.id,
@@ -179,21 +197,22 @@ class TestVolumeAttachmentCreate(TestVolumeAttachment):
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
         exc = self.assertRaises(
-            exceptions.CommandError,
-            self.cmd.take_action,
-            parsed_args)
+            exceptions.CommandError, self.cmd.take_action, parsed_args
+        )
         self.assertIn(
-            '--os-volume-api-version 3.27 or greater is required',
-            str(exc))
+            '--os-volume-api-version 3.27 or greater is required', str(exc)
+        )
 
     def test_volume_attachment_create_with_mode_pre_v354(self):
-        self.app.client_manager.volume.api_version = \
-            api_versions.APIVersion('3.53')
+        self.app.client_manager.volume.api_version = api_versions.APIVersion(
+            '3.53'
+        )
 
         arglist = [
             self.volume.id,
             self.server.id,
-            '--mode', 'rw',
+            '--mode',
+            'rw',
         ]
         verifylist = [
             ('volume', self.volume.id),
@@ -203,21 +222,22 @@ class TestVolumeAttachmentCreate(TestVolumeAttachment):
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
         exc = self.assertRaises(
-            exceptions.CommandError,
-            self.cmd.take_action,
-            parsed_args)
+            exceptions.CommandError, self.cmd.take_action, parsed_args
+        )
         self.assertIn(
-            '--os-volume-api-version 3.54 or greater is required',
-            str(exc))
+            '--os-volume-api-version 3.54 or greater is required', str(exc)
+        )
 
     def test_volume_attachment_create_with_connect_missing_arg(self):
-        self.app.client_manager.volume.api_version = \
-            api_versions.APIVersion('3.54')
+        self.app.client_manager.volume.api_version = api_versions.APIVersion(
+            '3.54'
+        )
 
         arglist = [
             self.volume.id,
             self.server.id,
-            '--initiator', 'iqn.1993-08.org.debian:01:cad181614cec',
+            '--initiator',
+            'iqn.1993-08.org.debian:01:cad181614cec',
         ]
         verifylist = [
             ('volume', self.volume.id),
@@ -228,16 +248,14 @@ class TestVolumeAttachmentCreate(TestVolumeAttachment):
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
         exc = self.assertRaises(
-            exceptions.CommandError,
-            self.cmd.take_action,
-            parsed_args)
+            exceptions.CommandError, self.cmd.take_action, parsed_args
+        )
         self.assertIn(
-            'You must specify the --connect option for any',
-            str(exc))
+            'You must specify the --connect option for any', str(exc)
+        )
 
 
 class TestVolumeAttachmentDelete(TestVolumeAttachment):
-
     volume_attachment = volume_fakes.create_one_volume_attachment()
 
     def setUp(self):
@@ -248,8 +266,9 @@ class TestVolumeAttachmentDelete(TestVolumeAttachment):
         self.cmd = volume_attachment.DeleteVolumeAttachment(self.app, None)
 
     def test_volume_attachment_delete(self):
-        self.app.client_manager.volume.api_version = \
-            api_versions.APIVersion('3.27')
+        self.app.client_manager.volume.api_version = api_versions.APIVersion(
+            '3.27'
+        )
 
         arglist = [
             self.volume_attachment.id,
@@ -267,8 +286,9 @@ class TestVolumeAttachmentDelete(TestVolumeAttachment):
         self.assertIsNone(result)
 
     def test_volume_attachment_delete_pre_v327(self):
-        self.app.client_manager.volume.api_version = \
-            api_versions.APIVersion('3.26')
+        self.app.client_manager.volume.api_version = api_versions.APIVersion(
+            '3.26'
+        )
 
         arglist = [
             self.volume_attachment.id,
@@ -279,16 +299,14 @@ class TestVolumeAttachmentDelete(TestVolumeAttachment):
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
         exc = self.assertRaises(
-            exceptions.CommandError,
-            self.cmd.take_action,
-            parsed_args)
+            exceptions.CommandError, self.cmd.take_action, parsed_args
+        )
         self.assertIn(
-            '--os-volume-api-version 3.27 or greater is required',
-            str(exc))
+            '--os-volume-api-version 3.27 or greater is required', str(exc)
+        )
 
 
 class TestVolumeAttachmentSet(TestVolumeAttachment):
-
     volume_attachment = volume_fakes.create_one_volume_attachment()
 
     columns = (
@@ -315,24 +333,32 @@ class TestVolumeAttachmentSet(TestVolumeAttachment):
     def setUp(self):
         super().setUp()
 
-        self.volume_attachments_mock.update.return_value = \
+        self.volume_attachments_mock.update.return_value = (
             self.volume_attachment
+        )
 
         self.cmd = volume_attachment.SetVolumeAttachment(self.app, None)
 
     def test_volume_attachment_set(self):
-        self.app.client_manager.volume.api_version = \
-            api_versions.APIVersion('3.27')
+        self.app.client_manager.volume.api_version = api_versions.APIVersion(
+            '3.27'
+        )
 
         arglist = [
             self.volume_attachment.id,
-            '--initiator', 'iqn.1993-08.org.debian:01:cad181614cec',
-            '--ip', '192.168.1.20',
-            '--host', 'my-host',
-            '--platform', 'x86_64',
-            '--os-type', 'linux2',
+            '--initiator',
+            'iqn.1993-08.org.debian:01:cad181614cec',
+            '--ip',
+            '192.168.1.20',
+            '--host',
+            'my-host',
+            '--platform',
+            'x86_64',
+            '--os-type',
+            'linux2',
             '--multipath',
-            '--mountpoint', '/dev/vdb',
+            '--mountpoint',
+            '/dev/vdb',
         ]
         verifylist = [
             ('attachment', self.volume_attachment.id),
@@ -348,29 +374,34 @@ class TestVolumeAttachmentSet(TestVolumeAttachment):
 
         columns, data = self.cmd.take_action(parsed_args)
 
-        connect_info = dict([
-            ('initiator', 'iqn.1993-08.org.debian:01:cad181614cec'),
-            ('ip', '192.168.1.20'),
-            ('host', 'my-host'),
-            ('platform', 'x86_64'),
-            ('os_type', 'linux2'),
-            ('multipath', True),
-            ('mountpoint', '/dev/vdb'),
-        ])
+        connect_info = dict(
+            [
+                ('initiator', 'iqn.1993-08.org.debian:01:cad181614cec'),
+                ('ip', '192.168.1.20'),
+                ('host', 'my-host'),
+                ('platform', 'x86_64'),
+                ('os_type', 'linux2'),
+                ('multipath', True),
+                ('mountpoint', '/dev/vdb'),
+            ]
+        )
 
         self.volume_attachments_mock.update.assert_called_once_with(
-            self.volume_attachment.id, connect_info,
+            self.volume_attachment.id,
+            connect_info,
         )
         self.assertEqual(self.columns, columns)
         self.assertCountEqual(self.data, data)
 
     def test_volume_attachment_set_pre_v327(self):
-        self.app.client_manager.volume.api_version = \
-            api_versions.APIVersion('3.26')
+        self.app.client_manager.volume.api_version = api_versions.APIVersion(
+            '3.26'
+        )
 
         arglist = [
             self.volume_attachment.id,
-            '--initiator', 'iqn.1993-08.org.debian:01:cad181614cec',
+            '--initiator',
+            'iqn.1993-08.org.debian:01:cad181614cec',
         ]
         verifylist = [
             ('attachment', self.volume_attachment.id),
@@ -379,16 +410,14 @@ class TestVolumeAttachmentSet(TestVolumeAttachment):
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
         exc = self.assertRaises(
-            exceptions.CommandError,
-            self.cmd.take_action,
-            parsed_args)
+            exceptions.CommandError, self.cmd.take_action, parsed_args
+        )
         self.assertIn(
-            '--os-volume-api-version 3.27 or greater is required',
-            str(exc))
+            '--os-volume-api-version 3.27 or greater is required', str(exc)
+        )
 
 
 class TestVolumeAttachmentComplete(TestVolumeAttachment):
-
     volume_attachment = volume_fakes.create_one_volume_attachment()
 
     def setUp(self):
@@ -399,8 +428,9 @@ class TestVolumeAttachmentComplete(TestVolumeAttachment):
         self.cmd = volume_attachment.CompleteVolumeAttachment(self.app, None)
 
     def test_volume_attachment_complete(self):
-        self.app.client_manager.volume.api_version = \
-            api_versions.APIVersion('3.44')
+        self.app.client_manager.volume.api_version = api_versions.APIVersion(
+            '3.44'
+        )
 
         arglist = [
             self.volume_attachment.id,
@@ -418,8 +448,9 @@ class TestVolumeAttachmentComplete(TestVolumeAttachment):
         self.assertIsNone(result)
 
     def test_volume_attachment_complete_pre_v344(self):
-        self.app.client_manager.volume.api_version = \
-            api_versions.APIVersion('3.43')
+        self.app.client_manager.volume.api_version = api_versions.APIVersion(
+            '3.43'
+        )
 
         arglist = [
             self.volume_attachment.id,
@@ -430,16 +461,14 @@ class TestVolumeAttachmentComplete(TestVolumeAttachment):
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
         exc = self.assertRaises(
-            exceptions.CommandError,
-            self.cmd.take_action,
-            parsed_args)
+            exceptions.CommandError, self.cmd.take_action, parsed_args
+        )
         self.assertIn(
-            '--os-volume-api-version 3.44 or greater is required',
-            str(exc))
+            '--os-volume-api-version 3.44 or greater is required', str(exc)
+        )
 
 
 class TestVolumeAttachmentList(TestVolumeAttachment):
-
     project = identity_fakes.FakeProject.create_one_project()
     volume_attachments = volume_fakes.create_volume_attachments()
 
@@ -455,21 +484,24 @@ class TestVolumeAttachmentList(TestVolumeAttachment):
             volume_attachment.volume_id,
             volume_attachment.instance,
             volume_attachment.status,
-        ) for volume_attachment in volume_attachments
+        )
+        for volume_attachment in volume_attachments
     ]
 
     def setUp(self):
         super().setUp()
 
         self.projects_mock.get.return_value = self.project
-        self.volume_attachments_mock.list.return_value = \
+        self.volume_attachments_mock.list.return_value = (
             self.volume_attachments
+        )
 
         self.cmd = volume_attachment.ListVolumeAttachment(self.app, None)
 
     def test_volume_attachment_list(self):
-        self.app.client_manager.volume.api_version = \
-            api_versions.APIVersion('3.27')
+        self.app.client_manager.volume.api_version = api_versions.APIVersion(
+            '3.27'
+        )
 
         arglist = []
         verifylist = [
@@ -498,15 +530,21 @@ class TestVolumeAttachmentList(TestVolumeAttachment):
         self.assertCountEqual(tuple(self.data), data)
 
     def test_volume_attachment_list_with_options(self):
-        self.app.client_manager.volume.api_version = \
-            api_versions.APIVersion('3.27')
+        self.app.client_manager.volume.api_version = api_versions.APIVersion(
+            '3.27'
+        )
 
         arglist = [
-            '--project', self.project.name,
-            '--volume-id', 'volume-id',
-            '--status', 'attached',
-            '--marker', 'volume-attachment-id',
-            '--limit', '2',
+            '--project',
+            self.project.name,
+            '--volume-id',
+            'volume-id',
+            '--status',
+            'attached',
+            '--marker',
+            'volume-attachment-id',
+            '--limit',
+            '2',
         ]
         verifylist = [
             ('project', self.project.name),
@@ -534,8 +572,9 @@ class TestVolumeAttachmentList(TestVolumeAttachment):
         self.assertCountEqual(tuple(self.data), data)
 
     def test_volume_attachment_list_pre_v327(self):
-        self.app.client_manager.volume.api_version = \
-            api_versions.APIVersion('3.26')
+        self.app.client_manager.volume.api_version = api_versions.APIVersion(
+            '3.26'
+        )
 
         arglist = []
         verifylist = [
@@ -549,9 +588,8 @@ class TestVolumeAttachmentList(TestVolumeAttachment):
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
         exc = self.assertRaises(
-            exceptions.CommandError,
-            self.cmd.take_action,
-            parsed_args)
+            exceptions.CommandError, self.cmd.take_action, parsed_args
+        )
         self.assertIn(
-            '--os-volume-api-version 3.27 or greater is required',
-            str(exc))
+            '--os-volume-api-version 3.27 or greater is required', str(exc)
+        )

@@ -87,13 +87,14 @@ class CreateVolumeBackup(command.ShowOne):
 
     def take_action(self, parsed_args):
         volume_client = self.app.client_manager.volume
-        volume_id = utils.find_resource(volume_client.volumes,
-                                        parsed_args.volume).id
+        volume_id = utils.find_resource(
+            volume_client.volumes, parsed_args.volume
+        ).id
         backup = volume_client.backups.create(
             volume_id,
             parsed_args.container,
             parsed_args.name,
-            parsed_args.description
+            parsed_args.description,
         )
 
         backup._info.pop('links')
@@ -119,19 +120,24 @@ class DeleteVolumeBackup(command.Command):
 
         for i in parsed_args.backups:
             try:
-                backup_id = utils.find_resource(
-                    volume_client.backups, i).id
+                backup_id = utils.find_resource(volume_client.backups, i).id
                 volume_client.backups.delete(backup_id)
             except Exception as e:
                 result += 1
-                LOG.error(_("Failed to delete backup with "
-                            "name or ID '%(backup)s': %(e)s"),
-                          {'backup': i, 'e': e})
+                LOG.error(
+                    _(
+                        "Failed to delete backup with "
+                        "name or ID '%(backup)s': %(e)s"
+                    ),
+                    {'backup': i, 'e': e},
+                )
 
         if result > 0:
             total = len(parsed_args.backups)
-            msg = (_("%(result)s of %(total)s backups failed "
-                   "to delete.") % {'result': result, 'total': total})
+            msg = _("%(result)s of %(total)s backups failed " "to delete.") % {
+                'result': result,
+                'total': total,
+            }
             raise exceptions.CommandError(msg)
 
 
@@ -149,22 +155,32 @@ class ListVolumeBackup(command.Lister):
         parser.add_argument(
             "--name",
             metavar="<name>",
-            help=_("Filters results by the backup name")
+            help=_("Filters results by the backup name"),
         )
         parser.add_argument(
             "--status",
             metavar="<status>",
-            choices=['creating', 'available', 'deleting',
-                     'error', 'restoring', 'error_restoring'],
-            help=_("Filters results by the backup status "
-                   "('creating', 'available', 'deleting', "
-                   "'error', 'restoring' or 'error_restoring')")
+            choices=[
+                'creating',
+                'available',
+                'deleting',
+                'error',
+                'restoring',
+                'error_restoring',
+            ],
+            help=_(
+                "Filters results by the backup status "
+                "('creating', 'available', 'deleting', "
+                "'error', 'restoring' or 'error_restoring')"
+            ),
         )
         parser.add_argument(
             "--volume",
             metavar="<volume>",
-            help=_("Filters results by the volume which they "
-                   "backup (name or ID)")
+            help=_(
+                "Filters results by the volume which they "
+                "backup (name or ID)"
+            ),
         )
         parser.add_argument(
             '--all-projects',
@@ -178,8 +194,16 @@ class ListVolumeBackup(command.Lister):
         volume_client = self.app.client_manager.volume
 
         if parsed_args.long:
-            columns = ['ID', 'Name', 'Description', 'Status', 'Size',
-                       'Availability Zone', 'Volume ID', 'Container']
+            columns = [
+                'ID',
+                'Name',
+                'Description',
+                'Status',
+                'Size',
+                'Availability Zone',
+                'Volume ID',
+                'Container',
+            ]
             column_headers = copy.deepcopy(columns)
             column_headers[6] = 'Volume'
         else:
@@ -194,13 +218,15 @@ class ListVolumeBackup(command.Lister):
         except Exception:
             # Just forget it if there's any trouble
             pass
-        VolumeIdColumnWithCache = functools.partial(VolumeIdColumn,
-                                                    volume_cache=volume_cache)
+        VolumeIdColumnWithCache = functools.partial(
+            VolumeIdColumn, volume_cache=volume_cache
+        )
 
         filter_volume_id = None
         if parsed_args.volume:
-            filter_volume_id = utils.find_resource(volume_client.volumes,
-                                                   parsed_args.volume).id
+            filter_volume_id = utils.find_resource(
+                volume_client.volumes, parsed_args.volume
+            ).id
         search_opts = {
             'name': parsed_args.name,
             'status': parsed_args.status,
@@ -211,11 +237,17 @@ class ListVolumeBackup(command.Lister):
             search_opts=search_opts,
         )
 
-        return (column_headers,
-                (utils.get_item_properties(
-                    s, columns,
+        return (
+            column_headers,
+            (
+                utils.get_item_properties(
+                    s,
+                    columns,
                     formatters={'Volume ID': VolumeIdColumnWithCache},
-                ) for s in data))
+                )
+                for s in data
+            ),
+        )
 
 
 class RestoreVolumeBackup(command.Command):
@@ -226,20 +258,21 @@ class RestoreVolumeBackup(command.Command):
         parser.add_argument(
             'backup',
             metavar='<backup>',
-            help=_('Backup to restore (name or ID)')
+            help=_('Backup to restore (name or ID)'),
         )
         parser.add_argument(
             'volume',
             metavar='<volume>',
             nargs='?',
-            help=_('Volume to restore to (name or ID) (default to None)')
+            help=_('Volume to restore to (name or ID) (default to None)'),
         )
         return parser
 
     def take_action(self, parsed_args):
         volume_client = self.app.client_manager.volume
         backup = utils.find_resource(
-            volume_client.backups, parsed_args.backup,
+            volume_client.backups,
+            parsed_args.backup,
         )
         volume_id = None
         if parsed_args.volume is not None:
@@ -258,13 +291,12 @@ class ShowVolumeBackup(command.ShowOne):
         parser.add_argument(
             'backup',
             metavar='<backup>',
-            help=_('Backup to display (name or ID)')
+            help=_('Backup to display (name or ID)'),
         )
         return parser
 
     def take_action(self, parsed_args):
         volume_client = self.app.client_manager.volume
-        backup = utils.find_resource(volume_client.backups,
-                                     parsed_args.backup)
+        backup = utils.find_resource(volume_client.backups, parsed_args.backup)
         backup._info.pop('links')
         return zip(*sorted(backup._info.items()))

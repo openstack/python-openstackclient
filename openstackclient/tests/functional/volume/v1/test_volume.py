@@ -16,15 +16,13 @@ from openstackclient.tests.functional.volume.v1 import common
 
 
 class VolumeTests(common.BaseVolumeTests):
-    """Functional tests for volume. """
+    """Functional tests for volume."""
 
     def test_volume_create_and_delete(self):
         """Test create, delete multiple"""
         name1 = uuid.uuid4().hex
         cmd_output = self.openstack(
-            'volume create ' +
-            '--size 1 ' +
-            name1,
+            'volume create ' + '--size 1 ' + name1,
             parse_output=True,
         )
         self.assertEqual(
@@ -34,9 +32,7 @@ class VolumeTests(common.BaseVolumeTests):
 
         name2 = uuid.uuid4().hex
         cmd_output = self.openstack(
-            'volume create ' +
-            '--size 2 ' +
-            name2,
+            'volume create ' + '--size 2 ' + name2,
             parse_output=True,
         )
         self.assertEqual(
@@ -53,9 +49,7 @@ class VolumeTests(common.BaseVolumeTests):
         """Test create, list filter"""
         name1 = uuid.uuid4().hex
         cmd_output = self.openstack(
-            'volume create ' +
-            '--size 1 ' +
-            name1,
+            'volume create ' + '--size 1 ' + name1,
             parse_output=True,
         )
         self.addCleanup(self.openstack, 'volume delete ' + name1)
@@ -67,9 +61,7 @@ class VolumeTests(common.BaseVolumeTests):
 
         name2 = uuid.uuid4().hex
         cmd_output = self.openstack(
-            'volume create ' +
-            '--size 2 ' +
-            name2,
+            'volume create ' + '--size 2 ' + name2,
             parse_output=True,
         )
         self.addCleanup(self.openstack, 'volume delete ' + name2)
@@ -98,8 +90,7 @@ class VolumeTests(common.BaseVolumeTests):
 
         # Test list --name
         cmd_output = self.openstack(
-            'volume list ' +
-            '--name ' + name1,
+            'volume list ' + '--name ' + name1,
             parse_output=True,
         )
         names = [x["Name"] for x in cmd_output]
@@ -110,11 +101,11 @@ class VolumeTests(common.BaseVolumeTests):
         """Tests create volume, set, unset, show, delete"""
         name = uuid.uuid4().hex
         cmd_output = self.openstack(
-            'volume create ' +
-            '--size 1 ' +
-            '--description aaaa ' +
-            '--property Alpha=a ' +
-            name,
+            'volume create '
+            + '--size 1 '
+            + '--description aaaa '
+            + '--property Alpha=a '
+            + name,
             parse_output=True,
         )
         self.assertEqual(
@@ -143,21 +134,21 @@ class VolumeTests(common.BaseVolumeTests):
         new_name = uuid.uuid4().hex
         self.addCleanup(self.openstack, 'volume delete ' + new_name)
         raw_output = self.openstack(
-            'volume set ' +
-            '--name ' + new_name +
-            ' --size 2 ' +
-            '--description bbbb ' +
-            '--no-property ' +
-            '--property Beta=b ' +
-            '--property Gamma=c ' +
-            '--bootable ' +
-            name,
+            'volume set '
+            + '--name '
+            + new_name
+            + ' --size 2 '
+            + '--description bbbb '
+            + '--no-property '
+            + '--property Beta=b '
+            + '--property Gamma=c '
+            + '--bootable '
+            + name,
         )
         self.assertOutput('', raw_output)
 
         cmd_output = self.openstack(
-            'volume show ' +
-            new_name,
+            'volume show ' + new_name,
             parse_output=True,
         )
         self.assertEqual(
@@ -183,15 +174,12 @@ class VolumeTests(common.BaseVolumeTests):
 
         # Test volume unset
         raw_output = self.openstack(
-            'volume unset ' +
-            '--property Beta ' +
-            new_name,
+            'volume unset ' + '--property Beta ' + new_name,
         )
         self.assertOutput('', raw_output)
 
         cmd_output = self.openstack(
-            'volume show ' +
-            new_name,
+            'volume show ' + new_name,
             parse_output=True,
         )
         self.assertEqual(
@@ -203,10 +191,7 @@ class VolumeTests(common.BaseVolumeTests):
         """Test backward compatibility of create, list, show"""
         name1 = uuid.uuid4().hex
         output = self.openstack(
-            'volume create ' +
-            '-c display_name -c id ' +
-            '--size 1 ' +
-            name1,
+            'volume create ' + '-c display_name -c id ' + '--size 1 ' + name1,
             parse_output=True,
         )
         self.assertIn('display_name', output)
@@ -220,25 +205,21 @@ class VolumeTests(common.BaseVolumeTests):
         self.wait_for_status("volume", name1, "available")
 
         output = self.openstack(
-            'volume list ' +
-            '-c "Display Name"',
+            'volume list ' + '-c "Display Name"',
             parse_output=True,
         )
         for each_volume in output:
             self.assertIn('Display Name', each_volume)
 
         output = self.openstack(
-            'volume list ' +
-            '-c "Name"',
+            'volume list ' + '-c "Name"',
             parse_output=True,
         )
         for each_volume in output:
             self.assertIn('Name', each_volume)
 
         output = self.openstack(
-            'volume show ' +
-            '-c display_name -c id ' +
-            name1,
+            'volume show ' + '-c display_name -c id ' + name1,
             parse_output=True,
         )
         self.assertIn('display_name', output)

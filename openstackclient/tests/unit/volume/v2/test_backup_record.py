@@ -17,7 +17,6 @@ from openstackclient.volume.v2 import backup_record
 
 
 class TestBackupRecord(volume_fakes.TestVolume):
-
     def setUp(self):
         super().setUp()
 
@@ -26,7 +25,6 @@ class TestBackupRecord(volume_fakes.TestVolume):
 
 
 class TestBackupRecordExport(TestBackupRecord):
-
     new_backup = volume_fakes.create_one_backup(
         attrs={'volume_id': 'a54708a2-0388-4476-a909-09579f885c25'},
     )
@@ -81,7 +79,6 @@ class TestBackupRecordExport(TestBackupRecord):
 
 
 class TestBackupRecordImport(TestBackupRecord):
-
     new_backup = volume_fakes.create_one_backup(
         attrs={'volume_id': 'a54708a2-0388-4476-a909-09579f885c25'},
     )
@@ -101,8 +98,10 @@ class TestBackupRecordImport(TestBackupRecord):
             "fake_backup_record_data",
         ]
         verifylist = [
-            ("backup_service",
-             "cinder.backup.drivers.swift.SwiftBackupDriver"),
+            (
+                "backup_service",
+                "cinder.backup.drivers.swift.SwiftBackupDriver",
+            ),
             ("backup_metadata", "fake_backup_record_data"),
         ]
 

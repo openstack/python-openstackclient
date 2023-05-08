@@ -28,7 +28,7 @@ class ShowCapability(command.Lister):
         parser.add_argument(
             "host",
             metavar="<host>",
-            help=_("List capabilities of specified host (host@backend-name)")
+            help=_("List capabilities of specified host (host@backend-name)"),
         )
         return parser
 
@@ -55,10 +55,16 @@ class ShowCapability(command.Lister):
             capability_data['key'] = key
             print_data.append(capability_data)
 
-        return (columns,
-                (utils.get_dict_properties(
-                    s, columns,
-                ) for s in print_data))
+        return (
+            columns,
+            (
+                utils.get_dict_properties(
+                    s,
+                    columns,
+                )
+                for s in print_data
+            ),
+        )
 
 
 class ListPool(command.Lister):
@@ -70,7 +76,7 @@ class ListPool(command.Lister):
             "--long",
             action="store_true",
             default=False,
-            help=_("Show detailed information about pools.")
+            help=_("Show detailed information about pools."),
         )
         # TODO(smcginnis): Starting with Cinder microversion 3.33, user is also
         # able to pass in --filters with a <key>=<value> pair to filter on.
@@ -98,7 +104,7 @@ class ListPool(command.Lister):
                 'Volumes',
                 'Capacity',
                 'Allocated',
-                'Max Over Ratio'
+                'Max Over Ratio',
             ]
         else:
             columns = [
@@ -107,7 +113,13 @@ class ListPool(command.Lister):
             headers = columns
 
         data = volume_client.pools.list(detailed=parsed_args.long)
-        return (headers,
-                (utils.get_item_properties(
-                    s, columns,
-                ) for s in data))
+        return (
+            headers,
+            (
+                utils.get_item_properties(
+                    s,
+                    columns,
+                )
+                for s in data
+            ),
+        )

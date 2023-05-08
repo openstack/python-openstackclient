@@ -31,8 +31,13 @@ def _format_cleanup_response(cleaning, unavailable):
         combined_data.append(details)
 
     for obj in unavailable:
-        details = (obj.id, obj.cluster_name, obj.host, obj.binary,
-                   'Unavailable')
+        details = (
+            obj.id,
+            obj.cluster_name,
+            obj.host,
+            obj.binary,
+            'Unavailable',
+        )
         combined_data.append(details)
 
     return (column_headers, combined_data)
@@ -49,20 +54,22 @@ class BlockStorageCleanup(command.Lister):
         parser.add_argument(
             '--cluster',
             metavar='<cluster>',
-            help=_('Name of block storage cluster in which cleanup needs '
-                   'to be performed (name only)')
+            help=_(
+                'Name of block storage cluster in which cleanup needs '
+                'to be performed (name only)'
+            ),
         )
         parser.add_argument(
             "--host",
             metavar="<host>",
             default=None,
-            help=_("Host where the service resides. (name only)")
+            help=_("Host where the service resides. (name only)"),
         )
         parser.add_argument(
             '--binary',
             metavar='<binary>',
             default=None,
-            help=_("Name of the service binary.")
+            help=_("Name of the service binary."),
         )
         service_up_parser = parser.add_mutually_exclusive_group()
         service_up_parser.add_argument(
@@ -72,7 +79,7 @@ class BlockStorageCleanup(command.Lister):
             default=None,
             help=_(
                 'Filter by up status. If this is set, services need to be up.'
-            )
+            ),
         )
         service_up_parser.add_argument(
             '--down',
@@ -81,7 +88,7 @@ class BlockStorageCleanup(command.Lister):
             help=_(
                 'Filter by down status. If this is set, services need to be '
                 'down.'
-            )
+            ),
         )
         service_disabled_parser = parser.add_mutually_exclusive_group()
         service_disabled_parser.add_argument(
@@ -89,25 +96,25 @@ class BlockStorageCleanup(command.Lister):
             dest='disabled',
             action='store_true',
             default=None,
-            help=_('Filter by disabled status.')
+            help=_('Filter by disabled status.'),
         )
         service_disabled_parser.add_argument(
             '--enabled',
             dest='disabled',
             action='store_false',
-            help=_('Filter by enabled status.')
+            help=_('Filter by enabled status.'),
         )
         parser.add_argument(
             '--resource-id',
             metavar='<resource-id>',
             default=None,
-            help=_('UUID of a resource to cleanup.')
+            help=_('UUID of a resource to cleanup.'),
         )
         parser.add_argument(
             '--resource-type',
             metavar='<Volume|Snapshot>',
             choices=('Volume', 'Snapshot'),
-            help=_('Type of resource to cleanup.')
+            help=_('Type of resource to cleanup.'),
         )
         parser.add_argument(
             '--service-id',
@@ -116,7 +123,7 @@ class BlockStorageCleanup(command.Lister):
             help=_(
                 'The service ID field from the DB, not the UUID of the '
                 'service.'
-            )
+            ),
         )
         return parser
 
@@ -138,7 +145,7 @@ class BlockStorageCleanup(command.Lister):
             'disabled': parsed_args.disabled,
             'resource_id': parsed_args.resource_id,
             'resource_type': parsed_args.resource_type,
-            'service_id': parsed_args.service_id
+            'service_id': parsed_args.service_id,
         }
 
         filters = {k: v for k, v in filters.items() if v is not None}

@@ -105,9 +105,7 @@ class TestListVolumePool(volume_fakes.TestVolume):
         # confirming if all expected columns are present in the result.
         self.assertEqual(expected_columns, columns)
 
-        datalist = ((
-            self.pools.name,
-        ), )
+        datalist = ((self.pools.name,),)
 
         # confirming if all expected values are present in the result.
         self.assertEqual(datalist, tuple(data))
@@ -122,12 +120,8 @@ class TestListVolumePool(volume_fakes.TestVolume):
         self.assertNotIn("storage_protocol", columns)
 
     def test_service_list_with_long_option(self):
-        arglist = [
-            '--long'
-        ]
-        verifylist = [
-            ('long', True)
-        ]
+        arglist = ['--long']
+        verifylist = [('long', True)]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
         # In base command class Lister in cliff, abstract method take_action()
@@ -149,16 +143,18 @@ class TestListVolumePool(volume_fakes.TestVolume):
         # confirming if all expected columns are present in the result.
         self.assertEqual(expected_columns, columns)
 
-        datalist = ((
-            self.pools.name,
-            self.pools.storage_protocol,
-            self.pools.thick_provisioning_support,
-            self.pools.thin_provisioning_support,
-            self.pools.total_volumes,
-            self.pools.total_capacity_gb,
-            self.pools.allocated_capacity_gb,
-            self.pools.max_over_subscription_ratio,
-        ), )
+        datalist = (
+            (
+                self.pools.name,
+                self.pools.storage_protocol,
+                self.pools.thick_provisioning_support,
+                self.pools.thin_provisioning_support,
+                self.pools.total_volumes,
+                self.pools.total_capacity_gb,
+                self.pools.allocated_capacity_gb,
+                self.pools.max_over_subscription_ratio,
+            ),
+        )
 
         # confirming if all expected values are present in the result.
         self.assertEqual(datalist, tuple(data))

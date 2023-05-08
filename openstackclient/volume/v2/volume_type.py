@@ -63,8 +63,10 @@ class EncryptionInfoColumn(cliff_columns.FormattableColumn):
 
 def _create_encryption_type(volume_client, volume_type, parsed_args):
     if not parsed_args.encryption_provider:
-        msg = _("'--encryption-provider' should be specified while "
-                "creating a new encryption type")
+        msg = _(
+            "'--encryption-provider' should be specified while "
+            "creating a new encryption type"
+        )
         raise exceptions.CommandError(msg)
     # set the default of control location while creating
     control_location = 'front-end'
@@ -74,10 +76,11 @@ def _create_encryption_type(volume_client, volume_type, parsed_args):
         'provider': parsed_args.encryption_provider,
         'cipher': parsed_args.encryption_cipher,
         'key_size': parsed_args.encryption_key_size,
-        'control_location': control_location
+        'control_location': control_location,
     }
     encryption = volume_client.volume_encryption_types.create(
-        volume_type, body)
+        volume_type, body
+    )
     return encryption
 
 
@@ -93,10 +96,13 @@ def _set_encryption_type(volume_client, volume_type, parsed_args):
     except Exception as e:
         if type(e).__name__ == 'NotFound':
             # create new encryption type
-            LOG.warning(_("No existing encryption type found, creating "
-                        "new encryption type for this volume type ..."))
-            _create_encryption_type(
-                volume_client, volume_type, parsed_args)
+            LOG.warning(
+                _(
+                    "No existing encryption type found, creating "
+                    "new encryption type for this volume type ..."
+                )
+            )
+            _create_encryption_type(volume_client, volume_type, parsed_args)
 
 
 class CreateVolumeType(command.ShowOne):
@@ -131,50 +137,62 @@ class CreateVolumeType(command.ShowOne):
             '--property',
             metavar='<key=value>',
             action=parseractions.KeyValueAction,
-            help=_('Set a property on this volume type '
-                   '(repeat option to set multiple properties)'),
+            help=_(
+                'Set a property on this volume type '
+                '(repeat option to set multiple properties)'
+            ),
         )
         parser.add_argument(
             '--project',
             metavar='<project>',
-            help=_("Allow <project> to access private type (name or ID) "
-                   "(Must be used with --private option)"),
+            help=_(
+                "Allow <project> to access private type (name or ID) "
+                "(Must be used with --private option)"
+            ),
         )
         # TODO(Huanxuan Ao): Add choices for each "--encryption-*" option.
         parser.add_argument(
             '--encryption-provider',
             metavar='<provider>',
-            help=_('Set the encryption provider format for '
-                   'this volume type (e.g "luks" or "plain") (admin only) '
-                   '(This option is required when setting encryption type '
-                   'of a volume. Consider using other encryption options '
-                   'such as: "--encryption-cipher", "--encryption-key-size" '
-                   'and "--encryption-control-location")'),
+            help=_(
+                'Set the encryption provider format for '
+                'this volume type (e.g "luks" or "plain") (admin only) '
+                '(This option is required when setting encryption type '
+                'of a volume. Consider using other encryption options '
+                'such as: "--encryption-cipher", "--encryption-key-size" '
+                'and "--encryption-control-location")'
+            ),
         )
         parser.add_argument(
             '--encryption-cipher',
             metavar='<cipher>',
-            help=_('Set the encryption algorithm or mode for this '
-                   'volume type (e.g "aes-xts-plain64") (admin only)'),
+            help=_(
+                'Set the encryption algorithm or mode for this '
+                'volume type (e.g "aes-xts-plain64") (admin only)'
+            ),
         )
         parser.add_argument(
             '--encryption-key-size',
             metavar='<key-size>',
             type=int,
-            help=_('Set the size of the encryption key of this '
-                   'volume type (e.g "128" or "256") (admin only)'),
+            help=_(
+                'Set the size of the encryption key of this '
+                'volume type (e.g "128" or "256") (admin only)'
+            ),
         )
         parser.add_argument(
             '--encryption-control-location',
             metavar='<control-location>',
             choices=['front-end', 'back-end'],
-            help=_('Set the notional service where the encryption is '
-                   'performed ("front-end" or "back-end") (admin only) '
-                   '(The default value for this option is "front-end" '
-                   'when setting encryption type of a volume. Consider '
-                   'using other encryption options such as: '
-                   '"--encryption-cipher", "--encryption-key-size" and '
-                   '"--encryption-provider")'),
+            help=_(
+                'Set the notional service where the encryption is '
+                'performed ("front-end" or "back-end") (admin only) '
+                '(The default value for this option is "front-end" '
+                'when setting encryption type of a volume. Consider '
+                'using other encryption options such as: '
+                '"--encryption-cipher", "--encryption-key-size" and '
+                '"--encryption-provider")'
+            ),
         )
         identity_common.add_project_domain_option_to_parser(parser)
         return parser
@@ -194,9 +212,7 @@ class CreateVolumeType(command.ShowOne):
             kwargs['is_public'] = False
 
         volume_type = volume_client.volume_types.create(
-            parsed_args.name,
-            description=parsed_args.description,
-            **kwargs
+            parsed_args.name, description=parsed_args.description, **kwargs
         )
         volume_type._info.pop('extra_specs')
 
@@ -208,30 +224,43 @@ class CreateVolumeType(command.ShowOne):
                     parsed_args.project_domain,
                 ).id
                 volume_client.volume_type_access.add_project_access(
-                    volume_type.id, project_id)
+                    volume_type.id, project_id
+                )
             except Exception as e:
-                msg = _("Failed to add project %(project)s access to "
-                        "type: %(e)s")
+                msg = _(
+                    "Failed to add project %(project)s access to "
+                    "type: %(e)s"
+                )
                 LOG.error(msg % {'project': parsed_args.project, 'e': e})
         if parsed_args.property:
             result = volume_type.set_keys(parsed_args.property)
             volume_type._info.update(
-                {'properties': format_columns.DictColumn(result)})
-        if (parsed_args.encryption_provider or
-                parsed_args.encryption_cipher or
-                parsed_args.encryption_key_size or
-                parsed_args.encryption_control_location):
+                {'properties': format_columns.DictColumn(result)}
+            )
+        if (
+            parsed_args.encryption_provider
+            or parsed_args.encryption_cipher
+            or parsed_args.encryption_key_size
+            or parsed_args.encryption_control_location
+        ):
             try:
                 # create new encryption
                 encryption = _create_encryption_type(
-                    volume_client, volume_type, parsed_args)
+                    volume_client, volume_type, parsed_args
+                )
             except Exception as e:
-                LOG.error(_("Failed to set encryption information for this "
-                            "volume type: %s"), e)
+                LOG.error(
+                    _(
+                        "Failed to set encryption information for this "
+                        "volume type: %s"
+                    ),
+                    e,
+                )
             # add encryption info in result
             encryption._info.pop("volume_type_id", None)
             volume_type._info.update(
-                {'encryption': format_columns.DictColumn(encryption._info)})
+                {'encryption': format_columns.DictColumn(encryption._info)}
+            )
         volume_type._info.pop("os-volume-type-access:is_public", None)
 
         return zip(*sorted(volume_type._info.items()))
@@ -246,7 +275,7 @@ class DeleteVolumeType(command.Command):
             "volume_types",
             metavar="<volume-type>",
             nargs="+",
-            help=_("Volume type(s) to delete (name or ID)")
+            help=_("Volume type(s) to delete (name or ID)"),
         )
         return parser
 
@@ -256,20 +285,26 @@ class DeleteVolumeType(command.Command):
 
         for volume_type in parsed_args.volume_types:
             try:
-                vol_type = utils.find_resource(volume_client.volume_types,
-                                               volume_type)
+                vol_type = utils.find_resource(
+                    volume_client.volume_types, volume_type
+                )
 
                 volume_client.volume_types.delete(vol_type)
             except Exception as e:
                 result += 1
-                LOG.error(_("Failed to delete volume type with "
-                            "name or ID '%(volume_type)s': %(e)s")
-                          % {'volume_type': volume_type, 'e': e})
+                LOG.error(
+                    _(
+                        "Failed to delete volume type with "
+                        "name or ID '%(volume_type)s': %(e)s"
+                    )
+                    % {'volume_type': volume_type, 'e': e}
+                )
 
         if result > 0:
             total = len(parsed_args.volume_types)
-            msg = (_("%(result)s of %(total)s volume types failed "
-                   "to delete.") % {'result': result, 'total': total})
+            msg = _(
+                "%(result)s of %(total)s volume types failed " "to delete."
+            ) % {'result': result, 'total': total}
             raise exceptions.CommandError(msg)
 
 
@@ -282,30 +317,30 @@ class ListVolumeType(command.Lister):
             '--long',
             action='store_true',
             default=False,
-            help=_('List additional fields in output')
+            help=_('List additional fields in output'),
         )
         public_group = parser.add_mutually_exclusive_group()
         public_group.add_argument(
             "--default",
             action='store_true',
             default=False,
-            help=_('List the default volume type')
+            help=_('List the default volume type'),
         )
         public_group.add_argument(
-            "--public",
-            action="store_true",
-            help=_("List only public types")
+            "--public", action="store_true", help=_("List only public types")
         )
         public_group.add_argument(
             "--private",
             action="store_true",
-            help=_("List only private types (admin only)")
+            help=_("List only private types (admin only)"),
         )
         parser.add_argument(
             "--encryption-type",
             action="store_true",
-            help=_("Display encryption information for each volume type "
-                   "(admin only)"),
+            help=_(
+                "Display encryption information for each volume type "
+                "(admin only)"
+            ),
         )
         return parser
 
@@ -314,7 +349,12 @@ class ListVolumeType(command.Lister):
         if parsed_args.long:
             columns = ['ID', 'Name', 'Is Public', 'Description', 'Extra Specs']
             column_headers = [
-                'ID', 'Name', 'Is Public', 'Description', 'Properties']
+                'ID',
+                'Name',
+                'Is Public',
+                'Description',
+                'Properties',
+            ]
         else:
             columns = ['ID', 'Name', 'Is Public']
             column_headers = ['ID', 'Name', 'Is Public']
@@ -326,8 +366,7 @@ class ListVolumeType(command.Lister):
                 is_public = True
             if parsed_args.private:
                 is_public = False
-            data = volume_client.volume_types.list(
-                is_public=is_public)
+            data = volume_client.volume_types.list(is_public=is_public)
 
         formatters = {'Extra Specs': format_columns.DictColumn}
 
@@ -341,7 +380,7 @@ class ListVolumeType(command.Lister):
                     'created_at',
                     'updated_at',
                     'deleted_at',
-                    'volume_type_id'
+                    'volume_type_id',
                 ]
                 for key in del_key:
                     d._info.pop(key, None)
@@ -354,14 +393,21 @@ class ListVolumeType(command.Lister):
             column_headers += ['Encryption']
 
             _EncryptionInfoColumn = functools.partial(
-                EncryptionInfoColumn, encryption_data=encryption)
+                EncryptionInfoColumn, encryption_data=encryption
+            )
             formatters['id'] = _EncryptionInfoColumn
 
-        return (column_headers,
-                (utils.get_item_properties(
-                    s, columns,
+        return (
+            column_headers,
+            (
+                utils.get_item_properties(
+                    s,
+                    columns,
                     formatters=formatters,
-                ) for s in data))
+                )
+                for s in data
+            ),
+        )
 
 
 class SetVolumeType(command.Command):
@@ -388,52 +434,64 @@ class SetVolumeType(command.Command):
             '--property',
             metavar='<key=value>',
             action=parseractions.KeyValueAction,
-            help=_('Set a property on this volume type '
-                   '(repeat option to set multiple properties)'),
+            help=_(
+                'Set a property on this volume type '
+                '(repeat option to set multiple properties)'
+            ),
         )
         parser.add_argument(
             '--project',
             metavar='<project>',
-            help=_('Set volume type access to project (name or ID) '
-                   '(admin only)'),
+            help=_(
+                'Set volume type access to project (name or ID) '
+                '(admin only)'
+            ),
         )
         identity_common.add_project_domain_option_to_parser(parser)
         # TODO(Huanxuan Ao): Add choices for each "--encryption-*" option.
         parser.add_argument(
             '--encryption-provider',
             metavar='<provider>',
-            help=_('Set the encryption provider format for '
-                   'this volume type (e.g "luks" or "plain") (admin only) '
-                   '(This option is required when setting encryption type '
-                   'of a volume for the first time. Consider using other '
-                   'encryption options such as: "--encryption-cipher", '
-                   '"--encryption-key-size" and '
-                   '"--encryption-control-location")'),
+            help=_(
+                'Set the encryption provider format for '
+                'this volume type (e.g "luks" or "plain") (admin only) '
+                '(This option is required when setting encryption type '
+                'of a volume for the first time. Consider using other '
+                'encryption options such as: "--encryption-cipher", '
+                '"--encryption-key-size" and '
+                '"--encryption-control-location")'
+            ),
         )
         parser.add_argument(
             '--encryption-cipher',
             metavar='<cipher>',
-            help=_('Set the encryption algorithm or mode for this '
-                   'volume type (e.g "aes-xts-plain64") (admin only)'),
+            help=_(
+                'Set the encryption algorithm or mode for this '
+                'volume type (e.g "aes-xts-plain64") (admin only)'
+            ),
         )
         parser.add_argument(
             '--encryption-key-size',
             metavar='<key-size>',
             type=int,
-            help=_('Set the size of the encryption key of this '
-                   'volume type (e.g "128" or "256") (admin only)'),
+            help=_(
+                'Set the size of the encryption key of this '
+                'volume type (e.g "128" or "256") (admin only)'
+            ),
         )
         parser.add_argument(
             '--encryption-control-location',
             metavar='<control-location>',
             choices=['front-end', 'back-end'],
-            help=_('Set the notional service where the encryption is '
-                   'performed ("front-end" or "back-end") (admin only) '
-                   '(The default value for this option is "front-end" '
-                   'when setting encryption type of a volume for the '
-                   'first time. Consider using other encryption options '
-                   'such as: "--encryption-cipher", "--encryption-key-size" '
-                   'and "--encryption-provider")'),
+            help=_(
+                'Set the notional service where the encryption is '
+                'performed ("front-end" or "back-end") (admin only) '
+                '(The default value for this option is "front-end" '
+                'when setting encryption type of a volume for the '
+                'first time. Consider using other encryption options '
+                'such as: "--encryption-cipher", "--encryption-key-size" '
+                'and "--encryption-provider")'
+            ),
         )
         return parser
 
@@ -442,7 +500,8 @@ class SetVolumeType(command.Command):
         identity_client = self.app.client_manager.identity
 
         volume_type = utils.find_resource(
-            volume_client.volume_types, parsed_args.volume_type)
+            volume_client.volume_types, parsed_args.volume_type
+        )
         result = 0
         kwargs = {}
         if parsed_args.name:
@@ -452,13 +511,15 @@ class SetVolumeType(command.Command):
 
         if kwargs:
             try:
-                volume_client.volume_types.update(
-                    volume_type.id,
-                    **kwargs
-                )
+                volume_client.volume_types.update(volume_type.id, **kwargs)
             except Exception as e:
-                LOG.error(_("Failed to update volume type name or"
-                            " description: %s"), e)
+                LOG.error(
+                    _(
+                        "Failed to update volume type name or"
+                        " description: %s"
+                    ),
+                    e,
+                )
                 result += 1
 
         if parsed_args.property:
@@ -474,29 +535,40 @@ class SetVolumeType(command.Command):
                 project_info = identity_common.find_project(
                     identity_client,
                     parsed_args.project,
-                    parsed_args.project_domain)
+                    parsed_args.project_domain,
+                )
 
                 volume_client.volume_type_access.add_project_access(
-                    volume_type.id, project_info.id)
+                    volume_type.id, project_info.id
+                )
             except Exception as e:
-                LOG.error(_("Failed to set volume type access to "
-                            "project: %s"), e)
+                LOG.error(
+                    _("Failed to set volume type access to " "project: %s"), e
+                )
                 result += 1
 
-        if (parsed_args.encryption_provider or
-                parsed_args.encryption_cipher or
-                parsed_args.encryption_key_size or
-                parsed_args.encryption_control_location):
+        if (
+            parsed_args.encryption_provider
+            or parsed_args.encryption_cipher
+            or parsed_args.encryption_key_size
+            or parsed_args.encryption_control_location
+        ):
             try:
                 _set_encryption_type(volume_client, volume_type, parsed_args)
             except Exception as e:
-                LOG.error(_("Failed to set encryption information for this "
-                            "volume type: %s"), e)
+                LOG.error(
+                    _(
+                        "Failed to set encryption information for this "
+                        "volume type: %s"
+                    ),
+                    e,
+                )
                 result += 1
 
         if result > 0:
-            raise exceptions.CommandError(_("Command Failed: One or more of"
-                                            " the operations failed"))
+            raise exceptions.CommandError(
+                _("Command Failed: One or more of" " the operations failed")
+            )
 
 
 class ShowVolumeType(command.ShowOne):
@@ -507,50 +579,65 @@ class ShowVolumeType(command.ShowOne):
         parser.add_argument(
             "volume_type",
             metavar="<volume-type>",
-            help=_("Volume type to display (name or ID)")
+            help=_("Volume type to display (name or ID)"),
         )
         parser.add_argument(
             "--encryption-type",
             action="store_true",
-            help=_("Display encryption information of this volume type "
-                   "(admin only)"),
+            help=_(
+                "Display encryption information of this volume type "
+                "(admin only)"
+            ),
         )
         return parser
 
     def take_action(self, parsed_args):
         volume_client = self.app.client_manager.volume
         volume_type = utils.find_resource(
-            volume_client.volume_types, parsed_args.volume_type)
+            volume_client.volume_types, parsed_args.volume_type
+        )
         properties = format_columns.DictColumn(
-            volume_type._info.pop('extra_specs', {}))
+            volume_type._info.pop('extra_specs', {})
+        )
         volume_type._info.update({'properties': properties})
         access_project_ids = None
         if not volume_type.is_public:
             try:
                 volume_type_access = volume_client.volume_type_access.list(
-                    volume_type.id)
-                project_ids = [utils.get_field(item, 'project_id')
-                               for item in volume_type_access]
+                    volume_type.id
+                )
+                project_ids = [
+                    utils.get_field(item, 'project_id')
+                    for item in volume_type_access
+                ]
                 # TODO(Rui Chen): This format list case can be removed after
                 # patch https://review.opendev.org/#/c/330223/ merged.
                 access_project_ids = format_columns.ListColumn(project_ids)
             except Exception as e:
-                msg = _('Failed to get access project list for volume type '
-                        '%(type)s: %(e)s')
+                msg = _(
+                    'Failed to get access project list for volume type '
+                    '%(type)s: %(e)s'
+                )
                 LOG.error(msg % {'type': volume_type.id, 'e': e})
         volume_type._info.update({'access_project_ids': access_project_ids})
         if parsed_args.encryption_type:
             # show encryption type information for this volume type
             try:
                 encryption = volume_client.volume_encryption_types.get(
-                    volume_type.id)
+                    volume_type.id
+                )
                 encryption._info.pop("volume_type_id", None)
                 volume_type._info.update(
-                    {'encryption':
-                     format_columns.DictColumn(encryption._info)})
+                    {'encryption': format_columns.DictColumn(encryption._info)}
+                )
             except Exception as e:
-                LOG.error(_("Failed to display the encryption information "
-                          "of this volume type: %s"), e)
+                LOG.error(
+                    _(
+                        "Failed to display the encryption information "
+                        "of this volume type: %s"
+                    ),
+                    e,
+                )
         volume_type._info.pop("os-volume-type-access:is_public", None)
         return zip(*sorted(volume_type._info.items()))
 
@@ -569,21 +656,27 @@ class UnsetVolumeType(command.Command):
             '--property',
             metavar='<key>',
             action='append',
-            help=_('Remove a property from this volume type '
-                   '(repeat option to remove multiple properties)'),
+            help=_(
+                'Remove a property from this volume type '
+                '(repeat option to remove multiple properties)'
+            ),
         )
         parser.add_argument(
             '--project',
             metavar='<project>',
-            help=_('Removes volume type access to project (name or ID) '
-                   '(admin only)'),
+            help=_(
+                'Removes volume type access to project (name or ID) '
+                '(admin only)'
+            ),
         )
         identity_common.add_project_domain_option_to_parser(parser)
         parser.add_argument(
             "--encryption-type",
             action="store_true",
-            help=_("Remove the encryption type for this volume type "
-                   "(admin only)"),
+            help=_(
+                "Remove the encryption type for this volume type "
+                "(admin only)"
+            ),
         )
         return parser
 
@@ -610,22 +703,35 @@ class UnsetVolumeType(command.Command):
                 project_info = identity_common.find_project(
                     identity_client,
                     parsed_args.project,
-                    parsed_args.project_domain)
+                    parsed_args.project_domain,
+                )
 
                 volume_client.volume_type_access.remove_project_access(
-                    volume_type.id, project_info.id)
+                    volume_type.id, project_info.id
+                )
             except Exception as e:
-                LOG.error(_("Failed to remove volume type access from "
-                            "project: %s"), e)
+                LOG.error(
+                    _(
+                        "Failed to remove volume type access from "
+                        "project: %s"
+                    ),
+                    e,
+                )
                 result += 1
         if parsed_args.encryption_type:
             try:
                 volume_client.volume_encryption_types.delete(volume_type)
             except Exception as e:
-                LOG.error(_("Failed to remove the encryption type for this "
-                          "volume type: %s"), e)
+                LOG.error(
+                    _(
+                        "Failed to remove the encryption type for this "
+                        "volume type: %s"
+                    ),
+                    e,
+                )
                 result += 1
 
         if result > 0:
-            raise exceptions.CommandError(_("Command Failed: One or more of"
-                                          " the operations failed"))
+            raise exceptions.CommandError(
+                _("Command Failed: One or more of" " the operations failed")
+            )

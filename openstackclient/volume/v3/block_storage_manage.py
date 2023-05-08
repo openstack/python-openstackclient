@@ -38,50 +38,61 @@ class BlockStorageManageVolumes(command.Lister):
             "host",
             metavar="<host>",
             nargs='?',
-            help=_('Cinder host on which to list manageable volumes. '
-                   'Takes the form: host@backend-name#pool')
+            help=_(
+                'Cinder host on which to list manageable volumes. '
+                'Takes the form: host@backend-name#pool'
+            ),
         )
         host_group.add_argument(
             "--cluster",
             metavar="<cluster>",
-            help=_('Cinder cluster on which to list manageable volumes. '
-                   'Takes the form: cluster@backend-name#pool. '
-                   '(supported by --os-volume-api-version 3.17 or later)')
+            help=_(
+                'Cinder cluster on which to list manageable volumes. '
+                'Takes the form: cluster@backend-name#pool. '
+                '(supported by --os-volume-api-version 3.17 or later)'
+            ),
         )
         parser.add_argument(
             '--detailed',
             metavar='<detailed>',
             default=True,
-            help=_('Returns detailed information (Default=True).')
+            help=_('Returns detailed information (Default=True).'),
         )
         parser.add_argument(
             '--marker',
             metavar='<marker>',
             default=None,
-            help=_('Begin returning volumes that appear later in the volume '
-                   'list than that represented by this reference. This '
-                   'reference should be json like. Default=None.')
+            help=_(
+                'Begin returning volumes that appear later in the volume '
+                'list than that represented by this reference. This '
+                'reference should be json like. Default=None.'
+            ),
         )
         parser.add_argument(
             '--limit',
             metavar='<limit>',
             default=None,
-            help=_('Maximum number of volumes to return. Default=None.')
+            help=_('Maximum number of volumes to return. Default=None.'),
         )
         parser.add_argument(
             '--offset',
             metavar='<offset>',
             default=None,
-            help=_('Number of volumes to skip after marker. Default=None.')
+            help=_('Number of volumes to skip after marker. Default=None.'),
         )
         parser.add_argument(
             '--sort',
             metavar='<key>[:<direction>]',
             default=None,
-            help=(_('Comma-separated list of sort keys and directions in the '
+            help=(
+                _(
+                    'Comma-separated list of sort keys and directions in the '
                     'form of <key>[:<asc|desc>]. '
                     'Valid keys: %s. '
-                    'Default=None.') % ', '.join(SORT_MANAGEABLE_KEY_VALUES))
+                    'Default=None.'
+                )
+                % ', '.join(SORT_MANAGEABLE_KEY_VALUES)
+            ),
         )
         return parser
 
@@ -119,11 +130,13 @@ class BlockStorageManageVolumes(command.Lister):
             'safe_to_manage',
         ]
         if detailed:
-            columns.extend([
-                'reason_not_safe',
-                'cinder_id',
-                'extra_info',
-            ])
+            columns.extend(
+                [
+                    'reason_not_safe',
+                    'cinder_id',
+                    'extra_info',
+                ]
+            )
 
         data = volume_client.volumes.list_manageable(
             host=parsed_args.host,
@@ -132,12 +145,19 @@ class BlockStorageManageVolumes(command.Lister):
             limit=parsed_args.limit,
             offset=parsed_args.offset,
             sort=parsed_args.sort,
-            cluster=cluster)
+            cluster=cluster,
+        )
 
-        return (columns,
-                (utils.get_item_properties(
-                    s, columns,
-                ) for s in data))
+        return (
+            columns,
+            (
+                utils.get_item_properties(
+                    s,
+                    columns,
+                )
+                for s in data
+            ),
+        )
 
 
 class BlockStorageManageSnapshots(command.Lister):
@@ -153,50 +173,61 @@ class BlockStorageManageSnapshots(command.Lister):
             "host",
             metavar="<host>",
             nargs='?',
-            help=_('Cinder host on which to list manageable snapshots. '
-                   'Takes the form: host@backend-name#pool')
+            help=_(
+                'Cinder host on which to list manageable snapshots. '
+                'Takes the form: host@backend-name#pool'
+            ),
         )
         host_group.add_argument(
             "--cluster",
             metavar="<cluster>",
-            help=_('Cinder cluster on which to list manageable snapshots. '
-                   'Takes the form: cluster@backend-name#pool. '
-                   '(supported by --os-volume-api-version 3.17 or later)')
+            help=_(
+                'Cinder cluster on which to list manageable snapshots. '
+                'Takes the form: cluster@backend-name#pool. '
+                '(supported by --os-volume-api-version 3.17 or later)'
+            ),
         )
         parser.add_argument(
             '--detailed',
             metavar='<detailed>',
             default=True,
-            help=_('Returns detailed information (Default=True).')
+            help=_('Returns detailed information (Default=True).'),
         )
         parser.add_argument(
             '--marker',
             metavar='<marker>',
             default=None,
-            help=_('Begin returning snapshots that appear later in the '
-                   'snapshot list than that represented by this reference. '
-                   'This reference should be json like. Default=None.')
+            help=_(
+                'Begin returning snapshots that appear later in the '
+                'snapshot list than that represented by this reference. '
+                'This reference should be json like. Default=None.'
+            ),
         )
         parser.add_argument(
             '--limit',
             metavar='<limit>',
             default=None,
-            help=_('Maximum number of snapshots to return. Default=None.')
+            help=_('Maximum number of snapshots to return. Default=None.'),
         )
         parser.add_argument(
             '--offset',
             metavar='<offset>',
             default=None,
-            help=_('Number of snapshots to skip after marker. Default=None.')
+            help=_('Number of snapshots to skip after marker. Default=None.'),
         )
         parser.add_argument(
             '--sort',
             metavar='<key>[:<direction>]',
             default=None,
-            help=(_('Comma-separated list of sort keys and directions in the '
+            help=(
+                _(
+                    'Comma-separated list of sort keys and directions in the '
                     'form of <key>[:<asc|desc>]. '
                     'Valid keys: %s. '
-                    'Default=None.') % ', '.join(SORT_MANAGEABLE_KEY_VALUES))
+                    'Default=None.'
+                )
+                % ', '.join(SORT_MANAGEABLE_KEY_VALUES)
+            ),
         )
         return parser
 
@@ -237,11 +268,13 @@ class BlockStorageManageSnapshots(command.Lister):
             'source_reference',
         ]
         if detailed:
-            columns.extend([
-                'reason_not_safe',
-                'cinder_id',
-                'extra_info',
-            ])
+            columns.extend(
+                [
+                    'reason_not_safe',
+                    'cinder_id',
+                    'extra_info',
+                ]
+            )
 
         data = volume_client.volume_snapshots.list_manageable(
             host=parsed_args.host,
@@ -250,9 +283,16 @@ class BlockStorageManageSnapshots(command.Lister):
             limit=parsed_args.limit,
             offset=parsed_args.offset,
             sort=parsed_args.sort,
-            cluster=cluster)
+            cluster=cluster,
+        )
 
-        return (columns,
-                (utils.get_item_properties(
-                    s, columns,
-                ) for s in data))
+        return (
+            columns,
+            (
+                utils.get_item_properties(
+                    s,
+                    columns,
+                )
+                for s in data
+            ),
+        )

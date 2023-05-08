@@ -16,7 +16,7 @@ from openstackclient.tests.functional.volume.v1 import common
 
 
 class VolumeSnapshotTests(common.BaseVolumeTests):
-    """Functional tests for volume snapshot. """
+    """Functional tests for volume snapshot."""
 
     VOLLY = uuid.uuid4().hex
 
@@ -25,9 +25,7 @@ class VolumeSnapshotTests(common.BaseVolumeTests):
         super(VolumeSnapshotTests, cls).setUpClass()
         # create a volume for all tests to create snapshot
         cmd_output = cls.openstack(
-            'volume create ' +
-            '--size 1 ' +
-            cls.VOLLY,
+            'volume create ' + '--size 1 ' + cls.VOLLY,
             parse_output=True,
         )
         cls.wait_for_status('volume', cls.VOLLY, 'available')
@@ -46,9 +44,7 @@ class VolumeSnapshotTests(common.BaseVolumeTests):
         """Test create, delete multiple"""
         name1 = uuid.uuid4().hex
         cmd_output = self.openstack(
-            'volume snapshot create ' +
-            name1 +
-            ' --volume ' + self.VOLLY,
+            'volume snapshot create ' + name1 + ' --volume ' + self.VOLLY,
             parse_output=True,
         )
         self.assertEqual(
@@ -58,9 +54,7 @@ class VolumeSnapshotTests(common.BaseVolumeTests):
 
         name2 = uuid.uuid4().hex
         cmd_output = self.openstack(
-            'volume snapshot create ' +
-            name2 +
-            ' --volume ' + self.VOLLY,
+            'volume snapshot create ' + name2 + ' --volume ' + self.VOLLY,
             parse_output=True,
         )
         self.assertEqual(
@@ -72,7 +66,8 @@ class VolumeSnapshotTests(common.BaseVolumeTests):
         self.wait_for_status('volume snapshot', name2, 'available')
 
         del_output = self.openstack(
-            'volume snapshot delete ' + name1 + ' ' + name2)
+            'volume snapshot delete ' + name1 + ' ' + name2
+        )
         self.assertOutput('', del_output)
         self.wait_for_delete('volume snapshot', name1)
         self.wait_for_delete('volume snapshot', name2)
@@ -81,9 +76,7 @@ class VolumeSnapshotTests(common.BaseVolumeTests):
         """Test create, list filter"""
         name1 = uuid.uuid4().hex
         cmd_output = self.openstack(
-            'volume snapshot create ' +
-            name1 +
-            ' --volume ' + self.VOLLY,
+            'volume snapshot create ' + name1 + ' --volume ' + self.VOLLY,
             parse_output=True,
         )
         self.addCleanup(self.wait_for_delete, 'volume snapshot', name1)
@@ -104,9 +97,7 @@ class VolumeSnapshotTests(common.BaseVolumeTests):
 
         name2 = uuid.uuid4().hex
         cmd_output = self.openstack(
-            'volume snapshot create ' +
-            name2 +
-            ' --volume ' + self.VOLLY,
+            'volume snapshot create ' + name2 + ' --volume ' + self.VOLLY,
             parse_output=True,
         )
         self.addCleanup(self.wait_for_delete, 'volume snapshot', name2)
@@ -127,9 +118,7 @@ class VolumeSnapshotTests(common.BaseVolumeTests):
 
         # Test list --long, --status
         cmd_output = self.openstack(
-            'volume snapshot list ' +
-            '--long ' +
-            '--status error',
+            'volume snapshot list ' + '--long ' + '--status error',
             parse_output=True,
         )
         names = [x["Name"] for x in cmd_output]
@@ -138,8 +127,7 @@ class VolumeSnapshotTests(common.BaseVolumeTests):
 
         # Test list --volume
         cmd_output = self.openstack(
-            'volume snapshot list ' +
-            '--volume ' + self.VOLLY,
+            'volume snapshot list ' + '--volume ' + self.VOLLY,
             parse_output=True,
         )
         names = [x["Name"] for x in cmd_output]
@@ -148,8 +136,7 @@ class VolumeSnapshotTests(common.BaseVolumeTests):
 
         # Test list --name
         cmd_output = self.openstack(
-            'volume snapshot list ' +
-            '--name ' + name1,
+            'volume snapshot list ' + '--name ' + name1,
             parse_output=True,
         )
         names = [x["Name"] for x in cmd_output]
@@ -161,10 +148,11 @@ class VolumeSnapshotTests(common.BaseVolumeTests):
         name = uuid.uuid4().hex
         new_name = name + "_"
         cmd_output = self.openstack(
-            'volume snapshot create ' +
-            '--volume ' + self.VOLLY +
-            ' --description aaaa ' +
-            name,
+            'volume snapshot create '
+            + '--volume '
+            + self.VOLLY
+            + ' --description aaaa '
+            + name,
             parse_output=True,
         )
         self.addCleanup(self.wait_for_delete, 'volume snapshot', new_name)
@@ -185,19 +173,19 @@ class VolumeSnapshotTests(common.BaseVolumeTests):
 
         # Test volume snapshot set
         raw_output = self.openstack(
-            'volume snapshot set ' +
-            '--name ' + new_name +
-            ' --description bbbb ' +
-            '--property Alpha=a ' +
-            '--property Beta=b ' +
-            name,
+            'volume snapshot set '
+            + '--name '
+            + new_name
+            + ' --description bbbb '
+            + '--property Alpha=a '
+            + '--property Beta=b '
+            + name,
         )
         self.assertOutput('', raw_output)
 
         # Show snapshot set result
         cmd_output = self.openstack(
-            'volume snapshot show ' +
-            new_name,
+            'volume snapshot show ' + new_name,
             parse_output=True,
         )
         self.assertEqual(
@@ -219,15 +207,12 @@ class VolumeSnapshotTests(common.BaseVolumeTests):
 
         # Test volume unset
         raw_output = self.openstack(
-            'volume snapshot unset ' +
-            '--property Alpha ' +
-            new_name,
+            'volume snapshot unset ' + '--property Alpha ' + new_name,
         )
         self.assertOutput('', raw_output)
 
         cmd_output = self.openstack(
-            'volume snapshot show ' +
-            new_name,
+            'volume snapshot show ' + new_name,
             parse_output=True,
         )
         self.assertEqual(
@@ -237,14 +222,11 @@ class VolumeSnapshotTests(common.BaseVolumeTests):
 
         # Test volume snapshot set --no-property
         raw_output = self.openstack(
-            'volume snapshot set ' +
-            '--no-property ' +
-            new_name,
+            'volume snapshot set ' + '--no-property ' + new_name,
         )
         self.assertOutput('', raw_output)
         cmd_output = self.openstack(
-            'volume snapshot show ' +
-            new_name,
+            'volume snapshot show ' + new_name,
             parse_output=True,
         )
         self.assertEqual({}, cmd_output["properties"])

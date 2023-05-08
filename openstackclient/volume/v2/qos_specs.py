@@ -48,10 +48,12 @@ class AssociateQos(command.Command):
 
     def take_action(self, parsed_args):
         volume_client = self.app.client_manager.volume
-        qos_spec = utils.find_resource(volume_client.qos_specs,
-                                       parsed_args.qos_spec)
-        volume_type = utils.find_resource(volume_client.volume_types,
-                                          parsed_args.volume_type)
+        qos_spec = utils.find_resource(
+            volume_client.qos_specs, parsed_args.qos_spec
+        )
+        volume_type = utils.find_resource(
+            volume_client.volume_types, parsed_args.volume_type
+        )
 
         volume_client.qos_specs.associate(qos_spec.id, volume_type.id)
 
@@ -72,16 +74,22 @@ class CreateQos(command.ShowOne):
             metavar='<consumer>',
             choices=consumer_choices,
             default='both',
-            help=(_('Consumer of the QoS. Valid consumers: %s '
-                  "(defaults to 'both')") %
-                  utils.format_list(consumer_choices))
+            help=(
+                _(
+                    'Consumer of the QoS. Valid consumers: %s '
+                    "(defaults to 'both')"
+                )
+                % utils.format_list(consumer_choices)
+            ),
         )
         parser.add_argument(
             '--property',
             metavar='<key=value>',
             action=parseractions.KeyValueAction,
-            help=_('Set a QoS specification property '
-                   '(repeat option to set multiple properties)'),
+            help=_(
+                'Set a QoS specification property '
+                '(repeat option to set multiple properties)'
+            ),
         )
         return parser
 
@@ -96,8 +104,11 @@ class CreateQos(command.ShowOne):
         qos_spec = volume_client.qos_specs.create(parsed_args.name, specs)
 
         qos_spec._info.update(
-            {'properties':
-             format_columns.DictColumn(qos_spec._info.pop('specs'))}
+            {
+                'properties': format_columns.DictColumn(
+                    qos_spec._info.pop('specs')
+                )
+            }
         )
         return zip(*sorted(qos_spec._info.items()))
 
@@ -117,7 +128,7 @@ class DeleteQos(command.Command):
             '--force',
             action='store_true',
             default=False,
-            help=_("Allow to delete in-use QoS specification(s)")
+            help=_("Allow to delete in-use QoS specification(s)"),
         )
         return parser
 
@@ -131,14 +142,20 @@ class DeleteQos(command.Command):
                 volume_client.qos_specs.delete(qos_spec.id, parsed_args.force)
             except Exception as e:
                 result += 1
-                LOG.error(_("Failed to delete QoS specification with "
-                            "name or ID '%(qos)s': %(e)s")
-                          % {'qos': i, 'e': e})
+                LOG.error(
+                    _(
+                        "Failed to delete QoS specification with "
+                        "name or ID '%(qos)s': %(e)s"
+                    )
+                    % {'qos': i, 'e': e}
+                )
 
         if result > 0:
             total = len(parsed_args.qos_specs)
-            msg = (_("%(result)s of %(total)s QoS specifications failed"
-                   " to delete.") % {'result': result, 'total': total})
+            msg = _(
+                "%(result)s of %(total)s QoS specifications failed"
+                " to delete."
+            ) % {'result': result, 'total': total}
             raise exceptions.CommandError(msg)
 
 
@@ -169,12 +186,14 @@ class DisassociateQos(command.Command):
 
     def take_action(self, parsed_args):
         volume_client = self.app.client_manager.volume
-        qos_spec = utils.find_resource(volume_client.qos_specs,
-                                       parsed_args.qos_spec)
+        qos_spec = utils.find_resource(
+            volume_client.qos_specs, parsed_args.qos_spec
+        )
 
         if parsed_args.volume_type:
-            volume_type = utils.find_resource(volume_client.volume_types,
-                                              parsed_args.volume_type)
+            volume_type = utils.find_resource(
+                volume_client.volume_types, parsed_args.volume_type
+            )
             volume_client.qos_specs.disassociate(qos_spec.id, volume_type.id)
         elif parsed_args.all:
             volume_client.qos_specs.disassociate_all(qos_spec.id)
@@ -204,17 +223,28 @@ class ListQos(command.Lister):
                     raise
 
         display_columns = (
-            'ID', 'Name', 'Consumer', 'Associations', 'Properties')
+            'ID',
+            'Name',
+            'Consumer',
+            'Associations',
+            'Properties',
+        )
 
         columns = ('ID', 'Name', 'Consumer', 'Associations', 'Specs')
-        return (display_columns,
-                (utils.get_dict_properties(
-                    s._info, columns,
+        return (
+            display_columns,
+            (
+                utils.get_dict_properties(
+                    s._info,
+                    columns,
                     formatters={
                         'Specs': format_columns.DictColumn,
-                        'Associations': format_columns.ListColumn
+                        'Associations': format_columns.ListColumn,
                     },
-                ) for s in qos_specs_list))
+                )
+                for s in qos_specs_list
+            ),
+        )
 
 
 class SetQos(command.Command):
@@ -231,19 +261,21 @@ class SetQos(command.Command):
             '--property',
             metavar='<key=value>',
             action=parseractions.KeyValueAction,
-            help=_('Property to add or modify for this QoS specification '
-                   '(repeat option to set multiple properties)'),
+            help=_(
+                'Property to add or modify for this QoS specification '
+                '(repeat option to set multiple properties)'
+            ),
         )
         return parser
 
     def take_action(self, parsed_args):
         volume_client = self.app.client_manager.volume
-        qos_spec = utils.find_resource(volume_client.qos_specs,
-                                       parsed_args.qos_spec)
+        qos_spec = utils.find_resource(
+            volume_client.qos_specs, parsed_args.qos_spec
+        )
 
         if parsed_args.property:
-            volume_client.qos_specs.set_keys(qos_spec.id,
-                                             parsed_args.property)
+            volume_client.qos_specs.set_keys(qos_spec.id, parsed_args.property)
 
 
 class ShowQos(command.ShowOne):
@@ -260,19 +292,25 @@ class ShowQos(command.ShowOne):
 
     def take_action(self, parsed_args):
         volume_client = self.app.client_manager.volume
-        qos_spec = utils.find_resource(volume_client.qos_specs,
-                                       parsed_args.qos_spec)
+        qos_spec = utils.find_resource(
+            volume_client.qos_specs, parsed_args.qos_spec
+        )
 
         qos_associations = volume_client.qos_specs.get_associations(qos_spec)
         if qos_associations:
-            associations = [association.name
-                            for association in qos_associations]
-            qos_spec._info.update({
-                'associations': format_columns.ListColumn(associations)
-            })
+            associations = [
+                association.name for association in qos_associations
+            ]
+            qos_spec._info.update(
+                {'associations': format_columns.ListColumn(associations)}
+            )
         qos_spec._info.update(
-            {'properties':
-             format_columns.DictColumn(qos_spec._info.pop('specs'))})
+            {
+                'properties': format_columns.DictColumn(
+                    qos_spec._info.pop('specs')
+                )
+            }
+        )
 
         return zip(*sorted(qos_spec._info.items()))
 
@@ -292,16 +330,20 @@ class UnsetQos(command.Command):
             metavar='<key>',
             action='append',
             default=[],
-            help=_('Property to remove from the QoS specification. '
-                   '(repeat option to unset multiple properties)'),
+            help=_(
+                'Property to remove from the QoS specification. '
+                '(repeat option to unset multiple properties)'
+            ),
         )
         return parser
 
     def take_action(self, parsed_args):
         volume_client = self.app.client_manager.volume
-        qos_spec = utils.find_resource(volume_client.qos_specs,
-                                       parsed_args.qos_spec)
+        qos_spec = utils.find_resource(
+            volume_client.qos_specs, parsed_args.qos_spec
+        )
 
         if parsed_args.property:
-            volume_client.qos_specs.unset_keys(qos_spec.id,
-                                               parsed_args.property)
+            volume_client.qos_specs.unset_keys(
+                qos_spec.id, parsed_args.property
+            )

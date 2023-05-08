@@ -18,23 +18,23 @@ from openstackclient.volume.v3 import volume_group_snapshot
 
 
 class TestVolumeGroupSnapshot(volume_fakes.TestVolume):
-
     def setUp(self):
         super().setUp()
 
         self.volume_groups_mock = self.app.client_manager.volume.groups
         self.volume_groups_mock.reset_mock()
 
-        self.volume_group_snapshots_mock = \
+        self.volume_group_snapshots_mock = (
             self.app.client_manager.volume.group_snapshots
+        )
         self.volume_group_snapshots_mock.reset_mock()
 
 
 class TestVolumeGroupSnapshotCreate(TestVolumeGroupSnapshot):
-
     fake_volume_group = volume_fakes.create_one_volume_group()
-    fake_volume_group_snapshot = \
+    fake_volume_group_snapshot = (
         volume_fakes.create_one_volume_group_snapshot()
+    )
 
     columns = (
         'ID',
@@ -57,17 +57,21 @@ class TestVolumeGroupSnapshotCreate(TestVolumeGroupSnapshot):
         super().setUp()
 
         self.volume_groups_mock.get.return_value = self.fake_volume_group
-        self.volume_group_snapshots_mock.create.return_value = \
+        self.volume_group_snapshots_mock.create.return_value = (
             self.fake_volume_group_snapshot
-        self.volume_group_snapshots_mock.get.return_value = \
+        )
+        self.volume_group_snapshots_mock.get.return_value = (
             self.fake_volume_group_snapshot
+        )
 
         self.cmd = volume_group_snapshot.CreateVolumeGroupSnapshot(
-            self.app, None)
+            self.app, None
+        )
 
     def test_volume_group_snapshot_create(self):
-        self.app.client_manager.volume.api_version = \
-            api_versions.APIVersion('3.14')
+        self.app.client_manager.volume.api_version = api_versions.APIVersion(
+            '3.14'
+        )
 
         arglist = [
             self.fake_volume_group.id,
@@ -82,21 +86,27 @@ class TestVolumeGroupSnapshotCreate(TestVolumeGroupSnapshot):
         columns, data = self.cmd.take_action(parsed_args)
 
         self.volume_groups_mock.get.assert_called_once_with(
-            self.fake_volume_group.id)
+            self.fake_volume_group.id
+        )
         self.volume_group_snapshots_mock.create.assert_called_once_with(
-            self.fake_volume_group.id, None, None,
+            self.fake_volume_group.id,
+            None,
+            None,
         )
         self.assertEqual(self.columns, columns)
         self.assertCountEqual(self.data, data)
 
     def test_volume_group_snapshot_create_with_options(self):
-        self.app.client_manager.volume.api_version = \
-            api_versions.APIVersion('3.14')
+        self.app.client_manager.volume.api_version = api_versions.APIVersion(
+            '3.14'
+        )
 
         arglist = [
             self.fake_volume_group.id,
-            '--name', 'foo',
-            '--description', 'hello, world',
+            '--name',
+            'foo',
+            '--description',
+            'hello, world',
         ]
         verifylist = [
             ('volume_group', self.fake_volume_group.id),
@@ -108,16 +118,20 @@ class TestVolumeGroupSnapshotCreate(TestVolumeGroupSnapshot):
         columns, data = self.cmd.take_action(parsed_args)
 
         self.volume_groups_mock.get.assert_called_once_with(
-            self.fake_volume_group.id)
+            self.fake_volume_group.id
+        )
         self.volume_group_snapshots_mock.create.assert_called_once_with(
-            self.fake_volume_group.id, 'foo', 'hello, world',
+            self.fake_volume_group.id,
+            'foo',
+            'hello, world',
         )
         self.assertEqual(self.columns, columns)
         self.assertCountEqual(self.data, data)
 
     def test_volume_group_snapshot_create_pre_v314(self):
-        self.app.client_manager.volume.api_version = \
-            api_versions.APIVersion('3.13')
+        self.app.client_manager.volume.api_version = api_versions.APIVersion(
+            '3.13'
+        )
 
         arglist = [
             self.fake_volume_group.id,
@@ -130,32 +144,34 @@ class TestVolumeGroupSnapshotCreate(TestVolumeGroupSnapshot):
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
         exc = self.assertRaises(
-            exceptions.CommandError,
-            self.cmd.take_action,
-            parsed_args)
+            exceptions.CommandError, self.cmd.take_action, parsed_args
+        )
         self.assertIn(
-            '--os-volume-api-version 3.14 or greater is required',
-            str(exc))
+            '--os-volume-api-version 3.14 or greater is required', str(exc)
+        )
 
 
 class TestVolumeGroupSnapshotDelete(TestVolumeGroupSnapshot):
-
-    fake_volume_group_snapshot = \
+    fake_volume_group_snapshot = (
         volume_fakes.create_one_volume_group_snapshot()
+    )
 
     def setUp(self):
         super().setUp()
 
-        self.volume_group_snapshots_mock.get.return_value = \
+        self.volume_group_snapshots_mock.get.return_value = (
             self.fake_volume_group_snapshot
+        )
         self.volume_group_snapshots_mock.delete.return_value = None
 
         self.cmd = volume_group_snapshot.DeleteVolumeGroupSnapshot(
-            self.app, None)
+            self.app, None
+        )
 
     def test_volume_group_snapshot_delete(self):
-        self.app.client_manager.volume.api_version = \
-            api_versions.APIVersion('3.14')
+        self.app.client_manager.volume.api_version = api_versions.APIVersion(
+            '3.14'
+        )
 
         arglist = [
             self.fake_volume_group_snapshot.id,
@@ -173,8 +189,9 @@ class TestVolumeGroupSnapshotDelete(TestVolumeGroupSnapshot):
         self.assertIsNone(result)
 
     def test_volume_group_snapshot_delete_pre_v314(self):
-        self.app.client_manager.volume.api_version = \
-            api_versions.APIVersion('3.13')
+        self.app.client_manager.volume.api_version = api_versions.APIVersion(
+            '3.13'
+        )
 
         arglist = [
             self.fake_volume_group_snapshot.id,
@@ -185,16 +202,14 @@ class TestVolumeGroupSnapshotDelete(TestVolumeGroupSnapshot):
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
         exc = self.assertRaises(
-            exceptions.CommandError,
-            self.cmd.take_action,
-            parsed_args)
+            exceptions.CommandError, self.cmd.take_action, parsed_args
+        )
         self.assertIn(
-            '--os-volume-api-version 3.14 or greater is required',
-            str(exc))
+            '--os-volume-api-version 3.14 or greater is required', str(exc)
+        )
 
 
 class TestVolumeGroupSnapshotList(TestVolumeGroupSnapshot):
-
     fake_volume_group_snapshots = volume_fakes.create_volume_group_snapshots()
 
     columns = (
@@ -207,21 +222,25 @@ class TestVolumeGroupSnapshotList(TestVolumeGroupSnapshot):
             fake_volume_group_snapshot.id,
             fake_volume_group_snapshot.status,
             fake_volume_group_snapshot.name,
-        ) for fake_volume_group_snapshot in fake_volume_group_snapshots
+        )
+        for fake_volume_group_snapshot in fake_volume_group_snapshots
     ]
 
     def setUp(self):
         super().setUp()
 
-        self.volume_group_snapshots_mock.list.return_value = \
+        self.volume_group_snapshots_mock.list.return_value = (
             self.fake_volume_group_snapshots
+        )
 
         self.cmd = volume_group_snapshot.ListVolumeGroupSnapshot(
-            self.app, None)
+            self.app, None
+        )
 
     def test_volume_group_snapshot_list(self):
-        self.app.client_manager.volume.api_version = \
-            api_versions.APIVersion('3.14')
+        self.app.client_manager.volume.api_version = api_versions.APIVersion(
+            '3.14'
+        )
 
         arglist = [
             '--all-projects',
@@ -242,20 +261,19 @@ class TestVolumeGroupSnapshotList(TestVolumeGroupSnapshot):
         self.assertCountEqual(tuple(self.data), data)
 
     def test_volume_group_snapshot_list_pre_v314(self):
-        self.app.client_manager.volume.api_version = \
-            api_versions.APIVersion('3.13')
+        self.app.client_manager.volume.api_version = api_versions.APIVersion(
+            '3.13'
+        )
 
-        arglist = [
-        ]
+        arglist = []
         verifylist = [
             ('all_projects', False),
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
         exc = self.assertRaises(
-            exceptions.CommandError,
-            self.cmd.take_action,
-            parsed_args)
+            exceptions.CommandError, self.cmd.take_action, parsed_args
+        )
         self.assertIn(
-            '--os-volume-api-version 3.14 or greater is required',
-            str(exc))
+            '--os-volume-api-version 3.14 or greater is required', str(exc)
+        )

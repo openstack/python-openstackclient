@@ -70,10 +70,11 @@ def _check_size_arg(args):
     volume is not specified.
     """
 
-    if ((args.snapshot or args.source)
-            is None and args.size is None):
-        msg = _("--size is a required option if snapshot "
-                "or source volume is not specified.")
+    if (args.snapshot or args.source) is None and args.size is None:
+        msg = _(
+            "--size is a required option if snapshot "
+            "or source volume is not specified."
+        )
         raise exceptions.CommandError(msg)
 
 
@@ -91,8 +92,10 @@ class CreateVolume(command.ShowOne):
             '--size',
             metavar='<size>',
             type=int,
-            help=_("Volume size in GB (Required unless --snapshot or "
-                   "--source is specified)"),
+            help=_(
+                "Volume size in GB (Required unless --snapshot or "
+                "--source is specified)"
+            ),
         )
         parser.add_argument(
             '--type',
@@ -144,30 +147,32 @@ class CreateVolume(command.ShowOne):
             '--property',
             metavar='<key=value>',
             action=parseractions.KeyValueAction,
-            help=_('Set a property on this volume '
-                   '(repeat option to set multiple properties)'),
+            help=_(
+                'Set a property on this volume '
+                '(repeat option to set multiple properties)'
+            ),
         )
         bootable_group = parser.add_mutually_exclusive_group()
         bootable_group.add_argument(
             "--bootable",
             action="store_true",
-            help=_("Mark volume as bootable")
+            help=_("Mark volume as bootable"),
         )
         bootable_group.add_argument(
             "--non-bootable",
             action="store_true",
-            help=_("Mark volume as non-bootable (default)")
+            help=_("Mark volume as non-bootable (default)"),
         )
         readonly_group = parser.add_mutually_exclusive_group()
         readonly_group.add_argument(
             "--read-only",
             action="store_true",
-            help=_("Set volume to read-only access mode")
+            help=_("Set volume to read-only access mode"),
         )
         readonly_group.add_argument(
             "--read-write",
             action="store_true",
-            help=_("Set volume to read-write access mode (default)")
+            help=_("Set volume to read-write access mode (default)"),
         )
 
         return parser
@@ -229,11 +234,10 @@ class CreateVolume(command.ShowOne):
                     volume.id,
                     success_status=['available'],
                     error_status=['error'],
-                    sleep_time=1
+                    sleep_time=1,
                 ):
                     volume_client.volumes.set_bootable(
-                        volume.id,
-                        parsed_args.bootable
+                        volume.id, parsed_args.bootable
                     )
                 else:
                     msg = _(
@@ -250,11 +254,10 @@ class CreateVolume(command.ShowOne):
                     volume.id,
                     success_status=['available'],
                     error_status=['error'],
-                    sleep_time=1
+                    sleep_time=1,
                 ):
                     volume_client.volumes.update_readonly_flag(
-                        volume.id,
-                        parsed_args.read_only
+                        volume.id, parsed_args.read_only
                     )
                 else:
                     msg = _(
@@ -263,14 +266,20 @@ class CreateVolume(command.ShowOne):
                     )
                     raise exceptions.CommandError(msg)
             except Exception as e:
-                LOG.error(_("Failed to set volume read-only access "
-                            "mode flag: %s"), e)
+                LOG.error(
+                    _(
+                        "Failed to set volume read-only access "
+                        "mode flag: %s"
+                    ),
+                    e,
+                )
 
         # Map 'metadata' column to 'properties'
         volume._info.update(
             {
-                'properties':
-                format_columns.DictColumn(volume._info.pop('metadata')),
+                'properties': format_columns.DictColumn(
+                    volume._info.pop('metadata')
+                ),
                 'type': volume._info.pop('volume_type'),
             },
         )
@@ -299,8 +308,10 @@ class DeleteVolume(command.Command):
             '--force',
             action='store_true',
             default=False,
-            help=_('Attempt forced removal of volume(s), regardless of state '
-                   '(defaults to False)'),
+            help=_(
+                'Attempt forced removal of volume(s), regardless of state '
+                '(defaults to False)'
+            ),
         )
         return parser
 
@@ -310,22 +321,27 @@ class DeleteVolume(command.Command):
 
         for i in parsed_args.volumes:
             try:
-                volume_obj = utils.find_resource(
-                    volume_client.volumes, i)
+                volume_obj = utils.find_resource(volume_client.volumes, i)
                 if parsed_args.force:
                     volume_client.volumes.force_delete(volume_obj.id)
                 else:
                     volume_client.volumes.delete(volume_obj.id)
             except Exception as e:
                 result += 1
-                LOG.error(_("Failed to delete volume with "
-                            "name or ID '%(volume)s': %(e)s"),
-                          {'volume': i, 'e': e})
+                LOG.error(
+                    _(
+                        "Failed to delete volume with "
+                        "name or ID '%(volume)s': %(e)s"
+                    ),
+                    {'volume': i, 'e': e},
+                )
 
         if result > 0:
             total = len(parsed_args.volumes)
-            msg = (_("%(result)s of %(total)s volumes failed "
-                   "to delete.") % {'result': result, 'total': total})
+            msg = _("%(result)s of %(total)s volumes failed " "to delete.") % {
+                'result': result,
+                'total': total,
+            }
             raise exceptions.CommandError(msg)
 
 
@@ -373,7 +389,6 @@ class ListVolume(command.Lister):
         return parser
 
     def take_action(self, parsed_args):
-
         volume_client = self.app.client_manager.volume
         compute_client = self.app.client_manager.compute
 
@@ -423,7 +438,8 @@ class ListVolume(command.Lister):
             # Just forget it if there's any trouble
             pass
         AttachmentsColumnWithCache = functools.partial(
-            AttachmentsColumn, server_cache=server_cache)
+            AttachmentsColumn, server_cache=server_cache
+        )
 
         search_opts = {
             'all_tenants': parsed_args.all_projects,
@@ -439,14 +455,23 @@ class ListVolume(command.Lister):
             limit=parsed_args.limit,
         )
         column_headers = utils.backward_compat_col_lister(
-            column_headers, parsed_args.columns, {'Display Name': 'Name'})
+            column_headers, parsed_args.columns, {'Display Name': 'Name'}
+        )
 
-        return (column_headers,
-                (utils.get_item_properties(
-                    s, columns,
-                    formatters={'Metadata': format_columns.DictColumn,
-                                'Attachments': AttachmentsColumnWithCache},
-                ) for s in data))
+        return (
+            column_headers,
+            (
+                utils.get_item_properties(
+                    s,
+                    columns,
+                    formatters={
+                        'Metadata': format_columns.DictColumn,
+                        'Attachments': AttachmentsColumnWithCache,
+                    },
+                )
+                for s in data
+            ),
+        )
 
 
 class MigrateVolume(command.Command):
@@ -457,27 +482,34 @@ class MigrateVolume(command.Command):
         parser.add_argument(
             'volume',
             metavar="<volume>",
-            help=_("Volume to migrate (name or ID)")
+            help=_("Volume to migrate (name or ID)"),
         )
         parser.add_argument(
             '--host',
             metavar="<host>",
             required=True,
-            help=_("Destination host (takes the form: host@backend-name#pool)")
+            help=_(
+                "Destination host (takes the form: host@backend-name#pool)"
+            ),
         )
         parser.add_argument(
             '--force-host-copy',
             action="store_true",
-            help=_("Enable generic host-based force-migration, "
-                   "which bypasses driver optimizations")
+            help=_(
+                "Enable generic host-based force-migration, "
+                "which bypasses driver optimizations"
+            ),
         )
         return parser
 
     def take_action(self, parsed_args):
         volume_client = self.app.client_manager.volume
         volume = utils.find_resource(volume_client.volumes, parsed_args.volume)
-        volume_client.volumes.migrate_volume(volume.id, parsed_args.host,
-                                             parsed_args.force_host_copy,)
+        volume_client.volumes.migrate_volume(
+            volume.id,
+            parsed_args.host,
+            parsed_args.force_host_copy,
+        )
 
 
 class SetVolume(command.Command):
@@ -510,39 +542,43 @@ class SetVolume(command.Command):
             "--no-property",
             dest="no_property",
             action="store_true",
-            help=_("Remove all properties from <volume> "
-                   "(specify both --no-property and --property to "
-                   "remove the current properties before setting "
-                   "new properties.)"),
+            help=_(
+                "Remove all properties from <volume> "
+                "(specify both --no-property and --property to "
+                "remove the current properties before setting "
+                "new properties.)"
+            ),
         )
         parser.add_argument(
             '--property',
             metavar='<key=value>',
             action=parseractions.KeyValueAction,
-            help=_('Set a property on this volume '
-                   '(repeat option to set multiple properties)'),
+            help=_(
+                'Set a property on this volume '
+                '(repeat option to set multiple properties)'
+            ),
         )
         bootable_group = parser.add_mutually_exclusive_group()
         bootable_group.add_argument(
             "--bootable",
             action="store_true",
-            help=_("Mark volume as bootable")
+            help=_("Mark volume as bootable"),
         )
         bootable_group.add_argument(
             "--non-bootable",
             action="store_true",
-            help=_("Mark volume as non-bootable")
+            help=_("Mark volume as non-bootable"),
         )
         readonly_group = parser.add_mutually_exclusive_group()
         readonly_group.add_argument(
             "--read-only",
             action="store_true",
-            help=_("Set volume to read-only access mode")
+            help=_("Set volume to read-only access mode"),
         )
         readonly_group.add_argument(
             "--read-write",
             action="store_true",
-            help=_("Set volume to read-write access mode")
+            help=_("Set volume to read-write access mode"),
         )
         return parser
 
@@ -554,12 +590,18 @@ class SetVolume(command.Command):
         if parsed_args.size:
             try:
                 if volume.status != 'available':
-                    msg = (_("Volume is in %s state, it must be available "
-                           "before size can be extended") % volume.status)
+                    msg = (
+                        _(
+                            "Volume is in %s state, it must be available "
+                            "before size can be extended"
+                        )
+                        % volume.status
+                    )
                     raise exceptions.CommandError(msg)
                 if parsed_args.size <= volume.size:
-                    msg = (_("New size must be greater than %s GB")
-                           % volume.size)
+                    msg = (
+                        _("New size must be greater than %s GB") % volume.size
+                    )
                     raise exceptions.CommandError(msg)
                 volume_client.volumes.extend(volume.id, parsed_args.size)
             except Exception as e:
@@ -569,7 +611,8 @@ class SetVolume(command.Command):
         if parsed_args.no_property:
             try:
                 volume_client.volumes.delete_metadata(
-                    volume.id, volume.metadata.keys())
+                    volume.id, volume.metadata.keys()
+                )
             except Exception as e:
                 LOG.error(_("Failed to clean volume properties: %s"), e)
                 result += 1
@@ -577,26 +620,32 @@ class SetVolume(command.Command):
         if parsed_args.property:
             try:
                 volume_client.volumes.set_metadata(
-                    volume.id,
-                    parsed_args.property)
+                    volume.id, parsed_args.property
+                )
             except Exception as e:
                 LOG.error(_("Failed to set volume property: %s"), e)
                 result += 1
         if parsed_args.bootable or parsed_args.non_bootable:
             try:
                 volume_client.volumes.set_bootable(
-                    volume.id, parsed_args.bootable)
+                    volume.id, parsed_args.bootable
+                )
             except Exception as e:
                 LOG.error(_("Failed to set volume bootable property: %s"), e)
                 result += 1
         if parsed_args.read_only or parsed_args.read_write:
             try:
                 volume_client.volumes.update_readonly_flag(
-                    volume.id,
-                    parsed_args.read_only)
+                    volume.id, parsed_args.read_only
+                )
             except Exception as e:
-                LOG.error(_("Failed to set volume read-only access "
-                            "mode flag: %s"), e)
+                LOG.error(
+                    _(
+                        "Failed to set volume read-only access "
+                        "mode flag: %s"
+                    ),
+                    e,
+                )
                 result += 1
         kwargs = {}
         if parsed_args.name:
@@ -607,13 +656,19 @@ class SetVolume(command.Command):
             try:
                 volume_client.volumes.update(volume.id, **kwargs)
             except Exception as e:
-                LOG.error(_("Failed to update volume display name "
-                          "or display description: %s"), e)
+                LOG.error(
+                    _(
+                        "Failed to update volume display name "
+                        "or display description: %s"
+                    ),
+                    e,
+                )
                 result += 1
 
         if result > 0:
-            raise exceptions.CommandError(_("One or more of the "
-                                          "set operations failed"))
+            raise exceptions.CommandError(
+                _("One or more of the " "set operations failed")
+            )
 
 
 class ShowVolume(command.ShowOne):
@@ -634,15 +689,19 @@ class ShowVolume(command.ShowOne):
         # Map 'metadata' column to 'properties'
         volume._info.update(
             {
-                'properties':
-                format_columns.DictColumn(volume._info.pop('metadata')),
+                'properties': format_columns.DictColumn(
+                    volume._info.pop('metadata')
+                ),
                 'type': volume._info.pop('volume_type'),
             },
         )
         if 'os-vol-tenant-attr:tenant_id' in volume._info:
             volume._info.update(
-                {'project_id': volume._info.pop(
-                    'os-vol-tenant-attr:tenant_id')}
+                {
+                    'project_id': volume._info.pop(
+                        'os-vol-tenant-attr:tenant_id'
+                    )
+                }
             )
         # Replace "display_name" by "name", keep consistent in v1 and v2
         if 'display_name' in volume._info:
@@ -669,15 +728,16 @@ class UnsetVolume(command.Command):
             '--property',
             metavar='<key>',
             action='append',
-            help=_('Remove a property from volume '
-                   '(repeat option to remove multiple properties)'),
+            help=_(
+                'Remove a property from volume '
+                '(repeat option to remove multiple properties)'
+            ),
         )
         return parser
 
     def take_action(self, parsed_args):
         volume_client = self.app.client_manager.volume
-        volume = utils.find_resource(
-            volume_client.volumes, parsed_args.volume)
+        volume = utils.find_resource(volume_client.volumes, parsed_args.volume)
 
         if parsed_args.property:
             volume_client.volumes.delete_metadata(

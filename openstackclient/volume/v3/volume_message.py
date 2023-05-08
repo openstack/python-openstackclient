@@ -34,7 +34,7 @@ class DeleteMessage(command.Command):
             'message_ids',
             metavar='<message-id>',
             nargs='+',
-            help=_('Message(s) to delete (ID)')
+            help=_('Message(s) to delete (ID)'),
         )
 
         return parser
@@ -60,7 +60,8 @@ class DeleteMessage(command.Command):
         if errors > 0:
             total = len(parsed_args.message_ids)
             msg = _('Failed to delete %(errors)s of %(total)s messages.') % {
-                'errors': errors, 'total': total,
+                'errors': errors,
+                'total': total,
             }
             raise exceptions.CommandError(msg)
 
@@ -121,7 +122,8 @@ class ListMessages(command.Lister):
             project_id = identity_common.find_project(
                 identity_client,
                 parsed_args.project,
-                parsed_args.project_domain).id
+                parsed_args.project_domain,
+            ).id
 
         search_opts = {
             'project_id': project_id,
@@ -129,11 +131,12 @@ class ListMessages(command.Lister):
         data = volume_client.messages.list(
             search_opts=search_opts,
             marker=parsed_args.marker,
-            limit=parsed_args.limit)
+            limit=parsed_args.limit,
+        )
 
         return (
             column_headers,
-            (utils.get_item_properties(s, column_headers) for s in data)
+            (utils.get_item_properties(s, column_headers) for s in data),
         )
 
 
@@ -145,7 +148,7 @@ class ShowMessage(command.ShowOne):
         parser.add_argument(
             'message_id',
             metavar='<message-id>',
-            help=_('Message to show (ID).')
+            help=_('Message to show (ID).'),
         )
 
         return parser

@@ -26,7 +26,6 @@ from openstackclient.volume.v2 import volume_type
 
 
 class TestType(volume_fakes.TestVolume):
-
     def setUp(self):
         super().setUp()
 
@@ -34,11 +33,13 @@ class TestType(volume_fakes.TestVolume):
         self.types_mock.reset_mock()
 
         self.types_access_mock = (
-            self.app.client_manager.volume.volume_type_access)
+            self.app.client_manager.volume.volume_type_access
+        )
         self.types_access_mock.reset_mock()
 
         self.encryption_types_mock = (
-            self.app.client_manager.volume.volume_encryption_types)
+            self.app.client_manager.volume.volume_encryption_types
+        )
         self.encryption_types_mock.reset_mock()
 
         self.projects_mock = self.app.client_manager.identity.projects
@@ -46,7 +47,6 @@ class TestType(volume_fakes.TestVolume):
 
 
 class TestTypeCreate(TestType):
-
     project = identity_fakes.FakeProject.create_one_project()
     columns = (
         'description',
@@ -73,7 +73,8 @@ class TestTypeCreate(TestType):
 
     def test_type_create_public(self):
         arglist = [
-            "--description", self.new_volume_type.description,
+            "--description",
+            self.new_volume_type.description,
             "--public",
             self.new_volume_type.name,
         ]
@@ -97,9 +98,11 @@ class TestTypeCreate(TestType):
 
     def test_type_create_private(self):
         arglist = [
-            "--description", self.new_volume_type.description,
+            "--description",
+            self.new_volume_type.description,
             "--private",
-            "--project", self.project.id,
+            "--project",
+            self.project.id,
             self.new_volume_type.name,
         ]
         verifylist = [
@@ -123,7 +126,8 @@ class TestTypeCreate(TestType):
 
     def test_public_type_create_with_project(self):
         arglist = [
-            '--project', self.project.id,
+            '--project',
+            self.project.id,
             self.new_volume_type.name,
         ]
         verifylist = [
@@ -132,9 +136,9 @@ class TestTypeCreate(TestType):
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
-        self.assertRaises(exceptions.CommandError,
-                          self.cmd.take_action,
-                          parsed_args)
+        self.assertRaises(
+            exceptions.CommandError, self.cmd.take_action, parsed_args
+        )
 
     def test_type_create_with_encryption(self):
         encryption_info = {
@@ -166,10 +170,14 @@ class TestTypeCreate(TestType):
             self.new_volume_type.name,
         )
         arglist = [
-            '--encryption-provider', 'LuksEncryptor',
-            '--encryption-cipher', 'aes-xts-plain64',
-            '--encryption-key-size', '128',
-            '--encryption-control-location', 'front-end',
+            '--encryption-provider',
+            'LuksEncryptor',
+            '--encryption-cipher',
+            'aes-xts-plain64',
+            '--encryption-key-size',
+            '128',
+            '--encryption-control-location',
+            'front-end',
             self.new_volume_type.name,
         ]
         verifylist = [
@@ -201,7 +209,6 @@ class TestTypeCreate(TestType):
 
 
 class TestTypeDelete(TestType):
-
     volume_types = volume_fakes.create_volume_types(count=2)
 
     def setUp(self):
@@ -216,12 +223,8 @@ class TestTypeDelete(TestType):
         self.cmd = volume_type.DeleteVolumeType(self.app, None)
 
     def test_type_delete(self):
-        arglist = [
-            self.volume_types[0].id
-        ]
-        verifylist = [
-            ("volume_types", [self.volume_types[0].id])
-        ]
+        arglist = [self.volume_types[0].id]
+        verifylist = [("volume_types", [self.volume_types[0].id])]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
         result = self.cmd.take_action(parsed_args)
@@ -258,16 +261,17 @@ class TestTypeDelete(TestType):
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
         find_mock_result = [self.volume_types[0], exceptions.CommandError]
-        with mock.patch.object(utils, 'find_resource',
-                               side_effect=find_mock_result) as find_mock:
+        with mock.patch.object(
+            utils, 'find_resource', side_effect=find_mock_result
+        ) as find_mock:
             try:
                 self.cmd.take_action(parsed_args)
                 self.fail('CommandError should be raised.')
             except exceptions.CommandError as e:
-                self.assertEqual('1 of 2 volume types failed to delete.',
-                                 str(e))
-            find_mock.assert_any_call(
-                self.types_mock, self.volume_types[0].id)
+                self.assertEqual(
+                    '1 of 2 volume types failed to delete.', str(e)
+                )
+            find_mock.assert_any_call(self.types_mock, self.volume_types[0].id)
             find_mock.assert_any_call(self.types_mock, 'unexist_type')
 
             self.assertEqual(2, find_mock.call_count)
@@ -277,7 +281,6 @@ class TestTypeDelete(TestType):
 
 
 class TestTypeList(TestType):
-
     volume_types = volume_fakes.create_volume_types()
 
     columns = [
@@ -285,31 +288,28 @@ class TestTypeList(TestType):
         "Name",
         "Is Public",
     ]
-    columns_long = columns + [
-        "Description",
-        "Properties"
-    ]
-    data_with_default_type = [(
-        volume_types[0].id,
-        volume_types[0].name,
-        True
-    )]
+    columns_long = columns + ["Description", "Properties"]
+    data_with_default_type = [(volume_types[0].id, volume_types[0].name, True)]
     data = []
     for t in volume_types:
-        data.append((
-            t.id,
-            t.name,
-            t.is_public,
-        ))
+        data.append(
+            (
+                t.id,
+                t.name,
+                t.is_public,
+            )
+        )
     data_long = []
     for t in volume_types:
-        data_long.append((
-            t.id,
-            t.name,
-            t.is_public,
-            t.description,
-            format_columns.DictColumn(t.extra_specs),
-        ))
+        data_long.append(
+            (
+                t.id,
+                t.name,
+                t.is_public,
+                t.description,
+                format_columns.DictColumn(t.extra_specs),
+            )
+        )
 
     def setUp(self):
         super().setUp()
@@ -401,21 +401,25 @@ class TestTypeList(TestType):
             "Encryption",
         ]
         encryption_data = []
-        encryption_data.append((
-            self.volume_types[0].id,
-            self.volume_types[0].name,
-            self.volume_types[0].is_public,
-            volume_type.EncryptionInfoColumn(
+        encryption_data.append(
+            (
                 self.volume_types[0].id,
-                {self.volume_types[0].id: encryption_info}),
-        ))
-        encryption_data.append((
-            self.volume_types[1].id,
-            self.volume_types[1].name,
-            self.volume_types[1].is_public,
-            volume_type.EncryptionInfoColumn(
-                self.volume_types[1].id, {}),
-        ))
+                self.volume_types[0].name,
+                self.volume_types[0].is_public,
+                volume_type.EncryptionInfoColumn(
+                    self.volume_types[0].id,
+                    {self.volume_types[0].id: encryption_info},
+                ),
+            )
+        )
+        encryption_data.append(
+            (
+                self.volume_types[1].id,
+                self.volume_types[1].name,
+                self.volume_types[1].is_public,
+                volume_type.EncryptionInfoColumn(self.volume_types[1].id, {}),
+            )
+        )
 
         self.encryption_types_mock.list.return_value = [encryption_type]
         arglist = [
@@ -434,7 +438,6 @@ class TestTypeList(TestType):
 
 
 class TestTypeSet(TestType):
-
     project = identity_fakes.FakeProject.create_one_project()
     volume_type = volume_fakes.create_one_volume_type(
         methods={'set_keys': None},
@@ -455,7 +458,8 @@ class TestTypeSet(TestType):
     def test_type_set_name(self):
         new_name = 'new_name'
         arglist = [
-            '--name', new_name,
+            '--name',
+            new_name,
             self.volume_type.id,
         ]
         verifylist = [
@@ -473,15 +477,15 @@ class TestTypeSet(TestType):
             'name': new_name,
         }
         self.types_mock.update.assert_called_with(
-            self.volume_type.id,
-            **kwargs
+            self.volume_type.id, **kwargs
         )
         self.assertIsNone(result)
 
     def test_type_set_description(self):
         new_desc = 'new_desc'
         arglist = [
-            '--description', new_desc,
+            '--description',
+            new_desc,
             self.volume_type.id,
         ]
         verifylist = [
@@ -499,14 +503,14 @@ class TestTypeSet(TestType):
             'description': new_desc,
         }
         self.types_mock.update.assert_called_with(
-            self.volume_type.id,
-            **kwargs
+            self.volume_type.id, **kwargs
         )
         self.assertIsNone(result)
 
     def test_type_set_property(self):
         arglist = [
-            '--property', 'myprop=myvalue',
+            '--property',
+            'myprop=myvalue',
             self.volume_type.id,
         ]
         verifylist = [
@@ -519,12 +523,14 @@ class TestTypeSet(TestType):
 
         result = self.cmd.take_action(parsed_args)
         self.volume_type.set_keys.assert_called_once_with(
-            {'myprop': 'myvalue'})
+            {'myprop': 'myvalue'}
+        )
         self.assertIsNone(result)
 
     def test_type_set_not_called_without_project_argument(self):
         arglist = [
-            '--project', '',
+            '--project',
+            '',
             self.volume_type.id,
         ]
         verifylist = [
@@ -541,21 +547,25 @@ class TestTypeSet(TestType):
 
     def test_type_set_failed_with_missing_volume_type_argument(self):
         arglist = [
-            '--project', 'identity_fakes.project_id',
+            '--project',
+            'identity_fakes.project_id',
         ]
         verifylist = [
             ('project', 'identity_fakes.project_id'),
         ]
 
-        self.assertRaises(tests_utils.ParserException,
-                          self.check_parser,
-                          self.cmd,
-                          arglist,
-                          verifylist)
+        self.assertRaises(
+            tests_utils.ParserException,
+            self.check_parser,
+            self.cmd,
+            arglist,
+            verifylist,
+        )
 
     def test_type_set_project_access(self):
         arglist = [
-            '--project', self.project.id,
+            '--project',
+            self.project.id,
             self.volume_type.id,
         ]
         verifylist = [
@@ -573,13 +583,18 @@ class TestTypeSet(TestType):
         )
 
     def test_type_set_new_encryption(self):
-        self.encryption_types_mock.update.side_effect = (
-            exceptions.NotFound('NotFound'))
+        self.encryption_types_mock.update.side_effect = exceptions.NotFound(
+            'NotFound'
+        )
         arglist = [
-            '--encryption-provider', 'LuksEncryptor',
-            '--encryption-cipher', 'aes-xts-plain64',
-            '--encryption-key-size', '128',
-            '--encryption-control-location', 'front-end',
+            '--encryption-provider',
+            'LuksEncryptor',
+            '--encryption-cipher',
+            'aes-xts-plain64',
+            '--encryption-key-size',
+            '128',
+            '--encryption-control-location',
+            'front-end',
             self.volume_type.id,
         ]
         verifylist = [
@@ -610,12 +625,14 @@ class TestTypeSet(TestType):
 
     @mock.patch.object(utils, 'find_resource')
     def test_type_set_existing_encryption(self, mock_find):
-        mock_find.side_effect = [self.volume_type,
-                                 "existing_encryption_type"]
+        mock_find.side_effect = [self.volume_type, "existing_encryption_type"]
         arglist = [
-            '--encryption-provider', 'LuksEncryptor',
-            '--encryption-cipher', 'aes-xts-plain64',
-            '--encryption-control-location', 'front-end',
+            '--encryption-provider',
+            'LuksEncryptor',
+            '--encryption-cipher',
+            'aes-xts-plain64',
+            '--encryption-control-location',
+            'front-end',
             self.volume_type.id,
         ]
         verifylist = [
@@ -640,12 +657,16 @@ class TestTypeSet(TestType):
         self.assertIsNone(result)
 
     def test_type_set_new_encryption_without_provider(self):
-        self.encryption_types_mock.update.side_effect = (
-            exceptions.NotFound('NotFound'))
+        self.encryption_types_mock.update.side_effect = exceptions.NotFound(
+            'NotFound'
+        )
         arglist = [
-            '--encryption-cipher', 'aes-xts-plain64',
-            '--encryption-key-size', '128',
-            '--encryption-control-location', 'front-end',
+            '--encryption-cipher',
+            'aes-xts-plain64',
+            '--encryption-key-size',
+            '128',
+            '--encryption-control-location',
+            'front-end',
             self.volume_type.id,
         ]
         verifylist = [
@@ -659,9 +680,10 @@ class TestTypeSet(TestType):
             self.cmd.take_action(parsed_args)
             self.fail('CommandError should be raised.')
         except exceptions.CommandError as e:
-            self.assertEqual("Command Failed: One or more of"
-                             " the operations failed",
-                             str(e))
+            self.assertEqual(
+                "Command Failed: One or more of" " the operations failed",
+                str(e),
+            )
         body = {
             'cipher': 'aes-xts-plain64',
             'key_size': 128,
@@ -675,7 +697,6 @@ class TestTypeSet(TestType):
 
 
 class TestTypeShow(TestType):
-
     columns = (
         'access_project_ids',
         'description',
@@ -695,7 +716,7 @@ class TestTypeShow(TestType):
             self.volume_type.id,
             True,
             self.volume_type.name,
-            format_columns.DictColumn(self.volume_type.extra_specs)
+            format_columns.DictColumn(self.volume_type.extra_specs),
         )
 
         self.types_mock.get.return_value = self.volume_type
@@ -704,12 +725,10 @@ class TestTypeShow(TestType):
         self.cmd = volume_type.ShowVolumeType(self.app, None)
 
     def test_type_show(self):
-        arglist = [
-            self.volume_type.id
-        ]
+        arglist = [self.volume_type.id]
         verifylist = [
             ("encryption_type", False),
-            ("volume_type", self.volume_type.id)
+            ("volume_type", self.volume_type.id),
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
@@ -720,12 +739,8 @@ class TestTypeShow(TestType):
         self.assertCountEqual(self.data, data)
 
     def test_type_show_with_access(self):
-        arglist = [
-            self.volume_type.id
-        ]
-        verifylist = [
-            ("volume_type", self.volume_type.id)
-        ]
+        arglist = [self.volume_type.id]
+        verifylist = [("volume_type", self.volume_type.id)]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
         private_type = volume_fakes.create_one_volume_type(
@@ -744,9 +759,11 @@ class TestTypeShow(TestType):
             ):
                 columns, data = self.cmd.take_action(parsed_args)
                 self.types_mock.get.assert_called_once_with(
-                    self.volume_type.id)
+                    self.volume_type.id
+                )
                 self.types_access_mock.list.assert_called_once_with(
-                    private_type.id)
+                    private_type.id
+                )
 
         self.assertEqual(self.columns, columns)
         private_type_data = (
@@ -755,31 +772,31 @@ class TestTypeShow(TestType):
             private_type.id,
             private_type.is_public,
             private_type.name,
-            format_columns.DictColumn(private_type.extra_specs)
+            format_columns.DictColumn(private_type.extra_specs),
         )
         self.assertCountEqual(private_type_data, data)
 
     def test_type_show_with_list_access_exec(self):
-        arglist = [
-            self.volume_type.id
-        ]
-        verifylist = [
-            ("volume_type", self.volume_type.id)
-        ]
+        arglist = [self.volume_type.id]
+        verifylist = [("volume_type", self.volume_type.id)]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
         private_type = volume_fakes.create_one_volume_type(
             attrs={'is_public': False},
         )
-        with mock.patch.object(self.types_mock, 'get',
-                               return_value=private_type):
-            with mock.patch.object(self.types_access_mock, 'list',
-                                   side_effect=Exception()):
+        with mock.patch.object(
+            self.types_mock, 'get', return_value=private_type
+        ):
+            with mock.patch.object(
+                self.types_access_mock, 'list', side_effect=Exception()
+            ):
                 columns, data = self.cmd.take_action(parsed_args)
                 self.types_mock.get.assert_called_once_with(
-                    self.volume_type.id)
+                    self.volume_type.id
+                )
                 self.types_access_mock.list.assert_called_once_with(
-                    private_type.id)
+                    private_type.id
+                )
 
         self.assertEqual(self.columns, columns)
         private_type_data = (
@@ -788,7 +805,7 @@ class TestTypeShow(TestType):
             private_type.id,
             private_type.is_public,
             private_type.name,
-            format_columns.DictColumn(private_type.extra_specs)
+            format_columns.DictColumn(private_type.extra_specs),
         )
         self.assertCountEqual(private_type_data, data)
 
@@ -821,15 +838,12 @@ class TestTypeShow(TestType):
             self.volume_type.id,
             True,
             self.volume_type.name,
-            format_columns.DictColumn(self.volume_type.extra_specs)
+            format_columns.DictColumn(self.volume_type.extra_specs),
         )
-        arglist = [
-            '--encryption-type',
-            self.volume_type.id
-        ]
+        arglist = ['--encryption-type', self.volume_type.id]
         verifylist = [
             ('encryption_type', True),
-            ("volume_type", self.volume_type.id)
+            ("volume_type", self.volume_type.id),
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
@@ -841,7 +855,6 @@ class TestTypeShow(TestType):
 
 
 class TestTypeUnset(TestType):
-
     project = identity_fakes.FakeProject.create_one_project()
     volume_type = volume_fakes.create_one_volume_type(
         methods={'unset_keys': None},
@@ -860,8 +873,10 @@ class TestTypeUnset(TestType):
 
     def test_type_unset(self):
         arglist = [
-            '--property', 'property',
-            '--property', 'multi_property',
+            '--property',
+            'property',
+            '--property',
+            'multi_property',
             self.volume_type.id,
         ]
         verifylist = [
@@ -873,12 +888,14 @@ class TestTypeUnset(TestType):
 
         result = self.cmd.take_action(parsed_args)
         self.volume_type.unset_keys.assert_called_once_with(
-            ['property', 'multi_property'])
+            ['property', 'multi_property']
+        )
         self.assertIsNone(result)
 
     def test_type_unset_project_access(self):
         arglist = [
-            '--project', self.project.id,
+            '--project',
+            self.project.id,
             self.volume_type.id,
         ]
         verifylist = [
@@ -897,7 +914,8 @@ class TestTypeUnset(TestType):
 
     def test_type_unset_not_called_without_project_argument(self):
         arglist = [
-            '--project', '',
+            '--project',
+            '',
             self.volume_type.id,
         ]
         verifylist = [
@@ -915,17 +933,20 @@ class TestTypeUnset(TestType):
 
     def test_type_unset_failed_with_missing_volume_type_argument(self):
         arglist = [
-            '--project', 'identity_fakes.project_id',
+            '--project',
+            'identity_fakes.project_id',
         ]
         verifylist = [
             ('project', 'identity_fakes.project_id'),
         ]
 
-        self.assertRaises(tests_utils.ParserException,
-                          self.check_parser,
-                          self.cmd,
-                          arglist,
-                          verifylist)
+        self.assertRaises(
+            tests_utils.ParserException,
+            self.check_parser,
+            self.cmd,
+            arglist,
+            verifylist,
+        )
 
     def test_type_unset_encryption_type(self):
         arglist = [
@@ -944,7 +965,6 @@ class TestTypeUnset(TestType):
 
 
 class TestColumns(TestType):
-
     def test_encryption_info_column_with_info(self):
         fake_volume_type = volume_fakes.create_one_volume_type()
         type_id = fake_volume_type.id
@@ -955,10 +975,12 @@ class TestColumns(TestType):
             'key_size': None,
             'control_location': 'front-end',
         }
-        col = volume_type.EncryptionInfoColumn(type_id,
-                                               {type_id: encryption_info})
-        self.assertEqual(utils.format_dict(encryption_info),
-                         col.human_readable())
+        col = volume_type.EncryptionInfoColumn(
+            type_id, {type_id: encryption_info}
+        )
+        self.assertEqual(
+            utils.format_dict(encryption_info), col.human_readable()
+        )
         self.assertEqual(encryption_info, col.machine_readable())
 
     def test_encryption_info_column_without_info(self):

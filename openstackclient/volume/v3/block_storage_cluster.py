@@ -76,7 +76,9 @@ class ListBlockStorageCluster(command.Lister):
     def get_parser(self, prog_name):
         parser = super().get_parser(prog_name)
         parser.add_argument(
-            '--cluster', metavar='<name>', default=None,
+            '--cluster',
+            metavar='<name>',
+            default=None,
             help=_(
                 'Filter by cluster name, without backend will list '
                 'all clustered services from the same cluster.'
@@ -131,7 +133,7 @@ class ListBlockStorageCluster(command.Lister):
             '--long',
             action='store_true',
             default=False,
-            help=_("List additional fields in output")
+            help=_("List additional fields in output"),
         )
         return parser
 
@@ -183,7 +185,7 @@ class SetBlockStorageCluster(command.Command):
         parser.add_argument(
             'cluster',
             metavar='<cluster>',
-            help=_('Name of block storage cluster to update (name only)')
+            help=_('Name of block storage cluster to update (name only)'),
         )
         parser.add_argument(
             '--binary',
@@ -192,7 +194,7 @@ class SetBlockStorageCluster(command.Command):
             help=_(
                 "Name of binary to filter by; defaults to 'cinder-volume' "
                 "(optional)"
-            )
+            ),
         )
         enabled_group = parser.add_mutually_exclusive_group()
         enabled_group.add_argument(
@@ -200,13 +202,13 @@ class SetBlockStorageCluster(command.Command):
             action='store_false',
             dest='disabled',
             default=None,
-            help=_('Enable cluster')
+            help=_('Enable cluster'),
         )
         enabled_group.add_argument(
             '--disable',
             action='store_true',
             dest='disabled',
-            help=_('Disable cluster')
+            help=_('Disable cluster'),
         )
         parser.add_argument(
             '--disable-reason',
@@ -215,7 +217,7 @@ class SetBlockStorageCluster(command.Command):
             help=_(
                 'Reason for disabling the cluster '
                 '(should be used with --disable option)'
-            )
+            ),
         )
         return parser
 

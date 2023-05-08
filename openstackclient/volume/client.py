@@ -60,6 +60,7 @@ def make_client(instance):
     else:
         version = instance._api_version[API_NAME]
         from cinderclient import api_versions
+
         # convert to APIVersion object
         version = api_versions.get_api_version(version)
 
@@ -69,9 +70,7 @@ def make_client(instance):
         volume_snapshots.Snapshot.NAME_ATTR = 'display_name'
 
     volume_client = utils.get_client_class(
-        API_NAME,
-        version.ver_major,
-        API_VERSIONS
+        API_NAME, version.ver_major, API_VERSIONS
     )
     LOG.debug('Instantiating volume client: %s', volume_client)
 
@@ -84,7 +83,8 @@ def make_client(instance):
     kwargs = utils.build_kwargs_dict('endpoint_type', instance.interface)
 
     endpoint_override = instance.sdk_connection.config.get_endpoint(
-        'block-storage')
+        'block-storage'
+    )
 
     client = volume_client(
         session=instance.session,
@@ -105,8 +105,10 @@ def build_option_parser(parser):
         '--os-volume-api-version',
         metavar='<volume-api-version>',
         default=utils.env('OS_VOLUME_API_VERSION'),
-        help=_('Volume API version, default=%s '
-               '(Env: OS_VOLUME_API_VERSION)') % DEFAULT_API_VERSION
+        help=_(
+            'Volume API version, default=%s ' '(Env: OS_VOLUME_API_VERSION)'
+        )
+        % DEFAULT_API_VERSION,
     )
     return parser
 

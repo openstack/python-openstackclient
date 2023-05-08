@@ -36,7 +36,6 @@ NAME = 'PhilSpector'
 
 
 class TestFindResourceVolumes(test_utils.TestCase):
-
     def setUp(self):
         super(TestFindResourceVolumes, self).setUp()
         api = mock.Mock()
@@ -44,8 +43,7 @@ class TestFindResourceVolumes(test_utils.TestCase):
         api.client.get = mock.Mock()
         resp = mock.Mock()
         body = {"volumes": [{"id": ID, 'display_name': NAME}]}
-        api.client.get.side_effect = [Exception("Not found"),
-                                      (resp, body)]
+        api.client.get.side_effect = [Exception("Not found"), (resp, body)]
         self.manager = volumes.VolumeManager(api)
 
     def test_find(self):
@@ -54,12 +52,15 @@ class TestFindResourceVolumes(test_utils.TestCase):
         self.assertEqual(NAME, result.display_name)
 
     def test_not_find(self):
-        self.assertRaises(exceptions.CommandError, utils.find_resource,
-                          self.manager, 'GeorgeMartin')
+        self.assertRaises(
+            exceptions.CommandError,
+            utils.find_resource,
+            self.manager,
+            'GeorgeMartin',
+        )
 
 
 class TestFindResourceVolumeSnapshots(test_utils.TestCase):
-
     def setUp(self):
         super(TestFindResourceVolumeSnapshots, self).setUp()
         api = mock.Mock()
@@ -67,8 +68,7 @@ class TestFindResourceVolumeSnapshots(test_utils.TestCase):
         api.client.get = mock.Mock()
         resp = mock.Mock()
         body = {"snapshots": [{"id": ID, 'display_name': NAME}]}
-        api.client.get.side_effect = [Exception("Not found"),
-                                      (resp, body)]
+        api.client.get.side_effect = [Exception("Not found"), (resp, body)]
         self.manager = volume_snapshots.SnapshotManager(api)
 
     def test_find(self):
@@ -77,5 +77,9 @@ class TestFindResourceVolumeSnapshots(test_utils.TestCase):
         self.assertEqual(NAME, result.display_name)
 
     def test_not_find(self):
-        self.assertRaises(exceptions.CommandError, utils.find_resource,
-                          self.manager, 'GeorgeMartin')
+        self.assertRaises(
+            exceptions.CommandError,
+            utils.find_resource,
+            self.manager,
+            'GeorgeMartin',
+        )

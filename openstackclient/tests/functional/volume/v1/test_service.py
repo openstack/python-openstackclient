@@ -24,22 +24,16 @@ class VolumeServiceTests(common.BaseVolumeTests):
 
         # Test volume service list --service
         cmd_output = self.openstack(
-            'volume service list ' +
-            '--service ' +
-            services[0],
+            'volume service list ' + '--service ' + services[0],
             parse_output=True,
         )
         for x in cmd_output:
-            self.assertEqual(
-                services[0],
-                x['Binary']
-            )
+            self.assertEqual(services[0], x['Binary'])
 
         # TODO(zhiyong.dai): test volume service list --host after solving
         # https://bugs.launchpad.net/python-openstackclient/+bug/1664451
 
     def test_volume_service_set(self):
-
         # Get a service and host
         cmd_output = self.openstack(
             'volume service list',
@@ -50,9 +44,7 @@ class VolumeServiceTests(common.BaseVolumeTests):
 
         # Test volume service set --enable
         raw_output = self.openstack(
-            'volume service set --enable ' +
-            host_1 + ' ' +
-            service_1
+            'volume service set --enable ' + host_1 + ' ' + service_1
         )
         self.assertOutput('', raw_output)
 
@@ -60,20 +52,19 @@ class VolumeServiceTests(common.BaseVolumeTests):
             'volume service list --long',
             parse_output=True,
         )
-        self.assertEqual(
-            'enabled',
-            cmd_output[0]['Status']
-        )
+        self.assertEqual('enabled', cmd_output[0]['Status'])
         self.assertIsNone(cmd_output[0]['Disabled Reason'])
 
         # Test volume service set --disable and --disable-reason
         disable_reason = 'disable_reason'
         raw_output = self.openstack(
-            'volume service set --disable ' +
-            '--disable-reason ' +
-            disable_reason + ' ' +
-            host_1 + ' ' +
-            service_1
+            'volume service set --disable '
+            + '--disable-reason '
+            + disable_reason
+            + ' '
+            + host_1
+            + ' '
+            + service_1
         )
         self.assertOutput('', raw_output)
 
@@ -81,11 +72,5 @@ class VolumeServiceTests(common.BaseVolumeTests):
             'volume service list --long',
             parse_output=True,
         )
-        self.assertEqual(
-            'disabled',
-            cmd_output[0]['Status']
-        )
-        self.assertEqual(
-            disable_reason,
-            cmd_output[0]['Disabled Reason']
-        )
+        self.assertEqual('disabled', cmd_output[0]['Status'])
+        self.assertEqual(disable_reason, cmd_output[0]['Disabled Reason'])

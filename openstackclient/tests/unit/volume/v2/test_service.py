@@ -19,7 +19,6 @@ from openstackclient.volume.v2 import service
 
 
 class TestService(volume_fakes.TestVolume):
-
     def setUp(self):
         super().setUp()
 
@@ -29,7 +28,6 @@ class TestService(volume_fakes.TestVolume):
 
 
 class TestServiceList(TestService):
-
     # The service to be listed
     services = volume_fakes.create_one_service()
 
@@ -43,8 +41,10 @@ class TestServiceList(TestService):
 
     def test_service_list(self):
         arglist = [
-            '--host', self.services.host,
-            '--service', self.services.binary,
+            '--host',
+            self.services.host,
+            '--service',
+            self.services.binary,
         ]
         verifylist = [
             ('host', self.services.host),
@@ -69,14 +69,16 @@ class TestServiceList(TestService):
         # confirming if all expected columns are present in the result.
         self.assertEqual(expected_columns, columns)
 
-        datalist = ((
-            self.services.binary,
-            self.services.host,
-            self.services.zone,
-            self.services.status,
-            self.services.state,
-            self.services.updated_at,
-        ), )
+        datalist = (
+            (
+                self.services.binary,
+                self.services.host,
+                self.services.zone,
+                self.services.status,
+                self.services.state,
+                self.services.updated_at,
+            ),
+        )
 
         # confirming if all expected values are present in the result.
         self.assertEqual(datalist, tuple(data))
@@ -89,19 +91,20 @@ class TestServiceList(TestService):
 
         # checking if prohibited columns are present in output
         self.assertNotIn("Disabled Reason", columns)
-        self.assertNotIn(self.services.disabled_reason,
-                         tuple(data))
+        self.assertNotIn(self.services.disabled_reason, tuple(data))
 
     def test_service_list_with_long_option(self):
         arglist = [
-            '--host', self.services.host,
-            '--service', self.services.binary,
-            '--long'
+            '--host',
+            self.services.host,
+            '--service',
+            self.services.binary,
+            '--long',
         ]
         verifylist = [
             ('host', self.services.host),
             ('service', self.services.binary),
-            ('long', True)
+            ('long', True),
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
@@ -117,21 +120,23 @@ class TestServiceList(TestService):
             'Status',
             'State',
             'Updated At',
-            'Disabled Reason'
+            'Disabled Reason',
         ]
 
         # confirming if all expected columns are present in the result.
         self.assertEqual(expected_columns, columns)
 
-        datalist = ((
-            self.services.binary,
-            self.services.host,
-            self.services.zone,
-            self.services.status,
-            self.services.state,
-            self.services.updated_at,
-            self.services.disabled_reason,
-        ), )
+        datalist = (
+            (
+                self.services.binary,
+                self.services.host,
+                self.services.zone,
+                self.services.status,
+                self.services.state,
+                self.services.updated_at,
+                self.services.disabled_reason,
+            ),
+        )
 
         # confirming if all expected values are present in the result.
         self.assertEqual(datalist, tuple(data))
@@ -143,7 +148,6 @@ class TestServiceList(TestService):
 
 
 class TestServiceSet(TestService):
-
     service = volume_fakes.create_one_service()
 
     def setUp(self):
@@ -188,8 +192,7 @@ class TestServiceSet(TestService):
         result = self.cmd.take_action(parsed_args)
 
         self.service_mock.enable.assert_called_with(
-            self.service.host,
-            self.service.binary
+            self.service.host, self.service.binary
         )
         self.service_mock.disable.assert_not_called()
         self.service_mock.disable_log_reason.assert_not_called()
@@ -211,8 +214,7 @@ class TestServiceSet(TestService):
         result = self.cmd.take_action(parsed_args)
 
         self.service_mock.disable.assert_called_with(
-            self.service.host,
-            self.service.binary
+            self.service.host, self.service.binary
         )
         self.service_mock.enable.assert_not_called()
         self.service_mock.disable_log_reason.assert_not_called()
@@ -222,7 +224,8 @@ class TestServiceSet(TestService):
         reason = 'earthquake'
         arglist = [
             '--disable',
-            '--disable-reason', reason,
+            '--disable-reason',
+            reason,
             self.service.host,
             self.service.binary,
         ]
@@ -237,16 +240,15 @@ class TestServiceSet(TestService):
         result = self.cmd.take_action(parsed_args)
 
         self.service_mock.disable_log_reason.assert_called_with(
-            self.service.host,
-            self.service.binary,
-            reason
+            self.service.host, self.service.binary, reason
         )
         self.assertIsNone(result)
 
     def test_service_set_only_with_disable_reason(self):
         reason = 'earthquake'
         arglist = [
-            '--disable-reason', reason,
+            '--disable-reason',
+            reason,
             self.service.host,
             self.service.binary,
         ]
@@ -260,14 +262,18 @@ class TestServiceSet(TestService):
             self.cmd.take_action(parsed_args)
             self.fail("CommandError should be raised.")
         except exceptions.CommandError as e:
-            self.assertEqual("Cannot specify option --disable-reason without "
-                             "--disable specified.", str(e))
+            self.assertEqual(
+                "Cannot specify option --disable-reason without "
+                "--disable specified.",
+                str(e),
+            )
 
     def test_service_set_enable_with_disable_reason(self):
         reason = 'earthquake'
         arglist = [
             '--enable',
-            '--disable-reason', reason,
+            '--disable-reason',
+            reason,
             self.service.host,
             self.service.binary,
         ]
@@ -282,5 +288,8 @@ class TestServiceSet(TestService):
             self.cmd.take_action(parsed_args)
             self.fail("CommandError should be raised.")
         except exceptions.CommandError as e:
-            self.assertEqual("Cannot specify option --disable-reason without "
-                             "--disable specified.", str(e))
+            self.assertEqual(
+                "Cannot specify option --disable-reason without "
+                "--disable specified.",
+                str(e),
+            )

@@ -16,7 +16,7 @@ from openstackclient.tests.functional.volume.v1 import common
 
 
 class TransferRequestTests(common.BaseVolumeTests):
-    """Functional tests for transfer request. """
+    """Functional tests for transfer request."""
 
     NAME = uuid.uuid4().hex
     VOLUME_NAME = uuid.uuid4().hex
@@ -36,7 +36,8 @@ class TransferRequestTests(common.BaseVolumeTests):
     def tearDownClass(cls):
         try:
             raw_output_volume = cls.openstack(
-                'volume delete ' + cls.VOLUME_NAME)
+                'volume delete ' + cls.VOLUME_NAME
+            )
             cls.assertOutput('', raw_output_volume)
         finally:
             super(TransferRequestTests, cls).tearDownClass()
@@ -55,9 +56,10 @@ class TransferRequestTests(common.BaseVolumeTests):
         # create volume transfer request for the volume
         # and get the auth_key of the new transfer request
         cmd_output = self.openstack(
-            'volume transfer request create ' +
-            volume_name +
-            ' --name ' + name,
+            'volume transfer request create '
+            + volume_name
+            + ' --name '
+            + name,
             parse_output=True,
         )
         auth_key = cmd_output['auth_key']
@@ -65,30 +67,32 @@ class TransferRequestTests(common.BaseVolumeTests):
 
         # accept the volume transfer request
         output = self.openstack(
-            'volume transfer request accept ' +
-            name + ' ' +
-            '--auth-key ' + auth_key,
+            'volume transfer request accept '
+            + name
+            + ' '
+            + '--auth-key '
+            + auth_key,
             parse_output=True,
         )
         self.assertEqual(name, output.get('name'))
 
         # the volume transfer will be removed by default after accepted
         # so just need to delete the volume here
-        raw_output = self.openstack(
-            'volume delete ' + volume_name)
+        raw_output = self.openstack('volume delete ' + volume_name)
         self.assertEqual('', raw_output)
 
     def test_volume_transfer_request_list_show(self):
         name = uuid.uuid4().hex
         cmd_output = self.openstack(
-            'volume transfer request create ' +
-            ' --name ' + name + ' ' +
-            self.VOLUME_NAME,
+            'volume transfer request create '
+            + ' --name '
+            + name
+            + ' '
+            + self.VOLUME_NAME,
             parse_output=True,
         )
         self.addCleanup(
-            self.openstack,
-            'volume transfer request delete ' + name
+            self.openstack, 'volume transfer request delete ' + name
         )
         self.assertOutput(name, cmd_output['name'])
         auth_key = cmd_output['auth_key']
@@ -101,8 +105,7 @@ class TransferRequestTests(common.BaseVolumeTests):
         self.assertIn(name, [req['Name'] for req in cmd_output])
 
         cmd_output = self.openstack(
-            'volume transfer request show ' +
-            name,
+            'volume transfer request show ' + name,
             parse_output=True,
         )
         self.assertEqual(name, cmd_output['name'])

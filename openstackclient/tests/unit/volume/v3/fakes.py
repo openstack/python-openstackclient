@@ -455,7 +455,8 @@ def create_service_log_level_entry(attrs=None):
     service_log_level_info.update(attrs)
 
     service_log_level = fakes.FakeResource(
-        None, service_log_level_info, loaded=True)
+        None, service_log_level_info, loaded=True
+    )
     return service_log_level
 
 
@@ -481,10 +482,13 @@ def create_cleanup_records():
     cleaning_records.append(cleaning_work_info)
     unavailable_records.append(unavailable_work_info)
 
-    cleaning = [fakes.FakeResource(
-        None, obj, loaded=True) for obj in cleaning_records]
-    unavailable = [fakes.FakeResource(
-        None, obj, loaded=True) for obj in unavailable_records]
+    cleaning = [
+        fakes.FakeResource(None, obj, loaded=True) for obj in cleaning_records
+    ]
+    unavailable = [
+        fakes.FakeResource(None, obj, loaded=True)
+        for obj in unavailable_records
+    ]
 
     return cleaning, unavailable
 
@@ -513,7 +517,8 @@ def create_volume_manage_list_records(count=2):
     volume_manage_list = []
     for i in range(count):
         volume_manage_list.append(
-            create_one_manage_record({'size': str(i + 1)}))
+            create_one_manage_record({'size': str(i + 1)})
+        )
 
     return volume_manage_list
 
@@ -522,6 +527,7 @@ def create_snapshot_manage_list_records(count=2):
     snapshot_manage_list = []
     for i in range(count):
         snapshot_manage_list.append(
-            create_one_manage_record({'size': str(i + 1)}, snapshot=True))
+            create_one_manage_record({'size': str(i + 1)}, snapshot=True)
+        )
 
     return snapshot_manage_list

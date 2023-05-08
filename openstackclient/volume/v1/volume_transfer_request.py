@@ -48,8 +48,7 @@ class AcceptTransferRequest(command.ShowOne):
 
         try:
             transfer_request_id = utils.find_resource(
-                volume_client.transfers,
-                parsed_args.transfer_request
+                volume_client.transfers, parsed_args.transfer_request
             ).id
         except exceptions.CommandError:
             # Non-admin users will fail to lookup name -> ID so we just
@@ -77,12 +76,12 @@ class CreateTransferRequest(command.ShowOne):
         parser.add_argument(
             '--name',
             metavar="<name>",
-            help=_('New transfer request name (default to None)')
+            help=_('New transfer request name (default to None)'),
         )
         parser.add_argument(
             'volume',
             metavar="<volume>",
-            help=_('Volume to transfer (name or ID)')
+            help=_('Volume to transfer (name or ID)'),
         )
         return parser
 
@@ -127,14 +126,20 @@ class DeleteTransferRequest(command.Command):
                 volume_client.transfers.delete(transfer_request_id)
             except Exception as e:
                 result += 1
-                LOG.error(_("Failed to delete volume transfer request "
-                            "with name or ID '%(transfer)s': %(e)s")
-                          % {'transfer': t, 'e': e})
+                LOG.error(
+                    _(
+                        "Failed to delete volume transfer request "
+                        "with name or ID '%(transfer)s': %(e)s"
+                    )
+                    % {'transfer': t, 'e': e}
+                )
 
         if result > 0:
             total = len(parsed_args.transfer_request)
-            msg = (_("%(result)s of %(total)s volume transfer requests failed"
-                   " to delete") % {'result': result, 'total': total})
+            msg = _(
+                "%(result)s of %(total)s volume transfer requests failed"
+                " to delete"
+            ) % {'result': result, 'total': total}
             raise exceptions.CommandError(msg)
 
 
@@ -163,9 +168,13 @@ class ListTransferRequest(command.Lister):
             search_opts={'all_tenants': parsed_args.all_projects},
         )
 
-        return (column_headers, (
-            utils.get_item_properties(s, columns)
-            for s in volume_transfer_result))
+        return (
+            column_headers,
+            (
+                utils.get_item_properties(s, columns)
+                for s in volume_transfer_result
+            ),
+        )
 
 
 class ShowTransferRequest(command.ShowOne):

@@ -42,7 +42,7 @@ class ListBlockStorageResourceFilter(command.Lister):
 
         return (
             column_headers,
-            (utils.get_item_properties(s, column_headers) for s in data)
+            (utils.get_item_properties(s, column_headers) for s in data),
         )
 
 
@@ -54,7 +54,7 @@ class ShowBlockStorageResourceFilter(command.ShowOne):
         parser.add_argument(
             'resource',
             metavar='<resource>',
-            help=_('Resource to show filters for (name).')
+            help=_('Resource to show filters for (name).'),
         )
 
         return parser

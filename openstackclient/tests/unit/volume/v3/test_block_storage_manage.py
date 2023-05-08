@@ -21,7 +21,6 @@ from openstackclient.volume.v3 import block_storage_manage
 
 
 class TestBlockStorageManage(v2_volume_fakes.TestVolume):
-
     def setUp(self):
         super().setUp()
 
@@ -32,22 +31,24 @@ class TestBlockStorageManage(v2_volume_fakes.TestVolume):
 
 
 class TestBlockStorageVolumeManage(TestBlockStorageManage):
-
     volume_manage_list = volume_fakes.create_volume_manage_list_records()
 
     def setUp(self):
         super().setUp()
 
         self.volumes_mock.list_manageable.return_value = (
-            self.volume_manage_list)
+            self.volume_manage_list
+        )
 
         # Get the command object to test
         self.cmd = block_storage_manage.BlockStorageManageVolumes(
-            self.app, None)
+            self.app, None
+        )
 
     def test_block_storage_volume_manage_list(self):
-        self.app.client_manager.volume.api_version = \
-            api_versions.APIVersion('3.8')
+        self.app.client_manager.volume.api_version = api_versions.APIVersion(
+            '3.8'
+        )
         host = 'fake_host'
         arglist = [
             host,
@@ -108,51 +109,65 @@ class TestBlockStorageVolumeManage(TestBlockStorageManage):
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
-        exc = self.assertRaises(exceptions.CommandError, self.cmd.take_action,
-                                parsed_args)
+        exc = self.assertRaises(
+            exceptions.CommandError, self.cmd.take_action, parsed_args
+        )
         self.assertIn(
-            '--os-volume-api-version 3.8 or greater is required', str(exc))
+            '--os-volume-api-version 3.8 or greater is required', str(exc)
+        )
 
     def test_block_storage_volume_manage_pre_317(self):
-        self.app.client_manager.volume.api_version = \
-            api_versions.APIVersion('3.16')
+        self.app.client_manager.volume.api_version = api_versions.APIVersion(
+            '3.16'
+        )
         cluster = 'fake_cluster'
         arglist = [
-            '--cluster', cluster,
+            '--cluster',
+            cluster,
         ]
         verifylist = [
             ('cluster', cluster),
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
-        exc = self.assertRaises(exceptions.CommandError, self.cmd.take_action,
-                                parsed_args)
+        exc = self.assertRaises(
+            exceptions.CommandError, self.cmd.take_action, parsed_args
+        )
         self.assertIn(
-            '--os-volume-api-version 3.17 or greater is required', str(exc))
+            '--os-volume-api-version 3.17 or greater is required', str(exc)
+        )
         self.assertIn('--cluster', str(exc))
 
     def test_block_storage_volume_manage_host_and_cluster(self):
-        self.app.client_manager.volume.api_version = \
-            api_versions.APIVersion('3.17')
+        self.app.client_manager.volume.api_version = api_versions.APIVersion(
+            '3.17'
+        )
         host = 'fake_host'
         cluster = 'fake_cluster'
         arglist = [
             host,
-            '--cluster', cluster,
+            '--cluster',
+            cluster,
         ]
         verifylist = [
             ('host', host),
             ('cluster', cluster),
         ]
-        exc = self.assertRaises(tests_utils.ParserException,
-                                self.check_parser, self.cmd,
-                                arglist, verifylist)
+        exc = self.assertRaises(
+            tests_utils.ParserException,
+            self.check_parser,
+            self.cmd,
+            arglist,
+            verifylist,
+        )
         self.assertIn(
-            'argument --cluster: not allowed with argument <host>', str(exc))
+            'argument --cluster: not allowed with argument <host>', str(exc)
+        )
 
     def test_block_storage_volume_manage_list_all_args(self):
-        self.app.client_manager.volume.api_version = \
-            api_versions.APIVersion('3.8')
+        self.app.client_manager.volume.api_version = api_versions.APIVersion(
+            '3.8'
+        )
         host = 'fake_host'
         detailed = True
         marker = 'fake_marker'
@@ -161,11 +176,16 @@ class TestBlockStorageVolumeManage(TestBlockStorageManage):
         sort = 'size:asc'
         arglist = [
             host,
-            '--detailed', str(detailed),
-            '--marker', marker,
-            '--limit', limit,
-            '--offset', offset,
-            '--sort', sort,
+            '--detailed',
+            str(detailed),
+            '--marker',
+            marker,
+            '--limit',
+            limit,
+            '--offset',
+            offset,
+            '--sort',
+            sort,
         ]
         verifylist = [
             ('host', host),
@@ -220,22 +240,24 @@ class TestBlockStorageVolumeManage(TestBlockStorageManage):
 
 
 class TestBlockStorageSnapshotManage(TestBlockStorageManage):
-
     snapshot_manage_list = volume_fakes.create_snapshot_manage_list_records()
 
     def setUp(self):
         super().setUp()
 
         self.snapshots_mock.list_manageable.return_value = (
-            self.snapshot_manage_list)
+            self.snapshot_manage_list
+        )
 
         # Get the command object to test
         self.cmd = block_storage_manage.BlockStorageManageSnapshots(
-            self.app, None)
+            self.app, None
+        )
 
     def test_block_storage_snapshot_manage_list(self):
-        self.app.client_manager.volume.api_version = \
-            api_versions.APIVersion('3.8')
+        self.app.client_manager.volume.api_version = api_versions.APIVersion(
+            '3.8'
+        )
         host = 'fake_host'
         arglist = [
             host,
@@ -298,51 +320,65 @@ class TestBlockStorageSnapshotManage(TestBlockStorageManage):
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
-        exc = self.assertRaises(exceptions.CommandError, self.cmd.take_action,
-                                parsed_args)
+        exc = self.assertRaises(
+            exceptions.CommandError, self.cmd.take_action, parsed_args
+        )
         self.assertIn(
-            '--os-volume-api-version 3.8 or greater is required', str(exc))
+            '--os-volume-api-version 3.8 or greater is required', str(exc)
+        )
 
     def test_block_storage_volume_manage_pre_317(self):
-        self.app.client_manager.volume.api_version = \
-            api_versions.APIVersion('3.16')
+        self.app.client_manager.volume.api_version = api_versions.APIVersion(
+            '3.16'
+        )
         cluster = 'fake_cluster'
         arglist = [
-            '--cluster', cluster,
+            '--cluster',
+            cluster,
         ]
         verifylist = [
             ('cluster', cluster),
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
-        exc = self.assertRaises(exceptions.CommandError, self.cmd.take_action,
-                                parsed_args)
+        exc = self.assertRaises(
+            exceptions.CommandError, self.cmd.take_action, parsed_args
+        )
         self.assertIn(
-            '--os-volume-api-version 3.17 or greater is required', str(exc))
+            '--os-volume-api-version 3.17 or greater is required', str(exc)
+        )
         self.assertIn('--cluster', str(exc))
 
     def test_block_storage_volume_manage_host_and_cluster(self):
-        self.app.client_manager.volume.api_version = \
-            api_versions.APIVersion('3.17')
+        self.app.client_manager.volume.api_version = api_versions.APIVersion(
+            '3.17'
+        )
         host = 'fake_host'
         cluster = 'fake_cluster'
         arglist = [
             host,
-            '--cluster', cluster,
+            '--cluster',
+            cluster,
         ]
         verifylist = [
             ('host', host),
             ('cluster', cluster),
         ]
-        exc = self.assertRaises(tests_utils.ParserException,
-                                self.check_parser, self.cmd,
-                                arglist, verifylist)
+        exc = self.assertRaises(
+            tests_utils.ParserException,
+            self.check_parser,
+            self.cmd,
+            arglist,
+            verifylist,
+        )
         self.assertIn(
-            'argument --cluster: not allowed with argument <host>', str(exc))
+            'argument --cluster: not allowed with argument <host>', str(exc)
+        )
 
     def test_block_storage_volume_manage_list_all_args(self):
-        self.app.client_manager.volume.api_version = \
-            api_versions.APIVersion('3.8')
+        self.app.client_manager.volume.api_version = api_versions.APIVersion(
+            '3.8'
+        )
         host = 'fake_host'
         detailed = True
         marker = 'fake_marker'
@@ -351,11 +387,16 @@ class TestBlockStorageSnapshotManage(TestBlockStorageManage):
         sort = 'size:asc'
         arglist = [
             host,
-            '--detailed', str(detailed),
-            '--marker', marker,
-            '--limit', limit,
-            '--offset', offset,
-            '--sort', sort,
+            '--detailed',
+            str(detailed),
+            '--marker',
+            marker,
+            '--limit',
+            limit,
+            '--offset',
+            offset,
+            '--sort',
+            sort,
         ]
         verifylist = [
             ('host', host),

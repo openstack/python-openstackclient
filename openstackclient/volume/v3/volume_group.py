@@ -155,7 +155,7 @@ class CreateVolumeGroup(command.ShowOne):
         parser.add_argument(
             '--description',
             metavar='<description>',
-            help=_('Description of a volume group.')
+            help=_('Description of a volume group.'),
         )
         parser.add_argument(
             '--availability-zone',
@@ -178,8 +178,10 @@ class CreateVolumeGroup(command.ShowOne):
             )
             self.log.warning(msg)
 
-        volume_group_type = parsed_args.volume_group_type or \
-            parsed_args.volume_group_type_legacy
+        volume_group_type = (
+            parsed_args.volume_group_type
+            or parsed_args.volume_group_type_legacy
+        )
         volume_types = parsed_args.volume_types[:]
         volume_types.extend(parsed_args.volume_types_legacy)
 
@@ -229,8 +231,10 @@ class CreateVolumeGroup(command.ShowOne):
                     "[--source-group|--group-snapshot]' command"
                 )
                 raise exceptions.CommandError(msg)
-            if (parsed_args.source_group is None and
-                    parsed_args.group_snapshot is None):
+            if (
+                parsed_args.source_group is None
+                and parsed_args.group_snapshot is None
+            ):
                 msg = _(
                     "Either --source-group <source_group> or "
                     "'--group-snapshot <group_snapshot>' needs to be "
@@ -239,24 +243,28 @@ class CreateVolumeGroup(command.ShowOne):
                 )
                 raise exceptions.CommandError(msg)
             if parsed_args.availability_zone:
-                msg = _("'--availability-zone' option will not work "
-                        "if creating group from source.")
+                msg = _(
+                    "'--availability-zone' option will not work "
+                    "if creating group from source."
+                )
                 self.log.warning(msg)
 
             source_group = None
             if parsed_args.source_group:
-                source_group = utils.find_resource(volume_client.groups,
-                                                   parsed_args.source_group)
+                source_group = utils.find_resource(
+                    volume_client.groups, parsed_args.source_group
+                )
             group_snapshot = None
             if parsed_args.group_snapshot:
                 group_snapshot = utils.find_resource(
-                    volume_client.group_snapshots,
-                    parsed_args.group_snapshot)
+                    volume_client.group_snapshots, parsed_args.group_snapshot
+                )
             group = volume_client.groups.create_from_src(
                 group_snapshot.id if group_snapshot else None,
                 source_group.id if source_group else None,
                 parsed_args.name,
-                parsed_args.description)
+                parsed_args.description,
+            )
             group = volume_client.groups.get(group.id)
             return _format_group(group)
 
@@ -281,7 +289,7 @@ class DeleteVolumeGroup(command.Command):
             help=_(
                 'Delete the volume group even if it contains volumes. '
                 'This will delete any remaining volumes in the group.',
-            )
+            ),
         )
         return parser
 
@@ -300,8 +308,7 @@ class DeleteVolumeGroup(command.Command):
             parsed_args.group,
         )
 
-        volume_client.groups.delete(
-            group.id, delete_volumes=parsed_args.force)
+        volume_client.groups.delete(group.id, delete_volumes=parsed_args.force)
 
 
 class SetVolumeGroup(command.ShowOne):
@@ -436,8 +443,7 @@ class ListVolumeGroup(command.Lister):
             'all_tenants': parsed_args.all_projects,
         }
 
-        groups = volume_client.groups.list(
-            search_opts=search_opts)
+        groups = volume_client.groups.list(search_opts=search_opts)
 
         column_headers = (
             'ID',
@@ -452,10 +458,7 @@ class ListVolumeGroup(command.Lister):
 
         return (
             column_headers,
-            (
-                utils.get_item_properties(a, columns)
-                for a in groups
-            ),
+            (utils.get_item_properties(a, columns) for a in groups),
         )
 
 
@@ -551,8 +554,9 @@ class ShowVolumeGroup(command.ShowOne):
         group = volume_client.groups.show(group.id, **kwargs)
 
         if parsed_args.show_replication_targets:
-            replication_targets = \
+            replication_targets = (
                 volume_client.groups.list_replication_targets(group.id)
+            )
 
             group.replication_targets = replication_targets
 
@@ -580,7 +584,7 @@ class FailoverVolumeGroup(command.Command):
             default=False,
             help=_(
                 'Allow group with attached volumes to be failed over.',
-            )
+            ),
         )
         parser.add_argument(
             '--disallow-attached-volume',
@@ -589,7 +593,7 @@ class FailoverVolumeGroup(command.Command):
             default=False,
             help=_(
                 'Disallow group with attached volumes to be failed over.',
-            )
+            ),
         )
         parser.add_argument(
             '--secondary-backend-id',

@@ -1182,12 +1182,12 @@ class FakeLimits(object):
 
     @property
     def absolute(self):
-        for (name, value) in self.absolute_limits_attrs.items():
+        for name, value in self.absolute_limits_attrs.items():
             yield FakeAbsoluteLimit(name, value)
 
     def absolute_limits(self):
         reference_data = []
-        for (name, value) in self.absolute_limits_attrs.items():
+        for name, value in self.absolute_limits_attrs.items():
             reference_data.append((name, value))
         return reference_data
 

@@ -16,7 +16,7 @@ from openstackclient.tests.functional.volume.v3 import common
 
 
 class VolumeTests(common.BaseVolumeTests):
-    """Functional tests for volume. """
+    """Functional tests for volume."""
 
     def test_volume_delete(self):
         """Test create, delete multiple"""
@@ -70,11 +70,7 @@ class VolumeTests(common.BaseVolumeTests):
             cmd_output["size"],
         )
         self.wait_for_status("volume", name2, "available")
-        raw_output = self.openstack(
-            'volume set ' +
-            '--state error ' +
-            name2
-        )
+        raw_output = self.openstack('volume set ' + '--state error ' + name2)
         self.assertOutput('', raw_output)
 
         # Test list --long
@@ -103,11 +99,11 @@ class VolumeTests(common.BaseVolumeTests):
         name = uuid.uuid4().hex
         new_name = name + "_"
         cmd_output = self.openstack(
-            'volume create ' +
-            '--size 1 ' +
-            '--description aaaa ' +
-            '--property Alpha=a ' +
-            name,
+            'volume create '
+            + '--size 1 '
+            + '--description aaaa '
+            + '--property Alpha=a '
+            + name,
             parse_output=True,
         )
         self.addCleanup(self.openstack, 'volume delete ' + new_name)
@@ -135,17 +131,18 @@ class VolumeTests(common.BaseVolumeTests):
 
         # Test volume set
         raw_output = self.openstack(
-            'volume set ' +
-            '--name ' + new_name +
-            ' --size 2 ' +
-            '--description bbbb ' +
-            '--no-property ' +
-            '--property Beta=b ' +
-            '--property Gamma=c ' +
-            '--image-property a=b ' +
-            '--image-property c=d ' +
-            '--bootable ' +
-            name,
+            'volume set '
+            + '--name '
+            + new_name
+            + ' --size 2 '
+            + '--description bbbb '
+            + '--no-property '
+            + '--property Beta=b '
+            + '--property Gamma=c '
+            + '--image-property a=b '
+            + '--image-property c=d '
+            + '--bootable '
+            + name,
         )
         self.assertOutput('', raw_output)
         self.wait_for_status("volume", new_name, "available")
@@ -181,10 +178,10 @@ class VolumeTests(common.BaseVolumeTests):
 
         # Test volume unset
         raw_output = self.openstack(
-            'volume unset ' +
-            '--property Beta ' +
-            '--image-property a ' +
-            new_name,
+            'volume unset '
+            + '--property Beta '
+            + '--image-property a '
+            + new_name,
         )
         self.assertOutput('', raw_output)
 
@@ -217,9 +214,10 @@ class VolumeTests(common.BaseVolumeTests):
             cmd_output["name"],
         )
         cmd_output = self.openstack(
-            'volume snapshot create ' +
-            snapshot_name +
-            ' --volume ' + volume_name,
+            'volume snapshot create '
+            + snapshot_name
+            + ' --volume '
+            + volume_name,
             parse_output=True,
         )
         self.wait_for_status("volume snapshot", snapshot_name, "available")
@@ -227,9 +225,7 @@ class VolumeTests(common.BaseVolumeTests):
         name = uuid.uuid4().hex
         # Create volume from snapshot
         cmd_output = self.openstack(
-            'volume create ' +
-            '--snapshot ' + snapshot_name +
-            ' ' + name,
+            'volume create ' + '--snapshot ' + snapshot_name + ' ' + name,
             parse_output=True,
         )
         self.addCleanup(self.openstack, 'volume delete ' + name)
@@ -241,8 +237,7 @@ class VolumeTests(common.BaseVolumeTests):
         self.wait_for_status("volume", name, "available")
 
         # Delete snapshot
-        raw_output = self.openstack(
-            'volume snapshot delete ' + snapshot_name)
+        raw_output = self.openstack('volume snapshot delete ' + snapshot_name)
         self.assertOutput('', raw_output)
         # Deleting snapshot may take time. If volume snapshot still exists when
         # a parent volume delete is requested, the volume deletion will fail.

@@ -21,17 +21,16 @@ from openstackclient.volume.v3 import volume_group_type
 
 
 class TestVolumeGroupType(volume_fakes.TestVolume):
-
     def setUp(self):
         super().setUp()
 
-        self.volume_group_types_mock = \
+        self.volume_group_types_mock = (
             self.app.client_manager.volume.group_types
+        )
         self.volume_group_types_mock.reset_mock()
 
 
 class TestVolumeGroupTypeCreate(TestVolumeGroupType):
-
     maxDiff = 2000
 
     fake_volume_group_type = volume_fakes.create_one_volume_group_type()
@@ -54,14 +53,16 @@ class TestVolumeGroupTypeCreate(TestVolumeGroupType):
     def setUp(self):
         super().setUp()
 
-        self.volume_group_types_mock.create.return_value = \
+        self.volume_group_types_mock.create.return_value = (
             self.fake_volume_group_type
+        )
 
         self.cmd = volume_group_type.CreateVolumeGroupType(self.app, None)
 
     def test_volume_group_type_create(self):
-        self.app.client_manager.volume.api_version = \
-            api_versions.APIVersion('3.11')
+        self.app.client_manager.volume.api_version = api_versions.APIVersion(
+            '3.11'
+        )
 
         arglist = [
             self.fake_volume_group_type.name,
@@ -76,19 +77,20 @@ class TestVolumeGroupTypeCreate(TestVolumeGroupType):
         columns, data = self.cmd.take_action(parsed_args)
 
         self.volume_group_types_mock.create.assert_called_once_with(
-            self.fake_volume_group_type.name,
-            None,
-            True)
+            self.fake_volume_group_type.name, None, True
+        )
         self.assertEqual(self.columns, columns)
         self.assertCountEqual(self.data, data)
 
     def test_volume_group_type_create_with_options(self):
-        self.app.client_manager.volume.api_version = \
-            api_versions.APIVersion('3.11')
+        self.app.client_manager.volume.api_version = api_versions.APIVersion(
+            '3.11'
+        )
 
         arglist = [
             self.fake_volume_group_type.name,
-            '--description', 'foo',
+            '--description',
+            'foo',
             '--private',
         ]
         verifylist = [
@@ -101,15 +103,15 @@ class TestVolumeGroupTypeCreate(TestVolumeGroupType):
         columns, data = self.cmd.take_action(parsed_args)
 
         self.volume_group_types_mock.create.assert_called_once_with(
-            self.fake_volume_group_type.name,
-            'foo',
-            False)
+            self.fake_volume_group_type.name, 'foo', False
+        )
         self.assertEqual(self.columns, columns)
         self.assertCountEqual(self.data, data)
 
     def test_volume_group_type_create_pre_v311(self):
-        self.app.client_manager.volume.api_version = \
-            api_versions.APIVersion('3.10')
+        self.app.client_manager.volume.api_version = api_versions.APIVersion(
+            '3.10'
+        )
 
         arglist = [
             self.fake_volume_group_type.name,
@@ -122,30 +124,30 @@ class TestVolumeGroupTypeCreate(TestVolumeGroupType):
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
         exc = self.assertRaises(
-            exceptions.CommandError,
-            self.cmd.take_action,
-            parsed_args)
+            exceptions.CommandError, self.cmd.take_action, parsed_args
+        )
         self.assertIn(
-            '--os-volume-api-version 3.11 or greater is required',
-            str(exc))
+            '--os-volume-api-version 3.11 or greater is required', str(exc)
+        )
 
 
 class TestVolumeGroupTypeDelete(TestVolumeGroupType):
-
     fake_volume_group_type = volume_fakes.create_one_volume_group_type()
 
     def setUp(self):
         super().setUp()
 
-        self.volume_group_types_mock.get.return_value = \
+        self.volume_group_types_mock.get.return_value = (
             self.fake_volume_group_type
+        )
         self.volume_group_types_mock.delete.return_value = None
 
         self.cmd = volume_group_type.DeleteVolumeGroupType(self.app, None)
 
     def test_volume_group_type_delete(self):
-        self.app.client_manager.volume.api_version = \
-            api_versions.APIVersion('3.11')
+        self.app.client_manager.volume.api_version = api_versions.APIVersion(
+            '3.11'
+        )
 
         arglist = [
             self.fake_volume_group_type.id,
@@ -163,8 +165,9 @@ class TestVolumeGroupTypeDelete(TestVolumeGroupType):
         self.assertIsNone(result)
 
     def test_volume_group_type_delete_pre_v311(self):
-        self.app.client_manager.volume.api_version = \
-            api_versions.APIVersion('3.10')
+        self.app.client_manager.volume.api_version = api_versions.APIVersion(
+            '3.10'
+        )
 
         arglist = [
             self.fake_volume_group_type.id,
@@ -175,16 +178,14 @@ class TestVolumeGroupTypeDelete(TestVolumeGroupType):
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
         exc = self.assertRaises(
-            exceptions.CommandError,
-            self.cmd.take_action,
-            parsed_args)
+            exceptions.CommandError, self.cmd.take_action, parsed_args
+        )
         self.assertIn(
-            '--os-volume-api-version 3.11 or greater is required',
-            str(exc))
+            '--os-volume-api-version 3.11 or greater is required', str(exc)
+        )
 
 
 class TestVolumeGroupTypeSet(TestVolumeGroupType):
-
     fake_volume_group_type = volume_fakes.create_one_volume_group_type(
         methods={
             'get_keys': {'foo': 'bar'},
@@ -211,25 +212,31 @@ class TestVolumeGroupTypeSet(TestVolumeGroupType):
     def setUp(self):
         super().setUp()
 
-        self.volume_group_types_mock.get.return_value = \
+        self.volume_group_types_mock.get.return_value = (
             self.fake_volume_group_type
-        self.volume_group_types_mock.update.return_value = \
+        )
+        self.volume_group_types_mock.update.return_value = (
             self.fake_volume_group_type
+        )
 
         self.cmd = volume_group_type.SetVolumeGroupType(self.app, None)
 
     def test_volume_group_type_set(self):
-        self.app.client_manager.volume.api_version = \
-            api_versions.APIVersion('3.11')
+        self.app.client_manager.volume.api_version = api_versions.APIVersion(
+            '3.11'
+        )
 
         self.fake_volume_group_type.set_keys.return_value = None
 
         arglist = [
             self.fake_volume_group_type.id,
-            '--name', 'foo',
-            '--description', 'hello, world',
+            '--name',
+            'foo',
+            '--description',
+            'hello, world',
             '--public',
-            '--property', 'fizz=buzz',
+            '--property',
+            'fizz=buzz',
         ]
         verifylist = [
             ('group_type', self.fake_volume_group_type.id),
@@ -256,13 +263,15 @@ class TestVolumeGroupTypeSet(TestVolumeGroupType):
         self.assertCountEqual(self.data, data)
 
     def test_volume_group_type_with_no_property_option(self):
-        self.app.client_manager.volume.api_version = \
-            api_versions.APIVersion('3.11')
+        self.app.client_manager.volume.api_version = api_versions.APIVersion(
+            '3.11'
+        )
 
         arglist = [
             self.fake_volume_group_type.id,
             '--no-property',
-            '--property', 'fizz=buzz',
+            '--property',
+            'fizz=buzz',
         ]
         verifylist = [
             ('group_type', self.fake_volume_group_type.id),
@@ -277,21 +286,26 @@ class TestVolumeGroupTypeSet(TestVolumeGroupType):
         columns, data = self.cmd.take_action(parsed_args)
 
         self.volume_group_types_mock.get.assert_called_once_with(
-            self.fake_volume_group_type.id)
+            self.fake_volume_group_type.id
+        )
         self.fake_volume_group_type.get_keys.assert_called_once_with()
         self.fake_volume_group_type.unset_keys.assert_called_once_with(
-            {'foo': 'bar'}.keys())
+            {'foo': 'bar'}.keys()
+        )
         self.assertEqual(self.columns, columns)
         self.assertCountEqual(self.data, data)
 
     def test_volume_group_type_set_pre_v311(self):
-        self.app.client_manager.volume.api_version = \
-            api_versions.APIVersion('3.10')
+        self.app.client_manager.volume.api_version = api_versions.APIVersion(
+            '3.10'
+        )
 
         arglist = [
             self.fake_volume_group_type.id,
-            '--name', 'foo',
-            '--description', 'hello, world',
+            '--name',
+            'foo',
+            '--description',
+            'hello, world',
         ]
         verifylist = [
             ('group_type', self.fake_volume_group_type.id),
@@ -304,16 +318,14 @@ class TestVolumeGroupTypeSet(TestVolumeGroupType):
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
         exc = self.assertRaises(
-            exceptions.CommandError,
-            self.cmd.take_action,
-            parsed_args)
+            exceptions.CommandError, self.cmd.take_action, parsed_args
+        )
         self.assertIn(
-            '--os-volume-api-version 3.11 or greater is required',
-            str(exc))
+            '--os-volume-api-version 3.11 or greater is required', str(exc)
+        )
 
 
 class TestVolumeGroupTypeUnset(TestVolumeGroupType):
-
     fake_volume_group_type = volume_fakes.create_one_volume_group_type(
         methods={'unset_keys': None},
     )
@@ -336,18 +348,21 @@ class TestVolumeGroupTypeUnset(TestVolumeGroupType):
     def setUp(self):
         super().setUp()
 
-        self.volume_group_types_mock.get.return_value = \
+        self.volume_group_types_mock.get.return_value = (
             self.fake_volume_group_type
+        )
 
         self.cmd = volume_group_type.UnsetVolumeGroupType(self.app, None)
 
     def test_volume_group_type_unset(self):
-        self.app.client_manager.volume.api_version = \
-            api_versions.APIVersion('3.11')
+        self.app.client_manager.volume.api_version = api_versions.APIVersion(
+            '3.11'
+        )
 
         arglist = [
             self.fake_volume_group_type.id,
-            '--property', 'fizz',
+            '--property',
+            'fizz',
         ]
         verifylist = [
             ('group_type', self.fake_volume_group_type.id),
@@ -357,22 +372,27 @@ class TestVolumeGroupTypeUnset(TestVolumeGroupType):
 
         columns, data = self.cmd.take_action(parsed_args)
 
-        self.volume_group_types_mock.get.assert_has_calls([
-            mock.call(self.fake_volume_group_type.id),
-            mock.call(self.fake_volume_group_type.id),
-        ])
+        self.volume_group_types_mock.get.assert_has_calls(
+            [
+                mock.call(self.fake_volume_group_type.id),
+                mock.call(self.fake_volume_group_type.id),
+            ]
+        )
         self.fake_volume_group_type.unset_keys.assert_called_once_with(
-            ['fizz'])
+            ['fizz']
+        )
         self.assertEqual(self.columns, columns)
         self.assertCountEqual(self.data, data)
 
     def test_volume_group_type_unset_pre_v311(self):
-        self.app.client_manager.volume.api_version = \
-            api_versions.APIVersion('3.10')
+        self.app.client_manager.volume.api_version = api_versions.APIVersion(
+            '3.10'
+        )
 
         arglist = [
             self.fake_volume_group_type.id,
-            '--property', 'fizz',
+            '--property',
+            'fizz',
         ]
         verifylist = [
             ('group_type', self.fake_volume_group_type.id),
@@ -381,16 +401,14 @@ class TestVolumeGroupTypeUnset(TestVolumeGroupType):
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
         exc = self.assertRaises(
-            exceptions.CommandError,
-            self.cmd.take_action,
-            parsed_args)
+            exceptions.CommandError, self.cmd.take_action, parsed_args
+        )
         self.assertIn(
-            '--os-volume-api-version 3.11 or greater is required',
-            str(exc))
+            '--os-volume-api-version 3.11 or greater is required', str(exc)
+        )
 
 
 class TestVolumeGroupTypeList(TestVolumeGroupType):
-
     fake_volume_group_types = volume_fakes.create_volume_group_types()
 
     columns = (
@@ -405,25 +423,28 @@ class TestVolumeGroupTypeList(TestVolumeGroupType):
             fake_volume_group_type.name,
             fake_volume_group_type.is_public,
             fake_volume_group_type.group_specs,
-        ) for fake_volume_group_type in fake_volume_group_types
+        )
+        for fake_volume_group_type in fake_volume_group_types
     ]
 
     def setUp(self):
         super().setUp()
 
-        self.volume_group_types_mock.list.return_value = \
+        self.volume_group_types_mock.list.return_value = (
             self.fake_volume_group_types
-        self.volume_group_types_mock.default.return_value = \
+        )
+        self.volume_group_types_mock.default.return_value = (
             self.fake_volume_group_types[0]
+        )
 
         self.cmd = volume_group_type.ListVolumeGroupType(self.app, None)
 
     def test_volume_group_type_list(self):
-        self.app.client_manager.volume.api_version = \
-            api_versions.APIVersion('3.11')
+        self.app.client_manager.volume.api_version = api_versions.APIVersion(
+            '3.11'
+        )
 
-        arglist = [
-        ]
+        arglist = []
         verifylist = [
             ('show_default', False),
         ]
@@ -436,8 +457,9 @@ class TestVolumeGroupTypeList(TestVolumeGroupType):
         self.assertCountEqual(tuple(self.data), data)
 
     def test_volume_group_type_list_with_default_option(self):
-        self.app.client_manager.volume.api_version = \
-            api_versions.APIVersion('3.11')
+        self.app.client_manager.volume.api_version = api_versions.APIVersion(
+            '3.11'
+        )
 
         arglist = [
             '--default',
@@ -454,19 +476,17 @@ class TestVolumeGroupTypeList(TestVolumeGroupType):
         self.assertCountEqual(tuple([self.data[0]]), data)
 
     def test_volume_group_type_list_pre_v311(self):
-        self.app.client_manager.volume.api_version = \
-            api_versions.APIVersion('3.10')
+        self.app.client_manager.volume.api_version = api_versions.APIVersion(
+            '3.10'
+        )
 
-        arglist = [
-        ]
-        verifylist = [
-        ]
+        arglist = []
+        verifylist = []
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
         exc = self.assertRaises(
-            exceptions.CommandError,
-            self.cmd.take_action,
-            parsed_args)
+            exceptions.CommandError, self.cmd.take_action, parsed_args
+        )
         self.assertIn(
-            '--os-volume-api-version 3.11 or greater is required',
-            str(exc))
+            '--os-volume-api-version 3.11 or greater is required', str(exc)
+        )

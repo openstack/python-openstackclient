@@ -16,7 +16,7 @@ from openstackclient.tests.functional.volume.v2 import common
 
 
 class VolumeBackupTests(common.BaseVolumeTests):
-    """Functional tests for volume backups. """
+    """Functional tests for volume backups."""
 
     def setUp(self):
         super(VolumeBackupTests, self).setUp()
@@ -34,29 +34,26 @@ class VolumeBackupTests(common.BaseVolumeTests):
         vol_id = uuid.uuid4().hex
         # create a volume
         self.openstack(
-            'volume create ' +
-            '--size 1 ' +
-            vol_id,
+            'volume create ' + '--size 1 ' + vol_id,
             parse_output=True,
         )
         self.wait_for_status("volume", vol_id, "available")
 
         # create a backup
         backup = self.openstack(
-            'volume backup create ' +
-            vol_id,
+            'volume backup create ' + vol_id,
             parse_output=True,
         )
         self.wait_for_status("volume backup", backup['id'], "available")
 
         # restore the backup
         backup_restored = self.openstack(
-            'volume backup restore %s %s'
-            % (backup['id'], vol_id),
+            'volume backup restore %s %s' % (backup['id'], vol_id),
             parse_output=True,
         )
         self.assertEqual(backup_restored['backup_id'], backup['id'])
         self.wait_for_status("volume backup", backup['id'], "available")
-        self.wait_for_status("volume", backup_restored['volume_id'],
-                             "available")
+        self.wait_for_status(
+            "volume", backup_restored['volume_id'], "available"
+        )
         self.addCleanup(self.openstack, 'volume delete %s' % vol_id)

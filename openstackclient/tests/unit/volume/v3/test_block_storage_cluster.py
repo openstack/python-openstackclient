@@ -18,7 +18,6 @@ from openstackclient.volume.v3 import block_storage_cluster
 
 
 class TestBlockStorageCluster(volume_fakes.TestVolume):
-
     def setUp(self):
         super().setUp()
 
@@ -28,7 +27,6 @@ class TestBlockStorageCluster(volume_fakes.TestVolume):
 
 
 class TestBlockStorageClusterList(TestBlockStorageCluster):
-
     # The cluster to be listed
     fake_clusters = volume_fakes.create_clusters()
 
@@ -38,15 +36,16 @@ class TestBlockStorageClusterList(TestBlockStorageCluster):
         self.cluster_mock.list.return_value = self.fake_clusters
 
         # Get the command object to test
-        self.cmd = \
-            block_storage_cluster.ListBlockStorageCluster(self.app, None)
+        self.cmd = block_storage_cluster.ListBlockStorageCluster(
+            self.app, None
+        )
 
     def test_cluster_list(self):
-        self.app.client_manager.volume.api_version = \
-            api_versions.APIVersion('3.7')
+        self.app.client_manager.volume.api_version = api_versions.APIVersion(
+            '3.7'
+        )
 
-        arglist = [
-        ]
+        arglist = []
         verifylist = [
             ('cluster', None),
             ('binary', None),
@@ -65,7 +64,8 @@ class TestBlockStorageClusterList(TestBlockStorageCluster):
                 cluster.binary,
                 cluster.state,
                 cluster.status,
-            ) for cluster in self.fake_clusters
+            )
+            for cluster in self.fake_clusters
         )
         columns, data = self.cmd.take_action(parsed_args)
 
@@ -84,16 +84,21 @@ class TestBlockStorageClusterList(TestBlockStorageCluster):
         )
 
     def test_cluster_list_with_full_options(self):
-        self.app.client_manager.volume.api_version = \
-            api_versions.APIVersion('3.7')
+        self.app.client_manager.volume.api_version = api_versions.APIVersion(
+            '3.7'
+        )
 
         arglist = [
-            '--cluster', 'foo',
-            '--binary', 'bar',
+            '--cluster',
+            'foo',
+            '--binary',
+            'bar',
             '--up',
             '--disabled',
-            '--num-hosts', '5',
-            '--num-down-hosts', '0',
+            '--num-hosts',
+            '5',
+            '--num-down-hosts',
+            '0',
             '--long',
         ]
         verifylist = [
@@ -131,7 +136,8 @@ class TestBlockStorageClusterList(TestBlockStorageCluster):
                 cluster.disabled_reason,
                 cluster.created_at,
                 cluster.updated_at,
-            ) for cluster in self.fake_clusters
+            )
+            for cluster in self.fake_clusters
         )
         columns, data = self.cmd.take_action(parsed_args)
 
@@ -150,11 +156,11 @@ class TestBlockStorageClusterList(TestBlockStorageCluster):
         )
 
     def test_cluster_list_pre_v37(self):
-        self.app.client_manager.volume.api_version = \
-            api_versions.APIVersion('3.6')
+        self.app.client_manager.volume.api_version = api_versions.APIVersion(
+            '3.6'
+        )
 
-        arglist = [
-        ]
+        arglist = []
         verifylist = [
             ('cluster', None),
             ('binary', None),
@@ -167,15 +173,14 @@ class TestBlockStorageClusterList(TestBlockStorageCluster):
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
         exc = self.assertRaises(
-            exceptions.CommandError,
-            self.cmd.take_action,
-            parsed_args)
+            exceptions.CommandError, self.cmd.take_action, parsed_args
+        )
         self.assertIn(
-            '--os-volume-api-version 3.7 or greater is required', str(exc))
+            '--os-volume-api-version 3.7 or greater is required', str(exc)
+        )
 
 
 class TestBlockStorageClusterSet(TestBlockStorageCluster):
-
     cluster = volume_fakes.create_one_cluster()
     columns = (
         'Name',
@@ -213,12 +218,12 @@ class TestBlockStorageClusterSet(TestBlockStorageCluster):
 
         self.cluster_mock.update.return_value = self.cluster
 
-        self.cmd = \
-            block_storage_cluster.SetBlockStorageCluster(self.app, None)
+        self.cmd = block_storage_cluster.SetBlockStorageCluster(self.app, None)
 
     def test_cluster_set(self):
-        self.app.client_manager.volume.api_version = \
-            api_versions.APIVersion('3.7')
+        self.app.client_manager.volume.api_version = api_versions.APIVersion(
+            '3.7'
+        )
 
         arglist = [
             '--enable',
@@ -245,13 +250,16 @@ class TestBlockStorageClusterSet(TestBlockStorageCluster):
         )
 
     def test_cluster_set_disable_with_reason(self):
-        self.app.client_manager.volume.api_version = \
-            api_versions.APIVersion('3.7')
+        self.app.client_manager.volume.api_version = api_versions.APIVersion(
+            '3.7'
+        )
 
         arglist = [
-            '--binary', self.cluster.binary,
+            '--binary',
+            self.cluster.binary,
             '--disable',
-            '--disable-reason', 'foo',
+            '--disable-reason',
+            'foo',
             self.cluster.name,
         ]
         verifylist = [
@@ -274,11 +282,13 @@ class TestBlockStorageClusterSet(TestBlockStorageCluster):
         )
 
     def test_cluster_set_only_with_disable_reason(self):
-        self.app.client_manager.volume.api_version = \
-            api_versions.APIVersion('3.7')
+        self.app.client_manager.volume.api_version = api_versions.APIVersion(
+            '3.7'
+        )
 
         arglist = [
-            '--disable-reason', 'foo',
+            '--disable-reason',
+            'foo',
             self.cluster.name,
         ]
         verifylist = [
@@ -290,19 +300,21 @@ class TestBlockStorageClusterSet(TestBlockStorageCluster):
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
         exc = self.assertRaises(
-            exceptions.CommandError,
-            self.cmd.take_action,
-            parsed_args)
+            exceptions.CommandError, self.cmd.take_action, parsed_args
+        )
         self.assertIn(
-            "Cannot specify --disable-reason without --disable", str(exc))
+            "Cannot specify --disable-reason without --disable", str(exc)
+        )
 
     def test_cluster_set_enable_with_disable_reason(self):
-        self.app.client_manager.volume.api_version = \
-            api_versions.APIVersion('3.7')
+        self.app.client_manager.volume.api_version = api_versions.APIVersion(
+            '3.7'
+        )
 
         arglist = [
             '--enable',
-            '--disable-reason', 'foo',
+            '--disable-reason',
+            'foo',
             self.cluster.name,
         ]
         verifylist = [
@@ -314,15 +326,16 @@ class TestBlockStorageClusterSet(TestBlockStorageCluster):
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
         exc = self.assertRaises(
-            exceptions.CommandError,
-            self.cmd.take_action,
-            parsed_args)
+            exceptions.CommandError, self.cmd.take_action, parsed_args
+        )
         self.assertIn(
-            "Cannot specify --disable-reason without --disable", str(exc))
+            "Cannot specify --disable-reason without --disable", str(exc)
+        )
 
     def test_cluster_set_pre_v37(self):
-        self.app.client_manager.volume.api_version = \
-            api_versions.APIVersion('3.6')
+        self.app.client_manager.volume.api_version = api_versions.APIVersion(
+            '3.6'
+        )
 
         arglist = [
             '--enable',
@@ -338,15 +351,14 @@ class TestBlockStorageClusterSet(TestBlockStorageCluster):
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
         exc = self.assertRaises(
-            exceptions.CommandError,
-            self.cmd.take_action,
-            parsed_args)
+            exceptions.CommandError, self.cmd.take_action, parsed_args
+        )
         self.assertIn(
-            '--os-volume-api-version 3.7 or greater is required', str(exc))
+            '--os-volume-api-version 3.7 or greater is required', str(exc)
+        )
 
 
 class TestBlockStorageClusterShow(TestBlockStorageCluster):
-
     cluster = volume_fakes.create_one_cluster()
     columns = (
         'Name',
@@ -384,15 +396,18 @@ class TestBlockStorageClusterShow(TestBlockStorageCluster):
 
         self.cluster_mock.show.return_value = self.cluster
 
-        self.cmd = \
-            block_storage_cluster.ShowBlockStorageCluster(self.app, None)
+        self.cmd = block_storage_cluster.ShowBlockStorageCluster(
+            self.app, None
+        )
 
     def test_cluster_show(self):
-        self.app.client_manager.volume.api_version = \
-            api_versions.APIVersion('3.7')
+        self.app.client_manager.volume.api_version = api_versions.APIVersion(
+            '3.7'
+        )
 
         arglist = [
-            '--binary', self.cluster.binary,
+            '--binary',
+            self.cluster.binary,
             self.cluster.name,
         ]
         verifylist = [
@@ -412,11 +427,13 @@ class TestBlockStorageClusterShow(TestBlockStorageCluster):
         )
 
     def test_cluster_show_pre_v37(self):
-        self.app.client_manager.volume.api_version = \
-            api_versions.APIVersion('3.6')
+        self.app.client_manager.volume.api_version = api_versions.APIVersion(
+            '3.6'
+        )
 
         arglist = [
-            '--binary', self.cluster.binary,
+            '--binary',
+            self.cluster.binary,
             self.cluster.name,
         ]
         verifylist = [
@@ -427,8 +444,8 @@ class TestBlockStorageClusterShow(TestBlockStorageCluster):
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
         exc = self.assertRaises(
-            exceptions.CommandError,
-            self.cmd.take_action,
-            parsed_args)
+            exceptions.CommandError, self.cmd.take_action, parsed_args
+        )
         self.assertIn(
-            '--os-volume-api-version 3.7 or greater is required', str(exc))
+            '--os-volume-api-version 3.7 or greater is required', str(exc)
+        )

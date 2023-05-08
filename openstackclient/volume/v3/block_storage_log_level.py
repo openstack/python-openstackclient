@@ -34,8 +34,10 @@ class BlockStorageLogLevelList(command.Lister):
             "--host",
             metavar="<host>",
             default="",
-            help=_("List block storage service log level of specified host "
-                   "(name only)")
+            help=_(
+                "List block storage service log level of specified host "
+                "(name only)"
+            ),
         )
         parser.add_argument(
             "--service",
@@ -47,15 +49,18 @@ class BlockStorageLogLevelList(command.Lister):
                 'cinder-api',
                 'cinder-volume',
                 'cinder-scheduler',
-                'cinder-backup'),
-            help=_("List block storage service log level of the specified "
-                   "service (name only)")
+                'cinder-backup',
+            ),
+            help=_(
+                "List block storage service log level of the specified "
+                "service (name only)"
+            ),
         )
         parser.add_argument(
             "--log-prefix",
             metavar="<log-prefix>",
             default="",
-            help="Prefix for the log, e.g. 'sqlalchemy'"
+            help="Prefix for the log, e.g. 'sqlalchemy'",
         )
         return parser
 
@@ -78,12 +83,19 @@ class BlockStorageLogLevelList(command.Lister):
         data = service_client.services.get_log_levels(
             binary=parsed_args.service,
             server=parsed_args.host,
-            prefix=parsed_args.log_prefix)
+            prefix=parsed_args.log_prefix,
+        )
 
-        return (columns,
-                (utils.get_item_properties(
-                    s, columns,
-                ) for s in data))
+        return (
+            columns,
+            (
+                utils.get_item_properties(
+                    s,
+                    columns,
+                )
+                for s in data
+            ),
+        )
 
 
 class BlockStorageLogLevelSet(command.Command):
@@ -99,14 +111,16 @@ class BlockStorageLogLevelSet(command.Command):
             metavar="<log-level>",
             choices=('INFO', 'WARNING', 'ERROR', 'DEBUG'),
             type=str.upper,
-            help=_("Desired log level.")
+            help=_("Desired log level."),
         )
         parser.add_argument(
             "--host",
             metavar="<host>",
             default="",
-            help=_("Set block storage service log level of specified host "
-                   "(name only)")
+            help=_(
+                "Set block storage service log level of specified host "
+                "(name only)"
+            ),
         )
         parser.add_argument(
             "--service",
@@ -118,15 +132,18 @@ class BlockStorageLogLevelSet(command.Command):
                 'cinder-api',
                 'cinder-volume',
                 'cinder-scheduler',
-                'cinder-backup'),
-            help=_("Set block storage service log level of specified service "
-                   "(name only)")
+                'cinder-backup',
+            ),
+            help=_(
+                "Set block storage service log level of specified service "
+                "(name only)"
+            ),
         )
         parser.add_argument(
             "--log-prefix",
             metavar="<log-prefix>",
             default="",
-            help="Prefix for the log, e.g. 'sqlalchemy'"
+            help="Prefix for the log, e.g. 'sqlalchemy'",
         )
         return parser
 
@@ -144,4 +161,5 @@ class BlockStorageLogLevelSet(command.Command):
             level=parsed_args.level,
             binary=parsed_args.service,
             server=parsed_args.host,
-            prefix=parsed_args.log_prefix)
+            prefix=parsed_args.log_prefix,
+        )

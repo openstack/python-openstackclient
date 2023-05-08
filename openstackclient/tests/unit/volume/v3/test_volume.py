@@ -25,7 +25,6 @@ from openstackclient.volume.v3 import volume
 
 
 class TestVolumeSummary(volume_fakes.TestVolume):
-
     columns = [
         'Total Count',
         'Total Size',
@@ -41,15 +40,18 @@ class TestVolumeSummary(volume_fakes.TestVolume):
         self.return_dict = {
             'volume-summary': {
                 'total_count': 2,
-                'total_size': self.mock_vol_1.size + self.mock_vol_2.size}}
+                'total_size': self.mock_vol_1.size + self.mock_vol_2.size,
+            }
+        }
         self.volumes_mock.summary.return_value = self.return_dict
 
         # Get the command object to test
         self.cmd = volume.VolumeSummary(self.app, None)
 
     def test_volume_summary(self):
-        self.app.client_manager.volume.api_version = \
-            api_versions.APIVersion('3.12')
+        self.app.client_manager.volume.api_version = api_versions.APIVersion(
+            '3.12'
+        )
         arglist = [
             '--all-projects',
         ]
@@ -66,9 +68,7 @@ class TestVolumeSummary(volume_fakes.TestVolume):
 
         self.assertEqual(self.columns, columns)
 
-        datalist = (
-            2,
-            self.mock_vol_1.size + self.mock_vol_2.size)
+        datalist = (2, self.mock_vol_1.size + self.mock_vol_2.size)
         self.assertCountEqual(datalist, tuple(data))
 
     def test_volume_summary_pre_312(self):
@@ -81,16 +81,16 @@ class TestVolumeSummary(volume_fakes.TestVolume):
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
         exc = self.assertRaises(
-            exceptions.CommandError,
-            self.cmd.take_action,
-            parsed_args)
+            exceptions.CommandError, self.cmd.take_action, parsed_args
+        )
         self.assertIn(
-            '--os-volume-api-version 3.12 or greater is required',
-            str(exc))
+            '--os-volume-api-version 3.12 or greater is required', str(exc)
+        )
 
     def test_volume_summary_with_metadata(self):
-        self.app.client_manager.volume.api_version = \
-            api_versions.APIVersion('3.36')
+        self.app.client_manager.volume.api_version = api_versions.APIVersion(
+            '3.36'
+        )
 
         combine_meta = {**self.mock_vol_1.metadata, **self.mock_vol_2.metadata}
         meta_dict = copy.deepcopy(self.return_dict)
@@ -119,12 +119,12 @@ class TestVolumeSummary(volume_fakes.TestVolume):
         datalist = (
             2,
             self.mock_vol_1.size + self.mock_vol_2.size,
-            format_columns.DictColumn(combine_meta))
+            format_columns.DictColumn(combine_meta),
+        )
         self.assertCountEqual(datalist, tuple(data))
 
 
 class TestVolumeRevertToSnapshot(volume_fakes.TestVolume):
-
     def setUp(self):
         super().setUp()
 
@@ -134,7 +134,8 @@ class TestVolumeRevertToSnapshot(volume_fakes.TestVolume):
         self.snapshots_mock.reset_mock()
         self.mock_volume = volume_fakes.create_one_volume()
         self.mock_snapshot = volume_fakes.create_one_snapshot(
-            attrs={'volume_id': self.volumes_mock.id})
+            attrs={'volume_id': self.volumes_mock.id}
+        )
 
         # Get the command object to test
         self.cmd = volume.VolumeRevertToSnapshot(self.app, None)
@@ -149,16 +150,16 @@ class TestVolumeRevertToSnapshot(volume_fakes.TestVolume):
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
         exc = self.assertRaises(
-            exceptions.CommandError,
-            self.cmd.take_action,
-            parsed_args)
+            exceptions.CommandError, self.cmd.take_action, parsed_args
+        )
         self.assertIn(
-            '--os-volume-api-version 3.40 or greater is required',
-            str(exc))
+            '--os-volume-api-version 3.40 or greater is required', str(exc)
+        )
 
     def test_volume_revert_to_snapshot(self):
-        self.app.client_manager.volume.api_version = \
-            api_versions.APIVersion('3.40')
+        self.app.client_manager.volume.api_version = api_versions.APIVersion(
+            '3.40'
+        )
         arglist = [
             self.mock_snapshot.id,
         ]
@@ -168,8 +169,9 @@ class TestVolumeRevertToSnapshot(volume_fakes.TestVolume):
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
         find_mock_result = [self.mock_snapshot, self.mock_volume]
-        with mock.patch.object(utils, 'find_resource',
-                               side_effect=find_mock_result) as find_mock:
+        with mock.patch.object(
+            utils, 'find_resource', side_effect=find_mock_result
+        ) as find_mock:
             self.cmd.take_action(parsed_args)
 
             self.volumes_mock.revert_to_snapshot.assert_called_once_with(

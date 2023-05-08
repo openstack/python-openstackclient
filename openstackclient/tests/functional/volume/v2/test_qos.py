@@ -16,31 +16,23 @@ from openstackclient.tests.functional.volume.v2 import common
 
 
 class QosTests(common.BaseVolumeTests):
-    """Functional tests for volume qos. """
+    """Functional tests for volume qos."""
 
     def test_volume_qos_create_delete_list(self):
         """Test create, list, delete multiple"""
         name1 = uuid.uuid4().hex
         cmd_output = self.openstack(
-            'volume qos create ' +
-            name1,
+            'volume qos create ' + name1,
             parse_output=True,
         )
-        self.assertEqual(
-            name1,
-            cmd_output['name']
-        )
+        self.assertEqual(name1, cmd_output['name'])
 
         name2 = uuid.uuid4().hex
         cmd_output = self.openstack(
-            'volume qos create ' +
-            name2,
+            'volume qos create ' + name2,
             parse_output=True,
         )
-        self.assertEqual(
-            name2,
-            cmd_output['name']
-        )
+        self.assertEqual(name2, cmd_output['name'])
 
         # Test list
         cmd_output = self.openstack(
@@ -60,126 +52,84 @@ class QosTests(common.BaseVolumeTests):
 
         name = uuid.uuid4().hex
         cmd_output = self.openstack(
-            'volume qos create ' +
-            '--consumer front-end '
-            '--property Alpha=a ' +
-            name,
+            'volume qos create ' + '--consumer front-end '
+            '--property Alpha=a ' + name,
             parse_output=True,
         )
         self.addCleanup(self.openstack, 'volume qos delete ' + name)
-        self.assertEqual(
-            name,
-            cmd_output['name']
-        )
+        self.assertEqual(name, cmd_output['name'])
 
-        self.assertEqual(
-            "front-end",
-            cmd_output['consumer']
-        )
-        self.assertEqual(
-            {'Alpha': 'a'},
-            cmd_output['properties']
-        )
+        self.assertEqual("front-end", cmd_output['consumer'])
+        self.assertEqual({'Alpha': 'a'}, cmd_output['properties'])
 
         # Test volume qos set
         raw_output = self.openstack(
-            'volume qos set ' +
-            '--property Alpha=c ' +
-            '--property Beta=b ' +
-            name,
+            'volume qos set '
+            + '--property Alpha=c '
+            + '--property Beta=b '
+            + name,
         )
         self.assertOutput('', raw_output)
 
         # Test volume qos show
         cmd_output = self.openstack(
-            'volume qos show ' +
-            name,
+            'volume qos show ' + name,
             parse_output=True,
         )
-        self.assertEqual(
-            name,
-            cmd_output['name']
-        )
-        self.assertEqual(
-            {'Alpha': 'c', 'Beta': 'b'},
-            cmd_output['properties']
-        )
+        self.assertEqual(name, cmd_output['name'])
+        self.assertEqual({'Alpha': 'c', 'Beta': 'b'}, cmd_output['properties'])
 
         # Test volume qos unset
         raw_output = self.openstack(
-            'volume qos unset ' +
-            '--property Alpha ' +
-            name,
+            'volume qos unset ' + '--property Alpha ' + name,
         )
         self.assertOutput('', raw_output)
 
         cmd_output = self.openstack(
-            'volume qos show ' +
-            name,
+            'volume qos show ' + name,
             parse_output=True,
         )
-        self.assertEqual(
-            name,
-            cmd_output['name']
-        )
-        self.assertEqual(
-            {'Beta': 'b'},
-            cmd_output['properties']
-        )
+        self.assertEqual(name, cmd_output['name'])
+        self.assertEqual({'Beta': 'b'}, cmd_output['properties'])
 
     def test_volume_qos_asso_disasso(self):
         """Tests associate and disassociate qos with volume type"""
         vol_type1 = uuid.uuid4().hex
         cmd_output = self.openstack(
-            'volume type create ' +
-            vol_type1,
+            'volume type create ' + vol_type1,
             parse_output=True,
         )
-        self.assertEqual(
-            vol_type1,
-            cmd_output['name']
-        )
+        self.assertEqual(vol_type1, cmd_output['name'])
         self.addCleanup(self.openstack, 'volume type delete ' + vol_type1)
 
         vol_type2 = uuid.uuid4().hex
         cmd_output = self.openstack(
-            'volume type create ' +
-            vol_type2,
+            'volume type create ' + vol_type2,
             parse_output=True,
         )
-        self.assertEqual(
-            vol_type2,
-            cmd_output['name']
-        )
+        self.assertEqual(vol_type2, cmd_output['name'])
         self.addCleanup(self.openstack, 'volume type delete ' + vol_type2)
 
         name = uuid.uuid4().hex
         cmd_output = self.openstack(
-            'volume qos create ' +
-            name,
+            'volume qos create ' + name,
             parse_output=True,
         )
-        self.assertEqual(
-            name,
-            cmd_output['name']
-        )
+        self.assertEqual(name, cmd_output['name'])
         self.addCleanup(self.openstack, 'volume qos delete ' + name)
 
         # Test associate
         raw_output = self.openstack(
-            'volume qos associate ' +
-            name + ' ' + vol_type1
+            'volume qos associate ' + name + ' ' + vol_type1
         )
         self.assertOutput('', raw_output)
         raw_output = self.openstack(
-            'volume qos associate ' +
-            name + ' ' + vol_type2
+            'volume qos associate ' + name + ' ' + vol_type2
         )
         self.assertOutput('', raw_output)
 
         cmd_output = self.openstack(
-            'volume qos show ' +
-            name,
+            'volume qos show ' + name,
             parse_output=True,
         )
         types = cmd_output["associations"]
@@ -188,14 +138,15 @@ class QosTests(common.BaseVolumeTests):
 
         # Test disassociate
         raw_output = self.openstack(
-            'volume qos disassociate ' +
-            '--volume-type ' + vol_type1 +
-            ' ' + name
+            'volume qos disassociate '
+            + '--volume-type '
+            + vol_type1
+            + ' '
+            + name
         )
         self.assertOutput('', raw_output)
         cmd_output = self.openstack(
-            'volume qos show ' +
-            name,
+            'volume qos show ' + name,
             parse_output=True,
         )
         types = cmd_output["associations"]
@@ -204,13 +155,11 @@ class QosTests(common.BaseVolumeTests):
 
         # Test disassociate --all
         raw_output = self.openstack(
-            'volume qos associate ' +
-            name + ' ' + vol_type1
+            'volume qos associate ' + name + ' ' + vol_type1
         )
         self.assertOutput('', raw_output)
         cmd_output = self.openstack(
-            'volume qos show ' +
-            name,
+            'volume qos show ' + name,
             parse_output=True,
         )
         types = cmd_output["associations"]
@@ -218,13 +167,11 @@ class QosTests(common.BaseVolumeTests):
         self.assertIn(vol_type2, types)
 
         raw_output = self.openstack(
-            'volume qos disassociate ' +
-            '--all ' + name
+            'volume qos disassociate ' + '--all ' + name
         )
         self.assertOutput('', raw_output)
         cmd_output = self.openstack(
-            'volume qos show ' +
-            name,
+            'volume qos show ' + name,
             parse_output=True,
         )
         self.assertNotIn("associations", cmd_output.keys())

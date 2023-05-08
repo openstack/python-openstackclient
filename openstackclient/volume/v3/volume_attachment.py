@@ -199,15 +199,17 @@ class CreateVolumeAttachment(command.ShowOne):
                 'mountpoint': parsed_args.mountpoint,
             }
         else:
-            if any({
-                parsed_args.initiator,
-                parsed_args.ip,
-                parsed_args.platform,
-                parsed_args.host,
-                parsed_args.host,
-                parsed_args.multipath,
-                parsed_args.mountpoint,
-            }):
+            if any(
+                {
+                    parsed_args.initiator,
+                    parsed_args.ip,
+                    parsed_args.platform,
+                    parsed_args.host,
+                    parsed_args.host,
+                    parsed_args.multipath,
+                    parsed_args.mountpoint,
+                }
+            ):
                 msg = _(
                     'You must specify the --connect option for any of the '
                     'connection-specific options such as --initiator to be '
@@ -225,7 +227,8 @@ class CreateVolumeAttachment(command.ShowOne):
         )
 
         attachment = volume_client.attachments.create(
-            volume.id, connector, server.id, parsed_args.mode)
+            volume.id, connector, server.id, parsed_args.mode
+        )
 
         return _format_attachment(attachment)
 
@@ -346,7 +349,8 @@ class SetVolumeAttachment(command.ShowOne):
         }
 
         attachment = volume_client.attachments.update(
-            parsed_args.attachment, connector)
+            parsed_args.attachment, connector
+        )
 
         return _format_attachment(attachment)
 
@@ -469,7 +473,8 @@ class ListVolumeAttachment(command.Lister):
         attachments = volume_client.attachments.list(
             search_opts=search_opts,
             marker=parsed_args.marker,
-            limit=parsed_args.limit)
+            limit=parsed_args.limit,
+        )
 
         column_headers = (
             'ID',
@@ -486,10 +491,7 @@ class ListVolumeAttachment(command.Lister):
 
         return (
             column_headers,
-            (
-                utils.get_item_properties(a, columns)
-                for a in attachments
-            ),
+            (utils.get_item_properties(a, columns) for a in attachments),
         )
 
 
