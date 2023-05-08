@@ -31,8 +31,10 @@ def validate_ports_diff(ports):
 
     ports_diff = ports[-1] - ports[0]
     if ports_diff < 0:
-        msg = _("The last number in port range must be"
-                " greater or equal to the first")
+        msg = _(
+            "The last number in port range must be"
+            " greater or equal to the first"
+        )
         raise exceptions.CommandError(msg)
     return ports_diff
 
@@ -42,8 +44,10 @@ def validate_ports_match(internal_ports, external_ports):
     external_ports_diff = validate_ports_diff(external_ports)
 
     if internal_ports_diff != 0 and internal_ports_diff != external_ports_diff:
-        msg = _("The relation between internal and external ports does not "
-                "match the pattern 1:N and N:N")
+        msg = _(
+            "The relation between internal and external ports does not "
+            "match the pattern 1:N and N:N"
+        )
         raise exceptions.CommandError(msg)
 
 
@@ -84,66 +88,80 @@ def _get_columns(item):
     column_map = {}
     hidden_columns = ['location', 'tenant_id']
     return utils.get_osc_show_columns_for_sdk_resource(
-        item,
-        column_map,
-        hidden_columns
+        item, column_map, hidden_columns
     )
 
 
-class CreateFloatingIPPortForwarding(command.ShowOne,
-                                     common.NeutronCommandWithExtraArgs):
+class CreateFloatingIPPortForwarding(
+    command.ShowOne, common.NeutronCommandWithExtraArgs
+):
     _description = _("Create floating IP port forwarding")
 
     def get_parser(self, prog_name):
-        parser = super(CreateFloatingIPPortForwarding,
-                       self).get_parser(prog_name)
+        parser = super(CreateFloatingIPPortForwarding, self).get_parser(
+            prog_name
+        )
         parser.add_argument(
             '--internal-ip-address',
             required=True,
             metavar='<internal-ip-address>',
-            help=_("The fixed IPv4 address of the network "
-                   "port associated to the floating IP port forwarding")
+            help=_(
+                "The fixed IPv4 address of the network "
+                "port associated to the floating IP port forwarding"
+            ),
         )
         parser.add_argument(
             '--port',
             metavar='<port>',
             required=True,
-            help=_("The name or ID of the network port associated "
-                   "to the floating IP port forwarding")
+            help=_(
+                "The name or ID of the network port associated "
+                "to the floating IP port forwarding"
+            ),
         )
         parser.add_argument(
             '--internal-protocol-port',
             metavar='<port-number>',
             required=True,
-            help=_("The protocol port number "
-                   "of the network port fixed IPv4 address "
-                   "associated to the floating IP port forwarding")
+            help=_(
+                "The protocol port number "
+                "of the network port fixed IPv4 address "
+                "associated to the floating IP port forwarding"
+            ),
         )
         parser.add_argument(
             '--external-protocol-port',
             metavar='<port-number>',
             required=True,
-            help=_("The protocol port number of "
-                   "the port forwarding's floating IP address")
+            help=_(
+                "The protocol port number of "
+                "the port forwarding's floating IP address"
+            ),
         )
         parser.add_argument(
             '--protocol',
             metavar='<protocol>',
             required=True,
-            help=_("The protocol used in the floating IP "
-                   "port forwarding, for instance: TCP, UDP")
+            help=_(
+                "The protocol used in the floating IP "
+                "port forwarding, for instance: TCP, UDP"
+            ),
         ),
         parser.add_argument(
             '--description',
             metavar='<description>',
-            help=_("A text to describe/contextualize the use of the "
-                   "port forwarding configuration")
+            help=_(
+                "A text to describe/contextualize the use of the "
+                "port forwarding configuration"
+            ),
         )
         parser.add_argument(
             'floating_ip',
             metavar='<floating-ip>',
-            help=_("Floating IP that the port forwarding belongs to "
-                   "(IP address or ID)")
+            help=_(
+                "Floating IP that the port forwarding belongs to "
+                "(IP address or ID)"
+            ),
         )
 
         return parser
@@ -159,8 +177,7 @@ class CreateFloatingIPPortForwarding(command.ShowOne,
         validate_and_assign_port_ranges(parsed_args, attrs)
 
         if parsed_args.port:
-            port = client.find_port(parsed_args.port,
-                                    ignore_missing=False)
+            port = client.find_port(parsed_args.port, ignore_missing=False)
             attrs['internal_port_id'] = port.id
         attrs['internal_ip_address'] = parsed_args.internal_ip_address
         attrs['protocol'] = parsed_args.protocol
@@ -169,11 +186,11 @@ class CreateFloatingIPPortForwarding(command.ShowOne,
             attrs['description'] = parsed_args.description
 
         attrs.update(
-            self._parse_extra_properties(parsed_args.extra_properties))
+            self._parse_extra_properties(parsed_args.extra_properties)
+        )
 
         obj = client.create_floating_ip_port_forwarding(
-            floating_ip.id,
-            **attrs
+            floating_ip.id, **attrs
         )
         display_columns, columns = _get_columns(obj)
         data = utils.get_item_properties(obj, columns)
@@ -184,19 +201,22 @@ class DeleteFloatingIPPortForwarding(command.Command):
     _description = _("Delete floating IP port forwarding")
 
     def get_parser(self, prog_name):
-        parser = super(DeleteFloatingIPPortForwarding,
-                       self).get_parser(prog_name)
+        parser = super(DeleteFloatingIPPortForwarding, self).get_parser(
+            prog_name
+        )
         parser.add_argument(
             'floating_ip',
             metavar='<floating-ip>',
-            help=_("Floating IP that the port forwarding belongs to "
-                   "(IP address or ID)")
+            help=_(
+                "Floating IP that the port forwarding belongs to "
+                "(IP address or ID)"
+            ),
         )
         parser.add_argument(
             'port_forwarding_id',
             nargs="+",
             metavar="<port-forwarding-id>",
-            help=_("The ID of the floating IP port forwarding(s) to delete")
+            help=_("The ID of the floating IP port forwarding(s) to delete"),
         )
         return parser
 
@@ -217,13 +237,18 @@ class DeleteFloatingIPPortForwarding(command.Command):
                 )
             except Exception as e:
                 result += 1
-                LOG.error(_("Failed to delete floating IP port forwarding "
-                            "'%(port_forwarding_id)s': %(e)s"),
-                          {'port_forwarding_id': port_forwarding_id, 'e': e})
+                LOG.error(
+                    _(
+                        "Failed to delete floating IP port forwarding "
+                        "'%(port_forwarding_id)s': %(e)s"
+                    ),
+                    {'port_forwarding_id': port_forwarding_id, 'e': e},
+                )
         if result > 0:
             total = len(parsed_args.port_forwarding_id)
-            msg = (_("%(result)s of %(total)s Port forwarding failed "
-                   "to delete.") % {'result': result, 'total': total})
+            msg = _(
+                "%(result)s of %(total)s Port forwarding failed " "to delete."
+            ) % {'result': result, 'total': total}
             raise exceptions.CommandError(msg)
 
 
@@ -231,31 +256,38 @@ class ListFloatingIPPortForwarding(command.Lister):
     _description = _("List floating IP port forwarding")
 
     def get_parser(self, prog_name):
-        parser = super(ListFloatingIPPortForwarding,
-                       self).get_parser(prog_name)
+        parser = super(ListFloatingIPPortForwarding, self).get_parser(
+            prog_name
+        )
         parser.add_argument(
             'floating_ip',
             metavar='<floating-ip>',
-            help=_("Floating IP that the port forwarding belongs to "
-                   "(IP address or ID)")
+            help=_(
+                "Floating IP that the port forwarding belongs to "
+                "(IP address or ID)"
+            ),
         )
         parser.add_argument(
             '--port',
             metavar='<port>',
-            help=_("Filter the list result by the ID or name of "
-                   "the internal network port")
+            help=_(
+                "Filter the list result by the ID or name of "
+                "the internal network port"
+            ),
         )
         parser.add_argument(
             '--external-protocol-port',
             metavar='<port-number>',
             dest='external_protocol_port',
-            help=_("Filter the list result by the "
-                   "protocol port number of the floating IP")
+            help=_(
+                "Filter the list result by the "
+                "protocol port number of the floating IP"
+            ),
         )
         parser.add_argument(
             '--protocol',
             metavar='protocol',
-            help=_("Filter the list result by the port protocol")
+            help=_("Filter the list result by the port protocol"),
         )
 
         return parser
@@ -289,8 +321,7 @@ class ListFloatingIPPortForwarding(command.Lister):
         query = {}
 
         if parsed_args.port:
-            port = client.find_port(parsed_args.port,
-                                    ignore_missing=False)
+            port = client.find_port(parsed_args.port, ignore_missing=False)
             query['internal_port_id'] = port.id
         external_port = parsed_args.external_protocol_port
         if external_port:
@@ -298,7 +329,8 @@ class ListFloatingIPPortForwarding(command.Lister):
                 query['external_port_range'] = external_port
             else:
                 query['external_port'] = int(
-                    parsed_args.external_protocol_port)
+                    parsed_args.external_protocol_port
+                )
         if parsed_args.protocol is not None:
             query['protocol'] = parsed_args.protocol
 
@@ -309,66 +341,83 @@ class ListFloatingIPPortForwarding(command.Lister):
 
         data = client.floating_ip_port_forwardings(obj, **query)
 
-        return (headers,
-                (utils.get_item_properties(
-                    s, columns,
+        return (
+            headers,
+            (
+                utils.get_item_properties(
+                    s,
+                    columns,
                     formatters={},
-                ) for s in data))
+                )
+                for s in data
+            ),
+        )
 
 
 class SetFloatingIPPortForwarding(common.NeutronCommandWithExtraArgs):
     _description = _("Set floating IP Port Forwarding Properties")
 
     def get_parser(self, prog_name):
-        parser = super(SetFloatingIPPortForwarding,
-                       self).get_parser(prog_name)
+        parser = super(SetFloatingIPPortForwarding, self).get_parser(prog_name)
         parser.add_argument(
             'floating_ip',
             metavar='<floating-ip>',
-            help=_("Floating IP that the port forwarding belongs to "
-                   "(IP address or ID)")
+            help=_(
+                "Floating IP that the port forwarding belongs to "
+                "(IP address or ID)"
+            ),
         )
         parser.add_argument(
             'port_forwarding_id',
             metavar='<port-forwarding-id>',
-            help=_("The ID of the floating IP port forwarding")
+            help=_("The ID of the floating IP port forwarding"),
         )
         parser.add_argument(
             '--port',
             metavar='<port>',
-            help=_("The ID of the network port associated to "
-                   "the floating IP port forwarding")
+            help=_(
+                "The ID of the network port associated to "
+                "the floating IP port forwarding"
+            ),
         )
         parser.add_argument(
             '--internal-ip-address',
             metavar='<internal-ip-address>',
-            help=_("The fixed IPv4 address of the network port "
-                   "associated to the floating IP port forwarding")
+            help=_(
+                "The fixed IPv4 address of the network port "
+                "associated to the floating IP port forwarding"
+            ),
         )
         parser.add_argument(
             '--internal-protocol-port',
             metavar='<port-number>',
-            help=_("The TCP/UDP/other protocol port number of the "
-                   "network port fixed IPv4 address associated to "
-                   "the floating IP port forwarding")
+            help=_(
+                "The TCP/UDP/other protocol port number of the "
+                "network port fixed IPv4 address associated to "
+                "the floating IP port forwarding"
+            ),
         )
         parser.add_argument(
             '--external-protocol-port',
             metavar='<port-number>',
-            help=_("The TCP/UDP/other protocol port number of the "
-                   "port forwarding's floating IP address")
+            help=_(
+                "The TCP/UDP/other protocol port number of the "
+                "port forwarding's floating IP address"
+            ),
         )
         parser.add_argument(
             '--protocol',
             metavar='<protocol>',
             choices=['tcp', 'udp'],
-            help=_("The IP protocol used in the floating IP port forwarding")
+            help=_("The IP protocol used in the floating IP port forwarding"),
         ),
         parser.add_argument(
             '--description',
             metavar='<description>',
-            help=_("A text to describe/contextualize the use of "
-                   "the port forwarding configuration")
+            help=_(
+                "A text to describe/contextualize the use of "
+                "the port forwarding configuration"
+            ),
         )
 
         return parser
@@ -382,8 +431,7 @@ class SetFloatingIPPortForwarding(common.NeutronCommandWithExtraArgs):
 
         attrs = {}
         if parsed_args.port:
-            port = client.find_port(parsed_args.port,
-                                    ignore_missing=False)
+            port = client.find_port(parsed_args.port, ignore_missing=False)
             attrs['internal_port_id'] = port.id
 
         if parsed_args.internal_ip_address:
@@ -398,28 +446,33 @@ class SetFloatingIPPortForwarding(common.NeutronCommandWithExtraArgs):
             attrs['description'] = parsed_args.description
 
         attrs.update(
-            self._parse_extra_properties(parsed_args.extra_properties))
+            self._parse_extra_properties(parsed_args.extra_properties)
+        )
 
         client.update_floating_ip_port_forwarding(
-            floating_ip.id, parsed_args.port_forwarding_id, **attrs)
+            floating_ip.id, parsed_args.port_forwarding_id, **attrs
+        )
 
 
 class ShowFloatingIPPortForwarding(command.ShowOne):
     _description = _("Display floating IP Port Forwarding details")
 
     def get_parser(self, prog_name):
-        parser = super(ShowFloatingIPPortForwarding,
-                       self).get_parser(prog_name)
+        parser = super(ShowFloatingIPPortForwarding, self).get_parser(
+            prog_name
+        )
         parser.add_argument(
             'floating_ip',
             metavar='<floating-ip>',
-            help=_("Floating IP that the port forwarding belongs to "
-                   "(IP address or ID)")
+            help=_(
+                "Floating IP that the port forwarding belongs to "
+                "(IP address or ID)"
+            ),
         )
         parser.add_argument(
             'port_forwarding_id',
             metavar="<port-forwarding-id>",
-            help=_("The ID of the floating IP port forwarding")
+            help=_("The ID of the floating IP port forwarding"),
         )
         return parser
 

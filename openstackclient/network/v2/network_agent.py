@@ -52,9 +52,7 @@ def _get_network_columns(item):
     }
     hidden_columns = ['location', 'name', 'tenant_id']
     return utils.get_osc_show_columns_for_sdk_resource(
-        item,
-        column_map,
-        hidden_columns
+        item, column_map, hidden_columns
     )
 
 
@@ -66,15 +64,18 @@ class AddNetworkToAgent(command.Command):
         parser.add_argument(
             '--dhcp',
             action='store_true',
-            help=_('Add network to a DHCP agent'))
+            help=_('Add network to a DHCP agent'),
+        )
         parser.add_argument(
             'agent_id',
             metavar='<agent-id>',
-            help=_('Agent to which a network is added (ID only)'))
+            help=_('Agent to which a network is added (ID only)'),
+        )
         parser.add_argument(
             'network',
             metavar='<network>',
-            help=_('Network to be added to an agent (name or ID)'))
+            help=_('Network to be added to an agent (name or ID)'),
+        )
 
         return parser
 
@@ -82,13 +83,15 @@ class AddNetworkToAgent(command.Command):
         client = self.app.client_manager.network
         agent = client.get_agent(parsed_args.agent_id)
         network = client.find_network(
-            parsed_args.network, ignore_missing=False)
+            parsed_args.network, ignore_missing=False
+        )
         if parsed_args.dhcp:
             try:
                 client.add_dhcp_agent_to_network(agent, network)
             except Exception:
                 msg = 'Failed to add {} to {}'.format(
-                    network.name, agent.agent_type)
+                    network.name, agent.agent_type
+                )
                 exceptions.CommandError(msg)
 
 
@@ -98,19 +101,17 @@ class AddRouterToAgent(command.Command):
     def get_parser(self, prog_name):
         parser = super(AddRouterToAgent, self).get_parser(prog_name)
         parser.add_argument(
-            '--l3',
-            action='store_true',
-            help=_('Add router to an L3 agent')
+            '--l3', action='store_true', help=_('Add router to an L3 agent')
         )
         parser.add_argument(
             'agent_id',
             metavar='<agent-id>',
-            help=_("Agent to which a router is added (ID only)")
+            help=_("Agent to which a router is added (ID only)"),
         )
         parser.add_argument(
             'router',
             metavar='<router>',
-            help=_("Router to be added to an agent (name or ID)")
+            help=_("Router to be added to an agent (name or ID)"),
         )
 
         return parser
@@ -132,7 +133,7 @@ class DeleteNetworkAgent(command.Command):
             'network_agent',
             metavar="<network-agent>",
             nargs='+',
-            help=(_("Network agent(s) to delete (ID only)"))
+            help=(_("Network agent(s) to delete (ID only)")),
         )
         return parser
 
@@ -145,14 +146,19 @@ class DeleteNetworkAgent(command.Command):
                 client.delete_agent(agent, ignore_missing=False)
             except Exception as e:
                 result += 1
-                LOG.error(_("Failed to delete network agent with "
-                            "ID '%(agent)s': %(e)s"),
-                          {'agent': agent, 'e': e})
+                LOG.error(
+                    _(
+                        "Failed to delete network agent with "
+                        "ID '%(agent)s': %(e)s"
+                    ),
+                    {'agent': agent, 'e': e},
+                )
 
         if result > 0:
             total = len(parsed_args.network_agent)
-            msg = (_("%(result)s of %(total)s network agents failed "
-                   "to delete.") % {'result': result, 'total': total})
+            msg = _(
+                "%(result)s of %(total)s network agents failed " "to delete."
+            ) % {'result': result, 'total': total}
             raise exceptions.CommandError(msg)
 
 
@@ -166,35 +172,48 @@ class ListNetworkAgent(command.Lister):
         parser.add_argument(
             '--agent-type',
             metavar='<agent-type>',
-            choices=["bgp", "dhcp", "open-vswitch", "linux-bridge", "ofa",
-                     "l3", "loadbalancer", "metering", "metadata", "macvtap",
-                     "nic", "baremetal"],
-            help=_("List only agents with the specified agent type. "
-                   "The supported agent types are: bgp, dhcp, open-vswitch, "
-                   "linux-bridge, ofa, l3, loadbalancer, metering, "
-                   "metadata, macvtap, nic, baremetal.")
+            choices=[
+                "bgp",
+                "dhcp",
+                "open-vswitch",
+                "linux-bridge",
+                "ofa",
+                "l3",
+                "loadbalancer",
+                "metering",
+                "metadata",
+                "macvtap",
+                "nic",
+                "baremetal",
+            ],
+            help=_(
+                "List only agents with the specified agent type. "
+                "The supported agent types are: bgp, dhcp, open-vswitch, "
+                "linux-bridge, ofa, l3, loadbalancer, metering, "
+                "metadata, macvtap, nic, baremetal."
+            ),
         )
         parser.add_argument(
             '--host',
             metavar='<host>',
-            help=_("List only agents running on the specified host")
+            help=_("List only agents running on the specified host"),
         )
         agent_type_group = parser.add_mutually_exclusive_group()
         agent_type_group.add_argument(
             '--network',
             metavar='<network>',
-            help=_('List agents hosting a network (name or ID)')
+            help=_('List agents hosting a network (name or ID)'),
         )
         agent_type_group.add_argument(
             '--router',
             metavar='<router>',
-            help=_('List agents hosting this router (name or ID)')
+            help=_('List agents hosting this router (name or ID)'),
         )
         parser.add_argument(
             '--long',
             action='store_true',
             default=False,
-            help=_("List additional fields in output")
+            help=_("List additional fields in output"),
         )
 
         return parser
@@ -208,7 +227,7 @@ class ListNetworkAgent(command.Lister):
             'availability_zone',
             'is_alive',
             'is_admin_state_up',
-            'binary'
+            'binary',
         )
         column_headers = (
             'ID',
@@ -217,7 +236,7 @@ class ListNetworkAgent(command.Lister):
             'Availability Zone',
             'Alive',
             'State',
-            'Binary'
+            'Binary',
         )
 
         key_value = {
@@ -232,21 +251,23 @@ class ListNetworkAgent(command.Lister):
             'metadata': 'Metadata agent',
             'macvtap': 'Macvtap agent',
             'nic': 'NIC Switch agent',
-            'baremetal': 'Baremetal Node'
+            'baremetal': 'Baremetal Node',
         }
 
         filters = {}
 
         if parsed_args.network is not None:
             network = client.find_network(
-                parsed_args.network, ignore_missing=False)
+                parsed_args.network, ignore_missing=False
+            )
             data = client.network_hosting_dhcp_agents(network)
         elif parsed_args.router is not None:
             if parsed_args.long:
                 columns += ('ha_state',)
                 column_headers += ('HA State',)
-            router = client.find_router(parsed_args.router,
-                                        ignore_missing=False)
+            router = client.find_router(
+                parsed_args.router, ignore_missing=False
+            )
             data = client.routers_hosting_l3_agents(router)
         else:
             if parsed_args.agent_type is not None:
@@ -255,10 +276,17 @@ class ListNetworkAgent(command.Lister):
                 filters['host'] = parsed_args.host
 
             data = client.agents(**filters)
-        return (column_headers,
-                (utils.get_item_properties(
-                    s, columns, formatters=_formatters,
-                ) for s in data))
+        return (
+            column_headers,
+            (
+                utils.get_item_properties(
+                    s,
+                    columns,
+                    formatters=_formatters,
+                )
+                for s in data
+            ),
+        )
 
 
 class RemoveNetworkFromAgent(command.Command):
@@ -269,28 +297,33 @@ class RemoveNetworkFromAgent(command.Command):
         parser.add_argument(
             '--dhcp',
             action='store_true',
-            help=_('Remove network from DHCP agent'))
+            help=_('Remove network from DHCP agent'),
+        )
         parser.add_argument(
             'agent_id',
             metavar='<agent-id>',
-            help=_('Agent to which a network is removed (ID only)'))
+            help=_('Agent to which a network is removed (ID only)'),
+        )
         parser.add_argument(
             'network',
             metavar='<network>',
-            help=_('Network to be removed from an agent (name or ID)'))
+            help=_('Network to be removed from an agent (name or ID)'),
+        )
         return parser
 
     def take_action(self, parsed_args):
         client = self.app.client_manager.network
         agent = client.get_agent(parsed_args.agent_id)
         network = client.find_network(
-            parsed_args.network, ignore_missing=False)
+            parsed_args.network, ignore_missing=False
+        )
         if parsed_args.dhcp:
             try:
                 client.remove_dhcp_agent_from_network(agent, network)
             except Exception:
                 msg = 'Failed to remove {} to {}'.format(
-                    network.name, agent.agent_type)
+                    network.name, agent.agent_type
+                )
                 exceptions.CommandError(msg)
 
 
@@ -302,17 +335,17 @@ class RemoveRouterFromAgent(command.Command):
         parser.add_argument(
             '--l3',
             action='store_true',
-            help=_('Remove router from an L3 agent')
+            help=_('Remove router from an L3 agent'),
         )
         parser.add_argument(
             'agent_id',
             metavar='<agent-id>',
-            help=_("Agent from which router will be removed (ID only)")
+            help=_("Agent from which router will be removed (ID only)"),
         )
         parser.add_argument(
             'router',
             metavar='<router>',
-            help=_("Router to be removed from an agent (name or ID)")
+            help=_("Router to be removed from an agent (name or ID)"),
         )
 
         return parser
@@ -335,23 +368,19 @@ class SetNetworkAgent(command.Command):
         parser.add_argument(
             'network_agent',
             metavar="<network-agent>",
-            help=(_("Network agent to modify (ID only)"))
+            help=(_("Network agent to modify (ID only)")),
         )
         parser.add_argument(
             '--description',
             metavar='<description>',
-            help=_("Set network agent description")
+            help=_("Set network agent description"),
         )
         admin_group = parser.add_mutually_exclusive_group()
         admin_group.add_argument(
-            '--enable',
-            action='store_true',
-            help=_("Enable network agent")
+            '--enable', action='store_true', help=_("Enable network agent")
         )
         admin_group.add_argument(
-            '--disable',
-            action='store_true',
-            help=_("Disable network agent")
+            '--disable', action='store_true', help=_("Disable network agent")
         )
         return parser
 
@@ -378,7 +407,7 @@ class ShowNetworkAgent(command.ShowOne):
         parser.add_argument(
             'network_agent',
             metavar="<network-agent>",
-            help=(_("Network agent to display (ID only)"))
+            help=(_("Network agent to display (ID only)")),
         )
         return parser
 
@@ -386,5 +415,9 @@ class ShowNetworkAgent(command.ShowOne):
         client = self.app.client_manager.network
         obj = client.get_agent(parsed_args.network_agent)
         display_columns, columns = _get_network_columns(obj)
-        data = utils.get_item_properties(obj, columns, formatters=_formatters,)
+        data = utils.get_item_properties(
+            obj,
+            columns,
+            formatters=_formatters,
+        )
         return display_columns, data

@@ -35,9 +35,7 @@ def _get_columns(item):
     column_map = {}
     hidden_columns = ['location', 'tenant_id']
     return utils.get_osc_show_columns_for_sdk_resource(
-        item,
-        column_map,
-        hidden_columns
+        item, column_map, hidden_columns
     )
 
 
@@ -45,8 +43,9 @@ def _get_ranges(item):
     item = sorted([int(i) for i in item])
     for a, b in itertools.groupby(enumerate(item), lambda xy: xy[1] - xy[0]):
         b = list(b)
-        yield "%s-%s" % (b[0][1], b[-1][1]) if b[0][1] != b[-1][1] else \
-            str(b[0][1])
+        yield "%s-%s" % (b[0][1], b[-1][1]) if b[0][1] != b[-1][1] else str(
+            b[0][1]
+        )
 
 
 def _hack_tuple_value_update_by_index(tup, index, value):
@@ -73,7 +72,8 @@ def _exchange_dict_keys_with_values(orig_dict):
 def _update_available_from_props(columns, props):
     index_available = columns.index('available')
     props = _hack_tuple_value_update_by_index(
-        props, index_available, list(_get_ranges(props[index_available])))
+        props, index_available, list(_get_ranges(props[index_available]))
+    )
     return props
 
 
@@ -82,8 +82,7 @@ def _update_used_from_props(columns, props):
     updated_used = _exchange_dict_keys_with_values(props[index_used])
     for k, v in updated_used.items():
         updated_used[k] = list(_get_ranges(v))
-    props = _hack_tuple_value_update_by_index(
-        props, index_used, updated_used)
+    props = _hack_tuple_value_update_by_index(props, index_used, updated_used)
     return props
 
 
@@ -93,8 +92,9 @@ def _update_additional_fields_from_props(columns, props):
     return props
 
 
-class CreateNetworkSegmentRange(command.ShowOne,
-                                common.NeutronCommandWithExtraArgs):
+class CreateNetworkSegmentRange(
+    command.ShowOne, common.NeutronCommandWithExtraArgs
+):
     _description = _("Create new network segment range")
 
     def get_parser(self, prog_name):
@@ -104,8 +104,10 @@ class CreateNetworkSegmentRange(command.ShowOne,
             "--private",
             dest="private",
             action="store_true",
-            help=_('Network segment range is assigned specifically to the '
-                   'project'),
+            help=_(
+                'Network segment range is assigned specifically to the '
+                'project'
+            ),
         )
         shared_group.add_argument(
             "--shared",
@@ -116,13 +118,15 @@ class CreateNetworkSegmentRange(command.ShowOne,
         parser.add_argument(
             'name',
             metavar='<name>',
-            help=_('Name of new network segment range')
+            help=_('Name of new network segment range'),
         )
         parser.add_argument(
             '--project',
             metavar='<project>',
-            help=_('Network segment range owner (name or ID). Optional when '
-                   'the segment range is shared'),
+            help=_(
+                'Network segment range owner (name or ID). Optional when '
+                'the segment range is shared'
+            ),
         )
         identity_common.add_project_domain_option_to_parser(parser)
         parser.add_argument(
@@ -130,8 +134,10 @@ class CreateNetworkSegmentRange(command.ShowOne,
             metavar='<network-type>',
             choices=['geneve', 'gre', 'vlan', 'vxlan'],
             required=True,
-            help=_('Network type of this network segment range '
-                   '(geneve, gre, vlan or vxlan)'),
+            help=_(
+                'Network type of this network segment range '
+                '(geneve, gre, vlan or vxlan)'
+            ),
         )
         parser.add_argument(
             '--physical-network',
@@ -143,20 +149,24 @@ class CreateNetworkSegmentRange(command.ShowOne,
             metavar='<minimum-segmentation-id>',
             type=int,
             required=True,
-            help=_('Minimum segment identifier for this network segment '
-                   'range which is based on the network type, VLAN ID for '
-                   'vlan network type and tunnel ID for geneve, gre and vxlan '
-                   'network types'),
+            help=_(
+                'Minimum segment identifier for this network segment '
+                'range which is based on the network type, VLAN ID for '
+                'vlan network type and tunnel ID for geneve, gre and vxlan '
+                'network types'
+            ),
         )
         parser.add_argument(
             '--maximum',
             metavar='<maximum-segmentation-id>',
             type=int,
             required=True,
-            help=_('Maximum segment identifier for this network segment '
-                   'range which is based on the network type, VLAN ID for '
-                   'vlan network type and tunnel ID for geneve, gre and vxlan '
-                   'network types'),
+            help=_(
+                'Maximum segment identifier for this network segment '
+                'range which is based on the network type, VLAN ID for '
+                'vlan network type and tunnel ID for geneve, gre and vxlan '
+                'network types'
+            ),
         )
 
         return parser
@@ -165,11 +175,14 @@ class CreateNetworkSegmentRange(command.ShowOne,
         network_client = self.app.client_manager.network
         try:
             # Verify that the extension exists.
-            network_client.find_extension('network-segment-range',
-                                          ignore_missing=False)
+            network_client.find_extension(
+                'network-segment-range', ignore_missing=False
+            )
         except Exception as e:
-            msg = (_('Network segment range create not supported by '
-                     'Network API: %(e)s') % {'e': e})
+            msg = _(
+                'Network segment range create not supported by '
+                'Network API: %(e)s'
+            ) % {'e': e}
             raise exceptions.CommandError(msg)
 
         identity_client = self.app.client_manager.identity
@@ -178,10 +191,14 @@ class CreateNetworkSegmentRange(command.ShowOne,
             msg = _("--project is only allowed with --private")
             raise exceptions.CommandError(msg)
 
-        if (parsed_args.network_type.lower() != 'vlan' and
-                parsed_args.physical_network):
-            msg = _("--physical-network is only allowed with --network-type "
-                    "vlan")
+        if (
+            parsed_args.network_type.lower() != 'vlan'
+            and parsed_args.physical_network
+        ):
+            msg = _(
+                "--physical-network is only allowed with --network-type "
+                "vlan"
+            )
             raise exceptions.CommandError(msg)
 
         attrs = {}
@@ -205,8 +222,13 @@ class CreateNetworkSegmentRange(command.ShowOne,
             if project_id:
                 attrs['project_id'] = project_id
             else:
-                msg = (_("Failed to create the network segment range for "
-                         "project %(project_id)s") % parsed_args.project_id)
+                msg = (
+                    _(
+                        "Failed to create the network segment range for "
+                        "project %(project_id)s"
+                    )
+                    % parsed_args.project_id
+                )
                 raise exceptions.CommandError(msg)
         elif not attrs['shared']:
             # default to the current project if no project specified and shared
@@ -218,7 +240,8 @@ class CreateNetworkSegmentRange(command.ShowOne,
             attrs['physical_network'] = parsed_args.physical_network
 
         attrs.update(
-            self._parse_extra_properties(parsed_args.extra_properties))
+            self._parse_extra_properties(parsed_args.extra_properties)
+        )
 
         obj = network_client.create_network_segment_range(**attrs)
         display_columns, columns = _get_columns(obj)
@@ -244,30 +267,39 @@ class DeleteNetworkSegmentRange(command.Command):
         network_client = self.app.client_manager.network
         try:
             # Verify that the extension exists.
-            network_client.find_extension('network-segment-range',
-                                          ignore_missing=False)
+            network_client.find_extension(
+                'network-segment-range', ignore_missing=False
+            )
         except Exception as e:
-            msg = (_('Network segment range delete not supported by '
-                     'Network API: %(e)s') % {'e': e})
+            msg = _(
+                'Network segment range delete not supported by '
+                'Network API: %(e)s'
+            ) % {'e': e}
             raise exceptions.CommandError(msg)
 
         result = 0
         for network_segment_range in parsed_args.network_segment_range:
             try:
                 obj = network_client.find_network_segment_range(
-                    network_segment_range, ignore_missing=False)
+                    network_segment_range, ignore_missing=False
+                )
                 network_client.delete_network_segment_range(obj)
             except Exception as e:
                 result += 1
-                LOG.error(_("Failed to delete network segment range with "
-                            "ID '%(network_segment_range)s': %(e)s"),
-                          {'network_segment_range': network_segment_range,
-                           'e': e})
+                LOG.error(
+                    _(
+                        "Failed to delete network segment range with "
+                        "ID '%(network_segment_range)s': %(e)s"
+                    ),
+                    {'network_segment_range': network_segment_range, 'e': e},
+                )
 
         if result > 0:
             total = len(parsed_args.network_segment_range)
-            msg = (_("%(result)s of %(total)s network segment ranges failed "
-                     "to delete.") % {'result': result, 'total': total})
+            msg = _(
+                "%(result)s of %(total)s network segment ranges failed "
+                "to delete."
+            ) % {'result': result, 'total': total}
             raise exceptions.CommandError(msg)
 
 
@@ -290,8 +322,9 @@ class ListNetworkSegmentRange(command.Lister):
         used_group.add_argument(
             '--unused',
             action='store_true',
-            help=_('List network segment ranges that have segments '
-                   'not in use'),
+            help=_(
+                'List network segment ranges that have segments ' 'not in use'
+            ),
         )
         available_group = parser.add_mutually_exclusive_group()
         available_group.add_argument(
@@ -310,11 +343,14 @@ class ListNetworkSegmentRange(command.Lister):
         network_client = self.app.client_manager.network
         try:
             # Verify that the extension exists.
-            network_client.find_extension('network-segment-range',
-                                          ignore_missing=False)
+            network_client.find_extension(
+                'network-segment-range', ignore_missing=False
+            )
         except Exception as e:
-            msg = (_('Network segment ranges list not supported by '
-                     'Network API: %(e)s') % {'e': e})
+            msg = _(
+                'Network segment ranges list not supported by '
+                'Network API: %(e)s'
+            ) % {'e': e}
             raise exceptions.CommandError(msg)
 
         filters = {}
@@ -329,7 +365,7 @@ class ListNetworkSegmentRange(command.Lister):
             'Network Type',
             'Physical Network',
             'Minimum ID',
-            'Maximum ID'
+            'Maximum ID',
         )
         columns = (
             'id',
@@ -342,8 +378,12 @@ class ListNetworkSegmentRange(command.Lister):
             'minimum',
             'maximum',
         )
-        if parsed_args.available or parsed_args.unavailable or \
-                parsed_args.used or parsed_args.unused:
+        if (
+            parsed_args.available
+            or parsed_args.unavailable
+            or parsed_args.used
+            or parsed_args.unused
+        ):
             # If one of `--available`, `--unavailable`, `--used`,
             # `--unused` is specified, we assume that additional fields
             # should be listed in output.
@@ -361,13 +401,16 @@ class ListNetworkSegmentRange(command.Lister):
         display_props = tuple()
         for s in data:
             props = utils.get_item_properties(s, columns)
-            if parsed_args.available and \
-                    _is_prop_empty(columns, props, 'available') or \
-               parsed_args.unavailable and \
-                    not _is_prop_empty(columns, props, 'available') or \
-               parsed_args.used and _is_prop_empty(columns, props, 'used') or \
-               parsed_args.unused and \
-                    not _is_prop_empty(columns, props, 'used'):
+            if (
+                parsed_args.available
+                and _is_prop_empty(columns, props, 'available')
+                or parsed_args.unavailable
+                and not _is_prop_empty(columns, props, 'available')
+                or parsed_args.used
+                and _is_prop_empty(columns, props, 'used')
+                or parsed_args.unused
+                and not _is_prop_empty(columns, props, 'used')
+            ):
                 continue
             if parsed_args.long:
                 props = _update_additional_fields_from_props(columns, props)
@@ -409,20 +452,25 @@ class SetNetworkSegmentRange(common.NeutronCommandWithExtraArgs):
         network_client = self.app.client_manager.network
         try:
             # Verify that the extension exists.
-            network_client.find_extension('network-segment-range',
-                                          ignore_missing=False)
+            network_client.find_extension(
+                'network-segment-range', ignore_missing=False
+            )
         except Exception as e:
-            msg = (_('Network segment range set not supported by '
-                     'Network API: %(e)s') % {'e': e})
+            msg = _(
+                'Network segment range set not supported by '
+                'Network API: %(e)s'
+            ) % {'e': e}
             raise exceptions.CommandError(msg)
 
-        if (parsed_args.minimum and not parsed_args.maximum) or \
-                (parsed_args.maximum and not parsed_args.minimum):
+        if (parsed_args.minimum and not parsed_args.maximum) or (
+            parsed_args.maximum and not parsed_args.minimum
+        ):
             msg = _("--minimum and --maximum are both required")
             raise exceptions.CommandError(msg)
 
         obj = network_client.find_network_segment_range(
-            parsed_args.network_segment_range, ignore_missing=False)
+            parsed_args.network_segment_range, ignore_missing=False
+        )
         attrs = {}
         if parsed_args.name:
             attrs['name'] = parsed_args.name
@@ -431,7 +479,8 @@ class SetNetworkSegmentRange(common.NeutronCommandWithExtraArgs):
         if parsed_args.maximum:
             attrs['maximum'] = parsed_args.maximum
         attrs.update(
-            self._parse_extra_properties(parsed_args.extra_properties))
+            self._parse_extra_properties(parsed_args.extra_properties)
+        )
         network_client.update_network_segment_range(obj, **attrs)
 
 
@@ -451,16 +500,18 @@ class ShowNetworkSegmentRange(command.ShowOne):
         network_client = self.app.client_manager.network
         try:
             # Verify that the extension exists.
-            network_client.find_extension('network-segment-range',
-                                          ignore_missing=False)
+            network_client.find_extension(
+                'network-segment-range', ignore_missing=False
+            )
         except Exception as e:
-            msg = (_('Network segment range show not supported by '
-                     'Network API: %(e)s') % {'e': e})
+            msg = _(
+                'Network segment range show not supported by '
+                'Network API: %(e)s'
+            ) % {'e': e}
             raise exceptions.CommandError(msg)
 
         obj = network_client.find_network_segment_range(
-            parsed_args.network_segment_range,
-            ignore_missing=False
+            parsed_args.network_segment_range, ignore_missing=False
         )
         display_columns, columns = _get_columns(obj)
         data = utils.get_item_properties(obj, columns)

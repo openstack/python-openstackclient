@@ -23,7 +23,6 @@ from openstackclient.tests.unit import utils as tests_utils
 
 
 class TestNDPProxy(network_fakes.TestNetworkV2):
-
     def setUp(self):
         super(TestNDPProxy, self).setUp()
         # Get a shortcut to the ProjectManager Mock
@@ -33,7 +32,8 @@ class TestNDPProxy(network_fakes.TestNetworkV2):
         # Get a shortcut to the network client
         self.network = self.app.client_manager.network
         self.router = network_fakes.FakeRouter.create_one_router(
-            {'id': 'fake-router-id'})
+            {'id': 'fake-router-id'}
+        )
         self.network.find_router = mock.Mock(return_value=self.router)
         self.port = network_fakes.create_one_port()
         self.network.find_port = mock.Mock(return_value=self.port)
@@ -43,9 +43,7 @@ class TestCreateNDPProxy(TestNDPProxy):
     def setUp(self):
         super(TestCreateNDPProxy, self).setUp()
         attrs = {'router_id': self.router.id, 'port_id': self.port.id}
-        self.ndp_proxy = (
-            network_fakes.create_one_ndp_proxy(
-                attrs))
+        self.ndp_proxy = network_fakes.create_one_ndp_proxy(attrs)
         self.columns = (
             'created_at',
             'description',
@@ -56,7 +54,8 @@ class TestCreateNDPProxy(TestNDPProxy):
             'project_id',
             'revision_number',
             'router_id',
-            'updated_at')
+            'updated_at',
+        )
 
         self.data = (
             self.ndp_proxy.created_at,
@@ -68,10 +67,9 @@ class TestCreateNDPProxy(TestNDPProxy):
             self.ndp_proxy.project_id,
             self.ndp_proxy.revision_number,
             self.ndp_proxy.router_id,
-            self.ndp_proxy.updated_at
+            self.ndp_proxy.updated_at,
         )
-        self.network.create_ndp_proxy = mock.Mock(
-            return_value=self.ndp_proxy)
+        self.network.create_ndp_proxy = mock.Mock(return_value=self.ndp_proxy)
 
         # Get the command object to test
         self.cmd = ndp_proxy.CreateNDPProxy(self.app, self.namespace)
@@ -81,16 +79,25 @@ class TestCreateNDPProxy(TestNDPProxy):
         verifylist = []
 
         # Missing required args should bail here
-        self.assertRaises(tests_utils.ParserException, self.check_parser,
-                          self.cmd, arglist, verifylist)
+        self.assertRaises(
+            tests_utils.ParserException,
+            self.check_parser,
+            self.cmd,
+            arglist,
+            verifylist,
+        )
 
     def test_create_all_options(self):
         arglist = [
             self.ndp_proxy.router_id,
-            '--name', self.ndp_proxy.name,
-            '--port', self.ndp_proxy.port_id,
-            '--ip-address', self.ndp_proxy.ip_address,
-            '--description', self.ndp_proxy.description,
+            '--name',
+            self.ndp_proxy.name,
+            '--port',
+            self.ndp_proxy.port_id,
+            '--ip-address',
+            self.ndp_proxy.ip_address,
+            '--description',
+            self.ndp_proxy.description,
         ]
         verifylist = [
             ('name', self.ndp_proxy.name),
@@ -103,38 +110,33 @@ class TestCreateNDPProxy(TestNDPProxy):
         columns, data = self.cmd.take_action(parsed_args)
 
         self.network.create_ndp_proxy.assert_called_once_with(
-            **{'name': self.ndp_proxy.name,
-               'router_id': self.ndp_proxy.router_id,
-               'ip_address': self.ndp_proxy.ip_address,
-               'port_id': self.ndp_proxy.port_id,
-               'description': self.ndp_proxy.description})
+            **{
+                'name': self.ndp_proxy.name,
+                'router_id': self.ndp_proxy.router_id,
+                'ip_address': self.ndp_proxy.ip_address,
+                'port_id': self.ndp_proxy.port_id,
+                'description': self.ndp_proxy.description,
+            }
+        )
         self.assertEqual(self.columns, columns)
         self.assertEqual(self.data, data)
 
 
 class TestDeleteNDPProxy(TestNDPProxy):
-
     def setUp(self):
         super(TestDeleteNDPProxy, self).setUp()
         attrs = {'router_id': self.router.id, 'port_id': self.port.id}
-        self.ndp_proxies = (
-            network_fakes.create_ndp_proxies(attrs))
+        self.ndp_proxies = network_fakes.create_ndp_proxies(attrs)
         self.ndp_proxy = self.ndp_proxies[0]
-        self.network.delete_ndp_proxy = mock.Mock(
-            return_value=None)
-        self.network.find_ndp_proxy = mock.Mock(
-            return_value=self.ndp_proxy)
+        self.network.delete_ndp_proxy = mock.Mock(return_value=None)
+        self.network.find_ndp_proxy = mock.Mock(return_value=self.ndp_proxy)
 
         # Get the command object to test
         self.cmd = ndp_proxy.DeleteNDPProxy(self.app, self.namespace)
 
     def test_delete(self):
-        arglist = [
-            self.ndp_proxy.id
-        ]
-        verifylist = [
-            ('ndp_proxy', [self.ndp_proxy.id])
-        ]
+        arglist = [self.ndp_proxy.id]
+        verifylist = [('ndp_proxy', [self.ndp_proxy.id])]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
         result = self.cmd.take_action(parsed_args)
         self.network.delete_ndp_proxy.assert_called_once_with(self.ndp_proxy)
@@ -144,15 +146,12 @@ class TestDeleteNDPProxy(TestNDPProxy):
         arglist = [
             self.ndp_proxy.id,
         ]
-        verifylist = [
-            ('ndp_proxy', [self.ndp_proxy.id])
-        ]
-        self.network.delete_ndp_proxy.side_effect = Exception(
-            'Error message')
+        verifylist = [('ndp_proxy', [self.ndp_proxy.id])]
+        self.network.delete_ndp_proxy.side_effect = Exception('Error message')
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
         self.assertRaises(
-            exceptions.CommandError,
-            self.cmd.take_action, parsed_args)
+            exceptions.CommandError, self.cmd.take_action, parsed_args
+        )
 
     def test_multi_ndp_proxies_delete(self):
         arglist = []
@@ -170,17 +169,16 @@ class TestDeleteNDPProxy(TestNDPProxy):
         result = self.cmd.take_action(parsed_args)
 
         self.network.delete_ndp_proxy.assert_has_calls(
-            [call(self.ndp_proxy), call(self.ndp_proxy)])
+            [call(self.ndp_proxy), call(self.ndp_proxy)]
+        )
         self.assertIsNone(result)
 
 
 class TestListNDPProxy(TestNDPProxy):
-
     def setUp(self):
         super(TestListNDPProxy, self).setUp()
         attrs = {'router_id': self.router.id, 'port_id': self.port.id}
-        ndp_proxies = (
-            network_fakes.create_ndp_proxies(attrs, count=3))
+        ndp_proxies = network_fakes.create_ndp_proxies(attrs, count=3)
         self.columns = (
             'ID',
             'Name',
@@ -190,16 +188,17 @@ class TestListNDPProxy(TestNDPProxy):
         )
         self.data = []
         for np in ndp_proxies:
-            self.data.append((
-                np.id,
-                np.name,
-                np.router_id,
-                np.ip_address,
-                np.project_id,
-            ))
+            self.data.append(
+                (
+                    np.id,
+                    np.name,
+                    np.router_id,
+                    np.ip_address,
+                    np.project_id,
+                )
+            )
 
-        self.network.ndp_proxies = mock.Mock(
-            return_value=ndp_proxies)
+        self.network.ndp_proxies = mock.Mock(return_value=ndp_proxies)
 
         # Get the command object to test
         self.cmd = ndp_proxy.ListNDPProxy(self.app, self.namespace)
@@ -220,73 +219,73 @@ class TestListNDPProxy(TestNDPProxy):
 
     def test_ndp_proxy_list_router(self):
         arglist = [
-            '--router', 'fake-router-name',
+            '--router',
+            'fake-router-name',
         ]
 
-        verifylist = [
-            ('router', 'fake-router-name')
-        ]
+        verifylist = [('router', 'fake-router-name')]
 
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
         columns, data = self.cmd.take_action(parsed_args)
 
-        self.network.ndp_proxies.assert_called_once_with(**{
-            'router_id': 'fake-router-id'})
+        self.network.ndp_proxies.assert_called_once_with(
+            **{'router_id': 'fake-router-id'}
+        )
         self.assertEqual(self.columns, columns)
         self.assertCountEqual(self.data, list(data))
 
     def test_ndp_proxy_list_port(self):
         arglist = [
-            '--port', self.port.id,
+            '--port',
+            self.port.id,
         ]
 
-        verifylist = [
-            ('port', self.port.id)
-        ]
+        verifylist = [('port', self.port.id)]
 
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
         columns, data = self.cmd.take_action(parsed_args)
 
-        self.network.ndp_proxies.assert_called_once_with(**{
-            'port_id': self.port.id})
+        self.network.ndp_proxies.assert_called_once_with(
+            **{'port_id': self.port.id}
+        )
         self.assertEqual(self.columns, columns)
         self.assertCountEqual(self.data, list(data))
 
     def test_ndp_proxy_list_name(self):
         arglist = [
-            '--name', 'fake-ndp-proxy-name',
+            '--name',
+            'fake-ndp-proxy-name',
         ]
 
-        verifylist = [
-            ('name', 'fake-ndp-proxy-name')
-        ]
+        verifylist = [('name', 'fake-ndp-proxy-name')]
 
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
         columns, data = self.cmd.take_action(parsed_args)
 
-        self.network.ndp_proxies.assert_called_once_with(**{
-            'name': 'fake-ndp-proxy-name'})
+        self.network.ndp_proxies.assert_called_once_with(
+            **{'name': 'fake-ndp-proxy-name'}
+        )
         self.assertEqual(self.columns, columns)
         self.assertCountEqual(self.data, list(data))
 
     def test_ndp_proxy_list_ip_address(self):
         arglist = [
-            '--ip-address', '2001::1:2',
+            '--ip-address',
+            '2001::1:2',
         ]
 
-        verifylist = [
-            ('ip_address', '2001::1:2')
-        ]
+        verifylist = [('ip_address', '2001::1:2')]
 
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
         columns, data = self.cmd.take_action(parsed_args)
 
-        self.network.ndp_proxies.assert_called_once_with(**{
-            'ip_address': '2001::1:2'})
+        self.network.ndp_proxies.assert_called_once_with(
+            **{'ip_address': '2001::1:2'}
+        )
         self.assertEqual(self.columns, columns)
         self.assertCountEqual(self.data, list(data))
 
@@ -294,7 +293,8 @@ class TestListNDPProxy(TestNDPProxy):
         project = identity_fakes_v3.FakeProject.create_one_project()
         self.projects_mock.get.return_value = project
         arglist = [
-            '--project', project.id,
+            '--project',
+            project.id,
         ]
         verifylist = [
             ('project', project.id),
@@ -303,7 +303,8 @@ class TestListNDPProxy(TestNDPProxy):
         columns, data = self.cmd.take_action(parsed_args)
 
         self.network.ndp_proxies.assert_called_once_with(
-            **{'project_id': project.id})
+            **{'project_id': project.id}
+        )
         self.assertEqual(self.columns, columns)
         self.assertItemsEqual(self.data, list(data))
 
@@ -311,8 +312,10 @@ class TestListNDPProxy(TestNDPProxy):
         project = identity_fakes_v3.FakeProject.create_one_project()
         self.projects_mock.get.return_value = project
         arglist = [
-            '--project', project.id,
-            '--project-domain', project.domain_id,
+            '--project',
+            project.id,
+            '--project-domain',
+            project.domain_id,
         ]
         verifylist = [
             ('project', project.id),
@@ -328,15 +331,12 @@ class TestListNDPProxy(TestNDPProxy):
 
 
 class TestSetNDPProxy(TestNDPProxy):
-
     def setUp(self):
         super(TestSetNDPProxy, self).setUp()
         attrs = {'router_id': self.router.id, 'port_id': self.port.id}
-        self.ndp_proxy = (
-            network_fakes.create_one_ndp_proxy(attrs))
+        self.ndp_proxy = network_fakes.create_one_ndp_proxy(attrs)
         self.network.update_ndp_proxy = mock.Mock(return_value=None)
-        self.network.find_ndp_proxy = mock.Mock(
-            return_value=self.ndp_proxy)
+        self.network.find_ndp_proxy = mock.Mock(return_value=self.ndp_proxy)
 
         # Get the command object to test
         self.cmd = ndp_proxy.SetNDPProxy(self.app, self.namespace)
@@ -350,16 +350,16 @@ class TestSetNDPProxy(TestNDPProxy):
         ]
 
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
-        result = (self.cmd.take_action(parsed_args))
+        result = self.cmd.take_action(parsed_args)
 
-        self.network.update_ndp_proxy.assert_called_once_with(
-            self.ndp_proxy)
+        self.network.update_ndp_proxy.assert_called_once_with(self.ndp_proxy)
         self.assertIsNone(result)
 
     def test_set_name(self):
         arglist = [
             self.ndp_proxy.id,
-            '--name', 'fake-name',
+            '--name',
+            'fake-name',
         ]
         verifylist = [
             ('ndp_proxy', self.ndp_proxy.id),
@@ -367,16 +367,18 @@ class TestSetNDPProxy(TestNDPProxy):
         ]
 
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
-        result = (self.cmd.take_action(parsed_args))
+        result = self.cmd.take_action(parsed_args)
 
         self.network.update_ndp_proxy.assert_called_once_with(
-            self.ndp_proxy, name='fake-name')
+            self.ndp_proxy, name='fake-name'
+        )
         self.assertIsNone(result)
 
     def test_set_description(self):
         arglist = [
             self.ndp_proxy.id,
-            '--description', 'balala',
+            '--description',
+            'balala',
         ]
         verifylist = [
             ('ndp_proxy', self.ndp_proxy.id),
@@ -384,20 +386,19 @@ class TestSetNDPProxy(TestNDPProxy):
         ]
 
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
-        result = (self.cmd.take_action(parsed_args))
+        result = self.cmd.take_action(parsed_args)
 
         self.network.update_ndp_proxy.assert_called_once_with(
-            self.ndp_proxy, description='balala')
+            self.ndp_proxy, description='balala'
+        )
         self.assertIsNone(result)
 
 
 class TestShowNDPProxy(TestNDPProxy):
-
     def setUp(self):
         super(TestShowNDPProxy, self).setUp()
         attrs = {'router_id': self.router.id, 'port_id': self.port.id}
-        self.ndp_proxy = (
-            network_fakes.create_one_ndp_proxy(attrs))
+        self.ndp_proxy = network_fakes.create_one_ndp_proxy(attrs)
 
         self.columns = (
             'created_at',
@@ -409,7 +410,8 @@ class TestShowNDPProxy(TestNDPProxy):
             'project_id',
             'revision_number',
             'router_id',
-            'updated_at')
+            'updated_at',
+        )
 
         self.data = (
             self.ndp_proxy.created_at,
@@ -421,7 +423,7 @@ class TestShowNDPProxy(TestNDPProxy):
             self.ndp_proxy.project_id,
             self.ndp_proxy.revision_number,
             self.ndp_proxy.router_id,
-            self.ndp_proxy.updated_at
+            self.ndp_proxy.updated_at,
         )
         self.network.get_ndp_proxy = mock.Mock(return_value=self.ndp_proxy)
         self.network.find_ndp_proxy = mock.Mock(return_value=self.ndp_proxy)
@@ -434,8 +436,13 @@ class TestShowNDPProxy(TestNDPProxy):
         verifylist = []
 
         # Missing required args should bail here
-        self.assertRaises(tests_utils.ParserException, self.check_parser,
-                          self.cmd, arglist, verifylist)
+        self.assertRaises(
+            tests_utils.ParserException,
+            self.check_parser,
+            self.cmd,
+            arglist,
+            verifylist,
+        )
 
     def test_show_default_options(self):
         arglist = [
@@ -446,9 +453,10 @@ class TestShowNDPProxy(TestNDPProxy):
         ]
 
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
-        columns, data = (self.cmd.take_action(parsed_args))
+        columns, data = self.cmd.take_action(parsed_args)
 
         self.network.find_ndp_proxy.assert_called_once_with(
-            self.ndp_proxy.id, ignore_missing=False)
+            self.ndp_proxy.id, ignore_missing=False
+        )
         self.assertEqual(self.columns, columns)
         self.assertEqual(self.data, data)

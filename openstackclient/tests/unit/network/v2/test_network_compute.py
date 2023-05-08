@@ -24,7 +24,6 @@ from openstackclient.tests.unit import utils as tests_utils
 # Tests for Nova network
 #
 class TestNetworkCompute(compute_fakes.TestComputev2):
-
     def setUp(self):
         super(TestNetworkCompute, self).setUp()
 
@@ -32,11 +31,8 @@ class TestNetworkCompute(compute_fakes.TestComputev2):
         self.compute = self.app.client_manager.compute
 
 
-@mock.patch(
-    'openstackclient.api.compute_v2.APIv2.network_create'
-)
+@mock.patch('openstackclient.api.compute_v2.APIv2.network_create')
 class TestCreateNetworkCompute(TestNetworkCompute):
-
     # The network to create.
     _network = compute_fakes.FakeNetwork.create_one_network()
 
@@ -153,7 +149,8 @@ class TestCreateNetworkCompute(TestNetworkCompute):
     def test_network_create_default_options(self, net_mock):
         net_mock.return_value = self._network
         arglist = [
-            "--subnet", self._network['cidr'],
+            "--subnet",
+            self._network['cidr'],
             self._network['label'],
         ]
         verifylist = [
@@ -164,19 +161,18 @@ class TestCreateNetworkCompute(TestNetworkCompute):
 
         columns, data = self.cmd.take_action(parsed_args)
 
-        net_mock.assert_called_once_with(**{
-            'subnet': self._network['cidr'],
-            'name': self._network['label'],
-        })
+        net_mock.assert_called_once_with(
+            **{
+                'subnet': self._network['cidr'],
+                'name': self._network['label'],
+            }
+        )
         self.assertEqual(self.columns, columns)
         self.assertEqual(self.data, data)
 
 
-@mock.patch(
-    'openstackclient.api.compute_v2.APIv2.network_delete'
-)
+@mock.patch('openstackclient.api.compute_v2.APIv2.network_delete')
 class TestDeleteNetworkCompute(TestNetworkCompute):
-
     def setUp(self):
         super(TestDeleteNetworkCompute, self).setUp()
 
@@ -186,8 +182,9 @@ class TestDeleteNetworkCompute(TestNetworkCompute):
         self._networks = compute_fakes.FakeNetwork.create_networks(count=3)
 
         # Return value of utils.find_resource()
-        self.compute.api.network_find = \
-            compute_fakes.FakeNetwork.get_networks(networks=self._networks)
+        self.compute.api.network_find = compute_fakes.FakeNetwork.get_networks(
+            networks=self._networks
+        )
 
         # Get the command object to test
         self.cmd = network.DeleteNetwork(self.app, None)
@@ -229,10 +226,10 @@ class TestDeleteNetworkCompute(TestNetworkCompute):
 
     def test_network_delete_multi_with_exception(self, net_mock):
         net_mock.return_value = mock.Mock(return_value=None)
-        net_mock.side_effect = ([
+        net_mock.side_effect = [
             mock.Mock(return_value=None),
             exceptions.CommandError,
-        ])
+        ]
         arglist = [
             self._networks[0]['id'],
             'xxxx-yyyy-zzzz',
@@ -254,11 +251,8 @@ class TestDeleteNetworkCompute(TestNetworkCompute):
         net_mock.assert_any_call('xxxx-yyyy-zzzz')
 
 
-@mock.patch(
-    'openstackclient.api.compute_v2.APIv2.network_list'
-)
+@mock.patch('openstackclient.api.compute_v2.APIv2.network_list')
 class TestListNetworkCompute(TestNetworkCompute):
-
     # The networks going to be listed up.
     _networks = compute_fakes.FakeNetwork.create_networks(count=3)
 
@@ -270,11 +264,13 @@ class TestListNetworkCompute(TestNetworkCompute):
 
     data = []
     for net in _networks:
-        data.append((
-            net['id'],
-            net['label'],
-            net['cidr'],
-        ))
+        data.append(
+            (
+                net['id'],
+                net['label'],
+                net['cidr'],
+            )
+        )
 
     def setUp(self):
         super(TestListNetworkCompute, self).setUp()
@@ -300,11 +296,8 @@ class TestListNetworkCompute(TestNetworkCompute):
         self.assertEqual(self.data, list(data))
 
 
-@mock.patch(
-    'openstackclient.api.compute_v2.APIv2.network_find'
-)
+@mock.patch('openstackclient.api.compute_v2.APIv2.network_find')
 class TestShowNetworkCompute(TestNetworkCompute):
-
     # The network to show.
     _network = compute_fakes.FakeNetwork.create_one_network()
 

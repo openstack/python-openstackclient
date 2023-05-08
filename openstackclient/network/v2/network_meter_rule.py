@@ -30,9 +30,7 @@ def _get_columns(item):
     column_map = {}
     hidden_columns = ['location', 'tenant_id']
     return utils.get_osc_show_columns_for_sdk_resource(
-        item,
-        column_map,
-        hidden_columns
+        item, column_map, hidden_columns
     )
 
 
@@ -76,30 +74,30 @@ class CreateMeterRule(command.ShowOne, common.NeutronCommandWithExtraArgs):
         parser.add_argument(
             '--project',
             metavar='<project>',
-            help=_("Owner's project (name or ID)")
+            help=_("Owner's project (name or ID)"),
         )
         identity_common.add_project_domain_option_to_parser(parser)
         exclude_group = parser.add_mutually_exclusive_group()
         exclude_group.add_argument(
             '--exclude',
             action='store_true',
-            help=_("Exclude remote IP prefix from traffic count")
+            help=_("Exclude remote IP prefix from traffic count"),
         )
         exclude_group.add_argument(
             '--include',
             action='store_true',
-            help=_("Include remote IP prefix from traffic count (default)")
+            help=_("Include remote IP prefix from traffic count (default)"),
         )
         direction_group = parser.add_mutually_exclusive_group()
         direction_group.add_argument(
             '--ingress',
             action='store_true',
-            help=_("Apply rule to incoming network traffic (default)")
+            help=_("Apply rule to incoming network traffic (default)"),
         )
         direction_group.add_argument(
             '--egress',
             action='store_true',
-            help=_('Apply rule to outgoing network traffic')
+            help=_('Apply rule to outgoing network traffic'),
         )
         parser.add_argument(
             '--remote-ip-prefix',
@@ -129,12 +127,14 @@ class CreateMeterRule(command.ShowOne, common.NeutronCommandWithExtraArgs):
 
     def take_action(self, parsed_args):
         client = self.app.client_manager.network
-        _meter = client.find_metering_label(parsed_args.meter,
-                                            ignore_missing=False)
+        _meter = client.find_metering_label(
+            parsed_args.meter, ignore_missing=False
+        )
         parsed_args.meter = _meter.id
         attrs = _get_attrs(self.app.client_manager, parsed_args)
         attrs.update(
-            self._parse_extra_properties(parsed_args.extra_properties))
+            self._parse_extra_properties(parsed_args.extra_properties)
+        )
         obj = client.create_metering_label_rule(**attrs)
         display_columns, columns = _get_columns(obj)
         data = utils.get_item_properties(obj, columns, formatters={})
@@ -152,7 +152,7 @@ class DeleteMeterRule(command.Command):
             'meter_rule_id',
             metavar='<meter-rule-id>',
             nargs='+',
-            help=_('Meter rule to delete (ID only)')
+            help=_('Meter rule to delete (ID only)'),
         )
 
         return parser
@@ -167,14 +167,19 @@ class DeleteMeterRule(command.Command):
                 client.delete_metering_label_rule(obj)
             except Exception as e:
                 result += 1
-                LOG.error(_("Failed to delete meter rule with "
-                            "ID '%(id)s': %(e)s"),
-                          {"id": id, "e": e})
+                LOG.error(
+                    _(
+                        "Failed to delete meter rule with "
+                        "ID '%(id)s': %(e)s"
+                    ),
+                    {"id": id, "e": e},
+                )
 
         if result > 0:
             total = len(parsed_args.meter_rule_id)
-            msg = (_("%(result)s of %(total)s meter rules failed "
-                     "to delete.") % {"result": result, "total": total})
+            msg = _(
+                "%(result)s of %(total)s meter rules failed " "to delete."
+            ) % {"result": result, "total": total}
             raise exceptions.CommandError(msg)
 
 
@@ -201,10 +206,16 @@ class ListMeterRule(command.Lister):
             'Destination IP Prefix',
         )
         data = client.metering_label_rules()
-        return (column_headers,
-                (utils.get_item_properties(
-                    s, columns,
-                ) for s in data))
+        return (
+            column_headers,
+            (
+                utils.get_item_properties(
+                    s,
+                    columns,
+                )
+                for s in data
+            ),
+        )
 
 
 class ShowMeterRule(command.ShowOne):
@@ -215,14 +226,15 @@ class ShowMeterRule(command.ShowOne):
         parser.add_argument(
             'meter_rule_id',
             metavar='<meter-rule-id>',
-            help=_('Meter rule (ID only)')
+            help=_('Meter rule (ID only)'),
         )
         return parser
 
     def take_action(self, parsed_args):
         client = self.app.client_manager.network
-        obj = client.find_metering_label_rule(parsed_args.meter_rule_id,
-                                              ignore_missing=False)
+        obj = client.find_metering_label_rule(
+            parsed_args.meter_rule_id, ignore_missing=False
+        )
         display_columns, columns = _get_columns(obj)
         data = utils.get_item_properties(obj, columns)
         return display_columns, data

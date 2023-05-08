@@ -22,7 +22,6 @@ from openstackclient.tests.unit import utils as tests_utils
 
 
 class TestNetworkSegment(network_fakes.TestNetworkV2):
-
     def setUp(self):
         super(TestNetworkSegment, self).setUp()
 
@@ -31,12 +30,13 @@ class TestNetworkSegment(network_fakes.TestNetworkV2):
 
 
 class TestCreateNetworkSegment(TestNetworkSegment):
-
     # The network segment to create along with associated network.
     _network_segment = network_fakes.create_one_network_segment()
-    _network = network_fakes.create_one_network({
-        'id': _network_segment.network_id,
-    })
+    _network = network_fakes.create_one_network(
+        {
+            'id': _network_segment.network_id,
+        }
+    )
 
     columns = (
         'description',
@@ -68,28 +68,37 @@ class TestCreateNetworkSegment(TestNetworkSegment):
 
         # Get the command object to test
         self.cmd = network_segment.CreateNetworkSegment(
-            self.app,
-            self.namespace
+            self.app, self.namespace
         )
 
     def test_create_no_options(self):
         # Missing required args should bail here
-        self.assertRaises(tests_utils.ParserException, self.check_parser,
-                          self.cmd, [], [])
+        self.assertRaises(
+            tests_utils.ParserException, self.check_parser, self.cmd, [], []
+        )
 
     def test_create_invalid_network_type(self):
         arglist = [
-            '--network', self._network_segment.network_id,
-            '--network-type', 'foo',
+            '--network',
+            self._network_segment.network_id,
+            '--network-type',
+            'foo',
             self._network_segment.name,
         ]
-        self.assertRaises(tests_utils.ParserException, self.check_parser,
-                          self.cmd, arglist, [])
+        self.assertRaises(
+            tests_utils.ParserException,
+            self.check_parser,
+            self.cmd,
+            arglist,
+            [],
+        )
 
     def test_create_minimum_options(self):
         arglist = [
-            '--network', self._network_segment.network_id,
-            '--network-type', self._network_segment.network_type,
+            '--network',
+            self._network_segment.network_id,
+            '--network-type',
+            self._network_segment.network_type,
             self._network_segment.name,
         ]
         verifylist = [
@@ -102,25 +111,31 @@ class TestCreateNetworkSegment(TestNetworkSegment):
         columns, data = self.cmd.take_action(parsed_args)
 
         self.network.find_network.assert_called_once_with(
-            self._network_segment.network_id,
-            ignore_missing=False
+            self._network_segment.network_id, ignore_missing=False
         )
-        self.network.create_segment.assert_called_once_with(**{
-            'network_id': self._network_segment.network_id,
-            'network_type': self._network_segment.network_type,
-            'name': self._network_segment.name,
-        })
+        self.network.create_segment.assert_called_once_with(
+            **{
+                'network_id': self._network_segment.network_id,
+                'network_type': self._network_segment.network_type,
+                'name': self._network_segment.name,
+            }
+        )
 
         self.assertEqual(self.columns, columns)
         self.assertEqual(self.data, data)
 
     def test_create_all_options(self):
         arglist = [
-            '--description', self._network_segment.description,
-            '--network', self._network_segment.network_id,
-            '--network-type', self._network_segment.network_type,
-            '--physical-network', self._network_segment.physical_network,
-            '--segment', str(self._network_segment.segmentation_id),
+            '--description',
+            self._network_segment.description,
+            '--network',
+            self._network_segment.network_id,
+            '--network-type',
+            self._network_segment.network_type,
+            '--physical-network',
+            self._network_segment.physical_network,
+            '--segment',
+            str(self._network_segment.segmentation_id),
             self._network_segment.name,
         ]
         verifylist = [
@@ -136,24 +151,24 @@ class TestCreateNetworkSegment(TestNetworkSegment):
         columns, data = self.cmd.take_action(parsed_args)
 
         self.network.find_network.assert_called_once_with(
-            self._network_segment.network_id,
-            ignore_missing=False
+            self._network_segment.network_id, ignore_missing=False
         )
-        self.network.create_segment.assert_called_once_with(**{
-            'description': self._network_segment.description,
-            'network_id': self._network_segment.network_id,
-            'network_type': self._network_segment.network_type,
-            'physical_network': self._network_segment.physical_network,
-            'segmentation_id': self._network_segment.segmentation_id,
-            'name': self._network_segment.name,
-        })
+        self.network.create_segment.assert_called_once_with(
+            **{
+                'description': self._network_segment.description,
+                'network_id': self._network_segment.network_id,
+                'network_type': self._network_segment.network_type,
+                'physical_network': self._network_segment.physical_network,
+                'segmentation_id': self._network_segment.segmentation_id,
+                'name': self._network_segment.name,
+            }
+        )
 
         self.assertEqual(self.columns, columns)
         self.assertEqual(self.data, data)
 
 
 class TestDeleteNetworkSegment(TestNetworkSegment):
-
     # The network segments to delete.
     _network_segments = network_fakes.create_network_segments()
 
@@ -167,8 +182,7 @@ class TestDeleteNetworkSegment(TestNetworkSegment):
 
         # Get the command object to test
         self.cmd = network_segment.DeleteNetworkSegment(
-            self.app,
-            self.namespace
+            self.app, self.namespace
         )
 
     def test_delete(self):
@@ -205,33 +219,32 @@ class TestDeleteNetworkSegment(TestNetworkSegment):
         self.assertIsNone(result)
 
     def test_delete_multiple_with_exception(self):
-        arglist = [
-            self._network_segments[0].id,
-            'doesnotexist'
-        ]
+        arglist = [self._network_segments[0].id, 'doesnotexist']
         verifylist = [
-            ('network_segment', [self._network_segments[0].id,
-                                 'doesnotexist']),
+            (
+                'network_segment',
+                [self._network_segments[0].id, 'doesnotexist'],
+            ),
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
-        find_mock_result = [self._network_segments[0],
-                            exceptions.CommandError]
-        self.network.find_segment = (
-            mock.Mock(side_effect=find_mock_result)
-        )
+        find_mock_result = [self._network_segments[0], exceptions.CommandError]
+        self.network.find_segment = mock.Mock(side_effect=find_mock_result)
 
         try:
             self.cmd.take_action(parsed_args)
             self.fail('CommandError should be raised.')
         except exceptions.CommandError as e:
-            self.assertEqual('1 of 2 network segments failed to delete.',
-                             str(e))
+            self.assertEqual(
+                '1 of 2 network segments failed to delete.', str(e)
+            )
 
         self.network.find_segment.assert_any_call(
-            self._network_segments[0].id, ignore_missing=False)
+            self._network_segments[0].id, ignore_missing=False
+        )
         self.network.find_segment.assert_any_call(
-            'doesnotexist', ignore_missing=False)
+            'doesnotexist', ignore_missing=False
+        )
         self.network.delete_segment.assert_called_once_with(
             self._network_segments[0]
         )
@@ -248,30 +261,32 @@ class TestListNetworkSegment(TestNetworkSegment):
         'Network Type',
         'Segment',
     )
-    columns_long = columns + (
-        'Physical Network',
-    )
+    columns_long = columns + ('Physical Network',)
 
     data = []
     for _network_segment in _network_segments:
-        data.append((
-            _network_segment.id,
-            _network_segment.name,
-            _network_segment.network_id,
-            _network_segment.network_type,
-            _network_segment.segmentation_id,
-        ))
+        data.append(
+            (
+                _network_segment.id,
+                _network_segment.name,
+                _network_segment.network_id,
+                _network_segment.network_type,
+                _network_segment.segmentation_id,
+            )
+        )
 
     data_long = []
     for _network_segment in _network_segments:
-        data_long.append((
-            _network_segment.id,
-            _network_segment.name,
-            _network_segment.network_id,
-            _network_segment.network_type,
-            _network_segment.segmentation_id,
-            _network_segment.physical_network,
-        ))
+        data_long.append(
+            (
+                _network_segment.id,
+                _network_segment.name,
+                _network_segment.network_id,
+                _network_segment.network_type,
+                _network_segment.segmentation_id,
+                _network_segment.physical_network,
+            )
+        )
 
     def setUp(self):
         super(TestListNetworkSegment, self).setUp()
@@ -317,10 +332,7 @@ class TestListNetworkSegment(TestNetworkSegment):
             '--network',
             self._network.id,
         ]
-        verifylist = [
-            ('long', False),
-            ('network', self._network.id)
-        ]
+        verifylist = [('long', False), ('network', self._network.id)]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
         columns, data = self.cmd.take_action(parsed_args)
@@ -333,7 +345,6 @@ class TestListNetworkSegment(TestNetworkSegment):
 
 
 class TestSetNetworkSegment(TestNetworkSegment):
-
     # The network segment to show.
     _network_segment = network_fakes.create_one_network_segment()
 
@@ -368,8 +379,10 @@ class TestSetNetworkSegment(TestNetworkSegment):
 
     def test_set_all_options(self):
         arglist = [
-            '--description', 'new description',
-            '--name', 'new name',
+            '--description',
+            'new description',
+            '--name',
+            'new name',
             self._network_segment.id,
         ]
         verifylist = [
@@ -392,7 +405,6 @@ class TestSetNetworkSegment(TestNetworkSegment):
 
 
 class TestShowNetworkSegment(TestNetworkSegment):
-
     # The network segment to show.
     _network_segment = network_fakes.create_one_network_segment()
 
@@ -428,8 +440,9 @@ class TestShowNetworkSegment(TestNetworkSegment):
 
     def test_show_no_options(self):
         # Missing required args should bail here
-        self.assertRaises(tests_utils.ParserException, self.check_parser,
-                          self.cmd, [], [])
+        self.assertRaises(
+            tests_utils.ParserException, self.check_parser, self.cmd, [], []
+        )
 
     def test_show_all_options(self):
         arglist = [
@@ -443,8 +456,7 @@ class TestShowNetworkSegment(TestNetworkSegment):
         columns, data = self.cmd.take_action(parsed_args)
 
         self.network.find_segment.assert_called_once_with(
-            self._network_segment.id,
-            ignore_missing=False
+            self._network_segment.id, ignore_missing=False
         )
 
         self.assertEqual(self.columns, columns)

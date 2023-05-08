@@ -19,8 +19,8 @@ from openstackclient.tests.unit.compute.v2 import fakes as compute_fakes
 
 # Tests for Compute network
 
-class TestFloatingIPPoolCompute(compute_fakes.TestComputev2):
 
+class TestFloatingIPPoolCompute(compute_fakes.TestComputev2):
     def setUp(self):
         super(TestFloatingIPPoolCompute, self).setUp()
 
@@ -28,24 +28,18 @@ class TestFloatingIPPoolCompute(compute_fakes.TestComputev2):
         self.compute = self.app.client_manager.compute
 
 
-@mock.patch(
-    'openstackclient.api.compute_v2.APIv2.floating_ip_pool_list'
-)
+@mock.patch('openstackclient.api.compute_v2.APIv2.floating_ip_pool_list')
 class TestListFloatingIPPoolCompute(TestFloatingIPPoolCompute):
-
     # The floating ip pools to list up
-    _floating_ip_pools = \
+    _floating_ip_pools = (
         compute_fakes.FakeFloatingIPPool.create_floating_ip_pools(count=3)
-
-    columns = (
-        'Name',
     )
+
+    columns = ('Name',)
 
     data = []
     for pool in _floating_ip_pools:
-        data.append((
-            pool['name'],
-        ))
+        data.append((pool['name'],))
 
     def setUp(self):
         super(TestListFloatingIPPoolCompute, self).setUp()

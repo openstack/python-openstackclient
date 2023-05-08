@@ -33,8 +33,7 @@ class AddressScopeTests(common.NetworkTests):
         """Test create, delete multiple"""
         name1 = uuid.uuid4().hex
         cmd_output = self.openstack(
-            'address scope create ' +
-            name1,
+            'address scope create ' + name1,
             parse_output=True,
         )
         self.assertEqual(
@@ -46,8 +45,7 @@ class AddressScopeTests(common.NetworkTests):
 
         name2 = uuid.uuid4().hex
         cmd_output = self.openstack(
-            'address scope create ' +
-            name2,
+            'address scope create ' + name2,
             parse_output=True,
         )
         self.assertEqual(
@@ -64,10 +62,7 @@ class AddressScopeTests(common.NetworkTests):
         """Test create defaults, list filters, delete"""
         name1 = uuid.uuid4().hex
         cmd_output = self.openstack(
-            'address scope create ' +
-            '--ip-version 4 ' +
-            '--share ' +
-            name1,
+            'address scope create ' + '--ip-version 4 ' + '--share ' + name1,
             parse_output=True,
         )
         self.addCleanup(self.openstack, 'address scope delete ' + name1)
@@ -83,10 +78,10 @@ class AddressScopeTests(common.NetworkTests):
 
         name2 = uuid.uuid4().hex
         cmd_output = self.openstack(
-            'address scope create ' +
-            '--ip-version 6 ' +
-            '--no-share ' +
-            name2,
+            'address scope create '
+            + '--ip-version 6 '
+            + '--no-share '
+            + name2,
             parse_output=True,
         )
         self.addCleanup(self.openstack, 'address scope delete ' + name2)
@@ -132,10 +127,7 @@ class AddressScopeTests(common.NetworkTests):
         name = uuid.uuid4().hex
         newname = name + "_"
         cmd_output = self.openstack(
-            'address scope create ' +
-            '--ip-version 4 ' +
-            '--no-share ' +
-            name,
+            'address scope create ' + '--ip-version 4 ' + '--no-share ' + name,
             parse_output=True,
         )
         self.addCleanup(self.openstack, 'address scope delete ' + newname)
@@ -150,16 +142,12 @@ class AddressScopeTests(common.NetworkTests):
         self.assertFalse(cmd_output['shared'])
 
         raw_output = self.openstack(
-            'address scope set ' +
-            '--name ' + newname +
-            ' --share ' +
-            name,
+            'address scope set ' + '--name ' + newname + ' --share ' + name,
         )
         self.assertOutput('', raw_output)
 
         cmd_output = self.openstack(
-            'address scope show ' +
-            newname,
+            'address scope show ' + newname,
             parse_output=True,
         )
         self.assertEqual(

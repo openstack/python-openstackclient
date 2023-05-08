@@ -28,24 +28,26 @@ class SecurityGroupRuleTests(common.NetworkTests):
 
         # Create the security group to hold the rule
         cmd_output = self.openstack(
-            'security group create ' +
-            self.SECURITY_GROUP_NAME,
+            'security group create ' + self.SECURITY_GROUP_NAME,
             parse_output=True,
         )
-        self.addCleanup(self.openstack,
-                        'security group delete ' + self.SECURITY_GROUP_NAME)
+        self.addCleanup(
+            self.openstack, 'security group delete ' + self.SECURITY_GROUP_NAME
+        )
         self.assertEqual(self.SECURITY_GROUP_NAME, cmd_output['name'])
 
         # Create the security group rule.
         cmd_output = self.openstack(
-            'security group rule create ' +
-            self.SECURITY_GROUP_NAME + ' ' +
-            '--protocol tcp --dst-port 80:80 ' +
-            '--ingress --ethertype IPv4 ',
+            'security group rule create '
+            + self.SECURITY_GROUP_NAME
+            + ' '
+            + '--protocol tcp --dst-port 80:80 '
+            + '--ingress --ethertype IPv4 ',
             parse_output=True,
         )
-        self.addCleanup(self.openstack,
-                        'security group rule delete ' + cmd_output['id'])
+        self.addCleanup(
+            self.openstack, 'security group rule delete ' + cmd_output['id']
+        )
         self.SECURITY_GROUP_RULE_ID = cmd_output['id']
 
     def test_security_group_rule_list(self):
@@ -53,8 +55,9 @@ class SecurityGroupRuleTests(common.NetworkTests):
             'security group rule list ' + self.SECURITY_GROUP_NAME,
             parse_output=True,
         )
-        self.assertIn(self.SECURITY_GROUP_RULE_ID,
-                      [rule['ID'] for rule in cmd_output])
+        self.assertIn(
+            self.SECURITY_GROUP_RULE_ID, [rule['ID'] for rule in cmd_output]
+        )
 
     def test_security_group_rule_show(self):
         cmd_output = self.openstack(

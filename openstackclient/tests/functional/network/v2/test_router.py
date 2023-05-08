@@ -31,8 +31,7 @@ class RouterTests(common.NetworkTagTests):
         name1 = uuid.uuid4().hex
         name2 = uuid.uuid4().hex
         cmd_output = self.openstack(
-            'router create ' +
-            name1,
+            'router create ' + name1,
             parse_output=True,
         )
         self.assertEqual(
@@ -40,8 +39,7 @@ class RouterTests(common.NetworkTagTests):
             cmd_output["name"],
         )
         cmd_output = self.openstack(
-            'router create ' +
-            name2,
+            'router create ' + name2,
             parse_output=True,
         )
         self.assertEqual(
@@ -49,8 +47,7 @@ class RouterTests(common.NetworkTagTests):
             cmd_output["name"],
         )
 
-        del_output = self.openstack(
-            'router delete ' + name1 + ' ' + name2)
+        del_output = self.openstack('router delete ' + name1 + ' ' + name2)
         self.assertOutput('', del_output)
 
     def test_router_list(self):
@@ -80,9 +77,7 @@ class RouterTests(common.NetworkTagTests):
         name1 = uuid.uuid4().hex
         name2 = uuid.uuid4().hex
         cmd_output = self.openstack(
-            'router create ' +
-            '--disable ' +
-            name1,
+            'router create ' + '--disable ' + name1,
             parse_output=True,
         )
 
@@ -100,9 +95,7 @@ class RouterTests(common.NetworkTagTests):
             cmd_output["project_id"],
         )
         cmd_output = self.openstack(
-            'router create ' +
-            '--project ' + demo_project_id +
-            ' ' + name2,
+            'router create ' + '--project ' + demo_project_id + ' ' + name2,
             parse_output=True,
         )
 
@@ -122,8 +115,7 @@ class RouterTests(common.NetworkTagTests):
 
         # Test list --project
         cmd_output = self.openstack(
-            'router list ' +
-            '--project ' + demo_project_id,
+            'router list ' + '--project ' + demo_project_id,
             parse_output=True,
         )
         names = [x["Name"] for x in cmd_output]
@@ -132,8 +124,7 @@ class RouterTests(common.NetworkTagTests):
 
         # Test list --disable
         cmd_output = self.openstack(
-            'router list ' +
-            '--disable ',
+            'router list ' + '--disable ',
             parse_output=True,
         )
         names = [x["Name"] for x in cmd_output]
@@ -142,8 +133,7 @@ class RouterTests(common.NetworkTagTests):
 
         # Test list --name
         cmd_output = self.openstack(
-            'router list ' +
-            '--name ' + name1,
+            'router list ' + '--name ' + name1,
             parse_output=True,
         )
         names = [x["Name"] for x in cmd_output]
@@ -152,8 +142,7 @@ class RouterTests(common.NetworkTagTests):
 
         # Test list --long
         cmd_output = self.openstack(
-            'router list ' +
-            '--long ',
+            'router list ' + '--long ',
             parse_output=True,
         )
         names = [x["Name"] for x in cmd_output]
@@ -169,7 +158,8 @@ class RouterTests(common.NetworkTagTests):
         name = uuid.uuid4().hex
         cmd_output = self.openstack(
             'router create ' + name,
-            parse_output=True,)
+            parse_output=True,
+        )
 
         self.addCleanup(self.openstack, 'router delete ' + name)
         # Get router ID
@@ -177,7 +167,8 @@ class RouterTests(common.NetworkTagTests):
         # Get l3 agent id
         cmd_output = self.openstack(
             'network agent list --agent-type l3',
-            parse_output=True,)
+            parse_output=True,
+        )
 
         # Check at least one L3 agent is included in the response.
         self.assertTrue(cmd_output)
@@ -185,20 +176,24 @@ class RouterTests(common.NetworkTagTests):
 
         # Add router to agent
         self.openstack(
-            'network agent add router --l3 ' + agent_id + ' ' + router_id)
+            'network agent add router --l3 ' + agent_id + ' ' + router_id
+        )
 
         cmd_output = self.openstack(
             'router list --agent ' + agent_id,
-            parse_output=True,)
+            parse_output=True,
+        )
         router_ids = [x['ID'] for x in cmd_output]
         self.assertIn(router_id, router_ids)
 
         # Remove router from agent
         self.openstack(
-            'network agent remove router --l3 ' + agent_id + ' ' + router_id)
+            'network agent remove router --l3 ' + agent_id + ' ' + router_id
+        )
         cmd_output = self.openstack(
             'router list --agent ' + agent_id,
-            parse_output=True,)
+            parse_output=True,
+        )
         router_ids = [x['ID'] for x in cmd_output]
         self.assertNotIn(router_id, router_ids)
 
@@ -208,9 +203,7 @@ class RouterTests(common.NetworkTagTests):
         name = uuid.uuid4().hex
         new_name = name + "_"
         cmd_output = self.openstack(
-            'router create ' +
-            '--description aaaa ' +
-            name,
+            'router create ' + '--description aaaa ' + name,
             parse_output=True,
         )
         self.addCleanup(self.openstack, 'router delete ' + new_name)
@@ -225,17 +218,17 @@ class RouterTests(common.NetworkTagTests):
 
         # Test set --disable
         cmd_output = self.openstack(
-            'router set ' +
-            '--name ' + new_name +
-            ' --description bbbb ' +
-            '--disable ' +
-            name
+            'router set '
+            + '--name '
+            + new_name
+            + ' --description bbbb '
+            + '--disable '
+            + name
         )
         self.assertOutput('', cmd_output)
 
         cmd_output = self.openstack(
-            'router show ' +
-            new_name,
+            'router show ' + new_name,
             parse_output=True,
         )
         self.assertEqual(
@@ -256,13 +249,10 @@ class RouterTests(common.NetworkTagTests):
 
         # Test unset
         cmd_output = self.openstack(
-            'router unset ' +
-            '--external-gateway ' +
-            new_name
+            'router unset ' + '--external-gateway ' + new_name
         )
         cmd_output = self.openstack(
-            'router show ' +
-            new_name,
+            'router show ' + new_name,
             parse_output=True,
         )
         self.assertIsNone(cmd_output["external_gateway_info"])
@@ -272,16 +262,15 @@ class RouterTests(common.NetworkTagTests):
             return
 
         cmd_output = self.openstack(
-            'router set ' +
-            '--distributed ' +
-            '--external-gateway public ' +
-            router_name
+            'router set '
+            + '--distributed '
+            + '--external-gateway public '
+            + router_name
         )
         self.assertOutput('', cmd_output)
 
         cmd_output = self.openstack(
-            'router show ' +
-            router_name,
+            'router show ' + router_name,
             parse_output=True,
         )
         self.assertTrue(cmd_output["distributed"])
@@ -297,38 +286,51 @@ class RouterTests(common.NetworkTagTests):
 
         self.openstack(
             'subnet create %s '
-            '--network %s --subnet-range 10.0.0.0/24' % (
-                subnet_name, network_name))
+            '--network %s --subnet-range 10.0.0.0/24'
+            % (subnet_name, network_name)
+        )
 
         self.openstack('router create %s' % router_name)
         self.addCleanup(self.openstack, 'router delete %s' % router_name)
 
         self.openstack('router add subnet %s %s' % (router_name, subnet_name))
-        self.addCleanup(self.openstack, 'router remove subnet %s %s' % (
-            router_name, subnet_name))
+        self.addCleanup(
+            self.openstack,
+            'router remove subnet %s %s' % (router_name, subnet_name),
+        )
 
-        out1 = self.openstack(
-            'router add route %s '
-            '--route destination=10.0.10.0/24,gateway=10.0.0.10' %
-            router_name,
-            parse_output=True,),
+        out1 = (
+            self.openstack(
+                'router add route %s '
+                '--route destination=10.0.10.0/24,gateway=10.0.0.10'
+                % router_name,
+                parse_output=True,
+            ),
+        )
         self.assertEqual(1, len(out1[0]['routes']))
 
         self.addCleanup(
-            self.openstack, 'router set %s --no-route' % router_name)
+            self.openstack, 'router set %s --no-route' % router_name
+        )
 
-        out2 = self.openstack(
-            'router add route %s '
-            '--route destination=10.0.10.0/24,gateway=10.0.0.10 '
-            '--route destination=10.0.11.0/24,gateway=10.0.0.11' %
-            router_name,
-            parse_output=True,),
+        out2 = (
+            self.openstack(
+                'router add route %s '
+                '--route destination=10.0.10.0/24,gateway=10.0.0.10 '
+                '--route destination=10.0.11.0/24,gateway=10.0.0.11'
+                % router_name,
+                parse_output=True,
+            ),
+        )
         self.assertEqual(2, len(out2[0]['routes']))
 
-        out3 = self.openstack(
-            'router remove route %s '
-            '--route destination=10.0.11.0/24,gateway=10.0.0.11 '
-            '--route destination=10.0.12.0/24,gateway=10.0.0.12' %
-            router_name,
-            parse_output=True,),
+        out3 = (
+            self.openstack(
+                'router remove route %s '
+                '--route destination=10.0.11.0/24,gateway=10.0.0.11 '
+                '--route destination=10.0.12.0/24,gateway=10.0.0.12'
+                % router_name,
+                parse_output=True,
+            ),
+        )
         self.assertEqual(1, len(out3[0]['routes']))

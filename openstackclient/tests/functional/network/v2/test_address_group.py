@@ -30,8 +30,7 @@ class AddressGroupTests(common.NetworkTests):
         """Test create, delete multiple"""
         name1 = uuid.uuid4().hex
         cmd_output = self.openstack(
-            'address group create ' +
-            name1,
+            'address group create ' + name1,
             parse_output=True,
         )
         self.assertEqual(
@@ -41,8 +40,7 @@ class AddressGroupTests(common.NetworkTests):
 
         name2 = uuid.uuid4().hex
         cmd_output = self.openstack(
-            'address group create ' +
-            name2,
+            'address group create ' + name2,
             parse_output=True,
         )
         self.assertEqual(
@@ -81,8 +79,7 @@ class AddressGroupTests(common.NetworkTests):
 
         name1 = uuid.uuid4().hex
         cmd_output = self.openstack(
-            'address group create ' +
-            name1,
+            'address group create ' + name1,
             parse_output=True,
         )
         self.addCleanup(self.openstack, 'address group delete ' + name1)
@@ -93,9 +90,11 @@ class AddressGroupTests(common.NetworkTests):
 
         name2 = uuid.uuid4().hex
         cmd_output = self.openstack(
-            'address group create ' +
-            '--project ' + demo_project_id +
-            ' ' + name2,
+            'address group create '
+            + '--project '
+            + demo_project_id
+            + ' '
+            + name2,
             parse_output=True,
         )
         self.addCleanup(self.openstack, 'address group delete ' + name2)
@@ -115,8 +114,7 @@ class AddressGroupTests(common.NetworkTests):
 
         # Test list --project
         cmd_output = self.openstack(
-            'address group list ' +
-            '--project ' + demo_project_id,
+            'address group list ' + '--project ' + demo_project_id,
             parse_output=True,
         )
         names = [x["Name"] for x in cmd_output]
@@ -125,8 +123,7 @@ class AddressGroupTests(common.NetworkTests):
 
         # Test list --name
         cmd_output = self.openstack(
-            'address group list ' +
-            '--name ' + name1,
+            'address group list ' + '--name ' + name1,
             parse_output=True,
         )
         names = [x["Name"] for x in cmd_output]
@@ -138,10 +135,10 @@ class AddressGroupTests(common.NetworkTests):
         name = uuid.uuid4().hex
         newname = name + "_"
         cmd_output = self.openstack(
-            'address group create ' +
-            '--description aaaa ' +
-            '--address 10.0.0.1 --address 2001::/16 ' +
-            name,
+            'address group create '
+            + '--description aaaa '
+            + '--address 10.0.0.1 --address 2001::/16 '
+            + name,
             parse_output=True,
         )
         self.addCleanup(self.openstack, 'address group delete ' + newname)
@@ -151,18 +148,19 @@ class AddressGroupTests(common.NetworkTests):
 
         # Test set name, description and address
         raw_output = self.openstack(
-            'address group set ' +
-            '--name ' + newname + ' ' +
-            '--description bbbb ' +
-            '--address 10.0.0.2 --address 192.0.0.0/8 ' +
-            name,
+            'address group set '
+            + '--name '
+            + newname
+            + ' '
+            + '--description bbbb '
+            + '--address 10.0.0.2 --address 192.0.0.0/8 '
+            + name,
         )
         self.assertOutput('', raw_output)
 
         # Show the updated address group
         cmd_output = self.openstack(
-            'address group show ' +
-            newname,
+            'address group show ' + newname,
             parse_output=True,
         )
         self.assertEqual(newname, cmd_output['name'])
@@ -171,16 +169,15 @@ class AddressGroupTests(common.NetworkTests):
 
         # Test unset address
         raw_output = self.openstack(
-            'address group unset ' +
-            '--address 10.0.0.1 --address 2001::/16 ' +
-            '--address 10.0.0.2 --address 192.0.0.0/8 ' +
-            newname,
+            'address group unset '
+            + '--address 10.0.0.1 --address 2001::/16 '
+            + '--address 10.0.0.2 --address 192.0.0.0/8 '
+            + newname,
         )
         self.assertEqual('', raw_output)
 
         cmd_output = self.openstack(
-            'address group show ' +
-            newname,
+            'address group show ' + newname,
             parse_output=True,
         )
         self.assertEqual(0, len(cmd_output['addresses']))

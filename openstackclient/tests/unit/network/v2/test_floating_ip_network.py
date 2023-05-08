@@ -24,8 +24,8 @@ from openstackclient.tests.unit import utils as tests_utils
 
 # Tests for Neutron network
 
-class TestFloatingIPNetwork(network_fakes.TestNetworkV2):
 
+class TestFloatingIPNetwork(network_fakes.TestNetworkV2):
     def setUp(self):
         super(TestFloatingIPNetwork, self).setUp()
 
@@ -38,7 +38,6 @@ class TestFloatingIPNetwork(network_fakes.TestNetworkV2):
 
 
 class TestCreateFloatingIPNetwork(TestFloatingIPNetwork):
-
     # Fake data for option tests.
     floating_network = network_fakes.create_one_network()
     subnet = network_fakes.FakeSubnet.create_one_subnet()
@@ -93,7 +92,8 @@ class TestCreateFloatingIPNetwork(TestFloatingIPNetwork):
         self.network.set_tags = mock.Mock(return_value=None)
 
         self.network.find_network = mock.Mock(
-            return_value=self.floating_network)
+            return_value=self.floating_network
+        )
         self.network.find_subnet = mock.Mock(return_value=self.subnet)
         self.network.find_port = mock.Mock(return_value=self.port)
 
@@ -104,8 +104,13 @@ class TestCreateFloatingIPNetwork(TestFloatingIPNetwork):
         arglist = []
         verifylist = []
 
-        self.assertRaises(tests_utils.ParserException, self.check_parser,
-                          self.cmd, arglist, verifylist)
+        self.assertRaises(
+            tests_utils.ParserException,
+            self.check_parser,
+            self.cmd,
+            arglist,
+            verifylist,
+        )
 
     def test_create_default_options(self):
         arglist = [
@@ -118,21 +123,30 @@ class TestCreateFloatingIPNetwork(TestFloatingIPNetwork):
 
         columns, data = self.cmd.take_action(parsed_args)
 
-        self.network.create_ip.assert_called_once_with(**{
-            'floating_network_id': self.floating_ip.floating_network_id,
-        })
+        self.network.create_ip.assert_called_once_with(
+            **{
+                'floating_network_id': self.floating_ip.floating_network_id,
+            }
+        )
         self.assertEqual(self.columns, columns)
         self.assertEqual(self.data, data)
 
     def test_create_all_options(self):
         arglist = [
-            '--subnet', self.subnet.id,
-            '--port', self.floating_ip.port_id,
-            '--floating-ip-address', self.floating_ip.floating_ip_address,
-            '--fixed-ip-address', self.floating_ip.fixed_ip_address,
-            '--description', self.floating_ip.description,
-            '--dns-domain', self.floating_ip.dns_domain,
-            '--dns-name', self.floating_ip.dns_name,
+            '--subnet',
+            self.subnet.id,
+            '--port',
+            self.floating_ip.port_id,
+            '--floating-ip-address',
+            self.floating_ip.floating_ip_address,
+            '--fixed-ip-address',
+            self.floating_ip.fixed_ip_address,
+            '--description',
+            self.floating_ip.description,
+            '--dns-domain',
+            self.floating_ip.dns_domain,
+            '--dns-name',
+            self.floating_ip.dns_name,
             self.floating_ip.floating_network_id,
         ]
         verifylist = [
@@ -149,16 +163,18 @@ class TestCreateFloatingIPNetwork(TestFloatingIPNetwork):
 
         columns, data = self.cmd.take_action(parsed_args)
 
-        self.network.create_ip.assert_called_once_with(**{
-            'subnet_id': self.subnet.id,
-            'port_id': self.floating_ip.port_id,
-            'floating_ip_address': self.floating_ip.floating_ip_address,
-            'fixed_ip_address': self.floating_ip.fixed_ip_address,
-            'floating_network_id': self.floating_ip.floating_network_id,
-            'description': self.floating_ip.description,
-            'dns_domain': self.floating_ip.dns_domain,
-            'dns_name': self.floating_ip.dns_name,
-        })
+        self.network.create_ip.assert_called_once_with(
+            **{
+                'subnet_id': self.subnet.id,
+                'port_id': self.floating_ip.port_id,
+                'floating_ip_address': self.floating_ip.floating_ip_address,
+                'fixed_ip_address': self.floating_ip.fixed_ip_address,
+                'floating_network_id': self.floating_ip.floating_network_id,
+                'description': self.floating_ip.description,
+                'dns_domain': self.floating_ip.dns_domain,
+                'dns_name': self.floating_ip.dns_name,
+            }
+        )
         self.assertEqual(self.columns, columns)
         self.assertEqual(self.data, data)
 
@@ -166,7 +182,8 @@ class TestCreateFloatingIPNetwork(TestFloatingIPNetwork):
         project = identity_fakes_v3.FakeProject.create_one_project()
         self.projects_mock.get.return_value = project
         arglist = [
-            '--project', project.id,
+            '--project',
+            project.id,
             self.floating_ip.floating_network_id,
         ]
         verifylist = [
@@ -177,10 +194,12 @@ class TestCreateFloatingIPNetwork(TestFloatingIPNetwork):
 
         columns, data = self.cmd.take_action(parsed_args)
 
-        self.network.create_ip.assert_called_once_with(**{
-            'floating_network_id': self.floating_ip.floating_network_id,
-            'project_id': project.id,
-        })
+        self.network.create_ip.assert_called_once_with(
+            **{
+                'floating_network_id': self.floating_ip.floating_network_id,
+                'project_id': project.id,
+            }
+        )
         self.assertEqual(self.columns, columns)
         self.assertEqual(self.data, data)
 
@@ -189,8 +208,10 @@ class TestCreateFloatingIPNetwork(TestFloatingIPNetwork):
         domain = identity_fakes_v3.FakeDomain.create_one_domain()
         self.projects_mock.get.return_value = project
         arglist = [
-            "--project", project.name,
-            "--project-domain", domain.name,
+            "--project",
+            project.name,
+            "--project-domain",
+            domain.name,
             self.floating_ip.floating_network_id,
         ]
         verifylist = [
@@ -203,10 +224,12 @@ class TestCreateFloatingIPNetwork(TestFloatingIPNetwork):
 
         columns, data = self.cmd.take_action(parsed_args)
 
-        self.network.create_ip.assert_called_once_with(**{
-            'floating_network_id': self.floating_ip.floating_network_id,
-            'project_id': project.id,
-        })
+        self.network.create_ip.assert_called_once_with(
+            **{
+                'floating_network_id': self.floating_ip.floating_network_id,
+                'project_id': project.id,
+            }
+        )
         self.assertEqual(self.columns, columns)
         self.assertEqual(self.data, data)
 
@@ -214,7 +237,8 @@ class TestCreateFloatingIPNetwork(TestFloatingIPNetwork):
         qos_policy = network_fakes.FakeNetworkQosPolicy.create_one_qos_policy()
         self.network.find_qos_policy = mock.Mock(return_value=qos_policy)
         arglist = [
-            '--qos-policy', qos_policy.id,
+            '--qos-policy',
+            qos_policy.id,
             self.floating_ip.floating_network_id,
         ]
         verifylist = [
@@ -225,10 +249,12 @@ class TestCreateFloatingIPNetwork(TestFloatingIPNetwork):
 
         columns, data = self.cmd.take_action(parsed_args)
 
-        self.network.create_ip.assert_called_once_with(**{
-            'floating_network_id': self.floating_ip.floating_network_id,
-            'qos_policy_id': qos_policy.id,
-        })
+        self.network.create_ip.assert_called_once_with(
+            **{
+                'floating_network_id': self.floating_ip.floating_network_id,
+                'qos_policy_id': qos_policy.id,
+            }
+        )
         self.assertEqual(self.columns, columns)
         self.assertEqual(self.data, data)
 
@@ -248,15 +274,17 @@ class TestCreateFloatingIPNetwork(TestFloatingIPNetwork):
             verifylist.append(('no_tag', True))
 
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
-        columns, data = (self.cmd.take_action(parsed_args))
+        columns, data = self.cmd.take_action(parsed_args)
 
-        self.network.create_ip.assert_called_once_with(**{
-            'floating_network_id': self.floating_ip.floating_network_id,
-        })
+        self.network.create_ip.assert_called_once_with(
+            **{
+                'floating_network_id': self.floating_ip.floating_network_id,
+            }
+        )
         if add_tags:
             self.network.set_tags.assert_called_once_with(
-                self.floating_ip,
-                tests_utils.CompareBySet(['red', 'blue']))
+                self.floating_ip, tests_utils.CompareBySet(['red', 'blue'])
+            )
         else:
             self.assertFalse(self.network.set_tags.called)
         self.assertEqual(self.columns, columns)
@@ -270,7 +298,6 @@ class TestCreateFloatingIPNetwork(TestFloatingIPNetwork):
 
 
 class TestDeleteFloatingIPNetwork(TestFloatingIPNetwork):
-
     # The floating ips to be deleted.
     floating_ips = network_fakes.FakeFloatingIP.create_floating_ips(count=2)
 
@@ -350,8 +377,7 @@ class TestDeleteFloatingIPNetwork(TestFloatingIPNetwork):
             'unexist_floating_ip',
         ]
         verifylist = [
-            ('floating_ip',
-             [self.floating_ips[0].id, 'unexist_floating_ip']),
+            ('floating_ip', [self.floating_ips[0].id, 'unexist_floating_ip']),
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
@@ -369,24 +395,27 @@ class TestDeleteFloatingIPNetwork(TestFloatingIPNetwork):
             'unexist_floating_ip',
             ignore_missing=False,
         )
-        self.network.delete_ip.assert_called_once_with(
-            self.floating_ips[0]
-        )
+        self.network.delete_ip.assert_called_once_with(self.floating_ips[0])
 
 
 class TestListFloatingIPNetwork(TestFloatingIPNetwork):
-
     # The floating ips to list up
     floating_ips = network_fakes.FakeFloatingIP.create_floating_ips(count=3)
-    fake_network = network_fakes.create_one_network({
-        'id': 'fake_network_id',
-    })
-    fake_port = network_fakes.create_one_port({
-        'id': 'fake_port_id',
-    })
-    fake_router = network_fakes.FakeRouter.create_one_router({
-        'id': 'fake_router_id',
-    })
+    fake_network = network_fakes.create_one_network(
+        {
+            'id': 'fake_network_id',
+        }
+    )
+    fake_port = network_fakes.create_one_port(
+        {
+            'id': 'fake_port_id',
+        }
+    )
+    fake_router = network_fakes.FakeRouter.create_one_router(
+        {
+            'id': 'fake_router_id',
+        }
+    )
 
     columns = (
         'ID',
@@ -408,28 +437,32 @@ class TestListFloatingIPNetwork(TestFloatingIPNetwork):
     data = []
     data_long = []
     for ip in floating_ips:
-        data.append((
-            ip.id,
-            ip.floating_ip_address,
-            ip.fixed_ip_address,
-            ip.port_id,
-            ip.floating_network_id,
-            ip.project_id,
-        ))
-        data_long.append((
-            ip.id,
-            ip.floating_ip_address,
-            ip.fixed_ip_address,
-            ip.port_id,
-            ip.floating_network_id,
-            ip.project_id,
-            ip.router_id,
-            ip.status,
-            ip.description,
-            ip.tags,
-            ip.dns_domain,
-            ip.dns_name,
-        ))
+        data.append(
+            (
+                ip.id,
+                ip.floating_ip_address,
+                ip.fixed_ip_address,
+                ip.port_id,
+                ip.floating_network_id,
+                ip.project_id,
+            )
+        )
+        data_long.append(
+            (
+                ip.id,
+                ip.floating_ip_address,
+                ip.fixed_ip_address,
+                ip.port_id,
+                ip.floating_network_id,
+                ip.project_id,
+                ip.router_id,
+                ip.status,
+                ip.description,
+                ip.tags,
+                ip.dns_domain,
+                ip.dns_name,
+            )
+        )
 
     def setUp(self):
         super(TestListFloatingIPNetwork, self).setUp()
@@ -455,7 +488,8 @@ class TestListFloatingIPNetwork(TestFloatingIPNetwork):
 
     def test_floating_ip_list_network(self):
         arglist = [
-            '--network', 'fake_network_id',
+            '--network',
+            'fake_network_id',
         ]
         verifylist = [
             ('network', 'fake_network_id'),
@@ -464,15 +498,18 @@ class TestListFloatingIPNetwork(TestFloatingIPNetwork):
 
         columns, data = self.cmd.take_action(parsed_args)
 
-        self.network.ips.assert_called_once_with(**{
-            'floating_network_id': 'fake_network_id',
-        })
+        self.network.ips.assert_called_once_with(
+            **{
+                'floating_network_id': 'fake_network_id',
+            }
+        )
         self.assertEqual(self.columns, columns)
         self.assertEqual(self.data, list(data))
 
     def test_floating_ip_list_port(self):
         arglist = [
-            '--port', 'fake_port_id',
+            '--port',
+            'fake_port_id',
         ]
         verifylist = [
             ('port', 'fake_port_id'),
@@ -481,15 +518,18 @@ class TestListFloatingIPNetwork(TestFloatingIPNetwork):
 
         columns, data = self.cmd.take_action(parsed_args)
 
-        self.network.ips.assert_called_once_with(**{
-            'port_id': 'fake_port_id',
-        })
+        self.network.ips.assert_called_once_with(
+            **{
+                'port_id': 'fake_port_id',
+            }
+        )
         self.assertEqual(self.columns, columns)
         self.assertEqual(self.data, list(data))
 
     def test_floating_ip_list_fixed_ip_address(self):
         arglist = [
-            '--fixed-ip-address', self.floating_ips[0].fixed_ip_address,
+            '--fixed-ip-address',
+            self.floating_ips[0].fixed_ip_address,
         ]
         verifylist = [
             ('fixed_ip_address', self.floating_ips[0].fixed_ip_address),
@@ -498,15 +538,18 @@ class TestListFloatingIPNetwork(TestFloatingIPNetwork):
 
         columns, data = self.cmd.take_action(parsed_args)
 
-        self.network.ips.assert_called_once_with(**{
-            'fixed_ip_address': self.floating_ips[0].fixed_ip_address,
-        })
+        self.network.ips.assert_called_once_with(
+            **{
+                'fixed_ip_address': self.floating_ips[0].fixed_ip_address,
+            }
+        )
         self.assertEqual(self.columns, columns)
         self.assertEqual(self.data, list(data))
 
     def test_floating_ip_list_floating_ip_address(self):
         arglist = [
-            '--floating-ip-address', self.floating_ips[0].floating_ip_address,
+            '--floating-ip-address',
+            self.floating_ips[0].floating_ip_address,
         ]
         verifylist = [
             ('floating_ip_address', self.floating_ips[0].floating_ip_address),
@@ -515,15 +558,23 @@ class TestListFloatingIPNetwork(TestFloatingIPNetwork):
 
         columns, data = self.cmd.take_action(parsed_args)
 
-        self.network.ips.assert_called_once_with(**{
-            'floating_ip_address': self.floating_ips[0].floating_ip_address,
-        })
+        self.network.ips.assert_called_once_with(
+            **{
+                'floating_ip_address': self.floating_ips[
+                    0
+                ].floating_ip_address,
+            }
+        )
         self.assertEqual(self.columns, columns)
         self.assertEqual(self.data, list(data))
 
     def test_floating_ip_list_long(self):
-        arglist = ['--long', ]
-        verifylist = [('long', True), ]
+        arglist = [
+            '--long',
+        ]
+        verifylist = [
+            ('long', True),
+        ]
 
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
@@ -535,7 +586,8 @@ class TestListFloatingIPNetwork(TestFloatingIPNetwork):
 
     def test_floating_ip_list_status(self):
         arglist = [
-            '--status', 'ACTIVE',
+            '--status',
+            'ACTIVE',
             '--long',
         ]
         verifylist = [
@@ -545,9 +597,11 @@ class TestListFloatingIPNetwork(TestFloatingIPNetwork):
 
         columns, data = self.cmd.take_action(parsed_args)
 
-        self.network.ips.assert_called_once_with(**{
-            'status': 'ACTIVE',
-        })
+        self.network.ips.assert_called_once_with(
+            **{
+                'status': 'ACTIVE',
+            }
+        )
         self.assertEqual(self.columns_long, columns)
         self.assertEqual(self.data_long, list(data))
 
@@ -555,7 +609,8 @@ class TestListFloatingIPNetwork(TestFloatingIPNetwork):
         project = identity_fakes_v3.FakeProject.create_one_project()
         self.projects_mock.get.return_value = project
         arglist = [
-            '--project', project.id,
+            '--project',
+            project.id,
         ]
         verifylist = [
             ('project', project.id),
@@ -574,8 +629,10 @@ class TestListFloatingIPNetwork(TestFloatingIPNetwork):
         project = identity_fakes_v3.FakeProject.create_one_project()
         self.projects_mock.get.return_value = project
         arglist = [
-            '--project', project.id,
-            '--project-domain', project.domain_id,
+            '--project',
+            project.id,
+            '--project-domain',
+            project.domain_id,
         ]
         verifylist = [
             ('project', project.id),
@@ -591,7 +648,8 @@ class TestListFloatingIPNetwork(TestFloatingIPNetwork):
 
     def test_floating_ip_list_router(self):
         arglist = [
-            '--router', 'fake_router_id',
+            '--router',
+            'fake_router_id',
             '--long',
         ]
         verifylist = [
@@ -601,18 +659,24 @@ class TestListFloatingIPNetwork(TestFloatingIPNetwork):
 
         columns, data = self.cmd.take_action(parsed_args)
 
-        self.network.ips.assert_called_once_with(**{
-            'router_id': 'fake_router_id',
-        })
+        self.network.ips.assert_called_once_with(
+            **{
+                'router_id': 'fake_router_id',
+            }
+        )
         self.assertEqual(self.columns_long, columns)
         self.assertEqual(self.data_long, list(data))
 
     def test_list_with_tag_options(self):
         arglist = [
-            '--tags', 'red,blue',
-            '--any-tags', 'red,green',
-            '--not-tags', 'orange,yellow',
-            '--not-any-tags', 'black,white',
+            '--tags',
+            'red,blue',
+            '--any-tags',
+            'red,green',
+            '--not-tags',
+            'orange,yellow',
+            '--not-any-tags',
+            'black,white',
         ]
         verifylist = [
             ('tags', ['red', 'blue']),
@@ -624,17 +688,18 @@ class TestListFloatingIPNetwork(TestFloatingIPNetwork):
         columns, data = self.cmd.take_action(parsed_args)
 
         self.network.ips.assert_called_once_with(
-            **{'tags': 'red,blue',
-               'any_tags': 'red,green',
-               'not_tags': 'orange,yellow',
-               'not_any_tags': 'black,white'}
+            **{
+                'tags': 'red,blue',
+                'any_tags': 'red,green',
+                'not_tags': 'orange,yellow',
+                'not_any_tags': 'black,white',
+            }
         )
         self.assertEqual(self.columns, columns)
         self.assertEqual(self.data, list(data))
 
 
 class TestShowFloatingIPNetwork(TestFloatingIPNetwork):
-
     # The floating ip to display.
     floating_ip = network_fakes.FakeFloatingIP.create_one_floating_ip()
 
@@ -698,7 +763,6 @@ class TestShowFloatingIPNetwork(TestFloatingIPNetwork):
 
 
 class TestSetFloatingIP(TestFloatingIPNetwork):
-
     # Fake data for option tests.
     floating_network = network_fakes.create_one_network()
     subnet = network_fakes.FakeSubnet.create_one_subnet()
@@ -726,7 +790,8 @@ class TestSetFloatingIP(TestFloatingIPNetwork):
     def test_port_option(self):
         arglist = [
             self.floating_ip.id,
-            '--port', self.floating_ip.port_id,
+            '--port',
+            self.floating_ip.port_id,
         ]
         verifylist = [
             ('floating_ip', self.floating_ip.id),
@@ -746,13 +811,16 @@ class TestSetFloatingIP(TestFloatingIPNetwork):
         )
 
         self.network.update_ip.assert_called_once_with(
-            self.floating_ip, **attrs)
+            self.floating_ip, **attrs
+        )
 
     def test_fixed_ip_option(self):
         arglist = [
             self.floating_ip.id,
-            '--port', self.floating_ip.port_id,
-            "--fixed-ip-address", self.floating_ip.fixed_ip_address,
+            '--port',
+            self.floating_ip.port_id,
+            "--fixed-ip-address",
+            self.floating_ip.fixed_ip_address,
         ]
         verifylist = [
             ('floating_ip', self.floating_ip.id),
@@ -772,13 +840,16 @@ class TestSetFloatingIP(TestFloatingIPNetwork):
             ignore_missing=False,
         )
         self.network.update_ip.assert_called_once_with(
-            self.floating_ip, **attrs)
+            self.floating_ip, **attrs
+        )
 
     def test_description_option(self):
         arglist = [
             self.floating_ip.id,
-            '--port', self.floating_ip.port_id,
-            '--description', self.floating_ip.description,
+            '--port',
+            self.floating_ip.port_id,
+            '--description',
+            self.floating_ip.description,
         ]
         verifylist = [
             ('floating_ip', self.floating_ip.id),
@@ -798,13 +869,15 @@ class TestSetFloatingIP(TestFloatingIPNetwork):
             ignore_missing=False,
         )
         self.network.update_ip.assert_called_once_with(
-            self.floating_ip, **attrs)
+            self.floating_ip, **attrs
+        )
 
     def test_qos_policy_option(self):
         qos_policy = network_fakes.FakeNetworkQosPolicy.create_one_qos_policy()
         self.network.find_qos_policy = mock.Mock(return_value=qos_policy)
         arglist = [
-            "--qos-policy", qos_policy.id,
+            "--qos-policy",
+            qos_policy.id,
             self.floating_ip.id,
         ]
         verifylist = [
@@ -823,14 +896,17 @@ class TestSetFloatingIP(TestFloatingIPNetwork):
             ignore_missing=False,
         )
         self.network.update_ip.assert_called_once_with(
-            self.floating_ip, **attrs)
+            self.floating_ip, **attrs
+        )
 
     def test_port_and_qos_policy_option(self):
         qos_policy = network_fakes.FakeNetworkQosPolicy.create_one_qos_policy()
         self.network.find_qos_policy = mock.Mock(return_value=qos_policy)
         arglist = [
-            "--qos-policy", qos_policy.id,
-            '--port', self.floating_ip.port_id,
+            "--qos-policy",
+            qos_policy.id,
+            '--port',
+            self.floating_ip.port_id,
             self.floating_ip.id,
         ]
         verifylist = [
@@ -851,7 +927,8 @@ class TestSetFloatingIP(TestFloatingIPNetwork):
             ignore_missing=False,
         )
         self.network.update_ip.assert_called_once_with(
-            self.floating_ip, **attrs)
+            self.floating_ip, **attrs
+        )
 
     def test_no_qos_policy_option(self):
         arglist = [
@@ -874,12 +951,14 @@ class TestSetFloatingIP(TestFloatingIPNetwork):
             ignore_missing=False,
         )
         self.network.update_ip.assert_called_once_with(
-            self.floating_ip, **attrs)
+            self.floating_ip, **attrs
+        )
 
     def test_port_and_no_qos_policy_option(self):
         arglist = [
             "--no-qos-policy",
-            '--port', self.floating_ip.port_id,
+            '--port',
+            self.floating_ip.port_id,
             self.floating_ip.id,
         ]
         verifylist = [
@@ -900,7 +979,8 @@ class TestSetFloatingIP(TestFloatingIPNetwork):
             ignore_missing=False,
         )
         self.network.update_ip.assert_called_once_with(
-            self.floating_ip, **attrs)
+            self.floating_ip, **attrs
+        )
 
     def _test_set_tags(self, with_tags=True):
         if with_tags:
@@ -919,8 +999,8 @@ class TestSetFloatingIP(TestFloatingIPNetwork):
 
         self.assertFalse(self.network.update_ip.called)
         self.network.set_tags.assert_called_once_with(
-            self.floating_ip,
-            tests_utils.CompareBySet(expected_args))
+            self.floating_ip, tests_utils.CompareBySet(expected_args)
+        )
         self.assertIsNone(result)
 
     def test_set_with_tags(self):
@@ -931,7 +1011,6 @@ class TestSetFloatingIP(TestFloatingIPNetwork):
 
 
 class TestUnsetFloatingIP(TestFloatingIPNetwork):
-
     floating_network = network_fakes.create_one_network()
     subnet = network_fakes.FakeSubnet.create_one_subnet()
     port = network_fakes.create_one_port()
@@ -975,7 +1054,8 @@ class TestUnsetFloatingIP(TestFloatingIPNetwork):
             ignore_missing=False,
         )
         self.network.update_ip.assert_called_once_with(
-            self.floating_ip, **attrs)
+            self.floating_ip, **attrs
+        )
 
         self.assertIsNone(result)
 
@@ -1000,7 +1080,8 @@ class TestUnsetFloatingIP(TestFloatingIPNetwork):
             ignore_missing=False,
         )
         self.network.update_ip.assert_called_once_with(
-            self.floating_ip, **attrs)
+            self.floating_ip, **attrs
+        )
 
         self.assertIsNone(result)
 
@@ -1014,16 +1095,15 @@ class TestUnsetFloatingIP(TestFloatingIPNetwork):
             verifylist = [('all_tag', True)]
             expected_args = []
         arglist.append(self.floating_ip.id)
-        verifylist.append(
-            ('floating_ip', self.floating_ip.id))
+        verifylist.append(('floating_ip', self.floating_ip.id))
 
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
         result = self.cmd.take_action(parsed_args)
 
         self.assertFalse(self.network.update_ip.called)
         self.network.set_tags.assert_called_once_with(
-            self.floating_ip,
-            tests_utils.CompareBySet(expected_args))
+            self.floating_ip, tests_utils.CompareBySet(expected_args)
+        )
         self.assertIsNone(result)
 
     def test_unset_with_tags(self):

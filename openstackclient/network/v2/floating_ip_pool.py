@@ -25,17 +25,23 @@ class ListFloatingIPPool(common.NetworkAndComputeLister):
     _description = _("List pools of floating IP addresses")
 
     def take_action_network(self, client, parsed_args):
-        msg = _("Floating ip pool operations are only available for "
-                "Compute v2 network.")
+        msg = _(
+            "Floating ip pool operations are only available for "
+            "Compute v2 network."
+        )
         raise exceptions.CommandError(msg)
 
     def take_action_compute(self, client, parsed_args):
-        columns = (
-            'Name',
-        )
+        columns = ('Name',)
         data = client.api.floating_ip_pool_list()
 
-        return (columns,
-                (utils.get_dict_properties(
-                    s, columns,
-                ) for s in data))
+        return (
+            columns,
+            (
+                utils.get_dict_properties(
+                    s,
+                    columns,
+                )
+                for s in data
+            ),
+        )

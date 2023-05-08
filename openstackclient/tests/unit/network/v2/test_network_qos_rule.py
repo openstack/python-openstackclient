@@ -26,39 +26,62 @@ RULE_TYPE_BANDWIDTH_LIMIT = 'bandwidth-limit'
 RULE_TYPE_DSCP_MARKING = 'dscp-marking'
 RULE_TYPE_MINIMUM_BANDWIDTH = 'minimum-bandwidth'
 RULE_TYPE_MINIMUM_PACKET_RATE = 'minimum-packet-rate'
-DSCP_VALID_MARKS = [0, 8, 10, 12, 14, 16, 18, 20, 22, 24, 26, 28, 30, 32,
-                    34, 36, 38, 40, 46, 48, 56]
+DSCP_VALID_MARKS = [
+    0,
+    8,
+    10,
+    12,
+    14,
+    16,
+    18,
+    20,
+    22,
+    24,
+    26,
+    28,
+    30,
+    32,
+    34,
+    36,
+    38,
+    40,
+    46,
+    48,
+    56,
+]
 
 
 class TestNetworkQosRule(network_fakes.TestNetworkV2):
-
     def setUp(self):
         super(TestNetworkQosRule, self).setUp()
         # Get a shortcut to the network client
         self.network = self.app.client_manager.network
-        self.qos_policy = (network_fakes.FakeNetworkQosPolicy.
-                           create_one_qos_policy())
+        self.qos_policy = (
+            network_fakes.FakeNetworkQosPolicy.create_one_qos_policy()
+        )
         self.network.find_qos_policy = mock.Mock(return_value=self.qos_policy)
 
 
 class TestCreateNetworkQosRuleMinimumBandwidth(TestNetworkQosRule):
-
     def test_check_type_parameters(self):
         pass
 
     def setUp(self):
         super(TestCreateNetworkQosRuleMinimumBandwidth, self).setUp()
-        attrs = {'qos_policy_id': self.qos_policy.id,
-                 'type': RULE_TYPE_MINIMUM_BANDWIDTH}
+        attrs = {
+            'qos_policy_id': self.qos_policy.id,
+            'type': RULE_TYPE_MINIMUM_BANDWIDTH,
+        }
         self.new_rule = network_fakes.FakeNetworkQosRule.create_one_qos_rule(
-            attrs)
+            attrs
+        )
         self.columns = (
             'direction',
             'id',
             'min_kbps',
             'project_id',
             'qos_policy_id',
-            'type'
+            'type',
         )
 
         self.data = (
@@ -70,24 +93,33 @@ class TestCreateNetworkQosRuleMinimumBandwidth(TestNetworkQosRule):
             self.new_rule.type,
         )
         self.network.create_qos_minimum_bandwidth_rule = mock.Mock(
-            return_value=self.new_rule)
+            return_value=self.new_rule
+        )
 
         # Get the command object to test
-        self.cmd = network_qos_rule.CreateNetworkQosRule(self.app,
-                                                         self.namespace)
+        self.cmd = network_qos_rule.CreateNetworkQosRule(
+            self.app, self.namespace
+        )
 
     def test_create_no_options(self):
         arglist = []
         verifylist = []
 
         # Missing required args should bail here
-        self.assertRaises(tests_utils.ParserException, self.check_parser,
-                          self.cmd, arglist, verifylist)
+        self.assertRaises(
+            tests_utils.ParserException,
+            self.check_parser,
+            self.cmd,
+            arglist,
+            verifylist,
+        )
 
     def test_create_default_options(self):
         arglist = [
-            '--type', RULE_TYPE_MINIMUM_BANDWIDTH,
-            '--min-kbps', str(self.new_rule.min_kbps),
+            '--type',
+            RULE_TYPE_MINIMUM_BANDWIDTH,
+            '--min-kbps',
+            str(self.new_rule.min_kbps),
             '--egress',
             self.new_rule.qos_policy_id,
         ]
@@ -100,20 +132,24 @@ class TestCreateNetworkQosRuleMinimumBandwidth(TestNetworkQosRule):
         ]
 
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
-        columns, data = (self.cmd.take_action(parsed_args))
+        columns, data = self.cmd.take_action(parsed_args)
 
         self.network.create_qos_minimum_bandwidth_rule.assert_called_once_with(
             self.qos_policy.id,
-            **{'min_kbps': self.new_rule.min_kbps,
-               'direction': self.new_rule.direction}
+            **{
+                'min_kbps': self.new_rule.min_kbps,
+                'direction': self.new_rule.direction,
+            }
         )
         self.assertEqual(self.columns, columns)
         self.assertEqual(self.data, data)
 
     def test_create_wrong_options(self):
         arglist = [
-            '--type', RULE_TYPE_MINIMUM_BANDWIDTH,
-            '--max-kbps', '10000',
+            '--type',
+            RULE_TYPE_MINIMUM_BANDWIDTH,
+            '--max-kbps',
+            '10000',
             self.new_rule.qos_policy_id,
         ]
 
@@ -127,30 +163,34 @@ class TestCreateNetworkQosRuleMinimumBandwidth(TestNetworkQosRule):
         try:
             self.cmd.take_action(parsed_args)
         except exceptions.CommandError as e:
-            msg = ('Failed to create Network QoS rule: "Create" rule command '
-                   'for type "minimum-bandwidth" requires arguments: '
-                   'direction, min_kbps')
+            msg = (
+                'Failed to create Network QoS rule: "Create" rule command '
+                'for type "minimum-bandwidth" requires arguments: '
+                'direction, min_kbps'
+            )
             self.assertEqual(msg, str(e))
 
 
 class TestCreateNetworkQosRuleMinimumPacketRate(TestNetworkQosRule):
-
     def test_check_type_parameters(self):
         pass
 
     def setUp(self):
         super(TestCreateNetworkQosRuleMinimumPacketRate, self).setUp()
-        attrs = {'qos_policy_id': self.qos_policy.id,
-                 'type': RULE_TYPE_MINIMUM_PACKET_RATE}
+        attrs = {
+            'qos_policy_id': self.qos_policy.id,
+            'type': RULE_TYPE_MINIMUM_PACKET_RATE,
+        }
         self.new_rule = network_fakes.FakeNetworkQosRule.create_one_qos_rule(
-            attrs)
+            attrs
+        )
         self.columns = (
             'direction',
             'id',
             'min_kpps',
             'project_id',
             'qos_policy_id',
-            'type'
+            'type',
         )
 
         self.data = (
@@ -162,24 +202,33 @@ class TestCreateNetworkQosRuleMinimumPacketRate(TestNetworkQosRule):
             self.new_rule.type,
         )
         self.network.create_qos_minimum_packet_rate_rule = mock.Mock(
-            return_value=self.new_rule)
+            return_value=self.new_rule
+        )
 
         # Get the command object to test
-        self.cmd = network_qos_rule.CreateNetworkQosRule(self.app,
-                                                         self.namespace)
+        self.cmd = network_qos_rule.CreateNetworkQosRule(
+            self.app, self.namespace
+        )
 
     def test_create_no_options(self):
         arglist = []
         verifylist = []
 
         # Missing required args should bail here
-        self.assertRaises(tests_utils.ParserException, self.check_parser,
-                          self.cmd, arglist, verifylist)
+        self.assertRaises(
+            tests_utils.ParserException,
+            self.check_parser,
+            self.cmd,
+            arglist,
+            verifylist,
+        )
 
     def test_create_default_options(self):
         arglist = [
-            '--type', RULE_TYPE_MINIMUM_PACKET_RATE,
-            '--min-kpps', str(self.new_rule.min_kpps),
+            '--type',
+            RULE_TYPE_MINIMUM_PACKET_RATE,
+            '--min-kpps',
+            str(self.new_rule.min_kpps),
             '--egress',
             self.new_rule.qos_policy_id,
         ]
@@ -192,20 +241,24 @@ class TestCreateNetworkQosRuleMinimumPacketRate(TestNetworkQosRule):
         ]
 
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
-        columns, data = (self.cmd.take_action(parsed_args))
+        columns, data = self.cmd.take_action(parsed_args)
 
-        self.network.create_qos_minimum_packet_rate_rule.\
-            assert_called_once_with(
-                self.qos_policy.id,
-                **{'min_kpps': self.new_rule.min_kpps,
-                   'direction': self.new_rule.direction})
+        self.network.create_qos_minimum_packet_rate_rule.assert_called_once_with(  # noqa: E501
+            self.qos_policy.id,
+            **{
+                'min_kpps': self.new_rule.min_kpps,
+                'direction': self.new_rule.direction,
+            }
+        )
         self.assertEqual(self.columns, columns)
         self.assertEqual(self.data, data)
 
     def test_create_wrong_options(self):
         arglist = [
-            '--type', RULE_TYPE_MINIMUM_PACKET_RATE,
-            '--min-kbps', '10000',
+            '--type',
+            RULE_TYPE_MINIMUM_PACKET_RATE,
+            '--min-kbps',
+            '10000',
             self.new_rule.qos_policy_id,
         ]
 
@@ -219,29 +272,33 @@ class TestCreateNetworkQosRuleMinimumPacketRate(TestNetworkQosRule):
         try:
             self.cmd.take_action(parsed_args)
         except exceptions.CommandError as e:
-            msg = ('Failed to create Network QoS rule: "Create" rule command '
-                   'for type "minimum-packet-rate" requires arguments: '
-                   'direction, min_kpps')
+            msg = (
+                'Failed to create Network QoS rule: "Create" rule command '
+                'for type "minimum-packet-rate" requires arguments: '
+                'direction, min_kpps'
+            )
             self.assertEqual(msg, str(e))
 
 
 class TestCreateNetworkQosRuleDSCPMarking(TestNetworkQosRule):
-
     def test_check_type_parameters(self):
         pass
 
     def setUp(self):
         super(TestCreateNetworkQosRuleDSCPMarking, self).setUp()
-        attrs = {'qos_policy_id': self.qos_policy.id,
-                 'type': RULE_TYPE_DSCP_MARKING}
+        attrs = {
+            'qos_policy_id': self.qos_policy.id,
+            'type': RULE_TYPE_DSCP_MARKING,
+        }
         self.new_rule = network_fakes.FakeNetworkQosRule.create_one_qos_rule(
-            attrs)
+            attrs
+        )
         self.columns = (
             'dscp_mark',
             'id',
             'project_id',
             'qos_policy_id',
-            'type'
+            'type',
         )
 
         self.data = (
@@ -252,24 +309,33 @@ class TestCreateNetworkQosRuleDSCPMarking(TestNetworkQosRule):
             self.new_rule.type,
         )
         self.network.create_qos_dscp_marking_rule = mock.Mock(
-            return_value=self.new_rule)
+            return_value=self.new_rule
+        )
 
         # Get the command object to test
-        self.cmd = network_qos_rule.CreateNetworkQosRule(self.app,
-                                                         self.namespace)
+        self.cmd = network_qos_rule.CreateNetworkQosRule(
+            self.app, self.namespace
+        )
 
     def test_create_no_options(self):
         arglist = []
         verifylist = []
 
         # Missing required args should bail here
-        self.assertRaises(tests_utils.ParserException, self.check_parser,
-                          self.cmd, arglist, verifylist)
+        self.assertRaises(
+            tests_utils.ParserException,
+            self.check_parser,
+            self.cmd,
+            arglist,
+            verifylist,
+        )
 
     def test_create_default_options(self):
         arglist = [
-            '--type', RULE_TYPE_DSCP_MARKING,
-            '--dscp-mark', str(self.new_rule.dscp_mark),
+            '--type',
+            RULE_TYPE_DSCP_MARKING,
+            '--dscp-mark',
+            str(self.new_rule.dscp_mark),
             self.new_rule.qos_policy_id,
         ]
 
@@ -283,16 +349,17 @@ class TestCreateNetworkQosRuleDSCPMarking(TestNetworkQosRule):
         columns, data = self.cmd.take_action(parsed_args)
 
         self.network.create_qos_dscp_marking_rule.assert_called_once_with(
-            self.qos_policy.id,
-            **{'dscp_mark': self.new_rule.dscp_mark}
+            self.qos_policy.id, **{'dscp_mark': self.new_rule.dscp_mark}
         )
         self.assertEqual(self.columns, columns)
         self.assertEqual(self.data, data)
 
     def test_create_wrong_options(self):
         arglist = [
-            '--type', RULE_TYPE_DSCP_MARKING,
-            '--max-kbps', '10000',
+            '--type',
+            RULE_TYPE_DSCP_MARKING,
+            '--max-kbps',
+            '10000',
             self.new_rule.qos_policy_id,
         ]
 
@@ -306,22 +373,26 @@ class TestCreateNetworkQosRuleDSCPMarking(TestNetworkQosRule):
         try:
             self.cmd.take_action(parsed_args)
         except exceptions.CommandError as e:
-            msg = ('Failed to create Network QoS rule: "Create" rule command '
-                   'for type "dscp-marking" requires arguments: dscp_mark')
+            msg = (
+                'Failed to create Network QoS rule: "Create" rule command '
+                'for type "dscp-marking" requires arguments: dscp_mark'
+            )
             self.assertEqual(msg, str(e))
 
 
 class TestCreateNetworkQosRuleBandwidtLimit(TestNetworkQosRule):
-
     def test_check_type_parameters(self):
         pass
 
     def setUp(self):
         super(TestCreateNetworkQosRuleBandwidtLimit, self).setUp()
-        attrs = {'qos_policy_id': self.qos_policy.id,
-                 'type': RULE_TYPE_BANDWIDTH_LIMIT}
+        attrs = {
+            'qos_policy_id': self.qos_policy.id,
+            'type': RULE_TYPE_BANDWIDTH_LIMIT,
+        }
         self.new_rule = network_fakes.FakeNetworkQosRule.create_one_qos_rule(
-            attrs)
+            attrs
+        )
         self.columns = (
             'direction',
             'id',
@@ -329,7 +400,7 @@ class TestCreateNetworkQosRuleBandwidtLimit(TestNetworkQosRule):
             'max_kbps',
             'project_id',
             'qos_policy_id',
-            'type'
+            'type',
         )
 
         self.data = (
@@ -342,24 +413,33 @@ class TestCreateNetworkQosRuleBandwidtLimit(TestNetworkQosRule):
             self.new_rule.type,
         )
         self.network.create_qos_bandwidth_limit_rule = mock.Mock(
-            return_value=self.new_rule)
+            return_value=self.new_rule
+        )
 
         # Get the command object to test
-        self.cmd = network_qos_rule.CreateNetworkQosRule(self.app,
-                                                         self.namespace)
+        self.cmd = network_qos_rule.CreateNetworkQosRule(
+            self.app, self.namespace
+        )
 
     def test_create_no_options(self):
         arglist = []
         verifylist = []
 
         # Missing required args should bail here
-        self.assertRaises(tests_utils.ParserException, self.check_parser,
-                          self.cmd, arglist, verifylist)
+        self.assertRaises(
+            tests_utils.ParserException,
+            self.check_parser,
+            self.cmd,
+            arglist,
+            verifylist,
+        )
 
     def test_create_default_options(self):
         arglist = [
-            '--type', RULE_TYPE_BANDWIDTH_LIMIT,
-            '--max-kbps', str(self.new_rule.max_kbps),
+            '--type',
+            RULE_TYPE_BANDWIDTH_LIMIT,
+            '--max-kbps',
+            str(self.new_rule.max_kbps),
             '--egress',
             self.new_rule.qos_policy_id,
         ]
@@ -372,8 +452,11 @@ class TestCreateNetworkQosRuleBandwidtLimit(TestNetworkQosRule):
         ]
 
         rule = network_fakes.FakeNetworkQosRule.create_one_qos_rule(
-            {'qos_policy_id': self.qos_policy.id,
-             'type': RULE_TYPE_BANDWIDTH_LIMIT})
+            {
+                'qos_policy_id': self.qos_policy.id,
+                'type': RULE_TYPE_BANDWIDTH_LIMIT,
+            }
+        )
         rule.max_burst_kbits = 0
         expected_data = (
             rule.direction,
@@ -386,24 +469,29 @@ class TestCreateNetworkQosRuleBandwidtLimit(TestNetworkQosRule):
         )
 
         with mock.patch.object(
-                self.network, "create_qos_bandwidth_limit_rule",
-                return_value=rule) as create_qos_bandwidth_limit_rule:
+            self.network, "create_qos_bandwidth_limit_rule", return_value=rule
+        ) as create_qos_bandwidth_limit_rule:
             parsed_args = self.check_parser(self.cmd, arglist, verifylist)
-            columns, data = (self.cmd.take_action(parsed_args))
+            columns, data = self.cmd.take_action(parsed_args)
 
         create_qos_bandwidth_limit_rule.assert_called_once_with(
             self.qos_policy.id,
-            **{'max_kbps': self.new_rule.max_kbps,
-               'direction': self.new_rule.direction}
+            **{
+                'max_kbps': self.new_rule.max_kbps,
+                'direction': self.new_rule.direction,
+            }
         )
         self.assertEqual(self.columns, columns)
         self.assertEqual(expected_data, data)
 
     def test_create_all_options(self):
         arglist = [
-            '--type', RULE_TYPE_BANDWIDTH_LIMIT,
-            '--max-kbps', str(self.new_rule.max_kbps),
-            '--max-burst-kbits', str(self.new_rule.max_burst_kbits),
+            '--type',
+            RULE_TYPE_BANDWIDTH_LIMIT,
+            '--max-kbps',
+            str(self.new_rule.max_kbps),
+            '--max-burst-kbits',
+            str(self.new_rule.max_burst_kbits),
             '--egress',
             self.new_rule.qos_policy_id,
         ]
@@ -417,21 +505,25 @@ class TestCreateNetworkQosRuleBandwidtLimit(TestNetworkQosRule):
         ]
 
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
-        columns, data = (self.cmd.take_action(parsed_args))
+        columns, data = self.cmd.take_action(parsed_args)
 
         self.network.create_qos_bandwidth_limit_rule.assert_called_once_with(
             self.qos_policy.id,
-            **{'max_kbps': self.new_rule.max_kbps,
-               'max_burst_kbps': self.new_rule.max_burst_kbits,
-               'direction': self.new_rule.direction}
+            **{
+                'max_kbps': self.new_rule.max_kbps,
+                'max_burst_kbps': self.new_rule.max_burst_kbits,
+                'direction': self.new_rule.direction,
+            }
         )
         self.assertEqual(self.columns, columns)
         self.assertEqual(self.data, data)
 
     def test_create_wrong_options(self):
         arglist = [
-            '--type', RULE_TYPE_BANDWIDTH_LIMIT,
-            '--min-kbps', '10000',
+            '--type',
+            RULE_TYPE_BANDWIDTH_LIMIT,
+            '--min-kbps',
+            '10000',
             self.new_rule.qos_policy_id,
         ]
 
@@ -445,30 +537,37 @@ class TestCreateNetworkQosRuleBandwidtLimit(TestNetworkQosRule):
         try:
             self.cmd.take_action(parsed_args)
         except exceptions.CommandError as e:
-            msg = ('Failed to create Network QoS rule: "Create" rule command '
-                   'for type "bandwidth-limit" requires arguments: max_kbps')
+            msg = (
+                'Failed to create Network QoS rule: "Create" rule command '
+                'for type "bandwidth-limit" requires arguments: max_kbps'
+            )
             self.assertEqual(msg, str(e))
 
 
 class TestDeleteNetworkQosRuleMinimumBandwidth(TestNetworkQosRule):
-
     def setUp(self):
         super(TestDeleteNetworkQosRuleMinimumBandwidth, self).setUp()
-        attrs = {'qos_policy_id': self.qos_policy.id,
-                 'type': RULE_TYPE_MINIMUM_BANDWIDTH}
+        attrs = {
+            'qos_policy_id': self.qos_policy.id,
+            'type': RULE_TYPE_MINIMUM_BANDWIDTH,
+        }
         self.new_rule = network_fakes.FakeNetworkQosRule.create_one_qos_rule(
-            attrs)
+            attrs
+        )
         self.qos_policy.rules = [self.new_rule]
         self.network.delete_qos_minimum_bandwidth_rule = mock.Mock(
-            return_value=None)
+            return_value=None
+        )
         self.network.find_qos_minimum_bandwidth_rule = (
             network_fakes.FakeNetworkQosRule.get_qos_rules(
-                qos_rules=self.new_rule)
+                qos_rules=self.new_rule
+            )
         )
 
         # Get the command object to test
-        self.cmd = network_qos_rule.DeleteNetworkQosRule(self.app,
-                                                         self.namespace)
+        self.cmd = network_qos_rule.DeleteNetworkQosRule(
+            self.app, self.namespace
+        )
 
     def test_qos_policy_delete(self):
         arglist = [
@@ -483,9 +582,11 @@ class TestDeleteNetworkQosRuleMinimumBandwidth(TestNetworkQosRule):
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
         result = self.cmd.take_action(parsed_args)
         self.network.find_qos_policy.assert_called_once_with(
-            self.qos_policy.id, ignore_missing=False)
+            self.qos_policy.id, ignore_missing=False
+        )
         self.network.delete_qos_minimum_bandwidth_rule.assert_called_once_with(
-            self.new_rule.id, self.qos_policy.id)
+            self.new_rule.id, self.qos_policy.id
+        )
         self.assertIsNone(result)
 
     def test_qos_policy_delete_error(self):
@@ -498,36 +599,44 @@ class TestDeleteNetworkQosRuleMinimumBandwidth(TestNetworkQosRule):
             ('id', self.new_rule.id),
         ]
 
-        self.network.delete_qos_minimum_bandwidth_rule.side_effect = \
-            Exception('Error message')
+        self.network.delete_qos_minimum_bandwidth_rule.side_effect = Exception(
+            'Error message'
+        )
         try:
             parsed_args = self.check_parser(self.cmd, arglist, verifylist)
             self.cmd.take_action(parsed_args)
         except exceptions.CommandError as e:
-            msg = ('Failed to delete Network QoS rule ID "%(rule)s": %(e)s' %
-                   {'rule': self.new_rule.id, 'e': 'Error message'})
+            msg = 'Failed to delete Network QoS rule ID "%(rule)s": %(e)s' % {
+                'rule': self.new_rule.id,
+                'e': 'Error message',
+            }
             self.assertEqual(msg, str(e))
 
 
 class TestDeleteNetworkQosRuleMinimumPacketRate(TestNetworkQosRule):
-
     def setUp(self):
         super(TestDeleteNetworkQosRuleMinimumPacketRate, self).setUp()
-        attrs = {'qos_policy_id': self.qos_policy.id,
-                 'type': RULE_TYPE_MINIMUM_PACKET_RATE}
+        attrs = {
+            'qos_policy_id': self.qos_policy.id,
+            'type': RULE_TYPE_MINIMUM_PACKET_RATE,
+        }
         self.new_rule = network_fakes.FakeNetworkQosRule.create_one_qos_rule(
-            attrs)
+            attrs
+        )
         self.qos_policy.rules = [self.new_rule]
         self.network.delete_qos_minimum_packet_rate_rule = mock.Mock(
-            return_value=None)
+            return_value=None
+        )
         self.network.find_qos_minimum_packet_rate_rule = (
             network_fakes.FakeNetworkQosRule.get_qos_rules(
-                qos_rules=self.new_rule)
+                qos_rules=self.new_rule
+            )
         )
 
         # Get the command object to test
-        self.cmd = network_qos_rule.DeleteNetworkQosRule(self.app,
-                                                         self.namespace)
+        self.cmd = network_qos_rule.DeleteNetworkQosRule(
+            self.app, self.namespace
+        )
 
     def test_qos_policy_delete(self):
         arglist = [
@@ -542,9 +651,11 @@ class TestDeleteNetworkQosRuleMinimumPacketRate(TestNetworkQosRule):
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
         result = self.cmd.take_action(parsed_args)
         self.network.find_qos_policy.assert_called_once_with(
-            self.qos_policy.id, ignore_missing=False)
-        self.network.delete_qos_minimum_packet_rate_rule.\
-            assert_called_once_with(self.new_rule.id, self.qos_policy.id)
+            self.qos_policy.id, ignore_missing=False
+        )
+        self.network.delete_qos_minimum_packet_rate_rule.assert_called_once_with(  # noqa: E501
+            self.new_rule.id, self.qos_policy.id
+        )
         self.assertIsNone(result)
 
     def test_qos_policy_delete_error(self):
@@ -557,36 +668,44 @@ class TestDeleteNetworkQosRuleMinimumPacketRate(TestNetworkQosRule):
             ('id', self.new_rule.id),
         ]
 
-        self.network.delete_qos_minimum_packet_rate_rule.side_effect = \
+        self.network.delete_qos_minimum_packet_rate_rule.side_effect = (
             Exception('Error message')
+        )
         try:
             parsed_args = self.check_parser(self.cmd, arglist, verifylist)
             self.cmd.take_action(parsed_args)
         except exceptions.CommandError as e:
-            msg = ('Failed to delete Network QoS rule ID "%(rule)s": %(e)s' %
-                   {'rule': self.new_rule.id, 'e': 'Error message'})
+            msg = 'Failed to delete Network QoS rule ID "%(rule)s": %(e)s' % {
+                'rule': self.new_rule.id,
+                'e': 'Error message',
+            }
             self.assertEqual(msg, str(e))
 
 
 class TestDeleteNetworkQosRuleDSCPMarking(TestNetworkQosRule):
-
     def setUp(self):
         super(TestDeleteNetworkQosRuleDSCPMarking, self).setUp()
-        attrs = {'qos_policy_id': self.qos_policy.id,
-                 'type': RULE_TYPE_DSCP_MARKING}
+        attrs = {
+            'qos_policy_id': self.qos_policy.id,
+            'type': RULE_TYPE_DSCP_MARKING,
+        }
         self.new_rule = network_fakes.FakeNetworkQosRule.create_one_qos_rule(
-            attrs)
+            attrs
+        )
         self.qos_policy.rules = [self.new_rule]
         self.network.delete_qos_dscp_marking_rule = mock.Mock(
-            return_value=None)
+            return_value=None
+        )
         self.network.find_qos_dscp_marking_rule = (
             network_fakes.FakeNetworkQosRule.get_qos_rules(
-                qos_rules=self.new_rule)
+                qos_rules=self.new_rule
+            )
         )
 
         # Get the command object to test
-        self.cmd = network_qos_rule.DeleteNetworkQosRule(self.app,
-                                                         self.namespace)
+        self.cmd = network_qos_rule.DeleteNetworkQosRule(
+            self.app, self.namespace
+        )
 
     def test_qos_policy_delete(self):
         arglist = [
@@ -601,9 +720,11 @@ class TestDeleteNetworkQosRuleDSCPMarking(TestNetworkQosRule):
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
         result = self.cmd.take_action(parsed_args)
         self.network.find_qos_policy.assert_called_once_with(
-            self.qos_policy.id, ignore_missing=False)
+            self.qos_policy.id, ignore_missing=False
+        )
         self.network.delete_qos_dscp_marking_rule.assert_called_once_with(
-            self.new_rule.id, self.qos_policy.id)
+            self.new_rule.id, self.qos_policy.id
+        )
         self.assertIsNone(result)
 
     def test_qos_policy_delete_error(self):
@@ -616,36 +737,44 @@ class TestDeleteNetworkQosRuleDSCPMarking(TestNetworkQosRule):
             ('id', self.new_rule.id),
         ]
 
-        self.network.delete_qos_dscp_marking_rule.side_effect = \
-            Exception('Error message')
+        self.network.delete_qos_dscp_marking_rule.side_effect = Exception(
+            'Error message'
+        )
         try:
             parsed_args = self.check_parser(self.cmd, arglist, verifylist)
             self.cmd.take_action(parsed_args)
         except exceptions.CommandError as e:
-            msg = ('Failed to delete Network QoS rule ID "%(rule)s": %(e)s' %
-                   {'rule': self.new_rule.id, 'e': 'Error message'})
+            msg = 'Failed to delete Network QoS rule ID "%(rule)s": %(e)s' % {
+                'rule': self.new_rule.id,
+                'e': 'Error message',
+            }
             self.assertEqual(msg, str(e))
 
 
 class TestDeleteNetworkQosRuleBandwidthLimit(TestNetworkQosRule):
-
     def setUp(self):
         super(TestDeleteNetworkQosRuleBandwidthLimit, self).setUp()
-        attrs = {'qos_policy_id': self.qos_policy.id,
-                 'type': RULE_TYPE_BANDWIDTH_LIMIT}
+        attrs = {
+            'qos_policy_id': self.qos_policy.id,
+            'type': RULE_TYPE_BANDWIDTH_LIMIT,
+        }
         self.new_rule = network_fakes.FakeNetworkQosRule.create_one_qos_rule(
-            attrs)
+            attrs
+        )
         self.qos_policy.rules = [self.new_rule]
         self.network.delete_qos_bandwidth_limit_rule = mock.Mock(
-            return_value=None)
+            return_value=None
+        )
         self.network.find_qos_bandwidth_limit_rule = (
             network_fakes.FakeNetworkQosRule.get_qos_rules(
-                qos_rules=self.new_rule)
+                qos_rules=self.new_rule
+            )
         )
 
         # Get the command object to test
-        self.cmd = network_qos_rule.DeleteNetworkQosRule(self.app,
-                                                         self.namespace)
+        self.cmd = network_qos_rule.DeleteNetworkQosRule(
+            self.app, self.namespace
+        )
 
     def test_qos_policy_delete(self):
         arglist = [
@@ -660,9 +789,11 @@ class TestDeleteNetworkQosRuleBandwidthLimit(TestNetworkQosRule):
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
         result = self.cmd.take_action(parsed_args)
         self.network.find_qos_policy.assert_called_once_with(
-            self.qos_policy.id, ignore_missing=False)
+            self.qos_policy.id, ignore_missing=False
+        )
         self.network.delete_qos_bandwidth_limit_rule.assert_called_once_with(
-            self.new_rule.id, self.qos_policy.id)
+            self.new_rule.id, self.qos_policy.id
+        )
         self.assertIsNone(result)
 
     def test_qos_policy_delete_error(self):
@@ -675,36 +806,41 @@ class TestDeleteNetworkQosRuleBandwidthLimit(TestNetworkQosRule):
             ('id', self.new_rule.id),
         ]
 
-        self.network.delete_qos_bandwidth_limit_rule.side_effect = \
-            Exception('Error message')
+        self.network.delete_qos_bandwidth_limit_rule.side_effect = Exception(
+            'Error message'
+        )
         try:
             parsed_args = self.check_parser(self.cmd, arglist, verifylist)
             self.cmd.take_action(parsed_args)
         except exceptions.CommandError as e:
-            msg = ('Failed to delete Network QoS rule ID "%(rule)s": %(e)s' %
-                   {'rule': self.new_rule.id, 'e': 'Error message'})
+            msg = 'Failed to delete Network QoS rule ID "%(rule)s": %(e)s' % {
+                'rule': self.new_rule.id,
+                'e': 'Error message',
+            }
             self.assertEqual(msg, str(e))
 
 
 class TestSetNetworkQosRuleMinimumBandwidth(TestNetworkQosRule):
-
     def setUp(self):
         super(TestSetNetworkQosRuleMinimumBandwidth, self).setUp()
-        attrs = {'qos_policy_id': self.qos_policy.id,
-                 'type': RULE_TYPE_MINIMUM_BANDWIDTH}
+        attrs = {
+            'qos_policy_id': self.qos_policy.id,
+            'type': RULE_TYPE_MINIMUM_BANDWIDTH,
+        }
         self.new_rule = network_fakes.FakeNetworkQosRule.create_one_qos_rule(
-            attrs=attrs)
+            attrs=attrs
+        )
         self.qos_policy.rules = [self.new_rule]
         self.network.update_qos_minimum_bandwidth_rule = mock.Mock(
-            return_value=None)
+            return_value=None
+        )
         self.network.find_qos_minimum_bandwidth_rule = mock.Mock(
-            return_value=self.new_rule)
-        self.network.find_qos_policy = mock.Mock(
-            return_value=self.qos_policy)
+            return_value=self.new_rule
+        )
+        self.network.find_qos_policy = mock.Mock(return_value=self.qos_policy)
 
         # Get the command object to test
-        self.cmd = (network_qos_rule.SetNetworkQosRule(self.app,
-                                                       self.namespace))
+        self.cmd = network_qos_rule.SetNetworkQosRule(self.app, self.namespace)
 
     def test_set_nothing(self):
         arglist = [
@@ -720,7 +856,8 @@ class TestSetNetworkQosRuleMinimumBandwidth(TestNetworkQosRule):
         result = self.cmd.take_action(parsed_args)
 
         self.network.update_qos_minimum_bandwidth_rule.assert_called_with(
-            self.new_rule, self.qos_policy.id)
+            self.new_rule, self.qos_policy.id
+        )
         self.assertIsNone(result)
 
     def test_set_min_kbps(self):
@@ -735,7 +872,8 @@ class TestSetNetworkQosRuleMinimumBandwidth(TestNetworkQosRule):
             self.new_rule.min_kbps = min_kbps
 
         arglist = [
-            '--min-kbps', str(self.new_rule.min_kbps),
+            '--min-kbps',
+            str(self.new_rule.min_kbps),
             self.new_rule.qos_policy_id,
             self.new_rule.id,
         ]
@@ -752,7 +890,8 @@ class TestSetNetworkQosRuleMinimumBandwidth(TestNetworkQosRule):
             'min_kbps': self.new_rule.min_kbps,
         }
         self.network.update_qos_minimum_bandwidth_rule.assert_called_with(
-            self.new_rule, self.qos_policy.id, **attrs)
+            self.new_rule, self.qos_policy.id, **attrs
+        )
         self.assertIsNone(result)
 
         if min_kbps:
@@ -760,7 +899,8 @@ class TestSetNetworkQosRuleMinimumBandwidth(TestNetworkQosRule):
 
     def test_set_wrong_options(self):
         arglist = [
-            '--max-kbps', str(10000),
+            '--max-kbps',
+            str(10000),
             self.new_rule.qos_policy_id,
             self.new_rule.id,
         ]
@@ -774,31 +914,35 @@ class TestSetNetworkQosRuleMinimumBandwidth(TestNetworkQosRule):
         try:
             self.cmd.take_action(parsed_args)
         except exceptions.CommandError as e:
-            msg = ('Failed to set Network QoS rule ID "%(rule)s": Rule type '
-                   '"minimum-bandwidth" only requires arguments: direction, '
-                   'min_kbps' % {'rule': self.new_rule.id})
+            msg = (
+                'Failed to set Network QoS rule ID "%(rule)s": Rule type '
+                '"minimum-bandwidth" only requires arguments: direction, '
+                'min_kbps' % {'rule': self.new_rule.id}
+            )
             self.assertEqual(msg, str(e))
 
 
 class TestSetNetworkQosRuleMinimumPacketRate(TestNetworkQosRule):
-
     def setUp(self):
         super(TestSetNetworkQosRuleMinimumPacketRate, self).setUp()
-        attrs = {'qos_policy_id': self.qos_policy.id,
-                 'type': RULE_TYPE_MINIMUM_PACKET_RATE}
+        attrs = {
+            'qos_policy_id': self.qos_policy.id,
+            'type': RULE_TYPE_MINIMUM_PACKET_RATE,
+        }
         self.new_rule = network_fakes.FakeNetworkQosRule.create_one_qos_rule(
-            attrs=attrs)
+            attrs=attrs
+        )
         self.qos_policy.rules = [self.new_rule]
         self.network.update_qos_minimum_packet_rate_rule = mock.Mock(
-            return_value=None)
+            return_value=None
+        )
         self.network.find_qos_minimum_packet_rate_rule = mock.Mock(
-            return_value=self.new_rule)
-        self.network.find_qos_policy = mock.Mock(
-            return_value=self.qos_policy)
+            return_value=self.new_rule
+        )
+        self.network.find_qos_policy = mock.Mock(return_value=self.qos_policy)
 
         # Get the command object to test
-        self.cmd = (network_qos_rule.SetNetworkQosRule(self.app,
-                                                       self.namespace))
+        self.cmd = network_qos_rule.SetNetworkQosRule(self.app, self.namespace)
 
     def test_set_nothing(self):
         arglist = [
@@ -814,7 +958,8 @@ class TestSetNetworkQosRuleMinimumPacketRate(TestNetworkQosRule):
         result = self.cmd.take_action(parsed_args)
 
         self.network.update_qos_minimum_packet_rate_rule.assert_called_with(
-            self.new_rule, self.qos_policy.id)
+            self.new_rule, self.qos_policy.id
+        )
         self.assertIsNone(result)
 
     def test_set_min_kpps(self):
@@ -829,7 +974,8 @@ class TestSetNetworkQosRuleMinimumPacketRate(TestNetworkQosRule):
             self.new_rule.min_kpps = min_kpps
 
         arglist = [
-            '--min-kpps', str(self.new_rule.min_kpps),
+            '--min-kpps',
+            str(self.new_rule.min_kpps),
             self.new_rule.qos_policy_id,
             self.new_rule.id,
         ]
@@ -846,7 +992,8 @@ class TestSetNetworkQosRuleMinimumPacketRate(TestNetworkQosRule):
             'min_kpps': self.new_rule.min_kpps,
         }
         self.network.update_qos_minimum_packet_rate_rule.assert_called_with(
-            self.new_rule, self.qos_policy.id, **attrs)
+            self.new_rule, self.qos_policy.id, **attrs
+        )
         self.assertIsNone(result)
 
         if min_kpps:
@@ -854,7 +1001,8 @@ class TestSetNetworkQosRuleMinimumPacketRate(TestNetworkQosRule):
 
     def test_set_wrong_options(self):
         arglist = [
-            '--min-kbps', str(10000),
+            '--min-kbps',
+            str(10000),
             self.new_rule.qos_policy_id,
             self.new_rule.id,
         ]
@@ -868,31 +1016,35 @@ class TestSetNetworkQosRuleMinimumPacketRate(TestNetworkQosRule):
         try:
             self.cmd.take_action(parsed_args)
         except exceptions.CommandError as e:
-            msg = ('Failed to set Network QoS rule ID "%(rule)s": Rule type '
-                   '"minimum-packet-rate" only requires arguments: direction, '
-                   'min_kpps' % {'rule': self.new_rule.id})
+            msg = (
+                'Failed to set Network QoS rule ID "%(rule)s": Rule type '
+                '"minimum-packet-rate" only requires arguments: direction, '
+                'min_kpps' % {'rule': self.new_rule.id}
+            )
             self.assertEqual(msg, str(e))
 
 
 class TestSetNetworkQosRuleDSCPMarking(TestNetworkQosRule):
-
     def setUp(self):
         super(TestSetNetworkQosRuleDSCPMarking, self).setUp()
-        attrs = {'qos_policy_id': self.qos_policy.id,
-                 'type': RULE_TYPE_DSCP_MARKING}
+        attrs = {
+            'qos_policy_id': self.qos_policy.id,
+            'type': RULE_TYPE_DSCP_MARKING,
+        }
         self.new_rule = network_fakes.FakeNetworkQosRule.create_one_qos_rule(
-            attrs=attrs)
+            attrs=attrs
+        )
         self.qos_policy.rules = [self.new_rule]
         self.network.update_qos_dscp_marking_rule = mock.Mock(
-            return_value=None)
+            return_value=None
+        )
         self.network.find_qos_dscp_marking_rule = mock.Mock(
-            return_value=self.new_rule)
-        self.network.find_qos_policy = mock.Mock(
-            return_value=self.qos_policy)
+            return_value=self.new_rule
+        )
+        self.network.find_qos_policy = mock.Mock(return_value=self.qos_policy)
 
         # Get the command object to test
-        self.cmd = (network_qos_rule.SetNetworkQosRule(self.app,
-                                                       self.namespace))
+        self.cmd = network_qos_rule.SetNetworkQosRule(self.app, self.namespace)
 
     def test_set_nothing(self):
         arglist = [
@@ -908,7 +1060,8 @@ class TestSetNetworkQosRuleDSCPMarking(TestNetworkQosRule):
         result = self.cmd.take_action(parsed_args)
 
         self.network.update_qos_dscp_marking_rule.assert_called_with(
-            self.new_rule, self.qos_policy.id)
+            self.new_rule, self.qos_policy.id
+        )
         self.assertIsNone(result)
 
     def test_set_dscp_mark(self):
@@ -923,7 +1076,8 @@ class TestSetNetworkQosRuleDSCPMarking(TestNetworkQosRule):
             self.new_rule.dscp_mark = dscp_mark
 
         arglist = [
-            '--dscp-mark', str(self.new_rule.dscp_mark),
+            '--dscp-mark',
+            str(self.new_rule.dscp_mark),
             self.new_rule.qos_policy_id,
             self.new_rule.id,
         ]
@@ -940,7 +1094,8 @@ class TestSetNetworkQosRuleDSCPMarking(TestNetworkQosRule):
             'dscp_mark': self.new_rule.dscp_mark,
         }
         self.network.update_qos_dscp_marking_rule.assert_called_with(
-            self.new_rule, self.qos_policy.id, **attrs)
+            self.new_rule, self.qos_policy.id, **attrs
+        )
         self.assertIsNone(result)
 
         if dscp_mark:
@@ -948,7 +1103,8 @@ class TestSetNetworkQosRuleDSCPMarking(TestNetworkQosRule):
 
     def test_set_wrong_options(self):
         arglist = [
-            '--max-kbps', str(10000),
+            '--max-kbps',
+            str(10000),
             self.new_rule.qos_policy_id,
             self.new_rule.id,
         ]
@@ -962,31 +1118,35 @@ class TestSetNetworkQosRuleDSCPMarking(TestNetworkQosRule):
         try:
             self.cmd.take_action(parsed_args)
         except exceptions.CommandError as e:
-            msg = ('Failed to set Network QoS rule ID "%(rule)s": Rule type '
-                   '"dscp-marking" only requires arguments: dscp_mark' %
-                   {'rule': self.new_rule.id})
+            msg = (
+                'Failed to set Network QoS rule ID "%(rule)s": Rule type '
+                '"dscp-marking" only requires arguments: dscp_mark'
+                % {'rule': self.new_rule.id}
+            )
             self.assertEqual(msg, str(e))
 
 
 class TestSetNetworkQosRuleBandwidthLimit(TestNetworkQosRule):
-
     def setUp(self):
         super(TestSetNetworkQosRuleBandwidthLimit, self).setUp()
-        attrs = {'qos_policy_id': self.qos_policy.id,
-                 'type': RULE_TYPE_BANDWIDTH_LIMIT}
+        attrs = {
+            'qos_policy_id': self.qos_policy.id,
+            'type': RULE_TYPE_BANDWIDTH_LIMIT,
+        }
         self.new_rule = network_fakes.FakeNetworkQosRule.create_one_qos_rule(
-            attrs=attrs)
+            attrs=attrs
+        )
         self.qos_policy.rules = [self.new_rule]
         self.network.update_qos_bandwidth_limit_rule = mock.Mock(
-            return_value=None)
+            return_value=None
+        )
         self.network.find_qos_bandwidth_limit_rule = mock.Mock(
-            return_value=self.new_rule)
-        self.network.find_qos_policy = mock.Mock(
-            return_value=self.qos_policy)
+            return_value=self.new_rule
+        )
+        self.network.find_qos_policy = mock.Mock(return_value=self.qos_policy)
 
         # Get the command object to test
-        self.cmd = (network_qos_rule.SetNetworkQosRule(self.app,
-                                                       self.namespace))
+        self.cmd = network_qos_rule.SetNetworkQosRule(self.app, self.namespace)
 
     def test_set_nothing(self):
         arglist = [
@@ -1002,7 +1162,8 @@ class TestSetNetworkQosRuleBandwidthLimit(TestNetworkQosRule):
         result = self.cmd.take_action(parsed_args)
 
         self.network.update_qos_bandwidth_limit_rule.assert_called_with(
-            self.new_rule, self.qos_policy.id)
+            self.new_rule, self.qos_policy.id
+        )
         self.assertIsNone(result)
 
     def test_set_max_kbps(self):
@@ -1016,12 +1177,12 @@ class TestSetNetworkQosRuleBandwidthLimit(TestNetworkQosRule):
 
     def _set_max_kbps(self, max_kbps=None):
         if max_kbps:
-            self.addCleanup(self._reset_max_kbps,
-                            self.new_rule.max_kbps)
+            self.addCleanup(self._reset_max_kbps, self.new_rule.max_kbps)
             self.new_rule.max_kbps = max_kbps
 
         arglist = [
-            '--max-kbps', str(self.new_rule.max_kbps),
+            '--max-kbps',
+            str(self.new_rule.max_kbps),
             self.new_rule.qos_policy_id,
             self.new_rule.id,
         ]
@@ -1038,7 +1199,8 @@ class TestSetNetworkQosRuleBandwidthLimit(TestNetworkQosRule):
             'max_kbps': self.new_rule.max_kbps,
         }
         self.network.update_qos_bandwidth_limit_rule.assert_called_with(
-            self.new_rule, self.qos_policy.id, **attrs)
+            self.new_rule, self.qos_policy.id, **attrs
+        )
         self.assertIsNone(result)
 
     def test_set_max_burst_kbits(self):
@@ -1052,12 +1214,14 @@ class TestSetNetworkQosRuleBandwidthLimit(TestNetworkQosRule):
 
     def _set_max_burst_kbits(self, max_burst_kbits=None):
         if max_burst_kbits:
-            self.addCleanup(self._reset_max_burst_kbits,
-                            self.new_rule.max_burst_kbits)
+            self.addCleanup(
+                self._reset_max_burst_kbits, self.new_rule.max_burst_kbits
+            )
             self.new_rule.max_burst_kbits = max_burst_kbits
 
         arglist = [
-            '--max-burst-kbits', str(self.new_rule.max_burst_kbits),
+            '--max-burst-kbits',
+            str(self.new_rule.max_burst_kbits),
             self.new_rule.qos_policy_id,
             self.new_rule.id,
         ]
@@ -1074,7 +1238,8 @@ class TestSetNetworkQosRuleBandwidthLimit(TestNetworkQosRule):
             'max_burst_kbps': self.new_rule.max_burst_kbits,
         }
         self.network.update_qos_bandwidth_limit_rule.assert_called_with(
-            self.new_rule, self.qos_policy.id, **attrs)
+            self.new_rule, self.qos_policy.id, **attrs
+        )
         self.assertIsNone(result)
 
     def test_set_direction_egress(self):
@@ -1107,12 +1272,14 @@ class TestSetNetworkQosRuleBandwidthLimit(TestNetworkQosRule):
             'direction': direction,
         }
         self.network.update_qos_bandwidth_limit_rule.assert_called_with(
-            self.new_rule, self.qos_policy.id, **attrs)
+            self.new_rule, self.qos_policy.id, **attrs
+        )
         self.assertIsNone(result)
 
     def test_set_wrong_options(self):
         arglist = [
-            '--min-kbps', str(10000),
+            '--min-kbps',
+            str(10000),
             self.new_rule.qos_policy_id,
             self.new_rule.id,
         ]
@@ -1126,41 +1293,54 @@ class TestSetNetworkQosRuleBandwidthLimit(TestNetworkQosRule):
         try:
             self.cmd.take_action(parsed_args)
         except exceptions.CommandError as e:
-            msg = ('Failed to set Network QoS rule ID "%(rule)s": Rule type '
-                   '"bandwidth-limit" only requires arguments: direction, '
-                   'max_burst_kbps, max_kbps' % {'rule': self.new_rule.id})
+            msg = (
+                'Failed to set Network QoS rule ID "%(rule)s": Rule type '
+                '"bandwidth-limit" only requires arguments: direction, '
+                'max_burst_kbps, max_kbps' % {'rule': self.new_rule.id}
+            )
             self.assertEqual(msg, str(e))
 
 
 class TestListNetworkQosRule(TestNetworkQosRule):
-
     def setUp(self):
         super(TestListNetworkQosRule, self).setUp()
-        attrs = {'qos_policy_id': self.qos_policy.id,
-                 'type': RULE_TYPE_MINIMUM_BANDWIDTH}
-        self.new_rule_min_bw = (network_fakes.FakeNetworkQosRule.
-                                create_one_qos_rule(attrs=attrs))
+        attrs = {
+            'qos_policy_id': self.qos_policy.id,
+            'type': RULE_TYPE_MINIMUM_BANDWIDTH,
+        }
+        self.new_rule_min_bw = (
+            network_fakes.FakeNetworkQosRule.create_one_qos_rule(attrs=attrs)
+        )
         attrs['type'] = RULE_TYPE_MINIMUM_PACKET_RATE
-        self.new_rule_min_pps = (network_fakes.FakeNetworkQosRule.
-                                 create_one_qos_rule(attrs=attrs))
+        self.new_rule_min_pps = (
+            network_fakes.FakeNetworkQosRule.create_one_qos_rule(attrs=attrs)
+        )
         attrs['type'] = RULE_TYPE_DSCP_MARKING
-        self.new_rule_dscp_mark = (network_fakes.FakeNetworkQosRule.
-                                   create_one_qos_rule(attrs=attrs))
+        self.new_rule_dscp_mark = (
+            network_fakes.FakeNetworkQosRule.create_one_qos_rule(attrs=attrs)
+        )
         attrs['type'] = RULE_TYPE_BANDWIDTH_LIMIT
-        self.new_rule_max_bw = (network_fakes.FakeNetworkQosRule.
-                                create_one_qos_rule(attrs=attrs))
-        self.qos_policy.rules = [self.new_rule_min_bw,
-                                 self.new_rule_min_pps,
-                                 self.new_rule_dscp_mark,
-                                 self.new_rule_max_bw]
+        self.new_rule_max_bw = (
+            network_fakes.FakeNetworkQosRule.create_one_qos_rule(attrs=attrs)
+        )
+        self.qos_policy.rules = [
+            self.new_rule_min_bw,
+            self.new_rule_min_pps,
+            self.new_rule_dscp_mark,
+            self.new_rule_max_bw,
+        ]
         self.network.find_qos_minimum_bandwidth_rule = mock.Mock(
-            return_value=self.new_rule_min_bw)
+            return_value=self.new_rule_min_bw
+        )
         self.network.find_qos_minimum_packet_rate_rule = mock.Mock(
-            return_value=self.new_rule_min_pps)
+            return_value=self.new_rule_min_pps
+        )
         self.network.find_qos_dscp_marking_rule = mock.Mock(
-            return_value=self.new_rule_dscp_mark)
+            return_value=self.new_rule_dscp_mark
+        )
         self.network.find_qos_bandwidth_limit_rule = mock.Mock(
-            return_value=self.new_rule_max_bw)
+            return_value=self.new_rule_max_bw
+        )
         self.columns = (
             'ID',
             'QoS Policy ID',
@@ -1174,25 +1354,28 @@ class TestListNetworkQosRule(TestNetworkQosRule):
         )
         self.data = []
         for index in range(len(self.qos_policy.rules)):
-            self.data.append((
-                self.qos_policy.rules[index].id,
-                self.qos_policy.rules[index].qos_policy_id,
-                self.qos_policy.rules[index].type,
-                getattr(self.qos_policy.rules[index], 'max_kbps', ''),
-                getattr(self.qos_policy.rules[index], 'max_burst_kbps', ''),
-                getattr(self.qos_policy.rules[index], 'min_kbps', ''),
-                getattr(self.qos_policy.rules[index], 'min_kpps', ''),
-                getattr(self.qos_policy.rules[index], 'dscp_mark', ''),
-                getattr(self.qos_policy.rules[index], 'direction', ''),
-            ))
+            self.data.append(
+                (
+                    self.qos_policy.rules[index].id,
+                    self.qos_policy.rules[index].qos_policy_id,
+                    self.qos_policy.rules[index].type,
+                    getattr(self.qos_policy.rules[index], 'max_kbps', ''),
+                    getattr(
+                        self.qos_policy.rules[index], 'max_burst_kbps', ''
+                    ),
+                    getattr(self.qos_policy.rules[index], 'min_kbps', ''),
+                    getattr(self.qos_policy.rules[index], 'min_kpps', ''),
+                    getattr(self.qos_policy.rules[index], 'dscp_mark', ''),
+                    getattr(self.qos_policy.rules[index], 'direction', ''),
+                )
+            )
         # Get the command object to test
-        self.cmd = network_qos_rule.ListNetworkQosRule(self.app,
-                                                       self.namespace)
+        self.cmd = network_qos_rule.ListNetworkQosRule(
+            self.app, self.namespace
+        )
 
     def test_qos_rule_list(self):
-        arglist = [
-            self.qos_policy.id
-        ]
+        arglist = [self.qos_policy.id]
         verifylist = [
             ('qos_policy', self.qos_policy.id),
         ]
@@ -1201,7 +1384,8 @@ class TestListNetworkQosRule(TestNetworkQosRule):
         columns, data = self.cmd.take_action(parsed_args)
 
         self.network.find_qos_policy.assert_called_once_with(
-            self.qos_policy.id, ignore_missing=False)
+            self.qos_policy.id, ignore_missing=False
+        )
         self.assertEqual(self.columns, columns)
         list_data = list(data)
         self.assertEqual(len(self.data), len(list_data))
@@ -1210,13 +1394,15 @@ class TestListNetworkQosRule(TestNetworkQosRule):
 
 
 class TestShowNetworkQosRuleMinimumBandwidth(TestNetworkQosRule):
-
     def setUp(self):
         super(TestShowNetworkQosRuleMinimumBandwidth, self).setUp()
-        attrs = {'qos_policy_id': self.qos_policy.id,
-                 'type': RULE_TYPE_MINIMUM_BANDWIDTH}
+        attrs = {
+            'qos_policy_id': self.qos_policy.id,
+            'type': RULE_TYPE_MINIMUM_BANDWIDTH,
+        }
         self.new_rule = network_fakes.FakeNetworkQosRule.create_one_qos_rule(
-            attrs)
+            attrs
+        )
         self.qos_policy.rules = [self.new_rule]
         self.columns = (
             'direction',
@@ -1224,7 +1410,7 @@ class TestShowNetworkQosRuleMinimumBandwidth(TestNetworkQosRule):
             'min_kbps',
             'project_id',
             'qos_policy_id',
-            'type'
+            'type',
         )
         self.data = (
             self.new_rule.direction,
@@ -1236,19 +1422,26 @@ class TestShowNetworkQosRuleMinimumBandwidth(TestNetworkQosRule):
         )
 
         self.network.get_qos_minimum_bandwidth_rule = mock.Mock(
-            return_value=self.new_rule)
+            return_value=self.new_rule
+        )
 
         # Get the command object to test
-        self.cmd = network_qos_rule.ShowNetworkQosRule(self.app,
-                                                       self.namespace)
+        self.cmd = network_qos_rule.ShowNetworkQosRule(
+            self.app, self.namespace
+        )
 
     def test_show_no_options(self):
         arglist = []
         verifylist = []
 
         # Missing required args should bail here
-        self.assertRaises(tests_utils.ParserException, self.check_parser,
-                          self.cmd, arglist, verifylist)
+        self.assertRaises(
+            tests_utils.ParserException,
+            self.check_parser,
+            self.cmd,
+            arglist,
+            verifylist,
+        )
 
     def test_show_all_options(self):
         arglist = [
@@ -1264,19 +1457,22 @@ class TestShowNetworkQosRuleMinimumBandwidth(TestNetworkQosRule):
         columns, data = self.cmd.take_action(parsed_args)
 
         self.network.get_qos_minimum_bandwidth_rule.assert_called_once_with(
-            self.new_rule.id, self.qos_policy.id)
+            self.new_rule.id, self.qos_policy.id
+        )
         self.assertEqual(self.columns, columns)
         self.assertEqual(list(self.data), list(data))
 
 
 class TestShowNetworkQosRuleMinimumPacketRate(TestNetworkQosRule):
-
     def setUp(self):
         super(TestShowNetworkQosRuleMinimumPacketRate, self).setUp()
-        attrs = {'qos_policy_id': self.qos_policy.id,
-                 'type': RULE_TYPE_MINIMUM_PACKET_RATE}
+        attrs = {
+            'qos_policy_id': self.qos_policy.id,
+            'type': RULE_TYPE_MINIMUM_PACKET_RATE,
+        }
         self.new_rule = network_fakes.FakeNetworkQosRule.create_one_qos_rule(
-            attrs)
+            attrs
+        )
         self.qos_policy.rules = [self.new_rule]
         self.columns = (
             'direction',
@@ -1284,7 +1480,7 @@ class TestShowNetworkQosRuleMinimumPacketRate(TestNetworkQosRule):
             'min_kpps',
             'project_id',
             'qos_policy_id',
-            'type'
+            'type',
         )
         self.data = (
             self.new_rule.direction,
@@ -1296,19 +1492,26 @@ class TestShowNetworkQosRuleMinimumPacketRate(TestNetworkQosRule):
         )
 
         self.network.get_qos_minimum_packet_rate_rule = mock.Mock(
-            return_value=self.new_rule)
+            return_value=self.new_rule
+        )
 
         # Get the command object to test
-        self.cmd = network_qos_rule.ShowNetworkQosRule(self.app,
-                                                       self.namespace)
+        self.cmd = network_qos_rule.ShowNetworkQosRule(
+            self.app, self.namespace
+        )
 
     def test_show_no_options(self):
         arglist = []
         verifylist = []
 
         # Missing required args should bail here
-        self.assertRaises(tests_utils.ParserException, self.check_parser,
-                          self.cmd, arglist, verifylist)
+        self.assertRaises(
+            tests_utils.ParserException,
+            self.check_parser,
+            self.cmd,
+            arglist,
+            verifylist,
+        )
 
     def test_show_all_options(self):
         arglist = [
@@ -1324,26 +1527,29 @@ class TestShowNetworkQosRuleMinimumPacketRate(TestNetworkQosRule):
         columns, data = self.cmd.take_action(parsed_args)
 
         self.network.get_qos_minimum_packet_rate_rule.assert_called_once_with(
-            self.new_rule.id, self.qos_policy.id)
+            self.new_rule.id, self.qos_policy.id
+        )
         self.assertEqual(self.columns, columns)
         self.assertEqual(list(self.data), list(data))
 
 
 class TestShowNetworkQosDSCPMarking(TestNetworkQosRule):
-
     def setUp(self):
         super(TestShowNetworkQosDSCPMarking, self).setUp()
-        attrs = {'qos_policy_id': self.qos_policy.id,
-                 'type': RULE_TYPE_DSCP_MARKING}
+        attrs = {
+            'qos_policy_id': self.qos_policy.id,
+            'type': RULE_TYPE_DSCP_MARKING,
+        }
         self.new_rule = network_fakes.FakeNetworkQosRule.create_one_qos_rule(
-            attrs)
+            attrs
+        )
         self.qos_policy.rules = [self.new_rule]
         self.columns = (
             'dscp_mark',
             'id',
             'project_id',
             'qos_policy_id',
-            'type'
+            'type',
         )
         self.data = (
             self.new_rule.dscp_mark,
@@ -1354,19 +1560,26 @@ class TestShowNetworkQosDSCPMarking(TestNetworkQosRule):
         )
 
         self.network.get_qos_dscp_marking_rule = mock.Mock(
-            return_value=self.new_rule)
+            return_value=self.new_rule
+        )
 
         # Get the command object to test
-        self.cmd = network_qos_rule.ShowNetworkQosRule(self.app,
-                                                       self.namespace)
+        self.cmd = network_qos_rule.ShowNetworkQosRule(
+            self.app, self.namespace
+        )
 
     def test_show_no_options(self):
         arglist = []
         verifylist = []
 
         # Missing required args should bail here
-        self.assertRaises(tests_utils.ParserException, self.check_parser,
-                          self.cmd, arglist, verifylist)
+        self.assertRaises(
+            tests_utils.ParserException,
+            self.check_parser,
+            self.cmd,
+            arglist,
+            verifylist,
+        )
 
     def test_show_all_options(self):
         arglist = [
@@ -1382,19 +1595,22 @@ class TestShowNetworkQosDSCPMarking(TestNetworkQosRule):
         columns, data = self.cmd.take_action(parsed_args)
 
         self.network.get_qos_dscp_marking_rule.assert_called_once_with(
-            self.new_rule.id, self.qos_policy.id)
+            self.new_rule.id, self.qos_policy.id
+        )
         self.assertEqual(self.columns, columns)
         self.assertEqual(list(self.data), list(data))
 
 
 class TestShowNetworkQosBandwidthLimit(TestNetworkQosRule):
-
     def setUp(self):
         super(TestShowNetworkQosBandwidthLimit, self).setUp()
-        attrs = {'qos_policy_id': self.qos_policy.id,
-                 'type': RULE_TYPE_BANDWIDTH_LIMIT}
+        attrs = {
+            'qos_policy_id': self.qos_policy.id,
+            'type': RULE_TYPE_BANDWIDTH_LIMIT,
+        }
         self.new_rule = network_fakes.FakeNetworkQosRule.create_one_qos_rule(
-            attrs)
+            attrs
+        )
         self.qos_policy.rules = [self.new_rule]
         self.columns = (
             'direction',
@@ -1403,7 +1619,7 @@ class TestShowNetworkQosBandwidthLimit(TestNetworkQosRule):
             'max_kbps',
             'project_id',
             'qos_policy_id',
-            'type'
+            'type',
         )
         self.data = (
             self.new_rule.direction,
@@ -1416,19 +1632,26 @@ class TestShowNetworkQosBandwidthLimit(TestNetworkQosRule):
         )
 
         self.network.get_qos_bandwidth_limit_rule = mock.Mock(
-            return_value=self.new_rule)
+            return_value=self.new_rule
+        )
 
         # Get the command object to test
-        self.cmd = network_qos_rule.ShowNetworkQosRule(self.app,
-                                                       self.namespace)
+        self.cmd = network_qos_rule.ShowNetworkQosRule(
+            self.app, self.namespace
+        )
 
     def test_show_no_options(self):
         arglist = []
         verifylist = []
 
         # Missing required args should bail here
-        self.assertRaises(tests_utils.ParserException, self.check_parser,
-                          self.cmd, arglist, verifylist)
+        self.assertRaises(
+            tests_utils.ParserException,
+            self.check_parser,
+            self.cmd,
+            arglist,
+            verifylist,
+        )
 
     def test_show_all_options(self):
         arglist = [
@@ -1444,6 +1667,7 @@ class TestShowNetworkQosBandwidthLimit(TestNetworkQosRule):
         columns, data = self.cmd.take_action(parsed_args)
 
         self.network.get_qos_bandwidth_limit_rule.assert_called_once_with(
-            self.new_rule.id, self.qos_policy.id)
+            self.new_rule.id, self.qos_policy.id
+        )
         self.assertEqual(self.columns, columns)
         self.assertEqual(list(self.data), list(data))

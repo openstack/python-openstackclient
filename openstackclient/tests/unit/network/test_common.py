@@ -49,7 +49,6 @@ def _add_compute_argument(parser):
 
 
 class FakeNetworkAndComputeCommand(common.NetworkAndComputeCommand):
-
     def update_parser_common(self, parser):
         return _add_common_argument(parser)
 
@@ -67,7 +66,6 @@ class FakeNetworkAndComputeCommand(common.NetworkAndComputeCommand):
 
 
 class FakeNetworkAndComputeLister(common.NetworkAndComputeLister):
-
     def update_parser_common(self, parser):
         return _add_common_argument(parser)
 
@@ -85,7 +83,6 @@ class FakeNetworkAndComputeLister(common.NetworkAndComputeLister):
 
 
 class FakeNetworkAndComputeShowOne(common.NetworkAndComputeShowOne):
-
     def update_parser_common(self, parser):
         return _add_common_argument(parser)
 
@@ -103,11 +100,12 @@ class FakeNetworkAndComputeShowOne(common.NetworkAndComputeShowOne):
 
 
 class FakeCreateNeutronCommandWithExtraArgs(
-        common.NeutronCommandWithExtraArgs):
-
+    common.NeutronCommandWithExtraArgs
+):
     def get_parser(self, prog_name):
-        parser = super(FakeCreateNeutronCommandWithExtraArgs,
-                       self).get_parser(prog_name)
+        parser = super(FakeCreateNeutronCommandWithExtraArgs, self).get_parser(
+            prog_name
+        )
         parser.add_argument(
             '--known-attribute',
         )
@@ -119,12 +117,12 @@ class FakeCreateNeutronCommandWithExtraArgs(
         if 'known_attribute' in parsed_args:
             attrs['known_attribute'] = parsed_args.known_attribute
         attrs.update(
-            self._parse_extra_properties(parsed_args.extra_properties))
+            self._parse_extra_properties(parsed_args.extra_properties)
+        )
         client.test_create_action(**attrs)
 
 
 class TestNetworkAndCompute(utils.TestCommand):
-
     def setUp(self):
         super(TestNetworkAndCompute, self).setUp()
 
@@ -134,26 +132,22 @@ class TestNetworkAndCompute(utils.TestCommand):
         self.app.client_manager.network = mock.Mock()
         self.network = self.app.client_manager.network
         self.network.network_action = mock.Mock(
-            return_value='take_action_network')
+            return_value='take_action_network'
+        )
 
         # Create compute client mocks.
         self.app.client_manager.compute = mock.Mock()
         self.compute = self.app.client_manager.compute
         self.compute.compute_action = mock.Mock(
-            return_value='take_action_compute')
+            return_value='take_action_compute'
+        )
 
         # Subclasses can override the command object to test.
         self.cmd = FakeNetworkAndComputeCommand(self.app, self.namespace)
 
     def test_take_action_network(self):
-        arglist = [
-            'common',
-            'network'
-        ]
-        verifylist = [
-            ('common', 'common'),
-            ('network', 'network')
-        ]
+        arglist = ['common', 'network']
+        verifylist = [('common', 'common'), ('network', 'network')]
 
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
         result = self.cmd.take_action(parsed_args)
@@ -161,14 +155,8 @@ class TestNetworkAndCompute(utils.TestCommand):
         self.assertEqual('take_action_network', result)
 
     def test_take_action_compute(self):
-        arglist = [
-            'common',
-            'compute'
-        ]
-        verifylist = [
-            ('common', 'common'),
-            ('compute', 'compute')
-        ]
+        arglist = ['common', 'compute']
+        verifylist = [('common', 'common'), ('compute', 'compute')]
 
         self.app.client_manager.network_endpoint_enabled = False
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
@@ -178,21 +166,18 @@ class TestNetworkAndCompute(utils.TestCommand):
 
 
 class TestNetworkAndComputeCommand(TestNetworkAndCompute):
-
     def setUp(self):
         super(TestNetworkAndComputeCommand, self).setUp()
         self.cmd = FakeNetworkAndComputeCommand(self.app, self.namespace)
 
 
 class TestNetworkAndComputeLister(TestNetworkAndCompute):
-
     def setUp(self):
         super(TestNetworkAndComputeLister, self).setUp()
         self.cmd = FakeNetworkAndComputeLister(self.app, self.namespace)
 
 
 class TestNetworkAndComputeShowOne(TestNetworkAndCompute):
-
     def setUp(self):
         super(TestNetworkAndComputeShowOne, self).setUp()
         self.cmd = FakeNetworkAndComputeShowOne(self.app, self.namespace)
@@ -200,18 +185,25 @@ class TestNetworkAndComputeShowOne(TestNetworkAndCompute):
     def test_take_action_with_http_exception(self):
         with mock.patch.object(self.cmd, 'take_action_network') as m_action:
             m_action.side_effect = openstack.exceptions.HttpException("bar")
-            self.assertRaisesRegex(exceptions.CommandError, "bar",
-                                   self.cmd.take_action, mock.Mock())
+            self.assertRaisesRegex(
+                exceptions.CommandError,
+                "bar",
+                self.cmd.take_action,
+                mock.Mock(),
+            )
 
         self.app.client_manager.network_endpoint_enabled = False
         with mock.patch.object(self.cmd, 'take_action_compute') as m_action:
             m_action.side_effect = openstack.exceptions.HttpException("bar")
-            self.assertRaisesRegex(exceptions.CommandError, "bar",
-                                   self.cmd.take_action, mock.Mock())
+            self.assertRaisesRegex(
+                exceptions.CommandError,
+                "bar",
+                self.cmd.take_action,
+                mock.Mock(),
+            )
 
 
 class TestNeutronCommandWithExtraArgs(utils.TestCommand):
-
     def setUp(self):
         super(TestNeutronCommandWithExtraArgs, self).setUp()
 
@@ -223,106 +215,143 @@ class TestNeutronCommandWithExtraArgs(utils.TestCommand):
 
         # Subclasses can override the command object to test.
         self.cmd = FakeCreateNeutronCommandWithExtraArgs(
-            self.app, self.namespace)
+            self.app, self.namespace
+        )
 
     def test_create_extra_attributes_default_type(self):
         arglist = [
-            '--known-attribute', 'known-value',
-            '--extra-property', 'name=extra_name,value=extra_value'
+            '--known-attribute',
+            'known-value',
+            '--extra-property',
+            'name=extra_name,value=extra_value',
         ]
         verifylist = [
             ('known_attribute', 'known-value'),
-            ('extra_properties', [{'name': 'extra_name',
-                                   'value': 'extra_value'}])
+            (
+                'extra_properties',
+                [{'name': 'extra_name', 'value': 'extra_value'}],
+            ),
         ]
 
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
         self.cmd.take_action(parsed_args)
         self.network.test_create_action.assert_called_with(
-            known_attribute='known-value', extra_name='extra_value')
+            known_attribute='known-value', extra_name='extra_value'
+        )
 
     def test_create_extra_attributes_string(self):
         arglist = [
-            '--known-attribute', 'known-value',
-            '--extra-property', 'type=str,name=extra_name,value=extra_value'
+            '--known-attribute',
+            'known-value',
+            '--extra-property',
+            'type=str,name=extra_name,value=extra_value',
         ]
         verifylist = [
             ('known_attribute', 'known-value'),
-            ('extra_properties', [{'name': 'extra_name',
-                                   'type': 'str',
-                                   'value': 'extra_value'}])
+            (
+                'extra_properties',
+                [
+                    {
+                        'name': 'extra_name',
+                        'type': 'str',
+                        'value': 'extra_value',
+                    }
+                ],
+            ),
         ]
 
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
         self.cmd.take_action(parsed_args)
         self.network.test_create_action.assert_called_with(
-            known_attribute='known-value', extra_name='extra_value')
+            known_attribute='known-value', extra_name='extra_value'
+        )
 
     def test_create_extra_attributes_bool(self):
         arglist = [
-            '--known-attribute', 'known-value',
-            '--extra-property', 'type=bool,name=extra_name,value=TrUe'
+            '--known-attribute',
+            'known-value',
+            '--extra-property',
+            'type=bool,name=extra_name,value=TrUe',
         ]
         verifylist = [
             ('known_attribute', 'known-value'),
-            ('extra_properties', [{'name': 'extra_name',
-                                   'type': 'bool',
-                                   'value': 'TrUe'}])
+            (
+                'extra_properties',
+                [{'name': 'extra_name', 'type': 'bool', 'value': 'TrUe'}],
+            ),
         ]
 
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
         self.cmd.take_action(parsed_args)
         self.network.test_create_action.assert_called_with(
-            known_attribute='known-value', extra_name=True)
+            known_attribute='known-value', extra_name=True
+        )
 
     def test_create_extra_attributes_int(self):
         arglist = [
-            '--known-attribute', 'known-value',
-            '--extra-property', 'type=int,name=extra_name,value=8'
+            '--known-attribute',
+            'known-value',
+            '--extra-property',
+            'type=int,name=extra_name,value=8',
         ]
         verifylist = [
             ('known_attribute', 'known-value'),
-            ('extra_properties', [{'name': 'extra_name',
-                                   'type': 'int',
-                                   'value': '8'}])
+            (
+                'extra_properties',
+                [{'name': 'extra_name', 'type': 'int', 'value': '8'}],
+            ),
         ]
 
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
         self.cmd.take_action(parsed_args)
         self.network.test_create_action.assert_called_with(
-            known_attribute='known-value', extra_name=8)
+            known_attribute='known-value', extra_name=8
+        )
 
     def test_create_extra_attributes_list(self):
         arglist = [
-            '--known-attribute', 'known-value',
-            '--extra-property', 'type=list,name=extra_name,value=v_1;v_2'
+            '--known-attribute',
+            'known-value',
+            '--extra-property',
+            'type=list,name=extra_name,value=v_1;v_2',
         ]
         verifylist = [
             ('known_attribute', 'known-value'),
-            ('extra_properties', [{'name': 'extra_name',
-                                   'type': 'list',
-                                   'value': 'v_1;v_2'}])
+            (
+                'extra_properties',
+                [{'name': 'extra_name', 'type': 'list', 'value': 'v_1;v_2'}],
+            ),
         ]
 
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
         self.cmd.take_action(parsed_args)
         self.network.test_create_action.assert_called_with(
-            known_attribute='known-value', extra_name=['v_1', 'v_2'])
+            known_attribute='known-value', extra_name=['v_1', 'v_2']
+        )
 
     def test_create_extra_attributes_dict(self):
         arglist = [
-            '--known-attribute', 'known-value',
-            '--extra-property', 'type=dict,name=extra_name,value=n1:v1;n2:v2'
+            '--known-attribute',
+            'known-value',
+            '--extra-property',
+            'type=dict,name=extra_name,value=n1:v1;n2:v2',
         ]
         verifylist = [
             ('known_attribute', 'known-value'),
-            ('extra_properties', [{'name': 'extra_name',
-                                   'type': 'dict',
-                                   'value': 'n1:v1;n2:v2'}])
+            (
+                'extra_properties',
+                [
+                    {
+                        'name': 'extra_name',
+                        'type': 'dict',
+                        'value': 'n1:v1;n2:v2',
+                    }
+                ],
+            ),
         ]
 
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
         self.cmd.take_action(parsed_args)
         self.network.test_create_action.assert_called_with(
-            known_attribute='known-value',
-            extra_name={'n1': 'v1', 'n2': 'v2'})
+            known_attribute='known-value', extra_name={'n1': 'v1', 'n2': 'v2'}
+        )

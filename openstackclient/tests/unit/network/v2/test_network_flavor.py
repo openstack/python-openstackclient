@@ -25,7 +25,6 @@ from openstackclient.tests.unit import utils as tests_utils
 
 
 class TestNetworkFlavor(network_fakes.TestNetworkV2):
-
     def setUp(self):
         super(TestNetworkFlavor, self).setUp()
 
@@ -38,7 +37,6 @@ class TestNetworkFlavor(network_fakes.TestNetworkV2):
 
 
 class TestAddNetworkFlavorToProfile(TestNetworkFlavor):
-
     network_flavor = network_fakes.create_one_network_flavor()
     service_profile = network_fakes.create_one_service_profile()
 
@@ -46,25 +44,29 @@ class TestAddNetworkFlavorToProfile(TestNetworkFlavor):
         super(TestAddNetworkFlavorToProfile, self).setUp()
         self.network.find_flavor = mock.Mock(return_value=self.network_flavor)
         self.network.find_service_profile = mock.Mock(
-            return_value=self.service_profile)
+            return_value=self.service_profile
+        )
         self.network.associate_flavor_with_service_profile = mock.Mock()
 
         self.cmd = network_flavor.AddNetworkFlavorToProfile(
-            self.app, self.namespace)
+            self.app, self.namespace
+        )
 
     def test_show_no_options(self):
         arglist = []
         verifylist = []
 
         # Missing required args should bail here
-        self.assertRaises(tests_utils.ParserException, self.check_parser,
-                          self.cmd, arglist, verifylist)
+        self.assertRaises(
+            tests_utils.ParserException,
+            self.check_parser,
+            self.cmd,
+            arglist,
+            verifylist,
+        )
 
     def test_add_flavor_to_service_profile(self):
-        arglist = [
-            self.network_flavor.id,
-            self.service_profile.id
-        ]
+        arglist = [self.network_flavor.id, self.service_profile.id]
         verifylist = [
             ('flavor', self.network_flavor.id),
             ('service_profile', self.service_profile.id),
@@ -73,12 +75,12 @@ class TestAddNetworkFlavorToProfile(TestNetworkFlavor):
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
         self.cmd.take_action(parsed_args)
 
-        self.network.associate_flavor_with_service_profile.\
-            assert_called_once_with(self.network_flavor, self.service_profile)
+        self.network.associate_flavor_with_service_profile.assert_called_once_with(  # noqa: E501
+            self.network_flavor, self.service_profile
+        )
 
 
 class TestCreateNetworkFlavor(TestNetworkFlavor):
-
     project = identity_fakes_v3.FakeProject.create_one_project()
     domain = identity_fakes_v3.FakeDomain.create_one_domain()
     # The new network flavor created.
@@ -103,7 +105,8 @@ class TestCreateNetworkFlavor(TestNetworkFlavor):
     def setUp(self):
         super(TestCreateNetworkFlavor, self).setUp()
         self.network.create_flavor = mock.Mock(
-            return_value=self.new_network_flavor)
+            return_value=self.new_network_flavor
+        )
 
         # Get the command object to test
         self.cmd = network_flavor.CreateNetworkFlavor(self.app, self.namespace)
@@ -116,12 +119,18 @@ class TestCreateNetworkFlavor(TestNetworkFlavor):
         verifylist = []
 
         # Missing required args should bail here
-        self.assertRaises(tests_utils.ParserException, self.check_parser,
-                          self.cmd, arglist, verifylist)
+        self.assertRaises(
+            tests_utils.ParserException,
+            self.check_parser,
+            self.cmd,
+            arglist,
+            verifylist,
+        )
 
     def test_create_default_options(self):
         arglist = [
-            '--service-type', self.new_network_flavor.service_type,
+            '--service-type',
+            self.new_network_flavor.service_type,
             self.new_network_flavor.name,
         ]
         verifylist = [
@@ -130,22 +139,28 @@ class TestCreateNetworkFlavor(TestNetworkFlavor):
         ]
 
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
-        columns, data = (self.cmd.take_action(parsed_args))
+        columns, data = self.cmd.take_action(parsed_args)
 
-        self.network.create_flavor.assert_called_once_with(**{
-            'service_type': self.new_network_flavor.service_type,
-            'name': self.new_network_flavor.name,
-        })
+        self.network.create_flavor.assert_called_once_with(
+            **{
+                'service_type': self.new_network_flavor.service_type,
+                'name': self.new_network_flavor.name,
+            }
+        )
         self.assertEqual(set(self.columns), set(columns))
         self.assertEqual(set(self.data), set(data))
 
     def test_create_all_options(self):
         arglist = [
-            '--description', self.new_network_flavor.description,
+            '--description',
+            self.new_network_flavor.description,
             '--enable',
-            '--project', self.project.id,
-            '--project-domain', self.domain.name,
-            '--service-type', self.new_network_flavor.service_type,
+            '--project',
+            self.project.id,
+            '--project-domain',
+            self.domain.name,
+            '--service-type',
+            self.new_network_flavor.service_type,
             self.new_network_flavor.name,
         ]
         verifylist = [
@@ -158,22 +173,25 @@ class TestCreateNetworkFlavor(TestNetworkFlavor):
         ]
 
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
-        columns, data = (self.cmd.take_action(parsed_args))
+        columns, data = self.cmd.take_action(parsed_args)
 
-        self.network.create_flavor.assert_called_once_with(**{
-            'description': self.new_network_flavor.description,
-            'enabled': True,
-            'project_id': self.project.id,
-            'service_type': self.new_network_flavor.service_type,
-            'name': self.new_network_flavor.name,
-        })
+        self.network.create_flavor.assert_called_once_with(
+            **{
+                'description': self.new_network_flavor.description,
+                'enabled': True,
+                'project_id': self.project.id,
+                'service_type': self.new_network_flavor.service_type,
+                'name': self.new_network_flavor.name,
+            }
+        )
         self.assertEqual(set(self.columns), set(columns))
         self.assertEqual(set(self.data), set(data))
 
     def test_create_disable(self):
         arglist = [
             '--disable',
-            '--service-type', self.new_network_flavor.service_type,
+            '--service-type',
+            self.new_network_flavor.service_type,
             self.new_network_flavor.name,
         ]
         verifylist = [
@@ -185,17 +203,18 @@ class TestCreateNetworkFlavor(TestNetworkFlavor):
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
         columns, data = self.cmd.take_action(parsed_args)
 
-        self.network.create_flavor.assert_called_once_with(**{
-            'enabled': False,
-            'service_type': self.new_network_flavor.service_type,
-            'name': self.new_network_flavor.name,
-        })
+        self.network.create_flavor.assert_called_once_with(
+            **{
+                'enabled': False,
+                'service_type': self.new_network_flavor.service_type,
+                'name': self.new_network_flavor.name,
+            }
+        )
         self.assertEqual(set(self.columns), set(columns))
         self.assertEqual(set(self.data), set(data))
 
 
 class TestDeleteNetworkFlavor(TestNetworkFlavor):
-
     # The network flavor to delete.
     _network_flavors = network_fakes.create_flavor(count=2)
 
@@ -203,7 +222,8 @@ class TestDeleteNetworkFlavor(TestNetworkFlavor):
         super(TestDeleteNetworkFlavor, self).setUp()
         self.network.delete_flavor = mock.Mock(return_value=None)
         self.network.find_flavor = network_fakes.get_flavor(
-            network_flavors=self._network_flavors)
+            network_flavors=self._network_flavors
+        )
 
         # Get the command object to test
         self.cmd = network_flavor.DeleteNetworkFlavor(self.app, self.namespace)
@@ -220,9 +240,11 @@ class TestDeleteNetworkFlavor(TestNetworkFlavor):
 
         result = self.cmd.take_action(parsed_args)
         self.network.find_flavor.assert_called_once_with(
-            self._network_flavors[0].name, ignore_missing=False)
+            self._network_flavors[0].name, ignore_missing=False
+        )
         self.network.delete_flavor.assert_called_once_with(
-            self._network_flavors[0])
+            self._network_flavors[0]
+        )
         self.assertIsNone(result)
 
     def test_multi_network_flavors_delete(self):
@@ -250,15 +272,15 @@ class TestDeleteNetworkFlavor(TestNetworkFlavor):
             'unexist_network_flavor',
         ]
         verifylist = [
-            ('flavor',
-             [self._network_flavors[0].name, 'unexist_network_flavor']),
+            (
+                'flavor',
+                [self._network_flavors[0].name, 'unexist_network_flavor'],
+            ),
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
         find_mock_result = [self._network_flavors[0], exceptions.CommandError]
-        self.network.find_flavor = (
-            mock.Mock(side_effect=find_mock_result)
-        )
+        self.network.find_flavor = mock.Mock(side_effect=find_mock_result)
 
         try:
             self.cmd.take_action(parsed_args)
@@ -267,16 +289,17 @@ class TestDeleteNetworkFlavor(TestNetworkFlavor):
             self.assertEqual('1 of 2 flavors failed to delete.', str(e))
 
         self.network.find_flavor.assert_any_call(
-            self._network_flavors[0].name, ignore_missing=False)
+            self._network_flavors[0].name, ignore_missing=False
+        )
         self.network.find_flavor.assert_any_call(
-            'unexist_network_flavor', ignore_missing=False)
+            'unexist_network_flavor', ignore_missing=False
+        )
         self.network.delete_flavor.assert_called_once_with(
             self._network_flavors[0]
         )
 
 
 class TestListNetworkFlavor(TestNetworkFlavor):
-
     # The network flavors to list up.
     _network_flavors = network_fakes.create_flavor(count=2)
     columns = (
@@ -288,18 +311,19 @@ class TestListNetworkFlavor(TestNetworkFlavor):
     )
     data = []
     for flavor in _network_flavors:
-        data.append((
-            flavor.id,
-            flavor.name,
-            flavor.is_enabled,
-            flavor.service_type,
-            flavor.description,
-        ))
+        data.append(
+            (
+                flavor.id,
+                flavor.name,
+                flavor.is_enabled,
+                flavor.service_type,
+                flavor.description,
+            )
+        )
 
     def setUp(self):
         super(TestListNetworkFlavor, self).setUp()
-        self.network.flavors = mock.Mock(
-            return_value=self._network_flavors)
+        self.network.flavors = mock.Mock(return_value=self._network_flavors)
 
         # Get the command object to test
         self.cmd = network_flavor.ListNetworkFlavor(self.app, self.namespace)
@@ -317,7 +341,6 @@ class TestListNetworkFlavor(TestNetworkFlavor):
 
 
 class TestRemoveNetworkFlavorFromProfile(TestNetworkFlavor):
-
     network_flavor = network_fakes.create_one_network_flavor()
     service_profile = network_fakes.create_one_service_profile()
 
@@ -325,25 +348,29 @@ class TestRemoveNetworkFlavorFromProfile(TestNetworkFlavor):
         super(TestRemoveNetworkFlavorFromProfile, self).setUp()
         self.network.find_flavor = mock.Mock(return_value=self.network_flavor)
         self.network.find_service_profile = mock.Mock(
-            return_value=self.service_profile)
+            return_value=self.service_profile
+        )
         self.network.disassociate_flavor_from_service_profile = mock.Mock()
 
         self.cmd = network_flavor.RemoveNetworkFlavorFromProfile(
-            self.app, self.namespace)
+            self.app, self.namespace
+        )
 
     def test_show_no_options(self):
         arglist = []
         verifylist = []
 
         # Missing required args should bail here
-        self.assertRaises(tests_utils.ParserException, self.check_parser,
-                          self.cmd, arglist, verifylist)
+        self.assertRaises(
+            tests_utils.ParserException,
+            self.check_parser,
+            self.cmd,
+            arglist,
+            verifylist,
+        )
 
     def test_remove_flavor_from_service_profile(self):
-        arglist = [
-            self.network_flavor.id,
-            self.service_profile.id
-        ]
+        arglist = [self.network_flavor.id, self.service_profile.id]
         verifylist = [
             ('flavor', self.network_flavor.id),
             ('service_profile', self.service_profile.id),
@@ -352,12 +379,12 @@ class TestRemoveNetworkFlavorFromProfile(TestNetworkFlavor):
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
         self.cmd.take_action(parsed_args)
 
-        self.network.disassociate_flavor_from_service_profile.\
-            assert_called_once_with(self.network_flavor, self.service_profile)
+        self.network.disassociate_flavor_from_service_profile.assert_called_once_with(  # noqa: E501
+            self.network_flavor, self.service_profile
+        )
 
 
 class TestShowNetworkFlavor(TestNetworkFlavor):
-
     # The network flavor to show.
     new_network_flavor = network_fakes.create_one_network_flavor()
     columns = (
@@ -380,7 +407,8 @@ class TestShowNetworkFlavor(TestNetworkFlavor):
     def setUp(self):
         super(TestShowNetworkFlavor, self).setUp()
         self.network.find_flavor = mock.Mock(
-            return_value=self.new_network_flavor)
+            return_value=self.new_network_flavor
+        )
 
         # Get the command object to test
         self.cmd = network_flavor.ShowNetworkFlavor(self.app, self.namespace)
@@ -390,8 +418,13 @@ class TestShowNetworkFlavor(TestNetworkFlavor):
         verifylist = []
 
         # Missing required args should bail here
-        self.assertRaises(tests_utils.ParserException, self.check_parser,
-                          self.cmd, arglist, verifylist)
+        self.assertRaises(
+            tests_utils.ParserException,
+            self.check_parser,
+            self.cmd,
+            arglist,
+            verifylist,
+        )
 
     def test_show_all_options(self):
         arglist = [
@@ -405,28 +438,30 @@ class TestShowNetworkFlavor(TestNetworkFlavor):
         columns, data = self.cmd.take_action(parsed_args)
 
         self.network.find_flavor.assert_called_once_with(
-            self.new_network_flavor.name, ignore_missing=False)
+            self.new_network_flavor.name, ignore_missing=False
+        )
         self.assertEqual(set(self.columns), set(columns))
         self.assertEqual(set(self.data), set(data))
 
 
 class TestSetNetworkFlavor(TestNetworkFlavor):
-
     # The network flavor to set.
-    new_network_flavor = (
-        network_fakes.create_one_network_flavor())
+    new_network_flavor = network_fakes.create_one_network_flavor()
 
     def setUp(self):
         super(TestSetNetworkFlavor, self).setUp()
         self.network.update_flavor = mock.Mock(return_value=None)
         self.network.find_flavor = mock.Mock(
-            return_value=self.new_network_flavor)
+            return_value=self.new_network_flavor
+        )
 
         # Get the command object to test
         self.cmd = network_flavor.SetNetworkFlavor(self.app, self.namespace)
 
     def test_set_nothing(self):
-        arglist = [self.new_network_flavor.name, ]
+        arglist = [
+            self.new_network_flavor.name,
+        ]
         verifylist = [
             ('flavor', self.new_network_flavor.name),
         ]
@@ -436,12 +471,14 @@ class TestSetNetworkFlavor(TestNetworkFlavor):
 
         attrs = {}
         self.network.update_flavor.assert_called_with(
-            self.new_network_flavor, **attrs)
+            self.new_network_flavor, **attrs
+        )
         self.assertIsNone(result)
 
     def test_set_name_and_enable(self):
         arglist = [
-            '--name', 'new_network_flavor',
+            '--name',
+            'new_network_flavor',
             '--enable',
             self.new_network_flavor.name,
         ]
@@ -458,7 +495,8 @@ class TestSetNetworkFlavor(TestNetworkFlavor):
             'enabled': True,
         }
         self.network.update_flavor.assert_called_with(
-            self.new_network_flavor, **attrs)
+            self.new_network_flavor, **attrs
+        )
         self.assertIsNone(result)
 
     def test_set_disable(self):
@@ -477,5 +515,6 @@ class TestSetNetworkFlavor(TestNetworkFlavor):
             'enabled': False,
         }
         self.network.update_flavor.assert_called_with(
-            self.new_network_flavor, **attrs)
+            self.new_network_flavor, **attrs
+        )
         self.assertIsNone(result)

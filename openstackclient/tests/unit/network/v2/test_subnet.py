@@ -24,7 +24,6 @@ from openstackclient.tests.unit import utils as tests_utils
 
 
 class TestSubnet(network_fakes.TestNetworkV2):
-
     def setUp(self):
         super(TestSubnet, self).setUp()
 
@@ -37,7 +36,6 @@ class TestSubnet(network_fakes.TestNetworkV2):
 
 
 class TestCreateSubnet(TestSubnet):
-
     def _init_subnet_variables(self):
         self.project = identity_fakes_v3.FakeProject.create_one_project()
         self.domain = identity_fakes_v3.FakeDomain.create_one_domain()
@@ -49,22 +47,24 @@ class TestCreateSubnet(TestSubnet):
         )
 
         # Subnet pool to be used to create a subnet from a pool
-        self._subnet_pool = \
+        self._subnet_pool = (
             network_fakes.FakeSubnetPool.create_one_subnet_pool()
+        )
 
         # An IPv4 subnet to be created using a specific subnet pool
         self._subnet_from_pool = network_fakes.FakeSubnet.create_one_subnet(
             attrs={
                 'project_id': self.project.id,
                 'subnetpool_id': self._subnet_pool.id,
-                'dns_nameservers': ['8.8.8.8',
-                                    '8.8.4.4'],
-                'host_routes': [{'destination': '10.20.20.0/24',
-                                 'nexthop': '10.20.20.1'},
-                                {'destination': '10.30.30.0/24',
-                                 'nexthop': '10.30.30.1'}],
-                'service_types': ['network:router_gateway',
-                                  'network:floatingip_agent_gateway'],
+                'dns_nameservers': ['8.8.8.8', '8.8.4.4'],
+                'host_routes': [
+                    {'destination': '10.20.20.0/24', 'nexthop': '10.20.20.1'},
+                    {'destination': '10.30.30.0/24', 'nexthop': '10.30.30.1'},
+                ],
+                'service_types': [
+                    'network:router_gateway',
+                    'network:floatingip_agent_gateway',
+                ],
             }
         )
 
@@ -74,23 +74,39 @@ class TestCreateSubnet(TestSubnet):
                 'project_id': self.project.id,
                 'cidr': 'fe80:0:0:a00a::/64',
                 'enable_dhcp': True,
-                'dns_nameservers': ['fe80:27ff:a00a:f00f::ffff',
-                                    'fe80:37ff:a00a:f00f::ffff'],
-                'allocation_pools': [{'start': 'fe80::a00a:0:c0de:0:100',
-                                      'end': 'fe80::a00a:0:c0de:0:f000'},
-                                     {'start': 'fe80::a00a:0:c0de:1:100',
-                                      'end': 'fe80::a00a:0:c0de:1:f000'}],
-                'host_routes': [{'destination': 'fe80:27ff:a00a:f00f::/64',
-                                 'nexthop': 'fe80:27ff:a00a:f00f::1'},
-                                {'destination': 'fe80:37ff:a00a:f00f::/64',
-                                 'nexthop': 'fe80:37ff:a00a:f00f::1'}],
+                'dns_nameservers': [
+                    'fe80:27ff:a00a:f00f::ffff',
+                    'fe80:37ff:a00a:f00f::ffff',
+                ],
+                'allocation_pools': [
+                    {
+                        'start': 'fe80::a00a:0:c0de:0:100',
+                        'end': 'fe80::a00a:0:c0de:0:f000',
+                    },
+                    {
+                        'start': 'fe80::a00a:0:c0de:1:100',
+                        'end': 'fe80::a00a:0:c0de:1:f000',
+                    },
+                ],
+                'host_routes': [
+                    {
+                        'destination': 'fe80:27ff:a00a:f00f::/64',
+                        'nexthop': 'fe80:27ff:a00a:f00f::1',
+                    },
+                    {
+                        'destination': 'fe80:37ff:a00a:f00f::/64',
+                        'nexthop': 'fe80:37ff:a00a:f00f::1',
+                    },
+                ],
                 'ip_version': 6,
                 'gateway_ip': 'fe80::a00a:0:c0de:0:1',
                 'ipv6_address_mode': 'slaac',
                 'ipv6_ra_mode': 'slaac',
                 'subnetpool_id': 'None',
-                'service_types': ['network:router_gateway',
-                                  'network:floatingip_agent_gateway'],
+                'service_types': [
+                    'network:router_gateway',
+                    'network:floatingip_agent_gateway',
+                ],
             }
         )
 
@@ -102,12 +118,11 @@ class TestCreateSubnet(TestSubnet):
         )
 
         # The network segment to be returned from find_segment
-        self._network_segment = \
-            network_fakes.create_one_network_segment(
-                attrs={
-                    'network_id': self._subnet.network_id,
-                }
-            )
+        self._network_segment = network_fakes.create_one_network_segment(
+            attrs={
+                'network_id': self._subnet.network_id,
+            }
+        )
 
         self.columns = (
             'allocation_pools',
@@ -153,7 +168,8 @@ class TestCreateSubnet(TestSubnet):
 
         self.data_subnet_pool = (
             subnet_v2.AllocationPoolsColumn(
-                self._subnet_from_pool.allocation_pools),
+                self._subnet_from_pool.allocation_pools
+            ),
             self._subnet_from_pool.cidr,
             self._subnet_from_pool.description,
             format_columns.ListColumn(self._subnet_from_pool.dns_nameservers),
@@ -175,7 +191,8 @@ class TestCreateSubnet(TestSubnet):
 
         self.data_ipv6 = (
             subnet_v2.AllocationPoolsColumn(
-                self._subnet_ipv6.allocation_pools),
+                self._subnet_ipv6.allocation_pools
+            ),
             self._subnet_ipv6.cidr,
             self._subnet_ipv6.description,
             format_columns.ListColumn(self._subnet_ipv6.dns_nameservers),
@@ -222,8 +239,13 @@ class TestCreateSubnet(TestSubnet):
 
         # Testing that a call without the required argument will fail and
         # throw a "ParserExecption"
-        self.assertRaises(tests_utils.ParserException,
-                          self.check_parser, self.cmd, arglist, verifylist)
+        self.assertRaises(
+            tests_utils.ParserException,
+            self.check_parser,
+            self.cmd,
+            arglist,
+            verifylist,
+        )
         self.assertFalse(self.network.create_subnet.called)
         self.assertFalse(self.network.set_tags.called)
 
@@ -232,8 +254,10 @@ class TestCreateSubnet(TestSubnet):
         self._network.id = self._subnet.network_id
 
         arglist = [
-            "--subnet-range", self._subnet.cidr,
-            "--network", self._subnet.network_id,
+            "--subnet-range",
+            self._subnet.cidr,
+            "--network",
+            self._subnet.network_id,
             self._subnet.name,
         ]
         verifylist = [
@@ -247,12 +271,14 @@ class TestCreateSubnet(TestSubnet):
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
         columns, data = self.cmd.take_action(parsed_args)
 
-        self.network.create_subnet.assert_called_once_with(**{
-            'cidr': self._subnet.cidr,
-            'ip_version': self._subnet.ip_version,
-            'name': self._subnet.name,
-            'network_id': self._subnet.network_id,
-        })
+        self.network.create_subnet.assert_called_once_with(
+            **{
+                'cidr': self._subnet.cidr,
+                'ip_version': self._subnet.ip_version,
+                'name': self._subnet.name,
+                'network_id': self._subnet.network_id,
+            }
+        )
         self.assertFalse(self.network.set_tags.called)
         self.assertEqual(self.columns, columns)
         self.assertCountEqual(self.data, data)
@@ -265,11 +291,16 @@ class TestCreateSubnet(TestSubnet):
 
         arglist = [
             self._subnet_from_pool.name,
-            "--subnet-pool", self._subnet_from_pool.subnetpool_id,
-            "--prefix-length", '24',
-            "--network", self._subnet_from_pool.network_id,
-            "--ip-version", str(self._subnet_from_pool.ip_version),
-            "--gateway", self._subnet_from_pool.gateway_ip,
+            "--subnet-pool",
+            self._subnet_from_pool.subnetpool_id,
+            "--prefix-length",
+            '24',
+            "--network",
+            self._subnet_from_pool.network_id,
+            "--ip-version",
+            str(self._subnet_from_pool.ip_version),
+            "--gateway",
+            self._subnet_from_pool.gateway_ip,
             "--dhcp",
         ]
 
@@ -279,8 +310,12 @@ class TestCreateSubnet(TestSubnet):
 
         for host_route in self._subnet_from_pool.host_routes:
             arglist.append('--host-route')
-            value = 'gateway=' + host_route.get('nexthop', '') + \
-                    ',destination=' + host_route.get('destination', '')
+            value = (
+                'gateway='
+                + host_route.get('nexthop', '')
+                + ',destination='
+                + host_route.get('destination', '')
+            )
             arglist.append(value)
 
         for service_type in self._subnet_from_pool.service_types:
@@ -295,8 +330,12 @@ class TestCreateSubnet(TestSubnet):
             ('gateway', self._subnet_from_pool.gateway_ip),
             ('dns_nameservers', self._subnet_from_pool.dns_nameservers),
             ('dhcp', self._subnet_from_pool.enable_dhcp),
-            ('host_routes', subnet_v2.convert_entries_to_gateway(
-                self._subnet_from_pool.host_routes)),
+            (
+                'host_routes',
+                subnet_v2.convert_entries_to_gateway(
+                    self._subnet_from_pool.host_routes
+                ),
+            ),
             ('subnet_pool', self._subnet_from_pool.subnetpool_id),
             ('service_types', self._subnet_from_pool.service_types),
         ]
@@ -304,18 +343,20 @@ class TestCreateSubnet(TestSubnet):
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
         columns, data = self.cmd.take_action(parsed_args)
 
-        self.network.create_subnet.assert_called_once_with(**{
-            'dns_nameservers': self._subnet_from_pool.dns_nameservers,
-            'enable_dhcp': self._subnet_from_pool.enable_dhcp,
-            'gateway_ip': self._subnet_from_pool.gateway_ip,
-            'host_routes': self._subnet_from_pool.host_routes,
-            'ip_version': self._subnet_from_pool.ip_version,
-            'name': self._subnet_from_pool.name,
-            'network_id': self._subnet_from_pool.network_id,
-            'prefixlen': '24',
-            'subnetpool_id': self._subnet_from_pool.subnetpool_id,
-            'service_types': self._subnet_from_pool.service_types,
-        })
+        self.network.create_subnet.assert_called_once_with(
+            **{
+                'dns_nameservers': self._subnet_from_pool.dns_nameservers,
+                'enable_dhcp': self._subnet_from_pool.enable_dhcp,
+                'gateway_ip': self._subnet_from_pool.gateway_ip,
+                'host_routes': self._subnet_from_pool.host_routes,
+                'ip_version': self._subnet_from_pool.ip_version,
+                'name': self._subnet_from_pool.name,
+                'network_id': self._subnet_from_pool.network_id,
+                'prefixlen': '24',
+                'subnetpool_id': self._subnet_from_pool.subnetpool_id,
+                'service_types': self._subnet_from_pool.service_types,
+            }
+        )
         self.assertEqual(self.columns, columns)
         self.assertCountEqual(self.data_subnet_pool, data)
 
@@ -326,12 +367,18 @@ class TestCreateSubnet(TestSubnet):
 
         arglist = [
             self._subnet_ipv6.name,
-            "--subnet-range", self._subnet_ipv6.cidr,
-            "--network", self._subnet_ipv6.network_id,
-            "--ip-version", str(self._subnet_ipv6.ip_version),
-            "--ipv6-ra-mode", self._subnet_ipv6.ipv6_ra_mode,
-            "--ipv6-address-mode", self._subnet_ipv6.ipv6_address_mode,
-            "--gateway", self._subnet_ipv6.gateway_ip,
+            "--subnet-range",
+            self._subnet_ipv6.cidr,
+            "--network",
+            self._subnet_ipv6.network_id,
+            "--ip-version",
+            str(self._subnet_ipv6.ip_version),
+            "--ipv6-ra-mode",
+            self._subnet_ipv6.ipv6_ra_mode,
+            "--ipv6-address-mode",
+            self._subnet_ipv6.ipv6_address_mode,
+            "--gateway",
+            self._subnet_ipv6.gateway_ip,
             "--dhcp",
         ]
 
@@ -341,14 +388,22 @@ class TestCreateSubnet(TestSubnet):
 
         for host_route in self._subnet_ipv6.host_routes:
             arglist.append('--host-route')
-            value = 'gateway=' + host_route.get('nexthop', '') + \
-                    ',destination=' + host_route.get('destination', '')
+            value = (
+                'gateway='
+                + host_route.get('nexthop', '')
+                + ',destination='
+                + host_route.get('destination', '')
+            )
             arglist.append(value)
 
         for pool in self._subnet_ipv6.allocation_pools:
             arglist.append('--allocation-pool')
-            value = 'start=' + pool.get('start', '') + \
-                    ',end=' + pool.get('end', '')
+            value = (
+                'start='
+                + pool.get('start', '')
+                + ',end='
+                + pool.get('end', '')
+            )
             arglist.append(value)
 
         for service_type in self._subnet_ipv6.service_types:
@@ -365,8 +420,12 @@ class TestCreateSubnet(TestSubnet):
             ('gateway', self._subnet_ipv6.gateway_ip),
             ('dns_nameservers', self._subnet_ipv6.dns_nameservers),
             ('dhcp', self._subnet_ipv6.enable_dhcp),
-            ('host_routes', subnet_v2.convert_entries_to_gateway(
-                self._subnet_ipv6.host_routes)),
+            (
+                'host_routes',
+                subnet_v2.convert_entries_to_gateway(
+                    self._subnet_ipv6.host_routes
+                ),
+            ),
             ('allocation_pools', self._subnet_ipv6.allocation_pools),
             ('service_types', self._subnet_ipv6.service_types),
         ]
@@ -374,20 +433,22 @@ class TestCreateSubnet(TestSubnet):
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
         columns, data = self.cmd.take_action(parsed_args)
 
-        self.network.create_subnet.assert_called_once_with(**{
-            'cidr': self._subnet_ipv6.cidr,
-            'dns_nameservers': self._subnet_ipv6.dns_nameservers,
-            'enable_dhcp': self._subnet_ipv6.enable_dhcp,
-            'gateway_ip': self._subnet_ipv6.gateway_ip,
-            'host_routes': self._subnet_ipv6.host_routes,
-            'ip_version': self._subnet_ipv6.ip_version,
-            'ipv6_address_mode': self._subnet_ipv6.ipv6_address_mode,
-            'ipv6_ra_mode': self._subnet_ipv6.ipv6_ra_mode,
-            'name': self._subnet_ipv6.name,
-            'network_id': self._subnet_ipv6.network_id,
-            'allocation_pools': self._subnet_ipv6.allocation_pools,
-            'service_types': self._subnet_ipv6.service_types,
-        })
+        self.network.create_subnet.assert_called_once_with(
+            **{
+                'cidr': self._subnet_ipv6.cidr,
+                'dns_nameservers': self._subnet_ipv6.dns_nameservers,
+                'enable_dhcp': self._subnet_ipv6.enable_dhcp,
+                'gateway_ip': self._subnet_ipv6.gateway_ip,
+                'host_routes': self._subnet_ipv6.host_routes,
+                'ip_version': self._subnet_ipv6.ip_version,
+                'ipv6_address_mode': self._subnet_ipv6.ipv6_address_mode,
+                'ipv6_ra_mode': self._subnet_ipv6.ipv6_ra_mode,
+                'name': self._subnet_ipv6.name,
+                'network_id': self._subnet_ipv6.network_id,
+                'allocation_pools': self._subnet_ipv6.allocation_pools,
+                'service_types': self._subnet_ipv6.service_types,
+            }
+        )
         self.assertFalse(self.network.set_tags.called)
         self.assertEqual(self.columns, columns)
         self.assertCountEqual(self.data_ipv6, data)
@@ -397,9 +458,12 @@ class TestCreateSubnet(TestSubnet):
         self._network.id = self._subnet.network_id
 
         arglist = [
-            "--subnet-range", self._subnet.cidr,
-            "--network-segment", self._network_segment.id,
-            "--network", self._subnet.network_id,
+            "--subnet-range",
+            self._subnet.cidr,
+            "--network-segment",
+            self._network_segment.id,
+            "--network",
+            self._subnet.network_id,
             self._subnet.name,
         ]
         verifylist = [
@@ -409,19 +473,20 @@ class TestCreateSubnet(TestSubnet):
             ('network', self._subnet.network_id),
             ('ip_version', self._subnet.ip_version),
             ('gateway', 'auto'),
-
         ]
 
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
         columns, data = self.cmd.take_action(parsed_args)
 
-        self.network.create_subnet.assert_called_once_with(**{
-            'cidr': self._subnet.cidr,
-            'ip_version': self._subnet.ip_version,
-            'name': self._subnet.name,
-            'network_id': self._subnet.network_id,
-            'segment_id': self._network_segment.id,
-        })
+        self.network.create_subnet.assert_called_once_with(
+            **{
+                'cidr': self._subnet.cidr,
+                'ip_version': self._subnet.ip_version,
+                'name': self._subnet.name,
+                'network_id': self._subnet.network_id,
+                'segment_id': self._network_segment.id,
+            }
+        )
         self.assertFalse(self.network.set_tags.called)
         self.assertEqual(self.columns, columns)
         self.assertCountEqual(self.data, data)
@@ -431,9 +496,12 @@ class TestCreateSubnet(TestSubnet):
         self._network.id = self._subnet.network_id
 
         arglist = [
-            "--subnet-range", self._subnet.cidr,
-            "--network", self._subnet.network_id,
-            "--description", self._subnet.description,
+            "--subnet-range",
+            self._subnet.cidr,
+            "--network",
+            self._subnet.network_id,
+            "--description",
+            self._subnet.description,
             self._subnet.name,
         ]
         verifylist = [
@@ -443,27 +511,30 @@ class TestCreateSubnet(TestSubnet):
             ('network', self._subnet.network_id),
             ('ip_version', self._subnet.ip_version),
             ('gateway', 'auto'),
-
         ]
 
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
         columns, data = self.cmd.take_action(parsed_args)
 
-        self.network.create_subnet.assert_called_once_with(**{
-            'cidr': self._subnet.cidr,
-            'ip_version': self._subnet.ip_version,
-            'name': self._subnet.name,
-            'network_id': self._subnet.network_id,
-            'description': self._subnet.description,
-        })
+        self.network.create_subnet.assert_called_once_with(
+            **{
+                'cidr': self._subnet.cidr,
+                'ip_version': self._subnet.ip_version,
+                'name': self._subnet.name,
+                'network_id': self._subnet.network_id,
+                'description': self._subnet.description,
+            }
+        )
         self.assertFalse(self.network.set_tags.called)
         self.assertEqual(self.columns, columns)
         self.assertCountEqual(self.data, data)
 
     def _test_create_with_dns(self, publish_dns=True):
         arglist = [
-            "--subnet-range", self._subnet.cidr,
-            "--network", self._subnet.network_id,
+            "--subnet-range",
+            self._subnet.cidr,
+            "--network",
+            self._subnet.network_id,
             self._subnet.name,
         ]
         if publish_dns:
@@ -480,7 +551,7 @@ class TestCreateSubnet(TestSubnet):
         verifylist.append(('dns_publish_fixed_ip', publish_dns))
 
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
-        columns, data = (self.cmd.take_action(parsed_args))
+        columns, data = self.cmd.take_action(parsed_args)
 
         self.network.create_subnet.assert_called_once_with(
             cidr=self._subnet.cidr,
@@ -500,8 +571,10 @@ class TestCreateSubnet(TestSubnet):
 
     def _test_create_with_tag(self, add_tags=True):
         arglist = [
-            "--subnet-range", self._subnet.cidr,
-            "--network", self._subnet.network_id,
+            "--subnet-range",
+            self._subnet.cidr,
+            "--network",
+            self._subnet.network_id,
             self._subnet.name,
         ]
         if add_tags:
@@ -521,17 +594,18 @@ class TestCreateSubnet(TestSubnet):
             verifylist.append(('no_tag', True))
 
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
-        columns, data = (self.cmd.take_action(parsed_args))
+        columns, data = self.cmd.take_action(parsed_args)
 
         self.network.create_subnet.assert_called_once_with(
             cidr=self._subnet.cidr,
             ip_version=self._subnet.ip_version,
             name=self._subnet.name,
-            network_id=self._subnet.network_id)
+            network_id=self._subnet.network_id,
+        )
         if add_tags:
             self.network.set_tags.assert_called_once_with(
-                self._subnet,
-                tests_utils.CompareBySet(['red', 'blue']))
+                self._subnet, tests_utils.CompareBySet(['red', 'blue'])
+            )
         else:
             self.assertFalse(self.network.set_tags.called)
         self.assertEqual(self.columns, columns)
@@ -545,7 +619,6 @@ class TestCreateSubnet(TestSubnet):
 
 
 class TestDeleteSubnet(TestSubnet):
-
     # The subnets to delete.
     _subnets = network_fakes.FakeSubnet.create_subnets(count=2)
 
@@ -554,8 +627,9 @@ class TestDeleteSubnet(TestSubnet):
 
         self.network.delete_subnet = mock.Mock(return_value=None)
 
-        self.network.find_subnet = (
-            network_fakes.FakeSubnet.get_subnets(self._subnets))
+        self.network.find_subnet = network_fakes.FakeSubnet.get_subnets(
+            self._subnets
+        )
 
         # Get the command object to test
         self.cmd = subnet_v2.DeleteSubnet(self.app, self.namespace)
@@ -598,15 +672,12 @@ class TestDeleteSubnet(TestSubnet):
             'unexist_subnet',
         ]
         verifylist = [
-            ('subnet',
-             [self._subnets[0].name, 'unexist_subnet']),
+            ('subnet', [self._subnets[0].name, 'unexist_subnet']),
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
         find_mock_result = [self._subnets[0], exceptions.CommandError]
-        self.network.find_subnet = (
-            mock.Mock(side_effect=find_mock_result)
-        )
+        self.network.find_subnet = mock.Mock(side_effect=find_mock_result)
 
         try:
             self.cmd.take_action(parsed_args)
@@ -615,12 +686,12 @@ class TestDeleteSubnet(TestSubnet):
             self.assertEqual('1 of 2 subnets failed to delete.', str(e))
 
         self.network.find_subnet.assert_any_call(
-            self._subnets[0].name, ignore_missing=False)
-        self.network.find_subnet.assert_any_call(
-            'unexist_subnet', ignore_missing=False)
-        self.network.delete_subnet.assert_called_once_with(
-            self._subnets[0]
+            self._subnets[0].name, ignore_missing=False
         )
+        self.network.find_subnet.assert_any_call(
+            'unexist_subnet', ignore_missing=False
+        )
+        self.network.delete_subnet.assert_called_once_with(self._subnets[0])
 
 
 class TestListSubnet(TestSubnet):
@@ -647,30 +718,34 @@ class TestListSubnet(TestSubnet):
 
     data = []
     for subnet in _subnet:
-        data.append((
-            subnet.id,
-            subnet.name,
-            subnet.network_id,
-            subnet.cidr,
-        ))
+        data.append(
+            (
+                subnet.id,
+                subnet.name,
+                subnet.network_id,
+                subnet.cidr,
+            )
+        )
 
     data_long = []
     for subnet in _subnet:
-        data_long.append((
-            subnet.id,
-            subnet.name,
-            subnet.network_id,
-            subnet.cidr,
-            subnet.project_id,
-            subnet.enable_dhcp,
-            format_columns.ListColumn(subnet.dns_nameservers),
-            subnet_v2.AllocationPoolsColumn(subnet.allocation_pools),
-            subnet_v2.HostRoutesColumn(subnet.host_routes),
-            subnet.ip_version,
-            subnet.gateway_ip,
-            format_columns.ListColumn(subnet.service_types),
-            format_columns.ListColumn(subnet.tags),
-        ))
+        data_long.append(
+            (
+                subnet.id,
+                subnet.name,
+                subnet.network_id,
+                subnet.cidr,
+                subnet.project_id,
+                subnet.enable_dhcp,
+                format_columns.ListColumn(subnet.dns_nameservers),
+                subnet_v2.AllocationPoolsColumn(subnet.allocation_pools),
+                subnet_v2.HostRoutesColumn(subnet.host_routes),
+                subnet.ip_version,
+                subnet.gateway_ip,
+                format_columns.ListColumn(subnet.service_types),
+                format_columns.ListColumn(subnet.tags),
+            )
+        )
 
     def setUp(self):
         super(TestListSubnet, self).setUp()
@@ -710,7 +785,8 @@ class TestListSubnet(TestSubnet):
 
     def test_subnet_list_ip_version(self):
         arglist = [
-            '--ip-version', str(4),
+            '--ip-version',
+            str(4),
         ]
         verifylist = [
             ('ip_version', 4),
@@ -758,7 +834,8 @@ class TestListSubnet(TestSubnet):
 
     def test_subnet_list_service_type(self):
         arglist = [
-            '--service-type', 'network:router_gateway',
+            '--service-type',
+            'network:router_gateway',
         ]
         verifylist = [
             ('service_types', ['network:router_gateway']),
@@ -775,7 +852,8 @@ class TestListSubnet(TestSubnet):
         project = identity_fakes_v3.FakeProject.create_one_project()
         self.projects_mock.get.return_value = project
         arglist = [
-            '--project', project.id,
+            '--project',
+            project.id,
         ]
         verifylist = [
             ('project', project.id),
@@ -791,18 +869,26 @@ class TestListSubnet(TestSubnet):
 
     def test_subnet_list_service_type_multiple(self):
         arglist = [
-            '--service-type', 'network:router_gateway',
-            '--service-type', 'network:floatingip_agent_gateway',
+            '--service-type',
+            'network:router_gateway',
+            '--service-type',
+            'network:floatingip_agent_gateway',
         ]
         verifylist = [
-            ('service_types', ['network:router_gateway',
-                               'network:floatingip_agent_gateway']),
+            (
+                'service_types',
+                ['network:router_gateway', 'network:floatingip_agent_gateway'],
+            ),
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
         columns, data = self.cmd.take_action(parsed_args)
-        filters = {'service_types': ['network:router_gateway',
-                                     'network:floatingip_agent_gateway']}
+        filters = {
+            'service_types': [
+                'network:router_gateway',
+                'network:floatingip_agent_gateway',
+            ]
+        }
         self.network.subnets.assert_called_once_with(**filters)
         self.assertEqual(self.columns, columns)
         self.assertCountEqual(self.data, list(data))
@@ -811,8 +897,10 @@ class TestListSubnet(TestSubnet):
         project = identity_fakes_v3.FakeProject.create_one_project()
         self.projects_mock.get.return_value = project
         arglist = [
-            '--project', project.id,
-            '--project-domain', project.domain_id,
+            '--project',
+            project.id,
+            '--project-domain',
+            project.domain_id,
         ]
         verifylist = [
             ('project', project.id),
@@ -831,7 +919,8 @@ class TestListSubnet(TestSubnet):
         network = network_fakes.create_one_network()
         self.network.find_network = mock.Mock(return_value=network)
         arglist = [
-            '--network', network.id,
+            '--network',
+            network.id,
         ]
         verifylist = [
             ('network', network.id),
@@ -849,7 +938,8 @@ class TestListSubnet(TestSubnet):
         subnet = network_fakes.FakeSubnet.create_one_subnet()
         self.network.find_network = mock.Mock(return_value=subnet)
         arglist = [
-            '--gateway', subnet.gateway_ip,
+            '--gateway',
+            subnet.gateway_ip,
         ]
         verifylist = [
             ('gateway', subnet.gateway_ip),
@@ -867,7 +957,8 @@ class TestListSubnet(TestSubnet):
         subnet = network_fakes.FakeSubnet.create_one_subnet()
         self.network.find_network = mock.Mock(return_value=subnet)
         arglist = [
-            '--name', subnet.name,
+            '--name',
+            subnet.name,
         ]
         verifylist = [
             ('name', subnet.name),
@@ -885,7 +976,8 @@ class TestListSubnet(TestSubnet):
         subnet = network_fakes.FakeSubnet.create_one_subnet()
         self.network.find_network = mock.Mock(return_value=subnet)
         arglist = [
-            '--subnet-range', subnet.cidr,
+            '--subnet-range',
+            subnet.cidr,
         ]
         verifylist = [
             ('subnet_range', subnet.cidr),
@@ -902,11 +994,13 @@ class TestListSubnet(TestSubnet):
     def test_subnet_list_subnetpool_by_name(self):
         subnet_pool = network_fakes.FakeSubnetPool.create_one_subnet_pool()
         subnet = network_fakes.FakeSubnet.create_one_subnet(
-            {'subnetpool_id': subnet_pool.id})
+            {'subnetpool_id': subnet_pool.id}
+        )
         self.network.find_network = mock.Mock(return_value=subnet)
         self.network.find_subnet_pool = mock.Mock(return_value=subnet_pool)
         arglist = [
-            '--subnet-pool', subnet_pool.name,
+            '--subnet-pool',
+            subnet_pool.name,
         ]
         verifylist = [
             ('subnet_pool', subnet_pool.name),
@@ -923,11 +1017,13 @@ class TestListSubnet(TestSubnet):
     def test_subnet_list_subnetpool_by_id(self):
         subnet_pool = network_fakes.FakeSubnetPool.create_one_subnet_pool()
         subnet = network_fakes.FakeSubnet.create_one_subnet(
-            {'subnetpool_id': subnet_pool.id})
+            {'subnetpool_id': subnet_pool.id}
+        )
         self.network.find_network = mock.Mock(return_value=subnet)
         self.network.find_subnet_pool = mock.Mock(return_value=subnet_pool)
         arglist = [
-            '--subnet-pool', subnet_pool.id,
+            '--subnet-pool',
+            subnet_pool.id,
         ]
         verifylist = [
             ('subnet_pool', subnet_pool.id),
@@ -943,10 +1039,14 @@ class TestListSubnet(TestSubnet):
 
     def test_list_with_tag_options(self):
         arglist = [
-            '--tags', 'red,blue',
-            '--any-tags', 'red,green',
-            '--not-tags', 'orange,yellow',
-            '--not-any-tags', 'black,white',
+            '--tags',
+            'red,blue',
+            '--any-tags',
+            'red,green',
+            '--not-tags',
+            'orange,yellow',
+            '--not-any-tags',
+            'black,white',
         ]
         verifylist = [
             ('tags', ['red', 'blue']),
@@ -958,19 +1058,21 @@ class TestListSubnet(TestSubnet):
         columns, data = self.cmd.take_action(parsed_args)
 
         self.network.subnets.assert_called_once_with(
-            **{'tags': 'red,blue',
-               'any_tags': 'red,green',
-               'not_tags': 'orange,yellow',
-               'not_any_tags': 'black,white'}
+            **{
+                'tags': 'red,blue',
+                'any_tags': 'red,green',
+                'not_tags': 'orange,yellow',
+                'not_any_tags': 'black,white',
+            }
         )
         self.assertEqual(self.columns, columns)
         self.assertEqual(self.data, list(data))
 
 
 class TestSetSubnet(TestSubnet):
-
     _subnet = network_fakes.FakeSubnet.create_one_subnet(
-        {'tags': ['green', 'red']})
+        {'tags': ['green', 'red']}
+    )
 
     def setUp(self):
         super(TestSetSubnet, self).setUp()
@@ -981,9 +1083,11 @@ class TestSetSubnet(TestSubnet):
 
     def test_set_this(self):
         arglist = [
-            "--name", "new_subnet",
+            "--name",
+            "new_subnet",
             "--dhcp",
-            "--gateway", self._subnet.gateway_ip,
+            "--gateway",
+            self._subnet.gateway_ip,
             self._subnet.name,
         ]
         verifylist = [
@@ -1005,9 +1109,11 @@ class TestSetSubnet(TestSubnet):
 
     def test_set_that(self):
         arglist = [
-            "--name", "new_subnet",
+            "--name",
+            "new_subnet",
             "--no-dhcp",
-            "--gateway", "none",
+            "--gateway",
+            "none",
             self._subnet.name,
         ]
         verifylist = [
@@ -1028,7 +1134,9 @@ class TestSetSubnet(TestSubnet):
         self.assertIsNone(result)
 
     def test_set_nothing(self):
-        arglist = [self._subnet.name, ]
+        arglist = [
+            self._subnet.name,
+        ]
         verifylist = [('subnet', self._subnet.name)]
 
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
@@ -1040,12 +1148,17 @@ class TestSetSubnet(TestSubnet):
 
     def test_append_options(self):
         _testsubnet = network_fakes.FakeSubnet.create_one_subnet(
-            {'dns_nameservers': ["10.0.0.1"],
-             'service_types': ["network:router_gateway"]})
+            {
+                'dns_nameservers': ["10.0.0.1"],
+                'service_types': ["network:router_gateway"],
+            }
+        )
         self.network.find_subnet = mock.Mock(return_value=_testsubnet)
         arglist = [
-            '--dns-nameserver', '10.0.0.2',
-            '--service-type', 'network:floatingip_agent_gateway',
+            '--dns-nameserver',
+            '10.0.0.2',
+            '--service-type',
+            'network:floatingip_agent_gateway',
             _testsubnet.name,
         ]
         verifylist = [
@@ -1056,18 +1169,23 @@ class TestSetSubnet(TestSubnet):
         result = self.cmd.take_action(parsed_args)
         attrs = {
             'dns_nameservers': ['10.0.0.2', '10.0.0.1'],
-            'service_types': ['network:floatingip_agent_gateway',
-                              'network:router_gateway'],
+            'service_types': [
+                'network:floatingip_agent_gateway',
+                'network:router_gateway',
+            ],
         }
         self.network.update_subnet.assert_called_once_with(
-            _testsubnet, **attrs)
+            _testsubnet, **attrs
+        )
         self.assertIsNone(result)
 
     def test_set_non_append_options(self):
         arglist = [
-            "--description", "new_description",
+            "--description",
+            "new_description",
             "--dhcp",
-            "--gateway", self._subnet.gateway_ip,
+            "--gateway",
+            self._subnet.gateway_ip,
             self._subnet.name,
         ]
         verifylist = [
@@ -1089,26 +1207,35 @@ class TestSetSubnet(TestSubnet):
 
     def test_overwrite_options(self):
         _testsubnet = network_fakes.FakeSubnet.create_one_subnet(
-            {'host_routes': [{'destination': '10.20.20.0/24',
-                              'nexthop': '10.20.20.1'}],
-             'allocation_pools': [{'start': '8.8.8.200',
-                                   'end': '8.8.8.250'}],
-             'dns_nameservers': ["10.0.0.1"], })
+            {
+                'host_routes': [
+                    {'destination': '10.20.20.0/24', 'nexthop': '10.20.20.1'}
+                ],
+                'allocation_pools': [
+                    {'start': '8.8.8.200', 'end': '8.8.8.250'}
+                ],
+                'dns_nameservers': ["10.0.0.1"],
+            }
+        )
         self.network.find_subnet = mock.Mock(return_value=_testsubnet)
         arglist = [
-            '--host-route', 'destination=10.30.30.30/24,gateway=10.30.30.1',
+            '--host-route',
+            'destination=10.30.30.30/24,gateway=10.30.30.1',
             '--no-host-route',
-            '--allocation-pool', 'start=8.8.8.100,end=8.8.8.150',
+            '--allocation-pool',
+            'start=8.8.8.100,end=8.8.8.150',
             '--no-allocation-pool',
-            '--dns-nameserver', '10.1.10.1',
+            '--dns-nameserver',
+            '10.1.10.1',
             '--no-dns-nameservers',
             _testsubnet.name,
         ]
         verifylist = [
-            ('host_routes', [{
-                "destination": "10.30.30.30/24", "gateway": "10.30.30.1"}]),
-            ('allocation_pools', [{
-                'start': '8.8.8.100', 'end': '8.8.8.150'}]),
+            (
+                'host_routes',
+                [{"destination": "10.30.30.30/24", "gateway": "10.30.30.1"}],
+            ),
+            ('allocation_pools', [{'start': '8.8.8.100', 'end': '8.8.8.150'}]),
             ('dns_nameservers', ['10.1.10.1']),
             ('no_dns_nameservers', True),
             ('no_host_route', True),
@@ -1117,22 +1244,29 @@ class TestSetSubnet(TestSubnet):
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
         result = self.cmd.take_action(parsed_args)
         attrs = {
-            'host_routes': [{
-                "destination": "10.30.30.30/24", "nexthop": "10.30.30.1"}],
+            'host_routes': [
+                {"destination": "10.30.30.30/24", "nexthop": "10.30.30.1"}
+            ],
             'allocation_pools': [{'start': '8.8.8.100', 'end': '8.8.8.150'}],
             'dns_nameservers': ["10.1.10.1"],
         }
         self.network.update_subnet.assert_called_once_with(
-            _testsubnet, **attrs)
+            _testsubnet, **attrs
+        )
         self.assertIsNone(result)
 
     def test_clear_options(self):
         _testsubnet = network_fakes.FakeSubnet.create_one_subnet(
-            {'host_routes': [{'destination': '10.20.20.0/24',
-                              'nexthop': '10.20.20.1'}],
-             'allocation_pools': [{'start': '8.8.8.200',
-                                   'end': '8.8.8.250'}],
-             'dns_nameservers': ['10.0.0.1'], })
+            {
+                'host_routes': [
+                    {'destination': '10.20.20.0/24', 'nexthop': '10.20.20.1'}
+                ],
+                'allocation_pools': [
+                    {'start': '8.8.8.200', 'end': '8.8.8.250'}
+                ],
+                'dns_nameservers': ['10.0.0.1'],
+            }
+        )
         self.network.find_subnet = mock.Mock(return_value=_testsubnet)
         arglist = [
             '--no-host-route',
@@ -1153,7 +1287,8 @@ class TestSetSubnet(TestSubnet):
             'dns_nameservers': [],
         }
         self.network.update_subnet.assert_called_once_with(
-            _testsubnet, **attrs)
+            _testsubnet, **attrs
+        )
         self.assertIsNone(result)
 
     def _test_set_tags(self, with_tags=True):
@@ -1166,16 +1301,15 @@ class TestSetSubnet(TestSubnet):
             verifylist = [('no_tag', True)]
             expected_args = []
         arglist.append(self._subnet.name)
-        verifylist.append(
-            ('subnet', self._subnet.name))
+        verifylist.append(('subnet', self._subnet.name))
 
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
         result = self.cmd.take_action(parsed_args)
 
         self.assertFalse(self.network.update_subnet.called)
         self.network.set_tags.assert_called_once_with(
-            self._subnet,
-            tests_utils.CompareBySet(expected_args))
+            self._subnet, tests_utils.CompareBySet(expected_args)
+        )
         self.assertIsNone(result)
 
     def test_set_with_tags(self):
@@ -1187,15 +1321,21 @@ class TestSetSubnet(TestSubnet):
     def test_set_segment(self):
         _net = network_fakes.create_one_network()
         _segment = network_fakes.create_one_network_segment(
-            attrs={'network_id': _net.id})
+            attrs={'network_id': _net.id}
+        )
         _subnet = network_fakes.FakeSubnet.create_one_subnet(
-            {'host_routes': [{'destination': '10.20.20.0/24',
-                              'nexthop': '10.20.20.1'}],
-             'allocation_pools': [{'start': '8.8.8.200',
-                                   'end': '8.8.8.250'}],
-             'dns_nameservers': ["10.0.0.1"],
-             'network_id': _net.id,
-             'segment_id': None})
+            {
+                'host_routes': [
+                    {'destination': '10.20.20.0/24', 'nexthop': '10.20.20.1'}
+                ],
+                'allocation_pools': [
+                    {'start': '8.8.8.200', 'end': '8.8.8.250'}
+                ],
+                'dns_nameservers': ["10.0.0.1"],
+                'network_id': _net.id,
+                'segment_id': None,
+            }
+        )
         self.network.find_subnet = mock.Mock(return_value=_subnet)
         self.network.find_segment = mock.Mock(return_value=_segment)
         arglist = ['--network-segment', _segment.id, _subnet.name]
@@ -1268,8 +1408,13 @@ class TestShowSubnet(TestSubnet):
 
         # Testing that a call without the required argument will fail and
         # throw a "ParserExecption"
-        self.assertRaises(tests_utils.ParserException,
-                          self.check_parser, self.cmd, arglist, verifylist)
+        self.assertRaises(
+            tests_utils.ParserException,
+            self.check_parser,
+            self.cmd,
+            arglist,
+            verifylist,
+        )
 
     def test_show_all_options(self):
         arglist = [
@@ -1283,31 +1428,35 @@ class TestShowSubnet(TestSubnet):
         columns, data = self.cmd.take_action(parsed_args)
 
         self.network.find_subnet.assert_called_once_with(
-            self._subnet.name, ignore_missing=False)
+            self._subnet.name, ignore_missing=False
+        )
 
         self.assertEqual(self.columns, columns)
         self.assertCountEqual(self.data, data)
 
 
 class TestUnsetSubnet(TestSubnet):
-
     def setUp(self):
         super(TestUnsetSubnet, self).setUp()
         self._testsubnet = network_fakes.FakeSubnet.create_one_subnet(
-            {'dns_nameservers': ['8.8.8.8',
-                                 '8.8.8.4'],
-             'host_routes': [{'destination': '10.20.20.0/24',
-                              'nexthop': '10.20.20.1'},
-                             {'destination': '10.30.30.30/24',
-                              'nexthop': '10.30.30.1'}],
-             'allocation_pools': [{'start': '8.8.8.100',
-                                   'end': '8.8.8.150'},
-                                  {'start': '8.8.8.160',
-                                   'end': '8.8.8.170'}],
-             'service_types': ['network:router_gateway',
-                               'network:floatingip_agent_gateway'],
-             'gateway_ip': 'fe80::a00a:0:c0de:0:1',
-             'tags': ['green', 'red'], })
+            {
+                'dns_nameservers': ['8.8.8.8', '8.8.8.4'],
+                'host_routes': [
+                    {'destination': '10.20.20.0/24', 'nexthop': '10.20.20.1'},
+                    {'destination': '10.30.30.30/24', 'nexthop': '10.30.30.1'},
+                ],
+                'allocation_pools': [
+                    {'start': '8.8.8.100', 'end': '8.8.8.150'},
+                    {'start': '8.8.8.160', 'end': '8.8.8.170'},
+                ],
+                'service_types': [
+                    'network:router_gateway',
+                    'network:floatingip_agent_gateway',
+                ],
+                'gateway_ip': 'fe80::a00a:0:c0de:0:1',
+                'tags': ['green', 'red'],
+            }
+        )
         self.network.find_subnet = mock.Mock(return_value=self._testsubnet)
         self.network.update_subnet = mock.Mock(return_value=None)
         self.network.set_tags = mock.Mock(return_value=None)
@@ -1316,19 +1465,24 @@ class TestUnsetSubnet(TestSubnet):
 
     def test_unset_subnet_params(self):
         arglist = [
-            '--dns-nameserver', '8.8.8.8',
-            '--host-route', 'destination=10.30.30.30/24,gateway=10.30.30.1',
-            '--allocation-pool', 'start=8.8.8.100,end=8.8.8.150',
-            '--service-type', 'network:router_gateway',
+            '--dns-nameserver',
+            '8.8.8.8',
+            '--host-route',
+            'destination=10.30.30.30/24,gateway=10.30.30.1',
+            '--allocation-pool',
+            'start=8.8.8.100,end=8.8.8.150',
+            '--service-type',
+            'network:router_gateway',
             '--gateway',
             self._testsubnet.name,
         ]
         verifylist = [
             ('dns_nameservers', ['8.8.8.8']),
-            ('host_routes', [{
-                "destination": "10.30.30.30/24", "gateway": "10.30.30.1"}]),
-            ('allocation_pools', [{
-                'start': '8.8.8.100', 'end': '8.8.8.150'}]),
+            (
+                'host_routes',
+                [{"destination": "10.30.30.30/24", "gateway": "10.30.30.1"}],
+            ),
+            ('allocation_pools', [{'start': '8.8.8.100', 'end': '8.8.8.150'}]),
             ('service_types', ['network:router_gateway']),
             ('gateway', True),
         ]
@@ -1338,93 +1492,116 @@ class TestUnsetSubnet(TestSubnet):
 
         attrs = {
             'dns_nameservers': ['8.8.8.4'],
-            'host_routes': [{
-                "destination": "10.20.20.0/24", "nexthop": "10.20.20.1"}],
+            'host_routes': [
+                {"destination": "10.20.20.0/24", "nexthop": "10.20.20.1"}
+            ],
             'allocation_pools': [{'start': '8.8.8.160', 'end': '8.8.8.170'}],
             'service_types': ['network:floatingip_agent_gateway'],
             'gateway_ip': None,
         }
         self.network.update_subnet.assert_called_once_with(
-            self._testsubnet, **attrs)
+            self._testsubnet, **attrs
+        )
         self.assertIsNone(result)
 
     def test_unset_subnet_wrong_host_routes(self):
         arglist = [
-            '--dns-nameserver', '8.8.8.8',
-            '--host-route', 'destination=10.30.30.30/24,gateway=10.30.30.2',
-            '--allocation-pool', 'start=8.8.8.100,end=8.8.8.150',
+            '--dns-nameserver',
+            '8.8.8.8',
+            '--host-route',
+            'destination=10.30.30.30/24,gateway=10.30.30.2',
+            '--allocation-pool',
+            'start=8.8.8.100,end=8.8.8.150',
             self._testsubnet.name,
         ]
         verifylist = [
             ('dns_nameservers', ['8.8.8.8']),
-            ('host_routes', [{
-                "destination": "10.30.30.30/24", "gateway": "10.30.30.2"}]),
-            ('allocation_pools', [{
-                'start': '8.8.8.100', 'end': '8.8.8.150'}]),
+            (
+                'host_routes',
+                [{"destination": "10.30.30.30/24", "gateway": "10.30.30.2"}],
+            ),
+            ('allocation_pools', [{'start': '8.8.8.100', 'end': '8.8.8.150'}]),
         ]
 
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
-        self.assertRaises(exceptions.CommandError,
-                          self.cmd.take_action, parsed_args)
+        self.assertRaises(
+            exceptions.CommandError, self.cmd.take_action, parsed_args
+        )
 
     def test_unset_subnet_wrong_allocation_pool(self):
         arglist = [
-            '--dns-nameserver', '8.8.8.8',
-            '--host-route', 'destination=10.30.30.30/24,gateway=10.30.30.1',
-            '--allocation-pool', 'start=8.8.8.100,end=8.8.8.156',
+            '--dns-nameserver',
+            '8.8.8.8',
+            '--host-route',
+            'destination=10.30.30.30/24,gateway=10.30.30.1',
+            '--allocation-pool',
+            'start=8.8.8.100,end=8.8.8.156',
             self._testsubnet.name,
         ]
         verifylist = [
             ('dns_nameservers', ['8.8.8.8']),
-            ('host_routes', [{
-                "destination": "10.30.30.30/24", "gateway": "10.30.30.1"}]),
-            ('allocation_pools', [{
-                'start': '8.8.8.100', 'end': '8.8.8.156'}]),
+            (
+                'host_routes',
+                [{"destination": "10.30.30.30/24", "gateway": "10.30.30.1"}],
+            ),
+            ('allocation_pools', [{'start': '8.8.8.100', 'end': '8.8.8.156'}]),
         ]
 
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
-        self.assertRaises(exceptions.CommandError,
-                          self.cmd.take_action, parsed_args)
+        self.assertRaises(
+            exceptions.CommandError, self.cmd.take_action, parsed_args
+        )
 
     def test_unset_subnet_wrong_dns_nameservers(self):
         arglist = [
-            '--dns-nameserver', '8.8.8.1',
-            '--host-route', 'destination=10.30.30.30/24,gateway=10.30.30.1',
-            '--allocation-pool', 'start=8.8.8.100,end=8.8.8.150',
+            '--dns-nameserver',
+            '8.8.8.1',
+            '--host-route',
+            'destination=10.30.30.30/24,gateway=10.30.30.1',
+            '--allocation-pool',
+            'start=8.8.8.100,end=8.8.8.150',
             self._testsubnet.name,
         ]
         verifylist = [
             ('dns_nameservers', ['8.8.8.1']),
-            ('host_routes', [{
-                "destination": "10.30.30.30/24", "gateway": "10.30.30.1"}]),
-            ('allocation_pools', [{
-                'start': '8.8.8.100', 'end': '8.8.8.150'}]),
+            (
+                'host_routes',
+                [{"destination": "10.30.30.30/24", "gateway": "10.30.30.1"}],
+            ),
+            ('allocation_pools', [{'start': '8.8.8.100', 'end': '8.8.8.150'}]),
         ]
 
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
-        self.assertRaises(exceptions.CommandError,
-                          self.cmd.take_action, parsed_args)
+        self.assertRaises(
+            exceptions.CommandError, self.cmd.take_action, parsed_args
+        )
 
     def test_unset_subnet_wrong_service_type(self):
         arglist = [
-            '--dns-nameserver', '8.8.8.8',
-            '--host-route', 'destination=10.30.30.30/24,gateway=10.30.30.1',
-            '--allocation-pool', 'start=8.8.8.100,end=8.8.8.150',
-            '--service-type', 'network:dhcp',
+            '--dns-nameserver',
+            '8.8.8.8',
+            '--host-route',
+            'destination=10.30.30.30/24,gateway=10.30.30.1',
+            '--allocation-pool',
+            'start=8.8.8.100,end=8.8.8.150',
+            '--service-type',
+            'network:dhcp',
             self._testsubnet.name,
         ]
         verifylist = [
             ('dns_nameservers', ['8.8.8.8']),
-            ('host_routes', [{
-                "destination": "10.30.30.30/24", "gateway": "10.30.30.1"}]),
-            ('allocation_pools', [{
-                'start': '8.8.8.100', 'end': '8.8.8.150'}]),
+            (
+                'host_routes',
+                [{"destination": "10.30.30.30/24", "gateway": "10.30.30.1"}],
+            ),
+            ('allocation_pools', [{'start': '8.8.8.100', 'end': '8.8.8.150'}]),
             ('service_types', ['network:dhcp']),
         ]
 
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
-        self.assertRaises(exceptions.CommandError,
-                          self.cmd.take_action, parsed_args)
+        self.assertRaises(
+            exceptions.CommandError, self.cmd.take_action, parsed_args
+        )
 
     def _test_unset_tags(self, with_tags=True):
         if with_tags:
@@ -1436,16 +1613,15 @@ class TestUnsetSubnet(TestSubnet):
             verifylist = [('all_tag', True)]
             expected_args = []
         arglist.append(self._testsubnet.name)
-        verifylist.append(
-            ('subnet', self._testsubnet.name))
+        verifylist.append(('subnet', self._testsubnet.name))
 
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
         result = self.cmd.take_action(parsed_args)
 
         self.assertFalse(self.network.update_subnet.called)
         self.network.set_tags.assert_called_once_with(
-            self._testsubnet,
-            tests_utils.CompareBySet(expected_args))
+            self._testsubnet, tests_utils.CompareBySet(expected_args)
+        )
         self.assertIsNone(result)
 
     def test_unset_with_tags(self):

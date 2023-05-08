@@ -31,7 +31,8 @@ def _get_columns(item):
     column_map = {}
     hidden_columns = ['location']
     return utils.get_osc_show_columns_for_sdk_resource(
-        item, column_map, hidden_columns)
+        item, column_map, hidden_columns
+    )
 
 
 class CreateNDPProxy(command.ShowOne):
@@ -40,31 +41,36 @@ class CreateNDPProxy(command.ShowOne):
     def get_parser(self, prog_name):
         parser = super().get_parser(prog_name)
         parser.add_argument(
-            'router',
-            metavar='<router>',
-            help=_("The name or ID of a router"))
+            'router', metavar='<router>', help=_("The name or ID of a router")
+        )
         parser.add_argument(
-            '--name',
-            metavar='<name>',
-            help=_("New NDP proxy name")
+            '--name', metavar='<name>', help=_("New NDP proxy name")
         )
         parser.add_argument(
             '--port',
             metavar='<port>',
             required=True,
-            help=_("The name or ID of the network port associated "
-                   "to the NDP proxy"))
+            help=_(
+                "The name or ID of the network port associated "
+                "to the NDP proxy"
+            ),
+        )
         parser.add_argument(
             '--ip-address',
             metavar='<ip-address>',
-            help=_("The IPv6 address that is to be proxied. In case the port "
-                   "has multiple addresses assigned, use this option to "
-                   "select which address is to be used."))
+            help=_(
+                "The IPv6 address that is to be proxied. In case the port "
+                "has multiple addresses assigned, use this option to "
+                "select which address is to be used."
+            ),
+        )
         parser.add_argument(
             '--description',
             metavar='<description>',
-            help=_("A text to describe/contextualize the use of the "
-                   "NDP proxy configuration")
+            help=_(
+                "A text to describe/contextualize the use of the "
+                "NDP proxy configuration"
+            ),
         )
 
         return parser
@@ -81,8 +87,7 @@ class CreateNDPProxy(command.ShowOne):
         if parsed_args.ip_address:
             attrs['ip_address'] = parsed_args.ip_address
 
-        port = client.find_port(parsed_args.port,
-                                ignore_missing=False)
+        port = client.find_port(parsed_args.port, ignore_missing=False)
         attrs['port_id'] = port.id
 
         if parsed_args.description is not None:
@@ -103,7 +108,7 @@ class DeleteNDPProxy(command.Command):
             'ndp_proxy',
             nargs="+",
             metavar="<ndp-proxy>",
-            help=_("NDP proxy(s) to delete (name or ID)")
+            help=_("NDP proxy(s) to delete (name or ID)"),
         )
         return parser
 
@@ -117,13 +122,15 @@ class DeleteNDPProxy(command.Command):
                 client.delete_ndp_proxy(obj)
             except Exception as e:
                 result += 1
-                LOG.error(_("Failed to delete NDP proxy "
-                            "'%(ndp_proxy)s': %(e)s"),
-                          {'ndp_proxy': ndp_proxy, 'e': e})
+                LOG.error(
+                    _("Failed to delete NDP proxy " "'%(ndp_proxy)s': %(e)s"),
+                    {'ndp_proxy': ndp_proxy, 'e': e},
+                )
         if result > 0:
             total = len(parsed_args.ndp_proxy)
-            msg = (_("%(result)s of %(total)s NDP Proxy failed "
-                   "to delete.") % {'result': result, 'total': total})
+            msg = _(
+                "%(result)s of %(total)s NDP Proxy failed " "to delete."
+            ) % {'result': result, 'total': total}
             raise exceptions.CommandError(msg)
 
 
@@ -135,27 +142,27 @@ class ListNDPProxy(command.Lister):
         parser.add_argument(
             '--router',
             metavar='<router>',
-            help=_("List only NDP proxies belong to this router (name or ID)")
+            help=_("List only NDP proxies belong to this router (name or ID)"),
         )
         parser.add_argument(
             '--port',
             metavar='<port>',
-            help=_("List only NDP proxies assocate to this port (name or ID)")
+            help=_("List only NDP proxies assocate to this port (name or ID)"),
         )
         parser.add_argument(
             '--ip-address',
             metavar='ip-address',
-            help=_("List only NDP proxies according to their IPv6 address")
+            help=_("List only NDP proxies according to their IPv6 address"),
         )
         parser.add_argument(
             '--project',
             metavar='<project>',
-            help=_("List NDP proxies according to their project (name or ID)")
+            help=_("List NDP proxies according to their project (name or ID)"),
         )
         parser.add_argument(
             '--name',
             metavar='<name>',
-            help=_("List NDP proxies according to their name")
+            help=_("List NDP proxies according to their name"),
         )
 
         identity_common.add_project_domain_option_to_parser(parser)
@@ -184,12 +191,12 @@ class ListNDPProxy(command.Lister):
         query = {}
 
         if parsed_args.router:
-            router = client.find_router(parsed_args.router,
-                                        ignore_missing=False)
+            router = client.find_router(
+                parsed_args.router, ignore_missing=False
+            )
             query['router_id'] = router.id
         if parsed_args.port:
-            port = client.find_port(parsed_args.port,
-                                    ignore_missing=False)
+            port = client.find_port(parsed_args.port, ignore_missing=False)
             query['port_id'] = port.id
         if parsed_args.ip_address is not None:
             query['ip_address'] = parsed_args.ip_address
@@ -205,11 +212,17 @@ class ListNDPProxy(command.Lister):
 
         data = client.ndp_proxies(**query)
 
-        return (headers,
-                (utils.get_item_properties(
-                    s, columns,
+        return (
+            headers,
+            (
+                utils.get_item_properties(
+                    s,
+                    columns,
                     formatters={},
-                ) for s in data))
+                )
+                for s in data
+            ),
+        )
 
 
 class SetNDPProxy(command.Command):
@@ -220,18 +233,18 @@ class SetNDPProxy(command.Command):
         parser.add_argument(
             'ndp_proxy',
             metavar='<ndp-proxy>',
-            help=_("The ID or name of the NDP proxy to update")
+            help=_("The ID or name of the NDP proxy to update"),
         )
         parser.add_argument(
-            '--name',
-            metavar='<name>',
-            help=_("Set NDP proxy name")
+            '--name', metavar='<name>', help=_("Set NDP proxy name")
         )
         parser.add_argument(
             '--description',
             metavar='<description>',
-            help=_("A text to describe/contextualize the use of "
-                   "the NDP proxy configuration")
+            help=_(
+                "A text to describe/contextualize the use of "
+                "the NDP proxy configuration"
+            ),
         )
         return parser
 
@@ -244,7 +257,8 @@ class SetNDPProxy(command.Command):
             attrs['name'] = parsed_args.name
 
         obj = client.find_ndp_proxy(
-            parsed_args.ndp_proxy, ignore_missing=False)
+            parsed_args.ndp_proxy, ignore_missing=False
+        )
         client.update_ndp_proxy(obj, **attrs)
 
 
@@ -256,14 +270,15 @@ class ShowNDPProxy(command.ShowOne):
         parser.add_argument(
             'ndp_proxy',
             metavar="<ndp-proxy>",
-            help=_("The ID or name of the NDP proxy")
+            help=_("The ID or name of the NDP proxy"),
         )
         return parser
 
     def take_action(self, parsed_args):
         client = self.app.client_manager.network
-        obj = client.find_ndp_proxy(parsed_args.ndp_proxy,
-                                    ignore_missing=False)
+        obj = client.find_ndp_proxy(
+            parsed_args.ndp_proxy, ignore_missing=False
+        )
         display_columns, columns = _get_columns(obj)
         data = utils.get_item_properties(obj, columns)
         return (display_columns, data)

@@ -23,7 +23,6 @@ from openstackclient.tests.unit import utils as tests_utils
 
 
 class TestSecurityGroupNetwork(network_fakes.TestNetworkV2):
-
     def setUp(self):
         super(TestSecurityGroupNetwork, self).setUp()
 
@@ -36,12 +35,12 @@ class TestSecurityGroupNetwork(network_fakes.TestNetworkV2):
 
 
 class TestCreateSecurityGroupNetwork(TestSecurityGroupNetwork):
-
     project = identity_fakes.FakeProject.create_one_project()
     domain = identity_fakes.FakeDomain.create_one_domain()
     # The security group to be created.
     _security_group = (
-        network_fakes.FakeSecurityGroup.create_one_security_group())
+        network_fakes.FakeSecurityGroup.create_one_security_group()
+    )
 
     columns = (
         'description',
@@ -67,7 +66,8 @@ class TestCreateSecurityGroupNetwork(TestSecurityGroupNetwork):
         super(TestCreateSecurityGroupNetwork, self).setUp()
 
         self.network.create_security_group = mock.Mock(
-            return_value=self._security_group)
+            return_value=self._security_group
+        )
 
         self.projects_mock.get.return_value = self.project
         self.domains_mock.get.return_value = self.domain
@@ -77,8 +77,9 @@ class TestCreateSecurityGroupNetwork(TestSecurityGroupNetwork):
         self.cmd = security_group.CreateSecurityGroup(self.app, self.namespace)
 
     def test_create_no_options(self):
-        self.assertRaises(tests_utils.ParserException,
-                          self.check_parser, self.cmd, [], [])
+        self.assertRaises(
+            tests_utils.ParserException, self.check_parser, self.cmd, [], []
+        )
 
     def test_create_min_options(self):
         arglist = [
@@ -91,18 +92,23 @@ class TestCreateSecurityGroupNetwork(TestSecurityGroupNetwork):
 
         columns, data = self.cmd.take_action(parsed_args)
 
-        self.network.create_security_group.assert_called_once_with(**{
-            'description': self._security_group.name,
-            'name': self._security_group.name,
-        })
+        self.network.create_security_group.assert_called_once_with(
+            **{
+                'description': self._security_group.name,
+                'name': self._security_group.name,
+            }
+        )
         self.assertEqual(self.columns, columns)
         self.assertCountEqual(self.data, data)
 
     def test_create_all_options(self):
         arglist = [
-            '--description', self._security_group.description,
-            '--project', self.project.name,
-            '--project-domain', self.domain.name,
+            '--description',
+            self._security_group.description,
+            '--project',
+            self.project.name,
+            '--project-domain',
+            self.domain.name,
             '--stateful',
             self._security_group.name,
         ]
@@ -117,12 +123,14 @@ class TestCreateSecurityGroupNetwork(TestSecurityGroupNetwork):
 
         columns, data = self.cmd.take_action(parsed_args)
 
-        self.network.create_security_group.assert_called_once_with(**{
-            'description': self._security_group.description,
-            'stateful': self._security_group.stateful,
-            'name': self._security_group.name,
-            'project_id': self.project.id,
-        })
+        self.network.create_security_group.assert_called_once_with(
+            **{
+                'description': self._security_group.description,
+                'stateful': self._security_group.stateful,
+                'name': self._security_group.name,
+                'project_id': self.project.id,
+            }
+        )
         self.assertEqual(self.columns, columns)
         self.assertCountEqual(self.data, data)
 
@@ -142,16 +150,18 @@ class TestCreateSecurityGroupNetwork(TestSecurityGroupNetwork):
             verifylist.append(('no_tag', True))
 
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
-        columns, data = (self.cmd.take_action(parsed_args))
+        columns, data = self.cmd.take_action(parsed_args)
 
-        self.network.create_security_group.assert_called_once_with(**{
-            'description': self._security_group.name,
-            'name': self._security_group.name,
-        })
+        self.network.create_security_group.assert_called_once_with(
+            **{
+                'description': self._security_group.name,
+                'name': self._security_group.name,
+            }
+        )
         if add_tags:
             self.network.set_tags.assert_called_once_with(
-                self._security_group,
-                tests_utils.CompareBySet(['red', 'blue']))
+                self._security_group, tests_utils.CompareBySet(['red', 'blue'])
+            )
         else:
             self.assertFalse(self.network.set_tags.called)
         self.assertEqual(self.columns, columns)
@@ -165,10 +175,8 @@ class TestCreateSecurityGroupNetwork(TestSecurityGroupNetwork):
 
 
 class TestDeleteSecurityGroupNetwork(TestSecurityGroupNetwork):
-
     # The security groups to be deleted.
-    _security_groups = \
-        network_fakes.FakeSecurityGroup.create_security_groups()
+    _security_groups = network_fakes.FakeSecurityGroup.create_security_groups()
 
     def setUp(self):
         super(TestDeleteSecurityGroupNetwork, self).setUp()
@@ -177,7 +185,8 @@ class TestDeleteSecurityGroupNetwork(TestSecurityGroupNetwork):
 
         self.network.find_security_group = (
             network_fakes.FakeSecurityGroup.get_security_groups(
-                self._security_groups)
+                self._security_groups
+            )
         )
 
         # Get the command object to test
@@ -195,7 +204,8 @@ class TestDeleteSecurityGroupNetwork(TestSecurityGroupNetwork):
         result = self.cmd.take_action(parsed_args)
 
         self.network.delete_security_group.assert_called_once_with(
-            self._security_groups[0])
+            self._security_groups[0]
+        )
         self.assertIsNone(result)
 
     def test_multi_security_groups_delete(self):
@@ -223,14 +233,16 @@ class TestDeleteSecurityGroupNetwork(TestSecurityGroupNetwork):
             'unexist_security_group',
         ]
         verifylist = [
-            ('group',
-             [self._security_groups[0].name, 'unexist_security_group']),
+            (
+                'group',
+                [self._security_groups[0].name, 'unexist_security_group'],
+            ),
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
         find_mock_result = [self._security_groups[0], exceptions.CommandError]
-        self.network.find_security_group = (
-            mock.Mock(side_effect=find_mock_result)
+        self.network.find_security_group = mock.Mock(
+            side_effect=find_mock_result
         )
 
         try:
@@ -240,19 +252,21 @@ class TestDeleteSecurityGroupNetwork(TestSecurityGroupNetwork):
             self.assertEqual('1 of 2 groups failed to delete.', str(e))
 
         self.network.find_security_group.assert_any_call(
-            self._security_groups[0].name, ignore_missing=False)
+            self._security_groups[0].name, ignore_missing=False
+        )
         self.network.find_security_group.assert_any_call(
-            'unexist_security_group', ignore_missing=False)
+            'unexist_security_group', ignore_missing=False
+        )
         self.network.delete_security_group.assert_called_once_with(
             self._security_groups[0]
         )
 
 
 class TestListSecurityGroupNetwork(TestSecurityGroupNetwork):
-
     # The security group to be listed.
-    _security_groups = \
-        network_fakes.FakeSecurityGroup.create_security_groups(count=3)
+    _security_groups = network_fakes.FakeSecurityGroup.create_security_groups(
+        count=3
+    )
 
     columns = (
         'ID',
@@ -264,19 +278,22 @@ class TestListSecurityGroupNetwork(TestSecurityGroupNetwork):
 
     data = []
     for grp in _security_groups:
-        data.append((
-            grp.id,
-            grp.name,
-            grp.description,
-            grp.project_id,
-            grp.tags,
-        ))
+        data.append(
+            (
+                grp.id,
+                grp.name,
+                grp.description,
+                grp.project_id,
+                grp.tags,
+            )
+        )
 
     def setUp(self):
         super(TestListSecurityGroupNetwork, self).setUp()
 
         self.network.security_groups = mock.Mock(
-            return_value=self._security_groups)
+            return_value=self._security_groups
+        )
 
         # Get the command object to test
         self.cmd = security_group.ListSecurityGroup(self.app, self.namespace)
@@ -291,7 +308,8 @@ class TestListSecurityGroupNetwork(TestSecurityGroupNetwork):
         columns, data = self.cmd.take_action(parsed_args)
 
         self.network.security_groups.assert_called_once_with(
-            fields=security_group.ListSecurityGroup.FIELDS_TO_RETRIEVE)
+            fields=security_group.ListSecurityGroup.FIELDS_TO_RETRIEVE
+        )
         self.assertEqual(self.columns, columns)
         self.assertCountEqual(self.data, list(data))
 
@@ -307,7 +325,8 @@ class TestListSecurityGroupNetwork(TestSecurityGroupNetwork):
         columns, data = self.cmd.take_action(parsed_args)
 
         self.network.security_groups.assert_called_once_with(
-            fields=security_group.ListSecurityGroup.FIELDS_TO_RETRIEVE)
+            fields=security_group.ListSecurityGroup.FIELDS_TO_RETRIEVE
+        )
         self.assertEqual(self.columns, columns)
         self.assertCountEqual(self.data, list(data))
 
@@ -315,7 +334,8 @@ class TestListSecurityGroupNetwork(TestSecurityGroupNetwork):
         project = identity_fakes.FakeProject.create_one_project()
         self.projects_mock.get.return_value = project
         arglist = [
-            '--project', project.id,
+            '--project',
+            project.id,
         ]
         verifylist = [
             ('project', project.id),
@@ -325,7 +345,8 @@ class TestListSecurityGroupNetwork(TestSecurityGroupNetwork):
         columns, data = self.cmd.take_action(parsed_args)
         filters = {
             'project_id': project.id,
-            'fields': security_group.ListSecurityGroup.FIELDS_TO_RETRIEVE}
+            'fields': security_group.ListSecurityGroup.FIELDS_TO_RETRIEVE,
+        }
 
         self.network.security_groups.assert_called_once_with(**filters)
         self.assertEqual(self.columns, columns)
@@ -335,8 +356,10 @@ class TestListSecurityGroupNetwork(TestSecurityGroupNetwork):
         project = identity_fakes.FakeProject.create_one_project()
         self.projects_mock.get.return_value = project
         arglist = [
-            '--project', project.id,
-            '--project-domain', project.domain_id,
+            '--project',
+            project.id,
+            '--project-domain',
+            project.domain_id,
         ]
         verifylist = [
             ('project', project.id),
@@ -347,7 +370,8 @@ class TestListSecurityGroupNetwork(TestSecurityGroupNetwork):
         columns, data = self.cmd.take_action(parsed_args)
         filters = {
             'project_id': project.id,
-            'fields': security_group.ListSecurityGroup.FIELDS_TO_RETRIEVE}
+            'fields': security_group.ListSecurityGroup.FIELDS_TO_RETRIEVE,
+        }
 
         self.network.security_groups.assert_called_once_with(**filters)
         self.assertEqual(self.columns, columns)
@@ -355,10 +379,14 @@ class TestListSecurityGroupNetwork(TestSecurityGroupNetwork):
 
     def test_list_with_tag_options(self):
         arglist = [
-            '--tags', 'red,blue',
-            '--any-tags', 'red,green',
-            '--not-tags', 'orange,yellow',
-            '--not-any-tags', 'black,white',
+            '--tags',
+            'red,blue',
+            '--any-tags',
+            'red,green',
+            '--not-tags',
+            'orange,yellow',
+            '--not-any-tags',
+            'black,white',
         ]
         verifylist = [
             ('tags', ['red', 'blue']),
@@ -370,22 +398,25 @@ class TestListSecurityGroupNetwork(TestSecurityGroupNetwork):
         columns, data = self.cmd.take_action(parsed_args)
 
         self.network.security_groups.assert_called_once_with(
-            **{'tags': 'red,blue',
-               'any_tags': 'red,green',
-               'not_tags': 'orange,yellow',
-               'not_any_tags': 'black,white',
-               'fields': security_group.ListSecurityGroup.FIELDS_TO_RETRIEVE}
+            **{
+                'tags': 'red,blue',
+                'any_tags': 'red,green',
+                'not_tags': 'orange,yellow',
+                'not_any_tags': 'black,white',
+                'fields': security_group.ListSecurityGroup.FIELDS_TO_RETRIEVE,
+            }
         )
         self.assertEqual(self.columns, columns)
         self.assertEqual(self.data, list(data))
 
 
 class TestSetSecurityGroupNetwork(TestSecurityGroupNetwork):
-
     # The security group to be set.
     _security_group = (
         network_fakes.FakeSecurityGroup.create_one_security_group(
-            attrs={'tags': ['green', 'red']}))
+            attrs={'tags': ['green', 'red']}
+        )
+    )
 
     def setUp(self):
         super(TestSetSecurityGroupNetwork, self).setUp()
@@ -393,15 +424,17 @@ class TestSetSecurityGroupNetwork(TestSecurityGroupNetwork):
         self.network.update_security_group = mock.Mock(return_value=None)
 
         self.network.find_security_group = mock.Mock(
-            return_value=self._security_group)
+            return_value=self._security_group
+        )
         self.network.set_tags = mock.Mock(return_value=None)
 
         # Get the command object to test
         self.cmd = security_group.SetSecurityGroup(self.app, self.namespace)
 
     def test_set_no_options(self):
-        self.assertRaises(tests_utils.ParserException,
-                          self.check_parser, self.cmd, [], [])
+        self.assertRaises(
+            tests_utils.ParserException, self.check_parser, self.cmd, [], []
+        )
 
     def test_set_no_updates(self):
         arglist = [
@@ -415,8 +448,7 @@ class TestSetSecurityGroupNetwork(TestSecurityGroupNetwork):
         result = self.cmd.take_action(parsed_args)
 
         self.network.update_security_group.assert_called_once_with(
-            self._security_group,
-            **{}
+            self._security_group, **{}
         )
         self.assertIsNone(result)
 
@@ -424,8 +456,10 @@ class TestSetSecurityGroupNetwork(TestSecurityGroupNetwork):
         new_name = 'new-' + self._security_group.name
         new_description = 'new-' + self._security_group.description
         arglist = [
-            '--name', new_name,
-            '--description', new_description,
+            '--name',
+            new_name,
+            '--description',
+            new_description,
             '--stateful',
             self._security_group.name,
         ]
@@ -445,8 +479,7 @@ class TestSetSecurityGroupNetwork(TestSecurityGroupNetwork):
             'stateful': True,
         }
         self.network.update_security_group.assert_called_once_with(
-            self._security_group,
-            **attrs
+            self._security_group, **attrs
         )
         self.assertIsNone(result)
 
@@ -460,16 +493,15 @@ class TestSetSecurityGroupNetwork(TestSecurityGroupNetwork):
             verifylist = [('no_tag', True)]
             expected_args = []
         arglist.append(self._security_group.name)
-        verifylist.append(
-            ('group', self._security_group.name))
+        verifylist.append(('group', self._security_group.name))
 
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
         result = self.cmd.take_action(parsed_args)
 
         self.assertTrue(self.network.update_security_group.called)
         self.network.set_tags.assert_called_once_with(
-            self._security_group,
-            tests_utils.CompareBySet(expected_args))
+            self._security_group, tests_utils.CompareBySet(expected_args)
+        )
         self.assertIsNone(result)
 
     def test_set_with_tags(self):
@@ -480,16 +512,17 @@ class TestSetSecurityGroupNetwork(TestSecurityGroupNetwork):
 
 
 class TestShowSecurityGroupNetwork(TestSecurityGroupNetwork):
-
     # The security group rule to be shown with the group.
-    _security_group_rule = \
+    _security_group_rule = (
         network_fakes.FakeSecurityGroupRule.create_one_security_group_rule()
+    )
 
     # The security group to be shown.
-    _security_group = \
+    _security_group = (
         network_fakes.FakeSecurityGroup.create_one_security_group(
             attrs={'security_group_rules': [_security_group_rule._info]}
         )
+    )
 
     columns = (
         'description',
@@ -507,7 +540,8 @@ class TestShowSecurityGroupNetwork(TestSecurityGroupNetwork):
         _security_group.name,
         _security_group.project_id,
         security_group.NetworkSecurityGroupRulesColumn(
-            [_security_group_rule._info]),
+            [_security_group_rule._info]
+        ),
         _security_group.stateful,
         _security_group.tags,
     )
@@ -516,14 +550,16 @@ class TestShowSecurityGroupNetwork(TestSecurityGroupNetwork):
         super(TestShowSecurityGroupNetwork, self).setUp()
 
         self.network.find_security_group = mock.Mock(
-            return_value=self._security_group)
+            return_value=self._security_group
+        )
 
         # Get the command object to test
         self.cmd = security_group.ShowSecurityGroup(self.app, self.namespace)
 
     def test_show_no_options(self):
-        self.assertRaises(tests_utils.ParserException,
-                          self.check_parser, self.cmd, [], [])
+        self.assertRaises(
+            tests_utils.ParserException, self.check_parser, self.cmd, [], []
+        )
 
     def test_show_all_options(self):
         arglist = [
@@ -537,17 +573,19 @@ class TestShowSecurityGroupNetwork(TestSecurityGroupNetwork):
         columns, data = self.cmd.take_action(parsed_args)
 
         self.network.find_security_group.assert_called_once_with(
-            self._security_group.id, ignore_missing=False)
+            self._security_group.id, ignore_missing=False
+        )
         self.assertEqual(self.columns, columns)
         self.assertCountEqual(self.data, data)
 
 
 class TestUnsetSecurityGroupNetwork(TestSecurityGroupNetwork):
-
     # The security group to be unset.
     _security_group = (
         network_fakes.FakeSecurityGroup.create_one_security_group(
-            attrs={'tags': ['green', 'red']}))
+            attrs={'tags': ['green', 'red']}
+        )
+    )
 
     def setUp(self):
         super(TestUnsetSecurityGroupNetwork, self).setUp()
@@ -555,15 +593,17 @@ class TestUnsetSecurityGroupNetwork(TestSecurityGroupNetwork):
         self.network.update_security_group = mock.Mock(return_value=None)
 
         self.network.find_security_group = mock.Mock(
-            return_value=self._security_group)
+            return_value=self._security_group
+        )
         self.network.set_tags = mock.Mock(return_value=None)
 
         # Get the command object to test
         self.cmd = security_group.UnsetSecurityGroup(self.app, self.namespace)
 
     def test_set_no_options(self):
-        self.assertRaises(tests_utils.ParserException,
-                          self.check_parser, self.cmd, [], [])
+        self.assertRaises(
+            tests_utils.ParserException, self.check_parser, self.cmd, [], []
+        )
 
     def test_set_no_updates(self):
         arglist = [
@@ -590,16 +630,15 @@ class TestUnsetSecurityGroupNetwork(TestSecurityGroupNetwork):
             verifylist = [('all_tag', True)]
             expected_args = []
         arglist.append(self._security_group.name)
-        verifylist.append(
-            ('group', self._security_group.name))
+        verifylist.append(('group', self._security_group.name))
 
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
         result = self.cmd.take_action(parsed_args)
 
         self.assertFalse(self.network.update_security_group.called)
         self.network.set_tags.assert_called_once_with(
-            self._security_group,
-            tests_utils.CompareBySet(expected_args))
+            self._security_group, tests_utils.CompareBySet(expected_args)
+        )
         self.assertIsNone(result)
 
     def test_unset_with_tags(self):

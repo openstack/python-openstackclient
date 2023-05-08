@@ -26,7 +26,8 @@ def _get_columns(item):
     }
     hidden_columns = ["id", "location", "name", 'tenant_id']
     return utils.get_osc_show_columns_for_sdk_resource(
-        item, column_map, hidden_columns)
+        item, column_map, hidden_columns
+    )
 
 
 class ListNetworkQosRuleType(command.Lister):
@@ -38,25 +39,25 @@ class ListNetworkQosRuleType(command.Lister):
         supported.add_argument(
             '--all-supported',
             action='store_true',
-            help=_("List all the QoS rule types supported by any loaded "
-                   "mechanism drivers (the union of all sets of supported "
-                   "rules)")
+            help=_(
+                "List all the QoS rule types supported by any loaded "
+                "mechanism drivers (the union of all sets of supported "
+                "rules)"
+            ),
         )
         supported.add_argument(
             '--all-rules',
             action='store_true',
-            help=_("List all QoS rule types implemented in Neutron QoS driver")
+            help=_(
+                "List all QoS rule types implemented in Neutron QoS driver"
+            ),
         )
         return parser
 
     def take_action(self, parsed_args):
         client = self.app.client_manager.network
-        columns = (
-            'type',
-        )
-        column_headers = (
-            'Type',
-        )
+        columns = ('type',)
+        column_headers = ('Type',)
 
         args = {}
         if parsed_args.all_supported:
@@ -65,10 +66,17 @@ class ListNetworkQosRuleType(command.Lister):
             args['all_rules'] = True
         data = client.qos_rule_types(**args)
 
-        return (column_headers,
-                (utils.get_item_properties(
-                    s, columns, formatters={},
-                ) for s in data))
+        return (
+            column_headers,
+            (
+                utils.get_item_properties(
+                    s,
+                    columns,
+                    formatters={},
+                )
+                for s in data
+            ),
+        )
 
 
 class ShowNetworkQosRuleType(command.ShowOne):
@@ -79,7 +87,7 @@ class ShowNetworkQosRuleType(command.ShowOne):
         parser.add_argument(
             'rule_type',
             metavar="<qos-rule-type-name>",
-            help=_("Name of QoS rule type")
+            help=_("Name of QoS rule type"),
         )
         return parser
 

@@ -39,9 +39,7 @@ def _get_columns(item):
     }
     hidden_columns = ['location', 'tenant_id']
     return utils.get_osc_show_columns_for_sdk_resource(
-        item,
-        column_map,
-        hidden_columns
+        item, column_map, hidden_columns
     )
 
 
@@ -68,7 +66,8 @@ def _get_attrs(client_manager, parsed_args):
 
     if parsed_args.address_scope is not None:
         attrs['address_scope_id'] = network_client.find_address_scope(
-            parsed_args.address_scope, ignore_missing=False).id
+            parsed_args.address_scope, ignore_missing=False
+        ).id
     if 'no_address_scope' in parsed_args and parsed_args.no_address_scope:
         attrs['address_scope_id'] = None
 
@@ -108,29 +107,31 @@ def _add_prefix_options(parser, for_create=False):
         dest='prefixes',
         action='append',
         required=for_create,
-        help=_("Set subnet pool prefixes (in CIDR notation) "
-               "(repeat option to set multiple prefixes)")
+        help=_(
+            "Set subnet pool prefixes (in CIDR notation) "
+            "(repeat option to set multiple prefixes)"
+        ),
     )
     parser.add_argument(
         '--default-prefix-length',
         metavar='<default-prefix-length>',
         type=int,
         action=parseractions.NonNegativeAction,
-        help=_("Set subnet pool default prefix length")
+        help=_("Set subnet pool default prefix length"),
     )
     parser.add_argument(
         '--min-prefix-length',
         metavar='<min-prefix-length>',
         action=parseractions.NonNegativeAction,
         type=int,
-        help=_("Set subnet pool minimum prefix length")
+        help=_("Set subnet pool minimum prefix length"),
     )
     parser.add_argument(
         '--max-prefix-length',
         metavar='<max-prefix-length>',
         type=int,
         action=parseractions.NonNegativeAction,
-        help=_("Set subnet pool maximum prefix length")
+        help=_("Set subnet pool maximum prefix length"),
     )
 
 
@@ -156,23 +157,23 @@ class CreateSubnetPool(command.ShowOne, common.NeutronCommandWithExtraArgs):
     def get_parser(self, prog_name):
         parser = super(CreateSubnetPool, self).get_parser(prog_name)
         parser.add_argument(
-            'name',
-            metavar='<name>',
-            help=_("Name of the new subnet pool")
+            'name', metavar='<name>', help=_("Name of the new subnet pool")
         )
         _add_prefix_options(parser, for_create=True)
         parser.add_argument(
             '--project',
             metavar='<project>',
-            help=_("Owner's project (name or ID)")
+            help=_("Owner's project (name or ID)"),
         )
         identity_common.add_project_domain_option_to_parser(parser)
         parser.add_argument(
             '--address-scope',
             metavar='<address-scope>',
-            help=_("Set address scope associated with the subnet pool "
-                   "(name or ID), prefixes must be unique across address "
-                   "scopes")
+            help=_(
+                "Set address scope associated with the subnet pool "
+                "(name or ID), prefixes must be unique across address "
+                "scopes"
+            ),
         )
         _add_default_options(parser)
         shared_group = parser.add_mutually_exclusive_group()
@@ -189,15 +190,18 @@ class CreateSubnetPool(command.ShowOne, common.NeutronCommandWithExtraArgs):
         parser.add_argument(
             '--description',
             metavar='<description>',
-            help=_("Set subnet pool description")
+            help=_("Set subnet pool description"),
         )
         parser.add_argument(
             '--default-quota',
             type=int,
             metavar='<num-ip-addresses>',
-            help=_("Set default per-project quota for this subnet pool "
-                   "as the number of IP addresses that can be allocated "
-                   "from the subnet pool")),
+            help=_(
+                "Set default per-project quota for this subnet pool "
+                "as the number of IP addresses that can be allocated "
+                "from the subnet pool"
+            ),
+        ),
         _tag.add_tag_option_to_parser_for_create(parser, _('subnet pool'))
         return parser
 
@@ -208,7 +212,8 @@ class CreateSubnetPool(command.ShowOne, common.NeutronCommandWithExtraArgs):
         if "prefixes" not in attrs:
             attrs['prefixes'] = []
         attrs.update(
-            self._parse_extra_properties(parsed_args.extra_properties))
+            self._parse_extra_properties(parsed_args.extra_properties)
+        )
         obj = client.create_subnet_pool(**attrs)
         # tags cannot be set when created, so tags need to be set later.
         _tag.update_tags_for_set(client, obj, parsed_args)
@@ -226,7 +231,7 @@ class DeleteSubnetPool(command.Command):
             'subnet_pool',
             metavar='<subnet-pool>',
             nargs='+',
-            help=_("Subnet pool(s) to delete (name or ID)")
+            help=_("Subnet pool(s) to delete (name or ID)"),
         )
         return parser
 
@@ -240,14 +245,19 @@ class DeleteSubnetPool(command.Command):
                 client.delete_subnet_pool(obj)
             except Exception as e:
                 result += 1
-                LOG.error(_("Failed to delete subnet pool with "
-                          "name or ID '%(pool)s': %(e)s"),
-                          {'pool': pool, 'e': e})
+                LOG.error(
+                    _(
+                        "Failed to delete subnet pool with "
+                        "name or ID '%(pool)s': %(e)s"
+                    ),
+                    {'pool': pool, 'e': e},
+                )
 
         if result > 0:
             total = len(parsed_args.subnet_pool)
-            msg = (_("%(result)s of %(total)s subnet pools failed "
-                   "to delete.") % {'result': result, 'total': total})
+            msg = _(
+                "%(result)s of %(total)s subnet pools failed " "to delete."
+            ) % {'result': result, 'total': total}
             raise exceptions.CommandError(msg)
 
 
@@ -262,7 +272,7 @@ class ListSubnetPool(command.Lister):
             '--long',
             action='store_true',
             default=False,
-            help=_("List additional fields in output")
+            help=_("List additional fields in output"),
         )
         shared_group = parser.add_mutually_exclusive_group()
         shared_group.add_argument(
@@ -279,31 +289,38 @@ class ListSubnetPool(command.Lister):
         default_group.add_argument(
             '--default',
             action='store_true',
-            help=_("List subnet pools used as the default external "
-                   "subnet pool"),
+            help=_(
+                "List subnet pools used as the default external " "subnet pool"
+            ),
         )
         default_group.add_argument(
             '--no-default',
             action='store_true',
-            help=_("List subnet pools not used as the default external "
-                   "subnet pool")
+            help=_(
+                "List subnet pools not used as the default external "
+                "subnet pool"
+            ),
         )
         parser.add_argument(
             '--project',
             metavar='<project>',
-            help=_("List subnet pools according to their project (name or ID)")
+            help=_(
+                "List subnet pools according to their project (name or ID)"
+            ),
         )
         identity_common.add_project_domain_option_to_parser(parser)
         parser.add_argument(
             '--name',
             metavar='<name>',
-            help=_("List only subnet pools of given name in output")
+            help=_("List only subnet pools of given name in output"),
         )
         parser.add_argument(
             '--address-scope',
             metavar='<address-scope>',
-            help=_("List only subnet pools of given address scope "
-                   "in output (name or ID)")
+            help=_(
+                "List only subnet pools of given address scope "
+                "in output (name or ID)"
+            ),
         )
         _tag.add_tag_filtering_option_to_parser(parser, _('subnet pools'))
         return parser
@@ -333,8 +350,8 @@ class ListSubnetPool(command.Lister):
             filters['name'] = parsed_args.name
         if parsed_args.address_scope:
             address_scope = network_client.find_address_scope(
-                parsed_args.address_scope,
-                ignore_missing=False)
+                parsed_args.address_scope, ignore_missing=False
+            )
             filters['address_scope_id'] = address_scope.id
         _tag.get_tag_filtering_args(parsed_args, filters)
         data = network_client.subnet_pools(**filters)
@@ -342,16 +359,32 @@ class ListSubnetPool(command.Lister):
         headers = ('ID', 'Name', 'Prefixes')
         columns = ('id', 'name', 'prefixes')
         if parsed_args.long:
-            headers += ('Default Prefix Length', 'Address Scope',
-                        'Default Subnet Pool', 'Shared', 'Tags')
-            columns += ('default_prefix_length', 'address_scope_id',
-                        'is_default', 'is_shared', 'tags')
+            headers += (
+                'Default Prefix Length',
+                'Address Scope',
+                'Default Subnet Pool',
+                'Shared',
+                'Tags',
+            )
+            columns += (
+                'default_prefix_length',
+                'address_scope_id',
+                'is_default',
+                'is_shared',
+                'tags',
+            )
 
-        return (headers,
-                (utils.get_item_properties(
-                    s, columns,
+        return (
+            headers,
+            (
+                utils.get_item_properties(
+                    s,
+                    columns,
                     formatters=_formatters,
-                ) for s in data))
+                )
+                for s in data
+            ),
+        )
 
 
 # TODO(rtheis): Use the SDK resource mapped attribute names once the
@@ -364,48 +397,52 @@ class SetSubnetPool(common.NeutronCommandWithExtraArgs):
         parser.add_argument(
             'subnet_pool',
             metavar='<subnet-pool>',
-            help=_("Subnet pool to modify (name or ID)")
+            help=_("Subnet pool to modify (name or ID)"),
         )
         parser.add_argument(
-            '--name',
-            metavar='<name>',
-            help=_("Set subnet pool name")
+            '--name', metavar='<name>', help=_("Set subnet pool name")
         )
         _add_prefix_options(parser)
         address_scope_group = parser.add_mutually_exclusive_group()
         address_scope_group.add_argument(
             '--address-scope',
             metavar='<address-scope>',
-            help=_("Set address scope associated with the subnet pool "
-                   "(name or ID), prefixes must be unique across address "
-                   "scopes")
+            help=_(
+                "Set address scope associated with the subnet pool "
+                "(name or ID), prefixes must be unique across address "
+                "scopes"
+            ),
         )
         address_scope_group.add_argument(
             '--no-address-scope',
             action='store_true',
-            help=_("Remove address scope associated with the subnet pool")
+            help=_("Remove address scope associated with the subnet pool"),
         )
         _add_default_options(parser)
         parser.add_argument(
             '--description',
             metavar='<description>',
-            help=_("Set subnet pool description")
+            help=_("Set subnet pool description"),
         )
         parser.add_argument(
             '--default-quota',
             type=int,
             metavar='<num-ip-addresses>',
-            help=_("Set default per-project quota for this subnet pool "
-                   "as the number of IP addresses that can be allocated "
-                   "from the subnet pool")),
+            help=_(
+                "Set default per-project quota for this subnet pool "
+                "as the number of IP addresses that can be allocated "
+                "from the subnet pool"
+            ),
+        ),
         _tag.add_tag_option_to_parser_for_set(parser, _('subnet pool'))
 
         return parser
 
     def take_action(self, parsed_args):
         client = self.app.client_manager.network
-        obj = client.find_subnet_pool(parsed_args.subnet_pool,
-                                      ignore_missing=False)
+        obj = client.find_subnet_pool(
+            parsed_args.subnet_pool, ignore_missing=False
+        )
 
         attrs = _get_attrs(self.app.client_manager, parsed_args)
 
@@ -414,7 +451,8 @@ class SetSubnetPool(common.NeutronCommandWithExtraArgs):
             attrs['prefixes'].extend(obj.prefixes)
 
         attrs.update(
-            self._parse_extra_properties(parsed_args.extra_properties))
+            self._parse_extra_properties(parsed_args.extra_properties)
+        )
 
         if attrs:
             client.update_subnet_pool(obj, **attrs)
@@ -430,15 +468,14 @@ class ShowSubnetPool(command.ShowOne):
         parser.add_argument(
             'subnet_pool',
             metavar='<subnet-pool>',
-            help=_("Subnet pool to display (name or ID)")
+            help=_("Subnet pool to display (name or ID)"),
         )
         return parser
 
     def take_action(self, parsed_args):
         client = self.app.client_manager.network
         obj = client.find_subnet_pool(
-            parsed_args.subnet_pool,
-            ignore_missing=False
+            parsed_args.subnet_pool, ignore_missing=False
         )
         display_columns, columns = _get_columns(obj)
         data = utils.get_item_properties(obj, columns, formatters=_formatters)
@@ -453,7 +490,7 @@ class UnsetSubnetPool(command.Command):
         parser.add_argument(
             'subnet_pool',
             metavar="<subnet-pool>",
-            help=_("Subnet pool to modify (name or ID)")
+            help=_("Subnet pool to modify (name or ID)"),
         )
         _tag.add_tag_option_to_parser_for_unset(parser, _('subnet pool'))
         return parser
@@ -461,6 +498,7 @@ class UnsetSubnetPool(command.Command):
     def take_action(self, parsed_args):
         client = self.app.client_manager.network
         obj = client.find_subnet_pool(
-            parsed_args.subnet_pool, ignore_missing=False)
+            parsed_args.subnet_pool, ignore_missing=False
+        )
         # tags is a subresource and it needs to be updated separately.
         _tag.update_tags_for_unset(client, obj, parsed_args)

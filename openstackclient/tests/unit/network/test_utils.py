@@ -18,7 +18,6 @@ from openstackclient.tests.unit import utils as tests_utils
 
 
 class TestUtils(tests_utils.TestCase):
-
     def test_str2bool(self):
         self.assertTrue(utils.str2bool("true"))
         self.assertTrue(utils.str2bool("True"))
@@ -35,25 +34,19 @@ class TestUtils(tests_utils.TestCase):
         self.assertIsNone(utils.str2bool(None))
 
     def test_str2list(self):
-        self.assertEqual(
-            ['a', 'b', 'c'], utils.str2list("a;b;c"))
-        self.assertEqual(
-            ['abc'], utils.str2list("abc"))
+        self.assertEqual(['a', 'b', 'c'], utils.str2list("a;b;c"))
+        self.assertEqual(['abc'], utils.str2list("abc"))
 
         self.assertEqual([], utils.str2list(""))
         self.assertEqual([], utils.str2list(None))
 
     def test_str2dict(self):
+        self.assertEqual({'a': 'aaa', 'b': '2'}, utils.str2dict('a:aaa;b:2'))
         self.assertEqual(
-            {'a': 'aaa', 'b': '2'},
-            utils.str2dict('a:aaa;b:2'))
-        self.assertEqual(
-            {'a': 'aaa;b;c', 'd': 'ddd'},
-            utils.str2dict('a:aaa;b;c;d:ddd'))
+            {'a': 'aaa;b;c', 'd': 'ddd'}, utils.str2dict('a:aaa;b;c;d:ddd')
+        )
 
         self.assertEqual({}, utils.str2dict(""))
         self.assertEqual({}, utils.str2dict(None))
 
-        self.assertRaises(
-            exceptions.CommandError,
-            utils.str2dict, "aaa;b:2")
+        self.assertRaises(exceptions.CommandError, utils.str2dict, "aaa;b:2")

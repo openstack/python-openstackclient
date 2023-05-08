@@ -27,9 +27,12 @@ class NetworkFlavorProfileTests(common.NetworkTests):
 
     def test_network_flavor_profile_create(self):
         json_output = self.openstack(
-            'network flavor profile create ' +
-            '--description ' + self.DESCRIPTION + ' ' +
-            '--enable --metainfo ' + self.METAINFO,
+            'network flavor profile create '
+            + '--description '
+            + self.DESCRIPTION
+            + ' '
+            + '--enable --metainfo '
+            + self.METAINFO,
             parse_output=True,
         )
         ID = json_output.get('id')
@@ -50,10 +53,13 @@ class NetworkFlavorProfileTests(common.NetworkTests):
 
     def test_network_flavor_profile_list(self):
         json_output = self.openstack(
-            'network flavor profile create ' +
-            '--description ' + self.DESCRIPTION + ' ' +
-            '--enable ' +
-            '--metainfo ' + self.METAINFO,
+            'network flavor profile create '
+            + '--description '
+            + self.DESCRIPTION
+            + ' '
+            + '--enable '
+            + '--metainfo '
+            + self.METAINFO,
             parse_output=True,
         )
         ID1 = json_output.get('id')
@@ -69,10 +75,13 @@ class NetworkFlavorProfileTests(common.NetworkTests):
         )
 
         json_output = self.openstack(
-            'network flavor profile create ' +
-            '--description ' + self.DESCRIPTION + ' ' +
-            '--disable ' +
-            '--metainfo ' + self.METAINFO,
+            'network flavor profile create '
+            + '--description '
+            + self.DESCRIPTION
+            + ' '
+            + '--disable '
+            + '--metainfo '
+            + self.METAINFO,
             parse_output=True,
         )
         ID2 = json_output.get('id')
@@ -106,10 +115,13 @@ class NetworkFlavorProfileTests(common.NetworkTests):
 
     def test_network_flavor_profile_set(self):
         json_output_1 = self.openstack(
-            'network flavor profile create ' +
-            '--description ' + self.DESCRIPTION + ' ' +
-            '--enable ' +
-            '--metainfo ' + self.METAINFO,
+            'network flavor profile create '
+            + '--description '
+            + self.DESCRIPTION
+            + ' '
+            + '--enable '
+            + '--metainfo '
+            + self.METAINFO,
             parse_output=True,
         )
         ID = json_output_1.get('id')
@@ -146,10 +158,13 @@ class NetworkFlavorProfileTests(common.NetworkTests):
 
     def test_network_flavor_profile_show(self):
         json_output_1 = self.openstack(
-            'network flavor profile create ' +
-            '--description ' + self.DESCRIPTION + ' ' +
-            '--enable ' +
-            '--metainfo ' + self.METAINFO,
+            'network flavor profile create '
+            + '--description '
+            + self.DESCRIPTION
+            + ' '
+            + '--enable '
+            + '--metainfo '
+            + self.METAINFO,
             parse_output=True,
         )
         ID = json_output_1.get('id')

@@ -21,7 +21,6 @@ from openstackclient.tests.unit import utils as tests_utils
 
 
 class TestConntrackHelper(network_fakes.TestNetworkV2):
-
     def setUp(self):
         super(TestConntrackHelper, self).setUp()
         # Get a shortcut to the network client
@@ -31,48 +30,53 @@ class TestConntrackHelper(network_fakes.TestNetworkV2):
 
 
 class TestCreateL3ConntrackHelper(TestConntrackHelper):
-
     def setUp(self):
         super(TestCreateL3ConntrackHelper, self).setUp()
         attrs = {'router_id': self.router.id}
         self.ct_helper = (
             network_fakes.FakeL3ConntrackHelper.create_one_l3_conntrack_helper(
-                attrs))
-        self.columns = (
-            'helper',
-            'id',
-            'port',
-            'protocol',
-            'router_id'
+                attrs
+            )
         )
+        self.columns = ('helper', 'id', 'port', 'protocol', 'router_id')
 
         self.data = (
             self.ct_helper.helper,
             self.ct_helper.id,
             self.ct_helper.port,
             self.ct_helper.protocol,
-            self.ct_helper.router_id
+            self.ct_helper.router_id,
         )
         self.network.create_conntrack_helper = mock.Mock(
-            return_value=self.ct_helper)
+            return_value=self.ct_helper
+        )
 
         # Get the command object to test
-        self.cmd = l3_conntrack_helper.CreateConntrackHelper(self.app,
-                                                             self.namespace)
+        self.cmd = l3_conntrack_helper.CreateConntrackHelper(
+            self.app, self.namespace
+        )
 
     def test_create_no_options(self):
         arglist = []
         verifylist = []
 
         # Missing required args should bail here
-        self.assertRaises(tests_utils.ParserException, self.check_parser,
-                          self.cmd, arglist, verifylist)
+        self.assertRaises(
+            tests_utils.ParserException,
+            self.check_parser,
+            self.cmd,
+            arglist,
+            verifylist,
+        )
 
     def test_create_default_options(self):
         arglist = [
-            '--helper', 'tftp',
-            '--protocol', 'udp',
-            '--port', '69',
+            '--helper',
+            'tftp',
+            '--protocol',
+            'udp',
+            '--port',
+            '69',
             self.router.id,
         ]
 
@@ -83,49 +87,50 @@ class TestCreateL3ConntrackHelper(TestConntrackHelper):
         ]
 
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
-        columns, data = (self.cmd.take_action(parsed_args))
+        columns, data = self.cmd.take_action(parsed_args)
 
         self.network.create_conntrack_helper.assert_called_once_with(
-            self.router.id,
-            **{'helper': 'tftp', 'protocol': 'udp',
-               'port': 69}
+            self.router.id, **{'helper': 'tftp', 'protocol': 'udp', 'port': 69}
         )
         self.assertEqual(self.columns, columns)
         self.assertEqual(self.data, data)
 
     def test_create_wrong_options(self):
         arglist = [
-            '--protocol', 'udp',
-            '--port', '69',
+            '--protocol',
+            'udp',
+            '--port',
+            '69',
             self.router.id,
         ]
 
         self.assertRaises(
             tests_utils.ParserException,
             self.check_parser,
-            self.cmd, arglist, None)
+            self.cmd,
+            arglist,
+            None,
+        )
 
 
 class TestDeleteL3ConntrackHelper(TestConntrackHelper):
-
     def setUp(self):
         super(TestDeleteL3ConntrackHelper, self).setUp()
         attrs = {'router_id': self.router.id}
         self.ct_helper = (
             network_fakes.FakeL3ConntrackHelper.create_one_l3_conntrack_helper(
-                attrs))
-        self.network.delete_conntrack_helper = mock.Mock(
-            return_value=None)
+                attrs
+            )
+        )
+        self.network.delete_conntrack_helper = mock.Mock(return_value=None)
 
         # Get the command object to test
-        self.cmd = l3_conntrack_helper.DeleteConntrackHelper(self.app,
-                                                             self.namespace)
+        self.cmd = l3_conntrack_helper.DeleteConntrackHelper(
+            self.app, self.namespace
+        )
 
     def test_delete(self):
-        arglist = [
-            self.ct_helper.router_id,
-            self.ct_helper.id
-        ]
+        arglist = [self.ct_helper.router_id, self.ct_helper.id]
         verifylist = [
             ('conntrack_helper_id', [self.ct_helper.id]),
             ('router', self.ct_helper.router_id),
@@ -133,35 +138,34 @@ class TestDeleteL3ConntrackHelper(TestConntrackHelper):
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
         result = self.cmd.take_action(parsed_args)
         self.network.delete_conntrack_helper.assert_called_once_with(
-            self.ct_helper.id, self.router.id,
-            ignore_missing=False)
+            self.ct_helper.id, self.router.id, ignore_missing=False
+        )
         self.assertIsNone(result)
 
     def test_delete_error(self):
-        arglist = [
-            self.router.id,
-            self.ct_helper.id
-        ]
+        arglist = [self.router.id, self.ct_helper.id]
         verifylist = [
             ('conntrack_helper_id', [self.ct_helper.id]),
             ('router', self.router.id),
         ]
         self.network.delete_conntrack_helper.side_effect = Exception(
-            'Error message')
+            'Error message'
+        )
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
         self.assertRaises(
-            exceptions.CommandError,
-            self.cmd.take_action, parsed_args)
+            exceptions.CommandError, self.cmd.take_action, parsed_args
+        )
 
 
 class TestListL3ConntrackHelper(TestConntrackHelper):
-
     def setUp(self):
         super(TestListL3ConntrackHelper, self).setUp()
         attrs = {'router_id': self.router.id}
         ct_helpers = (
             network_fakes.FakeL3ConntrackHelper.create_l3_conntrack_helpers(
-                attrs, count=3))
+                attrs, count=3
+            )
+        )
         self.columns = (
             'ID',
             'Router ID',
@@ -171,24 +175,24 @@ class TestListL3ConntrackHelper(TestConntrackHelper):
         )
         self.data = []
         for ct_helper in ct_helpers:
-            self.data.append((
-                ct_helper.id,
-                ct_helper.router_id,
-                ct_helper.helper,
-                ct_helper.protocol,
-                ct_helper.port,
-            ))
-        self.network.conntrack_helpers = mock.Mock(
-            return_value=ct_helpers)
+            self.data.append(
+                (
+                    ct_helper.id,
+                    ct_helper.router_id,
+                    ct_helper.helper,
+                    ct_helper.protocol,
+                    ct_helper.port,
+                )
+            )
+        self.network.conntrack_helpers = mock.Mock(return_value=ct_helpers)
 
         # Get the command object to test
-        self.cmd = l3_conntrack_helper.ListConntrackHelper(self.app,
-                                                           self.namespace)
+        self.cmd = l3_conntrack_helper.ListConntrackHelper(
+            self.app, self.namespace
+        )
 
     def test_conntrack_helpers_list(self):
-        arglist = [
-            self.router.id
-        ]
+        arglist = [self.router.id]
         verifylist = [
             ('router', self.router.id),
         ]
@@ -196,8 +200,7 @@ class TestListL3ConntrackHelper(TestConntrackHelper):
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
         columns, data = self.cmd.take_action(parsed_args)
 
-        self.network.conntrack_helpers.assert_called_once_with(
-            self.router.id)
+        self.network.conntrack_helpers.assert_called_once_with(self.router.id)
         self.assertEqual(self.columns, columns)
         list_data = list(data)
         self.assertEqual(len(self.data), len(list_data))
@@ -206,18 +209,20 @@ class TestListL3ConntrackHelper(TestConntrackHelper):
 
 
 class TestSetL3ConntrackHelper(TestConntrackHelper):
-
     def setUp(self):
         super(TestSetL3ConntrackHelper, self).setUp()
         attrs = {'router_id': self.router.id}
         self.ct_helper = (
             network_fakes.FakeL3ConntrackHelper.create_one_l3_conntrack_helper(
-                attrs))
+                attrs
+            )
+        )
         self.network.update_conntrack_helper = mock.Mock(return_value=None)
 
         # Get the command object to test
-        self.cmd = l3_conntrack_helper.SetConntrackHelper(self.app,
-                                                          self.namespace)
+        self.cmd = l3_conntrack_helper.SetConntrackHelper(
+            self.app, self.namespace
+        )
 
     def test_set_nothing(self):
         arglist = [
@@ -230,7 +235,7 @@ class TestSetL3ConntrackHelper(TestConntrackHelper):
         ]
 
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
-        result = (self.cmd.take_action(parsed_args))
+        result = self.cmd.take_action(parsed_args)
 
         self.network.update_conntrack_helper.assert_called_once_with(
             self.ct_helper.id, self.router.id
@@ -241,7 +246,8 @@ class TestSetL3ConntrackHelper(TestConntrackHelper):
         arglist = [
             self.router.id,
             self.ct_helper.id,
-            '--port', '124',
+            '--port',
+            '124',
         ]
         verifylist = [
             ('router', self.router.id),
@@ -250,7 +256,7 @@ class TestSetL3ConntrackHelper(TestConntrackHelper):
         ]
 
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
-        result = (self.cmd.take_action(parsed_args))
+        result = self.cmd.take_action(parsed_args)
 
         self.network.update_conntrack_helper.assert_called_once_with(
             self.ct_helper.id, self.router.id, port=124
@@ -259,42 +265,44 @@ class TestSetL3ConntrackHelper(TestConntrackHelper):
 
 
 class TestShowL3ConntrackHelper(TestConntrackHelper):
-
     def setUp(self):
         super(TestShowL3ConntrackHelper, self).setUp()
         attrs = {'router_id': self.router.id}
         self.ct_helper = (
             network_fakes.FakeL3ConntrackHelper.create_one_l3_conntrack_helper(
-                attrs))
-        self.columns = (
-            'helper',
-            'id',
-            'port',
-            'protocol',
-            'router_id'
+                attrs
+            )
         )
+        self.columns = ('helper', 'id', 'port', 'protocol', 'router_id')
 
         self.data = (
             self.ct_helper.helper,
             self.ct_helper.id,
             self.ct_helper.port,
             self.ct_helper.protocol,
-            self.ct_helper.router_id
+            self.ct_helper.router_id,
         )
         self.network.get_conntrack_helper = mock.Mock(
-            return_value=self.ct_helper)
+            return_value=self.ct_helper
+        )
 
         # Get the command object to test
-        self.cmd = l3_conntrack_helper.ShowConntrackHelper(self.app,
-                                                           self.namespace)
+        self.cmd = l3_conntrack_helper.ShowConntrackHelper(
+            self.app, self.namespace
+        )
 
     def test_show_no_options(self):
         arglist = []
         verifylist = []
 
         # Missing required args should bail here
-        self.assertRaises(tests_utils.ParserException, self.check_parser,
-                          self.cmd, arglist, verifylist)
+        self.assertRaises(
+            tests_utils.ParserException,
+            self.check_parser,
+            self.cmd,
+            arglist,
+            verifylist,
+        )
 
     def test_show_default_options(self):
         arglist = [
@@ -307,7 +315,7 @@ class TestShowL3ConntrackHelper(TestConntrackHelper):
         ]
 
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
-        columns, data = (self.cmd.take_action(parsed_args))
+        columns, data = self.cmd.take_action(parsed_args)
 
         self.network.get_conntrack_helper.assert_called_once_with(
             self.ct_helper.id, self.router.id

@@ -38,9 +38,11 @@ class TestMeter(common.NetworkTests):
         name2 = uuid.uuid4().hex
         description = 'fakedescription'
         json_output = self.openstack(
-            'network meter create ' +
-            ' --description ' + description + ' ' +
-            name1,
+            'network meter create '
+            + ' --description '
+            + description
+            + ' '
+            + name1,
             parse_output=True,
         )
         self.assertEqual(
@@ -55,9 +57,11 @@ class TestMeter(common.NetworkTests):
         )
 
         json_output_2 = self.openstack(
-            'network meter create ' +
-            '--description ' + description + ' ' +
-            name2,
+            'network meter create '
+            + '--description '
+            + description
+            + ' '
+            + name2,
             parse_output=True,
         )
         self.assertEqual(
@@ -80,16 +84,13 @@ class TestMeter(common.NetworkTests):
         """Test create, list filters, delete"""
         name1 = uuid.uuid4().hex
         json_output = self.openstack(
-            'network meter create ' +
-            '--description Test1 ' +
-            '--share ' +
-            name1,
+            'network meter create '
+            + '--description Test1 '
+            + '--share '
+            + name1,
             parse_output=True,
         )
-        self.addCleanup(
-            self.openstack,
-            'network meter delete ' + name1
-        )
+        self.addCleanup(self.openstack, 'network meter delete ' + name1)
 
         self.assertEqual(
             'Test1',
@@ -99,10 +100,10 @@ class TestMeter(common.NetworkTests):
 
         name2 = uuid.uuid4().hex
         json_output_2 = self.openstack(
-            'network meter create ' +
-            '--description Test2 ' +
-            '--no-share ' +
-            name2,
+            'network meter create '
+            + '--description Test2 '
+            + '--no-share '
+            + name2,
             parse_output=True,
         )
         self.addCleanup(self.openstack, 'network meter delete ' + name2)
@@ -125,9 +126,11 @@ class TestMeter(common.NetworkTests):
         name1 = uuid.uuid4().hex
         description = 'fakedescription'
         json_output = self.openstack(
-            'network meter create ' +
-            ' --description ' + description + ' ' +
-            name1,
+            'network meter create '
+            + ' --description '
+            + description
+            + ' '
+            + name1,
             parse_output=True,
         )
         meter_id = json_output.get('id')

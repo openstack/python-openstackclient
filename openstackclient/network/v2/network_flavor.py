@@ -33,9 +33,7 @@ def _get_columns(item):
 
     hidden_columns = ['location', 'tenant_id']
     return utils.get_osc_show_columns_for_sdk_resource(
-        item,
-        column_map,
-        hidden_columns
+        item, column_map, hidden_columns
     )
 
 
@@ -65,28 +63,28 @@ class AddNetworkFlavorToProfile(command.Command):
     _description = _("Add a service profile to a network flavor")
 
     def get_parser(self, prog_name):
-        parser = super(
-            AddNetworkFlavorToProfile, self).get_parser(prog_name)
+        parser = super(AddNetworkFlavorToProfile, self).get_parser(prog_name)
         parser.add_argument(
-            'flavor',
-            metavar="<flavor>",
-            help=_("Network flavor (name or ID)")
+            'flavor', metavar="<flavor>", help=_("Network flavor (name or ID)")
         )
         parser.add_argument(
             'service_profile',
             metavar="<service-profile>",
-            help=_("Service profile (ID only)")
+            help=_("Service profile (ID only)"),
         )
         return parser
 
     def take_action(self, parsed_args):
         client = self.app.client_manager.network
         obj_flavor = client.find_flavor(
-            parsed_args.flavor, ignore_missing=False)
+            parsed_args.flavor, ignore_missing=False
+        )
         obj_service_profile = client.find_service_profile(
-            parsed_args.service_profile, ignore_missing=False)
+            parsed_args.service_profile, ignore_missing=False
+        )
         client.associate_flavor_with_service_profile(
-            obj_flavor, obj_service_profile)
+            obj_flavor, obj_service_profile
+        )
 
 
 # TODO(dasanind): Use the SDK resource mapped attribute names once the
@@ -97,26 +95,25 @@ class CreateNetworkFlavor(command.ShowOne, common.NeutronCommandWithExtraArgs):
     def get_parser(self, prog_name):
         parser = super(CreateNetworkFlavor, self).get_parser(prog_name)
         parser.add_argument(
-            'name',
-            metavar="<name>",
-            help=_("Name for the flavor")
+            'name', metavar="<name>", help=_("Name for the flavor")
         )
         parser.add_argument(
             '--service-type',
             metavar="<service-type>",
             required=True,
-            help=_('Service type to which the flavor applies to: e.g. VPN '
-                   '(See openstack network service provider list for loaded '
-                   'examples.)')
+            help=_(
+                'Service type to which the flavor applies to: e.g. VPN '
+                '(See openstack network service provider list for loaded '
+                'examples.)'
+            ),
         )
         parser.add_argument(
-            '--description',
-            help=_('Description for the flavor')
+            '--description', help=_('Description for the flavor')
         )
         parser.add_argument(
             '--project',
             metavar="<project>",
-            help=_("Owner's project (name or ID)")
+            help=_("Owner's project (name or ID)"),
         )
         identity_common.add_project_domain_option_to_parser(parser)
 
@@ -124,12 +121,10 @@ class CreateNetworkFlavor(command.ShowOne, common.NeutronCommandWithExtraArgs):
         enable_group.add_argument(
             '--enable',
             action='store_true',
-            help=_("Enable the flavor (default)")
+            help=_("Enable the flavor (default)"),
         )
         enable_group.add_argument(
-            '--disable',
-            action='store_true',
-            help=_("Disable the flavor")
+            '--disable', action='store_true', help=_("Disable the flavor")
         )
 
         return parser
@@ -138,7 +133,8 @@ class CreateNetworkFlavor(command.ShowOne, common.NeutronCommandWithExtraArgs):
         client = self.app.client_manager.network
         attrs = _get_attrs(self.app.client_manager, parsed_args)
         attrs.update(
-            self._parse_extra_properties(parsed_args.extra_properties))
+            self._parse_extra_properties(parsed_args.extra_properties)
+        )
         obj = client.create_flavor(**attrs)
         display_columns, columns = _get_columns(obj)
         data = utils.get_item_properties(obj, columns, formatters={})
@@ -156,7 +152,7 @@ class DeleteNetworkFlavor(command.Command):
             'flavor',
             metavar='<flavor>',
             nargs='+',
-            help=_('Flavor(s) to delete (name or ID)')
+            help=_('Flavor(s) to delete (name or ID)'),
         )
         return parser
 
@@ -170,13 +166,19 @@ class DeleteNetworkFlavor(command.Command):
                 client.delete_flavor(obj)
             except Exception as e:
                 result += 1
-                LOG.error(_("Failed to delete flavor with "
-                            "name or ID '%(flavor)s': %(e)s"),
-                          {"flavor": flavor, "e": e})
+                LOG.error(
+                    _(
+                        "Failed to delete flavor with "
+                        "name or ID '%(flavor)s': %(e)s"
+                    ),
+                    {"flavor": flavor, "e": e},
+                )
         if result > 0:
             total = len(parsed_args.flavor)
-            msg = (_("%(result)s of %(total)s flavors failed "
-                     "to delete.") % {"result": result, "total": total})
+            msg = _("%(result)s of %(total)s flavors failed " "to delete.") % {
+                "result": result,
+                "total": total,
+            }
             raise exceptions.CommandError(msg)
 
 
@@ -186,55 +188,56 @@ class ListNetworkFlavor(command.Lister):
     def take_action(self, parsed_args):
         client = self.app.client_manager.network
 
-        columns = (
-            'id',
-            'name',
-            'is_enabled',
-            'service_type',
-            'description'
-        )
+        columns = ('id', 'name', 'is_enabled', 'service_type', 'description')
         column_headers = (
             'ID',
             'Name',
             'Enabled',
             'Service Type',
-            'Description'
+            'Description',
         )
 
         data = client.flavors()
-        return (column_headers,
-                (utils.get_item_properties(
-                    s, columns,
-                ) for s in data))
+        return (
+            column_headers,
+            (
+                utils.get_item_properties(
+                    s,
+                    columns,
+                )
+                for s in data
+            ),
+        )
 
 
 class RemoveNetworkFlavorFromProfile(command.Command):
-    _description = _(
-        "Remove service profile from network flavor")
+    _description = _("Remove service profile from network flavor")
 
     def get_parser(self, prog_name):
-        parser = super(
-            RemoveNetworkFlavorFromProfile, self).get_parser(prog_name)
+        parser = super(RemoveNetworkFlavorFromProfile, self).get_parser(
+            prog_name
+        )
         parser.add_argument(
-            'flavor',
-            metavar="<flavor>",
-            help=_("Network flavor (name or ID)")
+            'flavor', metavar="<flavor>", help=_("Network flavor (name or ID)")
         )
         parser.add_argument(
             'service_profile',
             metavar="<service-profile>",
-            help=_("Service profile (ID only)")
+            help=_("Service profile (ID only)"),
         )
         return parser
 
     def take_action(self, parsed_args):
         client = self.app.client_manager.network
         obj_flavor = client.find_flavor(
-            parsed_args.flavor, ignore_missing=False)
+            parsed_args.flavor, ignore_missing=False
+        )
         obj_service_profile = client.find_service_profile(
-            parsed_args.service_profile, ignore_missing=False)
+            parsed_args.service_profile, ignore_missing=False
+        )
         client.disassociate_flavor_from_service_profile(
-            obj_flavor, obj_service_profile)
+            obj_flavor, obj_service_profile
+        )
 
 
 # TODO(dasanind): Use only the SDK resource mapped attribute names once the
@@ -247,36 +250,27 @@ class SetNetworkFlavor(common.NeutronCommandWithExtraArgs):
         parser.add_argument(
             'flavor',
             metavar="<flavor>",
-            help=_("Flavor to update (name or ID)")
+            help=_("Flavor to update (name or ID)"),
         )
         parser.add_argument(
-            '--description',
-            help=_('Set network flavor description')
+            '--description', help=_('Set network flavor description')
         )
         enable_group = parser.add_mutually_exclusive_group()
         enable_group.add_argument(
-            '--disable',
-            action='store_true',
-            help=_("Disable network flavor")
+            '--disable', action='store_true', help=_("Disable network flavor")
         )
         enable_group.add_argument(
-            '--enable',
-            action='store_true',
-            help=_("Enable network flavor")
+            '--enable', action='store_true', help=_("Enable network flavor")
         )
         parser.add_argument(
-            '--name',
-            metavar="<name>",
-            help=_('Set flavor name')
+            '--name', metavar="<name>", help=_('Set flavor name')
         )
 
         return parser
 
     def take_action(self, parsed_args):
         client = self.app.client_manager.network
-        obj = client.find_flavor(
-            parsed_args.flavor,
-            ignore_missing=False)
+        obj = client.find_flavor(parsed_args.flavor, ignore_missing=False)
         attrs = {}
         if parsed_args.name is not None:
             attrs['name'] = parsed_args.name
@@ -287,7 +281,8 @@ class SetNetworkFlavor(common.NeutronCommandWithExtraArgs):
         if parsed_args.disable:
             attrs['enabled'] = False
         attrs.update(
-            self._parse_extra_properties(parsed_args.extra_properties))
+            self._parse_extra_properties(parsed_args.extra_properties)
+        )
         client.update_flavor(obj, **attrs)
 
 
@@ -299,7 +294,7 @@ class ShowNetworkFlavor(command.ShowOne):
         parser.add_argument(
             'flavor',
             metavar='<flavor>',
-            help=_('Flavor to display (name or ID)')
+            help=_('Flavor to display (name or ID)'),
         )
         return parser
 

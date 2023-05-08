@@ -32,8 +32,7 @@ class TestCreateAutoAllocatedTopology(TestAutoAllocatedTopology):
     network_object = network_fakes.create_one_network()
 
     topology = network_fakes.create_one_topology(
-        attrs={'id': network_object.id,
-               'project_id': project.id}
+        attrs={'id': network_object.id, 'project_id': project.id}
     )
 
     columns = (
@@ -50,10 +49,11 @@ class TestCreateAutoAllocatedTopology(TestAutoAllocatedTopology):
         super(TestCreateAutoAllocatedTopology, self).setUp()
 
         self.cmd = network_auto_allocated_topology.CreateAutoAllocatedTopology(
-            self.app,
-            self.namespace)
+            self.app, self.namespace
+        )
         self.network.get_auto_allocated_topology = mock.Mock(
-            return_value=self.topology)
+            return_value=self.topology
+        )
 
     def test_create_no_options(self):
         arglist = []
@@ -69,7 +69,8 @@ class TestCreateAutoAllocatedTopology(TestAutoAllocatedTopology):
 
     def test_create_project_option(self):
         arglist = [
-            '--project', self.project.id,
+            '--project',
+            self.project.id,
         ]
 
         verifylist = [
@@ -88,8 +89,10 @@ class TestCreateAutoAllocatedTopology(TestAutoAllocatedTopology):
 
     def test_create_project_domain_option(self):
         arglist = [
-            '--project', self.project.id,
-            '--project-domain', self.project.domain_id,
+            '--project',
+            self.project.id,
+            '--project-domain',
+            self.project.domain_id,
         ]
 
         verifylist = [
@@ -130,8 +133,7 @@ class TestValidateAutoAllocatedTopology(TestAutoAllocatedTopology):
     network_object = network_fakes.create_one_network()
 
     topology = network_fakes.create_one_topology(
-        attrs={'id': network_object.id,
-               'project_id': project.id}
+        attrs={'id': network_object.id, 'project_id': project.id}
     )
 
     columns = (
@@ -148,10 +150,11 @@ class TestValidateAutoAllocatedTopology(TestAutoAllocatedTopology):
         super(TestValidateAutoAllocatedTopology, self).setUp()
 
         self.cmd = network_auto_allocated_topology.CreateAutoAllocatedTopology(
-            self.app,
-            self.namespace)
+            self.app, self.namespace
+        )
         self.network.validate_auto_allocated_topology = mock.Mock(
-            return_value=self.topology)
+            return_value=self.topology
+        )
 
     def test_show_dry_run_no_project(self):
         arglist = [
@@ -164,13 +167,13 @@ class TestValidateAutoAllocatedTopology(TestAutoAllocatedTopology):
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
         columns, data = self.cmd.take_action(parsed_args)
 
-        self.network.validate_auto_allocated_topology.assert_called_with(
-            None)
+        self.network.validate_auto_allocated_topology.assert_called_with(None)
 
     def test_show_dry_run_project_option(self):
         arglist = [
             '--check-resources',
-            '--project', self.project.id,
+            '--project',
+            self.project.id,
         ]
         verifylist = [
             ('check_resources', True),
@@ -181,13 +184,16 @@ class TestValidateAutoAllocatedTopology(TestAutoAllocatedTopology):
         columns, data = self.cmd.take_action(parsed_args)
 
         self.network.validate_auto_allocated_topology.assert_called_with(
-            self.project.id)
+            self.project.id
+        )
 
     def test_show_dry_run_project_domain_option(self):
         arglist = [
             '--check-resources',
-            '--project', self.project.id,
-            '--project-domain', self.project.domain_id,
+            '--project',
+            self.project.id,
+            '--project-domain',
+            self.project.domain_id,
         ]
         verifylist = [
             ('check_resources', True),
@@ -199,7 +205,8 @@ class TestValidateAutoAllocatedTopology(TestAutoAllocatedTopology):
         columns, data = self.cmd.take_action(parsed_args)
 
         self.network.validate_auto_allocated_topology.assert_called_with(
-            self.project.id)
+            self.project.id
+        )
 
 
 class TestDeleteAutoAllocatedTopology(TestAutoAllocatedTopology):
@@ -207,18 +214,18 @@ class TestDeleteAutoAllocatedTopology(TestAutoAllocatedTopology):
     network_object = network_fakes.create_one_network()
 
     topology = network_fakes.create_one_topology(
-        attrs={'id': network_object.id,
-               'project_id': project.id}
+        attrs={'id': network_object.id, 'project_id': project.id}
     )
 
     def setUp(self):
         super(TestDeleteAutoAllocatedTopology, self).setUp()
 
         self.cmd = network_auto_allocated_topology.DeleteAutoAllocatedTopology(
-            self.app,
-            self.namespace)
+            self.app, self.namespace
+        )
         self.network.delete_auto_allocated_topology = mock.Mock(
-            return_value=None)
+            return_value=None
+        )
 
     def test_delete_no_project(self):
         arglist = []
@@ -228,13 +235,15 @@ class TestDeleteAutoAllocatedTopology(TestAutoAllocatedTopology):
         result = self.cmd.take_action(parsed_args)
 
         self.network.delete_auto_allocated_topology.assert_called_once_with(
-            None)
+            None
+        )
 
         self.assertIsNone(result)
 
     def test_delete_project_arg(self):
         arglist = [
-            '--project', self.project.id,
+            '--project',
+            self.project.id,
         ]
         verifylist = [
             ('project', self.project.id),
@@ -244,14 +253,17 @@ class TestDeleteAutoAllocatedTopology(TestAutoAllocatedTopology):
         result = self.cmd.take_action(parsed_args)
 
         self.network.delete_auto_allocated_topology.assert_called_once_with(
-            self.project.id)
+            self.project.id
+        )
 
         self.assertIsNone(result)
 
     def test_delete_project_domain_arg(self):
         arglist = [
-            '--project', self.project.id,
-            '--project-domain', self.project.domain_id,
+            '--project',
+            self.project.id,
+            '--project-domain',
+            self.project.domain_id,
         ]
         verifylist = [
             ('project', self.project.id),
@@ -262,6 +274,7 @@ class TestDeleteAutoAllocatedTopology(TestAutoAllocatedTopology):
         result = self.cmd.take_action(parsed_args)
 
         self.network.delete_auto_allocated_topology.assert_called_once_with(
-            self.project.id)
+            self.project.id
+        )
 
         self.assertIsNone(result)

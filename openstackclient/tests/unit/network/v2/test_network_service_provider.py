@@ -15,23 +15,24 @@
 
 from unittest import mock
 
-from openstackclient.network.v2 import network_service_provider \
-    as service_provider
+from openstackclient.network.v2 import (
+    network_service_provider as service_provider,
+)
 from openstackclient.tests.unit.network.v2 import fakes
 
 
 class TestNetworkServiceProvider(fakes.TestNetworkV2):
-
     def setUp(self):
         super(TestNetworkServiceProvider, self).setUp()
         self.network = self.app.client_manager.network
 
 
 class TestListNetworkServiceProvider(TestNetworkServiceProvider):
-    provider_list = \
+    provider_list = (
         fakes.FakeNetworkServiceProvider.create_network_service_providers(
             count=2
         )
+    )
 
     columns = (
         'Service Type',
@@ -42,11 +43,13 @@ class TestListNetworkServiceProvider(TestNetworkServiceProvider):
     data = []
 
     for provider in provider_list:
-        data.append((
-            provider.service_type,
-            provider.name,
-            provider.is_default,
-        ))
+        data.append(
+            (
+                provider.service_type,
+                provider.name,
+                provider.is_default,
+            )
+        )
 
     def setUp(self):
         super(TestListNetworkServiceProvider, self).setUp()
@@ -54,9 +57,9 @@ class TestListNetworkServiceProvider(TestNetworkServiceProvider):
             return_value=self.provider_list
         )
 
-        self.cmd = \
-            service_provider.ListNetworkServiceProvider(self.app,
-                                                        self.namespace)
+        self.cmd = service_provider.ListNetworkServiceProvider(
+            self.app, self.namespace
+        )
 
     def test_network_service_provider_list(self):
         arglist = []

@@ -25,7 +25,6 @@ from openstackclient.tests.unit import utils as tests_utils
 
 
 class TestQosPolicy(network_fakes.TestNetworkV2):
-
     def setUp(self):
         super(TestQosPolicy, self).setUp()
         # Get a shortcut to the network client
@@ -35,16 +34,14 @@ class TestQosPolicy(network_fakes.TestNetworkV2):
 
 
 class TestCreateNetworkQosPolicy(TestQosPolicy):
-
     project = identity_fakes_v3.FakeProject.create_one_project()
 
     # The new qos policy created.
-    new_qos_policy = (
-        network_fakes.FakeNetworkQosPolicy.create_one_qos_policy(
-            attrs={
-                'project_id': project.id,
-            }
-        ))
+    new_qos_policy = network_fakes.FakeNetworkQosPolicy.create_one_qos_policy(
+        attrs={
+            'project_id': project.id,
+        }
+    )
     columns = (
         'description',
         'id',
@@ -68,11 +65,13 @@ class TestCreateNetworkQosPolicy(TestQosPolicy):
     def setUp(self):
         super(TestCreateNetworkQosPolicy, self).setUp()
         self.network.create_qos_policy = mock.Mock(
-            return_value=self.new_qos_policy)
+            return_value=self.new_qos_policy
+        )
 
         # Get the command object to test
         self.cmd = network_qos_policy.CreateNetworkQosPolicy(
-            self.app, self.namespace)
+            self.app, self.namespace
+        )
 
         self.projects_mock.get.return_value = self.project
 
@@ -81,8 +80,13 @@ class TestCreateNetworkQosPolicy(TestQosPolicy):
         verifylist = []
 
         # Missing required args should bail here
-        self.assertRaises(tests_utils.ParserException, self.check_parser,
-                          self.cmd, arglist, verifylist)
+        self.assertRaises(
+            tests_utils.ParserException,
+            self.check_parser,
+            self.cmd,
+            arglist,
+            verifylist,
+        )
 
     def test_create_default_options(self):
         arglist = [
@@ -94,20 +98,22 @@ class TestCreateNetworkQosPolicy(TestQosPolicy):
         ]
 
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
-        columns, data = (self.cmd.take_action(parsed_args))
+        columns, data = self.cmd.take_action(parsed_args)
 
-        self.network.create_qos_policy.assert_called_once_with(**{
-            'name': self.new_qos_policy.name
-        })
+        self.network.create_qos_policy.assert_called_once_with(
+            **{'name': self.new_qos_policy.name}
+        )
         self.assertEqual(self.columns, columns)
         self.assertEqual(self.data, data)
 
     def test_create_all_options(self):
         arglist = [
             '--share',
-            '--project', self.project.name,
+            '--project',
+            self.project.name,
             self.new_qos_policy.name,
-            '--description', 'QoS policy description',
+            '--description',
+            'QoS policy description',
             '--default',
         ]
         verifylist = [
@@ -121,21 +127,20 @@ class TestCreateNetworkQosPolicy(TestQosPolicy):
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
         columns, data = self.cmd.take_action(parsed_args)
 
-        self.network.create_qos_policy.assert_called_once_with(**{
-            'shared': True,
-            'project_id': self.project.id,
-            'name': self.new_qos_policy.name,
-            'description': 'QoS policy description',
-            'is_default': True,
-        })
+        self.network.create_qos_policy.assert_called_once_with(
+            **{
+                'shared': True,
+                'project_id': self.project.id,
+                'name': self.new_qos_policy.name,
+                'description': 'QoS policy description',
+                'is_default': True,
+            }
+        )
         self.assertEqual(self.columns, columns)
         self.assertEqual(self.data, data)
 
     def test_create_no_default(self):
-        arglist = [
-            self.new_qos_policy.name,
-            '--no-default'
-        ]
+        arglist = [self.new_qos_policy.name, '--no-default']
         verifylist = [
             ('project', None),
             ('name', self.new_qos_policy.name),
@@ -143,33 +148,37 @@ class TestCreateNetworkQosPolicy(TestQosPolicy):
         ]
 
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
-        columns, data = (self.cmd.take_action(parsed_args))
+        columns, data = self.cmd.take_action(parsed_args)
 
-        self.network.create_qos_policy.assert_called_once_with(**{
-            'name': self.new_qos_policy.name,
-            'is_default': False,
-        })
+        self.network.create_qos_policy.assert_called_once_with(
+            **{
+                'name': self.new_qos_policy.name,
+                'is_default': False,
+            }
+        )
         self.assertEqual(self.columns, columns)
         self.assertEqual(self.data, data)
 
 
 class TestDeleteNetworkQosPolicy(TestQosPolicy):
-
     # The address scope to delete.
-    _qos_policies = (
-        network_fakes.FakeNetworkQosPolicy.create_qos_policies(count=2))
+    _qos_policies = network_fakes.FakeNetworkQosPolicy.create_qos_policies(
+        count=2
+    )
 
     def setUp(self):
         super(TestDeleteNetworkQosPolicy, self).setUp()
         self.network.delete_qos_policy = mock.Mock(return_value=None)
         self.network.find_qos_policy = (
             network_fakes.FakeNetworkQosPolicy.get_qos_policies(
-                qos_policies=self._qos_policies)
+                qos_policies=self._qos_policies
+            )
         )
 
         # Get the command object to test
         self.cmd = network_qos_policy.DeleteNetworkQosPolicy(
-            self.app, self.namespace)
+            self.app, self.namespace
+        )
 
     def test_qos_policy_delete(self):
         arglist = [
@@ -183,9 +192,11 @@ class TestDeleteNetworkQosPolicy(TestQosPolicy):
 
         result = self.cmd.take_action(parsed_args)
         self.network.find_qos_policy.assert_called_once_with(
-            self._qos_policies[0].name, ignore_missing=False)
+            self._qos_policies[0].name, ignore_missing=False
+        )
         self.network.delete_qos_policy.assert_called_once_with(
-            self._qos_policies[0])
+            self._qos_policies[0]
+        )
         self.assertIsNone(result)
 
     def test_multi_qos_policies_delete(self):
@@ -212,14 +223,13 @@ class TestDeleteNetworkQosPolicy(TestQosPolicy):
             'unexist_qos_policy',
         ]
         verifylist = [
-            ('policy',
-             [self._qos_policies[0].name, 'unexist_qos_policy']),
+            ('policy', [self._qos_policies[0].name, 'unexist_qos_policy']),
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
         find_mock_result = [self._qos_policies[0], exceptions.CommandError]
-        self.network.find_qos_policy = (
-            mock.MagicMock(side_effect=find_mock_result)
+        self.network.find_qos_policy = mock.MagicMock(
+            side_effect=find_mock_result
         )
 
         try:
@@ -229,19 +239,21 @@ class TestDeleteNetworkQosPolicy(TestQosPolicy):
             self.assertEqual('1 of 2 QoS policies failed to delete.', str(e))
 
         self.network.find_qos_policy.assert_any_call(
-            self._qos_policies[0].name, ignore_missing=False)
+            self._qos_policies[0].name, ignore_missing=False
+        )
         self.network.find_qos_policy.assert_any_call(
-            'unexist_qos_policy', ignore_missing=False)
+            'unexist_qos_policy', ignore_missing=False
+        )
         self.network.delete_qos_policy.assert_called_once_with(
             self._qos_policies[0]
         )
 
 
 class TestListNetworkQosPolicy(TestQosPolicy):
-
     # The QoS policies to list up.
-    qos_policies = (
-        network_fakes.FakeNetworkQosPolicy.create_qos_policies(count=3))
+    qos_policies = network_fakes.FakeNetworkQosPolicy.create_qos_policies(
+        count=3
+    )
     columns = (
         'ID',
         'Name',
@@ -251,21 +263,24 @@ class TestListNetworkQosPolicy(TestQosPolicy):
     )
     data = []
     for qos_policy in qos_policies:
-        data.append((
-            qos_policy.id,
-            qos_policy.name,
-            qos_policy.shared,
-            qos_policy.is_default,
-            qos_policy.project_id,
-        ))
+        data.append(
+            (
+                qos_policy.id,
+                qos_policy.name,
+                qos_policy.shared,
+                qos_policy.is_default,
+                qos_policy.project_id,
+            )
+        )
 
     def setUp(self):
         super(TestListNetworkQosPolicy, self).setUp()
         self.network.qos_policies = mock.Mock(return_value=self.qos_policies)
 
         # Get the command object to test
-        self.cmd = network_qos_policy.ListNetworkQosPolicy(self.app,
-                                                           self.namespace)
+        self.cmd = network_qos_policy.ListNetworkQosPolicy(
+            self.app, self.namespace
+        )
 
     def test_qos_policy_list(self):
         arglist = []
@@ -289,9 +304,7 @@ class TestListNetworkQosPolicy(TestQosPolicy):
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
         columns, data = self.cmd.take_action(parsed_args)
 
-        self.network.qos_policies.assert_called_once_with(
-            **{'shared': True}
-        )
+        self.network.qos_policies.assert_called_once_with(**{'shared': True})
         self.assertEqual(self.columns, columns)
         self.assertEqual(self.data, list(data))
 
@@ -305,9 +318,7 @@ class TestListNetworkQosPolicy(TestQosPolicy):
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
         columns, data = self.cmd.take_action(parsed_args)
 
-        self.network.qos_policies.assert_called_once_with(
-            **{'shared': False}
-        )
+        self.network.qos_policies.assert_called_once_with(**{'shared': False})
         self.assertEqual(self.columns, columns)
         self.assertEqual(self.data, list(data))
 
@@ -315,8 +326,10 @@ class TestListNetworkQosPolicy(TestQosPolicy):
         project = identity_fakes_v3.FakeProject.create_one_project()
         self.projects_mock.get.return_value = project
         arglist = [
-            '--project', project.id,
-            '--project-domain', project.domain_id,
+            '--project',
+            project.id,
+            '--project-domain',
+            project.domain_id,
         ]
         verifylist = [
             ('project', project.id),
@@ -333,22 +346,23 @@ class TestListNetworkQosPolicy(TestQosPolicy):
 
 
 class TestSetNetworkQosPolicy(TestQosPolicy):
-
     # The QoS policy to set.
     _qos_policy = network_fakes.FakeNetworkQosPolicy.create_one_qos_policy()
 
     def setUp(self):
         super(TestSetNetworkQosPolicy, self).setUp()
         self.network.update_qos_policy = mock.Mock(return_value=None)
-        self.network.find_qos_policy = mock.Mock(
-            return_value=self._qos_policy)
+        self.network.find_qos_policy = mock.Mock(return_value=self._qos_policy)
 
         # Get the command object to test
-        self.cmd = network_qos_policy.SetNetworkQosPolicy(self.app,
-                                                          self.namespace)
+        self.cmd = network_qos_policy.SetNetworkQosPolicy(
+            self.app, self.namespace
+        )
 
     def test_set_nothing(self):
-        arglist = [self._qos_policy.name, ]
+        arglist = [
+            self._qos_policy.name,
+        ]
         verifylist = [
             ('policy', self._qos_policy.name),
         ]
@@ -358,14 +372,17 @@ class TestSetNetworkQosPolicy(TestQosPolicy):
 
         attrs = {}
         self.network.update_qos_policy.assert_called_with(
-            self._qos_policy, **attrs)
+            self._qos_policy, **attrs
+        )
         self.assertIsNone(result)
 
     def test_set_name_share_description_default(self):
         arglist = [
-            '--name', 'new_qos_policy',
+            '--name',
+            'new_qos_policy',
             '--share',
-            '--description', 'QoS policy description',
+            '--description',
+            'QoS policy description',
             '--default',
             self._qos_policy.name,
         ]
@@ -386,7 +403,8 @@ class TestSetNetworkQosPolicy(TestQosPolicy):
             'is_default': True,
         }
         self.network.update_qos_policy.assert_called_with(
-            self._qos_policy, **attrs)
+            self._qos_policy, **attrs
+        )
         self.assertIsNone(result)
 
     def test_set_no_share_no_default(self):
@@ -403,20 +421,16 @@ class TestSetNetworkQosPolicy(TestQosPolicy):
 
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
         result = self.cmd.take_action(parsed_args)
-        attrs = {
-            'shared': False,
-            'is_default': False
-        }
+        attrs = {'shared': False, 'is_default': False}
         self.network.update_qos_policy.assert_called_with(
-            self._qos_policy, **attrs)
+            self._qos_policy, **attrs
+        )
         self.assertIsNone(result)
 
 
 class TestShowNetworkQosPolicy(TestQosPolicy):
-
     # The QoS policy to show.
-    _qos_policy = (
-        network_fakes.FakeNetworkQosPolicy.create_one_qos_policy())
+    _qos_policy = network_fakes.FakeNetworkQosPolicy.create_one_qos_policy()
     columns = (
         'description',
         'id',
@@ -441,16 +455,22 @@ class TestShowNetworkQosPolicy(TestQosPolicy):
         self.network.find_qos_policy = mock.Mock(return_value=self._qos_policy)
 
         # Get the command object to test
-        self.cmd = network_qos_policy.ShowNetworkQosPolicy(self.app,
-                                                           self.namespace)
+        self.cmd = network_qos_policy.ShowNetworkQosPolicy(
+            self.app, self.namespace
+        )
 
     def test_show_no_options(self):
         arglist = []
         verifylist = []
 
         # Missing required args should bail here
-        self.assertRaises(tests_utils.ParserException, self.check_parser,
-                          self.cmd, arglist, verifylist)
+        self.assertRaises(
+            tests_utils.ParserException,
+            self.check_parser,
+            self.cmd,
+            arglist,
+            verifylist,
+        )
 
     def test_show_all_options(self):
         arglist = [
@@ -464,6 +484,7 @@ class TestShowNetworkQosPolicy(TestQosPolicy):
         columns, data = self.cmd.take_action(parsed_args)
 
         self.network.find_qos_policy.assert_called_once_with(
-            self._qos_policy.name, ignore_missing=False)
+            self._qos_policy.name, ignore_missing=False
+        )
         self.assertEqual(self.columns, columns)
         self.assertEqual(list(self.data), list(data))

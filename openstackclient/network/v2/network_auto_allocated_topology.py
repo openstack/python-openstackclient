@@ -28,9 +28,7 @@ def _get_columns(item):
     column_map = {}
     hidden_columns = ['name', 'location', 'tenant_id']
     return utils.get_osc_show_columns_for_sdk_resource(
-        item,
-        column_map,
-        hidden_columns
+        item, column_map, hidden_columns
     )
 
 
@@ -71,22 +69,28 @@ class CreateAutoAllocatedTopology(command.ShowOne):
         parser.add_argument(
             '--project',
             metavar='<project>',
-            help=_("Return the auto allocated topology for a given project. "
-                   "Default is current project")
+            help=_(
+                "Return the auto allocated topology for a given project. "
+                "Default is current project"
+            ),
         )
         identity_common.add_project_domain_option_to_parser(parser)
         parser.add_argument(
             '--check-resources',
             action='store_true',
-            help=_("Validate the requirements for auto allocated topology. "
-                   "Does not return a topology.")
+            help=_(
+                "Validate the requirements for auto allocated topology. "
+                "Does not return a topology."
+            ),
         )
         parser.add_argument(
             '--or-show',
             action='store_true',
             default=True,
-            help=_("If topology exists returns the topology's "
-                   "information (Default)")
+            help=_(
+                "If topology exists returns the topology's "
+                "information (Default)"
+            ),
         )
 
         return parser
@@ -95,9 +99,9 @@ class CreateAutoAllocatedTopology(command.ShowOne):
         obj = client.validate_auto_allocated_topology(parsed_args.project)
 
         columns = _format_check_resource_columns()
-        data = utils.get_item_properties(_format_check_resource(obj),
-                                         columns,
-                                         formatters={})
+        data = utils.get_item_properties(
+            _format_check_resource(obj), columns, formatters={}
+        )
 
         return (columns, data)
 
@@ -126,8 +130,10 @@ class DeleteAutoAllocatedTopology(command.Command):
         parser.add_argument(
             '--project',
             metavar='<project>',
-            help=_('Delete auto allocated topology for a given project. '
-                   'Default is the current project')
+            help=_(
+                'Delete auto allocated topology for a given project. '
+                'Default is the current project'
+            ),
         )
         identity_common.add_project_domain_option_to_parser(parser)
 

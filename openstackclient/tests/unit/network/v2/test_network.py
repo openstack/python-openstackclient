@@ -29,7 +29,6 @@ from openstackclient.tests.unit import utils as tests_utils
 # Tests for Neutron network
 #
 class TestNetwork(network_fakes.TestNetworkV2):
-
     def setUp(self):
         super(TestNetwork, self).setUp()
 
@@ -42,7 +41,6 @@ class TestNetwork(network_fakes.TestNetworkV2):
 
 
 class TestCreateNetworkIdentityV3(TestNetwork):
-
     project = identity_fakes_v3.FakeProject.create_one_project()
     domain = identity_fakes_v3.FakeDomain.create_one_domain()
     # The new network created.
@@ -52,8 +50,9 @@ class TestCreateNetworkIdentityV3(TestNetwork):
             'availability_zone_hints': ["nova"],
         }
     )
-    qos_policy = (network_fakes.FakeNetworkQosPolicy.
-                  create_one_qos_policy(attrs={'id': _network.qos_policy_id}))
+    qos_policy = network_fakes.FakeNetworkQosPolicy.create_one_qos_policy(
+        attrs={'id': _network.qos_policy_id}
+    )
 
     columns = (
         'admin_state_up',
@@ -132,8 +131,13 @@ class TestCreateNetworkIdentityV3(TestNetwork):
         arglist = []
         verifylist = []
 
-        self.assertRaises(tests_utils.ParserException, self.check_parser,
-                          self.cmd, arglist, verifylist)
+        self.assertRaises(
+            tests_utils.ParserException,
+            self.check_parser,
+            self.cmd,
+            arglist,
+            verifylist,
+        )
 
     def test_create_default_options(self):
         arglist = [
@@ -150,10 +154,12 @@ class TestCreateNetworkIdentityV3(TestNetwork):
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
         columns, data = self.cmd.take_action(parsed_args)
 
-        self.network.create_network.assert_called_once_with(**{
-            'admin_state_up': True,
-            'name': self._network.name,
-        })
+        self.network.create_network.assert_called_once_with(
+            **{
+                'admin_state_up': True,
+                'name': self._network.name,
+            }
+        )
         self.assertFalse(self.network.set_tags.called)
         self.assertEqual(set(self.columns), set(columns))
         self.assertCountEqual(self.data, data)
@@ -162,19 +168,30 @@ class TestCreateNetworkIdentityV3(TestNetwork):
         arglist = [
             "--disable",
             "--share",
-            "--description", self._network.description,
-            "--mtu", str(self._network.mtu),
-            "--project", self.project.name,
-            "--project-domain", self.domain.name,
-            "--availability-zone-hint", "nova",
-            "--external", "--default",
-            "--provider-network-type", "vlan",
-            "--provider-physical-network", "physnet1",
-            "--provider-segment", "400",
-            "--qos-policy", self.qos_policy.id,
+            "--description",
+            self._network.description,
+            "--mtu",
+            str(self._network.mtu),
+            "--project",
+            self.project.name,
+            "--project-domain",
+            self.domain.name,
+            "--availability-zone-hint",
+            "nova",
+            "--external",
+            "--default",
+            "--provider-network-type",
+            "vlan",
+            "--provider-physical-network",
+            "physnet1",
+            "--provider-segment",
+            "400",
+            "--qos-policy",
+            self.qos_policy.id,
             "--transparent-vlan",
             "--enable-port-security",
-            "--dns-domain", "example.org.",
+            "--dns-domain",
+            "example.org.",
             self._network.name,
         ]
         verifylist = [
@@ -198,26 +215,28 @@ class TestCreateNetworkIdentityV3(TestNetwork):
         ]
 
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
-        columns, data = (self.cmd.take_action(parsed_args))
+        columns, data = self.cmd.take_action(parsed_args)
 
-        self.network.create_network.assert_called_once_with(**{
-            'admin_state_up': False,
-            'availability_zone_hints': ["nova"],
-            'name': self._network.name,
-            'shared': True,
-            'description': self._network.description,
-            'mtu': str(self._network.mtu),
-            'project_id': self.project.id,
-            'is_default': True,
-            'router:external': True,
-            'provider:network_type': 'vlan',
-            'provider:physical_network': 'physnet1',
-            'provider:segmentation_id': '400',
-            'qos_policy_id': self.qos_policy.id,
-            'vlan_transparent': True,
-            'port_security_enabled': True,
-            'dns_domain': 'example.org.',
-        })
+        self.network.create_network.assert_called_once_with(
+            **{
+                'admin_state_up': False,
+                'availability_zone_hints': ["nova"],
+                'name': self._network.name,
+                'shared': True,
+                'description': self._network.description,
+                'mtu': str(self._network.mtu),
+                'project_id': self.project.id,
+                'is_default': True,
+                'router:external': True,
+                'provider:network_type': 'vlan',
+                'provider:physical_network': 'physnet1',
+                'provider:segmentation_id': '400',
+                'qos_policy_id': self.qos_policy.id,
+                'vlan_transparent': True,
+                'port_security_enabled': True,
+                'dns_domain': 'example.org.',
+            }
+        )
         self.assertEqual(set(self.columns), set(columns))
         self.assertCountEqual(self.data, data)
 
@@ -239,12 +258,14 @@ class TestCreateNetworkIdentityV3(TestNetwork):
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
         columns, data = self.cmd.take_action(parsed_args)
 
-        self.network.create_network.assert_called_once_with(**{
-            'admin_state_up': True,
-            'name': self._network.name,
-            'shared': False,
-            'port_security_enabled': False,
-        })
+        self.network.create_network.assert_called_once_with(
+            **{
+                'admin_state_up': True,
+                'name': self._network.name,
+                'shared': False,
+                'port_security_enabled': False,
+            }
+        )
         self.assertEqual(set(self.columns), set(columns))
         self.assertCountEqual(self.data, data)
 
@@ -267,14 +288,15 @@ class TestCreateNetworkIdentityV3(TestNetwork):
             verifylist.append(('no_tag', True))
 
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
-        columns, data = (self.cmd.take_action(parsed_args))
+        columns, data = self.cmd.take_action(parsed_args)
 
         self.network.create_network.assert_called_once_with(
-            name=self._network.name, admin_state_up=True)
+            name=self._network.name, admin_state_up=True
+        )
         if add_tags:
             self.network.set_tags.assert_called_once_with(
-                self._network,
-                tests_utils.CompareBySet(['red', 'blue']))
+                self._network, tests_utils.CompareBySet(['red', 'blue'])
+            )
         else:
             self.assertFalse(self.network.set_tags.called)
         self.assertEqual(set(self.columns), set(columns))
@@ -288,7 +310,6 @@ class TestCreateNetworkIdentityV3(TestNetwork):
 
 
 class TestCreateNetworkIdentityV2(TestNetwork):
-
     project = identity_fakes_v2.FakeProject.create_one_project()
     # The new network created.
     _network = network_fakes.create_one_network(
@@ -379,7 +400,8 @@ class TestCreateNetworkIdentityV2(TestNetwork):
 
     def test_create_with_project_identityv2(self):
         arglist = [
-            "--project", self.project.name,
+            "--project",
+            self.project.name,
             self._network.name,
         ]
         verifylist = [
@@ -393,19 +415,23 @@ class TestCreateNetworkIdentityV2(TestNetwork):
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
         columns, data = self.cmd.take_action(parsed_args)
 
-        self.network.create_network.assert_called_once_with(**{
-            'admin_state_up': True,
-            'name': self._network.name,
-            'project_id': self.project.id,
-        })
+        self.network.create_network.assert_called_once_with(
+            **{
+                'admin_state_up': True,
+                'name': self._network.name,
+                'project_id': self.project.id,
+            }
+        )
         self.assertFalse(self.network.set_tags.called)
         self.assertEqual(set(self.columns), set(columns))
         self.assertCountEqual(self.data, data)
 
     def test_create_with_domain_identityv2(self):
         arglist = [
-            "--project", self.project.name,
-            "--project-domain", "domain-name",
+            "--project",
+            self.project.name,
+            "--project-domain",
+            "domain-name",
             self._network.name,
         ]
         verifylist = [
@@ -427,7 +453,6 @@ class TestCreateNetworkIdentityV2(TestNetwork):
 
 
 class TestDeleteNetwork(TestNetwork):
-
     def setUp(self):
         super(TestDeleteNetwork, self).setUp()
 
@@ -437,7 +462,8 @@ class TestDeleteNetwork(TestNetwork):
         self.network.delete_network = mock.Mock(return_value=None)
 
         self.network.find_network = network_fakes.get_networks(
-            networks=self._networks)
+            networks=self._networks
+        )
 
         # Get the command object to test
         self.cmd = network.DeleteNetwork(self.app, self.namespace)
@@ -499,8 +525,9 @@ class TestDeleteNetwork(TestNetwork):
         ]
         self.network.delete_network = mock.Mock(side_effect=ret_delete)
 
-        self.assertRaises(exceptions.CommandError, self.cmd.take_action,
-                          parsed_args)
+        self.assertRaises(
+            exceptions.CommandError, self.cmd.take_action, parsed_args
+        )
 
         # The second call of find_network() should fail. So delete_network()
         # was only called twice.
@@ -512,7 +539,6 @@ class TestDeleteNetwork(TestNetwork):
 
 
 class TestListNetwork(TestNetwork):
-
     # The networks going to be listed up.
     _network = network_fakes.create_networks(count=3)
 
@@ -537,27 +563,31 @@ class TestListNetwork(TestNetwork):
 
     data = []
     for net in _network:
-        data.append((
-            net.id,
-            net.name,
-            format_columns.ListColumn(net.subnet_ids),
-        ))
+        data.append(
+            (
+                net.id,
+                net.name,
+                format_columns.ListColumn(net.subnet_ids),
+            )
+        )
 
     data_long = []
     for net in _network:
-        data_long.append((
-            net.id,
-            net.name,
-            net.status,
-            net.project_id,
-            network.AdminStateColumn(net.is_admin_state_up),
-            net.is_shared,
-            format_columns.ListColumn(net.subnet_ids),
-            net.provider_network_type,
-            network.RouterExternalColumn(net.is_router_external),
-            format_columns.ListColumn(net.availability_zones),
-            format_columns.ListColumn(net.tags),
-        ))
+        data_long.append(
+            (
+                net.id,
+                net.name,
+                net.status,
+                net.project_id,
+                network.AdminStateColumn(net.is_admin_state_up),
+                net.is_shared,
+                format_columns.ListColumn(net.subnet_ids),
+                net.provider_network_type,
+                network.RouterExternalColumn(net.is_router_external),
+                format_columns.ListColumn(net.availability_zones),
+                format_columns.ListColumn(net.tags),
+            )
+        )
 
     def setUp(self):
         super(TestListNetwork, self).setUp()
@@ -567,12 +597,12 @@ class TestListNetwork(TestNetwork):
 
         self.network.networks = mock.Mock(return_value=self._network)
 
-        self._agent = \
-            network_fakes.create_one_network_agent()
+        self._agent = network_fakes.create_one_network_agent()
         self.network.get_agent = mock.Mock(return_value=self._agent)
 
         self.network.dhcp_agent_hosting_networks = mock.Mock(
-            return_value=self._network)
+            return_value=self._network
+        )
 
         # TestListTagMixin
         self._tag_list_resource_mock = self.network.networks
@@ -654,7 +684,8 @@ class TestListNetwork(TestNetwork):
     def test_list_name(self):
         test_name = "fakename"
         arglist = [
-            '--name', test_name,
+            '--name',
+            test_name,
         ]
         verifylist = [
             ('external', False),
@@ -664,9 +695,7 @@ class TestListNetwork(TestNetwork):
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
         columns, data = self.cmd.take_action(parsed_args)
 
-        self.network.networks.assert_called_once_with(
-            **{'name': test_name}
-        )
+        self.network.networks.assert_called_once_with(**{'name': test_name})
         self.assertEqual(self.columns, columns)
         self.assertCountEqual(self.data, list(data))
 
@@ -692,11 +721,7 @@ class TestListNetwork(TestNetwork):
         arglist = [
             '--disable',
         ]
-        verifylist = [
-            ('long', False),
-            ('external', False),
-            ('disable', True)
-        ]
+        verifylist = [('long', False), ('external', False), ('disable', True)]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
         columns, data = self.cmd.take_action(parsed_args)
 
@@ -710,7 +735,8 @@ class TestListNetwork(TestNetwork):
         project = identity_fakes_v3.FakeProject.create_one_project()
         self.projects_mock.get.return_value = project
         arglist = [
-            '--project', project.id,
+            '--project',
+            project.id,
         ]
         verifylist = [
             ('project', project.id),
@@ -729,8 +755,10 @@ class TestListNetwork(TestNetwork):
         project = identity_fakes_v3.FakeProject.create_one_project()
         self.projects_mock.get.return_value = project
         arglist = [
-            '--project', project.id,
-            '--project-domain', project.domain_id,
+            '--project',
+            project.id,
+            '--project-domain',
+            project.domain_id,
         ]
         verifylist = [
             ('project', project.id),
@@ -782,7 +810,8 @@ class TestListNetwork(TestNetwork):
         choices = ['ACTIVE', 'BUILD', 'DOWN', 'ERROR']
         test_status = random.choice(choices)
         arglist = [
-            '--status', test_status,
+            '--status',
+            test_status,
         ]
         verifylist = [
             ('long', False),
@@ -800,7 +829,8 @@ class TestListNetwork(TestNetwork):
     def test_network_list_provider_network_type(self):
         network_type = self._network[0].provider_network_type
         arglist = [
-            '--provider-network-type', network_type,
+            '--provider-network-type',
+            network_type,
         ]
         verifylist = [
             ('provider_network_type', network_type),
@@ -809,8 +839,10 @@ class TestListNetwork(TestNetwork):
         columns, data = self.cmd.take_action(parsed_args)
 
         self.network.networks.assert_called_once_with(
-            **{'provider:network_type': network_type,
-               'provider_network_type': network_type}
+            **{
+                'provider:network_type': network_type,
+                'provider_network_type': network_type,
+            }
         )
         self.assertEqual(self.columns, columns)
         self.assertCountEqual(self.data, list(data))
@@ -818,7 +850,8 @@ class TestListNetwork(TestNetwork):
     def test_network_list_provider_physical_network(self):
         physical_network = self._network[0].provider_physical_network
         arglist = [
-            '--provider-physical-network', physical_network,
+            '--provider-physical-network',
+            physical_network,
         ]
         verifylist = [
             ('physical_network', physical_network),
@@ -827,8 +860,10 @@ class TestListNetwork(TestNetwork):
         columns, data = self.cmd.take_action(parsed_args)
 
         self.network.networks.assert_called_once_with(
-            **{'provider:physical_network': physical_network,
-               'provider_physical_network': physical_network}
+            **{
+                'provider:physical_network': physical_network,
+                'provider_physical_network': physical_network,
+            }
         )
         self.assertEqual(self.columns, columns)
         self.assertCountEqual(self.data, list(data))
@@ -836,7 +871,8 @@ class TestListNetwork(TestNetwork):
     def test_network_list_provider_segment(self):
         segmentation_id = self._network[0].provider_segmentation_id
         arglist = [
-            '--provider-segment', segmentation_id,
+            '--provider-segment',
+            segmentation_id,
         ]
         verifylist = [
             ('segmentation_id', segmentation_id),
@@ -845,16 +881,16 @@ class TestListNetwork(TestNetwork):
         columns, data = self.cmd.take_action(parsed_args)
 
         self.network.networks.assert_called_once_with(
-            **{'provider:segmentation_id': segmentation_id,
-               'provider_segmentation_id': segmentation_id}
+            **{
+                'provider:segmentation_id': segmentation_id,
+                'provider_segmentation_id': segmentation_id,
+            }
         )
         self.assertEqual(self.columns, columns)
         self.assertCountEqual(self.data, list(data))
 
     def test_network_list_dhcp_agent(self):
-        arglist = [
-            '--agent', self._agent.id
-        ]
+        arglist = ['--agent', self._agent.id]
         verifylist = [
             ('agent_id', self._agent.id),
         ]
@@ -864,17 +900,22 @@ class TestListNetwork(TestNetwork):
         columns, data = self.cmd.take_action(parsed_args)
 
         self.network.dhcp_agent_hosting_networks.assert_called_once_with(
-            self._agent)
+            self._agent
+        )
 
         self.assertEqual(self.columns, columns)
         self.assertCountEqual(list(data), list(self.data))
 
     def test_list_with_tag_options(self):
         arglist = [
-            '--tags', 'red,blue',
-            '--any-tags', 'red,green',
-            '--not-tags', 'orange,yellow',
-            '--not-any-tags', 'black,white',
+            '--tags',
+            'red,blue',
+            '--any-tags',
+            'red,green',
+            '--not-tags',
+            'orange,yellow',
+            '--not-any-tags',
+            'black,white',
         ]
         verifylist = [
             ('tags', ['red', 'blue']),
@@ -886,22 +927,23 @@ class TestListNetwork(TestNetwork):
         columns, data = self.cmd.take_action(parsed_args)
 
         self.network.networks.assert_called_once_with(
-            **{'tags': 'red,blue',
-               'any_tags': 'red,green',
-               'not_tags': 'orange,yellow',
-               'not_any_tags': 'black,white'}
+            **{
+                'tags': 'red,blue',
+                'any_tags': 'red,green',
+                'not_tags': 'orange,yellow',
+                'not_any_tags': 'black,white',
+            }
         )
         self.assertEqual(self.columns, columns)
         self.assertCountEqual(self.data, list(data))
 
 
 class TestSetNetwork(TestNetwork):
-
     # The network to set.
-    _network = network_fakes.create_one_network(
-        {'tags': ['green', 'red']})
-    qos_policy = (network_fakes.FakeNetworkQosPolicy.
-                  create_one_qos_policy(attrs={'id': _network.qos_policy_id}))
+    _network = network_fakes.create_one_network({'tags': ['green', 'red']})
+    qos_policy = network_fakes.FakeNetworkQosPolicy.create_one_qos_policy(
+        attrs={'id': _network.qos_policy_id}
+    )
 
     def setUp(self):
         super(TestSetNetwork, self).setUp()
@@ -919,17 +961,24 @@ class TestSetNetwork(TestNetwork):
         arglist = [
             self._network.name,
             '--enable',
-            '--name', 'noob',
+            '--name',
+            'noob',
             '--share',
-            '--description', self._network.description,
-            '--dns-domain', 'example.org.',
+            '--description',
+            self._network.description,
+            '--dns-domain',
+            'example.org.',
             '--external',
             '--default',
-            '--provider-network-type', 'vlan',
-            '--provider-physical-network', 'physnet1',
-            '--provider-segment', '400',
+            '--provider-network-type',
+            'vlan',
+            '--provider-physical-network',
+            'physnet1',
+            '--provider-segment',
+            '400',
             '--enable-port-security',
-            '--qos-policy', self.qos_policy.name,
+            '--qos-policy',
+            self.qos_policy.name,
         ]
         verifylist = [
             ('network', self._network.name),
@@ -965,7 +1014,8 @@ class TestSetNetwork(TestNetwork):
             'dns_domain': 'example.org.',
         }
         self.network.update_network.assert_called_once_with(
-            self._network, **attrs)
+            self._network, **attrs
+        )
         self.assertIsNone(result)
 
     def test_set_that(self):
@@ -997,12 +1047,17 @@ class TestSetNetwork(TestNetwork):
             'qos_policy_id': None,
         }
         self.network.update_network.assert_called_once_with(
-            self._network, **attrs)
+            self._network, **attrs
+        )
         self.assertIsNone(result)
 
     def test_set_nothing(self):
-        arglist = [self._network.name, ]
-        verifylist = [('network', self._network.name), ]
+        arglist = [
+            self._network.name,
+        ]
+        verifylist = [
+            ('network', self._network.name),
+        ]
 
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
         result = self.cmd.take_action(parsed_args)
@@ -1021,16 +1076,15 @@ class TestSetNetwork(TestNetwork):
             verifylist = [('no_tag', True)]
             expected_args = []
         arglist.append(self._network.name)
-        verifylist.append(
-            ('network', self._network.name))
+        verifylist.append(('network', self._network.name))
 
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
         result = self.cmd.take_action(parsed_args)
 
         self.assertFalse(self.network.update_network.called)
         self.network.set_tags.assert_called_once_with(
-            self._network,
-            tests_utils.CompareBySet(expected_args))
+            self._network, tests_utils.CompareBySet(expected_args)
+        )
         self.assertIsNone(result)
 
     def test_set_with_tags(self):
@@ -1041,7 +1095,6 @@ class TestSetNetwork(TestNetwork):
 
 
 class TestShowNetwork(TestNetwork):
-
     # The network to show.
     _network = network_fakes.create_one_network()
     columns = (
@@ -1116,8 +1169,13 @@ class TestShowNetwork(TestNetwork):
         arglist = []
         verifylist = []
 
-        self.assertRaises(tests_utils.ParserException, self.check_parser,
-                          self.cmd, arglist, verifylist)
+        self.assertRaises(
+            tests_utils.ParserException,
+            self.check_parser,
+            self.cmd,
+            arglist,
+            verifylist,
+        )
 
     def test_show_all_options(self):
         arglist = [
@@ -1131,19 +1189,19 @@ class TestShowNetwork(TestNetwork):
         columns, data = self.cmd.take_action(parsed_args)
 
         self.network.find_network.assert_called_once_with(
-            self._network.name, ignore_missing=False)
+            self._network.name, ignore_missing=False
+        )
 
         self.assertEqual(set(self.columns), set(columns))
         self.assertCountEqual(self.data, data)
 
 
 class TestUnsetNetwork(TestNetwork):
-
     # The network to set.
-    _network = network_fakes.create_one_network(
-        {'tags': ['green', 'red']})
-    qos_policy = (network_fakes.FakeNetworkQosPolicy.
-                  create_one_qos_policy(attrs={'id': _network.qos_policy_id}))
+    _network = network_fakes.create_one_network({'tags': ['green', 'red']})
+    qos_policy = network_fakes.FakeNetworkQosPolicy.create_one_qos_policy(
+        attrs={'id': _network.qos_policy_id}
+    )
 
     def setUp(self):
         super(TestUnsetNetwork, self).setUp()
@@ -1158,8 +1216,12 @@ class TestUnsetNetwork(TestNetwork):
         self.cmd = network.UnsetNetwork(self.app, self.namespace)
 
     def test_unset_nothing(self):
-        arglist = [self._network.name, ]
-        verifylist = [('network', self._network.name), ]
+        arglist = [
+            self._network.name,
+        ]
+        verifylist = [
+            ('network', self._network.name),
+        ]
 
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
         result = self.cmd.take_action(parsed_args)
@@ -1178,16 +1240,15 @@ class TestUnsetNetwork(TestNetwork):
             verifylist = [('all_tag', True)]
             expected_args = []
         arglist.append(self._network.name)
-        verifylist.append(
-            ('network', self._network.name))
+        verifylist.append(('network', self._network.name))
 
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
         result = self.cmd.take_action(parsed_args)
 
         self.assertFalse(self.network.update_network.called)
         self.network.set_tags.assert_called_once_with(
-            self._network,
-            tests_utils.CompareBySet(expected_args))
+            self._network, tests_utils.CompareBySet(expected_args)
+        )
         self.assertIsNone(result)
 
     def test_unset_with_tags(self):

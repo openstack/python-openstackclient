@@ -32,8 +32,7 @@ class LocalIPTests(common.NetworkTests):
         """Test create, delete multiple"""
         name1 = uuid.uuid4().hex
         cmd_output = self.openstack(
-            'local ip create ' +
-            name1,
+            'local ip create ' + name1,
             parse_output=True,
         )
         self.assertEqual(
@@ -43,8 +42,7 @@ class LocalIPTests(common.NetworkTests):
 
         name2 = uuid.uuid4().hex
         cmd_output = self.openstack(
-            'local ip create ' +
-            name2,
+            'local ip create ' + name2,
             parse_output=True,
         )
         self.assertEqual(
@@ -83,8 +81,7 @@ class LocalIPTests(common.NetworkTests):
 
         name1 = uuid.uuid4().hex
         cmd_output = self.openstack(
-            'local ip create ' +
-            name1,
+            'local ip create ' + name1,
             parse_output=True,
         )
         self.addCleanup(self.openstack, 'local ip delete ' + name1)
@@ -95,9 +92,7 @@ class LocalIPTests(common.NetworkTests):
 
         name2 = uuid.uuid4().hex
         cmd_output = self.openstack(
-            'local ip create ' +
-            '--project ' + demo_project_id +
-            ' ' + name2,
+            'local ip create ' + '--project ' + demo_project_id + ' ' + name2,
             parse_output=True,
         )
         self.addCleanup(self.openstack, 'local ip delete ' + name2)
@@ -117,8 +112,7 @@ class LocalIPTests(common.NetworkTests):
 
         # Test list --project
         cmd_output = self.openstack(
-            'local ip list ' +
-            '--project ' + demo_project_id,
+            'local ip list ' + '--project ' + demo_project_id,
             parse_output=True,
         )
         names = [x["Name"] for x in cmd_output]
@@ -127,8 +121,7 @@ class LocalIPTests(common.NetworkTests):
 
         # Test list --name
         cmd_output = self.openstack(
-            'local ip list ' +
-            '--name ' + name1,
+            'local ip list ' + '--name ' + name1,
             parse_output=True,
         )
         names = [x["Name"] for x in cmd_output]
@@ -140,9 +133,7 @@ class LocalIPTests(common.NetworkTests):
         name = uuid.uuid4().hex
         newname = name + "_"
         cmd_output = self.openstack(
-            'local ip create ' +
-            '--description aaaa ' +
-            name,
+            'local ip create ' + '--description aaaa ' + name,
             parse_output=True,
         )
         self.addCleanup(self.openstack, 'local ip delete ' + newname)
@@ -151,17 +142,18 @@ class LocalIPTests(common.NetworkTests):
 
         # Test set name and description
         raw_output = self.openstack(
-            'local ip set ' +
-            '--name ' + newname + ' ' +
-            '--description bbbb ' +
-            name,
+            'local ip set '
+            + '--name '
+            + newname
+            + ' '
+            + '--description bbbb '
+            + name,
         )
         self.assertOutput('', raw_output)
 
         # Show the updated local ip
         cmd_output = self.openstack(
-            'local ip show ' +
-            newname,
+            'local ip show ' + newname,
             parse_output=True,
         )
         self.assertEqual(newname, cmd_output['name'])

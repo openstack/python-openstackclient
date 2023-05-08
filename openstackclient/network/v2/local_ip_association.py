@@ -31,7 +31,8 @@ def _get_columns(item):
     column_map = {}
     hidden_columns = ['location', 'name', 'id', 'tenant_id']
     return utils.get_osc_show_columns_for_sdk_resource(
-        item, column_map, hidden_columns)
+        item, column_map, hidden_columns
+    )
 
 
 class CreateLocalIPAssociation(command.ShowOne):
@@ -42,18 +43,19 @@ class CreateLocalIPAssociation(command.ShowOne):
         parser.add_argument(
             'local_ip',
             metavar='<local-ip>',
-            help=_("Local IP that the port association belongs to "
-                   "(Name or ID)")
+            help=_(
+                "Local IP that the port association belongs to " "(Name or ID)"
+            ),
         )
         parser.add_argument(
             'fixed_port',
             metavar='<fixed-port>',
-            help=_("The ID or Name of Port to allocate Local IP Association")
+            help=_("The ID or Name of Port to allocate Local IP Association"),
         )
         parser.add_argument(
             '--fixed-ip',
             metavar='<fixed-ip>',
-            help=_("Fixed IP for Local IP Association")
+            help=_("Fixed IP for Local IP Association"),
         )
 
         identity_common.add_project_domain_option_to_parser(parser)
@@ -64,8 +66,7 @@ class CreateLocalIPAssociation(command.ShowOne):
         client = self.app.client_manager.network
 
         attrs = {}
-        port = client.find_port(parsed_args.fixed_port,
-                                ignore_missing=False)
+        port = client.find_port(parsed_args.fixed_port, ignore_missing=False)
         attrs['fixed_port_id'] = port.id
         if parsed_args.fixed_ip:
             attrs['fixed_ip'] = parsed_args.fixed_ip
@@ -88,14 +89,15 @@ class DeleteLocalIPAssociation(command.Command):
         parser.add_argument(
             'local_ip',
             metavar="<local-ip>",
-            help=_("Local IP that the port association belongs to "
-                   "(Name or ID)")
+            help=_(
+                "Local IP that the port association belongs to " "(Name or ID)"
+            ),
         )
         parser.add_argument(
             'fixed_port_id',
             nargs="+",
             metavar="<fixed-port-id>",
-            help=_("The fixed port ID of Local IP Association")
+            help=_("The fixed port ID of Local IP Association"),
         )
         return parser
 
@@ -116,15 +118,21 @@ class DeleteLocalIPAssociation(command.Command):
                 )
             except Exception as e:
                 result += 1
-                LOG.error(_("Failed to delete Local IP Association with "
-                            "fixed port "
-                            "name or ID '%(fixed_port_id)s': %(e)s"),
-                          {'fixed port ID': fixed_port_id, 'e': e})
+                LOG.error(
+                    _(
+                        "Failed to delete Local IP Association with "
+                        "fixed port "
+                        "name or ID '%(fixed_port_id)s': %(e)s"
+                    ),
+                    {'fixed port ID': fixed_port_id, 'e': e},
+                )
 
         if result > 0:
             total = len(parsed_args.fixed_port_id)
-            msg = (_("%(result)s of %(total)s Local IP Associations failed "
-                     "to delete.") % {'result': result, 'total': total})
+            msg = _(
+                "%(result)s of %(total)s Local IP Associations failed "
+                "to delete."
+            ) % {'result': result, 'total': total}
             raise exceptions.CommandError(msg)
 
 
@@ -137,23 +145,24 @@ class ListLocalIPAssociation(command.Lister):
         parser.add_argument(
             'local_ip',
             metavar='<local-ip>',
-            help=_("Local IP that port associations belongs to")
+            help=_("Local IP that port associations belongs to"),
         )
         parser.add_argument(
             '--fixed-port',
             metavar='<fixed-port>',
-            help=_("Filter the list result by the ID or name of "
-                   "the fixed port")
+            help=_(
+                "Filter the list result by the ID or name of " "the fixed port"
+            ),
         )
         parser.add_argument(
             '--fixed-ip',
             metavar='<fixed-ip>',
-            help=_("Filter the list result by fixed ip")
+            help=_("Filter the list result by fixed ip"),
         )
         parser.add_argument(
             '--host',
             metavar='<host>',
-            help=_("Filter the list result by given host")
+            help=_("Filter the list result by given host"),
         )
         identity_common.add_project_domain_option_to_parser(parser)
 
@@ -173,7 +182,7 @@ class ListLocalIPAssociation(command.Lister):
             'Local IP Address',
             'Fixed port ID',
             'Fixed IP',
-            'Host'
+            'Host',
         )
         attrs = {}
         obj = client.find_local_ip(
@@ -181,8 +190,9 @@ class ListLocalIPAssociation(command.Lister):
             ignore_missing=False,
         )
         if parsed_args.fixed_port:
-            port = client.find_port(parsed_args.fixed_port,
-                                    ignore_missing=False)
+            port = client.find_port(
+                parsed_args.fixed_port, ignore_missing=False
+            )
             attrs['fixed_port_id'] = port.id
         if parsed_args.fixed_ip:
             attrs['fixed_ip'] = parsed_args.fixed_ip
@@ -191,7 +201,10 @@ class ListLocalIPAssociation(command.Lister):
 
         data = client.local_ip_associations(obj, **attrs)
 
-        return (column_headers,
-                (utils.get_item_properties(s,
-                                           columns,
-                                           formatters={}) for s in data))
+        return (
+            column_headers,
+            (
+                utils.get_item_properties(s, columns, formatters={})
+                for s in data
+            ),
+        )

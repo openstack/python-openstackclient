@@ -74,9 +74,7 @@ def _get_columns(item):
     column_map = {}
     hidden_columns = ['location', 'tenant_id']
     return utils.get_osc_show_columns_for_sdk_resource(
-        item,
-        column_map,
-        hidden_columns
+        item, column_map, hidden_columns
     )
 
 
@@ -105,23 +103,26 @@ def _is_icmp_protocol(protocol):
 
 # TODO(abhiraut): Use the SDK resource mapped attribute names once the
 # OSC minimum requirements include SDK 1.0.
-class CreateSecurityGroupRule(common.NetworkAndComputeShowOne,
-                              common.NeutronCommandWithExtraArgs):
+class CreateSecurityGroupRule(
+    common.NetworkAndComputeShowOne, common.NeutronCommandWithExtraArgs
+):
     _description = _("Create a new security group rule")
 
     def update_parser_common(self, parser):
         parser.add_argument(
             'group',
             metavar='<group>',
-            help=_("Create rule in this security group (name or ID)")
+            help=_("Create rule in this security group (name or ID)"),
         )
         remote_group = parser.add_mutually_exclusive_group()
         remote_group.add_argument(
             "--remote-ip",
             metavar="<ip-address>",
-            help=_("Remote IP address block (may use CIDR notation; "
-                   "default for IPv4 rule: 0.0.0.0/0, "
-                   "default for IPv6 rule: ::/0)"),
+            help=_(
+                "Remote IP address block (may use CIDR notation; "
+                "default for IPv4 rule: 0.0.0.0/0, "
+                "default for IPv6 rule: ::/0)"
+            ),
         )
         remote_group.add_argument(
             "--remote-group",
@@ -150,9 +151,11 @@ class CreateSecurityGroupRule(common.NetworkAndComputeShowOne,
             '--dst-port',
             metavar='<port-range>',
             action=parseractions.RangeAction,
-            help=_("Destination port, may be a single port or a starting and "
-                   "ending port range: 137:139. Required for IP protocols TCP "
-                   "and UDP. Ignored for ICMP IP protocols."),
+            help=_(
+                "Destination port, may be a single port or a starting and "
+                "ending port range: 137:139. Required for IP protocols TCP "
+                "and UDP. Ignored for ICMP IP protocols."
+            ),
             **dst_port_default
         )
 
@@ -170,7 +173,8 @@ class CreateSecurityGroupRule(common.NetworkAndComputeShowOne,
             "IP protocol (ah, dccp, egp, esp, gre, icmp, igmp, ipv6-encap, "
             "ipv6-frag, ipv6-icmp, ipv6-nonxt, ipv6-opts, ipv6-route, ospf, "
             "pgm, rsvp, sctp, tcp, udp, udplite, vrrp and integer "
-            "representations [0-255] or any; default: any (all protocols))")
+            "representations [0-255] or any; default: any (all protocols))"
+        )
         if self.is_nova_network:
             protocol_help = protocol_help_compute
         elif self.is_neutron:
@@ -178,7 +182,8 @@ class CreateSecurityGroupRule(common.NetworkAndComputeShowOne,
         else:
             # Docs build: compose help for both nova-network and neutron
             protocol_help = self.split_help(
-                protocol_help_network, protocol_help_compute)
+                protocol_help_network, protocol_help_compute
+            )
 
         protocol_group.add_argument(
             '--protocol',
@@ -203,34 +208,39 @@ class CreateSecurityGroupRule(common.NetworkAndComputeShowOne,
             '--description',
             metavar='<description>',
             help=self.enhance_help_neutron(
-                _("Set security group rule description"))
+                _("Set security group rule description")
+            ),
         )
         parser.add_argument(
             '--icmp-type',
             metavar='<icmp-type>',
             type=int,
             help=self.enhance_help_neutron(
-                _("ICMP type for ICMP IP protocols"))
+                _("ICMP type for ICMP IP protocols")
+            ),
         )
         parser.add_argument(
             '--icmp-code',
             metavar='<icmp-code>',
             type=int,
             help=self.enhance_help_neutron(
-                _("ICMP code for ICMP IP protocols"))
+                _("ICMP code for ICMP IP protocols")
+            ),
         )
         direction_group = parser.add_mutually_exclusive_group()
         direction_group.add_argument(
             '--ingress',
             action='store_true',
             help=self.enhance_help_neutron(
-                _("Rule applies to incoming network traffic (default)"))
+                _("Rule applies to incoming network traffic (default)")
+            ),
         )
         direction_group.add_argument(
             '--egress',
             action='store_true',
             help=self.enhance_help_neutron(
-                _("Rule applies to outgoing network traffic"))
+                _("Rule applies to outgoing network traffic")
+            ),
         )
         parser.add_argument(
             '--ethertype',
@@ -238,16 +248,20 @@ class CreateSecurityGroupRule(common.NetworkAndComputeShowOne,
             choices=['IPv4', 'IPv6'],
             type=_convert_ipvx_case,
             help=self.enhance_help_neutron(
-                _("Ethertype of network traffic "
-                  "(IPv4, IPv6; default: based on IP protocol)"))
+                _(
+                    "Ethertype of network traffic "
+                    "(IPv4, IPv6; default: based on IP protocol)"
+                )
+            ),
         )
         parser.add_argument(
             '--project',
             metavar='<project>',
-            help=self.enhance_help_neutron(_("Owner's project (name or ID)"))
+            help=self.enhance_help_neutron(_("Owner's project (name or ID)")),
         )
         identity_common.add_project_domain_option_to_parser(
-            parser, enhance_help=self.enhance_help_neutron)
+            parser, enhance_help=self.enhance_help_neutron
+        )
         return parser
 
     def _get_protocol(self, parsed_args, default_protocol='any'):
@@ -273,8 +287,11 @@ class CreateSecurityGroupRule(common.NetworkAndComputeShowOne,
         # However, while the OSC CLI doesn't document the protocol,
         # the code must still handle it. In addition, handle both
         # protocol names and numbers.
-        if (protocol is not None and protocol.startswith('ipv6-') or
-                protocol in ['icmpv6', '41', '43', '44', '58', '59', '60']):
+        if (
+            protocol is not None
+            and protocol.startswith('ipv6-')
+            or protocol in ['icmpv6', '41', '43', '44', '58', '59', '60']
+        ):
             return True
         else:
             return False
@@ -282,8 +299,7 @@ class CreateSecurityGroupRule(common.NetworkAndComputeShowOne,
     def take_action_network(self, client, parsed_args):
         # Get the security group ID to hold the rule.
         security_group_id = client.find_security_group(
-            parsed_args.group,
-            ignore_missing=False
+            parsed_args.group, ignore_missing=False
         ).id
 
         # Build the create attributes.
@@ -302,24 +318,31 @@ class CreateSecurityGroupRule(common.NetworkAndComputeShowOne,
 
         # NOTE(rtheis): Use ethertype specified else default based
         # on IP protocol.
-        attrs['ethertype'] = self._get_ethertype(parsed_args,
-                                                 attrs['protocol'])
+        attrs['ethertype'] = self._get_ethertype(
+            parsed_args, attrs['protocol']
+        )
 
         # NOTE(rtheis): Validate the port range and ICMP type and code.
         # It would be ideal if argparse could do this.
-        if parsed_args.dst_port and (parsed_args.icmp_type or
-                                     parsed_args.icmp_code):
-            msg = _('Argument --dst-port not allowed with arguments '
-                    '--icmp-type and --icmp-code')
+        if parsed_args.dst_port and (
+            parsed_args.icmp_type or parsed_args.icmp_code
+        ):
+            msg = _(
+                'Argument --dst-port not allowed with arguments '
+                '--icmp-type and --icmp-code'
+            )
             raise exceptions.CommandError(msg)
         if parsed_args.icmp_type is None and parsed_args.icmp_code is not None:
             msg = _('Argument --icmp-type required with argument --icmp-code')
             raise exceptions.CommandError(msg)
         is_icmp_protocol = _is_icmp_protocol(attrs['protocol'])
-        if not is_icmp_protocol and (parsed_args.icmp_type or
-                                     parsed_args.icmp_code):
-            msg = _('ICMP IP protocol required with arguments '
-                    '--icmp-type and --icmp-code')
+        if not is_icmp_protocol and (
+            parsed_args.icmp_type or parsed_args.icmp_code
+        ):
+            msg = _(
+                'ICMP IP protocol required with arguments '
+                '--icmp-type and --icmp-code'
+            )
             raise exceptions.CommandError(msg)
         # NOTE(rtheis): For backwards compatibility, continue ignoring
         # the destination port range when an ICMP IP protocol is specified.
@@ -333,13 +356,11 @@ class CreateSecurityGroupRule(common.NetworkAndComputeShowOne,
 
         if parsed_args.remote_group is not None:
             attrs['remote_group_id'] = client.find_security_group(
-                parsed_args.remote_group,
-                ignore_missing=False
+                parsed_args.remote_group, ignore_missing=False
             ).id
         elif parsed_args.remote_address_group is not None:
             attrs['remote_address_group_id'] = client.find_address_group(
-                parsed_args.remote_address_group,
-                ignore_missing=False
+                parsed_args.remote_address_group, ignore_missing=False
             ).id
         elif parsed_args.remote_ip is not None:
             attrs['remote_ip_prefix'] = parsed_args.remote_ip
@@ -358,7 +379,8 @@ class CreateSecurityGroupRule(common.NetworkAndComputeShowOne,
             attrs['project_id'] = project_id
 
         attrs.update(
-            self._parse_extra_properties(parsed_args.extra_properties))
+            self._parse_extra_properties(parsed_args.extra_properties)
+        )
 
         # Create and show the security group rule.
         obj = client.create_security_group_rule(**attrs)
@@ -407,13 +429,12 @@ class DeleteSecurityGroupRule(common.NetworkAndComputeDelete):
             'rule',
             metavar='<rule>',
             nargs="+",
-            help=_("Security group rule(s) to delete (ID only)")
+            help=_("Security group rule(s) to delete (ID only)"),
         )
         return parser
 
     def take_action_network(self, client, parsed_args):
-        obj = client.find_security_group_rule(
-            self.r, ignore_missing=False)
+        obj = client.find_security_group_rule(self.r, ignore_missing=False)
         client.delete_security_group_rule(obj)
 
     def take_action_compute(self, client, parsed_args):
@@ -439,7 +460,7 @@ class ListSecurityGroupRule(common.NetworkAndComputeLister):
             'group',
             metavar='<group>',
             nargs='?',
-            help=_("List all rules in this security group (name or ID)")
+            help=_("List all rules in this security group (name or ID)"),
         )
         return parser
 
@@ -451,7 +472,7 @@ class ListSecurityGroupRule(common.NetworkAndComputeLister):
                 '--all-projects',
                 action='store_true',
                 default=False,
-                help=argparse.SUPPRESS
+                help=argparse.SUPPRESS,
             )
 
         parser.add_argument(
@@ -459,38 +480,46 @@ class ListSecurityGroupRule(common.NetworkAndComputeLister):
             metavar='<protocol>',
             type=_convert_to_lowercase,
             help=self.enhance_help_neutron(
-                _("List rules by the IP protocol (ah, dhcp, egp, esp, gre, "
-                  "icmp, igmp, ipv6-encap, ipv6-frag, ipv6-icmp, ipv6-nonxt, "
-                  "ipv6-opts, ipv6-route, ospf, pgm, rsvp, sctp, tcp, udp, "
-                  "udplite, vrrp and integer representations [0-255] or any; "
-                  "default: any (all protocols))"))
+                _(
+                    "List rules by the IP protocol (ah, dhcp, egp, esp, gre, "
+                    "icmp, igmp, ipv6-encap, ipv6-frag, ipv6-icmp, "
+                    "ipv6-nonxt, ipv6-opts, ipv6-route, ospf, pgm, rsvp, "
+                    "sctp, tcp, udp, udplite, vrrp and integer "
+                    "representations [0-255] or any; "
+                    "default: any (all protocols))"
+                )
+            ),
         )
         parser.add_argument(
             '--ethertype',
             metavar='<ethertype>',
             type=_convert_to_lowercase,
             help=self.enhance_help_neutron(
-                _("List rules by the Ethertype (IPv4 or IPv6)"))
+                _("List rules by the Ethertype (IPv4 or IPv6)")
+            ),
         )
         direction_group = parser.add_mutually_exclusive_group()
         direction_group.add_argument(
             '--ingress',
             action='store_true',
             help=self.enhance_help_neutron(
-                _("List rules applied to incoming network traffic"))
+                _("List rules applied to incoming network traffic")
+            ),
         )
         direction_group.add_argument(
             '--egress',
             action='store_true',
             help=self.enhance_help_neutron(
-                _("List rules applied to outgoing network traffic"))
+                _("List rules applied to outgoing network traffic")
+            ),
         )
         parser.add_argument(
             '--long',
             action='store_true',
             default=False,
             help=self.enhance_help_neutron(
-                _("**Deprecated** This argument is no longer needed"))
+                _("**Deprecated** This argument is no longer needed")
+            ),
         )
         return parser
 
@@ -500,7 +529,8 @@ class ListSecurityGroupRule(common.NetworkAndComputeLister):
             action='store_true',
             default=False,
             help=self.enhance_help_nova_network(
-                _("Display information from all projects (admin only)"))
+                _("Display information from all projects (admin only)")
+            ),
         )
         if not self.is_docs_build:
             # Accept but hide the argument for consistency with network.
@@ -509,7 +539,7 @@ class ListSecurityGroupRule(common.NetworkAndComputeLister):
                 '--long',
                 action='store_false',
                 default=False,
-                help=argparse.SUPPRESS
+                help=argparse.SUPPRESS,
             )
         return parser
 
@@ -531,9 +561,10 @@ class ListSecurityGroupRule(common.NetworkAndComputeLister):
 
     def take_action_network(self, client, parsed_args):
         if parsed_args.long:
-            self.log.warning(_(
+            msg = _(
                 "The --long option has been deprecated and is no longer needed"
-            ))
+            )
+            self.log.warning(msg)
 
         column_headers = self._get_column_headers(parsed_args)
         columns = (
@@ -554,8 +585,7 @@ class ListSecurityGroupRule(common.NetworkAndComputeLister):
             # does not contain security group rules resources. So use
             # the security group ID in a query to get the resources.
             security_group_id = client.find_security_group(
-                parsed_args.group,
-                ignore_missing=False
+                parsed_args.group, ignore_missing=False
             ).id
             query = {'security_group_id': security_group_id}
         else:
@@ -573,10 +603,16 @@ class ListSecurityGroupRule(common.NetworkAndComputeLister):
             for r in client.security_group_rules(**query)
         ]
 
-        return (column_headers,
-                (utils.get_dict_properties(
-                    s, columns,
-                ) for s in rules))
+        return (
+            column_headers,
+            (
+                utils.get_dict_properties(
+                    s,
+                    columns,
+                )
+                for s in rules
+            ),
+        )
 
     def take_action_compute(self, client, parsed_args):
         column_headers = self._get_column_headers(parsed_args)
@@ -612,10 +648,16 @@ class ListSecurityGroupRule(common.NetworkAndComputeLister):
             #     network_utils.transform_compute_security_group_rule(rule),
             # ))
 
-        return (column_headers,
-                (utils.get_dict_properties(
-                    s, columns,
-                ) for s in rules))
+        return (
+            column_headers,
+            (
+                utils.get_dict_properties(
+                    s,
+                    columns,
+                )
+                for s in rules
+            ),
+        )
 
 
 class ShowSecurityGroupRule(common.NetworkAndComputeShowOne):
@@ -625,13 +667,14 @@ class ShowSecurityGroupRule(common.NetworkAndComputeShowOne):
         parser.add_argument(
             'rule',
             metavar="<rule>",
-            help=_("Security group rule to display (ID only)")
+            help=_("Security group rule to display (ID only)"),
         )
         return parser
 
     def take_action_network(self, client, parsed_args):
-        obj = client.find_security_group_rule(parsed_args.rule,
-                                              ignore_missing=False)
+        obj = client.find_security_group_rule(
+            parsed_args.rule, ignore_missing=False
+        )
         # necessary for old rules that have None in this field
         if not obj['remote_ip_prefix']:
             obj['remote_ip_prefix'] = _format_remote_ip_prefix(obj)
@@ -654,8 +697,10 @@ class ShowSecurityGroupRule(common.NetworkAndComputeShowOne):
                 break
 
         if obj is None:
-            msg = _("Could not find security group rule "
-                    "with ID '%s'") % parsed_args.rule
+            msg = (
+                _("Could not find security group rule " "with ID '%s'")
+                % parsed_args.rule
+            )
             raise exceptions.CommandError(msg)
 
         # NOTE(rtheis): Format security group rule

@@ -22,7 +22,6 @@ from openstackclient.tests.unit import utils as tests_utils
 
 
 class TestIPAvailability(network_fakes.TestNetworkV2):
-
     def setUp(self):
         super(TestIPAvailability, self).setUp()
 
@@ -37,7 +36,6 @@ class TestIPAvailability(network_fakes.TestNetworkV2):
 
 
 class TestListIPAvailability(TestIPAvailability):
-
     _ip_availability = network_fakes.create_ip_availability(count=3)
     columns = (
         'Network ID',
@@ -47,20 +45,22 @@ class TestListIPAvailability(TestIPAvailability):
     )
     data = []
     for net in _ip_availability:
-        data.append((
-            net.network_id,
-            net.network_name,
-            net.total_ips,
-            net.used_ips,
-        ))
+        data.append(
+            (
+                net.network_id,
+                net.network_name,
+                net.total_ips,
+                net.used_ips,
+            )
+        )
 
     def setUp(self):
         super(TestListIPAvailability, self).setUp()
 
-        self.cmd = ip_availability.ListIPAvailability(
-            self.app, self.namespace)
+        self.cmd = ip_availability.ListIPAvailability(self.app, self.namespace)
         self.network.network_ip_availabilities = mock.Mock(
-            return_value=self._ip_availability)
+            return_value=self._ip_availability
+        )
 
     def test_list_no_options(self):
         arglist = []
@@ -72,17 +72,17 @@ class TestListIPAvailability(TestIPAvailability):
         filters = {'ip_version': 4}
 
         self.network.network_ip_availabilities.assert_called_once_with(
-            **filters)
+            **filters
+        )
         self.assertEqual(self.columns, columns)
         self.assertCountEqual(self.data, list(data))
 
     def test_list_ip_version(self):
         arglist = [
-            '--ip-version', str(4),
+            '--ip-version',
+            str(4),
         ]
-        verifylist = [
-            ('ip_version', 4)
-        ]
+        verifylist = [('ip_version', 4)]
 
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
@@ -90,35 +90,32 @@ class TestListIPAvailability(TestIPAvailability):
         filters = {'ip_version': 4}
 
         self.network.network_ip_availabilities.assert_called_once_with(
-            **filters)
+            **filters
+        )
         self.assertEqual(self.columns, columns)
         self.assertCountEqual(self.data, list(data))
 
     def test_list_project(self):
-        arglist = [
-            '--project', self.project.name
-        ]
-        verifylist = [
-            ('project', self.project.name)
-        ]
+        arglist = ['--project', self.project.name]
+        verifylist = [('project', self.project.name)]
 
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
         columns, data = self.cmd.take_action(parsed_args)
-        filters = {'project_id': self.project.id,
-                   'ip_version': 4}
+        filters = {'project_id': self.project.id, 'ip_version': 4}
 
         self.network.network_ip_availabilities.assert_called_once_with(
-            **filters)
+            **filters
+        )
         self.assertEqual(self.columns, columns)
         self.assertCountEqual(self.data, list(data))
 
 
 class TestShowIPAvailability(TestIPAvailability):
-
     _network = network_fakes.create_one_network()
     _ip_availability = network_fakes.create_one_ip_availability(
-        attrs={'network_id': _network.id})
+        attrs={'network_id': _network.id}
+    )
 
     columns = (
         'network_id',
@@ -132,8 +129,7 @@ class TestShowIPAvailability(TestIPAvailability):
         _ip_availability.network_id,
         _ip_availability.network_name,
         _ip_availability.project_id,
-        format_columns.ListDictColumn(
-            _ip_availability.subnet_ip_availability),
+        format_columns.ListDictColumn(_ip_availability.subnet_ip_availability),
         _ip_availability.total_ips,
         _ip_availability.used_ips,
     )
@@ -142,35 +138,37 @@ class TestShowIPAvailability(TestIPAvailability):
         super(TestShowIPAvailability, self).setUp()
 
         self.network.find_network_ip_availability = mock.Mock(
-            return_value=self._ip_availability)
-        self.network.find_network = mock.Mock(
-            return_value=self._network)
+            return_value=self._ip_availability
+        )
+        self.network.find_network = mock.Mock(return_value=self._network)
 
         # Get the command object to test
-        self.cmd = ip_availability.ShowIPAvailability(
-            self.app, self.namespace)
+        self.cmd = ip_availability.ShowIPAvailability(self.app, self.namespace)
 
     def test_show_no_option(self):
         arglist = []
         verifylist = []
 
-        self.assertRaises(tests_utils.ParserException,
-                          self.check_parser, self.cmd, arglist, verifylist)
+        self.assertRaises(
+            tests_utils.ParserException,
+            self.check_parser,
+            self.cmd,
+            arglist,
+            verifylist,
+        )
 
     def test_show_all_options(self):
         arglist = [
             self._ip_availability.network_name,
         ]
-        verifylist = [
-            ('network', self._ip_availability.network_name)
-        ]
+        verifylist = [('network', self._ip_availability.network_name)]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
         columns, data = self.cmd.take_action(parsed_args)
         self.network.find_network_ip_availability.assert_called_once_with(
-            self._ip_availability.network_id,
-            ignore_missing=False)
+            self._ip_availability.network_id, ignore_missing=False
+        )
         self.network.find_network.assert_called_once_with(
-            self._ip_availability.network_name,
-            ignore_missing=False)
+            self._ip_availability.network_name, ignore_missing=False
+        )
         self.assertEqual(self.columns, columns)
         self.assertCountEqual(self.data, data)

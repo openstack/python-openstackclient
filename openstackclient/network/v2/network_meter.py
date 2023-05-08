@@ -32,9 +32,7 @@ def _get_columns(item):
     }
     hidden_columns = ['location', 'tenant_id']
     return utils.get_osc_show_columns_for_sdk_resource(
-        item,
-        column_map,
-        hidden_columns
+        item, column_map, hidden_columns
     )
 
 
@@ -72,12 +70,12 @@ class CreateMeter(command.ShowOne, common.NeutronCommandWithExtraArgs):
         parser.add_argument(
             '--description',
             metavar='<description>',
-            help=_("Create description for meter")
+            help=_("Create description for meter"),
         )
         parser.add_argument(
             '--project',
             metavar='<project>',
-            help=_("Owner's project (name or ID)")
+            help=_("Owner's project (name or ID)"),
         )
 
         identity_common.add_project_domain_option_to_parser(parser)
@@ -86,12 +84,12 @@ class CreateMeter(command.ShowOne, common.NeutronCommandWithExtraArgs):
             '--share',
             action='store_true',
             default=None,
-            help=_("Share meter between projects")
+            help=_("Share meter between projects"),
         )
         share_group.add_argument(
             '--no-share',
             action='store_true',
-            help=_("Do not share meter between projects")
+            help=_("Do not share meter between projects"),
         )
         parser.add_argument(
             'name',
@@ -105,7 +103,8 @@ class CreateMeter(command.ShowOne, common.NeutronCommandWithExtraArgs):
         client = self.app.client_manager.network
         attrs = _get_attrs(self.app.client_manager, parsed_args)
         attrs.update(
-            self._parse_extra_properties(parsed_args.extra_properties))
+            self._parse_extra_properties(parsed_args.extra_properties)
+        )
         obj = client.create_metering_label(**attrs)
         display_columns, columns = _get_columns(obj)
         data = utils.get_item_properties(obj, columns, formatters={})
@@ -125,7 +124,7 @@ class DeleteMeter(command.Command):
             'meter',
             metavar='<meter>',
             nargs='+',
-            help=_('Meter to delete (name or ID)')
+            help=_('Meter to delete (name or ID)'),
         )
         return parser
 
@@ -139,13 +138,16 @@ class DeleteMeter(command.Command):
                 client.delete_metering_label(obj)
             except Exception as e:
                 result += 1
-                LOG.error(_("Failed to delete meter with "
-                            "ID '%(meter)s': %(e)s"),
-                          {"meter": meter, "e": e})
+                LOG.error(
+                    _("Failed to delete meter with " "ID '%(meter)s': %(e)s"),
+                    {"meter": meter, "e": e},
+                )
         if result > 0:
             total = len(parsed_args.meter)
-            msg = (_("%(result)s of %(total)s meters failed "
-                     "to delete.") % {"result": result, "total": total})
+            msg = _("%(result)s of %(total)s meters failed " "to delete.") % {
+                "result": result,
+                "total": total,
+            }
             raise exceptions.CommandError(msg)
 
 
@@ -169,10 +171,16 @@ class ListMeter(command.Lister):
         )
 
         data = client.metering_labels()
-        return (column_headers,
-                (utils.get_item_properties(
-                    s, columns,
-                ) for s in data))
+        return (
+            column_headers,
+            (
+                utils.get_item_properties(
+                    s,
+                    columns,
+                )
+                for s in data
+            ),
+        )
 
 
 class ShowMeter(command.ShowOne):
@@ -181,16 +189,15 @@ class ShowMeter(command.ShowOne):
     def get_parser(self, prog_name):
         parser = super(ShowMeter, self).get_parser(prog_name)
         parser.add_argument(
-            'meter',
-            metavar='<meter>',
-            help=_('Meter to display (name or ID)')
+            'meter', metavar='<meter>', help=_('Meter to display (name or ID)')
         )
         return parser
 
     def take_action(self, parsed_args):
         client = self.app.client_manager.network
-        obj = client.find_metering_label(parsed_args.meter,
-                                         ignore_missing=False)
+        obj = client.find_metering_label(
+            parsed_args.meter, ignore_missing=False
+        )
         display_columns, columns = _get_columns(obj)
         data = utils.get_item_properties(obj, columns)
         return display_columns, data

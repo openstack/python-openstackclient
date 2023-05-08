@@ -32,9 +32,7 @@ def _get_columns(item):
     }
     hidden_columns = ['location', 'tenant_id']
     return utils.get_osc_show_columns_for_sdk_resource(
-        item,
-        column_map,
-        hidden_columns
+        item, column_map, hidden_columns
     )
 
 
@@ -66,21 +64,19 @@ class CreateAddressScope(command.ShowOne, common.NeutronCommandWithExtraArgs):
     def get_parser(self, prog_name):
         parser = super(CreateAddressScope, self).get_parser(prog_name)
         parser.add_argument(
-            'name',
-            metavar="<name>",
-            help=_("New address scope name")
+            'name', metavar="<name>", help=_("New address scope name")
         )
         parser.add_argument(
             '--ip-version',
             type=int,
             default=4,
             choices=[4, 6],
-            help=_("IP version (default is 4)")
+            help=_("IP version (default is 4)"),
         )
         parser.add_argument(
             '--project',
             metavar="<project>",
-            help=_("Owner's project (name or ID)")
+            help=_("Owner's project (name or ID)"),
         )
         identity_common.add_project_domain_option_to_parser(parser)
 
@@ -88,12 +84,14 @@ class CreateAddressScope(command.ShowOne, common.NeutronCommandWithExtraArgs):
         share_group.add_argument(
             '--share',
             action='store_true',
-            help=_('Share the address scope between projects')
+            help=_('Share the address scope between projects'),
         )
         share_group.add_argument(
             '--no-share',
             action='store_true',
-            help=_('Do not share the address scope between projects (default)')
+            help=_(
+                'Do not share the address scope between projects (default)'
+            ),
         )
 
         return parser
@@ -102,7 +100,8 @@ class CreateAddressScope(command.ShowOne, common.NeutronCommandWithExtraArgs):
         client = self.app.client_manager.network
         attrs = _get_attrs(self.app.client_manager, parsed_args)
         attrs.update(
-            self._parse_extra_properties(parsed_args.extra_properties))
+            self._parse_extra_properties(parsed_args.extra_properties)
+        )
         obj = client.create_address_scope(**attrs)
         display_columns, columns = _get_columns(obj)
         data = utils.get_item_properties(obj, columns, formatters={})
@@ -119,7 +118,7 @@ class DeleteAddressScope(command.Command):
             'address_scope',
             metavar="<address-scope>",
             nargs='+',
-            help=_("Address scope(s) to delete (name or ID)")
+            help=_("Address scope(s) to delete (name or ID)"),
         )
 
         return parser
@@ -134,14 +133,19 @@ class DeleteAddressScope(command.Command):
                 client.delete_address_scope(obj)
             except Exception as e:
                 result += 1
-                LOG.error(_("Failed to delete address scope with "
-                            "name or ID '%(scope)s': %(e)s"),
-                          {'scope': scope, 'e': e})
+                LOG.error(
+                    _(
+                        "Failed to delete address scope with "
+                        "name or ID '%(scope)s': %(e)s"
+                    ),
+                    {'scope': scope, 'e': e},
+                )
 
         if result > 0:
             total = len(parsed_args.address_scope)
-            msg = (_("%(result)s of %(total)s address scopes failed "
-                   "to delete.") % {'result': result, 'total': total})
+            msg = _(
+                "%(result)s of %(total)s address scopes failed " "to delete."
+            ) % {'result': result, 'total': total}
             raise exceptions.CommandError(msg)
 
 
@@ -156,7 +160,7 @@ class ListAddressScope(command.Lister):
         parser.add_argument(
             '--name',
             metavar='<name>',
-            help=_("List only address scopes of given name in output")
+            help=_("List only address scopes of given name in output"),
         )
         parser.add_argument(
             '--ip-version',
@@ -164,13 +168,17 @@ class ListAddressScope(command.Lister):
             choices=[4, 6],
             metavar='<ip-version>',
             dest='ip_version',
-            help=_("List address scopes of given IP version networks (4 or 6)")
+            help=_(
+                "List address scopes of given IP version networks (4 or 6)"
+            ),
         )
         parser.add_argument(
             '--project',
             metavar="<project>",
-            help=_("List address scopes according to their project "
-                   "(name or ID)")
+            help=_(
+                "List address scopes according to their project "
+                "(name or ID)"
+            ),
         )
         identity_common.add_project_domain_option_to_parser(parser)
 
@@ -178,12 +186,12 @@ class ListAddressScope(command.Lister):
         shared_group.add_argument(
             '--share',
             action='store_true',
-            help=_("List address scopes shared between projects")
+            help=_("List address scopes shared between projects"),
         )
         shared_group.add_argument(
             '--no-share',
             action='store_true',
-            help=_("List address scopes not shared between projects")
+            help=_("List address scopes not shared between projects"),
         )
         return parser
 
@@ -222,10 +230,17 @@ class ListAddressScope(command.Lister):
             attrs['project_id'] = project_id
         data = client.address_scopes(**attrs)
 
-        return (column_headers,
-                (utils.get_item_properties(
-                    s, columns, formatters={},
-                ) for s in data))
+        return (
+            column_headers,
+            (
+                utils.get_item_properties(
+                    s,
+                    columns,
+                    formatters={},
+                )
+                for s in data
+            ),
+        )
 
 
 # TODO(rtheis): Use the SDK resource mapped attribute names once the
@@ -238,23 +253,21 @@ class SetAddressScope(common.NeutronCommandWithExtraArgs):
         parser.add_argument(
             'address_scope',
             metavar="<address-scope>",
-            help=_("Address scope to modify (name or ID)")
+            help=_("Address scope to modify (name or ID)"),
         )
         parser.add_argument(
-            '--name',
-            metavar="<name>",
-            help=_('Set address scope name')
+            '--name', metavar="<name>", help=_('Set address scope name')
         )
         share_group = parser.add_mutually_exclusive_group()
         share_group.add_argument(
             '--share',
             action='store_true',
-            help=_('Share the address scope between projects')
+            help=_('Share the address scope between projects'),
         )
         share_group.add_argument(
             '--no-share',
             action='store_true',
-            help=_('Do not share the address scope between projects')
+            help=_('Do not share the address scope between projects'),
         )
 
         return parser
@@ -262,8 +275,8 @@ class SetAddressScope(common.NeutronCommandWithExtraArgs):
     def take_action(self, parsed_args):
         client = self.app.client_manager.network
         obj = client.find_address_scope(
-            parsed_args.address_scope,
-            ignore_missing=False)
+            parsed_args.address_scope, ignore_missing=False
+        )
         attrs = {}
         if parsed_args.name is not None:
             attrs['name'] = parsed_args.name
@@ -272,7 +285,8 @@ class SetAddressScope(common.NeutronCommandWithExtraArgs):
         if parsed_args.no_share:
             attrs['shared'] = False
         attrs.update(
-            self._parse_extra_properties(parsed_args.extra_properties))
+            self._parse_extra_properties(parsed_args.extra_properties)
+        )
         client.update_address_scope(obj, **attrs)
 
 
@@ -284,7 +298,7 @@ class ShowAddressScope(command.ShowOne):
         parser.add_argument(
             'address_scope',
             metavar="<address-scope>",
-            help=_("Address scope to display (name or ID)")
+            help=_("Address scope to display (name or ID)"),
         )
 
         return parser
@@ -292,8 +306,8 @@ class ShowAddressScope(command.ShowOne):
     def take_action(self, parsed_args):
         client = self.app.client_manager.network
         obj = client.find_address_scope(
-            parsed_args.address_scope,
-            ignore_missing=False)
+            parsed_args.address_scope, ignore_missing=False
+        )
         display_columns, columns = _get_columns(obj)
         data = utils.get_item_properties(obj, columns, formatters={})
 

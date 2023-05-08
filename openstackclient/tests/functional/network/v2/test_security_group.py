@@ -27,12 +27,12 @@ class SecurityGroupTests(common.NetworkTests):
         self.NAME = uuid.uuid4().hex
         self.OTHER_NAME = uuid.uuid4().hex
         cmd_output = self.openstack(
-            'security group create ' +
-            self.NAME,
+            'security group create ' + self.NAME,
             parse_output=True,
         )
-        self.addCleanup(self.openstack,
-                        'security group delete ' + cmd_output['id'])
+        self.addCleanup(
+            self.openstack, 'security group delete ' + cmd_output['id']
+        )
         self.assertEqual(self.NAME, cmd_output['name'])
 
     def test_security_group_list(self):
@@ -42,8 +42,10 @@ class SecurityGroupTests(common.NetworkTests):
     def test_security_group_set(self):
         other_name = uuid.uuid4().hex
         raw_output = self.openstack(
-            'security group set --description NSA --stateless --name ' +
-            other_name + ' ' + self.NAME
+            'security group set --description NSA --stateless --name '
+            + other_name
+            + ' '
+            + self.NAME
         )
         self.assertEqual('', raw_output)
 

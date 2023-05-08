@@ -25,7 +25,6 @@ from openstackclient.tests.unit import utils as tests_utils
 
 
 class TestMeter(network_fakes.TestNetworkV2):
-
     def setUp(self):
         super(TestMeter, self).setUp()
         self.network = self.app.client_manager.network
@@ -37,10 +36,7 @@ class TestCreateMeter(TestMeter):
     project = identity_fakes_v3.FakeProject.create_one_project()
     domain = identity_fakes_v3.FakeDomain.create_one_domain()
 
-    new_meter = (
-        network_fakes.FakeNetworkMeter.
-        create_one_meter()
-    )
+    new_meter = network_fakes.FakeNetworkMeter.create_one_meter()
     columns = (
         'description',
         'id',
@@ -60,7 +56,8 @@ class TestCreateMeter(TestMeter):
     def setUp(self):
         super(TestCreateMeter, self).setUp()
         self.network.create_metering_label = mock.Mock(
-            return_value=self.new_meter)
+            return_value=self.new_meter
+        )
         self.projects_mock.get.return_value = self.project
         self.cmd = network_meter.CreateMeter(self.app, self.namespace)
 
@@ -68,8 +65,13 @@ class TestCreateMeter(TestMeter):
         arglist = []
         verifylist = []
 
-        self.assertRaises(tests_utils.ParserException, self.check_parser,
-                          self.cmd, arglist, verifylist)
+        self.assertRaises(
+            tests_utils.ParserException,
+            self.check_parser,
+            self.cmd,
+            arglist,
+            verifylist,
+        )
 
     def test_create_default_options(self):
         arglist = [
@@ -81,7 +83,7 @@ class TestCreateMeter(TestMeter):
         ]
 
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
-        columns, data = (self.cmd.take_action(parsed_args))
+        columns, data = self.cmd.take_action(parsed_args)
 
         self.network.create_metering_label.assert_called_once_with(
             **{'name': self.new_meter.name}
@@ -91,9 +93,12 @@ class TestCreateMeter(TestMeter):
 
     def test_create_all_options(self):
         arglist = [
-            "--description", self.new_meter.description,
-            "--project", self.new_meter.project_id,
-            "--project-domain", self.domain.name,
+            "--description",
+            self.new_meter.description,
+            "--project",
+            self.new_meter.project_id,
+            "--project-domain",
+            self.domain.name,
             "--share",
             self.new_meter.name,
         ]
@@ -107,32 +112,31 @@ class TestCreateMeter(TestMeter):
         ]
 
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
-        columns, data = (self.cmd.take_action(parsed_args))
+        columns, data = self.cmd.take_action(parsed_args)
 
         self.network.create_metering_label.assert_called_once_with(
-            **{'description': self.new_meter.description,
-               'name': self.new_meter.name,
-               'project_id': self.project.id,
-               'shared': True, }
+            **{
+                'description': self.new_meter.description,
+                'name': self.new_meter.name,
+                'project_id': self.project.id,
+                'shared': True,
+            }
         )
         self.assertEqual(self.columns, columns)
         self.assertEqual(self.data, data)
 
 
 class TestDeleteMeter(TestMeter):
-
     def setUp(self):
         super(TestDeleteMeter, self).setUp()
 
-        self.meter_list = \
-            network_fakes.FakeNetworkMeter.create_meter(count=2)
+        self.meter_list = network_fakes.FakeNetworkMeter.create_meter(count=2)
 
         self.network.delete_metering_label = mock.Mock(return_value=None)
 
-        self.network.find_metering_label = network_fakes \
-            .FakeNetworkMeter.get_meter(
-                meter=self.meter_list
-            )
+        self.network.find_metering_label = (
+            network_fakes.FakeNetworkMeter.get_meter(meter=self.meter_list)
+        )
 
         self.cmd = network_meter.DeleteMeter(self.app, self.namespace)
 
@@ -196,8 +200,9 @@ class TestDeleteMeter(TestMeter):
         ]
         self.network.delete_metering_label = mock.Mock(side_effect=ret_delete)
 
-        self.assertRaises(exceptions.CommandError, self.cmd.take_action,
-                          parsed_args)
+        self.assertRaises(
+            exceptions.CommandError, self.cmd.take_action, parsed_args
+        )
 
         calls = [
             call(self.meter_list[0]),
@@ -207,9 +212,7 @@ class TestDeleteMeter(TestMeter):
 
 
 class TestListMeter(TestMeter):
-
-    meter_list = \
-        network_fakes.FakeNetworkMeter.create_meter(count=2)
+    meter_list = network_fakes.FakeNetworkMeter.create_meter(count=2)
 
     columns = (
         'ID',
@@ -221,19 +224,19 @@ class TestListMeter(TestMeter):
     data = []
 
     for meters in meter_list:
-        data.append((
-            meters.id,
-            meters.name,
-            meters.description,
-            meters.shared,
-        ))
+        data.append(
+            (
+                meters.id,
+                meters.name,
+                meters.description,
+                meters.shared,
+            )
+        )
 
     def setUp(self):
         super(TestListMeter, self).setUp()
 
-        self.network.metering_labels = mock.Mock(
-            return_value=self.meter_list
-        )
+        self.network.metering_labels = mock.Mock(return_value=self.meter_list)
 
         self.cmd = network_meter.ListMeter(self.app, self.namespace)
 
@@ -251,10 +254,7 @@ class TestListMeter(TestMeter):
 
 
 class TestShowMeter(TestMeter):
-    new_meter = (
-        network_fakes.FakeNetworkMeter.
-        create_one_meter()
-    )
+    new_meter = network_fakes.FakeNetworkMeter.create_one_meter()
     columns = (
         'description',
         'id',
@@ -276,15 +276,21 @@ class TestShowMeter(TestMeter):
 
         self.cmd = network_meter.ShowMeter(self.app, self.namespace)
 
-        self.network.find_metering_label = \
-            mock.Mock(return_value=self.new_meter)
+        self.network.find_metering_label = mock.Mock(
+            return_value=self.new_meter
+        )
 
     def test_show_no_options(self):
         arglist = []
         verifylist = []
 
-        self.assertRaises(tests_utils.ParserException, self.check_parser,
-                          self.cmd, arglist, verifylist)
+        self.assertRaises(
+            tests_utils.ParserException,
+            self.check_parser,
+            self.cmd,
+            arglist,
+            verifylist,
+        )
 
     def test_meter_show_option(self):
         arglist = [

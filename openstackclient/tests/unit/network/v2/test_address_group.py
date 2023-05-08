@@ -23,7 +23,6 @@ from openstackclient.tests.unit import utils as tests_utils
 
 
 class TestAddressGroup(network_fakes.TestNetworkV2):
-
     def setUp(self):
         super(TestAddressGroup, self).setUp()
 
@@ -36,16 +35,14 @@ class TestAddressGroup(network_fakes.TestNetworkV2):
 
 
 class TestCreateAddressGroup(TestAddressGroup):
-
     project = identity_fakes_v3.FakeProject.create_one_project()
     domain = identity_fakes_v3.FakeDomain.create_one_domain()
     # The new address group created.
-    new_address_group = (
-        network_fakes.create_one_address_group(
-            attrs={
-                'project_id': project.id,
-            }
-        ))
+    new_address_group = network_fakes.create_one_address_group(
+        attrs={
+            'project_id': project.id,
+        }
+    )
     columns = (
         'addresses',
         'description',
@@ -64,7 +61,8 @@ class TestCreateAddressGroup(TestAddressGroup):
     def setUp(self):
         super(TestCreateAddressGroup, self).setUp()
         self.network.create_address_group = mock.Mock(
-            return_value=self.new_address_group)
+            return_value=self.new_address_group
+        )
 
         # Get the command object to test
         self.cmd = address_group.CreateAddressGroup(self.app, self.namespace)
@@ -77,8 +75,13 @@ class TestCreateAddressGroup(TestAddressGroup):
         verifylist = []
 
         # Missing required args should bail here
-        self.assertRaises(tests_utils.ParserException, self.check_parser,
-                          self.cmd, arglist, verifylist)
+        self.assertRaises(
+            tests_utils.ParserException,
+            self.check_parser,
+            self.cmd,
+            arglist,
+            verifylist,
+        )
 
     def test_create_default_options(self):
         arglist = [
@@ -92,21 +95,27 @@ class TestCreateAddressGroup(TestAddressGroup):
         ]
 
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
-        columns, data = (self.cmd.take_action(parsed_args))
+        columns, data = self.cmd.take_action(parsed_args)
 
-        self.network.create_address_group.assert_called_once_with(**{
-            'name': self.new_address_group.name,
-            'addresses': [],
-        })
+        self.network.create_address_group.assert_called_once_with(
+            **{
+                'name': self.new_address_group.name,
+                'addresses': [],
+            }
+        )
         self.assertEqual(self.columns, columns)
         self.assertCountEqual(self.data, data)
 
     def test_create_all_options(self):
         arglist = [
-            '--project', self.project.name,
-            '--project-domain', self.domain.name,
-            '--address', '10.0.0.1',
-            '--description', self.new_address_group.description,
+            '--project',
+            self.project.name,
+            '--project-domain',
+            self.domain.name,
+            '--address',
+            '10.0.0.1',
+            '--description',
+            self.new_address_group.description,
             self.new_address_group.name,
         ]
         verifylist = [
@@ -118,20 +127,21 @@ class TestCreateAddressGroup(TestAddressGroup):
         ]
 
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
-        columns, data = (self.cmd.take_action(parsed_args))
+        columns, data = self.cmd.take_action(parsed_args)
 
-        self.network.create_address_group.assert_called_once_with(**{
-            'addresses': ['10.0.0.1/32'],
-            'project_id': self.project.id,
-            'name': self.new_address_group.name,
-            'description': self.new_address_group.description,
-        })
+        self.network.create_address_group.assert_called_once_with(
+            **{
+                'addresses': ['10.0.0.1/32'],
+                'project_id': self.project.id,
+                'name': self.new_address_group.name,
+                'description': self.new_address_group.description,
+            }
+        )
         self.assertEqual(self.columns, columns)
         self.assertCountEqual(self.data, data)
 
 
 class TestDeleteAddressGroup(TestAddressGroup):
-
     # The address group to delete.
     _address_groups = network_fakes.create_address_groups(count=2)
 
@@ -139,7 +149,8 @@ class TestDeleteAddressGroup(TestAddressGroup):
         super(TestDeleteAddressGroup, self).setUp()
         self.network.delete_address_group = mock.Mock(return_value=None)
         self.network.find_address_group = network_fakes.get_address_groups(
-            address_groups=self._address_groups)
+            address_groups=self._address_groups
+        )
 
         # Get the command object to test
         self.cmd = address_group.DeleteAddressGroup(self.app, self.namespace)
@@ -156,9 +167,11 @@ class TestDeleteAddressGroup(TestAddressGroup):
 
         result = self.cmd.take_action(parsed_args)
         self.network.find_address_group.assert_called_once_with(
-            self._address_groups[0].name, ignore_missing=False)
+            self._address_groups[0].name, ignore_missing=False
+        )
         self.network.delete_address_group.assert_called_once_with(
-            self._address_groups[0])
+            self._address_groups[0]
+        )
         self.assertIsNone(result)
 
     def test_multi_address_groups_delete(self):
@@ -185,14 +198,16 @@ class TestDeleteAddressGroup(TestAddressGroup):
             'unexist_address_group',
         ]
         verifylist = [
-            ('address_group',
-             [self._address_groups[0].name, 'unexist_address_group']),
+            (
+                'address_group',
+                [self._address_groups[0].name, 'unexist_address_group'],
+            ),
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
         find_mock_result = [self._address_groups[0], exceptions.CommandError]
-        self.network.find_address_group = (
-            mock.Mock(side_effect=find_mock_result)
+        self.network.find_address_group = mock.Mock(
+            side_effect=find_mock_result
         )
 
         try:
@@ -202,16 +217,17 @@ class TestDeleteAddressGroup(TestAddressGroup):
             self.assertEqual('1 of 2 address groups failed to delete.', str(e))
 
         self.network.find_address_group.assert_any_call(
-            self._address_groups[0].name, ignore_missing=False)
+            self._address_groups[0].name, ignore_missing=False
+        )
         self.network.find_address_group.assert_any_call(
-            'unexist_address_group', ignore_missing=False)
+            'unexist_address_group', ignore_missing=False
+        )
         self.network.delete_address_group.assert_called_once_with(
             self._address_groups[0]
         )
 
 
 class TestListAddressGroup(TestAddressGroup):
-
     # The address groups to list up.
     address_groups = network_fakes.create_address_groups(count=3)
     columns = (
@@ -223,18 +239,21 @@ class TestListAddressGroup(TestAddressGroup):
     )
     data = []
     for group in address_groups:
-        data.append((
-            group.id,
-            group.name,
-            group.description,
-            group.project_id,
-            group.addresses,
-        ))
+        data.append(
+            (
+                group.id,
+                group.name,
+                group.description,
+                group.project_id,
+                group.addresses,
+            )
+        )
 
     def setUp(self):
         super(TestListAddressGroup, self).setUp()
         self.network.address_groups = mock.Mock(
-            return_value=self.address_groups)
+            return_value=self.address_groups
+        )
 
         # Get the command object to test
         self.cmd = address_group.ListAddressGroup(self.app, self.namespace)
@@ -252,7 +271,8 @@ class TestListAddressGroup(TestAddressGroup):
 
     def test_address_group_list_name(self):
         arglist = [
-            '--name', self.address_groups[0].name,
+            '--name',
+            self.address_groups[0].name,
         ]
         verifylist = [
             ('name', self.address_groups[0].name),
@@ -261,7 +281,8 @@ class TestListAddressGroup(TestAddressGroup):
         columns, data = self.cmd.take_action(parsed_args)
 
         self.network.address_groups.assert_called_once_with(
-            **{'name': self.address_groups[0].name})
+            **{'name': self.address_groups[0].name}
+        )
         self.assertEqual(self.columns, columns)
         self.assertCountEqual(self.data, list(data))
 
@@ -269,7 +290,8 @@ class TestListAddressGroup(TestAddressGroup):
         project = identity_fakes_v3.FakeProject.create_one_project()
         self.projects_mock.get.return_value = project
         arglist = [
-            '--project', project.id,
+            '--project',
+            project.id,
         ]
         verifylist = [
             ('project', project.id),
@@ -278,7 +300,8 @@ class TestListAddressGroup(TestAddressGroup):
         columns, data = self.cmd.take_action(parsed_args)
 
         self.network.address_groups.assert_called_once_with(
-            project_id=project.id)
+            project_id=project.id
+        )
         self.assertEqual(self.columns, columns)
         self.assertCountEqual(self.data, list(data))
 
@@ -286,8 +309,10 @@ class TestListAddressGroup(TestAddressGroup):
         project = identity_fakes_v3.FakeProject.create_one_project()
         self.projects_mock.get.return_value = project
         arglist = [
-            '--project', project.id,
-            '--project-domain', project.domain_id,
+            '--project',
+            project.id,
+            '--project-domain',
+            project.domain_id,
         ]
         verifylist = [
             ('project', project.id),
@@ -296,13 +321,13 @@ class TestListAddressGroup(TestAddressGroup):
         columns, data = self.cmd.take_action(parsed_args)
 
         self.network.address_groups.assert_called_once_with(
-            project_id=project.id)
+            project_id=project.id
+        )
         self.assertEqual(self.columns, columns)
         self.assertCountEqual(self.data, list(data))
 
 
 class TestSetAddressGroup(TestAddressGroup):
-
     # The address group to set.
     _address_group = network_fakes.create_one_address_group()
 
@@ -310,14 +335,18 @@ class TestSetAddressGroup(TestAddressGroup):
         super(TestSetAddressGroup, self).setUp()
         self.network.update_address_group = mock.Mock(return_value=None)
         self.network.find_address_group = mock.Mock(
-            return_value=self._address_group)
+            return_value=self._address_group
+        )
         self.network.add_addresses_to_address_group = mock.Mock(
-            return_value=self._address_group)
+            return_value=self._address_group
+        )
         # Get the command object to test
         self.cmd = address_group.SetAddressGroup(self.app, self.namespace)
 
     def test_set_nothing(self):
-        arglist = [self._address_group.name, ]
+        arglist = [
+            self._address_group.name,
+        ]
         verifylist = [
             ('address_group', self._address_group.name),
         ]
@@ -331,8 +360,10 @@ class TestSetAddressGroup(TestAddressGroup):
 
     def test_set_name_and_description(self):
         arglist = [
-            '--name', 'new_address_group_name',
-            '--description', 'new_address_group_description',
+            '--name',
+            'new_address_group_name',
+            '--description',
+            'new_address_group_description',
             self._address_group.name,
         ]
         verifylist = [
@@ -348,13 +379,15 @@ class TestSetAddressGroup(TestAddressGroup):
             'description': 'new_address_group_description',
         }
         self.network.update_address_group.assert_called_with(
-            self._address_group, **attrs)
+            self._address_group, **attrs
+        )
         self.assertIsNone(result)
 
     def test_set_one_address(self):
         arglist = [
             self._address_group.name,
-            '--address', '10.0.0.2',
+            '--address',
+            '10.0.0.2',
         ]
         verifylist = [
             ('address_group', self._address_group.name),
@@ -364,14 +397,17 @@ class TestSetAddressGroup(TestAddressGroup):
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
         result = self.cmd.take_action(parsed_args)
         self.network.add_addresses_to_address_group.assert_called_once_with(
-            self._address_group, ['10.0.0.2/32'])
+            self._address_group, ['10.0.0.2/32']
+        )
         self.assertIsNone(result)
 
     def test_set_multiple_addresses(self):
         arglist = [
             self._address_group.name,
-            '--address', '10.0.0.2',
-            '--address', '2001::/16',
+            '--address',
+            '10.0.0.2',
+            '--address',
+            '2001::/16',
         ]
         verifylist = [
             ('address_group', self._address_group.name),
@@ -381,12 +417,12 @@ class TestSetAddressGroup(TestAddressGroup):
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
         result = self.cmd.take_action(parsed_args)
         self.network.add_addresses_to_address_group.assert_called_once_with(
-            self._address_group, ['10.0.0.2/32', '2001::/16'])
+            self._address_group, ['10.0.0.2/32', '2001::/16']
+        )
         self.assertIsNone(result)
 
 
 class TestShowAddressGroup(TestAddressGroup):
-
     # The address group to show.
     _address_group = network_fakes.create_one_address_group()
     columns = (
@@ -407,7 +443,8 @@ class TestShowAddressGroup(TestAddressGroup):
     def setUp(self):
         super(TestShowAddressGroup, self).setUp()
         self.network.find_address_group = mock.Mock(
-            return_value=self._address_group)
+            return_value=self._address_group
+        )
 
         # Get the command object to test
         self.cmd = address_group.ShowAddressGroup(self.app, self.namespace)
@@ -417,8 +454,13 @@ class TestShowAddressGroup(TestAddressGroup):
         verifylist = []
 
         # Missing required args should bail here
-        self.assertRaises(tests_utils.ParserException, self.check_parser,
-                          self.cmd, arglist, verifylist)
+        self.assertRaises(
+            tests_utils.ParserException,
+            self.check_parser,
+            self.cmd,
+            arglist,
+            verifylist,
+        )
 
     def test_show_all_options(self):
         arglist = [
@@ -432,27 +474,31 @@ class TestShowAddressGroup(TestAddressGroup):
         columns, data = self.cmd.take_action(parsed_args)
 
         self.network.find_address_group.assert_called_once_with(
-            self._address_group.name, ignore_missing=False)
+            self._address_group.name, ignore_missing=False
+        )
         self.assertEqual(self.columns, columns)
         self.assertCountEqual(self.data, list(data))
 
 
 class TestUnsetAddressGroup(TestAddressGroup):
-
     # The address group to unset.
     _address_group = network_fakes.create_one_address_group()
 
     def setUp(self):
         super(TestUnsetAddressGroup, self).setUp()
         self.network.find_address_group = mock.Mock(
-            return_value=self._address_group)
+            return_value=self._address_group
+        )
         self.network.remove_addresses_from_address_group = mock.Mock(
-            return_value=self._address_group)
+            return_value=self._address_group
+        )
         # Get the command object to test
         self.cmd = address_group.UnsetAddressGroup(self.app, self.namespace)
 
     def test_unset_nothing(self):
-        arglist = [self._address_group.name, ]
+        arglist = [
+            self._address_group.name,
+        ]
         verifylist = [
             ('address_group', self._address_group.name),
         ]
@@ -466,7 +512,8 @@ class TestUnsetAddressGroup(TestAddressGroup):
     def test_unset_one_address(self):
         arglist = [
             self._address_group.name,
-            '--address', '10.0.0.2',
+            '--address',
+            '10.0.0.2',
         ]
         verifylist = [
             ('address_group', self._address_group.name),
@@ -475,15 +522,18 @@ class TestUnsetAddressGroup(TestAddressGroup):
 
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
         result = self.cmd.take_action(parsed_args)
-        self.network.remove_addresses_from_address_group.\
-            assert_called_once_with(self._address_group, ['10.0.0.2/32'])
+        self.network.remove_addresses_from_address_group.assert_called_once_with(  # noqa: E501
+            self._address_group, ['10.0.0.2/32']
+        )
         self.assertIsNone(result)
 
     def test_unset_multiple_addresses(self):
         arglist = [
             self._address_group.name,
-            '--address', '10.0.0.2',
-            '--address', '2001::/16',
+            '--address',
+            '10.0.0.2',
+            '--address',
+            '2001::/16',
         ]
         verifylist = [
             ('address_group', self._address_group.name),
@@ -492,7 +542,7 @@ class TestUnsetAddressGroup(TestAddressGroup):
 
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
         result = self.cmd.take_action(parsed_args)
-        self.network.remove_addresses_from_address_group.\
-            assert_called_once_with(self._address_group,
-                                    ['10.0.0.2/32', '2001::/16'])
+        self.network.remove_addresses_from_address_group.assert_called_once_with(  # noqa: E501
+            self._address_group, ['10.0.0.2/32', '2001::/16']
+        )
         self.assertIsNone(result)

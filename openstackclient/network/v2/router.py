@@ -81,7 +81,8 @@ def _get_columns(item):
         invisible_columns.append('is_distributed')
         column_map.pop('is_distributed')
     return utils.get_osc_show_columns_for_sdk_resource(
-        item, column_map, invisible_columns)
+        item, column_map, invisible_columns
+    )
 
 
 def _get_attrs(client_manager, parsed_args):
@@ -96,8 +97,10 @@ def _get_attrs(client_manager, parsed_args):
         attrs['distributed'] = False
     if parsed_args.distributed:
         attrs['distributed'] = True
-    if ('availability_zone_hints' in parsed_args and
-            parsed_args.availability_zone_hints is not None):
+    if (
+        'availability_zone_hints' in parsed_args
+        and parsed_args.availability_zone_hints is not None
+    ):
         attrs['availability_zone_hints'] = parsed_args.availability_zone_hints
     if parsed_args.description is not None:
         attrs['description'] = parsed_args.description
@@ -114,7 +117,8 @@ def _get_attrs(client_manager, parsed_args):
         gateway_info = {}
         n_client = client_manager.network
         network = n_client.find_network(
-            parsed_args.external_gateway, ignore_missing=False)
+            parsed_args.external_gateway, ignore_missing=False
+        )
         gateway_info['network_id'] = network.id
         if parsed_args.disable_snat:
             gateway_info['enable_snat'] = False
@@ -126,8 +130,9 @@ def _get_attrs(client_manager, parsed_args):
                 if ip_spec.get('subnet', False):
                     subnet_name_id = ip_spec.pop('subnet')
                     if subnet_name_id:
-                        subnet = n_client.find_subnet(subnet_name_id,
-                                                      ignore_missing=False)
+                        subnet = n_client.find_subnet(
+                            subnet_name_id, ignore_missing=False
+                        )
                         ip_spec['subnet_id'] = subnet.id
                 if ip_spec.get('ip-address', False):
                     ip_spec['ip_address'] = ip_spec.pop('ip-address')
@@ -146,20 +151,20 @@ class AddPortToRouter(command.Command):
         parser.add_argument(
             'router',
             metavar='<router>',
-            help=_("Router to which port will be added (name or ID)")
+            help=_("Router to which port will be added (name or ID)"),
         )
         parser.add_argument(
-            'port',
-            metavar='<port>',
-            help=_("Port to be added (name or ID)")
+            'port', metavar='<port>', help=_("Port to be added (name or ID)")
         )
         return parser
 
     def take_action(self, parsed_args):
         client = self.app.client_manager.network
         port = client.find_port(parsed_args.port, ignore_missing=False)
-        client.add_interface_to_router(client.find_router(
-            parsed_args.router, ignore_missing=False), port_id=port.id)
+        client.add_interface_to_router(
+            client.find_router(parsed_args.router, ignore_missing=False),
+            port_id=port.id,
+        )
 
 
 class AddSubnetToRouter(command.Command):
@@ -170,23 +175,22 @@ class AddSubnetToRouter(command.Command):
         parser.add_argument(
             'router',
             metavar='<router>',
-            help=_("Router to which subnet will be added (name or ID)")
+            help=_("Router to which subnet will be added (name or ID)"),
         )
         parser.add_argument(
             'subnet',
             metavar='<subnet>',
-            help=_("Subnet to be added (name or ID)")
+            help=_("Subnet to be added (name or ID)"),
         )
         return parser
 
     def take_action(self, parsed_args):
         client = self.app.client_manager.network
-        subnet = client.find_subnet(parsed_args.subnet,
-                                    ignore_missing=False)
+        subnet = client.find_subnet(parsed_args.subnet, ignore_missing=False)
         client.add_interface_to_router(
-            client.find_router(parsed_args.router,
-                               ignore_missing=False),
-            subnet_id=subnet.id)
+            client.find_router(parsed_args.router, ignore_missing=False),
+            subnet_id=subnet.id,
+        )
 
 
 class AddExtraRoutesToRouter(command.ShowOne):
@@ -197,8 +201,10 @@ class AddExtraRoutesToRouter(command.ShowOne):
         parser.add_argument(
             'router',
             metavar='<router>',
-            help=_("Router to which extra static routes "
-                   "will be added (name or ID).")
+            help=_(
+                "Router to which extra static routes "
+                "will be added (name or ID)."
+            ),
         )
         parser.add_argument(
             '--route',
@@ -207,14 +213,16 @@ class AddExtraRoutesToRouter(command.ShowOne):
             dest='routes',
             default=[],
             required_keys=['destination', 'gateway'],
-            help=_("Add extra static route to the router. "
-                   "destination: destination subnet (in CIDR notation), "
-                   "gateway: nexthop IP address. "
-                   "Repeat option to add multiple routes. "
-                   "Trying to add a route that's already present "
-                   "(exactly, including destination and nexthop) "
-                   "in the routing table is allowed and is considered "
-                   "a successful operation.")
+            help=_(
+                "Add extra static route to the router. "
+                "destination: destination subnet (in CIDR notation), "
+                "gateway: nexthop IP address. "
+                "Repeat option to add multiple routes. "
+                "Trying to add a route that's already present "
+                "(exactly, including destination and nexthop) "
+                "in the routing table is allowed and is considered "
+                "a successful operation."
+            ),
         )
         return parser
 
@@ -225,24 +233,29 @@ class AddExtraRoutesToRouter(command.ShowOne):
         client = self.app.client_manager.network
         router_obj = client.add_extra_routes_to_router(
             client.find_router(parsed_args.router, ignore_missing=False),
-            body={'router': {'routes': parsed_args.routes}})
+            body={'router': {'routes': parsed_args.routes}},
+        )
         display_columns, columns = _get_columns(router_obj)
         data = utils.get_item_properties(
-            router_obj, columns, formatters=_formatters)
+            router_obj, columns, formatters=_formatters
+        )
         return (display_columns, data)
 
 
 class RemoveExtraRoutesFromRouter(command.ShowOne):
     _description = _(
-        "Remove extra static routes from a router's routing table.")
+        "Remove extra static routes from a router's routing table."
+    )
 
     def get_parser(self, prog_name):
         parser = super(RemoveExtraRoutesFromRouter, self).get_parser(prog_name)
         parser.add_argument(
             'router',
             metavar='<router>',
-            help=_("Router from which extra static routes "
-                   "will be removed (name or ID).")
+            help=_(
+                "Router from which extra static routes "
+                "will be removed (name or ID)."
+            ),
         )
         parser.add_argument(
             '--route',
@@ -251,14 +264,16 @@ class RemoveExtraRoutesFromRouter(command.ShowOne):
             dest='routes',
             default=[],
             required_keys=['destination', 'gateway'],
-            help=_("Remove extra static route from the router. "
-                   "destination: destination subnet (in CIDR notation), "
-                   "gateway: nexthop IP address. "
-                   "Repeat option to remove multiple routes. "
-                   "Trying to remove a route that's already missing "
-                   "(fully, including destination and nexthop) "
-                   "from the routing table is allowed and is considered "
-                   "a successful operation.")
+            help=_(
+                "Remove extra static route from the router. "
+                "destination: destination subnet (in CIDR notation), "
+                "gateway: nexthop IP address. "
+                "Repeat option to remove multiple routes. "
+                "Trying to remove a route that's already missing "
+                "(fully, including destination and nexthop) "
+                "from the routing table is allowed and is considered "
+                "a successful operation."
+            ),
         )
         return parser
 
@@ -269,10 +284,12 @@ class RemoveExtraRoutesFromRouter(command.ShowOne):
         client = self.app.client_manager.network
         router_obj = client.remove_extra_routes_from_router(
             client.find_router(parsed_args.router, ignore_missing=False),
-            body={'router': {'routes': parsed_args.routes}})
+            body={'router': {'routes': parsed_args.routes}},
+        )
         display_columns, columns = _get_columns(router_obj)
         data = utils.get_item_properties(
-            router_obj, columns, formatters=_formatters)
+            router_obj, columns, formatters=_formatters
+        )
         return (display_columns, data)
 
 
@@ -284,53 +301,47 @@ class CreateRouter(command.ShowOne, common.NeutronCommandWithExtraArgs):
     def get_parser(self, prog_name):
         parser = super(CreateRouter, self).get_parser(prog_name)
         parser.add_argument(
-            'name',
-            metavar='<name>',
-            help=_("New router name")
+            'name', metavar='<name>', help=_("New router name")
         )
         admin_group = parser.add_mutually_exclusive_group()
         admin_group.add_argument(
             '--enable',
             action='store_true',
             default=True,
-            help=_("Enable router (default)")
+            help=_("Enable router (default)"),
         )
         admin_group.add_argument(
-            '--disable',
-            action='store_true',
-            help=_("Disable router")
+            '--disable', action='store_true', help=_("Disable router")
         )
         distribute_group = parser.add_mutually_exclusive_group()
         distribute_group.add_argument(
             '--distributed',
             action='store_true',
-            help=_("Create a distributed router")
+            help=_("Create a distributed router"),
         )
         distribute_group.add_argument(
             '--centralized',
             action='store_true',
-            help=_("Create a centralized router")
+            help=_("Create a centralized router"),
         )
         ha_group = parser.add_mutually_exclusive_group()
         ha_group.add_argument(
             '--ha',
             action='store_true',
-            help=_("Create a highly available router")
+            help=_("Create a highly available router"),
         )
         ha_group.add_argument(
-            '--no-ha',
-            action='store_true',
-            help=_("Create a legacy router")
+            '--no-ha', action='store_true', help=_("Create a legacy router")
         )
         parser.add_argument(
             '--description',
             metavar='<description>',
-            help=_("Set router description")
+            help=_("Set router description"),
         )
         parser.add_argument(
             '--project',
             metavar='<project>',
-            help=_("Owner's project (name or ID)")
+            help=_("Owner's project (name or ID)"),
         )
         identity_common.add_project_domain_option_to_parser(parser)
         parser.add_argument(
@@ -338,36 +349,40 @@ class CreateRouter(command.ShowOne, common.NeutronCommandWithExtraArgs):
             metavar='<availability-zone>',
             action='append',
             dest='availability_zone_hints',
-            help=_("Availability Zone in which to create this router "
-                   "(Router Availability Zone extension required, "
-                   "repeat option to set multiple availability zones)")
+            help=_(
+                "Availability Zone in which to create this router "
+                "(Router Availability Zone extension required, "
+                "repeat option to set multiple availability zones)"
+            ),
         )
         _tag.add_tag_option_to_parser_for_create(parser, _('router'))
         parser.add_argument(
             '--external-gateway',
             metavar="<network>",
-            help=_("External Network used as router's gateway (name or ID)")
+            help=_("External Network used as router's gateway (name or ID)"),
         )
         parser.add_argument(
             '--fixed-ip',
             metavar='subnet=<subnet>,ip-address=<ip-address>',
             action=parseractions.MultiKeyValueAction,
             optional_keys=['subnet', 'ip-address'],
-            help=_("Desired IP and/or subnet (name or ID) "
-                   "on external gateway: "
-                   "subnet=<subnet>,ip-address=<ip-address> "
-                   "(repeat option to set multiple fixed IP addresses)")
+            help=_(
+                "Desired IP and/or subnet (name or ID) "
+                "on external gateway: "
+                "subnet=<subnet>,ip-address=<ip-address> "
+                "(repeat option to set multiple fixed IP addresses)"
+            ),
         )
         snat_group = parser.add_mutually_exclusive_group()
         snat_group.add_argument(
             '--enable-snat',
             action='store_true',
-            help=_("Enable Source NAT on external gateway")
+            help=_("Enable Source NAT on external gateway"),
         )
         snat_group.add_argument(
             '--disable-snat',
             action='store_true',
-            help=_("Disable Source NAT on external gateway")
+            help=_("Disable Source NAT on external gateway"),
         )
         ndp_proxy_group = parser.add_mutually_exclusive_group()
         ndp_proxy_group.add_argument(
@@ -375,14 +390,14 @@ class CreateRouter(command.ShowOne, common.NeutronCommandWithExtraArgs):
             dest='enable_ndp_proxy',
             default=None,
             action='store_true',
-            help=_("Enable IPv6 NDP proxy on external gateway")
+            help=_("Enable IPv6 NDP proxy on external gateway"),
         )
         ndp_proxy_group.add_argument(
             '--disable-ndp-proxy',
             dest='enable_ndp_proxy',
             default=None,
             action='store_false',
-            help=_("Disable IPv6 NDP proxy on external gateway")
+            help=_("Disable IPv6 NDP proxy on external gateway"),
         )
 
         return parser
@@ -396,11 +411,14 @@ class CreateRouter(command.ShowOne, common.NeutronCommandWithExtraArgs):
         if parsed_args.no_ha:
             attrs['ha'] = False
         attrs.update(
-            self._parse_extra_properties(parsed_args.extra_properties))
+            self._parse_extra_properties(parsed_args.extra_properties)
+        )
 
         if parsed_args.enable_ndp_proxy and not parsed_args.external_gateway:
-            msg = (_("You must specify '--external-gateway' in order "
-                     "to enable router's NDP proxy"))
+            msg = _(
+                "You must specify '--external-gateway' in order "
+                "to enable router's NDP proxy"
+            )
             raise exceptions.CommandError(msg)
 
         if parsed_args.enable_ndp_proxy is not None:
@@ -410,10 +428,15 @@ class CreateRouter(command.ShowOne, common.NeutronCommandWithExtraArgs):
         # tags cannot be set when created, so tags need to be set later.
         _tag.update_tags_for_set(client, obj, parsed_args)
 
-        if (parsed_args.disable_snat or parsed_args.enable_snat or
-                parsed_args.fixed_ip) and not parsed_args.external_gateway:
-            msg = (_("You must specify '--external-gateway' in order "
-                     "to specify SNAT or fixed-ip values"))
+        if (
+            parsed_args.disable_snat
+            or parsed_args.enable_snat
+            or parsed_args.fixed_ip
+        ) and not parsed_args.external_gateway:
+            msg = _(
+                "You must specify '--external-gateway' in order "
+                "to specify SNAT or fixed-ip values"
+            )
             raise exceptions.CommandError(msg)
 
         display_columns, columns = _get_columns(obj)
@@ -431,7 +454,7 @@ class DeleteRouter(command.Command):
             'router',
             metavar="<router>",
             nargs="+",
-            help=_("Router(s) to delete (name or ID)")
+            help=_("Router(s) to delete (name or ID)"),
         )
         return parser
 
@@ -445,14 +468,20 @@ class DeleteRouter(command.Command):
                 client.delete_router(obj)
             except Exception as e:
                 result += 1
-                LOG.error(_("Failed to delete router with "
-                          "name or ID '%(router)s': %(e)s"),
-                          {'router': router, 'e': e})
+                LOG.error(
+                    _(
+                        "Failed to delete router with "
+                        "name or ID '%(router)s': %(e)s"
+                    ),
+                    {'router': router, 'e': e},
+                )
 
         if result > 0:
             total = len(parsed_args.router)
-            msg = (_("%(result)s of %(total)s routers failed "
-                   "to delete.") % {'result': result, 'total': total})
+            msg = _("%(result)s of %(total)s routers failed " "to delete.") % {
+                'result': result,
+                'total': total,
+            }
             raise exceptions.CommandError(msg)
 
 
@@ -466,35 +495,31 @@ class ListRouter(command.Lister):
         parser.add_argument(
             '--name',
             metavar='<name>',
-            help=_("List routers according to their name")
+            help=_("List routers according to their name"),
         )
         admin_state_group = parser.add_mutually_exclusive_group()
         admin_state_group.add_argument(
-            '--enable',
-            action='store_true',
-            help=_("List enabled routers")
+            '--enable', action='store_true', help=_("List enabled routers")
         )
         admin_state_group.add_argument(
-            '--disable',
-            action='store_true',
-            help=_("List disabled routers")
+            '--disable', action='store_true', help=_("List disabled routers")
         )
         parser.add_argument(
             '--long',
             action='store_true',
             default=False,
-            help=_("List additional fields in output")
+            help=_("List additional fields in output"),
         )
         parser.add_argument(
             '--project',
             metavar='<project>',
-            help=_("List routers according to their project (name or ID)")
+            help=_("List routers according to their project (name or ID)"),
         )
         identity_common.add_project_domain_option_to_parser(parser)
         parser.add_argument(
             '--agent',
             metavar='<agent-id>',
-            help=_("List routers hosted by an agent (ID only)")
+            help=_("List routers hosted by an agent (ID only)"),
         )
         _tag.add_tag_filtering_option_to_parser(parser, _('routers'))
 
@@ -553,8 +578,10 @@ class ListRouter(command.Lister):
         # check if "HA" and "Distributed" columns should be displayed also
         data = list(data)
         for d in data:
-            if (d.is_distributed is not None and
-                    'is_distributed' not in columns):
+            if (
+                d.is_distributed is not None
+                and 'is_distributed' not in columns
+            ):
                 columns = columns + ('is_distributed',)
                 column_headers = column_headers + ('Distributed',)
             if d.is_ha is not None and 'is_ha' not in columns:
@@ -572,20 +599,22 @@ class ListRouter(command.Lister):
             # availability zone will be available only when
             # router_availability_zone extension is enabled
             if client.find_extension("router_availability_zone"):
-                columns = columns + (
-                    'availability_zones',
-                )
-                column_headers = column_headers + (
-                    'Availability zones',
-                )
+                columns = columns + ('availability_zones',)
+                column_headers = column_headers + ('Availability zones',)
             columns = columns + ('tags',)
             column_headers = column_headers + ('Tags',)
 
-        return (column_headers,
-                (utils.get_item_properties(
-                    s, columns,
+        return (
+            column_headers,
+            (
+                utils.get_item_properties(
+                    s,
+                    columns,
                     formatters=_formatters,
-                ) for s in data))
+                )
+                for s in data
+            ),
+        )
 
     @staticmethod
     def _filter_match(data, conditions):
@@ -610,20 +639,22 @@ class RemovePortFromRouter(command.Command):
         parser.add_argument(
             'router',
             metavar='<router>',
-            help=_("Router from which port will be removed (name or ID)")
+            help=_("Router from which port will be removed (name or ID)"),
         )
         parser.add_argument(
             'port',
             metavar='<port>',
-            help=_("Port to be removed and deleted (name or ID)")
+            help=_("Port to be removed and deleted (name or ID)"),
         )
         return parser
 
     def take_action(self, parsed_args):
         client = self.app.client_manager.network
         port = client.find_port(parsed_args.port, ignore_missing=False)
-        client.remove_interface_from_router(client.find_router(
-            parsed_args.router, ignore_missing=False), port_id=port.id)
+        client.remove_interface_from_router(
+            client.find_router(parsed_args.router, ignore_missing=False),
+            port_id=port.id,
+        )
 
 
 class RemoveSubnetFromRouter(command.Command):
@@ -634,23 +665,24 @@ class RemoveSubnetFromRouter(command.Command):
         parser.add_argument(
             'router',
             metavar='<router>',
-            help=_("Router from which the subnet will be removed (name or ID)")
+            help=_(
+                "Router from which the subnet will be removed (name or ID)"
+            ),
         )
         parser.add_argument(
             'subnet',
             metavar='<subnet>',
-            help=_("Subnet to be removed (name or ID)")
+            help=_("Subnet to be removed (name or ID)"),
         )
         return parser
 
     def take_action(self, parsed_args):
         client = self.app.client_manager.network
-        subnet = client.find_subnet(parsed_args.subnet,
-                                    ignore_missing=False)
+        subnet = client.find_subnet(parsed_args.subnet, ignore_missing=False)
         client.remove_interface_from_router(
-            client.find_router(parsed_args.router,
-                               ignore_missing=False),
-            subnet_id=subnet.id)
+            client.find_router(parsed_args.router, ignore_missing=False),
+            subnet_id=subnet.id,
+        )
 
 
 # TODO(yanxing'an): Use the SDK resource mapped attribute names once the
@@ -663,40 +695,36 @@ class SetRouter(common.NeutronCommandWithExtraArgs):
         parser.add_argument(
             'router',
             metavar="<router>",
-            help=_("Router to modify (name or ID)")
+            help=_("Router to modify (name or ID)"),
         )
         parser.add_argument(
-            '--name',
-            metavar='<name>',
-            help=_("Set router name")
+            '--name', metavar='<name>', help=_("Set router name")
         )
         parser.add_argument(
             '--description',
             metavar='<description>',
-            help=_('Set router description')
+            help=_('Set router description'),
         )
         admin_group = parser.add_mutually_exclusive_group()
         admin_group.add_argument(
             '--enable',
             action='store_true',
             default=None,
-            help=_("Enable router")
+            help=_("Enable router"),
         )
         admin_group.add_argument(
-            '--disable',
-            action='store_true',
-            help=_("Disable router")
+            '--disable', action='store_true', help=_("Disable router")
         )
         distribute_group = parser.add_mutually_exclusive_group()
         distribute_group.add_argument(
             '--distributed',
             action='store_true',
-            help=_("Set router to distributed mode (disabled router only)")
+            help=_("Set router to distributed mode (disabled router only)"),
         )
         distribute_group.add_argument(
             '--centralized',
             action='store_true',
-            help=_("Set router to centralized mode (disabled router only)")
+            help=_("Set router to centralized mode (disabled router only)"),
         )
         parser.add_argument(
             '--route',
@@ -705,60 +733,69 @@ class SetRouter(common.NeutronCommandWithExtraArgs):
             dest='routes',
             default=None,
             required_keys=['destination', 'gateway'],
-            help=_("Add routes to the router "
-                   "destination: destination subnet (in CIDR notation) "
-                   "gateway: nexthop IP address "
-                   "(repeat option to add multiple routes). "
-                   "This is deprecated in favor of 'router add/remove route' "
-                   "since it is prone to race conditions between concurrent "
-                   "clients when not used together with --no-route to "
-                   "overwrite the current value of 'routes'.")
+            help=_(
+                "Add routes to the router "
+                "destination: destination subnet (in CIDR notation) "
+                "gateway: nexthop IP address "
+                "(repeat option to add multiple routes). "
+                "This is deprecated in favor of 'router add/remove route' "
+                "since it is prone to race conditions between concurrent "
+                "clients when not used together with --no-route to "
+                "overwrite the current value of 'routes'."
+            ),
         )
         parser.add_argument(
             '--no-route',
             action='store_true',
-            help=_("Clear routes associated with the router. "
-                   "Specify both --route and --no-route to overwrite "
-                   "current value of routes.")
+            help=_(
+                "Clear routes associated with the router. "
+                "Specify both --route and --no-route to overwrite "
+                "current value of routes."
+            ),
         )
         routes_ha = parser.add_mutually_exclusive_group()
         routes_ha.add_argument(
             '--ha',
             action='store_true',
-            help=_("Set the router as highly available "
-                   "(disabled router only)")
+            help=_(
+                "Set the router as highly available " "(disabled router only)"
+            ),
         )
         routes_ha.add_argument(
             '--no-ha',
             action='store_true',
-            help=_("Clear high availability attribute of the router "
-                   "(disabled router only)")
+            help=_(
+                "Clear high availability attribute of the router "
+                "(disabled router only)"
+            ),
         )
         parser.add_argument(
             '--external-gateway',
             metavar="<network>",
-            help=_("External Network used as router's gateway (name or ID)")
+            help=_("External Network used as router's gateway (name or ID)"),
         )
         parser.add_argument(
             '--fixed-ip',
             metavar='subnet=<subnet>,ip-address=<ip-address>',
             action=parseractions.MultiKeyValueAction,
             optional_keys=['subnet', 'ip-address'],
-            help=_("Desired IP and/or subnet (name or ID) "
-                   "on external gateway: "
-                   "subnet=<subnet>,ip-address=<ip-address> "
-                   "(repeat option to set multiple fixed IP addresses)")
+            help=_(
+                "Desired IP and/or subnet (name or ID) "
+                "on external gateway: "
+                "subnet=<subnet>,ip-address=<ip-address> "
+                "(repeat option to set multiple fixed IP addresses)"
+            ),
         )
         snat_group = parser.add_mutually_exclusive_group()
         snat_group.add_argument(
             '--enable-snat',
             action='store_true',
-            help=_("Enable Source NAT on external gateway")
+            help=_("Enable Source NAT on external gateway"),
         )
         snat_group.add_argument(
             '--disable-snat',
             action='store_true',
-            help=_("Disable Source NAT on external gateway")
+            help=_("Disable Source NAT on external gateway"),
         )
         ndp_proxy_group = parser.add_mutually_exclusive_group()
         ndp_proxy_group.add_argument(
@@ -766,25 +803,25 @@ class SetRouter(common.NeutronCommandWithExtraArgs):
             dest='enable_ndp_proxy',
             default=None,
             action='store_true',
-            help=_("Enable IPv6 NDP proxy on external gateway")
+            help=_("Enable IPv6 NDP proxy on external gateway"),
         )
         ndp_proxy_group.add_argument(
             '--disable-ndp-proxy',
             dest='enable_ndp_proxy',
             default=None,
             action='store_false',
-            help=_("Disable IPv6 NDP proxy on external gateway")
+            help=_("Disable IPv6 NDP proxy on external gateway"),
         )
         qos_policy_group = parser.add_mutually_exclusive_group()
         qos_policy_group.add_argument(
             '--qos-policy',
             metavar='<qos-policy>',
-            help=_("Attach QoS policy to router gateway IPs")
+            help=_("Attach QoS policy to router gateway IPs"),
         )
         qos_policy_group.add_argument(
             '--no-qos-policy',
             action='store_true',
-            help=_("Remove QoS policy from router gateway IPs")
+            help=_("Remove QoS policy from router gateway IPs"),
         )
         _tag.add_tag_option_to_parser_for_set(parser, _('router'))
         return parser
@@ -812,20 +849,28 @@ class SetRouter(common.NeutronCommandWithExtraArgs):
                 attrs['routes'] += obj.routes
         elif parsed_args.no_route:
             attrs['routes'] = []
-        if (parsed_args.disable_snat or parsed_args.enable_snat or
-                parsed_args.fixed_ip) and not parsed_args.external_gateway:
-            msg = (_("You must specify '--external-gateway' in order "
-                     "to update the SNAT or fixed-ip values"))
+        if (
+            parsed_args.disable_snat
+            or parsed_args.enable_snat
+            or parsed_args.fixed_ip
+        ) and not parsed_args.external_gateway:
+            msg = _(
+                "You must specify '--external-gateway' in order "
+                "to update the SNAT or fixed-ip values"
+            )
             raise exceptions.CommandError(msg)
 
-        if ((parsed_args.qos_policy or parsed_args.no_qos_policy) and
-                not parsed_args.external_gateway):
+        if (
+            parsed_args.qos_policy or parsed_args.no_qos_policy
+        ) and not parsed_args.external_gateway:
             try:
                 original_net_id = obj.external_gateway_info['network_id']
             except (KeyError, TypeError):
-                msg = (_("You must specify '--external-gateway' or the router "
-                         "must already have an external network in order to "
-                         "set router gateway IP QoS"))
+                msg = _(
+                    "You must specify '--external-gateway' or the router "
+                    "must already have an external network in order to "
+                    "set router gateway IP QoS"
+                )
                 raise exceptions.CommandError(msg)
             else:
                 if not attrs.get('external_gateway_info'):
@@ -833,14 +878,16 @@ class SetRouter(common.NeutronCommandWithExtraArgs):
                 attrs['external_gateway_info']['network_id'] = original_net_id
         if parsed_args.qos_policy:
             check_qos_id = client.find_qos_policy(
-                parsed_args.qos_policy, ignore_missing=False).id
+                parsed_args.qos_policy, ignore_missing=False
+            ).id
             attrs['external_gateway_info']['qos_policy_id'] = check_qos_id
 
         if 'no_qos_policy' in parsed_args and parsed_args.no_qos_policy:
             attrs['external_gateway_info']['qos_policy_id'] = None
 
         attrs.update(
-            self._parse_extra_properties(parsed_args.extra_properties))
+            self._parse_extra_properties(parsed_args.extra_properties)
+        )
 
         if parsed_args.enable_ndp_proxy is not None:
             attrs['enable_ndp_proxy'] = parsed_args.enable_ndp_proxy
@@ -859,7 +906,7 @@ class ShowRouter(command.ShowOne):
         parser.add_argument(
             'router',
             metavar="<router>",
-            help=_("Router to display (name or ID)")
+            help=_("Router to display (name or ID)"),
         )
         return parser
 
@@ -875,7 +922,7 @@ class ShowRouter(command.ShowOne):
                     int_info = {
                         'port_id': port.id,
                         'ip_address': ip_spec.get('ip_address'),
-                        'subnet_id': ip_spec.get('subnet_id')
+                        'subnet_id': ip_spec.get('subnet_id'),
                     }
                     interfaces_info.append(int_info)
 
@@ -899,25 +946,29 @@ class UnsetRouter(common.NeutronUnsetCommandWithExtraArgs):
             dest='routes',
             default=None,
             required_keys=['destination', 'gateway'],
-            help=_("Routes to be removed from the router "
-                   "destination: destination subnet (in CIDR notation) "
-                   "gateway: nexthop IP address "
-                   "(repeat option to unset multiple routes)"))
+            help=_(
+                "Routes to be removed from the router "
+                "destination: destination subnet (in CIDR notation) "
+                "gateway: nexthop IP address "
+                "(repeat option to unset multiple routes)"
+            ),
+        )
         parser.add_argument(
             '--external-gateway',
             action='store_true',
             default=False,
-            help=_("Remove external gateway information from the router"))
+            help=_("Remove external gateway information from the router"),
+        )
         parser.add_argument(
             '--qos-policy',
             action='store_true',
             default=False,
-            help=_("Remove QoS policy from router gateway IPs")
+            help=_("Remove QoS policy from router gateway IPs"),
         )
         parser.add_argument(
             'router',
             metavar="<router>",
-            help=_("Router to modify (name or ID)")
+            help=_("Router to modify (name or ID)"),
         )
         _tag.add_tag_option_to_parser_for_unset(parser, _('router'))
         return parser
@@ -934,13 +985,15 @@ class UnsetRouter(common.NeutronUnsetCommandWithExtraArgs):
                     route['nexthop'] = route.pop('gateway')
                     tmp_routes.remove(route)
             except ValueError:
-                msg = (_("Router does not contain route %s") % route)
+                msg = _("Router does not contain route %s") % route
                 raise exceptions.CommandError(msg)
             attrs['routes'] = tmp_routes
         if parsed_args.qos_policy:
             try:
-                if (tmp_external_gateway_info['network_id'] and
-                        tmp_external_gateway_info['qos_policy_id']):
+                if (
+                    tmp_external_gateway_info['network_id']
+                    and tmp_external_gateway_info['qos_policy_id']
+                ):
                     pass
             except (KeyError, TypeError):
                 msg = _("Router does not have external network or qos policy")
@@ -948,14 +1001,15 @@ class UnsetRouter(common.NeutronUnsetCommandWithExtraArgs):
             else:
                 attrs['external_gateway_info'] = {
                     'network_id': tmp_external_gateway_info['network_id'],
-                    'qos_policy_id': None
+                    'qos_policy_id': None,
                 }
 
         if parsed_args.external_gateway:
             attrs['external_gateway_info'] = {}
 
         attrs.update(
-            self._parse_extra_properties(parsed_args.extra_properties))
+            self._parse_extra_properties(parsed_args.extra_properties)
+        )
 
         if attrs:
             client.update_router(obj, **attrs)

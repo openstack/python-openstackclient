@@ -34,9 +34,7 @@ class NetworkTests(common.NetworkTagTests):
         # Network create with minimum options
         name1 = uuid.uuid4().hex
         cmd_output = self.openstack(
-            'network create ' +
-            '--subnet 1.2.3.4/28 ' +
-            name1,
+            'network create ' + '--subnet 1.2.3.4/28 ' + name1,
             parse_output=True,
         )
         self.addCleanup(self.openstack, 'network delete ' + name1)
@@ -54,10 +52,7 @@ class NetworkTests(common.NetworkTagTests):
         # Network create with more options
         name2 = uuid.uuid4().hex
         cmd_output = self.openstack(
-            'network create ' +
-            '--subnet 1.2.4.4/28 ' +
-            '--share ' +
-            name2,
+            'network create ' + '--subnet 1.2.4.4/28 ' + '--share ' + name2,
             parse_output=True,
         )
         self.addCleanup(self.openstack, 'network delete ' + name2)
@@ -105,8 +100,7 @@ class NetworkTests(common.NetworkTagTests):
         # Network create with no options
         name1 = uuid.uuid4().hex
         cmd_output = self.openstack(
-            'network create ' +
-            name1,
+            'network create ' + name1,
             parse_output=True,
         )
         self.addCleanup(self.openstack, 'network delete ' + name1)
@@ -136,9 +130,7 @@ class NetworkTests(common.NetworkTagTests):
         # Network create with options
         name2 = uuid.uuid4().hex
         cmd_output = self.openstack(
-            'network create ' +
-            '--project demo ' +
-            name2,
+            'network create ' + '--project demo ' + name2,
             parse_output=True,
         )
         self.addCleanup(self.openstack, 'network delete ' + name2)
@@ -159,9 +151,7 @@ class NetworkTests(common.NetworkTagTests):
 
         name1 = uuid.uuid4().hex
         cmd_output = self.openstack(
-            'network create ' +
-            '--subnet 9.8.7.6/28 ' +
-            name1,
+            'network create ' + '--subnet 9.8.7.6/28 ' + name1,
             parse_output=True,
         )
         self.assertIsNotNone(cmd_output["id"])
@@ -172,9 +162,7 @@ class NetworkTests(common.NetworkTagTests):
 
         name2 = uuid.uuid4().hex
         cmd_output = self.openstack(
-            'network create ' +
-            '--subnet 8.7.6.5/28 ' +
-            name2,
+            'network create ' + '--subnet 8.7.6.5/28 ' + name2,
             parse_output=True,
         )
         self.assertIsNotNone(cmd_output["id"])
@@ -190,9 +178,7 @@ class NetworkTests(common.NetworkTagTests):
 
         name1 = uuid.uuid4().hex
         cmd_output = self.openstack(
-            'network create ' +
-            '--description aaaa ' +
-            name1,
+            'network create ' + '--description aaaa ' + name1,
             parse_output=True,
         )
         self.assertIsNotNone(cmd_output["id"])
@@ -203,9 +189,7 @@ class NetworkTests(common.NetworkTagTests):
 
         name2 = uuid.uuid4().hex
         cmd_output = self.openstack(
-            'network create ' +
-            '--description bbbb ' +
-            name2,
+            'network create ' + '--description bbbb ' + name2,
             parse_output=True,
         )
         self.assertIsNotNone(cmd_output["id"])
@@ -225,9 +209,7 @@ class NetworkTests(common.NetworkTagTests):
         else:
             network_options = '--subnet 3.4.5.6/28 '
         cmd_output = self.openstack(
-            'network create ' +
-            network_options +
-            name1,
+            'network create ' + network_options + name1,
             parse_output=True,
         )
         self.addCleanup(self.openstack, 'network delete %s' % name1)
@@ -248,9 +230,7 @@ class NetworkTests(common.NetworkTagTests):
                 cmd_output["router:external"],
             )
             self.assertFalse(cmd_output["is_default"])
-            self.assertTrue(
-                cmd_output["port_security_enabled"]
-            )
+            self.assertTrue(cmd_output["port_security_enabled"])
         else:
             self.assertEqual(
                 '3.4.5.0/28',
@@ -263,8 +243,7 @@ class NetworkTests(common.NetworkTagTests):
         else:
             network_options = '--subnet 4.5.6.7/28 '
         cmd_output = self.openstack(
-            'network create --share %s%s' %
-            (network_options, name2),
+            'network create --share %s%s' % (network_options, name2),
             parse_output=True,
         )
         self.addCleanup(self.openstack, 'network delete ' + name2)
@@ -385,15 +364,13 @@ class NetworkTests(common.NetworkTagTests):
         # Cleanup
         # Remove Agent from Network
         self.openstack(
-            'network agent remove network --dhcp %s %s' %
-            (agent_id, network_id)
+            'network agent remove network --dhcp %s %s'
+            % (agent_id, network_id)
         )
 
         # Assert
         col_name = [x["ID"] for x in cmd_output3]
-        self.assertIn(
-            network_id, col_name
-        )
+        self.assertIn(network_id, col_name)
 
     def test_network_set(self):
         """Tests create options, set, show, delete"""
@@ -408,8 +385,7 @@ class NetworkTests(common.NetworkTagTests):
             '--no-share '
             '--internal '
             '--no-default '
-            '--enable-port-security %s' %
-            name,
+            '--enable-port-security %s' % name,
             parse_output=True,
         )
         self.addCleanup(self.openstack, 'network delete %s' % name)
@@ -429,9 +405,7 @@ class NetworkTests(common.NetworkTagTests):
         )
 
         self.assertFalse(cmd_output["is_default"])
-        self.assertTrue(
-            cmd_output["port_security_enabled"]
-        )
+        self.assertTrue(cmd_output["port_security_enabled"])
 
         raw_output = self.openstack(
             'network set '
@@ -439,8 +413,7 @@ class NetworkTests(common.NetworkTagTests):
             '--disable '
             '--share '
             '--external '
-            '--disable-port-security %s' %
-            name
+            '--disable-port-security %s' % name
         )
         self.assertOutput('', raw_output)
 
@@ -463,6 +436,4 @@ class NetworkTests(common.NetworkTagTests):
             cmd_output["router:external"],
         )
         self.assertFalse(cmd_output["is_default"])
-        self.assertFalse(
-            cmd_output["port_security_enabled"]
-        )
+        self.assertFalse(cmd_output["port_security_enabled"])

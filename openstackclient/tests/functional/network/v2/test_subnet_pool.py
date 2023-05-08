@@ -32,26 +32,14 @@ class SubnetPoolTests(common.NetworkTagTests):
         name1 = uuid.uuid4().hex
         cmd_output, pool_prefix = self._subnet_pool_create("", name1)
 
-        self.assertEqual(
-            name1,
-            cmd_output["name"]
-        )
-        self.assertEqual(
-            [pool_prefix],
-            cmd_output["prefixes"]
-        )
+        self.assertEqual(name1, cmd_output["name"])
+        self.assertEqual([pool_prefix], cmd_output["prefixes"])
 
         name2 = uuid.uuid4().hex
         cmd_output, pool_prefix = self._subnet_pool_create("", name2)
 
-        self.assertEqual(
-            name2,
-            cmd_output["name"]
-        )
-        self.assertEqual(
-            [pool_prefix],
-            cmd_output["prefixes"]
-        )
+        self.assertEqual(name2, cmd_output["name"])
+        self.assertEqual([pool_prefix], cmd_output["prefixes"])
 
         del_output = self.openstack(
             'subnet pool delete ' + name1 + ' ' + name2,
@@ -85,8 +73,7 @@ class SubnetPoolTests(common.NetworkTagTests):
         name2 = uuid.uuid4().hex
 
         cmd_output, pool_prefix = self._subnet_pool_create(
-            '--project ' + demo_project_id +
-            ' --no-share ',
+            '--project ' + demo_project_id + ' --no-share ',
             name1,
         )
         self.addCleanup(self.openstack, 'subnet pool delete ' + name1)
@@ -131,8 +118,7 @@ class SubnetPoolTests(common.NetworkTagTests):
 
         # Test list --project
         cmd_output = self.openstack(
-            'subnet pool list ' +
-            '--project ' + demo_project_id,
+            'subnet pool list ' + '--project ' + demo_project_id,
             parse_output=True,
         )
         names = [x["Name"] for x in cmd_output]
@@ -141,8 +127,7 @@ class SubnetPoolTests(common.NetworkTagTests):
 
         # Test list --share
         cmd_output = self.openstack(
-            'subnet pool list ' +
-            '--share',
+            'subnet pool list ' + '--share',
             parse_output=True,
         )
         names = [x["Name"] for x in cmd_output]
@@ -151,8 +136,7 @@ class SubnetPoolTests(common.NetworkTagTests):
 
         # Test list --name
         cmd_output = self.openstack(
-            'subnet pool list ' +
-            '--name ' + name1,
+            'subnet pool list ' + '--name ' + name1,
             parse_output=True,
         )
         names = [x["Name"] for x in cmd_output]
@@ -161,8 +145,7 @@ class SubnetPoolTests(common.NetworkTagTests):
 
         # Test list --long
         cmd_output = self.openstack(
-            'subnet pool list ' +
-            '--long ',
+            'subnet pool list ' + '--long ',
             parse_output=True,
         )
         names = [x["Name"] for x in cmd_output]
@@ -175,11 +158,11 @@ class SubnetPoolTests(common.NetworkTagTests):
         name = uuid.uuid4().hex
         new_name = name + "_"
         cmd_output, pool_prefix = self._subnet_pool_create(
-            '--default-prefix-length 16 ' +
-            '--min-prefix-length 16 ' +
-            '--max-prefix-length 32 ' +
-            '--description aaaa ' +
-            '--default-quota 10 ',
+            '--default-prefix-length 16 '
+            + '--min-prefix-length 16 '
+            + '--max-prefix-length 32 '
+            + '--description aaaa '
+            + '--default-quota 10 ',
             name,
         )
 
@@ -218,21 +201,21 @@ class SubnetPoolTests(common.NetworkTagTests):
 
         # Test set
         cmd_output = self.openstack(
-            'subnet pool set ' +
-            '--name ' + new_name +
-            ' --description bbbb ' +
-            ' --pool-prefix 10.110.0.0/16 ' +
-            '--default-prefix-length 8 ' +
-            '--min-prefix-length 8 ' +
-            '--max-prefix-length 16 ' +
-            '--default-quota 20 ' +
-            name,
+            'subnet pool set '
+            + '--name '
+            + new_name
+            + ' --description bbbb '
+            + ' --pool-prefix 10.110.0.0/16 '
+            + '--default-prefix-length 8 '
+            + '--min-prefix-length 8 '
+            + '--max-prefix-length 16 '
+            + '--default-quota 20 '
+            + name,
         )
         self.assertOutput('', cmd_output)
 
         cmd_output = self.openstack(
-            'subnet pool show ' +
-            new_name,
+            'subnet pool show ' + new_name,
             parse_output=True,
         )
         self.assertEqual(
@@ -300,26 +283,42 @@ class SubnetPoolTests(common.NetworkTagTests):
         for i in range(4):
             # Create a random prefix
             if is_type_ipv4:
-                pool_prefix = ".".join(map(
-                    str,
-                    (random.randint(0, 223) for _ in range(2)),
-                )) + ".0.0/16"
+                pool_prefix = (
+                    ".".join(
+                        map(
+                            str,
+                            (random.randint(0, 223) for _ in range(2)),
+                        )
+                    )
+                    + ".0.0/16"
+                )
             else:
-                pool_prefix = ":".join(map(
-                    str,
-                    (hex(random.randint(0, 65535))[2:] for _ in range(6)),
-                )) + ":0:0/96"
+                pool_prefix = (
+                    ":".join(
+                        map(
+                            str,
+                            (
+                                hex(random.randint(0, 65535))[2:]
+                                for _ in range(6)
+                            ),
+                        )
+                    )
+                    + ":0:0/96"
+                )
 
             try:
                 cmd_output = self.openstack(
-                    'subnet pool create ' +
-                    cmd + ' ' +
-                    '--pool-prefix ' + pool_prefix + ' ' +
-                    name,
+                    'subnet pool create '
+                    + cmd
+                    + ' '
+                    + '--pool-prefix '
+                    + pool_prefix
+                    + ' '
+                    + name,
                     parse_output=True,
                 )
             except Exception:
-                if (i == 3):
+                if i == 3:
                     # Raise the exception the last time
                     raise
                 pass

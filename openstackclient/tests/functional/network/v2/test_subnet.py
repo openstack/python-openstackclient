@@ -29,8 +29,7 @@ class SubnetTests(common.NetworkTagTests):
 
             # Create a network for the all subnet tests
             cmd_output = cls.openstack(
-                'network create ' +
-                cls.NETWORK_NAME,
+                'network create ' + cls.NETWORK_NAME,
                 parse_output=True,
             )
             # Get network_id for assertEqual
@@ -41,8 +40,7 @@ class SubnetTests(common.NetworkTagTests):
         try:
             if cls.haz_network:
                 raw_output = cls.openstack(
-                    'network delete ' +
-                    cls.NETWORK_NAME
+                    'network delete ' + cls.NETWORK_NAME
                 )
                 cls.assertOutput('', raw_output)
         finally:
@@ -57,9 +55,9 @@ class SubnetTests(common.NetworkTagTests):
     def test_subnet_create_and_delete(self):
         """Test create, delete multiple"""
         name1 = uuid.uuid4().hex
-        cmd = ('subnet create --network ' +
-               self.NETWORK_NAME +
-               ' --subnet-range')
+        cmd = (
+            'subnet create --network ' + self.NETWORK_NAME + ' --subnet-range'
+        )
         cmd_output = self._subnet_create(cmd, name1)
         self.assertEqual(
             name1,
@@ -70,9 +68,9 @@ class SubnetTests(common.NetworkTagTests):
             cmd_output["network_id"],
         )
         name2 = uuid.uuid4().hex
-        cmd = ('subnet create --network ' +
-               self.NETWORK_NAME +
-               ' --subnet-range')
+        cmd = (
+            'subnet create --network ' + self.NETWORK_NAME + ' --subnet-range'
+        )
         cmd_output = self._subnet_create(cmd, name2)
         self.assertEqual(
             name2,
@@ -83,17 +81,19 @@ class SubnetTests(common.NetworkTagTests):
             cmd_output["network_id"],
         )
 
-        del_output = self.openstack(
-            'subnet delete ' + name1 + ' ' + name2)
+        del_output = self.openstack('subnet delete ' + name1 + ' ' + name2)
         self.assertOutput('', del_output)
 
     def test_subnet_list(self):
         """Test create, list filter"""
         name1 = uuid.uuid4().hex
         name2 = uuid.uuid4().hex
-        cmd = ('subnet create ' +
-               '--network ' + self.NETWORK_NAME +
-               ' --dhcp --subnet-range')
+        cmd = (
+            'subnet create '
+            + '--network '
+            + self.NETWORK_NAME
+            + ' --dhcp --subnet-range'
+        )
         cmd_output = self._subnet_create(cmd, name1)
 
         self.addCleanup(self.openstack, 'subnet delete ' + name1)
@@ -114,10 +114,13 @@ class SubnetTests(common.NetworkTagTests):
             cmd_output["ip_version"],
         )
 
-        cmd = ('subnet create ' +
-               '--network ' + self.NETWORK_NAME +
-               ' --ip-version 6 --no-dhcp ' +
-               '--subnet-range')
+        cmd = (
+            'subnet create '
+            + '--network '
+            + self.NETWORK_NAME
+            + ' --ip-version 6 --no-dhcp '
+            + '--subnet-range'
+        )
         cmd_output = self._subnet_create(cmd, name2, is_type_ipv4=False)
 
         self.addCleanup(self.openstack, 'subnet delete ' + name2)
@@ -140,8 +143,7 @@ class SubnetTests(common.NetworkTagTests):
 
         # Test list --long
         cmd_output = self.openstack(
-            'subnet list ' +
-            '--long ',
+            'subnet list ' + '--long ',
             parse_output=True,
         )
         names = [x["Name"] for x in cmd_output]
@@ -150,8 +152,7 @@ class SubnetTests(common.NetworkTagTests):
 
         # Test list --name
         cmd_output = self.openstack(
-            'subnet list ' +
-            '--name ' + name1,
+            'subnet list ' + '--name ' + name1,
             parse_output=True,
         )
         names = [x["Name"] for x in cmd_output]
@@ -160,8 +161,7 @@ class SubnetTests(common.NetworkTagTests):
 
         # Test list --ip-version
         cmd_output = self.openstack(
-            'subnet list ' +
-            '--ip-version 6',
+            'subnet list ' + '--ip-version 6',
             parse_output=True,
         )
         names = [x["Name"] for x in cmd_output]
@@ -170,8 +170,7 @@ class SubnetTests(common.NetworkTagTests):
 
         # Test list --network
         cmd_output = self.openstack(
-            'subnet list ' +
-            '--network ' + self.NETWORK_ID,
+            'subnet list ' + '--network ' + self.NETWORK_ID,
             parse_output=True,
         )
         names = [x["Name"] for x in cmd_output]
@@ -180,8 +179,7 @@ class SubnetTests(common.NetworkTagTests):
 
         # Test list --no-dhcp
         cmd_output = self.openstack(
-            'subnet list ' +
-            '--no-dhcp ',
+            'subnet list ' + '--no-dhcp ',
             parse_output=True,
         )
         names = [x["Name"] for x in cmd_output]
@@ -193,9 +191,12 @@ class SubnetTests(common.NetworkTagTests):
 
         name = uuid.uuid4().hex
         new_name = name + "_"
-        cmd = ('subnet create ' +
-               '--network ' + self.NETWORK_NAME +
-               ' --description aaaa --subnet-range')
+        cmd = (
+            'subnet create '
+            + '--network '
+            + self.NETWORK_NAME
+            + ' --description aaaa --subnet-range'
+        )
         cmd_output = self._subnet_create(cmd, name)
 
         self.addCleanup(self.openstack, 'subnet delete ' + new_name)
@@ -210,19 +211,19 @@ class SubnetTests(common.NetworkTagTests):
 
         # Test set --no-dhcp --name --gateway --description
         cmd_output = self.openstack(
-            'subnet set ' +
-            '--name ' + new_name +
-            ' --description bbbb ' +
-            '--no-dhcp ' +
-            '--gateway 10.10.11.1 ' +
-            '--service-type network:floatingip_agent_gateway ' +
-            name
+            'subnet set '
+            + '--name '
+            + new_name
+            + ' --description bbbb '
+            + '--no-dhcp '
+            + '--gateway 10.10.11.1 '
+            + '--service-type network:floatingip_agent_gateway '
+            + name
         )
         self.assertOutput('', cmd_output)
 
         cmd_output = self.openstack(
-            'subnet show ' +
-            new_name,
+            'subnet show ' + new_name,
             parse_output=True,
         )
         self.assertEqual(
@@ -248,15 +249,14 @@ class SubnetTests(common.NetworkTagTests):
 
         # Test unset
         cmd_output = self.openstack(
-            'subnet unset ' +
-            '--service-type network:floatingip_agent_gateway ' +
-            new_name
+            'subnet unset '
+            + '--service-type network:floatingip_agent_gateway '
+            + new_name
         )
         self.assertOutput('', cmd_output)
 
         cmd_output = self.openstack(
-            'subnet show ' +
-            new_name,
+            'subnet show ' + new_name,
             parse_output=True,
         )
         self.assertEqual(
@@ -271,23 +271,32 @@ class SubnetTests(common.NetworkTagTests):
         for i in range(4):
             # Make a random subnet
             if is_type_ipv4:
-                subnet = ".".join(map(
-                    str,
-                    (random.randint(0, 223) for _ in range(3))
-                )) + ".0/26"
+                subnet = (
+                    ".".join(
+                        map(str, (random.randint(0, 223) for _ in range(3)))
+                    )
+                    + ".0/26"
+                )
             else:
-                subnet = ":".join(map(
-                    str,
-                    (hex(random.randint(0, 65535))[2:] for _ in range(7))
-                )) + ":0/112"
+                subnet = (
+                    ":".join(
+                        map(
+                            str,
+                            (
+                                hex(random.randint(0, 65535))[2:]
+                                for _ in range(7)
+                            ),
+                        )
+                    )
+                    + ":0/112"
+                )
             try:
                 cmd_output = self.openstack(
-                    cmd + ' ' + subnet + ' ' +
-                    name,
+                    cmd + ' ' + subnet + ' ' + name,
                     parse_output=True,
                 )
             except Exception:
-                if (i == 3):
+                if i == 3:
                     # raise the exception at the last time
                     raise
                 pass
@@ -297,7 +306,11 @@ class SubnetTests(common.NetworkTagTests):
         return cmd_output
 
     def _create_resource_for_tag_test(self, name, args):
-        cmd = ('subnet create --network ' +
-               self.NETWORK_NAME + ' ' + args +
-               ' --subnet-range')
+        cmd = (
+            'subnet create --network '
+            + self.NETWORK_NAME
+            + ' '
+            + args
+            + ' --subnet-range'
+        )
         return self._subnet_create(cmd, name)

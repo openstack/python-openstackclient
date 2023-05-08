@@ -40,34 +40,43 @@ class NetworkTagTests(NetworkTests):
         # Network create with no options
         name1 = self._create_resource_and_tag_check('', [])
         # Network create with tags
-        name2 = self._create_resource_and_tag_check('--tag red --tag blue',
-                                                    ['red', 'blue'])
+        name2 = self._create_resource_and_tag_check(
+            '--tag red --tag blue', ['red', 'blue']
+        )
         # Network create with no tag explicitly
         name3 = self._create_resource_and_tag_check('--no-tag', [])
 
-        self._set_resource_and_tag_check('set', name1, '--tag red --tag green',
-                                         ['red', 'green'])
+        self._set_resource_and_tag_check(
+            'set', name1, '--tag red --tag green', ['red', 'green']
+        )
 
-        list_expected = ((name1, ['red', 'green']),
-                         (name2, ['red', 'blue']),
-                         (name3, []))
+        list_expected = (
+            (name1, ['red', 'green']),
+            (name2, ['red', 'blue']),
+            (name3, []),
+        )
         self._list_tag_check(auth_project_id, list_expected)
 
-        self._set_resource_and_tag_check('set', name1, '--tag blue',
-                                         ['red', 'green', 'blue'])
         self._set_resource_and_tag_check(
-            'set', name1,
+            'set', name1, '--tag blue', ['red', 'green', 'blue']
+        )
+        self._set_resource_and_tag_check(
+            'set',
+            name1,
             '--no-tag --tag yellow --tag orange --tag purple',
-            ['yellow', 'orange', 'purple'])
-        self._set_resource_and_tag_check('unset', name1, '--tag yellow',
-                                         ['orange', 'purple'])
+            ['yellow', 'orange', 'purple'],
+        )
+        self._set_resource_and_tag_check(
+            'unset', name1, '--tag yellow', ['orange', 'purple']
+        )
         self._set_resource_and_tag_check('unset', name1, '--all-tag', [])
         self._set_resource_and_tag_check('set', name2, '--no-tag', [])
 
     def _list_tag_check(self, project_id, expected):
         cmd_output = self.openstack(
-            '{} list --long --project {}'.format(self.base_command,
-                                                 project_id),
+            '{} list --long --project {}'.format(
+                self.base_command, project_id
+            ),
             parse_output=True,
         )
         for name, tags in expected:
@@ -84,7 +93,8 @@ class NetworkTagTests(NetworkTests):
         name = uuid.uuid4().hex
         cmd_output = self._create_resource_for_tag_test(name, args)
         self.addCleanup(
-            self.openstack, '{} delete {}'.format(self.base_command, name))
+            self.openstack, '{} delete {}'.format(self.base_command, name)
+        )
         self.assertIsNotNone(cmd_output["id"])
         self.assertEqual(set(expected), set(cmd_output['tags']))
         return name

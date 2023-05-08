@@ -23,7 +23,6 @@ from openstackclient.tests.unit import utils as tests_utils
 
 
 class TestAddressScope(network_fakes.TestNetworkV2):
-
     def setUp(self):
         super(TestAddressScope, self).setUp()
 
@@ -36,21 +35,15 @@ class TestAddressScope(network_fakes.TestNetworkV2):
 
 
 class TestCreateAddressScope(TestAddressScope):
-
     project = identity_fakes_v3.FakeProject.create_one_project()
     domain = identity_fakes_v3.FakeDomain.create_one_domain()
     # The new address scope created.
     new_address_scope = network_fakes.create_one_address_scope(
         attrs={
             'project_id': project.id,
-        })
-    columns = (
-        'id',
-        'ip_version',
-        'name',
-        'project_id',
-        'shared'
+        }
     )
+    columns = ('id', 'ip_version', 'name', 'project_id', 'shared')
     data = (
         new_address_scope.id,
         new_address_scope.ip_version,
@@ -62,7 +55,8 @@ class TestCreateAddressScope(TestAddressScope):
     def setUp(self):
         super(TestCreateAddressScope, self).setUp()
         self.network.create_address_scope = mock.Mock(
-            return_value=self.new_address_scope)
+            return_value=self.new_address_scope
+        )
 
         # Get the command object to test
         self.cmd = address_scope.CreateAddressScope(self.app, self.namespace)
@@ -75,8 +69,13 @@ class TestCreateAddressScope(TestAddressScope):
         verifylist = []
 
         # Missing required args should bail here
-        self.assertRaises(tests_utils.ParserException, self.check_parser,
-                          self.cmd, arglist, verifylist)
+        self.assertRaises(
+            tests_utils.ParserException,
+            self.check_parser,
+            self.cmd,
+            arglist,
+            verifylist,
+        )
 
     def test_create_default_options(self):
         arglist = [
@@ -89,21 +88,26 @@ class TestCreateAddressScope(TestAddressScope):
         ]
 
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
-        columns, data = (self.cmd.take_action(parsed_args))
+        columns, data = self.cmd.take_action(parsed_args)
 
-        self.network.create_address_scope.assert_called_once_with(**{
-            'ip_version': self.new_address_scope.ip_version,
-            'name': self.new_address_scope.name,
-        })
+        self.network.create_address_scope.assert_called_once_with(
+            **{
+                'ip_version': self.new_address_scope.ip_version,
+                'name': self.new_address_scope.name,
+            }
+        )
         self.assertEqual(self.columns, columns)
         self.assertEqual(self.data, data)
 
     def test_create_all_options(self):
         arglist = [
-            '--ip-version', str(self.new_address_scope.ip_version),
+            '--ip-version',
+            str(self.new_address_scope.ip_version),
             '--share',
-            '--project', self.project.name,
-            '--project-domain', self.domain.name,
+            '--project',
+            self.project.name,
+            '--project-domain',
+            self.domain.name,
             self.new_address_scope.name,
         ]
         verifylist = [
@@ -115,14 +119,16 @@ class TestCreateAddressScope(TestAddressScope):
         ]
 
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
-        columns, data = (self.cmd.take_action(parsed_args))
+        columns, data = self.cmd.take_action(parsed_args)
 
-        self.network.create_address_scope.assert_called_once_with(**{
-            'ip_version': self.new_address_scope.ip_version,
-            'shared': True,
-            'project_id': self.project.id,
-            'name': self.new_address_scope.name,
-        })
+        self.network.create_address_scope.assert_called_once_with(
+            **{
+                'ip_version': self.new_address_scope.ip_version,
+                'shared': True,
+                'project_id': self.project.id,
+                'name': self.new_address_scope.name,
+            }
+        )
         self.assertEqual(self.columns, columns)
         self.assertEqual(self.data, data)
 
@@ -139,17 +145,18 @@ class TestCreateAddressScope(TestAddressScope):
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
         columns, data = self.cmd.take_action(parsed_args)
 
-        self.network.create_address_scope.assert_called_once_with(**{
-            'ip_version': self.new_address_scope.ip_version,
-            'shared': False,
-            'name': self.new_address_scope.name,
-        })
+        self.network.create_address_scope.assert_called_once_with(
+            **{
+                'ip_version': self.new_address_scope.ip_version,
+                'shared': False,
+                'name': self.new_address_scope.name,
+            }
+        )
         self.assertEqual(self.columns, columns)
         self.assertEqual(self.data, data)
 
 
 class TestDeleteAddressScope(TestAddressScope):
-
     # The address scope to delete.
     _address_scopes = network_fakes.create_address_scopes(count=2)
 
@@ -157,7 +164,8 @@ class TestDeleteAddressScope(TestAddressScope):
         super(TestDeleteAddressScope, self).setUp()
         self.network.delete_address_scope = mock.Mock(return_value=None)
         self.network.find_address_scope = network_fakes.get_address_scopes(
-            address_scopes=self._address_scopes)
+            address_scopes=self._address_scopes
+        )
 
         # Get the command object to test
         self.cmd = address_scope.DeleteAddressScope(self.app, self.namespace)
@@ -174,9 +182,11 @@ class TestDeleteAddressScope(TestAddressScope):
 
         result = self.cmd.take_action(parsed_args)
         self.network.find_address_scope.assert_called_once_with(
-            self._address_scopes[0].name, ignore_missing=False)
+            self._address_scopes[0].name, ignore_missing=False
+        )
         self.network.delete_address_scope.assert_called_once_with(
-            self._address_scopes[0])
+            self._address_scopes[0]
+        )
         self.assertIsNone(result)
 
     def test_multi_address_scopes_delete(self):
@@ -204,14 +214,16 @@ class TestDeleteAddressScope(TestAddressScope):
             'unexist_address_scope',
         ]
         verifylist = [
-            ('address_scope',
-             [self._address_scopes[0].name, 'unexist_address_scope']),
+            (
+                'address_scope',
+                [self._address_scopes[0].name, 'unexist_address_scope'],
+            ),
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
         find_mock_result = [self._address_scopes[0], exceptions.CommandError]
-        self.network.find_address_scope = (
-            mock.Mock(side_effect=find_mock_result)
+        self.network.find_address_scope = mock.Mock(
+            side_effect=find_mock_result
         )
 
         try:
@@ -221,16 +233,17 @@ class TestDeleteAddressScope(TestAddressScope):
             self.assertEqual('1 of 2 address scopes failed to delete.', str(e))
 
         self.network.find_address_scope.assert_any_call(
-            self._address_scopes[0].name, ignore_missing=False)
+            self._address_scopes[0].name, ignore_missing=False
+        )
         self.network.find_address_scope.assert_any_call(
-            'unexist_address_scope', ignore_missing=False)
+            'unexist_address_scope', ignore_missing=False
+        )
         self.network.delete_address_scope.assert_called_once_with(
             self._address_scopes[0]
         )
 
 
 class TestListAddressScope(TestAddressScope):
-
     # The address scopes to list up.
     address_scopes = network_fakes.create_address_scopes(count=3)
     columns = (
@@ -242,18 +255,21 @@ class TestListAddressScope(TestAddressScope):
     )
     data = []
     for scope in address_scopes:
-        data.append((
-            scope.id,
-            scope.name,
-            scope.ip_version,
-            scope.is_shared,
-            scope.project_id,
-        ))
+        data.append(
+            (
+                scope.id,
+                scope.name,
+                scope.ip_version,
+                scope.is_shared,
+                scope.project_id,
+            )
+        )
 
     def setUp(self):
         super(TestListAddressScope, self).setUp()
         self.network.address_scopes = mock.Mock(
-            return_value=self.address_scopes)
+            return_value=self.address_scopes
+        )
 
         # Get the command object to test
         self.cmd = address_scope.ListAddressScope(self.app, self.namespace)
@@ -271,7 +287,8 @@ class TestListAddressScope(TestAddressScope):
 
     def test_address_scope_list_name(self):
         arglist = [
-            '--name', self.address_scopes[0].name,
+            '--name',
+            self.address_scopes[0].name,
         ]
         verifylist = [
             ('name', self.address_scopes[0].name),
@@ -280,13 +297,15 @@ class TestListAddressScope(TestAddressScope):
         columns, data = self.cmd.take_action(parsed_args)
 
         self.network.address_scopes.assert_called_once_with(
-            **{'name': self.address_scopes[0].name})
+            **{'name': self.address_scopes[0].name}
+        )
         self.assertEqual(self.columns, columns)
         self.assertEqual(self.data, list(data))
 
     def test_address_scope_list_ip_version(self):
         arglist = [
-            '--ip-version', str(4),
+            '--ip-version',
+            str(4),
         ]
         verifylist = [
             ('ip_version', 4),
@@ -295,7 +314,8 @@ class TestListAddressScope(TestAddressScope):
         columns, data = self.cmd.take_action(parsed_args)
 
         self.network.address_scopes.assert_called_once_with(
-            **{'ip_version': 4})
+            **{'ip_version': 4}
+        )
         self.assertEqual(self.columns, columns)
         self.assertEqual(self.data, list(data))
 
@@ -303,7 +323,8 @@ class TestListAddressScope(TestAddressScope):
         project = identity_fakes_v3.FakeProject.create_one_project()
         self.projects_mock.get.return_value = project
         arglist = [
-            '--project', project.id,
+            '--project',
+            project.id,
         ]
         verifylist = [
             ('project', project.id),
@@ -312,7 +333,8 @@ class TestListAddressScope(TestAddressScope):
         columns, data = self.cmd.take_action(parsed_args)
 
         self.network.address_scopes.assert_called_once_with(
-            **{'project_id': project.id})
+            **{'project_id': project.id}
+        )
         self.assertEqual(self.columns, columns)
         self.assertEqual(self.data, list(data))
 
@@ -320,8 +342,10 @@ class TestListAddressScope(TestAddressScope):
         project = identity_fakes_v3.FakeProject.create_one_project()
         self.projects_mock.get.return_value = project
         arglist = [
-            '--project', project.id,
-            '--project-domain', project.domain_id,
+            '--project',
+            project.id,
+            '--project-domain',
+            project.domain_id,
         ]
         verifylist = [
             ('project', project.id),
@@ -369,7 +393,6 @@ class TestListAddressScope(TestAddressScope):
 
 
 class TestSetAddressScope(TestAddressScope):
-
     # The address scope to set.
     _address_scope = network_fakes.create_one_address_scope()
 
@@ -377,13 +400,16 @@ class TestSetAddressScope(TestAddressScope):
         super(TestSetAddressScope, self).setUp()
         self.network.update_address_scope = mock.Mock(return_value=None)
         self.network.find_address_scope = mock.Mock(
-            return_value=self._address_scope)
+            return_value=self._address_scope
+        )
 
         # Get the command object to test
         self.cmd = address_scope.SetAddressScope(self.app, self.namespace)
 
     def test_set_nothing(self):
-        arglist = [self._address_scope.name, ]
+        arglist = [
+            self._address_scope.name,
+        ]
         verifylist = [
             ('address_scope', self._address_scope.name),
         ]
@@ -393,12 +419,14 @@ class TestSetAddressScope(TestAddressScope):
 
         attrs = {}
         self.network.update_address_scope.assert_called_with(
-            self._address_scope, **attrs)
+            self._address_scope, **attrs
+        )
         self.assertIsNone(result)
 
     def test_set_name_and_share(self):
         arglist = [
-            '--name', 'new_address_scope',
+            '--name',
+            'new_address_scope',
             '--share',
             self._address_scope.name,
         ]
@@ -415,7 +443,8 @@ class TestSetAddressScope(TestAddressScope):
             'shared': True,
         }
         self.network.update_address_scope.assert_called_with(
-            self._address_scope, **attrs)
+            self._address_scope, **attrs
+        )
         self.assertIsNone(result)
 
     def test_set_no_share(self):
@@ -434,15 +463,14 @@ class TestSetAddressScope(TestAddressScope):
             'shared': False,
         }
         self.network.update_address_scope.assert_called_with(
-            self._address_scope, **attrs)
+            self._address_scope, **attrs
+        )
         self.assertIsNone(result)
 
 
 class TestShowAddressScope(TestAddressScope):
-
     # The address scope to show.
-    _address_scope = (
-        network_fakes.create_one_address_scope())
+    _address_scope = network_fakes.create_one_address_scope()
     columns = (
         'id',
         'ip_version',
@@ -461,7 +489,8 @@ class TestShowAddressScope(TestAddressScope):
     def setUp(self):
         super(TestShowAddressScope, self).setUp()
         self.network.find_address_scope = mock.Mock(
-            return_value=self._address_scope)
+            return_value=self._address_scope
+        )
 
         # Get the command object to test
         self.cmd = address_scope.ShowAddressScope(self.app, self.namespace)
@@ -471,8 +500,13 @@ class TestShowAddressScope(TestAddressScope):
         verifylist = []
 
         # Missing required args should bail here
-        self.assertRaises(tests_utils.ParserException, self.check_parser,
-                          self.cmd, arglist, verifylist)
+        self.assertRaises(
+            tests_utils.ParserException,
+            self.check_parser,
+            self.cmd,
+            arglist,
+            verifylist,
+        )
 
     def test_show_all_options(self):
         arglist = [
@@ -486,6 +520,7 @@ class TestShowAddressScope(TestAddressScope):
         columns, data = self.cmd.take_action(parsed_args)
 
         self.network.find_address_scope.assert_called_once_with(
-            self._address_scope.name, ignore_missing=False)
+            self._address_scope.name, ignore_missing=False
+        )
         self.assertEqual(self.columns, columns)
         self.assertEqual(list(self.data), list(data))

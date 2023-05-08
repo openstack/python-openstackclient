@@ -92,28 +92,25 @@ def _get_columns(item):
     }
     hidden_columns = ['location']
     return utils.get_osc_show_columns_for_sdk_resource(
-        item,
-        column_map,
-        hidden_columns
+        item, column_map, hidden_columns
     )
 
 
 # TODO(abhiraut): Use the SDK resource mapped attribute names once the
 # OSC minimum requirements include SDK 1.0.
-class CreateSecurityGroup(common.NetworkAndComputeShowOne,
-                          common.NeutronCommandWithExtraArgs):
+class CreateSecurityGroup(
+    common.NetworkAndComputeShowOne, common.NeutronCommandWithExtraArgs
+):
     _description = _("Create a new security group")
 
     def update_parser_common(self, parser):
         parser.add_argument(
-            "name",
-            metavar="<name>",
-            help=_("New security group name")
+            "name", metavar="<name>", help=_("New security group name")
         )
         parser.add_argument(
             "--description",
             metavar="<description>",
-            help=_("Security group description")
+            help=_("Security group description"),
         )
         return parser
 
@@ -121,26 +118,27 @@ class CreateSecurityGroup(common.NetworkAndComputeShowOne,
         parser.add_argument(
             '--project',
             metavar='<project>',
-            help=self.enhance_help_neutron(_("Owner's project (name or ID)"))
+            help=self.enhance_help_neutron(_("Owner's project (name or ID)")),
         )
         stateful_group = parser.add_mutually_exclusive_group()
         stateful_group.add_argument(
             "--stateful",
             action='store_true',
             default=None,
-            help=_("Security group is stateful (Default)")
+            help=_("Security group is stateful (Default)"),
         )
         stateful_group.add_argument(
             "--stateless",
             action='store_true',
             default=None,
-            help=_("Security group is stateless")
+            help=_("Security group is stateless"),
         )
         identity_common.add_project_domain_option_to_parser(
-            parser, enhance_help=self.enhance_help_neutron)
+            parser, enhance_help=self.enhance_help_neutron
+        )
         _tag.add_tag_option_to_parser_for_create(
-            parser, _('security group'),
-            enhance_help=self.enhance_help_neutron)
+            parser, _('security group'), enhance_help=self.enhance_help_neutron
+        )
         return parser
 
     def _get_description(self, parsed_args):
@@ -167,7 +165,8 @@ class CreateSecurityGroup(common.NetworkAndComputeShowOne,
             ).id
             attrs['project_id'] = project_id
         attrs.update(
-            self._parse_extra_properties(parsed_args.extra_properties))
+            self._parse_extra_properties(parsed_args.extra_properties)
+        )
 
         # Create the security group and display the results.
         obj = client.create_security_group(**attrs)
@@ -175,9 +174,7 @@ class CreateSecurityGroup(common.NetworkAndComputeShowOne,
         _tag.update_tags_for_set(client, obj, parsed_args)
         display_columns, property_columns = _get_columns(obj)
         data = utils.get_item_properties(
-            obj,
-            property_columns,
-            formatters=_formatters_network
+            obj, property_columns, formatters=_formatters_network
         )
         return (display_columns, data)
 
@@ -189,9 +186,7 @@ class CreateSecurityGroup(common.NetworkAndComputeShowOne,
         )
         display_columns, property_columns = _get_columns(obj)
         data = utils.get_dict_properties(
-            obj,
-            property_columns,
-            formatters=_formatters_compute
+            obj, property_columns, formatters=_formatters_compute
         )
         return (display_columns, data)
 
@@ -241,14 +236,18 @@ class ListSecurityGroup(common.NetworkAndComputeLister):
             '--project',
             metavar='<project>',
             help=self.enhance_help_neutron(
-                _("List security groups according to the project (name or "
-                  "ID)"))
+                _(
+                    "List security groups according to the project (name or "
+                    "ID)"
+                )
+            ),
         )
         identity_common.add_project_domain_option_to_parser(
-            parser, enhance_help=self.enhance_help_neutron)
+            parser, enhance_help=self.enhance_help_neutron
+        )
         _tag.add_tag_filtering_option_to_parser(
-            parser, _('security group'),
-            enhance_help=self.enhance_help_neutron)
+            parser, _('security group'), enhance_help=self.enhance_help_neutron
+        )
         return parser
 
     def update_parser_compute(self, parser):
@@ -257,7 +256,8 @@ class ListSecurityGroup(common.NetworkAndComputeLister):
             action='store_true',
             default=False,
             help=self.enhance_help_nova_network(
-                _("Display information from all projects (admin only)"))
+                _("Display information from all projects (admin only)")
+            ),
         )
         return parser
 
@@ -273,27 +273,22 @@ class ListSecurityGroup(common.NetworkAndComputeLister):
             filters['project_id'] = project_id
 
         _tag.get_tag_filtering_args(parsed_args, filters)
-        data = client.security_groups(fields=self.FIELDS_TO_RETRIEVE,
-                                      **filters)
+        data = client.security_groups(
+            fields=self.FIELDS_TO_RETRIEVE, **filters
+        )
 
-        columns = (
-            "ID",
-            "Name",
-            "Description",
-            "Project ID",
-            "tags"
+        columns = ("ID", "Name", "Description", "Project ID", "tags")
+        column_headers = ("ID", "Name", "Description", "Project", "Tags")
+        return (
+            column_headers,
+            (
+                utils.get_item_properties(
+                    s,
+                    columns,
+                )
+                for s in data
+            ),
         )
-        column_headers = (
-            "ID",
-            "Name",
-            "Description",
-            "Project",
-            "Tags"
-        )
-        return (column_headers,
-                (utils.get_item_properties(
-                    s, columns,
-                ) for s in data))
 
     def take_action_compute(self, client, parsed_args):
         search = {'all_tenants': parsed_args.all_projects}
@@ -311,56 +306,62 @@ class ListSecurityGroup(common.NetworkAndComputeLister):
         if parsed_args.all_projects:
             columns = columns + ('Tenant ID',)
             column_headers = column_headers + ('Project',)
-        return (column_headers,
-                (utils.get_dict_properties(
-                    s, columns,
-                ) for s in data))
+        return (
+            column_headers,
+            (
+                utils.get_dict_properties(
+                    s,
+                    columns,
+                )
+                for s in data
+            ),
+        )
 
 
-class SetSecurityGroup(common.NetworkAndComputeCommand,
-                       common.NeutronCommandWithExtraArgs):
+class SetSecurityGroup(
+    common.NetworkAndComputeCommand, common.NeutronCommandWithExtraArgs
+):
     _description = _("Set security group properties")
 
     def update_parser_common(self, parser):
         parser.add_argument(
             'group',
             metavar='<group>',
-            help=_("Security group to modify (name or ID)")
+            help=_("Security group to modify (name or ID)"),
         )
         parser.add_argument(
-            '--name',
-            metavar='<new-name>',
-            help=_("New security group name")
+            '--name', metavar='<new-name>', help=_("New security group name")
         )
         parser.add_argument(
             "--description",
             metavar="<description>",
-            help=_("New security group description")
+            help=_("New security group description"),
         )
         stateful_group = parser.add_mutually_exclusive_group()
         stateful_group.add_argument(
             "--stateful",
             action='store_true',
             default=None,
-            help=_("Security group is stateful (Default)")
+            help=_("Security group is stateful (Default)"),
         )
         stateful_group.add_argument(
             "--stateless",
             action='store_true',
             default=None,
-            help=_("Security group is stateless")
+            help=_("Security group is stateless"),
         )
         return parser
 
     def update_parser_network(self, parser):
         _tag.add_tag_option_to_parser_for_set(
-            parser, _('security group'),
-            enhance_help=self.enhance_help_neutron)
+            parser, _('security group'), enhance_help=self.enhance_help_neutron
+        )
         return parser
 
     def take_action_network(self, client, parsed_args):
-        obj = client.find_security_group(parsed_args.group,
-                                         ignore_missing=False)
+        obj = client.find_security_group(
+            parsed_args.group, ignore_missing=False
+        )
         attrs = {}
         if parsed_args.name is not None:
             attrs['name'] = parsed_args.name
@@ -371,7 +372,8 @@ class SetSecurityGroup(common.NetworkAndComputeCommand,
         if parsed_args.stateless:
             attrs['stateful'] = False
         attrs.update(
-            self._parse_extra_properties(parsed_args.extra_properties))
+            self._parse_extra_properties(parsed_args.extra_properties)
+        )
         # NOTE(rtheis): Previous behavior did not raise a CommandError
         # if there were no updates. Maintain this behavior and issue
         # the update.
@@ -405,18 +407,17 @@ class ShowSecurityGroup(common.NetworkAndComputeShowOne):
         parser.add_argument(
             'group',
             metavar='<group>',
-            help=_("Security group to display (name or ID)")
+            help=_("Security group to display (name or ID)"),
         )
         return parser
 
     def take_action_network(self, client, parsed_args):
-        obj = client.find_security_group(parsed_args.group,
-                                         ignore_missing=False)
+        obj = client.find_security_group(
+            parsed_args.group, ignore_missing=False
+        )
         display_columns, property_columns = _get_columns(obj)
         data = utils.get_item_properties(
-            obj,
-            property_columns,
-            formatters=_formatters_network
+            obj, property_columns, formatters=_formatters_network
         )
         return (display_columns, data)
 
@@ -424,9 +425,7 @@ class ShowSecurityGroup(common.NetworkAndComputeShowOne):
         obj = client.api.security_group_find(parsed_args.group)
         display_columns, property_columns = _get_columns(obj)
         data = utils.get_dict_properties(
-            obj,
-            property_columns,
-            formatters=_formatters_compute
+            obj, property_columns, formatters=_formatters_compute
         )
         return (display_columns, data)
 
@@ -439,15 +438,16 @@ class UnsetSecurityGroup(command.Command):
         parser.add_argument(
             'group',
             metavar="<group>",
-            help=_("Security group to modify (name or ID)")
+            help=_("Security group to modify (name or ID)"),
         )
         _tag.add_tag_option_to_parser_for_unset(parser, _('security group'))
         return parser
 
     def take_action(self, parsed_args):
         client = self.app.client_manager.network
-        obj = client.find_security_group(parsed_args.group,
-                                         ignore_missing=False)
+        obj = client.find_security_group(
+            parsed_args.group, ignore_missing=False
+        )
 
         # tags is a subresource and it needs to be updated separately.
         _tag.update_tags_for_unset(client, obj, parsed_args)

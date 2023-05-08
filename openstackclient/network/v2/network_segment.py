@@ -29,22 +29,19 @@ def _get_columns(item):
     column_map = {}
     hidden_columns = ['location', 'tenant_id']
     return utils.get_osc_show_columns_for_sdk_resource(
-        item,
-        column_map,
-        hidden_columns
+        item, column_map, hidden_columns
     )
 
 
-class CreateNetworkSegment(command.ShowOne,
-                           common.NeutronCommandWithExtraArgs):
+class CreateNetworkSegment(
+    command.ShowOne, common.NeutronCommandWithExtraArgs
+):
     _description = _("Create new network segment")
 
     def get_parser(self, prog_name):
         parser = super(CreateNetworkSegment, self).get_parser(prog_name)
         parser.add_argument(
-            'name',
-            metavar='<name>',
-            help=_('New network segment name')
+            'name', metavar='<name>', help=_('New network segment name')
         )
         parser.add_argument(
             '--description',
@@ -60,10 +57,12 @@ class CreateNetworkSegment(command.ShowOne,
             '--segment',
             metavar='<segment>',
             type=int,
-            help=_('Segment identifier for this network segment which is '
-                   'based on the network type, VLAN ID for vlan network '
-                   'type and tunnel ID for geneve, gre and vxlan network '
-                   'types'),
+            help=_(
+                'Segment identifier for this network segment which is '
+                'based on the network type, VLAN ID for vlan network '
+                'type and tunnel ID for geneve, gre and vxlan network '
+                'types'
+            ),
         )
         parser.add_argument(
             '--network',
@@ -76,8 +75,10 @@ class CreateNetworkSegment(command.ShowOne,
             metavar='<network-type>',
             choices=['flat', 'geneve', 'gre', 'local', 'vlan', 'vxlan'],
             required=True,
-            help=_('Network type of this network segment '
-                   '(flat, geneve, gre, local, vlan or vxlan)'),
+            help=_(
+                'Network type of this network segment '
+                '(flat, geneve, gre, local, vlan or vxlan)'
+            ),
         )
         return parser
 
@@ -85,8 +86,9 @@ class CreateNetworkSegment(command.ShowOne,
         client = self.app.client_manager.network
         attrs = {}
         attrs['name'] = parsed_args.name
-        attrs['network_id'] = client.find_network(parsed_args.network,
-                                                  ignore_missing=False).id
+        attrs['network_id'] = client.find_network(
+            parsed_args.network, ignore_missing=False
+        ).id
         attrs['network_type'] = parsed_args.network_type
         if parsed_args.description is not None:
             attrs['description'] = parsed_args.description
@@ -95,7 +97,8 @@ class CreateNetworkSegment(command.ShowOne,
         if parsed_args.segment is not None:
             attrs['segmentation_id'] = parsed_args.segment
         attrs.update(
-            self._parse_extra_properties(parsed_args.extra_properties))
+            self._parse_extra_properties(parsed_args.extra_properties)
+        )
         obj = client.create_segment(**attrs)
         display_columns, columns = _get_columns(obj)
         data = utils.get_item_properties(obj, columns)
@@ -121,19 +124,25 @@ class DeleteNetworkSegment(command.Command):
         result = 0
         for network_segment in parsed_args.network_segment:
             try:
-                obj = client.find_segment(network_segment,
-                                          ignore_missing=False)
+                obj = client.find_segment(
+                    network_segment, ignore_missing=False
+                )
                 client.delete_segment(obj)
             except Exception as e:
                 result += 1
-                LOG.error(_("Failed to delete network segment with "
-                            "ID '%(network_segment)s': %(e)s"),
-                          {'network_segment': network_segment, 'e': e})
+                LOG.error(
+                    _(
+                        "Failed to delete network segment with "
+                        "ID '%(network_segment)s': %(e)s"
+                    ),
+                    {'network_segment': network_segment, 'e': e},
+                )
 
         if result > 0:
             total = len(parsed_args.network_segment)
-            msg = (_("%(result)s of %(total)s network segments failed "
-                     "to delete.") % {'result': result, 'total': total})
+            msg = _(
+                "%(result)s of %(total)s network segments failed " "to delete."
+            ) % {'result': result, 'total': total}
             raise exceptions.CommandError(msg)
 
 
@@ -151,8 +160,10 @@ class ListNetworkSegment(command.Lister):
         parser.add_argument(
             '--network',
             metavar='<network>',
-            help=_('List network segments that belong to this '
-                   'network (name or ID)'),
+            help=_(
+                'List network segments that belong to this '
+                'network (name or ID)'
+            ),
         )
         return parser
 
@@ -162,8 +173,7 @@ class ListNetworkSegment(command.Lister):
         filters = {}
         if parsed_args.network:
             _network = network_client.find_network(
-                parsed_args.network,
-                ignore_missing=False
+                parsed_args.network, ignore_missing=False
             )
             filters = {'network_id': _network.id}
         data = network_client.segments(**filters)
@@ -183,18 +193,20 @@ class ListNetworkSegment(command.Lister):
             'segmentation_id',
         )
         if parsed_args.long:
-            headers = headers + (
-                'Physical Network',
-            )
-            columns = columns + (
-                'physical_network',
-            )
+            headers = headers + ('Physical Network',)
+            columns = columns + ('physical_network',)
 
-        return (headers,
-                (utils.get_item_properties(
-                    s, columns,
+        return (
+            headers,
+            (
+                utils.get_item_properties(
+                    s,
+                    columns,
                     formatters={},
-                ) for s in data))
+                )
+                for s in data
+            ),
+        )
 
 
 class SetNetworkSegment(common.NeutronCommandWithExtraArgs):
@@ -221,15 +233,17 @@ class SetNetworkSegment(common.NeutronCommandWithExtraArgs):
 
     def take_action(self, parsed_args):
         client = self.app.client_manager.network
-        obj = client.find_segment(parsed_args.network_segment,
-                                  ignore_missing=False)
+        obj = client.find_segment(
+            parsed_args.network_segment, ignore_missing=False
+        )
         attrs = {}
         if parsed_args.description is not None:
             attrs['description'] = parsed_args.description
         if parsed_args.name is not None:
             attrs['name'] = parsed_args.name
         attrs.update(
-            self._parse_extra_properties(parsed_args.extra_properties))
+            self._parse_extra_properties(parsed_args.extra_properties)
+        )
         client.update_segment(obj, **attrs)
 
 
@@ -248,8 +262,7 @@ class ShowNetworkSegment(command.ShowOne):
     def take_action(self, parsed_args):
         client = self.app.client_manager.network
         obj = client.find_segment(
-            parsed_args.network_segment,
-            ignore_missing=False
+            parsed_args.network_segment, ignore_missing=False
         )
         display_columns, columns = _get_columns(obj)
         data = utils.get_item_properties(obj, columns)

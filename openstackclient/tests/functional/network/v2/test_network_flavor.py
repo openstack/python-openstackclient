@@ -43,14 +43,17 @@ class NetworkFlavorTests(common.NetworkTests):
         )
         service_profile_id = cmd_output2.get('id')
 
-        self.addCleanup(self.openstack, 'network flavor delete %s' %
-                        flavor_id)
-        self.addCleanup(self.openstack, 'network flavor profile delete %s' %
-                        service_profile_id)
+        self.addCleanup(self.openstack, 'network flavor delete %s' % flavor_id)
+        self.addCleanup(
+            self.openstack,
+            'network flavor profile delete %s' % service_profile_id,
+        )
         # Add flavor to service profile
         self.openstack(
-            'network flavor add profile ' +
-            flavor_id + ' ' + service_profile_id
+            'network flavor add profile '
+            + flavor_id
+            + ' '
+            + service_profile_id
         )
 
         cmd_output4 = self.openstack(
@@ -65,8 +68,10 @@ class NetworkFlavorTests(common.NetworkTests):
         # Cleanup
         # Remove flavor from service profile
         self.openstack(
-            'network flavor remove profile ' +
-            flavor_id + ' ' + service_profile_id
+            'network flavor remove profile '
+            + flavor_id
+            + ' '
+            + service_profile_id
         )
 
         cmd_output6 = self.openstack(
@@ -112,7 +117,8 @@ class NetworkFlavorTests(common.NetworkTests):
             cmd_output['description'],
         )
         raw_output = self.openstack(
-            'network flavor delete ' + name1 + " " + name2)
+            'network flavor delete ' + name1 + " " + name2
+        )
         self.assertOutput('', raw_output)
 
     def test_network_flavor_list(self):
@@ -160,7 +166,8 @@ class NetworkFlavorTests(common.NetworkTests):
         # Test list
         cmd_output = self.openstack(
             'network flavor list ',
-            parse_output=True,)
+            parse_output=True,
+        )
         self.assertIsNotNone(cmd_output)
 
         name_list = [item.get('Name') for item in cmd_output]
@@ -197,7 +204,8 @@ class NetworkFlavorTests(common.NetworkTests):
 
         cmd_output = self.openstack(
             'network flavor show ' + newname,
-            parse_output=True,)
+            parse_output=True,
+        )
         self.assertEqual(
             newname,
             cmd_output['name'],
@@ -222,7 +230,8 @@ class NetworkFlavorTests(common.NetworkTests):
         self.addCleanup(self.openstack, "network flavor delete " + name)
         cmd_output = self.openstack(
             'network flavor show ' + name,
-            parse_output=True,)
+            parse_output=True,
+        )
         self.assertEqual(
             name,
             cmd_output['name'],

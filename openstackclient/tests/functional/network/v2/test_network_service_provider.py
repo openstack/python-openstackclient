@@ -37,5 +37,6 @@ class TestNetworkServiceProvider(common.NetworkTests):
     def test_network_service_provider_list(self):
         cmd_output = self.openstack(
             'network service provider list',
-            parse_output=True,)
+            parse_output=True,
+        )
         self.assertIn('L3_ROUTER_NAT', [x['Service Type'] for x in cmd_output])

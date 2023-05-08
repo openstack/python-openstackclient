@@ -29,9 +29,7 @@ def _get_columns(item):
     column_map = {}
     hidden_columns = ['id', 'name', 'location', 'tenant_id']
     return utils.get_osc_show_columns_for_sdk_resource(
-        item,
-        column_map,
-        hidden_columns
+        item, column_map, hidden_columns
     )
 
 
@@ -49,8 +47,10 @@ class ListIPAvailability(command.Lister):
             choices=[4, 6],
             metavar='<ip-version>',
             dest='ip_version',
-            help=_("List IP availability of given IP version "
-                   "networks (default is 4)"),
+            help=_(
+                "List IP availability of given IP version "
+                "networks (default is 4)"
+            ),
         )
         parser.add_argument(
             '--project',
@@ -89,10 +89,16 @@ class ListIPAvailability(command.Lister):
             ).id
             filters['project_id'] = project_id
         data = client.network_ip_availabilities(**filters)
-        return (column_headers,
-                (utils.get_item_properties(
-                    s, columns,
-                ) for s in data))
+        return (
+            column_headers,
+            (
+                utils.get_item_properties(
+                    s,
+                    columns,
+                )
+                for s in data
+            ),
+        )
 
 
 class ShowIPAvailability(command.ShowOne):
@@ -109,10 +115,12 @@ class ShowIPAvailability(command.ShowOne):
 
     def take_action(self, parsed_args):
         client = self.app.client_manager.network
-        network_id = client.find_network(parsed_args.network,
-                                         ignore_missing=False).id
-        obj = client.find_network_ip_availability(network_id,
-                                                  ignore_missing=False)
+        network_id = client.find_network(
+            parsed_args.network, ignore_missing=False
+        ).id
+        obj = client.find_network_ip_availability(
+            network_id, ignore_missing=False
+        )
         display_columns, columns = _get_columns(obj)
         data = utils.get_item_properties(obj, columns, formatters=_formatters)
         return (display_columns, data)

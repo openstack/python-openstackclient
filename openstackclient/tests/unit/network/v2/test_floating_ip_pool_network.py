@@ -19,8 +19,8 @@ from openstackclient.tests.unit.network.v2 import fakes as network_fakes
 
 # Tests for Network API v2
 
-class TestFloatingIPPoolNetwork(network_fakes.TestNetworkV2):
 
+class TestFloatingIPPoolNetwork(network_fakes.TestNetworkV2):
     def setUp(self):
         super(TestFloatingIPPoolNetwork, self).setUp()
 
@@ -29,18 +29,19 @@ class TestFloatingIPPoolNetwork(network_fakes.TestNetworkV2):
 
 
 class TestListFloatingIPPoolNetwork(TestFloatingIPPoolNetwork):
-
     def setUp(self):
         super(TestListFloatingIPPoolNetwork, self).setUp()
 
         # Get the command object to test
-        self.cmd = floating_ip_pool.ListFloatingIPPool(self.app,
-                                                       self.namespace)
+        self.cmd = floating_ip_pool.ListFloatingIPPool(
+            self.app, self.namespace
+        )
 
     def test_floating_ip_list(self):
         arglist = []
         verifylist = []
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
-        self.assertRaises(exceptions.CommandError, self.cmd.take_action,
-                          parsed_args)
+        self.assertRaises(
+            exceptions.CommandError, self.cmd.take_action, parsed_args
+        )

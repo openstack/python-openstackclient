@@ -66,9 +66,7 @@ def _get_columns(item):
     }
     hidden_columns = ['location', 'tenant_id']
     return utils.get_osc_show_columns_for_sdk_resource(
-        item,
-        column_map,
-        hidden_columns
+        item, column_map, hidden_columns
     )
 
 
@@ -79,7 +77,6 @@ class JSONKeyValueAction(argparse.Action):
     """
 
     def __call__(self, parser, namespace, values, option_string=None):
-
         # Make sure we have an empty dict rather than None
         if getattr(namespace, self.dest, None) is None:
             setattr(namespace, self.dest, {})
@@ -92,9 +89,11 @@ class JSONKeyValueAction(argparse.Action):
             if '=' in values:
                 current_dest.update([values.split('=', 1)])
             else:
-                msg = _("Expected '<key>=<value>' or JSON data for option "
-                        "%(option)s, but encountered JSON parsing error: "
-                        "%(error)s") % {"option": option_string, "error": e}
+                msg = _(
+                    "Expected '<key>=<value>' or JSON data for option "
+                    "%(option)s, but encountered JSON parsing error: "
+                    "%(error)s"
+                ) % {"option": option_string, "error": e}
                 raise argparse.ArgumentTypeError(msg)
 
 
@@ -151,23 +150,33 @@ def _get_attrs(client_manager, parsed_args):
 
     if parsed_args.qos_policy:
         attrs['qos_policy_id'] = client_manager.network.find_qos_policy(
-            parsed_args.qos_policy, ignore_missing=False).id
+            parsed_args.qos_policy, ignore_missing=False
+        ).id
 
-    if ('enable_uplink_status_propagation' in parsed_args and
-            parsed_args.enable_uplink_status_propagation):
+    if (
+        'enable_uplink_status_propagation' in parsed_args
+        and parsed_args.enable_uplink_status_propagation
+    ):
         attrs['propagate_uplink_status'] = True
-    if ('disable_uplink_status_propagation' in parsed_args and
-            parsed_args.disable_uplink_status_propagation):
+    if (
+        'disable_uplink_status_propagation' in parsed_args
+        and parsed_args.disable_uplink_status_propagation
+    ):
         attrs['propagate_uplink_status'] = False
 
-    if ('numa_policy_required' in parsed_args and
-            parsed_args.numa_policy_required):
+    if (
+        'numa_policy_required' in parsed_args
+        and parsed_args.numa_policy_required
+    ):
         attrs['numa_affinity_policy'] = 'required'
-    elif ('numa_policy_preferred' in parsed_args and
-          parsed_args.numa_policy_preferred):
+    elif (
+        'numa_policy_preferred' in parsed_args
+        and parsed_args.numa_policy_preferred
+    ):
         attrs['numa_affinity_policy'] = 'preferred'
-    elif ('numa_policy_legacy' in parsed_args and
-          parsed_args.numa_policy_legacy):
+    elif (
+        'numa_policy_legacy' in parsed_args and parsed_args.numa_policy_legacy
+    ):
         attrs['numa_affinity_policy'] = 'legacy'
 
     if 'device_profile' in parsed_args and parsed_args.device_profile:
@@ -191,8 +200,9 @@ def _prepare_fixed_ips(client_manager, parsed_args):
             if 'subnet' in ip_spec:
                 subnet_name_id = ip_spec['subnet']
                 if subnet_name_id:
-                    _subnet = client.find_subnet(subnet_name_id,
-                                                 ignore_missing=False)
+                    _subnet = client.find_subnet(
+                        subnet_name_id, ignore_missing=False
+                    )
                     ip_spec['subnet_id'] = _subnet.id
                     del ip_spec['subnet']
 
@@ -220,8 +230,9 @@ def _prepare_filter_fixed_ips(client_manager, parsed_args):
         if 'subnet' in ip_spec:
             subnet_name_id = ip_spec['subnet']
             if subnet_name_id:
-                _subnet = client.find_subnet(subnet_name_id,
-                                             ignore_missing=False)
+                _subnet = client.find_subnet(
+                    subnet_name_id, ignore_missing=False
+                )
                 ips.append('subnet_id=%s' % _subnet.id)
 
         if 'ip-address' in ip_spec:
@@ -236,30 +247,36 @@ def _add_updatable_args(parser):
     parser.add_argument(
         '--description',
         metavar='<description>',
-        help=_("Description of this port")
+        help=_("Description of this port"),
     )
     parser.add_argument(
-        '--device',
-        metavar='<device-id>',
-        help=_("Port device ID")
+        '--device', metavar='<device-id>', help=_("Port device ID")
     )
     parser.add_argument(
         '--mac-address',
         metavar='<mac-address>',
-        help=_("MAC address of this port (admin only)")
+        help=_("MAC address of this port (admin only)"),
     )
     parser.add_argument(
         '--device-owner',
         metavar='<device-owner>',
-        help=_("Device owner of this port. This is the entity that uses "
-               "the port (for example, network:dhcp).")
+        help=_(
+            "Device owner of this port. This is the entity that uses "
+            "the port (for example, network:dhcp)."
+        ),
     )
     parser.add_argument(
         '--vnic-type',
         metavar='<vnic-type>',
         choices=(
-            'direct', 'direct-physical', 'macvtap',
-            'normal', 'baremetal', 'virtio-forwarder', 'vdpa', 'remote-managed'
+            'direct',
+            'direct-physical',
+            'macvtap',
+            'normal',
+            'baremetal',
+            'virtio-forwarder',
+            'vdpa',
+            'remote-managed',
         ),
         help=_(
             "VNIC type for this port (direct | direct-physical | "
@@ -271,35 +288,39 @@ def _add_updatable_args(parser):
     parser.add_argument(
         '--host',
         metavar='<host-id>',
-        help=_("Allocate port on host <host-id> (ID only)")
+        help=_("Allocate port on host <host-id> (ID only)"),
     )
     parser.add_argument(
         '--dns-domain',
         metavar='dns-domain',
-        help=_("Set DNS domain to this port "
-               "(requires dns_domain extension for ports)")
+        help=_(
+            "Set DNS domain to this port "
+            "(requires dns_domain extension for ports)"
+        ),
     )
     parser.add_argument(
         '--dns-name',
         metavar='<dns-name>',
-        help=_("Set DNS name for this port "
-               "(requires DNS integration extension)")
+        help=_(
+            "Set DNS name for this port "
+            "(requires DNS integration extension)"
+        ),
     )
     numa_affinity_policy_group = parser.add_mutually_exclusive_group()
     numa_affinity_policy_group.add_argument(
         '--numa-policy-required',
         action='store_true',
-        help=_("NUMA affinity policy required to schedule this port")
+        help=_("NUMA affinity policy required to schedule this port"),
     )
     numa_affinity_policy_group.add_argument(
         '--numa-policy-preferred',
         action='store_true',
-        help=_("NUMA affinity policy preferred to schedule this port")
+        help=_("NUMA affinity policy preferred to schedule this port"),
     )
     numa_affinity_policy_group.add_argument(
         '--numa-policy-legacy',
         action='store_true',
-        help=_("NUMA affinity policy using legacy mode to schedule this port")
+        help=_("NUMA affinity policy using legacy mode to schedule this port"),
     )
 
 
@@ -339,7 +360,7 @@ class CreatePort(command.ShowOne, common.NeutronCommandWithExtraArgs):
             '--network',
             metavar='<network>',
             required=True,
-            help=_("Network this port belongs to (name or ID)")
+            help=_("Network this port belongs to (name or ID)"),
         )
         _add_updatable_args(parser)
         fixed_ip = parser.add_mutually_exclusive_group()
@@ -348,56 +369,56 @@ class CreatePort(command.ShowOne, common.NeutronCommandWithExtraArgs):
             metavar='subnet=<subnet>,ip-address=<ip-address>',
             action=parseractions.MultiKeyValueAction,
             optional_keys=['subnet', 'ip-address'],
-            help=_("Desired IP and/or subnet for this port (name or ID): "
-                   "subnet=<subnet>,ip-address=<ip-address> "
-                   "(repeat option to set multiple fixed IP addresses)")
+            help=_(
+                "Desired IP and/or subnet for this port (name or ID): "
+                "subnet=<subnet>,ip-address=<ip-address> "
+                "(repeat option to set multiple fixed IP addresses)"
+            ),
         )
         fixed_ip.add_argument(
             '--no-fixed-ip',
             action='store_true',
-            help=_("No IP or subnet for this port.")
+            help=_("No IP or subnet for this port."),
         )
         parser.add_argument(
             '--binding-profile',
             metavar='<binding-profile>',
             action=JSONKeyValueAction,
-            help=_("Custom data to be passed as binding:profile. Data may "
-                   "be passed as <key>=<value> or JSON. "
-                   "(repeat option to set multiple binding:profile data)")
+            help=_(
+                "Custom data to be passed as binding:profile. Data may "
+                "be passed as <key>=<value> or JSON. "
+                "(repeat option to set multiple binding:profile data)"
+            ),
         )
         admin_group = parser.add_mutually_exclusive_group()
         admin_group.add_argument(
             '--enable',
             action='store_true',
             default=True,
-            help=_("Enable port (default)")
+            help=_("Enable port (default)"),
         )
         admin_group.add_argument(
-            '--disable',
-            action='store_true',
-            help=_("Disable port")
+            '--disable', action='store_true', help=_("Disable port")
         )
         uplink_status_group = parser.add_mutually_exclusive_group()
         uplink_status_group.add_argument(
             '--enable-uplink-status-propagation',
             action='store_true',
-            help=_("Enable uplink status propagate")
+            help=_("Enable uplink status propagate"),
         )
         uplink_status_group.add_argument(
             '--disable-uplink-status-propagation',
             action='store_true',
-            help=_("Disable uplink status propagate (default)")
+            help=_("Disable uplink status propagate (default)"),
         )
         parser.add_argument(
             '--project',
             metavar='<project>',
-            help=_("Owner's project (name or ID)")
+            help=_("Owner's project (name or ID)"),
         )
         identity_common.add_project_domain_option_to_parser(parser)
         parser.add_argument(
-            'name',
-            metavar='<name>',
-            help=_("Name of this port")
+            'name', metavar='<name>', help=_("Name of this port")
         )
         parser.add_argument(
             '--extra-dhcp-option',
@@ -407,9 +428,12 @@ class CreatePort(command.ShowOne, common.NeutronCommandWithExtraArgs):
             dest='extra_dhcp_options',
             required_keys=['name'],
             optional_keys=['value', "ip-version"],
-            help=_('Extra DHCP options to be assigned to this port: '
-                   'name=<name>[,value=<value>,ip-version={4,6}] '
-                   '(repeat option to set multiple extra DHCP options)'))
+            help=_(
+                'Extra DHCP options to be assigned to this port: '
+                'name=<name>[,value=<value>,ip-version={4,6}] '
+                '(repeat option to set multiple extra DHCP options)'
+            ),
+        )
 
         secgroups = parser.add_mutually_exclusive_group()
         secgroups.add_argument(
@@ -417,30 +441,32 @@ class CreatePort(command.ShowOne, common.NeutronCommandWithExtraArgs):
             metavar='<security-group>',
             action='append',
             dest='security_group',
-            help=_("Security group to associate with this port (name or ID) "
-                   "(repeat option to set multiple security groups)")
+            help=_(
+                "Security group to associate with this port (name or ID) "
+                "(repeat option to set multiple security groups)"
+            ),
         )
         secgroups.add_argument(
             '--no-security-group',
             dest='no_security_group',
             action='store_true',
-            help=_("Associate no security groups with this port")
+            help=_("Associate no security groups with this port"),
         )
         parser.add_argument(
             '--qos-policy',
             metavar='<qos-policy>',
-            help=_("Attach QoS policy to this port (name or ID)")
+            help=_("Attach QoS policy to this port (name or ID)"),
         )
         port_security = parser.add_mutually_exclusive_group()
         port_security.add_argument(
             '--enable-port-security',
             action='store_true',
-            help=_("Enable port security for this port (Default)")
+            help=_("Enable port security for this port (Default)"),
         )
         port_security.add_argument(
             '--disable-port-security',
             action='store_true',
-            help=_("Disable port security for this port")
+            help=_("Disable port security for this port"),
         )
         parser.add_argument(
             '--allowed-address',
@@ -449,22 +475,25 @@ class CreatePort(command.ShowOne, common.NeutronCommandWithExtraArgs):
             dest='allowed_address_pairs',
             required_keys=['ip-address'],
             optional_keys=['mac-address'],
-            help=_("Add allowed-address pair associated with this port: "
-                   "ip-address=<ip-address>[,mac-address=<mac-address>] "
-                   "(repeat option to set multiple allowed-address pairs)")
+            help=_(
+                "Add allowed-address pair associated with this port: "
+                "ip-address=<ip-address>[,mac-address=<mac-address>] "
+                "(repeat option to set multiple allowed-address pairs)"
+            ),
         )
         parser.add_argument(
             '--device-profile',
             metavar='<device-profile>',
-            help=_('Cyborg port device profile')
+            help=_('Cyborg port device profile'),
         )
         _tag.add_tag_option_to_parser_for_create(parser, _('port'))
         return parser
 
     def take_action(self, parsed_args):
         client = self.app.client_manager.network
-        _network = client.find_network(parsed_args.network,
-                                       ignore_missing=False)
+        _network = client.find_network(
+            parsed_args.network, ignore_missing=False
+        )
         parsed_args.network = _network.id
         _prepare_fixed_ips(self.app.client_manager, parsed_args)
         attrs = _get_attrs(self.app.client_manager, parsed_args)
@@ -478,26 +507,29 @@ class CreatePort(command.ShowOne, common.NeutronCommandWithExtraArgs):
             attrs['fixed_ips'] = []
 
         if parsed_args.security_group:
-            attrs['security_group_ids'] = [client.find_security_group(
-                                           sg, ignore_missing=False).id
-                                           for sg in
-                                           parsed_args.security_group]
+            attrs['security_group_ids'] = [
+                client.find_security_group(sg, ignore_missing=False).id
+                for sg in parsed_args.security_group
+            ]
         elif parsed_args.no_security_group:
             attrs['security_group_ids'] = []
 
         if parsed_args.allowed_address_pairs:
-            attrs['allowed_address_pairs'] = (
-                _convert_address_pairs(parsed_args))
+            attrs['allowed_address_pairs'] = _convert_address_pairs(
+                parsed_args
+            )
 
         if parsed_args.extra_dhcp_options:
             attrs["extra_dhcp_opts"] = _convert_extra_dhcp_options(parsed_args)
 
         if parsed_args.qos_policy:
             attrs['qos_policy_id'] = client.find_qos_policy(
-                parsed_args.qos_policy, ignore_missing=False).id
+                parsed_args.qos_policy, ignore_missing=False
+            ).id
 
         set_tags_in_post = bool(
-            client.find_extension('tag-ports-during-bulk-creation'))
+            client.find_extension('tag-ports-during-bulk-creation')
+        )
         if set_tags_in_post:
             if parsed_args.no_tag:
                 attrs['tags'] = []
@@ -505,10 +537,12 @@ class CreatePort(command.ShowOne, common.NeutronCommandWithExtraArgs):
                 attrs['tags'] = list(set(parsed_args.tags))
 
         attrs.update(
-            self._parse_extra_properties(parsed_args.extra_properties))
+            self._parse_extra_properties(parsed_args.extra_properties)
+        )
 
         with common.check_missing_extension_if_error(
-                self.app.client_manager.network, attrs):
+            self.app.client_manager.network, attrs
+        ):
             obj = client.create_port(**attrs)
 
         if not set_tags_in_post:
@@ -530,7 +564,7 @@ class DeletePort(command.Command):
             'port',
             metavar="<port>",
             nargs="+",
-            help=_("Port(s) to delete (name or ID)")
+            help=_("Port(s) to delete (name or ID)"),
         )
         return parser
 
@@ -544,14 +578,20 @@ class DeletePort(command.Command):
                 client.delete_port(obj)
             except Exception as e:
                 result += 1
-                LOG.error(_("Failed to delete port with "
-                            "name or ID '%(port)s': %(e)s"),
-                          {'port': port, 'e': e})
+                LOG.error(
+                    _(
+                        "Failed to delete port with "
+                        "name or ID '%(port)s': %(e)s"
+                    ),
+                    {'port': port, 'e': e},
+                )
 
         if result > 0:
             total = len(parsed_args.port)
-            msg = (_("%(result)s of %(total)s ports failed "
-                   "to delete.") % {'result': result, 'total': total})
+            msg = _("%(result)s of %(total)s ports failed " "to delete.") % {
+                'result': result,
+                'total': total,
+            }
             raise exceptions.CommandError(msg)
 
 
@@ -565,24 +605,28 @@ class ListPort(command.Lister):
         parser.add_argument(
             '--device-owner',
             metavar='<device-owner>',
-            help=_("List only ports with the specified device owner. "
-                   "This is the entity that uses the port (for example, "
-                   "network:dhcp).")
+            help=_(
+                "List only ports with the specified device owner. "
+                "This is the entity that uses the port (for example, "
+                "network:dhcp)."
+            ),
         )
         parser.add_argument(
             '--host',
             metavar='<host-id>',
-            help=_("List only ports bound to this host ID"))
+            help=_("List only ports bound to this host ID"),
+        )
         parser.add_argument(
             '--network',
             metavar='<network>',
-            help=_("List only ports connected to this network (name or ID)"))
+            help=_("List only ports connected to this network (name or ID)"),
+        )
         device_group = parser.add_mutually_exclusive_group()
         device_group.add_argument(
             '--router',
             metavar='<router>',
             dest='router',
-            help=_("List only ports attached to this router (name or ID)")
+            help=_("List only ports attached to this router (name or ID)"),
         )
         device_group.add_argument(
             '--server',
@@ -592,47 +636,51 @@ class ListPort(command.Lister):
         device_group.add_argument(
             '--device-id',
             metavar='<device-id>',
-            help=_("List only ports with the specified device ID")
+            help=_("List only ports with the specified device ID"),
         )
         parser.add_argument(
             '--mac-address',
             metavar='<mac-address>',
-            help=_("List only ports with this MAC address")
+            help=_("List only ports with this MAC address"),
         )
         parser.add_argument(
             '--long',
             action='store_true',
             default=False,
-            help=_("List additional fields in output")
+            help=_("List additional fields in output"),
         )
         parser.add_argument(
             '--project',
             metavar='<project>',
-            help=_("List ports according to their project (name or ID)")
+            help=_("List ports according to their project (name or ID)"),
         )
         parser.add_argument(
             '--name',
             metavar='<name>',
-            help=_("List ports according to their name")
+            help=_("List ports according to their name"),
         )
         parser.add_argument(
             '--security-group',
             action='append',
             dest='security_groups',
             metavar='<security-group>',
-            help=_("List only ports associated with this security group")
+            help=_("List only ports associated with this security group"),
         )
         identity_common.add_project_domain_option_to_parser(parser)
         parser.add_argument(
             '--fixed-ip',
-            metavar=('subnet=<subnet>,ip-address=<ip-address>,'
-                     'ip-substring=<ip-substring>'),
+            metavar=(
+                'subnet=<subnet>,ip-address=<ip-address>,'
+                'ip-substring=<ip-substring>'
+            ),
             action=parseractions.MultiKeyValueAction,
             optional_keys=['subnet', 'ip-address', 'ip-substring'],
-            help=_("Desired IP and/or subnet for filtering ports "
-                   "(name or ID): subnet=<subnet>,ip-address=<ip-address>,"
-                   "ip-substring=<ip-substring> "
-                   "(repeat option to set multiple fixed IP addresses)"),
+            help=_(
+                "Desired IP and/or subnet for filtering ports "
+                "(name or ID): subnet=<subnet>,ip-address=<ip-address>,"
+                "ip-substring=<ip-substring> "
+                "(repeat option to set multiple fixed IP addresses)"
+            ),
         )
         _tag.add_tag_filtering_option_to_parser(parser, _('ports'))
         return parser
@@ -665,19 +713,22 @@ class ListPort(command.Lister):
         if parsed_args.device_id is not None:
             filters['device_id'] = parsed_args.device_id
         if parsed_args.router:
-            _router = network_client.find_router(parsed_args.router,
-                                                 ignore_missing=False)
+            _router = network_client.find_router(
+                parsed_args.router, ignore_missing=False
+            )
             filters['device_id'] = _router.id
         if parsed_args.server:
             compute_client = self.app.client_manager.compute
-            server = utils.find_resource(compute_client.servers,
-                                         parsed_args.server)
+            server = utils.find_resource(
+                compute_client.servers, parsed_args.server
+            )
             filters['device_id'] = server.id
         if parsed_args.host:
             filters['binding:host_id'] = parsed_args.host
         if parsed_args.network:
-            network = network_client.find_network(parsed_args.network,
-                                                  ignore_missing=False)
+            network = network_client.find_network(
+                parsed_args.network, ignore_missing=False
+            )
             filters['network_id'] = network.id
         if parsed_args.mac_address:
             filters['mac_address'] = parsed_args.mac_address
@@ -692,7 +743,8 @@ class ListPort(command.Lister):
             filters['name'] = parsed_args.name
         if parsed_args.fixed_ip:
             filters['fixed_ips'] = _prepare_filter_fixed_ips(
-                self.app.client_manager, parsed_args)
+                self.app.client_manager, parsed_args
+            )
         if parsed_args.security_groups:
             filters['security_groups'] = parsed_args.security_groups
 
@@ -701,12 +753,19 @@ class ListPort(command.Lister):
         data = network_client.ports(fields=columns, **filters)
 
         headers, attrs = utils.calculate_header_and_attrs(
-            column_headers, columns, parsed_args)
-        return (headers,
-                (utils.get_item_properties(
-                    s, attrs,
+            column_headers, columns, parsed_args
+        )
+        return (
+            headers,
+            (
+                utils.get_item_properties(
+                    s,
+                    attrs,
                     formatters=_formatters,
-                ) for s in data))
+                )
+                for s in data
+            ),
+        )
 
 
 # TODO(abhiraut): Use the SDK resource mapped attribute names once the
@@ -722,83 +781,87 @@ class SetPort(common.NeutronCommandWithExtraArgs):
             '--enable',
             action='store_true',
             default=None,
-            help=_("Enable port")
+            help=_("Enable port"),
         )
         admin_group.add_argument(
-            '--disable',
-            action='store_true',
-            help=_("Disable port")
+            '--disable', action='store_true', help=_("Disable port")
         )
         parser.add_argument(
-            '--name',
-            metavar="<name>",
-            help=_("Set port name")
+            '--name', metavar="<name>", help=_("Set port name")
         )
         parser.add_argument(
             '--fixed-ip',
             metavar='subnet=<subnet>,ip-address=<ip-address>',
             action=parseractions.MultiKeyValueAction,
             optional_keys=['subnet', 'ip-address'],
-            help=_("Desired IP and/or subnet for this port (name or ID): "
-                   "subnet=<subnet>,ip-address=<ip-address> "
-                   "(repeat option to set multiple fixed IP addresses)")
+            help=_(
+                "Desired IP and/or subnet for this port (name or ID): "
+                "subnet=<subnet>,ip-address=<ip-address> "
+                "(repeat option to set multiple fixed IP addresses)"
+            ),
         )
         parser.add_argument(
             '--no-fixed-ip',
             action='store_true',
-            help=_("Clear existing information of fixed IP addresses."
-                   "Specify both --fixed-ip and --no-fixed-ip "
-                   "to overwrite the current fixed IP addresses.")
+            help=_(
+                "Clear existing information of fixed IP addresses."
+                "Specify both --fixed-ip and --no-fixed-ip "
+                "to overwrite the current fixed IP addresses."
+            ),
         )
         parser.add_argument(
             '--binding-profile',
             metavar='<binding-profile>',
             action=JSONKeyValueAction,
-            help=_("Custom data to be passed as binding:profile. Data may "
-                   "be passed as <key>=<value> or JSON. "
-                   "(repeat option to set multiple binding:profile data)")
+            help=_(
+                "Custom data to be passed as binding:profile. Data may "
+                "be passed as <key>=<value> or JSON. "
+                "(repeat option to set multiple binding:profile data)"
+            ),
         )
         parser.add_argument(
             '--no-binding-profile',
             action='store_true',
-            help=_("Clear existing information of binding:profile. "
-                   "Specify both --binding-profile and --no-binding-profile "
-                   "to overwrite the current binding:profile information.")
+            help=_(
+                "Clear existing information of binding:profile. "
+                "Specify both --binding-profile and --no-binding-profile "
+                "to overwrite the current binding:profile information."
+            ),
         )
         parser.add_argument(
             '--qos-policy',
             metavar='<qos-policy>',
-            help=_("Attach QoS policy to this port (name or ID)")
+            help=_("Attach QoS policy to this port (name or ID)"),
         )
         parser.add_argument(
-            'port',
-            metavar="<port>",
-            help=_("Port to modify (name or ID)")
+            'port', metavar="<port>", help=_("Port to modify (name or ID)")
         )
         parser.add_argument(
             '--security-group',
             metavar='<security-group>',
             action='append',
             dest='security_group',
-            help=_("Security group to associate with this port (name or ID) "
-                   "(repeat option to set multiple security groups)")
+            help=_(
+                "Security group to associate with this port (name or ID) "
+                "(repeat option to set multiple security groups)"
+            ),
         )
         parser.add_argument(
             '--no-security-group',
             dest='no_security_group',
             action='store_true',
-            help=_("Clear existing security groups associated with this port")
+            help=_("Clear existing security groups associated with this port"),
         )
         port_security = parser.add_mutually_exclusive_group()
         port_security.add_argument(
             '--enable-port-security',
             action='store_true',
-            help=_("Enable port security for this port")
+            help=_("Enable port security for this port"),
         )
         port_security.add_argument(
             '--disable-port-security',
             action='store_true',
-            help=_("Disable port security for this port")
+            help=_("Disable port security for this port"),
         )
         parser.add_argument(
             '--allowed-address',
@@ -807,18 +870,22 @@ class SetPort(common.NeutronCommandWithExtraArgs):
             dest='allowed_address_pairs',
             required_keys=['ip-address'],
             optional_keys=['mac-address'],
-            help=_("Add allowed-address pair associated with this port: "
-                   "ip-address=<ip-address>[,mac-address=<mac-address>] "
-                   "(repeat option to set multiple allowed-address pairs)")
+            help=_(
+                "Add allowed-address pair associated with this port: "
+                "ip-address=<ip-address>[,mac-address=<mac-address>] "
+                "(repeat option to set multiple allowed-address pairs)"
+            ),
         )
         parser.add_argument(
             '--no-allowed-address',
             dest='no_allowed_address_pair',
             action='store_true',
-            help=_("Clear existing allowed-address pairs associated "
-                   "with this port. "
-                   "(Specify both --allowed-address and --no-allowed-address "
-                   "to overwrite the current allowed-address pairs)")
+            help=_(
+                "Clear existing allowed-address pairs associated "
+                "with this port. "
+                "(Specify both --allowed-address and --no-allowed-address "
+                "to overwrite the current allowed-address pairs)"
+            ),
         )
         parser.add_argument(
             '--extra-dhcp-option',
@@ -828,16 +895,21 @@ class SetPort(common.NeutronCommandWithExtraArgs):
             dest='extra_dhcp_options',
             required_keys=['name'],
             optional_keys=['value', "ip-version"],
-            help=_('Extra DHCP options to be assigned to this port: '
-                   'name=<name>[,value=<value>,ip-version={4,6}] '
-                   '(repeat option to set multiple extra DHCP options)'))
+            help=_(
+                'Extra DHCP options to be assigned to this port: '
+                'name=<name>[,value=<value>,ip-version={4,6}] '
+                '(repeat option to set multiple extra DHCP options)'
+            ),
+        )
         parser.add_argument(
             '--data-plane-status',
             metavar='<status>',
             choices=['ACTIVE', 'DOWN'],
-            help=_("Set data plane status of this port (ACTIVE | DOWN). "
-                   "Unset it to None with the 'port unset' command "
-                   "(requires data plane status extension)")
+            help=_(
+                "Set data plane status of this port (ACTIVE | DOWN). "
+                "Unset it to None with the 'port unset' command "
+                "(requires data plane status extension)"
+            ),
         )
         _tag.add_tag_option_to_parser_for_set(parser, _('port'))
 
@@ -887,9 +959,9 @@ class SetPort(common.NeutronCommandWithExtraArgs):
             attrs['allowed_address_pairs'] = []
         if parsed_args.allowed_address_pairs:
             if 'allowed_address_pairs' not in attrs:
-                attrs['allowed_address_pairs'] = (
-                    [addr for addr in obj.allowed_address_pairs if addr]
-                )
+                attrs['allowed_address_pairs'] = [
+                    addr for addr in obj.allowed_address_pairs if addr
+                ]
             attrs['allowed_address_pairs'].extend(
                 _convert_address_pairs(parsed_args)
             )
@@ -901,11 +973,13 @@ class SetPort(common.NeutronCommandWithExtraArgs):
             attrs['data_plane_status'] = parsed_args.data_plane_status
 
         attrs.update(
-            self._parse_extra_properties(parsed_args.extra_properties))
+            self._parse_extra_properties(parsed_args.extra_properties)
+        )
 
         if attrs:
             with common.check_missing_extension_if_error(
-                    self.app.client_manager.network, attrs):
+                self.app.client_manager.network, attrs
+            ):
                 client.update_port(obj, **attrs)
 
         # tags is a subresource and it needs to be updated separately.
@@ -918,9 +992,7 @@ class ShowPort(command.ShowOne):
     def get_parser(self, prog_name):
         parser = super(ShowPort, self).get_parser(prog_name)
         parser.add_argument(
-            'port',
-            metavar="<port>",
-            help=_("Port to display (name or ID)")
+            'port', metavar="<port>", help=_("Port to display (name or ID)")
         )
         return parser
 
@@ -944,30 +1016,36 @@ class UnsetPort(common.NeutronUnsetCommandWithExtraArgs):
             metavar='subnet=<subnet>,ip-address=<ip-address>',
             action=parseractions.MultiKeyValueAction,
             optional_keys=['subnet', 'ip-address'],
-            help=_("Desired IP and/or subnet which should be "
-                   "removed from this port (name or ID): subnet=<subnet>,"
-                   "ip-address=<ip-address> (repeat option to unset multiple "
-                   "fixed IP addresses)"))
+            help=_(
+                "Desired IP and/or subnet which should be "
+                "removed from this port (name or ID): subnet=<subnet>,"
+                "ip-address=<ip-address> (repeat option to unset multiple "
+                "fixed IP addresses)"
+            ),
+        )
 
         parser.add_argument(
             '--binding-profile',
             metavar='<binding-profile-key>',
             action='append',
-            help=_("Desired key which should be removed from binding:profile "
-                   "(repeat option to unset multiple binding:profile data)"))
+            help=_(
+                "Desired key which should be removed from binding:profile "
+                "(repeat option to unset multiple binding:profile data)"
+            ),
+        )
         parser.add_argument(
             '--security-group',
             metavar='<security-group>',
             action='append',
             dest='security_group_ids',
-            help=_("Security group which should be removed this port (name "
-                   "or ID) (repeat option to unset multiple security groups)")
+            help=_(
+                "Security group which should be removed this port (name "
+                "or ID) (repeat option to unset multiple security groups)"
+            ),
         )
 
         parser.add_argument(
-            'port',
-            metavar="<port>",
-            help=_("Port to modify (name or ID)")
+            'port', metavar="<port>", help=_("Port to modify (name or ID)")
         )
         parser.add_argument(
             '--allowed-address',
@@ -976,32 +1054,34 @@ class UnsetPort(common.NeutronUnsetCommandWithExtraArgs):
             dest='allowed_address_pairs',
             required_keys=['ip-address'],
             optional_keys=['mac-address'],
-            help=_("Desired allowed-address pair which should be removed "
-                   "from this port: ip-address=<ip-address>"
-                   "[,mac-address=<mac-address>] (repeat option to unset "
-                   "multiple allowed-address pairs)")
+            help=_(
+                "Desired allowed-address pair which should be removed "
+                "from this port: ip-address=<ip-address>"
+                "[,mac-address=<mac-address>] (repeat option to unset "
+                "multiple allowed-address pairs)"
+            ),
         )
         parser.add_argument(
             '--qos-policy',
             action='store_true',
             default=False,
-            help=_("Remove the QoS policy attached to the port")
+            help=_("Remove the QoS policy attached to the port"),
         )
         parser.add_argument(
             '--data-plane-status',
             action='store_true',
-            help=_("Clear existing information of data plane status")
+            help=_("Clear existing information of data plane status"),
         )
         parser.add_argument(
             '--numa-policy',
             action='store_true',
-            help=_("Clear existing NUMA affinity policy")
+            help=_("Clear existing NUMA affinity policy"),
         )
         parser.add_argument(
             '--host',
             action='store_true',
             default=False,
-            help=_("Clear host binding for the port.")
+            help=_("Clear host binding for the port."),
         )
 
         _tag.add_tag_option_to_parser_for_unset(parser, _('port'))
@@ -1040,7 +1120,8 @@ class UnsetPort(common.NeutronUnsetCommandWithExtraArgs):
             try:
                 for sg in parsed_args.security_group_ids:
                     sg_id = client.find_security_group(
-                        sg, ignore_missing=False).id
+                        sg, ignore_missing=False
+                    ).id
                     tmp_secgroups.remove(sg_id)
             except ValueError:
                 msg = _("Port does not contain security group %s") % sg
@@ -1064,7 +1145,8 @@ class UnsetPort(common.NeutronUnsetCommandWithExtraArgs):
             attrs['binding:host_id'] = None
 
         attrs.update(
-            self._parse_extra_properties(parsed_args.extra_properties))
+            self._parse_extra_properties(parsed_args.extra_properties)
+        )
 
         if attrs:
             client.update_port(obj, **attrs)

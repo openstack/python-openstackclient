@@ -32,9 +32,7 @@ def _get_columns(item):
     }
     hidden_columns = ['location', 'name', 'tenant_id']
     return utils.get_osc_show_columns_for_sdk_resource(
-        item,
-        column_map,
-        hidden_columns
+        item, column_map, hidden_columns
     )
 
 
@@ -46,27 +44,28 @@ def _get_attrs(client_manager, parsed_args):
     network_client = client_manager.network
     if parsed_args.type == 'network':
         object_id = network_client.find_network(
-            parsed_args.rbac_object, ignore_missing=False).id
+            parsed_args.rbac_object, ignore_missing=False
+        ).id
     if parsed_args.type == 'qos_policy':
         object_id = network_client.find_qos_policy(
-            parsed_args.rbac_object,
-            ignore_missing=False).id
+            parsed_args.rbac_object, ignore_missing=False
+        ).id
     if parsed_args.type == 'security_group':
         object_id = network_client.find_security_group(
-            parsed_args.rbac_object,
-            ignore_missing=False).id
+            parsed_args.rbac_object, ignore_missing=False
+        ).id
     if parsed_args.type == 'address_scope':
         object_id = network_client.find_address_scope(
-            parsed_args.rbac_object,
-            ignore_missing=False).id
+            parsed_args.rbac_object, ignore_missing=False
+        ).id
     if parsed_args.type == 'subnetpool':
         object_id = network_client.find_subnet_pool(
-            parsed_args.rbac_object,
-            ignore_missing=False).id
+            parsed_args.rbac_object, ignore_missing=False
+        ).id
     if parsed_args.type == 'address_group':
         object_id = network_client.find_address_group(
-            parsed_args.rbac_object,
-            ignore_missing=False).id
+            parsed_args.rbac_object, ignore_missing=False
+        ).id
 
     attrs['object_id'] = object_id
 
@@ -101,51 +100,68 @@ class CreateNetworkRBAC(command.ShowOne, common.NeutronCommandWithExtraArgs):
         parser.add_argument(
             'rbac_object',
             metavar="<rbac-object>",
-            help=_("The object to which this RBAC policy affects (name or ID)")
+            help=_(
+                "The object to which this RBAC policy affects (name or ID)"
+            ),
         )
         parser.add_argument(
             '--type',
             metavar="<type>",
             required=True,
-            choices=['address_group', 'address_scope', 'security_group',
-                     'subnetpool', 'qos_policy', 'network'],
-            help=_('Type of the object that RBAC policy '
-                   'affects ("address_group", "address_scope", '
-                   '"security_group", "subnetpool", "qos_policy" or '
-                   '"network")')
+            choices=[
+                'address_group',
+                'address_scope',
+                'security_group',
+                'subnetpool',
+                'qos_policy',
+                'network',
+            ],
+            help=_(
+                'Type of the object that RBAC policy '
+                'affects ("address_group", "address_scope", '
+                '"security_group", "subnetpool", "qos_policy" or '
+                '"network")'
+            ),
         )
         parser.add_argument(
             '--action',
             metavar="<action>",
             required=True,
             choices=['access_as_external', 'access_as_shared'],
-            help=_('Action for the RBAC policy '
-                   '("access_as_external" or "access_as_shared")')
+            help=_(
+                'Action for the RBAC policy '
+                '("access_as_external" or "access_as_shared")'
+            ),
         )
         target_project_group = parser.add_mutually_exclusive_group(
-            required=True)
+            required=True
+        )
         target_project_group.add_argument(
             '--target-project',
             metavar="<target-project>",
-            help=_('The project to which the RBAC policy '
-                   'will be enforced (name or ID)')
+            help=_(
+                'The project to which the RBAC policy '
+                'will be enforced (name or ID)'
+            ),
         )
         target_project_group.add_argument(
             '--target-all-projects',
             action='store_true',
-            help=_('Allow creating RBAC policy for all projects.')
+            help=_('Allow creating RBAC policy for all projects.'),
         )
         parser.add_argument(
             '--target-project-domain',
             metavar='<target-project-domain>',
-            help=_('Domain the target project belongs to (name or ID). '
-                   'This can be used in case collisions between project names '
-                   'exist.'),
+            help=_(
+                'Domain the target project belongs to (name or ID). '
+                'This can be used in case collisions between project names '
+                'exist.'
+            ),
         )
         parser.add_argument(
             '--project',
             metavar="<project>",
-            help=_('The owner project (name or ID)')
+            help=_('The owner project (name or ID)'),
         )
         identity_common.add_project_domain_option_to_parser(parser)
         return parser
@@ -154,7 +170,8 @@ class CreateNetworkRBAC(command.ShowOne, common.NeutronCommandWithExtraArgs):
         client = self.app.client_manager.network
         attrs = _get_attrs(self.app.client_manager, parsed_args)
         attrs.update(
-            self._parse_extra_properties(parsed_args.extra_properties))
+            self._parse_extra_properties(parsed_args.extra_properties)
+        )
         obj = client.create_rbac_policy(**attrs)
         display_columns, columns = _get_columns(obj)
         data = utils.get_item_properties(obj, columns)
@@ -170,7 +187,7 @@ class DeleteNetworkRBAC(command.Command):
             'rbac_policy',
             metavar="<rbac-policy>",
             nargs='+',
-            help=_("RBAC policy(s) to delete (ID only)")
+            help=_("RBAC policy(s) to delete (ID only)"),
         )
         return parser
 
@@ -184,14 +201,19 @@ class DeleteNetworkRBAC(command.Command):
                 client.delete_rbac_policy(obj)
             except Exception as e:
                 result += 1
-                LOG.error(_("Failed to delete RBAC policy with "
-                            "ID '%(rbac)s': %(e)s"),
-                          {'rbac': rbac, 'e': e})
+                LOG.error(
+                    _(
+                        "Failed to delete RBAC policy with "
+                        "ID '%(rbac)s': %(e)s"
+                    ),
+                    {'rbac': rbac, 'e': e},
+                )
 
         if result > 0:
             total = len(parsed_args.rbac_policy)
-            msg = (_("%(result)s of %(total)s RBAC policies failed "
-                   "to delete.") % {'result': result, 'total': total})
+            msg = _(
+                "%(result)s of %(total)s RBAC policies failed " "to delete."
+            ) % {'result': result, 'total': total}
             raise exceptions.CommandError(msg)
 
 
@@ -203,30 +225,40 @@ class ListNetworkRBAC(command.Lister):
         parser.add_argument(
             '--type',
             metavar='<type>',
-            choices=['address_group', 'address_scope', 'security_group',
-                     'subnetpool', 'qos_policy', 'network'],
-            help=_('List network RBAC policies according to '
-                   'given object type ("address_group", "address_scope", '
-                   '"security_group", "subnetpool", "qos_policy" or '
-                   '"network")')
+            choices=[
+                'address_group',
+                'address_scope',
+                'security_group',
+                'subnetpool',
+                'qos_policy',
+                'network',
+            ],
+            help=_(
+                'List network RBAC policies according to '
+                'given object type ("address_group", "address_scope", '
+                '"security_group", "subnetpool", "qos_policy" or '
+                '"network")'
+            ),
         )
         parser.add_argument(
             '--action',
             metavar='<action>',
             choices=['access_as_external', 'access_as_shared'],
-            help=_('List network RBAC policies according to given '
-                   'action ("access_as_external" or "access_as_shared")')
+            help=_(
+                'List network RBAC policies according to given '
+                'action ("access_as_external" or "access_as_shared")'
+            ),
         )
         parser.add_argument(
             '--target-project',
             metavar='<target-project>',
-            help=_('List network RBAC policies for a specific target project')
+            help=_('List network RBAC policies for a specific target project'),
         )
         parser.add_argument(
             '--long',
             action='store_true',
             default=False,
-            help=_("List additional fields in output")
+            help=_("List additional fields in output"),
         )
         return parser
 
@@ -265,10 +297,16 @@ class ListNetworkRBAC(command.Lister):
 
         data = client.rbac_policies(**query)
 
-        return (column_headers,
-                (utils.get_item_properties(
-                    s, columns,
-                ) for s in data))
+        return (
+            column_headers,
+            (
+                utils.get_item_properties(
+                    s,
+                    columns,
+                )
+                for s in data
+            ),
+        )
 
 
 # TODO(abhiraut): Use the SDK resource mapped attribute names once the
@@ -281,27 +319,32 @@ class SetNetworkRBAC(common.NeutronCommandWithExtraArgs):
         parser.add_argument(
             'rbac_policy',
             metavar="<rbac-policy>",
-            help=_("RBAC policy to be modified (ID only)")
+            help=_("RBAC policy to be modified (ID only)"),
         )
         parser.add_argument(
             '--target-project',
             metavar="<target-project>",
-            help=_('The project to which the RBAC policy '
-                   'will be enforced (name or ID)')
+            help=_(
+                'The project to which the RBAC policy '
+                'will be enforced (name or ID)'
+            ),
         )
         parser.add_argument(
             '--target-project-domain',
             metavar='<target-project-domain>',
-            help=_('Domain the target project belongs to (name or ID). '
-                   'This can be used in case collisions between project names '
-                   'exist.'),
+            help=_(
+                'Domain the target project belongs to (name or ID). '
+                'This can be used in case collisions between project names '
+                'exist.'
+            ),
         )
         return parser
 
     def take_action(self, parsed_args):
         client = self.app.client_manager.network
-        obj = client.find_rbac_policy(parsed_args.rbac_policy,
-                                      ignore_missing=False)
+        obj = client.find_rbac_policy(
+            parsed_args.rbac_policy, ignore_missing=False
+        )
         attrs = {}
         if parsed_args.target_project:
             identity_client = self.app.client_manager.identity
@@ -312,7 +355,8 @@ class SetNetworkRBAC(common.NeutronCommandWithExtraArgs):
             ).id
             attrs['target_tenant'] = project_id
         attrs.update(
-            self._parse_extra_properties(parsed_args.extra_properties))
+            self._parse_extra_properties(parsed_args.extra_properties)
+        )
         client.update_rbac_policy(obj, **attrs)
 
 
@@ -324,14 +368,15 @@ class ShowNetworkRBAC(command.ShowOne):
         parser.add_argument(
             'rbac_policy',
             metavar="<rbac-policy>",
-            help=_("RBAC policy (ID only)")
+            help=_("RBAC policy (ID only)"),
         )
         return parser
 
     def take_action(self, parsed_args):
         client = self.app.client_manager.network
-        obj = client.find_rbac_policy(parsed_args.rbac_policy,
-                                      ignore_missing=False)
+        obj = client.find_rbac_policy(
+            parsed_args.rbac_policy, ignore_missing=False
+        )
         display_columns, columns = _get_columns(obj)
         data = utils.get_item_properties(obj, columns)
         return display_columns, data

@@ -21,7 +21,6 @@ from openstackclient.tests.unit import utils as tests_utils
 
 
 class TestNetworkQosRuleType(network_fakes.TestNetworkV2):
-
     def setUp(self):
         super(TestNetworkQosRuleType, self).setUp()
         # Get a shortcut to the network client
@@ -29,41 +28,37 @@ class TestNetworkQosRuleType(network_fakes.TestNetworkV2):
 
 
 class TestShowNetworkQosRuleType(TestNetworkQosRuleType):
-
-    attrs = {
-        'drivers': [{
-            'name': 'driver 1',
-            'supported_parameters': []
-        }]
-    }
+    attrs = {'drivers': [{'name': 'driver 1', 'supported_parameters': []}]}
     # The QoS policies to show.
     qos_rule_type = (
-        network_fakes.FakeNetworkQosRuleType.create_one_qos_rule_type(attrs))
-    columns = (
-        'drivers',
-        'rule_type_name'
+        network_fakes.FakeNetworkQosRuleType.create_one_qos_rule_type(attrs)
     )
-    data = [
-        qos_rule_type.drivers,
-        qos_rule_type.type
-    ]
+    columns = ('drivers', 'rule_type_name')
+    data = [qos_rule_type.drivers, qos_rule_type.type]
 
     def setUp(self):
         super(TestShowNetworkQosRuleType, self).setUp()
         self.network.get_qos_rule_type = mock.Mock(
-            return_value=self.qos_rule_type)
+            return_value=self.qos_rule_type
+        )
 
         # Get the command object to test
-        self.cmd = _qos_rule_type.ShowNetworkQosRuleType(self.app,
-                                                         self.namespace)
+        self.cmd = _qos_rule_type.ShowNetworkQosRuleType(
+            self.app, self.namespace
+        )
 
     def test_show_no_options(self):
         arglist = []
         verifylist = []
 
         # Missing required args should bail here
-        self.assertRaises(tests_utils.ParserException, self.check_parser,
-                          self.cmd, arglist, verifylist)
+        self.assertRaises(
+            tests_utils.ParserException,
+            self.check_parser,
+            self.cmd,
+            arglist,
+            verifylist,
+        )
 
     def test_show_all_options(self):
         arglist = [
@@ -77,33 +72,32 @@ class TestShowNetworkQosRuleType(TestNetworkQosRuleType):
         columns, data = self.cmd.take_action(parsed_args)
 
         self.network.get_qos_rule_type.assert_called_once_with(
-            self.qos_rule_type.type)
+            self.qos_rule_type.type
+        )
         self.assertEqual(self.columns, columns)
         self.assertEqual(list(self.data), list(data))
 
 
 class TestListNetworkQosRuleType(TestNetworkQosRuleType):
-
     # The QoS policies to list up.
     qos_rule_types = (
-        network_fakes.FakeNetworkQosRuleType.create_qos_rule_types(count=3))
-    columns = (
-        'Type',
+        network_fakes.FakeNetworkQosRuleType.create_qos_rule_types(count=3)
     )
+    columns = ('Type',)
     data = []
     for qos_rule_type in qos_rule_types:
-        data.append((
-            qos_rule_type.type,
-        ))
+        data.append((qos_rule_type.type,))
 
     def setUp(self):
         super(TestListNetworkQosRuleType, self).setUp()
         self.network.qos_rule_types = mock.Mock(
-            return_value=self.qos_rule_types)
+            return_value=self.qos_rule_types
+        )
 
         # Get the command object to test
-        self.cmd = _qos_rule_type.ListNetworkQosRuleType(self.app,
-                                                         self.namespace)
+        self.cmd = _qos_rule_type.ListNetworkQosRuleType(
+            self.app, self.namespace
+        )
 
     def test_qos_rule_type_list(self):
         arglist = []
@@ -117,9 +111,7 @@ class TestListNetworkQosRuleType(TestNetworkQosRuleType):
         self.assertEqual(self.data, list(data))
 
     def test_qos_rule_type_list_all_supported(self):
-        arglist = [
-            '--all-supported'
-        ]
+        arglist = ['--all-supported']
         verifylist = [
             ('all_supported', True),
         ]
@@ -134,9 +126,7 @@ class TestListNetworkQosRuleType(TestNetworkQosRuleType):
         self.assertEqual(self.data, list(data))
 
     def test_qos_rule_type_list_all_rules(self):
-        arglist = [
-            '--all-rules'
-        ]
+        arglist = ['--all-rules']
         verifylist = [
             ('all_rules', True),
         ]

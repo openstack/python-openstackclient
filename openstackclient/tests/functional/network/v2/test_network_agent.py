@@ -120,8 +120,7 @@ class NetworkAgentListTests(common.NetworkTests):
 
         # Add Agent to Network
         self.openstack(
-            'network agent add network --dhcp %s %s' %
-            (agent_id, network_id)
+            'network agent add network --dhcp %s %s' % (agent_id, network_id)
         )
 
         # Test network agent list --network
@@ -133,15 +132,13 @@ class NetworkAgentListTests(common.NetworkTests):
         # Cleanup
         # Remove Agent from Network
         self.openstack(
-            'network agent remove network --dhcp %s %s' %
-            (agent_id, network_id)
+            'network agent remove network --dhcp %s %s'
+            % (agent_id, network_id)
         )
 
         # Assert
         col_name = [x["ID"] for x in cmd_output3]
-        self.assertIn(
-            agent_id, col_name
-        )
+        self.assertIn(agent_id, col_name)
 
     def test_network_agent_list_routers(self):
         """Add agent to router, list agents on router, delete."""
@@ -152,7 +149,8 @@ class NetworkAgentListTests(common.NetworkTests):
         name = uuid.uuid4().hex
         cmd_output = self.openstack(
             'router create %s' % name,
-            parse_output=True,)
+            parse_output=True,
+        )
 
         self.addCleanup(self.openstack, 'router delete %s' % name)
         # Get router ID
@@ -160,7 +158,8 @@ class NetworkAgentListTests(common.NetworkTests):
         # Get l3 agent id
         cmd_output = self.openstack(
             'network agent list --agent-type l3',
-            parse_output=True,)
+            parse_output=True,
+        )
 
         # Check at least one L3 agent is included in the response.
         self.assertTrue(cmd_output)
@@ -168,21 +167,25 @@ class NetworkAgentListTests(common.NetworkTests):
 
         # Add router to agent
         self.openstack(
-            'network agent add router --l3 %s %s' % (agent_id, router_id))
+            'network agent add router --l3 %s %s' % (agent_id, router_id)
+        )
 
         # Test router list --agent
         cmd_output = self.openstack(
             'network agent list --router %s' % router_id,
-            parse_output=True,)
+            parse_output=True,
+        )
 
         agent_ids = [x['ID'] for x in cmd_output]
         self.assertIn(agent_id, agent_ids)
 
         # Remove router from agent
         self.openstack(
-            'network agent remove router --l3 %s %s' % (agent_id, router_id))
+            'network agent remove router --l3 %s %s' % (agent_id, router_id)
+        )
         cmd_output = self.openstack(
             'network agent list --router %s' % router_id,
-            parse_output=True,)
+            parse_output=True,
+        )
         agent_ids = [x['ID'] for x in cmd_output]
         self.assertNotIn(agent_id, agent_ids)

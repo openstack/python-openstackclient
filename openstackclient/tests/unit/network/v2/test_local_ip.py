@@ -25,7 +25,6 @@ from openstackclient.tests.unit import utils as tests_utils
 
 
 class TestLocalIP(network_fakes.TestNetworkV2):
-
     def setUp(self):
         super().setUp()
 
@@ -44,9 +43,12 @@ class TestCreateLocalIP(TestLocalIP):
     port = network_fakes.create_one_port()
     # The new local ip created.
     new_local_ip = network_fakes.create_one_local_ip(
-        attrs={'project_id': project.id,
-               'network_id': local_ip_network.id,
-               'local_port_id': port.id})
+        attrs={
+            'project_id': project.id,
+            'network_id': local_ip_network.id,
+            'local_port_id': port.id,
+        }
+    )
 
     columns = (
         'created_at',
@@ -78,11 +80,12 @@ class TestCreateLocalIP(TestLocalIP):
     def setUp(self):
         super().setUp()
         self.network.create_local_ip = mock.Mock(
-            return_value=self.new_local_ip)
+            return_value=self.new_local_ip
+        )
         self.network.find_network = mock.Mock(
-            return_value=self.local_ip_network)
-        self.network.find_port = mock.Mock(
-            return_value=self.port)
+            return_value=self.local_ip_network
+        )
+        self.network.find_port = mock.Mock(return_value=self.port)
 
         # Get the command object to test
         self.cmd = local_ip.CreateLocalIP(self.app, self.namespace)
@@ -92,7 +95,7 @@ class TestCreateLocalIP(TestLocalIP):
 
     def test_create_no_options(self):
         parsed_args = self.check_parser(self.cmd, [], [])
-        columns, data = (self.cmd.take_action(parsed_args))
+        columns, data = self.cmd.take_action(parsed_args)
 
         self.network.create_local_ip.assert_called_once_with(**{})
         self.assertEqual(set(self.columns), set(columns))
@@ -100,13 +103,20 @@ class TestCreateLocalIP(TestLocalIP):
 
     def test_create_all_options(self):
         arglist = [
-            '--project-domain', self.domain.name,
-            '--description', self.new_local_ip.description,
-            '--name', self.new_local_ip.name,
-            '--network', self.new_local_ip.network_id,
-            '--local-port', self.new_local_ip.local_port_id,
-            '--local-ip-address', '10.0.0.1',
-            '--ip-mode', self.new_local_ip.ip_mode,
+            '--project-domain',
+            self.domain.name,
+            '--description',
+            self.new_local_ip.description,
+            '--name',
+            self.new_local_ip.name,
+            '--network',
+            self.new_local_ip.network_id,
+            '--local-port',
+            self.new_local_ip.local_port_id,
+            '--local-ip-address',
+            '10.0.0.1',
+            '--ip-mode',
+            self.new_local_ip.ip_mode,
         ]
         verifylist = [
             ('project_domain', self.domain.name),
@@ -119,16 +129,18 @@ class TestCreateLocalIP(TestLocalIP):
         ]
 
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
-        columns, data = (self.cmd.take_action(parsed_args))
+        columns, data = self.cmd.take_action(parsed_args)
 
-        self.network.create_local_ip.assert_called_once_with(**{
-            'name': self.new_local_ip.name,
-            'description': self.new_local_ip.description,
-            'network_id': self.new_local_ip.network_id,
-            'local_port_id': self.new_local_ip.local_port_id,
-            'local_ip_address': '10.0.0.1',
-            'ip_mode': self.new_local_ip.ip_mode,
-        })
+        self.network.create_local_ip.assert_called_once_with(
+            **{
+                'name': self.new_local_ip.name,
+                'description': self.new_local_ip.description,
+                'network_id': self.new_local_ip.network_id,
+                'local_port_id': self.new_local_ip.local_port_id,
+                'local_ip_address': '10.0.0.1',
+                'ip_mode': self.new_local_ip.ip_mode,
+            }
+        )
         self.assertEqual(set(self.columns), set(columns))
         self.assertCountEqual(self.data, data)
 
@@ -141,7 +153,8 @@ class TestDeleteLocalIP(TestLocalIP):
         super().setUp()
         self.network.delete_local_ip = mock.Mock(return_value=None)
         self.network.find_local_ip = network_fakes.get_local_ips(
-            local_ips=self._local_ips)
+            local_ips=self._local_ips
+        )
 
         # Get the command object to test
         self.cmd = local_ip.DeleteLocalIP(self.app, self.namespace)
@@ -158,9 +171,11 @@ class TestDeleteLocalIP(TestLocalIP):
 
         result = self.cmd.take_action(parsed_args)
         self.network.find_local_ip.assert_called_once_with(
-            self._local_ips[0].name, ignore_missing=False)
+            self._local_ips[0].name, ignore_missing=False
+        )
         self.network.delete_local_ip.assert_called_once_with(
-            self._local_ips[0])
+            self._local_ips[0]
+        )
         self.assertIsNone(result)
 
     def test_multi_local_ips_delete(self):
@@ -187,15 +202,12 @@ class TestDeleteLocalIP(TestLocalIP):
             'unexist_local_ip',
         ]
         verifylist = [
-            ('local_ip',
-             [self._local_ips[0].name, 'unexist_local_ip']),
+            ('local_ip', [self._local_ips[0].name, 'unexist_local_ip']),
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
         find_mock_result = [self._local_ips[0], exceptions.CommandError]
-        self.network.find_local_ip = (
-            mock.Mock(side_effect=find_mock_result)
-        )
+        self.network.find_local_ip = mock.Mock(side_effect=find_mock_result)
 
         try:
             self.cmd.take_action(parsed_args)
@@ -204,9 +216,11 @@ class TestDeleteLocalIP(TestLocalIP):
             self.assertEqual('1 of 2 local IPs failed to delete.', str(e))
 
         self.network.find_local_ip.assert_any_call(
-            self._local_ips[0].name, ignore_missing=False)
+            self._local_ips[0].name, ignore_missing=False
+        )
         self.network.find_local_ip.assert_any_call(
-            'unexist_local_ip', ignore_missing=False)
+            'unexist_local_ip', ignore_missing=False
+        )
         self.network.delete_local_ip.assert_called_once_with(
             self._local_ips[0]
         )
@@ -214,11 +228,8 @@ class TestDeleteLocalIP(TestLocalIP):
 
 class TestListLocalIP(TestLocalIP):
     # The local ip to list up.
-    local_ips = (
-        network_fakes.create_local_ips(count=3))
-    fake_network = network_fakes.create_one_network(
-        {'id': 'fake_network_id'}
-    )
+    local_ips = network_fakes.create_local_ips(count=3)
+    fake_network = network_fakes.create_one_network({'id': 'fake_network_id'})
 
     columns = (
         'ID',
@@ -232,24 +243,23 @@ class TestListLocalIP(TestLocalIP):
     )
     data = []
     for lip in local_ips:
-        data.append((
-            lip.id,
-            lip.name,
-            lip.description,
-            lip.project_id,
-            lip.local_port_id,
-            lip.network_id,
-            lip.local_ip_address,
-            lip.ip_mode,
-        ))
+        data.append(
+            (
+                lip.id,
+                lip.name,
+                lip.description,
+                lip.project_id,
+                lip.local_port_id,
+                lip.network_id,
+                lip.local_ip_address,
+                lip.ip_mode,
+            )
+        )
 
     def setUp(self):
         super().setUp()
-        self.network.local_ips = mock.Mock(
-            return_value=self.local_ips)
-        self.network.find_network = mock.Mock(
-            return_value=self.fake_network
-        )
+        self.network.local_ips = mock.Mock(return_value=self.local_ips)
+        self.network.find_network = mock.Mock(return_value=self.fake_network)
 
         # Get the command object to test
         self.cmd = local_ip.ListLocalIP(self.app, self.namespace)
@@ -267,7 +277,8 @@ class TestListLocalIP(TestLocalIP):
 
     def test_local_ip_list_name(self):
         arglist = [
-            '--name', self.local_ips[0].name,
+            '--name',
+            self.local_ips[0].name,
         ]
         verifylist = [
             ('name', self.local_ips[0].name),
@@ -276,7 +287,8 @@ class TestListLocalIP(TestLocalIP):
         columns, data = self.cmd.take_action(parsed_args)
 
         self.network.local_ips.assert_called_once_with(
-            **{'name': self.local_ips[0].name})
+            **{'name': self.local_ips[0].name}
+        )
         self.assertEqual(self.columns, columns)
         self.assertCountEqual(self.data, list(data))
 
@@ -284,7 +296,8 @@ class TestListLocalIP(TestLocalIP):
         project = identity_fakes_v3.FakeProject.create_one_project()
         self.projects_mock.get.return_value = project
         arglist = [
-            '--project', project.id,
+            '--project',
+            project.id,
         ]
         verifylist = [
             ('project', project.id),
@@ -293,7 +306,8 @@ class TestListLocalIP(TestLocalIP):
         columns, data = self.cmd.take_action(parsed_args)
 
         self.network.local_ips.assert_called_once_with(
-            **{'project_id': project.id})
+            **{'project_id': project.id}
+        )
         self.assertEqual(self.columns, columns)
         self.assertCountEqual(self.data, list(data))
 
@@ -301,8 +315,10 @@ class TestListLocalIP(TestLocalIP):
         project = identity_fakes_v3.FakeProject.create_one_project()
         self.projects_mock.get.return_value = project
         arglist = [
-            '--project', project.id,
-            '--project-domain', project.domain_id,
+            '--project',
+            project.id,
+            '--project-domain',
+            project.domain_id,
         ]
         verifylist = [
             ('project', project.id),
@@ -318,7 +334,8 @@ class TestListLocalIP(TestLocalIP):
 
     def test_local_ip_list_network(self):
         arglist = [
-            '--network', 'fake_network_id',
+            '--network',
+            'fake_network_id',
         ]
         verifylist = [
             ('network', 'fake_network_id'),
@@ -327,16 +344,19 @@ class TestListLocalIP(TestLocalIP):
 
         columns, data = self.cmd.take_action(parsed_args)
 
-        self.network.local_ips.assert_called_once_with(**{
-            'network_id': 'fake_network_id',
-        })
+        self.network.local_ips.assert_called_once_with(
+            **{
+                'network_id': 'fake_network_id',
+            }
+        )
 
         self.assertEqual(self.columns, columns)
         self.assertEqual(self.data, list(data))
 
     def test_local_ip_list_local_ip_address(self):
         arglist = [
-            '--local-ip-address', self.local_ips[0].local_ip_address,
+            '--local-ip-address',
+            self.local_ips[0].local_ip_address,
         ]
         verifylist = [
             ('local_ip_address', self.local_ips[0].local_ip_address),
@@ -345,15 +365,18 @@ class TestListLocalIP(TestLocalIP):
 
         columns, data = self.cmd.take_action(parsed_args)
 
-        self.network.local_ips.assert_called_once_with(**{
-            'local_ip_address': self.local_ips[0].local_ip_address,
-        })
+        self.network.local_ips.assert_called_once_with(
+            **{
+                'local_ip_address': self.local_ips[0].local_ip_address,
+            }
+        )
         self.assertEqual(self.columns, columns)
         self.assertEqual(self.data, list(data))
 
     def test_local_ip_list_ip_mode(self):
         arglist = [
-            '--ip-mode', self.local_ips[0].ip_mode,
+            '--ip-mode',
+            self.local_ips[0].ip_mode,
         ]
         verifylist = [
             ('ip_mode', self.local_ips[0].ip_mode),
@@ -362,9 +385,11 @@ class TestListLocalIP(TestLocalIP):
 
         columns, data = self.cmd.take_action(parsed_args)
 
-        self.network.local_ips.assert_called_once_with(**{
-            'ip_mode': self.local_ips[0].ip_mode,
-        })
+        self.network.local_ips.assert_called_once_with(
+            **{
+                'ip_mode': self.local_ips[0].ip_mode,
+            }
+        )
         self.assertEqual(self.columns, columns)
         self.assertEqual(self.data, list(data))
 
@@ -376,14 +401,15 @@ class TestSetLocalIP(TestLocalIP):
     def setUp(self):
         super().setUp()
         self.network.update_local_ip = mock.Mock(return_value=None)
-        self.network.find_local_ip = mock.Mock(
-            return_value=self._local_ip)
+        self.network.find_local_ip = mock.Mock(return_value=self._local_ip)
 
         # Get the command object to test
         self.cmd = local_ip.SetLocalIP(self.app, self.namespace)
 
     def test_set_nothing(self):
-        arglist = [self._local_ip.name, ]
+        arglist = [
+            self._local_ip.name,
+        ]
         verifylist = [
             ('local_ip', self._local_ip.name),
         ]
@@ -396,8 +422,10 @@ class TestSetLocalIP(TestLocalIP):
 
     def test_set_name_and_description(self):
         arglist = [
-            '--name', 'new_local_ip_name',
-            '--description', 'new_local_ip_description',
+            '--name',
+            'new_local_ip_name',
+            '--description',
+            'new_local_ip_description',
             self._local_ip.name,
         ]
         verifylist = [
@@ -413,7 +441,8 @@ class TestSetLocalIP(TestLocalIP):
             'description': 'new_local_ip_description',
         }
         self.network.update_local_ip.assert_called_with(
-            self._local_ip, **attrs)
+            self._local_ip, **attrs
+        )
         self.assertIsNone(result)
 
 
@@ -449,8 +478,7 @@ class TestShowLocalIP(TestLocalIP):
 
     def setUp(self):
         super().setUp()
-        self.network.find_local_ip = mock.Mock(
-            return_value=self._local_ip)
+        self.network.find_local_ip = mock.Mock(return_value=self._local_ip)
 
         # Get the command object to test
         self.cmd = local_ip.ShowLocalIP(self.app, self.namespace)
@@ -460,8 +488,13 @@ class TestShowLocalIP(TestLocalIP):
         verifylist = []
 
         # Missing required args should bail here
-        self.assertRaises(tests_utils.ParserException, self.check_parser,
-                          self.cmd, arglist, verifylist)
+        self.assertRaises(
+            tests_utils.ParserException,
+            self.check_parser,
+            self.cmd,
+            arglist,
+            verifylist,
+        )
 
     def test_show_all_options(self):
         arglist = [
@@ -475,6 +508,7 @@ class TestShowLocalIP(TestLocalIP):
         columns, data = self.cmd.take_action(parsed_args)
 
         self.network.find_local_ip.assert_called_once_with(
-            self._local_ip.name, ignore_missing=False)
+            self._local_ip.name, ignore_missing=False
+        )
         self.assertEqual(set(self.columns), set(columns))
         self.assertCountEqual(self.data, list(data))

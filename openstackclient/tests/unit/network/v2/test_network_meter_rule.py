@@ -36,10 +36,7 @@ class TestCreateMeterRule(TestMeterRule):
     project = identity_fakes_v3.FakeProject.create_one_project()
     domain = identity_fakes_v3.FakeDomain.create_one_domain()
 
-    new_rule = (
-        network_fakes.FakeNetworkMeterRule.
-        create_one_rule()
-    )
+    new_rule = network_fakes.FakeNetworkMeterRule.create_one_rule()
 
     columns = (
         'destination_ip_prefix',
@@ -64,28 +61,34 @@ class TestCreateMeterRule(TestMeterRule):
 
     def setUp(self):
         super(TestCreateMeterRule, self).setUp()
-        fake_meter = network_fakes.FakeNetworkMeter.create_one_meter({
-            'id': self.new_rule.metering_label_id})
+        fake_meter = network_fakes.FakeNetworkMeter.create_one_meter(
+            {'id': self.new_rule.metering_label_id}
+        )
 
         self.network.create_metering_label_rule = mock.Mock(
-            return_value=self.new_rule)
+            return_value=self.new_rule
+        )
         self.projects_mock.get.return_value = self.project
-        self.cmd = network_meter_rule.CreateMeterRule(self.app,
-                                                      self.namespace)
-        self.network.find_metering_label = mock.Mock(
-            return_value=fake_meter)
+        self.cmd = network_meter_rule.CreateMeterRule(self.app, self.namespace)
+        self.network.find_metering_label = mock.Mock(return_value=fake_meter)
 
     def test_create_no_options(self):
         arglist = []
         verifylist = []
 
-        self.assertRaises(tests_utils.ParserException, self.check_parser,
-                          self.cmd, arglist, verifylist)
+        self.assertRaises(
+            tests_utils.ParserException,
+            self.check_parser,
+            self.cmd,
+            arglist,
+            verifylist,
+        )
 
     def test_create_default_options(self):
         arglist = [
             self.new_rule.metering_label_id,
-            "--remote-ip-prefix", self.new_rule.remote_ip_prefix,
+            "--remote-ip-prefix",
+            self.new_rule.remote_ip_prefix,
         ]
         verifylist = [
             ('meter', self.new_rule.metering_label_id),
@@ -93,12 +96,14 @@ class TestCreateMeterRule(TestMeterRule):
         ]
 
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
-        columns, data = (self.cmd.take_action(parsed_args))
+        columns, data = self.cmd.take_action(parsed_args)
 
         self.network.create_metering_label_rule.assert_called_once_with(
-            **{'direction': 'ingress',
-               'metering_label_id': self.new_rule.metering_label_id,
-               'remote_ip_prefix': self.new_rule.remote_ip_prefix, }
+            **{
+                'direction': 'ingress',
+                'metering_label_id': self.new_rule.metering_label_id,
+                'remote_ip_prefix': self.new_rule.remote_ip_prefix,
+            }
         )
         self.assertEqual(self.columns, columns)
         self.assertEqual(self.data, data)
@@ -108,7 +113,8 @@ class TestCreateMeterRule(TestMeterRule):
             "--ingress",
             "--include",
             self.new_rule.metering_label_id,
-            "--remote-ip-prefix", self.new_rule.remote_ip_prefix,
+            "--remote-ip-prefix",
+            self.new_rule.remote_ip_prefix,
         ]
         verifylist = [
             ('ingress', True),
@@ -118,13 +124,15 @@ class TestCreateMeterRule(TestMeterRule):
         ]
 
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
-        columns, data = (self.cmd.take_action(parsed_args))
+        columns, data = self.cmd.take_action(parsed_args)
 
         self.network.create_metering_label_rule.assert_called_once_with(
-            **{'direction': self.new_rule.direction,
-               'excluded': self.new_rule.excluded,
-               'metering_label_id': self.new_rule.metering_label_id,
-               'remote_ip_prefix': self.new_rule.remote_ip_prefix, }
+            **{
+                'direction': self.new_rule.direction,
+                'excluded': self.new_rule.excluded,
+                'metering_label_id': self.new_rule.metering_label_id,
+                'remote_ip_prefix': self.new_rule.remote_ip_prefix,
+            }
         )
         self.assertEqual(self.columns, columns)
         self.assertEqual(self.data, data)
@@ -133,19 +141,18 @@ class TestCreateMeterRule(TestMeterRule):
 class TestDeleteMeterRule(TestMeterRule):
     def setUp(self):
         super(TestDeleteMeterRule, self).setUp()
-        self.rule_list = \
-            network_fakes.FakeNetworkMeterRule.create_meter_rule(
-                count=2
-            )
+        self.rule_list = network_fakes.FakeNetworkMeterRule.create_meter_rule(
+            count=2
+        )
         self.network.delete_metering_label_rule = mock.Mock(return_value=None)
 
-        self.network.find_metering_label_rule = network_fakes \
-            .FakeNetworkMeterRule.get_meter_rule(
+        self.network.find_metering_label_rule = (
+            network_fakes.FakeNetworkMeterRule.get_meter_rule(
                 meter_rule=self.rule_list
             )
+        )
 
-        self.cmd = network_meter_rule.DeleteMeterRule(self.app,
-                                                      self.namespace)
+        self.cmd = network_meter_rule.DeleteMeterRule(self.app, self.namespace)
 
     def test_delete_one_rule(self):
         arglist = [
@@ -211,8 +218,9 @@ class TestDeleteMeterRule(TestMeterRule):
             side_effect=ret_delete
         )
 
-        self.assertRaises(exceptions.CommandError, self.cmd.take_action,
-                          parsed_args)
+        self.assertRaises(
+            exceptions.CommandError, self.cmd.take_action, parsed_args
+        )
 
         calls = [
             call(self.rule_list[0]),
@@ -222,10 +230,7 @@ class TestDeleteMeterRule(TestMeterRule):
 
 
 class TestListMeterRule(TestMeterRule):
-    rule_list = \
-        network_fakes.FakeNetworkMeterRule.create_meter_rule(
-            count=2
-        )
+    rule_list = network_fakes.FakeNetworkMeterRule.create_meter_rule(count=2)
 
     columns = (
         'ID',
@@ -233,20 +238,22 @@ class TestListMeterRule(TestMeterRule):
         'Direction',
         'Remote IP Prefix',
         'Source IP Prefix',
-        'Destination IP Prefix'
+        'Destination IP Prefix',
     )
 
     data = []
 
     for rule in rule_list:
-        data.append((
-            rule.id,
-            rule.excluded,
-            rule.direction,
-            rule.remote_ip_prefix,
-            rule.source_ip_prefix,
-            rule.destination_ip_prefix
-        ))
+        data.append(
+            (
+                rule.id,
+                rule.excluded,
+                rule.direction,
+                rule.remote_ip_prefix,
+                rule.source_ip_prefix,
+                rule.destination_ip_prefix,
+            )
+        )
 
     def setUp(self):
         super(TestListMeterRule, self).setUp()
@@ -255,8 +262,7 @@ class TestListMeterRule(TestMeterRule):
             return_value=self.rule_list
         )
 
-        self.cmd = network_meter_rule.ListMeterRule(self.app,
-                                                    self.namespace)
+        self.cmd = network_meter_rule.ListMeterRule(self.app, self.namespace)
 
     def test_rule_list(self):
         arglist = []
@@ -272,10 +278,7 @@ class TestListMeterRule(TestMeterRule):
 
 
 class TestShowMeterRule(TestMeterRule):
-    new_rule = (
-        network_fakes.FakeNetworkMeterRule.
-        create_one_rule()
-    )
+    new_rule = network_fakes.FakeNetworkMeterRule.create_one_rule()
 
     columns = (
         'destination_ip_prefix',
@@ -302,18 +305,23 @@ class TestShowMeterRule(TestMeterRule):
     def setUp(self):
         super(TestShowMeterRule, self).setUp()
 
-        self.cmd = network_meter_rule.ShowMeterRule(self.app,
-                                                    self.namespace)
+        self.cmd = network_meter_rule.ShowMeterRule(self.app, self.namespace)
 
-        self.network.find_metering_label_rule = \
-            mock.Mock(return_value=self.new_rule)
+        self.network.find_metering_label_rule = mock.Mock(
+            return_value=self.new_rule
+        )
 
     def test_show_no_options(self):
         arglist = []
         verifylist = []
 
-        self.assertRaises(tests_utils.ParserException, self.check_parser,
-                          self.cmd, arglist, verifylist)
+        self.assertRaises(
+            tests_utils.ParserException,
+            self.check_parser,
+            self.cmd,
+            arglist,
+            verifylist,
+        )
 
     def test_label_rule_show_option(self):
         arglist = [

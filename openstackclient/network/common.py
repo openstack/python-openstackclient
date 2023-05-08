@@ -64,6 +64,7 @@ class NetDetectionMixin(metaclass=abc.ABCMeta):
     But the command classes are used for docs builds as well, and docs must
     present the options for both network types, often qualified accordingly.
     """
+
     @property
     def _network_type(self):
         """Discover whether the running cloud is using neutron or nova-network.
@@ -85,7 +86,9 @@ class NetDetectionMixin(metaclass=abc.ABCMeta):
             except AttributeError:
                 LOG.warning(
                     "%s: Could not detect a network type. Assuming we are "
-                    "building docs.", self.__class__.__name__)
+                    "building docs.",
+                    self.__class__.__name__,
+                )
                 net_type = None
             self._net_type = net_type
         return self._net_type
@@ -118,11 +121,14 @@ class NetDetectionMixin(metaclass=abc.ABCMeta):
     def split_help(network_help, compute_help):
         return (
             "*%(network_qualifier)s:*\n  %(network_help)s\n\n"
-            "*%(compute_qualifier)s:*\n  %(compute_help)s" % dict(
+            "*%(compute_qualifier)s:*\n  %(compute_help)s"
+            % dict(
                 network_qualifier=_("Network version 2"),
                 network_help=network_help,
                 compute_qualifier=_("Compute version 2"),
-                compute_help=compute_help))
+                compute_help=compute_help,
+            )
+        )
 
     def get_parser(self, prog_name):
         LOG.debug('get_parser(%s)', prog_name)
@@ -150,11 +156,13 @@ class NetDetectionMixin(metaclass=abc.ABCMeta):
 
     def take_action(self, parsed_args):
         if self.is_neutron:
-            return self.take_action_network(self.app.client_manager.network,
-                                            parsed_args)
+            return self.take_action_network(
+                self.app.client_manager.network, parsed_args
+            )
         elif self.is_nova_network:
-            return self.take_action_compute(self.app.client_manager.compute,
-                                            parsed_args)
+            return self.take_action_compute(
+                self.app.client_manager.compute, parsed_args
+            )
 
     def take_action_network(self, client, parsed_args):
         """Override to do something useful."""
@@ -165,8 +173,9 @@ class NetDetectionMixin(metaclass=abc.ABCMeta):
         pass
 
 
-class NetworkAndComputeCommand(NetDetectionMixin, command.Command,
-                               metaclass=abc.ABCMeta):
+class NetworkAndComputeCommand(
+    NetDetectionMixin, command.Command, metaclass=abc.ABCMeta
+):
     """Network and Compute Command
 
     Command class for commands that support implementation via
@@ -174,11 +183,11 @@ class NetworkAndComputeCommand(NetDetectionMixin, command.Command,
     implementations for take_action() and may even have different
     arguments.
     """
+
     pass
 
 
-class NetworkAndComputeDelete(NetworkAndComputeCommand,
-                              metaclass=abc.ABCMeta):
+class NetworkAndComputeDelete(NetworkAndComputeCommand, metaclass=abc.ABCMeta):
     """Network and Compute Delete
 
     Delete class for commands that support implementation via
@@ -196,17 +205,21 @@ class NetworkAndComputeDelete(NetworkAndComputeCommand,
             self.r = r
             try:
                 if self.app.client_manager.is_network_endpoint_enabled():
-                    self.take_action_network(self.app.client_manager.network,
-                                             parsed_args)
+                    self.take_action_network(
+                        self.app.client_manager.network, parsed_args
+                    )
                 else:
-                    self.take_action_compute(self.app.client_manager.compute,
-                                             parsed_args)
+                    self.take_action_compute(
+                        self.app.client_manager.compute, parsed_args
+                    )
             except Exception as e:
-                msg = _("Failed to delete %(resource)s with name or ID "
-                        "'%(name_or_id)s': %(e)s") % {
-                            "resource": self.resource,
-                            "name_or_id": r,
-                            "e": e,
+                msg = _(
+                    "Failed to delete %(resource)s with name or ID "
+                    "'%(name_or_id)s': %(e)s"
+                ) % {
+                    "resource": self.resource,
+                    "name_or_id": r,
+                    "e": e,
                 }
                 LOG.error(msg)
                 ret += 1
@@ -221,8 +234,9 @@ class NetworkAndComputeDelete(NetworkAndComputeCommand,
             raise exceptions.CommandError(msg)
 
 
-class NetworkAndComputeLister(NetDetectionMixin, command.Lister,
-                              metaclass=abc.ABCMeta):
+class NetworkAndComputeLister(
+    NetDetectionMixin, command.Lister, metaclass=abc.ABCMeta
+):
     """Network and Compute Lister
 
     Lister class for commands that support implementation via
@@ -230,11 +244,13 @@ class NetworkAndComputeLister(NetDetectionMixin, command.Lister,
     implementations for take_action() and may even have different
     arguments.
     """
+
     pass
 
 
-class NetworkAndComputeShowOne(NetDetectionMixin, command.ShowOne,
-                               metaclass=abc.ABCMeta):
+class NetworkAndComputeShowOne(
+    NetDetectionMixin, command.ShowOne, metaclass=abc.ABCMeta
+):
     """Network and Compute ShowOne
 
     ShowOne class for commands that support implementation via
@@ -247,10 +263,12 @@ class NetworkAndComputeShowOne(NetDetectionMixin, command.ShowOne,
         try:
             if self.app.client_manager.is_network_endpoint_enabled():
                 return self.take_action_network(
-                    self.app.client_manager.network, parsed_args)
+                    self.app.client_manager.network, parsed_args
+                )
             else:
                 return self.take_action_compute(
-                    self.app.client_manager.compute, parsed_args)
+                    self.app.client_manager.compute, parsed_args
+                )
         except openstack.exceptions.HttpException as exc:
             msg = _("Error while executing command: %s") % exc.message
             if exc.details:
@@ -282,10 +300,13 @@ class NeutronCommandWithExtraArgs(command.Command):
 
         if not converter:
             raise exceptions.CommandError(
-                _("Type {property_type} of property {name} "
-                  "is not supported").format(
-                      property_type=_property['type'],
-                      name=_property['name']))
+                _(
+                    "Type {property_type} of property {name} "
+                    "is not supported"
+                ).format(
+                    property_type=_property['type'], name=_property['name']
+                )
+            )
         return converter
 
     def _parse_extra_properties(self, extra_properties):
@@ -301,25 +322,26 @@ class NeutronCommandWithExtraArgs(command.Command):
         parser.add_argument(
             '--extra-property',
             metavar='type=<property_type>,name=<property_name>,'
-                    'value=<property_value>',
+            'value=<property_value>',
             dest='extra_properties',
             action=parseractions.MultiKeyValueAction,
             required_keys=['name', 'value'],
             optional_keys=['type'],
-            help=_("Additional parameters can be passed using this property. "
-                   "Default type of the extra property is string ('str'), but "
-                   "other types can be used as well. Available types are: "
-                   "'dict', 'list', 'str', 'bool', 'int'. "
-                   "In case of 'list' type, 'value' can be "
-                   "semicolon-separated list of values. "
-                   "For 'dict' value is semicolon-separated list of the "
-                   "key:value pairs.")
+            help=_(
+                "Additional parameters can be passed using this property. "
+                "Default type of the extra property is string ('str'), but "
+                "other types can be used as well. Available types are: "
+                "'dict', 'list', 'str', 'bool', 'int'. "
+                "In case of 'list' type, 'value' can be "
+                "semicolon-separated list of values. "
+                "For 'dict' value is semicolon-separated list of the "
+                "key:value pairs."
+            ),
         )
         return parser
 
 
 class NeutronUnsetCommandWithExtraArgs(NeutronCommandWithExtraArgs):
-
     def _parse_extra_properties(self, extra_properties):
         result = {}
         if extra_properties:

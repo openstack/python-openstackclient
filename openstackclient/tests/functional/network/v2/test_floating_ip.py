@@ -29,17 +29,14 @@ class FloatingIpTests(common.NetworkTests):
 
             # Create a network for the floating ip
             json_output = cls.openstack(
-                'network create ' +
-                '--external ' +
-                cls.EXTERNAL_NETWORK_NAME,
+                'network create ' + '--external ' + cls.EXTERNAL_NETWORK_NAME,
                 parse_output=True,
             )
             cls.external_network_id = json_output["id"]
 
             # Create a private network for the port
             json_output = cls.openstack(
-                'network create ' +
-                cls.PRIVATE_NETWORK_NAME,
+                'network create ' + cls.PRIVATE_NETWORK_NAME,
                 parse_output=True,
             )
             cls.private_network_id = json_output["id"]
@@ -49,9 +46,10 @@ class FloatingIpTests(common.NetworkTests):
         try:
             if cls.haz_network:
                 del_output = cls.openstack(
-                    'network delete ' +
-                    cls.EXTERNAL_NETWORK_NAME + ' ' +
-                    cls.PRIVATE_NETWORK_NAME
+                    'network delete '
+                    + cls.EXTERNAL_NETWORK_NAME
+                    + ' '
+                    + cls.PRIVATE_NETWORK_NAME
                 )
                 cls.assertOutput('', del_output)
         finally:
@@ -76,23 +74,27 @@ class FloatingIpTests(common.NetworkTests):
         # try 4 times
         for i in range(4):
             # Make a random subnet
-            subnet = ".".join(map(
-                str,
-                (random.randint(0, 223) for _ in range(3))
-            )) + ".0/26"
+            subnet = (
+                ".".join(map(str, (random.randint(0, 223) for _ in range(3))))
+                + ".0/26"
+            )
             try:
                 # Create a subnet for the network
                 json_output = self.openstack(
-                    'subnet create ' +
-                    '--network ' + network_name + ' ' +
-                    '--subnet-range ' + subnet + ' ' +
-                    subnet_name,
+                    'subnet create '
+                    + '--network '
+                    + network_name
+                    + ' '
+                    + '--subnet-range '
+                    + subnet
+                    + ' '
+                    + subnet_name,
                     parse_output=True,
                 )
                 self.assertIsNotNone(json_output["id"])
                 subnet_id = json_output["id"]
             except Exception:
-                if (i == 3):
+                if i == 3:
                     # raise the exception at the last time
                     raise
                 pass
@@ -106,15 +108,14 @@ class FloatingIpTests(common.NetworkTests):
 
         # Subnets must exist even if not directly referenced here
         ext_subnet_id = self._create_subnet(
-            self.EXTERNAL_NETWORK_NAME,
-            "ext-test-delete"
+            self.EXTERNAL_NETWORK_NAME, "ext-test-delete"
         )
         self.addCleanup(self.openstack, 'subnet delete ' + ext_subnet_id)
 
         json_output = self.openstack(
-            'floating ip create ' +
-            '--description aaaa ' +
-            self.EXTERNAL_NETWORK_NAME,
+            'floating ip create '
+            + '--description aaaa '
+            + self.EXTERNAL_NETWORK_NAME,
             parse_output=True,
         )
         self.assertIsNotNone(json_output["id"])
@@ -125,9 +126,9 @@ class FloatingIpTests(common.NetworkTests):
         )
 
         json_output = self.openstack(
-            'floating ip create ' +
-            '--description bbbb ' +
-            self.EXTERNAL_NETWORK_NAME,
+            'floating ip create '
+            + '--description bbbb '
+            + self.EXTERNAL_NETWORK_NAME,
             parse_output=True,
         )
         self.assertIsNotNone(json_output["id"])
@@ -148,15 +149,14 @@ class FloatingIpTests(common.NetworkTests):
 
         # Subnets must exist even if not directly referenced here
         ext_subnet_id = self._create_subnet(
-            self.EXTERNAL_NETWORK_NAME,
-            "ext-test-delete"
+            self.EXTERNAL_NETWORK_NAME, "ext-test-delete"
         )
         self.addCleanup(self.openstack, 'subnet delete ' + ext_subnet_id)
 
         json_output = self.openstack(
-            'floating ip create ' +
-            '--description aaaa ' +
-            self.EXTERNAL_NETWORK_NAME,
+            'floating ip create '
+            + '--description aaaa '
+            + self.EXTERNAL_NETWORK_NAME,
             parse_output=True,
         )
         self.assertIsNotNone(json_output["id"])
@@ -170,9 +170,9 @@ class FloatingIpTests(common.NetworkTests):
         fip1 = json_output["floating_ip_address"]
 
         json_output = self.openstack(
-            'floating ip create ' +
-            '--description bbbb ' +
-            self.EXTERNAL_NETWORK_NAME,
+            'floating ip create '
+            + '--description bbbb '
+            + self.EXTERNAL_NETWORK_NAME,
             parse_output=True,
         )
         self.assertIsNotNone(json_output["id"])
@@ -191,8 +191,8 @@ class FloatingIpTests(common.NetworkTests):
             parse_output=True,
         )
         fip_map = {
-            item.get('ID'):
-                item.get('Floating IP Address') for item in json_output
+            item.get('ID'): item.get('Floating IP Address')
+            for item in json_output
         }
         # self.assertEqual(item_map, json_output)
         self.assertIn(ip1, fip_map.keys())
@@ -202,13 +202,12 @@ class FloatingIpTests(common.NetworkTests):
 
         # Test list --long
         json_output = self.openstack(
-            'floating ip list ' +
-            '--long',
+            'floating ip list ' + '--long',
             parse_output=True,
         )
         fip_map = {
-            item.get('ID'):
-                item.get('Floating IP Address') for item in json_output
+            item.get('ID'): item.get('Floating IP Address')
+            for item in json_output
         }
         self.assertIn(ip1, fip_map.keys())
         self.assertIn(ip2, fip_map.keys())
@@ -223,8 +222,7 @@ class FloatingIpTests(common.NetworkTests):
         # TODO(dtroyer): add more filter tests
 
         json_output = self.openstack(
-            'floating ip show ' +
-            ip1,
+            'floating ip show ' + ip1,
             parse_output=True,
         )
         self.assertIsNotNone(json_output["id"])
@@ -247,13 +245,11 @@ class FloatingIpTests(common.NetworkTests):
 
         # Subnets must exist even if not directly referenced here
         ext_subnet_id = self._create_subnet(
-            self.EXTERNAL_NETWORK_NAME,
-            "ext-test-delete"
+            self.EXTERNAL_NETWORK_NAME, "ext-test-delete"
         )
         self.addCleanup(self.openstack, 'subnet delete ' + ext_subnet_id)
         priv_subnet_id = self._create_subnet(
-            self.PRIVATE_NETWORK_NAME,
-            "priv-test-delete"
+            self.PRIVATE_NETWORK_NAME, "priv-test-delete"
         )
         self.addCleanup(self.openstack, 'subnet delete ' + priv_subnet_id)
 
@@ -261,9 +257,9 @@ class FloatingIpTests(common.NetworkTests):
         self.PORT_NAME = uuid.uuid4().hex
 
         json_output = self.openstack(
-            'floating ip create ' +
-            '--description aaaa ' +
-            self.EXTERNAL_NETWORK_NAME,
+            'floating ip create '
+            + '--description aaaa '
+            + self.EXTERNAL_NETWORK_NAME,
             parse_output=True,
         )
         self.assertIsNotNone(json_output["id"])
@@ -275,33 +271,34 @@ class FloatingIpTests(common.NetworkTests):
         )
 
         json_output = self.openstack(
-            'port create ' +
-            '--network ' + self.PRIVATE_NETWORK_NAME + ' ' +
-            '--fixed-ip subnet=' + priv_subnet_id + ' ' +
-            self.PORT_NAME,
+            'port create '
+            + '--network '
+            + self.PRIVATE_NETWORK_NAME
+            + ' '
+            + '--fixed-ip subnet='
+            + priv_subnet_id
+            + ' '
+            + self.PORT_NAME,
             parse_output=True,
         )
         self.assertIsNotNone(json_output["id"])
         port_id = json_output["id"]
 
         json_output = self.openstack(
-            'router create ' +
-            self.ROUTER,
+            'router create ' + self.ROUTER,
             parse_output=True,
         )
         self.assertIsNotNone(json_output["id"])
         self.addCleanup(self.openstack, 'router delete ' + self.ROUTER)
 
-        self.openstack(
-            'router add port ' +
-            self.ROUTER + ' ' +
-            port_id
-        )
+        self.openstack('router add port ' + self.ROUTER + ' ' + port_id)
 
         self.openstack(
-            'router set ' +
-            '--external-gateway ' + self.EXTERNAL_NETWORK_NAME + ' ' +
-            self.ROUTER
+            'router set '
+            + '--external-gateway '
+            + self.EXTERNAL_NETWORK_NAME
+            + ' '
+            + self.ROUTER
         )
         self.addCleanup(
             self.openstack,
@@ -312,19 +309,14 @@ class FloatingIpTests(common.NetworkTests):
             'router remove port ' + self.ROUTER + ' ' + port_id,
         )
 
-        self.openstack(
-            'floating ip set ' +
-            '--port ' + port_id + ' ' +
-            ip1
-        )
+        self.openstack('floating ip set ' + '--port ' + port_id + ' ' + ip1)
         self.addCleanup(
             self.openstack,
             'floating ip unset --port ' + ip1,
         )
 
         json_output = self.openstack(
-            'floating ip show ' +
-            ip1,
+            'floating ip show ' + ip1,
             parse_output=True,
         )
 

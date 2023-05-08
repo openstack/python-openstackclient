@@ -25,21 +25,20 @@ from openstackclient.tests.unit import utils as tests_utils
 
 
 class TestAuxiliaryFunctions(tests_utils.TestCase):
-
     def test__get_ranges(self):
         input_reference = [
             ([1, 2, 3, 4, 5, 6, 7], ['1-7']),
             ([1, 2, 5, 4, 3, 6, 7], ['1-7']),
             ([1, 2, 4, 3, 7, 6], ['1-4', '6-7']),
-            ([1, 2, 4, 3, '13', 12, '7', '6'], ['1-4', '6-7', '12-13'])
+            ([1, 2, 4, 3, '13', 12, '7', '6'], ['1-4', '6-7', '12-13']),
         ]
         for input, reference in input_reference:
-            self.assertEqual(reference,
-                             list(network_segment_range._get_ranges(input)))
+            self.assertEqual(
+                reference, list(network_segment_range._get_ranges(input))
+            )
 
 
 class TestNetworkSegmentRange(network_fakes.TestNetworkV2):
-
     def setUp(self):
         super(TestNetworkSegmentRange, self).setUp()
 
@@ -48,7 +47,6 @@ class TestNetworkSegmentRange(network_fakes.TestNetworkV2):
 
 
 class TestCreateNetworkSegmentRange(TestNetworkSegmentRange):
-
     # The network segment range to create.
     _network_segment_range = network_fakes.create_one_network_segment_range()
 
@@ -90,33 +88,46 @@ class TestCreateNetworkSegmentRange(TestNetworkSegmentRange):
 
         # Get the command object to test
         self.cmd = network_segment_range.CreateNetworkSegmentRange(
-            self.app,
-            self.namespace
+            self.app, self.namespace
         )
 
     def test_create_no_options(self):
         # Missing required args should bail here
-        self.assertRaises(tests_utils.ParserException, self.check_parser,
-                          self.cmd, [], [])
+        self.assertRaises(
+            tests_utils.ParserException, self.check_parser, self.cmd, [], []
+        )
 
     def test_create_invalid_network_type(self):
         arglist = [
             '--private',
-            '--project', self._network_segment_range.project_id,
-            '--network-type', 'foo',
-            '--minimum', str(self._network_segment_range.minimum),
-            '--maximum', str(self._network_segment_range.maximum),
+            '--project',
+            self._network_segment_range.project_id,
+            '--network-type',
+            'foo',
+            '--minimum',
+            str(self._network_segment_range.minimum),
+            '--maximum',
+            str(self._network_segment_range.maximum),
             self._network_segment_range.name,
         ]
-        self.assertRaises(tests_utils.ParserException, self.check_parser,
-                          self.cmd, arglist, [])
+        self.assertRaises(
+            tests_utils.ParserException,
+            self.check_parser,
+            self.cmd,
+            arglist,
+            [],
+        )
 
     def test_create_default_with_project_id(self):
         arglist = [
-            '--project', self._network_segment_range.project_id,
-            '--network-type', 'vxlan',
-            '--minimum', str(self._network_segment_range.minimum),
-            '--maximum', str(self._network_segment_range.maximum),
+            '--project',
+            self._network_segment_range.project_id,
+            '--network-type',
+            'vxlan',
+            '--minimum',
+            str(self._network_segment_range.minimum),
+            '--maximum',
+            str(self._network_segment_range.maximum),
             self._network_segment_range.name,
         ]
         verifylist = [
@@ -128,17 +139,21 @@ class TestCreateNetworkSegmentRange(TestNetworkSegmentRange):
         ]
 
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
-        self.assertRaises(exceptions.CommandError,
-                          self.cmd.take_action,
-                          parsed_args)
+        self.assertRaises(
+            exceptions.CommandError, self.cmd.take_action, parsed_args
+        )
 
     def test_create_shared_with_project_id(self):
         arglist = [
             '--shared',
-            '--project', self._network_segment_range.project_id,
-            '--network-type', 'vxlan',
-            '--minimum', str(self._network_segment_range.minimum),
-            '--maximum', str(self._network_segment_range.maximum),
+            '--project',
+            self._network_segment_range.project_id,
+            '--network-type',
+            'vxlan',
+            '--minimum',
+            str(self._network_segment_range.minimum),
+            '--maximum',
+            str(self._network_segment_range.maximum),
             self._network_segment_range.name,
         ]
         verifylist = [
@@ -151,17 +166,21 @@ class TestCreateNetworkSegmentRange(TestNetworkSegmentRange):
         ]
 
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
-        self.assertRaises(exceptions.CommandError,
-                          self.cmd.take_action,
-                          parsed_args)
+        self.assertRaises(
+            exceptions.CommandError, self.cmd.take_action, parsed_args
+        )
 
     def test_create_tunnel_with_physical_network(self):
         arglist = [
             '--shared',
-            '--network-type', 'vxlan',
-            '--physical-network', self._network_segment_range.physical_network,
-            '--minimum', str(self._network_segment_range.minimum),
-            '--maximum', str(self._network_segment_range.maximum),
+            '--network-type',
+            'vxlan',
+            '--physical-network',
+            self._network_segment_range.physical_network,
+            '--minimum',
+            str(self._network_segment_range.minimum),
+            '--maximum',
+            str(self._network_segment_range.maximum),
             self._network_segment_range.name,
         ]
         verifylist = [
@@ -174,15 +193,18 @@ class TestCreateNetworkSegmentRange(TestNetworkSegmentRange):
         ]
 
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
-        self.assertRaises(exceptions.CommandError,
-                          self.cmd.take_action,
-                          parsed_args)
+        self.assertRaises(
+            exceptions.CommandError, self.cmd.take_action, parsed_args
+        )
 
     def test_create_minimum_options(self):
         arglist = [
-            '--network-type', 'vxlan',
-            '--minimum', str(self._network_segment_range.minimum),
-            '--maximum', str(self._network_segment_range.maximum),
+            '--network-type',
+            'vxlan',
+            '--minimum',
+            str(self._network_segment_range.minimum),
+            '--maximum',
+            str(self._network_segment_range.maximum),
             self._network_segment_range.name,
         ]
         verifylist = [
@@ -195,13 +217,15 @@ class TestCreateNetworkSegmentRange(TestNetworkSegmentRange):
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
         columns, data = self.cmd.take_action(parsed_args)
 
-        self.network.create_network_segment_range.assert_called_once_with(**{
-            'shared': True,
-            'network_type': 'vxlan',
-            'minimum': self._network_segment_range.minimum,
-            'maximum': self._network_segment_range.maximum,
-            'name': self._network_segment_range.name,
-        })
+        self.network.create_network_segment_range.assert_called_once_with(
+            **{
+                'shared': True,
+                'network_type': 'vxlan',
+                'minimum': self._network_segment_range.minimum,
+                'maximum': self._network_segment_range.maximum,
+                'name': self._network_segment_range.name,
+            }
+        )
 
         self.assertEqual(self.columns, columns)
         self.assertEqual(self.data, data)
@@ -209,10 +233,14 @@ class TestCreateNetworkSegmentRange(TestNetworkSegmentRange):
     def test_create_private_minimum_options(self):
         arglist = [
             '--private',
-            '--project', self._network_segment_range.project_id,
-            '--network-type', 'vxlan',
-            '--minimum', str(self._network_segment_range.minimum),
-            '--maximum', str(self._network_segment_range.maximum),
+            '--project',
+            self._network_segment_range.project_id,
+            '--network-type',
+            'vxlan',
+            '--minimum',
+            str(self._network_segment_range.minimum),
+            '--maximum',
+            str(self._network_segment_range.maximum),
             self._network_segment_range.name,
         ]
         verifylist = [
@@ -227,14 +255,16 @@ class TestCreateNetworkSegmentRange(TestNetworkSegmentRange):
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
         columns, data = self.cmd.take_action(parsed_args)
 
-        self.network.create_network_segment_range.assert_called_once_with(**{
-            'shared': False,
-            'project_id': mock.ANY,
-            'network_type': 'vxlan',
-            'minimum': self._network_segment_range.minimum,
-            'maximum': self._network_segment_range.maximum,
-            'name': self._network_segment_range.name,
-        })
+        self.network.create_network_segment_range.assert_called_once_with(
+            **{
+                'shared': False,
+                'project_id': mock.ANY,
+                'network_type': 'vxlan',
+                'minimum': self._network_segment_range.minimum,
+                'maximum': self._network_segment_range.maximum,
+                'name': self._network_segment_range.name,
+            }
+        )
 
         self.assertEqual(self.columns, columns)
         self.assertEqual(self.data, data)
@@ -242,9 +272,12 @@ class TestCreateNetworkSegmentRange(TestNetworkSegmentRange):
     def test_create_shared_minimum_options(self):
         arglist = [
             '--shared',
-            '--network-type', 'vxlan',
-            '--minimum', str(self._network_segment_range.minimum),
-            '--maximum', str(self._network_segment_range.maximum),
+            '--network-type',
+            'vxlan',
+            '--minimum',
+            str(self._network_segment_range.minimum),
+            '--maximum',
+            str(self._network_segment_range.maximum),
             self._network_segment_range.name,
         ]
         verifylist = [
@@ -258,13 +291,15 @@ class TestCreateNetworkSegmentRange(TestNetworkSegmentRange):
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
         columns, data = self.cmd.take_action(parsed_args)
 
-        self.network.create_network_segment_range.assert_called_once_with(**{
-            'shared': True,
-            'network_type': 'vxlan',
-            'minimum': self._network_segment_range.minimum,
-            'maximum': self._network_segment_range.maximum,
-            'name': self._network_segment_range.name,
-        })
+        self.network.create_network_segment_range.assert_called_once_with(
+            **{
+                'shared': True,
+                'network_type': 'vxlan',
+                'minimum': self._network_segment_range.minimum,
+                'maximum': self._network_segment_range.maximum,
+                'name': self._network_segment_range.name,
+            }
+        )
 
         self.assertEqual(self.columns, columns)
         self.assertEqual(self.data, data)
@@ -272,11 +307,16 @@ class TestCreateNetworkSegmentRange(TestNetworkSegmentRange):
     def test_create_all_options(self):
         arglist = [
             '--private',
-            '--project', self._network_segment_range.project_id,
-            '--network-type', self._network_segment_range.network_type,
-            '--physical-network', self._network_segment_range.physical_network,
-            '--minimum', str(self._network_segment_range.minimum),
-            '--maximum', str(self._network_segment_range.maximum),
+            '--project',
+            self._network_segment_range.project_id,
+            '--network-type',
+            self._network_segment_range.network_type,
+            '--physical-network',
+            self._network_segment_range.physical_network,
+            '--minimum',
+            str(self._network_segment_range.minimum),
+            '--maximum',
+            str(self._network_segment_range.maximum),
             self._network_segment_range.name,
         ]
         verifylist = [
@@ -292,22 +332,23 @@ class TestCreateNetworkSegmentRange(TestNetworkSegmentRange):
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
         columns, data = self.cmd.take_action(parsed_args)
 
-        self.network.create_network_segment_range.assert_called_once_with(**{
-            'shared': self._network_segment_range.shared,
-            'project_id': mock.ANY,
-            'network_type': self._network_segment_range.network_type,
-            'physical_network': self._network_segment_range.physical_network,
-            'minimum': self._network_segment_range.minimum,
-            'maximum': self._network_segment_range.maximum,
-            'name': self._network_segment_range.name,
-        })
+        self.network.create_network_segment_range.assert_called_once_with(
+            **{
+                'shared': self._network_segment_range.shared,
+                'project_id': mock.ANY,
+                'network_type': self._network_segment_range.network_type,
+                'physical_network': self._network_segment_range.physical_network,  # noqa: E501
+                'minimum': self._network_segment_range.minimum,
+                'maximum': self._network_segment_range.maximum,
+                'name': self._network_segment_range.name,
+            }
+        )
 
         self.assertEqual(self.columns, columns)
         self.assertEqual(self.data, data)
 
 
 class TestDeleteNetworkSegmentRange(TestNetworkSegmentRange):
-
     # The network segment ranges to delete.
     _network_segment_ranges = network_fakes.create_network_segment_ranges()
 
@@ -316,15 +357,15 @@ class TestDeleteNetworkSegmentRange(TestNetworkSegmentRange):
 
         self.network.find_extension = mock.Mock()
         self.network.delete_network_segment_range = mock.Mock(
-            return_value=None)
+            return_value=None
+        )
         self.network.find_network_segment_range = mock.Mock(
             side_effect=self._network_segment_ranges
         )
 
         # Get the command object to test
         self.cmd = network_segment_range.DeleteNetworkSegmentRange(
-            self.app,
-            self.namespace
+            self.app, self.namespace
         )
 
     def test_delete(self):
@@ -361,41 +402,46 @@ class TestDeleteNetworkSegmentRange(TestNetworkSegmentRange):
         self.assertIsNone(result)
 
     def test_delete_multiple_with_exception(self):
-        arglist = [
-            self._network_segment_ranges[0].id,
-            'doesnotexist'
-        ]
+        arglist = [self._network_segment_ranges[0].id, 'doesnotexist']
         verifylist = [
-            ('network_segment_range',
-             [self._network_segment_ranges[0].id, 'doesnotexist']),
+            (
+                'network_segment_range',
+                [self._network_segment_ranges[0].id, 'doesnotexist'],
+            ),
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
-        find_mock_result = [self._network_segment_ranges[0],
-                            exceptions.CommandError]
-        self.network.find_network_segment_range = (
-            mock.Mock(side_effect=find_mock_result)
+        find_mock_result = [
+            self._network_segment_ranges[0],
+            exceptions.CommandError,
+        ]
+        self.network.find_network_segment_range = mock.Mock(
+            side_effect=find_mock_result
         )
 
         try:
             self.cmd.take_action(parsed_args)
             self.fail('CommandError should be raised.')
         except exceptions.CommandError as e:
-            self.assertEqual('1 of 2 network segment ranges failed to delete.',
-                             str(e))
+            self.assertEqual(
+                '1 of 2 network segment ranges failed to delete.', str(e)
+            )
 
         self.network.find_network_segment_range.assert_any_call(
-            self._network_segment_ranges[0].id, ignore_missing=False)
+            self._network_segment_ranges[0].id, ignore_missing=False
+        )
         self.network.find_network_segment_range.assert_any_call(
-            'doesnotexist', ignore_missing=False)
+            'doesnotexist', ignore_missing=False
+        )
         self.network.delete_network_segment_range.assert_called_once_with(
             self._network_segment_ranges[0]
         )
 
 
 class TestListNetworkSegmentRange(TestNetworkSegmentRange):
-    _network_segment_ranges = (
-        network_fakes.create_network_segment_ranges(count=3))
+    _network_segment_ranges = network_fakes.create_network_segment_ranges(
+        count=3
+    )
 
     columns = (
         'ID',
@@ -406,7 +452,7 @@ class TestListNetworkSegmentRange(TestNetworkSegmentRange):
         'Network Type',
         'Physical Network',
         'Minimum ID',
-        'Maximum ID'
+        'Maximum ID',
     )
     columns_long = columns + (
         'Used',
@@ -415,44 +461,50 @@ class TestListNetworkSegmentRange(TestNetworkSegmentRange):
 
     data = []
     for _network_segment_range in _network_segment_ranges:
-        data.append((
-            _network_segment_range.id,
-            _network_segment_range.name,
-            _network_segment_range.default,
-            _network_segment_range.shared,
-            _network_segment_range.project_id,
-            _network_segment_range.network_type,
-            _network_segment_range.physical_network,
-            _network_segment_range.minimum,
-            _network_segment_range.maximum,
-        ))
+        data.append(
+            (
+                _network_segment_range.id,
+                _network_segment_range.name,
+                _network_segment_range.default,
+                _network_segment_range.shared,
+                _network_segment_range.project_id,
+                _network_segment_range.network_type,
+                _network_segment_range.physical_network,
+                _network_segment_range.minimum,
+                _network_segment_range.maximum,
+            )
+        )
 
     data_long = []
     for _network_segment_range in _network_segment_ranges:
-        data_long.append((
-            _network_segment_range.id,
-            _network_segment_range.name,
-            _network_segment_range.default,
-            _network_segment_range.shared,
-            _network_segment_range.project_id,
-            _network_segment_range.network_type,
-            _network_segment_range.physical_network,
-            _network_segment_range.minimum,
-            _network_segment_range.maximum,
-            {'3312e4ba67864b2eb53f3f41432f8efc': ['104', '106']},
-            ['100-103', '105'],
-        ))
+        data_long.append(
+            (
+                _network_segment_range.id,
+                _network_segment_range.name,
+                _network_segment_range.default,
+                _network_segment_range.shared,
+                _network_segment_range.project_id,
+                _network_segment_range.network_type,
+                _network_segment_range.physical_network,
+                _network_segment_range.minimum,
+                _network_segment_range.maximum,
+                {'3312e4ba67864b2eb53f3f41432f8efc': ['104', '106']},
+                ['100-103', '105'],
+            )
+        )
 
     def setUp(self):
         super(TestListNetworkSegmentRange, self).setUp()
 
         # Get the command object to test
         self.cmd = network_segment_range.ListNetworkSegmentRange(
-            self.app, self.namespace)
+            self.app, self.namespace
+        )
 
         self.network.find_extension = mock.Mock()
         self.network.network_segment_ranges = mock.Mock(
-            return_value=self._network_segment_ranges)
+            return_value=self._network_segment_ranges
+        )
 
     def test_list_no_option(self):
         arglist = []
@@ -492,22 +544,29 @@ class TestListNetworkSegmentRange(TestNetworkSegmentRange):
 
 
 class TestSetNetworkSegmentRange(TestNetworkSegmentRange):
-
     # The network segment range to set.
     _network_segment_range = network_fakes.create_one_network_segment_range()
     # The network segment range updated.
     minimum_updated = _network_segment_range.minimum - 5
     maximum_updated = _network_segment_range.maximum + 5
-    available_updated = (list(range(minimum_updated, 104)) + [105] +
-                         list(range(107, maximum_updated + 1)))
-    _network_segment_range_updated = network_fakes.\
-        create_one_network_segment_range(
-            attrs={'minimum': minimum_updated,
-                   'maximum': maximum_updated,
-                   'used': {104: '3312e4ba67864b2eb53f3f41432f8efc',
-                            106: '3312e4ba67864b2eb53f3f41432f8efc'},
-                   'available': available_updated}
+    available_updated = (
+        list(range(minimum_updated, 104))
+        + [105]
+        + list(range(107, maximum_updated + 1))
+    )
+    _network_segment_range_updated = (
+        network_fakes.create_one_network_segment_range(
+            attrs={
+                'minimum': minimum_updated,
+                'maximum': maximum_updated,
+                'used': {
+                    104: '3312e4ba67864b2eb53f3f41432f8efc',
+                    106: '3312e4ba67864b2eb53f3f41432f8efc',
+                },
+                'available': available_updated,
+            }
         )
+    )
 
     def setUp(self):
         super(TestSetNetworkSegmentRange, self).setUp()
@@ -518,8 +577,9 @@ class TestSetNetworkSegmentRange(TestNetworkSegmentRange):
         )
 
         # Get the command object to test
-        self.cmd = network_segment_range.SetNetworkSegmentRange(self.app,
-                                                                self.namespace)
+        self.cmd = network_segment_range.SetNetworkSegmentRange(
+            self.app, self.namespace
+        )
 
     def test_set_no_options(self):
         arglist = [
@@ -542,9 +602,12 @@ class TestSetNetworkSegmentRange(TestNetworkSegmentRange):
 
     def test_set_all_options(self):
         arglist = [
-            '--name', 'new name',
-            '--minimum', str(self.minimum_updated),
-            '--maximum', str(self.maximum_updated),
+            '--name',
+            'new name',
+            '--minimum',
+            str(self.minimum_updated),
+            '--maximum',
+            str(self.maximum_updated),
             self._network_segment_range.id,
         ]
         verifylist = [
@@ -572,7 +635,6 @@ class TestSetNetworkSegmentRange(TestNetworkSegmentRange):
 
 
 class TestShowNetworkSegmentRange(TestNetworkSegmentRange):
-
     # The network segment range to show.
     _network_segment_range = network_fakes.create_one_network_segment_range()
 
@@ -614,12 +676,14 @@ class TestShowNetworkSegmentRange(TestNetworkSegmentRange):
 
         # Get the command object to test
         self.cmd = network_segment_range.ShowNetworkSegmentRange(
-            self.app, self.namespace)
+            self.app, self.namespace
+        )
 
     def test_show_no_options(self):
         # Missing required args should bail here
-        self.assertRaises(tests_utils.ParserException, self.check_parser,
-                          self.cmd, [], [])
+        self.assertRaises(
+            tests_utils.ParserException, self.check_parser, self.cmd, [], []
+        )
 
     def test_show_all_options(self):
         arglist = [
@@ -633,8 +697,7 @@ class TestShowNetworkSegmentRange(TestNetworkSegmentRange):
         columns, data = self.cmd.take_action(parsed_args)
 
         self.network.find_network_segment_range.assert_called_once_with(
-            self._network_segment_range.id,
-            ignore_missing=False
+            self._network_segment_range.id, ignore_missing=False
         )
 
         self.assertEqual(self.columns, columns)

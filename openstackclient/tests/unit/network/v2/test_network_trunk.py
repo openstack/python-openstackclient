@@ -29,7 +29,6 @@ from openstackclient.tests.unit import utils as tests_utils
 # Tests for Neutron trunks
 #
 class TestNetworkTrunk(network_fakes.TestNetworkV2):
-
     def setUp(self):
         super().setUp()
 
@@ -46,20 +45,23 @@ class TestCreateNetworkTrunk(TestNetworkTrunk):
     domain = identity_fakes_v3.FakeDomain.create_one_domain()
     trunk_networks = network_fakes.create_networks(count=2)
     parent_port = network_fakes.create_one_port(
-        attrs={'project_id': project.id,
-               'network_id': trunk_networks[0]['id']})
+        attrs={'project_id': project.id, 'network_id': trunk_networks[0]['id']}
+    )
     sub_port = network_fakes.create_one_port(
-        attrs={'project_id': project.id,
-               'network_id': trunk_networks[1]['id']})
+        attrs={'project_id': project.id, 'network_id': trunk_networks[1]['id']}
+    )
 
     new_trunk = network_fakes.create_one_trunk(
-        attrs={'project_id': project.id,
-               'port_id': parent_port['id'],
-               'sub_ports': {
-                   'port_id': sub_port['id'],
-                   'segmentation_id': 42,
-                   'segmentation_type': 'vlan'}
-               })
+        attrs={
+            'project_id': project.id,
+            'port_id': parent_port['id'],
+            'sub_ports': {
+                'port_id': sub_port['id'],
+                'segmentation_id': 42,
+                'segmentation_type': 'vlan',
+            },
+        }
+    )
 
     columns = (
         'description',
@@ -70,7 +72,7 @@ class TestCreateNetworkTrunk(TestNetworkTrunk):
         'project_id',
         'status',
         'sub_ports',
-        'tags'
+        'tags',
     )
     data = (
         new_trunk.description,
@@ -88,7 +90,8 @@ class TestCreateNetworkTrunk(TestNetworkTrunk):
         super().setUp()
         self.network.create_trunk = mock.Mock(return_value=self.new_trunk)
         self.network.find_port = mock.Mock(
-            side_effect=[self.parent_port, self.sub_port])
+            side_effect=[self.parent_port, self.sub_port]
+        )
 
         # Get the command object to test
         self.cmd = network_trunk.CreateNetworkTrunk(self.app, self.namespace)
@@ -100,12 +103,18 @@ class TestCreateNetworkTrunk(TestNetworkTrunk):
         arglist = []
         verifylist = []
 
-        self.assertRaises(tests_utils.ParserException, self.check_parser,
-                          self.cmd, arglist, verifylist)
+        self.assertRaises(
+            tests_utils.ParserException,
+            self.check_parser,
+            self.cmd,
+            arglist,
+            verifylist,
+        )
 
     def test_create_default_options(self):
         arglist = [
-            "--parent-port", self.new_trunk['port_id'],
+            "--parent-port",
+            self.new_trunk['port_id'],
             self.new_trunk['name'],
         ]
         verifylist = [
@@ -114,13 +123,15 @@ class TestCreateNetworkTrunk(TestNetworkTrunk):
         ]
 
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
-        columns, data = (self.cmd.take_action(parsed_args))
+        columns, data = self.cmd.take_action(parsed_args)
 
-        self.network.create_trunk.assert_called_once_with(**{
-            'name': self.new_trunk['name'],
-            'admin_state_up': self.new_trunk['admin_state_up'],
-            'port_id': self.new_trunk['port_id'],
-        })
+        self.network.create_trunk.assert_called_once_with(
+            **{
+                'name': self.new_trunk['name'],
+                'admin_state_up': self.new_trunk['admin_state_up'],
+                'port_id': self.new_trunk['port_id'],
+            }
+        )
         self.assertEqual(self.columns, columns)
         self.assertEqual(self.data, data)
 
@@ -129,37 +140,50 @@ class TestCreateNetworkTrunk(TestNetworkTrunk):
         subport = self.new_trunk.sub_ports[0]
         arglist = [
             "--disable",
-            "--description", self.new_trunk.description,
-            "--parent-port", self.new_trunk.port_id,
-            "--subport", 'port=%(port)s,segmentation-type=%(seg_type)s,'
-            'segmentation-id=%(seg_id)s' % {
+            "--description",
+            self.new_trunk.description,
+            "--parent-port",
+            self.new_trunk.port_id,
+            "--subport",
+            'port=%(port)s,segmentation-type=%(seg_type)s,'
+            'segmentation-id=%(seg_id)s'
+            % {
                 'seg_id': subport['segmentation_id'],
                 'seg_type': subport['segmentation_type'],
-                'port': subport['port_id']},
+                'port': subport['port_id'],
+            },
             self.new_trunk.name,
         ]
         verifylist = [
             ('name', self.new_trunk.name),
             ('description', self.new_trunk.description),
             ('parent_port', self.new_trunk.port_id),
-            ('add_subports', [{
-                'port': subport['port_id'],
-                'segmentation-id': str(subport['segmentation_id']),
-                'segmentation-type': subport['segmentation_type']}]),
+            (
+                'add_subports',
+                [
+                    {
+                        'port': subport['port_id'],
+                        'segmentation-id': str(subport['segmentation_id']),
+                        'segmentation-type': subport['segmentation_type'],
+                    }
+                ],
+            ),
             ('disable', True),
         ]
 
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
-        columns, data = (self.cmd.take_action(parsed_args))
+        columns, data = self.cmd.take_action(parsed_args)
 
-        self.network.create_trunk.assert_called_once_with(**{
-            'name': self.new_trunk.name,
-            'description': self.new_trunk.description,
-            'admin_state_up': False,
-            'port_id': self.new_trunk.port_id,
-            'sub_ports': [subport],
-        })
+        self.network.create_trunk.assert_called_once_with(
+            **{
+                'name': self.new_trunk.name,
+                'description': self.new_trunk.description,
+                'admin_state_up': False,
+                'port_id': self.new_trunk.port_id,
+                'sub_ports': [subport],
+            }
+        )
         self.assertEqual(self.columns, columns)
         data_with_desc = list(self.data)
         data_with_desc[0] = self.new_trunk['description']
@@ -169,27 +193,38 @@ class TestCreateNetworkTrunk(TestNetworkTrunk):
     def test_create_trunk_with_subport_invalid_segmentation_id_fail(self):
         subport = self.new_trunk.sub_ports[0]
         arglist = [
-            "--parent-port", self.new_trunk.port_id,
-            "--subport", "port=%(port)s,segmentation-type=%(seg_type)s,"
-            "segmentation-id=boom" % {
+            "--parent-port",
+            self.new_trunk.port_id,
+            "--subport",
+            "port=%(port)s,segmentation-type=%(seg_type)s,"
+            "segmentation-id=boom"
+            % {
                 'seg_type': subport['segmentation_type'],
-                'port': subport['port_id']},
+                'port': subport['port_id'],
+            },
             self.new_trunk.name,
         ]
         verifylist = [
             ('name', self.new_trunk.name),
             ('parent_port', self.new_trunk.port_id),
-            ('add_subports', [{
-                'port': subport['port_id'],
-                'segmentation-id': 'boom',
-                'segmentation-type': subport['segmentation_type']}]),
+            (
+                'add_subports',
+                [
+                    {
+                        'port': subport['port_id'],
+                        'segmentation-id': 'boom',
+                        'segmentation-type': subport['segmentation_type'],
+                    }
+                ],
+            ),
         ]
 
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
         with testtools.ExpectedException(exceptions.CommandError) as e:
             self.cmd.take_action(parsed_args)
-            self.assertEqual("Segmentation-id 'boom' is not an integer",
-                             str(e))
+            self.assertEqual(
+                "Segmentation-id 'boom' is not an integer", str(e)
+            )
 
     def test_create_network_trunk_subports_without_optional_keys(self):
         subport = copy.copy(self.new_trunk.sub_ports[0])
@@ -197,26 +232,29 @@ class TestCreateNetworkTrunk(TestNetworkTrunk):
         subport.pop('segmentation_type')
         subport.pop('segmentation_id')
         arglist = [
-            '--parent-port', self.new_trunk.port_id,
-            '--subport', 'port=%(port)s' % {'port': subport['port_id']},
+            '--parent-port',
+            self.new_trunk.port_id,
+            '--subport',
+            'port=%(port)s' % {'port': subport['port_id']},
             self.new_trunk.name,
         ]
         verifylist = [
             ('name', self.new_trunk.name),
             ('parent_port', self.new_trunk.port_id),
-            ('add_subports', [{
-                'port': subport['port_id']}]),
+            ('add_subports', [{'port': subport['port_id']}]),
         ]
 
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
-        columns, data = (self.cmd.take_action(parsed_args))
+        columns, data = self.cmd.take_action(parsed_args)
 
-        self.network.create_trunk.assert_called_once_with(**{
-            'name': self.new_trunk.name,
-            'admin_state_up': True,
-            'port_id': self.new_trunk.port_id,
-            'sub_ports': [subport],
-        })
+        self.network.create_trunk.assert_called_once_with(
+            **{
+                'name': self.new_trunk.name,
+                'admin_state_up': True,
+                'port_id': self.new_trunk.port_id,
+                'sub_ports': [subport],
+            }
+        )
         self.assertEqual(self.columns, columns)
         data_with_desc = list(self.data)
         data_with_desc[0] = self.new_trunk['description']
@@ -226,19 +264,29 @@ class TestCreateNetworkTrunk(TestNetworkTrunk):
     def test_create_network_trunk_subports_without_required_key_fail(self):
         subport = self.new_trunk.sub_ports[0]
         arglist = [
-            '--parent-port', self.new_trunk.port_id,
-            '--subport', 'segmentation-type=%(seg_type)s,'
-            'segmentation-id=%(seg_id)s' % {
+            '--parent-port',
+            self.new_trunk.port_id,
+            '--subport',
+            'segmentation-type=%(seg_type)s,'
+            'segmentation-id=%(seg_id)s'
+            % {
                 'seg_id': subport['segmentation_id'],
-                'seg_type': subport['segmentation_type']},
+                'seg_type': subport['segmentation_type'],
+            },
             self.new_trunk.name,
         ]
         verifylist = [
             ('name', self.new_trunk.name),
             ('parent_port', self.new_trunk.port_id),
-            ('add_subports', [{
-                'segmentation_id': str(subport['segmentation_id']),
-                'segmentation_type': subport['segmentation_type']}]),
+            (
+                'add_subports',
+                [
+                    {
+                        'segmentation_id': str(subport['segmentation_id']),
+                        'segmentation_type': subport['segmentation_type'],
+                    }
+                ],
+            ),
         ]
 
         with testtools.ExpectedException(argparse.ArgumentTypeError):
@@ -251,28 +299,33 @@ class TestDeleteNetworkTrunk(TestNetworkTrunk):
     domain = identity_fakes_v3.FakeDomain.create_one_domain()
     trunk_networks = network_fakes.create_networks(count=2)
     parent_port = network_fakes.create_one_port(
-        attrs={'project_id': project.id,
-               'network_id': trunk_networks[0]['id']})
+        attrs={'project_id': project.id, 'network_id': trunk_networks[0]['id']}
+    )
     sub_port = network_fakes.create_one_port(
-        attrs={'project_id': project.id,
-               'network_id': trunk_networks[1]['id']})
+        attrs={'project_id': project.id, 'network_id': trunk_networks[1]['id']}
+    )
 
     new_trunks = network_fakes.create_trunks(
-        attrs={'project_id': project.id,
-               'port_id': parent_port['id'],
-               'sub_ports': {
-                   'port_id': sub_port['id'],
-                   'segmentation_id': 42,
-                   'segmentation_type': 'vlan'}
-               })
+        attrs={
+            'project_id': project.id,
+            'port_id': parent_port['id'],
+            'sub_ports': {
+                'port_id': sub_port['id'],
+                'segmentation_id': 42,
+                'segmentation_type': 'vlan',
+            },
+        }
+    )
 
     def setUp(self):
         super().setUp()
         self.network.find_trunk = mock.Mock(
-            side_effect=[self.new_trunks[0], self.new_trunks[1]])
+            side_effect=[self.new_trunks[0], self.new_trunks[1]]
+        )
         self.network.delete_trunk = mock.Mock(return_value=None)
         self.network.find_port = mock.Mock(
-            side_effect=[self.parent_port, self.sub_port])
+            side_effect=[self.parent_port, self.sub_port]
+        )
 
         self.projects_mock.get.return_value = self.project
         self.domains_mock.get.return_value = self.domain
@@ -291,7 +344,8 @@ class TestDeleteNetworkTrunk(TestNetworkTrunk):
 
         result = self.cmd.take_action(parsed_args)
         self.network.delete_trunk.assert_called_once_with(
-            self.new_trunks[0].id)
+            self.new_trunks[0].id
+        )
         self.assertIsNone(result)
 
     def test_delete_trunk_multiple(self):
@@ -319,13 +373,13 @@ class TestDeleteNetworkTrunk(TestNetworkTrunk):
             'unexist_trunk',
         ]
         verifylist = [
-            ('trunk',
-             [self.new_trunks[0].name, 'unexist_trunk']),
+            ('trunk', [self.new_trunks[0].name, 'unexist_trunk']),
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
         self.network.find_trunk = mock.Mock(
-            side_effect=[self.new_trunks[0], exceptions.CommandError])
+            side_effect=[self.new_trunks[0], exceptions.CommandError]
+        )
         with testtools.ExpectedException(exceptions.CommandError) as e:
             self.cmd.take_action(parsed_args)
             self.assertEqual('1 of 2 trunks failed to delete.', str(e))
@@ -335,7 +389,6 @@ class TestDeleteNetworkTrunk(TestNetworkTrunk):
 
 
 class TestShowNetworkTrunk(TestNetworkTrunk):
-
     project = identity_fakes_v3.FakeProject.create_one_project()
     domain = identity_fakes_v3.FakeDomain.create_one_domain()
     # The trunk to set.
@@ -349,7 +402,7 @@ class TestShowNetworkTrunk(TestNetworkTrunk):
         'project_id',
         'status',
         'sub_ports',
-        'tags'
+        'tags',
     )
     data = (
         new_trunk.description,
@@ -378,8 +431,13 @@ class TestShowNetworkTrunk(TestNetworkTrunk):
         arglist = []
         verifylist = []
 
-        self.assertRaises(tests_utils.ParserException, self.check_parser,
-                          self.cmd, arglist, verifylist)
+        self.assertRaises(
+            tests_utils.ParserException,
+            self.check_parser,
+            self.cmd,
+            arglist,
+            verifylist,
+        )
 
     def test_show_all_options(self):
         arglist = [
@@ -402,41 +460,32 @@ class TestListNetworkTrunk(TestNetworkTrunk):
     domain = identity_fakes_v3.FakeDomain.create_one_domain()
     # Create trunks to be listed.
     new_trunks = network_fakes.create_trunks(
-        {'created_at': '2001-01-01 00:00:00',
-         'updated_at': '2001-01-01 00:00:00'}, count=3)
+        {
+            'created_at': '2001-01-01 00:00:00',
+            'updated_at': '2001-01-01 00:00:00',
+        },
+        count=3,
+    )
 
-    columns = (
-        'ID',
-        'Name',
-        'Parent Port',
-        'Description'
-    )
-    columns_long = columns + (
-        'Status',
-        'State',
-        'Created At',
-        'Updated At'
-    )
+    columns = ('ID', 'Name', 'Parent Port', 'Description')
+    columns_long = columns + ('Status', 'State', 'Created At', 'Updated At')
     data = []
     for t in new_trunks:
-        data.append((
-            t['id'],
-            t['name'],
-            t['port_id'],
-            t['description']
-        ))
+        data.append((t['id'], t['name'], t['port_id'], t['description']))
     data_long = []
     for t in new_trunks:
-        data_long.append((
-            t['id'],
-            t['name'],
-            t['port_id'],
-            t['description'],
-            t['status'],
-            network_trunk.AdminStateColumn(''),
-            '2001-01-01 00:00:00',
-            '2001-01-01 00:00:00',
-        ))
+        data_long.append(
+            (
+                t['id'],
+                t['name'],
+                t['port_id'],
+                t['description'],
+                t['status'],
+                network_trunk.AdminStateColumn(''),
+                '2001-01-01 00:00:00',
+                '2001-01-01 00:00:00',
+            )
+        )
 
     def setUp(self):
         super().setUp()
@@ -476,25 +525,27 @@ class TestListNetworkTrunk(TestNetworkTrunk):
 
 
 class TestSetNetworkTrunk(TestNetworkTrunk):
-
     project = identity_fakes_v3.FakeProject.create_one_project()
     domain = identity_fakes_v3.FakeDomain.create_one_domain()
     trunk_networks = network_fakes.create_networks(count=2)
     parent_port = network_fakes.create_one_port(
-        attrs={'project_id': project.id,
-               'network_id': trunk_networks[0]['id']})
+        attrs={'project_id': project.id, 'network_id': trunk_networks[0]['id']}
+    )
     sub_port = network_fakes.create_one_port(
-        attrs={'project_id': project.id,
-               'network_id': trunk_networks[1]['id']})
+        attrs={'project_id': project.id, 'network_id': trunk_networks[1]['id']}
+    )
     # Create trunks to be listed.
     _trunk = network_fakes.create_one_trunk(
-        attrs={'project_id': project.id,
-               'port_id': parent_port['id'],
-               'sub_ports': {
-                   'port_id': sub_port['id'],
-                   'segmentation_id': 42,
-                   'segmentation_type': 'vlan'}
-               })
+        attrs={
+            'project_id': project.id,
+            'port_id': parent_port['id'],
+            'sub_ports': {
+                'port_id': sub_port['id'],
+                'segmentation_id': 42,
+                'segmentation_type': 'vlan',
+            },
+        }
+    )
     columns = (
         'admin_state_up',
         'id',
@@ -521,7 +572,8 @@ class TestSetNetworkTrunk(TestNetworkTrunk):
         self.network.add_trunk_subports = mock.Mock(return_value=self._trunk)
         self.network.find_trunk = mock.Mock(return_value=self._trunk)
         self.network.find_port = mock.Mock(
-            side_effect=[self.sub_port, self.sub_port])
+            side_effect=[self.sub_port, self.sub_port]
+        )
 
         self.projects_mock.get.return_value = self.project
         self.domains_mock.get.return_value = self.domain
@@ -531,7 +583,8 @@ class TestSetNetworkTrunk(TestNetworkTrunk):
 
     def _test_set_network_trunk_attr(self, attr, value):
         arglist = [
-            '--%s' % attr, value,
+            '--%s' % attr,
+            value,
             self._trunk[attr],
         ]
         verifylist = [
@@ -545,8 +598,7 @@ class TestSetNetworkTrunk(TestNetworkTrunk):
         attrs = {
             attr: value,
         }
-        self.network.update_trunk.assert_called_once_with(
-            self._trunk, **attrs)
+        self.network.update_trunk.assert_called_once_with(self._trunk, **attrs)
         self.assertIsNone(result)
 
     def test_set_network_trunk_name(self):
@@ -571,8 +623,7 @@ class TestSetNetworkTrunk(TestNetworkTrunk):
         attrs = {
             'admin_state_up': False,
         }
-        self.network.update_trunk.assert_called_once_with(
-            self._trunk, **attrs)
+        self.network.update_trunk.assert_called_once_with(self._trunk, **attrs)
         self.assertIsNone(result)
 
     def test_set_network_trunk_admin_state_up_enable(self):
@@ -591,45 +642,57 @@ class TestSetNetworkTrunk(TestNetworkTrunk):
         attrs = {
             'admin_state_up': True,
         }
-        self.network.update_trunk.assert_called_once_with(
-            self._trunk, **attrs)
+        self.network.update_trunk.assert_called_once_with(self._trunk, **attrs)
         self.assertIsNone(result)
 
     def test_set_network_trunk_nothing(self):
-        arglist = [self._trunk['name'], ]
-        verifylist = [('trunk', self._trunk['name']), ]
+        arglist = [
+            self._trunk['name'],
+        ]
+        verifylist = [
+            ('trunk', self._trunk['name']),
+        ]
 
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
         result = self.cmd.take_action(parsed_args)
 
         attrs = {}
-        self.network.update_trunk.assert_called_once_with(
-            self._trunk, **attrs)
+        self.network.update_trunk.assert_called_once_with(self._trunk, **attrs)
         self.assertIsNone(result)
 
     def test_set_network_trunk_subports(self):
         subport = self._trunk['sub_ports'][0]
         arglist = [
-            '--subport', 'port=%(port)s,segmentation-type=%(seg_type)s,'
-            'segmentation-id=%(seg_id)s' % {
+            '--subport',
+            'port=%(port)s,segmentation-type=%(seg_type)s,'
+            'segmentation-id=%(seg_id)s'
+            % {
                 'seg_id': subport['segmentation_id'],
                 'seg_type': subport['segmentation_type'],
-                'port': subport['port_id']},
+                'port': subport['port_id'],
+            },
             self._trunk['name'],
         ]
         verifylist = [
             ('trunk', self._trunk['name']),
-            ('set_subports', [{
-                'port': subport['port_id'],
-                'segmentation-id': str(subport['segmentation_id']),
-                'segmentation-type': subport['segmentation_type']}]),
+            (
+                'set_subports',
+                [
+                    {
+                        'port': subport['port_id'],
+                        'segmentation-id': str(subport['segmentation_id']),
+                        'segmentation-type': subport['segmentation_type'],
+                    }
+                ],
+            ),
         ]
 
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
         result = self.cmd.take_action(parsed_args)
 
         self.network.add_trunk_subports.assert_called_once_with(
-            self._trunk, [subport])
+            self._trunk, [subport]
+        )
         self.assertIsNone(result)
 
     def test_set_network_trunk_subports_without_optional_keys(self):
@@ -638,36 +701,46 @@ class TestSetNetworkTrunk(TestNetworkTrunk):
         subport.pop('segmentation_type')
         subport.pop('segmentation_id')
         arglist = [
-            '--subport', 'port=%(port)s' % {'port': subport['port_id']},
+            '--subport',
+            'port=%(port)s' % {'port': subport['port_id']},
             self._trunk['name'],
         ]
         verifylist = [
             ('trunk', self._trunk['name']),
-            ('set_subports', [{
-                'port': subport['port_id']}]),
+            ('set_subports', [{'port': subport['port_id']}]),
         ]
 
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
         result = self.cmd.take_action(parsed_args)
 
         self.network.add_trunk_subports.assert_called_once_with(
-            self._trunk, [subport])
+            self._trunk, [subport]
+        )
         self.assertIsNone(result)
 
     def test_set_network_trunk_subports_without_required_key_fail(self):
         subport = self._trunk['sub_ports'][0]
         arglist = [
-            '--subport', 'segmentation-type=%(seg_type)s,'
-            'segmentation-id=%(seg_id)s' % {
+            '--subport',
+            'segmentation-type=%(seg_type)s,'
+            'segmentation-id=%(seg_id)s'
+            % {
                 'seg_id': subport['segmentation_id'],
-                'seg_type': subport['segmentation_type']},
+                'seg_type': subport['segmentation_type'],
+            },
             self._trunk['name'],
         ]
         verifylist = [
             ('trunk', self._trunk['name']),
-            ('set_subports', [{
-                'segmentation-id': str(subport['segmentation_id']),
-                'segmentation-type': subport['segmentation_type']}]),
+            (
+                'set_subports',
+                [
+                    {
+                        'segmentation-id': str(subport['segmentation_id']),
+                        'segmentation-type': subport['segmentation_type'],
+                    }
+                ],
+            ),
         ]
 
         with testtools.ExpectedException(argparse.ArgumentTypeError):
@@ -677,7 +750,8 @@ class TestSetNetworkTrunk(TestNetworkTrunk):
 
     def test_set_trunk_attrs_with_exception(self):
         arglist = [
-            '--name', 'reallylongname',
+            '--name',
+            'reallylongname',
             self._trunk['name'],
         ]
         verifylist = [
@@ -686,22 +760,22 @@ class TestSetNetworkTrunk(TestNetworkTrunk):
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
-        self.network.update_trunk = (
-            mock.Mock(side_effect=exceptions.CommandError)
+        self.network.update_trunk = mock.Mock(
+            side_effect=exceptions.CommandError
         )
         with testtools.ExpectedException(exceptions.CommandError) as e:
             self.cmd.take_action(parsed_args)
             self.assertEqual(
-                "Failed to set trunk '%s': " % self._trunk['name'],
-                str(e))
+                "Failed to set trunk '%s': " % self._trunk['name'], str(e)
+            )
         attrs = {'name': 'reallylongname'}
-        self.network.update_trunk.assert_called_once_with(
-            self._trunk, **attrs)
+        self.network.update_trunk.assert_called_once_with(self._trunk, **attrs)
         self.network.add_trunk_subports.assert_not_called()
 
     def test_set_trunk_add_subport_with_exception(self):
         arglist = [
-            '--subport', 'port=invalid_subport',
+            '--subport',
+            'port=invalid_subport',
             self._trunk['name'],
         ]
         verifylist = [
@@ -710,24 +784,25 @@ class TestSetNetworkTrunk(TestNetworkTrunk):
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
-        self.network.add_trunk_subports = (
-            mock.Mock(side_effect=exceptions.CommandError)
+        self.network.add_trunk_subports = mock.Mock(
+            side_effect=exceptions.CommandError
         )
-        self.network.find_port = (mock.Mock(
-            return_value={'id': 'invalid_subport'}))
+        self.network.find_port = mock.Mock(
+            return_value={'id': 'invalid_subport'}
+        )
         with testtools.ExpectedException(exceptions.CommandError) as e:
             self.cmd.take_action(parsed_args)
             self.assertEqual(
                 "Failed to add subports to trunk '%s': " % self._trunk['name'],
-                str(e))
-        self.network.update_trunk.assert_called_once_with(
-            self._trunk)
+                str(e),
+            )
+        self.network.update_trunk.assert_called_once_with(self._trunk)
         self.network.add_trunk_subports.assert_called_once_with(
-            self._trunk, [{'port_id': 'invalid_subport'}])
+            self._trunk, [{'port_id': 'invalid_subport'}]
+        )
 
 
 class TestListNetworkSubport(TestNetworkTrunk):
-
     _trunk = network_fakes.create_one_trunk()
     _subports = _trunk['sub_ports']
 
@@ -738,25 +813,29 @@ class TestListNetworkSubport(TestNetworkTrunk):
     )
     data = []
     for s in _subports:
-        data.append((
-            s['port_id'],
-            s['segmentation_type'],
-            s['segmentation_id'],
-        ))
+        data.append(
+            (
+                s['port_id'],
+                s['segmentation_type'],
+                s['segmentation_id'],
+            )
+        )
 
     def setUp(self):
         super().setUp()
 
         self.network.find_trunk = mock.Mock(return_value=self._trunk)
         self.network.get_trunk_subports = mock.Mock(
-            return_value={network_trunk.SUB_PORTS: self._subports})
+            return_value={network_trunk.SUB_PORTS: self._subports}
+        )
 
         # Get the command object to test
         self.cmd = network_trunk.ListNetworkSubport(self.app, self.namespace)
 
     def test_subport_list(self):
         arglist = [
-            '--trunk', self._trunk['name'],
+            '--trunk',
+            self._trunk['name'],
         ]
         verifylist = [
             ('trunk', self._trunk['name']),
@@ -774,19 +853,22 @@ class TestUnsetNetworkTrunk(TestNetworkTrunk):
     domain = identity_fakes_v3.FakeDomain.create_one_domain()
     trunk_networks = network_fakes.create_networks(count=2)
     parent_port = network_fakes.create_one_port(
-        attrs={'project_id': project.id,
-               'network_id': trunk_networks[0]['id']})
+        attrs={'project_id': project.id, 'network_id': trunk_networks[0]['id']}
+    )
     sub_port = network_fakes.create_one_port(
-        attrs={'project_id': project.id,
-               'network_id': trunk_networks[1]['id']})
+        attrs={'project_id': project.id, 'network_id': trunk_networks[1]['id']}
+    )
     _trunk = network_fakes.create_one_trunk(
-        attrs={'project_id': project.id,
-               'port_id': parent_port['id'],
-               'sub_ports': {
-                   'port_id': sub_port['id'],
-                   'segmentation_id': 42,
-                   'segmentation_type': 'vlan'}
-               })
+        attrs={
+            'project_id': project.id,
+            'port_id': parent_port['id'],
+            'sub_ports': {
+                'port_id': sub_port['id'],
+                'segmentation_id': 42,
+                'segmentation_type': 'vlan',
+            },
+        }
+    )
 
     columns = (
         'admin_state_up',
@@ -812,7 +894,8 @@ class TestUnsetNetworkTrunk(TestNetworkTrunk):
 
         self.network.find_trunk = mock.Mock(return_value=self._trunk)
         self.network.find_port = mock.Mock(
-            side_effect=[self.sub_port, self.sub_port])
+            side_effect=[self.sub_port, self.sub_port]
+        )
         self.network.delete_trunk_subports = mock.Mock(return_value=None)
 
         # Get the command object to test
@@ -821,7 +904,8 @@ class TestUnsetNetworkTrunk(TestNetworkTrunk):
     def test_unset_network_trunk_subport(self):
         subport = self._trunk['sub_ports'][0]
         arglist = [
-            "--subport", subport['port_id'],
+            "--subport",
+            subport['port_id'],
             self._trunk['name'],
         ]
 
@@ -835,8 +919,7 @@ class TestUnsetNetworkTrunk(TestNetworkTrunk):
         result = self.cmd.take_action(parsed_args)
 
         self.network.delete_trunk_subports.assert_called_once_with(
-            self._trunk,
-            [{'port_id': subport['port_id']}]
+            self._trunk, [{'port_id': subport['port_id']}]
         )
         self.assertIsNone(result)
 
@@ -847,5 +930,10 @@ class TestUnsetNetworkTrunk(TestNetworkTrunk):
         verifylist = [
             ('trunk', self._trunk['name']),
         ]
-        self.assertRaises(tests_utils.ParserException,
-                          self.check_parser, self.cmd, arglist, verifylist)
+        self.assertRaises(
+            tests_utils.ParserException,
+            self.check_parser,
+            self.cmd,
+            arglist,
+            verifylist,
+        )

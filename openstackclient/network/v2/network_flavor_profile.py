@@ -31,9 +31,7 @@ def _get_columns(item):
 
     hidden_columns = ['location', 'name', 'tenant_id']
     return utils.get_osc_show_columns_for_sdk_resource(
-        item,
-        column_map,
-        hidden_columns
+        item, column_map, hidden_columns
     )
 
 
@@ -63,8 +61,9 @@ def _get_attrs(client_manager, parsed_args):
 
 # TODO(ndahiwade): Use the SDK resource mapped attribute names once the
 # OSC minimum requirements include SDK 1.0.
-class CreateNetworkFlavorProfile(command.ShowOne,
-                                 common.NeutronCommandWithExtraArgs):
+class CreateNetworkFlavorProfile(
+    command.ShowOne, common.NeutronCommandWithExtraArgs
+):
     _description = _("Create new network flavor profile")
 
     def get_parser(self, prog_name):
@@ -72,34 +71,38 @@ class CreateNetworkFlavorProfile(command.ShowOne,
         parser.add_argument(
             '--project',
             metavar="<project>",
-            help=_("Owner's project (name or ID)")
+            help=_("Owner's project (name or ID)"),
         )
         identity_common.add_project_domain_option_to_parser(parser)
         parser.add_argument(
             '--description',
             metavar="<description>",
-            help=_("Description for the flavor profile")
+            help=_("Description for the flavor profile"),
         )
         enable_group = parser.add_mutually_exclusive_group()
         enable_group.add_argument(
             '--enable',
             action='store_true',
-            help=_("Enable the flavor profile")
+            help=_("Enable the flavor profile"),
         )
         enable_group.add_argument(
             '--disable',
             action='store_true',
-            help=_("Disable the flavor profile")
+            help=_("Disable the flavor profile"),
         )
         parser.add_argument(
             '--driver',
-            help=_("Python module path to driver. This becomes "
-                   "required if --metainfo is missing and vice versa")
+            help=_(
+                "Python module path to driver. This becomes "
+                "required if --metainfo is missing and vice versa"
+            ),
         )
         parser.add_argument(
             '--metainfo',
-            help=_("Metainfo for the flavor profile. This becomes "
-                   "required if --driver is missing and vice versa")
+            help=_(
+                "Metainfo for the flavor profile. This becomes "
+                "required if --driver is missing and vice versa"
+            ),
         )
 
         return parser
@@ -108,7 +111,8 @@ class CreateNetworkFlavorProfile(command.ShowOne,
         client = self.app.client_manager.network
         attrs = _get_attrs(self.app.client_manager, parsed_args)
         attrs.update(
-            self._parse_extra_properties(parsed_args.extra_properties))
+            self._parse_extra_properties(parsed_args.extra_properties)
+        )
 
         if parsed_args.driver is None and parsed_args.metainfo is None:
             msg = _("Either --driver or --metainfo or both are required")
@@ -131,7 +135,7 @@ class DeleteNetworkFlavorProfile(command.Command):
             'flavor_profile',
             metavar='<flavor-profile>',
             nargs='+',
-            help=_("Flavor profile(s) to delete (ID only)")
+            help=_("Flavor profile(s) to delete (ID only)"),
         )
         return parser
 
@@ -141,18 +145,24 @@ class DeleteNetworkFlavorProfile(command.Command):
 
         for flavor_profile in parsed_args.flavor_profile:
             try:
-                obj = client.find_service_profile(flavor_profile,
-                                                  ignore_missing=False)
+                obj = client.find_service_profile(
+                    flavor_profile, ignore_missing=False
+                )
                 client.delete_service_profile(obj)
             except Exception as e:
                 result += 1
-                LOG.error(_("Failed to delete flavor profile with "
-                            "ID '%(flavor_profile)s': %(e)s"),
-                          {"flavor_profile": flavor_profile, "e": e})
+                LOG.error(
+                    _(
+                        "Failed to delete flavor profile with "
+                        "ID '%(flavor_profile)s': %(e)s"
+                    ),
+                    {"flavor_profile": flavor_profile, "e": e},
+                )
         if result > 0:
             total = len(parsed_args.flavor_profile)
-            msg = (_("%(result)s of %(total)s flavor_profiles failed "
-                   "to delete.") % {"result": result, "total": total})
+            msg = _(
+                "%(result)s of %(total)s flavor_profiles failed " "to delete."
+            ) % {"result": result, "total": total}
             raise exceptions.CommandError(msg)
 
 
@@ -178,10 +188,16 @@ class ListNetworkFlavorProfile(command.Lister):
         )
 
         data = client.service_profiles()
-        return (column_headers,
-                (utils.get_item_properties(
-                    s, columns,
-                ) for s in data))
+        return (
+            column_headers,
+            (
+                utils.get_item_properties(
+                    s,
+                    columns,
+                )
+                for s in data
+            ),
+        )
 
 
 # TODO(ndahiwade): Use the SDK resource mapped attribute names once the
@@ -194,45 +210,51 @@ class SetNetworkFlavorProfile(common.NeutronCommandWithExtraArgs):
         parser.add_argument(
             'flavor_profile',
             metavar="<flavor-profile>",
-            help=_("Flavor profile to update (ID only)")
+            help=_("Flavor profile to update (ID only)"),
         )
         identity_common.add_project_domain_option_to_parser(parser)
         parser.add_argument(
             '--description',
             metavar="<description>",
-            help=_("Description for the flavor profile")
+            help=_("Description for the flavor profile"),
         )
         enable_group = parser.add_mutually_exclusive_group()
         enable_group.add_argument(
             '--enable',
             action='store_true',
-            help=_("Enable the flavor profile")
+            help=_("Enable the flavor profile"),
         )
         enable_group.add_argument(
             '--disable',
             action='store_true',
-            help=_("Disable the flavor profile")
+            help=_("Disable the flavor profile"),
         )
         parser.add_argument(
             '--driver',
-            help=_("Python module path to driver. This becomes "
-                   "required if --metainfo is missing and vice versa")
+            help=_(
+                "Python module path to driver. This becomes "
+                "required if --metainfo is missing and vice versa"
+            ),
         )
         parser.add_argument(
             '--metainfo',
-            help=_("Metainfo for the flavor profile. This becomes "
-                   "required if --driver is missing and vice versa")
+            help=_(
+                "Metainfo for the flavor profile. This becomes "
+                "required if --driver is missing and vice versa"
+            ),
         )
 
         return parser
 
     def take_action(self, parsed_args):
         client = self.app.client_manager.network
-        obj = client.find_service_profile(parsed_args.flavor_profile,
-                                          ignore_missing=False)
+        obj = client.find_service_profile(
+            parsed_args.flavor_profile, ignore_missing=False
+        )
         attrs = _get_attrs(self.app.client_manager, parsed_args)
         attrs.update(
-            self._parse_extra_properties(parsed_args.extra_properties))
+            self._parse_extra_properties(parsed_args.extra_properties)
+        )
 
         client.update_service_profile(obj, **attrs)
 
@@ -245,14 +267,15 @@ class ShowNetworkFlavorProfile(command.ShowOne):
         parser.add_argument(
             'flavor_profile',
             metavar='<flavor-profile>',
-            help=_("Flavor profile to display (ID only)")
+            help=_("Flavor profile to display (ID only)"),
         )
         return parser
 
     def take_action(self, parsed_args):
         client = self.app.client_manager.network
-        obj = client.find_service_profile(parsed_args.flavor_profile,
-                                          ignore_missing=False)
+        obj = client.find_service_profile(
+            parsed_args.flavor_profile, ignore_missing=False
+        )
         display_columns, columns = _get_columns(obj)
         data = utils.get_item_properties(obj, columns)
         return (display_columns, data)

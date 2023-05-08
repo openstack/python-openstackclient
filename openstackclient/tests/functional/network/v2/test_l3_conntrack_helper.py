@@ -17,7 +17,6 @@ from openstackclient.tests.functional.network.v2 import common
 
 
 class L3ConntrackHelperTests(common.NetworkTests):
-
     def setUp(self):
         super(L3ConntrackHelperTests, self).setUp()
         # Nothing in this class works with Nova Network
@@ -45,7 +44,8 @@ class L3ConntrackHelperTests(common.NetworkTests):
             output = self.openstack(
                 'network l3 conntrack helper create %(router)s '
                 '--helper %(helper)s --protocol %(protocol)s '
-                '--port %(port)s ' % {
+                '--port %(port)s '
+                % {
                     'router': router_id,
                     'helper': helper['helper'],
                     'protocol': helper['protocol'],
@@ -63,15 +63,8 @@ class L3ConntrackHelperTests(common.NetworkTests):
         """Test create, delete multiple"""
 
         helpers = [
-            {
-                'helper': 'tftp',
-                'protocol': 'udp',
-                'port': 69
-            }, {
-                'helper': 'ftp',
-                'protocol': 'tcp',
-                'port': 21
-            }
+            {'helper': 'tftp', 'protocol': 'udp', 'port': 69},
+            {'helper': 'ftp', 'protocol': 'tcp', 'port': 21},
         ]
         router_id = self._create_router()
         created_helpers = self._create_helpers(router_id, helpers)
@@ -79,32 +72,18 @@ class L3ConntrackHelperTests(common.NetworkTests):
 
         raw_output = self.openstack(
             '--debug network l3 conntrack helper delete %(router)s '
-            '%(ct_ids)s' % {
-                'router': router_id, 'ct_ids': ct_ids})
+            '%(ct_ids)s' % {'router': router_id, 'ct_ids': ct_ids}
+        )
         self.assertOutput('', raw_output)
 
     def test_l3_conntrack_helper_list(self):
         helpers = [
-            {
-                'helper': 'tftp',
-                'protocol': 'udp',
-                'port': 69
-            }, {
-                'helper': 'ftp',
-                'protocol': 'tcp',
-                'port': 21
-            }
+            {'helper': 'tftp', 'protocol': 'udp', 'port': 69},
+            {'helper': 'ftp', 'protocol': 'tcp', 'port': 21},
         ]
         expected_helpers = [
-            {
-                'Helper': 'tftp',
-                'Protocol': 'udp',
-                'Port': 69
-            }, {
-                'Helper': 'ftp',
-                'Protocol': 'tcp',
-                'Port': 21
-            }
+            {'Helper': 'tftp', 'Protocol': 'udp', 'Port': 69},
+            {'Helper': 'ftp', 'Protocol': 'tcp', 'Port': 21},
         ]
         router_id = self._create_router()
         self._create_helpers(router_id, helpers)
@@ -118,15 +97,13 @@ class L3ConntrackHelperTests(common.NetworkTests):
             self.assertIn(ct, expected_helpers)
 
     def test_l3_conntrack_helper_set_and_show(self):
-        helper = {
-            'helper': 'tftp',
-            'protocol': 'udp',
-            'port': 69}
+        helper = {'helper': 'tftp', 'protocol': 'udp', 'port': 69}
         router_id = self._create_router()
         created_helper = self._create_helpers(router_id, [helper])[0]
         output = self.openstack(
             'network l3 conntrack helper show %(router_id)s %(ct_id)s '
-            '-f json' % {
+            '-f json'
+            % {
                 'router_id': router_id,
                 'ct_id': created_helper['id'],
             },
@@ -138,15 +115,19 @@ class L3ConntrackHelperTests(common.NetworkTests):
 
         raw_output = self.openstack(
             'network l3 conntrack helper set %(router_id)s %(ct_id)s '
-            '--port %(port)s ' % {
+            '--port %(port)s '
+            % {
                 'router_id': router_id,
                 'ct_id': created_helper['id'],
-                'port': helper['port'] + 1})
+                'port': helper['port'] + 1,
+            }
+        )
         self.assertOutput('', raw_output)
 
         output = self.openstack(
             'network l3 conntrack helper show %(router_id)s %(ct_id)s '
-            '-f json' % {
+            '-f json'
+            % {
                 'router_id': router_id,
                 'ct_id': created_helper['id'],
             },

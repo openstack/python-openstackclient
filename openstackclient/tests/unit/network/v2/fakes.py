@@ -61,16 +61,38 @@ RULE_TYPE_BANDWIDTH_LIMIT = 'bandwidth-limit'
 RULE_TYPE_DSCP_MARKING = 'dscp-marking'
 RULE_TYPE_MINIMUM_BANDWIDTH = 'minimum-bandwidth'
 RULE_TYPE_MINIMUM_PACKET_RATE = 'minimum-packet-rate'
-VALID_QOS_RULES = [RULE_TYPE_BANDWIDTH_LIMIT,
-                   RULE_TYPE_DSCP_MARKING,
-                   RULE_TYPE_MINIMUM_BANDWIDTH,
-                   RULE_TYPE_MINIMUM_PACKET_RATE]
-VALID_DSCP_MARKS = [0, 8, 10, 12, 14, 16, 18, 20, 22, 24, 26, 28, 30, 32,
-                    34, 36, 38, 40, 46, 48, 56]
+VALID_QOS_RULES = [
+    RULE_TYPE_BANDWIDTH_LIMIT,
+    RULE_TYPE_DSCP_MARKING,
+    RULE_TYPE_MINIMUM_BANDWIDTH,
+    RULE_TYPE_MINIMUM_PACKET_RATE,
+]
+VALID_DSCP_MARKS = [
+    0,
+    8,
+    10,
+    12,
+    14,
+    16,
+    18,
+    20,
+    22,
+    24,
+    26,
+    28,
+    30,
+    32,
+    34,
+    36,
+    38,
+    40,
+    46,
+    48,
+    56,
+]
 
 
 class FakeNetworkV2Client(object):
-
     def __init__(self, **kwargs):
         self.session = mock.Mock()
         self.extensions = mock.Mock()
@@ -78,7 +100,6 @@ class FakeNetworkV2Client(object):
 
 
 class TestNetworkV2(utils.TestCommand):
-
     def setUp(self):
         super(TestNetworkV2, self).setUp()
 
@@ -92,8 +113,9 @@ class TestNetworkV2(utils.TestCommand):
         )
 
         self.app.client_manager.sdk_connection = mock.Mock()
-        self.app.client_manager.sdk_connection.network = \
+        self.app.client_manager.sdk_connection.network = (
             self.app.client_manager.network
+        )
 
         self.app.client_manager.identity = (
             identity_fakes_v3.FakeIdentityv3Client(
@@ -124,15 +146,15 @@ class FakeExtension(object):
             'description': 'description-' + uuid.uuid4().hex,
             'updated': '2013-07-09T12:00:0-00:00',
             'alias': 'Dystopian',
-            'links': '[{"href":''"https://github.com/os/network", "type"}]',
+            'links': '[{"href":' '"https://github.com/os/network", "type"}]',
         }
 
         # Overwrite default attributes.
         extension_info.update(attrs)
 
         extension = fakes.FakeResource(
-            info=copy.deepcopy(extension_info),
-            loaded=True)
+            info=copy.deepcopy(extension_info), loaded=True
+        )
         return extension
 
 
@@ -169,8 +191,8 @@ class FakeNetworkQosPolicy(object):
         qos_policy_attrs.update(attrs)
 
         qos_policy = fakes.FakeResource(
-            info=copy.deepcopy(qos_policy_attrs),
-            loaded=True)
+            info=copy.deepcopy(qos_policy_attrs), loaded=True
+        )
 
         # Set attributes with special mapping in OpenStack SDK.
         qos_policy.is_shared = qos_policy_attrs['shared']
@@ -191,7 +213,8 @@ class FakeNetworkQosPolicy(object):
         qos_policies = []
         for i in range(0, count):
             qos_policies.append(
-                FakeNetworkQosPolicy.create_one_qos_policy(attrs))
+                FakeNetworkQosPolicy.create_one_qos_policy(attrs)
+            )
 
         return qos_policies
 
@@ -240,8 +263,8 @@ class FakeNetworkSecGroup(object):
         }
 
         security_group = fakes.FakeResource(
-            info=copy.deepcopy(security_group_attrs),
-            loaded=True)
+            info=copy.deepcopy(security_group_attrs), loaded=True
+        )
 
         return security_group
 
@@ -285,8 +308,9 @@ class FakeNetworkQosRule(object):
         # Overwrite default attributes.
         qos_rule_attrs.update(attrs)
 
-        qos_rule = fakes.FakeResource(info=copy.deepcopy(qos_rule_attrs),
-                                      loaded=True)
+        qos_rule = fakes.FakeResource(
+            info=copy.deepcopy(qos_rule_attrs), loaded=True
+        )
 
         return qos_rule
 
@@ -322,7 +346,7 @@ class FakeNetworkQosRule(object):
             qos minimum bandwidth rules
         """
         if qos_rules is None:
-            qos_rules = (FakeNetworkQosRule.create_qos_rules(count))
+            qos_rules = FakeNetworkQosRule.create_qos_rules(count)
         return mock.Mock(side_effect=qos_rules)
 
 
@@ -350,8 +374,8 @@ class FakeNetworkQosRuleType(object):
         qos_rule_type_attrs.update(attrs)
 
         return fakes.FakeResource(
-            info=copy.deepcopy(qos_rule_type_attrs),
-            loaded=True)
+            info=copy.deepcopy(qos_rule_type_attrs), loaded=True
+        )
 
     @staticmethod
     def create_qos_rule_types(attrs=None, count=2):
@@ -367,7 +391,8 @@ class FakeNetworkQosRuleType(object):
         qos_rule_types = []
         for i in range(0, count):
             qos_rule_types.append(
-                FakeNetworkQosRuleType.create_one_qos_rule_type(attrs))
+                FakeNetworkQosRuleType.create_one_qos_rule_type(attrs)
+            )
 
         return qos_rule_types
 
@@ -408,8 +433,9 @@ class FakeRouter(object):
         # Overwrite default attributes.
         router_attrs.update(attrs)
 
-        router = fakes.FakeResource(info=copy.deepcopy(router_attrs),
-                                    loaded=True)
+        router = fakes.FakeResource(
+            info=copy.deepcopy(router_attrs), loaded=True
+        )
 
         # Set attributes with special mapping in OpenStack SDK.
         router.is_admin_state_up = router_attrs['admin_state_up']
@@ -485,8 +511,8 @@ class FakeSecurityGroup(object):
         security_group_attrs.update(attrs)
 
         security_group = fakes.FakeResource(
-            info=copy.deepcopy(security_group_attrs),
-            loaded=True)
+            info=copy.deepcopy(security_group_attrs), loaded=True
+        )
 
         return security_group
 
@@ -504,7 +530,8 @@ class FakeSecurityGroup(object):
         security_groups = []
         for i in range(0, count):
             security_groups.append(
-                FakeSecurityGroup.create_one_security_group(attrs))
+                FakeSecurityGroup.create_one_security_group(attrs)
+            )
 
         return security_groups
 
@@ -544,8 +571,8 @@ class FakeSecurityGroupRule(object):
 
         # Set default attributes.
         security_group_rule_attrs = {
-            'description': 'security-group-rule-description-' +
-                           uuid.uuid4().hex,
+            'description': 'security-group-rule-description-'
+            + uuid.uuid4().hex,
             'direction': 'ingress',
             'ether_type': 'IPv4',
             'id': 'security-group-rule-id-' + uuid.uuid4().hex,
@@ -564,8 +591,8 @@ class FakeSecurityGroupRule(object):
         security_group_rule_attrs.update(attrs)
 
         security_group_rule = fakes.FakeResource(
-            info=copy.deepcopy(security_group_rule_attrs),
-            loaded=True)
+            info=copy.deepcopy(security_group_rule_attrs), loaded=True
+        )
 
         return security_group_rule
 
@@ -583,7 +610,8 @@ class FakeSecurityGroupRule(object):
         security_group_rules = []
         for i in range(0, count):
             security_group_rules.append(
-                FakeSecurityGroupRule.create_one_security_group_rule(attrs))
+                FakeSecurityGroupRule.create_one_security_group_rule(attrs)
+            )
 
         return security_group_rules
 
@@ -604,7 +632,8 @@ class FakeSecurityGroupRule(object):
         """
         if security_group_rules is None:
             security_group_rules = (
-                FakeSecurityGroupRule.create_security_group_rules(count))
+                FakeSecurityGroupRule.create_security_group_rules(count)
+            )
         return mock.Mock(side_effect=security_group_rules)
 
 
@@ -649,8 +678,9 @@ class FakeSubnet(object):
         # Overwrite default attributes.
         subnet_attrs.update(attrs)
 
-        subnet = fakes.FakeResource(info=copy.deepcopy(subnet_attrs),
-                                    loaded=True)
+        subnet = fakes.FakeResource(
+            info=copy.deepcopy(subnet_attrs), loaded=True
+        )
 
         # Set attributes with special mappings in OpenStack SDK.
         subnet.is_dhcp_enabled = subnet_attrs['enable_dhcp']
@@ -731,8 +761,7 @@ class FakeFloatingIP(object):
         floating_ip_attrs.update(attrs)
 
         floating_ip = fakes.FakeResource(
-            info=copy.deepcopy(floating_ip_attrs),
-            loaded=True
+            info=copy.deepcopy(floating_ip_attrs), loaded=True
         )
 
         return floating_ip
@@ -793,8 +822,8 @@ class FakeNetworkMeter(object):
         meter_attrs.update(attrs)
 
         meter = fakes.FakeResource(
-            info=copy.deepcopy(meter_attrs),
-            loaded=True)
+            info=copy.deepcopy(meter_attrs), loaded=True
+        )
 
         return meter
 
@@ -804,16 +833,14 @@ class FakeNetworkMeter(object):
 
         meters = []
         for i in range(0, count):
-            meters.append(FakeNetworkMeter.
-                          create_one_meter(attrs))
+            meters.append(FakeNetworkMeter.create_one_meter(attrs))
         return meters
 
     @staticmethod
     def get_meter(meter=None, count=2):
         """Get a list of meters"""
         if meter is None:
-            meter = (FakeNetworkMeter.
-                     create_meter(count))
+            meter = FakeNetworkMeter.create_meter(count)
         return mock.Mock(side_effect=meter)
 
 
@@ -840,8 +867,8 @@ class FakeNetworkMeterRule(object):
         meter_rule_attrs.update(attrs)
 
         meter_rule = fakes.FakeResource(
-            info=copy.deepcopy(meter_rule_attrs),
-            loaded=True)
+            info=copy.deepcopy(meter_rule_attrs), loaded=True
+        )
 
         return meter_rule
 
@@ -851,16 +878,14 @@ class FakeNetworkMeterRule(object):
 
         meter_rules = []
         for i in range(0, count):
-            meter_rules.append(FakeNetworkMeterRule.
-                               create_one_rule(attrs))
+            meter_rules.append(FakeNetworkMeterRule.create_one_rule(attrs))
         return meter_rules
 
     @staticmethod
     def get_meter_rule(meter_rule=None, count=2):
         """Get a list of meter rules"""
         if meter_rule is None:
-            meter_rule = (FakeNetworkMeterRule.
-                          create_meter_rule(count))
+            meter_rule = FakeNetworkMeterRule.create_meter_rule(count)
         return mock.Mock(side_effect=meter_rule)
 
 
@@ -901,13 +926,13 @@ class FakeSubnetPool(object):
         subnet_pool_attrs.update(attrs)
 
         subnet_pool = fakes.FakeResource(
-            info=copy.deepcopy(subnet_pool_attrs),
-            loaded=True
+            info=copy.deepcopy(subnet_pool_attrs), loaded=True
         )
 
         # Set attributes with special mapping in OpenStack SDK.
-        subnet_pool.default_prefix_length = \
-            subnet_pool_attrs['default_prefixlen']
+        subnet_pool.default_prefix_length = subnet_pool_attrs[
+            'default_prefixlen'
+        ]
         subnet_pool.is_shared = subnet_pool_attrs['shared']
         subnet_pool.maximum_prefix_length = subnet_pool_attrs['max_prefixlen']
         subnet_pool.minimum_prefix_length = subnet_pool_attrs['min_prefixlen']
@@ -927,9 +952,7 @@ class FakeSubnetPool(object):
         """
         subnet_pools = []
         for i in range(0, count):
-            subnet_pools.append(
-                FakeSubnetPool.create_one_subnet_pool(attrs)
-            )
+            subnet_pools.append(FakeSubnetPool.create_one_subnet_pool(attrs))
 
         return subnet_pools
 
@@ -971,8 +994,8 @@ class FakeNetworkServiceProvider(object):
         service_provider.update(attrs)
 
         provider = fakes.FakeResource(
-            info=copy.deepcopy(service_provider),
-            loaded=True)
+            info=copy.deepcopy(service_provider), loaded=True
+        )
         provider.is_default = service_provider['default']
 
         return provider
@@ -983,9 +1006,11 @@ class FakeNetworkServiceProvider(object):
 
         service_providers = []
         for i in range(0, count):
-            service_providers.append(FakeNetworkServiceProvider.
-                                     create_one_network_service_provider(
-                                         attrs))
+            service_providers.append(
+                FakeNetworkServiceProvider.create_one_network_service_provider(
+                    attrs
+                )
+            )
         return service_providers
 
 
@@ -1006,13 +1031,14 @@ class FakeQuota(object):
             'security_groups': 10,
             'security_group_rules': 100,
             'subnets': 20,
-            'subnet_pools': 30}
+            'subnet_pools': 30,
+        }
 
         quota_attrs.update(attrs)
 
         quota = fakes.FakeResource(
-            info=copy.deepcopy(quota_attrs),
-            loaded=True)
+            info=copy.deepcopy(quota_attrs), loaded=True
+        )
         return quota
 
     @staticmethod
@@ -1029,13 +1055,14 @@ class FakeQuota(object):
             'security_group': 30,
             'security_group_rule': 200,
             'subnet': 10,
-            'subnetpool': 20}
+            'subnetpool': 20,
+        }
 
         quota_attrs.update(attrs)
 
         quota = fakes.FakeResource(
-            info=copy.deepcopy(quota_attrs),
-            loaded=True)
+            info=copy.deepcopy(quota_attrs), loaded=True
+        )
         return quota
 
     @staticmethod
@@ -1052,18 +1079,19 @@ class FakeQuota(object):
             'security_groups': {'used': 0, 'reserved': 0, 'limit': 10},
             'security_group_rules': {'used': 0, 'reserved': 0, 'limit': 100},
             'subnets': {'used': 0, 'reserved': 0, 'limit': 20},
-            'subnet_pools': {'used': 0, 'reserved': 0, 'limit': 30}}
+            'subnet_pools': {'used': 0, 'reserved': 0, 'limit': 30},
+        }
 
         quota_attrs.update(attrs)
 
         quota = fakes.FakeResource(
-            info=copy.deepcopy(quota_attrs),
-            loaded=True)
+            info=copy.deepcopy(quota_attrs), loaded=True
+        )
         return quota
 
 
 class FakeFloatingIPPortForwarding(object):
-    """"Fake one or more Port forwarding"""
+    """Fake one or more Port forwarding"""
 
     @staticmethod
     def create_one_port_forwarding(attrs=None, use_range=False):
@@ -1113,8 +1141,7 @@ class FakeFloatingIPPortForwarding(object):
         port_forwarding_attrs.update(attrs)
 
         port_forwarding = fakes.FakeResource(
-            info=copy.deepcopy(port_forwarding_attrs),
-            loaded=True
+            info=copy.deepcopy(port_forwarding_attrs), loaded=True
         )
         return port_forwarding
 
@@ -1122,20 +1149,21 @@ class FakeFloatingIPPortForwarding(object):
     def create_port_forwardings(attrs=None, count=2, use_range=False):
         """Create multiple fake Port Forwarding.
 
-          :param Dictionary attrs:
-              A dictionary with all attributes
-          :param int count:
-              The number of Port Forwarding rule to fake
-          :param Boolean use_range:
-              A boolean which defines if we will use ranges or not
-          :return:
-              A list of FakeResource objects faking the Port Forwardings
-          """
+        :param Dictionary attrs:
+            A dictionary with all attributes
+        :param int count:
+            The number of Port Forwarding rule to fake
+        :param Boolean use_range:
+            A boolean which defines if we will use ranges or not
+        :return:
+            A list of FakeResource objects faking the Port Forwardings
+        """
         port_forwardings = []
         for i in range(0, count):
             port_forwardings.append(
                 FakeFloatingIPPortForwarding.create_one_port_forwarding(
-                    attrs, use_range=use_range)
+                    attrs, use_range=use_range
+                )
             )
         return port_forwardings
 
@@ -1159,14 +1187,15 @@ class FakeFloatingIPPortForwarding(object):
         if port_forwardings is None:
             port_forwardings = (
                 FakeFloatingIPPortForwarding.create_port_forwardings(
-                    count, use_range=use_range)
+                    count, use_range=use_range
+                )
             )
 
         return mock.Mock(side_effect=port_forwardings)
 
 
 class FakeL3ConntrackHelper(object):
-    """"Fake one or more L3 conntrack helper"""
+    """Fake one or more L3 conntrack helper"""
 
     @staticmethod
     def create_one_l3_conntrack_helper(attrs=None):
@@ -1178,9 +1207,7 @@ class FakeL3ConntrackHelper(object):
             A FakeResource object with protocol, port, etc.
         """
         attrs = attrs or {}
-        router_id = (
-            attrs.get('router_id') or 'router-id-' + uuid.uuid4().hex
-        )
+        router_id = attrs.get('router_id') or 'router-id-' + uuid.uuid4().hex
         # Set default attributes.
         ct_attrs = {
             'id': uuid.uuid4().hex,
@@ -1194,10 +1221,7 @@ class FakeL3ConntrackHelper(object):
         # Overwrite default attributes.
         ct_attrs.update(attrs)
 
-        ct = fakes.FakeResource(
-            info=copy.deepcopy(ct_attrs),
-            loaded=True
-        )
+        ct = fakes.FakeResource(info=copy.deepcopy(ct_attrs), loaded=True)
         return ct
 
     @staticmethod
@@ -1234,8 +1258,8 @@ class FakeL3ConntrackHelper(object):
             L3 conntrack helpers
         """
         if ct_helpers is None:
-            ct_helpers = (
-                FakeL3ConntrackHelper.create_l3_conntrack_helpers(count)
+            ct_helpers = FakeL3ConntrackHelper.create_l3_conntrack_helpers(
+                count
             )
 
         return mock.Mock(side_effect=ct_helpers)
@@ -1456,7 +1480,8 @@ def create_one_ip_availability(attrs=None):
     network_ip_attrs.update(attrs)
 
     network_ip_availability = _ip_availability.NetworkIPAvailability(
-        **network_ip_attrs)
+        **network_ip_attrs
+    )
 
     return network_ip_availability
 
@@ -1684,8 +1709,10 @@ def create_one_network_segment_range(attrs=None):
         'physical_network': 'physical-network-name-' + fake_uuid,
         'minimum': 100,
         'maximum': 106,
-        'used': {104: '3312e4ba67864b2eb53f3f41432f8efc',
-                 106: '3312e4ba67864b2eb53f3f41432f8efc'},
+        'used': {
+            104: '3312e4ba67864b2eb53f3f41432f8efc',
+            106: '3312e4ba67864b2eb53f3f41432f8efc',
+        },
         'available': [100, 101, 102, 103, 105],
         'location': 'MUNCHMUNCHMUNCH',
     }
@@ -1693,8 +1720,9 @@ def create_one_network_segment_range(attrs=None):
     # Overwrite default attributes.
     network_segment_range_attrs.update(attrs)
 
-    network_segment_range = (
-        _segment_range.NetworkSegmentRange(**network_segment_range_attrs))
+    network_segment_range = _segment_range.NetworkSegmentRange(
+        **network_segment_range_attrs
+    )
 
     return network_segment_range
 
@@ -1744,8 +1772,12 @@ def create_one_port(attrs=None):
         'dns_domain': 'dns-domain-' + uuid.uuid4().hex,
         'dns_name': 'dns-name-' + uuid.uuid4().hex,
         'extra_dhcp_opts': [{}],
-        'fixed_ips': [{'ip_address': '10.0.0.3',
-                       'subnet_id': 'subnet-id-' + uuid.uuid4().hex}],
+        'fixed_ips': [
+            {
+                'ip_address': '10.0.0.3',
+                'subnet_id': 'subnet-id-' + uuid.uuid4().hex,
+            }
+        ],
         'id': 'port-id-' + uuid.uuid4().hex,
         'mac_address': 'fa:16:3e:a9:4e:72',
         'name': 'port-name-' + uuid.uuid4().hex,
@@ -2063,9 +2095,9 @@ def create_one_local_ip_association(attrs=None):
     # Overwrite default attributes.
     local_ip_association_attrs.update(attrs)
 
-    local_ip_association = (
-        _local_ip_association.LocalIPAssociation(
-            **local_ip_association_attrs))
+    local_ip_association = _local_ip_association.LocalIPAssociation(
+        **local_ip_association_attrs
+    )
 
     return local_ip_association
 
@@ -2116,12 +2148,8 @@ def create_one_ndp_proxy(attrs=None):
         A FakeResource object with router_id, port_id, etc.
     """
     attrs = attrs or {}
-    router_id = (
-        attrs.get('router_id') or 'router-id-' + uuid.uuid4().hex
-    )
-    port_id = (
-        attrs.get('port_id') or 'port-id-' + uuid.uuid4().hex
-    )
+    router_id = attrs.get('router_id') or 'router-id-' + uuid.uuid4().hex
+    port_id = attrs.get('port_id') or 'port-id-' + uuid.uuid4().hex
     # Set default attributes.
     np_attrs = {
         'id': uuid.uuid4().hex,
@@ -2152,9 +2180,7 @@ def create_ndp_proxies(attrs=None, count=2):
     """
     ndp_proxies = []
     for i in range(0, count):
-        ndp_proxies.append(
-            create_one_ndp_proxy(attrs)
-        )
+        ndp_proxies.append(create_one_ndp_proxy(attrs))
     return ndp_proxies
 
 
@@ -2173,9 +2199,7 @@ def get_ndp_proxies(ndp_proxies=None, count=2):
         ndp proxy
     """
     if ndp_proxies is None:
-        ndp_proxies = (
-            create_ndp_proxies(count)
-        )
+        ndp_proxies = create_ndp_proxies(count)
     return mock.Mock(side_effect=ndp_proxies)
 
 
@@ -2198,10 +2222,13 @@ def create_one_trunk(attrs=None):
         'admin_state_up': True,
         'project_id': 'project-id-' + uuid.uuid4().hex,
         'status': 'ACTIVE',
-        'sub_ports': [{'port_id': 'subport-' +
-                       uuid.uuid4().hex,
-                       'segmentation_type': 'vlan',
-                       'segmentation_id': 100}],
+        'sub_ports': [
+            {
+                'port_id': 'subport-' + uuid.uuid4().hex,
+                'segmentation_type': 'vlan',
+                'segmentation_id': 100,
+            }
+        ],
     }
     # Overwrite default attributes.
     trunk_attrs.update(attrs)

@@ -17,17 +17,17 @@ from openstackclient.tests.functional.network.v2 import common
 
 
 class NetworkQosRuleTypeTests(common.NetworkTests):
-    """Functional tests for Network QoS rule type. """
+    """Functional tests for Network QoS rule type."""
 
-    AVAILABLE_RULE_TYPES = ['dscp_marking',
-                            'bandwidth_limit']
+    AVAILABLE_RULE_TYPES = ['dscp_marking', 'bandwidth_limit']
     # NOTE(ralonsoh): this list was updated in Yoga (February 2022)
-    ALL_AVAILABLE_RULE_TYPES = ['dscp_marking',
-                                'bandwidth_limit',
-                                'minimum_bandwidth',
-                                'packet_rate_limit',
-                                'minimum_packet_rate',
-                                ]
+    ALL_AVAILABLE_RULE_TYPES = [
+        'dscp_marking',
+        'bandwidth_limit',
+        'minimum_bandwidth',
+        'packet_rate_limit',
+        'minimum_packet_rate',
+    ]
 
     def setUp(self):
         super(NetworkQosRuleTypeTests, self).setUp()
@@ -49,7 +49,7 @@ class NetworkQosRuleTypeTests(common.NetworkTests):
 
         cmd_output = self.openstack(
             'network qos rule type list --all-supported -f json',
-            parse_output=True
+            parse_output=True,
         )
         for rule_type in self.AVAILABLE_RULE_TYPES:
             self.assertIn(rule_type, [x['Type'] for x in cmd_output])
@@ -59,8 +59,7 @@ class NetworkQosRuleTypeTests(common.NetworkTests):
             self.skipTest('No "qos-rule-type-filter" extension present')
 
         cmd_output = self.openstack(
-            'network qos rule type list --all-rules -f json',
-            parse_output=True
+            'network qos rule type list --all-rules -f json', parse_output=True
         )
         for rule_type in self.ALL_AVAILABLE_RULE_TYPES:
             self.assertIn(rule_type, [x['Type'] for x in cmd_output])

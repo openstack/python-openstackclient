@@ -24,7 +24,6 @@ from openstackclient.tests.unit import utils as tests_utils
 
 
 class TestNetworkRBAC(network_fakes.TestNetworkV2):
-
     def setUp(self):
         super(TestNetworkRBAC, self).setUp()
 
@@ -36,7 +35,6 @@ class TestNetworkRBAC(network_fakes.TestNetworkV2):
 
 @ddt.ddt
 class TestCreateNetworkRBAC(TestNetworkRBAC):
-
     network_object = network_fakes.create_one_network()
     qos_object = network_fakes.FakeNetworkQosPolicy.create_one_qos_policy()
     sg_object = network_fakes.FakeNetworkSecGroup.create_one_security_group()
@@ -45,9 +43,11 @@ class TestCreateNetworkRBAC(TestNetworkRBAC):
     ag_object = network_fakes.create_one_address_group()
     project = identity_fakes_v3.FakeProject.create_one_project()
     rbac_policy = network_fakes.create_one_network_rbac(
-        attrs={'project_id': project.id,
-               'target_tenant': project.id,
-               'object_id': network_object.id}
+        attrs={
+            'project_id': project.id,
+            'target_tenant': project.id,
+            'object_id': network_object.id,
+        }
     )
 
     columns = (
@@ -75,24 +75,26 @@ class TestCreateNetworkRBAC(TestNetworkRBAC):
         self.cmd = network_rbac.CreateNetworkRBAC(self.app, self.namespace)
 
         self.network.create_rbac_policy = mock.Mock(
-            return_value=self.rbac_policy)
-        self.network.find_network = mock.Mock(
-            return_value=self.network_object)
-        self.network.find_qos_policy = mock.Mock(
-            return_value=self.qos_object)
+            return_value=self.rbac_policy
+        )
+        self.network.find_network = mock.Mock(return_value=self.network_object)
+        self.network.find_qos_policy = mock.Mock(return_value=self.qos_object)
         self.network.find_security_group = mock.Mock(
-            return_value=self.sg_object)
+            return_value=self.sg_object
+        )
         self.network.find_address_scope = mock.Mock(
-            return_value=self.as_object)
-        self.network.find_subnet_pool = mock.Mock(
-            return_value=self.snp_object)
+            return_value=self.as_object
+        )
+        self.network.find_subnet_pool = mock.Mock(return_value=self.snp_object)
         self.network.find_address_group = mock.Mock(
-            return_value=self.ag_object)
+            return_value=self.ag_object
+        )
         self.projects_mock.get.return_value = self.project
 
     def test_network_rbac_create_no_type(self):
         arglist = [
-            '--action', self.rbac_policy.action,
+            '--action',
+            self.rbac_policy.action,
             self.rbac_policy.object_id,
         ]
         verifylist = [
@@ -100,12 +102,18 @@ class TestCreateNetworkRBAC(TestNetworkRBAC):
             ('rbac_policy', self.rbac_policy.id),
         ]
 
-        self.assertRaises(tests_utils.ParserException, self.check_parser,
-                          self.cmd, arglist, verifylist)
+        self.assertRaises(
+            tests_utils.ParserException,
+            self.check_parser,
+            self.cmd,
+            arglist,
+            verifylist,
+        )
 
     def test_network_rbac_create_no_action(self):
         arglist = [
-            '--type', self.rbac_policy.object_type,
+            '--type',
+            self.rbac_policy.object_type,
             self.rbac_policy.object_id,
         ]
         verifylist = [
@@ -113,14 +121,22 @@ class TestCreateNetworkRBAC(TestNetworkRBAC):
             ('rbac_policy', self.rbac_policy.id),
         ]
 
-        self.assertRaises(tests_utils.ParserException, self.check_parser,
-                          self.cmd, arglist, verifylist)
+        self.assertRaises(
+            tests_utils.ParserException,
+            self.check_parser,
+            self.cmd,
+            arglist,
+            verifylist,
+        )
 
     def test_network_rbac_create_invalid_type(self):
         arglist = [
-            '--action', self.rbac_policy.action,
-            '--type', 'invalid_type',
-            '--target-project', self.rbac_policy.target_project_id,
+            '--action',
+            self.rbac_policy.action,
+            '--type',
+            'invalid_type',
+            '--target-project',
+            self.rbac_policy.target_project_id,
             self.rbac_policy.object_id,
         ]
         verifylist = [
@@ -130,14 +146,22 @@ class TestCreateNetworkRBAC(TestNetworkRBAC):
             ('rbac_policy', self.rbac_policy.id),
         ]
 
-        self.assertRaises(tests_utils.ParserException, self.check_parser,
-                          self.cmd, arglist, verifylist)
+        self.assertRaises(
+            tests_utils.ParserException,
+            self.check_parser,
+            self.cmd,
+            arglist,
+            verifylist,
+        )
 
     def test_network_rbac_create_invalid_action(self):
         arglist = [
-            '--type', self.rbac_policy.object_type,
-            '--action', 'invalid_action',
-            '--target-project', self.rbac_policy.target_project_id,
+            '--type',
+            self.rbac_policy.object_type,
+            '--action',
+            'invalid_action',
+            '--target-project',
+            self.rbac_policy.target_project_id,
             self.rbac_policy.object_id,
         ]
         verifylist = [
@@ -147,14 +171,22 @@ class TestCreateNetworkRBAC(TestNetworkRBAC):
             ('rbac_policy', self.rbac_policy.id),
         ]
 
-        self.assertRaises(tests_utils.ParserException, self.check_parser,
-                          self.cmd, arglist, verifylist)
+        self.assertRaises(
+            tests_utils.ParserException,
+            self.check_parser,
+            self.cmd,
+            arglist,
+            verifylist,
+        )
 
     def test_network_rbac_create(self):
         arglist = [
-            '--type', self.rbac_policy.object_type,
-            '--action', self.rbac_policy.action,
-            '--target-project', self.rbac_policy.target_project_id,
+            '--type',
+            self.rbac_policy.object_type,
+            '--action',
+            self.rbac_policy.action,
+            '--target-project',
+            self.rbac_policy.target_project_id,
             self.rbac_policy.object_id,
         ]
         verifylist = [
@@ -168,19 +200,23 @@ class TestCreateNetworkRBAC(TestNetworkRBAC):
         # DisplayCommandBase.take_action() returns two tuples
         columns, data = self.cmd.take_action(parsed_args)
 
-        self.network.create_rbac_policy.assert_called_with(**{
-            'object_id': self.rbac_policy.object_id,
-            'object_type': self.rbac_policy.object_type,
-            'action': self.rbac_policy.action,
-            'target_tenant': self.rbac_policy.target_project_id,
-        })
+        self.network.create_rbac_policy.assert_called_with(
+            **{
+                'object_id': self.rbac_policy.object_id,
+                'object_type': self.rbac_policy.object_type,
+                'action': self.rbac_policy.action,
+                'target_tenant': self.rbac_policy.target_project_id,
+            }
+        )
         self.assertEqual(self.columns, columns)
         self.assertEqual(self.data, list(data))
 
     def test_network_rbac_create_with_target_all_projects(self):
         arglist = [
-            '--type', self.rbac_policy.object_type,
-            '--action', self.rbac_policy.action,
+            '--type',
+            self.rbac_policy.object_type,
+            '--action',
+            self.rbac_policy.action,
             '--target-all-projects',
             self.rbac_policy.object_id,
         ]
@@ -194,21 +230,29 @@ class TestCreateNetworkRBAC(TestNetworkRBAC):
 
         columns, data = self.cmd.take_action(parsed_args)
 
-        self.network.create_rbac_policy.assert_called_with(**{
-            'object_id': self.rbac_policy.object_id,
-            'object_type': self.rbac_policy.object_type,
-            'action': self.rbac_policy.action,
-            'target_tenant': '*',
-        })
+        self.network.create_rbac_policy.assert_called_with(
+            **{
+                'object_id': self.rbac_policy.object_id,
+                'object_type': self.rbac_policy.object_type,
+                'action': self.rbac_policy.action,
+                'target_tenant': '*',
+            }
+        )
 
     def test_network_rbac_create_all_options(self):
         arglist = [
-            '--type', self.rbac_policy.object_type,
-            '--action', self.rbac_policy.action,
-            '--target-project', self.rbac_policy.target_project_id,
-            '--project', self.rbac_policy.project_id,
-            '--project-domain', self.project.domain_id,
-            '--target-project-domain', self.project.domain_id,
+            '--type',
+            self.rbac_policy.object_type,
+            '--action',
+            self.rbac_policy.action,
+            '--target-project',
+            self.rbac_policy.target_project_id,
+            '--project',
+            self.rbac_policy.project_id,
+            '--project-domain',
+            self.project.domain_id,
+            '--target-project-domain',
+            self.project.domain_id,
             self.rbac_policy.object_id,
         ]
         verifylist = [
@@ -225,13 +269,15 @@ class TestCreateNetworkRBAC(TestNetworkRBAC):
         # DisplayCommandBase.take_action() returns two tuples
         columns, data = self.cmd.take_action(parsed_args)
 
-        self.network.create_rbac_policy.assert_called_with(**{
-            'object_id': self.rbac_policy.object_id,
-            'object_type': self.rbac_policy.object_type,
-            'action': self.rbac_policy.action,
-            'target_tenant': self.rbac_policy.target_project_id,
-            'project_id': self.rbac_policy.project_id,
-        })
+        self.network.create_rbac_policy.assert_called_with(
+            **{
+                'object_id': self.rbac_policy.object_id,
+                'object_type': self.rbac_policy.object_type,
+                'action': self.rbac_policy.action,
+                'target_tenant': self.rbac_policy.target_project_id,
+                'project_id': self.rbac_policy.project_id,
+            }
+        )
         self.assertEqual(self.columns, columns)
         self.assertEqual(self.data, list(data))
 
@@ -240,7 +286,7 @@ class TestCreateNetworkRBAC(TestNetworkRBAC):
         ('security_group', "sg_object"),
         ('subnetpool', "snp_object"),
         ('address_scope', "as_object"),
-        ('address_group', "ag_object")
+        ('address_group', "ag_object"),
     )
     @ddt.unpack
     def test_network_rbac_create_object(self, obj_type, obj_fake_attr):
@@ -249,9 +295,12 @@ class TestCreateNetworkRBAC(TestNetworkRBAC):
         self.rbac_policy.object_type = obj_type
         self.rbac_policy.object_id = obj_fake.id
         arglist = [
-            '--type', obj_type,
-            '--action', self.rbac_policy.action,
-            '--target-project', self.rbac_policy.target_project_id,
+            '--type',
+            obj_type,
+            '--action',
+            self.rbac_policy.action,
+            '--target-project',
+            self.rbac_policy.target_project_id,
             obj_fake.name,
         ]
         verifylist = [
@@ -265,12 +314,14 @@ class TestCreateNetworkRBAC(TestNetworkRBAC):
         # DisplayCommandBase.take_action() returns two tuples
         columns, data = self.cmd.take_action(parsed_args)
 
-        self.network.create_rbac_policy.assert_called_with(**{
-            'object_id': obj_fake.id,
-            'object_type': obj_type,
-            'action': self.rbac_policy.action,
-            'target_tenant': self.rbac_policy.target_project_id,
-        })
+        self.network.create_rbac_policy.assert_called_with(
+            **{
+                'object_id': obj_fake.id,
+                'object_type': obj_type,
+                'action': self.rbac_policy.action,
+                'target_tenant': self.rbac_policy.target_project_id,
+            }
+        )
         self.data = [
             self.rbac_policy.action,
             self.rbac_policy.id,
@@ -284,15 +335,13 @@ class TestCreateNetworkRBAC(TestNetworkRBAC):
 
 
 class TestDeleteNetworkRBAC(TestNetworkRBAC):
-
     rbac_policies = network_fakes.create_network_rbacs(count=2)
 
     def setUp(self):
         super(TestDeleteNetworkRBAC, self).setUp()
         self.network.delete_rbac_policy = mock.Mock(return_value=None)
-        self.network.find_rbac_policy = (
-            network_fakes.get_network_rbacs(
-                rbac_policies=self.rbac_policies)
+        self.network.find_rbac_policy = network_fakes.get_network_rbacs(
+            rbac_policies=self.rbac_policies
         )
 
         # Get the command object to test
@@ -310,9 +359,11 @@ class TestDeleteNetworkRBAC(TestNetworkRBAC):
 
         result = self.cmd.take_action(parsed_args)
         self.network.find_rbac_policy.assert_called_once_with(
-            self.rbac_policies[0].id, ignore_missing=False)
+            self.rbac_policies[0].id, ignore_missing=False
+        )
         self.network.delete_rbac_policy.assert_called_once_with(
-            self.rbac_policies[0])
+            self.rbac_policies[0]
+        )
         self.assertIsNone(result)
 
     def test_multi_network_rbacs_delete(self):
@@ -340,15 +391,12 @@ class TestDeleteNetworkRBAC(TestNetworkRBAC):
             'unexist_rbac_policy',
         ]
         verifylist = [
-            ('rbac_policy',
-             [self.rbac_policies[0].id, 'unexist_rbac_policy']),
+            ('rbac_policy', [self.rbac_policies[0].id, 'unexist_rbac_policy']),
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
         find_mock_result = [self.rbac_policies[0], exceptions.CommandError]
-        self.network.find_rbac_policy = (
-            mock.Mock(side_effect=find_mock_result)
-        )
+        self.network.find_rbac_policy = mock.Mock(side_effect=find_mock_result)
 
         try:
             self.cmd.take_action(parsed_args)
@@ -357,16 +405,17 @@ class TestDeleteNetworkRBAC(TestNetworkRBAC):
             self.assertEqual('1 of 2 RBAC policies failed to delete.', str(e))
 
         self.network.find_rbac_policy.assert_any_call(
-            self.rbac_policies[0].id, ignore_missing=False)
+            self.rbac_policies[0].id, ignore_missing=False
+        )
         self.network.find_rbac_policy.assert_any_call(
-            'unexist_rbac_policy', ignore_missing=False)
+            'unexist_rbac_policy', ignore_missing=False
+        )
         self.network.delete_rbac_policy.assert_called_once_with(
             self.rbac_policies[0]
         )
 
 
 class TestListNetworkRABC(TestNetworkRBAC):
-
     # The network rbac policies going to be listed up.
     rbac_policies = network_fakes.create_network_rbacs(count=3)
 
@@ -383,19 +432,23 @@ class TestListNetworkRABC(TestNetworkRBAC):
     )
     data = []
     for r in rbac_policies:
-        data.append((
-            r.id,
-            r.object_type,
-            r.object_id,
-        ))
+        data.append(
+            (
+                r.id,
+                r.object_type,
+                r.object_id,
+            )
+        )
     data_long = []
     for r in rbac_policies:
-        data_long.append((
-            r.id,
-            r.object_type,
-            r.object_id,
-            r.action,
-        ))
+        data_long.append(
+            (
+                r.id,
+                r.object_type,
+                r.object_id,
+                r.action,
+            )
+        )
 
     def setUp(self):
         super(TestListNetworkRABC, self).setUp()
@@ -422,33 +475,35 @@ class TestListNetworkRABC(TestNetworkRBAC):
 
     def test_network_rbac_list_type_opt(self):
         arglist = [
-            '--type', self.rbac_policies[0].object_type, ]
-        verifylist = [
-            ('type', self.rbac_policies[0].object_type)]
+            '--type',
+            self.rbac_policies[0].object_type,
+        ]
+        verifylist = [('type', self.rbac_policies[0].object_type)]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
         # DisplayCommandBase.take_action() returns two tuples
         columns, data = self.cmd.take_action(parsed_args)
 
-        self.network.rbac_policies.assert_called_with(**{
-            'object_type': self.rbac_policies[0].object_type
-        })
+        self.network.rbac_policies.assert_called_with(
+            **{'object_type': self.rbac_policies[0].object_type}
+        )
         self.assertEqual(self.columns, columns)
         self.assertEqual(self.data, list(data))
 
     def test_network_rbac_list_action_opt(self):
         arglist = [
-            '--action', self.rbac_policies[0].action, ]
-        verifylist = [
-            ('action', self.rbac_policies[0].action)]
+            '--action',
+            self.rbac_policies[0].action,
+        ]
+        verifylist = [('action', self.rbac_policies[0].action)]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
         # DisplayCommandBase.take_action() returns two tuples
         columns, data = self.cmd.take_action(parsed_args)
 
-        self.network.rbac_policies.assert_called_with(**{
-            'action': self.rbac_policies[0].action
-        })
+        self.network.rbac_policies.assert_called_with(
+            **{'action': self.rbac_policies[0].action}
+        )
         self.assertEqual(self.columns, columns)
         self.assertEqual(self.data, list(data))
 
@@ -471,26 +526,29 @@ class TestListNetworkRABC(TestNetworkRBAC):
 
     def test_network_rbac_list_target_project_opt(self):
         arglist = [
-            '--target-project', self.rbac_policies[0].target_project_id, ]
+            '--target-project',
+            self.rbac_policies[0].target_project_id,
+        ]
         verifylist = [
-            ('target_project', self.rbac_policies[0].target_project_id)]
+            ('target_project', self.rbac_policies[0].target_project_id)
+        ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
         # DisplayCommandBase.take_action() returns two tuples
         columns, data = self.cmd.take_action(parsed_args)
 
-        self.network.rbac_policies.assert_called_with(**{
-            'target_project_id': self.project.id
-        })
+        self.network.rbac_policies.assert_called_with(
+            **{'target_project_id': self.project.id}
+        )
         self.assertEqual(self.columns, columns)
         self.assertEqual(self.data, list(data))
 
 
 class TestSetNetworkRBAC(TestNetworkRBAC):
-
     project = identity_fakes_v3.FakeProject.create_one_project()
     rbac_policy = network_fakes.create_one_network_rbac(
-        attrs={'target_tenant': project.id})
+        attrs={'target_tenant': project.id}
+    )
 
     def setUp(self):
         super(TestSetNetworkRBAC, self).setUp()
@@ -499,7 +557,8 @@ class TestSetNetworkRBAC(TestNetworkRBAC):
         self.cmd = network_rbac.SetNetworkRBAC(self.app, self.namespace)
 
         self.network.find_rbac_policy = mock.Mock(
-            return_value=self.rbac_policy)
+            return_value=self.rbac_policy
+        )
         self.network.update_rbac_policy = mock.Mock(return_value=None)
         self.projects_mock.get.return_value = self.project
 
@@ -518,12 +577,14 @@ class TestSetNetworkRBAC(TestNetworkRBAC):
         )
         attrs = {}
         self.network.update_rbac_policy.assert_called_once_with(
-            self.rbac_policy, **attrs)
+            self.rbac_policy, **attrs
+        )
         self.assertIsNone(result)
 
     def test_network_rbac_set(self):
         arglist = [
-            '--target-project', self.project.id,
+            '--target-project',
+            self.project.id,
             self.rbac_policy.id,
         ]
         verifylist = [
@@ -538,12 +599,12 @@ class TestSetNetworkRBAC(TestNetworkRBAC):
         )
         attrs = {'target_tenant': self.project.id}
         self.network.update_rbac_policy.assert_called_once_with(
-            self.rbac_policy, **attrs)
+            self.rbac_policy, **attrs
+        )
         self.assertIsNone(result)
 
 
 class TestShowNetworkRBAC(TestNetworkRBAC):
-
     rbac_policy = network_fakes.create_one_network_rbac()
 
     columns = (
@@ -571,14 +632,20 @@ class TestShowNetworkRBAC(TestNetworkRBAC):
         self.cmd = network_rbac.ShowNetworkRBAC(self.app, self.namespace)
 
         self.network.find_rbac_policy = mock.Mock(
-            return_value=self.rbac_policy)
+            return_value=self.rbac_policy
+        )
 
     def test_show_no_options(self):
         arglist = []
         verifylist = []
 
-        self.assertRaises(tests_utils.ParserException, self.check_parser,
-                          self.cmd, arglist, verifylist)
+        self.assertRaises(
+            tests_utils.ParserException,
+            self.check_parser,
+            self.cmd,
+            arglist,
+            verifylist,
+        )
 
     def test_network_rbac_show_all_options(self):
         arglist = [

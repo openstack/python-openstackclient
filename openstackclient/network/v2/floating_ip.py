@@ -30,9 +30,7 @@ def _get_network_columns(item):
     column_map = {}
     hidden_columns = ['location', 'tenant_id']
     return utils.get_osc_show_columns_for_sdk_resource(
-        item,
-        column_map,
-        hidden_columns
+        item, column_map, hidden_columns
     )
 
 
@@ -47,18 +45,19 @@ def _get_attrs(client_manager, parsed_args):
 
     # Name of a network could be empty string.
     if parsed_args.network is not None:
-        network = network_client.find_network(parsed_args.network,
-                                              ignore_missing=False)
+        network = network_client.find_network(
+            parsed_args.network, ignore_missing=False
+        )
         attrs['floating_network_id'] = network.id
 
     if parsed_args.subnet:
-        subnet = network_client.find_subnet(parsed_args.subnet,
-                                            ignore_missing=False)
+        subnet = network_client.find_subnet(
+            parsed_args.subnet, ignore_missing=False
+        )
         attrs['subnet_id'] = subnet.id
 
     if parsed_args.port:
-        port = network_client.find_port(parsed_args.port,
-                                        ignore_missing=False)
+        port = network_client.find_port(parsed_args.port, ignore_missing=False)
         attrs['port_id'] = port.id
 
     if parsed_args.floating_ip_address:
@@ -69,7 +68,8 @@ def _get_attrs(client_manager, parsed_args):
 
     if parsed_args.qos_policy:
         attrs['qos_policy_id'] = network_client.find_qos_policy(
-            parsed_args.qos_policy, ignore_missing=False).id
+            parsed_args.qos_policy, ignore_missing=False
+        ).id
 
     if parsed_args.description is not None:
         attrs['description'] = parsed_args.description
@@ -92,8 +92,9 @@ def _get_attrs(client_manager, parsed_args):
     return attrs
 
 
-class CreateFloatingIP(common.NetworkAndComputeShowOne,
-                       common.NeutronCommandWithExtraArgs):
+class CreateFloatingIP(
+    common.NetworkAndComputeShowOne, common.NeutronCommandWithExtraArgs
+):
     _description = _("Create floating IP")
 
     def update_parser_common(self, parser):
@@ -103,7 +104,7 @@ class CreateFloatingIP(common.NetworkAndComputeShowOne,
         parser.add_argument(
             'network',
             metavar='<network>',
-            help=_("Network to allocate floating IP from (name or ID)")
+            help=_("Network to allocate floating IP from (name or ID)"),
         )
         return parser
 
@@ -112,72 +113,83 @@ class CreateFloatingIP(common.NetworkAndComputeShowOne,
             '--subnet',
             metavar='<subnet>',
             help=self.enhance_help_neutron(
-                _("Subnet on which you want to create the floating IP "
-                  "(name or ID)"))
+                _(
+                    "Subnet on which you want to create the floating IP "
+                    "(name or ID)"
+                )
+            ),
         )
         parser.add_argument(
             '--port',
             metavar='<port>',
             help=self.enhance_help_neutron(
-                _("Port to be associated with the floating IP "
-                  "(name or ID)"))
+                _("Port to be associated with the floating IP " "(name or ID)")
+            ),
         )
         parser.add_argument(
             '--floating-ip-address',
             metavar='<ip-address>',
             dest='floating_ip_address',
-            help=self.enhance_help_neutron(_("Floating IP address"))
+            help=self.enhance_help_neutron(_("Floating IP address")),
         )
         parser.add_argument(
             '--fixed-ip-address',
             metavar='<ip-address>',
             dest='fixed_ip_address',
             help=self.enhance_help_neutron(
-                _("Fixed IP address mapped to the floating IP"))
+                _("Fixed IP address mapped to the floating IP")
+            ),
         )
         parser.add_argument(
             '--qos-policy',
             metavar='<qos-policy>',
             help=self.enhance_help_neutron(
-                _("Attach QoS policy to the floating IP (name or ID)"))
+                _("Attach QoS policy to the floating IP (name or ID)")
+            ),
         )
         parser.add_argument(
             '--description',
             metavar='<description>',
-            help=self.enhance_help_neutron(_('Set floating IP description'))
+            help=self.enhance_help_neutron(_('Set floating IP description')),
         )
         parser.add_argument(
             '--project',
             metavar='<project>',
-            help=self.enhance_help_neutron(_("Owner's project (name or ID)"))
+            help=self.enhance_help_neutron(_("Owner's project (name or ID)")),
         )
         parser.add_argument(
             '--dns-domain',
             metavar='<dns-domain>',
             dest='dns_domain',
             help=self.enhance_help_neutron(
-                _("Set DNS domain for this floating IP"))
+                _("Set DNS domain for this floating IP")
+            ),
         )
         parser.add_argument(
             '--dns-name',
             metavar='<dns-name>',
             dest='dns_name',
             help=self.enhance_help_neutron(
-                _("Set DNS name for this floating IP"))
+                _("Set DNS name for this floating IP")
+            ),
         )
 
         identity_common.add_project_domain_option_to_parser(
-            parser, enhance_help=self.enhance_help_neutron)
+            parser, enhance_help=self.enhance_help_neutron
+        )
         _tag.add_tag_option_to_parser_for_create(
-            parser, _('floating IP'), enhance_help=self.enhance_help_neutron)
+            parser, _('floating IP'), enhance_help=self.enhance_help_neutron
+        )
         return parser
 
     def take_action_network(self, client, parsed_args):
         attrs = _get_attrs(self.app.client_manager, parsed_args)
         attrs.update(
-            self._parse_extra_properties(parsed_args.extra_properties))
+            self._parse_extra_properties(parsed_args.extra_properties)
+        )
         with common.check_missing_extension_if_error(
-                self.app.client_manager.network, attrs):
+            self.app.client_manager.network, attrs
+        ):
             obj = client.create_ip(**attrs)
 
         # tags cannot be set when created, so tags need to be set later.
@@ -206,7 +218,7 @@ class DeleteFloatingIP(common.NetworkAndComputeDelete):
             'floating_ip',
             metavar="<floating-ip>",
             nargs="+",
-            help=_("Floating IP(s) to delete (IP address or ID)")
+            help=_("Floating IP(s) to delete (IP address or ID)"),
         )
         return parser
 
@@ -232,60 +244,79 @@ class ListFloatingIP(common.NetworkAndComputeLister):
             '--network',
             metavar='<network>',
             help=self.enhance_help_neutron(
-                _("List floating IP(s) according to "
-                  "given network (name or ID)"))
+                _(
+                    "List floating IP(s) according to "
+                    "given network (name or ID)"
+                )
+            ),
         )
         parser.add_argument(
             '--port',
             metavar='<port>',
             help=self.enhance_help_neutron(
-                _("List floating IP(s) according to given port (name or ID)"))
+                _("List floating IP(s) according to given port (name or ID)")
+            ),
         )
         parser.add_argument(
             '--fixed-ip-address',
             metavar='<ip-address>',
             help=self.enhance_help_neutron(
-                _("List floating IP(s) according to given fixed IP address"))
+                _("List floating IP(s) according to given fixed IP address")
+            ),
         )
         parser.add_argument(
             '--floating-ip-address',
             metavar='<ip-address>',
             help=self.enhance_help_neutron(
-                _("List floating IP(s) according to given floating IP "
-                  "address"))
+                _(
+                    "List floating IP(s) according to given floating IP "
+                    "address"
+                )
+            ),
         )
         parser.add_argument(
             '--long',
             action='store_true',
             default=False,
             help=self.enhance_help_neutron(
-                _("List additional fields in output"))
+                _("List additional fields in output")
+            ),
         )
         parser.add_argument(
             '--status',
             metavar='<status>',
             choices=['ACTIVE', 'DOWN'],
             help=self.enhance_help_neutron(
-                _("List floating IP(s) according to given status ('ACTIVE', "
-                  "'DOWN')"))
+                _(
+                    "List floating IP(s) according to given status ('ACTIVE', "
+                    "'DOWN')"
+                )
+            ),
         )
         parser.add_argument(
             '--project',
             metavar='<project>',
             help=self.enhance_help_neutron(
-                _("List floating IP(s) according to given project (name or "
-                  "ID)"))
+                _(
+                    "List floating IP(s) according to given project (name or "
+                    "ID)"
+                )
+            ),
         )
         identity_common.add_project_domain_option_to_parser(parser)
         parser.add_argument(
             '--router',
             metavar='<router>',
             help=self.enhance_help_neutron(
-                _("List floating IP(s) according to given router (name or "
-                  "ID)"))
+                _(
+                    "List floating IP(s) according to given router (name or "
+                    "ID)"
+                )
+            ),
         )
         _tag.add_tag_filtering_option_to_parser(
-            parser, _('floating IP'), enhance_help=self.enhance_help_neutron)
+            parser, _('floating IP'), enhance_help=self.enhance_help_neutron
+        )
 
         return parser
 
@@ -330,12 +361,14 @@ class ListFloatingIP(common.NetworkAndComputeLister):
         query = {}
 
         if parsed_args.network is not None:
-            network = network_client.find_network(parsed_args.network,
-                                                  ignore_missing=False)
+            network = network_client.find_network(
+                parsed_args.network, ignore_missing=False
+            )
             query['floating_network_id'] = network.id
         if parsed_args.port is not None:
-            port = network_client.find_port(parsed_args.port,
-                                            ignore_missing=False)
+            port = network_client.find_port(
+                parsed_args.port, ignore_missing=False
+            )
             query['port_id'] = port.id
         if parsed_args.fixed_ip_address is not None:
             query['fixed_ip_address'] = parsed_args.fixed_ip_address
@@ -351,19 +384,26 @@ class ListFloatingIP(common.NetworkAndComputeLister):
             )
             query['project_id'] = project.id
         if parsed_args.router is not None:
-            router = network_client.find_router(parsed_args.router,
-                                                ignore_missing=False)
+            router = network_client.find_router(
+                parsed_args.router, ignore_missing=False
+            )
             query['router_id'] = router.id
 
         _tag.get_tag_filtering_args(parsed_args, query)
 
         data = client.ips(**query)
 
-        return (headers,
-                (utils.get_item_properties(
-                    s, columns,
+        return (
+            headers,
+            (
+                utils.get_item_properties(
+                    s,
+                    columns,
                     formatters={},
-                ) for s in data))
+                )
+                for s in data
+            ),
+        )
 
     def take_action_compute(self, client, parsed_args):
         columns = (
@@ -383,11 +423,17 @@ class ListFloatingIP(common.NetworkAndComputeLister):
 
         data = client.api.floating_ip_list()
 
-        return (headers,
-                (utils.get_dict_properties(
-                    s, columns,
+        return (
+            headers,
+            (
+                utils.get_dict_properties(
+                    s,
+                    columns,
                     formatters={},
-                ) for s in data))
+                )
+                for s in data
+            ),
+        )
 
 
 class SetFloatingIP(common.NeutronCommandWithExtraArgs):
@@ -398,33 +444,37 @@ class SetFloatingIP(common.NeutronCommandWithExtraArgs):
         parser.add_argument(
             'floating_ip',
             metavar='<floating-ip>',
-            help=_("Floating IP to modify (IP address or ID)"))
+            help=_("Floating IP to modify (IP address or ID)"),
+        )
         parser.add_argument(
             '--port',
             metavar='<port>',
-            help=_("Associate the floating IP with port (name or ID)")),
+            help=_("Associate the floating IP with port (name or ID)"),
+        ),
         parser.add_argument(
             '--fixed-ip-address',
             metavar='<ip-address>',
             dest='fixed_ip_address',
-            help=_("Fixed IP of the port "
-                   "(required only if port has multiple IPs)")
+            help=_(
+                "Fixed IP of the port "
+                "(required only if port has multiple IPs)"
+            ),
         )
         parser.add_argument(
             '--description',
             metavar='<description>',
-            help=_('Set floating IP description')
+            help=_('Set floating IP description'),
         )
         qos_policy_group = parser.add_mutually_exclusive_group()
         qos_policy_group.add_argument(
             '--qos-policy',
             metavar='<qos-policy>',
-            help=_("Attach QoS policy to the floating IP (name or ID)")
+            help=_("Attach QoS policy to the floating IP (name or ID)"),
         )
         qos_policy_group.add_argument(
             '--no-qos-policy',
             action='store_true',
-            help=_("Remove the QoS policy attached to the floating IP")
+            help=_("Remove the QoS policy attached to the floating IP"),
         )
 
         _tag.add_tag_option_to_parser_for_set(parser, _('floating IP'))
@@ -439,8 +489,7 @@ class SetFloatingIP(common.NeutronCommandWithExtraArgs):
             ignore_missing=False,
         )
         if parsed_args.port:
-            port = client.find_port(parsed_args.port,
-                                    ignore_missing=False)
+            port = client.find_port(parsed_args.port, ignore_missing=False)
             attrs['port_id'] = port.id
 
         if parsed_args.fixed_ip_address:
@@ -451,13 +500,15 @@ class SetFloatingIP(common.NeutronCommandWithExtraArgs):
 
         if parsed_args.qos_policy:
             attrs['qos_policy_id'] = client.find_qos_policy(
-                parsed_args.qos_policy, ignore_missing=False).id
+                parsed_args.qos_policy, ignore_missing=False
+            ).id
 
         if 'no_qos_policy' in parsed_args and parsed_args.no_qos_policy:
             attrs['qos_policy_id'] = None
 
         attrs.update(
-            self._parse_extra_properties(parsed_args.extra_properties))
+            self._parse_extra_properties(parsed_args.extra_properties)
+        )
 
         if attrs:
             client.update_ip(obj, **attrs)
@@ -473,7 +524,7 @@ class ShowFloatingIP(common.NetworkAndComputeShowOne):
         parser.add_argument(
             'floating_ip',
             metavar="<floating-ip>",
-            help=_("Floating IP to display (IP address or ID)")
+            help=_("Floating IP to display (IP address or ID)"),
         )
         return parser
 
@@ -501,18 +552,19 @@ class UnsetFloatingIP(common.NeutronCommandWithExtraArgs):
         parser.add_argument(
             'floating_ip',
             metavar='<floating-ip>',
-            help=_("Floating IP to disassociate (IP address or ID)"))
+            help=_("Floating IP to disassociate (IP address or ID)"),
+        )
         parser.add_argument(
             '--port',
             action='store_true',
             default=False,
-            help=_("Disassociate any port associated with the floating IP")
+            help=_("Disassociate any port associated with the floating IP"),
         )
         parser.add_argument(
             '--qos-policy',
             action='store_true',
             default=False,
-            help=_("Remove the QoS policy attached to the floating IP")
+            help=_("Remove the QoS policy attached to the floating IP"),
         )
         _tag.add_tag_option_to_parser_for_unset(parser, _('floating IP'))
 
@@ -530,7 +582,8 @@ class UnsetFloatingIP(common.NeutronCommandWithExtraArgs):
         if parsed_args.qos_policy:
             attrs['qos_policy_id'] = None
         attrs.update(
-            self._parse_extra_properties(parsed_args.extra_properties))
+            self._parse_extra_properties(parsed_args.extra_properties)
+        )
 
         if attrs:
             client.update_ip(obj, **attrs)
