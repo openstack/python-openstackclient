@@ -1,0 +1,12 @@
+# You can configure git to automatically use this file with the following config:
+# git config --global blame.ignoreRevsFile .git-blame-ignore-revs
+
+ed0314ac76ae58a6621077feb742efd5c14c3a62  # Blacken everything else
+ac64fdb93c32972575a4523ccb23d0279ef584f5  # Blacken openstackclient.api
+a3778109d0051a25901569e7bafe54915ab25f82  # Blacken openstack.common
+53476e1f73d8af172207ac7089fb85fc0221859f  # Blacken openstackclient.image
+c51e4ef1bc350905a04690eb019d53e68fe3d633  # Blacken openstackclient.object
+af6ea07703ed1c12b86995b97a9618bfa70721ee  # Blacken openstackclient.identity
+1face4f48b07fbc51824980e989687adaf453f0e  # Blacken openstackclient.network
+1ca77acc9118b433c14e03bf9fd28f2b1639c430  # Blacken openstackclient.volume
+4bbf3bd3846cb3d85e243199910de82df25d35e0  # Blacken openstackclient.compute
