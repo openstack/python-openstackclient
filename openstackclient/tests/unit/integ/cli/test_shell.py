@@ -22,7 +22,6 @@ from openstackclient.tests.unit import test_shell
 
 
 class TestIntegShellCliNoAuth(test_base.TestInteg):
-
     def setUp(self):
         super(TestIntegShellCliNoAuth, self).setUp()
         env = {}
@@ -67,7 +66,6 @@ class TestIntegShellCliNoAuth(test_base.TestInteg):
 
 
 class TestIntegShellCliV2(test_base.TestInteg):
-
     def setUp(self):
         super(TestIntegShellCliV2, self).setUp()
         env = {
@@ -155,7 +153,6 @@ class TestIntegShellCliV2(test_base.TestInteg):
 
 
 class TestIntegShellCliV2Ignore(test_base.TestInteg):
-
     def setUp(self):
         super(TestIntegShellCliV2Ignore, self).setUp()
         env = {
@@ -202,7 +199,6 @@ class TestIntegShellCliV2Ignore(test_base.TestInteg):
 
 
 class TestIntegShellCliV3(test_base.TestInteg):
-
     def setUp(self):
         super(TestIntegShellCliV3, self).setUp()
         env = {
@@ -293,7 +289,6 @@ class TestIntegShellCliV3(test_base.TestInteg):
 
 
 class TestIntegShellCliV3Prompt(test_base.TestInteg):
-
     def setUp(self):
         super(TestIntegShellCliV3Prompt, self).setUp()
         env = {
@@ -318,8 +313,7 @@ class TestIntegShellCliV3Prompt(test_base.TestInteg):
 
         # Check password callback set correctly
         self.assertEqual(
-            mock_prompt,
-            _shell.cloud._openstack_config._pw_callback
+            mock_prompt, _shell.cloud._openstack_config._pw_callback
         )
 
         # Check auth request
@@ -358,8 +352,9 @@ class TestIntegShellCliPrecedence(test_base.TestInteg):
         self.token = test_base.make_v3_token(self.requests_mock)
 
         # Patch a v3 auth URL into the o-c-c data
-        test_shell.PUBLIC_1['public-clouds']['megadodo']['auth']['auth_url'] \
-            = test_base.V3_AUTH_URL
+        test_shell.PUBLIC_1['public-clouds']['megadodo']['auth'][
+            'auth_url'
+        ] = test_base.V3_AUTH_URL
 
     def test_shell_args_options(self):
         """Verify command line options override environment variables"""
@@ -432,8 +427,9 @@ class TestIntegShellCliPrecedenceOCC(test_base.TestInteg):
         self.token = test_base.make_v3_token(self.requests_mock)
 
         # Patch a v3 auth URL into the o-c-c data
-        test_shell.PUBLIC_1['public-clouds']['megadodo']['auth']['auth_url'] \
-            = test_base.V3_AUTH_URL
+        test_shell.PUBLIC_1['public-clouds']['megadodo']['auth'][
+            'auth_url'
+        ] = test_base.V3_AUTH_URL
 
     def get_temp_file_path(self, filename):
         """Returns an absolute path for a temporary file.
@@ -457,10 +453,12 @@ class TestIntegShellCliPrecedenceOCC(test_base.TestInteg):
             log_file = self.get_temp_file_path('test_log_file')
             cloud2 = test_shell.get_cloud(log_file)
             return ('file.yaml', cloud2)
+
         config_mock.side_effect = config_mock_return
 
         def vendor_mock_return():
             return ('file.yaml', copy.deepcopy(test_shell.PUBLIC_1))
+
         vendor_mock.side_effect = vendor_mock_return
 
         _shell = shell.OpenStackShell()
@@ -528,10 +526,12 @@ class TestIntegShellCliPrecedenceOCC(test_base.TestInteg):
             log_file = self.get_temp_file_path('test_log_file')
             cloud2 = test_shell.get_cloud(log_file)
             return ('file.yaml', cloud2)
+
         config_mock.side_effect = config_mock_return
 
         def vendor_mock_return():
             return ('file.yaml', copy.deepcopy(test_shell.PUBLIC_1))
+
         vendor_mock.side_effect = vendor_mock_return
 
         _shell = shell.OpenStackShell()

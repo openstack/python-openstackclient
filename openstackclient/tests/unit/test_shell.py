@@ -96,7 +96,7 @@ global_options = {
     '--os-cacert': ('/dev/null', True, True),
     '--timing': (True, True, False),
     '--os-profile': ('SECRET_KEY', True, False),
-    '--os-interface': (DEFAULT_INTERFACE, True, True)
+    '--os-interface': (DEFAULT_INTERFACE, True, True),
 }
 
 
@@ -138,7 +138,6 @@ wrapt.wrap_function_wrapper(
 
 
 class TestShell(osc_lib_test_utils.TestShell):
-
     # Full name of the OpenStackShell class to test (cliff.app.App subclass)
     shell_class_name = "openstackclient.shell.OpenStackShell"
 
@@ -179,8 +178,8 @@ class TestShell(osc_lib_test_utils.TestShell):
 
     def _assert_token_auth(self, cmd_options, default_args):
         with mock.patch(
-                self.app_patch + ".initialize_app",
-                self.app,
+            self.app_patch + ".initialize_app",
+            self.app,
         ):
             _shell = osc_lib_test_utils.make_shell(
                 shell_class=self.shell_class,
@@ -191,20 +190,18 @@ class TestShell(osc_lib_test_utils.TestShell):
 
             self.app.assert_called_with(["list", "role"])
             self.assertEqual(
-                default_args.get("token", ''),
-                _shell.options.token,
-                "token"
+                default_args.get("token", ''), _shell.options.token, "token"
             )
             self.assertEqual(
                 default_args.get("auth_url", ''),
                 _shell.options.auth_url,
-                "auth_url"
+                "auth_url",
             )
 
     def _assert_cli(self, cmd_options, default_args):
         with mock.patch(
-                self.shell_class_name + ".initialize_app",
-                self.app,
+            self.shell_class_name + ".initialize_app",
+            self.app,
         ):
             _shell = osc_lib_test_utils.make_shell(
                 shell_class=self.shell_class,
@@ -213,20 +210,29 @@ class TestShell(osc_lib_test_utils.TestShell):
             osc_lib_test_utils.fake_execute(_shell, _cmd)
 
             self.app.assert_called_with(["list", "server"])
-            self.assertEqual(default_args["compute_api_version"],
-                             _shell.options.os_compute_api_version)
-            self.assertEqual(default_args["identity_api_version"],
-                             _shell.options.os_identity_api_version)
-            self.assertEqual(default_args["image_api_version"],
-                             _shell.options.os_image_api_version)
-            self.assertEqual(default_args["volume_api_version"],
-                             _shell.options.os_volume_api_version)
-            self.assertEqual(default_args["network_api_version"],
-                             _shell.options.os_network_api_version)
+            self.assertEqual(
+                default_args["compute_api_version"],
+                _shell.options.os_compute_api_version,
+            )
+            self.assertEqual(
+                default_args["identity_api_version"],
+                _shell.options.os_identity_api_version,
+            )
+            self.assertEqual(
+                default_args["image_api_version"],
+                _shell.options.os_image_api_version,
+            )
+            self.assertEqual(
+                default_args["volume_api_version"],
+                _shell.options.os_volume_api_version,
+            )
+            self.assertEqual(
+                default_args["network_api_version"],
+                _shell.options.os_network_api_version,
+            )
 
 
 class TestShellOptions(TestShell):
-
     def setUp(self):
         super(TestShellOptions, self).setUp()
         self.useFixture(osc_lib_test_utils.EnvFixture())
@@ -289,7 +295,6 @@ class TestShellOptions(TestShell):
 
 
 class TestShellTokenAuthEnv(TestShell):
-
     def setUp(self):
         super(TestShellTokenAuthEnv, self).setUp()
         env = {
@@ -333,7 +338,6 @@ class TestShellTokenAuthEnv(TestShell):
 
 
 class TestShellTokenEndpointAuthEnv(TestShell):
-
     def setUp(self):
         super(TestShellTokenEndpointAuthEnv, self).setUp()
         env = {
@@ -377,7 +381,6 @@ class TestShellTokenEndpointAuthEnv(TestShell):
 
 
 class TestShellCli(TestShell):
-
     def setUp(self):
         super(TestShellCli, self).setUp()
         env = {
@@ -408,6 +411,6 @@ class TestShellCli(TestShell):
             "identity_api_version": LIB_IDENTITY_API_VERSION,
             "image_api_version": LIB_IMAGE_API_VERSION,
             "volume_api_version": LIB_VOLUME_API_VERSION,
-            "network_api_version": LIB_NETWORK_API_VERSION
+            "network_api_version": LIB_NETWORK_API_VERSION,
         }
         self._assert_cli(flag, kwargs)

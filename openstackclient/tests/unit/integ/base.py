@@ -51,15 +51,19 @@ V3_VERSION_RESP = {
     "version": {
         "status": "stable",
         "updated": "2016-04-04T00:00:00Z",
-        "media-types": [{
-            "base": "application/json",
-            "type": "application/vnd.openstack.identity-v3+json",
-        }],
+        "media-types": [
+            {
+                "base": "application/json",
+                "type": "application/vnd.openstack.identity-v3+json",
+            }
+        ],
         "id": "v3.6",
-        "links": [{
-            "href": V3_AUTH_URL,
-            "rel": "self",
-        }]
+        "links": [
+            {
+                "href": V3_AUTH_URL,
+                "rel": "self",
+            }
+        ],
     }
 }
 
@@ -114,7 +118,6 @@ def make_v3_token(req_mock):
 
 
 class TestInteg(utils.TestCase):
-
     def setUp(self):
         super(TestInteg, self).setUp()
 

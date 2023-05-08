@@ -20,7 +20,6 @@ from openstackclient.tests.unit import test_shell
 
 
 class TestIntegV2ProjectID(test_base.TestInteg):
-
     def setUp(self):
         super(TestIntegV2ProjectID, self).setUp()
         env = {
@@ -78,7 +77,6 @@ class TestIntegV2ProjectID(test_base.TestInteg):
 
 
 class TestIntegV2ProjectName(test_base.TestInteg):
-
     def setUp(self):
         super(TestIntegV2ProjectName, self).setUp()
         env = {
@@ -136,7 +134,6 @@ class TestIntegV2ProjectName(test_base.TestInteg):
 
 
 class TestIntegV3ProjectID(test_base.TestInteg):
-
     def setUp(self):
         super(TestIntegV3ProjectID, self).setUp()
         env = {
@@ -192,7 +189,6 @@ class TestIntegV3ProjectID(test_base.TestInteg):
 
 
 class TestIntegV3ProjectName(test_base.TestInteg):
-
     def setUp(self):
         super(TestIntegV3ProjectName, self).setUp()
         env = {

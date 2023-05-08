@@ -57,6 +57,7 @@ dump_stack_trace = False
 
 # Generally useful stuff often found in a utils module
 
+
 def env(*vars, **kwargs):
     """Search for the first defined of possibly many env vars
 
@@ -72,6 +73,7 @@ def env(*vars, **kwargs):
 
 
 # Common Example functions
+
 
 def base_parser(parser):
     """Set up some of the common CLI options
@@ -128,7 +130,8 @@ def base_parser(parser):
         help="Print API call timing info",
     )
     parser.add_argument(
-        '-v', '--verbose',
+        '-v',
+        '--verbose',
         action='count',
         dest='verbose_level',
         default=1,
@@ -225,15 +228,13 @@ def make_session(opts, **kwargs):
     )
     auth_p = auth_plugin.load_from_options(**auth_params)
 
-    session = ks_session.Session(
-        auth=auth_p,
-        **kwargs
-    )
+    session = ks_session.Session(auth=auth_p, **kwargs)
 
     return session
 
 
 # Top-level functions
+
 
 def run(opts):
     """Default run command"""

@@ -29,8 +29,7 @@ REGION_NAME = "richie"
 INTERFACE = "catchy"
 VERSION = "3"
 
-TEST_RESPONSE_DICT = fixture.V2Token(token_id=AUTH_TOKEN,
-                                     user_name=USERNAME)
+TEST_RESPONSE_DICT = fixture.V2Token(token_id=AUTH_TOKEN, user_name=USERNAME)
 _s = TEST_RESPONSE_DICT.add_service('identity', name='keystone')
 _s.add_endpoint(AUTH_URL + ':5000/v2.0')
 _s = TEST_RESPONSE_DICT.add_service('network', name='neutron')
@@ -49,7 +48,6 @@ TEST_VERSIONS = fixture.DiscoveryList(href=AUTH_URL)
 
 
 class FakeStdout(object):
-
     def __init__(self):
         self.content = []
 
@@ -64,7 +62,6 @@ class FakeStdout(object):
 
 
 class FakeLog(object):
-
     def __init__(self):
         self.messages = {}
 
@@ -85,7 +82,6 @@ class FakeLog(object):
 
 
 class FakeApp(object):
-
     def __init__(self, _stdout, _log):
         self.stdout = _stdout
         self.client_manager = None
@@ -102,7 +98,6 @@ class FakeOptions(object):
 
 
 class FakeClient(object):
-
     def __init__(self, **kwargs):
         self.endpoint = kwargs['endpoint']
         self.token = kwargs['token']
@@ -131,7 +126,6 @@ class FakeClientManager(object):
         self.configuration_type = 'cloud_config'
 
     def get_configuration(self):
-
         config = {
             'region': REGION_NAME,
             'identity_api_version': VERSION,
@@ -161,7 +155,6 @@ class FakeClientManager(object):
 
 
 class FakeModule(object):
-
     def __init__(self, name, version):
         self.name = name
         self.__version__ = version
@@ -171,7 +164,6 @@ class FakeModule(object):
 
 
 class FakeResource(object):
-
     def __init__(self, manager=None, info=None, loaded=False, methods=None):
         """Set attributes and methods for a resource.
 
@@ -195,7 +187,7 @@ class FakeResource(object):
         self._loaded = loaded
 
     def _add_details(self, info):
-        for (k, v) in info.items():
+        for k, v in info.items():
             setattr(self, k, v)
 
     def _add_methods(self, methods):
@@ -206,13 +198,14 @@ class FakeResource(object):
         @value. When users access the attribute with (), @value will be
         returned, which looks like a function call.
         """
-        for (name, ret) in methods.items():
+        for name, ret in methods.items():
             method = mock.Mock(return_value=ret)
             setattr(self, name, method)
 
     def __repr__(self):
-        reprkeys = sorted(k for k in self.__dict__.keys() if k[0] != '_' and
-                          k != 'manager')
+        reprkeys = sorted(
+            k for k in self.__dict__.keys() if k[0] != '_' and k != 'manager'
+        )
         info = ", ".join("%s=%s" % (k, getattr(self, k)) for k in reprkeys)
         return "<%s %s>" % (self.__class__.__name__, info)
 
@@ -237,9 +230,9 @@ class FakeResource(object):
 
 
 class FakeResponse(requests.Response):
-
-    def __init__(self, headers=None, status_code=200,
-                 data=None, encoding=None):
+    def __init__(
+        self, headers=None, status_code=200, data=None, encoding=None
+    ):
         super(FakeResponse, self).__init__()
 
         headers = headers or {}
@@ -253,7 +246,6 @@ class FakeResponse(requests.Response):
 
 
 class FakeModel(dict):
-
     def __getattr__(self, key):
         try:
             return self[key]

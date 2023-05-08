@@ -43,7 +43,7 @@ from sphinx.util import logging
 # https://github.com/sphinx-doc/sphinx/issues/10112 this may be applied as a
 # dirty hack until the issue with replacing extlinks is resolved
 linklogger = logging.getLogger('sphinx.ext.extlinks')
-linklogger.setLevel(40) # Ignore messages less severe than ERROR
+linklogger.setLevel(40)  # Ignore messages less severe than ERROR
 
 extensions = [
     'openstackdocstheme',
@@ -224,10 +224,8 @@ htmlhelp_basename = 'OpenStackClientReleaseNotesdoc'
 latex_elements = {
     # The paper size ('letterpaper' or 'a4paper').
     # 'papersize': 'letterpaper',
-
     # The font size ('10pt', '11pt' or '12pt').
     # 'pointsize': '10pt',
-
     # Additional stuff for the LaTeX preamble.
     # 'preamble': '',
 }
@@ -235,13 +233,15 @@ latex_elements = {
 # Grouping the document tree into LaTeX files. List of tuples
 # (source start file, target name, title,
 #  author, documentclass [howto, manual, or own class]).
-latex_documents = [(
-    'index',
-    'OpenStackClientReleaseNotes.tex',
-    'OpenStackClient Release Notes Documentation',
-    'OpenStackClient  Developers',
-    'manual',
-)]
+latex_documents = [
+    (
+        'index',
+        'OpenStackClientReleaseNotes.tex',
+        'OpenStackClient Release Notes Documentation',
+        'OpenStackClient  Developers',
+        'manual',
+    )
+]
 
 # The name of an image file (relative to this directory) to place at the top of
 # the title page.
@@ -268,13 +268,15 @@ latex_documents = [(
 
 # One entry per manual page. List of tuples
 # (source start file, name, description, authors, manual section).
-man_pages = [(
-    'index',
-    'openstackclientreleasenotes',
-    'OpenStackClient Release Notes Documentation',
-    ['OpenStackClient Developers'],
-    1,
-)]
+man_pages = [
+    (
+        'index',
+        'openstackclientreleasenotes',
+        'OpenStackClient Release Notes Documentation',
+        ['OpenStackClient Developers'],
+        1,
+    )
+]
 
 # If true, show URL addresses after external links.
 # man_show_urls = False
@@ -285,15 +287,17 @@ man_pages = [(
 # Grouping the document tree into Texinfo files. List of tuples
 # (source start file, target name, title, author,
 #  dir menu entry, description, category)
-texinfo_documents = [(
-    'index',
-    'OpenStackClientReleaseNotes',
-    'OpenStackclient Release Notes Documentation',
-    'OpenStackclient Developers',
-    'OpenStackClientReleaseNotes',
-    'A unified command-line client for OpenStack.',
-    'Miscellaneous',
-)]
+texinfo_documents = [
+    (
+        'index',
+        'OpenStackClientReleaseNotes',
+        'OpenStackclient Release Notes Documentation',
+        'OpenStackclient Developers',
+        'OpenStackClientReleaseNotes',
+        'A unified command-line client for OpenStack.',
+        'Miscellaneous',
+    )
+]
 
 # Documents to append as an appendix to all manuals.
 # texinfo_appendices = []

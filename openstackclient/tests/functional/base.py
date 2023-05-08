@@ -40,14 +40,16 @@ def execute(cmd, fail_ok=False, merge_stderr=False):
 
     if not fail_ok and proc.returncode != 0:
         raise exceptions.CommandFailed(
-            proc.returncode, cmd, result_out, result_err,
+            proc.returncode,
+            cmd,
+            result_out,
+            result_err,
         )
 
     return result_out
 
 
 class TestCase(testtools.TestCase):
-
     @classmethod
     def openstack(
         cls,
@@ -128,8 +130,9 @@ class TestCase(testtools.TestCase):
 
     @classmethod
     def get_opts(cls, fields, output_format='value'):
-        return ' -f {0} {1}'.format(output_format,
-                                    ' '.join(['-c ' + it for it in fields]))
+        return ' -f {0} {1}'.format(
+            output_format, ' '.join(['-c ' + it for it in fields])
+        )
 
     @classmethod
     def assertOutput(cls, expected, actual):

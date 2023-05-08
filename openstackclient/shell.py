@@ -31,14 +31,13 @@ DEFAULT_DOMAIN = 'default'
 
 
 class OpenStackShell(shell.OpenStackShell):
-
     def __init__(self):
-
         super(OpenStackShell, self).__init__(
             description=__doc__.strip(),
             version=openstackclient.__version__,
             command_manager=commandmanager.CommandManager('openstack.cli'),
-            deferred_help=True)
+            deferred_help=True,
+        )
 
         self.api_version = {}
 
@@ -51,8 +50,8 @@ class OpenStackShell(shell.OpenStackShell):
 
     def build_option_parser(self, description, version):
         parser = super(OpenStackShell, self).build_option_parser(
-            description,
-            version)
+            description, version
+        )
         parser = clientmanager.build_plugin_option_parser(parser)
         parser = auth.build_auth_plugins_option_parser(parser)
         return parser
@@ -61,7 +60,7 @@ class OpenStackShell(shell.OpenStackShell):
         super(OpenStackShell, self)._final_defaults()
 
         # Set the default plugin to admin_token if endpoint and token are given
-        if (self.options.endpoint and self.options.token):
+        if self.options.endpoint and self.options.token:
             # Use token authentication
             self._auth_type = 'admin_token'
         else:
@@ -96,10 +95,12 @@ class OpenStackShell(shell.OpenStackShell):
                     if version_opt not in mod_versions:
                         sorted_versions = sorted(
                             mod.API_VERSIONS.keys(),
-                            key=lambda s: list(map(int, s.split('.'))))
+                            key=lambda s: list(map(int, s.split('.'))),
+                        )
                         self.log.warning(
                             "%s version %s is not in supported versions: %s"
-                            % (api, version_opt, ', '.join(sorted_versions)))
+                            % (api, version_opt, ', '.join(sorted_versions))
+                        )
 
                 # Command groups deal only with major versions
                 version = '.v' + version_opt.replace('.', '_').split('_')[0]
@@ -107,7 +108,7 @@ class OpenStackShell(shell.OpenStackShell):
                 self.command_manager.add_command_group(cmd_group)
                 self.log.debug(
                     '%(name)s API version %(version)s, cmd group %(group)s',
-                    {'name': api, 'version': version_opt, 'group': cmd_group}
+                    {'name': api, 'version': version_opt, 'group': cmd_group},
                 )
 
     def _load_commands(self):
@@ -116,8 +117,7 @@ class OpenStackShell(shell.OpenStackShell):
         osc-lib has no opinion on what commands should be loaded
         """
         # Commands that span multiple APIs
-        self.command_manager.add_command_group(
-            'openstack.common')
+        self.command_manager.add_command_group('openstack.common')
 
         # This is the naive extension implementation referred to in
         # blueprint 'client-extensions'
@@ -129,8 +129,7 @@ class OpenStackShell(shell.OpenStackShell):
         #         'show_repo=qaz.github.repo:ShowRepo',
         #     ],
         # }
-        self.command_manager.add_command_group(
-            'openstack.extension')
+        self.command_manager.add_command_group('openstack.extension')
 
     def initialize_app(self, argv):
         super(OpenStackShell, self).initialize_app(argv)

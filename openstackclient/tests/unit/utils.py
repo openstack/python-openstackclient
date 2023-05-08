@@ -29,22 +29,26 @@ class ParserException(Exception):
 
 class CompareBySet(list):
     """Class to compare value using set."""
+
     def __eq__(self, other):
         return set(self) == set(other)
 
 
 class TestCase(testtools.TestCase):
-
     def setUp(self):
         testtools.TestCase.setUp(self)
 
-        if (os.environ.get("OS_STDOUT_CAPTURE") == "True" or
-                os.environ.get("OS_STDOUT_CAPTURE") == "1"):
+        if (
+            os.environ.get("OS_STDOUT_CAPTURE") == "True"
+            or os.environ.get("OS_STDOUT_CAPTURE") == "1"
+        ):
             stdout = self.useFixture(fixtures.StringStream("stdout")).stream
             self.useFixture(fixtures.MonkeyPatch("sys.stdout", stdout))
 
-        if (os.environ.get("OS_STDERR_CAPTURE") == "True" or
-                os.environ.get("OS_STDERR_CAPTURE") == "1"):
+        if (
+            os.environ.get("OS_STDERR_CAPTURE") == "True"
+            or os.environ.get("OS_STDERR_CAPTURE") == "1"
+        ):
             stderr = self.useFixture(fixtures.StringStream("stderr")).stream
             self.useFixture(fixtures.MonkeyPatch("sys.stderr", stderr))
 
@@ -76,8 +80,9 @@ class TestCommand(TestCase):
             try:
                 parsed_args = cmd_parser.parse_args(args)
             except SystemExit:
-                raise ParserException("Argument parse failed: %s" %
-                                      stderr.getvalue())
+                raise ParserException(
+                    "Argument parse failed: %s" % stderr.getvalue()
+                )
         for av in verify_args:
             attr, value = av
             if attr:
