@@ -30,10 +30,18 @@ FAKE_CONTAINER = 'rainbarrel'
 FAKE_OBJECT = 'spigot'
 
 LIST_CONTAINER_RESP = [
-    {"name": "qaz", "count": 0, "bytes": 0,
-     "last_modified": "2020-05-16T05:52:07.377550"},
-    {"name": "fred", "count": 0, "bytes": 0,
-     "last_modified": "2020-05-16T05:55:07.377550"},
+    {
+        "name": "qaz",
+        "count": 0,
+        "bytes": 0,
+        "last_modified": "2020-05-16T05:52:07.377550",
+    },
+    {
+        "name": "fred",
+        "count": 0,
+        "bytes": 0,
+        "last_modified": "2020-05-16T05:55:07.377550",
+    },
 ]
 
 LIST_OBJECT_RESP = [
@@ -43,7 +51,6 @@ LIST_OBJECT_RESP = [
 
 
 class TestObjectAPIv1(utils.TestCase):
-
     def setUp(self):
         super(TestObjectAPIv1, self).setUp()
         sess = session.Session()
@@ -52,7 +59,6 @@ class TestObjectAPIv1(utils.TestCase):
 
 
 class TestContainer(TestObjectAPIv1):
-
     def setUp(self):
         super(TestContainer, self).setUp()
 
@@ -128,15 +134,17 @@ class TestContainer(TestObjectAPIv1):
         )
         self.requests_mock.register_uri(
             'GET',
-            FAKE_URL +
-            '?marker=%s&limit=1&format=json' % LIST_CONTAINER_RESP[0]['name'],
+            FAKE_URL
+            + '?marker=%s&limit=1&format=json'
+            % LIST_CONTAINER_RESP[0]['name'],
             json=[LIST_CONTAINER_RESP[1]],
             status_code=200,
         )
         self.requests_mock.register_uri(
             'GET',
-            FAKE_URL +
-            '?marker=%s&limit=1&format=json' % LIST_CONTAINER_RESP[1]['name'],
+            FAKE_URL
+            + '?marker=%s&limit=1&format=json'
+            % LIST_CONTAINER_RESP[1]['name'],
             json=[],
             status_code=200,
         )
@@ -151,7 +159,7 @@ class TestContainer(TestObjectAPIv1):
             'X-Container-Meta-Owner': FAKE_ACCOUNT,
             'x-container-object-count': '1',
             'x-container-bytes-used': '577',
-            'x-storage-policy': 'o1--sr-r3'
+            'x-storage-policy': 'o1--sr-r3',
         }
         resp = {
             'account': FAKE_ACCOUNT,
@@ -172,7 +180,6 @@ class TestContainer(TestObjectAPIv1):
 
 
 class TestObject(TestObjectAPIv1):
-
     def setUp(self):
         super(TestObject, self).setUp()
 
@@ -209,7 +216,7 @@ class TestObject(TestObjectAPIv1):
 
     def test_object_create(self):
         self.base_object_create('111\n222\n333\n')
-        self.base_object_create(bytes([0x31, 0x00, 0x0d, 0x0a, 0x7f, 0xff]))
+        self.base_object_create(bytes([0x31, 0x00, 0x0D, 0x0A, 0x7F, 0xFF]))
 
     def test_object_delete(self):
         self.requests_mock.register_uri(
@@ -274,35 +281,35 @@ class TestObject(TestObjectAPIv1):
         )
         self.assertEqual(LIST_CONTAINER_RESP, ret)
 
-#     def test_list_objects_full_listing(self):
-#         sess = self.app.client_manager.session
-#
-#         def side_effect(*args, **kwargs):
-#             rv = sess.get().json.return_value
-#             sess.get().json.return_value = []
-#             sess.get().json.side_effect = None
-#             return rv
-#
-#         resp = [{'name': 'is-name'}]
-#         sess.get().json.return_value = resp
-#         sess.get().json.side_effect = side_effect
-#
-#         data = lib_object.list_objects(
-#             sess,
-#             fake_url,
-#             fake_container,
-#             full_listing=True,
-#         )
-#
-#         # Check expected values
-#         sess.get.assert_called_with(
-#             fake_url + '/' + fake_container,
-#             params={
-#                 'format': 'json',
-#                 'marker': 'is-name',
-#             }
-#         )
-#         self.assertEqual(resp, data)
+    #     def test_list_objects_full_listing(self):
+    #         sess = self.app.client_manager.session
+    #
+    #         def side_effect(*args, **kwargs):
+    #             rv = sess.get().json.return_value
+    #             sess.get().json.return_value = []
+    #             sess.get().json.side_effect = None
+    #             return rv
+    #
+    #         resp = [{'name': 'is-name'}]
+    #         sess.get().json.return_value = resp
+    #         sess.get().json.side_effect = side_effect
+    #
+    #         data = lib_object.list_objects(
+    #             sess,
+    #             fake_url,
+    #             fake_container,
+    #             full_listing=True,
+    #         )
+    #
+    #         # Check expected values
+    #         sess.get.assert_called_with(
+    #             fake_url + '/' + fake_container,
+    #             params={
+    #                 'format': 'json',
+    #                 'marker': 'is-name',
+    #             }
+    #         )
+    #         self.assertEqual(resp, data)
 
     def test_object_show(self):
         headers = {
@@ -323,8 +330,7 @@ class TestObject(TestObjectAPIv1):
             'content-length': '577',
             'last-modified': '20130101',
             'etag': 'qaz',
-            'properties': {'wife': 'Wilma',
-                           'Husband': 'fred'},
+            'properties': {'wife': 'Wilma', 'Husband': 'fred'},
         }
         self.requests_mock.register_uri(
             'HEAD',

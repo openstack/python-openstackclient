@@ -25,7 +25,6 @@ FAKE_URL = 'http://gopher.dev20.com'
 
 
 class TestImageAPIv2(utils.TestCase):
-
     def setUp(self):
         super(TestImageAPIv2, self).setUp()
 
@@ -35,7 +34,6 @@ class TestImageAPIv2(utils.TestCase):
 
 
 class TestImage(TestImageAPIv2):
-
     PUB_PROT = {
         'id': '1',
         'name': 'pub1',

@@ -22,6 +22,7 @@ from osc_lib.i18n import _
 # TODO(dtroyer): Mingrate this to osc-lib
 class InvalidValue(Exception):
     """An argument value is not valid: wrong type, out of range, etc"""
+
     message = "Supplied value is not valid"
 
 
@@ -291,11 +292,7 @@ class APIv2(api.BaseAPI):
         return self.list(url)["hosts"]
 
     def host_set(
-        self,
-        host=None,
-        status=None,
-        maintenance_mode=None,
-        **params
+        self, host=None, status=None, maintenance_mode=None, **params
     ):
         """Modify host properties
 
@@ -576,7 +573,7 @@ class APIv2(api.BaseAPI):
             value=security_group,
         )
         if security_group is not None:
-            for (k, v) in params.items():
+            for k, v in params.items():
                 # Only set a value if it is already present
                 if k in security_group:
                     security_group[k] = v

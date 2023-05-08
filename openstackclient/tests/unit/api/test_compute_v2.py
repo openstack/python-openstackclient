@@ -26,7 +26,6 @@ FAKE_URL = 'http://gopher.com/v2'
 
 
 class TestComputeAPIv2(utils.TestCase):
-
     def setUp(self):
         super(TestComputeAPIv2, self).setUp()
         sess = session.Session()
@@ -35,18 +34,17 @@ class TestComputeAPIv2(utils.TestCase):
 
 
 class TestFloatingIP(TestComputeAPIv2):
-
     FAKE_FLOATING_IP_RESP = {
         'id': 1,
-        'ip': '203.0.113.11',                   # TEST-NET-3
-        'fixed_ip': '198.51.100.11',            # TEST-NET-2
+        'ip': '203.0.113.11',  # TEST-NET-3
+        'fixed_ip': '198.51.100.11',  # TEST-NET-2
         'pool': 'nova',
         'instance_id': None,
     }
     FAKE_FLOATING_IP_RESP_2 = {
         'id': 2,
-        'ip': '203.0.113.12',                   # TEST-NET-3
-        'fixed_ip': '198.51.100.12',            # TEST-NET-2
+        'ip': '203.0.113.12',  # TEST-NET-3
+        'fixed_ip': '198.51.100.12',  # TEST-NET-2
         'pool': 'nova',
         'instance_id': None,
     }
@@ -213,7 +211,6 @@ class TestFloatingIP(TestComputeAPIv2):
 
 
 class TestFloatingIPPool(TestComputeAPIv2):
-
     LIST_FLOATING_IP_POOL_RESP = [
         {"name": "tide"},
         {"name": "press"},
@@ -231,7 +228,6 @@ class TestFloatingIPPool(TestComputeAPIv2):
 
 
 class TestHost(TestComputeAPIv2):
-
     FAKE_HOST_RESP_1 = {
         "zone": "internal",
         "host_name": "myhost",
@@ -340,7 +336,6 @@ class TestHost(TestComputeAPIv2):
 
 
 class TestNetwork(TestComputeAPIv2):
-
     FAKE_NETWORK_RESP = {
         'id': '1',
         'label': 'label1',
@@ -491,20 +486,19 @@ class TestNetwork(TestComputeAPIv2):
 
 
 class TestSecurityGroup(TestComputeAPIv2):
-
     FAKE_SECURITY_GROUP_RESP = {
         'id': '1',
         'name': 'sg1',
         'description': 'test security group',
         'tenant_id': '0123456789',
-        'rules': []
+        'rules': [],
     }
     FAKE_SECURITY_GROUP_RESP_2 = {
         'id': '2',
         'name': 'sg2',
         'description': 'another test security group',
         'tenant_id': '0123456789',
-        'rules': []
+        'rules': [],
     }
     LIST_SECURITY_GROUP_RESP = [
         FAKE_SECURITY_GROUP_RESP_2,
@@ -656,8 +650,8 @@ class TestSecurityGroup(TestComputeAPIv2):
             status_code=200,
         )
         ret = self.api.security_group_set(
-            security_group='1',
-            description='desc2')
+            security_group='1', description='desc2'
+        )
         self.assertEqual(self.FAKE_SECURITY_GROUP_RESP, ret)
 
     def test_security_group_set_options_name(self):
@@ -679,13 +673,12 @@ class TestSecurityGroup(TestComputeAPIv2):
             status_code=200,
         )
         ret = self.api.security_group_set(
-            security_group='sg2',
-            description='desc2')
+            security_group='sg2', description='desc2'
+        )
         self.assertEqual(self.FAKE_SECURITY_GROUP_RESP_2, ret)
 
 
 class TestSecurityGroupRule(TestComputeAPIv2):
-
     FAKE_SECURITY_GROUP_RULE_RESP = {
         'id': '1',
         'name': 'sgr1',

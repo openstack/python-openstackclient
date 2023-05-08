@@ -20,7 +20,6 @@ from openstackclient.tests.unit.api import fakes as api_fakes
 
 
 class TestKeystoneSession(api_fakes.TestSession):
-
     def setUp(self):
         super(TestKeystoneSession, self).setUp()
         self.api = api.KeystoneSession(
@@ -40,7 +39,6 @@ class TestKeystoneSession(api_fakes.TestSession):
 
 
 class TestBaseAPI(api_fakes.TestSession):
-
     def setUp(self):
         super(TestBaseAPI, self).setUp()
         self.api = api.BaseAPI(
@@ -80,7 +78,6 @@ class TestBaseAPI(api_fakes.TestSession):
     # find tests
 
     def test_find_attr_by_id(self):
-
         # All first requests (by name) will fail in this test
         self.requests_mock.register_uri(
             'GET',
@@ -172,7 +169,6 @@ class TestBaseAPI(api_fakes.TestSession):
         self.assertEqual(api_fakes.RESP_ITEM_1, ret)
 
     def test_find_attr_path_resource(self):
-
         # Test resource different than path
         self.requests_mock.register_uri(
             'GET',

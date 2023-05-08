@@ -30,12 +30,7 @@ class KeystoneSession(object):
 
     """
 
-    def __init__(
-        self,
-        session=None,
-        endpoint=None,
-        **kwargs
-    ):
+    def __init__(self, session=None, endpoint=None, **kwargs):
         """Base object that contains some common API objects and methods
 
         :param Session session:
@@ -87,11 +82,7 @@ class BaseAPI(KeystoneSession):
     """Base API"""
 
     def __init__(
-        self,
-        session=None,
-        service_type=None,
-        endpoint=None,
-        **kwargs
+        self, session=None, service_type=None, endpoint=None, **kwargs
     ):
         """Base object that contains some common API objects and methods
 
@@ -110,13 +101,7 @@ class BaseAPI(KeystoneSession):
 
     # The basic action methods all take a Session and return dict/lists
 
-    def create(
-        self,
-        url,
-        session=None,
-        method=None,
-        **params
-    ):
+    def create(self, url, session=None, method=None, **params):
         """Create a new resource
 
         :param string url:
@@ -136,12 +121,7 @@ class BaseAPI(KeystoneSession):
         except json.JSONDecodeError:
             return ret
 
-    def delete(
-        self,
-        url,
-        session=None,
-        **params
-    ):
+    def delete(self, url, session=None, **params):
         """Delete a resource
 
         :param string url:
@@ -152,14 +132,7 @@ class BaseAPI(KeystoneSession):
 
         return self._request('DELETE', url, **params)
 
-    def list(
-        self,
-        path,
-        session=None,
-        body=None,
-        detailed=False,
-        **params
-    ):
+    def list(self, path, session=None, body=None, detailed=False, **params):
         """Return a list of resources
 
         GET ${ENDPOINT}/${PATH}?${PARAMS}
@@ -255,9 +228,7 @@ class BaseAPI(KeystoneSession):
         if len(data) > 1:
             msg = _("Multiple %(resource)s exist with %(attr)s='%(value)s'")
             raise exceptions.CommandError(
-                msg % {'resource': resource,
-                       'attr': attr,
-                       'value': value}
+                msg % {'resource': resource, 'attr': attr, 'value': value}
             )
 
         # Search by id
@@ -267,16 +238,10 @@ class BaseAPI(KeystoneSession):
             return data[0]
         msg = _("No %(resource)s with a %(attr)s or ID of '%(value)s' found")
         raise exceptions.CommandError(
-            msg % {'resource': resource,
-                   'attr': attr,
-                   'value': value}
+            msg % {'resource': resource, 'attr': attr, 'value': value}
         )
 
-    def find_bulk(
-        self,
-        path,
-        **kwargs
-    ):
+    def find_bulk(self, path, **kwargs):
         """Bulk load and filter locally
 
         :param string path:
@@ -302,11 +267,7 @@ class BaseAPI(KeystoneSession):
 
         return ret
 
-    def find_one(
-        self,
-        path,
-        **kwargs
-    ):
+    def find_one(self, path, **kwargs):
         """Find a resource by name or ID
 
         :param string path:

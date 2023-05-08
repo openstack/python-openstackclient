@@ -36,10 +36,7 @@ class APIv1(api.BaseAPI):
         super(APIv1, self).__init__(**kwargs)
 
     def container_create(
-        self,
-        container=None,
-        public=False,
-        storage_policy=None
+        self, container=None, public=False, storage_policy=None
     ):
         """Create a container
 
@@ -62,7 +59,8 @@ class APIv1(api.BaseAPI):
             headers['x-storage-policy'] = storage_policy
 
         response = self.create(
-            urllib.parse.quote(container), method='PUT', headers=headers)
+            urllib.parse.quote(container), method='PUT', headers=headers
+        )
 
         data = {
             'account': self._find_account_id(),
@@ -192,9 +190,7 @@ class APIv1(api.BaseAPI):
         data = {
             'account': self._find_account_id(),
             'container': container,
-            'object_count': response.headers.get(
-                'x-container-object-count'
-            ),
+            'object_count': response.headers.get('x-container-object-count'),
             'bytes_used': response.headers.get('x-container-bytes-used'),
             'storage_policy': response.headers.get('x-storage-policy'),
         }
@@ -208,8 +204,9 @@ class APIv1(api.BaseAPI):
         if 'x-container-sync-key' in response.headers:
             data['sync_key'] = response.headers.get('x-container-sync-key')
 
-        properties = self._get_properties(response.headers,
-                                          'x-container-meta-')
+        properties = self._get_properties(
+            response.headers, 'x-container-meta-'
+        )
         if properties:
             data['properties'] = properties
 
@@ -228,8 +225,9 @@ class APIv1(api.BaseAPI):
             properties to remove from the container
         """
 
-        headers = self._unset_properties(properties,
-                                         'X-Remove-Container-Meta-%s')
+        headers = self._unset_properties(
+            properties, 'X-Remove-Container-Meta-%s'
+        )
         if headers:
             self.create(urllib.parse.quote(container), headers=headers)
 
@@ -259,8 +257,10 @@ class APIv1(api.BaseAPI):
         # object's name in the container.
         object_name_str = name if name else object
 
-        full_url = "%s/%s" % (urllib.parse.quote(container),
-                              urllib.parse.quote(object_name_str))
+        full_url = "%s/%s" % (
+            urllib.parse.quote(container),
+            urllib.parse.quote(object_name_str),
+        )
         with io.open(object, 'rb') as f:
             response = self.create(
                 full_url,
@@ -293,8 +293,10 @@ class APIv1(api.BaseAPI):
         if container is None or object is None:
             return
 
-        self.delete("%s/%s" % (urllib.parse.quote(container),
-                               urllib.parse.quote(object)))
+        self.delete(
+            "%s/%s"
+            % (urllib.parse.quote(container), urllib.parse.quote(object))
+        )
 
     def object_list(
         self,
@@ -394,8 +396,8 @@ class APIv1(api.BaseAPI):
 
         response = self._request(
             'GET',
-            "%s/%s" % (urllib.parse.quote(container),
-                       urllib.parse.quote(object)),
+            "%s/%s"
+            % (urllib.parse.quote(container), urllib.parse.quote(object)),
             stream=True,
         )
         if response.status_code == 200:
@@ -429,9 +431,11 @@ class APIv1(api.BaseAPI):
 
         headers = self._set_properties(properties, 'X-Object-Meta-%s')
         if headers:
-            self.create("%s/%s" % (urllib.parse.quote(container),
-                                   urllib.parse.quote(object)),
-                        headers=headers)
+            self.create(
+                "%s/%s"
+                % (urllib.parse.quote(container), urllib.parse.quote(object)),
+                headers=headers,
+            )
 
     def object_unset(
         self,
@@ -451,9 +455,11 @@ class APIv1(api.BaseAPI):
 
         headers = self._unset_properties(properties, 'X-Remove-Object-Meta-%s')
         if headers:
-            self.create("%s/%s" % (urllib.parse.quote(container),
-                                   urllib.parse.quote(object)),
-                        headers=headers)
+            self.create(
+                "%s/%s"
+                % (urllib.parse.quote(container), urllib.parse.quote(object)),
+                headers=headers,
+            )
 
     def object_show(
         self,
@@ -473,9 +479,11 @@ class APIv1(api.BaseAPI):
         if container is None or object is None:
             return {}
 
-        response = self._request('HEAD', "%s/%s" %
-                                 (urllib.parse.quote(container),
-                                  urllib.parse.quote(object)))
+        response = self._request(
+            'HEAD',
+            "%s/%s"
+            % (urllib.parse.quote(container), urllib.parse.quote(object)),
+        )
 
         data = {
             'account': self._find_account_id(),
@@ -484,9 +492,7 @@ class APIv1(api.BaseAPI):
             'content-type': response.headers.get('content-type'),
         }
         if 'content-length' in response.headers:
-            data['content-length'] = response.headers.get(
-                'content-length'
-            )
+            data['content-length'] = response.headers.get('content-length')
         if 'last-modified' in response.headers:
             data['last-modified'] = response.headers.get('last-modified')
         if 'etag' in response.headers:
@@ -549,8 +555,9 @@ class APIv1(api.BaseAPI):
             properties to remove from the account
         """
 
-        headers = self._unset_properties(properties,
-                                         'X-Remove-Account-Meta-%s')
+        headers = self._unset_properties(
+            properties, 'X-Remove-Account-Meta-%s'
+        )
         if headers:
             self.create("", headers=headers)
 
@@ -596,5 +603,5 @@ class APIv1(api.BaseAPI):
         properties = {}
         for k, v in headers.items():
             if k.lower().startswith(header_tag):
-                properties[k[len(header_tag):]] = v
+                properties[k[len(header_tag) :]] = v
         return properties

@@ -33,11 +33,7 @@ class APIv1(api.BaseAPI):
             self.endpoint = self.endpoint + self._endpoint_suffix
 
     def image_list(
-        self,
-        detailed=False,
-        public=False,
-        private=False,
-        **filter
+        self, detailed=False, public=False, private=False, **filter
     ):
         """Get available images
 
