@@ -88,7 +88,8 @@ class ProjectPurge(command.Command):
             search_opts = {'tenant_id': project_id, 'all_tenants': True}
             data = compute_client.servers.list(search_opts=search_opts)
             self.delete_objects(
-                compute_client.servers.delete, data, 'server', dry_run)
+                compute_client.servers.delete, data, 'server', dry_run
+            )
         except Exception:
             pass
 
@@ -104,7 +105,8 @@ class ProjectPurge(command.Command):
             else:
                 raise NotImplementedError
             self.delete_objects(
-                image_client.images.delete, data, 'image', dry_run)
+                image_client.images.delete, data, 'image', dry_run
+            )
         except Exception:
             pass
 
@@ -117,45 +119,49 @@ class ProjectPurge(command.Command):
                 self.delete_one_volume_snapshot,
                 data,
                 'volume snapshot',
-                dry_run)
+                dry_run,
+            )
         except Exception:
             pass
         try:
             data = volume_client.backups.list(search_opts=search_opts)
             self.delete_objects(
-                self.delete_one_volume_backup,
-                data,
-                'volume backup',
-                dry_run)
+                self.delete_one_volume_backup, data, 'volume backup', dry_run
+            )
         except Exception:
             pass
         try:
             data = volume_client.volumes.list(search_opts=search_opts)
             self.delete_objects(
-                volume_client.volumes.force_delete, data, 'volume', dry_run)
+                volume_client.volumes.force_delete, data, 'volume', dry_run
+            )
         except Exception:
             pass
 
     def delete_objects(self, func_delete, data, resource, dry_run):
         result = 0
         for i in data:
-            LOG.warning(_('Deleting %(resource)s : %(id)s') %
-                        {'resource': resource, 'id': i.id})
+            LOG.warning(
+                _('Deleting %(resource)s : %(id)s')
+                % {'resource': resource, 'id': i.id}
+            )
             if not dry_run:
                 try:
                     func_delete(i.id)
                 except Exception as e:
                     result += 1
-                    LOG.error(_("Failed to delete %(resource)s with "
-                                "ID '%(id)s': %(e)s")
-                              % {'resource': resource, 'id': i.id, 'e': e})
+                    LOG.error(
+                        _(
+                            "Failed to delete %(resource)s with "
+                            "ID '%(id)s': %(e)s"
+                        )
+                        % {'resource': resource, 'id': i.id, 'e': e}
+                    )
         if result > 0:
             total = len(data)
-            msg = (_("%(result)s of %(total)s %(resource)ss failed "
-                   "to delete.") %
-                   {'result': result,
-                    'total': total,
-                    'resource': resource})
+            msg = _(
+                "%(result)s of %(total)s %(resource)ss failed " "to delete."
+            ) % {'result': result, 'total': total, 'resource': resource}
             LOG.error(msg)
 
     def delete_one_volume_snapshot(self, snapshot_id):

@@ -77,18 +77,20 @@ class ClientManager(clientmanager.ClientManager):
         #                CloudConfig.__init__() and we'll die if it was not
         #                passed.
         if (
-                self._auth_required and
-                self._cli_options._openstack_config is not None
+            self._auth_required
+            and self._cli_options._openstack_config is not None
         ):
-            self._cli_options._openstack_config._pw_callback = \
+            self._cli_options._openstack_config._pw_callback = (
                 shell.prompt_for_password
+            )
             try:
                 # We might already get auth from SDK caching
                 if not self._cli_options._auth:
-                    self._cli_options._auth = \
+                    self._cli_options._auth = (
                         self._cli_options._openstack_config.load_auth_plugin(
                             self._cli_options.config,
                         )
+                    )
             except TypeError as e:
                 self._fallback_load_auth_plugin(e)
 
@@ -101,14 +103,14 @@ class ClientManager(clientmanager.ClientManager):
         #                 We know it looks ugly, but it's necessary.
         if self._cli_options.config['auth']['token'] == 'x':
             # restore original auth_type
-            self._cli_options.config['auth_type'] = \
-                self._original_auth_type
+            self._cli_options.config['auth_type'] = self._original_auth_type
             del self._cli_options.config['auth']['token']
             del self._cli_options.config['auth']['endpoint']
-            self._cli_options._auth = \
+            self._cli_options._auth = (
                 self._cli_options._openstack_config.load_auth_plugin(
                     self._cli_options.config,
                 )
+            )
         else:
             raise e
 
@@ -132,8 +134,10 @@ class ClientManager(clientmanager.ClientManager):
         #               name so we need to figure out which version to look
         #               for when calling is_service_available()
         volume_version = volume_client.api_version.ver_major
-        if self.is_service_available(
-                "volumev%s" % volume_version) is not False:
+        if (
+            self.is_service_available("volumev%s" % volume_version)
+            is not False
+        ):
             return True
         elif self.is_service_available('volume') is not False:
             return True
@@ -142,6 +146,7 @@ class ClientManager(clientmanager.ClientManager):
 
 
 # Plugin Support
+
 
 def get_plugin_modules(group):
     """Find plugin entry points"""
@@ -165,7 +170,8 @@ def get_plugin_modules(group):
             module = importlib.import_module(module_name)
         except Exception as err:
             sys.stderr.write(
-                "WARNING: Failed to import plugin %s: %s.\n" % (ep.name, err))
+                "WARNING: Failed to import plugin %s: %s.\n" % (ep.name, err)
+            )
             continue
 
         mod_list.append(module)
@@ -198,6 +204,8 @@ PLUGIN_MODULES = get_plugin_modules(
     'openstack.cli.base',
 )
 # Append list of external plugin modules
-PLUGIN_MODULES.extend(get_plugin_modules(
-    'openstack.cli.extension',
-))
+PLUGIN_MODULES.extend(
+    get_plugin_modules(
+        'openstack.cli.extension',
+    )
+)

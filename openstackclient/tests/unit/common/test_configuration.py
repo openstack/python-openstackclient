@@ -19,7 +19,6 @@ from openstackclient.tests.unit import utils
 
 
 class TestConfiguration(utils.TestCommand):
-
     columns = (
         'auth.password',
         'auth.token',

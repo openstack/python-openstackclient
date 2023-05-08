@@ -18,13 +18,9 @@ from openstackclient.tests.functional import base
 class ModuleTest(base.TestCase):
     """Functional tests for openstackclient module list output."""
 
-    CLIENTS = ['openstackclient',
-               'keystoneclient',
-               'novaclient',
-               'openstack']
+    CLIENTS = ['openstackclient', 'keystoneclient', 'novaclient', 'openstack']
 
-    LIBS = ['osc_lib',
-            'keystoneauth1']
+    LIBS = ['osc_lib', 'keystoneauth1']
 
     def test_module_list(self):
         # Test module list
@@ -42,6 +38,7 @@ class ModuleTest(base.TestCase):
 
 class CommandTest(base.TestCase):
     """Functional tests for openstackclient command list."""
+
     GROUPS = [
         'openstack.volume.v3',
         'openstack.network.v2',
@@ -59,13 +56,7 @@ class CommandTest(base.TestCase):
             self.assertIn(one_group, group_names)
 
     def test_command_list_with_group(self):
-        input_groups = [
-            'volume',
-            'network',
-            'image',
-            'identity',
-            'compute.v2'
-        ]
+        input_groups = ['volume', 'network', 'image', 'identity', 'compute.v2']
         for each_input in input_groups:
             cmd_output = self.openstack(
                 'command list --group %s' % each_input,

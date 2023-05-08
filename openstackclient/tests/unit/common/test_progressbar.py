@@ -19,7 +19,6 @@ from openstackclient.tests.unit import utils
 
 
 class TestProgressBarWrapper(utils.TestCase):
-
     def test_iter_file_display_progress_bar(self):
         size = 98304
         file_obj = io.StringIO('X' * size)
@@ -31,10 +30,7 @@ class TestProgressBarWrapper(utils.TestCase):
             chunk = file_obj.read(chunksize)
             while chunk:
                 chunk = file_obj.read(chunksize)
-            self.assertEqual(
-                '[%s>] 100%%\n' % ('=' * 29),
-                output.getvalue()
-            )
+            self.assertEqual('[%s>] 100%%\n' % ('=' * 29), output.getvalue())
         finally:
             sys.stdout = saved_stdout
 

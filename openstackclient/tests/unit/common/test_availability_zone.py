@@ -53,7 +53,10 @@ def _build_volume_az_datalist(volume_az, long_datalist=False):
         datalist = (
             volume_az.zoneName,
             'available',
-            '', '', '', '',
+            '',
+            '',
+            '',
+            '',
         )
     return (datalist,)
 
@@ -70,13 +73,14 @@ def _build_network_az_datalist(network_az, long_datalist=False):
             network_az.name,
             network_az.state,
             network_az.resource,
-            '', '', '',
+            '',
+            '',
+            '',
         )
     return (datalist,)
 
 
 class TestAvailabilityZone(utils.TestCommand):
-
     def setUp(self):
         super().setUp()
 
@@ -110,9 +114,9 @@ class TestAvailabilityZone(utils.TestCommand):
 
 
 class TestAvailabilityZoneList(TestAvailabilityZone):
-
-    compute_azs = \
+    compute_azs = (
         compute_fakes.FakeAvailabilityZone.create_availability_zones()
+    )
     volume_azs = volume_fakes.create_availability_zones(count=1)
     network_azs = network_fakes.create_availability_zones()
 
@@ -181,14 +185,17 @@ class TestAvailabilityZoneList(TestAvailabilityZone):
         self.assertEqual(self.long_columnslist, columns)
         datalist = ()
         for compute_az in self.compute_azs:
-            datalist += _build_compute_az_datalist(compute_az,
-                                                   long_datalist=True)
+            datalist += _build_compute_az_datalist(
+                compute_az, long_datalist=True
+            )
         for volume_az in self.volume_azs:
-            datalist += _build_volume_az_datalist(volume_az,
-                                                  long_datalist=True)
+            datalist += _build_volume_az_datalist(
+                volume_az, long_datalist=True
+            )
         for network_az in self.network_azs:
-            datalist += _build_network_az_datalist(network_az,
-                                                   long_datalist=True)
+            datalist += _build_network_az_datalist(
+                network_az, long_datalist=True
+            )
         self.assertEqual(datalist, tuple(data))
 
     def test_availability_zone_list_compute(self):

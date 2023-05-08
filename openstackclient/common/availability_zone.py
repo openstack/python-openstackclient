@@ -28,8 +28,9 @@ LOG = logging.getLogger(__name__)
 
 def _xform_common_availability_zone(az, zone_info):
     if hasattr(az, 'zoneState'):
-        zone_info['zone_status'] = ('available' if az.zoneState['available']
-                                    else 'not available')
+        zone_info['zone_status'] = (
+            'available' if az.zoneState['available'] else 'not available'
+        )
     if hasattr(az, 'zoneName'):
         zone_info['zone_name'] = az.zoneName
 
@@ -56,7 +57,8 @@ def _xform_compute_availability_zone(az, include_extra):
                 info['service_status'] = '%s %s %s' % (
                     'enabled' if state['active'] else 'disabled',
                     ':-)' if state['available'] else 'XXX',
-                    state['updated_at'])
+                    state['updated_at'],
+                )
                 result.append(info)
     else:
         zone_info['host_name'] = ''
@@ -141,8 +143,10 @@ class ListAvailabilityZone(command.Lister):
         except Exception as e:
             LOG.debug('Volume availability zone exception: %s', e)
             if parsed_args.volume:
-                message = _("Availability zones list not supported by "
-                            "Block Storage API")
+                message = _(
+                    "Availability zones list not supported by "
+                    "Block Storage API"
+                )
                 LOG.warning(message)
 
         result = []
@@ -154,13 +158,15 @@ class ListAvailabilityZone(command.Lister):
         network_client = self.app.client_manager.network
         try:
             # Verify that the extension exists.
-            network_client.find_extension('Availability Zone',
-                                          ignore_missing=False)
+            network_client.find_extension(
+                'Availability Zone', ignore_missing=False
+            )
         except Exception as e:
             LOG.debug('Network availability zone exception: ', e)
             if parsed_args.network:
-                message = _("Availability zones list not supported by "
-                            "Network API")
+                message = _(
+                    "Availability zones list not supported by " "Network API"
+                )
                 LOG.warning(message)
             return []
 
@@ -170,17 +176,24 @@ class ListAvailabilityZone(command.Lister):
         return result
 
     def take_action(self, parsed_args):
-
         if parsed_args.long:
-            columns = ('Zone Name', 'Zone Status', 'Zone Resource',
-                       'Host Name', 'Service Name', 'Service Status')
+            columns = (
+                'Zone Name',
+                'Zone Status',
+                'Zone Resource',
+                'Host Name',
+                'Service Name',
+                'Service Status',
+            )
         else:
             columns = ('Zone Name', 'Zone Status')
 
         # Show everything by default.
-        show_all = (not parsed_args.compute and
-                    not parsed_args.volume and
-                    not parsed_args.network)
+        show_all = (
+            not parsed_args.compute
+            and not parsed_args.volume
+            and not parsed_args.network
+        )
 
         result = []
         if parsed_args.compute or show_all:
@@ -190,7 +203,7 @@ class ListAvailabilityZone(command.Lister):
         if parsed_args.network or show_all:
             result += self._get_network_availability_zones(parsed_args)
 
-        return (columns,
-                (utils.get_dict_properties(
-                    s, columns
-                ) for s in result))
+        return (
+            columns,
+            (utils.get_dict_properties(s, columns) for s in result),
+        )

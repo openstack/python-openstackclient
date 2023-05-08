@@ -23,7 +23,6 @@ from openstackclient.tests.unit import fakes
 
 
 class TestClientManager(osc_lib_test_utils.TestClientManager):
-
     def _clientmanager_class(self):
         """Allow subclasses to override the ClientManager class"""
         return clientmanager.ClientManager
@@ -54,10 +53,12 @@ class TestClientManager(osc_lib_test_utils.TestClientManager):
 
     def test_client_manager_network_endpoint_disabled(self):
         auth_args = copy.deepcopy(self.default_password_auth)
-        auth_args.update({
-            'user_domain_name': 'default',
-            'project_domain_name': 'default',
-        })
+        auth_args.update(
+            {
+                'user_domain_name': 'default',
+                'project_domain_name': 'default',
+            }
+        )
         # v3 fake doesn't have network endpoint
         client_manager = self._make_clientmanager(
             auth_args=auth_args,

@@ -65,8 +65,14 @@ class ListExtension(command.Lister):
 
     def take_action(self, parsed_args):
         if parsed_args.long:
-            columns = ('Name', 'Alias', 'Description',
-                       'Namespace', 'Updated', 'Links')
+            columns = (
+                'Name',
+                'Alias',
+                'Description',
+                'Namespace',
+                'Updated',
+                'Links',
+            )
         else:
             columns = ('Name', 'Alias', 'Description')
 
@@ -75,10 +81,12 @@ class ListExtension(command.Lister):
         # by default we want to show everything, unless the
         # user specifies one or more of the APIs to show
         # for now, only identity and compute are supported.
-        show_all = (not parsed_args.identity and
-                    not parsed_args.compute and
-                    not parsed_args.volume and
-                    not parsed_args.network)
+        show_all = (
+            not parsed_args.identity
+            and not parsed_args.compute
+            and not parsed_args.volume
+            and not parsed_args.network
+        )
 
         if parsed_args.identity or show_all:
             identity_client = self.app.client_manager.identity
@@ -101,8 +109,9 @@ class ListExtension(command.Lister):
             try:
                 data += volume_client.list_extensions.show_all()
             except Exception:
-                message = _("Extensions list not supported by "
-                            "Block Storage API")
+                message = _(
+                    "Extensions list not supported by " "Block Storage API"
+                )
                 LOG.warning(message)
 
         if parsed_args.network or show_all:
@@ -110,15 +119,17 @@ class ListExtension(command.Lister):
             try:
                 data += network_client.extensions()
             except Exception:
-                message = _("Failed to retrieve extensions list "
-                            "from Network API")
+                message = _(
+                    "Failed to retrieve extensions list " "from Network API"
+                )
                 LOG.warning(message)
 
         extension_tuples = (
             utils.get_item_properties(
                 s,
                 columns,
-            ) for s in data
+            )
+            for s in data
         )
 
         return (columns, extension_tuples)
@@ -132,9 +143,11 @@ class ShowExtension(command.ShowOne):
         parser.add_argument(
             'extension',
             metavar='<extension>',
-            help=_('Extension to display. '
-                   'Currently, only network extensions are supported. '
-                   '(Name or Alias)'),
+            help=_(
+                'Extension to display. '
+                'Currently, only network extensions are supported. '
+                '(Name or Alias)'
+            ),
         )
         return parser
 

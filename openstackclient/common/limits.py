@@ -54,19 +54,22 @@ class ShowLimits(command.Lister):
         parser.add_argument(
             '--project',
             metavar='<project>',
-            help=_('Show limits for a specific project (name or ID)'
-                   ' [only valid with --absolute]'),
+            help=_(
+                'Show limits for a specific project (name or ID)'
+                ' [only valid with --absolute]'
+            ),
         )
         parser.add_argument(
             '--domain',
             metavar='<domain>',
-            help=_('Domain the project belongs to (name or ID)'
-                   ' [only valid with --absolute]'),
+            help=_(
+                'Domain the project belongs to (name or ID)'
+                ' [only valid with --absolute]'
+            ),
         )
         return parser
 
     def take_action(self, parsed_args):
-
         compute_client = self.app.client_manager.compute
         volume_client = self.app.client_manager.volume
 
@@ -74,21 +77,26 @@ class ShowLimits(command.Lister):
         if parsed_args.project is not None:
             identity_client = self.app.client_manager.identity
             if parsed_args.domain is not None:
-                domain = identity_common.find_domain(identity_client,
-                                                     parsed_args.domain)
-                project_id = utils.find_resource(identity_client.projects,
-                                                 parsed_args.project,
-                                                 domain_id=domain.id).id
+                domain = identity_common.find_domain(
+                    identity_client, parsed_args.domain
+                )
+                project_id = utils.find_resource(
+                    identity_client.projects,
+                    parsed_args.project,
+                    domain_id=domain.id,
+                ).id
             else:
-                project_id = utils.find_resource(identity_client.projects,
-                                                 parsed_args.project).id
+                project_id = utils.find_resource(
+                    identity_client.projects, parsed_args.project
+                ).id
 
         compute_limits = None
         volume_limits = None
 
         if self.app.client_manager.is_compute_endpoint_enabled():
-            compute_limits = compute_client.limits.get(parsed_args.is_reserved,
-                                                       tenant_id=project_id)
+            compute_limits = compute_client.limits.get(
+                parsed_args.is_reserved, tenant_id=project_id
+            )
 
         if self.app.client_manager.is_volume_endpoint_enabled(volume_client):
             volume_limits = volume_client.limits.get()
@@ -100,17 +108,33 @@ class ShowLimits(command.Lister):
             if volume_limits:
                 data.append(volume_limits.absolute)
             columns = ["Name", "Value"]
-            return (columns, (utils.get_item_properties(s, columns)
-                              for s in itertools.chain(*data)))
+            return (
+                columns,
+                (
+                    utils.get_item_properties(s, columns)
+                    for s in itertools.chain(*data)
+                ),
+            )
 
         elif parsed_args.is_rate:
             if compute_limits:
                 data.append(compute_limits.rate)
             if volume_limits:
                 data.append(volume_limits.rate)
-            columns = ["Verb", "URI", "Value", "Remain", "Unit",
-                       "Next Available"]
-            return (columns, (utils.get_item_properties(s, columns)
-                              for s in itertools.chain(*data)))
+            columns = [
+                "Verb",
+                "URI",
+                "Value",
+                "Remain",
+                "Unit",
+                "Next Available",
+            ]
+            return (
+                columns,
+                (
+                    utils.get_item_properties(s, columns)
+                    for s in itertools.chain(*data)
+                ),
+            )
         else:
             return {}, {}

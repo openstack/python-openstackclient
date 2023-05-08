@@ -22,18 +22,18 @@ from openstackclient.tests.unit import utils as test_utils
 
 
 class FakeCommand(command.Command):
-
     def take_action(self, parsed_args):
         pass
 
 
 class TestCommand(test_utils.TestCase):
-
     def test_command_has_logger(self):
         cmd = FakeCommand(mock.Mock(), mock.Mock())
         self.assertTrue(hasattr(cmd, 'log'))
-        self.assertEqual('openstackclient.tests.unit.common.test_command.'
-                         'FakeCommand', cmd.log.name)
+        self.assertEqual(
+            'openstackclient.tests.unit.common.test_command.' 'FakeCommand',
+            cmd.log.name,
+        )
 
     def test_validate_os_beta_command_enabled(self):
         cmd = FakeCommand(mock.Mock(), mock.Mock())
@@ -45,5 +45,6 @@ class TestCommand(test_utils.TestCase):
         cmd.validate_os_beta_command_enabled()
 
         cmd.app.options.os_beta_command = False
-        self.assertRaises(exceptions.CommandError,
-                          cmd.validate_os_beta_command_enabled)
+        self.assertRaises(
+            exceptions.CommandError, cmd.validate_os_beta_command_enabled
+        )

@@ -23,17 +23,13 @@ class ConfigurationTests(base.TestCase):
     """Functional test for configuration."""
 
     def test_configuration_show(self):
-
         # Test show without option
         raw_output = self.openstack('configuration show')
         items = self.parse_listing(raw_output)
         self.assert_table_structure(items, BASIC_CONFIG_HEADERS)
 
         cmd_output = self.openstack('configuration show', parse_output=True)
-        self.assertEqual(
-            configuration.REDACTED,
-            cmd_output['auth.password']
-        )
+        self.assertEqual(configuration.REDACTED, cmd_output['auth.password'])
         self.assertIn(
             'auth.password',
             cmd_output.keys(),
@@ -41,30 +37,25 @@ class ConfigurationTests(base.TestCase):
 
         # Test show --mask
         cmd_output = self.openstack(
-            'configuration show --mask', parse_output=True,
+            'configuration show --mask',
+            parse_output=True,
         )
-        self.assertEqual(
-            configuration.REDACTED,
-            cmd_output['auth.password']
-        )
+        self.assertEqual(configuration.REDACTED, cmd_output['auth.password'])
 
         # Test show --unmask
         cmd_output = self.openstack(
-            'configuration show --unmask', parse_output=True,
+            'configuration show --unmask',
+            parse_output=True,
         )
         # If we are using os-client-config, this will not be set.  Rather than
         # parse clouds.yaml to get the right value, just make sure
         # we are not getting redacted.
         passwd = os.environ.get('OS_PASSWORD')
         if passwd:
-            self.assertEqual(
-                passwd,
-                cmd_output['auth.password']
-            )
+            self.assertEqual(passwd, cmd_output['auth.password'])
         else:
             self.assertNotEqual(
-                configuration.REDACTED,
-                cmd_output['auth.password']
+                configuration.REDACTED, cmd_output['auth.password']
             )
 
 
@@ -72,7 +63,6 @@ class ConfigurationTestsNoAuth(base.TestCase):
     """Functional test for configuration with no auth"""
 
     def test_configuration_show(self):
-
         # Test show without option
         raw_output = self.openstack(
             'configuration show',

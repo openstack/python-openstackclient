@@ -17,20 +17,12 @@ from openstackclient.tests.unit.volume.v2 import fakes as volume_fakes
 
 
 class TestComputeLimits(compute_fakes.TestComputev2):
-
     absolute_columns = [
         'Name',
         'Value',
     ]
 
-    rate_columns = [
-        "Verb",
-        "URI",
-        "Value",
-        "Remain",
-        "Unit",
-        "Next Available"
-    ]
+    rate_columns = ["Verb", "URI", "Value", "Remain", "Unit", "Next Available"]
 
     def setUp(self):
         super().setUp()
@@ -77,14 +69,7 @@ class TestVolumeLimits(volume_fakes.TestVolume):
         'Value',
     ]
 
-    rate_columns = [
-        "Verb",
-        "URI",
-        "Value",
-        "Remain",
-        "Unit",
-        "Next Available"
-    ]
+    rate_columns = ["Verb", "URI", "Value", "Remain", "Unit", "Next Available"]
 
     def setUp(self):
         super().setUp()

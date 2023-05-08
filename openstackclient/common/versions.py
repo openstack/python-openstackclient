@@ -46,26 +46,29 @@ class ShowVersions(command.Lister):
         parser.add_argument(
             '--service',
             metavar='<service>',
-            help=_('Show versions for a specific service. The argument should '
-                   'be either an exact match to what is in the catalog or a '
-                   'known official value or alias from '
-                   'service-types-authority '
-                   '(https://service-types.openstack.org/)'),
+            help=_(
+                'Show versions for a specific service. The argument should '
+                'be either an exact match to what is in the catalog or a '
+                'known official value or alias from '
+                'service-types-authority '
+                '(https://service-types.openstack.org/)'
+            ),
         )
         parser.add_argument(
             '--status',
             metavar='<status>',
-            help=_("""Show versions for a specific status. Valid values are:
+            help=_(
+                """Show versions for a specific status. Valid values are:
 
 - SUPPORTED
 - CURRENT
 - DEPRECATED
-- EXPERIMENTAL""")
+- EXPERIMENTAL"""
+            ),
         )
         return parser
 
     def take_action(self, parsed_args):
-
         interface = parsed_args.interface
         if parsed_args.is_all_interfaces:
             interface = None
@@ -74,7 +77,8 @@ class ShowVersions(command.Lister):
         version_data = session.get_all_version_data(
             interface=interface,
             region_name=parsed_args.region_name,
-            service_type=parsed_args.service)
+            service_type=parsed_args.service,
+        )
 
         columns = [
             "Region Name",
@@ -97,13 +101,15 @@ class ShowVersions(command.Lister):
                     for data in service_versions:
                         if status and status != data['status']:
                             continue
-                        versions.append((
-                            region_name,
-                            service_type,
-                            data['version'],
-                            data['status'],
-                            data['url'],
-                            data['min_microversion'],
-                            data['max_microversion'],
-                        ))
+                        versions.append(
+                            (
+                                region_name,
+                                service_type,
+                                data['version'],
+                                data['status'],
+                                data['url'],
+                                data['min_microversion'],
+                                data['max_microversion'],
+                            )
+                        )
         return (columns, versions)

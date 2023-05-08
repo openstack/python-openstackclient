@@ -52,7 +52,6 @@ MODULES = {
 
 
 class TestCommandList(utils.TestCommand):
-
     def setUp(self):
         super(TestCommandList, self).setUp()
 
@@ -81,16 +80,14 @@ class TestCommandList(utils.TestCommand):
         # handling the detection rather than using the hard-code below.
         collist = ('Command Group', 'Commands')
         self.assertEqual(collist, columns)
-        datalist = ((
-            'openstack.common',
-            'limits show\nextension list'
-        ),)
+        datalist = (('openstack.common', 'limits show\nextension list'),)
 
         self.assertEqual(datalist, tuple(data))
 
     def test_command_list_with_group_not_found(self):
         arglist = [
-            '--group', 'not_exist',
+            '--group',
+            'not_exist',
         ]
         verifylist = [
             ('group', 'not_exist'),
@@ -105,7 +102,8 @@ class TestCommandList(utils.TestCommand):
 
     def test_command_list_with_group(self):
         arglist = [
-            '--group', 'common',
+            '--group',
+            'common',
         ]
         verifylist = [
             ('group', 'common'),
@@ -116,10 +114,7 @@ class TestCommandList(utils.TestCommand):
 
         collist = ('Command Group', 'Commands')
         self.assertEqual(collist, columns)
-        datalist = ((
-            'openstack.common',
-            'limits show\nextension list'
-        ),)
+        datalist = (('openstack.common', 'limits show\nextension list'),)
 
         self.assertEqual(datalist, tuple(data))
 
@@ -130,7 +125,6 @@ class TestCommandList(utils.TestCommand):
     clear=True,
 )
 class TestModuleList(utils.TestCommand):
-
     def setUp(self):
         super(TestModuleList, self).setUp()
 

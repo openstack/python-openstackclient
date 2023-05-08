@@ -30,8 +30,9 @@ class QuotaTests(base.TestCase):
     def setUpClass(cls):
         super(QuotaTests, cls).setUpClass()
         cls.haz_network = cls.is_service_enabled('network')
-        cls.PROJECT_NAME =\
-            cls.get_openstack_configuration_value('auth.project_name')
+        cls.PROJECT_NAME = cls.get_openstack_configuration_value(
+            'auth.project_name'
+        )
 
     def test_quota_list_details_compute(self):
         expected_headers = ["Resource", "In Use", "Reserved", "Limit"]
@@ -111,9 +112,9 @@ class QuotaTests(base.TestCase):
         if self.haz_network:
             network_option = "--routers 21 "
         self.openstack(
-            'quota set --cores 31 --backups 41 ' +
-            network_option +
-            self.PROJECT_NAME
+            'quota set --cores 31 --backups 41 '
+            + network_option
+            + self.PROJECT_NAME
         )
         cmd_output = self.openstack(
             'quota show ' + self.PROJECT_NAME,
@@ -151,8 +152,7 @@ class QuotaTests(base.TestCase):
 
     def test_quota_set_class(self):
         self.openstack(
-            'quota set --key-pairs 33 --snapshots 43 ' +
-            '--class default'
+            'quota set --key-pairs 33 --snapshots 43 ' + '--class default'
         )
         cmd_output = self.openstack(
             'quota show --class default',
@@ -194,8 +194,12 @@ class QuotaTests(base.TestCase):
             'quota list --network',
             parse_output=True,
         )
-        self.addCleanup(self._restore_quota_limit, 'network',
-                        cmd_output[0]['Networks'], self.PROJECT_NAME)
+        self.addCleanup(
+            self._restore_quota_limit,
+            'network',
+            cmd_output[0]['Networks'],
+            self.PROJECT_NAME,
+        )
 
         self.openstack('quota set --networks 40 ' + self.PROJECT_NAME)
         cmd_output = self.openstack(
@@ -207,12 +211,16 @@ class QuotaTests(base.TestCase):
 
         # That will ensure we have at least two networks in the system.
         for _ in range(2):
-            self.openstack('network create --project %s %s' %
-                           (self.PROJECT_NAME, uuid.uuid4().hex))
+            self.openstack(
+                'network create --project %s %s'
+                % (self.PROJECT_NAME, uuid.uuid4().hex)
+            )
 
-        self.assertRaises(exceptions.CommandFailed, self.openstack,
-                          'quota set --networks 1 --no-force ' +
-                          self.PROJECT_NAME)
+        self.assertRaises(
+            exceptions.CommandFailed,
+            self.openstack,
+            'quota set --networks 1 --no-force ' + self.PROJECT_NAME,
+        )
 
     def test_quota_network_set_with_force(self):
         self.skipTest('story 2010110')
@@ -232,8 +240,12 @@ class QuotaTests(base.TestCase):
             'quota list --network',
             parse_output=True,
         )
-        self.addCleanup(self._restore_quota_limit, 'network',
-                        cmd_output[0]['Networks'], self.PROJECT_NAME)
+        self.addCleanup(
+            self._restore_quota_limit,
+            'network',
+            cmd_output[0]['Networks'],
+            self.PROJECT_NAME,
+        )
 
         self.openstack('quota set --networks 40 ' + self.PROJECT_NAME)
         cmd_output = self.openstack(
@@ -245,8 +257,10 @@ class QuotaTests(base.TestCase):
 
         # That will ensure we have at least two networks in the system.
         for _ in range(2):
-            self.openstack('network create --project %s %s' %
-                           (self.PROJECT_NAME, uuid.uuid4().hex))
+            self.openstack(
+                'network create --project %s %s'
+                % (self.PROJECT_NAME, uuid.uuid4().hex)
+            )
 
         self.openstack('quota set --networks 1 --force ' + self.PROJECT_NAME)
         cmd_output = self.openstack(

@@ -24,7 +24,6 @@ from openstackclient.tests.unit.volume.v2 import fakes as volume_fakes
 
 
 class TestExtension(utils.TestCommand):
-
     def setUp(self):
         super().setUp()
 
@@ -61,10 +60,15 @@ class TestExtension(utils.TestCommand):
 
 
 class TestExtensionList(TestExtension):
-
     columns = ('Name', 'Alias', 'Description')
-    long_columns = ('Name', 'Alias', 'Description', 'Namespace', 'Updated',
-                    'Links')
+    long_columns = (
+        'Name',
+        'Alias',
+        'Description',
+        'Namespace',
+        'Updated',
+        'Links',
+    )
 
     volume_extension = volume_fakes.create_one_extension()
     identity_extension = identity_fakes.FakeExtension.create_one_extension()
@@ -75,17 +79,20 @@ class TestExtensionList(TestExtension):
         super().setUp()
 
         self.identity_extensions_mock.list.return_value = [
-            self.identity_extension]
+            self.identity_extension
+        ]
         self.compute_extensions_mock.return_value = [self.compute_extension]
         self.volume_extensions_mock.show_all.return_value = [
-            self.volume_extension]
+            self.volume_extension
+        ]
         self.network_extensions_mock.return_value = [self.network_extension]
 
         # Get the command object to test
         self.cmd = extension.ListExtension(self.app, None)
 
-    def _test_extension_list_helper(self, arglist, verifylist,
-                                    expected_data, long=False):
+    def _test_extension_list_helper(
+        self, arglist, verifylist, expected_data, long=False
+    ):
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
         # In base command class Lister in cliff, abstract method take_action()
@@ -184,11 +191,13 @@ class TestExtensionList(TestExtension):
         verifylist = [
             ('identity', True),
         ]
-        datalist = ((
-            self.identity_extension.name,
-            self.identity_extension.alias,
-            self.identity_extension.description,
-        ), )
+        datalist = (
+            (
+                self.identity_extension.name,
+                self.identity_extension.alias,
+                self.identity_extension.description,
+            ),
+        )
         self._test_extension_list_helper(arglist, verifylist, datalist)
         self.identity_extensions_mock.list.assert_called_with()
 
@@ -218,16 +227,19 @@ class TestExtensionList(TestExtension):
             ('network', True),
             ('long', True),
         ]
-        datalist = ((
-            self.network_extension.name,
-            self.network_extension.alias,
-            self.network_extension.description,
-            self.network_extension.namespace,
-            self.network_extension.updated,
-            self.network_extension.links,
-        ), )
-        self._test_extension_list_helper(arglist, verifylist, datalist,
-                                         long=True)
+        datalist = (
+            (
+                self.network_extension.name,
+                self.network_extension.alias,
+                self.network_extension.description,
+                self.network_extension.namespace,
+                self.network_extension.updated,
+                self.network_extension.links,
+            ),
+        )
+        self._test_extension_list_helper(
+            arglist, verifylist, datalist, long=True
+        )
         self.network_extensions_mock.assert_called_with()
 
     def test_extension_list_compute(self):
@@ -237,11 +249,13 @@ class TestExtensionList(TestExtension):
         verifylist = [
             ('compute', True),
         ]
-        datalist = ((
-            self.compute_extension.name,
-            self.compute_extension.alias,
-            self.compute_extension.description,
-        ), )
+        datalist = (
+            (
+                self.compute_extension.name,
+                self.compute_extension.alias,
+                self.compute_extension.description,
+            ),
+        )
         self._test_extension_list_helper(arglist, verifylist, datalist)
         self.compute_extensions_mock.assert_called_with()
 
@@ -277,19 +291,19 @@ class TestExtensionList(TestExtension):
         verifylist = [
             ('volume', True),
         ]
-        datalist = ((
-            self.volume_extension.name,
-            self.volume_extension.alias,
-            self.volume_extension.description,
-        ), )
+        datalist = (
+            (
+                self.volume_extension.name,
+                self.volume_extension.alias,
+                self.volume_extension.description,
+            ),
+        )
         self._test_extension_list_helper(arglist, verifylist, datalist)
         self.volume_extensions_mock.show_all.assert_called_with()
 
 
 class TestExtensionShow(TestExtension):
-    extension_details = (
-        network_fakes.FakeExtension.create_one_extension()
-    )
+    extension_details = network_fakes.FakeExtension.create_one_extension()
 
     columns = (
         'alias',
@@ -306,7 +320,7 @@ class TestExtensionShow(TestExtension):
         extension_details.links,
         extension_details.name,
         extension_details.namespace,
-        extension_details.updated
+        extension_details.updated,
     )
 
     def setUp(self):
@@ -315,14 +329,20 @@ class TestExtensionShow(TestExtension):
         self.cmd = extension.ShowExtension(self.app, None)
 
         self.app.client_manager.network.find_extension = mock.Mock(
-            return_value=self.extension_details)
+            return_value=self.extension_details
+        )
 
     def test_show_no_options(self):
         arglist = []
         verifylist = []
 
-        self.assertRaises(tests_utils.ParserException, self.check_parser,
-                          self.cmd, arglist, verifylist)
+        self.assertRaises(
+            tests_utils.ParserException,
+            self.check_parser,
+            self.cmd,
+            arglist,
+            verifylist,
+        )
 
     def test_show_all_options(self):
         arglist = [
@@ -337,7 +357,8 @@ class TestExtensionShow(TestExtension):
         columns, data = self.cmd.take_action(parsed_args)
 
         self.app.client_manager.network.find_extension.assert_called_with(
-            self.extension_details.alias, ignore_missing=False)
+            self.extension_details.alias, ignore_missing=False
+        )
 
         self.assertEqual(self.columns, columns)
         self.assertEqual(self.data, data)

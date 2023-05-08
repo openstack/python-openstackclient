@@ -38,9 +38,11 @@ class _ProgressBarBase(object):
         if self._show_progress:
             self._percent += size_read / self._totalsize
             # Output something like this: [==========>             ] 49%
-            sys.stdout.write('\r[{0:<30}] {1:.0%}'.format(
-                '=' * int(round(self._percent * 29)) + '>', self._percent
-            ))
+            sys.stdout.write(
+                '\r[{0:<30}] {1:.0%}'.format(
+                    '=' * int(round(self._percent * 29)) + '>', self._percent
+                )
+            )
             sys.stdout.flush()
 
     def __getattr__(self, attr):

@@ -27,8 +27,10 @@ class HelpTests(base.TestCase):
         ('server create', 'Create a new server'),
         ('server delete', 'Delete server(s)'),
         ('server dump create', 'Create a dump file in server(s)'),
-        ('server image create',
-         'Create a new server disk image from an existing server'),
+        (
+            'server image create',
+            'Create a new server disk image from an existing server',
+        ),
         ('server list', 'List servers'),
         ('server lock', 'Lock server(s)'),
         ('server migrate', 'Migrate server to different host'),
@@ -51,7 +53,7 @@ class HelpTests(base.TestCase):
         ('server unpause', 'Unpause server(s)'),
         ('server unrescue', 'Restore server from rescue mode'),
         ('server unset', 'Unset server properties'),
-        ('server unshelve', 'Unshelve server(s)')
+        ('server unshelve', 'Unshelve server(s)'),
     ]
 
     def test_server_commands_main_help(self):
@@ -59,10 +61,14 @@ class HelpTests(base.TestCase):
         raw_output = self.openstack('help')
         for command, description in self.SERVER_COMMANDS:
             msg = 'Command: %s not found in help output:\n%s' % (
-                command, raw_output)
+                command,
+                raw_output,
+            )
             self.assertIn(command, raw_output, msg)
             msg = 'Description: %s not found in help output:\n%s' % (
-                description, raw_output)
+                description,
+                raw_output,
+            )
             self.assertIn(description, raw_output, msg)
 
     def test_server_only_help(self):

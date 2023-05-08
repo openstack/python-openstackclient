@@ -35,8 +35,7 @@ def ask_user_yesno(msg):
     :return bool: User choice
     """
     while True:
-        answer = getpass._raw_input(
-            '{} [{}]: '.format(msg, 'y/n'))
+        answer = getpass._raw_input('{} [{}]: '.format(msg, 'y/n'))
         if answer in ('y', 'Y', 'yes'):
             return True
         elif answer in ('n', 'N', 'no'):
@@ -52,33 +51,33 @@ class ProjectCleanup(command.Command):
         action_group.add_argument(
             '--dry-run',
             action='store_true',
-            help=_("List a project's resources but do not delete them")
+            help=_("List a project's resources but do not delete them"),
         )
         action_group.add_argument(
             '--auto-approve',
             action='store_true',
-            help=_("Delete resources without asking for confirmation")
+            help=_("Delete resources without asking for confirmation"),
         )
         project_group = parser.add_mutually_exclusive_group(required=True)
         project_group.add_argument(
             '--auth-project',
             action='store_true',
-            help=_('Delete resources of the project used to authenticate')
+            help=_('Delete resources of the project used to authenticate'),
         )
         project_group.add_argument(
             '--project',
             metavar='<project>',
-            help=_('Project to clean (name or ID)')
+            help=_('Project to clean (name or ID)'),
         )
         parser.add_argument(
             '--created-before',
             metavar='<YYYY-MM-DDTHH24:MI:SS>',
-            help=_('Only delete resources created before the given time')
+            help=_('Only delete resources created before the given time'),
         )
         parser.add_argument(
             '--updated-before',
             metavar='<YYYY-MM-DDTHH24:MI:SS>',
-            help=_('Only delete resources updated before the given time')
+            help=_('Only delete resources updated before the given time'),
         )
         identity_common.add_project_domain_option_to_parser(parser)
         return parser
@@ -90,16 +89,18 @@ class ProjectCleanup(command.Command):
             project_connect = sdk
         elif parsed_args.project:
             project = sdk.identity.find_project(
-                name_or_id=parsed_args.project,
-                ignore_missing=False)
+                name_or_id=parsed_args.project, ignore_missing=False
+            )
             project_connect = sdk.connect_as_project(project)
 
         if project_connect:
             status_queue = queue.Queue()
-            parsed_args.max_width = int(os.environ.get('CLIFF_MAX_TERM_WIDTH',
-                                                       0))
-            parsed_args.fit_width = bool(int(os.environ.get('CLIFF_FIT_WIDTH',
-                                                            0)))
+            parsed_args.max_width = int(
+                os.environ.get('CLIFF_MAX_TERM_WIDTH', 0)
+            )
+            parsed_args.fit_width = bool(
+                int(os.environ.get('CLIFF_FIT_WIDTH', 0))
+            )
             parsed_args.print_empty = False
             table_fmt = table.TableFormatter()
 
@@ -112,22 +113,20 @@ class ProjectCleanup(command.Command):
             if parsed_args.updated_before:
                 filters['updated_at'] = parsed_args.updated_before
 
-            project_connect.project_cleanup(dry_run=True,
-                                            status_queue=status_queue,
-                                            filters=filters)
+            project_connect.project_cleanup(
+                dry_run=True, status_queue=status_queue, filters=filters
+            )
 
             data = []
             while not status_queue.empty():
                 resource = status_queue.get_nowait()
                 data.append(
-                    (type(resource).__name__, resource.id, resource.name))
+                    (type(resource).__name__, resource.id, resource.name)
+                )
                 status_queue.task_done()
             status_queue.join()
             table_fmt.emit_list(
-                ('Type', 'ID', 'Name'),
-                data,
-                self.app.stdout,
-                parsed_args
+                ('Type', 'ID', 'Name'), data, self.app.stdout, parsed_args
             )
 
             if parsed_args.dry_run:
@@ -135,11 +134,12 @@ class ProjectCleanup(command.Command):
 
             if not parsed_args.auto_approve:
                 if not ask_user_yesno(
-                        _("These resources will be deleted. Are you sure")):
+                    _("These resources will be deleted. Are you sure")
+                ):
                     return
 
             self.log.warning(_('Deleting resources'))
 
-            project_connect.project_cleanup(dry_run=False,
-                                            status_queue=status_queue,
-                                            filters=filters)
+            project_connect.project_cleanup(
+                dry_run=False, status_queue=status_queue, filters=filters
+            )

@@ -53,7 +53,8 @@ class ShowConfiguration(command.ShowOne):
         if getattr(self.app.client_manager, "auth_plugin_name", None):
             auth_plg_name = self.app.client_manager.auth_plugin_name
             secret_opts = [
-                o.dest for o in base.get_plugin_options(auth_plg_name)
+                o.dest
+                for o in base.get_plugin_options(auth_plg_name)
                 if o.secret
             ]
 

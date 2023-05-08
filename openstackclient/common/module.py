@@ -33,9 +33,11 @@ class ListCommand(command.Lister):
         parser.add_argument(
             '--group',
             metavar='<group-keyword>',
-            help=_('Show commands filtered by a command group, for example: '
-                   'identity, volume, compute, image, network and '
-                   'other keywords'),
+            help=_(
+                'Show commands filtered by a command group, for example: '
+                'identity, volume, compute, image, network and '
+                'other keywords'
+            ),
         )
         return parser
 
@@ -54,7 +56,6 @@ class ListCommand(command.Lister):
             command_names = sorted(command_names)
 
             if command_names != []:
-
                 # TODO(bapalm): Fix this when cliff properly supports
                 # handling the detection rather than using the hard-code below.
                 if parsed_args.formatter == 'table':
@@ -81,7 +82,6 @@ class ListModule(command.ShowOne):
         return parser
 
     def take_action(self, parsed_args):
-
         data = {}
         # Get module versions
         mods = sys.modules
@@ -95,9 +95,12 @@ class ListModule(command.ShowOne):
                 #                show for the default (not --all) invocation.
                 #                It should be just the things we actually care
                 #                about like client and plugin modules...
-                if (parsed_args.all or
-                        # Handle xxxclient and openstacksdk
-                        (k.endswith('client') or k == 'openstack')):
+                if (
+                    parsed_args.all
+                    or
+                    # Handle xxxclient and openstacksdk
+                    (k.endswith('client') or k == 'openstack')
+                ):
                     try:
                         # NOTE(RuiChen): openstacksdk bug/1588823 exist,
                         #                no good way to add __version__ for
