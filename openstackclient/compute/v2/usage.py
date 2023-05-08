@@ -54,13 +54,11 @@ class ProjectColumn(cliff_columns.FormattableColumn):
 
 
 class CountColumn(cliff_columns.FormattableColumn):
-
     def human_readable(self):
         return len(self._value) if self._value is not None else None
 
 
 class FloatColumn(cliff_columns.FormattableColumn):
-
     def human_readable(self):
         return float("%.2f" % self._value)
 
@@ -68,7 +66,8 @@ class FloatColumn(cliff_columns.FormattableColumn):
 def _formatters(project_cache):
     return {
         'project_id': functools.partial(
-            ProjectColumn, project_cache=project_cache),
+            ProjectColumn, project_cache=project_cache
+        ),
         'server_usages': CountColumn,
         'total_memory_mb_usage': FloatColumn,
         'total_vcpus_usage': FloatColumn,
@@ -115,19 +114,20 @@ class ListUsage(command.Lister):
             "--start",
             metavar="<start>",
             default=None,
-            help=_("Usage range start date, ex 2012-01-20"
-                   " (default: 4 weeks ago)")
+            help=_(
+                "Usage range start date, ex 2012-01-20"
+                " (default: 4 weeks ago)"
+            ),
         )
         parser.add_argument(
             "--end",
             metavar="<end>",
             default=None,
-            help=_("Usage range end date, ex 2012-01-20 (default: tomorrow)")
+            help=_("Usage range end date, ex 2012-01-20 (default: tomorrow)"),
         )
         return parser
 
     def take_action(self, parsed_args):
-
         def _format_project(project):
             if not project:
                 return ""
@@ -142,14 +142,14 @@ class ListUsage(command.Lister):
             "server_usages",
             "total_memory_mb_usage",
             "total_vcpus_usage",
-            "total_local_gb_usage"
+            "total_local_gb_usage",
         )
         column_headers = (
             "Project",
             "Servers",
             "RAM MB-Hours",
             "CPU Hours",
-            "Disk GB-Hours"
+            "Disk GB-Hours",
         )
 
         date_cli_format = "%Y-%m-%d"
@@ -158,7 +158,8 @@ class ListUsage(command.Lister):
 
         if parsed_args.start:
             start = datetime.datetime.strptime(
-                parsed_args.start, date_cli_format)
+                parsed_args.start, date_cli_format
+            )
         else:
             start = now - datetime.timedelta(weeks=4)
 
@@ -167,10 +168,13 @@ class ListUsage(command.Lister):
         else:
             end = now + datetime.timedelta(days=1)
 
-        usage_list = list(compute_client.usages(
-            start=start.strftime(date_api_format),
-            end=end.strftime(date_api_format),
-            detailed=True))
+        usage_list = list(
+            compute_client.usages(
+                start=start.strftime(date_api_format),
+                end=end.strftime(date_api_format),
+                detailed=True,
+            )
+        )
 
         # Cache the project list
         project_cache = {}
@@ -182,18 +186,23 @@ class ListUsage(command.Lister):
             pass
 
         if parsed_args.formatter == 'table' and len(usage_list) > 0:
-            self.app.stdout.write(_("Usage from %(start)s to %(end)s: \n") % {
-                "start": start.strftime(date_cli_format),
-                "end": end.strftime(date_cli_format),
-            })
+            self.app.stdout.write(
+                _("Usage from %(start)s to %(end)s: \n")
+                % {
+                    "start": start.strftime(date_cli_format),
+                    "end": end.strftime(date_cli_format),
+                }
+            )
 
         return (
             column_headers,
             (
                 utils.get_item_properties(
-                    s, columns,
+                    s,
+                    columns,
                     formatters=_formatters(project_cache),
-                ) for s in usage_list
+                )
+                for s in usage_list
             ),
         )
 
@@ -207,20 +216,22 @@ class ShowUsage(command.ShowOne):
             "--project",
             metavar="<project>",
             default=None,
-            help=_("Name or ID of project to show usage for")
+            help=_("Name or ID of project to show usage for"),
         )
         parser.add_argument(
             "--start",
             metavar="<start>",
             default=None,
-            help=_("Usage range start date, ex 2012-01-20"
-                   " (default: 4 weeks ago)")
+            help=_(
+                "Usage range start date, ex 2012-01-20"
+                " (default: 4 weeks ago)"
+            ),
         )
         parser.add_argument(
             "--end",
             metavar="<end>",
             default=None,
-            help=_("Usage range end date, ex 2012-01-20 (default: tomorrow)")
+            help=_("Usage range end date, ex 2012-01-20 (default: tomorrow)"),
         )
         return parser
 
@@ -233,7 +244,8 @@ class ShowUsage(command.ShowOne):
 
         if parsed_args.start:
             start = datetime.datetime.strptime(
-                parsed_args.start, date_cli_format)
+                parsed_args.start, date_cli_format
+            )
         else:
             start = now - datetime.timedelta(weeks=4)
 
@@ -252,33 +264,37 @@ class ShowUsage(command.ShowOne):
             project = self.app.client_manager.auth_ref.project_id
 
         usage = compute_client.get_usage(
-            project=project, start=start.strftime(date_api_format),
-            end=end.strftime(date_api_format))
+            project=project,
+            start=start.strftime(date_api_format),
+            end=end.strftime(date_api_format),
+        )
 
         if parsed_args.formatter == 'table':
-            self.app.stdout.write(_(
-                "Usage from %(start)s to %(end)s on project %(project)s: \n"
-            ) % {
-                "start": start.strftime(date_cli_format),
-                "end": end.strftime(date_cli_format),
-                "project": project,
-            })
+            self.app.stdout.write(
+                _("Usage from %(start)s to %(end)s on project %(project)s: \n")
+                % {
+                    "start": start.strftime(date_cli_format),
+                    "end": end.strftime(date_cli_format),
+                    "project": project,
+                }
+            )
 
         columns = (
             "project_id",
             "server_usages",
             "total_memory_mb_usage",
             "total_vcpus_usage",
-            "total_local_gb_usage"
+            "total_local_gb_usage",
         )
         column_headers = (
             "Project",
             "Servers",
             "RAM MB-Hours",
             "CPU Hours",
-            "Disk GB-Hours"
+            "Disk GB-Hours",
         )
 
         data = utils.get_item_properties(
-            usage, columns, formatters=_formatters(None))
+            usage, columns, formatters=_formatters(None)
+        )
         return column_headers, data

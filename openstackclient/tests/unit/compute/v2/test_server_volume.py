@@ -23,7 +23,6 @@ from openstackclient.tests.unit.volume.v2 import fakes as volume_fakes
 
 
 class TestServerVolume(compute_fakes.TestComputev2):
-
     def setUp(self):
         super().setUp()
 
@@ -35,7 +34,6 @@ class TestServerVolume(compute_fakes.TestComputev2):
 
 
 class TestServerVolumeList(TestServerVolume):
-
     def setUp(self):
         super().setUp()
 
@@ -44,15 +42,17 @@ class TestServerVolumeList(TestServerVolume):
 
         self.compute_client.find_server.return_value = self.server
         self.compute_client.volume_attachments.return_value = (
-            self.volume_attachments)
+            self.volume_attachments
+        )
 
         # Get the command object to test
         self.cmd = server_volume.ListServerVolume(self.app, None)
 
     @mock.patch.object(sdk_utils, 'supports_microversion')
     def test_server_volume_list(self, sm_mock):
-        self.app.client_manager.compute.api_version = \
-            api_versions.APIVersion('2.1')
+        self.app.client_manager.compute.api_version = api_versions.APIVersion(
+            '2.1'
+        )
         sm_mock.side_effect = [False, False, False, False]
 
         arglist = [
@@ -102,7 +102,14 @@ class TestServerVolumeList(TestServerVolume):
         columns, data = self.cmd.take_action(parsed_args)
 
         self.assertEqual(
-            ('ID', 'Device', 'Server ID', 'Volume ID', 'Tag',), columns,
+            (
+                'ID',
+                'Device',
+                'Server ID',
+                'Volume ID',
+                'Tag',
+            ),
+            columns,
         )
         self.assertEqual(
             (
@@ -142,7 +149,11 @@ class TestServerVolumeList(TestServerVolume):
 
         self.assertEqual(
             (
-                'ID', 'Device', 'Server ID', 'Volume ID', 'Tag',
+                'ID',
+                'Device',
+                'Server ID',
+                'Volume ID',
+                'Tag',
                 'Delete On Termination?',
             ),
             columns,
@@ -174,7 +185,6 @@ class TestServerVolumeList(TestServerVolume):
 
     @mock.patch.object(sdk_utils, 'supports_microversion')
     def test_server_volume_list_with_attachment_ids(self, sm_mock):
-
         sm_mock.side_effect = [True, True, True, True]
         arglist = [
             self.server.id,
@@ -188,8 +198,12 @@ class TestServerVolumeList(TestServerVolume):
 
         self.assertEqual(
             (
-                'Device', 'Server ID', 'Volume ID', 'Tag',
-                'Delete On Termination?', 'Attachment ID',
+                'Device',
+                'Server ID',
+                'Volume ID',
+                'Tag',
+                'Delete On Termination?',
+                'Attachment ID',
                 'BlockDeviceMapping UUID',
             ),
             columns,
@@ -203,8 +217,7 @@ class TestServerVolumeList(TestServerVolume):
                     self.volume_attachments[0].tag,
                     self.volume_attachments[0].delete_on_termination,
                     self.volume_attachments[0].attachment_id,
-                    self.volume_attachments[0].bdm_id
-
+                    self.volume_attachments[0].bdm_id,
                 ),
                 (
                     self.volume_attachments[1].device,
@@ -213,7 +226,7 @@ class TestServerVolumeList(TestServerVolume):
                     self.volume_attachments[1].tag,
                     self.volume_attachments[1].delete_on_termination,
                     self.volume_attachments[1].attachment_id,
-                    self.volume_attachments[1].bdm_id
+                    self.volume_attachments[1].bdm_id,
                 ),
             ),
             tuple(data),
@@ -224,7 +237,6 @@ class TestServerVolumeList(TestServerVolume):
 
 
 class TestServerVolumeUpdate(TestServerVolume):
-
     def setUp(self):
         super().setUp()
 
@@ -299,15 +311,14 @@ class TestServerVolumeUpdate(TestServerVolume):
         result = self.cmd.take_action(parsed_args)
 
         self.compute_client.update_volume_attachment.assert_called_once_with(
-            self.server,
-            self.volume,
-            delete_on_termination=False
+            self.server, self.volume, delete_on_termination=False
         )
         self.assertIsNone(result)
 
     @mock.patch.object(sdk_utils, 'supports_microversion')
     def test_server_volume_update_with_delete_on_termination_pre_v285(
-        self, sm_mock,
+        self,
+        sm_mock,
     ):
         sm_mock.return_value = False
 
@@ -332,7 +343,8 @@ class TestServerVolumeUpdate(TestServerVolume):
 
     @mock.patch.object(sdk_utils, 'supports_microversion')
     def test_server_volume_update_with_preserve_on_termination_pre_v285(
-        self, sm_mock,
+        self,
+        sm_mock,
     ):
         sm_mock.return_value = False
 

@@ -24,7 +24,6 @@ from openstackclient.tests.unit import utils as tests_utils
 
 
 class TestAgent(compute_fakes.TestComputev2):
-
     attr = {}
     attr['agent_id'] = 1
     fake_agent = compute_fakes.FakeAgent.create_one_agent(attr)
@@ -57,7 +56,6 @@ class TestAgent(compute_fakes.TestComputev2):
 
 
 class TestAgentCreate(TestAgent):
-
     def setUp(self):
         super(TestAgentCreate, self).setUp()
 
@@ -84,19 +82,20 @@ class TestAgentCreate(TestAgent):
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
         columns, data = self.cmd.take_action(parsed_args)
-        self.agents_mock.create.assert_called_with(parsed_args.os,
-                                                   parsed_args.architecture,
-                                                   parsed_args.version,
-                                                   parsed_args.url,
-                                                   parsed_args.md5hash,
-                                                   parsed_args.hypervisor)
+        self.agents_mock.create.assert_called_with(
+            parsed_args.os,
+            parsed_args.architecture,
+            parsed_args.version,
+            parsed_args.url,
+            parsed_args.md5hash,
+            parsed_args.hypervisor,
+        )
 
         self.assertEqual(self.columns, columns)
         self.assertEqual(self.data, data)
 
 
 class TestAgentDelete(TestAgent):
-
     fake_agents = compute_fakes.FakeAgent.create_agents(count=2)
 
     def setUp(self):
@@ -106,9 +105,7 @@ class TestAgentDelete(TestAgent):
         self.cmd = agent.DeleteAgent(self.app, None)
 
     def test_delete_one_agent(self):
-        arglist = [
-            self.fake_agents[0].agent_id
-        ]
+        arglist = [self.fake_agents[0].agent_id]
 
         verifylist = [
             ('id', [self.fake_agents[0].agent_id]),
@@ -117,7 +114,8 @@ class TestAgentDelete(TestAgent):
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
         result = self.cmd.take_action(parsed_args)
         self.agents_mock.delete.assert_called_with(
-            self.fake_agents[0].agent_id)
+            self.fake_agents[0].agent_id
+        )
         self.assertIsNone(result)
 
     def test_delete_multiple_agents(self):
@@ -149,15 +147,12 @@ class TestAgentDelete(TestAgent):
 
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
-        ret_delete = [
-            None,
-            None,
-            exceptions.NotFound('404')
-        ]
+        ret_delete = [None, None, exceptions.NotFound('404')]
         self.agents_mock.delete = mock.Mock(side_effect=ret_delete)
 
-        self.assertRaises(exceptions.CommandError, self.cmd.take_action,
-                          parsed_args)
+        self.assertRaises(
+            exceptions.CommandError, self.cmd.take_action, parsed_args
+        )
         calls = [
             call(self.fake_agents[0].agent_id),
             call(self.fake_agents[1].agent_id),
@@ -167,15 +162,16 @@ class TestAgentDelete(TestAgent):
     def test_agent_delete_no_input(self):
         arglist = []
         verifylist = None
-        self.assertRaises(tests_utils.ParserException,
-                          self.check_parser,
-                          self.cmd,
-                          arglist,
-                          verifylist)
+        self.assertRaises(
+            tests_utils.ParserException,
+            self.check_parser,
+            self.cmd,
+            arglist,
+            verifylist,
+        )
 
 
 class TestAgentList(TestAgent):
-
     agents = compute_fakes.FakeAgent.create_agents(count=3)
     list_columns = (
         "Agent ID",
@@ -189,25 +185,25 @@ class TestAgentList(TestAgent):
 
     list_data = []
     for _agent in agents:
-        list_data.append((
-            _agent.agent_id,
-            _agent.hypervisor,
-            _agent.os,
-            _agent.architecture,
-            _agent.version,
-            _agent.md5hash,
-            _agent.url,
-        ))
+        list_data.append(
+            (
+                _agent.agent_id,
+                _agent.hypervisor,
+                _agent.os,
+                _agent.architecture,
+                _agent.version,
+                _agent.md5hash,
+                _agent.url,
+            )
+        )
 
     def setUp(self):
-
         super(TestAgentList, self).setUp()
 
         self.agents_mock.list.return_value = self.agents
         self.cmd = agent.ListAgent(self.app, None)
 
     def test_agent_list(self):
-
         arglist = []
         verifylist = []
 
@@ -218,7 +214,6 @@ class TestAgentList(TestAgent):
         self.assertEqual(self.list_data, list(data))
 
     def test_agent_list_with_hypervisor(self):
-
         arglist = [
             '--hypervisor',
             'hypervisor',
@@ -235,7 +230,6 @@ class TestAgentList(TestAgent):
 
 
 class TestAgentSet(TestAgent):
-
     def setUp(self):
         super(TestAgentSet, self).setUp()
 
@@ -253,16 +247,19 @@ class TestAgentSet(TestAgent):
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
         result = self.cmd.take_action(parsed_args)
 
-        self.agents_mock.update.assert_called_with(parsed_args.id,
-                                                   self.fake_agent.version,
-                                                   self.fake_agent.url,
-                                                   self.fake_agent.md5hash)
+        self.agents_mock.update.assert_called_with(
+            parsed_args.id,
+            self.fake_agent.version,
+            self.fake_agent.url,
+            self.fake_agent.md5hash,
+        )
         self.assertIsNone(result)
 
     def test_agent_set_version(self):
         arglist = [
             '1',
-            '--agent-version', 'new-version',
+            '--agent-version',
+            'new-version',
         ]
 
         verifylist = [
@@ -273,16 +270,19 @@ class TestAgentSet(TestAgent):
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
         result = self.cmd.take_action(parsed_args)
 
-        self.agents_mock.update.assert_called_with(parsed_args.id,
-                                                   parsed_args.version,
-                                                   self.fake_agent.url,
-                                                   self.fake_agent.md5hash)
+        self.agents_mock.update.assert_called_with(
+            parsed_args.id,
+            parsed_args.version,
+            self.fake_agent.url,
+            self.fake_agent.md5hash,
+        )
         self.assertIsNone(result)
 
     def test_agent_set_url(self):
         arglist = [
             '1',
-            '--url', 'new-url',
+            '--url',
+            'new-url',
         ]
 
         verifylist = [
@@ -293,16 +293,19 @@ class TestAgentSet(TestAgent):
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
         result = self.cmd.take_action(parsed_args)
 
-        self.agents_mock.update.assert_called_with(parsed_args.id,
-                                                   self.fake_agent.version,
-                                                   parsed_args.url,
-                                                   self.fake_agent.md5hash)
+        self.agents_mock.update.assert_called_with(
+            parsed_args.id,
+            self.fake_agent.version,
+            parsed_args.url,
+            self.fake_agent.md5hash,
+        )
         self.assertIsNone(result)
 
     def test_agent_set_md5hash(self):
         arglist = [
             '1',
-            '--md5hash', 'new-md5hash',
+            '--md5hash',
+            'new-md5hash',
         ]
 
         verifylist = [
@@ -313,8 +316,10 @@ class TestAgentSet(TestAgent):
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
         result = self.cmd.take_action(parsed_args)
 
-        self.agents_mock.update.assert_called_with(parsed_args.id,
-                                                   self.fake_agent.version,
-                                                   self.fake_agent.url,
-                                                   parsed_args.md5hash)
+        self.agents_mock.update.assert_called_with(
+            parsed_args.id,
+            self.fake_agent.version,
+            self.fake_agent.url,
+            parsed_args.md5hash,
+        )
         self.assertIsNone(result)

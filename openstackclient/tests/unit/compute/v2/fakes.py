@@ -68,7 +68,7 @@ QUOTA = {
     'secgroup_rules': secgroup_rule_num,
     'secgroups': secgroup_num,
     'server-groups': servgroup_num,
-    'server-group-members': servgroup_members_num
+    'server-group-members': servgroup_members_num,
 }
 
 QUOTA_columns = tuple(sorted(QUOTA))
@@ -98,15 +98,15 @@ class FakeAggregate(object):
             "metadata": {
                 "availability_zone": "ag_zone",
                 "key1": "value1",
-            }
+            },
         }
 
         # Overwrite default attributes.
         aggregate_info.update(attrs)
 
         aggregate = fakes.FakeResource(
-            info=copy.deepcopy(aggregate_info),
-            loaded=True)
+            info=copy.deepcopy(aggregate_info), loaded=True
+        )
         return aggregate
 
     @staticmethod
@@ -147,7 +147,6 @@ class FakeAggregate(object):
 
 
 class FakeComputev2Client(object):
-
     def __init__(self, **kwargs):
         self.agents = mock.Mock()
         self.agents.resource_class = fakes.FakeResource(None, {})
@@ -222,7 +221,6 @@ class FakeComputev2Client(object):
 
 
 class TestComputev2(utils.TestCommand):
-
     def setUp(self):
         super(TestComputev2, self).setUp()
 
@@ -286,8 +284,7 @@ class FakeAgent(object):
         # Overwrite default attributes.
         agent_info.update(attrs)
 
-        agent = fakes.FakeResource(info=copy.deepcopy(agent_info),
-                                   loaded=True)
+        agent = fakes.FakeResource(info=copy.deepcopy(agent_info), loaded=True)
         return agent
 
     @staticmethod
@@ -326,21 +323,24 @@ class FakeExtension(object):
         extension_info = {
             'name': 'name-' + uuid.uuid4().hex,
             'namespace': (
-                'http://docs.openstack.org/compute/ext/multinic/api/v1.1'),
+                'http://docs.openstack.org/compute/ext/multinic/api/v1.1'
+            ),
             'description': 'description-' + uuid.uuid4().hex,
             'updated': '2014-01-07T12:00:0-00:00',
             'alias': 'NMN',
-            'links': ('[{"href":'
-                      '"https://github.com/openstack/compute-api", "type":'
-                      ' "text/html", "rel": "describedby"}]')
+            'links': (
+                '[{"href":'
+                '"https://github.com/openstack/compute-api", "type":'
+                ' "text/html", "rel": "describedby"}]'
+            ),
         }
 
         # Overwrite default attributes.
         extension_info.update(attrs)
 
         extension = fakes.FakeResource(
-            info=copy.deepcopy(extension_info),
-            loaded=True)
+            info=copy.deepcopy(extension_info), loaded=True
+        )
         return extension
 
 
@@ -385,7 +385,8 @@ class FakeSecurityGroup(object):
         security_groups = []
         for i in range(0, count):
             security_groups.append(
-                FakeSecurityGroup.create_one_security_group(attrs))
+                FakeSecurityGroup.create_one_security_group(attrs)
+            )
 
         return security_groups
 
@@ -453,7 +454,8 @@ class FakeSecurityGroupRule(object):
         security_group_rules = []
         for i in range(0, count):
             security_group_rules.append(
-                FakeSecurityGroupRule.create_one_security_group_rule(attrs))
+                FakeSecurityGroupRule.create_one_security_group_rule(attrs)
+            )
 
         return security_group_rules
 
@@ -492,9 +494,9 @@ class FakeServer(object):
         # Overwrite default attributes.
         server_info.update(attrs)
 
-        server = fakes.FakeResource(info=copy.deepcopy(server_info),
-                                    methods=methods,
-                                    loaded=True)
+        server = fakes.FakeResource(
+            info=copy.deepcopy(server_info), methods=methods, loaded=True
+        )
         return server
 
     @staticmethod
@@ -611,13 +613,15 @@ def create_one_server_action(attrs=None):
         "action": "create",
         "message": None,
         "project_id": "project-id-" + uuid.uuid4().hex,
-        "events": [{
-            "finish_time": "2017-02-27T07:47:25.000000",
-            "start_time": "2017-02-27T07:47:15.000000",
-            "traceback": None,
-            "event": "compute__do_build_and_run_instance",
-            "result": "Success"
-        }]
+        "events": [
+            {
+                "finish_time": "2017-02-27T07:47:25.000000",
+                "start_time": "2017-02-27T07:47:15.000000",
+                "traceback": None,
+                "event": "compute__do_build_and_run_instance",
+                "result": "Success",
+            }
+        ],
     }
     # Overwrite default attributes
     server_action_info.update(attrs)
@@ -784,7 +788,8 @@ class FakeFlavorAccess(object):
         flavor_access_info.update(attrs)
 
         flavor_access = fakes.FakeResource(
-            info=copy.deepcopy(flavor_access_info), loaded=True)
+            info=copy.deepcopy(flavor_access_info), loaded=True
+        )
 
         return flavor_access
 
@@ -809,14 +814,15 @@ class FakeKeypair(object):
             'type': 'ssh',
             'fingerprint': 'dummy',
             'public_key': 'dummy',
-            'user_id': 'user'
+            'user_id': 'user',
         }
 
         # Overwrite default attributes.
         keypair_info.update(attrs)
 
-        keypair = fakes.FakeResource(info=copy.deepcopy(keypair_info),
-                                     loaded=True)
+        keypair = fakes.FakeResource(
+            info=copy.deepcopy(keypair_info), loaded=True
+        )
 
         return keypair
 
@@ -879,19 +885,23 @@ class FakeAvailabilityZone(object):
         availability_zone = {
             'zoneName': uuid.uuid4().hex,
             'zoneState': {'available': True},
-            'hosts': {host_name: {service_name: {
-                'available': True,
-                'active': True,
-                'updated_at': service_updated_at,
-            }}},
+            'hosts': {
+                host_name: {
+                    service_name: {
+                        'available': True,
+                        'active': True,
+                        'updated_at': service_updated_at,
+                    }
+                }
+            },
         }
 
         # Overwrite default attributes.
         availability_zone.update(attrs)
 
         availability_zone = fakes.FakeResource(
-            info=copy.deepcopy(availability_zone),
-            loaded=True)
+            info=copy.deepcopy(availability_zone), loaded=True
+        )
         return availability_zone
 
     @staticmethod
@@ -907,8 +917,9 @@ class FakeAvailabilityZone(object):
         """
         availability_zones = []
         for i in range(0, count):
-            availability_zone = \
+            availability_zone = (
                 FakeAvailabilityZone.create_one_availability_zone(attrs)
+            )
             availability_zones.append(availability_zone)
 
         return availability_zones
@@ -1200,16 +1211,15 @@ class FakeUsage(object):
                     'instance_id': uuid.uuid4().hex,
                     'state': 'active',
                     'uptime': 3600,
-                    'vcpus': 1
+                    'vcpus': 1,
                 }
-            ]
+            ],
         }
 
         # Overwrite default attributes.
         usage_info.update(attrs)
 
-        usage = fakes.FakeResource(info=copy.deepcopy(usage_info),
-                                   loaded=True)
+        usage = fakes.FakeResource(info=copy.deepcopy(usage_info), loaded=True)
 
         return usage
 
@@ -1252,13 +1262,13 @@ class FakeQuota(object):
             'metadata_items': 10,
             'ram': 51200,
             'server_groups': 10,
-            'server_group_members': 10
+            'server_group_members': 10,
         }
 
         quota_attrs.update(attrs)
         quota = fakes.FakeResource(
-            info=copy.deepcopy(quota_attrs),
-            loaded=True)
+            info=copy.deepcopy(quota_attrs), loaded=True
+        )
 
         quota.project_id = quota_attrs['id']
 
@@ -1282,13 +1292,13 @@ class FakeQuota(object):
             'metadata_items': 10,
             'ram': 51200,
             'server_groups': 10,
-            'server_group_members': 10
+            'server_group_members': 10,
         }
 
         quota_attrs.update(attrs)
         quota = fakes.FakeResource(
-            info=copy.deepcopy(quota_attrs),
-            loaded=True)
+            info=copy.deepcopy(quota_attrs), loaded=True
+        )
 
         quota.project_id = quota_attrs['id']
 
@@ -1306,21 +1316,27 @@ class FakeQuota(object):
             'fixed_ips': {'reserved': 0, 'in_use': 0, 'limit': 30},
             'injected_files': {'reserved': 0, 'in_use': 0, 'limit': 100},
             'injected_file_content_bytes': {
-                'reserved': 0, 'in_use': 0, 'limit': 10240},
+                'reserved': 0,
+                'in_use': 0,
+                'limit': 10240,
+            },
             'injected_file_path_bytes': {
-                'reserved': 0, 'in_use': 0, 'limit': 255},
+                'reserved': 0,
+                'in_use': 0,
+                'limit': 255,
+            },
             'instances': {'reserved': 0, 'in_use': 0, 'limit': 50},
             'key_pairs': {'reserved': 0, 'in_use': 0, 'limit': 20},
             'metadata_items': {'reserved': 0, 'in_use': 0, 'limit': 10},
             'ram': {'reserved': 0, 'in_use': 0, 'limit': 51200},
             'server_groups': {'reserved': 0, 'in_use': 0, 'limit': 10},
-            'server_group_members': {'reserved': 0, 'in_use': 0, 'limit': 10}
+            'server_group_members': {'reserved': 0, 'in_use': 0, 'limit': 10},
         }
 
         quota_attrs.update(attrs)
         quota = fakes.FakeResource(
-            info=copy.deepcopy(quota_attrs),
-            loaded=True)
+            info=copy.deepcopy(quota_attrs), loaded=True
+        )
 
         quota.project_id = quota_attrs['id']
 
@@ -1355,41 +1371,43 @@ class FakeLimits(object):
         absolute_attrs = absolute_attrs or {}
         self.absolute_limits_attrs.update(absolute_attrs)
 
-        self.rate_limits_attrs = [{
-            "uri": "*",
-            "limit": [
-                {
-                    "value": 10,
-                    "verb": "POST",
-                    "remaining": 2,
-                    "unit": "MINUTE",
-                    "next-available": "2011-12-15T22:42:45Z"
-                },
-                {
-                    "value": 10,
-                    "verb": "PUT",
-                    "remaining": 2,
-                    "unit": "MINUTE",
-                    "next-available": "2011-12-15T22:42:45Z"
-                },
-                {
-                    "value": 100,
-                    "verb": "DELETE",
-                    "remaining": 100,
-                    "unit": "MINUTE",
-                    "next-available": "2011-12-15T22:42:45Z"
-                }
-            ]
-        }]
+        self.rate_limits_attrs = [
+            {
+                "uri": "*",
+                "limit": [
+                    {
+                        "value": 10,
+                        "verb": "POST",
+                        "remaining": 2,
+                        "unit": "MINUTE",
+                        "next-available": "2011-12-15T22:42:45Z",
+                    },
+                    {
+                        "value": 10,
+                        "verb": "PUT",
+                        "remaining": 2,
+                        "unit": "MINUTE",
+                        "next-available": "2011-12-15T22:42:45Z",
+                    },
+                    {
+                        "value": 100,
+                        "verb": "DELETE",
+                        "remaining": 100,
+                        "unit": "MINUTE",
+                        "next-available": "2011-12-15T22:42:45Z",
+                    },
+                ],
+            }
+        ]
 
     @property
     def absolute(self):
-        for (name, value) in self.absolute_limits_attrs.items():
+        for name, value in self.absolute_limits_attrs.items():
             yield FakeAbsoluteLimit(name, value)
 
     def absolute_limits(self):
         reference_data = []
-        for (name, value) in self.absolute_limits_attrs.items():
+        for name, value in self.absolute_limits_attrs.items():
             reference_data.append((name, value))
         return reference_data
 
@@ -1398,18 +1416,30 @@ class FakeLimits(object):
         for group in self.rate_limits_attrs:
             uri = group['uri']
             for rate in group['limit']:
-                yield FakeRateLimit(rate['verb'], uri, rate['value'],
-                                    rate['remaining'], rate['unit'],
-                                    rate['next-available'])
+                yield FakeRateLimit(
+                    rate['verb'],
+                    uri,
+                    rate['value'],
+                    rate['remaining'],
+                    rate['unit'],
+                    rate['next-available'],
+                )
 
     def rate_limits(self):
         reference_data = []
         for group in self.rate_limits_attrs:
             uri = group['uri']
             for rate in group['limit']:
-                reference_data.append((rate['verb'], uri, rate['value'],
-                                      rate['remaining'], rate['unit'],
-                                      rate['next-available']))
+                reference_data.append(
+                    (
+                        rate['verb'],
+                        uri,
+                        rate['value'],
+                        rate['remaining'],
+                        rate['unit'],
+                        rate['next-available'],
+                    )
+                )
         return reference_data
 
 
@@ -1424,8 +1454,7 @@ class FakeAbsoluteLimit(object):
 class FakeRateLimit(object):
     """Data model that represents a flattened view of a single rate limit"""
 
-    def __init__(self, verb, uri, value, remain,
-                 unit, next_available):
+    def __init__(self, verb, uri, value, remain, unit, next_available):
         self.verb = verb
         self.uri = uri
         self.value = value
@@ -1534,8 +1563,7 @@ def create_server_migrations(attrs=None, methods=None, count=2):
     """
     migrations = []
     for i in range(0, count):
-        migrations.append(
-            create_one_server_migration(attrs, methods))
+        migrations.append(create_one_server_migration(attrs, methods))
 
     return migrations
 

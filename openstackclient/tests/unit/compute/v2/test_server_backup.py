@@ -23,7 +23,6 @@ from openstackclient.tests.unit.image.v2 import fakes as image_fakes
 
 
 class TestServerBackup(compute_fakes.TestComputev2):
-
     def setUp(self):
         super(TestServerBackup, self).setUp()
 
@@ -58,12 +57,17 @@ class TestServerBackup(compute_fakes.TestComputev2):
 
 
 class TestServerBackupCreate(TestServerBackup):
-
     # Just return whatever Image is testing with these days
     def image_columns(self, image):
         # columnlist = tuple(sorted(image.keys()))
         columnlist = (
-            'id', 'name', 'owner', 'protected', 'status', 'tags', 'visibility'
+            'id',
+            'name',
+            'owner',
+            'protected',
+            'status',
+            'tags',
+            'visibility',
         )
         return columnlist
 
@@ -146,9 +150,12 @@ class TestServerBackupCreate(TestServerBackup):
         images = self.setup_images_mock(count=1, servers=servers)
 
         arglist = [
-            '--name', 'image',
-            '--type', 'daily',
-            '--rotate', '2',
+            '--name',
+            'image',
+            '--type',
+            'daily',
+            '--rotate',
+            '2',
             servers[0].id,
         ]
         verifylist = [
@@ -183,8 +190,10 @@ class TestServerBackupCreate(TestServerBackup):
         )
 
         arglist = [
-            '--name', 'image',
-            '--type', 'daily',
+            '--name',
+            'image',
+            '--type',
+            'daily',
             '--wait',
             servers[0].id,
         ]
@@ -210,9 +219,7 @@ class TestServerBackupCreate(TestServerBackup):
         )
 
         mock_wait_for_status.assert_called_once_with(
-            self.images_mock.get_image,
-            images[0].id,
-            callback=mock.ANY
+            self.images_mock.get_image, images[0].id, callback=mock.ANY
         )
 
     @mock.patch.object(common_utils, 'wait_for_status', return_value=True)
@@ -225,8 +232,10 @@ class TestServerBackupCreate(TestServerBackup):
         )
 
         arglist = [
-            '--name', 'image',
-            '--type', 'daily',
+            '--name',
+            'image',
+            '--type',
+            'daily',
             '--wait',
             servers[0].id,
         ]
@@ -251,9 +260,7 @@ class TestServerBackupCreate(TestServerBackup):
         )
 
         mock_wait_for_status.assert_called_once_with(
-            self.images_mock.get_image,
-            images[0].id,
-            callback=mock.ANY
+            self.images_mock.get_image, images[0].id, callback=mock.ANY
         )
 
         self.assertEqual(self.image_columns(images[0]), columns)

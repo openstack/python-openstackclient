@@ -68,8 +68,11 @@ class KeypairTests(KeypairBase):
         1) Create keypair in setUp
         2) Try to create duplicate keypair with the same name
         """
-        self.assertRaises(exceptions.CommandFailed,
-                          self.openstack, 'keypair create ' + self.KPName)
+        self.assertRaises(
+            exceptions.CommandFailed,
+            self.openstack,
+            'keypair create ' + self.KPName,
+        )
 
     def test_keypair_create_noname(self):
         """Try to create keypair without name.
@@ -77,8 +80,9 @@ class KeypairTests(KeypairBase):
         Test steps:
         1) Try to create keypair without a name
         """
-        self.assertRaises(exceptions.CommandFailed,
-                          self.openstack, 'keypair create')
+        self.assertRaises(
+            exceptions.CommandFailed, self.openstack, 'keypair create'
+        )
 
     def test_keypair_create_public_key(self):
         """Test for create keypair with --public-key option.
@@ -118,11 +122,13 @@ class KeypairTests(KeypairBase):
             self.assertIsNotNone(cmd_output.get('fingerprint'))
             pk_content = f.read()
             self.assertInOutput(
-                '-----BEGIN OPENSSH PRIVATE KEY-----', pk_content,
+                '-----BEGIN OPENSSH PRIVATE KEY-----',
+                pk_content,
             )
             self.assertRegex(pk_content, "[0-9A-Za-z+/]+[=]{0,3}\n")
             self.assertInOutput(
-                '-----END OPENSSH PRIVATE KEY-----', pk_content,
+                '-----END OPENSSH PRIVATE KEY-----',
+                pk_content,
             )
 
     def test_keypair_create(self):
@@ -148,8 +154,11 @@ class KeypairTests(KeypairBase):
         1) Create keypair in setUp
         2) Try to delete not existing keypair
         """
-        self.assertRaises(exceptions.CommandFailed,
-                          self.openstack, 'keypair delete not_existing')
+        self.assertRaises(
+            exceptions.CommandFailed,
+            self.openstack,
+            'keypair delete not_existing',
+        )
 
     def test_keypair_delete(self):
         """Test keypair delete command.

@@ -67,7 +67,6 @@ class CreateServerImage(command.ShowOne):
         return parser
 
     def take_action(self, parsed_args):
-
         def _show_progress(progress):
             if progress:
                 self.app.stdout.write('\rProgress: %s' % progress)
@@ -77,7 +76,8 @@ class CreateServerImage(command.ShowOne):
         image_client = self.app.client_manager.image
 
         server = compute_client.find_server(
-            parsed_args.server, ignore_missing=False,
+            parsed_args.server,
+            ignore_missing=False,
         )
 
         if parsed_args.name:
@@ -100,7 +100,8 @@ class CreateServerImage(command.ShowOne):
                 self.app.stdout.write('\n')
             else:
                 LOG.error(
-                    _('Error creating server image: %s'), parsed_args.server)
+                    _('Error creating server image: %s'), parsed_args.server
+                )
                 raise exceptions.CommandError
 
         image = image_client.find_image(image_id, ignore_missing=False)

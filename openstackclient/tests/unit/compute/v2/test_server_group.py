@@ -25,7 +25,6 @@ from openstackclient.tests.unit import utils as tests_utils
 
 
 class TestServerGroup(compute_fakes.TestComputev2):
-
     fake_server_group = compute_fakes.create_one_server_group()
 
     columns = (
@@ -58,18 +57,19 @@ class TestServerGroup(compute_fakes.TestComputev2):
 
 
 class TestServerGroupCreate(TestServerGroup):
-
     def setUp(self):
         super().setUp()
 
-        self.sdk_client.create_server_group.return_value = \
+        self.sdk_client.create_server_group.return_value = (
             self.fake_server_group
+        )
         self.cmd = server_group.CreateServerGroup(self.app, None)
 
     @mock.patch.object(sdk_utils, 'supports_microversion', return_value=True)
     def test_server_group_create(self, sm_mock):
         arglist = [
-            '--policy', 'anti-affinity',
+            '--policy',
+            'anti-affinity',
             'affinity_group',
         ]
         verifylist = [
@@ -89,7 +89,8 @@ class TestServerGroupCreate(TestServerGroup):
     @mock.patch.object(sdk_utils, 'supports_microversion', return_value=True)
     def test_server_group_create_with_soft_policies(self, sm_mock):
         arglist = [
-            '--policy', 'soft-anti-affinity',
+            '--policy',
+            'soft-anti-affinity',
             'affinity_group',
         ]
         verifylist = [
@@ -109,7 +110,8 @@ class TestServerGroupCreate(TestServerGroup):
     @mock.patch.object(sdk_utils, 'supports_microversion', return_value=False)
     def test_server_group_create_with_soft_policies_pre_v215(self, sm_mock):
         arglist = [
-            '--policy', 'soft-anti-affinity',
+            '--policy',
+            'soft-anti-affinity',
             'affinity_group',
         ]
         verifylist = [
@@ -118,18 +120,19 @@ class TestServerGroupCreate(TestServerGroup):
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
         ex = self.assertRaises(
-            exceptions.CommandError,
-            self.cmd.take_action,
-            parsed_args)
+            exceptions.CommandError, self.cmd.take_action, parsed_args
+        )
         self.assertIn(
-            '--os-compute-api-version 2.15 or greater is required',
-            str(ex))
+            '--os-compute-api-version 2.15 or greater is required', str(ex)
+        )
 
     @mock.patch.object(sdk_utils, 'supports_microversion', return_value=True)
     def test_server_group_create_with_rules(self, sm_mock):
         arglist = [
-            '--policy', 'soft-anti-affinity',
-            '--rule', 'max_server_per_host=2',
+            '--policy',
+            'soft-anti-affinity',
+            '--rule',
+            'max_server_per_host=2',
             'affinity_group',
         ]
         verifylist = [
@@ -149,11 +152,14 @@ class TestServerGroupCreate(TestServerGroup):
         self.assertCountEqual(self.data, data)
 
     @mock.patch.object(
-        sdk_utils, 'supports_microversion', side_effect=[True, False])
+        sdk_utils, 'supports_microversion', side_effect=[True, False]
+    )
     def test_server_group_create_with_rules_pre_v264(self, sm_mock):
         arglist = [
-            '--policy', 'soft-anti-affinity',
-            '--rule', 'max_server_per_host=2',
+            '--policy',
+            'soft-anti-affinity',
+            '--rule',
+            'max_server_per_host=2',
             'affinity_group',
         ]
         verifylist = [
@@ -164,16 +170,14 @@ class TestServerGroupCreate(TestServerGroup):
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
         ex = self.assertRaises(
-            exceptions.CommandError,
-            self.cmd.take_action,
-            parsed_args)
+            exceptions.CommandError, self.cmd.take_action, parsed_args
+        )
         self.assertIn(
-            '--os-compute-api-version 2.64 or greater is required',
-            str(ex))
+            '--os-compute-api-version 2.64 or greater is required', str(ex)
+        )
 
 
 class TestServerGroupDelete(TestServerGroup):
-
     def setUp(self):
         super().setUp()
 
@@ -198,10 +202,7 @@ class TestServerGroupDelete(TestServerGroup):
         self.assertIsNone(result)
 
     def test_server_group_multiple_delete(self):
-        arglist = [
-            'affinity_group',
-            'anti_affinity_group'
-        ]
+        arglist = ['affinity_group', 'anti_affinity_group']
         verifylist = [
             ('server_group', ['affinity_group', 'anti_affinity_group']),
         ]
@@ -221,24 +222,25 @@ class TestServerGroupDelete(TestServerGroup):
     def test_server_group_delete_no_input(self):
         arglist = []
         verifylist = None
-        self.assertRaises(tests_utils.ParserException,
-                          self.check_parser,
-                          self.cmd,
-                          arglist,
-                          verifylist)
+        self.assertRaises(
+            tests_utils.ParserException,
+            self.check_parser,
+            self.cmd,
+            arglist,
+            verifylist,
+        )
 
     def test_server_group_multiple_delete_with_exception(self):
-        arglist = [
-            'affinity_group',
-            'anti_affinity_group'
-        ]
+        arglist = ['affinity_group', 'anti_affinity_group']
         verifylist = [
             ('server_group', ['affinity_group', 'anti_affinity_group']),
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
         self.sdk_client.find_server_group.side_effect = [
-            self.fake_server_group, exceptions.CommandError]
+            self.fake_server_group,
+            exceptions.CommandError,
+        ]
         try:
             self.cmd.take_action(parsed_args)
             self.fail('CommandError should be raised.')
@@ -256,7 +258,6 @@ class TestServerGroupDelete(TestServerGroup):
 
 
 class TestServerGroupList(TestServerGroup):
-
     list_columns = (
         'ID',
         'Name',
@@ -287,43 +288,51 @@ class TestServerGroupList(TestServerGroup):
         'User Id',
     )
 
-    list_data = ((
-        TestServerGroup.fake_server_group.id,
-        TestServerGroup.fake_server_group.name,
-        format_columns.ListColumn(
-            TestServerGroup.fake_server_group.policies
+    list_data = (
+        (
+            TestServerGroup.fake_server_group.id,
+            TestServerGroup.fake_server_group.name,
+            format_columns.ListColumn(
+                TestServerGroup.fake_server_group.policies
+            ),
         ),
-    ),)
+    )
 
-    list_data_long = ((
-        TestServerGroup.fake_server_group.id,
-        TestServerGroup.fake_server_group.name,
-        format_columns.ListColumn(
-            TestServerGroup.fake_server_group.policies
+    list_data_long = (
+        (
+            TestServerGroup.fake_server_group.id,
+            TestServerGroup.fake_server_group.name,
+            format_columns.ListColumn(
+                TestServerGroup.fake_server_group.policies
+            ),
+            format_columns.ListColumn(
+                TestServerGroup.fake_server_group.member_ids
+            ),
+            TestServerGroup.fake_server_group.project_id,
+            TestServerGroup.fake_server_group.user_id,
         ),
-        format_columns.ListColumn(
-            TestServerGroup.fake_server_group.member_ids
-        ),
-        TestServerGroup.fake_server_group.project_id,
-        TestServerGroup.fake_server_group.user_id,
-    ),)
+    )
 
-    list_data_v264 = ((
-        TestServerGroup.fake_server_group.id,
-        TestServerGroup.fake_server_group.name,
-        TestServerGroup.fake_server_group.policy,
-    ),)
-
-    list_data_v264_long = ((
-        TestServerGroup.fake_server_group.id,
-        TestServerGroup.fake_server_group.name,
-        TestServerGroup.fake_server_group.policy,
-        format_columns.ListColumn(
-            TestServerGroup.fake_server_group.member_ids
+    list_data_v264 = (
+        (
+            TestServerGroup.fake_server_group.id,
+            TestServerGroup.fake_server_group.name,
+            TestServerGroup.fake_server_group.policy,
         ),
-        TestServerGroup.fake_server_group.project_id,
-        TestServerGroup.fake_server_group.user_id,
-    ),)
+    )
+
+    list_data_v264_long = (
+        (
+            TestServerGroup.fake_server_group.id,
+            TestServerGroup.fake_server_group.name,
+            TestServerGroup.fake_server_group.policy,
+            format_columns.ListColumn(
+                TestServerGroup.fake_server_group.member_ids
+            ),
+            TestServerGroup.fake_server_group.project_id,
+            TestServerGroup.fake_server_group.user_id,
+        ),
+    )
 
     def setUp(self):
         super().setUp()
@@ -363,7 +372,8 @@ class TestServerGroupList(TestServerGroup):
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
         columns, data = self.cmd.take_action(parsed_args)
         self.sdk_client.server_groups.assert_called_once_with(
-            all_projects=True)
+            all_projects=True
+        )
 
         self.assertCountEqual(self.list_columns_long, columns)
         self.assertCountEqual(self.list_data_long, tuple(data))
@@ -371,7 +381,8 @@ class TestServerGroupList(TestServerGroup):
     @mock.patch.object(sdk_utils, 'supports_microversion', return_value=True)
     def test_server_group_list_with_limit(self, sm_mock):
         arglist = [
-            '--limit', '1',
+            '--limit',
+            '1',
         ]
         verifylist = [
             ('all_projects', False),
@@ -388,7 +399,8 @@ class TestServerGroupList(TestServerGroup):
     @mock.patch.object(sdk_utils, 'supports_microversion', return_value=True)
     def test_server_group_list_with_offset(self, sm_mock):
         arglist = [
-            '--offset', '5',
+            '--offset',
+            '5',
         ]
         verifylist = [
             ('all_projects', False),
@@ -429,14 +441,14 @@ class TestServerGroupList(TestServerGroup):
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
         columns, data = self.cmd.take_action(parsed_args)
         self.sdk_client.server_groups.assert_called_once_with(
-            all_projects=True)
+            all_projects=True
+        )
 
         self.assertCountEqual(self.list_columns_v264_long, columns)
         self.assertCountEqual(self.list_data_v264_long, tuple(data))
 
 
 class TestServerGroupShow(TestServerGroup):
-
     def setUp(self):
         super().setUp()
 

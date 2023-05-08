@@ -20,7 +20,6 @@ from openstackclient.tests.unit import fakes
 
 
 class TestHypervisorStats(compute_fakes.TestComputev2):
-
     def setUp(self):
         super(TestHypervisorStats, self).setUp()
 
@@ -32,6 +31,7 @@ class TestHypervisorStats(compute_fakes.TestComputev2):
 
 
 # Not in fakes.py because hypervisor stats has been deprecated
+
 
 def create_one_hypervisor_stats(attrs=None):
     """Create a fake hypervisor stats.
@@ -66,14 +66,14 @@ def create_one_hypervisor_stats(attrs=None):
 
 
 class TestHypervisorStatsShow(TestHypervisorStats):
-
     _stats = create_one_hypervisor_stats()
 
     def setUp(self):
         super(TestHypervisorStatsShow, self).setUp()
 
         self.sdk_client.get.return_value = fakes.FakeResponse(
-            data={'hypervisor_statistics': self._stats})
+            data={'hypervisor_statistics': self._stats}
+        )
 
         self.cmd = hypervisor_stats.ShowHypervisorStats(self.app, None)
 

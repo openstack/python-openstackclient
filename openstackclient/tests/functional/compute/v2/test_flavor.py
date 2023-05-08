@@ -42,21 +42,25 @@ class FlavorTests(base.TestCase):
         """Test create w/project, delete multiple"""
         name1 = uuid.uuid4().hex
         cmd_output = self.openstack(
-            "flavor create " +
-            "--project " + self.PROJECT_NAME + " " +
-            "--private " +
-            name1,
+            "flavor create "
+            + "--project "
+            + self.PROJECT_NAME
+            + " "
+            + "--private "
+            + name1,
             parse_output=True,
         )
         self.assertIsNotNone(cmd_output["id"])
 
         name2 = uuid.uuid4().hex
         cmd_output = self.openstack(
-            "flavor create " +
-            "--id qaz " +
-            "--project " + self.PROJECT_NAME + " " +
-            "--private " +
-            name2,
+            "flavor create "
+            + "--id qaz "
+            + "--project "
+            + self.PROJECT_NAME
+            + " "
+            + "--private "
+            + name2,
             parse_output=True,
         )
         self.assertIsNotNone(cmd_output["id"])
@@ -74,10 +78,7 @@ class FlavorTests(base.TestCase):
         """Test create defaults, list filters, delete"""
         name1 = uuid.uuid4().hex
         cmd_output = self.openstack(
-            "flavor create " +
-            "--property a=b " +
-            "--property c=d " +
-            name1,
+            "flavor create " + "--property a=b " + "--property c=d " + name1,
             parse_output=True,
         )
         self.addCleanup(self.openstack, "flavor delete " + name1)
@@ -89,13 +90,13 @@ class FlavorTests(base.TestCase):
 
         name2 = uuid.uuid4().hex
         cmd_output = self.openstack(
-            "flavor create " +
-            "--id qaz " +
-            "--ram 123 " +
-            "--private " +
-            "--property a=b2 " +
-            "--property b=d2 " +
-            name2,
+            "flavor create "
+            + "--id qaz "
+            + "--ram 123 "
+            + "--private "
+            + "--property a=b2 "
+            + "--property b=d2 "
+            + name2,
             parse_output=True,
         )
         self.addCleanup(self.openstack, "flavor delete " + name2)
@@ -135,8 +136,7 @@ class FlavorTests(base.TestCase):
 
         # Test list --long
         cmd_output = self.openstack(
-            "flavor list " +
-            "--long",
+            "flavor list " + "--long",
             parse_output=True,
         )
         # We have list of complex json objects
@@ -154,8 +154,7 @@ class FlavorTests(base.TestCase):
 
         # Test list --public
         cmd_output = self.openstack(
-            "flavor list " +
-            "--public",
+            "flavor list " + "--public",
             parse_output=True,
         )
         col_name = [x["Name"] for x in cmd_output]
@@ -164,8 +163,7 @@ class FlavorTests(base.TestCase):
 
         # Test list --private
         cmd_output = self.openstack(
-            "flavor list " +
-            "--private",
+            "flavor list " + "--private",
             parse_output=True,
         )
         col_name = [x["Name"] for x in cmd_output]
@@ -174,8 +172,7 @@ class FlavorTests(base.TestCase):
 
         # Test list --all
         cmd_output = self.openstack(
-            "flavor list " +
-            "--all",
+            "flavor list " + "--all",
             parse_output=True,
         )
         col_name = [x["Name"] for x in cmd_output]
@@ -186,14 +183,14 @@ class FlavorTests(base.TestCase):
         """Test create defaults, list filters, delete"""
         name1 = uuid.uuid4().hex
         cmd_output = self.openstack(
-            "flavor create " +
-            "--id qaz " +
-            "--ram 123 " +
-            "--disk 20 " +
-            "--private " +
-            "--property a=first " +
-            "--property b=second " +
-            name1,
+            "flavor create "
+            + "--id qaz "
+            + "--ram 123 "
+            + "--disk 20 "
+            + "--private "
+            + "--property a=first "
+            + "--property b=second "
+            + name1,
             parse_output=True,
         )
         self.addCleanup(self.openstack, "flavor delete " + name1)
@@ -223,42 +220,30 @@ class FlavorTests(base.TestCase):
         )
 
         raw_output = self.openstack(
-            "flavor set " +
-            "--property a='third and 10' " +
-            "--property g=fourth " +
-            name1
+            "flavor set "
+            + "--property a='third and 10' "
+            + "--property g=fourth "
+            + name1
         )
         self.assertEqual('', raw_output)
 
         cmd_output = self.openstack(
-            "flavor show " +
-            name1,
+            "flavor show " + name1,
             parse_output=True,
         )
         self.assertEqual(
             "qaz",
             cmd_output["id"],
         )
-        self.assertEqual(
-            'third and 10',
-            cmd_output['properties']['a'])
-        self.assertEqual(
-            'second',
-            cmd_output['properties']['b'])
-        self.assertEqual(
-            'fourth',
-            cmd_output['properties']['g'])
+        self.assertEqual('third and 10', cmd_output['properties']['a'])
+        self.assertEqual('second', cmd_output['properties']['b'])
+        self.assertEqual('fourth', cmd_output['properties']['g'])
 
-        raw_output = self.openstack(
-            "flavor unset " +
-            "--property b " +
-            name1
-        )
+        raw_output = self.openstack("flavor unset " + "--property b " + name1)
         self.assertEqual('', raw_output)
 
         cmd_output = self.openstack(
-            "flavor show " +
-            name1,
+            "flavor show " + name1,
             parse_output=True,
         )
 

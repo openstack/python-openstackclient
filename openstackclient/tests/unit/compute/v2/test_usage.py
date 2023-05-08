@@ -19,7 +19,6 @@ from openstackclient.tests.unit.identity.v3 import fakes as identity_fakes
 
 
 class TestUsage(compute_fakes.TestComputev2):
-
     def setUp(self):
         super(TestUsage, self).setUp()
 
@@ -32,27 +31,29 @@ class TestUsage(compute_fakes.TestComputev2):
 
 
 class TestUsageList(TestUsage):
-
     project = identity_fakes.FakeProject.create_one_project()
     # Return value of self.usage_mock.list().
     usages = compute_fakes.FakeUsage.create_usages(
-        attrs={'project_id': project.name}, count=1)
+        attrs={'project_id': project.name}, count=1
+    )
 
     columns = (
         "Project",
         "Servers",
         "RAM MB-Hours",
         "CPU Hours",
-        "Disk GB-Hours"
+        "Disk GB-Hours",
     )
 
-    data = [(
-        usage_cmds.ProjectColumn(usages[0].project_id),
-        usage_cmds.CountColumn(usages[0].server_usages),
-        usage_cmds.FloatColumn(usages[0].total_memory_mb_usage),
-        usage_cmds.FloatColumn(usages[0].total_vcpus_usage),
-        usage_cmds.FloatColumn(usages[0].total_local_gb_usage),
-    )]
+    data = [
+        (
+            usage_cmds.ProjectColumn(usages[0].project_id),
+            usage_cmds.CountColumn(usages[0].server_usages),
+            usage_cmds.FloatColumn(usages[0].total_memory_mb_usage),
+            usage_cmds.FloatColumn(usages[0].total_vcpus_usage),
+            usage_cmds.FloatColumn(usages[0].total_local_gb_usage),
+        )
+    ]
 
     def setUp(self):
         super(TestUsageList, self).setUp()
@@ -64,7 +65,6 @@ class TestUsageList(TestUsage):
         self.cmd = usage_cmds.ListUsage(self.app, None)
 
     def test_usage_list_no_options(self):
-
         arglist = []
         verifylist = [
             ('start', None),
@@ -82,8 +82,10 @@ class TestUsageList(TestUsage):
 
     def test_usage_list_with_options(self):
         arglist = [
-            '--start', '2016-11-11',
-            '--end', '2016-12-20',
+            '--start',
+            '2016-11-11',
+            '--end',
+            '2016-12-20',
         ]
         verifylist = [
             ('start', '2016-11-11'),
@@ -98,7 +100,8 @@ class TestUsageList(TestUsage):
         self.sdk_client.usages.assert_called_with(
             start='2016-11-11T00:00:00',
             end='2016-12-20T00:00:00',
-            detailed=True)
+            detailed=True,
+        )
 
         self.assertCountEqual(self.columns, columns)
         self.assertCountEqual(tuple(self.data), tuple(data))
@@ -115,19 +118,19 @@ class TestUsageList(TestUsage):
         columns, data = self.cmd.take_action(parsed_args)
 
         self.projects_mock.list.assert_called_with()
-        self.sdk_client.usages.assert_has_calls([
-            mock.call(start=mock.ANY, end=mock.ANY, detailed=True)
-        ])
+        self.sdk_client.usages.assert_has_calls(
+            [mock.call(start=mock.ANY, end=mock.ANY, detailed=True)]
+        )
         self.assertCountEqual(self.columns, columns)
         self.assertCountEqual(tuple(self.data), tuple(data))
 
 
 class TestUsageShow(TestUsage):
-
     project = identity_fakes.FakeProject.create_one_project()
     # Return value of self.usage_mock.list().
     usage = compute_fakes.FakeUsage.create_one_usage(
-        attrs={'project_id': project.name})
+        attrs={'project_id': project.name}
+    )
 
     columns = (
         'Project',
@@ -155,7 +158,6 @@ class TestUsageShow(TestUsage):
         self.cmd = usage_cmds.ShowUsage(self.app, None)
 
     def test_usage_show_no_options(self):
-
         self.app.client_manager.auth_ref = mock.Mock()
         self.app.client_manager.auth_ref.project_id = self.project.id
 
@@ -174,11 +176,13 @@ class TestUsageShow(TestUsage):
         self.assertEqual(self.data, data)
 
     def test_usage_show_with_options(self):
-
         arglist = [
-            '--project', self.project.id,
-            '--start', '2016-11-11',
-            '--end', '2016-12-20',
+            '--project',
+            self.project.id,
+            '--start',
+            '2016-11-11',
+            '--end',
+            '2016-12-20',
         ]
         verifylist = [
             ('project', self.project.id),
@@ -193,7 +197,8 @@ class TestUsageShow(TestUsage):
         self.sdk_client.get_usage.assert_called_with(
             project=self.project.id,
             start='2016-11-11T00:00:00',
-            end='2016-12-20T00:00:00')
+            end='2016-12-20T00:00:00',
+        )
 
         self.assertEqual(self.columns, columns)
         self.assertEqual(self.data, data)

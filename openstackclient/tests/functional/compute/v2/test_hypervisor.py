@@ -21,32 +21,32 @@ class HypervisorTests(base.TestCase):
     def test_hypervisor_list(self):
         """Test create defaults, list filters, delete"""
         # Test list
-        cmd_output = json.loads(self.openstack(
-            "hypervisor list -f json --os-compute-api-version 2.1"
-        ))
+        cmd_output = json.loads(
+            self.openstack(
+                "hypervisor list -f json --os-compute-api-version 2.1"
+            )
+        )
         ids1 = [x["ID"] for x in cmd_output]
         self.assertIsNotNone(cmd_output)
 
-        cmd_output = json.loads(self.openstack(
-            "hypervisor list -f json"
-        ))
+        cmd_output = json.loads(self.openstack("hypervisor list -f json"))
         ids2 = [x["ID"] for x in cmd_output]
         self.assertIsNotNone(cmd_output)
 
         # Show test - old microversion
         for i in ids1:
-            cmd_output = json.loads(self.openstack(
-                "hypervisor show %s -f json "
-                " --os-compute-api-version 2.1"
-                % (i)
-            ))
+            cmd_output = json.loads(
+                self.openstack(
+                    "hypervisor show %s -f json "
+                    " --os-compute-api-version 2.1" % (i)
+                )
+            )
             self.assertIsNotNone(cmd_output)
         # When we list hypervisors with older MV we get ids as integers. We
         # need to verify that show finds resources independently
         # Show test - latest microversion
         for i in ids2:
-            cmd_output = json.loads(self.openstack(
-                "hypervisor show %s -f json"
-                % (i)
-            ))
+            cmd_output = json.loads(
+                self.openstack("hypervisor show %s -f json" % (i))
+            )
             self.assertIsNotNone(cmd_output)

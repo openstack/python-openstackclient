@@ -48,7 +48,8 @@ def _get_server_group_columns(item, client):
         hidden_columns.append('rules')
 
     return utils.get_osc_show_columns_for_sdk_resource(
-        item, column_map, hidden_columns)
+        item, column_map, hidden_columns
+    )
 
 
 class CreateServerGroup(command.ShowOne):
@@ -167,8 +168,7 @@ class DeleteServerGroup(command.Command):
             total = len(parsed_args.server_group)
             msg = _("%(result)s of %(total)s server groups failed to delete.")
             raise exceptions.CommandError(
-                msg % {"result": result,
-                       "total": total}
+                msg % {"result": result, "total": total}
             )
 
 
@@ -261,8 +261,11 @@ class ListServerGroup(command.Lister):
             column_headers,
             (
                 utils.get_item_properties(
-                    s, columns, formatters=_formatters,
-                ) for s in data
+                    s,
+                    columns,
+                    formatters=_formatters,
+                )
+                for s in data
             ),
         )
 

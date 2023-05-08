@@ -95,7 +95,7 @@ class ListServerEvent(command.Lister):
             '--long',
             action='store_true',
             default=False,
-            help=_("List additional fields in output")
+            help=_("List additional fields in output"),
         )
         parser.add_argument(
             '--changes-since',
@@ -196,8 +196,7 @@ class ListServerEvent(command.Lister):
 
         try:
             server_id = compute_client.find_server(
-                parsed_args.server,
-                ignore_missing=False
+                parsed_args.server, ignore_missing=False
             ).id
         except sdk_exceptions.ResourceNotFound:
             # If we fail to find the resource, it is possible the server is
@@ -282,11 +281,13 @@ class ShowServerEvent(command.ShowOne):
                 raise
 
         server_action = compute_client.get_server_action(
-            parsed_args.request_id, server_id,
+            parsed_args.request_id,
+            server_id,
         )
 
         column_headers, columns = _get_server_event_columns(
-            server_action, compute_client,
+            server_action,
+            compute_client,
         )
 
         return (

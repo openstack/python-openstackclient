@@ -47,7 +47,8 @@ def _get_aggregate_columns(item):
     }
     hidden_columns = ['links', 'location']
     return utils.get_osc_show_columns_for_sdk_resource(
-        item, column_map, hidden_columns)
+        item, column_map, hidden_columns
+    )
 
 
 class AddAggregateHost(command.ShowOne):
@@ -58,12 +59,10 @@ class AddAggregateHost(command.ShowOne):
         parser.add_argument(
             'aggregate',
             metavar='<aggregate>',
-            help=_("Aggregate (name or ID)")
+            help=_("Aggregate (name or ID)"),
         )
         parser.add_argument(
-            'host',
-            metavar='<host>',
-            help=_("Host to add to <aggregate>")
+            'host', metavar='<host>', help=_("Host to add to <aggregate>")
         )
         return parser
 
@@ -71,14 +70,17 @@ class AddAggregateHost(command.ShowOne):
         compute_client = self.app.client_manager.sdk_connection.compute
 
         aggregate = compute_client.find_aggregate(
-            parsed_args.aggregate, ignore_missing=False)
+            parsed_args.aggregate, ignore_missing=False
+        )
 
         aggregate = compute_client.add_host_to_aggregate(
-            aggregate.id, parsed_args.host)
+            aggregate.id, parsed_args.host
+        )
 
         display_columns, columns = _get_aggregate_columns(aggregate)
         data = utils.get_item_properties(
-            aggregate, columns, formatters=_aggregate_formatters)
+            aggregate, columns, formatters=_aggregate_formatters
+        )
         return (display_columns, data)
 
 
@@ -88,22 +90,22 @@ class CreateAggregate(command.ShowOne):
     def get_parser(self, prog_name):
         parser = super(CreateAggregate, self).get_parser(prog_name)
         parser.add_argument(
-            "name",
-            metavar="<name>",
-            help=_("New aggregate name")
+            "name", metavar="<name>", help=_("New aggregate name")
         )
         parser.add_argument(
             "--zone",
             metavar="<availability-zone>",
-            help=_("Availability zone name")
+            help=_("Availability zone name"),
         )
         parser.add_argument(
             "--property",
             metavar="<key=value>",
             action=parseractions.KeyValueAction,
             dest="properties",
-            help=_("Property to add to this aggregate "
-                   "(repeat option to set multiple properties)")
+            help=_(
+                "Property to add to this aggregate "
+                "(repeat option to set multiple properties)"
+            ),
         )
         return parser
 
@@ -125,7 +127,8 @@ class CreateAggregate(command.ShowOne):
 
         display_columns, columns = _get_aggregate_columns(aggregate)
         data = utils.get_item_properties(
-            aggregate, columns, formatters=_aggregate_formatters)
+            aggregate, columns, formatters=_aggregate_formatters
+        )
         return (display_columns, data)
 
 
@@ -138,7 +141,7 @@ class DeleteAggregate(command.Command):
             'aggregate',
             metavar='<aggregate>',
             nargs='+',
-            help=_("Aggregate(s) to delete (name or ID)")
+            help=_("Aggregate(s) to delete (name or ID)"),
         )
         return parser
 
@@ -148,19 +151,26 @@ class DeleteAggregate(command.Command):
         for a in parsed_args.aggregate:
             try:
                 aggregate = compute_client.find_aggregate(
-                    a, ignore_missing=False)
+                    a, ignore_missing=False
+                )
                 compute_client.delete_aggregate(
-                    aggregate.id, ignore_missing=False)
+                    aggregate.id, ignore_missing=False
+                )
             except Exception as e:
                 result += 1
-                LOG.error(_("Failed to delete aggregate with name or "
-                          "ID '%(aggregate)s': %(e)s"),
-                          {'aggregate': a, 'e': e})
+                LOG.error(
+                    _(
+                        "Failed to delete aggregate with name or "
+                        "ID '%(aggregate)s': %(e)s"
+                    ),
+                    {'aggregate': a, 'e': e},
+                )
 
         if result > 0:
             total = len(parsed_args.aggregate)
-            msg = (_("%(result)s of %(total)s aggregates failed "
-                   "to delete.") % {'result': result, 'total': total})
+            msg = _(
+                "%(result)s of %(total)s aggregates failed " "to delete."
+            ) % {'result': result, 'total': total}
             raise exceptions.CommandError(msg)
 
 
@@ -173,7 +183,7 @@ class ListAggregate(command.Lister):
             '--long',
             action='store_true',
             default=False,
-            help=_("List additional fields in output")
+            help=_("List additional fields in output"),
         )
         return parser
 
@@ -212,7 +222,9 @@ class ListAggregate(command.Lister):
         data = (
             utils.get_item_properties(
                 s, columns, formatters=_aggregate_formatters
-            ) for s in aggregates)
+            )
+            for s in aggregates
+        )
         return (column_headers, data)
 
 
@@ -224,12 +236,10 @@ class RemoveAggregateHost(command.ShowOne):
         parser.add_argument(
             'aggregate',
             metavar='<aggregate>',
-            help=_("Aggregate (name or ID)")
+            help=_("Aggregate (name or ID)"),
         )
         parser.add_argument(
-            'host',
-            metavar='<host>',
-            help=_("Host to remove from <aggregate>")
+            'host', metavar='<host>', help=_("Host to remove from <aggregate>")
         )
         return parser
 
@@ -237,14 +247,17 @@ class RemoveAggregateHost(command.ShowOne):
         compute_client = self.app.client_manager.sdk_connection.compute
 
         aggregate = compute_client.find_aggregate(
-            parsed_args.aggregate, ignore_missing=False)
+            parsed_args.aggregate, ignore_missing=False
+        )
 
         aggregate = compute_client.remove_host_from_aggregate(
-            aggregate.id, parsed_args.host)
+            aggregate.id, parsed_args.host
+        )
 
         display_columns, columns = _get_aggregate_columns(aggregate)
         data = utils.get_item_properties(
-            aggregate, columns, formatters=_aggregate_formatters)
+            aggregate, columns, formatters=_aggregate_formatters
+        )
         return (display_columns, data)
 
 
@@ -256,40 +269,42 @@ class SetAggregate(command.Command):
         parser.add_argument(
             'aggregate',
             metavar='<aggregate>',
-            help=_("Aggregate to modify (name or ID)")
+            help=_("Aggregate to modify (name or ID)"),
         )
         parser.add_argument(
-            '--name',
-            metavar='<name>',
-            help=_("Set aggregate name")
+            '--name', metavar='<name>', help=_("Set aggregate name")
         )
         parser.add_argument(
             "--zone",
             metavar="<availability-zone>",
-            help=_("Set availability zone name")
+            help=_("Set availability zone name"),
         )
         parser.add_argument(
             "--property",
             metavar="<key=value>",
             action=parseractions.KeyValueAction,
             dest="properties",
-            help=_("Property to set on <aggregate> "
-                   "(repeat option to set multiple properties)")
+            help=_(
+                "Property to set on <aggregate> "
+                "(repeat option to set multiple properties)"
+            ),
         )
         parser.add_argument(
             "--no-property",
             action="store_true",
-            help=_("Remove all properties from <aggregate> "
-                   "(specify both --property and --no-property to "
-                   "overwrite the current properties)"),
+            help=_(
+                "Remove all properties from <aggregate> "
+                "(specify both --property and --no-property to "
+                "overwrite the current properties)"
+            ),
         )
         return parser
 
     def take_action(self, parsed_args):
-
         compute_client = self.app.client_manager.sdk_connection.compute
         aggregate = compute_client.find_aggregate(
-            parsed_args.aggregate, ignore_missing=False)
+            parsed_args.aggregate, ignore_missing=False
+        )
 
         kwargs = {}
         if parsed_args.name:
@@ -303,10 +318,13 @@ class SetAggregate(command.Command):
         if parsed_args.no_property:
             # NOTE(RuiChen): "availability_zone" can not be unset from
             # properties. It is already excluded from show and create output.
-            properties.update({
-                key: None for key in aggregate.metadata.keys()
-                if key != 'availability_zone'
-            })
+            properties.update(
+                {
+                    key: None
+                    for key in aggregate.metadata.keys()
+                    if key != 'availability_zone'
+                }
+            )
 
         if parsed_args.properties:
             properties.update(parsed_args.properties)
@@ -323,15 +341,15 @@ class ShowAggregate(command.ShowOne):
         parser.add_argument(
             'aggregate',
             metavar='<aggregate>',
-            help=_("Aggregate to display (name or ID)")
+            help=_("Aggregate to display (name or ID)"),
         )
         return parser
 
     def take_action(self, parsed_args):
-
         compute_client = self.app.client_manager.sdk_connection.compute
         aggregate = compute_client.find_aggregate(
-            parsed_args.aggregate, ignore_missing=False)
+            parsed_args.aggregate, ignore_missing=False
+        )
 
         # Remove availability_zone from metadata because Nova doesn't
         if 'availability_zone' in aggregate.metadata:
@@ -339,7 +357,8 @@ class ShowAggregate(command.ShowOne):
 
         display_columns, columns = _get_aggregate_columns(aggregate)
         data = utils.get_item_properties(
-            aggregate, columns, formatters=_aggregate_formatters)
+            aggregate, columns, formatters=_aggregate_formatters
+        )
         return (display_columns, data)
 
 
@@ -351,7 +370,7 @@ class UnsetAggregate(command.Command):
         parser.add_argument(
             "aggregate",
             metavar="<aggregate>",
-            help=_("Aggregate to modify (name or ID)")
+            help=_("Aggregate to modify (name or ID)"),
         )
         parser.add_argument(
             "--property",
@@ -359,15 +378,18 @@ class UnsetAggregate(command.Command):
             action="append",
             default=[],
             dest="properties",
-            help=_("Property to remove from aggregate "
-                   "(repeat option to remove multiple properties)")
+            help=_(
+                "Property to remove from aggregate "
+                "(repeat option to remove multiple properties)"
+            ),
         )
         return parser
 
     def take_action(self, parsed_args):
         compute_client = self.app.client_manager.sdk_connection.compute
         aggregate = compute_client.find_aggregate(
-            parsed_args.aggregate, ignore_missing=False)
+            parsed_args.aggregate, ignore_missing=False
+        )
 
         properties = {key: None for key in parsed_args.properties}
 
@@ -385,14 +407,16 @@ class CacheImageForAggregate(command.Command):
         parser.add_argument(
             'aggregate',
             metavar='<aggregate>',
-            help=_("Aggregate (name or ID)")
+            help=_("Aggregate (name or ID)"),
         )
         parser.add_argument(
             'image',
             metavar='<image>',
             nargs='+',
-            help=_("Image ID to request caching for aggregate (name or ID). "
-                   "May be specified multiple times.")
+            help=_(
+                "Image ID to request caching for aggregate (name or ID). "
+                "May be specified multiple times."
+            ),
         )
         return parser
 
@@ -407,12 +431,14 @@ class CacheImageForAggregate(command.Command):
             raise exceptions.CommandError(msg)
 
         aggregate = compute_client.find_aggregate(
-            parsed_args.aggregate, ignore_missing=False)
+            parsed_args.aggregate, ignore_missing=False
+        )
 
         images = []
         for img in parsed_args.image:
             image = self.app.client_manager.sdk_connection.image.find_image(
-                img, ignore_missing=False)
+                img, ignore_missing=False
+            )
             images.append(image.id)
 
         compute_client.aggregate_precache_images(aggregate.id, images)

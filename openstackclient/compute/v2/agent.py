@@ -37,36 +37,20 @@ class CreateAgent(command.ShowOne):
 
     def get_parser(self, prog_name):
         parser = super(CreateAgent, self).get_parser(prog_name)
-        parser.add_argument(
-            "os",
-            metavar="<os>",
-            help=_("Type of OS")
-        )
+        parser.add_argument("os", metavar="<os>", help=_("Type of OS"))
         parser.add_argument(
             "architecture",
             metavar="<architecture>",
-            help=_("Type of architecture")
+            help=_("Type of architecture"),
         )
-        parser.add_argument(
-            "version",
-            metavar="<version>",
-            help=_("Version")
-        )
-        parser.add_argument(
-            "url",
-            metavar="<url>",
-            help=_("URL")
-        )
-        parser.add_argument(
-            "md5hash",
-            metavar="<md5hash>",
-            help=_("MD5 hash")
-        )
+        parser.add_argument("version", metavar="<version>", help=_("Version"))
+        parser.add_argument("url", metavar="<url>", help=_("URL"))
+        parser.add_argument("md5hash", metavar="<md5hash>", help=_("MD5 hash"))
         parser.add_argument(
             "hypervisor",
             metavar="<hypervisor>",
             default="xen",
-            help=_("Type of hypervisor")
+            help=_("Type of hypervisor"),
         )
         return parser
 
@@ -78,7 +62,7 @@ class CreateAgent(command.ShowOne):
             parsed_args.version,
             parsed_args.url,
             parsed_args.md5hash,
-            parsed_args.hypervisor
+            parsed_args.hypervisor,
         )
         agent = compute_client.agents.create(*args)._info.copy()
         return zip(*sorted(agent.items()))
@@ -95,10 +79,7 @@ class DeleteAgent(command.Command):
     def get_parser(self, prog_name):
         parser = super(DeleteAgent, self).get_parser(prog_name)
         parser.add_argument(
-            "id",
-            metavar="<id>",
-            nargs='+',
-            help=_("ID of agent(s) to delete")
+            "id", metavar="<id>", nargs='+', help=_("ID of agent(s) to delete")
         )
         return parser
 
@@ -110,13 +91,17 @@ class DeleteAgent(command.Command):
                 compute_client.agents.delete(id)
             except Exception as e:
                 result += 1
-                LOG.error(_("Failed to delete agent with ID '%(id)s': %(e)s"),
-                          {'id': id, 'e': e})
+                LOG.error(
+                    _("Failed to delete agent with ID '%(id)s': %(e)s"),
+                    {'id': id, 'e': e},
+                )
 
         if result > 0:
             total = len(parsed_args.id)
-            msg = (_("%(result)s of %(total)s agents failed "
-                     "to delete.") % {'result': result, 'total': total})
+            msg = _("%(result)s of %(total)s agents failed " "to delete.") % {
+                'result': result,
+                'total': total,
+            }
             raise exceptions.CommandError(msg)
 
 
@@ -133,7 +118,7 @@ class ListAgent(command.Lister):
         parser.add_argument(
             "--hypervisor",
             metavar="<hypervisor>",
-            help=_("Type of hypervisor")
+            help=_("Type of hypervisor"),
         )
         return parser
 
@@ -146,13 +131,19 @@ class ListAgent(command.Lister):
             "Architecture",
             "Version",
             "Md5Hash",
-            "URL"
+            "URL",
         )
         data = compute_client.agents.list(parsed_args.hypervisor)
-        return (columns,
-                (utils.get_item_properties(
-                    s, columns,
-                ) for s in data))
+        return (
+            columns,
+            (
+                utils.get_item_properties(
+                    s,
+                    columns,
+                )
+                for s in data
+            ),
+        )
 
 
 class SetAgent(command.Command):
@@ -165,26 +156,18 @@ class SetAgent(command.Command):
 
     def get_parser(self, prog_name):
         parser = super(SetAgent, self).get_parser(prog_name)
-        parser.add_argument(
-            "id",
-            metavar="<id>",
-            help=_("ID of the agent")
-        )
+        parser.add_argument("id", metavar="<id>", help=_("ID of the agent"))
         parser.add_argument(
             "--agent-version",
             dest="version",
             metavar="<version>",
-            help=_("Version of the agent")
+            help=_("Version of the agent"),
         )
         parser.add_argument(
-            "--url",
-            metavar="<url>",
-            help=_("URL of the agent")
+            "--url", metavar="<url>", help=_("URL of the agent")
         )
         parser.add_argument(
-            "--md5hash",
-            metavar="<md5hash>",
-            help=_("MD5 hash of the agent")
+            "--md5hash", metavar="<md5hash>", help=_("MD5 hash of the agent")
         )
         return parser
 

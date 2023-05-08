@@ -48,14 +48,14 @@ class PowerStateColumn(cliff_columns.FormattableColumn):
     """Generate a formatted string of a server's power state."""
 
     power_states = [
-        'NOSTATE',      # 0x00
-        'Running',      # 0x01
-        '',             # 0x02
-        'Paused',       # 0x03
-        'Shutdown',     # 0x04
-        '',             # 0x05
-        'Crashed',      # 0x06
-        'Suspended'     # 0x07
+        'NOSTATE',  # 0x00
+        'Running',  # 0x01
+        '',  # 0x02
+        'Paused',  # 0x03
+        'Shutdown',  # 0x04
+        '',  # 0x05
+        'Crashed',  # 0x06
+        'Suspended',  # 0x07
     ]
 
     def human_readable(self):
@@ -70,15 +70,20 @@ class AddressesColumn(cliff_columns.FormattableColumn):
 
     def human_readable(self):
         try:
-            return utils.format_dict_of_list({
-                k: [i['addr'] for i in v if 'addr' in i]
-                for k, v in self._value.items()})
+            return utils.format_dict_of_list(
+                {
+                    k: [i['addr'] for i in v if 'addr' in i]
+                    for k, v in self._value.items()
+                }
+            )
         except Exception:
             return 'N/A'
 
     def machine_readable(self):
-        return {k: [i['addr'] for i in v if 'addr' in i]
-                for k, v in self._value.items()}
+        return {
+            k: [i['addr'] for i in v if 'addr' in i]
+            for k, v in self._value.items()
+        }
 
 
 class HostColumn(cliff_columns.FormattableColumn):
@@ -120,8 +125,7 @@ def _get_ip_address(addresses, address_type, ip_address_family):
                     return addy['addr']
     msg = _("ERROR: No %(type)s IP version %(family)s address found")
     raise exceptions.CommandError(
-        msg % {"type": address_type,
-               "family": ip_address_family}
+        msg % {"type": address_type, "family": ip_address_family}
     )
 
 
@@ -184,9 +188,13 @@ def _prep_server_detail(compute_client, image_client, server, refresh=True):
         'vm_state': 'OS-EXT-STS:vm_state',
     }
 
-    info.update({
-        column_map[column]: data for column, data in info.items()
-        if column in column_map})
+    info.update(
+        {
+            column_map[column]: data
+            for column, data in info.items()
+            if column in column_map
+        }
+    )
 
     # Convert the image blob to a name
     image_info = info.get('image', {})
@@ -223,14 +231,16 @@ def _prep_server_detail(compute_client, image_client, server, refresh=True):
         info.update(
             {
                 'volumes_attached': format_columns.ListDictColumn(
-                    info.pop('os-extended-volumes:volumes_attached'))
+                    info.pop('os-extended-volumes:volumes_attached')
+                )
             }
         )
     if 'security_groups' in info:
         info.update(
             {
                 'security_groups': format_columns.ListDictColumn(
-                    info.pop('security_groups'))
+                    info.pop('security_groups')
+                )
             }
         )
     if 'tags' in info:
@@ -239,8 +249,10 @@ def _prep_server_detail(compute_client, image_client, server, refresh=True):
     # NOTE(dtroyer): novaclient splits these into separate entries...
     # Format addresses in a useful way
     info['addresses'] = (
-        AddressesColumn(info['addresses']) if 'addresses' in info
-        else format_columns.DictListColumn(info.get('networks')))
+        AddressesColumn(info['addresses'])
+        if 'addresses' in info
+        else format_columns.DictListColumn(info.get('networks'))
+    )
 
     # Map 'metadata' field to 'properties'
     info['properties'] = format_columns.DictColumn(info.pop('metadata'))
@@ -252,7 +264,8 @@ def _prep_server_detail(compute_client, image_client, server, refresh=True):
     # Map power state num to meaningful string
     if 'OS-EXT-STS:power_state' in info:
         info['OS-EXT-STS:power_state'] = PowerStateColumn(
-            info['OS-EXT-STS:power_state'])
+            info['OS-EXT-STS:power_state']
+        )
 
     # Remove values that are long and not too useful
     info.pop('links', None)
@@ -306,15 +319,14 @@ class AddFixedIP(command.ShowOne):
             help=_(
                 'Tag for the attached interface. '
                 '(supported by --os-compute-api-version 2.49 or above)'
-            )
+            ),
         )
         return parser
 
     def take_action(self, parsed_args):
         compute_client = self.app.client_manager.sdk_connection.compute
         server = compute_client.find_server(
-            parsed_args.server,
-            ignore_missing=False
+            parsed_args.server, ignore_missing=False
         )
 
         if parsed_args.tag:
@@ -328,36 +340,39 @@ class AddFixedIP(command.ShowOne):
         if self.app.client_manager.is_network_endpoint_enabled():
             network_client = self.app.client_manager.network
             net_id = network_client.find_network(
-                parsed_args.network,
-                ignore_missing=False
+                parsed_args.network, ignore_missing=False
             ).id
         else:
             net_id = parsed_args.network
 
         if not sdk_utils.supports_microversion(compute_client, '2.44'):
-            compute_client.add_fixed_ip_to_server(
-                server.id,
-                net_id
-            )
+            compute_client.add_fixed_ip_to_server(server.id, net_id)
             return ((), ())
 
-        kwargs = {
-            'net_id': net_id
-        }
+        kwargs = {'net_id': net_id}
         if parsed_args.fixed_ip_address:
             kwargs['fixed_ips'] = [
-                {"ip_address": parsed_args.fixed_ip_address}]
+                {"ip_address": parsed_args.fixed_ip_address}
+            ]
         if parsed_args.tag:
             kwargs['tag'] = parsed_args.tag
 
         interface = compute_client.create_server_interface(server.id, **kwargs)
 
         columns = (
-            'port_id', 'server_id', 'net_id', 'mac_addr', 'port_state',
+            'port_id',
+            'server_id',
+            'net_id',
+            'mac_addr',
+            'port_state',
             'fixed_ips',
         )
         column_headers = (
-            'Port ID', 'Server ID', 'Network ID', 'MAC Address', 'Port State',
+            'Port ID',
+            'Server ID',
+            'Network ID',
+            'MAC Address',
+            'Port State',
             'Fixed IPs',
         )
         if sdk_utils.supports_microversion(compute_client, '2.49'):
@@ -388,8 +403,10 @@ class AddFloatingIP(network_common.NetworkAndComputeCommand):
         parser.add_argument(
             "ip_address",
             metavar="<ip-address>",
-            help=_("Floating IP address to assign to the first available "
-                   "server port (IP only)"),
+            help=_(
+                "Floating IP address to assign to the first available "
+                "server port (IP only)"
+            ),
         )
         parser.add_argument(
             "--fixed-ip-address",
@@ -448,8 +465,11 @@ class AddFloatingIP(network_common.NetworkAndComputeCommand):
                     client.update_ip(obj, **attrs)
                 except sdk_exceptions.NotFoundException as exp:
                     # 404 ExternalGatewayForFloatingIPNotFound from neutron
-                    LOG.info('Skipped port %s because it is not attached to '
-                             'an external gateway', port.id)
+                    LOG.info(
+                        'Skipped port %s because it is not attached to '
+                        'an external gateway',
+                        port.id,
+                    )
                     error = exp
                     continue
                 else:
@@ -487,7 +507,7 @@ class AddPort(command.Command):
             help=_(
                 'Tag for the attached interface '
                 '(supported by --os-compute-api-version 2.49 or later)'
-            )
+            ),
         )
         return parser
 
@@ -495,18 +515,18 @@ class AddPort(command.Command):
         compute_client = self.app.client_manager.sdk_connection.compute
 
         server = compute_client.find_server(
-            parsed_args.server, ignore_missing=False)
+            parsed_args.server, ignore_missing=False
+        )
 
         if self.app.client_manager.is_network_endpoint_enabled():
             network_client = self.app.client_manager.network
             port_id = network_client.find_port(
-                parsed_args.port, ignore_missing=False).id
+                parsed_args.port, ignore_missing=False
+            ).id
         else:
             port_id = parsed_args.port
 
-        kwargs = {
-            'port_id': port_id
-        }
+        kwargs = {'port_id': port_id}
 
         if parsed_args.tag:
             if not sdk_utils.supports_microversion(compute_client, '2.49'):
@@ -549,18 +569,18 @@ class AddNetwork(command.Command):
         compute_client = self.app.client_manager.sdk_connection.compute
 
         server = compute_client.find_server(
-            parsed_args.server, ignore_missing=False)
+            parsed_args.server, ignore_missing=False
+        )
 
         if self.app.client_manager.is_network_endpoint_enabled():
             network_client = self.app.client_manager.network
             net_id = network_client.find_network(
-                parsed_args.network, ignore_missing=False).id
+                parsed_args.network, ignore_missing=False
+            ).id
         else:
             net_id = parsed_args.network
 
-        kwargs = {
-            'net_id': net_id
-        }
+        kwargs = {'net_id': net_id}
 
         if parsed_args.tag:
             if not sdk_utils.supports_microversion(compute_client, '2.49'):
@@ -607,10 +627,12 @@ class AddServerSecurityGroup(command.Command):
 
 
 class AddServerVolume(command.ShowOne):
-    _description = _("""Add volume to server.
+    _description = _(
+        """Add volume to server.
 
 Specify ``--os-compute-api-version 2.20`` or higher to add a volume to a server
-with status ``SHELVED`` or ``SHELVED_OFFLOADED``.""")
+with status ``SHELVED`` or ``SHELVED_OFFLOADED``."""
+    )
 
     def get_parser(self, prog_name):
         parser = super(AddServerVolume, self).get_parser(prog_name)
@@ -671,10 +693,7 @@ with status ``SHELVED`` or ``SHELVED_OFFLOADED``.""")
             ignore_missing=False,
         )
 
-        kwargs = {
-            "volumeId": volume.id,
-            "device": parsed_args.device
-        }
+        kwargs = {"volumeId": volume.id, "device": parsed_args.device}
 
         if parsed_args.tag:
             if not sdk_utils.supports_microversion(compute_client, '2.49'):
@@ -722,12 +741,14 @@ with status ``SHELVED`` or ``SHELVED_OFFLOADED``.""")
 
         return (
             column_headers,
-            utils.get_item_properties(volume_attachment, columns,)
+            utils.get_item_properties(
+                volume_attachment,
+                columns,
+            ),
         )
 
 
 class NoneNICAction(argparse.Action):
-
     def __init__(self, option_strings, dest, help=None):
         super().__init__(
             option_strings=option_strings,
@@ -747,7 +768,6 @@ class NoneNICAction(argparse.Action):
 
 
 class AutoNICAction(argparse.Action):
-
     def __init__(self, option_strings, dest, help=None):
         super().__init__(
             option_strings=option_strings,
@@ -767,7 +787,6 @@ class AutoNICAction(argparse.Action):
 
 
 class NICAction(argparse.Action):
-
     def __init__(
         self,
         option_strings,
@@ -844,7 +863,6 @@ class NICAction(argparse.Action):
 
 
 class BDMLegacyAction(argparse.Action):
-
     def __call__(self, parser, namespace, values, option_string=None):
         # Make sure we have an empty list rather than None
         if getattr(namespace, self.dest, None) is None:
@@ -889,18 +907,28 @@ class BDMLegacyAction(argparse.Action):
 
 
 class BDMAction(parseractions.MultiKeyValueAction):
-
     def __init__(self, option_strings, dest, **kwargs):
         required_keys = []
         optional_keys = [
-            'uuid', 'source_type', 'destination_type',
-            'disk_bus', 'device_type', 'device_name', 'volume_size',
-            'guest_format', 'boot_index', 'delete_on_termination', 'tag',
+            'uuid',
+            'source_type',
+            'destination_type',
+            'disk_bus',
+            'device_type',
+            'device_name',
+            'volume_size',
+            'guest_format',
+            'boot_index',
+            'delete_on_termination',
+            'tag',
             'volume_type',
         ]
         super().__init__(
-            option_strings, dest, required_keys=required_keys,
-            optional_keys=optional_keys, **kwargs,
+            option_strings,
+            dest,
+            required_keys=required_keys,
+            optional_keys=optional_keys,
+            **kwargs,
         )
 
     # TODO(stephenfin): Remove once I549d0897ef3704b7f47000f867d6731ad15d3f2b
@@ -917,10 +945,13 @@ class BDMAction(parseractions.MultiKeyValueAction):
                 "Invalid keys %(invalid_keys)s specified.\n"
                 "Valid keys are: %(valid_keys)s"
             )
-            raise argparse.ArgumentTypeError(msg % {
-                'invalid_keys': ', '.join(invalid_keys),
-                'valid_keys': ', '.join(valid_keys),
-            })
+            raise argparse.ArgumentTypeError(
+                msg
+                % {
+                    'invalid_keys': ', '.join(invalid_keys),
+                    'valid_keys': ', '.join(valid_keys),
+                }
+            )
 
         missing_keys = [k for k in self.required_keys if k not in keys]
         if missing_keys:
@@ -928,10 +959,13 @@ class BDMAction(parseractions.MultiKeyValueAction):
                 "Missing required keys %(missing_keys)s.\n"
                 "Required keys are: %(required_keys)s"
             )
-            raise argparse.ArgumentTypeError(msg % {
-                'missing_keys': ', '.join(missing_keys),
-                'required_keys': ', '.join(self.required_keys),
-            })
+            raise argparse.ArgumentTypeError(
+                msg
+                % {
+                    'missing_keys': ', '.join(missing_keys),
+                    'required_keys': ', '.join(self.required_keys),
+                }
+            )
 
     def __call__(self, parser, namespace, values, option_string=None):
         if getattr(namespace, self.dest, None) is None:
@@ -1023,7 +1057,7 @@ class CreateServer(command.ShowOne):
                 'be deleted when the server is deleted. This option is '
                 'mutually exclusive with the ``--volume`` and ``--snapshot`` '
                 'options.'
-            )
+            ),
         )
         # TODO(stephenfin): Remove this in the v7.0
         parser.add_argument(
@@ -1168,7 +1202,7 @@ class CreateServer(command.ShowOne):
         parser.add_argument(
             '--nic',
             metavar="<net-id=net-uuid,port-id=port-uuid,v4-fixed-ip=ip-addr,"
-                    "v6-fixed-ip=ip-addr,tag=tag,auto,none>",
+            "v6-fixed-ip=ip-addr,tag=tag,auto,none>",
             dest='nics',
             action=NICAction,
             # NOTE(RuiChen): Add '\n' to the end of line to improve formatting;
@@ -1372,7 +1406,6 @@ class CreateServer(command.ShowOne):
         return parser
 
     def take_action(self, parsed_args):
-
         def _show_progress(progress):
             if progress:
                 self.app.stdout.write('\rProgress: %s' % progress)
@@ -1386,9 +1419,11 @@ class CreateServer(command.ShowOne):
         image = None
         if parsed_args.image:
             image = image_client.find_image(
-                parsed_args.image, ignore_missing=False)
+                parsed_args.image, ignore_missing=False
+            )
 
         if not image and parsed_args.image_properties:
+
             def emit_duplicated_warning(img):
                 img_uuid_list = [str(image.id) for image in img]
                 LOG.warning(
@@ -1397,7 +1432,8 @@ class CreateServer(command.ShowOne):
                     {
                         'img_uuid_list': img_uuid_list,
                         'chosen_one': img_uuid_list[0],
-                    })
+                    },
+                )
 
             def _match_image(image_api, wanted_properties):
                 image_list = image_api.images()
@@ -1418,7 +1454,9 @@ class CreateServer(command.ShowOne):
                                     'Skipped the \'%s\' attribute. '
                                     'That cannot be compared. '
                                     '(image: %s, value: %s)',
-                                    key, img.id, value,
+                                    key,
+                                    img.id,
+                                    value,
                                 )
                             pass
                         else:
@@ -1469,7 +1507,8 @@ class CreateServer(command.ShowOne):
             ).id
 
         flavor = utils.find_resource(
-            compute_client.flavors, parsed_args.flavor)
+            compute_client.flavors, parsed_args.flavor
+        )
 
         if parsed_args.file:
             if compute_client.api_version >= api_versions.APIVersion('2.57'):
@@ -1515,47 +1554,57 @@ class CreateServer(command.ShowOne):
 
         if parsed_args.description:
             if compute_client.api_version < api_versions.APIVersion("2.19"):
-                msg = _("Description is not supported for "
-                        "--os-compute-api-version less than 2.19")
+                msg = _(
+                    "Description is not supported for "
+                    "--os-compute-api-version less than 2.19"
+                )
                 raise exceptions.CommandError(msg)
 
         block_device_mapping_v2 = []
         if volume:
-            block_device_mapping_v2 = [{
-                'uuid': volume,
-                'boot_index': 0,
-                'source_type': 'volume',
-                'destination_type': 'volume'
-            }]
+            block_device_mapping_v2 = [
+                {
+                    'uuid': volume,
+                    'boot_index': 0,
+                    'source_type': 'volume',
+                    'destination_type': 'volume',
+                }
+            ]
         elif snapshot:
-            block_device_mapping_v2 = [{
-                'uuid': snapshot,
-                'boot_index': 0,
-                'source_type': 'snapshot',
-                'destination_type': 'volume',
-                'delete_on_termination': False
-            }]
+            block_device_mapping_v2 = [
+                {
+                    'uuid': snapshot,
+                    'boot_index': 0,
+                    'source_type': 'snapshot',
+                    'destination_type': 'volume',
+                    'delete_on_termination': False,
+                }
+            ]
         elif parsed_args.boot_from_volume:
             # Tell nova to create a root volume from the image provided.
-            block_device_mapping_v2 = [{
-                'uuid': image.id,
-                'boot_index': 0,
-                'source_type': 'image',
-                'destination_type': 'volume',
-                'volume_size': parsed_args.boot_from_volume
-            }]
+            block_device_mapping_v2 = [
+                {
+                    'uuid': image.id,
+                    'boot_index': 0,
+                    'source_type': 'image',
+                    'destination_type': 'volume',
+                    'volume_size': parsed_args.boot_from_volume,
+                }
+            ]
             # If booting from volume we do not pass an image to compute.
             image = None
 
         if parsed_args.swap:
-            block_device_mapping_v2.append({
-                'boot_index': -1,
-                'source_type': 'blank',
-                'destination_type': 'local',
-                'guest_format': 'swap',
-                'volume_size': parsed_args.swap,
-                'delete_on_termination': True,
-            })
+            block_device_mapping_v2.append(
+                {
+                    'boot_index': -1,
+                    'source_type': 'blank',
+                    'destination_type': 'local',
+                    'guest_format': 'swap',
+                    'volume_size': parsed_args.swap,
+                    'delete_on_termination': True,
+                }
+            )
 
         for mapping in parsed_args.ephemerals:
             block_device_mapping_dict = {
@@ -1577,12 +1626,14 @@ class CreateServer(command.ShowOne):
             # just in case
             if mapping['source_type'] == 'volume':
                 volume_id = utils.find_resource(
-                    volume_client.volumes, mapping['uuid'],
+                    volume_client.volumes,
+                    mapping['uuid'],
                 ).id
                 mapping['uuid'] = volume_id
             elif mapping['source_type'] == 'snapshot':
                 snapshot_id = utils.find_resource(
-                    volume_client.volume_snapshots, mapping['uuid'],
+                    volume_client.volume_snapshots,
+                    mapping['uuid'],
                 ).id
                 mapping['uuid'] = snapshot_id
             elif mapping['source_type'] == 'image':
@@ -1598,7 +1649,8 @@ class CreateServer(command.ShowOne):
                 # create a volume from the image and attach it to the
                 # server as a non-root volume.
                 image_id = image_client.find_image(
-                    mapping['uuid'], ignore_missing=False,
+                    mapping['uuid'],
+                    ignore_missing=False,
                 ).id
                 mapping['uuid'] = image_id
 
@@ -1635,7 +1687,10 @@ class CreateServer(command.ShowOne):
 
             if 'source_type' in mapping:
                 if mapping['source_type'] not in (
-                    'volume', 'image', 'snapshot', 'blank',
+                    'volume',
+                    'image',
+                    'snapshot',
+                    'blank',
                 ):
                     msg = _(
                         'The source_type key of --block-device should be one '
@@ -1661,7 +1716,8 @@ class CreateServer(command.ShowOne):
             if 'delete_on_termination' in mapping:
                 try:
                     value = strutils.bool_from_string(
-                        mapping['delete_on_termination'], strict=True)
+                        mapping['delete_on_termination'], strict=True
+                    )
                 except ValueError:
                     msg = _(
                         'The delete_on_termination key of --block-device '
@@ -1708,9 +1764,8 @@ class CreateServer(command.ShowOne):
         else:
             for nic in nics:
                 if 'tag' in nic:
-                    if (
-                        compute_client.api_version <
-                        api_versions.APIVersion('2.43')
+                    if compute_client.api_version < api_versions.APIVersion(
+                        '2.43'
                     ):
                         msg = _(
                             '--os-compute-api-version 2.43 or greater is '
@@ -1723,13 +1778,15 @@ class CreateServer(command.ShowOne):
 
                     if nic['net-id']:
                         net = network_client.find_network(
-                            nic['net-id'], ignore_missing=False,
+                            nic['net-id'],
+                            ignore_missing=False,
                         )
                         nic['net-id'] = net.id
 
                     if nic['port-id']:
                         port = network_client.find_port(
-                            nic['port-id'], ignore_missing=False,
+                            nic['port-id'],
+                            ignore_missing=False,
                         )
                         nic['port-id'] = port.id
                 else:
@@ -1760,8 +1817,9 @@ class CreateServer(command.ShowOne):
         if self.app.client_manager.is_network_endpoint_enabled():
             network_client = self.app.client_manager.network
             for each_sg in parsed_args.security_group:
-                sg = network_client.find_security_group(each_sg,
-                                                        ignore_missing=False)
+                sg = network_client.find_security_group(
+                    each_sg, ignore_missing=False
+                )
                 # Use security group ID to avoid multiple security group have
                 # same name in neutron networking backend
                 security_group_names.append(sg.id)
@@ -1787,8 +1845,12 @@ class CreateServer(command.ShowOne):
             # '--config-drive'
             if str(parsed_args.config_drive).lower() in ("true", "1"):
                 config_drive = True
-            elif str(parsed_args.config_drive).lower() in ("false", "0",
-                                                           "", "none"):
+            elif str(parsed_args.config_drive).lower() in (
+                "false",
+                "0",
+                "",
+                "none",
+            ):
                 config_drive = None
             else:
                 config_drive = parsed_args.config_drive
@@ -1809,7 +1871,8 @@ class CreateServer(command.ShowOne):
             block_device_mapping_v2=block_device_mapping_v2,
             nics=nics,
             scheduler_hints=hints,
-            config_drive=config_drive)
+            config_drive=config_drive,
+        )
 
         if parsed_args.description:
             boot_kwargs['description'] = parsed_args.description
@@ -1842,8 +1905,9 @@ class CreateServer(command.ShowOne):
                 )
                 raise exceptions.CommandError(msg)
 
-            boot_kwargs['hypervisor_hostname'] = (
-                parsed_args.hypervisor_hostname)
+            boot_kwargs[
+                'hypervisor_hostname'
+            ] = parsed_args.hypervisor_hostname
 
         if parsed_args.hostname:
             if compute_client.api_version < api_versions.APIVersion("2.90"):
@@ -1965,7 +2029,6 @@ class DeleteServer(command.Command):
         return parser
 
     def take_action(self, parsed_args):
-
         def _show_progress(progress):
             if progress:
                 self.app.stdout.write('\rProgress: %s' % progress)
@@ -1974,8 +2037,10 @@ class DeleteServer(command.Command):
         compute_client = self.app.client_manager.compute
         for server in parsed_args.server:
             server_obj = utils.find_resource(
-                compute_client.servers, server,
-                all_tenants=parsed_args.all_projects)
+                compute_client.servers,
+                server,
+                all_tenants=parsed_args.all_projects,
+            )
 
             if parsed_args.force:
                 compute_client.servers.force_delete(server_obj.id)
@@ -2062,7 +2127,7 @@ class ListServer(command.Lister):
                 'SHUTOFF',
                 'SOFT_DELETED',
                 'SUSPENDED',
-                'VERIFY_RESIZE'
+                'VERIFY_RESIZE',
             ),
             help=_('Search by server status'),
         )
@@ -2093,7 +2158,7 @@ class ListServer(command.Lister):
         parser.add_argument(
             '--project',
             metavar='<project>',
-            help=_("Search by project (admin only) (name or ID)")
+            help=_("Search by project (admin only) (name or ID)"),
         )
         identity_common.add_project_domain_option_to_parser(parser)
         parser.add_argument(
@@ -2259,7 +2324,8 @@ class ListServer(command.Lister):
         )
         name_lookup_group = parser.add_mutually_exclusive_group()
         name_lookup_group.add_argument(
-            '-n', '--no-name-lookup',
+            '-n',
+            '--no-name-lookup',
             action='store_true',
             default=False,
             help=_(
@@ -2511,8 +2577,8 @@ class ListServer(command.Lister):
                 iso8601.parse_date(search_opts['changes-before'])
             except (TypeError, iso8601.ParseError):
                 raise exceptions.CommandError(
-                    _('Invalid changes-before value: %s') %
-                    search_opts['changes-before']
+                    _('Invalid changes-before value: %s')
+                    % search_opts['changes-before']
                 )
 
         if search_opts['changes-since']:
@@ -2659,7 +2725,8 @@ class ListServer(command.Lister):
             # partial responses from down cells will not have an image
             # attribute so we use getattr
             image_ids = {
-                s.image['id'] for s in data
+                s.image['id']
+                for s in data
                 if getattr(s, 'image', None) and s.image.get('id')
             }
 
@@ -2700,7 +2767,8 @@ class ListServer(command.Lister):
             # present if there are infra failures
             if parsed_args.name_lookup_one_by_one or flavor_id:
                 for f_id in set(
-                    s.flavor['id'] for s in data
+                    s.flavor['id']
+                    for s in data
                     if s.flavor and s.flavor.get('id')
                 ):
                     # "Flavor Name" is not crucial, so we swallow any
@@ -2765,8 +2833,8 @@ class ListServer(command.Lister):
         # it's on, providing useful information to a user in this
         # situation.
         if (
-            sdk_utils.supports_microversion(compute_client, '2.16') and
-            parsed_args.long
+            sdk_utils.supports_microversion(compute_client, '2.16')
+            and parsed_args.long
         ):
             if any([s.host_status is not None for s in data]):
                 columns += ('Host Status',)
@@ -2776,7 +2844,8 @@ class ListServer(command.Lister):
             column_headers,
             (
                 utils.get_item_properties(
-                    s, columns,
+                    s,
+                    columns,
                     mixed_case_fields=(
                         'task_state',
                         'power_state',
@@ -2790,17 +2859,19 @@ class ListServer(command.Lister):
                         'security_groups_name': format_columns.ListColumn,
                         'hypervisor_hostname': HostColumn,
                     },
-                ) for s in data
+                )
+                for s in data
             ),
         )
         return table
 
 
 class LockServer(command.Command):
+    _description = _(
+        """Lock server(s)
 
-    _description = _("""Lock server(s)
-
-A non-admin user will not be able to execute actions.""")
+A non-admin user will not be able to execute actions."""
+    )
 
     def get_parser(self, prog_name):
         parser = super(LockServer, self).get_parser(prog_name)
@@ -2837,8 +2908,7 @@ A non-admin user will not be able to execute actions.""")
 
         for server in parsed_args.server:
             server_id = compute_client.find_server(
-                server,
-                ignore_missing=False
+                server, ignore_missing=False
             ).id
             compute_client.lock_server(server_id, **kwargs)
 
@@ -2853,8 +2923,10 @@ A non-admin user will not be able to execute actions.""")
 # live_parser = parser.add_argument_group(title='Live migration options')
 # then adding the groups doesn't seem to work
 
+
 class MigrateServer(command.Command):
-    _description = _("""Migrate server to different host.
+    _description = _(
+        """Migrate server to different host.
 
 A migrate operation is implemented as a resize operation using the same flavor
 as the old server. This means that, like resize, migrate works by creating a
@@ -2862,7 +2934,8 @@ new server using the same flavor and copying the contents of the original disk
 into a new one. As with resize, the migrate operation is a two-step process for
 the user: the first step is to perform the migrate, and the second step is to
 either confirm (verify) success and release the old server, or to declare a
-revert to release the new server and restart the old one.""")
+revert to release the new server and restart the old one."""
+    )
 
     def get_parser(self, prog_name):
         parser = super(MigrateServer, self).get_parser(prog_name)
@@ -2939,7 +3012,6 @@ revert to release the new server and restart the old one.""")
         return parser
 
     def take_action(self, parsed_args):
-
         def _show_progress(progress):
             if progress:
                 self.app.stdout.write('\rProgress: %s' % progress)
@@ -2957,9 +3029,8 @@ revert to release the new server and restart the old one.""")
 
             block_migration = parsed_args.block_migration
             if block_migration is None:
-                if (
-                    compute_client.api_version <
-                    api_versions.APIVersion('2.25')
+                if compute_client.api_version < api_versions.APIVersion(
+                    '2.25'
                 ):
                     block_migration = False
                 else:
@@ -2974,8 +3045,9 @@ revert to release the new server and restart the old one.""")
             # and --host, we want to enforce that they are using version
             # 2.30 or greater.
             if (
-                parsed_args.host and
-                compute_client.api_version < api_versions.APIVersion('2.30')
+                parsed_args.host
+                and compute_client.api_version
+                < api_versions.APIVersion('2.30')
             ):
                 raise exceptions.CommandError(
                     '--os-compute-api-version 2.30 or greater is required '
@@ -3008,10 +3080,12 @@ revert to release the new server and restart the old one.""")
                 raise exceptions.CommandError(
                     "--live-migration must be specified if "
                     "--block-migration or --disk-overcommit is "
-                    "specified")
+                    "specified"
+                )
             if parsed_args.host:
-                if (compute_client.api_version <
-                        api_versions.APIVersion('2.56')):
+                if compute_client.api_version < api_versions.APIVersion(
+                    '2.56'
+                ):
                     msg = _(
                         '--os-compute-api-version 2.56 or greater is '
                         'required to use --host without --live-migration.'
@@ -3030,8 +3104,7 @@ revert to release the new server and restart the old one.""")
             ):
                 self.app.stdout.write(_('Complete\n'))
             else:
-                LOG.error(_('Error migrating server: %s'),
-                          server.id)
+                LOG.error(_('Error migrating server: %s'), server.id)
                 self.app.stdout.write(_('Error migrating server\n'))
                 raise SystemExit
 
@@ -3094,7 +3167,6 @@ class RebootServer(command.Command):
         return parser
 
     def take_action(self, parsed_args):
-
         def _show_progress(progress):
             if progress:
                 self.app.stdout.write('\rProgress: %s' % progress)
@@ -3301,7 +3373,6 @@ class RebuildServer(command.ShowOne):
         return parser
 
     def take_action(self, parsed_args):
-
         def _show_progress(progress):
             if progress:
                 self.app.stdout.write('\rProgress: %s' % progress)
@@ -3311,7 +3382,8 @@ class RebuildServer(command.ShowOne):
         image_client = self.app.client_manager.image
 
         server = utils.find_resource(
-            compute_client.servers, parsed_args.server)
+            compute_client.servers, parsed_args.server
+        )
 
         # If parsed_args.image is not set and if the instance is image backed,
         # default to the currently used one. If the instance is volume backed,
@@ -3319,7 +3391,8 @@ class RebuildServer(command.ShowOne):
         # to error out in this case and ask user to supply the image.
         if parsed_args.image:
             image = image_client.find_image(
-                parsed_args.image, ignore_missing=False)
+                parsed_args.image, ignore_missing=False
+            )
         else:
             if not server.image:
                 msg = _(
@@ -3482,12 +3555,14 @@ class RebuildServer(command.ShowOne):
                 raise SystemExit
 
         details = _prep_server_detail(
-            compute_client, image_client, server, refresh=False)
+            compute_client, image_client, server, refresh=False
+        )
         return zip(*sorted(details.items()))
 
 
 class EvacuateServer(command.ShowOne):
-    _description = _("""Evacuate a server to a different host.
+    _description = _(
+        """Evacuate a server to a different host.
 
 This command is used to recreate a server after the host it was on has failed.
 It can only be used if the compute service that manages the server is down.
@@ -3500,7 +3575,8 @@ the ports and any attached data volumes.
 
 If the server uses boot for volume or has its root disk on shared storage the
 root disk will be preserved and reused for the evacuated instance on the new
-host.""")
+host."""
+    )
 
     def get_parser(self, prog_name):
         parser = super(EvacuateServer, self).get_parser(prog_name)
@@ -3511,11 +3587,14 @@ host.""")
         )
 
         parser.add_argument(
-            '--wait', action='store_true',
+            '--wait',
+            action='store_true',
             help=_('Wait for evacuation to complete'),
         )
         parser.add_argument(
-            '--host', metavar='<host>', default=None,
+            '--host',
+            metavar='<host>',
+            default=None,
             help=_(
                 'Set the preferred host on which to rebuild the evacuated '
                 'server. The host will be validated by the scheduler. '
@@ -3524,7 +3603,9 @@ host.""")
         )
         shared_storage_group = parser.add_mutually_exclusive_group()
         shared_storage_group.add_argument(
-            '--password', metavar='<password>', default=None,
+            '--password',
+            metavar='<password>',
+            default=None,
             help=_(
                 'Set the password on the evacuated instance. This option is '
                 'mutually exclusive with the --shared-storage option. '
@@ -3532,7 +3613,9 @@ host.""")
             ),
         )
         shared_storage_group.add_argument(
-            '--shared-storage', action='store_true', dest='shared_storage',
+            '--shared-storage',
+            action='store_true',
+            dest='shared_storage',
             help=_(
                 'Indicate that the instance is on shared storage. '
                 'This will be auto-calculated with '
@@ -3544,7 +3627,6 @@ host.""")
         return parser
 
     def take_action(self, parsed_args):
-
         def _show_progress(progress):
             if progress:
                 self.app.stdout.write('\rProgress: %s' % progress)
@@ -3578,7 +3660,8 @@ host.""")
             kwargs['on_shared_storage'] = parsed_args.shared_storage
 
         server = utils.find_resource(
-            compute_client.servers, parsed_args.server)
+            compute_client.servers, parsed_args.server
+        )
 
         server.evacuate(**kwargs)
 
@@ -3595,7 +3678,8 @@ host.""")
                 raise SystemExit
 
         details = _prep_server_detail(
-            compute_client, image_client, server, refresh=True)
+            compute_client, image_client, server, refresh=True
+        )
         return zip(*sorted(details.items()))
 
 
@@ -3620,7 +3704,8 @@ class RemoveFixedIP(command.Command):
         compute_client = self.app.client_manager.compute
 
         server = utils.find_resource(
-            compute_client.servers, parsed_args.server)
+            compute_client.servers, parsed_args.server
+        )
 
         server.remove_fixed_ip(parsed_args.ip_address)
 
@@ -3681,12 +3766,14 @@ class RemovePort(command.Command):
         compute_client = self.app.client_manager.sdk_connection.compute
 
         server = compute_client.find_server(
-            parsed_args.server, ignore_missing=False)
+            parsed_args.server, ignore_missing=False
+        )
 
         if self.app.client_manager.is_network_endpoint_enabled():
             network_client = self.app.client_manager.network
             port_id = network_client.find_port(
-                parsed_args.port, ignore_missing=False).id
+                parsed_args.port, ignore_missing=False
+            ).id
         else:
             port_id = parsed_args.port
 
@@ -3718,12 +3805,14 @@ class RemoveNetwork(command.Command):
         compute_client = self.app.client_manager.sdk_connection.compute
 
         server = compute_client.find_server(
-            parsed_args.server, ignore_missing=False)
+            parsed_args.server, ignore_missing=False
+        )
 
         if self.app.client_manager.is_network_endpoint_enabled():
             network_client = self.app.client_manager.network
             net_id = network_client.find_network(
-                parsed_args.network, ignore_missing=False).id
+                parsed_args.network, ignore_missing=False
+            ).id
         else:
             net_id = parsed_args.network
 
@@ -3767,10 +3856,12 @@ class RemoveServerSecurityGroup(command.Command):
 
 
 class RemoveServerVolume(command.Command):
-    _description = _("""Remove volume from server.
+    _description = _(
+        """Remove volume from server.
 
 Specify ``--os-compute-api-version 2.20`` or higher to remove a
-volume from a server with status ``SHELVED`` or ``SHELVED_OFFLOADED``.""")
+volume from a server with status ``SHELVED`` or ``SHELVED_OFFLOADED``."""
+    )
 
     def get_parser(self, prog_name):
         parser = super(RemoveServerVolume, self).get_parser(prog_name)
@@ -3807,10 +3898,12 @@ volume from a server with status ``SHELVED`` or ``SHELVED_OFFLOADED``.""")
 
 
 class RescueServer(command.Command):
-    _description = _("""Put server in rescue mode.
+    _description = _(
+        """Put server in rescue mode.
 
 Specify ``--os-compute-api-version 2.87`` or higher to rescue a
-server booted from a volume.""")
+server booted from a volume."""
+    )
 
     def get_parser(self, prog_name):
         parser = super(RescueServer, self).get_parser(prog_name)
@@ -3822,8 +3915,10 @@ server booted from a volume.""")
         parser.add_argument(
             '--image',
             metavar='<image>',
-            help=_('Image (name or ID) to use for the rescue mode.'
-                   ' Defaults to the currently used one.'),
+            help=_(
+                'Image (name or ID) to use for the rescue mode.'
+                ' Defaults to the currently used one.'
+            ),
         )
         parser.add_argument(
             '--password',
@@ -3846,18 +3941,19 @@ server booted from a volume.""")
         utils.find_resource(
             compute_client.servers,
             parsed_args.server,
-        ).rescue(image=image,
-                 password=parsed_args.password)
+        ).rescue(image=image, password=parsed_args.password)
 
 
 class ResizeServer(command.Command):
-    _description = _("""Scale server to a new flavor.
+    _description = _(
+        """Scale server to a new flavor.
 
 A resize operation is implemented by creating a new server and copying the
 contents of the original disk into a new one. It is a two-step process for the
 user: the first step is to perform the resize, and the second step is to either
 confirm (verify) success and release the old server or to declare a revert to
-release the new server and restart the old one.""")
+release the new server and restart the old one."""
+    )
 
     def get_parser(self, prog_name):
         parser = super(ResizeServer, self).get_parser(prog_name)
@@ -3898,7 +3994,6 @@ release the new server and restart the old one.""")
         return parser
 
     def take_action(self, parsed_args):
-
         def _show_progress(progress):
             if progress:
                 self.app.stdout.write('\rProgress: %s' % progress)
@@ -3924,26 +4019,33 @@ release the new server and restart the old one.""")
                 ):
                     self.app.stdout.write(_('Complete\n'))
                 else:
-                    LOG.error(_('Error resizing server: %s'),
-                              server.id)
+                    LOG.error(_('Error resizing server: %s'), server.id)
                     self.app.stdout.write(_('Error resizing server\n'))
                     raise SystemExit
         elif parsed_args.confirm:
-            self.log.warning(_(
-                "The --confirm option has been deprecated. Please use the "
-                "'openstack server resize confirm' command instead."))
+            self.log.warning(
+                _(
+                    "The --confirm option has been deprecated. Please use the "
+                    "'openstack server resize confirm' command instead."
+                )
+            )
             compute_client.servers.confirm_resize(server)
         elif parsed_args.revert:
-            self.log.warning(_(
-                "The --revert option has been deprecated. Please use the "
-                "'openstack server resize revert' command instead."))
+            self.log.warning(
+                _(
+                    "The --revert option has been deprecated. Please use the "
+                    "'openstack server resize revert' command instead."
+                )
+            )
             compute_client.servers.revert_resize(server)
 
 
 class ResizeConfirm(command.Command):
-    _description = _("""Confirm server resize.
+    _description = _(
+        """Confirm server resize.
 
-Confirm (verify) success of resize operation and release the old server.""")
+Confirm (verify) success of resize operation and release the old server."""
+    )
 
     def get_parser(self, prog_name):
         parser = super(ResizeConfirm, self).get_parser(prog_name)
@@ -3955,7 +4057,6 @@ Confirm (verify) success of resize operation and release the old server.""")
         return parser
 
     def take_action(self, parsed_args):
-
         compute_client = self.app.client_manager.compute
         server = utils.find_resource(
             compute_client.servers,
@@ -3979,17 +4080,21 @@ class MigrateConfirm(ResizeConfirm):
 
 
 class ConfirmMigration(ResizeConfirm):
-    _description = _("""Confirm server migration.
+    _description = _(
+        """Confirm server migration.
 
 Confirm (verify) success of the migration operation and release the old
-server.""")
+server."""
+    )
 
 
 class ResizeRevert(command.Command):
-    _description = _("""Revert server resize.
+    _description = _(
+        """Revert server resize.
 
 Revert the resize operation. Release the new server and restart the old
-one.""")
+one."""
+    )
 
     def get_parser(self, prog_name):
         parser = super(ResizeRevert, self).get_parser(prog_name)
@@ -4001,7 +4106,6 @@ one.""")
         return parser
 
     def take_action(self, parsed_args):
-
         compute_client = self.app.client_manager.compute
         server = utils.find_resource(
             compute_client.servers,
@@ -4025,10 +4129,12 @@ class MigrateRevert(ResizeRevert):
 
 
 class RevertMigration(ResizeRevert):
-    _description = _("""Revert server migration.
+    _description = _(
+        """Revert server migration.
 
 Revert the migration operation. Release the new server and restart the old
-one.""")
+one."""
+    )
 
 
 class RestoreServer(command.Command):
@@ -4169,7 +4275,6 @@ class SetServer(command.Command):
         return parser
 
     def take_action(self, parsed_args):
-
         compute_client = self.app.client_manager.compute
         server = utils.find_resource(
             compute_client.servers,
@@ -4282,7 +4387,6 @@ class ShelveServer(command.Command):
         return parser
 
     def take_action(self, parsed_args):
-
         def _show_progress(progress):
             if progress:
                 self.app.stdout.write('\rProgress: %s' % progress)
@@ -4348,7 +4452,8 @@ class ShelveServer(command.Command):
                 callback=_show_progress,
             ):
                 LOG.error(
-                    _('Error offloading shelved server %s'), server_obj.id,
+                    _('Error offloading shelved server %s'),
+                    server_obj.id,
                 )
                 self.app.stdout.write(
                     _('Error offloading shelved server: %s\n') % server_obj.id
@@ -4357,10 +4462,12 @@ class ShelveServer(command.Command):
 
 
 class ShowServer(command.ShowOne):
-    _description = _("""Show server details.
+    _description = _(
+        """Show server details.
 
 Specify ``--os-compute-api-version 2.47`` or higher to see the embedded flavor
-information for the server.""")
+information for the server."""
+    )
 
     def get_parser(self, prog_name):
         parser = super(ShowServer, self).get_parser(prog_name)
@@ -4393,7 +4500,8 @@ information for the server.""")
 
         # Find by name or ID, then get the full details of the server
         server = compute_client.find_server(
-            parsed_args.server, ignore_missing=False)
+            parsed_args.server, ignore_missing=False
+        )
         server = compute_client.get_server(server)
 
         if parsed_args.diagnostics:
@@ -4417,7 +4525,8 @@ information for the server.""")
             self.app.client_manager.compute,
             self.app.client_manager.image,
             server,
-            refresh=False)
+            refresh=False,
+        )
 
         if topology:
             data['topology'] = format_columns.DictColumn(topology)
@@ -4437,26 +4546,30 @@ class SshServer(command.Command):
         )
         # Deprecated during the Yoga cycle
         parser.add_argument(
-            '--login', '-l',
+            '--login',
+            '-l',
             metavar='<login-name>',
             help=argparse.SUPPRESS,
         )
         # Deprecated during the Yoga cycle
         parser.add_argument(
-            '--port', '-p',
+            '--port',
+            '-p',
             metavar='<port>',
             type=int,
             help=argparse.SUPPRESS,
         )
         # Deprecated during the Yoga cycle
         parser.add_argument(
-            '--identity', '-i',
+            '--identity',
+            '-i',
             metavar='<keyfile>',
             help=argparse.SUPPRESS,
         )
         # Deprecated during the Yoga cycle
         parser.add_argument(
-            '--option', '-o',
+            '--option',
+            '-o',
             metavar='<config-options>',
             help=argparse.SUPPRESS,
         )
@@ -4519,7 +4632,6 @@ class SshServer(command.Command):
         return parser
 
     def take_action(self, parsed_args):
-
         compute_client = self.app.client_manager.compute
 
         server = utils.find_resource(
@@ -4528,13 +4640,15 @@ class SshServer(command.Command):
         )
 
         # first, handle the deprecated options
-        if any((
-            parsed_args.port,
-            parsed_args.identity,
-            parsed_args.option,
-            parsed_args.login,
-            parsed_args.verbose,
-        )):
+        if any(
+            (
+                parsed_args.port,
+                parsed_args.identity,
+                parsed_args.option,
+                parsed_args.login,
+                parsed_args.verbose,
+            )
+        ):
             msg = _(
                 'The ssh options have been deprecated. The ssh equivalent '
                 'options can be used instead as arguments after "--" on '
@@ -4742,7 +4856,6 @@ class UnrescueServer(command.Command):
         return parser
 
     def take_action(self, parsed_args):
-
         compute_client = self.app.client_manager.compute
         utils.find_resource(
             compute_client.servers,
@@ -4766,15 +4879,19 @@ class UnsetServer(command.Command):
             action='append',
             default=[],
             dest='properties',
-            help=_('Property key to remove from server '
-                   '(repeat option to remove multiple values)'),
+            help=_(
+                'Property key to remove from server '
+                '(repeat option to remove multiple values)'
+            ),
         )
         parser.add_argument(
             '--description',
             dest='description',
             action='store_true',
-            help=_('Unset server description (supported by '
-                   '--os-compute-api-version 2.19 or above)'),
+            help=_(
+                'Unset server description (supported by '
+                '--os-compute-api-version 2.19 or above)'
+            ),
         )
         parser.add_argument(
             '--tag',
@@ -4802,8 +4919,10 @@ class UnsetServer(command.Command):
 
         if parsed_args.description:
             if compute_client.api_version < api_versions.APIVersion("2.19"):
-                msg = _("Description is not supported for "
-                        "--os-compute-api-version less than 2.19")
+                msg = _(
+                    "Description is not supported for "
+                    "--os-compute-api-version less than 2.19"
+                )
                 raise exceptions.CommandError(msg)
             compute_client.servers.update(
                 server,
@@ -4872,7 +4991,6 @@ class UnshelveServer(command.Command):
         return parser
 
     def take_action(self, parsed_args):
-
         def _show_progress(progress):
             if progress:
                 self.app.stdout.write('\rProgress: %s' % progress)
@@ -4918,7 +5036,8 @@ class UnshelveServer(command.Command):
             )
 
             if server_obj.status.lower() not in (
-                'shelved', 'shelved_offloaded',
+                'shelved',
+                'shelved_offloaded',
             ):
                 continue
 

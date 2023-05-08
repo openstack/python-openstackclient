@@ -22,7 +22,6 @@ from openstackclient.tests.unit.image.v2 import fakes as image_fakes
 
 
 class TestServerImage(compute_fakes.TestComputev2):
-
     def setUp(self):
         super(TestServerImage, self).setUp()
 
@@ -57,11 +56,16 @@ class TestServerImage(compute_fakes.TestComputev2):
 
 
 class TestServerImageCreate(TestServerImage):
-
     def image_columns(self, image):
         # columnlist = tuple(sorted(image.keys()))
         columnlist = (
-            'id', 'name', 'owner', 'protected', 'status', 'tags', 'visibility'
+            'id',
+            'name',
+            'owner',
+            'protected',
+            'status',
+            'tags',
+            'visibility',
         )
         return columnlist
 
@@ -141,8 +145,10 @@ class TestServerImageCreate(TestServerImage):
         images = self.setup_images_mock(count=1, servers=servers)
 
         arglist = [
-            '--name', 'img-nam',
-            '--property', 'key=value',
+            '--name',
+            'img-nam',
+            '--property',
+            'key=value',
             servers[0].id,
         ]
         verifylist = [
@@ -194,9 +200,7 @@ class TestServerImageCreate(TestServerImage):
         )
 
         mock_wait_for_status.assert_called_once_with(
-            self.images_mock.get_image,
-            images[0].id,
-            callback=mock.ANY
+            self.images_mock.get_image, images[0].id, callback=mock.ANY
         )
 
     @mock.patch.object(common_utils, 'wait_for_status', return_value=True)
@@ -226,9 +230,7 @@ class TestServerImageCreate(TestServerImage):
         )
 
         mock_wait_for_status.assert_called_once_with(
-            self.images_mock.get_image,
-            images[0].id,
-            callback=mock.ANY
+            self.images_mock.get_image, images[0].id, callback=mock.ANY
         )
 
         self.assertEqual(self.image_columns(images[0]), columns)

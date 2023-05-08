@@ -29,11 +29,11 @@ def _get_hypervisor_stat_columns(item):
         'memory_free': 'free_ram_mb',
         'memory_size': 'memory_mb',
         'memory_used': 'memory_mb_used',
-
     }
     hidden_columns = ['id', 'links', 'location', 'name']
     return utils.get_osc_show_columns_for_sdk_resource(
-        item, column_map, hidden_columns)
+        item, column_map, hidden_columns
+    )
 
 
 class ShowHypervisorStats(command.ShowOne):
@@ -41,19 +41,17 @@ class ShowHypervisorStats(command.ShowOne):
 
     def take_action(self, parsed_args):
         # The command is deprecated since it is being dropped in Nova.
-        self.log.warning(
-            _("This command is deprecated.")
-        )
+        self.log.warning(_("This command is deprecated."))
         compute_client = self.app.client_manager.sdk_connection.compute
         # We do API request directly cause this deprecated method is not and
         # will not be supported by OpenStackSDK.
         response = compute_client.get(
-            '/os-hypervisors/statistics',
-            microversion='2.1')
+            '/os-hypervisors/statistics', microversion='2.1'
+        )
         hypervisor_stats = response.json().get('hypervisor_statistics')
 
         display_columns, columns = _get_hypervisor_stat_columns(
-            hypervisor_stats)
-        data = utils.get_dict_properties(
-            hypervisor_stats, columns)
+            hypervisor_stats
+        )
+        data = utils.get_dict_properties(hypervisor_stats, columns)
         return (display_columns, data)

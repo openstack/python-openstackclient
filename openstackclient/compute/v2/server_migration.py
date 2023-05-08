@@ -31,27 +31,26 @@ class ListMigration(command.Lister):
         parser.add_argument(
             '--server',
             metavar='<server>',
-            help=_(
-                'Filter migrations by server (name or ID)'
-            )
+            help=_('Filter migrations by server (name or ID)'),
         )
         parser.add_argument(
             '--host',
             metavar='<host>',
-            help=_(
-                'Filter migrations by source or destination host'
-            ),
+            help=_('Filter migrations by source or destination host'),
         )
         parser.add_argument(
             '--status',
             metavar='<status>',
-            help=_('Filter migrations by status')
+            help=_('Filter migrations by status'),
         )
         parser.add_argument(
             '--type',
             metavar='<type>',
             choices=[
-                'evacuation', 'live-migration', 'cold-migration', 'resize',
+                'evacuation',
+                'live-migration',
+                'cold-migration',
+                'resize',
             ],
             help=_('Filter migrations by type'),
         )
@@ -121,17 +120,33 @@ class ListMigration(command.Lister):
 
     def print_migrations(self, parsed_args, compute_client, migrations):
         column_headers = [
-            'Source Node', 'Dest Node', 'Source Compute', 'Dest Compute',
-            'Dest Host', 'Status', 'Server UUID', 'Old Flavor', 'New Flavor',
-            'Created At', 'Updated At',
+            'Source Node',
+            'Dest Node',
+            'Source Compute',
+            'Dest Compute',
+            'Dest Host',
+            'Status',
+            'Server UUID',
+            'Old Flavor',
+            'New Flavor',
+            'Created At',
+            'Updated At',
         ]
 
         # Response fields coming back from the REST API are not always exactly
         # the same as the column header names.
         columns = [
-            'source_node', 'dest_node', 'source_compute', 'dest_compute',
-            'dest_host', 'status', 'server_id', 'old_flavor_id',
-            'new_flavor_id', 'created_at', 'updated_at',
+            'source_node',
+            'dest_node',
+            'source_compute',
+            'dest_compute',
+            'dest_host',
+            'status',
+            'server_id',
+            'old_flavor_id',
+            'new_flavor_id',
+            'created_at',
+            'updated_at',
         ]
 
         # Insert migrations UUID after ID
@@ -260,9 +275,7 @@ def _get_migration_by_uuid(compute_client, server_id, migration_uuid):
             return migration
             break
     else:
-        msg = _(
-            'In-progress live migration %s is not found for server %s.'
-        )
+        msg = _('In-progress live migration %s is not found for server %s.')
         raise exceptions.CommandError(msg % (migration_uuid, server_id))
 
 
@@ -302,9 +315,7 @@ class ShowMigration(command.ShowOne):
             try:
                 uuid.UUID(parsed_args.migration)
             except ValueError:
-                msg = _(
-                    'The <migration> argument must be an ID or UUID'
-                )
+                msg = _('The <migration> argument must be an ID or UUID')
                 raise exceptions.CommandError(msg)
 
             if not sdk_utils.supports_microversion(compute_client, '2.59'):
@@ -324,7 +335,9 @@ class ShowMigration(command.ShowOne):
         # migrations - the responses are identical
         if not parsed_args.migration.isdigit():
             server_migration = _get_migration_by_uuid(
-                compute_client, server.id, parsed_args.migration,
+                compute_client,
+                server.id,
+                parsed_args.migration,
             )
         else:
             server_migration = compute_client.get_server_migration(
@@ -417,9 +430,7 @@ class AbortMigration(command.Command):
             try:
                 uuid.UUID(parsed_args.migration)
             except ValueError:
-                msg = _(
-                    'The <migration> argument must be an ID or UUID'
-                )
+                msg = _('The <migration> argument must be an ID or UUID')
                 raise exceptions.CommandError(msg)
 
             if not sdk_utils.supports_microversion(compute_client, '2.59'):
@@ -440,7 +451,9 @@ class AbortMigration(command.Command):
         migration_id = parsed_args.migration
         if not parsed_args.migration.isdigit():
             migration_id = _get_migration_by_uuid(
-                compute_client, server.id, parsed_args.migration,
+                compute_client,
+                server.id,
+                parsed_args.migration,
             ).id
 
         compute_client.abort_server_migration(
@@ -464,9 +477,7 @@ class ForceCompleteMigration(command.Command):
             help=_('Server (name or ID)'),
         )
         parser.add_argument(
-            'migration',
-            metavar='<migration>',
-            help=_('Migration (ID)')
+            'migration', metavar='<migration>', help=_('Migration (ID)')
         )
         return parser
 
@@ -484,9 +495,7 @@ class ForceCompleteMigration(command.Command):
             try:
                 uuid.UUID(parsed_args.migration)
             except ValueError:
-                msg = _(
-                    'The <migration> argument must be an ID or UUID'
-                )
+                msg = _('The <migration> argument must be an ID or UUID')
                 raise exceptions.CommandError(msg)
 
             if not sdk_utils.supports_microversion(compute_client, '2.59'):
@@ -507,9 +516,9 @@ class ForceCompleteMigration(command.Command):
         migration_id = parsed_args.migration
         if not parsed_args.migration.isdigit():
             migration_id = _get_migration_by_uuid(
-                compute_client, server.id, parsed_args.migration,
+                compute_client,
+                server.id,
+                parsed_args.migration,
             ).id
 
-        compute_client.force_complete_server_migration(
-            migration_id, server.id
-        )
+        compute_client.force_complete_server_migration(migration_id, server.id)

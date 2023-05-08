@@ -22,7 +22,6 @@ from openstackclient.tests.unit import utils as tests_utils
 
 
 class TestHost(compute_fakes.TestComputev2):
-
     def setUp(self):
         super(TestHost, self).setUp()
 
@@ -33,11 +32,8 @@ class TestHost(compute_fakes.TestComputev2):
         self.sdk_client.get = mock.Mock()
 
 
-@mock.patch(
-    'openstackclient.api.compute_v2.APIv2.host_list'
-)
+@mock.patch('openstackclient.api.compute_v2.APIv2.host_list')
 class TestHostList(TestHost):
-
     _host = compute_fakes.FakeHost.create_one_host()
 
     def setUp(self):
@@ -47,15 +43,15 @@ class TestHostList(TestHost):
             data={'hosts': [self._host]}
         )
 
-        self.columns = (
-            'Host Name', 'Service', 'Zone'
-        )
+        self.columns = ('Host Name', 'Service', 'Zone')
 
-        self.data = [(
-            self._host['host_name'],
-            self._host['service'],
-            self._host['zone'],
-        )]
+        self.data = [
+            (
+                self._host['host_name'],
+                self._host['service'],
+                self._host['zone'],
+            )
+        ]
 
         self.cmd = host.ListHost(self.app, None)
 
@@ -75,7 +71,8 @@ class TestHostList(TestHost):
     def test_host_list_with_option(self, h_mock):
         h_mock.return_value = [self._host]
         arglist = [
-            '--zone', self._host['zone'],
+            '--zone',
+            self._host['zone'],
         ]
         verifylist = [
             ('zone', self._host['zone']),
@@ -90,11 +87,8 @@ class TestHostList(TestHost):
         self.assertEqual(self.data, list(data))
 
 
-@mock.patch(
-    'openstackclient.api.compute_v2.APIv2.host_set'
-)
+@mock.patch('openstackclient.api.compute_v2.APIv2.host_set')
 class TestHostSet(TestHost):
-
     def setUp(self):
         super(TestHostSet, self).setUp()
 
@@ -138,27 +132,27 @@ class TestHostSet(TestHost):
         result = self.cmd.take_action(parsed_args)
         self.assertIsNone(result)
 
-        h_mock.assert_called_with(self.host['host'], status='enable',
-                                  maintenance_mode='disable')
+        h_mock.assert_called_with(
+            self.host['host'], status='enable', maintenance_mode='disable'
+        )
 
 
-@mock.patch(
-    'openstackclient.api.compute_v2.APIv2.host_show'
-)
+@mock.patch('openstackclient.api.compute_v2.APIv2.host_show')
 class TestHostShow(TestHost):
-
     _host = compute_fakes.FakeHost.create_one_host()
 
     def setUp(self):
         super(TestHostShow, self).setUp()
 
-        output_data = {"resource": {
-            "host": self._host['host'],
-            "project": self._host['project'],
-            "cpu": self._host['cpu'],
-            "memory_mb": self._host['memory_mb'],
-            "disk_gb": self._host['disk_gb']
-        }}
+        output_data = {
+            "resource": {
+                "host": self._host['host'],
+                "project": self._host['project'],
+                "cpu": self._host['cpu'],
+                "memory_mb": self._host['memory_mb'],
+                "disk_gb": self._host['disk_gb'],
+            }
+        }
 
         self.sdk_client.get.return_value = fakes.FakeResponse(
             data={'host': [output_data]}
@@ -172,13 +166,15 @@ class TestHostShow(TestHost):
             'Disk GB',
         )
 
-        self.data = [(
-            self._host['host'],
-            self._host['project'],
-            self._host['cpu'],
-            self._host['memory_mb'],
-            self._host['disk_gb'],
-        )]
+        self.data = [
+            (
+                self._host['host'],
+                self._host['project'],
+                self._host['cpu'],
+                self._host['memory_mb'],
+                self._host['disk_gb'],
+            )
+        ]
 
         self.cmd = host.ShowHost(self.app, None)
 
@@ -188,8 +184,13 @@ class TestHostShow(TestHost):
         verifylist = []
 
         # Missing required args should bail here
-        self.assertRaises(tests_utils.ParserException, self.check_parser,
-                          self.cmd, arglist, verifylist)
+        self.assertRaises(
+            tests_utils.ParserException,
+            self.check_parser,
+            self.cmd,
+            arglist,
+            verifylist,
+        )
 
     def test_host_show_with_option(self, h_mock):
         h_mock.return_value = [self._host]
@@ -205,8 +206,7 @@ class TestHostShow(TestHost):
         columns, data = self.cmd.take_action(parsed_args)
 
         self.sdk_client.get.assert_called_with(
-            '/os-hosts/' + self._host['host_name'],
-            microversion='2.1'
+            '/os-hosts/' + self._host['host_name'], microversion='2.1'
         )
         self.assertEqual(self.columns, columns)
         self.assertEqual(self.data, list(data))

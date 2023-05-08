@@ -27,24 +27,12 @@ class AggregateTests(base.TestCase):
             fail_ok=True,
         )
         cmd_output = self.openstack(
-            'aggregate create ' +
-            '--zone nova ' +
-            '--property a=b ' +
-            name1,
+            'aggregate create ' + '--zone nova ' + '--property a=b ' + name1,
             parse_output=True,
         )
-        self.assertEqual(
-            name1,
-            cmd_output['name']
-        )
-        self.assertEqual(
-            'nova',
-            cmd_output['availability_zone']
-        )
-        self.assertIn(
-            'a',
-            cmd_output['properties']
-        )
+        self.assertEqual(name1, cmd_output['name'])
+        self.assertEqual('nova', cmd_output['availability_zone'])
+        self.assertIn('a', cmd_output['properties'])
         cmd_output = self.openstack(
             'aggregate show ' + name1,
             parse_output=True,
@@ -58,19 +46,11 @@ class AggregateTests(base.TestCase):
             fail_ok=True,
         )
         cmd_output = self.openstack(
-            'aggregate create ' +
-            '--zone external ' +
-            name2,
+            'aggregate create ' + '--zone external ' + name2,
             parse_output=True,
         )
-        self.assertEqual(
-            name2,
-            cmd_output['name']
-        )
-        self.assertEqual(
-            'external',
-            cmd_output['availability_zone']
-        )
+        self.assertEqual(name2, cmd_output['name'])
+        self.assertEqual('external', cmd_output['availability_zone'])
         cmd_output = self.openstack(
             'aggregate show ' + name2,
             parse_output=True,
@@ -85,36 +65,25 @@ class AggregateTests(base.TestCase):
             fail_ok=True,
         )
         raw_output = self.openstack(
-            'aggregate set ' +
-            '--name ' + name3 + ' ' +
-            '--zone internal ' +
-            '--no-property ' +
-            '--property c=d ' +
-            name1
+            'aggregate set '
+            + '--name '
+            + name3
+            + ' '
+            + '--zone internal '
+            + '--no-property '
+            + '--property c=d '
+            + name1
         )
         self.assertOutput('', raw_output)
 
         cmd_output = self.openstack(
-            'aggregate show ' +
-            name3,
+            'aggregate show ' + name3,
             parse_output=True,
         )
-        self.assertEqual(
-            name3,
-            cmd_output['name']
-        )
-        self.assertEqual(
-            'internal',
-            cmd_output['availability_zone']
-        )
-        self.assertIn(
-            'c',
-            cmd_output['properties']
-        )
-        self.assertNotIn(
-            'a',
-            cmd_output['properties']
-        )
+        self.assertEqual(name3, cmd_output['name'])
+        self.assertEqual('internal', cmd_output['availability_zone'])
+        self.assertIn('c', cmd_output['properties'])
+        self.assertNotIn('a', cmd_output['properties'])
 
         # Test aggregate list
         cmd_output = self.openstack(
@@ -145,28 +114,18 @@ class AggregateTests(base.TestCase):
 
         # Test unset
         raw_output = self.openstack(
-            'aggregate unset ' +
-            '--property c ' +
-            name3
+            'aggregate unset ' + '--property c ' + name3
         )
         self.assertOutput('', raw_output)
 
         cmd_output = self.openstack(
-            'aggregate show ' +
-            name3,
+            'aggregate show ' + name3,
             parse_output=True,
         )
-        self.assertNotIn(
-            "c='d'",
-            cmd_output['properties']
-        )
+        self.assertNotIn("c='d'", cmd_output['properties'])
 
         # test aggregate delete
-        del_output = self.openstack(
-            'aggregate delete ' +
-            name3 + ' ' +
-            name2
-        )
+        del_output = self.openstack('aggregate delete ' + name3 + ' ' + name2)
         self.assertOutput('', del_output)
 
     def test_aggregate_add_and_remove_host(self):
@@ -185,31 +144,18 @@ class AggregateTests(base.TestCase):
 
         name = uuid.uuid4().hex
         self.addCleanup(self.openstack, 'aggregate delete ' + name)
-        self.openstack(
-            'aggregate create ' +
-            name
-        )
+        self.openstack('aggregate create ' + name)
 
         # Test add host
         cmd_output = self.openstack(
-            'aggregate add host ' +
-            name + ' ' +
-            host_name,
+            'aggregate add host ' + name + ' ' + host_name,
             parse_output=True,
         )
-        self.assertIn(
-            host_name,
-            cmd_output['hosts']
-        )
+        self.assertIn(host_name, cmd_output['hosts'])
 
         # Test remove host
         cmd_output = self.openstack(
-            'aggregate remove host ' +
-            name + ' ' +
-            host_name,
+            'aggregate remove host ' + name + ' ' + host_name,
             parse_output=True,
         )
-        self.assertNotIn(
-            host_name,
-            cmd_output['hosts']
-        )
+        self.assertNotIn(host_name, cmd_output['hosts'])

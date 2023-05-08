@@ -33,32 +33,37 @@ def _get_hypervisor_columns(item, client):
     hidden_columns = ['location', 'servers']
 
     if sdk_utils.supports_microversion(client, '2.88'):
-        hidden_columns.extend([
-            'current_workload',
-            'disk_available',
-            'local_disk_free',
-            'local_disk_size',
-            'local_disk_used',
-            'memory_free',
-            'memory_size',
-            'memory_used',
-            'running_vms',
-            'vcpus_used',
-            'vcpus',
-        ])
+        hidden_columns.extend(
+            [
+                'current_workload',
+                'disk_available',
+                'local_disk_free',
+                'local_disk_size',
+                'local_disk_used',
+                'memory_free',
+                'memory_size',
+                'memory_used',
+                'running_vms',
+                'vcpus_used',
+                'vcpus',
+            ]
+        )
     else:
-        column_map.update({
-            'disk_available': 'disk_available_least',
-            'local_disk_free': 'free_disk_gb',
-            'local_disk_size': 'local_gb',
-            'local_disk_used': 'local_gb_used',
-            'memory_free': 'free_ram_mb',
-            'memory_used': 'memory_mb_used',
-            'memory_size': 'memory_mb',
-        })
+        column_map.update(
+            {
+                'disk_available': 'disk_available_least',
+                'local_disk_free': 'free_disk_gb',
+                'local_disk_size': 'local_gb',
+                'local_disk_used': 'local_gb_used',
+                'memory_free': 'free_ram_mb',
+                'memory_used': 'memory_mb_used',
+                'memory_size': 'memory_mb',
+            }
+        )
 
     return utils.get_osc_show_columns_for_sdk_resource(
-        item, column_map, hidden_columns)
+        item, column_map, hidden_columns
+    )
 
 
 class ListHypervisor(command.Lister):
@@ -73,7 +78,7 @@ class ListHypervisor(command.Lister):
                 "Filter hypervisors using <hostname> substring"
                 "Hypervisor Type and Host IP are not returned "
                 "when using microversion 2.52 or lower"
-            )
+            ),
         )
         parser.add_argument(
             '--marker',
@@ -99,7 +104,7 @@ class ListHypervisor(command.Lister):
         parser.add_argument(
             '--long',
             action='store_true',
-            help=_("List additional fields in output")
+            help=_("List additional fields in output"),
         )
         return parser
 
@@ -109,9 +114,7 @@ class ListHypervisor(command.Lister):
         list_opts = {}
 
         if parsed_args.matching and (parsed_args.marker or parsed_args.limit):
-            msg = _(
-                '--matching is not compatible with --marker or --limit'
-            )
+            msg = _('--matching is not compatible with --marker or --limit')
             raise exceptions.CommandError(msg)
 
         if parsed_args.marker:
@@ -140,15 +143,9 @@ class ListHypervisor(command.Lister):
             "Hypervisor Hostname",
             "Hypervisor Type",
             "Host IP",
-            "State"
+            "State",
         )
-        columns = (
-            'id',
-            'name',
-            'hypervisor_type',
-            'host_ip',
-            'state'
-        )
+        columns = ('id', 'name', 'hypervisor_type', 'host_ip', 'state')
 
         if parsed_args.long:
             if not sdk_utils.supports_microversion(compute_client, '2.88'):
@@ -156,13 +153,13 @@ class ListHypervisor(command.Lister):
                     'vCPUs Used',
                     'vCPUs',
                     'Memory MB Used',
-                    'Memory MB'
+                    'Memory MB',
                 )
                 columns += (
                     'vcpus_used',
                     'vcpus',
                     'memory_used',
-                    'memory_size'
+                    'memory_size',
                 )
 
         data = compute_client.hypervisors(**list_opts, details=True)
@@ -181,14 +178,15 @@ class ShowHypervisor(command.ShowOne):
         parser.add_argument(
             "hypervisor",
             metavar="<hypervisor>",
-            help=_("Hypervisor to display (name or ID)")
+            help=_("Hypervisor to display (name or ID)"),
         )
         return parser
 
     def take_action(self, parsed_args):
         compute_client = self.app.client_manager.sdk_connection.compute
         hypervisor = compute_client.find_hypervisor(
-            parsed_args.hypervisor, ignore_missing=False).copy()
+            parsed_args.hypervisor, ignore_missing=False
+        ).copy()
 
         # Some of the properties in the hypervisor object need to be processed
         # before they get reported to the user. We spend this section
@@ -208,14 +206,18 @@ class ShowHypervisor(command.ShowOne):
 
             if cell:
                 # The host aggregates are also prefixed by "<cell>@"
-                member_of = [aggregate.name
-                             for aggregate in aggregates
-                             if cell in aggregate.name and
-                             service_host in aggregate.hosts]
+                member_of = [
+                    aggregate.name
+                    for aggregate in aggregates
+                    if cell in aggregate.name
+                    and service_host in aggregate.hosts
+                ]
             else:
-                member_of = [aggregate.name
-                             for aggregate in aggregates
-                             if service_host in aggregate.hosts]
+                member_of = [
+                    aggregate.name
+                    for aggregate in aggregates
+                    if service_host in aggregate.hosts
+                ]
             hypervisor['aggregates'] = member_of
 
         try:
@@ -225,14 +227,16 @@ class ShowHypervisor(command.ShowOne):
             else:
                 del hypervisor['uptime']
                 uptime = compute_client.get_hypervisor_uptime(
-                    hypervisor['id'])['uptime']
+                    hypervisor['id']
+                )['uptime']
             # Extract data from uptime value
             # format: 0 up 0,  0 users,  load average: 0, 0, 0
             # example: 17:37:14 up  2:33,  3 users,
             #          load average: 0.33, 0.36, 0.34
             m = re.match(
                 r"\s*(.+)\sup\s+(.+),\s+(.+)\susers?,\s+load average:\s(.+)",
-                uptime)
+                uptime,
+            )
             if m:
                 hypervisor['host_time'] = m.group(1)
                 hypervisor['uptime'] = m.group(2)
@@ -250,11 +254,14 @@ class ShowHypervisor(command.ShowOne):
             # string; on earlier fields, do this manually
             hypervisor['cpu_info'] = json.loads(hypervisor['cpu_info'] or '{}')
         display_columns, columns = _get_hypervisor_columns(
-            hypervisor, compute_client)
+            hypervisor, compute_client
+        )
         data = utils.get_dict_properties(
-            hypervisor, columns,
+            hypervisor,
+            columns,
             formatters={
                 'cpu_info': format_columns.DictColumn,
-            })
+            },
+        )
 
         return display_columns, data

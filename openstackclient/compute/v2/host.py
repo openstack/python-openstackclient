@@ -29,17 +29,13 @@ class ListHost(command.Lister):
         parser.add_argument(
             "--zone",
             metavar="<zone>",
-            help=_("Only return hosts in the availability zone")
+            help=_("Only return hosts in the availability zone"),
         )
         return parser
 
     def take_action(self, parsed_args):
         compute_client = self.app.client_manager.sdk_connection.compute
-        columns = (
-            "Host Name",
-            "Service",
-            "Zone"
-        )
+        columns = ("Host Name", "Service", "Zone")
 
         self.log.warning(
             "API has been deprecated. "
@@ -48,9 +44,11 @@ class ListHost(command.Lister):
 
         # doing this since openstacksdk has decided not to support this
         # deprecated command
-        hosts = compute_client.get(
-            '/os-hosts', microversion='2.1'
-        ).json().get('hosts')
+        hosts = (
+            compute_client.get('/os-hosts', microversion='2.1')
+            .json()
+            .get('hosts')
+        )
 
         if parsed_args.zone is not None:
             filtered_hosts = []
@@ -69,31 +67,25 @@ class SetHost(command.Command):
     def get_parser(self, prog_name):
         parser = super(SetHost, self).get_parser(prog_name)
         parser.add_argument(
-            "host",
-            metavar="<host>",
-            help=_("Host to modify (name only)")
+            "host", metavar="<host>", help=_("Host to modify (name only)")
         )
         status = parser.add_mutually_exclusive_group()
         status.add_argument(
-            '--enable',
-            action='store_true',
-            help=_("Enable the host")
+            '--enable', action='store_true', help=_("Enable the host")
         )
         status.add_argument(
-            '--disable',
-            action='store_true',
-            help=_("Disable the host")
+            '--disable', action='store_true', help=_("Disable the host")
         )
         maintenance = parser.add_mutually_exclusive_group()
         maintenance.add_argument(
             '--enable-maintenance',
             action='store_true',
-            help=_("Enable maintenance mode for the host")
+            help=_("Enable maintenance mode for the host"),
         )
         maintenance.add_argument(
             '--disable-maintenance',
             action='store_true',
-            help=_("Disable maintenance mode for the host")
+            help=_("Disable maintenance mode for the host"),
         )
         return parser
 
@@ -111,10 +103,7 @@ class SetHost(command.Command):
 
         compute_client = self.app.client_manager.compute
 
-        compute_client.api.host_set(
-            parsed_args.host,
-            **kwargs
-        )
+        compute_client.api.host_set(parsed_args.host, **kwargs)
 
 
 class ShowHost(command.Lister):
@@ -122,22 +111,12 @@ class ShowHost(command.Lister):
 
     def get_parser(self, prog_name):
         parser = super().get_parser(prog_name)
-        parser.add_argument(
-            "host",
-            metavar="<host>",
-            help=_("Name of host")
-        )
+        parser.add_argument("host", metavar="<host>", help=_("Name of host"))
         return parser
 
     def take_action(self, parsed_args):
         compute_client = self.app.client_manager.sdk_connection.compute
-        columns = (
-            "Host",
-            "Project",
-            "CPU",
-            "Memory MB",
-            "Disk GB"
-        )
+        columns = ("Host", "Project", "CPU", "Memory MB", "Disk GB")
 
         self.log.warning(
             "API has been deprecated. "
@@ -146,10 +125,13 @@ class ShowHost(command.Lister):
 
         # doing this since openstacksdk has decided not to support this
         # deprecated command
-        resources = compute_client.get(
-            '/os-hosts/' + parsed_args.host,
-            microversion='2.1'
-        ).json().get('host')
+        resources = (
+            compute_client.get(
+                '/os-hosts/' + parsed_args.host, microversion='2.1'
+            )
+            .json()
+            .get('host')
+        )
 
         data = []
         if resources is not None:

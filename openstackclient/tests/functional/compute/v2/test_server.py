@@ -52,16 +52,14 @@ class ServerTests(common.ComputeTestCase):
         self.assertEqual("", raw_output)
         self.wait_for_status(name2, "PAUSED")
         cmd_output = self.openstack(
-            'server list ' +
-            '--status ACTIVE',
+            'server list ' + '--status ACTIVE',
             parse_output=True,
         )
         col_name = [x["Name"] for x in cmd_output]
         self.assertIn(name1, col_name)
         self.assertNotIn(name2, col_name)
         cmd_output = self.openstack(
-            'server list ' +
-            '--status PAUSED',
+            'server list ' + '--status PAUSED',
             parse_output=True,
         )
         col_name = [x["Name"] for x in cmd_output]
@@ -112,8 +110,9 @@ class ServerTests(common.ComputeTestCase):
                 parse_output=True,
             )
         except exceptions.CommandFailed as e:
-            self.assertIn('marker [%s] not found' % (name2),
-                          e.stderr.decode('utf-8'))
+            self.assertIn(
+                'marker [%s] not found' % (name2), e.stderr.decode('utf-8')
+            )
 
     def test_server_list_with_changes_before(self):
         """Test server list.
@@ -132,8 +131,7 @@ class ServerTests(common.ComputeTestCase):
         server_name3 = cmd_output['name']
 
         cmd_output = self.openstack(
-            '--os-compute-api-version 2.66 ' +
-            'server list '
+            '--os-compute-api-version 2.66 ' + 'server list '
             '--changes-before ' + updated_at2,
             parse_output=True,
         )
@@ -158,8 +156,7 @@ class ServerTests(common.ComputeTestCase):
         server_name3 = cmd_output['name']
 
         cmd_output = self.openstack(
-            'server list '
-            '--changes-since ' + updated_at2,
+            'server list ' '--changes-since ' + updated_at2,
             parse_output=True,
         )
 
@@ -184,10 +181,12 @@ class ServerTests(common.ComputeTestCase):
         updated_at3 = cmd_output['updated']
 
         cmd_output = self.openstack(
-            '--os-compute-api-version 2.66 ' +
-            'server list ' +
-            '--changes-since ' + updated_at2 +
-            ' --changes-before ' + updated_at3,
+            '--os-compute-api-version 2.66 '
+            + 'server list '
+            + '--changes-since '
+            + updated_at2
+            + ' --changes-before '
+            + updated_at3,
             parse_output=True,
         )
 
@@ -204,8 +203,7 @@ class ServerTests(common.ComputeTestCase):
 
         # Have a look at some other fields
         flavor = self.openstack(
-            'flavor show ' +
-            self.flavor_name,
+            'flavor show ' + self.flavor_name,
             parse_output=True,
         )
         self.assertEqual(
@@ -217,8 +215,7 @@ class ServerTests(common.ComputeTestCase):
             cmd_output["flavor"],
         )
         image = self.openstack(
-            'image show ' +
-            self.image_name,
+            'image show ' + self.image_name,
             parse_output=True,
         )
         self.assertEqual(
@@ -232,15 +229,12 @@ class ServerTests(common.ComputeTestCase):
 
         # Test properties set
         raw_output = self.openstack(
-            'server set ' +
-            '--property a=b --property c=d ' +
-            name
+            'server set ' + '--property a=b --property c=d ' + name
         )
         self.assertOutput('', raw_output)
 
         cmd_output = self.openstack(
-            'server show ' +
-            name,
+            'server show ' + name,
             parse_output=True,
         )
         # Really, shouldn't this be a list?
@@ -249,14 +243,9 @@ class ServerTests(common.ComputeTestCase):
             cmd_output['properties'],
         )
 
-        raw_output = self.openstack(
-            'server unset ' +
-            '--property a ' +
-            name
-        )
+        raw_output = self.openstack('server unset ' + '--property a ' + name)
         cmd_output = self.openstack(
-            'server show ' +
-            name,
+            'server show ' + name,
             parse_output=True,
         )
         self.assertEqual(
@@ -267,14 +256,11 @@ class ServerTests(common.ComputeTestCase):
         # Test set --name
         new_name = uuid.uuid4().hex
         raw_output = self.openstack(
-            'server set ' +
-            '--name ' + new_name + ' ' +
-            name
+            'server set ' + '--name ' + new_name + ' ' + name
         )
         self.assertOutput("", raw_output)
         cmd_output = self.openstack(
-            'server show ' +
-            new_name,
+            'server show ' + new_name,
             parse_output=True,
         )
         self.assertEqual(
@@ -283,9 +269,7 @@ class ServerTests(common.ComputeTestCase):
         )
         # Put it back so we clean up properly
         raw_output = self.openstack(
-            'server set ' +
-            '--name ' + name + ' ' +
-            new_name
+            'server set ' + '--name ' + name + ' ' + new_name
         )
         self.assertOutput("", raw_output)
 
@@ -295,25 +279,25 @@ class ServerTests(common.ComputeTestCase):
         name = cmd_output['name']
 
         # Simple show
-        cmd_output = json.loads(self.openstack(
-            f'server show -f json {name}'
-        ))
+        cmd_output = json.loads(self.openstack(f'server show -f json {name}'))
         self.assertEqual(
             name,
             cmd_output["name"],
         )
 
         # Show diagnostics
-        cmd_output = json.loads(self.openstack(
-            f'server show -f json {name} --diagnostics'
-        ))
+        cmd_output = json.loads(
+            self.openstack(f'server show -f json {name} --diagnostics')
+        )
         self.assertIn('driver', cmd_output)
 
         # Show topology
-        cmd_output = json.loads(self.openstack(
-            f'server show -f json {name} --topology '
-            f'--os-compute-api-version 2.78'
-        ))
+        cmd_output = json.loads(
+            self.openstack(
+                f'server show -f json {name} --topology '
+                f'--os-compute-api-version 2.78'
+            )
+        )
         self.assertIn('topology', cmd_output)
 
     def test_server_actions(self):
@@ -358,8 +342,9 @@ class ServerTests(common.ComputeTestCase):
         self.wait_for_status(name, "ACTIVE")
 
         # rescue with image
-        raw_output = self.openstack('server rescue --image ' +
-                                    self.image_name + ' ' + name)
+        raw_output = self.openstack(
+            'server rescue --image ' + self.image_name + ' ' + name
+        )
         self.assertEqual("", raw_output)
         self.wait_for_status(name, "RESCUE")
 
@@ -403,8 +388,7 @@ class ServerTests(common.ComputeTestCase):
 
         # attach ip
         cmd_output = self.openstack(
-            'floating ip create ' +
-            'public',
+            'floating ip create ' + 'public',
             parse_output=True,
         )
 
@@ -419,14 +403,11 @@ class ServerTests(common.ComputeTestCase):
         self.assertNotEqual('', cmd_output['id'])
         self.assertNotEqual('', floating_ip)
         self.addCleanup(
-            self.openstack,
-            'floating ip delete ' + str(cmd_output['id'])
+            self.openstack, 'floating ip delete ' + str(cmd_output['id'])
         )
 
         raw_output = self.openstack(
-            'server add floating ip ' +
-            name + ' ' +
-            floating_ip
+            'server add floating ip ' + name + ' ' + floating_ip
         )
         self.assertEqual("", raw_output)
 
@@ -436,8 +417,7 @@ class ServerTests(common.ComputeTestCase):
         wait_time = 0
         while wait_time < 60:
             cmd_output = self.openstack(
-                'server show ' +
-                name,
+                'server show ' + name,
                 parse_output=True,
             )
             if floating_ip not in _chain_addresses(cmd_output['addresses']):
@@ -455,9 +435,7 @@ class ServerTests(common.ComputeTestCase):
 
         # detach ip
         raw_output = self.openstack(
-            'server remove floating ip ' +
-            name + ' ' +
-            floating_ip
+            'server remove floating ip ' + name + ' ' + floating_ip
         )
         self.assertEqual("", raw_output)
 
@@ -467,8 +445,7 @@ class ServerTests(common.ComputeTestCase):
         wait_time = 0
         while wait_time < 60:
             cmd_output = self.openstack(
-                'server show ' +
-                name,
+                'server show ' + name,
                 parse_output=True,
             )
             if floating_ip in _chain_addresses(cmd_output['addresses']):
@@ -480,8 +457,7 @@ class ServerTests(common.ComputeTestCase):
                 break
 
         cmd_output = self.openstack(
-            'server show ' +
-            name,
+            'server show ' + name,
             parse_output=True,
         )
         self.assertNotIn(
@@ -506,8 +482,7 @@ class ServerTests(common.ComputeTestCase):
 
         # get image size
         cmd_output = self.openstack(
-            'image show ' +
-            self.image_name,
+            'image show ' + self.image_name,
             parse_output=True,
         )
         try:
@@ -520,10 +495,14 @@ class ServerTests(common.ComputeTestCase):
         # create volume from image
         volume_name = uuid.uuid4().hex
         cmd_output = self.openstack(
-            'volume create ' +
-            '--image ' + self.image_name + ' ' +
-            '--size ' + str(image_size) + ' ' +
-            volume_name,
+            'volume create '
+            + '--image '
+            + self.image_name
+            + ' '
+            + '--size '
+            + str(image_size)
+            + ' '
+            + volume_name,
             parse_output=True,
         )
         self.assertIsNotNone(cmd_output["id"])
@@ -537,9 +516,11 @@ class ServerTests(common.ComputeTestCase):
         # create empty volume
         empty_volume_name = uuid.uuid4().hex
         cmd_output = self.openstack(
-            'volume create ' +
-            '--size ' + str(image_size) + ' ' +
-            empty_volume_name,
+            'volume create '
+            + '--size '
+            + str(image_size)
+            + ' '
+            + empty_volume_name,
             parse_output=True,
         )
         self.assertIsNotNone(cmd_output["id"])
@@ -553,13 +534,20 @@ class ServerTests(common.ComputeTestCase):
         # create server
         server_name = uuid.uuid4().hex
         server = self.openstack(
-            'server create ' +
-            '--flavor ' + self.flavor_name + ' ' +
-            '--volume ' + volume_name + ' ' +
-            '--block-device-mapping vdb=' + empty_volume_name + ' ' +
-            self.network_arg + ' ' +
-            '--wait ' +
-            server_name,
+            'server create '
+            + '--flavor '
+            + self.flavor_name
+            + ' '
+            + '--volume '
+            + volume_name
+            + ' '
+            + '--block-device-mapping vdb='
+            + empty_volume_name
+            + ' '
+            + self.network_arg
+            + ' '
+            + '--wait '
+            + server_name,
             parse_output=True,
         )
         self.assertIsNotNone(server["id"])
@@ -579,15 +567,11 @@ class ServerTests(common.ComputeTestCase):
             'server list',
             parse_output=True,
         )
-        self.assertEqual(
-            v2_server.IMAGE_STRING_FOR_BFV,
-            servers[0]['Image']
-        )
+        self.assertEqual(v2_server.IMAGE_STRING_FOR_BFV, servers[0]['Image'])
 
         # check volumes
         cmd_output = self.openstack(
-            'volume show ' +
-            volume_name,
+            'volume show ' + volume_name,
             parse_output=True,
         )
         attachments = cmd_output['attachments']
@@ -609,8 +593,7 @@ class ServerTests(common.ComputeTestCase):
         #                present on the command line.  Now we should see the
         #                attachment.
         cmd_output = self.openstack(
-            'volume show ' +
-            empty_volume_name,
+            'volume show ' + empty_volume_name,
             parse_output=True,
         )
         attachments = cmd_output['attachments']
@@ -635,9 +618,7 @@ class ServerTests(common.ComputeTestCase):
         # create source empty volume
         volume_name = uuid.uuid4().hex
         cmd_output = self.openstack(
-            'volume create ' +
-            '--size 1 ' +
-            volume_name,
+            'volume create ' + '--size 1 ' + volume_name,
             parse_output=True,
         )
         volume_id = cmd_output["id"]
@@ -658,13 +639,19 @@ class ServerTests(common.ComputeTestCase):
         # create server
         server_name = uuid.uuid4().hex
         server = self.openstack(
-            'server create ' +
-            '--flavor ' + self.flavor_name + ' ' +
-            '--image ' + self.image_name + ' ' +
-            bdm_arg + ' ' +
-            self.network_arg + ' ' +
-            '--wait ' +
-            server_name,
+            'server create '
+            + '--flavor '
+            + self.flavor_name
+            + ' '
+            + '--image '
+            + self.image_name
+            + ' '
+            + bdm_arg
+            + ' '
+            + self.network_arg
+            + ' '
+            + '--wait '
+            + server_name,
             parse_output=True,
         )
         self.assertIsNotNone(server["id"])
@@ -677,8 +664,7 @@ class ServerTests(common.ComputeTestCase):
         # check server volumes_attached, format is
         # {"volumes_attached": "id='2518bc76-bf0b-476e-ad6b-571973745bb5'",}
         cmd_output = self.openstack(
-            'server show ' +
-            server_name,
+            'server show ' + server_name,
             parse_output=True,
         )
         volumes_attached = cmd_output['volumes_attached']
@@ -686,8 +672,7 @@ class ServerTests(common.ComputeTestCase):
 
         # check volumes
         cmd_output = self.openstack(
-            'volume show ' +
-            volume_name,
+            'volume show ' + volume_name,
             parse_output=True,
         )
         attachments = cmd_output['attachments']
@@ -723,9 +708,7 @@ class ServerTests(common.ComputeTestCase):
         # create source empty volume
         empty_volume_name = uuid.uuid4().hex
         cmd_output = self.openstack(
-            'volume create ' +
-            '--size 1 ' +
-            empty_volume_name,
+            'volume create ' + '--size 1 ' + empty_volume_name,
             parse_output=True,
         )
         self.assertIsNotNone(cmd_output["id"])
@@ -736,9 +719,11 @@ class ServerTests(common.ComputeTestCase):
         # create snapshot of source empty volume
         empty_snapshot_name = uuid.uuid4().hex
         cmd_output = self.openstack(
-            'volume snapshot create ' +
-            '--volume ' + empty_volume_name + ' ' +
-            empty_snapshot_name,
+            'volume snapshot create '
+            + '--volume '
+            + empty_volume_name
+            + ' '
+            + empty_snapshot_name,
             parse_output=True,
         )
         empty_snapshot_id = cmd_output["id"]
@@ -746,10 +731,12 @@ class ServerTests(common.ComputeTestCase):
         # Deleting volume snapshot take time, so we need to wait until the
         # snapshot goes. Entries registered by self.addCleanup will be called
         # in the reverse order, so we need to register wait_for_delete first.
-        self.addCleanup(volume_wait_for_delete,
-                        'volume snapshot', empty_snapshot_name)
-        self.addCleanup(self.openstack,
-                        'volume snapshot delete ' + empty_snapshot_name)
+        self.addCleanup(
+            volume_wait_for_delete, 'volume snapshot', empty_snapshot_name
+        )
+        self.addCleanup(
+            self.openstack, 'volume snapshot delete ' + empty_snapshot_name
+        )
         self.assertEqual(
             empty_snapshot_name,
             cmd_output['name'],
@@ -772,13 +759,19 @@ class ServerTests(common.ComputeTestCase):
         # create server with bdm snapshot
         server_name = uuid.uuid4().hex
         server = self.openstack(
-            'server create ' +
-            '--flavor ' + self.flavor_name + ' ' +
-            '--image ' + self.image_name + ' ' +
-            bdm_arg + ' ' +
-            self.network_arg + ' ' +
-            '--wait ' +
-            server_name,
+            'server create '
+            + '--flavor '
+            + self.flavor_name
+            + ' '
+            + '--image '
+            + self.image_name
+            + ' '
+            + bdm_arg
+            + ' '
+            + self.network_arg
+            + ' '
+            + '--wait '
+            + server_name,
             parse_output=True,
         )
         self.assertIsNotNone(server["id"])
@@ -791,8 +784,7 @@ class ServerTests(common.ComputeTestCase):
         # check server volumes_attached, format is
         # {"volumes_attached": "id='2518bc76-bf0b-476e-ad6b-571973745bb5'",}
         cmd_output = self.openstack(
-            'server show ' +
-            server_name,
+            'server show ' + server_name,
             parse_output=True,
         )
         volumes_attached = cmd_output['volumes_attached']
@@ -801,8 +793,7 @@ class ServerTests(common.ComputeTestCase):
 
         # check the volume that attached on server
         cmd_output = self.openstack(
-            'volume show ' +
-            attached_volume_id,
+            'volume show ' + attached_volume_id,
             parse_output=True,
         )
         attachments = cmd_output['attachments']
@@ -826,9 +817,11 @@ class ServerTests(common.ComputeTestCase):
             'volume list',
             parse_output=True,
         )
-        target_volume = [each_volume
-                         for each_volume in cmd_output
-                         if each_volume['ID'] == attached_volume_id]
+        target_volume = [
+            each_volume
+            for each_volume in cmd_output
+            if each_volume['ID'] == attached_volume_id
+        ]
         if target_volume:
             # check the attached volume is 'deleting' status
             self.assertEqual('deleting', target_volume[0]['Status'])
@@ -865,8 +858,7 @@ class ServerTests(common.ComputeTestCase):
         else:
             # get image ID
             cmd_output = self.openstack(
-                'image show ' +
-                self.image_name,
+                'image show ' + self.image_name,
                 parse_output=True,
             )
             image_id = cmd_output['id']
@@ -889,13 +881,19 @@ class ServerTests(common.ComputeTestCase):
         # that volume to the server.
         server_name = uuid.uuid4().hex
         server = self.openstack(
-            'server create ' +
-            '--flavor ' + self.flavor_name + ' ' +
-            '--image ' + self.image_name + ' ' +
-            bdm_arg + ' ' +
-            self.network_arg + ' ' +
-            '--wait ' +
-            server_name,
+            'server create '
+            + '--flavor '
+            + self.flavor_name
+            + ' '
+            + '--image '
+            + self.image_name
+            + ' '
+            + bdm_arg
+            + ' '
+            + self.network_arg
+            + ' '
+            + '--wait '
+            + server_name,
             parse_output=True,
         )
         self.assertIsNotNone(server["id"])
@@ -908,8 +906,7 @@ class ServerTests(common.ComputeTestCase):
         # check server volumes_attached, format is
         # {"volumes_attached": "id='2518bc76-bf0b-476e-ad6b-571973745bb5'",}
         cmd_output = self.openstack(
-            'server show ' +
-            server_name,
+            'server show ' + server_name,
             parse_output=True,
         )
         volumes_attached = cmd_output['volumes_attached']
@@ -918,8 +915,7 @@ class ServerTests(common.ComputeTestCase):
 
         # check the volume that attached on server
         cmd_output = self.openstack(
-            'volume show ' +
-            attached_volume_id,
+            'volume show ' + attached_volume_id,
             parse_output=True,
         )
         attachments = cmd_output['attachments']
@@ -950,9 +946,11 @@ class ServerTests(common.ComputeTestCase):
             'volume list',
             parse_output=True,
         )
-        target_volume = [each_volume
-                         for each_volume in cmd_output
-                         if each_volume['ID'] == attached_volume_id]
+        target_volume = [
+            each_volume
+            for each_volume in cmd_output
+            if each_volume['ID'] == attached_volume_id
+        ]
         if target_volume:
             # check the attached volume is 'deleting' status
             self.assertEqual('deleting', target_volume[0]['Status'])
@@ -975,13 +973,18 @@ class ServerTests(common.ComputeTestCase):
         # and not delete the volume when the server is deleted.
         server_name = uuid.uuid4().hex
         server = self.openstack(
-            'server create ' +
-            '--flavor ' + self.flavor_name + ' ' +
-            '--image ' + self.image_name + ' ' +
-            '--boot-from-volume 1 ' +  # create a 1GB volume from the image
-            self.network_arg + ' ' +
-            '--wait ' +
-            server_name,
+            'server create '
+            + '--flavor '
+            + self.flavor_name
+            + ' '
+            + '--image '
+            + self.image_name
+            + ' '
+            + '--boot-from-volume 1 '
+            + self.network_arg  # create a 1GB volume from the image
+            + ' '
+            + '--wait '
+            + server_name,
             parse_output=True,
         )
         self.assertIsNotNone(server["id"])
@@ -994,8 +997,7 @@ class ServerTests(common.ComputeTestCase):
         # check server volumes_attached, format is
         # {"volumes_attached": "id='2518bc76-bf0b-476e-ad6b-571973745bb5'",}
         cmd_output = self.openstack(
-            'server show ' +
-            server_name,
+            'server show ' + server_name,
             parse_output=True,
         )
         volumes_attached = cmd_output['volumes_attached']
@@ -1012,8 +1014,7 @@ class ServerTests(common.ComputeTestCase):
 
         # check the volume that attached on server
         cmd_output = self.openstack(
-            'volume show ' +
-            volumes_attached[0]["id"],
+            'volume show ' + volumes_attached[0]["id"],
             parse_output=True,
         )
         # The volume size should be what we specified on the command line.
@@ -1043,8 +1044,7 @@ class ServerTests(common.ComputeTestCase):
         # delete server, then check the attached volume was not deleted
         self.openstack('server delete --wait ' + server_name)
         cmd_output = self.openstack(
-            'volume show ' +
-            attached_volume_id,
+            'volume show ' + attached_volume_id,
             parse_output=True,
         )
         # check the volume is in 'available' status
@@ -1055,12 +1055,16 @@ class ServerTests(common.ComputeTestCase):
         server_name = uuid.uuid4().hex
         server = self.openstack(
             # auto/none enable in nova micro version (v2.37+)
-            '--os-compute-api-version 2.37 ' +
-            'server create ' +
-            '--flavor ' + self.flavor_name + ' ' +
-            '--image ' + self.image_name + ' ' +
-            '--nic none ' +
-            server_name,
+            '--os-compute-api-version 2.37 '
+            + 'server create '
+            + '--flavor '
+            + self.flavor_name
+            + ' '
+            + '--image '
+            + self.image_name
+            + ' '
+            + '--nic none '
+            + server_name,
             parse_output=True,
         )
         self.assertIsNotNone(server["id"])
@@ -1099,14 +1103,24 @@ class ServerTests(common.ComputeTestCase):
 
         server_name = uuid.uuid4().hex
         server = self.openstack(
-            'server create ' +
-            '--flavor ' + self.flavor_name + ' ' +
-            '--image ' + self.image_name + ' ' +
+            'server create '
+            + '--flavor '
+            + self.flavor_name
+            + ' '
+            + '--image '
+            + self.image_name
+            + ' '
+            +
             # Security group id is integer in nova-network, convert to string
-            '--security-group ' + str(security_group1['id']) + ' ' +
-            '--security-group ' + security_group2['name'] + ' ' +
-            self.network_arg + ' ' +
-            server_name,
+            '--security-group '
+            + str(security_group1['id'])
+            + ' '
+            + '--security-group '
+            + security_group2['name']
+            + ' '
+            + self.network_arg
+            + ' '
+            + server_name,
             parse_output=True,
         )
         self.addCleanup(self.openstack, 'server delete --wait ' + server_name)
@@ -1136,29 +1150,38 @@ class ServerTests(common.ComputeTestCase):
         try:
             self.openstack(
                 # auto/none enable in nova micro version (v2.37+)
-                '--os-compute-api-version 2.37 ' +
-                'server create ' +
-                '--flavor ' + self.flavor_name + ' ' +
-                '--image ' + self.image_name + ' ' +
-                server_name
+                '--os-compute-api-version 2.37 '
+                + 'server create '
+                + '--flavor '
+                + self.flavor_name
+                + ' '
+                + '--image '
+                + self.image_name
+                + ' '
+                + server_name
             )
         except exceptions.CommandFailed as e:
             # If we got here, it shouldn't be because a nics value wasn't
             # provided to the server; it is likely due to something else in
             # the functional tests like there being multiple available
             # networks and the test didn't specify a specific network.
-            self.assertNotIn('nics are required after microversion 2.36',
-                             e.stderr)
+            self.assertNotIn(
+                'nics are required after microversion 2.36', e.stderr
+            )
 
     def test_server_add_remove_network(self):
         name = uuid.uuid4().hex
         cmd_output = self.openstack(
-            'server create ' +
-            '--network private ' +
-            '--flavor ' + self.flavor_name + ' ' +
-            '--image ' + self.image_name + ' ' +
-            '--wait ' +
-            name,
+            'server create '
+            + '--network private '
+            + '--flavor '
+            + self.flavor_name
+            + ' '
+            + '--image '
+            + self.image_name
+            + ' '
+            + '--wait '
+            + name,
             parse_output=True,
         )
 
@@ -1167,8 +1190,7 @@ class ServerTests(common.ComputeTestCase):
         self.addCleanup(self.openstack, 'server delete --wait ' + name)
 
         # add network and check 'public' is in server show
-        self.openstack(
-            'server add network ' + name + ' public')
+        self.openstack('server add network ' + name + ' public')
 
         wait_time = 0
         while wait_time < 60:
@@ -1209,12 +1231,16 @@ class ServerTests(common.ComputeTestCase):
     def test_server_add_remove_port(self):
         name = uuid.uuid4().hex
         cmd_output = self.openstack(
-            'server create ' +
-            '--network private ' +
-            '--flavor ' + self.flavor_name + ' ' +
-            '--image ' + self.image_name + ' ' +
-            '--wait ' +
-            name,
+            'server create '
+            + '--network private '
+            + '--flavor '
+            + self.flavor_name
+            + ' '
+            + '--image '
+            + self.image_name
+            + ' '
+            + '--wait '
+            + name,
             parse_output=True,
         )
 
@@ -1232,8 +1258,7 @@ class ServerTests(common.ComputeTestCase):
         self.assertNotIn(port_name, cmd_output)
 
         cmd_output = self.openstack(
-            'port create ' +
-            '--network private ' + port_name,
+            'port create ' + '--network private ' + port_name,
             parse_output=True,
         )
         self.assertIsNotNone(cmd_output['id'])
@@ -1281,12 +1306,16 @@ class ServerTests(common.ComputeTestCase):
     def test_server_add_fixed_ip(self):
         name = uuid.uuid4().hex
         cmd_output = self.openstack(
-            'server create ' +
-            '--network private ' +
-            '--flavor ' + self.flavor_name + ' ' +
-            '--image ' + self.image_name + ' ' +
-            '--wait ' +
-            name,
+            'server create '
+            + '--network private '
+            + '--flavor '
+            + self.flavor_name
+            + ' '
+            + '--image '
+            + self.image_name
+            + ' '
+            + '--wait '
+            + name,
             parse_output=True,
         )
 
@@ -1306,8 +1335,7 @@ class ServerTests(common.ComputeTestCase):
         self.assertNotIn(port_name, cmd_output)
 
         cmd_output = self.openstack(
-            'port create ' +
-            '--network private ' + port_name,
+            'port create ' + '--network private ' + port_name,
             parse_output=True,
         )
         self.assertIsNotNone(cmd_output['id'])
@@ -1315,8 +1343,13 @@ class ServerTests(common.ComputeTestCase):
         self.openstack('port delete ' + port_name)
 
         # add fixed ip to server, assert the ip address appears
-        self.openstack('server add fixed ip --fixed-ip-address ' + ip_address +
-                       ' ' + name + ' private')
+        self.openstack(
+            'server add fixed ip --fixed-ip-address '
+            + ip_address
+            + ' '
+            + name
+            + ' private'
+        )
 
         wait_time = 0
         while wait_time < 60:
@@ -1339,12 +1372,16 @@ class ServerTests(common.ComputeTestCase):
 
         server_name = uuid.uuid4().hex
         cmd_output = self.openstack(
-            'server create ' +
-            '--network private ' +
-            '--flavor ' + self.flavor_name + ' ' +
-            '--image ' + self.image_name + ' ' +
-            '--wait ' +
-            server_name,
+            'server create '
+            + '--network private '
+            + '--flavor '
+            + self.flavor_name
+            + ' '
+            + '--image '
+            + self.image_name
+            + ' '
+            + '--wait '
+            + server_name,
             parse_output=True,
         )
 
@@ -1355,9 +1392,7 @@ class ServerTests(common.ComputeTestCase):
 
         volume_name = uuid.uuid4().hex
         cmd_output = self.openstack(
-            'volume create ' +
-            '--size 1 ' +
-            volume_name,
+            'volume create ' + '--size 1 ' + volume_name,
             parse_output=True,
         )
 
@@ -1368,10 +1403,12 @@ class ServerTests(common.ComputeTestCase):
         volume_id = cmd_output['id']
 
         cmd_output = self.openstack(
-            'server add volume ' +
-            server_name + ' ' +
-            volume_name + ' ' +
-            '--tag bar',
+            'server add volume '
+            + server_name
+            + ' '
+            + volume_name
+            + ' '
+            + '--tag bar',
             parse_output=True,
         )
 
@@ -1379,8 +1416,7 @@ class ServerTests(common.ComputeTestCase):
         self.assertEqual(volume_id, cmd_output['Volume ID'])
 
         cmd_output = self.openstack(
-            'server volume list ' +
-            server_name,
+            'server volume list ' + server_name,
             parse_output=True,
         )
 
@@ -1390,8 +1426,7 @@ class ServerTests(common.ComputeTestCase):
         volume_wait_for('volume', volume_name, 'in-use')
 
         cmd_output = self.openstack(
-            'server event list ' +
-            server_name,
+            'server event list ' + server_name,
             parse_output=True,
         )
         self.assertEqual(2, len(cmd_output))
@@ -1403,8 +1438,7 @@ class ServerTests(common.ComputeTestCase):
         volume_wait_for('volume', volume_name, 'available')
 
         cmd_output = self.openstack(
-            'server event list ' +
-            server_name,
+            'server event list ' + server_name,
             parse_output=True,
         )
         self.assertEqual(3, len(cmd_output))

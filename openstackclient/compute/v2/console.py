@@ -28,7 +28,8 @@ def _get_console_columns(item):
     column_map = {}
     hidden_columns = ['id', 'links', 'location', 'name']
     return utils.get_osc_show_columns_for_sdk_resource(
-        item, column_map, hidden_columns)
+        item, column_map, hidden_columns
+    )
 
 
 class ShowConsoleLog(command.Command):
@@ -39,7 +40,7 @@ class ShowConsoleLog(command.Command):
         parser.add_argument(
             'server',
             metavar='<server>',
-            help=_("Server to show console log (name or ID)")
+            help=_("Server to show console log (name or ID)"),
         )
         parser.add_argument(
             '--lines',
@@ -47,8 +48,10 @@ class ShowConsoleLog(command.Command):
             type=int,
             default=None,
             action=parseractions.NonNegativeAction,
-            help=_("Number of lines to display from the end of the log "
-                   "(default=all)")
+            help=_(
+                "Number of lines to display from the end of the log "
+                "(default=all)"
+            ),
         )
         return parser
 
@@ -56,12 +59,12 @@ class ShowConsoleLog(command.Command):
         compute_client = self.app.client_manager.sdk_connection.compute
 
         server = compute_client.find_server(
-            name_or_id=parsed_args.server,
-            ignore_missing=False
+            name_or_id=parsed_args.server, ignore_missing=False
         )
 
         output = compute_client.get_server_console_output(
-            server.id, length=parsed_args.lines)
+            server.id, length=parsed_args.lines
+        )
         data = None
         if output:
             data = output.get('output', None)
@@ -79,7 +82,7 @@ class ShowConsoleURL(command.ShowOne):
         parser.add_argument(
             'server',
             metavar='<server>',
-            help=_("Server to show URL (name or ID)")
+            help=_("Server to show URL (name or ID)"),
         )
         type_group = parser.add_mutually_exclusive_group()
         type_group.add_argument(
@@ -88,21 +91,21 @@ class ShowConsoleURL(command.ShowOne):
             action='store_const',
             const='novnc',
             default='novnc',
-            help=_("Show noVNC console URL (default)")
+            help=_("Show noVNC console URL (default)"),
         )
         type_group.add_argument(
             '--xvpvnc',
             dest='url_type',
             action='store_const',
             const='xvpvnc',
-            help=_("Show xvpvnc console URL")
+            help=_("Show xvpvnc console URL"),
         )
         type_group.add_argument(
             '--spice',
             dest='url_type',
             action='store_const',
             const='spice-html5',
-            help=_("Show SPICE console URL")
+            help=_("Show SPICE console URL"),
         )
         type_group.add_argument(
             '--rdp',
@@ -130,11 +133,12 @@ class ShowConsoleURL(command.ShowOne):
     def take_action(self, parsed_args):
         compute_client = self.app.client_manager.sdk_connection.compute
         server = compute_client.find_server(
-            parsed_args.server,
-            ignore_missing=False)
+            parsed_args.server, ignore_missing=False
+        )
 
-        data = compute_client.create_console(server.id,
-                                             console_type=parsed_args.url_type)
+        data = compute_client.create_console(
+            server.id, console_type=parsed_args.url_type
+        )
 
         display_columns, columns = _get_console_columns(data)
         data = utils.get_dict_properties(data, columns)

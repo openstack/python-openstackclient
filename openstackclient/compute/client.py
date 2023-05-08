@@ -51,11 +51,13 @@ def make_client(instance):
     else:
         version = instance._api_version[API_NAME]
         from novaclient import api_versions
+
         # convert to APIVersion object
         version = api_versions.get_api_version(version)
 
     if version.is_latest():
         import novaclient
+
         # NOTE(RuiChen): executing version discovery make sense, but that need
         #                an initialized REST client, it's not available now,
         #                fallback to use the max version of novaclient side.
@@ -73,8 +75,11 @@ def make_client(instance):
     # Set client http_log_debug to True if verbosity level is high enough
     http_log_debug = utils.get_effective_log_level() <= logging.DEBUG
 
-    extensions = [ext for ext in nova_client.discover_extensions(version)
-                  if ext.name == "list_extensions"]
+    extensions = [
+        ext
+        for ext in nova_client.discover_extensions(version)
+        if ext.name == "list_extensions"
+    ]
 
     # Remember interface only if it is set
     kwargs = utils.build_kwargs_dict('endpoint_type', instance.interface)
@@ -96,7 +101,7 @@ def make_client(instance):
             COMPUTE_API_TYPE,
             region_name=instance.region_name,
             interface=instance.interface,
-        )
+        ),
     )
 
     return client
@@ -108,8 +113,10 @@ def build_option_parser(parser):
         '--os-compute-api-version',
         metavar='<compute-api-version>',
         default=utils.env('OS_COMPUTE_API_VERSION'),
-        help=_("Compute API version, default=%s "
-               "(Env: OS_COMPUTE_API_VERSION)") % DEFAULT_API_VERSION
+        help=_(
+            "Compute API version, default=%s " "(Env: OS_COMPUTE_API_VERSION)"
+        )
+        % DEFAULT_API_VERSION,
     )
     return parser
 

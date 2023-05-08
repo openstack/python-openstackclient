@@ -66,7 +66,6 @@ class CreateServerBackup(command.ShowOne):
         return parser
 
     def take_action(self, parsed_args):
-
         def _show_progress(progress):
             if progress:
                 self.app.stderr.write('\rProgress: %s' % progress)

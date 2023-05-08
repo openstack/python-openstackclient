@@ -53,9 +53,10 @@ class ComputeTestCase(base.TestCase):
         images = cls.openstack("image list", parse_output=True)
         server_image = None
         for image in images:
-            if (image['Name'].startswith('cirros-') and
-                    (image['Name'].endswith('-uec') or
-                     image['Name'].endswith('-disk'))):
+            if image['Name'].startswith('cirros-') and (
+                image['Name'].endswith('-uec')
+                or image['Name'].endswith('-disk')
+            ):
                 server_image = image['Name']
                 break
         return server_image
@@ -83,12 +84,17 @@ class ComputeTestCase(base.TestCase):
             self.network_arg = self.get_network()
         name = name or uuid.uuid4().hex
         cmd_output = self.openstack(
-            'server create ' +
-            '--flavor ' + self.flavor_name + ' ' +
-            '--image ' + self.image_name + ' ' +
-            self.network_arg + ' ' +
-            '--wait ' +
-            name,
+            'server create '
+            + '--flavor '
+            + self.flavor_name
+            + ' '
+            + '--image '
+            + self.image_name
+            + ' '
+            + self.network_arg
+            + ' '
+            + '--wait '
+            + name,
             parse_output=True,
         )
         self.assertIsNotNone(cmd_output["id"])
@@ -106,11 +112,11 @@ class ComputeTestCase(base.TestCase):
         self.assertOutput('', raw_output)
 
     def wait_for_status(
-            self,
-            name,
-            expected_status='ACTIVE',
-            wait=900,
-            interval=10,
+        self,
+        name,
+        expected_status='ACTIVE',
+        wait=900,
+        interval=10,
     ):
         """Wait until server reaches expected status"""
         # TODO(thowe): Add a server wait command to osc
@@ -118,24 +124,24 @@ class ComputeTestCase(base.TestCase):
         total_sleep = 0
         while total_sleep < wait:
             cmd_output = self.openstack(
-                'server show ' +
-                name,
+                'server show ' + name,
                 parse_output=True,
             )
             status = cmd_output['status']
             if status == expected_status:
-                print('Server {} now has status {}'.format(
-                    name, status))
+                print('Server {} now has status {}'.format(name, status))
                 break
-            print('Server {}: Waiting for {}, current status: {}'.format(
-                name, expected_status, status))
+            print(
+                'Server {}: Waiting for {}, current status: {}'.format(
+                    name, expected_status, status
+                )
+            )
             self.assertNotIn(status, failures)
             time.sleep(interval)
             total_sleep += interval
 
         cmd_output = self.openstack(
-            'server show ' +
-            name,
+            'server show ' + name,
             parse_output=True,
         )
         status = cmd_output['status']

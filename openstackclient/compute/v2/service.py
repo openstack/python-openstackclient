@@ -37,15 +37,17 @@ class DeleteService(command.Command):
             "service",
             metavar="<service>",
             nargs='+',
-            help=_("Compute service(s) to delete (ID only). If using "
-                   "``--os-compute-api-version`` 2.53 or greater, the ID is "
-                   "a UUID which can be retrieved by listing compute services "
-                   "using the same 2.53+ microversion. "
-                   "If deleting a compute service, be sure to stop the actual "
-                   "compute process on the physical host before deleting the "
-                   "service with this command. Failing to do so can lead to "
-                   "the running service re-creating orphaned compute_nodes "
-                   "table records in the database.")
+            help=_(
+                "Compute service(s) to delete (ID only). If using "
+                "``--os-compute-api-version`` 2.53 or greater, the ID is "
+                "a UUID which can be retrieved by listing compute services "
+                "using the same 2.53+ microversion. "
+                "If deleting a compute service, be sure to stop the actual "
+                "compute process on the physical host before deleting the "
+                "service with this command. Failing to do so can lead to "
+                "the running service re-creating orphaned compute_nodes "
+                "table records in the database."
+            ),
         )
         return parser
 
@@ -54,47 +56,54 @@ class DeleteService(command.Command):
         result = 0
         for s in parsed_args.service:
             try:
-                compute_client.delete_service(
-                    s,
-                    ignore_missing=False
-                )
+                compute_client.delete_service(s, ignore_missing=False)
             except Exception as e:
                 result += 1
-                LOG.error(_("Failed to delete compute service with "
-                          "ID '%(service)s': %(e)s"), {'service': s, 'e': e})
+                LOG.error(
+                    _(
+                        "Failed to delete compute service with "
+                        "ID '%(service)s': %(e)s"
+                    ),
+                    {'service': s, 'e': e},
+                )
 
         if result > 0:
             total = len(parsed_args.service)
-            msg = (_("%(result)s of %(total)s compute services failed "
-                   "to delete.") % {'result': result, 'total': total})
+            msg = _(
+                "%(result)s of %(total)s compute services failed " "to delete."
+            ) % {'result': result, 'total': total}
             raise exceptions.CommandError(msg)
 
 
 class ListService(command.Lister):
-    _description = _("""List compute services.
+    _description = _(
+        """List compute services.
 
 Using ``--os-compute-api-version`` 2.53 or greater will return the ID as a UUID
 value which can be used to uniquely identify the service in a multi-cell
-deployment.""")
+deployment."""
+    )
 
     def get_parser(self, prog_name):
         parser = super(ListService, self).get_parser(prog_name)
         parser.add_argument(
             "--host",
             metavar="<host>",
-            help=_("List services on specified host (name only)")
+            help=_("List services on specified host (name only)"),
         )
         parser.add_argument(
             "--service",
             metavar="<service>",
-            help=_("List only specified service binaries (name only). For "
-                   "example, ``nova-compute``, ``nova-conductor``, etc.")
+            help=_(
+                "List only specified service binaries (name only). For "
+                "example, ``nova-compute``, ``nova-conductor``, etc."
+            ),
         )
         parser.add_argument(
             "--long",
             action="store_true",
             default=False,
-            help=_("List additional fields in output")
+            help=_("List additional fields in output"),
         )
         return parser
 
@@ -126,12 +135,11 @@ deployment.""")
                 column_headers += ("Forced Down",)
 
         data = compute_client.services(
-            host=parsed_args.host,
-            binary=parsed_args.service
+            host=parsed_args.host, binary=parsed_args.service
         )
         return (
             column_headers,
-            (utils.get_item_properties(s, columns) for s in data)
+            (utils.get_item_properties(s, columns) for s in data),
         )
 
 
@@ -140,47 +148,47 @@ class SetService(command.Command):
 
     def get_parser(self, prog_name):
         parser = super(SetService, self).get_parser(prog_name)
-        parser.add_argument(
-            "host",
-            metavar="<host>",
-            help=_("Name of host")
-        )
+        parser.add_argument("host", metavar="<host>", help=_("Name of host"))
         parser.add_argument(
             "service",
             metavar="<service>",
-            help=_("Name of service (Binary name), for example "
-                   "``nova-compute``")
+            help=_(
+                "Name of service (Binary name), for example "
+                "``nova-compute``"
+            ),
         )
         enabled_group = parser.add_mutually_exclusive_group()
         enabled_group.add_argument(
-            "--enable",
-            action="store_true",
-            help=_("Enable service")
+            "--enable", action="store_true", help=_("Enable service")
         )
         enabled_group.add_argument(
-            "--disable",
-            action="store_true",
-            help=_("Disable service")
+            "--disable", action="store_true", help=_("Disable service")
         )
         parser.add_argument(
             "--disable-reason",
             default=None,
             metavar="<reason>",
-            help=_("Reason for disabling the service (in quotes). "
-                   "Should be used with --disable option.")
+            help=_(
+                "Reason for disabling the service (in quotes). "
+                "Should be used with --disable option."
+            ),
         )
         up_down_group = parser.add_mutually_exclusive_group()
         up_down_group.add_argument(
             '--up',
             action='store_true',
-            help=_('Force up service. Requires ``--os-compute-api-version`` '
-                   '2.11 or greater.'),
+            help=_(
+                'Force up service. Requires ``--os-compute-api-version`` '
+                '2.11 or greater.'
+            ),
         )
         up_down_group.add_argument(
             '--down',
             action='store_true',
-            help=_('Force down service. Requires ``--os-compute-api-version`` '
-                   '2.11 or greater.'),
+            help=_(
+                'Force down service. Requires ``--os-compute-api-version`` '
+                '2.11 or greater.'
+            ),
         )
         return parser
 
@@ -196,45 +204,49 @@ class SetService(command.Command):
         services = list(compute_client.services(host=host, binary=binary))
         # Did we find anything?
         if not len(services):
-            msg = _('Compute service for host "%(host)s" and binary '
-                    '"%(binary)s" not found.') % {
-                        'host': host, 'binary': binary}
+            msg = _(
+                'Compute service for host "%(host)s" and binary '
+                '"%(binary)s" not found.'
+            ) % {'host': host, 'binary': binary}
             raise exceptions.CommandError(msg)
         # Did we find more than one result? This should not happen but let's
         # be safe.
         if len(services) > 1:
             # TODO(mriedem): If we have an --id option for 2.53+ then we can
             # say to use that option to uniquely identify the service.
-            msg = _('Multiple compute services found for host "%(host)s" and '
-                    'binary "%(binary)s". Unable to proceed.') % {
-                        'host': host, 'binary': binary}
+            msg = _(
+                'Multiple compute services found for host "%(host)s" and '
+                'binary "%(binary)s". Unable to proceed.'
+            ) % {'host': host, 'binary': binary}
             raise exceptions.CommandError(msg)
         return services[0]
 
     def take_action(self, parsed_args):
         compute_client = self.app.client_manager.sdk_connection.compute
 
-        if (parsed_args.enable or not parsed_args.disable) and \
-                parsed_args.disable_reason:
-            msg = _("Cannot specify option --disable-reason without "
-                    "--disable specified.")
+        if (
+            parsed_args.enable or not parsed_args.disable
+        ) and parsed_args.disable_reason:
+            msg = _(
+                "Cannot specify option --disable-reason without "
+                "--disable specified."
+            )
             raise exceptions.CommandError(msg)
 
         # Starting with microversion 2.53, there is a single
         # PUT /os-services/{service_id} API for updating nova-compute
         # services. If 2.53+ is used we need to find the nova-compute
         # service using the --host and --service (binary) values.
-        requires_service_id = (
-            sdk_utils.supports_microversion(compute_client, '2.53'))
+        requires_service_id = sdk_utils.supports_microversion(
+            compute_client, '2.53'
+        )
         service_id = None
         if requires_service_id:
             # TODO(mriedem): Add an --id option so users can pass the service
             # id (as a uuid) directly rather than make us look it up using
             # host/binary.
             service_id = SetService._find_service_by_host_and_binary(
-                compute_client,
-                parsed_args.host,
-                parsed_args.service
+                compute_client, parsed_args.host, parsed_args.service
             ).id
 
         result = 0
@@ -248,16 +260,14 @@ class SetService(command.Command):
             if enabled is not None:
                 if enabled:
                     compute_client.enable_service(
-                        service_id,
-                        parsed_args.host,
-                        parsed_args.service
+                        service_id, parsed_args.host, parsed_args.service
                     )
                 else:
                     compute_client.disable_service(
                         service_id,
                         parsed_args.host,
                         parsed_args.service,
-                        parsed_args.disable_reason
+                        parsed_args.disable_reason,
                     )
         except Exception:
             status = "enabled" if enabled else "disabled"
@@ -271,15 +281,16 @@ class SetService(command.Command):
             force_down = False
         if force_down is not None:
             if not sdk_utils.supports_microversion(compute_client, '2.11'):
-                msg = _('--os-compute-api-version 2.11 or later is '
-                        'required')
+                msg = _(
+                    '--os-compute-api-version 2.11 or later is ' 'required'
+                )
                 raise exceptions.CommandError(msg)
             try:
                 compute_client.update_service_forced_down(
                     service_id,
                     parsed_args.host,
                     parsed_args.service,
-                    force_down
+                    force_down,
                 )
             except Exception:
                 state = "down" if force_down else "up"
@@ -287,7 +298,8 @@ class SetService(command.Command):
                 result += 1
 
         if result > 0:
-            msg = _("Compute service %(service)s of host %(host)s failed to "
-                    "set.") % {"service": parsed_args.service,
-                               "host": parsed_args.host}
+            msg = _(
+                "Compute service %(service)s of host %(host)s failed to "
+                "set."
+            ) % {"service": parsed_args.service, "host": parsed_args.host}
             raise exceptions.CommandError(msg)

@@ -30,7 +30,6 @@ from openstackclient.tests.unit import utils as tests_utils
 
 
 class TestKeypair(compute_fakes.TestComputev2):
-
     def setUp(self):
         super(TestKeypair, self).setUp()
 
@@ -53,23 +52,17 @@ class TestKeypair(compute_fakes.TestComputev2):
 
 
 class TestKeypairCreate(TestKeypair):
-
     def setUp(self):
         super().setUp()
 
         self.keypair = compute_fakes.FakeKeypair.create_one_keypair()
 
-        self.columns = (
-            'fingerprint',
-            'name',
-            'type',
-            'user_id'
-        )
+        self.columns = ('fingerprint', 'name', 'type', 'user_id')
         self.data = (
             self.keypair.fingerprint,
             self.keypair.name,
             self.keypair.type,
-            self.keypair.user_id
+            self.keypair.user_id,
         )
 
         # Get the command object to test
@@ -78,7 +71,8 @@ class TestKeypairCreate(TestKeypair):
         self.sdk_client.create_keypair.return_value = self.keypair
 
     @mock.patch.object(
-        keypair, '_generate_keypair',
+        keypair,
+        '_generate_keypair',
         return_value=keypair.Keypair('private', 'public'),
     )
     def test_key_pair_create_no_options(self, mock_generate):
@@ -105,11 +99,12 @@ class TestKeypairCreate(TestKeypair):
             self.keypair.fingerprint,
             self.keypair.name,
             self.keypair.type,
-            self.keypair.user_id
+            self.keypair.user_id,
         )
 
         arglist = [
-            '--public-key', self.keypair.public_key,
+            '--public-key',
+            self.keypair.public_key,
             self.keypair.name,
         ]
         verifylist = [
@@ -135,13 +130,15 @@ class TestKeypairCreate(TestKeypair):
             self.assertEqual(self.data, data)
 
     @mock.patch.object(
-        keypair, '_generate_keypair',
+        keypair,
+        '_generate_keypair',
         return_value=keypair.Keypair('private', 'public'),
     )
     def test_keypair_create_private_key(self, mock_generate):
         tmp_pk_file = '/tmp/kp-file-' + uuid.uuid4().hex
         arglist = [
-            '--private-key', tmp_pk_file,
+            '--private-key',
+            tmp_pk_file,
             self.keypair.name,
         ]
         verifylist = [
@@ -182,9 +179,11 @@ class TestKeypairCreate(TestKeypair):
                 self.keypair.user_id,
             )
             arglist = [
-                '--public-key', self.keypair.public_key,
+                '--public-key',
+                self.keypair.public_key,
                 self.keypair.name,
-                '--type', key_type,
+                '--type',
+                key_type,
             ]
             verifylist = [
                 ('public_key', self.keypair.public_key),
@@ -212,9 +211,11 @@ class TestKeypairCreate(TestKeypair):
     def test_keypair_create_with_key_type_pre_v22(self, sm_mock):
         for key_type in ['x509', 'ssh']:
             arglist = [
-                '--public-key', self.keypair.public_key,
+                '--public-key',
+                self.keypair.public_key,
                 self.keypair.name,
-                '--type', 'ssh',
+                '--type',
+                'ssh',
             ]
             verifylist = [
                 ('public_key', self.keypair.public_key),
@@ -229,22 +230,23 @@ class TestKeypairCreate(TestKeypair):
                 m_file.read.return_value = 'dummy'
 
                 ex = self.assertRaises(
-                    exceptions.CommandError,
-                    self.cmd.take_action,
-                    parsed_args)
+                    exceptions.CommandError, self.cmd.take_action, parsed_args
+                )
 
             self.assertIn(
-                '--os-compute-api-version 2.2 or greater is required',
-                str(ex))
+                '--os-compute-api-version 2.2 or greater is required', str(ex)
+            )
 
     @mock.patch.object(
-        keypair, '_generate_keypair',
+        keypair,
+        '_generate_keypair',
         return_value=keypair.Keypair('private', 'public'),
     )
     @mock.patch.object(sdk_utils, 'supports_microversion', return_value=True)
     def test_key_pair_create_with_user(self, sm_mock, mock_generate):
         arglist = [
-            '--user', identity_fakes.user_name,
+            '--user',
+            identity_fakes.user_name,
             self.keypair.name,
         ]
         verifylist = [
@@ -267,7 +269,8 @@ class TestKeypairCreate(TestKeypair):
     @mock.patch.object(sdk_utils, 'supports_microversion', return_value=False)
     def test_key_pair_create_with_user_pre_v210(self, sm_mock):
         arglist = [
-            '--user', identity_fakes.user_name,
+            '--user',
+            identity_fakes.user_name,
             self.keypair.name,
         ]
         verifylist = [
@@ -277,15 +280,14 @@ class TestKeypairCreate(TestKeypair):
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
         ex = self.assertRaises(
-            exceptions.CommandError,
-            self.cmd.take_action,
-            parsed_args)
+            exceptions.CommandError, self.cmd.take_action, parsed_args
+        )
         self.assertIn(
-            '--os-compute-api-version 2.10 or greater is required', str(ex))
+            '--os-compute-api-version 2.10 or greater is required', str(ex)
+        )
 
 
 class TestKeypairDelete(TestKeypair):
-
     keypairs = compute_fakes.FakeKeypair.create_keypairs(count=2)
 
     def setUp(self):
@@ -294,9 +296,7 @@ class TestKeypairDelete(TestKeypair):
         self.cmd = keypair.DeleteKeypair(self.app, None)
 
     def test_keypair_delete(self):
-        arglist = [
-            self.keypairs[0].name
-        ]
+        arglist = [self.keypairs[0].name]
         verifylist = [
             ('name', [self.keypairs[0].name]),
         ]
@@ -307,7 +307,8 @@ class TestKeypairDelete(TestKeypair):
 
         self.assertIsNone(ret)
         self.sdk_client.delete_keypair.assert_called_with(
-            self.keypairs[0].name, ignore_missing=False)
+            self.keypairs[0].name, ignore_missing=False
+        )
 
     def test_delete_multiple_keypairs(self):
         arglist = []
@@ -338,7 +339,9 @@ class TestKeypairDelete(TestKeypair):
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
         self.sdk_client.delete_keypair.side_effect = [
-            None, exceptions.CommandError]
+            None,
+            exceptions.CommandError,
+        ]
         try:
             self.cmd.take_action(parsed_args)
             self.fail('CommandError should be raised.')
@@ -352,10 +355,7 @@ class TestKeypairDelete(TestKeypair):
 
     @mock.patch.object(sdk_utils, 'supports_microversion', return_value=True)
     def test_keypair_delete_with_user(self, sm_mock):
-        arglist = [
-            '--user', identity_fakes.user_name,
-            self.keypairs[0].name
-        ]
+        arglist = ['--user', identity_fakes.user_name, self.keypairs[0].name]
         verifylist = [
             ('user', identity_fakes.user_name),
             ('name', [self.keypairs[0].name]),
@@ -368,19 +368,16 @@ class TestKeypairDelete(TestKeypair):
         self.sdk_client.delete_keypair.assert_called_with(
             self.keypairs[0].name,
             user_id=identity_fakes.user_id,
-            ignore_missing=False
+            ignore_missing=False,
         )
 
     @mock.patch.object(sdk_utils, 'supports_microversion', return_value=False)
     def test_keypair_delete_with_user_pre_v210(self, sm_mock):
+        self.app.client_manager.compute.api_version = api_versions.APIVersion(
+            '2.9'
+        )
 
-        self.app.client_manager.compute.api_version = \
-            api_versions.APIVersion('2.9')
-
-        arglist = [
-            '--user', identity_fakes.user_name,
-            self.keypairs[0].name
-        ]
+        arglist = ['--user', identity_fakes.user_name, self.keypairs[0].name]
         verifylist = [
             ('user', identity_fakes.user_name),
             ('name', [self.keypairs[0].name]),
@@ -388,15 +385,14 @@ class TestKeypairDelete(TestKeypair):
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
         ex = self.assertRaises(
-            exceptions.CommandError,
-            self.cmd.take_action,
-            parsed_args)
+            exceptions.CommandError, self.cmd.take_action, parsed_args
+        )
         self.assertIn(
-            '--os-compute-api-version 2.10 or greater is required', str(ex))
+            '--os-compute-api-version 2.10 or greater is required', str(ex)
+        )
 
 
 class TestKeypairList(TestKeypair):
-
     # Return value of self.sdk_client.keypairs().
     keypairs = compute_fakes.FakeKeypair.create_keypairs(count=1)
 
@@ -426,8 +422,8 @@ class TestKeypairList(TestKeypair):
 
         self.assertEqual(('Name', 'Fingerprint'), columns)
         self.assertEqual(
-            ((self.keypairs[0].name, self.keypairs[0].fingerprint), ),
-            tuple(data)
+            ((self.keypairs[0].name, self.keypairs[0].fingerprint),),
+            tuple(data),
         )
 
     @mock.patch.object(sdk_utils, 'supports_microversion', return_value=True)
@@ -448,17 +444,18 @@ class TestKeypairList(TestKeypair):
 
         self.assertEqual(('Name', 'Fingerprint', 'Type'), columns)
         self.assertEqual(
-            ((
-                self.keypairs[0].name,
-                self.keypairs[0].fingerprint,
-                self.keypairs[0].type,
-            ), ),
-            tuple(data)
+            (
+                (
+                    self.keypairs[0].name,
+                    self.keypairs[0].fingerprint,
+                    self.keypairs[0].type,
+                ),
+            ),
+            tuple(data),
         )
 
     @mock.patch.object(sdk_utils, 'supports_microversion', return_value=True)
     def test_keypair_list_with_user(self, sm_mock):
-
         users_mock = self.app.client_manager.identity.users
         users_mock.reset_mock()
         users_mock.get.return_value = fakes.FakeResource(
@@ -468,7 +465,8 @@ class TestKeypairList(TestKeypair):
         )
 
         arglist = [
-            '--user', identity_fakes.user_name,
+            '--user',
+            identity_fakes.user_name,
         ]
         verifylist = [
             ('user', identity_fakes.user_name),
@@ -484,19 +482,21 @@ class TestKeypairList(TestKeypair):
 
         self.assertEqual(('Name', 'Fingerprint', 'Type'), columns)
         self.assertEqual(
-            ((
-                self.keypairs[0].name,
-                self.keypairs[0].fingerprint,
-                self.keypairs[0].type,
-            ), ),
-            tuple(data)
+            (
+                (
+                    self.keypairs[0].name,
+                    self.keypairs[0].fingerprint,
+                    self.keypairs[0].type,
+                ),
+            ),
+            tuple(data),
         )
 
     @mock.patch.object(sdk_utils, 'supports_microversion', return_value=False)
     def test_keypair_list_with_user_pre_v210(self, sm_mock):
-
         arglist = [
-            '--user', identity_fakes.user_name,
+            '--user',
+            identity_fakes.user_name,
         ]
         verifylist = [
             ('user', identity_fakes.user_name),
@@ -504,15 +504,14 @@ class TestKeypairList(TestKeypair):
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
         ex = self.assertRaises(
-            exceptions.CommandError,
-            self.cmd.take_action,
-            parsed_args)
+            exceptions.CommandError, self.cmd.take_action, parsed_args
+        )
         self.assertIn(
-            '--os-compute-api-version 2.10 or greater is required', str(ex))
+            '--os-compute-api-version 2.10 or greater is required', str(ex)
+        )
 
     @mock.patch.object(sdk_utils, 'supports_microversion', return_value=True)
     def test_keypair_list_with_project(self, sm_mock):
-
         projects_mock = self.app.client_manager.identity.tenants
         projects_mock.reset_mock()
         projects_mock.get.return_value = fakes.FakeResource(
@@ -545,44 +544,52 @@ class TestKeypairList(TestKeypair):
 
         self.assertEqual(('Name', 'Fingerprint', 'Type'), columns)
         self.assertEqual(
-            ((
-                self.keypairs[0].name,
-                self.keypairs[0].fingerprint,
-                self.keypairs[0].type,
-            ), ),
-            tuple(data)
+            (
+                (
+                    self.keypairs[0].name,
+                    self.keypairs[0].fingerprint,
+                    self.keypairs[0].type,
+                ),
+            ),
+            tuple(data),
         )
 
     @mock.patch.object(sdk_utils, 'supports_microversion', return_value=False)
     def test_keypair_list_with_project_pre_v210(self, sm_mock):
-
         arglist = ['--project', identity_fakes.project_name]
         verifylist = [('project', identity_fakes.project_name)]
 
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
         ex = self.assertRaises(
-            exceptions.CommandError,
-            self.cmd.take_action,
-            parsed_args)
+            exceptions.CommandError, self.cmd.take_action, parsed_args
+        )
         self.assertIn(
-            '--os-compute-api-version 2.10 or greater is required', str(ex))
+            '--os-compute-api-version 2.10 or greater is required', str(ex)
+        )
 
     def test_keypair_list_conflicting_user_options(self):
-
         arglist = [
-            '--user', identity_fakes.user_name,
-            '--project', identity_fakes.project_name,
+            '--user',
+            identity_fakes.user_name,
+            '--project',
+            identity_fakes.project_name,
         ]
 
         self.assertRaises(
             tests_utils.ParserException,
-            self.check_parser, self.cmd, arglist, None)
+            self.check_parser,
+            self.cmd,
+            arglist,
+            None,
+        )
 
     @mock.patch.object(
-        sdk_utils, 'supports_microversion', new=mock.Mock(return_value=True))
+        sdk_utils, 'supports_microversion', new=mock.Mock(return_value=True)
+    )
     def test_keypair_list_with_limit(self):
         arglist = [
-            '--limit', '1',
+            '--limit',
+            '1',
         ]
         verifylist = [
             ('limit', 1),
@@ -594,10 +601,12 @@ class TestKeypairList(TestKeypair):
         self.sdk_client.keypairs.assert_called_with(limit=1)
 
     @mock.patch.object(
-        sdk_utils, 'supports_microversion', new=mock.Mock(return_value=False))
+        sdk_utils, 'supports_microversion', new=mock.Mock(return_value=False)
+    )
     def test_keypair_list_with_limit_pre_v235(self):
         arglist = [
-            '--limit', '1',
+            '--limit',
+            '1',
         ]
         verifylist = [
             ('limit', 1),
@@ -605,18 +614,20 @@ class TestKeypairList(TestKeypair):
 
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
         ex = self.assertRaises(
-            exceptions.CommandError,
-            self.cmd.take_action,
-            parsed_args)
+            exceptions.CommandError, self.cmd.take_action, parsed_args
+        )
 
         self.assertIn(
-            '--os-compute-api-version 2.35 or greater is required', str(ex))
+            '--os-compute-api-version 2.35 or greater is required', str(ex)
+        )
 
     @mock.patch.object(
-        sdk_utils, 'supports_microversion', new=mock.Mock(return_value=True))
+        sdk_utils, 'supports_microversion', new=mock.Mock(return_value=True)
+    )
     def test_keypair_list_with_marker(self):
         arglist = [
-            '--marker', 'test_kp',
+            '--marker',
+            'test_kp',
         ]
         verifylist = [
             ('marker', 'test_kp'),
@@ -628,10 +639,12 @@ class TestKeypairList(TestKeypair):
         self.sdk_client.keypairs.assert_called_with(marker='test_kp')
 
     @mock.patch.object(
-        sdk_utils, 'supports_microversion', new=mock.Mock(return_value=False))
+        sdk_utils, 'supports_microversion', new=mock.Mock(return_value=False)
+    )
     def test_keypair_list_with_marker_pre_v235(self):
         arglist = [
-            '--marker', 'test_kp',
+            '--marker',
+            'test_kp',
         ]
         verifylist = [
             ('marker', 'test_kp'),
@@ -639,16 +652,15 @@ class TestKeypairList(TestKeypair):
 
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
         ex = self.assertRaises(
-            exceptions.CommandError,
-            self.cmd.take_action,
-            parsed_args)
+            exceptions.CommandError, self.cmd.take_action, parsed_args
+        )
 
         self.assertIn(
-            '--os-compute-api-version 2.35 or greater is required', str(ex))
+            '--os-compute-api-version 2.35 or greater is required', str(ex)
+        )
 
 
 class TestKeypairShow(TestKeypair):
-
     keypair = compute_fakes.FakeKeypair.create_one_keypair()
 
     def setUp(self):
@@ -658,28 +670,27 @@ class TestKeypairShow(TestKeypair):
 
         self.cmd = keypair.ShowKeypair(self.app, None)
 
-        self.columns = (
-            "fingerprint",
-            "name",
-            "type",
-            "user_id"
-        )
+        self.columns = ("fingerprint", "name", "type", "user_id")
 
         self.data = (
             self.keypair.fingerprint,
             self.keypair.name,
             self.keypair.type,
-            self.keypair.user_id
+            self.keypair.user_id,
         )
 
     def test_keypair_show_no_options(self):
-
         arglist = []
         verifylist = []
 
         # Missing required args should boil here
-        self.assertRaises(tests_utils.ParserException, self.check_parser,
-                          self.cmd, arglist, verifylist)
+        self.assertRaises(
+            tests_utils.ParserException,
+            self.check_parser,
+            self.cmd,
+            arglist,
+            verifylist,
+        )
 
     def test_keypair_show(self):
         self.sdk_client.find_keypair.return_value = self.keypair
@@ -688,36 +699,25 @@ class TestKeypairShow(TestKeypair):
             self.keypair.fingerprint,
             self.keypair.name,
             self.keypair.type,
-            self.keypair.user_id
+            self.keypair.user_id,
         )
 
-        arglist = [
-            self.keypair.name
-        ]
-        verifylist = [
-            ('name', self.keypair.name)
-        ]
+        arglist = [self.keypair.name]
+        verifylist = [('name', self.keypair.name)]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
         columns, data = self.cmd.take_action(parsed_args)
 
         self.sdk_client.find_keypair.assert_called_with(
-            self.keypair.name,
-            ignore_missing=False
+            self.keypair.name, ignore_missing=False
         )
 
         self.assertEqual(self.columns, columns)
         self.assertEqual(self.data, data)
 
     def test_keypair_show_public(self):
-        arglist = [
-            '--public-key',
-            self.keypair.name
-        ]
-        verifylist = [
-            ('public_key', True),
-            ('name', self.keypair.name)
-        ]
+        arglist = ['--public-key', self.keypair.name]
+        verifylist = [('public_key', True), ('name', self.keypair.name)]
 
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
@@ -734,16 +734,17 @@ class TestKeypairShow(TestKeypair):
             self.keypair.fingerprint,
             self.keypair.name,
             self.keypair.type,
-            self.keypair.user_id
+            self.keypair.user_id,
         )
 
         arglist = [
-            '--user', identity_fakes.user_name,
+            '--user',
+            identity_fakes.user_name,
             self.keypair.name,
         ]
         verifylist = [
             ('user', identity_fakes.user_name),
-            ('name', self.keypair.name)
+            ('name', self.keypair.name),
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
@@ -753,7 +754,7 @@ class TestKeypairShow(TestKeypair):
         self.sdk_client.find_keypair.assert_called_with(
             self.keypair.name,
             ignore_missing=False,
-            user_id=identity_fakes.user_id
+            user_id=identity_fakes.user_id,
         )
 
         self.assertEqual(self.columns, columns)
@@ -761,20 +762,20 @@ class TestKeypairShow(TestKeypair):
 
     @mock.patch.object(sdk_utils, 'supports_microversion', return_value=False)
     def test_keypair_show_with_user_pre_v210(self, sm_mock):
-
         arglist = [
-            '--user', identity_fakes.user_name,
+            '--user',
+            identity_fakes.user_name,
             self.keypair.name,
         ]
         verifylist = [
             ('user', identity_fakes.user_name),
-            ('name', self.keypair.name)
+            ('name', self.keypair.name),
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
         ex = self.assertRaises(
-            exceptions.CommandError,
-            self.cmd.take_action,
-            parsed_args)
+            exceptions.CommandError, self.cmd.take_action, parsed_args
+        )
         self.assertIn(
-            '--os-compute-api-version 2.10 or greater is required', str(ex))
+            '--os-compute-api-version 2.10 or greater is required', str(ex)
+        )

@@ -93,8 +93,7 @@ class ServerEventTests(common.ComputeTestCase):
         # And verify we can get the event list after it's deleted
         # Test 'server event list' for deleting
         cmd_output = self.openstack(
-            '--os-compute-api-version 2.21 '
-            'server event list ' + server_id,
+            '--os-compute-api-version 2.21 ' 'server event list ' + server_id,
             parse_output=True,
         )
         request_id = None

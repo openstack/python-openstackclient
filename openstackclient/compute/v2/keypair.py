@@ -45,12 +45,15 @@ def _generate_keypair():
     private_key = key.private_bytes(
         serialization.Encoding.PEM,
         serialization.PrivateFormat.OpenSSH,
-        serialization.NoEncryption()
+        serialization.NoEncryption(),
     ).decode()
-    public_key = key.public_key().public_bytes(
-        serialization.Encoding.OpenSSH,
-        serialization.PublicFormat.OpenSSH
-    ).decode()
+    public_key = (
+        key.public_key()
+        .public_bytes(
+            serialization.Encoding.OpenSSH, serialization.PublicFormat.OpenSSH
+        )
+        .decode()
+    )
 
     return Keypair(private_key, public_key)
 
@@ -65,7 +68,8 @@ def _get_keypair_columns(item, hide_pub_key=False, hide_priv_key=False):
     if hide_priv_key:
         hidden_columns.append('private_key')
     return utils.get_osc_show_columns_for_sdk_resource(
-        item, column_map, hidden_columns)
+        item, column_map, hidden_columns
+    )
 
 
 class CreateKeypair(command.ShowOne):
@@ -74,9 +78,7 @@ class CreateKeypair(command.ShowOne):
     def get_parser(self, prog_name):
         parser = super(CreateKeypair, self).get_parser(prog_name)
         parser.add_argument(
-            'name',
-            metavar='<name>',
-            help=_("New public or private key name")
+            'name', metavar='<name>', help=_("New public or private key name")
         )
         key_group = parser.add_mutually_exclusive_group()
         key_group.add_argument(
@@ -96,7 +98,7 @@ class CreateKeypair(command.ShowOne):
             help=_(
                 "Filename for private key to save. "
                 "If not used, print private key in console."
-            )
+            ),
         )
         parser.add_argument(
             '--type',
@@ -122,9 +124,7 @@ class CreateKeypair(command.ShowOne):
         compute_client = self.app.client_manager.sdk_connection.compute
         identity_client = self.app.client_manager.identity
 
-        kwargs = {
-            'name': parsed_args.name
-        }
+        kwargs = {'name': parsed_args.name}
 
         if parsed_args.public_key:
             generated_keypair = None
@@ -134,7 +134,8 @@ class CreateKeypair(command.ShowOne):
             except IOError as e:
                 msg = _("Key file %(public_key)s not found: %(exception)s")
                 raise exceptions.CommandError(
-                    msg % {
+                    msg
+                    % {
                         "public_key": parsed_args.public_key,
                         "exception": e,
                     }
@@ -158,7 +159,8 @@ class CreateKeypair(command.ShowOne):
                         "%(exception)s"
                     )
                     raise exceptions.CommandError(
-                        msg % {
+                        msg
+                        % {
                             "private_key": parsed_args.private_key,
                             "exception": e,
                         }
@@ -195,7 +197,8 @@ class CreateKeypair(command.ShowOne):
         #                For now, duplicate nova keypair-add command output
         if parsed_args.public_key or parsed_args.private_key:
             display_columns, columns = _get_keypair_columns(
-                keypair, hide_pub_key=True, hide_priv_key=True)
+                keypair, hide_pub_key=True, hide_priv_key=True
+            )
             data = utils.get_item_properties(keypair, columns)
 
             return (display_columns, data)
@@ -213,7 +216,7 @@ class DeleteKeypair(command.Command):
             'name',
             metavar='<key>',
             nargs='+',
-            help=_("Name of key(s) to delete (name only)")
+            help=_("Name of key(s) to delete (name only)"),
         )
         parser.add_argument(
             '--user',
@@ -250,16 +253,21 @@ class DeleteKeypair(command.Command):
         for n in parsed_args.name:
             try:
                 compute_client.delete_keypair(
-                    n, **kwargs, ignore_missing=False)
+                    n, **kwargs, ignore_missing=False
+                )
             except Exception as e:
                 result += 1
-                LOG.error(_("Failed to delete key with name "
-                          "'%(name)s': %(e)s"), {'name': n, 'e': e})
+                LOG.error(
+                    _("Failed to delete key with name " "'%(name)s': %(e)s"),
+                    {'name': n, 'e': e},
+                )
 
         if result > 0:
             total = len(parsed_args.name)
-            msg = (_("%(result)s of %(total)s keys failed "
-                   "to delete.") % {'result': result, 'total': total})
+            msg = _("%(result)s of %(total)s keys failed " "to delete.") % {
+                'result': result,
+                'total': total,
+            }
             raise exceptions.CommandError(msg)
 
 
@@ -337,9 +345,7 @@ class ListKeypair(command.Lister):
                 # NOTE(stephenfin): Because we're doing this client-side, we
                 # can't really rely on the marker, because we don't know what
                 # user the marker is associated with
-                msg = _(
-                    '--project is not compatible with --marker'
-                )
+                msg = _('--project is not compatible with --marker')
 
             # NOTE(stephenfin): This is done client side because nova doesn't
             # currently support doing so server-side. If this is slow, we can
@@ -374,13 +380,10 @@ class ListKeypair(command.Lister):
         else:
             data = compute_client.keypairs(**kwargs)
 
-        columns = (
-            "Name",
-            "Fingerprint"
-        )
+        columns = ("Name", "Fingerprint")
 
         if sdk_utils.supports_microversion(compute_client, '2.2'):
-            columns += ("Type", )
+            columns += ("Type",)
 
         return (
             columns,
@@ -396,13 +399,13 @@ class ShowKeypair(command.ShowOne):
         parser.add_argument(
             'name',
             metavar='<key>',
-            help=_("Public or private key to display (name only)")
+            help=_("Public or private key to display (name only)"),
         )
         parser.add_argument(
             '--public-key',
             action='store_true',
             default=False,
-            help=_("Show only bare public key paired with the generated key")
+            help=_("Show only bare public key paired with the generated key"),
         )
         parser.add_argument(
             '--user',
@@ -436,11 +439,13 @@ class ShowKeypair(command.ShowOne):
             ).id
 
         keypair = compute_client.find_keypair(
-            parsed_args.name, **kwargs, ignore_missing=False)
+            parsed_args.name, **kwargs, ignore_missing=False
+        )
 
         if not parsed_args.public_key:
             display_columns, columns = _get_keypair_columns(
-                keypair, hide_pub_key=True)
+                keypair, hide_pub_key=True
+            )
             data = utils.get_item_properties(keypair, columns)
             return (display_columns, data)
         else:

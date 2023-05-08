@@ -34,7 +34,7 @@ LOG = logging.getLogger(__name__)
 
 _formatters = {
     'extra_specs': format_columns.DictColumn,
-    'properties': format_columns.DictColumn
+    'properties': format_columns.DictColumn,
 }
 
 
@@ -45,12 +45,12 @@ def _get_flavor_columns(item):
         'extra_specs': 'properties',
         'ephemeral': 'OS-FLV-EXT-DATA:ephemeral',
         'is_disabled': 'OS-FLV-DISABLED:disabled',
-        'is_public': 'os-flavor-access:is_public'
-
+        'is_public': 'os-flavor-access:is_public',
     }
     hidden_columns = ['links', 'location', 'original_name']
     return utils.get_osc_show_columns_for_sdk_resource(
-        item, column_map, hidden_columns)
+        item, column_map, hidden_columns
+    )
 
 
 class CreateFlavor(command.ShowOne):
@@ -59,56 +59,50 @@ class CreateFlavor(command.ShowOne):
     def get_parser(self, prog_name):
         parser = super(CreateFlavor, self).get_parser(prog_name)
         parser.add_argument(
-            "name",
-            metavar="<flavor-name>",
-            help=_("New flavor name")
+            "name", metavar="<flavor-name>", help=_("New flavor name")
         )
-        parser.add_argument(
-            "--id",
-            metavar="<id>",
-            help=_("Unique flavor ID")
-        )
+        parser.add_argument("--id", metavar="<id>", help=_("Unique flavor ID"))
         parser.add_argument(
             "--ram",
             type=int,
             metavar="<size-mb>",
             default=256,
-            help=_("Memory size in MB (default 256M)")
+            help=_("Memory size in MB (default 256M)"),
         )
         parser.add_argument(
             "--disk",
             type=int,
             metavar="<size-gb>",
             default=0,
-            help=_("Disk size in GB (default 0G)")
+            help=_("Disk size in GB (default 0G)"),
         )
         parser.add_argument(
             "--ephemeral",
             type=int,
             metavar="<size-gb>",
             default=0,
-            help=_("Ephemeral disk size in GB (default 0G)")
+            help=_("Ephemeral disk size in GB (default 0G)"),
         )
         parser.add_argument(
             "--swap",
             type=int,
             metavar="<size-mb>",
             default=0,
-            help=_("Additional swap space size in MB (default 0M)")
+            help=_("Additional swap space size in MB (default 0M)"),
         )
         parser.add_argument(
             "--vcpus",
             type=int,
             metavar="<vcpus>",
             default=1,
-            help=_("Number of vcpus (default 1)")
+            help=_("Number of vcpus (default 1)"),
         )
         parser.add_argument(
             "--rxtx-factor",
             type=float,
             metavar="<factor>",
             default=1.0,
-            help=_("RX/TX factor (default 1.0)")
+            help=_("RX/TX factor (default 1.0)"),
         )
         public_group = parser.add_mutually_exclusive_group()
         public_group.add_argument(
@@ -116,33 +110,39 @@ class CreateFlavor(command.ShowOne):
             dest="public",
             action="store_true",
             default=True,
-            help=_("Flavor is available to other projects (default)")
+            help=_("Flavor is available to other projects (default)"),
         )
         public_group.add_argument(
             "--private",
             dest="public",
             action="store_false",
-            help=_("Flavor is not available to other projects")
+            help=_("Flavor is not available to other projects"),
         )
         parser.add_argument(
             "--property",
             metavar="<key=value>",
             action=parseractions.KeyValueAction,
             dest="properties",
-            help=_("Property to add for this flavor "
-                   "(repeat option to set multiple properties)")
+            help=_(
+                "Property to add for this flavor "
+                "(repeat option to set multiple properties)"
+            ),
         )
         parser.add_argument(
             '--project',
             metavar='<project>',
-            help=_("Allow <project> to access private flavor (name or ID) "
-                   "(Must be used with --private option)"),
+            help=_(
+                "Allow <project> to access private flavor (name or ID) "
+                "(Must be used with --private option)"
+            ),
         )
         parser.add_argument(
             '--description',
             metavar='<description>',
-            help=_("Description for the flavor.(Supported by API versions "
-                   "'2.55' - '2.latest'")
+            help=_(
+                "Description for the flavor.(Supported by API versions "
+                "'2.55' - '2.latest'"
+            ),
         )
         identity_common.add_project_domain_option_to_parser(parser)
         return parser
@@ -186,22 +186,25 @@ class CreateFlavor(command.ShowOne):
                     parsed_args.project,
                     parsed_args.project_domain,
                 ).id
-                compute_client.flavor_add_tenant_access(
-                    flavor.id, project_id)
+                compute_client.flavor_add_tenant_access(flavor.id, project_id)
             except Exception as e:
-                msg = _("Failed to add project %(project)s access to "
-                        "flavor: %(e)s")
+                msg = _(
+                    "Failed to add project %(project)s access to "
+                    "flavor: %(e)s"
+                )
                 LOG.error(msg, {'project': parsed_args.project, 'e': e})
         if parsed_args.properties:
             try:
                 flavor = compute_client.create_flavor_extra_specs(
-                    flavor, parsed_args.properties)
+                    flavor, parsed_args.properties
+                )
             except Exception as e:
                 LOG.error(_("Failed to set flavor properties: %s"), e)
 
         display_columns, columns = _get_flavor_columns(flavor)
-        data = utils.get_dict_properties(flavor, columns,
-                                         formatters=_formatters)
+        data = utils.get_dict_properties(
+            flavor, columns, formatters=_formatters
+        )
 
         return (display_columns, data)
 
@@ -215,7 +218,7 @@ class DeleteFlavor(command.Command):
             "flavor",
             metavar="<flavor>",
             nargs='+',
-            help=_("Flavor(s) to delete (name or ID)")
+            help=_("Flavor(s) to delete (name or ID)"),
         )
         return parser
 
@@ -228,13 +231,20 @@ class DeleteFlavor(command.Command):
                 compute_client.delete_flavor(flavor.id)
             except Exception as e:
                 result += 1
-                LOG.error(_("Failed to delete flavor with name or "
-                          "ID '%(flavor)s': %(e)s"), {'flavor': f, 'e': e})
+                LOG.error(
+                    _(
+                        "Failed to delete flavor with name or "
+                        "ID '%(flavor)s': %(e)s"
+                    ),
+                    {'flavor': f, 'e': e},
+                )
 
         if result > 0:
             total = len(parsed_args.flavor)
-            msg = (_("%(result)s of %(total)s flavors failed "
-                   "to delete.") % {'result': result, 'total': total})
+            msg = _("%(result)s of %(total)s flavors failed " "to delete.") % {
+                'result': result,
+                'total': total,
+            }
             raise exceptions.CommandError(msg)
 
 
@@ -249,20 +259,20 @@ class ListFlavor(command.Lister):
             dest="public",
             action="store_true",
             default=True,
-            help=_("List only public flavors (default)")
+            help=_("List only public flavors (default)"),
         )
         public_group.add_argument(
             "--private",
             dest="public",
             action="store_false",
-            help=_("List only private flavors")
+            help=_("List only private flavors"),
         )
         public_group.add_argument(
             "--all",
             dest="all",
             action="store_true",
             default=False,
-            help=_("List all flavors, whether public or private")
+            help=_("List all flavors, whether public or private"),
         )
         parser.add_argument(
             '--min-disk',
@@ -280,12 +290,12 @@ class ListFlavor(command.Lister):
             '--long',
             action='store_true',
             default=False,
-            help=_("List additional fields in output")
+            help=_("List additional fields in output"),
         )
         parser.add_argument(
             '--marker',
             metavar="<flavor-id>",
-            help=_("The last flavor ID of the previous page")
+            help=_("The last flavor ID of the previous page"),
         )
         parser.add_argument(
             '--limit',
@@ -308,9 +318,7 @@ class ListFlavor(command.Lister):
         # and flavors from their own projects only.
         is_public = None if parsed_args.all else parsed_args.public
 
-        query_attrs = {
-            'is_public': is_public
-        }
+        query_attrs = {'is_public': is_public}
 
         if parsed_args.marker:
             query_attrs['marker'] = parsed_args.marker
@@ -343,7 +351,7 @@ class ListFlavor(command.Lister):
             "disk",
             "ephemeral",
             "vcpus",
-            "is_public"
+            "is_public",
         )
         if parsed_args.long:
             columns += (
@@ -359,7 +367,7 @@ class ListFlavor(command.Lister):
             "Disk",
             "Ephemeral",
             "VCPUs",
-            "Is Public"
+            "Is Public",
         )
         if parsed_args.long:
             column_headers += (
@@ -385,36 +393,43 @@ class SetFlavor(command.Command):
         parser.add_argument(
             "flavor",
             metavar="<flavor>",
-            help=_("Flavor to modify (name or ID)")
+            help=_("Flavor to modify (name or ID)"),
         )
         parser.add_argument(
             "--no-property",
             action="store_true",
-            help=_("Remove all properties from this flavor "
-                   "(specify both --no-property and --property"
-                   " to remove the current properties before setting"
-                   " new properties.)"),
+            help=_(
+                "Remove all properties from this flavor "
+                "(specify both --no-property and --property"
+                " to remove the current properties before setting"
+                " new properties.)"
+            ),
         )
         parser.add_argument(
             "--property",
             metavar="<key=value>",
             action=parseractions.KeyValueAction,
             dest="properties",
-            help=_("Property to add or modify for this flavor "
-                   "(repeat option to set multiple properties)")
+            help=_(
+                "Property to add or modify for this flavor "
+                "(repeat option to set multiple properties)"
+            ),
         )
         parser.add_argument(
             '--project',
             metavar='<project>',
-            help=_('Set flavor access to project (name or ID) '
-                   '(admin only)'),
+            help=_(
+                'Set flavor access to project (name or ID) ' '(admin only)'
+            ),
         )
         identity_common.add_project_domain_option_to_parser(parser)
         parser.add_argument(
             '--description',
             metavar='<description>',
-            help=_("Set description for the flavor.(Supported by API "
-                   "versions '2.55' - '2.latest'")
+            help=_(
+                "Set description for the flavor.(Supported by API "
+                "versions '2.55' - '2.latest'"
+            ),
         )
 
         return parser
@@ -425,9 +440,8 @@ class SetFlavor(command.Command):
 
         try:
             flavor = compute_client.find_flavor(
-                parsed_args.flavor,
-                get_extra_specs=True,
-                ignore_missing=False)
+                parsed_args.flavor, get_extra_specs=True, ignore_missing=False
+            )
         except sdk_exceptions.ResourceNotFound as e:
             raise exceptions.CommandError(e.message)
 
@@ -440,14 +454,16 @@ class SetFlavor(command.Command):
                 raise exceptions.CommandError(msg)
 
             compute_client.update_flavor(
-                flavor=flavor.id, description=parsed_args.description)
+                flavor=flavor.id, description=parsed_args.description
+            )
 
         result = 0
         if parsed_args.no_property:
             try:
                 for key in flavor.extra_specs.keys():
                     compute_client.delete_flavor_extra_specs_property(
-                        flavor.id, key)
+                        flavor.id, key
+                    )
             except Exception as e:
                 LOG.error(_("Failed to clear flavor properties: %s"), e)
                 result += 1
@@ -455,7 +471,8 @@ class SetFlavor(command.Command):
         if parsed_args.properties:
             try:
                 compute_client.create_flavor_extra_specs(
-                    flavor.id, parsed_args.properties)
+                    flavor.id, parsed_args.properties
+                )
             except Exception as e:
                 LOG.error(_("Failed to set flavor properties: %s"), e)
                 result += 1
@@ -472,14 +489,16 @@ class SetFlavor(command.Command):
                         parsed_args.project_domain,
                     ).id
                     compute_client.flavor_add_tenant_access(
-                        flavor.id, project_id)
+                        flavor.id, project_id
+                    )
             except Exception as e:
                 LOG.error(_("Failed to set flavor access to project: %s"), e)
                 result += 1
 
         if result > 0:
-            raise exceptions.CommandError(_("Command Failed: One or more of"
-                                            " the operations failed"))
+            raise exceptions.CommandError(
+                _("Command Failed: One or more of" " the operations failed")
+            )
 
 
 class ShowFlavor(command.ShowOne):
@@ -490,27 +509,32 @@ class ShowFlavor(command.ShowOne):
         parser.add_argument(
             "flavor",
             metavar="<flavor>",
-            help=_("Flavor to display (name or ID)")
+            help=_("Flavor to display (name or ID)"),
         )
         return parser
 
     def take_action(self, parsed_args):
         compute_client = self.app.client_manager.sdk_connection.compute
         flavor = compute_client.find_flavor(
-            parsed_args.flavor, get_extra_specs=True, ignore_missing=False)
+            parsed_args.flavor, get_extra_specs=True, ignore_missing=False
+        )
 
         access_projects = None
         # get access projects list of this flavor
         if not flavor.is_public:
             try:
                 flavor_access = compute_client.get_flavor_access(
-                    flavor=flavor.id)
+                    flavor=flavor.id
+                )
                 access_projects = [
                     utils.get_field(access, 'tenant_id')
-                    for access in flavor_access]
+                    for access in flavor_access
+                ]
             except Exception as e:
-                msg = _("Failed to get access projects list "
-                        "for flavor '%(flavor)s': %(e)s")
+                msg = _(
+                    "Failed to get access projects list "
+                    "for flavor '%(flavor)s': %(e)s"
+                )
                 LOG.error(msg, {'flavor': parsed_args.flavor, 'e': e})
 
         # Since we need to inject "access_project_id" into resource - convert
@@ -520,7 +544,8 @@ class ShowFlavor(command.ShowOne):
 
         display_columns, columns = _get_flavor_columns(flavor)
         data = utils.get_dict_properties(
-            flavor, columns, formatters=_formatters)
+            flavor, columns, formatters=_formatters
+        )
 
         return (display_columns, data)
 
@@ -533,21 +558,25 @@ class UnsetFlavor(command.Command):
         parser.add_argument(
             "flavor",
             metavar="<flavor>",
-            help=_("Flavor to modify (name or ID)")
+            help=_("Flavor to modify (name or ID)"),
         )
         parser.add_argument(
             "--property",
             metavar="<key>",
             action='append',
             dest="properties",
-            help=_("Property to remove from flavor "
-                   "(repeat option to unset multiple properties)")
+            help=_(
+                "Property to remove from flavor "
+                "(repeat option to unset multiple properties)"
+            ),
         )
         parser.add_argument(
             '--project',
             metavar='<project>',
-            help=_('Remove flavor access from project (name or ID) '
-                   '(admin only)'),
+            help=_(
+                'Remove flavor access from project (name or ID) '
+                '(admin only)'
+            ),
         )
         identity_common.add_project_domain_option_to_parser(parser)
 
@@ -559,9 +588,8 @@ class UnsetFlavor(command.Command):
 
         try:
             flavor = compute_client.find_flavor(
-                parsed_args.flavor,
-                get_extra_specs=True,
-                ignore_missing=False)
+                parsed_args.flavor, get_extra_specs=True, ignore_missing=False
+            )
         except sdk_exceptions.ResourceNotFound as e:
             raise exceptions.CommandError(_(e.message))
 
@@ -570,7 +598,8 @@ class UnsetFlavor(command.Command):
             for key in parsed_args.properties:
                 try:
                     compute_client.delete_flavor_extra_specs_property(
-                        flavor.id, key)
+                        flavor.id, key
+                    )
                 except sdk_exceptions.SDKException as e:
                     LOG.error(_("Failed to unset flavor property: %s"), e)
                     result += 1
@@ -587,12 +616,15 @@ class UnsetFlavor(command.Command):
                     parsed_args.project_domain,
                 ).id
                 compute_client.flavor_remove_tenant_access(
-                    flavor.id, project_id)
+                    flavor.id, project_id
+                )
             except Exception as e:
-                LOG.error(_("Failed to remove flavor access from project: %s"),
-                          e)
+                LOG.error(
+                    _("Failed to remove flavor access from project: %s"), e
+                )
                 result += 1
 
         if result > 0:
-            raise exceptions.CommandError(_("Command Failed: One or more of"
-                                            " the operations failed"))
+            raise exceptions.CommandError(
+                _("Command Failed: One or more of" " the operations failed")
+            )

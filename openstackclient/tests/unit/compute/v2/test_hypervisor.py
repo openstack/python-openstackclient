@@ -26,7 +26,6 @@ from openstackclient.tests.unit.compute.v2 import fakes as compute_fakes
 
 
 class TestHypervisor(compute_fakes.TestComputev2):
-
     def setUp(self):
         super().setUp()
 
@@ -37,7 +36,6 @@ class TestHypervisor(compute_fakes.TestComputev2):
 
 
 class TestHypervisorList(TestHypervisor):
-
     def setUp(self):
         super().setUp()
 
@@ -50,7 +48,7 @@ class TestHypervisorList(TestHypervisor):
             "Hypervisor Hostname",
             "Hypervisor Type",
             "Host IP",
-            "State"
+            "State",
         )
         self.columns_long = (
             "ID",
@@ -61,7 +59,7 @@ class TestHypervisorList(TestHypervisor):
             "vCPUs Used",
             "vCPUs",
             "Memory MB Used",
-            "Memory MB"
+            "Memory MB",
         )
         self.data = (
             (
@@ -69,14 +67,14 @@ class TestHypervisorList(TestHypervisor):
                 self.hypervisors[0].name,
                 self.hypervisors[0].hypervisor_type,
                 self.hypervisors[0].host_ip,
-                self.hypervisors[0].state
+                self.hypervisors[0].state,
             ),
             (
                 self.hypervisors[1].id,
                 self.hypervisors[1].name,
                 self.hypervisors[1].hypervisor_type,
                 self.hypervisors[1].host_ip,
-                self.hypervisors[1].state
+                self.hypervisors[1].state,
             ),
         )
 
@@ -90,7 +88,7 @@ class TestHypervisorList(TestHypervisor):
                 self.hypervisors[0].vcpus_used,
                 self.hypervisors[0].vcpus,
                 self.hypervisors[0].memory_used,
-                self.hypervisors[0].memory_size
+                self.hypervisors[0].memory_size,
             ),
             (
                 self.hypervisors[1].id,
@@ -101,7 +99,7 @@ class TestHypervisorList(TestHypervisor):
                 self.hypervisors[1].vcpus_used,
                 self.hypervisors[1].vcpus,
                 self.hypervisors[1].memory_used,
-                self.hypervisors[1].memory_size
+                self.hypervisors[1].memory_size,
             ),
         )
         # Get the command object to test
@@ -123,7 +121,8 @@ class TestHypervisorList(TestHypervisor):
 
     def test_hypervisor_list_matching_option_found(self):
         arglist = [
-            '--matching', self.hypervisors[0].name,
+            '--matching',
+            self.hypervisors[0].name,
         ]
         verifylist = [
             ('matching', self.hypervisors[0].name),
@@ -149,14 +148,15 @@ class TestHypervisorList(TestHypervisor):
         columns, data = self.cmd.take_action(parsed_args)
 
         self.sdk_client.hypervisors.assert_called_with(
-            hypervisor_hostname_pattern=self.hypervisors[0].name,
-            details=True)
+            hypervisor_hostname_pattern=self.hypervisors[0].name, details=True
+        )
         self.assertEqual(self.columns, columns)
         self.assertEqual(self.data, tuple(data))
 
     def test_hypervisor_list_matching_option_not_found(self):
         arglist = [
-            '--matching', 'xxx',
+            '--matching',
+            'xxx',
         ]
         verifylist = [
             ('matching', 'xxx'),
@@ -164,20 +164,23 @@ class TestHypervisorList(TestHypervisor):
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
         # Fake exception raised from search()
-        self.sdk_client.hypervisors.side_effect = \
-            exceptions.NotFound(None)
+        self.sdk_client.hypervisors.side_effect = exceptions.NotFound(None)
 
-        self.assertRaises(exceptions.NotFound,
-                          self.cmd.take_action,
-                          parsed_args)
+        self.assertRaises(
+            exceptions.NotFound, self.cmd.take_action, parsed_args
+        )
 
     @mock.patch.object(sdk_utils, 'supports_microversion', return_value=False)
     def test_hypervisor_list_with_matching_and_pagination_options(
-            self, sm_mock):
+        self, sm_mock
+    ):
         arglist = [
-            '--matching', self.hypervisors[0].name,
-            '--limit', '1',
-            '--marker', self.hypervisors[0].name,
+            '--matching',
+            self.hypervisors[0].name,
+            '--limit',
+            '1',
+            '--marker',
+            self.hypervisors[0].name,
         ]
         verifylist = [
             ('matching', self.hypervisors[0].name),
@@ -187,12 +190,12 @@ class TestHypervisorList(TestHypervisor):
 
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
         ex = self.assertRaises(
-            exceptions.CommandError,
-            self.cmd.take_action,
-            parsed_args)
+            exceptions.CommandError, self.cmd.take_action, parsed_args
+        )
 
         self.assertIn(
-            '--matching is not compatible with --marker or --limit', str(ex))
+            '--matching is not compatible with --marker or --limit', str(ex)
+        )
 
     @mock.patch.object(sdk_utils, 'supports_microversion', return_value=False)
     def test_hypervisor_list_long_option(self, sm_mock):
@@ -216,7 +219,8 @@ class TestHypervisorList(TestHypervisor):
     @mock.patch.object(sdk_utils, 'supports_microversion', return_value=True)
     def test_hypervisor_list_with_limit(self, sm_mock):
         arglist = [
-            '--limit', '1',
+            '--limit',
+            '1',
         ]
         verifylist = [
             ('limit', 1),
@@ -230,7 +234,8 @@ class TestHypervisorList(TestHypervisor):
     @mock.patch.object(sdk_utils, 'supports_microversion', return_value=False)
     def test_hypervisor_list_with_limit_pre_v233(self, sm_mock):
         arglist = [
-            '--limit', '1',
+            '--limit',
+            '1',
         ]
         verifylist = [
             ('limit', 1),
@@ -238,17 +243,18 @@ class TestHypervisorList(TestHypervisor):
 
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
         ex = self.assertRaises(
-            exceptions.CommandError,
-            self.cmd.take_action,
-            parsed_args)
+            exceptions.CommandError, self.cmd.take_action, parsed_args
+        )
 
         self.assertIn(
-            '--os-compute-api-version 2.33 or greater is required', str(ex))
+            '--os-compute-api-version 2.33 or greater is required', str(ex)
+        )
 
     @mock.patch.object(sdk_utils, 'supports_microversion', return_value=True)
     def test_hypervisor_list_with_marker(self, sm_mock):
         arglist = [
-            '--marker', 'test_hyp',
+            '--marker',
+            'test_hyp',
         ]
         verifylist = [
             ('marker', 'test_hyp'),
@@ -258,12 +264,14 @@ class TestHypervisorList(TestHypervisor):
         self.cmd.take_action(parsed_args)
 
         self.sdk_client.hypervisors.assert_called_with(
-            marker='test_hyp', details=True)
+            marker='test_hyp', details=True
+        )
 
     @mock.patch.object(sdk_utils, 'supports_microversion', return_value=False)
     def test_hypervisor_list_with_marker_pre_v233(self, sm_mock):
         arglist = [
-            '--marker', 'test_hyp',
+            '--marker',
+            'test_hyp',
         ]
         verifylist = [
             ('marker', 'test_hyp'),
@@ -271,26 +279,29 @@ class TestHypervisorList(TestHypervisor):
 
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
         ex = self.assertRaises(
-            exceptions.CommandError,
-            self.cmd.take_action,
-            parsed_args)
+            exceptions.CommandError, self.cmd.take_action, parsed_args
+        )
 
         self.assertIn(
-            '--os-compute-api-version 2.33 or greater is required', str(ex))
+            '--os-compute-api-version 2.33 or greater is required', str(ex)
+        )
 
 
 class TestHypervisorShow(TestHypervisor):
-
     def setUp(self):
         super().setUp()
 
-        uptime_string = (' 01:28:24 up 3 days, 11:15,  1 user, '
-                         ' load average: 0.94, 0.62, 0.50\n')
+        uptime_string = (
+            ' 01:28:24 up 3 days, 11:15,  1 user, '
+            ' load average: 0.94, 0.62, 0.50\n'
+        )
 
         # Fake hypervisors to be listed up
-        self.hypervisor = compute_fakes.create_one_hypervisor(attrs={
-            'uptime': uptime_string,
-        })
+        self.hypervisor = compute_fakes.create_one_hypervisor(
+            attrs={
+                'uptime': uptime_string,
+            }
+        )
 
         # Return value of compute_client.find_hypervisor
         self.sdk_client.find_hypervisor.return_value = self.hypervisor
@@ -422,8 +433,9 @@ class TestHypervisorShow(TestHypervisor):
         self.assertEqual(self.columns_v288, columns)
         self.assertCountEqual(self.data_v288, data)
 
-    @mock.patch.object(sdk_utils, 'supports_microversion',
-                       side_effect=[False, True, False])
+    @mock.patch.object(
+        sdk_utils, 'supports_microversion', side_effect=[False, True, False]
+    )
     def test_hypervisor_show_pre_v288(self, sm_mock):
         arglist = [
             self.hypervisor.name,
@@ -445,8 +457,7 @@ class TestHypervisorShow(TestHypervisor):
     def test_hypervisor_show_pre_v228(self, sm_mock):
         # before microversion 2.28, nova returned a stringified version of this
         # field
-        self.hypervisor.cpu_info = json.dumps(
-            self.hypervisor.cpu_info)
+        self.hypervisor.cpu_info = json.dumps(self.hypervisor.cpu_info)
         self.sdk_client.find_hypervisor.return_value = self.hypervisor
 
         arglist = [
@@ -465,8 +476,9 @@ class TestHypervisorShow(TestHypervisor):
         self.assertEqual(self.columns, columns)
         self.assertCountEqual(self.data, data)
 
-    @mock.patch.object(sdk_utils, 'supports_microversion',
-                       side_effect=[False, True, False])
+    @mock.patch.object(
+        sdk_utils, 'supports_microversion', side_effect=[False, True, False]
+    )
     def test_hypervisor_show_uptime_not_implemented(self, sm_mock):
         arglist = [
             self.hypervisor.name,
@@ -477,7 +489,8 @@ class TestHypervisorShow(TestHypervisor):
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
         self.sdk_client.get_hypervisor_uptime.side_effect = (
-            nova_exceptions.HTTPNotImplemented(501))
+            nova_exceptions.HTTPNotImplemented(501)
+        )
 
         # In base command class ShowOne in cliff, abstract method take_action()
         # returns a two-part tuple with a tuple of column names and a tuple of
