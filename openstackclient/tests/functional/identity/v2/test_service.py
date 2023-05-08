@@ -14,7 +14,6 @@ from openstackclient.tests.functional.identity.v2 import common
 
 
 class ServiceTests(common.IdentityTests):
-
     def test_service_create(self):
         self._create_dummy_service()
 
@@ -27,7 +26,8 @@ class ServiceTests(common.IdentityTests):
         service_name_1 = self._create_dummy_service(add_clean_up=False)
         service_name_2 = self._create_dummy_service(add_clean_up=False)
         raw_output = self.openstack(
-            'service delete ' + service_name_1 + ' ' + service_name_2)
+            'service delete ' + service_name_1 + ' ' + service_name_2
+        )
         self.assertEqual(0, len(raw_output))
 
     def test_service_list(self):
@@ -38,7 +38,6 @@ class ServiceTests(common.IdentityTests):
 
     def test_service_show(self):
         service_name = self._create_dummy_service()
-        raw_output = self.openstack(
-            'service show %s' % service_name)
+        raw_output = self.openstack('service show %s' % service_name)
         items = self.parse_show(raw_output)
         self.assert_show_fields(items, self.SERVICE_FIELDS)

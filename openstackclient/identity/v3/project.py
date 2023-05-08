@@ -70,8 +70,10 @@ class CreateProject(command.ShowOne):
             '--property',
             metavar='<key=value>',
             action=parseractions.KeyValueAction,
-            help=_('Add a property to <name> '
-                   '(repeat option to set multiple properties)'),
+            help=_(
+                'Add a property to <name> '
+                '(repeat option to set multiple properties)'
+            ),
         )
         parser.add_argument(
             '--or-show',
@@ -87,8 +89,7 @@ class CreateProject(command.ShowOne):
 
         domain = None
         if parsed_args.domain:
-            domain = common.find_domain(identity_client,
-                                        parsed_args.domain).id
+            domain = common.find_domain(identity_client, parsed_args.domain).id
 
         parent = None
         if parsed_args.parent:
@@ -128,9 +129,11 @@ class CreateProject(command.ShowOne):
             )
         except ks_exc.Conflict:
             if parsed_args.or_show:
-                project = utils.find_resource(identity_client.projects,
-                                              parsed_args.name,
-                                              domain_id=domain)
+                project = utils.find_resource(
+                    identity_client.projects,
+                    parsed_args.name,
+                    domain_id=domain,
+                )
                 LOG.info(_('Returning existing project %s'), project.name)
             else:
                 raise
@@ -167,23 +170,29 @@ class DeleteProject(command.Command):
         for project in parsed_args.projects:
             try:
                 if domain is not None:
-                    project_obj = utils.find_resource(identity_client.projects,
-                                                      project,
-                                                      domain_id=domain.id)
+                    project_obj = utils.find_resource(
+                        identity_client.projects, project, domain_id=domain.id
+                    )
                 else:
-                    project_obj = utils.find_resource(identity_client.projects,
-                                                      project)
+                    project_obj = utils.find_resource(
+                        identity_client.projects, project
+                    )
                 identity_client.projects.delete(project_obj.id)
             except Exception as e:
                 errors += 1
-                LOG.error(_("Failed to delete project with "
-                          "name or ID '%(project)s': %(e)s"),
-                          {'project': project, 'e': e})
+                LOG.error(
+                    _(
+                        "Failed to delete project with "
+                        "name or ID '%(project)s': %(e)s"
+                    ),
+                    {'project': project, 'e': e},
+                )
 
         if errors > 0:
             total = len(parsed_args.projects)
-            msg = (_("%(errors)s of %(total)s projects failed "
-                   "to delete.") % {'errors': errors, 'total': total})
+            msg = _(
+                "%(errors)s of %(total)s projects failed " "to delete."
+            ) % {'errors': errors, 'total': total}
             raise exceptions.CommandError(msg)
 
 
@@ -210,8 +219,10 @@ class ListProject(command.Lister):
         parser.add_argument(
             '--my-projects',
             action='store_true',
-            help=_('List projects for the authenticated user. '
-                   'Supersedes other filters.'),
+            help=_(
+                'List projects for the authenticated user. '
+                'Supersedes other filters.'
+            ),
         )
         parser.add_argument(
             '--long',
@@ -222,9 +233,11 @@ class ListProject(command.Lister):
         parser.add_argument(
             '--sort',
             metavar='<key>[:<direction>]',
-            help=_('Sort output by selected keys and directions (asc or desc) '
-                   '(default: asc), repeat this option to specify multiple '
-                   'keys and directions.'),
+            help=_(
+                'Sort output by selected keys and directions (asc or desc) '
+                '(default: asc), repeat this option to specify multiple '
+                'keys and directions.'
+            ),
         )
         tag.add_tag_filtering_option_to_parser(parser, _('projects'))
         return parser
@@ -239,23 +252,28 @@ class ListProject(command.Lister):
 
         domain_id = None
         if parsed_args.domain:
-            domain_id = common.find_domain(identity_client,
-                                           parsed_args.domain).id
+            domain_id = common.find_domain(
+                identity_client, parsed_args.domain
+            ).id
             kwargs['domain'] = domain_id
 
         if parsed_args.parent:
-            parent_id = common.find_project(identity_client,
-                                            parsed_args.parent).id
+            parent_id = common.find_project(
+                identity_client, parsed_args.parent
+            ).id
             kwargs['parent'] = parent_id
 
         if parsed_args.user:
             if parsed_args.domain:
-                user_id = utils.find_resource(identity_client.users,
-                                              parsed_args.user,
-                                              domain_id=domain_id).id
+                user_id = utils.find_resource(
+                    identity_client.users,
+                    parsed_args.user,
+                    domain_id=domain_id,
+                ).id
             else:
-                user_id = utils.find_resource(identity_client.users,
-                                              parsed_args.user).id
+                user_id = utils.find_resource(
+                    identity_client.users, parsed_args.user
+                ).id
 
             kwargs['user'] = user_id
 
@@ -272,19 +290,24 @@ class ListProject(command.Lister):
             # wanting their own project list.
             if not kwargs:
                 user = self.app.client_manager.auth_ref.user_id
-                data = identity_client.projects.list(
-                    user=user)
+                data = identity_client.projects.list(user=user)
             else:
                 raise
 
         if parsed_args.sort:
             data = utils.sort_items(data, parsed_args.sort)
 
-        return (columns,
-                (utils.get_item_properties(
-                    s, columns,
+        return (
+            columns,
+            (
+                utils.get_item_properties(
+                    s,
+                    columns,
                     formatters={},
-                ) for s in data))
+                )
+                for s in data
+            ),
+        )
 
 
 class SetProject(command.Command):
@@ -327,8 +350,10 @@ class SetProject(command.Command):
             '--property',
             metavar='<key=value>',
             action=parseractions.KeyValueAction,
-            help=_('Set a property on <project> '
-                   '(repeat option to set multiple properties)'),
+            help=_(
+                'Set a property on <project> '
+                '(repeat option to set multiple properties)'
+            ),
         )
         common.add_resource_option_to_parser(parser)
         tag.add_tag_option_to_parser_for_set(parser, _('project'))
@@ -337,9 +362,9 @@ class SetProject(command.Command):
     def take_action(self, parsed_args):
         identity_client = self.app.client_manager.identity
 
-        project = common.find_project(identity_client,
-                                      parsed_args.project,
-                                      parsed_args.domain)
+        project = common.find_project(
+            identity_client, parsed_args.project, parsed_args.domain
+        )
 
         kwargs = {}
         if parsed_args.name:
@@ -392,20 +417,19 @@ class ShowProject(command.ShowOne):
     def take_action(self, parsed_args):
         identity_client = self.app.client_manager.identity
 
-        project_str = common._get_token_resource(identity_client, 'project',
-                                                 parsed_args.project,
-                                                 parsed_args.domain)
+        project_str = common._get_token_resource(
+            identity_client, 'project', parsed_args.project, parsed_args.domain
+        )
 
         if parsed_args.domain:
             domain = common.find_domain(identity_client, parsed_args.domain)
             project = utils.find_resource(
-                identity_client.projects,
-                project_str,
-                domain_id=domain.id)
+                identity_client.projects, project_str, domain_id=domain.id
+            )
         else:
             project = utils.find_resource(
-                identity_client.projects,
-                project_str)
+                identity_client.projects, project_str
+            )
 
         if parsed_args.parents or parsed_args.children:
             # NOTE(RuiChen): utils.find_resource() can't pass kwargs,
@@ -414,7 +438,8 @@ class ShowProject(command.ShowOne):
             project = identity_client.projects.get(
                 project.id,
                 parents_as_ids=parsed_args.parents,
-                subtree_as_ids=parsed_args.children)
+                subtree_as_ids=parsed_args.children,
+            )
 
         project._info.pop('links')
         return zip(*sorted(project._info.items()))

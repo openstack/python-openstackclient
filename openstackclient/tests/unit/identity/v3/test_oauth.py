@@ -18,7 +18,6 @@ from openstackclient.tests.unit.identity.v3 import fakes as identity_fakes
 
 
 class TestOAuth1(identity_fakes.TestOAuth1):
-
     def setUp(self):
         super(TestOAuth1, self).setUp()
         identity_client = self.app.client_manager.identity
@@ -33,7 +32,6 @@ class TestOAuth1(identity_fakes.TestOAuth1):
 
 
 class TestAccessTokenCreate(TestOAuth1):
-
     def setUp(self):
         super(TestAccessTokenCreate, self).setUp()
 
@@ -47,11 +45,16 @@ class TestAccessTokenCreate(TestOAuth1):
 
     def test_create_access_tokens(self):
         arglist = [
-            '--consumer-key', identity_fakes.consumer_id,
-            '--consumer-secret', identity_fakes.consumer_secret,
-            '--request-key', identity_fakes.request_token_id,
-            '--request-secret', identity_fakes.request_token_secret,
-            '--verifier', identity_fakes.oauth_verifier_pin,
+            '--consumer-key',
+            identity_fakes.consumer_id,
+            '--consumer-secret',
+            identity_fakes.consumer_secret,
+            '--request-key',
+            identity_fakes.request_token_id,
+            '--request-secret',
+            identity_fakes.request_token_secret,
+            '--verifier',
+            identity_fakes.oauth_verifier_pin,
         ]
         verifylist = [
             ('consumer_key', identity_fakes.consumer_id),
@@ -83,7 +86,6 @@ class TestAccessTokenCreate(TestOAuth1):
 
 
 class TestRequestTokenAuthorize(TestOAuth1):
-
     def setUp(self):
         super(TestRequestTokenAuthorize, self).setUp()
 
@@ -100,8 +102,10 @@ class TestRequestTokenAuthorize(TestOAuth1):
 
     def test_authorize_request_tokens(self):
         arglist = [
-            '--request-key', identity_fakes.request_token_id,
-            '--role', identity_fakes.role_name,
+            '--request-key',
+            identity_fakes.request_token_id,
+            '--role',
+            identity_fakes.role_name,
         ]
         verifylist = [
             ('request_key', identity_fakes.request_token_id),
@@ -117,14 +121,11 @@ class TestRequestTokenAuthorize(TestOAuth1):
 
         collist = ('oauth_verifier',)
         self.assertEqual(collist, columns)
-        datalist = (
-            identity_fakes.oauth_verifier_pin,
-        )
+        datalist = (identity_fakes.oauth_verifier_pin,)
         self.assertEqual(datalist, data)
 
 
 class TestRequestTokenCreate(TestOAuth1):
-
     def setUp(self):
         super(TestRequestTokenCreate, self).setUp()
 
@@ -144,9 +145,12 @@ class TestRequestTokenCreate(TestOAuth1):
 
     def test_create_request_tokens(self):
         arglist = [
-            '--consumer-key', identity_fakes.consumer_id,
-            '--consumer-secret', identity_fakes.consumer_secret,
-            '--project', identity_fakes.project_id,
+            '--consumer-key',
+            identity_fakes.consumer_id,
+            '--consumer-secret',
+            identity_fakes.consumer_secret,
+            '--project',
+            identity_fakes.project_id,
         ]
         verifylist = [
             ('consumer_key', identity_fakes.consumer_id),

@@ -23,7 +23,6 @@ from openstackclient.tests.unit.identity.v3 import fakes as identity_fakes
 
 
 class TestTrust(identity_fakes.TestIdentityv3):
-
     def setUp(self):
         super(TestTrust, self).setUp()
 
@@ -38,7 +37,6 @@ class TestTrust(identity_fakes.TestIdentityv3):
 
 
 class TestTrustCreate(TestTrust):
-
     def setUp(self):
         super(TestTrustCreate, self).setUp()
 
@@ -71,10 +69,12 @@ class TestTrustCreate(TestTrust):
 
     def test_trust_create_basic(self):
         arglist = [
-            '--project', identity_fakes.project_id,
-            '--role', identity_fakes.role_id,
+            '--project',
+            identity_fakes.project_id,
+            '--role',
+            identity_fakes.role_id,
             identity_fakes.user_id,
-            identity_fakes.user_id
+            identity_fakes.user_id,
         ]
         verifylist = [
             ('project', identity_fakes.project_id),
@@ -100,13 +100,18 @@ class TestTrustCreate(TestTrust):
         # TrustManager.create(trustee_id, trustor_id, impersonation=,
         #   project=, role_names=, expires_at=)
         self.trusts_mock.create.assert_called_with(
-            identity_fakes.user_id,
-            identity_fakes.user_id,
-            **kwargs
+            identity_fakes.user_id, identity_fakes.user_id, **kwargs
         )
 
-        collist = ('expires_at', 'id', 'impersonation', 'project_id',
-                   'roles', 'trustee_user_id', 'trustor_user_id')
+        collist = (
+            'expires_at',
+            'id',
+            'impersonation',
+            'project_id',
+            'roles',
+            'trustee_user_id',
+            'trustor_user_id',
+        )
         self.assertEqual(collist, columns)
         datalist = (
             identity_fakes.trust_expires,
@@ -115,13 +120,12 @@ class TestTrustCreate(TestTrust):
             identity_fakes.project_id,
             identity_fakes.role_name,
             identity_fakes.user_id,
-            identity_fakes.user_id
+            identity_fakes.user_id,
         )
         self.assertEqual(datalist, data)
 
 
 class TestTrustDelete(TestTrust):
-
     def setUp(self):
         super(TestTrustDelete, self).setUp()
 
@@ -140,9 +144,7 @@ class TestTrustDelete(TestTrust):
         arglist = [
             identity_fakes.trust_id,
         ]
-        verifylist = [
-            ('trust', [identity_fakes.trust_id])
-        ]
+        verifylist = [('trust', [identity_fakes.trust_id])]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
         result = self.cmd.take_action(parsed_args)
@@ -154,8 +156,10 @@ class TestTrustDelete(TestTrust):
 
     @mock.patch.object(utils, 'find_resource')
     def test_delete_multi_trusts_with_exception(self, find_mock):
-        find_mock.side_effect = [self.trusts_mock.get.return_value,
-                                 exceptions.CommandError]
+        find_mock.side_effect = [
+            self.trusts_mock.get.return_value,
+            exceptions.CommandError,
+        ]
         arglist = [
             identity_fakes.trust_id,
             'unexist_trust',
@@ -169,19 +173,18 @@ class TestTrustDelete(TestTrust):
             self.cmd.take_action(parsed_args)
             self.fail('CommandError should be raised.')
         except exceptions.CommandError as e:
-            self.assertEqual('1 of 2 trusts failed to delete.',
-                             str(e))
+            self.assertEqual('1 of 2 trusts failed to delete.', str(e))
 
         find_mock.assert_any_call(self.trusts_mock, identity_fakes.trust_id)
         find_mock.assert_any_call(self.trusts_mock, 'unexist_trust')
 
         self.assertEqual(2, find_mock.call_count)
         self.trusts_mock.delete.assert_called_once_with(
-            identity_fakes.trust_id)
+            identity_fakes.trust_id
+        )
 
 
 class TestTrustList(TestTrust):
-
     def setUp(self):
         super(TestTrustList, self).setUp()
 
@@ -211,17 +214,25 @@ class TestTrustList(TestTrust):
             trustee_user=None,
         )
 
-        collist = ('ID', 'Expires At', 'Impersonation', 'Project ID',
-                   'Trustee User ID', 'Trustor User ID')
+        collist = (
+            'ID',
+            'Expires At',
+            'Impersonation',
+            'Project ID',
+            'Trustee User ID',
+            'Trustor User ID',
+        )
         self.assertEqual(collist, columns)
-        datalist = ((
-            identity_fakes.trust_id,
-            identity_fakes.trust_expires,
-            identity_fakes.trust_impersonation,
-            identity_fakes.project_id,
-            identity_fakes.user_id,
-            identity_fakes.user_id
-        ), )
+        datalist = (
+            (
+                identity_fakes.trust_id,
+                identity_fakes.trust_expires,
+                identity_fakes.trust_impersonation,
+                identity_fakes.project_id,
+                identity_fakes.user_id,
+                identity_fakes.user_id,
+            ),
+        )
         self.assertEqual(datalist, tuple(data))
 
     def test_trust_list_auth_user(self):
@@ -248,17 +259,25 @@ class TestTrustList(TestTrust):
             trustee_user=self.users_mock.get()
         )
 
-        collist = ('ID', 'Expires At', 'Impersonation', 'Project ID',
-                   'Trustee User ID', 'Trustor User ID')
+        collist = (
+            'ID',
+            'Expires At',
+            'Impersonation',
+            'Project ID',
+            'Trustee User ID',
+            'Trustor User ID',
+        )
         self.assertEqual(collist, columns)
-        datalist = ((
-            identity_fakes.trust_id,
-            identity_fakes.trust_expires,
-            identity_fakes.trust_impersonation,
-            identity_fakes.project_id,
-            identity_fakes.user_id,
-            identity_fakes.user_id
-        ), )
+        datalist = (
+            (
+                identity_fakes.trust_id,
+                identity_fakes.trust_expires,
+                identity_fakes.trust_impersonation,
+                identity_fakes.project_id,
+                identity_fakes.user_id,
+                identity_fakes.user_id,
+            ),
+        )
         self.assertEqual(datalist, tuple(data))
 
     def test_trust_list_trustee(self):
@@ -281,17 +300,25 @@ class TestTrustList(TestTrust):
             trustor_user=None,
         )
 
-        collist = ('ID', 'Expires At', 'Impersonation', 'Project ID',
-                   'Trustee User ID', 'Trustor User ID')
+        collist = (
+            'ID',
+            'Expires At',
+            'Impersonation',
+            'Project ID',
+            'Trustee User ID',
+            'Trustor User ID',
+        )
         self.assertEqual(collist, columns)
-        datalist = ((
-            identity_fakes.trust_id,
-            identity_fakes.trust_expires,
-            identity_fakes.trust_impersonation,
-            identity_fakes.project_id,
-            identity_fakes.user_id,
-            identity_fakes.user_id
-        ), )
+        datalist = (
+            (
+                identity_fakes.trust_id,
+                identity_fakes.trust_expires,
+                identity_fakes.trust_impersonation,
+                identity_fakes.project_id,
+                identity_fakes.user_id,
+                identity_fakes.user_id,
+            ),
+        )
         self.assertEqual(datalist, tuple(data))
 
     def test_trust_list_trustor(self):
@@ -314,22 +341,29 @@ class TestTrustList(TestTrust):
             trustee_user=None,
         )
 
-        collist = ('ID', 'Expires At', 'Impersonation', 'Project ID',
-                   'Trustee User ID', 'Trustor User ID')
+        collist = (
+            'ID',
+            'Expires At',
+            'Impersonation',
+            'Project ID',
+            'Trustee User ID',
+            'Trustor User ID',
+        )
         self.assertEqual(collist, columns)
-        datalist = ((
-            identity_fakes.trust_id,
-            identity_fakes.trust_expires,
-            identity_fakes.trust_impersonation,
-            identity_fakes.project_id,
-            identity_fakes.user_id,
-            identity_fakes.user_id
-        ), )
+        datalist = (
+            (
+                identity_fakes.trust_id,
+                identity_fakes.trust_expires,
+                identity_fakes.trust_impersonation,
+                identity_fakes.project_id,
+                identity_fakes.user_id,
+                identity_fakes.user_id,
+            ),
+        )
         self.assertEqual(datalist, tuple(data))
 
 
 class TestTrustShow(TestTrust):
-
     def setUp(self):
         super(TestTrustShow, self).setUp()
 
@@ -358,8 +392,15 @@ class TestTrustShow(TestTrust):
 
         self.trusts_mock.get.assert_called_with(identity_fakes.trust_id)
 
-        collist = ('expires_at', 'id', 'impersonation', 'project_id',
-                   'roles', 'trustee_user_id', 'trustor_user_id')
+        collist = (
+            'expires_at',
+            'id',
+            'impersonation',
+            'project_id',
+            'roles',
+            'trustee_user_id',
+            'trustor_user_id',
+        )
         self.assertEqual(collist, columns)
         datalist = (
             identity_fakes.trust_expires,
@@ -368,6 +409,6 @@ class TestTrustShow(TestTrust):
             identity_fakes.project_id,
             identity_fakes.role_name,
             identity_fakes.user_id,
-            identity_fakes.user_id
+            identity_fakes.user_id,
         )
         self.assertEqual(datalist, data)

@@ -21,7 +21,6 @@ from openstackclient.tests.unit.identity.v3 import fakes as identity_fakes
 
 
 class TestLimit(identity_fakes.TestIdentityv3):
-
     def setUp(self):
         super(TestLimit, self).setUp()
 
@@ -40,28 +39,21 @@ class TestLimit(identity_fakes.TestIdentityv3):
 
 
 class TestLimitCreate(TestLimit):
-
     def setUp(self):
         super(TestLimitCreate, self).setUp()
 
         self.service = fakes.FakeResource(
-            None,
-            copy.deepcopy(identity_fakes.SERVICE),
-            loaded=True
+            None, copy.deepcopy(identity_fakes.SERVICE), loaded=True
         )
         self.services_mock.get.return_value = self.service
 
         self.project = fakes.FakeResource(
-            None,
-            copy.deepcopy(identity_fakes.PROJECT),
-            loaded=True
+            None, copy.deepcopy(identity_fakes.PROJECT), loaded=True
         )
         self.projects_mock.get.return_value = self.project
 
         self.region = fakes.FakeResource(
-            None,
-            copy.deepcopy(identity_fakes.REGION),
-            loaded=True
+            None, copy.deepcopy(identity_fakes.REGION), loaded=True
         )
         self.regions_mock.get.return_value = self.region
 
@@ -69,23 +61,24 @@ class TestLimitCreate(TestLimit):
 
     def test_limit_create_without_options(self):
         self.limit_mock.create.return_value = fakes.FakeResource(
-            None,
-            copy.deepcopy(identity_fakes.LIMIT),
-            loaded=True
+            None, copy.deepcopy(identity_fakes.LIMIT), loaded=True
         )
 
         resource_limit = 15
         arglist = [
-            '--project', identity_fakes.project_id,
-            '--service', identity_fakes.service_id,
-            '--resource-limit', str(resource_limit),
-            identity_fakes.limit_resource_name
+            '--project',
+            identity_fakes.project_id,
+            '--service',
+            identity_fakes.service_id,
+            '--resource-limit',
+            str(resource_limit),
+            identity_fakes.limit_resource_name,
         ]
         verifylist = [
             ('project', identity_fakes.project_id),
             ('service', identity_fakes.service_id),
             ('resource_name', identity_fakes.limit_resource_name),
-            ('resource_limit', resource_limit)
+            ('resource_limit', resource_limit),
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
@@ -100,8 +93,15 @@ class TestLimitCreate(TestLimit):
             **kwargs
         )
 
-        collist = ('description', 'id', 'project_id', 'region_id',
-                   'resource_limit', 'resource_name', 'service_id')
+        collist = (
+            'description',
+            'id',
+            'project_id',
+            'region_id',
+            'resource_limit',
+            'resource_name',
+            'service_id',
+        )
         self.assertEqual(collist, columns)
         datalist = (
             None,
@@ -110,25 +110,28 @@ class TestLimitCreate(TestLimit):
             None,
             resource_limit,
             identity_fakes.limit_resource_name,
-            identity_fakes.service_id
+            identity_fakes.service_id,
         )
         self.assertEqual(datalist, data)
 
     def test_limit_create_with_options(self):
         self.limit_mock.create.return_value = fakes.FakeResource(
-            None,
-            copy.deepcopy(identity_fakes.LIMIT_OPTIONS),
-            loaded=True
+            None, copy.deepcopy(identity_fakes.LIMIT_OPTIONS), loaded=True
         )
 
         resource_limit = 15
         arglist = [
-            '--project', identity_fakes.project_id,
-            '--service', identity_fakes.service_id,
-            '--resource-limit', str(resource_limit),
-            '--region', identity_fakes.region_id,
-            '--description', identity_fakes.limit_description,
-            identity_fakes.limit_resource_name
+            '--project',
+            identity_fakes.project_id,
+            '--service',
+            identity_fakes.service_id,
+            '--resource-limit',
+            str(resource_limit),
+            '--region',
+            identity_fakes.region_id,
+            '--description',
+            identity_fakes.limit_description,
+            identity_fakes.limit_resource_name,
         ]
         verifylist = [
             ('project', identity_fakes.project_id),
@@ -136,7 +139,7 @@ class TestLimitCreate(TestLimit):
             ('resource_name', identity_fakes.limit_resource_name),
             ('resource_limit', resource_limit),
             ('region', identity_fakes.region_id),
-            ('description', identity_fakes.limit_description)
+            ('description', identity_fakes.limit_description),
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
@@ -144,7 +147,7 @@ class TestLimitCreate(TestLimit):
 
         kwargs = {
             'description': identity_fakes.limit_description,
-            'region': self.region
+            'region': self.region,
         }
         self.limit_mock.create.assert_called_with(
             self.project,
@@ -154,8 +157,15 @@ class TestLimitCreate(TestLimit):
             **kwargs
         )
 
-        collist = ('description', 'id', 'project_id', 'region_id',
-                   'resource_limit', 'resource_name', 'service_id')
+        collist = (
+            'description',
+            'id',
+            'project_id',
+            'region_id',
+            'resource_limit',
+            'resource_name',
+            'service_id',
+        )
         self.assertEqual(collist, columns)
         datalist = (
             identity_fakes.limit_description,
@@ -164,13 +174,12 @@ class TestLimitCreate(TestLimit):
             identity_fakes.region_id,
             resource_limit,
             identity_fakes.limit_resource_name,
-            identity_fakes.service_id
+            identity_fakes.service_id,
         )
         self.assertEqual(datalist, data)
 
 
 class TestLimitDelete(TestLimit):
-
     def setUp(self):
         super(TestLimitDelete, self).setUp()
         self.cmd = limit.DeleteLimit(self.app, None)
@@ -179,16 +188,12 @@ class TestLimitDelete(TestLimit):
         self.limit_mock.delete.return_value = None
 
         arglist = [identity_fakes.limit_id]
-        verifylist = [
-            ('limit_id', [identity_fakes.limit_id])
-        ]
+        verifylist = [('limit_id', [identity_fakes.limit_id])]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
         result = self.cmd.take_action(parsed_args)
 
-        self.limit_mock.delete.assert_called_with(
-            identity_fakes.limit_id
-        )
+        self.limit_mock.delete.assert_called_with(identity_fakes.limit_id)
         self.assertIsNone(result)
 
     def test_limit_delete_with_exception(self):
@@ -196,29 +201,22 @@ class TestLimitDelete(TestLimit):
         self.limit_mock.delete.side_effect = return_value
 
         arglist = ['fake-limit-id']
-        verifylist = [
-            ('limit_id', ['fake-limit-id'])
-        ]
+        verifylist = [('limit_id', ['fake-limit-id'])]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
         try:
             self.cmd.take_action(parsed_args)
             self.fail('CommandError should be raised.')
         except exceptions.CommandError as e:
-            self.assertEqual(
-                '1 of 1 limits failed to delete.', str(e)
-            )
+            self.assertEqual('1 of 1 limits failed to delete.', str(e))
 
 
 class TestLimitShow(TestLimit):
-
     def setUp(self):
         super(TestLimitShow, self).setUp()
 
         self.limit_mock.get.return_value = fakes.FakeResource(
-            None,
-            copy.deepcopy(identity_fakes.LIMIT),
-            loaded=True
+            None, copy.deepcopy(identity_fakes.LIMIT), loaded=True
         )
 
         self.cmd = limit.ShowLimit(self.app, None)
@@ -233,8 +231,13 @@ class TestLimitShow(TestLimit):
         self.limit_mock.get.assert_called_with(identity_fakes.limit_id)
 
         collist = (
-            'description', 'id', 'project_id', 'region_id', 'resource_limit',
-            'resource_name', 'service_id'
+            'description',
+            'id',
+            'project_id',
+            'region_id',
+            'resource_limit',
+            'resource_name',
+            'service_id',
         )
         self.assertEqual(collist, columns)
         datalist = (
@@ -244,13 +247,12 @@ class TestLimitShow(TestLimit):
             None,
             identity_fakes.limit_resource_limit,
             identity_fakes.limit_resource_name,
-            identity_fakes.service_id
+            identity_fakes.service_id,
         )
         self.assertEqual(datalist, data)
 
 
 class TestLimitSet(TestLimit):
-
     def setUp(self):
         super(TestLimitSet, self).setUp()
         self.cmd = limit.SetLimit(self.app, None)
@@ -263,12 +265,13 @@ class TestLimitSet(TestLimit):
         )
 
         arglist = [
-            '--description', identity_fakes.limit_description,
-            identity_fakes.limit_id
+            '--description',
+            identity_fakes.limit_description,
+            identity_fakes.limit_id,
         ]
         verifylist = [
             ('description', identity_fakes.limit_description),
-            ('limit_id', identity_fakes.limit_id)
+            ('limit_id', identity_fakes.limit_id),
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
@@ -277,12 +280,17 @@ class TestLimitSet(TestLimit):
         self.limit_mock.update.assert_called_with(
             identity_fakes.limit_id,
             description=identity_fakes.limit_description,
-            resource_limit=None
+            resource_limit=None,
         )
 
         collist = (
-            'description', 'id', 'project_id', 'region_id', 'resource_limit',
-            'resource_name', 'service_id'
+            'description',
+            'id',
+            'project_id',
+            'region_id',
+            'resource_limit',
+            'resource_name',
+            'service_id',
         )
         self.assertEqual(collist, columns)
         datalist = (
@@ -292,7 +300,7 @@ class TestLimitSet(TestLimit):
             None,
             identity_fakes.limit_resource_limit,
             identity_fakes.limit_resource_name,
-            identity_fakes.service_id
+            identity_fakes.service_id,
         )
         self.assertEqual(datalist, data)
 
@@ -305,12 +313,13 @@ class TestLimitSet(TestLimit):
         )
 
         arglist = [
-            '--resource-limit', str(resource_limit),
-            identity_fakes.limit_id
+            '--resource-limit',
+            str(resource_limit),
+            identity_fakes.limit_id,
         ]
         verifylist = [
             ('resource_limit', resource_limit),
-            ('limit_id', identity_fakes.limit_id)
+            ('limit_id', identity_fakes.limit_id),
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
@@ -319,12 +328,17 @@ class TestLimitSet(TestLimit):
         self.limit_mock.update.assert_called_with(
             identity_fakes.limit_id,
             description=None,
-            resource_limit=resource_limit
+            resource_limit=resource_limit,
         )
 
         collist = (
-            'description', 'id', 'project_id', 'region_id', 'resource_limit',
-            'resource_name', 'service_id'
+            'description',
+            'id',
+            'project_id',
+            'region_id',
+            'resource_limit',
+            'resource_name',
+            'service_id',
         )
         self.assertEqual(collist, columns)
         datalist = (
@@ -334,21 +348,18 @@ class TestLimitSet(TestLimit):
             None,
             resource_limit,
             identity_fakes.limit_resource_name,
-            identity_fakes.service_id
+            identity_fakes.service_id,
         )
         self.assertEqual(datalist, data)
 
 
 class TestLimitList(TestLimit):
-
     def setUp(self):
         super(TestLimitList, self).setUp()
 
         self.limit_mock.list.return_value = [
             fakes.FakeResource(
-                None,
-                copy.deepcopy(identity_fakes.LIMIT),
-                loaded=True
+                None, copy.deepcopy(identity_fakes.LIMIT), loaded=True
             )
         ]
 
@@ -362,22 +373,28 @@ class TestLimitList(TestLimit):
         columns, data = self.cmd.take_action(parsed_args)
 
         self.limit_mock.list.assert_called_with(
-            service=None, resource_name=None, region=None,
-            project=None
+            service=None, resource_name=None, region=None, project=None
         )
 
         collist = (
-            'ID', 'Project ID', 'Service ID', 'Resource Name',
-            'Resource Limit', 'Description', 'Region ID'
+            'ID',
+            'Project ID',
+            'Service ID',
+            'Resource Name',
+            'Resource Limit',
+            'Description',
+            'Region ID',
         )
         self.assertEqual(collist, columns)
-        datalist = ((
-            identity_fakes.limit_id,
-            identity_fakes.project_id,
-            identity_fakes.service_id,
-            identity_fakes.limit_resource_name,
-            identity_fakes.limit_resource_limit,
-            None,
-            None
-        ), )
+        datalist = (
+            (
+                identity_fakes.limit_id,
+                identity_fakes.project_id,
+                identity_fakes.service_id,
+                identity_fakes.limit_resource_name,
+                identity_fakes.limit_resource_limit,
+                None,
+                None,
+            ),
+        )
         self.assertEqual(datalist, tuple(data))

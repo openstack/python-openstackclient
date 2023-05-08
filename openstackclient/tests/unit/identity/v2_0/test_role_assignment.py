@@ -22,13 +22,11 @@ from openstackclient.tests.unit.identity.v2_0 import fakes as identity_fakes
 
 
 class TestRoleAssignment(identity_fakes.TestIdentityv2):
-
     def setUp(self):
         super(TestRoleAssignment, self).setUp()
 
 
 class TestRoleAssignmentList(TestRoleAssignment):
-
     columns = (
         'Role',
         'User',
@@ -74,7 +72,6 @@ class TestRoleAssignmentList(TestRoleAssignment):
         self.cmd = role_assignment.ListRoleAssignment(self.app, None)
 
     def test_role_assignment_list_no_filters(self):
-
         arglist = []
         verifylist = []
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
@@ -87,9 +84,9 @@ class TestRoleAssignmentList(TestRoleAssignment):
         )
 
     def test_role_assignment_list_only_project_filter(self):
-
         arglist = [
-            '--project', identity_fakes.project_name,
+            '--project',
+            identity_fakes.project_name,
         ]
         verifylist = [
             ('project', identity_fakes.project_name),
@@ -104,9 +101,9 @@ class TestRoleAssignmentList(TestRoleAssignment):
         )
 
     def test_role_assignment_list_only_user_filter(self):
-
         arglist = [
-            '--user', identity_fakes.user_name,
+            '--user',
+            identity_fakes.user_name,
         ]
         verifylist = [
             ('user', identity_fakes.user_name),
@@ -121,25 +118,24 @@ class TestRoleAssignmentList(TestRoleAssignment):
         )
 
     def test_role_assignment_list_project_and_user(self):
-
         self.roles_mock.roles_for_user.return_value = [
             fakes.FakeResource(
                 None,
-                copy.deepcopy(
-                    identity_fakes.ROLE),
+                copy.deepcopy(identity_fakes.ROLE),
                 loaded=True,
             ),
             fakes.FakeResource(
                 None,
-                copy.deepcopy(
-                    identity_fakes.ROLE_2),
+                copy.deepcopy(identity_fakes.ROLE_2),
                 loaded=True,
             ),
         ]
 
         arglist = [
-            '--project', identity_fakes.project_name,
-            '--user', identity_fakes.user_name,
+            '--project',
+            identity_fakes.project_name,
+            '--user',
+            identity_fakes.user_name,
         ]
         verifylist = [
             ('user', identity_fakes.user_name),
@@ -158,18 +154,21 @@ class TestRoleAssignmentList(TestRoleAssignment):
         )
 
         self.assertEqual(self.columns, columns)
-        datalist = ((
-            identity_fakes.role_id,
-            identity_fakes.user_id,
-            identity_fakes.project_id,
-        ), (identity_fakes.ROLE_2['id'],
-            identity_fakes.user_id,
-            identity_fakes.project_id,
-            ),)
+        datalist = (
+            (
+                identity_fakes.role_id,
+                identity_fakes.user_id,
+                identity_fakes.project_id,
+            ),
+            (
+                identity_fakes.ROLE_2['id'],
+                identity_fakes.user_id,
+                identity_fakes.project_id,
+            ),
+        )
         self.assertEqual(datalist, tuple(data))
 
     def test_role_assignment_list_def_creds(self):
-
         auth_ref = self.app.client_manager.auth_ref = mock.Mock()
         auth_ref.project_id.return_value = identity_fakes.project_id
         auth_ref.user_id.return_value = identity_fakes.user_id
@@ -177,14 +176,12 @@ class TestRoleAssignmentList(TestRoleAssignment):
         self.roles_mock.roles_for_user.return_value = [
             fakes.FakeResource(
                 None,
-                copy.deepcopy(
-                    identity_fakes.ROLE),
+                copy.deepcopy(identity_fakes.ROLE),
                 loaded=True,
             ),
             fakes.FakeResource(
                 None,
-                copy.deepcopy(
-                    identity_fakes.ROLE_2),
+                copy.deepcopy(identity_fakes.ROLE_2),
                 loaded=True,
             ),
         ]
@@ -210,37 +207,40 @@ class TestRoleAssignmentList(TestRoleAssignment):
         )
 
         self.assertEqual(self.columns, columns)
-        datalist = ((
-            identity_fakes.role_id,
-            identity_fakes.user_id,
-            identity_fakes.project_id,
-        ), (identity_fakes.ROLE_2['id'],
-            identity_fakes.user_id,
-            identity_fakes.project_id,
-            ),)
+        datalist = (
+            (
+                identity_fakes.role_id,
+                identity_fakes.user_id,
+                identity_fakes.project_id,
+            ),
+            (
+                identity_fakes.ROLE_2['id'],
+                identity_fakes.user_id,
+                identity_fakes.project_id,
+            ),
+        )
         self.assertEqual(datalist, tuple(data))
 
     def test_role_assignment_list_by_name_project_and_user(self):
-
         self.roles_mock.roles_for_user.return_value = [
             fakes.FakeResource(
                 None,
-                copy.deepcopy(
-                    identity_fakes.ROLE),
+                copy.deepcopy(identity_fakes.ROLE),
                 loaded=True,
             ),
             fakes.FakeResource(
                 None,
-                copy.deepcopy(
-                    identity_fakes.ROLE_2),
+                copy.deepcopy(identity_fakes.ROLE_2),
                 loaded=True,
             ),
         ]
 
         arglist = [
-            '--project', identity_fakes.project_name,
-            '--user', identity_fakes.user_name,
-            '--names'
+            '--project',
+            identity_fakes.project_name,
+            '--user',
+            identity_fakes.user_name,
+            '--names',
         ]
         verifylist = [
             ('user', identity_fakes.user_name),
@@ -260,12 +260,16 @@ class TestRoleAssignmentList(TestRoleAssignment):
         )
 
         self.assertEqual(self.columns, columns)
-        datalist = ((
-            identity_fakes.role_name,
-            identity_fakes.user_name,
-            identity_fakes.project_name,
-        ), (identity_fakes.ROLE_2['name'],
-            identity_fakes.user_name,
-            identity_fakes.project_name,
-            ),)
+        datalist = (
+            (
+                identity_fakes.role_name,
+                identity_fakes.user_name,
+                identity_fakes.project_name,
+            ),
+            (
+                identity_fakes.ROLE_2['name'],
+                identity_fakes.user_name,
+                identity_fakes.project_name,
+            ),
+        )
         self.assertEqual(datalist, tuple(data))

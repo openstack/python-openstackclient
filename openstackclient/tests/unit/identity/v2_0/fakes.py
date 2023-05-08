@@ -155,7 +155,6 @@ def fake_auth_ref(fake_token, fake_service=None):
 
 
 class FakeIdentityv2Client(object):
-
     def __init__(self, **kwargs):
         self.roles = mock.Mock()
         self.roles.resource_class = fakes.FakeResource(None, {})
@@ -185,7 +184,6 @@ class FakeIdentityv2Client(object):
 
 
 class TestIdentityv2(utils.TestCommand):
-
     def setUp(self):
         super(TestIdentityv2, self).setUp()
 
@@ -212,22 +210,25 @@ class FakeExtension(object):
         # Set default attributes.
         extension_info = {
             'name': 'name-' + uuid.uuid4().hex,
-            'namespace': ('http://docs.openstack.org/identity/'
-                          'api/ext/OS-KSCRUD/v1.0'),
+            'namespace': (
+                'http://docs.openstack.org/identity/' 'api/ext/OS-KSCRUD/v1.0'
+            ),
             'description': 'description-' + uuid.uuid4().hex,
             'updated': '2013-07-07T12:00:0-00:00',
             'alias': 'OS-KSCRUD',
-            'links': ('[{"href":'
-                      '"https://github.com/openstack/identity-api", "type":'
-                      ' "text/html", "rel": "describedby"}]')
+            'links': (
+                '[{"href":'
+                '"https://github.com/openstack/identity-api", "type":'
+                ' "text/html", "rel": "describedby"}]'
+            ),
         }
 
         # Overwrite default attributes.
         extension_info.update(attrs)
 
         extension = fakes.FakeResource(
-            info=copy.deepcopy(extension_info),
-            loaded=True)
+            info=copy.deepcopy(extension_info), loaded=True
+        )
         return extension
 
 
@@ -275,8 +276,8 @@ class FakeCatalog(object):
         catalog_info.update(attrs)
 
         catalog = fakes.FakeResource(
-            info=copy.deepcopy(catalog_info),
-            loaded=True)
+            info=copy.deepcopy(catalog_info), loaded=True
+        )
 
         return catalog
 
@@ -305,8 +306,9 @@ class FakeProject(object):
         }
         project_info.update(attrs)
 
-        project = fakes.FakeResource(info=copy.deepcopy(project_info),
-                                     loaded=True)
+        project = fakes.FakeResource(
+            info=copy.deepcopy(project_info), loaded=True
+        )
         return project
 
     @staticmethod
@@ -352,12 +354,12 @@ class FakeEndpoint(object):
             'id': 'endpoint-id-' + uuid.uuid4().hex,
             'publicurl': 'http://endpoint_publicurl',
             'service_id': 'service-name-' + uuid.uuid4().hex,
-
         }
         endpoint_info.update(attrs)
 
-        endpoint = fakes.FakeResource(info=copy.deepcopy(endpoint_info),
-                                      loaded=True)
+        endpoint = fakes.FakeResource(
+            info=copy.deepcopy(endpoint_info), loaded=True
+        )
         return endpoint
 
     @staticmethod
@@ -399,12 +401,12 @@ class FakeService(object):
             'name': 'service-name-' + uuid.uuid4().hex,
             'description': 'service_description',
             'type': 'service_type',
-
         }
         service_info.update(attrs)
 
-        service = fakes.FakeResource(info=copy.deepcopy(service_info),
-                                     loaded=True)
+        service = fakes.FakeResource(
+            info=copy.deepcopy(service_info), loaded=True
+        )
         return service
 
     @staticmethod
@@ -447,8 +449,7 @@ class FakeRole(object):
         }
         role_info.update(attrs)
 
-        role = fakes.FakeResource(info=copy.deepcopy(role_info),
-                                  loaded=True)
+        role = fakes.FakeResource(info=copy.deepcopy(role_info), loaded=True)
         return role
 
     @staticmethod
@@ -493,8 +494,7 @@ class FakeUser(object):
         }
         user_info.update(attrs)
 
-        user = fakes.FakeResource(info=copy.deepcopy(user_info),
-                                  loaded=True)
+        user = fakes.FakeResource(info=copy.deepcopy(user_info), loaded=True)
         return user
 
     @staticmethod

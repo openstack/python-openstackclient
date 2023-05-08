@@ -69,7 +69,8 @@ class CreateEndpoint(command.ShowOne):
             service.id,
             parsed_args.publicurl,
             parsed_args.adminurl,
-            parsed_args.internalurl,)
+            parsed_args.internalurl,
+        )
 
         info = {}
         info.update(endpoint._info)
@@ -100,14 +101,19 @@ class DeleteEndpoint(command.Command):
                 identity_client.endpoints.delete(endpoint)
             except Exception as e:
                 result += 1
-                LOG.error(_("Failed to delete endpoint with "
-                          "ID '%(endpoint)s': %(e)s"),
-                          {'endpoint': endpoint, 'e': e})
+                LOG.error(
+                    _(
+                        "Failed to delete endpoint with "
+                        "ID '%(endpoint)s': %(e)s"
+                    ),
+                    {'endpoint': endpoint, 'e': e},
+                )
 
         if result > 0:
             total = len(parsed_args.endpoints)
-            msg = (_("%(result)s of %(total)s endpoints failed "
-                   "to delete.") % {'result': result, 'total': total})
+            msg = _(
+                "%(result)s of %(total)s endpoints failed " "to delete."
+            ) % {'result': result, 'total': total}
             raise exceptions.CommandError(msg)
 
 
@@ -127,8 +133,15 @@ class ListEndpoint(command.Lister):
     def take_action(self, parsed_args):
         identity_client = self.app.client_manager.identity
         if parsed_args.long:
-            columns = ('ID', 'Region', 'Service Name', 'Service Type',
-                       'PublicURL', 'AdminURL', 'InternalURL')
+            columns = (
+                'ID',
+                'Region',
+                'Service Name',
+                'Service Type',
+                'PublicURL',
+                'AdminURL',
+                'InternalURL',
+            )
         else:
             columns = ('ID', 'Region', 'Service Name', 'Service Type')
         data = identity_client.endpoints.list()
@@ -137,11 +150,17 @@ class ListEndpoint(command.Lister):
             service = common.find_service(identity_client, ep.service_id)
             ep.service_name = service.name
             ep.service_type = service.type
-        return (columns,
-                (utils.get_item_properties(
-                    s, columns,
+        return (
+            columns,
+            (
+                utils.get_item_properties(
+                    s,
+                    columns,
                     formatters={},
-                ) for s in data))
+                )
+                for s in data
+            ),
+        )
 
 
 class ShowEndpoint(command.ShowOne):
@@ -152,8 +171,10 @@ class ShowEndpoint(command.ShowOne):
         parser.add_argument(
             'endpoint_or_service',
             metavar='<endpoint>',
-            help=_('Endpoint to display (endpoint ID, service ID,'
-                   ' service name, service type)'),
+            help=_(
+                'Endpoint to display (endpoint ID, service ID,'
+                ' service name, service type)'
+            ),
         )
         return parser
 
@@ -166,8 +187,9 @@ class ShowEndpoint(command.ShowOne):
                 match = ep
                 service = common.find_service(identity_client, ep.service_id)
         if match is None:
-            service = common.find_service(identity_client,
-                                          parsed_args.endpoint_or_service)
+            service = common.find_service(
+                identity_client, parsed_args.endpoint_or_service
+            )
             for ep in data:
                 if ep.service_id == service.id:
                     match = ep

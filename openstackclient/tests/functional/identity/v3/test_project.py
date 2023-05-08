@@ -16,7 +16,6 @@ from openstackclient.tests.functional.identity.v3 import common
 
 
 class ProjectTests(common.IdentityTests):
-
     def test_project_create(self):
         project_name = data_utils.rand_name('TestProject')
         description = data_utils.rand_name('description')
@@ -27,15 +26,18 @@ class ProjectTests(common.IdentityTests):
             '--enable '
             '--property k1=v1 '
             '--property k2=v2 '
-            '%(name)s' % {'domain': self.domain_name,
-                          'description': description,
-                          'name': project_name})
+            '%(name)s'
+            % {
+                'domain': self.domain_name,
+                'description': description,
+                'name': project_name,
+            }
+        )
         self.addCleanup(
             self.openstack,
             'project delete '
             '--domain %(domain)s '
-            '%(name)s' % {'domain': self.domain_name,
-                          'name': project_name}
+            '%(name)s' % {'domain': self.domain_name, 'name': project_name},
         )
         items = self.parse_show(raw_output)
         show_fields = list(self.PROJECT_FIELDS)
@@ -50,8 +52,8 @@ class ProjectTests(common.IdentityTests):
         raw_output = self.openstack(
             'project delete '
             '--domain %(domain)s '
-            '%(name)s' % {'domain': self.domain_name,
-                          'name': project_name})
+            '%(name)s' % {'domain': self.domain_name, 'name': project_name}
+        )
         self.assertEqual(0, len(raw_output))
 
     def test_project_list(self):
@@ -62,7 +64,8 @@ class ProjectTests(common.IdentityTests):
     def test_project_list_with_domain(self):
         project_name = self._create_dummy_project()
         raw_output = self.openstack(
-            'project list --domain %s' % self.domain_name)
+            'project list --domain %s' % self.domain_name
+        )
         items = self.parse_listing(raw_output)
         self.assert_table_structure(items, common.BASIC_LIST_HEADERS)
         self.assertIn(project_name, raw_output)
@@ -76,15 +79,14 @@ class ProjectTests(common.IdentityTests):
             '--name %(new_name)s '
             '--disable '
             '--property k0=v0 '
-            '%(name)s' % {'new_name': new_project_name,
-                          'name': project_name})
+            '%(name)s' % {'new_name': new_project_name, 'name': project_name}
+        )
         self.assertEqual(0, len(raw_output))
         # check project details
         raw_output = self.openstack(
             'project show '
             '--domain %(domain)s '
-            '%(name)s' % {'domain': self.domain_name,
-                          'name': new_project_name}
+            '%(name)s' % {'domain': self.domain_name, 'name': new_project_name}
         )
         items = self.parse_show(raw_output)
         fields = list(self.PROJECT_FIELDS)
@@ -99,15 +101,16 @@ class ProjectTests(common.IdentityTests):
             'project set '
             '--name %(new_name)s '
             '--enable '
-            '%(name)s' % {'new_name': project_name,
-                          'name': new_project_name})
+            '%(name)s' % {'new_name': project_name, 'name': new_project_name}
+        )
 
     def test_project_show(self):
         raw_output = self.openstack(
             'project show '
             '--domain %(domain)s '
-            '%(name)s' % {'domain': self.domain_name,
-                          'name': self.project_name})
+            '%(name)s'
+            % {'domain': self.domain_name, 'name': self.project_name}
+        )
         items = self.parse_show(raw_output)
         self.assert_show_fields(items, self.PROJECT_FIELDS)
 
@@ -116,10 +119,10 @@ class ProjectTests(common.IdentityTests):
             'project show '
             '--parents --children '
             '--domain %(domain)s '
-            '%(name)s' % {'domain': self.domain_name,
-                          'name': self.project_name},
+            '%(name)s'
+            % {'domain': self.domain_name, 'name': self.project_name},
             parse_output=True,
         )
-        for attr_name in (self.PROJECT_FIELDS + ['parents', 'subtree']):
+        for attr_name in self.PROJECT_FIELDS + ['parents', 'subtree']:
             self.assertIn(attr_name, output)
         self.assertEqual(self.project_name, output.get('name'))

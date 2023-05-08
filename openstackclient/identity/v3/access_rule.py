@@ -48,18 +48,24 @@ class DeleteAccessRule(command.Command):
         for ac in parsed_args.access_rule:
             try:
                 access_rule = utils.find_resource(
-                    identity_client.access_rules, ac)
+                    identity_client.access_rules, ac
+                )
                 identity_client.access_rules.delete(access_rule.id)
             except Exception as e:
                 errors += 1
-                LOG.error(_("Failed to delete access rule with "
-                          "ID '%(ac)s': %(e)s"),
-                          {'ac': ac, 'e': e})
+                LOG.error(
+                    _(
+                        "Failed to delete access rule with "
+                        "ID '%(ac)s': %(e)s"
+                    ),
+                    {'ac': ac, 'e': e},
+                )
 
         if errors > 0:
             total = len(parsed_args.access_rule)
-            msg = (_("%(errors)s of %(total)s access rules failed "
-                   "to delete.") % {'errors': errors, 'total': total})
+            msg = _(
+                "%(errors)s of %(total)s access rules failed " "to delete."
+            ) % {'errors': errors, 'total': total}
             raise exceptions.CommandError(msg)
 
 
@@ -79,20 +85,25 @@ class ListAccessRule(command.Lister):
     def take_action(self, parsed_args):
         identity_client = self.app.client_manager.identity
         if parsed_args.user:
-            user_id = common.find_user(identity_client,
-                                       parsed_args.user,
-                                       parsed_args.user_domain).id
+            user_id = common.find_user(
+                identity_client, parsed_args.user, parsed_args.user_domain
+            ).id
         else:
             user_id = None
 
         columns = ('ID', 'Service', 'Method', 'Path')
-        data = identity_client.access_rules.list(
-            user=user_id)
-        return (columns,
-                (utils.get_item_properties(
-                    s, columns,
+        data = identity_client.access_rules.list(user=user_id)
+        return (
+            columns,
+            (
+                utils.get_item_properties(
+                    s,
+                    columns,
                     formatters={},
-                ) for s in data))
+                )
+                for s in data
+            ),
+        )
 
 
 class ShowAccessRule(command.ShowOne):
@@ -109,8 +120,9 @@ class ShowAccessRule(command.ShowOne):
 
     def take_action(self, parsed_args):
         identity_client = self.app.client_manager.identity
-        access_rule = utils.find_resource(identity_client.access_rules,
-                                          parsed_args.access_rule)
+        access_rule = utils.find_resource(
+            identity_client.access_rules, parsed_args.access_rule
+        )
 
         access_rule._info.pop('links', None)
 

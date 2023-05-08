@@ -73,8 +73,10 @@ class _RulesReader(object):
         try:
             rules = json.loads(blob)
         except ValueError as e:
-            msg = _("An error occurred when reading rules from file "
-                    "%(path)s: %(error)s") % {"path": path, "error": e}
+            msg = _(
+                "An error occurred when reading rules from file "
+                "%(path)s: %(error)s"
+            ) % {"path": path, "error": e}
             raise exceptions.CommandError(msg)
         else:
             return rules
@@ -92,7 +94,8 @@ class CreateMapping(command.ShowOne, _RulesReader):
         )
         parser.add_argument(
             '--rules',
-            metavar='<filename>', required=True,
+            metavar='<filename>',
+            required=True,
             help=_('Filename that contains a set of mapping rules (required)'),
         )
         return parser
@@ -102,8 +105,8 @@ class CreateMapping(command.ShowOne, _RulesReader):
 
         rules = self._read_rules(parsed_args.rules)
         mapping = identity_client.federation.mappings.create(
-            mapping_id=parsed_args.mapping,
-            rules=rules)
+            mapping_id=parsed_args.mapping, rules=rules
+        )
 
         mapping._info.pop('links', None)
         return zip(*sorted(mapping._info.items()))
@@ -130,13 +133,19 @@ class DeleteMapping(command.Command):
                 identity_client.federation.mappings.delete(i)
             except Exception as e:
                 result += 1
-                LOG.error(_("Failed to delete mapping with name or "
-                          "ID '%(mapping)s': %(e)s"), {'mapping': i, 'e': e})
+                LOG.error(
+                    _(
+                        "Failed to delete mapping with name or "
+                        "ID '%(mapping)s': %(e)s"
+                    ),
+                    {'mapping': i, 'e': e},
+                )
 
         if result > 0:
             total = len(parsed_args.mapping)
-            msg = (_("%(result)s of %(total)s mappings failed "
-                   "to delete.") % {'result': result, 'total': total})
+            msg = _(
+                "%(result)s of %(total)s mappings failed " "to delete."
+            ) % {'result': result, 'total': total}
             raise exceptions.CommandError(msg)
 
 
@@ -177,8 +186,8 @@ class SetMapping(command.Command, _RulesReader):
         rules = self._read_rules(parsed_args.rules)
 
         mapping = identity_client.federation.mappings.update(
-            mapping=parsed_args.mapping,
-            rules=rules)
+            mapping=parsed_args.mapping, rules=rules
+        )
 
         mapping._info.pop('links', None)
 

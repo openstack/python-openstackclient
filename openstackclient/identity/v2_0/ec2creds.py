@@ -77,9 +77,7 @@ class CreateEC2Creds(command.ShowOne):
         info.update(creds._info)
 
         if 'tenant_id' in info:
-            info.update(
-                {'project_id': info.pop('tenant_id')}
-            )
+            info.update({'project_id': info.pop('tenant_id')})
 
         return zip(*sorted(info.items()))
 
@@ -120,14 +118,19 @@ class DeleteEC2Creds(command.Command):
                 identity_client.ec2.delete(user, access_key)
             except Exception as e:
                 result += 1
-                LOG.error(_("Failed to delete EC2 credentials with "
-                          "access key '%(access_key)s': %(e)s"),
-                          {'access_key': access_key, 'e': e})
+                LOG.error(
+                    _(
+                        "Failed to delete EC2 credentials with "
+                        "access key '%(access_key)s': %(e)s"
+                    ),
+                    {'access_key': access_key, 'e': e},
+                )
 
         if result > 0:
             total = len(parsed_args.access_keys)
-            msg = (_("%(result)s of %(total)s EC2 keys failed "
-                   "to delete.") % {'result': result, 'total': total})
+            msg = _(
+                "%(result)s of %(total)s EC2 keys failed " "to delete."
+            ) % {'result': result, 'total': total}
             raise exceptions.CommandError(msg)
 
 
@@ -159,11 +162,17 @@ class ListEC2Creds(command.Lister):
         column_headers = ('Access', 'Secret', 'Project ID', 'User ID')
         data = identity_client.ec2.list(user)
 
-        return (column_headers,
-                (utils.get_item_properties(
-                    s, columns,
+        return (
+            column_headers,
+            (
+                utils.get_item_properties(
+                    s,
+                    columns,
                     formatters={},
-                ) for s in data))
+                )
+                for s in data
+            ),
+        )
 
 
 class ShowEC2Creds(command.ShowOne):
@@ -201,8 +210,6 @@ class ShowEC2Creds(command.ShowOne):
         info.update(creds._info)
 
         if 'tenant_id' in info:
-            info.update(
-                {'project_id': info.pop('tenant_id')}
-            )
+            info.update({'project_id': info.pop('tenant_id')})
 
         return zip(*sorted(info.items()))

@@ -81,8 +81,9 @@ class CreateDomain(command.ShowOne):
             )
         except ks_exc.Conflict:
             if parsed_args.or_show:
-                domain = utils.find_resource(identity_client.domains,
-                                             parsed_args.name)
+                domain = utils.find_resource(
+                    identity_client.domains, parsed_args.name
+                )
                 LOG.info(_('Returning existing domain %s'), domain.name)
             else:
                 raise
@@ -113,13 +114,20 @@ class DeleteDomain(command.Command):
                 identity_client.domains.delete(domain.id)
             except Exception as e:
                 result += 1
-                LOG.error(_("Failed to delete domain with name or "
-                          "ID '%(domain)s': %(e)s"), {'domain': i, 'e': e})
+                LOG.error(
+                    _(
+                        "Failed to delete domain with name or "
+                        "ID '%(domain)s': %(e)s"
+                    ),
+                    {'domain': i, 'e': e},
+                )
 
         if result > 0:
             total = len(parsed_args.domain)
-            msg = (_("%(result)s of %(total)s domains failed "
-                   "to delete.") % {'result': result, 'total': total})
+            msg = _("%(result)s of %(total)s domains failed " "to delete.") % {
+                'result': result,
+                'total': total,
+            }
             raise exceptions.CommandError(msg)
 
 
@@ -150,11 +158,17 @@ class ListDomain(command.Lister):
 
         columns = ('ID', 'Name', 'Enabled', 'Description')
         data = self.app.client_manager.identity.domains.list(**kwargs)
-        return (columns,
-                (utils.get_item_properties(
-                    s, columns,
+        return (
+            columns,
+            (
+                utils.get_item_properties(
+                    s,
+                    columns,
                     formatters={},
-                ) for s in data))
+                )
+                for s in data
+            ),
+        )
 
 
 class SetDomain(command.Command):
@@ -193,8 +207,9 @@ class SetDomain(command.Command):
 
     def take_action(self, parsed_args):
         identity_client = self.app.client_manager.identity
-        domain = utils.find_resource(identity_client.domains,
-                                     parsed_args.domain)
+        domain = utils.find_resource(
+            identity_client.domains, parsed_args.domain
+        )
         kwargs = {}
         if parsed_args.name:
             kwargs['name'] = parsed_args.name
@@ -228,11 +243,11 @@ class ShowDomain(command.ShowOne):
     def take_action(self, parsed_args):
         identity_client = self.app.client_manager.identity
 
-        domain_str = common._get_token_resource(identity_client, 'domain',
-                                                parsed_args.domain)
+        domain_str = common._get_token_resource(
+            identity_client, 'domain', parsed_args.domain
+        )
 
-        domain = utils.find_resource(identity_client.domains,
-                                     domain_str)
+        domain = utils.find_resource(identity_client.domains, domain_str)
 
         domain._info.pop('links')
         return zip(*sorted(domain._info.items()))

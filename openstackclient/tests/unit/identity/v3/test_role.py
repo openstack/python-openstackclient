@@ -26,7 +26,6 @@ from openstackclient.tests.unit.identity.v3 import fakes as identity_fakes
 
 
 class TestRole(identity_fakes.TestIdentityv3):
-
     def setUp(self):
         super(TestRole, self).setUp()
 
@@ -55,13 +54,11 @@ class TestRole(identity_fakes.TestIdentityv3):
 
 
 class TestRoleInherited(TestRole):
-
     def _is_inheritance_testcase(self):
         return True
 
 
 class TestRoleAdd(TestRole):
-
     def setUp(self):
         super(TestRoleAdd, self).setUp()
 
@@ -105,8 +102,10 @@ class TestRoleAdd(TestRole):
 
     def test_role_add_user_system(self):
         arglist = [
-            '--user', identity_fakes.user_name,
-            '--system', 'all',
+            '--user',
+            identity_fakes.user_name,
+            '--system',
+            'all',
             identity_fakes.role_name,
         ]
         if self._is_inheritance_testcase():
@@ -132,15 +131,16 @@ class TestRoleAdd(TestRole):
         }
         # RoleManager.grant(role, user=, group=, domain=, project=)
         self.roles_mock.grant.assert_called_with(
-            identity_fakes.role_id,
-            **kwargs
+            identity_fakes.role_id, **kwargs
         )
         self.assertIsNone(result)
 
     def test_role_add_user_domain(self):
         arglist = [
-            '--user', identity_fakes.user_name,
-            '--domain', identity_fakes.domain_name,
+            '--user',
+            identity_fakes.user_name,
+            '--domain',
+            identity_fakes.domain_name,
             identity_fakes.role_name,
         ]
         if self._is_inheritance_testcase():
@@ -165,15 +165,16 @@ class TestRoleAdd(TestRole):
         }
         # RoleManager.grant(role, user=, group=, domain=, project=)
         self.roles_mock.grant.assert_called_with(
-            identity_fakes.role_id,
-            **kwargs
+            identity_fakes.role_id, **kwargs
         )
         self.assertIsNone(result)
 
     def test_role_add_user_project(self):
         arglist = [
-            '--user', identity_fakes.user_name,
-            '--project', identity_fakes.project_name,
+            '--user',
+            identity_fakes.user_name,
+            '--project',
+            identity_fakes.project_name,
             identity_fakes.role_name,
         ]
         if self._is_inheritance_testcase():
@@ -198,15 +199,16 @@ class TestRoleAdd(TestRole):
         }
         # RoleManager.grant(role, user=, group=, domain=, project=)
         self.roles_mock.grant.assert_called_with(
-            identity_fakes.role_id,
-            **kwargs
+            identity_fakes.role_id, **kwargs
         )
         self.assertIsNone(result)
 
     def test_role_add_group_system(self):
         arglist = [
-            '--group', identity_fakes.group_name,
-            '--system', 'all',
+            '--group',
+            identity_fakes.group_name,
+            '--system',
+            'all',
             identity_fakes.role_name,
         ]
         if self._is_inheritance_testcase():
@@ -232,15 +234,16 @@ class TestRoleAdd(TestRole):
         }
         # RoleManager.grant(role, user=, group=, domain=, project=)
         self.roles_mock.grant.assert_called_with(
-            identity_fakes.role_id,
-            **kwargs
+            identity_fakes.role_id, **kwargs
         )
         self.assertIsNone(result)
 
     def test_role_add_group_domain(self):
         arglist = [
-            '--group', identity_fakes.group_name,
-            '--domain', identity_fakes.domain_name,
+            '--group',
+            identity_fakes.group_name,
+            '--domain',
+            identity_fakes.domain_name,
             identity_fakes.role_name,
         ]
         if self._is_inheritance_testcase():
@@ -265,15 +268,16 @@ class TestRoleAdd(TestRole):
         }
         # RoleManager.grant(role, user=, group=, domain=, project=)
         self.roles_mock.grant.assert_called_with(
-            identity_fakes.role_id,
-            **kwargs
+            identity_fakes.role_id, **kwargs
         )
         self.assertIsNone(result)
 
     def test_role_add_group_project(self):
         arglist = [
-            '--group', identity_fakes.group_name,
-            '--project', identity_fakes.project_name,
+            '--group',
+            identity_fakes.group_name,
+            '--project',
+            identity_fakes.project_name,
             identity_fakes.role_name,
         ]
         if self._is_inheritance_testcase():
@@ -298,8 +302,7 @@ class TestRoleAdd(TestRole):
         }
         # RoleManager.grant(role, user=, group=, domain=, project=)
         self.roles_mock.grant.assert_called_with(
-            identity_fakes.role_id,
-            **kwargs
+            identity_fakes.role_id, **kwargs
         )
         self.assertIsNone(result)
 
@@ -310,9 +313,12 @@ class TestRoleAdd(TestRole):
             loaded=True,
         )
         arglist = [
-            '--user', identity_fakes.user_name,
-            '--project', identity_fakes.project_name,
-            '--role-domain', identity_fakes.domain_name,
+            '--user',
+            identity_fakes.user_name,
+            '--project',
+            identity_fakes.project_name,
+            '--role-domain',
+            identity_fakes.domain_name,
             identity_fakes.ROLE_2['name'],
         ]
         if self._is_inheritance_testcase():
@@ -337,8 +343,7 @@ class TestRoleAdd(TestRole):
         }
         # RoleManager.grant(role, user=, group=, domain=, project=)
         self.roles_mock.grant.assert_called_with(
-            identity_fakes.ROLE_2['id'],
-            **kwargs
+            identity_fakes.ROLE_2['id'], **kwargs
         )
         self.assertIsNone(result)
 
@@ -355,8 +360,9 @@ class TestRoleAdd(TestRole):
             ('inherited', False),
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
-        self.assertRaises(exceptions.CommandError,
-                          self.cmd.take_action, parsed_args)
+        self.assertRaises(
+            exceptions.CommandError, self.cmd.take_action, parsed_args
+        )
 
 
 class TestRoleAddInherited(TestRoleAdd, TestRoleInherited):
@@ -364,7 +370,6 @@ class TestRoleAddInherited(TestRoleAdd, TestRoleInherited):
 
 
 class TestRoleCreate(TestRole):
-
     def setUp(self):
         super(TestRoleCreate, self).setUp()
 
@@ -406,9 +411,7 @@ class TestRoleCreate(TestRole):
         }
 
         # RoleManager.create(name=, domain=)
-        self.roles_mock.create.assert_called_with(
-            **kwargs
-        )
+        self.roles_mock.create.assert_called_with(**kwargs)
 
         collist = ('domain', 'id', 'name')
         self.assertEqual(collist, columns)
@@ -420,7 +423,6 @@ class TestRoleCreate(TestRole):
         self.assertEqual(datalist, data)
 
     def test_role_create_with_domain(self):
-
         self.roles_mock.create.return_value = fakes.FakeResource(
             None,
             copy.deepcopy(identity_fakes.ROLE_2),
@@ -428,7 +430,8 @@ class TestRoleCreate(TestRole):
         )
 
         arglist = [
-            '--domain', identity_fakes.domain_name,
+            '--domain',
+            identity_fakes.domain_name,
             identity_fakes.ROLE_2['name'],
         ]
         verifylist = [
@@ -451,9 +454,7 @@ class TestRoleCreate(TestRole):
         }
 
         # RoleManager.create(name=, domain=)
-        self.roles_mock.create.assert_called_with(
-            **kwargs
-        )
+        self.roles_mock.create.assert_called_with(**kwargs)
 
         collist = ('domain', 'id', 'name')
         self.assertEqual(collist, columns)
@@ -465,14 +466,14 @@ class TestRoleCreate(TestRole):
         self.assertEqual(datalist, data)
 
     def test_role_create_with_description(self):
-
         self.roles_mock.create.return_value = fakes.FakeResource(
             None,
             copy.deepcopy(identity_fakes.ROLE_2),
             loaded=True,
         )
         arglist = [
-            '--description', identity_fakes.role_description,
+            '--description',
+            identity_fakes.role_description,
             identity_fakes.ROLE_2['name'],
         ]
         verifylist = [
@@ -495,9 +496,7 @@ class TestRoleCreate(TestRole):
         }
 
         # RoleManager.create(name=, domain=)
-        self.roles_mock.create.assert_called_with(
-            **kwargs
-        )
+        self.roles_mock.create.assert_called_with(**kwargs)
 
         collist = ('domain', 'id', 'name')
         self.assertEqual(collist, columns)
@@ -509,7 +508,6 @@ class TestRoleCreate(TestRole):
         self.assertEqual(datalist, data)
 
     def test_role_create_with_immutable_option(self):
-
         self.roles_mock.create.return_value = fakes.FakeResource(
             None,
             copy.deepcopy(identity_fakes.ROLE_2),
@@ -532,7 +530,6 @@ class TestRoleCreate(TestRole):
 
         # Set expected values
         kwargs = {
-
             'options': {'immutable': True},
             'description': None,
             'name': identity_fakes.ROLE_2['name'],
@@ -540,9 +537,7 @@ class TestRoleCreate(TestRole):
         }
 
         # RoleManager.create(name=, domain=)
-        self.roles_mock.create.assert_called_with(
-            **kwargs
-        )
+        self.roles_mock.create.assert_called_with(**kwargs)
 
         collist = ('domain', 'id', 'name')
         self.assertEqual(collist, columns)
@@ -554,7 +549,6 @@ class TestRoleCreate(TestRole):
         self.assertEqual(datalist, data)
 
     def test_role_create_with_no_immutable_option(self):
-
         self.roles_mock.create.return_value = fakes.FakeResource(
             None,
             copy.deepcopy(identity_fakes.ROLE_2),
@@ -577,7 +571,6 @@ class TestRoleCreate(TestRole):
 
         # Set expected values
         kwargs = {
-
             'options': {'immutable': False},
             'description': None,
             'name': identity_fakes.ROLE_2['name'],
@@ -585,9 +578,7 @@ class TestRoleCreate(TestRole):
         }
 
         # RoleManager.create(name=, domain=)
-        self.roles_mock.create.assert_called_with(
-            **kwargs
-        )
+        self.roles_mock.create.assert_called_with(**kwargs)
 
         collist = ('domain', 'id', 'name')
         self.assertEqual(collist, columns)
@@ -600,7 +591,6 @@ class TestRoleCreate(TestRole):
 
 
 class TestRoleDelete(TestRole):
-
     def setUp(self):
         super(TestRoleDelete, self).setUp()
 
@@ -639,7 +629,8 @@ class TestRoleDelete(TestRole):
         self.roles_mock.delete.return_value = None
 
         arglist = [
-            '--domain', identity_fakes.domain_name,
+            '--domain',
+            identity_fakes.domain_name,
             identity_fakes.ROLE_2['name'],
         ]
         verifylist = [
@@ -657,8 +648,10 @@ class TestRoleDelete(TestRole):
 
     @mock.patch.object(utils, 'find_resource')
     def test_delete_multi_roles_with_exception(self, find_mock):
-        find_mock.side_effect = [self.roles_mock.get.return_value,
-                                 exceptions.CommandError]
+        find_mock.side_effect = [
+            self.roles_mock.get.return_value,
+            exceptions.CommandError,
+        ]
         arglist = [
             identity_fakes.role_name,
             'unexist_role',
@@ -672,22 +665,20 @@ class TestRoleDelete(TestRole):
             self.cmd.take_action(parsed_args)
             self.fail('CommandError should be raised.')
         except exceptions.CommandError as e:
-            self.assertEqual('1 of 2 roles failed to delete.',
-                             str(e))
+            self.assertEqual('1 of 2 roles failed to delete.', str(e))
 
-        find_mock.assert_any_call(self.roles_mock,
-                                  identity_fakes.role_name,
-                                  domain_id=None)
-        find_mock.assert_any_call(self.roles_mock,
-                                  'unexist_role',
-                                  domain_id=None)
+        find_mock.assert_any_call(
+            self.roles_mock, identity_fakes.role_name, domain_id=None
+        )
+        find_mock.assert_any_call(
+            self.roles_mock, 'unexist_role', domain_id=None
+        )
 
         self.assertEqual(2, find_mock.call_count)
         self.roles_mock.delete.assert_called_once_with(identity_fakes.role_id)
 
 
 class TestRoleList(TestRole):
-
     columns = (
         'ID',
         'Name',
@@ -743,7 +734,8 @@ class TestRoleList(TestRole):
             ),
         ]
         arglist = [
-            '--domain', identity_fakes.domain_name,
+            '--domain',
+            identity_fakes.domain_name,
         ]
         verifylist = [
             ('domain', identity_fakes.domain_name),
@@ -756,26 +748,23 @@ class TestRoleList(TestRole):
         columns, data = self.cmd.take_action(parsed_args)
 
         # Set expected values
-        kwargs = {
-            'domain_id': identity_fakes.domain_id
-        }
+        kwargs = {'domain_id': identity_fakes.domain_id}
         # RoleManager.list(user=, group=, domain=, project=, **kwargs)
-        self.roles_mock.list.assert_called_with(
-            **kwargs
-        )
+        self.roles_mock.list.assert_called_with(**kwargs)
 
         collist = ('ID', 'Name', 'Domain')
         self.assertEqual(collist, columns)
-        datalist = ((
-            identity_fakes.ROLE_2['id'],
-            identity_fakes.ROLE_2['name'],
-            identity_fakes.domain_name,
-        ), )
+        datalist = (
+            (
+                identity_fakes.ROLE_2['id'],
+                identity_fakes.ROLE_2['name'],
+                identity_fakes.domain_name,
+            ),
+        )
         self.assertEqual(datalist, tuple(data))
 
 
 class TestRoleRemove(TestRole):
-
     def setUp(self):
         super(TestRoleRemove, self).setUp()
 
@@ -815,9 +804,11 @@ class TestRoleRemove(TestRole):
 
     def test_role_remove_user_system(self):
         arglist = [
-            '--user', identity_fakes.user_name,
-            '--system', 'all',
-            identity_fakes.role_name
+            '--user',
+            identity_fakes.user_name,
+            '--system',
+            'all',
+            identity_fakes.role_name,
         ]
         if self._is_inheritance_testcase():
             arglist.append('--inherited')
@@ -842,8 +833,7 @@ class TestRoleRemove(TestRole):
         }
         # RoleManager.revoke(role, user=, group=, domain=, project=)
         self.roles_mock.revoke.assert_called_with(
-            identity_fakes.role_id,
-            **kwargs
+            identity_fakes.role_id, **kwargs
         )
         self.assertIsNone(result)
 
@@ -856,9 +846,11 @@ class TestRoleRemove(TestRole):
         find_mock.side_effect = exceptions.CommandError
 
         arglist = [
-            '--user', identity_fakes.user_id,
-            '--system', 'all',
-            identity_fakes.role_name
+            '--user',
+            identity_fakes.user_id,
+            '--system',
+            'all',
+            identity_fakes.role_name,
         ]
         if self._is_inheritance_testcase():
             arglist.append('--inherited')
@@ -883,15 +875,16 @@ class TestRoleRemove(TestRole):
         }
         # RoleManager.revoke(role, user=, group=, domain=, project=)
         self.roles_mock.revoke.assert_called_with(
-            identity_fakes.role_id,
-            **kwargs
+            identity_fakes.role_id, **kwargs
         )
         self.assertIsNone(result)
 
     def test_role_remove_user_domain(self):
         arglist = [
-            '--user', identity_fakes.user_name,
-            '--domain', identity_fakes.domain_name,
+            '--user',
+            identity_fakes.user_name,
+            '--domain',
+            identity_fakes.domain_name,
             identity_fakes.role_name,
         ]
         if self._is_inheritance_testcase():
@@ -916,8 +909,7 @@ class TestRoleRemove(TestRole):
         }
         # RoleManager.revoke(role, user=, group=, domain=, project=)
         self.roles_mock.revoke.assert_called_with(
-            identity_fakes.role_id,
-            **kwargs
+            identity_fakes.role_id, **kwargs
         )
         self.assertIsNone(result)
 
@@ -929,9 +921,11 @@ class TestRoleRemove(TestRole):
         find_mock.side_effect = exceptions.CommandError
 
         arglist = [
-            '--user', identity_fakes.user_id,
-            '--domain', identity_fakes.domain_name,
-            identity_fakes.role_name
+            '--user',
+            identity_fakes.user_id,
+            '--domain',
+            identity_fakes.domain_name,
+            identity_fakes.role_name,
         ]
         if self._is_inheritance_testcase():
             arglist.append('--inherited')
@@ -956,15 +950,16 @@ class TestRoleRemove(TestRole):
         }
         # RoleManager.revoke(role, user=, group=, domain=, project=)
         self.roles_mock.revoke.assert_called_with(
-            identity_fakes.role_id,
-            **kwargs
+            identity_fakes.role_id, **kwargs
         )
         self.assertIsNone(result)
 
     def test_role_remove_user_project(self):
         arglist = [
-            '--user', identity_fakes.user_name,
-            '--project', identity_fakes.project_name,
+            '--user',
+            identity_fakes.user_name,
+            '--project',
+            identity_fakes.project_name,
             identity_fakes.role_name,
         ]
         if self._is_inheritance_testcase():
@@ -989,8 +984,7 @@ class TestRoleRemove(TestRole):
         }
         # RoleManager.revoke(role, user=, group=, domain=, project=)
         self.roles_mock.revoke.assert_called_with(
-            identity_fakes.role_id,
-            **kwargs
+            identity_fakes.role_id, **kwargs
         )
         self.assertIsNone(result)
 
@@ -1002,9 +996,11 @@ class TestRoleRemove(TestRole):
         find_mock.side_effect = exceptions.CommandError
 
         arglist = [
-            '--user', identity_fakes.user_id,
-            '--project', identity_fakes.project_name,
-            identity_fakes.role_name
+            '--user',
+            identity_fakes.user_id,
+            '--project',
+            identity_fakes.project_name,
+            identity_fakes.role_name,
         ]
         if self._is_inheritance_testcase():
             arglist.append('--inherited')
@@ -1029,15 +1025,16 @@ class TestRoleRemove(TestRole):
         }
         # RoleManager.revoke(role, user=, group=, domain=, project=)
         self.roles_mock.revoke.assert_called_with(
-            identity_fakes.role_id,
-            **kwargs
+            identity_fakes.role_id, **kwargs
         )
         self.assertIsNone(result)
 
     def test_role_remove_group_system(self):
         arglist = [
-            '--group', identity_fakes.group_name,
-            '--system', 'all',
+            '--group',
+            identity_fakes.group_name,
+            '--system',
+            'all',
             identity_fakes.role_name,
         ]
         if self._is_inheritance_testcase():
@@ -1064,8 +1061,7 @@ class TestRoleRemove(TestRole):
         }
         # RoleManager.revoke(role, user=, group=, domain=, project=)
         self.roles_mock.revoke.assert_called_with(
-            identity_fakes.role_id,
-            **kwargs
+            identity_fakes.role_id, **kwargs
         )
         self.assertIsNone(result)
 
@@ -1077,9 +1073,11 @@ class TestRoleRemove(TestRole):
         find_mock.side_effect = exceptions.CommandError
 
         arglist = [
-            '--group', identity_fakes.group_id,
-            '--system', 'all',
-            identity_fakes.role_name
+            '--group',
+            identity_fakes.group_id,
+            '--system',
+            'all',
+            identity_fakes.role_name,
         ]
         if self._is_inheritance_testcase():
             arglist.append('--inherited')
@@ -1104,15 +1102,16 @@ class TestRoleRemove(TestRole):
         }
         # RoleManager.revoke(role, user=, group=, domain=, project=)
         self.roles_mock.revoke.assert_called_with(
-            identity_fakes.role_id,
-            **kwargs
+            identity_fakes.role_id, **kwargs
         )
         self.assertIsNone(result)
 
     def test_role_remove_group_domain(self):
         arglist = [
-            '--group', identity_fakes.group_name,
-            '--domain', identity_fakes.domain_name,
+            '--group',
+            identity_fakes.group_name,
+            '--domain',
+            identity_fakes.domain_name,
             identity_fakes.role_name,
         ]
         if self._is_inheritance_testcase():
@@ -1138,8 +1137,7 @@ class TestRoleRemove(TestRole):
         }
         # RoleManager.revoke(role, user=, group=, domain=, project=)
         self.roles_mock.revoke.assert_called_with(
-            identity_fakes.role_id,
-            **kwargs
+            identity_fakes.role_id, **kwargs
         )
         self.assertIsNone(result)
 
@@ -1151,9 +1149,11 @@ class TestRoleRemove(TestRole):
         find_mock.side_effect = exceptions.CommandError
 
         arglist = [
-            '--group', identity_fakes.group_id,
-            '--domain', identity_fakes.domain_name,
-            identity_fakes.role_name
+            '--group',
+            identity_fakes.group_id,
+            '--domain',
+            identity_fakes.domain_name,
+            identity_fakes.role_name,
         ]
         if self._is_inheritance_testcase():
             arglist.append('--inherited')
@@ -1178,15 +1178,16 @@ class TestRoleRemove(TestRole):
         }
         # RoleManager.revoke(role, user=, group=, domain=, project=)
         self.roles_mock.revoke.assert_called_with(
-            identity_fakes.role_id,
-            **kwargs
+            identity_fakes.role_id, **kwargs
         )
         self.assertIsNone(result)
 
     def test_role_remove_group_project(self):
         arglist = [
-            '--group', identity_fakes.group_name,
-            '--project', identity_fakes.project_name,
+            '--group',
+            identity_fakes.group_name,
+            '--project',
+            identity_fakes.project_name,
             identity_fakes.role_name,
         ]
         if self._is_inheritance_testcase():
@@ -1211,8 +1212,7 @@ class TestRoleRemove(TestRole):
         }
         # RoleManager.revoke(role, user=, group=, domain=, project=)
         self.roles_mock.revoke.assert_called_with(
-            identity_fakes.role_id,
-            **kwargs
+            identity_fakes.role_id, **kwargs
         )
         self.assertIsNone(result)
 
@@ -1224,9 +1224,11 @@ class TestRoleRemove(TestRole):
         find_mock.side_effect = exceptions.CommandError
 
         arglist = [
-            '--group', identity_fakes.group_id,
-            '--project', identity_fakes.project_name,
-            identity_fakes.role_name
+            '--group',
+            identity_fakes.group_id,
+            '--project',
+            identity_fakes.project_name,
+            identity_fakes.role_name,
         ]
         if self._is_inheritance_testcase():
             arglist.append('--inherited')
@@ -1251,8 +1253,7 @@ class TestRoleRemove(TestRole):
         }
         # RoleManager.revoke(role, user=, group=, domain=, project=)
         self.roles_mock.revoke.assert_called_with(
-            identity_fakes.role_id,
-            **kwargs
+            identity_fakes.role_id, **kwargs
         )
         self.assertIsNone(result)
 
@@ -1263,8 +1264,10 @@ class TestRoleRemove(TestRole):
             loaded=True,
         )
         arglist = [
-            '--group', identity_fakes.group_name,
-            '--domain', identity_fakes.domain_name,
+            '--group',
+            identity_fakes.group_name,
+            '--domain',
+            identity_fakes.domain_name,
             identity_fakes.ROLE_2['name'],
         ]
         if self._is_inheritance_testcase():
@@ -1289,8 +1292,7 @@ class TestRoleRemove(TestRole):
         }
         # RoleManager.revoke(role, user=, group=, domain=, project=)
         self.roles_mock.revoke.assert_called_with(
-            identity_fakes.ROLE_2['id'],
-            **kwargs
+            identity_fakes.ROLE_2['id'], **kwargs
         )
         self.assertIsNone(result)
 
@@ -1307,12 +1309,12 @@ class TestRoleRemove(TestRole):
             ('inherited', False),
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
-        self.assertRaises(exceptions.CommandError,
-                          self.cmd.take_action, parsed_args)
+        self.assertRaises(
+            exceptions.CommandError, self.cmd.take_action, parsed_args
+        )
 
 
 class TestRoleSet(TestRole):
-
     def setUp(self):
         super(TestRoleSet, self).setUp()
 
@@ -1328,7 +1330,8 @@ class TestRoleSet(TestRole):
 
     def test_role_set_no_options(self):
         arglist = [
-            '--name', 'over',
+            '--name',
+            'over',
             identity_fakes.role_name,
         ]
         verifylist = [
@@ -1347,8 +1350,7 @@ class TestRoleSet(TestRole):
         }
         # RoleManager.update(role, name=)
         self.roles_mock.update.assert_called_with(
-            identity_fakes.role_id,
-            **kwargs
+            identity_fakes.role_id, **kwargs
         )
         self.assertIsNone(result)
 
@@ -1359,8 +1361,10 @@ class TestRoleSet(TestRole):
             loaded=True,
         )
         arglist = [
-            '--name', 'over',
-            '--domain', identity_fakes.domain_name,
+            '--name',
+            'over',
+            '--domain',
+            identity_fakes.domain_name,
             identity_fakes.ROLE_2['name'],
         ]
         verifylist = [
@@ -1380,8 +1384,7 @@ class TestRoleSet(TestRole):
         }
         # RoleManager.update(role, name=)
         self.roles_mock.update.assert_called_with(
-            identity_fakes.ROLE_2['id'],
-            **kwargs
+            identity_fakes.ROLE_2['id'], **kwargs
         )
         self.assertIsNone(result)
 
@@ -1392,8 +1395,10 @@ class TestRoleSet(TestRole):
             loaded=True,
         )
         arglist = [
-            '--name', 'over',
-            '--description', identity_fakes.role_description,
+            '--name',
+            'over',
+            '--description',
+            identity_fakes.role_description,
             identity_fakes.ROLE_2['name'],
         ]
         verifylist = [
@@ -1413,8 +1418,7 @@ class TestRoleSet(TestRole):
         }
         # RoleManager.update(role, name=)
         self.roles_mock.update.assert_called_with(
-            identity_fakes.ROLE_2['id'],
-            **kwargs
+            identity_fakes.ROLE_2['id'], **kwargs
         )
         self.assertIsNone(result)
 
@@ -1425,7 +1429,8 @@ class TestRoleSet(TestRole):
             loaded=True,
         )
         arglist = [
-            '--name', 'over',
+            '--name',
+            'over',
             '--immutable',
             identity_fakes.ROLE_2['name'],
         ]
@@ -1446,8 +1451,7 @@ class TestRoleSet(TestRole):
         }
         # RoleManager.update(role, name=)
         self.roles_mock.update.assert_called_with(
-            identity_fakes.ROLE_2['id'],
-            **kwargs
+            identity_fakes.ROLE_2['id'], **kwargs
         )
         self.assertIsNone(result)
 
@@ -1458,7 +1462,8 @@ class TestRoleSet(TestRole):
             loaded=True,
         )
         arglist = [
-            '--name', 'over',
+            '--name',
+            'over',
             '--no-immutable',
             identity_fakes.ROLE_2['name'],
         ]
@@ -1479,14 +1484,12 @@ class TestRoleSet(TestRole):
         }
         # RoleManager.update(role, name=)
         self.roles_mock.update.assert_called_with(
-            identity_fakes.ROLE_2['id'],
-            **kwargs
+            identity_fakes.ROLE_2['id'], **kwargs
         )
         self.assertIsNone(result)
 
 
 class TestRoleShow(TestRole):
-
     def setUp(self):
         super(TestRoleShow, self).setUp()
 
@@ -1534,7 +1537,8 @@ class TestRoleShow(TestRole):
             loaded=True,
         )
         arglist = [
-            '--domain', identity_fakes.domain_name,
+            '--domain',
+            identity_fakes.domain_name,
             identity_fakes.ROLE_2['name'],
         ]
         verifylist = [

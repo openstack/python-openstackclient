@@ -14,21 +14,20 @@ from openstackclient.tests.functional.identity.v2 import common
 
 
 class EndpointTests(common.IdentityTests):
-
     def test_endpoint_create(self):
         self._create_dummy_endpoint()
 
     def test_endpoint_delete(self):
         endpoint_id = self._create_dummy_endpoint(add_clean_up=False)
-        raw_output = self.openstack(
-            'endpoint delete %s' % endpoint_id)
+        raw_output = self.openstack('endpoint delete %s' % endpoint_id)
         self.assertEqual(0, len(raw_output))
 
     def test_endpoint_multi_delete(self):
         endpoint_id_1 = self._create_dummy_endpoint(add_clean_up=False)
         endpoint_id_2 = self._create_dummy_endpoint(add_clean_up=False)
         raw_output = self.openstack(
-            'endpoint delete ' + endpoint_id_1 + ' ' + endpoint_id_2)
+            'endpoint delete ' + endpoint_id_1 + ' ' + endpoint_id_2
+        )
         self.assertEqual(0, len(raw_output))
 
     def test_endpoint_list(self):

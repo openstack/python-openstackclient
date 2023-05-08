@@ -40,8 +40,10 @@ class AuthorizeRequestToken(command.ShowOne):
             action='append',
             default=[],
             required=True,
-            help=_('Roles to authorize (name or ID) '
-                   '(repeat option to set multiple values) (required)'),
+            help=_(
+                'Roles to authorize (name or ID) '
+                '(repeat option to set multiple values) (required)'
+            ),
         )
         return parser
 
@@ -58,8 +60,8 @@ class AuthorizeRequestToken(command.ShowOne):
             roles.append(role_id)
 
         verifier_pin = identity_client.oauth1.request_tokens.authorize(
-            parsed_args.request_key,
-            roles)
+            parsed_args.request_key, roles
+        )
 
         return zip(*sorted(verifier_pin._info.items()))
 
@@ -73,40 +75,43 @@ class CreateAccessToken(command.ShowOne):
             '--consumer-key',
             metavar='<consumer-key>',
             help=_('Consumer key (required)'),
-            required=True
+            required=True,
         )
         parser.add_argument(
             '--consumer-secret',
             metavar='<consumer-secret>',
             help=_('Consumer secret (required)'),
-            required=True
+            required=True,
         )
         parser.add_argument(
             '--request-key',
             metavar='<request-key>',
             help=_('Request token to exchange for access token (required)'),
-            required=True
+            required=True,
         )
         parser.add_argument(
             '--request-secret',
             metavar='<request-secret>',
             help=_('Secret associated with <request-key> (required)'),
-            required=True
+            required=True,
         )
         parser.add_argument(
             '--verifier',
             metavar='<verifier>',
             help=_('Verifier associated with <request-key> (required)'),
-            required=True
+            required=True,
         )
         return parser
 
     def take_action(self, parsed_args):
         token_client = self.app.client_manager.identity.oauth1.access_tokens
         access_token = token_client.create(
-            parsed_args.consumer_key, parsed_args.consumer_secret,
-            parsed_args.request_key, parsed_args.request_secret,
-            parsed_args.verifier)
+            parsed_args.consumer_key,
+            parsed_args.consumer_secret,
+            parsed_args.request_key,
+            parsed_args.request_secret,
+            parsed_args.verifier,
+        )
         return zip(*sorted(access_token._info.items()))
 
 
@@ -119,20 +124,22 @@ class CreateRequestToken(command.ShowOne):
             '--consumer-key',
             metavar='<consumer-key>',
             help=_('Consumer key (required)'),
-            required=True
+            required=True,
         )
         parser.add_argument(
             '--consumer-secret',
             metavar='<consumer-secret>',
             help=_('Consumer secret (required)'),
-            required=True
+            required=True,
         )
         parser.add_argument(
             '--project',
             metavar='<project>',
-            help=_('Project that consumer wants to access (name or ID)'
-                   ' (required)'),
-            required=True
+            help=_(
+                'Project that consumer wants to access (name or ID)'
+                ' (required)'
+            ),
+            required=True,
         )
         parser.add_argument(
             '--domain',
@@ -146,19 +153,21 @@ class CreateRequestToken(command.ShowOne):
 
         if parsed_args.domain:
             domain = common.find_domain(identity_client, parsed_args.domain)
-            project = utils.find_resource(identity_client.projects,
-                                          parsed_args.project,
-                                          domain_id=domain.id)
+            project = utils.find_resource(
+                identity_client.projects,
+                parsed_args.project,
+                domain_id=domain.id,
+            )
         else:
-            project = utils.find_resource(identity_client.projects,
-                                          parsed_args.project)
+            project = utils.find_resource(
+                identity_client.projects, parsed_args.project
+            )
 
         token_client = identity_client.oauth1.request_tokens
 
         request_token = token_client.create(
-            parsed_args.consumer_key,
-            parsed_args.consumer_secret,
-            project.id)
+            parsed_args.consumer_key, parsed_args.consumer_secret, project.id
+        )
         return zip(*sorted(request_token._info.items()))
 
 
@@ -176,7 +185,8 @@ class IssueToken(command.ShowOne):
         auth_ref = self.app.client_manager.auth_ref
         if not auth_ref:
             raise exceptions.AuthorizationFailure(
-                _("Only an authorized user may issue a new token."))
+                _("Only an authorized user may issue a new token.")
+            )
 
         data = {}
         if auth_ref.auth_token:

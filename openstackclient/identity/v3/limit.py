@@ -97,7 +97,7 @@ class CreateLimit(command.ShowOne):
             parsed_args.resource_name,
             parsed_args.resource_limit,
             description=parsed_args.description,
-            region=region
+            region=region,
         )
 
         limit._info.pop('links', None)
@@ -168,12 +168,17 @@ class ListLimit(command.Lister):
             service=service,
             resource_name=parsed_args.resource_name,
             region=region,
-            project=project
+            project=project,
         )
 
         columns = (
-            'ID', 'Project ID', 'Service ID', 'Resource Name',
-            'Resource Limit', 'Description', 'Region ID'
+            'ID',
+            'Project ID',
+            'Service ID',
+            'Resource Name',
+            'Resource Limit',
+            'Description',
+            'Region ID',
         )
         return (
             columns,
@@ -230,7 +235,7 @@ class SetLimit(command.ShowOne):
         limit = identity_client.limits.update(
             parsed_args.limit_id,
             description=parsed_args.description,
-            resource_limit=parsed_args.resource_limit
+            resource_limit=parsed_args.resource_limit,
         )
 
         limit._info.pop('links', None)
@@ -260,12 +265,15 @@ class DeleteLimit(command.Command):
                 identity_client.limits.delete(limit_id)
             except Exception as e:
                 errors += 1
-                LOG.error(_("Failed to delete limit with ID "
-                            "'%(id)s': %(e)s"),
-                          {'id': limit_id, 'e': e})
+                LOG.error(
+                    _("Failed to delete limit with ID " "'%(id)s': %(e)s"),
+                    {'id': limit_id, 'e': e},
+                )
 
         if errors > 0:
             total = len(parsed_args.limit_id)
-            msg = (_("%(errors)s of %(total)s limits failed to "
-                   "delete.") % {'errors': errors, 'total': total})
+            msg = _("%(errors)s of %(total)s limits failed to " "delete.") % {
+                'errors': errors,
+                'total': total,
+            }
             raise exceptions.CommandError(msg)

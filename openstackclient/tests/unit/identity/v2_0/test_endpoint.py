@@ -16,7 +16,6 @@ from openstackclient.tests.unit.identity.v2_0 import fakes as identity_fakes
 
 
 class TestEndpoint(identity_fakes.TestIdentityv2):
-
     fake_service = identity_fakes.FakeService.create_one_service()
     attr = {
         'service_name': fake_service.name,
@@ -37,7 +36,6 @@ class TestEndpoint(identity_fakes.TestIdentityv2):
 
 
 class TestEndpointCreate(TestEndpoint):
-
     def setUp(self):
         super(TestEndpointCreate, self).setUp()
 
@@ -50,10 +48,14 @@ class TestEndpointCreate(TestEndpoint):
 
     def test_endpoint_create(self):
         arglist = [
-            '--publicurl', self.fake_endpoint.publicurl,
-            '--internalurl', self.fake_endpoint.internalurl,
-            '--adminurl', self.fake_endpoint.adminurl,
-            '--region', self.fake_endpoint.region,
+            '--publicurl',
+            self.fake_endpoint.publicurl,
+            '--internalurl',
+            self.fake_endpoint.internalurl,
+            '--adminurl',
+            self.fake_endpoint.adminurl,
+            '--region',
+            self.fake_endpoint.region,
             self.fake_service.id,
         ]
         verifylist = [
@@ -80,8 +82,16 @@ class TestEndpointCreate(TestEndpoint):
             self.fake_endpoint.internalurl,
         )
 
-        collist = ('adminurl', 'id', 'internalurl', 'publicurl',
-                   'region', 'service_id', 'service_name', 'service_type')
+        collist = (
+            'adminurl',
+            'id',
+            'internalurl',
+            'publicurl',
+            'region',
+            'service_id',
+            'service_name',
+            'service_type',
+        )
         self.assertEqual(collist, columns)
         datalist = (
             self.fake_endpoint.adminurl,
@@ -98,7 +108,6 @@ class TestEndpointCreate(TestEndpoint):
 
 
 class TestEndpointDelete(TestEndpoint):
-
     def setUp(self):
         super(TestEndpointDelete, self).setUp()
 
@@ -126,7 +135,6 @@ class TestEndpointDelete(TestEndpoint):
 
 
 class TestEndpointList(TestEndpoint):
-
     def setUp(self):
         super(TestEndpointList, self).setUp()
 
@@ -151,12 +159,14 @@ class TestEndpointList(TestEndpoint):
 
         collist = ('ID', 'Region', 'Service Name', 'Service Type')
         self.assertEqual(collist, columns)
-        datalist = ((
-            self.fake_endpoint.id,
-            self.fake_endpoint.region,
-            self.fake_endpoint.service_name,
-            self.fake_endpoint.service_type,
-        ), )
+        datalist = (
+            (
+                self.fake_endpoint.id,
+                self.fake_endpoint.region,
+                self.fake_endpoint.service_name,
+                self.fake_endpoint.service_type,
+            ),
+        )
         self.assertEqual(datalist, tuple(data))
 
     def test_endpoint_list_long(self):
@@ -175,23 +185,31 @@ class TestEndpointList(TestEndpoint):
 
         self.endpoints_mock.list.assert_called_with()
 
-        collist = ('ID', 'Region', 'Service Name', 'Service Type',
-                   'PublicURL', 'AdminURL', 'InternalURL')
+        collist = (
+            'ID',
+            'Region',
+            'Service Name',
+            'Service Type',
+            'PublicURL',
+            'AdminURL',
+            'InternalURL',
+        )
         self.assertEqual(collist, columns)
-        datalist = ((
-            self.fake_endpoint.id,
-            self.fake_endpoint.region,
-            self.fake_endpoint.service_name,
-            self.fake_endpoint.service_type,
-            self.fake_endpoint.publicurl,
-            self.fake_endpoint.adminurl,
-            self.fake_endpoint.internalurl,
-        ), )
+        datalist = (
+            (
+                self.fake_endpoint.id,
+                self.fake_endpoint.region,
+                self.fake_endpoint.service_name,
+                self.fake_endpoint.service_type,
+                self.fake_endpoint.publicurl,
+                self.fake_endpoint.adminurl,
+                self.fake_endpoint.internalurl,
+            ),
+        )
         self.assertEqual(datalist, tuple(data))
 
 
 class TestEndpointShow(TestEndpoint):
-
     def setUp(self):
         super(TestEndpointShow, self).setUp()
 
@@ -223,8 +241,16 @@ class TestEndpointShow(TestEndpoint):
             self.fake_endpoint.service_id,
         )
 
-        collist = ('adminurl', 'id', 'internalurl', 'publicurl',
-                   'region', 'service_id', 'service_name', 'service_type')
+        collist = (
+            'adminurl',
+            'id',
+            'internalurl',
+            'publicurl',
+            'region',
+            'service_id',
+            'service_name',
+            'service_type',
+        )
         self.assertEqual(collist, columns)
         datalist = (
             self.fake_endpoint.adminurl,

@@ -25,7 +25,6 @@ from openstackclient.tests.unit.identity.v2_0 import fakes as identity_fakes
 
 
 class TestProject(identity_fakes.TestIdentityv2):
-
     fake_project = identity_fakes.FakeProject.create_one_project()
     fake_projects = identity_fakes.FakeProject.create_projects()
 
@@ -42,10 +41,18 @@ class TestProject(identity_fakes.TestIdentityv2):
         fake_project.name,
     )
     datalists = (
-        (fake_projects[0].description, True,
-         fake_projects[0].id, fake_projects[0].name,),
-        (fake_projects[1].description, True,
-         fake_projects[1].id, fake_projects[1].name,),
+        (
+            fake_projects[0].description,
+            True,
+            fake_projects[0].id,
+            fake_projects[0].name,
+        ),
+        (
+            fake_projects[1].description,
+            True,
+            fake_projects[1].id,
+            fake_projects[1].name,
+        ),
     )
 
     def setUp(self):
@@ -57,7 +64,6 @@ class TestProject(identity_fakes.TestIdentityv2):
 
 
 class TestProjectCreate(TestProject):
-
     def setUp(self):
         super(TestProjectCreate, self).setUp()
 
@@ -88,15 +94,15 @@ class TestProjectCreate(TestProject):
             'enabled': True,
         }
         self.projects_mock.create.assert_called_with(
-            self.fake_project.name,
-            **kwargs
+            self.fake_project.name, **kwargs
         )
         self.assertEqual(self.columns, columns)
         self.assertEqual(self.datalist, data)
 
     def test_project_create_description(self):
         arglist = [
-            '--description', 'new desc',
+            '--description',
+            'new desc',
             self.fake_project.name,
         ]
         verifylist = [
@@ -116,8 +122,7 @@ class TestProjectCreate(TestProject):
             'enabled': True,
         }
         self.projects_mock.create.assert_called_with(
-            self.fake_project.name,
-            **kwargs
+            self.fake_project.name, **kwargs
         )
 
         self.assertEqual(self.columns, columns)
@@ -146,8 +151,7 @@ class TestProjectCreate(TestProject):
             'enabled': True,
         }
         self.projects_mock.create.assert_called_with(
-            self.fake_project.name,
-            **kwargs
+            self.fake_project.name, **kwargs
         )
 
         self.assertEqual(self.columns, columns)
@@ -176,8 +180,7 @@ class TestProjectCreate(TestProject):
             'enabled': False,
         }
         self.projects_mock.create.assert_called_with(
-            self.fake_project.name,
-            **kwargs
+            self.fake_project.name, **kwargs
         )
 
         self.assertEqual(self.columns, columns)
@@ -185,8 +188,10 @@ class TestProjectCreate(TestProject):
 
     def test_project_create_property(self):
         arglist = [
-            '--property', 'fee=fi',
-            '--property', 'fo=fum',
+            '--property',
+            'fee=fi',
+            '--property',
+            'fo=fum',
             self.fake_project.name,
         ]
         verifylist = [
@@ -208,8 +213,7 @@ class TestProjectCreate(TestProject):
             'fo': 'fum',
         }
         self.projects_mock.create.assert_called_with(
-            self.fake_project.name,
-            **kwargs
+            self.fake_project.name, **kwargs
         )
 
         self.assertEqual(self.columns, columns)
@@ -248,8 +252,7 @@ class TestProjectCreate(TestProject):
             'enabled': True,
         }
         self.projects_mock.create.assert_called_with(
-            self.fake_project.name,
-            **kwargs
+            self.fake_project.name, **kwargs
         )
 
         self.assertEqual(self.columns, columns)
@@ -277,8 +280,7 @@ class TestProjectCreate(TestProject):
             'enabled': True,
         }
         self.projects_mock.create.assert_called_with(
-            self.fake_project.name,
-            **kwargs
+            self.fake_project.name, **kwargs
         )
 
         self.assertEqual(self.columns, columns)
@@ -286,7 +288,6 @@ class TestProjectCreate(TestProject):
 
 
 class TestProjectDelete(TestProject):
-
     def setUp(self):
         super(TestProjectDelete, self).setUp()
 
@@ -315,8 +316,7 @@ class TestProjectDelete(TestProject):
 
     @mock.patch.object(utils, 'find_resource')
     def test_delete_multi_projects_with_exception(self, find_mock):
-        find_mock.side_effect = [self.fake_project,
-                                 exceptions.CommandError]
+        find_mock.side_effect = [self.fake_project, exceptions.CommandError]
         arglist = [
             self.fake_project.id,
             'unexist_project',
@@ -330,8 +330,7 @@ class TestProjectDelete(TestProject):
             self.cmd.take_action(parsed_args)
             self.fail('CommandError should be raised.')
         except exceptions.CommandError as e:
-            self.assertEqual('1 of 2 projects failed to delete.',
-                             str(e))
+            self.assertEqual('1 of 2 projects failed to delete.', str(e))
 
         find_mock.assert_any_call(self.projects_mock, self.fake_project.id)
         find_mock.assert_any_call(self.projects_mock, 'unexist_project')
@@ -341,7 +340,6 @@ class TestProjectDelete(TestProject):
 
 
 class TestProjectList(TestProject):
-
     def setUp(self):
         super(TestProjectList, self).setUp()
 
@@ -363,10 +361,12 @@ class TestProjectList(TestProject):
 
         collist = ('ID', 'Name')
         self.assertEqual(collist, columns)
-        datalist = ((
-            self.fake_project.id,
-            self.fake_project.name,
-        ), )
+        datalist = (
+            (
+                self.fake_project.id,
+                self.fake_project.name,
+            ),
+        )
         self.assertEqual(datalist, tuple(data))
 
     def test_project_list_long(self):
@@ -386,18 +386,23 @@ class TestProjectList(TestProject):
 
         collist = ('ID', 'Name', 'Description', 'Enabled')
         self.assertEqual(collist, columns)
-        datalist = ((
-            self.fake_project.id,
-            self.fake_project.name,
-            self.fake_project.description,
-            True,
-        ), )
+        datalist = (
+            (
+                self.fake_project.id,
+                self.fake_project.name,
+                self.fake_project.description,
+                True,
+            ),
+        )
         self.assertEqual(datalist, tuple(data))
 
     def test_project_list_sort(self):
         self.projects_mock.list.return_value = self.fake_projects
 
-        arglist = ['--sort', 'name:asc', ]
+        arglist = [
+            '--sort',
+            'name:asc',
+        ]
         verifylist = []
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
@@ -425,7 +430,6 @@ class TestProjectList(TestProject):
 
 
 class TestProjectSet(TestProject):
-
     def setUp(self):
         super(TestProjectSet, self).setUp()
 
@@ -468,11 +472,13 @@ class TestProjectSet(TestProject):
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
         self.assertRaises(
-            exceptions.CommandError, self.cmd.take_action, parsed_args)
+            exceptions.CommandError, self.cmd.take_action, parsed_args
+        )
 
     def test_project_set_name(self):
         arglist = [
-            '--name', self.fake_project.name,
+            '--name',
+            self.fake_project.name,
             self.fake_project.name,
         ]
         verifylist = [
@@ -492,14 +498,14 @@ class TestProjectSet(TestProject):
             'tenant_name': self.fake_project.name,
         }
         self.projects_mock.update.assert_called_with(
-            self.fake_project.id,
-            **kwargs
+            self.fake_project.id, **kwargs
         )
         self.assertIsNone(result)
 
     def test_project_set_description(self):
         arglist = [
-            '--description', self.fake_project.description,
+            '--description',
+            self.fake_project.description,
             self.fake_project.name,
         ]
         verifylist = [
@@ -519,8 +525,7 @@ class TestProjectSet(TestProject):
             'tenant_name': self.fake_project.name,
         }
         self.projects_mock.update.assert_called_with(
-            self.fake_project.id,
-            **kwargs
+            self.fake_project.id, **kwargs
         )
         self.assertIsNone(result)
 
@@ -545,8 +550,7 @@ class TestProjectSet(TestProject):
             'tenant_name': self.fake_project.name,
         }
         self.projects_mock.update.assert_called_with(
-            self.fake_project.id,
-            **kwargs
+            self.fake_project.id, **kwargs
         )
         self.assertIsNone(result)
 
@@ -571,15 +575,16 @@ class TestProjectSet(TestProject):
             'tenant_name': self.fake_project.name,
         }
         self.projects_mock.update.assert_called_with(
-            self.fake_project.id,
-            **kwargs
+            self.fake_project.id, **kwargs
         )
         self.assertIsNone(result)
 
     def test_project_set_property(self):
         arglist = [
-            '--property', 'fee=fi',
-            '--property', 'fo=fum',
+            '--property',
+            'fee=fi',
+            '--property',
+            'fo=fum',
             self.fake_project.name,
         ]
         verifylist = [
@@ -599,14 +604,12 @@ class TestProjectSet(TestProject):
             'fo': 'fum',
         }
         self.projects_mock.update.assert_called_with(
-            self.fake_project.id,
-            **kwargs
+            self.fake_project.id, **kwargs
         )
         self.assertIsNone(result)
 
 
 class TestProjectShow(TestProject):
-
     fake_proj_show = identity_fakes.FakeProject.create_one_project()
 
     def setUp(self):
@@ -647,7 +650,6 @@ class TestProjectShow(TestProject):
 
 
 class TestProjectUnset(TestProject):
-
     attr = {'fee': 'fi', 'fo': 'fum'}
     fake_proj = identity_fakes.FakeProject.create_one_project(attr)
 
@@ -674,8 +676,10 @@ class TestProjectUnset(TestProject):
 
     def test_project_unset_key(self):
         arglist = [
-            '--property', 'fee',
-            '--property', 'fo',
+            '--property',
+            'fee',
+            '--property',
+            'fo',
             self.fake_proj.name,
         ]
         verifylist = [
@@ -695,7 +699,6 @@ class TestProjectUnset(TestProject):
         }
 
         self.projects_mock.update.assert_called_with(
-            self.fake_proj.id,
-            **kwargs
+            self.fake_proj.id, **kwargs
         )
         self.assertIsNone(result)

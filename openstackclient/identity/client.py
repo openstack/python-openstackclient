@@ -43,18 +43,15 @@ AUTH_VERSIONS = {
 def make_client(instance):
     """Returns an identity service client."""
     identity_client = utils.get_client_class(
-        API_NAME,
-        instance._api_version[API_NAME],
-        API_VERSIONS)
+        API_NAME, instance._api_version[API_NAME], API_VERSIONS
+    )
     LOG.debug('Instantiating identity client: %s', identity_client)
 
     # Remember interface only if interface is set
     kwargs = utils.build_kwargs_dict('interface', instance.interface)
 
     client = identity_client(
-        session=instance.session,
-        region_name=instance.region_name,
-        **kwargs
+        session=instance.session, region_name=instance.region_name, **kwargs
     )
 
     return client
@@ -66,8 +63,11 @@ def build_option_parser(parser):
         '--os-identity-api-version',
         metavar='<identity-api-version>',
         default=utils.env('OS_IDENTITY_API_VERSION'),
-        help=_('Identity API version, default=%s '
-               '(Env: OS_IDENTITY_API_VERSION)') % DEFAULT_API_VERSION,
+        help=_(
+            'Identity API version, default=%s '
+            '(Env: OS_IDENTITY_API_VERSION)'
+        )
+        % DEFAULT_API_VERSION,
     )
     return parser
 

@@ -18,7 +18,6 @@ from openstackclient.tests.unit.identity.v3 import fakes as identity_fakes
 
 
 class TestEndpointGroup(identity_fakes.TestIdentityv3):
-
     def setUp(self):
         super(TestEndpointGroup, self).setUp()
 
@@ -27,9 +26,7 @@ class TestEndpointGroup(identity_fakes.TestIdentityv3):
             self.app.client_manager.identity.endpoint_groups
         )
         self.endpoint_groups_mock.reset_mock()
-        self.epf_mock = (
-            self.app.client_manager.identity.endpoint_filter
-        )
+        self.epf_mock = self.app.client_manager.identity.endpoint_filter
         self.epf_mock.reset_mock()
 
         # Get a shortcut to the ServiceManager Mock
@@ -46,7 +43,6 @@ class TestEndpointGroup(identity_fakes.TestIdentityv3):
 
 
 class TestEndpointGroupCreate(TestEndpointGroup):
-
     columns = (
         'description',
         'filters',
@@ -59,7 +55,9 @@ class TestEndpointGroupCreate(TestEndpointGroup):
 
         self.endpoint_group = (
             identity_fakes.FakeEndpointGroup.create_one_endpointgroup(
-                attrs={'filters': identity_fakes.endpoint_group_filters}))
+                attrs={'filters': identity_fakes.endpoint_group_filters}
+            )
+        )
 
         self.endpoint_groups_mock.create.return_value = self.endpoint_group
 
@@ -68,7 +66,8 @@ class TestEndpointGroupCreate(TestEndpointGroup):
 
     def test_endpointgroup_create_no_options(self):
         arglist = [
-            '--description', self.endpoint_group.description,
+            '--description',
+            self.endpoint_group.description,
             self.endpoint_group.name,
             identity_fakes.endpoint_group_file_path,
         ]
@@ -81,8 +80,11 @@ class TestEndpointGroupCreate(TestEndpointGroup):
 
         mocker = mock.Mock()
         mocker.return_value = identity_fakes.endpoint_group_filters
-        with mock.patch("openstackclient.identity.v3.endpoint_group."
-                        "CreateEndpointGroup._read_filters", mocker):
+        with mock.patch(
+            "openstackclient.identity.v3.endpoint_group."
+            "CreateEndpointGroup._read_filters",
+            mocker,
+        ):
             columns, data = self.cmd.take_action(parsed_args)
 
         # Set expected values
@@ -92,9 +94,7 @@ class TestEndpointGroupCreate(TestEndpointGroup):
             'description': self.endpoint_group.description,
         }
 
-        self.endpoint_groups_mock.create.assert_called_with(
-            **kwargs
-        )
+        self.endpoint_groups_mock.create.assert_called_with(**kwargs)
 
         self.assertEqual(self.columns, columns)
         datalist = (
@@ -107,9 +107,9 @@ class TestEndpointGroupCreate(TestEndpointGroup):
 
 
 class TestEndpointGroupDelete(TestEndpointGroup):
-
     endpoint_group = (
-        identity_fakes.FakeEndpointGroup.create_one_endpointgroup())
+        identity_fakes.FakeEndpointGroup.create_one_endpointgroup()
+    )
 
     def setUp(self):
         super(TestEndpointGroupDelete, self).setUp()
@@ -139,9 +139,9 @@ class TestEndpointGroupDelete(TestEndpointGroup):
 
 
 class TestEndpointGroupList(TestEndpointGroup):
-
     endpoint_group = (
-        identity_fakes.FakeEndpointGroup.create_one_endpointgroup())
+        identity_fakes.FakeEndpointGroup.create_one_endpointgroup()
+    )
     project = identity_fakes.FakeProject.create_one_project()
     domain = identity_fakes.FakeDomain.create_one_domain()
 
@@ -157,9 +157,11 @@ class TestEndpointGroupList(TestEndpointGroup):
         self.endpoint_groups_mock.list.return_value = [self.endpoint_group]
         self.endpoint_groups_mock.get.return_value = self.endpoint_group
         self.epf_mock.list_projects_for_endpoint_group.return_value = [
-            self.project]
+            self.project
+        ]
         self.epf_mock.list_endpoint_groups_for_project.return_value = [
-            self.endpoint_group]
+            self.endpoint_group
+        ]
 
         # Get the command object to test
         self.cmd = endpoint_group.ListEndpointGroup(self.app, None)
@@ -187,7 +189,8 @@ class TestEndpointGroupList(TestEndpointGroup):
 
     def test_endpoint_group_list_projects_by_endpoint_group(self):
         arglist = [
-            '--endpointgroup', self.endpoint_group.id,
+            '--endpointgroup',
+            self.endpoint_group.id,
         ]
         verifylist = [
             ('endpointgroup', self.endpoint_group.id),
@@ -219,8 +222,10 @@ class TestEndpointGroupList(TestEndpointGroup):
         self.projects_mock.get.return_value = self.project
 
         arglist = [
-            '--project', self.project.name,
-            '--domain', self.domain.name
+            '--project',
+            self.project.name,
+            '--domain',
+            self.domain.name,
         ]
         verifylist = [
             ('project', self.project.name),
@@ -248,9 +253,9 @@ class TestEndpointGroupList(TestEndpointGroup):
 
 
 class TestEndpointGroupSet(TestEndpointGroup):
-
     endpoint_group = (
-        identity_fakes.FakeEndpointGroup.create_one_endpointgroup())
+        identity_fakes.FakeEndpointGroup.create_one_endpointgroup()
+    )
 
     def setUp(self):
         super(TestEndpointGroupSet, self).setUp()
@@ -274,22 +279,14 @@ class TestEndpointGroupSet(TestEndpointGroup):
 
         result = self.cmd.take_action(parsed_args)
 
-        kwargs = {
-            'name': None,
-            'filters': None,
-            'description': ''
-        }
+        kwargs = {'name': None, 'filters': None, 'description': ''}
         self.endpoint_groups_mock.update.assert_called_with(
-            self.endpoint_group.id,
-            **kwargs
+            self.endpoint_group.id, **kwargs
         )
         self.assertIsNone(result)
 
     def test_endpoint_group_set_name(self):
-        arglist = [
-            '--name', 'qwerty',
-            self.endpoint_group.id
-        ]
+        arglist = ['--name', 'qwerty', self.endpoint_group.id]
         verifylist = [
             ('name', 'qwerty'),
             ('endpointgroup', self.endpoint_group.id),
@@ -299,20 +296,16 @@ class TestEndpointGroupSet(TestEndpointGroup):
         result = self.cmd.take_action(parsed_args)
 
         # Set expected values
-        kwargs = {
-            'name': 'qwerty',
-            'filters': None,
-            'description': ''
-        }
+        kwargs = {'name': 'qwerty', 'filters': None, 'description': ''}
         self.endpoint_groups_mock.update.assert_called_with(
-            self.endpoint_group.id,
-            **kwargs
+            self.endpoint_group.id, **kwargs
         )
         self.assertIsNone(result)
 
     def test_endpoint_group_set_filters(self):
         arglist = [
-            '--filters', identity_fakes.endpoint_group_file_path,
+            '--filters',
+            identity_fakes.endpoint_group_file_path,
             self.endpoint_group.id,
         ]
         verifylist = [
@@ -324,8 +317,11 @@ class TestEndpointGroupSet(TestEndpointGroup):
 
         mocker = mock.Mock()
         mocker.return_value = identity_fakes.endpoint_group_filters_2
-        with mock.patch("openstackclient.identity.v3.endpoint_group."
-                        "SetEndpointGroup._read_filters", mocker):
+        with mock.patch(
+            "openstackclient.identity.v3.endpoint_group."
+            "SetEndpointGroup._read_filters",
+            mocker,
+        ):
             result = self.cmd.take_action(parsed_args)
 
         # Set expected values
@@ -336,17 +332,13 @@ class TestEndpointGroupSet(TestEndpointGroup):
         }
 
         self.endpoint_groups_mock.update.assert_called_with(
-            self.endpoint_group.id,
-            **kwargs
+            self.endpoint_group.id, **kwargs
         )
 
         self.assertIsNone(result)
 
     def test_endpoint_group_set_description(self):
-        arglist = [
-            '--description', 'qwerty',
-            self.endpoint_group.id
-        ]
+        arglist = ['--description', 'qwerty', self.endpoint_group.id]
         verifylist = [
             ('description', 'qwerty'),
             ('endpointgroup', self.endpoint_group.id),
@@ -362,23 +354,23 @@ class TestEndpointGroupSet(TestEndpointGroup):
             'description': 'qwerty',
         }
         self.endpoint_groups_mock.update.assert_called_with(
-            self.endpoint_group.id,
-            **kwargs
+            self.endpoint_group.id, **kwargs
         )
         self.assertIsNone(result)
 
 
 class TestAddProjectToEndpointGroup(TestEndpointGroup):
-
     project = identity_fakes.FakeProject.create_one_project()
     domain = identity_fakes.FakeDomain.create_one_domain()
     endpoint_group = (
-        identity_fakes.FakeEndpointGroup.create_one_endpointgroup())
+        identity_fakes.FakeEndpointGroup.create_one_endpointgroup()
+    )
 
     new_ep_filter = (
         identity_fakes.FakeEndpointGroup.create_one_endpointgroup_filter(
-            attrs={'endpointgroup': endpoint_group.id,
-                   'project': project.id}))
+            attrs={'endpointgroup': endpoint_group.id, 'project': project.id}
+        )
+    )
 
     def setUp(self):
         super(TestAddProjectToEndpointGroup, self).setUp()
@@ -416,7 +408,8 @@ class TestAddProjectToEndpointGroup(TestEndpointGroup):
         arglist = [
             self.endpoint_group.id,
             self.project.id,
-            '--project-domain', self.domain.id,
+            '--project-domain',
+            self.domain.id,
         ]
         verifylist = [
             ('endpointgroup', self.endpoint_group.id),
@@ -434,11 +427,11 @@ class TestAddProjectToEndpointGroup(TestEndpointGroup):
 
 
 class TestRemoveProjectEndpointGroup(TestEndpointGroup):
-
     project = identity_fakes.FakeProject.create_one_project()
     domain = identity_fakes.FakeDomain.create_one_domain()
     endpoint_group = (
-        identity_fakes.FakeEndpointGroup.create_one_endpointgroup())
+        identity_fakes.FakeEndpointGroup.create_one_endpointgroup()
+    )
 
     def setUp(self):
         super(TestRemoveProjectEndpointGroup, self).setUp()
@@ -452,7 +445,8 @@ class TestRemoveProjectEndpointGroup(TestEndpointGroup):
 
         # Get the command object to test
         self.cmd = endpoint_group.RemoveProjectFromEndpointGroup(
-            self.app, None)
+            self.app, None
+        )
 
     def test_remove_project_endpoint_no_options(self):
         arglist = [
@@ -477,7 +471,8 @@ class TestRemoveProjectEndpointGroup(TestEndpointGroup):
         arglist = [
             self.endpoint_group.id,
             self.project.id,
-            '--project-domain', self.domain.id,
+            '--project-domain',
+            self.domain.id,
         ]
         verifylist = [
             ('endpointgroup', self.endpoint_group.id),

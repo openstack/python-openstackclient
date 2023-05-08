@@ -52,25 +52,30 @@ class CreateCredential(command.ShowOne):
         parser.add_argument(
             '--project',
             metavar='<project>',
-            help=_('Project which limits the scope of '
-                   'the credential (name or ID)'),
+            help=_(
+                'Project which limits the scope of '
+                'the credential (name or ID)'
+            ),
         )
         return parser
 
     def take_action(self, parsed_args):
         identity_client = self.app.client_manager.identity
-        user_id = utils.find_resource(identity_client.users,
-                                      parsed_args.user).id
+        user_id = utils.find_resource(
+            identity_client.users, parsed_args.user
+        ).id
         if parsed_args.project:
-            project = utils.find_resource(identity_client.projects,
-                                          parsed_args.project).id
+            project = utils.find_resource(
+                identity_client.projects, parsed_args.project
+            ).id
         else:
             project = None
         credential = identity_client.credentials.create(
             user=user_id,
             type=parsed_args.type,
             blob=parsed_args.data,
-            project=project)
+            project=project,
+        )
 
         credential._info.pop('links')
         return zip(*sorted(credential._info.items()))
@@ -97,14 +102,19 @@ class DeleteCredential(command.Command):
                 identity_client.credentials.delete(i)
             except Exception as e:
                 result += 1
-                LOG.error(_("Failed to delete credentials with "
-                          "ID '%(credential)s': %(e)s"),
-                          {'credential': i, 'e': e})
+                LOG.error(
+                    _(
+                        "Failed to delete credentials with "
+                        "ID '%(credential)s': %(e)s"
+                    ),
+                    {'credential': i, 'e': e},
+                )
 
         if result > 0:
             total = len(parsed_args.credential)
-            msg = (_("%(result)s of %(total)s credential failed "
-                   "to delete.") % {'result': result, 'total': total})
+            msg = _(
+                "%(result)s of %(total)s credential failed " "to delete."
+            ) % {'result': result, 'total': total}
             raise exceptions.CommandError(msg)
 
 
@@ -144,11 +154,17 @@ class ListCredential(command.Lister):
         columns = ('ID', 'Type', 'User ID', 'Blob', 'Project ID')
         column_headers = ('ID', 'Type', 'User ID', 'Data', 'Project ID')
         data = self.app.client_manager.identity.credentials.list(**kwargs)
-        return (column_headers,
-                (utils.get_item_properties(
-                    s, columns,
+        return (
+            column_headers,
+            (
+                utils.get_item_properties(
+                    s,
+                    columns,
                     formatters={},
-                ) for s in data))
+                )
+                for s in data
+            ),
+        )
 
 
 class SetCredential(command.Command):
@@ -182,28 +198,34 @@ class SetCredential(command.Command):
         parser.add_argument(
             '--project',
             metavar='<project>',
-            help=_('Project which limits the scope of '
-                   'the credential (name or ID)'),
+            help=_(
+                'Project which limits the scope of '
+                'the credential (name or ID)'
+            ),
         )
         return parser
 
     def take_action(self, parsed_args):
         identity_client = self.app.client_manager.identity
 
-        user_id = utils.find_resource(identity_client.users,
-                                      parsed_args.user).id
+        user_id = utils.find_resource(
+            identity_client.users, parsed_args.user
+        ).id
 
         if parsed_args.project:
-            project = utils.find_resource(identity_client.projects,
-                                          parsed_args.project).id
+            project = utils.find_resource(
+                identity_client.projects, parsed_args.project
+            ).id
         else:
             project = None
 
-        identity_client.credentials.update(parsed_args.credential,
-                                           user=user_id,
-                                           type=parsed_args.type,
-                                           blob=parsed_args.data,
-                                           project=project)
+        identity_client.credentials.update(
+            parsed_args.credential,
+            user=user_id,
+            type=parsed_args.type,
+            blob=parsed_args.data,
+            project=project,
+        )
 
 
 class ShowCredential(command.ShowOne):
@@ -220,8 +242,9 @@ class ShowCredential(command.ShowOne):
 
     def take_action(self, parsed_args):
         identity_client = self.app.client_manager.identity
-        credential = utils.find_resource(identity_client.credentials,
-                                         parsed_args.credential)
+        credential = utils.find_resource(
+            identity_client.credentials, parsed_args.credential
+        )
 
         credential._info.pop('links')
         return zip(*sorted(credential._info.items()))

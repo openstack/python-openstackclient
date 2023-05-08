@@ -21,7 +21,6 @@ from openstackclient.tests.unit import utils
 
 
 class TestCredential(identity_fakes.TestIdentityv3):
-
     def setUp(self):
         super(TestCredential, self).setUp()
 
@@ -39,7 +38,6 @@ class TestCredential(identity_fakes.TestIdentityv3):
 
 
 class TestCredentialCreate(TestCredential):
-
     user = identity_fakes.FakeUser.create_one_user()
     project = identity_fakes.FakeProject.create_one_project()
     columns = (
@@ -54,7 +52,8 @@ class TestCredentialCreate(TestCredential):
         super(TestCredentialCreate, self).setUp()
 
         self.credential = identity_fakes.FakeCredential.create_one_credential(
-            attrs={'user_id': self.user.id, 'project_id': self.project.id})
+            attrs={'user_id': self.user.id, 'project_id': self.project.id}
+        )
         self.credentials_mock.create.return_value = self.credential
         self.users_mock.get.return_value = self.user
         self.projects_mock.get.return_value = self.project
@@ -87,9 +86,7 @@ class TestCredentialCreate(TestCredential):
             'blob': self.credential.blob,
             'project': None,
         }
-        self.credentials_mock.create.assert_called_once_with(
-            **kwargs
-        )
+        self.credentials_mock.create.assert_called_once_with(**kwargs)
 
         self.assertEqual(self.columns, columns)
         self.assertEqual(self.data, data)
@@ -98,8 +95,10 @@ class TestCredentialCreate(TestCredential):
         arglist = [
             self.credential.user_id,
             self.credential.blob,
-            '--type', self.credential.type,
-            '--project', self.credential.project_id,
+            '--type',
+            self.credential.type,
+            '--project',
+            self.credential.project_id,
         ]
         verifylist = [
             ('user', self.credential.user_id),
@@ -117,16 +116,13 @@ class TestCredentialCreate(TestCredential):
             'blob': self.credential.blob,
             'project': self.credential.project_id,
         }
-        self.credentials_mock.create.assert_called_once_with(
-            **kwargs
-        )
+        self.credentials_mock.create.assert_called_once_with(**kwargs)
 
         self.assertEqual(self.columns, columns)
         self.assertEqual(self.data, data)
 
 
 class TestCredentialDelete(TestCredential):
-
     credentials = identity_fakes.FakeCredential.create_credentials(count=2)
 
     def setUp(self):
@@ -181,8 +177,8 @@ class TestCredentialDelete(TestCredential):
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
         delete_mock_result = [None, exceptions.CommandError]
-        self.credentials_mock.delete = (
-            mock.Mock(side_effect=delete_mock_result)
+        self.credentials_mock.delete = mock.Mock(
+            side_effect=delete_mock_result
         )
 
         try:
@@ -196,17 +192,18 @@ class TestCredentialDelete(TestCredential):
 
 
 class TestCredentialList(TestCredential):
-
     credential = identity_fakes.FakeCredential.create_one_credential()
 
     columns = ('ID', 'Type', 'User ID', 'Data', 'Project ID')
-    data = ((
-        credential.id,
-        credential.type,
-        credential.user_id,
-        credential.blob,
-        credential.project_id,
-    ), )
+    data = (
+        (
+            credential.id,
+            credential.type,
+            credential.user_id,
+            credential.blob,
+            credential.project_id,
+        ),
+    )
 
     def setUp(self):
         super(TestCredentialList, self).setUp()
@@ -232,8 +229,10 @@ class TestCredentialList(TestCredential):
 
     def test_credential_list_with_options(self):
         arglist = [
-            '--user', self.credential.user_id,
-            '--type', self.credential.type,
+            '--user',
+            self.credential.user_id,
+            '--type',
+            self.credential.type,
         ]
         verifylist = [
             ('user', self.credential.user_id),
@@ -248,16 +247,13 @@ class TestCredentialList(TestCredential):
             'type': self.credential.type,
         }
         self.users_mock.get.assert_called_with(self.credential.user_id)
-        self.credentials_mock.list.assert_called_with(
-            **kwargs
-        )
+        self.credentials_mock.list.assert_called_with(**kwargs)
 
         self.assertEqual(self.columns, columns)
         self.assertEqual(self.data, tuple(data))
 
 
 class TestCredentialSet(TestCredential):
-
     credential = identity_fakes.FakeCredential.create_one_credential()
 
     def setUp(self):
@@ -269,44 +265,57 @@ class TestCredentialSet(TestCredential):
             self.credential.id,
         ]
 
-        self.assertRaises(utils.ParserException,
-                          self.check_parser, self.cmd, arglist, [])
+        self.assertRaises(
+            utils.ParserException, self.check_parser, self.cmd, arglist, []
+        )
 
     def test_credential_set_missing_user(self):
         arglist = [
-            '--type', 'ec2',
-            '--data', self.credential.blob,
+            '--type',
+            'ec2',
+            '--data',
+            self.credential.blob,
             self.credential.id,
         ]
 
-        self.assertRaises(utils.ParserException,
-                          self.check_parser, self.cmd, arglist, [])
+        self.assertRaises(
+            utils.ParserException, self.check_parser, self.cmd, arglist, []
+        )
 
     def test_credential_set_missing_type(self):
         arglist = [
-            '--user', self.credential.user_id,
-            '--data', self.credential.blob,
+            '--user',
+            self.credential.user_id,
+            '--data',
+            self.credential.blob,
             self.credential.id,
         ]
 
-        self.assertRaises(utils.ParserException,
-                          self.check_parser, self.cmd, arglist, [])
+        self.assertRaises(
+            utils.ParserException, self.check_parser, self.cmd, arglist, []
+        )
 
     def test_credential_set_missing_data(self):
         arglist = [
-            '--user', self.credential.user_id,
-            '--type', 'ec2',
+            '--user',
+            self.credential.user_id,
+            '--type',
+            'ec2',
             self.credential.id,
         ]
 
-        self.assertRaises(utils.ParserException,
-                          self.check_parser, self.cmd, arglist, [])
+        self.assertRaises(
+            utils.ParserException, self.check_parser, self.cmd, arglist, []
+        )
 
     def test_credential_set_valid(self):
         arglist = [
-            '--user', self.credential.user_id,
-            '--type', 'ec2',
-            '--data', self.credential.blob,
+            '--user',
+            self.credential.user_id,
+            '--type',
+            'ec2',
+            '--data',
+            self.credential.blob,
             self.credential.id,
         ]
         parsed_args = self.check_parser(self.cmd, arglist, [])
@@ -317,10 +326,14 @@ class TestCredentialSet(TestCredential):
 
     def test_credential_set_valid_with_project(self):
         arglist = [
-            '--user', self.credential.user_id,
-            '--type', 'ec2',
-            '--data', self.credential.blob,
-            '--project', self.credential.project_id,
+            '--user',
+            self.credential.user_id,
+            '--type',
+            'ec2',
+            '--data',
+            self.credential.blob,
+            '--project',
+            self.credential.project_id,
             self.credential.id,
         ]
         parsed_args = self.check_parser(self.cmd, arglist, [])
@@ -331,7 +344,6 @@ class TestCredentialSet(TestCredential):
 
 
 class TestCredentialShow(TestCredential):
-
     columns = (
         'blob',
         'id',

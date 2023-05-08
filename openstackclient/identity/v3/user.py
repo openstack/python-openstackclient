@@ -53,8 +53,9 @@ def _get_options_for_user(identity_client, parsed_args):
     if parsed_args.disable_multi_factor_auth:
         options['multi_factor_auth_enabled'] = False
     if parsed_args.multi_factor_auth_rule:
-        auth_rules = [rule.split(",") for rule in
-                      parsed_args.multi_factor_auth_rule]
+        auth_rules = [
+            rule.split(",") for rule in parsed_args.multi_factor_auth_rule
+        ]
         if auth_rules:
             options['multi_factor_auth_rules'] = auth_rules
     return options
@@ -66,54 +67,70 @@ def _add_user_options(parser):
     parser.add_argument(
         '--ignore-lockout-failure-attempts',
         action="store_true",
-        help=_('Opt into ignoring the number of times a user has '
-               'authenticated and locking out the user as a result'),
+        help=_(
+            'Opt into ignoring the number of times a user has '
+            'authenticated and locking out the user as a result'
+        ),
     )
     parser.add_argument(
         '--no-ignore-lockout-failure-attempts',
         action="store_true",
-        help=_('Opt out of ignoring the number of times a user has '
-               'authenticated and locking out the user as a result'),
+        help=_(
+            'Opt out of ignoring the number of times a user has '
+            'authenticated and locking out the user as a result'
+        ),
     )
     parser.add_argument(
         '--ignore-password-expiry',
         action="store_true",
-        help=_('Opt into allowing user to continue using passwords that '
-               'may be expired'),
+        help=_(
+            'Opt into allowing user to continue using passwords that '
+            'may be expired'
+        ),
     )
     parser.add_argument(
         '--no-ignore-password-expiry',
         action="store_true",
-        help=_('Opt out of allowing user to continue using passwords '
-               'that may be expired'),
+        help=_(
+            'Opt out of allowing user to continue using passwords '
+            'that may be expired'
+        ),
     )
     parser.add_argument(
         '--ignore-change-password-upon-first-use',
         action="store_true",
-        help=_('Control if a user should be forced to change their password '
-               'immediately after they log into keystone for the first time. '
-               'Opt into ignoring the user to change their password during '
-               'first time login in keystone'),
+        help=_(
+            'Control if a user should be forced to change their password '
+            'immediately after they log into keystone for the first time. '
+            'Opt into ignoring the user to change their password during '
+            'first time login in keystone'
+        ),
     )
     parser.add_argument(
         '--no-ignore-change-password-upon-first-use',
         action="store_true",
-        help=_('Control if a user should be forced to change their password '
-               'immediately after they log into keystone for the first time. '
-               'Opt out of ignoring the user to change their password during '
-               'first time login in keystone'),
+        help=_(
+            'Control if a user should be forced to change their password '
+            'immediately after they log into keystone for the first time. '
+            'Opt out of ignoring the user to change their password during '
+            'first time login in keystone'
+        ),
     )
     parser.add_argument(
         '--enable-lock-password',
         action="store_true",
-        help=_('Disables the ability for a user to change its password '
-               'through self-service APIs'),
+        help=_(
+            'Disables the ability for a user to change its password '
+            'through self-service APIs'
+        ),
     )
     parser.add_argument(
         '--disable-lock-password',
         action="store_true",
-        help=_('Enables the ability for a user to change its password '
-               'through self-service APIs'),
+        help=_(
+            'Enables the ability for a user to change its password '
+            'through self-service APIs'
+        ),
     )
     parser.add_argument(
         '--enable-multi-factor-auth',
@@ -130,11 +147,13 @@ def _add_user_options(parser):
         metavar='<rule>',
         action="append",
         default=[],
-        help=_('Set multi-factor auth rules. For example, to set a rule '
-               'requiring the "password" and "totp" auth methods to be '
-               'provided, use: "--multi-factor-auth-rule password,totp". '
-               'May be provided multiple times to set different rule '
-               'combinations.')
+        help=_(
+            'Set multi-factor auth rules. For example, to set a rule '
+            'requiring the "password" and "totp" auth methods to be '
+            'provided, use: "--multi-factor-auth-rule password,totp". '
+            'May be provided multiple times to set different rule '
+            'combinations.'
+        ),
     )
 
 
@@ -205,14 +224,17 @@ class CreateUser(command.ShowOne):
 
         project_id = None
         if parsed_args.project:
-            project_id = common.find_project(identity_client,
-                                             parsed_args.project,
-                                             parsed_args.project_domain).id
+            project_id = common.find_project(
+                identity_client,
+                parsed_args.project,
+                parsed_args.project_domain,
+            ).id
 
         domain_id = None
         if parsed_args.domain:
-            domain_id = common.find_domain(identity_client,
-                                           parsed_args.domain).id
+            domain_id = common.find_domain(
+                identity_client, parsed_args.domain
+            ).id
 
         enabled = True
         if parsed_args.disable:
@@ -221,8 +243,12 @@ class CreateUser(command.ShowOne):
             parsed_args.password = utils.get_password(self.app.stdin)
 
         if not parsed_args.password:
-            LOG.warning(_("No password was supplied, authentication will fail "
-                          "when a user does not have a password."))
+            LOG.warning(
+                _(
+                    "No password was supplied, authentication will fail "
+                    "when a user does not have a password."
+                )
+            )
         options = _get_options_for_user(identity_client, parsed_args)
 
         try:
@@ -238,9 +264,11 @@ class CreateUser(command.ShowOne):
             )
         except ks_exc.Conflict:
             if parsed_args.or_show:
-                user = utils.find_resource(identity_client.users,
-                                           parsed_args.name,
-                                           domain_id=domain_id)
+                user = utils.find_resource(
+                    identity_client.users,
+                    parsed_args.name,
+                    domain_id=domain_id,
+                )
                 LOG.info(_('Returning existing user %s'), user.name)
             else:
                 raise
@@ -277,23 +305,28 @@ class DeleteUser(command.Command):
         for user in parsed_args.users:
             try:
                 if domain is not None:
-                    user_obj = utils.find_resource(identity_client.users,
-                                                   user,
-                                                   domain_id=domain.id)
+                    user_obj = utils.find_resource(
+                        identity_client.users, user, domain_id=domain.id
+                    )
                 else:
-                    user_obj = utils.find_resource(identity_client.users,
-                                                   user)
+                    user_obj = utils.find_resource(identity_client.users, user)
                 identity_client.users.delete(user_obj.id)
             except Exception as e:
                 errors += 1
-                LOG.error(_("Failed to delete user with "
-                          "name or ID '%(user)s': %(e)s"),
-                          {'user': user, 'e': e})
+                LOG.error(
+                    _(
+                        "Failed to delete user with "
+                        "name or ID '%(user)s': %(e)s"
+                    ),
+                    {'user': user, 'e': e},
+                )
 
         if errors > 0:
             total = len(parsed_args.users)
-            msg = (_("%(errors)s of %(total)s users failed "
-                   "to delete.") % {'errors': errors, 'total': total})
+            msg = _("%(errors)s of %(total)s users failed " "to delete.") % {
+                'errors': errors,
+                'total': total,
+            }
             raise exceptions.CommandError(msg)
 
 
@@ -331,21 +364,20 @@ class ListUser(command.Lister):
 
         domain = None
         if parsed_args.domain:
-            domain = common.find_domain(identity_client,
-                                        parsed_args.domain).id
+            domain = common.find_domain(identity_client, parsed_args.domain).id
 
         group = None
         if parsed_args.group:
-            group = common.find_group(identity_client,
-                                      parsed_args.group,
-                                      parsed_args.domain).id
+            group = common.find_group(
+                identity_client, parsed_args.group, parsed_args.domain
+            ).id
 
         if parsed_args.project:
             if domain is not None:
                 project = utils.find_resource(
                     identity_client.projects,
                     parsed_args.project,
-                    domain_id=domain
+                    domain_id=domain,
                 ).id
             else:
                 project = utils.find_resource(
@@ -354,7 +386,8 @@ class ListUser(command.Lister):
                 ).id
 
             assignments = identity_client.role_assignments.list(
-                project=project)
+                project=project
+            )
 
             # NOTE(stevemar): If a user has more than one role on a project
             # then they will have two entries in the returned data. Since we
@@ -379,8 +412,15 @@ class ListUser(command.Lister):
 
         # Column handling
         if parsed_args.long:
-            columns = ['ID', 'Name', 'Default Project Id', 'Domain Id',
-                       'Description', 'Email', 'Enabled']
+            columns = [
+                'ID',
+                'Name',
+                'Default Project Id',
+                'Domain Id',
+                'Description',
+                'Email',
+                'Enabled',
+            ]
             column_headers = copy.deepcopy(columns)
             column_headers[2] = 'Project'
             column_headers[3] = 'Domain'
@@ -390,10 +430,14 @@ class ListUser(command.Lister):
 
         return (
             column_headers,
-            (utils.get_item_properties(
-                s, columns,
-                formatters={},
-            ) for s in data)
+            (
+                utils.get_item_properties(
+                    s,
+                    columns,
+                    formatters={},
+                )
+                for s in data
+            ),
         )
 
 
@@ -415,8 +459,10 @@ class SetUser(command.Command):
         parser.add_argument(
             '--domain',
             metavar='<domain>',
-            help=_('Domain the user belongs to (name or ID). This can be '
-                   'used in case collisions between user names exist.'),
+            help=_(
+                'Domain the user belongs to (name or ID). This can be '
+                'used in case collisions between user names exist.'
+            ),
         )
         parser.add_argument(
             '--project',
@@ -467,17 +513,21 @@ class SetUser(command.Command):
             parsed_args.password = utils.get_password(self.app.stdin)
 
         if '' == parsed_args.password:
-            LOG.warning(_("No password was supplied, authentication will fail "
-                          "when a user does not have a password."))
+            LOG.warning(
+                _(
+                    "No password was supplied, authentication will fail "
+                    "when a user does not have a password."
+                )
+            )
 
-        user_str = common._get_token_resource(identity_client, 'user',
-                                              parsed_args.user,
-                                              parsed_args.domain)
+        user_str = common._get_token_resource(
+            identity_client, 'user', parsed_args.user, parsed_args.domain
+        )
         if parsed_args.domain:
             domain = common.find_domain(identity_client, parsed_args.domain)
-            user = utils.find_resource(identity_client.users,
-                                       user_str,
-                                       domain_id=domain.id)
+            user = utils.find_resource(
+                identity_client.users, user_str, domain_id=domain.id
+            )
         else:
             user = utils.find_resource(
                 identity_client.users,
@@ -494,9 +544,11 @@ class SetUser(command.Command):
         if parsed_args.description:
             kwargs['description'] = parsed_args.description
         if parsed_args.project:
-            project_id = common.find_project(identity_client,
-                                             parsed_args.project,
-                                             parsed_args.project_domain).id
+            project_id = common.find_project(
+                identity_client,
+                parsed_args.project,
+                parsed_args.project_domain,
+            ).id
             kwargs['default_project'] = project_id
         kwargs['enabled'] = user.enabled
         if parsed_args.enable:
@@ -556,16 +608,22 @@ class SetPasswordUser(command.Command):
         current_password = parsed_args.original_password
         if current_password is None:
             current_password = utils.get_password(
-                self.app.stdin, prompt="Current Password:", confirm=False)
+                self.app.stdin, prompt="Current Password:", confirm=False
+            )
 
         password = parsed_args.password
         if password is None:
             password = utils.get_password(
-                self.app.stdin, prompt="New Password:")
+                self.app.stdin, prompt="New Password:"
+            )
 
         if '' == password:
-            LOG.warning(_("No password was supplied, authentication will fail "
-                          "when a user does not have a password."))
+            LOG.warning(
+                _(
+                    "No password was supplied, authentication will fail "
+                    "when a user does not have a password."
+                )
+            )
 
         identity_client.users.update_password(current_password, password)
 
@@ -590,17 +648,16 @@ class ShowUser(command.ShowOne):
     def take_action(self, parsed_args):
         identity_client = self.app.client_manager.identity
 
-        user_str = common._get_token_resource(identity_client, 'user',
-                                              parsed_args.user,
-                                              parsed_args.domain)
+        user_str = common._get_token_resource(
+            identity_client, 'user', parsed_args.user, parsed_args.domain
+        )
         if parsed_args.domain:
             domain = common.find_domain(identity_client, parsed_args.domain)
-            user = utils.find_resource(identity_client.users,
-                                       user_str,
-                                       domain_id=domain.id)
+            user = utils.find_resource(
+                identity_client.users, user_str, domain_id=domain.id
+            )
         else:
-            user = utils.find_resource(identity_client.users,
-                                       user_str)
+            user = utils.find_resource(identity_client.users, user_str)
 
         user._info.pop('links')
         return zip(*sorted(user._info.items()))

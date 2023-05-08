@@ -33,7 +33,8 @@ def find_service_in_list(service_list, service_id):
         if service.id == service_id:
             return service
     raise exceptions.CommandError(
-        "No service with a type, name or ID of '%s' exists." % service_id)
+        "No service with a type, name or ID of '%s' exists." % service_id
+    )
 
 
 def find_service(identity_client, name_type_or_id):
@@ -52,8 +53,10 @@ def find_service(identity_client, name_type_or_id):
     except identity_exc.NotFound:
         pass
     except identity_exc.NoUniqueMatch:
-        msg = _("Multiple service matches found for '%s', "
-                "use an ID to be more specific.")
+        msg = _(
+            "Multiple service matches found for '%s', "
+            "use an ID to be more specific."
+        )
         raise exceptions.CommandError(msg % name_type_or_id)
 
     try:
@@ -63,8 +66,10 @@ def find_service(identity_client, name_type_or_id):
         msg = _("No service with a type, name or ID of '%s' exists.")
         raise exceptions.CommandError(msg % name_type_or_id)
     except identity_exc.NoUniqueMatch:
-        msg = _("Multiple service matches found for '%s', "
-                "use an ID to be more specific.")
+        msg = _(
+            "Multiple service matches found for '%s', "
+            "use an ID to be more specific."
+        )
         raise exceptions.CommandError(msg % name_type_or_id)
 
 
@@ -141,42 +146,56 @@ def _get_domain_id_if_requested(identity_client, domain_name_or_id):
 
 
 def find_domain(identity_client, name_or_id):
-    return _find_identity_resource(identity_client.domains, name_or_id,
-                                   domains.Domain)
+    return _find_identity_resource(
+        identity_client.domains, name_or_id, domains.Domain
+    )
 
 
 def find_group(identity_client, name_or_id, domain_name_or_id=None):
     domain_id = _get_domain_id_if_requested(identity_client, domain_name_or_id)
     if not domain_id:
-        return _find_identity_resource(identity_client.groups, name_or_id,
-                                       groups.Group)
+        return _find_identity_resource(
+            identity_client.groups, name_or_id, groups.Group
+        )
     else:
-        return _find_identity_resource(identity_client.groups, name_or_id,
-                                       groups.Group, domain_id=domain_id)
+        return _find_identity_resource(
+            identity_client.groups,
+            name_or_id,
+            groups.Group,
+            domain_id=domain_id,
+        )
 
 
 def find_project(identity_client, name_or_id, domain_name_or_id=None):
     domain_id = _get_domain_id_if_requested(identity_client, domain_name_or_id)
     if not domain_id:
-        return _find_identity_resource(identity_client.projects, name_or_id,
-                                       projects.Project)
+        return _find_identity_resource(
+            identity_client.projects, name_or_id, projects.Project
+        )
     else:
-        return _find_identity_resource(identity_client.projects, name_or_id,
-                                       projects.Project, domain_id=domain_id)
+        return _find_identity_resource(
+            identity_client.projects,
+            name_or_id,
+            projects.Project,
+            domain_id=domain_id,
+        )
 
 
 def find_user(identity_client, name_or_id, domain_name_or_id=None):
     domain_id = _get_domain_id_if_requested(identity_client, domain_name_or_id)
     if not domain_id:
-        return _find_identity_resource(identity_client.users, name_or_id,
-                                       users.User)
+        return _find_identity_resource(
+            identity_client.users, name_or_id, users.User
+        )
     else:
-        return _find_identity_resource(identity_client.users, name_or_id,
-                                       users.User, domain_id=domain_id)
+        return _find_identity_resource(
+            identity_client.users, name_or_id, users.User, domain_id=domain_id
+        )
 
 
-def _find_identity_resource(identity_client_manager, name_or_id,
-                            resource_type, **kwargs):
+def _find_identity_resource(
+    identity_client_manager, name_or_id, resource_type, **kwargs
+):
     """Find a specific identity resource.
 
     Using keystoneclient's manager, attempt to find a specific resource by its
@@ -203,8 +222,9 @@ def _find_identity_resource(identity_client_manager, name_or_id,
     """
 
     try:
-        identity_resource = utils.find_resource(identity_client_manager,
-                                                name_or_id, **kwargs)
+        identity_resource = utils.find_resource(
+            identity_client_manager, name_or_id, **kwargs
+        )
         if identity_resource is not None:
             return identity_resource
     except (exceptions.Forbidden, identity_exc.Forbidden):
@@ -226,9 +246,11 @@ def add_user_domain_option_to_parser(parser):
     parser.add_argument(
         '--user-domain',
         metavar='<user-domain>',
-        help=_('Domain the user belongs to (name or ID). '
-               'This can be used in case collisions between user names '
-               'exist.'),
+        help=_(
+            'Domain the user belongs to (name or ID). '
+            'This can be used in case collisions between user names '
+            'exist.'
+        ),
     )
 
 
@@ -236,9 +258,11 @@ def add_group_domain_option_to_parser(parser):
     parser.add_argument(
         '--group-domain',
         metavar='<group-domain>',
-        help=_('Domain the group belongs to (name or ID). '
-               'This can be used in case collisions between group names '
-               'exist.'),
+        help=_(
+            'Domain the group belongs to (name or ID). '
+            'This can be used in case collisions between group names '
+            'exist.'
+        ),
     )
 
 
@@ -246,9 +270,13 @@ def add_project_domain_option_to_parser(parser, enhance_help=lambda _h: _h):
     parser.add_argument(
         '--project-domain',
         metavar='<project-domain>',
-        help=enhance_help(_('Domain the project belongs to (name or ID). This '
-                            'can be used in case collisions between project '
-                            'names exist.')),
+        help=enhance_help(
+            _(
+                'Domain the project belongs to (name or ID). This '
+                'can be used in case collisions between project '
+                'names exist.'
+            )
+        ),
     )
 
 
@@ -256,9 +284,11 @@ def add_role_domain_option_to_parser(parser):
     parser.add_argument(
         '--role-domain',
         metavar='<role-domain>',
-        help=_('Domain the role belongs to (name or ID). '
-               'This must be specified when the name of a domain specific '
-               'role is used.'),
+        help=_(
+            'Domain the role belongs to (name or ID). '
+            'This must be specified when the name of a domain specific '
+            'role is used.'
+        ),
     )
 
 
@@ -267,8 +297,9 @@ def add_inherited_option_to_parser(parser):
         '--inherited',
         action='store_true',
         default=False,
-        help=_('Specifies if the role grant is inheritable to the sub '
-               'projects'),
+        help=_(
+            'Specifies if the role grant is inheritable to the sub ' 'projects'
+        ),
     )
 
 
@@ -277,8 +308,10 @@ def add_resource_option_to_parser(parser):
     enable_group.add_argument(
         '--immutable',
         action='store_true',
-        help=_('Make resource immutable. An immutable project may not '
-               'be deleted or modified except to remove the immutable flag'),
+        help=_(
+            'Make resource immutable. An immutable project may not '
+            'be deleted or modified except to remove the immutable flag'
+        ),
     )
     enable_group.add_argument(
         '--no-immutable',

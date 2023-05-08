@@ -48,7 +48,6 @@ def _get_role_ids(identity_client, parsed_args):
 
 
 class CreateImpliedRole(command.ShowOne):
-
     _description = _("Creates an association between prior and implied roles")
 
     def get_parser(self, prog_name):
@@ -69,16 +68,16 @@ class CreateImpliedRole(command.ShowOne):
     def take_action(self, parsed_args):
         identity_client = self.app.client_manager.identity
         (prior_role_id, implied_role_id) = _get_role_ids(
-            identity_client, parsed_args)
+            identity_client, parsed_args
+        )
         response = identity_client.inference_rules.create(
-            prior_role_id, implied_role_id)
+            prior_role_id, implied_role_id
+        )
         response._info.pop('links', None)
-        return zip(*sorted([(k, v['id'])
-                            for k, v in response._info.items()]))
+        return zip(*sorted([(k, v['id']) for k, v in response._info.items()]))
 
 
 class DeleteImpliedRole(command.Command):
-
     _description = _("Deletes an association between prior and implied roles")
 
     def get_parser(self, prog_name):
@@ -99,16 +98,19 @@ class DeleteImpliedRole(command.Command):
     def take_action(self, parsed_args):
         identity_client = self.app.client_manager.identity
         (prior_role_id, implied_role_id) = _get_role_ids(
-            identity_client, parsed_args)
-        identity_client.inference_rules.delete(
-            prior_role_id, implied_role_id)
+            identity_client, parsed_args
+        )
+        identity_client.inference_rules.delete(prior_role_id, implied_role_id)
 
 
 class ListImpliedRole(command.Lister):
-
     _description = _("List implied roles")
-    _COLUMNS = ['Prior Role ID', 'Prior Role Name',
-                'Implied Role ID', 'Implied Role Name']
+    _COLUMNS = [
+        'Prior Role ID',
+        'Prior Role Name',
+        'Implied Role ID',
+        'Implied Role Name',
+    ]
 
     def get_parser(self, prog_name):
         parser = super(ListImpliedRole, self).get_parser(prog_name)
@@ -118,10 +120,12 @@ class ListImpliedRole(command.Lister):
         def _list_implied(response):
             for rule in response:
                 for implies in rule.implies:
-                    yield (rule.prior_role['id'],
-                           rule.prior_role['name'],
-                           implies['id'],
-                           implies['name'])
+                    yield (
+                        rule.prior_role['id'],
+                        rule.prior_role['name'],
+                        implies['id'],
+                        implies['name'],
+                    )
 
         identity_client = self.app.client_manager.identity
         response = identity_client.inference_rules.list_inference_roles()

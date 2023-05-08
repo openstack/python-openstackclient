@@ -67,17 +67,24 @@ class DeleteConsumer(command.Command):
         for i in parsed_args.consumer:
             try:
                 consumer = utils.find_resource(
-                    identity_client.oauth1.consumers, i)
+                    identity_client.oauth1.consumers, i
+                )
                 identity_client.oauth1.consumers.delete(consumer.id)
             except Exception as e:
                 result += 1
-                LOG.error(_("Failed to delete consumer with name or "
-                          "ID '%(consumer)s': %(e)s"), {'consumer': i, 'e': e})
+                LOG.error(
+                    _(
+                        "Failed to delete consumer with name or "
+                        "ID '%(consumer)s': %(e)s"
+                    ),
+                    {'consumer': i, 'e': e},
+                )
 
         if result > 0:
             total = len(parsed_args.consumer)
-            msg = (_("%(result)s of %(total)s consumers failed "
-                   "to delete.") % {'result': result, 'total': total})
+            msg = _(
+                "%(result)s of %(total)s consumers failed " "to delete."
+            ) % {'result': result, 'total': total}
             raise exceptions.CommandError(msg)
 
 
@@ -87,11 +94,17 @@ class ListConsumer(command.Lister):
     def take_action(self, parsed_args):
         columns = ('ID', 'Description')
         data = self.app.client_manager.identity.oauth1.consumers.list()
-        return (columns,
-                (utils.get_item_properties(
-                    s, columns,
+        return (
+            columns,
+            (
+                utils.get_item_properties(
+                    s,
+                    columns,
                     formatters={},
-                ) for s in data))
+                )
+                for s in data
+            ),
+        )
 
 
 class SetConsumer(command.Command):
@@ -114,13 +127,15 @@ class SetConsumer(command.Command):
     def take_action(self, parsed_args):
         identity_client = self.app.client_manager.identity
         consumer = utils.find_resource(
-            identity_client.oauth1.consumers, parsed_args.consumer)
+            identity_client.oauth1.consumers, parsed_args.consumer
+        )
         kwargs = {}
         if parsed_args.description:
             kwargs['description'] = parsed_args.description
 
         consumer = identity_client.oauth1.consumers.update(
-            consumer.id, **kwargs)
+            consumer.id, **kwargs
+        )
 
 
 class ShowConsumer(command.ShowOne):
@@ -138,7 +153,8 @@ class ShowConsumer(command.ShowOne):
     def take_action(self, parsed_args):
         identity_client = self.app.client_manager.identity
         consumer = utils.find_resource(
-            identity_client.oauth1.consumers, parsed_args.consumer)
+            identity_client.oauth1.consumers, parsed_args.consumer
+        )
 
         consumer._info.pop('links', None)
         return zip(*sorted(consumer._info.items()))

@@ -90,14 +90,19 @@ class DeleteService(command.Command):
                 identity_client.services.delete(service.id)
             except Exception as e:
                 result += 1
-                LOG.error(_("Failed to delete service with "
-                          "name or ID '%(service)s': %(e)s"),
-                          {'service': service, 'e': e})
+                LOG.error(
+                    _(
+                        "Failed to delete service with "
+                        "name or ID '%(service)s': %(e)s"
+                    ),
+                    {'service': service, 'e': e},
+                )
 
         if result > 0:
             total = len(parsed_args.services)
-            msg = (_("%(result)s of %(total)s services failed "
-                   "to delete.") % {'result': result, 'total': total})
+            msg = _(
+                "%(result)s of %(total)s services failed " "to delete."
+            ) % {'result': result, 'total': total}
             raise exceptions.CommandError(msg)
 
 
@@ -115,7 +120,6 @@ class ListService(command.Lister):
         return parser
 
     def take_action(self, parsed_args):
-
         if parsed_args.long:
             columns = ('ID', 'Name', 'Type', 'Description')
         else:
@@ -151,15 +155,17 @@ class ShowService(command.ShowOne):
 
         if parsed_args.catalog:
             endpoints = auth_ref.service_catalog.get_endpoints(
-                service_type=parsed_args.service)
-            for (service, service_endpoints) in endpoints.items():
+                service_type=parsed_args.service
+            )
+            for service, service_endpoints in endpoints.items():
                 if service_endpoints:
                     info = {"type": service}
                     info.update(service_endpoints[0])
                     return zip(*sorted(info.items()))
 
-            msg = _("No service catalog with a type, name or ID of '%s' "
-                    "exists.") % (parsed_args.service)
+            msg = _(
+                "No service catalog with a type, name or ID of '%s' " "exists."
+            ) % (parsed_args.service)
             raise exceptions.CommandError(msg)
         else:
             service = common.find_service(identity_client, parsed_args.service)

@@ -36,8 +36,10 @@ class CreatePolicy(command.ShowOne):
             '--type',
             metavar='<type>',
             default="application/json",
-            help=_('New MIME type of the policy rules file '
-                   '(defaults to application/json)'),
+            help=_(
+                'New MIME type of the policy rules file '
+                '(defaults to application/json)'
+            ),
         )
         parser.add_argument(
             'rules',
@@ -80,13 +82,20 @@ class DeletePolicy(command.Command):
                 identity_client.policies.delete(i)
             except Exception as e:
                 result += 1
-                LOG.error(_("Failed to delete policy with name or "
-                          "ID '%(policy)s': %(e)s"), {'policy': i, 'e': e})
+                LOG.error(
+                    _(
+                        "Failed to delete policy with name or "
+                        "ID '%(policy)s': %(e)s"
+                    ),
+                    {'policy': i, 'e': e},
+                )
 
         if result > 0:
             total = len(parsed_args.policy)
-            msg = (_("%(result)s of %(total)s policys failed "
-                   "to delete.") % {'result': result, 'total': total})
+            msg = _("%(result)s of %(total)s policys failed " "to delete.") % {
+                'result': result,
+                'total': total,
+            }
             raise exceptions.CommandError(msg)
 
 
@@ -111,11 +120,17 @@ class ListPolicy(command.Lister):
             columns = ('ID', 'Type')
             column_headers = columns
         data = self.app.client_manager.identity.policies.list()
-        return (column_headers,
-                (utils.get_item_properties(
-                    s, columns,
+        return (
+            column_headers,
+            (
+                utils.get_item_properties(
+                    s,
+                    columns,
                     formatters={},
-                ) for s in data))
+                )
+                for s in data
+            ),
+        )
 
 
 class SetPolicy(command.Command):
@@ -170,8 +185,9 @@ class ShowPolicy(command.ShowOne):
 
     def take_action(self, parsed_args):
         identity_client = self.app.client_manager.identity
-        policy = utils.find_resource(identity_client.policies,
-                                     parsed_args.policy)
+        policy = utils.find_resource(
+            identity_client.policies, parsed_args.policy
+        )
 
         policy._info.pop('links')
         policy._info.update({'rules': policy._info.pop('blob')})

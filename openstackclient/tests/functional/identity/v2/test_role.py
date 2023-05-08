@@ -14,7 +14,6 @@ from openstackclient.tests.functional.identity.v2 import common
 
 
 class RoleTests(common.IdentityTests):
-
     def test_role_create(self):
         self._create_dummy_role()
 
@@ -42,17 +41,25 @@ class RoleTests(common.IdentityTests):
             'role add '
             '--project %(project)s '
             '--user %(user)s '
-            '%(role)s' % {'project': self.project_name,
-                          'user': username,
-                          'role': role_name})
+            '%(role)s'
+            % {
+                'project': self.project_name,
+                'user': username,
+                'role': role_name,
+            }
+        )
         self.addCleanup(
             self.openstack,
             'role remove '
             '--project %(project)s '
             '--user %(user)s '
-            '%(role)s' % {'project': self.project_name,
-                          'user': username,
-                          'role': role_name})
+            '%(role)s'
+            % {
+                'project': self.project_name,
+                'user': username,
+                'role': role_name,
+            },
+        )
         items = self.parse_show(raw_output)
         self.assert_show_fields(items, self.ROLE_FIELDS)
 
@@ -63,16 +70,24 @@ class RoleTests(common.IdentityTests):
             'role add '
             '--project %(project)s '
             '--user %(user)s '
-            '%(role)s' % {'project': self.project_name,
-                          'user': username,
-                          'role': role_name})
+            '%(role)s'
+            % {
+                'project': self.project_name,
+                'user': username,
+                'role': role_name,
+            }
+        )
         del_raw_output = self.openstack(
             'role remove '
             '--project %(project)s '
             '--user %(user)s '
-            '%(role)s' % {'project': self.project_name,
-                          'user': username,
-                          'role': role_name})
+            '%(role)s'
+            % {
+                'project': self.project_name,
+                'user': username,
+                'role': role_name,
+            }
+        )
         items = self.parse_show(add_raw_output)
         self.assert_show_fields(items, self.ROLE_FIELDS)
         self.assertEqual(0, len(del_raw_output))

@@ -30,11 +30,17 @@ class ListAccessibleDomains(command.Lister):
         columns = ('ID', 'Enabled', 'Name', 'Description')
         identity_client = self.app.client_manager.identity
         data = identity_client.federation.domains.list()
-        return (columns,
-                (utils.get_item_properties(
-                    s, columns,
+        return (
+            columns,
+            (
+                utils.get_item_properties(
+                    s,
+                    columns,
                     formatters={},
-                ) for s in data))
+                )
+                for s in data
+            ),
+        )
 
 
 class ListAccessibleProjects(command.Lister):
@@ -44,8 +50,14 @@ class ListAccessibleProjects(command.Lister):
         columns = ('ID', 'Domain ID', 'Enabled', 'Name')
         identity_client = self.app.client_manager.identity
         data = identity_client.federation.projects.list()
-        return (columns,
-                (utils.get_item_properties(
-                    s, columns,
+        return (
+            columns,
+            (
+                utils.get_item_properties(
+                    s,
+                    columns,
                     formatters={},
-                ) for s in data))
+                )
+                for s in data
+            ),
+        )

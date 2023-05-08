@@ -17,15 +17,14 @@ from openstackclient.tests.functional.identity.v3 import common
 
 
 class DomainTests(common.IdentityTests):
-
     def test_domain_create(self):
         domain_name = data_utils.rand_name('TestDomain')
         raw_output = self.openstack('domain create %s' % domain_name)
         # disable domain first before deleting it
-        self.addCleanup(self.openstack,
-                        'domain delete %s' % domain_name)
-        self.addCleanup(self.openstack,
-                        'domain set --disable %s' % domain_name)
+        self.addCleanup(self.openstack, 'domain delete %s' % domain_name)
+        self.addCleanup(
+            self.openstack, 'domain set --disable %s' % domain_name
+        )
         items = self.parse_show(raw_output)
         self.assert_show_fields(items, self.DOMAIN_FIELDS)
 
@@ -52,15 +51,18 @@ class DomainTests(common.IdentityTests):
         raw_output = self.openstack('domain set --disable %s' % domain_2)
         self.assertEqual(0, len(raw_output))
         raw_output = self.openstack(
-            'domain delete %s %s' % (domain_1, domain_2))
+            'domain delete %s %s' % (domain_1, domain_2)
+        )
         self.assertEqual(0, len(raw_output))
 
     def test_domain_delete_failure(self):
         domain_name = self._create_dummy_domain()
         # cannot delete enabled domain
-        self.assertRaises(exceptions.CommandFailed,
-                          self.openstack,
-                          'domain delete %s' % domain_name)
+        self.assertRaises(
+            exceptions.CommandFailed,
+            self.openstack,
+            'domain delete %s' % domain_name,
+        )
 
     def test_domain_show(self):
         domain_name = self._create_dummy_domain()

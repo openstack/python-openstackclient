@@ -14,7 +14,6 @@ from openstackclient.tests.functional.identity.v3 import common
 
 
 class TokenTests(common.IdentityTests):
-
     def test_token_issue(self):
         raw_output = self.openstack('token issue')
         items = self.parse_show(raw_output)

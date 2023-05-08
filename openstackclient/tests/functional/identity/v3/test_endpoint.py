@@ -16,7 +16,6 @@ from openstackclient.tests.functional.identity.v3 import common
 
 
 class EndpointTests(common.IdentityTests):
-
     def test_endpoint_create(self):
         self._create_dummy_endpoint(interface='public')
         self._create_dummy_endpoint(interface='admin')
@@ -24,15 +23,15 @@ class EndpointTests(common.IdentityTests):
 
     def test_endpoint_delete(self):
         endpoint_id = self._create_dummy_endpoint(add_clean_up=False)
-        raw_output = self.openstack(
-            'endpoint delete %s' % endpoint_id)
+        raw_output = self.openstack('endpoint delete %s' % endpoint_id)
         self.assertEqual(0, len(raw_output))
 
     def test_endpoint_multi_delete(self):
         endpoint_1 = self._create_dummy_endpoint(add_clean_up=False)
         endpoint_2 = self._create_dummy_endpoint(add_clean_up=False)
         raw_output = self.openstack(
-            'endpoint delete %s %s' % (endpoint_1, endpoint_2))
+            'endpoint delete %s %s' % (endpoint_1, endpoint_2)
+        )
         self.assertEqual(0, len(raw_output))
 
     def test_endpoint_list(self):
@@ -48,19 +47,18 @@ class EndpointTests(common.IdentityTests):
         raw_output = self.openstack(
             'endpoint add project '
             '%(endpoint_id)s '
-            '%(project_id)s' % {
-                'project_id': project_id,
-                'endpoint_id': endpoint_id})
+            '%(project_id)s'
+            % {'project_id': project_id, 'endpoint_id': endpoint_id}
+        )
         self.assertEqual(0, len(raw_output))
         raw_output = self.openstack(
-            'endpoint list --endpoint %s' % endpoint_id)
+            'endpoint list --endpoint %s' % endpoint_id
+        )
         self.assertIn(project_id, raw_output)
         items = self.parse_listing(raw_output)
-        self.assert_table_structure(items,
-                                    self.ENDPOINT_LIST_PROJECT_HEADERS)
+        self.assert_table_structure(items, self.ENDPOINT_LIST_PROJECT_HEADERS)
 
-        raw_output = self.openstack(
-            'endpoint list --project %s' % project_id)
+        raw_output = self.openstack('endpoint list --project %s' % project_id)
         self.assertIn(endpoint_id, raw_output)
         items = self.parse_listing(raw_output)
         self.assert_table_structure(items, self.ENDPOINT_LIST_HEADERS)
@@ -73,9 +71,13 @@ class EndpointTests(common.IdentityTests):
             '--interface %(interface)s '
             '--url %(url)s '
             '--disable '
-            '%(endpoint_id)s' % {'interface': 'admin',
-                                 'url': new_endpoint_url,
-                                 'endpoint_id': endpoint_id})
+            '%(endpoint_id)s'
+            % {
+                'interface': 'admin',
+                'url': new_endpoint_url,
+                'endpoint_id': endpoint_id,
+            }
+        )
         self.assertEqual(0, len(raw_output))
         raw_output = self.openstack('endpoint show %s' % endpoint_id)
         endpoint = self.parse_show_as_object(raw_output)
@@ -95,15 +97,15 @@ class EndpointTests(common.IdentityTests):
         raw_output = self.openstack(
             'endpoint add project '
             '%(endpoint_id)s '
-            '%(project_id)s' % {
-                'project_id': project_id,
-                'endpoint_id': endpoint_id})
+            '%(project_id)s'
+            % {'project_id': project_id, 'endpoint_id': endpoint_id}
+        )
         self.assertEqual(0, len(raw_output))
 
         raw_output = self.openstack(
             'endpoint remove project '
             '%(endpoint_id)s '
-            '%(project_id)s' % {
-                'project_id': project_id,
-                'endpoint_id': endpoint_id})
+            '%(project_id)s'
+            % {'project_id': project_id, 'endpoint_id': endpoint_id}
+        )
         self.assertEqual(0, len(raw_output))

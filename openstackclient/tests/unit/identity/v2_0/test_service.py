@@ -32,7 +32,6 @@ class TestService(identity_fakes.TestIdentityv2):
 
 
 class TestServiceCreate(TestService):
-
     fake_service_c = identity_fakes.FakeService.create_one_service()
     columns = (
         'description',
@@ -83,7 +82,8 @@ class TestServiceCreate(TestService):
 
     def test_service_create_with_name_option(self):
         arglist = [
-            '--name', self.fake_service_c.name,
+            '--name',
+            self.fake_service_c.name,
             self.fake_service_c.type,
         ]
         verifylist = [
@@ -110,8 +110,10 @@ class TestServiceCreate(TestService):
 
     def test_service_create_description(self):
         arglist = [
-            '--name', self.fake_service_c.name,
-            '--description', self.fake_service_c.description,
+            '--name',
+            self.fake_service_c.name,
+            '--description',
+            self.fake_service_c.description,
             self.fake_service_c.type,
         ]
         verifylist = [
@@ -138,7 +140,6 @@ class TestServiceCreate(TestService):
 
 
 class TestServiceDelete(TestService):
-
     def setUp(self):
         super(TestServiceDelete, self).setUp()
 
@@ -167,7 +168,6 @@ class TestServiceDelete(TestService):
 
 
 class TestServiceList(TestService):
-
     def setUp(self):
         super(TestServiceList, self).setUp()
 
@@ -190,11 +190,13 @@ class TestServiceList(TestService):
 
         collist = ('ID', 'Name', 'Type')
         self.assertEqual(collist, columns)
-        datalist = ((
-            self.fake_service.id,
-            self.fake_service.name,
-            self.fake_service.type,
-        ), )
+        datalist = (
+            (
+                self.fake_service.id,
+                self.fake_service.name,
+                self.fake_service.type,
+            ),
+        )
         self.assertEqual(datalist, tuple(data))
 
     def test_service_list_long(self):
@@ -215,17 +217,18 @@ class TestServiceList(TestService):
 
         collist = ('ID', 'Name', 'Type', 'Description')
         self.assertEqual(collist, columns)
-        datalist = ((
-            self.fake_service.id,
-            self.fake_service.name,
-            self.fake_service.type,
-            self.fake_service.description,
-        ), )
+        datalist = (
+            (
+                self.fake_service.id,
+                self.fake_service.name,
+                self.fake_service.type,
+                self.fake_service.description,
+            ),
+        )
         self.assertEqual(datalist, tuple(data))
 
 
 class TestServiceShow(TestService):
-
     fake_service_s = identity_fakes.FakeService.create_one_service()
 
     def setUp(self):
@@ -282,4 +285,6 @@ class TestServiceShow(TestService):
         except exceptions.CommandError as e:
             self.assertEqual(
                 "Multiple service matches found for 'nounique_service',"
-                " use an ID to be more specific.", str(e))
+                " use an ID to be more specific.",
+                str(e),
+            )

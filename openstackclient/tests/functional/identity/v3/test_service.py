@@ -16,7 +16,6 @@ from openstackclient.tests.functional.identity.v3 import common
 
 
 class ServiceTests(common.IdentityTests):
-
     def test_service_create(self):
         self._create_dummy_service()
 
@@ -29,7 +28,8 @@ class ServiceTests(common.IdentityTests):
         service_1 = self._create_dummy_service(add_clean_up=False)
         service_2 = self._create_dummy_service(add_clean_up=False)
         raw_output = self.openstack(
-            'service delete %s %s' % (service_1, service_2))
+            'service delete %s %s' % (service_1, service_2)
+        )
         self.assertEqual(0, len(raw_output))
 
     def test_service_list(self):
@@ -50,10 +50,14 @@ class ServiceTests(common.IdentityTests):
             '--name %(name)s '
             '--description %(description)s '
             '--disable '
-            '%(service)s' % {'type': new_service_type,
-                             'name': new_service_name,
-                             'description': new_service_description,
-                             'service': service_name})
+            '%(service)s'
+            % {
+                'type': new_service_type,
+                'name': new_service_name,
+                'description': new_service_description,
+                'service': service_name,
+            }
+        )
         self.assertEqual(0, len(raw_output))
         # get service details
         raw_output = self.openstack('service show %s' % new_service_name)
@@ -65,7 +69,6 @@ class ServiceTests(common.IdentityTests):
 
     def test_service_show(self):
         service_name = self._create_dummy_service()
-        raw_output = self.openstack(
-            'service show %s' % service_name)
+        raw_output = self.openstack('service show %s' % service_name)
         items = self.parse_show(raw_output)
         self.assert_show_fields(items, self.SERVICE_FIELDS)

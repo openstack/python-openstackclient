@@ -19,7 +19,6 @@ from openstackclient.tests.unit import utils
 
 
 class TestCatalog(utils.TestCommand):
-
     service_catalog = identity_fakes.FakeCatalog.create_catalog()
 
     def setUp(self):
@@ -37,7 +36,6 @@ class TestCatalog(utils.TestCommand):
 
 
 class TestCatalogList(TestCatalog):
-
     columns = (
         'Name',
         'Type',
@@ -68,12 +66,15 @@ class TestCatalogList(TestCatalog):
         columns, data = self.cmd.take_action(parsed_args)
 
         self.assertEqual(self.columns, columns)
-        datalist = ((
-            'supernova',
-            'compute',
-            catalog.EndpointsColumn(
-                auth_ref.service_catalog.catalog[0]['endpoints']),
-        ), )
+        datalist = (
+            (
+                'supernova',
+                'compute',
+                catalog.EndpointsColumn(
+                    auth_ref.service_catalog.catalog[0]['endpoints']
+                ),
+            ),
+        )
         self.assertCountEqual(datalist, tuple(data))
 
     def test_catalog_list_with_endpoint_url(self):
@@ -111,17 +112,19 @@ class TestCatalogList(TestCatalog):
         columns, data = self.cmd.take_action(parsed_args)
 
         self.assertEqual(self.columns, columns)
-        datalist = ((
-            'supernova',
-            'compute',
-            catalog.EndpointsColumn(
-                auth_ref.service_catalog.catalog[0]['endpoints']),
-        ), )
+        datalist = (
+            (
+                'supernova',
+                'compute',
+                catalog.EndpointsColumn(
+                    auth_ref.service_catalog.catalog[0]['endpoints']
+                ),
+            ),
+        )
         self.assertCountEqual(datalist, tuple(data))
 
 
 class TestCatalogShow(TestCatalog):
-
     def setUp(self):
         super(TestCatalogShow, self).setUp()
 
@@ -153,7 +156,8 @@ class TestCatalogShow(TestCatalog):
         self.assertEqual(collist, columns)
         datalist = (
             catalog.EndpointsColumn(
-                auth_ref.service_catalog.catalog[0]['endpoints']),
+                auth_ref.service_catalog.catalog[0]['endpoints']
+            ),
             self.service_catalog.id,
             'supernova',
             'compute',
@@ -174,7 +178,8 @@ class TestFormatColumns(TestCatalog):
             '<none>\n  publicURL: https://public.none.example.com\n  '
             'internalURL: https://internal.none.example.com\n  '
             'adminURL: https://admin.none.example.com\n',
-            col.human_readable())
+            col.human_readable(),
+        )
 
     def test_endpoints_column_human_readable_with_partial_endpoint_urls(self):
         endpoints = [
@@ -193,4 +198,5 @@ class TestFormatColumns(TestCatalog):
             'one\n  publicURL: https://public.one.example.com\n'
             'two\n  publicURL: https://public.two.example.com\n  '
             'internalURL: https://internal.two.example.com\n',
-            col.human_readable())
+            col.human_readable(),
+        )

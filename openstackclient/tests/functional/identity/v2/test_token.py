@@ -14,7 +14,6 @@ from openstackclient.tests.functional.identity.v2 import common
 
 
 class TokenTests(common.IdentityTests):
-
     def test_token_issue(self):
         self._create_dummy_token()
 

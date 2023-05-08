@@ -60,8 +60,10 @@ class CreateProject(command.ShowOne):
             '--property',
             metavar='<key=value>',
             action=parseractions.KeyValueAction,
-            help=_('Add a property to <name> '
-                   '(repeat option to set multiple properties)'),
+            help=_(
+                'Add a property to <name> '
+                '(repeat option to set multiple properties)'
+            ),
         )
         parser.add_argument(
             '--or-show',
@@ -128,14 +130,19 @@ class DeleteProject(command.Command):
                 identity_client.tenants.delete(project_obj.id)
             except Exception as e:
                 errors += 1
-                LOG.error(_("Failed to delete project with "
-                          "name or ID '%(project)s': %(e)s"),
-                          {'project': project, 'e': e})
+                LOG.error(
+                    _(
+                        "Failed to delete project with "
+                        "name or ID '%(project)s': %(e)s"
+                    ),
+                    {'project': project, 'e': e},
+                )
 
         if errors > 0:
             total = len(parsed_args.projects)
-            msg = (_("%(errors)s of %(total)s projects failed "
-                   "to delete.") % {'errors': errors, 'total': total})
+            msg = _(
+                "%(errors)s of %(total)s projects failed " "to delete."
+            ) % {'errors': errors, 'total': total}
             raise exceptions.CommandError(msg)
 
 
@@ -153,9 +160,11 @@ class ListProject(command.Lister):
         parser.add_argument(
             '--sort',
             metavar='<key>[:<direction>]',
-            help=_('Sort output by selected keys and directions (asc or desc) '
-                   '(default: asc), repeat this option to specify multiple '
-                   'keys and directions.'),
+            help=_(
+                'Sort output by selected keys and directions (asc or desc) '
+                '(default: asc), repeat this option to specify multiple '
+                'keys and directions.'
+            ),
         )
         return parser
 
@@ -167,11 +176,17 @@ class ListProject(command.Lister):
         data = self.app.client_manager.identity.tenants.list()
         if parsed_args.sort:
             data = utils.sort_items(data, parsed_args.sort)
-        return (columns,
-                (utils.get_item_properties(
-                    s, columns,
+        return (
+            columns,
+            (
+                utils.get_item_properties(
+                    s,
+                    columns,
                     formatters={},
-                ) for s in data))
+                )
+                for s in data
+            ),
+        )
 
 
 class SetProject(command.Command):
@@ -209,8 +224,10 @@ class SetProject(command.Command):
             '--property',
             metavar='<key=value>',
             action=parseractions.KeyValueAction,
-            help=_('Set a project property '
-                   '(repeat option to set multiple properties)'),
+            help=_(
+                'Set a project property '
+                '(repeat option to set multiple properties)'
+            ),
         )
         return parser
 
@@ -268,8 +285,8 @@ class ShowProject(command.ShowOne):
         except ks_exc.Forbidden:
             auth_ref = self.app.client_manager.auth_ref
             if (
-                parsed_args.project == auth_ref.project_id or
-                parsed_args.project == auth_ref.project_name
+                parsed_args.project == auth_ref.project_id
+                or parsed_args.project == auth_ref.project_name
             ):
                 # Ask for currently auth'ed project so return it
                 info = {
@@ -316,8 +333,10 @@ class UnsetProject(command.Command):
             metavar='<key>',
             action='append',
             default=[],
-            help=_('Unset a project property '
-                   '(repeat option to unset multiple properties)'),
+            help=_(
+                'Unset a project property '
+                '(repeat option to unset multiple properties)'
+            ),
         )
         return parser
 

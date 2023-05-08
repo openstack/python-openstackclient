@@ -19,7 +19,6 @@ from openstackclient.tests.unit import utils
 
 
 class TestCatalog(utils.TestCommand):
-
     fake_service = {
         'id': 'qwertyuiop',
         'type': 'compute',
@@ -62,7 +61,6 @@ class TestCatalog(utils.TestCommand):
 
 
 class TestCatalogList(TestCatalog):
-
     def setUp(self):
         super(TestCatalogList, self).setUp()
 
@@ -88,17 +86,19 @@ class TestCatalogList(TestCatalog):
 
         collist = ('Name', 'Type', 'Endpoints')
         self.assertEqual(collist, columns)
-        datalist = ((
-            'supernova',
-            'compute',
-            catalog.EndpointsColumn(
-                auth_ref.service_catalog.catalog[0]['endpoints']),
-        ), )
+        datalist = (
+            (
+                'supernova',
+                'compute',
+                catalog.EndpointsColumn(
+                    auth_ref.service_catalog.catalog[0]['endpoints']
+                ),
+            ),
+        )
         self.assertCountEqual(datalist, tuple(data))
 
 
 class TestCatalogShow(TestCatalog):
-
     def setUp(self):
         super(TestCatalogShow, self).setUp()
 
@@ -130,7 +130,8 @@ class TestCatalogShow(TestCatalog):
         self.assertEqual(collist, columns)
         datalist = (
             catalog.EndpointsColumn(
-                auth_ref.service_catalog.catalog[0]['endpoints']),
+                auth_ref.service_catalog.catalog[0]['endpoints']
+            ),
             'qwertyuiop',
             'supernova',
             'compute',
@@ -146,4 +147,5 @@ class TestFormatColumns(TestCatalog):
             'onlyone\n  admin: https://admin.example.com\n'
             '<none>\n  internal: https://internal.example.com\n'
             '<none>\n  none: https://none.example.com\n',
-            col.human_readable())
+            col.human_readable(),
+        )

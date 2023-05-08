@@ -47,7 +47,6 @@ class ListCatalog(command.Lister):
     _description = _("List services in the service catalog")
 
     def take_action(self, parsed_args):
-
         # Trigger auth if it has not happened yet
         auth_ref = self.app.client_manager.auth_ref
         if not auth_ref:
@@ -57,13 +56,19 @@ class ListCatalog(command.Lister):
 
         data = auth_ref.service_catalog.catalog
         columns = ('Name', 'Type', 'Endpoints')
-        return (columns,
-                (utils.get_dict_properties(
-                    s, columns,
+        return (
+            columns,
+            (
+                utils.get_dict_properties(
+                    s,
+                    columns,
                     formatters={
                         'Endpoints': EndpointsColumn,
                     },
-                ) for s in data))
+                )
+                for s in data
+            ),
+        )
 
 
 class ShowCatalog(command.ShowOne):
@@ -79,7 +84,6 @@ class ShowCatalog(command.ShowOne):
         return parser
 
     def take_action(self, parsed_args):
-
         # Trigger auth if it has not happened yet
         auth_ref = self.app.client_manager.auth_ref
         if not auth_ref:
@@ -89,8 +93,10 @@ class ShowCatalog(command.ShowOne):
 
         data = None
         for service in auth_ref.service_catalog.catalog:
-            if (service.get('name') == parsed_args.service or
-                    service.get('type') == parsed_args.service):
+            if (
+                service.get('name') == parsed_args.service
+                or service.get('type') == parsed_args.service
+            ):
                 data = service.copy()
                 data['endpoints'] = EndpointsColumn(data['endpoints'])
                 if 'endpoints_links' in data:

@@ -25,7 +25,6 @@ from openstackclient.tests.unit.identity.v3 import fakes as identity_fakes
 
 
 class TestProject(identity_fakes.TestIdentityv3):
-
     def setUp(self):
         super(TestProject, self).setUp()
 
@@ -39,7 +38,6 @@ class TestProject(identity_fakes.TestIdentityv3):
 
 
 class TestProjectCreate(TestProject):
-
     domain = identity_fakes.FakeDomain.create_one_domain()
 
     columns = (
@@ -50,14 +48,15 @@ class TestProjectCreate(TestProject):
         'is_domain',
         'name',
         'parent_id',
-        'tags'
+        'tags',
     )
 
     def setUp(self):
         super(TestProjectCreate, self).setUp()
 
         self.project = identity_fakes.FakeProject.create_one_project(
-            attrs={'domain_id': self.domain.id})
+            attrs={'domain_id': self.domain.id}
+        )
         self.domains_mock.get.return_value = self.domain
         self.projects_mock.create.return_value = self.project
         self.datalist = (
@@ -68,7 +67,7 @@ class TestProjectCreate(TestProject):
             False,
             self.project.name,
             self.project.parent_id,
-            self.project.tags
+            self.project.tags,
         )
         # Get the command object to test
         self.cmd = project.CreateProject(self.app, None)
@@ -82,7 +81,7 @@ class TestProjectCreate(TestProject):
             ('enable', False),
             ('disable', False),
             ('name', self.project.name),
-            ('tags', [])
+            ('tags', []),
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
@@ -103,9 +102,7 @@ class TestProjectCreate(TestProject):
         }
         # ProjectManager.create(name=, domain=, description=,
         #                       enabled=, **kwargs)
-        self.projects_mock.create.assert_called_with(
-            **kwargs
-        )
+        self.projects_mock.create.assert_called_with(**kwargs)
 
         collist = (
             'description',
@@ -115,7 +112,7 @@ class TestProjectCreate(TestProject):
             'is_domain',
             'name',
             'parent_id',
-            'tags'
+            'tags',
         )
         self.assertEqual(collist, columns)
         datalist = (
@@ -126,13 +123,14 @@ class TestProjectCreate(TestProject):
             False,
             self.project.name,
             self.project.parent_id,
-            self.project.tags
+            self.project.tags,
         )
         self.assertEqual(datalist, data)
 
     def test_project_create_description(self):
         arglist = [
-            '--description', 'new desc',
+            '--description',
+            'new desc',
             self.project.name,
         ]
         verifylist = [
@@ -141,7 +139,7 @@ class TestProjectCreate(TestProject):
             ('disable', False),
             ('name', self.project.name),
             ('parent', None),
-            ('tags', [])
+            ('tags', []),
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
@@ -162,16 +160,15 @@ class TestProjectCreate(TestProject):
         }
         # ProjectManager.create(name=, domain=, description=,
         #                       enabled=, **kwargs)
-        self.projects_mock.create.assert_called_with(
-            **kwargs
-        )
+        self.projects_mock.create.assert_called_with(**kwargs)
 
         self.assertEqual(self.columns, columns)
         self.assertEqual(self.datalist, data)
 
     def test_project_create_domain(self):
         arglist = [
-            '--domain', self.project.domain_id,
+            '--domain',
+            self.project.domain_id,
             self.project.name,
         ]
         verifylist = [
@@ -180,7 +177,7 @@ class TestProjectCreate(TestProject):
             ('disable', False),
             ('name', self.project.name),
             ('parent', None),
-            ('tags', [])
+            ('tags', []),
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
@@ -201,16 +198,15 @@ class TestProjectCreate(TestProject):
         }
         # ProjectManager.create(name=, domain=, description=,
         #                       enabled=, **kwargs)
-        self.projects_mock.create.assert_called_with(
-            **kwargs
-        )
+        self.projects_mock.create.assert_called_with(**kwargs)
 
         self.assertEqual(self.columns, columns)
         self.assertEqual(self.datalist, data)
 
     def test_project_create_domain_no_perms(self):
         arglist = [
-            '--domain', self.project.domain_id,
+            '--domain',
+            self.project.domain_id,
             self.project.name,
         ]
         verifylist = [
@@ -219,7 +215,7 @@ class TestProjectCreate(TestProject):
             ('disable', False),
             ('name', self.project.name),
             ('parent', None),
-            ('tags', [])
+            ('tags', []),
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
         mocker = mock.Mock()
@@ -238,9 +234,7 @@ class TestProjectCreate(TestProject):
             'tags': [],
             'options': {},
         }
-        self.projects_mock.create.assert_called_with(
-            **kwargs
-        )
+        self.projects_mock.create.assert_called_with(**kwargs)
         self.assertEqual(self.columns, columns)
         self.assertEqual(self.datalist, data)
 
@@ -254,7 +248,7 @@ class TestProjectCreate(TestProject):
             ('disable', False),
             ('name', self.project.name),
             ('parent', None),
-            ('tags', [])
+            ('tags', []),
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
@@ -275,9 +269,7 @@ class TestProjectCreate(TestProject):
         }
         # ProjectManager.create(name=, domain=, description=,
         #                       enabled=, **kwargs)
-        self.projects_mock.create.assert_called_with(
-            **kwargs
-        )
+        self.projects_mock.create.assert_called_with(**kwargs)
 
         self.assertEqual(self.columns, columns)
         self.assertEqual(self.datalist, data)
@@ -312,17 +304,17 @@ class TestProjectCreate(TestProject):
         }
         # ProjectManager.create(name=, domain=,
         #                       description=, enabled=, **kwargs)
-        self.projects_mock.create.assert_called_with(
-            **kwargs
-        )
+        self.projects_mock.create.assert_called_with(**kwargs)
 
         self.assertEqual(self.columns, columns)
         self.assertEqual(self.datalist, data)
 
     def test_project_create_property(self):
         arglist = [
-            '--property', 'fee=fi',
-            '--property', 'fo=fum',
+            '--property',
+            'fee=fi',
+            '--property',
+            'fo=fum',
             self.project.name,
         ]
         verifylist = [
@@ -350,16 +342,15 @@ class TestProjectCreate(TestProject):
         }
         # ProjectManager.create(name=, domain=, description=,
         #                       enabled=, **kwargs)
-        self.projects_mock.create.assert_called_with(
-            **kwargs
-        )
+        self.projects_mock.create.assert_called_with(**kwargs)
 
         self.assertEqual(self.columns, columns)
         self.assertEqual(self.datalist, data)
 
     def test_project_create_is_domain_false_property(self):
         arglist = [
-            '--property', 'is_domain=false',
+            '--property',
+            'is_domain=false',
             self.project.name,
         ]
         verifylist = [
@@ -390,16 +381,15 @@ class TestProjectCreate(TestProject):
             'tags': [],
             'options': {},
         }
-        self.projects_mock.create.assert_called_with(
-            **kwargs
-        )
+        self.projects_mock.create.assert_called_with(**kwargs)
 
         self.assertEqual(self.columns, columns)
         self.assertEqual(self.datalist, data)
 
     def test_project_create_is_domain_true_property(self):
         arglist = [
-            '--property', 'is_domain=true',
+            '--property',
+            'is_domain=true',
             self.project.name,
         ]
         verifylist = [
@@ -430,16 +420,15 @@ class TestProjectCreate(TestProject):
             'tags': [],
             'options': {},
         }
-        self.projects_mock.create.assert_called_with(
-            **kwargs
-        )
+        self.projects_mock.create.assert_called_with(**kwargs)
 
         self.assertEqual(self.columns, columns)
         self.assertEqual(self.datalist, data)
 
     def test_project_create_is_domain_none_property(self):
         arglist = [
-            '--property', 'is_domain=none',
+            '--property',
+            'is_domain=none',
             self.project.name,
         ]
         verifylist = [
@@ -470,9 +459,7 @@ class TestProjectCreate(TestProject):
             'tags': [],
             'options': {},
         }
-        self.projects_mock.create.assert_called_with(
-            **kwargs
-        )
+        self.projects_mock.create.assert_called_with(**kwargs)
 
         self.assertEqual(self.columns, columns)
         self.assertEqual(self.datalist, data)
@@ -480,13 +467,16 @@ class TestProjectCreate(TestProject):
     def test_project_create_parent(self):
         self.parent = identity_fakes.FakeProject.create_one_project()
         self.project = identity_fakes.FakeProject.create_one_project(
-            attrs={'domain_id': self.domain.id, 'parent_id': self.parent.id})
+            attrs={'domain_id': self.domain.id, 'parent_id': self.parent.id}
+        )
         self.projects_mock.get.return_value = self.parent
         self.projects_mock.create.return_value = self.project
 
         arglist = [
-            '--domain', self.project.domain_id,
-            '--parent', self.parent.name,
+            '--domain',
+            self.project.domain_id,
+            '--parent',
+            self.parent.name,
             self.project.name,
         ]
         verifylist = [
@@ -495,7 +485,7 @@ class TestProjectCreate(TestProject):
             ('enable', False),
             ('disable', False),
             ('name', self.project.name),
-            ('tags', [])
+            ('tags', []),
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
@@ -511,9 +501,7 @@ class TestProjectCreate(TestProject):
             'options': {},
         }
 
-        self.projects_mock.create.assert_called_with(
-            **kwargs
-        )
+        self.projects_mock.create.assert_called_with(**kwargs)
 
         collist = (
             'description',
@@ -523,7 +511,7 @@ class TestProjectCreate(TestProject):
             'is_domain',
             'name',
             'parent_id',
-            'tags'
+            'tags',
         )
         self.assertEqual(columns, collist)
         datalist = (
@@ -534,20 +522,24 @@ class TestProjectCreate(TestProject):
             self.project.is_domain,
             self.project.name,
             self.parent.id,
-            self.project.tags
+            self.project.tags,
         )
         self.assertEqual(data, datalist)
 
     def test_project_create_invalid_parent(self):
         self.projects_mock.resource_class.__name__ = 'Project'
         self.projects_mock.get.side_effect = exceptions.NotFound(
-            'Invalid parent')
+            'Invalid parent'
+        )
         self.projects_mock.find.side_effect = exceptions.NotFound(
-            'Invalid parent')
+            'Invalid parent'
+        )
 
         arglist = [
-            '--domain', self.project.domain_id,
-            '--parent', 'invalid',
+            '--domain',
+            self.project.domain_id,
+            '--parent',
+            'invalid',
             self.project.name,
         ]
         verifylist = [
@@ -567,8 +559,10 @@ class TestProjectCreate(TestProject):
 
     def test_project_create_with_tags(self):
         arglist = [
-            '--domain', self.project.domain_id,
-            '--tag', 'foo',
+            '--domain',
+            self.project.domain_id,
+            '--tag',
+            'foo',
             self.project.name,
         ]
         verifylist = [
@@ -577,7 +571,7 @@ class TestProjectCreate(TestProject):
             ('disable', False),
             ('name', self.project.name),
             ('parent', None),
-            ('tags', ['foo'])
+            ('tags', ['foo']),
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
@@ -596,9 +590,7 @@ class TestProjectCreate(TestProject):
             'tags': ['foo'],
             'options': {},
         }
-        self.projects_mock.create.assert_called_with(
-            **kwargs
-        )
+        self.projects_mock.create.assert_called_with(**kwargs)
 
         self.assertEqual(self.columns, columns)
         self.assertEqual(self.datalist, data)
@@ -615,7 +607,7 @@ class TestProjectCreate(TestProject):
             ('disable', False),
             ('name', self.project.name),
             ('parent', None),
-            ('tags', [])
+            ('tags', []),
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
@@ -636,9 +628,7 @@ class TestProjectCreate(TestProject):
         }
         # ProjectManager.create(name=, domain=, description=,
         #                       enabled=, **kwargs)
-        self.projects_mock.create.assert_called_with(
-            **kwargs
-        )
+        self.projects_mock.create.assert_called_with(**kwargs)
 
         self.assertEqual(self.columns, columns)
         self.assertEqual(self.datalist, data)
@@ -655,7 +645,7 @@ class TestProjectCreate(TestProject):
             ('disable', False),
             ('name', self.project.name),
             ('parent', None),
-            ('tags', [])
+            ('tags', []),
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
@@ -676,16 +666,13 @@ class TestProjectCreate(TestProject):
         }
         # ProjectManager.create(name=, domain=, description=,
         #                       enabled=, **kwargs)
-        self.projects_mock.create.assert_called_with(
-            **kwargs
-        )
+        self.projects_mock.create.assert_called_with(**kwargs)
 
         self.assertEqual(self.columns, columns)
         self.assertEqual(self.datalist, data)
 
 
 class TestProjectDelete(TestProject):
-
     project = identity_fakes.FakeProject.create_one_project()
 
     def setUp(self):
@@ -716,8 +703,7 @@ class TestProjectDelete(TestProject):
 
     @mock.patch.object(utils, 'find_resource')
     def test_delete_multi_projects_with_exception(self, find_mock):
-        find_mock.side_effect = [self.project,
-                                 exceptions.CommandError]
+        find_mock.side_effect = [self.project, exceptions.CommandError]
         arglist = [
             self.project.id,
             'unexist_project',
@@ -731,8 +717,7 @@ class TestProjectDelete(TestProject):
             self.cmd.take_action(parsed_args)
             self.fail('CommandError should be raised.')
         except exceptions.CommandError as e:
-            self.assertEqual('1 of 2 projects failed to delete.',
-                             str(e))
+            self.assertEqual('1 of 2 projects failed to delete.', str(e))
 
         find_mock.assert_any_call(self.projects_mock, self.project.id)
         find_mock.assert_any_call(self.projects_mock, 'unexist_project')
@@ -742,10 +727,10 @@ class TestProjectDelete(TestProject):
 
 
 class TestProjectList(TestProject):
-
     domain = identity_fakes.FakeDomain.create_one_domain()
     project = identity_fakes.FakeProject.create_one_project(
-        attrs={'domain_id': domain.id})
+        attrs={'domain_id': domain.id}
+    )
     projects = identity_fakes.FakeProject.create_projects()
 
     columns = (
@@ -759,10 +744,18 @@ class TestProjectList(TestProject):
         ),
     )
     datalists = (
-        (projects[0].description, True,
-         projects[0].id, projects[0].name,),
-        (projects[1].description, True,
-         projects[1].id, projects[1].name,),
+        (
+            projects[0].description,
+            True,
+            projects[0].id,
+            projects[0].name,
+        ),
+        (
+            projects[1].description,
+            True,
+            projects[1].id,
+            projects[1].name,
+        ),
     )
 
     def setUp(self):
@@ -804,18 +797,21 @@ class TestProjectList(TestProject):
 
         collist = ('ID', 'Name', 'Domain ID', 'Description', 'Enabled')
         self.assertEqual(collist, columns)
-        datalist = ((
-            self.project.id,
-            self.project.name,
-            self.project.domain_id,
-            self.project.description,
-            True,
-        ), )
+        datalist = (
+            (
+                self.project.id,
+                self.project.name,
+                self.project.domain_id,
+                self.project.description,
+                True,
+            ),
+        )
         self.assertEqual(datalist, tuple(data))
 
     def test_project_list_domain(self):
         arglist = [
-            '--domain', self.project.domain_id,
+            '--domain',
+            self.project.domain_id,
         ]
         verifylist = [
             ('domain', self.project.domain_id),
@@ -830,14 +826,16 @@ class TestProjectList(TestProject):
         # containing the data to be listed.
         columns, data = self.cmd.take_action(parsed_args)
         self.projects_mock.list.assert_called_with(
-            domain=self.project.domain_id)
+            domain=self.project.domain_id
+        )
 
         self.assertEqual(self.columns, columns)
         self.assertEqual(self.datalist, tuple(data))
 
     def test_project_list_domain_no_perms(self):
         arglist = [
-            '--domain', self.project.domain_id,
+            '--domain',
+            self.project.domain_id,
         ]
         verifylist = [
             ('domain', self.project.domain_id),
@@ -850,17 +848,20 @@ class TestProjectList(TestProject):
             columns, data = self.cmd.take_action(parsed_args)
 
         self.projects_mock.list.assert_called_with(
-            domain=self.project.domain_id)
+            domain=self.project.domain_id
+        )
         self.assertEqual(self.columns, columns)
         self.assertEqual(self.datalist, tuple(data))
 
     def test_project_list_parent(self):
         self.parent = identity_fakes.FakeProject.create_one_project()
         self.project = identity_fakes.FakeProject.create_one_project(
-            attrs={'domain_id': self.domain.id, 'parent_id': self.parent.id})
+            attrs={'domain_id': self.domain.id, 'parent_id': self.parent.id}
+        )
 
         arglist = [
-            '--parent', self.parent.id,
+            '--parent',
+            self.parent.id,
         ]
         verifylist = [
             ('parent', self.parent.id),
@@ -879,7 +880,10 @@ class TestProjectList(TestProject):
     def test_project_list_sort(self):
         self.projects_mock.list.return_value = self.projects
 
-        arglist = ['--sort', 'name:asc', ]
+        arglist = [
+            '--sort',
+            'name:asc',
+        ]
         verifylist = []
 
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
@@ -926,22 +930,25 @@ class TestProjectList(TestProject):
         # containing the data to be listed.
         columns, data = self.cmd.take_action(parsed_args)
         self.projects_mock.list.assert_called_with(
-            user=self.app.client_manager.auth_ref.user_id)
+            user=self.app.client_manager.auth_ref.user_id
+        )
 
         collist = ('ID', 'Name')
         self.assertEqual(collist, columns)
-        datalist = ((
-            self.project.id,
-            self.project.name,
-        ), )
+        datalist = (
+            (
+                self.project.id,
+                self.project.name,
+            ),
+        )
         self.assertEqual(datalist, tuple(data))
 
 
 class TestProjectSet(TestProject):
-
     domain = identity_fakes.FakeDomain.create_one_domain()
     project = identity_fakes.FakeProject.create_one_project(
-        attrs={'domain_id': domain.id})
+        attrs={'domain_id': domain.id}
+    )
 
     def setUp(self):
         super(TestProjectSet, self).setUp()
@@ -971,8 +978,10 @@ class TestProjectSet(TestProject):
 
     def test_project_set_name(self):
         arglist = [
-            '--name', 'qwerty',
-            '--domain', self.project.domain_id,
+            '--name',
+            'qwerty',
+            '--domain',
+            self.project.domain_id,
             self.project.name,
         ]
         verifylist = [
@@ -992,16 +1001,15 @@ class TestProjectSet(TestProject):
         }
         # ProjectManager.update(project, name=, domain=, description=,
         #                       enabled=, **kwargs)
-        self.projects_mock.update.assert_called_with(
-            self.project.id,
-            **kwargs
-        )
+        self.projects_mock.update.assert_called_with(self.project.id, **kwargs)
         self.assertIsNone(result)
 
     def test_project_set_description(self):
         arglist = [
-            '--domain', self.project.domain_id,
-            '--description', 'new desc',
+            '--domain',
+            self.project.domain_id,
+            '--description',
+            'new desc',
             self.project.name,
         ]
         verifylist = [
@@ -1019,15 +1027,13 @@ class TestProjectSet(TestProject):
         kwargs = {
             'description': 'new desc',
         }
-        self.projects_mock.update.assert_called_with(
-            self.project.id,
-            **kwargs
-        )
+        self.projects_mock.update.assert_called_with(self.project.id, **kwargs)
         self.assertIsNone(result)
 
     def test_project_set_enable(self):
         arglist = [
-            '--domain', self.project.domain_id,
+            '--domain',
+            self.project.domain_id,
             '--enable',
             self.project.name,
         ]
@@ -1045,15 +1051,13 @@ class TestProjectSet(TestProject):
         kwargs = {
             'enabled': True,
         }
-        self.projects_mock.update.assert_called_with(
-            self.project.id,
-            **kwargs
-        )
+        self.projects_mock.update.assert_called_with(self.project.id, **kwargs)
         self.assertIsNone(result)
 
     def test_project_set_disable(self):
         arglist = [
-            '--domain', self.project.domain_id,
+            '--domain',
+            self.project.domain_id,
             '--disable',
             self.project.name,
         ]
@@ -1071,17 +1075,17 @@ class TestProjectSet(TestProject):
         kwargs = {
             'enabled': False,
         }
-        self.projects_mock.update.assert_called_with(
-            self.project.id,
-            **kwargs
-        )
+        self.projects_mock.update.assert_called_with(self.project.id, **kwargs)
         self.assertIsNone(result)
 
     def test_project_set_property(self):
         arglist = [
-            '--domain', self.project.domain_id,
-            '--property', 'fee=fi',
-            '--property', 'fo=fum',
+            '--domain',
+            self.project.domain_id,
+            '--property',
+            'fee=fi',
+            '--property',
+            'fo=fum',
             self.project.name,
         ]
         verifylist = [
@@ -1098,17 +1102,17 @@ class TestProjectSet(TestProject):
             'fee': 'fi',
             'fo': 'fum',
         }
-        self.projects_mock.update.assert_called_with(
-            self.project.id,
-            **kwargs
-        )
+        self.projects_mock.update.assert_called_with(self.project.id, **kwargs)
         self.assertIsNone(result)
 
     def test_project_set_tags(self):
         arglist = [
-            '--name', 'qwerty',
-            '--domain', self.project.domain_id,
-            '--tag', 'foo',
+            '--name',
+            'qwerty',
+            '--domain',
+            self.project.domain_id,
+            '--tag',
+            'foo',
             self.project.name,
         ]
         verifylist = [
@@ -1117,28 +1121,23 @@ class TestProjectSet(TestProject):
             ('enable', False),
             ('disable', False),
             ('project', self.project.name),
-            ('tags', ['foo'])
+            ('tags', ['foo']),
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
         result = self.cmd.take_action(parsed_args)
 
         # Set expected values
-        kwargs = {
-            'name': 'qwerty',
-            'tags': ['foo']
-        }
+        kwargs = {'name': 'qwerty', 'tags': ['foo']}
         # ProjectManager.update(project, name=, domain=, description=,
         #                       enabled=, **kwargs)
-        self.projects_mock.update.assert_called_with(
-            self.project.id,
-            **kwargs
-        )
+        self.projects_mock.update.assert_called_with(self.project.id, **kwargs)
         self.assertIsNone(result)
 
     def test_project_set_with_immutable_option(self):
         arglist = [
-            '--domain', self.project.domain_id,
+            '--domain',
+            self.project.domain_id,
             '--immutable',
             self.project.name,
         ]
@@ -1157,15 +1156,13 @@ class TestProjectSet(TestProject):
         kwargs = {
             'options': {'immutable': True},
         }
-        self.projects_mock.update.assert_called_with(
-            self.project.id,
-            **kwargs
-        )
+        self.projects_mock.update.assert_called_with(self.project.id, **kwargs)
         self.assertIsNone(result)
 
     def test_project_set_with_no_immutable_option(self):
         arglist = [
-            '--domain', self.project.domain_id,
+            '--domain',
+            self.project.domain_id,
             '--no-immutable',
             self.project.name,
         ]
@@ -1184,28 +1181,24 @@ class TestProjectSet(TestProject):
         kwargs = {
             'options': {'immutable': False},
         }
-        self.projects_mock.update.assert_called_with(
-            self.project.id,
-            **kwargs
-        )
+        self.projects_mock.update.assert_called_with(self.project.id, **kwargs)
         self.assertIsNone(result)
 
 
 class TestProjectShow(TestProject):
-
     domain = identity_fakes.FakeDomain.create_one_domain()
 
     def setUp(self):
         super(TestProjectShow, self).setUp()
 
         self.project = identity_fakes.FakeProject.create_one_project(
-            attrs={'domain_id': self.domain.id})
+            attrs={'domain_id': self.domain.id}
+        )
 
         # Get the command object to test
         self.cmd = project.ShowProject(self.app, None)
 
     def test_project_show(self):
-
         self.projects_mock.get.return_value = self.project
 
         arglist = [
@@ -1216,15 +1209,15 @@ class TestProjectShow(TestProject):
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
-        self.app.client_manager.identity.tokens.get_token_data.return_value = \
-            {'token':
-             {'project':
-              {'domain': {},
-               'name': parsed_args.project,
-               'id': parsed_args.project
-               }
-              }
-             }
+        self.app.client_manager.identity.tokens.get_token_data.return_value = {
+            'token': {
+                'project': {
+                    'domain': {},
+                    'name': parsed_args.project,
+                    'id': parsed_args.project,
+                }
+            }
+        }
 
         # In base command class ShowOne in cliff, abstract method take_action()
         # returns a two-part tuple with a tuple of column names and a tuple of
@@ -1241,7 +1234,7 @@ class TestProjectShow(TestProject):
             'is_domain',
             'name',
             'parent_id',
-            'tags'
+            'tags',
         )
         self.assertEqual(collist, columns)
         datalist = (
@@ -1252,7 +1245,7 @@ class TestProjectShow(TestProject):
             False,
             self.project.name,
             self.project.parent_id,
-            self.project.tags
+            self.project.tags,
         )
         self.assertEqual(datalist, data)
 
@@ -1260,7 +1253,7 @@ class TestProjectShow(TestProject):
         self.project = identity_fakes.FakeProject.create_one_project(
             attrs={
                 'parent_id': self.project.parent_id,
-                'parents': [{'project': {'id': self.project.parent_id}}]
+                'parents': [{'project': {'id': self.project.parent_id}}],
             }
         )
         self.projects_mock.get.return_value = self.project
@@ -1275,23 +1268,28 @@ class TestProjectShow(TestProject):
             ('children', False),
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
-        self.app.client_manager.identity.tokens.get_token_data.return_value = \
-            {'token':
-             {'project':
-              {'domain': {},
-               'name': parsed_args.project,
-               'id': parsed_args.project
-               }
-              }
-             }
+        self.app.client_manager.identity.tokens.get_token_data.return_value = {
+            'token': {
+                'project': {
+                    'domain': {},
+                    'name': parsed_args.project,
+                    'id': parsed_args.project,
+                }
+            }
+        }
 
         columns, data = self.cmd.take_action(parsed_args)
 
-        self.projects_mock.get.assert_has_calls([call(self.project.id),
-                                                 call(self.project.id,
-                                                      parents_as_ids=True,
-                                                      subtree_as_ids=False,
-                                                      )])
+        self.projects_mock.get.assert_has_calls(
+            [
+                call(self.project.id),
+                call(
+                    self.project.id,
+                    parents_as_ids=True,
+                    subtree_as_ids=False,
+                ),
+            ]
+        )
 
         collist = (
             'description',
@@ -1302,7 +1300,7 @@ class TestProjectShow(TestProject):
             'name',
             'parent_id',
             'parents',
-            'tags'
+            'tags',
         )
         self.assertEqual(columns, collist)
         datalist = (
@@ -1314,7 +1312,7 @@ class TestProjectShow(TestProject):
             self.project.name,
             self.project.parent_id,
             [{'project': {'id': self.project.parent_id}}],
-            self.project.tags
+            self.project.tags,
         )
         self.assertEqual(data, datalist)
 
@@ -1322,7 +1320,7 @@ class TestProjectShow(TestProject):
         self.project = identity_fakes.FakeProject.create_one_project(
             attrs={
                 'parent_id': self.project.parent_id,
-                'subtree': [{'project': {'id': 'children-id'}}]
+                'subtree': [{'project': {'id': 'children-id'}}],
             }
         )
         self.projects_mock.get.return_value = self.project
@@ -1337,22 +1335,27 @@ class TestProjectShow(TestProject):
             ('children', True),
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
-        self.app.client_manager.identity.tokens.get_token_data.return_value = \
-            {'token':
-             {'project':
-              {'domain': {},
-               'name': parsed_args.project,
-               'id': parsed_args.project
-               }
-              }
-             }
+        self.app.client_manager.identity.tokens.get_token_data.return_value = {
+            'token': {
+                'project': {
+                    'domain': {},
+                    'name': parsed_args.project,
+                    'id': parsed_args.project,
+                }
+            }
+        }
 
         columns, data = self.cmd.take_action(parsed_args)
-        self.projects_mock.get.assert_has_calls([call(self.project.id),
-                                                 call(self.project.id,
-                                                      parents_as_ids=False,
-                                                      subtree_as_ids=True,
-                                                      )])
+        self.projects_mock.get.assert_has_calls(
+            [
+                call(self.project.id),
+                call(
+                    self.project.id,
+                    parents_as_ids=False,
+                    subtree_as_ids=True,
+                ),
+            ]
+        )
 
         collist = (
             'description',
@@ -1363,7 +1366,7 @@ class TestProjectShow(TestProject):
             'name',
             'parent_id',
             'subtree',
-            'tags'
+            'tags',
         )
         self.assertEqual(columns, collist)
         datalist = (
@@ -1375,7 +1378,7 @@ class TestProjectShow(TestProject):
             self.project.name,
             self.project.parent_id,
             [{'project': {'id': 'children-id'}}],
-            self.project.tags
+            self.project.tags,
         )
         self.assertEqual(data, datalist)
 
@@ -1384,7 +1387,7 @@ class TestProjectShow(TestProject):
             attrs={
                 'parent_id': self.project.parent_id,
                 'parents': [{'project': {'id': self.project.parent_id}}],
-                'subtree': [{'project': {'id': 'children-id'}}]
+                'subtree': [{'project': {'id': 'children-id'}}],
             }
         )
         self.projects_mock.get.return_value = self.project
@@ -1400,22 +1403,27 @@ class TestProjectShow(TestProject):
             ('children', True),
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
-        self.app.client_manager.identity.tokens.get_token_data.return_value = \
-            {'token':
-             {'project':
-              {'domain': {},
-               'name': parsed_args.project,
-               'id': parsed_args.project
-               }
-              }
-             }
+        self.app.client_manager.identity.tokens.get_token_data.return_value = {
+            'token': {
+                'project': {
+                    'domain': {},
+                    'name': parsed_args.project,
+                    'id': parsed_args.project,
+                }
+            }
+        }
 
         columns, data = self.cmd.take_action(parsed_args)
-        self.projects_mock.get.assert_has_calls([call(self.project.id),
-                                                 call(self.project.id,
-                                                      parents_as_ids=True,
-                                                      subtree_as_ids=True,
-                                                      )])
+        self.projects_mock.get.assert_has_calls(
+            [
+                call(self.project.id),
+                call(
+                    self.project.id,
+                    parents_as_ids=True,
+                    subtree_as_ids=True,
+                ),
+            ]
+        )
 
         collist = (
             'description',
@@ -1427,7 +1435,7 @@ class TestProjectShow(TestProject):
             'parent_id',
             'parents',
             'subtree',
-            'tags'
+            'tags',
         )
         self.assertEqual(columns, collist)
         datalist = (
@@ -1440,27 +1448,29 @@ class TestProjectShow(TestProject):
             self.project.parent_id,
             [{'project': {'id': self.project.parent_id}}],
             [{'project': {'id': 'children-id'}}],
-            self.project.tags
+            self.project.tags,
         )
         self.assertEqual(data, datalist)
 
     def test_project_show_with_domain(self):
         project = identity_fakes.FakeProject.create_one_project(
-            {"name": self.project.name})
+            {"name": self.project.name}
+        )
 
-        self.app.client_manager.identity.tokens.get_token_data.return_value = \
-            {'token':
-             {'project':
-              {'domain': {"id": self.project.domain_id},
-               'name': self.project.name,
-               'id': self.project.id
-               }
-              }
-             }
+        self.app.client_manager.identity.tokens.get_token_data.return_value = {
+            'token': {
+                'project': {
+                    'domain': {"id": self.project.domain_id},
+                    'name': self.project.name,
+                    'id': self.project.id,
+                }
+            }
+        }
 
         identity_client = self.app.client_manager.identity
         arglist = [
-            "--domain", self.domain.id,
+            "--domain",
+            self.domain.id,
             project.name,
         ]
         verifylist = [
@@ -1469,13 +1479,14 @@ class TestProjectShow(TestProject):
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
-        project_str = common._get_token_resource(identity_client, 'project',
-                                                 parsed_args.project,
-                                                 parsed_args.domain)
+        project_str = common._get_token_resource(
+            identity_client, 'project', parsed_args.project, parsed_args.domain
+        )
         self.assertEqual(self.project.id, project_str)
 
         arglist = [
-            "--domain", project.domain_id,
+            "--domain",
+            project.domain_id,
             project.name,
         ]
         verifylist = [
@@ -1484,7 +1495,7 @@ class TestProjectShow(TestProject):
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
-        project_str = common._get_token_resource(identity_client, 'project',
-                                                 parsed_args.project,
-                                                 parsed_args.domain)
+        project_str = common._get_token_resource(
+            identity_client, 'project', parsed_args.project, parsed_args.domain
+        )
         self.assertEqual(project.name, project_str)

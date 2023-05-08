@@ -26,7 +26,6 @@ from openstackclient.tests.unit.identity.v3 import fakes as identity_fakes
 
 
 class TestApplicationCredential(identity_fakes.TestIdentityv3):
-
     def setUp(self):
         super(TestApplicationCredential, self).setUp()
 
@@ -38,7 +37,6 @@ class TestApplicationCredential(identity_fakes.TestIdentityv3):
 
 
 class TestApplicationCredentialCreate(TestApplicationCredential):
-
     def setUp(self):
         super(TestApplicationCredentialCreate, self).setUp()
 
@@ -50,7 +48,8 @@ class TestApplicationCredentialCreate(TestApplicationCredential):
 
         # Get the command object to test
         self.cmd = application_credential.CreateApplicationCredential(
-            self.app, None)
+            self.app, None
+        )
 
     def test_application_credential_create_basic(self):
         self.app_creds_mock.create.return_value = fakes.FakeResource(
@@ -60,12 +59,8 @@ class TestApplicationCredentialCreate(TestApplicationCredential):
         )
 
         name = identity_fakes.app_cred_name
-        arglist = [
-            name
-        ]
-        verifylist = [
-            ('name', identity_fakes.app_cred_name)
-        ]
+        arglist = [name]
+        verifylist = [('name', identity_fakes.app_cred_name)]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
         # In base command class ShowOne in cliff, abstract method take_action()
@@ -82,13 +77,19 @@ class TestApplicationCredentialCreate(TestApplicationCredential):
             'unrestricted': False,
             'access_rules': None,
         }
-        self.app_creds_mock.create.assert_called_with(
-            name,
-            **kwargs
-        )
+        self.app_creds_mock.create.assert_called_with(name, **kwargs)
 
-        collist = ('access_rules', 'description', 'expires_at', 'id', 'name',
-                   'project_id', 'roles', 'secret', 'unrestricted')
+        collist = (
+            'access_rules',
+            'description',
+            'expires_at',
+            'id',
+            'name',
+            'project_id',
+            'roles',
+            'secret',
+            'unrestricted',
+        )
         self.assertEqual(collist, columns)
         datalist = (
             None,
@@ -113,17 +114,21 @@ class TestApplicationCredentialCreate(TestApplicationCredential):
 
         arglist = [
             name,
-            '--secret', 'moresecuresecret',
-            '--role', identity_fakes.role_id,
-            '--expiration', identity_fakes.app_cred_expires_str,
-            '--description', 'credential for testing'
+            '--secret',
+            'moresecuresecret',
+            '--role',
+            identity_fakes.role_id,
+            '--expiration',
+            identity_fakes.app_cred_expires_str,
+            '--description',
+            'credential for testing',
         ]
         verifylist = [
             ('name', identity_fakes.app_cred_name),
             ('secret', 'moresecuresecret'),
             ('role', [identity_fakes.role_id]),
             ('expiration', identity_fakes.app_cred_expires_str),
-            ('description', 'credential for testing')
+            ('description', 'credential for testing'),
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
@@ -141,13 +146,19 @@ class TestApplicationCredentialCreate(TestApplicationCredential):
             'unrestricted': False,
             'access_rules': None,
         }
-        self.app_creds_mock.create.assert_called_with(
-            name,
-            **kwargs
-        )
+        self.app_creds_mock.create.assert_called_with(name, **kwargs)
 
-        collist = ('access_rules', 'description', 'expires_at', 'id', 'name',
-                   'project_id', 'roles', 'secret', 'unrestricted')
+        collist = (
+            'access_rules',
+            'description',
+            'expires_at',
+            'id',
+            'name',
+            'project_id',
+            'roles',
+            'secret',
+            'unrestricted',
+        )
         self.assertEqual(collist, columns)
         datalist = (
             None,
@@ -172,7 +183,8 @@ class TestApplicationCredentialCreate(TestApplicationCredential):
 
         arglist = [
             name,
-            '--access-rules', identity_fakes.app_cred_access_rules,
+            '--access-rules',
+            identity_fakes.app_cred_access_rules,
         ]
         verifylist = [
             ('name', identity_fakes.app_cred_name),
@@ -189,15 +201,21 @@ class TestApplicationCredentialCreate(TestApplicationCredential):
             'expires_at': None,
             'description': None,
             'unrestricted': False,
-            'access_rules': json.loads(identity_fakes.app_cred_access_rules)
+            'access_rules': json.loads(identity_fakes.app_cred_access_rules),
         }
-        self.app_creds_mock.create.assert_called_with(
-            name,
-            **kwargs
-        )
+        self.app_creds_mock.create.assert_called_with(name, **kwargs)
 
-        collist = ('access_rules', 'description', 'expires_at', 'id', 'name',
-                   'project_id', 'roles', 'secret', 'unrestricted')
+        collist = (
+            'access_rules',
+            'description',
+            'expires_at',
+            'id',
+            'name',
+            'project_id',
+            'roles',
+            'secret',
+            'unrestricted',
+        )
         self.assertEqual(collist, columns)
         datalist = (
             identity_fakes.app_cred_access_rules,
@@ -215,7 +233,8 @@ class TestApplicationCredentialCreate(TestApplicationCredential):
     @mock.patch('openstackclient.identity.v3.application_credential.json.load')
     @mock.patch('openstackclient.identity.v3.application_credential.open')
     def test_application_credential_create_with_access_rules_file(
-            self, _, mock_json_load):
+        self, _, mock_json_load
+    ):
         mock_json_load.return_value = identity_fakes.app_cred_access_rules
 
         name = identity_fakes.app_cred_name
@@ -227,7 +246,8 @@ class TestApplicationCredentialCreate(TestApplicationCredential):
 
         arglist = [
             name,
-            '--access-rules', identity_fakes.app_cred_access_rules_path,
+            '--access-rules',
+            identity_fakes.app_cred_access_rules_path,
         ]
         verifylist = [
             ('name', identity_fakes.app_cred_name),
@@ -244,15 +264,21 @@ class TestApplicationCredentialCreate(TestApplicationCredential):
             'expires_at': None,
             'description': None,
             'unrestricted': False,
-            'access_rules': identity_fakes.app_cred_access_rules
+            'access_rules': identity_fakes.app_cred_access_rules,
         }
-        self.app_creds_mock.create.assert_called_with(
-            name,
-            **kwargs
-        )
+        self.app_creds_mock.create.assert_called_with(name, **kwargs)
 
-        collist = ('access_rules', 'description', 'expires_at', 'id', 'name',
-                   'project_id', 'roles', 'secret', 'unrestricted')
+        collist = (
+            'access_rules',
+            'description',
+            'expires_at',
+            'id',
+            'name',
+            'project_id',
+            'roles',
+            'secret',
+            'unrestricted',
+        )
         self.assertEqual(collist, columns)
         datalist = (
             identity_fakes.app_cred_access_rules,
@@ -269,7 +295,6 @@ class TestApplicationCredentialCreate(TestApplicationCredential):
 
 
 class TestApplicationCredentialDelete(TestApplicationCredential):
-
     def setUp(self):
         super(TestApplicationCredentialDelete, self).setUp()
 
@@ -283,15 +308,14 @@ class TestApplicationCredentialDelete(TestApplicationCredential):
 
         # Get the command object to test
         self.cmd = application_credential.DeleteApplicationCredential(
-            self.app, None)
+            self.app, None
+        )
 
     def test_application_credential_delete(self):
         arglist = [
             identity_fakes.app_cred_id,
         ]
-        verifylist = [
-            ('application_credential', [identity_fakes.app_cred_id])
-        ]
+        verifylist = [('application_credential', [identity_fakes.app_cred_id])]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
         result = self.cmd.take_action(parsed_args)
@@ -303,8 +327,10 @@ class TestApplicationCredentialDelete(TestApplicationCredential):
 
     @mock.patch.object(utils, 'find_resource')
     def test_delete_multi_app_creds_with_exception(self, find_mock):
-        find_mock.side_effect = [self.app_creds_mock.get.return_value,
-                                 exceptions.CommandError]
+        find_mock.side_effect = [
+            self.app_creds_mock.get.return_value,
+            exceptions.CommandError,
+        ]
         arglist = [
             identity_fakes.app_cred_id,
             'nonexistent_app_cred',
@@ -318,21 +344,22 @@ class TestApplicationCredentialDelete(TestApplicationCredential):
             self.cmd.take_action(parsed_args)
             self.fail('CommandError should be raised.')
         except exceptions.CommandError as e:
-            self.assertEqual('1 of 2 application credentials failed to'
-                             ' delete.', str(e))
+            self.assertEqual(
+                '1 of 2 application credentials failed to' ' delete.', str(e)
+            )
 
-        find_mock.assert_any_call(self.app_creds_mock,
-                                  identity_fakes.app_cred_id)
-        find_mock.assert_any_call(self.app_creds_mock,
-                                  'nonexistent_app_cred')
+        find_mock.assert_any_call(
+            self.app_creds_mock, identity_fakes.app_cred_id
+        )
+        find_mock.assert_any_call(self.app_creds_mock, 'nonexistent_app_cred')
 
         self.assertEqual(2, find_mock.call_count)
         self.app_creds_mock.delete.assert_called_once_with(
-            identity_fakes.app_cred_id)
+            identity_fakes.app_cred_id
+        )
 
 
 class TestApplicationCredentialList(TestApplicationCredential):
-
     def setUp(self):
         super(TestApplicationCredentialList, self).setUp()
 
@@ -345,8 +372,9 @@ class TestApplicationCredentialList(TestApplicationCredential):
         ]
 
         # Get the command object to test
-        self.cmd = application_credential.ListApplicationCredential(self.app,
-                                                                    None)
+        self.cmd = application_credential.ListApplicationCredential(
+            self.app, None
+        )
 
     def test_application_credential_list(self):
         arglist = []
@@ -362,18 +390,19 @@ class TestApplicationCredentialList(TestApplicationCredential):
 
         collist = ('ID', 'Name', 'Project ID', 'Description', 'Expires At')
         self.assertEqual(collist, columns)
-        datalist = ((
-            identity_fakes.app_cred_id,
-            identity_fakes.app_cred_name,
-            identity_fakes.project_id,
-            None,
-            None
-        ), )
+        datalist = (
+            (
+                identity_fakes.app_cred_id,
+                identity_fakes.app_cred_name,
+                identity_fakes.project_id,
+                None,
+                None,
+            ),
+        )
         self.assertEqual(datalist, tuple(data))
 
 
 class TestApplicationCredentialShow(TestApplicationCredential):
-
     def setUp(self):
         super(TestApplicationCredentialShow, self).setUp()
 
@@ -384,8 +413,9 @@ class TestApplicationCredentialShow(TestApplicationCredential):
         )
 
         # Get the command object to test
-        self.cmd = application_credential.ShowApplicationCredential(self.app,
-                                                                    None)
+        self.cmd = application_credential.ShowApplicationCredential(
+            self.app, None
+        )
 
     def test_application_credential_show(self):
         arglist = [
@@ -403,8 +433,17 @@ class TestApplicationCredentialShow(TestApplicationCredential):
 
         self.app_creds_mock.get.assert_called_with(identity_fakes.app_cred_id)
 
-        collist = ('access_rules', 'description', 'expires_at', 'id', 'name',
-                   'project_id', 'roles', 'secret', 'unrestricted')
+        collist = (
+            'access_rules',
+            'description',
+            'expires_at',
+            'id',
+            'name',
+            'project_id',
+            'roles',
+            'secret',
+            'unrestricted',
+        )
         self.assertEqual(collist, columns)
         datalist = (
             None,

@@ -63,16 +63,15 @@ def _add_identity_and_resource_options_to_parser(parser):
     common.add_inherited_option_to_parser(parser)
 
 
-def _process_identity_and_resource_options(parsed_args,
-                                           identity_client_manager,
-                                           validate_actor_existence=True):
-
+def _process_identity_and_resource_options(
+    parsed_args, identity_client_manager, validate_actor_existence=True
+):
     def _find_user():
         try:
             return common.find_user(
                 identity_client_manager,
                 parsed_args.user,
-                parsed_args.user_domain
+                parsed_args.user_domain,
             ).id
         except exceptions.CommandError:
             if not validate_actor_existence:
@@ -84,7 +83,7 @@ def _process_identity_and_resource_options(parsed_args,
             return common.find_group(
                 identity_client_manager,
                 parsed_args.group,
-                parsed_args.group_domain
+                parsed_args.group_domain,
             ).id
         except exceptions.CommandError:
             if not validate_actor_existence:
@@ -129,8 +128,10 @@ def _process_identity_and_resource_options(parsed_args,
 
 
 class AddRole(command.Command):
-    _description = _("Adds a role assignment to a user or group on the "
-                     "system, a domain, or a project")
+    _description = _(
+        "Adds a role assignment to a user or group on the "
+        "system, a domain, or a project"
+    )
 
     def get_parser(self, prog_name):
         parser = super(AddRole, self).get_parser(prog_name)
@@ -146,24 +147,30 @@ class AddRole(command.Command):
     def take_action(self, parsed_args):
         identity_client = self.app.client_manager.identity
 
-        if (not parsed_args.user and not parsed_args.domain and
-                not parsed_args.group and not parsed_args.project):
-            msg = _("Role not added, incorrect set of arguments "
-                    "provided. See openstack --help for more details")
+        if (
+            not parsed_args.user
+            and not parsed_args.domain
+            and not parsed_args.group
+            and not parsed_args.project
+        ):
+            msg = _(
+                "Role not added, incorrect set of arguments "
+                "provided. See openstack --help for more details"
+            )
             raise exceptions.CommandError(msg)
 
         domain_id = None
         if parsed_args.role_domain:
-            domain_id = common.find_domain(identity_client,
-                                           parsed_args.role_domain).id
+            domain_id = common.find_domain(
+                identity_client, parsed_args.role_domain
+            ).id
         role = utils.find_resource(
-            identity_client.roles,
-            parsed_args.role,
-            domain_id=domain_id
+            identity_client.roles, parsed_args.role, domain_id=domain_id
         )
 
         kwargs = _process_identity_and_resource_options(
-            parsed_args, self.app.client_manager.identity)
+            parsed_args, self.app.client_manager.identity
+        )
 
         identity_client.roles.grant(role.id, **kwargs)
 
@@ -201,21 +208,27 @@ class CreateRole(command.ShowOne):
 
         domain_id = None
         if parsed_args.domain:
-            domain_id = common.find_domain(identity_client,
-                                           parsed_args.domain).id
+            domain_id = common.find_domain(
+                identity_client, parsed_args.domain
+            ).id
 
         options = common.get_immutable_options(parsed_args)
 
         try:
             role = identity_client.roles.create(
-                name=parsed_args.name, domain=domain_id,
-                description=parsed_args.description, options=options)
+                name=parsed_args.name,
+                domain=domain_id,
+                description=parsed_args.description,
+                options=options,
+            )
 
         except ks_exc.Conflict:
             if parsed_args.or_show:
-                role = utils.find_resource(identity_client.roles,
-                                           parsed_args.name,
-                                           domain_id=domain_id)
+                role = utils.find_resource(
+                    identity_client.roles,
+                    parsed_args.name,
+                    domain_id=domain_id,
+                )
                 LOG.info(_('Returning existing role %s'), role.name)
             else:
                 raise
@@ -247,27 +260,32 @@ class DeleteRole(command.Command):
 
         domain_id = None
         if parsed_args.domain:
-            domain_id = common.find_domain(identity_client,
-                                           parsed_args.domain).id
+            domain_id = common.find_domain(
+                identity_client, parsed_args.domain
+            ).id
         errors = 0
         for role in parsed_args.roles:
             try:
                 role_obj = utils.find_resource(
-                    identity_client.roles,
-                    role,
-                    domain_id=domain_id
+                    identity_client.roles, role, domain_id=domain_id
                 )
                 identity_client.roles.delete(role_obj.id)
             except Exception as e:
                 errors += 1
-                LOG.error(_("Failed to delete role with "
-                          "name or ID '%(role)s': %(e)s"),
-                          {'role': role, 'e': e})
+                LOG.error(
+                    _(
+                        "Failed to delete role with "
+                        "name or ID '%(role)s': %(e)s"
+                    ),
+                    {'role': role, 'e': e},
+                )
 
         if errors > 0:
             total = len(parsed_args.roles)
-            msg = (_("%(errors)s of %(total)s roles failed "
-                   "to delete.") % {'errors': errors, 'total': total})
+            msg = _("%(errors)s of %(total)s roles failed " "to delete.") % {
+                'errors': errors,
+                'total': total,
+            }
             raise exceptions.CommandError(msg)
 
 
@@ -299,16 +317,23 @@ class ListRole(command.Lister):
             columns = ('ID', 'Name')
             data = identity_client.roles.list()
 
-        return (columns,
-                (utils.get_item_properties(
-                    s, columns,
+        return (
+            columns,
+            (
+                utils.get_item_properties(
+                    s,
+                    columns,
                     formatters={},
-                ) for s in data))
+                )
+                for s in data
+            ),
+        )
 
 
 class RemoveRole(command.Command):
-    _description = _("Removes a role assignment from system/domain/project : "
-                     "user/group")
+    _description = _(
+        "Removes a role assignment from system/domain/project : " "user/group"
+    )
 
     def get_parser(self, prog_name):
         parser = super(RemoveRole, self).get_parser(prog_name)
@@ -325,25 +350,31 @@ class RemoveRole(command.Command):
     def take_action(self, parsed_args):
         identity_client = self.app.client_manager.identity
 
-        if (not parsed_args.user and not parsed_args.domain and
-                not parsed_args.group and not parsed_args.project):
-            msg = _("Incorrect set of arguments provided. "
-                    "See openstack --help for more details")
+        if (
+            not parsed_args.user
+            and not parsed_args.domain
+            and not parsed_args.group
+            and not parsed_args.project
+        ):
+            msg = _(
+                "Incorrect set of arguments provided. "
+                "See openstack --help for more details"
+            )
             raise exceptions.CommandError(msg)
 
         domain_id = None
         if parsed_args.role_domain:
-            domain_id = common.find_domain(identity_client,
-                                           parsed_args.role_domain).id
+            domain_id = common.find_domain(
+                identity_client, parsed_args.role_domain
+            ).id
         role = utils.find_resource(
-            identity_client.roles,
-            parsed_args.role,
-            domain_id=domain_id
+            identity_client.roles, parsed_args.role, domain_id=domain_id
         )
 
         kwargs = _process_identity_and_resource_options(
-            parsed_args, self.app.client_manager.identity,
-            validate_actor_existence=False
+            parsed_args,
+            self.app.client_manager.identity,
+            validate_actor_existence=False,
         )
         identity_client.roles.revoke(role.id, **kwargs)
 
@@ -381,17 +412,21 @@ class SetRole(command.Command):
 
         domain_id = None
         if parsed_args.domain:
-            domain_id = common.find_domain(identity_client,
-                                           parsed_args.domain).id
+            domain_id = common.find_domain(
+                identity_client, parsed_args.domain
+            ).id
 
         options = common.get_immutable_options(parsed_args)
-        role = utils.find_resource(identity_client.roles,
-                                   parsed_args.role,
-                                   domain_id=domain_id)
+        role = utils.find_resource(
+            identity_client.roles, parsed_args.role, domain_id=domain_id
+        )
 
-        identity_client.roles.update(role.id, name=parsed_args.name,
-                                     description=parsed_args.description,
-                                     options=options)
+        identity_client.roles.update(
+            role.id,
+            name=parsed_args.name,
+            description=parsed_args.description,
+            options=options,
+        )
 
 
 class ShowRole(command.ShowOne):
@@ -416,12 +451,13 @@ class ShowRole(command.ShowOne):
 
         domain_id = None
         if parsed_args.domain:
-            domain_id = common.find_domain(identity_client,
-                                           parsed_args.domain).id
+            domain_id = common.find_domain(
+                identity_client, parsed_args.domain
+            ).id
 
-        role = utils.find_resource(identity_client.roles,
-                                   parsed_args.role,
-                                   domain_id=domain_id)
+        role = utils.find_resource(
+            identity_client.roles, parsed_args.role, domain_id=domain_id
+        )
 
         role._info.pop('links')
         return zip(*sorted(role._info.items()))

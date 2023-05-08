@@ -20,7 +20,6 @@ from openstackclient.tests.unit.identity.v2_0 import fakes as identity_fakes
 
 
 class TestToken(identity_fakes.TestIdentityv2):
-
     fake_user = identity_fakes.FakeUser.create_one_user()
     fake_project = identity_fakes.FakeProject.create_one_project()
 
@@ -33,7 +32,6 @@ class TestToken(identity_fakes.TestIdentityv2):
 
 
 class TestTokenIssue(TestToken):
-
     def setUp(self):
         super(TestTokenIssue, self).setUp()
 
@@ -94,7 +92,6 @@ class TestTokenIssue(TestToken):
 
 
 class TestTokenRevoke(TestToken):
-
     TOKEN = 'fob'
 
     def setUp(self):

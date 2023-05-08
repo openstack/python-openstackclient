@@ -50,8 +50,10 @@ class _FiltersReader(object):
         try:
             rules = json.loads(blob)
         except ValueError as e:
-            msg = _("An error occurred when reading filters from file "
-                    "%(path)s: %(error)s") % {"path": path, "error": e}
+            msg = _(
+                "An error occurred when reading filters from file "
+                "%(path)s: %(error)s"
+            ) % {"path": path, "error": e}
             raise exceptions.CommandError(msg)
         else:
             return rules
@@ -61,8 +63,7 @@ class AddProjectToEndpointGroup(command.Command):
     _description = _("Add a project to an endpoint group")
 
     def get_parser(self, prog_name):
-        parser = super(
-            AddProjectToEndpointGroup, self).get_parser(prog_name)
+        parser = super(AddProjectToEndpointGroup, self).get_parser(prog_name)
         parser.add_argument(
             'endpointgroup',
             metavar='<endpoint-group>',
@@ -79,16 +80,17 @@ class AddProjectToEndpointGroup(command.Command):
     def take_action(self, parsed_args):
         client = self.app.client_manager.identity
 
-        endpointgroup = utils.find_resource(client.endpoint_groups,
-                                            parsed_args.endpointgroup)
+        endpointgroup = utils.find_resource(
+            client.endpoint_groups, parsed_args.endpointgroup
+        )
 
-        project = common.find_project(client,
-                                      parsed_args.project,
-                                      parsed_args.project_domain)
+        project = common.find_project(
+            client, parsed_args.project, parsed_args.project_domain
+        )
 
         client.endpoint_filter.add_endpoint_group_to_project(
-            endpoint_group=endpointgroup.id,
-            project=project.id)
+            endpoint_group=endpointgroup.id, project=project.id
+        )
 
 
 class CreateEndpointGroup(command.ShowOne, _FiltersReader):
@@ -122,7 +124,7 @@ class CreateEndpointGroup(command.ShowOne, _FiltersReader):
         endpoint_group = identity_client.endpoint_groups.create(
             name=parsed_args.name,
             filters=filters,
-            description=parsed_args.description
+            description=parsed_args.description,
         )
 
         info = {}
@@ -150,18 +152,24 @@ class DeleteEndpointGroup(command.Command):
         for i in parsed_args.endpointgroup:
             try:
                 endpoint_id = utils.find_resource(
-                    identity_client.endpoint_groups, i).id
+                    identity_client.endpoint_groups, i
+                ).id
                 identity_client.endpoint_groups.delete(endpoint_id)
             except Exception as e:
                 result += 1
-                LOG.error(_("Failed to delete endpoint group with "
-                          "ID '%(endpointgroup)s': %(e)s"),
-                          {'endpointgroup': i, 'e': e})
+                LOG.error(
+                    _(
+                        "Failed to delete endpoint group with "
+                        "ID '%(endpointgroup)s': %(e)s"
+                    ),
+                    {'endpointgroup': i, 'e': e},
+                )
 
         if result > 0:
             total = len(parsed_args.endpointgroup)
-            msg = (_("%(result)s of %(total)s endpointgroups failed "
-                   "to delete.") % {'result': result, 'total': total})
+            msg = _(
+                "%(result)s of %(total)s endpointgroups failed " "to delete."
+            ) % {'result': result, 'total': total}
             raise exceptions.CommandError(msg)
 
 
@@ -193,40 +201,50 @@ class ListEndpointGroup(command.Lister):
 
         endpointgroup = None
         if parsed_args.endpointgroup:
-            endpointgroup = utils.find_resource(client.endpoint_groups,
-                                                parsed_args.endpointgroup)
+            endpointgroup = utils.find_resource(
+                client.endpoint_groups, parsed_args.endpointgroup
+            )
         project = None
         if parsed_args.project:
-            project = common.find_project(client,
-                                          parsed_args.project,
-                                          parsed_args.domain)
+            project = common.find_project(
+                client, parsed_args.project, parsed_args.domain
+            )
 
         if endpointgroup:
             # List projects associated to the endpoint group
             columns = ('ID', 'Name', 'Description')
             data = client.endpoint_filter.list_projects_for_endpoint_group(
-                endpoint_group=endpointgroup.id)
+                endpoint_group=endpointgroup.id
+            )
         elif project:
             columns = ('ID', 'Name', 'Description')
             data = client.endpoint_filter.list_endpoint_groups_for_project(
-                project=project.id)
+                project=project.id
+            )
         else:
             columns = ('ID', 'Name', 'Description')
             data = client.endpoint_groups.list()
 
-        return (columns,
-                (utils.get_item_properties(
-                    s, columns,
+        return (
+            columns,
+            (
+                utils.get_item_properties(
+                    s,
+                    columns,
                     formatters={},
-                ) for s in data))
+                )
+                for s in data
+            ),
+        )
 
 
 class RemoveProjectFromEndpointGroup(command.Command):
     _description = _("Remove project from endpoint group")
 
     def get_parser(self, prog_name):
-        parser = super(
-            RemoveProjectFromEndpointGroup, self).get_parser(prog_name)
+        parser = super(RemoveProjectFromEndpointGroup, self).get_parser(
+            prog_name
+        )
         parser.add_argument(
             'endpointgroup',
             metavar='<endpoint-group>',
@@ -243,16 +261,17 @@ class RemoveProjectFromEndpointGroup(command.Command):
     def take_action(self, parsed_args):
         client = self.app.client_manager.identity
 
-        endpointgroup = utils.find_resource(client.endpoint_groups,
-                                            parsed_args.endpointgroup)
+        endpointgroup = utils.find_resource(
+            client.endpoint_groups, parsed_args.endpointgroup
+        )
 
-        project = common.find_project(client,
-                                      parsed_args.project,
-                                      parsed_args.project_domain)
+        project = common.find_project(
+            client, parsed_args.project, parsed_args.project_domain
+        )
 
         client.endpoint_filter.delete_endpoint_group_from_project(
-            endpoint_group=endpointgroup.id,
-            project=project.id)
+            endpoint_group=endpointgroup.id, project=project.id
+        )
 
 
 class SetEndpointGroup(command.Command, _FiltersReader):
@@ -285,8 +304,9 @@ class SetEndpointGroup(command.Command, _FiltersReader):
 
     def take_action(self, parsed_args):
         identity_client = self.app.client_manager.identity
-        endpointgroup = utils.find_resource(identity_client.endpoint_groups,
-                                            parsed_args.endpointgroup)
+        endpointgroup = utils.find_resource(
+            identity_client.endpoint_groups, parsed_args.endpointgroup
+        )
 
         filters = None
         if parsed_args.filters:
@@ -296,7 +316,7 @@ class SetEndpointGroup(command.Command, _FiltersReader):
             endpointgroup.id,
             name=parsed_args.name,
             filters=filters,
-            description=parsed_args.description
+            description=parsed_args.description,
         )
 
 
@@ -314,8 +334,9 @@ class ShowEndpointGroup(command.ShowOne):
 
     def take_action(self, parsed_args):
         identity_client = self.app.client_manager.identity
-        endpoint_group = utils.find_resource(identity_client.endpoint_groups,
-                                             parsed_args.endpointgroup)
+        endpoint_group = utils.find_resource(
+            identity_client.endpoint_groups, parsed_args.endpointgroup
+        )
 
         info = {}
         endpoint_group._info.pop('links')

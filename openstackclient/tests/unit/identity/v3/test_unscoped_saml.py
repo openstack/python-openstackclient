@@ -18,7 +18,6 @@ from openstackclient.tests.unit.identity.v3 import fakes as identity_fakes
 
 
 class TestUnscopedSAML(identity_fakes.TestFederatedIdentity):
-
     def setUp(self):
         super(TestUnscopedSAML, self).setUp()
 
@@ -30,7 +29,6 @@ class TestUnscopedSAML(identity_fakes.TestFederatedIdentity):
 
 
 class TestDomainList(TestUnscopedSAML):
-
     def setUp(self):
         super(TestDomainList, self).setUp()
 
@@ -59,17 +57,18 @@ class TestDomainList(TestUnscopedSAML):
 
         collist = ('ID', 'Enabled', 'Name', 'Description')
         self.assertEqual(collist, columns)
-        datalist = ((
-            identity_fakes.domain_id,
-            True,
-            identity_fakes.domain_name,
-            identity_fakes.domain_description,
-        ), )
+        datalist = (
+            (
+                identity_fakes.domain_id,
+                True,
+                identity_fakes.domain_name,
+                identity_fakes.domain_description,
+            ),
+        )
         self.assertEqual(datalist, tuple(data))
 
 
 class TestProjectList(TestUnscopedSAML):
-
     def setUp(self):
         super(TestProjectList, self).setUp()
 
@@ -98,10 +97,12 @@ class TestProjectList(TestUnscopedSAML):
 
         collist = ('ID', 'Domain ID', 'Enabled', 'Name')
         self.assertEqual(collist, columns)
-        datalist = ((
-            identity_fakes.project_id,
-            identity_fakes.domain_id,
-            True,
-            identity_fakes.project_name,
-        ), )
+        datalist = (
+            (
+                identity_fakes.project_id,
+                identity_fakes.domain_id,
+                True,
+                identity_fakes.project_name,
+            ),
+        )
         self.assertEqual(datalist, tuple(data))

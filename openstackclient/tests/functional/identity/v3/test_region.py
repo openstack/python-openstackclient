@@ -14,7 +14,6 @@ from openstackclient.tests.functional.identity.v3 import common
 
 
 class RegionTests(common.IdentityTests):
-
     def test_region_create(self):
         self._create_dummy_region()
 
@@ -31,7 +30,8 @@ class RegionTests(common.IdentityTests):
         region_1 = self._create_dummy_region(add_clean_up=False)
         region_2 = self._create_dummy_region(add_clean_up=False)
         raw_output = self.openstack(
-            'region delete %s %s' % (region_1, region_2))
+            'region delete %s %s' % (region_1, region_2)
+        )
         self.assertEqual(0, len(raw_output))
 
     def test_region_list(self):
@@ -53,8 +53,9 @@ class RegionTests(common.IdentityTests):
         raw_output = self.openstack(
             'region set '
             '--parent-region %(parent_region)s '
-            '%(region)s' % {'parent_region': new_parent_region_id,
-                            'region': region_id})
+            '%(region)s'
+            % {'parent_region': new_parent_region_id, 'region': region_id}
+        )
         self.assertEqual(0, len(raw_output))
         # check updated region details
         raw_output = self.openstack('region show %s' % region_id)

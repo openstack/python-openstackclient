@@ -34,15 +34,19 @@ class CreateProtocol(command.ShowOne):
         parser.add_argument(
             'federation_protocol',
             metavar='<name>',
-            help=_('New federation protocol name (must be unique '
-                   'per identity provider)'),
+            help=_(
+                'New federation protocol name (must be unique '
+                'per identity provider)'
+            ),
         )
         parser.add_argument(
             '--identity-provider',
             metavar='<identity-provider>',
             required=True,
-            help=_('Identity provider that will support the new federation '
-                   ' protocol (name or ID) (required)'),
+            help=_(
+                'Identity provider that will support the new federation '
+                ' protocol (name or ID) (required)'
+            ),
         )
         parser.add_argument(
             '--mapping',
@@ -58,7 +62,8 @@ class CreateProtocol(command.ShowOne):
         protocol = identity_client.federation.protocols.create(
             protocol_id=parsed_args.federation_protocol,
             identity_provider=parsed_args.identity_provider,
-            mapping=parsed_args.mapping)
+            mapping=parsed_args.mapping,
+        )
         info = dict(protocol._info)
         # NOTE(marek-denis): Identity provider is not included in a response
         # from Keystone, however it should be listed to the user. Add it
@@ -85,8 +90,10 @@ class DeleteProtocol(command.Command):
             '--identity-provider',
             metavar='<identity-provider>',
             required=True,
-            help=_('Identity provider that supports <federation-protocol> '
-                   '(name or ID) (required)'),
+            help=_(
+                'Identity provider that supports <federation-protocol> '
+                '(name or ID) (required)'
+            ),
         )
 
         return parser
@@ -97,17 +104,24 @@ class DeleteProtocol(command.Command):
         for i in parsed_args.federation_protocol:
             try:
                 identity_client.federation.protocols.delete(
-                    parsed_args.identity_provider, i)
+                    parsed_args.identity_provider, i
+                )
             except Exception as e:
                 result += 1
-                LOG.error(_("Failed to delete federation protocol "
-                          "with name or ID '%(protocol)s': %(e)s"),
-                          {'protocol': i, 'e': e})
+                LOG.error(
+                    _(
+                        "Failed to delete federation protocol "
+                        "with name or ID '%(protocol)s': %(e)s"
+                    ),
+                    {'protocol': i, 'e': e},
+                )
 
         if result > 0:
             total = len(parsed_args.federation_protocol)
-            msg = (_("%(result)s of %(total)s federation protocols failed"
-                   " to delete.") % {'result': result, 'total': total})
+            msg = _(
+                "%(result)s of %(total)s federation protocols failed"
+                " to delete."
+            ) % {'result': result, 'total': total}
             raise exceptions.CommandError(msg)
 
 
@@ -129,11 +143,14 @@ class ListProtocols(command.Lister):
         identity_client = self.app.client_manager.identity
 
         protocols = identity_client.federation.protocols.list(
-            parsed_args.identity_provider)
+            parsed_args.identity_provider
+        )
         columns = ('id', 'mapping')
         response_attributes = ('id', 'mapping_id')
-        items = [utils.get_item_properties(s, response_attributes)
-                 for s in protocols]
+        items = [
+            utils.get_item_properties(s, response_attributes)
+            for s in protocols
+        ]
         return (columns, items)
 
 
@@ -151,8 +168,10 @@ class SetProtocol(command.Command):
             '--identity-provider',
             metavar='<identity-provider>',
             required=True,
-            help=_('Identity provider that supports <federation-protocol> '
-                   '(name or ID) (required)'),
+            help=_(
+                'Identity provider that supports <federation-protocol> '
+                '(name or ID) (required)'
+            ),
         )
         parser.add_argument(
             '--mapping',
@@ -165,8 +184,10 @@ class SetProtocol(command.Command):
         identity_client = self.app.client_manager.identity
 
         protocol = identity_client.federation.protocols.update(
-            parsed_args.identity_provider, parsed_args.federation_protocol,
-            parsed_args.mapping)
+            parsed_args.identity_provider,
+            parsed_args.federation_protocol,
+            parsed_args.mapping,
+        )
         info = dict(protocol._info)
         # NOTE(marek-denis): Identity provider is not included in a response
         # from Keystone, however it should be listed to the user. Add it
@@ -191,8 +212,10 @@ class ShowProtocol(command.ShowOne):
             '--identity-provider',
             metavar='<identity-provider>',
             required=True,
-            help=_('Identity provider that supports <federation-protocol> '
-                   '(name or ID) (required)'),
+            help=_(
+                'Identity provider that supports <federation-protocol> '
+                '(name or ID) (required)'
+            ),
         )
         return parser
 
@@ -200,7 +223,8 @@ class ShowProtocol(command.ShowOne):
         identity_client = self.app.client_manager.identity
 
         protocol = identity_client.federation.protocols.get(
-            parsed_args.identity_provider, parsed_args.federation_protocol)
+            parsed_args.identity_provider, parsed_args.federation_protocol
+        )
         info = dict(protocol._info)
         info['mapping'] = info.pop('mapping_id')
         info.pop('links', None)

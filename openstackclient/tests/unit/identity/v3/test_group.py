@@ -23,7 +23,6 @@ from openstackclient.tests.unit.identity.v3 import fakes as identity_fakes
 
 
 class TestGroup(identity_fakes.TestIdentityv3):
-
     def setUp(self):
         super(TestGroup, self).setUp()
 
@@ -41,7 +40,6 @@ class TestGroup(identity_fakes.TestIdentityv3):
 
 
 class TestGroupAddUser(TestGroup):
-
     _group = identity_fakes.FakeGroup.create_one_group()
     users = identity_fakes.FakeUser.create_users(count=2)
 
@@ -49,8 +47,7 @@ class TestGroupAddUser(TestGroup):
         super(TestGroupAddUser, self).setUp()
 
         self.groups_mock.get.return_value = self._group
-        self.users_mock.get = (
-            identity_fakes.FakeUser.get_users(self.users))
+        self.users_mock.get = identity_fakes.FakeUser.get_users(self.users)
         self.users_mock.add_to_group.return_value = None
 
         self.cmd = group.AddUserToGroup(self.app, None)
@@ -68,7 +65,8 @@ class TestGroupAddUser(TestGroup):
 
         result = self.cmd.take_action(parsed_args)
         self.users_mock.add_to_group.assert_called_once_with(
-            self.users[0].id, self._group.id)
+            self.users[0].id, self._group.id
+        )
         self.assertIsNone(result)
 
     def test_group_add_multi_users(self):
@@ -84,15 +82,19 @@ class TestGroupAddUser(TestGroup):
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
         result = self.cmd.take_action(parsed_args)
-        calls = [call(self.users[0].id, self._group.id),
-                 call(self.users[1].id, self._group.id)]
+        calls = [
+            call(self.users[0].id, self._group.id),
+            call(self.users[1].id, self._group.id),
+        ]
         self.users_mock.add_to_group.assert_has_calls(calls)
         self.assertIsNone(result)
 
     @mock.patch.object(group.LOG, 'error')
     def test_group_add_user_with_error(self, mock_error):
         self.users_mock.add_to_group.side_effect = [
-            exceptions.CommandError(), None]
+            exceptions.CommandError(),
+            None,
+        ]
         arglist = [
             self._group.name,
             self.users[0].name,
@@ -117,7 +119,6 @@ class TestGroupAddUser(TestGroup):
 
 
 class TestGroupCheckUser(TestGroup):
-
     group = identity_fakes.FakeGroup.create_one_group()
     user = identity_fakes.FakeUser.create_one_user()
 
@@ -143,12 +144,14 @@ class TestGroupCheckUser(TestGroup):
 
         result = self.cmd.take_action(parsed_args)
         self.users_mock.check_in_group.assert_called_once_with(
-            self.user.id, self.group.id)
+            self.user.id, self.group.id
+        )
         self.assertIsNone(result)
 
     def test_group_check_user_server_error(self):
         def server_error(*args):
             raise ks_exc.http.InternalServerError
+
         self.users_mock.check_in_group.side_effect = server_error
         arglist = [
             self.group.name,
@@ -160,12 +163,12 @@ class TestGroupCheckUser(TestGroup):
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
-        self.assertRaises(ks_exc.http.InternalServerError,
-                          self.cmd.take_action, parsed_args)
+        self.assertRaises(
+            ks_exc.http.InternalServerError, self.cmd.take_action, parsed_args
+        )
 
 
 class TestGroupCreate(TestGroup):
-
     domain = identity_fakes.FakeDomain.create_one_domain()
 
     columns = (
@@ -178,7 +181,8 @@ class TestGroupCreate(TestGroup):
     def setUp(self):
         super(TestGroupCreate, self).setUp()
         self.group = identity_fakes.FakeGroup.create_one_group(
-            attrs={'domain_id': self.domain.id})
+            attrs={'domain_id': self.domain.id}
+        )
         self.data = (
             self.group.description,
             self.group.domain_id,
@@ -212,8 +216,10 @@ class TestGroupCreate(TestGroup):
 
     def test_group_create_with_options(self):
         arglist = [
-            '--domain', self.domain.name,
-            '--description', self.group.description,
+            '--domain',
+            self.domain.name,
+            '--description',
+            self.group.description,
             self.group.name,
         ]
         verifylist = [
@@ -251,16 +257,15 @@ class TestGroupCreate(TestGroup):
 
 
 class TestGroupDelete(TestGroup):
-
     domain = identity_fakes.FakeDomain.create_one_domain()
     groups = identity_fakes.FakeGroup.create_groups(
-        attrs={'domain_id': domain.id}, count=2)
+        attrs={'domain_id': domain.id}, count=2
+    )
 
     def setUp(self):
         super(TestGroupDelete, self).setUp()
 
-        self.groups_mock.get = (
-            identity_fakes.FakeGroup.get_groups(self.groups))
+        self.groups_mock.get = identity_fakes.FakeGroup.get_groups(self.groups)
         self.groups_mock.delete.return_value = None
         self.domains_mock.get.return_value = self.domain
 
@@ -301,11 +306,11 @@ class TestGroupDelete(TestGroup):
 
     def test_group_delete_with_domain(self):
         get_mock_result = [exceptions.CommandError, self.groups[0]]
-        self.groups_mock.get = (
-            mock.Mock(side_effect=get_mock_result))
+        self.groups_mock.get = mock.Mock(side_effect=get_mock_result)
 
         arglist = [
-            '--domain', self.domain.id,
+            '--domain',
+            self.domain.id,
             self.groups[0].id,
         ]
         verifylist = [
@@ -316,14 +321,14 @@ class TestGroupDelete(TestGroup):
 
         result = self.cmd.take_action(parsed_args)
         self.groups_mock.get.assert_any_call(
-            self.groups[0].id, domain_id=self.domain.id)
+            self.groups[0].id, domain_id=self.domain.id
+        )
         self.groups_mock.delete.assert_called_once_with(self.groups[0].id)
         self.assertIsNone(result)
 
     @mock.patch.object(utils, 'find_resource')
     def test_delete_multi_groups_with_exception(self, find_mock):
-        find_mock.side_effect = [self.groups[0],
-                                 exceptions.CommandError]
+        find_mock.side_effect = [self.groups[0], exceptions.CommandError]
         arglist = [
             self.groups[0].id,
             'unexist_group',
@@ -337,8 +342,7 @@ class TestGroupDelete(TestGroup):
             self.cmd.take_action(parsed_args)
             self.fail('CommandError should be raised.')
         except exceptions.CommandError as e:
-            self.assertEqual('1 of 2 groups failed to delete.',
-                             str(e))
+            self.assertEqual('1 of 2 groups failed to delete.', str(e))
 
         find_mock.assert_any_call(self.groups_mock, self.groups[0].id)
         find_mock.assert_any_call(self.groups_mock, 'unexist_group')
@@ -348,7 +352,6 @@ class TestGroupDelete(TestGroup):
 
 
 class TestGroupList(TestGroup):
-
     domain = identity_fakes.FakeDomain.create_one_domain()
     group = identity_fakes.FakeGroup.create_one_group()
     user = identity_fakes.FakeUser.create_one_user()
@@ -393,16 +396,15 @@ class TestGroupList(TestGroup):
             'user': None,
         }
 
-        self.groups_mock.list.assert_called_with(
-            **kwargs
-        )
+        self.groups_mock.list.assert_called_with(**kwargs)
 
         self.assertEqual(self.columns, columns)
         self.assertEqual(self.datalist, tuple(data))
 
     def test_group_list_domain(self):
         arglist = [
-            '--domain', self.domain.id,
+            '--domain',
+            self.domain.id,
         ]
         verifylist = [
             ('domain', self.domain.id),
@@ -420,16 +422,15 @@ class TestGroupList(TestGroup):
             'user': None,
         }
 
-        self.groups_mock.list.assert_called_with(
-            **kwargs
-        )
+        self.groups_mock.list.assert_called_with(**kwargs)
 
         self.assertEqual(self.columns, columns)
         self.assertEqual(self.datalist, tuple(data))
 
     def test_group_list_user(self):
         arglist = [
-            '--user', self.user.name,
+            '--user',
+            self.user.name,
         ]
         verifylist = [
             ('user', self.user.name),
@@ -447,9 +448,7 @@ class TestGroupList(TestGroup):
             'user': self.user.id,
         }
 
-        self.groups_mock.list.assert_called_with(
-            **kwargs
-        )
+        self.groups_mock.list.assert_called_with(**kwargs)
 
         self.assertEqual(self.columns, columns)
         self.assertEqual(self.datalist, tuple(data))
@@ -474,26 +473,25 @@ class TestGroupList(TestGroup):
             'user': None,
         }
 
-        self.groups_mock.list.assert_called_with(
-            **kwargs
-        )
+        self.groups_mock.list.assert_called_with(**kwargs)
 
         columns = self.columns + (
             'Domain ID',
             'Description',
         )
-        datalist = ((
-            self.group.id,
-            self.group.name,
-            self.group.domain_id,
-            self.group.description,
-        ), )
+        datalist = (
+            (
+                self.group.id,
+                self.group.name,
+                self.group.domain_id,
+                self.group.description,
+            ),
+        )
         self.assertEqual(columns, columns)
         self.assertEqual(datalist, tuple(data))
 
 
 class TestGroupRemoveUser(TestGroup):
-
     _group = identity_fakes.FakeGroup.create_one_group()
     users = identity_fakes.FakeUser.create_users(count=2)
 
@@ -501,8 +499,7 @@ class TestGroupRemoveUser(TestGroup):
         super(TestGroupRemoveUser, self).setUp()
 
         self.groups_mock.get.return_value = self._group
-        self.users_mock.get = (
-            identity_fakes.FakeUser.get_users(self.users))
+        self.users_mock.get = identity_fakes.FakeUser.get_users(self.users)
         self.users_mock.remove_from_group.return_value = None
 
         self.cmd = group.RemoveUserFromGroup(self.app, None)
@@ -520,7 +517,8 @@ class TestGroupRemoveUser(TestGroup):
 
         result = self.cmd.take_action(parsed_args)
         self.users_mock.remove_from_group.assert_called_once_with(
-            self.users[0].id, self._group.id)
+            self.users[0].id, self._group.id
+        )
         self.assertIsNone(result)
 
     def test_group_remove_multi_users(self):
@@ -536,15 +534,19 @@ class TestGroupRemoveUser(TestGroup):
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
         result = self.cmd.take_action(parsed_args)
-        calls = [call(self.users[0].id, self._group.id),
-                 call(self.users[1].id, self._group.id)]
+        calls = [
+            call(self.users[0].id, self._group.id),
+            call(self.users[1].id, self._group.id),
+        ]
         self.users_mock.remove_from_group.assert_has_calls(calls)
         self.assertIsNone(result)
 
     @mock.patch.object(group.LOG, 'error')
     def test_group_remove_user_with_error(self, mock_error):
         self.users_mock.remove_from_group.side_effect = [
-            exceptions.CommandError(), None]
+            exceptions.CommandError(),
+            None,
+        ]
         arglist = [
             self._group.id,
             self.users[0].id,
@@ -569,10 +571,10 @@ class TestGroupRemoveUser(TestGroup):
 
 
 class TestGroupSet(TestGroup):
-
     domain = identity_fakes.FakeDomain.create_one_domain()
     group = identity_fakes.FakeGroup.create_one_group(
-        attrs={'domain_id': domain.id})
+        attrs={'domain_id': domain.id}
+    )
 
     def setUp(self):
         super(TestGroupSet, self).setUp()
@@ -598,8 +600,10 @@ class TestGroupSet(TestGroup):
 
     def test_group_set_name_and_description(self):
         arglist = [
-            '--name', 'new_name',
-            '--description', 'new_description',
+            '--name',
+            'new_name',
+            '--description',
+            'new_description',
             self.group.id,
         ]
         verifylist = [
@@ -615,16 +619,17 @@ class TestGroupSet(TestGroup):
             'description': 'new_description',
         }
         self.groups_mock.update.assert_called_once_with(
-            self.group.id, **kwargs)
+            self.group.id, **kwargs
+        )
         self.assertIsNone(result)
 
     def test_group_set_with_domain(self):
         get_mock_result = [exceptions.CommandError, self.group]
-        self.groups_mock.get = (
-            mock.Mock(side_effect=get_mock_result))
+        self.groups_mock.get = mock.Mock(side_effect=get_mock_result)
 
         arglist = [
-            '--domain', self.domain.id,
+            '--domain',
+            self.domain.id,
             self.group.id,
         ]
         verifylist = [
@@ -635,13 +640,13 @@ class TestGroupSet(TestGroup):
 
         result = self.cmd.take_action(parsed_args)
         self.groups_mock.get.assert_any_call(
-            self.group.id, domain_id=self.domain.id)
+            self.group.id, domain_id=self.domain.id
+        )
         self.groups_mock.update.assert_called_once_with(self.group.id)
         self.assertIsNone(result)
 
 
 class TestGroupShow(TestGroup):
-
     domain = identity_fakes.FakeDomain.create_one_domain()
 
     columns = (
@@ -654,7 +659,8 @@ class TestGroupShow(TestGroup):
     def setUp(self):
         super(TestGroupShow, self).setUp()
         self.group = identity_fakes.FakeGroup.create_one_group(
-            attrs={'domain_id': self.domain.id})
+            attrs={'domain_id': self.domain.id}
+        )
         self.data = (
             self.group.description,
             self.group.domain_id,
@@ -683,11 +689,11 @@ class TestGroupShow(TestGroup):
 
     def test_group_show_with_domain(self):
         get_mock_result = [exceptions.CommandError, self.group]
-        self.groups_mock.get = (
-            mock.Mock(side_effect=get_mock_result))
+        self.groups_mock.get = mock.Mock(side_effect=get_mock_result)
 
         arglist = [
-            '--domain', self.domain.id,
+            '--domain',
+            self.domain.id,
             self.group.id,
         ]
         verifylist = [
@@ -698,6 +704,7 @@ class TestGroupShow(TestGroup):
 
         columns, data = self.cmd.take_action(parsed_args)
         self.groups_mock.get.assert_any_call(
-            self.group.id, domain_id=self.domain.id)
+            self.group.id, domain_id=self.domain.id
+        )
         self.assertEqual(self.columns, columns)
         self.assertEqual(self.data, data)

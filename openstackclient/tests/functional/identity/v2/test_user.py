@@ -17,7 +17,6 @@ from openstackclient.tests.functional.identity.v2 import common
 
 
 class UserTests(common.IdentityTests):
-
     def test_user_create(self):
         self._create_dummy_user()
 
@@ -37,12 +36,13 @@ class UserTests(common.IdentityTests):
         user = self.parse_show_as_object(raw_output)
         new_username = data_utils.rand_name('NewTestUser')
         new_email = data_utils.rand_name() + '@example.com'
-        raw_output = self.openstack('user set '
-                                    '--email %(email)s '
-                                    '--name %(new_name)s '
-                                    '%(id)s' % {'email': new_email,
-                                                'new_name': new_username,
-                                                'id': user['id']})
+        raw_output = self.openstack(
+            'user set '
+            '--email %(email)s '
+            '--name %(new_name)s '
+            '%(id)s'
+            % {'email': new_email, 'new_name': new_username, 'id': user['id']}
+        )
         self.assertEqual(0, len(raw_output))
         raw_output = self.openstack('user show %s' % new_username)
         new_user = self.parse_show_as_object(raw_output)
@@ -56,5 +56,6 @@ class UserTests(common.IdentityTests):
         self.assert_show_fields(items, self.USER_FIELDS)
 
     def test_bad_user_command(self):
-        self.assertRaises(exceptions.CommandFailed,
-                          self.openstack, 'user unlist')
+        self.assertRaises(
+            exceptions.CommandFailed, self.openstack, 'user unlist'
+        )

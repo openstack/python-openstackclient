@@ -21,7 +21,6 @@ from openstackclient.tests.unit.identity.v3 import fakes as identity_fakes
 
 
 class TestRole(identity_fakes.TestIdentityv3):
-
     def setUp(self):
         super(TestRole, self).setUp()
 
@@ -56,7 +55,6 @@ class TestRole(identity_fakes.TestIdentityv3):
 
 
 class TestImpliedRoleCreate(TestRole):
-
     def setUp(self):
         super(TestImpliedRoleCreate, self).setUp()
 
@@ -75,8 +73,10 @@ class TestImpliedRoleCreate(TestRole):
 
         fake_resource = fakes.FakeResource(
             None,
-            {'prior_role': copy.deepcopy(identity_fakes.ROLES[0]),
-             'implied': copy.deepcopy(identity_fakes.ROLES[1]), },
+            {
+                'prior_role': copy.deepcopy(identity_fakes.ROLES[0]),
+                'implied': copy.deepcopy(identity_fakes.ROLES[1]),
+            },
             loaded=True,
         )
         self.inference_rules_mock.create.return_value = fake_resource
@@ -84,10 +84,10 @@ class TestImpliedRoleCreate(TestRole):
         self.cmd = implied_role.CreateImpliedRole(self.app, None)
 
     def test_implied_role_create(self):
-
         arglist = [
             identity_fakes.ROLES[0]['id'],
-            '--implied-role', identity_fakes.ROLES[1]['id'],
+            '--implied-role',
+            identity_fakes.ROLES[1]['id'],
         ]
         verifylist = [
             ('role', identity_fakes.ROLES[0]['id']),
@@ -102,21 +102,19 @@ class TestImpliedRoleCreate(TestRole):
 
         # InferenceRuleManager.create(prior, implied)
         self.inference_rules_mock.create.assert_called_with(
-            identity_fakes.ROLES[0]['id'],
-            identity_fakes.ROLES[1]['id']
+            identity_fakes.ROLES[0]['id'], identity_fakes.ROLES[1]['id']
         )
 
         collist = ('implied', 'prior_role')
         self.assertEqual(collist, columns)
         datalist = (
             identity_fakes.ROLES[1]['id'],
-            identity_fakes.ROLES[0]['id']
+            identity_fakes.ROLES[0]['id'],
         )
         self.assertEqual(datalist, data)
 
 
 class TestImpliedRoleDelete(TestRole):
-
     def setUp(self):
         super(TestImpliedRoleDelete, self).setUp()
 
@@ -135,8 +133,10 @@ class TestImpliedRoleDelete(TestRole):
 
         fake_resource = fakes.FakeResource(
             None,
-            {'prior-role': copy.deepcopy(identity_fakes.ROLES[0]),
-             'implied': copy.deepcopy(identity_fakes.ROLES[1]), },
+            {
+                'prior-role': copy.deepcopy(identity_fakes.ROLES[0]),
+                'implied': copy.deepcopy(identity_fakes.ROLES[1]),
+            },
             loaded=True,
         )
         self.inference_rules_mock.delete.return_value = fake_resource
@@ -146,7 +146,8 @@ class TestImpliedRoleDelete(TestRole):
     def test_implied_role_delete(self):
         arglist = [
             identity_fakes.ROLES[0]['id'],
-            '--implied-role', identity_fakes.ROLES[1]['id'],
+            '--implied-role',
+            identity_fakes.ROLES[1]['id'],
         ]
         verifylist = [
             ('role', identity_fakes.ROLES[0]['id']),
@@ -156,18 +157,17 @@ class TestImpliedRoleDelete(TestRole):
         self.cmd.take_action(parsed_args)
 
         self.inference_rules_mock.delete.assert_called_with(
-            identity_fakes.ROLES[0]['id'],
-            identity_fakes.ROLES[1]['id']
+            identity_fakes.ROLES[0]['id'], identity_fakes.ROLES[1]['id']
         )
 
 
 class TestImpliedRoleList(TestRole):
-
     def setUp(self):
         super(TestImpliedRoleList, self).setUp()
 
         self.inference_rules_mock.list_inference_roles.return_value = (
-            identity_fakes.FakeImpliedRoleResponse.create_list())
+            identity_fakes.FakeImpliedRoleResponse.create_list()
+        )
 
         self.cmd = implied_role.ListImpliedRole(self.app, None)
 
@@ -178,12 +178,20 @@ class TestImpliedRoleList(TestRole):
         columns, data = self.cmd.take_action(parsed_args)
         self.inference_rules_mock.list_inference_roles.assert_called_with()
 
-        collist = ['Prior Role ID', 'Prior Role Name',
-                   'Implied Role ID', 'Implied Role Name']
+        collist = [
+            'Prior Role ID',
+            'Prior Role Name',
+            'Implied Role ID',
+            'Implied Role Name',
+        ]
         self.assertEqual(collist, columns)
         datalist = [
-            (identity_fakes.ROLES[0]['id'], identity_fakes.ROLES[0]['name'],
-             identity_fakes.ROLES[1]['id'], identity_fakes.ROLES[1]['name'])
+            (
+                identity_fakes.ROLES[0]['id'],
+                identity_fakes.ROLES[0]['name'],
+                identity_fakes.ROLES[1]['id'],
+                identity_fakes.ROLES[1]['name'],
+            )
         ]
         x = [d for d in data]
         self.assertEqual(datalist, x)

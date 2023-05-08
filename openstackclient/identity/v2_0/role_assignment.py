@@ -51,7 +51,7 @@ class ListRoleAssignment(command.Lister):
             action="store_true",
             dest='authproject',
             help='Only list assignments for the project to which the '
-                 'authenticated user\'s token is scoped',
+            'authenticated user\'s token is scoped',
         )
         return parser
 
@@ -70,8 +70,7 @@ class ListRoleAssignment(command.Lister):
         elif parsed_args.authuser:
             if auth_ref:
                 user = utils.find_resource(
-                    identity_client.users,
-                    auth_ref.user_id
+                    identity_client.users, auth_ref.user_id
                 )
 
         project = None
@@ -83,8 +82,7 @@ class ListRoleAssignment(command.Lister):
         elif parsed_args.authproject:
             if auth_ref:
                 project = utils.find_resource(
-                    identity_client.projects,
-                    auth_ref.project_id
+                    identity_client.projects, auth_ref.project_id
                 )
 
         # If user or project is not specified, we would ideally list all
@@ -107,8 +105,14 @@ class ListRoleAssignment(command.Lister):
                 user_role.user = user.id
                 user_role.project = project.id
 
-        return (columns,
-                (utils.get_item_properties(
-                    s, columns,
+        return (
+            columns,
+            (
+                utils.get_item_properties(
+                    s,
+                    columns,
                     formatters={},
-                ) for s in data))
+                )
+                for s in data
+            ),
+        )

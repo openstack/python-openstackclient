@@ -43,8 +43,10 @@ class AddUserToGroup(command.Command):
             'user',
             metavar='<user>',
             nargs='+',
-            help=_('User(s) to add to <group> (name or ID) '
-                   '(repeat option to add multiple users)'),
+            help=_(
+                'User(s) to add to <group> (name or ID) '
+                '(repeat option to add multiple users)'
+            ),
         )
         common.add_group_domain_option_to_parser(parser)
         common.add_user_domain_option_to_parser(parser)
@@ -53,16 +55,16 @@ class AddUserToGroup(command.Command):
     def take_action(self, parsed_args):
         identity_client = self.app.client_manager.identity
 
-        group_id = common.find_group(identity_client,
-                                     parsed_args.group,
-                                     parsed_args.group_domain).id
+        group_id = common.find_group(
+            identity_client, parsed_args.group, parsed_args.group_domain
+        ).id
 
         result = 0
         for i in parsed_args.user:
             try:
-                user_id = common.find_user(identity_client,
-                                           i,
-                                           parsed_args.user_domain).id
+                user_id = common.find_user(
+                    identity_client, i, parsed_args.user_domain
+                ).id
                 identity_client.users.add_to_group(user_id, group_id)
             except Exception as e:
                 result += 1
@@ -74,8 +76,12 @@ class AddUserToGroup(command.Command):
                 LOG.error(msg)
         if result > 0:
             total = len(parsed_args.user)
-            msg = (_("%(result)s of %(total)s users not added to group "
-                   "%(group)s.")) % {
+            msg = (
+                _(
+                    "%(result)s of %(total)s users not added to group "
+                    "%(group)s."
+                )
+            ) % {
                 'result': result,
                 'total': total,
                 'group': parsed_args.group,
@@ -105,12 +111,12 @@ class CheckUserInGroup(command.Command):
     def take_action(self, parsed_args):
         identity_client = self.app.client_manager.identity
 
-        user_id = common.find_user(identity_client,
-                                   parsed_args.user,
-                                   parsed_args.user_domain).id
-        group_id = common.find_group(identity_client,
-                                     parsed_args.group,
-                                     parsed_args.group_domain).id
+        user_id = common.find_user(
+            identity_client, parsed_args.user, parsed_args.user_domain
+        ).id
+        group_id = common.find_group(
+            identity_client, parsed_args.group, parsed_args.group_domain
+        ).id
 
         try:
             identity_client.users.check_in_group(user_id, group_id)
@@ -163,19 +169,19 @@ class CreateGroup(command.ShowOne):
 
         domain = None
         if parsed_args.domain:
-            domain = common.find_domain(identity_client,
-                                        parsed_args.domain).id
+            domain = common.find_domain(identity_client, parsed_args.domain).id
 
         try:
             group = identity_client.groups.create(
                 name=parsed_args.name,
                 domain=domain,
-                description=parsed_args.description)
+                description=parsed_args.description,
+            )
         except ks_exc.Conflict:
             if parsed_args.or_show:
-                group = utils.find_resource(identity_client.groups,
-                                            parsed_args.name,
-                                            domain_id=domain)
+                group = utils.find_resource(
+                    identity_client.groups, parsed_args.name, domain_id=domain
+                )
                 LOG.info(_('Returning existing group %s'), group.name)
             else:
                 raise
@@ -208,20 +214,26 @@ class DeleteGroup(command.Command):
         errors = 0
         for group in parsed_args.groups:
             try:
-                group_obj = common.find_group(identity_client,
-                                              group,
-                                              parsed_args.domain)
+                group_obj = common.find_group(
+                    identity_client, group, parsed_args.domain
+                )
                 identity_client.groups.delete(group_obj.id)
             except Exception as e:
                 errors += 1
-                LOG.error(_("Failed to delete group with "
-                          "name or ID '%(group)s': %(e)s"),
-                          {'group': group, 'e': e})
+                LOG.error(
+                    _(
+                        "Failed to delete group with "
+                        "name or ID '%(group)s': %(e)s"
+                    ),
+                    {'group': group, 'e': e},
+                )
 
         if errors > 0:
             total = len(parsed_args.groups)
-            msg = (_("%(errors)s of %(total)s groups failed "
-                   "to delete.") % {'errors': errors, 'total': total})
+            msg = _("%(errors)s of %(total)s groups failed " "to delete.") % {
+                'errors': errors,
+                'total': total,
+            }
             raise exceptions.CommandError(msg)
 
 
@@ -254,8 +266,7 @@ class ListGroup(command.Lister):
 
         domain = None
         if parsed_args.domain:
-            domain = common.find_domain(identity_client,
-                                        parsed_args.domain).id
+            domain = common.find_domain(identity_client, parsed_args.domain).id
 
         if parsed_args.user:
             user = common.find_user(
@@ -278,10 +289,14 @@ class ListGroup(command.Lister):
 
         return (
             columns,
-            (utils.get_item_properties(
-                s, columns,
-                formatters={},
-            ) for s in data)
+            (
+                utils.get_item_properties(
+                    s,
+                    columns,
+                    formatters={},
+                )
+                for s in data
+            ),
         )
 
 
@@ -299,8 +314,10 @@ class RemoveUserFromGroup(command.Command):
             'user',
             metavar='<user>',
             nargs='+',
-            help=_('User(s) to remove from <group> (name or ID) '
-                   '(repeat option to remove multiple users)'),
+            help=_(
+                'User(s) to remove from <group> (name or ID) '
+                '(repeat option to remove multiple users)'
+            ),
         )
         common.add_group_domain_option_to_parser(parser)
         common.add_user_domain_option_to_parser(parser)
@@ -309,16 +326,16 @@ class RemoveUserFromGroup(command.Command):
     def take_action(self, parsed_args):
         identity_client = self.app.client_manager.identity
 
-        group_id = common.find_group(identity_client,
-                                     parsed_args.group,
-                                     parsed_args.group_domain).id
+        group_id = common.find_group(
+            identity_client, parsed_args.group, parsed_args.group_domain
+        ).id
 
         result = 0
         for i in parsed_args.user:
             try:
-                user_id = common.find_user(identity_client,
-                                           i,
-                                           parsed_args.user_domain).id
+                user_id = common.find_user(
+                    identity_client, i, parsed_args.user_domain
+                ).id
                 identity_client.users.remove_from_group(user_id, group_id)
             except Exception as e:
                 result += 1
@@ -330,8 +347,12 @@ class RemoveUserFromGroup(command.Command):
                 LOG.error(msg)
         if result > 0:
             total = len(parsed_args.user)
-            msg = (_("%(result)s of %(total)s users not removed from group "
-                   "%(group)s.")) % {
+            msg = (
+                _(
+                    "%(result)s of %(total)s users not removed from group "
+                    "%(group)s."
+                )
+            ) % {
                 'result': result,
                 'total': total,
                 'group': parsed_args.group,
@@ -368,8 +389,9 @@ class SetGroup(command.Command):
 
     def take_action(self, parsed_args):
         identity_client = self.app.client_manager.identity
-        group = common.find_group(identity_client, parsed_args.group,
-                                  parsed_args.domain)
+        group = common.find_group(
+            identity_client, parsed_args.group, parsed_args.domain
+        )
         kwargs = {}
         if parsed_args.name:
             kwargs['name'] = parsed_args.name
@@ -399,9 +421,11 @@ class ShowGroup(command.ShowOne):
     def take_action(self, parsed_args):
         identity_client = self.app.client_manager.identity
 
-        group = common.find_group(identity_client,
-                                  parsed_args.group,
-                                  domain_name_or_id=parsed_args.domain)
+        group = common.find_group(
+            identity_client,
+            parsed_args.group,
+            domain_name_or_id=parsed_args.domain,
+        )
 
         group._info.pop('links')
         return zip(*sorted(group._info.items()))

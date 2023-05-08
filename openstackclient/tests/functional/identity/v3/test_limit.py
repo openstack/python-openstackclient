@@ -20,12 +20,11 @@ SYSTEM_CLOUD = os.environ.get('OS_SYSTEM_CLOUD', 'devstack-system-admin')
 
 
 class LimitTestCase(common.IdentityTests):
-
     def test_limit_create_with_service_name(self):
         registered_limit_id = self._create_dummy_registered_limit()
         raw_output = self.openstack(
             'registered limit show %s' % registered_limit_id,
-            cloud=SYSTEM_CLOUD
+            cloud=SYSTEM_CLOUD,
         )
         items = self.parse_show(raw_output)
         service_id = self._extract_value_from_items('service_id', items)
@@ -44,7 +43,7 @@ class LimitTestCase(common.IdentityTests):
             'project_id': project_id,
             'service_name': service_name,
             'resource_name': resource_name,
-            'resource_limit': 15
+            'resource_limit': 15,
         }
         raw_output = self.openstack(
             'limit create'
@@ -52,14 +51,12 @@ class LimitTestCase(common.IdentityTests):
             ' --service %(service_name)s'
             ' --resource-limit %(resource_limit)s'
             ' %(resource_name)s' % params,
-            cloud=SYSTEM_CLOUD
+            cloud=SYSTEM_CLOUD,
         )
         items = self.parse_show(raw_output)
         limit_id = self._extract_value_from_items('id', items)
         self.addCleanup(
-            self.openstack,
-            'limit delete %s' % limit_id,
-            cloud=SYSTEM_CLOUD
+            self.openstack, 'limit delete %s' % limit_id, cloud=SYSTEM_CLOUD
         )
 
         self.assert_show_fields(items, self.LIMIT_FIELDS)
@@ -68,7 +65,7 @@ class LimitTestCase(common.IdentityTests):
         registered_limit_id = self._create_dummy_registered_limit()
         raw_output = self.openstack(
             'registered limit show %s' % registered_limit_id,
-            cloud=SYSTEM_CLOUD
+            cloud=SYSTEM_CLOUD,
         )
         items = self.parse_show(raw_output)
         service_id = self._extract_value_from_items('service_id', items)
@@ -84,7 +81,7 @@ class LimitTestCase(common.IdentityTests):
             'project_name': project_name,
             'service_name': service_name,
             'resource_name': resource_name,
-            'resource_limit': 15
+            'resource_limit': 15,
         }
         raw_output = self.openstack(
             'limit create'
@@ -92,14 +89,12 @@ class LimitTestCase(common.IdentityTests):
             ' --service %(service_name)s'
             ' --resource-limit %(resource_limit)s'
             ' %(resource_name)s' % params,
-            cloud=SYSTEM_CLOUD
+            cloud=SYSTEM_CLOUD,
         )
         items = self.parse_show(raw_output)
         limit_id = self._extract_value_from_items('id', items)
         self.addCleanup(
-            self.openstack,
-            'limit delete %s' % limit_id,
-            cloud=SYSTEM_CLOUD
+            self.openstack, 'limit delete %s' % limit_id, cloud=SYSTEM_CLOUD
         )
 
         self.assert_show_fields(items, self.LIMIT_FIELDS)
@@ -117,14 +112,14 @@ class LimitTestCase(common.IdentityTests):
 
         params = {
             'region_id': region_id,
-            'registered_limit_id': registered_limit_id
+            'registered_limit_id': registered_limit_id,
         }
 
         raw_output = self.openstack(
             'registered limit set'
             ' %(registered_limit_id)s'
             ' --region %(region_id)s' % params,
-            cloud=SYSTEM_CLOUD
+            cloud=SYSTEM_CLOUD,
         )
         items = self.parse_show(raw_output)
         service_id = self._extract_value_from_items('service_id', items)
@@ -142,7 +137,7 @@ class LimitTestCase(common.IdentityTests):
             'resource_name': resource_name,
             'resource_limit': 15,
             'region_id': region_id,
-            'description': description
+            'description': description,
         }
         raw_output = self.openstack(
             'limit create'
@@ -152,14 +147,12 @@ class LimitTestCase(common.IdentityTests):
             ' --region %(region_id)s'
             ' --description %(description)s'
             ' %(resource_name)s' % params,
-            cloud=SYSTEM_CLOUD
+            cloud=SYSTEM_CLOUD,
         )
         items = self.parse_show(raw_output)
         limit_id = self._extract_value_from_items('id', items)
         self.addCleanup(
-            self.openstack,
-            'limit delete %s' % limit_id,
-            cloud=SYSTEM_CLOUD
+            self.openstack, 'limit delete %s' % limit_id, cloud=SYSTEM_CLOUD
         )
 
         self.assert_show_fields(items, self.LIMIT_FIELDS)
@@ -167,8 +160,7 @@ class LimitTestCase(common.IdentityTests):
     def test_limit_show(self):
         limit_id = self._create_dummy_limit()
         raw_output = self.openstack(
-            'limit show %s' % limit_id,
-            cloud=SYSTEM_CLOUD
+            'limit show %s' % limit_id, cloud=SYSTEM_CLOUD
         )
         items = self.parse_show(raw_output)
         self.assert_show_fields(items, self.LIMIT_FIELDS)
@@ -178,14 +170,14 @@ class LimitTestCase(common.IdentityTests):
 
         params = {
             'description': data_utils.arbitrary_string(),
-            'limit_id': limit_id
+            'limit_id': limit_id,
         }
 
         raw_output = self.openstack(
             'limit set'
             ' --description %(description)s'
             ' %(limit_id)s' % params,
-            cloud=SYSTEM_CLOUD
+            cloud=SYSTEM_CLOUD,
         )
         items = self.parse_show(raw_output)
         self.assert_show_fields(items, self.LIMIT_FIELDS)
@@ -193,16 +185,13 @@ class LimitTestCase(common.IdentityTests):
     def test_limit_set_resource_limit(self):
         limit_id = self._create_dummy_limit()
 
-        params = {
-            'resource_limit': 5,
-            'limit_id': limit_id
-        }
+        params = {'resource_limit': 5, 'limit_id': limit_id}
 
         raw_output = self.openstack(
             'limit set'
             ' --resource-limit %(resource_limit)s'
             ' %(limit_id)s' % params,
-            cloud=SYSTEM_CLOUD
+            cloud=SYSTEM_CLOUD,
         )
         items = self.parse_show(raw_output)
         self.assert_show_fields(items, self.LIMIT_FIELDS)
@@ -216,6 +205,6 @@ class LimitTestCase(common.IdentityTests):
     def test_limit_delete(self):
         limit_id = self._create_dummy_limit(add_clean_up=False)
         raw_output = self.openstack(
-            'limit delete %s' % limit_id,
-            cloud=SYSTEM_CLOUD)
+            'limit delete %s' % limit_id, cloud=SYSTEM_CLOUD
+        )
         self.assertEqual(0, len(raw_output))

@@ -24,7 +24,6 @@ from openstackclient.tests.unit.identity.v2_0 import fakes as identity_fakes
 
 
 class TestUser(identity_fakes.TestIdentityv2):
-
     fake_project = identity_fakes.FakeProject.create_one_project()
     attr = {
         'tenantId': fake_project.id,
@@ -44,7 +43,6 @@ class TestUser(identity_fakes.TestIdentityv2):
 
 
 class TestUserCreate(TestUser):
-
     fake_project_c = identity_fakes.FakeProject.create_one_project()
     attr = {
         'tenantId': fake_project_c.id,
@@ -99,10 +97,7 @@ class TestUserCreate(TestUser):
         }
         # UserManager.create(name, password, email, tenant_id=, enabled=)
         self.users_mock.create.assert_called_with(
-            self.fake_user_c.name,
-            None,
-            None,
-            **kwargs
+            self.fake_user_c.name, None, None, **kwargs
         )
 
         self.assertEqual(self.columns, columns)
@@ -110,13 +105,14 @@ class TestUserCreate(TestUser):
 
     def test_user_create_password(self):
         arglist = [
-            '--password', 'secret',
+            '--password',
+            'secret',
             self.fake_user_c.name,
         ]
         verifylist = [
             ('name', self.fake_user_c.name),
             ('password_prompt', False),
-            ('password', 'secret')
+            ('password', 'secret'),
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
@@ -132,10 +128,7 @@ class TestUserCreate(TestUser):
         }
         # UserManager.create(name, password, email, tenant_id=, enabled=)
         self.users_mock.create.assert_called_with(
-            self.fake_user_c.name,
-            'secret',
-            None,
-            **kwargs
+            self.fake_user_c.name, 'secret', None, **kwargs
         )
         self.assertEqual(self.columns, columns)
         self.assertEqual(self.datalist, data)
@@ -147,7 +140,7 @@ class TestUserCreate(TestUser):
         ]
         verifylist = [
             ('name', self.fake_user_c.name),
-            ('password_prompt', True)
+            ('password_prompt', True),
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
@@ -166,10 +159,7 @@ class TestUserCreate(TestUser):
         }
         # UserManager.create(name, password, email, tenant_id=, enabled=)
         self.users_mock.create.assert_called_with(
-            self.fake_user_c.name,
-            'abc123',
-            None,
-            **kwargs
+            self.fake_user_c.name, 'abc123', None, **kwargs
         )
 
         self.assertEqual(self.columns, columns)
@@ -177,7 +167,8 @@ class TestUserCreate(TestUser):
 
     def test_user_create_email(self):
         arglist = [
-            '--email', 'barney@example.com',
+            '--email',
+            'barney@example.com',
             self.fake_user_c.name,
         ]
         verifylist = [
@@ -198,10 +189,7 @@ class TestUserCreate(TestUser):
         }
         # UserManager.create(name, password, email, tenant_id=, enabled=)
         self.users_mock.create.assert_called_with(
-            self.fake_user_c.name,
-            None,
-            'barney@example.com',
-            **kwargs
+            self.fake_user_c.name, None, 'barney@example.com', **kwargs
         )
 
         self.assertEqual(self.columns, columns)
@@ -219,7 +207,8 @@ class TestUserCreate(TestUser):
         self.users_mock.create.return_value = user_2
 
         arglist = [
-            '--project', self.fake_project_c.name,
+            '--project',
+            self.fake_project_c.name,
             user_2.name,
         ]
         verifylist = [
@@ -240,10 +229,7 @@ class TestUserCreate(TestUser):
         }
         # UserManager.create(name, password, email, tenant_id=, enabled=)
         self.users_mock.create.assert_called_with(
-            user_2.name,
-            None,
-            None,
-            **kwargs
+            user_2.name, None, None, **kwargs
         )
 
         self.assertEqual(self.columns, columns)
@@ -280,10 +266,7 @@ class TestUserCreate(TestUser):
         }
         # UserManager.create(name, password, email, tenant_id=, enabled=)
         self.users_mock.create.assert_called_with(
-            self.fake_user_c.name,
-            None,
-            None,
-            **kwargs
+            self.fake_user_c.name, None, None, **kwargs
         )
 
         self.assertEqual(self.columns, columns)
@@ -313,10 +296,7 @@ class TestUserCreate(TestUser):
         }
         # UserManager.create(name, password, email, tenant_id=, enabled=)
         self.users_mock.create.assert_called_with(
-            self.fake_user_c.name,
-            None,
-            None,
-            **kwargs
+            self.fake_user_c.name, None, None, **kwargs
         )
 
         self.assertEqual(self.columns, columns)
@@ -375,17 +355,13 @@ class TestUserCreate(TestUser):
         }
         # UserManager.create(name, password, email, tenant_id=, enabled=)
         self.users_mock.create.assert_called_with(
-            self.fake_user_c.name,
-            None,
-            None,
-            **kwargs
+            self.fake_user_c.name, None, None, **kwargs
         )
         self.assertEqual(self.columns, columns)
         self.assertEqual(self.datalist, data)
 
 
 class TestUserDelete(TestUser):
-
     def setUp(self):
         super(TestUserDelete, self).setUp()
 
@@ -414,8 +390,7 @@ class TestUserDelete(TestUser):
 
     @mock.patch.object(utils, 'find_resource')
     def test_delete_multi_users_with_exception(self, find_mock):
-        find_mock.side_effect = [self.fake_user,
-                                 exceptions.CommandError]
+        find_mock.side_effect = [self.fake_user, exceptions.CommandError]
         arglist = [
             self.fake_user.id,
             'unexist_user',
@@ -429,8 +404,7 @@ class TestUserDelete(TestUser):
             self.cmd.take_action(parsed_args)
             self.fail('CommandError should be raised.')
         except exceptions.CommandError as e:
-            self.assertEqual('1 of 2 users failed to delete.',
-                             str(e))
+            self.assertEqual('1 of 2 users failed to delete.', str(e))
 
         find_mock.assert_any_call(self.users_mock, self.fake_user.id)
         find_mock.assert_any_call(self.users_mock, 'unexist_user')
@@ -440,7 +414,6 @@ class TestUserDelete(TestUser):
 
 
 class TestUserList(TestUser):
-
     fake_project_l = identity_fakes.FakeProject.create_one_project()
     attr = {
         'tenantId': fake_project_l.id,
@@ -486,7 +459,8 @@ class TestUserList(TestUser):
 
     def test_user_list_project(self):
         arglist = [
-            '--project', self.fake_project_l.id,
+            '--project',
+            self.fake_project_l.id,
         ]
         verifylist = [
             ('project', self.fake_project_l.id),
@@ -522,20 +496,22 @@ class TestUserList(TestUser):
 
         collist = ('ID', 'Name', 'Project', 'Email', 'Enabled')
         self.assertEqual(collist, columns)
-        datalist = ((
-            self.fake_user_l.id,
-            self.fake_user_l.name,
-            user.ProjectColumn(
-                self.fake_project_l.id,
-                {self.fake_project_l.id: self.fake_project_l}),
-            self.fake_user_l.email,
-            True,
-        ), )
+        datalist = (
+            (
+                self.fake_user_l.id,
+                self.fake_user_l.name,
+                user.ProjectColumn(
+                    self.fake_project_l.id,
+                    {self.fake_project_l.id: self.fake_project_l},
+                ),
+                self.fake_user_l.email,
+                True,
+            ),
+        )
         self.assertCountEqual(datalist, tuple(data))
 
 
 class TestUserSet(TestUser):
-
     def setUp(self):
         super(TestUserSet, self).setUp()
 
@@ -583,11 +559,13 @@ class TestUserSet(TestUser):
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
         self.assertRaises(
-            exceptions.CommandError, self.cmd.take_action, parsed_args)
+            exceptions.CommandError, self.cmd.take_action, parsed_args
+        )
 
     def test_user_set_name(self):
         arglist = [
-            '--name', 'qwerty',
+            '--name',
+            'qwerty',
             self.fake_user.name,
         ]
         verifylist = [
@@ -609,15 +587,13 @@ class TestUserSet(TestUser):
             'name': 'qwerty',
         }
         # UserManager.update(user, **kwargs)
-        self.users_mock.update.assert_called_with(
-            self.fake_user.id,
-            **kwargs
-        )
+        self.users_mock.update.assert_called_with(self.fake_user.id, **kwargs)
         self.assertIsNone(result)
 
     def test_user_set_password(self):
         arglist = [
-            '--password', 'secret',
+            '--password',
+            'secret',
             self.fake_user.name,
         ]
         verifylist = [
@@ -672,7 +648,8 @@ class TestUserSet(TestUser):
 
     def test_user_set_email(self):
         arglist = [
-            '--email', 'barney@example.com',
+            '--email',
+            'barney@example.com',
             self.fake_user.name,
         ]
         verifylist = [
@@ -694,15 +671,13 @@ class TestUserSet(TestUser):
             'enabled': True,
         }
         # UserManager.update(user, **kwargs)
-        self.users_mock.update.assert_called_with(
-            self.fake_user.id,
-            **kwargs
-        )
+        self.users_mock.update.assert_called_with(self.fake_user.id, **kwargs)
         self.assertIsNone(result)
 
     def test_user_set_project(self):
         arglist = [
-            '--project', self.fake_project.id,
+            '--project',
+            self.fake_project.id,
             self.fake_user.name,
         ]
         verifylist = [
@@ -748,10 +723,7 @@ class TestUserSet(TestUser):
             'enabled': True,
         }
         # UserManager.update(user, **kwargs)
-        self.users_mock.update.assert_called_with(
-            self.fake_user.id,
-            **kwargs
-        )
+        self.users_mock.update.assert_called_with(self.fake_user.id, **kwargs)
         self.assertIsNone(result)
 
     def test_user_set_disable(self):
@@ -777,15 +749,11 @@ class TestUserSet(TestUser):
             'enabled': False,
         }
         # UserManager.update(user, **kwargs)
-        self.users_mock.update.assert_called_with(
-            self.fake_user.id,
-            **kwargs
-        )
+        self.users_mock.update.assert_called_with(self.fake_user.id, **kwargs)
         self.assertIsNone(result)
 
 
 class TestUserShow(TestUser):
-
     def setUp(self):
         super(TestUserShow, self).setUp()
 

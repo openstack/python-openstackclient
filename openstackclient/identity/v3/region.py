@@ -85,13 +85,20 @@ class DeleteRegion(command.Command):
                 identity_client.regions.delete(i)
             except Exception as e:
                 result += 1
-                LOG.error(_("Failed to delete region with "
-                          "ID '%(region)s': %(e)s"), {'region': i, 'e': e})
+                LOG.error(
+                    _(
+                        "Failed to delete region with "
+                        "ID '%(region)s': %(e)s"
+                    ),
+                    {'region': i, 'e': e},
+                )
 
         if result > 0:
             total = len(parsed_args.region)
-            msg = (_("%(result)s of %(total)s regions failed "
-                   "to delete.") % {'result': result, 'total': total})
+            msg = _("%(result)s of %(total)s regions failed " "to delete.") % {
+                'result': result,
+                'total': total,
+            }
             raise exceptions.CommandError(msg)
 
 
@@ -118,11 +125,17 @@ class ListRegion(command.Lister):
         columns = ('ID', 'Parent Region Id', 'Description')
 
         data = identity_client.regions.list(**kwargs)
-        return (columns_headers,
-                (utils.get_item_properties(
-                    s, columns,
+        return (
+            columns_headers,
+            (
+                utils.get_item_properties(
+                    s,
+                    columns,
                     formatters={},
-                ) for s in data))
+                )
+                for s in data
+            ),
+        )
 
 
 class SetRegion(command.Command):
@@ -174,8 +187,9 @@ class ShowRegion(command.ShowOne):
     def take_action(self, parsed_args):
         identity_client = self.app.client_manager.identity
 
-        region = utils.find_resource(identity_client.regions,
-                                     parsed_args.region)
+        region = utils.find_resource(
+            identity_client.regions, parsed_args.region
+        )
 
         region._info['region'] = region._info.pop('id')
         region._info['parent_region'] = region._info.pop('parent_region_id')

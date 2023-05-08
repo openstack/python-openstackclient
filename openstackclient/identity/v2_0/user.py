@@ -122,8 +122,12 @@ class CreateUser(command.ShowOne):
             parsed_args.password = utils.get_password(self.app.stdin)
 
         if not parsed_args.password:
-            LOG.warning(_("No password was supplied, authentication will fail "
-                          "when a user does not have a password."))
+            LOG.warning(
+                _(
+                    "No password was supplied, authentication will fail "
+                    "when a user does not have a password."
+                )
+            )
 
         try:
             user = identity_client.users.create(
@@ -147,9 +151,7 @@ class CreateUser(command.ShowOne):
         #                the returned resource has 'tenantId'.  Sigh.
         #                We're using project_id now inside OSC so there.
         if 'tenantId' in user._info:
-            user._info.update(
-                {'project_id': user._info.pop('tenantId')}
-            )
+            user._info.update({'project_id': user._info.pop('tenantId')})
 
         info = {}
         info.update(user._info)
@@ -182,14 +184,20 @@ class DeleteUser(command.Command):
                 identity_client.users.delete(user_obj.id)
             except Exception as e:
                 errors += 1
-                LOG.error(_("Failed to delete user with "
-                          "name or ID '%(user)s': %(e)s"),
-                          {'user': user, 'e': e})
+                LOG.error(
+                    _(
+                        "Failed to delete user with "
+                        "name or ID '%(user)s': %(e)s"
+                    ),
+                    {'user': user, 'e': e},
+                )
 
         if errors > 0:
             total = len(parsed_args.users)
-            msg = (_("%(errors)s of %(total)s users failed "
-                   "to delete.") % {'errors': errors, 'total': total})
+            msg = _("%(errors)s of %(total)s users failed " "to delete.") % {
+                'errors': errors,
+                'total': total,
+            }
             raise exceptions.CommandError(msg)
 
 
@@ -246,7 +254,8 @@ class ListUser(command.Lister):
                 # Just forget it if there's any trouble
                 pass
             formatters['tenantId'] = functools.partial(
-                ProjectColumn, project_cache=project_cache)
+                ProjectColumn, project_cache=project_cache
+            )
         else:
             columns = column_headers = ('ID', 'Name')
         data = identity_client.users.list(tenant_id=project)
@@ -267,12 +276,18 @@ class ListUser(command.Lister):
                     d._info['tenantId'] = d._info.pop('tenant_id')
                     d._add_details(d._info)
 
-        return (column_headers,
-                (utils.get_item_properties(
-                    s, columns,
+        return (
+            column_headers,
+            (
+                utils.get_item_properties(
+                    s,
+                    columns,
                     mixed_case_fields=('tenantId',),
                     formatters=formatters,
-                ) for s in data))
+                )
+                for s in data
+            ),
+        )
 
 
 class SetUser(command.Command):
@@ -331,8 +346,12 @@ class SetUser(command.Command):
             parsed_args.password = utils.get_password(self.app.stdin)
 
         if '' == parsed_args.password:
-            LOG.warning(_("No password was supplied, authentication will fail "
-                          "when a user does not have a password."))
+            LOG.warning(
+                _(
+                    "No password was supplied, authentication will fail "
+                    "when a user does not have a password."
+                )
+            )
 
         user = utils.find_resource(
             identity_client.users,
@@ -394,8 +413,8 @@ class ShowUser(command.ShowOne):
         except ks_exc.Forbidden:
             auth_ref = self.app.client_manager.auth_ref
             if (
-                parsed_args.user == auth_ref.user_id or
-                parsed_args.user == auth_ref.username
+                parsed_args.user == auth_ref.user_id
+                or parsed_args.user == auth_ref.username
             ):
                 # Ask for currently auth'ed project so return it
                 info = {
@@ -409,12 +428,8 @@ class ShowUser(command.ShowOne):
                 raise
 
         if 'tenantId' in info:
-            info.update(
-                {'project_id': info.pop('tenantId')}
-            )
+            info.update({'project_id': info.pop('tenantId')})
         if 'tenant_id' in info:
-            info.update(
-                {'project_id': info.pop('tenant_id')}
-            )
+            info.update({'project_id': info.pop('tenant_id')})
 
         return zip(*sorted(info.items()))

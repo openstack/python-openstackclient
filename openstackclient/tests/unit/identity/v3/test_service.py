@@ -21,7 +21,6 @@ from openstackclient.tests.unit.identity.v3 import fakes as identity_fakes
 
 
 class TestService(identity_fakes.TestIdentityv3):
-
     def setUp(self):
         super(TestService, self).setUp()
 
@@ -31,7 +30,6 @@ class TestService(identity_fakes.TestIdentityv3):
 
 
 class TestServiceCreate(TestService):
-
     columns = (
         'description',
         'enabled',
@@ -58,7 +56,8 @@ class TestServiceCreate(TestService):
 
     def test_service_create_name(self):
         arglist = [
-            '--name', self.service.name,
+            '--name',
+            self.service.name,
             self.service.type,
         ]
         verifylist = [
@@ -88,7 +87,8 @@ class TestServiceCreate(TestService):
 
     def test_service_create_description(self):
         arglist = [
-            '--description', self.service.description,
+            '--description',
+            self.service.description,
             self.service.type,
         ]
         verifylist = [
@@ -178,7 +178,6 @@ class TestServiceCreate(TestService):
 
 
 class TestServiceDelete(TestService):
-
     service = identity_fakes.FakeService.create_one_service()
 
     def setUp(self):
@@ -209,7 +208,6 @@ class TestServiceDelete(TestService):
 
 
 class TestServiceList(TestService):
-
     service = identity_fakes.FakeService.create_one_service()
 
     def setUp(self):
@@ -234,11 +232,13 @@ class TestServiceList(TestService):
 
         collist = ('ID', 'Name', 'Type')
         self.assertEqual(collist, columns)
-        datalist = ((
-            self.service.id,
-            self.service.name,
-            self.service.type,
-        ), )
+        datalist = (
+            (
+                self.service.id,
+                self.service.name,
+                self.service.type,
+            ),
+        )
         self.assertEqual(datalist, tuple(data))
 
     def test_service_list_long(self):
@@ -259,18 +259,19 @@ class TestServiceList(TestService):
 
         collist = ('ID', 'Name', 'Type', 'Description', 'Enabled')
         self.assertEqual(collist, columns)
-        datalist = ((
-            self.service.id,
-            self.service.name,
-            self.service.type,
-            self.service.description,
-            True,
-        ), )
+        datalist = (
+            (
+                self.service.id,
+                self.service.name,
+                self.service.type,
+                self.service.description,
+                True,
+            ),
+        )
         self.assertEqual(datalist, tuple(data))
 
 
 class TestServiceSet(TestService):
-
     service = identity_fakes.FakeService.create_one_service()
 
     def setUp(self):
@@ -303,7 +304,8 @@ class TestServiceSet(TestService):
 
     def test_service_set_type(self):
         arglist = [
-            '--type', self.service.type,
+            '--type',
+            self.service.type,
             self.service.name,
         ]
         verifylist = [
@@ -323,15 +325,13 @@ class TestServiceSet(TestService):
             'type': self.service.type,
         }
         # ServiceManager.update(service, name=, type=, enabled=, **kwargs)
-        self.services_mock.update.assert_called_with(
-            self.service.id,
-            **kwargs
-        )
+        self.services_mock.update.assert_called_with(self.service.id, **kwargs)
         self.assertIsNone(result)
 
     def test_service_set_name(self):
         arglist = [
-            '--name', self.service.name,
+            '--name',
+            self.service.name,
             self.service.name,
         ]
         verifylist = [
@@ -351,15 +351,13 @@ class TestServiceSet(TestService):
             'name': self.service.name,
         }
         # ServiceManager.update(service, name=, type=, enabled=, **kwargs)
-        self.services_mock.update.assert_called_with(
-            self.service.id,
-            **kwargs
-        )
+        self.services_mock.update.assert_called_with(self.service.id, **kwargs)
         self.assertIsNone(result)
 
     def test_service_set_description(self):
         arglist = [
-            '--description', self.service.description,
+            '--description',
+            self.service.description,
             self.service.name,
         ]
         verifylist = [
@@ -379,10 +377,7 @@ class TestServiceSet(TestService):
             'description': self.service.description,
         }
         # ServiceManager.update(service, name=, type=, enabled=, **kwargs)
-        self.services_mock.update.assert_called_with(
-            self.service.id,
-            **kwargs
-        )
+        self.services_mock.update.assert_called_with(self.service.id, **kwargs)
         self.assertIsNone(result)
 
     def test_service_set_enable(self):
@@ -407,10 +402,7 @@ class TestServiceSet(TestService):
             'enabled': True,
         }
         # ServiceManager.update(service, name=, type=, enabled=, **kwargs)
-        self.services_mock.update.assert_called_with(
-            self.service.id,
-            **kwargs
-        )
+        self.services_mock.update.assert_called_with(self.service.id, **kwargs)
         self.assertIsNone(result)
 
     def test_service_set_disable(self):
@@ -435,15 +427,11 @@ class TestServiceSet(TestService):
             'enabled': False,
         }
         # ServiceManager.update(service, name=, type=, enabled=, **kwargs)
-        self.services_mock.update.assert_called_with(
-            self.service.id,
-            **kwargs
-        )
+        self.services_mock.update.assert_called_with(self.service.id, **kwargs)
         self.assertIsNone(result)
 
 
 class TestServiceShow(TestService):
-
     service = identity_fakes.FakeService.create_one_service()
 
     def setUp(self):
@@ -470,9 +458,7 @@ class TestServiceShow(TestService):
         columns, data = self.cmd.take_action(parsed_args)
 
         # ServiceManager.get(id)
-        self.services_mock.find.assert_called_with(
-            name=self.service.name
-        )
+        self.services_mock.find.assert_called_with(name=self.service.name)
 
         collist = ('description', 'enabled', 'id', 'name', 'type')
         self.assertEqual(collist, columns)
@@ -501,4 +487,6 @@ class TestServiceShow(TestService):
         except exceptions.CommandError as e:
             self.assertEqual(
                 "Multiple service matches found for 'nounique_service',"
-                " use an ID to be more specific.", str(e))
+                " use an ID to be more specific.",
+                str(e),
+            )

@@ -20,7 +20,6 @@ from openstackclient.tests.unit.identity.v3 import fakes as service_fakes
 
 
 class TestServiceProvider(service_fakes.TestFederatedIdentity):
-
     def setUp(self):
         super(TestServiceProvider, self).setUp()
 
@@ -30,7 +29,6 @@ class TestServiceProvider(service_fakes.TestFederatedIdentity):
 
 
 class TestServiceProviderCreate(TestServiceProvider):
-
     columns = (
         'auth_url',
         'description',
@@ -43,7 +41,7 @@ class TestServiceProviderCreate(TestServiceProvider):
         service_fakes.sp_description,
         True,
         service_fakes.sp_id,
-        service_fakes.service_provider_url
+        service_fakes.service_provider_url,
     )
 
     def setUp(self):
@@ -56,15 +54,16 @@ class TestServiceProviderCreate(TestServiceProvider):
 
     def test_create_service_provider_required_options_only(self):
         arglist = [
-            '--auth-url', service_fakes.sp_auth_url,
-            '--service-provider-url', service_fakes.service_provider_url,
+            '--auth-url',
+            service_fakes.sp_auth_url,
+            '--service-provider-url',
+            service_fakes.service_provider_url,
             service_fakes.sp_id,
         ]
         verifylist = [
             ('auth_url', service_fakes.sp_auth_url),
             ('service_provider_url', service_fakes.service_provider_url),
             ('service_provider_id', service_fakes.sp_id),
-
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
         columns, data = self.cmd.take_action(parsed_args)
@@ -74,23 +73,24 @@ class TestServiceProviderCreate(TestServiceProvider):
             'enabled': True,
             'description': None,
             'auth_url': service_fakes.sp_auth_url,
-            'sp_url': service_fakes.service_provider_url
+            'sp_url': service_fakes.service_provider_url,
         }
 
         self.service_providers_mock.create.assert_called_with(
-            id=service_fakes.sp_id,
-            **kwargs
+            id=service_fakes.sp_id, **kwargs
         )
 
         self.assertEqual(self.columns, columns)
         self.assertEqual(self.datalist, data)
 
     def test_create_service_provider_description(self):
-
         arglist = [
-            '--description', service_fakes.sp_description,
-            '--auth-url', service_fakes.sp_auth_url,
-            '--service-provider-url', service_fakes.service_provider_url,
+            '--description',
+            service_fakes.sp_description,
+            '--auth-url',
+            service_fakes.sp_auth_url,
+            '--service-provider-url',
+            service_fakes.service_provider_url,
             service_fakes.sp_id,
         ]
         verifylist = [
@@ -112,15 +112,13 @@ class TestServiceProviderCreate(TestServiceProvider):
         }
 
         self.service_providers_mock.create.assert_called_with(
-            id=service_fakes.sp_id,
-            **kwargs
+            id=service_fakes.sp_id, **kwargs
         )
 
         self.assertEqual(self.columns, columns)
         self.assertEqual(self.datalist, data)
 
     def test_create_service_provider_disabled(self):
-
         # Prepare FakeResource object
         service_provider = copy.deepcopy(service_fakes.SERVICE_PROVIDER)
         service_provider['enabled'] = False
@@ -130,8 +128,10 @@ class TestServiceProviderCreate(TestServiceProvider):
         self.service_providers_mock.create.return_value = resource
 
         arglist = [
-            '--auth-url', service_fakes.sp_auth_url,
-            '--service-provider-url', service_fakes.service_provider_url,
+            '--auth-url',
+            service_fakes.sp_auth_url,
+            '--service-provider-url',
+            service_fakes.service_provider_url,
             '--disable',
             service_fakes.sp_id,
         ]
@@ -151,8 +151,7 @@ class TestServiceProviderCreate(TestServiceProvider):
         }
 
         self.service_providers_mock.create.assert_called_with(
-            id=service_fakes.sp_id,
-            **kwargs
+            id=service_fakes.sp_id, **kwargs
         )
         self.assertEqual(self.columns, columns)
         datalist = (
@@ -160,13 +159,12 @@ class TestServiceProviderCreate(TestServiceProvider):
             None,
             False,
             service_fakes.sp_id,
-            service_fakes.service_provider_url
+            service_fakes.service_provider_url,
         )
         self.assertEqual(datalist, data)
 
 
 class TestServiceProviderDelete(TestServiceProvider):
-
     def setUp(self):
         super(TestServiceProviderDelete, self).setUp()
 
@@ -198,7 +196,6 @@ class TestServiceProviderDelete(TestServiceProvider):
 
 
 class TestServiceProviderList(TestServiceProvider):
-
     def setUp(self):
         super(TestServiceProviderList, self).setUp()
 
@@ -232,17 +229,18 @@ class TestServiceProviderList(TestServiceProvider):
 
         collist = ('ID', 'Enabled', 'Description', 'Auth URL')
         self.assertEqual(collist, columns)
-        datalist = ((
-            service_fakes.sp_id,
-            True,
-            service_fakes.sp_description,
-            service_fakes.sp_auth_url
-        ), )
+        datalist = (
+            (
+                service_fakes.sp_id,
+                True,
+                service_fakes.sp_description,
+                service_fakes.sp_auth_url,
+            ),
+        )
         self.assertEqual(tuple(data), datalist)
 
 
 class TestServiceProviderSet(TestServiceProvider):
-
     columns = (
         'auth_url',
         'description',
@@ -272,16 +270,13 @@ class TestServiceProviderSet(TestServiceProvider):
             """Prepare fake return objects before the test is executed"""
             updated_sp = copy.deepcopy(service_fakes.SERVICE_PROVIDER)
             updated_sp['enabled'] = False
-            resources = fakes.FakeResource(
-                None,
-                updated_sp,
-                loaded=True
-            )
+            resources = fakes.FakeResource(None, updated_sp, loaded=True)
             self.service_providers_mock.update.return_value = resources
 
         prepare(self)
         arglist = [
-            '--disable', service_fakes.sp_id,
+            '--disable',
+            service_fakes.sp_id,
         ]
         verifylist = [
             ('service_provider', service_fakes.sp_id),
@@ -295,7 +290,7 @@ class TestServiceProviderSet(TestServiceProvider):
             enabled=False,
             description=None,
             auth_url=None,
-            sp_url=None
+            sp_url=None,
         )
 
     def test_service_provider_enable(self):
@@ -309,13 +304,14 @@ class TestServiceProviderSet(TestServiceProvider):
             resources = fakes.FakeResource(
                 None,
                 copy.deepcopy(service_fakes.SERVICE_PROVIDER),
-                loaded=True
+                loaded=True,
             )
             self.service_providers_mock.update.return_value = resources
 
         prepare(self)
         arglist = [
-            '--enable', service_fakes.sp_id,
+            '--enable',
+            service_fakes.sp_id,
         ]
         verifylist = [
             ('service_provider', service_fakes.sp_id),
@@ -326,8 +322,12 @@ class TestServiceProviderSet(TestServiceProvider):
 
         self.cmd.take_action(parsed_args)
         self.service_providers_mock.update.assert_called_with(
-            service_fakes.sp_id, enabled=True, description=None,
-            auth_url=None, sp_url=None)
+            service_fakes.sp_id,
+            enabled=True,
+            description=None,
+            auth_url=None,
+            sp_url=None,
+        )
 
     def test_service_provider_no_options(self):
         def prepare(self):
@@ -335,7 +335,7 @@ class TestServiceProviderSet(TestServiceProvider):
             resources = fakes.FakeResource(
                 None,
                 copy.deepcopy(service_fakes.SERVICE_PROVIDER),
-                loaded=True
+                loaded=True,
             )
             self.service_providers_mock.get.return_value = resources
 
@@ -364,7 +364,6 @@ class TestServiceProviderSet(TestServiceProvider):
 
 
 class TestServiceProviderShow(TestServiceProvider):
-
     def setUp(self):
         super(TestServiceProviderShow, self).setUp()
 
@@ -373,8 +372,10 @@ class TestServiceProviderShow(TestServiceProvider):
             copy.deepcopy(service_fakes.SERVICE_PROVIDER),
             loaded=True,
         )
-        self.service_providers_mock.get.side_effect = [Exception("Not found"),
-                                                       ret]
+        self.service_providers_mock.get.side_effect = [
+            Exception("Not found"),
+            ret,
+        ]
         self.service_providers_mock.get.return_value = ret
 
         # Get the command object to test
@@ -392,8 +393,7 @@ class TestServiceProviderShow(TestServiceProvider):
         columns, data = self.cmd.take_action(parsed_args)
 
         self.service_providers_mock.get.assert_called_with(
-            service_fakes.sp_id,
-            id='BETA'
+            service_fakes.sp_id, id='BETA'
         )
 
         collist = ('auth_url', 'description', 'enabled', 'id', 'sp_url')
@@ -403,6 +403,6 @@ class TestServiceProviderShow(TestServiceProvider):
             service_fakes.sp_description,
             True,
             service_fakes.sp_id,
-            service_fakes.service_provider_url
+            service_fakes.service_provider_url,
         )
         self.assertEqual(data, datalist)

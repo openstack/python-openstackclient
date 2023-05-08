@@ -54,23 +54,29 @@ class CreateTrust(command.ShowOne):
             metavar='<role>',
             action='append',
             default=[],
-            help=_('Roles to authorize (name or ID) '
-                   '(repeat option to set multiple values, required)'),
-            required=True
+            help=_(
+                'Roles to authorize (name or ID) '
+                '(repeat option to set multiple values, required)'
+            ),
+            required=True,
         )
         parser.add_argument(
             '--impersonate',
             dest='impersonate',
             action='store_true',
             default=False,
-            help=_('Tokens generated from the trust will represent <trustor>'
-                   ' (defaults to False)'),
+            help=_(
+                'Tokens generated from the trust will represent <trustor>'
+                ' (defaults to False)'
+            ),
         )
         parser.add_argument(
             '--expiration',
             metavar='<expiration>',
-            help=_('Sets an expiration date for the trust'
-                   ' (format of YYYY-mm-ddTHH:MM:SS)'),
+            help=_(
+                'Sets an expiration date for the trust'
+                ' (format of YYYY-mm-ddTHH:MM:SS)'
+            ),
         )
         common.add_project_domain_option_to_parser(parser)
         parser.add_argument(
@@ -93,15 +99,15 @@ class CreateTrust(command.ShowOne):
         # trustee, project and role are optional, but that makes the trust
         # pointless, and trusts are immutable, so let's enforce it at the
         # client level.
-        trustor_id = common.find_user(identity_client,
-                                      parsed_args.trustor,
-                                      parsed_args.trustor_domain).id
-        trustee_id = common.find_user(identity_client,
-                                      parsed_args.trustee,
-                                      parsed_args.trustee_domain).id
-        project_id = common.find_project(identity_client,
-                                         parsed_args.project,
-                                         parsed_args.project_domain).id
+        trustor_id = common.find_user(
+            identity_client, parsed_args.trustor, parsed_args.trustor_domain
+        ).id
+        trustee_id = common.find_user(
+            identity_client, parsed_args.trustee, parsed_args.trustee_domain
+        ).id
+        project_id = common.find_project(
+            identity_client, parsed_args.project, parsed_args.project_domain
+        ).id
 
         role_ids = []
         for role in parsed_args.role:
@@ -116,11 +122,13 @@ class CreateTrust(command.ShowOne):
 
         expires_at = None
         if parsed_args.expiration:
-            expires_at = datetime.datetime.strptime(parsed_args.expiration,
-                                                    '%Y-%m-%dT%H:%M:%S')
+            expires_at = datetime.datetime.strptime(
+                parsed_args.expiration, '%Y-%m-%dT%H:%M:%S'
+            )
 
         trust = identity_client.trusts.create(
-            trustee_id, trustor_id,
+            trustee_id,
+            trustor_id,
             impersonation=parsed_args.impersonate,
             project=project_id,
             role_ids=role_ids,
@@ -157,19 +165,24 @@ class DeleteTrust(command.Command):
         errors = 0
         for trust in parsed_args.trust:
             try:
-                trust_obj = utils.find_resource(identity_client.trusts,
-                                                trust)
+                trust_obj = utils.find_resource(identity_client.trusts, trust)
                 identity_client.trusts.delete(trust_obj.id)
             except Exception as e:
                 errors += 1
-                LOG.error(_("Failed to delete trust with "
-                          "name or ID '%(trust)s': %(e)s"),
-                          {'trust': trust, 'e': e})
+                LOG.error(
+                    _(
+                        "Failed to delete trust with "
+                        "name or ID '%(trust)s': %(e)s"
+                    ),
+                    {'trust': trust, 'e': e},
+                )
 
         if errors > 0:
             total = len(parsed_args.trust)
-            msg = (_("%(errors)s of %(total)s trusts failed "
-                   "to delete.") % {'errors': errors, 'total': total})
+            msg = _("%(errors)s of %(total)s trusts failed " "to delete.") % {
+                'errors': errors,
+                'total': total,
+            }
             raise exceptions.CommandError(msg)
 
 
@@ -210,12 +223,14 @@ class ListTrust(command.Lister):
         identity_client = self.app.client_manager.identity
         auth_ref = self.app.client_manager.auth_ref
 
-        if parsed_args.authuser and any([
-            parsed_args.trustor,
-            parsed_args.trustor_domain,
-            parsed_args.trustee,
-            parsed_args.trustee_domain,
-        ]):
+        if parsed_args.authuser and any(
+            [
+                parsed_args.trustor,
+                parsed_args.trustor_domain,
+                parsed_args.trustee,
+                parsed_args.trustee_domain,
+            ]
+        ):
             msg = _("--authuser cannot be used with --trustee or --trustor")
             raise exceptions.CommandError(msg)
 
@@ -229,10 +244,7 @@ class ListTrust(command.Lister):
 
         if parsed_args.authuser:
             if auth_ref:
-                user = common.find_user(
-                    identity_client,
-                    auth_ref.user_id
-                )
+                user = common.find_user(identity_client, auth_ref.user_id)
                 # We need two calls here as we want trusts with
                 # either the trustor or the trustee set to current user
                 # using a single call would give us trusts with both
@@ -262,14 +274,26 @@ class ListTrust(command.Lister):
                 trustee_user=trustee,
             )
 
-        columns = ('ID', 'Expires At', 'Impersonation', 'Project ID',
-                   'Trustee User ID', 'Trustor User ID')
+        columns = (
+            'ID',
+            'Expires At',
+            'Impersonation',
+            'Project ID',
+            'Trustee User ID',
+            'Trustor User ID',
+        )
 
-        return (columns,
-                (utils.get_item_properties(
-                    s, columns,
+        return (
+            columns,
+            (
+                utils.get_item_properties(
+                    s,
+                    columns,
                     formatters={},
-                ) for s in data))
+                )
+                for s in data
+            ),
+        )
 
 
 class ShowTrust(command.ShowOne):
@@ -286,8 +310,7 @@ class ShowTrust(command.ShowOne):
 
     def take_action(self, parsed_args):
         identity_client = self.app.client_manager.identity
-        trust = utils.find_resource(identity_client.trusts,
-                                    parsed_args.trust)
+        trust = utils.find_resource(identity_client.trusts, parsed_args.trust)
 
         trust._info.pop('roles_links', None)
         trust._info.pop('links', None)

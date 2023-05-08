@@ -101,14 +101,19 @@ class DeleteService(command.Command):
                 identity_client.services.delete(service.id)
             except Exception as e:
                 result += 1
-                LOG.error(_("Failed to delete consumer with type, "
-                          "name or ID '%(service)s': %(e)s"),
-                          {'service': i, 'e': e})
+                LOG.error(
+                    _(
+                        "Failed to delete consumer with type, "
+                        "name or ID '%(service)s': %(e)s"
+                    ),
+                    {'service': i, 'e': e},
+                )
 
         if result > 0:
             total = len(parsed_args.service)
-            msg = (_("%(result)s of %(total)s services failed "
-                   "to delete.") % {'result': result, 'total': total})
+            msg = _(
+                "%(result)s of %(total)s services failed " "to delete."
+            ) % {'result': result, 'total': total}
             raise exceptions.CommandError(msg)
 
 
@@ -126,7 +131,6 @@ class ListService(command.Lister):
         return parser
 
     def take_action(self, parsed_args):
-
         if parsed_args.long:
             columns = ('ID', 'Name', 'Type', 'Description', 'Enabled')
         else:
@@ -179,8 +183,7 @@ class SetService(command.Command):
     def take_action(self, parsed_args):
         identity_client = self.app.client_manager.identity
 
-        service = common.find_service(identity_client,
-                                      parsed_args.service)
+        service = common.find_service(identity_client, parsed_args.service)
         kwargs = {}
         if parsed_args.type:
             kwargs['type'] = parsed_args.type
@@ -193,10 +196,7 @@ class SetService(command.Command):
         if parsed_args.disable:
             kwargs['enabled'] = False
 
-        identity_client.services.update(
-            service.id,
-            **kwargs
-        )
+        identity_client.services.update(service.id, **kwargs)
 
 
 class ShowService(command.ShowOne):

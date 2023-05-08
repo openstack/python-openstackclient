@@ -14,7 +14,6 @@ from openstackclient.tests.functional.identity.v3 import common
 
 
 class CatalogTests(common.IdentityTests):
-
     def test_catalog_list(self):
         raw_output = self.openstack('catalog list')
         items = self.parse_listing(raw_output)

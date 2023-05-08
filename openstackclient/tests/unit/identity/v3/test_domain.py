@@ -15,7 +15,6 @@ from openstackclient.tests.unit.identity.v3 import fakes as identity_fakes
 
 
 class TestDomain(identity_fakes.TestIdentityv3):
-
     def setUp(self):
         super(TestDomain, self).setUp()
 
@@ -25,14 +24,7 @@ class TestDomain(identity_fakes.TestIdentityv3):
 
 
 class TestDomainCreate(TestDomain):
-
-    columns = (
-        'description',
-        'enabled',
-        'id',
-        'name',
-        'tags'
-    )
+    columns = ('description', 'enabled', 'id', 'name', 'tags')
 
     def setUp(self):
         super(TestDomainCreate, self).setUp()
@@ -44,7 +36,7 @@ class TestDomainCreate(TestDomain):
             True,
             self.domain.id,
             self.domain.name,
-            self.domain.tags
+            self.domain.tags,
         )
 
         # Get the command object to test
@@ -71,16 +63,15 @@ class TestDomainCreate(TestDomain):
             'options': {},
             'enabled': True,
         }
-        self.domains_mock.create.assert_called_with(
-            **kwargs
-        )
+        self.domains_mock.create.assert_called_with(**kwargs)
 
         self.assertEqual(self.columns, columns)
         self.assertEqual(self.datalist, data)
 
     def test_domain_create_description(self):
         arglist = [
-            '--description', 'new desc',
+            '--description',
+            'new desc',
             self.domain.name,
         ]
         verifylist = [
@@ -101,9 +92,7 @@ class TestDomainCreate(TestDomain):
             'options': {},
             'enabled': True,
         }
-        self.domains_mock.create.assert_called_with(
-            **kwargs
-        )
+        self.domains_mock.create.assert_called_with(**kwargs)
 
         self.assertEqual(self.columns, columns)
         self.assertEqual(self.datalist, data)
@@ -131,9 +120,7 @@ class TestDomainCreate(TestDomain):
             'options': {},
             'enabled': True,
         }
-        self.domains_mock.create.assert_called_with(
-            **kwargs
-        )
+        self.domains_mock.create.assert_called_with(**kwargs)
 
         self.assertEqual(self.columns, columns)
         self.assertEqual(self.datalist, data)
@@ -161,9 +148,7 @@ class TestDomainCreate(TestDomain):
             'options': {},
             'enabled': False,
         }
-        self.domains_mock.create.assert_called_with(
-            **kwargs
-        )
+        self.domains_mock.create.assert_called_with(**kwargs)
 
         self.assertEqual(self.columns, columns)
         self.assertEqual(self.datalist, data)
@@ -191,9 +176,7 @@ class TestDomainCreate(TestDomain):
             'options': {'immutable': True},
             'enabled': True,
         }
-        self.domains_mock.create.assert_called_with(
-            **kwargs
-        )
+        self.domains_mock.create.assert_called_with(**kwargs)
 
         self.assertEqual(self.columns, columns)
         self.assertEqual(self.datalist, data)
@@ -221,16 +204,13 @@ class TestDomainCreate(TestDomain):
             'options': {'immutable': False},
             'enabled': True,
         }
-        self.domains_mock.create.assert_called_with(
-            **kwargs
-        )
+        self.domains_mock.create.assert_called_with(**kwargs)
 
         self.assertEqual(self.columns, columns)
         self.assertEqual(self.datalist, data)
 
 
 class TestDomainDelete(TestDomain):
-
     domain = identity_fakes.FakeDomain.create_one_domain()
 
     def setUp(self):
@@ -261,7 +241,6 @@ class TestDomainDelete(TestDomain):
 
 
 class TestDomainList(TestDomain):
-
     domain = identity_fakes.FakeDomain.create_one_domain()
 
     def setUp(self):
@@ -285,20 +264,19 @@ class TestDomainList(TestDomain):
 
         collist = ('ID', 'Name', 'Enabled', 'Description')
         self.assertEqual(collist, columns)
-        datalist = ((
-            self.domain.id,
-            self.domain.name,
-            True,
-            self.domain.description,
-        ), )
+        datalist = (
+            (
+                self.domain.id,
+                self.domain.name,
+                True,
+                self.domain.description,
+            ),
+        )
         self.assertEqual(datalist, tuple(data))
 
     def test_domain_list_with_option_name(self):
-        arglist = ['--name',
-                   self.domain.name]
-        verifylist = [
-            ('name', self.domain.name)
-        ]
+        arglist = ['--name', self.domain.name]
+        verifylist = [('name', self.domain.name)]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
         # In base command class Lister in cliff, abstract method take_action()
@@ -306,26 +284,24 @@ class TestDomainList(TestDomain):
         # containing the data to be listed.
         columns, data = self.cmd.take_action(parsed_args)
 
-        kwargs = {
-            'name': self.domain.name
-        }
+        kwargs = {'name': self.domain.name}
         self.domains_mock.list.assert_called_with(**kwargs)
 
         collist = ('ID', 'Name', 'Enabled', 'Description')
         self.assertEqual(collist, columns)
-        datalist = ((
-            self.domain.id,
-            self.domain.name,
-            True,
-            self.domain.description,
-        ), )
+        datalist = (
+            (
+                self.domain.id,
+                self.domain.name,
+                True,
+                self.domain.description,
+            ),
+        )
         self.assertEqual(datalist, tuple(data))
 
     def test_domain_list_with_option_enabled(self):
         arglist = ['--enabled']
-        verifylist = [
-            ('enabled', True)
-        ]
+        verifylist = [('enabled', True)]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
         # In base command class Lister in cliff, abstract method take_action()
@@ -333,24 +309,23 @@ class TestDomainList(TestDomain):
         # containing the data to be listed.
         columns, data = self.cmd.take_action(parsed_args)
 
-        kwargs = {
-            'enabled': True
-        }
+        kwargs = {'enabled': True}
         self.domains_mock.list.assert_called_with(**kwargs)
 
         collist = ('ID', 'Name', 'Enabled', 'Description')
         self.assertEqual(collist, columns)
-        datalist = ((
-            self.domain.id,
-            self.domain.name,
-            True,
-            self.domain.description,
-        ), )
+        datalist = (
+            (
+                self.domain.id,
+                self.domain.name,
+                True,
+                self.domain.description,
+            ),
+        )
         self.assertEqual(datalist, tuple(data))
 
 
 class TestDomainSet(TestDomain):
-
     domain = identity_fakes.FakeDomain.create_one_domain()
 
     def setUp(self):
@@ -375,15 +350,13 @@ class TestDomainSet(TestDomain):
         result = self.cmd.take_action(parsed_args)
 
         kwargs = {}
-        self.domains_mock.update.assert_called_with(
-            self.domain.id,
-            **kwargs
-        )
+        self.domains_mock.update.assert_called_with(self.domain.id, **kwargs)
         self.assertIsNone(result)
 
     def test_domain_set_name(self):
         arglist = [
-            '--name', 'qwerty',
+            '--name',
+            'qwerty',
             self.domain.id,
         ]
         verifylist = [
@@ -398,15 +371,13 @@ class TestDomainSet(TestDomain):
         kwargs = {
             'name': 'qwerty',
         }
-        self.domains_mock.update.assert_called_with(
-            self.domain.id,
-            **kwargs
-        )
+        self.domains_mock.update.assert_called_with(self.domain.id, **kwargs)
         self.assertIsNone(result)
 
     def test_domain_set_description(self):
         arglist = [
-            '--description', 'new desc',
+            '--description',
+            'new desc',
             self.domain.id,
         ]
         verifylist = [
@@ -421,10 +392,7 @@ class TestDomainSet(TestDomain):
         kwargs = {
             'description': 'new desc',
         }
-        self.domains_mock.update.assert_called_with(
-            self.domain.id,
-            **kwargs
-        )
+        self.domains_mock.update.assert_called_with(self.domain.id, **kwargs)
         self.assertIsNone(result)
 
     def test_domain_set_enable(self):
@@ -444,10 +412,7 @@ class TestDomainSet(TestDomain):
         kwargs = {
             'enabled': True,
         }
-        self.domains_mock.update.assert_called_with(
-            self.domain.id,
-            **kwargs
-        )
+        self.domains_mock.update.assert_called_with(self.domain.id, **kwargs)
         self.assertIsNone(result)
 
     def test_domain_set_disable(self):
@@ -467,10 +432,7 @@ class TestDomainSet(TestDomain):
         kwargs = {
             'enabled': False,
         }
-        self.domains_mock.update.assert_called_with(
-            self.domain.id,
-            **kwargs
-        )
+        self.domains_mock.update.assert_called_with(self.domain.id, **kwargs)
         self.assertIsNone(result)
 
     def test_domain_set_immutable_option(self):
@@ -490,10 +452,7 @@ class TestDomainSet(TestDomain):
         kwargs = {
             'options': {'immutable': True},
         }
-        self.domains_mock.update.assert_called_with(
-            self.domain.id,
-            **kwargs
-        )
+        self.domains_mock.update.assert_called_with(self.domain.id, **kwargs)
         self.assertIsNone(result)
 
     def test_domain_set_no_immutable_option(self):
@@ -513,15 +472,11 @@ class TestDomainSet(TestDomain):
         kwargs = {
             'options': {'immutable': False},
         }
-        self.domains_mock.update.assert_called_with(
-            self.domain.id,
-            **kwargs
-        )
+        self.domains_mock.update.assert_called_with(self.domain.id, **kwargs)
         self.assertIsNone(result)
 
 
 class TestDomainShow(TestDomain):
-
     def setUp(self):
         super(TestDomainShow, self).setUp()
 
@@ -538,16 +493,9 @@ class TestDomainShow(TestDomain):
             ('domain', self.domain.id),
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
-        self.app.client_manager.identity.tokens.get_token_data.return_value = \
-            {'token':
-             {'project':
-              {'domain':
-               {'id': 'd1',
-                'name': 'd1'
-                }
-               }
-              }
-             }
+        self.app.client_manager.identity.tokens.get_token_data.return_value = {
+            'token': {'project': {'domain': {'id': 'd1', 'name': 'd1'}}}
+        }
 
         # In base command class ShowOne in cliff, abstract method take_action()
         # returns a two-part tuple with a tuple of column names and a tuple of
@@ -564,6 +512,6 @@ class TestDomainShow(TestDomain):
             True,
             self.domain.id,
             self.domain.name,
-            self.domain.tags
+            self.domain.tags,
         )
         self.assertEqual(datalist, data)

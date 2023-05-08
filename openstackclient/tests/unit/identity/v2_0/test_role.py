@@ -24,7 +24,6 @@ from openstackclient.tests.unit.identity.v2_0 import fakes as identity_fakes
 
 
 class TestRole(identity_fakes.TestIdentityv2):
-
     attr = {}
     attr['endpoints'] = [
         {
@@ -64,7 +63,6 @@ class TestRole(identity_fakes.TestIdentityv2):
 
 
 class TestRoleAdd(TestRole):
-
     def setUp(self):
         super(TestRoleAdd, self).setUp()
 
@@ -80,8 +78,10 @@ class TestRoleAdd(TestRole):
 
     def test_role_add(self):
         arglist = [
-            '--project', self.fake_project.name,
-            '--user', self.fake_user.name,
+            '--project',
+            self.fake_project.name,
+            '--user',
+            self.fake_user.name,
             self.fake_role.name,
         ]
         verifylist = [
@@ -113,12 +113,8 @@ class TestRoleAdd(TestRole):
 
 
 class TestRoleCreate(TestRole):
-
     fake_role_c = identity_fakes.FakeRole.create_one_role()
-    columns = (
-        'id',
-        'name'
-    )
+    columns = ('id', 'name')
     datalist = (
         fake_role_c.id,
         fake_role_c.name,
@@ -215,7 +211,6 @@ class TestRoleCreate(TestRole):
 
 
 class TestRoleDelete(TestRole):
-
     def setUp(self):
         super(TestRoleDelete, self).setUp()
 
@@ -243,8 +238,7 @@ class TestRoleDelete(TestRole):
 
     @mock.patch.object(utils, 'find_resource')
     def test_delete_multi_roles_with_exception(self, find_mock):
-        find_mock.side_effect = [self.fake_role,
-                                 exceptions.CommandError]
+        find_mock.side_effect = [self.fake_role, exceptions.CommandError]
         arglist = [
             self.fake_role.id,
             'unexist_role',
@@ -258,8 +252,7 @@ class TestRoleDelete(TestRole):
             self.cmd.take_action(parsed_args)
             self.fail('CommandError should be raised.')
         except exceptions.CommandError as e:
-            self.assertEqual('1 of 2 roles failed to delete.',
-                             str(e))
+            self.assertEqual('1 of 2 roles failed to delete.', str(e))
 
         find_mock.assert_any_call(self.roles_mock, self.fake_role.id)
         find_mock.assert_any_call(self.roles_mock, 'unexist_role')
@@ -269,7 +262,6 @@ class TestRoleDelete(TestRole):
 
 
 class TestRoleList(TestRole):
-
     def setUp(self):
         super(TestRoleList, self).setUp()
 
@@ -292,15 +284,16 @@ class TestRoleList(TestRole):
 
         collist = ('ID', 'Name')
         self.assertEqual(collist, columns)
-        datalist = ((
-            self.fake_role.id,
-            self.fake_role.name,
-        ), )
+        datalist = (
+            (
+                self.fake_role.id,
+                self.fake_role.name,
+            ),
+        )
         self.assertEqual(datalist, tuple(data))
 
 
 class TestRoleRemove(TestRole):
-
     def setUp(self):
         super(TestRoleRemove, self).setUp()
 
@@ -316,8 +309,10 @@ class TestRoleRemove(TestRole):
 
     def test_role_remove(self):
         arglist = [
-            '--project', self.fake_project.name,
-            '--user', self.fake_user.name,
+            '--project',
+            self.fake_project.name,
+            '--user',
+            self.fake_user.name,
             self.fake_role.name,
         ]
         verifylist = [
@@ -339,7 +334,6 @@ class TestRoleRemove(TestRole):
 
 
 class TestRoleShow(TestRole):
-
     def setUp(self):
         super(TestRoleShow, self).setUp()
 

@@ -133,14 +133,20 @@ class DeleteRole(command.Command):
                 identity_client.roles.delete(role_obj.id)
             except Exception as e:
                 errors += 1
-                LOG.error(_("Failed to delete role with "
-                          "name or ID '%(role)s': %(e)s"),
-                          {'role': role, 'e': e})
+                LOG.error(
+                    _(
+                        "Failed to delete role with "
+                        "name or ID '%(role)s': %(e)s"
+                    ),
+                    {'role': role, 'e': e},
+                )
 
         if errors > 0:
             total = len(parsed_args.roles)
-            msg = (_("%(errors)s of %(total)s roles failed "
-                   "to delete.") % {'errors': errors, 'total': total})
+            msg = _("%(errors)s of %(total)s roles failed " "to delete.") % {
+                'errors': errors,
+                'total': total,
+            }
             raise exceptions.CommandError(msg)
 
 
@@ -153,11 +159,17 @@ class ListRole(command.Lister):
         columns = ('ID', 'Name')
         data = identity_client.roles.list()
 
-        return (columns,
-                (utils.get_item_properties(
-                    s, columns,
+        return (
+            columns,
+            (
+                utils.get_item_properties(
+                    s,
+                    columns,
                     formatters={},
-                ) for s in data))
+                )
+                for s in data
+            ),
+        )
 
 
 class RemoveRole(command.Command):
@@ -192,10 +204,7 @@ class RemoveRole(command.Command):
             parsed_args.project,
         )
         user = utils.find_resource(identity_client.users, parsed_args.user)
-        identity_client.roles.remove_user_role(
-            user.id,
-            role.id,
-            project.id)
+        identity_client.roles.remove_user_role(user.id, role.id, project.id)
 
 
 class ShowRole(command.ShowOne):

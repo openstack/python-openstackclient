@@ -58,55 +58,24 @@ EMPLOYEE_GROUP_ID = "0cd5e9"
 DEVELOPER_GROUP_ID = "xyz"
 MAPPING_RULES = [
     {
-        "local": [
-            {
-                "group": {
-                    "id": EMPLOYEE_GROUP_ID
-                }
-            }
-        ],
+        "local": [{"group": {"id": EMPLOYEE_GROUP_ID}}],
         "remote": [
-            {
-                "type": "orgPersonType",
-                "not_any_of": [
-                    "Contractor",
-                    "Guest"
-                ]
-            }
-        ]
+            {"type": "orgPersonType", "not_any_of": ["Contractor", "Guest"]}
+        ],
     }
 ]
 
 MAPPING_RULES_2 = [
     {
-        "local": [
-            {
-                "group": {
-                    "id": DEVELOPER_GROUP_ID
-                }
-            }
-        ],
-        "remote": [
-            {
-                "type": "orgPersonType",
-                "any_one_of": [
-                    "Contractor"
-                ]
-            }
-        ]
+        "local": [{"group": {"id": DEVELOPER_GROUP_ID}}],
+        "remote": [{"type": "orgPersonType", "any_one_of": ["Contractor"]}],
     }
 ]
 
 
-MAPPING_RESPONSE = {
-    "id": mapping_id,
-    "rules": MAPPING_RULES
-}
+MAPPING_RESPONSE = {"id": mapping_id, "rules": MAPPING_RULES}
 
-MAPPING_RESPONSE_2 = {
-    "id": mapping_id,
-    "rules": MAPPING_RULES_2
-}
+MAPPING_RESPONSE_2 = {"id": mapping_id, "rules": MAPPING_RULES_2}
 
 mfa_opt1 = 'password,totp'
 mfa_opt2 = 'password'
@@ -270,7 +239,7 @@ USER = {
 trust_id = 't-456'
 trust_expires = None
 trust_impersonation = False
-trust_roles = {"id": role_id, "name": role_name},
+trust_roles = ({"id": role_id, "name": role_name},)
 
 TRUST = {
     'expires_at': trust_expires,
@@ -327,32 +296,31 @@ mapping_id_updated = 'prod_mapping'
 sp_id = 'BETA'
 sp_description = 'Service Provider to burst into'
 service_provider_url = 'https://beta.example.com/Shibboleth.sso/POST/SAML'
-sp_auth_url = ('https://beta.example.com/v3/OS-FEDERATION/identity_providers/'
-               'idp/protocol/saml2/auth')
+sp_auth_url = (
+    'https://beta.example.com/v3/OS-FEDERATION/identity_providers/'
+    'idp/protocol/saml2/auth'
+)
 
 SERVICE_PROVIDER = {
     'id': sp_id,
     'enabled': True,
     'description': sp_description,
     'sp_url': service_provider_url,
-    'auth_url': sp_auth_url
+    'auth_url': sp_auth_url,
 }
 
-PROTOCOL_ID_MAPPING = {
-    'id': protocol_id,
-    'mapping': mapping_id
-}
+PROTOCOL_ID_MAPPING = {'id': protocol_id, 'mapping': mapping_id}
 
 PROTOCOL_OUTPUT = {
     'id': protocol_id,
     'mapping_id': mapping_id,
-    'identity_provider': idp_id
+    'identity_provider': idp_id,
 }
 
 PROTOCOL_OUTPUT_UPDATED = {
     'id': protocol_id,
     'mapping_id': mapping_id_updated,
-    'identity_provider': idp_id
+    'identity_provider': idp_id,
 }
 
 # Assignments
@@ -366,22 +334,24 @@ ASSIGNMENT_WITH_PROJECT_ID_AND_USER_ID = {
 ASSIGNMENT_WITH_PROJECT_ID_AND_USER_ID_INCLUDE_NAMES = {
     'scope': {
         'project': {
-            'domain': {'id': domain_id,
-                       'name': domain_name},
+            'domain': {'id': domain_id, 'name': domain_name},
             'id': project_id,
-            'name': project_name}},
+            'name': project_name,
+        }
+    },
     'user': {
-        'domain': {'id': domain_id,
-                   'name': domain_name},
+        'domain': {'id': domain_id, 'name': domain_name},
         'id': user_id,
-        'name': user_name},
-    'role': {'id': role_id,
-             'name': role_name},
+        'name': user_name,
+    },
+    'role': {'id': role_id, 'name': role_name},
 }
 
 ASSIGNMENT_WITH_PROJECT_ID_AND_USER_ID_INHERITED = {
-    'scope': {'project': {'id': project_id},
-              'OS-INHERIT:inherited_to': 'projects'},
+    'scope': {
+        'project': {'id': project_id},
+        'OS-INHERIT:inherited_to': 'projects',
+    },
     'user': {'id': user_id},
     'role': {'id': role_id},
 }
@@ -405,21 +375,20 @@ ASSIGNMENT_WITH_DOMAIN_ROLE = {
 }
 
 ASSIGNMENT_WITH_DOMAIN_ID_AND_USER_ID_INCLUDE_NAMES = {
-    'scope': {
-        'domain': {'id': domain_id,
-                   'name': domain_name}},
+    'scope': {'domain': {'id': domain_id, 'name': domain_name}},
     'user': {
-        'domain': {'id': domain_id,
-                   'name': domain_name},
+        'domain': {'id': domain_id, 'name': domain_name},
         'id': user_id,
-        'name': user_name},
-    'role': {'id': role_id,
-             'name': role_name},
+        'name': user_name,
+    },
+    'role': {'id': role_id, 'name': role_name},
 }
 
 ASSIGNMENT_WITH_DOMAIN_ID_AND_USER_ID_INHERITED = {
-    'scope': {'domain': {'id': domain_id},
-              'OS-INHERIT:inherited_to': 'projects'},
+    'scope': {
+        'domain': {'id': domain_id},
+        'OS-INHERIT:inherited_to': 'projects',
+    },
     'user': {'id': user_id},
     'role': {'id': role_id},
 }
@@ -437,7 +406,7 @@ consumer_secret = 'test consumer secret'
 OAUTH_CONSUMER = {
     'id': consumer_id,
     'secret': consumer_secret,
-    'description': consumer_description
+    'description': consumer_description,
 }
 
 access_token_id = 'test access token id'
@@ -448,7 +417,7 @@ OAUTH_ACCESS_TOKEN = {
     'id': access_token_id,
     'expires': access_token_expires,
     'key': access_token_id,
-    'secret': access_token_secret
+    'secret': access_token_secret,
 }
 
 request_token_id = 'test request token id'
@@ -459,17 +428,15 @@ OAUTH_REQUEST_TOKEN = {
     'id': request_token_id,
     'expires': request_token_expires,
     'key': request_token_id,
-    'secret': request_token_secret
+    'secret': request_token_secret,
 }
 
 oauth_verifier_pin = '6d74XaDS'
-OAUTH_VERIFIER = {
-    'oauth_verifier': oauth_verifier_pin
-}
+OAUTH_VERIFIER = {'oauth_verifier': oauth_verifier_pin}
 
 app_cred_id = 'app-cred-id'
 app_cred_name = 'testing_app_cred'
-app_cred_role = {"id": role_id, "name": role_name, "domain": None},
+app_cred_role = ({"id": role_id, "name": role_name, "domain": None},)
 app_cred_description = 'app credential for testing'
 app_cred_expires = datetime.datetime(2022, 1, 1, 0, 0)
 app_cred_expires_str = app_cred_expires.strftime('%Y-%m-%dT%H:%M:%S%z')
@@ -491,7 +458,7 @@ APP_CRED_BASIC = {
     'expires_at': None,
     'unrestricted': False,
     'secret': app_cred_secret,
-    'access_rules': None
+    'access_rules': None,
 }
 APP_CRED_OPTIONS = {
     'id': app_cred_id,
@@ -519,7 +486,7 @@ APP_CRED_ACCESS_RULES = {
     'expires_at': None,
     'unrestricted': False,
     'secret': app_cred_secret,
-    'access_rules': app_cred_access_rules
+    'access_rules': app_cred_access_rules,
 }
 
 registered_limit_id = 'registered-limit-id'
@@ -532,7 +499,7 @@ REGISTERED_LIMIT = {
     'resource_name': registered_limit_resource_name,
     'service_id': service_id,
     'description': None,
-    'region_id': None
+    'region_id': None,
 }
 REGISTERED_LIMIT_OPTIONS = {
     'id': registered_limit_id,
@@ -540,7 +507,7 @@ REGISTERED_LIMIT_OPTIONS = {
     'resource_name': registered_limit_resource_name,
     'service_id': service_id,
     'description': registered_limit_description,
-    'region_id': region_id
+    'region_id': region_id,
 }
 
 limit_id = 'limit-id'
@@ -554,7 +521,7 @@ LIMIT = {
     'resource_name': limit_resource_name,
     'service_id': service_id,
     'description': None,
-    'region_id': None
+    'region_id': None,
 }
 LIMIT_OPTIONS = {
     'id': limit_id,
@@ -563,7 +530,7 @@ LIMIT_OPTIONS = {
     'resource_name': limit_resource_name,
     'service_id': service_id,
     'description': limit_description,
-    'region_id': region_id
+    'region_id': region_id,
 }
 
 
@@ -598,7 +565,6 @@ def fake_auth_ref(fake_token, fake_service=None):
 
 
 class FakeAuth(object):
-
     def __init__(self, auth_method_class=None):
         self._auth_method_class = auth_method_class
 
@@ -607,13 +573,11 @@ class FakeAuth(object):
 
 
 class FakeSession(object):
-
     def __init__(self, **kwargs):
         self.auth = FakeAuth()
 
 
 class FakeIdentityv3Client(object):
-
     def __init__(self, **kwargs):
         self.domains = mock.Mock()
         self.domains.resource_class = fakes.FakeResource(None, {})
@@ -638,8 +602,9 @@ class FakeIdentityv3Client(object):
         self.services = mock.Mock()
         self.services.resource_class = fakes.FakeResource(None, {})
         self.session = mock.Mock()
-        self.session.auth.auth_ref.service_catalog.resource_class = \
+        self.session.auth.auth_ref.service_catalog.resource_class = (
             fakes.FakeResource(None, {})
+        )
         self.tokens = mock.Mock()
         self.tokens.resource_class = fakes.FakeResource(None, {})
         self.trusts = mock.Mock()
@@ -654,8 +619,9 @@ class FakeIdentityv3Client(object):
         self.auth.client = mock.Mock()
         self.auth.client.resource_class = fakes.FakeResource(None, {})
         self.application_credentials = mock.Mock()
-        self.application_credentials.resource_class = fakes.FakeResource(None,
-                                                                         {})
+        self.application_credentials.resource_class = fakes.FakeResource(
+            None, {}
+        )
         self.access_rules = mock.Mock()
         self.access_rules.resource_class = fakes.FakeResource(None, {})
         self.inference_rules = mock.Mock()
@@ -667,7 +633,6 @@ class FakeIdentityv3Client(object):
 
 
 class FakeFederationManager(object):
-
     def __init__(self, **kwargs):
         self.identity_providers = mock.Mock()
         self.identity_providers.resource_class = fakes.FakeResource(None, {})
@@ -684,14 +649,12 @@ class FakeFederationManager(object):
 
 
 class FakeFederatedClient(FakeIdentityv3Client):
-
     def __init__(self, **kwargs):
         super(FakeFederatedClient, self).__init__(**kwargs)
         self.federation = FakeFederationManager()
 
 
 class FakeOAuth1Client(FakeIdentityv3Client):
-
     def __init__(self, **kwargs):
         super(FakeOAuth1Client, self).__init__(**kwargs)
 
@@ -704,7 +667,6 @@ class FakeOAuth1Client(FakeIdentityv3Client):
 
 
 class TestIdentityv3(utils.TestCommand):
-
     def setUp(self):
         super(TestIdentityv3, self).setUp()
 
@@ -715,24 +677,20 @@ class TestIdentityv3(utils.TestCommand):
 
 
 class TestFederatedIdentity(utils.TestCommand):
-
     def setUp(self):
         super(TestFederatedIdentity, self).setUp()
 
         self.app.client_manager.identity = FakeFederatedClient(
-            endpoint=fakes.AUTH_URL,
-            token=fakes.AUTH_TOKEN
+            endpoint=fakes.AUTH_URL, token=fakes.AUTH_TOKEN
         )
 
 
 class TestOAuth1(utils.TestCommand):
-
     def setUp(self):
         super(TestOAuth1, self).setUp()
 
         self.app.client_manager.identity = FakeOAuth1Client(
-            endpoint=fakes.AUTH_URL,
-            token=fakes.AUTH_TOKEN
+            endpoint=fakes.AUTH_URL, token=fakes.AUTH_TOKEN
         )
 
 
@@ -765,8 +723,9 @@ class FakeProject(object):
         }
         project_info.update(attrs)
 
-        project = fakes.FakeResource(info=copy.deepcopy(project_info),
-                                     loaded=True)
+        project = fakes.FakeResource(
+            info=copy.deepcopy(project_info), loaded=True
+        )
         return project
 
     @staticmethod
@@ -813,8 +772,9 @@ class FakeDomain(object):
         }
         domain_info.update(attrs)
 
-        domain = fakes.FakeResource(info=copy.deepcopy(domain_info),
-                                    loaded=True)
+        domain = fakes.FakeResource(
+            info=copy.deepcopy(domain_info), loaded=True
+        )
         return domain
 
 
@@ -845,7 +805,8 @@ class FakeCredential(object):
         credential_info.update(attrs)
 
         credential = fakes.FakeResource(
-            info=copy.deepcopy(credential_info), loaded=True)
+            info=copy.deepcopy(credential_info), loaded=True
+        )
         return credential
 
     @staticmethod
@@ -914,8 +875,7 @@ class FakeUser(object):
         }
         user_info.update(attrs)
 
-        user = fakes.FakeResource(info=copy.deepcopy(user_info),
-                                  loaded=True)
+        user = fakes.FakeResource(info=copy.deepcopy(user_info), loaded=True)
         return user
 
     @staticmethod
@@ -982,8 +942,7 @@ class FakeGroup(object):
         }
         group_info.update(attrs)
 
-        group = fakes.FakeResource(info=copy.deepcopy(group_info),
-                                   loaded=True)
+        group = fakes.FakeResource(info=copy.deepcopy(group_info), loaded=True)
         return group
 
     @staticmethod
@@ -1052,8 +1011,9 @@ class FakeEndpoint(object):
         }
         endpoint_info.update(attrs)
 
-        endpoint = fakes.FakeResource(info=copy.deepcopy(endpoint_info),
-                                      loaded=True)
+        endpoint = fakes.FakeResource(
+            info=copy.deepcopy(endpoint_info), loaded=True
+        )
         return endpoint
 
     @staticmethod
@@ -1076,8 +1036,7 @@ class FakeEndpoint(object):
         # Overwrite default attributes if there are some attributes set
         endpoint_filter_info.update(attrs)
 
-        endpoint_filter = fakes.FakeModel(
-            copy.deepcopy(endpoint_filter_info))
+        endpoint_filter = fakes.FakeModel(copy.deepcopy(endpoint_filter_info))
 
         return endpoint_filter
 
@@ -1110,8 +1069,9 @@ class FakeEndpointGroup(object):
         }
         endpointgroup_info.update(attrs)
 
-        endpoint = fakes.FakeResource(info=copy.deepcopy(endpointgroup_info),
-                                      loaded=True)
+        endpoint = fakes.FakeResource(
+            info=copy.deepcopy(endpointgroup_info), loaded=True
+        )
         return endpoint
 
     @staticmethod
@@ -1135,7 +1095,8 @@ class FakeEndpointGroup(object):
         endpointgroup_filter_info.update(attrs)
 
         endpointgroup_filter = fakes.FakeModel(
-            copy.deepcopy(endpointgroup_filter_info))
+            copy.deepcopy(endpointgroup_filter_info)
+        )
 
         return endpointgroup_filter
 
@@ -1166,8 +1127,9 @@ class FakeService(object):
         }
         service_info.update(attrs)
 
-        service = fakes.FakeResource(info=copy.deepcopy(service_info),
-                                     loaded=True)
+        service = fakes.FakeResource(
+            info=copy.deepcopy(service_info), loaded=True
+        )
         return service
 
 
@@ -1195,13 +1157,15 @@ class FakeRoleAssignment(object):
         role_assignment_info.update(attrs)
 
         role_assignment = fakes.FakeResource(
-            info=copy.deepcopy(role_assignment_info), loaded=True)
+            info=copy.deepcopy(role_assignment_info), loaded=True
+        )
 
         return role_assignment
 
 
 class FakeImpliedRoleResponse(object):
     """Fake one or more role assignment."""
+
     def __init__(self, prior_role, implied_roles):
         self.prior_role = prior_role
         self.implies = [role for role in implied_roles]
@@ -1215,8 +1179,6 @@ class FakeImpliedRoleResponse(object):
         """
 
         # set default attributes.
-        implied_roles = [
-            FakeImpliedRoleResponse(ROLES[0], [ROLES[1]])
-        ]
+        implied_roles = [FakeImpliedRoleResponse(ROLES[0], [ROLES[1]])]
 
         return implied_roles

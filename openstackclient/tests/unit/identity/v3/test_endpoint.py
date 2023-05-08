@@ -15,16 +15,13 @@ from openstackclient.tests.unit.identity.v3 import fakes as identity_fakes
 
 
 class TestEndpoint(identity_fakes.TestIdentityv3):
-
     def setUp(self):
         super(TestEndpoint, self).setUp()
 
         # Get a shortcut to the EndpointManager Mock
         self.endpoints_mock = self.app.client_manager.identity.endpoints
         self.endpoints_mock.reset_mock()
-        self.ep_filter_mock = (
-            self.app.client_manager.identity.endpoint_filter
-        )
+        self.ep_filter_mock = self.app.client_manager.identity.endpoint_filter
         self.ep_filter_mock.reset_mock()
 
         # Get a shortcut to the ServiceManager Mock
@@ -41,7 +38,6 @@ class TestEndpoint(identity_fakes.TestIdentityv3):
 
 
 class TestEndpointCreate(TestEndpoint):
-
     service = identity_fakes.FakeService.create_one_service()
 
     columns = (
@@ -59,7 +55,8 @@ class TestEndpointCreate(TestEndpoint):
         super(TestEndpointCreate, self).setUp()
 
         self.endpoint = identity_fakes.FakeEndpoint.create_one_endpoint(
-            attrs={'service_id': self.service.id})
+            attrs={'service_id': self.service.id}
+        )
         self.endpoints_mock.create.return_value = self.endpoint
 
         # This is the return value for common.find_resource(service)
@@ -96,9 +93,7 @@ class TestEndpointCreate(TestEndpoint):
             'region': None,
         }
 
-        self.endpoints_mock.create.assert_called_with(
-            **kwargs
-        )
+        self.endpoints_mock.create.assert_called_with(**kwargs)
 
         self.assertEqual(self.columns, columns)
         datalist = (
@@ -118,7 +113,8 @@ class TestEndpointCreate(TestEndpoint):
             self.service.id,
             self.endpoint.interface,
             self.endpoint.url,
-            '--region', self.endpoint.region,
+            '--region',
+            self.endpoint.region,
         ]
         verifylist = [
             ('enabled', True),
@@ -143,9 +139,7 @@ class TestEndpointCreate(TestEndpoint):
             'region': self.endpoint.region,
         }
 
-        self.endpoints_mock.create.assert_called_with(
-            **kwargs
-        )
+        self.endpoints_mock.create.assert_called_with(**kwargs)
 
         self.assertEqual(self.columns, columns)
         datalist = (
@@ -165,7 +159,7 @@ class TestEndpointCreate(TestEndpoint):
             self.service.id,
             self.endpoint.interface,
             self.endpoint.url,
-            '--enable'
+            '--enable',
         ]
         verifylist = [
             ('enabled', True),
@@ -189,9 +183,7 @@ class TestEndpointCreate(TestEndpoint):
             'region': None,
         }
 
-        self.endpoints_mock.create.assert_called_with(
-            **kwargs
-        )
+        self.endpoints_mock.create.assert_called_with(**kwargs)
 
         self.assertEqual(self.columns, columns)
         datalist = (
@@ -235,9 +227,7 @@ class TestEndpointCreate(TestEndpoint):
             'region': None,
         }
 
-        self.endpoints_mock.create.assert_called_with(
-            **kwargs
-        )
+        self.endpoints_mock.create.assert_called_with(**kwargs)
 
         self.assertEqual(self.columns, columns)
         datalist = (
@@ -254,7 +244,6 @@ class TestEndpointCreate(TestEndpoint):
 
 
 class TestEndpointDelete(TestEndpoint):
-
     endpoint = identity_fakes.FakeEndpoint.create_one_endpoint()
 
     def setUp(self):
@@ -285,10 +274,10 @@ class TestEndpointDelete(TestEndpoint):
 
 
 class TestEndpointList(TestEndpoint):
-
     service = identity_fakes.FakeService.create_one_service()
     endpoint = identity_fakes.FakeEndpoint.create_one_endpoint(
-        attrs={'service_id': service.id})
+        attrs={'service_id': service.id}
+    )
 
     columns = (
         'ID',
@@ -339,7 +328,8 @@ class TestEndpointList(TestEndpoint):
 
     def test_endpoint_list_service(self):
         arglist = [
-            '--service', self.service.id,
+            '--service',
+            self.service.id,
         ]
         verifylist = [
             ('service', self.service.id),
@@ -373,7 +363,8 @@ class TestEndpointList(TestEndpoint):
 
     def test_endpoint_list_interface(self):
         arglist = [
-            '--interface', self.endpoint.interface,
+            '--interface',
+            self.endpoint.interface,
         ]
         verifylist = [
             ('interface', self.endpoint.interface),
@@ -407,7 +398,8 @@ class TestEndpointList(TestEndpoint):
 
     def test_endpoint_list_region(self):
         arglist = [
-            '--region', self.endpoint.region,
+            '--region',
+            self.endpoint.region,
         ]
         verifylist = [
             ('region', self.endpoint.region),
@@ -448,10 +440,7 @@ class TestEndpointList(TestEndpoint):
         ]
         self.projects_mock.get.return_value = project
 
-        arglist = [
-            '--project', project.name,
-            '--project-domain', domain.name
-        ]
+        arglist = ['--project', project.name, '--project-domain', domain.name]
         verifylist = [
             ('project', project.name),
             ('project_domain', domain.name),
@@ -482,10 +471,10 @@ class TestEndpointList(TestEndpoint):
 
 
 class TestEndpointSet(TestEndpoint):
-
     service = identity_fakes.FakeService.create_one_service()
     endpoint = identity_fakes.FakeEndpoint.create_one_endpoint(
-        attrs={'service_id': service.id})
+        attrs={'service_id': service.id}
+    )
 
     def setUp(self):
         super(TestEndpointSet, self).setUp()
@@ -520,16 +509,12 @@ class TestEndpointSet(TestEndpoint):
             'url': None,
         }
         self.endpoints_mock.update.assert_called_with(
-            self.endpoint.id,
-            **kwargs
+            self.endpoint.id, **kwargs
         )
         self.assertIsNone(result)
 
     def test_endpoint_set_interface(self):
-        arglist = [
-            '--interface', 'public',
-            self.endpoint.id
-        ]
+        arglist = ['--interface', 'public', self.endpoint.id]
         verifylist = [
             ('interface', 'public'),
             ('endpoint', self.endpoint.id),
@@ -547,16 +532,12 @@ class TestEndpointSet(TestEndpoint):
             'service': None,
         }
         self.endpoints_mock.update.assert_called_with(
-            self.endpoint.id,
-            **kwargs
+            self.endpoint.id, **kwargs
         )
         self.assertIsNone(result)
 
     def test_endpoint_set_url(self):
-        arglist = [
-            '--url', 'http://localhost:5000',
-            self.endpoint.id
-        ]
+        arglist = ['--url', 'http://localhost:5000', self.endpoint.id]
         verifylist = [
             ('url', 'http://localhost:5000'),
             ('endpoint', self.endpoint.id),
@@ -574,16 +555,12 @@ class TestEndpointSet(TestEndpoint):
             'service': None,
         }
         self.endpoints_mock.update.assert_called_with(
-            self.endpoint.id,
-            **kwargs
+            self.endpoint.id, **kwargs
         )
         self.assertIsNone(result)
 
     def test_endpoint_set_service(self):
-        arglist = [
-            '--service', self.service.id,
-            self.endpoint.id
-        ]
+        arglist = ['--service', self.service.id, self.endpoint.id]
         verifylist = [
             ('service', self.service.id),
             ('endpoint', self.endpoint.id),
@@ -601,16 +578,12 @@ class TestEndpointSet(TestEndpoint):
             'service': self.service.id,
         }
         self.endpoints_mock.update.assert_called_with(
-            self.endpoint.id,
-            **kwargs
+            self.endpoint.id, **kwargs
         )
         self.assertIsNone(result)
 
     def test_endpoint_set_region(self):
-        arglist = [
-            '--region', 'e-rzzz',
-            self.endpoint.id
-        ]
+        arglist = ['--region', 'e-rzzz', self.endpoint.id]
         verifylist = [
             ('region', 'e-rzzz'),
             ('endpoint', self.endpoint.id),
@@ -628,16 +601,12 @@ class TestEndpointSet(TestEndpoint):
             'service': None,
         }
         self.endpoints_mock.update.assert_called_with(
-            self.endpoint.id,
-            **kwargs
+            self.endpoint.id, **kwargs
         )
         self.assertIsNone(result)
 
     def test_endpoint_set_enable(self):
-        arglist = [
-            '--enable',
-            self.endpoint.id
-        ]
+        arglist = ['--enable', self.endpoint.id]
         verifylist = [
             ('enabled', True),
             ('endpoint', self.endpoint.id),
@@ -655,16 +624,12 @@ class TestEndpointSet(TestEndpoint):
             'service': None,
         }
         self.endpoints_mock.update.assert_called_with(
-            self.endpoint.id,
-            **kwargs
+            self.endpoint.id, **kwargs
         )
         self.assertIsNone(result)
 
     def test_endpoint_set_disable(self):
-        arglist = [
-            '--disable',
-            self.endpoint.id
-        ]
+        arglist = ['--disable', self.endpoint.id]
         verifylist = [
             ('disabled', True),
             ('endpoint', self.endpoint.id),
@@ -682,17 +647,16 @@ class TestEndpointSet(TestEndpoint):
             'service': None,
         }
         self.endpoints_mock.update.assert_called_with(
-            self.endpoint.id,
-            **kwargs
+            self.endpoint.id, **kwargs
         )
         self.assertIsNone(result)
 
 
 class TestEndpointShow(TestEndpoint):
-
     service = identity_fakes.FakeService.create_one_service()
     endpoint = identity_fakes.FakeEndpoint.create_one_endpoint(
-        attrs={'service_id': service.id})
+        attrs={'service_id': service.id}
+    )
 
     def setUp(self):
         super(TestEndpointShow, self).setUp()
@@ -747,15 +711,16 @@ class TestEndpointShow(TestEndpoint):
 
 
 class TestEndpointCreateServiceWithoutName(TestEndpointCreate):
-
     service = identity_fakes.FakeService.create_one_service(
-        attrs={'service_name': ''})
+        attrs={'service_name': ''}
+    )
 
     def setUp(self):
         super(TestEndpointCreate, self).setUp()
 
         self.endpoint = identity_fakes.FakeEndpoint.create_one_endpoint(
-            attrs={'service_id': self.service.id})
+            attrs={'service_id': self.service.id}
+        )
 
         self.endpoints_mock.create.return_value = self.endpoint
 
@@ -767,11 +732,12 @@ class TestEndpointCreateServiceWithoutName(TestEndpointCreate):
 
 
 class TestEndpointListServiceWithoutName(TestEndpointList):
-
     service = identity_fakes.FakeService.create_one_service(
-        attrs={'service_name': ''})
+        attrs={'service_name': ''}
+    )
     endpoint = identity_fakes.FakeEndpoint.create_one_endpoint(
-        attrs={'service_id': service.id})
+        attrs={'service_id': service.id}
+    )
 
     def setUp(self):
         super(TestEndpointList, self).setUp()
@@ -787,11 +753,12 @@ class TestEndpointListServiceWithoutName(TestEndpointList):
 
 
 class TestEndpointShowServiceWithoutName(TestEndpointShow):
-
     service = identity_fakes.FakeService.create_one_service(
-        attrs={'service_name': ''})
+        attrs={'service_name': ''}
+    )
     endpoint = identity_fakes.FakeEndpoint.create_one_endpoint(
-        attrs={'service_id': service.id})
+        attrs={'service_id': service.id}
+    )
 
     def setUp(self):
         super(TestEndpointShow, self).setUp()
@@ -806,16 +773,15 @@ class TestEndpointShowServiceWithoutName(TestEndpointShow):
 
 
 class TestAddProjectToEndpoint(TestEndpoint):
-
     project = identity_fakes.FakeProject.create_one_project()
     domain = identity_fakes.FakeDomain.create_one_domain()
     service = identity_fakes.FakeService.create_one_service()
     endpoint = identity_fakes.FakeEndpoint.create_one_endpoint(
-        attrs={'service_id': service.id})
+        attrs={'service_id': service.id}
+    )
 
     new_ep_filter = identity_fakes.FakeEndpoint.create_one_endpoint_filter(
-        attrs={'endpoint': endpoint.id,
-               'project': project.id}
+        attrs={'endpoint': endpoint.id, 'project': project.id}
     )
 
     def setUp(self):
@@ -844,8 +810,7 @@ class TestAddProjectToEndpoint(TestEndpoint):
 
         result = self.cmd.take_action(parsed_args)
         self.ep_filter_mock.add_endpoint_to_project.assert_called_with(
-            project=self.project.id,
-            endpoint=self.endpoint.id
+            project=self.project.id, endpoint=self.endpoint.id
         )
         self.assertIsNone(result)
 
@@ -853,7 +818,8 @@ class TestAddProjectToEndpoint(TestEndpoint):
         arglist = [
             self.endpoint.id,
             self.project.id,
-            '--project-domain', self.domain.id,
+            '--project-domain',
+            self.domain.id,
         ]
         verifylist = [
             ('endpoint', self.endpoint.id),
@@ -864,19 +830,18 @@ class TestAddProjectToEndpoint(TestEndpoint):
 
         result = self.cmd.take_action(parsed_args)
         self.ep_filter_mock.add_endpoint_to_project.assert_called_with(
-            project=self.project.id,
-            endpoint=self.endpoint.id
+            project=self.project.id, endpoint=self.endpoint.id
         )
         self.assertIsNone(result)
 
 
 class TestRemoveProjectEndpoint(TestEndpoint):
-
     project = identity_fakes.FakeProject.create_one_project()
     domain = identity_fakes.FakeDomain.create_one_domain()
     service = identity_fakes.FakeService.create_one_service()
     endpoint = identity_fakes.FakeEndpoint.create_one_endpoint(
-        attrs={'service_id': service.id})
+        attrs={'service_id': service.id}
+    )
 
     def setUp(self):
         super(TestRemoveProjectEndpoint, self).setUp()
@@ -914,7 +879,8 @@ class TestRemoveProjectEndpoint(TestEndpoint):
         arglist = [
             self.endpoint.id,
             self.project.id,
-            '--project-domain', self.domain.id,
+            '--project-domain',
+            self.domain.id,
         ]
         verifylist = [
             ('endpoint', self.endpoint.id),

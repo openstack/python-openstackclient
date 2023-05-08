@@ -42,14 +42,18 @@ class CreateIdentityProvider(command.ShowOne):
             '--remote-id',
             metavar='<remote-id>',
             action='append',
-            help=_('Remote IDs to associate with the Identity Provider '
-                   '(repeat option to provide multiple values)'),
+            help=_(
+                'Remote IDs to associate with the Identity Provider '
+                '(repeat option to provide multiple values)'
+            ),
         )
         identity_remote_id_provider.add_argument(
             '--remote-id-file',
             metavar='<file-name>',
-            help=_('Name of a file that contains many remote IDs to associate '
-                   'with the identity provider, one per line'),
+            help=_(
+                'Name of a file that contains many remote IDs to associate '
+                'with the identity provider, one per line'
+            ),
         )
         parser.add_argument(
             '--description',
@@ -59,19 +63,23 @@ class CreateIdentityProvider(command.ShowOne):
         parser.add_argument(
             '--domain',
             metavar='<domain>',
-            help=_('Domain to associate with the identity provider. If not '
-                   'specified, a domain will be created automatically. '
-                   '(Name or ID)'),
+            help=_(
+                'Domain to associate with the identity provider. If not '
+                'specified, a domain will be created automatically. '
+                '(Name or ID)'
+            ),
         )
         parser.add_argument(
             '--authorization-ttl',
             metavar='<authorization-ttl>',
             type=int,
-            help=_('Time to keep the role assignments for users '
-                   'authenticating via this identity provider. '
-                   'When not provided, global default configured in the '
-                   'Identity service will be used. '
-                   'Available since Identity API version 3.14 (Ussuri).'),
+            help=_(
+                'Time to keep the role assignments for users '
+                'authenticating via this identity provider. '
+                'When not provided, global default configured in the '
+                'Identity service will be used. '
+                'Available since Identity API version 3.14 (Ussuri).'
+            ),
         )
         enable_identity_provider = parser.add_mutually_exclusive_group()
         enable_identity_provider.add_argument(
@@ -93,25 +101,29 @@ class CreateIdentityProvider(command.ShowOne):
         identity_client = self.app.client_manager.identity
         if parsed_args.remote_id_file:
             file_content = utils.read_blob_file_contents(
-                parsed_args.remote_id_file)
+                parsed_args.remote_id_file
+            )
             remote_ids = file_content.splitlines()
             remote_ids = list(map(str.strip, remote_ids))
         else:
-            remote_ids = (parsed_args.remote_id
-                          if parsed_args.remote_id else None)
+            remote_ids = (
+                parsed_args.remote_id if parsed_args.remote_id else None
+            )
 
         domain_id = None
         if parsed_args.domain:
-            domain_id = common.find_domain(identity_client,
-                                           parsed_args.domain).id
+            domain_id = common.find_domain(
+                identity_client, parsed_args.domain
+            ).id
 
         # TODO(pas-ha) actually check for 3.14 microversion
         kwargs = {}
         auth_ttl = parsed_args.authorization_ttl
         if auth_ttl is not None:
             if auth_ttl < 0:
-                msg = (_("%(param)s must be positive integer or zero."
-                         ) % {"param": "authorization-ttl"})
+                msg = _("%(param)s must be positive integer or zero.") % {
+                    "param": "authorization-ttl"
+                }
                 raise exceptions.CommandError(msg)
             kwargs['authorization_ttl'] = auth_ttl
 
@@ -121,7 +133,8 @@ class CreateIdentityProvider(command.ShowOne):
             description=parsed_args.description,
             domain_id=domain_id,
             enabled=parsed_args.enabled,
-            **kwargs)
+            **kwargs
+        )
 
         idp._info.pop('links', None)
         remote_ids = format_columns.ListColumn(idp._info.pop('remote_ids', []))
@@ -150,14 +163,20 @@ class DeleteIdentityProvider(command.Command):
                 identity_client.federation.identity_providers.delete(i)
             except Exception as e:
                 result += 1
-                LOG.error(_("Failed to delete identity providers with "
-                          "name or ID '%(provider)s': %(e)s"),
-                          {'provider': i, 'e': e})
+                LOG.error(
+                    _(
+                        "Failed to delete identity providers with "
+                        "name or ID '%(provider)s': %(e)s"
+                    ),
+                    {'provider': i, 'e': e},
+                )
 
         if result > 0:
             total = len(parsed_args.identity_provider)
-            msg = (_("%(result)s of %(total)s identity providers failed"
-                   " to delete.") % {'result': result, 'total': total})
+            msg = _(
+                "%(result)s of %(total)s identity providers failed"
+                " to delete."
+            ) % {'result': result, 'total': total}
             raise exceptions.CommandError(msg)
 
 
@@ -190,11 +209,17 @@ class ListIdentityProvider(command.Lister):
             kwargs['enabled'] = True
 
         data = identity_client.federation.identity_providers.list(**kwargs)
-        return (columns,
-                (utils.get_item_properties(
-                    s, columns,
+        return (
+            columns,
+            (
+                utils.get_item_properties(
+                    s,
+                    columns,
                     formatters={},
-                ) for s in data))
+                )
+                for s in data
+            ),
+        )
 
 
 class SetIdentityProvider(command.Command):
@@ -217,22 +242,28 @@ class SetIdentityProvider(command.Command):
             '--remote-id',
             metavar='<remote-id>',
             action='append',
-            help=_('Remote IDs to associate with the Identity Provider '
-                   '(repeat option to provide multiple values)'),
+            help=_(
+                'Remote IDs to associate with the Identity Provider '
+                '(repeat option to provide multiple values)'
+            ),
         )
         identity_remote_id_provider.add_argument(
             '--remote-id-file',
             metavar='<file-name>',
-            help=_('Name of a file that contains many remote IDs to associate '
-                   'with the identity provider, one per line'),
+            help=_(
+                'Name of a file that contains many remote IDs to associate '
+                'with the identity provider, one per line'
+            ),
         )
         parser.add_argument(
             '--authorization-ttl',
             metavar='<authorization-ttl>',
             type=int,
-            help=_('Time to keep the role assignments for users '
-                   'authenticating via this identity provider. '
-                   'Available since Identity API version 3.14 (Ussuri).'),
+            help=_(
+                'Time to keep the role assignments for users '
+                'authenticating via this identity provider. '
+                'Available since Identity API version 3.14 (Ussuri).'
+            ),
         )
         enable_identity_provider = parser.add_mutually_exclusive_group()
         enable_identity_provider.add_argument(
@@ -253,7 +284,8 @@ class SetIdentityProvider(command.Command):
         # Always set remote_ids if either is passed in
         if parsed_args.remote_id_file:
             file_content = utils.read_blob_file_contents(
-                parsed_args.remote_id_file)
+                parsed_args.remote_id_file
+            )
             remote_ids = file_content.splitlines()
             remote_ids = list(map(str.strip, remote_ids))
         elif parsed_args.remote_id:
@@ -279,14 +311,14 @@ class SetIdentityProvider(command.Command):
         auth_ttl = parsed_args.authorization_ttl
         if auth_ttl is not None:
             if auth_ttl < 0:
-                msg = (_("%(param)s must be positive integer or zero."
-                         ) % {"param": "authorization-ttl"})
+                msg = _("%(param)s must be positive integer or zero.") % {
+                    "param": "authorization-ttl"
+                }
                 raise exceptions.CommandError(msg)
             kwargs['authorization_ttl'] = auth_ttl
 
         federation_client.identity_providers.update(
-            parsed_args.identity_provider,
-            **kwargs
+            parsed_args.identity_provider, **kwargs
         )
 
 
@@ -307,7 +339,8 @@ class ShowIdentityProvider(command.ShowOne):
         idp = utils.find_resource(
             identity_client.federation.identity_providers,
             parsed_args.identity_provider,
-            id=parsed_args.identity_provider)
+            id=parsed_args.identity_provider,
+        )
 
         idp._info.pop('links', None)
         remote_ids = format_columns.ListColumn(idp._info.pop('remote_ids', []))

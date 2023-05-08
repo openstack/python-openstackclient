@@ -16,7 +16,6 @@ from openstackclient.i18n import _
 
 
 class _CommaListAction(argparse.Action):
-
     def __call__(self, parser, namespace, values, option_string=None):
         setattr(namespace, self.dest, values.split(','))
 
@@ -26,29 +25,41 @@ def add_tag_filtering_option_to_parser(parser, collection_name):
         '--tags',
         metavar='<tag>[,<tag>,...]',
         action=_CommaListAction,
-        help=_('List %s which have all given tag(s) '
-               '(Comma-separated list of tags)') % collection_name
+        help=_(
+            'List %s which have all given tag(s) '
+            '(Comma-separated list of tags)'
+        )
+        % collection_name,
     )
     parser.add_argument(
         '--tags-any',
         metavar='<tag>[,<tag>,...]',
         action=_CommaListAction,
-        help=_('List %s which have any given tag(s) '
-               '(Comma-separated list of tags)') % collection_name
+        help=_(
+            'List %s which have any given tag(s) '
+            '(Comma-separated list of tags)'
+        )
+        % collection_name,
     )
     parser.add_argument(
         '--not-tags',
         metavar='<tag>[,<tag>,...]',
         action=_CommaListAction,
-        help=_('Exclude %s which have all given tag(s) '
-               '(Comma-separated list of tags)') % collection_name
+        help=_(
+            'Exclude %s which have all given tag(s) '
+            '(Comma-separated list of tags)'
+        )
+        % collection_name,
     )
     parser.add_argument(
         '--not-tags-any',
         metavar='<tag>[,<tag>,...]',
         action=_CommaListAction,
-        help=_('Exclude %s which have any given tag(s) '
-               '(Comma-separated list of tags)') % collection_name
+        help=_(
+            'Exclude %s which have any given tag(s) '
+            '(Comma-separated list of tags)'
+        )
+        % collection_name,
     )
 
 
@@ -71,8 +82,10 @@ def add_tag_option_to_parser_for_create(parser, resource_name):
         dest='tags',
         metavar='<tag>',
         default=[],
-        help=_('Tag to be added to the %s '
-               '(repeat option to set multiple tags)') % resource_name
+        help=_(
+            'Tag to be added to the %s ' '(repeat option to set multiple tags)'
+        )
+        % resource_name,
     )
 
 
@@ -83,22 +96,30 @@ def add_tag_option_to_parser_for_set(parser, resource_name):
         dest='tags',
         metavar='<tag>',
         default=[],
-        help=_('Tag to be added to the %s '
-               '(repeat option to set multiple tags)') % resource_name
+        help=_(
+            'Tag to be added to the %s ' '(repeat option to set multiple tags)'
+        )
+        % resource_name,
     )
     parser.add_argument(
         '--clear-tags',
         action='store_true',
-        help=_('Clear tags associated with the %s. Specify '
-               'both --tag and --clear-tags to overwrite '
-               'current tags') % resource_name
+        help=_(
+            'Clear tags associated with the %s. Specify '
+            'both --tag and --clear-tags to overwrite '
+            'current tags'
+        )
+        % resource_name,
     )
     parser.add_argument(
         '--remove-tag',
         metavar='<tag>',
         default=[],
-        help=_('Tag to be deleted from the %s '
-               '(repeat option to delete multiple tags)') % resource_name
+        help=_(
+            'Tag to be deleted from the %s '
+            '(repeat option to delete multiple tags)'
+        )
+        % resource_name,
     )
 
 
@@ -112,5 +133,4 @@ def update_tags_in_args(parsed_args, obj, args):
         args['tags'] = list(set(obj.tags))
         return
     if parsed_args.tags:
-        args['tags'] = list(set(obj.tags).union(
-            set(parsed_args.tags)))
+        args['tags'] = list(set(obj.tags).union(set(parsed_args.tags)))

@@ -36,17 +36,20 @@ def _determine_ec2_user(parsed_args, client_manager):
 
     user_domain = None
     if parsed_args.user_domain:
-        user_domain = common.find_domain(client_manager.identity,
-                                         parsed_args.user_domain)
+        user_domain = common.find_domain(
+            client_manager.identity, parsed_args.user_domain
+        )
     if parsed_args.user:
         if user_domain is not None:
-            user = utils.find_resource(client_manager.identity.users,
-                                       parsed_args.user,
-                                       domain_id=user_domain.id).id
-        else:
             user = utils.find_resource(
                 client_manager.identity.users,
-                parsed_args.user).id
+                parsed_args.user,
+                domain_id=user_domain.id,
+            ).id
+        else:
+            user = utils.find_resource(
+                client_manager.identity.users, parsed_args.user
+            ).id
     else:
         # Get the user from the current auth
         user = client_manager.auth_ref.user_id
@@ -61,14 +64,18 @@ class CreateEC2Creds(command.ShowOne):
         parser.add_argument(
             '--project',
             metavar='<project>',
-            help=_('Create credentials in project '
-                   '(name or ID; default: current authenticated project)'),
+            help=_(
+                'Create credentials in project '
+                '(name or ID; default: current authenticated project)'
+            ),
         )
         parser.add_argument(
             '--user',
             metavar='<user>',
-            help=_('Create credentials for user '
-                   '(name or ID; default: current authenticated user)'),
+            help=_(
+                'Create credentials for user '
+                '(name or ID; default: current authenticated user)'
+            ),
         )
         common.add_user_domain_option_to_parser(parser)
         common.add_project_domain_option_to_parser(parser)
@@ -81,18 +88,21 @@ class CreateEC2Creds(command.ShowOne):
 
         project_domain = None
         if parsed_args.project_domain:
-            project_domain = common.find_domain(identity_client,
-                                                parsed_args.project_domain)
+            project_domain = common.find_domain(
+                identity_client, parsed_args.project_domain
+            )
 
         if parsed_args.project:
             if project_domain is not None:
-                project = utils.find_resource(identity_client.projects,
-                                              parsed_args.project,
-                                              domain_id=project_domain.id).id
-            else:
                 project = utils.find_resource(
                     identity_client.projects,
-                    parsed_args.project).id
+                    parsed_args.project,
+                    domain_id=project_domain.id,
+                ).id
+            else:
+                project = utils.find_resource(
+                    identity_client.projects, parsed_args.project
+                ).id
         else:
             # Get the project from the current auth
             project = self.app.client_manager.auth_ref.project_id
@@ -103,9 +113,7 @@ class CreateEC2Creds(command.ShowOne):
         info.update(creds._info)
 
         if 'tenant_id' in info:
-            info.update(
-                {'project_id': info.pop('tenant_id')}
-            )
+            info.update({'project_id': info.pop('tenant_id')})
 
         return zip(*sorted(info.items()))
 
@@ -138,14 +146,19 @@ class DeleteEC2Creds(command.Command):
                 client_manager.identity.ec2.delete(user, i)
             except Exception as e:
                 result += 1
-                LOG.error(_("Failed to delete EC2 credentials with "
-                          "access key '%(access_key)s': %(e)s"),
-                          {'access_key': i, 'e': e})
+                LOG.error(
+                    _(
+                        "Failed to delete EC2 credentials with "
+                        "access key '%(access_key)s': %(e)s"
+                    ),
+                    {'access_key': i, 'e': e},
+                )
 
         if result > 0:
             total = len(parsed_args.access_key)
-            msg = (_("%(result)s of %(total)s EC2 keys failed "
-                   "to delete.") % {'result': result, 'total': total})
+            msg = _(
+                "%(result)s of %(total)s EC2 keys failed " "to delete."
+            ) % {'result': result, 'total': total}
             raise exceptions.CommandError(msg)
 
 
@@ -170,11 +183,17 @@ class ListEC2Creds(command.Lister):
         column_headers = ('Access', 'Secret', 'Project ID', 'User ID')
         data = client_manager.identity.ec2.list(user)
 
-        return (column_headers,
-                (utils.get_item_properties(
-                    s, columns,
+        return (
+            column_headers,
+            (
+                utils.get_item_properties(
+                    s,
+                    columns,
                     formatters={},
-                ) for s in data))
+                )
+                for s in data
+            ),
+        )
 
 
 class ShowEC2Creds(command.ShowOne):
@@ -204,8 +223,6 @@ class ShowEC2Creds(command.ShowOne):
         info.update(creds._info)
 
         if 'tenant_id' in info:
-            info.update(
-                {'project_id': info.pop('tenant_id')}
-            )
+            info.update({'project_id': info.pop('tenant_id')})
 
         return zip(*sorted(info.items()))

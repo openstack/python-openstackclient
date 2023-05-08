@@ -23,21 +23,24 @@ class ServiceProviderTests(common.IdentityTests):
 
     def test_sp_delete(self):
         service_provider = self._create_dummy_sp(add_clean_up=False)
-        raw_output = self.openstack('service provider delete %s'
-                                    % service_provider)
+        raw_output = self.openstack(
+            'service provider delete %s' % service_provider
+        )
         self.assertEqual(0, len(raw_output))
 
     def test_sp_multi_delete(self):
         sp1 = self._create_dummy_sp(add_clean_up=False)
         sp2 = self._create_dummy_sp(add_clean_up=False)
         raw_output = self.openstack(
-            'service provider delete %s %s' % (sp1, sp2))
+            'service provider delete %s %s' % (sp1, sp2)
+        )
         self.assertEqual(0, len(raw_output))
 
     def test_sp_show(self):
         service_provider = self._create_dummy_sp(add_clean_up=True)
-        raw_output = self.openstack('service provider show %s'
-                                    % service_provider)
+        raw_output = self.openstack(
+            'service provider show %s' % service_provider
+        )
         items = self.parse_show(raw_output)
         self.assert_show_fields(items, self.SERVICE_PROVIDER_FIELDS)
 
@@ -50,13 +53,18 @@ class ServiceProviderTests(common.IdentityTests):
     def test_sp_set(self):
         service_provider = self._create_dummy_sp(add_clean_up=True)
         new_description = data_utils.rand_name('newDescription')
-        raw_output = self.openstack('service provider set '
-                                    '%(service-provider)s '
-                                    '--description %(description)s '
-                                    % {'service-provider': service_provider,
-                                       'description': new_description})
+        raw_output = self.openstack(
+            'service provider set '
+            '%(service-provider)s '
+            '--description %(description)s '
+            % {
+                'service-provider': service_provider,
+                'description': new_description,
+            }
+        )
         self.assertEqual(0, len(raw_output))
-        raw_output = self.openstack('service provider show %s'
-                                    % service_provider)
+        raw_output = self.openstack(
+            'service provider show %s' % service_provider
+        )
         updated_value = self.parse_show_as_object(raw_output)
         self.assertIn(new_description, updated_value['description'])

@@ -35,7 +35,8 @@ class IssueToken(command.ShowOne):
         auth_ref = self.app.client_manager.auth_ref
         if not auth_ref:
             raise exceptions.AuthorizationFailure(
-                "Only an authorized user may issue a new token.")
+                "Only an authorized user may issue a new token."
+            )
 
         data = {}
         if auth_ref.auth_token:

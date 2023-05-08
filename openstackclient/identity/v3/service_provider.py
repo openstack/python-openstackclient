@@ -39,8 +39,10 @@ class CreateServiceProvider(command.ShowOne):
             '--auth-url',
             metavar='<auth-url>',
             required=True,
-            help=_('Authentication URL of remote federated service provider '
-                   '(required)'),
+            help=_(
+                'Authentication URL of remote federated service provider '
+                '(required)'
+            ),
         )
         parser.add_argument(
             '--description',
@@ -51,8 +53,10 @@ class CreateServiceProvider(command.ShowOne):
             '--service-provider-url',
             metavar='<sp-url>',
             required=True,
-            help=_('A service URL where SAML assertions are being sent '
-                   '(required)'),
+            help=_(
+                'A service URL where SAML assertions are being sent '
+                '(required)'
+            ),
         )
 
         enable_service_provider = parser.add_mutually_exclusive_group()
@@ -79,7 +83,8 @@ class CreateServiceProvider(command.ShowOne):
             auth_url=parsed_args.auth_url,
             description=parsed_args.description,
             enabled=parsed_args.enabled,
-            sp_url=parsed_args.service_provider_url)
+            sp_url=parsed_args.service_provider_url,
+        )
 
         sp._info.pop('links', None)
         return zip(*sorted(sp._info.items()))
@@ -106,14 +111,20 @@ class DeleteServiceProvider(command.Command):
                 service_client.federation.service_providers.delete(i)
             except Exception as e:
                 result += 1
-                LOG.error(_("Failed to delete service provider with "
-                          "name or ID '%(provider)s': %(e)s"),
-                          {'provider': i, 'e': e})
+                LOG.error(
+                    _(
+                        "Failed to delete service provider with "
+                        "name or ID '%(provider)s': %(e)s"
+                    ),
+                    {'provider': i, 'e': e},
+                )
 
         if result > 0:
             total = len(parsed_args.service_provider)
-            msg = (_("%(result)s of %(total)s service providers failed"
-                   " to delete.") % {'result': result, 'total': total})
+            msg = _(
+                "%(result)s of %(total)s service providers failed"
+                " to delete."
+            ) % {'result': result, 'total': total}
             raise exceptions.CommandError(msg)
 
 
@@ -125,11 +136,17 @@ class ListServiceProvider(command.Lister):
         data = service_client.federation.service_providers.list()
 
         column_headers = ('ID', 'Enabled', 'Description', 'Auth URL')
-        return (column_headers,
-                (utils.get_item_properties(
-                    s, column_headers,
+        return (
+            column_headers,
+            (
+                utils.get_item_properties(
+                    s,
+                    column_headers,
                     formatters={},
-                ) for s in data))
+                )
+                for s in data
+            ),
+        )
 
 
 class SetServiceProvider(command.Command):
@@ -145,8 +162,10 @@ class SetServiceProvider(command.Command):
         parser.add_argument(
             '--auth-url',
             metavar='<auth-url>',
-            help=_('New Authentication URL of remote '
-                   'federated service provider'),
+            help=_(
+                'New Authentication URL of remote '
+                'federated service provider'
+            ),
         )
 
         parser.add_argument(
@@ -207,7 +226,8 @@ class ShowServiceProvider(command.ShowOne):
         service_provider = utils.find_resource(
             service_client.federation.service_providers,
             parsed_args.service_provider,
-            id=parsed_args.service_provider)
+            id=parsed_args.service_provider,
+        )
 
         service_provider._info.pop('links', None)
         return zip(*sorted(service_provider._info.items()))

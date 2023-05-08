@@ -25,7 +25,6 @@ from openstackclient.tests.unit.identity.v3 import fakes as identity_fakes
 
 
 class TestAccessRule(identity_fakes.TestIdentityv3):
-
     def setUp(self):
         super(TestAccessRule, self).setUp()
 
@@ -37,7 +36,6 @@ class TestAccessRule(identity_fakes.TestIdentityv3):
 
 
 class TestAccessRuleDelete(TestAccessRule):
-
     def setUp(self):
         super(TestAccessRuleDelete, self).setUp()
 
@@ -50,16 +48,13 @@ class TestAccessRuleDelete(TestAccessRule):
         self.access_rules_mock.delete.return_value = None
 
         # Get the command object to test
-        self.cmd = access_rule.DeleteAccessRule(
-            self.app, None)
+        self.cmd = access_rule.DeleteAccessRule(self.app, None)
 
     def test_access_rule_delete(self):
         arglist = [
             identity_fakes.access_rule_id,
         ]
-        verifylist = [
-            ('access_rule', [identity_fakes.access_rule_id])
-        ]
+        verifylist = [('access_rule', [identity_fakes.access_rule_id])]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
         result = self.cmd.take_action(parsed_args)
@@ -71,8 +66,10 @@ class TestAccessRuleDelete(TestAccessRule):
 
     @mock.patch.object(utils, 'find_resource')
     def test_delete_multi_access_rules_with_exception(self, find_mock):
-        find_mock.side_effect = [self.access_rules_mock.get.return_value,
-                                 exceptions.CommandError]
+        find_mock.side_effect = [
+            self.access_rules_mock.get.return_value,
+            exceptions.CommandError,
+        ]
         arglist = [
             identity_fakes.access_rule_id,
             'nonexistent_access_rule',
@@ -86,21 +83,24 @@ class TestAccessRuleDelete(TestAccessRule):
             self.cmd.take_action(parsed_args)
             self.fail('CommandError should be raised.')
         except exceptions.CommandError as e:
-            self.assertEqual('1 of 2 access rules failed to'
-                             ' delete.', str(e))
+            self.assertEqual(
+                '1 of 2 access rules failed to' ' delete.', str(e)
+            )
 
-        find_mock.assert_any_call(self.access_rules_mock,
-                                  identity_fakes.access_rule_id)
-        find_mock.assert_any_call(self.access_rules_mock,
-                                  'nonexistent_access_rule')
+        find_mock.assert_any_call(
+            self.access_rules_mock, identity_fakes.access_rule_id
+        )
+        find_mock.assert_any_call(
+            self.access_rules_mock, 'nonexistent_access_rule'
+        )
 
         self.assertEqual(2, find_mock.call_count)
         self.access_rules_mock.delete.assert_called_once_with(
-            identity_fakes.access_rule_id)
+            identity_fakes.access_rule_id
+        )
 
 
 class TestAccessRuleList(TestAccessRule):
-
     def setUp(self):
         super(TestAccessRuleList, self).setUp()
 
@@ -126,17 +126,18 @@ class TestAccessRuleList(TestAccessRule):
 
         collist = ('ID', 'Service', 'Method', 'Path')
         self.assertEqual(collist, columns)
-        datalist = ((
-            identity_fakes.access_rule_id,
-            identity_fakes.access_rule_service,
-            identity_fakes.access_rule_method,
-            identity_fakes.access_rule_path,
-        ), )
+        datalist = (
+            (
+                identity_fakes.access_rule_id,
+                identity_fakes.access_rule_service,
+                identity_fakes.access_rule_method,
+                identity_fakes.access_rule_path,
+            ),
+        )
         self.assertEqual(datalist, tuple(data))
 
 
 class TestAccessRuleShow(TestAccessRule):
-
     def setUp(self):
         super(TestAccessRuleShow, self).setUp()
 
@@ -161,7 +162,8 @@ class TestAccessRuleShow(TestAccessRule):
         columns, data = self.cmd.take_action(parsed_args)
 
         self.access_rules_mock.get.assert_called_with(
-            identity_fakes.access_rule_id)
+            identity_fakes.access_rule_id
+        )
 
         collist = ('id', 'method', 'path', 'service')
         self.assertEqual(collist, columns)

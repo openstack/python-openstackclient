@@ -84,14 +84,20 @@ class ListRoleAssignment(command.Lister):
             action="store_true",
             dest='authproject',
             help='Only list assignments for the project to which the '
-                 'authenticated user\'s token is scoped',
+            'authenticated user\'s token is scoped',
         )
         return parser
 
     def _as_tuple(self, assignment):
-        return (assignment.role, assignment.user, assignment.group,
-                assignment.project, assignment.domain, assignment.system,
-                assignment.inherited)
+        return (
+            assignment.role,
+            assignment.user,
+            assignment.group,
+            assignment.project,
+            assignment.domain,
+            assignment.system,
+            assignment.inherited,
+        )
 
     def take_action(self, parsed_args):
         identity_client = self.app.client_manager.identity
@@ -100,13 +106,14 @@ class ListRoleAssignment(command.Lister):
         role = None
         role_domain_id = None
         if parsed_args.role_domain:
-            role_domain_id = common.find_domain(identity_client,
-                                                parsed_args.role_domain).id
+            role_domain_id = common.find_domain(
+                identity_client, parsed_args.role_domain
+            ).id
         if parsed_args.role:
             role = utils.find_resource(
                 identity_client.roles,
                 parsed_args.role,
-                domain_id=role_domain_id
+                domain_id=role_domain_id,
             )
 
         user = None
@@ -118,10 +125,7 @@ class ListRoleAssignment(command.Lister):
             )
         elif parsed_args.authuser:
             if auth_ref:
-                user = common.find_user(
-                    identity_client,
-                    auth_ref.user_id
-                )
+                user = common.find_user(identity_client, auth_ref.user_id)
 
         system = None
         if parsed_args.system:
@@ -138,15 +142,15 @@ class ListRoleAssignment(command.Lister):
         if parsed_args.project:
             project = common.find_project(
                 identity_client,
-                common._get_token_resource(identity_client, 'project',
-                                           parsed_args.project),
+                common._get_token_resource(
+                    identity_client, 'project', parsed_args.project
+                ),
                 parsed_args.project_domain,
             )
         elif parsed_args.authproject:
             if auth_ref:
                 project = common.find_project(
-                    identity_client,
-                    auth_ref.project_id
+                    identity_client, auth_ref.project_id
                 )
 
         group = None
@@ -160,7 +164,13 @@ class ListRoleAssignment(command.Lister):
         include_names = True if parsed_args.names else False
         effective = True if parsed_args.effective else False
         columns = (
-            'Role', 'User', 'Group', 'Project', 'Domain', 'System', 'Inherited'
+            'Role',
+            'User',
+            'Group',
+            'Project',
+            'Domain',
+            'System',
+            'Inherited',
         )
 
         inherited_to = 'projects' if parsed_args.inherited else None
@@ -173,7 +183,8 @@ class ListRoleAssignment(command.Lister):
             role=role,
             effective=effective,
             os_inherit_extension_inherited_to=inherited_to,
-            include_names=include_names)
+            include_names=include_names,
+        )
 
         data_parsed = []
         for assignment in data:
@@ -181,8 +192,12 @@ class ListRoleAssignment(command.Lister):
             scope = assignment.scope
             if 'project' in scope:
                 if include_names:
-                    prj = '@'.join([scope['project']['name'],
-                                    scope['project']['domain']['name']])
+                    prj = '@'.join(
+                        [
+                            scope['project']['name'],
+                            scope['project']['domain']['name'],
+                        ]
+                    )
                     setattr(assignment, 'project', prj)
                 else:
                     setattr(assignment, 'project', scope['project']['id'])
@@ -215,16 +230,24 @@ class ListRoleAssignment(command.Lister):
 
             if hasattr(assignment, 'user'):
                 if include_names:
-                    usr = '@'.join([assignment.user['name'],
-                                    assignment.user['domain']['name']])
+                    usr = '@'.join(
+                        [
+                            assignment.user['name'],
+                            assignment.user['domain']['name'],
+                        ]
+                    )
                     setattr(assignment, 'user', usr)
                 else:
                     setattr(assignment, 'user', assignment.user['id'])
                 assignment.group = ''
             elif hasattr(assignment, 'group'):
                 if include_names:
-                    grp = '@'.join([assignment.group['name'],
-                                    assignment.group['domain']['name']])
+                    grp = '@'.join(
+                        [
+                            assignment.group['name'],
+                            assignment.group['domain']['name'],
+                        ]
+                    )
                     setattr(assignment, 'group', grp)
                 else:
                     setattr(assignment, 'group', assignment.group['id'])

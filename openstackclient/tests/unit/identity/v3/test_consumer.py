@@ -18,7 +18,6 @@ from openstackclient.tests.unit.identity.v3 import fakes as identity_fakes
 
 
 class TestOAuth1(identity_fakes.TestOAuth1):
-
     def setUp(self):
         super(TestOAuth1, self).setUp()
         identity_client = self.app.client_manager.identity
@@ -27,7 +26,6 @@ class TestOAuth1(identity_fakes.TestOAuth1):
 
 
 class TestConsumerCreate(TestOAuth1):
-
     def setUp(self):
         super(TestConsumerCreate, self).setUp()
 
@@ -41,7 +39,8 @@ class TestConsumerCreate(TestOAuth1):
 
     def test_create_consumer(self):
         arglist = [
-            '--description', identity_fakes.consumer_description,
+            '--description',
+            identity_fakes.consumer_description,
         ]
         verifylist = [
             ('description', identity_fakes.consumer_description),
@@ -64,7 +63,6 @@ class TestConsumerCreate(TestOAuth1):
 
 
 class TestConsumerDelete(TestOAuth1):
-
     def setUp(self):
         super(TestConsumerDelete, self).setUp()
 
@@ -96,7 +94,6 @@ class TestConsumerDelete(TestOAuth1):
 
 
 class TestConsumerList(TestOAuth1):
-
     def setUp(self):
         super(TestConsumerList, self).setUp()
 
@@ -129,15 +126,16 @@ class TestConsumerList(TestOAuth1):
 
         collist = ('ID', 'Description')
         self.assertEqual(collist, columns)
-        datalist = ((
-            identity_fakes.consumer_id,
-            identity_fakes.consumer_description,
-        ), )
+        datalist = (
+            (
+                identity_fakes.consumer_id,
+                identity_fakes.consumer_description,
+            ),
+        )
         self.assertEqual(datalist, tuple(data))
 
 
 class TestConsumerSet(TestOAuth1):
-
     def setUp(self):
         super(TestConsumerSet, self).setUp()
 
@@ -161,7 +159,8 @@ class TestConsumerSet(TestOAuth1):
         new_description = "consumer new description"
 
         arglist = [
-            '--description', new_description,
+            '--description',
+            new_description,
             identity_fakes.consumer_id,
         ]
         verifylist = [
@@ -174,14 +173,12 @@ class TestConsumerSet(TestOAuth1):
 
         kwargs = {'description': new_description}
         self.consumers_mock.update.assert_called_with(
-            identity_fakes.consumer_id,
-            **kwargs
+            identity_fakes.consumer_id, **kwargs
         )
         self.assertIsNone(result)
 
 
 class TestConsumerShow(TestOAuth1):
-
     def setUp(self):
         super(TestConsumerShow, self).setUp()
 

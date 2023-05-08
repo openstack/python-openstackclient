@@ -16,7 +16,6 @@ from openstackclient.tests.functional.identity.v3 import common
 
 
 class RoleTests(common.IdentityTests):
-
     def test_role_create(self):
         self._create_dummy_role()
 
@@ -26,8 +25,8 @@ class RoleTests(common.IdentityTests):
         raw_output = self.openstack(
             'role create '
             '--description %(description)s '
-            '%(name)s' % {'description': description,
-                          'name': role_name})
+            '%(name)s' % {'description': description, 'name': role_name}
+        )
         role = self.parse_show_as_object(raw_output)
         self.addCleanup(self.openstack, 'role delete %s' % role['id'])
         items = self.parse_show(raw_output)
@@ -56,7 +55,8 @@ class RoleTests(common.IdentityTests):
         role_name = self._create_dummy_role()
         new_role_name = data_utils.rand_name('NewTestRole')
         raw_output = self.openstack(
-            'role set --name %s %s' % (new_role_name, role_name))
+            'role set --name %s %s' % (new_role_name, role_name)
+        )
         self.assertEqual(0, len(raw_output))
         raw_output = self.openstack('role show %s' % new_role_name)
         role = self.parse_show_as_object(raw_output)
@@ -65,8 +65,9 @@ class RoleTests(common.IdentityTests):
     def test_role_set_description(self):
         role_name = self._create_dummy_role()
         description = data_utils.rand_name("NewDescription")
-        raw_output = self.openstack('role set --description %s %s'
-                                    % (description, role_name))
+        raw_output = self.openstack(
+            'role set --description %s %s' % (description, role_name)
+        )
         self.assertEqual(0, len(raw_output))
         raw_output = self.openstack('role show %s' % role_name)
         role = self.parse_show_as_object(raw_output)
@@ -81,11 +82,15 @@ class RoleTests(common.IdentityTests):
             '--project-domain %(project_domain)s '
             '--user %(user)s '
             '--user-domain %(user_domain)s '
-            '%(role)s' % {'project': self.project_name,
-                          'project_domain': self.domain_name,
-                          'user': username,
-                          'user_domain': self.domain_name,
-                          'role': role_name})
+            '%(role)s'
+            % {
+                'project': self.project_name,
+                'project_domain': self.domain_name,
+                'user': username,
+                'user_domain': self.domain_name,
+                'role': role_name,
+            }
+        )
         self.addCleanup(
             self.openstack,
             'role remove '
@@ -93,11 +98,15 @@ class RoleTests(common.IdentityTests):
             '--project-domain %(project_domain)s '
             '--user %(user)s '
             '--user-domain %(user_domain)s '
-            '%(role)s' % {'project': self.project_name,
-                          'project_domain': self.domain_name,
-                          'user': username,
-                          'user_domain': self.domain_name,
-                          'role': role_name})
+            '%(role)s'
+            % {
+                'project': self.project_name,
+                'project_domain': self.domain_name,
+                'user': username,
+                'user_domain': self.domain_name,
+                'role': role_name,
+            },
+        )
         self.assertEqual(0, len(raw_output))
 
     def test_role_remove(self):
@@ -109,22 +118,30 @@ class RoleTests(common.IdentityTests):
             '--project-domain %(project_domain)s '
             '--user %(user)s '
             '--user-domain %(user_domain)s '
-            '%(role)s' % {'project': self.project_name,
-                          'project_domain': self.domain_name,
-                          'user': username,
-                          'user_domain': self.domain_name,
-                          'role': role_name})
+            '%(role)s'
+            % {
+                'project': self.project_name,
+                'project_domain': self.domain_name,
+                'user': username,
+                'user_domain': self.domain_name,
+                'role': role_name,
+            }
+        )
         remove_raw_output = self.openstack(
             'role remove '
             '--project %(project)s '
             '--project-domain %(project_domain)s '
             '--user %(user)s '
             '--user-domain %(user_domain)s '
-            '%(role)s' % {'project': self.project_name,
-                          'project_domain': self.domain_name,
-                          'user': username,
-                          'user_domain': self.domain_name,
-                          'role': role_name})
+            '%(role)s'
+            % {
+                'project': self.project_name,
+                'project_domain': self.domain_name,
+                'user': username,
+                'user_domain': self.domain_name,
+                'role': role_name,
+            }
+        )
         self.assertEqual(0, len(add_raw_output))
         self.assertEqual(0, len(remove_raw_output))
 
@@ -141,14 +158,14 @@ class RoleTests(common.IdentityTests):
         self.openstack(
             'implied role create '
             '--implied-role %(implied_role)s '
-            '%(role)s' % {'implied_role': implied_role_name,
-                          'role': role_name})
+            '%(role)s' % {'implied_role': implied_role_name, 'role': role_name}
+        )
 
     def test_implied_role_delete(self):
         implied_role_name, role_name = self._create_dummy_implied_role()
         raw_output = self.openstack(
             'implied role delete '
             '--implied-role %(implied_role)s '
-            '%(role)s' % {'implied_role': implied_role_name,
-                          'role': role_name})
+            '%(role)s' % {'implied_role': implied_role_name, 'role': role_name}
+        )
         self.assertEqual(0, len(raw_output))

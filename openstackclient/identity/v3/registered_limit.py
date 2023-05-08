@@ -87,7 +87,7 @@ class CreateRegisteredLimit(command.ShowOne):
             parsed_args.resource_name,
             parsed_args.default_limit,
             description=parsed_args.description,
-            region=region
+            region=region,
         )
 
         registered_limit._info.pop('links', None)
@@ -117,15 +117,22 @@ class DeleteRegisteredLimit(command.Command):
             except Exception as e:
                 errors += 1
                 from pprint import pprint
+
                 pprint(type(e))
-                LOG.error(_("Failed to delete registered limit with ID "
-                            "'%(id)s': %(e)s"),
-                          {'id': registered_limit_id, 'e': e})
+                LOG.error(
+                    _(
+                        "Failed to delete registered limit with ID "
+                        "'%(id)s': %(e)s"
+                    ),
+                    {'id': registered_limit_id, 'e': e},
+                )
 
         if errors > 0:
             total = len(parsed_args.registered_limit_id)
-            msg = (_("%(errors)s of %(total)s registered limits failed to "
-                   "delete.") % {'errors': errors, 'total': total})
+            msg = _(
+                "%(errors)s of %(total)s registered limits failed to "
+                "delete."
+            ) % {'errors': errors, 'total': total}
             raise exceptions.CommandError(msg)
 
 
@@ -179,12 +186,16 @@ class ListRegisteredLimit(command.Lister):
         registered_limits = identity_client.registered_limits.list(
             service=service,
             resource_name=parsed_args.resource_name,
-            region=region
+            region=region,
         )
 
         columns = (
-            'ID', 'Service ID', 'Resource Name', 'Default Limit',
-            'Description', 'Region ID'
+            'ID',
+            'Service ID',
+            'Resource Name',
+            'Default Limit',
+            'Description',
+            'Region ID',
         )
         return (
             columns,
@@ -205,18 +216,22 @@ class SetRegisteredLimit(command.ShowOne):
         parser.add_argument(
             '--service',
             metavar='<service>',
-            help=_('Service to be updated responsible for the resource to '
-                   'limit. Either --service, --resource-name or --region must '
-                   'be different than existing value otherwise it will be '
-                   'duplicate entry')
+            help=_(
+                'Service to be updated responsible for the resource to '
+                'limit. Either --service, --resource-name or --region must '
+                'be different than existing value otherwise it will be '
+                'duplicate entry'
+            ),
         )
         parser.add_argument(
             '--resource-name',
             metavar='<resource-name>',
-            help=_('Resource to be updated responsible for the resource to '
-                   'limit. Either --service, --resource-name or --region must '
-                   'be different than existing value otherwise it will be '
-                   'duplicate entry'),
+            help=_(
+                'Resource to be updated responsible for the resource to '
+                'limit. Either --service, --resource-name or --region must '
+                'be different than existing value otherwise it will be '
+                'duplicate entry'
+            ),
         )
         parser.add_argument(
             '--default-limit',
@@ -232,10 +247,12 @@ class SetRegisteredLimit(command.ShowOne):
         parser.add_argument(
             '--region',
             metavar='<region>',
-            help=_('Region for the registered limit to affect. Either '
-                   '--service, --resource-name or --region must be '
-                   'different than existing value otherwise it will be '
-                   'duplicate entry'),
+            help=_(
+                'Region for the registered limit to affect. Either '
+                '--service, --resource-name or --region must be '
+                'different than existing value otherwise it will be '
+                'duplicate entry'
+            ),
         )
         return parser
 
@@ -270,7 +287,7 @@ class SetRegisteredLimit(command.ShowOne):
             resource_name=parsed_args.resource_name,
             default_limit=parsed_args.default_limit,
             description=parsed_args.description,
-            region=region
+            region=region,
         )
 
         registered_limit._info.pop('links', None)

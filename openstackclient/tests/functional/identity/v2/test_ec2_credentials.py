@@ -14,7 +14,6 @@ from openstackclient.tests.functional.identity.v2 import common
 
 
 class EC2CredentialsTests(common.IdentityTests):
-
     def test_ec2_credentials_create(self):
         self._create_dummy_ec2_credentials()
 

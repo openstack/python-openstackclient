@@ -23,21 +23,24 @@ class IdentityProviderTests(common.IdentityTests):
 
     def test_idp_delete(self):
         identity_provider = self._create_dummy_idp(add_clean_up=False)
-        raw_output = self.openstack('identity provider delete %s'
-                                    % identity_provider)
+        raw_output = self.openstack(
+            'identity provider delete %s' % identity_provider
+        )
         self.assertEqual(0, len(raw_output))
 
     def test_idp_multi_delete(self):
         idp_1 = self._create_dummy_idp(add_clean_up=False)
         idp_2 = self._create_dummy_idp(add_clean_up=False)
         raw_output = self.openstack(
-            'identity provider delete %s %s' % (idp_1, idp_2))
+            'identity provider delete %s %s' % (idp_1, idp_2)
+        )
         self.assertEqual(0, len(raw_output))
 
     def test_idp_show(self):
         identity_provider = self._create_dummy_idp(add_clean_up=True)
-        raw_output = self.openstack('identity provider show %s'
-                                    % identity_provider)
+        raw_output = self.openstack(
+            'identity provider show %s' % identity_provider
+        )
         items = self.parse_show(raw_output)
         self.assert_show_fields(items, self.IDENTITY_PROVIDER_FIELDS)
 
@@ -50,13 +53,18 @@ class IdentityProviderTests(common.IdentityTests):
     def test_idp_set(self):
         identity_provider = self._create_dummy_idp(add_clean_up=True)
         new_remoteid = data_utils.rand_name('newRemoteId')
-        raw_output = self.openstack('identity provider set '
-                                    '%(identity-provider)s '
-                                    '--remote-id %(remote-id)s '
-                                    % {'identity-provider': identity_provider,
-                                       'remote-id': new_remoteid})
+        raw_output = self.openstack(
+            'identity provider set '
+            '%(identity-provider)s '
+            '--remote-id %(remote-id)s '
+            % {
+                'identity-provider': identity_provider,
+                'remote-id': new_remoteid,
+            }
+        )
         self.assertEqual(0, len(raw_output))
-        raw_output = self.openstack('identity provider show %s'
-                                    % identity_provider)
+        raw_output = self.openstack(
+            'identity provider show %s' % identity_provider
+        )
         updated_value = self.parse_show_as_object(raw_output)
         self.assertIn(new_remoteid, updated_value['remote_ids'])
