@@ -37,11 +37,11 @@ class CreateContainer(command.Lister):
             '--public',
             action='store_true',
             default=False,
-            help="Make the container publicly accessible"
+            help="Make the container publicly accessible",
         )
         parser.add_argument(
             '--storage-policy',
-            help="Specify a particular storage policy to use."
+            help="Specify a particular storage policy to use.",
         )
         parser.add_argument(
             'containers',
@@ -52,26 +52,33 @@ class CreateContainer(command.Lister):
         return parser
 
     def take_action(self, parsed_args):
-
         results = []
         for container in parsed_args.containers:
             if len(container) > 256:
-                LOG.warning(
-                    _('Container name is %s characters long, the default limit'
-                      ' is 256'), len(container))
+                msg = _(
+                    'Container name is %d characters long, the default limit'
+                    ' is 256'
+                )
+                LOG.warning(msg, len(container))
             data = self.app.client_manager.object_store.container_create(
                 container=container,
                 public=parsed_args.public,
-                storage_policy=parsed_args.storage_policy
+                storage_policy=parsed_args.storage_policy,
             )
             results.append(data)
 
         columns = ("account", "container", "x-trans-id")
-        return (columns,
-                (utils.get_dict_properties(
-                    s, columns,
+        return (
+            columns,
+            (
+                utils.get_dict_properties(
+                    s,
+                    columns,
                     formatters={},
-                ) for s in results))
+                )
+                for s in results
+            ),
+        )
 
 
 class DeleteContainer(command.Command):
@@ -80,7 +87,8 @@ class DeleteContainer(command.Command):
     def get_parser(self, prog_name):
         parser = super(DeleteContainer, self).get_parser(prog_name)
         parser.add_argument(
-            '--recursive', '-r',
+            '--recursive',
+            '-r',
             action='store_true',
             default=False,
             help=_('Recursively delete objects and container'),
@@ -94,11 +102,11 @@ class DeleteContainer(command.Command):
         return parser
 
     def take_action(self, parsed_args):
-
         for container in parsed_args.containers:
             if parsed_args.recursive:
                 objs = self.app.client_manager.object_store.object_list(
-                    container=container)
+                    container=container
+                )
                 for obj in objs:
                     self.app.client_manager.object_store.object_delete(
                         container=container,
@@ -150,7 +158,6 @@ class ListContainer(command.Lister):
         return parser
 
     def take_action(self, parsed_args):
-
         if parsed_args.long:
             columns = ('Name', 'Bytes', 'Count')
         else:
@@ -168,15 +175,19 @@ class ListContainer(command.Lister):
         if parsed_args.all:
             kwargs['full_listing'] = True
 
-        data = self.app.client_manager.object_store.container_list(
-            **kwargs
-        )
+        data = self.app.client_manager.object_store.container_list(**kwargs)
 
-        return (columns,
-                (utils.get_dict_properties(
-                    s, columns,
+        return (
+            columns,
+            (
+                utils.get_dict_properties(
+                    s,
+                    columns,
                     formatters={},
-                ) for s in data))
+                )
+                for s in data
+            ),
+        )
 
 
 class SaveContainer(command.Command):
@@ -212,8 +223,10 @@ class SetContainer(command.Command):
             metavar="<key=value>",
             required=True,
             action=parseractions.KeyValueAction,
-            help=_("Set a property on this container "
-                   "(repeat option to set multiple properties)")
+            help=_(
+                "Set a property on this container "
+                "(repeat option to set multiple properties)"
+            ),
         )
         return parser
 
@@ -237,7 +250,6 @@ class ShowContainer(command.ShowOne):
         return parser
 
     def take_action(self, parsed_args):
-
         data = self.app.client_manager.object_store.container_show(
             container=parsed_args.container,
         )
@@ -263,8 +275,10 @@ class UnsetContainer(command.Command):
             required=True,
             action='append',
             default=[],
-            help=_('Property to remove from container '
-                   '(repeat option to remove multiple properties)'),
+            help=_(
+                'Property to remove from container '
+                '(repeat option to remove multiple properties)'
+            ),
         )
         return parser
 

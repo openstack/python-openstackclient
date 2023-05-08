@@ -30,8 +30,10 @@ class SetAccount(command.Command):
             metavar="<key=value>",
             required=True,
             action=parseractions.KeyValueAction,
-            help=_("Set a property on this account "
-                   "(repeat option to set multiple properties)")
+            help=_(
+                "Set a property on this account "
+                "(repeat option to set multiple properties)"
+            ),
         )
         return parser
 
@@ -48,7 +50,8 @@ class ShowAccount(command.ShowOne):
         data = self.app.client_manager.object_store.account_show()
         if 'properties' in data:
             data['properties'] = format_columns.DictColumn(
-                data.pop('properties'))
+                data.pop('properties')
+            )
         return zip(*sorted(data.items()))
 
 
@@ -63,8 +66,10 @@ class UnsetAccount(command.Command):
             required=True,
             action='append',
             default=[],
-            help=_('Property to remove from account '
-                   '(repeat option to remove multiple properties)'),
+            help=_(
+                'Property to remove from account '
+                '(repeat option to remove multiple properties)'
+            ),
         )
         return parser
 

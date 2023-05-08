@@ -18,6 +18,7 @@ from openstackclient.tests.functional.object.v1 import common
 
 class ContainerTests(common.ObjectStoreTests):
     """Functional tests for Object Store container commands"""
+
     NAME = uuid.uuid4().hex
 
     @classmethod

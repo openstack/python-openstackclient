@@ -48,23 +48,31 @@ class CreateObject(command.Lister):
         parser.add_argument(
             '--name',
             metavar='<name>',
-            help=_('Upload a file and rename it. '
-                   'Can only be used when uploading a single object')
+            help=_(
+                'Upload a file and rename it. '
+                'Can only be used when uploading a single object'
+            ),
         )
         return parser
 
     def take_action(self, parsed_args):
         if parsed_args.name:
             if len(parsed_args.objects) > 1:
-                msg = _('Attempting to upload multiple objects and '
-                        'using --name is not permitted')
+                msg = _(
+                    'Attempting to upload multiple objects and '
+                    'using --name is not permitted'
+                )
                 raise exceptions.CommandError(msg)
         results = []
         for obj in parsed_args.objects:
             if len(obj) > 1024:
                 LOG.warning(
-                    _('Object name is %s characters long, default limit'
-                      ' is 1024'), len(obj))
+                    _(
+                        'Object name is %s characters long, default limit'
+                        ' is 1024'
+                    ),
+                    len(obj),
+                )
             data = self.app.client_manager.object_store.object_create(
                 container=parsed_args.container,
                 object=obj,
@@ -73,11 +81,17 @@ class CreateObject(command.Lister):
             results.append(data)
 
         columns = ("object", "container", "etag")
-        return (columns,
-                (utils.get_dict_properties(
-                    s, columns,
+        return (
+            columns,
+            (
+                utils.get_dict_properties(
+                    s,
+                    columns,
                     formatters={},
-                ) for s in results))
+                )
+                for s in results
+            ),
+        )
 
 
 class DeleteObject(command.Command):
@@ -99,7 +113,6 @@ class DeleteObject(command.Command):
         return parser
 
     def take_action(self, parsed_args):
-
         for obj in parsed_args.objects:
             self.app.client_manager.object_store.object_delete(
                 container=parsed_args.container,
@@ -158,7 +171,6 @@ class ListObject(command.Lister):
         return parser
 
     def take_action(self, parsed_args):
-
         if parsed_args.long:
             columns = (
                 'Name',
@@ -185,15 +197,20 @@ class ListObject(command.Lister):
             kwargs['full_listing'] = True
 
         data = self.app.client_manager.object_store.object_list(
-            container=parsed_args.container,
-            **kwargs
+            container=parsed_args.container, **kwargs
         )
 
-        return (columns,
-                (utils.get_dict_properties(
-                    s, columns,
+        return (
+            columns,
+            (
+                utils.get_dict_properties(
+                    s,
+                    columns,
                     formatters={},
-                ) for s in data))
+                )
+                for s in data
+            ),
+        )
 
 
 class SaveObject(command.Command):
@@ -204,8 +221,10 @@ class SaveObject(command.Command):
         parser.add_argument(
             "--file",
             metavar="<filename>",
-            help=_("Destination filename (defaults to object name); using '-'"
-                   " as the filename will print the file to stdout"),
+            help=_(
+                "Destination filename (defaults to object name); using '-'"
+                " as the filename will print the file to stdout"
+            ),
         )
         parser.add_argument(
             'container',
@@ -247,8 +266,10 @@ class SetObject(command.Command):
             metavar="<key=value>",
             required=True,
             action=parseractions.KeyValueAction,
-            help=_("Set a property on this object "
-                   "(repeat option to set multiple properties)")
+            help=_(
+                "Set a property on this object "
+                "(repeat option to set multiple properties)"
+            ),
         )
         return parser
 
@@ -278,7 +299,6 @@ class ShowObject(command.ShowOne):
         return parser
 
     def take_action(self, parsed_args):
-
         data = self.app.client_manager.object_store.object_show(
             container=parsed_args.container,
             object=parsed_args.object,
@@ -310,8 +330,10 @@ class UnsetObject(command.Command):
             required=True,
             action='append',
             default=[],
-            help=_('Property to remove from object '
-                   '(repeat option to remove multiple properties)'),
+            help=_(
+                'Property to remove from object '
+                '(repeat option to remove multiple properties)'
+            ),
         )
         return parser
 

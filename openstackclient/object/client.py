@@ -50,7 +50,8 @@ def build_option_parser(parser):
         '--os-object-api-version',
         metavar='<object-api-version>',
         default=utils.env('OS_OBJECT_API_VERSION'),
-        help='Object API version, default=' +
-             DEFAULT_API_VERSION +
-             ' (Env: OS_OBJECT_API_VERSION)')
+        help='Object API version, default='
+        + DEFAULT_API_VERSION
+        + ' (Env: OS_OBJECT_API_VERSION)',
+    )
     return parser

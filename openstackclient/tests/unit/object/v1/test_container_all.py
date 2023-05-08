@@ -20,7 +20,6 @@ from openstackclient.tests.unit.object.v1 import fakes as object_fakes
 
 
 class TestContainerAll(object_fakes.TestObjectv1):
-
     def setUp(self):
         super(TestContainerAll, self).setUp()
 
@@ -28,7 +27,6 @@ class TestContainerAll(object_fakes.TestObjectv1):
 
 
 class TestContainerCreate(TestContainerAll):
-
     columns = (
         'account',
         'container',
@@ -52,9 +50,12 @@ class TestContainerCreate(TestContainerAll):
         arglist = [
             'ernie',
         ]
-        verifylist = [(
-            'containers', ['ernie'],
-        )]
+        verifylist = [
+            (
+                'containers',
+                ['ernie'],
+            )
+        ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
         # In base command class ShowOne in cliff, abstract method take_action()
@@ -63,32 +64,27 @@ class TestContainerCreate(TestContainerAll):
         columns, data = self.cmd.take_action(parsed_args)
 
         self.assertEqual(self.columns, columns)
-        datalist = [(
-            object_fakes.ACCOUNT_ID,
-            'ernie',
-            '314159',
-        )]
+        datalist = [
+            (
+                object_fakes.ACCOUNT_ID,
+                'ernie',
+                '314159',
+            )
+        ]
         self.assertEqual(datalist, list(data))
 
     def test_object_create_container_storage_policy(self):
         self.requests_mock.register_uri(
             'PUT',
             object_fakes.ENDPOINT + '/ernie',
-            headers={
-                'x-trans-id': '314159',
-                'x-storage-policy': 'o1--sr-r3'
-            },
+            headers={'x-trans-id': '314159', 'x-storage-policy': 'o1--sr-r3'},
             status_code=200,
         )
 
-        arglist = [
-            'ernie',
-            '--storage-policy',
-            'o1--sr-r3'
-        ]
+        arglist = ['ernie', '--storage-policy', 'o1--sr-r3']
         verifylist = [
             ('containers', ['ernie']),
-            ('storage_policy', 'o1--sr-r3')
+            ('storage_policy', 'o1--sr-r3'),
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
@@ -98,11 +94,13 @@ class TestContainerCreate(TestContainerAll):
         columns, data = self.cmd.take_action(parsed_args)
 
         self.assertEqual(self.columns, columns)
-        datalist = [(
-            object_fakes.ACCOUNT_ID,
-            'ernie',
-            '314159',
-        )]
+        datalist = [
+            (
+                object_fakes.ACCOUNT_ID,
+                'ernie',
+                '314159',
+            )
+        ]
         self.assertEqual(datalist, list(data))
 
     def test_object_create_container_public(self):
@@ -111,19 +109,13 @@ class TestContainerCreate(TestContainerAll):
             object_fakes.ENDPOINT + '/ernie',
             headers={
                 'x-trans-id': '314159',
-                'x-container-read': '.r:*,.rlistings'
+                'x-container-read': '.r:*,.rlistings',
             },
             status_code=200,
         )
 
-        arglist = [
-            'ernie',
-            '--public'
-        ]
-        verifylist = [
-            ('containers', ['ernie']),
-            ('public', True)
-        ]
+        arglist = ['ernie', '--public']
+        verifylist = [('containers', ['ernie']), ('public', True)]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
         # In base command class ShowOne in cliff, abstract method take_action()
@@ -132,11 +124,13 @@ class TestContainerCreate(TestContainerAll):
         columns, data = self.cmd.take_action(parsed_args)
 
         self.assertEqual(self.columns, columns)
-        datalist = [(
-            object_fakes.ACCOUNT_ID,
-            'ernie',
-            '314159',
-        )]
+        datalist = [
+            (
+                object_fakes.ACCOUNT_ID,
+                'ernie',
+                '314159',
+            )
+        ]
         self.assertEqual(datalist, list(data))
 
     def test_object_create_container_more(self):
@@ -157,9 +151,12 @@ class TestContainerCreate(TestContainerAll):
             'ernie',
             'bert',
         ]
-        verifylist = [(
-            'containers', ['ernie', 'bert'],
-        )]
+        verifylist = [
+            (
+                'containers',
+                ['ernie', 'bert'],
+            )
+        ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
         # In base command class ShowOne in cliff, abstract method take_action()
@@ -184,7 +181,6 @@ class TestContainerCreate(TestContainerAll):
 
 
 class TestContainerDelete(TestContainerAll):
-
     def setUp(self):
         super(TestContainerDelete, self).setUp()
 
@@ -201,9 +197,12 @@ class TestContainerDelete(TestContainerAll):
         arglist = [
             'ernie',
         ]
-        verifylist = [(
-            'containers', ['ernie'],
-        )]
+        verifylist = [
+            (
+                'containers',
+                ['ernie'],
+            )
+        ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
         # Command.take_action() returns None
@@ -226,9 +225,12 @@ class TestContainerDelete(TestContainerAll):
             'ernie',
             'bert',
         ]
-        verifylist = [(
-            'containers', ['ernie', 'bert'],
-        )]
+        verifylist = [
+            (
+                'containers',
+                ['ernie', 'bert'],
+            )
+        ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
         # Command.take_action() returns None
@@ -237,7 +239,6 @@ class TestContainerDelete(TestContainerAll):
 
 
 class TestContainerList(TestContainerAll):
-
     columns = ('Name',)
 
     def setUp(self):
@@ -268,9 +269,9 @@ class TestContainerList(TestContainerAll):
 
         self.assertEqual(self.columns, columns)
         datalist = [
-            (object_fakes.container_name, ),
-            (object_fakes.container_name_3, ),
-            (object_fakes.container_name_2, ),
+            (object_fakes.container_name,),
+            (object_fakes.container_name_3,),
+            (object_fakes.container_name_2,),
         ]
         self.assertEqual(datalist, list(data))
 
@@ -287,7 +288,8 @@ class TestContainerList(TestContainerAll):
         )
 
         arglist = [
-            '--prefix', 'bit',
+            '--prefix',
+            'bit',
         ]
         verifylist = [
             ('prefix', 'bit'),
@@ -299,19 +301,19 @@ class TestContainerList(TestContainerAll):
 
         self.assertEqual(self.columns, columns)
         datalist = [
-            (object_fakes.container_name, ),
-            (object_fakes.container_name_3, ),
+            (object_fakes.container_name,),
+            (object_fakes.container_name_3,),
         ]
         self.assertEqual(datalist, list(data))
 
 
 class TestContainerSave(TestContainerAll):
-
     def setUp(self):
         super(TestContainerSave, self).setUp()
 
         # Get the command object to test
         self.cmd = container_cmds.SaveContainer(self.app, None)
+
 
 # TODO(dtroyer): need to mock out object_lib.save_object() to test this
 #     def test_object_save_container(self):
@@ -354,7 +356,6 @@ class TestContainerSave(TestContainerAll):
 
 
 class TestContainerShow(TestContainerAll):
-
     def setUp(self):
         super(TestContainerShow, self).setUp()
 
@@ -369,7 +370,7 @@ class TestContainerShow(TestContainerAll):
             'x-container-write': 'wsx',
             'x-container-sync-to': 'edc',
             'x-container-sync-key': 'rfv',
-            'x-storage-policy': 'o1--sr-r3'
+            'x-storage-policy': 'o1--sr-r3',
         }
         self.requests_mock.register_uri(
             'HEAD',
@@ -381,9 +382,12 @@ class TestContainerShow(TestContainerAll):
         arglist = [
             'ernie',
         ]
-        verifylist = [(
-            'container', 'ernie',
-        )]
+        verifylist = [
+            (
+                'container',
+                'ernie',
+            )
+        ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
         # In base command class ShowOne in cliff, abstract method take_action()

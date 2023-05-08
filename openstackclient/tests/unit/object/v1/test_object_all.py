@@ -23,7 +23,6 @@ from openstackclient.tests.unit.object.v1 import fakes as object_fakes
 
 
 class TestObjectAll(object_fakes.TestObjectv1):
-
     def setUp(self):
         super(TestObjectAll, self).setUp()
 
@@ -31,7 +30,6 @@ class TestObjectAll(object_fakes.TestObjectv1):
 
 
 class TestObjectCreate(TestObjectAll):
-
     def setUp(self):
         super(TestObjectCreate, self).setUp()
 
@@ -43,25 +41,27 @@ class TestObjectCreate(TestObjectAll):
             object_fakes.container_name,
             object_fakes.object_name_1,
             object_fakes.object_name_2,
-            '--name', object_fakes.object_upload_name,
+            '--name',
+            object_fakes.object_upload_name,
         ]
 
         verifylist = [
             ('container', object_fakes.container_name),
-            ('objects', [object_fakes.object_name_1,
-                         object_fakes.object_name_2]),
+            (
+                'objects',
+                [object_fakes.object_name_1, object_fakes.object_name_2],
+            ),
             ('name', object_fakes.object_upload_name),
         ]
 
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
-        self.assertRaises(exceptions.CommandError,
-                          self.cmd.take_action,
-                          parsed_args)
+        self.assertRaises(
+            exceptions.CommandError, self.cmd.take_action, parsed_args
+        )
 
 
 class TestObjectList(TestObjectAll):
-
     columns = ('Name',)
 
     def setUp(self):
@@ -77,10 +77,10 @@ class TestObjectList(TestObjectAll):
         ]
         self.requests_mock.register_uri(
             'GET',
-            object_fakes.ENDPOINT +
-            '/' +
-            object_fakes.container_name +
-            '?format=json',
+            object_fakes.ENDPOINT
+            + '/'
+            + object_fakes.container_name
+            + '?format=json',
             json=return_body,
             status_code=200,
         )
@@ -98,8 +98,8 @@ class TestObjectList(TestObjectAll):
 
         self.assertEqual(self.columns, columns)
         datalist = [
-            (object_fakes.object_name_1, ),
-            (object_fakes.object_name_2, ),
+            (object_fakes.object_name_1,),
+            (object_fakes.object_name_2,),
         ]
         self.assertEqual(datalist, list(data))
 
@@ -109,16 +109,17 @@ class TestObjectList(TestObjectAll):
         ]
         self.requests_mock.register_uri(
             'GET',
-            object_fakes.ENDPOINT +
-            '/' +
-            object_fakes.container_name_2 +
-            '?prefix=floppy&format=json',
+            object_fakes.ENDPOINT
+            + '/'
+            + object_fakes.container_name_2
+            + '?prefix=floppy&format=json',
             json=return_body,
             status_code=200,
         )
 
         arglist = [
-            '--prefix', 'floppy',
+            '--prefix',
+            'floppy',
             object_fakes.container_name_2,
         ]
         verifylist = [
@@ -133,14 +134,11 @@ class TestObjectList(TestObjectAll):
         columns, data = self.cmd.take_action(parsed_args)
 
         self.assertEqual(self.columns, columns)
-        datalist = (
-            (object_fakes.object_name_2, ),
-        )
+        datalist = ((object_fakes.object_name_2,),)
         self.assertEqual(datalist, tuple(data))
 
 
 class TestObjectShow(TestObjectAll):
-
     def setUp(self):
         super(TestObjectShow, self).setUp()
 
@@ -158,11 +156,13 @@ class TestObjectShow(TestObjectAll):
         }
         self.requests_mock.register_uri(
             'HEAD',
-            '/'.join([
-                object_fakes.ENDPOINT,
-                object_fakes.container_name,
-                object_fakes.object_name_1,
-            ]),
+            '/'.join(
+                [
+                    object_fakes.ENDPOINT,
+                    object_fakes.container_name,
+                    object_fakes.object_name_1,
+                ]
+            ),
             headers=headers,
             status_code=200,
         )
@@ -207,7 +207,6 @@ class TestObjectShow(TestObjectAll):
 
 
 class TestObjectSave(TestObjectAll):
-
     def setUp(self):
         super(TestObjectSave, self).setUp()
 
@@ -217,20 +216,20 @@ class TestObjectSave(TestObjectAll):
     def test_save_to_stdout(self):
         self.requests_mock.register_uri(
             'GET',
-            object_fakes.ENDPOINT +
-            '/' +
-            object_fakes.container_name +
-            '/' +
-            object_fakes.object_name_1,
+            object_fakes.ENDPOINT
+            + '/'
+            + object_fakes.container_name
+            + '/'
+            + object_fakes.object_name_1,
             status_code=200,
-            content=object_fakes.object_1_content
+            content=object_fakes.object_1_content,
         )
 
         arglist = [
             object_fakes.container_name,
             object_fakes.object_name_1,
             '--file',
-            '-'
+            '-',
         ]
 
         verifylist = [
@@ -254,12 +253,16 @@ class TestObjectSave(TestObjectAll):
                 self.context_manager_calls.append('__exit__')
 
         with mock.patch('sys.stdout') as fake_stdout, mock.patch(
-                'os.fdopen', return_value=FakeStdout()) as fake_fdopen:
+            'os.fdopen', return_value=FakeStdout()
+        ) as fake_fdopen:
             fake_stdout.fileno.return_value = 123
             self.cmd.take_action(parsed_args)
 
-        self.assertEqual(fake_fdopen.return_value.getvalue(),
-                         object_fakes.object_1_content)
+        self.assertEqual(
+            fake_fdopen.return_value.getvalue(), object_fakes.object_1_content
+        )
         self.assertEqual(fake_fdopen.mock_calls, [mock.call(123, 'wb')])
-        self.assertEqual(fake_fdopen.return_value.context_manager_calls,
-                         ['__enter__', '__exit__'])
+        self.assertEqual(
+            fake_fdopen.return_value.context_manager_calls,
+            ['__enter__', '__exit__'],
+        )

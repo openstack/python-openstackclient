@@ -26,7 +26,6 @@ AUTH_URL = "http://0.0.0.0"
 
 
 class TestObject(object_fakes.TestObjectv1):
-
     def setUp(self):
         super(TestObject, self).setUp()
         self.app.client_manager.object_store = object_store.APIv1(
@@ -36,17 +35,10 @@ class TestObject(object_fakes.TestObjectv1):
         self.api = self.app.client_manager.object_store
 
 
-@mock.patch(
-    'openstackclient.api.object_store_v1.APIv1.object_list'
-)
+@mock.patch('openstackclient.api.object_store_v1.APIv1.object_list')
 class TestObjectList(TestObject):
-
     columns = ('Name',)
-    datalist = (
-        (
-            object_fakes.object_name_2,
-        ),
-    )
+    datalist = ((object_fakes.object_name_2,),)
 
     def setUp(self):
         super(TestObjectList, self).setUp()
@@ -79,8 +71,8 @@ class TestObjectList(TestObject):
 
         self.assertEqual(self.columns, columns)
         datalist = (
-            (object_fakes.object_name_1, ),
-            (object_fakes.object_name_2, ),
+            (object_fakes.object_name_1,),
+            (object_fakes.object_name_2,),
         )
         self.assertEqual(datalist, tuple(data))
 
@@ -90,7 +82,8 @@ class TestObjectList(TestObject):
         ]
 
         arglist = [
-            '--prefix', 'floppy',
+            '--prefix',
+            'floppy',
             object_fakes.container_name_2,
         ]
         verifylist = [
@@ -109,8 +102,7 @@ class TestObjectList(TestObject):
             'prefix': 'floppy',
         }
         o_mock.assert_called_with(
-            container=object_fakes.container_name_2,
-            **kwargs
+            container=object_fakes.container_name_2, **kwargs
         )
 
         self.assertEqual(self.columns, columns)
@@ -122,7 +114,8 @@ class TestObjectList(TestObject):
         ]
 
         arglist = [
-            '--delimiter', '=',
+            '--delimiter',
+            '=',
             object_fakes.container_name_2,
         ]
         verifylist = [
@@ -141,8 +134,7 @@ class TestObjectList(TestObject):
             'delimiter': '=',
         }
         o_mock.assert_called_with(
-            container=object_fakes.container_name_2,
-            **kwargs
+            container=object_fakes.container_name_2, **kwargs
         )
 
         self.assertEqual(self.columns, columns)
@@ -154,7 +146,8 @@ class TestObjectList(TestObject):
         ]
 
         arglist = [
-            '--marker', object_fakes.object_name_2,
+            '--marker',
+            object_fakes.object_name_2,
             object_fakes.container_name_2,
         ]
         verifylist = [
@@ -173,8 +166,7 @@ class TestObjectList(TestObject):
             'marker': object_fakes.object_name_2,
         }
         o_mock.assert_called_with(
-            container=object_fakes.container_name_2,
-            **kwargs
+            container=object_fakes.container_name_2, **kwargs
         )
 
         self.assertEqual(self.columns, columns)
@@ -186,7 +178,8 @@ class TestObjectList(TestObject):
         ]
 
         arglist = [
-            '--end-marker', object_fakes.object_name_2,
+            '--end-marker',
+            object_fakes.object_name_2,
             object_fakes.container_name_2,
         ]
         verifylist = [
@@ -205,8 +198,7 @@ class TestObjectList(TestObject):
             'end_marker': object_fakes.object_name_2,
         }
         o_mock.assert_called_with(
-            container=object_fakes.container_name_2,
-            **kwargs
+            container=object_fakes.container_name_2, **kwargs
         )
 
         self.assertEqual(self.columns, columns)
@@ -218,7 +210,8 @@ class TestObjectList(TestObject):
         ]
 
         arglist = [
-            '--limit', '2',
+            '--limit',
+            '2',
             object_fakes.container_name_2,
         ]
         verifylist = [
@@ -237,8 +230,7 @@ class TestObjectList(TestObject):
             'limit': 2,
         }
         o_mock.assert_called_with(
-            container=object_fakes.container_name_2,
-            **kwargs
+            container=object_fakes.container_name_2, **kwargs
         )
 
         self.assertEqual(self.columns, columns)
@@ -266,11 +258,9 @@ class TestObjectList(TestObject):
         columns, data = self.cmd.take_action(parsed_args)
 
         # Set expected values
-        kwargs = {
-        }
+        kwargs = {}
         o_mock.assert_called_with(
-            container=object_fakes.container_name,
-            **kwargs
+            container=object_fakes.container_name, **kwargs
         )
 
         collist = ('Name', 'Bytes', 'Hash', 'Content Type', 'Last Modified')
@@ -319,23 +309,19 @@ class TestObjectList(TestObject):
             'full_listing': True,
         }
         o_mock.assert_called_with(
-            container=object_fakes.container_name,
-            **kwargs
+            container=object_fakes.container_name, **kwargs
         )
 
         self.assertEqual(self.columns, columns)
         datalist = (
-            (object_fakes.object_name_1, ),
-            (object_fakes.object_name_2, ),
+            (object_fakes.object_name_1,),
+            (object_fakes.object_name_2,),
         )
         self.assertEqual(datalist, tuple(data))
 
 
-@mock.patch(
-    'openstackclient.api.object_store_v1.APIv1.object_show'
-)
+@mock.patch('openstackclient.api.object_store_v1.APIv1.object_show')
 class TestObjectShow(TestObject):
-
     def setUp(self):
         super(TestObjectShow, self).setUp()
 
@@ -361,8 +347,7 @@ class TestObjectShow(TestObject):
         columns, data = self.cmd.take_action(parsed_args)
 
         # Set expected values
-        kwargs = {
-        }
+        kwargs = {}
         # lib.container.show_container(api, url, container)
         c_mock.assert_called_with(
             container=object_fakes.container_name,
