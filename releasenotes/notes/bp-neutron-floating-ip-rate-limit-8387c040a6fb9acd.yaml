@@ -2,7 +2,7 @@
 features:
   - |
     Add support for attaching and removing qos policy to floating IPs.
-    
+
     Add option ``--qos-policy`` to the ``floating ip create`` and
     ``floating ip set`` commands to add qos policy to a floating IP.
 
