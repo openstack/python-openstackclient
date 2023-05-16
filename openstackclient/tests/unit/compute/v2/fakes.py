@@ -75,77 +75,6 @@ QUOTA_columns = tuple(sorted(QUOTA))
 QUOTA_data = tuple(QUOTA[x] for x in sorted(QUOTA))
 
 
-class FakeAggregate(object):
-    """Fake one aggregate."""
-
-    @staticmethod
-    def create_one_aggregate(attrs=None):
-        """Create a fake aggregate.
-
-        :param dict attrs:
-            A dictionary with all attributes
-        :return:
-            A FakeResource object, with id and other attributes
-        """
-        attrs = attrs or {}
-
-        # Set default attribute
-        aggregate_info = {
-            "name": "aggregate-name-" + uuid.uuid4().hex,
-            "availability_zone": "ag_zone",
-            "hosts": [],
-            "id": "aggregate-id-" + uuid.uuid4().hex,
-            "metadata": {
-                "availability_zone": "ag_zone",
-                "key1": "value1",
-            },
-        }
-
-        # Overwrite default attributes.
-        aggregate_info.update(attrs)
-
-        aggregate = fakes.FakeResource(
-            info=copy.deepcopy(aggregate_info), loaded=True
-        )
-        return aggregate
-
-    @staticmethod
-    def create_aggregates(attrs=None, count=2):
-        """Create multiple fake aggregates.
-
-        :param dict attrs:
-            A dictionary with all attributes
-        :param int count:
-            The number of aggregates to fake
-        :return:
-            A list of FakeResource objects faking the aggregates
-        """
-        aggregates = []
-        for i in range(0, count):
-            aggregates.append(FakeAggregate.create_one_aggregate(attrs))
-
-        return aggregates
-
-    @staticmethod
-    def get_aggregates(aggregates=None, count=2):
-        """Get an iterable MagicMock object with a list of faked aggregates.
-
-        If aggregates list is provided, then initialize the Mock object
-        with the list. Otherwise create one.
-
-        :param List aggregates:
-            A list of FakeResource objects faking aggregates
-        :param int count:
-            The number of aggregates to fake
-        :return:
-            An iterable Mock object with side_effect set to a list of faked
-            aggregates
-        """
-        if aggregates is None:
-            aggregates = FakeAggregate.create_aggregates(count)
-        return mock.Mock(side_effect=aggregates)
-
-
 class FakeComputev2Client(object):
     def __init__(self, **kwargs):
         self.agents = mock.Mock()
@@ -253,6 +182,77 @@ class TestComputev2(utils.TestCommand):
             endpoint=fakes.AUTH_URL,
             token=fakes.AUTH_TOKEN,
         )
+
+
+class FakeAggregate(object):
+    """Fake one aggregate."""
+
+    @staticmethod
+    def create_one_aggregate(attrs=None):
+        """Create a fake aggregate.
+
+        :param dict attrs:
+            A dictionary with all attributes
+        :return:
+            A FakeResource object, with id and other attributes
+        """
+        attrs = attrs or {}
+
+        # Set default attribute
+        aggregate_info = {
+            "name": "aggregate-name-" + uuid.uuid4().hex,
+            "availability_zone": "ag_zone",
+            "hosts": [],
+            "id": "aggregate-id-" + uuid.uuid4().hex,
+            "metadata": {
+                "availability_zone": "ag_zone",
+                "key1": "value1",
+            },
+        }
+
+        # Overwrite default attributes.
+        aggregate_info.update(attrs)
+
+        aggregate = fakes.FakeResource(
+            info=copy.deepcopy(aggregate_info), loaded=True
+        )
+        return aggregate
+
+    @staticmethod
+    def create_aggregates(attrs=None, count=2):
+        """Create multiple fake aggregates.
+
+        :param dict attrs:
+            A dictionary with all attributes
+        :param int count:
+            The number of aggregates to fake
+        :return:
+            A list of FakeResource objects faking the aggregates
+        """
+        aggregates = []
+        for i in range(0, count):
+            aggregates.append(FakeAggregate.create_one_aggregate(attrs))
+
+        return aggregates
+
+    @staticmethod
+    def get_aggregates(aggregates=None, count=2):
+        """Get an iterable MagicMock object with a list of faked aggregates.
+
+        If aggregates list is provided, then initialize the Mock object
+        with the list. Otherwise create one.
+
+        :param List aggregates:
+            A list of FakeResource objects faking aggregates
+        :param int count:
+            The number of aggregates to fake
+        :return:
+            An iterable Mock object with side_effect set to a list of faked
+            aggregates
+        """
+        if aggregates is None:
+            aggregates = FakeAggregate.create_aggregates(count)
+        return mock.Mock(side_effect=aggregates)
 
 
 class FakeAgent(object):
