@@ -16,9 +16,9 @@ import copy
 from unittest import mock
 
 from cinderclient import api_versions
+from openstack import utils as sdk_utils
 from osc_lib.cli import format_columns
 from osc_lib import exceptions
-from osc_lib import utils
 
 from openstackclient.tests.unit.volume.v2 import fakes as volume_fakes
 from openstackclient.volume.v3 import volume
@@ -128,17 +128,35 @@ class TestVolumeRevertToSnapshot(volume_fakes.TestVolume):
     def setUp(self):
         super().setUp()
 
-        self.volumes_mock = self.app.client_manager.volume.volumes
-        self.volumes_mock.reset_mock()
-        self.snapshots_mock = self.app.client_manager.volume.volume_snapshots
-        self.snapshots_mock.reset_mock()
+        self.app.client_manager.sdk_connection = mock.Mock()
+        self.app.client_manager.sdk_connection.volume = mock.Mock()
+        self.sdk_client = self.app.client_manager.sdk_connection.volume
+        self.sdk_client.reset_mock()
+
+        patcher = mock.patch.object(
+            sdk_utils, 'supports_microversion', return_value=True
+        )
+        self.addCleanup(patcher.stop)
+        self.supports_microversion_mock = patcher.start()
+        self._set_mock_microversion(
+            self.app.client_manager.volume.api_version.get_string()
+        )
+
         self.mock_volume = volume_fakes.create_one_volume()
         self.mock_snapshot = volume_fakes.create_one_snapshot(
-            attrs={'volume_id': self.volumes_mock.id}
+            attrs={'volume_id': self.mock_volume.id}
         )
 
         # Get the command object to test
         self.cmd = volume.VolumeRevertToSnapshot(self.app, None)
+
+    def _set_mock_microversion(self, mock_v):
+        """Set a specific microversion for the mock supports_microversion()."""
+        self.supports_microversion_mock.reset_mock(return_value=True)
+        self.supports_microversion_mock.side_effect = (
+            lambda _, v: api_versions.APIVersion(v)
+            <= api_versions.APIVersion(mock_v)
+        )
 
     def test_volume_revert_to_snapshot_pre_340(self):
         arglist = [
@@ -157,9 +175,7 @@ class TestVolumeRevertToSnapshot(volume_fakes.TestVolume):
         )
 
     def test_volume_revert_to_snapshot(self):
-        self.app.client_manager.volume.api_version = api_versions.APIVersion(
-            '3.40'
-        )
+        self._set_mock_microversion('3.40')
         arglist = [
             self.mock_snapshot.id,
         ]
@@ -168,14 +184,22 @@ class TestVolumeRevertToSnapshot(volume_fakes.TestVolume):
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
-        find_mock_result = [self.mock_snapshot, self.mock_volume]
         with mock.patch.object(
-            utils, 'find_resource', side_effect=find_mock_result
-        ) as find_mock:
+            self.sdk_client, 'find_volume', return_value=self.mock_volume
+        ), mock.patch.object(
+            self.sdk_client, 'find_snapshot', return_value=self.mock_snapshot
+        ):
             self.cmd.take_action(parsed_args)
 
-            self.volumes_mock.revert_to_snapshot.assert_called_once_with(
-                volume=self.mock_volume,
-                snapshot=self.mock_snapshot,
+            self.sdk_client.revert_volume_to_snapshot.assert_called_once_with(
+                self.mock_volume,
+                self.mock_snapshot,
             )
-            self.assertEqual(2, find_mock.call_count)
+            self.sdk_client.find_volume.assert_called_with(
+                self.mock_volume.id,
+                ignore_missing=False,
+            )
+            self.sdk_client.find_snapshot.assert_called_with(
+                self.mock_snapshot.id,
+                ignore_missing=False,
+            )

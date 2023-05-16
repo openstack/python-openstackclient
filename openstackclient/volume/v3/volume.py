@@ -17,6 +17,7 @@
 import logging
 
 from cinderclient import api_versions
+from openstack import utils as sdk_utils
 from osc_lib.cli import format_columns
 from osc_lib.command import command
 from osc_lib import exceptions
@@ -96,20 +97,22 @@ class VolumeRevertToSnapshot(command.Command):
         return parser
 
     def take_action(self, parsed_args):
-        volume_client = self.app.client_manager.volume
+        volume_client = self.app.client_manager.sdk_connection.volume
 
-        if volume_client.api_version < api_versions.APIVersion('3.40'):
+        if not sdk_utils.supports_microversion(volume_client, '3.40'):
             msg = _(
                 "--os-volume-api-version 3.40 or greater is required to "
                 "support the 'volume revert snapshot' command"
             )
             raise exceptions.CommandError(msg)
 
-        snapshot = utils.find_resource(
-            volume_client.volume_snapshots, parsed_args.snapshot
+        snapshot = volume_client.find_snapshot(
+            parsed_args.snapshot,
+            ignore_missing=False,
         )
-        volume = utils.find_resource(volume_client.volumes, snapshot.volume_id)
+        volume = volume_client.find_volume(
+            snapshot.volume_id,
+            ignore_missing=False,
+        )
 
-        volume_client.volumes.revert_to_snapshot(
-            volume=volume, snapshot=snapshot
-        )
+        volume_client.revert_volume_to_snapshot(volume, snapshot)
