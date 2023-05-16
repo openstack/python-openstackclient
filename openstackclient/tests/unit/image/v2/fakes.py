@@ -19,6 +19,7 @@ import uuid
 from openstack.image.v2 import image
 from openstack.image.v2 import member
 from openstack.image.v2 import metadef_namespace
+from openstack.image.v2 import metadef_resource_type
 from openstack.image.v2 import service_info as _service_info
 from openstack.image.v2 import task
 
@@ -48,6 +49,7 @@ class FakeImagev2Client:
 
         self.remove_tag = mock.Mock()
         self.metadef_namespaces = mock.Mock()
+        self.metadef_resource_types = mock.Mock()
 
         self.tasks = mock.Mock()
         self.tasks.resource_class = fakes.FakeResource(None, {})
@@ -285,3 +287,41 @@ def create_one_metadef_namespace(attrs=None):
     # Overwrite default attributes if there are some attributes set
     metadef_namespace_list.update(attrs)
     return metadef_namespace.MetadefNamespace(**metadef_namespace_list)
+
+
+def create_one_resource_type(attrs=None):
+    """Create a fake MetadefResourceType member.
+
+    :param attrs: A dictionary with all attributes of
+        metadef_resource_type member
+    :type attrs: dict
+    :return: a fake MetadefResourceType object
+    :rtype: A `metadef_resource_type.MetadefResourceType`
+    """
+    attrs = attrs or {}
+
+    metadef_resource_type_info = {
+        'name': 'OS::Compute::Quota',
+        'properties_target': 'image',
+    }
+
+    metadef_resource_type_info.update(attrs)
+    return metadef_resource_type.MetadefResourceType(
+        **metadef_resource_type_info
+    )
+
+
+def create_resource_types(attrs=None, count=2):
+    """Create multiple fake resource types.
+
+    :param attrs: A dictionary with all attributes of
+        metadef_resource_type member
+    :type attrs: dict
+    :return: A list of fake MetadefResourceType objects
+    :rtype: list
+    """
+    metadef_resource_types = []
+    for n in range(0, count):
+        metadef_resource_types.append(create_one_resource_type(attrs))
+
+    return metadef_resource_types

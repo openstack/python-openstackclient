@@ -28,7 +28,7 @@ md-namespace-import,,Import a metadata definitions namespace from file or standa
 md-namespace-list,image metadef namespace list,List metadata definitions namespaces.
 md-namespace-objects-delete,,Delete all metadata definitions objects inside a specific namespace.
 md-namespace-properties-delete,,Delete all metadata definitions property inside a specific namespace.
-md-namespace-resource-type-list,,List resource types associated to specific namespace.
+md-namespace-resource-type-list,image metadef resource type list,List resource types associated to specific namespace.
 md-namespace-show,image metadef namespace show,Describe a specific metadata definitions namespace.
 md-namespace-tags-delete,,Delete all metadata definitions tags inside a specific namespace.
 md-namespace-update,,Update an existing metadata definitions namespace.
