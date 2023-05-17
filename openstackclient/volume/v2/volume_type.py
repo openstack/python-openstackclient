@@ -124,13 +124,15 @@ class CreateVolumeType(command.ShowOne):
         public_group.add_argument(
             "--public",
             action="store_true",
-            default=False,
+            dest="is_public",
+            default=None,
             help=_("Volume type is accessible to the public"),
         )
         public_group.add_argument(
             "--private",
-            action="store_true",
-            default=False,
+            action="store_false",
+            dest="is_public",
+            default=None,
             help=_("Volume type is not accessible to the public"),
         )
         parser.add_argument(
@@ -201,15 +203,13 @@ class CreateVolumeType(command.ShowOne):
         identity_client = self.app.client_manager.identity
         volume_client = self.app.client_manager.volume
 
-        if parsed_args.project and not parsed_args.private:
+        if parsed_args.project and parsed_args.is_public is not False:
             msg = _("--project is only allowed with --private")
             raise exceptions.CommandError(msg)
 
         kwargs = {}
-        if parsed_args.public:
-            kwargs['is_public'] = True
-        if parsed_args.private:
-            kwargs['is_public'] = False
+        if parsed_args.is_public is not None:
+            kwargs['is_public'] = parsed_args.is_public
 
         volume_type = volume_client.volume_types.create(
             parsed_args.name, description=parsed_args.description, **kwargs
@@ -329,11 +329,15 @@ class ListVolumeType(command.Lister):
         public_group.add_argument(
             "--public",
             action="store_true",
+            dest="is_public",
+            default=None,
             help=_("List only public types"),
         )
         public_group.add_argument(
             "--private",
-            action="store_true",
+            action="store_false",
+            dest="is_public",
+            default=None,
             help=_("List only private types (admin only)"),
         )
         parser.add_argument(
@@ -348,8 +352,15 @@ class ListVolumeType(command.Lister):
 
     def take_action(self, parsed_args):
         volume_client = self.app.client_manager.volume
+
         if parsed_args.long:
-            columns = ['ID', 'Name', 'Is Public', 'Description', 'Extra Specs']
+            columns = [
+                'ID',
+                'Name',
+                'Is Public',
+                'Description',
+                'Extra Specs',
+            ]
             column_headers = [
                 'ID',
                 'Name',
@@ -360,15 +371,13 @@ class ListVolumeType(command.Lister):
         else:
             columns = ['ID', 'Name', 'Is Public']
             column_headers = ['ID', 'Name', 'Is Public']
+
         if parsed_args.default:
             data = [volume_client.volume_types.default()]
         else:
-            is_public = None
-            if parsed_args.public:
-                is_public = True
-            if parsed_args.private:
-                is_public = False
-            data = volume_client.volume_types.list(is_public=is_public)
+            data = volume_client.volume_types.list(
+                is_public=parsed_args.is_public
+            )
 
         formatters = {'Extra Specs': format_columns.DictColumn}
 
