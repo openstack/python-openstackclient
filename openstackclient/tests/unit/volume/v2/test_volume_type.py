@@ -29,18 +29,18 @@ class TestType(volume_fakes.TestVolume):
     def setUp(self):
         super().setUp()
 
-        self.types_mock = self.app.client_manager.volume.volume_types
-        self.types_mock.reset_mock()
+        self.volume_types_mock = self.app.client_manager.volume.volume_types
+        self.volume_types_mock.reset_mock()
 
-        self.types_access_mock = (
+        self.volume_type_access_mock = (
             self.app.client_manager.volume.volume_type_access
         )
-        self.types_access_mock.reset_mock()
+        self.volume_type_access_mock.reset_mock()
 
-        self.encryption_types_mock = (
+        self.volume_encryption_types_mock = (
             self.app.client_manager.volume.volume_encryption_types
         )
-        self.encryption_types_mock.reset_mock()
+        self.volume_encryption_types_mock.reset_mock()
 
         self.projects_mock = self.app.client_manager.identity.projects
         self.projects_mock.reset_mock()
@@ -66,7 +66,7 @@ class TestTypeCreate(TestType):
             self.new_volume_type.name,
         )
 
-        self.types_mock.create.return_value = self.new_volume_type
+        self.volume_types_mock.create.return_value = self.new_volume_type
         self.projects_mock.get.return_value = self.project
         # Get the command object to test
         self.cmd = volume_type.CreateVolumeType(self.app, None)
@@ -87,7 +87,7 @@ class TestTypeCreate(TestType):
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
         columns, data = self.cmd.take_action(parsed_args)
-        self.types_mock.create.assert_called_with(
+        self.volume_types_mock.create.assert_called_with(
             self.new_volume_type.name,
             description=self.new_volume_type.description,
             is_public=True,
@@ -115,7 +115,7 @@ class TestTypeCreate(TestType):
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
         columns, data = self.cmd.take_action(parsed_args)
-        self.types_mock.create.assert_called_with(
+        self.volume_types_mock.create.assert_called_with(
             self.new_volume_type.name,
             description=self.new_volume_type.description,
             is_public=False,
@@ -153,8 +153,8 @@ class TestTypeCreate(TestType):
         self.new_volume_type = volume_fakes.create_one_volume_type(
             attrs={'encryption': encryption_info},
         )
-        self.types_mock.create.return_value = self.new_volume_type
-        self.encryption_types_mock.create.return_value = encryption_type
+        self.volume_types_mock.create.return_value = self.new_volume_type
+        self.volume_encryption_types_mock.create.return_value = encryption_type
         encryption_columns = (
             'description',
             'encryption',
@@ -190,7 +190,7 @@ class TestTypeCreate(TestType):
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
         columns, data = self.cmd.take_action(parsed_args)
-        self.types_mock.create.assert_called_with(
+        self.volume_types_mock.create.assert_called_with(
             self.new_volume_type.name,
             description=None,
         )
@@ -200,7 +200,7 @@ class TestTypeCreate(TestType):
             'key_size': 128,
             'control_location': 'front-end',
         }
-        self.encryption_types_mock.create.assert_called_with(
+        self.volume_encryption_types_mock.create.assert_called_with(
             self.new_volume_type,
             body,
         )
@@ -214,10 +214,10 @@ class TestTypeDelete(TestType):
     def setUp(self):
         super().setUp()
 
-        self.types_mock.get = volume_fakes.get_volume_types(
+        self.volume_types_mock.get = volume_fakes.get_volume_types(
             self.volume_types,
         )
-        self.types_mock.delete.return_value = None
+        self.volume_types_mock.delete.return_value = None
 
         # Get the command object to mock
         self.cmd = volume_type.DeleteVolumeType(self.app, None)
@@ -229,7 +229,7 @@ class TestTypeDelete(TestType):
 
         result = self.cmd.take_action(parsed_args)
 
-        self.types_mock.delete.assert_called_with(self.volume_types[0])
+        self.volume_types_mock.delete.assert_called_with(self.volume_types[0])
         self.assertIsNone(result)
 
     def test_delete_multiple_types(self):
@@ -246,7 +246,7 @@ class TestTypeDelete(TestType):
         calls = []
         for t in self.volume_types:
             calls.append(call(t))
-        self.types_mock.delete.assert_has_calls(calls)
+        self.volume_types_mock.delete.assert_has_calls(calls)
         self.assertIsNone(result)
 
     def test_delete_multiple_types_with_exception(self):
@@ -271,11 +271,13 @@ class TestTypeDelete(TestType):
                 self.assertEqual(
                     '1 of 2 volume types failed to delete.', str(e)
                 )
-            find_mock.assert_any_call(self.types_mock, self.volume_types[0].id)
-            find_mock.assert_any_call(self.types_mock, 'unexist_type')
+            find_mock.assert_any_call(
+                self.volume_types_mock, self.volume_types[0].id
+            )
+            find_mock.assert_any_call(self.volume_types_mock, 'unexist_type')
 
             self.assertEqual(2, find_mock.call_count)
-            self.types_mock.delete.assert_called_once_with(
+            self.volume_types_mock.delete.assert_called_once_with(
                 self.volume_types[0]
             )
 
@@ -314,8 +316,8 @@ class TestTypeList(TestType):
     def setUp(self):
         super().setUp()
 
-        self.types_mock.list.return_value = self.volume_types
-        self.types_mock.default.return_value = self.volume_types[0]
+        self.volume_types_mock.list.return_value = self.volume_types
+        self.volume_types_mock.default.return_value = self.volume_types[0]
         # get the command to test
         self.cmd = volume_type.ListVolumeType(self.app, None)
 
@@ -330,7 +332,7 @@ class TestTypeList(TestType):
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
         columns, data = self.cmd.take_action(parsed_args)
-        self.types_mock.list.assert_called_once_with(is_public=None)
+        self.volume_types_mock.list.assert_called_once_with(is_public=None)
         self.assertEqual(self.columns, columns)
         self.assertCountEqual(self.data, list(data))
 
@@ -348,7 +350,7 @@ class TestTypeList(TestType):
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
         columns, data = self.cmd.take_action(parsed_args)
-        self.types_mock.list.assert_called_once_with(is_public=True)
+        self.volume_types_mock.list.assert_called_once_with(is_public=True)
         self.assertEqual(self.columns_long, columns)
         self.assertCountEqual(self.data_long, list(data))
 
@@ -365,7 +367,7 @@ class TestTypeList(TestType):
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
         columns, data = self.cmd.take_action(parsed_args)
-        self.types_mock.list.assert_called_once_with(is_public=False)
+        self.volume_types_mock.list.assert_called_once_with(is_public=False)
         self.assertEqual(self.columns, columns)
         self.assertCountEqual(self.data, list(data))
 
@@ -383,7 +385,7 @@ class TestTypeList(TestType):
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
         columns, data = self.cmd.take_action(parsed_args)
-        self.types_mock.default.assert_called_once_with()
+        self.volume_types_mock.default.assert_called_once_with()
         self.assertEqual(self.columns, columns)
         self.assertCountEqual(self.data_with_default_type, list(data))
 
@@ -421,7 +423,7 @@ class TestTypeList(TestType):
             )
         )
 
-        self.encryption_types_mock.list.return_value = [encryption_type]
+        self.volume_encryption_types_mock.list.return_value = [encryption_type]
         arglist = [
             "--encryption-type",
         ]
@@ -431,66 +433,40 @@ class TestTypeList(TestType):
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
         columns, data = self.cmd.take_action(parsed_args)
-        self.encryption_types_mock.list.assert_called_once_with()
-        self.types_mock.list.assert_called_once_with(is_public=None)
+        self.volume_encryption_types_mock.list.assert_called_once_with()
+        self.volume_types_mock.list.assert_called_once_with(is_public=None)
         self.assertEqual(encryption_columns, columns)
         self.assertCountEqual(encryption_data, list(data))
 
 
 class TestTypeSet(TestType):
-    project = identity_fakes.FakeProject.create_one_project()
-    volume_type = volume_fakes.create_one_volume_type(
-        methods={'set_keys': None},
-    )
-
     def setUp(self):
         super().setUp()
 
-        self.types_mock.get.return_value = self.volume_type
-
-        # Return a project
+        self.project = identity_fakes.FakeProject.create_one_project()
         self.projects_mock.get.return_value = self.project
-        self.encryption_types_mock.create.return_value = None
-        self.encryption_types_mock.update.return_value = None
-        # Get the command object to test
+
+        self.volume_type = volume_fakes.create_one_volume_type(
+            methods={'set_keys': None},
+        )
+        self.volume_types_mock.get.return_value = self.volume_type
+        self.volume_encryption_types_mock.create.return_value = None
+        self.volume_encryption_types_mock.update.return_value = None
+
         self.cmd = volume_type.SetVolumeType(self.app, None)
 
-    def test_type_set_name(self):
-        new_name = 'new_name'
+    def test_type_set(self):
         arglist = [
             '--name',
-            new_name,
-            self.volume_type.id,
-        ]
-        verifylist = [
-            ('name', new_name),
-            ('description', None),
-            ('property', None),
-            ('volume_type', self.volume_type.id),
-        ]
-        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
-
-        result = self.cmd.take_action(parsed_args)
-
-        # Set expected values
-        kwargs = {
-            'name': new_name,
-        }
-        self.types_mock.update.assert_called_with(
-            self.volume_type.id, **kwargs
-        )
-        self.assertIsNone(result)
-
-    def test_type_set_description(self):
-        new_desc = 'new_desc'
-        arglist = [
+            'new_name',
             '--description',
-            new_desc,
+            'new_description',
+            '--private',
             self.volume_type.id,
         ]
         verifylist = [
-            ('name', None),
-            ('description', new_desc),
+            ('name', 'new_name'),
+            ('description', 'new_description'),
             ('property', None),
             ('volume_type', self.volume_type.id),
         ]
@@ -498,14 +474,19 @@ class TestTypeSet(TestType):
 
         result = self.cmd.take_action(parsed_args)
 
-        # Set expected values
         kwargs = {
-            'description': new_desc,
+            'name': 'new_name',
+            'description': 'new_description',
+            'is_public': False,
         }
-        self.types_mock.update.assert_called_with(
+        self.volume_types_mock.update.assert_called_with(
             self.volume_type.id, **kwargs
         )
         self.assertIsNone(result)
+
+        self.volume_type_access_mock.add_project_access.assert_not_called()
+        self.volume_encryption_types_mock.update.assert_not_called()
+        self.volume_encryption_types_mock.create.assert_not_called()
 
     def test_type_set_property(self):
         arglist = [
@@ -522,12 +503,16 @@ class TestTypeSet(TestType):
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
         result = self.cmd.take_action(parsed_args)
+        self.assertIsNone(result)
+
         self.volume_type.set_keys.assert_called_once_with(
             {'myprop': 'myvalue'}
         )
-        self.assertIsNone(result)
+        self.volume_type_access_mock.add_project_access.assert_not_called()
+        self.volume_encryption_types_mock.update.assert_not_called()
+        self.volume_encryption_types_mock.create.assert_not_called()
 
-    def test_type_set_not_called_without_project_argument(self):
+    def test_type_set_with_empty_project(self):
         arglist = [
             '--project',
             '',
@@ -543,26 +528,12 @@ class TestTypeSet(TestType):
         result = self.cmd.take_action(parsed_args)
         self.assertIsNone(result)
 
-        self.assertFalse(self.types_access_mock.add_project_access.called)
+        self.volume_type.set_keys.assert_not_called()
+        self.volume_type_access_mock.add_project_access.assert_not_called()
+        self.volume_encryption_types_mock.update.assert_not_called()
+        self.volume_encryption_types_mock.create.assert_not_called()
 
-    def test_type_set_failed_with_missing_volume_type_argument(self):
-        arglist = [
-            '--project',
-            'identity_fakes.project_id',
-        ]
-        verifylist = [
-            ('project', 'identity_fakes.project_id'),
-        ]
-
-        self.assertRaises(
-            tests_utils.ParserException,
-            self.check_parser,
-            self.cmd,
-            arglist,
-            verifylist,
-        )
-
-    def test_type_set_project_access(self):
+    def test_type_set_with_project(self):
         arglist = [
             '--project',
             self.project.id,
@@ -577,14 +548,17 @@ class TestTypeSet(TestType):
         result = self.cmd.take_action(parsed_args)
         self.assertIsNone(result)
 
-        self.types_access_mock.add_project_access.assert_called_with(
+        self.volume_type.set_keys.assert_not_called()
+        self.volume_type_access_mock.add_project_access.assert_called_with(
             self.volume_type.id,
             self.project.id,
         )
+        self.volume_encryption_types_mock.update.assert_not_called()
+        self.volume_encryption_types_mock.create.assert_not_called()
 
-    def test_type_set_new_encryption(self):
-        self.encryption_types_mock.update.side_effect = exceptions.NotFound(
-            'NotFound'
+    def test_type_set_with_new_encryption(self):
+        self.volume_encryption_types_mock.update.side_effect = (
+            exceptions.NotFound('NotFound')
         )
         arglist = [
             '--encryption-provider',
@@ -607,24 +581,25 @@ class TestTypeSet(TestType):
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
         result = self.cmd.take_action(parsed_args)
+        self.assertIsNone(result)
+
         body = {
             'provider': 'LuksEncryptor',
             'cipher': 'aes-xts-plain64',
             'key_size': 128,
             'control_location': 'front-end',
         }
-        self.encryption_types_mock.update.assert_called_with(
+        self.volume_encryption_types_mock.update.assert_called_with(
             self.volume_type,
             body,
         )
-        self.encryption_types_mock.create.assert_called_with(
+        self.volume_encryption_types_mock.create.assert_called_with(
             self.volume_type,
             body,
         )
-        self.assertIsNone(result)
 
     @mock.patch.object(utils, 'find_resource')
-    def test_type_set_existing_encryption(self, mock_find):
+    def test_type_set_with_existing_encryption(self, mock_find):
         mock_find.side_effect = [self.volume_type, "existing_encryption_type"]
         arglist = [
             '--encryption-provider',
@@ -644,21 +619,24 @@ class TestTypeSet(TestType):
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
         result = self.cmd.take_action(parsed_args)
+        self.assertIsNone(result)
+
+        self.volume_type.set_keys.assert_not_called()
+        self.volume_type_access_mock.add_project_access.assert_not_called()
         body = {
             'provider': 'LuksEncryptor',
             'cipher': 'aes-xts-plain64',
             'control_location': 'front-end',
         }
-        self.encryption_types_mock.update.assert_called_with(
+        self.volume_encryption_types_mock.update.assert_called_with(
             self.volume_type,
             body,
         )
-        self.encryption_types_mock.create.assert_not_called()
-        self.assertIsNone(result)
+        self.volume_encryption_types_mock.create.assert_not_called()
 
     def test_type_set_new_encryption_without_provider(self):
-        self.encryption_types_mock.update.side_effect = exceptions.NotFound(
-            'NotFound'
+        self.volume_encryption_types_mock.update.side_effect = (
+            exceptions.NotFound('NotFound')
         )
         arglist = [
             '--encryption-cipher',
@@ -676,24 +654,29 @@ class TestTypeSet(TestType):
             ('volume_type', self.volume_type.id),
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
-        try:
-            self.cmd.take_action(parsed_args)
-            self.fail('CommandError should be raised.')
-        except exceptions.CommandError as e:
-            self.assertEqual(
-                "Command Failed: One or more of" " the operations failed",
-                str(e),
-            )
+
+        exc = self.assertRaises(
+            exceptions.CommandError,
+            self.cmd.take_action,
+            parsed_args,
+        )
+        self.assertEqual(
+            "Command Failed: One or more of the operations failed",
+            str(exc),
+        )
+
+        self.volume_type.set_keys.assert_not_called()
+        self.volume_type_access_mock.add_project_access.assert_not_called()
         body = {
             'cipher': 'aes-xts-plain64',
             'key_size': 128,
             'control_location': 'front-end',
         }
-        self.encryption_types_mock.update.assert_called_with(
+        self.volume_encryption_types_mock.update.assert_called_with(
             self.volume_type,
             body,
         )
-        self.encryption_types_mock.create.assert_not_called()
+        self.volume_encryption_types_mock.create.assert_not_called()
 
 
 class TestTypeShow(TestType):
@@ -719,7 +702,7 @@ class TestTypeShow(TestType):
             format_columns.DictColumn(self.volume_type.extra_specs),
         )
 
-        self.types_mock.get.return_value = self.volume_type
+        self.volume_types_mock.get.return_value = self.volume_type
 
         # Get the command object to test
         self.cmd = volume_type.ShowVolumeType(self.app, None)
@@ -733,7 +716,7 @@ class TestTypeShow(TestType):
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
         columns, data = self.cmd.take_action(parsed_args)
-        self.types_mock.get.assert_called_with(self.volume_type.id)
+        self.volume_types_mock.get.assert_called_with(self.volume_type.id)
 
         self.assertEqual(self.columns, columns)
         self.assertCountEqual(self.data, data)
@@ -748,20 +731,20 @@ class TestTypeShow(TestType):
         )
         type_access_list = volume_fakes.create_one_type_access()
         with mock.patch.object(
-            self.types_mock,
+            self.volume_types_mock,
             'get',
             return_value=private_type,
         ):
             with mock.patch.object(
-                self.types_access_mock,
+                self.volume_type_access_mock,
                 'list',
                 return_value=[type_access_list],
             ):
                 columns, data = self.cmd.take_action(parsed_args)
-                self.types_mock.get.assert_called_once_with(
+                self.volume_types_mock.get.assert_called_once_with(
                     self.volume_type.id
                 )
-                self.types_access_mock.list.assert_called_once_with(
+                self.volume_type_access_mock.list.assert_called_once_with(
                     private_type.id
                 )
 
@@ -785,16 +768,16 @@ class TestTypeShow(TestType):
             attrs={'is_public': False},
         )
         with mock.patch.object(
-            self.types_mock, 'get', return_value=private_type
+            self.volume_types_mock, 'get', return_value=private_type
         ):
             with mock.patch.object(
-                self.types_access_mock, 'list', side_effect=Exception()
+                self.volume_type_access_mock, 'list', side_effect=Exception()
             ):
                 columns, data = self.cmd.take_action(parsed_args)
-                self.types_mock.get.assert_called_once_with(
+                self.volume_types_mock.get.assert_called_once_with(
                     self.volume_type.id
                 )
-                self.types_access_mock.list.assert_called_once_with(
+                self.volume_type_access_mock.list.assert_called_once_with(
                     private_type.id
                 )
 
@@ -820,8 +803,8 @@ class TestTypeShow(TestType):
         self.volume_type = volume_fakes.create_one_volume_type(
             attrs={'encryption': encryption_info},
         )
-        self.types_mock.get.return_value = self.volume_type
-        self.encryption_types_mock.get.return_value = encryption_type
+        self.volume_types_mock.get.return_value = self.volume_type
+        self.volume_encryption_types_mock.get.return_value = encryption_type
         encryption_columns = (
             'access_project_ids',
             'description',
@@ -848,8 +831,10 @@ class TestTypeShow(TestType):
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
         columns, data = self.cmd.take_action(parsed_args)
-        self.types_mock.get.assert_called_with(self.volume_type.id)
-        self.encryption_types_mock.get.assert_called_with(self.volume_type.id)
+        self.volume_types_mock.get.assert_called_with(self.volume_type.id)
+        self.volume_encryption_types_mock.get.assert_called_with(
+            self.volume_type.id
+        )
         self.assertEqual(encryption_columns, columns)
         self.assertCountEqual(encryption_data, data)
 
@@ -863,7 +848,7 @@ class TestTypeUnset(TestType):
     def setUp(self):
         super().setUp()
 
-        self.types_mock.get.return_value = self.volume_type
+        self.volume_types_mock.get.return_value = self.volume_type
 
         # Return a project
         self.projects_mock.get.return_value = self.project
@@ -907,7 +892,7 @@ class TestTypeUnset(TestType):
         result = self.cmd.take_action(parsed_args)
         self.assertIsNone(result)
 
-        self.types_access_mock.remove_project_access.assert_called_with(
+        self.volume_type_access_mock.remove_project_access.assert_called_with(
             self.volume_type.id,
             self.project.id,
         )
@@ -928,8 +913,10 @@ class TestTypeUnset(TestType):
 
         result = self.cmd.take_action(parsed_args)
         self.assertIsNone(result)
-        self.encryption_types_mock.delete.assert_not_called()
-        self.assertFalse(self.types_access_mock.remove_project_access.called)
+        self.volume_encryption_types_mock.delete.assert_not_called()
+        self.assertFalse(
+            self.volume_type_access_mock.remove_project_access.called
+        )
 
     def test_type_unset_failed_with_missing_volume_type_argument(self):
         arglist = [
@@ -960,7 +947,9 @@ class TestTypeUnset(TestType):
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
         result = self.cmd.take_action(parsed_args)
-        self.encryption_types_mock.delete.assert_called_with(self.volume_type)
+        self.volume_encryption_types_mock.delete.assert_called_with(
+            self.volume_type
+        )
         self.assertIsNone(result)
 
 

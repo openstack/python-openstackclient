@@ -1,0 +1,5 @@
+---
+features:
+  - |
+    The ``volume type set`` command now supports ``--public`` and ``--private``
+    options.
