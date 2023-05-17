@@ -1,0 +1,4 @@
+---
+features:
+  - |
+    Add ``--no-property`` option in ``volume qos set``.
