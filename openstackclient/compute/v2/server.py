@@ -4731,10 +4731,10 @@ class StartServer(command.Command):
         for server in parsed_args.server:
             try:
                 server_id = compute_client.find_server(
-                    name=server,
+                    server,
+                    ignore_missing=False,
                     details=False,
                     all_projects=parsed_args.all_projects,
-                    ignore_missing=False,
                 ).id
             except sdk_exceptions.HttpException as exc:
                 if exc.status_code == 403:
@@ -4771,10 +4771,10 @@ class StopServer(command.Command):
         for server in parsed_args.server:
             try:
                 server_id = compute_client.find_server(
-                    name=server,
+                    server,
+                    ignore_missing=False,
                     details=False,
                     all_projects=parsed_args.all_projects,
-                    ignore_missing=False,
                 ).id
             except sdk_exceptions.HttpException as exc:
                 if exc.status_code == 403:

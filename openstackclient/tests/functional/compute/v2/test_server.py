@@ -27,11 +27,11 @@ class ServerTests(common.ComputeTestCase):
 
     @classmethod
     def setUpClass(cls):
-        super(ServerTests, cls).setUpClass()
+        super().setUpClass()
         cls.haz_network = cls.is_service_enabled('network')
 
     def test_server_list(self):
-        """Test server list, set"""
+        """Test server list"""
         cmd_output = self.server_create()
         name1 = cmd_output['name']
         cmd_output = self.server_create()
@@ -1446,6 +1446,46 @@ class ServerTests(common.ComputeTestCase):
 
         raw_output = self.openstack('server volume list ' + server_name)
         self.assertEqual('\n', raw_output)
+
+    def test_server_stop_start(self):
+        """Test server stop, start"""
+        server_name = uuid.uuid4().hex
+        cmd_output = self.openstack(
+            'server create '
+            + '--network private '
+            + '--flavor '
+            + self.flavor_name
+            + ' '
+            + '--image '
+            + self.image_name
+            + ' '
+            + '--wait '
+            + server_name,
+            parse_output=True,
+        )
+
+        self.assertIsNotNone(cmd_output['id'])
+        self.assertEqual(server_name, cmd_output['name'])
+        self.addCleanup(self.openstack, 'server delete --wait ' + server_name)
+        server_id = cmd_output['id']
+
+        cmd_output = self.openstack(
+            'server stop ' + server_name,
+        )
+        self.assertEqual("", cmd_output)
+
+        # This is our test that the request succeeded. If it doesn't transition
+        # to SHUTOFF then it didn't work.
+        self.wait_for_status(server_id, "SHUTOFF")
+
+        cmd_output = self.openstack(
+            'server start ' + server_name,
+        )
+        self.assertEqual("", cmd_output)
+
+        # As above, this is our test that the request succeeded. If it doesn't
+        # transition to ACTIVE then it didn't work.
+        self.wait_for_status(server_id, "ACTIVE")
 
     def test_server_migration_list(self):
         # Verify that the command does not raise an exception when we list
