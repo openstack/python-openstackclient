@@ -8577,10 +8577,10 @@ class TestServerStart(TestServer):
         self.cmd.take_action(parsed_args)
 
         self.sdk_client.find_server.assert_called_once_with(
-            name=servers[0].id,
+            servers[0].id,
+            ignore_missing=False,
             details=False,
             all_projects=True,
-            ignore_missing=False,
         )
 
 
@@ -8612,10 +8612,10 @@ class TestServerStop(TestServer):
         self.cmd.take_action(parsed_args)
 
         self.sdk_client.find_server.assert_called_once_with(
-            name=servers[0].id,
+            servers[0].id,
+            ignore_missing=False,
             details=False,
             all_projects=True,
-            ignore_missing=False,
         )
 
 
