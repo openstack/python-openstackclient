@@ -345,10 +345,6 @@ class AddFixedIP(command.ShowOne):
         else:
             net_id = parsed_args.network
 
-        if not sdk_utils.supports_microversion(compute_client, '2.44'):
-            compute_client.add_fixed_ip_to_server(server.id, net_id)
-            return ((), ())
-
         kwargs = {'net_id': net_id}
         if parsed_args.fixed_ip_address:
             kwargs['fixed_ips'] = [
@@ -375,9 +371,11 @@ class AddFixedIP(command.ShowOne):
             'Port State',
             'Fixed IPs',
         )
-        if sdk_utils.supports_microversion(compute_client, '2.49'):
-            columns += ('tag',)
-            column_headers += ('Tag',)
+
+        if parsed_args.tag:
+            if sdk_utils.supports_microversion(compute_client, '2.49'):
+                columns += ('tag',)
+                column_headers += ('Tag',)
 
         return (
             column_headers,
