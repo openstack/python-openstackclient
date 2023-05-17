@@ -3536,6 +3536,15 @@ class RebuildServer(command.ShowOne):
                         'future release.'
                     )
 
+        status = getattr(server, 'status', '').lower()
+        if status == 'shutoff':
+            success_status = ['shutoff']
+        elif status in ('error', 'active'):
+            success_status = ['active']
+        else:
+            msg = _("The server status is not ACTIVE, SHUTOFF or ERROR.")
+            raise exceptions.CommandError(msg)
+
         try:
             server = server.rebuild(image, parsed_args.password, **kwargs)
         finally:
@@ -3547,6 +3556,7 @@ class RebuildServer(command.ShowOne):
                 compute_client.servers.get,
                 server.id,
                 callback=_show_progress,
+                success_status=success_status,
             ):
                 self.app.stdout.write(_('Complete\n'))
             else:

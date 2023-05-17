@@ -1,0 +1,13 @@
+---
+features:
+  - |
+    ``openstack server rebuild`` command now fails early if the server is
+    not in a state supported for rebuild - either ``ACTIVE``, ``ERROR`` or
+    ``SHUTOFF``.
+    See `OpenStack Compute API reference for server rebuild action
+    <https://docs.openstack.org/api-ref/compute/?expanded=rebuild-server-rebuild-action-detail#rebuild-server-rebuild-action>`_.
+fixes:
+  - |
+    ``openstack server rebuild --wait`` now properly works for servers in
+    ``SHUTOFF`` state without hanging.
+    [Story `2010751 <https://storyboard.openstack.org/#!/story/2010751>`_]

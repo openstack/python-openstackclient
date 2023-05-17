@@ -6241,6 +6241,7 @@ class TestServerRebuild(TestServer):
 
         # Fake the server to be rebuilt. The IDs of them should be the same.
         attrs['id'] = new_server.id
+        attrs['status'] = 'ACTIVE'
         methods = {
             'rebuild': new_server,
         }
@@ -6439,6 +6440,7 @@ class TestServerRebuild(TestServer):
             self.servers_mock.get,
             self.server.id,
             callback=mock.ANY,
+            success_status=['active'],
             # **kwargs
         )
 
@@ -6464,11 +6466,90 @@ class TestServerRebuild(TestServer):
             self.servers_mock.get,
             self.server.id,
             callback=mock.ANY,
+            success_status=['active'],
         )
 
         self.servers_mock.get.assert_called_with(self.server.id)
         self.get_image_mock.assert_called_with(self.image.id)
         self.server.rebuild.assert_called_with(self.image, None)
+
+    @mock.patch.object(common_utils, 'wait_for_status', return_value=True)
+    def test_rebuild_with_wait_shutoff_status(self, mock_wait_for_status):
+        self.server.status = 'SHUTOFF'
+        arglist = [
+            '--wait',
+            self.server.id,
+        ]
+        verifylist = [
+            ('wait', True),
+            ('server', self.server.id),
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        # Get the command object to test.
+        self.cmd.take_action(parsed_args)
+
+        # kwargs = dict(success_status=['active', 'verify_resize'],)
+
+        mock_wait_for_status.assert_called_once_with(
+            self.servers_mock.get,
+            self.server.id,
+            callback=mock.ANY,
+            success_status=['shutoff'],
+            # **kwargs
+        )
+
+        self.servers_mock.get.assert_called_with(self.server.id)
+        self.get_image_mock.assert_called_with(self.image.id)
+        self.server.rebuild.assert_called_with(self.image, None)
+
+    @mock.patch.object(common_utils, 'wait_for_status', return_value=True)
+    def test_rebuild_with_wait_error_status(self, mock_wait_for_status):
+        self.server.status = 'ERROR'
+        arglist = [
+            '--wait',
+            self.server.id,
+        ]
+        verifylist = [
+            ('wait', True),
+            ('server', self.server.id),
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        # Get the command object to test.
+        self.cmd.take_action(parsed_args)
+
+        # kwargs = dict(success_status=['active', 'verify_resize'],)
+
+        mock_wait_for_status.assert_called_once_with(
+            self.servers_mock.get,
+            self.server.id,
+            callback=mock.ANY,
+            success_status=['active'],
+            # **kwargs
+        )
+
+        self.servers_mock.get.assert_called_with(self.server.id)
+        self.get_image_mock.assert_called_with(self.image.id)
+        self.server.rebuild.assert_called_with(self.image, None)
+
+    def test_rebuild_wrong_status_fails(self):
+        self.server.status = 'SHELVED'
+        arglist = [
+            self.server.id,
+        ]
+        verifylist = [
+            ('server', self.server.id),
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        self.assertRaises(
+            exceptions.CommandError, self.cmd.take_action, parsed_args
+        )
+
+        self.servers_mock.get.assert_called_with(self.server.id)
+        self.get_image_mock.assert_called_with(self.image.id)
+        self.server.rebuild.assert_not_called()
 
     def test_rebuild_with_property(self):
         arglist = [
@@ -6828,6 +6909,7 @@ class TestServerRebuildVolumeBacked(TestServer):
 
         # Fake the server to be rebuilt. The IDs of them should be the same.
         attrs['id'] = new_server.id
+        attrs['status'] = 'ACTIVE'
         methods = {
             'rebuild': new_server,
         }
