@@ -52,8 +52,10 @@ class QosTests(common.BaseVolumeTests):
 
         name = uuid.uuid4().hex
         cmd_output = self.openstack(
-            'volume qos create ' + '--consumer front-end '
-            '--property Alpha=a ' + name,
+            'volume qos create '
+            + '--consumer front-end '
+            + '--property Alpha=a '
+            + name,
             parse_output=True,
         )
         self.addCleanup(self.openstack, 'volume qos delete ' + name)
@@ -65,8 +67,9 @@ class QosTests(common.BaseVolumeTests):
         # Test volume qos set
         raw_output = self.openstack(
             'volume qos set '
-            + '--property Alpha=c '
+            + '--no-property '
             + '--property Beta=b '
+            + '--property Charlie=c '
             + name,
         )
         self.assertOutput('', raw_output)
@@ -77,11 +80,14 @@ class QosTests(common.BaseVolumeTests):
             parse_output=True,
         )
         self.assertEqual(name, cmd_output['name'])
-        self.assertEqual({'Alpha': 'c', 'Beta': 'b'}, cmd_output['properties'])
+        self.assertEqual(
+            {'Beta': 'b', 'Charlie': 'c'},
+            cmd_output['properties'],
+        )
 
         # Test volume qos unset
         raw_output = self.openstack(
-            'volume qos unset ' + '--property Alpha ' + name,
+            'volume qos unset ' + '--property Charlie ' + name,
         )
         self.assertOutput('', raw_output)
 

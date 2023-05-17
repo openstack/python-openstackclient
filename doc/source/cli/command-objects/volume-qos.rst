@@ -116,8 +116,15 @@ Set QoS specification properties
 .. code:: bash
 
     openstack volume qos set
+        [--no-property]
         [--property <key=value> [...] ]
         <qos-spec>
+
+.. option:: --no-property
+
+    Remove all properties from :ref:`\<snapshot\> <volume_qos_set-qos-spec>`
+    (specify both :option:`--no-property` and :option:`--property` to
+    remove the current properties before setting new properties.)
 
 .. option:: --property <key=value>
 
