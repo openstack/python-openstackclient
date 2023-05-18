@@ -206,105 +206,6 @@ class TestServerAddFixedIP(TestServer):
         self.app.client_manager.network.find_network = self.find_network
 
     @mock.patch.object(sdk_utils, 'supports_microversion')
-    def test_server_add_fixed_ip_pre_v244(self, sm_mock):
-        sm_mock.return_value = False
-
-        servers = self.setup_sdk_servers_mock(count=1)
-        network = compute_fakes.create_one_network()
-
-        with mock.patch.object(
-            self.app.client_manager,
-            'is_network_endpoint_enabled',
-            return_value=False,
-        ):
-            arglist = [
-                servers[0].id,
-                network['id'],
-            ]
-            verifylist = [
-                ('server', servers[0].id),
-                ('network', network['id']),
-                ('fixed_ip_address', None),
-            ]
-            parsed_args = self.check_parser(self.cmd, arglist, verifylist)
-
-            result = self.cmd.take_action(parsed_args)
-
-            self.sdk_client.add_fixed_ip_to_server.assert_called_once_with(
-                servers[0].id, network['id']
-            )
-            # the legacy API operates asynchronously
-            self.assertEqual(((), ()), result)
-
-    @mock.patch.object(sdk_utils, 'supports_microversion')
-    def test_server_add_fixed_ip_pre_v244_with_fixed_ip(self, sm_mock):
-        sm_mock.return_value = False
-
-        servers = self.setup_sdk_servers_mock(count=1)
-        network = compute_fakes.create_one_network()
-
-        with mock.patch.object(
-            self.app.client_manager,
-            'is_network_endpoint_enabled',
-            return_value=False,
-        ):
-            arglist = [
-                servers[0].id,
-                network['id'],
-                '--fixed-ip-address',
-                '5.6.7.8',
-            ]
-            verifylist = [
-                ('server', servers[0].id),
-                ('network', network['id']),
-                ('fixed_ip_address', '5.6.7.8'),
-            ]
-            parsed_args = self.check_parser(self.cmd, arglist, verifylist)
-
-            result = self.cmd.take_action(parsed_args)
-
-            self.sdk_client.add_fixed_ip_to_server.assert_called_once_with(
-                servers[0].id, network['id']
-            )
-            # the legacy API operates asynchronously
-            self.assertEqual(((), ()), result)
-
-    @mock.patch.object(sdk_utils, 'supports_microversion')
-    def test_server_add_fixed_ip_pre_v244_with_tag(self, sm_mock):
-        sm_mock.return_value = False
-
-        servers = self.setup_sdk_servers_mock(count=1)
-        network = compute_fakes.create_one_network()
-
-        with mock.patch.object(
-            self.app.client_manager,
-            'is_network_endpoint_enabled',
-            return_value=False,
-        ):
-            arglist = [
-                servers[0].id,
-                network['id'],
-                '--fixed-ip-address',
-                '5.6.7.8',
-                '--tag',
-                'tag1',
-            ]
-            verifylist = [
-                ('server', servers[0].id),
-                ('network', network['id']),
-                ('fixed_ip_address', '5.6.7.8'),
-                ('tag', 'tag1'),
-            ]
-            parsed_args = self.check_parser(self.cmd, arglist, verifylist)
-
-            ex = self.assertRaises(
-                exceptions.CommandError, self.cmd.take_action, parsed_args
-            )
-            self.assertIn(
-                '--os-compute-api-version 2.49 or greater is required', str(ex)
-            )
-
-    @mock.patch.object(sdk_utils, 'supports_microversion')
     def test_server_add_fixed_ip_pre_v249_with_tag(self, sm_mock):
         sm_mock.side_effect = [False, True]
 
@@ -419,6 +320,63 @@ class TestServerAddFixedIP(TestServer):
                 'MAC Address',
                 'Port State',
                 'Fixed IPs',
+            )
+            expected_data = (
+                interface.port_id,
+                interface.server_id,
+                interface.net_id,
+                interface.mac_addr,
+                interface.port_state,
+                format_columns.ListDictColumn(interface.fixed_ips),
+            )
+
+            columns, data = self.cmd.take_action(parsed_args)
+
+            self.assertEqual(expected_columns, columns)
+            self.assertEqual(expected_data, tuple(data))
+            self.sdk_client.create_server_interface.assert_called_once_with(
+                servers[0].id,
+                net_id=network['id'],
+                fixed_ips=[{'ip_address': '5.6.7.8'}],
+            )
+
+    @mock.patch.object(sdk_utils, 'supports_microversion')
+    def test_server_add_fixed_ip_with_tag(self, sm_mock):
+        sm_mock.side_effect = [True, True, True]
+
+        servers = self.setup_sdk_servers_mock(count=1)
+        network = compute_fakes.create_one_network()
+        interface = compute_fakes.create_one_server_interface()
+        self.sdk_client.create_server_interface.return_value = interface
+
+        with mock.patch.object(
+            self.app.client_manager,
+            'is_network_endpoint_enabled',
+            return_value=False,
+        ):
+            arglist = [
+                servers[0].id,
+                network['id'],
+                '--fixed-ip-address',
+                '5.6.7.8',
+                '--tag',
+                'tag1',
+            ]
+            verifylist = [
+                ('server', servers[0].id),
+                ('network', network['id']),
+                ('fixed_ip_address', '5.6.7.8'),
+                ('tag', 'tag1'),
+            ]
+            parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+            expected_columns = (
+                'Port ID',
+                'Server ID',
+                'Network ID',
+                'MAC Address',
+                'Port State',
+                'Fixed IPs',
                 'Tag',
             )
             expected_data = (
@@ -439,11 +397,12 @@ class TestServerAddFixedIP(TestServer):
                 servers[0].id,
                 net_id=network['id'],
                 fixed_ips=[{'ip_address': '5.6.7.8'}],
+                tag='tag1',
             )
 
     @mock.patch.object(sdk_utils, 'supports_microversion')
-    def test_server_add_fixed_ip_with_tag(self, sm_mock):
-        sm_mock.side_effect = [True, True, True]
+    def test_server_add_fixed_ip_with_fixed_ip_with_tag(self, sm_mock):
+        sm_mock.side_effect = [True, True]
 
         servers = self.setup_sdk_servers_mock(count=1)
         network = compute_fakes.create_one_network()
