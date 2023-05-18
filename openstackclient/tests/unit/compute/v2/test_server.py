@@ -5604,10 +5604,6 @@ class TestServerLock(TestServer):
 
         self.server = compute_fakes.create_one_sdk_server()
 
-        self.app.client_manager.sdk_connection = mock.Mock()
-        self.app.client_manager.sdk_connection.compute = mock.Mock()
-        self.sdk_client = self.app.client_manager.sdk_connection.compute
-
         self.sdk_client.find_server.return_value = self.server
         self.sdk_client.lock_server.return_value = None
 
@@ -8163,10 +8159,6 @@ class TestServerShelve(TestServer):
             attrs={'status': 'ACTIVE'},
         )
 
-        self.app.client_manager.sdk_connection = mock.Mock()
-        self.app.client_manager.sdk_connection.compute = mock.Mock()
-        self.sdk_client = self.app.client_manager.sdk_connection.compute
-
         self.sdk_client.find_server.return_value = self.server
         self.sdk_client.shelve_server.return_value = None
 
@@ -8818,10 +8810,6 @@ class TestServerUnshelve(TestServer):
         self.server = compute_fakes.create_one_sdk_server(
             attrs={'status': 'SHELVED'},
         )
-
-        self.app.client_manager.sdk_connection = mock.Mock()
-        self.app.client_manager.sdk_connection.compute = mock.Mock()
-        self.sdk_client = self.app.client_manager.sdk_connection.compute
 
         self.sdk_client.find_server.return_value = self.server
         self.sdk_client.unshelve_server.return_value = None
