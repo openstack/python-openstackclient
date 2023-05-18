@@ -1836,3 +1836,48 @@ class ImportImage(command.ShowOne):
 
         info = _format_image(image)
         return zip(*sorted(info.items()))
+
+
+class StoresInfo(command.Lister):
+    _description = _(
+        "Get available backends (only valid with Multi-Backend support)"
+    )
+
+    def get_parser(self, prog_name):
+        parser = super().get_parser(prog_name)
+        parser.add_argument(
+            "--detail",
+            action='store_true',
+            default=None,
+            help=_(
+                'Shows details of stores (admin only) '
+                '(requires --os-image-api-version 2.15 or later)'
+            ),
+        )
+        return parser
+
+    def take_action(self, parsed_args):
+        image_client = self.app.client_manager.image
+        try:
+            columns = ("id", "description", "is_default")
+            column_headers = ("ID", "Description", "Default")
+            if parsed_args.detail:
+                columns += ("properties",)
+                column_headers += ("Properties",)
+
+            data = list(image_client.stores(details=parsed_args.detail))
+        except sdk_exceptions.ResourceNotFound:
+            msg = _('Multi Backend support not enabled')
+            raise exceptions.CommandError(msg)
+        else:
+            return (
+                column_headers,
+                (
+                    utils.get_item_properties(
+                        store,
+                        columns,
+                        formatters=_formatters,
+                    )
+                    for store in data
+                ),
+            )

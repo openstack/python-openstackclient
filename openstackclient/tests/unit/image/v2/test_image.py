@@ -2101,3 +2101,43 @@ class TestImageGetData(TestImage):
             test_fd = _image.get_data_from_stdin()
 
             self.assertIsNone(test_fd)
+
+
+class TestStoresInfo(TestImage):
+    stores_info = image_fakes.create_one_stores_info()
+
+    def setUp(self):
+        super().setUp()
+
+        self.client.stores.return_value = self.stores_info
+
+        self.cmd = _image.StoresInfo(self.app, None)
+
+    def test_stores_info(self):
+        arglist = []
+        parsed_args = self.check_parser(self.cmd, arglist, [])
+        self.cmd.take_action(parsed_args)
+
+        self.client.stores.assert_called()
+
+    def test_stores_info_with_detail(self):
+        arglist = ['--detail']
+        parsed_args = self.check_parser(self.cmd, arglist, [])
+        self.cmd.take_action(parsed_args)
+
+        self.client.stores.assert_called_with(details=True)
+
+    def test_stores_info_neg(self):
+        arglist = []
+        parsed_args = self.check_parser(self.cmd, arglist, [])
+        self.client.stores.side_effect = sdk_exceptions.ResourceNotFound()
+
+        exc = self.assertRaises(
+            exceptions.CommandError,
+            self.cmd.take_action,
+            parsed_args,
+        )
+        self.assertIn(
+            "Multi Backend support not enabled",
+            str(exc),
+        )
