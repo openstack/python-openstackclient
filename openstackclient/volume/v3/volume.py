@@ -16,7 +16,6 @@
 
 import logging
 
-from cinderclient import api_versions
 from openstack import utils as sdk_utils
 from osc_lib.cli import format_columns
 from osc_lib.command import command
@@ -43,9 +42,9 @@ class VolumeSummary(command.ShowOne):
         return parser
 
     def take_action(self, parsed_args):
-        volume_client = self.app.client_manager.volume
+        volume_client = self.app.client_manager.sdk_connection.volume
 
-        if volume_client.api_version < api_versions.APIVersion('3.12'):
+        if not sdk_utils.supports_microversion(volume_client, '3.12'):
             msg = _(
                 "--os-volume-api-version 3.12 or greater is required to "
                 "support the 'volume summary' command"
@@ -60,21 +59,19 @@ class VolumeSummary(command.ShowOne):
             'Total Count',
             'Total Size',
         ]
-        if volume_client.api_version.matches('3.36'):
+        if sdk_utils.supports_microversion(volume_client, '3.36'):
             columns.append('metadata')
             column_headers.append('Metadata')
 
         # set value of 'all_tenants' when using project option
         all_projects = parsed_args.all_projects
 
-        vol_summary = volume_client.volumes.summary(
-            all_tenants=all_projects,
-        )
+        vol_summary = volume_client.summary(all_projects)
 
         return (
             column_headers,
-            utils.get_dict_properties(
-                vol_summary['volume-summary'],
+            utils.get_item_properties(
+                vol_summary,
                 columns,
                 formatters={'metadata': format_columns.DictColumn},
             ),

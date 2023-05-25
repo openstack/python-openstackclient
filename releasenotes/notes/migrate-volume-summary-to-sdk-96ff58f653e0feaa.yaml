@@ -1,0 +1,4 @@
+---
+features:
+  - |
+    The ``volume summary`` command has been migrated to SDK.
