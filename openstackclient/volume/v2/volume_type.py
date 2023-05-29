@@ -250,11 +250,14 @@ class CreateVolumeType(command.ShowOne):
             raise exceptions.CommandError(msg)
 
         kwargs = {}
+
         if parsed_args.is_public is not None:
             kwargs['is_public'] = parsed_args.is_public
 
         volume_type = volume_client.volume_types.create(
-            parsed_args.name, description=parsed_args.description, **kwargs
+            parsed_args.name,
+            description=parsed_args.description,
+            **kwargs,
         )
         volume_type._info.pop('extra_specs')
 
