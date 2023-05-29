@@ -1,0 +1,7 @@
+---
+features:
+  - |
+    The ``volume type create``, ``volume type set``, ``volume type list``
+    commands now accept three new options - ``--multiattach``, ``--cacheable``,
+    and ``--replicated`` - which are short cuts for setting or filtering on
+    the relevant properties on the volume type.

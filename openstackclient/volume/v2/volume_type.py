@@ -147,13 +147,44 @@ class CreateVolumeType(command.ShowOne):
             ),
         )
         parser.add_argument(
+            '--multiattach',
+            action='store_true',
+            default=False,
+            help=_(
+                "Enable multi-attach for this volume type "
+                "(this is an alias for '--property multiattach=<is> True') "
+                "(requires driver support)"
+            ),
+        )
+        parser.add_argument(
+            '--cacheable',
+            action='store_true',
+            default=False,
+            help=_(
+                "Enable caching for this volume type "
+                "(this is an alias for '--property cacheable=<is> True') "
+                "(requires driver support)"
+            ),
+        )
+        parser.add_argument(
+            '--replicated',
+            action='store_true',
+            default=False,
+            help=_(
+                "Enabled replication for this volume type "
+                "(this is an alias for '--property replication_enabled=<is> True') "  # noqa: E501
+                "(requires driver support)"
+            ),
+        )
+        parser.add_argument(
             '--project',
             metavar='<project>',
             help=_(
                 "Allow <project> to access private type (name or ID) "
-                "(Must be used with --private option)"
+                "(must be used with --private option)"
             ),
         )
+        identity_common.add_project_domain_option_to_parser(parser)
         # TODO(Huanxuan Ao): Add choices for each "--encryption-*" option.
         parser.add_argument(
             '--encryption-provider',
@@ -161,8 +192,8 @@ class CreateVolumeType(command.ShowOne):
             help=_(
                 'Set the encryption provider format for '
                 'this volume type (e.g "luks" or "plain") (admin only) '
-                '(This option is required when setting encryption type '
-                'of a volume. Consider using other encryption options '
+                '(this option is required when setting encryption type '
+                'of a volume; consider using other encryption options '
                 'such as: "--encryption-cipher", "--encryption-key-size" '
                 'and "--encryption-control-location")'
             ),
@@ -198,7 +229,6 @@ class CreateVolumeType(command.ShowOne):
                 '"--encryption-provider")'
             ),
         )
-        identity_common.add_project_domain_option_to_parser(parser)
         return parser
 
     def take_action(self, parsed_args):
@@ -235,8 +265,17 @@ class CreateVolumeType(command.ShowOne):
                 )
                 LOG.error(msg % {'project': parsed_args.project, 'e': e})
 
+        properties = {}
         if parsed_args.properties:
-            result = volume_type.set_keys(parsed_args.properties)
+            properties.update(parsed_args.properties)
+        if parsed_args.multiattach:
+            properties['multiattach'] = '<is> True'
+        if parsed_args.cacheable:
+            properties['cacheable'] = '<is> True'
+        if parsed_args.replicated:
+            properties['replication_enabled'] = '<is> True'
+        if properties:
+            result = volume_type.set_keys(properties)
             volume_type._info.update(
                 {'properties': format_columns.DictColumn(result)}
             )
@@ -365,6 +404,37 @@ class ListVolumeType(command.Lister):
                 '(supported by --os-volume-api-version 3.52 or above)'
             ),
         )
+        parser.add_argument(
+            '--multiattach',
+            action='store_true',
+            default=False,
+            help=_(
+                "List only volume types with multi-attach enabled "
+                "(this is an alias for '--property multiattach=<is> True') "
+                "(supported by --os-volume-api-version 3.52 or above)"
+            ),
+        )
+        parser.add_argument(
+            '--cacheable',
+            action='store_true',
+            default=False,
+            help=_(
+                "List only volume types with caching enabled "
+                "(this is an alias for '--property cacheable=<is> True') "
+                "(admin only) "
+                "(supported by --os-volume-api-version 3.52 or above)"
+            ),
+        )
+        parser.add_argument(
+            '--replicated',
+            action='store_true',
+            default=False,
+            help=_(
+                "List only volume types with replication enabled "
+                "(this is an alias for '--property replication_enabled=<is> True') "  # noqa: E501
+                "(supported by --os-volume-api-version 3.52 or above)"
+            ),
+        )
         return parser
 
     def take_action(self, parsed_args):
@@ -393,17 +463,25 @@ class ListVolumeType(command.Lister):
             data = [volume_client.volume_types.default()]
         else:
             search_opts = {}
-
+            properties = {}
             if parsed_args.properties:
+                properties.update(parsed_args.properties)
+            if parsed_args.multiattach:
+                properties['multiattach'] = '<is> True'
+            if parsed_args.cacheable:
+                properties['cacheable'] = '<is> True'
+            if parsed_args.replicated:
+                properties['replication_enabled'] = '<is> True'
+            if properties:
                 if volume_client.api_version < api_versions.APIVersion('3.52'):
                     msg = _(
                         "--os-volume-api-version 3.52 or greater is required "
-                        "to use the '--property' option"
+                        "to use the '--property' option or any of the alias "
+                        "options"
                     )
                     raise exceptions.CommandError(msg)
 
-                # we pass this through as-is
-                search_opts['extra_specs'] = parsed_args.properties
+                search_opts['extra_specs'] = properties
 
             data = volume_client.volume_types.list(
                 search_opts=search_opts,
@@ -480,6 +558,36 @@ class SetVolumeType(command.Command):
             help=_(
                 'Set a property on this volume type '
                 '(repeat option to set multiple properties)'
+            ),
+        )
+        parser.add_argument(
+            '--multiattach',
+            action='store_true',
+            default=False,
+            help=_(
+                "Enable multi-attach for this volume type "
+                "(this is an alias for '--property multiattach=<is> True') "
+                "(requires driver support)"
+            ),
+        )
+        parser.add_argument(
+            '--cacheable',
+            action='store_true',
+            default=False,
+            help=_(
+                "Enable caching for this volume type "
+                "(this is an alias for '--property cacheable=<is> True') "
+                "(requires driver support)"
+            ),
+        )
+        parser.add_argument(
+            '--replicated',
+            action='store_true',
+            default=False,
+            help=_(
+                "Enabled replication for this volume type "
+                "(this is an alias for '--property replication_enabled=<is> True') "  # noqa: E501
+                "(requires driver support)"
             ),
         )
         parser.add_argument(
@@ -587,11 +695,22 @@ class SetVolumeType(command.Command):
                 )
                 result += 1
 
+        properties = {}
+
+        properties = {}
         if parsed_args.properties:
+            properties.update(parsed_args.properties)
+        if parsed_args.multiattach:
+            properties['multiattach'] = '<is> True'
+        if parsed_args.cacheable:
+            properties['cacheable'] = '<is> True'
+        if parsed_args.replicated:
+            properties['replication_enabled'] = '<is> True'
+        if properties:
             try:
-                volume_type.set_keys(parsed_args.properties)
+                volume_type.set_keys(properties)
             except Exception as e:
-                LOG.error(_("Failed to set volume type property: %s"), e)
+                LOG.error(_("Failed to set volume type properties: %s"), e)
                 result += 1
 
         if parsed_args.project:
@@ -760,7 +879,7 @@ class UnsetVolumeType(command.Command):
             try:
                 volume_type.unset_keys(parsed_args.properties)
             except Exception as e:
-                LOG.error(_("Failed to unset volume type property: %s"), e)
+                LOG.error(_("Failed to unset volume type properties: %s"), e)
                 result += 1
 
         if parsed_args.project:
