@@ -177,6 +177,16 @@ class CreateVolumeType(command.ShowOne):
             ),
         )
         parser.add_argument(
+            '--availability-zone',
+            action='append',
+            dest='availability_zones',
+            help=_(
+                "Set an availability zone for this volume type "
+                "(this is an alias for '--property RESKEY:availability_zones:<az>') "  # noqa: E501
+                "(repeat option to set multiple availabilty zones)"
+            ),
+        )
+        parser.add_argument(
             '--project',
             metavar='<project>',
             help=_(
@@ -274,6 +284,10 @@ class CreateVolumeType(command.ShowOne):
             properties['cacheable'] = '<is> True'
         if parsed_args.replicated:
             properties['replication_enabled'] = '<is> True'
+        if parsed_args.availability_zones:
+            properties['RESKEY:availability_zones'] = ','.join(
+                parsed_args.availability_zones
+            )
         if properties:
             result = volume_type.set_keys(properties)
             volume_type._info.update(
@@ -435,6 +449,16 @@ class ListVolumeType(command.Lister):
                 "(supported by --os-volume-api-version 3.52 or above)"
             ),
         )
+        parser.add_argument(
+            '--availability-zone',
+            action='append',
+            dest='availability_zones',
+            help=_(
+                "List only volume types with this availability configured "
+                "(this is an alias for '--property RESKEY:availability_zones:<az>') "  # noqa: E501
+                "(repeat option to filter on multiple availabilty zones)"
+            ),
+        )
         return parser
 
     def take_action(self, parsed_args):
@@ -472,6 +496,10 @@ class ListVolumeType(command.Lister):
                 properties['cacheable'] = '<is> True'
             if parsed_args.replicated:
                 properties['replication_enabled'] = '<is> True'
+            if parsed_args.availability_zones:
+                properties['RESKEY:availability_zones'] = ','.join(
+                    parsed_args.availability_zones
+                )
             if properties:
                 if volume_client.api_version < api_versions.APIVersion('3.52'):
                     msg = _(
@@ -591,6 +619,16 @@ class SetVolumeType(command.Command):
             ),
         )
         parser.add_argument(
+            '--availability-zone',
+            action='append',
+            dest='availability_zones',
+            help=_(
+                "Set an availability zone for this volume type "
+                "(this is an alias for '--property RESKEY:availability_zones:<az>') "  # noqa: E501
+                "(repeat option to set multiple availabilty zones)"
+            ),
+        )
+        parser.add_argument(
             '--project',
             metavar='<project>',
             help=_(
@@ -706,6 +744,10 @@ class SetVolumeType(command.Command):
             properties['cacheable'] = '<is> True'
         if parsed_args.replicated:
             properties['replication_enabled'] = '<is> True'
+        if parsed_args.availability_zones:
+            properties['RESKEY:availability_zones'] = ','.join(
+                parsed_args.availability_zones
+            )
         if properties:
             try:
                 volume_type.set_keys(properties)

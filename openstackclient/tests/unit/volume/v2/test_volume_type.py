@@ -132,6 +132,8 @@ class TestTypeCreate(TestType):
             '--multiattach',
             '--cacheable',
             '--replicated',
+            '--availability-zone',
+            'az1',
             self.new_volume_type.name,
         ]
         verifylist = [
@@ -139,6 +141,7 @@ class TestTypeCreate(TestType):
             ('multiattach', True),
             ('cacheable', True),
             ('replicated', True),
+            ('availability_zones', ['az1']),
             ('name', self.new_volume_type.name),
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
@@ -153,6 +156,7 @@ class TestTypeCreate(TestType):
                 'multiattach': '<is> True',
                 'cacheable': '<is> True',
                 'replication_enabled': '<is> True',
+                'RESKEY:availability_zones': 'az1',
             }
         )
 
@@ -442,6 +446,8 @@ class TestTypeList(TestType):
             "--multiattach",
             "--cacheable",
             "--replicated",
+            "--availability-zone",
+            "az1",
         ]
         verifylist = [
             ("encryption_type", False),
@@ -452,6 +458,7 @@ class TestTypeList(TestType):
             ("multiattach", True),
             ("cacheable", True),
             ("replicated", True),
+            ("availability_zones", ["az1"]),
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
@@ -463,6 +470,7 @@ class TestTypeList(TestType):
                     "multiattach": "<is> True",
                     "cacheable": "<is> True",
                     "replication_enabled": "<is> True",
+                    "RESKEY:availability_zones": "az1",
                 }
             },
             is_public=None,
@@ -607,6 +615,8 @@ class TestTypeSet(TestType):
             '--multiattach',
             '--cacheable',
             '--replicated',
+            '--availability-zone',
+            'az1',
             self.volume_type.id,
         ]
         verifylist = [
@@ -616,6 +626,7 @@ class TestTypeSet(TestType):
             ('multiattach', True),
             ('cacheable', True),
             ('replicated', True),
+            ('availability_zones', ['az1']),
             ('volume_type', self.volume_type.id),
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
@@ -629,6 +640,7 @@ class TestTypeSet(TestType):
                 'multiattach': '<is> True',
                 'cacheable': '<is> True',
                 'replication_enabled': '<is> True',
+                'RESKEY:availability_zones': 'az1',
             }
         )
         self.volume_type_access_mock.add_project_access.assert_not_called()
