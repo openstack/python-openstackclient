@@ -37,7 +37,7 @@ class DeleteAccessRule(command.Command):
             'access_rule',
             metavar='<access-rule>',
             nargs="+",
-            help=_('Access rule(s) to delete (name or ID)'),
+            help=_('Access rule ID(s) to delete'),
         )
         return parser
 
@@ -47,8 +47,9 @@ class DeleteAccessRule(command.Command):
         errors = 0
         for ac in parsed_args.access_rule:
             try:
-                access_rule = utils.find_resource(
-                    identity_client.access_rules, ac)
+                access_rule = common.get_resource_by_id(
+                    identity_client.access_rules, ac
+                )
                 identity_client.access_rules.delete(access_rule.id)
             except Exception as e:
                 errors += 1
@@ -103,14 +104,15 @@ class ShowAccessRule(command.ShowOne):
         parser.add_argument(
             'access_rule',
             metavar='<access-rule>',
-            help=_('Access rule to display (name or ID)'),
+            help=_('Access rule ID to display'),
         )
         return parser
 
     def take_action(self, parsed_args):
         identity_client = self.app.client_manager.identity
-        access_rule = utils.find_resource(identity_client.access_rules,
-                                          parsed_args.access_rule)
+        access_rule = common.get_resource_by_id(
+            identity_client.access_rules, parsed_args.access_rule
+        )
 
         access_rule._info.pop('links', None)
 
