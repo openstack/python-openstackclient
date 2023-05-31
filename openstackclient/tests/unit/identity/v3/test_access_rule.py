@@ -14,10 +14,9 @@
 #
 
 import copy
-from unittest import mock
 
+from keystoneclient import exceptions as identity_exc
 from osc_lib import exceptions
-from osc_lib import utils
 
 from openstackclient.identity.v3 import access_rule
 from openstackclient.tests.unit import fakes
@@ -69,10 +68,13 @@ class TestAccessRuleDelete(TestAccessRule):
         )
         self.assertIsNone(result)
 
-    @mock.patch.object(utils, 'find_resource')
-    def test_delete_multi_access_rules_with_exception(self, find_mock):
-        find_mock.side_effect = [self.access_rules_mock.get.return_value,
-                                 exceptions.CommandError]
+    def test_delete_multi_access_rules_with_exception(self):
+        # mock returns for common.get_resource_by_id
+        mock_get = self.access_rules_mock.get
+        mock_get.side_effect = [
+            mock_get.return_value,
+            identity_exc.NotFound,
+        ]
         arglist = [
             identity_fakes.access_rule_id,
             'nonexistent_access_rule',
@@ -89,12 +91,10 @@ class TestAccessRuleDelete(TestAccessRule):
             self.assertEqual('1 of 2 access rules failed to'
                              ' delete.', str(e))
 
-        find_mock.assert_any_call(self.access_rules_mock,
-                                  identity_fakes.access_rule_id)
-        find_mock.assert_any_call(self.access_rules_mock,
-                                  'nonexistent_access_rule')
+        mock_get.assert_any_call(identity_fakes.access_rule_id)
+        mock_get.assert_any_call('nonexistent_access_rule')
 
-        self.assertEqual(2, find_mock.call_count)
+        self.assertEqual(2, mock_get.call_count)
         self.access_rules_mock.delete.assert_called_once_with(
             identity_fakes.access_rule_id)
 

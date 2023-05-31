@@ -87,6 +87,18 @@ def get_resource(manager, name_type_or_id):
         raise exceptions.CommandError(msg % name_type_or_id)
 
 
+def get_resource_by_id(manager, resource_id):
+    """Get resource by ID
+
+    Raises CommandError if the resource is not found
+    """
+    try:
+        return manager.get(resource_id)
+    except identity_exc.NotFound:
+        msg = _("Resource with id {} not found")
+        raise exceptions.CommandError(msg.format(resource_id))
+
+
 def _get_token_resource(client, resource, parsed_name, parsed_domain=None):
     """Peek into the user's auth token to get resource IDs
 
