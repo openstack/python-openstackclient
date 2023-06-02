@@ -26,27 +26,20 @@ from openstackclient.i18n import _
 LOG = logging.getLogger(__name__)
 
 
-def _xform_common_availability_zone(az, zone_info):
-    if hasattr(az, 'zoneState'):
-        zone_info['zone_status'] = (
-            'available' if az.zoneState['available'] else 'not available'
-        )
-    if hasattr(az, 'zoneName'):
-        zone_info['zone_name'] = az.zoneName
-
-    zone_info['zone_resource'] = ''
-
-
 def _xform_compute_availability_zone(az, include_extra):
     result = []
-    zone_info = {}
-    _xform_common_availability_zone(az, zone_info)
+    zone_info = {
+        'zone_name': az.name,
+        'zone_status': (
+            'available' if az.state['available'] else 'not available'
+        ),
+    }
 
     if not include_extra:
         result.append(zone_info)
         return result
 
-    if hasattr(az, 'hosts') and az.hosts:
+    if az.hosts:
         for host, services in az.hosts.items():
             host_info = copy.deepcopy(zone_info)
             host_info['host_name'] = host
@@ -70,8 +63,12 @@ def _xform_compute_availability_zone(az, include_extra):
 
 def _xform_volume_availability_zone(az):
     result = []
-    zone_info = {}
-    _xform_common_availability_zone(az, zone_info)
+    zone_info = {
+        'zone_name': az.name,
+        'zone_status': (
+            'available' if az.state['available'] else 'not available'
+        ),
+    }
     result.append(zone_info)
     return result
 
@@ -79,11 +76,11 @@ def _xform_volume_availability_zone(az):
 def _xform_network_availability_zone(az):
     result = []
     zone_info = {}
-    zone_info['zone_name'] = getattr(az, 'name', '')
-    zone_info['zone_status'] = getattr(az, 'state', '')
+    zone_info['zone_name'] = az.name
+    zone_info['zone_status'] = az.state
     if 'unavailable' == zone_info['zone_status']:
         zone_info['zone_status'] = 'not available'
-    zone_info['zone_resource'] = getattr(az, 'resource', '')
+    zone_info['zone_resource'] = az.resource
     result.append(zone_info)
     return result
 
@@ -92,7 +89,7 @@ class ListAvailabilityZone(command.Lister):
     _description = _("List availability zones and their status")
 
     def get_parser(self, prog_name):
-        parser = super(ListAvailabilityZone, self).get_parser(prog_name)
+        parser = super().get_parser(prog_name)
         parser.add_argument(
             '--compute',
             action='store_true',
@@ -120,26 +117,25 @@ class ListAvailabilityZone(command.Lister):
         return parser
 
     def _get_compute_availability_zones(self, parsed_args):
-        compute_client = self.app.client_manager.compute
+        compute_client = self.app.client_manager.sdk_connection.compute
         try:
-            data = compute_client.availability_zones.list()
+            data = compute_client.availability_zones(details=True)
         except nova_exceptions.Forbidden:  # policy doesn't allow
             try:
-                data = compute_client.availability_zones.list(detailed=False)
+                data = compute_client.availability_zones(details=False)
             except Exception:
                 raise
 
-        # Argh, the availability zones are not iterable...
         result = []
         for zone in data:
             result += _xform_compute_availability_zone(zone, parsed_args.long)
         return result
 
     def _get_volume_availability_zones(self, parsed_args):
-        volume_client = self.app.client_manager.volume
+        volume_client = self.app.client_manager.sdk_connection.volume
         data = []
         try:
-            data = volume_client.availability_zones.list()
+            data = volume_client.availability_zones()
         except Exception as e:
             LOG.debug('Volume availability zone exception: %s', e)
             if parsed_args.volume:
@@ -165,7 +161,7 @@ class ListAvailabilityZone(command.Lister):
             LOG.debug('Network availability zone exception: ', e)
             if parsed_args.network:
                 message = _(
-                    "Availability zones list not supported by " "Network API"
+                    "Availability zones list not supported by Network API"
                 )
                 LOG.warning(message)
             return []

@@ -15,24 +15,23 @@ from unittest import mock
 
 from openstackclient.common import availability_zone
 from openstackclient.tests.unit.compute.v2 import fakes as compute_fakes
-from openstackclient.tests.unit import fakes
 from openstackclient.tests.unit.network.v2 import fakes as network_fakes
 from openstackclient.tests.unit import utils
-from openstackclient.tests.unit.volume.v2 import fakes as volume_fakes
+from openstackclient.tests.unit.volume.v3 import fakes as volume_fakes
 
 
 def _build_compute_az_datalist(compute_az, long_datalist=False):
     datalist = ()
     if not long_datalist:
         datalist = (
-            compute_az.zoneName,
+            compute_az.name,
             'available',
         )
     else:
         for host, services in compute_az.hosts.items():
             for service, state in services.items():
                 datalist += (
-                    compute_az.zoneName,
+                    compute_az.name,
                     'available',
                     '',
                     host,
@@ -46,12 +45,12 @@ def _build_volume_az_datalist(volume_az, long_datalist=False):
     datalist = ()
     if not long_datalist:
         datalist = (
-            volume_az.zoneName,
+            volume_az.name,
             'available',
         )
     else:
         datalist = (
-            volume_az.zoneName,
+            volume_az.name,
             'available',
             '',
             '',
@@ -84,33 +83,20 @@ class TestAvailabilityZone(utils.TestCommand):
     def setUp(self):
         super().setUp()
 
-        compute_client = compute_fakes.FakeComputev2Client(
-            endpoint=fakes.AUTH_URL,
-            token=fakes.AUTH_TOKEN,
-        )
-        self.app.client_manager.compute = compute_client
+        self.app.client_manager.sdk_connection = mock.Mock()
 
-        self.compute_azs_mock = compute_client.availability_zones
-        self.compute_azs_mock.reset_mock()
+        self.app.client_manager.sdk_connection.compute = mock.Mock()
+        self.compute_client = self.app.client_manager.sdk_connection.compute
+        self.compute_client.availability_zones = mock.Mock()
 
-        volume_client = volume_fakes.FakeVolumeClient(
-            endpoint=fakes.AUTH_URL,
-            token=fakes.AUTH_TOKEN,
-        )
-        self.app.client_manager.volume = volume_client
+        self.app.client_manager.sdk_connection.volume = mock.Mock()
+        self.volume_client = self.app.client_manager.sdk_connection.volume
+        self.volume_client.availability_zones = mock.Mock()
 
-        self.volume_azs_mock = volume_client.availability_zones
-        self.volume_azs_mock.reset_mock()
-
-        network_client = network_fakes.FakeNetworkV2Client(
-            endpoint=fakes.AUTH_URL,
-            token=fakes.AUTH_TOKEN,
-        )
-        self.app.client_manager.network = network_client
-
-        network_client.availability_zones = mock.Mock()
-        network_client.find_extension = mock.Mock()
-        self.network_azs_mock = network_client.availability_zones
+        self.app.client_manager.network = mock.Mock()
+        self.network_client = self.app.client_manager.network
+        self.network_client.availability_zones = mock.Mock()
+        self.network_client.find_extension = mock.Mock()
 
 
 class TestAvailabilityZoneList(TestAvailabilityZone):
@@ -131,9 +117,9 @@ class TestAvailabilityZoneList(TestAvailabilityZone):
     def setUp(self):
         super().setUp()
 
-        self.compute_azs_mock.list.return_value = self.compute_azs
-        self.volume_azs_mock.list.return_value = self.volume_azs
-        self.network_azs_mock.return_value = self.network_azs
+        self.compute_client.availability_zones.return_value = self.compute_azs
+        self.volume_client.availability_zones.return_value = self.volume_azs
+        self.network_client.availability_zones.return_value = self.network_azs
 
         # Get the command object to test
         self.cmd = availability_zone.ListAvailabilityZone(self.app, None)
@@ -148,9 +134,9 @@ class TestAvailabilityZoneList(TestAvailabilityZone):
         # containing the data to be listed.
         columns, data = self.cmd.take_action(parsed_args)
 
-        self.compute_azs_mock.list.assert_called_with()
-        self.volume_azs_mock.list.assert_called_with()
-        self.network_azs_mock.assert_called_with()
+        self.compute_client.availability_zones.assert_called_with(details=True)
+        self.volume_client.availability_zones.assert_called_with()
+        self.network_client.availability_zones.assert_called_with()
 
         self.assertEqual(self.short_columnslist, columns)
         datalist = ()
@@ -176,9 +162,9 @@ class TestAvailabilityZoneList(TestAvailabilityZone):
         # containing the data to be listed.
         columns, data = self.cmd.take_action(parsed_args)
 
-        self.compute_azs_mock.list.assert_called_with()
-        self.volume_azs_mock.list.assert_called_with()
-        self.network_azs_mock.assert_called_with()
+        self.compute_client.availability_zones.assert_called_with(details=True)
+        self.volume_client.availability_zones.assert_called_with()
+        self.network_client.availability_zones.assert_called_with()
 
         self.assertEqual(self.long_columnslist, columns)
         datalist = ()
@@ -210,9 +196,9 @@ class TestAvailabilityZoneList(TestAvailabilityZone):
         # containing the data to be listed.
         columns, data = self.cmd.take_action(parsed_args)
 
-        self.compute_azs_mock.list.assert_called_with()
-        self.volume_azs_mock.list.assert_not_called()
-        self.network_azs_mock.assert_not_called()
+        self.compute_client.availability_zones.assert_called_with(details=True)
+        self.volume_client.availability_zones.assert_not_called()
+        self.network_client.availability_zones.assert_not_called()
 
         self.assertEqual(self.short_columnslist, columns)
         datalist = ()
@@ -234,9 +220,9 @@ class TestAvailabilityZoneList(TestAvailabilityZone):
         # containing the data to be listed.
         columns, data = self.cmd.take_action(parsed_args)
 
-        self.compute_azs_mock.list.assert_not_called()
-        self.volume_azs_mock.list.assert_called_with()
-        self.network_azs_mock.assert_not_called()
+        self.compute_client.availability_zones.assert_not_called()
+        self.volume_client.availability_zones.assert_called_with()
+        self.network_client.availability_zones.assert_not_called()
 
         self.assertEqual(self.short_columnslist, columns)
         datalist = ()
@@ -258,9 +244,9 @@ class TestAvailabilityZoneList(TestAvailabilityZone):
         # containing the data to be listed.
         columns, data = self.cmd.take_action(parsed_args)
 
-        self.compute_azs_mock.list.assert_not_called()
-        self.volume_azs_mock.list.assert_not_called()
-        self.network_azs_mock.assert_called_with()
+        self.compute_client.availability_zones.assert_not_called()
+        self.volume_client.availability_zones.assert_not_called()
+        self.network_client.availability_zones.assert_called_with()
 
         self.assertEqual(self.short_columnslist, columns)
         datalist = ()

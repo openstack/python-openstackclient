@@ -15,6 +15,7 @@ from unittest import mock
 import uuid
 
 from cinderclient import api_versions
+from openstack.block_storage.v3 import availability_zone as _availability_zone
 from openstack.block_storage.v3 import block_storage_summary as _summary
 
 from openstackclient.tests.unit.compute.v2 import fakes as compute_fakes
@@ -73,6 +74,46 @@ class TestVolume(utils.TestCommand):
 # TODO(stephenfin): Check if the responses are actually the same
 create_one_volume = volume_v2_fakes.create_one_volume
 create_one_volume_type = volume_v2_fakes.create_one_volume_type
+
+
+def create_one_availability_zone(attrs=None):
+    """Create a fake AZ.
+
+    :param dict attrs: A dictionary with all attributes
+    :return: A fake
+        openstack.block_storage.v3.availability_zone.AvailabilityZone object
+    """
+    attrs = attrs or {}
+
+    # Set default attributes.
+    availability_zone_info = {
+        'name': uuid.uuid4().hex,
+        'state': {'available': True},
+    }
+
+    # Overwrite default attributes.
+    availability_zone_info.update(attrs)
+
+    availability_zone = _availability_zone.AvailabilityZone(
+        **availability_zone_info
+    )
+    return availability_zone
+
+
+def create_availability_zones(attrs=None, count=2):
+    """Create multiple fake AZs.
+
+    :param dict attrs: A dictionary with all attributes
+    :param int count: The number of availability zones to fake
+    :return: A list of fake
+        openstack.block_storage.v3.availability_zone.AvailabilityZone objects
+    """
+    availability_zones = []
+    for i in range(0, count):
+        availability_zone = create_one_availability_zone(attrs)
+        availability_zones.append(availability_zone)
+
+    return availability_zones
 
 
 def create_one_cluster(attrs=None):
