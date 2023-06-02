@@ -485,7 +485,7 @@ class TestDeleteRouter(TestRouter):
 class TestListRouter(TestRouter):
     # The routers going to be listed up.
     routers = network_fakes.FakeRouter.create_routers(count=3)
-    _extensions = network_fakes.FakeExtension.create_one_extension()
+    extensions = network_fakes.create_one_extension()
 
     columns = (
         'ID',
@@ -572,7 +572,7 @@ class TestListRouter(TestRouter):
             return_value=self.routers
         )
         self.network.routers = mock.Mock(return_value=self.routers)
-        self.network.find_extension = mock.Mock(return_value=self._extensions)
+        self.network.find_extension = mock.Mock(return_value=self.extensions)
         self.network.find_router = mock.Mock(return_value=self.routers[0])
         self._testagent = network_fakes.create_one_network_agent()
         self.network.get_agent = mock.Mock(return_value=self._testagent)

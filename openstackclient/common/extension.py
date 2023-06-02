@@ -22,15 +22,24 @@ from osc_lib import utils
 
 from openstackclient.i18n import _
 
-
 LOG = logging.getLogger(__name__)
+
+
+def _get_extension_columns(item):
+    column_map = {
+        'updated': 'updated_at',
+    }
+    hidden_columns = ['id', 'links', 'location']
+    return utils.get_osc_show_columns_for_sdk_resource(
+        item, column_map, hidden_columns
+    )
 
 
 class ListExtension(command.Lister):
     _description = _("List API extensions")
 
     def get_parser(self, prog_name):
-        parser = super(ListExtension, self).get_parser(prog_name)
+        parser = super().get_parser(prog_name)
         parser.add_argument(
             '--compute',
             action='store_true',
@@ -70,7 +79,7 @@ class ListExtension(command.Lister):
                 'Alias',
                 'Description',
                 'Namespace',
-                'Updated',
+                'Updated At',
                 'Links',
             )
         else:
@@ -105,12 +114,12 @@ class ListExtension(command.Lister):
                 LOG.warning(message)
 
         if parsed_args.volume or show_all:
-            volume_client = self.app.client_manager.volume
+            volume_client = self.app.client_manager.sdk_connection.volume
             try:
-                data += volume_client.list_extensions.show_all()
+                data += volume_client.extensions()
             except Exception:
                 message = _(
-                    "Extensions list not supported by " "Block Storage API"
+                    "Extensions list not supported by Block Storage API"
                 )
                 LOG.warning(message)
 
@@ -120,7 +129,7 @@ class ListExtension(command.Lister):
                 data += network_client.extensions()
             except Exception:
                 message = _(
-                    "Failed to retrieve extensions list " "from Network API"
+                    "Failed to retrieve extensions list from Network API"
                 )
                 LOG.warning(message)
 
@@ -153,7 +162,12 @@ class ShowExtension(command.ShowOne):
 
     def take_action(self, parsed_args):
         client = self.app.client_manager.network
-        ext = str(parsed_args.extension)
-        obj = client.find_extension(ext, ignore_missing=False).to_dict()
 
-        return zip(*sorted(obj.items()))
+        extension = client.find_extension(
+            parsed_args.extension,
+            ignore_missing=False,
+        )
+
+        display_columns, columns = _get_extension_columns(extension)
+        data = utils.get_dict_properties(extension, columns)
+        return display_columns, data

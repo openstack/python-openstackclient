@@ -23,6 +23,7 @@ from openstack.network.v2 import address_scope as _address_scope
 from openstack.network.v2 import agent as network_agent
 from openstack.network.v2 import auto_allocated_topology as allocated_topology
 from openstack.network.v2 import availability_zone as _availability_zone
+from openstack.network.v2 import extension as _extension
 from openstack.network.v2 import flavor as _flavor
 from openstack.network.v2 import local_ip as _local_ip
 from openstack.network.v2 import local_ip_association as _local_ip_association
@@ -101,21 +102,12 @@ class FakeNetworkV2Client(object):
 
 class TestNetworkV2(utils.TestCommand):
     def setUp(self):
-        super(TestNetworkV2, self).setUp()
+        super().setUp()
 
         self.namespace = argparse.Namespace()
 
         self.app.client_manager.session = mock.Mock()
-
-        self.app.client_manager.network = FakeNetworkV2Client(
-            endpoint=fakes.AUTH_URL,
-            token=fakes.AUTH_TOKEN,
-        )
-
-        self.app.client_manager.sdk_connection = mock.Mock()
-        self.app.client_manager.sdk_connection.network = (
-            self.app.client_manager.network
-        )
+        self.app.client_manager.network = mock.Mock()
 
         self.app.client_manager.identity = (
             identity_fakes_v3.FakeIdentityv3Client(
@@ -125,37 +117,30 @@ class TestNetworkV2(utils.TestCommand):
         )
 
 
-class FakeExtension(object):
-    """Fake one or more extension."""
+def create_one_extension(attrs=None):
+    """Create a fake extension.
 
-    @staticmethod
-    def create_one_extension(attrs=None):
-        """Create a fake extension.
+    :param Dictionary attrs:
+        A dictionary with all attributes
+    :return:
+        An Extension object with name, namespace, etc.
+    """
+    attrs = attrs or {}
 
-        :param Dictionary attrs:
-            A dictionary with all attributes
-        :return:
-            A FakeResource object with name, namespace, etc.
-        """
-        attrs = attrs or {}
+    # Set default attributes.
+    extension_info = {
+        'name': 'name-' + uuid.uuid4().hex,
+        'description': 'description-' + uuid.uuid4().hex,
+        'alias': 'Dystopian',
+        'links': [],
+        'updated_at': '2013-07-09T12:00:0-00:00',
+    }
 
-        # Set default attributes.
-        extension_info = {
-            'name': 'name-' + uuid.uuid4().hex,
-            'namespace': 'http://docs.openstack.org/network/',
-            'description': 'description-' + uuid.uuid4().hex,
-            'updated': '2013-07-09T12:00:0-00:00',
-            'alias': 'Dystopian',
-            'links': '[{"href":' '"https://github.com/os/network", "type"}]',
-        }
+    # Overwrite default attributes.
+    extension_info.update(attrs)
 
-        # Overwrite default attributes.
-        extension_info.update(attrs)
-
-        extension = fakes.FakeResource(
-            info=copy.deepcopy(extension_info), loaded=True
-        )
-        return extension
+    extension = _extension.Extension(**extension_info)
+    return extension
 
 
 class FakeNetworkQosPolicy(object):

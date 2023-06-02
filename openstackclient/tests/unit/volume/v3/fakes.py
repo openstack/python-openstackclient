@@ -17,6 +17,7 @@ import uuid
 from cinderclient import api_versions
 from openstack.block_storage.v3 import availability_zone as _availability_zone
 from openstack.block_storage.v3 import block_storage_summary as _summary
+from openstack.block_storage.v3 import extension as _extension
 
 from openstackclient.tests.unit.compute.v2 import fakes as compute_fakes
 from openstackclient.tests.unit import fakes
@@ -114,6 +115,37 @@ def create_availability_zones(attrs=None, count=2):
         availability_zones.append(availability_zone)
 
     return availability_zones
+
+
+def create_one_extension(attrs=None):
+    """Create a fake extension.
+
+    :param dict attrs: A dictionary with all attributes
+    :return: A fake
+        openstack.block_storage.v3.extension.Extension object
+    """
+    attrs = attrs or {}
+
+    # Set default attributes.
+    extension_info = {
+        'alias': 'OS-SCH-HNT',
+        'description': 'description-' + uuid.uuid4().hex,
+        'links': [
+            {
+                "href": "https://github.com/openstack/block-api",
+                "type": "text/html",
+                "rel": "describedby",
+            }
+        ],
+        'name': 'name-' + uuid.uuid4().hex,
+        'updated_at': '2013-04-18T00:00:00+00:00',
+    }
+
+    # Overwrite default attributes.
+    extension_info.update(attrs)
+
+    extension = _extension.Extension(**extension_info)
+    return extension
 
 
 def create_one_cluster(attrs=None):

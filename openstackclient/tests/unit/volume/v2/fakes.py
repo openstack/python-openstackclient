@@ -56,8 +56,6 @@ class FakeVolumeClient:
         self.cgsnapshots.resource_class = fakes.FakeResource(None, {})
         self.consistencygroups = mock.Mock()
         self.consistencygroups.resource_class = fakes.FakeResource(None, {})
-        self.extensions = mock.Mock()
-        self.extensions.resource_class = fakes.FakeResource(None, {})
         self.limits = mock.Mock()
         self.limits.resource_class = fakes.FakeResource(None, {})
         self.pools = mock.Mock()
@@ -725,42 +723,6 @@ def get_consistency_group_snapshots(snapshots=None, count=2):
         snapshots = create_consistency_group_snapshots(count)
 
     return mock.Mock(side_effect=snapshots)
-
-
-def create_one_extension(attrs=None):
-    """Create a fake extension.
-
-    :param dict attrs:
-        A dictionary with all attributes
-    :return:
-        A FakeResource object with name, namespace, etc.
-    """
-    attrs = attrs or {}
-
-    # Set default attributes.
-    extension_info = {
-        'name': 'name-' + uuid.uuid4().hex,
-        'namespace': (
-            'http://docs.openstack.org/'
-            'block-service/ext/scheduler-hints/api/v2'
-        ),
-        'description': 'description-' + uuid.uuid4().hex,
-        'updated': '2013-04-18T00:00:00+00:00',
-        'alias': 'OS-SCH-HNT',
-        'links': (
-            '[{"href":'
-            '"https://github.com/openstack/block-api", "type":'
-            ' "text/html", "rel": "describedby"}]'
-        ),
-    }
-
-    # Overwrite default attributes.
-    extension_info.update(attrs)
-
-    extension = fakes.FakeResource(
-        info=copy.deepcopy(extension_info), loaded=True
-    )
-    return extension
 
 
 def create_one_qos(attrs=None):

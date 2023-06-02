@@ -21,6 +21,7 @@ import uuid
 from novaclient import api_versions
 from openstack.compute.v2 import aggregate as _aggregate
 from openstack.compute.v2 import availability_zone as _availability_zone
+from openstack.compute.v2 import extension as _extension
 from openstack.compute.v2 import flavor as _flavor
 from openstack.compute.v2 import hypervisor as _hypervisor
 from openstack.compute.v2 import keypair as _keypair
@@ -288,35 +289,33 @@ def create_agents(attrs=None, count=2):
 def create_one_extension(attrs=None):
     """Create a fake extension.
 
-    :param dict attrs:
-        A dictionary with all attributes
-    :return:
-        A FakeResource object with name, namespace, etc.
+    :param dict attrs: A dictionary with all attributes
+    :return: A fake openstack.compute.v2.extension.Extension object
     """
     attrs = attrs or {}
 
     # Set default attributes.
     extension_info = {
+        'alias': 'NMN',
+        'description': 'description-' + uuid.uuid4().hex,
+        'links': [
+            {
+                "href": "https://github.com/openstack/compute-api",
+                "type": "text/html",
+                "rel": "describedby",
+            }
+        ],
         'name': 'name-' + uuid.uuid4().hex,
         'namespace': (
             'http://docs.openstack.org/compute/ext/multinic/api/v1.1'
         ),
-        'description': 'description-' + uuid.uuid4().hex,
-        'updated': '2014-01-07T12:00:0-00:00',
-        'alias': 'NMN',
-        'links': (
-            '[{"href":'
-            '"https://github.com/openstack/compute-api", "type":'
-            ' "text/html", "rel": "describedby"}]'
-        ),
+        'updated_at': '2014-01-07T12:00:0-00:00',
     }
 
     # Overwrite default attributes.
     extension_info.update(attrs)
 
-    extension = fakes.FakeResource(
-        info=copy.deepcopy(extension_info), loaded=True
-    )
+    extension = _extension.Extension(**extension_info)
     return extension
 
 
