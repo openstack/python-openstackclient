@@ -1,0 +1,7 @@
+---
+upgrade:
+  - |
+    The ``--detailed`` option of the ``block storage volume manageable list``
+    and ``block storage snapshot manageable list`` commands has been deprecated
+    in favour of a ``--long`` option. These commands will no longer default to
+    detailed output by default.

@@ -9,7 +9,8 @@
 #   WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
 #   License for the specific language governing permissions and limitations
 #   under the License.
-#
+
+from unittest import mock
 
 from cinderclient import api_versions
 from osc_lib import exceptions
@@ -49,12 +50,11 @@ class TestBlockStorageVolumeManage(TestBlockStorageManage):
         self.app.client_manager.volume.api_version = api_versions.APIVersion(
             '3.8'
         )
-        host = 'fake_host'
         arglist = [
-            host,
+            'fake_host',
         ]
         verifylist = [
-            ('host', host),
+            ('host', 'fake_host'),
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
@@ -64,48 +64,37 @@ class TestBlockStorageVolumeManage(TestBlockStorageManage):
             'reference',
             'size',
             'safe_to_manage',
-            'reason_not_safe',
-            'cinder_id',
-            'extra_info',
         ]
-
-        # confirming if all expected columns are present in the result.
-        self.assertEqual(expected_columns, columns)
-
         datalist = []
         for volume_record in self.volume_manage_list:
             manage_details = (
                 volume_record.reference,
                 volume_record.size,
                 volume_record.safe_to_manage,
-                volume_record.reason_not_safe,
-                volume_record.cinder_id,
-                volume_record.extra_info,
             )
             datalist.append(manage_details)
         datalist = tuple(datalist)
 
-        # confirming if all expected values are present in the result.
+        self.assertEqual(expected_columns, columns)
         self.assertEqual(datalist, tuple(data))
 
         # checking if proper call was made to get volume manageable list
         self.volumes_mock.list_manageable.assert_called_with(
-            host=parsed_args.host,
-            detailed=parsed_args.detailed,
-            marker=parsed_args.marker,
-            limit=parsed_args.limit,
-            offset=parsed_args.offset,
-            sort=parsed_args.sort,
-            cluster=parsed_args.cluster,
+            host='fake_host',
+            detailed=False,
+            marker=None,
+            limit=None,
+            offset=None,
+            sort=None,
+            cluster=None,
         )
 
-    def test_block_storage_volume_manage_pre_38(self):
-        host = 'fake_host'
+    def test_block_storage_volume_manage_list__pre_v38(self):
         arglist = [
-            host,
+            'fake_host',
         ]
         verifylist = [
-            ('host', host),
+            ('host', 'fake_host'),
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
@@ -116,17 +105,16 @@ class TestBlockStorageVolumeManage(TestBlockStorageManage):
             '--os-volume-api-version 3.8 or greater is required', str(exc)
         )
 
-    def test_block_storage_volume_manage_pre_317(self):
+    def test_block_storage_volume_manage_list__pre_v317(self):
         self.app.client_manager.volume.api_version = api_versions.APIVersion(
             '3.16'
         )
-        cluster = 'fake_cluster'
         arglist = [
             '--cluster',
-            cluster,
+            'fake_cluster',
         ]
         verifylist = [
-            ('cluster', cluster),
+            ('cluster', 'fake_cluster'),
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
@@ -138,20 +126,18 @@ class TestBlockStorageVolumeManage(TestBlockStorageManage):
         )
         self.assertIn('--cluster', str(exc))
 
-    def test_block_storage_volume_manage_host_and_cluster(self):
+    def test_block_storage_volume_manage_list__host_and_cluster(self):
         self.app.client_manager.volume.api_version = api_versions.APIVersion(
             '3.17'
         )
-        host = 'fake_host'
-        cluster = 'fake_cluster'
         arglist = [
-            host,
+            'fake_host',
             '--cluster',
-            cluster,
+            'fake_cluster',
         ]
         verifylist = [
-            ('host', host),
-            ('cluster', cluster),
+            ('host', 'fake_host'),
+            ('cluster', 'fake_cluster'),
         ]
         exc = self.assertRaises(
             tests_utils.ParserException,
@@ -164,40 +150,28 @@ class TestBlockStorageVolumeManage(TestBlockStorageManage):
             'argument --cluster: not allowed with argument <host>', str(exc)
         )
 
-    def test_block_storage_volume_manage_list_all_args(self):
+    def test_block_storage_volume_manage_list__detailed(self):
+        """This option is deprecated."""
         self.app.client_manager.volume.api_version = api_versions.APIVersion(
             '3.8'
         )
-        host = 'fake_host'
-        detailed = True
-        marker = 'fake_marker'
-        limit = '5'
-        offset = '3'
-        sort = 'size:asc'
         arglist = [
-            host,
             '--detailed',
-            str(detailed),
-            '--marker',
-            marker,
-            '--limit',
-            limit,
-            '--offset',
-            offset,
-            '--sort',
-            sort,
+            'True',
+            'fake_host',
         ]
         verifylist = [
-            ('host', host),
-            ('detailed', str(detailed)),
-            ('marker', marker),
-            ('limit', limit),
-            ('offset', offset),
-            ('sort', sort),
+            ('host', 'fake_host'),
+            ('detailed', 'True'),
+            ('marker', None),
+            ('limit', None),
+            ('offset', None),
+            ('sort', None),
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
-        columns, data = self.cmd.take_action(parsed_args)
+        with mock.patch.object(self.cmd.log, 'warning') as mock_warning:
+            columns, data = self.cmd.take_action(parsed_args)
 
         expected_columns = [
             'reference',
@@ -207,10 +181,6 @@ class TestBlockStorageVolumeManage(TestBlockStorageManage):
             'cinder_id',
             'extra_info',
         ]
-
-        # confirming if all expected columns are present in the result.
-        self.assertEqual(expected_columns, columns)
-
         datalist = []
         for volume_record in self.volume_manage_list:
             manage_details = (
@@ -224,18 +194,87 @@ class TestBlockStorageVolumeManage(TestBlockStorageManage):
             datalist.append(manage_details)
         datalist = tuple(datalist)
 
-        # confirming if all expected values are present in the result.
+        self.assertEqual(expected_columns, columns)
         self.assertEqual(datalist, tuple(data))
 
         # checking if proper call was made to get volume manageable list
         self.volumes_mock.list_manageable.assert_called_with(
-            host=host,
-            detailed=detailed,
-            marker=marker,
-            limit=limit,
-            offset=offset,
-            sort=sort,
-            cluster=parsed_args.cluster,
+            host='fake_host',
+            detailed=True,
+            marker=None,
+            limit=None,
+            offset=None,
+            sort=None,
+            cluster=None,
+        )
+        mock_warning.assert_called_once()
+        self.assertIn(
+            "The --detailed option has been deprecated.",
+            str(mock_warning.call_args[0][0]),
+        )
+
+    def test_block_storage_volume_manage_list__all_args(self):
+        self.app.client_manager.volume.api_version = api_versions.APIVersion(
+            '3.8'
+        )
+        arglist = [
+            'fake_host',
+            '--long',
+            '--marker',
+            'fake_marker',
+            '--limit',
+            '5',
+            '--offset',
+            '3',
+            '--sort',
+            'size:asc',
+        ]
+        verifylist = [
+            ('host', 'fake_host'),
+            ('detailed', None),
+            ('long', True),
+            ('marker', 'fake_marker'),
+            ('limit', '5'),
+            ('offset', '3'),
+            ('sort', 'size:asc'),
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        columns, data = self.cmd.take_action(parsed_args)
+
+        expected_columns = [
+            'reference',
+            'size',
+            'safe_to_manage',
+            'reason_not_safe',
+            'cinder_id',
+            'extra_info',
+        ]
+        datalist = []
+        for volume_record in self.volume_manage_list:
+            manage_details = (
+                volume_record.reference,
+                volume_record.size,
+                volume_record.safe_to_manage,
+                volume_record.reason_not_safe,
+                volume_record.cinder_id,
+                volume_record.extra_info,
+            )
+            datalist.append(manage_details)
+        datalist = tuple(datalist)
+
+        self.assertEqual(expected_columns, columns)
+        self.assertEqual(datalist, tuple(data))
+
+        # checking if proper call was made to get volume manageable list
+        self.volumes_mock.list_manageable.assert_called_with(
+            host='fake_host',
+            detailed=True,
+            marker='fake_marker',
+            limit='5',
+            offset='3',
+            sort='size:asc',
+            cluster=None,
         )
 
 
@@ -258,12 +297,11 @@ class TestBlockStorageSnapshotManage(TestBlockStorageManage):
         self.app.client_manager.volume.api_version = api_versions.APIVersion(
             '3.8'
         )
-        host = 'fake_host'
         arglist = [
-            host,
+            'fake_host',
         ]
         verifylist = [
-            ('host', host),
+            ('host', 'fake_host'),
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
@@ -274,14 +312,7 @@ class TestBlockStorageSnapshotManage(TestBlockStorageManage):
             'size',
             'safe_to_manage',
             'source_reference',
-            'reason_not_safe',
-            'cinder_id',
-            'extra_info',
         ]
-
-        # confirming if all expected columns are present in the result.
-        self.assertEqual(expected_columns, columns)
-
         datalist = []
         for snapshot_record in self.snapshot_manage_list:
             manage_details = (
@@ -289,34 +320,30 @@ class TestBlockStorageSnapshotManage(TestBlockStorageManage):
                 snapshot_record.size,
                 snapshot_record.safe_to_manage,
                 snapshot_record.source_reference,
-                snapshot_record.reason_not_safe,
-                snapshot_record.cinder_id,
-                snapshot_record.extra_info,
             )
             datalist.append(manage_details)
         datalist = tuple(datalist)
 
-        # confirming if all expected values are present in the result.
+        self.assertEqual(expected_columns, columns)
         self.assertEqual(datalist, tuple(data))
 
         # checking if proper call was made to get snapshot manageable list
         self.snapshots_mock.list_manageable.assert_called_with(
-            host=parsed_args.host,
-            detailed=parsed_args.detailed,
-            marker=parsed_args.marker,
-            limit=parsed_args.limit,
-            offset=parsed_args.offset,
-            sort=parsed_args.sort,
-            cluster=parsed_args.cluster,
+            host='fake_host',
+            detailed=False,
+            marker=None,
+            limit=None,
+            offset=None,
+            sort=None,
+            cluster=None,
         )
 
-    def test_block_storage_volume_manage_pre_38(self):
-        host = 'fake_host'
+    def test_block_storage_snapshot_manage_list__pre_v38(self):
         arglist = [
-            host,
+            'fake_host',
         ]
         verifylist = [
-            ('host', host),
+            ('host', 'fake_host'),
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
@@ -327,17 +354,16 @@ class TestBlockStorageSnapshotManage(TestBlockStorageManage):
             '--os-volume-api-version 3.8 or greater is required', str(exc)
         )
 
-    def test_block_storage_volume_manage_pre_317(self):
+    def test_block_storage_snapshot_manage_list__pre_v317(self):
         self.app.client_manager.volume.api_version = api_versions.APIVersion(
             '3.16'
         )
-        cluster = 'fake_cluster'
         arglist = [
             '--cluster',
-            cluster,
+            'fake_cluster',
         ]
         verifylist = [
-            ('cluster', cluster),
+            ('cluster', 'fake_cluster'),
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
@@ -349,20 +375,18 @@ class TestBlockStorageSnapshotManage(TestBlockStorageManage):
         )
         self.assertIn('--cluster', str(exc))
 
-    def test_block_storage_volume_manage_host_and_cluster(self):
+    def test_block_storage_snapshot_manage_list__host_and_cluster(self):
         self.app.client_manager.volume.api_version = api_versions.APIVersion(
             '3.17'
         )
-        host = 'fake_host'
-        cluster = 'fake_cluster'
         arglist = [
-            host,
+            'fake_host',
             '--cluster',
-            cluster,
+            'fake_cluster',
         ]
         verifylist = [
-            ('host', host),
-            ('cluster', cluster),
+            ('host', 'fake_host'),
+            ('cluster', 'fake_cluster'),
         ]
         exc = self.assertRaises(
             tests_utils.ParserException,
@@ -375,40 +399,28 @@ class TestBlockStorageSnapshotManage(TestBlockStorageManage):
             'argument --cluster: not allowed with argument <host>', str(exc)
         )
 
-    def test_block_storage_volume_manage_list_all_args(self):
+    def test_block_storage_snapshot_manage_list__detailed(self):
+        """This option is deprecated."""
         self.app.client_manager.volume.api_version = api_versions.APIVersion(
             '3.8'
         )
-        host = 'fake_host'
-        detailed = True
-        marker = 'fake_marker'
-        limit = '5'
-        offset = '3'
-        sort = 'size:asc'
         arglist = [
-            host,
             '--detailed',
-            str(detailed),
-            '--marker',
-            marker,
-            '--limit',
-            limit,
-            '--offset',
-            offset,
-            '--sort',
-            sort,
+            'True',
+            'fake_host',
         ]
         verifylist = [
-            ('host', host),
-            ('detailed', str(detailed)),
-            ('marker', marker),
-            ('limit', limit),
-            ('offset', offset),
-            ('sort', sort),
+            ('host', 'fake_host'),
+            ('detailed', 'True'),
+            ('marker', None),
+            ('limit', None),
+            ('offset', None),
+            ('sort', None),
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
-        columns, data = self.cmd.take_action(parsed_args)
+        with mock.patch.object(self.cmd.log, 'warning') as mock_warning:
+            columns, data = self.cmd.take_action(parsed_args)
 
         expected_columns = [
             'reference',
@@ -419,10 +431,6 @@ class TestBlockStorageSnapshotManage(TestBlockStorageManage):
             'cinder_id',
             'extra_info',
         ]
-
-        # confirming if all expected columns are present in the result.
-        self.assertEqual(expected_columns, columns)
-
         datalist = []
         for snapshot_record in self.snapshot_manage_list:
             manage_details = (
@@ -437,16 +445,87 @@ class TestBlockStorageSnapshotManage(TestBlockStorageManage):
             datalist.append(manage_details)
         datalist = tuple(datalist)
 
-        # confirming if all expected values are present in the result.
+        self.assertEqual(expected_columns, columns)
         self.assertEqual(datalist, tuple(data))
 
         # checking if proper call was made to get snapshot manageable list
         self.snapshots_mock.list_manageable.assert_called_with(
-            host=host,
-            detailed=detailed,
-            marker=marker,
-            limit=limit,
-            offset=offset,
-            sort=sort,
-            cluster=parsed_args.cluster,
+            host='fake_host',
+            detailed=True,
+            marker=None,
+            limit=None,
+            offset=None,
+            sort=None,
+            cluster=None,
+        )
+        mock_warning.assert_called_once()
+        self.assertIn(
+            "The --detailed option has been deprecated.",
+            str(mock_warning.call_args[0][0]),
+        )
+
+    def test_block_storage_snapshot_manage_list__all_args(self):
+        self.app.client_manager.volume.api_version = api_versions.APIVersion(
+            '3.8'
+        )
+        arglist = [
+            '--long',
+            '--marker',
+            'fake_marker',
+            '--limit',
+            '5',
+            '--offset',
+            '3',
+            '--sort',
+            'size:asc',
+            'fake_host',
+        ]
+        verifylist = [
+            ('host', 'fake_host'),
+            ('detailed', None),
+            ('long', True),
+            ('marker', 'fake_marker'),
+            ('limit', '5'),
+            ('offset', '3'),
+            ('sort', 'size:asc'),
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        columns, data = self.cmd.take_action(parsed_args)
+
+        expected_columns = [
+            'reference',
+            'size',
+            'safe_to_manage',
+            'source_reference',
+            'reason_not_safe',
+            'cinder_id',
+            'extra_info',
+        ]
+        datalist = []
+        for snapshot_record in self.snapshot_manage_list:
+            manage_details = (
+                snapshot_record.reference,
+                snapshot_record.size,
+                snapshot_record.safe_to_manage,
+                snapshot_record.source_reference,
+                snapshot_record.reason_not_safe,
+                snapshot_record.cinder_id,
+                snapshot_record.extra_info,
+            )
+            datalist.append(manage_details)
+        datalist = tuple(datalist)
+
+        self.assertEqual(expected_columns, columns)
+        self.assertEqual(datalist, tuple(data))
+
+        # checking if proper call was made to get snapshot manageable list
+        self.snapshots_mock.list_manageable.assert_called_with(
+            host='fake_host',
+            detailed=True,
+            marker='fake_marker',
+            limit='5',
+            offset='3',
+            sort='size:asc',
+            cluster=None,
         )
