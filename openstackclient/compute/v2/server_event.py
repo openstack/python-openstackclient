@@ -16,6 +16,7 @@
 """Compute v2 Server operation event implementations"""
 
 import logging
+import uuid
 
 from cliff import columns
 import iso8601
@@ -24,12 +25,35 @@ from openstack import utils as sdk_utils
 from osc_lib.command import command
 from osc_lib import exceptions
 from osc_lib import utils
-from oslo_utils import uuidutils
 
 from openstackclient.i18n import _
 
-
 LOG = logging.getLogger(__name__)
+
+
+# TODO(stephenfin): Move this to osc_lib since it's useful elsewhere (e.g.
+# glance)
+def is_uuid_like(value) -> bool:
+    """Returns validation of a value as a UUID.
+
+    :param val: Value to verify
+    :type val: string
+    :returns: bool
+
+    .. versionchanged:: 1.1.1
+       Support non-lowercase UUIDs.
+    """
+    try:
+        formatted_value = (
+            value.replace('urn:', '')
+            .replace('uuid:', '')
+            .strip('{}')
+            .replace('-', '')
+            .lower()
+        )
+        return str(uuid.UUID(value)).replace('-', '') == formatted_value
+    except (TypeError, ValueError, AttributeError):
+        return False
 
 
 class ServerActionEventColumn(columns.FormattableColumn):
@@ -202,7 +226,7 @@ class ListServerEvent(command.Lister):
             # If we fail to find the resource, it is possible the server is
             # deleted. Try once more using the <server> arg directly if it is a
             # UUID.
-            if uuidutils.is_uuid_like(parsed_args.server):
+            if is_uuid_like(parsed_args.server):
                 server_id = parsed_args.server
             else:
                 raise
@@ -275,7 +299,7 @@ class ShowServerEvent(command.ShowOne):
             # If we fail to find the resource, it is possible the server is
             # deleted. Try once more using the <server> arg directly if it is a
             # UUID.
-            if uuidutils.is_uuid_like(parsed_args.server):
+            if is_uuid_like(parsed_args.server):
                 server_id = parsed_args.server
             else:
                 raise
