@@ -28,7 +28,7 @@ md-namespace-import,,Import a metadata definitions namespace from file or standa
 md-namespace-list,image metadef namespace list,List metadata definitions namespaces.
 md-namespace-objects-delete,,Delete all metadata definitions objects inside a specific namespace.
 md-namespace-properties-delete,,Delete all metadata definitions property inside a specific namespace.
-md-namespace-resource-type-list,image metadef resource type list,List resource types associated to specific namespace.
+md-namespace-resource-type-list,image metadef resource type association list,List resource types associated to specific namespace.
 md-namespace-show,image metadef namespace show,Describe a specific metadata definitions namespace.
 md-namespace-tags-delete,,Delete all metadata definitions tags inside a specific namespace.
 md-namespace-update,,Update an existing metadata definitions namespace.
@@ -43,9 +43,9 @@ md-property-delete,image metadef property delete,Delete a specific metadata defi
 md-property-list,image metadef property list,List metadata definitions properties inside a specific namespace.
 md-property-show,image metadef property show,Describe a specific metadata definitions property inside a namespace.
 md-property-update,image metadef property set,Update metadata definitions property inside a namespace.
-md-resource-type-associate,,Associate resource type with a metadata definitions namespace.
-md-resource-type-deassociate,,Deassociate resource type with a metadata definitions namespace.
-md-resource-type-list,,List available resource type names.
+md-resource-type-associate,image metadef resource type association create,Associate resource type with a metadata definitions namespace.
+md-resource-type-deassociate,image metadef resource type association delete,Deassociate resource type with a metadata definitions namespace.
+md-resource-type-list,image metadef resource type list,List available resource type names.
 md-tag-create,,Add a new metadata definitions tag inside a namespace.
 md-tag-create-multiple,,Create new metadata definitions tags inside a namespace.
 md-tag-delete,,Delete a specific metadata definitions tag inside a namespace.

@@ -1,0 +1,17 @@
+---
+features:
+  - |
+    Added ``image metadef resource type association list``
+    to list resource type associations for the image service.
+    This is equivalent to the
+    ``md-namespace-resource-type-list`` command in glance.
+  - |
+    Added ``image metadef resource type association create``
+    to create a resource type association for the image service.
+    This is equivalent to the
+    ``md-resource-type-associate`` command in glance.
+  - |
+    Added ``image metadef resource type association delete``
+    to delete a resource type association for the image service.
+    This is equivalent to the
+    ``md-resource-type-deassociate`` command in glance.
