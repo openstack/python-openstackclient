@@ -1121,10 +1121,7 @@ class TestQuotaShow(TestQuota):
             'network': fake_network_endpoint
         }
 
-        self.app.client_manager.network = network_fakes.FakeNetworkV2Client(
-            endpoint=fakes.AUTH_URL,
-            token=fakes.AUTH_TOKEN,
-        )
+        self.app.client_manager.network = mock.Mock()
         self.network = self.app.client_manager.network
         self.network.get_quota = mock.Mock(
             return_value=network_fakes.QUOTA,
