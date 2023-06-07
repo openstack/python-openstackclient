@@ -16,12 +16,13 @@ from unittest import mock
 
 from openstack.compute.v2 import flavor as _flavor
 from openstack import exceptions as sdk_exceptions
+from openstack.identity.v3 import project as _project
+from openstack.test import fakes as sdk_fakes
 from osc_lib.cli import format_columns
 from osc_lib import exceptions
 
 from openstackclient.compute.v2 import flavor
 from openstackclient.tests.unit.compute.v2 import fakes as compute_fakes
-from openstackclient.tests.unit.identity.v3 import fakes as identity_fakes
 from openstackclient.tests.unit import utils as tests_utils
 
 
@@ -34,59 +35,60 @@ class TestFlavor(compute_fakes.TestComputev2):
 
 
 class TestFlavorCreate(TestFlavor):
-    flavor = compute_fakes.create_one_flavor(attrs={'links': 'flavor-links'})
-    project = identity_fakes.FakeProject.create_one_project()
-
-    columns = (
-        'OS-FLV-DISABLED:disabled',
-        'OS-FLV-EXT-DATA:ephemeral',
-        'description',
-        'disk',
-        'id',
-        'name',
-        'os-flavor-access:is_public',
-        'properties',
-        'ram',
-        'rxtx_factor',
-        'swap',
-        'vcpus',
-    )
-
-    data = (
-        flavor.is_disabled,
-        flavor.ephemeral,
-        flavor.description,
-        flavor.disk,
-        flavor.id,
-        flavor.name,
-        flavor.is_public,
-        format_columns.DictColumn(flavor.extra_specs),
-        flavor.ram,
-        flavor.rxtx_factor,
-        flavor.swap,
-        flavor.vcpus,
-    )
-    data_private = (
-        flavor.is_disabled,
-        flavor.ephemeral,
-        flavor.description,
-        flavor.disk,
-        flavor.id,
-        flavor.name,
-        False,
-        format_columns.DictColumn(flavor.extra_specs),
-        flavor.ram,
-        flavor.rxtx_factor,
-        flavor.swap,
-        flavor.vcpus,
-    )
-
     def setUp(self):
         super().setUp()
 
-        # Return a project
+        self.flavor = sdk_fakes.generate_fake_resource(
+            _flavor.Flavor, links='flavor-links'
+        )
+        self.project = sdk_fakes.generate_fake_resource(_project.Project)
+
+        self.columns = (
+            'OS-FLV-DISABLED:disabled',
+            'OS-FLV-EXT-DATA:ephemeral',
+            'description',
+            'disk',
+            'id',
+            'name',
+            'os-flavor-access:is_public',
+            'properties',
+            'ram',
+            'rxtx_factor',
+            'swap',
+            'vcpus',
+        )
+        self.data = (
+            self.flavor.is_disabled,
+            self.flavor.ephemeral,
+            self.flavor.description,
+            self.flavor.disk,
+            self.flavor.id,
+            self.flavor.name,
+            self.flavor.is_public,
+            format_columns.DictColumn(self.flavor.extra_specs),
+            self.flavor.ram,
+            self.flavor.rxtx_factor,
+            self.flavor.swap,
+            self.flavor.vcpus,
+        )
+        self.data_private = (
+            self.flavor.is_disabled,
+            self.flavor.ephemeral,
+            self.flavor.description,
+            self.flavor.disk,
+            self.flavor.id,
+            self.flavor.name,
+            False,
+            format_columns.DictColumn(self.flavor.extra_specs),
+            self.flavor.ram,
+            self.flavor.rxtx_factor,
+            self.flavor.swap,
+            self.flavor.vcpus,
+        )
+
         self.projects_mock.get.return_value = self.project
         self.compute_client.create_flavor.return_value = self.flavor
+
         self.cmd = flavor.CreateFlavor(self.app, None)
 
     def test_flavor_create_default_options(self):
@@ -233,7 +235,7 @@ class TestFlavorCreate(TestFlavor):
             ('vcpus', self.flavor.vcpus),
             ('rxtx_factor', self.flavor.rxtx_factor),
             ('public', False),
-            ('description', 'description'),
+            ('description', self.flavor.description),
             ('project', self.project.id),
             ('properties', {'key1': 'value1', 'key2': 'value2'}),
             ('name', self.flavor.name),
@@ -328,7 +330,7 @@ class TestFlavorCreate(TestFlavor):
             str(self.flavor.vcpus),
             '--rxtx-factor',
             str(self.flavor.rxtx_factor),
-            '--private',
+            '--public',
             '--description',
             'fake description',
             self.flavor.name,
@@ -341,7 +343,7 @@ class TestFlavorCreate(TestFlavor):
             ('swap', self.flavor.swap),
             ('vcpus', self.flavor.vcpus),
             ('rxtx_factor', self.flavor.rxtx_factor),
-            ('public', False),
+            ('public', True),
             ('description', 'fake description'),
             ('name', self.flavor.name),
         ]
@@ -358,14 +360,14 @@ class TestFlavorCreate(TestFlavor):
             'ephemeral': self.flavor.ephemeral,
             'swap': self.flavor.swap,
             'rxtx_factor': self.flavor.rxtx_factor,
-            'is_public': self.flavor.is_public,
+            'is_public': True,
             'description': 'fake description',
         }
 
         self.compute_client.create_flavor.assert_called_once_with(**args)
 
         self.assertEqual(self.columns, columns)
-        self.assertCountEqual(self.data_private, data)
+        self.assertCountEqual(self.data, data)
 
     def test_flavor_create_with_description_pre_v255(self):
         self.set_compute_api_version('2.54')
@@ -395,10 +397,12 @@ class TestFlavorCreate(TestFlavor):
 
 
 class TestFlavorDelete(TestFlavor):
-    flavors = compute_fakes.create_flavors(count=2)
-
     def setUp(self):
         super().setUp()
+
+        self.flavors = list(
+            sdk_fakes.generate_fake_resources(_flavor.Flavor, 2)
+        )
 
         self.compute_client.delete_flavor.return_value = None
 
@@ -474,51 +478,50 @@ class TestFlavorDelete(TestFlavor):
 
 
 class TestFlavorList(TestFlavor):
-    _flavor = compute_fakes.create_one_flavor()
-
-    columns = (
-        'ID',
-        'Name',
-        'RAM',
-        'Disk',
-        'Ephemeral',
-        'VCPUs',
-        'Is Public',
-    )
-    columns_long = columns + ('Swap', 'RXTX Factor', 'Properties')
-
-    data = (
-        (
-            _flavor.id,
-            _flavor.name,
-            _flavor.ram,
-            _flavor.disk,
-            _flavor.ephemeral,
-            _flavor.vcpus,
-            _flavor.is_public,
-        ),
-    )
-    data_long = (
-        data[0]
-        + (
-            _flavor.swap,
-            _flavor.rxtx_factor,
-            format_columns.DictColumn(_flavor.extra_specs),
-        ),
-    )
-
     def setUp(self):
         super().setUp()
 
-        self.api_mock = mock.Mock()
-        self.api_mock.side_effect = [
-            [self._flavor],
-            [],
-        ]
+        self._flavor = sdk_fakes.generate_fake_resource(
+            _flavor.Flavor, extra_specs={'property': 'value'}
+        )
 
-        self.compute_client.flavors = self.api_mock
+        self.columns = (
+            'ID',
+            'Name',
+            'RAM',
+            'Disk',
+            'Ephemeral',
+            'VCPUs',
+            'Is Public',
+        )
+        self.columns_long = self.columns + (
+            'Swap',
+            'RXTX Factor',
+            'Properties',
+        )
 
-        # Get the command object to test
+        self.data = (
+            (
+                self._flavor.id,
+                self._flavor.name,
+                self._flavor.ram,
+                self._flavor.disk,
+                self._flavor.ephemeral,
+                self._flavor.vcpus,
+                self._flavor.is_public,
+            ),
+        )
+        self.data_long = (
+            self.data[0]
+            + (
+                self._flavor.swap,
+                self._flavor.rxtx_factor,
+                format_columns.DictColumn(self._flavor.extra_specs),
+            ),
+        )
+
+        self.compute_client.flavors.side_effect = [[self._flavor], []]
+
         self.cmd = flavor.ListFlavor(self.app, None)
 
     def test_flavor_list_no_options(self):
@@ -653,7 +656,9 @@ class TestFlavorList(TestFlavor):
 
     def test_flavor_list_long_no_extra_specs(self):
         # use flavor with no extra specs for this test
-        flavor = compute_fakes.create_one_flavor(attrs={"extra_specs": {}})
+        flavor = sdk_fakes.generate_fake_resource(
+            _flavor.Flavor, extra_specs={}
+        )
         self.data = (
             (
                 flavor.id,
@@ -673,12 +678,8 @@ class TestFlavorList(TestFlavor):
                 format_columns.DictColumn(flavor.extra_specs),
             ),
         )
-        self.api_mock.side_effect = [
-            [flavor],
-            [],
-        ]
 
-        self.compute_client.flavors = self.api_mock
+        self.compute_client.flavors.side_effect = [[flavor], []]
         self.compute_client.fetch_flavor_extra_specs = mock.Mock(
             return_value=None
         )
@@ -744,17 +745,15 @@ class TestFlavorList(TestFlavor):
 
 
 class TestFlavorSet(TestFlavor):
-    # Return value of self.compute_client.find_flavor().
-    flavor = compute_fakes.create_one_flavor(
-        attrs={'os-flavor-access:is_public': False}
-    )
-    project = identity_fakes.FakeProject.create_one_project()
-
     def setUp(self):
         super().setUp()
 
+        self.flavor = sdk_fakes.generate_fake_resource(
+            _flavor.Flavor, is_public=False, extra_specs={'property': 'value'}
+        )
+        self.project = sdk_fakes.generate_fake_resource(_project.Project)
+
         self.compute_client.find_flavor.return_value = self.flavor
-        # Return a project
         self.projects_mock.get.return_value = self.project
         self.cmd = flavor.SetFlavor(self.app, None)
 
@@ -960,46 +959,42 @@ class TestFlavorSet(TestFlavor):
 
 
 class TestFlavorShow(TestFlavor):
-    # Return value of self.compute_client.find_flavor().
-    flavor_access = compute_fakes.create_one_flavor_access()
-    flavor = compute_fakes.create_one_flavor()
-
-    columns = (
-        'OS-FLV-DISABLED:disabled',
-        'OS-FLV-EXT-DATA:ephemeral',
-        'access_project_ids',
-        'description',
-        'disk',
-        'id',
-        'name',
-        'os-flavor-access:is_public',
-        'properties',
-        'ram',
-        'rxtx_factor',
-        'swap',
-        'vcpus',
-    )
-
-    data = (
-        flavor.is_disabled,
-        flavor.ephemeral,
-        None,
-        flavor.description,
-        flavor.disk,
-        flavor.id,
-        flavor.name,
-        flavor.is_public,
-        format_columns.DictColumn(flavor.extra_specs),
-        flavor.ram,
-        flavor.rxtx_factor,
-        flavor.swap,
-        flavor.vcpus,
-    )
-
     def setUp(self):
         super().setUp()
 
-        # Return value of _find_resource()
+        self.flavor_access = compute_fakes.create_one_flavor_access()
+        self.flavor = sdk_fakes.generate_fake_resource(_flavor.Flavor)
+
+        self.columns = (
+            'OS-FLV-DISABLED:disabled',
+            'OS-FLV-EXT-DATA:ephemeral',
+            'access_project_ids',
+            'description',
+            'disk',
+            'id',
+            'name',
+            'os-flavor-access:is_public',
+            'properties',
+            'ram',
+            'rxtx_factor',
+            'swap',
+            'vcpus',
+        )
+        self.data = (
+            self.flavor.is_disabled,
+            self.flavor.ephemeral,
+            None,
+            self.flavor.description,
+            self.flavor.disk,
+            self.flavor.id,
+            self.flavor.name,
+            self.flavor.is_public,
+            format_columns.DictColumn(self.flavor.extra_specs),
+            self.flavor.ram,
+            self.flavor.rxtx_factor,
+            self.flavor.swap,
+            self.flavor.vcpus,
+        )
         self.compute_client.find_flavor.return_value = self.flavor
         self.compute_client.get_flavor_access.return_value = [
             self.flavor_access
@@ -1035,10 +1030,8 @@ class TestFlavorShow(TestFlavor):
         self.assertCountEqual(self.data, data)
 
     def test_private_flavor_show(self):
-        private_flavor = compute_fakes.create_one_flavor(
-            attrs={
-                'os-flavor-access:is_public': False,
-            }
+        private_flavor = sdk_fakes.generate_fake_resource(
+            _flavor.Flavor, is_public=False
         )
         self.compute_client.find_flavor.return_value = private_flavor
 
@@ -1077,23 +1070,18 @@ class TestFlavorShow(TestFlavor):
 
 
 class TestFlavorUnset(TestFlavor):
-    # Return value of self.compute_client.find_flavor().
-    flavor = compute_fakes.create_one_flavor(
-        attrs={'os-flavor-access:is_public': False}
-    )
-    project = identity_fakes.FakeProject.create_one_project()
-
     def setUp(self):
         super().setUp()
 
-        self.compute_client.find_flavor.return_value = self.flavor
-        # Return a project
-        self.projects_mock.get.return_value = self.project
-        self.cmd = flavor.UnsetFlavor(self.app, None)
-
-        self.mock_shortcut = (
-            self.compute_client.delete_flavor_extra_specs_property
+        self.flavor = sdk_fakes.generate_fake_resource(
+            _flavor.Flavor, is_public=False
         )
+        self.project = sdk_fakes.generate_fake_resource(_project.Project)
+
+        self.compute_client.find_flavor.return_value = self.flavor
+        self.projects_mock.get.return_value = self.project
+
+        self.cmd = flavor.UnsetFlavor(self.app, None)
 
     def test_flavor_unset_property(self):
         arglist = ['--property', 'property', 'baremetal']
@@ -1107,7 +1095,9 @@ class TestFlavorUnset(TestFlavor):
         self.compute_client.find_flavor.assert_called_with(
             parsed_args.flavor, get_extra_specs=True, ignore_missing=False
         )
-        self.mock_shortcut.assert_called_with(self.flavor.id, 'property')
+        self.compute_client.delete_flavor_extra_specs_property.assert_called_with(
+            self.flavor.id, 'property'
+        )
         self.compute_client.flavor_remove_tenant_access.assert_not_called()
         self.assertIsNone(result)
 
@@ -1126,21 +1116,16 @@ class TestFlavorUnset(TestFlavor):
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
         self.cmd.take_action(parsed_args)
+
         self.compute_client.find_flavor.assert_called_with(
             parsed_args.flavor, get_extra_specs=True, ignore_missing=False
         )
-        calls = [
-            mock.call(self.flavor.id, 'property1'),
-            mock.call(self.flavor.id, 'property2'),
-        ]
-        self.mock_shortcut.assert_has_calls(calls)
-
-        # A bit tricky way to ensure we do not unset other properties
-        calls.append(mock.call(self.flavor.id, 'property'))
-        self.assertRaises(
-            AssertionError, self.mock_shortcut.assert_has_calls, calls
+        self.compute_client.delete_flavor_extra_specs_property.assert_has_calls(
+            [
+                mock.call(self.flavor.id, 'property1'),
+                mock.call(self.flavor.id, 'property2'),
+            ]
         )
-
         self.compute_client.flavor_remove_tenant_access.assert_not_called()
 
     def test_flavor_unset_project(self):
