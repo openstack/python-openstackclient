@@ -1,0 +1,8 @@
+---
+upgrade:
+  - |
+    The ``project purge`` command has been removed. This has been superseded by
+    the ``project cleanup`` command, was not tested, and has not been
+    functional for some time hence its removal without a deprecation period.
+    The replacement is ``project cleanup``, which is more powerful and more
+    flexible.
