@@ -25,7 +25,6 @@ from openstack.compute.v2 import availability_zone as _availability_zone
 from openstack.compute.v2 import extension as _extension
 from openstack.compute.v2 import flavor as _flavor
 from openstack.compute.v2 import hypervisor as _hypervisor
-from openstack.compute.v2 import keypair as _keypair
 from openstack.compute.v2 import limits as _limits
 from openstack.compute.v2 import migration as _migration
 from openstack.compute.v2 import server as _server
@@ -618,61 +617,6 @@ def create_one_flavor_access(attrs=None):
     )
 
     return flavor_access
-
-
-def create_one_keypair(attrs=None):
-    """Create a fake keypair
-
-    :param dict attrs: A dictionary with all attributes
-    :return: A fake openstack.compute.v2.keypair.Keypair object
-    """
-    attrs = attrs or {}
-
-    # Set default attributes.
-    keypair_info = {
-        'name': 'keypair-name-' + uuid.uuid4().hex,
-        'type': 'ssh',
-        'fingerprint': 'dummy',
-        'public_key': 'dummy',
-        'user_id': 'user',
-    }
-
-    # Overwrite default attributes.
-    keypair_info.update(attrs)
-
-    return _keypair.Keypair(**keypair_info)
-
-
-def create_keypairs(attrs=None, count=2):
-    """Create multiple fake keypairs.
-
-    :param dict attrs: A dictionary with all attributes
-    :param int count: The number of keypairs to fake
-    :return: A list of fake openstack.compute.v2.keypair.Keypair objects
-    """
-
-    keypairs = []
-    for i in range(0, count):
-        keypairs.append(create_one_keypair(attrs))
-
-    return keypairs
-
-
-def get_keypairs(keypairs=None, count=2):
-    """Get an iterable MagicMock object with a list of faked keypairs.
-
-    If keypairs list is provided, then initialize the Mock object with the
-    list. Otherwise create one.
-
-    :param list keypairs: A list of fake openstack.compute.v2.keypair.Keypair
-        objects
-    :param int count: The number of keypairs to fake
-    :return: An iterable Mock object with side_effect set to a list of faked
-        keypairs
-    """
-    if keypairs is None:
-        keypairs = create_keypairs(count)
-    return mock.Mock(side_effect=keypairs)
 
 
 def create_one_availability_zone(attrs=None):

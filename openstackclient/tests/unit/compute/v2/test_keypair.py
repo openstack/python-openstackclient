@@ -12,17 +12,18 @@
 #   License for the specific language governing permissions and limitations
 #   under the License.
 
-import copy
 from unittest import mock
 from unittest.mock import call
 import uuid
 
+from openstack.compute.v2 import keypair as _keypair
+from openstack.identity.v3 import project as _project
+from openstack.identity.v3 import user as _user
+from openstack.test import fakes as sdk_fakes
 from osc_lib import exceptions
 
 from openstackclient.compute.v2 import keypair
 from openstackclient.tests.unit.compute.v2 import fakes as compute_fakes
-from openstackclient.tests.unit import fakes
-from openstackclient.tests.unit.identity.v2_0 import fakes as identity_fakes
 from openstackclient.tests.unit import utils as tests_utils
 
 
@@ -31,20 +32,17 @@ class TestKeypair(compute_fakes.TestComputev2):
         super().setUp()
 
         # Initialize the user mock
+        self._user = sdk_fakes.generate_fake_resource(_user.User)
         self.users_mock = self.identity_client.users
         self.users_mock.reset_mock()
-        self.users_mock.get.return_value = fakes.FakeResource(
-            None,
-            copy.deepcopy(identity_fakes.USER),
-            loaded=True,
-        )
+        self.users_mock.get.return_value = self._user
 
 
 class TestKeypairCreate(TestKeypair):
     def setUp(self):
         super().setUp()
 
-        self.keypair = compute_fakes.create_one_keypair()
+        self.keypair = sdk_fakes.generate_fake_resource(_keypair.Keypair)
 
         self.columns = (
             'created_at',
@@ -122,7 +120,7 @@ class TestKeypairCreate(TestKeypair):
         ) as mock_open:
             mock_open.return_value = mock.MagicMock()
             m_file = mock_open.return_value.__enter__.return_value
-            m_file.read.return_value = 'dummy'
+            m_file.read.return_value = self.keypair.public_key
 
             columns, data = self.cmd.take_action(parsed_args)
 
@@ -208,7 +206,7 @@ class TestKeypairCreate(TestKeypair):
             ) as mock_open:
                 mock_open.return_value = mock.MagicMock()
                 m_file = mock_open.return_value.__enter__.return_value
-                m_file.read.return_value = 'dummy'
+                m_file.read.return_value = self.keypair.public_key
                 columns, data = self.cmd.take_action(parsed_args)
 
             self.compute_sdk_client.create_keypair.assert_called_with(
@@ -263,11 +261,11 @@ class TestKeypairCreate(TestKeypair):
 
         arglist = [
             '--user',
-            identity_fakes.user_name,
+            self._user.name,
             self.keypair.name,
         ]
         verifylist = [
-            ('user', identity_fakes.user_name),
+            ('user', self._user.name),
             ('name', self.keypair.name),
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
@@ -276,7 +274,7 @@ class TestKeypairCreate(TestKeypair):
 
         self.compute_sdk_client.create_keypair.assert_called_with(
             name=self.keypair.name,
-            user_id=identity_fakes.user_id,
+            user_id=self._user.id,
             public_key=mock_generate.return_value.public_key,
         )
 
@@ -288,11 +286,11 @@ class TestKeypairCreate(TestKeypair):
 
         arglist = [
             '--user',
-            identity_fakes.user_name,
+            self._user.name,
             self.keypair.name,
         ]
         verifylist = [
-            ('user', identity_fakes.user_name),
+            ('user', self._user.name),
             ('name', self.keypair.name),
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
@@ -306,10 +304,12 @@ class TestKeypairCreate(TestKeypair):
 
 
 class TestKeypairDelete(TestKeypair):
-    keypairs = compute_fakes.create_keypairs(count=2)
-
     def setUp(self):
         super().setUp()
+
+        self.keypairs = list(
+            sdk_fakes.generate_fake_resources(_keypair.Keypair, count=2)
+        )
 
         self.cmd = keypair.DeleteKeypair(self.app, None)
 
@@ -374,9 +374,9 @@ class TestKeypairDelete(TestKeypair):
     def test_keypair_delete_with_user(self):
         self.set_compute_api_version('2.10')
 
-        arglist = ['--user', identity_fakes.user_name, self.keypairs[0].name]
+        arglist = ['--user', self._user.name, self.keypairs[0].name]
         verifylist = [
-            ('user', identity_fakes.user_name),
+            ('user', self._user.name),
             ('name', [self.keypairs[0].name]),
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
@@ -386,16 +386,16 @@ class TestKeypairDelete(TestKeypair):
         self.assertIsNone(ret)
         self.compute_sdk_client.delete_keypair.assert_called_with(
             self.keypairs[0].name,
-            user_id=identity_fakes.user_id,
+            user_id=self._user.id,
             ignore_missing=False,
         )
 
     def test_keypair_delete_with_user_pre_v210(self):
         self.set_compute_api_version('2.9')
 
-        arglist = ['--user', identity_fakes.user_name, self.keypairs[0].name]
+        arglist = ['--user', self._user.name, self.keypairs[0].name]
         verifylist = [
-            ('user', identity_fakes.user_name),
+            ('user', self._user.name),
             ('name', [self.keypairs[0].name]),
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
@@ -409,16 +409,18 @@ class TestKeypairDelete(TestKeypair):
 
 
 class TestKeypairList(TestKeypair):
-    # Return value of self.compute_sdk_client.keypairs().
-    keypairs = compute_fakes.create_keypairs(count=1)
-
     def setUp(self):
         super().setUp()
 
-        self.compute_sdk_client.keypairs.return_value = self.keypairs
+        self.keypairs = list(
+            sdk_fakes.generate_fake_resources(_keypair.Keypair, count=1)
+        )
+        self.compute_sdk_client.keypairs.return_value = iter(self.keypairs)
 
         # Get the command object to test
         self.cmd = keypair.ListKeypair(self.app, None)
+
+        self._project = sdk_fakes.generate_fake_resource(_project.Project)
 
     def test_keypair_list_no_options(self):
         arglist = []
@@ -475,26 +477,22 @@ class TestKeypairList(TestKeypair):
 
         users_mock = self.identity_client.users
         users_mock.reset_mock()
-        users_mock.get.return_value = fakes.FakeResource(
-            None,
-            copy.deepcopy(identity_fakes.USER),
-            loaded=True,
-        )
+        users_mock.get.return_value = self._user
 
         arglist = [
             '--user',
-            identity_fakes.user_name,
+            self._user.name,
         ]
         verifylist = [
-            ('user', identity_fakes.user_name),
+            ('user', self._user.name),
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
         columns, data = self.cmd.take_action(parsed_args)
 
-        users_mock.get.assert_called_with(identity_fakes.user_name)
+        users_mock.get.assert_called_with(self._user.name)
         self.compute_sdk_client.keypairs.assert_called_with(
-            user_id=identity_fakes.user_id,
+            user_id=self._user.id,
         )
 
         self.assertEqual(('Name', 'Fingerprint', 'Type'), columns)
@@ -514,10 +512,10 @@ class TestKeypairList(TestKeypair):
 
         arglist = [
             '--user',
-            identity_fakes.user_name,
+            self._user.name,
         ]
         verifylist = [
-            ('user', identity_fakes.user_name),
+            ('user', self._user.name),
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
@@ -533,32 +531,22 @@ class TestKeypairList(TestKeypair):
 
         projects_mock = self.identity_client.tenants
         projects_mock.reset_mock()
-        projects_mock.get.return_value = fakes.FakeResource(
-            None,
-            copy.deepcopy(identity_fakes.PROJECT),
-            loaded=True,
-        )
+        projects_mock.get.return_value = self._project
 
         users_mock = self.identity_client.users
         users_mock.reset_mock()
-        users_mock.list.return_value = [
-            fakes.FakeResource(
-                None,
-                copy.deepcopy(identity_fakes.USER),
-                loaded=True,
-            ),
-        ]
+        users_mock.list.return_value = [self._user]
 
-        arglist = ['--project', identity_fakes.project_name]
-        verifylist = [('project', identity_fakes.project_name)]
+        arglist = ['--project', self._project.name]
+        verifylist = [('project', self._project.name)]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
         columns, data = self.cmd.take_action(parsed_args)
 
-        projects_mock.get.assert_called_with(identity_fakes.project_name)
-        users_mock.list.assert_called_with(tenant_id=identity_fakes.project_id)
+        projects_mock.get.assert_called_with(self._project.name)
+        users_mock.list.assert_called_with(tenant_id=self._project.id)
         self.compute_sdk_client.keypairs.assert_called_with(
-            user_id=identity_fakes.user_id,
+            user_id=self._user.id,
         )
 
         self.assertEqual(('Name', 'Fingerprint', 'Type'), columns)
@@ -576,8 +564,8 @@ class TestKeypairList(TestKeypair):
     def test_keypair_list_with_project_pre_v210(self):
         self.set_compute_api_version('2.9')
 
-        arglist = ['--project', identity_fakes.project_name]
-        verifylist = [('project', identity_fakes.project_name)]
+        arglist = ['--project', self._project.name]
+        verifylist = [('project', self._project.name)]
 
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
         ex = self.assertRaises(
@@ -590,9 +578,9 @@ class TestKeypairList(TestKeypair):
     def test_keypair_list_conflicting_user_options(self):
         arglist = [
             '--user',
-            identity_fakes.user_name,
+            self._user.name,
             '--project',
-            identity_fakes.project_name,
+            self._project.name,
         ]
 
         self.assertRaises(
@@ -707,7 +695,7 @@ class TestKeypairShow(TestKeypair):
         )
 
     def test_keypair_show(self):
-        self.keypair = compute_fakes.create_one_keypair()
+        self.keypair = sdk_fakes.generate_fake_resource(_keypair.Keypair)
         self.compute_sdk_client.find_keypair.return_value = self.keypair
 
         self.data = (
@@ -735,7 +723,7 @@ class TestKeypairShow(TestKeypair):
         self.assertEqual(self.data, data)
 
     def test_keypair_show_public(self):
-        self.keypair = compute_fakes.create_one_keypair()
+        self.keypair = sdk_fakes.generate_fake_resource(_keypair.Keypair)
         self.compute_sdk_client.find_keypair.return_value = self.keypair
 
         arglist = ['--public-key', self.keypair.name]
@@ -751,7 +739,7 @@ class TestKeypairShow(TestKeypair):
     def test_keypair_show_with_user(self):
         self.set_compute_api_version('2.10')
 
-        self.keypair = compute_fakes.create_one_keypair()
+        self.keypair = sdk_fakes.generate_fake_resource(_keypair.Keypair)
         self.compute_sdk_client.find_keypair.return_value = self.keypair
 
         self.data = (
@@ -767,22 +755,22 @@ class TestKeypairShow(TestKeypair):
 
         arglist = [
             '--user',
-            identity_fakes.user_name,
+            self._user.name,
             self.keypair.name,
         ]
         verifylist = [
-            ('user', identity_fakes.user_name),
+            ('user', self._user.name),
             ('name', self.keypair.name),
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
         columns, data = self.cmd.take_action(parsed_args)
 
-        self.users_mock.get.assert_called_with(identity_fakes.user_name)
+        self.users_mock.get.assert_called_with(self._user.name)
         self.compute_sdk_client.find_keypair.assert_called_with(
             self.keypair.name,
             ignore_missing=False,
-            user_id=identity_fakes.user_id,
+            user_id=self._user.id,
         )
 
         self.assertEqual(self.columns, columns)
@@ -791,14 +779,14 @@ class TestKeypairShow(TestKeypair):
     def test_keypair_show_with_user_pre_v210(self):
         self.set_compute_api_version('2.9')
 
-        self.keypair = compute_fakes.create_one_keypair()
+        self.keypair = sdk_fakes.generate_fake_resource(_keypair.Keypair)
         arglist = [
             '--user',
-            identity_fakes.user_name,
+            self._user.name,
             self.keypair.name,
         ]
         verifylist = [
-            ('user', identity_fakes.user_name),
+            ('user', self._user.name),
             ('name', self.keypair.name),
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
