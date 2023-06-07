@@ -15,6 +15,9 @@
 
 from unittest import mock
 
+from openstack.compute.v2 import server as _server
+from openstack.test import fakes as sdk_fakes
+
 from openstackclient.compute.v2 import console
 from openstackclient.tests.unit.compute.v2 import fakes as compute_fakes
 from openstackclient.tests.unit import utils
@@ -24,7 +27,7 @@ class TestConsoleLog(compute_fakes.TestComputev2):
     def setUp(self):
         super().setUp()
 
-        self._server = compute_fakes.create_one_sdk_server()
+        self._server = sdk_fakes.generate_fake_resource(_server.Server)
         self.compute_sdk_client.find_server.return_value = self._server
 
         self.cmd = console.ShowConsoleLog(self.app, None)
@@ -76,11 +79,12 @@ class TestConsoleLog(compute_fakes.TestComputev2):
 
 
 class TestConsoleUrlShow(compute_fakes.TestComputev2):
-    _server = compute_fakes.create_one_sdk_server()
-
     def setUp(self):
         super().setUp()
+
+        self._server = sdk_fakes.generate_fake_resource(_server.Server)
         self.compute_sdk_client.find_server.return_value = self._server
+
         fake_console_data = {
             'url': 'http://localhost',
             'protocol': 'fake_protocol',
