@@ -14,9 +14,12 @@
 import datetime
 from unittest import mock
 
+from openstack.compute.v2 import usage as _usage
+from openstack.identity.v3 import project as _project
+from openstack.test import fakes as sdk_fakes
+
 from openstackclient.compute.v2 import usage as usage_cmds
 from openstackclient.tests.unit.compute.v2 import fakes as compute_fakes
-from openstackclient.tests.unit.identity.v3 import fakes as identity_fakes
 
 
 class TestUsage(compute_fakes.TestComputev2):
@@ -28,11 +31,11 @@ class TestUsage(compute_fakes.TestComputev2):
 
 
 class TestUsageList(TestUsage):
-    project = identity_fakes.FakeProject.create_one_project()
+    project = sdk_fakes.generate_fake_resource(_project.Project)
     # Return value of self.usage_mock.list().
-    usages = compute_fakes.create_usages(
-        attrs={'project_id': project.name}, count=1
-    )
+    usages = [
+        sdk_fakes.generate_fake_resource(_usage.Usage, project_id=project.name)
+    ]
 
     columns = (
         "Project",
@@ -123,9 +126,11 @@ class TestUsageList(TestUsage):
 
 
 class TestUsageShow(TestUsage):
-    project = identity_fakes.FakeProject.create_one_project()
+    project = sdk_fakes.generate_fake_resource(_project.Project)
     # Return value of self.usage_mock.list().
-    usage = compute_fakes.create_one_usage(attrs={'project_id': project.name})
+    usage = sdk_fakes.generate_fake_resource(
+        _usage.Usage, project_id=project.name
+    )
 
     columns = (
         'Project',

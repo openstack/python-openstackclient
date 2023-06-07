@@ -32,7 +32,6 @@ from openstack.compute.v2 import server_action as _server_action
 from openstack.compute.v2 import server_group as _server_group
 from openstack.compute.v2 import server_interface as _server_interface
 from openstack.compute.v2 import server_migration as _server_migration
-from openstack.compute.v2 import usage as _usage
 from openstack.compute.v2 import volume_attachment as _volume_attachment
 
 from openstackclient.tests.unit import fakes
@@ -808,62 +807,6 @@ def get_networks(networks=None, count=2):
     if networks is None:
         networks = create_networks(count=count)
     return mock.Mock(side_effect=networks)
-
-
-def create_one_usage(attrs=None):
-    """Create a fake usage.
-
-    :param dict attrs:
-        A dictionary with all attributes
-    :return:
-        A FakeResource object, with tenant_id and other attributes
-    """
-    if attrs is None:
-        attrs = {}
-
-    # Set default attributes.
-    usage_info = {
-        'project_id': 'usage-tenant-id-' + uuid.uuid4().hex,
-        'total_memory_mb_usage': 512.0,
-        'total_vcpus_usage': 1.0,
-        'total_local_gb_usage': 1.0,
-        'server_usages': [
-            {
-                'ended_at': None,
-                'flavor': 'usage-flavor-' + uuid.uuid4().hex,
-                'hours': 1.0,
-                'local_gb': 1,
-                'memory_mb': 512,
-                'name': 'usage-name-' + uuid.uuid4().hex,
-                'instance_id': uuid.uuid4().hex,
-                'state': 'active',
-                'uptime': 3600,
-                'vcpus': 1,
-            }
-        ],
-    }
-
-    # Overwrite default attributes.
-    usage_info.update(attrs)
-
-    return _usage.Usage(**usage_info)
-
-
-def create_usages(attrs=None, count=2):
-    """Create multiple fake services.
-
-    :param dict attrs:
-        A dictionary with all attributes
-    :param int count:
-        The number of services to fake
-    :return:
-        A list of FakeResource objects faking the services
-    """
-    usages = []
-    for i in range(0, count):
-        usages.append(create_one_usage(attrs))
-
-    return usages
 
 
 def create_limits(attrs=None):
