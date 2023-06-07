@@ -26,9 +26,6 @@ class TestNetworkAgent(network_fakes.TestNetworkV2):
     def setUp(self):
         super(TestNetworkAgent, self).setUp()
 
-        # Get a shortcut to the network client
-        self.network_client = self.app.client_manager.network
-
 
 class TestAddNetworkToAgent(TestNetworkAgent):
     net = network_fakes.create_one_network()
@@ -40,7 +37,7 @@ class TestAddNetworkToAgent(TestNetworkAgent):
         self.network_client.get_agent = mock.Mock(return_value=self.agent)
         self.network_client.find_network = mock.Mock(return_value=self.net)
         self.network_client.name = self.network_client.find_network.name
-        self.network_client.add_dhcp_agent_to_network = mock.Mock()
+
         self.cmd = network_agent.AddNetworkToAgent(self.app, self.namespace)
 
     def test_show_no_options(self):
@@ -78,10 +75,11 @@ class TestAddRouterAgent(TestNetworkAgent):
 
     def setUp(self):
         super(TestAddRouterAgent, self).setUp()
-        self.network_client.add_router_to_agent = mock.Mock()
-        self.cmd = network_agent.AddRouterToAgent(self.app, self.namespace)
+
         self.network_client.get_agent = mock.Mock(return_value=self._agent)
         self.network_client.find_router = mock.Mock(return_value=self._router)
+
+        self.cmd = network_agent.AddRouterToAgent(self.app, self.namespace)
 
     def test_add_no_options(self):
         arglist = []
@@ -376,7 +374,7 @@ class TestRemoveNetworkFromAgent(TestNetworkAgent):
         self.network_client.get_agent = mock.Mock(return_value=self.agent)
         self.network_client.find_network = mock.Mock(return_value=self.net)
         self.network_client.name = self.network_client.find_network.name
-        self.network_client.remove_dhcp_agent_from_network = mock.Mock()
+
         self.cmd = network_agent.RemoveNetworkFromAgent(
             self.app, self.namespace
         )
@@ -431,12 +429,13 @@ class TestRemoveRouterAgent(TestNetworkAgent):
 
     def setUp(self):
         super(TestRemoveRouterAgent, self).setUp()
-        self.network_client.remove_router_from_agent = mock.Mock()
+
+        self.network_client.get_agent = mock.Mock(return_value=self._agent)
+        self.network_client.find_router = mock.Mock(return_value=self._router)
+
         self.cmd = network_agent.RemoveRouterFromAgent(
             self.app, self.namespace
         )
-        self.network_client.get_agent = mock.Mock(return_value=self._agent)
-        self.network_client.find_router = mock.Mock(return_value=self._router)
 
     def test_remove_no_options(self):
         arglist = []

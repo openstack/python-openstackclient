@@ -124,25 +124,25 @@ class FakeCreateNeutronCommandWithExtraArgs(
 
 class TestNetworkAndCompute(utils.TestCommand):
     def setUp(self):
-        super(TestNetworkAndCompute, self).setUp()
+        super().setUp()
 
         self.namespace = argparse.Namespace()
 
-        # Create network client mocks.
+        # Create client mocks. Note that we intentionally do not use specced
+        # mocks since we want to test fake methods.
+
         self.app.client_manager.network = mock.Mock()
         self.network_client = self.app.client_manager.network
         self.network_client.network_action = mock.Mock(
             return_value='take_action_network'
         )
 
-        # Create compute client mocks.
         self.app.client_manager.compute = mock.Mock()
         self.compute = self.app.client_manager.compute
         self.compute.compute_action = mock.Mock(
             return_value='take_action_compute'
         )
 
-        # Subclasses can override the command object to test.
         self.cmd = FakeNetworkAndComputeCommand(self.app, self.namespace)
 
     def test_take_action_network(self):
@@ -208,6 +208,9 @@ class TestNeutronCommandWithExtraArgs(utils.TestCommand):
         super(TestNeutronCommandWithExtraArgs, self).setUp()
 
         self.namespace = argparse.Namespace()
+
+        # Create client mocks. Note that we intentionally do not use specced
+        # mocks since we want to test fake methods.
 
         self.app.client_manager.network = mock.Mock()
         self.network_client = self.app.client_manager.network

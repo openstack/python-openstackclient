@@ -24,7 +24,6 @@ from openstackclient.tests.unit.network.v2 import fakes
 class TestNetworkServiceProvider(fakes.TestNetworkV2):
     def setUp(self):
         super(TestNetworkServiceProvider, self).setUp()
-        self.network_client = self.app.client_manager.network
 
 
 class TestListNetworkServiceProvider(TestNetworkServiceProvider):

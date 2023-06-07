@@ -27,8 +27,6 @@ class TestRouter(network_fakes.TestNetworkV2):
     def setUp(self):
         super(TestRouter, self).setUp()
 
-        # Get a shortcut to the network client
-        self.network_client = self.app.client_manager.network
         self.projects_mock = self.app.client_manager.identity.projects
 
 
@@ -42,10 +40,11 @@ class TestAddPortToRouter(TestRouter):
 
     def setUp(self):
         super(TestAddPortToRouter, self).setUp()
-        self.network_client.add_interface_to_router = mock.Mock()
-        self.cmd = router.AddPortToRouter(self.app, self.namespace)
+
         self.network_client.find_router = mock.Mock(return_value=self._router)
         self.network_client.find_port = mock.Mock(return_value=self._port)
+
+        self.cmd = router.AddPortToRouter(self.app, self.namespace)
 
     def test_add_port_no_option(self):
         arglist = []
@@ -91,10 +90,11 @@ class TestAddSubnetToRouter(TestRouter):
 
     def setUp(self):
         super(TestAddSubnetToRouter, self).setUp()
-        self.network_client.add_interface_to_router = mock.Mock()
-        self.cmd = router.AddSubnetToRouter(self.app, self.namespace)
+
         self.network_client.find_router = mock.Mock(return_value=self._router)
         self.network_client.find_subnet = mock.Mock(return_value=self._subnet)
+
+        self.cmd = router.AddSubnetToRouter(self.app, self.namespace)
 
     def test_add_subnet_no_option(self):
         arglist = []
@@ -835,10 +835,11 @@ class TestRemovePortFromRouter(TestRouter):
 
     def setUp(self):
         super(TestRemovePortFromRouter, self).setUp()
-        self.network_client.remove_interface_from_router = mock.Mock()
-        self.cmd = router.RemovePortFromRouter(self.app, self.namespace)
+
         self.network_client.find_router = mock.Mock(return_value=self._router)
         self.network_client.find_port = mock.Mock(return_value=self._port)
+
+        self.cmd = router.RemovePortFromRouter(self.app, self.namespace)
 
     def test_remove_port_no_option(self):
         arglist = []
@@ -881,10 +882,11 @@ class TestRemoveSubnetFromRouter(TestRouter):
 
     def setUp(self):
         super(TestRemoveSubnetFromRouter, self).setUp()
-        self.network_client.remove_interface_from_router = mock.Mock()
-        self.cmd = router.RemoveSubnetFromRouter(self.app, self.namespace)
+
         self.network_client.find_router = mock.Mock(return_value=self._router)
         self.network_client.find_subnet = mock.Mock(return_value=self._subnet)
+
+        self.cmd = router.RemoveSubnetFromRouter(self.app, self.namespace)
 
     def test_remove_subnet_no_option(self):
         arglist = []
@@ -1105,7 +1107,6 @@ class TestSetRouter(TestRouter):
 
     def setUp(self):
         super(TestSetRouter, self).setUp()
-        self.network_client.router_add_gateway = mock.Mock()
         self.network_client.update_router = mock.Mock(return_value=None)
         self.network_client.set_tags = mock.Mock(return_value=None)
         self.network_client.find_router = mock.Mock(return_value=self._router)
@@ -1113,6 +1114,7 @@ class TestSetRouter(TestRouter):
             return_value=self._network
         )
         self.network_client.find_subnet = mock.Mock(return_value=self._subnet)
+
         # Get the command object to test
         self.cmd = router.SetRouter(self.app, self.namespace)
 

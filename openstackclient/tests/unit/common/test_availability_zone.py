@@ -9,7 +9,6 @@
 #   WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
 #   License for the specific language governing permissions and limitations
 #   under the License.
-#
 
 from unittest import mock
 
@@ -79,7 +78,7 @@ def _build_network_az_datalist(network_az, long_datalist=False):
     return (datalist,)
 
 
-class TestAvailabilityZone(utils.TestCommand):
+class TestAvailabilityZone(network_fakes.FakeClientMixin, utils.TestCommand):
     def setUp(self):
         super().setUp()
 
@@ -92,11 +91,6 @@ class TestAvailabilityZone(utils.TestCommand):
         self.app.client_manager.sdk_connection.volume = mock.Mock()
         self.volume_client = self.app.client_manager.sdk_connection.volume
         self.volume_client.availability_zones = mock.Mock()
-
-        self.app.client_manager.network = mock.Mock()
-        self.network_client = self.app.client_manager.network
-        self.network_client.availability_zones = mock.Mock()
-        self.network_client.find_extension = mock.Mock()
 
 
 class TestAvailabilityZoneList(TestAvailabilityZone):

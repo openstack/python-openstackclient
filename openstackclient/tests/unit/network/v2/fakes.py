@@ -9,7 +9,6 @@
 #   WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
 #   License for the specific language governing permissions and limitations
 #   under the License.
-#
 
 import argparse
 import copy
@@ -18,6 +17,7 @@ from random import randint
 from unittest import mock
 import uuid
 
+from openstack.network.v2 import _proxy
 from openstack.network.v2 import address_group as _address_group
 from openstack.network.v2 import address_scope as _address_scope
 from openstack.network.v2 import agent as network_agent
@@ -93,14 +93,19 @@ VALID_DSCP_MARKS = [
 ]
 
 
-class TestNetworkV2(utils.TestCommand):
+class FakeClientMixin:
+    def setUp(self):
+        super().setUp()
+
+        self.app.client_manager.network = mock.Mock(spec=_proxy.Proxy)
+        self.network_client = self.app.client_manager.network
+
+
+class TestNetworkV2(FakeClientMixin, utils.TestCommand):
     def setUp(self):
         super().setUp()
 
         self.namespace = argparse.Namespace()
-
-        self.app.client_manager.session = mock.Mock()
-        self.app.client_manager.network = mock.Mock()
 
         self.app.client_manager.identity = (
             identity_fakes_v3.FakeIdentityv3Client(

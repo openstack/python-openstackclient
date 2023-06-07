@@ -113,9 +113,6 @@ class TestServer(compute_fakes.TestComputev2):
         self.snapshots_mock = self.app.client_manager.volume.volume_snapshots
         self.snapshots_mock.reset_mock()
 
-        self.app.client_manager.network = mock.Mock()
-        self.network_client = self.app.client_manager.network
-
         # Set object attributes to be tested. Could be overwritten in subclass.
         self.attrs = {}
 
@@ -523,7 +520,7 @@ class TestServerAddFloatingIPNetwork(
     network_fakes.TestNetworkV2,
 ):
     def setUp(self):
-        super(TestServerAddFloatingIPNetwork, self).setUp()
+        super().setUp()
 
         self.network_client.update_ip = mock.Mock(return_value=None)
 
@@ -7253,10 +7250,8 @@ class TestServerRemoveFloatingIPCompute(compute_fakes.TestComputev2):
 
 class TestServerRemoveFloatingIPNetwork(network_fakes.TestNetworkV2):
     def setUp(self):
-        super(TestServerRemoveFloatingIPNetwork, self).setUp()
+        super().setUp()
 
-        self.app.client_manager.network = mock.Mock()
-        self.network_client = self.app.client_manager.network
         self.network_client.update_ip = mock.Mock(return_value=None)
 
         # Get the command object to test

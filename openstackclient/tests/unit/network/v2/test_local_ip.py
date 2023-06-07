@@ -28,8 +28,6 @@ class TestLocalIP(network_fakes.TestNetworkV2):
     def setUp(self):
         super().setUp()
 
-        # Get a shortcut to the network client
-        self.network_client = self.app.client_manager.network
         # Get a shortcut to the ProjectManager Mock
         self.projects_mock = self.app.client_manager.identity.projects
         # Get a shortcut to the DomainManager Mock

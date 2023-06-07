@@ -22,8 +22,7 @@ from openstackclient.tests.unit.network.v2 import fakes as network_fakes
 class TestFlavorProfile(network_fakes.TestNetworkV2):
     def setUp(self):
         super(TestFlavorProfile, self).setUp()
-        # Get the network client
-        self.network_client = self.app.client_manager.network
+
         # Get the ProjectManager Mock
         self.projects_mock = self.app.client_manager.identity.projects
         # Get the DomainManager Mock
