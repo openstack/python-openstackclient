@@ -12,6 +12,7 @@
 
 import uuid
 
+from tempest.lib.common.utils import data_utils
 from tempest.lib import exceptions
 
 from openstackclient.tests.functional import base
@@ -28,11 +29,15 @@ class QuotaTests(base.TestCase):
 
     @classmethod
     def setUpClass(cls):
-        super(QuotaTests, cls).setUpClass()
+        super().setUpClass()
         cls.haz_network = cls.is_service_enabled('network')
-        cls.PROJECT_NAME = cls.get_openstack_configuration_value(
-            'auth.project_name'
-        )
+        cls.PROJECT_NAME = data_utils.rand_name('TestProject')
+        cls.openstack(f'project create {cls.PROJECT_NAME}')
+
+    @classmethod
+    def tearDownClass(cls):
+        cls.openstack(f'project delete {cls.PROJECT_NAME}')
+        super().tearDownClass()
 
     def test_quota_list_details_compute(self):
         expected_headers = ["Resource", "In Use", "Reserved", "Limit"]
