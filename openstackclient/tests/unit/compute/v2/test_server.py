@@ -21,7 +21,9 @@ from unittest import mock
 import uuid
 
 import iso8601
+from openstack.compute.v2 import server_group as _server_group
 from openstack import exceptions as sdk_exceptions
+from openstack.test import fakes as sdk_fakes
 from osc_lib.cli import format_columns
 from osc_lib import exceptions
 from osc_lib import utils as common_utils
@@ -1375,7 +1377,9 @@ class TestServerCreate(TestServer):
         self.assertEqual(self.datalist(), data)
 
     def test_server_create_with_options(self):
-        server_group = compute_fakes.create_one_server_group()
+        server_group = sdk_fakes.generate_fake_resource(
+            _server_group.ServerGroup
+        )
         self.compute_sdk_client.find_server_group.return_value = server_group
 
         security_group = network_fakes.create_one_security_group()

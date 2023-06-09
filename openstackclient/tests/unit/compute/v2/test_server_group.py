@@ -13,6 +13,8 @@
 #   under the License.
 #
 
+from openstack.compute.v2 import server_group as _server_group
+from openstack.test import fakes as sdk_fakes
 from osc_lib.cli import format_columns
 from osc_lib import exceptions
 
@@ -22,27 +24,31 @@ from openstackclient.tests.unit import utils as tests_utils
 
 
 class TestServerGroup(compute_fakes.TestComputev2):
-    fake_server_group = compute_fakes.create_one_server_group()
+    def setUp(self):
+        super().setUp()
 
-    columns = (
-        'id',
-        'members',
-        'name',
-        'policy',
-        'project_id',
-        'rules',
-        'user_id',
-    )
+        self.fake_server_group = sdk_fakes.generate_fake_resource(
+            _server_group.ServerGroup
+        )
 
-    data = (
-        fake_server_group.id,
-        format_columns.ListColumn(fake_server_group.member_ids),
-        fake_server_group.name,
-        fake_server_group.policy,
-        fake_server_group.project_id,
-        format_columns.DictColumn(fake_server_group.rules),
-        fake_server_group.user_id,
-    )
+        self.columns = (
+            'id',
+            'members',
+            'name',
+            'policy',
+            'project_id',
+            'rules',
+            'user_id',
+        )
+        self.data = (
+            self.fake_server_group.id,
+            format_columns.ListColumn(self.fake_server_group.member_ids),
+            self.fake_server_group.name,
+            self.fake_server_group.policy,
+            self.fake_server_group.project_id,
+            format_columns.DictColumn(self.fake_server_group.rules),
+            self.fake_server_group.user_id,
+        )
 
 
 class TestServerGroupCreate(TestServerGroup):
@@ -262,82 +268,6 @@ class TestServerGroupDelete(TestServerGroup):
 
 
 class TestServerGroupList(TestServerGroup):
-    list_columns = (
-        'ID',
-        'Name',
-        'Policies',
-    )
-
-    list_columns_long = (
-        'ID',
-        'Name',
-        'Policies',
-        'Members',
-        'Project Id',
-        'User Id',
-    )
-
-    list_columns_v264 = (
-        'ID',
-        'Name',
-        'Policy',
-    )
-
-    list_columns_v264_long = (
-        'ID',
-        'Name',
-        'Policy',
-        'Members',
-        'Project Id',
-        'User Id',
-    )
-
-    list_data = (
-        (
-            TestServerGroup.fake_server_group.id,
-            TestServerGroup.fake_server_group.name,
-            format_columns.ListColumn(
-                TestServerGroup.fake_server_group.policies
-            ),
-        ),
-    )
-
-    list_data_long = (
-        (
-            TestServerGroup.fake_server_group.id,
-            TestServerGroup.fake_server_group.name,
-            format_columns.ListColumn(
-                TestServerGroup.fake_server_group.policies
-            ),
-            format_columns.ListColumn(
-                TestServerGroup.fake_server_group.member_ids
-            ),
-            TestServerGroup.fake_server_group.project_id,
-            TestServerGroup.fake_server_group.user_id,
-        ),
-    )
-
-    list_data_v264 = (
-        (
-            TestServerGroup.fake_server_group.id,
-            TestServerGroup.fake_server_group.name,
-            TestServerGroup.fake_server_group.policy,
-        ),
-    )
-
-    list_data_v264_long = (
-        (
-            TestServerGroup.fake_server_group.id,
-            TestServerGroup.fake_server_group.name,
-            TestServerGroup.fake_server_group.policy,
-            format_columns.ListColumn(
-                TestServerGroup.fake_server_group.member_ids
-            ),
-            TestServerGroup.fake_server_group.project_id,
-            TestServerGroup.fake_server_group.user_id,
-        ),
-    )
-
     def setUp(self):
         super().setUp()
 
@@ -359,8 +289,21 @@ class TestServerGroupList(TestServerGroup):
 
         self.compute_sdk_client.server_groups.assert_called_once_with()
 
-        self.assertCountEqual(self.list_columns, columns)
-        self.assertCountEqual(self.list_data, tuple(data))
+        expected_columns = (
+            'ID',
+            'Name',
+            'Policies',
+        )
+        expected_data = (
+            (
+                self.fake_server_group.id,
+                self.fake_server_group.name,
+                format_columns.ListColumn(self.fake_server_group.policies),
+            ),
+        )
+
+        self.assertCountEqual(expected_columns, columns)
+        self.assertCountEqual(expected_data, tuple(data))
 
     def test_server_group_list_with_all_projects_and_long(self):
         arglist = [
@@ -379,8 +322,27 @@ class TestServerGroupList(TestServerGroup):
             all_projects=True
         )
 
-        self.assertCountEqual(self.list_columns_long, columns)
-        self.assertCountEqual(self.list_data_long, tuple(data))
+        expected_columns = (
+            'ID',
+            'Name',
+            'Policies',
+            'Members',
+            'Project Id',
+            'User Id',
+        )
+        expected_data = (
+            (
+                self.fake_server_group.id,
+                self.fake_server_group.name,
+                format_columns.ListColumn(self.fake_server_group.policies),
+                format_columns.ListColumn(self.fake_server_group.member_ids),
+                self.fake_server_group.project_id,
+                self.fake_server_group.user_id,
+            ),
+        )
+
+        self.assertCountEqual(expected_columns, columns)
+        self.assertCountEqual(expected_data, tuple(data))
 
     def test_server_group_list_with_limit(self):
         arglist = [
@@ -428,8 +390,21 @@ class TestServerGroupList(TestServerGroup):
         columns, data = self.cmd.take_action(parsed_args)
         self.compute_sdk_client.server_groups.assert_called_once_with()
 
-        self.assertCountEqual(self.list_columns_v264, columns)
-        self.assertCountEqual(self.list_data_v264, tuple(data))
+        expected_columns = (
+            'ID',
+            'Name',
+            'Policy',
+        )
+        expected_data = (
+            (
+                self.fake_server_group.id,
+                self.fake_server_group.name,
+                self.fake_server_group.policy,
+            ),
+        )
+
+        self.assertCountEqual(expected_columns, columns)
+        self.assertCountEqual(expected_data, tuple(data))
 
     def test_server_group_list_with_all_projects_and_long_v264(self):
         self.set_compute_api_version('2.64')
@@ -448,8 +423,27 @@ class TestServerGroupList(TestServerGroup):
             all_projects=True
         )
 
-        self.assertCountEqual(self.list_columns_v264_long, columns)
-        self.assertCountEqual(self.list_data_v264_long, tuple(data))
+        expected_columns = (
+            'ID',
+            'Name',
+            'Policy',
+            'Members',
+            'Project Id',
+            'User Id',
+        )
+        expected_data = (
+            (
+                self.fake_server_group.id,
+                self.fake_server_group.name,
+                self.fake_server_group.policy,
+                format_columns.ListColumn(self.fake_server_group.member_ids),
+                self.fake_server_group.project_id,
+                self.fake_server_group.user_id,
+            ),
+        )
+
+        self.assertCountEqual(expected_columns, columns)
+        self.assertCountEqual(expected_data, tuple(data))
 
 
 class TestServerGroupShow(TestServerGroup):

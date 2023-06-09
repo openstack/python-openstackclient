@@ -28,7 +28,6 @@ from openstack.compute.v2 import limits as _limits
 from openstack.compute.v2 import migration as _migration
 from openstack.compute.v2 import server as _server
 from openstack.compute.v2 import server_action as _server_action
-from openstack.compute.v2 import server_group as _server_group
 from openstack.compute.v2 import server_interface as _server_interface
 from openstack.compute.v2 import server_migration as _server_migration
 from openstack.compute.v2 import volume_attachment as _volume_attachment
@@ -1017,32 +1016,6 @@ def create_volume_attachments(attrs=None, count=2):
         volume_attachments.append(create_one_volume_attachment(attrs))
 
     return volume_attachments
-
-
-def create_one_server_group(attrs=None):
-    """Create a fake server group
-
-    :param dict attrs: A dictionary with all attributes
-    :return: A fake openstack.compute.v2.server_group.ServerGroup object
-    """
-    if attrs is None:
-        attrs = {}
-
-    # Set default attributes.
-    server_group_info = {
-        'id': 'server-group-id-' + uuid.uuid4().hex,
-        'member_ids': '',
-        'metadata': {},
-        'name': 'server-group-name-' + uuid.uuid4().hex,
-        'project_id': 'server-group-project-id-' + uuid.uuid4().hex,
-        'user_id': 'server-group-user-id-' + uuid.uuid4().hex,
-    }
-
-    # Overwrite default attributes.
-    server_group_info.update(attrs)
-
-    server_group = _server_group.ServerGroup(**server_group_info)
-    return server_group
 
 
 def create_one_server_interface(attrs=None):
