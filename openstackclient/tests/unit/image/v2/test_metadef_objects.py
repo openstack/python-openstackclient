@@ -102,3 +102,38 @@ class TestMetadefObjectsShow(fakes.TestImagev2):
 
         self.assertEqual(self.expected_columns, columns)
         self.assertEqual(self.expected_data, data)
+
+
+class TestMetadefObjectList(fakes.TestImagev2):
+    _metadef_namespace = fakes.create_one_metadef_namespace()
+    _metadef_objects = [fakes.create_one_metadef_object()]
+    columns = ['name', 'description']
+
+    datalist = []
+
+    def setUp(self):
+        super().setUp()
+
+        self.image_client.metadef_objects.side_effect = [
+            self._metadef_objects,
+            [],
+        ]
+
+        # Get the command object to test
+        self.image_client.metadef_objects.return_value = iter(
+            self._metadef_objects
+        )
+        self.cmd = metadef_objects.ListMetadefObjects(self.app, None)
+        self.datalist = self._metadef_objects
+
+    def test_metadef_objects_list(self):
+        arglist = [self._metadef_namespace.namespace]
+        parsed_args = self.check_parser(self.cmd, arglist, [])
+
+        # In base command class Lister in cliff, abstract method take_action()
+        # returns a tuple containing the column names and an iterable
+        # containing the data to be listed.
+        columns, data = self.cmd.take_action(parsed_args)
+
+        self.assertEqual(self.columns, columns)
+        self.assertEqual(getattr(self.datalist[0], 'name'), next(data)[0])
