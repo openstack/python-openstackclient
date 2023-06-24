@@ -1664,6 +1664,74 @@ class TestProjectShow(identity_fakes.TestIdentity):
         # Get the command object to test
         self.cmd = project.ShowProject(self.app, None)
 
+    def test_project_show_current(self):
+        project = sdk_fakes.generate_fake_resource(
+            _project.Project, **self.project_kwargs_no_options
+        )
+        self.identity_sdk_client.find_project.return_value = project
+        self.app.client_manager.auth_ref = mock.Mock(project_id=project.id)
+        parsed_args = self.check_parser(self.cmd, [], [('project', None)])
+
+        _columns, data = self.cmd.take_action(parsed_args)
+
+        self.identity_sdk_client.find_project.assert_called_with(
+            project.id, ignore_missing=False
+        )
+        self.assertIn(project.id, data)
+
+    def test_project_show_current_with_options(self):
+        project = sdk_fakes.generate_fake_resource(
+            _project.Project,
+            **dict(self.project_kwargs_no_options, domain_id=self.domain.id),
+        )
+        self.identity_sdk_client.find_domain.return_value = self.domain
+        self.identity_sdk_client.find_project.return_value = project
+        self.app.client_manager.auth_ref = mock.Mock(project_id=project.id)
+        parsed_args = self.check_parser(
+            self.cmd,
+            ['--domain', self.domain.id, '--parents', '--children'],
+            [('project', None)],
+        )
+
+        self.cmd.take_action(parsed_args)
+
+        self.identity_sdk_client.find_project.assert_called_with(
+            project.id,
+            domain_id=self.domain.id,
+            parents_as_ids=True,
+            subtree_as_ids=True,
+            ignore_missing=False,
+        )
+
+    def test_project_show_no_current(self):
+        for auth_ref in (None, mock.Mock(project_id=None)):
+            with self.subTest(auth_ref=auth_ref):
+                self.app.client_manager.auth_ref = auth_ref
+                parsed_args = self.check_parser(self.cmd, [], [])
+
+                self.assertRaisesRegex(
+                    exceptions.CommandError,
+                    'No current project available',
+                    self.cmd.take_action,
+                    parsed_args,
+                )
+
+                self.identity_sdk_client.find_project.assert_not_called()
+
+    def test_project_show_explicit_without_auth_ref(self):
+        project = sdk_fakes.generate_fake_resource(
+            _project.Project, **self.project_kwargs_no_options
+        )
+        self.identity_sdk_client.find_project.return_value = project
+        self.app.client_manager.auth_ref = None
+        parsed_args = self.check_parser(self.cmd, [project.id], [])
+
+        self.cmd.take_action(parsed_args)
+
+        self.identity_sdk_client.find_project.assert_called_with(
+            project.id, ignore_missing=False
+        )
+
     def test_project_show(self):
         project = sdk_fakes.generate_fake_resource(
             _project.Project, **self.project_kwargs_no_options

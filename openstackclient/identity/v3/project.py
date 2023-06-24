@@ -574,7 +574,10 @@ class ShowProject(command.ShowOne):
         parser.add_argument(
             'project',
             metavar='<project>',
-            help=_('Project to display (name or ID)'),
+            nargs='?',
+            help=_(
+                'Project to display (name or ID) (defaults to current project)'
+            ),
         )
         parser.add_argument(
             '--domain',
@@ -602,6 +605,18 @@ class ShowProject(command.ShowOne):
             self.app.client_manager.sdk_connection.identity, '3'
         )
 
+        project_id = parsed_args.project
+        if project_id is None:
+            auth_ref = self.app.client_manager.auth_ref
+            if not auth_ref or not auth_ref.project_id:
+                raise exceptions.CommandError(
+                    _(
+                        'No current project available. '
+                        'Specify a project explicitly.'
+                    )
+                )
+            project_id = auth_ref.project_id
+
         kwargs: dict[str, Any] = {}
 
         domain = None
@@ -616,7 +631,7 @@ class ShowProject(command.ShowOne):
         # parents/children if only project name was given
         project = common.find_project_id_sdk(
             identity_client,
-            parsed_args.project,
+            project_id,
             domain_name_or_id=domain,
             validate_actor_existence=False,
             validate_domain_actor_existence=False,
