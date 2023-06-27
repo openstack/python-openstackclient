@@ -1,4 +1,4 @@
-#   Copyright 2012-2013 OpenStack Foundation
+#   Copyright 2023 Red Hat
 #
 #   Licensed under the Apache License, Version 2.0 (the "License"); you may
 #   not use this file except in compliance with the License. You may obtain
@@ -41,7 +41,6 @@ class TestMetadefObjectsCreate(fakes.TestImagev2):
 
     def setUp(self):
         super().setUp()
-
         self.image_client.create_metadef_object.return_value = (
             self._metadef_objects
         )
@@ -50,6 +49,49 @@ class TestMetadefObjectsCreate(fakes.TestImagev2):
     def test_namespace_create(self):
         arglist = [
             '--namespace',
+            self._metadef_namespace.namespace,
+            self._metadef_objects.name,
+        ]
+        verifylist = []
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+        columns, data = self.cmd.take_action(parsed_args)
+        self.assertEqual(self.expected_columns, columns)
+        self.assertEqual(self.expected_data, data)
+
+
+class TestMetadefObjectsShow(fakes.TestImagev2):
+    _metadef_namespace = fakes.create_one_metadef_namespace()
+    _metadef_objects = fakes.create_one_metadef_object()
+
+    expected_columns = (
+        'created_at',
+        'description',
+        'name',
+        'namespace_name',
+        'properties',
+        'required',
+        'updated_at',
+    )
+    expected_data = (
+        _metadef_objects.created_at,
+        _metadef_objects.description,
+        _metadef_objects.name,
+        _metadef_objects.namespace_name,
+        _metadef_objects.properties,
+        _metadef_objects.required,
+        _metadef_objects.updated_at,
+    )
+
+    def setUp(self):
+        super().setUp()
+
+        self.image_client.get_metadef_object.return_value = (
+            self._metadef_objects
+        )
+        self.cmd = metadef_objects.ShowMetadefObjects(self.app, None)
+
+    def test_object_show(self):
+        arglist = [
             self._metadef_namespace.namespace,
             self._metadef_objects.name,
         ]

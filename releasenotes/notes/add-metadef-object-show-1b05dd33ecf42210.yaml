@@ -1,0 +1,5 @@
+---
+features:
+  - |
+    Add ``image metadef object show`` command to show the
+    metadata definitions objects inside a specific namespace
