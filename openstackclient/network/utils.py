@@ -81,3 +81,103 @@ def str2dict(strdict):
         key, sep, value = kv.partition(':')
         result[key] = value
     return result
+
+
+def format_security_group_rule_show(obj):
+    data = transform_compute_security_group_rule(obj)
+    return zip(*sorted(data.items()))
+
+
+def format_network_port_range(rule):
+    # Display port range or ICMP type and code. For example:
+    # - ICMP type: 'type=3'
+    # - ICMP type and code: 'type=3:code=0'
+    # - ICMP code: Not supported
+    # - Matching port range: '443:443'
+    # - Different port range: '22:24'
+    # - Single port: '80:80'
+    # - No port range: ''
+    port_range = ''
+    if is_icmp_protocol(rule['protocol']):
+        if rule['port_range_min']:
+            port_range += 'type=' + str(rule['port_range_min'])
+        if rule['port_range_max']:
+            port_range += ':code=' + str(rule['port_range_max'])
+    elif rule['port_range_min'] or rule['port_range_max']:
+        port_range_min = str(rule['port_range_min'])
+        port_range_max = str(rule['port_range_max'])
+        if rule['port_range_min'] is None:
+            port_range_min = port_range_max
+        if rule['port_range_max'] is None:
+            port_range_max = port_range_min
+        port_range = port_range_min + ':' + port_range_max
+    return port_range
+
+
+def format_remote_ip_prefix(rule):
+    remote_ip_prefix = rule['remote_ip_prefix']
+    if remote_ip_prefix is None:
+        ethertype = rule['ether_type']
+        if ethertype == 'IPv4':
+            remote_ip_prefix = '0.0.0.0/0'
+        elif ethertype == 'IPv6':
+            remote_ip_prefix = '::/0'
+    return remote_ip_prefix
+
+
+def convert_ipvx_case(string):
+    if string.lower() == 'ipv4':
+        return 'IPv4'
+    if string.lower() == 'ipv6':
+        return 'IPv6'
+    return string
+
+
+def is_icmp_protocol(protocol):
+    # NOTE(rtheis): Neutron has deprecated protocol icmpv6.
+    # However, while the OSC CLI doesn't document the protocol,
+    # the code must still handle it. In addition, handle both
+    # protocol names and numbers.
+    if protocol in ['icmp', 'icmpv6', 'ipv6-icmp', '1', '58']:
+        return True
+    else:
+        return False
+
+
+def convert_to_lowercase(string):
+    return string.lower()
+
+
+def get_protocol(parsed_args, default_protocol='any'):
+    protocol = default_protocol
+    if parsed_args.protocol is not None:
+        protocol = parsed_args.protocol
+    if hasattr(parsed_args, "proto") and parsed_args.proto is not None:
+        protocol = parsed_args.proto
+    if protocol == 'any':
+        protocol = None
+    return protocol
+
+
+def get_ethertype(parsed_args, protocol):
+    ethertype = 'IPv4'
+    if parsed_args.ethertype is not None:
+        ethertype = parsed_args.ethertype
+    elif is_ipv6_protocol(protocol):
+        ethertype = 'IPv6'
+    return ethertype
+
+
+def is_ipv6_protocol(protocol):
+    # NOTE(rtheis): Neutron has deprecated protocol icmpv6.
+    # However, while the OSC CLI doesn't document the protocol,
+    # the code must still handle it. In addition, handle both
+    # protocol names and numbers.
+    if (
+        protocol is not None
+        and protocol.startswith('ipv6-')
+        or protocol in ['icmpv6', '41', '43', '44', '58', '59', '60']
+    ):
+        return True
+    else:
+        return False

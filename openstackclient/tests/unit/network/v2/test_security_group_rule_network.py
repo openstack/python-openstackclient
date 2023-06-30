@@ -16,6 +16,7 @@ from unittest.mock import call
 
 from osc_lib import exceptions
 
+from openstackclient.network import utils as network_utils
 from openstackclient.network.v2 import security_group_rule
 from openstackclient.tests.unit.identity.v3 import fakes as identity_fakes
 from openstackclient.tests.unit.network.v2 import fakes as network_fakes
@@ -1124,9 +1125,7 @@ class TestListSecurityGroupRuleNetwork(TestSecurityGroupRuleNetwork):
                 _security_group_rule.protocol,
                 _security_group_rule.ether_type,
                 _security_group_rule.remote_ip_prefix,
-                security_group_rule._format_network_port_range(
-                    _security_group_rule
-                ),
+                network_utils.format_network_port_range(_security_group_rule),
                 _security_group_rule.direction,
                 _security_group_rule.remote_group_id,
                 _security_group_rule.remote_address_group_id,
@@ -1138,9 +1137,7 @@ class TestListSecurityGroupRuleNetwork(TestSecurityGroupRuleNetwork):
                 _security_group_rule.protocol,
                 _security_group_rule.ether_type,
                 _security_group_rule.remote_ip_prefix,
-                security_group_rule._format_network_port_range(
-                    _security_group_rule
-                ),
+                network_utils.format_network_port_range(_security_group_rule),
                 _security_group_rule.direction,
                 _security_group_rule.remote_group_id,
                 _security_group_rule.remote_address_group_id,

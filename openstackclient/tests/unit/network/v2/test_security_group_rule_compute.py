@@ -49,7 +49,7 @@ class TestCreateSecurityGroupRuleCompute(TestSecurityGroupRuleCompute):
         (
             expected_columns,
             expected_data,
-        ) = security_group_rule._format_security_group_rule_show(
+        ) = network_utils.format_security_group_rule_show(
             self._security_group_rule
         )
         return expected_columns, expected_data
@@ -513,7 +513,7 @@ class TestShowSecurityGroupRuleCompute(TestSecurityGroupRuleCompute):
     # The security group rule to be shown.
     _security_group_rule = compute_fakes.create_one_security_group_rule()
 
-    columns, data = security_group_rule._format_security_group_rule_show(
+    columns, data = network_utils.format_security_group_rule_show(
         _security_group_rule
     )
 

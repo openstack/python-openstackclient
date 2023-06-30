@@ -1,0 +1,8 @@
+---
+features:
+  - |
+    Add ``default security group rule create``, ``default security group rule
+    delete``, ``default security group rule list`` and ``default security group
+    rule show`` commands to support Neutron Default Security Group Rule CRUD
+    operations.
+    [Bug `1983053 <https://bugs.launchpad.net/bugs/1983053>`_]

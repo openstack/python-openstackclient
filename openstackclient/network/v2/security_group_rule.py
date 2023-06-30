@@ -28,77 +28,12 @@ from openstackclient.network import utils as network_utils
 LOG = logging.getLogger(__name__)
 
 
-def _format_security_group_rule_show(obj):
-    data = network_utils.transform_compute_security_group_rule(obj)
-    return zip(*sorted(data.items()))
-
-
-def _format_network_port_range(rule):
-    # Display port range or ICMP type and code. For example:
-    # - ICMP type: 'type=3'
-    # - ICMP type and code: 'type=3:code=0'
-    # - ICMP code: Not supported
-    # - Matching port range: '443:443'
-    # - Different port range: '22:24'
-    # - Single port: '80:80'
-    # - No port range: ''
-    port_range = ''
-    if _is_icmp_protocol(rule['protocol']):
-        if rule['port_range_min']:
-            port_range += 'type=' + str(rule['port_range_min'])
-        if rule['port_range_max']:
-            port_range += ':code=' + str(rule['port_range_max'])
-    elif rule['port_range_min'] or rule['port_range_max']:
-        port_range_min = str(rule['port_range_min'])
-        port_range_max = str(rule['port_range_max'])
-        if rule['port_range_min'] is None:
-            port_range_min = port_range_max
-        if rule['port_range_max'] is None:
-            port_range_max = port_range_min
-        port_range = port_range_min + ':' + port_range_max
-    return port_range
-
-
-def _format_remote_ip_prefix(rule):
-    remote_ip_prefix = rule['remote_ip_prefix']
-    if remote_ip_prefix is None:
-        ethertype = rule['ether_type']
-        if ethertype == 'IPv4':
-            remote_ip_prefix = '0.0.0.0/0'
-        elif ethertype == 'IPv6':
-            remote_ip_prefix = '::/0'
-    return remote_ip_prefix
-
-
 def _get_columns(item):
     column_map = {}
     hidden_columns = ['location', 'tenant_id']
     return utils.get_osc_show_columns_for_sdk_resource(
         item, column_map, hidden_columns
     )
-
-
-def _convert_to_lowercase(string):
-    return string.lower()
-
-
-def _convert_ipvx_case(string):
-    if string.lower() == 'ipv4':
-        return 'IPv4'
-    if string.lower() == 'ipv6':
-        return 'IPv6'
-    return string
-
-
-def _is_icmp_protocol(protocol):
-    # NOTE(rtheis): Neutron has deprecated protocol icmpv6.
-    # However, while the OSC CLI doesn't document the protocol,
-    # the code must still handle it. In addition, handle both
-    # protocol names and numbers.
-    if protocol in ['icmp', 'icmpv6', 'ipv6-icmp', '1', '58']:
-        return True
-    else:
-        return False
 
 
 # TODO(abhiraut): Use the SDK resource mapped attribute names once the
@@ -188,7 +123,7 @@ class CreateSecurityGroupRule(
         protocol_group.add_argument(
             '--protocol',
             metavar='<protocol>',
-            type=_convert_to_lowercase,
+            type=network_utils.convert_to_lowercase,
             help=protocol_help,
             **proto_choices
         )
@@ -196,7 +131,7 @@ class CreateSecurityGroupRule(
             protocol_group.add_argument(
                 '--proto',
                 metavar='<proto>',
-                type=_convert_to_lowercase,
+                type=network_utils.convert_to_lowercase,
                 help=argparse.SUPPRESS,
                 **proto_choices
             )
@@ -246,7 +181,7 @@ class CreateSecurityGroupRule(
             '--ethertype',
             metavar='<ethertype>',
             choices=['IPv4', 'IPv6'],
-            type=_convert_ipvx_case,
+            type=network_utils.convert_ipvx_case,
             help=self.enhance_help_neutron(
                 _(
                     "Ethertype of network traffic "
@@ -264,38 +199,6 @@ class CreateSecurityGroupRule(
         )
         return parser
 
-    def _get_protocol(self, parsed_args, default_protocol='any'):
-        protocol = default_protocol
-        if parsed_args.protocol is not None:
-            protocol = parsed_args.protocol
-        if parsed_args.proto is not None:
-            protocol = parsed_args.proto
-        if protocol == 'any':
-            protocol = None
-        return protocol
-
-    def _get_ethertype(self, parsed_args, protocol):
-        ethertype = 'IPv4'
-        if parsed_args.ethertype is not None:
-            ethertype = parsed_args.ethertype
-        elif self._is_ipv6_protocol(protocol):
-            ethertype = 'IPv6'
-        return ethertype
-
-    def _is_ipv6_protocol(self, protocol):
-        # NOTE(rtheis): Neutron has deprecated protocol icmpv6.
-        # However, while the OSC CLI doesn't document the protocol,
-        # the code must still handle it. In addition, handle both
-        # protocol names and numbers.
-        if (
-            protocol is not None
-            and protocol.startswith('ipv6-')
-            or protocol in ['icmpv6', '41', '43', '44', '58', '59', '60']
-        ):
-            return True
-        else:
-            return False
-
     def take_action_network(self, client, parsed_args):
         # Get the security group ID to hold the rule.
         security_group_id = client.find_security_group(
@@ -304,7 +207,7 @@ class CreateSecurityGroupRule(
 
         # Build the create attributes.
         attrs = {}
-        attrs['protocol'] = self._get_protocol(parsed_args)
+        attrs['protocol'] = network_utils.get_protocol(parsed_args)
 
         if parsed_args.description is not None:
             attrs['description'] = parsed_args.description
@@ -318,7 +221,7 @@ class CreateSecurityGroupRule(
 
         # NOTE(rtheis): Use ethertype specified else default based
         # on IP protocol.
-        attrs['ethertype'] = self._get_ethertype(
+        attrs['ethertype'] = network_utils.get_ethertype(
             parsed_args, attrs['protocol']
         )
 
@@ -335,7 +238,7 @@ class CreateSecurityGroupRule(
         if parsed_args.icmp_type is None and parsed_args.icmp_code is not None:
             msg = _('Argument --icmp-type required with argument --icmp-code')
             raise exceptions.CommandError(msg)
-        is_icmp_protocol = _is_icmp_protocol(attrs['protocol'])
+        is_icmp_protocol = network_utils.is_icmp_protocol(attrs['protocol'])
         if not is_icmp_protocol and (
             parsed_args.icmp_type or parsed_args.icmp_code
         ):
@@ -390,7 +293,9 @@ class CreateSecurityGroupRule(
 
     def take_action_compute(self, client, parsed_args):
         group = client.api.security_group_find(parsed_args.group)
-        protocol = self._get_protocol(parsed_args, default_protocol='tcp')
+        protocol = network_utils.get_protocol(
+            parsed_args, default_protocol='tcp'
+        )
         if protocol == 'icmp':
             from_port, to_port = -1, -1
         else:
@@ -414,7 +319,7 @@ class CreateSecurityGroupRule(
             remote_ip=remote_ip,
             remote_group=parsed_args.remote_group,
         )
-        return _format_security_group_rule_show(obj)
+        return network_utils.format_security_group_rule_show(obj)
 
 
 class DeleteSecurityGroupRule(common.NetworkAndComputeDelete):
@@ -451,8 +356,8 @@ class ListSecurityGroupRule(common.NetworkAndComputeLister):
         Create port_range column from port_range_min and port_range_max
         """
         rule = rule.to_dict()
-        rule['port_range'] = _format_network_port_range(rule)
-        rule['remote_ip_prefix'] = _format_remote_ip_prefix(rule)
+        rule['port_range'] = network_utils.format_network_port_range(rule)
+        rule['remote_ip_prefix'] = network_utils.format_remote_ip_prefix(rule)
         return rule
 
     def update_parser_common(self, parser):
@@ -478,7 +383,7 @@ class ListSecurityGroupRule(common.NetworkAndComputeLister):
         parser.add_argument(
             '--protocol',
             metavar='<protocol>',
-            type=_convert_to_lowercase,
+            type=network_utils.convert_to_lowercase,
             help=self.enhance_help_neutron(
                 _(
                     "List rules by the IP protocol (ah, dhcp, egp, esp, gre, "
@@ -493,7 +398,7 @@ class ListSecurityGroupRule(common.NetworkAndComputeLister):
         parser.add_argument(
             '--ethertype',
             metavar='<ethertype>',
-            type=_convert_to_lowercase,
+            type=network_utils.convert_to_lowercase,
             help=self.enhance_help_neutron(
                 _("List rules by the Ethertype (IPv4 or IPv6)")
             ),
@@ -677,7 +582,9 @@ class ShowSecurityGroupRule(common.NetworkAndComputeShowOne):
         )
         # necessary for old rules that have None in this field
         if not obj['remote_ip_prefix']:
-            obj['remote_ip_prefix'] = _format_remote_ip_prefix(obj)
+            obj['remote_ip_prefix'] = network_utils.format_remote_ip_prefix(
+                obj
+            )
         display_columns, columns = _get_columns(obj)
         data = utils.get_item_properties(obj, columns)
         return (display_columns, data)
@@ -704,4 +611,4 @@ class ShowSecurityGroupRule(common.NetworkAndComputeShowOne):
             raise exceptions.CommandError(msg)
 
         # NOTE(rtheis): Format security group rule
-        return _format_security_group_rule_show(obj)
+        return network_utils.format_security_group_rule_show(obj)
