@@ -947,7 +947,7 @@ class TestProjectList(TestProject):
 class TestProjectSet(TestProject):
     domain = identity_fakes.FakeDomain.create_one_domain()
     project = identity_fakes.FakeProject.create_one_project(
-        attrs={'domain_id': domain.id}
+        attrs={'domain_id': domain.id, 'tags': ['tag1', 'tag2', 'tag3']}
     )
 
     def setUp(self):
@@ -1127,10 +1127,35 @@ class TestProjectSet(TestProject):
 
         result = self.cmd.take_action(parsed_args)
 
-        # Set expected values
-        kwargs = {'name': 'qwerty', 'tags': ['foo']}
+        # Set expected values. new tag is added to original tags for update.
+        kwargs = {
+            'name': 'qwerty',
+            'tags': list(set(['tag1', 'tag2', 'tag3', 'foo'])),
+        }
         # ProjectManager.update(project, name=, domain=, description=,
         #                       enabled=, **kwargs)
+        self.projects_mock.update.assert_called_with(self.project.id, **kwargs)
+        self.assertIsNone(result)
+
+    def test_project_remove_tags(self):
+        arglist = [
+            '--remove-tag',
+            'tag1',
+            '--remove-tag',
+            'tag2',
+            self.project.name,
+        ]
+        verifylist = [
+            ('enable', False),
+            ('disable', False),
+            ('project', self.project.name),
+            ('remove_tag', ['tag1', 'tag2']),
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        result = self.cmd.take_action(parsed_args)
+
+        kwargs = {'tags': list(set(['tag3']))}
         self.projects_mock.update.assert_called_with(self.project.id, **kwargs)
         self.assertIsNone(result)
 

@@ -113,6 +113,7 @@ def add_tag_option_to_parser_for_set(parser, resource_name):
     )
     parser.add_argument(
         '--remove-tag',
+        action='append',
         metavar='<tag>',
         default=[],
         help=_(
@@ -128,9 +129,7 @@ def update_tags_in_args(parsed_args, obj, args):
         args['tags'] = []
         obj.tags = []
     if parsed_args.remove_tag:
-        if parsed_args.remove_tag in obj.tags:
-            obj.tags.remove(parsed_args.remove_tag)
-        args['tags'] = list(set(obj.tags))
+        args['tags'] = list(set(obj.tags) - set(parsed_args.remove_tag))
         return
     if parsed_args.tags:
         args['tags'] = list(set(obj.tags).union(set(parsed_args.tags)))
