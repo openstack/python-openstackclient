@@ -75,7 +75,7 @@ class TestAddPortToRouter(TestRouter):
             self._router,
             **{
                 'port_id': self._router.port,
-            }
+            },
         )
         self.assertIsNone(result)
 
@@ -130,6 +130,7 @@ class TestAddSubnetToRouter(TestRouter):
 class TestCreateRouter(TestRouter):
     # The new router created.
     new_router = network_fakes.FakeRouter.create_one_router()
+    _extensions = {'fake': network_fakes.create_one_extension()}
 
     columns = (
         'admin_state_up',
@@ -169,7 +170,9 @@ class TestCreateRouter(TestRouter):
             return_value=self.new_router
         )
         self.network_client.set_tags = mock.Mock(return_value=None)
-
+        self.network_client.find_extension = mock.Mock(
+            side_effect=lambda name: self._extensions.get(name)
+        )
         # Get the command object to test
         self.cmd = router.CreateRouter(self.app, self.namespace)
 
@@ -228,7 +231,7 @@ class TestCreateRouter(TestRouter):
             ('enable', True),
             ('distributed', False),
             ('ha', False),
-            ('external_gateway', _network.name),
+            ('external_gateways', [_network.name]),
             ('enable_snat', True),
             ('fixed_ips', [{'ip-address': '2001:db8::1'}]),
         ]
@@ -1100,10 +1103,13 @@ class TestSetRouter(TestRouter):
     # The router to set.
     _default_route = {'destination': '10.20.20.0/24', 'nexthop': '10.20.30.1'}
     _network = network_fakes.create_one_network()
-    _subnet = network_fakes.FakeSubnet.create_one_subnet()
+    _subnet = network_fakes.FakeSubnet.create_one_subnet(
+        attrs={'network_id': _network.id}
+    )
     _router = network_fakes.FakeRouter.create_one_router(
         attrs={'routes': [_default_route], 'tags': ['green', 'red']}
     )
+    _extensions = {'fake': network_fakes.create_one_extension()}
 
     def setUp(self):
         super(TestSetRouter, self).setUp()
@@ -1114,7 +1120,9 @@ class TestSetRouter(TestRouter):
             return_value=self._network
         )
         self.network_client.find_subnet = mock.Mock(return_value=self._subnet)
-
+        self.network_client.find_extension = mock.Mock(
+            side_effect=lambda name: self._extensions.get(name)
+        )
         # Get the command object to test
         self.cmd = router.SetRouter(self.app, self.namespace)
 
@@ -1312,7 +1320,7 @@ class TestSetRouter(TestRouter):
             self._router.id,
         ]
         verifylist = [
-            ('external_gateway', self._network.id),
+            ('external_gateways', [self._network.id]),
             ('router', self._router.id),
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
@@ -1320,7 +1328,7 @@ class TestSetRouter(TestRouter):
         result = self.cmd.take_action(parsed_args)
         self.network_client.update_router.assert_called_with(
             self._router,
-            **{'external_gateway_info': {'network_id': self._network.id}}
+            **{'external_gateway_info': {'network_id': self._network.id}},
         )
         self.assertIsNone(result)
 
@@ -1335,7 +1343,7 @@ class TestSetRouter(TestRouter):
         ]
         verifylist = [
             ('router', self._router.id),
-            ('external_gateway', self._network.id),
+            ('external_gateways', [self._network.id]),
             ('fixed_ips', [{'subnet': "'abc'"}]),
             ('enable_snat', True),
         ]
@@ -1354,7 +1362,7 @@ class TestSetRouter(TestRouter):
                     ],
                     'enable_snat': True,
                 }
-            }
+            },
         )
         self.assertIsNone(result)
 
@@ -1369,7 +1377,7 @@ class TestSetRouter(TestRouter):
         ]
         verifylist = [
             ('router', self._router.id),
-            ('external_gateway', self._network.id),
+            ('external_gateways', [self._network.id]),
             ('fixed_ips', [{'ip-address': "10.0.1.1"}]),
             ('enable_snat', True),
         ]
@@ -1388,7 +1396,7 @@ class TestSetRouter(TestRouter):
                     ],
                     'enable_snat': True,
                 }
-            }
+            },
         )
         self.assertIsNone(result)
 
@@ -1403,7 +1411,7 @@ class TestSetRouter(TestRouter):
         ]
         verifylist = [
             ('router', self._router.id),
-            ('external_gateway', self._network.id),
+            ('external_gateways', [self._network.id]),
             ('fixed_ips', [{'subnet': "'abc'", 'ip-address': "10.0.1.1"}]),
             ('enable_snat', True),
         ]
@@ -1423,7 +1431,7 @@ class TestSetRouter(TestRouter):
                     ],
                     'enable_snat': True,
                 }
-            }
+            },
         )
         self.assertIsNone(result)
 
@@ -1468,7 +1476,7 @@ class TestSetRouter(TestRouter):
         ]
         verifylist = [
             ('router', self._router.id),
-            ('external_gateway', self._network.id),
+            ('external_gateways', [self._network.id]),
             ('qos_policy', qos_policy.id),
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
@@ -1481,7 +1489,7 @@ class TestSetRouter(TestRouter):
                     'network_id': self._network.id,
                     'qos_policy_id': qos_policy.id,
                 }
-            }
+            },
         )
         self.assertIsNone(result)
 
@@ -1494,7 +1502,7 @@ class TestSetRouter(TestRouter):
         ]
         verifylist = [
             ('router', self._router.id),
-            ('external_gateway', self._network.id),
+            ('external_gateways', [self._network.id]),
             ('no_qos_policy', True),
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
@@ -1507,7 +1515,7 @@ class TestSetRouter(TestRouter):
                     'network_id': self._network.id,
                     'qos_policy_id': None,
                 }
-            }
+            },
         )
         self.assertIsNone(result)
 
@@ -1526,7 +1534,7 @@ class TestSetRouter(TestRouter):
         ]
         verifylist = [
             ('router', self._router.id),
-            ('external_gateway', self._network.id),
+            ('external_gateways', [self._network.id]),
             ('qos_policy', qos_policy.id),
             ('no_qos_policy', True),
         ]
@@ -1747,6 +1755,13 @@ class TestUnsetRouter(TestRouter):
         )
         self.network_client.update_router = mock.Mock(return_value=None)
         self.network_client.set_tags = mock.Mock(return_value=None)
+        self._extensions = {'fake': network_fakes.create_one_extension()}
+        self.network_client.find_extension = mock.Mock(
+            side_effect=lambda name: self._extensions.get(name)
+        )
+        self.network_client.remove_external_gateways = mock.Mock(
+            return_value=None
+        )
         # Get the command object to test
         self.cmd = router.UnsetRouter(self.app, self.namespace)
 
@@ -1799,12 +1814,39 @@ class TestUnsetRouter(TestRouter):
             '--external-gateway',
             self._testrouter.name,
         ]
-        verifylist = [('external_gateway', True)]
+        verifylist = [('external_gateways', True)]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
         result = self.cmd.take_action(parsed_args)
         attrs = {'external_gateway_info': {}}
         self.network_client.update_router.assert_called_once_with(
             self._testrouter, **attrs
+        )
+        self.assertIsNone(result)
+
+    def test_unset_router_external_gateway_multiple_supported(self):
+        # Add the relevant extension in order to test the alternate behavior.
+        self._extensions = {
+            'external-gateway-multihoming': network_fakes.create_one_extension(
+                attrs={'name': 'external-gateway-multihoming'}
+            )
+        }
+        arglist = [
+            '--external-gateway',
+            self._testrouter.name,
+        ]
+        verifylist = [('external_gateways', True)]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+        result = self.cmd.take_action(parsed_args)
+        # The removal of all gateways should be requested using the multiple
+        # gateways API.
+        self.network_client.remove_external_gateways.assert_called_once_with(
+            self._testrouter, body={'router': {'external_gateways': {}}}
+        )
+        # The compatibility API will also be called in order to potentially
+        # unset other parameters along with external_gateway_info which
+        # should already be empty at that point anyway.
+        self.network_client.update_router.assert_called_once_with(
+            self._testrouter, **{'external_gateway_info': {}}
         )
         self.assertIsNone(result)
 
@@ -1891,6 +1933,542 @@ class TestUnsetRouter(TestRouter):
             ('router', router.id),
         ]
 
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+        self.assertRaises(
+            exceptions.CommandError, self.cmd.take_action, parsed_args
+        )
+
+
+class TestGatewayOps(TestRouter):
+    def setUp(self):
+        super().setUp()
+        self._networks = []
+        self._network = network_fakes.create_one_network()
+        self._networks.append(self._network)
+
+        self._router = network_fakes.FakeRouter.create_one_router(
+            {
+                'external_gateway_info': {
+                    'network_id': self._network.id,
+                },
+            }
+        )
+        self._subnet = network_fakes.FakeSubnet.create_one_subnet(
+            attrs={'network_id': self._network.id}
+        )
+        self._extensions = {
+            'external-gateway-multihoming': network_fakes.create_one_extension(
+                attrs={'name': 'external-gateway-multihoming'}
+            )
+        }
+        self.network_client.find_extension = mock.Mock(
+            side_effect=lambda name: self._extensions.get(name)
+        )
+        self.network_client.find_router = mock.Mock(return_value=self._router)
+
+        def _find_network(name_or_id, ignore_missing):
+            for network in self._networks:
+                if name_or_id in (network.id, network.name):
+                    return network
+            if ignore_missing:
+                return None
+            raise Exception('Test resource not found')
+
+        self.network_client.find_network = mock.Mock(side_effect=_find_network)
+
+        self.network_client.find_subnet = mock.Mock(return_value=self._subnet)
+        self.network_client.add_external_gateways = mock.Mock(
+            return_value=None
+        )
+        self.network_client.remove_external_gateways = mock.Mock(
+            return_value=None
+        )
+
+
+class TestCreateMultipleGateways(TestGatewayOps):
+    _columns = (
+        'admin_state_up',
+        'availability_zone_hints',
+        'availability_zones',
+        'description',
+        'distributed',
+        'external_gateway_info',
+        'ha',
+        'id',
+        'name',
+        'project_id',
+        'routes',
+        'status',
+        'tags',
+    )
+
+    def setUp(self):
+        super().setUp()
+        self._second_network = network_fakes.create_one_network()
+        self._networks.append(self._second_network)
+
+        self.network_client.create_router = mock.Mock(
+            return_value=self._router
+        )
+        self.network_client.update_router = mock.Mock(return_value=None)
+        self.network_client.update_external_gateways = mock.Mock(
+            return_value=None
+        )
+
+        self._data = (
+            router.AdminStateColumn(self._router.admin_state_up),
+            format_columns.ListColumn(self._router.availability_zone_hints),
+            format_columns.ListColumn(self._router.availability_zones),
+            self._router.description,
+            self._router.distributed,
+            router.RouterInfoColumn(self._router.external_gateway_info),
+            self._router.ha,
+            self._router.id,
+            self._router.name,
+            self._router.project_id,
+            router.RoutesColumn(self._router.routes),
+            self._router.status,
+            format_columns.ListColumn(self._router.tags),
+        )
+        self.cmd = router.CreateRouter(self.app, self.namespace)
+
+    def test_create_one_gateway(self):
+        arglist = [
+            "--external-gateway",
+            self._network.id,
+            self._router.name,
+        ]
+        verifylist = [
+            ('name', self._router.name),
+            ('external_gateways', [self._network.id]),
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        columns, data = self.cmd.take_action(parsed_args)
+        self.network_client.update_external_gateways.assert_called_with(
+            self._router,
+            body={
+                'router': {
+                    'external_gateways': [
+                        {
+                            'network_id': self._network.id,
+                        }
+                    ]
+                }
+            },
+        )
+        self.assertEqual(self._columns, columns)
+        self.assertCountEqual(self._data, data)
+
+    def test_create_multiple_gateways(self):
+        arglist = [
+            self._router.name,
+            "--external-gateway",
+            self._network.id,
+            "--external-gateway",
+            self._network.id,
+            "--external-gateway",
+            self._second_network.id,
+            '--fixed-ip',
+            'subnet={},ip-address=10.0.1.1'.format(self._subnet.id),
+            '--fixed-ip',
+            'subnet={},ip-address=10.0.1.2'.format(self._subnet.id),
+        ]
+        verifylist = [
+            ('name', self._router.name),
+            (
+                'external_gateways',
+                [self._network.id, self._network.id, self._second_network.id],
+            ),
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+        columns, data = self.cmd.take_action(parsed_args)
+
+        # The router will not have a gateway after the create call, but it
+        # will be added after the update call.
+        self.network_client.create_router.assert_called_once_with(
+            **{
+                'admin_state_up': True,
+                'name': self._router.name,
+            }
+        )
+        self.network_client.update_external_gateways.assert_called_with(
+            self._router,
+            body={
+                'router': {
+                    'external_gateways': [
+                        {
+                            'network_id': self._network.id,
+                            'external_fixed_ips': [
+                                {
+                                    'subnet_id': self._subnet.id,
+                                    'ip_address': '10.0.1.1',
+                                }
+                            ],
+                        },
+                        {
+                            'network_id': self._network.id,
+                            'external_fixed_ips': [
+                                {
+                                    'subnet_id': self._subnet.id,
+                                    'ip_address': '10.0.1.2',
+                                }
+                            ],
+                        },
+                        {
+                            'network_id': self._second_network.id,
+                        },
+                    ]
+                }
+            },
+        )
+        self.assertEqual(self._columns, columns)
+        self.assertCountEqual(self._data, data)
+
+
+class TestUpdateMultipleGateways(TestGatewayOps):
+    def setUp(self):
+        super().setUp()
+        self._second_network = network_fakes.create_one_network()
+        self._networks.append(self._second_network)
+
+        self.network_client.update_router = mock.Mock(return_value=None)
+        self.network_client.update_external_gateways = mock.Mock(
+            return_value=None
+        )
+        self.cmd = router.SetRouter(self.app, self.namespace)
+
+    def test_update_one_gateway(self):
+        arglist = [
+            "--external-gateway",
+            self._network.id,
+            "--no-qos-policy",
+            self._router.name,
+        ]
+        verifylist = [
+            ('router', self._router.name),
+            ('external_gateways', [self._network.id]),
+            ('no_qos_policy', True),
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+        result = self.cmd.take_action(parsed_args)
+        self.network_client.update_external_gateways.assert_called_with(
+            self._router,
+            body={
+                'router': {
+                    'external_gateways': [
+                        {'network_id': self._network.id, 'qos_policy_id': None}
+                    ]
+                }
+            },
+        )
+        self.assertIsNone(result)
+
+    def test_update_multiple_gateways(self):
+        arglist = [
+            self._router.name,
+            "--external-gateway",
+            self._network.id,
+            "--external-gateway",
+            self._network.id,
+            "--external-gateway",
+            self._second_network.id,
+            '--fixed-ip',
+            'subnet={},ip-address=10.0.1.1'.format(self._subnet.id),
+            '--fixed-ip',
+            'subnet={},ip-address=10.0.1.2'.format(self._subnet.id),
+            "--no-qos-policy",
+        ]
+        verifylist = [
+            ('router', self._router.name),
+            (
+                'external_gateways',
+                [self._network.id, self._network.id, self._second_network.id],
+            ),
+            ('no_qos_policy', True),
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+        result = self.cmd.take_action(parsed_args)
+        self.network_client.update_external_gateways.assert_called_with(
+            self._router,
+            body={
+                'router': {
+                    'external_gateways': [
+                        {
+                            'network_id': self._network.id,
+                            'external_fixed_ips': [
+                                {
+                                    'subnet_id': self._subnet.id,
+                                    'ip_address': '10.0.1.1',
+                                }
+                            ],
+                            'qos_policy_id': None,
+                        },
+                        {
+                            'network_id': self._network.id,
+                            'external_fixed_ips': [
+                                {
+                                    'subnet_id': self._subnet.id,
+                                    'ip_address': '10.0.1.2',
+                                }
+                            ],
+                            'qos_policy_id': None,
+                        },
+                        {
+                            'network_id': self._second_network.id,
+                            'qos_policy_id': None,
+                        },
+                    ]
+                }
+            },
+        )
+        self.assertIsNone(result)
+
+
+class TestAddGatewayRouter(TestGatewayOps):
+    def setUp(self):
+        super().setUp()
+        # Get the command object to test
+        self.cmd = router.AddGatewayToRouter(self.app, self.namespace)
+
+        self.network_client.add_external_gateways.return_value = self._router
+
+    def test_add_gateway_network_only(self):
+        arglist = [
+            self._router.name,
+            self._network.id,
+        ]
+        verifylist = [
+            ('router', self._router.name),
+            ('external_gateways', [self._network.id]),
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+        result = self.cmd.take_action(parsed_args)
+        self.network_client.add_external_gateways.assert_called_with(
+            self._router,
+            body={
+                'router': {
+                    'external_gateways': [{'network_id': self._network.id}]
+                }
+            },
+        )
+        self.assertEqual(result[1][result[0].index('id')], self._router.id)
+
+    def test_add_gateway_network_fixed_ip(self):
+        arglist = [
+            self._router.name,
+            self._network.id,
+            '--fixed-ip',
+            'subnet={},ip-address=10.0.1.1'.format(self._subnet.id),
+        ]
+        verifylist = [
+            ('router', self._router.name),
+            ('external_gateways', [self._network.id]),
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+        result = self.cmd.take_action(parsed_args)
+        self.network_client.add_external_gateways.assert_called_with(
+            self._router,
+            body={
+                'router': {
+                    'external_gateways': [
+                        {
+                            'network_id': self._network.id,
+                            'external_fixed_ips': [
+                                {
+                                    'subnet_id': self._subnet.id,
+                                    'ip_address': '10.0.1.1',
+                                }
+                            ],
+                        }
+                    ]
+                }
+            },
+        )
+        self.assertEqual(result[1][result[0].index('id')], self._router.id)
+
+    def test_add_gateway_network_multiple_fixed_ips(self):
+        arglist = [
+            self._router.name,
+            self._network.id,
+            '--fixed-ip',
+            'subnet={},ip-address=10.0.1.1'.format(self._subnet.id),
+            '--fixed-ip',
+            'subnet={},ip-address=10.0.1.2'.format(self._subnet.id),
+        ]
+        verifylist = [
+            ('router', self._router.name),
+            ('external_gateways', [self._network.id]),
+            (
+                'fixed_ips',
+                [
+                    {'ip-address': '10.0.1.1', 'subnet': self._subnet.id},
+                    {'ip-address': '10.0.1.2', 'subnet': self._subnet.id},
+                ],
+            ),
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+        result = self.cmd.take_action(parsed_args)
+        self.network_client.add_external_gateways.assert_called_with(
+            self._router,
+            body={
+                'router': {
+                    'external_gateways': [
+                        {
+                            'network_id': self._network.id,
+                            'external_fixed_ips': [
+                                {
+                                    'subnet_id': self._subnet.id,
+                                    'ip_address': '10.0.1.1',
+                                },
+                                {
+                                    'subnet_id': self._subnet.id,
+                                    'ip_address': '10.0.1.2',
+                                },
+                            ],
+                        }
+                    ]
+                }
+            },
+        )
+        self.assertEqual(result[1][result[0].index('id')], self._router.id)
+
+    def test_add_gateway_network_only_no_extension(self):
+        self._extensions = {}
+        arglist = [
+            self._router.name,
+            self._network.id,
+        ]
+        verifylist = [
+            ('router', self._router.name),
+            ('external_gateways', [self._network.id]),
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+        self.assertRaises(
+            exceptions.CommandError, self.cmd.take_action, parsed_args
+        )
+
+
+class TestRemoveGatewayRouter(TestGatewayOps):
+    def setUp(self):
+        super().setUp()
+        # Get the command object to test
+        self.cmd = router.RemoveGatewayFromRouter(self.app, self.namespace)
+
+        self.network_client.remove_external_gateways.return_value = (
+            self._router
+        )
+
+    def test_remove_gateway_network_only(self):
+        arglist = [
+            self._router.name,
+            self._network.id,
+        ]
+        verifylist = [
+            ('router', self._router.name),
+            ('external_gateways', [self._network.id]),
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+        result = self.cmd.take_action(parsed_args)
+        self.network_client.remove_external_gateways.assert_called_with(
+            self._router,
+            body={
+                'router': {
+                    'external_gateways': [{'network_id': self._network.id}]
+                }
+            },
+        )
+        self.assertEqual(result[1][result[0].index('id')], self._router.id)
+
+    def test_remove_gateway_network_fixed_ip(self):
+        arglist = [
+            self._router.name,
+            self._network.id,
+            '--fixed-ip',
+            'subnet={},ip-address=10.0.1.1'.format(self._subnet.id),
+        ]
+        verifylist = [
+            ('router', self._router.name),
+            ('external_gateways', [self._network.id]),
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+        result = self.cmd.take_action(parsed_args)
+        self.network_client.remove_external_gateways.assert_called_with(
+            self._router,
+            body={
+                'router': {
+                    'external_gateways': [
+                        {
+                            'network_id': self._network.id,
+                            'external_fixed_ips': [
+                                {
+                                    'subnet_id': self._subnet.id,
+                                    'ip_address': '10.0.1.1',
+                                }
+                            ],
+                        }
+                    ]
+                }
+            },
+        )
+        self.assertEqual(result[1][result[0].index('id')], self._router.id)
+
+    def test_remove_gateway_network_multiple_fixed_ips(self):
+        arglist = [
+            self._router.name,
+            self._network.id,
+            '--fixed-ip',
+            'subnet={},ip-address=10.0.1.1'.format(self._subnet.id),
+            '--fixed-ip',
+            'subnet={},ip-address=10.0.1.2'.format(self._subnet.id),
+        ]
+        verifylist = [
+            ('router', self._router.name),
+            ('external_gateways', [self._network.id]),
+            (
+                'fixed_ips',
+                [
+                    {'ip-address': '10.0.1.1', 'subnet': self._subnet.id},
+                    {'ip-address': '10.0.1.2', 'subnet': self._subnet.id},
+                ],
+            ),
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+        result = self.cmd.take_action(parsed_args)
+        self.network_client.remove_external_gateways.assert_called_with(
+            self._router,
+            body={
+                'router': {
+                    'external_gateways': [
+                        {
+                            'network_id': self._network.id,
+                            'external_fixed_ips': [
+                                {
+                                    'subnet_id': self._subnet.id,
+                                    'ip_address': '10.0.1.1',
+                                },
+                                {
+                                    'subnet_id': self._subnet.id,
+                                    'ip_address': '10.0.1.2',
+                                },
+                            ],
+                        }
+                    ]
+                }
+            },
+        )
+        self.assertEqual(result[1][result[0].index('id')], self._router.id)
+
+    def test_remove_gateway_network_only_no_extension(self):
+        self._extensions = {}
+        arglist = [
+            self._router.name,
+            self._network.id,
+        ]
+        verifylist = [
+            ('router', self._router.name),
+            ('external_gateways', [self._network.id]),
+        ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
         self.assertRaises(
             exceptions.CommandError, self.cmd.take_action, parsed_args
