@@ -145,5 +145,224 @@ credentials.
 This is useful in a Federated environment where one credential give access
 to many applications/services that the Federation supports. To check how to
 configure the OpenStackClient to allow Federated users to log in, please check
-the
-:ref:`Authentication using federation. <manpage>`
+the :ref:`Authentication using federation. <manpage>`
+
+Examples
+--------
+
+.. todo: It would be nice to add more examples here, particularly for
+   complicated things like oauth2
+
+``v3password``
+~~~~~~~~~~~~~~
+
+Using ``clouds.yaml``:
+
+.. code-block:: yaml
+
+    clouds:
+      demo:
+        auth:
+          auth_url: http://openstack.dev/identity
+          project_name: demo
+          project_domain_name: default
+          user_domain_name: default
+          username: demo
+          password: password
+        auth_type: v3password
+
+or, using command line options:
+
+.. code-block:: bash
+
+    $ openstack \
+      --os-auth-url "http://openstack.dev/identity" \
+      --os-project-name demo \
+      --os-project-domain-name default \
+      --os-user-domain-name default \
+      --os-auth-type=v3password \
+      --os-username demo \
+      --os-password password \
+      server list
+
+or, using environment variables:
+
+.. code-block:: bash
+
+    $ export OS_AUTH_URL="http://openstack.dev/identity"
+    $ export OS_PROJECT_NAME=demo
+    $ export OS_PROJECT_DOMAIN_NAME=default
+    $ export OS_AUTH_TYPE=v3password
+    $ export OS_USERNAME=demo
+    $ export OS_PASSWORD=password
+    $ openstack server list
+
+.. note::
+
+    If a password is not provided, you will be prompted for one.
+
+``v3applicationcredential``
+~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Using ``clouds.yaml``:
+
+.. code-block:: yaml
+
+    clouds:
+      demo:
+        auth:
+          auth_url: http://openstack.dev/identity
+          application_credential_id: ${APP_CRED_ID}
+          application_credential_secret: ${APP_CRED_SECRET}
+        auth_type: v3applicationcredential
+
+or, using command line options:
+
+.. code-block:: bash
+
+    $ openstack \
+      --os-auth-url "http://openstack.dev/identity" \
+      --os-auth-type=v3applicationcredential \
+      --os-application-credential-id=${APP_CRED_ID} \
+      --os-application-credential-secret=${APP_CRED_SECRET}
+      server list
+
+or, using environment variables:
+
+.. code-block:: bash
+
+    $ export OS_AUTH_URL="http://openstack.dev/identity"
+    $ export OS_AUTH_TYPE=v3applicationcredential
+    $ export OS_APPLICATION_CREDENTIAL_ID=${APP_CRED_ID}
+    $ export OS_APPLICATION_CREDENTIAL_SECRET=${APP_CRED_SECRET}
+    $ openstack server list
+
+.. note::
+
+    You can generate application credentials using the :program:`openstack
+    application credential create` command:
+
+    .. code-block:: bash
+
+       $ readarray -t lines <<< $(openstack application credential create test -f value -c id -c secret)
+       $ APP_CRED_ID=${lines[0]}
+       $ APP_CRED_SECRET=${lines[1]}
+
+``v3token``
+~~~~~~~~~~~
+
+Using ``clouds.yaml``:
+
+.. code-block:: yaml
+
+    clouds:
+      demo:
+        auth:
+          auth_url: http://openstack.dev/identity
+          project_name: demo
+          project_domain_name: default
+          token: ${TOKEN}
+        auth_type: v3token
+
+or, using command line options:
+
+.. code-block:: bash
+
+    $ openstack \
+      --os-auth-url "http://openstack.dev/identity" \
+      --os-project-name demo \
+      --os-project-domain-name default \
+      --os-auth-type=v3token \
+      --os-token ${TOKEN} \
+      server list
+
+or, using environment variables:
+
+.. code-block:: bash
+
+    $ export OS_AUTH_URL="http://openstack.dev/identity"
+    $ export OS_PROJECT_NAME=demo
+    $ export OS_PROJECT_DOMAIN_NAME=default
+    $ export OS_AUTH_TYPE=v3token
+    $ export OS_TOKEN=${TOKEN}
+    $ openstack server list
+
+.. note::
+
+    You can generate tokens using the :program:`openstack token issue` command:
+
+    .. code-block:: bash
+
+       $ TOKEN=$(openstack token issue -f value -c id)
+
+``v3totp``
+~~~~~~~~~~
+
+.. note::
+
+    The TOTP mechanism is poorly suited to command line-driven API
+    interactions. Where the TOTP mechanism is configured for a cloud, it is
+    expected that it is to be used for initial authentication and to create a
+    token or application credential, which can then be used for future
+    interactions.
+
+.. note::
+
+    The TOTP mechanism is often combined with other mechanisms to enable
+    Multi-Factor Authentication, or MFA. The authentication type
+    ``v3multifactor`` is used in this case, while the ``v3totp`` authentication
+    type is specified alongside the other mechanisms in ``auth_methods``.
+
+Using ``clouds.yaml``:
+
+.. code-block:: yaml
+
+    clouds:
+      demo:
+        auth:
+          auth_url: http://openstack.dev/identity
+          project_name: demo
+          project_domain_name: default
+          user_domain_name: default
+          username: demo
+          passcode: ${PASSCODE}
+        auth_type: v3totp
+
+or, using command line options:
+
+.. code-block:: bash
+
+    $ openstack \
+      --os-auth-url "http://openstack.dev/identity" \
+      --os-project-name demo \
+      --os-project-domain-name default \
+      --os-user-domain-name default \
+      --os-auth-type=v3totp \
+      --os-username demo \
+      --os-passcode ${PASSCODE} \
+      server list
+
+or, using environment variables:
+
+.. code-block:: bash
+
+    $ export OS_AUTH_URL="http://openstack.dev/identity"
+    $ export OS_PROJECT_NAME=demo
+    $ export OS_PROJECT_DOMAIN_NAME=default
+    $ export OS_AUTH_TYPE=v3totp
+    $ export OS_USERNAME=demo
+    $ export OS_PASSCODE=${PASSCODE}
+    $ openstack server list
+
+.. note::
+
+    The passcode will be generated by an authenticator application such FreeOTP
+    or Google Authenticator. Refer to your cloud provider's documentation for
+    information on how to configure an authenticator application, or to the
+    `Keystone documentation`__ if you are configuring this for your own cloud.
+
+    .. __: https://docs.openstack.org/keystone/latest/admin/auth-totp.html
+
+.. note::
+
+    If a passcode is not provided, you will be prompted for one.
