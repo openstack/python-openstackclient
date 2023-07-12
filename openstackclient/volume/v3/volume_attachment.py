@@ -12,7 +12,7 @@
 
 import logging
 
-from cinderclient import api_versions
+from openstack import utils as sdk_utils
 from osc_lib.cli import format_columns
 from osc_lib.command import command
 from osc_lib import exceptions
@@ -170,10 +170,10 @@ class CreateVolumeAttachment(command.ShowOne):
         return parser
 
     def take_action(self, parsed_args):
-        volume_client = self.app.client_manager.volume
-        compute_client = self.app.client_manager.compute
+        volume_client = self.app.client_manager.sdk_connection.volume
+        compute_client = self.app.client_manager.sdk_connection.compute
 
-        if volume_client.api_version < api_versions.APIVersion('3.27'):
+        if not sdk_utils.supports_microversion(volume_client, '3.27'):
             msg = _(
                 "--os-volume-api-version 3.27 or greater is required to "
                 "support the 'volume attachment create' command"
@@ -181,7 +181,7 @@ class CreateVolumeAttachment(command.ShowOne):
             raise exceptions.CommandError(msg)
 
         if parsed_args.mode:
-            if volume_client.api_version < api_versions.APIVersion('3.54'):
+            if not sdk_utils.supports_microversion(volume_client, '3.54'):
                 msg = _(
                     "--os-volume-api-version 3.54 or greater is required to "
                     "support the '--mode' option"
@@ -218,17 +218,18 @@ class CreateVolumeAttachment(command.ShowOne):
                 )
                 raise exceptions.CommandError(msg)
 
-        volume = utils.find_resource(
-            volume_client.volumes,
-            parsed_args.volume,
+        volume = volume_client.find_volume(
+            parsed_args.volume, ignore_missing=False
         )
-        server = utils.find_resource(
-            compute_client.servers,
-            parsed_args.server,
+        server = compute_client.find_server(
+            parsed_args.server, ignore_missing=False
         )
 
-        attachment = volume_client.attachments.create(
-            volume.id, connector, server.id, parsed_args.mode
+        attachment = volume_client.create_attachment(
+            volume.id,
+            connector=connector,
+            instance=server.id,
+            mode=parsed_args.mode,
         )
 
         return _format_attachment(attachment)
@@ -256,16 +257,16 @@ class DeleteVolumeAttachment(command.Command):
         return parser
 
     def take_action(self, parsed_args):
-        volume_client = self.app.client_manager.volume
+        volume_client = self.app.client_manager.sdk_connection.volume
 
-        if volume_client.api_version < api_versions.APIVersion('3.27'):
+        if not sdk_utils.supports_microversion(volume_client, '3.27'):
             msg = _(
                 "--os-volume-api-version 3.27 or greater is required to "
                 "support the 'volume attachment delete' command"
             )
             raise exceptions.CommandError(msg)
 
-        volume_client.attachments.delete(parsed_args.attachment)
+        volume_client.delete_attachment(parsed_args.attachment)
 
 
 class SetVolumeAttachment(command.ShowOne):
@@ -330,9 +331,9 @@ class SetVolumeAttachment(command.ShowOne):
         return parser
 
     def take_action(self, parsed_args):
-        volume_client = self.app.client_manager.volume
+        volume_client = self.app.client_manager.sdk_connection.volume
 
-        if volume_client.api_version < api_versions.APIVersion('3.27'):
+        if not sdk_utils.supports_microversion(volume_client, '3.27'):
             msg = _(
                 "--os-volume-api-version 3.27 or greater is required to "
                 "support the 'volume attachment set' command"
@@ -349,8 +350,9 @@ class SetVolumeAttachment(command.ShowOne):
             'mountpoint': parsed_args.mountpoint,
         }
 
-        attachment = volume_client.attachments.update(
-            parsed_args.attachment, connector
+        attachment = volume_client.update_attachment(
+            parsed_args.attachment,
+            connector=connector,
         )
 
         return _format_attachment(attachment)
@@ -369,16 +371,16 @@ class CompleteVolumeAttachment(command.Command):
         return parser
 
     def take_action(self, parsed_args):
-        volume_client = self.app.client_manager.volume
+        volume_client = self.app.client_manager.sdk_connection.volume
 
-        if volume_client.api_version < api_versions.APIVersion('3.44'):
+        if not sdk_utils.supports_microversion(volume_client, '3.44'):
             msg = _(
                 "--os-volume-api-version 3.44 or greater is required to "
                 "support the 'volume attachment complete' command"
             )
             raise exceptions.CommandError(msg)
 
-        volume_client.attachments.complete(parsed_args.attachment)
+        volume_client.complete_attachment(parsed_args.attachment)
 
 
 class ListVolumeAttachment(command.Lister):
@@ -429,10 +431,10 @@ class ListVolumeAttachment(command.Lister):
         return parser
 
     def take_action(self, parsed_args):
-        volume_client = self.app.client_manager.volume
+        volume_client = self.app.client_manager.sdk_connection.volume
         identity_client = self.app.client_manager.identity
 
-        if volume_client.api_version < api_versions.APIVersion('3.27'):
+        if not sdk_utils.supports_microversion(volume_client, '3.27'):
             msg = _(
                 "--os-volume-api-version 3.27 or greater is required to "
                 "support the 'volume attachment list' command"
@@ -458,7 +460,7 @@ class ListVolumeAttachment(command.Lister):
         #     search_opts.update(shell_utils.extract_filters(AppendFilters.filters))
 
         # TODO(stephenfin): Implement sorting
-        attachments = volume_client.attachments.list(
+        attachments = volume_client.attachments(
             search_opts=search_opts,
             marker=parsed_args.marker,
             limit=parsed_args.limit,
@@ -496,15 +498,15 @@ class ShowVolumeAttachment(command.ShowOne):
         return parser
 
     def take_action(self, parsed_args):
-        volume_client = self.app.client_manager.volume
+        volume_client = self.app.client_manager.sdk_connection.volume
 
-        if volume_client.api_version < api_versions.APIVersion('3.27'):
+        if not sdk_utils.supports_microversion(volume_client, '3.27'):
             msg = _(
                 "--os-volume-api-version 3.27 or greater is required to "
                 "support the 'volume attachment show' command"
             )
             raise exceptions.CommandError(msg)
 
-        attachment = volume_client.attachments.show(parsed_args.attachment)
+        attachment = volume_client.get_attachment(parsed_args.attachment)
 
         return _format_attachment(attachment)

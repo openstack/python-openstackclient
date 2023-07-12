@@ -23,22 +23,12 @@ class TestVolumeAttachment(volume_fakes.TestVolume):
     def setUp(self):
         super().setUp()
 
-        self.volumes_mock = self.volume_client.volumes
-        self.volumes_mock.reset_mock()
-
-        self.volume_attachments_mock = self.volume_client.attachments
-        self.volume_attachments_mock.reset_mock()
-
-        self.projects_mock = self.identity_client.projects
-        self.projects_mock.reset_mock()
-
-        self.servers_mock = self.compute_client.servers
-        self.servers_mock.reset_mock()
+        self.projects_mock = self.app.client_manager.identity.projects
 
 
 class TestVolumeAttachmentCreate(TestVolumeAttachment):
     volume = volume_fakes.create_one_volume()
-    server = compute_fakes.create_one_server()
+    server = compute_fakes.create_one_sdk_server()
     volume_attachment = volume_fakes.create_one_volume_attachment(
         attrs={'instance': server.id, 'volume_id': volume.id},
     )
@@ -67,12 +57,11 @@ class TestVolumeAttachmentCreate(TestVolumeAttachment):
     def setUp(self):
         super().setUp()
 
-        self.volumes_mock.get.return_value = self.volume
-        self.servers_mock.get.return_value = self.server
-        # VolumeAttachmentManager.create returns a dict
-        self.volume_attachments_mock.create.return_value = (
+        self.volume_sdk_client.find_volume.return_value = self.volume
+        self.volume_sdk_client.create_attachment.return_value = (
             self.volume_attachment.to_dict()
         )
+        self.compute_sdk_client.find_server.return_value = self.server
 
         self.cmd = volume_attachment.CreateVolumeAttachment(self.app, None)
 
@@ -100,13 +89,17 @@ class TestVolumeAttachmentCreate(TestVolumeAttachment):
 
         columns, data = self.cmd.take_action(parsed_args)
 
-        self.volumes_mock.get.assert_called_once_with(self.volume.id)
-        self.servers_mock.get.assert_called_once_with(self.server.id)
-        self.volume_attachments_mock.create.assert_called_once_with(
+        self.volume_sdk_client.find_volume.assert_called_once_with(
+            self.volume.id, ignore_missing=False
+        )
+        self.compute_sdk_client.find_server.assert_called_once_with(
+            self.server.id, ignore_missing=False
+        )
+        self.volume_sdk_client.create_attachment.assert_called_once_with(
             self.volume.id,
-            {},
-            self.server.id,
-            None,
+            connector={},
+            instance=self.server.id,
+            mode=None,
         )
         self.assertEqual(self.columns, columns)
         self.assertCountEqual(self.data, data)
@@ -163,13 +156,17 @@ class TestVolumeAttachmentCreate(TestVolumeAttachment):
             ]
         )
 
-        self.volumes_mock.get.assert_called_once_with(self.volume.id)
-        self.servers_mock.get.assert_called_once_with(self.server.id)
-        self.volume_attachments_mock.create.assert_called_once_with(
+        self.volume_sdk_client.find_volume.assert_called_once_with(
+            self.volume.id, ignore_missing=False
+        )
+        self.compute_sdk_client.find_server.assert_called_once_with(
+            self.server.id, ignore_missing=False
+        )
+        self.volume_sdk_client.create_attachment.assert_called_once_with(
             self.volume.id,
-            connect_info,
-            self.server.id,
-            'null',
+            connector=connect_info,
+            instance=self.server.id,
+            mode='null',
         )
         self.assertEqual(self.columns, columns)
         self.assertCountEqual(self.data, data)
@@ -248,7 +245,7 @@ class TestVolumeAttachmentDelete(TestVolumeAttachment):
     def setUp(self):
         super().setUp()
 
-        self.volume_attachments_mock.delete.return_value = None
+        self.volume_sdk_client.delete_attachment.return_value = None
 
         self.cmd = volume_attachment.DeleteVolumeAttachment(self.app, None)
 
@@ -265,7 +262,7 @@ class TestVolumeAttachmentDelete(TestVolumeAttachment):
 
         result = self.cmd.take_action(parsed_args)
 
-        self.volume_attachments_mock.delete.assert_called_once_with(
+        self.volume_sdk_client.delete_attachment.assert_called_once_with(
             self.volume_attachment.id,
         )
         self.assertIsNone(result)
@@ -316,7 +313,7 @@ class TestVolumeAttachmentSet(TestVolumeAttachment):
     def setUp(self):
         super().setUp()
 
-        self.volume_attachments_mock.update.return_value = (
+        self.volume_sdk_client.update_attachment.return_value = (
             self.volume_attachment
         )
 
@@ -367,9 +364,9 @@ class TestVolumeAttachmentSet(TestVolumeAttachment):
             ]
         )
 
-        self.volume_attachments_mock.update.assert_called_once_with(
+        self.volume_sdk_client.update_attachment.assert_called_once_with(
             self.volume_attachment.id,
-            connect_info,
+            connector=connect_info,
         )
         self.assertEqual(self.columns, columns)
         self.assertCountEqual(self.data, data)
@@ -402,7 +399,7 @@ class TestVolumeAttachmentComplete(TestVolumeAttachment):
     def setUp(self):
         super().setUp()
 
-        self.volume_attachments_mock.complete.return_value = None
+        self.volume_sdk_client.complete_attachment.return_value = None
 
         self.cmd = volume_attachment.CompleteVolumeAttachment(self.app, None)
 
@@ -419,7 +416,7 @@ class TestVolumeAttachmentComplete(TestVolumeAttachment):
 
         result = self.cmd.take_action(parsed_args)
 
-        self.volume_attachments_mock.complete.assert_called_once_with(
+        self.volume_sdk_client.complete_attachment.assert_called_once_with(
             self.volume_attachment.id,
         )
         self.assertIsNone(result)
@@ -467,7 +464,7 @@ class TestVolumeAttachmentList(TestVolumeAttachment):
         super().setUp()
 
         self.projects_mock.get.return_value = self.project
-        self.volume_attachments_mock.list.return_value = (
+        self.volume_sdk_client.attachments.return_value = (
             self.volume_attachments
         )
 
@@ -489,7 +486,7 @@ class TestVolumeAttachmentList(TestVolumeAttachment):
 
         columns, data = self.cmd.take_action(parsed_args)
 
-        self.volume_attachments_mock.list.assert_called_once_with(
+        self.volume_sdk_client.attachments.assert_called_once_with(
             search_opts={
                 'all_tenants': False,
                 'project_id': None,
@@ -529,7 +526,7 @@ class TestVolumeAttachmentList(TestVolumeAttachment):
 
         columns, data = self.cmd.take_action(parsed_args)
 
-        self.volume_attachments_mock.list.assert_called_once_with(
+        self.volume_sdk_client.attachments.assert_called_once_with(
             search_opts={
                 'all_tenants': True,
                 'project_id': self.project.id,

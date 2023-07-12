@@ -24,6 +24,7 @@ from openstack.block_storage.v3 import backup as _backup
 from openstack.block_storage.v3 import extension as _extension
 from openstack.block_storage.v3 import resource_filter as _filters
 from openstack.block_storage.v3 import volume as _volume
+from openstack.compute.v2 import _proxy as _compute_proxy
 from openstack.image.v2 import _proxy as _image_proxy
 
 from openstackclient.tests.unit import fakes
@@ -129,16 +130,16 @@ class TestVolume(
     def setUp(self):
         super().setUp()
 
-        # avoid circular imports
-        from openstackclient.tests.unit.compute.v2 import (
-            fakes as compute_fakes,
+        # avoid circular imports by defining this manually rather than using
+        # openstackclient.tests.unit.compute.v2.fakes.FakeClientMixin
+        # TODO(stephenfin): Rename to 'compute_client' once all commands are
+        # migrated to SDK
+        self.app.client_manager.sdk_connection.compute = mock.Mock(
+            _compute_proxy.Proxy
         )
-
-        self.app.client_manager.compute = compute_fakes.FakeComputev2Client(
-            endpoint=fakes.AUTH_URL,
-            token=fakes.AUTH_TOKEN,
+        self.compute_sdk_client = (
+            self.app.client_manager.sdk_connection.compute
         )
-        self.compute_client = self.app.client_manager.compute
 
         # avoid circular imports by defining this manually rather than using
         # openstackclient.tests.unit.image.v2.fakes.FakeClientMixin

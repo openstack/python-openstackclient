@@ -1,0 +1,4 @@
+---
+features:
+  - |
+    Migrated volume attachment commands to SDK.
