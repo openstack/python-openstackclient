@@ -22,6 +22,7 @@ from openstack.block_storage.v3 import _proxy
 from openstack.block_storage.v3 import availability_zone as _availability_zone
 from openstack.block_storage.v3 import backup as _backup
 from openstack.block_storage.v3 import extension as _extension
+from openstack.block_storage.v3 import limits as _limits
 from openstack.block_storage.v3 import resource_filter as _filters
 from openstack.block_storage.v3 import volume as _volume
 from openstack.compute.v2 import _proxy as _compute_proxy
@@ -421,6 +422,58 @@ def create_one_encryption_volume_type(attrs=None):
         info=copy.deepcopy(encryption_info), loaded=True
     )
     return encryption_type
+
+
+def create_limits(attrs=None):
+    """Create a fake limits object."""
+    attrs = attrs or {}
+
+    limits_attrs = {
+        'absolute': {
+            'totalSnapshotsUsed': 1,
+            'maxTotalBackups': 10,
+            'maxTotalVolumeGigabytes': 1000,
+            'maxTotalSnapshots': 10,
+            'maxTotalBackupGigabytes': 1000,
+            'totalBackupGigabytesUsed': 0,
+            'maxTotalVolumes': 10,
+            'totalVolumesUsed': 4,
+            'totalBackupsUsed': 0,
+            'totalGigabytesUsed': 35,
+        },
+        'rate': [
+            {
+                "uri": "*",
+                "limit": [
+                    {
+                        "value": 10,
+                        "verb": "POST",
+                        "remaining": 2,
+                        "unit": "MINUTE",
+                        "next-available": "2011-12-15T22:42:45Z",
+                    },
+                    {
+                        "value": 10,
+                        "verb": "PUT",
+                        "remaining": 2,
+                        "unit": "MINUTE",
+                        "next-available": "2011-12-15T22:42:45Z",
+                    },
+                    {
+                        "value": 100,
+                        "verb": "DELETE",
+                        "remaining": 100,
+                        "unit": "MINUTE",
+                        "next-available": "2011-12-15T22:42:45Z",
+                    },
+                ],
+            }
+        ],
+    }
+    limits_attrs.update(attrs)
+
+    limits = _limits.Limit(**limits_attrs)
+    return limits
 
 
 def create_one_resource_filter(attrs=None):

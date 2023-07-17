@@ -24,6 +24,31 @@ from openstackclient.i18n import _
 from openstackclient.identity import common as identity_common
 
 
+def _format_absolute_limit(absolute_limits):
+    info = {}
+
+    for key in set(absolute_limits):
+        if key in ('id', 'name', 'location'):
+            continue
+
+        info[key] = absolute_limits[key]
+
+    return info
+
+
+def _format_rate_limit(rate_limits):
+    # flatten this:
+    #
+    #   {'uri': '<uri>', 'limit': [{'value': '<value>', ...], ...}
+    #
+    # to this:
+    #
+    #   {'uri': '<uri>', 'value': '<value>', ...}, ...}
+    return itertools.chain(
+        *[[{'uri': x['uri'], **y} for y in x['limit']] for x in rate_limits]
+    )
+
+
 class ShowLimits(command.Lister):
     _description = _("Show compute and block storage limits")
 
@@ -42,36 +67,42 @@ class ShowLimits(command.Lister):
             dest="is_rate",
             action="store_true",
             default=False,
-            help=_("Show rate limits"),
+            help=_(
+                'Show rate limits. This is not supported by the compute '
+                'service since the 12.0.0 (Liberty) release and is only '
+                'supported by the block storage service when the '
+                'rate-limiting middleware is enabled. It is therefore a no-op '
+                'in most deployments.'
+            ),
         )
         parser.add_argument(
             "--reserved",
             dest="is_reserved",
             action="store_true",
             default=False,
-            help=_("Include reservations count [only valid with --absolute]"),
+            help=_("Include reservations count (only valid with --absolute)"),
         )
         parser.add_argument(
             '--project',
             metavar='<project>',
             help=_(
-                'Show limits for a specific project (name or ID)'
-                ' [only valid with --absolute]'
+                'Show limits for a specific project (name or ID) '
+                '(only valid with --absolute)'
             ),
         )
         parser.add_argument(
             '--domain',
             metavar='<domain>',
             help=_(
-                'Domain the project belongs to (name or ID)'
-                ' [only valid with --absolute]'
+                'Domain the project belongs to (name or ID) '
+                '(only valid with --absolute)'
             ),
         )
         return parser
 
     def take_action(self, parsed_args):
-        compute_client = self.app.client_manager.compute
-        volume_client = self.app.client_manager.volume
+        compute_client = self.app.client_manager.sdk_connection.compute
+        volume_client = self.app.client_manager.sdk_connection.volume
 
         project_id = None
         if parsed_args.project is not None:
@@ -94,33 +125,30 @@ class ShowLimits(command.Lister):
         volume_limits = None
 
         if self.app.client_manager.is_compute_endpoint_enabled():
-            compute_limits = compute_client.limits.get(
-                parsed_args.is_reserved, tenant_id=project_id
+            compute_limits = compute_client.get_limits(
+                reserved=parsed_args.is_reserved, tenant_id=project_id
             )
 
         if self.app.client_manager.is_volume_endpoint_enabled(volume_client):
-            volume_limits = volume_client.limits.get()
-
-        data = []
-        if parsed_args.is_absolute:
-            if compute_limits:
-                data.append(compute_limits.absolute)
-            if volume_limits:
-                data.append(volume_limits.absolute)
-            columns = ["Name", "Value"]
-            return (
-                columns,
-                (
-                    utils.get_item_properties(s, columns)
-                    for s in itertools.chain(*data)
-                ),
+            volume_limits = volume_client.get_limits(
+                project_id=project_id,
             )
 
-        elif parsed_args.is_rate:
+        if parsed_args.is_absolute:
+            columns = ["Name", "Value"]
+            info = {}
             if compute_limits:
-                data.append(compute_limits.rate)
+                info.update(_format_absolute_limit(compute_limits.absolute))
             if volume_limits:
-                data.append(volume_limits.rate)
+                info.update(_format_absolute_limit(volume_limits.absolute))
+
+            return (columns, sorted(info.items(), key=lambda x: x[0]))
+        else:  # parsed_args.is_rate
+            data = []
+            if compute_limits:
+                data.extend(_format_rate_limit(compute_limits.rate))
+            if volume_limits:
+                data.extend(_format_rate_limit(volume_limits.rate))
             columns = [
                 "Verb",
                 "URI",
@@ -129,12 +157,18 @@ class ShowLimits(command.Lister):
                 "Unit",
                 "Next Available",
             ]
+
             return (
                 columns,
-                (
-                    utils.get_item_properties(s, columns)
-                    for s in itertools.chain(*data)
-                ),
+                [
+                    (
+                        s['verb'],
+                        s['uri'],
+                        s['value'],
+                        s['remaining'],
+                        s['unit'],
+                        s.get('next-available') or s['next_available'],
+                    )
+                    for s in data
+                ],
             )
-        else:
-            return {}, {}
