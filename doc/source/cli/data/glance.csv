@@ -32,7 +32,7 @@ md-namespace-resource-type-list,image metadef resource type list,List resource t
 md-namespace-show,image metadef namespace show,Describe a specific metadata definitions namespace.
 md-namespace-tags-delete,,Delete all metadata definitions tags inside a specific namespace.
 md-namespace-update,,Update an existing metadata definitions namespace.
-md-object-create,,Create a new metadata definitions object inside a namespace.
+md-object-create,image metadef object create,Create a new metadata definitions object inside a namespace.
 md-object-delete,,Delete a specific metadata definitions object inside a namespace.
 md-object-list,,List metadata definitions objects inside a specific namespace.
 md-object-property-show,,Describe a specific metadata definitions property inside an object.
