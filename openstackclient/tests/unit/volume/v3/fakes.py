@@ -15,6 +15,7 @@ from unittest import mock
 import uuid
 
 from cinderclient import api_versions
+from openstack.block_storage.v3 import block_storage_summary as _summary
 
 from openstackclient.tests.unit.compute.v2 import fakes as compute_fakes
 from openstackclient.tests.unit import fakes
@@ -531,3 +532,14 @@ def create_snapshot_manage_list_records(count=2):
         )
 
     return snapshot_manage_list
+
+
+def get_one_block_storage_summary(total_size, metadata=None):
+    summary_dict = {
+        'total_count': 2,
+        'total_size': total_size,
+    }
+    if metadata:
+        summary_dict['metadata'] = metadata
+    block_storage_summary = _summary.BlockStorageSummary(**summary_dict)
+    return block_storage_summary
