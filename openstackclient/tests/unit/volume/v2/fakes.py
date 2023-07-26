@@ -18,6 +18,7 @@ from unittest import mock
 import uuid
 
 from cinderclient import api_versions
+from openstack.block_storage.v3 import backup as _backup
 from openstack.block_storage.v3 import volume
 from osc_lib.cli import format_columns
 
@@ -543,7 +544,17 @@ def create_one_backup(attrs=None):
 
     # Set default attributes.
     backup_info = {
+        "created_at": 'time-' + uuid.uuid4().hex,
+        "data_timestamp": 'time-' + uuid.uuid4().hex,
         "id": 'backup-id-' + uuid.uuid4().hex,
+        "encryption_key_id": None,
+        "fail_reason": "Service not found for creating backup.",
+        "has_dependent_backups": False,
+        "is_incremental": False,
+        "metadata": {},
+        "project_id": uuid.uuid4().hex,
+        "updated_at": 'time-' + uuid.uuid4().hex,
+        "user_id": uuid.uuid4().hex,
         "name": 'backup-name-' + uuid.uuid4().hex,
         "volume_id": 'volume-id-' + uuid.uuid4().hex,
         "snapshot_id": 'snapshot-id' + uuid.uuid4().hex,
@@ -558,7 +569,7 @@ def create_one_backup(attrs=None):
     # Overwrite default attributes.
     backup_info.update(attrs)
 
-    backup = fakes.FakeResource(info=copy.deepcopy(backup_info), loaded=True)
+    backup = _backup.Backup(**backup_info)
     return backup
 
 

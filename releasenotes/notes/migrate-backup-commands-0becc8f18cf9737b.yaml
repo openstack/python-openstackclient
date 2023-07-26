@@ -1,0 +1,10 @@
+---
+features:
+  - |
+    Migrated the following backup commands to SDK:
+
+    * Create Backup
+    * Show Backup
+    * List Backup
+    * Restore Backup
+    * Delete Backup
