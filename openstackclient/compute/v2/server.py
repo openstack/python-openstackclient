@@ -4017,6 +4017,13 @@ release the new server and restart the old one."""
                 compute_client.flavors,
                 parsed_args.flavor,
             )
+            if not server.image:
+                self.log.warning(
+                    _(
+                        "The root disk size in flavor will not be applied "
+                        "while booting from a persistent volume."
+                    )
+                )
             compute_client.servers.resize(server, flavor)
             if parsed_args.wait:
                 if utils.wait_for_status(
