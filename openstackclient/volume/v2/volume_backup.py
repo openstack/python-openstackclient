@@ -309,8 +309,22 @@ class ListVolumeBackup(command.Lister):
     def take_action(self, parsed_args):
         volume_client = self.app.client_manager.sdk_connection.volume
 
-        columns = ('id', 'name', 'description', 'status', 'size')
-        column_headers = ('ID', 'Name', 'Description', 'Status', 'Size')
+        columns = (
+            'id',
+            'name',
+            'description',
+            'status',
+            'size',
+            'is_incremental',
+        )
+        column_headers = (
+            'ID',
+            'Name',
+            'Description',
+            'Status',
+            'Size',
+            'Incremental',
+        )
         if parsed_args.long:
             columns += ('availability_zone', 'volume_id', 'container')
             column_headers += ('Availability Zone', 'Volume', 'Container')

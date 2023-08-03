@@ -520,6 +520,7 @@ def create_one_backup(attrs=None):
         "object_count": None,
         "container": 'container-' + uuid.uuid4().hex,
         "size": random.randint(1, 20),
+        "is_incremental": False,
         "status": "error",
         "availability_zone": 'zone' + uuid.uuid4().hex,
     }

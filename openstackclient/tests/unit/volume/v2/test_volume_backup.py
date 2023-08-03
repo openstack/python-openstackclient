@@ -356,6 +356,7 @@ class TestBackupList(TestBackup):
         'Description',
         'Status',
         'Size',
+        'Incremental',
     )
     columns_long = columns + (
         'Availability Zone',
@@ -372,6 +373,7 @@ class TestBackupList(TestBackup):
                 b.description,
                 b.status,
                 b.size,
+                b.is_incremental,
             )
         )
     data_long = []
@@ -383,6 +385,7 @@ class TestBackupList(TestBackup):
                 b.description,
                 b.status,
                 b.size,
+                b.is_incremental,
                 b.availability_zone,
                 volume_backup.VolumeIdColumn(b.volume_id),
                 b.container,
