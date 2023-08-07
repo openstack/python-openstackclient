@@ -60,6 +60,7 @@ class TestPort(network_fakes.TestNetworkV2):
             'dns_name',
             'extra_dhcp_opts',
             'fixed_ips',
+            'hints',
             'id',
             'ip_allocation',
             'mac_address',
@@ -99,6 +100,7 @@ class TestPort(network_fakes.TestNetworkV2):
             fake_port.dns_name,
             format_columns.ListDictColumn(fake_port.extra_dhcp_opts),
             format_columns.ListDictColumn(fake_port.fixed_ips),
+            fake_port.hints,
             fake_port.id,
             fake_port.ip_allocation,
             fake_port.mac_address,
@@ -928,6 +930,133 @@ class TestCreatePort(TestPort):
             'device_profile': 'cyborg_device_profile_1',
         }
         self.network.create_port.assert_called_once_with(**create_args)
+        self.assertEqual(set(self.columns), set(columns))
+        self.assertCountEqual(self.data, data)
+
+    def test_create_hints_invalid_json(self):
+        arglist = [
+            '--network',
+            self._port.network_id,
+            '--hint',
+            'invalid json',
+            'test-port',
+        ]
+        self.assertRaises(
+            argparse.ArgumentTypeError,
+            self.check_parser,
+            self.cmd,
+            arglist,
+            None,
+        )
+
+    def test_create_hints_invalid_alias(self):
+        arglist = [
+            '--network',
+            self._port.network_id,
+            '--hint',
+            'invalid-alias=value',
+            'test-port',
+        ]
+        verifylist = [
+            ('network', self._port.network_id),
+            ('enable', True),
+            ('hint', {'invalid-alias': 'value'}),
+            ('name', 'test-port'),
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        self.assertRaises(
+            argparse.ArgumentTypeError,
+            self.cmd.take_action,
+            parsed_args,
+        )
+
+    def test_create_hints_invalid_value(self):
+        arglist = [
+            '--network',
+            self._port.network_id,
+            '--hint',
+            'ovs-tx-steering=invalid-value',
+            'test-port',
+        ]
+        verifylist = [
+            ('network', self._port.network_id),
+            ('enable', True),
+            ('hint', {'ovs-tx-steering': 'invalid-value'}),
+            ('name', 'test-port'),
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        self.assertRaises(
+            argparse.ArgumentTypeError,
+            self.cmd.take_action,
+            parsed_args,
+        )
+
+    def test_create_hints_valid_alias_value(self):
+        arglist = [
+            '--network',
+            self._port.network_id,
+            '--hint',
+            'ovs-tx-steering=hash',
+            'test-port',
+        ]
+        verifylist = [
+            ('network', self._port.network_id),
+            ('enable', True),
+            ('hint', {'ovs-tx-steering': 'hash'}),
+            ('name', 'test-port'),
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        columns, data = self.cmd.take_action(parsed_args)
+
+        self.network.create_port.assert_called_once_with(
+            **{
+                'admin_state_up': True,
+                'network_id': self._port.network_id,
+                'hints': {
+                    'openvswitch': {'other_config': {'tx-steering': 'hash'}}
+                },
+                'name': 'test-port',
+            }
+        )
+
+        self.assertEqual(set(self.columns), set(columns))
+        self.assertCountEqual(self.data, data)
+
+    def test_create_hints_valid_json(self):
+        arglist = [
+            '--network',
+            self._port.network_id,
+            '--hint',
+            '{"openvswitch": {"other_config": {"tx-steering": "hash"}}}',
+            'test-port',
+        ]
+        verifylist = [
+            ('network', self._port.network_id),
+            ('enable', True),
+            (
+                'hint',
+                {"openvswitch": {"other_config": {"tx-steering": "hash"}}},
+            ),
+            ('name', 'test-port'),
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        columns, data = self.cmd.take_action(parsed_args)
+
+        self.network.create_port.assert_called_once_with(
+            **{
+                'admin_state_up': True,
+                'network_id': self._port.network_id,
+                'hints': {
+                    'openvswitch': {'other_config': {'tx-steering': 'hash'}}
+                },
+                'name': 'test-port',
+            }
+        )
+
         self.assertEqual(set(self.columns), set(columns))
         self.assertCountEqual(self.data, data)
 
@@ -2010,7 +2139,7 @@ class TestSetPort(TestPort):
             self._port,
             **{
                 'port_security_enabled': True,
-            }
+            },
         )
 
     def test_set_port_security_disabled(self):
@@ -2034,7 +2163,7 @@ class TestSetPort(TestPort):
             self._port,
             **{
                 'port_security_enabled': False,
-            }
+            },
         )
 
     def test_set_port_with_qos(self):
@@ -2154,6 +2283,115 @@ class TestSetPort(TestPort):
 
     def test_create_with_numa_affinity_policy_legacy(self):
         self._test_create_with_numa_affinity_policy('legacy')
+
+    def test_set_hints_invalid_json(self):
+        arglist = [
+            '--network',
+            self._port.network_id,
+            '--hint',
+            'invalid json',
+            'test-port',
+        ]
+        self.assertRaises(
+            argparse.ArgumentTypeError,
+            self.check_parser,
+            self.cmd,
+            arglist,
+            None,
+        )
+
+    def test_set_hints_invalid_alias(self):
+        arglist = [
+            '--hint',
+            'invalid-alias=value',
+            'test-port',
+        ]
+        verifylist = [
+            ('hint', {'invalid-alias': 'value'}),
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        self.assertRaises(
+            argparse.ArgumentTypeError,
+            self.cmd.take_action,
+            parsed_args,
+        )
+
+    def test_set_hints_invalid_value(self):
+        arglist = [
+            '--hint',
+            'ovs-tx-steering=invalid-value',
+            'test-port',
+        ]
+        verifylist = [
+            ('hint', {'ovs-tx-steering': 'invalid-value'}),
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        self.assertRaises(
+            argparse.ArgumentTypeError,
+            self.cmd.take_action,
+            parsed_args,
+        )
+
+    def test_set_hints_valid_alias_value(self):
+        testport = network_fakes.create_one_port()
+        self.network.find_port = mock.Mock(return_value=testport)
+        self.network.find_extension = mock.Mock(
+            return_value=['port-hints', 'port-hint-ovs-tx-steering']
+        )
+        arglist = [
+            '--hint',
+            'ovs-tx-steering=hash',
+            testport.name,
+        ]
+        verifylist = [
+            ('hint', {'ovs-tx-steering': 'hash'}),
+            ('port', testport.name),
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+        result = self.cmd.take_action(parsed_args)
+
+        self.network.update_port.assert_called_once_with(
+            testport,
+            **{
+                'hints': {
+                    'openvswitch': {'other_config': {'tx-steering': 'hash'}}
+                }
+            },
+        )
+        self.assertIsNone(result)
+
+    def test_set_hints_valid_json(self):
+        testport = network_fakes.create_one_port()
+        self.network.find_port = mock.Mock(return_value=testport)
+        self.network.find_extension = mock.Mock(
+            return_value=['port-hints', 'port-hint-ovs-tx-steering']
+        )
+        arglist = [
+            '--hint',
+            '{"openvswitch": {"other_config": {"tx-steering": "hash"}}}',
+            testport.name,
+        ]
+        verifylist = [
+            (
+                'hint',
+                {"openvswitch": {"other_config": {"tx-steering": "hash"}}},
+            ),
+            ('port', testport.name),
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+        result = self.cmd.take_action(parsed_args)
+
+        self.network.update_port.assert_called_once_with(
+            testport,
+            **{
+                'hints': {
+                    'openvswitch': {'other_config': {'tx-steering': 'hash'}}
+                }
+            },
+        )
+        self.assertIsNone(result)
 
 
 class TestShowPort(TestPort):
@@ -2473,4 +2711,24 @@ class TestUnsetPort(TestPort):
         }
 
         self.network.update_port.assert_called_once_with(_fake_port, **attrs)
+        self.assertIsNone(result)
+
+    def test_unset_hints(self):
+        testport = network_fakes.create_one_port()
+        self.network.find_port = mock.Mock(return_value=testport)
+        arglist = [
+            '--hints',
+            testport.name,
+        ]
+        verifylist = [
+            ('hints', True),
+            ('port', testport.name),
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+        result = self.cmd.take_action(parsed_args)
+
+        self.network.update_port.assert_called_once_with(
+            testport,
+            **{'hints': None},
+        )
         self.assertIsNone(result)
