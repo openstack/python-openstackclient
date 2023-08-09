@@ -1,0 +1,5 @@
+---
+features:
+  - |
+    Added ``image metadef resource type list`` command. This is equivalent to
+    the ``+md-namespace-resource-type-list`` command in glanceclient.
