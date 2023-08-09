@@ -520,7 +520,29 @@ class TestImageDelete(TestImage):
 
         result = self.cmd.take_action(parsed_args)
 
-        self.client.delete_image.assert_called_with(images[0].id)
+        self.client.delete_image.assert_called_with(
+            images[0].id, store=parsed_args.store, ignore_missing=False
+        )
+        self.assertIsNone(result)
+
+    def test_image_delete_from_store(self):
+        images = self.setup_images_mock(count=1)
+
+        arglist = [
+            images[0].id,
+            '--store',
+            'store1',
+        ]
+        verifylist = [('images', [images[0].id]), ('store', 'store1')]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        self.client.find_image.side_effect = images
+
+        result = self.cmd.take_action(parsed_args)
+
+        self.client.delete_image.assert_called_with(
+            images[0].id, store=parsed_args.store, ignore_missing=False
+        )
         self.assertIsNone(result)
 
     def test_image_delete_multi_images(self):
@@ -536,9 +558,32 @@ class TestImageDelete(TestImage):
 
         result = self.cmd.take_action(parsed_args)
 
-        calls = [mock.call(i.id) for i in images]
+        calls = [
+            mock.call(i.id, store=parsed_args.store, ignore_missing=False)
+            for i in images
+        ]
         self.client.delete_image.assert_has_calls(calls)
         self.assertIsNone(result)
+
+    def test_image_delete_from_store_without_multi_backend(self):
+        images = self.setup_images_mock(count=1)
+
+        arglist = [images[0].id, '--store', 'store1']
+        verifylist = [('images', [images[0].id]), ('store', 'store1')]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        self.client.find_image.side_effect = images
+
+        self.client.delete_image.side_effect = sdk_exceptions.ResourceNotFound
+        exc = self.assertRaises(
+            exceptions.CommandError,
+            self.cmd.take_action,
+            parsed_args,
+        )
+        self.assertIn(
+            "Multi Backend support not enabled",
+            str(exc),
+        )
 
     def test_image_delete_multi_images_exception(self):
         images = image_fakes.create_images(count=2)
@@ -562,7 +607,10 @@ class TestImageDelete(TestImage):
         self.assertRaises(
             exceptions.CommandError, self.cmd.take_action, parsed_args
         )
-        calls = [mock.call(i.id) for i in images]
+        calls = [
+            mock.call(i.id, store=parsed_args.store, ignore_missing=False)
+            for i in images
+        ]
         self.client.delete_image.assert_has_calls(calls)
 
 

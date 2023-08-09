@@ -18,7 +18,7 @@ image-tag-update,image set --tag <tag>,Update an image with the given tag.
 image-tasks,,Get tasks associated with image.
 image-update,image set,Update an existing image.
 image-upload,,Upload data for a specific image.
-import-info,,Print import methods available from Glance.
+import-info,image import info,Show available import methods from Glance.
 location-add,,Add a location (and related metadata) to an image.
 location-delete,,Remove locations (and related metadata) from an image.
 location-update,,Update metadata of an image's location.
@@ -57,7 +57,7 @@ member-delete,image remove project,Delete image member.
 member-get,,Show details of an image member
 member-list,image member list,Describe sharing permissions by image.
 member-update,image set --accept --reject --status,Update the status of a member for a given image.
-stores-delete,,Delete image from specific store.
+stores-delete,image delete --store,Delete image from specific store.
 stores-info,,Print available backends from Glance.
 task-create,WONTFIX,Create a new task.
 task-list,image task list,List tasks you can access.

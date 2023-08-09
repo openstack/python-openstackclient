@@ -1,0 +1,6 @@
+---
+features:
+  - |
+    Add ``image import info`` command, allowing users to know available import
+    methods, and `--store` option to ``image delete``, allowing users to delete
+    image from particular store.

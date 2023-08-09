@@ -41,6 +41,7 @@ class FakeImagev2Client:
         self.deactivate_image = mock.Mock()
         self.stage_image = mock.Mock()
         self.import_image = mock.Mock()
+        self.get_import_info = mock.Mock()
 
         self.members = mock.Mock()
         self.add_member = mock.Mock()
