@@ -108,6 +108,26 @@ class TestCreateSubnet(TestSubnet):
             }
         )
 
+        # An IPv6 subnet to be created with Prefix Delegation options specified
+        self._subnet_ipv6_pd = network_fakes.FakeSubnet.create_one_subnet(
+            attrs={
+                'project_id': self.project.id,
+                'cidr': '::/64',
+                'enable_dhcp': True,
+                'allocation_pools': [
+                    {
+                        'start': '::1',
+                        'end': '::ffff:ffff:ffff:ffff',
+                    },
+                ],
+                'ip_version': 6,
+                'gateway_ip': '::',
+                'ipv6_address_mode': 'slaac',
+                'ipv6_ra_mode': 'slaac',
+                'subnetpool_id': 'prefix_delegation',
+            }
+        )
+
         # The network to be returned from find_network
         self._network = network_fakes.create_one_network(
             attrs={
@@ -208,6 +228,29 @@ class TestCreateSubnet(TestSubnet):
             format_columns.ListColumn(self._subnet_ipv6.service_types),
             self._subnet_ipv6.subnetpool_id,
             format_columns.ListColumn(self._subnet_ipv6.tags),
+        )
+
+        self.data_ipv6_pd = (
+            subnet_v2.AllocationPoolsColumn(
+                self._subnet_ipv6_pd.allocation_pools
+            ),
+            self._subnet_ipv6_pd.cidr,
+            self._subnet_ipv6_pd.description,
+            format_columns.ListColumn(self._subnet_ipv6_pd.dns_nameservers),
+            self._subnet_ipv6_pd.enable_dhcp,
+            self._subnet_ipv6_pd.gateway_ip,
+            subnet_v2.HostRoutesColumn(self._subnet_ipv6_pd.host_routes),
+            self._subnet_ipv6_pd.id,
+            self._subnet_ipv6_pd.ip_version,
+            self._subnet_ipv6_pd.ipv6_address_mode,
+            self._subnet_ipv6_pd.ipv6_ra_mode,
+            self._subnet_ipv6_pd.name,
+            self._subnet_ipv6_pd.network_id,
+            self._subnet_ipv6_pd.project_id,
+            self._subnet_ipv6_pd.segment_id,
+            format_columns.ListColumn(self._subnet_ipv6_pd.service_types),
+            self._subnet_ipv6_pd.subnetpool_id,
+            format_columns.ListColumn(self._subnet_ipv6_pd.tags),
         )
 
     def setUp(self):
@@ -454,6 +497,55 @@ class TestCreateSubnet(TestSubnet):
         self.assertFalse(self.network_client.set_tags.called)
         self.assertEqual(self.columns, columns)
         self.assertCountEqual(self.data_ipv6, data)
+
+    def test_create_options_subnet_ipv6_pd(self):
+        # Mock SDK calls for this test.
+        self.network_client.create_subnet.return_value = self._subnet_ipv6_pd
+        self._network.id = self._subnet_ipv6_pd.network_id
+
+        arglist = [
+            self._subnet_ipv6_pd.name,
+            "--network",
+            self._subnet_ipv6_pd.network_id,
+            "--ip-version",
+            str(self._subnet_ipv6_pd.ip_version),
+            "--ipv6-ra-mode",
+            self._subnet_ipv6_pd.ipv6_ra_mode,
+            "--ipv6-address-mode",
+            self._subnet_ipv6_pd.ipv6_address_mode,
+            "--dhcp",
+            "--use-prefix-delegation",
+        ]
+
+        verifylist = [
+            ('name', self._subnet_ipv6_pd.name),
+            ('network', self._subnet_ipv6_pd.network_id),
+            ('ip_version', self._subnet_ipv6_pd.ip_version),
+            ('ipv6_ra_mode', self._subnet_ipv6_pd.ipv6_ra_mode),
+            ('ipv6_address_mode', self._subnet_ipv6_pd.ipv6_address_mode),
+            ('dhcp', self._subnet_ipv6_pd.enable_dhcp),
+            ('use_prefix_delegation', True),
+        ]
+
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+        columns, data = self.cmd.take_action(parsed_args)
+
+        # Calling with --use-prefix-delegation will set the subnetpool_id
+        # to 'prefix_delegation'
+        self.network_client.create_subnet.assert_called_once_with(
+            **{
+                'enable_dhcp': self._subnet_ipv6_pd.enable_dhcp,
+                'ip_version': self._subnet_ipv6_pd.ip_version,
+                'ipv6_address_mode': self._subnet_ipv6_pd.ipv6_address_mode,
+                'ipv6_ra_mode': self._subnet_ipv6_pd.ipv6_ra_mode,
+                'name': self._subnet_ipv6_pd.name,
+                'network_id': self._subnet_ipv6_pd.network_id,
+                'subnetpool_id': self._subnet_ipv6_pd.subnetpool_id,
+            }
+        )
+        self.assertFalse(self.network_client.set_tags.called)
+        self.assertEqual(self.columns, columns)
+        self.assertCountEqual(self.data_ipv6_pd, data)
 
     def test_create_with_network_segment(self):
         # Mock SDK calls for this test.

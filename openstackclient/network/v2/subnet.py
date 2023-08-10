@@ -306,6 +306,7 @@ class CreateSubnet(command.ShowOne, common.NeutronCommandWithExtraArgs):
         )
         subnet_pool_group.add_argument(
             '--use-prefix-delegation',
+            action='store_true',
             help=_(
                 "Use 'prefix-delegation' if IP is IPv6 format "
                 "and IP would be delegated externally"
