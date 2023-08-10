@@ -1356,14 +1356,26 @@ class CreateServer(command.ShowOne):
                 'This option requires cloud support.'
             ),
         )
-        parser.add_argument(
+        secgroups = parser.add_mutually_exclusive_group()
+        secgroups.add_argument(
+            '--no-security-group',
+            dest='security_groups',
+            action='store_const',
+            const=[],
+            help=_(
+                'Do not associate a security group with ports attached to '
+                'this server. This does not affect the security groups '
+                'associated with pre-existing ports.'
+            ),
+        )
+        secgroups.add_argument(
             '--security-group',
             metavar='<security-group>',
             action='append',
-            default=[],
             dest='security_groups',
             help=_(
-                'Security group to assign to this server (name or ID) '
+                'Security group to associate with ports attached to this '
+                'server (name or ID) '
                 '(repeat option to set multiple groups)'
             ),
         )
@@ -1980,22 +1992,24 @@ class CreateServer(command.ShowOne):
             networks = 'auto'
 
         # Check security group(s) exist and convert ID to name
-        security_groups = []
-        if self.app.client_manager.is_network_endpoint_enabled():
-            network_client = self.app.client_manager.network
-            for security_group in parsed_args.security_groups:
-                sg = network_client.find_security_group(
-                    security_group, ignore_missing=False
-                )
-                # Use security group ID to avoid multiple security group have
-                # same name in neutron networking backend
-                security_groups.append({'name': sg.id})
-        else:  # nova-network
-            for security_group in parsed_args.security_groups:
-                sg = compute_v2.find_security_group(
-                    compute_client, security_group
-                )
-                security_groups.append({'name': sg['name']})
+        security_groups = None
+        if parsed_args.security_groups is not None:
+            security_groups = []
+            if self.app.client_manager.is_network_endpoint_enabled():
+                network_client = self.app.client_manager.network
+                for security_group in parsed_args.security_groups:
+                    sg = network_client.find_security_group(
+                        security_group, ignore_missing=False
+                    )
+                    # Use security group ID to avoid multiple security group
+                    # have same name in neutron networking backend
+                    security_groups.append({'name': sg.id})
+            else:  # nova-network
+                for security_group in parsed_args.security_groups:
+                    sg = compute_v2.find_security_group(
+                        compute_client, security_group
+                    )
+                    security_groups.append({'name': sg['name']})
 
         hints = {}
         for key, values in parsed_args.hints.items():
@@ -2058,7 +2072,7 @@ class CreateServer(command.ShowOne):
         if files:
             kwargs['personality'] = files
 
-        if security_groups:
+        if security_groups is not None:
             kwargs['security_groups'] = security_groups
 
         if block_device_mapping_v2:

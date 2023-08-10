@@ -1,0 +1,7 @@
+---
+features:
+  - |
+    The ``server create`` command now supports a ``--no-security-group``
+    option. When provided, no security groups will be associated with ports
+    created and attached to the server during server creation. This does not
+    affect pre-created ports.

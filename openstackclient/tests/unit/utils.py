@@ -93,8 +93,14 @@ class TestCommand(TestCase):
                     f"Argument parse failed: {stderr.getvalue()}"
                 )
         for av in verify_args:
-            attr, value = av
+            attr, expected_value = av
             if attr:
+                actual_value = getattr(parsed_args, attr)
                 self.assertIn(attr, parsed_args)
-                self.assertEqual(value, getattr(parsed_args, attr))
+                self.assertEqual(
+                    expected_value,
+                    actual_value,
+                    f'args.{attr}: expected: {expected_value}, got: '
+                    f'{actual_value}',
+                )
         return parsed_args

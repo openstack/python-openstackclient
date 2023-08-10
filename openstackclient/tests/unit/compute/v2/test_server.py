@@ -1544,6 +1544,60 @@ class TestServerCreate(TestServer):
         self.assertEqual(self.columns, columns)
         self.assertEqual(self.datalist(), data)
 
+    def test_server_create_with_no_security_group(self):
+        arglist = [
+            '--image',
+            self.image.id,
+            '--flavor',
+            self.flavor.id,
+            '--no-security-group',
+            self.server.name,
+        ]
+        verifylist = [
+            ('image', self.image.id),
+            ('flavor', self.flavor.id),
+            ('key_name', None),
+            ('properties', None),
+            ('security_groups', []),
+            ('hints', {}),
+            ('server_group', None),
+            ('config_drive', False),
+            ('password', None),
+            ('server_name', self.server.name),
+        ]
+
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+        columns, data = self.cmd.take_action(parsed_args)
+
+        self.compute_sdk_client.find_flavor.assert_has_calls(
+            [mock.call(self.flavor.id, ignore_missing=False)] * 2
+        )
+        self.network_client.find_security_group.assert_not_called()
+        self.image_client.find_image.assert_called_once_with(
+            self.image.id, ignore_missing=False
+        )
+        self.compute_sdk_client.create_server.assert_called_once_with(
+            name=self.server.name,
+            image_id=self.image.id,
+            flavor_id=self.flavor.id,
+            min_count=1,
+            max_count=1,
+            security_groups=[],
+            networks=[],
+            block_device_mapping=[
+                {
+                    'uuid': self.image.id,
+                    'boot_index': 0,
+                    'source_type': 'image',
+                    'destination_type': 'local',
+                    'delete_on_termination': True,
+                },
+            ],
+        )
+
+        self.assertEqual(self.columns, columns)
+        self.assertEqual(self.datalist(), data)
+
     def test_server_create_with_network(self):
         network_net1 = network_fakes.create_one_network()
         network_net2 = network_fakes.create_one_network()
