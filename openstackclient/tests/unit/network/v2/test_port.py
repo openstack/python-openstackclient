@@ -332,7 +332,7 @@ class TestCreatePort(TestPort):
                 self._port.network_id,
             ),
             ('enable', True),
-            ('security_group', [secgroup.id]),
+            ('security_groups', [secgroup.id]),
             ('name', 'test-port'),
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
@@ -405,7 +405,7 @@ class TestCreatePort(TestPort):
                 self._port.network_id,
             ),
             ('enable', True),
-            ('security_group', [sg_1.id, sg_2.id]),
+            ('security_groups', [sg_1.id, sg_2.id]),
             ('name', 'test-port'),
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
@@ -434,7 +434,7 @@ class TestCreatePort(TestPort):
         verifylist = [
             ('network', self._port.network_id),
             ('enable', True),
-            ('no_security_group', True),
+            ('security_groups', []),
             ('name', 'test-port'),
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
@@ -2067,7 +2067,7 @@ class TestSetPort(TestPort):
             self._port.name,
         ]
         verifylist = [
-            ('security_group', [sg.id]),
+            ('security_groups', [sg.id]),
             ('port', self._port.name),
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
@@ -2100,7 +2100,7 @@ class TestSetPort(TestPort):
             _testport.name,
         ]
         verifylist = [
-            ('security_group', [sg_2.id, sg_3.id]),
+            ('security_groups', [sg_2.id, sg_3.id]),
             ('port', _testport.name),
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
@@ -2149,7 +2149,7 @@ class TestSetPort(TestPort):
             _testport.name,
         ]
         verifylist = [
-            ('security_group', [sg2.id]),
+            ('security_groups', [sg2.id]),
             ('no_security_group', True),
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
@@ -2770,7 +2770,7 @@ class TestUnsetPort(TestPort):
             _fake_port.name,
         ]
         verifylist = [
-            ('security_group_ids', [_fake_sg2.id]),
+            ('security_groups', [_fake_sg2.id]),
         ]
 
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
@@ -2797,7 +2797,7 @@ class TestUnsetPort(TestPort):
             _fake_port.name,
         ]
         verifylist = [
-            ('security_group_ids', [_fake_sg2.id]),
+            ('security_groups', [_fake_sg2.id]),
         ]
 
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)

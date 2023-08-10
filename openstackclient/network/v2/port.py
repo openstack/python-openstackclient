@@ -558,7 +558,7 @@ class CreatePort(command.ShowOne, common.NeutronCommandWithExtraArgs):
             '--security-group',
             metavar='<security-group>',
             action='append',
-            dest='security_group',
+            dest='security_groups',
             help=_(
                 "Security group to associate with this port (name or ID) "
                 "(repeat option to set multiple security groups)"
@@ -566,8 +566,9 @@ class CreatePort(command.ShowOne, common.NeutronCommandWithExtraArgs):
         )
         secgroups.add_argument(
             '--no-security-group',
-            dest='no_security_group',
-            action='store_true',
+            action='store_const',
+            const=[],
+            dest='security_groups',
             help=_("Associate no security groups with this port"),
         )
         parser.add_argument(
@@ -633,13 +634,11 @@ class CreatePort(command.ShowOne, common.NeutronCommandWithExtraArgs):
         elif parsed_args.no_fixed_ip:
             attrs['fixed_ips'] = []
 
-        if parsed_args.security_group:
+        if parsed_args.security_groups is not None:
             attrs['security_group_ids'] = [
                 client.find_security_group(sg, ignore_missing=False).id
-                for sg in parsed_args.security_group
+                for sg in parsed_args.security_groups
             ]
-        elif parsed_args.no_security_group:
-            attrs['security_group_ids'] = []
 
         if parsed_args.allowed_address_pairs:
             attrs['allowed_address_pairs'] = _convert_address_pairs(
@@ -1006,7 +1005,7 @@ class SetPort(common.NeutronCommandWithExtraArgs):
             '--security-group',
             metavar='<security-group>',
             action='append',
-            dest='security_group',
+            dest='security_groups',
             help=_(
                 "Security group to associate with this port (name or ID) "
                 "(repeat option to set multiple security groups)"
@@ -1107,7 +1106,7 @@ class SetPort(common.NeutronCommandWithExtraArgs):
 
         if parsed_args.no_security_group:
             attrs['security_group_ids'] = []
-        if parsed_args.security_group:
+        if parsed_args.security_groups:
             if 'security_group_ids' not in attrs:
                 # NOTE(dtroyer): Get existing security groups, iterate the
                 #                list to force a new list object to be
@@ -1118,7 +1117,7 @@ class SetPort(common.NeutronCommandWithExtraArgs):
                 ]
             attrs['security_group_ids'].extend(
                 client.find_security_group(sg, ignore_missing=False).id
-                for sg in parsed_args.security_group
+                for sg in parsed_args.security_groups
             )
 
         if parsed_args.no_allowed_address_pair:
@@ -1231,7 +1230,7 @@ class UnsetPort(common.NeutronUnsetCommandWithExtraArgs):
             '--security-group',
             metavar='<security-group>',
             action='append',
-            dest='security_group_ids',
+            dest='security_groups',
             help=_(
                 "Security group which should be removed this port (name "
                 "or ID) (repeat option to unset multiple security groups)"
@@ -1316,9 +1315,9 @@ class UnsetPort(common.NeutronUnsetCommandWithExtraArgs):
                 msg = _("Port does not contain binding-profile %s") % key
                 raise exceptions.CommandError(msg)
             attrs['binding:profile'] = tmp_binding_profile
-        if parsed_args.security_group_ids:
+        if parsed_args.security_groups:
             try:
-                for sg in parsed_args.security_group_ids:
+                for sg in parsed_args.security_groups:
                     sg_id = client.find_security_group(
                         sg, ignore_missing=False
                     ).id
