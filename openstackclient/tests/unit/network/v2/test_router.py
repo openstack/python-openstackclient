@@ -379,6 +379,32 @@ class TestCreateRouter(TestRouter):
     def test_create_with_no_tag(self):
         self._test_create_with_tag(add_tags=False)
 
+    def test_create_with_flavor_id(self):
+        _flavor = network_fakes.create_one_network_flavor()
+        arglist = [
+            self.new_router.name,
+            '--flavor-id',
+            _flavor.id,
+        ]
+        verifylist = [
+            ('name', self.new_router.name),
+            ('enable', True),
+            ('distributed', False),
+            ('ha', False),
+            ('flavor_id', _flavor.id),
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+        columns, data = self.cmd.take_action(parsed_args)
+        self.network.create_router.assert_called_once_with(
+            **{
+                'admin_state_up': True,
+                'name': self.new_router.name,
+                'flavor_id': _flavor.id,
+            }
+        )
+        self.assertEqual(self.columns, columns)
+        self.assertCountEqual(self.data, data)
+
 
 class TestDeleteRouter(TestRouter):
     # The routers to delete.
