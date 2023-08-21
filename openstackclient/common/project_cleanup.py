@@ -79,6 +79,12 @@ class ProjectCleanup(command.Command):
             metavar='<YYYY-MM-DDTHH24:MI:SS>',
             help=_('Only delete resources updated before the given time'),
         )
+        parser.add_argument(
+            '--skip-resource',
+            metavar='<resource>',
+            help='Skip cleanup of specific resource (repeat if necessary)',
+            action='append',
+        )
         identity_common.add_project_domain_option_to_parser(parser)
         return parser
 
@@ -114,7 +120,10 @@ class ProjectCleanup(command.Command):
                 filters['updated_at'] = parsed_args.updated_before
 
             project_connect.project_cleanup(
-                dry_run=True, status_queue=status_queue, filters=filters
+                dry_run=True,
+                status_queue=status_queue,
+                filters=filters,
+                skip_resources=parsed_args.skip_resource,
             )
 
             data = []

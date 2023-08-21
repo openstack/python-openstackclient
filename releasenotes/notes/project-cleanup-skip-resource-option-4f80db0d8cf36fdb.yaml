@@ -1,0 +1,8 @@
+---
+features:
+  - |
+    A new option ``--skip-resource`` has been added to the
+    ``project cleanup`` command. This allows to exclude
+    certain resources from project cleanups, e. g.
+    ``--skip-resource "block_storage.backup"`` to keep
+    Cinder backups.
