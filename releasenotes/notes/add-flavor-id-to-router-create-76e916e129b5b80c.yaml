@@ -1,0 +1,4 @@
+---
+features:
+  - |
+    Add the ``--flavor-id`` option to the ``router create`` command.

@@ -139,6 +139,9 @@ def _get_attrs(client_manager, parsed_args):
                 ips.append(ip_spec)
             gateway_info['external_fixed_ips'] = ips
         attrs['external_gateway_info'] = gateway_info
+    # "router set" command doesn't support setting flavor_id.
+    if 'flavor_id' in parsed_args and parsed_args.flavor_id is not None:
+        attrs['flavor_id'] = parsed_args.flavor_id
 
     return attrs
 
@@ -398,6 +401,11 @@ class CreateRouter(command.ShowOne, common.NeutronCommandWithExtraArgs):
             default=None,
             action='store_false',
             help=_("Disable IPv6 NDP proxy on external gateway"),
+        )
+        parser.add_argument(
+            '--flavor-id',
+            metavar='<flavor-id>',
+            help=_("Associate the router to a flavor by ID"),
         )
 
         return parser
