@@ -56,6 +56,7 @@ class TestPort(network_fakes.TestNetworkV2):
             'dns_name',
             'extra_dhcp_opts',
             'fixed_ips',
+            'hardware_offload_type',
             'hints',
             'id',
             'ip_allocation',
@@ -96,6 +97,7 @@ class TestPort(network_fakes.TestNetworkV2):
             fake_port.dns_name,
             format_columns.ListDictColumn(fake_port.extra_dhcp_opts),
             format_columns.ListDictColumn(fake_port.fixed_ips),
+            fake_port.hardware_offload_type,
             fake_port.hints,
             fake_port.id,
             fake_port.ip_allocation,
@@ -1067,6 +1069,48 @@ class TestCreatePort(TestPort):
 
         self.assertCountEqual(self.columns, columns)
         self.assertCountEqual(self.data, data)
+
+    def _test_create_with_hardware_offload_type(self, hwol_type=None):
+        arglist = [
+            '--network',
+            self._port.network_id,
+            'test-port',
+        ]
+        if hwol_type:
+            arglist += ['--hardware-offload-type', hwol_type]
+
+        hardware_offload_type = None if not hwol_type else hwol_type
+        verifylist = [
+            (
+                'network',
+                self._port.network_id,
+            ),
+            ('name', 'test-port'),
+        ]
+        if hwol_type:
+            verifylist.append(('hardware_offload_type', hwol_type))
+
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        columns, data = self.cmd.take_action(parsed_args)
+
+        create_args = {
+            'admin_state_up': True,
+            'network_id': self._port.network_id,
+            'name': 'test-port',
+        }
+        if hwol_type:
+            create_args['hardware_offload_type'] = hardware_offload_type
+        self.network_client.create_port.assert_called_once_with(**create_args)
+
+        self.assertEqual(set(self.columns), set(columns))
+        self.assertCountEqual(self.data, data)
+
+    def test_create_with_hardware_offload_type_switchdev(self):
+        self._test_create_with_hardware_offload_type(hwol_type='switchdev')
+
+    def test_create_with_hardware_offload_type_null(self):
+        self._test_create_with_hardware_offload_type()
 
 
 class TestDeletePort(TestPort):

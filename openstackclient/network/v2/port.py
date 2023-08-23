@@ -74,6 +74,7 @@ def _get_columns(item):
         'dns_name': 'dns_name',
         'extra_dhcp_opts': 'extra_dhcp_opts',
         'fixed_ips': 'fixed_ips',
+        'hardware_offload_type': 'hardware_offload_type',
         'hints': 'hints',
         'id': 'id',
         'ip_allocation': 'ip_allocation',
@@ -211,6 +212,12 @@ def _get_attrs(client_manager, parsed_args):
 
     if 'device_profile' in parsed_args and parsed_args.device_profile:
         attrs['device_profile'] = parsed_args.device_profile
+
+    if (
+        'hardware_offload_type' in parsed_args
+        and parsed_args.hardware_offload_type
+    ):
+        attrs['hardware_offload_type'] = parsed_args.hardware_offload_type
 
     return attrs
 
@@ -559,6 +566,15 @@ class CreatePort(command.ShowOne, common.NeutronCommandWithExtraArgs):
             '--device-profile',
             metavar='<device-profile>',
             help=_('Cyborg port device profile'),
+        )
+        parser.add_argument(
+            '--hardware-offload-type',
+            metavar='<hardware-offload-type>',
+            dest='hardware_offload_type',
+            help=_(
+                'Hardware offload type this port will request when '
+                'attached to the network backend'
+            ),
         )
         _tag.add_tag_option_to_parser_for_create(parser, _('port'))
         return parser
