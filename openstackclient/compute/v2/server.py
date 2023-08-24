@@ -1580,6 +1580,12 @@ class CreateServer(command.ShowOne):
             ]
         elif parsed_args.boot_from_volume:
             # Tell nova to create a root volume from the image provided.
+            if not image:
+                msg = _(
+                    "An image (--image or --image-property) is required "
+                    "to support --boot-from-volume option"
+                )
+                raise exceptions.CommandError(msg)
             block_device_mapping_v2 = [
                 {
                     'uuid': image.id,

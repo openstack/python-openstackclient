@@ -3436,6 +3436,34 @@ class TestServerCreate(TestServer):
             '--volume is not allowed with --boot-from-volume', str(ex)
         )
 
+    def test_server_create_boot_from_volume_no_image(self):
+        # Test --boot-from-volume option without --image or
+        # --image-property.
+        arglist = [
+            '--flavor',
+            self.flavor.id,
+            '--boot-from-volume',
+            '1',
+            self.new_server.name,
+        ]
+        verifylist = [
+            ('flavor', self.flavor.id),
+            ('boot_from_volume', 1),
+            ('config_drive', False),
+            ('server_name', self.new_server.name),
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        ex = self.assertRaises(
+            exceptions.CommandError, self.cmd.take_action, parsed_args
+        )
+        # Assert it is the error we expect.
+        self.assertIn(
+            'An image (--image or --image-property) is required '
+            'to support --boot-from-volume option',
+            str(ex),
+        )
+
     def test_server_create_image_property(self):
         arglist = [
             '--image-property',
