@@ -80,8 +80,7 @@ class TestTypeCreate(TestType):
         ]
         verifylist = [
             ("description", self.new_volume_type.description),
-            ("public", True),
-            ("private", False),
+            ("is_public", True),
             ("name", self.new_volume_type.name),
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
@@ -107,8 +106,7 @@ class TestTypeCreate(TestType):
         ]
         verifylist = [
             ("description", self.new_volume_type.description),
-            ("public", False),
-            ("private", True),
+            ("is_public", False),
             ("project", self.project.id),
             ("name", self.new_volume_type.name),
         ]
@@ -325,8 +323,7 @@ class TestTypeList(TestType):
         arglist = []
         verifylist = [
             ("long", False),
-            ("private", False),
-            ("public", False),
+            ("is_public", None),
             ("default", False),
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
@@ -343,8 +340,7 @@ class TestTypeList(TestType):
         ]
         verifylist = [
             ("long", True),
-            ("private", False),
-            ("public", True),
+            ("is_public", True),
             ("default", False),
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
@@ -360,8 +356,7 @@ class TestTypeList(TestType):
         ]
         verifylist = [
             ("long", False),
-            ("private", True),
-            ("public", False),
+            ("is_public", False),
             ("default", False),
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
@@ -378,8 +373,7 @@ class TestTypeList(TestType):
         verifylist = [
             ("encryption_type", False),
             ("long", False),
-            ("private", False),
-            ("public", False),
+            ("is_public", None),
             ("default", True),
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
