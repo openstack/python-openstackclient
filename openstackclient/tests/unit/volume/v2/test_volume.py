@@ -55,8 +55,6 @@ class TestVolume(volume_fakes.TestVolume):
         )
         self.consistencygroups_mock.reset_mock()
 
-        self.image_client = self.app.client_manager.image
-
     def setup_volumes_mock(self, count):
         volumes = volume_fakes.create_volumes(count=count)
 

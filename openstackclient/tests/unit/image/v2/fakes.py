@@ -16,6 +16,7 @@ import random
 from unittest import mock
 import uuid
 
+from openstack.image.v2 import _proxy
 from openstack.image.v2 import image
 from openstack.image.v2 import member
 from openstack.image.v2 import metadef_namespace
@@ -28,12 +29,17 @@ from openstackclient.tests.unit.identity.v3 import fakes as identity_fakes
 from openstackclient.tests.unit import utils
 
 
-class TestImagev2(utils.TestCommand):
+class FakeClientMixin:
     def setUp(self):
         super().setUp()
 
-        self.app.client_manager.image = mock.Mock()
+        self.app.client_manager.image = mock.Mock(spec=_proxy.Proxy)
         self.image_client = self.app.client_manager.image
+
+
+class TestImagev2(FakeClientMixin, utils.TestCommand):
+    def setUp(self):
+        super().setUp()
 
         self.app.client_manager.identity = identity_fakes.FakeIdentityv3Client(
             endpoint=fakes.AUTH_URL,
