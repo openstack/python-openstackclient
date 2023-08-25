@@ -2,8 +2,8 @@
 volume backup
 =============
 
-Block Storage v1, v2
+Block Storage v1, v2, v3
 
-.. autoprogram-cliff:: openstack.volume.v2
+.. autoprogram-cliff:: openstack.volume.v3
    :command: volume backup *
 
