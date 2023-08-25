@@ -327,7 +327,9 @@ class ListVolumeType(command.Lister):
             help=_('List the default volume type'),
         )
         public_group.add_argument(
-            "--public", action="store_true", help=_("List only public types")
+            "--public",
+            action="store_true",
+            help=_("List only public types"),
         )
         public_group.add_argument(
             "--private",
@@ -447,6 +449,21 @@ class SetVolumeType(command.Command):
                 '(admin only)'
             ),
         )
+        public_group = parser.add_mutually_exclusive_group()
+        public_group.add_argument(
+            '--public',
+            action='store_true',
+            dest='is_public',
+            default=None,
+            help=_('Volume type is accessible to the public'),
+        )
+        public_group.add_argument(
+            '--private',
+            action='store_false',
+            dest='is_public',
+            default=None,
+            help=_("Volume type is not accessible to the public"),
+        )
         identity_common.add_project_domain_option_to_parser(parser)
         # TODO(Huanxuan Ao): Add choices for each "--encryption-*" option.
         parser.add_argument(
@@ -500,14 +517,21 @@ class SetVolumeType(command.Command):
         identity_client = self.app.client_manager.identity
 
         volume_type = utils.find_resource(
-            volume_client.volume_types, parsed_args.volume_type
+            volume_client.volume_types,
+            parsed_args.volume_type,
         )
+
         result = 0
         kwargs = {}
+
         if parsed_args.name:
             kwargs['name'] = parsed_args.name
+
         if parsed_args.description:
             kwargs['description'] = parsed_args.description
+
+        if parsed_args.is_public is not None:
+            kwargs['is_public'] = parsed_args.is_public
 
         if kwargs:
             try:
