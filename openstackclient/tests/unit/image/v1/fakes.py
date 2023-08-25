@@ -22,23 +22,12 @@ from openstackclient.tests.unit import utils
 from openstackclient.tests.unit.volume.v1 import fakes as volume_fakes
 
 
-class FakeImagev1Client:
-    def __init__(self, **kwargs):
-        self.images = mock.Mock()
-
-        self.auth_token = kwargs['token']
-        self.management_url = kwargs['endpoint']
-        self.version = 1.0
-
-
 class TestImagev1(utils.TestCommand):
     def setUp(self):
         super().setUp()
 
-        self.app.client_manager.image = FakeImagev1Client(
-            endpoint=fakes.AUTH_URL,
-            token=fakes.AUTH_TOKEN,
-        )
+        self.app.client_manager.image = mock.Mock()
+
         self.app.client_manager.volume = volume_fakes.FakeVolumev1Client(
             endpoint=fakes.AUTH_URL,
             token=fakes.AUTH_TOKEN,

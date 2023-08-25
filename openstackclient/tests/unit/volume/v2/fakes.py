@@ -23,7 +23,6 @@ from osc_lib.cli import format_columns
 
 from openstackclient.tests.unit import fakes
 from openstackclient.tests.unit.identity.v3 import fakes as identity_fakes
-from openstackclient.tests.unit.image.v2 import fakes as image_fakes
 from openstackclient.tests.unit import utils
 
 
@@ -96,9 +95,7 @@ class TestVolume(utils.TestCommand):
         self.app.client_manager.identity = identity_fakes.FakeIdentityv3Client(
             endpoint=fakes.AUTH_URL, token=fakes.AUTH_TOKEN
         )
-        self.app.client_manager.image = image_fakes.FakeImagev2Client(
-            endpoint=fakes.AUTH_URL, token=fakes.AUTH_TOKEN
-        )
+        self.app.client_manager.image = mock.Mock()
 
 
 def create_one_transfer(attrs=None):

@@ -65,13 +65,7 @@ class TestVolumev1(utils.TestCommand):
             token=fakes.AUTH_TOKEN,
         )
 
-        # avoid circular imports
-        from openstackclient.tests.unit.image.v1 import fakes as image_fakes
-
-        self.app.client_manager.image = image_fakes.FakeImagev1Client(
-            endpoint=fakes.AUTH_URL,
-            token=fakes.AUTH_TOKEN,
-        )
+        self.app.client_manager.image = mock.Mock()
 
 
 def create_one_transfer(attrs=None):

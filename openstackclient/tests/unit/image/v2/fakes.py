@@ -28,50 +28,11 @@ from openstackclient.tests.unit.identity.v3 import fakes as identity_fakes
 from openstackclient.tests.unit import utils
 
 
-class FakeImagev2Client:
-    def __init__(self, **kwargs):
-        self.images = mock.Mock()
-        self.create_image = mock.Mock()
-        self.delete_image = mock.Mock()
-        self.update_image = mock.Mock()
-        self.find_image = mock.Mock()
-        self.get_image = mock.Mock()
-        self.download_image = mock.Mock()
-        self.reactivate_image = mock.Mock()
-        self.deactivate_image = mock.Mock()
-        self.stage_image = mock.Mock()
-        self.import_image = mock.Mock()
-        self.get_import_info = mock.Mock()
-
-        self.members = mock.Mock()
-        self.add_member = mock.Mock()
-        self.remove_member = mock.Mock()
-        self.update_member = mock.Mock()
-
-        self.remove_tag = mock.Mock()
-        self.metadef_namespaces = mock.Mock()
-        self.metadef_resource_types = mock.Mock()
-
-        self.tasks = mock.Mock()
-        self.tasks.resource_class = fakes.FakeResource(None, {})
-        self.get_task = mock.Mock()
-
-        self.get_import_info = mock.Mock()
-        self.stores = mock.Mock()
-
-        self.auth_token = kwargs['token']
-        self.management_url = kwargs['endpoint']
-        self.version = 2.0
-
-
 class TestImagev2(utils.TestCommand):
     def setUp(self):
         super().setUp()
 
-        self.app.client_manager.image = FakeImagev2Client(
-            endpoint=fakes.AUTH_URL,
-            token=fakes.AUTH_TOKEN,
-        )
+        self.app.client_manager.image = mock.Mock()
 
         self.app.client_manager.identity = identity_fakes.FakeIdentityv3Client(
             endpoint=fakes.AUTH_URL,
