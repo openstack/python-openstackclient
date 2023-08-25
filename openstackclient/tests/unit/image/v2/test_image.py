@@ -32,9 +32,6 @@ class TestImage(image_fakes.TestImagev2, volume_fakes.TestVolume):
     def setUp(self):
         super().setUp()
 
-        # Get shortcuts to mocked image client
-        self.client = self.app.client_manager.image
-
         # Get shortcut to the Mocks in identity client
         self.project_mock = self.app.client_manager.identity.projects
         self.project_mock.reset_mock()
@@ -61,13 +58,12 @@ class TestImageCreate(TestImage):
         super().setUp()
 
         self.new_image = image_fakes.create_one_image()
-        self.client.create_image.return_value = self.new_image
+        self.image_client.create_image.return_value = self.new_image
+        self.image_client.update_image.return_value = self.new_image
 
         self.project_mock.get.return_value = self.project
 
         self.domain_mock.get.return_value = self.domain
-
-        self.client.update_image.return_value = self.new_image
 
         (self.expected_columns, self.expected_data) = zip(
             *sorted(_image._format_image(self.new_image).items())
@@ -92,7 +88,7 @@ class TestImageCreate(TestImage):
         columns, data = self.cmd.take_action(parsed_args)
 
         # ImageManager.create(name=, **)
-        self.client.create_image.assert_called_with(
+        self.image_client.create_image.assert_called_with(
             name=self.new_image.name,
             allow_duplicates=True,
             container_format=_image.DEFAULT_CONTAINER_FORMAT,
@@ -144,7 +140,7 @@ class TestImageCreate(TestImage):
         columns, data = self.cmd.take_action(parsed_args)
 
         # ImageManager.create(name=, **)
-        self.client.create_image.assert_called_with(
+        self.image_client.create_image.assert_called_with(
             name=self.new_image.name,
             allow_duplicates=True,
             container_format='ovf',
@@ -240,7 +236,7 @@ class TestImageCreate(TestImage):
         columns, data = self.cmd.take_action(parsed_args)
 
         # ImageManager.create(name=, **)
-        self.client.create_image.assert_called_with(
+        self.image_client.create_image.assert_called_with(
             name=self.new_image.name,
             allow_duplicates=True,
             container_format=_image.DEFAULT_CONTAINER_FORMAT,
@@ -276,7 +272,7 @@ class TestImageCreate(TestImage):
 
         columns, data = self.cmd.take_action(parsed_args)
 
-        self.client.create_image.assert_called_with(
+        self.image_client.create_image.assert_called_with(
             name=self.new_image.name,
             allow_duplicates=True,
             container_format=_image.DEFAULT_CONTAINER_FORMAT,
@@ -317,7 +313,7 @@ class TestImageCreate(TestImage):
         columns, data = self.cmd.take_action(parsed_args)
 
         # ImageManager.create(name=, **)
-        self.client.create_image.assert_called_with(
+        self.image_client.create_image.assert_called_with(
             name=self.new_image.name,
             allow_duplicates=True,
             container_format=_image.DEFAULT_CONTAINER_FORMAT,
@@ -439,10 +435,10 @@ class TestAddProjectToImage(TestImage):
         super().setUp()
 
         # This is the return value for utils.find_resource()
-        self.client.find_image.return_value = self._image
+        self.image_client.find_image.return_value = self._image
 
         # Update the image_id in the MEMBER dict
-        self.client.add_member.return_value = self.new_member
+        self.image_client.add_member.return_value = self.new_member
         self.project_mock.get.return_value = self.project
         self.domain_mock.get.return_value = self.domain
         # Get the command object to test
@@ -463,7 +459,7 @@ class TestAddProjectToImage(TestImage):
         # returns a two-part tuple with a tuple of column names and a tuple of
         # data to be shown.
         columns, data = self.cmd.take_action(parsed_args)
-        self.client.add_member.assert_called_with(
+        self.image_client.add_member.assert_called_with(
             image=self._image.id, member_id=self.project.id
         )
 
@@ -488,7 +484,7 @@ class TestAddProjectToImage(TestImage):
         # returns a two-part tuple with a tuple of column names and a tuple of
         # data to be shown.
         columns, data = self.cmd.take_action(parsed_args)
-        self.client.add_member.assert_called_with(
+        self.image_client.add_member.assert_called_with(
             image=self._image.id, member_id=self.project.id
         )
 
@@ -500,7 +496,7 @@ class TestImageDelete(TestImage):
     def setUp(self):
         super().setUp()
 
-        self.client.delete_image.return_value = None
+        self.image_client.delete_image.return_value = None
 
         # Get the command object to test
         self.cmd = _image.DeleteImage(self.app, None)
@@ -516,11 +512,11 @@ class TestImageDelete(TestImage):
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
-        self.client.find_image.side_effect = images
+        self.image_client.find_image.side_effect = images
 
         result = self.cmd.take_action(parsed_args)
 
-        self.client.delete_image.assert_called_with(
+        self.image_client.delete_image.assert_called_with(
             images[0].id, store=parsed_args.store, ignore_missing=False
         )
         self.assertIsNone(result)
@@ -536,11 +532,11 @@ class TestImageDelete(TestImage):
         verifylist = [('images', [images[0].id]), ('store', 'store1')]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
-        self.client.find_image.side_effect = images
+        self.image_client.find_image.side_effect = images
 
         result = self.cmd.take_action(parsed_args)
 
-        self.client.delete_image.assert_called_with(
+        self.image_client.delete_image.assert_called_with(
             images[0].id, store=parsed_args.store, ignore_missing=False
         )
         self.assertIsNone(result)
@@ -554,7 +550,7 @@ class TestImageDelete(TestImage):
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
-        self.client.find_image.side_effect = images
+        self.image_client.find_image.side_effect = images
 
         result = self.cmd.take_action(parsed_args)
 
@@ -562,7 +558,7 @@ class TestImageDelete(TestImage):
             mock.call(i.id, store=parsed_args.store, ignore_missing=False)
             for i in images
         ]
-        self.client.delete_image.assert_has_calls(calls)
+        self.image_client.delete_image.assert_has_calls(calls)
         self.assertIsNone(result)
 
     def test_image_delete_from_store_without_multi_backend(self):
@@ -572,9 +568,11 @@ class TestImageDelete(TestImage):
         verifylist = [('images', [images[0].id]), ('store', 'store1')]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
-        self.client.find_image.side_effect = images
+        self.image_client.find_image.side_effect = images
 
-        self.client.delete_image.side_effect = sdk_exceptions.ResourceNotFound
+        self.image_client.delete_image.side_effect = (
+            sdk_exceptions.ResourceNotFound
+        )
         exc = self.assertRaises(
             exceptions.CommandError,
             self.cmd.take_action,
@@ -602,7 +600,7 @@ class TestImageDelete(TestImage):
         # And fake find() to find the real network or not.
         ret_find = [images[0], images[1], sdk_exceptions.ResourceNotFound()]
 
-        self.client.find_image.side_effect = ret_find
+        self.image_client.find_image.side_effect = ret_find
 
         self.assertRaises(
             exceptions.CommandError, self.cmd.take_action, parsed_args
@@ -611,7 +609,7 @@ class TestImageDelete(TestImage):
             mock.call(i.id, store=parsed_args.store, ignore_missing=False)
             for i in images
         ]
-        self.client.delete_image.assert_has_calls(calls)
+        self.image_client.delete_image.assert_has_calls(calls)
 
 
 class TestImageList(TestImage):
@@ -634,7 +632,7 @@ class TestImageList(TestImage):
     def setUp(self):
         super().setUp()
 
-        self.client.images.side_effect = [[self._image], []]
+        self.image_client.images.side_effect = [[self._image], []]
 
         # Get the command object to test
         self.cmd = _image.ListImage(self.app, None)
@@ -651,7 +649,7 @@ class TestImageList(TestImage):
         # returns a tuple containing the column names and an iterable
         # containing the data to be listed.
         columns, data = self.cmd.take_action(parsed_args)
-        self.client.images.assert_called_with(
+        self.image_client.images.assert_called_with(
             # marker=self._image.id,
         )
 
@@ -672,7 +670,7 @@ class TestImageList(TestImage):
         # returns a tuple containing the column names and an iterable
         # containing the data to be listed.
         columns, data = self.cmd.take_action(parsed_args)
-        self.client.images.assert_called_with(
+        self.image_client.images.assert_called_with(
             visibility='public',
         )
 
@@ -693,7 +691,7 @@ class TestImageList(TestImage):
         # returns a tuple containing the column names and an iterable
         # containing the data to be listed.
         columns, data = self.cmd.take_action(parsed_args)
-        self.client.images.assert_called_with(
+        self.image_client.images.assert_called_with(
             visibility='private',
         )
 
@@ -714,7 +712,7 @@ class TestImageList(TestImage):
         # returns a tuple containing the column names and an iterable
         # containing the data to be listed.
         columns, data = self.cmd.take_action(parsed_args)
-        self.client.images.assert_called_with(
+        self.image_client.images.assert_called_with(
             visibility='community',
         )
 
@@ -735,7 +733,7 @@ class TestImageList(TestImage):
         # returns a tuple containing the column names and an iterable
         # containing the data to be listed.
         columns, data = self.cmd.take_action(parsed_args)
-        self.client.images.assert_called_with(
+        self.image_client.images.assert_called_with(
             visibility='shared',
         )
 
@@ -756,7 +754,7 @@ class TestImageList(TestImage):
         # returns a tuple containing the column names and an iterable
         # containing the data to be listed.
         columns, data = self.cmd.take_action(parsed_args)
-        self.client.images.assert_called_with(
+        self.image_client.images.assert_called_with(
             visibility='all',
         )
 
@@ -776,7 +774,7 @@ class TestImageList(TestImage):
         # returns a tuple containing the column names and an iterable
         # containing the data to be listed.
         columns, data = self.cmd.take_action(parsed_args)
-        self.client.images.assert_called_with(
+        self.image_client.images.assert_called_with(
             visibility='shared',
             member_status='all',
         )
@@ -806,7 +804,7 @@ class TestImageList(TestImage):
         # returns a tuple containing the column names and an iterable
         # containing the data to be listed.
         columns, data = self.cmd.take_action(parsed_args)
-        self.client.images.assert_called_with()
+        self.image_client.images.assert_called_with()
 
         collist = (
             'ID',
@@ -857,7 +855,7 @@ class TestImageList(TestImage):
         # returns a tuple containing the column names and an iterable
         # containing the data to be listed.
         columns, data = self.cmd.take_action(parsed_args)
-        self.client.images.assert_called_with()
+        self.image_client.images.assert_called_with()
         sf_mock.assert_called_with(
             [self._image],
             attr='a',
@@ -880,7 +878,7 @@ class TestImageList(TestImage):
         # returns a tuple containing the column names and an iterable
         # containing the data to be listed.
         columns, data = self.cmd.take_action(parsed_args)
-        self.client.images.assert_called_with()
+        self.image_client.images.assert_called_with()
         si_mock.assert_called_with(
             [self._image],
             'name:asc',
@@ -901,7 +899,7 @@ class TestImageList(TestImage):
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
         columns, data = self.cmd.take_action(parsed_args)
-        self.client.images.assert_called_with(
+        self.image_client.images.assert_called_with(
             limit=ret_limit,
             paginated=False
             # marker=None
@@ -911,7 +909,7 @@ class TestImageList(TestImage):
         self.assertEqual(ret_limit, len(tuple(data)))
 
     def test_image_list_project_option(self):
-        self.client.find_image = mock.Mock(return_value=self._image)
+        self.image_client.find_image = mock.Mock(return_value=self._image)
         arglist = [
             '--project',
             'nova',
@@ -928,7 +926,7 @@ class TestImageList(TestImage):
 
     @mock.patch('osc_lib.utils.find_resource')
     def test_image_list_marker_option(self, fr_mock):
-        self.client.find_image = mock.Mock(return_value=self._image)
+        self.image_client.find_image = mock.Mock(return_value=self._image)
 
         arglist = [
             '--marker',
@@ -940,11 +938,11 @@ class TestImageList(TestImage):
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
         columns, data = self.cmd.take_action(parsed_args)
-        self.client.images.assert_called_with(
+        self.image_client.images.assert_called_with(
             marker=self._image.id,
         )
 
-        self.client.find_image.assert_called_with(
+        self.image_client.find_image.assert_called_with(
             'graven',
             ignore_missing=False,
         )
@@ -960,7 +958,7 @@ class TestImageList(TestImage):
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
         columns, data = self.cmd.take_action(parsed_args)
-        self.client.images.assert_called_with(
+        self.image_client.images.assert_called_with(
             name='abc',
             # marker=self._image.id
         )
@@ -976,7 +974,7 @@ class TestImageList(TestImage):
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
         columns, data = self.cmd.take_action(parsed_args)
-        self.client.images.assert_called_with(status='active')
+        self.image_client.images.assert_called_with(status='active')
 
     def test_image_list_hidden_option(self):
         arglist = [
@@ -988,7 +986,7 @@ class TestImageList(TestImage):
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
         columns, data = self.cmd.take_action(parsed_args)
-        self.client.images.assert_called_with(is_hidden=True)
+        self.image_client.images.assert_called_with(is_hidden=True)
 
     def test_image_list_tag_option(self):
         arglist = ['--tag', 'abc', '--tag', 'cba']
@@ -998,7 +996,7 @@ class TestImageList(TestImage):
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
         columns, data = self.cmd.take_action(parsed_args)
-        self.client.images.assert_called_with(tag=['abc', 'cba'])
+        self.image_client.images.assert_called_with(tag=['abc', 'cba'])
 
 
 class TestListImageProjects(TestImage):
@@ -1021,8 +1019,8 @@ class TestListImageProjects(TestImage):
     def setUp(self):
         super().setUp()
 
-        self.client.find_image.return_value = self._image
-        self.client.members.return_value = [self.member]
+        self.image_client.find_image.return_value = self._image
+        self.image_client.members.return_value = [self.member]
 
         self.cmd = _image.ListImageProjects(self.app, None)
 
@@ -1033,7 +1031,7 @@ class TestListImageProjects(TestImage):
 
         columns, data = self.cmd.take_action(parsed_args)
 
-        self.client.members.assert_called_with(image=self._image.id)
+        self.image_client.members.assert_called_with(image=self._image.id)
 
         self.assertEqual(self.columns, columns)
         self.assertEqual(self.datalist, list(data))
@@ -1048,11 +1046,11 @@ class TestRemoveProjectImage(TestImage):
 
         self._image = image_fakes.create_one_image()
         # This is the return value for utils.find_resource()
-        self.client.find_image.return_value = self._image
+        self.image_client.find_image.return_value = self._image
 
         self.project_mock.get.return_value = self.project
         self.domain_mock.get.return_value = self.domain
-        self.client.remove_member.return_value = None
+        self.image_client.remove_member.return_value = None
         # Get the command object to test
         self.cmd = _image.RemoveProjectImage(self.app, None)
 
@@ -1069,11 +1067,11 @@ class TestRemoveProjectImage(TestImage):
 
         result = self.cmd.take_action(parsed_args)
 
-        self.client.find_image.assert_called_with(
+        self.image_client.find_image.assert_called_with(
             self._image.id, ignore_missing=False
         )
 
-        self.client.remove_member.assert_called_with(
+        self.image_client.remove_member.assert_called_with(
             member=self.project.id,
             image=self._image.id,
         )
@@ -1095,7 +1093,7 @@ class TestRemoveProjectImage(TestImage):
 
         result = self.cmd.take_action(parsed_args)
 
-        self.client.remove_member.assert_called_with(
+        self.image_client.remove_member.assert_called_with(
             member=self.project.id,
             image=self._image.id,
         )
@@ -1114,7 +1112,7 @@ class TestImageSet(TestImage):
 
         self.domain_mock.get.return_value = self.domain
 
-        self.client.find_image.return_value = self._image
+        self.image_client.find_image.return_value = self._image
 
         self.app.client_manager.auth_ref = mock.Mock(
             project_id=self.project.id,
@@ -1145,7 +1143,7 @@ class TestImageSet(TestImage):
                 'member_id': self.project.id,
             }
         )
-        self.client.update_member.return_value = membership
+        self.image_client.update_member.return_value = membership
 
         arglist = [
             '--accept',
@@ -1156,7 +1154,7 @@ class TestImageSet(TestImage):
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
         self.cmd.take_action(parsed_args)
 
-        self.client.update_member.assert_called_once_with(
+        self.image_client.update_member.assert_called_once_with(
             image=self._image.id,
             member=self.app.client_manager.auth_ref.project_id,
             status='accepted',
@@ -1164,7 +1162,7 @@ class TestImageSet(TestImage):
 
         # Assert that the 'update image" route is also called, in addition to
         # the 'update membership' route.
-        self.client.update_image.assert_called_with(self._image.id)
+        self.image_client.update_image.assert_called_with(self._image.id)
 
     def test_image_set_membership_option_reject(self):
         membership = image_fakes.create_one_image_member(
@@ -1173,7 +1171,7 @@ class TestImageSet(TestImage):
                 'member_id': self.project.id,
             }
         )
-        self.client.update_member.return_value = membership
+        self.image_client.update_member.return_value = membership
 
         arglist = [
             '--reject',
@@ -1187,7 +1185,7 @@ class TestImageSet(TestImage):
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
         self.cmd.take_action(parsed_args)
 
-        self.client.update_member.assert_called_once_with(
+        self.image_client.update_member.assert_called_once_with(
             image=self._image.id,
             member=self.app.client_manager.auth_ref.project_id,
             status='rejected',
@@ -1195,7 +1193,7 @@ class TestImageSet(TestImage):
 
         # Assert that the 'update image" route is also called, in addition to
         # the 'update membership' route.
-        self.client.update_image.assert_called_with(self._image.id)
+        self.image_client.update_image.assert_called_with(self._image.id)
 
     def test_image_set_membership_option_pending(self):
         membership = image_fakes.create_one_image_member(
@@ -1204,7 +1202,7 @@ class TestImageSet(TestImage):
                 'member_id': self.project.id,
             }
         )
-        self.client.update_member.return_value = membership
+        self.image_client.update_member.return_value = membership
 
         arglist = [
             '--pending',
@@ -1218,7 +1216,7 @@ class TestImageSet(TestImage):
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
         self.cmd.take_action(parsed_args)
 
-        self.client.update_member.assert_called_once_with(
+        self.image_client.update_member.assert_called_once_with(
             image=self._image.id,
             member=self.app.client_manager.auth_ref.project_id,
             status='pending',
@@ -1226,7 +1224,7 @@ class TestImageSet(TestImage):
 
         # Assert that the 'update image" route is also called, in addition to
         # the 'update membership' route.
-        self.client.update_image.assert_called_with(self._image.id)
+        self.image_client.update_image.assert_called_with(self._image.id)
 
     def test_image_set_options(self):
         arglist = [
@@ -1269,7 +1267,9 @@ class TestImageSet(TestImage):
             'disk_format': 'vmdk',
         }
         # ImageManager.update(image, **kwargs)
-        self.client.update_image.assert_called_with(self._image.id, **kwargs)
+        self.image_client.update_image.assert_called_with(
+            self._image.id, **kwargs
+        )
         self.assertIsNone(result)
 
     def test_image_set_with_unexist_project(self):
@@ -1311,7 +1311,9 @@ class TestImageSet(TestImage):
             'visibility': 'private',
         }
         # ImageManager.update(image, **kwargs)
-        self.client.update_image.assert_called_with(self._image.id, **kwargs)
+        self.image_client.update_image.assert_called_with(
+            self._image.id, **kwargs
+        )
         self.assertIsNone(result)
 
     def test_image_set_bools2(self):
@@ -1334,7 +1336,9 @@ class TestImageSet(TestImage):
             'visibility': 'public',
         }
         # ImageManager.update(image, **kwargs)
-        self.client.update_image.assert_called_with(self._image.id, **kwargs)
+        self.image_client.update_image.assert_called_with(
+            self._image.id, **kwargs
+        )
         self.assertIsNone(result)
 
     def test_image_set_properties(self):
@@ -1358,7 +1362,9 @@ class TestImageSet(TestImage):
             'Beta': '2',
         }
         # ImageManager.update(image, **kwargs)
-        self.client.update_image.assert_called_with(self._image.id, **kwargs)
+        self.image_client.update_image.assert_called_with(
+            self._image.id, **kwargs
+        )
         self.assertIsNone(result)
 
     def test_image_set_fake_properties(self):
@@ -1399,7 +1405,9 @@ class TestImageSet(TestImage):
             'ramdisk_id': 'xyzpdq',
         }
         # ImageManager.update(image, **kwargs)
-        self.client.update_image.assert_called_with(self._image.id, **kwargs)
+        self.image_client.update_image.assert_called_with(
+            self._image.id, **kwargs
+        )
         self.assertIsNone(result)
 
     def test_image_set_tag(self):
@@ -1420,7 +1428,9 @@ class TestImageSet(TestImage):
             'tags': ['test-tag'],
         }
         # ImageManager.update(image, **kwargs)
-        self.client.update_image.assert_called_with(self._image.id, **kwargs)
+        self.image_client.update_image.assert_called_with(
+            self._image.id, **kwargs
+        )
         self.assertIsNone(result)
 
     def test_image_set_activate(self):
@@ -1442,11 +1452,13 @@ class TestImageSet(TestImage):
             'tags': ['test-tag'],
         }
 
-        self.client.reactivate_image.assert_called_with(
+        self.image_client.reactivate_image.assert_called_with(
             self._image.id,
         )
         # ImageManager.update(image, **kwargs)
-        self.client.update_image.assert_called_with(self._image.id, **kwargs)
+        self.image_client.update_image.assert_called_with(
+            self._image.id, **kwargs
+        )
         self.assertIsNone(result)
 
     def test_image_set_deactivate(self):
@@ -1468,17 +1480,19 @@ class TestImageSet(TestImage):
             'tags': ['test-tag'],
         }
 
-        self.client.deactivate_image.assert_called_with(
+        self.image_client.deactivate_image.assert_called_with(
             self._image.id,
         )
         # ImageManager.update(image, **kwargs)
-        self.client.update_image.assert_called_with(self._image.id, **kwargs)
+        self.image_client.update_image.assert_called_with(
+            self._image.id, **kwargs
+        )
         self.assertIsNone(result)
 
     def test_image_set_tag_merge(self):
         old_image = self._image
         old_image['tags'] = ['old1', 'new2']
-        self.client.find_image.return_value = old_image
+        self.image_client.find_image.return_value = old_image
         arglist = [
             '--tag',
             'test-tag',
@@ -1496,7 +1510,7 @@ class TestImageSet(TestImage):
             'tags': ['old1', 'new2', 'test-tag'],
         }
         # ImageManager.update(image, **kwargs)
-        a, k = self.client.update_image.call_args
+        a, k = self.image_client.update_image.call_args
         self.assertEqual(self._image.id, a[0])
         self.assertIn('tags', k)
         self.assertEqual(set(kwargs['tags']), set(k['tags']))
@@ -1505,7 +1519,7 @@ class TestImageSet(TestImage):
     def test_image_set_tag_merge_dupe(self):
         old_image = self._image
         old_image['tags'] = ['old1', 'new2']
-        self.client.find_image.return_value = old_image
+        self.image_client.find_image.return_value = old_image
         arglist = [
             '--tag',
             'old1',
@@ -1523,7 +1537,7 @@ class TestImageSet(TestImage):
             'tags': ['new2', 'old1'],
         }
         # ImageManager.update(image, **kwargs)
-        a, k = self.client.update_image.call_args
+        a, k = self.image_client.update_image.call_args
         self.assertEqual(self._image.id, a[0])
         self.assertIn('tags', k)
         self.assertEqual(set(kwargs['tags']), set(k['tags']))
@@ -1567,7 +1581,9 @@ class TestImageSet(TestImage):
             'min_ram': 0,
         }
         # ImageManager.update(image, **kwargs)
-        self.client.update_image.assert_called_with(self._image.id, **kwargs)
+        self.image_client.update_image.assert_called_with(
+            self._image.id, **kwargs
+        )
         self.assertIsNone(result)
 
     def test_image_set_hidden(self):
@@ -1590,7 +1606,9 @@ class TestImageSet(TestImage):
             'visibility': 'public',
         }
         # ImageManager.update(image, **kwargs)
-        self.client.update_image.assert_called_with(self._image.id, **kwargs)
+        self.image_client.update_image.assert_called_with(
+            self._image.id, **kwargs
+        )
         self.assertIsNone(result)
 
     def test_image_set_unhidden(self):
@@ -1613,7 +1631,9 @@ class TestImageSet(TestImage):
             'visibility': 'public',
         }
         # ImageManager.update(image, **kwargs)
-        self.client.update_image.assert_called_with(self._image.id, **kwargs)
+        self.image_client.update_image.assert_called_with(
+            self._image.id, **kwargs
+        )
         self.assertIsNone(result)
 
 
@@ -1636,7 +1656,7 @@ class TestImageShow(TestImage):
     def setUp(self):
         super().setUp()
 
-        self.client.find_image = mock.Mock(return_value=self._data)
+        self.image_client.find_image = mock.Mock(return_value=self._data)
 
         # Get the command object to test
         self.cmd = _image.ShowImage(self.app, None)
@@ -1654,7 +1674,7 @@ class TestImageShow(TestImage):
         # returns a two-part tuple with a tuple of column names and a tuple of
         # data to be shown.
         columns, data = self.cmd.take_action(parsed_args)
-        self.client.find_image.assert_called_with(
+        self.image_client.find_image.assert_called_with(
             '0f41529e-7c12-4de8-be2d-181abb825b3c', ignore_missing=False
         )
 
@@ -1662,7 +1682,7 @@ class TestImageShow(TestImage):
         self.assertCountEqual(self.data, data)
 
     def test_image_show_human_readable(self):
-        self.client.find_image.return_value = self.new_image
+        self.image_client.find_image.return_value = self.new_image
         arglist = [
             '--human-readable',
             self.new_image.id,
@@ -1677,7 +1697,7 @@ class TestImageShow(TestImage):
         # returns a two-part tuple with a tuple of column names and a tuple of
         # data to be shown.
         columns, data = self.cmd.take_action(parsed_args)
-        self.client.find_image.assert_called_with(
+        self.image_client.find_image.assert_called_with(
             self.new_image.id, ignore_missing=False
         )
 
@@ -1696,9 +1716,9 @@ class TestImageUnset(TestImage):
         attrs['prop2'] = 'fake'
         self.image = image_fakes.create_one_image(attrs)
 
-        self.client.find_image.return_value = self.image
-        self.client.remove_tag.return_value = self.image
-        self.client.update_image.return_value = self.image
+        self.image_client.find_image.return_value = self.image
+        self.image_client.remove_tag.return_value = self.image
+        self.image_client.update_image.return_value = self.image
 
         # Get the command object to test
         self.cmd = _image.UnsetImage(self.app, None)
@@ -1728,7 +1748,7 @@ class TestImageUnset(TestImage):
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
         result = self.cmd.take_action(parsed_args)
 
-        self.client.remove_tag.assert_called_with(self.image.id, 'test')
+        self.image_client.remove_tag.assert_called_with(self.image.id, 'test')
         self.assertIsNone(result)
 
     def test_image_unset_property_option(self):
@@ -1747,7 +1767,7 @@ class TestImageUnset(TestImage):
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
         result = self.cmd.take_action(parsed_args)
 
-        self.client.update_image.assert_called_with(
+        self.image_client.update_image.assert_called_with(
             self.image, properties={'prop2': 'fake'}
         )
 
@@ -1772,11 +1792,11 @@ class TestImageUnset(TestImage):
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
         result = self.cmd.take_action(parsed_args)
 
-        self.client.update_image.assert_called_with(
+        self.image_client.update_image.assert_called_with(
             self.image, properties={'prop2': 'fake'}
         )
 
-        self.client.remove_tag.assert_called_with(self.image.id, 'test')
+        self.image_client.remove_tag.assert_called_with(self.image.id, 'test')
         self.assertIsNone(result)
 
 
@@ -1786,7 +1806,7 @@ class TestImageStage(TestImage):
     def setUp(self):
         super().setUp()
 
-        self.client.find_image.return_value = self.image
+        self.image_client.find_image.return_value = self.image
 
         self.cmd = _image.StageImage(self.app, None)
 
@@ -1808,7 +1828,7 @@ class TestImageStage(TestImage):
 
         self.cmd.take_action(parsed_args)
 
-        self.client.stage_image.assert_called_once_with(
+        self.image_client.stage_image.assert_called_once_with(
             self.image,
             filename=imagefile.name,
         )
@@ -1828,7 +1848,7 @@ class TestImageStage(TestImage):
 
         self.cmd.take_action(parsed_args)
 
-        self.client.stage_image.assert_called_once_with(
+        self.image_client.stage_image.assert_called_once_with(
             self.image,
             data=fake_stdin,
         )
@@ -1846,8 +1866,8 @@ class TestImageImport(TestImage):
     def setUp(self):
         super().setUp()
 
-        self.client.find_image.return_value = self.image
-        self.client.get_import_info.return_value = self.import_info
+        self.image_client.find_image.return_value = self.image
+        self.image_client.get_import_info.return_value = self.import_info
 
         self.cmd = _image.ImportImage(self.app, None)
 
@@ -1863,7 +1883,7 @@ class TestImageImport(TestImage):
 
         self.cmd.take_action(parsed_args)
 
-        self.client.import_image.assert_called_once_with(
+        self.image_client.import_image.assert_called_once_with(
             self.image,
             method='glance-direct',
             uri=None,
@@ -1893,7 +1913,7 @@ class TestImageImport(TestImage):
 
         self.cmd.take_action(parsed_args)
 
-        self.client.import_image.assert_called_once_with(
+        self.image_client.import_image.assert_called_once_with(
             self.image,
             method='web-download',
             uri='https://example.com/',
@@ -1927,7 +1947,7 @@ class TestImageImport(TestImage):
         )
         self.assertIn("The '--uri' option is required ", str(exc))
 
-        self.client.import_image.assert_not_called()
+        self.image_client.import_image.assert_not_called()
 
     # NOTE(stephenfin): Ditto
     def test_import_image__web_download_invalid_options(self):
@@ -1952,7 +1972,7 @@ class TestImageImport(TestImage):
         )
         self.assertIn("The '--uri' option is only supported ", str(exc))
 
-        self.client.import_image.assert_not_called()
+        self.image_client.import_image.assert_not_called()
 
     def test_import_image__web_download_invalid_image_state(self):
         self.image.status = 'uploading'  # != 'queued'
@@ -1981,7 +2001,7 @@ class TestImageImport(TestImage):
             str(exc),
         )
 
-        self.client.import_image.assert_not_called()
+        self.image_client.import_image.assert_not_called()
 
     def test_import_image__copy_image(self):
         self.image.status = 'active'
@@ -2001,7 +2021,7 @@ class TestImageImport(TestImage):
 
         self.cmd.take_action(parsed_args)
 
-        self.client.import_image.assert_called_once_with(
+        self.image_client.import_image.assert_called_once_with(
             self.image,
             method='copy-image',
             uri=None,
@@ -2036,7 +2056,7 @@ class TestImageImport(TestImage):
 
         self.cmd.take_action(parsed_args)
 
-        self.client.import_image.assert_called_once_with(
+        self.image_client.import_image.assert_called_once_with(
             self.image,
             method='glance-download',
             uri=None,
@@ -2055,8 +2075,8 @@ class TestImageSave(TestImage):
     def setUp(self):
         super().setUp()
 
-        self.client.find_image.return_value = self.image
-        self.client.download_image.return_value = self.image
+        self.image_client.find_image.return_value = self.image
+        self.image_client.download_image.return_value = self.image
 
         # Get the command object to test
         self.cmd = _image.SaveImage(self.app, None)
@@ -2072,7 +2092,7 @@ class TestImageSave(TestImage):
 
         self.cmd.take_action(parsed_args)
 
-        self.client.download_image.assert_called_once_with(
+        self.image_client.download_image.assert_called_once_with(
             self.image.id, stream=True, output='/path/to/file'
         )
 
@@ -2109,7 +2129,7 @@ class TestStoresInfo(TestImage):
     def setUp(self):
         super().setUp()
 
-        self.client.stores.return_value = self.stores_info
+        self.image_client.stores.return_value = self.stores_info
 
         self.cmd = _image.StoresInfo(self.app, None)
 
@@ -2118,19 +2138,21 @@ class TestStoresInfo(TestImage):
         parsed_args = self.check_parser(self.cmd, arglist, [])
         self.cmd.take_action(parsed_args)
 
-        self.client.stores.assert_called()
+        self.image_client.stores.assert_called()
 
     def test_stores_info_with_detail(self):
         arglist = ['--detail']
         parsed_args = self.check_parser(self.cmd, arglist, [])
         self.cmd.take_action(parsed_args)
 
-        self.client.stores.assert_called_with(details=True)
+        self.image_client.stores.assert_called_with(details=True)
 
     def test_stores_info_neg(self):
         arglist = []
         parsed_args = self.check_parser(self.cmd, arglist, [])
-        self.client.stores.side_effect = sdk_exceptions.ResourceNotFound()
+        self.image_client.stores.side_effect = (
+            sdk_exceptions.ResourceNotFound()
+        )
 
         exc = self.assertRaises(
             exceptions.CommandError,

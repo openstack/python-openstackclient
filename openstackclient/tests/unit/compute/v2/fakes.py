@@ -167,6 +167,7 @@ class TestComputev2(network_fakes.FakeClientMixin, utils.TestCommand):
         )
 
         self.app.client_manager.image = mock.Mock()
+        self.image_client = self.app.client_manager.image
 
         self.app.client_manager.volume = volume_fakes.FakeVolumeClient(
             endpoint=fakes.AUTH_URL,

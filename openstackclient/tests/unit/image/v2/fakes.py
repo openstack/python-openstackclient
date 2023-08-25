@@ -33,6 +33,7 @@ class TestImagev2(utils.TestCommand):
         super().setUp()
 
         self.app.client_manager.image = mock.Mock()
+        self.image_client = self.app.client_manager.image
 
         self.app.client_manager.identity = identity_fakes.FakeIdentityv3Client(
             endpoint=fakes.AUTH_URL,
@@ -229,34 +230,6 @@ def create_tasks(attrs=None, count=2):
         tasks.append(create_one_task(attrs))
 
     return tasks
-
-
-class FakeMetadefNamespaceClient:
-    def __init__(self, **kwargs):
-        self.create_metadef_namespace = mock.Mock()
-        self.delete_metadef_namespace = mock.Mock()
-        self.metadef_namespaces = mock.Mock()
-        self.get_metadef_namespace = mock.Mock()
-        self.update_metadef_namespace = mock.Mock()
-
-        self.auth_token = kwargs['token']
-        self.management_url = kwargs['endpoint']
-        self.version = 2.0
-
-
-class TestMetadefNamespaces(utils.TestCommand):
-    def setUp(self):
-        super().setUp()
-
-        self.app.client_manager.image = FakeMetadefNamespaceClient(
-            endpoint=fakes.AUTH_URL,
-            token=fakes.AUTH_TOKEN,
-        )
-
-        self.app.client_manager.identity = identity_fakes.FakeIdentityv3Client(
-            endpoint=fakes.AUTH_URL,
-            token=fakes.AUTH_TOKEN,
-        )
 
 
 def create_one_metadef_namespace(attrs=None):

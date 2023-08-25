@@ -13,25 +13,11 @@
 #   under the License.
 
 from openstackclient.image.v2 import metadef_namespaces
-from openstackclient.tests.unit.image.v2 import fakes as md_namespace_fakes
+from openstackclient.tests.unit.image.v2 import fakes as image_fakes
 
 
-class TestMetadefNamespaces(md_namespace_fakes.TestMetadefNamespaces):
-    def setUp(self):
-        super().setUp()
-
-        # Get shortcuts to mocked image client
-        self.client = self.app.client_manager.image
-
-        # Get shortcut to the Mocks in identity client
-        self.project_mock = self.app.client_manager.identity.projects
-        self.project_mock.reset_mock()
-        self.domain_mock = self.app.client_manager.identity.domains
-        self.domain_mock.reset_mock()
-
-
-class TestMetadefNamespaceCreate(TestMetadefNamespaces):
-    _metadef_namespace = md_namespace_fakes.create_one_metadef_namespace()
+class TestMetadefNamespaceCreate(image_fakes.TestImagev2):
+    _metadef_namespace = image_fakes.create_one_metadef_namespace()
 
     expected_columns = (
         'created_at',
@@ -65,7 +51,7 @@ class TestMetadefNamespaceCreate(TestMetadefNamespaces):
     def setUp(self):
         super().setUp()
 
-        self.client.create_metadef_namespace.return_value = (
+        self.image_client.create_metadef_namespace.return_value = (
             self._metadef_namespace
         )
         self.cmd = metadef_namespaces.CreateMetadefNameSpace(self.app, None)
@@ -83,13 +69,13 @@ class TestMetadefNamespaceCreate(TestMetadefNamespaces):
         self.assertEqual(self.expected_data, data)
 
 
-class TestMetadefNamespaceDelete(TestMetadefNamespaces):
-    _metadef_namespace = md_namespace_fakes.create_one_metadef_namespace()
+class TestMetadefNamespaceDelete(image_fakes.TestImagev2):
+    _metadef_namespace = image_fakes.create_one_metadef_namespace()
 
     def setUp(self):
         super().setUp()
 
-        self.client.delete_metadef_namespace.return_value = (
+        self.image_client.delete_metadef_namespace.return_value = (
             self._metadef_namespace
         )
         self.cmd = metadef_namespaces.DeleteMetadefNameSpace(self.app, None)
@@ -106,8 +92,8 @@ class TestMetadefNamespaceDelete(TestMetadefNamespaces):
         self.assertIsNone(result)
 
 
-class TestMetadefNamespaceList(TestMetadefNamespaces):
-    _metadef_namespace = [md_namespace_fakes.create_one_metadef_namespace()]
+class TestMetadefNamespaceList(image_fakes.TestImagev2):
+    _metadef_namespace = [image_fakes.create_one_metadef_namespace()]
 
     columns = ['namespace']
 
@@ -116,13 +102,13 @@ class TestMetadefNamespaceList(TestMetadefNamespaces):
     def setUp(self):
         super().setUp()
 
-        self.client.metadef_namespaces.side_effect = [
+        self.image_client.metadef_namespaces.side_effect = [
             self._metadef_namespace,
             [],
         ]
 
         # Get the command object to test
-        self.client.metadef_namespaces.return_value = iter(
+        self.image_client.metadef_namespaces.return_value = iter(
             self._metadef_namespace
         )
         self.cmd = metadef_namespaces.ListMetadefNameSpaces(self.app, None)
@@ -141,13 +127,13 @@ class TestMetadefNamespaceList(TestMetadefNamespaces):
         self.assertEqual(getattr(self.datalist[0], 'namespace'), next(data)[0])
 
 
-class TestMetadefNamespaceSet(TestMetadefNamespaces):
-    _metadef_namespace = md_namespace_fakes.create_one_metadef_namespace()
+class TestMetadefNamespaceSet(image_fakes.TestImagev2):
+    _metadef_namespace = image_fakes.create_one_metadef_namespace()
 
     def setUp(self):
         super().setUp()
 
-        self.client.update_metadef_namespace.return_value = (
+        self.image_client.update_metadef_namespace.return_value = (
             self._metadef_namespace
         )
         self.cmd = metadef_namespaces.SetMetadefNameSpace(self.app, None)
@@ -166,8 +152,8 @@ class TestMetadefNamespaceSet(TestMetadefNamespaces):
         self.assertIsNone(result)
 
 
-class TestMetadefNamespaceShow(TestMetadefNamespaces):
-    _metadef_namespace = md_namespace_fakes.create_one_metadef_namespace()
+class TestMetadefNamespaceShow(image_fakes.TestImagev2):
+    _metadef_namespace = image_fakes.create_one_metadef_namespace()
 
     expected_columns = (
         'created_at',
@@ -187,7 +173,7 @@ class TestMetadefNamespaceShow(TestMetadefNamespaces):
     def setUp(self):
         super().setUp()
 
-        self.client.get_metadef_namespace.return_value = (
+        self.image_client.get_metadef_namespace.return_value = (
             self._metadef_namespace
         )
         self.cmd = metadef_namespaces.ShowMetadefNameSpace(self.app, None)

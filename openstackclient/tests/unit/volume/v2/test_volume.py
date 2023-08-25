@@ -41,9 +41,6 @@ class TestVolume(volume_fakes.TestVolume):
         self.users_mock = self.app.client_manager.identity.users
         self.users_mock.reset_mock()
 
-        self.find_image_mock = self.app.client_manager.image.find_image
-        self.find_image_mock.reset_mock()
-
         self.snapshots_mock = self.app.client_manager.volume.volume_snapshots
         self.snapshots_mock.reset_mock()
 
@@ -57,6 +54,8 @@ class TestVolume(volume_fakes.TestVolume):
             self.app.client_manager.volume.consistencygroups
         )
         self.consistencygroups_mock.reset_mock()
+
+        self.image_client = self.app.client_manager.image
 
     def setup_volumes_mock(self, count):
         volumes = volume_fakes.create_volumes(count=count)
@@ -233,7 +232,7 @@ class TestVolumeCreate(TestVolume):
 
     def test_volume_create_image_id(self):
         image = image_fakes.create_one_image()
-        self.find_image_mock.return_value = image
+        self.image_client.find_image.return_value = image
 
         arglist = [
             '--image',
@@ -274,7 +273,7 @@ class TestVolumeCreate(TestVolume):
 
     def test_volume_create_image_name(self):
         image = image_fakes.create_one_image()
-        self.find_image_mock.return_value = image
+        self.image_client.find_image.return_value = image
 
         arglist = [
             '--image',

@@ -30,10 +30,6 @@ class TestServerImage(compute_fakes.TestComputev2):
         self.app.client_manager.sdk_connection.compute = mock.Mock()
         self.sdk_client = self.app.client_manager.sdk_connection.compute
 
-        # Get a shortcut to the image client ImageManager Mock
-        self.images_mock = self.app.client_manager.image
-        self.images_mock.find_image.reset_mock()
-
         # Set object attributes to be tested. Could be overwritten in subclass.
         self.attrs = {}
 
@@ -100,7 +96,7 @@ class TestServerImageCreate(TestServerImage):
                 count=count,
             )
 
-        self.images_mock.find_image = mock.Mock(side_effect=images)
+        self.image_client.find_image = mock.Mock(side_effect=images)
         self.sdk_client.create_server_image = mock.Mock(
             return_value=images[0],
         )
@@ -192,7 +188,7 @@ class TestServerImageCreate(TestServerImage):
         )
 
         mock_wait_for_status.assert_called_once_with(
-            self.images_mock.get_image, images[0].id, callback=mock.ANY
+            self.image_client.get_image, images[0].id, callback=mock.ANY
         )
 
     @mock.patch.object(common_utils, 'wait_for_status', return_value=True)
@@ -222,7 +218,7 @@ class TestServerImageCreate(TestServerImage):
         )
 
         mock_wait_for_status.assert_called_once_with(
-            self.images_mock.get_image, images[0].id, callback=mock.ANY
+            self.image_client.get_image, images[0].id, callback=mock.ANY
         )
 
         self.assertEqual(self.image_columns(images[0]), columns)
