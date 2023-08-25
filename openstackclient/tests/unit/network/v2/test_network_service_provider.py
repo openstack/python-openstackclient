@@ -24,7 +24,7 @@ from openstackclient.tests.unit.network.v2 import fakes
 class TestNetworkServiceProvider(fakes.TestNetworkV2):
     def setUp(self):
         super(TestNetworkServiceProvider, self).setUp()
-        self.network = self.app.client_manager.network
+        self.network_client = self.app.client_manager.network
 
 
 class TestListNetworkServiceProvider(TestNetworkServiceProvider):
@@ -53,7 +53,7 @@ class TestListNetworkServiceProvider(TestNetworkServiceProvider):
 
     def setUp(self):
         super(TestListNetworkServiceProvider, self).setUp()
-        self.network.service_providers = mock.Mock(
+        self.network_client.service_providers = mock.Mock(
             return_value=self.provider_list
         )
 
@@ -69,6 +69,6 @@ class TestListNetworkServiceProvider(TestNetworkServiceProvider):
 
         columns, data = self.cmd.take_action(parsed_args)
 
-        self.network.service_providers.assert_called_with()
+        self.network_client.service_providers.assert_called_with()
         self.assertEqual(self.columns, columns)
         self.assertEqual(self.data, list(data))

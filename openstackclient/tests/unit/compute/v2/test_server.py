@@ -113,6 +113,9 @@ class TestServer(compute_fakes.TestComputev2):
         self.snapshots_mock = self.app.client_manager.volume.volume_snapshots
         self.snapshots_mock.reset_mock()
 
+        self.app.client_manager.network = mock.Mock()
+        self.network_client = self.app.client_manager.network
+
         # Set object attributes to be tested. Could be overwritten in subclass.
         self.attrs = {}
 
@@ -522,9 +525,7 @@ class TestServerAddFloatingIPNetwork(
     def setUp(self):
         super(TestServerAddFloatingIPNetwork, self).setUp()
 
-        self.app.client_manager.network = mock.Mock()
-        self.network = self.app.client_manager.network
-        self.network.update_ip = mock.Mock(return_value=None)
+        self.network_client.update_ip = mock.Mock(return_value=None)
 
         # Get the command object to test
         self.cmd = server.AddFloatingIP(self.app, self.namespace)
@@ -534,8 +535,8 @@ class TestServerAddFloatingIPNetwork(
         self.servers_mock.get.return_value = _server
         _port = network_fakes.create_one_port()
         _floating_ip = network_fakes.FakeFloatingIP.create_one_floating_ip()
-        self.network.find_ip = mock.Mock(return_value=_floating_ip)
-        self.network.ports = mock.Mock(return_value=[_port])
+        self.network_client.find_ip = mock.Mock(return_value=_floating_ip)
+        self.network_client.ports = mock.Mock(return_value=[_port])
         arglist = [
             _server.id,
             _floating_ip['floating_ip_address'],
@@ -552,22 +553,24 @@ class TestServerAddFloatingIPNetwork(
             'port_id': _port.id,
         }
 
-        self.network.find_ip.assert_called_once_with(
+        self.network_client.find_ip.assert_called_once_with(
             _floating_ip['floating_ip_address'],
             ignore_missing=False,
         )
-        self.network.ports.assert_called_once_with(
+        self.network_client.ports.assert_called_once_with(
             device_id=_server.id,
         )
-        self.network.update_ip.assert_called_once_with(_floating_ip, **attrs)
+        self.network_client.update_ip.assert_called_once_with(
+            _floating_ip, **attrs
+        )
 
     def test_server_add_floating_ip_no_ports(self):
         server = compute_fakes.create_one_server()
         floating_ip = network_fakes.FakeFloatingIP.create_one_floating_ip()
 
         self.servers_mock.get.return_value = server
-        self.network.find_ip = mock.Mock(return_value=floating_ip)
-        self.network.ports = mock.Mock(return_value=[])
+        self.network_client.find_ip = mock.Mock(return_value=floating_ip)
+        self.network_client.ports = mock.Mock(return_value=[])
 
         arglist = [
             server.id,
@@ -586,11 +589,11 @@ class TestServerAddFloatingIPNetwork(
             'No attached ports found to associate floating IP with', str(ex)
         )
 
-        self.network.find_ip.assert_called_once_with(
+        self.network_client.find_ip.assert_called_once_with(
             floating_ip['floating_ip_address'],
             ignore_missing=False,
         )
-        self.network.ports.assert_called_once_with(
+        self.network_client.ports.assert_called_once_with(
             device_id=server.id,
         )
 
@@ -599,17 +602,17 @@ class TestServerAddFloatingIPNetwork(
         self.servers_mock.get.return_value = _server
         _port = network_fakes.create_one_port()
         _floating_ip = network_fakes.FakeFloatingIP.create_one_floating_ip()
-        self.network.find_ip = mock.Mock(return_value=_floating_ip)
+        self.network_client.find_ip = mock.Mock(return_value=_floating_ip)
         return_value = [_port]
         # In the success case, we'll have two ports, where the first port is
         # not attached to an external gateway but the second port is.
         if success:
             return_value.append(_port)
-        self.network.ports = mock.Mock(return_value=return_value)
+        self.network_client.ports = mock.Mock(return_value=return_value)
         side_effect = [sdk_exceptions.NotFoundException()]
         if success:
             side_effect.append(None)
-        self.network.update_ip = mock.Mock(side_effect=side_effect)
+        self.network_client.update_ip = mock.Mock(side_effect=side_effect)
         arglist = [
             _server.id,
             _floating_ip['floating_ip_address'],
@@ -633,19 +636,19 @@ class TestServerAddFloatingIPNetwork(
             'port_id': _port.id,
         }
 
-        self.network.find_ip.assert_called_once_with(
+        self.network_client.find_ip.assert_called_once_with(
             _floating_ip['floating_ip_address'],
             ignore_missing=False,
         )
-        self.network.ports.assert_called_once_with(
+        self.network_client.ports.assert_called_once_with(
             device_id=_server.id,
         )
         if success:
-            self.assertEqual(2, self.network.update_ip.call_count)
+            self.assertEqual(2, self.network_client.update_ip.call_count)
             calls = [mock.call(_floating_ip, **attrs)] * 2
-            self.network.update_ip.assert_has_calls(calls)
+            self.network_client.update_ip.assert_has_calls(calls)
         else:
-            self.network.update_ip.assert_called_once_with(
+            self.network_client.update_ip.assert_called_once_with(
                 _floating_ip, **attrs
             )
 
@@ -657,8 +660,8 @@ class TestServerAddFloatingIPNetwork(
         self.servers_mock.get.return_value = _server
         _port = network_fakes.create_one_port()
         _floating_ip = network_fakes.FakeFloatingIP.create_one_floating_ip()
-        self.network.find_ip = mock.Mock(return_value=_floating_ip)
-        self.network.ports = mock.Mock(return_value=[_port])
+        self.network_client.find_ip = mock.Mock(return_value=_floating_ip)
+        self.network_client.ports = mock.Mock(return_value=[_port])
         # The user has specified a fixed ip that matches one of the ports
         # already attached to the instance.
         arglist = [
@@ -683,22 +686,24 @@ class TestServerAddFloatingIPNetwork(
             'fixed_ip_address': _port.fixed_ips[0]['ip_address'],
         }
 
-        self.network.find_ip.assert_called_once_with(
+        self.network_client.find_ip.assert_called_once_with(
             _floating_ip['floating_ip_address'],
             ignore_missing=False,
         )
-        self.network.ports.assert_called_once_with(
+        self.network_client.ports.assert_called_once_with(
             device_id=_server.id,
         )
-        self.network.update_ip.assert_called_once_with(_floating_ip, **attrs)
+        self.network_client.update_ip.assert_called_once_with(
+            _floating_ip, **attrs
+        )
 
     def test_server_add_floating_ip_with_fixed_ip_no_port_found(self):
         _server = compute_fakes.create_one_server()
         self.servers_mock.get.return_value = _server
         _port = network_fakes.create_one_port()
         _floating_ip = network_fakes.FakeFloatingIP.create_one_floating_ip()
-        self.network.find_ip = mock.Mock(return_value=_floating_ip)
-        self.network.ports = mock.Mock(return_value=[_port])
+        self.network_client.find_ip = mock.Mock(return_value=_floating_ip)
+        self.network_client.ports = mock.Mock(return_value=[_port])
         # The user has specified a fixed ip that does not match any of the
         # ports already attached to the instance.
         nonexistent_ip = '10.0.0.9'
@@ -719,14 +724,14 @@ class TestServerAddFloatingIPNetwork(
             exceptions.CommandError, self.cmd.take_action, parsed_args
         )
 
-        self.network.find_ip.assert_called_once_with(
+        self.network_client.find_ip.assert_called_once_with(
             _floating_ip['floating_ip_address'],
             ignore_missing=False,
         )
-        self.network.ports.assert_called_once_with(
+        self.network_client.ports.assert_called_once_with(
             device_id=_server.id,
         )
-        self.network.update_ip.assert_not_called()
+        self.network_client.update_ip.assert_not_called()
 
 
 class TestServerAddPort(TestServer):
@@ -1699,19 +1704,16 @@ class TestServerCreate(TestServer):
             get_endpoints
         )
 
-        find_network = mock.Mock()
-        find_port = mock.Mock()
-        network_client = self.app.client_manager.network
-        network_client.find_network = find_network
-        network_client.find_port = find_port
         network_resource = mock.Mock(id='net1_uuid')
         port1_resource = mock.Mock(id='port1_uuid')
         port2_resource = mock.Mock(id='port2_uuid')
-        find_network.return_value = network_resource
-        find_port.side_effect = lambda port_id, ignore_missing: {
-            "port1": port1_resource,
-            "port2": port2_resource,
-        }[port_id]
+        self.network_client.find_network.return_value = network_resource
+        self.network_client.find_port.side_effect = (
+            lambda port_id, ignore_missing: {
+                "port1": port1_resource,
+                "port2": port2_resource,
+            }[port_id]
+        )
 
         # Mock sdk APIs.
         _network_1 = mock.Mock(id='net1_uuid')
@@ -1831,17 +1833,9 @@ class TestServerCreate(TestServer):
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
-        find_network = mock.Mock()
-        network_client = self.app.client_manager.network
-        network_client.find_network = find_network
-        network_resource = mock.Mock(id='net1_uuid')
-        find_network.return_value = network_resource
-
         # Mock sdk APIs.
         _network = mock.Mock(id='net1_uuid')
-        find_network = mock.Mock()
-        find_network.return_value = _network
-        self.app.client_manager.network.find_network = find_network
+        self.network_client.find_network.return_value = _network
 
         # In base command class ShowOne in cliff, abstract method take_action()
         # returns a two-part tuple with a tuple of column names and a tuple of
@@ -1881,7 +1875,7 @@ class TestServerCreate(TestServer):
         self.assertEqual(self.columns, columns)
         self.assertEqual(self.datalist(), data)
 
-        network_client.find_network.assert_called_once()
+        self.network_client.find_network.assert_called_once()
         self.app.client_manager.network.find_network.assert_called_once()
 
     def test_server_create_with_network_tag_pre_v243(self):
@@ -2224,11 +2218,8 @@ class TestServerCreate(TestServer):
             get_endpoints
         )
 
-        find_port = mock.Mock()
-        network_client = self.app.client_manager.network
-        network_client.find_port = find_port
         port_resource = mock.Mock(id='port1_uuid')
-        find_port.return_value = port_resource
+        self.network_client.find_port.return_value = port_resource
 
         self.assertRaises(
             exceptions.CommandError, self.cmd.take_action, parsed_args
@@ -7265,8 +7256,8 @@ class TestServerRemoveFloatingIPNetwork(network_fakes.TestNetworkV2):
         super(TestServerRemoveFloatingIPNetwork, self).setUp()
 
         self.app.client_manager.network = mock.Mock()
-        self.network = self.app.client_manager.network
-        self.network.update_ip = mock.Mock(return_value=None)
+        self.network_client = self.app.client_manager.network
+        self.network_client.update_ip = mock.Mock(return_value=None)
 
         # Get the command object to test
         self.cmd = server.RemoveFloatingIP(self.app, self.namespace)
@@ -7274,7 +7265,7 @@ class TestServerRemoveFloatingIPNetwork(network_fakes.TestNetworkV2):
     def test_server_remove_floating_ip_default(self):
         _server = compute_fakes.create_one_server()
         _floating_ip = network_fakes.FakeFloatingIP.create_one_floating_ip()
-        self.network.find_ip = mock.Mock(return_value=_floating_ip)
+        self.network_client.find_ip = mock.Mock(return_value=_floating_ip)
         arglist = [
             _server.id,
             _floating_ip['ip'],
@@ -7291,11 +7282,13 @@ class TestServerRemoveFloatingIPNetwork(network_fakes.TestNetworkV2):
             'port_id': None,
         }
 
-        self.network.find_ip.assert_called_once_with(
+        self.network_client.find_ip.assert_called_once_with(
             _floating_ip['ip'],
             ignore_missing=False,
         )
-        self.network.update_ip.assert_called_once_with(_floating_ip, **attrs)
+        self.network_client.update_ip.assert_called_once_with(
+            _floating_ip, **attrs
+        )
 
 
 class TestServerRemovePort(TestServer):

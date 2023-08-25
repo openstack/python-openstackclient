@@ -28,7 +28,7 @@ class TestRouter(network_fakes.TestNetworkV2):
         super(TestRouter, self).setUp()
 
         # Get a shortcut to the network client
-        self.network = self.app.client_manager.network
+        self.network_client = self.app.client_manager.network
         self.projects_mock = self.app.client_manager.identity.projects
 
 
@@ -42,10 +42,10 @@ class TestAddPortToRouter(TestRouter):
 
     def setUp(self):
         super(TestAddPortToRouter, self).setUp()
-        self.network.add_interface_to_router = mock.Mock()
+        self.network_client.add_interface_to_router = mock.Mock()
         self.cmd = router.AddPortToRouter(self.app, self.namespace)
-        self.network.find_router = mock.Mock(return_value=self._router)
-        self.network.find_port = mock.Mock(return_value=self._port)
+        self.network_client.find_router = mock.Mock(return_value=self._router)
+        self.network_client.find_port = mock.Mock(return_value=self._port)
 
     def test_add_port_no_option(self):
         arglist = []
@@ -72,7 +72,7 @@ class TestAddPortToRouter(TestRouter):
 
         result = self.cmd.take_action(parsed_args)
 
-        self.network.add_interface_to_router.assert_called_with(
+        self.network_client.add_interface_to_router.assert_called_with(
             self._router,
             **{
                 'port_id': self._router.port,
@@ -91,10 +91,10 @@ class TestAddSubnetToRouter(TestRouter):
 
     def setUp(self):
         super(TestAddSubnetToRouter, self).setUp()
-        self.network.add_interface_to_router = mock.Mock()
+        self.network_client.add_interface_to_router = mock.Mock()
         self.cmd = router.AddSubnetToRouter(self.app, self.namespace)
-        self.network.find_router = mock.Mock(return_value=self._router)
-        self.network.find_subnet = mock.Mock(return_value=self._subnet)
+        self.network_client.find_router = mock.Mock(return_value=self._router)
+        self.network_client.find_subnet = mock.Mock(return_value=self._subnet)
 
     def test_add_subnet_no_option(self):
         arglist = []
@@ -120,7 +120,7 @@ class TestAddSubnetToRouter(TestRouter):
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
         result = self.cmd.take_action(parsed_args)
-        self.network.add_interface_to_router.assert_called_with(
+        self.network_client.add_interface_to_router.assert_called_with(
             self._router, **{'subnet_id': self._router.subnet}
         )
 
@@ -165,8 +165,10 @@ class TestCreateRouter(TestRouter):
     def setUp(self):
         super(TestCreateRouter, self).setUp()
 
-        self.network.create_router = mock.Mock(return_value=self.new_router)
-        self.network.set_tags = mock.Mock(return_value=None)
+        self.network_client.create_router = mock.Mock(
+            return_value=self.new_router
+        )
+        self.network_client.set_tags = mock.Mock(return_value=None)
 
         # Get the command object to test
         self.cmd = router.CreateRouter(self.app, self.namespace)
@@ -182,7 +184,7 @@ class TestCreateRouter(TestRouter):
             arglist,
             verifylist,
         )
-        self.assertFalse(self.network.set_tags.called)
+        self.assertFalse(self.network_client.set_tags.called)
 
     def test_create_default_options(self):
         arglist = [
@@ -198,21 +200,21 @@ class TestCreateRouter(TestRouter):
 
         columns, data = self.cmd.take_action(parsed_args)
 
-        self.network.create_router.assert_called_once_with(
+        self.network_client.create_router.assert_called_once_with(
             **{
                 'admin_state_up': True,
                 'name': self.new_router.name,
             }
         )
-        self.assertFalse(self.network.set_tags.called)
+        self.assertFalse(self.network_client.set_tags.called)
         self.assertEqual(self.columns, columns)
         self.assertCountEqual(self.data, data)
 
     def test_create_with_gateway(self):
         _network = network_fakes.create_one_network()
         _subnet = network_fakes.FakeSubnet.create_one_subnet()
-        self.network.find_network = mock.Mock(return_value=_network)
-        self.network.find_subnet = mock.Mock(return_value=_subnet)
+        self.network_client.find_network = mock.Mock(return_value=_network)
+        self.network_client.find_subnet = mock.Mock(return_value=_subnet)
         arglist = [
             self.new_router.name,
             '--external-gateway',
@@ -234,7 +236,7 @@ class TestCreateRouter(TestRouter):
 
         columns, data = self.cmd.take_action(parsed_args)
 
-        self.network.create_router.assert_called_once_with(
+        self.network_client.create_router.assert_called_once_with(
             **{
                 'admin_state_up': True,
                 'name': self.new_router.name,
@@ -245,7 +247,7 @@ class TestCreateRouter(TestRouter):
                 },
             }
         )
-        self.assertFalse(self.network.set_tags.called)
+        self.assertFalse(self.network_client.set_tags.called)
         self.assertEqual(self.columns, columns)
         self.assertCountEqual(self.data, data)
 
@@ -265,7 +267,7 @@ class TestCreateRouter(TestRouter):
 
         columns, data = self.cmd.take_action(parsed_args)
 
-        self.network.create_router.assert_called_once_with(
+        self.network_client.create_router.assert_called_once_with(
             **{
                 'admin_state_up': True,
                 'name': self.new_router.name,
@@ -296,7 +298,7 @@ class TestCreateRouter(TestRouter):
 
         columns, data = self.cmd.take_action(parsed_args)
 
-        self.network.create_router.assert_called_once_with(
+        self.network_client.create_router.assert_called_once_with(
             **{
                 'admin_state_up': True,
                 'name': self.new_router.name,
@@ -330,7 +332,7 @@ class TestCreateRouter(TestRouter):
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
         columns, data = self.cmd.take_action(parsed_args)
-        self.network.create_router.assert_called_once_with(
+        self.network_client.create_router.assert_called_once_with(
             **{
                 'admin_state_up': True,
                 'name': self.new_router.name,
@@ -361,15 +363,15 @@ class TestCreateRouter(TestRouter):
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
         columns, data = self.cmd.take_action(parsed_args)
 
-        self.network.create_router.assert_called_once_with(
+        self.network_client.create_router.assert_called_once_with(
             name=self.new_router.name, admin_state_up=True
         )
         if add_tags:
-            self.network.set_tags.assert_called_once_with(
+            self.network_client.set_tags.assert_called_once_with(
                 self.new_router, tests_utils.CompareBySet(['red', 'blue'])
             )
         else:
-            self.assertFalse(self.network.set_tags.called)
+            self.assertFalse(self.network_client.set_tags.called)
         self.assertEqual(self.columns, columns)
         self.assertCountEqual(self.data, data)
 
@@ -395,7 +397,7 @@ class TestCreateRouter(TestRouter):
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
         columns, data = self.cmd.take_action(parsed_args)
-        self.network.create_router.assert_called_once_with(
+        self.network_client.create_router.assert_called_once_with(
             **{
                 'admin_state_up': True,
                 'name': self.new_router.name,
@@ -413,9 +415,9 @@ class TestDeleteRouter(TestRouter):
     def setUp(self):
         super(TestDeleteRouter, self).setUp()
 
-        self.network.delete_router = mock.Mock(return_value=None)
+        self.network_client.delete_router = mock.Mock(return_value=None)
 
-        self.network.find_router = network_fakes.FakeRouter.get_routers(
+        self.network_client.find_router = network_fakes.FakeRouter.get_routers(
             self._routers
         )
 
@@ -432,7 +434,9 @@ class TestDeleteRouter(TestRouter):
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
         result = self.cmd.take_action(parsed_args)
-        self.network.delete_router.assert_called_once_with(self._routers[0])
+        self.network_client.delete_router.assert_called_once_with(
+            self._routers[0]
+        )
         self.assertIsNone(result)
 
     def test_multi_routers_delete(self):
@@ -451,7 +455,7 @@ class TestDeleteRouter(TestRouter):
         calls = []
         for r in self._routers:
             calls.append(call(r))
-        self.network.delete_router.assert_has_calls(calls)
+        self.network_client.delete_router.assert_has_calls(calls)
         self.assertIsNone(result)
 
     def test_multi_routers_delete_with_exception(self):
@@ -465,7 +469,9 @@ class TestDeleteRouter(TestRouter):
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
         find_mock_result = [self._routers[0], exceptions.CommandError]
-        self.network.find_router = mock.Mock(side_effect=find_mock_result)
+        self.network_client.find_router = mock.Mock(
+            side_effect=find_mock_result
+        )
 
         try:
             self.cmd.take_action(parsed_args)
@@ -473,13 +479,15 @@ class TestDeleteRouter(TestRouter):
         except exceptions.CommandError as e:
             self.assertEqual('1 of 2 routers failed to delete.', str(e))
 
-        self.network.find_router.assert_any_call(
+        self.network_client.find_router.assert_any_call(
             self._routers[0].name, ignore_missing=False
         )
-        self.network.find_router.assert_any_call(
+        self.network_client.find_router.assert_any_call(
             'unexist_router', ignore_missing=False
         )
-        self.network.delete_router.assert_called_once_with(self._routers[0])
+        self.network_client.delete_router.assert_called_once_with(
+            self._routers[0]
+        )
 
 
 class TestListRouter(TestRouter):
@@ -568,15 +576,21 @@ class TestListRouter(TestRouter):
         # Get the command object to test
         self.cmd = router.ListRouter(self.app, self.namespace)
 
-        self.network.agent_hosted_routers = mock.Mock(
+        self.network_client.agent_hosted_routers = mock.Mock(
             return_value=self.routers
         )
-        self.network.routers = mock.Mock(return_value=self.routers)
-        self.network.find_extension = mock.Mock(return_value=self.extensions)
-        self.network.find_router = mock.Mock(return_value=self.routers[0])
+        self.network_client.routers = mock.Mock(return_value=self.routers)
+        self.network_client.find_extension = mock.Mock(
+            return_value=self.extensions
+        )
+        self.network_client.find_router = mock.Mock(
+            return_value=self.routers[0]
+        )
         self._testagent = network_fakes.create_one_network_agent()
-        self.network.get_agent = mock.Mock(return_value=self._testagent)
-        self.network.get_router = mock.Mock(return_value=self.routers[0])
+        self.network_client.get_agent = mock.Mock(return_value=self._testagent)
+        self.network_client.get_router = mock.Mock(
+            return_value=self.routers[0]
+        )
 
     def test_router_list_no_options(self):
         arglist = []
@@ -590,7 +604,7 @@ class TestListRouter(TestRouter):
         # containing the data to be listed.
         columns, data = self.cmd.take_action(parsed_args)
 
-        self.network.routers.assert_called_once_with()
+        self.network_client.routers.assert_called_once_with()
         self.assertEqual(self.columns, columns)
         self.assertCountEqual(self.data, list(data))
 
@@ -605,7 +619,9 @@ class TestListRouter(TestRouter):
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
-        with mock.patch.object(self.network, "routers", return_value=_routers):
+        with mock.patch.object(
+            self.network_client, "routers", return_value=_routers
+        ):
             columns, data = self.cmd.take_action(parsed_args)
 
         self.assertNotIn("is_distributed", columns)
@@ -625,7 +641,7 @@ class TestListRouter(TestRouter):
         # containing the data to be listed.
         columns, data = self.cmd.take_action(parsed_args)
 
-        self.network.routers.assert_called_once_with()
+        self.network_client.routers.assert_called_once_with()
         self.assertEqual(self.columns_long, columns)
         self.assertCountEqual(self.data_long, list(data))
 
@@ -639,14 +655,14 @@ class TestListRouter(TestRouter):
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
         # to mock, that no availability zone
-        self.network.find_extension = mock.Mock(return_value=None)
+        self.network_client.find_extension = mock.Mock(return_value=None)
 
         # In base command class Lister in cliff, abstract method take_action()
         # returns a tuple containing the column names and an iterable
         # containing the data to be listed.
         columns, data = self.cmd.take_action(parsed_args)
 
-        self.network.routers.assert_called_once_with()
+        self.network_client.routers.assert_called_once_with()
         self.assertEqual(self.columns_long_no_az, columns)
         self.assertCountEqual(self.data_long_no_az, list(data))
 
@@ -663,7 +679,9 @@ class TestListRouter(TestRouter):
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
         columns, data = self.cmd.take_action(parsed_args)
 
-        self.network.routers.assert_called_once_with(**{'name': test_name})
+        self.network_client.routers.assert_called_once_with(
+            **{'name': test_name}
+        )
         self.assertEqual(self.columns, columns)
         self.assertCountEqual(self.data, list(data))
 
@@ -678,7 +696,7 @@ class TestListRouter(TestRouter):
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
         columns, data = self.cmd.take_action(parsed_args)
 
-        self.network.routers.assert_called_once_with(
+        self.network_client.routers.assert_called_once_with(
             **{'admin_state_up': True, 'is_admin_state_up': True}
         )
         self.assertEqual(self.columns, columns)
@@ -692,7 +710,7 @@ class TestListRouter(TestRouter):
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
         columns, data = self.cmd.take_action(parsed_args)
 
-        self.network.routers.assert_called_once_with(
+        self.network_client.routers.assert_called_once_with(
             **{'admin_state_up': False, 'is_admin_state_up': False}
         )
 
@@ -714,7 +732,7 @@ class TestListRouter(TestRouter):
         columns, data = self.cmd.take_action(parsed_args)
         filters = {'project_id': project.id}
 
-        self.network.routers.assert_called_once_with(**filters)
+        self.network_client.routers.assert_called_once_with(**filters)
         self.assertEqual(self.columns, columns)
         self.assertCountEqual(self.data, list(data))
 
@@ -736,7 +754,7 @@ class TestListRouter(TestRouter):
         columns, data = self.cmd.take_action(parsed_args)
         filters = {'project_id': project.id}
 
-        self.network.routers.assert_called_once_with(**filters)
+        self.network_client.routers.assert_called_once_with(**filters)
         self.assertEqual(self.columns, columns)
         self.assertCountEqual(self.data, list(data))
 
@@ -771,7 +789,7 @@ class TestListRouter(TestRouter):
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
         columns, data = self.cmd.take_action(parsed_args)
 
-        self.network.agent_hosted_routers(*attrs)
+        self.network_client.agent_hosted_routers(*attrs)
         self.assertEqual(self.columns, columns)
         self.assertCountEqual(self.data, list(data))
 
@@ -795,7 +813,7 @@ class TestListRouter(TestRouter):
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
         columns, data = self.cmd.take_action(parsed_args)
 
-        self.network.routers.assert_called_once_with(
+        self.network_client.routers.assert_called_once_with(
             **{
                 'tags': 'red,blue',
                 'any_tags': 'red,green',
@@ -817,10 +835,10 @@ class TestRemovePortFromRouter(TestRouter):
 
     def setUp(self):
         super(TestRemovePortFromRouter, self).setUp()
-        self.network.remove_interface_from_router = mock.Mock()
+        self.network_client.remove_interface_from_router = mock.Mock()
         self.cmd = router.RemovePortFromRouter(self.app, self.namespace)
-        self.network.find_router = mock.Mock(return_value=self._router)
-        self.network.find_port = mock.Mock(return_value=self._port)
+        self.network_client.find_router = mock.Mock(return_value=self._router)
+        self.network_client.find_port = mock.Mock(return_value=self._port)
 
     def test_remove_port_no_option(self):
         arglist = []
@@ -847,7 +865,7 @@ class TestRemovePortFromRouter(TestRouter):
 
         result = self.cmd.take_action(parsed_args)
 
-        self.network.remove_interface_from_router.assert_called_with(
+        self.network_client.remove_interface_from_router.assert_called_with(
             self._router, **{'port_id': self._router.port}
         )
         self.assertIsNone(result)
@@ -863,10 +881,10 @@ class TestRemoveSubnetFromRouter(TestRouter):
 
     def setUp(self):
         super(TestRemoveSubnetFromRouter, self).setUp()
-        self.network.remove_interface_from_router = mock.Mock()
+        self.network_client.remove_interface_from_router = mock.Mock()
         self.cmd = router.RemoveSubnetFromRouter(self.app, self.namespace)
-        self.network.find_router = mock.Mock(return_value=self._router)
-        self.network.find_subnet = mock.Mock(return_value=self._subnet)
+        self.network_client.find_router = mock.Mock(return_value=self._router)
+        self.network_client.find_subnet = mock.Mock(return_value=self._subnet)
 
     def test_remove_subnet_no_option(self):
         arglist = []
@@ -892,7 +910,7 @@ class TestRemoveSubnetFromRouter(TestRouter):
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
         result = self.cmd.take_action(parsed_args)
-        self.network.remove_interface_from_router.assert_called_with(
+        self.network_client.remove_interface_from_router.assert_called_with(
             self._router, **{'subnet_id': self._router.subnet}
         )
         self.assertIsNone(result)
@@ -903,11 +921,11 @@ class TestAddExtraRoutesToRouter(TestRouter):
 
     def setUp(self):
         super(TestAddExtraRoutesToRouter, self).setUp()
-        self.network.add_extra_routes_to_router = mock.Mock(
+        self.network_client.add_extra_routes_to_router = mock.Mock(
             return_value=self._router
         )
         self.cmd = router.AddExtraRoutesToRouter(self.app, self.namespace)
-        self.network.find_router = mock.Mock(return_value=self._router)
+        self.network_client.find_router = mock.Mock(return_value=self._router)
 
     def test_add_no_extra_route(self):
         arglist = [
@@ -920,7 +938,7 @@ class TestAddExtraRoutesToRouter(TestRouter):
 
         result = self.cmd.take_action(parsed_args)
 
-        self.network.add_extra_routes_to_router.assert_called_with(
+        self.network_client.add_extra_routes_to_router.assert_called_with(
             self._router, body={'router': {'routes': []}}
         )
         self.assertEqual(2, len(result))
@@ -939,7 +957,7 @@ class TestAddExtraRoutesToRouter(TestRouter):
 
         result = self.cmd.take_action(parsed_args)
 
-        self.network.add_extra_routes_to_router.assert_called_with(
+        self.network_client.add_extra_routes_to_router.assert_called_with(
             self._router,
             body={
                 'router': {
@@ -973,7 +991,7 @@ class TestAddExtraRoutesToRouter(TestRouter):
 
         result = self.cmd.take_action(parsed_args)
 
-        self.network.add_extra_routes_to_router.assert_called_with(
+        self.network_client.add_extra_routes_to_router.assert_called_with(
             self._router,
             body={
                 'router': {
@@ -992,11 +1010,11 @@ class TestRemoveExtraRoutesFromRouter(TestRouter):
 
     def setUp(self):
         super(TestRemoveExtraRoutesFromRouter, self).setUp()
-        self.network.remove_extra_routes_from_router = mock.Mock(
+        self.network_client.remove_extra_routes_from_router = mock.Mock(
             return_value=self._router
         )
         self.cmd = router.RemoveExtraRoutesFromRouter(self.app, self.namespace)
-        self.network.find_router = mock.Mock(return_value=self._router)
+        self.network_client.find_router = mock.Mock(return_value=self._router)
 
     def test_remove_no_extra_route(self):
         arglist = [
@@ -1009,7 +1027,7 @@ class TestRemoveExtraRoutesFromRouter(TestRouter):
 
         result = self.cmd.take_action(parsed_args)
 
-        self.network.remove_extra_routes_from_router.assert_called_with(
+        self.network_client.remove_extra_routes_from_router.assert_called_with(
             self._router, body={'router': {'routes': []}}
         )
         self.assertEqual(2, len(result))
@@ -1028,7 +1046,7 @@ class TestRemoveExtraRoutesFromRouter(TestRouter):
 
         result = self.cmd.take_action(parsed_args)
 
-        self.network.remove_extra_routes_from_router.assert_called_with(
+        self.network_client.remove_extra_routes_from_router.assert_called_with(
             self._router,
             body={
                 'router': {
@@ -1062,7 +1080,7 @@ class TestRemoveExtraRoutesFromRouter(TestRouter):
 
         result = self.cmd.take_action(parsed_args)
 
-        self.network.remove_extra_routes_from_router.assert_called_with(
+        self.network_client.remove_extra_routes_from_router.assert_called_with(
             self._router,
             body={
                 'router': {
@@ -1087,12 +1105,14 @@ class TestSetRouter(TestRouter):
 
     def setUp(self):
         super(TestSetRouter, self).setUp()
-        self.network.router_add_gateway = mock.Mock()
-        self.network.update_router = mock.Mock(return_value=None)
-        self.network.set_tags = mock.Mock(return_value=None)
-        self.network.find_router = mock.Mock(return_value=self._router)
-        self.network.find_network = mock.Mock(return_value=self._network)
-        self.network.find_subnet = mock.Mock(return_value=self._subnet)
+        self.network_client.router_add_gateway = mock.Mock()
+        self.network_client.update_router = mock.Mock(return_value=None)
+        self.network_client.set_tags = mock.Mock(return_value=None)
+        self.network_client.find_router = mock.Mock(return_value=self._router)
+        self.network_client.find_network = mock.Mock(
+            return_value=self._network
+        )
+        self.network_client.find_subnet = mock.Mock(return_value=self._subnet)
         # Get the command object to test
         self.cmd = router.SetRouter(self.app, self.namespace)
 
@@ -1126,7 +1146,7 @@ class TestSetRouter(TestRouter):
             'ha': False,
             'description': 'router',
         }
-        self.network.update_router.assert_called_once_with(
+        self.network_client.update_router.assert_called_once_with(
             self._router, **attrs
         )
         self.assertIsNone(result)
@@ -1153,7 +1173,7 @@ class TestSetRouter(TestRouter):
             'distributed': False,
             'ha': True,
         }
-        self.network.update_router.assert_called_once_with(
+        self.network_client.update_router.assert_called_once_with(
             self._router, **attrs
         )
         self.assertIsNone(result)
@@ -1196,7 +1216,7 @@ class TestSetRouter(TestRouter):
         result = self.cmd.take_action(parsed_args)
         routes = [{'destination': '10.20.30.0/24', 'nexthop': '10.20.30.1'}]
         attrs = {'routes': routes + self._router.routes}
-        self.network.update_router.assert_called_once_with(
+        self.network_client.update_router.assert_called_once_with(
             self._router, **attrs
         )
         self.assertIsNone(result)
@@ -1217,7 +1237,7 @@ class TestSetRouter(TestRouter):
         attrs = {
             'routes': [],
         }
-        self.network.update_router.assert_called_once_with(
+        self.network_client.update_router.assert_called_once_with(
             self._router, **attrs
         )
         self.assertIsNone(result)
@@ -1226,7 +1246,7 @@ class TestSetRouter(TestRouter):
         _testrouter = network_fakes.FakeRouter.create_one_router(
             {'routes': [{"destination": "10.0.0.2", "nexthop": "1.1.1.1"}]}
         )
-        self.network.find_router = mock.Mock(return_value=_testrouter)
+        self.network_client.find_router = mock.Mock(return_value=_testrouter)
         arglist = [
             _testrouter.name,
             '--route',
@@ -1248,7 +1268,7 @@ class TestSetRouter(TestRouter):
                 {'destination': '10.20.30.0/24', 'nexthop': '10.20.30.1'}
             ]
         }
-        self.network.update_router.assert_called_once_with(
+        self.network_client.update_router.assert_called_once_with(
             _testrouter, **attrs
         )
         self.assertIsNone(result)
@@ -1264,8 +1284,8 @@ class TestSetRouter(TestRouter):
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
         result = self.cmd.take_action(parsed_args)
 
-        self.assertFalse(self.network.update_router.called)
-        self.assertFalse(self.network.set_tags.called)
+        self.assertFalse(self.network_client.update_router.called)
+        self.assertFalse(self.network_client.set_tags.called)
         self.assertIsNone(result)
 
     def test_wrong_gateway_params(self):
@@ -1296,7 +1316,7 @@ class TestSetRouter(TestRouter):
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
         result = self.cmd.take_action(parsed_args)
-        self.network.update_router.assert_called_with(
+        self.network_client.update_router.assert_called_with(
             self._router,
             **{'external_gateway_info': {'network_id': self._network.id}}
         )
@@ -1320,7 +1340,7 @@ class TestSetRouter(TestRouter):
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
         result = self.cmd.take_action(parsed_args)
-        self.network.update_router.assert_called_with(
+        self.network_client.update_router.assert_called_with(
             self._router,
             **{
                 'external_gateway_info': {
@@ -1354,7 +1374,7 @@ class TestSetRouter(TestRouter):
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
         result = self.cmd.take_action(parsed_args)
-        self.network.update_router.assert_called_with(
+        self.network_client.update_router.assert_called_with(
             self._router,
             **{
                 'external_gateway_info': {
@@ -1388,7 +1408,7 @@ class TestSetRouter(TestRouter):
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
         result = self.cmd.take_action(parsed_args)
-        self.network.update_router.assert_called_with(
+        self.network_client.update_router.assert_called_with(
             self._router,
             **{
                 'external_gateway_info': {
@@ -1420,8 +1440,8 @@ class TestSetRouter(TestRouter):
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
         result = self.cmd.take_action(parsed_args)
 
-        self.assertFalse(self.network.update_router.called)
-        self.network.set_tags.assert_called_once_with(
+        self.assertFalse(self.network_client.update_router.called)
+        self.network_client.set_tags.assert_called_once_with(
             self._router, tests_utils.CompareBySet(expected_args)
         )
         self.assertIsNone(result)
@@ -1434,7 +1454,9 @@ class TestSetRouter(TestRouter):
 
     def test_set_gateway_ip_qos(self):
         qos_policy = network_fakes.FakeNetworkQosPolicy.create_one_qos_policy()
-        self.network.find_qos_policy = mock.Mock(return_value=qos_policy)
+        self.network_client.find_qos_policy = mock.Mock(
+            return_value=qos_policy
+        )
         arglist = [
             "--external-gateway",
             self._network.id,
@@ -1450,7 +1472,7 @@ class TestSetRouter(TestRouter):
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
         result = self.cmd.take_action(parsed_args)
-        self.network.update_router.assert_called_with(
+        self.network_client.update_router.assert_called_with(
             self._router,
             **{
                 'external_gateway_info': {
@@ -1476,7 +1498,7 @@ class TestSetRouter(TestRouter):
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
         result = self.cmd.take_action(parsed_args)
-        self.network.update_router.assert_called_with(
+        self.network_client.update_router.assert_called_with(
             self._router,
             **{
                 'external_gateway_info': {
@@ -1489,7 +1511,9 @@ class TestSetRouter(TestRouter):
 
     def test_set_unset_gateway_ip_qos(self):
         qos_policy = network_fakes.FakeNetworkQosPolicy.create_one_qos_policy()
-        self.network.find_qos_policy = mock.Mock(return_value=qos_policy)
+        self.network_client.find_qos_policy = mock.Mock(
+            return_value=qos_policy
+        )
         arglist = [
             "--external-gateway",
             self._network.id,
@@ -1515,9 +1539,11 @@ class TestSetRouter(TestRouter):
 
     def test_set_gateway_ip_qos_no_gateway(self):
         qos_policy = network_fakes.FakeNetworkQosPolicy.create_one_qos_policy()
-        self.network.find_qos_policy = mock.Mock(return_value=qos_policy)
+        self.network_client.find_qos_policy = mock.Mock(
+            return_value=qos_policy
+        )
         router = network_fakes.FakeRouter.create_one_router()
-        self.network.find_router = mock.Mock(return_value=router)
+        self.network_client.find_router = mock.Mock(return_value=router)
         arglist = [
             "--qos-policy",
             qos_policy.id,
@@ -1535,9 +1561,11 @@ class TestSetRouter(TestRouter):
 
     def test_unset_gateway_ip_qos_no_gateway(self):
         qos_policy = network_fakes.FakeNetworkQosPolicy.create_one_qos_policy()
-        self.network.find_qos_policy = mock.Mock(return_value=qos_policy)
+        self.network_client.find_qos_policy = mock.Mock(
+            return_value=qos_policy
+        )
         router = network_fakes.FakeRouter.create_one_router()
-        self.network.find_router = mock.Mock(return_value=router)
+        self.network_client.find_router = mock.Mock(return_value=router)
         arglist = [
             "--no-qos-policy",
             router.id,
@@ -1606,8 +1634,8 @@ class TestShowRouter(TestRouter):
     def setUp(self):
         super(TestShowRouter, self).setUp()
 
-        self.network.find_router = mock.Mock(return_value=self._router)
-        self.network.ports = mock.Mock(return_value=[self._port])
+        self.network_client.find_router = mock.Mock(return_value=self._router)
+        self.network_client.ports = mock.Mock(return_value=[self._port])
 
         # Get the command object to test
         self.cmd = router.ShowRouter(self.app, self.namespace)
@@ -1635,10 +1663,12 @@ class TestShowRouter(TestRouter):
 
         columns, data = self.cmd.take_action(parsed_args)
 
-        self.network.find_router.assert_called_once_with(
+        self.network_client.find_router.assert_called_once_with(
             self._router.name, ignore_missing=False
         )
-        self.network.ports.assert_called_with(**{'device_id': self._router.id})
+        self.network_client.ports.assert_called_with(
+            **{'device_id': self._router.id}
+        )
         self.assertEqual(self.columns, columns)
         self.assertCountEqual(self.data, data)
 
@@ -1656,7 +1686,7 @@ class TestShowRouter(TestRouter):
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
         with mock.patch.object(
-            self.network, "find_router", return_value=_router
+            self.network_client, "find_router", return_value=_router
         ):
             columns, data = self.cmd.take_action(parsed_args)
 
@@ -1675,7 +1705,7 @@ class TestShowRouter(TestRouter):
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
         with mock.patch.object(
-            self.network, "find_router", return_value=_router
+            self.network_client, "find_router", return_value=_router
         ):
             columns, data = self.cmd.take_action(parsed_args)
 
@@ -1710,9 +1740,11 @@ class TestUnsetRouter(TestRouter):
             }
         )
         self.fake_subnet = network_fakes.FakeSubnet.create_one_subnet()
-        self.network.find_router = mock.Mock(return_value=self._testrouter)
-        self.network.update_router = mock.Mock(return_value=None)
-        self.network.set_tags = mock.Mock(return_value=None)
+        self.network_client.find_router = mock.Mock(
+            return_value=self._testrouter
+        )
+        self.network_client.update_router = mock.Mock(return_value=None)
+        self.network_client.set_tags = mock.Mock(return_value=None)
         # Get the command object to test
         self.cmd = router.UnsetRouter(self.app, self.namespace)
 
@@ -1737,7 +1769,7 @@ class TestUnsetRouter(TestRouter):
                 {"destination": "192.168.101.2/24", "nexthop": "172.24.4.3"}
             ],
         }
-        self.network.update_router.assert_called_once_with(
+        self.network_client.update_router.assert_called_once_with(
             self._testrouter, **attrs
         )
         self.assertIsNone(result)
@@ -1769,7 +1801,7 @@ class TestUnsetRouter(TestRouter):
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
         result = self.cmd.take_action(parsed_args)
         attrs = {'external_gateway_info': {}}
-        self.network.update_router.assert_called_once_with(
+        self.network_client.update_router.assert_called_once_with(
             self._testrouter, **attrs
         )
         self.assertIsNone(result)
@@ -1789,8 +1821,8 @@ class TestUnsetRouter(TestRouter):
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
         result = self.cmd.take_action(parsed_args)
 
-        self.assertFalse(self.network.update_router.called)
-        self.network.set_tags.assert_called_once_with(
+        self.assertFalse(self.network_client.update_router.called)
+        self.network_client.set_tags.assert_called_once_with(
             self._testrouter, tests_utils.CompareBySet(expected_args)
         )
         self.assertIsNone(result)
@@ -1815,16 +1847,18 @@ class TestUnsetRouter(TestRouter):
                 "qos_policy_id": None,
             }
         }
-        self.network.update_router.assert_called_once_with(
+        self.network_client.update_router.assert_called_once_with(
             self._testrouter, **attrs
         )
         self.assertIsNone(result)
 
     def test_unset_gateway_ip_qos_no_network(self):
         qos_policy = network_fakes.FakeNetworkQosPolicy.create_one_qos_policy()
-        self.network.find_qos_policy = mock.Mock(return_value=qos_policy)
+        self.network_client.find_qos_policy = mock.Mock(
+            return_value=qos_policy
+        )
         router = network_fakes.FakeRouter.create_one_router()
-        self.network.find_router = mock.Mock(return_value=router)
+        self.network_client.find_router = mock.Mock(return_value=router)
         arglist = [
             "--qos-policy",
             router.id,
@@ -1840,11 +1874,13 @@ class TestUnsetRouter(TestRouter):
 
     def test_unset_gateway_ip_qos_no_qos(self):
         qos_policy = network_fakes.FakeNetworkQosPolicy.create_one_qos_policy()
-        self.network.find_qos_policy = mock.Mock(return_value=qos_policy)
+        self.network_client.find_qos_policy = mock.Mock(
+            return_value=qos_policy
+        )
         router = network_fakes.FakeRouter.create_one_router(
             {"external_gateway_info": {"network_id": "fake-id"}}
         )
-        self.network.find_router = mock.Mock(return_value=router)
+        self.network_client.find_router = mock.Mock(return_value=router)
         arglist = [
             "--qos-policy",
             router.id,

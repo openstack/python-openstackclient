@@ -33,7 +33,7 @@ class TestNetwork(network_fakes.TestNetworkV2):
         super(TestNetwork, self).setUp()
 
         # Get a shortcut to the network client
-        self.network = self.app.client_manager.network
+        self.network_client = self.app.client_manager.network
         # Get a shortcut to the ProjectManager Mock
         self.projects_mock = self.app.client_manager.identity.projects
         # Get a shortcut to the DomainManager Mock
@@ -117,15 +117,19 @@ class TestCreateNetworkIdentityV3(TestNetwork):
     def setUp(self):
         super(TestCreateNetworkIdentityV3, self).setUp()
 
-        self.network.create_network = mock.Mock(return_value=self._network)
-        self.network.set_tags = mock.Mock(return_value=None)
+        self.network_client.create_network = mock.Mock(
+            return_value=self._network
+        )
+        self.network_client.set_tags = mock.Mock(return_value=None)
 
         # Get the command object to test
         self.cmd = network.CreateNetwork(self.app, self.namespace)
 
         self.projects_mock.get.return_value = self.project
         self.domains_mock.get.return_value = self.domain
-        self.network.find_qos_policy = mock.Mock(return_value=self.qos_policy)
+        self.network_client.find_qos_policy = mock.Mock(
+            return_value=self.qos_policy
+        )
 
     def test_create_no_options(self):
         arglist = []
@@ -154,13 +158,13 @@ class TestCreateNetworkIdentityV3(TestNetwork):
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
         columns, data = self.cmd.take_action(parsed_args)
 
-        self.network.create_network.assert_called_once_with(
+        self.network_client.create_network.assert_called_once_with(
             **{
                 'admin_state_up': True,
                 'name': self._network.name,
             }
         )
-        self.assertFalse(self.network.set_tags.called)
+        self.assertFalse(self.network_client.set_tags.called)
         self.assertEqual(set(self.columns), set(columns))
         self.assertCountEqual(self.data, data)
 
@@ -217,7 +221,7 @@ class TestCreateNetworkIdentityV3(TestNetwork):
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
         columns, data = self.cmd.take_action(parsed_args)
 
-        self.network.create_network.assert_called_once_with(
+        self.network_client.create_network.assert_called_once_with(
             **{
                 'admin_state_up': False,
                 'availability_zone_hints': ["nova"],
@@ -258,7 +262,7 @@ class TestCreateNetworkIdentityV3(TestNetwork):
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
         columns, data = self.cmd.take_action(parsed_args)
 
-        self.network.create_network.assert_called_once_with(
+        self.network_client.create_network.assert_called_once_with(
             **{
                 'admin_state_up': True,
                 'name': self._network.name,
@@ -290,15 +294,15 @@ class TestCreateNetworkIdentityV3(TestNetwork):
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
         columns, data = self.cmd.take_action(parsed_args)
 
-        self.network.create_network.assert_called_once_with(
+        self.network_client.create_network.assert_called_once_with(
             name=self._network.name, admin_state_up=True
         )
         if add_tags:
-            self.network.set_tags.assert_called_once_with(
+            self.network_client.set_tags.assert_called_once_with(
                 self._network, tests_utils.CompareBySet(['red', 'blue'])
             )
         else:
-            self.assertFalse(self.network.set_tags.called)
+            self.assertFalse(self.network_client.set_tags.called)
         self.assertEqual(set(self.columns), set(columns))
         self.assertCountEqual(self.data, data)
 
@@ -378,8 +382,10 @@ class TestCreateNetworkIdentityV2(TestNetwork):
     def setUp(self):
         super(TestCreateNetworkIdentityV2, self).setUp()
 
-        self.network.create_network = mock.Mock(return_value=self._network)
-        self.network.set_tags = mock.Mock(return_value=None)
+        self.network_client.create_network = mock.Mock(
+            return_value=self._network
+        )
+        self.network_client.set_tags = mock.Mock(return_value=None)
 
         # Get the command object to test
         self.cmd = network.CreateNetwork(self.app, self.namespace)
@@ -415,14 +421,14 @@ class TestCreateNetworkIdentityV2(TestNetwork):
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
         columns, data = self.cmd.take_action(parsed_args)
 
-        self.network.create_network.assert_called_once_with(
+        self.network_client.create_network.assert_called_once_with(
             **{
                 'admin_state_up': True,
                 'name': self._network.name,
                 'project_id': self.project.id,
             }
         )
-        self.assertFalse(self.network.set_tags.called)
+        self.assertFalse(self.network_client.set_tags.called)
         self.assertEqual(set(self.columns), set(columns))
         self.assertCountEqual(self.data, data)
 
@@ -459,9 +465,9 @@ class TestDeleteNetwork(TestNetwork):
         # The networks to delete
         self._networks = network_fakes.create_networks(count=3)
 
-        self.network.delete_network = mock.Mock(return_value=None)
+        self.network_client.delete_network = mock.Mock(return_value=None)
 
-        self.network.find_network = network_fakes.get_networks(
+        self.network_client.find_network = network_fakes.get_networks(
             networks=self._networks
         )
 
@@ -479,7 +485,9 @@ class TestDeleteNetwork(TestNetwork):
 
         result = self.cmd.take_action(parsed_args)
 
-        self.network.delete_network.assert_called_once_with(self._networks[0])
+        self.network_client.delete_network.assert_called_once_with(
+            self._networks[0]
+        )
         self.assertIsNone(result)
 
     def test_delete_multiple_networks(self):
@@ -496,7 +504,7 @@ class TestDeleteNetwork(TestNetwork):
         calls = []
         for n in self._networks:
             calls.append(call(n))
-        self.network.delete_network.assert_has_calls(calls)
+        self.network_client.delete_network.assert_has_calls(calls)
         self.assertIsNone(result)
 
     def test_delete_multiple_networks_exception(self):
@@ -516,14 +524,14 @@ class TestDeleteNetwork(TestNetwork):
             exceptions.NotFound('404'),
             self._networks[1],
         ]
-        self.network.find_network = mock.Mock(side_effect=ret_find)
+        self.network_client.find_network = mock.Mock(side_effect=ret_find)
 
         # Fake exception in delete_network()
         ret_delete = [
             None,
             exceptions.NotFound('404'),
         ]
-        self.network.delete_network = mock.Mock(side_effect=ret_delete)
+        self.network_client.delete_network = mock.Mock(side_effect=ret_delete)
 
         self.assertRaises(
             exceptions.CommandError, self.cmd.take_action, parsed_args
@@ -535,7 +543,7 @@ class TestDeleteNetwork(TestNetwork):
             call(self._networks[0]),
             call(self._networks[1]),
         ]
-        self.network.delete_network.assert_has_calls(calls)
+        self.network_client.delete_network.assert_has_calls(calls)
 
 
 class TestListNetwork(TestNetwork):
@@ -595,17 +603,17 @@ class TestListNetwork(TestNetwork):
         # Get the command object to test
         self.cmd = network.ListNetwork(self.app, self.namespace)
 
-        self.network.networks = mock.Mock(return_value=self._network)
+        self.network_client.networks = mock.Mock(return_value=self._network)
 
         self._agent = network_fakes.create_one_network_agent()
-        self.network.get_agent = mock.Mock(return_value=self._agent)
+        self.network_client.get_agent = mock.Mock(return_value=self._agent)
 
-        self.network.dhcp_agent_hosting_networks = mock.Mock(
+        self.network_client.dhcp_agent_hosting_networks = mock.Mock(
             return_value=self._network
         )
 
         # TestListTagMixin
-        self._tag_list_resource_mock = self.network.networks
+        self._tag_list_resource_mock = self.network_client.networks
 
     def test_network_list_no_options(self):
         arglist = []
@@ -620,7 +628,7 @@ class TestListNetwork(TestNetwork):
         # containing the data to be listed.
         columns, data = self.cmd.take_action(parsed_args)
 
-        self.network.networks.assert_called_once_with()
+        self.network_client.networks.assert_called_once_with()
         self.assertEqual(self.columns, columns)
         self.assertCountEqual(self.data, list(data))
 
@@ -639,7 +647,7 @@ class TestListNetwork(TestNetwork):
         # containing the data to be listed.
         columns, data = self.cmd.take_action(parsed_args)
 
-        self.network.networks.assert_called_once_with(
+        self.network_client.networks.assert_called_once_with(
             **{'router:external': True, 'is_router_external': True}
         )
         self.assertEqual(self.columns, columns)
@@ -656,7 +664,7 @@ class TestListNetwork(TestNetwork):
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
         columns, data = self.cmd.take_action(parsed_args)
 
-        self.network.networks.assert_called_once_with(
+        self.network_client.networks.assert_called_once_with(
             **{'router:external': False, 'is_router_external': False}
         )
         self.assertEqual(self.columns, columns)
@@ -677,7 +685,7 @@ class TestListNetwork(TestNetwork):
         # containing the data to be listed.
         columns, data = self.cmd.take_action(parsed_args)
 
-        self.network.networks.assert_called_once_with()
+        self.network_client.networks.assert_called_once_with()
         self.assertEqual(self.columns_long, columns)
         self.assertCountEqual(self.data_long, list(data))
 
@@ -695,7 +703,9 @@ class TestListNetwork(TestNetwork):
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
         columns, data = self.cmd.take_action(parsed_args)
 
-        self.network.networks.assert_called_once_with(**{'name': test_name})
+        self.network_client.networks.assert_called_once_with(
+            **{'name': test_name}
+        )
         self.assertEqual(self.columns, columns)
         self.assertCountEqual(self.data, list(data))
 
@@ -711,7 +721,7 @@ class TestListNetwork(TestNetwork):
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
         columns, data = self.cmd.take_action(parsed_args)
 
-        self.network.networks.assert_called_once_with(
+        self.network_client.networks.assert_called_once_with(
             **{'admin_state_up': True, 'is_admin_state_up': True}
         )
         self.assertEqual(self.columns, columns)
@@ -725,7 +735,7 @@ class TestListNetwork(TestNetwork):
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
         columns, data = self.cmd.take_action(parsed_args)
 
-        self.network.networks.assert_called_once_with(
+        self.network_client.networks.assert_called_once_with(
             **{'admin_state_up': False, 'is_admin_state_up': False}
         )
         self.assertEqual(self.columns, columns)
@@ -744,7 +754,7 @@ class TestListNetwork(TestNetwork):
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
         columns, data = self.cmd.take_action(parsed_args)
-        self.network.networks.assert_called_once_with(
+        self.network_client.networks.assert_called_once_with(
             **{'project_id': project.id}
         )
 
@@ -768,7 +778,7 @@ class TestListNetwork(TestNetwork):
         columns, data = self.cmd.take_action(parsed_args)
         filters = {'project_id': project.id}
 
-        self.network.networks.assert_called_once_with(**filters)
+        self.network_client.networks.assert_called_once_with(**filters)
         self.assertEqual(self.columns, columns)
         self.assertCountEqual(self.data, list(data))
 
@@ -783,7 +793,7 @@ class TestListNetwork(TestNetwork):
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
         columns, data = self.cmd.take_action(parsed_args)
 
-        self.network.networks.assert_called_once_with(
+        self.network_client.networks.assert_called_once_with(
             **{'shared': True, 'is_shared': True}
         )
         self.assertEqual(self.columns, columns)
@@ -800,7 +810,7 @@ class TestListNetwork(TestNetwork):
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
         columns, data = self.cmd.take_action(parsed_args)
 
-        self.network.networks.assert_called_once_with(
+        self.network_client.networks.assert_called_once_with(
             **{'shared': False, 'is_shared': False}
         )
         self.assertEqual(self.columns, columns)
@@ -820,7 +830,7 @@ class TestListNetwork(TestNetwork):
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
         columns, data = self.cmd.take_action(parsed_args)
 
-        self.network.networks.assert_called_once_with(
+        self.network_client.networks.assert_called_once_with(
             **{'status': test_status}
         )
         self.assertEqual(self.columns, columns)
@@ -838,7 +848,7 @@ class TestListNetwork(TestNetwork):
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
         columns, data = self.cmd.take_action(parsed_args)
 
-        self.network.networks.assert_called_once_with(
+        self.network_client.networks.assert_called_once_with(
             **{
                 'provider:network_type': network_type,
                 'provider_network_type': network_type,
@@ -859,7 +869,7 @@ class TestListNetwork(TestNetwork):
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
         columns, data = self.cmd.take_action(parsed_args)
 
-        self.network.networks.assert_called_once_with(
+        self.network_client.networks.assert_called_once_with(
             **{
                 'provider:physical_network': physical_network,
                 'provider_physical_network': physical_network,
@@ -880,7 +890,7 @@ class TestListNetwork(TestNetwork):
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
         columns, data = self.cmd.take_action(parsed_args)
 
-        self.network.networks.assert_called_once_with(
+        self.network_client.networks.assert_called_once_with(
             **{
                 'provider:segmentation_id': segmentation_id,
                 'provider_segmentation_id': segmentation_id,
@@ -899,7 +909,7 @@ class TestListNetwork(TestNetwork):
 
         columns, data = self.cmd.take_action(parsed_args)
 
-        self.network.dhcp_agent_hosting_networks.assert_called_once_with(
+        self.network_client.dhcp_agent_hosting_networks.assert_called_once_with(
             self._agent
         )
 
@@ -926,7 +936,7 @@ class TestListNetwork(TestNetwork):
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
         columns, data = self.cmd.take_action(parsed_args)
 
-        self.network.networks.assert_called_once_with(
+        self.network_client.networks.assert_called_once_with(
             **{
                 'tags': 'red,blue',
                 'any_tags': 'red,green',
@@ -948,11 +958,15 @@ class TestSetNetwork(TestNetwork):
     def setUp(self):
         super(TestSetNetwork, self).setUp()
 
-        self.network.update_network = mock.Mock(return_value=None)
-        self.network.set_tags = mock.Mock(return_value=None)
+        self.network_client.update_network = mock.Mock(return_value=None)
+        self.network_client.set_tags = mock.Mock(return_value=None)
 
-        self.network.find_network = mock.Mock(return_value=self._network)
-        self.network.find_qos_policy = mock.Mock(return_value=self.qos_policy)
+        self.network_client.find_network = mock.Mock(
+            return_value=self._network
+        )
+        self.network_client.find_qos_policy = mock.Mock(
+            return_value=self.qos_policy
+        )
 
         # Get the command object to test
         self.cmd = network.SetNetwork(self.app, self.namespace)
@@ -1013,7 +1027,7 @@ class TestSetNetwork(TestNetwork):
             'qos_policy_id': self.qos_policy.id,
             'dns_domain': 'example.org.',
         }
-        self.network.update_network.assert_called_once_with(
+        self.network_client.update_network.assert_called_once_with(
             self._network, **attrs
         )
         self.assertIsNone(result)
@@ -1046,7 +1060,7 @@ class TestSetNetwork(TestNetwork):
             'port_security_enabled': False,
             'qos_policy_id': None,
         }
-        self.network.update_network.assert_called_once_with(
+        self.network_client.update_network.assert_called_once_with(
             self._network, **attrs
         )
         self.assertIsNone(result)
@@ -1062,8 +1076,8 @@ class TestSetNetwork(TestNetwork):
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
         result = self.cmd.take_action(parsed_args)
 
-        self.assertFalse(self.network.update_network.called)
-        self.assertFalse(self.network.set_tags.called)
+        self.assertFalse(self.network_client.update_network.called)
+        self.assertFalse(self.network_client.set_tags.called)
         self.assertIsNone(result)
 
     def _test_set_tags(self, with_tags=True):
@@ -1081,8 +1095,8 @@ class TestSetNetwork(TestNetwork):
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
         result = self.cmd.take_action(parsed_args)
 
-        self.assertFalse(self.network.update_network.called)
-        self.network.set_tags.assert_called_once_with(
+        self.assertFalse(self.network_client.update_network.called)
+        self.network_client.set_tags.assert_called_once_with(
             self._network, tests_utils.CompareBySet(expected_args)
         )
         self.assertIsNone(result)
@@ -1160,7 +1174,9 @@ class TestShowNetwork(TestNetwork):
     def setUp(self):
         super(TestShowNetwork, self).setUp()
 
-        self.network.find_network = mock.Mock(return_value=self._network)
+        self.network_client.find_network = mock.Mock(
+            return_value=self._network
+        )
 
         # Get the command object to test
         self.cmd = network.ShowNetwork(self.app, self.namespace)
@@ -1188,7 +1204,7 @@ class TestShowNetwork(TestNetwork):
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
         columns, data = self.cmd.take_action(parsed_args)
 
-        self.network.find_network.assert_called_once_with(
+        self.network_client.find_network.assert_called_once_with(
             self._network.name, ignore_missing=False
         )
 
@@ -1206,11 +1222,15 @@ class TestUnsetNetwork(TestNetwork):
     def setUp(self):
         super(TestUnsetNetwork, self).setUp()
 
-        self.network.update_network = mock.Mock(return_value=None)
-        self.network.set_tags = mock.Mock(return_value=None)
+        self.network_client.update_network = mock.Mock(return_value=None)
+        self.network_client.set_tags = mock.Mock(return_value=None)
 
-        self.network.find_network = mock.Mock(return_value=self._network)
-        self.network.find_qos_policy = mock.Mock(return_value=self.qos_policy)
+        self.network_client.find_network = mock.Mock(
+            return_value=self._network
+        )
+        self.network_client.find_qos_policy = mock.Mock(
+            return_value=self.qos_policy
+        )
 
         # Get the command object to test
         self.cmd = network.UnsetNetwork(self.app, self.namespace)
@@ -1226,8 +1246,8 @@ class TestUnsetNetwork(TestNetwork):
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
         result = self.cmd.take_action(parsed_args)
 
-        self.assertFalse(self.network.update_network.called)
-        self.assertFalse(self.network.set_tags.called)
+        self.assertFalse(self.network_client.update_network.called)
+        self.assertFalse(self.network_client.set_tags.called)
         self.assertIsNone(result)
 
     def _test_unset_tags(self, with_tags=True):
@@ -1245,8 +1265,8 @@ class TestUnsetNetwork(TestNetwork):
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
         result = self.cmd.take_action(parsed_args)
 
-        self.assertFalse(self.network.update_network.called)
-        self.network.set_tags.assert_called_once_with(
+        self.assertFalse(self.network_client.update_network.called)
+        self.network_client.set_tags.assert_called_once_with(
             self._network, tests_utils.CompareBySet(expected_args)
         )
         self.assertIsNone(result)

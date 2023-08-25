@@ -25,7 +25,7 @@ class TestFloatingIPPoolNetwork(network_fakes.TestNetworkV2):
         super(TestFloatingIPPoolNetwork, self).setUp()
 
         # Get a shortcut to the network client
-        self.network = self.app.client_manager.network
+        self.network_client = self.app.client_manager.network
 
 
 class TestListFloatingIPPoolNetwork(TestFloatingIPPoolNetwork):

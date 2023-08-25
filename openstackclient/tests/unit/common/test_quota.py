@@ -63,7 +63,7 @@ class TestQuota(compute_fakes.TestComputev2):
         self.volume_quotas_class_mock.reset_mock()
 
         self.app.client_manager.network = mock.Mock()
-        self.network_mock = self.app.client_manager.network
+        self.network_client = self.app.client_manager.network
 
         self.app.client_manager.auth_ref = mock.Mock()
         self.app.client_manager.auth_ref.service_catalog = mock.Mock()
@@ -158,8 +158,7 @@ class TestQuotaList(TestQuota):
             network_fakes.FakeQuota.create_one_default_net_quota(),
             network_fakes.FakeQuota.create_one_default_net_quota(),
         ]
-        self.network = self.app.client_manager.network
-        self.network.get_quota_default = mock.Mock(
+        self.network_client.get_quota_default = mock.Mock(
             side_effect=self.network_default_quotas,
         )
 
@@ -261,7 +260,7 @@ class TestQuotaList(TestQuota):
             detailed_quota
         )
 
-        self.network.get_quota = mock.Mock(return_value=detailed_quota)
+        self.network_client.get_quota = mock.Mock(return_value=detailed_quota)
 
         arglist = [
             '--detail',
@@ -452,7 +451,7 @@ class TestQuotaList(TestQuota):
 
     def test_quota_list_network(self):
         # Two projects with non-default quotas
-        self.network.get_quota = mock.Mock(
+        self.network_client.get_quota = mock.Mock(
             side_effect=self.network_quotas,
         )
 
@@ -473,7 +472,7 @@ class TestQuotaList(TestQuota):
 
     def test_quota_list_network_default(self):
         # Two projects with non-default quotas
-        self.network.get_quota = mock.Mock(
+        self.network_client.get_quota = mock.Mock(
             side_effect=[
                 self.network_quotas[0],
                 network_fakes.FakeQuota.create_one_default_net_quota(),
@@ -497,7 +496,7 @@ class TestQuotaList(TestQuota):
 
     def test_quota_list_network_no_project(self):
         # Two projects with non-default quotas
-        self.network.get_quota = mock.Mock(
+        self.network_client.get_quota = mock.Mock(
             side_effect=[
                 self.network_quotas[0],
                 exceptions.NotFound("NotFound"),
@@ -521,7 +520,7 @@ class TestQuotaList(TestQuota):
 
     def test_quota_list_network_by_project(self):
         # Two projects with non-default quotas
-        self.network.get_quota = mock.Mock(
+        self.network_client.get_quota = mock.Mock(
             side_effect=self.network_quotas,
         )
 
@@ -663,7 +662,7 @@ class TestQuotaSet(TestQuota):
             loaded=True,
         )
 
-        self.network_mock.update_quota = mock.Mock()
+        self.network_client.update_quota = mock.Mock()
 
         self.cmd = quota.SetQuota(self.app, None)
 
@@ -893,7 +892,7 @@ class TestQuotaSet(TestQuota):
             'rbac_policy': network_fakes.QUOTA['rbac_policy'],
             'port': network_fakes.QUOTA['port'],
         }
-        self.network_mock.update_quota.assert_called_once_with(
+        self.network_client.update_quota.assert_called_once_with(
             self.projects[0].id, **kwargs
         )
         self.assertIsNone(result)
@@ -980,7 +979,7 @@ class TestQuotaSet(TestQuota):
         self.volume_quotas_class_mock.update.assert_called_with(
             self.projects[0].name, **kwargs_volume
         )
-        self.assertNotCalled(self.network_mock.update_quota)
+        self.assertNotCalled(self.network_client.update_quota)
         self.assertIsNone(result)
 
     def test_quota_set_with_force(self):
@@ -1031,7 +1030,7 @@ class TestQuotaSet(TestQuota):
         self.volume_quotas_mock.update.assert_called_once_with(
             self.projects[0].id, **kwargs_volume
         )
-        self.network_mock.update_quota.assert_called_once_with(
+        self.network_client.update_quota.assert_called_once_with(
             self.projects[0].id, **kwargs_network
         )
         self.assertIsNone(result)
@@ -1075,7 +1074,7 @@ class TestQuotaSet(TestQuota):
         self.volume_quotas_mock.update.assert_called_once_with(
             self.projects[0].id, **kwargs_volume
         )
-        self.network_mock.update_quota.assert_called_once_with(
+        self.network_client.update_quota.assert_called_once_with(
             self.projects[0].id, **kwargs_network
         )
         self.assertIsNone(result)
@@ -1121,12 +1120,10 @@ class TestQuotaShow(TestQuota):
             'network': fake_network_endpoint
         }
 
-        self.app.client_manager.network = mock.Mock()
-        self.network = self.app.client_manager.network
-        self.network.get_quota = mock.Mock(
+        self.network_client.get_quota = mock.Mock(
             return_value=network_fakes.QUOTA,
         )
-        self.network.get_quota_default = mock.Mock(
+        self.network_client.get_quota_default = mock.Mock(
             return_value=network_fakes.QUOTA,
         )
 
@@ -1152,11 +1149,11 @@ class TestQuotaShow(TestQuota):
             self.projects[0].id,
             usage=False,
         )
-        self.network.get_quota.assert_called_once_with(
+        self.network_client.get_quota.assert_called_once_with(
             self.projects[0].id,
             details=False,
         )
-        self.assertNotCalled(self.network.get_quota_default)
+        self.assertNotCalled(self.network_client.get_quota_default)
 
     def test_quota_show__with_compute(self):
         arglist = [
@@ -1176,7 +1173,7 @@ class TestQuotaShow(TestQuota):
             detail=False,
         )
         self.volume_quotas_mock.get.assert_not_called()
-        self.network.get_quota.assert_not_called()
+        self.network_client.get_quota.assert_not_called()
 
     def test_quota_show__with_volume(self):
         arglist = [
@@ -1196,7 +1193,7 @@ class TestQuotaShow(TestQuota):
             self.projects[0].id,
             usage=False,
         )
-        self.network.get_quota.assert_not_called()
+        self.network_client.get_quota.assert_not_called()
 
     def test_quota_show__with_network(self):
         arglist = [
@@ -1213,11 +1210,11 @@ class TestQuotaShow(TestQuota):
 
         self.compute_quotas_mock.get.assert_not_called()
         self.volume_quotas_mock.get.assert_not_called()
-        self.network.get_quota.assert_called_once_with(
+        self.network_client.get_quota.assert_called_once_with(
             self.projects[0].id,
             details=False,
         )
-        self.assertNotCalled(self.network.get_quota_default)
+        self.assertNotCalled(self.network_client.get_quota_default)
 
     def test_quota_show__with_default(self):
         arglist = [
@@ -1238,10 +1235,10 @@ class TestQuotaShow(TestQuota):
         self.volume_quotas_mock.defaults.assert_called_once_with(
             self.projects[0].id,
         )
-        self.network.get_quota_default.assert_called_once_with(
+        self.network_client.get_quota_default.assert_called_once_with(
             self.projects[0].id,
         )
-        self.assertNotCalled(self.network.get_quota)
+        self.assertNotCalled(self.network_client.get_quota)
 
     def test_quota_show__with_class(self):
         arglist = [
@@ -1259,8 +1256,8 @@ class TestQuotaShow(TestQuota):
         self.compute_quotas_class_mock.get.assert_called_once_with('default')
         self.volume_quotas_class_mock.get.assert_called_once_with('default')
         # neutron doesn't have the concept of quota classes
-        self.assertNotCalled(self.network.get_quota)
-        self.assertNotCalled(self.network.get_quota_default)
+        self.assertNotCalled(self.network_client.get_quota)
+        self.assertNotCalled(self.network_client.get_quota_default)
 
     def test_quota_show__with_usage(self):
         # update mocks to return detailed quota instead
@@ -1268,7 +1265,7 @@ class TestQuotaShow(TestQuota):
         self.compute_quotas_mock.get.return_value = self.compute_quota
         self.volume_quota = volume_fakes.create_one_detailed_quota()
         self.volume_quotas_mock.get.return_value = self.volume_quota
-        self.network.get_quota.return_value = (
+        self.network_client.get_quota.return_value = (
             network_fakes.FakeQuota.create_one_net_detailed_quota()
         )
 
@@ -1292,7 +1289,7 @@ class TestQuotaShow(TestQuota):
             self.projects[0].id,
             usage=True,
         )
-        self.network.get_quota.assert_called_once_with(
+        self.network_client.get_quota.assert_called_once_with(
             self.projects[0].id,
             details=True,
         )
@@ -1312,10 +1309,10 @@ class TestQuotaShow(TestQuota):
         self.volume_quotas_mock.get.assert_called_once_with(
             identity_fakes.project_id, usage=False
         )
-        self.network.get_quota.assert_called_once_with(
+        self.network_client.get_quota.assert_called_once_with(
             identity_fakes.project_id, details=False
         )
-        self.assertNotCalled(self.network.get_quota_default)
+        self.assertNotCalled(self.network_client.get_quota_default)
 
 
 class TestQuotaDelete(TestQuota):
@@ -1324,7 +1321,7 @@ class TestQuotaDelete(TestQuota):
     def setUp(self):
         super().setUp()
 
-        self.network_mock.delete_quota = mock.Mock()
+        self.network_client.delete_quota = mock.Mock()
 
         self.cmd = quota.DeleteQuota(self.app, None)
 
@@ -1350,7 +1347,7 @@ class TestQuotaDelete(TestQuota):
         self.volume_quotas_mock.delete.assert_called_once_with(
             self.projects[0].id,
         )
-        self.network_mock.delete_quota.assert_called_once_with(
+        self.network_client.delete_quota.assert_called_once_with(
             self.projects[0].id,
         )
 
@@ -1375,7 +1372,7 @@ class TestQuotaDelete(TestQuota):
             self.projects[0].id,
         )
         self.volume_quotas_mock.delete.assert_not_called()
-        self.network_mock.delete_quota.assert_not_called()
+        self.network_client.delete_quota.assert_not_called()
 
     def test_delete__volume(self):
         """Delete volume quotas only"""
@@ -1398,7 +1395,7 @@ class TestQuotaDelete(TestQuota):
         self.volume_quotas_mock.delete.assert_called_once_with(
             self.projects[0].id,
         )
-        self.network_mock.delete_quota.assert_not_called()
+        self.network_client.delete_quota.assert_not_called()
 
     def test_delete__network(self):
         """Delete network quotas only"""
@@ -1419,6 +1416,6 @@ class TestQuotaDelete(TestQuota):
         self.projects_mock.get.assert_called_once_with(self.projects[0].id)
         self.compute_quotas_mock.delete.assert_not_called()
         self.volume_quotas_mock.delete.assert_not_called()
-        self.network_mock.delete_quota.assert_called_once_with(
+        self.network_client.delete_quota.assert_called_once_with(
             self.projects[0].id,
         )

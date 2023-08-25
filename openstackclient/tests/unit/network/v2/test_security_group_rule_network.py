@@ -27,7 +27,7 @@ class TestSecurityGroupRuleNetwork(network_fakes.TestNetworkV2):
         super(TestSecurityGroupRuleNetwork, self).setUp()
 
         # Get a shortcut to the network client
-        self.network = self.app.client_manager.network
+        self.network_client = self.app.client_manager.network
         # Get a shortcut to the ProjectManager Mock
         self.projects_mock = self.app.client_manager.identity.projects
         # Get a shortcut to the DomainManager Mock
@@ -71,7 +71,7 @@ class TestCreateSecurityGroupRuleNetwork(TestSecurityGroupRuleNetwork):
                 attrs
             )
         )
-        self.network.create_security_group_rule = mock.Mock(
+        self.network_client.create_security_group_rule = mock.Mock(
             return_value=self._security_group_rule
         )
         self.expected_data = (
@@ -92,11 +92,11 @@ class TestCreateSecurityGroupRuleNetwork(TestSecurityGroupRuleNetwork):
     def setUp(self):
         super(TestCreateSecurityGroupRuleNetwork, self).setUp()
 
-        self.network.find_security_group = mock.Mock(
+        self.network_client.find_security_group = mock.Mock(
             return_value=self._security_group
         )
 
-        self.network.find_address_group = mock.Mock(
+        self.network_client.find_address_group = mock.Mock(
             return_value=self._address_group
         )
 
@@ -238,7 +238,7 @@ class TestCreateSecurityGroupRuleNetwork(TestSecurityGroupRuleNetwork):
 
         columns, data = self.cmd.take_action(parsed_args)
 
-        self.network.create_security_group_rule.assert_called_once_with(
+        self.network_client.create_security_group_rule.assert_called_once_with(
             **{
                 'direction': self._security_group_rule.direction,
                 'ethertype': self._security_group_rule.ether_type,
@@ -276,7 +276,7 @@ class TestCreateSecurityGroupRuleNetwork(TestSecurityGroupRuleNetwork):
 
         columns, data = self.cmd.take_action(parsed_args)
 
-        self.network.create_security_group_rule.assert_called_once_with(
+        self.network_client.create_security_group_rule.assert_called_once_with(
             **{
                 'direction': self._security_group_rule.direction,
                 'ethertype': self._security_group_rule.ether_type,
@@ -312,7 +312,7 @@ class TestCreateSecurityGroupRuleNetwork(TestSecurityGroupRuleNetwork):
 
         columns, data = self.cmd.take_action(parsed_args)
 
-        self.network.create_security_group_rule.assert_called_once_with(
+        self.network_client.create_security_group_rule.assert_called_once_with(
             **{
                 'direction': self._security_group_rule.direction,
                 'ethertype': self._security_group_rule.ether_type,
@@ -346,7 +346,7 @@ class TestCreateSecurityGroupRuleNetwork(TestSecurityGroupRuleNetwork):
 
         columns, data = self.cmd.take_action(parsed_args)
 
-        self.network.create_security_group_rule.assert_called_once_with(
+        self.network_client.create_security_group_rule.assert_called_once_with(
             **{
                 'direction': self._security_group_rule.direction,
                 'ethertype': self._security_group_rule.ether_type,
@@ -392,7 +392,7 @@ class TestCreateSecurityGroupRuleNetwork(TestSecurityGroupRuleNetwork):
 
         columns, data = self.cmd.take_action(parsed_args)
 
-        self.network.create_security_group_rule.assert_called_once_with(
+        self.network_client.create_security_group_rule.assert_called_once_with(
             **{
                 'direction': self._security_group_rule.direction,
                 'ethertype': self._security_group_rule.ether_type,
@@ -427,7 +427,7 @@ class TestCreateSecurityGroupRuleNetwork(TestSecurityGroupRuleNetwork):
 
         columns, data = self.cmd.take_action(parsed_args)
 
-        self.network.create_security_group_rule.assert_called_once_with(
+        self.network_client.create_security_group_rule.assert_called_once_with(
             **{
                 'direction': self._security_group_rule.direction,
                 'ethertype': self._security_group_rule.ether_type,
@@ -462,7 +462,7 @@ class TestCreateSecurityGroupRuleNetwork(TestSecurityGroupRuleNetwork):
 
         columns, data = self.cmd.take_action(parsed_args)
 
-        self.network.create_security_group_rule.assert_called_once_with(
+        self.network_client.create_security_group_rule.assert_called_once_with(
             **{
                 'direction': self._security_group_rule.direction,
                 'ethertype': self._security_group_rule.ether_type,
@@ -497,7 +497,7 @@ class TestCreateSecurityGroupRuleNetwork(TestSecurityGroupRuleNetwork):
 
         columns, data = self.cmd.take_action(parsed_args)
 
-        self.network.create_security_group_rule.assert_called_once_with(
+        self.network_client.create_security_group_rule.assert_called_once_with(
             **{
                 'direction': self._security_group_rule.direction,
                 'ethertype': self._security_group_rule.ether_type,
@@ -554,7 +554,7 @@ class TestCreateSecurityGroupRuleNetwork(TestSecurityGroupRuleNetwork):
 
         columns, data = self.cmd.take_action(parsed_args)
 
-        self.network.create_security_group_rule.assert_called_once_with(
+        self.network_client.create_security_group_rule.assert_called_once_with(
             **{
                 'direction': self._security_group_rule.direction,
                 'ethertype': self._security_group_rule.ether_type,
@@ -718,7 +718,7 @@ class TestCreateSecurityGroupRuleNetwork(TestSecurityGroupRuleNetwork):
 
         columns, data = self.cmd.take_action(parsed_args)
 
-        self.network.create_security_group_rule.assert_called_once_with(
+        self.network_client.create_security_group_rule.assert_called_once_with(
             **{
                 'direction': self._security_group_rule.direction,
                 'ethertype': self._security_group_rule.ether_type,
@@ -757,7 +757,7 @@ class TestCreateSecurityGroupRuleNetwork(TestSecurityGroupRuleNetwork):
 
         columns, data = self.cmd.take_action(parsed_args)
 
-        self.network.create_security_group_rule.assert_called_once_with(
+        self.network_client.create_security_group_rule.assert_called_once_with(
             **{
                 'direction': self._security_group_rule.direction,
                 'ethertype': self._security_group_rule.ether_type,
@@ -796,7 +796,7 @@ class TestCreateSecurityGroupRuleNetwork(TestSecurityGroupRuleNetwork):
 
         columns, data = self.cmd.take_action(parsed_args)
 
-        self.network.create_security_group_rule.assert_called_once_with(
+        self.network_client.create_security_group_rule.assert_called_once_with(
             **{
                 'direction': self._security_group_rule.direction,
                 'ethertype': self._security_group_rule.ether_type,
@@ -835,7 +835,7 @@ class TestCreateSecurityGroupRuleNetwork(TestSecurityGroupRuleNetwork):
 
         columns, data = self.cmd.take_action(parsed_args)
 
-        self.network.create_security_group_rule.assert_called_once_with(
+        self.network_client.create_security_group_rule.assert_called_once_with(
             **{
                 'direction': self._security_group_rule.direction,
                 'ethertype': self._security_group_rule.ether_type,
@@ -877,7 +877,7 @@ class TestCreateSecurityGroupRuleNetwork(TestSecurityGroupRuleNetwork):
 
         columns, data = self.cmd.take_action(parsed_args)
 
-        self.network.create_security_group_rule.assert_called_once_with(
+        self.network_client.create_security_group_rule.assert_called_once_with(
             **{
                 'direction': self._security_group_rule.direction,
                 'ethertype': self._security_group_rule.ether_type,
@@ -918,7 +918,7 @@ class TestCreateSecurityGroupRuleNetwork(TestSecurityGroupRuleNetwork):
 
         columns, data = self.cmd.take_action(parsed_args)
 
-        self.network.create_security_group_rule.assert_called_once_with(
+        self.network_client.create_security_group_rule.assert_called_once_with(
             **{
                 'direction': self._security_group_rule.direction,
                 'ethertype': self._security_group_rule.ether_type,
@@ -950,7 +950,7 @@ class TestCreateSecurityGroupRuleNetwork(TestSecurityGroupRuleNetwork):
 
         columns, data = self.cmd.take_action(parsed_args)
 
-        self.network.create_security_group_rule.assert_called_once_with(
+        self.network_client.create_security_group_rule.assert_called_once_with(
             **{
                 'description': self._security_group_rule.description,
                 'direction': self._security_group_rule.direction,
@@ -975,9 +975,11 @@ class TestDeleteSecurityGroupRuleNetwork(TestSecurityGroupRuleNetwork):
     def setUp(self):
         super(TestDeleteSecurityGroupRuleNetwork, self).setUp()
 
-        self.network.delete_security_group_rule = mock.Mock(return_value=None)
+        self.network_client.delete_security_group_rule = mock.Mock(
+            return_value=None
+        )
 
-        self.network.find_security_group_rule = (
+        self.network_client.find_security_group_rule = (
             network_fakes.FakeSecurityGroupRule.get_security_group_rules(
                 self._security_group_rules
             )
@@ -999,7 +1001,7 @@ class TestDeleteSecurityGroupRuleNetwork(TestSecurityGroupRuleNetwork):
 
         result = self.cmd.take_action(parsed_args)
 
-        self.network.delete_security_group_rule.assert_called_once_with(
+        self.network_client.delete_security_group_rule.assert_called_once_with(
             self._security_group_rules[0]
         )
         self.assertIsNone(result)
@@ -1020,7 +1022,7 @@ class TestDeleteSecurityGroupRuleNetwork(TestSecurityGroupRuleNetwork):
         calls = []
         for s in self._security_group_rules:
             calls.append(call(s))
-        self.network.delete_security_group_rule.assert_has_calls(calls)
+        self.network_client.delete_security_group_rule.assert_has_calls(calls)
         self.assertIsNone(result)
 
     def test_multi_security_group_rules_delete_with_exception(self):
@@ -1037,7 +1039,7 @@ class TestDeleteSecurityGroupRuleNetwork(TestSecurityGroupRuleNetwork):
             self._security_group_rules[0],
             exceptions.CommandError,
         ]
-        self.network.find_security_group_rule = mock.Mock(
+        self.network_client.find_security_group_rule = mock.Mock(
             side_effect=find_mock_result
         )
 
@@ -1047,13 +1049,13 @@ class TestDeleteSecurityGroupRuleNetwork(TestSecurityGroupRuleNetwork):
         except exceptions.CommandError as e:
             self.assertEqual('1 of 2 rules failed to delete.', str(e))
 
-        self.network.find_security_group_rule.assert_any_call(
+        self.network_client.find_security_group_rule.assert_any_call(
             self._security_group_rules[0].id, ignore_missing=False
         )
-        self.network.find_security_group_rule.assert_any_call(
+        self.network_client.find_security_group_rule.assert_any_call(
             'unexist_rule', ignore_missing=False
         )
-        self.network.delete_security_group_rule.assert_called_once_with(
+        self.network_client.delete_security_group_rule.assert_called_once_with(
             self._security_group_rules[0]
         )
 
@@ -1151,10 +1153,10 @@ class TestListSecurityGroupRuleNetwork(TestSecurityGroupRuleNetwork):
     def setUp(self):
         super(TestListSecurityGroupRuleNetwork, self).setUp()
 
-        self.network.find_security_group = mock.Mock(
+        self.network_client.find_security_group = mock.Mock(
             return_value=self._security_group
         )
-        self.network.security_group_rules = mock.Mock(
+        self.network_client.security_group_rules = mock.Mock(
             return_value=self._security_group_rules
         )
 
@@ -1169,7 +1171,7 @@ class TestListSecurityGroupRuleNetwork(TestSecurityGroupRuleNetwork):
 
         columns, data = self.cmd.take_action(parsed_args)
 
-        self.network.security_group_rules.assert_called_once_with(**{})
+        self.network_client.security_group_rules.assert_called_once_with(**{})
         self.assertEqual(self.expected_columns_no_group, columns)
         self.assertEqual(self.expected_data_no_group, list(data))
 
@@ -1185,7 +1187,7 @@ class TestListSecurityGroupRuleNetwork(TestSecurityGroupRuleNetwork):
 
         columns, data = self.cmd.take_action(parsed_args)
 
-        self.network.security_group_rules.assert_called_once_with(
+        self.network_client.security_group_rules.assert_called_once_with(
             **{
                 'security_group_id': self._security_group.id,
             }
@@ -1205,7 +1207,7 @@ class TestListSecurityGroupRuleNetwork(TestSecurityGroupRuleNetwork):
 
         columns, data = self.cmd.take_action(parsed_args)
 
-        self.network.security_group_rules.assert_called_once_with(**{})
+        self.network_client.security_group_rules.assert_called_once_with(**{})
         self.assertEqual(self.expected_columns_no_group, columns)
         self.assertEqual(self.expected_data_no_group, list(data))
 
@@ -1222,7 +1224,7 @@ class TestListSecurityGroupRuleNetwork(TestSecurityGroupRuleNetwork):
 
         columns, data = self.cmd.take_action(parsed_args)
 
-        self.network.security_group_rules.assert_called_once_with(
+        self.network_client.security_group_rules.assert_called_once_with(
             **{
                 'protocol': 'tcp',
             }
@@ -1242,7 +1244,7 @@ class TestListSecurityGroupRuleNetwork(TestSecurityGroupRuleNetwork):
 
         columns, data = self.cmd.take_action(parsed_args)
 
-        self.network.security_group_rules.assert_called_once_with(
+        self.network_client.security_group_rules.assert_called_once_with(
             **{
                 'direction': 'ingress',
             }
@@ -1262,7 +1264,7 @@ class TestListSecurityGroupRuleNetwork(TestSecurityGroupRuleNetwork):
 
         columns, data = self.cmd.take_action(parsed_args)
 
-        self.network.security_group_rules.assert_called_once_with(
+        self.network_client.security_group_rules.assert_called_once_with(
             **{
                 'direction': 'egress',
             }
@@ -1310,7 +1312,7 @@ class TestShowSecurityGroupRuleNetwork(TestSecurityGroupRuleNetwork):
     def setUp(self):
         super(TestShowSecurityGroupRuleNetwork, self).setUp()
 
-        self.network.find_security_group_rule = mock.Mock(
+        self.network_client.find_security_group_rule = mock.Mock(
             return_value=self._security_group_rule
         )
 
@@ -1335,7 +1337,7 @@ class TestShowSecurityGroupRuleNetwork(TestSecurityGroupRuleNetwork):
 
         columns, data = self.cmd.take_action(parsed_args)
 
-        self.network.find_security_group_rule.assert_called_once_with(
+        self.network_client.find_security_group_rule.assert_called_once_with(
             self._security_group_rule.id, ignore_missing=False
         )
         self.assertEqual(self.columns, columns)

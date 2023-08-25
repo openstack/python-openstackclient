@@ -23,7 +23,7 @@ class TestFlavorProfile(network_fakes.TestNetworkV2):
     def setUp(self):
         super(TestFlavorProfile, self).setUp()
         # Get the network client
-        self.network = self.app.client_manager.network
+        self.network_client = self.app.client_manager.network
         # Get the ProjectManager Mock
         self.projects_mock = self.app.client_manager.identity.projects
         # Get the DomainManager Mock
@@ -55,7 +55,7 @@ class TestCreateFlavorProfile(TestFlavorProfile):
 
     def setUp(self):
         super(TestCreateFlavorProfile, self).setUp()
-        self.network.create_service_profile = mock.Mock(
+        self.network_client.create_service_profile = mock.Mock(
             return_value=self.new_flavor_profile
         )
         self.projects_mock.get.return_value = self.project
@@ -91,7 +91,7 @@ class TestCreateFlavorProfile(TestFlavorProfile):
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
         columns, data = self.cmd.take_action(parsed_args)
 
-        self.network.create_service_profile.assert_called_once_with(
+        self.network_client.create_service_profile.assert_called_once_with(
             **{
                 'description': self.new_flavor_profile.description,
                 'project_id': self.project.id,
@@ -127,7 +127,7 @@ class TestCreateFlavorProfile(TestFlavorProfile):
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
         columns, data = self.cmd.take_action(parsed_args)
 
-        self.network.create_service_profile.assert_called_once_with(
+        self.network_client.create_service_profile.assert_called_once_with(
             **{
                 'description': self.new_flavor_profile.description,
                 'project_id': self.project.id,
@@ -162,7 +162,7 @@ class TestCreateFlavorProfile(TestFlavorProfile):
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
         columns, data = self.cmd.take_action(parsed_args)
 
-        self.network.create_service_profile.assert_called_once_with(
+        self.network_client.create_service_profile.assert_called_once_with(
             **{
                 'description': self.new_flavor_profile.description,
                 'project_id': self.project.id,
@@ -213,7 +213,7 @@ class TestCreateFlavorProfile(TestFlavorProfile):
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
         columns, data = self.cmd.take_action(parsed_args)
 
-        self.network.create_service_profile.assert_called_once_with(
+        self.network_client.create_service_profile.assert_called_once_with(
             **{
                 'enabled': False,
                 'driver': self.new_flavor_profile.driver,
@@ -229,9 +229,13 @@ class TestDeleteFlavorProfile(TestFlavorProfile):
 
     def setUp(self):
         super(TestDeleteFlavorProfile, self).setUp()
-        self.network.delete_service_profile = mock.Mock(return_value=None)
-        self.network.find_service_profile = network_fakes.get_service_profile(
-            flavor_profile=self._network_flavor_profiles
+        self.network_client.delete_service_profile = mock.Mock(
+            return_value=None
+        )
+        self.network_client.find_service_profile = (
+            network_fakes.get_service_profile(
+                flavor_profile=self._network_flavor_profiles
+            )
         )
 
         # Get the command object to test
@@ -250,10 +254,10 @@ class TestDeleteFlavorProfile(TestFlavorProfile):
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
         result = self.cmd.take_action(parsed_args)
-        self.network.find_service_profile.assert_called_once_with(
+        self.network_client.find_service_profile.assert_called_once_with(
             self._network_flavor_profiles[0].id, ignore_missing=False
         )
-        self.network.delete_service_profile.assert_called_once_with(
+        self.network_client.delete_service_profile.assert_called_once_with(
             self._network_flavor_profiles[0]
         )
         self.assertIsNone(result)
@@ -273,7 +277,7 @@ class TestDeleteFlavorProfile(TestFlavorProfile):
         calls = []
         for a in self._network_flavor_profiles:
             calls.append(mock.call(a))
-        self.network.delete_service_profile.assert_has_calls(calls)
+        self.network_client.delete_service_profile.assert_has_calls(calls)
         self.assertIsNone(result)
 
     def test_multi_network_flavor_profiles_delete_with_exception(self):
@@ -296,7 +300,7 @@ class TestDeleteFlavorProfile(TestFlavorProfile):
             self._network_flavor_profiles[0],
             exceptions.CommandError,
         ]
-        self.network.find_service_profile = mock.Mock(
+        self.network_client.find_service_profile = mock.Mock(
             side_effect=find_mock_result
         )
 
@@ -308,13 +312,13 @@ class TestDeleteFlavorProfile(TestFlavorProfile):
                 '1 of 2 flavor_profiles failed to delete.', str(e)
             )
 
-        self.network.find_service_profile.assert_any_call(
+        self.network_client.find_service_profile.assert_any_call(
             self._network_flavor_profiles[0].id, ignore_missing=False
         )
-        self.network.find_service_profile.assert_any_call(
+        self.network_client.find_service_profile.assert_any_call(
             'unexist_network_flavor_profile', ignore_missing=False
         )
-        self.network.delete_service_profile.assert_called_once_with(
+        self.network_client.delete_service_profile.assert_called_once_with(
             self._network_flavor_profiles[0]
         )
 
@@ -344,7 +348,7 @@ class TestListFlavorProfile(TestFlavorProfile):
 
     def setUp(self):
         super(TestListFlavorProfile, self).setUp()
-        self.network.service_profiles = mock.Mock(
+        self.network_client.service_profiles = mock.Mock(
             return_value=self._network_flavor_profiles
         )
 
@@ -360,7 +364,7 @@ class TestListFlavorProfile(TestFlavorProfile):
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
         columns, data = self.cmd.take_action(parsed_args)
 
-        self.network.service_profiles.assert_called_once_with(**{})
+        self.network_client.service_profiles.assert_called_once_with(**{})
         self.assertEqual(self.columns, columns)
         self.assertEqual(self.data, list(data))
 
@@ -387,7 +391,7 @@ class TestShowFlavorProfile(TestFlavorProfile):
 
     def setUp(self):
         super(TestShowFlavorProfile, self).setUp()
-        self.network.find_service_profile = mock.Mock(
+        self.network_client.find_service_profile = mock.Mock(
             return_value=self.network_flavor_profile
         )
 
@@ -407,7 +411,7 @@ class TestShowFlavorProfile(TestFlavorProfile):
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
         columns, data = self.cmd.take_action(parsed_args)
 
-        self.network.find_service_profile.assert_called_once_with(
+        self.network_client.find_service_profile.assert_called_once_with(
             self.network_flavor_profile.id, ignore_missing=False
         )
         self.assertEqual(self.columns, columns)
@@ -420,8 +424,10 @@ class TestSetFlavorProfile(TestFlavorProfile):
 
     def setUp(self):
         super(TestSetFlavorProfile, self).setUp()
-        self.network.update_service_profile = mock.Mock(return_value=None)
-        self.network.find_service_profile = mock.Mock(
+        self.network_client.update_service_profile = mock.Mock(
+            return_value=None
+        )
+        self.network_client.find_service_profile = mock.Mock(
             return_value=self.network_flavor_profile
         )
 
@@ -440,7 +446,7 @@ class TestSetFlavorProfile(TestFlavorProfile):
         result = self.cmd.take_action(parsed_args)
 
         attrs = {}
-        self.network.update_service_profile.assert_called_with(
+        self.network_client.update_service_profile.assert_called_with(
             self.network_flavor_profile, **attrs
         )
         self.assertIsNone(result)
@@ -460,7 +466,7 @@ class TestSetFlavorProfile(TestFlavorProfile):
         attrs = {
             'enabled': True,
         }
-        self.network.update_service_profile.assert_called_with(
+        self.network_client.update_service_profile.assert_called_with(
             self.network_flavor_profile, **attrs
         )
         self.assertIsNone(result)
@@ -480,7 +486,7 @@ class TestSetFlavorProfile(TestFlavorProfile):
         attrs = {
             'enabled': False,
         }
-        self.network.update_service_profile.assert_called_with(
+        self.network_client.update_service_profile.assert_called_with(
             self.network_flavor_profile, **attrs
         )
         self.assertIsNone(result)

@@ -43,7 +43,7 @@ class TestNetworkSegmentRange(network_fakes.TestNetworkV2):
         super(TestNetworkSegmentRange, self).setUp()
 
         # Get a shortcut to the network client
-        self.network = self.app.client_manager.network
+        self.network_client = self.app.client_manager.network
 
 
 class TestCreateNetworkSegmentRange(TestNetworkSegmentRange):
@@ -81,8 +81,8 @@ class TestCreateNetworkSegmentRange(TestNetworkSegmentRange):
     def setUp(self):
         super(TestCreateNetworkSegmentRange, self).setUp()
 
-        self.network.find_extension = mock.Mock()
-        self.network.create_network_segment_range = mock.Mock(
+        self.network_client.find_extension = mock.Mock()
+        self.network_client.create_network_segment_range = mock.Mock(
             return_value=self._network_segment_range
         )
 
@@ -217,7 +217,7 @@ class TestCreateNetworkSegmentRange(TestNetworkSegmentRange):
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
         columns, data = self.cmd.take_action(parsed_args)
 
-        self.network.create_network_segment_range.assert_called_once_with(
+        self.network_client.create_network_segment_range.assert_called_once_with(
             **{
                 'shared': True,
                 'network_type': 'vxlan',
@@ -255,7 +255,7 @@ class TestCreateNetworkSegmentRange(TestNetworkSegmentRange):
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
         columns, data = self.cmd.take_action(parsed_args)
 
-        self.network.create_network_segment_range.assert_called_once_with(
+        self.network_client.create_network_segment_range.assert_called_once_with(
             **{
                 'shared': False,
                 'project_id': mock.ANY,
@@ -291,7 +291,7 @@ class TestCreateNetworkSegmentRange(TestNetworkSegmentRange):
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
         columns, data = self.cmd.take_action(parsed_args)
 
-        self.network.create_network_segment_range.assert_called_once_with(
+        self.network_client.create_network_segment_range.assert_called_once_with(
             **{
                 'shared': True,
                 'network_type': 'vxlan',
@@ -332,7 +332,7 @@ class TestCreateNetworkSegmentRange(TestNetworkSegmentRange):
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
         columns, data = self.cmd.take_action(parsed_args)
 
-        self.network.create_network_segment_range.assert_called_once_with(
+        self.network_client.create_network_segment_range.assert_called_once_with(
             **{
                 'shared': self._network_segment_range.shared,
                 'project_id': mock.ANY,
@@ -355,11 +355,11 @@ class TestDeleteNetworkSegmentRange(TestNetworkSegmentRange):
     def setUp(self):
         super(TestDeleteNetworkSegmentRange, self).setUp()
 
-        self.network.find_extension = mock.Mock()
-        self.network.delete_network_segment_range = mock.Mock(
+        self.network_client.find_extension = mock.Mock()
+        self.network_client.delete_network_segment_range = mock.Mock(
             return_value=None
         )
-        self.network.find_network_segment_range = mock.Mock(
+        self.network_client.find_network_segment_range = mock.Mock(
             side_effect=self._network_segment_ranges
         )
 
@@ -379,7 +379,7 @@ class TestDeleteNetworkSegmentRange(TestNetworkSegmentRange):
 
         result = self.cmd.take_action(parsed_args)
 
-        self.network.delete_network_segment_range.assert_called_once_with(
+        self.network_client.delete_network_segment_range.assert_called_once_with(
             self._network_segment_ranges[0]
         )
         self.assertIsNone(result)
@@ -398,7 +398,9 @@ class TestDeleteNetworkSegmentRange(TestNetworkSegmentRange):
         calls = []
         for _network_segment_range in self._network_segment_ranges:
             calls.append(call(_network_segment_range))
-        self.network.delete_network_segment_range.assert_has_calls(calls)
+        self.network_client.delete_network_segment_range.assert_has_calls(
+            calls
+        )
         self.assertIsNone(result)
 
     def test_delete_multiple_with_exception(self):
@@ -415,7 +417,7 @@ class TestDeleteNetworkSegmentRange(TestNetworkSegmentRange):
             self._network_segment_ranges[0],
             exceptions.CommandError,
         ]
-        self.network.find_network_segment_range = mock.Mock(
+        self.network_client.find_network_segment_range = mock.Mock(
             side_effect=find_mock_result
         )
 
@@ -427,13 +429,13 @@ class TestDeleteNetworkSegmentRange(TestNetworkSegmentRange):
                 '1 of 2 network segment ranges failed to delete.', str(e)
             )
 
-        self.network.find_network_segment_range.assert_any_call(
+        self.network_client.find_network_segment_range.assert_any_call(
             self._network_segment_ranges[0].id, ignore_missing=False
         )
-        self.network.find_network_segment_range.assert_any_call(
+        self.network_client.find_network_segment_range.assert_any_call(
             'doesnotexist', ignore_missing=False
         )
-        self.network.delete_network_segment_range.assert_called_once_with(
+        self.network_client.delete_network_segment_range.assert_called_once_with(
             self._network_segment_ranges[0]
         )
 
@@ -501,8 +503,8 @@ class TestListNetworkSegmentRange(TestNetworkSegmentRange):
             self.app, self.namespace
         )
 
-        self.network.find_extension = mock.Mock()
-        self.network.network_segment_ranges = mock.Mock(
+        self.network_client.find_extension = mock.Mock()
+        self.network_client.network_segment_ranges = mock.Mock(
             return_value=self._network_segment_ranges
         )
 
@@ -519,7 +521,7 @@ class TestListNetworkSegmentRange(TestNetworkSegmentRange):
 
         columns, data = self.cmd.take_action(parsed_args)
 
-        self.network.network_segment_ranges.assert_called_once_with()
+        self.network_client.network_segment_ranges.assert_called_once_with()
         self.assertEqual(self.columns, columns)
         self.assertEqual(self.data, list(data))
 
@@ -538,7 +540,7 @@ class TestListNetworkSegmentRange(TestNetworkSegmentRange):
 
         columns, data = self.cmd.take_action(parsed_args)
 
-        self.network.network_segment_ranges.assert_called_once_with()
+        self.network_client.network_segment_ranges.assert_called_once_with()
         self.assertEqual(self.columns_long, columns)
         self.assertEqual(self.data_long, list(data))
 
@@ -571,8 +573,8 @@ class TestSetNetworkSegmentRange(TestNetworkSegmentRange):
     def setUp(self):
         super(TestSetNetworkSegmentRange, self).setUp()
 
-        self.network.find_extension = mock.Mock()
-        self.network.find_network_segment_range = mock.Mock(
+        self.network_client.find_extension = mock.Mock()
+        self.network_client.find_network_segment_range = mock.Mock(
             return_value=self._network_segment_range
         )
 
@@ -590,12 +592,12 @@ class TestSetNetworkSegmentRange(TestNetworkSegmentRange):
         ]
 
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
-        self.network.update_network_segment_range = mock.Mock(
+        self.network_client.update_network_segment_range = mock.Mock(
             return_value=self._network_segment_range
         )
         result = self.cmd.take_action(parsed_args)
 
-        self.network.update_network_segment_range.assert_called_once_with(
+        self.network_client.update_network_segment_range.assert_called_once_with(
             self._network_segment_range, **{}
         )
         self.assertIsNone(result)
@@ -618,7 +620,7 @@ class TestSetNetworkSegmentRange(TestNetworkSegmentRange):
         ]
 
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
-        self.network.update_network_segment_range = mock.Mock(
+        self.network_client.update_network_segment_range = mock.Mock(
             return_value=self._network_segment_range_updated
         )
         result = self.cmd.take_action(parsed_args)
@@ -628,7 +630,7 @@ class TestSetNetworkSegmentRange(TestNetworkSegmentRange):
             'minimum': self.minimum_updated,
             'maximum': self.maximum_updated,
         }
-        self.network.update_network_segment_range.assert_called_once_with(
+        self.network_client.update_network_segment_range.assert_called_once_with(
             self._network_segment_range, **attrs
         )
         self.assertIsNone(result)
@@ -669,8 +671,8 @@ class TestShowNetworkSegmentRange(TestNetworkSegmentRange):
     def setUp(self):
         super(TestShowNetworkSegmentRange, self).setUp()
 
-        self.network.find_extension = mock.Mock()
-        self.network.find_network_segment_range = mock.Mock(
+        self.network_client.find_extension = mock.Mock()
+        self.network_client.find_network_segment_range = mock.Mock(
             return_value=self._network_segment_range
         )
 
@@ -696,7 +698,7 @@ class TestShowNetworkSegmentRange(TestNetworkSegmentRange):
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
         columns, data = self.cmd.take_action(parsed_args)
 
-        self.network.find_network_segment_range.assert_called_once_with(
+        self.network_client.find_network_segment_range.assert_called_once_with(
             self._network_segment_range.id, ignore_missing=False
         )
 

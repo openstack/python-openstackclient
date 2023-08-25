@@ -27,13 +27,13 @@ from openstackclient.tests.unit import utils as tests_utils
 class TestFloatingIPPortForwarding(network_fakes.TestNetworkV2):
     def setUp(self):
         super(TestFloatingIPPortForwarding, self).setUp()
-        self.network = self.app.client_manager.network
+        self.network_client = self.app.client_manager.network
         self.floating_ip = (
             network_fakes.FakeFloatingIP.create_one_floating_ip()
         )
         self.port = network_fakes.create_one_port()
         self.project = identity_fakes_v2.FakeProject.create_one_project()
-        self.network.find_port = mock.Mock(return_value=self.port)
+        self.network_client.find_port = mock.Mock(return_value=self.port)
 
 
 class TestCreateFloatingIPPortForwarding(TestFloatingIPPortForwarding):
@@ -54,11 +54,11 @@ class TestCreateFloatingIPPortForwarding(TestFloatingIPPortForwarding):
             },
         )
 
-        self.network.create_floating_ip_port_forwarding = mock.Mock(
+        self.network_client.create_floating_ip_port_forwarding = mock.Mock(
             return_value=self.new_port_forwarding
         )
 
-        self.network.find_ip = mock.Mock(return_value=self.floating_ip)
+        self.network_client.find_ip = mock.Mock(return_value=self.floating_ip)
 
         # Get the command object to test
         self.cmd = floating_ip_port_forwarding.CreateFloatingIPPortForwarding(
@@ -144,7 +144,7 @@ class TestCreateFloatingIPPortForwarding(TestFloatingIPPortForwarding):
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
         columns, data = self.cmd.take_action(parsed_args)
 
-        self.network.create_floating_ip_port_forwarding.assert_called_once_with(  # noqa: E501
+        self.network_client.create_floating_ip_port_forwarding.assert_called_once_with(  # noqa: E501
             self.new_port_forwarding.floatingip_id,
             **{
                 'external_port_range': self.new_port_forwarding_with_ranges.external_port_range,  # noqa: E501
@@ -197,7 +197,7 @@ class TestCreateFloatingIPPortForwarding(TestFloatingIPPortForwarding):
             self.fail('CommandError should be raised.')
         except exceptions.CommandError as e:
             self.assertEqual(msg, str(e))
-            self.network.create_floating_ip_port_forwarding.assert_not_called()
+            self.network_client.create_floating_ip_port_forwarding.assert_not_called()
 
     def test_create_all_options_with_invalid_range_exception(self):
         invalid_port_range = '80:70'
@@ -241,7 +241,7 @@ class TestCreateFloatingIPPortForwarding(TestFloatingIPPortForwarding):
             self.fail('CommandError should be raised.')
         except exceptions.CommandError as e:
             self.assertEqual(msg, str(e))
-            self.network.create_floating_ip_port_forwarding.assert_not_called()
+            self.network_client.create_floating_ip_port_forwarding.assert_not_called()
 
     def test_create_all_options_with_unmatch_ranges_exception(self):
         internal_range = '80:90'
@@ -286,7 +286,7 @@ class TestCreateFloatingIPPortForwarding(TestFloatingIPPortForwarding):
             self.fail('CommandError should be raised.')
         except exceptions.CommandError as e:
             self.assertEqual(msg, str(e))
-            self.network.create_floating_ip_port_forwarding.assert_not_called()
+            self.network_client.create_floating_ip_port_forwarding.assert_not_called()
 
     def test_create_all_options(self):
         arglist = [
@@ -325,7 +325,7 @@ class TestCreateFloatingIPPortForwarding(TestFloatingIPPortForwarding):
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
         columns, data = self.cmd.take_action(parsed_args)
 
-        self.network.create_floating_ip_port_forwarding.assert_called_once_with(  # noqa: E501
+        self.network_client.create_floating_ip_port_forwarding.assert_called_once_with(  # noqa: E501
             self.new_port_forwarding.floatingip_id,
             **{
                 'external_port': self.new_port_forwarding.external_port,
@@ -351,11 +351,11 @@ class TestDeleteFloatingIPPortForwarding(TestFloatingIPPortForwarding):
                 },
             )
         )
-        self.network.delete_floating_ip_port_forwarding = mock.Mock(
+        self.network_client.delete_floating_ip_port_forwarding = mock.Mock(
             return_value=None
         )
 
-        self.network.find_ip = mock.Mock(return_value=self.floating_ip)
+        self.network_client.find_ip = mock.Mock(return_value=self.floating_ip)
         # Get the command object to test
         self.cmd = floating_ip_port_forwarding.DeleteFloatingIPPortForwarding(
             self.app, self.namespace
@@ -375,7 +375,7 @@ class TestDeleteFloatingIPPortForwarding(TestFloatingIPPortForwarding):
 
         result = self.cmd.take_action(parsed_args)
 
-        self.network.delete_floating_ip_port_forwarding.assert_called_once_with(  # noqa: E501
+        self.network_client.delete_floating_ip_port_forwarding.assert_called_once_with(  # noqa: E501
             self.floating_ip.id,
             self._port_forwarding[0].id,
             ignore_missing=False,
@@ -405,7 +405,9 @@ class TestDeleteFloatingIPPortForwarding(TestFloatingIPPortForwarding):
         for a in self._port_forwarding:
             calls.append(call(a.floatingip_id, a.id, ignore_missing=False))
 
-        self.network.delete_floating_ip_port_forwarding.assert_has_calls(calls)
+        self.network_client.delete_floating_ip_port_forwarding.assert_has_calls(
+            calls
+        )
         self.assertIsNone(result)
 
     def test_multi_port_forwarding_delete_with_exception(self):
@@ -425,8 +427,8 @@ class TestDeleteFloatingIPPortForwarding(TestFloatingIPPortForwarding):
 
         delete_mock_result = [None, exceptions.CommandError]
 
-        self.network.delete_floating_ip_port_forwarding = mock.MagicMock(
-            side_effect=delete_mock_result
+        self.network_client.delete_floating_ip_port_forwarding = (
+            mock.MagicMock(side_effect=delete_mock_result)
         )
 
         try:
@@ -437,12 +439,12 @@ class TestDeleteFloatingIPPortForwarding(TestFloatingIPPortForwarding):
                 '1 of 2 Port forwarding failed to delete.', str(e)
             )
 
-        self.network.delete_floating_ip_port_forwarding.assert_any_call(
+        self.network_client.delete_floating_ip_port_forwarding.assert_any_call(
             self.floating_ip.id,
             'unexist_port_forwarding_id',
             ignore_missing=False,
         )
-        self.network.delete_floating_ip_port_forwarding.assert_any_call(
+        self.network_client.delete_floating_ip_port_forwarding.assert_any_call(
             self.floating_ip.id,
             self._port_forwarding[0].id,
             ignore_missing=False,
@@ -488,10 +490,10 @@ class TestListFloatingIPPortForwarding(TestFloatingIPPortForwarding):
                     port_forwarding.description,
                 )
             )
-        self.network.floating_ip_port_forwardings = mock.Mock(
+        self.network_client.floating_ip_port_forwardings = mock.Mock(
             return_value=self.port_forwardings
         )
-        self.network.find_ip = mock.Mock(return_value=self.floating_ip)
+        self.network_client.find_ip = mock.Mock(return_value=self.floating_ip)
         # Get the command object to test
         self.cmd = floating_ip_port_forwarding.ListFloatingIPPortForwarding(
             self.app, self.namespace
@@ -504,7 +506,7 @@ class TestListFloatingIPPortForwarding(TestFloatingIPPortForwarding):
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
         columns, data = self.cmd.take_action(parsed_args)
 
-        self.network.floating_ip_port_forwardings.assert_called_once_with(
+        self.network_client.floating_ip_port_forwardings.assert_called_once_with(
             self.floating_ip, **{}
         )
         self.assertEqual(self.columns, columns)
@@ -539,7 +541,7 @@ class TestListFloatingIPPortForwarding(TestFloatingIPPortForwarding):
             'protocol': self.port_forwardings[0].protocol,
         }
 
-        self.network.floating_ip_port_forwardings.assert_called_once_with(
+        self.network_client.floating_ip_port_forwardings.assert_called_once_with(
             self.floating_ip, **query
         )
         self.assertEqual(self.columns, columns)
@@ -555,14 +557,14 @@ class TestSetFloatingIPPortForwarding(TestFloatingIPPortForwarding):
                 'floatingip_id': self.floating_ip.id,
             }
         )
-        self.network.update_floating_ip_port_forwarding = mock.Mock(
+        self.network_client.update_floating_ip_port_forwarding = mock.Mock(
             return_value=None
         )
 
-        self.network.find_floating_ip_port_forwarding = mock.Mock(
+        self.network_client.find_floating_ip_port_forwarding = mock.Mock(
             return_value=self._port_forwarding
         )
-        self.network.find_ip = mock.Mock(return_value=self.floating_ip)
+        self.network_client.find_ip = mock.Mock(return_value=self.floating_ip)
         # Get the command object to test
         self.cmd = floating_ip_port_forwarding.SetFloatingIPPortForwarding(
             self.app, self.namespace
@@ -582,7 +584,7 @@ class TestSetFloatingIPPortForwarding(TestFloatingIPPortForwarding):
         result = self.cmd.take_action(parsed_args)
 
         attrs = {}
-        self.network.update_floating_ip_port_forwarding.assert_called_with(
+        self.network_client.update_floating_ip_port_forwarding.assert_called_with(
             self._port_forwarding.floatingip_id,
             self._port_forwarding.id,
             **attrs
@@ -643,7 +645,7 @@ class TestSetFloatingIPPortForwarding(TestFloatingIPPortForwarding):
 
             result = self.cmd.take_action(parsed_args)
 
-            self.network.update_floating_ip_port_forwarding.assert_called_with(
+            self.network_client.update_floating_ip_port_forwarding.assert_called_with(
                 self._port_forwarding.floatingip_id,
                 self._port_forwarding.id,
                 **attrs
@@ -688,10 +690,10 @@ class TestShowFloatingIPPortForwarding(TestFloatingIPPortForwarding):
             self._port_forwarding.internal_port_range,
             self._port_forwarding.protocol,
         )
-        self.network.find_floating_ip_port_forwarding = mock.Mock(
+        self.network_client.find_floating_ip_port_forwarding = mock.Mock(
             return_value=self._port_forwarding
         )
-        self.network.find_ip = mock.Mock(return_value=self.floating_ip)
+        self.network_client.find_ip = mock.Mock(return_value=self.floating_ip)
         # Get the command object to test
         self.cmd = floating_ip_port_forwarding.ShowFloatingIPPortForwarding(
             self.app, self.namespace
@@ -723,7 +725,7 @@ class TestShowFloatingIPPortForwarding(TestFloatingIPPortForwarding):
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
         columns, data = self.cmd.take_action(parsed_args)
 
-        self.network.find_floating_ip_port_forwarding.assert_called_once_with(
+        self.network_client.find_floating_ip_port_forwarding.assert_called_once_with(
             self.floating_ip, self._port_forwarding.id, ignore_missing=False
         )
 

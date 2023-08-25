@@ -24,7 +24,7 @@ class TestNetworkQosRuleType(network_fakes.TestNetworkV2):
     def setUp(self):
         super(TestNetworkQosRuleType, self).setUp()
         # Get a shortcut to the network client
-        self.network = self.app.client_manager.network
+        self.network_client = self.app.client_manager.network
 
 
 class TestShowNetworkQosRuleType(TestNetworkQosRuleType):
@@ -38,7 +38,7 @@ class TestShowNetworkQosRuleType(TestNetworkQosRuleType):
 
     def setUp(self):
         super(TestShowNetworkQosRuleType, self).setUp()
-        self.network.get_qos_rule_type = mock.Mock(
+        self.network_client.get_qos_rule_type = mock.Mock(
             return_value=self.qos_rule_type
         )
 
@@ -71,7 +71,7 @@ class TestShowNetworkQosRuleType(TestNetworkQosRuleType):
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
         columns, data = self.cmd.take_action(parsed_args)
 
-        self.network.get_qos_rule_type.assert_called_once_with(
+        self.network_client.get_qos_rule_type.assert_called_once_with(
             self.qos_rule_type.type
         )
         self.assertEqual(self.columns, columns)
@@ -90,7 +90,7 @@ class TestListNetworkQosRuleType(TestNetworkQosRuleType):
 
     def setUp(self):
         super(TestListNetworkQosRuleType, self).setUp()
-        self.network.qos_rule_types = mock.Mock(
+        self.network_client.qos_rule_types = mock.Mock(
             return_value=self.qos_rule_types
         )
 
@@ -106,7 +106,7 @@ class TestListNetworkQosRuleType(TestNetworkQosRuleType):
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
         columns, data = self.cmd.take_action(parsed_args)
 
-        self.network.qos_rule_types.assert_called_once_with(**{})
+        self.network_client.qos_rule_types.assert_called_once_with(**{})
         self.assertEqual(self.columns, columns)
         self.assertEqual(self.data, list(data))
 
@@ -119,7 +119,7 @@ class TestListNetworkQosRuleType(TestNetworkQosRuleType):
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
         columns, data = self.cmd.take_action(parsed_args)
 
-        self.network.qos_rule_types.assert_called_once_with(
+        self.network_client.qos_rule_types.assert_called_once_with(
             **{'all_supported': True}
         )
         self.assertEqual(self.columns, columns)
@@ -134,7 +134,7 @@ class TestListNetworkQosRuleType(TestNetworkQosRuleType):
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
         columns, data = self.cmd.take_action(parsed_args)
 
-        self.network.qos_rule_types.assert_called_once_with(
+        self.network_client.qos_rule_types.assert_called_once_with(
             **{'all_rules': True}
         )
         self.assertEqual(self.columns, columns)

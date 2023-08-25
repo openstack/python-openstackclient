@@ -27,7 +27,7 @@ from openstackclient.tests.unit import utils as tests_utils
 class TestMeter(network_fakes.TestNetworkV2):
     def setUp(self):
         super(TestMeter, self).setUp()
-        self.network = self.app.client_manager.network
+        self.network_client = self.app.client_manager.network
         self.projects_mock = self.app.client_manager.identity.projects
         self.domains_mock = self.app.client_manager.identity.domains
 
@@ -55,7 +55,7 @@ class TestCreateMeter(TestMeter):
 
     def setUp(self):
         super(TestCreateMeter, self).setUp()
-        self.network.create_metering_label = mock.Mock(
+        self.network_client.create_metering_label = mock.Mock(
             return_value=self.new_meter
         )
         self.projects_mock.get.return_value = self.project
@@ -85,7 +85,7 @@ class TestCreateMeter(TestMeter):
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
         columns, data = self.cmd.take_action(parsed_args)
 
-        self.network.create_metering_label.assert_called_once_with(
+        self.network_client.create_metering_label.assert_called_once_with(
             **{'name': self.new_meter.name}
         )
         self.assertEqual(self.columns, columns)
@@ -114,7 +114,7 @@ class TestCreateMeter(TestMeter):
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
         columns, data = self.cmd.take_action(parsed_args)
 
-        self.network.create_metering_label.assert_called_once_with(
+        self.network_client.create_metering_label.assert_called_once_with(
             **{
                 'description': self.new_meter.description,
                 'name': self.new_meter.name,
@@ -132,9 +132,11 @@ class TestDeleteMeter(TestMeter):
 
         self.meter_list = network_fakes.FakeNetworkMeter.create_meter(count=2)
 
-        self.network.delete_metering_label = mock.Mock(return_value=None)
+        self.network_client.delete_metering_label = mock.Mock(
+            return_value=None
+        )
 
-        self.network.find_metering_label = (
+        self.network_client.find_metering_label = (
             network_fakes.FakeNetworkMeter.get_meter(meter=self.meter_list)
         )
 
@@ -152,7 +154,7 @@ class TestDeleteMeter(TestMeter):
 
         result = self.cmd.take_action(parsed_args)
 
-        self.network.delete_metering_label.assert_called_once_with(
+        self.network_client.delete_metering_label.assert_called_once_with(
             self.meter_list[0]
         )
         self.assertIsNone(result)
@@ -172,7 +174,7 @@ class TestDeleteMeter(TestMeter):
         calls = []
         for n in self.meter_list:
             calls.append(call(n))
-        self.network.delete_metering_label.assert_has_calls(calls)
+        self.network_client.delete_metering_label.assert_has_calls(calls)
         self.assertIsNone(result)
 
     def test_delete_multiple_meter_exception(self):
@@ -192,13 +194,15 @@ class TestDeleteMeter(TestMeter):
             exceptions.NotFound('404'),
             self.meter_list[1],
         ]
-        self.network.find_meter = mock.Mock(side_effect=return_find)
+        self.network_client.find_meter = mock.Mock(side_effect=return_find)
 
         ret_delete = [
             None,
             exceptions.NotFound('404'),
         ]
-        self.network.delete_metering_label = mock.Mock(side_effect=ret_delete)
+        self.network_client.delete_metering_label = mock.Mock(
+            side_effect=ret_delete
+        )
 
         self.assertRaises(
             exceptions.CommandError, self.cmd.take_action, parsed_args
@@ -208,7 +212,7 @@ class TestDeleteMeter(TestMeter):
             call(self.meter_list[0]),
             call(self.meter_list[1]),
         ]
-        self.network.delete_metering_label.assert_has_calls(calls)
+        self.network_client.delete_metering_label.assert_has_calls(calls)
 
 
 class TestListMeter(TestMeter):
@@ -236,7 +240,9 @@ class TestListMeter(TestMeter):
     def setUp(self):
         super(TestListMeter, self).setUp()
 
-        self.network.metering_labels = mock.Mock(return_value=self.meter_list)
+        self.network_client.metering_labels = mock.Mock(
+            return_value=self.meter_list
+        )
 
         self.cmd = network_meter.ListMeter(self.app, self.namespace)
 
@@ -248,7 +254,7 @@ class TestListMeter(TestMeter):
 
         columns, data = self.cmd.take_action(parsed_args)
 
-        self.network.metering_labels.assert_called_with()
+        self.network_client.metering_labels.assert_called_with()
         self.assertEqual(self.columns, columns)
         self.assertEqual(self.data, list(data))
 
@@ -276,7 +282,7 @@ class TestShowMeter(TestMeter):
 
         self.cmd = network_meter.ShowMeter(self.app, self.namespace)
 
-        self.network.find_metering_label = mock.Mock(
+        self.network_client.find_metering_label = mock.Mock(
             return_value=self.new_meter
         )
 
@@ -303,7 +309,7 @@ class TestShowMeter(TestMeter):
 
         columns, data = self.cmd.take_action(parsed_args)
 
-        self.network.find_metering_label.assert_called_with(
+        self.network_client.find_metering_label.assert_called_with(
             self.new_meter.name, ignore_missing=False
         )
         self.assertEqual(self.columns, columns)
