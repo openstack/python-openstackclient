@@ -84,7 +84,12 @@ class TestProjectCleanup(TestProjectCleanupBase):
         filters = {'created_at': '2200-01-01', 'updated_at': '2200-01-02'}
 
         calls = [
-            mock.call(dry_run=True, status_queue=mock.ANY, filters=filters),
+            mock.call(
+                dry_run=True,
+                status_queue=mock.ANY,
+                filters=filters,
+                skip_resources=None,
+            ),
             mock.call(dry_run=False, status_queue=mock.ANY, filters=filters),
         ]
         self.project_cleanup_mock.assert_has_calls(calls)
@@ -110,7 +115,12 @@ class TestProjectCleanup(TestProjectCleanupBase):
 
         self.sdk_connect_as_project_mock.assert_called_with(self.project)
         calls = [
-            mock.call(dry_run=True, status_queue=mock.ANY, filters={}),
+            mock.call(
+                dry_run=True,
+                status_queue=mock.ANY,
+                filters={},
+                skip_resources=None,
+            ),
             mock.call(dry_run=False, status_queue=mock.ANY, filters={}),
         ]
         self.project_cleanup_mock.assert_has_calls(calls)
@@ -135,7 +145,12 @@ class TestProjectCleanup(TestProjectCleanupBase):
 
         self.sdk_connect_as_project_mock.assert_called_with(self.project)
         calls = [
-            mock.call(dry_run=True, status_queue=mock.ANY, filters={}),
+            mock.call(
+                dry_run=True,
+                status_queue=mock.ANY,
+                filters={},
+                skip_resources=None,
+            ),
             mock.call(dry_run=False, status_queue=mock.ANY, filters={}),
         ]
         self.project_cleanup_mock.assert_has_calls(calls)
@@ -160,7 +175,12 @@ class TestProjectCleanup(TestProjectCleanupBase):
 
         self.sdk_connect_as_project_mock.assert_called_with(self.project)
         calls = [
-            mock.call(dry_run=True, status_queue=mock.ANY, filters={}),
+            mock.call(
+                dry_run=True,
+                status_queue=mock.ANY,
+                filters={},
+                skip_resources=None,
+            ),
         ]
         self.project_cleanup_mock.assert_has_calls(calls)
 
@@ -184,7 +204,10 @@ class TestProjectCleanup(TestProjectCleanupBase):
 
         self.sdk_connect_as_project_mock.assert_called_with(self.project)
         self.project_cleanup_mock.assert_called_once_with(
-            dry_run=True, status_queue=mock.ANY, filters={}
+            dry_run=True,
+            status_queue=mock.ANY,
+            filters={},
+            skip_resources=None,
         )
 
         self.assertIsNone(result)
@@ -208,7 +231,42 @@ class TestProjectCleanup(TestProjectCleanupBase):
 
         self.sdk_connect_as_project_mock.assert_not_called()
         calls = [
-            mock.call(dry_run=True, status_queue=mock.ANY, filters={}),
+            mock.call(
+                dry_run=True,
+                status_queue=mock.ANY,
+                filters={},
+                skip_resources=None,
+            ),
+            mock.call(dry_run=False, status_queue=mock.ANY, filters={}),
+        ]
+        self.project_cleanup_mock.assert_has_calls(calls)
+
+        self.assertIsNone(result)
+
+    def test_project_cleanup_with_skip_resource(self):
+        skip_resource = "block_storage.backup"
+        arglist = [
+            '--project',
+            self.project.id,
+            '--skip-resource',
+            skip_resource,
+        ]
+        verifylist = [('skip_resource', [skip_resource])]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+        result = None
+
+        with mock.patch('sys.stdin', StringIO('y')):
+            result = self.cmd.take_action(parsed_args)
+
+        self.sdk_connect_as_project_mock.assert_called_with(self.project)
+
+        calls = [
+            mock.call(
+                dry_run=True,
+                status_queue=mock.ANY,
+                filters={},
+                skip_resources=[skip_resource],
+            ),
             mock.call(dry_run=False, status_queue=mock.ANY, filters={}),
         ]
         self.project_cleanup_mock.assert_has_calls(calls)
