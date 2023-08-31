@@ -27,14 +27,22 @@ OpenStackClient Release Notes
 OpenStack Releases
 ------------------
 
-OpenStackClient is compatible with all currently supported OpenStack releases,
-it does not require maintaining a 'Mitaka' version to match to a Mitala-release
-cloud.  The OpenStackClient release that was current when the corresponding
-OpenStack release was made is shown below:
+OpenStackClient is intended to be backwards compatible with all currently
+supported OpenStack releases so that it does not require using certain release
+version of the tool to run on a corresponding release version cloud. The
+OpenStackClient release that was current when the corresponding OpenStack
+release was made is shown below:
 
 =================  =======================
 OpenStack Release  OpenStackClient Release
 =================  =======================
+Antelope/2023.1    6.1.0
+Zed                6.0.0
+Yoga               5.7.0
+Xena               5.6.0
+Wallaby            5.5.0
+Victoria           5.3.0
+Ussuri             5.0.0
 Train              4.0.0
 Stein              3.18.0
 Rocky              3.16.0
