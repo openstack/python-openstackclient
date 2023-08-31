@@ -63,15 +63,15 @@ openstackdocs_auto_name = False
 extlinks = {
     'lpbug': (
         'https://bugs.launchpad.net/bugs/%s',
-        'Bug ',
+        'Bug %s',
     ),
     'oscbp': (
         'https://blueprints.launchpad.net/python-openstackclient/+spec/%s',
-        '',
+        None,
     ),
     'oscdoc': (
         'https://docs.openstack.org/python-openstackclient/latest/%s.html',
-        '',
+        None,
     ),
 }
 
