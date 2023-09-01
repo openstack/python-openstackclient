@@ -20,6 +20,7 @@ import logging
 
 from cinderclient import api_versions
 from cliff import columns as cliff_columns
+from openstack import utils as sdk_utils
 from osc_lib.cli import parseractions
 from osc_lib.command import command
 from osc_lib import exceptions
@@ -126,23 +127,23 @@ class CreateVolumeBackup(command.ShowOne):
         return parser
 
     def take_action(self, parsed_args):
-        volume_client = self.app.client_manager.volume
+        volume_client = self.app.client_manager.sdk_connection.volume
 
-        volume_id = utils.find_resource(
-            volume_client.volumes,
+        volume_id = volume_client.find_volume(
             parsed_args.volume,
+            ignore_missing=False,
         ).id
 
         kwargs = {}
 
         if parsed_args.snapshot:
-            kwargs['snapshot_id'] = utils.find_resource(
-                volume_client.volume_snapshots,
+            kwargs['snapshot_id'] = volume_client.find_snapshot(
                 parsed_args.snapshot,
+                ignore_missing=False,
             ).id
 
         if parsed_args.properties:
-            if volume_client.api_version < api_versions.APIVersion('3.43'):
+            if not sdk_utils.supports_microversion(volume_client, '3.43'):
                 msg = _(
                     '--os-volume-api-version 3.43 or greater is required to '
                     'support the --property option'
@@ -152,7 +153,7 @@ class CreateVolumeBackup(command.ShowOne):
             kwargs['metadata'] = parsed_args.properties
 
         if parsed_args.availability_zone:
-            if volume_client.api_version < api_versions.APIVersion('3.51'):
+            if not sdk_utils.supports_microversion(volume_client, '3.51'):
                 msg = _(
                     '--os-volume-api-version 3.51 or greater is required to '
                     'support the --availability-zone option'
@@ -161,8 +162,13 @@ class CreateVolumeBackup(command.ShowOne):
 
             kwargs['availability_zone'] = parsed_args.availability_zone
 
-        backup = volume_client.backups.create(
-            volume_id,
+        columns = (
+            "id",
+            "name",
+            "volume_id",
+        )
+        backup = volume_client.create_backup(
+            volume_id=volume_id,
             container=parsed_args.container,
             name=parsed_args.name,
             description=parsed_args.description,
@@ -170,8 +176,8 @@ class CreateVolumeBackup(command.ShowOne):
             incremental=parsed_args.incremental,
             **kwargs,
         )
-        backup._info.pop("links", None)
-        return zip(*sorted(backup._info.items()))
+        data = utils.get_dict_properties(backup, columns)
+        return (columns, data)
 
 
 class DeleteVolumeBackup(command.Command):
@@ -194,16 +200,19 @@ class DeleteVolumeBackup(command.Command):
         return parser
 
     def take_action(self, parsed_args):
-        volume_client = self.app.client_manager.volume
+        volume_client = self.app.client_manager.sdk_connection.volume
         result = 0
 
         for i in parsed_args.backups:
             try:
-                backup_id = utils.find_resource(
-                    volume_client.backups,
-                    i,
+                backup_id = volume_client.find_backup(
+                    i, ignore_missing=False
                 ).id
-                volume_client.backups.delete(backup_id, parsed_args.force)
+                volume_client.delete_backup(
+                    backup_id,
+                    ignore_missing=False,
+                    force=parsed_args.force,
+                )
             except Exception as e:
                 result += 1
                 LOG.error(
@@ -298,7 +307,7 @@ class ListVolumeBackup(command.Lister):
         return parser
 
     def take_action(self, parsed_args):
-        volume_client = self.app.client_manager.volume
+        volume_client = self.app.client_manager.sdk_connection.volume
 
         columns = ('id', 'name', 'description', 'status', 'size')
         column_headers = ('ID', 'Name', 'Description', 'Status', 'Size')
@@ -309,7 +318,7 @@ class ListVolumeBackup(command.Lister):
         # Cache the volume list
         volume_cache = {}
         try:
-            for s in volume_client.volumes.list():
+            for s in volume_client.volumes():
                 volume_cache[s.id] = s
         except Exception:
             # Just forget it if there's any trouble
@@ -322,9 +331,9 @@ class ListVolumeBackup(command.Lister):
         filter_volume_id = None
         if parsed_args.volume:
             try:
-                filter_volume_id = utils.find_resource(
-                    volume_client.volumes,
+                filter_volume_id = volume_client.find_volume(
                     parsed_args.volume,
+                    ignore_missing=False,
                 ).id
             except exceptions.CommandError:
                 # Volume with that ID does not exist, but search for backups
@@ -338,19 +347,16 @@ class ListVolumeBackup(command.Lister):
 
         marker_backup_id = None
         if parsed_args.marker:
-            marker_backup_id = utils.find_resource(
-                volume_client.backups,
+            marker_backup_id = volume_client.find_backup(
                 parsed_args.marker,
+                ignore_missing=False,
             ).id
 
-        search_opts = {
-            'name': parsed_args.name,
-            'status': parsed_args.status,
-            'volume_id': filter_volume_id,
-            'all_tenants': parsed_args.all_projects,
-        }
-        data = volume_client.backups.list(
-            search_opts=search_opts,
+        data = volume_client.backups(
+            name=parsed_args.name,
+            status=parsed_args.status,
+            volume_id=filter_volume_id,
+            all_tenants=parsed_args.all_projects,
             marker=marker_backup_id,
             limit=parsed_args.limit,
         )
@@ -399,16 +405,19 @@ class RestoreVolumeBackup(command.ShowOne):
         return parser
 
     def take_action(self, parsed_args):
-        volume_client = self.app.client_manager.volume
+        volume_client = self.app.client_manager.sdk_connection.volume
 
-        backup = utils.find_resource(volume_client.backups, parsed_args.backup)
+        backup = volume_client.find_backup(
+            parsed_args.backup,
+            ignore_missing=False,
+        )
 
         volume_name = None
         volume_id = None
         try:
-            volume_id = utils.find_resource(
-                volume_client.volumes,
+            volume_id = volume_client.find_volume(
                 parsed_args.volume,
+                ignore_missing=False,
             ).id
         except Exception:
             volume_name = parsed_args.volume
@@ -422,10 +431,10 @@ class RestoreVolumeBackup(command.ShowOne):
                 )
                 raise exceptions.CommandError(msg % parsed_args.volume)
 
-        return volume_client.restores.restore(
+        return volume_client.restore_backup(
             backup.id,
-            volume_id,
-            volume_name,
+            volume_id=volume_id,
+            name=volume_name,
         )
 
 
@@ -630,7 +639,29 @@ class ShowVolumeBackup(command.ShowOne):
         return parser
 
     def take_action(self, parsed_args):
-        volume_client = self.app.client_manager.volume
-        backup = utils.find_resource(volume_client.backups, parsed_args.backup)
-        backup._info.pop("links", None)
-        return zip(*sorted(backup._info.items()))
+        volume_client = self.app.client_manager.sdk_connection.volume
+        backup = volume_client.get_backup(parsed_args.backup)
+        columns = (
+            "availability_zone",
+            "container",
+            "created_at",
+            "data_timestamp",
+            "description",
+            "encryption_key_id",
+            "fail_reason",
+            "has_dependent_backups",
+            "id",
+            "is_incremental",
+            "metadata",
+            "name",
+            "object_count",
+            "project_id",
+            "size",
+            "snapshot_id",
+            "status",
+            "updated_at",
+            "user_id",
+            "volume_id",
+        )
+        data = utils.get_dict_properties(backup, columns)
+        return (columns, data)
