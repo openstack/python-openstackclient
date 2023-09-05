@@ -18,6 +18,7 @@ from cinderclient import api_versions
 from openstack.block_storage.v3 import _proxy
 from openstack.block_storage.v3 import availability_zone as _availability_zone
 from openstack.block_storage.v3 import extension as _extension
+from openstack.block_storage.v3 import resource_filter as _filters
 from openstack.block_storage.v3 import volume as _volume
 
 from openstackclient.tests.unit.compute.v2 import fakes as compute_fakes
@@ -243,7 +244,7 @@ def create_one_resource_filter(attrs=None):
     # Overwrite default attributes if there are some attributes set
     resource_filter_info.update(attrs)
 
-    return fakes.FakeResource(None, resource_filter_info, loaded=True)
+    return _filters.ResourceFilter(**resource_filter_info)
 
 
 def create_resource_filters(attrs=None, count=2):

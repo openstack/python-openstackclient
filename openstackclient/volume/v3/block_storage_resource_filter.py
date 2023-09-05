@@ -12,7 +12,8 @@
 
 """Volume V3 Resource Filters implementations"""
 
-from cinderclient import api_versions
+from openstack import utils as sdk_utils
+from osc_lib.cli import format_columns
 from osc_lib.command import command
 from osc_lib import exceptions
 from osc_lib import utils
@@ -24,9 +25,9 @@ class ListBlockStorageResourceFilter(command.Lister):
     _description = _('List block storage resource filters')
 
     def take_action(self, parsed_args):
-        volume_client = self.app.client_manager.volume
+        volume_client = self.app.client_manager.sdk_connection.volume
 
-        if volume_client.api_version < api_versions.APIVersion('3.33'):
+        if not sdk_utils.supports_microversion(volume_client, '3.33'):
             msg = _(
                 "--os-volume-api-version 3.33 or greater is required to "
                 "support the 'block storage resource filter list' command"
@@ -37,12 +38,20 @@ class ListBlockStorageResourceFilter(command.Lister):
             'Resource',
             'Filters',
         )
+        columns = (
+            'resource',
+            'filters',
+        )
 
-        data = volume_client.resource_filters.list()
+        data = volume_client.resource_filters()
+        formatters = {'filters': format_columns.ListColumn}
 
         return (
             column_headers,
-            (utils.get_item_properties(s, column_headers) for s in data),
+            (
+                utils.get_item_properties(s, columns, formatters=formatters)
+                for s in data
+            ),
         )
 
 
@@ -60,18 +69,16 @@ class ShowBlockStorageResourceFilter(command.ShowOne):
         return parser
 
     def take_action(self, parsed_args):
-        volume_client = self.app.client_manager.volume
+        volume_client = self.app.client_manager.sdk_connection.volume
 
-        if volume_client.api_version < api_versions.APIVersion('3.33'):
+        if not sdk_utils.supports_microversion(volume_client, '3.33'):
             msg = _(
                 "--os-volume-api-version 3.33 or greater is required to "
                 "support the 'block storage resource filter show' command"
             )
             raise exceptions.CommandError(msg)
 
-        data = volume_client.resource_filters.list(
-            resource=parsed_args.resource
-        )
+        data = volume_client.resource_filters(resource=parsed_args.resource)
         if not data:
             msg = _(
                 "No resource filter with a name of {parsed_args.resource}' "
@@ -80,4 +87,19 @@ class ShowBlockStorageResourceFilter(command.ShowOne):
             raise exceptions.CommandError(msg)
         resource_filter = next(data)
 
-        return zip(*sorted(resource_filter._info.items()))
+        column_headers = (
+            'Resource',
+            'Filters',
+        )
+        columns = (
+            'resource',
+            'filters',
+        )
+        formatters = {'filters': format_columns.ListColumn}
+
+        return (
+            column_headers,
+            utils.get_dict_properties(
+                resource_filter, columns, formatters=formatters
+            ),
+        )

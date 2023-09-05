@@ -1,0 +1,5 @@
+---
+fixes:
+  - |
+    Migrated ``block storage resource filters list`` and
+    ``block storage resource filters show`` commands to SDK.
