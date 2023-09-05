@@ -33,7 +33,7 @@ class TestNetworkTrunk(network_fakes.TestNetworkV2):
         super().setUp()
 
         # Get a shortcut to the network client
-        self.network = self.app.client_manager.network
+        self.network_client = self.app.client_manager.network
         # Get a shortcut to the ProjectManager Mock
         self.projects_mock = self.app.client_manager.identity.projects
         # Get a shortcut to the DomainManager Mock
@@ -88,8 +88,10 @@ class TestCreateNetworkTrunk(TestNetworkTrunk):
 
     def setUp(self):
         super().setUp()
-        self.network.create_trunk = mock.Mock(return_value=self.new_trunk)
-        self.network.find_port = mock.Mock(
+        self.network_client.create_trunk = mock.Mock(
+            return_value=self.new_trunk
+        )
+        self.network_client.find_port = mock.Mock(
             side_effect=[self.parent_port, self.sub_port]
         )
 
@@ -125,7 +127,7 @@ class TestCreateNetworkTrunk(TestNetworkTrunk):
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
         columns, data = self.cmd.take_action(parsed_args)
 
-        self.network.create_trunk.assert_called_once_with(
+        self.network_client.create_trunk.assert_called_once_with(
             **{
                 'name': self.new_trunk['name'],
                 'admin_state_up': self.new_trunk['admin_state_up'],
@@ -175,7 +177,7 @@ class TestCreateNetworkTrunk(TestNetworkTrunk):
 
         columns, data = self.cmd.take_action(parsed_args)
 
-        self.network.create_trunk.assert_called_once_with(
+        self.network_client.create_trunk.assert_called_once_with(
             **{
                 'name': self.new_trunk.name,
                 'description': self.new_trunk.description,
@@ -247,7 +249,7 @@ class TestCreateNetworkTrunk(TestNetworkTrunk):
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
         columns, data = self.cmd.take_action(parsed_args)
 
-        self.network.create_trunk.assert_called_once_with(
+        self.network_client.create_trunk.assert_called_once_with(
             **{
                 'name': self.new_trunk.name,
                 'admin_state_up': True,
@@ -319,11 +321,11 @@ class TestDeleteNetworkTrunk(TestNetworkTrunk):
 
     def setUp(self):
         super().setUp()
-        self.network.find_trunk = mock.Mock(
+        self.network_client.find_trunk = mock.Mock(
             side_effect=[self.new_trunks[0], self.new_trunks[1]]
         )
-        self.network.delete_trunk = mock.Mock(return_value=None)
-        self.network.find_port = mock.Mock(
+        self.network_client.delete_trunk = mock.Mock(return_value=None)
+        self.network_client.find_port = mock.Mock(
             side_effect=[self.parent_port, self.sub_port]
         )
 
@@ -343,7 +345,7 @@ class TestDeleteNetworkTrunk(TestNetworkTrunk):
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
         result = self.cmd.take_action(parsed_args)
-        self.network.delete_trunk.assert_called_once_with(
+        self.network_client.delete_trunk.assert_called_once_with(
             self.new_trunks[0].id
         )
         self.assertIsNone(result)
@@ -364,7 +366,7 @@ class TestDeleteNetworkTrunk(TestNetworkTrunk):
         calls = []
         for t in self.new_trunks:
             calls.append(call(t.id))
-        self.network.delete_trunk.assert_has_calls(calls)
+        self.network_client.delete_trunk.assert_has_calls(calls)
         self.assertIsNone(result)
 
     def test_delete_trunk_multiple_with_exception(self):
@@ -377,13 +379,13 @@ class TestDeleteNetworkTrunk(TestNetworkTrunk):
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
-        self.network.find_trunk = mock.Mock(
+        self.network_client.find_trunk = mock.Mock(
             side_effect=[self.new_trunks[0], exceptions.CommandError]
         )
         with testtools.ExpectedException(exceptions.CommandError) as e:
             self.cmd.take_action(parsed_args)
             self.assertEqual('1 of 2 trunks failed to delete.', str(e))
-        self.network.delete_trunk.assert_called_once_with(
+        self.network_client.delete_trunk.assert_called_once_with(
             self.new_trunks[0].id
         )
 
@@ -418,8 +420,8 @@ class TestShowNetworkTrunk(TestNetworkTrunk):
 
     def setUp(self):
         super().setUp()
-        self.network.find_trunk = mock.Mock(return_value=self.new_trunk)
-        self.network.get_trunk = mock.Mock(return_value=self.new_trunk)
+        self.network_client.find_trunk = mock.Mock(return_value=self.new_trunk)
+        self.network_client.get_trunk = mock.Mock(return_value=self.new_trunk)
 
         self.projects_mock.get.return_value = self.project
         self.domains_mock.get.return_value = self.domain
@@ -450,7 +452,9 @@ class TestShowNetworkTrunk(TestNetworkTrunk):
 
         columns, data = self.cmd.take_action(parsed_args)
 
-        self.network.get_trunk.assert_called_once_with(self.new_trunk.id)
+        self.network_client.get_trunk.assert_called_once_with(
+            self.new_trunk.id
+        )
         self.assertEqual(self.columns, columns)
         self.assertEqual(self.data, data)
 
@@ -489,7 +493,7 @@ class TestListNetworkTrunk(TestNetworkTrunk):
 
     def setUp(self):
         super().setUp()
-        self.network.trunks = mock.Mock(return_value=self.new_trunks)
+        self.network_client.trunks = mock.Mock(return_value=self.new_trunks)
 
         self.projects_mock.get.return_value = self.project
         self.domains_mock.get.return_value = self.domain
@@ -504,7 +508,7 @@ class TestListNetworkTrunk(TestNetworkTrunk):
 
         columns, data = self.cmd.take_action(parsed_args)
 
-        self.network.trunks.assert_called_once_with()
+        self.network_client.trunks.assert_called_once_with()
         self.assertEqual(self.columns, columns)
         self.assertEqual(self.data, list(data))
 
@@ -519,7 +523,7 @@ class TestListNetworkTrunk(TestNetworkTrunk):
 
         columns, data = self.cmd.take_action(parsed_args)
 
-        self.network.trunks.assert_called_once_with()
+        self.network_client.trunks.assert_called_once_with()
         self.assertEqual(self.columns_long, columns)
         self.assertEqual(self.data_long, list(data))
 
@@ -568,10 +572,12 @@ class TestSetNetworkTrunk(TestNetworkTrunk):
 
     def setUp(self):
         super().setUp()
-        self.network.update_trunk = mock.Mock(return_value=self._trunk)
-        self.network.add_trunk_subports = mock.Mock(return_value=self._trunk)
-        self.network.find_trunk = mock.Mock(return_value=self._trunk)
-        self.network.find_port = mock.Mock(
+        self.network_client.update_trunk = mock.Mock(return_value=self._trunk)
+        self.network_client.add_trunk_subports = mock.Mock(
+            return_value=self._trunk
+        )
+        self.network_client.find_trunk = mock.Mock(return_value=self._trunk)
+        self.network_client.find_port = mock.Mock(
             side_effect=[self.sub_port, self.sub_port]
         )
 
@@ -598,7 +604,9 @@ class TestSetNetworkTrunk(TestNetworkTrunk):
         attrs = {
             attr: value,
         }
-        self.network.update_trunk.assert_called_once_with(self._trunk, **attrs)
+        self.network_client.update_trunk.assert_called_once_with(
+            self._trunk, **attrs
+        )
         self.assertIsNone(result)
 
     def test_set_network_trunk_name(self):
@@ -623,7 +631,9 @@ class TestSetNetworkTrunk(TestNetworkTrunk):
         attrs = {
             'admin_state_up': False,
         }
-        self.network.update_trunk.assert_called_once_with(self._trunk, **attrs)
+        self.network_client.update_trunk.assert_called_once_with(
+            self._trunk, **attrs
+        )
         self.assertIsNone(result)
 
     def test_set_network_trunk_admin_state_up_enable(self):
@@ -642,7 +652,9 @@ class TestSetNetworkTrunk(TestNetworkTrunk):
         attrs = {
             'admin_state_up': True,
         }
-        self.network.update_trunk.assert_called_once_with(self._trunk, **attrs)
+        self.network_client.update_trunk.assert_called_once_with(
+            self._trunk, **attrs
+        )
         self.assertIsNone(result)
 
     def test_set_network_trunk_nothing(self):
@@ -657,7 +669,9 @@ class TestSetNetworkTrunk(TestNetworkTrunk):
         result = self.cmd.take_action(parsed_args)
 
         attrs = {}
-        self.network.update_trunk.assert_called_once_with(self._trunk, **attrs)
+        self.network_client.update_trunk.assert_called_once_with(
+            self._trunk, **attrs
+        )
         self.assertIsNone(result)
 
     def test_set_network_trunk_subports(self):
@@ -690,7 +704,7 @@ class TestSetNetworkTrunk(TestNetworkTrunk):
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
         result = self.cmd.take_action(parsed_args)
 
-        self.network.add_trunk_subports.assert_called_once_with(
+        self.network_client.add_trunk_subports.assert_called_once_with(
             self._trunk, [subport]
         )
         self.assertIsNone(result)
@@ -713,7 +727,7 @@ class TestSetNetworkTrunk(TestNetworkTrunk):
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
         result = self.cmd.take_action(parsed_args)
 
-        self.network.add_trunk_subports.assert_called_once_with(
+        self.network_client.add_trunk_subports.assert_called_once_with(
             self._trunk, [subport]
         )
         self.assertIsNone(result)
@@ -746,7 +760,7 @@ class TestSetNetworkTrunk(TestNetworkTrunk):
         with testtools.ExpectedException(argparse.ArgumentTypeError):
             self.check_parser(self.cmd, arglist, verifylist)
 
-        self.network.add_trunk_subports.assert_not_called()
+        self.network_client.add_trunk_subports.assert_not_called()
 
     def test_set_trunk_attrs_with_exception(self):
         arglist = [
@@ -760,7 +774,7 @@ class TestSetNetworkTrunk(TestNetworkTrunk):
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
-        self.network.update_trunk = mock.Mock(
+        self.network_client.update_trunk = mock.Mock(
             side_effect=exceptions.CommandError
         )
         with testtools.ExpectedException(exceptions.CommandError) as e:
@@ -769,8 +783,10 @@ class TestSetNetworkTrunk(TestNetworkTrunk):
                 "Failed to set trunk '%s': " % self._trunk['name'], str(e)
             )
         attrs = {'name': 'reallylongname'}
-        self.network.update_trunk.assert_called_once_with(self._trunk, **attrs)
-        self.network.add_trunk_subports.assert_not_called()
+        self.network_client.update_trunk.assert_called_once_with(
+            self._trunk, **attrs
+        )
+        self.network_client.add_trunk_subports.assert_not_called()
 
     def test_set_trunk_add_subport_with_exception(self):
         arglist = [
@@ -784,10 +800,10 @@ class TestSetNetworkTrunk(TestNetworkTrunk):
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
-        self.network.add_trunk_subports = mock.Mock(
+        self.network_client.add_trunk_subports = mock.Mock(
             side_effect=exceptions.CommandError
         )
-        self.network.find_port = mock.Mock(
+        self.network_client.find_port = mock.Mock(
             return_value={'id': 'invalid_subport'}
         )
         with testtools.ExpectedException(exceptions.CommandError) as e:
@@ -796,8 +812,8 @@ class TestSetNetworkTrunk(TestNetworkTrunk):
                 "Failed to add subports to trunk '%s': " % self._trunk['name'],
                 str(e),
             )
-        self.network.update_trunk.assert_called_once_with(self._trunk)
-        self.network.add_trunk_subports.assert_called_once_with(
+        self.network_client.update_trunk.assert_called_once_with(self._trunk)
+        self.network_client.add_trunk_subports.assert_called_once_with(
             self._trunk, [{'port_id': 'invalid_subport'}]
         )
 
@@ -824,8 +840,8 @@ class TestListNetworkSubport(TestNetworkTrunk):
     def setUp(self):
         super().setUp()
 
-        self.network.find_trunk = mock.Mock(return_value=self._trunk)
-        self.network.get_trunk_subports = mock.Mock(
+        self.network_client.find_trunk = mock.Mock(return_value=self._trunk)
+        self.network_client.get_trunk_subports = mock.Mock(
             return_value={network_trunk.SUB_PORTS: self._subports}
         )
 
@@ -843,7 +859,9 @@ class TestListNetworkSubport(TestNetworkTrunk):
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
         columns, data = self.cmd.take_action(parsed_args)
 
-        self.network.get_trunk_subports.assert_called_once_with(self._trunk)
+        self.network_client.get_trunk_subports.assert_called_once_with(
+            self._trunk
+        )
         self.assertEqual(self.columns, columns)
         self.assertEqual(self.data, list(data))
 
@@ -892,11 +910,13 @@ class TestUnsetNetworkTrunk(TestNetworkTrunk):
     def setUp(self):
         super().setUp()
 
-        self.network.find_trunk = mock.Mock(return_value=self._trunk)
-        self.network.find_port = mock.Mock(
+        self.network_client.find_trunk = mock.Mock(return_value=self._trunk)
+        self.network_client.find_port = mock.Mock(
             side_effect=[self.sub_port, self.sub_port]
         )
-        self.network.delete_trunk_subports = mock.Mock(return_value=None)
+        self.network_client.delete_trunk_subports = mock.Mock(
+            return_value=None
+        )
 
         # Get the command object to test
         self.cmd = network_trunk.UnsetNetworkTrunk(self.app, self.namespace)
@@ -918,7 +938,7 @@ class TestUnsetNetworkTrunk(TestNetworkTrunk):
 
         result = self.cmd.take_action(parsed_args)
 
-        self.network.delete_trunk_subports.assert_called_once_with(
+        self.network_client.delete_trunk_subports.assert_called_once_with(
             self._trunk, [{'port_id': subport['port_id']}]
         )
         self.assertIsNone(result)

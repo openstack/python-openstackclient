@@ -24,9 +24,9 @@ class TestConntrackHelper(network_fakes.TestNetworkV2):
     def setUp(self):
         super(TestConntrackHelper, self).setUp()
         # Get a shortcut to the network client
-        self.network = self.app.client_manager.network
+        self.network_client = self.app.client_manager.network
         self.router = network_fakes.FakeRouter.create_one_router()
-        self.network.find_router = mock.Mock(return_value=self.router)
+        self.network_client.find_router = mock.Mock(return_value=self.router)
 
 
 class TestCreateL3ConntrackHelper(TestConntrackHelper):
@@ -47,7 +47,7 @@ class TestCreateL3ConntrackHelper(TestConntrackHelper):
             self.ct_helper.protocol,
             self.ct_helper.router_id,
         )
-        self.network.create_conntrack_helper = mock.Mock(
+        self.network_client.create_conntrack_helper = mock.Mock(
             return_value=self.ct_helper
         )
 
@@ -89,7 +89,7 @@ class TestCreateL3ConntrackHelper(TestConntrackHelper):
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
         columns, data = self.cmd.take_action(parsed_args)
 
-        self.network.create_conntrack_helper.assert_called_once_with(
+        self.network_client.create_conntrack_helper.assert_called_once_with(
             self.router.id, **{'helper': 'tftp', 'protocol': 'udp', 'port': 69}
         )
         self.assertEqual(self.columns, columns)
@@ -122,7 +122,9 @@ class TestDeleteL3ConntrackHelper(TestConntrackHelper):
                 attrs
             )
         )
-        self.network.delete_conntrack_helper = mock.Mock(return_value=None)
+        self.network_client.delete_conntrack_helper = mock.Mock(
+            return_value=None
+        )
 
         # Get the command object to test
         self.cmd = l3_conntrack_helper.DeleteConntrackHelper(
@@ -137,7 +139,7 @@ class TestDeleteL3ConntrackHelper(TestConntrackHelper):
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
         result = self.cmd.take_action(parsed_args)
-        self.network.delete_conntrack_helper.assert_called_once_with(
+        self.network_client.delete_conntrack_helper.assert_called_once_with(
             self.ct_helper.id, self.router.id, ignore_missing=False
         )
         self.assertIsNone(result)
@@ -148,7 +150,7 @@ class TestDeleteL3ConntrackHelper(TestConntrackHelper):
             ('conntrack_helper_id', [self.ct_helper.id]),
             ('router', self.router.id),
         ]
-        self.network.delete_conntrack_helper.side_effect = Exception(
+        self.network_client.delete_conntrack_helper.side_effect = Exception(
             'Error message'
         )
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
@@ -184,7 +186,9 @@ class TestListL3ConntrackHelper(TestConntrackHelper):
                     ct_helper.port,
                 )
             )
-        self.network.conntrack_helpers = mock.Mock(return_value=ct_helpers)
+        self.network_client.conntrack_helpers = mock.Mock(
+            return_value=ct_helpers
+        )
 
         # Get the command object to test
         self.cmd = l3_conntrack_helper.ListConntrackHelper(
@@ -200,7 +204,9 @@ class TestListL3ConntrackHelper(TestConntrackHelper):
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
         columns, data = self.cmd.take_action(parsed_args)
 
-        self.network.conntrack_helpers.assert_called_once_with(self.router.id)
+        self.network_client.conntrack_helpers.assert_called_once_with(
+            self.router.id
+        )
         self.assertEqual(self.columns, columns)
         list_data = list(data)
         self.assertEqual(len(self.data), len(list_data))
@@ -217,7 +223,9 @@ class TestSetL3ConntrackHelper(TestConntrackHelper):
                 attrs
             )
         )
-        self.network.update_conntrack_helper = mock.Mock(return_value=None)
+        self.network_client.update_conntrack_helper = mock.Mock(
+            return_value=None
+        )
 
         # Get the command object to test
         self.cmd = l3_conntrack_helper.SetConntrackHelper(
@@ -237,7 +245,7 @@ class TestSetL3ConntrackHelper(TestConntrackHelper):
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
         result = self.cmd.take_action(parsed_args)
 
-        self.network.update_conntrack_helper.assert_called_once_with(
+        self.network_client.update_conntrack_helper.assert_called_once_with(
             self.ct_helper.id, self.router.id
         )
         self.assertIsNone(result)
@@ -258,7 +266,7 @@ class TestSetL3ConntrackHelper(TestConntrackHelper):
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
         result = self.cmd.take_action(parsed_args)
 
-        self.network.update_conntrack_helper.assert_called_once_with(
+        self.network_client.update_conntrack_helper.assert_called_once_with(
             self.ct_helper.id, self.router.id, port=124
         )
         self.assertIsNone(result)
@@ -282,7 +290,7 @@ class TestShowL3ConntrackHelper(TestConntrackHelper):
             self.ct_helper.protocol,
             self.ct_helper.router_id,
         )
-        self.network.get_conntrack_helper = mock.Mock(
+        self.network_client.get_conntrack_helper = mock.Mock(
             return_value=self.ct_helper
         )
 
@@ -317,7 +325,7 @@ class TestShowL3ConntrackHelper(TestConntrackHelper):
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
         columns, data = self.cmd.take_action(parsed_args)
 
-        self.network.get_conntrack_helper.assert_called_once_with(
+        self.network_client.get_conntrack_helper.assert_called_once_with(
             self.ct_helper.id, self.router.id
         )
         self.assertEqual(self.columns, columns)

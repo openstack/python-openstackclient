@@ -130,8 +130,8 @@ class TestNetworkAndCompute(utils.TestCommand):
 
         # Create network client mocks.
         self.app.client_manager.network = mock.Mock()
-        self.network = self.app.client_manager.network
-        self.network.network_action = mock.Mock(
+        self.network_client = self.app.client_manager.network
+        self.network_client.network_action = mock.Mock(
             return_value='take_action_network'
         )
 
@@ -151,7 +151,7 @@ class TestNetworkAndCompute(utils.TestCommand):
 
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
         result = self.cmd.take_action(parsed_args)
-        self.network.network_action.assert_called_with(parsed_args)
+        self.network_client.network_action.assert_called_with(parsed_args)
         self.assertEqual('take_action_network', result)
 
     def test_take_action_compute(self):
@@ -210,8 +210,8 @@ class TestNeutronCommandWithExtraArgs(utils.TestCommand):
         self.namespace = argparse.Namespace()
 
         self.app.client_manager.network = mock.Mock()
-        self.network = self.app.client_manager.network
-        self.network.test_create_action = mock.Mock()
+        self.network_client = self.app.client_manager.network
+        self.network_client.test_create_action = mock.Mock()
 
         # Subclasses can override the command object to test.
         self.cmd = FakeCreateNeutronCommandWithExtraArgs(
@@ -235,7 +235,7 @@ class TestNeutronCommandWithExtraArgs(utils.TestCommand):
 
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
         self.cmd.take_action(parsed_args)
-        self.network.test_create_action.assert_called_with(
+        self.network_client.test_create_action.assert_called_with(
             known_attribute='known-value', extra_name='extra_value'
         )
 
@@ -262,7 +262,7 @@ class TestNeutronCommandWithExtraArgs(utils.TestCommand):
 
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
         self.cmd.take_action(parsed_args)
-        self.network.test_create_action.assert_called_with(
+        self.network_client.test_create_action.assert_called_with(
             known_attribute='known-value', extra_name='extra_value'
         )
 
@@ -283,7 +283,7 @@ class TestNeutronCommandWithExtraArgs(utils.TestCommand):
 
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
         self.cmd.take_action(parsed_args)
-        self.network.test_create_action.assert_called_with(
+        self.network_client.test_create_action.assert_called_with(
             known_attribute='known-value', extra_name=True
         )
 
@@ -304,7 +304,7 @@ class TestNeutronCommandWithExtraArgs(utils.TestCommand):
 
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
         self.cmd.take_action(parsed_args)
-        self.network.test_create_action.assert_called_with(
+        self.network_client.test_create_action.assert_called_with(
             known_attribute='known-value', extra_name=8
         )
 
@@ -325,7 +325,7 @@ class TestNeutronCommandWithExtraArgs(utils.TestCommand):
 
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
         self.cmd.take_action(parsed_args)
-        self.network.test_create_action.assert_called_with(
+        self.network_client.test_create_action.assert_called_with(
             known_attribute='known-value', extra_name=['v_1', 'v_2']
         )
 
@@ -352,6 +352,6 @@ class TestNeutronCommandWithExtraArgs(utils.TestCommand):
 
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
         self.cmd.take_action(parsed_args)
-        self.network.test_create_action.assert_called_with(
+        self.network_client.test_create_action.assert_called_with(
             known_attribute='known-value', extra_name={'n1': 'v1', 'n2': 'v2'}
         )

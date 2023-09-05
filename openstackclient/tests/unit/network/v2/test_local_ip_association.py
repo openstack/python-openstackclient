@@ -26,11 +26,11 @@ from openstackclient.tests.unit.network.v2 import fakes as network_fakes
 class TestLocalIPAssociation(network_fakes.TestNetworkV2):
     def setUp(self):
         super().setUp()
-        self.network = self.app.client_manager.network
+        self.network_client = self.app.client_manager.network
         self.local_ip = network_fakes.create_one_local_ip()
         self.fixed_port = network_fakes.create_one_port()
         self.project = identity_fakes_v2.FakeProject.create_one_project()
-        self.network.find_port = mock.Mock(return_value=self.fixed_port)
+        self.network_client.find_port = mock.Mock(return_value=self.fixed_port)
 
 
 class TestCreateLocalIPAssociation(TestLocalIPAssociation):
@@ -44,11 +44,13 @@ class TestCreateLocalIPAssociation(TestLocalIPAssociation):
                 }
             )
         )
-        self.network.create_local_ip_association = mock.Mock(
+        self.network_client.create_local_ip_association = mock.Mock(
             return_value=self.new_local_ip_association
         )
 
-        self.network.find_local_ip = mock.Mock(return_value=self.local_ip)
+        self.network_client.find_local_ip = mock.Mock(
+            return_value=self.local_ip
+        )
 
         # Get the command object to test
         self.cmd = local_ip_association.CreateLocalIPAssociation(
@@ -81,7 +83,7 @@ class TestCreateLocalIPAssociation(TestLocalIPAssociation):
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
         columns, data = self.cmd.take_action(parsed_args)
 
-        self.network.create_local_ip_association.assert_called_once_with(
+        self.network_client.create_local_ip_association.assert_called_once_with(
             self.new_local_ip_association.local_ip_id,
             **{
                 'fixed_port_id': self.new_local_ip_association.fixed_port_id,
@@ -105,7 +107,7 @@ class TestCreateLocalIPAssociation(TestLocalIPAssociation):
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
         columns, data = self.cmd.take_action(parsed_args)
 
-        self.network.create_local_ip_association.assert_called_once_with(
+        self.network_client.create_local_ip_association.assert_called_once_with(
             self.new_local_ip_association.local_ip_id,
             **{
                 'fixed_port_id': self.new_local_ip_association.fixed_port_id,
@@ -127,9 +129,13 @@ class TestDeleteLocalIPAssociation(TestLocalIPAssociation):
                 },
             )
         )
-        self.network.delete_local_ip_association = mock.Mock(return_value=None)
+        self.network_client.delete_local_ip_association = mock.Mock(
+            return_value=None
+        )
 
-        self.network.find_local_ip = mock.Mock(return_value=self.local_ip)
+        self.network_client.find_local_ip = mock.Mock(
+            return_value=self.local_ip
+        )
         # Get the command object to test
         self.cmd = local_ip_association.DeleteLocalIPAssociation(
             self.app, self.namespace
@@ -149,7 +155,7 @@ class TestDeleteLocalIPAssociation(TestLocalIPAssociation):
 
         result = self.cmd.take_action(parsed_args)
 
-        self.network.delete_local_ip_association.assert_called_once_with(
+        self.network_client.delete_local_ip_association.assert_called_once_with(
             self.local_ip.id,
             self._local_ip_association[0].fixed_port_id,
             ignore_missing=False,
@@ -181,7 +187,7 @@ class TestDeleteLocalIPAssociation(TestLocalIPAssociation):
                 call(a.local_ip_id, a.fixed_port_id, ignore_missing=False)
             )
 
-        self.network.delete_local_ip_association.assert_has_calls(calls)
+        self.network_client.delete_local_ip_association.assert_has_calls(calls)
         self.assertIsNone(result)
 
     def test_multi_local_ip_association_delete_with_exception(self):
@@ -204,7 +210,7 @@ class TestDeleteLocalIPAssociation(TestLocalIPAssociation):
 
         delete_mock_result = [None, exceptions.CommandError]
 
-        self.network.delete_local_ip_association = mock.MagicMock(
+        self.network_client.delete_local_ip_association = mock.MagicMock(
             side_effect=delete_mock_result
         )
 
@@ -216,10 +222,10 @@ class TestDeleteLocalIPAssociation(TestLocalIPAssociation):
                 '1 of 2 Local IP Associations failed to delete.', str(e)
             )
 
-        self.network.delete_local_ip_association.assert_any_call(
+        self.network_client.delete_local_ip_association.assert_any_call(
             self.local_ip.id, 'unexist_fixed_port_id', ignore_missing=False
         )
-        self.network.delete_local_ip_association.assert_any_call(
+        self.network_client.delete_local_ip_association.assert_any_call(
             self.local_ip.id,
             self._local_ip_association[0].fixed_port_id,
             ignore_missing=False,
@@ -257,11 +263,13 @@ class TestListLocalIPAssociation(TestLocalIPAssociation):
                     lip_assoc.host,
                 )
             )
-        self.network.local_ip_associations = mock.Mock(
+        self.network_client.local_ip_associations = mock.Mock(
             return_value=self.local_ip_associations
         )
-        self.network.find_local_ip = mock.Mock(return_value=self.local_ip)
-        self.network.find_port = mock.Mock(return_value=self.fixed_port)
+        self.network_client.find_local_ip = mock.Mock(
+            return_value=self.local_ip
+        )
+        self.network_client.find_port = mock.Mock(return_value=self.fixed_port)
         # Get the command object to test
         self.cmd = local_ip_association.ListLocalIPAssociation(
             self.app, self.namespace
@@ -274,7 +282,7 @@ class TestListLocalIPAssociation(TestLocalIPAssociation):
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
         columns, data = self.cmd.take_action(parsed_args)
 
-        self.network.local_ip_associations.assert_called_once_with(
+        self.network_client.local_ip_associations.assert_called_once_with(
             self.local_ip, **{}
         )
         self.assertEqual(set(self.columns), set(columns))
@@ -307,7 +315,7 @@ class TestListLocalIPAssociation(TestLocalIPAssociation):
             'host': self.local_ip_associations[0].host,
         }
 
-        self.network.local_ip_associations.assert_called_once_with(
+        self.network_client.local_ip_associations.assert_called_once_with(
             self.local_ip, **attrs
         )
         self.assertEqual(set(self.columns), set(columns))

@@ -27,7 +27,7 @@ from openstackclient.tests.unit import utils as tests_utils
 class TestMeterRule(network_fakes.TestNetworkV2):
     def setUp(self):
         super(TestMeterRule, self).setUp()
-        self.network = self.app.client_manager.network
+        self.network_client = self.app.client_manager.network
         self.projects_mock = self.app.client_manager.identity.projects
         self.domains_mock = self.app.client_manager.identity.domains
 
@@ -65,12 +65,14 @@ class TestCreateMeterRule(TestMeterRule):
             {'id': self.new_rule.metering_label_id}
         )
 
-        self.network.create_metering_label_rule = mock.Mock(
+        self.network_client.create_metering_label_rule = mock.Mock(
             return_value=self.new_rule
         )
         self.projects_mock.get.return_value = self.project
         self.cmd = network_meter_rule.CreateMeterRule(self.app, self.namespace)
-        self.network.find_metering_label = mock.Mock(return_value=fake_meter)
+        self.network_client.find_metering_label = mock.Mock(
+            return_value=fake_meter
+        )
 
     def test_create_no_options(self):
         arglist = []
@@ -98,7 +100,7 @@ class TestCreateMeterRule(TestMeterRule):
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
         columns, data = self.cmd.take_action(parsed_args)
 
-        self.network.create_metering_label_rule.assert_called_once_with(
+        self.network_client.create_metering_label_rule.assert_called_once_with(
             **{
                 'direction': 'ingress',
                 'metering_label_id': self.new_rule.metering_label_id,
@@ -126,7 +128,7 @@ class TestCreateMeterRule(TestMeterRule):
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
         columns, data = self.cmd.take_action(parsed_args)
 
-        self.network.create_metering_label_rule.assert_called_once_with(
+        self.network_client.create_metering_label_rule.assert_called_once_with(
             **{
                 'direction': self.new_rule.direction,
                 'excluded': self.new_rule.excluded,
@@ -144,9 +146,11 @@ class TestDeleteMeterRule(TestMeterRule):
         self.rule_list = network_fakes.FakeNetworkMeterRule.create_meter_rule(
             count=2
         )
-        self.network.delete_metering_label_rule = mock.Mock(return_value=None)
+        self.network_client.delete_metering_label_rule = mock.Mock(
+            return_value=None
+        )
 
-        self.network.find_metering_label_rule = (
+        self.network_client.find_metering_label_rule = (
             network_fakes.FakeNetworkMeterRule.get_meter_rule(
                 meter_rule=self.rule_list
             )
@@ -166,7 +170,7 @@ class TestDeleteMeterRule(TestMeterRule):
 
         result = self.cmd.take_action(parsed_args)
 
-        self.network.delete_metering_label_rule.assert_called_once_with(
+        self.network_client.delete_metering_label_rule.assert_called_once_with(
             self.rule_list[0]
         )
         self.assertIsNone(result)
@@ -186,7 +190,7 @@ class TestDeleteMeterRule(TestMeterRule):
         calls = []
         for rule in self.rule_list:
             calls.append(call(rule))
-        self.network.delete_metering_label_rule.assert_has_calls(calls)
+        self.network_client.delete_metering_label_rule.assert_has_calls(calls)
         self.assertIsNone(result)
 
     def test_delete_multiple_rules_exception(self):
@@ -206,7 +210,7 @@ class TestDeleteMeterRule(TestMeterRule):
             exceptions.NotFound('404'),
             self.rule_list[1],
         ]
-        self.network.find_metering_label_rule = mock.Mock(
+        self.network_client.find_metering_label_rule = mock.Mock(
             side_effect=return_find
         )
 
@@ -214,7 +218,7 @@ class TestDeleteMeterRule(TestMeterRule):
             None,
             exceptions.NotFound('404'),
         ]
-        self.network.delete_metering_label_rule = mock.Mock(
+        self.network_client.delete_metering_label_rule = mock.Mock(
             side_effect=ret_delete
         )
 
@@ -226,7 +230,7 @@ class TestDeleteMeterRule(TestMeterRule):
             call(self.rule_list[0]),
             call(self.rule_list[1]),
         ]
-        self.network.delete_metering_label_rule.assert_has_calls(calls)
+        self.network_client.delete_metering_label_rule.assert_has_calls(calls)
 
 
 class TestListMeterRule(TestMeterRule):
@@ -258,7 +262,7 @@ class TestListMeterRule(TestMeterRule):
     def setUp(self):
         super(TestListMeterRule, self).setUp()
 
-        self.network.metering_label_rules = mock.Mock(
+        self.network_client.metering_label_rules = mock.Mock(
             return_value=self.rule_list
         )
 
@@ -272,7 +276,7 @@ class TestListMeterRule(TestMeterRule):
 
         columns, data = self.cmd.take_action(parsed_args)
 
-        self.network.metering_label_rules.assert_called_with()
+        self.network_client.metering_label_rules.assert_called_with()
         self.assertEqual(self.columns, columns)
         self.assertEqual(self.data, list(data))
 
@@ -307,7 +311,7 @@ class TestShowMeterRule(TestMeterRule):
 
         self.cmd = network_meter_rule.ShowMeterRule(self.app, self.namespace)
 
-        self.network.find_metering_label_rule = mock.Mock(
+        self.network_client.find_metering_label_rule = mock.Mock(
             return_value=self.new_rule
         )
 
@@ -334,7 +338,7 @@ class TestShowMeterRule(TestMeterRule):
 
         columns, data = self.cmd.take_action(parsed_args)
 
-        self.network.find_metering_label_rule.assert_called_with(
+        self.network_client.find_metering_label_rule.assert_called_with(
             self.new_rule.id, ignore_missing=False
         )
         self.assertEqual(self.columns, columns)

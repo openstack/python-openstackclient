@@ -23,7 +23,7 @@ from openstackclient.tests.unit.network.v2 import fakes as network_fakes
 class TestAutoAllocatedTopology(network_fakes.TestNetworkV2):
     def setUp(self):
         super(TestAutoAllocatedTopology, self).setUp()
-        self.network = self.app.client_manager.network
+        self.network_client = self.app.client_manager.network
         self.projects_mock = self.app.client_manager.identity.projects
 
 
@@ -51,7 +51,7 @@ class TestCreateAutoAllocatedTopology(TestAutoAllocatedTopology):
         self.cmd = network_auto_allocated_topology.CreateAutoAllocatedTopology(
             self.app, self.namespace
         )
-        self.network.get_auto_allocated_topology = mock.Mock(
+        self.network_client.get_auto_allocated_topology = mock.Mock(
             return_value=self.topology
         )
 
@@ -62,7 +62,9 @@ class TestCreateAutoAllocatedTopology(TestAutoAllocatedTopology):
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
         columns, data = self.cmd.take_action(parsed_args)
-        self.network.get_auto_allocated_topology.assert_called_with(None)
+        self.network_client.get_auto_allocated_topology.assert_called_with(
+            None
+        )
 
         self.assertEqual(self.columns, columns)
         self.assertEqual(self.data, data)
@@ -80,7 +82,7 @@ class TestCreateAutoAllocatedTopology(TestAutoAllocatedTopology):
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
         columns, data = self.cmd.take_action(parsed_args)
-        self.network.get_auto_allocated_topology.assert_called_with(
+        self.network_client.get_auto_allocated_topology.assert_called_with(
             self.project.id
         )
 
@@ -103,7 +105,7 @@ class TestCreateAutoAllocatedTopology(TestAutoAllocatedTopology):
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
         columns, data = self.cmd.take_action(parsed_args)
-        self.network.get_auto_allocated_topology.assert_called_with(
+        self.network_client.get_auto_allocated_topology.assert_called_with(
             self.project.id
         )
 
@@ -122,7 +124,9 @@ class TestCreateAutoAllocatedTopology(TestAutoAllocatedTopology):
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
         columns, data = self.cmd.take_action(parsed_args)
-        self.network.get_auto_allocated_topology.assert_called_with(None)
+        self.network_client.get_auto_allocated_topology.assert_called_with(
+            None
+        )
 
         self.assertEqual(self.columns, columns)
         self.assertEqual(self.data, data)
@@ -152,7 +156,7 @@ class TestValidateAutoAllocatedTopology(TestAutoAllocatedTopology):
         self.cmd = network_auto_allocated_topology.CreateAutoAllocatedTopology(
             self.app, self.namespace
         )
-        self.network.validate_auto_allocated_topology = mock.Mock(
+        self.network_client.validate_auto_allocated_topology = mock.Mock(
             return_value=self.topology
         )
 
@@ -167,7 +171,9 @@ class TestValidateAutoAllocatedTopology(TestAutoAllocatedTopology):
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
         columns, data = self.cmd.take_action(parsed_args)
 
-        self.network.validate_auto_allocated_topology.assert_called_with(None)
+        self.network_client.validate_auto_allocated_topology.assert_called_with(
+            None
+        )
 
     def test_show_dry_run_project_option(self):
         arglist = [
@@ -183,7 +189,7 @@ class TestValidateAutoAllocatedTopology(TestAutoAllocatedTopology):
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
         columns, data = self.cmd.take_action(parsed_args)
 
-        self.network.validate_auto_allocated_topology.assert_called_with(
+        self.network_client.validate_auto_allocated_topology.assert_called_with(
             self.project.id
         )
 
@@ -204,7 +210,7 @@ class TestValidateAutoAllocatedTopology(TestAutoAllocatedTopology):
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
         columns, data = self.cmd.take_action(parsed_args)
 
-        self.network.validate_auto_allocated_topology.assert_called_with(
+        self.network_client.validate_auto_allocated_topology.assert_called_with(
             self.project.id
         )
 
@@ -223,7 +229,7 @@ class TestDeleteAutoAllocatedTopology(TestAutoAllocatedTopology):
         self.cmd = network_auto_allocated_topology.DeleteAutoAllocatedTopology(
             self.app, self.namespace
         )
-        self.network.delete_auto_allocated_topology = mock.Mock(
+        self.network_client.delete_auto_allocated_topology = mock.Mock(
             return_value=None
         )
 
@@ -234,7 +240,7 @@ class TestDeleteAutoAllocatedTopology(TestAutoAllocatedTopology):
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
         result = self.cmd.take_action(parsed_args)
 
-        self.network.delete_auto_allocated_topology.assert_called_once_with(
+        self.network_client.delete_auto_allocated_topology.assert_called_once_with(
             None
         )
 
@@ -252,7 +258,7 @@ class TestDeleteAutoAllocatedTopology(TestAutoAllocatedTopology):
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
         result = self.cmd.take_action(parsed_args)
 
-        self.network.delete_auto_allocated_topology.assert_called_once_with(
+        self.network_client.delete_auto_allocated_topology.assert_called_once_with(
             self.project.id
         )
 
@@ -273,7 +279,7 @@ class TestDeleteAutoAllocatedTopology(TestAutoAllocatedTopology):
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
         result = self.cmd.take_action(parsed_args)
 
-        self.network.delete_auto_allocated_topology.assert_called_once_with(
+        self.network_client.delete_auto_allocated_topology.assert_called_once_with(
             self.project.id
         )
 

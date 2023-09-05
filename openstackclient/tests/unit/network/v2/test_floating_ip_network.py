@@ -30,7 +30,7 @@ class TestFloatingIPNetwork(network_fakes.TestNetworkV2):
         super(TestFloatingIPNetwork, self).setUp()
 
         # Get a shortcut to the network client
-        self.network = self.app.client_manager.network
+        self.network_client = self.app.client_manager.network
         # Get a shortcut to the ProjectManager Mock
         self.projects_mock = self.app.client_manager.identity.projects
         # Get a shortcut to the DomainManager Mock
@@ -88,14 +88,16 @@ class TestCreateFloatingIPNetwork(TestFloatingIPNetwork):
     def setUp(self):
         super(TestCreateFloatingIPNetwork, self).setUp()
 
-        self.network.create_ip = mock.Mock(return_value=self.floating_ip)
-        self.network.set_tags = mock.Mock(return_value=None)
+        self.network_client.create_ip = mock.Mock(
+            return_value=self.floating_ip
+        )
+        self.network_client.set_tags = mock.Mock(return_value=None)
 
-        self.network.find_network = mock.Mock(
+        self.network_client.find_network = mock.Mock(
             return_value=self.floating_network
         )
-        self.network.find_subnet = mock.Mock(return_value=self.subnet)
-        self.network.find_port = mock.Mock(return_value=self.port)
+        self.network_client.find_subnet = mock.Mock(return_value=self.subnet)
+        self.network_client.find_port = mock.Mock(return_value=self.port)
 
         # Get the command object to test
         self.cmd = fip.CreateFloatingIP(self.app, self.namespace)
@@ -123,7 +125,7 @@ class TestCreateFloatingIPNetwork(TestFloatingIPNetwork):
 
         columns, data = self.cmd.take_action(parsed_args)
 
-        self.network.create_ip.assert_called_once_with(
+        self.network_client.create_ip.assert_called_once_with(
             **{
                 'floating_network_id': self.floating_ip.floating_network_id,
             }
@@ -163,7 +165,7 @@ class TestCreateFloatingIPNetwork(TestFloatingIPNetwork):
 
         columns, data = self.cmd.take_action(parsed_args)
 
-        self.network.create_ip.assert_called_once_with(
+        self.network_client.create_ip.assert_called_once_with(
             **{
                 'subnet_id': self.subnet.id,
                 'port_id': self.floating_ip.port_id,
@@ -194,7 +196,7 @@ class TestCreateFloatingIPNetwork(TestFloatingIPNetwork):
 
         columns, data = self.cmd.take_action(parsed_args)
 
-        self.network.create_ip.assert_called_once_with(
+        self.network_client.create_ip.assert_called_once_with(
             **{
                 'floating_network_id': self.floating_ip.floating_network_id,
                 'project_id': project.id,
@@ -224,7 +226,7 @@ class TestCreateFloatingIPNetwork(TestFloatingIPNetwork):
 
         columns, data = self.cmd.take_action(parsed_args)
 
-        self.network.create_ip.assert_called_once_with(
+        self.network_client.create_ip.assert_called_once_with(
             **{
                 'floating_network_id': self.floating_ip.floating_network_id,
                 'project_id': project.id,
@@ -235,7 +237,9 @@ class TestCreateFloatingIPNetwork(TestFloatingIPNetwork):
 
     def test_create_floating_ip_with_qos(self):
         qos_policy = network_fakes.FakeNetworkQosPolicy.create_one_qos_policy()
-        self.network.find_qos_policy = mock.Mock(return_value=qos_policy)
+        self.network_client.find_qos_policy = mock.Mock(
+            return_value=qos_policy
+        )
         arglist = [
             '--qos-policy',
             qos_policy.id,
@@ -249,7 +253,7 @@ class TestCreateFloatingIPNetwork(TestFloatingIPNetwork):
 
         columns, data = self.cmd.take_action(parsed_args)
 
-        self.network.create_ip.assert_called_once_with(
+        self.network_client.create_ip.assert_called_once_with(
             **{
                 'floating_network_id': self.floating_ip.floating_network_id,
                 'qos_policy_id': qos_policy.id,
@@ -276,17 +280,17 @@ class TestCreateFloatingIPNetwork(TestFloatingIPNetwork):
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
         columns, data = self.cmd.take_action(parsed_args)
 
-        self.network.create_ip.assert_called_once_with(
+        self.network_client.create_ip.assert_called_once_with(
             **{
                 'floating_network_id': self.floating_ip.floating_network_id,
             }
         )
         if add_tags:
-            self.network.set_tags.assert_called_once_with(
+            self.network_client.set_tags.assert_called_once_with(
                 self.floating_ip, tests_utils.CompareBySet(['red', 'blue'])
             )
         else:
-            self.assertFalse(self.network.set_tags.called)
+            self.assertFalse(self.network_client.set_tags.called)
         self.assertEqual(self.columns, columns)
         self.assertEqual(self.data, data)
 
@@ -304,14 +308,14 @@ class TestDeleteFloatingIPNetwork(TestFloatingIPNetwork):
     def setUp(self):
         super(TestDeleteFloatingIPNetwork, self).setUp()
 
-        self.network.find_ip = mock.Mock()
-        self.network.delete_ip = mock.Mock(return_value=None)
+        self.network_client.find_ip = mock.Mock()
+        self.network_client.delete_ip = mock.Mock(return_value=None)
 
         # Get the command object to test
         self.cmd = fip.DeleteFloatingIP(self.app, self.namespace)
 
     def test_floating_ip_delete(self):
-        self.network.find_ip.side_effect = [
+        self.network_client.find_ip.side_effect = [
             self.floating_ips[0],
             self.floating_ips[1],
         ]
@@ -325,15 +329,17 @@ class TestDeleteFloatingIPNetwork(TestFloatingIPNetwork):
 
         result = self.cmd.take_action(parsed_args)
 
-        self.network.find_ip.assert_called_once_with(
+        self.network_client.find_ip.assert_called_once_with(
             self.floating_ips[0].id,
             ignore_missing=False,
         )
-        self.network.delete_ip.assert_called_once_with(self.floating_ips[0])
+        self.network_client.delete_ip.assert_called_once_with(
+            self.floating_ips[0]
+        )
         self.assertIsNone(result)
 
     def test_floating_ip_delete_multi(self):
-        self.network.find_ip.side_effect = [
+        self.network_client.find_ip.side_effect = [
             self.floating_ips[0],
             self.floating_ips[1],
         ]
@@ -359,16 +365,16 @@ class TestDeleteFloatingIPNetwork(TestFloatingIPNetwork):
                 ignore_missing=False,
             ),
         ]
-        self.network.find_ip.assert_has_calls(calls)
+        self.network_client.find_ip.assert_has_calls(calls)
 
         calls = []
         for f in self.floating_ips:
             calls.append(call(f))
-        self.network.delete_ip.assert_has_calls(calls)
+        self.network_client.delete_ip.assert_has_calls(calls)
         self.assertIsNone(result)
 
     def test_floating_ip_delete_multi_exception(self):
-        self.network.find_ip.side_effect = [
+        self.network_client.find_ip.side_effect = [
             self.floating_ips[0],
             exceptions.CommandError,
         ]
@@ -387,15 +393,17 @@ class TestDeleteFloatingIPNetwork(TestFloatingIPNetwork):
         except exceptions.CommandError as e:
             self.assertEqual('1 of 2 floating_ips failed to delete.', str(e))
 
-        self.network.find_ip.assert_any_call(
+        self.network_client.find_ip.assert_any_call(
             self.floating_ips[0].id,
             ignore_missing=False,
         )
-        self.network.find_ip.assert_any_call(
+        self.network_client.find_ip.assert_any_call(
             'unexist_floating_ip',
             ignore_missing=False,
         )
-        self.network.delete_ip.assert_called_once_with(self.floating_ips[0])
+        self.network_client.delete_ip.assert_called_once_with(
+            self.floating_ips[0]
+        )
 
 
 class TestListFloatingIPNetwork(TestFloatingIPNetwork):
@@ -467,10 +475,14 @@ class TestListFloatingIPNetwork(TestFloatingIPNetwork):
     def setUp(self):
         super(TestListFloatingIPNetwork, self).setUp()
 
-        self.network.ips = mock.Mock(return_value=self.floating_ips)
-        self.network.find_network = mock.Mock(return_value=self.fake_network)
-        self.network.find_port = mock.Mock(return_value=self.fake_port)
-        self.network.find_router = mock.Mock(return_value=self.fake_router)
+        self.network_client.ips = mock.Mock(return_value=self.floating_ips)
+        self.network_client.find_network = mock.Mock(
+            return_value=self.fake_network
+        )
+        self.network_client.find_port = mock.Mock(return_value=self.fake_port)
+        self.network_client.find_router = mock.Mock(
+            return_value=self.fake_router
+        )
 
         # Get the command object to test
         self.cmd = fip.ListFloatingIP(self.app, self.namespace)
@@ -482,7 +494,7 @@ class TestListFloatingIPNetwork(TestFloatingIPNetwork):
 
         columns, data = self.cmd.take_action(parsed_args)
 
-        self.network.ips.assert_called_once_with()
+        self.network_client.ips.assert_called_once_with()
         self.assertEqual(self.columns, columns)
         self.assertEqual(self.data, list(data))
 
@@ -498,7 +510,7 @@ class TestListFloatingIPNetwork(TestFloatingIPNetwork):
 
         columns, data = self.cmd.take_action(parsed_args)
 
-        self.network.ips.assert_called_once_with(
+        self.network_client.ips.assert_called_once_with(
             **{
                 'floating_network_id': 'fake_network_id',
             }
@@ -518,7 +530,7 @@ class TestListFloatingIPNetwork(TestFloatingIPNetwork):
 
         columns, data = self.cmd.take_action(parsed_args)
 
-        self.network.ips.assert_called_once_with(
+        self.network_client.ips.assert_called_once_with(
             **{
                 'port_id': 'fake_port_id',
             }
@@ -538,7 +550,7 @@ class TestListFloatingIPNetwork(TestFloatingIPNetwork):
 
         columns, data = self.cmd.take_action(parsed_args)
 
-        self.network.ips.assert_called_once_with(
+        self.network_client.ips.assert_called_once_with(
             **{
                 'fixed_ip_address': self.floating_ips[0].fixed_ip_address,
             }
@@ -558,7 +570,7 @@ class TestListFloatingIPNetwork(TestFloatingIPNetwork):
 
         columns, data = self.cmd.take_action(parsed_args)
 
-        self.network.ips.assert_called_once_with(
+        self.network_client.ips.assert_called_once_with(
             **{
                 'floating_ip_address': self.floating_ips[
                     0
@@ -580,7 +592,7 @@ class TestListFloatingIPNetwork(TestFloatingIPNetwork):
 
         columns, data = self.cmd.take_action(parsed_args)
 
-        self.network.ips.assert_called_once_with()
+        self.network_client.ips.assert_called_once_with()
         self.assertEqual(self.columns_long, columns)
         self.assertEqual(self.data_long, list(data))
 
@@ -597,7 +609,7 @@ class TestListFloatingIPNetwork(TestFloatingIPNetwork):
 
         columns, data = self.cmd.take_action(parsed_args)
 
-        self.network.ips.assert_called_once_with(
+        self.network_client.ips.assert_called_once_with(
             **{
                 'status': 'ACTIVE',
             }
@@ -620,7 +632,7 @@ class TestListFloatingIPNetwork(TestFloatingIPNetwork):
         columns, data = self.cmd.take_action(parsed_args)
         filters = {'project_id': project.id}
 
-        self.network.ips.assert_called_once_with(**filters)
+        self.network_client.ips.assert_called_once_with(**filters)
 
         self.assertEqual(self.columns, columns)
         self.assertEqual(self.data, list(data))
@@ -642,7 +654,7 @@ class TestListFloatingIPNetwork(TestFloatingIPNetwork):
         columns, data = self.cmd.take_action(parsed_args)
         filters = {'project_id': project.id}
 
-        self.network.ips.assert_called_once_with(**filters)
+        self.network_client.ips.assert_called_once_with(**filters)
         self.assertEqual(self.columns, columns)
         self.assertEqual(self.data, list(data))
 
@@ -659,7 +671,7 @@ class TestListFloatingIPNetwork(TestFloatingIPNetwork):
 
         columns, data = self.cmd.take_action(parsed_args)
 
-        self.network.ips.assert_called_once_with(
+        self.network_client.ips.assert_called_once_with(
             **{
                 'router_id': 'fake_router_id',
             }
@@ -687,7 +699,7 @@ class TestListFloatingIPNetwork(TestFloatingIPNetwork):
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
         columns, data = self.cmd.take_action(parsed_args)
 
-        self.network.ips.assert_called_once_with(
+        self.network_client.ips.assert_called_once_with(
             **{
                 'tags': 'red,blue',
                 'any_tags': 'red,green',
@@ -738,7 +750,7 @@ class TestShowFloatingIPNetwork(TestFloatingIPNetwork):
     def setUp(self):
         super(TestShowFloatingIPNetwork, self).setUp()
 
-        self.network.find_ip = mock.Mock(return_value=self.floating_ip)
+        self.network_client.find_ip = mock.Mock(return_value=self.floating_ip)
 
         # Get the command object to test
         self.cmd = fip.ShowFloatingIP(self.app, self.namespace)
@@ -754,7 +766,7 @@ class TestShowFloatingIPNetwork(TestFloatingIPNetwork):
 
         columns, data = self.cmd.take_action(parsed_args)
 
-        self.network.find_ip.assert_called_once_with(
+        self.network_client.find_ip.assert_called_once_with(
             self.floating_ip.id,
             ignore_missing=False,
         )
@@ -779,10 +791,10 @@ class TestSetFloatingIP(TestFloatingIPNetwork):
 
     def setUp(self):
         super(TestSetFloatingIP, self).setUp()
-        self.network.find_ip = mock.Mock(return_value=self.floating_ip)
-        self.network.find_port = mock.Mock(return_value=self.port)
-        self.network.update_ip = mock.Mock(return_value=None)
-        self.network.set_tags = mock.Mock(return_value=None)
+        self.network_client.find_ip = mock.Mock(return_value=self.floating_ip)
+        self.network_client.find_port = mock.Mock(return_value=self.port)
+        self.network_client.update_ip = mock.Mock(return_value=None)
+        self.network_client.set_tags = mock.Mock(return_value=None)
 
         # Get the command object to test
         self.cmd = fip.SetFloatingIP(self.app, self.namespace)
@@ -805,12 +817,12 @@ class TestSetFloatingIP(TestFloatingIPNetwork):
             'port_id': self.floating_ip.port_id,
         }
 
-        self.network.find_ip.assert_called_once_with(
+        self.network_client.find_ip.assert_called_once_with(
             self.floating_ip.id,
             ignore_missing=False,
         )
 
-        self.network.update_ip.assert_called_once_with(
+        self.network_client.update_ip.assert_called_once_with(
             self.floating_ip, **attrs
         )
 
@@ -835,11 +847,11 @@ class TestSetFloatingIP(TestFloatingIPNetwork):
             'port_id': self.floating_ip.port_id,
             'fixed_ip_address': self.floating_ip.fixed_ip_address,
         }
-        self.network.find_ip.assert_called_once_with(
+        self.network_client.find_ip.assert_called_once_with(
             self.floating_ip.id,
             ignore_missing=False,
         )
-        self.network.update_ip.assert_called_once_with(
+        self.network_client.update_ip.assert_called_once_with(
             self.floating_ip, **attrs
         )
 
@@ -864,17 +876,19 @@ class TestSetFloatingIP(TestFloatingIPNetwork):
             'port_id': self.floating_ip.port_id,
             'description': self.floating_ip.description,
         }
-        self.network.find_ip.assert_called_once_with(
+        self.network_client.find_ip.assert_called_once_with(
             self.floating_ip.id,
             ignore_missing=False,
         )
-        self.network.update_ip.assert_called_once_with(
+        self.network_client.update_ip.assert_called_once_with(
             self.floating_ip, **attrs
         )
 
     def test_qos_policy_option(self):
         qos_policy = network_fakes.FakeNetworkQosPolicy.create_one_qos_policy()
-        self.network.find_qos_policy = mock.Mock(return_value=qos_policy)
+        self.network_client.find_qos_policy = mock.Mock(
+            return_value=qos_policy
+        )
         arglist = [
             "--qos-policy",
             qos_policy.id,
@@ -891,17 +905,19 @@ class TestSetFloatingIP(TestFloatingIPNetwork):
         attrs = {
             'qos_policy_id': qos_policy.id,
         }
-        self.network.find_ip.assert_called_once_with(
+        self.network_client.find_ip.assert_called_once_with(
             self.floating_ip.id,
             ignore_missing=False,
         )
-        self.network.update_ip.assert_called_once_with(
+        self.network_client.update_ip.assert_called_once_with(
             self.floating_ip, **attrs
         )
 
     def test_port_and_qos_policy_option(self):
         qos_policy = network_fakes.FakeNetworkQosPolicy.create_one_qos_policy()
-        self.network.find_qos_policy = mock.Mock(return_value=qos_policy)
+        self.network_client.find_qos_policy = mock.Mock(
+            return_value=qos_policy
+        )
         arglist = [
             "--qos-policy",
             qos_policy.id,
@@ -922,11 +938,11 @@ class TestSetFloatingIP(TestFloatingIPNetwork):
             'qos_policy_id': qos_policy.id,
             'port_id': self.floating_ip.port_id,
         }
-        self.network.find_ip.assert_called_once_with(
+        self.network_client.find_ip.assert_called_once_with(
             self.floating_ip.id,
             ignore_missing=False,
         )
-        self.network.update_ip.assert_called_once_with(
+        self.network_client.update_ip.assert_called_once_with(
             self.floating_ip, **attrs
         )
 
@@ -946,11 +962,11 @@ class TestSetFloatingIP(TestFloatingIPNetwork):
         attrs = {
             'qos_policy_id': None,
         }
-        self.network.find_ip.assert_called_once_with(
+        self.network_client.find_ip.assert_called_once_with(
             self.floating_ip.id,
             ignore_missing=False,
         )
-        self.network.update_ip.assert_called_once_with(
+        self.network_client.update_ip.assert_called_once_with(
             self.floating_ip, **attrs
         )
 
@@ -974,11 +990,11 @@ class TestSetFloatingIP(TestFloatingIPNetwork):
             'qos_policy_id': None,
             'port_id': self.floating_ip.port_id,
         }
-        self.network.find_ip.assert_called_once_with(
+        self.network_client.find_ip.assert_called_once_with(
             self.floating_ip.id,
             ignore_missing=False,
         )
-        self.network.update_ip.assert_called_once_with(
+        self.network_client.update_ip.assert_called_once_with(
             self.floating_ip, **attrs
         )
 
@@ -997,8 +1013,8 @@ class TestSetFloatingIP(TestFloatingIPNetwork):
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
         result = self.cmd.take_action(parsed_args)
 
-        self.assertFalse(self.network.update_ip.called)
-        self.network.set_tags.assert_called_once_with(
+        self.assertFalse(self.network_client.update_ip.called)
+        self.network_client.set_tags.assert_called_once_with(
             self.floating_ip, tests_utils.CompareBySet(expected_args)
         )
         self.assertIsNone(result)
@@ -1026,9 +1042,9 @@ class TestUnsetFloatingIP(TestFloatingIPNetwork):
 
     def setUp(self):
         super(TestUnsetFloatingIP, self).setUp()
-        self.network.find_ip = mock.Mock(return_value=self.floating_ip)
-        self.network.update_ip = mock.Mock(return_value=None)
-        self.network.set_tags = mock.Mock(return_value=None)
+        self.network_client.find_ip = mock.Mock(return_value=self.floating_ip)
+        self.network_client.update_ip = mock.Mock(return_value=None)
+        self.network_client.set_tags = mock.Mock(return_value=None)
 
         # Get the command object to test
         self.cmd = fip.UnsetFloatingIP(self.app, self.namespace)
@@ -1049,11 +1065,11 @@ class TestUnsetFloatingIP(TestFloatingIPNetwork):
         attrs = {
             'port_id': None,
         }
-        self.network.find_ip.assert_called_once_with(
+        self.network_client.find_ip.assert_called_once_with(
             self.floating_ip.id,
             ignore_missing=False,
         )
-        self.network.update_ip.assert_called_once_with(
+        self.network_client.update_ip.assert_called_once_with(
             self.floating_ip, **attrs
         )
 
@@ -1075,11 +1091,11 @@ class TestUnsetFloatingIP(TestFloatingIPNetwork):
         attrs = {
             'qos_policy_id': None,
         }
-        self.network.find_ip.assert_called_once_with(
+        self.network_client.find_ip.assert_called_once_with(
             self.floating_ip.id,
             ignore_missing=False,
         )
-        self.network.update_ip.assert_called_once_with(
+        self.network_client.update_ip.assert_called_once_with(
             self.floating_ip, **attrs
         )
 
@@ -1100,8 +1116,8 @@ class TestUnsetFloatingIP(TestFloatingIPNetwork):
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
         result = self.cmd.take_action(parsed_args)
 
-        self.assertFalse(self.network.update_ip.called)
-        self.network.set_tags.assert_called_once_with(
+        self.assertFalse(self.network_client.update_ip.called)
+        self.network_client.set_tags.assert_called_once_with(
             self.floating_ip, tests_utils.CompareBySet(expected_args)
         )
         self.assertIsNone(result)

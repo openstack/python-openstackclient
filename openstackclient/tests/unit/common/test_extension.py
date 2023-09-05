@@ -46,7 +46,6 @@ class TestExtension(utils.TestCommand):
 
         self.app.client_manager.network = mock.Mock()
         self.network_client = self.app.client_manager.network
-        self.network_client.extensions = mock.Mock()
 
 
 class TestExtensionList(TestExtension):

@@ -26,7 +26,7 @@ class TestNetworkSegment(network_fakes.TestNetworkV2):
         super(TestNetworkSegment, self).setUp()
 
         # Get a shortcut to the network client
-        self.network = self.app.client_manager.network
+        self.network_client = self.app.client_manager.network
 
 
 class TestCreateNetworkSegment(TestNetworkSegment):
@@ -61,10 +61,12 @@ class TestCreateNetworkSegment(TestNetworkSegment):
     def setUp(self):
         super(TestCreateNetworkSegment, self).setUp()
 
-        self.network.create_segment = mock.Mock(
+        self.network_client.create_segment = mock.Mock(
             return_value=self._network_segment
         )
-        self.network.find_network = mock.Mock(return_value=self._network)
+        self.network_client.find_network = mock.Mock(
+            return_value=self._network
+        )
 
         # Get the command object to test
         self.cmd = network_segment.CreateNetworkSegment(
@@ -110,10 +112,10 @@ class TestCreateNetworkSegment(TestNetworkSegment):
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
         columns, data = self.cmd.take_action(parsed_args)
 
-        self.network.find_network.assert_called_once_with(
+        self.network_client.find_network.assert_called_once_with(
             self._network_segment.network_id, ignore_missing=False
         )
-        self.network.create_segment.assert_called_once_with(
+        self.network_client.create_segment.assert_called_once_with(
             **{
                 'network_id': self._network_segment.network_id,
                 'network_type': self._network_segment.network_type,
@@ -150,10 +152,10 @@ class TestCreateNetworkSegment(TestNetworkSegment):
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
         columns, data = self.cmd.take_action(parsed_args)
 
-        self.network.find_network.assert_called_once_with(
+        self.network_client.find_network.assert_called_once_with(
             self._network_segment.network_id, ignore_missing=False
         )
-        self.network.create_segment.assert_called_once_with(
+        self.network_client.create_segment.assert_called_once_with(
             **{
                 'description': self._network_segment.description,
                 'network_id': self._network_segment.network_id,
@@ -175,8 +177,8 @@ class TestDeleteNetworkSegment(TestNetworkSegment):
     def setUp(self):
         super(TestDeleteNetworkSegment, self).setUp()
 
-        self.network.delete_segment = mock.Mock(return_value=None)
-        self.network.find_segment = mock.Mock(
+        self.network_client.delete_segment = mock.Mock(return_value=None)
+        self.network_client.find_segment = mock.Mock(
             side_effect=self._network_segments
         )
 
@@ -196,7 +198,7 @@ class TestDeleteNetworkSegment(TestNetworkSegment):
 
         result = self.cmd.take_action(parsed_args)
 
-        self.network.delete_segment.assert_called_once_with(
+        self.network_client.delete_segment.assert_called_once_with(
             self._network_segments[0]
         )
         self.assertIsNone(result)
@@ -215,7 +217,7 @@ class TestDeleteNetworkSegment(TestNetworkSegment):
         calls = []
         for _network_segment in self._network_segments:
             calls.append(call(_network_segment))
-        self.network.delete_segment.assert_has_calls(calls)
+        self.network_client.delete_segment.assert_has_calls(calls)
         self.assertIsNone(result)
 
     def test_delete_multiple_with_exception(self):
@@ -229,7 +231,9 @@ class TestDeleteNetworkSegment(TestNetworkSegment):
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
         find_mock_result = [self._network_segments[0], exceptions.CommandError]
-        self.network.find_segment = mock.Mock(side_effect=find_mock_result)
+        self.network_client.find_segment = mock.Mock(
+            side_effect=find_mock_result
+        )
 
         try:
             self.cmd.take_action(parsed_args)
@@ -239,13 +243,13 @@ class TestDeleteNetworkSegment(TestNetworkSegment):
                 '1 of 2 network segments failed to delete.', str(e)
             )
 
-        self.network.find_segment.assert_any_call(
+        self.network_client.find_segment.assert_any_call(
             self._network_segments[0].id, ignore_missing=False
         )
-        self.network.find_segment.assert_any_call(
+        self.network_client.find_segment.assert_any_call(
             'doesnotexist', ignore_missing=False
         )
-        self.network.delete_segment.assert_called_once_with(
+        self.network_client.delete_segment.assert_called_once_with(
             self._network_segments[0]
         )
 
@@ -294,8 +298,12 @@ class TestListNetworkSegment(TestNetworkSegment):
         # Get the command object to test
         self.cmd = network_segment.ListNetworkSegment(self.app, self.namespace)
 
-        self.network.find_network = mock.Mock(return_value=self._network)
-        self.network.segments = mock.Mock(return_value=self._network_segments)
+        self.network_client.find_network = mock.Mock(
+            return_value=self._network
+        )
+        self.network_client.segments = mock.Mock(
+            return_value=self._network_segments
+        )
 
     def test_list_no_option(self):
         arglist = []
@@ -307,7 +315,7 @@ class TestListNetworkSegment(TestNetworkSegment):
 
         columns, data = self.cmd.take_action(parsed_args)
 
-        self.network.segments.assert_called_once_with()
+        self.network_client.segments.assert_called_once_with()
         self.assertEqual(self.columns, columns)
         self.assertEqual(self.data, list(data))
 
@@ -323,7 +331,7 @@ class TestListNetworkSegment(TestNetworkSegment):
 
         columns, data = self.cmd.take_action(parsed_args)
 
-        self.network.segments.assert_called_once_with()
+        self.network_client.segments.assert_called_once_with()
         self.assertEqual(self.columns_long, columns)
         self.assertEqual(self.data_long, list(data))
 
@@ -337,7 +345,7 @@ class TestListNetworkSegment(TestNetworkSegment):
 
         columns, data = self.cmd.take_action(parsed_args)
 
-        self.network.segments.assert_called_once_with(
+        self.network_client.segments.assert_called_once_with(
             **{'network_id': self._network.id}
         )
         self.assertEqual(self.columns, columns)
@@ -351,10 +359,10 @@ class TestSetNetworkSegment(TestNetworkSegment):
     def setUp(self):
         super(TestSetNetworkSegment, self).setUp()
 
-        self.network.find_segment = mock.Mock(
+        self.network_client.find_segment = mock.Mock(
             return_value=self._network_segment
         )
-        self.network.update_segment = mock.Mock(
+        self.network_client.update_segment = mock.Mock(
             return_value=self._network_segment
         )
 
@@ -372,7 +380,7 @@ class TestSetNetworkSegment(TestNetworkSegment):
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
         result = self.cmd.take_action(parsed_args)
 
-        self.network.update_segment.assert_called_once_with(
+        self.network_client.update_segment.assert_called_once_with(
             self._network_segment, **{}
         )
         self.assertIsNone(result)
@@ -398,7 +406,7 @@ class TestSetNetworkSegment(TestNetworkSegment):
             'description': 'new description',
             'name': 'new name',
         }
-        self.network.update_segment.assert_called_once_with(
+        self.network_client.update_segment.assert_called_once_with(
             self._network_segment, **attrs
         )
         self.assertIsNone(result)
@@ -431,7 +439,7 @@ class TestShowNetworkSegment(TestNetworkSegment):
     def setUp(self):
         super(TestShowNetworkSegment, self).setUp()
 
-        self.network.find_segment = mock.Mock(
+        self.network_client.find_segment = mock.Mock(
             return_value=self._network_segment
         )
 
@@ -455,7 +463,7 @@ class TestShowNetworkSegment(TestNetworkSegment):
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
         columns, data = self.cmd.take_action(parsed_args)
 
-        self.network.find_segment.assert_called_once_with(
+        self.network_client.find_segment.assert_called_once_with(
             self._network_segment.id, ignore_missing=False
         )
 

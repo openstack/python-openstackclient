@@ -29,7 +29,7 @@ class TestSubnetPool(network_fakes.TestNetworkV2):
         super(TestSubnetPool, self).setUp()
 
         # Get a shortcut to the network client
-        self.network = self.app.client_manager.network
+        self.network_client = self.app.client_manager.network
         # Get a shortcut to the ProjectManager Mock
         self.projects_mock = self.app.client_manager.identity.projects
         # Get a shortcut to the DomainManager Mock
@@ -80,15 +80,15 @@ class TestCreateSubnetPool(TestSubnetPool):
     def setUp(self):
         super(TestCreateSubnetPool, self).setUp()
 
-        self.network.create_subnet_pool = mock.Mock(
+        self.network_client.create_subnet_pool = mock.Mock(
             return_value=self._subnet_pool
         )
-        self.network.set_tags = mock.Mock(return_value=None)
+        self.network_client.set_tags = mock.Mock(return_value=None)
 
         # Get the command object to test
         self.cmd = subnet_pool.CreateSubnetPool(self.app, self.namespace)
 
-        self.network.find_address_scope = mock.Mock(
+        self.network_client.find_address_scope = mock.Mock(
             return_value=self._address_scope
         )
 
@@ -106,7 +106,7 @@ class TestCreateSubnetPool(TestSubnetPool):
             arglist,
             verifylist,
         )
-        self.assertFalse(self.network.set_tags.called)
+        self.assertFalse(self.network_client.set_tags.called)
 
     def test_create_no_pool_prefix(self):
         """Make sure --pool-prefix is a required argument"""
@@ -138,13 +138,13 @@ class TestCreateSubnetPool(TestSubnetPool):
 
         columns, data = self.cmd.take_action(parsed_args)
 
-        self.network.create_subnet_pool.assert_called_once_with(
+        self.network_client.create_subnet_pool.assert_called_once_with(
             **{
                 'prefixes': ['10.0.10.0/24'],
                 'name': self._subnet_pool.name,
             }
         )
-        self.assertFalse(self.network.set_tags.called)
+        self.assertFalse(self.network_client.set_tags.called)
         self.assertEqual(self.columns, columns)
         self.assertCountEqual(self.data, data)
 
@@ -174,7 +174,7 @@ class TestCreateSubnetPool(TestSubnetPool):
 
         columns, data = self.cmd.take_action(parsed_args)
 
-        self.network.create_subnet_pool.assert_called_once_with(
+        self.network_client.create_subnet_pool.assert_called_once_with(
             **{
                 'default_prefixlen': int(self._subnet_pool.default_prefixlen),
                 'max_prefixlen': int(self._subnet_pool.max_prefixlen),
@@ -225,7 +225,7 @@ class TestCreateSubnetPool(TestSubnetPool):
 
         columns, data = self.cmd.take_action(parsed_args)
 
-        self.network.create_subnet_pool.assert_called_once_with(
+        self.network_client.create_subnet_pool.assert_called_once_with(
             **{
                 'prefixes': ['10.0.10.0/24'],
                 'project_id': self.project.id,
@@ -252,7 +252,7 @@ class TestCreateSubnetPool(TestSubnetPool):
 
         columns, data = self.cmd.take_action(parsed_args)
 
-        self.network.create_subnet_pool.assert_called_once_with(
+        self.network_client.create_subnet_pool.assert_called_once_with(
             **{
                 'prefixes': ['10.0.10.0/24'],
                 'address_scope_id': self._address_scope.id,
@@ -280,7 +280,7 @@ class TestCreateSubnetPool(TestSubnetPool):
 
         columns, data = self.cmd.take_action(parsed_args)
 
-        self.network.create_subnet_pool.assert_called_once_with(
+        self.network_client.create_subnet_pool.assert_called_once_with(
             **{
                 'is_default': True,
                 'name': self._subnet_pool.name,
@@ -308,7 +308,7 @@ class TestCreateSubnetPool(TestSubnetPool):
 
         columns, data = self.cmd.take_action(parsed_args)
 
-        self.network.create_subnet_pool.assert_called_once_with(
+        self.network_client.create_subnet_pool.assert_called_once_with(
             **{
                 'name': self._subnet_pool.name,
                 'prefixes': ['10.0.10.0/24'],
@@ -333,7 +333,7 @@ class TestCreateSubnetPool(TestSubnetPool):
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
         columns, data = self.cmd.take_action(parsed_args)
-        self.network.create_subnet_pool.assert_called_once_with(
+        self.network_client.create_subnet_pool.assert_called_once_with(
             **{
                 'name': self._subnet_pool.name,
                 'prefixes': ['10.0.10.0/24'],
@@ -365,15 +365,15 @@ class TestCreateSubnetPool(TestSubnetPool):
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
         columns, data = self.cmd.take_action(parsed_args)
 
-        self.network.create_subnet_pool.assert_called_once_with(
+        self.network_client.create_subnet_pool.assert_called_once_with(
             prefixes=['10.0.10.0/24'], name=self._subnet_pool.name
         )
         if add_tags:
-            self.network.set_tags.assert_called_once_with(
+            self.network_client.set_tags.assert_called_once_with(
                 self._subnet_pool, tests_utils.CompareBySet(['red', 'blue'])
             )
         else:
-            self.assertFalse(self.network.set_tags.called)
+            self.assertFalse(self.network_client.set_tags.called)
         self.assertEqual(self.columns, columns)
         self.assertCountEqual(self.data, data)
 
@@ -391,9 +391,9 @@ class TestDeleteSubnetPool(TestSubnetPool):
     def setUp(self):
         super(TestDeleteSubnetPool, self).setUp()
 
-        self.network.delete_subnet_pool = mock.Mock(return_value=None)
+        self.network_client.delete_subnet_pool = mock.Mock(return_value=None)
 
-        self.network.find_subnet_pool = (
+        self.network_client.find_subnet_pool = (
             network_fakes.FakeSubnetPool.get_subnet_pools(self._subnet_pools)
         )
 
@@ -411,7 +411,7 @@ class TestDeleteSubnetPool(TestSubnetPool):
 
         result = self.cmd.take_action(parsed_args)
 
-        self.network.delete_subnet_pool.assert_called_once_with(
+        self.network_client.delete_subnet_pool.assert_called_once_with(
             self._subnet_pools[0]
         )
         self.assertIsNone(result)
@@ -432,7 +432,7 @@ class TestDeleteSubnetPool(TestSubnetPool):
         calls = []
         for s in self._subnet_pools:
             calls.append(call(s))
-        self.network.delete_subnet_pool.assert_has_calls(calls)
+        self.network_client.delete_subnet_pool.assert_has_calls(calls)
         self.assertIsNone(result)
 
     def test_multi_subnet_pools_delete_with_exception(self):
@@ -449,7 +449,9 @@ class TestDeleteSubnetPool(TestSubnetPool):
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
         find_mock_result = [self._subnet_pools[0], exceptions.CommandError]
-        self.network.find_subnet_pool = mock.Mock(side_effect=find_mock_result)
+        self.network_client.find_subnet_pool = mock.Mock(
+            side_effect=find_mock_result
+        )
 
         try:
             self.cmd.take_action(parsed_args)
@@ -457,13 +459,13 @@ class TestDeleteSubnetPool(TestSubnetPool):
         except exceptions.CommandError as e:
             self.assertEqual('1 of 2 subnet pools failed to delete.', str(e))
 
-        self.network.find_subnet_pool.assert_any_call(
+        self.network_client.find_subnet_pool.assert_any_call(
             self._subnet_pools[0].name, ignore_missing=False
         )
-        self.network.find_subnet_pool.assert_any_call(
+        self.network_client.find_subnet_pool.assert_any_call(
             'unexist_subnet_pool', ignore_missing=False
         )
-        self.network.delete_subnet_pool.assert_called_once_with(
+        self.network_client.delete_subnet_pool.assert_called_once_with(
             self._subnet_pools[0]
         )
 
@@ -516,7 +518,9 @@ class TestListSubnetPool(TestSubnetPool):
         # Get the command object to test
         self.cmd = subnet_pool.ListSubnetPool(self.app, self.namespace)
 
-        self.network.subnet_pools = mock.Mock(return_value=self._subnet_pools)
+        self.network_client.subnet_pools = mock.Mock(
+            return_value=self._subnet_pools
+        )
 
     def test_subnet_pool_list_no_option(self):
         arglist = []
@@ -527,7 +531,7 @@ class TestListSubnetPool(TestSubnetPool):
 
         columns, data = self.cmd.take_action(parsed_args)
 
-        self.network.subnet_pools.assert_called_once_with()
+        self.network_client.subnet_pools.assert_called_once_with()
         self.assertEqual(self.columns, columns)
         self.assertCountEqual(self.data, list(data))
 
@@ -542,7 +546,7 @@ class TestListSubnetPool(TestSubnetPool):
 
         columns, data = self.cmd.take_action(parsed_args)
 
-        self.network.subnet_pools.assert_called_once_with()
+        self.network_client.subnet_pools.assert_called_once_with()
         self.assertEqual(self.columns_long, columns)
         self.assertCountEqual(self.data_long, list(data))
 
@@ -558,7 +562,7 @@ class TestListSubnetPool(TestSubnetPool):
         columns, data = self.cmd.take_action(parsed_args)
         filters = {'shared': False, 'is_shared': False}
 
-        self.network.subnet_pools.assert_called_once_with(**filters)
+        self.network_client.subnet_pools.assert_called_once_with(**filters)
         self.assertEqual(self.columns, columns)
         self.assertCountEqual(self.data, list(data))
 
@@ -574,7 +578,7 @@ class TestListSubnetPool(TestSubnetPool):
         columns, data = self.cmd.take_action(parsed_args)
         filters = {'shared': True, 'is_shared': True}
 
-        self.network.subnet_pools.assert_called_once_with(**filters)
+        self.network_client.subnet_pools.assert_called_once_with(**filters)
         self.assertEqual(self.columns, columns)
         self.assertCountEqual(self.data, list(data))
 
@@ -590,7 +594,7 @@ class TestListSubnetPool(TestSubnetPool):
         columns, data = self.cmd.take_action(parsed_args)
         filters = {'is_default': False}
 
-        self.network.subnet_pools.assert_called_once_with(**filters)
+        self.network_client.subnet_pools.assert_called_once_with(**filters)
         self.assertEqual(self.columns, columns)
         self.assertCountEqual(self.data, list(data))
 
@@ -606,7 +610,7 @@ class TestListSubnetPool(TestSubnetPool):
         columns, data = self.cmd.take_action(parsed_args)
         filters = {'is_default': True}
 
-        self.network.subnet_pools.assert_called_once_with(**filters)
+        self.network_client.subnet_pools.assert_called_once_with(**filters)
         self.assertEqual(self.columns, columns)
         self.assertCountEqual(self.data, list(data))
 
@@ -625,7 +629,7 @@ class TestListSubnetPool(TestSubnetPool):
         columns, data = self.cmd.take_action(parsed_args)
         filters = {'project_id': project.id}
 
-        self.network.subnet_pools.assert_called_once_with(**filters)
+        self.network_client.subnet_pools.assert_called_once_with(**filters)
         self.assertEqual(self.columns, columns)
         self.assertCountEqual(self.data, list(data))
 
@@ -647,13 +651,13 @@ class TestListSubnetPool(TestSubnetPool):
         columns, data = self.cmd.take_action(parsed_args)
         filters = {'project_id': project.id}
 
-        self.network.subnet_pools.assert_called_once_with(**filters)
+        self.network_client.subnet_pools.assert_called_once_with(**filters)
         self.assertEqual(self.columns, columns)
         self.assertCountEqual(self.data, list(data))
 
     def test_subnet_pool_list_name(self):
         subnet_pool = network_fakes.FakeSubnetPool.create_one_subnet_pool()
-        self.network.find_network = mock.Mock(return_value=subnet_pool)
+        self.network_client.find_network = mock.Mock(return_value=subnet_pool)
         arglist = [
             '--name',
             subnet_pool.name,
@@ -666,13 +670,15 @@ class TestListSubnetPool(TestSubnetPool):
         columns, data = self.cmd.take_action(parsed_args)
         filters = {'name': subnet_pool.name}
 
-        self.network.subnet_pools.assert_called_once_with(**filters)
+        self.network_client.subnet_pools.assert_called_once_with(**filters)
         self.assertEqual(self.columns, columns)
         self.assertCountEqual(self.data, list(data))
 
     def test_subnet_pool_list_address_scope(self):
         addr_scope = network_fakes.create_one_address_scope()
-        self.network.find_address_scope = mock.Mock(return_value=addr_scope)
+        self.network_client.find_address_scope = mock.Mock(
+            return_value=addr_scope
+        )
         arglist = [
             '--address-scope',
             addr_scope.id,
@@ -685,7 +691,7 @@ class TestListSubnetPool(TestSubnetPool):
         columns, data = self.cmd.take_action(parsed_args)
         filters = {'address_scope_id': addr_scope.id}
 
-        self.network.subnet_pools.assert_called_once_with(**filters)
+        self.network_client.subnet_pools.assert_called_once_with(**filters)
         self.assertEqual(self.columns, columns)
         self.assertCountEqual(self.data, list(data))
 
@@ -709,7 +715,7 @@ class TestListSubnetPool(TestSubnetPool):
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
         columns, data = self.cmd.take_action(parsed_args)
 
-        self.network.subnet_pools.assert_called_once_with(
+        self.network_client.subnet_pools.assert_called_once_with(
             **{
                 'tags': 'red,blue',
                 'any_tags': 'red,green',
@@ -732,14 +738,14 @@ class TestSetSubnetPool(TestSubnetPool):
     def setUp(self):
         super(TestSetSubnetPool, self).setUp()
 
-        self.network.update_subnet_pool = mock.Mock(return_value=None)
-        self.network.set_tags = mock.Mock(return_value=None)
+        self.network_client.update_subnet_pool = mock.Mock(return_value=None)
+        self.network_client.set_tags = mock.Mock(return_value=None)
 
-        self.network.find_subnet_pool = mock.Mock(
+        self.network_client.find_subnet_pool = mock.Mock(
             return_value=self._subnet_pool
         )
 
-        self.network.find_address_scope = mock.Mock(
+        self.network_client.find_address_scope = mock.Mock(
             return_value=self._address_scope
         )
 
@@ -771,7 +777,7 @@ class TestSetSubnetPool(TestSubnetPool):
             'default_prefixlen': 8,
             'min_prefixlen': 8,
         }
-        self.network.update_subnet_pool.assert_called_once_with(
+        self.network_client.update_subnet_pool.assert_called_once_with(
             self._subnet_pool, **attrs
         )
         self.assertIsNone(result)
@@ -801,7 +807,7 @@ class TestSetSubnetPool(TestSubnetPool):
             'prefixes': prefixes,
             'max_prefixlen': 16,
         }
-        self.network.update_subnet_pool.assert_called_once_with(
+        self.network_client.update_subnet_pool.assert_called_once_with(
             self._subnet_pool, **attrs
         )
         self.assertIsNone(result)
@@ -817,8 +823,8 @@ class TestSetSubnetPool(TestSubnetPool):
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
         result = self.cmd.take_action(parsed_args)
 
-        self.assertFalse(self.network.update_subnet_pool.called)
-        self.assertFalse(self.network.set_tags.called)
+        self.assertFalse(self.network_client.update_subnet_pool.called)
+        self.assertFalse(self.network_client.set_tags.called)
         self.assertIsNone(result)
 
     def test_set_len_negative(self):
@@ -857,7 +863,7 @@ class TestSetSubnetPool(TestSubnetPool):
         attrs = {
             'address_scope_id': self._address_scope.id,
         }
-        self.network.update_subnet_pool.assert_called_once_with(
+        self.network_client.update_subnet_pool.assert_called_once_with(
             self._subnet_pool, **attrs
         )
         self.assertIsNone(result)
@@ -878,7 +884,7 @@ class TestSetSubnetPool(TestSubnetPool):
         attrs = {
             'address_scope_id': None,
         }
-        self.network.update_subnet_pool.assert_called_once_with(
+        self.network_client.update_subnet_pool.assert_called_once_with(
             self._subnet_pool, **attrs
         )
         self.assertIsNone(result)
@@ -919,7 +925,7 @@ class TestSetSubnetPool(TestSubnetPool):
         result = self.cmd.take_action(parsed_args)
 
         attrs = {'is_default': True}
-        self.network.update_subnet_pool.assert_called_once_with(
+        self.network_client.update_subnet_pool.assert_called_once_with(
             self._subnet_pool, **attrs
         )
         self.assertIsNone(result)
@@ -940,7 +946,7 @@ class TestSetSubnetPool(TestSubnetPool):
         attrs = {
             'is_default': False,
         }
-        self.network.update_subnet_pool.assert_called_once_with(
+        self.network_client.update_subnet_pool.assert_called_once_with(
             self._subnet_pool, **attrs
         )
         self.assertIsNone(result)
@@ -983,7 +989,7 @@ class TestSetSubnetPool(TestSubnetPool):
         attrs = {
             'description': "new_description",
         }
-        self.network.update_subnet_pool.assert_called_once_with(
+        self.network_client.update_subnet_pool.assert_called_once_with(
             self._subnet_pool, **attrs
         )
         self.assertIsNone(result)
@@ -1000,7 +1006,7 @@ class TestSetSubnetPool(TestSubnetPool):
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
         result = self.cmd.take_action(parsed_args)
-        self.network.update_subnet_pool.assert_called_once_with(
+        self.network_client.update_subnet_pool.assert_called_once_with(
             self._subnet_pool,
             **{
                 'default_quota': 20,
@@ -1023,8 +1029,8 @@ class TestSetSubnetPool(TestSubnetPool):
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
         result = self.cmd.take_action(parsed_args)
 
-        self.assertFalse(self.network.update_subnet_pool.called)
-        self.network.set_tags.assert_called_once_with(
+        self.assertFalse(self.network_client.update_subnet_pool.called)
+        self.network_client.set_tags.assert_called_once_with(
             self._subnet_pool, tests_utils.CompareBySet(expected_args)
         )
         self.assertIsNone(result)
@@ -1077,7 +1083,7 @@ class TestShowSubnetPool(TestSubnetPool):
     def setUp(self):
         super(TestShowSubnetPool, self).setUp()
 
-        self.network.find_subnet_pool = mock.Mock(
+        self.network_client.find_subnet_pool = mock.Mock(
             return_value=self._subnet_pool
         )
 
@@ -1107,7 +1113,7 @@ class TestShowSubnetPool(TestSubnetPool):
 
         columns, data = self.cmd.take_action(parsed_args)
 
-        self.network.find_subnet_pool.assert_called_once_with(
+        self.network_client.find_subnet_pool.assert_called_once_with(
             self._subnet_pool.name, ignore_missing=False
         )
         self.assertEqual(self.columns, columns)
@@ -1120,11 +1126,11 @@ class TestUnsetSubnetPool(TestSubnetPool):
         self._subnetpool = network_fakes.FakeSubnetPool.create_one_subnet_pool(
             {'tags': ['green', 'red']}
         )
-        self.network.find_subnet_pool = mock.Mock(
+        self.network_client.find_subnet_pool = mock.Mock(
             return_value=self._subnetpool
         )
-        self.network.update_subnet_pool = mock.Mock(return_value=None)
-        self.network.set_tags = mock.Mock(return_value=None)
+        self.network_client.update_subnet_pool = mock.Mock(return_value=None)
+        self.network_client.set_tags = mock.Mock(return_value=None)
         # Get the command object to test
         self.cmd = subnet_pool.UnsetSubnetPool(self.app, self.namespace)
 
@@ -1143,8 +1149,8 @@ class TestUnsetSubnetPool(TestSubnetPool):
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
         result = self.cmd.take_action(parsed_args)
 
-        self.assertFalse(self.network.update_subnet_pool.called)
-        self.network.set_tags.assert_called_once_with(
+        self.assertFalse(self.network_client.update_subnet_pool.called)
+        self.network_client.set_tags.assert_called_once_with(
             self._subnetpool, tests_utils.CompareBySet(expected_args)
         )
         self.assertIsNone(result)

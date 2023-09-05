@@ -27,7 +27,7 @@ class TestNetworkAgent(network_fakes.TestNetworkV2):
         super(TestNetworkAgent, self).setUp()
 
         # Get a shortcut to the network client
-        self.network = self.app.client_manager.network
+        self.network_client = self.app.client_manager.network
 
 
 class TestAddNetworkToAgent(TestNetworkAgent):
@@ -37,10 +37,10 @@ class TestAddNetworkToAgent(TestNetworkAgent):
     def setUp(self):
         super(TestAddNetworkToAgent, self).setUp()
 
-        self.network.get_agent = mock.Mock(return_value=self.agent)
-        self.network.find_network = mock.Mock(return_value=self.net)
-        self.network.name = self.network.find_network.name
-        self.network.add_dhcp_agent_to_network = mock.Mock()
+        self.network_client.get_agent = mock.Mock(return_value=self.agent)
+        self.network_client.find_network = mock.Mock(return_value=self.net)
+        self.network_client.name = self.network_client.find_network.name
+        self.network_client.add_dhcp_agent_to_network = mock.Mock()
         self.cmd = network_agent.AddNetworkToAgent(self.app, self.namespace)
 
     def test_show_no_options(self):
@@ -67,7 +67,7 @@ class TestAddNetworkToAgent(TestNetworkAgent):
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
         self.cmd.take_action(parsed_args)
 
-        self.network.add_dhcp_agent_to_network.assert_called_once_with(
+        self.network_client.add_dhcp_agent_to_network.assert_called_once_with(
             self.agent, self.net
         )
 
@@ -78,10 +78,10 @@ class TestAddRouterAgent(TestNetworkAgent):
 
     def setUp(self):
         super(TestAddRouterAgent, self).setUp()
-        self.network.add_router_to_agent = mock.Mock()
+        self.network_client.add_router_to_agent = mock.Mock()
         self.cmd = network_agent.AddRouterToAgent(self.app, self.namespace)
-        self.network.get_agent = mock.Mock(return_value=self._agent)
-        self.network.find_router = mock.Mock(return_value=self._router)
+        self.network_client.get_agent = mock.Mock(return_value=self._agent)
+        self.network_client.find_router = mock.Mock(return_value=self._router)
 
     def test_add_no_options(self):
         arglist = []
@@ -111,7 +111,7 @@ class TestAddRouterAgent(TestNetworkAgent):
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
         result = self.cmd.take_action(parsed_args)
 
-        self.network.add_router_to_agent.assert_called_with(
+        self.network_client.add_router_to_agent.assert_called_with(
             self._agent, self._router
         )
         self.assertIsNone(result)
@@ -122,7 +122,7 @@ class TestDeleteNetworkAgent(TestNetworkAgent):
 
     def setUp(self):
         super(TestDeleteNetworkAgent, self).setUp()
-        self.network.delete_agent = mock.Mock(return_value=None)
+        self.network_client.delete_agent = mock.Mock(return_value=None)
 
         # Get the command object to test
         self.cmd = network_agent.DeleteNetworkAgent(self.app, self.namespace)
@@ -138,7 +138,7 @@ class TestDeleteNetworkAgent(TestNetworkAgent):
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
         result = self.cmd.take_action(parsed_args)
-        self.network.delete_agent.assert_called_once_with(
+        self.network_client.delete_agent.assert_called_once_with(
             self.network_agents[0].id, ignore_missing=False
         )
         self.assertIsNone(result)
@@ -158,7 +158,7 @@ class TestDeleteNetworkAgent(TestNetworkAgent):
         calls = []
         for n in self.network_agents:
             calls.append(call(n.id, ignore_missing=False))
-        self.network.delete_agent.assert_has_calls(calls)
+        self.network_client.delete_agent.assert_has_calls(calls)
         self.assertIsNone(result)
 
     def test_multi_network_agents_delete_with_exception(self):
@@ -175,7 +175,9 @@ class TestDeleteNetworkAgent(TestNetworkAgent):
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
         delete_mock_result = [True, exceptions.CommandError]
-        self.network.delete_agent = mock.Mock(side_effect=delete_mock_result)
+        self.network_client.delete_agent = mock.Mock(
+            side_effect=delete_mock_result
+        )
 
         try:
             self.cmd.take_action(parsed_args)
@@ -183,10 +185,10 @@ class TestDeleteNetworkAgent(TestNetworkAgent):
         except exceptions.CommandError as e:
             self.assertEqual('1 of 2 network agents failed to delete.', str(e))
 
-        self.network.delete_agent.assert_any_call(
+        self.network_client.delete_agent.assert_any_call(
             self.network_agents[0].id, ignore_missing=False
         )
-        self.network.delete_agent.assert_any_call(
+        self.network_client.delete_agent.assert_any_call(
             'unexist_network_agent', ignore_missing=False
         )
 
@@ -219,22 +221,28 @@ class TestListNetworkAgent(TestNetworkAgent):
 
     def setUp(self):
         super(TestListNetworkAgent, self).setUp()
-        self.network.agents = mock.Mock(return_value=self.network_agents)
-
-        _testagent = network_fakes.create_one_network_agent()
-        self.network.get_agent = mock.Mock(return_value=_testagent)
-
-        self._testnetwork = network_fakes.create_one_network()
-        self.network.find_network = mock.Mock(return_value=self._testnetwork)
-        self.network.network_hosting_dhcp_agents = mock.Mock(
+        self.network_client.agents = mock.Mock(
             return_value=self.network_agents
         )
 
-        self.network.get_agent = mock.Mock(return_value=_testagent)
+        _testagent = network_fakes.create_one_network_agent()
+        self.network_client.get_agent = mock.Mock(return_value=_testagent)
+
+        self._testnetwork = network_fakes.create_one_network()
+        self.network_client.find_network = mock.Mock(
+            return_value=self._testnetwork
+        )
+        self.network_client.network_hosting_dhcp_agents = mock.Mock(
+            return_value=self.network_agents
+        )
+
+        self.network_client.get_agent = mock.Mock(return_value=_testagent)
 
         self._testrouter = network_fakes.FakeRouter.create_one_router()
-        self.network.find_router = mock.Mock(return_value=self._testrouter)
-        self.network.routers_hosting_l3_agents = mock.Mock(
+        self.network_client.find_router = mock.Mock(
+            return_value=self._testrouter
+        )
+        self.network_client.routers_hosting_l3_agents = mock.Mock(
             return_value=self.network_agents
         )
 
@@ -248,7 +256,7 @@ class TestListNetworkAgent(TestNetworkAgent):
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
         columns, data = self.cmd.take_action(parsed_args)
 
-        self.network.agents.assert_called_once_with(**{})
+        self.network_client.agents.assert_called_once_with(**{})
         self.assertEqual(self.columns, columns)
         self.assertCountEqual(self.data, list(data))
 
@@ -264,7 +272,7 @@ class TestListNetworkAgent(TestNetworkAgent):
 
         columns, data = self.cmd.take_action(parsed_args)
 
-        self.network.agents.assert_called_once_with(
+        self.network_client.agents.assert_called_once_with(
             **{
                 'agent_type': 'DHCP agent',
             }
@@ -284,7 +292,7 @@ class TestListNetworkAgent(TestNetworkAgent):
 
         columns, data = self.cmd.take_action(parsed_args)
 
-        self.network.agents.assert_called_once_with(
+        self.network_client.agents.assert_called_once_with(
             **{
                 'host': self.network_agents[0].host,
             }
@@ -304,7 +312,7 @@ class TestListNetworkAgent(TestNetworkAgent):
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
         columns, data = self.cmd.take_action(parsed_args)
 
-        self.network.network_hosting_dhcp_agents.assert_called_once_with(
+        self.network_client.network_hosting_dhcp_agents.assert_called_once_with(
             self._testnetwork
         )
         self.assertEqual(self.columns, columns)
@@ -324,7 +332,9 @@ class TestListNetworkAgent(TestNetworkAgent):
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
         columns, data = self.cmd.take_action(parsed_args)
 
-        self.network.routers_hosting_l3_agents.assert_called_once_with(*attrs)
+        self.network_client.routers_hosting_l3_agents.assert_called_once_with(
+            *attrs
+        )
 
         self.assertEqual(self.columns, columns)
         self.assertCountEqual(self.data, list(data))
@@ -344,7 +354,9 @@ class TestListNetworkAgent(TestNetworkAgent):
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
         columns, data = self.cmd.take_action(parsed_args)
 
-        self.network.routers_hosting_l3_agents.assert_called_once_with(*attrs)
+        self.network_client.routers_hosting_l3_agents.assert_called_once_with(
+            *attrs
+        )
 
         # Add a column 'HA State' and corresponding data.
         router_agent_columns = self.columns + ('HA State',)
@@ -361,10 +373,10 @@ class TestRemoveNetworkFromAgent(TestNetworkAgent):
     def setUp(self):
         super(TestRemoveNetworkFromAgent, self).setUp()
 
-        self.network.get_agent = mock.Mock(return_value=self.agent)
-        self.network.find_network = mock.Mock(return_value=self.net)
-        self.network.name = self.network.find_network.name
-        self.network.remove_dhcp_agent_from_network = mock.Mock()
+        self.network_client.get_agent = mock.Mock(return_value=self.agent)
+        self.network_client.find_network = mock.Mock(return_value=self.net)
+        self.network_client.name = self.network_client.find_network.name
+        self.network_client.remove_dhcp_agent_from_network = mock.Mock()
         self.cmd = network_agent.RemoveNetworkFromAgent(
             self.app, self.namespace
         )
@@ -408,7 +420,7 @@ class TestRemoveNetworkFromAgent(TestNetworkAgent):
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
         self.cmd.take_action(parsed_args)
 
-        self.network.remove_dhcp_agent_from_network.assert_called_once_with(
+        self.network_client.remove_dhcp_agent_from_network.assert_called_once_with(
             self.agent, self.net
         )
 
@@ -419,12 +431,12 @@ class TestRemoveRouterAgent(TestNetworkAgent):
 
     def setUp(self):
         super(TestRemoveRouterAgent, self).setUp()
-        self.network.remove_router_from_agent = mock.Mock()
+        self.network_client.remove_router_from_agent = mock.Mock()
         self.cmd = network_agent.RemoveRouterFromAgent(
             self.app, self.namespace
         )
-        self.network.get_agent = mock.Mock(return_value=self._agent)
-        self.network.find_router = mock.Mock(return_value=self._router)
+        self.network_client.get_agent = mock.Mock(return_value=self._agent)
+        self.network_client.find_router = mock.Mock(return_value=self._router)
 
     def test_remove_no_options(self):
         arglist = []
@@ -454,7 +466,7 @@ class TestRemoveRouterAgent(TestNetworkAgent):
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
         result = self.cmd.take_action(parsed_args)
 
-        self.network.remove_router_from_agent.assert_called_with(
+        self.network_client.remove_router_from_agent.assert_called_with(
             self._agent, self._router
         )
         self.assertIsNone(result)
@@ -465,8 +477,10 @@ class TestSetNetworkAgent(TestNetworkAgent):
 
     def setUp(self):
         super(TestSetNetworkAgent, self).setUp()
-        self.network.update_agent = mock.Mock(return_value=None)
-        self.network.get_agent = mock.Mock(return_value=self._network_agent)
+        self.network_client.update_agent = mock.Mock(return_value=None)
+        self.network_client.get_agent = mock.Mock(
+            return_value=self._network_agent
+        )
 
         # Get the command object to test
         self.cmd = network_agent.SetNetworkAgent(self.app, self.namespace)
@@ -483,7 +497,7 @@ class TestSetNetworkAgent(TestNetworkAgent):
         result = self.cmd.take_action(parsed_args)
 
         attrs = {}
-        self.network.update_agent.assert_called_once_with(
+        self.network_client.update_agent.assert_called_once_with(
             self._network_agent, **attrs
         )
         self.assertIsNone(result)
@@ -510,7 +524,7 @@ class TestSetNetworkAgent(TestNetworkAgent):
             'admin_state_up': True,
             'is_admin_state_up': True,
         }
-        self.network.update_agent.assert_called_once_with(
+        self.network_client.update_agent.assert_called_once_with(
             self._network_agent, **attrs
         )
         self.assertIsNone(result)
@@ -533,7 +547,7 @@ class TestSetNetworkAgent(TestNetworkAgent):
             'admin_state_up': False,
             'is_admin_state_up': False,
         }
-        self.network.update_agent.assert_called_once_with(
+        self.network_client.update_agent.assert_called_once_with(
             self._network_agent, **attrs
         )
         self.assertIsNone(result)
@@ -579,7 +593,9 @@ class TestShowNetworkAgent(TestNetworkAgent):
 
     def setUp(self):
         super(TestShowNetworkAgent, self).setUp()
-        self.network.get_agent = mock.Mock(return_value=self._network_agent)
+        self.network_client.get_agent = mock.Mock(
+            return_value=self._network_agent
+        )
 
         # Get the command object to test
         self.cmd = network_agent.ShowNetworkAgent(self.app, self.namespace)
@@ -608,6 +624,8 @@ class TestShowNetworkAgent(TestNetworkAgent):
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
         columns, data = self.cmd.take_action(parsed_args)
 
-        self.network.get_agent.assert_called_once_with(self._network_agent.id)
+        self.network_client.get_agent.assert_called_once_with(
+            self._network_agent.id
+        )
         self.assertEqual(set(self.columns), set(columns))
         self.assertEqual(len(list(self.data)), len(list(data)))
