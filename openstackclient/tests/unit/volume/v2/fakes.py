@@ -489,49 +489,6 @@ def get_volume_data(volume=None):
     return tuple(data_list)
 
 
-def create_one_availability_zone(attrs=None):
-    """Create a fake AZ.
-
-    :param dict attrs:
-        A dictionary with all attributes
-    :return:
-        A FakeResource object with zoneName, zoneState, etc.
-    """
-    attrs = attrs or {}
-
-    # Set default attributes.
-    availability_zone = {
-        'zoneName': uuid.uuid4().hex,
-        'zoneState': {'available': True},
-    }
-
-    # Overwrite default attributes.
-    availability_zone.update(attrs)
-
-    availability_zone = fakes.FakeResource(
-        info=copy.deepcopy(availability_zone), loaded=True
-    )
-    return availability_zone
-
-
-def create_availability_zones(attrs=None, count=2):
-    """Create multiple fake AZs.
-
-    :param dict attrs:
-        A dictionary with all attributes
-    :param int count:
-        The number of AZs to fake
-    :return:
-        A list of FakeResource objects faking the AZs
-    """
-    availability_zones = []
-    for i in range(0, count):
-        availability_zone = create_one_availability_zone(attrs)
-        availability_zones.append(availability_zone)
-
-    return availability_zones
-
-
 def create_one_backup(attrs=None):
     """Create a fake backup.
 

@@ -20,6 +20,7 @@ import uuid
 
 from novaclient import api_versions
 from openstack.compute.v2 import aggregate as _aggregate
+from openstack.compute.v2 import availability_zone as _availability_zone
 from openstack.compute.v2 import flavor as _flavor
 from openstack.compute.v2 import hypervisor as _hypervisor
 from openstack.compute.v2 import keypair as _keypair
@@ -82,12 +83,6 @@ class FakeComputev2Client(object):
     def __init__(self, **kwargs):
         self.agents = mock.Mock()
         self.agents.resource_class = fakes.FakeResource(None, {})
-
-        self.aggregates = mock.Mock()
-        self.aggregates.resource_class = fakes.FakeResource(None, {})
-
-        self.availability_zones = mock.Mock()
-        self.availability_zones.resource_class = fakes.FakeResource(None, {})
 
         self.images = mock.Mock()
         self.images.resource_class = fakes.FakeResource(None, {})
@@ -783,36 +778,34 @@ def get_keypairs(keypairs=None, count=2):
 def create_one_availability_zone(attrs=None):
     """Create a fake AZ.
 
-    :param dict attrs:
-        A dictionary with all attributes
-    :return:
-        A FakeResource object with zoneName, zoneState, etc.
+    :param dict attrs: A dictionary with all attributes
+    :return: A fake openstack.compute.v2.availability_zone.AvailabilityZone
+        object
     """
     attrs = attrs or {}
 
     # Set default attributes.
     host_name = uuid.uuid4().hex
     service_name = uuid.uuid4().hex
-    service_updated_at = uuid.uuid4().hex
-    availability_zone = {
-        'zoneName': uuid.uuid4().hex,
-        'zoneState': {'available': True},
+    availability_zone_info = {
+        'name': uuid.uuid4().hex,
+        'state': {'available': True},
         'hosts': {
             host_name: {
                 service_name: {
                     'available': True,
                     'active': True,
-                    'updated_at': service_updated_at,
+                    'updated_at': '2023-01-01T00:00:00.000000',
                 }
             }
         },
     }
 
     # Overwrite default attributes.
-    availability_zone.update(attrs)
+    availability_zone_info.update(attrs)
 
-    availability_zone = fakes.FakeResource(
-        info=copy.deepcopy(availability_zone), loaded=True
+    availability_zone = _availability_zone.AvailabilityZone(
+        **availability_zone_info
     )
     return availability_zone
 
@@ -820,12 +813,10 @@ def create_one_availability_zone(attrs=None):
 def create_availability_zones(attrs=None, count=2):
     """Create multiple fake AZs.
 
-    :param dict attrs:
-        A dictionary with all attributes
-    :param int count:
-        The number of AZs to fake
-    :return:
-        A list of FakeResource objects faking the AZs
+    :param dict attrs: A dictionary with all attributes
+    :param int count: The number of availability zones to fake
+    :return: A list of fake
+        openstack.compute.v2.availability_zone.AvailabilityZone objects
     """
     availability_zones = []
     for i in range(0, count):
