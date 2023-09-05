@@ -39,7 +39,6 @@ from openstackclient.api import compute_v2
 from openstackclient.tests.unit import fakes
 from openstackclient.tests.unit.identity.v2_0 import fakes as identity_fakes
 from openstackclient.tests.unit.image.v2 import fakes as image_fakes
-from openstackclient.tests.unit.network.v2 import fakes as network_fakes
 from openstackclient.tests.unit import utils
 from openstackclient.tests.unit.volume.v2 import fakes as volume_fakes
 
@@ -150,7 +149,7 @@ class FakeComputev2Client(object):
 
 class TestComputev2(utils.TestCommand):
     def setUp(self):
-        super(TestComputev2, self).setUp()
+        super().setUp()
 
         self.app.client_manager.compute = FakeComputev2Client(
             endpoint=fakes.AUTH_URL,
@@ -172,10 +171,7 @@ class TestComputev2(utils.TestCommand):
             token=fakes.AUTH_TOKEN,
         )
 
-        self.app.client_manager.network = network_fakes.FakeNetworkV2Client(
-            endpoint=fakes.AUTH_URL,
-            token=fakes.AUTH_TOKEN,
-        )
+        self.app.client_manager.network = mock.Mock()
 
         self.app.client_manager.volume = volume_fakes.FakeVolumeClient(
             endpoint=fakes.AUTH_URL,
