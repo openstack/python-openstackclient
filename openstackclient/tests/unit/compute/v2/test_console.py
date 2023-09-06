@@ -25,7 +25,6 @@ class TestConsole(compute_fakes.TestComputev2):
         super(TestConsole, self).setUp()
 
         # SDK mock
-        self.app.client_manager.sdk_connection = mock.Mock()
         self.app.client_manager.sdk_connection.compute = mock.Mock()
         self.sdk_client = self.app.client_manager.sdk_connection.compute
         self.sdk_client.find_server = mock.Mock()

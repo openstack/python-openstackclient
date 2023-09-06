@@ -70,7 +70,6 @@ class TestServer(compute_fakes.TestComputev2):
         self.servers_mock = self.app.client_manager.compute.servers
         self.servers_mock.reset_mock()
 
-        self.app.client_manager.sdk_connection = mock.Mock()
         self.app.client_manager.sdk_connection.compute = mock.Mock()
         self.sdk_client = self.app.client_manager.sdk_connection.compute
 

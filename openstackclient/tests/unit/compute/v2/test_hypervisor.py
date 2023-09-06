@@ -30,7 +30,6 @@ class TestHypervisor(compute_fakes.TestComputev2):
         super().setUp()
 
         # Create and get a shortcut to the compute client mock
-        self.app.client_manager.sdk_connection = mock.Mock()
         self.sdk_client = self.app.client_manager.sdk_connection.compute
         self.sdk_client.reset_mock()
 

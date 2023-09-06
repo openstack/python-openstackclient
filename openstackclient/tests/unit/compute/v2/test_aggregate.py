@@ -59,7 +59,6 @@ class TestAggregate(compute_fakes.TestComputev2):
         super(TestAggregate, self).setUp()
 
         # Get a shortcut to the AggregateManager Mock
-        self.app.client_manager.sdk_connection = mock.Mock()
         self.app.client_manager.sdk_connection.compute = mock.Mock()
         self.sdk_client = self.app.client_manager.sdk_connection.compute
         self.sdk_client.aggregates = mock.Mock()
