@@ -25,9 +25,6 @@ class TestNetworkSegment(network_fakes.TestNetworkV2):
     def setUp(self):
         super(TestNetworkSegment, self).setUp()
 
-        # Get a shortcut to the network client
-        self.network_client = self.app.client_manager.network
-
 
 class TestCreateNetworkSegment(TestNetworkSegment):
     # The network segment to create along with associated network.

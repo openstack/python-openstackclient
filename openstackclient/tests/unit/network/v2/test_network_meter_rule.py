@@ -27,7 +27,7 @@ from openstackclient.tests.unit import utils as tests_utils
 class TestMeterRule(network_fakes.TestNetworkV2):
     def setUp(self):
         super(TestMeterRule, self).setUp()
-        self.network_client = self.app.client_manager.network
+
         self.projects_mock = self.app.client_manager.identity.projects
         self.domains_mock = self.app.client_manager.identity.domains
 

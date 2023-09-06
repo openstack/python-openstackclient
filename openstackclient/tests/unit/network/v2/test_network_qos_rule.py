@@ -54,8 +54,6 @@ DSCP_VALID_MARKS = [
 class TestNetworkQosRule(network_fakes.TestNetworkV2):
     def setUp(self):
         super(TestNetworkQosRule, self).setUp()
-        # Get a shortcut to the network client
-        self.network_client = self.app.client_manager.network
         self.qos_policy = (
             network_fakes.FakeNetworkQosPolicy.create_one_qos_policy()
         )

@@ -26,7 +26,6 @@ from openstackclient.tests.unit.network.v2 import fakes as network_fakes
 class TestLocalIPAssociation(network_fakes.TestNetworkV2):
     def setUp(self):
         super().setUp()
-        self.network_client = self.app.client_manager.network
         self.local_ip = network_fakes.create_one_local_ip()
         self.fixed_port = network_fakes.create_one_port()
         self.project = identity_fakes_v2.FakeProject.create_one_project()

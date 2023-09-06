@@ -23,7 +23,6 @@ from openstackclient.tests.unit.network.v2 import fakes as network_fakes
 class TestAutoAllocatedTopology(network_fakes.TestNetworkV2):
     def setUp(self):
         super(TestAutoAllocatedTopology, self).setUp()
-        self.network_client = self.app.client_manager.network
         self.projects_mock = self.app.client_manager.identity.projects
 
 

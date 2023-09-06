@@ -28,8 +28,6 @@ class TestNetworkFlavor(network_fakes.TestNetworkV2):
     def setUp(self):
         super(TestNetworkFlavor, self).setUp()
 
-        # Get a shortcut to the network client
-        self.network_client = self.app.client_manager.network
         # Get a shortcut to the ProjectManager Mock
         self.projects_mock = self.app.client_manager.identity.projects
         # Get a shortcut to the DomainManager Mock
@@ -42,13 +40,13 @@ class TestAddNetworkFlavorToProfile(TestNetworkFlavor):
 
     def setUp(self):
         super(TestAddNetworkFlavorToProfile, self).setUp()
+
         self.network_client.find_flavor = mock.Mock(
             return_value=self.network_flavor
         )
         self.network_client.find_service_profile = mock.Mock(
             return_value=self.service_profile
         )
-        self.network_client.associate_flavor_with_service_profile = mock.Mock()
 
         self.cmd = network_flavor.AddNetworkFlavorToProfile(
             self.app, self.namespace

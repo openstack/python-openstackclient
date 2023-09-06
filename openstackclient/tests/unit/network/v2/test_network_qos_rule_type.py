@@ -23,8 +23,6 @@ from openstackclient.tests.unit import utils as tests_utils
 class TestNetworkQosRuleType(network_fakes.TestNetworkV2):
     def setUp(self):
         super(TestNetworkQosRuleType, self).setUp()
-        # Get a shortcut to the network client
-        self.network_client = self.app.client_manager.network
 
 
 class TestShowNetworkQosRuleType(TestNetworkQosRuleType):

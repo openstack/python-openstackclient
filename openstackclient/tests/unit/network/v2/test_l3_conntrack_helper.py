@@ -23,8 +23,7 @@ from openstackclient.tests.unit import utils as tests_utils
 class TestConntrackHelper(network_fakes.TestNetworkV2):
     def setUp(self):
         super(TestConntrackHelper, self).setUp()
-        # Get a shortcut to the network client
-        self.network_client = self.app.client_manager.network
+
         self.router = network_fakes.FakeRouter.create_one_router()
         self.network_client.find_router = mock.Mock(return_value=self.router)
 

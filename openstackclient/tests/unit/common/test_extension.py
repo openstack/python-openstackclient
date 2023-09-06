@@ -9,7 +9,6 @@
 #   WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
 #   License for the specific language governing permissions and limitations
 #   under the License.
-#
 
 from unittest import mock
 
@@ -23,7 +22,7 @@ from openstackclient.tests.unit import utils as tests_utils
 from openstackclient.tests.unit.volume.v3 import fakes as volume_fakes
 
 
-class TestExtension(utils.TestCommand):
+class TestExtension(network_fakes.FakeClientMixin, utils.TestCommand):
     def setUp(self):
         super().setUp()
 
@@ -43,9 +42,6 @@ class TestExtension(utils.TestCommand):
 
         self.volume_extensions_mock = sdk_connection.volume.extensions
         self.volume_extensions_mock.reset_mock()
-
-        self.app.client_manager.network = mock.Mock()
-        self.network_client = self.app.client_manager.network
 
 
 class TestExtensionList(TestExtension):

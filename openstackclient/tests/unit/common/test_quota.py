@@ -62,9 +62,6 @@ class TestQuota(compute_fakes.TestComputev2):
         )
         self.volume_quotas_class_mock.reset_mock()
 
-        self.app.client_manager.network = mock.Mock()
-        self.network_client = self.app.client_manager.network
-
         self.app.client_manager.auth_ref = mock.Mock()
         self.app.client_manager.auth_ref.service_catalog = mock.Mock()
         self.service_catalog_mock = (
@@ -661,8 +658,6 @@ class TestQuotaSet(TestQuota):
             copy.deepcopy(compute_fakes.QUOTA),
             loaded=True,
         )
-
-        self.network_client.update_quota = mock.Mock()
 
         self.cmd = quota.SetQuota(self.app, None)
 
@@ -1320,8 +1315,6 @@ class TestQuotaDelete(TestQuota):
 
     def setUp(self):
         super().setUp()
-
-        self.network_client.delete_quota = mock.Mock()
 
         self.cmd = quota.DeleteQuota(self.app, None)
 

@@ -27,7 +27,7 @@ from openstackclient.tests.unit import utils as tests_utils
 class TestFloatingIPPortForwarding(network_fakes.TestNetworkV2):
     def setUp(self):
         super(TestFloatingIPPortForwarding, self).setUp()
-        self.network_client = self.app.client_manager.network
+
         self.floating_ip = (
             network_fakes.FakeFloatingIP.create_one_floating_ip()
         )
