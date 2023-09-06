@@ -23,16 +23,10 @@ from openstackclient.tests.unit import utils as tests_utils
 
 # Tests for Nova network
 #
-class TestNetworkCompute(compute_fakes.TestComputev2):
-    def setUp(self):
-        super(TestNetworkCompute, self).setUp()
-
-        # Get a shortcut to the compute client
-        self.compute_client = self.app.client_manager.compute
 
 
 @mock.patch('openstackclient.api.compute_v2.APIv2.network_create')
-class TestCreateNetworkCompute(TestNetworkCompute):
+class TestCreateNetworkCompute(compute_fakes.TestComputev2):
     # The network to create.
     _network = compute_fakes.create_one_network()
 
@@ -172,7 +166,7 @@ class TestCreateNetworkCompute(TestNetworkCompute):
 
 
 @mock.patch('openstackclient.api.compute_v2.APIv2.network_delete')
-class TestDeleteNetworkCompute(TestNetworkCompute):
+class TestDeleteNetworkCompute(compute_fakes.TestComputev2):
     def setUp(self):
         super(TestDeleteNetworkCompute, self).setUp()
 
@@ -252,7 +246,7 @@ class TestDeleteNetworkCompute(TestNetworkCompute):
 
 
 @mock.patch('openstackclient.api.compute_v2.APIv2.network_list')
-class TestListNetworkCompute(TestNetworkCompute):
+class TestListNetworkCompute(compute_fakes.TestComputev2):
     # The networks going to be listed up.
     _networks = compute_fakes.create_networks(count=3)
 
@@ -297,7 +291,7 @@ class TestListNetworkCompute(TestNetworkCompute):
 
 
 @mock.patch('openstackclient.api.compute_v2.APIv2.network_find')
-class TestShowNetworkCompute(TestNetworkCompute):
+class TestShowNetworkCompute(compute_fakes.TestComputev2):
     # The network to show.
     _network = compute_fakes.create_one_network()
 

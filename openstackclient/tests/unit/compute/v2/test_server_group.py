@@ -47,15 +47,6 @@ class TestServerGroup(compute_fakes.TestComputev2):
         fake_server_group.user_id,
     )
 
-    def setUp(self):
-        super().setUp()
-
-        # Create and get a shortcut to the compute client mock
-        self.compute_sdk_client = (
-            self.app.client_manager.sdk_connection.compute
-        )
-        self.compute_sdk_client.reset_mock()
-
 
 class TestServerGroupCreate(TestServerGroup):
     def setUp(self):

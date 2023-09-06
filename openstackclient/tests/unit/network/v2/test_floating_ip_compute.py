@@ -24,16 +24,8 @@ from openstackclient.tests.unit import utils as tests_utils
 # Tests for Nova network
 
 
-class TestFloatingIPCompute(compute_fakes.TestComputev2):
-    def setUp(self):
-        super(TestFloatingIPCompute, self).setUp()
-
-        # Get a shortcut to the compute client
-        self.compute_client = self.app.client_manager.compute
-
-
 @mock.patch('openstackclient.api.compute_v2.APIv2.floating_ip_create')
-class TestCreateFloatingIPCompute(TestFloatingIPCompute):
+class TestCreateFloatingIPCompute(compute_fakes.TestComputev2):
     # The floating ip to be deleted.
     _floating_ip = compute_fakes.create_one_floating_ip()
 
@@ -93,7 +85,7 @@ class TestCreateFloatingIPCompute(TestFloatingIPCompute):
 
 
 @mock.patch('openstackclient.api.compute_v2.APIv2.floating_ip_delete')
-class TestDeleteFloatingIPCompute(TestFloatingIPCompute):
+class TestDeleteFloatingIPCompute(compute_fakes.TestComputev2):
     # The floating ips to be deleted.
     _floating_ips = compute_fakes.create_floating_ips(count=2)
 
@@ -169,7 +161,7 @@ class TestDeleteFloatingIPCompute(TestFloatingIPCompute):
 
 
 @mock.patch('openstackclient.api.compute_v2.APIv2.floating_ip_list')
-class TestListFloatingIPCompute(TestFloatingIPCompute):
+class TestListFloatingIPCompute(compute_fakes.TestComputev2):
     # The floating ips to be list up
     _floating_ips = compute_fakes.create_floating_ips(count=3)
 
@@ -215,7 +207,7 @@ class TestListFloatingIPCompute(TestFloatingIPCompute):
 
 
 @mock.patch('openstackclient.api.compute_v2.APIv2.floating_ip_find')
-class TestShowFloatingIPCompute(TestFloatingIPCompute):
+class TestShowFloatingIPCompute(compute_fakes.TestComputev2):
     # The floating ip to display.
     _floating_ip = compute_fakes.create_one_floating_ip()
 

@@ -20,20 +20,7 @@ from openstackclient.tests.unit.compute.v2 import fakes as compute_fakes
 from openstackclient.tests.unit import utils
 
 
-class TestConsole(compute_fakes.TestComputev2):
-    def setUp(self):
-        super(TestConsole, self).setUp()
-
-        # SDK mock
-        self.app.client_manager.sdk_connection.compute = mock.Mock()
-        self.compute_sdk_client = (
-            self.app.client_manager.sdk_connection.compute
-        )
-        self.compute_sdk_client.find_server = mock.Mock()
-        self.compute_sdk_client.get_server_console_output = mock.Mock()
-
-
-class TestConsoleLog(TestConsole):
+class TestConsoleLog(compute_fakes.TestComputev2):
     _server = compute_fakes.create_one_server()
 
     def setUp(self):
@@ -89,7 +76,7 @@ class TestConsoleLog(TestConsole):
         )
 
 
-class TestConsoleUrlShow(TestConsole):
+class TestConsoleUrlShow(compute_fakes.TestComputev2):
     _server = compute_fakes.create_one_server()
 
     def setUp(self):

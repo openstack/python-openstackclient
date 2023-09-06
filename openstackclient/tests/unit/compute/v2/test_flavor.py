@@ -30,25 +30,6 @@ class TestFlavor(compute_fakes.TestComputev2):
     def setUp(self):
         super(TestFlavor, self).setUp()
 
-        # SDK mock
-        self.app.client_manager.sdk_connection.compute = mock.Mock()
-        self.compute_sdk_client = (
-            self.app.client_manager.sdk_connection.compute
-        )
-        self.compute_sdk_client.flavors = mock.Mock()
-        self.compute_sdk_client.find_flavor = mock.Mock()
-        self.compute_sdk_client.delete_flavor = mock.Mock()
-        self.compute_sdk_client.update_flavor = mock.Mock()
-        self.compute_sdk_client.flavor_add_tenant_access = mock.Mock()
-        self.compute_sdk_client.flavor_remove_tenant_access = mock.Mock()
-        self.compute_sdk_client.create_flavor_extra_specs = mock.Mock()
-        self.compute_sdk_client.update_flavor_extra_specs_property = (
-            mock.Mock()
-        )
-        self.compute_sdk_client.delete_flavor_extra_specs_property = (
-            mock.Mock()
-        )
-
         self.projects_mock = self.app.client_manager.identity.projects
         self.projects_mock.reset_mock()
 
@@ -1193,7 +1174,7 @@ class TestFlavorUnset(TestFlavor):
             self.flavor.id,
             self.project.id,
         )
-        self.compute_sdk_client.delete_flavor_extra_specs_proerty.assert_not_called()
+        self.compute_sdk_client.delete_flavor_extra_specs_property.assert_not_called()
         self.assertIsNone(result)
 
     def test_flavor_unset_no_project(self):

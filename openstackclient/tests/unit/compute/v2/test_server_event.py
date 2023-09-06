@@ -29,15 +29,6 @@ class TestServerEvent(compute_fakes.TestComputev2):
     def setUp(self):
         super(TestServerEvent, self).setUp()
 
-        self.app.client_manager.sdk_connection.compute = mock.Mock()
-        self.compute_sdk_client = (
-            self.app.client_manager.sdk_connection.compute
-        )
-        self.compute_sdk_client.find_server = mock.Mock()
-        self.compute_sdk_client.server_actions = mock.Mock()
-        self.compute_sdk_client.get_server_action = mock.Mock()
-        self.compute_sdk_client.reset_mock()
-
         patcher = mock.patch.object(
             sdk_utils, 'supports_microversion', return_value=True
         )

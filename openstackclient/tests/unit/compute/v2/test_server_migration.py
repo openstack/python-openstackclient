@@ -34,11 +34,6 @@ class TestServerMigration(compute_fakes.TestComputev2):
         self.server_migrations_mock = self.compute_client.server_migrations
         self.server_migrations_mock.reset_mock()
 
-        self.app.client_manager.sdk_connection.compute = mock.Mock()
-        self.compute_sdk_client = (
-            self.app.client_manager.sdk_connection.compute
-        )
-
         patcher = mock.patch.object(
             sdk_utils, 'supports_microversion', return_value=True
         )

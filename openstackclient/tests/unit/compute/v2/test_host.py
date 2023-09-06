@@ -21,20 +21,8 @@ from openstackclient.tests.unit import fakes
 from openstackclient.tests.unit import utils as tests_utils
 
 
-class TestHost(compute_fakes.TestComputev2):
-    def setUp(self):
-        super(TestHost, self).setUp()
-
-        # Get a shortcut to the compute client
-        self.app.client_manager.sdk_connection.compute = mock.Mock()
-        self.compute_sdk_client = (
-            self.app.client_manager.sdk_connection.compute
-        )
-        self.compute_sdk_client.get = mock.Mock()
-
-
 @mock.patch('openstackclient.api.compute_v2.APIv2.host_list')
-class TestHostList(TestHost):
+class TestHostList(compute_fakes.TestComputev2):
     _host = compute_fakes.create_one_host()
 
     def setUp(self):
@@ -93,7 +81,7 @@ class TestHostList(TestHost):
 
 
 @mock.patch('openstackclient.api.compute_v2.APIv2.host_set')
-class TestHostSet(TestHost):
+class TestHostSet(compute_fakes.TestComputev2):
     def setUp(self):
         super(TestHostSet, self).setUp()
 
@@ -143,7 +131,7 @@ class TestHostSet(TestHost):
 
 
 @mock.patch('openstackclient.api.compute_v2.APIv2.host_show')
-class TestHostShow(TestHost):
+class TestHostShow(compute_fakes.TestComputev2):
     _host = compute_fakes.create_one_host()
 
     def setUp(self):

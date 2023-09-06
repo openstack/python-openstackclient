@@ -48,7 +48,6 @@ class TestQuota(compute_fakes.TestComputev2):
         self.projects_mock.reset_mock()
         self.projects_mock.get.return_value = self.projects[0]
 
-        self.compute_client = self.app.client_manager.compute
         self.compute_quotas_mock = self.compute_client.quotas
         self.compute_quotas_mock.reset_mock()
         self.compute_quotas_class_mock = self.compute_client.quota_classes

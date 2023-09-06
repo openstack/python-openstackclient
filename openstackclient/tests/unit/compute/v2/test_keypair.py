@@ -40,15 +40,6 @@ class TestKeypair(compute_fakes.TestComputev2):
             loaded=True,
         )
 
-        self.app.client_manager.sdk_connection.compute = mock.Mock()
-        self.compute_sdk_client = (
-            self.app.client_manager.sdk_connection.compute
-        )
-        self.compute_sdk_client.keypairs = mock.Mock()
-        self.compute_sdk_client.create_keypair = mock.Mock()
-        self.compute_sdk_client.delete_keypair = mock.Mock()
-        self.compute_sdk_client.find_keypair = mock.Mock()
-
 
 class TestKeypairCreate(TestKeypair):
     def setUp(self):

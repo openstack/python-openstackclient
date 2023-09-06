@@ -23,16 +23,8 @@ from openstackclient.tests.unit.identity.v3 import fakes as identity_fakes
 from openstackclient.tests.unit import utils as tests_utils
 
 
-class TestSecurityGroupRuleCompute(compute_fakes.TestComputev2):
-    def setUp(self):
-        super(TestSecurityGroupRuleCompute, self).setUp()
-
-        # Get a shortcut to the network client
-        self.compute_client = self.app.client_manager.compute
-
-
 @mock.patch('openstackclient.api.compute_v2.APIv2.security_group_rule_create')
-class TestCreateSecurityGroupRuleCompute(TestSecurityGroupRuleCompute):
+class TestCreateSecurityGroupRuleCompute(compute_fakes.TestComputev2):
     project = identity_fakes.FakeProject.create_one_project()
     domain = identity_fakes.FakeDomain.create_one_domain()
 
@@ -305,7 +297,7 @@ class TestCreateSecurityGroupRuleCompute(TestSecurityGroupRuleCompute):
 
 
 @mock.patch('openstackclient.api.compute_v2.APIv2.security_group_rule_delete')
-class TestDeleteSecurityGroupRuleCompute(TestSecurityGroupRuleCompute):
+class TestDeleteSecurityGroupRuleCompute(compute_fakes.TestComputev2):
     # The security group rule to be deleted.
     _security_group_rules = compute_fakes.create_security_group_rules(count=2)
 
@@ -373,7 +365,7 @@ class TestDeleteSecurityGroupRuleCompute(TestSecurityGroupRuleCompute):
         sgr_mock.assert_any_call('unexist_rule')
 
 
-class TestListSecurityGroupRuleCompute(TestSecurityGroupRuleCompute):
+class TestListSecurityGroupRuleCompute(compute_fakes.TestComputev2):
     # The security group to hold the rules.
     _security_group = compute_fakes.create_one_security_group()
 
@@ -509,7 +501,7 @@ class TestListSecurityGroupRuleCompute(TestSecurityGroupRuleCompute):
         self.assertEqual(self.expected_data_no_group, list(data))
 
 
-class TestShowSecurityGroupRuleCompute(TestSecurityGroupRuleCompute):
+class TestShowSecurityGroupRuleCompute(compute_fakes.TestComputev2):
     # The security group rule to be shown.
     _security_group_rule = compute_fakes.create_one_security_group_rule()
 
