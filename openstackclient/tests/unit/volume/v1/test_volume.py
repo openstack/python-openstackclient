@@ -33,7 +33,7 @@ class TestVolume(volume_fakes.TestVolumev1):
         super().setUp()
 
         # Get a shortcut to the VolumeManager Mock
-        self.volumes_mock = self.app.client_manager.volume.volumes
+        self.volumes_mock = self.volume_client.volumes
         self.volumes_mock.reset_mock()
 
         # Get a shortcut to the TenantManager Mock

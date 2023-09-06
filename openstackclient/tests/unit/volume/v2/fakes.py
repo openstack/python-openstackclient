@@ -17,9 +17,11 @@ import random
 from unittest import mock
 import uuid
 
+# FIXME(stephenfin): We are using v3 resource versions despite being v2 fakes
 from cinderclient import api_versions
+from openstack.block_storage.v2 import _proxy as block_storage_v2_proxy
 from openstack.block_storage.v3 import backup as _backup
-from openstack.block_storage.v3 import volume
+from openstack.block_storage.v3 import volume as _volume
 from openstack.image.v2 import _proxy as image_v2_proxy
 from osc_lib.cli import format_columns
 
@@ -94,6 +96,14 @@ class TestVolume(utils.TestCommand):
         self.app.client_manager.volume = FakeVolumeClient(
             endpoint=fakes.AUTH_URL, token=fakes.AUTH_TOKEN
         )
+        self.volume_client = self.app.client_manager.volume
+
+        # TODO(stephenfin): Rename to 'volume_client' once all commands are
+        # migrated to SDK
+        self.app.client_manager.sdk_connection.volume = mock.Mock(
+            spec=block_storage_v2_proxy.Proxy,
+        )
+        self.volume_sdk_client = self.app.client_manager.sdk_connection.volume
 
         self.app.client_manager.identity = identity_fakes.FakeIdentityv3Client(
             endpoint=fakes.AUTH_URL, token=fakes.AUTH_TOKEN
@@ -413,7 +423,7 @@ def create_one_sdk_volume(attrs=None):
 
     # Overwrite default attributes if there are some attributes set
     volume_info.update(attrs)
-    return volume.Volume(**volume_info)
+    return _volume.Volume(**volume_info)
 
 
 def create_sdk_volumes(attrs=None, count=2):

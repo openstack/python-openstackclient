@@ -55,11 +55,9 @@ class TestQuota(compute_fakes.TestComputev2):
         )
         self.compute_quotas_class_mock.reset_mock()
 
-        self.volume_quotas_mock = self.app.client_manager.volume.quotas
+        self.volume_quotas_mock = self.volume_client.quotas
         self.volume_quotas_mock.reset_mock()
-        self.volume_quotas_class_mock = (
-            self.app.client_manager.volume.quota_classes
-        )
+        self.volume_quotas_class_mock = self.volume_client.quota_classes
         self.volume_quotas_class_mock.reset_mock()
 
         self.app.client_manager.auth_ref = mock.Mock()
@@ -180,8 +178,7 @@ class TestQuotaList(TestQuota):
             volume_fakes.create_one_default_vol_quota(),
             volume_fakes.create_one_default_vol_quota(),
         ]
-        self.volume = self.app.client_manager.volume
-        self.volume.quotas.defaults = mock.Mock(
+        self.volume_client.quotas.defaults = mock.Mock(
             side_effect=self.volume_default_quotas,
         )
 
@@ -288,7 +285,7 @@ class TestQuotaList(TestQuota):
             detailed_quota
         )
 
-        self.volume.quotas.get = mock.Mock(return_value=detailed_quota)
+        self.volume_client.quotas.get = mock.Mock(return_value=detailed_quota)
 
         arglist = [
             '--detail',
@@ -541,7 +538,7 @@ class TestQuotaList(TestQuota):
 
     def test_quota_list_volume(self):
         # Two projects with non-default quotas
-        self.volume.quotas.get = mock.Mock(
+        self.volume_client.quotas.get = mock.Mock(
             side_effect=self.volume_quotas,
         )
 
@@ -562,7 +559,7 @@ class TestQuotaList(TestQuota):
 
     def test_quota_list_volume_default(self):
         # Two projects with non-default quotas
-        self.volume.quotas.get = mock.Mock(
+        self.volume_client.quotas.get = mock.Mock(
             side_effect=[
                 self.volume_quotas[0],
                 volume_fakes.create_one_default_vol_quota(),
@@ -586,7 +583,7 @@ class TestQuotaList(TestQuota):
 
     def test_quota_list_volume_no_project(self):
         # Two projects with non-default quotas
-        self.volume.quotas.get = mock.Mock(
+        self.volume_client.quotas.get = mock.Mock(
             side_effect=[
                 self.volume_quotas[0],
                 volume_fakes.create_one_default_vol_quota(),
@@ -610,7 +607,7 @@ class TestQuotaList(TestQuota):
 
     def test_quota_list_volume_by_project(self):
         # Two projects with non-default quotas
-        self.volume.quotas.get = mock.Mock(
+        self.volume_client.quotas.get = mock.Mock(
             side_effect=self.volume_quotas,
         )
 

@@ -20,7 +20,7 @@ class TestVolumeHost(volume_fakes.TestVolume):
     def setUp(self):
         super().setUp()
 
-        self.host_mock = self.app.client_manager.volume.services
+        self.host_mock = self.volume_client.services
         self.host_mock.reset_mock()
 
 

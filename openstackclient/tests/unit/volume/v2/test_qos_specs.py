@@ -29,10 +29,10 @@ class TestQos(volume_fakes.TestVolume):
     def setUp(self):
         super(TestQos, self).setUp()
 
-        self.qos_mock = self.app.client_manager.volume.qos_specs
+        self.qos_mock = self.volume_client.qos_specs
         self.qos_mock.reset_mock()
 
-        self.types_mock = self.app.client_manager.volume.volume_types
+        self.types_mock = self.volume_client.volume_types
         self.types_mock.reset_mock()
 
 

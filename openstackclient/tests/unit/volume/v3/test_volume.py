@@ -16,22 +16,21 @@ import copy
 from unittest import mock
 
 from cinderclient import api_versions
+from openstack.block_storage.v3 import block_storage_summary as _summary
+from openstack.block_storage.v3 import snapshot as _snapshot
+from openstack.block_storage.v3 import volume as _volume
+from openstack.test import fakes as sdk_fakes
 from openstack import utils as sdk_utils
 from osc_lib.cli import format_columns
 from osc_lib import exceptions
 
-from openstackclient.tests.unit.volume.v2 import fakes as volume_fakes
-from openstackclient.tests.unit.volume.v3 import fakes as v3_fakes
+from openstackclient.tests.unit.volume.v3 import fakes
 from openstackclient.volume.v3 import volume
 
 
-class BaseVolumeTest(volume_fakes.TestVolume):
+class BaseVolumeTest(fakes.TestVolume):
     def setUp(self):
         super().setUp()
-
-        self.app.client_manager.sdk_connection = mock.Mock()
-        self.app.client_manager.sdk_connection.volume = mock.Mock()
-        self.sdk_client = self.app.client_manager.sdk_connection.volume
 
         patcher = mock.patch.object(
             sdk_utils, 'supports_microversion', return_value=True
@@ -39,7 +38,7 @@ class BaseVolumeTest(volume_fakes.TestVolume):
         self.addCleanup(patcher.stop)
         self.supports_microversion_mock = patcher.start()
         self._set_mock_microversion(
-            self.app.client_manager.volume.api_version.get_string()
+            self.volume_client.api_version.get_string()
         )
 
     def _set_mock_microversion(self, mock_v):
@@ -60,12 +59,14 @@ class TestVolumeSummary(BaseVolumeTest):
     def setUp(self):
         super().setUp()
 
-        self.mock_vol_1 = volume_fakes.create_one_volume()
-        self.mock_vol_2 = volume_fakes.create_one_volume()
-        block_storage_summary = v3_fakes.get_one_block_storage_summary(
-            self.mock_vol_1.size + self.mock_vol_2.size
+        self.volume_a = sdk_fakes.generate_fake_resource(_volume.Volume)
+        self.volume_b = sdk_fakes.generate_fake_resource(_volume.Volume)
+        self.summary = sdk_fakes.generate_fake_resource(
+            _summary.BlockStorageSummary,
+            total_count=2,
+            total_size=self.volume_a.size + self.volume_b.size,
         )
-        self.sdk_client.summary.return_value = block_storage_summary
+        self.volume_sdk_client.summary.return_value = self.summary
 
         # Get the command object to test
         self.cmd = volume.VolumeSummary(self.app, None)
@@ -82,11 +83,11 @@ class TestVolumeSummary(BaseVolumeTest):
 
         columns, data = self.cmd.take_action(parsed_args)
 
-        self.sdk_client.summary.assert_called_once_with(True)
+        self.volume_sdk_client.summary.assert_called_once_with(True)
 
         self.assertEqual(self.columns, columns)
 
-        datalist = (2, self.mock_vol_1.size + self.mock_vol_2.size)
+        datalist = (2, self.volume_a.size + self.volume_b.size)
         self.assertCountEqual(datalist, tuple(data))
 
     def test_volume_summary_pre_312(self):
@@ -108,11 +109,14 @@ class TestVolumeSummary(BaseVolumeTest):
     def test_volume_summary_with_metadata(self):
         self._set_mock_microversion('3.36')
 
-        combine_meta = {**self.mock_vol_1.metadata, **self.mock_vol_2.metadata}
-        block_storage_summary = v3_fakes.get_one_block_storage_summary(
-            self.mock_vol_1.size + self.mock_vol_2.size, metadata=combine_meta
+        metadata = {**self.volume_a.metadata, **self.volume_b.metadata}
+        self.summary = sdk_fakes.generate_fake_resource(
+            _summary.BlockStorageSummary,
+            total_count=2,
+            total_size=self.volume_a.size + self.volume_b.size,
+            metadata=metadata,
         )
-        self.sdk_client.summary.return_value = block_storage_summary
+        self.volume_sdk_client.summary.return_value = self.summary
 
         new_cols = copy.deepcopy(self.columns)
         new_cols.extend(['Metadata'])
@@ -127,14 +131,14 @@ class TestVolumeSummary(BaseVolumeTest):
 
         columns, data = self.cmd.take_action(parsed_args)
 
-        self.sdk_client.summary.assert_called_once_with(True)
+        self.volume_sdk_client.summary.assert_called_once_with(True)
 
         self.assertEqual(new_cols, columns)
 
         datalist = (
             2,
-            self.mock_vol_1.size + self.mock_vol_2.size,
-            format_columns.DictColumn(combine_meta),
+            self.volume_a.size + self.volume_b.size,
+            format_columns.DictColumn(metadata),
         )
         self.assertCountEqual(datalist, tuple(data))
 
@@ -143,20 +147,23 @@ class TestVolumeRevertToSnapshot(BaseVolumeTest):
     def setUp(self):
         super().setUp()
 
-        self.mock_volume = volume_fakes.create_one_volume()
-        self.mock_snapshot = volume_fakes.create_one_snapshot(
-            attrs={'volume_id': self.mock_volume.id}
+        self.volume = sdk_fakes.generate_fake_resource(_volume.Volume)
+        self.snapshot = sdk_fakes.generate_fake_resource(
+            _snapshot.Snapshot,
+            volume_id=self.volume.id,
         )
+        self.volume_sdk_client.find_volume.return_value = self.volume
+        self.volume_sdk_client.find_snapshot.return_value = self.snapshot
 
         # Get the command object to test
         self.cmd = volume.VolumeRevertToSnapshot(self.app, None)
 
     def test_volume_revert_to_snapshot_pre_340(self):
         arglist = [
-            self.mock_snapshot.id,
+            self.snapshot.id,
         ]
         verifylist = [
-            ('snapshot', self.mock_snapshot.id),
+            ('snapshot', self.snapshot.id),
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
@@ -170,29 +177,24 @@ class TestVolumeRevertToSnapshot(BaseVolumeTest):
     def test_volume_revert_to_snapshot(self):
         self._set_mock_microversion('3.40')
         arglist = [
-            self.mock_snapshot.id,
+            self.snapshot.id,
         ]
         verifylist = [
-            ('snapshot', self.mock_snapshot.id),
+            ('snapshot', self.snapshot.id),
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
-        with mock.patch.object(
-            self.sdk_client, 'find_volume', return_value=self.mock_volume
-        ), mock.patch.object(
-            self.sdk_client, 'find_snapshot', return_value=self.mock_snapshot
-        ):
-            self.cmd.take_action(parsed_args)
+        self.cmd.take_action(parsed_args)
 
-            self.sdk_client.revert_volume_to_snapshot.assert_called_once_with(
-                self.mock_volume,
-                self.mock_snapshot,
-            )
-            self.sdk_client.find_volume.assert_called_with(
-                self.mock_volume.id,
-                ignore_missing=False,
-            )
-            self.sdk_client.find_snapshot.assert_called_with(
-                self.mock_snapshot.id,
-                ignore_missing=False,
-            )
+        self.volume_sdk_client.revert_volume_to_snapshot.assert_called_once_with(
+            self.volume,
+            self.snapshot,
+        )
+        self.volume_sdk_client.find_volume.assert_called_with(
+            self.volume.id,
+            ignore_missing=False,
+        )
+        self.volume_sdk_client.find_snapshot.assert_called_with(
+            self.snapshot.id,
+            ignore_missing=False,
+        )

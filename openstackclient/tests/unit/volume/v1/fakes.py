@@ -61,6 +61,7 @@ class TestVolumev1(utils.TestCommand):
             endpoint=fakes.AUTH_URL,
             token=fakes.AUTH_TOKEN,
         )
+        self.volume_client = self.app.client_manager.volume
 
         self.app.client_manager.identity = identity_fakes.FakeIdentityv2Client(
             endpoint=fakes.AUTH_URL,

@@ -92,14 +92,14 @@ class TestServer(compute_fakes.TestComputev2):
         self.flavors_mock.reset_mock()
 
         # Get a shortcut to the volume client VolumeManager Mock
-        self.volumes_mock = self.app.client_manager.volume.volumes
+        self.volumes_mock = self.volume_client.volumes
         self.volumes_mock.reset_mock()
 
         self.app.client_manager.sdk_connection.volume = mock.Mock()
-        self.sdk_volume_client = self.app.client_manager.sdk_connection.volume
+        self.volume_sdk_client = self.app.client_manager.sdk_connection.volume
 
         # Get a shortcut to the volume client VolumeManager Mock
-        self.snapshots_mock = self.app.client_manager.volume.volume_snapshots
+        self.snapshots_mock = self.volume_client.volume_snapshots
         self.snapshots_mock.reset_mock()
 
         # Set object attributes to be tested. Could be overwritten in subclass.
@@ -162,7 +162,7 @@ class TestServer(compute_fakes.TestComputev2):
         volumes = volume_fakes.create_sdk_volumes(count=count)
 
         # This is the return value for volume_client.find_volume()
-        self.sdk_volume_client.find_volume.side_effect = volumes
+        self.volume_sdk_client.find_volume.side_effect = volumes
 
         return volumes
 

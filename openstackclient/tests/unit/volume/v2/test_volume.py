@@ -32,7 +32,7 @@ class TestVolume(volume_fakes.TestVolume):
     def setUp(self):
         super().setUp()
 
-        self.volumes_mock = self.app.client_manager.volume.volumes
+        self.volumes_mock = self.volume_client.volumes
         self.volumes_mock.reset_mock()
 
         self.projects_mock = self.app.client_manager.identity.projects
@@ -41,18 +41,16 @@ class TestVolume(volume_fakes.TestVolume):
         self.users_mock = self.app.client_manager.identity.users
         self.users_mock.reset_mock()
 
-        self.snapshots_mock = self.app.client_manager.volume.volume_snapshots
+        self.snapshots_mock = self.volume_client.volume_snapshots
         self.snapshots_mock.reset_mock()
 
-        self.backups_mock = self.app.client_manager.volume.backups
+        self.backups_mock = self.volume_client.backups
         self.backups_mock.reset_mock()
 
-        self.types_mock = self.app.client_manager.volume.volume_types
+        self.types_mock = self.volume_client.volume_types
         self.types_mock.reset_mock()
 
-        self.consistencygroups_mock = (
-            self.app.client_manager.volume.consistencygroups
-        )
+        self.consistencygroups_mock = self.volume_client.consistencygroups
         self.consistencygroups_mock.reset_mock()
 
     def setup_volumes_mock(self, count):
@@ -365,9 +363,7 @@ class TestVolumeCreate(TestVolume):
 
         self.backups_mock.get.return_value = backup
 
-        self.app.client_manager.volume.api_version = api_versions.APIVersion(
-            '3.47'
-        )
+        self.volume_client.api_version = api_versions.APIVersion('3.47')
 
         # In base command class ShowOne in cliff, abstract method take_action()
         # returns a two-part tuple with a tuple of column names and a tuple of

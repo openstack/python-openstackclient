@@ -29,11 +29,11 @@ class TestTransfer(volume_fakes.TestVolume):
         super().setUp()
 
         # Get a shortcut to the TransferManager Mock
-        self.transfer_mock = self.app.client_manager.volume.transfers
+        self.transfer_mock = self.volume_client.transfers
         self.transfer_mock.reset_mock()
 
         # Get a shortcut to the VolumeManager Mock
-        self.volumes_mock = self.app.client_manager.volume.volumes
+        self.volumes_mock = self.volume_client.volumes
         self.volumes_mock.reset_mock()
 
 
@@ -177,9 +177,7 @@ class TestTransferCreate(TestTransfer):
         self.assertEqual(self.data, data)
 
     def test_transfer_create_with_no_snapshots(self):
-        self.app.client_manager.volume.api_version = api_versions.APIVersion(
-            '3.55'
-        )
+        self.volume_client.api_version = api_versions.APIVersion('3.55')
 
         arglist = [
             '--no-snapshots',
@@ -201,9 +199,7 @@ class TestTransferCreate(TestTransfer):
         self.assertEqual(self.data, data)
 
     def test_transfer_create_pre_v355(self):
-        self.app.client_manager.volume.api_version = api_versions.APIVersion(
-            '3.54'
-        )
+        self.volume_client.api_version = api_versions.APIVersion('3.54')
 
         arglist = [
             '--no-snapshots',

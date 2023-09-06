@@ -26,13 +26,13 @@ class TestBackup(volume_fakes.TestVolumev1):
     def setUp(self):
         super().setUp()
 
-        self.backups_mock = self.app.client_manager.volume.backups
+        self.backups_mock = self.volume_client.backups
         self.backups_mock.reset_mock()
-        self.volumes_mock = self.app.client_manager.volume.volumes
+        self.volumes_mock = self.volume_client.volumes
         self.volumes_mock.reset_mock()
-        self.snapshots_mock = self.app.client_manager.volume.volume_snapshots
+        self.snapshots_mock = self.volume_client.volume_snapshots
         self.snapshots_mock.reset_mock()
-        self.restores_mock = self.app.client_manager.volume.restores
+        self.restores_mock = self.volume_client.restores
         self.restores_mock.reset_mock()
 
 

@@ -27,11 +27,11 @@ class TestTransfer(volume_fakes.TestVolumev1):
         super().setUp()
 
         # Get a shortcut to the TransferManager Mock
-        self.transfer_mock = self.app.client_manager.volume.transfers
+        self.transfer_mock = self.volume_client.transfers
         self.transfer_mock.reset_mock()
 
         # Get a shortcut to the VolumeManager Mock
-        self.volumes_mock = self.app.client_manager.volume.volumes
+        self.volumes_mock = self.volume_client.volumes
         self.volumes_mock.reset_mock()
 
 

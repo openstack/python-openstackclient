@@ -22,9 +22,7 @@ class TestBlockStorageResourceFilter(volume_fakes.TestVolume):
         super().setUp()
 
         # Get a shortcut to the ResourceFilterManager Mock
-        self.resource_filter_mock = (
-            self.app.client_manager.volume.resource_filters
-        )
+        self.resource_filter_mock = self.volume_client.resource_filters
         self.resource_filter_mock.reset_mock()
 
 
@@ -47,9 +45,7 @@ class TestBlockStorageResourceFilterList(TestBlockStorageResourceFilter):
         )
 
     def test_resource_filter_list(self):
-        self.app.client_manager.volume.api_version = api_versions.APIVersion(
-            '3.33'
-        )
+        self.volume_client.api_version = api_versions.APIVersion('3.33')
 
         arglist = []
         verifylist = []
@@ -72,9 +68,7 @@ class TestBlockStorageResourceFilterList(TestBlockStorageResourceFilter):
         self.resource_filter_mock.list.assert_called_with()
 
     def test_resource_filter_list_pre_v333(self):
-        self.app.client_manager.volume.api_version = api_versions.APIVersion(
-            '3.32'
-        )
+        self.volume_client.api_version = api_versions.APIVersion('3.32')
 
         arglist = []
         verifylist = []
@@ -107,9 +101,7 @@ class TestBlockStorageResourceFilterShow(TestBlockStorageResourceFilter):
         )
 
     def test_resource_filter_show(self):
-        self.app.client_manager.volume.api_version = api_versions.APIVersion(
-            '3.33'
-        )
+        self.volume_client.api_version = api_versions.APIVersion('3.33')
 
         arglist = [
             self.fake_resource_filter.resource,
@@ -133,9 +125,7 @@ class TestBlockStorageResourceFilterShow(TestBlockStorageResourceFilter):
         self.resource_filter_mock.list.assert_called_with(resource='volume')
 
     def test_resource_filter_show_pre_v333(self):
-        self.app.client_manager.volume.api_version = api_versions.APIVersion(
-            '3.32'
-        )
+        self.volume_client.api_version = api_versions.APIVersion('3.32')
 
         arglist = [
             self.fake_resource_filter.resource,

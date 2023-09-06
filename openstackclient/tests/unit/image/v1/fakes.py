@@ -39,6 +39,7 @@ class TestImagev1(FakeClientMixin, utils.TestCommand):
             endpoint=fakes.AUTH_URL,
             token=fakes.AUTH_TOKEN,
         )
+        self.volume_client = self.app.client_manager.volume
 
 
 def create_one_image(attrs=None):

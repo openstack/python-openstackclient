@@ -21,12 +21,10 @@ class TestVolumeGroupSnapshot(volume_fakes.TestVolume):
     def setUp(self):
         super().setUp()
 
-        self.volume_groups_mock = self.app.client_manager.volume.groups
+        self.volume_groups_mock = self.volume_client.groups
         self.volume_groups_mock.reset_mock()
 
-        self.volume_group_snapshots_mock = (
-            self.app.client_manager.volume.group_snapshots
-        )
+        self.volume_group_snapshots_mock = self.volume_client.group_snapshots
         self.volume_group_snapshots_mock.reset_mock()
 
 
@@ -69,9 +67,7 @@ class TestVolumeGroupSnapshotCreate(TestVolumeGroupSnapshot):
         )
 
     def test_volume_group_snapshot_create(self):
-        self.app.client_manager.volume.api_version = api_versions.APIVersion(
-            '3.14'
-        )
+        self.volume_client.api_version = api_versions.APIVersion('3.14')
 
         arglist = [
             self.fake_volume_group.id,
@@ -97,9 +93,7 @@ class TestVolumeGroupSnapshotCreate(TestVolumeGroupSnapshot):
         self.assertCountEqual(self.data, data)
 
     def test_volume_group_snapshot_create_with_options(self):
-        self.app.client_manager.volume.api_version = api_versions.APIVersion(
-            '3.14'
-        )
+        self.volume_client.api_version = api_versions.APIVersion('3.14')
 
         arglist = [
             self.fake_volume_group.id,
@@ -129,9 +123,7 @@ class TestVolumeGroupSnapshotCreate(TestVolumeGroupSnapshot):
         self.assertCountEqual(self.data, data)
 
     def test_volume_group_snapshot_create_pre_v314(self):
-        self.app.client_manager.volume.api_version = api_versions.APIVersion(
-            '3.13'
-        )
+        self.volume_client.api_version = api_versions.APIVersion('3.13')
 
         arglist = [
             self.fake_volume_group.id,
@@ -169,9 +161,7 @@ class TestVolumeGroupSnapshotDelete(TestVolumeGroupSnapshot):
         )
 
     def test_volume_group_snapshot_delete(self):
-        self.app.client_manager.volume.api_version = api_versions.APIVersion(
-            '3.14'
-        )
+        self.volume_client.api_version = api_versions.APIVersion('3.14')
 
         arglist = [
             self.fake_volume_group_snapshot.id,
@@ -189,9 +179,7 @@ class TestVolumeGroupSnapshotDelete(TestVolumeGroupSnapshot):
         self.assertIsNone(result)
 
     def test_volume_group_snapshot_delete_pre_v314(self):
-        self.app.client_manager.volume.api_version = api_versions.APIVersion(
-            '3.13'
-        )
+        self.volume_client.api_version = api_versions.APIVersion('3.13')
 
         arglist = [
             self.fake_volume_group_snapshot.id,
@@ -238,9 +226,7 @@ class TestVolumeGroupSnapshotList(TestVolumeGroupSnapshot):
         )
 
     def test_volume_group_snapshot_list(self):
-        self.app.client_manager.volume.api_version = api_versions.APIVersion(
-            '3.14'
-        )
+        self.volume_client.api_version = api_versions.APIVersion('3.14')
 
         arglist = [
             '--all-projects',
@@ -261,9 +247,7 @@ class TestVolumeGroupSnapshotList(TestVolumeGroupSnapshot):
         self.assertCountEqual(tuple(self.data), data)
 
     def test_volume_group_snapshot_list_pre_v314(self):
-        self.app.client_manager.volume.api_version = api_versions.APIVersion(
-            '3.13'
-        )
+        self.volume_client.api_version = api_versions.APIVersion('3.13')
 
         arglist = []
         verifylist = [
