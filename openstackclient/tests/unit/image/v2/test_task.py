@@ -16,15 +16,7 @@ from openstackclient.image.v2 import task
 from openstackclient.tests.unit.image.v2 import fakes as image_fakes
 
 
-class TestTask(image_fakes.TestImagev2):
-    def setUp(self):
-        super().setUp()
-
-        # Get shortcuts to mocked image client
-        self.client = self.app.client_manager.image
-
-
-class TestTaskShow(TestTask):
+class TestTaskShow(image_fakes.TestImagev2):
     task = image_fakes.create_one_task()
 
     columns = (
@@ -57,7 +49,7 @@ class TestTaskShow(TestTask):
     def setUp(self):
         super().setUp()
 
-        self.client.get_task.return_value = self.task
+        self.image_client.get_task.return_value = self.task
 
         # Get the command object to test
         self.cmd = task.ShowTask(self.app, None)
@@ -73,13 +65,13 @@ class TestTaskShow(TestTask):
         # returns a two-part tuple with a tuple of column names and a tuple of
         # data to be shown.
         columns, data = self.cmd.take_action(parsed_args)
-        self.client.get_task.assert_called_with(self.task.id)
+        self.image_client.get_task.assert_called_with(self.task.id)
 
         self.assertEqual(self.columns, columns)
         self.assertCountEqual(self.data, data)
 
 
-class TestTaskList(TestTask):
+class TestTaskList(image_fakes.TestImagev2):
     tasks = image_fakes.create_tasks()
 
     columns = (
@@ -101,7 +93,7 @@ class TestTaskList(TestTask):
     def setUp(self):
         super().setUp()
 
-        self.client.tasks.side_effect = [self.tasks, []]
+        self.image_client.tasks.side_effect = [self.tasks, []]
 
         # Get the command object to test
         self.cmd = task.ListTask(self.app, None)
@@ -120,7 +112,7 @@ class TestTaskList(TestTask):
 
         columns, data = self.cmd.take_action(parsed_args)
 
-        self.client.tasks.assert_called_with()
+        self.image_client.tasks.assert_called_with()
 
         self.assertEqual(self.columns, columns)
         self.assertCountEqual(self.datalist, data)
@@ -132,7 +124,7 @@ class TestTaskList(TestTask):
 
         columns, data = self.cmd.take_action(parsed_args)
 
-        self.client.tasks.assert_called_with(
+        self.image_client.tasks.assert_called_with(
             sort_key=parsed_args.sort_key,
         )
 
@@ -146,7 +138,7 @@ class TestTaskList(TestTask):
 
         self.cmd.take_action(parsed_args)
 
-        self.client.tasks.assert_called_with(
+        self.image_client.tasks.assert_called_with(
             sort_dir=parsed_args.sort_dir,
         )
 
@@ -157,7 +149,7 @@ class TestTaskList(TestTask):
 
         self.cmd.take_action(parsed_args)
 
-        self.client.tasks.assert_called_with(
+        self.image_client.tasks.assert_called_with(
             limit=parsed_args.limit,
             marker=parsed_args.marker,
         )
@@ -169,7 +161,7 @@ class TestTaskList(TestTask):
 
         self.cmd.take_action(parsed_args)
 
-        self.client.tasks.assert_called_with(
+        self.image_client.tasks.assert_called_with(
             type=self.tasks[0].type,
         )
 
@@ -180,6 +172,6 @@ class TestTaskList(TestTask):
 
         self.cmd.take_action(parsed_args)
 
-        self.client.tasks.assert_called_with(
+        self.image_client.tasks.assert_called_with(
             status=self.tasks[0].status,
         )

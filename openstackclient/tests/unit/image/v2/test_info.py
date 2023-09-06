@@ -14,24 +14,16 @@
 # under the License.
 
 from openstackclient.image.v2 import info
-from openstackclient.tests.unit.image.v2 import fakes as info_fakes
+from openstackclient.tests.unit.image.v2 import fakes as image_fakes
 
 
-class TestInfo(info_fakes.TestImagev2):
-    def setUp(self):
-        super().setUp()
-
-        # Get shortcuts to mocked image client
-        self.client = self.app.client_manager.image
-
-
-class TestImportInfo(TestInfo):
-    import_info = info_fakes.create_one_import_info()
+class TestImportInfo(image_fakes.TestImagev2):
+    import_info = image_fakes.create_one_import_info()
 
     def setUp(self):
         super().setUp()
 
-        self.client.get_import_info.return_value = self.import_info
+        self.image_client.get_import_info.return_value = self.import_info
 
         self.cmd = info.ImportInfo(self.app, None)
 
@@ -40,4 +32,4 @@ class TestImportInfo(TestInfo):
         parsed_args = self.check_parser(self.cmd, arglist, [])
         self.cmd.take_action(parsed_args)
 
-        self.client.get_import_info.assert_called()
+        self.image_client.get_import_info.assert_called()

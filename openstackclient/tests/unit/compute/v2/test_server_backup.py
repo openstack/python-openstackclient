@@ -31,10 +31,6 @@ class TestServerBackup(compute_fakes.TestComputev2):
         self.app.client_manager.sdk_connection.compute = mock.Mock()
         self.sdk_client = self.app.client_manager.sdk_connection.compute
 
-        # Get a shortcut to the image client ImageManager Mock
-        self.images_mock = self.app.client_manager.image
-        self.images_mock.find_image.reset_mock()
-
         # Set object attributes to be tested. Could be overwritten in subclass.
         self.attrs = {}
 
@@ -102,8 +98,7 @@ class TestServerBackupCreate(TestServerBackup):
                 count=count,
             )
 
-        # self.images_mock.get = mock.Mock(side_effect=images)
-        self.images_mock.find_image = mock.Mock(side_effect=images)
+        self.image_client.find_image = mock.Mock(side_effect=images)
         return images
 
     def test_server_backup_defaults(self):
@@ -177,7 +172,7 @@ class TestServerBackupCreate(TestServerBackup):
     def test_server_backup_wait_fail(self, mock_wait_for_status):
         servers = self.setup_servers_mock(count=1)
         images = self.setup_images_mock(count=1, servers=servers)
-        self.images_mock.get_image = mock.Mock(
+        self.image_client.get_image = mock.Mock(
             side_effect=images[0],
         )
 
@@ -211,7 +206,7 @@ class TestServerBackupCreate(TestServerBackup):
         )
 
         mock_wait_for_status.assert_called_once_with(
-            self.images_mock.get_image, images[0].id, callback=mock.ANY
+            self.image_client.get_image, images[0].id, callback=mock.ANY
         )
 
     @mock.patch.object(common_utils, 'wait_for_status', return_value=True)
@@ -219,7 +214,7 @@ class TestServerBackupCreate(TestServerBackup):
         servers = self.setup_servers_mock(count=1)
         images = self.setup_images_mock(count=1, servers=servers)
 
-        self.images_mock.get_image = mock.Mock(
+        self.image_client.get_image = mock.Mock(
             side_effect=images[0],
         )
 
@@ -252,7 +247,7 @@ class TestServerBackupCreate(TestServerBackup):
         )
 
         mock_wait_for_status.assert_called_once_with(
-            self.images_mock.get_image, images[0].id, callback=mock.ANY
+            self.image_client.get_image, images[0].id, callback=mock.ANY
         )
 
         self.assertEqual(self.image_columns(images[0]), columns)

@@ -11,18 +11,11 @@
 #   under the License.
 
 from openstackclient.image.v2 import metadef_resource_types
-from openstackclient.tests.unit.image.v2 import fakes as resource_type_fakes
+from openstackclient.tests.unit.image.v2 import fakes as image_fakes
 
 
-class TestMetadefResourceTypes(resource_type_fakes.TestImagev2):
-    def setUp(self):
-        super().setUp()
-
-        self.client = self.app.client_manager.image
-
-
-class TestMetadefResourceTypeList(TestMetadefResourceTypes):
-    resource_types = resource_type_fakes.create_resource_types()
+class TestMetadefResourceTypeList(image_fakes.TestImagev2):
+    resource_types = image_fakes.create_resource_types()
 
     columns = ['Name']
 
@@ -31,7 +24,7 @@ class TestMetadefResourceTypeList(TestMetadefResourceTypes):
     def setUp(self):
         super().setUp()
 
-        self.client.metadef_resource_types.side_effect = [
+        self.image_client.metadef_resource_types.side_effect = [
             self.resource_types,
             [],
         ]

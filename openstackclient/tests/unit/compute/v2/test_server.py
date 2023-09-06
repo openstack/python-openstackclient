@@ -92,16 +92,6 @@ class TestServer(compute_fakes.TestComputev2):
         self.flavors_mock = self.app.client_manager.compute.flavors
         self.flavors_mock.reset_mock()
 
-        # Get a shortcut to the image client ImageManager Mock
-        self.images_mock = self.app.client_manager.image.images
-        self.images_mock.reset_mock()
-
-        self.find_image_mock = self.app.client_manager.image.find_image
-        self.find_image_mock.reset_mock()
-
-        self.get_image_mock = self.app.client_manager.image.get_image
-        self.get_image_mock.reset_mock()
-
         # Get a shortcut to the volume client VolumeManager Mock
         self.volumes_mock = self.app.client_manager.volume.volumes
         self.volumes_mock.reset_mock()
@@ -1375,8 +1365,8 @@ class TestServerCreate(TestServer):
         self.servers_mock.create.return_value = self.new_server
 
         self.image = image_fakes.create_one_image()
-        self.find_image_mock.return_value = self.image
-        self.get_image_mock.return_value = self.image
+        self.image_client.find_image.return_value = self.image
+        self.image_client.get_image.return_value = self.image
 
         self.flavor = compute_fakes.create_one_flavor()
         self.flavors_mock.get.return_value = self.flavor
@@ -1452,7 +1442,7 @@ class TestServerCreate(TestServer):
 
         self.assertEqual(self.columns, columns)
         self.assertEqual(self.datalist(), data)
-        self.assertFalse(self.images_mock.called)
+        self.assertFalse(self.image_client.images.called)
         self.assertFalse(self.flavors_mock.called)
 
     def test_server_create_with_options(self):
@@ -3444,7 +3434,7 @@ class TestServerCreate(TestServer):
         }
 
         _image = image_fakes.create_one_image(image_info)
-        self.images_mock.return_value = [_image]
+        self.image_client.images.return_value = [_image]
 
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
@@ -3500,7 +3490,7 @@ class TestServerCreate(TestServer):
             'hw_disk_bus': 'ide',
         }
         _image = image_fakes.create_one_image(image_info)
-        self.images_mock.return_value = [_image]
+        self.image_client.images.return_value = [_image]
 
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
@@ -3557,7 +3547,7 @@ class TestServerCreate(TestServer):
         }
 
         _image = image_fakes.create_one_image(image_info)
-        self.images_mock.return_value = [_image]
+        self.image_client.images.return_value = [_image]
 
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
@@ -3589,7 +3579,7 @@ class TestServerCreate(TestServer):
 
         target_image = image_fakes.create_one_image(image_info)
         another_image = image_fakes.create_one_image({})
-        self.images_mock.return_value = [target_image, another_image]
+        self.image_client.images.return_value = [target_image, another_image]
 
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
@@ -3893,7 +3883,7 @@ class TestServerCreate(TestServer):
 
         self.assertEqual(self.columns, columns)
         self.assertEqual(self.datalist(), data)
-        self.assertFalse(self.images_mock.called)
+        self.assertFalse(self.image_client.images.called)
         self.assertFalse(self.flavors_mock.called)
 
     def test_server_create_with_description_api_older(self):
@@ -3975,7 +3965,7 @@ class TestServerCreate(TestServer):
 
         self.assertEqual(self.columns, columns)
         self.assertEqual(self.datalist(), data)
-        self.assertFalse(self.images_mock.called)
+        self.assertFalse(self.image_client.images.called)
         self.assertFalse(self.flavors_mock.called)
 
     def test_server_create_with_tag_pre_v252(self):
@@ -4063,7 +4053,7 @@ class TestServerCreate(TestServer):
 
         self.assertEqual(self.columns, columns)
         self.assertEqual(self.datalist(), data)
-        self.assertFalse(self.images_mock.called)
+        self.assertFalse(self.image_client.images.called)
         self.assertFalse(self.flavors_mock.called)
 
     def test_server_create_with_host_pre_v274(self):
@@ -4147,7 +4137,7 @@ class TestServerCreate(TestServer):
 
         self.assertEqual(self.columns, columns)
         self.assertEqual(self.datalist(), data)
-        self.assertFalse(self.images_mock.called)
+        self.assertFalse(self.image_client.images.called)
         self.assertFalse(self.flavors_mock.called)
 
     def test_server_create_with_hypervisor_hostname_pre_v274(self):
@@ -4235,7 +4225,7 @@ class TestServerCreate(TestServer):
 
         self.assertEqual(self.columns, columns)
         self.assertEqual(self.datalist(), data)
-        self.assertFalse(self.images_mock.called)
+        self.assertFalse(self.image_client.images.called)
         self.assertFalse(self.flavors_mock.called)
 
     def test_server_create_with_hostname_v290(self):
@@ -4286,7 +4276,7 @@ class TestServerCreate(TestServer):
 
         self.assertEqual(self.columns, columns)
         self.assertEqual(self.datalist(), data)
-        self.assertFalse(self.images_mock.called)
+        self.assertFalse(self.image_client.images.called)
         self.assertFalse(self.flavors_mock.called)
 
     def test_server_create_with_hostname_pre_v290(self):
@@ -4366,7 +4356,7 @@ class TestServerCreate(TestServer):
         )
         self.assertEqual(self.columns, columns)
         self.assertEqual(self.datalist(), data)
-        self.assertFalse(self.images_mock.called)
+        self.assertFalse(self.image_client.images.called)
         self.assertFalse(self.flavors_mock.called)
 
     def test_server_create_with_trusted_image_cert_prev263(self):
@@ -4714,9 +4704,8 @@ class _TestServerList(TestServer):
 
         self.image = image_fakes.create_one_image()
 
-        # self.images_mock.return_value = [self.image]
-        self.find_image_mock.return_value = self.image
-        self.get_image_mock.return_value = self.image
+        self.image_client.find_image.return_value = self.image
+        self.image_client.get_image.return_value = self.image
 
         self.flavor = compute_fakes.create_one_flavor()
         self.sdk_client.find_flavor.return_value = self.flavor
@@ -4735,7 +4724,7 @@ class TestServerList(_TestServerList):
         super(TestServerList, self).setUp()
 
         Image = collections.namedtuple('Image', 'id name')
-        self.images_mock.return_value = [
+        self.image_client.images.return_value = [
             Image(id=s.image['id'], name=self.image.name)
             # Image will be an empty string if boot-from-volume
             for s in self.servers
@@ -4774,11 +4763,11 @@ class TestServerList(_TestServerList):
         columns, data = self.cmd.take_action(parsed_args)
 
         self.sdk_client.servers.assert_called_with(**self.kwargs)
-        self.images_mock.assert_called()
+        self.image_client.images.assert_called()
         self.sdk_client.flavors.assert_called()
         # we did not pass image or flavor, so gets on those must be absent
         self.assertFalse(self.flavors_mock.get.call_count)
-        self.assertFalse(self.get_image_mock.call_count)
+        self.assertFalse(self.image_client.get_image.call_count)
         self.assertEqual(self.columns, columns)
         self.assertEqual(self.data, tuple(data))
 
@@ -4796,7 +4785,7 @@ class TestServerList(_TestServerList):
         columns, data = self.cmd.take_action(parsed_args)
 
         self.sdk_client.servers.assert_called_with(**self.kwargs)
-        self.images_mock.assert_not_called()
+        self.image_client.images.assert_not_called()
         self.sdk_client.flavors.assert_not_called()
         self.assertEqual(self.columns, columns)
         self.assertEqual(self.data, tuple(data))
@@ -4833,7 +4822,7 @@ class TestServerList(_TestServerList):
         columns, data = self.cmd.take_action(parsed_args)
         self.sdk_client.servers.assert_called_with(**self.kwargs)
         image_ids = {s.image['id'] for s in self.servers if s.image}
-        self.images_mock.assert_called_once_with(
+        self.image_client.images.assert_called_once_with(
             id=f'in:{",".join(image_ids)}',
         )
         self.sdk_client.flavors.assert_called_once_with(is_public=None)
@@ -4913,7 +4902,7 @@ class TestServerList(_TestServerList):
         columns, data = self.cmd.take_action(parsed_args)
 
         self.sdk_client.servers.assert_called_with(**self.kwargs)
-        self.images_mock.assert_not_called()
+        self.image_client.images.assert_not_called()
         self.sdk_client.flavors.assert_not_called()
         self.assertEqual(self.columns, columns)
         self.assertEqual(self.data, tuple(data))
@@ -4944,7 +4933,7 @@ class TestServerList(_TestServerList):
         columns, data = self.cmd.take_action(parsed_args)
 
         self.sdk_client.servers.assert_called_with(**self.kwargs)
-        self.images_mock.assert_not_called()
+        self.image_client.images.assert_not_called()
         self.sdk_client.flavors.assert_not_called()
         self.assertEqual(self.columns, columns)
         self.assertEqual(self.data, tuple(data))
@@ -4961,9 +4950,9 @@ class TestServerList(_TestServerList):
         columns, data = self.cmd.take_action(parsed_args)
 
         self.sdk_client.servers.assert_called_with(**self.kwargs)
-        self.images_mock.assert_not_called()
+        self.image_client.images.assert_not_called()
         self.sdk_client.flavors.assert_not_called()
-        self.get_image_mock.assert_called()
+        self.image_client.get_image.assert_called()
         self.sdk_client.find_flavor.assert_called()
 
         self.assertEqual(self.columns, columns)
@@ -4976,13 +4965,13 @@ class TestServerList(_TestServerList):
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
         columns, data = self.cmd.take_action(parsed_args)
 
-        self.find_image_mock.assert_called_with(
+        self.image_client.find_image.assert_called_with(
             self.image.id, ignore_missing=False
         )
 
         self.kwargs['image'] = self.image.id
         self.sdk_client.servers.assert_called_with(**self.kwargs)
-        self.images_mock.assert_not_called()
+        self.image_client.images.assert_not_called()
         self.sdk_client.flavors.assert_called_once()
 
         self.assertEqual(self.columns, columns)
@@ -5001,7 +4990,7 @@ class TestServerList(_TestServerList):
 
         self.kwargs['flavor'] = self.flavor.id
         self.sdk_client.servers.assert_called_with(**self.kwargs)
-        self.images_mock.assert_called_once()
+        self.image_client.images.assert_called_once()
         self.sdk_client.flavors.assert_not_called()
 
         self.assertEqual(self.columns, columns)
@@ -5326,7 +5315,7 @@ class TestServerList(_TestServerList):
 
         # Make sure the returned image and flavor IDs match the servers.
         Image = collections.namedtuple('Image', 'id name')
-        self.images_mock.return_value = [
+        self.image_client.images.return_value = [
             Image(id=s.image['id'], name=self.image.name)
             # Image will be an empty string if boot-from-volume
             for s in servers
@@ -5409,7 +5398,7 @@ class TestServerListV273(_TestServerList):
         self.sdk_client.servers.return_value = self.servers
 
         Image = collections.namedtuple('Image', 'id name')
-        self.images_mock.return_value = [
+        self.image_client.images.return_value = [
             Image(id=s.image['id'], name=self.image.name)
             # Image will be an empty string if boot-from-volume
             for s in self.servers
@@ -6172,7 +6161,7 @@ class TestServerRebuild(TestServer):
 
         # Return value for utils.find_resource for image
         self.image = image_fakes.create_one_image()
-        self.get_image_mock.return_value = self.image
+        self.image_client.get_image.return_value = self.image
 
         # Fake the rebuilt new server.
         attrs = {
@@ -6200,7 +6189,7 @@ class TestServerRebuild(TestServer):
     def test_rebuild_with_image_name(self):
         image_name = 'my-custom-image'
         user_image = image_fakes.create_one_image(attrs={'name': image_name})
-        self.find_image_mock.return_value = user_image
+        self.image_client.find_image.return_value = user_image
 
         attrs = {
             'image': {'id': user_image.id},
@@ -6218,10 +6207,10 @@ class TestServerRebuild(TestServer):
         self.cmd.take_action(parsed_args)
 
         self.servers_mock.get.assert_called_with(self.server.id)
-        self.find_image_mock.assert_called_with(
+        self.image_client.find_image.assert_called_with(
             image_name, ignore_missing=False
         )
-        self.get_image_mock.assert_called_with(user_image.id)
+        self.image_client.get_image.assert_called_with(user_image.id)
         self.server.rebuild.assert_called_with(user_image, None)
 
     def test_rebuild_with_current_image(self):
@@ -6235,8 +6224,8 @@ class TestServerRebuild(TestServer):
         self.cmd.take_action(parsed_args)
 
         self.servers_mock.get.assert_called_with(self.server.id)
-        self.find_image_mock.assert_not_called()
-        self.get_image_mock.assert_called_with(self.image.id)
+        self.image_client.find_image.assert_not_called()
+        self.image_client.get_image.assert_called_with(self.image.id)
         self.server.rebuild.assert_called_with(self.image, None)
 
     def test_rebuild_with_volume_backed_server_no_image(self):
@@ -6274,7 +6263,7 @@ class TestServerRebuild(TestServer):
         self.cmd.take_action(parsed_args)
 
         self.servers_mock.get.assert_called_with(self.server.id)
-        self.get_image_mock.assert_called_with(self.image.id)
+        self.image_client.get_image.assert_called_with(self.image.id)
         self.server.rebuild.assert_called_with(self.image, None, name=name)
 
     def test_rebuild_with_preserve_ephemeral(self):
@@ -6292,7 +6281,7 @@ class TestServerRebuild(TestServer):
         self.cmd.take_action(parsed_args)
 
         self.servers_mock.get.assert_called_with(self.server.id)
-        self.get_image_mock.assert_called_with(self.image.id)
+        self.image_client.get_image.assert_called_with(self.image.id)
         self.server.rebuild.assert_called_with(
             self.image, None, preserve_ephemeral=True
         )
@@ -6312,7 +6301,7 @@ class TestServerRebuild(TestServer):
         self.cmd.take_action(parsed_args)
 
         self.servers_mock.get.assert_called_with(self.server.id)
-        self.get_image_mock.assert_called_with(self.image.id)
+        self.image_client.get_image.assert_called_with(self.image.id)
         self.server.rebuild.assert_called_with(
             self.image, None, preserve_ephemeral=False
         )
@@ -6327,7 +6316,7 @@ class TestServerRebuild(TestServer):
         self.cmd.take_action(parsed_args)
 
         self.servers_mock.get.assert_called_with(self.server.id)
-        self.get_image_mock.assert_called_with(self.image.id)
+        self.image_client.get_image.assert_called_with(self.image.id)
         self.server.rebuild.assert_called_with(self.image, password)
 
     def test_rebuild_with_description(self):
@@ -6343,7 +6332,7 @@ class TestServerRebuild(TestServer):
         self.cmd.take_action(parsed_args)
 
         self.servers_mock.get.assert_called_with(self.server.id)
-        self.get_image_mock.assert_called_with(self.image.id)
+        self.image_client.get_image.assert_called_with(self.image.id)
         self.server.rebuild.assert_called_with(
             self.image, None, description=description
         )
@@ -6388,7 +6377,7 @@ class TestServerRebuild(TestServer):
         )
 
         self.servers_mock.get.assert_called_with(self.server.id)
-        self.get_image_mock.assert_called_with(self.image.id)
+        self.image_client.get_image.assert_called_with(self.image.id)
         self.server.rebuild.assert_called_with(self.image, None)
 
     @mock.patch.object(common_utils, 'wait_for_status', return_value=False)
@@ -6413,7 +6402,7 @@ class TestServerRebuild(TestServer):
         )
 
         self.servers_mock.get.assert_called_with(self.server.id)
-        self.get_image_mock.assert_called_with(self.image.id)
+        self.image_client.get_image.assert_called_with(self.image.id)
         self.server.rebuild.assert_called_with(self.image, None)
 
     @mock.patch.object(common_utils, 'wait_for_status', return_value=True)
@@ -6443,7 +6432,7 @@ class TestServerRebuild(TestServer):
         )
 
         self.servers_mock.get.assert_called_with(self.server.id)
-        self.get_image_mock.assert_called_with(self.image.id)
+        self.image_client.get_image.assert_called_with(self.image.id)
         self.server.rebuild.assert_called_with(self.image, None)
 
     @mock.patch.object(common_utils, 'wait_for_status', return_value=True)
@@ -6473,7 +6462,7 @@ class TestServerRebuild(TestServer):
         )
 
         self.servers_mock.get.assert_called_with(self.server.id)
-        self.get_image_mock.assert_called_with(self.image.id)
+        self.image_client.get_image.assert_called_with(self.image.id)
         self.server.rebuild.assert_called_with(self.image, None)
 
     def test_rebuild_wrong_status_fails(self):
@@ -6491,7 +6480,7 @@ class TestServerRebuild(TestServer):
         )
 
         self.servers_mock.get.assert_called_with(self.server.id)
-        self.get_image_mock.assert_called_with(self.image.id)
+        self.image_client.get_image.assert_called_with(self.image.id)
         self.server.rebuild.assert_not_called()
 
     def test_rebuild_with_property(self):
@@ -6513,7 +6502,7 @@ class TestServerRebuild(TestServer):
         self.cmd.take_action(parsed_args)
 
         self.servers_mock.get.assert_called_with(self.server.id)
-        self.get_image_mock.assert_called_with(self.image.id)
+        self.image_client.get_image.assert_called_with(self.image.id)
         self.server.rebuild.assert_called_with(
             self.image, None, meta=expected_properties
         )
@@ -6538,7 +6527,7 @@ class TestServerRebuild(TestServer):
         self.cmd.take_action(parsed_args)
 
         self.servers_mock.get.assert_called_with(self.server.id)
-        self.get_image_mock.assert_called_with(self.image.id)
+        self.image_client.get_image.assert_called_with(self.image.id)
         self.server.rebuild.assert_called_with(
             self.image, None, key_name=self.server.key_name
         )
@@ -6581,7 +6570,7 @@ class TestServerRebuild(TestServer):
 
         self.cmd.take_action(parsed_args)
         self.servers_mock.get.assert_called_with(self.server.id)
-        self.get_image_mock.assert_called_with(self.image.id)
+        self.image_client.get_image.assert_called_with(self.image.id)
         self.server.rebuild.assert_called_with(self.image, None, key_name=None)
 
     def test_rebuild_with_keypair_name_and_unset(self):
@@ -6634,7 +6623,7 @@ class TestServerRebuild(TestServer):
         mock_file.close.assert_called_with()
 
         self.servers_mock.get.assert_called_with(self.server.id)
-        self.get_image_mock.assert_called_with(self.image.id)
+        self.image_client.get_image.assert_called_with(self.image.id)
         self.server.rebuild.assert_called_with(
             self.image,
             None,
@@ -6679,7 +6668,7 @@ class TestServerRebuild(TestServer):
 
         self.cmd.take_action(parsed_args)
         self.servers_mock.get.assert_called_with(self.server.id)
-        self.get_image_mock.assert_called_with(self.image.id)
+        self.image_client.get_image.assert_called_with(self.image.id)
         self.server.rebuild.assert_called_with(self.image, None, userdata=None)
 
     def test_rebuild_with_no_user_data_pre_v254(self):
@@ -6733,7 +6722,7 @@ class TestServerRebuild(TestServer):
         self.cmd.take_action(parsed_args)
 
         self.servers_mock.get.assert_called_with(self.server.id)
-        self.get_image_mock.assert_called_with(self.image.id)
+        self.image_client.get_image.assert_called_with(self.image.id)
         self.server.rebuild.assert_called_with(
             self.image, None, trusted_image_certificates=['foo', 'bar']
         )
@@ -6777,7 +6766,7 @@ class TestServerRebuild(TestServer):
 
         self.cmd.take_action(parsed_args)
         self.servers_mock.get.assert_called_with(self.server.id)
-        self.get_image_mock.assert_called_with(self.image.id)
+        self.image_client.get_image.assert_called_with(self.image.id)
         self.server.rebuild.assert_called_with(
             self.image, None, trusted_image_certificates=None
         )
@@ -6813,7 +6802,7 @@ class TestServerRebuild(TestServer):
         self.cmd.take_action(parsed_args)
 
         self.servers_mock.get.assert_called_with(self.server.id)
-        self.get_image_mock.assert_called_with(self.image.id)
+        self.image_client.get_image.assert_called_with(self.image.id)
         self.server.rebuild.assert_called_with(
             self.image, None, hostname='new-hostname'
         )
@@ -6841,7 +6830,7 @@ class TestServerRebuildVolumeBacked(TestServer):
         super().setUp()
 
         self.new_image = image_fakes.create_one_image()
-        self.find_image_mock.return_value = self.new_image
+        self.image_client.find_image.return_value = self.new_image
 
         attrs = {
             'image': '',
@@ -6939,9 +6928,10 @@ class TestServerRebuildVolumeBacked(TestServer):
 class TestEvacuateServer(TestServer):
     def setUp(self):
         super(TestEvacuateServer, self).setUp()
+
         # Return value for utils.find_resource for image
         self.image = image_fakes.create_one_image()
-        self.images_mock.get.return_value = self.image
+        self.image_client.get_image.return_value = self.image
 
         # Fake the rebuilt new server.
         attrs = {
@@ -7137,7 +7127,7 @@ class TestServerRescue(TestServer):
 
         # Return value for utils.find_resource for image
         self.image = image_fakes.create_one_image()
-        self.get_image_mock.return_value = self.image
+        self.image_client.get_image.return_value = self.image
 
         new_server = compute_fakes.create_one_server()
         attrs = {
@@ -7178,7 +7168,7 @@ class TestServerRescue(TestServer):
 
     def test_rescue_with_new_image(self):
         new_image = image_fakes.create_one_image()
-        self.find_image_mock.return_value = new_image
+        self.image_client.find_image.return_value = new_image
         arglist = [
             '--image',
             new_image.id,
@@ -7194,7 +7184,7 @@ class TestServerRescue(TestServer):
         self.cmd.take_action(parsed_args)
 
         self.servers_mock.get.assert_called_with(self.server.id)
-        self.find_image_mock.assert_called_with(new_image.id)
+        self.image_client.find_image.assert_called_with(new_image.id)
         self.server.rescue.assert_called_with(image=new_image, password=None)
 
     def test_rescue_with_current_image_and_password(self):
@@ -8278,7 +8268,7 @@ class TestServerShow(TestServer):
 
         # This is the return value for utils.find_resource()
         self.sdk_client.get_server.return_value = self.server
-        self.get_image_mock.return_value = self.image
+        self.image_client.get_image.return_value = self.image
         self.flavors_mock.get.return_value = self.flavor
 
         # Get the command object to test
@@ -9119,7 +9109,7 @@ class TestServerGeneral(TestServer):
         }
         _server = compute_fakes.create_one_server(attrs=server_info)
         find_resource.side_effect = [_server, _flavor]
-        self.get_image_mock.return_value = _image
+        self.image_client.get_image.return_value = _image
 
         # Prepare result data.
         info = {
@@ -9139,7 +9129,7 @@ class TestServerGeneral(TestServer):
         # Call _prep_server_detail().
         server_detail = server._prep_server_detail(
             self.app.client_manager.compute,
-            self.app.client_manager.image,
+            self.image_client,
             _server,
         )
         # 'networks' is used to create _server. Remove it.

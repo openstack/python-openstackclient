@@ -27,13 +27,12 @@ class TestImagev1(utils.TestCommand):
         super().setUp()
 
         self.app.client_manager.image = mock.Mock()
+        self.image_client = self.app.client_manager.image
 
         self.app.client_manager.volume = volume_fakes.FakeVolumev1Client(
             endpoint=fakes.AUTH_URL,
             token=fakes.AUTH_TOKEN,
         )
-
-        self.client = self.app.client_manager.image
 
 
 def create_one_image(attrs=None):
