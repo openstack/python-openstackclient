@@ -15,6 +15,7 @@
 from unittest import mock
 import uuid
 
+from openstack.image.v1 import _proxy
 from openstack.image.v1 import image
 
 from openstackclient.tests.unit import fakes
@@ -22,12 +23,17 @@ from openstackclient.tests.unit import utils
 from openstackclient.tests.unit.volume.v1 import fakes as volume_fakes
 
 
-class TestImagev1(utils.TestCommand):
+class FakeClientMixin:
     def setUp(self):
         super().setUp()
 
-        self.app.client_manager.image = mock.Mock()
+        self.app.client_manager.image = mock.Mock(spec=_proxy.Proxy)
         self.image_client = self.app.client_manager.image
+
+
+class TestImagev1(FakeClientMixin, utils.TestCommand):
+    def setUp(self):
+        super().setUp()
 
         self.app.client_manager.volume = volume_fakes.FakeVolumev1Client(
             endpoint=fakes.AUTH_URL,

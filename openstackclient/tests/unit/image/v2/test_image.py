@@ -44,11 +44,6 @@ class TestImage(image_fakes.TestImagev2, volume_fakes.TestVolume):
         self.volumes_mock.upload_to_image.return_value = (200, fake_body)
         self.volumes_mock.reset_mock()
 
-    def setup_images_mock(self, count):
-        images = image_fakes.create_images(count=count)
-
-        return images
-
 
 class TestImageCreate(TestImage):
     project = identity_fakes.FakeProject.create_one_project()
@@ -502,7 +497,7 @@ class TestImageDelete(TestImage):
         self.cmd = _image.DeleteImage(self.app, None)
 
     def test_image_delete_no_options(self):
-        images = self.setup_images_mock(count=1)
+        images = image_fakes.create_images(count=1)
 
         arglist = [
             images[0].id,
@@ -522,7 +517,7 @@ class TestImageDelete(TestImage):
         self.assertIsNone(result)
 
     def test_image_delete_from_store(self):
-        images = self.setup_images_mock(count=1)
+        images = image_fakes.create_images(count=1)
 
         arglist = [
             images[0].id,
@@ -542,7 +537,7 @@ class TestImageDelete(TestImage):
         self.assertIsNone(result)
 
     def test_image_delete_multi_images(self):
-        images = self.setup_images_mock(count=3)
+        images = image_fakes.create_images(count=3)
 
         arglist = [i.id for i in images]
         verifylist = [
@@ -562,7 +557,7 @@ class TestImageDelete(TestImage):
         self.assertIsNone(result)
 
     def test_image_delete_from_store_without_multi_backend(self):
-        images = self.setup_images_mock(count=1)
+        images = image_fakes.create_images(count=1)
 
         arglist = [images[0].id, '--store', 'store1']
         verifylist = [('images', [images[0].id]), ('store', 'store1')]
@@ -1132,7 +1127,7 @@ class TestImageSet(TestImage):
 
         self.assertIsNone(result)
         # we'll have called this but not set anything
-        self.app.client_manager.image.update_image.assert_called_once_with(
+        self.image_client.update_image.assert_called_once_with(
             self._image.id,
         )
 

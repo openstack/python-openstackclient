@@ -44,9 +44,6 @@ class TestVolume(volume_fakes.TestVolumev1):
         self.users_mock = self.app.client_manager.identity.users
         self.users_mock.reset_mock()
 
-        self.app.client_manager.image = mock.Mock()
-        self.image_client = self.app.client_manager.image
-
     def setup_volumes_mock(self, count):
         volumes = volume_fakes.create_volumes(count=count)
 

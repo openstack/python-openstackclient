@@ -20,6 +20,7 @@ import uuid
 from cinderclient import api_versions
 from openstack.block_storage.v3 import backup as _backup
 from openstack.block_storage.v3 import volume
+from openstack.image.v2 import _proxy as image_v2_proxy
 from osc_lib.cli import format_columns
 
 from openstackclient.tests.unit import fakes
@@ -93,10 +94,15 @@ class TestVolume(utils.TestCommand):
         self.app.client_manager.volume = FakeVolumeClient(
             endpoint=fakes.AUTH_URL, token=fakes.AUTH_TOKEN
         )
+
         self.app.client_manager.identity = identity_fakes.FakeIdentityv3Client(
             endpoint=fakes.AUTH_URL, token=fakes.AUTH_TOKEN
         )
-        self.app.client_manager.image = mock.Mock()
+
+        # avoid circular imports by defining this manually rather than using
+        # openstackclient.tests.unit.image.v2.fakes.FakeClientMixin
+        self.app.client_manager.image = mock.Mock(spec=image_v2_proxy.Proxy)
+        self.image_client = self.app.client_manager.image
 
 
 def create_one_transfer(attrs=None):
