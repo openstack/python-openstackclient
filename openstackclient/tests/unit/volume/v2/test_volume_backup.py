@@ -41,8 +41,6 @@ class TestBackup(volume_fakes.TestVolume):
     def setUp(self):
         super().setUp()
 
-        self.app.client_manager.sdk_connection.volume = mock.Mock()
-        self.volume_sdk_client = self.app.client_manager.sdk_connection.volume
         patcher = mock.patch.object(
             sdk_utils, 'supports_microversion', return_value=True
         )
@@ -325,24 +323,27 @@ class TestBackupDelete(TestBackup):
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
         find_mock_result = [self.backups[0], exceptions.CommandError]
-        with mock.patch.object(
-            self.volume_sdk_client, 'find_backup', side_effect=find_mock_result
-        ) as find_mock:
-            try:
-                self.cmd.take_action(parsed_args)
-                self.fail('CommandError should be raised.')
-            except exceptions.CommandError as e:
-                self.assertEqual('1 of 2 backups failed to delete.', str(e))
+        self.volume_sdk_client.find_backup.side_effect = find_mock_result
 
-            find_mock.assert_any_call(self.backups[0].id, ignore_missing=False)
-            find_mock.assert_any_call('unexist_backup', ignore_missing=False)
+        try:
+            self.cmd.take_action(parsed_args)
+            self.fail('CommandError should be raised.')
+        except exceptions.CommandError as e:
+            self.assertEqual('1 of 2 backups failed to delete.', str(e))
 
-            self.assertEqual(2, find_mock.call_count)
-            self.volume_sdk_client.delete_backup.assert_called_once_with(
-                self.backups[0].id,
-                ignore_missing=False,
-                force=False,
-            )
+        self.volume_sdk_client.find_backup.assert_any_call(
+            self.backups[0].id, ignore_missing=False
+        )
+        self.volume_sdk_client.find_backup.assert_any_call(
+            'unexist_backup', ignore_missing=False
+        )
+
+        self.assertEqual(2, self.volume_sdk_client.find_backup.call_count)
+        self.volume_sdk_client.delete_backup.assert_called_once_with(
+            self.backups[0].id,
+            ignore_missing=False,
+            force=False,
+        )
 
 
 class TestBackupList(TestBackup):

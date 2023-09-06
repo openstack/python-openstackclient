@@ -12,9 +12,8 @@
 #   WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
 #   License for the specific language governing permissions and limitations
 #   under the License.
-#
 
-from io import StringIO
+import io
 import os
 
 import fixtures
@@ -75,7 +74,7 @@ class TestCommand(TestCase):
 
     def check_parser(self, cmd, args, verify_args):
         cmd_parser = cmd.get_parser('check_parser')
-        stderr = StringIO()
+        stderr = io.StringIO()
         with fixtures.MonkeyPatch('sys.stderr', stderr):
             try:
                 parsed_args = cmd_parser.parse_args(args)

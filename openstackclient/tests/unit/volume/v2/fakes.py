@@ -89,7 +89,7 @@ class FakeVolumeClient:
         self.volumes.resource_class = fakes.FakeResource(None, {})
 
 
-class TestVolume(utils.TestCommand):
+class FakeClientMixin:
     def setUp(self):
         super().setUp()
 
@@ -104,6 +104,11 @@ class TestVolume(utils.TestCommand):
             spec=block_storage_v2_proxy.Proxy,
         )
         self.volume_sdk_client = self.app.client_manager.sdk_connection.volume
+
+
+class TestVolume(FakeClientMixin, utils.TestCommand):
+    def setUp(self):
+        super().setUp()
 
         self.app.client_manager.identity = identity_fakes.FakeIdentityv3Client(
             endpoint=fakes.AUTH_URL, token=fakes.AUTH_TOKEN
