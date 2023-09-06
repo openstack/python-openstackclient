@@ -48,11 +48,10 @@ class TestQuota(compute_fakes.TestComputev2):
         self.projects_mock.reset_mock()
         self.projects_mock.get.return_value = self.projects[0]
 
-        self.compute_quotas_mock = self.app.client_manager.compute.quotas
+        self.compute_client = self.app.client_manager.compute
+        self.compute_quotas_mock = self.compute_client.quotas
         self.compute_quotas_mock.reset_mock()
-        self.compute_quotas_class_mock = (
-            self.app.client_manager.compute.quota_classes
-        )
+        self.compute_quotas_class_mock = self.compute_client.quota_classes
         self.compute_quotas_class_mock.reset_mock()
 
         self.volume_quotas_mock = self.volume_client.quotas
@@ -125,8 +124,7 @@ class TestQuotaList(TestQuota):
             compute_fakes.create_one_default_comp_quota(),
             compute_fakes.create_one_default_comp_quota(),
         ]
-        self.compute = self.app.client_manager.compute
-        self.compute.quotas.defaults = mock.Mock(
+        self.compute_client.quotas.defaults = mock.Mock(
             side_effect=self.compute_default_quotas,
         )
 
@@ -221,7 +219,7 @@ class TestQuotaList(TestQuota):
             detailed_quota
         )
 
-        self.compute.quotas.get = mock.Mock(return_value=detailed_quota)
+        self.compute_client.quotas.get = mock.Mock(return_value=detailed_quota)
 
         arglist = [
             '--detail',
@@ -305,7 +303,7 @@ class TestQuotaList(TestQuota):
 
     def test_quota_list_compute(self):
         # Two projects with non-default quotas
-        self.compute.quotas.get = mock.Mock(
+        self.compute_client.quotas.get = mock.Mock(
             side_effect=self.compute_quotas,
         )
 
@@ -326,7 +324,7 @@ class TestQuotaList(TestQuota):
 
     def test_quota_list_compute_default(self):
         # One of the projects is at defaults
-        self.compute.quotas.get = mock.Mock(
+        self.compute_client.quotas.get = mock.Mock(
             side_effect=[
                 self.compute_quotas[0],
                 compute_fakes.create_one_default_comp_quota(),
@@ -350,7 +348,7 @@ class TestQuotaList(TestQuota):
 
     def test_quota_list_compute_no_project_not_found(self):
         # Make one of the projects disappear
-        self.compute.quotas.get = mock.Mock(
+        self.compute_client.quotas.get = mock.Mock(
             side_effect=[
                 self.compute_quotas[0],
                 exceptions.NotFound("NotFound"),
@@ -374,7 +372,7 @@ class TestQuotaList(TestQuota):
 
     def test_quota_list_compute_no_project_4xx(self):
         # Make one of the projects disappear
-        self.compute.quotas.get = mock.Mock(
+        self.compute_client.quotas.get = mock.Mock(
             side_effect=[
                 self.compute_quotas[0],
                 exceptions.BadRequest("Bad request"),
@@ -398,7 +396,7 @@ class TestQuotaList(TestQuota):
 
     def test_quota_list_compute_no_project_5xx(self):
         # Make one of the projects disappear
-        self.compute.quotas.get = mock.Mock(
+        self.compute_client.quotas.get = mock.Mock(
             side_effect=[
                 self.compute_quotas[0],
                 exceptions.HTTPNotImplemented("Not implemented??"),
@@ -421,7 +419,7 @@ class TestQuotaList(TestQuota):
 
     def test_quota_list_compute_by_project(self):
         # Two projects with non-default quotas
-        self.compute.quotas.get = mock.Mock(
+        self.compute_client.quotas.get = mock.Mock(
             side_effect=self.compute_quotas,
         )
 

@@ -28,7 +28,7 @@ class TestNetworkCompute(compute_fakes.TestComputev2):
         super(TestNetworkCompute, self).setUp()
 
         # Get a shortcut to the compute client
-        self.compute = self.app.client_manager.compute
+        self.compute_client = self.app.client_manager.compute
 
 
 @mock.patch('openstackclient.api.compute_v2.APIv2.network_create')
@@ -182,7 +182,7 @@ class TestDeleteNetworkCompute(TestNetworkCompute):
         self._networks = compute_fakes.create_networks(count=3)
 
         # Return value of utils.find_resource()
-        self.compute.api.network_find = compute_fakes.get_networks(
+        self.compute_client.api.network_find = compute_fakes.get_networks(
             networks=self._networks
         )
 

@@ -1575,8 +1575,8 @@ class CreateServer(command.ShowOne):
         if parsed_args.description:
             if compute_client.api_version < api_versions.APIVersion("2.19"):
                 msg = _(
-                    "Description is not supported for "
-                    "--os-compute-api-version less than 2.19"
+                    '--os-compute-api-version 2.19 or greater is '
+                    'required to support the --description option'
                 )
                 raise exceptions.CommandError(msg)
 
@@ -4958,8 +4958,8 @@ class UnsetServer(command.Command):
         if parsed_args.description:
             if compute_client.api_version < api_versions.APIVersion("2.19"):
                 msg = _(
-                    "Description is not supported for "
-                    "--os-compute-api-version less than 2.19"
+                    '--os-compute-api-version 2.19 or greater is '
+                    'required to support the --description option'
                 )
                 raise exceptions.CommandError(msg)
             compute_client.servers.update(

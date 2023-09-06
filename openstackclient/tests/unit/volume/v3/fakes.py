@@ -89,10 +89,12 @@ class TestVolume(FakeClientMixin, utils.TestCommand):
         self.app.client_manager.identity = identity_fakes.FakeIdentityv3Client(
             endpoint=fakes.AUTH_URL, token=fakes.AUTH_TOKEN
         )
+
         self.app.client_manager.compute = compute_fakes.FakeComputev2Client(
             endpoint=fakes.AUTH_URL,
             token=fakes.AUTH_TOKEN,
         )
+        self.compute_client = self.app.client_manager.compute
 
 
 # TODO(stephenfin): Check if the responses are actually the same

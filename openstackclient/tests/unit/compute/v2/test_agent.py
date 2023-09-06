@@ -51,7 +51,7 @@ class TestAgent(compute_fakes.TestComputev2):
     def setUp(self):
         super(TestAgent, self).setUp()
 
-        self.agents_mock = self.app.client_manager.compute.agents
+        self.agents_mock = self.compute_client.agents
         self.agents_mock.reset_mock()
 
 

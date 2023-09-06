@@ -29,7 +29,7 @@ class TestFloatingIPCompute(compute_fakes.TestComputev2):
         super(TestFloatingIPCompute, self).setUp()
 
         # Get a shortcut to the compute client
-        self.compute = self.app.client_manager.compute
+        self.compute_client = self.app.client_manager.compute
 
 
 @mock.patch('openstackclient.api.compute_v2.APIv2.floating_ip_create')
@@ -58,7 +58,7 @@ class TestCreateFloatingIPCompute(TestFloatingIPCompute):
 
         self.app.client_manager.network_endpoint_enabled = False
 
-        # self.compute.floating_ips.create.return_value = self.floating_ip
+        # self.compute_client.floating_ips.create.return_value = self.floating_ip
 
         # Get the command object to test
         self.cmd = fip.CreateFloatingIP(self.app, None)

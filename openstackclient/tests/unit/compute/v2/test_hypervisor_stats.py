@@ -25,8 +25,10 @@ class TestHypervisorStats(compute_fakes.TestComputev2):
 
         # Get a shortcut to the compute client hypervisors mock
         self.app.client_manager.sdk_connection.compute = mock.Mock()
-        self.sdk_client = self.app.client_manager.sdk_connection.compute
-        self.sdk_client.get = mock.Mock()
+        self.compute_sdk_client = (
+            self.app.client_manager.sdk_connection.compute
+        )
+        self.compute_sdk_client.get = mock.Mock()
 
 
 # Not in fakes.py because hypervisor stats has been deprecated
@@ -70,7 +72,7 @@ class TestHypervisorStatsShow(TestHypervisorStats):
     def setUp(self):
         super(TestHypervisorStatsShow, self).setUp()
 
-        self.sdk_client.get.return_value = fakes.FakeResponse(
+        self.compute_sdk_client.get.return_value = fakes.FakeResponse(
             data={'hypervisor_statistics': self._stats}
         )
 

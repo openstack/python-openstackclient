@@ -30,11 +30,13 @@ class TestServerEvent(compute_fakes.TestComputev2):
         super(TestServerEvent, self).setUp()
 
         self.app.client_manager.sdk_connection.compute = mock.Mock()
-        self.sdk_client = self.app.client_manager.sdk_connection.compute
-        self.sdk_client.find_server = mock.Mock()
-        self.sdk_client.server_actions = mock.Mock()
-        self.sdk_client.get_server_action = mock.Mock()
-        self.sdk_client.reset_mock()
+        self.compute_sdk_client = (
+            self.app.client_manager.sdk_connection.compute
+        )
+        self.compute_sdk_client.find_server = mock.Mock()
+        self.compute_sdk_client.server_actions = mock.Mock()
+        self.compute_sdk_client.get_server_action = mock.Mock()
+        self.compute_sdk_client.reset_mock()
 
         patcher = mock.patch.object(
             sdk_utils, 'supports_microversion', return_value=True
@@ -42,7 +44,7 @@ class TestServerEvent(compute_fakes.TestComputev2):
         self.addCleanup(patcher.stop)
         self.supports_microversion_mock = patcher.start()
         self._set_mock_microversion(
-            self.app.client_manager.compute.api_version.get_string()
+            self.compute_client.api_version.get_string()
         )
 
     def _set_mock_microversion(self, mock_v):
@@ -97,8 +99,8 @@ class TestListServerEvent(TestServerEvent):
     def setUp(self):
         super().setUp()
 
-        self.sdk_client.find_server.return_value = self.fake_server
-        self.sdk_client.server_actions.return_value = [
+        self.compute_sdk_client.find_server.return_value = self.fake_server
+        self.compute_sdk_client.server_actions.return_value = [
             self.fake_event,
         ]
 
@@ -116,11 +118,13 @@ class TestListServerEvent(TestServerEvent):
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
         columns, data = self.cmd.take_action(parsed_args)
 
-        self.sdk_client.find_server.assert_called_with(
+        self.compute_sdk_client.find_server.assert_called_with(
             self.fake_server.name,
             ignore_missing=False,
         )
-        self.sdk_client.server_actions.assert_called_with(self.fake_server.id)
+        self.compute_sdk_client.server_actions.assert_called_with(
+            self.fake_server.id
+        )
 
         self.assertEqual(self.columns, columns)
         self.assertEqual(self.data, tuple(data))
@@ -138,11 +142,13 @@ class TestListServerEvent(TestServerEvent):
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
         columns, data = self.cmd.take_action(parsed_args)
 
-        self.sdk_client.find_server.assert_called_with(
+        self.compute_sdk_client.find_server.assert_called_with(
             self.fake_server.name,
             ignore_missing=False,
         )
-        self.sdk_client.server_actions.assert_called_with(self.fake_server.id)
+        self.compute_sdk_client.server_actions.assert_called_with(
+            self.fake_server.id
+        )
 
         self.assertEqual(self.long_columns, columns)
         self.assertEqual(self.long_data, tuple(data))
@@ -163,11 +169,11 @@ class TestListServerEvent(TestServerEvent):
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
         columns, data = self.cmd.take_action(parsed_args)
 
-        self.sdk_client.find_server.assert_called_with(
+        self.compute_sdk_client.find_server.assert_called_with(
             self.fake_server.name,
             ignore_missing=False,
         )
-        self.sdk_client.server_actions.assert_called_with(
+        self.compute_sdk_client.server_actions.assert_called_with(
             self.fake_server.id,
             changes_since='2016-03-04T06:27:59Z',
         )
@@ -243,11 +249,11 @@ class TestListServerEvent(TestServerEvent):
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
         columns, data = self.cmd.take_action(parsed_args)
 
-        self.sdk_client.find_server.assert_called_with(
+        self.compute_sdk_client.find_server.assert_called_with(
             self.fake_server.name,
             ignore_missing=False,
         )
-        self.sdk_client.server_actions.assert_called_with(
+        self.compute_sdk_client.server_actions.assert_called_with(
             self.fake_server.id,
             changes_before='2016-03-04T06:27:59Z',
         )
@@ -319,7 +325,7 @@ class TestListServerEvent(TestServerEvent):
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
         self.cmd.take_action(parsed_args)
 
-        self.sdk_client.server_actions.assert_called_with(
+        self.compute_sdk_client.server_actions.assert_called_with(
             self.fake_server.id,
             limit=1,
             paginated=False,
@@ -366,7 +372,7 @@ class TestListServerEvent(TestServerEvent):
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
         self.cmd.take_action(parsed_args)
 
-        self.sdk_client.server_actions.assert_called_with(
+        self.compute_sdk_client.server_actions.assert_called_with(
             self.fake_server.id,
             marker='test_event',
         )
@@ -420,8 +426,10 @@ class TestShowServerEvent(TestServerEvent):
     def setUp(self):
         super().setUp()
 
-        self.sdk_client.find_server.return_value = self.fake_server
-        self.sdk_client.get_server_action.return_value = self.fake_event
+        self.compute_sdk_client.find_server.return_value = self.fake_server
+        self.compute_sdk_client.get_server_action.return_value = (
+            self.fake_event
+        )
 
         self.cmd = server_event.ShowServerEvent(self.app, None)
 
@@ -438,11 +446,11 @@ class TestShowServerEvent(TestServerEvent):
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
         columns, data = self.cmd.take_action(parsed_args)
 
-        self.sdk_client.find_server.assert_called_with(
+        self.compute_sdk_client.find_server.assert_called_with(
             self.fake_server.name,
             ignore_missing=False,
         )
-        self.sdk_client.get_server_action.assert_called_with(
+        self.compute_sdk_client.get_server_action.assert_called_with(
             self.fake_event.request_id,
             self.fake_server.id,
         )

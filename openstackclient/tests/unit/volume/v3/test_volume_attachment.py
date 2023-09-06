@@ -33,7 +33,8 @@ class TestVolumeAttachment(volume_fakes.TestVolume):
         self.projects_mock = self.app.client_manager.identity.projects
         self.projects_mock.reset_mock()
 
-        self.servers_mock = self.app.client_manager.compute.servers
+        self.compute_client = self.app.client_manager.compute
+        self.servers_mock = self.compute_client.servers
         self.servers_mock.reset_mock()
 
 

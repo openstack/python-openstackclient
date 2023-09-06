@@ -51,15 +51,17 @@ class TestServerGroup(compute_fakes.TestComputev2):
         super().setUp()
 
         # Create and get a shortcut to the compute client mock
-        self.sdk_client = self.app.client_manager.sdk_connection.compute
-        self.sdk_client.reset_mock()
+        self.compute_sdk_client = (
+            self.app.client_manager.sdk_connection.compute
+        )
+        self.compute_sdk_client.reset_mock()
 
 
 class TestServerGroupCreate(TestServerGroup):
     def setUp(self):
         super().setUp()
 
-        self.sdk_client.create_server_group.return_value = (
+        self.compute_sdk_client.create_server_group.return_value = (
             self.fake_server_group
         )
         self.cmd = server_group.CreateServerGroup(self.app, None)
@@ -77,7 +79,7 @@ class TestServerGroupCreate(TestServerGroup):
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
         columns, data = self.cmd.take_action(parsed_args)
-        self.sdk_client.create_server_group.assert_called_once_with(
+        self.compute_sdk_client.create_server_group.assert_called_once_with(
             name=parsed_args.name,
             policy=parsed_args.policy,
         )
@@ -98,7 +100,7 @@ class TestServerGroupCreate(TestServerGroup):
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
         columns, data = self.cmd.take_action(parsed_args)
-        self.sdk_client.create_server_group.assert_called_once_with(
+        self.compute_sdk_client.create_server_group.assert_called_once_with(
             name=parsed_args.name,
             policy=parsed_args.policy,
         )
@@ -141,7 +143,7 @@ class TestServerGroupCreate(TestServerGroup):
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
         columns, data = self.cmd.take_action(parsed_args)
-        self.sdk_client.create_server_group.assert_called_once_with(
+        self.compute_sdk_client.create_server_group.assert_called_once_with(
             name=parsed_args.name,
             policy=parsed_args.policy,
             rules=parsed_args.rules,
@@ -180,7 +182,9 @@ class TestServerGroupDelete(TestServerGroup):
     def setUp(self):
         super().setUp()
 
-        self.sdk_client.find_server_group.return_value = self.fake_server_group
+        self.compute_sdk_client.find_server_group.return_value = (
+            self.fake_server_group
+        )
         self.cmd = server_group.DeleteServerGroup(self.app, None)
 
     def test_server_group_delete(self):
@@ -192,10 +196,10 @@ class TestServerGroupDelete(TestServerGroup):
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
         result = self.cmd.take_action(parsed_args)
-        self.sdk_client.find_server_group.assert_called_once_with(
+        self.compute_sdk_client.find_server_group.assert_called_once_with(
             'affinity_group'
         )
-        self.sdk_client.delete_server_group.assert_called_once_with(
+        self.compute_sdk_client.delete_server_group.assert_called_once_with(
             self.fake_server_group.id
         )
         self.assertIsNone(result)
@@ -207,15 +211,21 @@ class TestServerGroupDelete(TestServerGroup):
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
         result = self.cmd.take_action(parsed_args)
-        self.sdk_client.find_server_group.assert_any_call('affinity_group')
-        self.sdk_client.find_server_group.assert_any_call(
+        self.compute_sdk_client.find_server_group.assert_any_call(
+            'affinity_group'
+        )
+        self.compute_sdk_client.find_server_group.assert_any_call(
             'anti_affinity_group'
         )
-        self.sdk_client.delete_server_group.assert_called_with(
+        self.compute_sdk_client.delete_server_group.assert_called_with(
             self.fake_server_group.id
         )
-        self.assertEqual(2, self.sdk_client.find_server_group.call_count)
-        self.assertEqual(2, self.sdk_client.delete_server_group.call_count)
+        self.assertEqual(
+            2, self.compute_sdk_client.find_server_group.call_count
+        )
+        self.assertEqual(
+            2, self.compute_sdk_client.delete_server_group.call_count
+        )
         self.assertIsNone(result)
 
     def test_server_group_delete_no_input(self):
@@ -236,7 +246,7 @@ class TestServerGroupDelete(TestServerGroup):
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
-        self.sdk_client.find_server_group.side_effect = [
+        self.compute_sdk_client.find_server_group.side_effect = [
             self.fake_server_group,
             exceptions.CommandError,
         ]
@@ -246,12 +256,16 @@ class TestServerGroupDelete(TestServerGroup):
         except exceptions.CommandError as e:
             self.assertEqual('1 of 2 server groups failed to delete.', str(e))
 
-        self.sdk_client.find_server_group.assert_any_call('affinity_group')
-        self.sdk_client.find_server_group.assert_any_call(
+        self.compute_sdk_client.find_server_group.assert_any_call(
+            'affinity_group'
+        )
+        self.compute_sdk_client.find_server_group.assert_any_call(
             'anti_affinity_group'
         )
-        self.assertEqual(2, self.sdk_client.find_server_group.call_count)
-        self.sdk_client.delete_server_group.assert_called_once_with(
+        self.assertEqual(
+            2, self.compute_sdk_client.find_server_group.call_count
+        )
+        self.compute_sdk_client.delete_server_group.assert_called_once_with(
             self.fake_server_group.id
         )
 
@@ -336,7 +350,9 @@ class TestServerGroupList(TestServerGroup):
     def setUp(self):
         super().setUp()
 
-        self.sdk_client.server_groups.return_value = [self.fake_server_group]
+        self.compute_sdk_client.server_groups.return_value = [
+            self.fake_server_group
+        ]
         self.cmd = server_group.ListServerGroup(self.app, None)
 
     @mock.patch.object(sdk_utils, 'supports_microversion', return_value=False)
@@ -351,7 +367,7 @@ class TestServerGroupList(TestServerGroup):
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
         columns, data = self.cmd.take_action(parsed_args)
 
-        self.sdk_client.server_groups.assert_called_once_with()
+        self.compute_sdk_client.server_groups.assert_called_once_with()
 
         self.assertCountEqual(self.list_columns, columns)
         self.assertCountEqual(self.list_data, tuple(data))
@@ -370,7 +386,7 @@ class TestServerGroupList(TestServerGroup):
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
         columns, data = self.cmd.take_action(parsed_args)
-        self.sdk_client.server_groups.assert_called_once_with(
+        self.compute_sdk_client.server_groups.assert_called_once_with(
             all_projects=True
         )
 
@@ -393,7 +409,7 @@ class TestServerGroupList(TestServerGroup):
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
         self.cmd.take_action(parsed_args)
 
-        self.sdk_client.server_groups.assert_called_once_with(limit=1)
+        self.compute_sdk_client.server_groups.assert_called_once_with(limit=1)
 
     @mock.patch.object(sdk_utils, 'supports_microversion', return_value=True)
     def test_server_group_list_with_offset(self, sm_mock):
@@ -411,7 +427,7 @@ class TestServerGroupList(TestServerGroup):
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
         self.cmd.take_action(parsed_args)
 
-        self.sdk_client.server_groups.assert_called_once_with(offset=5)
+        self.compute_sdk_client.server_groups.assert_called_once_with(offset=5)
 
     @mock.patch.object(sdk_utils, 'supports_microversion', return_value=True)
     def test_server_group_list_v264(self, sm_mock):
@@ -422,7 +438,7 @@ class TestServerGroupList(TestServerGroup):
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
         columns, data = self.cmd.take_action(parsed_args)
-        self.sdk_client.server_groups.assert_called_once_with()
+        self.compute_sdk_client.server_groups.assert_called_once_with()
 
         self.assertCountEqual(self.list_columns_v264, columns)
         self.assertCountEqual(self.list_data_v264, tuple(data))
@@ -439,7 +455,7 @@ class TestServerGroupList(TestServerGroup):
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
         columns, data = self.cmd.take_action(parsed_args)
-        self.sdk_client.server_groups.assert_called_once_with(
+        self.compute_sdk_client.server_groups.assert_called_once_with(
             all_projects=True
         )
 
@@ -451,7 +467,9 @@ class TestServerGroupShow(TestServerGroup):
     def setUp(self):
         super().setUp()
 
-        self.sdk_client.find_server_group.return_value = self.fake_server_group
+        self.compute_sdk_client.find_server_group.return_value = (
+            self.fake_server_group
+        )
         self.cmd = server_group.ShowServerGroup(self.app, None)
 
     @mock.patch.object(sdk_utils, 'supports_microversion', return_value=True)
