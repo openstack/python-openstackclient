@@ -17,15 +17,18 @@ from osc_lib import exceptions
 from osc_lib import utils
 
 from openstackclient.tests.unit.volume.v2 import fakes as volume_fakes
+from openstackclient.tests.unit.volume.v3 import fakes as volume_fakes_v3
 from openstackclient.volume.v3 import volume_snapshot
 
 
-class TestVolumeSnapshot(volume_fakes.TestVolume):
+class TestVolumeSnapshot(volume_fakes_v3.TestVolume):
     def setUp(self):
         super().setUp()
 
         self.snapshots_mock = self.volume_client.volume_snapshots
         self.snapshots_mock.reset_mock()
+
+        self.volume_sdk_client.unmanage_snapshot.return_value = None
 
 
 class TestVolumeSnapshotDelete(TestVolumeSnapshot):
@@ -111,3 +114,48 @@ class TestVolumeSnapshotDelete(TestVolumeSnapshot):
             self.snapshots_mock.delete.assert_called_once_with(
                 self.snapshots[0].id, False
             )
+
+    def test_snapshot_delete_remote(self):
+        arglist = ['--remote', self.snapshots[0].id]
+        verifylist = [('remote', True), ("snapshots", [self.snapshots[0].id])]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        result = self.cmd.take_action(parsed_args)
+
+        self.volume_sdk_client.unmanage_snapshot.assert_called_with(
+            self.snapshots[0].id
+        )
+        self.assertIsNone(result)
+
+    def test_snapshot_delete_with_remote_force(self):
+        arglist = ['--remote', '--force', self.snapshots[0].id]
+        verifylist = [
+            ('remote', True),
+            ('force', True),
+            ("snapshots", [self.snapshots[0].id]),
+        ]
+
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+        exc = self.assertRaises(
+            exceptions.CommandError, self.cmd.take_action, parsed_args
+        )
+        self.assertIn(
+            "The --force option is not supported with the --remote "
+            "parameter.",
+            str(exc),
+        )
+
+    def test_delete_multiple_snapshots_remote(self):
+        arglist = ['--remote']
+        for s in self.snapshots:
+            arglist.append(s.id)
+        verifylist = [('remote', True), ('snapshots', arglist[1:])]
+
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+        result = self.cmd.take_action(parsed_args)
+
+        calls = []
+        for s in self.snapshots:
+            calls.append(mock.call(s.id))
+        self.volume_sdk_client.unmanage_snapshot.assert_has_calls(calls)
+        self.assertIsNone(result)

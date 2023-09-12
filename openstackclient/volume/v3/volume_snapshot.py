@@ -44,20 +44,41 @@ class DeleteVolumeSnapshot(command.Command):
                 "regardless of state (defaults to False)"
             ),
         )
+        parser.add_argument(
+            '--remote',
+            action='store_true',
+            help=_(
+                'Unmanage the snapshot, removing it from the Block Storage '
+                'service management but not from the backend.'
+            ),
+        )
         return parser
 
     def take_action(self, parsed_args):
         volume_client = self.app.client_manager.volume
+        volume_client_sdk = self.app.client_manager.sdk_connection.volume
+
         result = 0
+
+        if parsed_args.remote:
+            if parsed_args.force:
+                msg = _(
+                    "The --force option is not supported with the "
+                    "--remote parameter."
+                )
+                raise exceptions.CommandError(msg)
 
         for i in parsed_args.snapshots:
             try:
                 snapshot_id = utils.find_resource(
                     volume_client.volume_snapshots, i
                 ).id
-                volume_client.volume_snapshots.delete(
-                    snapshot_id, parsed_args.force
-                )
+                if parsed_args.remote:
+                    volume_client_sdk.unmanage_snapshot(snapshot_id)
+                else:
+                    volume_client.volume_snapshots.delete(
+                        snapshot_id, parsed_args.force
+                    )
             except Exception as e:
                 result += 1
                 LOG.error(

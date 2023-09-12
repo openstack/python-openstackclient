@@ -1,0 +1,5 @@
+---
+features:
+  - |
+    Added support for unmanaging snapshots with the
+    ``openstack snapshot delete --remote`` command.
