@@ -98,6 +98,21 @@ class TestVolumeSnapshotCreate(volume_fakes.TestVolume):
         self.assertEqual(self.columns, columns)
         self.assertEqual(self.data, data)
 
+    def test_snapshot_create_additional_fields(self) -> None:
+        self.set_volume_api_version('3.65')
+        parsed_args = self.check_parser(
+            self.cmd, ['--volume', self.volume.id, self.snapshot.name], []
+        )
+
+        columns, data = self.cmd.take_action(parsed_args)
+        info = dict(zip(columns, data))
+
+        self.assertEqual(
+            self.snapshot.group_snapshot_id, info['group_snapshot_id']
+        )
+        self.assertEqual(self.snapshot.user_id, info['user_id'])
+        self.assertEqual(self.snapshot.consumes_quota, info['consumes_quota'])
+
     def test_snapshot_create_without_name(self):
         arglist = [
             "--volume",
@@ -823,6 +838,50 @@ class TestVolumeSnapshotShow(volume_fakes.TestVolume):
 
         self.assertEqual(self.columns, columns)
         self.assertCountEqual(self.data, data)
+
+    def test_snapshot_show_additional_fields(self) -> None:
+        self.set_volume_api_version('3.65')
+        parsed_args = self.check_parser(self.cmd, [self.snapshot.id], [])
+
+        columns, data = self.cmd.take_action(parsed_args)
+        info = dict(zip(columns, data))
+
+        self.assertEqual(
+            self.snapshot.group_snapshot_id, info['group_snapshot_id']
+        )
+        self.assertEqual(self.snapshot.user_id, info['user_id'])
+        self.assertEqual(self.snapshot.consumes_quota, info['consumes_quota'])
+
+
+class TestSnapshotFormatting(volume_fakes.TestVolume):
+    def test_microversion_fields(self) -> None:
+        snapshot = sdk_fakes.generate_fake_resource(
+            _snapshot.Snapshot, consumes_quota=False
+        )
+        for version, expected_fields in (
+            ('3.13', set()),
+            ('3.14', {'group_snapshot_id'}),
+            ('3.40', {'group_snapshot_id'}),
+            ('3.41', {'group_snapshot_id', 'user_id'}),
+            ('3.64', {'group_snapshot_id', 'user_id'}),
+            ('3.65', {'group_snapshot_id', 'user_id', 'consumes_quota'}),
+        ):
+            with self.subTest(version=version):
+                self.set_volume_api_version(version)
+
+                info = volume_snapshot._format_snapshot(
+                    snapshot, self.volume_client
+                )
+
+                for field in (
+                    'group_snapshot_id',
+                    'user_id',
+                    'consumes_quota',
+                ):
+                    if field in expected_fields:
+                        self.assertEqual(getattr(snapshot, field), info[field])
+                    else:
+                        self.assertNotIn(field, info)
 
 
 class TestVolumeSnapshotUnset(volume_fakes.TestVolume):

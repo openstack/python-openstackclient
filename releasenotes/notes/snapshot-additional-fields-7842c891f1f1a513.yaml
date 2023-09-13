@@ -1,0 +1,7 @@
+---
+features:
+  - |
+    The ``volume snapshot create`` and ``volume snapshot show`` commands now
+    display ``group_snapshot_id``, ``user_id``, and ``consumes_quota`` when
+    using Block Storage API microversions 3.14, 3.41, and 3.65 or later,
+    respectively.
