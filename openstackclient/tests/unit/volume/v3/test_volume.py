@@ -198,3 +198,232 @@ class TestVolumeRevertToSnapshot(BaseVolumeTest):
             self.snapshot.id,
             ignore_missing=False,
         )
+
+
+class TestVolumeCreate(BaseVolumeTest):
+    columns = (
+        'attachments',
+        'availability_zone',
+        'consistency_group_id',
+        'created_at',
+        'description',
+        'extended_replication_status',
+        'group_id',
+        'host',
+        'id',
+        'image_id',
+        'is_bootable',
+        'is_encrypted',
+        'is_multiattach',
+        'location',
+        'metadata',
+        'migration_id',
+        'migration_status',
+        'name',
+        'project_id',
+        'provider_id',
+        'replication_driver_data',
+        'replication_status',
+        'scheduler_hints',
+        'size',
+        'snapshot_id',
+        'source_volume_id',
+        'status',
+        'updated_at',
+        'user_id',
+        'volume_image_metadata',
+        'volume_type',
+    )
+
+    def setUp(self):
+        super().setUp()
+
+        self.new_volume = sdk_fakes.generate_fake_resource(
+            _volume.Volume, **{'size': 1}
+        )
+
+        self.datalist = (
+            self.new_volume.attachments,
+            self.new_volume.availability_zone,
+            self.new_volume.consistency_group_id,
+            self.new_volume.created_at,
+            self.new_volume.description,
+            self.new_volume.extended_replication_status,
+            self.new_volume.group_id,
+            self.new_volume.host,
+            self.new_volume.id,
+            self.new_volume.image_id,
+            self.new_volume.is_bootable,
+            self.new_volume.is_encrypted,
+            self.new_volume.is_multiattach,
+            self.new_volume.location,
+            self.new_volume.metadata,
+            self.new_volume.migration_id,
+            self.new_volume.migration_status,
+            self.new_volume.name,
+            self.new_volume.project_id,
+            self.new_volume.provider_id,
+            self.new_volume.replication_driver_data,
+            self.new_volume.replication_status,
+            self.new_volume.scheduler_hints,
+            self.new_volume.size,
+            self.new_volume.snapshot_id,
+            self.new_volume.source_volume_id,
+            self.new_volume.status,
+            self.new_volume.updated_at,
+            self.new_volume.user_id,
+            self.new_volume.volume_image_metadata,
+            self.new_volume.volume_type,
+        )
+
+        # Get the command object to test
+        self.cmd = volume.CreateVolume(self.app, None)
+
+    def test_volume_create_remote_source(self):
+        self.volume_sdk_client.manage_volume.return_value = self.new_volume
+
+        arglist = [
+            '--remote-source',
+            'key=val',
+            '--host',
+            'fake_host',
+            self.new_volume.name,
+        ]
+        verifylist = [
+            ('remote_source', {'key': 'val'}),
+            ('host', 'fake_host'),
+            ('name', self.new_volume.name),
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        columns, data = self.cmd.take_action(parsed_args)
+
+        self.volume_sdk_client.manage_volume.assert_called_with(
+            host='fake_host',
+            ref={'key': 'val'},
+            name=parsed_args.name,
+            description=parsed_args.description,
+            volume_type=parsed_args.type,
+            availability_zone=parsed_args.availability_zone,
+            metadata=parsed_args.property,
+            bootable=parsed_args.bootable,
+            cluster=getattr(parsed_args, 'cluster', None),
+        )
+
+        self.assertEqual(self.columns, columns)
+        self.assertCountEqual(self.datalist, data)
+
+    def test_volume_create_remote_source_pre_316(self):
+        self._set_mock_microversion('3.15')
+        arglist = [
+            '--remote-source',
+            'key=val',
+            '--cluster',
+            'fake_cluster',
+            self.new_volume.name,
+        ]
+        verifylist = [
+            ('remote_source', {'key': 'val'}),
+            ('cluster', 'fake_cluster'),
+            ('name', self.new_volume.name),
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        exc = self.assertRaises(
+            exceptions.CommandError, self.cmd.take_action, parsed_args
+        )
+        self.assertIn(
+            '--os-volume-api-version 3.16 or greater is required', str(exc)
+        )
+
+    def test_volume_create_remote_source_host_and_cluster(self):
+        self._set_mock_microversion('3.16')
+        arglist = [
+            '--remote-source',
+            'key=val',
+            '--host',
+            'fake_host',
+            '--cluster',
+            'fake_cluster',
+            self.new_volume.name,
+        ]
+        verifylist = [
+            ('remote_source', {'key': 'val'}),
+            ('host', 'fake_host'),
+            ('cluster', 'fake_cluster'),
+            ('name', self.new_volume.name),
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        exc = self.assertRaises(
+            exceptions.CommandError, self.cmd.take_action, parsed_args
+        )
+        self.assertIn(
+            'Only one of --host or --cluster needs to be specified', str(exc)
+        )
+
+    def test_volume_create_remote_source_no_host_or_cluster(self):
+        arglist = [
+            '--remote-source',
+            'key=val',
+            self.new_volume.name,
+        ]
+        verifylist = [
+            ('remote_source', {'key': 'val'}),
+            ('name', self.new_volume.name),
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        exc = self.assertRaises(
+            exceptions.CommandError, self.cmd.take_action, parsed_args
+        )
+        self.assertIn(
+            'One of --host or --cluster needs to be specified to ', str(exc)
+        )
+
+    def test_volume_create_remote_source_size(self):
+        arglist = [
+            '--size',
+            str(self.new_volume.size),
+            '--remote-source',
+            'key=val',
+            self.new_volume.name,
+        ]
+        verifylist = [
+            ('size', self.new_volume.size),
+            ('remote_source', {'key': 'val'}),
+            ('name', self.new_volume.name),
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        exc = self.assertRaises(
+            exceptions.CommandError, self.cmd.take_action, parsed_args
+        )
+        self.assertIn(
+            '--size, --consistency-group, --hint, --read-only and '
+            '--read-write options are not supported',
+            str(exc),
+        )
+
+    def test_volume_create_host_no_remote_source(self):
+        arglist = [
+            '--size',
+            str(self.new_volume.size),
+            '--host',
+            'fake_host',
+            self.new_volume.name,
+        ]
+        verifylist = [
+            ('size', self.new_volume.size),
+            ('host', 'fake_host'),
+            ('name', self.new_volume.name),
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        exc = self.assertRaises(
+            exceptions.CommandError, self.cmd.take_action, parsed_args
+        )
+        self.assertIn(
+            '--host and --cluster options are only supported ',
+            str(exc),
+        )

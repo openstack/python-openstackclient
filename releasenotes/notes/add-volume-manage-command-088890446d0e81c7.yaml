@@ -1,0 +1,6 @@
+---
+features:
+  - |
+    Add support for managing volumes with
+    ``openstack volume create --remote-source <key=val>
+    --host <host>`` command.

@@ -18,6 +18,7 @@ import logging
 
 from openstack import utils as sdk_utils
 from osc_lib.cli import format_columns
+from osc_lib.cli import parseractions
 from osc_lib.command import command
 from osc_lib import exceptions
 from osc_lib import utils
@@ -139,8 +140,100 @@ class CreateVolume(volume_v2.CreateVolume):
             raise exceptions.CommandError(msg)
 
     def get_parser(self, prog_name):
-        parser, _ = self._get_parser(prog_name)
+        parser, source_group = self._get_parser(prog_name)
+
+        source_group.add_argument(
+            "--remote-source",
+            metavar="<key=value>",
+            action=parseractions.KeyValueAction,
+            help=_(
+                "The attribute(s) of the existing remote volume "
+                "(admin required) (repeat option to specify multiple "
+                "attributes) e.g.: '--remote-source source-name=test_name "
+                "--remote-source source-id=test_id'"
+            ),
+        )
+        parser.add_argument(
+            "--host",
+            metavar="<host>",
+            help=_(
+                "Cinder host on which the existing volume resides; "
+                "takes the form: host@backend-name#pool. This is only "
+                "used along with the --remote-source option."
+            ),
+        )
+        parser.add_argument(
+            "--cluster",
+            metavar="<cluster>",
+            help=_(
+                "Cinder cluster on which the existing volume resides; "
+                "takes the form: cluster@backend-name#pool. This is only "
+                "used along with the --remote-source option. "
+                "(supported by --os-volume-api-version 3.16 or above)",
+            ),
+        )
         return parser
 
     def take_action(self, parsed_args):
+        CreateVolume._check_size_arg(parsed_args)
+
+        volume_client_sdk = self.app.client_manager.sdk_connection.volume
+
+        if (
+            parsed_args.host or parsed_args.cluster
+        ) and not parsed_args.remote_source:
+            msg = _(
+                "The --host and --cluster options are only supported "
+                "with --remote-source parameter."
+            )
+            raise exceptions.CommandError(msg)
+
+        if parsed_args.remote_source:
+            if (
+                parsed_args.size
+                or parsed_args.consistency_group
+                or parsed_args.hint
+                or parsed_args.read_only
+                or parsed_args.read_write
+            ):
+                msg = _(
+                    "The --size, --consistency-group, --hint, --read-only "
+                    "and --read-write options are not supported with the "
+                    "--remote-source parameter."
+                )
+                raise exceptions.CommandError(msg)
+            if parsed_args.cluster:
+                if not sdk_utils.supports_microversion(
+                    volume_client_sdk, '3.16'
+                ):
+                    msg = _(
+                        "--os-volume-api-version 3.16 or greater is required "
+                        "to support the cluster parameter."
+                    )
+                    raise exceptions.CommandError(msg)
+            if parsed_args.cluster and parsed_args.host:
+                msg = _(
+                    "Only one of --host or --cluster needs to be specified "
+                    "to manage a volume."
+                )
+                raise exceptions.CommandError(msg)
+            if not parsed_args.cluster and not parsed_args.host:
+                msg = _(
+                    "One of --host or --cluster needs to be specified to "
+                    "manage a volume."
+                )
+                raise exceptions.CommandError(msg)
+            volume = volume_client_sdk.manage_volume(
+                host=parsed_args.host,
+                cluster=parsed_args.cluster,
+                ref=parsed_args.remote_source,
+                name=parsed_args.name,
+                description=parsed_args.description,
+                volume_type=parsed_args.type,
+                availability_zone=parsed_args.availability_zone,
+                metadata=parsed_args.property,
+                bootable=parsed_args.bootable,
+            )
+            return zip(*sorted(volume.items()))
+
         return self._take_action(parsed_args)
