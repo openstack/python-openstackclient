@@ -13,11 +13,12 @@
 
 """Block Storage Volume/Snapshot Management implementations"""
 
+import argparse
+
 from cinderclient import api_versions
 from osc_lib.command import command
 from osc_lib import exceptions
 from osc_lib import utils
-from oslo_utils import strutils
 
 from openstackclient.i18n import _
 
@@ -53,10 +54,17 @@ class BlockStorageManageVolumes(command.Lister):
             ),
         )
         parser.add_argument(
+            '--long',
+            action='store_true',
+            default=False,
+            help=_('List additional fields in output'),
+        )
+        # TODO(stephenfin): Remove this in a future major version bump
+        parser.add_argument(
             '--detailed',
             metavar='<detailed>',
-            default=True,
-            help=_('Returns detailed information (Default=True).'),
+            default=None,
+            help=argparse.SUPPRESS,
         )
         parser.add_argument(
             '--marker',
@@ -121,8 +129,30 @@ class BlockStorageManageVolumes(command.Lister):
                 )
                 raise exceptions.CommandError(msg)
 
-        detailed = strutils.bool_from_string(parsed_args.detailed)
-        cluster = getattr(parsed_args, 'cluster', None)
+        detailed = parsed_args.long
+        if parsed_args.detailed is not None:
+            detailed = parsed_args.detailed.lower().strip() in {
+                '1',
+                't',
+                'true',
+                'on',
+                'y',
+                'yes',
+            }
+            if detailed:
+                # if the user requested e.g. '--detailed true' then they should
+                # not request '--long'
+                msg = _(
+                    "The --detailed option has been deprecated. "
+                    "Use --long instead."
+                )
+                self.log.warning(msg)
+            else:
+                # if the user requested e.g. '--detailed false' then they
+                # should simply stop requesting this since the default has
+                # changed
+                msg = _("The --detailed option has been deprecated. Unset it.")
+                self.log.warning(msg)
 
         columns = [
             'reference',
@@ -145,7 +175,7 @@ class BlockStorageManageVolumes(command.Lister):
             limit=parsed_args.limit,
             offset=parsed_args.offset,
             sort=parsed_args.sort,
-            cluster=cluster,
+            cluster=parsed_args.cluster,
         )
 
         return (
@@ -188,10 +218,17 @@ class BlockStorageManageSnapshots(command.Lister):
             ),
         )
         parser.add_argument(
+            '--long',
+            action='store_true',
+            default=False,
+            help=_('List additional fields in output'),
+        )
+        # TODO(stephenfin): Remove this in a future major version bump
+        parser.add_argument(
             '--detailed',
             metavar='<detailed>',
-            default=True,
-            help=_('Returns detailed information (Default=True).'),
+            default=None,
+            help=argparse.SUPPRESS,
         )
         parser.add_argument(
             '--marker',
@@ -258,8 +295,32 @@ class BlockStorageManageSnapshots(command.Lister):
                 )
                 raise exceptions.CommandError(msg)
 
-        detailed = strutils.bool_from_string(parsed_args.detailed)
-        cluster = getattr(parsed_args, 'cluster', None)
+        detailed = parsed_args.long
+        if parsed_args.detailed is not None:
+            detailed = parsed_args.detailed.lower().strip() in {
+                '1',
+                't',
+                'true',
+                'on',
+                'y',
+                'yes',
+            }
+            if detailed:
+                # if the user requested e.g. '--detailed true' then they should
+                # not request '--long'
+                msg = _(
+                    "The --detailed option has been deprecated. "
+                    "Use --long instead."
+                )
+                self.log.warning(msg)
+            else:
+                # if the user requested e.g. '--detailed false' then they
+                # should simply stop requesting this since the default has
+                # changed
+                msg = _(
+                    "The --detailed option has been deprecated. " "Unset it."
+                )
+                self.log.warning(msg)
 
         columns = [
             'reference',
@@ -283,7 +344,7 @@ class BlockStorageManageSnapshots(command.Lister):
             limit=parsed_args.limit,
             offset=parsed_args.offset,
             sort=parsed_args.sort,
-            cluster=cluster,
+            cluster=parsed_args.cluster,
         )
 
         return (
