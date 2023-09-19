@@ -25,7 +25,7 @@
 
       Takes advantage of the base tox job's install-siblings feature.
     # The job only tests the latest and shouldn't be run on the stable branches
-    branches: ^(?!stable)
+    branches: ^master$
     required-projects:
       - openstack/cliff
       - openstack/keystoneauth
@@ -45,7 +45,7 @@
 
       Takes advantage of the base tox job's install-siblings feature.
     # The job only tests the latest and shouldn't be run on the stable branches
-    branches: ^(?!stable)
+    branches: ^master$
     required-projects:
       - openstack/cliff
       - openstack/keystoneauth
@@ -224,7 +224,7 @@
         - osc-functional-devstack-tips:
             # The functional-tips job only tests the latest and shouldn't be run
             # on the stable branches
-            branches: ^(?!stable)
+            branches: ^master$
     gate:
       jobs:
         - osc-upload-image
