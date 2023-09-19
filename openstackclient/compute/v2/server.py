@@ -32,12 +32,10 @@ from osc_lib.cli import parseractions
 from osc_lib.command import command
 from osc_lib import exceptions
 from osc_lib import utils
-from oslo_utils import strutils
 
 from openstackclient.i18n import _
 from openstackclient.identity import common as identity_common
 from openstackclient.network import common as network_common
-
 
 LOG = logging.getLogger(__name__)
 
@@ -273,6 +271,30 @@ def _prep_server_detail(compute_client, image_client, server, refresh=True):
     return info
 
 
+def bool_from_str(value, strict=False):
+    true_strings = ('1', 't', 'true', 'on', 'y', 'yes')
+    false_strings = ('0', 'f', 'false', 'off', 'n', 'no')
+
+    if isinstance(value, bool):
+        return value
+
+    lowered = value.strip().lower()
+    if lowered in true_strings:
+        return True
+    elif lowered in false_strings or not strict:
+        return False
+
+    msg = _(
+        "Unrecognized value '%(value)s'; acceptable values are: %(valid)s"
+    ) % {
+        'value': value,
+        'valid': ', '.join(
+            f"'{s}'" for s in sorted(true_strings + false_strings)
+        ),
+    }
+    raise ValueError(msg)
+
+
 def boolenv(*vars, default=False):
     """Search for the first defined of possibly many bool-like env vars.
 
@@ -287,7 +309,7 @@ def boolenv(*vars, default=False):
     for v in vars:
         value = os.environ.get(v, None)
         if value:
-            return strutils.bool_from_string(value)
+            return bool_from_str(value)
     return default
 
 
@@ -1713,8 +1735,9 @@ class CreateServer(command.ShowOne):
 
             if 'delete_on_termination' in mapping:
                 try:
-                    value = strutils.bool_from_string(
-                        mapping['delete_on_termination'], strict=True
+                    value = bool_from_str(
+                        mapping['delete_on_termination'],
+                        strict=True,
                     )
                 except ValueError:
                     msg = _(
