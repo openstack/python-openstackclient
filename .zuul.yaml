@@ -1,43 +1,5 @@
 ---
 - job:
-    name: osc-tox-unit-tips
-    parent: openstack-tox
-    description: |
-      Run unit tests for OpenStackClient with master branch of important libs.
-
-      Takes advantage of the base tox job's install-siblings feature.
-    required-projects:
-      - openstack/cliff
-      - openstack/keystoneauth
-      - openstack/openstacksdk
-      - openstack/osc-lib
-      - openstack/python-openstackclient
-    vars:
-      # Set work dir to openstackclient so that if it's triggered by one of the
-      # other repos the tests will run in the same place
-      zuul_work_dir: src/opendev.org/openstack/python-openstackclient
-
-- job:
-    name: osc-tox-py38-tips
-    parent: openstack-tox-py38
-    description: |
-      Run unit tests for OpenStackClient with master branch of important libs.
-
-      Takes advantage of the base tox job's install-siblings feature.
-    # The job only tests the latest and shouldn't be run on the stable branches
-    branches: ^(?!stable)
-    required-projects:
-      - openstack/cliff
-      - openstack/keystoneauth
-      - openstack/openstacksdk
-      - openstack/osc-lib
-      - openstack/python-openstackclient
-    vars:
-      # Set work dir to openstackclient so that if it's triggered by one of the
-      # other repos the tests will run in the same place
-      zuul_work_dir: src/opendev.org/openstack/python-openstackclient
-
-- job:
     name: osc-functional-devstack
     parent: devstack-tox-functional
     description: |
@@ -99,26 +61,6 @@
       tox_envlist: functional
       zuul_work_dir: src/opendev.org/openstack/python-openstackclient
 
-- job:
-    name: osc-functional-devstack-tips
-    parent: osc-functional-devstack
-    description: |
-      Run functional tests for OpenStackClient with master branch of important libs.
-
-      Takes advantage of the base tox job's install-siblings feature.
-    timeout: 7800
-    required-projects:
-      - openstack/cliff
-      - openstack/keystoneauth
-      - openstack/openstacksdk
-      - openstack/osc-lib
-      - openstack/python-openstackclient
-    vars:
-      devstack_localrc:
-        LIBS_FROM_GIT: python-openstackclient,openstacksdk,osc-lib,cliff
-      tox_envlist: functional
-      tox_install_siblings: true
-
 - secret:
     name: osc-dockerhub
     data:
@@ -177,19 +119,9 @@
       nodes: []
     vars: *osc_image_vars
 
-- project-template:
-    name: osc-tox-unit-tips
-    check:
-      jobs:
-        - osc-tox-py38-tips
-    gate:
-      jobs:
-        - osc-tox-py38-tips
-
 - project:
     templates:
       - openstackclient-plugin-jobs
-      - osc-tox-unit-tips
       - openstack-cover-jobs
       - openstack-python3-jobs
       - publish-openstack-docs-pti
@@ -199,10 +131,6 @@
       jobs:
         - osc-build-image
         - osc-functional-devstack
-        - osc-functional-devstack-tips:
-            # The functional-tips job only tests the latest and shouldn't be run
-            # on the stable branches
-            branches: ^(?!stable)
     gate:
       jobs:
         - osc-upload-image
