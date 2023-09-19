@@ -1,43 +1,5 @@
 ---
 - job:
-    name: osc-tox-unit-tips
-    parent: openstack-tox
-    description: |
-      Run unit tests for OpenStackClient with master branch of important libs.
-
-      Takes advantage of the base tox job's install-siblings feature.
-    required-projects:
-      - openstack/cliff
-      - openstack/keystoneauth
-      - openstack/openstacksdk
-      - openstack/osc-lib
-      - openstack/python-openstackclient
-    vars:
-      # Set work dir to openstackclient so that if it's triggered by one of the
-      # other repos the tests will run in the same place
-      zuul_work_dir: src/opendev.org/openstack/python-openstackclient
-
-- job:
-    name: osc-tox-py36-tips
-    parent: openstack-tox-py36
-    description: |
-      Run unit tests for OpenStackClient with master branch of important libs.
-
-      Takes advantage of the base tox job's install-siblings feature.
-    # The job only tests the latest and shouldn't be run on the stable branches
-    branches: ^(?!stable)
-    required-projects:
-      - openstack/cliff
-      - openstack/keystoneauth
-      - openstack/openstacksdk
-      - openstack/osc-lib
-      - openstack/python-openstackclient
-    vars:
-      # Set work dir to openstackclient so that if it's triggered by one of the
-      # other repos the tests will run in the same place
-      zuul_work_dir: src/opendev.org/openstack/python-openstackclient
-
-- job:
     name: osc-functional-devstack-base
     parent: devstack-tox-functional
     description: |
@@ -117,109 +79,9 @@
         q-svc: false
       tox_envlist: functional
 
-- job:
-    name: osc-functional-devstack-tips
-    parent: osc-functional-devstack
-    timeout: 7800
-    required-projects:
-      - openstack/cliff
-      - openstack/keystoneauth
-      - openstack/openstacksdk
-      - openstack/osc-lib
-      - openstack/python-openstackclient
-    vars:
-      devstack_localrc:
-        LIBS_FROM_GIT: python-openstackclient,openstacksdk,osc-lib,cliff
-        # This is insufficient, but leaving it here as a reminder of what may
-        # someday be all we need to make this work
-        # disable_python3_package swift
-        DISABLED_PYTHON3_PACKAGES: swift
-      devstack_services:
-        # Swift is not ready for python3 yet: At a minimum keystonemiddleware needs
-        # to be installed in the py2 env, there are probably other things too...
-        s-account: false
-        s-container: false
-        s-object: false
-        s-proxy: false
-        # As swift is not available for this job, c-bak service won't be functional.
-        # The backup related tests can be handled by other jobs having swift enabled.
-        # The backup service along with swift services can be enabled once swift is
-        # compatible with py3
-        c-bak: false
-      tox_envlist: functional
-      tox_install_siblings: true
-
-- secret:
-    name: osc-dockerhub
-    data:
-      username: osclientzuul
-      password: !encrypted/pkcs1-oaep
-        - LbIZjJiVstRVXMpoLQ3+/JcNB6lKVUWJXXo5+Outf+PKAaO7mNnv8XLiFMKnJ6ftopLyu
-          hWbX9rA+NddvplLQkf1xxkh7QBBU8PToLr58quI2SENUclt4tpjxbZfZu451kFSNJvNvR
-          E58cHHpfJZpyRnS2htXmN/Qy24gbV2w7CQxSZD2YhlcrerD8uQ8rWEnlY1wcJEaEGomtS
-          ZTGxsdK2TsZC2cd4b7TG7+xbl2i+hjADzwSQAgUzlLlwuG71667+IWk4SOZ7OycJTv9NN
-          ZTak8+CGfiMKdmsxZ1Z8uD7DC+RIklDjMWyly6zuhWzfhOmsmU0CesR50moodRUvbK79p
-          NZM8u0hBex5cl2EpUEwJL/FSPJXUhDMPoMoTZT/SAuXf25R9eZ9JGrKsIAlmVhpl8ifoE
-          8TpPyvIHGS3YelTQjhqOX0wGb9T4ZauQCcI5Ajzy9NuCTyD9xxme9OX1zz7gMACRnVHvz
-          q7U7Ue90MnmGH6E2SgKjIZhyzy9Efwb7JUvH1Zb3hlrjCjEhwi9MV5FnABTEeXyYwE10s
-          3o/KZg2zvdWkVG6x0dEkjpoQaNuaB7T2Na7Sm421n/z3LCzhiQGuTUjENnL6cMEtuA6Pp
-          BfI5+Qlg7HMwkBXNB73EPfWHzbCR3VNrzGYTy9FvhGud0/cXsuBXgps4WH63ic=
-
-- job:
-    name: osc-build-image
-    parent: opendev-build-docker-image
-    description: Build Docker images.
-    allowed-projects: openstack/python-openstackclient
-    requires:
-      - python-builder-3.7-container-image
-      - python-base-3.7-container-image
-    provides: osc-container-image
-    vars: &osc_image_vars
-      docker_images:
-        - context: .
-          repository: osclient/python-openstackclient
-
-- job:
-    name: osc-upload-image
-    parent: opendev-upload-docker-image
-    description: Build Docker images and upload to Docker Hub.
-    allowed-projects: openstack/python-openstackclient
-    requires:
-      - python-builder-3.7-container-image
-      - python-base-3.7-container-image
-    provides: osc-container-image
-    secrets:
-      - name: docker_credentials
-        secret: osc-dockerhub
-        pass-to-parent: true
-    vars: *osc_image_vars
-
-- job:
-    name: osc-promote-image
-    parent: opendev-promote-docker-image
-    allowed-projects: openstack/python-openstackclient
-    description: Promote previously uploaded Docker images.
-    secrets:
-      - name: docker_credentials
-        secret: osc-dockerhub
-        pass-to-parent: true
-    nodeset:
-      nodes: []
-    vars: *osc_image_vars
-
-- project-template:
-    name: osc-tox-unit-tips
-    check:
-      jobs:
-        - osc-tox-py36-tips
-    gate:
-      jobs:
-        - osc-tox-py36-tips
-
 - project:
     templates:
       - openstackclient-plugin-jobs
-      - osc-tox-unit-tips
       - openstack-cover-jobs
       - openstack-python3-wallaby-jobs
       - publish-openstack-docs-pti
@@ -227,7 +89,6 @@
       - release-notes-jobs-python3
     check:
       jobs:
-        - osc-build-image
         - osc-functional-devstack
         # - osc-functional-devstack-n-net:
         #     voting: false
@@ -235,14 +96,6 @@
         #     # should be disabled until the New Way of testing against old clouds
         #     # is ready and backported
         #     branches: ^(?!stable/(newton|ocata)).*$
-        - osc-functional-devstack-tips:
-            # The functional-tips job only tests the latest and shouldn't be run
-            # on the stable branches
-            branches: ^(?!stable)
     gate:
       jobs:
-        - osc-upload-image
         - osc-functional-devstack
-    promote:
-      jobs:
-        - osc-promote-image
