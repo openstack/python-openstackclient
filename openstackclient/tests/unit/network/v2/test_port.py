@@ -172,7 +172,7 @@ class TestCreatePort(TestPort):
         )
         self.assertFalse(self.network_client.set_tags.called)
 
-        self.assertEqual(set(self.columns), set(columns))
+        self.assertCountEqual(self.columns, columns)
         self.assertCountEqual(self.data, data)
 
     def test_create_full_options(self):
@@ -245,7 +245,7 @@ class TestCreatePort(TestPort):
             }
         )
 
-        self.assertEqual(set(self.columns), set(columns))
+        self.assertCountEqual(self.columns, columns)
         self.assertCountEqual(self.data, data)
 
     def test_create_invalid_json_binding_profile(self):
@@ -309,7 +309,7 @@ class TestCreatePort(TestPort):
             }
         )
 
-        self.assertEqual(set(self.columns), set(columns))
+        self.assertCountEqual(self.columns, columns)
         self.assertCountEqual(self.data, data)
 
     def test_create_with_security_group(self):
@@ -347,7 +347,7 @@ class TestCreatePort(TestPort):
             }
         )
 
-        self.assertEqual(set(self.columns), set(columns))
+        self.assertCountEqual(self.columns, columns)
         self.assertCountEqual(self.data, data)
 
     def test_create_port_with_dns_name(self):
@@ -380,7 +380,7 @@ class TestCreatePort(TestPort):
             }
         )
 
-        self.assertEqual(set(self.columns), set(columns))
+        self.assertCountEqual(self.columns, columns)
         self.assertCountEqual(self.data, data)
 
     def test_create_with_security_groups(self):
@@ -420,7 +420,7 @@ class TestCreatePort(TestPort):
             }
         )
 
-        self.assertEqual(set(self.columns), set(columns))
+        self.assertCountEqual(self.columns, columns)
         self.assertCountEqual(self.data, data)
 
     def test_create_with_no_security_groups(self):
@@ -449,7 +449,7 @@ class TestCreatePort(TestPort):
             }
         )
 
-        self.assertEqual(set(self.columns), set(columns))
+        self.assertCountEqual(self.columns, columns)
         self.assertCountEqual(self.data, data)
 
     def test_create_with_no_fixed_ips(self):
@@ -478,7 +478,7 @@ class TestCreatePort(TestPort):
             }
         )
 
-        self.assertEqual(set(self.columns), set(columns))
+        self.assertCountEqual(self.columns, columns)
         self.assertCountEqual(self.data, data)
 
     def test_create_port_with_allowed_address_pair_ipaddr(self):
@@ -520,7 +520,7 @@ class TestCreatePort(TestPort):
             }
         )
 
-        self.assertEqual(set(self.columns), set(columns))
+        self.assertCountEqual(self.columns, columns)
         self.assertCountEqual(self.data, data)
 
     def test_create_port_with_allowed_address_pair(self):
@@ -571,7 +571,7 @@ class TestCreatePort(TestPort):
             }
         )
 
-        self.assertEqual(set(self.columns), set(columns))
+        self.assertCountEqual(self.columns, columns)
         self.assertCountEqual(self.data, data)
 
     def test_create_port_with_qos(self):
@@ -608,7 +608,7 @@ class TestCreatePort(TestPort):
             }
         )
 
-        self.assertEqual(set(self.columns), set(columns))
+        self.assertCountEqual(self.columns, columns)
         self.assertCountEqual(self.data, data)
 
     def test_create_port_security_enabled(self):
@@ -738,7 +738,7 @@ class TestCreatePort(TestPort):
             else:
                 self.assertFalse(self.network_client.set_tags.called)
 
-        self.assertEqual(set(self.columns), set(columns))
+        self.assertCountEqual(self.columns, columns)
         self.assertCountEqual(self.data, data)
 
     def test_create_with_tags(self):
@@ -787,7 +787,7 @@ class TestCreatePort(TestPort):
             }
         )
 
-        self.assertEqual(set(self.columns), set(columns))
+        self.assertCountEqual(self.columns, columns)
         self.assertCountEqual(self.data, data)
 
     def test_create_with_uplink_status_propagation_enabled(self):
@@ -893,7 +893,7 @@ class TestCreatePort(TestPort):
             create_args['numa_affinity_policy'] = numa_affinity_policy
         self.network_client.create_port.assert_called_once_with(**create_args)
 
-        self.assertEqual(set(self.columns), set(columns))
+        self.assertCountEqual(self.columns, columns)
         self.assertCountEqual(self.data, data)
 
     def test_create_with_numa_affinity_policy_required(self):
@@ -940,7 +940,7 @@ class TestCreatePort(TestPort):
             'device_profile': 'cyborg_device_profile_1',
         }
         self.network_client.create_port.assert_called_once_with(**create_args)
-        self.assertEqual(set(self.columns), set(columns))
+        self.assertCountEqual(self.columns, columns)
         self.assertCountEqual(self.data, data)
 
     def test_create_hints_invalid_json(self):
@@ -1032,7 +1032,7 @@ class TestCreatePort(TestPort):
             }
         )
 
-        self.assertEqual(set(self.columns), set(columns))
+        self.assertCountEqual(self.columns, columns)
         self.assertCountEqual(self.data, data)
 
     def test_create_hints_valid_json(self):
@@ -1067,7 +1067,7 @@ class TestCreatePort(TestPort):
             }
         )
 
-        self.assertEqual(set(self.columns), set(columns))
+        self.assertCountEqual(self.columns, columns)
         self.assertCountEqual(self.data, data)
 
 
@@ -2496,7 +2496,7 @@ class TestShowPort(TestPort):
             self._port.name, ignore_missing=False
         )
 
-        self.assertEqual(set(self.columns), set(columns))
+        self.assertCountEqual(self.columns, columns)
         self.assertCountEqual(self.data, data)
 
 

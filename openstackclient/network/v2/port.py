@@ -55,18 +55,48 @@ _formatters = {
 
 
 def _get_columns(item):
-    column_map = {
-        'binding:host_id': 'binding_host_id',
-        'binding:profile': 'binding_profile',
-        'binding:vif_details': 'binding_vif_details',
-        'binding:vif_type': 'binding_vif_type',
-        'binding:vnic_type': 'binding_vnic_type',
-        'is_admin_state_up': 'admin_state_up',
-        'is_port_security_enabled': 'port_security_enabled',
+    column_data_mapping = {
+        'admin_state_up': 'is_admin_state_up',
+        'allowed_address_pairs': 'allowed_address_pairs',
+        'binding_host_id': 'binding_host_id',
+        'binding_profile': 'binding_profile',
+        'binding_vif_details': 'binding_vif_details',
+        'binding_vif_type': 'binding_vif_type',
+        'binding_vnic_type': 'binding_vnic_type',
+        'created_at': 'created_at',
+        'data_plane_status': 'data_plane_status',
+        'description': 'description',
+        'device_id': 'device_id',
+        'device_owner': 'device_owner',
+        'device_profile': 'device_profile',
+        'dns_assignment': 'dns_assignment',
+        'dns_domain': 'dns_domain',
+        'dns_name': 'dns_name',
+        'extra_dhcp_opts': 'extra_dhcp_opts',
+        'fixed_ips': 'fixed_ips',
+        'hints': 'hints',
+        'id': 'id',
+        'ip_allocation': 'ip_allocation',
+        'mac_address': 'mac_address',
+        'name': 'name',
+        'network_id': 'network_id',
+        'numa_affinity_policy': 'numa_affinity_policy',
+        'port_security_enabled': 'is_port_security_enabled',
+        'project_id': 'project_id',
+        'propagate_uplink_status': 'propagate_uplink_status',
+        'resource_request': 'resource_request',
+        'revision_number': 'revision_number',
+        'qos_network_policy_id': 'qos_network_policy_id',
+        'qos_policy_id': 'qos_policy_id',
+        'security_group_ids': 'security_group_ids',
+        'status': 'status',
+        'tags': 'tags',
+        'trunk_details': 'trunk_details',
+        'updated_at': 'updated_at',
     }
-    hidden_columns = ['location', 'tenant_id']
-    return utils.get_osc_show_columns_for_sdk_resource(
-        item, column_map, hidden_columns
+    return (
+        tuple(column_data_mapping.keys()),
+        tuple(column_data_mapping.values()),
     )
 
 
