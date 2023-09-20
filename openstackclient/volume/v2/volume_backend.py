@@ -14,6 +14,7 @@
 
 """Storage backend action implementations"""
 
+from osc_lib.cli import format_columns
 from osc_lib.command import command
 from osc_lib import utils
 
@@ -33,7 +34,7 @@ class ShowCapability(command.Lister):
         return parser
 
     def take_action(self, parsed_args):
-        volume_client = self.app.client_manager.volume
+        volume_client = self.app.client_manager.sdk_connection.volume
 
         columns = [
             'Title',
@@ -42,7 +43,7 @@ class ShowCapability(command.Lister):
             'Description',
         ]
 
-        data = volume_client.capabilities.get(parsed_args.host)
+        data = volume_client.get_capabilities(parsed_args.host)
 
         # The get capabilities API is... interesting. We only want the names of
         # the capabilities that can set for a backend through extra specs, so
@@ -83,28 +84,17 @@ class ListPool(command.Lister):
         return parser
 
     def take_action(self, parsed_args):
-        volume_client = self.app.client_manager.volume
+        volume_client = self.app.client_manager.sdk_connection.volume
 
         if parsed_args.long:
             columns = [
                 'name',
-                'storage_protocol',
-                'thick_provisioning_support',
-                'thin_provisioning_support',
-                'total_volumes',
-                'total_capacity_gb',
-                'allocated_capacity_gb',
-                'max_over_subscription_ratio',
+                'capabilities',
             ]
+
             headers = [
                 'Name',
-                'Protocol',
-                'Thick',
-                'Thin',
-                'Volumes',
-                'Capacity',
-                'Allocated',
-                'Max Over Ratio',
+                'Capabilities',
             ]
         else:
             columns = [
@@ -112,13 +102,15 @@ class ListPool(command.Lister):
             ]
             headers = columns
 
-        data = volume_client.pools.list(detailed=parsed_args.long)
+        data = volume_client.backend_pools(detailed=parsed_args.long)
+        formatters = {'capabilities': format_columns.DictColumn}
         return (
             headers,
             (
                 utils.get_item_properties(
                     s,
                     columns,
+                    formatters=formatters,
                 )
                 for s in data
             ),

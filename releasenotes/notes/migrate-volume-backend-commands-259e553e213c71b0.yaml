@@ -1,0 +1,7 @@
+---
+features:
+  - |
+    Migrated following volume backends commands to SDK.
+
+    * Capability Show
+    * Pool List
