@@ -1,0 +1,5 @@
+---
+features:
+  - |
+    Add ``image metadef property list`` command to list the
+    metadata definitions properties inside a specific namespace.
