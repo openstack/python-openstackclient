@@ -44,3 +44,55 @@ class ListMetadefProperties(command.Lister):
                 for prop in props
             ),
         )
+
+
+class ShowMetadefProperty(command.ShowOne):
+    _description = _("Describe a specific property from a namespace")
+
+    def get_parser(self, prog_name):
+        parser = super().get_parser(prog_name)
+        parser.add_argument(
+            "namespace_name",
+            metavar="<namespace_name>",
+            help=_("Namespace (name) for the namespace"),
+        )
+        parser.add_argument(
+            "property_name",
+            metavar="<property_name>",
+            help=_("Property to show"),
+        )
+        return parser
+
+    def take_action(self, parsed_args):
+        image_client = self.app.client_manager.image
+        data = image_client.get_metadef_property(
+            parsed_args.property_name, parsed_args.namespace_name
+        )
+        data = data.to_dict(ignore_none=True, original_names=True)
+        info = {
+            key: data[key]
+            for key in [
+                'namespace_name',
+                'name',
+                'type',
+                'title',
+                'description',
+                'operators',
+                'default',
+                'is_readonly',
+                'minimum',
+                'maximum',
+                'enum',
+                'pattern',
+                'min_length',
+                'max_length',
+                'items',
+                'require_unique_items',
+                'min_items',
+                'max_items',
+                'allow_additional_items',
+            ]
+            if key in data
+        }
+
+        return zip(*sorted(info.items()))

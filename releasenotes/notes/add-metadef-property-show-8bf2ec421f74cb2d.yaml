@@ -1,0 +1,5 @@
+---
+features:
+  - |
+    Add ``image metadef property show`` command to show details
+    about a metadef property inside a specific namespace.
