@@ -161,8 +161,8 @@
     description: Build Docker images.
     allowed-projects: openstack/python-openstackclient
     requires:
-      - python-builder-3.10-bookworm-container-image
-      - python-base-3.10-bookworm-container-image
+      - python-builder-3.11-bookworm-container-image
+      - python-base-3.11-bookworm-container-image
     provides: osc-container-image
     vars: &osc_image_vars
       docker_images:
@@ -175,8 +175,8 @@
     description: Build Docker images and upload to Docker Hub.
     allowed-projects: openstack/python-openstackclient
     requires:
-      - python-builder-3.10-bookworm-container-image
-      - python-base-3.10-bookworm-container-image
+      - python-builder-3.11-bookworm-container-image
+      - python-base-3.11-bookworm-container-image
     provides: osc-container-image
     secrets:
       - name: docker_credentials
