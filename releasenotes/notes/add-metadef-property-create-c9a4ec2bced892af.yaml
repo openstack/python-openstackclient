@@ -1,0 +1,5 @@
+---
+features:
+  - |
+    Add ``image metadef property create`` command to create a new
+    metadef property inside a specific namespace.
