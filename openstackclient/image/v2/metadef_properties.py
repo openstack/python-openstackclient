@@ -107,6 +107,44 @@ class CreateMetadefProperty(command.ShowOne):
         return zip(*sorted(info.items()))
 
 
+class DeleteMetadefProperty(command.Command):
+    _description = _("Delete a metadef property")
+
+    def get_parser(self, prog_name):
+        parser = super().get_parser(prog_name)
+        parser.add_argument(
+            "namespace_name",
+            help=_("An identifier (a name) for the namespace"),
+        )
+        parser.add_argument(
+            "property_name",
+            help=_("Property to delete"),
+        )
+        return parser
+
+    def take_action(self, parsed_args):
+        image_client = self.app.client_manager.image
+
+        try:
+            image_client.delete_metadef_property(
+                parsed_args.property_name,
+                parsed_args.namespace_name,
+                ignore_missing=False,
+            )
+        except Exception as e:
+            raise exceptions.CommandError(
+                _(
+                    "Failed to delete property with name or "
+                    "ID '%(property)s' from namespace '%(namespace)s': %(e)s"
+                )
+                % {
+                    'property': parsed_args.property_name,
+                    'namespace': parsed_args.namespace_name,
+                    'e': e,
+                }
+            )
+
+
 class ListMetadefProperties(command.Lister):
     _description = _("List metadef properties")
 

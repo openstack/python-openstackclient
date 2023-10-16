@@ -1,0 +1,5 @@
+---
+features:
+  - |
+    Add ``image metadef property delete`` command to delete a
+    metadef property inside a specific namespace.
