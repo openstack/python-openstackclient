@@ -11,7 +11,7 @@ to set up and use Gerrit:
 
 Bugs should be filed on StoryBoard:
 
-   https://storyboard.openstack.org/#!/project/openstack/python-openstackclient
+   https://launchpad.net/python-openstackclient
 
 Developers should also join the discussion on the mailing list, at:
 

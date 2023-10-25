@@ -31,7 +31,6 @@ extensions = [
 
 # openstackdocstheme options
 openstackdocs_repo_name = 'openstack/python-openstackclient'
-openstackdocs_use_storyboard = True
 openstackdocs_auto_name = False
 
 # Add project 'foo' to this list to enable the :foo-doc: role
