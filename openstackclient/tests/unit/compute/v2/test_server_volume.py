@@ -27,9 +27,7 @@ class TestServerVolume(compute_fakes.TestComputev2):
         super().setUp()
 
         self.app.client_manager.sdk_connection.compute = mock.Mock()
-        self.app.client_manager.sdk_connection.volume = mock.Mock()
         self.compute_client = self.app.client_manager.sdk_connection.compute
-        self.volume_sdk_client = self.app.client_manager.sdk_connection.volume
 
 
 class TestServerVolumeList(TestServerVolume):

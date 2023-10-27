@@ -78,17 +78,17 @@ def _build_network_az_datalist(network_az, long_datalist=False):
     return (datalist,)
 
 
-class TestAvailabilityZone(network_fakes.FakeClientMixin, utils.TestCommand):
+class TestAvailabilityZone(
+    network_fakes.FakeClientMixin,
+    volume_fakes.FakeClientMixin,
+    utils.TestCommand,
+):
     def setUp(self):
         super().setUp()
 
         self.app.client_manager.sdk_connection.compute = mock.Mock()
         self.compute_client = self.app.client_manager.sdk_connection.compute
         self.compute_client.availability_zones = mock.Mock()
-
-        self.app.client_manager.sdk_connection.volume = mock.Mock()
-        self.volume_sdk_client = self.app.client_manager.sdk_connection.volume
-        self.volume_sdk_client.availability_zones = mock.Mock()
 
 
 class TestAvailabilityZoneList(TestAvailabilityZone):

@@ -34,7 +34,7 @@ from openstackclient.tests.unit.compute.v2 import fakes as compute_fakes
 from openstackclient.tests.unit.image.v2 import fakes as image_fakes
 from openstackclient.tests.unit.network.v2 import fakes as network_fakes
 from openstackclient.tests.unit import utils
-from openstackclient.tests.unit.volume.v2 import fakes as volume_fakes
+from openstackclient.tests.unit.volume.v3 import fakes as volume_fakes
 
 
 class TestPowerStateColumn(utils.TestCase):
@@ -94,9 +94,6 @@ class TestServer(compute_fakes.TestComputev2):
         # Get a shortcut to the volume client VolumeManager Mock
         self.volumes_mock = self.volume_client.volumes
         self.volumes_mock.reset_mock()
-
-        self.app.client_manager.sdk_connection.volume = mock.Mock()
-        self.volume_sdk_client = self.app.client_manager.sdk_connection.volume
 
         # Get a shortcut to the volume client VolumeManager Mock
         self.snapshots_mock = self.volume_client.volume_snapshots

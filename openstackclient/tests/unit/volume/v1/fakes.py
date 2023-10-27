@@ -53,7 +53,7 @@ class FakeVolumev1Client:
         self.management_url = kwargs['endpoint']
 
 
-class TestVolumev1(utils.TestCommand):
+class FakeClientMixin:
     def setUp(self):
         super().setUp()
 
@@ -62,6 +62,11 @@ class TestVolumev1(utils.TestCommand):
             token=fakes.AUTH_TOKEN,
         )
         self.volume_client = self.app.client_manager.volume
+
+
+class TestVolumev1(FakeClientMixin, utils.TestCommand):
+    def setUp(self):
+        super().setUp()
 
         self.app.client_manager.identity = identity_fakes.FakeIdentityv2Client(
             endpoint=fakes.AUTH_URL,

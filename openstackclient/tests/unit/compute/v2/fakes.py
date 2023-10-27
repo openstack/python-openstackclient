@@ -41,7 +41,7 @@ from openstackclient.tests.unit.identity.v2_0 import fakes as identity_fakes
 from openstackclient.tests.unit.image.v2 import fakes as image_fakes
 from openstackclient.tests.unit.network.v2 import fakes as network_fakes
 from openstackclient.tests.unit import utils
-from openstackclient.tests.unit.volume.v2 import fakes as volume_fakes
+from openstackclient.tests.unit.volume.v3 import fakes as volume_fakes
 
 floating_ip_num = 100
 fix_ip_num = 100
@@ -151,6 +151,7 @@ class FakeComputev2Client(object):
 class TestComputev2(
     network_fakes.FakeClientMixin,
     image_fakes.FakeClientMixin,
+    volume_fakes.FakeClientMixin,
     utils.TestCommand,
 ):
     def setUp(self):
@@ -170,12 +171,6 @@ class TestComputev2(
             endpoint=fakes.AUTH_URL,
             token=fakes.AUTH_TOKEN,
         )
-
-        self.app.client_manager.volume = volume_fakes.FakeVolumeClient(
-            endpoint=fakes.AUTH_URL,
-            token=fakes.AUTH_TOKEN,
-        )
-        self.volume_client = self.app.client_manager.volume
 
 
 def create_one_aggregate(attrs=None):

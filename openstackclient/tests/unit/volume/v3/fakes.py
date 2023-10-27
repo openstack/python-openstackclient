@@ -18,6 +18,7 @@ from cinderclient import api_versions
 from openstack.block_storage.v3 import _proxy
 from openstack.block_storage.v3 import availability_zone as _availability_zone
 from openstack.block_storage.v3 import extension as _extension
+from openstack.block_storage.v3 import volume as _volume
 
 from openstackclient.tests.unit.compute.v2 import fakes as compute_fakes
 from openstackclient.tests.unit import fakes
@@ -32,6 +33,8 @@ class FakeVolumeClient:
         self.management_url = kwargs['endpoint']
         self.api_version = api_versions.APIVersion('3.0')
 
+        self.availability_zones = mock.Mock()
+        self.availability_zones.resource_class = fakes.FakeResource(None, {})
         self.attachments = mock.Mock()
         self.attachments.resource_class = fakes.FakeResource(None, {})
         self.clusters = mock.Mock()
@@ -44,10 +47,16 @@ class FakeVolumeClient:
         self.group_types.resource_class = fakes.FakeResource(None, {})
         self.messages = mock.Mock()
         self.messages.resource_class = fakes.FakeResource(None, {})
+        self.quota_classes = mock.Mock()
+        self.quota_classes.resource_class = fakes.FakeResource(None, {})
+        self.quotas = mock.Mock()
+        self.quotas.resource_class = fakes.FakeResource(None, {})
         self.resource_filters = mock.Mock()
         self.resource_filters.resource_class = fakes.FakeResource(None, {})
         self.volumes = mock.Mock()
         self.volumes.resource_class = fakes.FakeResource(None, {})
+        self.volume_snapshots = mock.Mock()
+        self.volume_snapshots.resource_class = fakes.FakeResource(None, {})
         self.volume_types = mock.Mock()
         self.volume_types.resource_class = fakes.FakeResource(None, {})
         self.services = mock.Mock()
@@ -56,7 +65,7 @@ class FakeVolumeClient:
         self.workers.resource_class = fakes.FakeResource(None, {})
 
 
-class TestVolume(utils.TestCommand):
+class FakeClientMixin:
     def setUp(self):
         super().setUp()
 
@@ -72,6 +81,11 @@ class TestVolume(utils.TestCommand):
         )
         self.volume_sdk_client = self.app.client_manager.sdk_connection.volume
 
+
+class TestVolume(FakeClientMixin, utils.TestCommand):
+    def setUp(self):
+        super().setUp()
+
         self.app.client_manager.identity = identity_fakes.FakeIdentityv3Client(
             endpoint=fakes.AUTH_URL, token=fakes.AUTH_TOKEN
         )
@@ -82,6 +96,7 @@ class TestVolume(utils.TestCommand):
 
 
 # TODO(stephenfin): Check if the responses are actually the same
+create_one_snapshot = volume_v2_fakes.create_one_snapshot
 create_one_volume = volume_v2_fakes.create_one_volume
 create_one_volume_type = volume_v2_fakes.create_one_volume_type
 
@@ -241,6 +256,62 @@ def create_resource_filters(attrs=None, count=2):
         resource_filters.append(create_one_resource_filter(attrs))
 
     return resource_filters
+
+
+def create_one_sdk_volume(attrs=None):
+    """Create a fake volume.
+
+    :param dict attrs:
+        A dictionary with all attributes of volume
+    :return:
+        A FakeResource object with id, name, status, etc.
+    """
+    attrs = attrs or {}
+
+    # Set default attribute
+    volume_info = {
+        'id': 'volume-id' + uuid.uuid4().hex,
+        'name': 'volume-name' + uuid.uuid4().hex,
+        'description': 'description' + uuid.uuid4().hex,
+        'status': random.choice(['available', 'in_use']),
+        'size': random.randint(1, 20),
+        'volume_type': random.choice(['fake_lvmdriver-1', 'fake_lvmdriver-2']),
+        'bootable': random.choice(['true', 'false']),
+        'metadata': {
+            'key' + uuid.uuid4().hex: 'val' + uuid.uuid4().hex,
+            'key' + uuid.uuid4().hex: 'val' + uuid.uuid4().hex,
+            'key' + uuid.uuid4().hex: 'val' + uuid.uuid4().hex,
+        },
+        'snapshot_id': random.randint(1, 5),
+        'availability_zone': 'zone' + uuid.uuid4().hex,
+        'attachments': [
+            {
+                'device': '/dev/' + uuid.uuid4().hex,
+                'server_id': uuid.uuid4().hex,
+            },
+        ],
+    }
+
+    # Overwrite default attributes if there are some attributes set
+    volume_info.update(attrs)
+    return _volume.Volume(**volume_info)
+
+
+def create_sdk_volumes(attrs=None, count=2):
+    """Create multiple fake volumes.
+
+    :param dict attrs:
+        A dictionary with all attributes of volume
+    :param Integer count:
+        The number of volumes to be faked
+    :return:
+        A list of FakeResource objects
+    """
+    volumes = []
+    for n in range(0, count):
+        volumes.append(create_one_sdk_volume(attrs))
+
+    return volumes
 
 
 def create_one_volume_group(attrs=None):
