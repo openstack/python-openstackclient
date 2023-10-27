@@ -28,7 +28,7 @@ class TestSecurityGroupRuleCompute(compute_fakes.TestComputev2):
         super(TestSecurityGroupRuleCompute, self).setUp()
 
         # Get a shortcut to the network client
-        self.compute = self.app.client_manager.compute
+        self.compute_client = self.app.client_manager.compute
 
 
 @mock.patch('openstackclient.api.compute_v2.APIv2.security_group_rule_create')
@@ -59,7 +59,7 @@ class TestCreateSecurityGroupRuleCompute(TestSecurityGroupRuleCompute):
 
         self.app.client_manager.network_endpoint_enabled = False
 
-        self.compute.api.security_group_find = mock.Mock(
+        self.compute_client.api.security_group_find = mock.Mock(
             return_value=self._security_group,
         )
 
@@ -168,7 +168,7 @@ class TestCreateSecurityGroupRuleCompute(TestSecurityGroupRuleCompute):
         columns, data = self.cmd.take_action(parsed_args)
 
         # TODO(dtroyer): save this for the security group rule changes
-        # self.compute.api.security_group_rule_create.assert_called_once_with(
+        # self.compute_client.api.security_group_rule_create.assert_called_once_with(
         sgr_mock.assert_called_once_with(
             security_group_id=self._security_group['id'],
             ip_protocol=self._security_group_rule['ip_protocol'],
@@ -212,7 +212,7 @@ class TestCreateSecurityGroupRuleCompute(TestSecurityGroupRuleCompute):
         columns, data = self.cmd.take_action(parsed_args)
 
         # TODO(dtroyer): save this for the security group rule changes
-        # self.compute.api.security_group_rule_create.assert_called_once_with(
+        # self.compute_client.api.security_group_rule_create.assert_called_once_with(
         sgr_mock.assert_called_once_with(
             security_group_id=self._security_group['id'],
             ip_protocol=self._security_group_rule['ip_protocol'],
@@ -251,7 +251,7 @@ class TestCreateSecurityGroupRuleCompute(TestSecurityGroupRuleCompute):
         columns, data = self.cmd.take_action(parsed_args)
 
         # TODO(dtroyer): save this for the security group rule changes
-        # self.compute.api.security_group_rule_create.assert_called_once_with(
+        # self.compute_client.api.security_group_rule_create.assert_called_once_with(
         sgr_mock.assert_called_once_with(
             security_group_id=self._security_group['id'],
             ip_protocol=self._security_group_rule['ip_protocol'],
@@ -291,7 +291,7 @@ class TestCreateSecurityGroupRuleCompute(TestSecurityGroupRuleCompute):
         columns, data = self.cmd.take_action(parsed_args)
 
         # TODO(dtroyer): save this for the security group rule changes
-        # self.compute.api.security_group_rule_create.assert_called_once_with(
+        # self.compute_client.api.security_group_rule_create.assert_called_once_with(
         sgr_mock.assert_called_once_with(
             security_group_id=self._security_group['id'],
             ip_protocol=self._security_group_rule['ip_protocol'],
@@ -440,10 +440,10 @@ class TestListSecurityGroupRuleCompute(TestSecurityGroupRuleCompute):
 
         self.app.client_manager.network_endpoint_enabled = False
 
-        self.compute.api.security_group_find = mock.Mock(
+        self.compute_client.api.security_group_find = mock.Mock(
             return_value=self._security_group,
         )
-        self.compute.api.security_group_list = mock.Mock(
+        self.compute_client.api.security_group_list = mock.Mock(
             return_value=[self._security_group],
         )
 
@@ -454,7 +454,7 @@ class TestListSecurityGroupRuleCompute(TestSecurityGroupRuleCompute):
         parsed_args = self.check_parser(self.cmd, [], [])
 
         columns, data = self.cmd.take_action(parsed_args)
-        self.compute.api.security_group_list.assert_called_once_with(
+        self.compute_client.api.security_group_list.assert_called_once_with(
             search_opts={'all_tenants': False}
         )
         self.assertEqual(self.expected_columns_no_group, columns)
@@ -470,7 +470,7 @@ class TestListSecurityGroupRuleCompute(TestSecurityGroupRuleCompute):
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
         columns, data = self.cmd.take_action(parsed_args)
-        self.compute.api.security_group_find.assert_called_once_with(
+        self.compute_client.api.security_group_find.assert_called_once_with(
             self._security_group['id']
         )
         self.assertEqual(self.expected_columns_with_group, columns)
@@ -486,7 +486,7 @@ class TestListSecurityGroupRuleCompute(TestSecurityGroupRuleCompute):
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
         columns, data = self.cmd.take_action(parsed_args)
-        self.compute.api.security_group_list.assert_called_once_with(
+        self.compute_client.api.security_group_list.assert_called_once_with(
             search_opts={'all_tenants': True}
         )
         self.assertEqual(self.expected_columns_no_group, columns)
@@ -502,7 +502,7 @@ class TestListSecurityGroupRuleCompute(TestSecurityGroupRuleCompute):
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
         columns, data = self.cmd.take_action(parsed_args)
-        self.compute.api.security_group_list.assert_called_once_with(
+        self.compute_client.api.security_group_list.assert_called_once_with(
             search_opts={'all_tenants': False}
         )
         self.assertEqual(self.expected_columns_no_group, columns)
@@ -525,7 +525,7 @@ class TestShowSecurityGroupRuleCompute(TestSecurityGroupRuleCompute):
         # Build a security group fake customized for this test.
         security_group_rules = [self._security_group_rule]
         security_group = {'rules': security_group_rules}
-        self.compute.api.security_group_list = mock.Mock(
+        self.compute_client.api.security_group_list = mock.Mock(
             return_value=[security_group],
         )
 
@@ -548,6 +548,6 @@ class TestShowSecurityGroupRuleCompute(TestSecurityGroupRuleCompute):
 
         columns, data = self.cmd.take_action(parsed_args)
 
-        self.compute.api.security_group_list.assert_called_once_with()
+        self.compute_client.api.security_group_list.assert_called_once_with()
         self.assertEqual(self.columns, columns)
         self.assertEqual(self.data, data)

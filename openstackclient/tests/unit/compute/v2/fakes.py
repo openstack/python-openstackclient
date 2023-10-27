@@ -161,8 +161,9 @@ class TestComputev2(
             endpoint=fakes.AUTH_URL,
             token=fakes.AUTH_TOKEN,
         )
+        self.compute_client = self.app.client_manager.compute
 
-        self.app.client_manager.compute.api = compute_v2.APIv2(
+        self.compute_client.api = compute_v2.APIv2(
             session=self.app.client_manager.session,
             endpoint=fakes.AUTH_URL,
         )

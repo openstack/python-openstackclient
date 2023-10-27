@@ -9,11 +9,9 @@
 #   WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
 #   License for the specific language governing permissions and limitations
 #   under the License.
-#
 
 from unittest import mock
 
-from novaclient import api_versions
 from openstack import utils as sdk_utils
 from osc_lib import exceptions
 
@@ -27,7 +25,9 @@ class TestServerVolume(compute_fakes.TestComputev2):
         super().setUp()
 
         self.app.client_manager.sdk_connection.compute = mock.Mock()
-        self.compute_client = self.app.client_manager.sdk_connection.compute
+        self.compute_sdk_client = (
+            self.app.client_manager.sdk_connection.compute
+        )
 
 
 class TestServerVolumeList(TestServerVolume):
@@ -37,8 +37,8 @@ class TestServerVolumeList(TestServerVolume):
         self.server = compute_fakes.create_one_sdk_server()
         self.volume_attachments = compute_fakes.create_volume_attachments()
 
-        self.compute_client.find_server.return_value = self.server
-        self.compute_client.volume_attachments.return_value = (
+        self.compute_sdk_client.find_server.return_value = self.server
+        self.compute_sdk_client.volume_attachments.return_value = (
             self.volume_attachments
         )
 
@@ -47,9 +47,6 @@ class TestServerVolumeList(TestServerVolume):
 
     @mock.patch.object(sdk_utils, 'supports_microversion')
     def test_server_volume_list(self, sm_mock):
-        self.app.client_manager.compute.api_version = api_versions.APIVersion(
-            '2.1'
-        )
         sm_mock.side_effect = [False, False, False, False]
 
         arglist = [
@@ -80,7 +77,7 @@ class TestServerVolumeList(TestServerVolume):
             ),
             tuple(data),
         )
-        self.compute_client.volume_attachments.assert_called_once_with(
+        self.compute_sdk_client.volume_attachments.assert_called_once_with(
             self.server,
         )
 
@@ -127,7 +124,7 @@ class TestServerVolumeList(TestServerVolume):
             ),
             tuple(data),
         )
-        self.compute_client.volume_attachments.assert_called_once_with(
+        self.compute_sdk_client.volume_attachments.assert_called_once_with(
             self.server,
         )
 
@@ -176,7 +173,7 @@ class TestServerVolumeList(TestServerVolume):
             ),
             tuple(data),
         )
-        self.compute_client.volume_attachments.assert_called_once_with(
+        self.compute_sdk_client.volume_attachments.assert_called_once_with(
             self.server,
         )
 
@@ -228,7 +225,7 @@ class TestServerVolumeList(TestServerVolume):
             ),
             tuple(data),
         )
-        self.compute_client.volume_attachments.assert_called_once_with(
+        self.compute_sdk_client.volume_attachments.assert_called_once_with(
             self.server,
         )
 
@@ -238,7 +235,7 @@ class TestServerVolumeUpdate(TestServerVolume):
         super().setUp()
 
         self.server = compute_fakes.create_one_sdk_server()
-        self.compute_client.find_server.return_value = self.server
+        self.compute_sdk_client.find_server.return_value = self.server
 
         self.volume = volume_fakes.create_one_sdk_volume()
         self.volume_sdk_client.find_volume.return_value = self.volume
@@ -261,7 +258,7 @@ class TestServerVolumeUpdate(TestServerVolume):
         result = self.cmd.take_action(parsed_args)
 
         # This is a no-op
-        self.compute_client.update_volume_attachment.assert_not_called()
+        self.compute_sdk_client.update_volume_attachment.assert_not_called()
         self.assertIsNone(result)
 
     @mock.patch.object(sdk_utils, 'supports_microversion')
@@ -282,7 +279,7 @@ class TestServerVolumeUpdate(TestServerVolume):
 
         result = self.cmd.take_action(parsed_args)
 
-        self.compute_client.update_volume_attachment.assert_called_once_with(
+        self.compute_sdk_client.update_volume_attachment.assert_called_once_with(
             self.server,
             self.volume,
             delete_on_termination=True,
@@ -307,7 +304,7 @@ class TestServerVolumeUpdate(TestServerVolume):
 
         result = self.cmd.take_action(parsed_args)
 
-        self.compute_client.update_volume_attachment.assert_called_once_with(
+        self.compute_sdk_client.update_volume_attachment.assert_called_once_with(
             self.server, self.volume, delete_on_termination=False
         )
         self.assertIsNone(result)
@@ -336,7 +333,7 @@ class TestServerVolumeUpdate(TestServerVolume):
             self.cmd.take_action,
             parsed_args,
         )
-        self.compute_client.update_volume_attachment.assert_not_called()
+        self.compute_sdk_client.update_volume_attachment.assert_not_called()
 
     @mock.patch.object(sdk_utils, 'supports_microversion')
     def test_server_volume_update_with_preserve_on_termination_pre_v285(
@@ -362,4 +359,4 @@ class TestServerVolumeUpdate(TestServerVolume):
             self.cmd.take_action,
             parsed_args,
         )
-        self.compute_client.update_volume_attachment.assert_not_called()
+        self.compute_sdk_client.update_volume_attachment.assert_not_called()

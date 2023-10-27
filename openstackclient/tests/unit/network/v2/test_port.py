@@ -1200,8 +1200,6 @@ class TestListPort(TestPort):
     def setUp(self):
         super(TestListPort, self).setUp()
 
-        # Get the command object to test
-        self.cmd = port.ListPort(self.app, self.namespace)
         self.network_client.ports = mock.Mock(return_value=self._ports)
         fake_router = network_fakes.FakeRouter.create_one_router(
             {
@@ -1215,7 +1213,12 @@ class TestListPort(TestPort):
         )
         self.network_client.find_router = mock.Mock(return_value=fake_router)
         self.network_client.find_network = mock.Mock(return_value=fake_network)
+
         self.app.client_manager.compute = mock.Mock()
+        self.compute_client = self.app.client_manager.compute
+
+        # Get the command object to test
+        self.cmd = port.ListPort(self.app, self.namespace)
 
     def test_port_list_no_options(self):
         arglist = []

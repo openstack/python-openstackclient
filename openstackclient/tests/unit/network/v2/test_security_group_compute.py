@@ -27,7 +27,7 @@ class TestSecurityGroupCompute(compute_fakes.TestComputev2):
         super(TestSecurityGroupCompute, self).setUp()
 
         # Get a shortcut to the compute client
-        self.compute = self.app.client_manager.compute
+        self.compute_client = self.app.client_manager.compute
 
 
 @mock.patch('openstackclient.api.compute_v2.APIv2.security_group_create')
@@ -119,7 +119,7 @@ class TestDeleteSecurityGroupCompute(TestSecurityGroupCompute):
 
         self.app.client_manager.network_endpoint_enabled = False
 
-        self.compute.api.security_group_find = (
+        self.compute_client.api.security_group_find = (
             compute_fakes.get_security_groups(self._security_groups)
         )
 
@@ -279,7 +279,7 @@ class TestSetSecurityGroupCompute(TestSecurityGroupCompute):
 
         self.app.client_manager.network_endpoint_enabled = False
 
-        self.compute.api.security_group_find = mock.Mock(
+        self.compute_client.api.security_group_find = mock.Mock(
             return_value=self._security_group
         )
 

@@ -28,7 +28,9 @@ class TestServerBackup(compute_fakes.TestComputev2):
 
         # Get a shortcut to the compute client ServerManager Mock
         self.app.client_manager.sdk_connection.compute = mock.Mock()
-        self.sdk_client = self.app.client_manager.sdk_connection.compute
+        self.compute_sdk_client = (
+            self.app.client_manager.sdk_connection.compute
+        )
 
         # Set object attributes to be tested. Could be overwritten in subclass.
         self.attrs = {}
@@ -40,7 +42,7 @@ class TestServerBackup(compute_fakes.TestComputev2):
         )
 
         # This is the return value for compute_client.find_server()
-        self.sdk_client.find_server = compute_fakes.get_servers(
+        self.compute_sdk_client.find_server = compute_fakes.get_servers(
             servers,
             0,
         )
@@ -121,7 +123,7 @@ class TestServerBackupCreate(TestServerBackup):
         # data to be shown.
         columns, data = self.cmd.take_action(parsed_args)
 
-        self.sdk_client.backup_server.assert_called_with(
+        self.compute_sdk_client.backup_server.assert_called_with(
             servers[0].id,
             servers[0].name,
             '',
@@ -157,7 +159,7 @@ class TestServerBackupCreate(TestServerBackup):
         # data to be shown.
         columns, data = self.cmd.take_action(parsed_args)
 
-        self.sdk_client.backup_server.assert_called_with(
+        self.compute_sdk_client.backup_server.assert_called_with(
             servers[0].id,
             'image',
             'daily',
@@ -197,7 +199,7 @@ class TestServerBackupCreate(TestServerBackup):
             parsed_args,
         )
 
-        self.sdk_client.backup_server.assert_called_with(
+        self.compute_sdk_client.backup_server.assert_called_with(
             servers[0].id,
             'image',
             'daily',
@@ -238,7 +240,7 @@ class TestServerBackupCreate(TestServerBackup):
         # data to be shown.
         columns, data = self.cmd.take_action(parsed_args)
 
-        self.sdk_client.backup_server.assert_called_with(
+        self.compute_sdk_client.backup_server.assert_called_with(
             servers[0].id,
             'image',
             'daily',

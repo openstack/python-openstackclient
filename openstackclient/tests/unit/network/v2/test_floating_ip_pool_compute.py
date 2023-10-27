@@ -25,7 +25,7 @@ class TestFloatingIPPoolCompute(compute_fakes.TestComputev2):
         super(TestFloatingIPPoolCompute, self).setUp()
 
         # Get a shortcut to the compute client
-        self.compute = self.app.client_manager.compute
+        self.compute_client = self.app.client_manager.compute
 
 
 @mock.patch('openstackclient.api.compute_v2.APIv2.floating_ip_pool_list')

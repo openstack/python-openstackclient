@@ -11,12 +11,10 @@
 #   WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
 #   License for the specific language governing permissions and limitations
 #   under the License.
-#
 
 from unittest import mock
 from unittest.mock import call
 
-from novaclient import api_versions
 from openstack import utils as sdk_utils
 from osc_lib import exceptions
 
@@ -29,7 +27,9 @@ class TestService(compute_fakes.TestComputev2):
         super(TestService, self).setUp()
 
         self.app.client_manager.sdk_connection.compute = mock.Mock()
-        self.sdk_client = self.app.client_manager.sdk_connection.compute
+        self.compute_sdk_client = (
+            self.app.client_manager.sdk_connection.compute
+        )
 
 
 class TestServiceDelete(TestService):
@@ -38,7 +38,7 @@ class TestServiceDelete(TestService):
     def setUp(self):
         super(TestServiceDelete, self).setUp()
 
-        self.sdk_client.delete_service.return_value = None
+        self.compute_sdk_client.delete_service.return_value = None
 
         # Get the command object to test
         self.cmd = service.DeleteService(self.app, None)
@@ -54,7 +54,7 @@ class TestServiceDelete(TestService):
 
         result = self.cmd.take_action(parsed_args)
 
-        self.sdk_client.delete_service.assert_called_with(
+        self.compute_sdk_client.delete_service.assert_called_with(
             self.services[0].binary, ignore_missing=False
         )
         self.assertIsNone(result)
@@ -73,7 +73,7 @@ class TestServiceDelete(TestService):
         calls = []
         for s in self.services:
             calls.append(call(s.binary, ignore_missing=False))
-        self.sdk_client.delete_service.assert_has_calls(calls)
+        self.compute_sdk_client.delete_service.assert_has_calls(calls)
         self.assertIsNone(result)
 
     def test_multi_services_delete_with_exception(self):
@@ -85,7 +85,7 @@ class TestServiceDelete(TestService):
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
         delete_mock_result = [None, exceptions.CommandError]
-        self.sdk_client.delete_service = mock.Mock(
+        self.compute_sdk_client.delete_service = mock.Mock(
             side_effect=delete_mock_result
         )
 
@@ -97,10 +97,10 @@ class TestServiceDelete(TestService):
                 '1 of 2 compute services failed to delete.', str(e)
             )
 
-        self.sdk_client.delete_service.assert_any_call(
+        self.compute_sdk_client.delete_service.assert_any_call(
             self.services[0].binary, ignore_missing=False
         )
-        self.sdk_client.delete_service.assert_any_call(
+        self.compute_sdk_client.delete_service.assert_any_call(
             'unexist_service', ignore_missing=False
         )
 
@@ -135,7 +135,7 @@ class TestServiceList(TestService):
     def setUp(self):
         super(TestServiceList, self).setUp()
 
-        self.sdk_client.services.return_value = [self.service]
+        self.compute_sdk_client.services.return_value = [self.service]
 
         # Get the command object to test
         self.cmd = service.ListService(self.app, None)
@@ -158,7 +158,7 @@ class TestServiceList(TestService):
         # containing the data to be listed.
         columns, data = self.cmd.take_action(parsed_args)
 
-        self.sdk_client.services.assert_called_with(
+        self.compute_sdk_client.services.assert_called_with(
             host=self.service.host,
             binary=self.service.binary,
         )
@@ -189,7 +189,7 @@ class TestServiceList(TestService):
         # containing the data to be listed.
         columns, data = self.cmd.take_action(parsed_args)
 
-        self.sdk_client.services.assert_called_with(
+        self.compute_sdk_client.services.assert_called_with(
             host=self.service.host,
             binary=self.service.binary,
         )
@@ -214,16 +214,13 @@ class TestServiceList(TestService):
             ('long', True),
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
-        self.app.client_manager.compute.api_version = api_versions.APIVersion(
-            '2.11'
-        )
 
         # In base command class Lister in cliff, abstract method take_action()
         # returns a tuple containing the column names and an iterable
         # containing the data to be listed.
         columns, data = self.cmd.take_action(parsed_args)
 
-        self.sdk_client.services.assert_called_with(
+        self.compute_sdk_client.services.assert_called_with(
             host=self.service.host,
             binary=self.service.binary,
         )
@@ -242,8 +239,8 @@ class TestServiceSet(TestService):
 
         self.service = compute_fakes.create_one_service()
 
-        self.sdk_client.enable_service.return_value = self.service
-        self.sdk_client.disable_service.return_value = self.service
+        self.compute_sdk_client.enable_service.return_value = self.service
+        self.compute_sdk_client.disable_service.return_value = self.service
 
         self.cmd = service.SetService(self.app, None)
 
@@ -261,8 +258,8 @@ class TestServiceSet(TestService):
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
         result = self.cmd.take_action(parsed_args)
 
-        self.sdk_client.enable_service.assert_not_called()
-        self.sdk_client.disable_service.assert_not_called()
+        self.compute_sdk_client.enable_service.assert_not_called()
+        self.compute_sdk_client.disable_service.assert_not_called()
         self.assertIsNone(result)
 
     @mock.patch.object(sdk_utils, 'supports_microversion')
@@ -282,7 +279,7 @@ class TestServiceSet(TestService):
 
         result = self.cmd.take_action(parsed_args)
 
-        self.sdk_client.enable_service.assert_called_with(
+        self.compute_sdk_client.enable_service.assert_called_with(
             None, self.service.host, self.service.binary
         )
         self.assertIsNone(result)
@@ -304,7 +301,7 @@ class TestServiceSet(TestService):
 
         result = self.cmd.take_action(parsed_args)
 
-        self.sdk_client.disable_service.assert_called_with(
+        self.compute_sdk_client.disable_service.assert_called_with(
             None, self.service.host, self.service.binary, None
         )
         self.assertIsNone(result)
@@ -330,7 +327,7 @@ class TestServiceSet(TestService):
 
         result = self.cmd.take_action(parsed_args)
 
-        self.sdk_client.disable_service.assert_called_with(
+        self.compute_sdk_client.disable_service.assert_called_with(
             None, self.service.host, self.service.binary, reason
         )
         self.assertIsNone(result)
@@ -404,11 +401,11 @@ class TestServiceSet(TestService):
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
         result = self.cmd.take_action(parsed_args)
-        self.sdk_client.update_service_forced_down.assert_called_once_with(
+        self.compute_sdk_client.update_service_forced_down.assert_called_once_with(
             None, self.service.host, self.service.binary, False
         )
-        self.assertNotCalled(self.sdk_client.enable_service)
-        self.assertNotCalled(self.sdk_client.disable_service)
+        self.assertNotCalled(self.compute_sdk_client.enable_service)
+        self.assertNotCalled(self.compute_sdk_client.disable_service)
         self.assertIsNone(result)
 
     @mock.patch.object(sdk_utils, 'supports_microversion')
@@ -426,11 +423,11 @@ class TestServiceSet(TestService):
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
         result = self.cmd.take_action(parsed_args)
-        self.sdk_client.update_service_forced_down.assert_called_once_with(
+        self.compute_sdk_client.update_service_forced_down.assert_called_once_with(
             None, self.service.host, self.service.binary, True
         )
-        self.assertNotCalled(self.sdk_client.enable_service)
-        self.assertNotCalled(self.sdk_client.disable_service)
+        self.assertNotCalled(self.compute_sdk_client.enable_service)
+        self.assertNotCalled(self.compute_sdk_client.disable_service)
         self.assertIsNone(result)
 
     @mock.patch.object(sdk_utils, 'supports_microversion')
@@ -450,10 +447,10 @@ class TestServiceSet(TestService):
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
         result = self.cmd.take_action(parsed_args)
-        self.sdk_client.enable_service.assert_called_once_with(
+        self.compute_sdk_client.enable_service.assert_called_once_with(
             None, self.service.host, self.service.binary
         )
-        self.sdk_client.update_service_forced_down.assert_called_once_with(
+        self.compute_sdk_client.update_service_forced_down.assert_called_once_with(
             None, self.service.host, self.service.binary, True
         )
         self.assertIsNone(result)
@@ -476,12 +473,12 @@ class TestServiceSet(TestService):
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
         with mock.patch.object(
-            self.sdk_client, 'enable_service', side_effect=Exception()
+            self.compute_sdk_client, 'enable_service', side_effect=Exception()
         ):
             self.assertRaises(
                 exceptions.CommandError, self.cmd.take_action, parsed_args
             )
-            self.sdk_client.update_service_forced_down.assert_called_once_with(
+            self.compute_sdk_client.update_service_forced_down.assert_called_once_with(
                 None, self.service.host, self.service.binary, True
             )
 
@@ -504,12 +501,14 @@ class TestServiceSet(TestService):
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
         service_id = '339478d0-0b95-4a94-be63-d5be05dfeb1c'
-        self.sdk_client.services.return_value = [mock.Mock(id=service_id)]
+        self.compute_sdk_client.services.return_value = [
+            mock.Mock(id=service_id)
+        ]
         result = self.cmd.take_action(parsed_args)
-        self.sdk_client.disable_service.assert_called_once_with(
+        self.compute_sdk_client.disable_service.assert_called_once_with(
             service_id, self.service.host, self.service.binary, None
         )
-        self.sdk_client.update_service_forced_down.assert_called_once_with(
+        self.compute_sdk_client.update_service_forced_down.assert_called_once_with(
             service_id, self.service.host, self.service.binary, True
         )
         self.assertIsNone(result)
@@ -535,9 +534,11 @@ class TestServiceSet(TestService):
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
         service_id = '339478d0-0b95-4a94-be63-d5be05dfeb1c'
-        self.sdk_client.services.return_value = [mock.Mock(id=service_id)]
+        self.compute_sdk_client.services.return_value = [
+            mock.Mock(id=service_id)
+        ]
         result = self.cmd.take_action(parsed_args)
-        self.sdk_client.disable_service.assert_called_once_with(
+        self.compute_sdk_client.disable_service.assert_called_once_with(
             service_id, self.service.host, self.service.binary, reason
         )
         self.assertIsNone(result)
@@ -561,23 +562,25 @@ class TestServiceSet(TestService):
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
         service_id = '339478d0-0b95-4a94-be63-d5be05dfeb1c'
-        self.sdk_client.services.return_value = [mock.Mock(id=service_id)]
+        self.compute_sdk_client.services.return_value = [
+            mock.Mock(id=service_id)
+        ]
         result = self.cmd.take_action(parsed_args)
-        self.sdk_client.enable_service.assert_called_once_with(
+        self.compute_sdk_client.enable_service.assert_called_once_with(
             service_id, self.service.host, self.service.binary
         )
-        self.sdk_client.update_service_forced_down.assert_called_once_with(
+        self.compute_sdk_client.update_service_forced_down.assert_called_once_with(
             service_id, self.service.host, self.service.binary, False
         )
         self.assertIsNone(result)
 
     def test_service_set_find_service_by_host_and_binary_no_results(self):
         # Tests that no compute services are found by host and binary.
-        self.sdk_client.services.return_value = []
+        self.compute_sdk_client.services.return_value = []
         ex = self.assertRaises(
             exceptions.CommandError,
             self.cmd._find_service_by_host_and_binary,
-            self.sdk_client,
+            self.compute_sdk_client,
             'fake-host',
             'nova-compute',
         )
@@ -589,11 +592,14 @@ class TestServiceSet(TestService):
 
     def test_service_set_find_service_by_host_and_binary_many_results(self):
         # Tests that more than one compute service is found by host and binary.
-        self.sdk_client.services.return_value = [mock.Mock(), mock.Mock()]
+        self.compute_sdk_client.services.return_value = [
+            mock.Mock(),
+            mock.Mock(),
+        ]
         ex = self.assertRaises(
             exceptions.CommandError,
             self.cmd._find_service_by_host_and_binary,
-            self.sdk_client,
+            self.compute_sdk_client,
             'fake-host',
             'nova-compute',
         )

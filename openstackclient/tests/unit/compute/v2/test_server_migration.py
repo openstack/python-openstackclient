@@ -27,17 +27,17 @@ class TestServerMigration(compute_fakes.TestComputev2):
         super().setUp()
 
         # Get a shortcut to the compute client ServerManager Mock
-        self.servers_mock = self.app.client_manager.compute.servers
+        self.servers_mock = self.compute_client.servers
         self.servers_mock.reset_mock()
 
         # Get a shortcut to the compute client ServerMigrationsManager Mock
-        self.server_migrations_mock = (
-            self.app.client_manager.compute.server_migrations
-        )
+        self.server_migrations_mock = self.compute_client.server_migrations
         self.server_migrations_mock.reset_mock()
 
         self.app.client_manager.sdk_connection.compute = mock.Mock()
-        self.sdk_client = self.app.client_manager.sdk_connection.compute
+        self.compute_sdk_client = (
+            self.app.client_manager.sdk_connection.compute
+        )
 
         patcher = mock.patch.object(
             sdk_utils, 'supports_microversion', return_value=True
@@ -91,10 +91,10 @@ class TestListMigration(TestServerMigration):
         self._set_mock_microversion('2.1')
 
         self.server = compute_fakes.create_one_sdk_server()
-        self.sdk_client.find_server.return_value = self.server
+        self.compute_sdk_client.find_server.return_value = self.server
 
         self.migrations = compute_fakes.create_migrations(count=3)
-        self.sdk_client.migrations.return_value = self.migrations
+        self.compute_sdk_client.migrations.return_value = self.migrations
 
         self.data = (
             common_utils.get_item_properties(s, self.MIGRATION_FIELDS)
@@ -114,7 +114,7 @@ class TestListMigration(TestServerMigration):
         # Set expected values
         kwargs = {}
 
-        self.sdk_client.migrations.assert_called_with(**kwargs)
+        self.compute_sdk_client.migrations.assert_called_with(**kwargs)
 
         self.assertEqual(self.MIGRATION_COLUMNS, columns)
         self.assertEqual(tuple(self.data), tuple(data))
@@ -146,8 +146,8 @@ class TestListMigration(TestServerMigration):
             'migration_type': 'migration',
         }
 
-        self.sdk_client.find_server.assert_called_with('server1')
-        self.sdk_client.migrations.assert_called_with(**kwargs)
+        self.compute_sdk_client.find_server.assert_called_with('server1')
+        self.compute_sdk_client.migrations.assert_called_with(**kwargs)
 
         self.assertEqual(self.MIGRATION_COLUMNS, columns)
         self.assertEqual(tuple(self.data), tuple(data))
@@ -205,7 +205,7 @@ class TestListMigrationV223(TestListMigration):
             'status': 'migrating',
         }
 
-        self.sdk_client.migrations.assert_called_with(**kwargs)
+        self.compute_sdk_client.migrations.assert_called_with(**kwargs)
 
         self.assertEqual(self.MIGRATION_COLUMNS, columns)
         self.assertEqual(tuple(self.data), tuple(data))
@@ -283,7 +283,7 @@ class TestListMigrationV259(TestListMigration):
             'changes_since': '2019-08-09T08:03:25Z',
         }
 
-        self.sdk_client.migrations.assert_called_with(**kwargs)
+        self.compute_sdk_client.migrations.assert_called_with(**kwargs)
 
         self.assertEqual(self.MIGRATION_COLUMNS, columns)
         self.assertEqual(tuple(self.data), tuple(data))
@@ -409,7 +409,7 @@ class TestListMigrationV266(TestListMigration):
             'changes_before': '2019-08-09T08:03:25Z',
         }
 
-        self.sdk_client.migrations.assert_called_with(**kwargs)
+        self.compute_sdk_client.migrations.assert_called_with(**kwargs)
 
         self.assertEqual(self.MIGRATION_COLUMNS, columns)
         self.assertEqual(tuple(self.data), tuple(data))
@@ -527,7 +527,7 @@ class TestListMigrationV280(TestListMigration):
             'changes_before': "2019-08-09T08:03:25Z",
         }
 
-        self.sdk_client.migrations.assert_called_with(**kwargs)
+        self.compute_sdk_client.migrations.assert_called_with(**kwargs)
 
         self.MIGRATION_COLUMNS.insert(
             len(self.MIGRATION_COLUMNS) - 2, "Project"
@@ -603,7 +603,7 @@ class TestListMigrationV280(TestListMigration):
             'changes_before': "2019-08-09T08:03:25Z",
         }
 
-        self.sdk_client.migrations.assert_called_with(**kwargs)
+        self.compute_sdk_client.migrations.assert_called_with(**kwargs)
 
         self.MIGRATION_COLUMNS.insert(len(self.MIGRATION_COLUMNS) - 2, "User")
         self.MIGRATION_FIELDS.insert(len(self.MIGRATION_FIELDS) - 2, "user_id")
@@ -674,7 +674,7 @@ class TestListMigrationV280(TestListMigration):
             'changes_before': "2019-08-09T08:03:25Z",
         }
 
-        self.sdk_client.migrations.assert_called_with(**kwargs)
+        self.compute_sdk_client.migrations.assert_called_with(**kwargs)
 
         self.MIGRATION_COLUMNS.insert(
             len(self.MIGRATION_COLUMNS) - 2, "Project"
@@ -724,13 +724,13 @@ class TestServerMigrationShow(TestServerMigration):
         super().setUp()
 
         self.server = compute_fakes.create_one_sdk_server()
-        self.sdk_client.find_server.return_value = self.server
+        self.compute_sdk_client.find_server.return_value = self.server
 
         self.server_migration = compute_fakes.create_one_server_migration()
-        self.sdk_client.get_server_migration.return_value = (
+        self.compute_sdk_client.get_server_migration.return_value = (
             self.server_migration
         )
-        self.sdk_client.server_migrations.return_value = iter(
+        self.compute_sdk_client.server_migrations.return_value = iter(
             [self.server_migration]
         )
 
@@ -788,10 +788,10 @@ class TestServerMigrationShow(TestServerMigration):
         self.assertEqual(self.columns, columns)
         self.assertEqual(self.data, data)
 
-        self.sdk_client.find_server.assert_called_with(
+        self.compute_sdk_client.find_server.assert_called_with(
             self.server.id, ignore_missing=False
         )
-        self.sdk_client.get_server_migration.assert_called_with(
+        self.compute_sdk_client.get_server_migration.assert_called_with(
             self.server.id, '2', ignore_missing=False
         )
 
@@ -840,7 +840,7 @@ class TestServerMigrationShow(TestServerMigration):
     def test_server_migration_show_by_uuid(self):
         self._set_mock_microversion('2.59')
 
-        self.sdk_client.server_migrations.return_value = iter(
+        self.compute_sdk_client.server_migrations.return_value = iter(
             [self.server_migration]
         )
 
@@ -859,15 +859,17 @@ class TestServerMigrationShow(TestServerMigration):
         self.assertEqual(self.columns, columns)
         self.assertEqual(self.data, data)
 
-        self.sdk_client.find_server.assert_called_with(
+        self.compute_sdk_client.find_server.assert_called_with(
             self.server.id, ignore_missing=False
         )
-        self.sdk_client.server_migrations.assert_called_with(self.server.id)
-        self.sdk_client.get_server_migration.assert_not_called()
+        self.compute_sdk_client.server_migrations.assert_called_with(
+            self.server.id
+        )
+        self.compute_sdk_client.get_server_migration.assert_not_called()
 
     def test_server_migration_show_by_uuid_no_matches(self):
         self._set_mock_microversion('2.59')
-        self.sdk_client.server_migrations.return_value = iter([])
+        self.compute_sdk_client.server_migrations.return_value = iter([])
 
         arglist = [
             self.server.id,
@@ -926,7 +928,7 @@ class TestServerMigrationAbort(TestServerMigration):
         self.server = compute_fakes.create_one_sdk_server()
 
         # Return value for utils.find_resource for server.
-        self.sdk_client.find_server.return_value = self.server
+        self.compute_sdk_client.find_server.return_value = self.server
 
         # Get the command object to test
         self.cmd = server_migration.AbortMigration(self.app, None)
@@ -943,10 +945,10 @@ class TestServerMigrationAbort(TestServerMigration):
 
         result = self.cmd.take_action(parsed_args)
 
-        self.sdk_client.find_server.assert_called_with(
+        self.compute_sdk_client.find_server.assert_called_with(
             self.server.id, ignore_missing=False
         )
-        self.sdk_client.abort_server_migration.assert_called_with(
+        self.compute_sdk_client.abort_server_migration.assert_called_with(
             '2', self.server.id, ignore_missing=False
         )
         self.assertIsNone(result)
@@ -972,7 +974,7 @@ class TestServerMigrationAbort(TestServerMigration):
         self._set_mock_microversion('2.59')
 
         self.server_migration = compute_fakes.create_one_server_migration()
-        self.sdk_client.server_migrations.return_value = iter(
+        self.compute_sdk_client.server_migrations.return_value = iter(
             [self.server_migration]
         )
 
@@ -985,11 +987,13 @@ class TestServerMigrationAbort(TestServerMigration):
 
         result = self.cmd.take_action(parsed_args)
 
-        self.sdk_client.find_server.assert_called_with(
+        self.compute_sdk_client.find_server.assert_called_with(
             self.server.id, ignore_missing=False
         )
-        self.sdk_client.server_migrations.assert_called_with(self.server.id)
-        self.sdk_client.abort_server_migration.assert_called_with(
+        self.compute_sdk_client.server_migrations.assert_called_with(
+            self.server.id
+        )
+        self.compute_sdk_client.abort_server_migration.assert_called_with(
             self.server_migration.id, self.server.id, ignore_missing=False
         )
         self.assertIsNone(result)
@@ -997,7 +1001,7 @@ class TestServerMigrationAbort(TestServerMigration):
     def test_server_migration_abort_by_uuid_no_matches(self):
         self._set_mock_microversion('2.59')
 
-        self.sdk_client.server_migrations.return_value = iter([])
+        self.compute_sdk_client.server_migrations.return_value = iter([])
 
         arglist = [
             self.server.id,
@@ -1039,7 +1043,7 @@ class TestServerMigrationForceComplete(TestServerMigration):
         self.server = compute_fakes.create_one_sdk_server()
 
         # Return value for utils.find_resource for server.
-        self.sdk_client.find_server.return_value = self.server
+        self.compute_sdk_client.find_server.return_value = self.server
 
         # Get the command object to test
         self.cmd = server_migration.ForceCompleteMigration(self.app, None)
@@ -1056,10 +1060,10 @@ class TestServerMigrationForceComplete(TestServerMigration):
 
         result = self.cmd.take_action(parsed_args)
 
-        self.sdk_client.find_server.assert_called_with(
+        self.compute_sdk_client.find_server.assert_called_with(
             self.server.id, ignore_missing=False
         )
-        self.sdk_client.force_complete_server_migration.assert_called_with(
+        self.compute_sdk_client.force_complete_server_migration.assert_called_with(
             '2', self.server.id
         )
         self.assertIsNone(result)
@@ -1085,7 +1089,7 @@ class TestServerMigrationForceComplete(TestServerMigration):
         self._set_mock_microversion('2.59')
 
         self.server_migration = compute_fakes.create_one_server_migration()
-        self.sdk_client.server_migrations.return_value = iter(
+        self.compute_sdk_client.server_migrations.return_value = iter(
             [self.server_migration]
         )
 
@@ -1098,11 +1102,13 @@ class TestServerMigrationForceComplete(TestServerMigration):
 
         result = self.cmd.take_action(parsed_args)
 
-        self.sdk_client.find_server.assert_called_with(
+        self.compute_sdk_client.find_server.assert_called_with(
             self.server.id, ignore_missing=False
         )
-        self.sdk_client.server_migrations.assert_called_with(self.server.id)
-        self.sdk_client.force_complete_server_migration.assert_called_with(
+        self.compute_sdk_client.server_migrations.assert_called_with(
+            self.server.id
+        )
+        self.compute_sdk_client.force_complete_server_migration.assert_called_with(
             self.server_migration.id, self.server.id
         )
         self.assertIsNone(result)
@@ -1110,7 +1116,7 @@ class TestServerMigrationForceComplete(TestServerMigration):
     def test_server_migration_force_complete_by_uuid_no_matches(self):
         self._set_mock_microversion('2.59')
 
-        self.sdk_client.server_migrations.return_value = iter([])
+        self.compute_sdk_client.server_migrations.return_value = iter([])
 
         arglist = [
             self.server.id,

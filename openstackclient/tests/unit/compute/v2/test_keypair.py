@@ -11,14 +11,12 @@
 #   WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
 #   License for the specific language governing permissions and limitations
 #   under the License.
-#
 
 import copy
 from unittest import mock
 from unittest.mock import call
 import uuid
 
-from novaclient import api_versions
 from openstack import utils as sdk_utils
 from osc_lib import exceptions
 
@@ -43,11 +41,13 @@ class TestKeypair(compute_fakes.TestComputev2):
         )
 
         self.app.client_manager.sdk_connection.compute = mock.Mock()
-        self.sdk_client = self.app.client_manager.sdk_connection.compute
-        self.sdk_client.keypairs = mock.Mock()
-        self.sdk_client.create_keypair = mock.Mock()
-        self.sdk_client.delete_keypair = mock.Mock()
-        self.sdk_client.find_keypair = mock.Mock()
+        self.compute_sdk_client = (
+            self.app.client_manager.sdk_connection.compute
+        )
+        self.compute_sdk_client.keypairs = mock.Mock()
+        self.compute_sdk_client.create_keypair = mock.Mock()
+        self.compute_sdk_client.delete_keypair = mock.Mock()
+        self.compute_sdk_client.find_keypair = mock.Mock()
 
 
 class TestKeypairCreate(TestKeypair):
@@ -78,7 +78,7 @@ class TestKeypairCreate(TestKeypair):
         # Get the command object to test
         self.cmd = keypair.CreateKeypair(self.app, None)
 
-        self.sdk_client.create_keypair.return_value = self.keypair
+        self.compute_sdk_client.create_keypair.return_value = self.keypair
 
     @mock.patch.object(
         keypair,
@@ -96,7 +96,7 @@ class TestKeypairCreate(TestKeypair):
 
         columns, data = self.cmd.take_action(parsed_args)
 
-        self.sdk_client.create_keypair.assert_called_with(
+        self.compute_sdk_client.create_keypair.assert_called_with(
             name=self.keypair.name,
             public_key=mock_generate.return_value.public_key,
         )
@@ -134,7 +134,7 @@ class TestKeypairCreate(TestKeypair):
 
             columns, data = self.cmd.take_action(parsed_args)
 
-            self.sdk_client.create_keypair.assert_called_with(
+            self.compute_sdk_client.create_keypair.assert_called_with(
                 name=self.keypair.name,
                 public_key=self.keypair.public_key,
             )
@@ -167,7 +167,7 @@ class TestKeypairCreate(TestKeypair):
 
             columns, data = self.cmd.take_action(parsed_args)
 
-            self.sdk_client.create_keypair.assert_called_with(
+            self.compute_sdk_client.create_keypair.assert_called_with(
                 name=self.keypair.name,
                 public_key=mock_generate.return_value.public_key,
             )
@@ -183,7 +183,7 @@ class TestKeypairCreate(TestKeypair):
     @mock.patch.object(sdk_utils, 'supports_microversion', return_value=True)
     def test_keypair_create_with_key_type(self, sm_mock):
         for key_type in ['x509', 'ssh']:
-            self.sdk_client.create_keypair.return_value = self.keypair
+            self.compute_sdk_client.create_keypair.return_value = self.keypair
 
             self.data = (
                 self.keypair.created_at,
@@ -214,7 +214,7 @@ class TestKeypairCreate(TestKeypair):
                 m_file.read.return_value = 'dummy'
                 columns, data = self.cmd.take_action(parsed_args)
 
-            self.sdk_client.create_keypair.assert_called_with(
+            self.compute_sdk_client.create_keypair.assert_called_with(
                 name=self.keypair.name,
                 public_key=self.keypair.public_key,
                 key_type=key_type,
@@ -273,7 +273,7 @@ class TestKeypairCreate(TestKeypair):
 
         columns, data = self.cmd.take_action(parsed_args)
 
-        self.sdk_client.create_keypair.assert_called_with(
+        self.compute_sdk_client.create_keypair.assert_called_with(
             name=self.keypair.name,
             user_id=identity_fakes.user_id,
             public_key=mock_generate.return_value.public_key,
@@ -322,7 +322,7 @@ class TestKeypairDelete(TestKeypair):
         ret = self.cmd.take_action(parsed_args)
 
         self.assertIsNone(ret)
-        self.sdk_client.delete_keypair.assert_called_with(
+        self.compute_sdk_client.delete_keypair.assert_called_with(
             self.keypairs[0].name, ignore_missing=False
         )
 
@@ -340,7 +340,7 @@ class TestKeypairDelete(TestKeypair):
         calls = []
         for k in self.keypairs:
             calls.append(call(k.name, ignore_missing=False))
-        self.sdk_client.delete_keypair.assert_has_calls(calls)
+        self.compute_sdk_client.delete_keypair.assert_has_calls(calls)
         self.assertIsNone(result)
 
     def test_delete_multiple_keypairs_with_exception(self):
@@ -354,7 +354,7 @@ class TestKeypairDelete(TestKeypair):
 
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
-        self.sdk_client.delete_keypair.side_effect = [
+        self.compute_sdk_client.delete_keypair.side_effect = [
             None,
             exceptions.CommandError,
         ]
@@ -367,7 +367,7 @@ class TestKeypairDelete(TestKeypair):
         calls = []
         for k in arglist:
             calls.append(call(k, ignore_missing=False))
-        self.sdk_client.delete_keypair.assert_has_calls(calls)
+        self.compute_sdk_client.delete_keypair.assert_has_calls(calls)
 
     @mock.patch.object(sdk_utils, 'supports_microversion', return_value=True)
     def test_keypair_delete_with_user(self, sm_mock):
@@ -381,7 +381,7 @@ class TestKeypairDelete(TestKeypair):
         ret = self.cmd.take_action(parsed_args)
 
         self.assertIsNone(ret)
-        self.sdk_client.delete_keypair.assert_called_with(
+        self.compute_sdk_client.delete_keypair.assert_called_with(
             self.keypairs[0].name,
             user_id=identity_fakes.user_id,
             ignore_missing=False,
@@ -389,10 +389,6 @@ class TestKeypairDelete(TestKeypair):
 
     @mock.patch.object(sdk_utils, 'supports_microversion', return_value=False)
     def test_keypair_delete_with_user_pre_v210(self, sm_mock):
-        self.app.client_manager.compute.api_version = api_versions.APIVersion(
-            '2.9'
-        )
-
         arglist = ['--user', identity_fakes.user_name, self.keypairs[0].name]
         verifylist = [
             ('user', identity_fakes.user_name),
@@ -409,13 +405,13 @@ class TestKeypairDelete(TestKeypair):
 
 
 class TestKeypairList(TestKeypair):
-    # Return value of self.sdk_client.keypairs().
+    # Return value of self.compute_sdk_client.keypairs().
     keypairs = compute_fakes.create_keypairs(count=1)
 
     def setUp(self):
         super().setUp()
 
-        self.sdk_client.keypairs.return_value = self.keypairs
+        self.compute_sdk_client.keypairs.return_value = self.keypairs
 
         # Get the command object to test
         self.cmd = keypair.ListKeypair(self.app, None)
@@ -434,7 +430,7 @@ class TestKeypairList(TestKeypair):
 
         # Set expected values
 
-        self.sdk_client.keypairs.assert_called_with()
+        self.compute_sdk_client.keypairs.assert_called_with()
 
         self.assertEqual(('Name', 'Fingerprint'), columns)
         self.assertEqual(
@@ -456,7 +452,7 @@ class TestKeypairList(TestKeypair):
 
         # Set expected values
 
-        self.sdk_client.keypairs.assert_called_with()
+        self.compute_sdk_client.keypairs.assert_called_with()
 
         self.assertEqual(('Name', 'Fingerprint', 'Type'), columns)
         self.assertEqual(
@@ -492,7 +488,7 @@ class TestKeypairList(TestKeypair):
         columns, data = self.cmd.take_action(parsed_args)
 
         users_mock.get.assert_called_with(identity_fakes.user_name)
-        self.sdk_client.keypairs.assert_called_with(
+        self.compute_sdk_client.keypairs.assert_called_with(
             user_id=identity_fakes.user_id,
         )
 
@@ -554,7 +550,7 @@ class TestKeypairList(TestKeypair):
 
         projects_mock.get.assert_called_with(identity_fakes.project_name)
         users_mock.list.assert_called_with(tenant_id=identity_fakes.project_id)
-        self.sdk_client.keypairs.assert_called_with(
+        self.compute_sdk_client.keypairs.assert_called_with(
             user_id=identity_fakes.user_id,
         )
 
@@ -614,7 +610,7 @@ class TestKeypairList(TestKeypair):
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
         self.cmd.take_action(parsed_args)
 
-        self.sdk_client.keypairs.assert_called_with(limit=1)
+        self.compute_sdk_client.keypairs.assert_called_with(limit=1)
 
     @mock.patch.object(
         sdk_utils, 'supports_microversion', new=mock.Mock(return_value=False)
@@ -652,7 +648,7 @@ class TestKeypairList(TestKeypair):
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
         self.cmd.take_action(parsed_args)
 
-        self.sdk_client.keypairs.assert_called_with(marker='test_kp')
+        self.compute_sdk_client.keypairs.assert_called_with(marker='test_kp')
 
     @mock.patch.object(
         sdk_utils, 'supports_microversion', new=mock.Mock(return_value=False)
@@ -708,7 +704,7 @@ class TestKeypairShow(TestKeypair):
 
     def test_keypair_show(self):
         self.keypair = compute_fakes.create_one_keypair()
-        self.sdk_client.find_keypair.return_value = self.keypair
+        self.compute_sdk_client.find_keypair.return_value = self.keypair
 
         self.data = (
             self.keypair.created_at,
@@ -727,7 +723,7 @@ class TestKeypairShow(TestKeypair):
 
         columns, data = self.cmd.take_action(parsed_args)
 
-        self.sdk_client.find_keypair.assert_called_with(
+        self.compute_sdk_client.find_keypair.assert_called_with(
             self.keypair.name, ignore_missing=False
         )
 
@@ -736,7 +732,7 @@ class TestKeypairShow(TestKeypair):
 
     def test_keypair_show_public(self):
         self.keypair = compute_fakes.create_one_keypair()
-        self.sdk_client.find_keypair.return_value = self.keypair
+        self.compute_sdk_client.find_keypair.return_value = self.keypair
 
         arglist = ['--public-key', self.keypair.name]
         verifylist = [('public_key', True), ('name', self.keypair.name)]
@@ -751,7 +747,7 @@ class TestKeypairShow(TestKeypair):
     @mock.patch.object(sdk_utils, 'supports_microversion', return_value=True)
     def test_keypair_show_with_user(self, sm_mock):
         self.keypair = compute_fakes.create_one_keypair()
-        self.sdk_client.find_keypair.return_value = self.keypair
+        self.compute_sdk_client.find_keypair.return_value = self.keypair
 
         self.data = (
             self.keypair.created_at,
@@ -778,7 +774,7 @@ class TestKeypairShow(TestKeypair):
         columns, data = self.cmd.take_action(parsed_args)
 
         self.users_mock.get.assert_called_with(identity_fakes.user_name)
-        self.sdk_client.find_keypair.assert_called_with(
+        self.compute_sdk_client.find_keypair.assert_called_with(
             self.keypair.name,
             ignore_missing=False,
             user_id=identity_fakes.user_id,

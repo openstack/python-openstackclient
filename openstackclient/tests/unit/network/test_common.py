@@ -138,8 +138,8 @@ class TestNetworkAndCompute(utils.TestCommand):
         )
 
         self.app.client_manager.compute = mock.Mock()
-        self.compute = self.app.client_manager.compute
-        self.compute.compute_action = mock.Mock(
+        self.compute_client = self.app.client_manager.compute
+        self.compute_client.compute_action = mock.Mock(
             return_value='take_action_compute'
         )
 
@@ -161,7 +161,7 @@ class TestNetworkAndCompute(utils.TestCommand):
         self.app.client_manager.network_endpoint_enabled = False
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
         result = self.cmd.take_action(parsed_args)
-        self.compute.compute_action.assert_called_with(parsed_args)
+        self.compute_client.compute_action.assert_called_with(parsed_args)
         self.assertEqual('take_action_compute', result)
 
 

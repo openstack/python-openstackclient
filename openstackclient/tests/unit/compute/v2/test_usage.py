@@ -23,7 +23,9 @@ class TestUsage(compute_fakes.TestComputev2):
         super(TestUsage, self).setUp()
 
         self.app.client_manager.sdk_connection.compute = mock.Mock()
-        self.sdk_client = self.app.client_manager.sdk_connection.compute
+        self.compute_sdk_client = (
+            self.app.client_manager.sdk_connection.compute
+        )
 
         self.projects_mock = self.app.client_manager.identity.projects
         self.projects_mock.reset_mock()
@@ -57,7 +59,7 @@ class TestUsageList(TestUsage):
     def setUp(self):
         super(TestUsageList, self).setUp()
 
-        self.sdk_client.usages.return_value = self.usages
+        self.compute_sdk_client.usages.return_value = self.usages
 
         self.projects_mock.list.return_value = [self.project]
         # Get the command object to test
@@ -96,7 +98,7 @@ class TestUsageList(TestUsage):
         columns, data = self.cmd.take_action(parsed_args)
 
         self.projects_mock.list.assert_called_with()
-        self.sdk_client.usages.assert_called_with(
+        self.compute_sdk_client.usages.assert_called_with(
             start='2016-11-11T00:00:00',
             end='2016-12-20T00:00:00',
             detailed=True,
@@ -117,7 +119,7 @@ class TestUsageList(TestUsage):
         columns, data = self.cmd.take_action(parsed_args)
 
         self.projects_mock.list.assert_called_with()
-        self.sdk_client.usages.assert_has_calls(
+        self.compute_sdk_client.usages.assert_has_calls(
             [mock.call(start=mock.ANY, end=mock.ANY, detailed=True)]
         )
         self.assertCountEqual(self.columns, columns)
@@ -148,7 +150,7 @@ class TestUsageShow(TestUsage):
     def setUp(self):
         super(TestUsageShow, self).setUp()
 
-        self.sdk_client.get_usage.return_value = self.usage
+        self.compute_sdk_client.get_usage.return_value = self.usage
 
         self.projects_mock.get.return_value = self.project
         # Get the command object to test
@@ -191,7 +193,7 @@ class TestUsageShow(TestUsage):
 
         columns, data = self.cmd.take_action(parsed_args)
 
-        self.sdk_client.get_usage.assert_called_with(
+        self.compute_sdk_client.get_usage.assert_called_with(
             project=self.project.id,
             start='2016-11-11T00:00:00',
             end='2016-12-20T00:00:00',

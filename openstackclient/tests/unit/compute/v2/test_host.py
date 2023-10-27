@@ -27,8 +27,10 @@ class TestHost(compute_fakes.TestComputev2):
 
         # Get a shortcut to the compute client
         self.app.client_manager.sdk_connection.compute = mock.Mock()
-        self.sdk_client = self.app.client_manager.sdk_connection.compute
-        self.sdk_client.get = mock.Mock()
+        self.compute_sdk_client = (
+            self.app.client_manager.sdk_connection.compute
+        )
+        self.compute_sdk_client.get = mock.Mock()
 
 
 @mock.patch('openstackclient.api.compute_v2.APIv2.host_list')
@@ -38,7 +40,7 @@ class TestHostList(TestHost):
     def setUp(self):
         super(TestHostList, self).setUp()
 
-        self.sdk_client.get.return_value = fakes.FakeResponse(
+        self.compute_sdk_client.get.return_value = fakes.FakeResponse(
             data={'hosts': [self._host]}
         )
 
@@ -63,7 +65,9 @@ class TestHostList(TestHost):
 
         columns, data = self.cmd.take_action(parsed_args)
 
-        self.sdk_client.get.assert_called_with('/os-hosts', microversion='2.1')
+        self.compute_sdk_client.get.assert_called_with(
+            '/os-hosts', microversion='2.1'
+        )
         self.assertEqual(self.columns, columns)
         self.assertEqual(self.data, list(data))
 
@@ -81,7 +85,9 @@ class TestHostList(TestHost):
 
         columns, data = self.cmd.take_action(parsed_args)
 
-        self.sdk_client.get.assert_called_with('/os-hosts', microversion='2.1')
+        self.compute_sdk_client.get.assert_called_with(
+            '/os-hosts', microversion='2.1'
+        )
         self.assertEqual(self.columns, columns)
         self.assertEqual(self.data, list(data))
 
@@ -153,7 +159,7 @@ class TestHostShow(TestHost):
             }
         }
 
-        self.sdk_client.get.return_value = fakes.FakeResponse(
+        self.compute_sdk_client.get.return_value = fakes.FakeResponse(
             data={'host': [output_data]}
         )
 
@@ -204,7 +210,7 @@ class TestHostShow(TestHost):
 
         columns, data = self.cmd.take_action(parsed_args)
 
-        self.sdk_client.get.assert_called_with(
+        self.compute_sdk_client.get.assert_called_with(
             '/os-hosts/' + self._host['host_name'], microversion='2.1'
         )
         self.assertEqual(self.columns, columns)
