@@ -42,7 +42,6 @@ class TestKeypair(compute_fakes.TestComputev2):
             loaded=True,
         )
 
-        self.app.client_manager.sdk_connection = mock.Mock()
         self.app.client_manager.sdk_connection.compute = mock.Mock()
         self.sdk_client = self.app.client_manager.sdk_connection.compute
         self.sdk_client.keypairs = mock.Mock()

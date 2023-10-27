@@ -34,12 +34,9 @@ class TestExtension(network_fakes.FakeClientMixin, utils.TestCommand):
         self.identity_extensions_mock = identity_client.extensions
         self.identity_extensions_mock.reset_mock()
 
-        sdk_connection = mock.Mock()
-        self.app.client_manager.sdk_connection = sdk_connection
-
+        sdk_connection = self.app.client_manager.sdk_connection
         self.compute_extensions_mock = sdk_connection.compute.extensions
         self.compute_extensions_mock.reset_mock()
-
         self.volume_extensions_mock = sdk_connection.volume.extensions
         self.volume_extensions_mock.reset_mock()
 

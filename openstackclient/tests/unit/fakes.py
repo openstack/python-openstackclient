@@ -115,12 +115,16 @@ class FakeClientManager(object):
         self.object_store = None
         self.volume = None
         self.network = None
+        self.sdk_connection = mock.Mock()
+
         self.session = None
         self.auth_ref = None
         self.auth_plugin_name = None
+
         self.network_endpoint_enabled = True
         self.compute_endpoint_enabled = True
         self.volume_endpoint_enabled = True
+
         # The source of configuration. This is either 'cloud_config' (a
         # clouds.yaml file) or 'global_env' ('OS_'-prefixed envvars)
         self.configuration_type = 'cloud_config'

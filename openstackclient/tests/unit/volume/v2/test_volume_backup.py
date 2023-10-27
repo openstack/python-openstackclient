@@ -41,7 +41,6 @@ class TestBackup(volume_fakes.TestVolume):
     def setUp(self):
         super().setUp()
 
-        self.app.client_manager.sdk_connection = mock.Mock()
         self.app.client_manager.sdk_connection.volume = mock.Mock()
         self.sdk_client = self.app.client_manager.sdk_connection.volume
         patcher = mock.patch.object(

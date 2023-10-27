@@ -24,7 +24,6 @@ class TestHypervisorStats(compute_fakes.TestComputev2):
         super(TestHypervisorStats, self).setUp()
 
         # Get a shortcut to the compute client hypervisors mock
-        self.app.client_manager.sdk_connection = mock.Mock()
         self.app.client_manager.sdk_connection.compute = mock.Mock()
         self.sdk_client = self.app.client_manager.sdk_connection.compute
         self.sdk_client.get = mock.Mock()

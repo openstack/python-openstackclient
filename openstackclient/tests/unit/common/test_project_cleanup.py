@@ -15,17 +15,10 @@ from unittest import mock
 
 from openstackclient.common import project_cleanup
 from openstackclient.tests.unit.identity.v3 import fakes as identity_fakes
-from openstackclient.tests.unit import utils as tests_utils
+from openstackclient.tests.unit import utils as test_utils
 
 
-class TestProjectCleanupBase(tests_utils.TestCommand):
-    def setUp(self):
-        super(TestProjectCleanupBase, self).setUp()
-
-        self.app.client_manager.sdk_connection = mock.Mock()
-
-
-class TestProjectCleanup(TestProjectCleanupBase):
+class TestProjectCleanup(test_utils.TestCommand):
     project = identity_fakes.FakeProject.create_one_project()
 
     def setUp(self):
@@ -51,7 +44,7 @@ class TestProjectCleanup(TestProjectCleanupBase):
         verifylist = []
 
         self.assertRaises(
-            tests_utils.ParserException,
+            test_utils.ParserException,
             self.check_parser,
             self.cmd,
             arglist,
