@@ -22,7 +22,7 @@ class TestBlockStorageCluster(volume_fakes.TestVolume):
         super().setUp()
 
         # Get a shortcut to the BlockStorageClusterManager Mock
-        self.cluster_mock = self.app.client_manager.volume.clusters
+        self.cluster_mock = self.volume_client.clusters
         self.cluster_mock.reset_mock()
 
 
@@ -41,9 +41,7 @@ class TestBlockStorageClusterList(TestBlockStorageCluster):
         )
 
     def test_cluster_list(self):
-        self.app.client_manager.volume.api_version = api_versions.APIVersion(
-            '3.7'
-        )
+        self.volume_client.api_version = api_versions.APIVersion('3.7')
 
         arglist = []
         verifylist = [
@@ -84,9 +82,7 @@ class TestBlockStorageClusterList(TestBlockStorageCluster):
         )
 
     def test_cluster_list_with_full_options(self):
-        self.app.client_manager.volume.api_version = api_versions.APIVersion(
-            '3.7'
-        )
+        self.volume_client.api_version = api_versions.APIVersion('3.7')
 
         arglist = [
             '--cluster',
@@ -156,9 +152,7 @@ class TestBlockStorageClusterList(TestBlockStorageCluster):
         )
 
     def test_cluster_list_pre_v37(self):
-        self.app.client_manager.volume.api_version = api_versions.APIVersion(
-            '3.6'
-        )
+        self.volume_client.api_version = api_versions.APIVersion('3.6')
 
         arglist = []
         verifylist = [
@@ -221,9 +215,7 @@ class TestBlockStorageClusterSet(TestBlockStorageCluster):
         self.cmd = block_storage_cluster.SetBlockStorageCluster(self.app, None)
 
     def test_cluster_set(self):
-        self.app.client_manager.volume.api_version = api_versions.APIVersion(
-            '3.7'
-        )
+        self.volume_client.api_version = api_versions.APIVersion('3.7')
 
         arglist = [
             '--enable',
@@ -250,9 +242,7 @@ class TestBlockStorageClusterSet(TestBlockStorageCluster):
         )
 
     def test_cluster_set_disable_with_reason(self):
-        self.app.client_manager.volume.api_version = api_versions.APIVersion(
-            '3.7'
-        )
+        self.volume_client.api_version = api_versions.APIVersion('3.7')
 
         arglist = [
             '--binary',
@@ -282,9 +272,7 @@ class TestBlockStorageClusterSet(TestBlockStorageCluster):
         )
 
     def test_cluster_set_only_with_disable_reason(self):
-        self.app.client_manager.volume.api_version = api_versions.APIVersion(
-            '3.7'
-        )
+        self.volume_client.api_version = api_versions.APIVersion('3.7')
 
         arglist = [
             '--disable-reason',
@@ -307,9 +295,7 @@ class TestBlockStorageClusterSet(TestBlockStorageCluster):
         )
 
     def test_cluster_set_enable_with_disable_reason(self):
-        self.app.client_manager.volume.api_version = api_versions.APIVersion(
-            '3.7'
-        )
+        self.volume_client.api_version = api_versions.APIVersion('3.7')
 
         arglist = [
             '--enable',
@@ -333,9 +319,7 @@ class TestBlockStorageClusterSet(TestBlockStorageCluster):
         )
 
     def test_cluster_set_pre_v37(self):
-        self.app.client_manager.volume.api_version = api_versions.APIVersion(
-            '3.6'
-        )
+        self.volume_client.api_version = api_versions.APIVersion('3.6')
 
         arglist = [
             '--enable',
@@ -401,9 +385,7 @@ class TestBlockStorageClusterShow(TestBlockStorageCluster):
         )
 
     def test_cluster_show(self):
-        self.app.client_manager.volume.api_version = api_versions.APIVersion(
-            '3.7'
-        )
+        self.volume_client.api_version = api_versions.APIVersion('3.7')
 
         arglist = [
             '--binary',
@@ -427,9 +409,7 @@ class TestBlockStorageClusterShow(TestBlockStorageCluster):
         )
 
     def test_cluster_show_pre_v37(self):
-        self.app.client_manager.volume.api_version = api_versions.APIVersion(
-            '3.6'
-        )
+        self.volume_client.api_version = api_versions.APIVersion('3.6')
 
         arglist = [
             '--binary',

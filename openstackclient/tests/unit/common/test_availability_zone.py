@@ -87,8 +87,8 @@ class TestAvailabilityZone(network_fakes.FakeClientMixin, utils.TestCommand):
         self.compute_client.availability_zones = mock.Mock()
 
         self.app.client_manager.sdk_connection.volume = mock.Mock()
-        self.volume_client = self.app.client_manager.sdk_connection.volume
-        self.volume_client.availability_zones = mock.Mock()
+        self.volume_sdk_client = self.app.client_manager.sdk_connection.volume
+        self.volume_sdk_client.availability_zones = mock.Mock()
 
 
 class TestAvailabilityZoneList(TestAvailabilityZone):
@@ -110,7 +110,9 @@ class TestAvailabilityZoneList(TestAvailabilityZone):
         super().setUp()
 
         self.compute_client.availability_zones.return_value = self.compute_azs
-        self.volume_client.availability_zones.return_value = self.volume_azs
+        self.volume_sdk_client.availability_zones.return_value = (
+            self.volume_azs
+        )
         self.network_client.availability_zones.return_value = self.network_azs
 
         # Get the command object to test
@@ -127,7 +129,7 @@ class TestAvailabilityZoneList(TestAvailabilityZone):
         columns, data = self.cmd.take_action(parsed_args)
 
         self.compute_client.availability_zones.assert_called_with(details=True)
-        self.volume_client.availability_zones.assert_called_with()
+        self.volume_sdk_client.availability_zones.assert_called_with()
         self.network_client.availability_zones.assert_called_with()
 
         self.assertEqual(self.short_columnslist, columns)
@@ -155,7 +157,7 @@ class TestAvailabilityZoneList(TestAvailabilityZone):
         columns, data = self.cmd.take_action(parsed_args)
 
         self.compute_client.availability_zones.assert_called_with(details=True)
-        self.volume_client.availability_zones.assert_called_with()
+        self.volume_sdk_client.availability_zones.assert_called_with()
         self.network_client.availability_zones.assert_called_with()
 
         self.assertEqual(self.long_columnslist, columns)
@@ -189,7 +191,7 @@ class TestAvailabilityZoneList(TestAvailabilityZone):
         columns, data = self.cmd.take_action(parsed_args)
 
         self.compute_client.availability_zones.assert_called_with(details=True)
-        self.volume_client.availability_zones.assert_not_called()
+        self.volume_sdk_client.availability_zones.assert_not_called()
         self.network_client.availability_zones.assert_not_called()
 
         self.assertEqual(self.short_columnslist, columns)
@@ -213,7 +215,7 @@ class TestAvailabilityZoneList(TestAvailabilityZone):
         columns, data = self.cmd.take_action(parsed_args)
 
         self.compute_client.availability_zones.assert_not_called()
-        self.volume_client.availability_zones.assert_called_with()
+        self.volume_sdk_client.availability_zones.assert_called_with()
         self.network_client.availability_zones.assert_not_called()
 
         self.assertEqual(self.short_columnslist, columns)
@@ -237,7 +239,7 @@ class TestAvailabilityZoneList(TestAvailabilityZone):
         columns, data = self.cmd.take_action(parsed_args)
 
         self.compute_client.availability_zones.assert_not_called()
-        self.volume_client.availability_zones.assert_not_called()
+        self.volume_sdk_client.availability_zones.assert_not_called()
         self.network_client.availability_zones.assert_called_with()
 
         self.assertEqual(self.short_columnslist, columns)

@@ -26,7 +26,7 @@ class TestService(volume_fakes.TestVolume):
         super().setUp()
 
         # Get a shortcut to the ServiceManager Mock
-        self.service_mock = self.app.client_manager.volume.services
+        self.service_mock = self.volume_client.services
         self.service_mock.reset_mock()
 
 
@@ -42,9 +42,7 @@ class TestBlockStorageLogLevelList(TestService):
         self.cmd = service.BlockStorageLogLevelList(self.app, None)
 
     def test_block_storage_log_level_list(self):
-        self.app.client_manager.volume.api_version = api_versions.APIVersion(
-            '3.32'
-        )
+        self.volume_client.api_version = api_versions.APIVersion('3.32')
         arglist = [
             '--host',
             self.service_log.host,
@@ -115,9 +113,7 @@ class TestBlockStorageLogLevelList(TestService):
         )
 
     def test_block_storage_log_level_list_invalid_service_name(self):
-        self.app.client_manager.volume.api_version = api_versions.APIVersion(
-            '3.32'
-        )
+        self.volume_client.api_version = api_versions.APIVersion('3.32')
         arglist = [
             '--host',
             self.service_log.host,
@@ -152,9 +148,7 @@ class TestBlockStorageLogLevelSet(TestService):
         self.cmd = service.BlockStorageLogLevelSet(self.app, None)
 
     def test_block_storage_log_level_set(self):
-        self.app.client_manager.volume.api_version = api_versions.APIVersion(
-            '3.32'
-        )
+        self.volume_client.api_version = api_versions.APIVersion('3.32')
         arglist = [
             'ERROR',
             '--host',
@@ -208,9 +202,7 @@ class TestBlockStorageLogLevelSet(TestService):
         )
 
     def test_block_storage_log_level_set_invalid_service_name(self):
-        self.app.client_manager.volume.api_version = api_versions.APIVersion(
-            '3.32'
-        )
+        self.volume_client.api_version = api_versions.APIVersion('3.32')
         arglist = [
             'ERROR',
             '--host',
@@ -237,9 +229,7 @@ class TestBlockStorageLogLevelSet(TestService):
 
     @ddt.data('WARNING', 'info', 'Error', 'debuG', 'fake-log-level')
     def test_block_storage_log_level_set_log_level(self, log_level):
-        self.app.client_manager.volume.api_version = api_versions.APIVersion(
-            '3.32'
-        )
+        self.volume_client.api_version = api_versions.APIVersion('3.32')
         arglist = [
             log_level,
             '--host',

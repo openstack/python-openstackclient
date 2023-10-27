@@ -24,9 +24,7 @@ class TestVolumeGroupType(volume_fakes.TestVolume):
     def setUp(self):
         super().setUp()
 
-        self.volume_group_types_mock = (
-            self.app.client_manager.volume.group_types
-        )
+        self.volume_group_types_mock = self.volume_client.group_types
         self.volume_group_types_mock.reset_mock()
 
 
@@ -60,9 +58,7 @@ class TestVolumeGroupTypeCreate(TestVolumeGroupType):
         self.cmd = volume_group_type.CreateVolumeGroupType(self.app, None)
 
     def test_volume_group_type_create(self):
-        self.app.client_manager.volume.api_version = api_versions.APIVersion(
-            '3.11'
-        )
+        self.volume_client.api_version = api_versions.APIVersion('3.11')
 
         arglist = [
             self.fake_volume_group_type.name,
@@ -83,9 +79,7 @@ class TestVolumeGroupTypeCreate(TestVolumeGroupType):
         self.assertCountEqual(self.data, data)
 
     def test_volume_group_type_create_with_options(self):
-        self.app.client_manager.volume.api_version = api_versions.APIVersion(
-            '3.11'
-        )
+        self.volume_client.api_version = api_versions.APIVersion('3.11')
 
         arglist = [
             self.fake_volume_group_type.name,
@@ -109,9 +103,7 @@ class TestVolumeGroupTypeCreate(TestVolumeGroupType):
         self.assertCountEqual(self.data, data)
 
     def test_volume_group_type_create_pre_v311(self):
-        self.app.client_manager.volume.api_version = api_versions.APIVersion(
-            '3.10'
-        )
+        self.volume_client.api_version = api_versions.APIVersion('3.10')
 
         arglist = [
             self.fake_volume_group_type.name,
@@ -145,9 +137,7 @@ class TestVolumeGroupTypeDelete(TestVolumeGroupType):
         self.cmd = volume_group_type.DeleteVolumeGroupType(self.app, None)
 
     def test_volume_group_type_delete(self):
-        self.app.client_manager.volume.api_version = api_versions.APIVersion(
-            '3.11'
-        )
+        self.volume_client.api_version = api_versions.APIVersion('3.11')
 
         arglist = [
             self.fake_volume_group_type.id,
@@ -165,9 +155,7 @@ class TestVolumeGroupTypeDelete(TestVolumeGroupType):
         self.assertIsNone(result)
 
     def test_volume_group_type_delete_pre_v311(self):
-        self.app.client_manager.volume.api_version = api_versions.APIVersion(
-            '3.10'
-        )
+        self.volume_client.api_version = api_versions.APIVersion('3.10')
 
         arglist = [
             self.fake_volume_group_type.id,
@@ -222,9 +210,7 @@ class TestVolumeGroupTypeSet(TestVolumeGroupType):
         self.cmd = volume_group_type.SetVolumeGroupType(self.app, None)
 
     def test_volume_group_type_set(self):
-        self.app.client_manager.volume.api_version = api_versions.APIVersion(
-            '3.11'
-        )
+        self.volume_client.api_version = api_versions.APIVersion('3.11')
 
         self.fake_volume_group_type.set_keys.return_value = None
 
@@ -263,9 +249,7 @@ class TestVolumeGroupTypeSet(TestVolumeGroupType):
         self.assertCountEqual(self.data, data)
 
     def test_volume_group_type_with_no_property_option(self):
-        self.app.client_manager.volume.api_version = api_versions.APIVersion(
-            '3.11'
-        )
+        self.volume_client.api_version = api_versions.APIVersion('3.11')
 
         arglist = [
             self.fake_volume_group_type.id,
@@ -296,9 +280,7 @@ class TestVolumeGroupTypeSet(TestVolumeGroupType):
         self.assertCountEqual(self.data, data)
 
     def test_volume_group_type_set_pre_v311(self):
-        self.app.client_manager.volume.api_version = api_versions.APIVersion(
-            '3.10'
-        )
+        self.volume_client.api_version = api_versions.APIVersion('3.10')
 
         arglist = [
             self.fake_volume_group_type.id,
@@ -355,9 +337,7 @@ class TestVolumeGroupTypeUnset(TestVolumeGroupType):
         self.cmd = volume_group_type.UnsetVolumeGroupType(self.app, None)
 
     def test_volume_group_type_unset(self):
-        self.app.client_manager.volume.api_version = api_versions.APIVersion(
-            '3.11'
-        )
+        self.volume_client.api_version = api_versions.APIVersion('3.11')
 
         arglist = [
             self.fake_volume_group_type.id,
@@ -385,9 +365,7 @@ class TestVolumeGroupTypeUnset(TestVolumeGroupType):
         self.assertCountEqual(self.data, data)
 
     def test_volume_group_type_unset_pre_v311(self):
-        self.app.client_manager.volume.api_version = api_versions.APIVersion(
-            '3.10'
-        )
+        self.volume_client.api_version = api_versions.APIVersion('3.10')
 
         arglist = [
             self.fake_volume_group_type.id,
@@ -440,9 +418,7 @@ class TestVolumeGroupTypeList(TestVolumeGroupType):
         self.cmd = volume_group_type.ListVolumeGroupType(self.app, None)
 
     def test_volume_group_type_list(self):
-        self.app.client_manager.volume.api_version = api_versions.APIVersion(
-            '3.11'
-        )
+        self.volume_client.api_version = api_versions.APIVersion('3.11')
 
         arglist = []
         verifylist = [
@@ -457,9 +433,7 @@ class TestVolumeGroupTypeList(TestVolumeGroupType):
         self.assertCountEqual(tuple(self.data), data)
 
     def test_volume_group_type_list_with_default_option(self):
-        self.app.client_manager.volume.api_version = api_versions.APIVersion(
-            '3.11'
-        )
+        self.volume_client.api_version = api_versions.APIVersion('3.11')
 
         arglist = [
             '--default',
@@ -476,9 +450,7 @@ class TestVolumeGroupTypeList(TestVolumeGroupType):
         self.assertCountEqual(tuple([self.data[0]]), data)
 
     def test_volume_group_type_list_pre_v311(self):
-        self.app.client_manager.volume.api_version = api_versions.APIVersion(
-            '3.10'
-        )
+        self.volume_client.api_version = api_versions.APIVersion('3.10')
 
         arglist = []
         verifylist = []

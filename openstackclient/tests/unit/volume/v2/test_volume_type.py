@@ -29,16 +29,14 @@ class TestType(volume_fakes.TestVolume):
     def setUp(self):
         super().setUp()
 
-        self.volume_types_mock = self.app.client_manager.volume.volume_types
+        self.volume_types_mock = self.volume_client.volume_types
         self.volume_types_mock.reset_mock()
 
-        self.volume_type_access_mock = (
-            self.app.client_manager.volume.volume_type_access
-        )
+        self.volume_type_access_mock = self.volume_client.volume_type_access
         self.volume_type_access_mock.reset_mock()
 
         self.volume_encryption_types_mock = (
-            self.app.client_manager.volume.volume_encryption_types
+            self.volume_client.volume_encryption_types
         )
         self.volume_encryption_types_mock.reset_mock()
 

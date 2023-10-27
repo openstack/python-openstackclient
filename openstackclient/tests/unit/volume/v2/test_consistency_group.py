@@ -28,18 +28,16 @@ class TestConsistencyGroup(volume_fakes.TestVolume):
         super().setUp()
 
         # Get a shortcut to the TransferManager Mock
-        self.consistencygroups_mock = (
-            self.app.client_manager.volume.consistencygroups
-        )
+        self.consistencygroups_mock = self.volume_client.consistencygroups
         self.consistencygroups_mock.reset_mock()
 
-        self.cgsnapshots_mock = self.app.client_manager.volume.cgsnapshots
+        self.cgsnapshots_mock = self.volume_client.cgsnapshots
         self.cgsnapshots_mock.reset_mock()
 
-        self.volumes_mock = self.app.client_manager.volume.volumes
+        self.volumes_mock = self.volume_client.volumes
         self.volumes_mock.reset_mock()
 
-        self.types_mock = self.app.client_manager.volume.volume_types
+        self.types_mock = self.volume_client.volume_types
         self.types_mock.reset_mock()
 
 

@@ -74,10 +74,9 @@ class TestVolumeLimits(volume_fakes.TestVolume):
     def setUp(self):
         super().setUp()
         self.app.client_manager.compute_endpoint_enabled = False
-        self.volume = self.app.client_manager.volume
 
         self.fake_limits = volume_fakes.FakeLimits()
-        self.volume.limits.get.return_value = self.fake_limits
+        self.volume_client.limits.get.return_value = self.fake_limits
 
     def test_volume_show_absolute(self):
         arglist = ['--absolute']

@@ -27,13 +27,13 @@ class TestBackupLegacy(volume_fakes.TestVolume):
     def setUp(self):
         super().setUp()
 
-        self.backups_mock = self.app.client_manager.volume.backups
+        self.backups_mock = self.volume_client.backups
         self.backups_mock.reset_mock()
-        self.volumes_mock = self.app.client_manager.volume.volumes
+        self.volumes_mock = self.volume_client.volumes
         self.volumes_mock.reset_mock()
-        self.snapshots_mock = self.app.client_manager.volume.volume_snapshots
+        self.snapshots_mock = self.volume_client.volume_snapshots
         self.snapshots_mock.reset_mock()
-        self.restores_mock = self.app.client_manager.volume.restores
+        self.restores_mock = self.volume_client.restores
         self.restores_mock.reset_mock()
 
 
@@ -42,7 +42,7 @@ class TestBackup(volume_fakes.TestVolume):
         super().setUp()
 
         self.app.client_manager.sdk_connection.volume = mock.Mock()
-        self.sdk_client = self.app.client_manager.sdk_connection.volume
+        self.volume_sdk_client = self.app.client_manager.sdk_connection.volume
         patcher = mock.patch.object(
             sdk_utils, 'supports_microversion', return_value=True
         )
@@ -82,9 +82,9 @@ class TestBackupCreate(TestBackup):
     def setUp(self):
         super().setUp()
 
-        self.sdk_client.find_volume.return_value = self.volume
-        self.sdk_client.find_snapshot.return_value = self.snapshot
-        self.sdk_client.create_backup.return_value = self.new_backup
+        self.volume_sdk_client.find_volume.return_value = self.volume
+        self.volume_sdk_client.find_snapshot.return_value = self.snapshot
+        self.volume_sdk_client.create_backup.return_value = self.new_backup
 
         # Get the command object to test
         self.cmd = volume_backup.CreateVolumeBackup(self.app, None)
@@ -116,7 +116,7 @@ class TestBackupCreate(TestBackup):
 
         columns, data = self.cmd.take_action(parsed_args)
 
-        self.sdk_client.create_backup.assert_called_with(
+        self.volume_sdk_client.create_backup.assert_called_with(
             volume_id=self.new_backup.volume_id,
             container=self.new_backup.container,
             name=self.new_backup.name,
@@ -146,7 +146,7 @@ class TestBackupCreate(TestBackup):
 
         columns, data = self.cmd.take_action(parsed_args)
 
-        self.sdk_client.create_backup.assert_called_with(
+        self.volume_sdk_client.create_backup.assert_called_with(
             volume_id=self.new_backup.volume_id,
             container=None,
             name=None,
@@ -195,7 +195,7 @@ class TestBackupCreate(TestBackup):
 
         columns, data = self.cmd.take_action(parsed_args)
 
-        self.sdk_client.create_backup.assert_called_with(
+        self.volume_sdk_client.create_backup.assert_called_with(
             volume_id=self.new_backup.volume_id,
             container=None,
             name=None,
@@ -243,7 +243,7 @@ class TestBackupCreate(TestBackup):
 
         columns, data = self.cmd.take_action(parsed_args)
 
-        self.sdk_client.create_backup.assert_called_with(
+        self.volume_sdk_client.create_backup.assert_called_with(
             volume_id=self.new_backup.volume_id,
             container=self.new_backup.container,
             name=None,
@@ -261,8 +261,10 @@ class TestBackupDelete(TestBackup):
     def setUp(self):
         super().setUp()
 
-        self.sdk_client.find_backup = volume_fakes.get_backups(self.backups)
-        self.sdk_client.delete_backup.return_value = None
+        self.volume_sdk_client.find_backup = volume_fakes.get_backups(
+            self.backups
+        )
+        self.volume_sdk_client.delete_backup.return_value = None
 
         # Get the command object to mock
         self.cmd = volume_backup.DeleteVolumeBackup(self.app, None)
@@ -274,7 +276,7 @@ class TestBackupDelete(TestBackup):
 
         result = self.cmd.take_action(parsed_args)
 
-        self.sdk_client.delete_backup.assert_called_with(
+        self.volume_sdk_client.delete_backup.assert_called_with(
             self.backups[0].id, ignore_missing=False, force=False
         )
         self.assertIsNone(result)
@@ -289,7 +291,7 @@ class TestBackupDelete(TestBackup):
 
         result = self.cmd.take_action(parsed_args)
 
-        self.sdk_client.delete_backup.assert_called_with(
+        self.volume_sdk_client.delete_backup.assert_called_with(
             self.backups[0].id, ignore_missing=False, force=True
         )
         self.assertIsNone(result)
@@ -308,7 +310,7 @@ class TestBackupDelete(TestBackup):
         calls = []
         for b in self.backups:
             calls.append(call(b.id, ignore_missing=False, force=False))
-        self.sdk_client.delete_backup.assert_has_calls(calls)
+        self.volume_sdk_client.delete_backup.assert_has_calls(calls)
         self.assertIsNone(result)
 
     def test_delete_multiple_backups_with_exception(self):
@@ -324,7 +326,7 @@ class TestBackupDelete(TestBackup):
 
         find_mock_result = [self.backups[0], exceptions.CommandError]
         with mock.patch.object(
-            self.sdk_client, 'find_backup', side_effect=find_mock_result
+            self.volume_sdk_client, 'find_backup', side_effect=find_mock_result
         ) as find_mock:
             try:
                 self.cmd.take_action(parsed_args)
@@ -336,7 +338,7 @@ class TestBackupDelete(TestBackup):
             find_mock.assert_any_call('unexist_backup', ignore_missing=False)
 
             self.assertEqual(2, find_mock.call_count)
-            self.sdk_client.delete_backup.assert_called_once_with(
+            self.volume_sdk_client.delete_backup.assert_called_once_with(
                 self.backups[0].id,
                 ignore_missing=False,
                 force=False,
@@ -394,10 +396,10 @@ class TestBackupList(TestBackup):
     def setUp(self):
         super().setUp()
 
-        self.sdk_client.volumes.return_value = [self.volume]
-        self.sdk_client.backups.return_value = self.backups
-        self.sdk_client.find_volume.return_value = self.volume
-        self.sdk_client.find_backup.return_value = self.backups[0]
+        self.volume_sdk_client.volumes.return_value = [self.volume]
+        self.volume_sdk_client.backups.return_value = self.backups
+        self.volume_sdk_client.find_volume.return_value = self.volume
+        self.volume_sdk_client.find_backup.return_value = self.backups[0]
 
         # Get the command to test
         self.cmd = volume_backup.ListVolumeBackup(self.app, None)
@@ -417,9 +419,9 @@ class TestBackupList(TestBackup):
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
         columns, data = self.cmd.take_action(parsed_args)
 
-        self.sdk_client.find_volume.assert_not_called()
-        self.sdk_client.find_backup.assert_not_called()
-        self.sdk_client.backups.assert_called_with(
+        self.volume_sdk_client.find_volume.assert_not_called()
+        self.volume_sdk_client.find_backup.assert_not_called()
+        self.volume_sdk_client.backups.assert_called_with(
             name=None,
             status=None,
             volume_id=None,
@@ -458,13 +460,13 @@ class TestBackupList(TestBackup):
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
         columns, data = self.cmd.take_action(parsed_args)
 
-        self.sdk_client.find_volume.assert_called_once_with(
+        self.volume_sdk_client.find_volume.assert_called_once_with(
             self.volume.id, ignore_missing=False
         )
-        self.sdk_client.find_backup.assert_called_once_with(
+        self.volume_sdk_client.find_backup.assert_called_once_with(
             self.backups[0].id, ignore_missing=False
         )
-        self.sdk_client.backups.assert_called_with(
+        self.volume_sdk_client.backups.assert_called_with(
             name=self.backups[0].name,
             status="error",
             volume_id=self.volume.id,
@@ -485,9 +487,9 @@ class TestBackupRestore(TestBackup):
     def setUp(self):
         super().setUp()
 
-        self.sdk_client.find_backup.return_value = self.backup
-        self.sdk_client.find_volume.return_value = self.volume
-        self.sdk_client.restore_backup.return_value = (
+        self.volume_sdk_client.find_backup.return_value = self.backup
+        self.volume_sdk_client.find_volume.return_value = self.volume
+        self.volume_sdk_client.restore_backup.return_value = (
             volume_fakes.create_one_volume(
                 {'id': self.volume['id']},
             )
@@ -497,8 +499,9 @@ class TestBackupRestore(TestBackup):
         self.cmd = volume_backup.RestoreVolumeBackup(self.app, None)
 
     def test_backup_restore(self):
-        self.sdk_client.find_volume.side_effect = exceptions.CommandError()
-        # self.sdk_client.side_effect = exceptions.CommandError()
+        self.volume_sdk_client.find_volume.side_effect = (
+            exceptions.CommandError()
+        )
         arglist = [self.backup.id]
         verifylist = [
             ("backup", self.backup.id),
@@ -507,7 +510,7 @@ class TestBackupRestore(TestBackup):
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
         result = self.cmd.take_action(parsed_args)
-        self.sdk_client.restore_backup.assert_called_with(
+        self.volume_sdk_client.restore_backup.assert_called_with(
             self.backup.id,
             volume_id=None,
             name=None,
@@ -515,8 +518,9 @@ class TestBackupRestore(TestBackup):
         self.assertIsNotNone(result)
 
     def test_backup_restore_with_volume(self):
-        self.sdk_client.find_volume.side_effect = exceptions.CommandError()
-        # self.volumes_mock.find.side_effect = exceptions.CommandError()
+        self.volume_sdk_client.find_volume.side_effect = (
+            exceptions.CommandError()
+        )
         arglist = [
             self.backup.id,
             self.backup.volume_id,
@@ -528,7 +532,7 @@ class TestBackupRestore(TestBackup):
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
         result = self.cmd.take_action(parsed_args)
-        self.sdk_client.restore_backup.assert_called_with(
+        self.volume_sdk_client.restore_backup.assert_called_with(
             self.backup.id,
             volume_id=None,
             name=self.backup.volume_id,
@@ -549,7 +553,7 @@ class TestBackupRestore(TestBackup):
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
         result = self.cmd.take_action(parsed_args)
-        self.sdk_client.restore_backup.assert_called_with(
+        self.volume_sdk_client.restore_backup.assert_called_with(
             self.backup.id,
             volume_id=self.volume.id,
             name=None,
@@ -588,9 +592,7 @@ class TestBackupSet(TestBackupLegacy):
         self.cmd = volume_backup.SetVolumeBackup(self.app, None)
 
     def test_backup_set_name(self):
-        self.app.client_manager.volume.api_version = api_versions.APIVersion(
-            '3.9'
-        )
+        self.volume_client.api_version = api_versions.APIVersion('3.9')
 
         arglist = [
             '--name',
@@ -612,9 +614,7 @@ class TestBackupSet(TestBackupLegacy):
         self.assertIsNone(result)
 
     def test_backup_set_name_pre_v39(self):
-        self.app.client_manager.volume.api_version = api_versions.APIVersion(
-            '3.8'
-        )
+        self.volume_client.api_version = api_versions.APIVersion('3.8')
 
         arglist = [
             '--name',
@@ -633,9 +633,7 @@ class TestBackupSet(TestBackupLegacy):
         self.assertIn("--os-volume-api-version 3.9 or greater", str(exc))
 
     def test_backup_set_description(self):
-        self.app.client_manager.volume.api_version = api_versions.APIVersion(
-            '3.9'
-        )
+        self.volume_client.api_version = api_versions.APIVersion('3.9')
 
         arglist = [
             '--description',
@@ -659,9 +657,7 @@ class TestBackupSet(TestBackupLegacy):
         self.assertIsNone(result)
 
     def test_backup_set_description_pre_v39(self):
-        self.app.client_manager.volume.api_version = api_versions.APIVersion(
-            '3.8'
-        )
+        self.volume_client.api_version = api_versions.APIVersion('3.8')
 
         arglist = [
             '--description',
@@ -710,9 +706,7 @@ class TestBackupSet(TestBackupLegacy):
         )
 
     def test_backup_set_no_property(self):
-        self.app.client_manager.volume.api_version = api_versions.APIVersion(
-            '3.43'
-        )
+        self.volume_client.api_version = api_versions.APIVersion('3.43')
 
         arglist = [
             '--no-property',
@@ -736,9 +730,7 @@ class TestBackupSet(TestBackupLegacy):
         self.assertIsNone(result)
 
     def test_backup_set_no_property_pre_v343(self):
-        self.app.client_manager.volume.api_version = api_versions.APIVersion(
-            '3.42'
-        )
+        self.volume_client.api_version = api_versions.APIVersion('3.42')
 
         arglist = [
             '--no-property',
@@ -756,9 +748,7 @@ class TestBackupSet(TestBackupLegacy):
         self.assertIn("--os-volume-api-version 3.43 or greater", str(exc))
 
     def test_backup_set_property(self):
-        self.app.client_manager.volume.api_version = api_versions.APIVersion(
-            '3.43'
-        )
+        self.volume_client.api_version = api_versions.APIVersion('3.43')
 
         arglist = [
             '--property',
@@ -783,9 +773,7 @@ class TestBackupSet(TestBackupLegacy):
         self.assertIsNone(result)
 
     def test_backup_set_property_pre_v343(self):
-        self.app.client_manager.volume.api_version = api_versions.APIVersion(
-            '3.42'
-        )
+        self.volume_client.api_version = api_versions.APIVersion('3.42')
 
         arglist = [
             '--property',
@@ -818,9 +806,7 @@ class TestBackupUnset(TestBackupLegacy):
         self.cmd = volume_backup.UnsetVolumeBackup(self.app, None)
 
     def test_backup_unset_property(self):
-        self.app.client_manager.volume.api_version = api_versions.APIVersion(
-            '3.43'
-        )
+        self.volume_client.api_version = api_versions.APIVersion('3.43')
 
         arglist = [
             '--property',
@@ -845,9 +831,7 @@ class TestBackupUnset(TestBackupLegacy):
         self.assertIsNone(result)
 
     def test_backup_unset_property_pre_v343(self):
-        self.app.client_manager.volume.api_version = api_versions.APIVersion(
-            '3.42'
-        )
+        self.volume_client.api_version = api_versions.APIVersion('3.42')
 
         arglist = [
             '--property',
@@ -917,7 +901,7 @@ class TestBackupShow(TestBackup):
     def setUp(self):
         super().setUp()
 
-        self.sdk_client.get_backup.return_value = self.backup
+        self.volume_sdk_client.get_backup.return_value = self.backup
         # Get the command object to test
         self.cmd = volume_backup.ShowVolumeBackup(self.app, None)
 
@@ -927,7 +911,7 @@ class TestBackupShow(TestBackup):
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
         columns, data = self.cmd.take_action(parsed_args)
-        self.sdk_client.get_backup.assert_called_with(self.backup.id)
+        self.volume_sdk_client.get_backup.assert_called_with(self.backup.id)
 
         self.assertEqual(self.columns, columns)
         self.assertEqual(self.data, data)

@@ -29,7 +29,7 @@ class TestServerVolume(compute_fakes.TestComputev2):
         self.app.client_manager.sdk_connection.compute = mock.Mock()
         self.app.client_manager.sdk_connection.volume = mock.Mock()
         self.compute_client = self.app.client_manager.sdk_connection.compute
-        self.volume_client = self.app.client_manager.sdk_connection.volume
+        self.volume_sdk_client = self.app.client_manager.sdk_connection.volume
 
 
 class TestServerVolumeList(TestServerVolume):
@@ -243,7 +243,7 @@ class TestServerVolumeUpdate(TestServerVolume):
         self.compute_client.find_server.return_value = self.server
 
         self.volume = volume_fakes.create_one_sdk_volume()
-        self.volume_client.find_volume.return_value = self.volume
+        self.volume_sdk_client.find_volume.return_value = self.volume
 
         # Get the command object to test
         self.cmd = server_volume.UpdateServerVolume(self.app, None)

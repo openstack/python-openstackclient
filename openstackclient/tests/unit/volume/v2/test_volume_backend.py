@@ -26,7 +26,7 @@ class TestShowVolumeCapability(volume_fakes.TestVolume):
         super().setUp()
 
         # Get a shortcut to the capability Mock
-        self.capability_mock = self.app.client_manager.volume.capabilities
+        self.capability_mock = self.volume_client.capabilities
         self.capability_mock.get.return_value = self.capability
 
         # Get the command object to test
@@ -82,7 +82,7 @@ class TestListVolumePool(volume_fakes.TestVolume):
     def setUp(self):
         super().setUp()
 
-        self.pool_mock = self.app.client_manager.volume.pools
+        self.pool_mock = self.volume_client.pools
         self.pool_mock.list.return_value = [self.pools]
 
         # Get the command object to test

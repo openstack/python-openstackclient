@@ -24,7 +24,7 @@ class TestBlockStorage(volume_fakes.TestVolume):
         super().setUp()
 
         # Get a shortcut to the BlockStorageWorkerManager Mock
-        self.worker_mock = self.app.client_manager.volume.workers
+        self.worker_mock = self.volume_client.workers
         self.worker_mock.reset_mock()
 
 
@@ -40,9 +40,7 @@ class TestBlockStorageCleanup(TestBlockStorage):
         self.cmd = block_storage_cleanup.BlockStorageCleanup(self.app, None)
 
     def test_cleanup(self):
-        self.app.client_manager.volume.api_version = api_versions.APIVersion(
-            '3.24'
-        )
+        self.volume_client.api_version = api_versions.APIVersion('3.24')
 
         arglist = []
         verifylist = [
@@ -98,9 +96,7 @@ class TestBlockStorageCleanup(TestBlockStorage):
         )
 
     def test_cleanup_with_args(self):
-        self.app.client_manager.volume.api_version = api_versions.APIVersion(
-            '3.24'
-        )
+        self.volume_client.api_version = api_versions.APIVersion('3.24')
 
         fake_cluster = 'fake-cluster'
         fake_host = 'fake-host'

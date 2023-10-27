@@ -27,7 +27,7 @@ class TestVolumeMessage(volume_fakes.TestVolume):
         self.projects_mock = self.app.client_manager.identity.projects
         self.projects_mock.reset_mock()
 
-        self.volume_messages_mock = self.app.client_manager.volume.messages
+        self.volume_messages_mock = self.volume_client.messages
         self.volume_messages_mock.reset_mock()
 
 
@@ -46,9 +46,7 @@ class TestVolumeMessageDelete(TestVolumeMessage):
         self.cmd = volume_message.DeleteMessage(self.app, None)
 
     def test_message_delete(self):
-        self.app.client_manager.volume.api_version = api_versions.APIVersion(
-            '3.3'
-        )
+        self.volume_client.api_version = api_versions.APIVersion('3.3')
 
         arglist = [
             self.fake_messages[0].id,
@@ -66,9 +64,7 @@ class TestVolumeMessageDelete(TestVolumeMessage):
         self.assertIsNone(result)
 
     def test_message_delete_multiple_messages(self):
-        self.app.client_manager.volume.api_version = api_versions.APIVersion(
-            '3.3'
-        )
+        self.volume_client.api_version = api_versions.APIVersion('3.3')
 
         arglist = [
             self.fake_messages[0].id,
@@ -88,9 +84,7 @@ class TestVolumeMessageDelete(TestVolumeMessage):
         self.assertIsNone(result)
 
     def test_message_delete_multiple_messages_with_exception(self):
-        self.app.client_manager.volume.api_version = api_versions.APIVersion(
-            '3.3'
-        )
+        self.volume_client.api_version = api_versions.APIVersion('3.3')
 
         arglist = [
             self.fake_messages[0].id,
@@ -120,9 +114,7 @@ class TestVolumeMessageDelete(TestVolumeMessage):
         self.assertEqual(2, self.volume_messages_mock.delete.call_count)
 
     def test_message_delete_pre_v33(self):
-        self.app.client_manager.volume.api_version = api_versions.APIVersion(
-            '3.2'
-        )
+        self.volume_client.api_version = api_versions.APIVersion('3.2')
 
         arglist = [
             self.fake_messages[0].id,
@@ -180,9 +172,7 @@ class TestVolumeMessageList(TestVolumeMessage):
         self.cmd = volume_message.ListMessages(self.app, None)
 
     def test_message_list(self):
-        self.app.client_manager.volume.api_version = api_versions.APIVersion(
-            '3.3'
-        )
+        self.volume_client.api_version = api_versions.APIVersion('3.3')
 
         arglist = []
         verifylist = [
@@ -206,9 +196,7 @@ class TestVolumeMessageList(TestVolumeMessage):
         self.assertCountEqual(self.data, list(data))
 
     def test_message_list_with_options(self):
-        self.app.client_manager.volume.api_version = api_versions.APIVersion(
-            '3.3'
-        )
+        self.volume_client.api_version = api_versions.APIVersion('3.3')
 
         arglist = [
             '--project',
@@ -239,9 +227,7 @@ class TestVolumeMessageList(TestVolumeMessage):
         self.assertCountEqual(self.data, list(data))
 
     def test_message_list_pre_v33(self):
-        self.app.client_manager.volume.api_version = api_versions.APIVersion(
-            '3.2'
-        )
+        self.volume_client.api_version = api_versions.APIVersion('3.2')
 
         arglist = []
         verifylist = [
@@ -294,9 +280,7 @@ class TestVolumeMessageShow(TestVolumeMessage):
         self.cmd = volume_message.ShowMessage(self.app, None)
 
     def test_message_show(self):
-        self.app.client_manager.volume.api_version = api_versions.APIVersion(
-            '3.3'
-        )
+        self.volume_client.api_version = api_versions.APIVersion('3.3')
 
         arglist = [self.fake_message.id]
         verifylist = [('message_id', self.fake_message.id)]
@@ -309,9 +293,7 @@ class TestVolumeMessageShow(TestVolumeMessage):
         self.assertEqual(self.data, data)
 
     def test_message_show_pre_v33(self):
-        self.app.client_manager.volume.api_version = api_versions.APIVersion(
-            '3.2'
-        )
+        self.volume_client.api_version = api_versions.APIVersion('3.2')
 
         arglist = [self.fake_message.id]
         verifylist = [('message_id', self.fake_message.id)]

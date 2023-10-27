@@ -20,7 +20,7 @@ class TestBackupRecord(volume_fakes.TestVolume):
     def setUp(self):
         super().setUp()
 
-        self.backups_mock = self.app.client_manager.volume.backups
+        self.backups_mock = self.volume_client.backups
         self.backups_mock.reset_mock()
 
 

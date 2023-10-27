@@ -25,9 +25,9 @@ class TestBlockStorageManage(v2_volume_fakes.TestVolume):
     def setUp(self):
         super().setUp()
 
-        self.volumes_mock = self.app.client_manager.volume.volumes
+        self.volumes_mock = self.volume_client.volumes
         self.volumes_mock.reset_mock()
-        self.snapshots_mock = self.app.client_manager.volume.volume_snapshots
+        self.snapshots_mock = self.volume_client.volume_snapshots
         self.snapshots_mock.reset_mock()
 
 
@@ -47,9 +47,7 @@ class TestBlockStorageVolumeManage(TestBlockStorageManage):
         )
 
     def test_block_storage_volume_manage_list(self):
-        self.app.client_manager.volume.api_version = api_versions.APIVersion(
-            '3.8'
-        )
+        self.volume_client.api_version = api_versions.APIVersion('3.8')
         arglist = [
             'fake_host',
         ]
@@ -106,9 +104,7 @@ class TestBlockStorageVolumeManage(TestBlockStorageManage):
         )
 
     def test_block_storage_volume_manage_list__pre_v317(self):
-        self.app.client_manager.volume.api_version = api_versions.APIVersion(
-            '3.16'
-        )
+        self.volume_client.api_version = api_versions.APIVersion('3.16')
         arglist = [
             '--cluster',
             'fake_cluster',
@@ -127,9 +123,7 @@ class TestBlockStorageVolumeManage(TestBlockStorageManage):
         self.assertIn('--cluster', str(exc))
 
     def test_block_storage_volume_manage_list__host_and_cluster(self):
-        self.app.client_manager.volume.api_version = api_versions.APIVersion(
-            '3.17'
-        )
+        self.volume_client.api_version = api_versions.APIVersion('3.17')
         arglist = [
             'fake_host',
             '--cluster',
@@ -152,9 +146,7 @@ class TestBlockStorageVolumeManage(TestBlockStorageManage):
 
     def test_block_storage_volume_manage_list__detailed(self):
         """This option is deprecated."""
-        self.app.client_manager.volume.api_version = api_versions.APIVersion(
-            '3.8'
-        )
+        self.volume_client.api_version = api_versions.APIVersion('3.8')
         arglist = [
             '--detailed',
             'True',
@@ -294,9 +286,7 @@ class TestBlockStorageSnapshotManage(TestBlockStorageManage):
         )
 
     def test_block_storage_snapshot_manage_list(self):
-        self.app.client_manager.volume.api_version = api_versions.APIVersion(
-            '3.8'
-        )
+        self.volume_client.api_version = api_versions.APIVersion('3.8')
         arglist = [
             'fake_host',
         ]
@@ -355,9 +345,7 @@ class TestBlockStorageSnapshotManage(TestBlockStorageManage):
         )
 
     def test_block_storage_snapshot_manage_list__pre_v317(self):
-        self.app.client_manager.volume.api_version = api_versions.APIVersion(
-            '3.16'
-        )
+        self.volume_client.api_version = api_versions.APIVersion('3.16')
         arglist = [
             '--cluster',
             'fake_cluster',
@@ -376,9 +364,7 @@ class TestBlockStorageSnapshotManage(TestBlockStorageManage):
         self.assertIn('--cluster', str(exc))
 
     def test_block_storage_snapshot_manage_list__host_and_cluster(self):
-        self.app.client_manager.volume.api_version = api_versions.APIVersion(
-            '3.17'
-        )
+        self.volume_client.api_version = api_versions.APIVersion('3.17')
         arglist = [
             'fake_host',
             '--cluster',
@@ -400,10 +386,7 @@ class TestBlockStorageSnapshotManage(TestBlockStorageManage):
         )
 
     def test_block_storage_snapshot_manage_list__detailed(self):
-        """This option is deprecated."""
-        self.app.client_manager.volume.api_version = api_versions.APIVersion(
-            '3.8'
-        )
+        self.volume_client.api_version = api_versions.APIVersion('3.8')
         arglist = [
             '--detailed',
             'True',

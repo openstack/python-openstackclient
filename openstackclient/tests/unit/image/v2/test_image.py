@@ -37,7 +37,7 @@ class TestImage(image_fakes.TestImagev2, volume_fakes.TestVolume):
         self.project_mock.reset_mock()
         self.domain_mock = self.app.client_manager.identity.domains
         self.domain_mock.reset_mock()
-        self.volumes_mock = self.app.client_manager.volume.volumes
+        self.volumes_mock = self.volume_client.volumes
         fake_body = {
             'os-volume_upload_image': {'volume_type': {'name': 'fake_type'}}
         }
@@ -369,9 +369,7 @@ class TestImageCreate(TestImage):
     @mock.patch('osc_lib.utils.find_resource')
     @mock.patch('openstackclient.image.v2.image.get_data_from_stdin')
     def test_image_create_from_volume_v31(self, mock_get_data_f, mock_get_vol):
-        self.app.client_manager.volume.api_version = api_versions.APIVersion(
-            '3.1'
-        )
+        self.volume_client.api_version = api_versions.APIVersion('3.1')
 
         fake_vol_id = 'fake-volume-id'
         mock_get_data_f.return_value = None

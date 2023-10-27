@@ -593,7 +593,7 @@ class TestImageSet(image_fakes.TestImagev1):
 
     def test_image_update_volume(self):
         # Set up VolumeManager Mock
-        volumes_mock = self.app.client_manager.volume.volumes
+        volumes_mock = self.volume_client.volumes
         volumes_mock.reset_mock()
         volumes_mock.get.return_value = fakes.FakeResource(
             None,
