@@ -19,6 +19,7 @@ from unittest import mock
 import uuid
 
 from novaclient import api_versions
+from openstack.compute.v2 import _proxy
 from openstack.compute.v2 import aggregate as _aggregate
 from openstack.compute.v2 import availability_zone as _availability_zone
 from openstack.compute.v2 import extension as _extension
@@ -148,12 +149,7 @@ class FakeComputev2Client(object):
         self.api_version = api_versions.APIVersion('2.1')
 
 
-class TestComputev2(
-    network_fakes.FakeClientMixin,
-    image_fakes.FakeClientMixin,
-    volume_fakes.FakeClientMixin,
-    utils.TestCommand,
-):
+class FakeClientMixin:
     def setUp(self):
         super().setUp()
 
@@ -167,6 +163,26 @@ class TestComputev2(
             session=self.app.client_manager.session,
             endpoint=fakes.AUTH_URL,
         )
+
+        # TODO(stephenfin): Rename to 'compute_client' once all commands are
+        # migrated to SDK
+        self.app.client_manager.sdk_connection.compute = mock.Mock(
+            _proxy.Proxy
+        )
+        self.compute_sdk_client = (
+            self.app.client_manager.sdk_connection.compute
+        )
+
+
+class TestComputev2(
+    network_fakes.FakeClientMixin,
+    image_fakes.FakeClientMixin,
+    volume_fakes.FakeClientMixin,
+    FakeClientMixin,
+    utils.TestCommand,
+):
+    def setUp(self):
+        super().setUp()
 
         self.app.client_manager.identity = identity_fakes.FakeIdentityv2Client(
             endpoint=fakes.AUTH_URL,

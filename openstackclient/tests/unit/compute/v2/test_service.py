@@ -22,17 +22,7 @@ from openstackclient.compute.v2 import service
 from openstackclient.tests.unit.compute.v2 import fakes as compute_fakes
 
 
-class TestService(compute_fakes.TestComputev2):
-    def setUp(self):
-        super(TestService, self).setUp()
-
-        self.app.client_manager.sdk_connection.compute = mock.Mock()
-        self.compute_sdk_client = (
-            self.app.client_manager.sdk_connection.compute
-        )
-
-
-class TestServiceDelete(TestService):
+class TestServiceDelete(compute_fakes.TestComputev2):
     services = compute_fakes.create_services(count=2)
 
     def setUp(self):
@@ -105,7 +95,7 @@ class TestServiceDelete(TestService):
         )
 
 
-class TestServiceList(TestService):
+class TestServiceList(compute_fakes.TestComputev2):
     service = compute_fakes.create_one_service()
 
     columns = (
@@ -233,7 +223,7 @@ class TestServiceList(TestService):
         self.assertEqual(data_long, list(data))
 
 
-class TestServiceSet(TestService):
+class TestServiceSet(compute_fakes.TestComputev2):
     def setUp(self):
         super(TestServiceSet, self).setUp()
 

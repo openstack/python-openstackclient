@@ -55,23 +55,6 @@ class TestAggregate(compute_fakes.TestComputev2):
         fake_ag.uuid,
     )
 
-    def setUp(self):
-        super(TestAggregate, self).setUp()
-
-        # Get a shortcut to the AggregateManager Mock
-        self.app.client_manager.sdk_connection.compute = mock.Mock()
-        self.compute_sdk_client = (
-            self.app.client_manager.sdk_connection.compute
-        )
-        self.compute_sdk_client.aggregates = mock.Mock()
-        self.compute_sdk_client.find_aggregate = mock.Mock()
-        self.compute_sdk_client.create_aggregate = mock.Mock()
-        self.compute_sdk_client.update_aggregate = mock.Mock()
-        self.compute_sdk_client.update_aggregate = mock.Mock()
-        self.compute_sdk_client.set_aggregate_metadata = mock.Mock()
-        self.compute_sdk_client.add_host_to_aggregate = mock.Mock()
-        self.compute_sdk_client.remove_host_from_aggregate = mock.Mock()
-
 
 class TestAggregateAddHost(TestAggregate):
     def setUp(self):

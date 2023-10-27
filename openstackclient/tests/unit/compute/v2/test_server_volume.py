@@ -20,17 +20,7 @@ from openstackclient.tests.unit.compute.v2 import fakes as compute_fakes
 from openstackclient.tests.unit.volume.v2 import fakes as volume_fakes
 
 
-class TestServerVolume(compute_fakes.TestComputev2):
-    def setUp(self):
-        super().setUp()
-
-        self.app.client_manager.sdk_connection.compute = mock.Mock()
-        self.compute_sdk_client = (
-            self.app.client_manager.sdk_connection.compute
-        )
-
-
-class TestServerVolumeList(TestServerVolume):
+class TestServerVolumeList(compute_fakes.TestComputev2):
     def setUp(self):
         super().setUp()
 
@@ -230,7 +220,7 @@ class TestServerVolumeList(TestServerVolume):
         )
 
 
-class TestServerVolumeUpdate(TestServerVolume):
+class TestServerVolumeUpdate(compute_fakes.TestComputev2):
     def setUp(self):
         super().setUp()
 

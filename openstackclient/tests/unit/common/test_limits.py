@@ -27,7 +27,6 @@ class TestComputeLimits(compute_fakes.TestComputev2):
     def setUp(self):
         super().setUp()
         self.app.client_manager.volume_endpoint_enabled = False
-        self.compute_client = self.app.client_manager.compute
 
         self.fake_limits = compute_fakes.FakeLimits()
         self.compute_client.limits.get.return_value = self.fake_limits

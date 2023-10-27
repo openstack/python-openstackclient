@@ -22,16 +22,8 @@ from openstackclient.tests.unit.identity.v3 import fakes as identity_fakes
 from openstackclient.tests.unit import utils as tests_utils
 
 
-class TestSecurityGroupCompute(compute_fakes.TestComputev2):
-    def setUp(self):
-        super(TestSecurityGroupCompute, self).setUp()
-
-        # Get a shortcut to the compute client
-        self.compute_client = self.app.client_manager.compute
-
-
 @mock.patch('openstackclient.api.compute_v2.APIv2.security_group_create')
-class TestCreateSecurityGroupCompute(TestSecurityGroupCompute):
+class TestCreateSecurityGroupCompute(compute_fakes.TestComputev2):
     project = identity_fakes.FakeProject.create_one_project()
     domain = identity_fakes.FakeDomain.create_one_domain()
 
@@ -110,7 +102,7 @@ class TestCreateSecurityGroupCompute(TestSecurityGroupCompute):
 
 
 @mock.patch('openstackclient.api.compute_v2.APIv2.security_group_delete')
-class TestDeleteSecurityGroupCompute(TestSecurityGroupCompute):
+class TestDeleteSecurityGroupCompute(compute_fakes.TestComputev2):
     # The security groups to be deleted.
     _security_groups = compute_fakes.create_security_groups()
 
@@ -192,7 +184,7 @@ class TestDeleteSecurityGroupCompute(TestSecurityGroupCompute):
 
 
 @mock.patch('openstackclient.api.compute_v2.APIv2.security_group_list')
-class TestListSecurityGroupCompute(TestSecurityGroupCompute):
+class TestListSecurityGroupCompute(compute_fakes.TestComputev2):
     # The security group to be listed.
     _security_groups = compute_fakes.create_security_groups(count=3)
 
@@ -270,7 +262,7 @@ class TestListSecurityGroupCompute(TestSecurityGroupCompute):
 
 
 @mock.patch('openstackclient.api.compute_v2.APIv2.security_group_set')
-class TestSetSecurityGroupCompute(TestSecurityGroupCompute):
+class TestSetSecurityGroupCompute(compute_fakes.TestComputev2):
     # The security group to be set.
     _security_group = compute_fakes.create_one_security_group()
 
@@ -337,7 +329,7 @@ class TestSetSecurityGroupCompute(TestSecurityGroupCompute):
 
 
 @mock.patch('openstackclient.api.compute_v2.APIv2.security_group_find')
-class TestShowSecurityGroupCompute(TestSecurityGroupCompute):
+class TestShowSecurityGroupCompute(compute_fakes.TestComputev2):
     # The security group rule to be shown with the group.
     _security_group_rule = compute_fakes.create_one_security_group_rule()
 

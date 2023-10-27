@@ -10,8 +10,6 @@
 #   License for the specific language governing permissions and limitations
 #   under the License.
 
-from unittest import mock
-
 from openstackclient.common import availability_zone
 from openstackclient.tests.unit.compute.v2 import fakes as compute_fakes
 from openstackclient.tests.unit.network.v2 import fakes as network_fakes
@@ -78,22 +76,12 @@ def _build_network_az_datalist(network_az, long_datalist=False):
     return (datalist,)
 
 
-class TestAvailabilityZone(
+class TestAvailabilityZoneList(
     network_fakes.FakeClientMixin,
     volume_fakes.FakeClientMixin,
+    compute_fakes.FakeClientMixin,
     utils.TestCommand,
 ):
-    def setUp(self):
-        super().setUp()
-
-        self.app.client_manager.sdk_connection.compute = mock.Mock()
-        self.compute_sdk_client = (
-            self.app.client_manager.sdk_connection.compute
-        )
-        self.compute_sdk_client.availability_zones = mock.Mock()
-
-
-class TestAvailabilityZoneList(TestAvailabilityZone):
     compute_azs = compute_fakes.create_availability_zones()
     volume_azs = volume_fakes.create_availability_zones(count=1)
     network_azs = network_fakes.create_availability_zones()

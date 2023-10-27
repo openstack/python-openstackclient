@@ -22,21 +22,8 @@ from openstackclient.tests.unit.image.v2 import fakes as image_fakes
 
 
 class TestServerImage(compute_fakes.TestComputev2):
-    def setUp(self):
-        super().setUp()
-
-        # Get a shortcut to the compute client ServerManager Mock
-        self.app.client_manager.sdk_connection.compute = mock.Mock()
-        self.compute_sdk_client = (
-            self.app.client_manager.sdk_connection.compute
-        )
-
-        # Set object attributes to be tested. Could be overwritten in subclass.
-        self.attrs = {}
-
     def setup_servers_mock(self, count):
         servers = compute_fakes.create_sdk_servers(
-            attrs=self.attrs,
             count=count,
         )
 

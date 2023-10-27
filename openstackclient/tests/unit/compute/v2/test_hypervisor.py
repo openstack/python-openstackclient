@@ -25,18 +25,7 @@ from openstackclient.compute.v2 import hypervisor
 from openstackclient.tests.unit.compute.v2 import fakes as compute_fakes
 
 
-class TestHypervisor(compute_fakes.TestComputev2):
-    def setUp(self):
-        super().setUp()
-
-        # Create and get a shortcut to the compute client mock
-        self.compute_sdk_client = (
-            self.app.client_manager.sdk_connection.compute
-        )
-        self.compute_sdk_client.reset_mock()
-
-
-class TestHypervisorList(TestHypervisor):
+class TestHypervisorList(compute_fakes.TestComputev2):
     def setUp(self):
         super().setUp()
 
@@ -294,7 +283,7 @@ class TestHypervisorList(TestHypervisor):
         )
 
 
-class TestHypervisorShow(TestHypervisor):
+class TestHypervisorShow(compute_fakes.TestComputev2):
     def setUp(self):
         super().setUp()
 

@@ -22,11 +22,6 @@ class TestUsage(compute_fakes.TestComputev2):
     def setUp(self):
         super(TestUsage, self).setUp()
 
-        self.app.client_manager.sdk_connection.compute = mock.Mock()
-        self.compute_sdk_client = (
-            self.app.client_manager.sdk_connection.compute
-        )
-
         self.projects_mock = self.app.client_manager.identity.projects
         self.projects_mock.reset_mock()
 
