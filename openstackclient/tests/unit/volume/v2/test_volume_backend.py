@@ -12,6 +12,8 @@
 #   under the License.
 #
 
+from osc_lib.cli import format_columns
+
 from openstackclient.tests.unit.volume.v2 import fakes as volume_fakes
 from openstackclient.volume.v2 import volume_backend
 
@@ -25,9 +27,8 @@ class TestShowVolumeCapability(volume_fakes.TestVolume):
     def setUp(self):
         super().setUp()
 
-        # Get a shortcut to the capability Mock
-        self.capability_mock = self.volume_client.capabilities
-        self.capability_mock.get.return_value = self.capability
+        # Assign return value to capabilities mock
+        self.volume_sdk_client.get_capabilities.return_value = self.capability
 
         # Get the command object to test
         self.cmd = volume_backend.ShowCapability(self.app, None)
@@ -68,7 +69,7 @@ class TestShowVolumeCapability(volume_fakes.TestVolume):
             self.assertIn(cap[0], capabilities)
 
         # checking if proper call was made to get capabilities
-        self.capability_mock.get.assert_called_with(
+        self.volume_sdk_client.get_capabilities.assert_called_with(
             'fake',
         )
 
@@ -82,8 +83,7 @@ class TestListVolumePool(volume_fakes.TestVolume):
     def setUp(self):
         super().setUp()
 
-        self.pool_mock = self.volume_client.pools
-        self.pool_mock.list.return_value = [self.pools]
+        self.volume_sdk_client.backend_pools.return_value = [self.pools]
 
         # Get the command object to test
         self.cmd = volume_backend.ListPool(self.app, None)
@@ -111,7 +111,7 @@ class TestListVolumePool(volume_fakes.TestVolume):
         self.assertEqual(datalist, tuple(data))
 
         # checking if proper call was made to list pools
-        self.pool_mock.list.assert_called_with(
+        self.volume_sdk_client.backend_pools.assert_called_with(
             detailed=False,
         )
 
@@ -131,13 +131,7 @@ class TestListVolumePool(volume_fakes.TestVolume):
 
         expected_columns = [
             'Name',
-            'Protocol',
-            'Thick',
-            'Thin',
-            'Volumes',
-            'Capacity',
-            'Allocated',
-            'Max Over Ratio',
+            'Capabilities',
         ]
 
         # confirming if all expected columns are present in the result.
@@ -146,19 +140,13 @@ class TestListVolumePool(volume_fakes.TestVolume):
         datalist = (
             (
                 self.pools.name,
-                self.pools.storage_protocol,
-                self.pools.thick_provisioning_support,
-                self.pools.thin_provisioning_support,
-                self.pools.total_volumes,
-                self.pools.total_capacity_gb,
-                self.pools.allocated_capacity_gb,
-                self.pools.max_over_subscription_ratio,
+                format_columns.DictColumn(self.pools.capabilities),
             ),
         )
 
         # confirming if all expected values are present in the result.
         self.assertEqual(datalist, tuple(data))
 
-        self.pool_mock.list.assert_called_with(
+        self.volume_sdk_client.backend_pools.assert_called_with(
             detailed=True,
         )

@@ -21,6 +21,8 @@ import uuid
 from cinderclient import api_versions
 from openstack.block_storage.v2 import _proxy as block_storage_v2_proxy
 from openstack.block_storage.v3 import backup as _backup
+from openstack.block_storage.v3 import capabilities as _capabilities
+from openstack.block_storage.v3 import stats as _stats
 from openstack.block_storage.v3 import volume as _volume
 from openstack.image.v2 import _proxy as image_v2_proxy
 from osc_lib.cli import format_columns
@@ -301,7 +303,7 @@ def create_one_capability(attrs=None):
     # Overwrite default attributes if there are some attributes set
     capability_info.update(attrs or {})
 
-    capability = fakes.FakeResource(None, capability_info, loaded=True)
+    capability = _capabilities.Capabilities(**capability_info)
 
     return capability
 
@@ -317,19 +319,21 @@ def create_one_pool(attrs=None):
     # Set default attribute
     pool_info = {
         'name': 'host@lvmdriver-1#lvmdriver-1',
-        'storage_protocol': 'iSCSI',
-        'thick_provisioning_support': False,
-        'thin_provisioning_support': True,
-        'total_volumes': 99,
-        'total_capacity_gb': 1000.00,
-        'allocated_capacity_gb': 100,
-        'max_over_subscription_ratio': 200.0,
+        'capabilities': {
+            'storage_protocol': 'iSCSI',
+            'thick_provisioning_support': False,
+            'thin_provisioning_support': True,
+            'total_volumes': 99,
+            'total_capacity_gb': 1000.00,
+            'allocated_capacity_gb': 100,
+            'max_over_subscription_ratio': 200.0,
+        },
     }
 
     # Overwrite default attributes if there are some attributes set
     pool_info.update(attrs or {})
 
-    pool = fakes.FakeResource(None, pool_info, loaded=True)
+    pool = _stats.Pools(**pool_info)
 
     return pool
 
