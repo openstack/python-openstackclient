@@ -11,6 +11,7 @@
 #   under the License.
 #
 
+import datetime
 from unittest import mock
 
 from openstackclient.compute.v2 import usage as usage_cmds
@@ -94,8 +95,8 @@ class TestUsageList(TestUsage):
 
         self.projects_mock.list.assert_called_with()
         self.compute_sdk_client.usages.assert_called_with(
-            start='2016-11-11T00:00:00',
-            end='2016-12-20T00:00:00',
+            start=datetime.datetime(2016, 11, 11, 0, 0),
+            end=datetime.datetime(2016, 12, 20, 0, 0),
             detailed=True,
         )
 
@@ -190,8 +191,8 @@ class TestUsageShow(TestUsage):
 
         self.compute_sdk_client.get_usage.assert_called_with(
             project=self.project.id,
-            start='2016-11-11T00:00:00',
-            end='2016-12-20T00:00:00',
+            start=datetime.datetime(2016, 11, 11, 0, 0),
+            end=datetime.datetime(2016, 12, 20, 0, 0),
         )
 
         self.assertEqual(self.columns, columns)
