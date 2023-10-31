@@ -17,6 +17,7 @@
 import functools
 import logging
 
+from cinderclient import api_versions
 from cliff import columns as cliff_columns
 from osc_lib.cli import format_columns
 from osc_lib.cli import parseractions
@@ -139,6 +140,7 @@ class CreateVolumeType(command.ShowOne):
             '--property',
             metavar='<key=value>',
             action=parseractions.KeyValueAction,
+            dest='properties',
             help=_(
                 'Set a property on this volume type '
                 '(repeat option to set multiple properties)'
@@ -232,11 +234,13 @@ class CreateVolumeType(command.ShowOne):
                     "type: %(e)s"
                 )
                 LOG.error(msg % {'project': parsed_args.project, 'e': e})
-        if parsed_args.property:
-            result = volume_type.set_keys(parsed_args.property)
+
+        if parsed_args.properties:
+            result = volume_type.set_keys(parsed_args.properties)
             volume_type._info.update(
                 {'properties': format_columns.DictColumn(result)}
             )
+
         if (
             parsed_args.encryption_provider
             or parsed_args.encryption_cipher
@@ -261,6 +265,7 @@ class CreateVolumeType(command.ShowOne):
             volume_type._info.update(
                 {'encryption': format_columns.DictColumn(encryption._info)}
             )
+
         volume_type._info.pop("os-volume-type-access:is_public", None)
 
         return zip(*sorted(volume_type._info.items()))
@@ -348,6 +353,18 @@ class ListVolumeType(command.Lister):
                 "(admin only)"
             ),
         )
+        parser.add_argument(
+            '--property',
+            metavar='<key=value>',
+            action=parseractions.KeyValueAction,
+            dest='properties',
+            help=_(
+                'Filter by a property on the volume types '
+                '(repeat option to filter by multiple properties) '
+                '(admin only except for user-visible extra specs) '
+                '(supported by --os-volume-api-version 3.52 or above)'
+            ),
+        )
         return parser
 
     def take_action(self, parsed_args):
@@ -375,8 +392,22 @@ class ListVolumeType(command.Lister):
         if parsed_args.default:
             data = [volume_client.volume_types.default()]
         else:
+            search_opts = {}
+
+            if parsed_args.properties:
+                if volume_client.api_version < api_versions.APIVersion('3.52'):
+                    msg = _(
+                        "--os-volume-api-version 3.52 or greater is required "
+                        "to use the '--property' option"
+                    )
+                    raise exceptions.CommandError(msg)
+
+                # we pass this through as-is
+                search_opts['extra_specs'] = parsed_args.properties
+
             data = volume_client.volume_types.list(
-                is_public=parsed_args.is_public
+                search_opts=search_opts,
+                is_public=parsed_args.is_public,
             )
 
         formatters = {'Extra Specs': format_columns.DictColumn}
@@ -445,6 +476,7 @@ class SetVolumeType(command.Command):
             '--property',
             metavar='<key=value>',
             action=parseractions.KeyValueAction,
+            dest='properties',
             help=_(
                 'Set a property on this volume type '
                 '(repeat option to set multiple properties)'
@@ -555,9 +587,9 @@ class SetVolumeType(command.Command):
                 )
                 result += 1
 
-        if parsed_args.property:
+        if parsed_args.properties:
             try:
-                volume_type.set_keys(parsed_args.property)
+                volume_type.set_keys(parsed_args.properties)
             except Exception as e:
                 LOG.error(_("Failed to set volume type property: %s"), e)
                 result += 1
@@ -689,6 +721,7 @@ class UnsetVolumeType(command.Command):
             '--property',
             metavar='<key>',
             action='append',
+            dest='properties',
             help=_(
                 'Remove a property from this volume type '
                 '(repeat option to remove multiple properties)'
@@ -723,9 +756,9 @@ class UnsetVolumeType(command.Command):
         )
 
         result = 0
-        if parsed_args.property:
+        if parsed_args.properties:
             try:
-                volume_type.unset_keys(parsed_args.property)
+                volume_type.unset_keys(parsed_args.properties)
             except Exception as e:
                 LOG.error(_("Failed to unset volume type property: %s"), e)
                 result += 1

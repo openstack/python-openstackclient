@@ -15,6 +15,7 @@
 from unittest import mock
 from unittest.mock import call
 
+from cinderclient import api_versions
 from osc_lib.cli import format_columns
 from osc_lib import exceptions
 from osc_lib import utils
@@ -327,7 +328,9 @@ class TestTypeList(TestType):
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
         columns, data = self.cmd.take_action(parsed_args)
-        self.volume_types_mock.list.assert_called_once_with(is_public=None)
+        self.volume_types_mock.list.assert_called_once_with(
+            search_opts={}, is_public=None
+        )
         self.assertEqual(self.columns, columns)
         self.assertCountEqual(self.data, list(data))
 
@@ -344,7 +347,9 @@ class TestTypeList(TestType):
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
         columns, data = self.cmd.take_action(parsed_args)
-        self.volume_types_mock.list.assert_called_once_with(is_public=True)
+        self.volume_types_mock.list.assert_called_once_with(
+            search_opts={}, is_public=True
+        )
         self.assertEqual(self.columns_long, columns)
         self.assertCountEqual(self.data_long, list(data))
 
@@ -360,7 +365,9 @@ class TestTypeList(TestType):
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
         columns, data = self.cmd.take_action(parsed_args)
-        self.volume_types_mock.list.assert_called_once_with(is_public=False)
+        self.volume_types_mock.list.assert_called_once_with(
+            search_opts={}, is_public=False
+        )
         self.assertEqual(self.columns, columns)
         self.assertCountEqual(self.data, list(data))
 
@@ -380,6 +387,60 @@ class TestTypeList(TestType):
         self.volume_types_mock.default.assert_called_once_with()
         self.assertEqual(self.columns, columns)
         self.assertCountEqual(self.data_with_default_type, list(data))
+
+    def test_type_list_with_property_option(self):
+        self.app.client_manager.volume.api_version = api_versions.APIVersion(
+            '3.52'
+        )
+
+        arglist = [
+            "--property",
+            "multiattach=<is> True",
+        ]
+        verifylist = [
+            ("encryption_type", False),
+            ("long", False),
+            ("is_public", None),
+            ("default", False),
+            ("properties", {"multiattach": "<is> True"}),
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        columns, data = self.cmd.take_action(parsed_args)
+        self.volume_types_mock.list.assert_called_once_with(
+            search_opts={"extra_specs": {"multiattach": "<is> True"}},
+            is_public=None,
+        )
+        self.assertEqual(self.columns, columns)
+        self.assertCountEqual(self.data, list(data))
+
+    def test_type_list_with_property_option_pre_v352(self):
+        self.app.client_manager.volume.api_version = api_versions.APIVersion(
+            '3.51'
+        )
+
+        arglist = [
+            "--property",
+            "multiattach=<is> True",
+        ]
+        verifylist = [
+            ("encryption_type", False),
+            ("long", False),
+            ("is_public", None),
+            ("default", False),
+            ("properties", {"multiattach": "<is> True"}),
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        exc = self.assertRaises(
+            exceptions.CommandError,
+            self.cmd.take_action,
+            parsed_args,
+        )
+        self.assertIn(
+            '--os-volume-api-version 3.52 or greater is required',
+            str(exc),
+        )
 
     def test_type_list_with_encryption(self):
         encryption_type = volume_fakes.create_one_encryption_volume_type(
@@ -426,7 +487,9 @@ class TestTypeList(TestType):
 
         columns, data = self.cmd.take_action(parsed_args)
         self.volume_encryption_types_mock.list.assert_called_once_with()
-        self.volume_types_mock.list.assert_called_once_with(is_public=None)
+        self.volume_types_mock.list.assert_called_once_with(
+            search_opts={}, is_public=None
+        )
         self.assertEqual(encryption_columns, columns)
         self.assertCountEqual(encryption_data, list(data))
 
@@ -459,7 +522,7 @@ class TestTypeSet(TestType):
         verifylist = [
             ('name', 'new_name'),
             ('description', 'new_description'),
-            ('property', None),
+            ('properties', None),
             ('volume_type', self.volume_type.id),
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
@@ -489,7 +552,7 @@ class TestTypeSet(TestType):
         verifylist = [
             ('name', None),
             ('description', None),
-            ('property', {'myprop': 'myvalue'}),
+            ('properties', {'myprop': 'myvalue'}),
             ('volume_type', self.volume_type.id),
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
@@ -857,7 +920,7 @@ class TestTypeUnset(TestType):
             self.volume_type.id,
         ]
         verifylist = [
-            ('property', ['property', 'multi_property']),
+            ('properties', ['property', 'multi_property']),
             ('volume_type', self.volume_type.id),
         ]
 

@@ -1,0 +1,6 @@
+---
+features:
+  - |
+    The ``volume type list`` command now accepts a ``--property <key>=<value>``
+    option, allowing users to filter volume types by their extra spec
+    properties.
