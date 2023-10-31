@@ -20,6 +20,7 @@ from openstack.image.v2 import _proxy
 from openstack.image.v2 import image
 from openstack.image.v2 import member
 from openstack.image.v2 import metadef_namespace
+from openstack.image.v2 import metadef_property
 from openstack.image.v2 import metadef_resource_type
 from openstack.image.v2 import service_info as _service_info
 from openstack.image.v2 import task
@@ -261,6 +262,20 @@ def create_one_metadef_namespace(attrs=None):
     # Overwrite default attributes if there are some attributes set
     metadef_namespace_list.update(attrs)
     return metadef_namespace.MetadefNamespace(**metadef_namespace_list)
+
+
+def create_one_metadef_property(attrs=None):
+    attrs = attrs or {}
+
+    metadef_property_list = {
+        'name': 'cpu_cores',
+        'title': 'vCPU Cores',
+        'type': 'integer',
+    }
+
+    # Overwrite default attributes if there are some attributes set
+    metadef_property_list.update(attrs)
+    return metadef_property.MetadefProperty(**metadef_property_list)
 
 
 def create_one_resource_type(attrs=None):
