@@ -10,7 +10,11 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
+from unittest import mock
+
 from cinderclient import api_versions
+from openstack import utils as sdk_utils
+from osc_lib.cli import format_columns
 from osc_lib import exceptions
 
 from openstackclient.tests.unit.volume.v3 import fakes as volume_fakes
@@ -21,9 +25,22 @@ class TestBlockStorageResourceFilter(volume_fakes.TestVolume):
     def setUp(self):
         super().setUp()
 
-        # Get a shortcut to the ResourceFilterManager Mock
-        self.resource_filter_mock = self.volume_client.resource_filters
-        self.resource_filter_mock.reset_mock()
+        patcher = mock.patch.object(
+            sdk_utils, 'supports_microversion', return_value=True
+        )
+        self.addCleanup(patcher.stop)
+        self.supports_microversion_mock = patcher.start()
+        self._set_mock_microversion(
+            self.app.client_manager.volume.api_version.get_string()
+        )
+
+    def _set_mock_microversion(self, mock_v):
+        """Set a specific microversion for the mock supports_microversion()."""
+        self.supports_microversion_mock.reset_mock(return_value=True)
+        self.supports_microversion_mock.side_effect = (
+            lambda _, v: api_versions.APIVersion(v)
+            <= api_versions.APIVersion(mock_v)
+        )
 
 
 class TestBlockStorageResourceFilterList(TestBlockStorageResourceFilter):
@@ -33,7 +50,7 @@ class TestBlockStorageResourceFilterList(TestBlockStorageResourceFilter):
     def setUp(self):
         super().setUp()
 
-        self.resource_filter_mock.list.return_value = (
+        self.volume_sdk_client.resource_filters.return_value = (
             self.fake_resource_filters
         )
 
@@ -45,7 +62,7 @@ class TestBlockStorageResourceFilterList(TestBlockStorageResourceFilter):
         )
 
     def test_resource_filter_list(self):
-        self.volume_client.api_version = api_versions.APIVersion('3.33')
+        self._set_mock_microversion('3.33')
 
         arglist = []
         verifylist = []
@@ -55,7 +72,7 @@ class TestBlockStorageResourceFilterList(TestBlockStorageResourceFilter):
         expected_data = tuple(
             (
                 resource_filter.resource,
-                resource_filter.filters,
+                format_columns.ListColumn(resource_filter.filters),
             )
             for resource_filter in self.fake_resource_filters
         )
@@ -65,10 +82,10 @@ class TestBlockStorageResourceFilterList(TestBlockStorageResourceFilter):
         self.assertEqual(expected_data, tuple(data))
 
         # checking if proper call was made to list clusters
-        self.resource_filter_mock.list.assert_called_with()
+        self.volume_sdk_client.resource_filters.assert_called_with()
 
     def test_resource_filter_list_pre_v333(self):
-        self.volume_client.api_version = api_versions.APIVersion('3.32')
+        self._set_mock_microversion('3.32')
 
         arglist = []
         verifylist = []
@@ -89,7 +106,7 @@ class TestBlockStorageResourceFilterShow(TestBlockStorageResourceFilter):
     def setUp(self):
         super().setUp()
 
-        self.resource_filter_mock.list.return_value = iter(
+        self.volume_sdk_client.resource_filters.return_value = iter(
             [self.fake_resource_filter]
         )
 
@@ -101,7 +118,7 @@ class TestBlockStorageResourceFilterShow(TestBlockStorageResourceFilter):
         )
 
     def test_resource_filter_show(self):
-        self.volume_client.api_version = api_versions.APIVersion('3.33')
+        self._set_mock_microversion('3.33')
 
         arglist = [
             self.fake_resource_filter.resource,
@@ -111,10 +128,10 @@ class TestBlockStorageResourceFilterShow(TestBlockStorageResourceFilter):
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
-        expected_columns = ('filters', 'resource')
+        expected_columns = ('Resource', 'Filters')
         expected_data = (
-            self.fake_resource_filter.filters,
             self.fake_resource_filter.resource,
+            format_columns.ListColumn(self.fake_resource_filter.filters),
         )
         columns, data = self.cmd.take_action(parsed_args)
 
@@ -122,10 +139,12 @@ class TestBlockStorageResourceFilterShow(TestBlockStorageResourceFilter):
         self.assertEqual(expected_data, data)
 
         # checking if proper call was made to list clusters
-        self.resource_filter_mock.list.assert_called_with(resource='volume')
+        self.volume_sdk_client.resource_filters.assert_called_with(
+            resource='volume'
+        )
 
     def test_resource_filter_show_pre_v333(self):
-        self.volume_client.api_version = api_versions.APIVersion('3.32')
+        self._set_mock_microversion('3.32')
 
         arglist = [
             self.fake_resource_filter.resource,
