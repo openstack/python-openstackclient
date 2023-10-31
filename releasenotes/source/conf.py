@@ -53,7 +53,7 @@ extensions = [
 
 # openstackdocstheme options
 openstackdocs_repo_name = 'openstack/python-openstackclient'
-openstackdocs_use_storyboard = True
+openstackdocs_use_storyboard = False
 openstackdocs_auto_name = False
 
 # Set aliases for extlinks

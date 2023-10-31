@@ -9,13 +9,13 @@ to set up and use Gerrit:
 
    https://docs.openstack.org/contributors/code-and-documentation/quick-start.html
 
-Bugs should be filed on StoryBoard:
+Bugs should be filed on Launchpad:
 
-   https://launchpad.net/python-openstackclient
+   https://bugs.launchpad.net/python-openstackclient
 
 Developers should also join the discussion on the mailing list, at:
 
-  http://lists.openstack.org/cgi-bin/mailman/listinfo/openstack-discuss
+  https://lists.openstack.org/mailman3/lists/openstack-discuss.lists.openstack.org/
 
 or join the IRC channel on
 
