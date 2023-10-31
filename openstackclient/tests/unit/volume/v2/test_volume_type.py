@@ -46,18 +46,19 @@ class TestType(volume_fakes.TestVolume):
 
 
 class TestTypeCreate(TestType):
-    project = identity_fakes.FakeProject.create_one_project()
-    columns = (
-        'description',
-        'id',
-        'is_public',
-        'name',
-    )
-
     def setUp(self):
         super().setUp()
 
-        self.new_volume_type = volume_fakes.create_one_volume_type()
+        self.new_volume_type = volume_fakes.create_one_volume_type(
+            methods={'set_keys': None},
+        )
+        self.project = identity_fakes.FakeProject.create_one_project()
+        self.columns = (
+            'description',
+            'id',
+            'is_public',
+            'name',
+        )
         self.data = (
             self.new_volume_type.description,
             self.new_volume_type.id,
@@ -121,7 +122,45 @@ class TestTypeCreate(TestType):
         self.assertEqual(self.columns, columns)
         self.assertCountEqual(self.data, data)
 
-    def test_public_type_create_with_project(self):
+    def test_type_create_with_properties(self):
+        arglist = [
+            '--property',
+            'myprop=myvalue',
+            # this combination isn't viable server-side but is okay for testing
+            '--multiattach',
+            '--cacheable',
+            '--replicated',
+            self.new_volume_type.name,
+        ]
+        verifylist = [
+            ('properties', {'myprop': 'myvalue'}),
+            ('multiattach', True),
+            ('cacheable', True),
+            ('replicated', True),
+            ('name', self.new_volume_type.name),
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        columns, data = self.cmd.take_action(parsed_args)
+        self.volume_types_mock.create.assert_called_with(
+            self.new_volume_type.name, description=None
+        )
+        self.new_volume_type.set_keys.assert_called_once_with(
+            {
+                'myprop': 'myvalue',
+                'multiattach': '<is> True',
+                'cacheable': '<is> True',
+                'replication_enabled': '<is> True',
+            }
+        )
+
+        self.columns += ('properties',)
+        self.data += (format_columns.DictColumn(None),)
+
+        self.assertEqual(self.columns, columns)
+        self.assertCountEqual(self.data, data)
+
+    def test_public_type_create_with_project_public(self):
         arglist = [
             '--project',
             self.project.id,
@@ -134,7 +173,9 @@ class TestTypeCreate(TestType):
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
         self.assertRaises(
-            exceptions.CommandError, self.cmd.take_action, parsed_args
+            exceptions.CommandError,
+            self.cmd.take_action,
+            parsed_args,
         )
 
     def test_type_create_with_encryption(self):
@@ -388,47 +429,60 @@ class TestTypeList(TestType):
         self.assertEqual(self.columns, columns)
         self.assertCountEqual(self.data_with_default_type, list(data))
 
-    def test_type_list_with_property_option(self):
+    def test_type_list_with_properties(self):
         self.app.client_manager.volume.api_version = api_versions.APIVersion(
             '3.52'
         )
 
         arglist = [
             "--property",
-            "multiattach=<is> True",
+            "foo=bar",
+            "--multiattach",
+            "--cacheable",
+            "--replicated",
         ]
         verifylist = [
             ("encryption_type", False),
             ("long", False),
             ("is_public", None),
             ("default", False),
-            ("properties", {"multiattach": "<is> True"}),
+            ("properties", {"foo": "bar"}),
+            ("multiattach", True),
+            ("cacheable", True),
+            ("replicated", True),
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
         columns, data = self.cmd.take_action(parsed_args)
         self.volume_types_mock.list.assert_called_once_with(
-            search_opts={"extra_specs": {"multiattach": "<is> True"}},
+            search_opts={
+                "extra_specs": {
+                    "foo": "bar",
+                    "multiattach": "<is> True",
+                    "cacheable": "<is> True",
+                    "replication_enabled": "<is> True",
+                }
+            },
             is_public=None,
         )
         self.assertEqual(self.columns, columns)
         self.assertCountEqual(self.data, list(data))
 
-    def test_type_list_with_property_option_pre_v352(self):
+    def test_type_list_with_properties_pre_v352(self):
         self.app.client_manager.volume.api_version = api_versions.APIVersion(
             '3.51'
         )
 
         arglist = [
             "--property",
-            "multiattach=<is> True",
+            "foo=bar",
         ]
         verifylist = [
             ("encryption_type", False),
             ("long", False),
             ("is_public", None),
             ("default", False),
-            ("properties", {"multiattach": "<is> True"}),
+            ("properties", {"foo": "bar"}),
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
@@ -547,12 +601,19 @@ class TestTypeSet(TestType):
         arglist = [
             '--property',
             'myprop=myvalue',
+            # this combination isn't viable server-side but is okay for testing
+            '--multiattach',
+            '--cacheable',
+            '--replicated',
             self.volume_type.id,
         ]
         verifylist = [
             ('name', None),
             ('description', None),
             ('properties', {'myprop': 'myvalue'}),
+            ('multiattach', True),
+            ('cacheable', True),
+            ('replicated', True),
             ('volume_type', self.volume_type.id),
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
@@ -561,7 +622,12 @@ class TestTypeSet(TestType):
         self.assertIsNone(result)
 
         self.volume_type.set_keys.assert_called_once_with(
-            {'myprop': 'myvalue'}
+            {
+                'myprop': 'myvalue',
+                'multiattach': '<is> True',
+                'cacheable': '<is> True',
+                'replication_enabled': '<is> True',
+            }
         )
         self.volume_type_access_mock.add_project_access.assert_not_called()
         self.volume_encryption_types_mock.update.assert_not_called()
