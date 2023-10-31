@@ -33,6 +33,29 @@ from openstackclient.identity import common as identity_common
 LOG = logging.getLogger(__name__)
 
 
+class KeyValueHintAction(argparse.Action):
+    """Uses KeyValueAction or KeyValueAppendAction based on the given key"""
+
+    APPEND_KEYS = ('same_host', 'different_host')
+
+    def __init__(self, *args, **kwargs):
+        self._key_value_action = parseractions.KeyValueAction(*args, **kwargs)
+        self._key_value_append_action = parseractions.KeyValueAppendAction(
+            *args, **kwargs
+        )
+        super().__init__(*args, **kwargs)
+
+    def __call__(self, parser, namespace, values, option_string=None):
+        if values.startswith(self.APPEND_KEYS):
+            self._key_value_append_action(
+                parser, namespace, values, option_string=option_string
+            )
+        else:
+            self._key_value_action(
+                parser, namespace, values, option_string=option_string
+            )
+
+
 class AttachmentsColumn(cliff_columns.FormattableColumn):
     """Formattable column for attachments column.
 
@@ -162,10 +185,12 @@ class CreateVolume(command.ShowOne):
         parser.add_argument(
             "--hint",
             metavar="<key=value>",
-            action=parseractions.KeyValueAction,
+            action=KeyValueHintAction,
             help=_(
-                "Arbitrary scheduler hint key-value pairs to help boot "
-                "an instance (repeat option to set multiple hints)"
+                "Arbitrary scheduler hint key-value pairs to help creating "
+                "a volume. Repeat the option to set multiple hints. "
+                "'same_host' and 'different_host' get values appended when "
+                "repeated, all other keys take the last given value"
             ),
         )
         bootable_group = parser.add_mutually_exclusive_group()
