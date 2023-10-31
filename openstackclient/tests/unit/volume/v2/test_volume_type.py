@@ -171,6 +171,7 @@ class TestTypeCreate(TestType):
             self.new_volume_type.name,
         ]
         verifylist = [
+            ('is_public', None),
             ('project', self.project.id),
             ('name', self.new_volume_type.name),
         ]
