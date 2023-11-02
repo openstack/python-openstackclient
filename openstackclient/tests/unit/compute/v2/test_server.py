@@ -1447,6 +1447,8 @@ class TestServerCreate(TestServer):
             'a=b',
             '--hint',
             'a=c',
+            '--server-group',
+            'servergroup',
             self.new_server.name,
         ]
         verifylist = [
@@ -1455,22 +1457,26 @@ class TestServerCreate(TestServer):
             ('key_name', 'keyname'),
             ('properties', {'Beta': 'b'}),
             ('security_group', ['securitygroup']),
-            ('hint', {'a': ['b', 'c']}),
+            ('hints', {'a': ['b', 'c']}),
+            ('server_group', 'servergroup'),
             ('config_drive', True),
             ('password', 'passw0rd'),
             ('server_name', self.new_server.name),
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
-        # In base command class ShowOne in cliff, abstract method take_action()
-        # returns a two-part tuple with a tuple of column names and a tuple of
-        # data to be shown.
+        fake_server_group = compute_fakes.create_one_server_group()
+        self.compute_client.server_groups.get.return_value = fake_server_group
+
         fake_sg = network_fakes.FakeSecurityGroup.create_security_groups()
         mock_find_sg = network_fakes.FakeSecurityGroup.get_security_groups(
             fake_sg
         )
         self.app.client_manager.network.find_security_group = mock_find_sg
 
+        # In base command class ShowOne in cliff, abstract method take_action()
+        # returns a two-part tuple with a tuple of column names and a tuple of
+        # data to be shown.
         columns, data = self.cmd.take_action(parsed_args)
 
         mock_find_sg.assert_called_once_with(
@@ -1490,7 +1496,7 @@ class TestServerCreate(TestServer):
             admin_pass='passw0rd',
             block_device_mapping_v2=[],
             nics=[],
-            scheduler_hints={'a': ['b', 'c']},
+            scheduler_hints={'a': ['b', 'c'], 'group': fake_server_group.id},
             config_drive=True,
         )
         # ServerManager.create(name, image, flavor, **kwargs)
