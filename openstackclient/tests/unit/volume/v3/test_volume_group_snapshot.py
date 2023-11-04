@@ -10,28 +10,32 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
-from cinderclient import api_versions
+from unittest import mock
+
+from keystoneauth1 import discover
+from openstack.block_storage.v3 import group as _group
+from openstack.block_storage.v3 import group_snapshot as _group_snapshot
+from openstack.test import fakes as sdk_fakes
+from openstack import utils as sdk_utils
 from osc_lib import exceptions
 
 from openstackclient.tests.unit.volume.v3 import fakes as volume_fakes
 from openstackclient.volume.v3 import volume_group_snapshot
 
 
-class TestVolumeGroupSnapshot(volume_fakes.TestVolume):
-    def setUp(self):
-        super().setUp()
+def fake_supports_microversion(mocked_version):
+    def supports_microversion(adapter, microversion, raise_exception=False):
+        required = discover.normalize_version_number(microversion)
+        candidate = discover.normalize_version_number(mocked_version)
+        return discover.version_match(required, candidate)
 
-        self.volume_groups_mock = self.volume_client.groups
-        self.volume_groups_mock.reset_mock()
-
-        self.volume_group_snapshots_mock = self.volume_client.group_snapshots
-        self.volume_group_snapshots_mock.reset_mock()
+    return supports_microversion
 
 
-class TestVolumeGroupSnapshotCreate(TestVolumeGroupSnapshot):
-    fake_volume_group = volume_fakes.create_one_volume_group()
-    fake_volume_group_snapshot = (
-        volume_fakes.create_one_volume_group_snapshot()
+class TestVolumeGroupSnapshotCreate(volume_fakes.TestVolume):
+    fake_volume_group = sdk_fakes.generate_fake_resource(_group.Group)
+    fake_volume_group_snapshot = sdk_fakes.generate_fake_resource(
+        _group_snapshot.GroupSnapshot,
     )
 
     columns = (
@@ -54,11 +58,11 @@ class TestVolumeGroupSnapshotCreate(TestVolumeGroupSnapshot):
     def setUp(self):
         super().setUp()
 
-        self.volume_groups_mock.get.return_value = self.fake_volume_group
-        self.volume_group_snapshots_mock.create.return_value = (
+        self.volume_sdk_client.find_group.return_value = self.fake_volume_group
+        self.volume_sdk_client.create_group_snapshot.return_value = (
             self.fake_volume_group_snapshot
         )
-        self.volume_group_snapshots_mock.get.return_value = (
+        self.volume_sdk_client.find_group_snapshot.return_value = (
             self.fake_volume_group_snapshot
         )
 
@@ -66,8 +70,9 @@ class TestVolumeGroupSnapshotCreate(TestVolumeGroupSnapshot):
             self.app, None
         )
 
-    def test_volume_group_snapshot_create(self):
-        self.volume_client.api_version = api_versions.APIVersion('3.14')
+    @mock.patch.object(sdk_utils, 'supports_microversion')
+    def test_volume_group_snapshot_create(self, mock_mv):
+        mock_mv.side_effect = fake_supports_microversion('3.14')
 
         arglist = [
             self.fake_volume_group.id,
@@ -81,19 +86,22 @@ class TestVolumeGroupSnapshotCreate(TestVolumeGroupSnapshot):
 
         columns, data = self.cmd.take_action(parsed_args)
 
-        self.volume_groups_mock.get.assert_called_once_with(
-            self.fake_volume_group.id
-        )
-        self.volume_group_snapshots_mock.create.assert_called_once_with(
+        self.volume_sdk_client.find_group.assert_called_once_with(
             self.fake_volume_group.id,
-            None,
-            None,
+            ignore_missing=False,
+            details=False,
+        )
+        self.volume_sdk_client.create_group_snapshot.assert_called_once_with(
+            group_id=self.fake_volume_group.id,
+            name=None,
+            description=None,
         )
         self.assertEqual(self.columns, columns)
         self.assertCountEqual(self.data, data)
 
-    def test_volume_group_snapshot_create_with_options(self):
-        self.volume_client.api_version = api_versions.APIVersion('3.14')
+    @mock.patch.object(sdk_utils, 'supports_microversion')
+    def test_volume_group_snapshot_create_with_options(self, mock_mv):
+        mock_mv.side_effect = fake_supports_microversion('3.14')
 
         arglist = [
             self.fake_volume_group.id,
@@ -111,19 +119,22 @@ class TestVolumeGroupSnapshotCreate(TestVolumeGroupSnapshot):
 
         columns, data = self.cmd.take_action(parsed_args)
 
-        self.volume_groups_mock.get.assert_called_once_with(
-            self.fake_volume_group.id
-        )
-        self.volume_group_snapshots_mock.create.assert_called_once_with(
+        self.volume_sdk_client.find_group.assert_called_once_with(
             self.fake_volume_group.id,
-            'foo',
-            'hello, world',
+            ignore_missing=False,
+            details=False,
+        )
+        self.volume_sdk_client.create_group_snapshot.assert_called_once_with(
+            group_id=self.fake_volume_group.id,
+            name='foo',
+            description='hello, world',
         )
         self.assertEqual(self.columns, columns)
         self.assertCountEqual(self.data, data)
 
-    def test_volume_group_snapshot_create_pre_v314(self):
-        self.volume_client.api_version = api_versions.APIVersion('3.13')
+    @mock.patch.object(sdk_utils, 'supports_microversion')
+    def test_volume_group_snapshot_create_pre_v314(self, mock_mv):
+        mock_mv.side_effect = fake_supports_microversion('3.13')
 
         arglist = [
             self.fake_volume_group.id,
@@ -136,32 +147,36 @@ class TestVolumeGroupSnapshotCreate(TestVolumeGroupSnapshot):
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
         exc = self.assertRaises(
-            exceptions.CommandError, self.cmd.take_action, parsed_args
+            exceptions.CommandError,
+            self.cmd.take_action,
+            parsed_args,
         )
         self.assertIn(
-            '--os-volume-api-version 3.14 or greater is required', str(exc)
+            '--os-volume-api-version 3.14 or greater is required',
+            str(exc),
         )
 
 
-class TestVolumeGroupSnapshotDelete(TestVolumeGroupSnapshot):
-    fake_volume_group_snapshot = (
-        volume_fakes.create_one_volume_group_snapshot()
+class TestVolumeGroupSnapshotDelete(volume_fakes.TestVolume):
+    fake_volume_group_snapshot = sdk_fakes.generate_fake_resource(
+        _group_snapshot.GroupSnapshot,
     )
 
     def setUp(self):
         super().setUp()
 
-        self.volume_group_snapshots_mock.get.return_value = (
+        self.volume_sdk_client.find_group_snapshot.return_value = (
             self.fake_volume_group_snapshot
         )
-        self.volume_group_snapshots_mock.delete.return_value = None
+        self.volume_sdk_client.delete_group_snapshot.return_value = None
 
         self.cmd = volume_group_snapshot.DeleteVolumeGroupSnapshot(
             self.app, None
         )
 
-    def test_volume_group_snapshot_delete(self):
-        self.volume_client.api_version = api_versions.APIVersion('3.14')
+    @mock.patch.object(sdk_utils, 'supports_microversion')
+    def test_volume_group_snapshot_delete(self, mock_mv):
+        mock_mv.side_effect = fake_supports_microversion('3.14')
 
         arglist = [
             self.fake_volume_group_snapshot.id,
@@ -173,13 +188,14 @@ class TestVolumeGroupSnapshotDelete(TestVolumeGroupSnapshot):
 
         result = self.cmd.take_action(parsed_args)
 
-        self.volume_group_snapshots_mock.delete.assert_called_once_with(
+        self.volume_sdk_client.delete_group_snapshot.assert_called_once_with(
             self.fake_volume_group_snapshot.id,
         )
         self.assertIsNone(result)
 
-    def test_volume_group_snapshot_delete_pre_v314(self):
-        self.volume_client.api_version = api_versions.APIVersion('3.13')
+    @mock.patch.object(sdk_utils, 'supports_microversion')
+    def test_volume_group_snapshot_delete_pre_v314(self, mock_mv):
+        mock_mv.side_effect = fake_supports_microversion('3.13')
 
         arglist = [
             self.fake_volume_group_snapshot.id,
@@ -190,15 +206,23 @@ class TestVolumeGroupSnapshotDelete(TestVolumeGroupSnapshot):
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
         exc = self.assertRaises(
-            exceptions.CommandError, self.cmd.take_action, parsed_args
+            exceptions.CommandError,
+            self.cmd.take_action,
+            parsed_args,
         )
         self.assertIn(
-            '--os-volume-api-version 3.14 or greater is required', str(exc)
+            '--os-volume-api-version 3.14 or greater is required',
+            str(exc),
         )
 
 
-class TestVolumeGroupSnapshotList(TestVolumeGroupSnapshot):
-    fake_volume_group_snapshots = volume_fakes.create_volume_group_snapshots()
+class TestVolumeGroupSnapshotList(volume_fakes.TestVolume):
+    fake_volume_group_snapshots = list(
+        sdk_fakes.generate_fake_resources(
+            _group_snapshot.GroupSnapshot,
+            count=3,
+        )
+    )
 
     columns = (
         'ID',
@@ -217,7 +241,7 @@ class TestVolumeGroupSnapshotList(TestVolumeGroupSnapshot):
     def setUp(self):
         super().setUp()
 
-        self.volume_group_snapshots_mock.list.return_value = (
+        self.volume_sdk_client.group_snapshots.return_value = (
             self.fake_volume_group_snapshots
         )
 
@@ -225,8 +249,9 @@ class TestVolumeGroupSnapshotList(TestVolumeGroupSnapshot):
             self.app, None
         )
 
-    def test_volume_group_snapshot_list(self):
-        self.volume_client.api_version = api_versions.APIVersion('3.14')
+    @mock.patch.object(sdk_utils, 'supports_microversion')
+    def test_volume_group_snapshot_list(self, mock_mv):
+        mock_mv.side_effect = fake_supports_microversion('3.14')
 
         arglist = [
             '--all-projects',
@@ -238,16 +263,15 @@ class TestVolumeGroupSnapshotList(TestVolumeGroupSnapshot):
 
         columns, data = self.cmd.take_action(parsed_args)
 
-        self.volume_group_snapshots_mock.list.assert_called_once_with(
-            search_opts={
-                'all_tenants': True,
-            },
+        self.volume_sdk_client.group_snapshots.assert_called_once_with(
+            all_projects=True,
         )
         self.assertEqual(self.columns, columns)
         self.assertCountEqual(tuple(self.data), data)
 
-    def test_volume_group_snapshot_list_pre_v314(self):
-        self.volume_client.api_version = api_versions.APIVersion('3.13')
+    @mock.patch.object(sdk_utils, 'supports_microversion')
+    def test_volume_group_snapshot_list_pre_v314(self, mock_mv):
+        mock_mv.side_effect = fake_supports_microversion('3.13')
 
         arglist = []
         verifylist = [
@@ -256,8 +280,11 @@ class TestVolumeGroupSnapshotList(TestVolumeGroupSnapshot):
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
         exc = self.assertRaises(
-            exceptions.CommandError, self.cmd.take_action, parsed_args
+            exceptions.CommandError,
+            self.cmd.take_action,
+            parsed_args,
         )
         self.assertIn(
-            '--os-volume-api-version 3.14 or greater is required', str(exc)
+            '--os-volume-api-version 3.14 or greater is required',
+            str(exc),
         )

@@ -12,7 +12,7 @@
 
 import logging
 
-from cinderclient import api_versions
+from openstack import utils as sdk_utils
 from osc_lib.command import command
 from osc_lib import exceptions
 from osc_lib import utils
@@ -75,22 +75,25 @@ class CreateVolumeGroupSnapshot(command.ShowOne):
         return parser
 
     def take_action(self, parsed_args):
-        volume_client = self.app.client_manager.volume
+        volume_client = self.app.client_manager.sdk_connection.volume
 
-        if volume_client.api_version < api_versions.APIVersion('3.14'):
+        if not sdk_utils.supports_microversion(volume_client, '3.14'):
             msg = _(
                 "--os-volume-api-version 3.14 or greater is required to "
                 "support the 'volume group snapshot create' command"
             )
             raise exceptions.CommandError(msg)
 
-        volume_group = utils.find_resource(
-            volume_client.groups,
+        group = volume_client.find_group(
             parsed_args.volume_group,
+            ignore_missing=False,
+            details=False,
         )
 
-        snapshot = volume_client.group_snapshots.create(
-            volume_group.id, parsed_args.name, parsed_args.description
+        snapshot = volume_client.create_group_snapshot(
+            group_id=group.id,
+            name=parsed_args.name,
+            description=parsed_args.description,
         )
 
         return _format_group_snapshot(snapshot)
@@ -112,21 +115,22 @@ class DeleteVolumeGroupSnapshot(command.Command):
         return parser
 
     def take_action(self, parsed_args):
-        volume_client = self.app.client_manager.volume
+        volume_client = self.app.client_manager.sdk_connection.volume
 
-        if volume_client.api_version < api_versions.APIVersion('3.14'):
+        if not sdk_utils.supports_microversion(volume_client, '3.14'):
             msg = _(
                 "--os-volume-api-version 3.14 or greater is required to "
                 "support the 'volume group snapshot delete' command"
             )
             raise exceptions.CommandError(msg)
 
-        snapshot = utils.find_resource(
-            volume_client.group_snapshots,
+        group_snapshot = volume_client.find_group_snapshot(
             parsed_args.snapshot,
+            ignore_missing=False,
+            details=False,
         )
 
-        volume_client.group_snapshots.delete(snapshot.id)
+        volume_client.delete_group_snapshot(group_snapshot.id)
 
 
 class ListVolumeGroupSnapshot(command.Lister):
@@ -161,20 +165,18 @@ class ListVolumeGroupSnapshot(command.Lister):
         return parser
 
     def take_action(self, parsed_args):
-        volume_client = self.app.client_manager.volume
+        volume_client = self.app.client_manager.sdk_connection.volume
 
-        if volume_client.api_version < api_versions.APIVersion('3.14'):
+        if not sdk_utils.supports_microversion(volume_client, '3.14'):
             msg = _(
                 "--os-volume-api-version 3.14 or greater is required to "
                 "support the 'volume group snapshot list' command"
             )
             raise exceptions.CommandError(msg)
 
-        search_opts = {
-            'all_tenants': parsed_args.all_projects,
-        }
-
-        groups = volume_client.group_snapshots.list(search_opts=search_opts)
+        groups = volume_client.group_snapshots(
+            all_projects=parsed_args.all_projects,
+        )
 
         column_headers = (
             'ID',
@@ -209,21 +211,19 @@ class ShowVolumeGroupSnapshot(command.ShowOne):
         return parser
 
     def take_action(self, parsed_args):
-        volume_client = self.app.client_manager.volume
+        volume_client = self.app.client_manager.sdk_connection.volume
 
-        if volume_client.api_version < api_versions.APIVersion('3.14'):
+        if not sdk_utils.supports_microversion(volume_client, '3.14'):
             msg = _(
                 "--os-volume-api-version 3.14 or greater is required to "
                 "support the 'volume group snapshot show' command"
             )
             raise exceptions.CommandError(msg)
 
-        snapshot = utils.find_resource(
-            volume_client.group_snapshots,
+        group_snapshot = volume_client.find_group_snapshot(
             parsed_args.snapshot,
+            ignore_missing=False,
+            details=True,
         )
 
-        # TODO(stephenfin): Do we need this?
-        snapshot = volume_client.groups.show(snapshot.id)
-
-        return _format_group_snapshot(snapshot)
+        return _format_group_snapshot(group_snapshot)

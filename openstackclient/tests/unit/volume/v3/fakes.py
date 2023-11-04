@@ -21,7 +21,6 @@ from openstack.block_storage.v3 import extension as _extension
 from openstack.block_storage.v3 import resource_filter as _filters
 from openstack.block_storage.v3 import volume as _volume
 
-from openstackclient.tests.unit.compute.v2 import fakes as compute_fakes
 from openstackclient.tests.unit import fakes
 from openstackclient.tests.unit.identity.v3 import fakes as identity_fakes
 from openstackclient.tests.unit import utils
@@ -89,6 +88,11 @@ class TestVolume(FakeClientMixin, utils.TestCommand):
 
         self.app.client_manager.identity = identity_fakes.FakeIdentityv3Client(
             endpoint=fakes.AUTH_URL, token=fakes.AUTH_TOKEN
+        )
+
+        # avoid circular imports
+        from openstackclient.tests.unit.compute.v2 import (
+            fakes as compute_fakes,
         )
 
         self.app.client_manager.compute = compute_fakes.FakeComputev2Client(
