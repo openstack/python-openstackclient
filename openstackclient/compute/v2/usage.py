@@ -153,7 +153,6 @@ class ListUsage(command.Lister):
         )
 
         date_cli_format = "%Y-%m-%d"
-        date_api_format = "%Y-%m-%dT%H:%M:%S"
         now = datetime.datetime.utcnow()
 
         if parsed_args.start:
@@ -170,8 +169,8 @@ class ListUsage(command.Lister):
 
         usage_list = list(
             compute_client.usages(
-                start=start.strftime(date_api_format),
-                end=end.strftime(date_api_format),
+                start=start,
+                end=end,
                 detailed=True,
             )
         )
@@ -239,7 +238,6 @@ class ShowUsage(command.ShowOne):
         identity_client = self.app.client_manager.identity
         compute_client = self.app.client_manager.sdk_connection.compute
         date_cli_format = "%Y-%m-%d"
-        date_api_format = "%Y-%m-%dT%H:%M:%S"
         now = datetime.datetime.utcnow()
 
         if parsed_args.start:
@@ -265,8 +263,8 @@ class ShowUsage(command.ShowOne):
 
         usage = compute_client.get_usage(
             project=project,
-            start=start.strftime(date_api_format),
-            end=end.strftime(date_api_format),
+            start=start,
+            end=end,
         )
 
         if parsed_args.formatter == 'table':
