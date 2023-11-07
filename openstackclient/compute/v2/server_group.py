@@ -24,8 +24,8 @@ from osc_lib.command import command
 from osc_lib import exceptions
 from osc_lib import utils
 
+from openstackclient.common import pagination
 from openstackclient.i18n import _
-
 
 LOG = logging.getLogger(__name__)
 
@@ -191,28 +191,7 @@ class ListServerGroup(command.Lister):
         )
         # TODO(stephenfin): This should really be a --marker option, but alas
         # the API doesn't support that for some reason
-        parser.add_argument(
-            '--offset',
-            metavar='<offset>',
-            type=int,
-            default=None,
-            help=_(
-                'Index from which to start listing servers. This should '
-                'typically be a factor of --limit. Display all servers groups '
-                'if not specified.'
-            ),
-        )
-        parser.add_argument(
-            '--limit',
-            metavar='<limit>',
-            type=int,
-            default=None,
-            help=_(
-                "Maximum number of server groups to display. "
-                "If limit is greater than 'osapi_max_limit' option of Nova "
-                "API, 'osapi_max_limit' will be used instead."
-            ),
-        )
+        pagination.add_offset_pagination_option_to_parser(parser)
         return parser
 
     def take_action(self, parsed_args):

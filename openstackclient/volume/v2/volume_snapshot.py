@@ -25,6 +25,7 @@ from osc_lib.command import command
 from osc_lib import exceptions
 from osc_lib import utils
 
+from openstackclient.common import pagination
 from openstackclient.i18n import _
 from openstackclient.identity import common as identity_common
 
@@ -229,18 +230,6 @@ class ListVolumeSnapshot(command.Lister):
             help=_('List additional fields in output'),
         )
         parser.add_argument(
-            '--marker',
-            metavar='<volume-snapshot>',
-            help=_('The last snapshot ID of the previous page'),
-        )
-        parser.add_argument(
-            '--limit',
-            type=int,
-            action=parseractions.NonNegativeAction,
-            metavar='<num-snapshots>',
-            help=_('Maximum number of snapshots to display'),
-        )
-        parser.add_argument(
             '--name',
             metavar='<name>',
             default=None,
@@ -268,6 +257,7 @@ class ListVolumeSnapshot(command.Lister):
             default=None,
             help=_('Filters results by a volume (name or ID).'),
         )
+        pagination.add_marker_pagination_option_to_parser(parser)
         return parser
 
     def take_action(self, parsed_args):

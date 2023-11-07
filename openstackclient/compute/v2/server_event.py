@@ -26,6 +26,7 @@ from osc_lib.command import command
 from osc_lib import exceptions
 from osc_lib import utils
 
+from openstackclient.common import pagination
 from openstackclient.i18n import _
 
 LOG = logging.getLogger(__name__)
@@ -143,21 +144,7 @@ class ListServerEvent(command.Lister):
                 "(supported with --os-compute-api-version 2.66 or above)"
             ),
         )
-        parser.add_argument(
-            '--marker',
-            help=_(
-                'The last server event ID of the previous page '
-                '(supported by --os-compute-api-version 2.58 or above)'
-            ),
-        )
-        parser.add_argument(
-            '--limit',
-            type=int,
-            help=_(
-                'Maximum number of server events to display '
-                '(supported by --os-compute-api-version 2.58 or above)'
-            ),
-        )
+        pagination.add_marker_pagination_option_to_parser(parser)
         return parser
 
     def take_action(self, parsed_args):

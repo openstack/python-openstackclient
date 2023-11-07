@@ -25,6 +25,7 @@ from osc_lib.command import command
 from osc_lib import exceptions
 from osc_lib import utils
 
+from openstackclient.common import pagination
 from openstackclient.i18n import _
 
 
@@ -80,27 +81,7 @@ class ListHypervisor(command.Lister):
                 "when using microversion 2.52 or lower"
             ),
         )
-        parser.add_argument(
-            '--marker',
-            metavar='<marker>',
-            help=_(
-                "The UUID of the last hypervisor of the previous page; "
-                "displays list of hypervisors after 'marker'. "
-                "(supported with --os-compute-api-version 2.33 or above)"
-            ),
-        )
-        parser.add_argument(
-            '--limit',
-            metavar='<limit>',
-            type=int,
-            help=_(
-                "Maximum number of hypervisors to display. Note that there "
-                "is a configurable max limit on the server, and the limit "
-                "that is used will be the minimum of what is requested "
-                "here and what is configured in the server. "
-                "(supported with --os-compute-api-version 2.33 or above)"
-            ),
-        )
+        pagination.add_marker_pagination_option_to_parser(parser)
         parser.add_argument(
             '--long',
             action='store_true',

@@ -26,6 +26,7 @@ from osc_lib.command import command
 from osc_lib import exceptions
 from osc_lib import utils
 
+from openstackclient.common import pagination
 from openstackclient.i18n import _
 from openstackclient.identity import common as identity_common
 
@@ -456,18 +457,7 @@ class ListVolume(command.Lister):
             default=False,
             help=_('List additional fields in output'),
         )
-        parser.add_argument(
-            '--marker',
-            metavar='<volume>',
-            help=_('The last volume ID of the previous page'),
-        )
-        parser.add_argument(
-            '--limit',
-            type=int,
-            action=parseractions.NonNegativeAction,
-            metavar='<num-volumes>',
-            help=_('Maximum number of volumes to display'),
-        )
+        pagination.add_marker_pagination_option_to_parser(parser)
         return parser
 
     def take_action(self, parsed_args):

@@ -26,8 +26,8 @@ from osc_lib.command import command
 from osc_lib import exceptions
 from osc_lib import utils
 
+from openstackclient.common import pagination
 from openstackclient.i18n import _
-
 
 LOG = logging.getLogger(__name__)
 
@@ -272,18 +272,7 @@ class ListVolumeBackup(command.Lister):
                 "Filters results by the volume which they backup (name or ID)"
             ),
         )
-        parser.add_argument(
-            '--marker',
-            metavar='<volume-backup>',
-            help=_('The last backup of the previous page (name or ID)'),
-        )
-        parser.add_argument(
-            '--limit',
-            type=int,
-            action=parseractions.NonNegativeAction,
-            metavar='<num-backups>',
-            help=_('Maximum number of backups to display'),
-        )
+        pagination.add_marker_pagination_option_to_parser(parser)
         parser.add_argument(
             '--all-projects',
             action='store_true',

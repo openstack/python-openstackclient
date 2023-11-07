@@ -27,6 +27,7 @@ from osc_lib.command import command
 from osc_lib import exceptions
 from osc_lib import utils
 
+from openstackclient.common import pagination
 from openstackclient.i18n import _
 from openstackclient.identity import common as identity_common
 
@@ -296,15 +297,7 @@ class ListKeypair(command.Lister):
             ),
         )
         identity_common.add_project_domain_option_to_parser(parser)
-        parser.add_argument(
-            '--marker',
-            help=_('The last keypair ID of the previous page'),
-        )
-        parser.add_argument(
-            '--limit',
-            type=int,
-            help=_('Maximum number of keypairs to display'),
-        )
+        pagination.add_marker_pagination_option_to_parser(parser)
         return parser
 
     def take_action(self, parsed_args):

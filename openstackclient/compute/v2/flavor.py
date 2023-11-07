@@ -25,6 +25,7 @@ from osc_lib.command import command
 from osc_lib import exceptions
 from osc_lib import utils
 
+from openstackclient.common import pagination
 from openstackclient.i18n import _
 from openstackclient.identity import common as identity_common
 
@@ -292,22 +293,7 @@ class ListFlavor(command.Lister):
             default=False,
             help=_("List additional fields in output"),
         )
-        parser.add_argument(
-            '--marker',
-            metavar="<flavor-id>",
-            help=_("The last flavor ID of the previous page"),
-        )
-        parser.add_argument(
-            '--limit',
-            type=int,
-            metavar='<num-flavors>',
-            help=_(
-                'Maximum number of flavors to display. This is also '
-                'configurable on the server. The actual limit used will be '
-                'the lower of the user-supplied value and the server '
-                'configuration-derived value'
-            ),
-        )
+        pagination.add_marker_pagination_option_to_parser(parser)
         return parser
 
     def take_action(self, parsed_args):

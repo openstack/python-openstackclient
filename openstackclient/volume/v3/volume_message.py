@@ -21,6 +21,7 @@ from osc_lib.command import command
 from osc_lib import exceptions
 from osc_lib import utils
 
+from openstackclient.common import pagination
 from openstackclient.i18n import _
 from openstackclient.identity import common as identity_common
 
@@ -78,19 +79,7 @@ class ListMessages(command.Lister):
             help=_('Filter results by project (name or ID) (admin only)'),
         )
         identity_common.add_project_domain_option_to_parser(parser)
-        parser.add_argument(
-            '--marker',
-            metavar='<message-id>',
-            help=_('The last message ID of the previous page'),
-            default=None,
-        )
-        parser.add_argument(
-            '--limit',
-            type=int,
-            metavar='<limit>',
-            help=_('Maximum number of messages to display'),
-            default=None,
-        )
+        pagination.add_marker_pagination_option_to_parser(parser)
 
         return parser
 

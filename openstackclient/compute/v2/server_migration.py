@@ -19,6 +19,7 @@ from osc_lib.command import command
 from osc_lib import exceptions
 from osc_lib import utils
 
+from openstackclient.common import pagination
 from openstackclient.i18n import _
 from openstackclient.identity import common as identity_common
 
@@ -54,28 +55,7 @@ class ListMigration(command.Lister):
             ],
             help=_('Filter migrations by type'),
         )
-        parser.add_argument(
-            '--marker',
-            metavar='<marker>',
-            help=_(
-                "The last migration of the previous page; displays list "
-                "of migrations after 'marker'. Note that the marker is "
-                "the migration UUID. "
-                "(supported with --os-compute-api-version 2.59 or above)"
-            ),
-        )
-        parser.add_argument(
-            '--limit',
-            metavar='<limit>',
-            type=int,
-            help=_(
-                "Maximum number of migrations to display. Note that there "
-                "is a configurable max limit on the server, and the limit "
-                "that is used will be the minimum of what is requested "
-                "here and what is configured in the server. "
-                "(supported with --os-compute-api-version 2.59 or above)"
-            ),
-        )
+        pagination.add_marker_pagination_option_to_parser(parser)
         parser.add_argument(
             '--changes-since',
             dest='changes_since',

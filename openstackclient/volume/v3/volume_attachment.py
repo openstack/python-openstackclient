@@ -18,6 +18,7 @@ from osc_lib.command import command
 from osc_lib import exceptions
 from osc_lib import utils
 
+from openstackclient.common import pagination
 from openstackclient.i18n import _
 from openstackclient.identity import common as identity_common
 
@@ -410,20 +411,7 @@ class ListVolumeAttachment(command.Lister):
             metavar='<status>',
             help=_('Filters results by a status. ') + _FILTER_DEPRECATED,
         )
-        parser.add_argument(
-            '--marker',
-            metavar='<marker>',
-            help=_(
-                'Begin returning volume attachments that appear later in '
-                'volume attachment list than that represented by this ID.'
-            ),
-        )
-        parser.add_argument(
-            '--limit',
-            type=int,
-            metavar='<limit>',
-            help=_('Maximum number of volume attachments to return.'),
-        )
+        pagination.add_marker_pagination_option_to_parser(parser)
         # TODO(stephenfin): Add once we have an equivalent command for
         # 'cinder list-filters'
         # parser.add_argument(
