@@ -1,0 +1,5 @@
+---
+features:
+  - |
+    Add commands for the image Cache API, to list, queue,
+    delete and clear images in the cache.

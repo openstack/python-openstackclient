@@ -17,6 +17,7 @@ from unittest import mock
 import uuid
 
 from openstack.image.v2 import _proxy
+from openstack.image.v2 import cache
 from openstack.image.v2 import image
 from openstack.image.v2 import member
 from openstack.image.v2 import metadef_namespace
@@ -238,6 +239,28 @@ def create_tasks(attrs=None, count=2):
         tasks.append(create_one_task(attrs))
 
     return tasks
+
+
+def create_cache(attrs=None):
+    attrs = attrs or {}
+    cache_info = {
+        'cached_images': [
+            {
+                'hits': 0,
+                'image_id': '1a56983c-f71f-490b-a7ac-6b321a18935a',
+                'last_accessed': 1671699579.444378,
+                'last_modified': 1671699579.444378,
+                'size': 0,
+            },
+        ],
+        'queued_images': [
+            '3a4560a1-e585-443e-9b39-553b46ec92d1',
+            '6f99bf80-2ee6-47cf-acfe-1f1fabb7e810',
+        ],
+    }
+    cache_info.update(attrs)
+
+    return cache.Cache(**cache_info)
 
 
 def create_one_metadef_namespace(attrs=None):
