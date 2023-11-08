@@ -1,0 +1,5 @@
+---
+features:
+  - |
+    Add ``image metadef property set`` command to update a
+    metadef property inside a specific namespace.

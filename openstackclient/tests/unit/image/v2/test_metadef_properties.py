@@ -160,6 +160,40 @@ class TestMetadefPropertyList(image_fakes.TestImagev2):
         self.assertEqual(getattr(self.datalist[0], 'name'), next(data)[0])
 
 
+class TestMetadefPropertySet(image_fakes.TestImagev2):
+    _metadef_property = image_fakes.create_one_metadef_property()
+
+    def setUp(self):
+        super().setUp()
+
+        self.cmd = metadef_properties.SetMetadefProperty(self.app, None)
+        self.image_client.get_metadef_property.return_value = (
+            self._metadef_property
+        )
+
+    def test_metadef_property_set(self):
+        arglist = ['--title', 'new title', 'namespace', 'property']
+        verifylist = []
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+        result = self.cmd.take_action(parsed_args)
+        self.assertIsNone(result)
+
+    def test_metadef_property_set_invalid_schema(self):
+        arglist = [
+            '--title',
+            'new title',
+            '--schema',
+            '{invalid}',
+            'namespace',
+            'property',
+        ]
+        verifylist = []
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+        self.assertRaises(
+            exceptions.CommandError, self.cmd.take_action, parsed_args
+        )
+
+
 class TestMetadefPropertyShow(image_fakes.TestImagev2):
     _metadef_property = image_fakes.create_one_metadef_property()
 

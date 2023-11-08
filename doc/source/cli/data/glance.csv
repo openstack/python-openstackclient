@@ -42,7 +42,7 @@ md-property-create,image metadef property create,Create a new metadata definitio
 md-property-delete,image metadef property delete,Delete a specific metadata definitions property inside a namespace.
 md-property-list,image metadef property list,List metadata definitions properties inside a specific namespace.
 md-property-show,image metadef property show,Describe a specific metadata definitions property inside a namespace.
-md-property-update,,Update metadata definitions property inside a namespace.
+md-property-update,image metadef property set,Update metadata definitions property inside a namespace.
 md-resource-type-associate,,Associate resource type with a metadata definitions namespace.
 md-resource-type-deassociate,,Deassociate resource type with a metadata definitions namespace.
 md-resource-type-list,,List available resource type names.
