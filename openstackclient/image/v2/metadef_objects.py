@@ -1,4 +1,4 @@
-#   Copyright 2012-2013 OpenStack Foundation
+#   Copyright 2023 Red Hat
 #
 #   Licensed under the Apache License, Version 2.0 (the "License"); you may
 #   not use this file except in compliance with the License. You may obtain
@@ -69,6 +69,38 @@ class CreateMetadefObjects(command.ShowOne):
             namespace=namespace.namespace,
             name=parsed_args.name,
         )
+
+        fields, value = _format_object(data)
+
+        return fields, value
+
+
+class ShowMetadefObjects(command.ShowOne):
+    _description = _(
+        "Describe a specific metadata definitions" "object inside a namespace"
+    )
+
+    def get_parser(self, prog_name):
+        parser = super().get_parser(prog_name)
+        parser.add_argument(
+            "namespace_name",
+            metavar="<namespace_name>",
+            help=_("Namespace (name) for the namespace"),
+        )
+        parser.add_argument(
+            "object_name",
+            metavar="<object_name>",
+            help=_("Name of an object."),
+        )
+        return parser
+
+    def take_action(self, parsed_args):
+        image_client = self.app.client_manager.image
+
+        namespace_name = parsed_args.namespace_name
+        object_name = parsed_args.object_name
+
+        data = image_client.get_metadef_object(object_name, namespace_name)
 
         fields, value = _format_object(data)
 
