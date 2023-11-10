@@ -119,9 +119,13 @@ class TestCase(testtools.TestCase):
         return bool(ret)
 
     @classmethod
-    def is_extension_enabled(cls, alias):
+    def is_extension_enabled(cls, alias, *, service='network'):
         """Ask client cloud if extension is enabled"""
-        return alias in cls.openstack('extension list -f value -c Alias')
+        extensions = cls.openstack(
+            f'extension list --{service}',
+            parse_output=True,
+        )
+        return alias in [x['Alias'] for x in extensions]
 
     @classmethod
     def get_openstack_configuration_value(cls, configuration):
