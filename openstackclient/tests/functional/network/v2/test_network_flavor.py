@@ -18,12 +18,6 @@ from openstackclient.tests.functional.network.v2 import common
 class NetworkFlavorTests(common.NetworkTests):
     """Functional tests for network flavor"""
 
-    def setUp(self):
-        super(NetworkFlavorTests, self).setUp()
-        # Nothing in this class works with Nova Network
-        if not self.haz_network:
-            self.skipTest("No Network service present")
-
     def test_network_flavor_add_remove_profile(self):
         """Test add and remove network flavor to/from profile"""
         # Create Flavor

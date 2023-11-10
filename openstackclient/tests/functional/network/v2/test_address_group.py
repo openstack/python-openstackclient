@@ -19,10 +19,8 @@ class AddressGroupTests(common.NetworkTests):
     """Functional tests for address group"""
 
     def setUp(self):
-        super(AddressGroupTests, self).setUp()
-        # Nothing in this class works with Nova Network
-        if not self.haz_network:
-            self.skipTest("No Network service present")
+        super().setUp()
+
         if not self.is_extension_enabled('address-group'):
             self.skipTest("No address-group extension present")
 

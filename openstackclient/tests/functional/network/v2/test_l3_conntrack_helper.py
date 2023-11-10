@@ -18,12 +18,11 @@ from openstackclient.tests.functional.network.v2 import common
 
 class L3ConntrackHelperTests(common.NetworkTests):
     def setUp(self):
-        super(L3ConntrackHelperTests, self).setUp()
-        # Nothing in this class works with Nova Network
-        if not self.haz_network:
-            self.skipTest("No Network service present")
+        super().setUp()
+
         if not self.is_extension_enabled('l3-conntrack-helper'):
             self.skipTest("No l3-conntrack-helper extension present")
+
         if not self.is_extension_enabled('expose-l3-conntrack-helper'):
             self.skipTest("No expose-l3-conntrack-helper extension present")
 

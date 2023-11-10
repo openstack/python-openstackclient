@@ -19,10 +19,7 @@ class SecurityGroupRuleTests(common.NetworkTests):
     """Functional tests for security group rule"""
 
     def setUp(self):
-        super(SecurityGroupRuleTests, self).setUp()
-        # Nothing in this class works with Nova Network
-        if not self.haz_network:
-            self.skipTest("No Network service present")
+        super().setUp()
 
         self.SECURITY_GROUP_NAME = uuid.uuid4().hex
 

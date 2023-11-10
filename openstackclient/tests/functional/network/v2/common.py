@@ -20,8 +20,14 @@ class NetworkTests(base.TestCase):
 
     @classmethod
     def setUpClass(cls):
-        super(NetworkTests, cls).setUpClass()
+        super().setUpClass()
         cls.haz_network = cls.is_service_enabled('network')
+
+    def setUp(self):
+        super().setUp()
+
+        if not self.haz_network:
+            self.skipTest("No Network service present")
 
 
 class NetworkTagTests(NetworkTests):

@@ -23,9 +23,6 @@ class NetworkTrunkTests(common.NetworkTests):
 
     def setUp(self):
         super().setUp()
-        # Nothing in this class works with Nova Network
-        if not self.haz_network:
-            self.skipTest("No Network service present")
 
         network_name = uuid.uuid4().hex
         subnet_name = uuid.uuid4().hex

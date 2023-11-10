@@ -23,12 +23,6 @@ class AddressScopeTests(common.NetworkTests):
     #                has its own needs and there are collisions when running
     #                tests in parallel.
 
-    def setUp(self):
-        super(AddressScopeTests, self).setUp()
-        # Nothing in this class works with Nova Network
-        if not self.haz_network:
-            self.skipTest("No Network service present")
-
     def test_address_scope_delete(self):
         """Test create, delete multiple"""
         name1 = uuid.uuid4().hex

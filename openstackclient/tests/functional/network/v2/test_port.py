@@ -25,7 +25,7 @@ class PortTests(common.NetworkTagTests):
 
     @classmethod
     def setUpClass(cls):
-        common.NetworkTests.setUpClass()
+        super().setUpClass()
         if cls.haz_network:
             cls.NAME = uuid.uuid4().hex
             cls.NETWORK_NAME = uuid.uuid4().hex
@@ -42,13 +42,7 @@ class PortTests(common.NetworkTagTests):
                 )
                 cls.assertOutput('', raw_output)
         finally:
-            super(PortTests, cls).tearDownClass()
-
-    def setUp(self):
-        super(PortTests, self).setUp()
-        # Nothing in this class works with Nova Network
-        if not self.haz_network:
-            self.skipTest("No Network service present")
+            super().tearDownClass()
 
     def test_port_delete(self):
         """Test create, delete multiple"""

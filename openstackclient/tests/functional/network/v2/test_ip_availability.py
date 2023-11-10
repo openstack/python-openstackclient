@@ -20,7 +20,8 @@ class IPAvailabilityTests(common.NetworkTests):
 
     @classmethod
     def setUpClass(cls):
-        common.NetworkTests.setUpClass()
+        super().setUpClass()
+
         if cls.haz_network:
             cls.NAME = uuid.uuid4().hex
             cls.NETWORK_NAME = uuid.uuid4().hex
@@ -49,13 +50,7 @@ class IPAvailabilityTests(common.NetworkTests):
                 cls.assertOutput('', raw_subnet)
                 cls.assertOutput('', raw_network)
         finally:
-            super(IPAvailabilityTests, cls).tearDownClass()
-
-    def setUp(self):
-        super(IPAvailabilityTests, self).setUp()
-        # Nothing in this class works with Nova Network
-        if not self.haz_network:
-            self.skipTest("No Network service present")
+            super().tearDownClass()
 
     def test_ip_availability_list(self):
         """Test ip availability list"""

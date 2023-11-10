@@ -24,10 +24,7 @@ class NetworkRBACTests(common.NetworkTests):
     FIELDS = ['id']
 
     def setUp(self):
-        super(NetworkRBACTests, self).setUp()
-        # Nothing in this class works with Nova Network
-        if not self.haz_network:
-            self.skipTest("No Network service present")
+        super().setUp()
 
         self.NET_NAME = uuid.uuid4().hex
         self.PROJECT_NAME = uuid.uuid4().hex

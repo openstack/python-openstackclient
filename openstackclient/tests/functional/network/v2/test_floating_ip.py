@@ -21,7 +21,7 @@ class FloatingIpTests(common.NetworkTests):
 
     @classmethod
     def setUpClass(cls):
-        common.NetworkTests.setUpClass()
+        super().setUpClass()
         if cls.haz_network:
             # Create common networks that all tests share
             cls.EXTERNAL_NETWORK_NAME = uuid.uuid4().hex
@@ -53,13 +53,10 @@ class FloatingIpTests(common.NetworkTests):
                 )
                 cls.assertOutput('', del_output)
         finally:
-            super(FloatingIpTests, cls).tearDownClass()
+            super().tearDownClass()
 
     def setUp(self):
-        super(FloatingIpTests, self).setUp()
-        # Nothing in this class works with Nova Network
-        if not self.haz_network:
-            self.skipTest("No Network service present")
+        super().setUp()
 
         # Verify setup
         self.assertIsNotNone(self.external_network_id)

@@ -26,7 +26,7 @@ class TestMeterRule(common.NetworkTests):
 
     @classmethod
     def setUpClass(cls):
-        common.NetworkTests.setUpClass()
+        super().setUpClass()
         if cls.haz_network:
             cls.METER_NAME = uuid.uuid4().hex
 
@@ -45,13 +45,7 @@ class TestMeterRule(common.NetworkTests):
                 )
                 cls.assertOutput('', raw_output)
         finally:
-            common.NetworkTests.tearDownClass()
-
-    def setUp(self):
-        super(TestMeterRule, self).setUp()
-        # Nothing in this class works with Nova Network
-        if not self.haz_network:
-            self.skipTest("No Network service present")
+            super().tearDownClass()
 
     def test_meter_rule_delete(self):
         """test create, delete"""

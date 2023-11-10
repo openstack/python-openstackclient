@@ -21,12 +21,6 @@ from openstackclient.tests.functional.network.v2 import common
 class NetworkQosPolicyTests(common.NetworkTests):
     """Functional tests for QoS policy"""
 
-    def setUp(self):
-        super(NetworkQosPolicyTests, self).setUp()
-        # Nothing in this class works with Nova Network
-        if not self.haz_network:
-            self.skipTest("No Network service present")
-
     def test_qos_rule_create_delete(self):
         # This is to check the output of qos policy delete
         policy_name = uuid.uuid4().hex

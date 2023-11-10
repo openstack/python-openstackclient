@@ -29,12 +29,6 @@ class NetworkQosRuleTypeTests(common.NetworkTests):
         'minimum_packet_rate',
     ]
 
-    def setUp(self):
-        super(NetworkQosRuleTypeTests, self).setUp()
-        # Nothing in this class works with Nova Network
-        if not self.haz_network:
-            self.skipTest("No Network service present")
-
     def test_qos_rule_type_list(self):
         cmd_output = self.openstack(
             'network qos rule type list -f json',

@@ -20,12 +20,6 @@ class NetworkTests(common.NetworkTagTests):
 
     base_command = 'network'
 
-    def setUp(self):
-        super(NetworkTests, self).setUp()
-        # Nothing in this class works with Nova Network
-        if not self.haz_network:
-            self.skipTest("No Network service present")
-
     def test_network_create_compute(self):
         """Test Nova-net create options, delete"""
         if self.haz_network:
