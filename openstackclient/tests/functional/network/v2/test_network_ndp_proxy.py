@@ -16,9 +16,7 @@ from openstackclient.tests.functional.network.v2 import common
 class L3NDPProxyTests(common.NetworkTests):
     def setUp(self):
         super().setUp()
-        # Nothing in this class works with Nova Network
-        if not self.haz_network:
-            self.skipTest("No Network service present")
+
         if not self.is_extension_enabled('l3-ndp-proxy'):
             self.skipTest("No l3-ndp-proxy extension present")
 

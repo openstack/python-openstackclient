@@ -19,10 +19,8 @@ class SecurityGroupRuleTests(common.NetworkTests):
     """Functional tests for security group rule"""
 
     def setUp(self):
-        super(SecurityGroupRuleTests, self).setUp()
-        # Nothing in this class works with Nova Network
-        if not self.haz_network:
-            self.skipTest("No Network service present")
+        super().setUp()
+
         if not self.is_extension_enabled("security-groups-default-rules"):
             self.skipTest("No security-groups-default-rules extension present")
 

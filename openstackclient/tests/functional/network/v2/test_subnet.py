@@ -23,7 +23,7 @@ class SubnetTests(common.NetworkTagTests):
 
     @classmethod
     def setUpClass(cls):
-        common.NetworkTests.setUpClass()
+        super().setUpClass()
         if cls.haz_network:
             cls.NETWORK_NAME = uuid.uuid4().hex
 
@@ -44,13 +44,7 @@ class SubnetTests(common.NetworkTagTests):
                 )
                 cls.assertOutput('', raw_output)
         finally:
-            super(SubnetTests, cls).tearDownClass()
-
-    def setUp(self):
-        super(SubnetTests, self).setUp()
-        # Nothing in this class works with Nova Network
-        if not self.haz_network:
-            self.skipTest("No Network service present")
+            super().tearDownClass()
 
     def test_subnet_create_and_delete(self):
         """Test create, delete multiple"""

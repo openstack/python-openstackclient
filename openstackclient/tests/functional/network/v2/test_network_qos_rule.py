@@ -22,10 +22,7 @@ class NetworkQosRuleTestsMinimumBandwidth(common.NetworkTests):
     """Functional tests for QoS minimum bandwidth rule"""
 
     def setUp(self):
-        super(NetworkQosRuleTestsMinimumBandwidth, self).setUp()
-        # Nothing in this class works with Nova Network
-        if not self.haz_network:
-            self.skipTest("No Network service present")
+        super().setUp()
 
         self.QOS_POLICY_NAME = 'qos_policy_%s' % uuid.uuid4().hex
 
@@ -100,10 +97,7 @@ class NetworkQosRuleTestsMinimumPacketRate(common.NetworkTests):
     """Functional tests for QoS minimum packet rate rule"""
 
     def setUp(self):
-        super(NetworkQosRuleTestsMinimumPacketRate, self).setUp()
-        # Nothing in this class works with Nova Network
-        if not self.haz_network:
-            self.skipTest("No Network service present")
+        super().setUp()
 
         self.QOS_POLICY_NAME = 'qos_policy_%s' % uuid.uuid4().hex
 
@@ -179,10 +173,7 @@ class NetworkQosRuleTestsDSCPMarking(common.NetworkTests):
     """Functional tests for QoS DSCP marking rule"""
 
     def setUp(self):
-        super(NetworkQosRuleTestsDSCPMarking, self).setUp()
-        # Nothing in this class works with Nova Network
-        if not self.haz_network:
-            self.skipTest("No Network service present")
+        super().setUp()
 
         self.QOS_POLICY_NAME = 'qos_policy_%s' % uuid.uuid4().hex
         self.openstack('network qos policy create %s' % self.QOS_POLICY_NAME)
@@ -254,10 +245,7 @@ class NetworkQosRuleTestsBandwidthLimit(common.NetworkTests):
     """Functional tests for QoS bandwidth limit rule"""
 
     def setUp(self):
-        super(NetworkQosRuleTestsBandwidthLimit, self).setUp()
-        # Nothing in this class works with Nova Network
-        if not self.haz_network:
-            self.skipTest("No Network service present")
+        super().setUp()
 
         self.QOS_POLICY_NAME = 'qos_policy_%s' % uuid.uuid4().hex
         self.openstack('network qos policy create %s' % self.QOS_POLICY_NAME)

@@ -20,7 +20,7 @@ class NetworkSegmentTests(common.NetworkTests):
 
     @classmethod
     def setUpClass(cls):
-        common.NetworkTests.setUpClass()
+        super().setUpClass()
         if cls.haz_network:
             cls.NETWORK_NAME = uuid.uuid4().hex
             cls.PHYSICAL_NETWORK_NAME = uuid.uuid4().hex
@@ -42,13 +42,7 @@ class NetworkSegmentTests(common.NetworkTests):
                 )
                 cls.assertOutput('', raw_output)
         finally:
-            super(NetworkSegmentTests, cls).tearDownClass()
-
-    def setUp(self):
-        super(NetworkSegmentTests, self).setUp()
-        # Nothing in this class works with Nova Network
-        if not self.haz_network:
-            self.skipTest("No Network service present")
+            super().tearDownClass()
 
     def test_network_segment_create_delete(self):
         name = uuid.uuid4().hex

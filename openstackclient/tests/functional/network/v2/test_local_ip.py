@@ -21,10 +21,8 @@ class LocalIPTests(common.NetworkTests):
     """Functional tests for local IP"""
 
     def setUp(self):
-        super(LocalIPTests, self).setUp()
-        # Nothing in this class works with Nova Network
-        if not self.haz_network:
-            self.skipTest("No Network service present")
+        super().setUp()
+
         if not self.is_extension_enabled('local-ip'):
             self.skipTest("No local-ip extension present")
 

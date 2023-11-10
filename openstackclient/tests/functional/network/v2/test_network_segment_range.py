@@ -23,12 +23,11 @@ class NetworkSegmentRangeTests(common.NetworkTests):
     """Functional tests for network segment range"""
 
     def setUp(self):
-        super(NetworkSegmentRangeTests, self).setUp()
-        # Nothing in this class works with Nova Network
-        if not self.haz_network:
-            self.skipTest("No Network service present")
+        super().setUp()
+
         if not self.is_extension_enabled('network-segment-range'):
             self.skipTest("No network-segment-range extension present")
+
         self.PROJECT_NAME = uuid.uuid4().hex
 
     def test_network_segment_range_create_delete(self):

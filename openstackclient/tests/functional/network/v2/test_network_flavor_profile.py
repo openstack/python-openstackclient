@@ -19,12 +19,6 @@ class NetworkFlavorProfileTests(common.NetworkTests):
     DESCRIPTION = 'fakedescription'
     METAINFO = 'Extrainfo'
 
-    def setUp(self):
-        super(NetworkFlavorProfileTests, self).setUp()
-        # Nothing in this class works with Nova Network
-        if not self.haz_network:
-            self.skipTest("No Network service present")
-
     def test_network_flavor_profile_create(self):
         json_output = self.openstack(
             'network flavor profile create '

@@ -20,12 +20,6 @@ class RouterTests(common.NetworkTagTests):
 
     base_command = 'router'
 
-    def setUp(self):
-        super(RouterTests, self).setUp()
-        # Nothing in this class works with Nova Network
-        if not self.haz_network:
-            self.skipTest("No Network service present")
-
     def test_router_create_and_delete(self):
         """Test create options, delete multiple"""
         name1 = uuid.uuid4().hex

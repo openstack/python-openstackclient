@@ -21,12 +21,6 @@ class SubnetPoolTests(common.NetworkTagTests):
 
     base_command = 'subnet pool'
 
-    def setUp(self):
-        super(SubnetPoolTests, self).setUp()
-        # Nothing in this class works with Nova Network
-        if not self.haz_network:
-            self.skipTest("No Network service present")
-
     def test_subnet_pool_create_delete(self):
         """Test create, delete"""
         name1 = uuid.uuid4().hex

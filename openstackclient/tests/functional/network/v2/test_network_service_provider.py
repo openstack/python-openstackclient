@@ -20,10 +20,8 @@ class TestNetworkServiceProvider(common.NetworkTests):
     """Functional tests for network service provider"""
 
     def setUp(self):
-        super(TestNetworkServiceProvider, self).setUp()
-        # Nothing in this class works with Nova Network
-        if not self.haz_network:
-            self.skipTest("No Network service present")
+        super().setUp()
+
         # NOTE(slaweq):
         # that tests should works only when "standard" Neutron L3 agent is
         # used, as e.g. OVN L3 plugin don't supports that.
