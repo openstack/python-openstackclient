@@ -44,6 +44,12 @@ class NetworkSegmentTests(common.NetworkTests):
         finally:
             super().tearDownClass()
 
+    def setUp(self):
+        super().setUp()
+
+        if not self.is_extension_enabled("segment"):
+            self.skipTest("No segment extension present")
+
     def test_network_segment_create_delete(self):
         name = uuid.uuid4().hex
         json_output = self.openstack(
@@ -110,12 +116,7 @@ class NetworkSegmentTests(common.NetworkTests):
         )
         self.addCleanup(self.openstack, 'network segment delete ' + name)
 
-        extension_output = self.openstack(
-            "extension list ",
-            parse_output=True,
-        )
-        ext_alias = [x["Alias"] for x in extension_output]
-        if "standard-attr-segment" in ext_alias:
+        if self.is_extension_enabled('standard-attr-segment'):
             self.assertEqual(
                 '',
                 json_output["description"],

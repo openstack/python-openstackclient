@@ -211,7 +211,6 @@ class SubnetTests(common.NetworkTagTests):
             + ' --description bbbb '
             + '--no-dhcp '
             + '--gateway 10.10.11.1 '
-            + '--service-type network:floatingip_agent_gateway '
             + name
         )
         self.assertOutput('', cmd_output)
@@ -236,27 +235,16 @@ class SubnetTests(common.NetworkTagTests):
             '10.10.11.1',
             cmd_output["gateway_ip"],
         )
-        self.assertEqual(
-            ['network:floatingip_agent_gateway'],
-            cmd_output["service_types"],
-        )
 
         # Test unset
-        cmd_output = self.openstack(
-            'subnet unset '
-            + '--service-type network:floatingip_agent_gateway '
-            + new_name
-        )
+        cmd_output = self.openstack('subnet unset --gateway ' + new_name)
         self.assertOutput('', cmd_output)
 
         cmd_output = self.openstack(
             'subnet show ' + new_name,
             parse_output=True,
         )
-        self.assertEqual(
-            [],
-            cmd_output["service_types"],
-        )
+        self.assertIsNone(cmd_output["gateway_ip"])
 
     def _subnet_create(self, cmd, name, is_type_ipv4=True):
         # Try random subnet range for subnet creating

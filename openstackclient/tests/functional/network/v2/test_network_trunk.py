@@ -24,6 +24,9 @@ class NetworkTrunkTests(common.NetworkTests):
     def setUp(self):
         super().setUp()
 
+        if not self.is_extension_enabled("trunk"):
+            self.skipTest("No trunk extension present")
+
         network_name = uuid.uuid4().hex
         subnet_name = uuid.uuid4().hex
         self.parent_port_name = uuid.uuid4().hex

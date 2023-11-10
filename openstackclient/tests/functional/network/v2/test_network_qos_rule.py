@@ -18,7 +18,15 @@ import uuid
 from openstackclient.tests.functional.network.v2 import common
 
 
-class NetworkQosRuleTestsMinimumBandwidth(common.NetworkTests):
+class NetworkQosTests(common.NetworkTests):
+    def setUp(self):
+        super().setUp()
+
+        if not self.is_extension_enabled("qos"):
+            self.skipTest("No qos extension present")
+
+
+class NetworkQosRuleTestsMinimumBandwidth(NetworkQosTests):
     """Functional tests for QoS minimum bandwidth rule"""
 
     def setUp(self):
@@ -93,7 +101,7 @@ class NetworkQosRuleTestsMinimumBandwidth(common.NetworkTests):
         self.assertEqual(7500, cmd_output['min_kbps'])
 
 
-class NetworkQosRuleTestsMinimumPacketRate(common.NetworkTests):
+class NetworkQosRuleTestsMinimumPacketRate(NetworkQosTests):
     """Functional tests for QoS minimum packet rate rule"""
 
     def setUp(self):
@@ -169,7 +177,7 @@ class NetworkQosRuleTestsMinimumPacketRate(common.NetworkTests):
         self.assertEqual('any', cmd_output['direction'])
 
 
-class NetworkQosRuleTestsDSCPMarking(common.NetworkTests):
+class NetworkQosRuleTestsDSCPMarking(NetworkQosTests):
     """Functional tests for QoS DSCP marking rule"""
 
     def setUp(self):
@@ -241,7 +249,7 @@ class NetworkQosRuleTestsDSCPMarking(common.NetworkTests):
         self.assertEqual(32, cmd_output['dscp_mark'])
 
 
-class NetworkQosRuleTestsBandwidthLimit(common.NetworkTests):
+class NetworkQosRuleTestsBandwidthLimit(NetworkQosTests):
     """Functional tests for QoS bandwidth limit rule"""
 
     def setUp(self):

@@ -47,6 +47,12 @@ class TestMeterRule(common.NetworkTests):
         finally:
             super().tearDownClass()
 
+    def setUp(self):
+        super().setUp()
+
+        if not self.is_extension_enabled("metering"):
+            self.skipTest("No metering extension present")
+
     def test_meter_rule_delete(self):
         """test create, delete"""
         json_output = self.openstack(
