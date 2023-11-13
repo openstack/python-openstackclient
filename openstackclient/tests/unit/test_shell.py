@@ -141,10 +141,6 @@ class TestShell(osc_lib_test_utils.TestShell):
     # Full name of the OpenStackShell class to test (cliff.app.App subclass)
     shell_class_name = "openstackclient.shell.OpenStackShell"
 
-    # TODO(dtroyer): remove this once the shell_class_patch patch is released
-    #                in osc-lib
-    app_patch = shell_class_name
-
     def setUp(self):
         super(TestShell, self).setUp()
         # TODO(dtroyer): remove this once the shell_class_patch patch is
@@ -162,7 +158,6 @@ class TestShell(osc_lib_test_utils.TestShell):
             )
             _cmd = cmd_options + " list role"
             osc_lib_test_utils.fake_execute(_shell, _cmd)
-            print("_shell: %s" % _shell)
 
             self.app.assert_called_with(["list", "role"])
             self.assertEqual(
@@ -178,7 +173,7 @@ class TestShell(osc_lib_test_utils.TestShell):
 
     def _assert_token_auth(self, cmd_options, default_args):
         with mock.patch(
-            self.app_patch + ".initialize_app",
+            self.shell_class_name + ".initialize_app",
             self.app,
         ):
             _shell = osc_lib_test_utils.make_shell(
@@ -186,7 +181,6 @@ class TestShell(osc_lib_test_utils.TestShell):
             )
             _cmd = cmd_options + " list role"
             osc_lib_test_utils.fake_execute(_shell, _cmd)
-            print("_shell: %s" % _shell)
 
             self.app.assert_called_with(["list", "role"])
             self.assertEqual(

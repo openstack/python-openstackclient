@@ -294,7 +294,6 @@ class TestTrustList(TestTrust):
         # containing the data to be listed.
         columns, data = self.cmd.take_action(parsed_args)
 
-        print(self.trusts_mock.list.call_args_list)
         self.trusts_mock.list.assert_any_call(
             trustee_user=self.users_mock.get(),
             trustor_user=None,
@@ -335,7 +334,6 @@ class TestTrustList(TestTrust):
         # containing the data to be listed.
         columns, data = self.cmd.take_action(parsed_args)
 
-        print(self.trusts_mock.list.call_args_list)
         self.trusts_mock.list.assert_any_call(
             trustor_user=self.users_mock.get(),
             trustee_user=None,
