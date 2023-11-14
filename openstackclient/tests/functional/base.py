@@ -24,12 +24,12 @@ ADMIN_CLOUD = os.environ.get('OS_ADMIN_CLOUD', 'devstack-admin')
 LOG = logging.getLogger(__name__)
 
 
-def execute(cmd, fail_ok=False, merge_stderr=False):
+def execute(cmd, *, fail_ok=False):
     """Executes specified command for the given action."""
     LOG.debug('Executing: %s', cmd)
     cmdlist = shlex.split(cmd)
     stdout = subprocess.PIPE
-    stderr = subprocess.STDOUT if merge_stderr else subprocess.PIPE
+    stderr = subprocess.PIPE
 
     proc = subprocess.Popen(cmdlist, stdout=stdout, stderr=stderr)
 
