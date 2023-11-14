@@ -30,8 +30,11 @@ def execute(cmd, *, fail_ok=False):
     cmdlist = shlex.split(cmd)
     stdout = subprocess.PIPE
     stderr = subprocess.PIPE
+    env = {
+        k: v for k, v in os.environ.copy().items() if not k.startswith('OS_')
+    }
 
-    proc = subprocess.Popen(cmdlist, stdout=stdout, stderr=stderr)
+    proc = subprocess.Popen(cmdlist, stdout=stdout, stderr=stderr, env=env)
 
     result_out, result_err = proc.communicate()
     result_out = result_out.decode('utf-8')
