@@ -88,8 +88,18 @@ class NetworkAgentListTests(common.NetworkTests):
         if not self.is_extension_enabled("dhcp_agent_scheduler"):
             self.skipTest("No dhcp_agent_scheduler extension present")
 
+        # Get DHCP Agent ID
+        cmd_output = self.openstack(
+            'network agent list --agent-type dhcp',
+            parse_output=True,
+        )
+        if not cmd_output:
+            self.skipTest("No agents with type=dhcp available")
+
+        agent_id = cmd_output[0]['ID']
+
         name1 = uuid.uuid4().hex
-        cmd_output1 = self.openstack(
+        cmd_output = self.openstack(
             'network create --description aaaa %s' % name1,
             parse_output=True,
         )
@@ -97,14 +107,7 @@ class NetworkAgentListTests(common.NetworkTests):
         self.addCleanup(self.openstack, 'network delete %s' % name1)
 
         # Get network ID
-        network_id = cmd_output1['id']
-
-        # Get DHCP Agent ID
-        cmd_output2 = self.openstack(
-            'network agent list --agent-type dhcp',
-            parse_output=True,
-        )
-        agent_id = cmd_output2[0]['ID']
+        network_id = cmd_output['id']
 
         # Add Agent to Network
         self.openstack(
@@ -112,7 +115,7 @@ class NetworkAgentListTests(common.NetworkTests):
         )
 
         # Test network agent list --network
-        cmd_output3 = self.openstack(
+        cmd_output = self.openstack(
             'network agent list --network %s' % network_id,
             parse_output=True,
         )
@@ -125,7 +128,7 @@ class NetworkAgentListTests(common.NetworkTests):
         )
 
         # Assert
-        col_name = [x["ID"] for x in cmd_output3]
+        col_name = [x["ID"] for x in cmd_output]
         self.assertIn(agent_id, col_name)
 
     def test_network_agent_list_routers(self):
