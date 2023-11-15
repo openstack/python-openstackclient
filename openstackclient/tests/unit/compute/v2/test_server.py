@@ -2327,7 +2327,9 @@ class TestServerCreate(TestServer):
 
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
-        self.assertRaises(SystemExit, self.cmd.take_action, parsed_args)
+        self.assertRaises(
+            exceptions.CommandError, self.cmd.take_action, parsed_args
+        )
 
         mock_wait_for_status.assert_called_once_with(
             self.servers_mock.get,
@@ -4569,7 +4571,9 @@ class TestServerDelete(TestServer):
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
-        self.assertRaises(SystemExit, self.cmd.take_action, parsed_args)
+        self.assertRaises(
+            exceptions.CommandError, self.cmd.take_action, parsed_args
+        )
 
         self.servers_mock.delete.assert_called_with(servers[0].id)
         mock_wait_for_delete.assert_called_once_with(
@@ -5984,7 +5988,9 @@ class TestServerMigrate(TestServer):
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
-        self.assertRaises(SystemExit, self.cmd.take_action, parsed_args)
+        self.assertRaises(
+            exceptions.CommandError, self.cmd.take_action, parsed_args
+        )
 
         self.servers_mock.get.assert_called_with(self.server.id)
         self.server.migrate.assert_called_with()
@@ -6090,9 +6096,10 @@ class TestServerReboot(TestServer):
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
-        self.assertRaises(SystemExit, self.cmd.take_action, parsed_args)
+        self.assertRaises(
+            exceptions.CommandError, self.cmd.take_action, parsed_args
+        )
 
-        self.assertIn('Error rebooting server', mock_log.call_args[0][0])
         self.compute_sdk_client.reboot_server.assert_called_once_with(
             servers[0].id,
             'SOFT',
@@ -6351,7 +6358,9 @@ class TestServerRebuild(TestServer):
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
-        self.assertRaises(SystemExit, self.cmd.take_action, parsed_args)
+        self.assertRaises(
+            exceptions.CommandError, self.cmd.take_action, parsed_args
+        )
 
         mock_wait_for_status.assert_called_once_with(
             self.servers_mock.get,
@@ -7519,7 +7528,9 @@ class TestServerResize(TestServer):
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
-        self.assertRaises(SystemExit, self.cmd.take_action, parsed_args)
+        self.assertRaises(
+            exceptions.CommandError, self.cmd.take_action, parsed_args
+        )
 
         self.servers_mock.get.assert_called_with(
             self.server.id,
