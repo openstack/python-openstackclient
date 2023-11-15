@@ -10,9 +10,7 @@
 #   WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
 #   License for the specific language governing permissions and limitations
 #   under the License.
-#
 
-import argparse
 from unittest import mock
 
 from osc_lib.cli import format_columns
@@ -20,7 +18,7 @@ from osc_lib import exceptions
 from osc_lib import utils
 
 from openstackclient.tests.unit.identity.v3 import fakes as project_fakes
-from openstackclient.tests.unit import utils as tests_utils
+from openstackclient.tests.unit import utils as test_utils
 from openstackclient.tests.unit.volume.v2 import fakes as volume_fakes
 from openstackclient.volume.v2 import volume_snapshot
 
@@ -117,7 +115,7 @@ class TestVolumeSnapshotCreate(TestVolumeSnapshot):
             ("volume", self.new_snapshot.volume_id),
         ]
         self.assertRaises(
-            tests_utils.ParserException,
+            test_utils.ParserException,
             self.check_parser,
             self.cmd,
             arglist,
@@ -491,7 +489,7 @@ class TestVolumeSnapshotList(TestVolumeSnapshot):
             ("limit", -2),
         ]
         self.assertRaises(
-            argparse.ArgumentTypeError,
+            test_utils.ParserException,
             self.check_parser,
             self.cmd,
             arglist,

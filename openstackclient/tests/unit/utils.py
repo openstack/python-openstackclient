@@ -13,6 +13,7 @@
 #   License for the specific language governing permissions and limitations
 #   under the License.
 
+import argparse
 import io
 import os
 
@@ -78,7 +79,11 @@ class TestCommand(TestCase):
         with fixtures.MonkeyPatch('sys.stderr', stderr):
             try:
                 parsed_args = cmd_parser.parse_args(args)
-            except SystemExit:
+            except (
+                SystemExit,
+                argparse.ArgumentTypeError,
+                argparse.ArgumentError,
+            ):
                 raise ParserException(
                     "Argument parse failed: %s" % stderr.getvalue()
                 )

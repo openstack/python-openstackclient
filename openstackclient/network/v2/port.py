@@ -124,7 +124,7 @@ class JSONKeyValueAction(argparse.Action):
                     "%(option)s, but encountered JSON parsing error: "
                     "%(error)s"
                 ) % {"option": option_string, "error": e}
-                raise argparse.ArgumentTypeError(msg)
+                raise argparse.ArgumentError(self, msg)
 
 
 def _get_attrs(client_manager, parsed_args):
@@ -409,7 +409,7 @@ def _validate_port_hints(hints):
         {'openvswitch': {'other_config': {'tx-steering': 'hash'}}},
     ):
         msg = _("Invalid value to --hints, see --help for valid values.")
-        raise argparse.ArgumentTypeError(msg)
+        raise exceptions.CommandError(msg)
 
 
 # When we have multiple hints, we'll need to refactor this to expand aliases

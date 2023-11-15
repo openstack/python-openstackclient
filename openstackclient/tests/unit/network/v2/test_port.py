@@ -9,9 +9,7 @@
 #   WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
 #   License for the specific language governing permissions and limitations
 #   under the License.
-#
 
-import argparse
 from unittest import mock
 from unittest.mock import call
 
@@ -23,7 +21,7 @@ from openstackclient.network.v2 import port
 from openstackclient.tests.unit.compute.v2 import fakes as compute_fakes
 from openstackclient.tests.unit.identity.v3 import fakes as identity_fakes
 from openstackclient.tests.unit.network.v2 import fakes as network_fakes
-from openstackclient.tests.unit import utils as tests_utils
+from openstackclient.tests.unit import utils as test_utils
 
 
 LIST_FIELDS_TO_RETRIEVE = ('id', 'name', 'mac_address', 'fixed_ips', 'status')
@@ -257,7 +255,7 @@ class TestCreatePort(TestPort):
             'test-port',
         ]
         self.assertRaises(
-            argparse.ArgumentTypeError,
+            test_utils.ParserException,
             self.check_parser,
             self.cmd,
             arglist,
@@ -273,7 +271,7 @@ class TestCreatePort(TestPort):
             'test-port',
         ]
         self.assertRaises(
-            argparse.ArgumentTypeError,
+            test_utils.ParserException,
             self.check_parser,
             self.cmd,
             arglist,
@@ -733,7 +731,7 @@ class TestCreatePort(TestPort):
             )
             if add_tags:
                 self.network_client.set_tags.assert_called_once_with(
-                    self._port, tests_utils.CompareBySet(['red', 'blue'])
+                    self._port, test_utils.CompareBySet(['red', 'blue'])
                 )
             else:
                 self.assertFalse(self.network_client.set_tags.called)
@@ -952,7 +950,7 @@ class TestCreatePort(TestPort):
             'test-port',
         ]
         self.assertRaises(
-            argparse.ArgumentTypeError,
+            test_utils.ParserException,
             self.check_parser,
             self.cmd,
             arglist,
@@ -976,7 +974,7 @@ class TestCreatePort(TestPort):
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
         self.assertRaises(
-            argparse.ArgumentTypeError,
+            exceptions.CommandError,
             self.cmd.take_action,
             parsed_args,
         )
@@ -998,7 +996,7 @@ class TestCreatePort(TestPort):
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
         self.assertRaises(
-            argparse.ArgumentTypeError,
+            exceptions.CommandError,
             self.cmd.take_action,
             parsed_args,
         )
@@ -1905,7 +1903,7 @@ class TestSetPort(TestPort):
             'test-port',
         ]
         self.assertRaises(
-            argparse.ArgumentTypeError,
+            test_utils.ParserException,
             self.check_parser,
             self.cmd,
             arglist,
@@ -1919,7 +1917,7 @@ class TestSetPort(TestPort):
             'test-port',
         ]
         self.assertRaises(
-            argparse.ArgumentTypeError,
+            test_utils.ParserException,
             self.check_parser,
             self.cmd,
             arglist,
@@ -2285,7 +2283,7 @@ class TestSetPort(TestPort):
             'test-port',
         ]
         self.assertRaises(
-            tests_utils.ParserException,
+            test_utils.ParserException,
             self.check_parser,
             self.cmd,
             arglist,
@@ -2309,7 +2307,7 @@ class TestSetPort(TestPort):
 
         self.assertFalse(self.network_client.update_port.called)
         self.network_client.set_tags.assert_called_once_with(
-            self._port, tests_utils.CompareBySet(expected_args)
+            self._port, test_utils.CompareBySet(expected_args)
         )
         self.assertIsNone(result)
 
@@ -2358,7 +2356,7 @@ class TestSetPort(TestPort):
             'test-port',
         ]
         self.assertRaises(
-            argparse.ArgumentTypeError,
+            test_utils.ParserException,
             self.check_parser,
             self.cmd,
             arglist,
@@ -2377,7 +2375,7 @@ class TestSetPort(TestPort):
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
         self.assertRaises(
-            argparse.ArgumentTypeError,
+            exceptions.CommandError,
             self.cmd.take_action,
             parsed_args,
         )
@@ -2394,7 +2392,7 @@ class TestSetPort(TestPort):
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
         self.assertRaises(
-            argparse.ArgumentTypeError,
+            exceptions.CommandError,
             self.cmd.take_action,
             parsed_args,
         )
@@ -2477,7 +2475,7 @@ class TestShowPort(TestPort):
         verifylist = []
 
         self.assertRaises(
-            tests_utils.ParserException,
+            test_utils.ParserException,
             self.check_parser,
             self.cmd,
             arglist,
@@ -2756,7 +2754,7 @@ class TestUnsetPort(TestPort):
 
         self.assertFalse(self.network_client.update_port.called)
         self.network_client.set_tags.assert_called_once_with(
-            self._testport, tests_utils.CompareBySet(expected_args)
+            self._testport, test_utils.CompareBySet(expected_args)
         )
         self.assertIsNone(result)
 

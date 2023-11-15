@@ -9,9 +9,7 @@
 #   WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
 #   License for the specific language governing permissions and limitations
 #   under the License.
-#
 
-import argparse
 from unittest import mock
 from unittest.mock import call
 
@@ -21,7 +19,7 @@ from osc_lib import exceptions
 from openstackclient.network.v2 import subnet_pool
 from openstackclient.tests.unit.identity.v3 import fakes as identity_fakes_v3
 from openstackclient.tests.unit.network.v2 import fakes as network_fakes
-from openstackclient.tests.unit import utils as tests_utils
+from openstackclient.tests.unit import utils as test_utils
 
 
 class TestSubnetPool(network_fakes.TestNetworkV2):
@@ -98,7 +96,7 @@ class TestCreateSubnetPool(TestSubnetPool):
         verifylist = []
 
         self.assertRaises(
-            tests_utils.ParserException,
+            test_utils.ParserException,
             self.check_parser,
             self.cmd,
             arglist,
@@ -115,7 +113,7 @@ class TestCreateSubnetPool(TestSubnetPool):
             ('name', self._subnet_pool.name),
         ]
         self.assertRaises(
-            tests_utils.ParserException,
+            test_utils.ParserException,
             self.check_parser,
             self.cmd,
             arglist,
@@ -196,7 +194,7 @@ class TestCreateSubnetPool(TestSubnetPool):
         ]
 
         self.assertRaises(
-            argparse.ArgumentTypeError,
+            test_utils.ParserException,
             self.check_parser,
             self.cmd,
             arglist,
@@ -368,7 +366,7 @@ class TestCreateSubnetPool(TestSubnetPool):
         )
         if add_tags:
             self.network_client.set_tags.assert_called_once_with(
-                self._subnet_pool, tests_utils.CompareBySet(['red', 'blue'])
+                self._subnet_pool, test_utils.CompareBySet(['red', 'blue'])
             )
         else:
             self.assertFalse(self.network_client.set_tags.called)
@@ -837,7 +835,7 @@ class TestSetSubnetPool(TestSubnetPool):
         ]
 
         self.assertRaises(
-            argparse.ArgumentTypeError,
+            test_utils.ParserException,
             self.check_parser,
             self.cmd,
             arglist,
@@ -902,7 +900,7 @@ class TestSetSubnetPool(TestSubnetPool):
 
         # Exclusive arguments will conflict here.
         self.assertRaises(
-            tests_utils.ParserException,
+            test_utils.ParserException,
             self.check_parser,
             self.cmd,
             arglist,
@@ -963,7 +961,7 @@ class TestSetSubnetPool(TestSubnetPool):
 
         # Exclusive arguments will conflict here.
         self.assertRaises(
-            tests_utils.ParserException,
+            test_utils.ParserException,
             self.check_parser,
             self.cmd,
             arglist,
@@ -1029,7 +1027,7 @@ class TestSetSubnetPool(TestSubnetPool):
 
         self.assertFalse(self.network_client.update_subnet_pool.called)
         self.network_client.set_tags.assert_called_once_with(
-            self._subnet_pool, tests_utils.CompareBySet(expected_args)
+            self._subnet_pool, test_utils.CompareBySet(expected_args)
         )
         self.assertIsNone(result)
 
@@ -1093,7 +1091,7 @@ class TestShowSubnetPool(TestSubnetPool):
         verifylist = []
 
         self.assertRaises(
-            tests_utils.ParserException,
+            test_utils.ParserException,
             self.check_parser,
             self.cmd,
             arglist,
@@ -1149,7 +1147,7 @@ class TestUnsetSubnetPool(TestSubnetPool):
 
         self.assertFalse(self.network_client.update_subnet_pool.called)
         self.network_client.set_tags.assert_called_once_with(
-            self._subnetpool, tests_utils.CompareBySet(expected_args)
+            self._subnetpool, test_utils.CompareBySet(expected_args)
         )
         self.assertIsNone(result)
 
