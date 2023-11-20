@@ -65,7 +65,7 @@ class TestCase(testtools.TestCase):
         :param cloud: The cloud to execute against. This can be a string, empty
             string, or None. A string results in '--os-auth-type $cloud', an
             empty string results in the '--os-auth-type' option being
-            omitted, and None resuts in '--os-auth-type none' for legacy
+            omitted, and None results in '--os-auth-type none' for legacy
             reasons.
         :param fail_ok: If failure is permitted. If False (default), a command
             failure will result in `~tempest.lib.exceptions.CommandFailed`

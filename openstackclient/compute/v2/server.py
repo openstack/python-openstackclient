@@ -2751,7 +2751,7 @@ class ListServer(command.Lister):
                 try:
                     # some deployments can have *loads* of images so we only
                     # want to list the ones we care about. It would be better
-                    # to only retrun the *fields* we care about (name) but
+                    # to only return the *fields* we care about (name) but
                     # glance doesn't support that
                     # NOTE(stephenfin): This could result in super long URLs
                     # but it seems unlikely to cause issues. Apache supports
