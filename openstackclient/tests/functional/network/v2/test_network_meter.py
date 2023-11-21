@@ -21,6 +21,12 @@ from openstackclient.tests.functional.network.v2 import common
 class TestMeter(common.NetworkTests):
     """Functional tests for network meter"""
 
+    def setUp(self):
+        super().setUp()
+
+        if not self.is_extension_enabled("metering"):
+            self.skipTest("No metering extension present")
+
     # NOTE(dtroyer): Do not normalize the setup and teardown of the resource
     #                creation and deletion.  Little is gained when each test
     #                has its own needs and there are collisions when running

@@ -29,6 +29,12 @@ class NetworkQosRuleTypeTests(common.NetworkTests):
         'minimum_packet_rate',
     ]
 
+    def setUp(self):
+        super().setUp()
+
+        if not self.is_extension_enabled("qos"):
+            self.skipTest("No qos extension present")
+
     def test_qos_rule_type_list(self):
         cmd_output = self.openstack(
             'network qos rule type list -f json',
