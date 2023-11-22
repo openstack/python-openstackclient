@@ -323,11 +323,25 @@ class NetworkTests(common.NetworkTagTests):
     def test_network_dhcp_agent(self):
         if not self.haz_network:
             self.skipTest("No Network service present")
+
+        if not self.is_extension_enabled("agent"):
+            self.skipTest("No dhcp_agent_scheduler extension present")
+
         if not self.is_extension_enabled("dhcp_agent_scheduler"):
             self.skipTest("No dhcp_agent_scheduler extension present")
 
+        # Get DHCP Agent ID
+        cmd_output = self.openstack(
+            'network agent list --agent-type dhcp',
+            parse_output=True,
+        )
+        if not cmd_output:
+            self.skipTest("No agents with type=dhcp available")
+
+        agent_id = cmd_output[0]['ID']
+
         name1 = uuid.uuid4().hex
-        cmd_output1 = self.openstack(
+        cmd_output = self.openstack(
             'network create --description aaaa %s' % name1,
             parse_output=True,
         )
@@ -335,14 +349,7 @@ class NetworkTests(common.NetworkTagTests):
         self.addCleanup(self.openstack, 'network delete %s' % name1)
 
         # Get network ID
-        network_id = cmd_output1['id']
-
-        # Get DHCP Agent ID
-        cmd_output2 = self.openstack(
-            'network agent list --agent-type dhcp',
-            parse_output=True,
-        )
-        agent_id = cmd_output2[0]['ID']
+        network_id = cmd_output['id']
 
         # Add Agent to Network
         self.openstack(
@@ -350,7 +357,7 @@ class NetworkTests(common.NetworkTagTests):
         )
 
         # Test network list --agent
-        cmd_output3 = self.openstack(
+        cmd_output = self.openstack(
             'network list --agent %s' % agent_id,
             parse_output=True,
         )
@@ -363,7 +370,7 @@ class NetworkTests(common.NetworkTagTests):
         )
 
         # Assert
-        col_name = [x["ID"] for x in cmd_output3]
+        col_name = [x["ID"] for x in cmd_output]
         self.assertIn(network_id, col_name)
 
     def test_network_set(self):
