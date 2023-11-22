@@ -15,11 +15,16 @@
 
 """Image V2 Action Implementations"""
 
+import logging
 
 from osc_lib.command import command
+from osc_lib import exceptions
 from osc_lib import utils
 
 from openstackclient.i18n import _
+
+
+LOG = logging.getLogger(__name__)
 
 
 def _format_object(md_object):
@@ -77,7 +82,7 @@ class CreateMetadefObjects(command.ShowOne):
 
 class ShowMetadefObjects(command.ShowOne):
     _description = _(
-        "Describe a specific metadata definitions" "object inside a namespace"
+        "Describe a specific metadata definitions object inside a namespace"
     )
 
     def get_parser(self, prog_name):
@@ -105,6 +110,55 @@ class ShowMetadefObjects(command.ShowOne):
         fields, value = _format_object(data)
 
         return fields, value
+
+
+class DeleteMetadefObject(command.Command):
+    _description = _(
+        "Delete a specific metadata definitions object inside a namespace"
+    )
+
+    def get_parser(self, prog_name):
+        parser = super().get_parser(prog_name)
+        parser.add_argument(
+            "namespace_name",
+            metavar="<namespace_name>",
+            help=_("Namespace (name) for the namespace"),
+        )
+        parser.add_argument(
+            "object_name",
+            metavar="<object_name>",
+            nargs="+",
+            help=_("Name of an object."),
+        )
+        return parser
+
+    def take_action(self, parsed_args):
+        image_client = self.app.client_manager.image
+
+        namespace_name = parsed_args.namespace_name
+
+        result = 0
+        for i in parsed_args.object_name:
+            try:
+                object = image_client.get_metadef_object(i, namespace_name)
+                image_client.delete_metadef_object(object, namespace_name)
+            except Exception as e:
+                result += 1
+                LOG.error(
+                    _(
+                        "Failed to delete object with name or "
+                        "ID '%(object)s': %(e)s"
+                    ),
+                    {'object': i, 'e': e},
+                )
+
+        if result > 0:
+            total = len(parsed_args.namespace_name)
+            msg = _("%(result)s of %(total)s object failed to delete.") % {
+                'result': result,
+                'total': total,
+            }
+            raise exceptions.CommandError(msg)
 
 
 class ListMetadefObjects(command.Lister):
