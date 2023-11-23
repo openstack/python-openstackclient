@@ -107,7 +107,7 @@ def _get_attrs_network(client_manager, parsed_args):
         attrs['availability_zone_hints'] = parsed_args.availability_zone_hints
 
     # set description
-    if parsed_args.description:
+    if parsed_args.description is not None:
         attrs['description'] = parsed_args.description
 
     # set mtu
@@ -139,7 +139,7 @@ def _get_attrs_network(client_manager, parsed_args):
     if 'no_qos_policy' in parsed_args and parsed_args.no_qos_policy:
         attrs['qos_policy_id'] = None
     # Update DNS network options
-    if parsed_args.dns_domain:
+    if parsed_args.dns_domain is not None:
         attrs['dns_domain'] = parsed_args.dns_domain
     return attrs
 

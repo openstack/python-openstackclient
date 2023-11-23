@@ -1063,6 +1063,39 @@ class TestSetNetwork(TestNetwork):
         )
         self.assertIsNone(result)
 
+    def test_set_to_empty(self):
+        # Test if empty strings are accepted to clear any of the fields,
+        # so once they are set to a value its possible to clear them again.
+
+        arglist = [
+            self._network.name,
+            '--name',
+            '',
+            '--description',
+            '',
+            '--dns-domain',
+            '',
+        ]
+        verifylist = [
+            ('network', self._network.name),
+            ('description', ''),
+            ('name', ''),
+            ('dns_domain', ''),
+        ]
+
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+        result = self.cmd.take_action(parsed_args)
+
+        attrs = {
+            'name': '',
+            'description': '',
+            'dns_domain': '',
+        }
+        self.network_client.update_network.assert_called_once_with(
+            self._network, **attrs
+        )
+        self.assertIsNone(result)
+
     def test_set_nothing(self):
         arglist = [
             self._network.name,
