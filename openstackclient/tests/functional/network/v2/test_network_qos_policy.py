@@ -21,6 +21,12 @@ from openstackclient.tests.functional.network.v2 import common
 class NetworkQosPolicyTests(common.NetworkTests):
     """Functional tests for QoS policy"""
 
+    def setUp(self):
+        super().setUp()
+
+        if not self.is_extension_enabled("qos"):
+            self.skipTest("No qos extension present")
+
     def test_qos_rule_create_delete(self):
         # This is to check the output of qos policy delete
         policy_name = uuid.uuid4().hex

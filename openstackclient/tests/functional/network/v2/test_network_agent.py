@@ -15,8 +15,14 @@ import uuid
 from openstackclient.tests.functional.network.v2 import common
 
 
-class NetworkAgentTests(common.NetworkTests):
+class TestAgent(common.NetworkTests):
     """Functional tests for network agent"""
+
+    def setUp(self):
+        super().setUp()
+
+        if not self.is_extension_enabled("agent"):
+            self.skipTest("No agent extension present")
 
     def test_network_agent_list_show_set(self):
         """Test network agent list, set, show commands
@@ -79,8 +85,14 @@ class NetworkAgentTests(common.NetworkTests):
         )
 
 
-class NetworkAgentListTests(common.NetworkTests):
+class TestAgentList(common.NetworkTests):
     """Functional test for network agent"""
+
+    def setUp(self):
+        super().setUp()
+
+        if not self.is_extension_enabled("agent"):
+            self.skipTest("No agent extension present")
 
     def test_network_dhcp_agent_list(self):
         """Test network agent list"""

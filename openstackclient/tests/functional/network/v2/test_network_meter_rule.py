@@ -13,6 +13,7 @@
 #    License for the specific language governing permissions and limitations
 #    under the License.
 
+import unittest
 import uuid
 
 from openstackclient.tests.functional.network.v2 import common
@@ -27,6 +28,10 @@ class TestMeterRule(common.NetworkTests):
     @classmethod
     def setUpClass(cls):
         super().setUpClass()
+
+        if not cls.is_extension_enabled("metering"):
+            raise unittest.SkipTest("No metering extension present")
+
         if cls.haz_network:
             cls.METER_NAME = uuid.uuid4().hex
 
@@ -46,12 +51,6 @@ class TestMeterRule(common.NetworkTests):
                 cls.assertOutput('', raw_output)
         finally:
             super().tearDownClass()
-
-    def setUp(self):
-        super().setUp()
-
-        if not self.is_extension_enabled("metering"):
-            self.skipTest("No metering extension present")
 
     def test_meter_rule_delete(self):
         """test create, delete"""
