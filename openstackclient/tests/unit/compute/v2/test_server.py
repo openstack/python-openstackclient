@@ -11,8 +11,7 @@
 #   WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
 #   License for the specific language governing permissions and limitations
 #   under the License.
-#
-import argparse
+
 import collections
 import copy
 import getpass
@@ -33,11 +32,11 @@ from openstackclient.compute.v2 import server
 from openstackclient.tests.unit.compute.v2 import fakes as compute_fakes
 from openstackclient.tests.unit.image.v2 import fakes as image_fakes
 from openstackclient.tests.unit.network.v2 import fakes as network_fakes
-from openstackclient.tests.unit import utils
+from openstackclient.tests.unit import utils as test_utils
 from openstackclient.tests.unit.volume.v3 import fakes as volume_fakes
 
 
-class TestPowerStateColumn(utils.TestCase):
+class TestPowerStateColumn(test_utils.TestCase):
     def test_human_readable(self):
         self.assertEqual(
             'NOSTATE', server.PowerStateColumn(0x00).human_readable()
@@ -1128,7 +1127,7 @@ class TestServerAddVolume(TestServerVolume):
             ('disable_delete_on_termination', True),
         ]
         ex = self.assertRaises(
-            utils.ParserException,
+            test_utils.ParserException,
             self.check_parser,
             self.cmd,
             arglist,
@@ -1373,7 +1372,7 @@ class TestServerCreate(TestServer):
         ]
 
         self.assertRaises(
-            utils.ParserException,
+            test_utils.ParserException,
             self.check_parser,
             self.cmd,
             arglist,
@@ -2193,7 +2192,7 @@ class TestServerCreate(TestServer):
             self.new_server.name,
         ]
         self.assertRaises(
-            argparse.ArgumentTypeError,
+            test_utils.ParserException,
             self.check_parser,
             self.cmd,
             arglist,
@@ -2212,7 +2211,7 @@ class TestServerCreate(TestServer):
             self.new_server.name,
         ]
         self.assertRaises(
-            argparse.ArgumentTypeError,
+            test_utils.ParserException,
             self.check_parser,
             self.cmd,
             arglist,
@@ -2231,7 +2230,7 @@ class TestServerCreate(TestServer):
             self.new_server.name,
         ]
         self.assertRaises(
-            argparse.ArgumentTypeError,
+            test_utils.ParserException,
             self.check_parser,
             self.cmd,
             arglist,
@@ -2250,7 +2249,7 @@ class TestServerCreate(TestServer):
             self.new_server.name,
         ]
         self.assertRaises(
-            argparse.ArgumentTypeError,
+            test_utils.ParserException,
             self.check_parser,
             self.cmd,
             arglist,
@@ -3302,7 +3301,7 @@ class TestServerCreate(TestServer):
             self.new_server.name,
         ]
         self.assertRaises(
-            argparse.ArgumentTypeError,
+            test_utils.ParserException,
             self.check_parser,
             self.cmd,
             arglist,
@@ -3320,7 +3319,7 @@ class TestServerCreate(TestServer):
             self.new_server.name,
         ]
         self.assertRaises(
-            argparse.ArgumentTypeError,
+            test_utils.ParserException,
             self.check_parser,
             self.cmd,
             arglist,
@@ -3338,7 +3337,7 @@ class TestServerCreate(TestServer):
             self.new_server.name,
         ]
         self.assertRaises(
-            argparse.ArgumentTypeError,
+            test_utils.ParserException,
             self.check_parser,
             self.cmd,
             arglist,
@@ -3759,7 +3758,7 @@ class TestServerCreate(TestServer):
             self.new_server.name,
         ]
         self.assertRaises(
-            argparse.ArgumentTypeError,
+            test_utils.ParserException,
             self.check_parser,
             self.cmd,
             arglist,
@@ -3777,7 +3776,7 @@ class TestServerCreate(TestServer):
             self.new_server.name,
         ]
         self.assertRaises(
-            argparse.ArgumentTypeError,
+            test_utils.ParserException,
             self.check_parser,
             self.cmd,
             arglist,
@@ -3796,7 +3795,7 @@ class TestServerCreate(TestServer):
             self.new_server.name,
         ]
         self.assertRaises(
-            argparse.ArgumentTypeError,
+            test_utils.ParserException,
             self.check_parser,
             self.cmd,
             arglist,
@@ -3814,7 +3813,7 @@ class TestServerCreate(TestServer):
             self.new_server.name,
         ]
         self.assertRaises(
-            argparse.ArgumentTypeError,
+            test_utils.ParserException,
             self.check_parser,
             self.cmd,
             arglist,
@@ -5187,7 +5186,7 @@ class TestServerList(_TestServerList):
         ]
 
         self.assertRaises(
-            utils.ParserException,
+            test_utils.ParserException,
             self.check_parser,
             self.cmd,
             arglist,
@@ -5446,7 +5445,7 @@ class TestServerListV273(_TestServerList):
         verifylist = [('locked', True), ('unlocked', True)]
 
         ex = self.assertRaises(
-            utils.ParserException,
+            test_utils.ParserException,
             self.check_parser,
             self.cmd,
             arglist,
@@ -6548,7 +6547,7 @@ class TestServerRebuild(TestServer):
             ('key_name', self.server.key_name),
         ]
         self.assertRaises(
-            utils.ParserException,
+            test_utils.ParserException,
             self.check_parser,
             self.cmd,
             arglist,
@@ -6652,7 +6651,11 @@ class TestServerRebuild(TestServer):
             '--no-user-data',
         ]
         self.assertRaises(
-            utils.ParserException, self.check_parser, self.cmd, arglist, None
+            test_utils.ParserException,
+            self.check_parser,
+            self.cmd,
+            arglist,
+            None,
         )
 
     def test_rebuild_with_trusted_image_cert(self):
@@ -7847,7 +7850,7 @@ class TestServerSet(TestServer):
             ('server', 'foo_vm'),
         ]
         self.assertRaises(
-            utils.ParserException,
+            test_utils.ParserException,
             self.check_parser,
             self.cmd,
             arglist,
@@ -8251,7 +8254,7 @@ class TestServerShow(TestServer):
         verifylist = []
 
         self.assertRaises(
-            utils.ParserException,
+            test_utils.ParserException,
             self.check_parser,
             self.cmd,
             arglist,
@@ -8915,7 +8918,7 @@ class TestServerUnshelve(TestServer):
         ]
 
         ex = self.assertRaises(
-            utils.ParserException,
+            test_utils.ParserException,
             self.check_parser,
             self.cmd,
             arglist,

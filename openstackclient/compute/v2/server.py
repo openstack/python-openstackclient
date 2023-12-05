@@ -841,7 +841,7 @@ class NICAction(argparse.Action):
                     "Invalid argument %s; characters ',' and '=' are not "
                     "allowed"
                 )
-                raise argparse.ArgumentTypeError(msg % values)
+                raise argparse.ArgumentError(self, msg % values)
 
             values = '='.join([self.key, values])
         else:
@@ -869,7 +869,7 @@ class NICAction(argparse.Action):
                     "'net-id=net-uuid,port-id=port-uuid,v4-fixed-ip=ip-addr,"
                     "v6-fixed-ip=ip-addr,tag=tag'"
                 )
-                raise argparse.ArgumentTypeError(msg % values)
+                raise argparse.ArgumentError(self, msg % values)
 
             info[k] = v
 
@@ -878,7 +878,7 @@ class NICAction(argparse.Action):
                 'Invalid argument %s; either network or port should be '
                 'specified but not both'
             )
-            raise argparse.ArgumentTypeError(msg % values)
+            raise argparse.ArgumenteError(self, msg % values)
 
         getattr(namespace, self.dest).append(info)
 
@@ -896,7 +896,7 @@ class BDMLegacyAction(argparse.Action):
                 "Invalid argument %s; argument must be of form "
                 "'dev-name=id[:type[:size[:delete-on-terminate]]]'"
             )
-            raise argparse.ArgumentTypeError(msg % values)
+            raise argparse.ArgumentError(self, msg % values)
 
         mapping = {
             'device_name': dev_name,
@@ -913,7 +913,7 @@ class BDMLegacyAction(argparse.Action):
                     "Invalid argument %s; 'type' must be one of: volume, "
                     "snapshot, image"
                 )
-                raise argparse.ArgumentTypeError(msg % values)
+                raise argparse.ArgumentError(self, msg % values)
 
             mapping['source_type'] = dev_map[1]
 
@@ -966,12 +966,13 @@ class BDMAction(parseractions.MultiKeyValueAction):
                 "Invalid keys %(invalid_keys)s specified.\n"
                 "Valid keys are: %(valid_keys)s"
             )
-            raise argparse.ArgumentTypeError(
+            raise argparse.ArgumentError(
+                self,
                 msg
                 % {
                     'invalid_keys': ', '.join(invalid_keys),
                     'valid_keys': ', '.join(valid_keys),
-                }
+                },
             )
 
         missing_keys = [k for k in self.required_keys if k not in keys]
@@ -980,12 +981,13 @@ class BDMAction(parseractions.MultiKeyValueAction):
                 "Missing required keys %(missing_keys)s.\n"
                 "Required keys are: %(required_keys)s"
             )
-            raise argparse.ArgumentTypeError(
+            raise argparse.ArgumentError(
+                self,
                 msg
                 % {
                     'missing_keys': ', '.join(missing_keys),
                     'required_keys': ', '.join(self.required_keys),
-                }
+                },
             )
 
     def __call__(self, parser, namespace, values, option_string=None):
@@ -2086,11 +2088,48 @@ class DeleteServer(command.Command):
                     raise exceptions.CommandError(msg)
 
 
-def percent_type(x):
-    x = int(x)
-    if not 0 < x <= 100:
-        raise argparse.ArgumentTypeError("Must be between 0 and 100")
-    return x
+class PercentAction(argparse.Action):
+    def __init__(
+        self,
+        option_strings,
+        dest,
+        nargs=None,
+        const=None,
+        default=None,
+        type=None,
+        choices=None,
+        required=False,
+        help=None,
+        metavar=None,
+    ):
+        if nargs == 0:
+            raise ValueError(
+                'nargs for store actions must be != 0; if you '
+                'have nothing to store, actions such as store '
+                'true or store const may be more appropriate'
+            )
+
+        if const is not None:
+            raise ValueError('const does not make sense for PercentAction')
+
+        super().__init__(
+            option_strings=option_strings,
+            dest=dest,
+            nargs=nargs,
+            const=const,
+            default=default,
+            type=type,
+            choices=choices,
+            required=required,
+            help=help,
+            metavar=metavar,
+        )
+
+    def __call__(self, parser, namespace, values, option_string=None):
+        x = int(values)
+        if not 0 < x <= 100:
+            raise argparse.ArgumentError(self, "Must be between 0 and 100")
+        setattr(namespace, self.dest, x)
 
 
 class ListServer(command.Lister):
@@ -2243,7 +2282,7 @@ class ListServer(command.Lister):
         )
         parser.add_argument(
             '--progress',
-            type=percent_type,
+            action=PercentAction,
             default=None,
             help=_(
                 'Search by progress value (%%) '

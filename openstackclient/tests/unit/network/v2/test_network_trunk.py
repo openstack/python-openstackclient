@@ -9,9 +9,7 @@
 #   WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
 #   License for the specific language governing permissions and limitations
 #   under the License.
-#
 
-import argparse
 import copy
 from unittest import mock
 from unittest.mock import call
@@ -23,7 +21,7 @@ import testtools
 from openstackclient.network.v2 import network_trunk
 from openstackclient.tests.unit.identity.v3 import fakes as identity_fakes_v3
 from openstackclient.tests.unit.network.v2 import fakes as network_fakes
-from openstackclient.tests.unit import utils as tests_utils
+from openstackclient.tests.unit import utils as test_utils
 
 
 # Tests for Neutron trunks
@@ -104,7 +102,7 @@ class TestCreateNetworkTrunk(TestNetworkTrunk):
         verifylist = []
 
         self.assertRaises(
-            tests_utils.ParserException,
+            test_utils.ParserException,
             self.check_parser,
             self.cmd,
             arglist,
@@ -289,7 +287,7 @@ class TestCreateNetworkTrunk(TestNetworkTrunk):
             ),
         ]
 
-        with testtools.ExpectedException(argparse.ArgumentTypeError):
+        with testtools.ExpectedException(test_utils.ParserException):
             self.check_parser(self.cmd, arglist, verifylist)
 
 
@@ -432,7 +430,7 @@ class TestShowNetworkTrunk(TestNetworkTrunk):
         verifylist = []
 
         self.assertRaises(
-            tests_utils.ParserException,
+            test_utils.ParserException,
             self.check_parser,
             self.cmd,
             arglist,
@@ -755,7 +753,7 @@ class TestSetNetworkTrunk(TestNetworkTrunk):
             ),
         ]
 
-        with testtools.ExpectedException(argparse.ArgumentTypeError):
+        with testtools.ExpectedException(test_utils.ParserException):
             self.check_parser(self.cmd, arglist, verifylist)
 
         self.network_client.add_trunk_subports.assert_not_called()
@@ -949,7 +947,7 @@ class TestUnsetNetworkTrunk(TestNetworkTrunk):
             ('trunk', self._trunk['name']),
         ]
         self.assertRaises(
-            tests_utils.ParserException,
+            test_utils.ParserException,
             self.check_parser,
             self.cmd,
             arglist,
