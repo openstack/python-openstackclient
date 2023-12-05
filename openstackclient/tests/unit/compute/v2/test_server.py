@@ -8149,20 +8149,24 @@ class TestServerShelve(TestServer):
         result = self.cmd.take_action(parsed_args)
         self.assertIsNone(result)
 
-        # two calls - one to retrieve the server state before shelving and
-        # another to do this before offloading
-        self.compute_sdk_client.find_server.assert_has_calls(
-            [
-                mock.call(self.server.name, ignore_missing=False),
-                mock.call(self.server.name, ignore_missing=False),
-            ]
+        # one call to retrieve to retrieve the server state before shelving
+        self.compute_sdk_client.find_server.assert_called_once_with(
+            self.server.name,
+            ignore_missing=False,
         )
+        # one call to retrieve the server state before offloading
+        self.compute_sdk_client.get_server.assert_called_once_with(
+            self.server.id
+        )
+        # one call to shelve the server
         self.compute_sdk_client.shelve_server.assert_called_with(
             self.server.id
         )
+        # one call to shelve offload the server
         self.compute_sdk_client.shelve_offload_server.assert_called_once_with(
             self.server.id,
         )
+        # one call to wait for the shelve offload to complete
         mock_wait_for_status.assert_called_once_with(
             self.compute_sdk_client.get_server,
             self.server.id,

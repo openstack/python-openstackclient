@@ -4416,6 +4416,7 @@ class ShelveServer(command.Command):
                 self.app.stdout.flush()
 
         compute_client = self.app.client_manager.sdk_connection.compute
+        server_ids = []
 
         for server in parsed_args.servers:
             server_obj = compute_client.find_server(
@@ -4425,6 +4426,8 @@ class ShelveServer(command.Command):
             if server_obj.status.lower() in ('shelved', 'shelved_offloaded'):
                 continue
 
+            server_ids.append(server_obj.id)
+
             compute_client.shelve_server(server_obj.id)
 
         # if we don't have to wait, either because it was requested explicitly
@@ -4432,54 +4435,51 @@ class ShelveServer(command.Command):
         if not parsed_args.wait and not parsed_args.offload:
             return
 
-        for server in parsed_args.servers:
+        for server_id in server_ids:
             # We use osc-lib's wait_for_status since that allows for a callback
             # TODO(stephenfin): We should wait for these in parallel using e.g.
             # https://review.opendev.org/c/openstack/osc-lib/+/762503/
             if not utils.wait_for_status(
                 compute_client.get_server,
-                server_obj.id,
+                server_id,
                 success_status=('shelved', 'shelved_offloaded'),
                 callback=_show_progress,
             ):
-                LOG.error(_('Error shelving server: %s'), server_obj.id)
+                LOG.error(_('Error shelving server: %s'), server_id)
                 self.app.stdout.write(
-                    _('Error shelving server: %s\n') % server_obj.id
+                    _('Error shelving server: %s\n') % server_id
                 )
                 raise SystemExit
 
         if not parsed_args.offload:
             return
 
-        for server in parsed_args.servers:
-            server_obj = compute_client.find_server(
-                server,
-                ignore_missing=False,
-            )
+        for server_id in server_ids:
+            server_obj = compute_client.get_server(server_id)
             if server_obj.status.lower() == 'shelved_offloaded':
                 continue
 
-            compute_client.shelve_offload_server(server_obj.id)
+            compute_client.shelve_offload_server(server_id)
 
         if not parsed_args.wait:
             return
 
-        for server in parsed_args.servers:
+        for server_id in server_ids:
             # We use osc-lib's wait_for_status since that allows for a callback
             # TODO(stephenfin): We should wait for these in parallel using e.g.
             # https://review.opendev.org/c/openstack/osc-lib/+/762503/
             if not utils.wait_for_status(
                 compute_client.get_server,
-                server_obj.id,
+                server_id,
                 success_status=('shelved_offloaded',),
                 callback=_show_progress,
             ):
                 LOG.error(
                     _('Error offloading shelved server %s'),
-                    server_obj.id,
+                    server_id,
                 )
                 self.app.stdout.write(
-                    _('Error offloading shelved server: %s\n') % server_obj.id
+                    _('Error offloading shelved server: %s\n') % server_id
                 )
                 raise SystemExit
 
