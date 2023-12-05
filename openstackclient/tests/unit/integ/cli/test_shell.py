@@ -502,7 +502,6 @@ class TestIntegShellCliPrecedenceOCC(test_base.TestInteg):
         )
 
         # +env, -cli, +occ
-        print("auth_req: %s" % auth_req['auth'])
         self.assertEqual(
             test_shell.DEFAULT_USERNAME,
             auth_req['auth']['identity']['password']['user']['name'],
@@ -559,7 +558,6 @@ class TestIntegShellCliPrecedenceOCC(test_base.TestInteg):
         )
 
         # +env, +cli, +occ
-        print("auth_req: %s" % auth_req['auth'])
         self.assertEqual(
             'zarquon',
             auth_req['auth']['identity']['password']['user']['name'],
