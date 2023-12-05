@@ -52,6 +52,8 @@ class TestCase(testtools.TestCase):
             stderr = self.useFixture(fixtures.StringStream("stderr")).stream
             self.useFixture(fixtures.MonkeyPatch("sys.stderr", stderr))
 
+        self.log = self.useFixture(fixtures.LoggerFixture())
+
     def assertNotCalled(self, m, msg=None):
         """Assert a function was not called"""
 
