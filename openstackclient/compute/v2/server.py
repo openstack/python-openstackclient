@@ -1987,9 +1987,10 @@ class CreateServer(command.ShowOne):
             ):
                 self.app.stdout.write('\n')
             else:
-                LOG.error('Error creating server: %s', parsed_args.server_name)
-                self.app.stdout.write(_('Error creating server\n'))
-                raise SystemExit
+                msg = (
+                    _('Error unshelving server: %s') % parsed_args.server_name
+                )
+                raise exceptions.CommandError(msg)
 
         details = _prep_server_detail(compute_client, image_client, server)
         return zip(*sorted(details.items()))
@@ -2081,10 +2082,8 @@ class DeleteServer(command.Command):
                     server_obj.id,
                     callback=_show_progress,
                 ):
-                    msg = _('Error deleting server: %s')
-                    LOG.error(msg, server_obj.id)
-                    self.app.stdout.write(_('Error deleting server\n'))
-                    raise SystemExit
+                    msg = _('Error deleting server: %s') % server_obj.id
+                    raise exceptions.CommandError(msg)
 
 
 def percent_type(x):
@@ -3110,9 +3109,8 @@ revert to release the new server and restart the old one."""
             ):
                 self.app.stdout.write(_('Complete\n'))
             else:
-                LOG.error(_('Error migrating server: %s'), server.id)
-                self.app.stdout.write(_('Error migrating server\n'))
-                raise SystemExit
+                msg = _('Error migrating server: %s') % server.id
+                raise exceptions.CommandError(msg)
 
 
 class PauseServer(command.Command):
@@ -3194,9 +3192,8 @@ class RebootServer(command.Command):
             ):
                 self.app.stdout.write(_('Complete\n'))
             else:
-                LOG.error(_('Error rebooting server: %s'), server_id)
-                self.app.stdout.write(_('Error rebooting server\n'))
-                raise SystemExit
+                msg = _('Error rebooting server: %s') % server_id
+                raise exceptions.CommandError(msg)
 
 
 class RebuildServer(command.ShowOne):
@@ -3566,9 +3563,8 @@ class RebuildServer(command.ShowOne):
             ):
                 self.app.stdout.write(_('Complete\n'))
             else:
-                LOG.error(_('Error rebuilding server: %s'), server.id)
-                self.app.stdout.write(_('Error rebuilding server\n'))
-                raise SystemExit
+                msg = _('Error rebuilding server: %s') % server.id
+                raise exceptions.CommandError(msg)
 
         details = _prep_server_detail(
             compute_client, image_client, server, refresh=False
@@ -3689,9 +3685,8 @@ host."""
             ):
                 self.app.stdout.write(_('Complete\n'))
             else:
-                LOG.error(_('Error evacuating server: %s'), server.id)
-                self.app.stdout.write(_('Error evacuating server\n'))
-                raise SystemExit
+                msg = _('Error evacuating server: %s') % server.id
+                raise exceptions.CommandError(msg)
 
         details = _prep_server_detail(
             compute_client, image_client, server, refresh=True
@@ -4042,9 +4037,8 @@ release the new server and restart the old one."""
                 ):
                     self.app.stdout.write(_('Complete\n'))
                 else:
-                    LOG.error(_('Error resizing server: %s'), server.id)
-                    self.app.stdout.write(_('Error resizing server\n'))
-                    raise SystemExit
+                    msg = _('Error resizing server: %s') % server.id
+                    raise exceptions.CommandError(msg)
         elif parsed_args.confirm:
             self.log.warning(
                 _(
@@ -4445,11 +4439,8 @@ class ShelveServer(command.Command):
                 success_status=('shelved', 'shelved_offloaded'),
                 callback=_show_progress,
             ):
-                LOG.error(_('Error shelving server: %s'), server_id)
-                self.app.stdout.write(
-                    _('Error shelving server: %s\n') % server_id
-                )
-                raise SystemExit
+                msg = _('Error shelving server: %s') % server_id
+                raise exceptions.CommandError(msg)
 
         if not parsed_args.offload:
             return
@@ -4474,14 +4465,8 @@ class ShelveServer(command.Command):
                 success_status=('shelved_offloaded',),
                 callback=_show_progress,
             ):
-                LOG.error(
-                    _('Error offloading shelved server %s'),
-                    server_id,
-                )
-                self.app.stdout.write(
-                    _('Error offloading shelved server: %s\n') % server_id
-                )
-                raise SystemExit
+                msg = _('Error offloading shelved server: %s') % server_id
+                raise exceptions.CommandError(msg)
 
 
 class ShowServer(command.ShowOne):
@@ -5073,8 +5058,5 @@ class UnshelveServer(command.Command):
                     success_status=('active', 'shutoff'),
                     callback=_show_progress,
                 ):
-                    LOG.error(_('Error unshelving server %s'), server_obj.id)
-                    self.app.stdout.write(
-                        _('Error unshelving server: %s\n') % server_obj.id
-                    )
-                    raise SystemExit
+                    msg = _('Error unshelving server: %s') % server_obj.id
+                    raise exceptions.CommandError(msg)
