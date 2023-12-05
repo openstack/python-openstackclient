@@ -13,6 +13,7 @@
 
 """Router action implementations"""
 
+import argparse
 import collections
 import copy
 import json
@@ -198,6 +199,8 @@ def _get_external_gateway_attrs(client_manager, parsed_args):
 
 def _get_attrs(client_manager, parsed_args):
     attrs = {}
+    n_client = client_manager.network
+
     if parsed_args.name is not None:
         attrs['name'] = parsed_args.name
     if parsed_args.enable:
@@ -229,7 +232,8 @@ def _get_attrs(client_manager, parsed_args):
 
     # "router set" command doesn't support setting flavor_id.
     if 'flavor_id' in parsed_args and parsed_args.flavor_id is not None:
-        attrs['flavor_id'] = parsed_args.flavor_id
+        flavor = n_client.find_flavor(parsed_args.flavor_id)
+        attrs['flavor_id'] = flavor.id
 
     for attr in ('enable_default_route_bfd', 'enable_default_route_ecmp'):
         value = getattr(parsed_args, attr, None)
@@ -561,9 +565,14 @@ class CreateRouter(command.ShowOne, common.NeutronCommandWithExtraArgs):
             help=_("Disable IPv6 NDP proxy on external gateway"),
         )
         parser.add_argument(
+            '--flavor',
+            metavar='<flavor-id>',
+            help=_("Associate the router to a flavor (by name or ID"),
+        )
+        parser.add_argument(
             '--flavor-id',
             metavar='<flavor-id>',
-            help=_("Associate the router to a flavor by ID"),
+            help=argparse.SUPPRESS,
         )
         _parser_add_bfd_ecmp_arguments(parser)
 
