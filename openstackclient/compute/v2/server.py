@@ -1339,9 +1339,18 @@ class CreateServer(command.ShowOne):
             ),
         )
         parser.add_argument(
+            '--server-group',
+            metavar='<server-group>',
+            help=_(
+                "Server group to create the server within "
+                "(this is an alias for '--hint group=<server-group-id>')"
+            ),
+        )
+        parser.add_argument(
             '--hint',
             metavar='<key=value>',
             action=parseractions.KeyValueAppendAction,
+            dest='hints',
             default={},
             help=_('Hints for the scheduler'),
         )
@@ -1860,12 +1869,19 @@ class CreateServer(command.ShowOne):
                 security_group_names.append(sg['name'])
 
         hints = {}
-        for key, values in parsed_args.hint.items():
+        for key, values in parsed_args.hints.items():
             # only items with multiple values will result in a list
             if len(values) == 1:
                 hints[key] = values[0]
             else:
                 hints[key] = values
+
+        if parsed_args.server_group:
+            server_group_obj = utils.find_resource(
+                compute_client.server_groups,
+                parsed_args.server_group,
+            )
+            hints['group'] = server_group_obj.id
 
         if isinstance(parsed_args.config_drive, bool):
             # NOTE(stephenfin): The API doesn't accept False as a value :'(

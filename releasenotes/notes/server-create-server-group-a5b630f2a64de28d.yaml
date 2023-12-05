@@ -1,0 +1,5 @@
+---
+features:
+  - |
+    The ``server create`` command now accepts a new option, ``--server-group``,
+    which is a shortcut for configuring the ``group`` scheduler hint.
