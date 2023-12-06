@@ -490,19 +490,6 @@ class ListVolume(command.Lister):
             column_headers = copy.deepcopy(columns)
             column_headers[4] = 'Attached to'
 
-        # Cache the server list
-        server_cache = {}
-        try:
-            compute_client = self.app.client_manager.compute
-            for s in compute_client.servers.list():
-                server_cache[s.id] = s
-        except Exception:
-            # Just forget it if there's any trouble
-            pass
-        AttachmentsColumnWithCache = functools.partial(
-            AttachmentsColumn, server_cache=server_cache
-        )
-
         project_id = None
         if parsed_args.project:
             project_id = identity_common.find_project(
@@ -533,6 +520,28 @@ class ListVolume(command.Lister):
             marker=parsed_args.marker,
             limit=parsed_args.limit,
         )
+
+        do_server_list = False
+
+        for vol in data:
+            if vol.status == 'in-use':
+                do_server_list = True
+                break
+
+        # Cache the server list
+        server_cache = {}
+        if do_server_list:
+            try:
+                compute_client = self.app.client_manager.compute
+                for s in compute_client.servers.list():
+                    server_cache[s.id] = s
+            except Exception:
+                # Just forget it if there's any trouble
+                pass
+        AttachmentsColumnWithCache = functools.partial(
+            AttachmentsColumn, server_cache=server_cache
+        )
+
         column_headers = utils.backward_compat_col_lister(
             column_headers, parsed_args.columns, {'Display Name': 'Name'}
         )
