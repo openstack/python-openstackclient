@@ -16,7 +16,7 @@
 import copy
 import logging
 
-from novaclient import exceptions as nova_exceptions
+from openstack import exceptions as sdk_exceptions
 from osc_lib.command import command
 from osc_lib import utils
 
@@ -119,8 +119,8 @@ class ListAvailabilityZone(command.Lister):
     def _get_compute_availability_zones(self, parsed_args):
         compute_client = self.app.client_manager.sdk_connection.compute
         try:
-            data = compute_client.availability_zones(details=True)
-        except nova_exceptions.Forbidden:  # policy doesn't allow
+            data = list(compute_client.availability_zones(details=True))
+        except sdk_exceptions.ForbiddenException:  # policy doesn't allow
             try:
                 data = compute_client.availability_zones(details=False)
             except Exception:
@@ -135,7 +135,7 @@ class ListAvailabilityZone(command.Lister):
         volume_client = self.app.client_manager.sdk_connection.volume
         data = []
         try:
-            data = volume_client.availability_zones()
+            data = list(volume_client.availability_zones())
         except Exception as e:
             LOG.debug('Volume availability zone exception: %s', e)
             if parsed_args.volume:
