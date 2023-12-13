@@ -108,17 +108,17 @@ service-list,volume service list,Lists all services. Filter by host and service 
 service-set-log,block storage log level set,(Supported by API versions 3.32 - 3.latest)
 set-bootable,volume set --bootable / --not-bootable,Update bootable status of a volume.
 show,volume show,Shows volume details.
-snapshot-create,snapshot create,Creates a snapshot.
-snapshot-delete,snapshot delete,Remove one or more snapshots.
-snapshot-list,snapshot list,Lists all snapshots.
+snapshot-create,volume snapshot create,Creates a snapshot.
+snapshot-delete,volume snapshot delete,Remove one or more snapshots.
+snapshot-list,volume snapshot list,Lists all snapshots.
 snapshot-manage,volume snapshot create --remote-source <key=value>,Manage an existing snapshot.
 snapshot-manageable-list,block storage snapshot manageable list,Lists all manageable snapshots. (Supported by API versions 3.8 - 3.latest)
-snapshot-metadata,snapshot set --property k=v / snapshot unset --property k,Sets or deletes snapshot metadata.
-snapshot-metadata-show,snapshot show,Shows snapshot metadata.
-snapshot-metadata-update-all,snapshot set --property k=v,Updates snapshot metadata.
-snapshot-rename,snapshot set --name,Renames a snapshot.
-snapshot-reset-state,snapshot set --state,Explicitly updates the snapshot state.
-snapshot-show,snapshot show,Shows snapshot details.
+snapshot-metadata,volume snapshot set --property k=v / snapshot unset --property k,Sets or deletes snapshot metadata.
+snapshot-metadata-show,volume snapshot show,Shows snapshot metadata.
+snapshot-metadata-update-all,volume snapshot set --property k=v,Updates snapshot metadata.
+snapshot-rename,volume snapshot set --name,Renames a snapshot.
+snapshot-reset-state,volume snapshot set --state,Explicitly updates the snapshot state.
+snapshot-show,volume snapshot show,Shows snapshot details.
 snapshot-unmanage,volume snapshot delete --remote,Stop managing a snapshot.
 summary,volume summary,Get volumes summary. (Supported by API versions 3.12 - 3.latest)
 thaw-host,volume host set --enable,Thaw and enable the specified cinder-volume host.
