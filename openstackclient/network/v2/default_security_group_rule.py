@@ -38,7 +38,12 @@ def _get_columns(item):
 class CreateDefaultSecurityGroupRule(
     command.ShowOne, common.NeutronCommandWithExtraArgs
 ):
-    _description = _("Create a new default security group rule")
+    """Add a new security group rule to the default security group template.
+
+    These rules will be applied to the default security groups created for any
+    new project. They will not be applied to any existing default security
+    groups.
+    """
 
     def get_parser(self, prog_name):
         parser = super().get_parser(prog_name)
@@ -225,7 +230,12 @@ class CreateDefaultSecurityGroupRule(
 
 
 class DeleteDefaultSecurityGroupRule(command.Command):
-    _description = _("Delete default security group rule(s)")
+    """Remove security group rule(s) from the default security group template.
+
+    These rules will not longer be applied to the default security groups
+    created for any new project. They will not be removed from any existing
+    default security groups.
+    """
 
     def get_parser(self, prog_name):
         parser = super().get_parser(prog_name)
@@ -265,7 +275,12 @@ class DeleteDefaultSecurityGroupRule(command.Command):
 
 
 class ListDefaultSecurityGroupRule(command.Lister):
-    _description = _("List default security group rules")
+    """List security group rules used for new default security groups.
+
+    This shows the rules that will be added to any new default security groups
+    created. These rules may differ for the rules present on existing default
+    security groups.
+    """
 
     def _format_network_security_group_rule(self, rule):
         """Transform the SDK DefaultSecurityGroupRule object to a dict
@@ -373,7 +388,11 @@ class ListDefaultSecurityGroupRule(command.Lister):
 
 
 class ShowDefaultSecurityGroupRule(command.ShowOne):
-    _description = _("Display default security group rule details")
+    """Show a security group rule used for new default security groups.
+
+    This shows a rule that will be added to any new default security groups
+    created. This rule may not be present on existing default security groups.
+    """
 
     def get_parser(self, prog_name):
         parser = super().get_parser(prog_name)
