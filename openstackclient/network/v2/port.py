@@ -1163,10 +1163,6 @@ class UnsetPort(common.NeutronUnsetCommandWithExtraArgs):
                 "or ID) (repeat option to unset multiple security groups)"
             ),
         )
-
-        parser.add_argument(
-            'port', metavar="<port>", help=_("Port to modify (name or ID)")
-        )
         parser.add_argument(
             '--allowed-address',
             metavar='ip-address=<ip-address>[,mac-address=<mac-address>]',
@@ -1209,8 +1205,12 @@ class UnsetPort(common.NeutronUnsetCommandWithExtraArgs):
             default=False,
             help=_("Clear hints for the port."),
         )
-
         _tag.add_tag_option_to_parser_for_unset(parser, _('port'))
+        parser.add_argument(
+            'port',
+            metavar="<port>",
+            help=_("Port to modify (name or ID)"),
+        )
 
         return parser
 
