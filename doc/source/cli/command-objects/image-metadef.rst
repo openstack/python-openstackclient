@@ -38,6 +38,9 @@ Image v2
    :command: image metadef object update
 
 .. autoprogram-cliff:: openstack.image.v2
+   :command: image metadef object property show
+
+.. autoprogram-cliff:: openstack.image.v2
    :command: image metadef property create
 
 .. autoprogram-cliff:: openstack.image.v2

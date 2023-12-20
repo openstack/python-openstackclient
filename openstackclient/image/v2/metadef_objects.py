@@ -223,3 +223,47 @@ class SetMetadefObject(command.Command):
         image_client.update_metadef_object(
             object, parsed_args.namespace, **kwargs
         )
+
+
+class ShowMetadefObjectProperty(command.ShowOne):
+    _description = _(
+        "Describe a specific metadata definitions property inside an object."
+    )
+
+    def get_parser(self, prog_name):
+        parser = super().get_parser(prog_name)
+        parser.add_argument(
+            "namespace",
+            metavar="<namespace_name>",
+            help=_("Namespace (name) for the namespace"),
+        )
+        parser.add_argument(
+            "object",
+            metavar="<object_name>",
+            help=_("Name of an object."),
+        )
+        parser.add_argument(
+            "property",
+            help=_("Name of the property."),
+        )
+        return parser
+
+    def take_action(self, parsed_args):
+        image_client = self.app.client_manager.image
+
+        namespace_name = parsed_args.namespace
+        object_name = parsed_args.object
+
+        obj = image_client.get_metadef_object(object_name, namespace_name)
+        try:
+            prop = obj['properties'][parsed_args.property]
+            prop['name'] = parsed_args.property
+
+        except KeyError:
+            msg = _('Property %s not found in object %s.') % (
+                parsed_args.property,
+                parsed_args.object,
+            )
+            raise exceptions.CommandError(msg)
+
+        return zip(*sorted(prop.items()))

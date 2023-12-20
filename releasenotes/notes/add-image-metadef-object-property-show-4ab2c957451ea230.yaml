@@ -1,0 +1,5 @@
+---
+features:
+  - |
+    Add ``image metadef object property show`` command which
+    shows a particular property inside metadef object.
