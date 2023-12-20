@@ -1,0 +1,5 @@
+---
+features:
+  - |
+    Add ``image metadef object update`` command which
+    updates the attributes of an object.
