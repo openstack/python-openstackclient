@@ -1093,6 +1093,66 @@ class TestRemoveProjectImage(TestImage):
         self.assertIsNone(result)
 
 
+class TestShowProjectImage(TestImage):
+    _image = image_fakes.create_one_image()
+    new_member = image_fakes.create_one_image_member(
+        attrs={'image_id': _image.id, 'member_id': 'member1'}
+    )
+
+    columns = (
+        'created_at',
+        'image_id',
+        'member_id',
+        'schema',
+        'status',
+        'updated_at',
+    )
+
+    datalist = (
+        new_member.created_at,
+        _image.id,
+        new_member.member_id,
+        new_member.schema,
+        new_member.status,
+        new_member.updated_at,
+    )
+
+    def setUp(self):
+        super().setUp()
+
+        # This is the return value for utils.find_resource()
+        self.image_client.find_image.return_value = self._image
+
+        self.image_client.get_member.return_value = self.new_member
+        # Get the command object to test
+        self.cmd = _image.ShowProjectImage(self.app, None)
+
+    def test_show_project_image(self):
+        arglist = [
+            self._image.id,
+            'member1',
+        ]
+        verifylist = [
+            ('image', self._image.id),
+            ('member', 'member1'),
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        columns, data = self.cmd.take_action(parsed_args)
+
+        self.image_client.find_image.assert_called_with(
+            self._image.id, ignore_missing=False
+        )
+
+        self.image_client.get_member.assert_called_with(
+            member='member1',
+            image=self._image.id,
+        )
+
+        self.assertEqual(self.columns, columns)
+        self.assertEqual(self.datalist, data)
+
+
 class TestImageSet(TestImage):
     project = identity_fakes.FakeProject.create_one_project()
     domain = identity_fakes.FakeDomain.create_one_domain()
