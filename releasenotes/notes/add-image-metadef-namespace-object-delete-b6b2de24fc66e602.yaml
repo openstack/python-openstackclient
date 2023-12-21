@@ -1,0 +1,4 @@
+---
+features:
+  - |
+    Adds operation which deletes all metadef object inside a namespace.

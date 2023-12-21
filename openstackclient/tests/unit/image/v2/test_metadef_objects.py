@@ -113,6 +113,7 @@ class TestMetadefObjectDelete(fakes.TestImagev2):
         super().setUp()
 
         self.image_client.delete_metadef_object.return_value = None
+        self.image_client.delete_all_metadef_objects.return_value = None
         self.cmd = metadef_objects.DeleteMetadefObject(self.app, None)
 
     def test_object_delete(self):
@@ -126,7 +127,28 @@ class TestMetadefObjectDelete(fakes.TestImagev2):
 
         result = self.cmd.take_action(parsed_args)
 
+        self.image_client.delete_metadef_object.assert_called_once_with(
+            self.image_client.get_metadef_object(),
+            self._metadef_namespace.namespace,
+        )
+        self.image_client.delete_all_metadef_objects.assert_not_called()
         self.assertIsNone(result)
+
+    def test_object_delete_all(self):
+        arglist = [
+            self._metadef_namespace.namespace,
+        ]
+
+        verifylist = []
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        result = self.cmd.take_action(parsed_args)
+
+        self.assertIsNone(result)
+        self.image_client.delete_all_metadef_objects.assert_called_with(
+            self._metadef_namespace.namespace,
+        )
+        self.image_client.delete_metadef_object.assert_not_called()
 
 
 class TestMetadefObjectList(fakes.TestImagev2):

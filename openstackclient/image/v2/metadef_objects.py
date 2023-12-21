@@ -123,8 +123,11 @@ class DeleteMetadefObject(command.Command):
         parser.add_argument(
             "objects",
             metavar="<object>",
-            nargs="+",
-            help=_("Metadef object(s) to delete (name)"),
+            nargs="*",
+            help=_(
+                "Metadef object(s) to delete (name) "
+                "(omit this argument to delete all objects in the namespace)"
+            ),
         )
         return parser
 
@@ -132,6 +135,9 @@ class DeleteMetadefObject(command.Command):
         image_client = self.app.client_manager.image
 
         namespace = parsed_args.namespace
+
+        if not parsed_args.objects:
+            return image_client.delete_all_metadef_objects(namespace)
 
         result = 0
         for obj in parsed_args.objects:
