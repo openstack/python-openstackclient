@@ -2005,9 +2005,7 @@ class CreateServer(command.ShowOne):
             ):
                 self.app.stdout.write('\n')
             else:
-                msg = (
-                    _('Error unshelving server: %s') % parsed_args.server_name
-                )
+                msg = _('Error creating server: %s') % parsed_args.server_name
                 raise exceptions.CommandError(msg)
 
         details = _prep_server_detail(compute_client, image_client, server)
