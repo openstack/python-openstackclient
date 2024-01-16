@@ -91,6 +91,7 @@ class TestMetadefPropertyDelete(image_fakes.TestImagev2):
         super().setUp()
 
         self.cmd = metadef_properties.DeleteMetadefProperty(self.app, None)
+        self.image_client.delete_all_metadef_properties.return_value = None
 
     def test_metadef_property_delete(self):
         arglist = ['namespace', 'property']
@@ -100,6 +101,10 @@ class TestMetadefPropertyDelete(image_fakes.TestImagev2):
         result = self.cmd.take_action(parsed_args)
 
         self.assertIsNone(result)
+        self.image_client.delete_metadef_property.assert_called_with(
+            'property', 'namespace', ignore_missing=False
+        )
+        self.image_client.delete_all_metadef_properties.assert_not_called()
 
     def test_metadef_property_delete_missing_arguments(self):
         arglist = []
@@ -110,21 +115,13 @@ class TestMetadefPropertyDelete(image_fakes.TestImagev2):
             arglist,
             [],
         )
-
-        arglist = ['namespace']
-        self.assertRaises(
-            tests_utils.ParserException,
-            self.check_parser,
-            self.cmd,
-            arglist,
-            [],
-        )
+        self.image_client.delete_all_metadef_properties.assert_not_called()
+        self.image_client.delete_metadef_property.assert_not_called()
 
     def test_metadef_property_delete_exception(self):
         arglist = ['namespace', 'property']
         verifylist = []
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
-
         self.image_client.delete_metadef_property.side_effect = (
             sdk_exceptions.ResourceNotFound
         )
@@ -132,6 +129,23 @@ class TestMetadefPropertyDelete(image_fakes.TestImagev2):
         self.assertRaises(
             exceptions.CommandError, self.cmd.take_action, parsed_args
         )
+        self.image_client.delete_metadef_property.assert_called_with(
+            'property', 'namespace', ignore_missing=False
+        )
+        self.image_client.delete_all_metadef_properties.assert_not_called()
+
+    def test_metadef_property_delete_all(self):
+        arglist = ['namespace']
+        verifylist = []
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        result = self.cmd.take_action(parsed_args)
+
+        self.assertIsNone(result)
+        self.image_client.delete_all_metadef_properties.assert_called_with(
+            'namespace'
+        )
+        self.image_client.delete_metadef_property.assert_not_called()
 
 
 class TestMetadefPropertyList(image_fakes.TestImagev2):

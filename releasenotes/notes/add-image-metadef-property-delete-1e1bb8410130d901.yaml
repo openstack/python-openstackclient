@@ -1,0 +1,5 @@
+---
+features:
+  - |
+    The ``image property delete`` command will now delete all properties in
+    the provided namespace if no property is provided.
