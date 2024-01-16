@@ -42,6 +42,7 @@ def _format_namespace(namespace):
         'owner',
         'protected',
         'schema',
+        'updated_at',
         'visibility',
     ]
 
@@ -130,8 +131,9 @@ class CreateMetadefNameSpace(command.ShowOne):
             kwargs['visibility'] = parsed_args.visibility
 
         data = image_client.create_metadef_namespace(**kwargs)
+        info = _format_namespace(data)
 
-        return zip(*sorted(data.items()))
+        return zip(*sorted(info.items()))
 
 
 class DeleteMetadefNameSpace(command.Command):

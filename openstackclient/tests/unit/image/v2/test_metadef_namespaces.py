@@ -21,30 +21,16 @@ class TestMetadefNamespaceCreate(image_fakes.TestImagev2):
 
     expected_columns = (
         'created_at',
-        'description',
         'display_name',
-        'id',
-        'is_protected',
-        'location',
-        'name',
         'namespace',
         'owner',
-        'resource_type_associations',
-        'updated_at',
         'visibility',
     )
     expected_data = (
         _metadef_namespace.created_at,
-        _metadef_namespace.description,
         _metadef_namespace.display_name,
-        _metadef_namespace.id,
-        _metadef_namespace.is_protected,
-        _metadef_namespace.location,
-        _metadef_namespace.name,
         _metadef_namespace.namespace,
         _metadef_namespace.owner,
-        _metadef_namespace.resource_type_associations,
-        _metadef_namespace.updated_at,
         _metadef_namespace.visibility,
     )
 
