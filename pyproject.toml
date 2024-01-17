@@ -357,6 +357,7 @@ image_metadef_namespace_delete = "openstackclient.image.v2.metadef_namespaces:De
 image_metadef_namespace_list = "openstackclient.image.v2.metadef_namespaces:ListMetadefNamespace"
 image_metadef_namespace_set = "openstackclient.image.v2.metadef_namespaces:SetMetadefNamespace"
 image_metadef_namespace_show = "openstackclient.image.v2.metadef_namespaces:ShowMetadefNamespace"
+image_metadef_namespace_unset = "openstackclient.image.v2.metadef_namespaces:UnsetMetadefNamespace"
 image_metadef_object_create = "openstackclient.image.v2.metadef_objects:CreateMetadefObjects"
 image_metadef_object_show = "openstackclient.image.v2.metadef_objects:ShowMetadefObjects"
 image_metadef_object_list = "openstackclient.image.v2.metadef_objects:ListMetadefObjects"

@@ -12,6 +12,8 @@
 #   License for the specific language governing permissions and limitations
 #   under the License.
 
+from unittest import mock
+
 from openstackclient.image.v2 import metadef_namespaces
 from openstackclient.tests.unit.image.v2 import fakes as image_fakes
 
@@ -24,6 +26,7 @@ class TestMetadefNamespaceCreate(image_fakes.TestImagev2):
         'display_name',
         'namespace',
         'owner',
+        'tags',
         'visibility',
     )
     expected_data = (
@@ -31,6 +34,7 @@ class TestMetadefNamespaceCreate(image_fakes.TestImagev2):
         _metadef_namespace.display_name,
         _metadef_namespace.namespace,
         _metadef_namespace.owner,
+        _metadef_namespace.tags,
         _metadef_namespace.visibility,
     )
 
@@ -114,21 +118,25 @@ class TestMetadefNamespaceList(image_fakes.TestImagev2):
 
 
 class TestMetadefNamespaceSet(image_fakes.TestImagev2):
-    _metadef_namespace = image_fakes.create_one_metadef_namespace()
-
     def setUp(self):
         super().setUp()
 
-        self.image_client.update_metadef_namespace.return_value = (
-            self._metadef_namespace
+        self.metadef_namespace = image_fakes.create_one_metadef_namespace()
+
+        self.image_client.get_metadef_namespace.return_value = (
+            self.metadef_namespace
         )
+        self.image_client.update_metadef_namespace.return_value = (
+            self.metadef_namespace
+        )
+        self.image_client.add_tag_to_metadef_namespace.return_value = None
+
         self.cmd = metadef_namespaces.SetMetadefNamespace(self.app, None)
-        self.datalist = self._metadef_namespace
 
     def test_namespace_set_no_options(self):
-        arglist = [self._metadef_namespace.namespace]
+        arglist = [self.metadef_namespace.namespace]
         verifylist = [
-            ('namespace', self._metadef_namespace.namespace),
+            ('namespace', self.metadef_namespace.namespace),
         ]
 
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
@@ -136,6 +144,95 @@ class TestMetadefNamespaceSet(image_fakes.TestImagev2):
         result = self.cmd.take_action(parsed_args)
 
         self.assertIsNone(result)
+
+    def test_namespace_set_tag(self):
+        arglist = [
+            self.metadef_namespace.namespace,
+            '--tag',
+            't1',
+            '--tag',
+            't2',
+        ]
+        verifylist = [
+            ('namespace', self.metadef_namespace.namespace),
+            ('tags', ['t1', 't2']),
+        ]
+
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        self.cmd.take_action(parsed_args)
+
+        self.image_client.add_tag_to_metadef_namespace.assert_has_calls(
+            [
+                mock.call(self.metadef_namespace.namespace, 't1'),
+                mock.call(self.metadef_namespace.namespace, 't2'),
+            ]
+        )
+
+
+class TestMetadefNamespaceUnset(image_fakes.TestImagev2):
+    def setUp(self):
+        super().setUp()
+
+        self.metadef_namespace = image_fakes.create_one_metadef_namespace(
+            attrs={'tags': [{'name': 't1'}]}
+        )
+
+        self.image_client.get_metadef_namespace.return_value = (
+            self.metadef_namespace
+        )
+        self.image_client.update_metadef_namespace.return_value = (
+            self.metadef_namespace
+        )
+        self.image_client.remove_tag_from_metadef_namespace.return_value = None
+        self.image_client.remove_tags_from_metadef_namespace.return_value = (
+            None
+        )
+
+        self.cmd = metadef_namespaces.UnsetMetadefNamespace(self.app, None)
+
+    def test_namespace_unset_tag(self):
+        arglist = [
+            self.metadef_namespace.namespace,
+            '--tag',
+            't1',
+            '--tag',
+            't2',
+        ]
+        verifylist = [
+            ('namespace', self.metadef_namespace.namespace),
+            ('tags', ['t1', 't2']),
+        ]
+
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        self.cmd.take_action(parsed_args)
+
+        self.image_client.remove_tag_from_metadef_namespace.assert_has_calls(
+            [
+                mock.call(self.metadef_namespace, 't1'),
+                mock.call(self.metadef_namespace, 't2'),
+            ]
+        )
+        self.image_client.remove_tags_from_metadef_namespace.assert_not_called()
+
+    def test_namespace_unset_all_tag(self):
+        arglist = [
+            self.metadef_namespace.namespace,
+            '--all-tags',
+        ]
+        verifylist = [
+            ('namespace', self.metadef_namespace.namespace),
+        ]
+
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        self.cmd.take_action(parsed_args)
+
+        self.image_client.remove_tags_from_metadef_namespace.assert_called_once_with(
+            self.metadef_namespace
+        )
+        self.image_client.remove_tag_from_metadef_namespace.assert_not_called()
 
 
 class TestMetadefNamespaceShow(image_fakes.TestImagev2):
@@ -146,6 +243,7 @@ class TestMetadefNamespaceShow(image_fakes.TestImagev2):
         'display_name',
         'namespace',
         'owner',
+        'tags',
         'visibility',
     )
     expected_data = (
@@ -153,6 +251,7 @@ class TestMetadefNamespaceShow(image_fakes.TestImagev2):
         _metadef_namespace.display_name,
         _metadef_namespace.namespace,
         _metadef_namespace.owner,
+        _metadef_namespace.tags,
         _metadef_namespace.visibility,
     )
 
