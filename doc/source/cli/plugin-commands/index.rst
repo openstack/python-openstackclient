@@ -14,6 +14,7 @@ Plugin Commands
    heat
    ironic
    ironic-inspector
+   magnum
    manila
    mistral
    neutron

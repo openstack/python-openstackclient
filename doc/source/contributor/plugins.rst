@@ -31,6 +31,7 @@ The following is a list of projects that are an OpenStackClient plugin.
 - python-heatclient
 - python-ironicclient
 - python-ironic-inspector-client
+- python-magnumclient
 - python-manilaclient
 - python-mistralclient
 - python-muranoclient
@@ -51,7 +52,6 @@ The following is a list of projects that are an OpenStackClient plugin.
 
 The following is a list of projects that are not an OpenStackClient plugin.
 
-- python-magnumclient
 - python-monascaclient
 - python-solumclient
 
