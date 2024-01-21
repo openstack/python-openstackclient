@@ -42,8 +42,3 @@ Plugin Commands
 .. # the murano docs cause warnings and a broken docs build
 .. # .. list-plugins:: openstack.application_catalog.v1
 .. #   :detailed:
-
-.. tripleo
-.. # tripleoclient is not in global-requirements
-.. # list-plugins:: openstack.tripleoclient.v1
-.. #   :detailed:
