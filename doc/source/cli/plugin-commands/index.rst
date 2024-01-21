@@ -19,7 +19,6 @@ Plugin Commands
    neutron
    octavia
    placement
-   rsd
    sahara
    senlin
    trove
