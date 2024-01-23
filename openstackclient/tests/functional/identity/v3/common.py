@@ -48,7 +48,7 @@ class IdentityTests(base.TestCase):
         'parent_id',
     ]
     ROLE_FIELDS = ['id', 'name', 'domain_id', 'description']
-    SERVICE_FIELDS = ['id', 'enabled', 'name', 'type', 'description']
+    SERVICE_FIELDS = ['ID', 'Enabled', 'Name', 'Type', 'Description']
     REGION_FIELDS = ['description', 'enabled', 'parent_region', 'region']
     ENDPOINT_FIELDS = [
         'id',
@@ -367,7 +367,7 @@ class IdentityTests(base.TestCase):
         if add_clean_up:
             service = self.parse_show_as_object(raw_output)
             self.addCleanup(
-                self.openstack, 'service delete %s' % service['id']
+                self.openstack, 'service delete %s' % service['ID']
             )
         items = self.parse_show(raw_output)
         self.assert_show_fields(items, self.SERVICE_FIELDS)

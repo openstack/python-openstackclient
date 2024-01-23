@@ -61,9 +61,9 @@ class ServiceTests(common.IdentityTests):
         raw_output = self.openstack('service show %s' % new_service_name)
         # assert service details
         service = self.parse_show_as_object(raw_output)
-        self.assertEqual(new_service_type, service['type'])
-        self.assertEqual(new_service_name, service['name'])
-        self.assertEqual(new_service_description, service['description'])
+        self.assertEqual(new_service_type, service['Type'])
+        self.assertEqual(new_service_name, service['Name'])
+        self.assertEqual(new_service_description, service['Description'])
 
     def test_service_show(self):
         service_name = self._create_dummy_service()

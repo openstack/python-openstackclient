@@ -20,6 +20,7 @@ from keystoneclient.v3 import domains
 from keystoneclient.v3 import groups
 from keystoneclient.v3 import projects
 from keystoneclient.v3 import users
+from openstack import exceptions as sdk_exceptions
 from osc_lib import exceptions
 from osc_lib import utils
 
@@ -71,6 +72,39 @@ def find_service(identity_client, name_type_or_id):
             "use an ID to be more specific."
         )
         raise exceptions.CommandError(msg % name_type_or_id)
+
+
+def find_service_sdk(identity_client, name_type_or_id):
+    """Find a service by id, name or type."""
+
+    try:
+        # search for service name or ID
+        return identity_client.find_service(
+            name_type_or_id, ignore_missing=False
+        )
+    except sdk_exceptions.ResourceNotFound:
+        pass
+    except sdk_exceptions.DuplicateResource as e:
+        raise exceptions.CommandError(e.message)
+
+    # search for service type
+    services = identity_client.services()
+    result = None
+    for service in services:
+        if name_type_or_id == service.type:
+            if result:
+                msg = _(
+                    "Multiple service matches found for '%s', "
+                    "use an ID or name to be more specific."
+                )
+                raise exceptions.CommandError(msg % name_type_or_id)
+            result = service
+
+    if result is None:
+        msg = _("No service with a type, name or ID of '%s' exists.")
+        raise exceptions.CommandError(msg % name_type_or_id)
+
+    return result
 
 
 def get_resource(manager, name_type_or_id):
