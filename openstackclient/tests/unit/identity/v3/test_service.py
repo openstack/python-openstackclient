@@ -63,8 +63,7 @@ class TestServiceCreate(TestService):
         verifylist = [
             ('name', self.service.name),
             ('description', None),
-            ('enable', False),
-            ('disable', False),
+            ('is_enabled', True),
             ('type', self.service.type),
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
@@ -94,8 +93,7 @@ class TestServiceCreate(TestService):
         verifylist = [
             ('name', None),
             ('description', self.service.description),
-            ('enable', False),
-            ('disable', False),
+            ('is_enabled', True),
             ('type', self.service.type),
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
@@ -124,8 +122,7 @@ class TestServiceCreate(TestService):
         verifylist = [
             ('name', None),
             ('description', None),
-            ('enable', True),
-            ('disable', False),
+            ('is_enabled', True),
             ('type', self.service.type),
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
@@ -154,8 +151,7 @@ class TestServiceCreate(TestService):
         verifylist = [
             ('name', None),
             ('description', None),
-            ('enable', False),
-            ('disable', True),
+            ('is_enabled', False),
             ('type', self.service.type),
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
@@ -292,8 +288,7 @@ class TestServiceSet(TestService):
             ('type', None),
             ('name', None),
             ('description', None),
-            ('enable', False),
-            ('disable', False),
+            ('is_enabled', None),
             ('service', self.service.name),
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
@@ -312,8 +307,7 @@ class TestServiceSet(TestService):
             ('type', self.service.type),
             ('name', None),
             ('description', None),
-            ('enable', False),
-            ('disable', False),
+            ('is_enabled', None),
             ('service', self.service.name),
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
@@ -338,8 +332,7 @@ class TestServiceSet(TestService):
             ('type', None),
             ('name', self.service.name),
             ('description', None),
-            ('enable', False),
-            ('disable', False),
+            ('is_enabled', None),
             ('service', self.service.name),
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
@@ -364,8 +357,7 @@ class TestServiceSet(TestService):
             ('type', None),
             ('name', None),
             ('description', self.service.description),
-            ('enable', False),
-            ('disable', False),
+            ('is_enabled', None),
             ('service', self.service.name),
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
@@ -389,8 +381,7 @@ class TestServiceSet(TestService):
             ('type', None),
             ('name', None),
             ('description', None),
-            ('enable', True),
-            ('disable', False),
+            ('is_enabled', True),
             ('service', self.service.name),
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
@@ -414,8 +405,7 @@ class TestServiceSet(TestService):
             ('type', None),
             ('name', None),
             ('description', None),
-            ('enable', False),
-            ('disable', True),
+            ('is_enabled', False),
             ('service', self.service.name),
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)

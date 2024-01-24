@@ -52,11 +52,15 @@ class CreateService(command.ShowOne):
         enable_group.add_argument(
             '--enable',
             action='store_true',
+            dest='is_enabled',
+            default=True,
             help=_('Enable service (default)'),
         )
         enable_group.add_argument(
             '--disable',
-            action='store_true',
+            action='store_false',
+            dest='is_enabled',
+            default=True,
             help=_('Disable service'),
         )
         return parser
@@ -64,15 +68,11 @@ class CreateService(command.ShowOne):
     def take_action(self, parsed_args):
         identity_client = self.app.client_manager.identity
 
-        enabled = True
-        if parsed_args.disable:
-            enabled = False
-
         service = identity_client.services.create(
             name=parsed_args.name,
             type=parsed_args.type,
             description=parsed_args.description,
-            enabled=enabled,
+            enabled=parsed_args.is_enabled,
         )
 
         service._info.pop('links')
@@ -171,11 +171,15 @@ class SetService(command.Command):
         enable_group.add_argument(
             '--enable',
             action='store_true',
+            dest='is_enabled',
+            default=None,
             help=_('Enable service'),
         )
         enable_group.add_argument(
             '--disable',
-            action='store_true',
+            action='store_false',
+            dest='is_enabled',
+            default=None,
             help=_('Disable service'),
         )
         return parser
@@ -191,10 +195,8 @@ class SetService(command.Command):
             kwargs['name'] = parsed_args.name
         if parsed_args.description:
             kwargs['description'] = parsed_args.description
-        if parsed_args.enable:
-            kwargs['enabled'] = True
-        if parsed_args.disable:
-            kwargs['enabled'] = False
+        if parsed_args.is_enabled is not None:
+            kwargs['enabled'] = parsed_args.is_enabled
 
         identity_client.services.update(service.id, **kwargs)
 
