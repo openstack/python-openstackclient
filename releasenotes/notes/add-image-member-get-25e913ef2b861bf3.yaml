@@ -1,0 +1,6 @@
+---
+features:
+  - |
+    Add ``image member get`` command which accepts an
+    image_id and member_id and displays the detail of
+    the particular meber associated to the image.
