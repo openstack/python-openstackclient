@@ -63,6 +63,7 @@ class TestMappingCreate(TestMapping):
         self.mapping_mock.create.assert_called_with(
             mapping_id=identity_fakes.mapping_id,
             rules=identity_fakes.MAPPING_RULES,
+            schema_version=None,
         )
 
         collist = ('id', 'rules')
@@ -106,12 +107,12 @@ class TestMappingList(TestMapping):
         self.mapping_mock.list.return_value = [
             fakes.FakeResource(
                 None,
-                {'id': identity_fakes.mapping_id},
+                {'id': identity_fakes.mapping_id, 'schema_version': '1.0'},
                 loaded=True,
             ),
             fakes.FakeResource(
                 None,
-                {'id': 'extra_mapping'},
+                {'id': 'extra_mapping', 'schema_version': '2.0'},
                 loaded=True,
             ),
         ]
@@ -128,10 +129,13 @@ class TestMappingList(TestMapping):
 
         self.mapping_mock.list.assert_called_with()
 
-        collist = ('ID',)
+        collist = ('ID', 'schema_version')
         self.assertEqual(collist, columns)
 
-        datalist = [(identity_fakes.mapping_id,), ('extra_mapping',)]
+        datalist = [
+            (identity_fakes.mapping_id, '1.0'),
+            ('extra_mapping', '2.0'),
+        ]
         self.assertEqual(datalist, data)
 
 
@@ -173,6 +177,7 @@ class TestMappingSet(TestMapping):
         self.mapping_mock.update.assert_called_with(
             mapping=identity_fakes.mapping_id,
             rules=identity_fakes.MAPPING_RULES_2,
+            schema_version=None,
         )
 
         self.assertIsNone(result)

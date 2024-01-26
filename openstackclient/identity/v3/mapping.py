@@ -81,6 +81,21 @@ class _RulesReader(object):
         else:
             return rules
 
+    @staticmethod
+    def add_federated_schema_version_option(parser):
+        parser.add_argument(
+            '--schema-version',
+            metavar='<schema_version>',
+            required=False,
+            default=None,
+            help=_(
+                "The federated attribute mapping schema version. The "
+                "default value on the client side is 'None'; however, that "
+                "will lead the backend to set the default according to "
+                "'attribute_mapping_default_schema_version' option."
+            ),
+        )
+
 
 class CreateMapping(command.ShowOne, _RulesReader):
     _description = _("Create new mapping")
@@ -98,6 +113,7 @@ class CreateMapping(command.ShowOne, _RulesReader):
             required=True,
             help=_('Filename that contains a set of mapping rules (required)'),
         )
+        _RulesReader.add_federated_schema_version_option(parser)
         return parser
 
     def take_action(self, parsed_args):
@@ -105,7 +121,9 @@ class CreateMapping(command.ShowOne, _RulesReader):
 
         rules = self._read_rules(parsed_args.rules)
         mapping = identity_client.federation.mappings.create(
-            mapping_id=parsed_args.mapping, rules=rules
+            mapping_id=parsed_args.mapping,
+            rules=rules,
+            schema_version=parsed_args.schema_version,
         )
 
         mapping._info.pop('links', None)
@@ -158,7 +176,7 @@ class ListMapping(command.Lister):
         # rules, (s)he should show specific ones.
         identity_client = self.app.client_manager.identity
         data = identity_client.federation.mappings.list()
-        columns = ('ID',)
+        columns = ('ID', 'schema_version')
         items = [utils.get_item_properties(s, columns) for s in data]
         return (columns, items)
 
@@ -178,6 +196,8 @@ class SetMapping(command.Command, _RulesReader):
             metavar='<filename>',
             help=_('Filename that contains a new set of mapping rules'),
         )
+
+        _RulesReader.add_federated_schema_version_option(parser)
         return parser
 
     def take_action(self, parsed_args):
@@ -186,7 +206,9 @@ class SetMapping(command.Command, _RulesReader):
         rules = self._read_rules(parsed_args.rules)
 
         mapping = identity_client.federation.mappings.update(
-            mapping=parsed_args.mapping, rules=rules
+            mapping=parsed_args.mapping,
+            rules=rules,
+            schema_version=parsed_args.schema_version,
         )
 
         mapping._info.pop('links', None)
