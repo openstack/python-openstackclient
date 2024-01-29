@@ -13,12 +13,16 @@
 # under the License.
 
 import json
+import logging
 
 from osc_lib.command import command
 from osc_lib import exceptions
 from osc_lib import utils
 
 from openstackclient.i18n import _
+
+
+LOG = logging.getLogger(__name__)
 
 
 def _format_property(prop):
@@ -76,7 +80,7 @@ class CreateMetadefProperty(command.ShowOne):
             help=_("Valid JSON schema of the property"),
         )
         parser.add_argument(
-            "namespace_name",
+            "namespace",
             help=_("Name of namespace the property will belong."),
         )
         return parser
@@ -100,7 +104,7 @@ class CreateMetadefProperty(command.ShowOne):
             )
 
         data = image_client.create_metadef_property(
-            parsed_args.namespace_name, **kwargs
+            parsed_args.namespace, **kwargs
         )
         info = _format_property(data)
 
@@ -108,41 +112,55 @@ class CreateMetadefProperty(command.ShowOne):
 
 
 class DeleteMetadefProperty(command.Command):
-    _description = _("Delete a metadef property")
+    _description = _("Delete metadef propert(ies)")
 
     def get_parser(self, prog_name):
         parser = super().get_parser(prog_name)
         parser.add_argument(
-            "namespace_name",
-            help=_("An identifier (a name) for the namespace"),
+            "namespace",
+            metavar="<namespace>",
+            help=_("Metadef namespace of the property (name)"),
         )
         parser.add_argument(
-            "property_name",
-            help=_("Property to delete"),
+            "properties",
+            metavar="<property>",
+            nargs="+",
+            help=_("Metadef propert(ies) to delete (name)"),
         )
         return parser
 
     def take_action(self, parsed_args):
         image_client = self.app.client_manager.image
 
-        try:
-            image_client.delete_metadef_property(
-                parsed_args.property_name,
-                parsed_args.namespace_name,
-                ignore_missing=False,
-            )
-        except Exception as e:
-            raise exceptions.CommandError(
-                _(
-                    "Failed to delete property with name or "
-                    "ID '%(property)s' from namespace '%(namespace)s': %(e)s"
+        result = 0
+        for prop in parsed_args.properties:
+            try:
+                image_client.delete_metadef_property(
+                    prop,
+                    parsed_args.namespace,
+                    ignore_missing=False,
                 )
-                % {
-                    'property': parsed_args.property_name,
-                    'namespace': parsed_args.namespace_name,
-                    'e': e,
-                }
-            )
+            except Exception as e:
+                result += 1
+                LOG.error(
+                    _(
+                        "Failed to delete property with name or ID "
+                        "'%(property)s' from namespace '%(namespace)s': %(e)s"
+                    ),
+                    {
+                        'property': prop,
+                        'namespace': parsed_args.namespace,
+                        'e': e,
+                    },
+                )
+
+        if result > 0:
+            total = len(parsed_args.namespace)
+            msg = _("%(result)s of %(total)s properties failed to delete.") % {
+                'result': result,
+                'total': total,
+            }
+            raise exceptions.CommandError(msg)
 
 
 class ListMetadefProperties(command.Lister):
@@ -151,15 +169,15 @@ class ListMetadefProperties(command.Lister):
     def get_parser(self, prog_name):
         parser = super().get_parser(prog_name)
         parser.add_argument(
-            "namespace_name",
-            metavar="<namespace_name>",
+            "namespace",
+            metavar="<namespace>",
             help=_("An identifier (a name) for the namespace"),
         )
         return parser
 
     def take_action(self, parsed_args):
         image_client = self.app.client_manager.image
-        props = image_client.metadef_properties(parsed_args.namespace_name)
+        props = image_client.metadef_properties(parsed_args.namespace)
         columns = ['name', 'title', 'type']
         return (
             columns,
@@ -195,11 +213,11 @@ class SetMetadefProperty(command.Command):
             help=_("Valid JSON schema of the property"),
         )
         parser.add_argument(
-            "namespace_name",
+            "namespace",
             help=_("Namespace of the namespace to which the property belongs"),
         )
         parser.add_argument(
-            "property_name",
+            "property",
             help=_("Property to update"),
         )
         return parser
@@ -211,7 +229,8 @@ class SetMetadefProperty(command.Command):
         # update_metadef_property(), otherwise the attributes that are not
         # listed will be reset.
         data = image_client.get_metadef_property(
-            parsed_args.property_name, parsed_args.namespace_name
+            parsed_args.property,
+            parsed_args.namespace,
         )
         kwargs = _format_property(data)
         for key in ['name', 'title', 'type']:
@@ -231,23 +250,25 @@ class SetMetadefProperty(command.Command):
                 )
 
         image_client.update_metadef_property(
-            parsed_args.property_name, parsed_args.namespace_name, **kwargs
+            parsed_args.property,
+            parsed_args.namespace,
+            **kwargs,
         )
 
 
 class ShowMetadefProperty(command.ShowOne):
-    _description = _("Describe a specific property from a namespace")
+    _description = _("Show a particular metadef property")
 
     def get_parser(self, prog_name):
         parser = super().get_parser(prog_name)
         parser.add_argument(
-            "namespace_name",
-            metavar="<namespace_name>",
-            help=_("Namespace (name) for the namespace"),
+            "namespace",
+            metavar="<namespace>",
+            help=_("Metadef namespace of the property (name)"),
         )
         parser.add_argument(
-            "property_name",
-            metavar="<property_name>",
+            "property",
+            metavar="<property>",
             help=_("Property to show"),
         )
         return parser
@@ -255,7 +276,8 @@ class ShowMetadefProperty(command.ShowOne):
     def take_action(self, parsed_args):
         image_client = self.app.client_manager.image
         data = image_client.get_metadef_property(
-            parsed_args.property_name, parsed_args.namespace_name
+            parsed_args.property,
+            parsed_args.namespace,
         )
         info = _format_property(data)
 
