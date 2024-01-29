@@ -55,7 +55,7 @@ class CreateMetadefObjects(command.ShowOne):
         parser.add_argument(
             "--namespace",
             metavar="<namespace>",
-            help=_("Metadef namespace to create the metadef object in (name)"),
+            help=_("Metadef namespace to create the object in (name)"),
         )
         parser.add_argument(
             "name",
@@ -81,31 +81,29 @@ class CreateMetadefObjects(command.ShowOne):
 
 
 class ShowMetadefObjects(command.ShowOne):
-    _description = _(
-        "Describe a specific metadata definitions object inside a namespace"
-    )
+    _description = _("Show a particular metadef object")
 
     def get_parser(self, prog_name):
         parser = super().get_parser(prog_name)
         parser.add_argument(
-            "namespace_name",
-            metavar="<namespace_name>",
-            help=_("Namespace (name) for the namespace"),
+            "namespace",
+            metavar="<namespace>",
+            help=_("Metadef namespace of the object (name)"),
         )
         parser.add_argument(
-            "object_name",
-            metavar="<object_name>",
-            help=_("Name of an object."),
+            "object",
+            metavar="<object>",
+            help=_("Metadef object to show"),
         )
         return parser
 
     def take_action(self, parsed_args):
         image_client = self.app.client_manager.image
 
-        namespace_name = parsed_args.namespace_name
-        object_name = parsed_args.object_name
+        namespace = parsed_args.namespace
+        object = parsed_args.object
 
-        data = image_client.get_metadef_object(object_name, namespace_name)
+        data = image_client.get_metadef_object(object, namespace)
 
         fields, value = _format_object(data)
 
@@ -113,35 +111,33 @@ class ShowMetadefObjects(command.ShowOne):
 
 
 class DeleteMetadefObject(command.Command):
-    _description = _(
-        "Delete a specific metadata definitions object inside a namespace"
-    )
+    _description = _("Delete metadata definitions object(s)")
 
     def get_parser(self, prog_name):
         parser = super().get_parser(prog_name)
         parser.add_argument(
-            "namespace_name",
-            metavar="<namespace_name>",
-            help=_("Namespace (name) for the namespace"),
+            "namespace",
+            metavar="<namespace>",
+            help=_("Metadef namespace of the object (name)"),
         )
         parser.add_argument(
-            "object_name",
-            metavar="<object_name>",
+            "objects",
+            metavar="<object>",
             nargs="+",
-            help=_("Name of an object."),
+            help=_("Metadef object(s) to delete (name)"),
         )
         return parser
 
     def take_action(self, parsed_args):
         image_client = self.app.client_manager.image
 
-        namespace_name = parsed_args.namespace_name
+        namespace = parsed_args.namespace
 
         result = 0
-        for i in parsed_args.object_name:
+        for obj in parsed_args.objects:
             try:
-                object = image_client.get_metadef_object(i, namespace_name)
-                image_client.delete_metadef_object(object, namespace_name)
+                object = image_client.get_metadef_object(obj, namespace)
+                image_client.delete_metadef_object(object, namespace)
             except Exception as e:
                 result += 1
                 LOG.error(
@@ -149,11 +145,11 @@ class DeleteMetadefObject(command.Command):
                         "Failed to delete object with name or "
                         "ID '%(object)s': %(e)s"
                     ),
-                    {'object': i, 'e': e},
+                    {'object': obj, 'e': e},
                 )
 
         if result > 0:
-            total = len(parsed_args.namespace_name)
+            total = len(parsed_args.namespace)
             msg = _("%(result)s of %(total)s object failed to delete.") % {
                 'result': result,
                 'total': total,
@@ -176,10 +172,10 @@ class ListMetadefObjects(command.Lister):
     def take_action(self, parsed_args):
         image_client = self.app.client_manager.image
 
-        namespace_name = parsed_args.namespace
+        namespace = parsed_args.namespace
         columns = ['name', 'description']
 
-        md_objects = list(image_client.metadef_objects(namespace_name))
+        md_objects = list(image_client.metadef_objects(namespace))
         column_headers = columns
         return (
             column_headers,

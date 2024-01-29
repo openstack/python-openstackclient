@@ -62,7 +62,7 @@ def _format_namespace(namespace):
     return info
 
 
-class CreateMetadefNameSpace(command.ShowOne):
+class CreateMetadefNamespace(command.ShowOne):
     _description = _("Create a metadef namespace")
 
     def get_parser(self, prog_name):
@@ -136,16 +136,16 @@ class CreateMetadefNameSpace(command.ShowOne):
         return zip(*sorted(info.items()))
 
 
-class DeleteMetadefNameSpace(command.Command):
+class DeleteMetadefNamespace(command.Command):
     _description = _("Delete metadef namespace")
 
     def get_parser(self, prog_name):
         parser = super().get_parser(prog_name)
         parser.add_argument(
-            "namespace_name",
-            metavar="<namespace_name>",
+            "namespace",
+            metavar="<namespace>",
             nargs="+",
-            help=_("An identifier (a name) for the namespace"),
+            help=_("Metadef namespace(s) to delete (name)"),
         )
         return parser
 
@@ -153,9 +153,9 @@ class DeleteMetadefNameSpace(command.Command):
         image_client = self.app.client_manager.image
 
         result = 0
-        for i in parsed_args.namespace_name:
+        for ns in parsed_args.namespace:
             try:
-                namespace = image_client.get_metadef_namespace(i)
+                namespace = image_client.get_metadef_namespace(ns)
                 image_client.delete_metadef_namespace(namespace.id)
             except Exception as e:
                 result += 1
@@ -164,18 +164,18 @@ class DeleteMetadefNameSpace(command.Command):
                         "Failed to delete namespace with name or "
                         "ID '%(namespace)s': %(e)s"
                     ),
-                    {'namespace': i, 'e': e},
+                    {'namespace': ns, 'e': e},
                 )
 
         if result > 0:
-            total = len(parsed_args.namespace_name)
+            total = len(parsed_args.namespace)
             msg = _(
                 "%(result)s of %(total)s namespace failed " "to delete."
             ) % {'result': result, 'total': total}
             raise exceptions.CommandError(msg)
 
 
-class ListMetadefNameSpaces(command.Lister):
+class ListMetadefNamespace(command.Lister):
     _description = _("List metadef namespaces")
 
     def get_parser(self, prog_name):
@@ -217,7 +217,7 @@ class ListMetadefNameSpaces(command.Lister):
         )
 
 
-class SetMetadefNameSpace(command.Command):
+class SetMetadefNamespace(command.Command):
     _description = _("Set metadef namespace properties")
 
     def get_parser(self, prog_name):
@@ -225,7 +225,7 @@ class SetMetadefNameSpace(command.Command):
         parser.add_argument(
             "namespace",
             metavar="<namespace>",
-            help=_("Namespace (name) for the namespace"),
+            help=_("Metadef namespace to modify (name)"),
         )
         parser.add_argument(
             "--display-name",
@@ -243,14 +243,16 @@ class SetMetadefNameSpace(command.Command):
             action="store_const",
             const="public",
             dest="visibility",
-            help=_("Set namespace visibility 'public'"),
+            help=_("Metadef namespace is accessible to the public"),
         )
         visibility_group.add_argument(
             "--private",
             action="store_const",
             const="private",
             dest="visibility",
-            help=_("Set namespace visibility 'private'"),
+            help=_(
+                "Metadef namespace is inaccessible to the public (default)"
+            ),
         )
         protected_group = parser.add_mutually_exclusive_group()
         protected_group.add_argument(
@@ -291,24 +293,24 @@ class SetMetadefNameSpace(command.Command):
         image_client.update_metadef_namespace(namespace, **kwargs)
 
 
-class ShowMetadefNameSpace(command.ShowOne):
+class ShowMetadefNamespace(command.ShowOne):
     _description = _("Show a metadef namespace")
 
     def get_parser(self, prog_name):
         parser = super().get_parser(prog_name)
         parser.add_argument(
-            "namespace_name",
-            metavar="<namespace_name>",
-            help=_("Namespace (name) for the namespace"),
+            "namespace",
+            metavar="<namespace>",
+            help=_("Metadef namespace to show (name)"),
         )
         return parser
 
     def take_action(self, parsed_args):
         image_client = self.app.client_manager.image
 
-        namespace_name = parsed_args.namespace_name
+        namespace = parsed_args.namespace
 
-        data = image_client.get_metadef_namespace(namespace_name)
+        data = image_client.get_metadef_namespace(namespace)
         info = _format_namespace(data)
 
         return zip(*sorted(info.items()))

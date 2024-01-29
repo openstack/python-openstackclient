@@ -40,7 +40,7 @@ class TestMetadefNamespaceCreate(image_fakes.TestImagev2):
         self.image_client.create_metadef_namespace.return_value = (
             self._metadef_namespace
         )
-        self.cmd = metadef_namespaces.CreateMetadefNameSpace(self.app, None)
+        self.cmd = metadef_namespaces.CreateMetadefNamespace(self.app, None)
         self.datalist = self._metadef_namespace
 
     def test_namespace_create(self):
@@ -64,7 +64,7 @@ class TestMetadefNamespaceDelete(image_fakes.TestImagev2):
         self.image_client.delete_metadef_namespace.return_value = (
             self._metadef_namespace
         )
-        self.cmd = metadef_namespaces.DeleteMetadefNameSpace(self.app, None)
+        self.cmd = metadef_namespaces.DeleteMetadefNamespace(self.app, None)
         self.datalist = self._metadef_namespace
 
     def test_namespace_create(self):
@@ -97,7 +97,7 @@ class TestMetadefNamespaceList(image_fakes.TestImagev2):
         self.image_client.metadef_namespaces.return_value = iter(
             self._metadef_namespace
         )
-        self.cmd = metadef_namespaces.ListMetadefNameSpaces(self.app, None)
+        self.cmd = metadef_namespaces.ListMetadefNamespace(self.app, None)
         self.datalist = self._metadef_namespace
 
     def test_namespace_list_no_options(self):
@@ -122,7 +122,7 @@ class TestMetadefNamespaceSet(image_fakes.TestImagev2):
         self.image_client.update_metadef_namespace.return_value = (
             self._metadef_namespace
         )
-        self.cmd = metadef_namespaces.SetMetadefNameSpace(self.app, None)
+        self.cmd = metadef_namespaces.SetMetadefNamespace(self.app, None)
         self.datalist = self._metadef_namespace
 
     def test_namespace_set_no_options(self):
@@ -162,7 +162,7 @@ class TestMetadefNamespaceShow(image_fakes.TestImagev2):
         self.image_client.get_metadef_namespace.return_value = (
             self._metadef_namespace
         )
-        self.cmd = metadef_namespaces.ShowMetadefNameSpace(self.app, None)
+        self.cmd = metadef_namespaces.ShowMetadefNamespace(self.app, None)
 
     def test_namespace_show_no_options(self):
         arglist = [self._metadef_namespace.namespace]
