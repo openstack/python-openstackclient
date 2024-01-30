@@ -129,7 +129,7 @@ class DeleteNDPProxy(command.Command):
         if result > 0:
             total = len(parsed_args.ndp_proxy)
             msg = _(
-                "%(result)s of %(total)s NDP Proxy failed " "to delete."
+                "%(result)s of %(total)s NDP proxies failed " "to delete."
             ) % {'result': result, 'total': total}
             raise exceptions.CommandError(msg)
 
@@ -142,12 +142,16 @@ class ListNDPProxy(command.Lister):
         parser.add_argument(
             '--router',
             metavar='<router>',
-            help=_("List only NDP proxies belong to this router (name or ID)"),
+            help=_(
+                "List only NDP proxies belonging to this router (name or ID)"
+            ),
         )
         parser.add_argument(
             '--port',
             metavar='<port>',
-            help=_("List only NDP proxies assocate to this port (name or ID)"),
+            help=_(
+                "List only NDP proxies associated to this port (name or ID)"
+            ),
         )
         parser.add_argument(
             '--ip-address',

@@ -183,7 +183,7 @@ class CreateVolumeType(command.ShowOne):
             help=_(
                 "Set an availability zone for this volume type "
                 "(this is an alias for '--property RESKEY:availability_zones:<az>') "  # noqa: E501
-                "(repeat option to set multiple availabilty zones)"
+                "(repeat option to set multiple availability zones)"
             ),
         )
         parser.add_argument(
@@ -459,7 +459,7 @@ class ListVolumeType(command.Lister):
             help=_(
                 "List only volume types with this availability configured "
                 "(this is an alias for '--property RESKEY:availability_zones:<az>') "  # noqa: E501
-                "(repeat option to filter on multiple availabilty zones)"
+                "(repeat option to filter on multiple availability zones)"
             ),
         )
         return parser
@@ -628,7 +628,7 @@ class SetVolumeType(command.Command):
             help=_(
                 "Set an availability zone for this volume type "
                 "(this is an alias for '--property RESKEY:availability_zones:<az>') "  # noqa: E501
-                "(repeat option to set multiple availabilty zones)"
+                "(repeat option to set multiple availability zones)"
             ),
         )
         parser.add_argument(

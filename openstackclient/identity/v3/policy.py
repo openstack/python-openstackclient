@@ -92,7 +92,9 @@ class DeletePolicy(command.Command):
 
         if result > 0:
             total = len(parsed_args.policy)
-            msg = _("%(result)s of %(total)s policys failed " "to delete.") % {
+            msg = _(
+                "%(result)s of %(total)s policies failed " "to delete."
+            ) % {
                 'result': result,
                 'total': total,
             }

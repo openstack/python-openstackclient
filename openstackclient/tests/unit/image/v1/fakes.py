@@ -46,7 +46,7 @@ def create_one_image(attrs=None):
     """Create a fake image.
 
     :param Dictionary attrs:
-        A dictionary with all attrbutes of image
+        A dictionary with all attributes of image
     :return:
         A FakeResource object with id, name, owner, protected,
         visibility and tags attrs
