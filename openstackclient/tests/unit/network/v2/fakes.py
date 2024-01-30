@@ -1761,6 +1761,7 @@ def create_one_port(attrs=None):
                 'subnet_id': 'subnet-id-' + uuid.uuid4().hex,
             }
         ],
+        'hardware_offload_type': None,
         'hints': {},
         'id': 'port-id-' + uuid.uuid4().hex,
         'mac_address': 'fa:16:3e:a9:4e:72',
