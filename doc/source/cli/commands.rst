@@ -232,7 +232,6 @@ conflicts when creating new plugins. For a complete list check out
 * ``ptr record``: (**DNS (Designate)**)
 * ``queue``: (**Messaging (Zaqar)**)
 * ``recordset``: (**DNS (Designate)**)
-* ``rsd``: (**Disaggregated Hardware Resource Management (RSD)**)
 * ``secret``: (**Key Manager (Barbican)**)
 * ``secret container``: (**Key Manager (Barbican)**)
 * ``secret order``: (**Key Manager (Barbican)**)
