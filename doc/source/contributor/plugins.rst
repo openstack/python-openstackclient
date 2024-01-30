@@ -35,19 +35,16 @@ The following is a list of projects that are an OpenStackClient plugin.
 - python-manilaclient
 - python-mistralclient
 - python-muranoclient
-- python-neutronclient\*\*\*
+- python-neutronclient\*\*
 - python-octaviaclient
 - python-saharaclient
 - python-senlinclient
-- python-tripleoclient\*\*
 - python-troveclient
 - python-watcherclient
 - python-zaqarclient
 - python-zunclient
 
-\*\* Note that some clients are not listed in global-requirements.
-
-\*\*\* Project contains advanced network services.
+\*\* Project contains advanced network services.
 
 The following is a list of projects that are not an OpenStackClient plugin.
 
