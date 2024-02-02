@@ -188,7 +188,7 @@ def _add_visibility_args(parser):
         action="store_const",
         const="public",
         dest="visibility",
-        help=_("Image is accessible and visisble to all users"),
+        help=_("Image is accessible and visible to all users"),
     )
     public_group.add_argument(
         "--private",
