@@ -166,10 +166,9 @@ class ListMigration(command.Lister):
             search_opts['status'] = parsed_args.status
 
         if parsed_args.server:
-            server = compute_client.find_server(parsed_args.server)
-            if server is None:
-                msg = _('Unable to find server: %s') % parsed_args.server
-                raise exceptions.CommandError(msg)
+            server = compute_client.find_server(
+                parsed_args.server, ignore_missing=False
+            )
             search_opts['instance_uuid'] = server.id
 
         if parsed_args.type:

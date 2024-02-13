@@ -26,6 +26,7 @@ from osc_lib.api import utils as api_utils
 from osc_lib.cli import format_columns
 from osc_lib.cli import parseractions
 from osc_lib.command import command
+from osc_lib import exceptions
 from osc_lib import utils
 
 from openstackclient.i18n import _
@@ -372,10 +373,30 @@ class DeleteImage(command.Command):
         return parser
 
     def take_action(self, parsed_args):
+        result = 0
         image_client = self.app.client_manager.image
         for image in parsed_args.images:
-            image_obj = image_client.find_image(image)
-            image_client.delete_image(image_obj.id)
+            try:
+                image_obj = image_client.find_image(
+                    image,
+                    ignore_missing=False,
+                )
+                image_client.delete_image(image_obj.id)
+            except Exception as e:
+                result += 1
+                msg = _(
+                    "Failed to delete image with name or "
+                    "ID '%(image)s': %(e)s"
+                )
+                LOG.error(msg, {'image': image, 'e': e})
+
+        total = len(parsed_args.images)
+        if result > 0:
+            msg = _("Failed to delete %(result)s of %(total)s images.") % {
+                'result': result,
+                'total': total,
+            }
+            raise exceptions.CommandError(msg)
 
 
 class ListImage(command.Lister):
@@ -528,7 +549,9 @@ class SaveImage(command.Command):
 
     def take_action(self, parsed_args):
         image_client = self.app.client_manager.image
-        image = image_client.find_image(parsed_args.image)
+        image = image_client.find_image(
+            parsed_args.image, ignore_missing=False
+        )
 
         output_file = parsed_args.file
         if output_file is None:
@@ -719,7 +742,9 @@ class SetImage(command.Command):
 
         # Wrap the call to catch exceptions in order to close files
         try:
-            image = image_client.find_image(parsed_args.image)
+            image = image_client.find_image(
+                parsed_args.image, ignore_missing=False
+            )
 
             if not parsed_args.location and not parsed_args.copy_from:
                 if parsed_args.volume:
@@ -800,7 +825,9 @@ class ShowImage(command.ShowOne):
 
     def take_action(self, parsed_args):
         image_client = self.app.client_manager.image
-        image = image_client.find_image(parsed_args.image)
+        image = image_client.find_image(
+            parsed_args.image, ignore_missing=False
+        )
 
         if parsed_args.human_readable:
             _formatters['size'] = HumanReadableSizeColumn

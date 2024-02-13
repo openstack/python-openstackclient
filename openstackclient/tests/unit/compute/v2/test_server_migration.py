@@ -141,7 +141,9 @@ class TestListMigration(TestServerMigration):
             'migration_type': 'migration',
         }
 
-        self.compute_sdk_client.find_server.assert_called_with('server1')
+        self.compute_sdk_client.find_server.assert_called_with(
+            'server1', ignore_missing=False
+        )
         self.compute_sdk_client.migrations.assert_called_with(**kwargs)
 
         self.assertEqual(self.MIGRATION_COLUMNS, columns)

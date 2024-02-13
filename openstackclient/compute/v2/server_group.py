@@ -157,7 +157,9 @@ class DeleteServerGroup(command.Command):
         result = 0
         for group in parsed_args.server_group:
             try:
-                group_obj = compute_client.find_server_group(group)
+                group_obj = compute_client.find_server_group(
+                    group, ignore_missing=False
+                )
                 compute_client.delete_server_group(group_obj.id)
             # Catch all exceptions in order to avoid to block the next deleting
             except Exception as e:
@@ -263,7 +265,9 @@ class ShowServerGroup(command.ShowOne):
 
     def take_action(self, parsed_args):
         compute_client = self.app.client_manager.sdk_connection.compute
-        group = compute_client.find_server_group(parsed_args.server_group)
+        group = compute_client.find_server_group(
+            parsed_args.server_group, ignore_missing=False
+        )
         display_columns, columns = _get_server_group_columns(
             group,
             compute_client,

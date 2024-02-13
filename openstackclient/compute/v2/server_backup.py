@@ -73,7 +73,9 @@ class CreateServerBackup(command.ShowOne):
 
         compute_client = self.app.client_manager.sdk_connection.compute
 
-        server = compute_client.find_server(parsed_args.server)
+        server = compute_client.find_server(
+            parsed_args.server, ignore_missing=False
+        )
 
         # Set sane defaults as this API wants all mouths to be fed
         if parsed_args.name is None:

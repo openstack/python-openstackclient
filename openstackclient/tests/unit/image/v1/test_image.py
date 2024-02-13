@@ -731,7 +731,7 @@ class TestImageShow(image_fakes.TestImagev1):
         # data to be shown.
         columns, data = self.cmd.take_action(parsed_args)
         self.image_client.find_image.assert_called_with(
-            self._image.id,
+            self._image.id, ignore_missing=False
         )
 
         self.assertEqual(self.columns, columns)
@@ -753,7 +753,7 @@ class TestImageShow(image_fakes.TestImagev1):
         # data to be shown.
         columns, data = self.cmd.take_action(parsed_args)
         self.image_client.find_image.assert_called_with(
-            self._image.id,
+            self._image.id, ignore_missing=False
         )
 
         size_index = columns.index('size')

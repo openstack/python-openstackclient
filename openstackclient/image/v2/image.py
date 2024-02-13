@@ -683,7 +683,7 @@ class DeleteImage(command.Command):
         return parser
 
     def take_action(self, parsed_args):
-        del_result = 0
+        result = 0
         image_client = self.app.client_manager.image
         for image in parsed_args.images:
             try:
@@ -691,10 +691,6 @@ class DeleteImage(command.Command):
                     image,
                     ignore_missing=False,
                 )
-            except sdk_exceptions.ResourceNotFound as e:
-                msg = _("Unable to process request: %(e)s") % {'e': e}
-                raise exceptions.CommandError(msg)
-            try:
                 image_client.delete_image(
                     image_obj.id,
                     store=parsed_args.store,
@@ -704,7 +700,7 @@ class DeleteImage(command.Command):
                 msg = _("Multi Backend support not enabled.")
                 raise exceptions.CommandError(msg)
             except Exception as e:
-                del_result += 1
+                result += 1
                 msg = _(
                     "Failed to delete image with name or "
                     "ID '%(image)s': %(e)s"
@@ -712,9 +708,9 @@ class DeleteImage(command.Command):
                 LOG.error(msg, {'image': image, 'e': e})
 
         total = len(parsed_args.images)
-        if del_result > 0:
-            msg = _("Failed to delete %(dresult)s of %(total)s images.") % {
-                'dresult': del_result,
+        if result > 0:
+            msg = _("Failed to delete %(result)s of %(total)s images.") % {
+                'result': result,
                 'total': total,
             }
             raise exceptions.CommandError(msg)
@@ -1797,7 +1793,9 @@ class ImportImage(command.ShowOne):
                 )
                 raise exceptions.CommandError(msg)
 
-        image = image_client.find_image(parsed_args.image)
+        image = image_client.find_image(
+            parsed_args.image, ignore_missing=False
+        )
 
         if not image.container_format and not image.disk_format:
             msg = _(

@@ -2555,10 +2555,9 @@ class ListServer(command.Lister):
         # flavor name is given, map it to ID.
         flavor_id = None
         if parsed_args.flavor:
-            flavor = compute_client.find_flavor(parsed_args.flavor)
-            if flavor is None:
-                msg = _('Unable to find flavor: %s') % parsed_args.flavor
-                raise exceptions.CommandError(msg)
+            flavor = compute_client.find_flavor(
+                parsed_args.flavor, ignore_missing=False
+            )
             flavor_id = flavor.id
 
         # Nova only supports list servers searching by image ID. So if a
@@ -2811,7 +2810,9 @@ class ListServer(command.Lister):
             if parsed_args.deleted:
                 marker_id = parsed_args.marker
             else:
-                marker_id = compute_client.find_server(parsed_args.marker).id
+                marker_id = compute_client.find_server(
+                    parsed_args.marker, ignore_missing=False
+                ).id
             search_opts['marker'] = marker_id
 
         data = list(compute_client.servers(**search_opts))
@@ -2871,7 +2872,9 @@ class ListServer(command.Lister):
                     # "Flavor Name" is not crucial, so we swallow any
                     # exceptions
                     try:
-                        flavors[f_id] = compute_client.find_flavor(f_id)
+                        flavors[f_id] = compute_client.find_flavor(
+                            f_id, ignore_missing=False
+                        )
                     except Exception:
                         pass
             else:
@@ -4039,7 +4042,9 @@ server booted from a volume."""
 
         image = None
         if parsed_args.image:
-            image = image_client.find_image(parsed_args.image)
+            image = image_client.find_image(
+                parsed_args.image, ignore_missing=False
+            )
 
         utils.find_resource(
             compute_client.servers,

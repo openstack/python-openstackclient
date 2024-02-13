@@ -203,10 +203,10 @@ class DeleteVolumeBackup(command.Command):
         volume_client = self.app.client_manager.sdk_connection.volume
         result = 0
 
-        for i in parsed_args.backups:
+        for backup in parsed_args.backups:
             try:
                 backup_id = volume_client.find_backup(
-                    i, ignore_missing=False
+                    backup, ignore_missing=False
                 ).id
                 volume_client.delete_backup(
                     backup_id,
@@ -220,7 +220,7 @@ class DeleteVolumeBackup(command.Command):
                         "Failed to delete backup with "
                         "name or ID '%(backup)s': %(e)s"
                     )
-                    % {'backup': i, 'e': e}
+                    % {'backup': backup, 'e': e}
                 )
 
         if result > 0:

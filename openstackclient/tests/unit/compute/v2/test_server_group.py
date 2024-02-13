@@ -188,7 +188,7 @@ class TestServerGroupDelete(TestServerGroup):
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
         result = self.cmd.take_action(parsed_args)
         self.compute_sdk_client.find_server_group.assert_called_once_with(
-            'affinity_group'
+            'affinity_group', ignore_missing=False
         )
         self.compute_sdk_client.delete_server_group.assert_called_once_with(
             self.fake_server_group.id
@@ -203,10 +203,10 @@ class TestServerGroupDelete(TestServerGroup):
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
         result = self.cmd.take_action(parsed_args)
         self.compute_sdk_client.find_server_group.assert_any_call(
-            'affinity_group'
+            'affinity_group', ignore_missing=False
         )
         self.compute_sdk_client.find_server_group.assert_any_call(
-            'anti_affinity_group'
+            'anti_affinity_group', ignore_missing=False
         )
         self.compute_sdk_client.delete_server_group.assert_called_with(
             self.fake_server_group.id
@@ -248,10 +248,10 @@ class TestServerGroupDelete(TestServerGroup):
             self.assertEqual('1 of 2 server groups failed to delete.', str(e))
 
         self.compute_sdk_client.find_server_group.assert_any_call(
-            'affinity_group'
+            'affinity_group', ignore_missing=False
         )
         self.compute_sdk_client.find_server_group.assert_any_call(
-            'anti_affinity_group'
+            'anti_affinity_group', ignore_missing=False
         )
         self.assertEqual(
             2, self.compute_sdk_client.find_server_group.call_count

@@ -175,7 +175,7 @@ class DeleteNetworkFlavor(command.Command):
                 )
         if result > 0:
             total = len(parsed_args.flavor)
-            msg = _("%(result)s of %(total)s flavors failed " "to delete.") % {
+            msg = _("%(result)s of %(total)s flavors failed to delete.") % {
                 "result": result,
                 "total": total,
             }

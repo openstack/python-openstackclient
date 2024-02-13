@@ -4965,7 +4965,7 @@ class TestServerList(_TestServerList):
         columns, data = self.cmd.take_action(parsed_args)
 
         self.compute_sdk_client.find_flavor.assert_has_calls(
-            [mock.call(self.flavor.id)]
+            [mock.call(self.flavor.id, ignore_missing=False)]
         )
 
         self.kwargs['flavor'] = self.flavor.id
@@ -7119,7 +7119,9 @@ class TestServerRescue(TestServer):
         self.cmd.take_action(parsed_args)
 
         self.servers_mock.get.assert_called_with(self.server.id)
-        self.image_client.find_image.assert_called_with(new_image.id)
+        self.image_client.find_image.assert_called_with(
+            new_image.id, ignore_missing=False
+        )
         self.server.rescue.assert_called_with(image=new_image, password=None)
 
     def test_rescue_with_current_image_and_password(self):
