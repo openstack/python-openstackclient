@@ -17,43 +17,23 @@ import contextlib
 from unittest import mock
 
 from osc_lib import exceptions
-from osc_lib import utils
+
+from openstack import exceptions as sdk_exc
+from openstack.identity.v3 import domain as _domain
+from openstack.identity.v3 import group as _group
+from openstack.identity.v3 import project as _project
+from openstack.identity.v3 import role_assignment as _role_assignment
+from openstack.identity.v3 import user as _user
+from openstack.test import fakes as sdk_fakes
 
 from openstackclient.identity import common
 from openstackclient.identity.v3 import user
 from openstackclient.tests.unit.identity.v3 import fakes as identity_fakes
 
 
-class TestUser(identity_fakes.TestIdentityv3):
-    def setUp(self):
-        super(TestUser, self).setUp()
-
-        # Get a shortcut to the DomainManager Mock
-        self.domains_mock = self.app.client_manager.identity.domains
-        self.domains_mock.reset_mock()
-
-        # Get a shortcut to the ProjectManager Mock
-        self.projects_mock = self.app.client_manager.identity.projects
-        self.projects_mock.reset_mock()
-
-        # Get a shortcut to the GroupManager Mock
-        self.groups_mock = self.app.client_manager.identity.groups
-        self.groups_mock.reset_mock()
-
-        # Get a shortcut to the UserManager Mock
-        self.users_mock = self.app.client_manager.identity.users
-        self.users_mock.reset_mock()
-
-        # Shortcut for RoleAssignmentManager Mock
-        self.role_assignments_mock = (
-            self.app.client_manager.identity.role_assignments
-        )
-        self.role_assignments_mock.reset_mock()
-
-
-class TestUserCreate(TestUser):
-    domain = identity_fakes.FakeDomain.create_one_domain()
-    project = identity_fakes.FakeProject.create_one_project()
+class TestUserCreate(identity_fakes.TestIdentityv3):
+    domain = sdk_fakes.generate_fake_resource(_domain.Domain)
+    project = sdk_fakes.generate_fake_resource(_project.Project)
 
     columns = (
         'default_project_id',
@@ -62,16 +42,17 @@ class TestUserCreate(TestUser):
         'enabled',
         'id',
         'name',
+        'description',
+        'password_expires_at',
     )
 
     def setUp(self):
-        super(TestUserCreate, self).setUp()
+        super().setUp()
 
-        self.user = identity_fakes.FakeUser.create_one_user(
-            attrs={
-                'domain_id': self.domain.id,
-                'default_project_id': self.project.id,
-            }
+        self.user = sdk_fakes.generate_fake_resource(
+            resource_type=_user.User,
+            domain_id=self.domain.id,
+            default_project_id=self.project.id,
         )
         self.datalist = (
             self.project.id,
@@ -80,11 +61,13 @@ class TestUserCreate(TestUser):
             True,
             self.user.id,
             self.user.name,
+            self.user.description,
+            self.user.password_expires_at,
         )
 
-        self.domains_mock.get.return_value = self.domain
-        self.projects_mock.get.return_value = self.project
-        self.users_mock.create.return_value = self.user
+        self.identity_sdk_client.find_domain.return_value = self.domain
+        self.identity_sdk_client.find_project.return_value = self.project
+        self.identity_sdk_client.create_user.return_value = self.user
 
         # Get the command object to test
         self.cmd = user.CreateUser(self.app, None)
@@ -108,18 +91,15 @@ class TestUserCreate(TestUser):
         # Set expected values
         kwargs = {
             'name': self.user.name,
-            'default_project': None,
+            'default_project_id': None,
             'description': None,
-            'domain': None,
+            'domain_id': None,
             'email': None,
             'options': {},
-            'enabled': True,
+            'is_enabled': True,
             'password': None,
         }
-
-        # UserManager.create(name=, domain=, project=, password=, email=,
-        #   description=, enabled=, default_project=)
-        self.users_mock.create.assert_called_with(**kwargs)
+        self.identity_sdk_client.create_user.assert_called_with(**kwargs)
 
         self.assertEqual(self.columns, columns)
         self.assertEqual(self.datalist, data)
@@ -147,17 +127,16 @@ class TestUserCreate(TestUser):
         # Set expected values
         kwargs = {
             'name': self.user.name,
-            'default_project': None,
+            'default_project_id': None,
             'description': None,
-            'domain': None,
+            'domain_id': None,
             'email': None,
             'options': {},
-            'enabled': True,
+            'is_enabled': True,
             'password': 'secret',
         }
-        # UserManager.create(name=, domain=, project=, password=, email=,
-        #   description=, enabled=, default_project=)
-        self.users_mock.create.assert_called_with(**kwargs)
+        self.identity_sdk_client.create_user.assert_called_with(**kwargs)
+
         self.assertEqual(self.columns, columns)
         self.assertEqual(self.datalist, data)
 
@@ -186,17 +165,15 @@ class TestUserCreate(TestUser):
         # Set expected values
         kwargs = {
             'name': self.user.name,
-            'default_project': None,
+            'default_project_id': None,
             'description': None,
-            'domain': None,
+            'domain_id': None,
             'email': None,
             'options': {},
-            'enabled': True,
+            'is_enabled': True,
             'password': 'abc123',
         }
-        # UserManager.create(name=, domain=, project=, password=, email=,
-        #   description=, enabled=, default_project=)
-        self.users_mock.create.assert_called_with(**kwargs)
+        self.identity_sdk_client.create_user.assert_called_with(**kwargs)
 
         self.assertEqual(self.columns, columns)
         self.assertEqual(self.datalist, data)
@@ -223,17 +200,15 @@ class TestUserCreate(TestUser):
         # Set expected values
         kwargs = {
             'name': self.user.name,
-            'default_project': None,
+            'default_project_id': None,
             'description': None,
-            'domain': None,
+            'domain_id': None,
             'email': 'barney@example.com',
-            'enabled': True,
+            'is_enabled': True,
             'options': {},
             'password': None,
         }
-        # UserManager.create(name=, domain=, project=, password=, email=,
-        #   description=, enabled=, default_project=)
-        self.users_mock.create.assert_called_with(**kwargs)
+        self.identity_sdk_client.create_user.assert_called_with(**kwargs)
 
         self.assertEqual(self.columns, columns)
         self.assertEqual(self.datalist, data)
@@ -260,17 +235,15 @@ class TestUserCreate(TestUser):
         # Set expected values
         kwargs = {
             'name': self.user.name,
-            'default_project': self.project.id,
+            'default_project_id': self.project.id,
             'description': None,
-            'domain': None,
+            'domain_id': None,
             'email': None,
-            'enabled': True,
+            'is_enabled': True,
             'options': {},
             'password': None,
         }
-        # UserManager.create(name=, domain=, project=, password=, email=,
-        #   description=, enabled=, default_project=)
-        self.users_mock.create.assert_called_with(**kwargs)
+        self.identity_sdk_client.create_user.assert_called_with(**kwargs)
 
         self.assertEqual(self.columns, columns)
         datalist = (
@@ -280,6 +253,8 @@ class TestUserCreate(TestUser):
             True,
             self.user.id,
             self.user.name,
+            self.user.description,
+            self.user.password_expires_at,
         )
         self.assertEqual(datalist, data)
 
@@ -308,17 +283,15 @@ class TestUserCreate(TestUser):
         # Set expected values
         kwargs = {
             'name': self.user.name,
-            'default_project': self.project.id,
+            'default_project_id': self.project.id,
             'description': None,
-            'domain': None,
+            'domain_id': None,
             'email': None,
             'options': {},
-            'enabled': True,
+            'is_enabled': True,
             'password': None,
         }
-        # UserManager.create(name=, domain=, project=, password=, email=,
-        #   description=, enabled=, default_project=)
-        self.users_mock.create.assert_called_with(**kwargs)
+        self.identity_sdk_client.create_user.assert_called_with(**kwargs)
 
         self.assertEqual(self.columns, columns)
         datalist = (
@@ -328,6 +301,8 @@ class TestUserCreate(TestUser):
             True,
             self.user.id,
             self.user.name,
+            self.user.description,
+            self.user.password_expires_at,
         )
         self.assertEqual(datalist, data)
 
@@ -353,17 +328,15 @@ class TestUserCreate(TestUser):
         # Set expected values
         kwargs = {
             'name': self.user.name,
-            'default_project': None,
+            'default_project_id': None,
             'description': None,
-            'domain': self.domain.id,
+            'domain_id': self.domain.id,
             'email': None,
             'options': {},
-            'enabled': True,
+            'is_enabled': True,
             'password': None,
         }
-        # UserManager.create(name=, domain=, project=, password=, email=,
-        #   description=, enabled=, default_project=)
-        self.users_mock.create.assert_called_with(**kwargs)
+        self.identity_sdk_client.create_user.assert_called_with(**kwargs)
 
         self.assertEqual(self.columns, columns)
         self.assertEqual(self.datalist, data)
@@ -388,17 +361,15 @@ class TestUserCreate(TestUser):
         # Set expected values
         kwargs = {
             'name': self.user.name,
-            'default_project': None,
+            'default_project_id': None,
             'description': None,
-            'domain': None,
+            'domain_id': None,
             'email': None,
             'options': {},
-            'enabled': True,
+            'is_enabled': True,
             'password': None,
         }
-        # UserManager.create(name=, domain=, project=, password=, email=,
-        #   description=, enabled=, default_project=)
-        self.users_mock.create.assert_called_with(**kwargs)
+        self.identity_sdk_client.create_user.assert_called_with(**kwargs)
 
         self.assertEqual(self.columns, columns)
         self.assertEqual(self.datalist, data)
@@ -423,16 +394,16 @@ class TestUserCreate(TestUser):
         # Set expected values
         kwargs = {
             'name': self.user.name,
-            'default_project': None,
+            'default_project_id': None,
             'description': None,
-            'domain': None,
+            'domain_id': None,
             'email': None,
             'options': {},
-            'enabled': False,
+            'is_enabled': False,
             'password': None,
         }
-        # users.create(name=, password, email, tenant_id=None, enabled=True)
-        self.users_mock.create.assert_called_with(**kwargs)
+        self.identity_sdk_client.create_user.assert_called_with(**kwargs)
+
         self.assertEqual(self.columns, columns)
         self.assertEqual(self.datalist, data)
 
@@ -457,17 +428,15 @@ class TestUserCreate(TestUser):
         # Set expected values
         kwargs = {
             'name': self.user.name,
-            'default_project': None,
+            'default_project_id': None,
             'description': None,
-            'domain': None,
+            'domain_id': None,
             'email': None,
-            'enabled': True,
+            'is_enabled': True,
             'options': {'ignore_lockout_failure_attempts': True},
             'password': None,
         }
-        # UserManager.create(name=, domain=, project=, password=, email=,
-        #   description=, enabled=, default_project=)
-        self.users_mock.create.assert_called_with(**kwargs)
+        self.identity_sdk_client.create_user.assert_called_with(**kwargs)
 
         self.assertEqual(self.columns, columns)
         self.assertEqual(self.datalist, data)
@@ -493,17 +462,15 @@ class TestUserCreate(TestUser):
         # Set expected values
         kwargs = {
             'name': self.user.name,
-            'default_project': None,
+            'default_project_id': None,
             'description': None,
-            'domain': None,
+            'domain_id': None,
             'email': None,
-            'enabled': True,
+            'is_enabled': True,
             'options': {'ignore_lockout_failure_attempts': False},
             'password': None,
         }
-        # UserManager.create(name=, domain=, project=, password=, email=,
-        #   description=, enabled=, default_project=)
-        self.users_mock.create.assert_called_with(**kwargs)
+        self.identity_sdk_client.create_user.assert_called_with(**kwargs)
 
         self.assertEqual(self.columns, columns)
         self.assertEqual(self.datalist, data)
@@ -529,17 +496,15 @@ class TestUserCreate(TestUser):
         # Set expected values
         kwargs = {
             'name': self.user.name,
-            'default_project': None,
+            'default_project_id': None,
             'description': None,
-            'domain': None,
+            'domain_id': None,
             'email': None,
-            'enabled': True,
+            'is_enabled': True,
             'options': {'ignore_password_expiry': True},
             'password': None,
         }
-        # UserManager.create(name=, domain=, project=, password=, email=,
-        #   description=, enabled=, default_project=)
-        self.users_mock.create.assert_called_with(**kwargs)
+        self.identity_sdk_client.create_user.assert_called_with(**kwargs)
 
         self.assertEqual(self.columns, columns)
         self.assertEqual(self.datalist, data)
@@ -565,17 +530,15 @@ class TestUserCreate(TestUser):
         # Set expected values
         kwargs = {
             'name': self.user.name,
-            'default_project': None,
+            'default_project_id': None,
             'description': None,
-            'domain': None,
+            'domain_id': None,
             'email': None,
-            'enabled': True,
+            'is_enabled': True,
             'options': {'ignore_password_expiry': False},
             'password': None,
         }
-        # UserManager.create(name=, domain=, project=, password=, email=,
-        #   description=, enabled=, default_project=)
-        self.users_mock.create.assert_called_with(**kwargs)
+        self.identity_sdk_client.create_user.assert_called_with(**kwargs)
 
         self.assertEqual(self.columns, columns)
         self.assertEqual(self.datalist, data)
@@ -601,17 +564,15 @@ class TestUserCreate(TestUser):
         # Set expected values
         kwargs = {
             'name': self.user.name,
-            'default_project': None,
+            'default_project_id': None,
             'description': None,
-            'domain': None,
+            'domain_id': None,
             'email': None,
-            'enabled': True,
+            'is_enabled': True,
             'options': {'ignore_change_password_upon_first_use': True},
             'password': None,
         }
-        # UserManager.create(name=, domain=, project=, password=, email=,
-        #   description=, enabled=, default_project=)
-        self.users_mock.create.assert_called_with(**kwargs)
+        self.identity_sdk_client.create_user.assert_called_with(**kwargs)
 
         self.assertEqual(self.columns, columns)
         self.assertEqual(self.datalist, data)
@@ -637,17 +598,15 @@ class TestUserCreate(TestUser):
         # Set expected values
         kwargs = {
             'name': self.user.name,
-            'default_project': None,
+            'default_project_id': None,
             'description': None,
-            'domain': None,
+            'domain_id': None,
             'email': None,
-            'enabled': True,
+            'is_enabled': True,
             'options': {'ignore_change_password_upon_first_use': False},
             'password': None,
         }
-        # UserManager.create(name=, domain=, project=, password=, email=,
-        #   description=, enabled=, default_project=)
-        self.users_mock.create.assert_called_with(**kwargs)
+        self.identity_sdk_client.create_user.assert_called_with(**kwargs)
 
         self.assertEqual(self.columns, columns)
         self.assertEqual(self.datalist, data)
@@ -673,17 +632,15 @@ class TestUserCreate(TestUser):
         # Set expected values
         kwargs = {
             'name': self.user.name,
-            'default_project': None,
+            'default_project_id': None,
             'description': None,
-            'domain': None,
+            'domain_id': None,
             'email': None,
-            'enabled': True,
+            'is_enabled': True,
             'options': {'lock_password': True},
             'password': None,
         }
-        # UserManager.create(name=, domain=, project=, password=, email=,
-        #   description=, enabled=, default_project=)
-        self.users_mock.create.assert_called_with(**kwargs)
+        self.identity_sdk_client.create_user.assert_called_with(**kwargs)
 
         self.assertEqual(self.columns, columns)
         self.assertEqual(self.datalist, data)
@@ -709,17 +666,15 @@ class TestUserCreate(TestUser):
         # Set expected values
         kwargs = {
             'name': self.user.name,
-            'default_project': None,
+            'default_project_id': None,
             'description': None,
-            'domain': None,
+            'domain_id': None,
             'email': None,
-            'enabled': True,
+            'is_enabled': True,
             'options': {'lock_password': False},
             'password': None,
         }
-        # UserManager.create(name=, domain=, project=, password=, email=,
-        #   description=, enabled=, default_project=)
-        self.users_mock.create.assert_called_with(**kwargs)
+        self.identity_sdk_client.create_user.assert_called_with(**kwargs)
 
         self.assertEqual(self.columns, columns)
         self.assertEqual(self.datalist, data)
@@ -745,17 +700,15 @@ class TestUserCreate(TestUser):
         # Set expected values
         kwargs = {
             'name': self.user.name,
-            'default_project': None,
+            'default_project_id': None,
             'description': None,
-            'domain': None,
+            'domain_id': None,
             'email': None,
-            'enabled': True,
+            'is_enabled': True,
             'options': {'multi_factor_auth_enabled': True},
             'password': None,
         }
-        # UserManager.create(name=, domain=, project=, password=, email=,
-        #   description=, enabled=, default_project=)
-        self.users_mock.create.assert_called_with(**kwargs)
+        self.identity_sdk_client.create_user.assert_called_with(**kwargs)
 
         self.assertEqual(self.columns, columns)
         self.assertEqual(self.datalist, data)
@@ -781,17 +734,15 @@ class TestUserCreate(TestUser):
         # Set expected values
         kwargs = {
             'name': self.user.name,
-            'default_project': None,
+            'default_project_id': None,
             'description': None,
-            'domain': None,
+            'domain_id': None,
             'email': None,
-            'enabled': True,
+            'is_enabled': True,
             'options': {'multi_factor_auth_enabled': False},
             'password': None,
         }
-        # UserManager.create(name=, domain=, project=, password=, email=,
-        #   description=, enabled=, default_project=)
-        self.users_mock.create.assert_called_with(**kwargs)
+        self.identity_sdk_client.create_user.assert_called_with(**kwargs)
 
         self.assertEqual(self.columns, columns)
         self.assertEqual(self.datalist, data)
@@ -823,19 +774,17 @@ class TestUserCreate(TestUser):
         # Set expected values
         kwargs = {
             'name': self.user.name,
-            'default_project': None,
+            'default_project_id': None,
             'description': None,
-            'domain': None,
+            'domain_id': None,
             'email': None,
-            'enabled': True,
+            'is_enabled': True,
             'options': {
                 'multi_factor_auth_rules': [["password", "totp"], ["password"]]
             },
             'password': None,
         }
-        # UserManager.create(name=, domain=, project=, password=, email=,
-        #   description=, enabled=, default_project=)
-        self.users_mock.create.assert_called_with(**kwargs)
+        self.identity_sdk_client.create_user.assert_called_with(**kwargs)
 
         self.assertEqual(self.columns, columns)
         self.assertEqual(self.datalist, data)
@@ -866,11 +815,11 @@ class TestUserCreate(TestUser):
         # Set expected values
         kwargs = {
             'name': self.user.name,
-            'default_project': None,
+            'default_project_id': None,
             'description': None,
-            'domain': None,
+            'domain_id': None,
             'email': None,
-            'enabled': True,
+            'is_enabled': True,
             'options': {
                 'ignore_password_expiry': True,
                 'multi_factor_auth_enabled': False,
@@ -878,23 +827,20 @@ class TestUserCreate(TestUser):
             },
             'password': None,
         }
-        # UserManager.create(name=, domain=, project=, password=, email=,
-        #   description=, enabled=, default_project=)
-        self.users_mock.create.assert_called_with(**kwargs)
+        self.identity_sdk_client.create_user.assert_called_with(**kwargs)
 
         self.assertEqual(self.columns, columns)
         self.assertEqual(self.datalist, data)
 
 
-class TestUserDelete(TestUser):
-    user = identity_fakes.FakeUser.create_one_user()
+class TestUserDelete(identity_fakes.TestIdentityv3):
+    user = sdk_fakes.generate_fake_resource(_user.User)
 
     def setUp(self):
-        super(TestUserDelete, self).setUp()
+        super().setUp()
 
-        # This is the return value for utils.find_resource()
-        self.users_mock.get.return_value = self.user
-        self.users_mock.delete.return_value = None
+        self.identity_sdk_client.find_user.return_value = self.user
+        self.identity_sdk_client.delete_user.return_value = None
 
         # Get the command object to test
         self.cmd = user.DeleteUser(self.app, None)
@@ -910,14 +856,18 @@ class TestUserDelete(TestUser):
 
         result = self.cmd.take_action(parsed_args)
 
-        self.users_mock.delete.assert_called_with(
+        self.identity_sdk_client.delete_user.assert_called_with(
             self.user.id,
+            ignore_missing=False,
         )
         self.assertIsNone(result)
 
-    @mock.patch.object(utils, 'find_resource')
+    @mock.patch.object(_user.User, 'find')
     def test_delete_multi_users_with_exception(self, find_mock):
-        find_mock.side_effect = [self.user, exceptions.CommandError]
+        self.identity_sdk_client.find_user.side_effect = [
+            self.user,
+            sdk_exc.ResourceNotFound,
+        ]
         arglist = [
             self.user.id,
             'unexist_user',
@@ -933,24 +883,30 @@ class TestUserDelete(TestUser):
         except exceptions.CommandError as e:
             self.assertEqual('1 of 2 users failed to delete.', str(e))
 
-        find_mock.assert_any_call(self.users_mock, self.user.id)
-        find_mock.assert_any_call(self.users_mock, 'unexist_user')
-
-        self.assertEqual(2, find_mock.call_count)
-        self.users_mock.delete.assert_called_once_with(self.user.id)
-
-
-class TestUserList(TestUser):
-    domain = identity_fakes.FakeDomain.create_one_domain()
-    project = identity_fakes.FakeProject.create_one_project()
-    user = identity_fakes.FakeUser.create_one_user(
-        attrs={'domain_id': domain.id, 'default_project_id': project.id}
-    )
-    group = identity_fakes.FakeGroup.create_one_group()
-    role_assignment = (
-        identity_fakes.FakeRoleAssignment.create_one_role_assignment(
-            attrs={'user': {'id': user.id}}
+        self.identity_sdk_client.find_user.assert_has_calls(
+            [
+                mock.call(name_or_id=self.user.id, ignore_missing=False),
+                mock.call(name_or_id='unexist_user', ignore_missing=False),
+            ]
         )
+
+        self.assertEqual(2, self.identity_sdk_client.find_user.call_count)
+        self.identity_sdk_client.delete_user.assert_called_once_with(
+            self.user.id, ignore_missing=False
+        )
+
+
+class TestUserList(identity_fakes.TestIdentityv3):
+    domain = sdk_fakes.generate_fake_resource(_domain.Domain)
+    project = sdk_fakes.generate_fake_resource(_project.Project)
+    user = sdk_fakes.generate_fake_resource(
+        resource_type=_user.User,
+        domain_id=domain.id,
+        default_project_id=project.id,
+    )
+    group = sdk_fakes.generate_fake_resource(_group.Group)
+    role_assignment = sdk_fakes.generate_fake_resource(
+        resource_type=_role_assignment.RoleAssignment, user={'id': user.id}
     )
 
     columns = ['ID', 'Name']
@@ -964,12 +920,14 @@ class TestUserList(TestUser):
     def setUp(self):
         super(TestUserList, self).setUp()
 
-        self.users_mock.get.return_value = self.user
-        self.users_mock.list.return_value = [self.user]
-        self.domains_mock.get.return_value = self.domain
-        self.groups_mock.get.return_value = self.group
-        self.projects_mock.get.return_value = self.project
-        self.role_assignments_mock.list.return_value = [self.role_assignment]
+        self.identity_sdk_client.find_user.return_value = self.user
+        self.identity_sdk_client.users.return_value = [self.user]
+        self.identity_sdk_client.find_domain.return_value = self.domain
+        self.identity_sdk_client.find_group.return_value = self.group
+        self.identity_sdk_client.find_project.return_value = self.project
+        self.identity_sdk_client.role_assignments_filter.return_value = [
+            self.role_assignment
+        ]
 
         # Get the command object to test
         self.cmd = user.ListUser(self.app, None)
@@ -986,11 +944,11 @@ class TestUserList(TestUser):
 
         # Set expected values
         kwargs = {
-            'domain': None,
+            'domain_id': None,
             'group': None,
         }
 
-        self.users_mock.list.assert_called_with(**kwargs)
+        self.identity_sdk_client.users.assert_called_with(**kwargs)
 
         self.assertEqual(self.columns, columns)
         self.assertEqual(self.datalist, tuple(data))
@@ -1012,11 +970,11 @@ class TestUserList(TestUser):
 
         # Set expected values
         kwargs = {
-            'domain': self.domain.id,
+            'domain_id': self.domain.id,
             'group': None,
         }
 
-        self.users_mock.list.assert_called_with(**kwargs)
+        self.identity_sdk_client.users.assert_called_with(**kwargs)
 
         self.assertEqual(self.columns, columns)
         self.assertEqual(self.datalist, tuple(data))
@@ -1038,11 +996,11 @@ class TestUserList(TestUser):
 
         # Set expected values
         kwargs = {
-            'domain': None,
+            'domain_id': None,
             'group': self.group.id,
         }
 
-        self.users_mock.list.assert_called_with(**kwargs)
+        self.identity_sdk_client.users.assert_called_with(**kwargs)
 
         self.assertEqual(self.columns, columns)
         self.assertEqual(self.datalist, tuple(data))
@@ -1063,11 +1021,11 @@ class TestUserList(TestUser):
 
         # Set expected values
         kwargs = {
-            'domain': None,
+            'domain_id': None,
             'group': None,
         }
 
-        self.users_mock.list.assert_called_with(**kwargs)
+        self.identity_sdk_client.users.assert_called_with(**kwargs)
 
         collist = [
             'ID',
@@ -1085,7 +1043,7 @@ class TestUserList(TestUser):
                 self.user.name,
                 self.project.id,
                 self.domain.id,
-                '',
+                self.user.description,
                 self.user.email,
                 True,
             ),
@@ -1111,29 +1069,32 @@ class TestUserList(TestUser):
             'project': self.project.id,
         }
 
-        self.role_assignments_mock.list.assert_called_with(**kwargs)
-        self.users_mock.get.assert_called_with(self.user.id)
+        self.identity_sdk_client.role_assignments_filter.assert_called_with(
+            **kwargs
+        )
 
         self.assertEqual(self.columns, columns)
         self.assertEqual(self.datalist, tuple(data))
 
 
-class TestUserSet(TestUser):
-    project = identity_fakes.FakeProject.create_one_project()
-    domain = identity_fakes.FakeDomain.create_one_domain()
-    user = identity_fakes.FakeUser.create_one_user(
-        attrs={'default_project_id': project.id}
+class TestUserSet(identity_fakes.TestIdentityv3):
+    project = sdk_fakes.generate_fake_resource(_project.Project)
+    domain = sdk_fakes.generate_fake_resource(_domain.Domain)
+    user = sdk_fakes.generate_fake_resource(
+        resource_type=_user.User, default_project_id=project.id
     )
-    user2 = identity_fakes.FakeUser.create_one_user(
-        attrs={'default_project_id': project.id, 'domain_id': domain.id}
+    user2 = sdk_fakes.generate_fake_resource(
+        resource_type=_user.User,
+        default_project_id=project.id,
+        domain_id=domain.id,
     )
 
     def setUp(self):
         super(TestUserSet, self).setUp()
 
-        self.projects_mock.get.return_value = self.project
-        self.users_mock.get.return_value = self.user
-        self.users_mock.update.return_value = self.user
+        self.identity_sdk_client.find_project.return_value = self.project
+        self.identity_sdk_client.find_user.return_value = self.user
+        self.identity_sdk_client.update_user.return_value = self.user
 
         # Get the command object to test
         self.cmd = user.SetUser(self.app, None)
@@ -1178,12 +1139,12 @@ class TestUserSet(TestUser):
 
         # Set expected values
         kwargs = {
-            'enabled': True,
+            'is_enabled': True,
             'name': 'qwerty',
         }
-        # UserManager.update(user, name=, domain=, project=, password=,
-        #     email=, description=, enabled=, default_project=)
-        self.users_mock.update.assert_called_with(self.user.id, **kwargs)
+        self.identity_sdk_client.update_user.assert_called_with(
+            user=self.user, **kwargs
+        )
         self.assertIsNone(result)
 
     def test_user_set_specify_domain(self):
@@ -1208,9 +1169,11 @@ class TestUserSet(TestUser):
 
         result = self.cmd.take_action(parsed_args)
 
-        kwargs = {'enabled': True, 'name': 'qwerty'}
+        kwargs = {'is_enabled': True, 'name': 'qwerty'}
 
-        self.users_mock.update.assert_called_with(self.user.id, **kwargs)
+        self.identity_sdk_client.update_user.assert_called_with(
+            user=self.user, **kwargs
+        )
         self.assertIsNone(result)
 
     def test_user_set_password(self):
@@ -1235,12 +1198,12 @@ class TestUserSet(TestUser):
 
         # Set expected values
         kwargs = {
-            'enabled': True,
+            'is_enabled': True,
             'password': 'secret',
         }
-        # UserManager.update(user, name=, domain=, project=, password=,
-        #     email=, description=, enabled=, default_project=)
-        self.users_mock.update.assert_called_with(self.user.id, **kwargs)
+        self.identity_sdk_client.update_user.assert_called_with(
+            user=self.user, **kwargs
+        )
         self.assertIsNone(result)
 
     def test_user_set_password_prompt(self):
@@ -1267,12 +1230,12 @@ class TestUserSet(TestUser):
 
         # Set expected values
         kwargs = {
-            'enabled': True,
+            'is_enabled': True,
             'password': 'abc123',
         }
-        # UserManager.update(user, name=, domain=, project=, password=,
-        #     email=, description=, enabled=, default_project=)
-        self.users_mock.update.assert_called_with(self.user.id, **kwargs)
+        self.identity_sdk_client.update_user.assert_called_with(
+            user=self.user, **kwargs
+        )
         self.assertIsNone(result)
 
     def test_user_set_email(self):
@@ -1296,12 +1259,12 @@ class TestUserSet(TestUser):
 
         # Set expected values
         kwargs = {
-            'enabled': True,
+            'is_enabled': True,
             'email': 'barney@example.com',
         }
-        # UserManager.update(user, name=, domain=, project=, password=,
-        #     email=, description=, enabled=, default_project=)
-        self.users_mock.update.assert_called_with(self.user.id, **kwargs)
+        self.identity_sdk_client.update_user.assert_called_with(
+            user=self.user, **kwargs
+        )
         self.assertIsNone(result)
 
     def test_user_set_project(self):
@@ -1325,12 +1288,12 @@ class TestUserSet(TestUser):
 
         # Set expected values
         kwargs = {
-            'enabled': True,
-            'default_project': self.project.id,
+            'is_enabled': True,
+            'default_project_id': self.project.id,
         }
-        # UserManager.update(user, name=, domain=, project=, password=,
-        #     email=, description=, enabled=, default_project=)
-        self.users_mock.update.assert_called_with(self.user.id, **kwargs)
+        self.identity_sdk_client.update_user.assert_called_with(
+            user=self.user, **kwargs
+        )
         self.assertIsNone(result)
 
     def test_user_set_project_domain(self):
@@ -1357,12 +1320,12 @@ class TestUserSet(TestUser):
 
         # Set expected values
         kwargs = {
-            'enabled': True,
-            'default_project': self.project.id,
+            'is_enabled': True,
+            'default_project_id': self.project.id,
         }
-        # UserManager.update(user, name=, domain=, project=, password=,
-        #     email=, description=, enabled=, default_project=)
-        self.users_mock.update.assert_called_with(self.user.id, **kwargs)
+        self.identity_sdk_client.update_user.assert_called_with(
+            user=self.user, **kwargs
+        )
         self.assertIsNone(result)
 
     def test_user_set_enable(self):
@@ -1385,11 +1348,11 @@ class TestUserSet(TestUser):
 
         # Set expected values
         kwargs = {
-            'enabled': True,
+            'is_enabled': True,
         }
-        # UserManager.update(user, name=, domain=, project=, password=,
-        #     email=, description=, enabled=, default_project=)
-        self.users_mock.update.assert_called_with(self.user.id, **kwargs)
+        self.identity_sdk_client.update_user.assert_called_with(
+            user=self.user, **kwargs
+        )
         self.assertIsNone(result)
 
     def test_user_set_disable(self):
@@ -1412,11 +1375,11 @@ class TestUserSet(TestUser):
 
         # Set expected values
         kwargs = {
-            'enabled': False,
+            'is_enabled': False,
         }
-        # UserManager.update(user, name=, domain=, project=, password=,
-        #     email=, description=, enabled=, default_project=)
-        self.users_mock.update.assert_called_with(self.user.id, **kwargs)
+        self.identity_sdk_client.update_user.assert_called_with(
+            user=self.user, **kwargs
+        )
         self.assertIsNone(result)
 
     def test_user_set_ignore_lockout_failure_attempts(self):
@@ -1439,12 +1402,12 @@ class TestUserSet(TestUser):
         result = self.cmd.take_action(parsed_args)
         # Set expected values
         kwargs = {
-            'enabled': True,
+            'is_enabled': True,
             'options': {'ignore_lockout_failure_attempts': True},
         }
-        # UserManager.update(user, name=, domain=, project=, password=,
-        #     email=, description=, enabled=, default_project=)
-        self.users_mock.update.assert_called_with(self.user.id, **kwargs)
+        self.identity_sdk_client.update_user.assert_called_with(
+            user=self.user, **kwargs
+        )
         self.assertIsNone(result)
 
     def test_user_set_no_ignore_lockout_failure_attempts(self):
@@ -1467,12 +1430,12 @@ class TestUserSet(TestUser):
         result = self.cmd.take_action(parsed_args)
         # Set expected values
         kwargs = {
-            'enabled': True,
+            'is_enabled': True,
             'options': {'ignore_lockout_failure_attempts': False},
         }
-        # UserManager.update(user, name=, domain=, project=, password=,
-        #     email=, description=, enabled=, default_project=)
-        self.users_mock.update.assert_called_with(self.user.id, **kwargs)
+        self.identity_sdk_client.update_user.assert_called_with(
+            user=self.user, **kwargs
+        )
         self.assertIsNone(result)
 
     def test_user_set_ignore_password_expiry(self):
@@ -1495,12 +1458,12 @@ class TestUserSet(TestUser):
         result = self.cmd.take_action(parsed_args)
         # Set expected values
         kwargs = {
-            'enabled': True,
+            'is_enabled': True,
             'options': {'ignore_password_expiry': True},
         }
-        # UserManager.update(user, name=, domain=, project=, password=,
-        #     email=, description=, enabled=, default_project=)
-        self.users_mock.update.assert_called_with(self.user.id, **kwargs)
+        self.identity_sdk_client.update_user.assert_called_with(
+            user=self.user, **kwargs
+        )
         self.assertIsNone(result)
 
     def test_user_set_no_ignore_password_expiry(self):
@@ -1523,12 +1486,12 @@ class TestUserSet(TestUser):
         result = self.cmd.take_action(parsed_args)
         # Set expected values
         kwargs = {
-            'enabled': True,
+            'is_enabled': True,
             'options': {'ignore_password_expiry': False},
         }
-        # UserManager.update(user, name=, domain=, project=, password=,
-        #     email=, description=, enabled=, default_project=)
-        self.users_mock.update.assert_called_with(self.user.id, **kwargs)
+        self.identity_sdk_client.update_user.assert_called_with(
+            user=self.user, **kwargs
+        )
         self.assertIsNone(result)
 
     def test_user_set_ignore_change_password_upon_first_use(self):
@@ -1551,12 +1514,12 @@ class TestUserSet(TestUser):
         result = self.cmd.take_action(parsed_args)
         # Set expected values
         kwargs = {
-            'enabled': True,
+            'is_enabled': True,
             'options': {'ignore_change_password_upon_first_use': True},
         }
-        # UserManager.update(user, name=, domain=, project=, password=,
-        #     email=, description=, enabled=, default_project=)
-        self.users_mock.update.assert_called_with(self.user.id, **kwargs)
+        self.identity_sdk_client.update_user.assert_called_with(
+            user=self.user, **kwargs
+        )
         self.assertIsNone(result)
 
     def test_user_set_no_ignore_change_password_upon_first_use(self):
@@ -1579,12 +1542,12 @@ class TestUserSet(TestUser):
         result = self.cmd.take_action(parsed_args)
         # Set expected values
         kwargs = {
-            'enabled': True,
+            'is_enabled': True,
             'options': {'ignore_change_password_upon_first_use': False},
         }
-        # UserManager.update(user, name=, domain=, project=, password=,
-        #     email=, description=, enabled=, default_project=)
-        self.users_mock.update.assert_called_with(self.user.id, **kwargs)
+        self.identity_sdk_client.update_user.assert_called_with(
+            user=self.user, **kwargs
+        )
         self.assertIsNone(result)
 
     def test_user_set_enable_lock_password(self):
@@ -1607,12 +1570,12 @@ class TestUserSet(TestUser):
         result = self.cmd.take_action(parsed_args)
         # Set expected values
         kwargs = {
-            'enabled': True,
+            'is_enabled': True,
             'options': {'lock_password': True},
         }
-        # UserManager.update(user, name=, domain=, project=, password=,
-        #     email=, description=, enabled=, default_project=)
-        self.users_mock.update.assert_called_with(self.user.id, **kwargs)
+        self.identity_sdk_client.update_user.assert_called_with(
+            user=self.user, **kwargs
+        )
         self.assertIsNone(result)
 
     def test_user_set_disable_lock_password(self):
@@ -1635,12 +1598,12 @@ class TestUserSet(TestUser):
         result = self.cmd.take_action(parsed_args)
         # Set expected values
         kwargs = {
-            'enabled': True,
+            'is_enabled': True,
             'options': {'lock_password': False},
         }
-        # UserManager.update(user, name=, domain=, project=, password=,
-        #     email=, description=, enabled=, default_project=)
-        self.users_mock.update.assert_called_with(self.user.id, **kwargs)
+        self.identity_sdk_client.update_user.assert_called_with(
+            user=self.user, **kwargs
+        )
         self.assertIsNone(result)
 
     def test_user_set_enable_multi_factor_auth(self):
@@ -1663,12 +1626,12 @@ class TestUserSet(TestUser):
         result = self.cmd.take_action(parsed_args)
         # Set expected values
         kwargs = {
-            'enabled': True,
+            'is_enabled': True,
             'options': {'multi_factor_auth_enabled': True},
         }
-        # UserManager.update(user, name=, domain=, project=, password=,
-        #     email=, description=, enabled=, default_project=)
-        self.users_mock.update.assert_called_with(self.user.id, **kwargs)
+        self.identity_sdk_client.update_user.assert_called_with(
+            user=self.user, **kwargs
+        )
         self.assertIsNone(result)
 
     def test_user_set_disable_multi_factor_auth(self):
@@ -1691,12 +1654,12 @@ class TestUserSet(TestUser):
         result = self.cmd.take_action(parsed_args)
         # Set expected values
         kwargs = {
-            'enabled': True,
+            'is_enabled': True,
             'options': {'multi_factor_auth_enabled': False},
         }
-        # UserManager.update(user, name=, domain=, project=, password=,
-        #     email=, description=, enabled=, default_project=)
-        self.users_mock.update.assert_called_with(self.user.id, **kwargs)
+        self.identity_sdk_client.update_user.assert_called_with(
+            user=self.user, **kwargs
+        )
         self.assertIsNone(result)
 
     def test_user_set_option_multi_factor_auth_rule(self):
@@ -1720,13 +1683,13 @@ class TestUserSet(TestUser):
         result = self.cmd.take_action(parsed_args)
         # Set expected values
         kwargs = {
-            'enabled': True,
+            'is_enabled': True,
             'options': {'multi_factor_auth_rules': [["password", "totp"]]},
         }
 
-        # UserManager.update(user, name=, domain=, project=, password=,
-        #     email=, description=, enabled=, default_project=)
-        self.users_mock.update.assert_called_with(self.user.id, **kwargs)
+        self.identity_sdk_client.update_user.assert_called_with(
+            user=self.user, **kwargs
+        )
         self.assertIsNone(result)
 
     def test_user_set_with_multiple_options(self):
@@ -1754,7 +1717,7 @@ class TestUserSet(TestUser):
         result = self.cmd.take_action(parsed_args)
         # Set expected values
         kwargs = {
-            'enabled': True,
+            'is_enabled': True,
             'options': {
                 'ignore_password_expiry': True,
                 'multi_factor_auth_enabled': True,
@@ -1762,13 +1725,13 @@ class TestUserSet(TestUser):
             },
         }
 
-        # UserManager.update(user, name=, domain=, project=, password=,
-        #     email=, description=, enabled=, default_project=)
-        self.users_mock.update.assert_called_with(self.user.id, **kwargs)
+        self.identity_sdk_client.update_user.assert_called_with(
+            user=self.user, **kwargs
+        )
         self.assertIsNone(result)
 
 
-class TestUserSetPassword(TestUser):
+class TestUserSetPassword(identity_fakes.TestIdentityv3):
     def setUp(self):
         super(TestUserSetPassword, self).setUp()
         self.cmd = user.SetPasswordUser(self.app, None)
@@ -1796,8 +1759,8 @@ class TestUserSetPassword(TestUser):
         with self._mock_get_password(current_pass):
             result = self.cmd.take_action(parsed_args)
 
-        self.users_mock.update_password.assert_called_with(
-            current_pass, new_pass
+        self.identity_sdk_client.update_user.assert_called_with(
+            current_password=current_pass, password=new_pass
         )
         self.assertIsNone(result)
 
@@ -1810,8 +1773,8 @@ class TestUserSetPassword(TestUser):
         with self._mock_get_password(current_pass, new_pass):
             result = self.cmd.take_action(parsed_args)
 
-        self.users_mock.update_password.assert_called_with(
-            current_pass, new_pass
+        self.identity_sdk_client.update_user.assert_called_with(
+            current_password=current_pass, password=new_pass
         )
         self.assertIsNone(result)
 
@@ -1832,19 +1795,19 @@ class TestUserSetPassword(TestUser):
 
         result = self.cmd.take_action(parsed_args)
 
-        self.users_mock.update_password.assert_called_with(
-            current_pass, new_pass
+        self.identity_sdk_client.update_user.assert_called_with(
+            current_password=current_pass, password=new_pass
         )
         self.assertIsNone(result)
 
 
-class TestUserShow(TestUser):
-    user = identity_fakes.FakeUser.create_one_user()
+class TestUserShow(identity_fakes.TestIdentityv3):
+    user = sdk_fakes.generate_fake_resource(_user.User)
 
     def setUp(self):
         super(TestUserShow, self).setUp()
 
-        self.users_mock.get.return_value = self.user
+        self.identity_sdk_client.find_user.return_value = self.user
 
         # Get the command object to test
         self.cmd = user.ShowUser(self.app, None)
@@ -1854,7 +1817,7 @@ class TestUserShow(TestUser):
         self.app.client_manager.identity.tokens.get_token_data.return_value = {
             'token': {
                 'user': {
-                    'domain': {'id': self.user.domain_id},
+                    'domain_id': {'id': self.user.domain_id},
                     'id': self.user.id,
                     'name': self.user.name,
                 }
@@ -1875,7 +1838,9 @@ class TestUserShow(TestUser):
         # data to be shown.
         columns, data = self.cmd.take_action(parsed_args)
 
-        self.users_mock.get.assert_called_with(self.user.id)
+        self.identity_sdk_client.find_user.assert_called_with(
+            name_or_id=self.user.id, ignore_missing=False
+        )
 
         collist = (
             'default_project_id',
@@ -1884,6 +1849,8 @@ class TestUserShow(TestUser):
             'enabled',
             'id',
             'name',
+            'description',
+            'password_expires_at',
         )
         self.assertEqual(collist, columns)
         datalist = (
@@ -1893,14 +1860,15 @@ class TestUserShow(TestUser):
             True,
             self.user.id,
             self.user.name,
+            self.user.description,
+            self.user.password_expires_at,
         )
         self.assertEqual(datalist, data)
 
     def test_user_show_with_domain(self):
-        user = identity_fakes.FakeUser.create_one_user(
-            {"name": self.user.name}
+        user = sdk_fakes.generate_fake_resource(
+            resource_type=_user.User, name=self.user.name
         )
-        identity_client = self.app.client_manager.identity
 
         arglist = [
             "--domain",
@@ -1914,9 +1882,12 @@ class TestUserShow(TestUser):
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
         user_str = common._get_token_resource(
-            identity_client, 'user', parsed_args.user, parsed_args.domain
+            self.identity_sdk_client,
+            'user',
+            parsed_args.user,
+            parsed_args.domain,
         )
-        self.assertEqual(self.user.id, user_str)
+        self.assertEqual(self.user.name, user_str)
 
         arglist = [
             "--domain",
@@ -1930,6 +1901,9 @@ class TestUserShow(TestUser):
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
         user_str = common._get_token_resource(
-            identity_client, 'user', parsed_args.user, parsed_args.domain
+            self.identity_sdk_client,
+            'user',
+            parsed_args.user,
+            parsed_args.domain,
         )
         self.assertEqual(user.name, user_str)

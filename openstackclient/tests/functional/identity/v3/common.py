@@ -33,7 +33,6 @@ class IdentityTests(base.TestCase):
         'enabled',
         'id',
         'name',
-        'name',
         'domain_id',
         'default_project_id',
         'description',
