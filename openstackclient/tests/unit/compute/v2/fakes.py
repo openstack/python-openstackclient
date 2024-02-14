@@ -178,16 +178,11 @@ class TestComputev2(
     network_fakes.FakeClientMixin,
     image_fakes.FakeClientMixin,
     volume_fakes.FakeClientMixin,
+    identity_fakes.FakeClientMixin,
     FakeClientMixin,
     utils.TestCommand,
 ):
-    def setUp(self):
-        super().setUp()
-
-        self.app.client_manager.identity = identity_fakes.FakeIdentityv2Client(
-            endpoint=fakes.AUTH_URL,
-            token=fakes.AUTH_TOKEN,
-        )
+    ...
 
 
 def create_one_aggregate(attrs=None):

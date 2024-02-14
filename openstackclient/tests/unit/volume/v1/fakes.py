@@ -64,14 +64,13 @@ class FakeClientMixin:
         self.volume_client = self.app.client_manager.volume
 
 
-class TestVolumev1(FakeClientMixin, utils.TestCommand):
+class TestVolumev1(
+    identity_fakes.FakeClientMixin,
+    FakeClientMixin,
+    utils.TestCommand,
+):
     def setUp(self):
         super().setUp()
-
-        self.app.client_manager.identity = identity_fakes.FakeIdentityv2Client(
-            endpoint=fakes.AUTH_URL,
-            token=fakes.AUTH_TOKEN,
-        )
 
         # avoid circular imports by defining this manually rather than using
         # openstackclient.tests.unit.image.v1.fakes.FakeClientMixin

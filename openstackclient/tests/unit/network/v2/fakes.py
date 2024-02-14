@@ -38,7 +38,7 @@ from openstack.network.v2 import service_profile as _flavor_profile
 from openstack.network.v2 import trunk as _trunk
 
 from openstackclient.tests.unit import fakes
-from openstackclient.tests.unit.identity.v3 import fakes as identity_fakes_v3
+from openstackclient.tests.unit.identity.v3 import fakes as identity_fakes
 from openstackclient.tests.unit import utils
 
 
@@ -101,18 +101,15 @@ class FakeClientMixin:
         self.network_client = self.app.client_manager.network
 
 
-class TestNetworkV2(FakeClientMixin, utils.TestCommand):
+class TestNetworkV2(
+    identity_fakes.FakeClientMixin,
+    FakeClientMixin,
+    utils.TestCommand,
+):
     def setUp(self):
         super().setUp()
 
         self.namespace = argparse.Namespace()
-
-        self.app.client_manager.identity = (
-            identity_fakes_v3.FakeIdentityv3Client(
-                endpoint=fakes.AUTH_URL,
-                token=fakes.AUTH_TOKEN,
-            )
-        )
 
 
 def create_one_extension(attrs=None):

@@ -27,7 +27,6 @@ from openstack.image.v2 import metadef_resource_type
 from openstack.image.v2 import service_info as _service_info
 from openstack.image.v2 import task
 
-from openstackclient.tests.unit import fakes
 from openstackclient.tests.unit.identity.v3 import fakes as identity_fakes
 from openstackclient.tests.unit import utils
 
@@ -40,14 +39,12 @@ class FakeClientMixin:
         self.image_client = self.app.client_manager.image
 
 
-class TestImagev2(FakeClientMixin, utils.TestCommand):
-    def setUp(self):
-        super().setUp()
-
-        self.app.client_manager.identity = identity_fakes.FakeIdentityv3Client(
-            endpoint=fakes.AUTH_URL,
-            token=fakes.AUTH_TOKEN,
-        )
+class TestImagev2(
+    identity_fakes.FakeClientMixin,
+    FakeClientMixin,
+    utils.TestCommand,
+):
+    ...
 
 
 def create_one_image(attrs=None):

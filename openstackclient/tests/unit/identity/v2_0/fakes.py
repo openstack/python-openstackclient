@@ -19,6 +19,7 @@ import uuid
 
 from keystoneauth1 import access
 from keystoneauth1 import fixture
+from openstack.identity.v2 import _proxy
 
 from openstackclient.tests.unit import fakes
 from openstackclient.tests.unit import utils
@@ -183,14 +184,31 @@ class FakeIdentityv2Client(object):
             raise AttributeError(name)
 
 
-class TestIdentityv2(utils.TestCommand):
+class FakeClientMixin:
     def setUp(self):
-        super(TestIdentityv2, self).setUp()
+        super().setUp()
 
         self.app.client_manager.identity = FakeIdentityv2Client(
             endpoint=fakes.AUTH_URL,
             token=fakes.AUTH_TOKEN,
         )
+        self.identity_client = self.app.client_manager.identity
+
+        # TODO(stephenfin): Rename to 'identity_client' once all commands are
+        # migrated to SDK
+        self.app.client_manager.sdk_connection.identity = mock.Mock(
+            _proxy.Proxy
+        )
+        self.identity_sdk_client = (
+            self.app.client_manager.sdk_connection.identity
+        )
+
+
+class TestIdentityv2(
+    FakeClientMixin,
+    utils.TestCommand,
+):
+    ...
 
 
 class FakeExtension(object):

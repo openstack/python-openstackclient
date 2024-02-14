@@ -20,6 +20,7 @@ import uuid
 
 from keystoneauth1 import access
 from keystoneauth1 import fixture
+from openstack.identity.v3 import _proxy
 from osc_lib.cli import format_columns
 
 from openstackclient.tests.unit import fakes
@@ -666,16 +667,34 @@ class FakeOAuth1Client(FakeIdentityv3Client):
         self.request_tokens.resource_class = fakes.FakeResource(None, {})
 
 
-class TestIdentityv3(utils.TestCommand):
+class FakeClientMixin:
     def setUp(self):
-        super(TestIdentityv3, self).setUp()
+        super().setUp()
 
         self.app.client_manager.identity = FakeIdentityv3Client(
             endpoint=fakes.AUTH_URL,
             token=fakes.AUTH_TOKEN,
         )
+        self.identity_client = self.app.client_manager.identity
+
+        # TODO(stephenfin): Rename to 'identity_client' once all commands are
+        # migrated to SDK
+        self.app.client_manager.sdk_connection.identity = mock.Mock(
+            _proxy.Proxy
+        )
+        self.identity_sdk_client = (
+            self.app.client_manager.sdk_connection.identity
+        )
 
 
+class TestIdentityv3(
+    FakeClientMixin,
+    utils.TestCommand,
+):
+    ...
+
+
+# We don't use FakeClientMixin since we want a different fake legacy client
 class TestFederatedIdentity(utils.TestCommand):
     def setUp(self):
         super(TestFederatedIdentity, self).setUp()
@@ -683,14 +702,35 @@ class TestFederatedIdentity(utils.TestCommand):
         self.app.client_manager.identity = FakeFederatedClient(
             endpoint=fakes.AUTH_URL, token=fakes.AUTH_TOKEN
         )
+        self.identity_client = self.app.client_manager.identity
+
+        # TODO(stephenfin): Rename to 'identity_client' once all commands are
+        # migrated to SDK
+        self.app.client_manager.sdk_connection.identity = mock.Mock(
+            _proxy.Proxy
+        )
+        self.identity_sdk_client = (
+            self.app.client_manager.sdk_connection.identity
+        )
 
 
+# We don't use FakeClientMixin since we want a different fake legacy client
 class TestOAuth1(utils.TestCommand):
     def setUp(self):
         super(TestOAuth1, self).setUp()
 
         self.app.client_manager.identity = FakeOAuth1Client(
             endpoint=fakes.AUTH_URL, token=fakes.AUTH_TOKEN
+        )
+        self.identity_client = self.app.client_manager.identity
+
+        # TODO(stephenfin): Rename to 'identity_client' once all commands are
+        # migrated to SDK
+        self.app.client_manager.sdk_connection.identity = mock.Mock(
+            _proxy.Proxy
+        )
+        self.identity_sdk_client = (
+            self.app.client_manager.sdk_connection.identity
         )
 
 
