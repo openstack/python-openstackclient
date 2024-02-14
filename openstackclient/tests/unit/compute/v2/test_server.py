@@ -513,7 +513,7 @@ class TestServerAddFloatingIPNetwork(
         self.network_client.update_ip = mock.Mock(return_value=None)
 
         # Get the command object to test
-        self.cmd = server.AddFloatingIP(self.app, self.namespace)
+        self.cmd = server.AddFloatingIP(self.app, None)
 
     def test_server_add_floating_ip(self):
         _server = compute_fakes.create_one_server()
@@ -7182,7 +7182,7 @@ class TestServerRemoveFloatingIPNetwork(network_fakes.TestNetworkV2):
         self.network_client.update_ip = mock.Mock(return_value=None)
 
         # Get the command object to test
-        self.cmd = server.RemoveFloatingIP(self.app, self.namespace)
+        self.cmd = server.RemoveFloatingIP(self.app, None)
 
     def test_server_remove_floating_ip_default(self):
         _server = compute_fakes.create_one_server()

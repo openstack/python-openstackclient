@@ -53,7 +53,7 @@ class TestCreateLocalIPAssociation(TestLocalIPAssociation):
 
         # Get the command object to test
         self.cmd = local_ip_association.CreateLocalIPAssociation(
-            self.app, self.namespace
+            self.app, None
         )
 
         self.columns = (
@@ -137,7 +137,7 @@ class TestDeleteLocalIPAssociation(TestLocalIPAssociation):
         )
         # Get the command object to test
         self.cmd = local_ip_association.DeleteLocalIPAssociation(
-            self.app, self.namespace
+            self.app, None
         )
 
     def test_local_ip_association_delete(self):
@@ -270,9 +270,7 @@ class TestListLocalIPAssociation(TestLocalIPAssociation):
         )
         self.network_client.find_port = mock.Mock(return_value=self.fixed_port)
         # Get the command object to test
-        self.cmd = local_ip_association.ListLocalIPAssociation(
-            self.app, self.namespace
-        )
+        self.cmd = local_ip_association.ListLocalIPAssociation(self.app, None)
 
     def test_local_ip_association_list(self):
         arglist = [self.local_ip.id]

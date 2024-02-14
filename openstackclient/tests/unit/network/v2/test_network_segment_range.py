@@ -84,7 +84,7 @@ class TestCreateNetworkSegmentRange(TestNetworkSegmentRange):
 
         # Get the command object to test
         self.cmd = network_segment_range.CreateNetworkSegmentRange(
-            self.app, self.namespace
+            self.app, None
         )
 
     def test_create_no_options(self):
@@ -360,7 +360,7 @@ class TestDeleteNetworkSegmentRange(TestNetworkSegmentRange):
 
         # Get the command object to test
         self.cmd = network_segment_range.DeleteNetworkSegmentRange(
-            self.app, self.namespace
+            self.app, None
         )
 
     def test_delete(self):
@@ -499,7 +499,7 @@ class TestListNetworkSegmentRange(TestNetworkSegmentRange):
 
         # Get the command object to test
         self.cmd = network_segment_range.ListNetworkSegmentRange(
-            self.app, self.namespace
+            self.app, None
         )
 
     def test_list_no_option(self):
@@ -572,9 +572,7 @@ class TestSetNetworkSegmentRange(TestNetworkSegmentRange):
         )
 
         # Get the command object to test
-        self.cmd = network_segment_range.SetNetworkSegmentRange(
-            self.app, self.namespace
-        )
+        self.cmd = network_segment_range.SetNetworkSegmentRange(self.app, None)
 
     def test_set_no_options(self):
         arglist = [
@@ -670,7 +668,7 @@ class TestShowNetworkSegmentRange(TestNetworkSegmentRange):
 
         # Get the command object to test
         self.cmd = network_segment_range.ShowNetworkSegmentRange(
-            self.app, self.namespace
+            self.app, None
         )
 
     def test_show_no_options(self):

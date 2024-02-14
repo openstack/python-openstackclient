@@ -48,7 +48,7 @@ class TestCreateAutoAllocatedTopology(TestAutoAllocatedTopology):
         super(TestCreateAutoAllocatedTopology, self).setUp()
 
         self.cmd = network_auto_allocated_topology.CreateAutoAllocatedTopology(
-            self.app, self.namespace
+            self.app, None
         )
         self.network_client.get_auto_allocated_topology = mock.Mock(
             return_value=self.topology
@@ -153,7 +153,7 @@ class TestValidateAutoAllocatedTopology(TestAutoAllocatedTopology):
         super(TestValidateAutoAllocatedTopology, self).setUp()
 
         self.cmd = network_auto_allocated_topology.CreateAutoAllocatedTopology(
-            self.app, self.namespace
+            self.app, None
         )
         self.network_client.validate_auto_allocated_topology = mock.Mock(
             return_value=self.topology
@@ -226,7 +226,7 @@ class TestDeleteAutoAllocatedTopology(TestAutoAllocatedTopology):
         super(TestDeleteAutoAllocatedTopology, self).setUp()
 
         self.cmd = network_auto_allocated_topology.DeleteAutoAllocatedTopology(
-            self.app, self.namespace
+            self.app, None
         )
         self.network_client.delete_auto_allocated_topology = mock.Mock(
             return_value=None

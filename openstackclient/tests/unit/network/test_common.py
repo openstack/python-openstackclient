@@ -11,7 +11,6 @@
 #   under the License.
 #
 
-import argparse
 from unittest import mock
 
 import openstack
@@ -126,8 +125,6 @@ class TestNetworkAndCompute(utils.TestCommand):
     def setUp(self):
         super().setUp()
 
-        self.namespace = argparse.Namespace()
-
         # Create client mocks. Note that we intentionally do not use specced
         # mocks since we want to test fake methods.
 
@@ -143,7 +140,7 @@ class TestNetworkAndCompute(utils.TestCommand):
             return_value='take_action_compute'
         )
 
-        self.cmd = FakeNetworkAndComputeCommand(self.app, self.namespace)
+        self.cmd = FakeNetworkAndComputeCommand(self.app, None)
 
     def test_take_action_network(self):
         arglist = ['common', 'network']
@@ -168,19 +165,19 @@ class TestNetworkAndCompute(utils.TestCommand):
 class TestNetworkAndComputeCommand(TestNetworkAndCompute):
     def setUp(self):
         super(TestNetworkAndComputeCommand, self).setUp()
-        self.cmd = FakeNetworkAndComputeCommand(self.app, self.namespace)
+        self.cmd = FakeNetworkAndComputeCommand(self.app, None)
 
 
 class TestNetworkAndComputeLister(TestNetworkAndCompute):
     def setUp(self):
         super(TestNetworkAndComputeLister, self).setUp()
-        self.cmd = FakeNetworkAndComputeLister(self.app, self.namespace)
+        self.cmd = FakeNetworkAndComputeLister(self.app, None)
 
 
 class TestNetworkAndComputeShowOne(TestNetworkAndCompute):
     def setUp(self):
         super(TestNetworkAndComputeShowOne, self).setUp()
-        self.cmd = FakeNetworkAndComputeShowOne(self.app, self.namespace)
+        self.cmd = FakeNetworkAndComputeShowOne(self.app, None)
 
     def test_take_action_with_http_exception(self):
         with mock.patch.object(self.cmd, 'take_action_network') as m_action:
@@ -207,8 +204,6 @@ class TestNeutronCommandWithExtraArgs(utils.TestCommand):
     def setUp(self):
         super(TestNeutronCommandWithExtraArgs, self).setUp()
 
-        self.namespace = argparse.Namespace()
-
         # Create client mocks. Note that we intentionally do not use specced
         # mocks since we want to test fake methods.
 
@@ -217,9 +212,7 @@ class TestNeutronCommandWithExtraArgs(utils.TestCommand):
         self.network_client.test_create_action = mock.Mock()
 
         # Subclasses can override the command object to test.
-        self.cmd = FakeCreateNeutronCommandWithExtraArgs(
-            self.app, self.namespace
-        )
+        self.cmd = FakeCreateNeutronCommandWithExtraArgs(self.app, None)
 
     def test_create_extra_attributes_default_type(self):
         arglist = [

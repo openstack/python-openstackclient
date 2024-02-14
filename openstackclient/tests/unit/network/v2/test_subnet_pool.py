@@ -82,7 +82,7 @@ class TestCreateSubnetPool(TestSubnetPool):
         self.network_client.set_tags = mock.Mock(return_value=None)
 
         # Get the command object to test
-        self.cmd = subnet_pool.CreateSubnetPool(self.app, self.namespace)
+        self.cmd = subnet_pool.CreateSubnetPool(self.app, None)
 
         self.network_client.find_address_scope = mock.Mock(
             return_value=self._address_scope
@@ -394,7 +394,7 @@ class TestDeleteSubnetPool(TestSubnetPool):
         )
 
         # Get the command object to test
-        self.cmd = subnet_pool.DeleteSubnetPool(self.app, self.namespace)
+        self.cmd = subnet_pool.DeleteSubnetPool(self.app, None)
 
     def test_subnet_pool_delete(self):
         arglist = [
@@ -512,7 +512,7 @@ class TestListSubnetPool(TestSubnetPool):
         super(TestListSubnetPool, self).setUp()
 
         # Get the command object to test
-        self.cmd = subnet_pool.ListSubnetPool(self.app, self.namespace)
+        self.cmd = subnet_pool.ListSubnetPool(self.app, None)
 
         self.network_client.subnet_pools = mock.Mock(
             return_value=self._subnet_pools
@@ -746,7 +746,7 @@ class TestSetSubnetPool(TestSubnetPool):
         )
 
         # Get the command object to test
-        self.cmd = subnet_pool.SetSubnetPool(self.app, self.namespace)
+        self.cmd = subnet_pool.SetSubnetPool(self.app, None)
 
     def test_set_this(self):
         arglist = [
@@ -1084,7 +1084,7 @@ class TestShowSubnetPool(TestSubnetPool):
         )
 
         # Get the command object to test
-        self.cmd = subnet_pool.ShowSubnetPool(self.app, self.namespace)
+        self.cmd = subnet_pool.ShowSubnetPool(self.app, None)
 
     def test_show_no_options(self):
         arglist = []
@@ -1128,7 +1128,7 @@ class TestUnsetSubnetPool(TestSubnetPool):
         self.network_client.update_subnet_pool = mock.Mock(return_value=None)
         self.network_client.set_tags = mock.Mock(return_value=None)
         # Get the command object to test
-        self.cmd = subnet_pool.UnsetSubnetPool(self.app, self.namespace)
+        self.cmd = subnet_pool.UnsetSubnetPool(self.app, None)
 
     def _test_unset_tags(self, with_tags=True):
         if with_tags:

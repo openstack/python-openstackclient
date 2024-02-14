@@ -72,7 +72,7 @@ class TestCreateSecurityGroupNetwork(TestSecurityGroupNetwork):
         self.network_client.set_tags = mock.Mock(return_value=None)
 
         # Get the command object to test
-        self.cmd = security_group.CreateSecurityGroup(self.app, self.namespace)
+        self.cmd = security_group.CreateSecurityGroup(self.app, None)
 
     def test_create_no_options(self):
         self.assertRaises(
@@ -190,7 +190,7 @@ class TestDeleteSecurityGroupNetwork(TestSecurityGroupNetwork):
         )
 
         # Get the command object to test
-        self.cmd = security_group.DeleteSecurityGroup(self.app, self.namespace)
+        self.cmd = security_group.DeleteSecurityGroup(self.app, None)
 
     def test_security_group_delete(self):
         arglist = [
@@ -296,7 +296,7 @@ class TestListSecurityGroupNetwork(TestSecurityGroupNetwork):
         )
 
         # Get the command object to test
-        self.cmd = security_group.ListSecurityGroup(self.app, self.namespace)
+        self.cmd = security_group.ListSecurityGroup(self.app, None)
 
     def test_security_group_list_no_options(self):
         arglist = []
@@ -431,7 +431,7 @@ class TestSetSecurityGroupNetwork(TestSecurityGroupNetwork):
         self.network_client.set_tags = mock.Mock(return_value=None)
 
         # Get the command object to test
-        self.cmd = security_group.SetSecurityGroup(self.app, self.namespace)
+        self.cmd = security_group.SetSecurityGroup(self.app, None)
 
     def test_set_no_options(self):
         self.assertRaises(
@@ -556,7 +556,7 @@ class TestShowSecurityGroupNetwork(TestSecurityGroupNetwork):
         )
 
         # Get the command object to test
-        self.cmd = security_group.ShowSecurityGroup(self.app, self.namespace)
+        self.cmd = security_group.ShowSecurityGroup(self.app, None)
 
     def test_show_no_options(self):
         self.assertRaises(
@@ -602,7 +602,7 @@ class TestUnsetSecurityGroupNetwork(TestSecurityGroupNetwork):
         self.network_client.set_tags = mock.Mock(return_value=None)
 
         # Get the command object to test
-        self.cmd = security_group.UnsetSecurityGroup(self.app, self.namespace)
+        self.cmd = security_group.UnsetSecurityGroup(self.app, None)
 
     def test_set_no_options(self):
         self.assertRaises(

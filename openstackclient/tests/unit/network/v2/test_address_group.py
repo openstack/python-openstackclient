@@ -63,7 +63,7 @@ class TestCreateAddressGroup(TestAddressGroup):
         )
 
         # Get the command object to test
-        self.cmd = address_group.CreateAddressGroup(self.app, self.namespace)
+        self.cmd = address_group.CreateAddressGroup(self.app, None)
 
         self.projects_mock.get.return_value = self.project
         self.domains_mock.get.return_value = self.domain
@@ -153,7 +153,7 @@ class TestDeleteAddressGroup(TestAddressGroup):
         )
 
         # Get the command object to test
-        self.cmd = address_group.DeleteAddressGroup(self.app, self.namespace)
+        self.cmd = address_group.DeleteAddressGroup(self.app, None)
 
     def test_address_group_delete(self):
         arglist = [
@@ -256,7 +256,7 @@ class TestListAddressGroup(TestAddressGroup):
         )
 
         # Get the command object to test
-        self.cmd = address_group.ListAddressGroup(self.app, self.namespace)
+        self.cmd = address_group.ListAddressGroup(self.app, None)
 
     def test_address_group_list(self):
         arglist = []
@@ -341,7 +341,7 @@ class TestSetAddressGroup(TestAddressGroup):
             return_value=self._address_group
         )
         # Get the command object to test
-        self.cmd = address_group.SetAddressGroup(self.app, self.namespace)
+        self.cmd = address_group.SetAddressGroup(self.app, None)
 
     def test_set_nothing(self):
         arglist = [
@@ -447,7 +447,7 @@ class TestShowAddressGroup(TestAddressGroup):
         )
 
         # Get the command object to test
-        self.cmd = address_group.ShowAddressGroup(self.app, self.namespace)
+        self.cmd = address_group.ShowAddressGroup(self.app, None)
 
     def test_show_no_options(self):
         arglist = []
@@ -493,7 +493,7 @@ class TestUnsetAddressGroup(TestAddressGroup):
             return_value=self._address_group
         )
         # Get the command object to test
-        self.cmd = address_group.UnsetAddressGroup(self.app, self.namespace)
+        self.cmd = address_group.UnsetAddressGroup(self.app, None)
 
     def test_unset_nothing(self):
         arglist = [

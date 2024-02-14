@@ -95,7 +95,7 @@ class TestCreateFloatingIPNetwork(TestFloatingIPNetwork):
         self.network_client.find_port = mock.Mock(return_value=self.port)
 
         # Get the command object to test
-        self.cmd = fip.CreateFloatingIP(self.app, self.namespace)
+        self.cmd = fip.CreateFloatingIP(self.app, None)
 
     def test_create_no_options(self):
         arglist = []
@@ -306,7 +306,7 @@ class TestDeleteFloatingIPNetwork(TestFloatingIPNetwork):
         self.network_client.delete_ip = mock.Mock(return_value=None)
 
         # Get the command object to test
-        self.cmd = fip.DeleteFloatingIP(self.app, self.namespace)
+        self.cmd = fip.DeleteFloatingIP(self.app, None)
 
     def test_floating_ip_delete(self):
         self.network_client.find_ip.side_effect = [
@@ -479,7 +479,7 @@ class TestListFloatingIPNetwork(TestFloatingIPNetwork):
         )
 
         # Get the command object to test
-        self.cmd = fip.ListFloatingIP(self.app, self.namespace)
+        self.cmd = fip.ListFloatingIP(self.app, None)
 
     def test_floating_ip_list(self):
         arglist = []
@@ -747,7 +747,7 @@ class TestShowFloatingIPNetwork(TestFloatingIPNetwork):
         self.network_client.find_ip = mock.Mock(return_value=self.floating_ip)
 
         # Get the command object to test
-        self.cmd = fip.ShowFloatingIP(self.app, self.namespace)
+        self.cmd = fip.ShowFloatingIP(self.app, None)
 
     def test_floating_ip_show(self):
         arglist = [
@@ -791,7 +791,7 @@ class TestSetFloatingIP(TestFloatingIPNetwork):
         self.network_client.set_tags = mock.Mock(return_value=None)
 
         # Get the command object to test
-        self.cmd = fip.SetFloatingIP(self.app, self.namespace)
+        self.cmd = fip.SetFloatingIP(self.app, None)
 
     def test_port_option(self):
         arglist = [
@@ -1041,7 +1041,7 @@ class TestUnsetFloatingIP(TestFloatingIPNetwork):
         self.network_client.set_tags = mock.Mock(return_value=None)
 
         # Get the command object to test
-        self.cmd = fip.UnsetFloatingIP(self.app, self.namespace)
+        self.cmd = fip.UnsetFloatingIP(self.app, None)
 
     def test_floating_ip_unset_port(self):
         arglist = [

@@ -92,7 +92,7 @@ class TestCreateNetworkTrunk(TestNetworkTrunk):
         )
 
         # Get the command object to test
-        self.cmd = network_trunk.CreateNetworkTrunk(self.app, self.namespace)
+        self.cmd = network_trunk.CreateNetworkTrunk(self.app, None)
 
         self.projects_mock.get.return_value = self.project
         self.domains_mock.get.return_value = self.domain
@@ -329,7 +329,7 @@ class TestDeleteNetworkTrunk(TestNetworkTrunk):
         self.domains_mock.get.return_value = self.domain
 
         # Get the command object to test
-        self.cmd = network_trunk.DeleteNetworkTrunk(self.app, self.namespace)
+        self.cmd = network_trunk.DeleteNetworkTrunk(self.app, None)
 
     def test_delete_trunkx(self):
         arglist = [
@@ -423,7 +423,7 @@ class TestShowNetworkTrunk(TestNetworkTrunk):
         self.domains_mock.get.return_value = self.domain
 
         # Get the command object to test
-        self.cmd = network_trunk.ShowNetworkTrunk(self.app, self.namespace)
+        self.cmd = network_trunk.ShowNetworkTrunk(self.app, None)
 
     def test_show_no_options(self):
         arglist = []
@@ -495,7 +495,7 @@ class TestListNetworkTrunk(TestNetworkTrunk):
         self.domains_mock.get.return_value = self.domain
 
         # Get the command object to test
-        self.cmd = network_trunk.ListNetworkTrunk(self.app, self.namespace)
+        self.cmd = network_trunk.ListNetworkTrunk(self.app, None)
 
     def test_trunk_list_no_option(self):
         arglist = []
@@ -581,7 +581,7 @@ class TestSetNetworkTrunk(TestNetworkTrunk):
         self.domains_mock.get.return_value = self.domain
 
         # Get the command object to test
-        self.cmd = network_trunk.SetNetworkTrunk(self.app, self.namespace)
+        self.cmd = network_trunk.SetNetworkTrunk(self.app, None)
 
     def _test_set_network_trunk_attr(self, attr, value):
         arglist = [
@@ -842,7 +842,7 @@ class TestListNetworkSubport(TestNetworkTrunk):
         )
 
         # Get the command object to test
-        self.cmd = network_trunk.ListNetworkSubport(self.app, self.namespace)
+        self.cmd = network_trunk.ListNetworkSubport(self.app, None)
 
     def test_subport_list(self):
         arglist = [
@@ -915,7 +915,7 @@ class TestUnsetNetworkTrunk(TestNetworkTrunk):
         )
 
         # Get the command object to test
-        self.cmd = network_trunk.UnsetNetworkTrunk(self.app, self.namespace)
+        self.cmd = network_trunk.UnsetNetworkTrunk(self.app, None)
 
     def test_unset_network_trunk_subport(self):
         subport = self._trunk['sub_ports'][0]

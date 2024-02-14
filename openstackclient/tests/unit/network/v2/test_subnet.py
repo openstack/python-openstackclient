@@ -258,7 +258,7 @@ class TestCreateSubnet(TestSubnet):
         super(TestCreateSubnet, self).setUp()
 
         # Get the command object to test
-        self.cmd = subnet_v2.CreateSubnet(self.app, self.namespace)
+        self.cmd = subnet_v2.CreateSubnet(self.app, None)
 
         self.projects_mock.get.return_value = self.project
         self.domains_mock.get.return_value = self.domain
@@ -726,7 +726,7 @@ class TestDeleteSubnet(TestSubnet):
         )
 
         # Get the command object to test
-        self.cmd = subnet_v2.DeleteSubnet(self.app, self.namespace)
+        self.cmd = subnet_v2.DeleteSubnet(self.app, None)
 
     def test_subnet_delete(self):
         arglist = [
@@ -851,7 +851,7 @@ class TestListSubnet(TestSubnet):
         super(TestListSubnet, self).setUp()
 
         # Get the command object to test
-        self.cmd = subnet_v2.ListSubnet(self.app, self.namespace)
+        self.cmd = subnet_v2.ListSubnet(self.app, None)
 
         self.network_client.subnets = mock.Mock(return_value=self._subnet)
 
@@ -1183,7 +1183,7 @@ class TestSetSubnet(TestSubnet):
         self.network_client.update_subnet = mock.Mock(return_value=None)
         self.network_client.set_tags = mock.Mock(return_value=None)
         self.network_client.find_subnet = mock.Mock(return_value=self._subnet)
-        self.cmd = subnet_v2.SetSubnet(self.app, self.namespace)
+        self.cmd = subnet_v2.SetSubnet(self.app, None)
 
     def test_set_this(self):
         arglist = [
@@ -1510,7 +1510,7 @@ class TestShowSubnet(TestSubnet):
         super(TestShowSubnet, self).setUp()
 
         # Get the command object to test
-        self.cmd = subnet_v2.ShowSubnet(self.app, self.namespace)
+        self.cmd = subnet_v2.ShowSubnet(self.app, None)
 
         self.network_client.find_subnet = mock.Mock(return_value=self._subnet)
 
@@ -1575,7 +1575,7 @@ class TestUnsetSubnet(TestSubnet):
         self.network_client.update_subnet = mock.Mock(return_value=None)
         self.network_client.set_tags = mock.Mock(return_value=None)
         # Get the command object to test
-        self.cmd = subnet_v2.UnsetSubnet(self.app, self.namespace)
+        self.cmd = subnet_v2.UnsetSubnet(self.app, None)
 
     def test_unset_subnet_params(self):
         arglist = [

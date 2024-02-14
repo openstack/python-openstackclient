@@ -41,9 +41,7 @@ class TestShowNetworkQosRuleType(TestNetworkQosRuleType):
         )
 
         # Get the command object to test
-        self.cmd = _qos_rule_type.ShowNetworkQosRuleType(
-            self.app, self.namespace
-        )
+        self.cmd = _qos_rule_type.ShowNetworkQosRuleType(self.app, None)
 
     def test_show_no_options(self):
         arglist = []
@@ -93,9 +91,7 @@ class TestListNetworkQosRuleType(TestNetworkQosRuleType):
         )
 
         # Get the command object to test
-        self.cmd = _qos_rule_type.ListNetworkQosRuleType(
-            self.app, self.namespace
-        )
+        self.cmd = _qos_rule_type.ListNetworkQosRuleType(self.app, None)
 
     def test_qos_rule_type_list(self):
         arglist = []

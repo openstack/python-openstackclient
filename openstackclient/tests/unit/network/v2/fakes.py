@@ -10,7 +10,6 @@
 #   License for the specific language governing permissions and limitations
 #   under the License.
 
-import argparse
 import copy
 from random import choice
 from random import randint
@@ -106,10 +105,7 @@ class TestNetworkV2(
     FakeClientMixin,
     utils.TestCommand,
 ):
-    def setUp(self):
-        super().setUp()
-
-        self.namespace = argparse.Namespace()
+    ...
 
 
 def create_one_extension(attrs=None):

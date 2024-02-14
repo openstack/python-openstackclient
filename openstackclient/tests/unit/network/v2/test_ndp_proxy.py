@@ -73,7 +73,7 @@ class TestCreateNDPProxy(TestNDPProxy):
         )
 
         # Get the command object to test
-        self.cmd = ndp_proxy.CreateNDPProxy(self.app, self.namespace)
+        self.cmd = ndp_proxy.CreateNDPProxy(self.app, None)
 
     def test_create_no_options(self):
         arglist = []
@@ -135,7 +135,7 @@ class TestDeleteNDPProxy(TestNDPProxy):
         )
 
         # Get the command object to test
-        self.cmd = ndp_proxy.DeleteNDPProxy(self.app, self.namespace)
+        self.cmd = ndp_proxy.DeleteNDPProxy(self.app, None)
 
     def test_delete(self):
         arglist = [self.ndp_proxy.id]
@@ -208,7 +208,7 @@ class TestListNDPProxy(TestNDPProxy):
         self.network_client.ndp_proxies = mock.Mock(return_value=ndp_proxies)
 
         # Get the command object to test
-        self.cmd = ndp_proxy.ListNDPProxy(self.app, self.namespace)
+        self.cmd = ndp_proxy.ListNDPProxy(self.app, None)
 
     def test_ndp_proxy_list(self):
         arglist = []
@@ -348,7 +348,7 @@ class TestSetNDPProxy(TestNDPProxy):
         )
 
         # Get the command object to test
-        self.cmd = ndp_proxy.SetNDPProxy(self.app, self.namespace)
+        self.cmd = ndp_proxy.SetNDPProxy(self.app, None)
 
     def test_set_nothing(self):
         arglist = [
@@ -444,7 +444,7 @@ class TestShowNDPProxy(TestNDPProxy):
         )
 
         # Get the command object to test
-        self.cmd = ndp_proxy.ShowNDPProxy(self.app, self.namespace)
+        self.cmd = ndp_proxy.ShowNDPProxy(self.app, None)
 
     def test_show_no_options(self):
         arglist = []

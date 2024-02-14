@@ -59,7 +59,7 @@ class TestCreateMeter(TestMeter):
             return_value=self.new_meter
         )
         self.projects_mock.get.return_value = self.project
-        self.cmd = network_meter.CreateMeter(self.app, self.namespace)
+        self.cmd = network_meter.CreateMeter(self.app, None)
 
     def test_create_no_options(self):
         arglist = []
@@ -140,7 +140,7 @@ class TestDeleteMeter(TestMeter):
             network_fakes.FakeNetworkMeter.get_meter(meter=self.meter_list)
         )
 
-        self.cmd = network_meter.DeleteMeter(self.app, self.namespace)
+        self.cmd = network_meter.DeleteMeter(self.app, None)
 
     def test_delete_one_meter(self):
         arglist = [
@@ -244,7 +244,7 @@ class TestListMeter(TestMeter):
             return_value=self.meter_list
         )
 
-        self.cmd = network_meter.ListMeter(self.app, self.namespace)
+        self.cmd = network_meter.ListMeter(self.app, None)
 
     def test_meter_list(self):
         arglist = []
@@ -280,7 +280,7 @@ class TestShowMeter(TestMeter):
     def setUp(self):
         super(TestShowMeter, self).setUp()
 
-        self.cmd = network_meter.ShowMeter(self.app, self.namespace)
+        self.cmd = network_meter.ShowMeter(self.app, None)
 
         self.network_client.find_metering_label = mock.Mock(
             return_value=self.new_meter

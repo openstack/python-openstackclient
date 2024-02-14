@@ -143,7 +143,7 @@ class TestCreatePort(TestPort):
         )
         self.network_client.find_extension = mock.Mock(return_value=[])
         # Get the command object to test
-        self.cmd = port.CreatePort(self.app, self.namespace)
+        self.cmd = port.CreatePort(self.app, None)
 
     def test_create_default_options(self):
         arglist = [
@@ -1125,7 +1125,7 @@ class TestDeletePort(TestPort):
             ports=self._ports
         )
         # Get the command object to test
-        self.cmd = port.DeletePort(self.app, self.namespace)
+        self.cmd = port.DeletePort(self.app, None)
 
     def test_port_delete(self):
         arglist = [
@@ -1260,7 +1260,7 @@ class TestListPort(TestPort):
         self.compute_client = self.app.client_manager.compute
 
         # Get the command object to test
-        self.cmd = port.ListPort(self.app, self.namespace)
+        self.cmd = port.ListPort(self.app, None)
 
     def test_port_list_no_options(self):
         arglist = []
@@ -1730,7 +1730,7 @@ class TestSetPort(TestPort):
         self.network_client.set_tags = mock.Mock(return_value=None)
 
         # Get the command object to test
-        self.cmd = port.SetPort(self.app, self.namespace)
+        self.cmd = port.SetPort(self.app, None)
 
     def test_set_port_defaults(self):
         arglist = [
@@ -2512,7 +2512,7 @@ class TestShowPort(TestPort):
         self.network_client.find_port = mock.Mock(return_value=self._port)
 
         # Get the command object to test
-        self.cmd = port.ShowPort(self.app, self.namespace)
+        self.cmd = port.ShowPort(self.app, None)
 
     def test_show_no_options(self):
         arglist = []
@@ -2577,7 +2577,7 @@ class TestUnsetPort(TestPort):
         self.network_client.update_port = mock.Mock(return_value=None)
         self.network_client.set_tags = mock.Mock(return_value=None)
         # Get the command object to test
-        self.cmd = port.UnsetPort(self.app, self.namespace)
+        self.cmd = port.UnsetPort(self.app, None)
 
     def test_unset_port_parameters(self):
         arglist = [

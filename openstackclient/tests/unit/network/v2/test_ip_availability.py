@@ -54,7 +54,7 @@ class TestListIPAvailability(TestIPAvailability):
     def setUp(self):
         super(TestListIPAvailability, self).setUp()
 
-        self.cmd = ip_availability.ListIPAvailability(self.app, self.namespace)
+        self.cmd = ip_availability.ListIPAvailability(self.app, None)
         self.network_client.network_ip_availabilities = mock.Mock(
             return_value=self._ip_availability
         )
@@ -142,7 +142,7 @@ class TestShowIPAvailability(TestIPAvailability):
         )
 
         # Get the command object to test
-        self.cmd = ip_availability.ShowIPAvailability(self.app, self.namespace)
+        self.cmd = ip_availability.ShowIPAvailability(self.app, None)
 
     def test_show_no_option(self):
         arglist = []
