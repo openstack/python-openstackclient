@@ -23,7 +23,7 @@ class TestProtocol(identity_fakes.TestFederatedIdentity):
     def setUp(self):
         super(TestProtocol, self).setUp()
 
-        federation_lib = self.app.client_manager.identity.federation
+        federation_lib = self.identity_client.federation
         self.protocols_mock = federation_lib.protocols
         self.protocols_mock.reset_mock()
 

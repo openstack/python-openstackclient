@@ -39,28 +39,26 @@ class TestRoleAssignmentList(TestRoleAssignment):
         super(TestRoleAssignment, self).setUp()
 
         # Get a shortcut to the UserManager Mock
-        self.users_mock = self.app.client_manager.identity.users
+        self.users_mock = self.identity_client.users
         self.users_mock.reset_mock()
 
         # Get a shortcut to the GroupManager Mock
-        self.groups_mock = self.app.client_manager.identity.groups
+        self.groups_mock = self.identity_client.groups
         self.groups_mock.reset_mock()
 
         # Get a shortcut to the DomainManager Mock
-        self.domains_mock = self.app.client_manager.identity.domains
+        self.domains_mock = self.identity_client.domains
         self.domains_mock.reset_mock()
 
         # Get a shortcut to the ProjectManager Mock
-        self.projects_mock = self.app.client_manager.identity.projects
+        self.projects_mock = self.identity_client.projects
         self.projects_mock.reset_mock()
 
         # Get a shortcut to the RoleManager Mock
-        self.roles_mock = self.app.client_manager.identity.roles
+        self.roles_mock = self.identity_client.roles
         self.roles_mock.reset_mock()
 
-        self.role_assignments_mock = (
-            self.app.client_manager.identity.role_assignments
-        )
+        self.role_assignments_mock = self.identity_client.role_assignments
         self.role_assignments_mock.reset_mock()
 
         # Get the command object to test

@@ -19,7 +19,6 @@ from osc_lib.cli import format_columns
 from osc_lib import exceptions
 
 from openstackclient.network.v2 import network
-from openstackclient.tests.unit import fakes
 from openstackclient.tests.unit.identity.v2_0 import fakes as identity_fakes_v2
 from openstackclient.tests.unit.identity.v3 import fakes as identity_fakes_v3
 from openstackclient.tests.unit.network.v2 import fakes as network_fakes
@@ -33,9 +32,9 @@ class TestNetwork(network_fakes.TestNetworkV2):
         super(TestNetwork, self).setUp()
 
         # Get a shortcut to the ProjectManager Mock
-        self.projects_mock = self.app.client_manager.identity.projects
+        self.projects_mock = self.identity_client.projects
         # Get a shortcut to the DomainManager Mock
-        self.domains_mock = self.app.client_manager.identity.domains
+        self.domains_mock = self.identity_client.domains
 
 
 class TestCreateNetworkIdentityV3(TestNetwork):
@@ -311,7 +310,11 @@ class TestCreateNetworkIdentityV3(TestNetwork):
         self._test_create_with_tag(add_tags=False)
 
 
-class TestCreateNetworkIdentityV2(TestNetwork):
+class TestCreateNetworkIdentityV2(
+    identity_fakes_v2.FakeClientMixin,
+    network_fakes.FakeClientMixin,
+    tests_utils.TestCommand,
+):
     project = identity_fakes_v2.FakeProject.create_one_project()
     # The new network created.
     _network = network_fakes.create_one_network(
@@ -386,18 +389,10 @@ class TestCreateNetworkIdentityV2(TestNetwork):
         self.network_client.set_tags = mock.Mock(return_value=None)
 
         # Get the command object to test
-        self.cmd = network.CreateNetwork(self.app, self.namespace)
-
-        # Set identity client v2. And get a shortcut to Identity client.
-        identity_client = identity_fakes_v2.FakeIdentityv2Client(
-            endpoint=fakes.AUTH_URL,
-            token=fakes.AUTH_TOKEN,
-        )
-        self.app.client_manager.identity = identity_client
-        self.identity = self.app.client_manager.identity
+        self.cmd = network.CreateNetwork(self.app, None)
 
         # Get a shortcut to the ProjectManager Mock
-        self.projects_mock = self.identity.tenants
+        self.projects_mock = self.identity_client.tenants
         self.projects_mock.get.return_value = self.project
 
         # There is no DomainManager Mock in fake identity v2.

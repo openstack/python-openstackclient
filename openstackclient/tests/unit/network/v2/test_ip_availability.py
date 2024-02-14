@@ -26,7 +26,7 @@ class TestIPAvailability(network_fakes.TestNetworkV2):
         super(TestIPAvailability, self).setUp()
 
         # Get a shortcut to the ProjectManager Mock
-        self.projects_mock = self.app.client_manager.identity.projects
+        self.projects_mock = self.identity_client.projects
 
         self.project = identity_fakes.FakeProject.create_one_project()
         self.projects_mock.get.return_value = self.project

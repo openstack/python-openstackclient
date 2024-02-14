@@ -28,12 +28,12 @@ class TestIdentityProvider(identity_fakes.TestFederatedIdentity):
         super(TestIdentityProvider, self).setUp()
 
         # Identity Provider mocks
-        federation_lib = self.app.client_manager.identity.federation
+        federation_lib = self.identity_client.federation
         self.identity_providers_mock = federation_lib.identity_providers
         self.identity_providers_mock.reset_mock()
 
         # Domain mocks
-        self.domains_mock = self.app.client_manager.identity.domains
+        self.domains_mock = self.identity_client.domains
         self.domains_mock.reset_mock()
         self.domain = identity_fakes.FakeDomain.create_one_domain(
             identity_fakes.DOMAIN

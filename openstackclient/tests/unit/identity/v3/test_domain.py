@@ -19,7 +19,7 @@ class TestDomain(identity_fakes.TestIdentityv3):
         super(TestDomain, self).setUp()
 
         # Get a shortcut to the DomainManager Mock
-        self.domains_mock = self.app.client_manager.identity.domains
+        self.domains_mock = self.identity_client.domains
         self.domains_mock.reset_mock()
 
 
@@ -493,7 +493,7 @@ class TestDomainShow(TestDomain):
             ('domain', self.domain.id),
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
-        self.app.client_manager.identity.tokens.get_token_data.return_value = {
+        self.identity_client.tokens.get_token_data.return_value = {
             'token': {'project': {'domain': {'id': 'd1', 'name': 'd1'}}}
         }
 

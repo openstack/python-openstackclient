@@ -25,15 +25,15 @@ class TestCredential(identity_fakes.TestIdentityv3):
         super(TestCredential, self).setUp()
 
         # Get a shortcut to the CredentialManager Mock
-        self.credentials_mock = self.app.client_manager.identity.credentials
+        self.credentials_mock = self.identity_client.credentials
         self.credentials_mock.reset_mock()
 
         # Get a shortcut to the UserManager Mock
-        self.users_mock = self.app.client_manager.identity.users
+        self.users_mock = self.identity_client.users
         self.users_mock.reset_mock()
 
         # Get a shortcut to the ProjectManager Mock
-        self.projects_mock = self.app.client_manager.identity.projects
+        self.projects_mock = self.identity_client.projects
         self.projects_mock.reset_mock()
 
 

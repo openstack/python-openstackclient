@@ -20,8 +20,7 @@ from openstackclient.tests.unit.identity.v3 import fakes as identity_fakes
 class TestOAuth1(identity_fakes.TestOAuth1):
     def setUp(self):
         super(TestOAuth1, self).setUp()
-        identity_client = self.app.client_manager.identity
-        self.consumers_mock = identity_client.oauth1.consumers
+        self.consumers_mock = self.identity_client.oauth1.consumers
         self.consumers_mock.reset_mock()
 
 

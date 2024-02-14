@@ -31,9 +31,9 @@ class TestNetworkTrunk(network_fakes.TestNetworkV2):
         super().setUp()
 
         # Get a shortcut to the ProjectManager Mock
-        self.projects_mock = self.app.client_manager.identity.projects
+        self.projects_mock = self.identity_client.projects
         # Get a shortcut to the DomainManager Mock
-        self.domains_mock = self.app.client_manager.identity.domains
+        self.domains_mock = self.identity_client.domains
 
 
 class TestCreateNetworkTrunk(TestNetworkTrunk):

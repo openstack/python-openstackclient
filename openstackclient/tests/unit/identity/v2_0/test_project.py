@@ -59,7 +59,7 @@ class TestProject(identity_fakes.TestIdentityv2):
         super(TestProject, self).setUp()
 
         # Get a shortcut to the TenantManager Mock
-        self.projects_mock = self.app.client_manager.identity.tenants
+        self.projects_mock = self.identity_client.tenants
         self.projects_mock.reset_mock()
 
 

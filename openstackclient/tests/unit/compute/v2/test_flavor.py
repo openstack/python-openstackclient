@@ -30,7 +30,7 @@ class TestFlavor(compute_fakes.TestComputev2):
     def setUp(self):
         super(TestFlavor, self).setUp()
 
-        self.projects_mock = self.app.client_manager.identity.projects
+        self.projects_mock = self.identity_client.projects
         self.projects_mock.reset_mock()
 
 

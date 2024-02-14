@@ -27,7 +27,7 @@ class TestRouter(network_fakes.TestNetworkV2):
     def setUp(self):
         super(TestRouter, self).setUp()
 
-        self.projects_mock = self.app.client_manager.identity.projects
+        self.projects_mock = self.identity_client.projects
 
 
 class TestAddPortToRouter(TestRouter):

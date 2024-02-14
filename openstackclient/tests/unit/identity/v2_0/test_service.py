@@ -27,7 +27,7 @@ class TestService(identity_fakes.TestIdentityv2):
         super(TestService, self).setUp()
 
         # Get a shortcut to the ServiceManager Mock
-        self.services_mock = self.app.client_manager.identity.services
+        self.services_mock = self.identity_client.services
         self.services_mock.reset_mock()
 
 

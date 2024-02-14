@@ -19,21 +19,21 @@ class TestEndpoint(identity_fakes.TestIdentityv3):
         super(TestEndpoint, self).setUp()
 
         # Get a shortcut to the EndpointManager Mock
-        self.endpoints_mock = self.app.client_manager.identity.endpoints
+        self.endpoints_mock = self.identity_client.endpoints
         self.endpoints_mock.reset_mock()
-        self.ep_filter_mock = self.app.client_manager.identity.endpoint_filter
+        self.ep_filter_mock = self.identity_client.endpoint_filter
         self.ep_filter_mock.reset_mock()
 
         # Get a shortcut to the ServiceManager Mock
-        self.services_mock = self.app.client_manager.identity.services
+        self.services_mock = self.identity_client.services
         self.services_mock.reset_mock()
 
         # Get a shortcut to the DomainManager Mock
-        self.domains_mock = self.app.client_manager.identity.domains
+        self.domains_mock = self.identity_client.domains
         self.domains_mock.reset_mock()
 
         # Get a shortcut to the ProjectManager Mock
-        self.projects_mock = self.app.client_manager.identity.projects
+        self.projects_mock = self.identity_client.projects
         self.projects_mock.reset_mock()
 
 

@@ -41,7 +41,7 @@ class TestType(volume_fakes.TestVolume):
         )
         self.volume_encryption_types_mock.reset_mock()
 
-        self.projects_mock = self.app.client_manager.identity.projects
+        self.projects_mock = self.identity_client.projects
         self.projects_mock.reset_mock()
 
 

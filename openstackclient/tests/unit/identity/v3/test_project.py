@@ -29,11 +29,11 @@ class TestProject(identity_fakes.TestIdentityv3):
         super(TestProject, self).setUp()
 
         # Get a shortcut to the DomainManager Mock
-        self.domains_mock = self.app.client_manager.identity.domains
+        self.domains_mock = self.identity_client.domains
         self.domains_mock.reset_mock()
 
         # Get a shortcut to the ProjectManager Mock
-        self.projects_mock = self.app.client_manager.identity.projects
+        self.projects_mock = self.identity_client.projects
         self.projects_mock.reset_mock()
 
 
@@ -1234,7 +1234,7 @@ class TestProjectShow(TestProject):
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
-        self.app.client_manager.identity.tokens.get_token_data.return_value = {
+        self.identity_client.tokens.get_token_data.return_value = {
             'token': {
                 'project': {
                     'domain': {},
@@ -1293,7 +1293,7 @@ class TestProjectShow(TestProject):
             ('children', False),
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
-        self.app.client_manager.identity.tokens.get_token_data.return_value = {
+        self.identity_client.tokens.get_token_data.return_value = {
             'token': {
                 'project': {
                     'domain': {},
@@ -1360,7 +1360,7 @@ class TestProjectShow(TestProject):
             ('children', True),
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
-        self.app.client_manager.identity.tokens.get_token_data.return_value = {
+        self.identity_client.tokens.get_token_data.return_value = {
             'token': {
                 'project': {
                     'domain': {},
@@ -1428,7 +1428,7 @@ class TestProjectShow(TestProject):
             ('children', True),
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
-        self.app.client_manager.identity.tokens.get_token_data.return_value = {
+        self.identity_client.tokens.get_token_data.return_value = {
             'token': {
                 'project': {
                     'domain': {},
@@ -1482,7 +1482,7 @@ class TestProjectShow(TestProject):
             {"name": self.project.name}
         )
 
-        self.app.client_manager.identity.tokens.get_token_data.return_value = {
+        self.identity_client.tokens.get_token_data.return_value = {
             'token': {
                 'project': {
                     'domain': {"id": self.project.domain_id},
@@ -1492,7 +1492,7 @@ class TestProjectShow(TestProject):
             }
         }
 
-        identity_client = self.app.client_manager.identity
+        identity_client = self.identity_client
         arglist = [
             "--domain",
             self.domain.id,

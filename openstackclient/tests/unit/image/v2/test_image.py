@@ -33,9 +33,9 @@ class TestImage(image_fakes.TestImagev2, volume_fakes.TestVolume):
         super().setUp()
 
         # Get shortcut to the Mocks in identity client
-        self.project_mock = self.app.client_manager.identity.projects
+        self.project_mock = self.identity_client.projects
         self.project_mock.reset_mock()
-        self.domain_mock = self.app.client_manager.identity.domains
+        self.domain_mock = self.identity_client.domains
         self.domain_mock.reset_mock()
         self.volumes_mock = self.volume_client.volumes
         fake_body = {

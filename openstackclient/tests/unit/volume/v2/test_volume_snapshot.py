@@ -31,7 +31,7 @@ class TestVolumeSnapshot(volume_fakes.TestVolume):
         self.snapshots_mock.reset_mock()
         self.volumes_mock = self.volume_client.volumes
         self.volumes_mock.reset_mock()
-        self.project_mock = self.app.client_manager.identity.projects
+        self.project_mock = self.identity_client.projects
         self.project_mock.reset_mock()
 
 

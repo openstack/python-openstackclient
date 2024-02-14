@@ -32,7 +32,7 @@ class TestKeypair(compute_fakes.TestComputev2):
         super(TestKeypair, self).setUp()
 
         # Initialize the user mock
-        self.users_mock = self.app.client_manager.identity.users
+        self.users_mock = self.identity_client.users
         self.users_mock.reset_mock()
         self.users_mock.get.return_value = fakes.FakeResource(
             None,
@@ -459,7 +459,7 @@ class TestKeypairList(TestKeypair):
 
     @mock.patch.object(sdk_utils, 'supports_microversion', return_value=True)
     def test_keypair_list_with_user(self, sm_mock):
-        users_mock = self.app.client_manager.identity.users
+        users_mock = self.identity_client.users
         users_mock.reset_mock()
         users_mock.get.return_value = fakes.FakeResource(
             None,
@@ -515,7 +515,7 @@ class TestKeypairList(TestKeypair):
 
     @mock.patch.object(sdk_utils, 'supports_microversion', return_value=True)
     def test_keypair_list_with_project(self, sm_mock):
-        projects_mock = self.app.client_manager.identity.tenants
+        projects_mock = self.identity_client.tenants
         projects_mock.reset_mock()
         projects_mock.get.return_value = fakes.FakeResource(
             None,
@@ -523,7 +523,7 @@ class TestKeypairList(TestKeypair):
             loaded=True,
         )
 
-        users_mock = self.app.client_manager.identity.users
+        users_mock = self.identity_client.users
         users_mock.reset_mock()
         users_mock.list.return_value = [
             fakes.FakeResource(

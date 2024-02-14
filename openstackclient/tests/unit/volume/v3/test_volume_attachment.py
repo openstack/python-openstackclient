@@ -30,7 +30,7 @@ class TestVolumeAttachment(volume_fakes.TestVolume):
         self.volume_attachments_mock = self.volume_client.attachments
         self.volume_attachments_mock.reset_mock()
 
-        self.projects_mock = self.app.client_manager.identity.projects
+        self.projects_mock = self.identity_client.projects
         self.projects_mock.reset_mock()
 
         self.servers_mock = self.compute_client.servers

@@ -24,7 +24,7 @@ class TestVolumeMessage(volume_fakes.TestVolume):
     def setUp(self):
         super().setUp()
 
-        self.projects_mock = self.app.client_manager.identity.projects
+        self.projects_mock = self.identity_client.projects
         self.projects_mock.reset_mock()
 
         self.volume_messages_mock = self.volume_client.messages

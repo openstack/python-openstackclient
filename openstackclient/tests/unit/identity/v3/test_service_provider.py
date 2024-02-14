@@ -23,7 +23,7 @@ class TestServiceProvider(service_fakes.TestFederatedIdentity):
     def setUp(self):
         super(TestServiceProvider, self).setUp()
 
-        federation_lib = self.app.client_manager.identity.federation
+        federation_lib = self.identity_client.federation
         self.service_providers_mock = federation_lib.service_providers
         self.service_providers_mock.reset_mock()
 

@@ -44,7 +44,7 @@ class TestQuota(compute_fakes.TestComputev2):
 
         # Set up common projects
         self.projects = identity_fakes_v3.FakeProject.create_projects(count=2)
-        self.projects_mock = self.app.client_manager.identity.projects
+        self.projects_mock = self.identity_client.projects
         self.projects_mock.reset_mock()
         self.projects_mock.get.return_value = self.projects[0]
 

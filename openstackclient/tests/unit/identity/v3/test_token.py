@@ -119,7 +119,7 @@ class TestTokenRevoke(TestToken):
 
     def setUp(self):
         super(TestTokenRevoke, self).setUp()
-        self.tokens_mock = self.app.client_manager.identity.tokens
+        self.tokens_mock = self.identity_client.tokens
         self.tokens_mock.reset_mock()
         self.tokens_mock.revoke_token.return_value = True
         self.cmd = token.RevokeToken(self.app, None)

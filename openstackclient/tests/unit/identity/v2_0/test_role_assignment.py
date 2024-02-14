@@ -37,15 +37,15 @@ class TestRoleAssignmentList(TestRoleAssignment):
         super(TestRoleAssignment, self).setUp()
 
         # Get a shortcut to the UserManager Mock
-        self.users_mock = self.app.client_manager.identity.users
+        self.users_mock = self.identity_client.users
         self.users_mock.reset_mock()
 
         # Get a shortcut to the ProjectManager Mock
-        self.projects_mock = self.app.client_manager.identity.projects
+        self.projects_mock = self.identity_client.projects
         self.projects_mock.reset_mock()
 
         # Get a shortcut to the RoleManager Mock
-        self.roles_mock = self.app.client_manager.identity.roles
+        self.roles_mock = self.identity_client.roles
         self.roles_mock.reset_mock()
 
         self.projects_mock.get.return_value = fakes.FakeResource(
