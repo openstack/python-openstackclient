@@ -144,7 +144,7 @@ class CreateFloatingIPPortForwarding(
                 "The protocol used in the floating IP "
                 "port forwarding, for instance: TCP, UDP"
             ),
-        ),
+        )
         parser.add_argument(
             '--description',
             metavar='<description>',
@@ -404,7 +404,7 @@ class SetFloatingIPPortForwarding(common.NeutronCommandWithExtraArgs):
             metavar='<protocol>',
             choices=['tcp', 'udp'],
             help=_("The IP protocol used in the floating IP port forwarding"),
-        ),
+        )
         parser.add_argument(
             '--description',
             metavar='<description>',
