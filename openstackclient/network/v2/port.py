@@ -206,6 +206,10 @@ def _get_attrs(client_manager, parsed_args):
     ):
         attrs['numa_affinity_policy'] = 'preferred'
     elif (
+        'numa_policy_socket' in parsed_args and parsed_args.numa_policy_socket
+    ):
+        attrs['numa_affinity_policy'] = 'socket'
+    elif (
         'numa_policy_legacy' in parsed_args and parsed_args.numa_policy_legacy
     ):
         attrs['numa_affinity_policy'] = 'legacy'
@@ -353,6 +357,11 @@ def _add_updatable_args(parser):
         '--numa-policy-preferred',
         action='store_true',
         help=_("NUMA affinity policy preferred to schedule this port"),
+    )
+    numa_affinity_policy_group.add_argument(
+        '--numa-policy-socket',
+        action='store_true',
+        help=_("NUMA affinity policy socket to schedule this port"),
     )
     numa_affinity_policy_group.add_argument(
         '--numa-policy-legacy',
