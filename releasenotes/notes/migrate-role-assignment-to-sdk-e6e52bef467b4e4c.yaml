@@ -1,0 +1,4 @@
+---
+features:
+  - |
+    Migrate ``role assignment`` commands from keystoneclient to SDK.

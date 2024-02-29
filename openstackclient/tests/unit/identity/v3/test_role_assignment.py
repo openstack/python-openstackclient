@@ -11,20 +11,21 @@
 #   under the License.
 #
 
-import copy
 from unittest import mock
 
+from openstack import exceptions as sdk_exc
+from openstack.identity.v3 import domain as _domain
+from openstack.identity.v3 import group as _group
+from openstack.identity.v3 import project as _project
+from openstack.identity.v3 import role as _role
+from openstack.identity.v3 import role_assignment as _role_assignment
+from openstack.identity.v3 import user as _user
+from openstack.test import fakes as sdk_fakes
 from openstackclient.identity.v3 import role_assignment
-from openstackclient.tests.unit import fakes
 from openstackclient.tests.unit.identity.v3 import fakes as identity_fakes
 
 
-class TestRoleAssignment(identity_fakes.TestIdentityv3):
-    def setUp(self):
-        super().setUp()
-
-
-class TestRoleAssignmentList(TestRoleAssignment):
+class TestRoleAssignmentList(identity_fakes.TestIdentityv3):
     columns = (
         'Role',
         'User',
@@ -36,50 +37,61 @@ class TestRoleAssignmentList(TestRoleAssignment):
     )
 
     def setUp(self):
-        super(TestRoleAssignment, self).setUp()
+        super().setUp()
 
-        # Get a shortcut to the UserManager Mock
-        self.users_mock = self.identity_client.users
-        self.users_mock.reset_mock()
+        self.user = sdk_fakes.generate_fake_resource(_user.User)
+        self.group = sdk_fakes.generate_fake_resource(_group.Group)
+        self.domain = sdk_fakes.generate_fake_resource(_domain.Domain)
+        self.project = sdk_fakes.generate_fake_resource(_project.Project)
+        self.role = sdk_fakes.generate_fake_resource(_role.Role)
+        self.assignment_with_project_id_and_user_id = (
+            sdk_fakes.generate_fake_resource(
+                resource_type=_role_assignment.RoleAssignment,
+                role={'id': self.role.id},
+                scope={'project': {'id': self.project.id}},
+                user={'id': self.user.id},
+            )
+        )
+        self.assignment_with_project_id_and_group_id = (
+            sdk_fakes.generate_fake_resource(
+                resource_type=_role_assignment.RoleAssignment,
+                role={'id': self.role.id},
+                scope={'project': {'id': self.project.id}},
+                group={'id': self.group.id},
+            )
+        )
+        self.assignment_with_domain_id_and_user_id = (
+            sdk_fakes.generate_fake_resource(
+                resource_type=_role_assignment.RoleAssignment,
+                role={'id': self.role.id},
+                scope={'domain': {'id': self.domain.id}},
+                user={'id': self.user.id},
+            )
+        )
+        self.assignment_with_domain_id_and_group_id = (
+            sdk_fakes.generate_fake_resource(
+                resource_type=_role_assignment.RoleAssignment,
+                role={'id': self.role.id},
+                scope={'domain': {'id': self.domain.id}},
+                group={'id': self.group.id},
+            )
+        )
 
-        # Get a shortcut to the GroupManager Mock
-        self.groups_mock = self.identity_client.groups
-        self.groups_mock.reset_mock()
-
-        # Get a shortcut to the DomainManager Mock
-        self.domains_mock = self.identity_client.domains
-        self.domains_mock.reset_mock()
-
-        # Get a shortcut to the ProjectManager Mock
-        self.projects_mock = self.identity_client.projects
-        self.projects_mock.reset_mock()
-
-        # Get a shortcut to the RoleManager Mock
-        self.roles_mock = self.identity_client.roles
-        self.roles_mock.reset_mock()
-
-        self.role_assignments_mock = self.identity_client.role_assignments
-        self.role_assignments_mock.reset_mock()
+        self.identity_sdk_client.find_user.return_value = self.user
+        self.identity_sdk_client.find_group.return_value = self.group
+        self.identity_sdk_client.find_project.return_value = self.project
+        self.identity_sdk_client.find_domain.return_value = self.domain
+        self.identity_sdk_client.find_role.return_value = self.role
 
         # Get the command object to test
         self.cmd = role_assignment.ListRoleAssignment(self.app, None)
 
     def test_role_assignment_list_no_filters(self):
-        self.role_assignments_mock.list.return_value = [
-            fakes.FakeResource(
-                None,
-                copy.deepcopy(
-                    identity_fakes.ASSIGNMENT_WITH_PROJECT_ID_AND_USER_ID
-                ),
-                loaded=True,
-            ),
-            fakes.FakeResource(
-                None,
-                copy.deepcopy(
-                    identity_fakes.ASSIGNMENT_WITH_PROJECT_ID_AND_GROUP_ID
-                ),
-                loaded=True,
-            ),
+        self.identity_sdk_client.role_assignments.return_value = [
+            self.assignment_with_project_id_and_user_id,
+            self.assignment_with_project_id_and_group_id,
+            self.assignment_with_domain_id_and_user_id,
+            self.assignment_with_domain_id_and_group_id,
         ]
 
         arglist = []
@@ -91,35 +103,53 @@ class TestRoleAssignmentList(TestRoleAssignment):
         # containing the data to be listed.
         columns, data = self.cmd.take_action(parsed_args)
 
-        self.role_assignments_mock.list.assert_called_with(
-            domain=None,
-            system=None,
-            group=None,
-            effective=False,
-            role=None,
-            user=None,
-            project=None,
-            os_inherit_extension_inherited_to=None,
-            include_names=False,
+        self.identity_sdk_client.role_assignments.assert_called_with(
+            role_id=None,
+            user_id=None,
+            group_id=None,
+            scope_project_id=None,
+            scope_domain_id=None,
+            scope_system=None,
+            effective=None,
+            include_names=None,
+            inherited_to=None,
         )
 
         self.assertEqual(self.columns, columns)
         datalist = (
             (
-                identity_fakes.role_id,
-                identity_fakes.user_id,
+                self.role.id,
+                self.user.id,
                 '',
-                identity_fakes.project_id,
+                self.project.id,
                 '',
                 '',
                 False,
             ),
             (
-                identity_fakes.role_id,
+                self.role.id,
                 '',
-                identity_fakes.group_id,
-                identity_fakes.project_id,
+                self.group.id,
+                self.project.id,
                 '',
+                '',
+                False,
+            ),
+            (
+                self.role.id,
+                self.user.id,
+                '',
+                '',
+                self.domain.id,
+                '',
+                False,
+            ),
+            (
+                self.role.id,
+                '',
+                self.group.id,
+                '',
+                self.domain.id,
                 '',
                 False,
             ),
@@ -127,32 +157,20 @@ class TestRoleAssignmentList(TestRoleAssignment):
         self.assertEqual(datalist, tuple(data))
 
     def test_role_assignment_list_user(self):
-        self.role_assignments_mock.list.return_value = [
-            fakes.FakeResource(
-                None,
-                copy.deepcopy(
-                    identity_fakes.ASSIGNMENT_WITH_DOMAIN_ID_AND_USER_ID
-                ),
-                loaded=True,
-            ),
-            fakes.FakeResource(
-                None,
-                copy.deepcopy(
-                    identity_fakes.ASSIGNMENT_WITH_PROJECT_ID_AND_USER_ID
-                ),
-                loaded=True,
-            ),
+        self.identity_sdk_client.role_assignments.return_value = [
+            self.assignment_with_domain_id_and_user_id,
+            self.assignment_with_project_id_and_user_id,
         ]
 
-        arglist = ['--user', identity_fakes.user_name]
+        arglist = ['--user', self.user.name]
         verifylist = [
-            ('user', identity_fakes.user_name),
+            ('user', self.user.name),
             ('group', None),
             ('system', None),
             ('domain', None),
             ('project', None),
             ('role', None),
-            ('effective', False),
+            ('effective', None),
             ('inherited', False),
             ('names', False),
         ]
@@ -163,34 +181,99 @@ class TestRoleAssignmentList(TestRoleAssignment):
         # containing the data to be listed.
         columns, data = self.cmd.take_action(parsed_args)
 
-        self.role_assignments_mock.list.assert_called_with(
-            domain=None,
-            system=None,
-            user=self.users_mock.get(),
-            group=None,
-            project=None,
-            role=None,
-            effective=False,
-            os_inherit_extension_inherited_to=None,
-            include_names=False,
+        self.identity_sdk_client.role_assignments.assert_called_with(
+            role_id=None,
+            user_id=self.user.id,
+            group_id=None,
+            scope_project_id=None,
+            scope_domain_id=None,
+            scope_system=None,
+            effective=None,
+            include_names=None,
+            inherited_to=None,
         )
 
         self.assertEqual(self.columns, columns)
         datalist = (
             (
-                identity_fakes.role_id,
-                identity_fakes.user_id,
+                self.role.id,
+                self.user.id,
                 '',
                 '',
-                identity_fakes.domain_id,
+                self.domain.id,
                 '',
                 False,
             ),
             (
-                identity_fakes.role_id,
-                identity_fakes.user_id,
+                self.role.id,
+                self.user.id,
                 '',
-                identity_fakes.project_id,
+                self.project.id,
+                '',
+                '',
+                False,
+            ),
+        )
+        self.assertEqual(datalist, tuple(data))
+
+    @mock.patch.object(_user.User, 'find')
+    def test_role_assignment_list_user_not_found(self, find_mock):
+        self.identity_sdk_client.role_assignments.return_value = [
+            self.assignment_with_domain_id_and_user_id,
+            self.assignment_with_project_id_and_user_id,
+        ]
+        self.identity_sdk_client.find_user.side_effect = [
+            sdk_exc.ForbiddenException,
+            sdk_exc.ForbiddenException,
+        ]
+
+        arglist = ['--user', self.user.id]
+        verifylist = [
+            ('user', self.user.id),
+            ('group', None),
+            ('system', None),
+            ('domain', None),
+            ('project', None),
+            ('role', None),
+            ('effective', None),
+            ('inherited', False),
+            ('names', False),
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        # In base command class Lister in cliff, abstract method take_action()
+        # returns a tuple containing the column names and an iterable
+        # containing the data to be listed.
+        columns, data = self.cmd.take_action(parsed_args)
+
+        self.identity_sdk_client.role_assignments.assert_called_with(
+            role_id=None,
+            user_id=self.user.id,
+            group_id=None,
+            scope_project_id=None,
+            scope_domain_id=None,
+            scope_system=None,
+            effective=None,
+            include_names=None,
+            inherited_to=None,
+        )
+
+        self.assertEqual(self.columns, columns)
+        datalist = (
+            (
+                self.role.id,
+                self.user.id,
+                '',
+                '',
+                self.domain.id,
+                '',
+                False,
+            ),
+            (
+                self.role.id,
+                self.user.id,
+                '',
+                self.project.id,
                 '',
                 '',
                 False,
@@ -199,32 +282,20 @@ class TestRoleAssignmentList(TestRoleAssignment):
         self.assertEqual(datalist, tuple(data))
 
     def test_role_assignment_list_group(self):
-        self.role_assignments_mock.list.return_value = [
-            fakes.FakeResource(
-                None,
-                copy.deepcopy(
-                    identity_fakes.ASSIGNMENT_WITH_DOMAIN_ID_AND_GROUP_ID
-                ),
-                loaded=True,
-            ),
-            fakes.FakeResource(
-                None,
-                copy.deepcopy(
-                    identity_fakes.ASSIGNMENT_WITH_PROJECT_ID_AND_GROUP_ID
-                ),
-                loaded=True,
-            ),
+        self.identity_sdk_client.role_assignments.return_value = [
+            self.assignment_with_domain_id_and_group_id,
+            self.assignment_with_project_id_and_group_id,
         ]
 
-        arglist = ['--group', identity_fakes.group_name]
+        arglist = ['--group', self.group.name]
         verifylist = [
             ('user', None),
-            ('group', identity_fakes.group_name),
+            ('group', self.group.name),
             ('system', None),
             ('domain', None),
             ('project', None),
             ('role', None),
-            ('effective', False),
+            ('effective', None),
             ('inherited', False),
             ('names', False),
         ]
@@ -235,34 +306,34 @@ class TestRoleAssignmentList(TestRoleAssignment):
         # containing the data to be listed.
         columns, data = self.cmd.take_action(parsed_args)
 
-        self.role_assignments_mock.list.assert_called_with(
-            domain=None,
-            system=None,
-            group=self.groups_mock.get(),
-            effective=False,
-            project=None,
-            role=None,
-            user=None,
-            os_inherit_extension_inherited_to=None,
-            include_names=False,
+        self.identity_sdk_client.role_assignments.assert_called_with(
+            role_id=None,
+            user_id=None,
+            group_id=self.group.id,
+            scope_project_id=None,
+            scope_domain_id=None,
+            scope_system=None,
+            effective=None,
+            include_names=None,
+            inherited_to=None,
         )
 
         self.assertEqual(self.columns, columns)
         datalist = (
             (
-                identity_fakes.role_id,
+                self.role.id,
                 '',
-                identity_fakes.group_id,
+                self.group.id,
                 '',
-                identity_fakes.domain_id,
+                self.domain.id,
                 '',
                 False,
             ),
             (
-                identity_fakes.role_id,
+                self.role.id,
                 '',
-                identity_fakes.group_id,
-                identity_fakes.project_id,
+                self.group.id,
+                self.project.id,
                 '',
                 '',
                 False,
@@ -271,32 +342,20 @@ class TestRoleAssignmentList(TestRoleAssignment):
         self.assertEqual(datalist, tuple(data))
 
     def test_role_assignment_list_domain(self):
-        self.role_assignments_mock.list.return_value = [
-            fakes.FakeResource(
-                None,
-                copy.deepcopy(
-                    identity_fakes.ASSIGNMENT_WITH_DOMAIN_ID_AND_USER_ID
-                ),
-                loaded=True,
-            ),
-            fakes.FakeResource(
-                None,
-                copy.deepcopy(
-                    identity_fakes.ASSIGNMENT_WITH_DOMAIN_ID_AND_GROUP_ID
-                ),
-                loaded=True,
-            ),
+        self.identity_sdk_client.role_assignments.return_value = [
+            self.assignment_with_domain_id_and_user_id,
+            self.assignment_with_domain_id_and_group_id,
         ]
 
-        arglist = ['--domain', identity_fakes.domain_name]
+        arglist = ['--domain', self.domain.name]
         verifylist = [
             ('user', None),
             ('group', None),
             ('system', None),
-            ('domain', identity_fakes.domain_name),
+            ('domain', self.domain.name),
             ('project', None),
             ('role', None),
-            ('effective', False),
+            ('effective', None),
             ('inherited', False),
             ('names', False),
         ]
@@ -307,35 +366,35 @@ class TestRoleAssignmentList(TestRoleAssignment):
         # containing the data to be listed.
         columns, data = self.cmd.take_action(parsed_args)
 
-        self.role_assignments_mock.list.assert_called_with(
-            domain=self.domains_mock.get(),
-            system=None,
-            group=None,
-            effective=False,
-            project=None,
-            role=None,
-            user=None,
-            os_inherit_extension_inherited_to=None,
-            include_names=False,
+        self.identity_sdk_client.role_assignments.assert_called_with(
+            role_id=None,
+            user_id=None,
+            group_id=None,
+            scope_project_id=None,
+            scope_domain_id=self.domain.id,
+            scope_system=None,
+            effective=None,
+            include_names=None,
+            inherited_to=None,
         )
 
         self.assertEqual(self.columns, columns)
         datalist = (
             (
-                identity_fakes.role_id,
-                identity_fakes.user_id,
+                self.role.id,
+                self.user.id,
                 '',
                 '',
-                identity_fakes.domain_id,
+                self.domain.id,
                 '',
                 False,
             ),
             (
-                identity_fakes.role_id,
+                self.role.id,
                 '',
-                identity_fakes.group_id,
+                self.group.id,
                 '',
-                identity_fakes.domain_id,
+                self.domain.id,
                 '',
                 False,
             ),
@@ -343,32 +402,20 @@ class TestRoleAssignmentList(TestRoleAssignment):
         self.assertEqual(datalist, tuple(data))
 
     def test_role_assignment_list_project(self):
-        self.role_assignments_mock.list.return_value = [
-            fakes.FakeResource(
-                None,
-                copy.deepcopy(
-                    identity_fakes.ASSIGNMENT_WITH_PROJECT_ID_AND_USER_ID
-                ),
-                loaded=True,
-            ),
-            fakes.FakeResource(
-                None,
-                copy.deepcopy(
-                    identity_fakes.ASSIGNMENT_WITH_PROJECT_ID_AND_GROUP_ID
-                ),
-                loaded=True,
-            ),
+        self.identity_sdk_client.role_assignments.return_value = [
+            self.assignment_with_project_id_and_user_id,
+            self.assignment_with_project_id_and_group_id,
         ]
 
-        arglist = ['--project', identity_fakes.project_name]
+        arglist = ['--project', self.project.name]
         verifylist = [
             ('user', None),
             ('group', None),
             ('system', None),
             ('domain', None),
-            ('project', identity_fakes.project_name),
+            ('project', self.project.name),
             ('role', None),
-            ('effective', False),
+            ('effective', None),
             ('inherited', False),
             ('names', False),
         ]
@@ -379,34 +426,34 @@ class TestRoleAssignmentList(TestRoleAssignment):
         # containing the data to be listed.
         columns, data = self.cmd.take_action(parsed_args)
 
-        self.role_assignments_mock.list.assert_called_with(
-            domain=None,
-            system=None,
-            group=None,
-            effective=False,
-            project=self.projects_mock.get(),
-            role=None,
-            user=None,
-            os_inherit_extension_inherited_to=None,
-            include_names=False,
+        self.identity_sdk_client.role_assignments.assert_called_with(
+            role_id=None,
+            user_id=None,
+            group_id=None,
+            scope_project_id=self.project.id,
+            scope_domain_id=None,
+            scope_system=None,
+            effective=None,
+            include_names=None,
+            inherited_to=None,
         )
 
         self.assertEqual(self.columns, columns)
         datalist = (
             (
-                identity_fakes.role_id,
-                identity_fakes.user_id,
+                self.role.id,
+                self.user.id,
                 '',
-                identity_fakes.project_id,
+                self.project.id,
                 '',
                 '',
                 False,
             ),
             (
-                identity_fakes.role_id,
+                self.role.id,
                 '',
-                identity_fakes.group_id,
-                identity_fakes.project_id,
+                self.group.id,
+                self.project.id,
                 '',
                 '',
                 False,
@@ -416,17 +463,11 @@ class TestRoleAssignmentList(TestRoleAssignment):
 
     def test_role_assignment_list_def_creds(self):
         auth_ref = self.app.client_manager.auth_ref = mock.Mock()
-        auth_ref.project_id.return_value = identity_fakes.project_id
-        auth_ref.user_id.return_value = identity_fakes.user_id
+        auth_ref.project_id.return_value = self.project.id
+        auth_ref.user_id.return_value = self.user.id
 
-        self.role_assignments_mock.list.return_value = [
-            fakes.FakeResource(
-                None,
-                copy.deepcopy(
-                    identity_fakes.ASSIGNMENT_WITH_PROJECT_ID_AND_USER_ID
-                ),
-                loaded=True,
-            ),
+        self.identity_sdk_client.role_assignments.return_value = [
+            self.assignment_with_project_id_and_user_id,
         ]
 
         arglist = [
@@ -440,7 +481,7 @@ class TestRoleAssignmentList(TestRoleAssignment):
             ('domain', None),
             ('project', None),
             ('role', None),
-            ('effective', False),
+            ('effective', None),
             ('inherited', False),
             ('names', False),
             ('authuser', True),
@@ -453,25 +494,25 @@ class TestRoleAssignmentList(TestRoleAssignment):
         # containing the data to be listed.
         columns, data = self.cmd.take_action(parsed_args)
 
-        self.role_assignments_mock.list.assert_called_with(
-            domain=None,
-            system=None,
-            user=self.users_mock.get(),
-            group=None,
-            project=self.projects_mock.get(),
-            role=None,
-            effective=False,
-            os_inherit_extension_inherited_to=None,
-            include_names=False,
+        self.identity_sdk_client.role_assignments.assert_called_with(
+            role_id=None,
+            user_id=self.user.id,
+            group_id=None,
+            scope_project_id=self.project.id,
+            scope_domain_id=None,
+            scope_system=None,
+            effective=None,
+            include_names=None,
+            inherited_to=None,
         )
 
         self.assertEqual(self.columns, columns)
         datalist = (
             (
-                identity_fakes.role_id,
-                identity_fakes.user_id,
+                self.role.id,
+                self.user.id,
                 '',
-                identity_fakes.project_id,
+                self.project.id,
                 '',
                 '',
                 False,
@@ -480,21 +521,9 @@ class TestRoleAssignmentList(TestRoleAssignment):
         self.assertEqual(datalist, tuple(data))
 
     def test_role_assignment_list_effective(self):
-        self.role_assignments_mock.list.return_value = [
-            fakes.FakeResource(
-                None,
-                copy.deepcopy(
-                    identity_fakes.ASSIGNMENT_WITH_PROJECT_ID_AND_USER_ID
-                ),
-                loaded=True,
-            ),
-            fakes.FakeResource(
-                None,
-                copy.deepcopy(
-                    identity_fakes.ASSIGNMENT_WITH_DOMAIN_ID_AND_USER_ID
-                ),
-                loaded=True,
-            ),
+        self.identity_sdk_client.role_assignments.return_value = [
+            self.assignment_with_project_id_and_user_id,
+            self.assignment_with_domain_id_and_user_id,
         ]
 
         arglist = ['--effective']
@@ -516,35 +545,35 @@ class TestRoleAssignmentList(TestRoleAssignment):
         # containing the data to be listed.
         columns, data = self.cmd.take_action(parsed_args)
 
-        self.role_assignments_mock.list.assert_called_with(
-            domain=None,
-            system=None,
-            group=None,
+        self.identity_sdk_client.role_assignments.assert_called_with(
+            role_id=None,
+            user_id=None,
+            group_id=None,
+            scope_project_id=None,
+            scope_domain_id=None,
+            scope_system=None,
             effective=True,
-            project=None,
-            role=None,
-            user=None,
-            os_inherit_extension_inherited_to=None,
-            include_names=False,
+            include_names=None,
+            inherited_to=None,
         )
 
         self.assertEqual(self.columns, columns)
         datalist = (
             (
-                identity_fakes.role_id,
-                identity_fakes.user_id,
+                self.role.id,
+                self.user.id,
                 '',
-                identity_fakes.project_id,
+                self.project.id,
                 '',
                 '',
                 False,
             ),
             (
-                identity_fakes.role_id,
-                identity_fakes.user_id,
+                self.role.id,
+                self.user.id,
                 '',
                 '',
-                identity_fakes.domain_id,
+                self.domain.id,
                 '',
                 False,
             ),
@@ -552,15 +581,31 @@ class TestRoleAssignmentList(TestRoleAssignment):
         self.assertEqual(tuple(data), datalist)
 
     def test_role_assignment_list_inherited(self):
-        fake_assignment_a = copy.deepcopy(
-            identity_fakes.ASSIGNMENT_WITH_PROJECT_ID_AND_USER_ID_INHERITED
+        assignment_with_project_id_and_user_id_inherited = (
+            sdk_fakes.generate_fake_resource(
+                resource_type=_role_assignment.RoleAssignment,
+                role={'id': self.role.id},
+                scope={
+                    'project': {'id': self.project.id},
+                    'OS-INHERIT:inherited_to': 'projects',
+                },
+                user={'id': self.user.id},
+            )
         )
-        fake_assignment_b = copy.deepcopy(
-            identity_fakes.ASSIGNMENT_WITH_DOMAIN_ID_AND_USER_ID_INHERITED
+        assignment_with_domain_id_and_group_id_inherited = (
+            sdk_fakes.generate_fake_resource(
+                resource_type=_role_assignment.RoleAssignment,
+                role={'id': self.role.id},
+                scope={
+                    'domain': {'id': self.domain.id},
+                    'OS-INHERIT:inherited_to': 'projects',
+                },
+                group={'id': self.group.id},
+            )
         )
-        self.role_assignments_mock.list.return_value = [
-            fakes.FakeResource(None, fake_assignment_a, loaded=True),
-            fakes.FakeResource(None, fake_assignment_b, loaded=True),
+        self.identity_sdk_client.role_assignments.return_value = [
+            assignment_with_project_id_and_user_id_inherited,
+            assignment_with_domain_id_and_group_id_inherited,
         ]
 
         arglist = ['--inherited']
@@ -571,7 +616,7 @@ class TestRoleAssignmentList(TestRoleAssignment):
             ('domain', None),
             ('project', None),
             ('role', None),
-            ('effective', False),
+            ('effective', None),
             ('inherited', True),
             ('names', False),
         ]
@@ -582,35 +627,35 @@ class TestRoleAssignmentList(TestRoleAssignment):
         # containing the data to be listed.
         columns, data = self.cmd.take_action(parsed_args)
 
-        self.role_assignments_mock.list.assert_called_with(
-            domain=None,
-            system=None,
-            group=None,
-            effective=False,
-            project=None,
-            role=None,
-            user=None,
-            os_inherit_extension_inherited_to='projects',
-            include_names=False,
+        self.identity_sdk_client.role_assignments.assert_called_with(
+            role_id=None,
+            user_id=None,
+            group_id=None,
+            scope_project_id=None,
+            scope_domain_id=None,
+            scope_system=None,
+            effective=None,
+            include_names=None,
+            inherited_to='projects',
         )
 
         self.assertEqual(self.columns, columns)
         datalist = (
             (
-                identity_fakes.role_id,
-                identity_fakes.user_id,
+                self.role.id,
+                self.user.id,
                 '',
-                identity_fakes.project_id,
+                self.project.id,
                 '',
                 '',
                 True,
             ),
             (
-                identity_fakes.role_id,
-                identity_fakes.user_id,
+                self.role.id,
                 '',
+                self.group.id,
                 '',
-                identity_fakes.domain_id,
+                self.domain.id,
                 '',
                 True,
             ),
@@ -618,15 +663,45 @@ class TestRoleAssignmentList(TestRoleAssignment):
         self.assertEqual(datalist, tuple(data))
 
     def test_role_assignment_list_include_names(self):
-        fake_role_assignment_a = copy.deepcopy(
-            identity_fakes.ASSIGNMENT_WITH_PROJECT_ID_AND_USER_ID_INCLUDE_NAMES
+        assignment_with_project_id_and_user_id_include_names = (
+            sdk_fakes.generate_fake_resource(
+                resource_type=_role_assignment.RoleAssignment,
+                role={'id': self.role.id, 'name': self.role.name},
+                scope={
+                    'project': {
+                        'domain': {
+                            'id': self.domain.id,
+                            'name': self.domain.name,
+                        },
+                        'id': self.project.id,
+                        'name': self.project.name,
+                    }
+                },
+                user={
+                    'domain': {'id': self.domain.id, 'name': self.domain.name},
+                    'id': self.user.id,
+                    'name': self.user.name,
+                },
+            )
         )
-        fake_role_assignment_b = copy.deepcopy(
-            identity_fakes.ASSIGNMENT_WITH_DOMAIN_ID_AND_USER_ID_INCLUDE_NAMES
+        assignment_with_domain_id_and_group_id_include_names = (
+            sdk_fakes.generate_fake_resource(
+                resource_type=_role_assignment.RoleAssignment,
+                role={'id': self.role.id, 'name': self.role.name},
+                scope={
+                    'domain': {'id': self.domain.id, 'name': self.domain.name}
+                },
+                group={
+                    'domain': {'id': self.domain.id, 'name': self.domain.name},
+                    'id': self.group.id,
+                    'name': self.group.name,
+                },
+            )
         )
-        self.role_assignments_mock.list.return_value = [
-            fakes.FakeResource(None, fake_role_assignment_a, loaded=True),
-            fakes.FakeResource(None, fake_role_assignment_b, loaded=True),
+
+        self.identity_sdk_client.role_assignments.return_value = [
+            assignment_with_project_id_and_user_id_include_names,
+            assignment_with_domain_id_and_group_id_include_names,
         ]
 
         arglist = ['--names']
@@ -637,7 +712,7 @@ class TestRoleAssignmentList(TestRoleAssignment):
             ('domain', None),
             ('project', None),
             ('role', None),
-            ('effective', False),
+            ('effective', None),
             ('inherited', False),
             ('names', True),
         ]
@@ -650,16 +725,16 @@ class TestRoleAssignmentList(TestRoleAssignment):
         # correct information
         columns, data = self.cmd.take_action(parsed_args)
 
-        self.role_assignments_mock.list.assert_called_with(
-            domain=None,
-            system=None,
-            group=None,
-            effective=False,
-            project=None,
-            role=None,
-            user=None,
-            os_inherit_extension_inherited_to=None,
+        self.identity_sdk_client.role_assignments.assert_called_with(
+            role_id=None,
+            user_id=None,
+            group_id=None,
+            scope_project_id=None,
+            scope_domain_id=None,
+            scope_system=None,
+            effective=None,
             include_names=True,
+            inherited_to=None,
         )
 
         collist = (
@@ -673,48 +748,54 @@ class TestRoleAssignmentList(TestRoleAssignment):
         )
         self.assertEqual(columns, collist)
 
-        datalist1 = (
+        datalist = (
             (
-                identity_fakes.role_name,
-                '@'.join(
-                    [identity_fakes.user_name, identity_fakes.domain_name]
-                ),
+                self.role.name,
+                '@'.join([self.user.name, self.domain.name]),
                 '',
-                '@'.join(
-                    [identity_fakes.project_name, identity_fakes.domain_name]
-                ),
+                '@'.join([self.project.name, self.domain.name]),
                 '',
                 '',
                 False,
             ),
             (
-                identity_fakes.role_name,
-                '@'.join(
-                    [identity_fakes.user_name, identity_fakes.domain_name]
-                ),
+                self.role.name,
                 '',
+                '@'.join([self.group.name, self.domain.name]),
                 '',
-                identity_fakes.domain_name,
+                self.domain.name,
                 '',
                 False,
             ),
         )
-        self.assertEqual(tuple(data), datalist1)
+        self.assertEqual(datalist, tuple(data))
 
     def test_role_assignment_list_domain_role(self):
-        self.role_assignments_mock.list.return_value = [
-            fakes.FakeResource(
-                None,
-                copy.deepcopy(identity_fakes.ASSIGNMENT_WITH_DOMAIN_ROLE),
-                loaded=True,
-            ),
+        domain_2 = sdk_fakes.generate_fake_resource(_domain.Domain)
+        # Create new role with same name but different domain
+        role_2 = sdk_fakes.generate_fake_resource(
+            resource_type=_role.Role,
+            domain_id=domain_2.id,
+            name=self.role.name,
+        )
+        assignment_with_role_domain_2 = sdk_fakes.generate_fake_resource(
+            resource_type=_role_assignment.RoleAssignment,
+            role={'id': role_2.id, 'name': role_2.name},
+            scope={'project': {'id': self.project.id}},
+            user={'id': self.user.id},
+        )
+
+        self.identity_sdk_client.find_domain.return_value = domain_2
+        self.identity_sdk_client.find_role.return_value = role_2
+        self.identity_sdk_client.role_assignments.return_value = [
+            assignment_with_role_domain_2,
         ]
 
         arglist = [
             '--role',
-            identity_fakes.ROLE_2['name'],
+            role_2.name,
             '--role-domain',
-            identity_fakes.domain_name,
+            domain_2.name,
         ]
         verifylist = [
             ('user', None),
@@ -722,8 +803,8 @@ class TestRoleAssignmentList(TestRoleAssignment):
             ('system', None),
             ('domain', None),
             ('project', None),
-            ('role', identity_fakes.ROLE_2['name']),
-            ('effective', False),
+            ('role', role_2.name),
+            ('effective', None),
             ('inherited', False),
             ('names', False),
         ]
@@ -734,26 +815,26 @@ class TestRoleAssignmentList(TestRoleAssignment):
         # containing the data to be listed.
         columns, data = self.cmd.take_action(parsed_args)
 
-        self.role_assignments_mock.list.assert_called_with(
-            domain=None,
-            system=None,
-            user=None,
-            group=None,
-            project=None,
-            role=self.roles_mock.get(),
-            effective=False,
-            os_inherit_extension_inherited_to=None,
-            include_names=False,
+        self.identity_sdk_client.role_assignments.assert_called_with(
+            role_id=role_2.id,
+            user_id=None,
+            group_id=None,
+            scope_project_id=None,
+            scope_domain_id=None,
+            scope_system=None,
+            effective=None,
+            include_names=None,
+            inherited_to=None,
         )
 
         self.assertEqual(self.columns, columns)
         datalist = (
             (
-                identity_fakes.ROLE_2['id'],
-                identity_fakes.user_id,
+                role_2.id,
+                self.user.id,
                 '',
+                self.project.id,
                 '',
-                identity_fakes.domain_id,
                 '',
                 False,
             ),
