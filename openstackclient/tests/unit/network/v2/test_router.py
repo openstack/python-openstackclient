@@ -230,7 +230,7 @@ class TestCreateRouter(TestRouter):
             ('ha', False),
             ('external_gateway', _network.name),
             ('enable_snat', True),
-            ('fixed_ip', [{'ip-address': '2001:db8::1'}]),
+            ('fixed_ips', [{'ip-address': '2001:db8::1'}]),
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
@@ -1297,7 +1297,7 @@ class TestSetRouter(TestRouter):
             self._router.id,
         ]
         verifylist = [
-            ('fixed_ip', [{'subnet': "'abc'"}]),
+            ('fixed_ips', [{'subnet': "'abc'"}]),
             ('router', self._router.id),
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
@@ -1336,7 +1336,7 @@ class TestSetRouter(TestRouter):
         verifylist = [
             ('router', self._router.id),
             ('external_gateway', self._network.id),
-            ('fixed_ip', [{'subnet': "'abc'"}]),
+            ('fixed_ips', [{'subnet': "'abc'"}]),
             ('enable_snat', True),
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
@@ -1370,7 +1370,7 @@ class TestSetRouter(TestRouter):
         verifylist = [
             ('router', self._router.id),
             ('external_gateway', self._network.id),
-            ('fixed_ip', [{'ip-address': "10.0.1.1"}]),
+            ('fixed_ips', [{'ip-address': "10.0.1.1"}]),
             ('enable_snat', True),
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
@@ -1404,7 +1404,7 @@ class TestSetRouter(TestRouter):
         verifylist = [
             ('router', self._router.id),
             ('external_gateway', self._network.id),
-            ('fixed_ip', [{'subnet': "'abc'", 'ip-address': "10.0.1.1"}]),
+            ('fixed_ips', [{'subnet': "'abc'", 'ip-address': "10.0.1.1"}]),
             ('enable_snat', True),
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
