@@ -194,6 +194,7 @@ class ClearCachedImage(command.Command):
             "--cache",
             action="store_const",
             const="cache",
+            default="both",
             dest="target",
             help=_("Clears all the cached images"),
         )
@@ -201,6 +202,7 @@ class ClearCachedImage(command.Command):
             "--queue",
             action="store_const",
             const="queue",
+            default="both",
             dest="target",
             help=_("Clears all the queued images"),
         )
