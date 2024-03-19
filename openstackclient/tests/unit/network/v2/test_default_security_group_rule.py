@@ -72,7 +72,7 @@ class TestCreateDefaultSecurityGroupRule(TestDefaultSecurityGroupRule):
             'remote_ip_prefix': '0.0.0.0/0',
             'location': 'MUNCHMUNCHMUNCH',
             'used_in_default_sg': False,
-            'used_in_non_default_sg': True,
+            'used_in_non_default_sg': False,
         }
         attrs = attrs or {}
         # Overwrite default attributes.
@@ -217,7 +217,7 @@ class TestCreateDefaultSecurityGroupRule(TestDefaultSecurityGroupRule):
                 'protocol': self._default_sg_rule.protocol,
                 'remote_ip_prefix': self._default_sg_rule.remote_ip_prefix,
                 'used_in_default_sg': False,
-                'used_in_non_default_sg': True,
+                'used_in_non_default_sg': False,
             }
         )
         self.assertEqual(self.expected_columns, columns)
@@ -251,7 +251,7 @@ class TestCreateDefaultSecurityGroupRule(TestDefaultSecurityGroupRule):
                 'protocol': self._default_sg_rule.protocol,
                 'remote_ip_prefix': self._default_sg_rule.remote_ip_prefix,
                 'used_in_default_sg': False,
-                'used_in_non_default_sg': True,
+                'used_in_non_default_sg': False,
             }
         )
         self.assertEqual(self.expected_columns, columns)
@@ -287,7 +287,7 @@ class TestCreateDefaultSecurityGroupRule(TestDefaultSecurityGroupRule):
                 'protocol': self._default_sg_rule.protocol,
                 'remote_address_group_id': self._default_sg_rule.remote_address_group_id,
                 'used_in_default_sg': False,
-                'used_in_non_default_sg': True,
+                'used_in_non_default_sg': False,
             }
         )
         self.assertEqual(self.expected_columns, columns)
@@ -334,7 +334,7 @@ class TestCreateDefaultSecurityGroupRule(TestDefaultSecurityGroupRule):
                 'protocol': self._default_sg_rule.protocol,
                 'remote_group_id': 'remote-group-id',
                 'used_in_default_sg': False,
-                'used_in_non_default_sg': True,
+                'used_in_non_default_sg': False,
             }
         )
         self.assertEqual(self.expected_columns, columns)
@@ -366,7 +366,7 @@ class TestCreateDefaultSecurityGroupRule(TestDefaultSecurityGroupRule):
                 'protocol': self._default_sg_rule.protocol,
                 'remote_group_id': 'remote-group-id',
                 'used_in_default_sg': False,
-                'used_in_non_default_sg': True,
+                'used_in_non_default_sg': False,
             }
         )
         self.assertEqual(self.expected_columns, columns)
@@ -400,7 +400,7 @@ class TestCreateDefaultSecurityGroupRule(TestDefaultSecurityGroupRule):
                 'protocol': self._default_sg_rule.protocol,
                 'remote_ip_prefix': self._default_sg_rule.remote_ip_prefix,
                 'used_in_default_sg': False,
-                'used_in_non_default_sg': True,
+                'used_in_non_default_sg': False,
             }
         )
         self.assertEqual(self.expected_columns, columns)
@@ -434,7 +434,7 @@ class TestCreateDefaultSecurityGroupRule(TestDefaultSecurityGroupRule):
                 'protocol': self._default_sg_rule.protocol,
                 'remote_ip_prefix': self._default_sg_rule.remote_ip_prefix,
                 'used_in_default_sg': False,
-                'used_in_non_default_sg': True,
+                'used_in_non_default_sg': False,
             }
         )
         self.assertEqual(self.expected_columns, columns)
@@ -585,7 +585,7 @@ class TestCreateDefaultSecurityGroupRule(TestDefaultSecurityGroupRule):
                 'protocol': self._default_sg_rule.protocol,
                 'remote_ip_prefix': self._default_sg_rule.remote_ip_prefix,
                 'used_in_default_sg': False,
-                'used_in_non_default_sg': True,
+                'used_in_non_default_sg': False,
             }
         )
         self.assertEqual(self.expected_columns, columns)
@@ -623,7 +623,7 @@ class TestCreateDefaultSecurityGroupRule(TestDefaultSecurityGroupRule):
                 'protocol': self._default_sg_rule.protocol,
                 'remote_ip_prefix': self._default_sg_rule.remote_ip_prefix,
                 'used_in_default_sg': False,
-                'used_in_non_default_sg': True,
+                'used_in_non_default_sg': False,
             }
         )
         self.assertEqual(self.expected_columns, columns)
@@ -661,7 +661,7 @@ class TestCreateDefaultSecurityGroupRule(TestDefaultSecurityGroupRule):
                 'protocol': self._default_sg_rule.protocol,
                 'remote_ip_prefix': self._default_sg_rule.remote_ip_prefix,
                 'used_in_default_sg': False,
-                'used_in_non_default_sg': True,
+                'used_in_non_default_sg': False,
             }
         )
         self.assertEqual(self.expected_columns, columns)
@@ -698,7 +698,7 @@ class TestCreateDefaultSecurityGroupRule(TestDefaultSecurityGroupRule):
                 'protocol': self._default_sg_rule.protocol,
                 'remote_ip_prefix': self._default_sg_rule.remote_ip_prefix,
                 'used_in_default_sg': False,
-                'used_in_non_default_sg': True,
+                'used_in_non_default_sg': False,
             }
         )
         self.assertEqual(self.expected_columns, columns)
@@ -741,7 +741,7 @@ class TestCreateDefaultSecurityGroupRule(TestDefaultSecurityGroupRule):
                 'protocol': self._default_sg_rule.protocol,
                 'remote_ip_prefix': self._default_sg_rule.remote_ip_prefix,
                 'used_in_default_sg': False,
-                'used_in_non_default_sg': True,
+                'used_in_non_default_sg': False,
             }
         )
         self.assertEqual(self.expected_columns, columns)
@@ -780,7 +780,7 @@ class TestCreateDefaultSecurityGroupRule(TestDefaultSecurityGroupRule):
                 'protocol': self._default_sg_rule.protocol,
                 'remote_ip_prefix': self._default_sg_rule.remote_ip_prefix,
                 'used_in_default_sg': False,
-                'used_in_non_default_sg': True,
+                'used_in_non_default_sg': False,
             }
         )
         self.assertEqual(self.expected_columns, columns)
@@ -811,7 +811,7 @@ class TestCreateDefaultSecurityGroupRule(TestDefaultSecurityGroupRule):
                 'protocol': self._default_sg_rule.protocol,
                 'remote_ip_prefix': self._default_sg_rule.remote_ip_prefix,
                 'used_in_default_sg': False,
-                'used_in_non_default_sg': True,
+                'used_in_non_default_sg': False,
             }
         )
         self.assertEqual(self.expected_columns, columns)
@@ -831,7 +831,7 @@ class TestDeleteDefaultSecurityGroupRule(TestDefaultSecurityGroupRule):
         'remote_ip_prefix': '0.0.0.0/0',
         'location': 'MUNCHMUNCHMUNCH',
         'used_in_default_sg': False,
-        'used_in_non_default_sg': True,
+        'used_in_non_default_sg': False,
     }
     _default_sg_rules = list(
         sdk_fakes.generate_fake_resources(

@@ -142,7 +142,7 @@ class CreateDefaultSecurityGroupRule(
         parser.add_argument(
             '--for-custom-sg',
             action='store_true',
-            default=True,
+            default=False,
             help=_(
                 "Set this default security group rule to be used in all "
                 "custom security groups created manually by users"
