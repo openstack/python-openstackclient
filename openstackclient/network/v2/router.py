@@ -99,9 +99,9 @@ def _get_external_gateway_attrs(client_manager, parsed_args):
             gateway_info['enable_snat'] = False
         if parsed_args.enable_snat:
             gateway_info['enable_snat'] = True
-        if parsed_args.fixed_ip:
+        if parsed_args.fixed_ips:
             ips = []
-            for ip_spec in parsed_args.fixed_ip:
+            for ip_spec in parsed_args.fixed_ips:
                 if ip_spec.get('subnet', False):
                     subnet_name_id = ip_spec.pop('subnet')
                     if subnet_name_id:
@@ -379,6 +379,7 @@ class CreateRouter(command.ShowOne, common.NeutronCommandWithExtraArgs):
             metavar='subnet=<subnet>,ip-address=<ip-address>',
             action=parseractions.MultiKeyValueAction,
             optional_keys=['subnet', 'ip-address'],
+            dest='fixed_ips',
             help=_(
                 "Desired IP and/or subnet (name or ID) "
                 "on external gateway: "
@@ -449,7 +450,7 @@ class CreateRouter(command.ShowOne, common.NeutronCommandWithExtraArgs):
         if (
             parsed_args.disable_snat
             or parsed_args.enable_snat
-            or parsed_args.fixed_ip
+            or parsed_args.fixed_ips
         ) and not parsed_args.external_gateway:
             msg = _(
                 "You must specify '--external-gateway' in order "
@@ -797,6 +798,7 @@ class SetRouter(common.NeutronCommandWithExtraArgs):
             metavar='subnet=<subnet>,ip-address=<ip-address>',
             action=parseractions.MultiKeyValueAction,
             optional_keys=['subnet', 'ip-address'],
+            dest='fixed_ips',
             help=_(
                 "Desired IP and/or subnet (name or ID) "
                 "on external gateway: "
@@ -870,7 +872,7 @@ class SetRouter(common.NeutronCommandWithExtraArgs):
         if (
             parsed_args.disable_snat
             or parsed_args.enable_snat
-            or parsed_args.fixed_ip
+            or parsed_args.fixed_ips
         ) and not parsed_args.external_gateway:
             msg = _(
                 "You must specify '--external-gateway' in order "
