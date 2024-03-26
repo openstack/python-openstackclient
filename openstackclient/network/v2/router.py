@@ -85,6 +85,39 @@ def _get_columns(item):
     )
 
 
+def _get_external_gateway_attrs(client_manager, parsed_args):
+    attrs = {}
+
+    if parsed_args.external_gateway:
+        gateway_info = {}
+        n_client = client_manager.network
+        network = n_client.find_network(
+            parsed_args.external_gateway, ignore_missing=False
+        )
+        gateway_info['network_id'] = network.id
+        if parsed_args.disable_snat:
+            gateway_info['enable_snat'] = False
+        if parsed_args.enable_snat:
+            gateway_info['enable_snat'] = True
+        if parsed_args.fixed_ip:
+            ips = []
+            for ip_spec in parsed_args.fixed_ip:
+                if ip_spec.get('subnet', False):
+                    subnet_name_id = ip_spec.pop('subnet')
+                    if subnet_name_id:
+                        subnet = n_client.find_subnet(
+                            subnet_name_id, ignore_missing=False
+                        )
+                        ip_spec['subnet_id'] = subnet.id
+                if ip_spec.get('ip-address', False):
+                    ip_spec['ip_address'] = ip_spec.pop('ip-address')
+                ips.append(ip_spec)
+            gateway_info['external_fixed_ips'] = ips
+        attrs['external_gateway_info'] = gateway_info
+
+    return attrs
+
+
 def _get_attrs(client_manager, parsed_args):
     attrs = {}
     if parsed_args.name is not None:
@@ -113,32 +146,9 @@ def _get_attrs(client_manager, parsed_args):
             parsed_args.project_domain,
         ).id
         attrs['project_id'] = project_id
-    if parsed_args.external_gateway:
-        gateway_info = {}
-        n_client = client_manager.network
-        network = n_client.find_network(
-            parsed_args.external_gateway, ignore_missing=False
-        )
-        gateway_info['network_id'] = network.id
-        if parsed_args.disable_snat:
-            gateway_info['enable_snat'] = False
-        if parsed_args.enable_snat:
-            gateway_info['enable_snat'] = True
-        if parsed_args.fixed_ip:
-            ips = []
-            for ip_spec in parsed_args.fixed_ip:
-                if ip_spec.get('subnet', False):
-                    subnet_name_id = ip_spec.pop('subnet')
-                    if subnet_name_id:
-                        subnet = n_client.find_subnet(
-                            subnet_name_id, ignore_missing=False
-                        )
-                        ip_spec['subnet_id'] = subnet.id
-                if ip_spec.get('ip-address', False):
-                    ip_spec['ip_address'] = ip_spec.pop('ip-address')
-                ips.append(ip_spec)
-            gateway_info['external_fixed_ips'] = ips
-        attrs['external_gateway_info'] = gateway_info
+
+    attrs.update(_get_external_gateway_attrs(client_manager, parsed_args))
+
     # "router set" command doesn't support setting flavor_id.
     if 'flavor_id' in parsed_args and parsed_args.flavor_id is not None:
         attrs['flavor_id'] = parsed_args.flavor_id
