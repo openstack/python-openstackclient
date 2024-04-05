@@ -13,6 +13,7 @@
 
 """Router action implementations"""
 
+import collections
 import copy
 import json
 import logging
@@ -85,23 +86,67 @@ def _get_columns(item):
     )
 
 
+def is_multiple_gateways_supported(n_client):
+    return n_client.find_extension("external-gateway-multihoming") is not None
+
+
+def _passed_multiple_gateways(extension_supported, external_gateways):
+    passed_multiple_gws = len(external_gateways) > 1
+    if passed_multiple_gws and not extension_supported:
+        msg = _(
+            'Supplying --external-gateway option multiple times is not '
+            'supported due to the lack of external-gateway-multihoming '
+            'extension at the Neutron side.'
+        )
+        raise exceptions.CommandError(msg)
+    return passed_multiple_gws
+
+
 def _get_external_gateway_attrs(client_manager, parsed_args):
     attrs = {}
 
-    if parsed_args.external_gateway:
-        gateway_info = {}
+    if parsed_args.external_gateways:
+        external_gateways: collections.defaultdict[
+            str, list[dict]
+        ] = collections.defaultdict(list)
         n_client = client_manager.network
-        network = n_client.find_network(
-            parsed_args.external_gateway, ignore_missing=False
-        )
-        gateway_info['network_id'] = network.id
-        if parsed_args.disable_snat:
-            gateway_info['enable_snat'] = False
-        if parsed_args.enable_snat:
-            gateway_info['enable_snat'] = True
+        first_network_id = None
+
+        for gw_net_name_or_id in parsed_args.external_gateways:
+            gateway_info = {}
+            gw_net = n_client.find_network(
+                gw_net_name_or_id, ignore_missing=False
+            )
+            if first_network_id is None:
+                first_network_id = gw_net.id
+            gateway_info['network_id'] = gw_net.id
+            if 'disable_snat' in parsed_args and parsed_args.disable_snat:
+                gateway_info['enable_snat'] = False
+            if 'enable_snat' in parsed_args and parsed_args.enable_snat:
+                gateway_info['enable_snat'] = True
+
+            # This option was added before multiple gateways were supported, so
+            # it does not have a per-gateway port granularity so just pass it
+            # along in gw info in case it is specified.
+            if 'qos_policy' in parsed_args and parsed_args.qos_policy:
+                qos_id = n_client.find_qos_policy(
+                    parsed_args.qos_policy, ignore_missing=False
+                ).id
+                gateway_info['qos_policy_id'] = qos_id
+            if 'no_qos_policy' in parsed_args and parsed_args.no_qos_policy:
+                gateway_info['qos_policy_id'] = None
+
+            external_gateways[gw_net.id].append(gateway_info)
+
+        multiple_gws_supported = is_multiple_gateways_supported(n_client)
+        # Parse the external fixed IP specs and match them to specific gateway
+        # ports if needed.
         if parsed_args.fixed_ips:
-            ips = []
             for ip_spec in parsed_args.fixed_ips:
+                # If there is only one gateway, this value will represent the
+                # network ID for it, otherwise it will be overridden.
+                ip_net_id = first_network_id
+
                 if ip_spec.get('subnet', False):
                     subnet_name_id = ip_spec.pop('subnet')
                     if subnet_name_id:
@@ -109,12 +154,45 @@ def _get_external_gateway_attrs(client_manager, parsed_args):
                             subnet_name_id, ignore_missing=False
                         )
                         ip_spec['subnet_id'] = subnet.id
+                        ip_net_id = subnet.network_id
                 if ip_spec.get('ip-address', False):
                     ip_spec['ip_address'] = ip_spec.pop('ip-address')
-                ips.append(ip_spec)
-            gateway_info['external_fixed_ips'] = ips
-        attrs['external_gateway_info'] = gateway_info
+                # Finally, add an ip_spec to the specific gateway identified
+                # by a network from the spec.
+                if (
+                    'subnet_id' in ip_spec
+                    and ip_net_id not in external_gateways
+                ):
+                    msg = _(
+                        'Subnet %s does not belong to any of the networks '
+                        'provided for --external-gateway.'
+                    ) % (ip_spec['subnet_id'])
+                    raise exceptions.CommandError(msg)
+                for gw_info in external_gateways[ip_net_id]:
+                    if 'external_fixed_ips' not in gw_info:
+                        gw_info['external_fixed_ips'] = [ip_spec]
+                        break
+                else:
+                    # The end user has requested more fixed IPs than there are
+                    # gateways, add multiple fixed IPs to single gateway to
+                    # retain current behavior.
+                    for gw_info in external_gateways[ip_net_id]:
+                        gw_info['external_fixed_ips'].append(ip_spec)
+                        break
 
+        # Use the newer API whenever it is supported regardless of whether one
+        # or multiple gateways are passed as arguments.
+        if multiple_gws_supported:
+            gateway_list = []
+            # Now merge the per-network-id lists of external gateway info
+            # dicts into one list.
+            for gw_info_list in external_gateways.values():
+                gateway_list.extend(gw_info_list)
+            attrs['external_gateways'] = gateway_list
+        else:
+            attrs['external_gateway_info'] = external_gateways[
+                first_network_id
+            ][0]
     return attrs
 
 
@@ -372,7 +450,13 @@ class CreateRouter(command.ShowOne, common.NeutronCommandWithExtraArgs):
         parser.add_argument(
             '--external-gateway',
             metavar="<network>",
-            help=_("External Network used as router's gateway (name or ID)"),
+            action='append',
+            help=_(
+                "External Network used as router's gateway (name or ID). "
+                "(repeat option to set multiple gateways per router "
+                "if the L3 service plugin in use supports it)."
+            ),
+            dest='external_gateways',
         )
         parser.add_argument(
             '--fixed-ip',
@@ -384,7 +468,7 @@ class CreateRouter(command.ShowOne, common.NeutronCommandWithExtraArgs):
                 "Desired IP and/or subnet (name or ID) "
                 "on external gateway: "
                 "subnet=<subnet>,ip-address=<ip-address> "
-                "(repeat option to set multiple fixed IP addresses)"
+                "(repeat option to set multiple fixed IP addresses)."
             ),
         )
         snat_group = parser.add_mutually_exclusive_group()
@@ -433,7 +517,7 @@ class CreateRouter(command.ShowOne, common.NeutronCommandWithExtraArgs):
             self._parse_extra_properties(parsed_args.extra_properties)
         )
 
-        if parsed_args.enable_ndp_proxy and not parsed_args.external_gateway:
+        if parsed_args.enable_ndp_proxy and not parsed_args.external_gateways:
             msg = _(
                 "You must specify '--external-gateway' in order "
                 "to enable router's NDP proxy"
@@ -443,15 +527,24 @@ class CreateRouter(command.ShowOne, common.NeutronCommandWithExtraArgs):
         if parsed_args.enable_ndp_proxy is not None:
             attrs['enable_ndp_proxy'] = parsed_args.enable_ndp_proxy
 
+        external_gateways = attrs.pop('external_gateways', None)
         obj = client.create_router(**attrs)
         # tags cannot be set when created, so tags need to be set later.
         _tag.update_tags_for_set(client, obj, parsed_args)
+
+        # If the multiple external gateways API is intended to be used,
+        # do a separate API call to set the desired external gateways as the
+        # router creation API supports adding only one.
+        if external_gateways:
+            client.update_external_gateways(
+                obj, body={'router': {'external_gateways': external_gateways}}
+            )
 
         if (
             parsed_args.disable_snat
             or parsed_args.enable_snat
             or parsed_args.fixed_ips
-        ) and not parsed_args.external_gateway:
+        ) and not parsed_args.external_gateways:
             msg = _(
                 "You must specify '--external-gateway' in order "
                 "to specify SNAT or fixed-ip values"
@@ -791,7 +884,13 @@ class SetRouter(common.NeutronCommandWithExtraArgs):
         parser.add_argument(
             '--external-gateway',
             metavar="<network>",
-            help=_("External Network used as router's gateway (name or ID)"),
+            action='append',
+            help=_(
+                "External Network used as router's gateway (name or ID). "
+                "(repeat option to set multiple gateways per router "
+                "if the L3 service plugin in use supports it)."
+            ),
+            dest='external_gateways',
         )
         parser.add_argument(
             '--fixed-ip',
@@ -803,7 +902,7 @@ class SetRouter(common.NeutronCommandWithExtraArgs):
                 "Desired IP and/or subnet (name or ID) "
                 "on external gateway: "
                 "subnet=<subnet>,ip-address=<ip-address> "
-                "(repeat option to set multiple fixed IP addresses)"
+                "(repeat option to set multiple fixed IP addresses)."
             ),
         )
         snat_group = parser.add_mutually_exclusive_group()
@@ -873,7 +972,7 @@ class SetRouter(common.NeutronCommandWithExtraArgs):
             parsed_args.disable_snat
             or parsed_args.enable_snat
             or parsed_args.fixed_ips
-        ) and not parsed_args.external_gateway:
+        ) and not parsed_args.external_gateways:
             msg = _(
                 "You must specify '--external-gateway' in order "
                 "to update the SNAT or fixed-ip values"
@@ -882,7 +981,7 @@ class SetRouter(common.NeutronCommandWithExtraArgs):
 
         if (
             parsed_args.qos_policy or parsed_args.no_qos_policy
-        ) and not parsed_args.external_gateway:
+        ) and not parsed_args.external_gateways:
             try:
                 original_net_id = obj.external_gateway_info['network_id']
             except (KeyError, TypeError):
@@ -893,17 +992,21 @@ class SetRouter(common.NeutronCommandWithExtraArgs):
                 )
                 raise exceptions.CommandError(msg)
             else:
-                if not attrs.get('external_gateway_info'):
+                if not attrs.get('external_gateway_info') and not attrs.get(
+                    'external_gateways'
+                ):
                     attrs['external_gateway_info'] = {}
                 attrs['external_gateway_info']['network_id'] = original_net_id
         if parsed_args.qos_policy:
             check_qos_id = client.find_qos_policy(
                 parsed_args.qos_policy, ignore_missing=False
             ).id
-            attrs['external_gateway_info']['qos_policy_id'] = check_qos_id
+            if not attrs.get('external_gateways'):
+                attrs['external_gateway_info']['qos_policy_id'] = check_qos_id
 
         if 'no_qos_policy' in parsed_args and parsed_args.no_qos_policy:
-            attrs['external_gateway_info']['qos_policy_id'] = None
+            if not attrs.get('external_gateways'):
+                attrs['external_gateway_info']['qos_policy_id'] = None
 
         attrs.update(
             self._parse_extra_properties(parsed_args.extra_properties)
@@ -913,7 +1016,16 @@ class SetRouter(common.NeutronCommandWithExtraArgs):
             attrs['enable_ndp_proxy'] = parsed_args.enable_ndp_proxy
 
         if attrs:
+            external_gateways = attrs.pop('external_gateways', None)
             client.update_router(obj, **attrs)
+            # If the multiple external gateways API is intended to be used,
+            # do a separate API call to set external gateways.
+            if external_gateways:
+                client.update_external_gateways(
+                    obj,
+                    body={'router': {'external_gateways': external_gateways}},
+                )
+
         # tags is a subresource and it needs to be updated separately.
         _tag.update_tags_for_set(client, obj, parsed_args)
 
@@ -973,11 +1085,15 @@ class UnsetRouter(common.NeutronUnsetCommandWithExtraArgs):
                 "(repeat option to unset multiple routes)"
             ),
         )
+        # NOTE(dmitriis): This was not extended to support selective removal
+        # of external gateways due to a cpython bug in argparse:
+        # https://github.com/python/cpython/issues/53584
         parser.add_argument(
             '--external-gateway',
             action='store_true',
             default=False,
             help=_("Remove external gateway information from the router"),
+            dest='external_gateways',
         )
         parser.add_argument(
             '--qos-policy',
@@ -1024,7 +1140,7 @@ class UnsetRouter(common.NeutronUnsetCommandWithExtraArgs):
                     'qos_policy_id': None,
                 }
 
-        if parsed_args.external_gateway:
+        if parsed_args.external_gateways:
             attrs['external_gateway_info'] = {}
 
         attrs.update(
@@ -1032,6 +1148,149 @@ class UnsetRouter(common.NeutronUnsetCommandWithExtraArgs):
         )
 
         if attrs:
+            # If removing multiple gateways per router are supported,
+            # use the relevant API to remove them all.
+            if is_multiple_gateways_supported(client):
+                client.remove_external_gateways(
+                    obj,
+                    body={'router': {'external_gateways': {}}},
+                )
+
             client.update_router(obj, **attrs)
         # tags is a subresource and it needs to be updated separately.
         _tag.update_tags_for_unset(client, obj, parsed_args)
+
+
+class AddGatewayToRouter(command.ShowOne):
+    _description = _("Add router gateway")
+
+    def get_parser(self, prog_name):
+        parser = super().get_parser(prog_name)
+        parser.add_argument(
+            'router',
+            metavar="<router>",
+            help=_("Router to modify (name or ID)."),
+        )
+        parser.add_argument(
+            metavar="<network>",
+            help=_(
+                "External Network to a attach a router gateway to (name or "
+                "ID)."
+            ),
+            dest='external_gateways',
+            # The argument is stored in a list in order to reuse the
+            # common attribute parsing code.
+            nargs=1,
+        )
+        parser.add_argument(
+            '--fixed-ip',
+            metavar='subnet=<subnet>,ip-address=<ip-address>',
+            action=parseractions.MultiKeyValueAction,
+            optional_keys=['subnet', 'ip-address'],
+            dest='fixed_ips',
+            help=_(
+                "Desired IP and/or subnet (name or ID) "
+                "on external gateway: "
+                "subnet=<subnet>,ip-address=<ip-address> "
+                "(repeat option to set multiple fixed IP addresses)."
+            ),
+        )
+        return parser
+
+    def take_action(self, parsed_args):
+        client = self.app.client_manager.network
+        if not is_multiple_gateways_supported(client):
+            msg = _(
+                'The external-gateway-multihoming extension is not enabled at '
+                'the Neutron side.'
+            )
+            raise exceptions.CommandError(msg)
+
+        router_obj = client.find_router(
+            parsed_args.router, ignore_missing=False
+        )
+
+        # Get the common attributes.
+        attrs = _get_external_gateway_attrs(
+            self.app.client_manager, parsed_args
+        )
+
+        if attrs:
+            external_gateways = attrs.pop('external_gateways')
+            router_obj = client.add_external_gateways(
+                router_obj,
+                body={'router': {'external_gateways': external_gateways}},
+            )
+
+        display_columns, columns = _get_columns(router_obj)
+        data = utils.get_item_properties(
+            router_obj, columns, formatters=_formatters
+        )
+        return (display_columns, data)
+
+
+class RemoveGatewayFromRouter(command.ShowOne):
+    _description = _("Remove router gateway")
+
+    def get_parser(self, prog_name):
+        parser = super().get_parser(prog_name)
+        parser.add_argument(
+            'router',
+            metavar="<router>",
+            help=_("Router to modify (name or ID)."),
+        )
+        parser.add_argument(
+            metavar="<network>",
+            help=_(
+                "External Network to remove a router gateway from (name or "
+                "ID)."
+            ),
+            dest='external_gateways',
+            # The argument is stored in a list in order to reuse the
+            # common attribute parsing code.
+            nargs=1,
+        )
+        parser.add_argument(
+            '--fixed-ip',
+            metavar='subnet=<subnet>,ip-address=<ip-address>',
+            action=parseractions.MultiKeyValueAction,
+            optional_keys=['subnet', 'ip-address'],
+            dest='fixed_ips',
+            help=_(
+                "IP and/or subnet (name or ID) on the external gateway "
+                "which is used to identify a particular gateway if multiple "
+                "are attached to the same network: subnet=<subnet>,"
+                "ip-address=<ip-address>."
+            ),
+        )
+        return parser
+
+    def take_action(self, parsed_args):
+        client = self.app.client_manager.network
+        if not is_multiple_gateways_supported(client):
+            msg = _(
+                'The external-gateway-multihoming extension is not enabled at '
+                'the Neutron side.'
+            )
+            raise exceptions.CommandError(msg)
+
+        router_obj = client.find_router(
+            parsed_args.router, ignore_missing=False
+        )
+
+        # Get the common attributes.
+        attrs = _get_external_gateway_attrs(
+            self.app.client_manager, parsed_args
+        )
+        if attrs:
+            external_gateways = attrs.pop('external_gateways')
+            router_obj = client.remove_external_gateways(
+                router_obj,
+                body={'router': {'external_gateways': external_gateways}},
+            )
+
+        display_columns, columns = _get_columns(router_obj)
+        data = utils.get_item_properties(
+            router_obj, columns, formatters=_formatters
+        )
+        return (display_columns, data)
