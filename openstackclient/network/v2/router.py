@@ -231,7 +231,70 @@ def _get_attrs(client_manager, parsed_args):
     if 'flavor_id' in parsed_args and parsed_args.flavor_id is not None:
         attrs['flavor_id'] = parsed_args.flavor_id
 
+    for attr in ('enable_default_route_bfd', 'enable_default_route_ecmp'):
+        value = getattr(parsed_args, attr, None)
+        if value is not None:
+            attrs[attr] = value
+
     return attrs
+
+
+def _parser_add_bfd_ecmp_arguments(parser):
+    """Helper to add BFD and ECMP args for CreateRouter and SetRouter."""
+    parser.add_argument(
+        '--enable-default-route-bfd',
+        dest='enable_default_route_bfd',
+        default=None,
+        action='store_true',
+        help=_(
+            "Enable BFD sessions for default routes inferred from "
+            "the external gateway port subnets for this router."
+        ),
+    )
+    parser.add_argument(
+        '--disable-default-route-bfd',
+        dest='enable_default_route_bfd',
+        default=None,
+        action='store_false',
+        help=_(
+            "Disable BFD sessions for default routes inferred from "
+            "the external gateway port subnets for this router."
+        ),
+    )
+    parser.add_argument(
+        '--enable-default-route-ecmp',
+        dest='enable_default_route_ecmp',
+        default=None,
+        action='store_true',
+        help=_(
+            "Add ECMP default routes if multiple are available via "
+            "different gateway ports."
+        ),
+    )
+    parser.add_argument(
+        '--disable-default-route-ecmp',
+        dest='enable_default_route_ecmp',
+        default=None,
+        action='store_false',
+        help=_("Add default route only for first gateway port."),
+    )
+
+
+def _command_check_bfd_ecmp_supported(attrs, client):
+    """Helper to check for server side support when bfd/ecmp attrs provided.
+
+    :raises: exceptions.CommandError
+    """
+    if (
+        'enable_default_route_bfd' in attrs
+        or 'enable_default_route_ecmp' in attrs
+    ) and not is_multiple_gateways_supported(client):
+        msg = _(
+            'The external-gateway-multihoming extension is not enabled at '
+            'the Neutron side, cannot use --enable-default-route-bfd or '
+            '--enable-default-route-ecmp arguments.'
+        )
+        raise exceptions.CommandError(msg)
 
 
 class AddPortToRouter(command.Command):
@@ -502,6 +565,7 @@ class CreateRouter(command.ShowOne, common.NeutronCommandWithExtraArgs):
             metavar='<flavor-id>',
             help=_("Associate the router to a flavor by ID"),
         )
+        _parser_add_bfd_ecmp_arguments(parser)
 
         return parser
 
@@ -526,6 +590,8 @@ class CreateRouter(command.ShowOne, common.NeutronCommandWithExtraArgs):
 
         if parsed_args.enable_ndp_proxy is not None:
             attrs['enable_ndp_proxy'] = parsed_args.enable_ndp_proxy
+
+        _command_check_bfd_ecmp_supported(attrs, client)
 
         external_gateways = attrs.pop('external_gateways', None)
         obj = client.create_router(**attrs)
@@ -943,6 +1009,7 @@ class SetRouter(common.NeutronCommandWithExtraArgs):
             help=_("Remove QoS policy from router gateway IPs"),
         )
         _tag.add_tag_option_to_parser_for_set(parser, _('router'))
+        _parser_add_bfd_ecmp_arguments(parser)
         return parser
 
     def take_action(self, parsed_args):
@@ -1014,6 +1081,8 @@ class SetRouter(common.NeutronCommandWithExtraArgs):
 
         if parsed_args.enable_ndp_proxy is not None:
             attrs['enable_ndp_proxy'] = parsed_args.enable_ndp_proxy
+
+        _command_check_bfd_ecmp_supported(attrs, client)
 
         if attrs:
             external_gateways = attrs.pop('external_gateways', None)

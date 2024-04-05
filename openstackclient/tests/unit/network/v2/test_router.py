@@ -410,6 +410,74 @@ class TestCreateRouter(TestRouter):
         self.assertEqual(self.columns, columns)
         self.assertCountEqual(self.data, data)
 
+    def test_create_with_enable_default_route_bfd(self):
+        self.network_client.find_extension = mock.Mock(
+            return_value=network_fakes.create_one_extension(
+                attrs={'name': 'external-gateway-multihoming'}
+            )
+        )
+        arglist = [self.new_router.name, '--enable-default-route-bfd']
+        verifylist = [
+            ('name', self.new_router.name),
+            ('enable_default_route_bfd', True),
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+        columns, data = self.cmd.take_action(parsed_args)
+        self.network_client.create_router.assert_called_once_with(
+            name=self.new_router.name,
+            admin_state_up=True,
+            enable_default_route_bfd=True,
+        )
+        self.assertEqual(self.columns, columns)
+        self.assertCountEqual(self.data, data)
+
+    def test_create_with_enable_default_route_bfd_no_extension(self):
+        arglist = [self.new_router.name, '--enable-default-route-bfd']
+        verifylist = [
+            ('name', self.new_router.name),
+            ('enable_default_route_bfd', True),
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+        self.assertRaises(
+            exceptions.CommandError,
+            self.cmd.take_action,
+            parsed_args,
+        )
+
+    def test_create_with_enable_default_route_ecmp(self):
+        self.network_client.find_extension = mock.Mock(
+            return_value=network_fakes.create_one_extension(
+                attrs={'name': 'external-gateway-multihoming'}
+            )
+        )
+        arglist = [self.new_router.name, '--enable-default-route-ecmp']
+        verifylist = [
+            ('name', self.new_router.name),
+            ('enable_default_route_ecmp', True),
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+        columns, data = self.cmd.take_action(parsed_args)
+        self.network_client.create_router.assert_called_once_with(
+            name=self.new_router.name,
+            admin_state_up=True,
+            enable_default_route_ecmp=True,
+        )
+        self.assertEqual(self.columns, columns)
+        self.assertCountEqual(self.data, data)
+
+    def test_create_with_enable_default_route_ecmp_no_extension(self):
+        arglist = [self.new_router.name, '--enable-default-route-ecmp']
+        verifylist = [
+            ('name', self.new_router.name),
+            ('enable_default_route_ecmp', True),
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+        self.assertRaises(
+            exceptions.CommandError,
+            self.cmd.take_action,
+            parsed_args,
+        )
+
 
 class TestDeleteRouter(TestRouter):
     # The routers to delete.
