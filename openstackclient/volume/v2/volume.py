@@ -720,6 +720,12 @@ class SetVolume(command.Command):
             '--retype-policy',
             metavar='<retype-policy>',
             choices=['never', 'on-demand'],
+            help=argparse.SUPPRESS,
+        )
+        parser.add_argument(
+            '--migration-policy',
+            metavar='<migration-policy>',
+            choices=['never', 'on-demand'],
             help=_(
                 'Migration policy while re-typing volume '
                 '("never" or "on-demand", default is "never" ) '
@@ -755,6 +761,15 @@ class SetVolume(command.Command):
         volume = utils.find_resource(volume_client.volumes, parsed_args.volume)
 
         result = 0
+        if parsed_args.retype_policy:
+            msg = _(
+                "The '--retype-policy' option has been deprecated in favor "
+                "of '--migration-policy' option. The '--retype-policy' option "
+                "will be removed in a future release. Please use "
+                "'--migration-policy' instead."
+            )
+            self.log.warning(msg)
+
         if parsed_args.size:
             try:
                 if parsed_args.size <= volume.size:
@@ -848,11 +863,12 @@ class SetVolume(command.Command):
                     e,
                 )
                 result += 1
+        policy = parsed_args.migration_policy or parsed_args.retype_policy
         if parsed_args.type:
             # get the migration policy
             migration_policy = 'never'
-            if parsed_args.retype_policy:
-                migration_policy = parsed_args.retype_policy
+            if policy:
+                migration_policy = policy
             try:
                 # find the volume type
                 volume_type = utils.find_resource(
@@ -865,12 +881,14 @@ class SetVolume(command.Command):
             except Exception as e:
                 LOG.error(_("Failed to set volume type: %s"), e)
                 result += 1
-        elif parsed_args.retype_policy:
-            # If the "--retype-policy" is specified without "--type"
+        elif policy:
+            # If the "--migration-policy" is specified without "--type"
             LOG.warning(
-                _(
-                    "'--retype-policy' option will not work "
-                    "without '--type' option"
+                _("'%s' option will not work without '--type' option")
+                % (
+                    '--migration-policy'
+                    if parsed_args.migration_policy
+                    else '--retype-policy'
                 )
             )
 

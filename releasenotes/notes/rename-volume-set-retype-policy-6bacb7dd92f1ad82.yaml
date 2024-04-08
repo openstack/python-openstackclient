@@ -1,0 +1,8 @@
+---
+upgrade:
+  - |
+    The ``volume set --retype-policy`` parameter has been renamed to
+    ``--migration-policy`` to better convey the correct meaning of the options
+    usage. The migration policy determines whether we are going to perform the
+    migration in the retype opearation or not and is not related to the actual
+    retype which just changes the volume type of the volume.
