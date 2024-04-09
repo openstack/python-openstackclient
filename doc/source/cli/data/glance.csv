@@ -1,4 +1,4 @@
-cache-clear,cached image list,"Clear all images from cache, queue or both."
+cache-clear,cached image clear,"Clear all images from cache, queue or both."
 cache-delete,cached image delete,Delete image from cache/caching queue.
 cache-list,cached image list,Get cache state.
 cache-queue,cached image queue,Queue image(s) for caching.
