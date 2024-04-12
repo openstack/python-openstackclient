@@ -103,9 +103,7 @@ class TestCreateSecurityGroupRuleNetwork(TestSecurityGroupRuleNetwork):
         self.domains_mock.get.return_value = self.domain
 
         # Get the command object to test
-        self.cmd = security_group_rule.CreateSecurityGroupRule(
-            self.app, self.namespace
-        )
+        self.cmd = security_group_rule.CreateSecurityGroupRule(self.app, None)
 
     def test_create_no_options(self):
         self.assertRaises(
@@ -985,9 +983,7 @@ class TestDeleteSecurityGroupRuleNetwork(TestSecurityGroupRuleNetwork):
         )
 
         # Get the command object to test
-        self.cmd = security_group_rule.DeleteSecurityGroupRule(
-            self.app, self.namespace
-        )
+        self.cmd = security_group_rule.DeleteSecurityGroupRule(self.app, None)
 
     def test_security_group_rule_delete(self):
         arglist = [
@@ -1156,9 +1152,7 @@ class TestListSecurityGroupRuleNetwork(TestSecurityGroupRuleNetwork):
         )
 
         # Get the command object to test
-        self.cmd = security_group_rule.ListSecurityGroupRule(
-            self.app, self.namespace
-        )
+        self.cmd = security_group_rule.ListSecurityGroupRule(self.app, None)
 
     def test_list_default(self):
         self._security_group_rule_tcp.port_range_min = 80
@@ -1312,9 +1306,7 @@ class TestShowSecurityGroupRuleNetwork(TestSecurityGroupRuleNetwork):
         )
 
         # Get the command object to test
-        self.cmd = security_group_rule.ShowSecurityGroupRule(
-            self.app, self.namespace
-        )
+        self.cmd = security_group_rule.ShowSecurityGroupRule(self.app, None)
 
     def test_show_no_options(self):
         self.assertRaises(

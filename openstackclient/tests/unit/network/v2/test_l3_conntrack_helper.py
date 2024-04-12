@@ -51,9 +51,7 @@ class TestCreateL3ConntrackHelper(TestConntrackHelper):
         )
 
         # Get the command object to test
-        self.cmd = l3_conntrack_helper.CreateConntrackHelper(
-            self.app, self.namespace
-        )
+        self.cmd = l3_conntrack_helper.CreateConntrackHelper(self.app, None)
 
     def test_create_no_options(self):
         arglist = []
@@ -126,9 +124,7 @@ class TestDeleteL3ConntrackHelper(TestConntrackHelper):
         )
 
         # Get the command object to test
-        self.cmd = l3_conntrack_helper.DeleteConntrackHelper(
-            self.app, self.namespace
-        )
+        self.cmd = l3_conntrack_helper.DeleteConntrackHelper(self.app, None)
 
     def test_delete(self):
         arglist = [self.ct_helper.router_id, self.ct_helper.id]
@@ -190,9 +186,7 @@ class TestListL3ConntrackHelper(TestConntrackHelper):
         )
 
         # Get the command object to test
-        self.cmd = l3_conntrack_helper.ListConntrackHelper(
-            self.app, self.namespace
-        )
+        self.cmd = l3_conntrack_helper.ListConntrackHelper(self.app, None)
 
     def test_conntrack_helpers_list(self):
         arglist = [self.router.id]
@@ -227,9 +221,7 @@ class TestSetL3ConntrackHelper(TestConntrackHelper):
         )
 
         # Get the command object to test
-        self.cmd = l3_conntrack_helper.SetConntrackHelper(
-            self.app, self.namespace
-        )
+        self.cmd = l3_conntrack_helper.SetConntrackHelper(self.app, None)
 
     def test_set_nothing(self):
         arglist = [
@@ -294,9 +286,7 @@ class TestShowL3ConntrackHelper(TestConntrackHelper):
         )
 
         # Get the command object to test
-        self.cmd = l3_conntrack_helper.ShowConntrackHelper(
-            self.app, self.namespace
-        )
+        self.cmd = l3_conntrack_helper.ShowConntrackHelper(self.app, None)
 
     def test_show_no_options(self):
         arglist = []

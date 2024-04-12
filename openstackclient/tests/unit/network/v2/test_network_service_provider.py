@@ -56,9 +56,7 @@ class TestListNetworkServiceProvider(TestNetworkServiceProvider):
             return_value=self.provider_list
         )
 
-        self.cmd = service_provider.ListNetworkServiceProvider(
-            self.app, self.namespace
-        )
+        self.cmd = service_provider.ListNetworkServiceProvider(self.app, None)
 
     def test_network_service_provider_list(self):
         arglist = []

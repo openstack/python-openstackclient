@@ -120,7 +120,7 @@ class TestCreateNetworkIdentityV3(TestNetwork):
         self.network_client.set_tags = mock.Mock(return_value=None)
 
         # Get the command object to test
-        self.cmd = network.CreateNetwork(self.app, self.namespace)
+        self.cmd = network.CreateNetwork(self.app, None)
 
         self.projects_mock.get.return_value = self.project
         self.domains_mock.get.return_value = self.domain
@@ -465,7 +465,7 @@ class TestDeleteNetwork(TestNetwork):
         )
 
         # Get the command object to test
-        self.cmd = network.DeleteNetwork(self.app, self.namespace)
+        self.cmd = network.DeleteNetwork(self.app, None)
 
     def test_delete_one_network(self):
         arglist = [
@@ -594,7 +594,7 @@ class TestListNetwork(TestNetwork):
         super(TestListNetwork, self).setUp()
 
         # Get the command object to test
-        self.cmd = network.ListNetwork(self.app, self.namespace)
+        self.cmd = network.ListNetwork(self.app, None)
 
         self.network_client.networks = mock.Mock(return_value=self._network)
 
@@ -962,7 +962,7 @@ class TestSetNetwork(TestNetwork):
         )
 
         # Get the command object to test
-        self.cmd = network.SetNetwork(self.app, self.namespace)
+        self.cmd = network.SetNetwork(self.app, None)
 
     def test_set_this(self):
         arglist = [
@@ -1205,7 +1205,7 @@ class TestShowNetwork(TestNetwork):
         )
 
         # Get the command object to test
-        self.cmd = network.ShowNetwork(self.app, self.namespace)
+        self.cmd = network.ShowNetwork(self.app, None)
 
     def test_show_no_options(self):
         arglist = []
@@ -1259,7 +1259,7 @@ class TestUnsetNetwork(TestNetwork):
         )
 
         # Get the command object to test
-        self.cmd = network.UnsetNetwork(self.app, self.namespace)
+        self.cmd = network.UnsetNetwork(self.app, None)
 
     def test_unset_nothing(self):
         arglist = [

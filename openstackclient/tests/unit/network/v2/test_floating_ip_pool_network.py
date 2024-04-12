@@ -27,9 +27,7 @@ class TestListFloatingIPPoolNetwork(TestFloatingIPPoolNetwork):
         super(TestListFloatingIPPoolNetwork, self).setUp()
 
         # Get the command object to test
-        self.cmd = floating_ip_pool.ListFloatingIPPool(
-            self.app, self.namespace
-        )
+        self.cmd = floating_ip_pool.ListFloatingIPPool(self.app, None)
 
     def test_floating_ip_list(self):
         arglist = []

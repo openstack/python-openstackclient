@@ -62,7 +62,7 @@ class TestCreateFloatingIPPortForwarding(TestFloatingIPPortForwarding):
 
         # Get the command object to test
         self.cmd = floating_ip_port_forwarding.CreateFloatingIPPortForwarding(
-            self.app, self.namespace
+            self.app, None
         )
 
         self.columns = (
@@ -358,7 +358,7 @@ class TestDeleteFloatingIPPortForwarding(TestFloatingIPPortForwarding):
         self.network_client.find_ip = mock.Mock(return_value=self.floating_ip)
         # Get the command object to test
         self.cmd = floating_ip_port_forwarding.DeleteFloatingIPPortForwarding(
-            self.app, self.namespace
+            self.app, None
         )
 
     def test_port_forwarding_delete(self):
@@ -496,7 +496,7 @@ class TestListFloatingIPPortForwarding(TestFloatingIPPortForwarding):
         self.network_client.find_ip = mock.Mock(return_value=self.floating_ip)
         # Get the command object to test
         self.cmd = floating_ip_port_forwarding.ListFloatingIPPortForwarding(
-            self.app, self.namespace
+            self.app, None
         )
 
     def test_port_forwarding_list(self):
@@ -567,7 +567,7 @@ class TestSetFloatingIPPortForwarding(TestFloatingIPPortForwarding):
         self.network_client.find_ip = mock.Mock(return_value=self.floating_ip)
         # Get the command object to test
         self.cmd = floating_ip_port_forwarding.SetFloatingIPPortForwarding(
-            self.app, self.namespace
+            self.app, None
         )
 
     def test_set_nothing(self):
@@ -696,7 +696,7 @@ class TestShowFloatingIPPortForwarding(TestFloatingIPPortForwarding):
         self.network_client.find_ip = mock.Mock(return_value=self.floating_ip)
         # Get the command object to test
         self.cmd = floating_ip_port_forwarding.ShowFloatingIPPortForwarding(
-            self.app, self.namespace
+            self.app, None
         )
 
     def test_show_no_options(self):

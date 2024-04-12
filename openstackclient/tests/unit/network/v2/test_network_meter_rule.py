@@ -69,7 +69,7 @@ class TestCreateMeterRule(TestMeterRule):
             return_value=self.new_rule
         )
         self.projects_mock.get.return_value = self.project
-        self.cmd = network_meter_rule.CreateMeterRule(self.app, self.namespace)
+        self.cmd = network_meter_rule.CreateMeterRule(self.app, None)
         self.network_client.find_metering_label = mock.Mock(
             return_value=fake_meter
         )
@@ -156,7 +156,7 @@ class TestDeleteMeterRule(TestMeterRule):
             )
         )
 
-        self.cmd = network_meter_rule.DeleteMeterRule(self.app, self.namespace)
+        self.cmd = network_meter_rule.DeleteMeterRule(self.app, None)
 
     def test_delete_one_rule(self):
         arglist = [
@@ -266,7 +266,7 @@ class TestListMeterRule(TestMeterRule):
             return_value=self.rule_list
         )
 
-        self.cmd = network_meter_rule.ListMeterRule(self.app, self.namespace)
+        self.cmd = network_meter_rule.ListMeterRule(self.app, None)
 
     def test_rule_list(self):
         arglist = []
@@ -309,7 +309,7 @@ class TestShowMeterRule(TestMeterRule):
     def setUp(self):
         super(TestShowMeterRule, self).setUp()
 
-        self.cmd = network_meter_rule.ShowMeterRule(self.app, self.namespace)
+        self.cmd = network_meter_rule.ShowMeterRule(self.app, None)
 
         self.network_client.find_metering_label_rule = mock.Mock(
             return_value=self.new_rule

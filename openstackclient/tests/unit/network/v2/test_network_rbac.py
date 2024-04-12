@@ -70,7 +70,7 @@ class TestCreateNetworkRBAC(TestNetworkRBAC):
         super(TestCreateNetworkRBAC, self).setUp()
 
         # Get the command object to test
-        self.cmd = network_rbac.CreateNetworkRBAC(self.app, self.namespace)
+        self.cmd = network_rbac.CreateNetworkRBAC(self.app, None)
 
         self.network_client.create_rbac_policy = mock.Mock(
             return_value=self.rbac_policy
@@ -349,7 +349,7 @@ class TestDeleteNetworkRBAC(TestNetworkRBAC):
         )
 
         # Get the command object to test
-        self.cmd = network_rbac.DeleteNetworkRBAC(self.app, self.namespace)
+        self.cmd = network_rbac.DeleteNetworkRBAC(self.app, None)
 
     def test_network_rbac_delete(self):
         arglist = [
@@ -460,7 +460,7 @@ class TestListNetworkRABC(TestNetworkRBAC):
         super(TestListNetworkRABC, self).setUp()
 
         # Get the command object to test
-        self.cmd = network_rbac.ListNetworkRBAC(self.app, self.namespace)
+        self.cmd = network_rbac.ListNetworkRBAC(self.app, None)
 
         self.network_client.rbac_policies = mock.Mock(
             return_value=self.rbac_policies
@@ -562,7 +562,7 @@ class TestSetNetworkRBAC(TestNetworkRBAC):
         super(TestSetNetworkRBAC, self).setUp()
 
         # Get the command object to test
-        self.cmd = network_rbac.SetNetworkRBAC(self.app, self.namespace)
+        self.cmd = network_rbac.SetNetworkRBAC(self.app, None)
 
         self.network_client.find_rbac_policy = mock.Mock(
             return_value=self.rbac_policy
@@ -637,7 +637,7 @@ class TestShowNetworkRBAC(TestNetworkRBAC):
         super(TestShowNetworkRBAC, self).setUp()
 
         # Get the command object to test
-        self.cmd = network_rbac.ShowNetworkRBAC(self.app, self.namespace)
+        self.cmd = network_rbac.ShowNetworkRBAC(self.app, None)
 
         self.network_client.find_rbac_policy = mock.Mock(
             return_value=self.rbac_policy

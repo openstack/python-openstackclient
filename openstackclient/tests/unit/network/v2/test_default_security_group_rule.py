@@ -105,7 +105,7 @@ class TestCreateDefaultSecurityGroupRule(TestDefaultSecurityGroupRule):
 
         # Get the command object to test
         self.cmd = default_security_group_rule.CreateDefaultSecurityGroupRule(
-            self.app, self.namespace
+            self.app, None
         )
 
     def test_create_all_remote_options(self):
@@ -848,7 +848,7 @@ class TestDeleteDefaultSecurityGroupRule(TestDefaultSecurityGroupRule):
 
         # Get the command object to test
         self.cmd = default_security_group_rule.DeleteDefaultSecurityGroupRule(
-            self.app, self.namespace
+            self.app, None
         )
 
     def test_default_security_group_rule_delete(self):
@@ -985,7 +985,7 @@ class TestListDefaultSecurityGroupRule(TestDefaultSecurityGroupRule):
 
         # Get the command object to test
         self.cmd = default_security_group_rule.ListDefaultSecurityGroupRule(
-            self.app, self.namespace
+            self.app, None
         )
 
     def test_list_default(self):
@@ -1107,7 +1107,7 @@ class TestShowDefaultSecurityGroupRule(TestDefaultSecurityGroupRule):
 
         # Get the command object to test
         self.cmd = default_security_group_rule.ShowDefaultSecurityGroupRule(
-            self.app, self.namespace
+            self.app, None
         )
 
     def test_show_no_options(self):

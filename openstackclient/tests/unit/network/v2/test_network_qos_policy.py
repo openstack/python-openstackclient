@@ -67,9 +67,7 @@ class TestCreateNetworkQosPolicy(TestQosPolicy):
         )
 
         # Get the command object to test
-        self.cmd = network_qos_policy.CreateNetworkQosPolicy(
-            self.app, self.namespace
-        )
+        self.cmd = network_qos_policy.CreateNetworkQosPolicy(self.app, None)
 
         self.projects_mock.get.return_value = self.project
 
@@ -174,9 +172,7 @@ class TestDeleteNetworkQosPolicy(TestQosPolicy):
         )
 
         # Get the command object to test
-        self.cmd = network_qos_policy.DeleteNetworkQosPolicy(
-            self.app, self.namespace
-        )
+        self.cmd = network_qos_policy.DeleteNetworkQosPolicy(self.app, None)
 
     def test_qos_policy_delete(self):
         arglist = [
@@ -278,9 +274,7 @@ class TestListNetworkQosPolicy(TestQosPolicy):
         )
 
         # Get the command object to test
-        self.cmd = network_qos_policy.ListNetworkQosPolicy(
-            self.app, self.namespace
-        )
+        self.cmd = network_qos_policy.ListNetworkQosPolicy(self.app, None)
 
     def test_qos_policy_list(self):
         arglist = []
@@ -361,9 +355,7 @@ class TestSetNetworkQosPolicy(TestQosPolicy):
         )
 
         # Get the command object to test
-        self.cmd = network_qos_policy.SetNetworkQosPolicy(
-            self.app, self.namespace
-        )
+        self.cmd = network_qos_policy.SetNetworkQosPolicy(self.app, None)
 
     def test_set_nothing(self):
         arglist = [
@@ -463,9 +455,7 @@ class TestShowNetworkQosPolicy(TestQosPolicy):
         )
 
         # Get the command object to test
-        self.cmd = network_qos_policy.ShowNetworkQosPolicy(
-            self.app, self.namespace
-        )
+        self.cmd = network_qos_policy.ShowNetworkQosPolicy(self.app, None)
 
     def test_show_no_options(self):
         arglist = []

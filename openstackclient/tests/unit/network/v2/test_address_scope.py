@@ -57,7 +57,7 @@ class TestCreateAddressScope(TestAddressScope):
         )
 
         # Get the command object to test
-        self.cmd = address_scope.CreateAddressScope(self.app, self.namespace)
+        self.cmd = address_scope.CreateAddressScope(self.app, None)
 
         self.projects_mock.get.return_value = self.project
         self.domains_mock.get.return_value = self.domain
@@ -168,7 +168,7 @@ class TestDeleteAddressScope(TestAddressScope):
         )
 
         # Get the command object to test
-        self.cmd = address_scope.DeleteAddressScope(self.app, self.namespace)
+        self.cmd = address_scope.DeleteAddressScope(self.app, None)
 
     def test_address_scope_delete(self):
         arglist = [
@@ -272,7 +272,7 @@ class TestListAddressScope(TestAddressScope):
         )
 
         # Get the command object to test
-        self.cmd = address_scope.ListAddressScope(self.app, self.namespace)
+        self.cmd = address_scope.ListAddressScope(self.app, None)
 
     def test_address_scope_list(self):
         arglist = []
@@ -404,7 +404,7 @@ class TestSetAddressScope(TestAddressScope):
         )
 
         # Get the command object to test
-        self.cmd = address_scope.SetAddressScope(self.app, self.namespace)
+        self.cmd = address_scope.SetAddressScope(self.app, None)
 
     def test_set_nothing(self):
         arglist = [
@@ -493,7 +493,7 @@ class TestShowAddressScope(TestAddressScope):
         )
 
         # Get the command object to test
-        self.cmd = address_scope.ShowAddressScope(self.app, self.namespace)
+        self.cmd = address_scope.ShowAddressScope(self.app, None)
 
     def test_show_no_options(self):
         arglist = []

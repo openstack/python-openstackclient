@@ -60,7 +60,7 @@ class TestCreateFlavorProfile(TestFlavorProfile):
         self.projects_mock.get.return_value = self.project
         # Get the command object to test
         self.cmd = network_flavor_profile.CreateNetworkFlavorProfile(
-            self.app, self.namespace
+            self.app, None
         )
 
     def test_create_all_options(self):
@@ -239,7 +239,7 @@ class TestDeleteFlavorProfile(TestFlavorProfile):
 
         # Get the command object to test
         self.cmd = network_flavor_profile.DeleteNetworkFlavorProfile(
-            self.app, self.namespace
+            self.app, None
         )
 
     def test_network_flavor_profile_delete(self):
@@ -353,7 +353,7 @@ class TestListFlavorProfile(TestFlavorProfile):
 
         # Get the command object to test
         self.cmd = network_flavor_profile.ListNetworkFlavorProfile(
-            self.app, self.namespace
+            self.app, None
         )
 
     def test_network_flavor_profile_list(self):
@@ -396,7 +396,7 @@ class TestShowFlavorProfile(TestFlavorProfile):
 
         # Get the command object to test
         self.cmd = network_flavor_profile.ShowNetworkFlavorProfile(
-            self.app, self.namespace
+            self.app, None
         )
 
     def test_show_all_options(self):
@@ -432,7 +432,7 @@ class TestSetFlavorProfile(TestFlavorProfile):
 
         # Get the command object to test
         self.cmd = network_flavor_profile.SetNetworkFlavorProfile(
-            self.app, self.namespace
+            self.app, None
         )
 
     def test_set_nothing(self):

@@ -86,7 +86,7 @@ class TestCreateLocalIP(TestLocalIP):
         self.network_client.find_port = mock.Mock(return_value=self.port)
 
         # Get the command object to test
-        self.cmd = local_ip.CreateLocalIP(self.app, self.namespace)
+        self.cmd = local_ip.CreateLocalIP(self.app, None)
 
         self.projects_mock.get.return_value = self.project
         self.domains_mock.get.return_value = self.domain
@@ -155,7 +155,7 @@ class TestDeleteLocalIP(TestLocalIP):
         )
 
         # Get the command object to test
-        self.cmd = local_ip.DeleteLocalIP(self.app, self.namespace)
+        self.cmd = local_ip.DeleteLocalIP(self.app, None)
 
     def test_local_ip_delete(self):
         arglist = [
@@ -264,7 +264,7 @@ class TestListLocalIP(TestLocalIP):
         )
 
         # Get the command object to test
-        self.cmd = local_ip.ListLocalIP(self.app, self.namespace)
+        self.cmd = local_ip.ListLocalIP(self.app, None)
 
     def test_local_ip_list(self):
         arglist = []
@@ -408,7 +408,7 @@ class TestSetLocalIP(TestLocalIP):
         )
 
         # Get the command object to test
-        self.cmd = local_ip.SetLocalIP(self.app, self.namespace)
+        self.cmd = local_ip.SetLocalIP(self.app, None)
 
     def test_set_nothing(self):
         arglist = [
@@ -487,7 +487,7 @@ class TestShowLocalIP(TestLocalIP):
         )
 
         # Get the command object to test
-        self.cmd = local_ip.ShowLocalIP(self.app, self.namespace)
+        self.cmd = local_ip.ShowLocalIP(self.app, None)
 
     def test_show_no_options(self):
         arglist = []

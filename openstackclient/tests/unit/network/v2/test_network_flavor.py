@@ -48,9 +48,7 @@ class TestAddNetworkFlavorToProfile(TestNetworkFlavor):
             return_value=self.service_profile
         )
 
-        self.cmd = network_flavor.AddNetworkFlavorToProfile(
-            self.app, self.namespace
-        )
+        self.cmd = network_flavor.AddNetworkFlavorToProfile(self.app, None)
 
     def test_show_no_options(self):
         arglist = []
@@ -109,7 +107,7 @@ class TestCreateNetworkFlavor(TestNetworkFlavor):
         )
 
         # Get the command object to test
-        self.cmd = network_flavor.CreateNetworkFlavor(self.app, self.namespace)
+        self.cmd = network_flavor.CreateNetworkFlavor(self.app, None)
 
         self.projects_mock.get.return_value = self.project
         self.domains_mock.get.return_value = self.domain
@@ -226,7 +224,7 @@ class TestDeleteNetworkFlavor(TestNetworkFlavor):
         )
 
         # Get the command object to test
-        self.cmd = network_flavor.DeleteNetworkFlavor(self.app, self.namespace)
+        self.cmd = network_flavor.DeleteNetworkFlavor(self.app, None)
 
     def test_network_flavor_delete(self):
         arglist = [
@@ -330,7 +328,7 @@ class TestListNetworkFlavor(TestNetworkFlavor):
         )
 
         # Get the command object to test
-        self.cmd = network_flavor.ListNetworkFlavor(self.app, self.namespace)
+        self.cmd = network_flavor.ListNetworkFlavor(self.app, None)
 
     def test_network_flavor_list(self):
         arglist = []
@@ -361,7 +359,7 @@ class TestRemoveNetworkFlavorFromProfile(TestNetworkFlavor):
         )
 
         self.cmd = network_flavor.RemoveNetworkFlavorFromProfile(
-            self.app, self.namespace
+            self.app, None
         )
 
     def test_show_no_options(self):
@@ -419,7 +417,7 @@ class TestShowNetworkFlavor(TestNetworkFlavor):
         )
 
         # Get the command object to test
-        self.cmd = network_flavor.ShowNetworkFlavor(self.app, self.namespace)
+        self.cmd = network_flavor.ShowNetworkFlavor(self.app, None)
 
     def test_show_no_options(self):
         arglist = []
@@ -464,7 +462,7 @@ class TestSetNetworkFlavor(TestNetworkFlavor):
         )
 
         # Get the command object to test
-        self.cmd = network_flavor.SetNetworkFlavor(self.app, self.namespace)
+        self.cmd = network_flavor.SetNetworkFlavor(self.app, None)
 
     def test_set_nothing(self):
         arglist = [

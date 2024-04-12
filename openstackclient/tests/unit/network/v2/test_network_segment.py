@@ -66,9 +66,7 @@ class TestCreateNetworkSegment(TestNetworkSegment):
         )
 
         # Get the command object to test
-        self.cmd = network_segment.CreateNetworkSegment(
-            self.app, self.namespace
-        )
+        self.cmd = network_segment.CreateNetworkSegment(self.app, None)
 
     def test_create_no_options(self):
         # Missing required args should bail here
@@ -180,9 +178,7 @@ class TestDeleteNetworkSegment(TestNetworkSegment):
         )
 
         # Get the command object to test
-        self.cmd = network_segment.DeleteNetworkSegment(
-            self.app, self.namespace
-        )
+        self.cmd = network_segment.DeleteNetworkSegment(self.app, None)
 
     def test_delete(self):
         arglist = [
@@ -293,7 +289,7 @@ class TestListNetworkSegment(TestNetworkSegment):
         super(TestListNetworkSegment, self).setUp()
 
         # Get the command object to test
-        self.cmd = network_segment.ListNetworkSegment(self.app, self.namespace)
+        self.cmd = network_segment.ListNetworkSegment(self.app, None)
 
         self.network_client.find_network = mock.Mock(
             return_value=self._network
@@ -364,7 +360,7 @@ class TestSetNetworkSegment(TestNetworkSegment):
         )
 
         # Get the command object to test
-        self.cmd = network_segment.SetNetworkSegment(self.app, self.namespace)
+        self.cmd = network_segment.SetNetworkSegment(self.app, None)
 
     def test_set_no_options(self):
         arglist = [
@@ -441,7 +437,7 @@ class TestShowNetworkSegment(TestNetworkSegment):
         )
 
         # Get the command object to test
-        self.cmd = network_segment.ShowNetworkSegment(self.app, self.namespace)
+        self.cmd = network_segment.ShowNetworkSegment(self.app, None)
 
     def test_show_no_options(self):
         # Missing required args should bail here

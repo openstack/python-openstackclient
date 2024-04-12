@@ -97,9 +97,7 @@ class TestCreateNetworkQosRuleMinimumBandwidth(TestNetworkQosRule):
         )
 
         # Get the command object to test
-        self.cmd = network_qos_rule.CreateNetworkQosRule(
-            self.app, self.namespace
-        )
+        self.cmd = network_qos_rule.CreateNetworkQosRule(self.app, None)
 
     def test_create_no_options(self):
         arglist = []
@@ -206,9 +204,7 @@ class TestCreateNetworkQosRuleMinimumPacketRate(TestNetworkQosRule):
         )
 
         # Get the command object to test
-        self.cmd = network_qos_rule.CreateNetworkQosRule(
-            self.app, self.namespace
-        )
+        self.cmd = network_qos_rule.CreateNetworkQosRule(self.app, None)
 
     def test_create_no_options(self):
         arglist = []
@@ -313,9 +309,7 @@ class TestCreateNetworkQosRuleDSCPMarking(TestNetworkQosRule):
         )
 
         # Get the command object to test
-        self.cmd = network_qos_rule.CreateNetworkQosRule(
-            self.app, self.namespace
-        )
+        self.cmd = network_qos_rule.CreateNetworkQosRule(self.app, None)
 
     def test_create_no_options(self):
         arglist = []
@@ -417,9 +411,7 @@ class TestCreateNetworkQosRuleBandwidtLimit(TestNetworkQosRule):
         )
 
         # Get the command object to test
-        self.cmd = network_qos_rule.CreateNetworkQosRule(
-            self.app, self.namespace
-        )
+        self.cmd = network_qos_rule.CreateNetworkQosRule(self.app, None)
 
     def test_create_no_options(self):
         arglist = []
@@ -567,9 +559,7 @@ class TestDeleteNetworkQosRuleMinimumBandwidth(TestNetworkQosRule):
         )
 
         # Get the command object to test
-        self.cmd = network_qos_rule.DeleteNetworkQosRule(
-            self.app, self.namespace
-        )
+        self.cmd = network_qos_rule.DeleteNetworkQosRule(self.app, None)
 
     def test_qos_policy_delete(self):
         arglist = [
@@ -636,9 +626,7 @@ class TestDeleteNetworkQosRuleMinimumPacketRate(TestNetworkQosRule):
         )
 
         # Get the command object to test
-        self.cmd = network_qos_rule.DeleteNetworkQosRule(
-            self.app, self.namespace
-        )
+        self.cmd = network_qos_rule.DeleteNetworkQosRule(self.app, None)
 
     def test_qos_policy_delete(self):
         arglist = [
@@ -705,9 +693,7 @@ class TestDeleteNetworkQosRuleDSCPMarking(TestNetworkQosRule):
         )
 
         # Get the command object to test
-        self.cmd = network_qos_rule.DeleteNetworkQosRule(
-            self.app, self.namespace
-        )
+        self.cmd = network_qos_rule.DeleteNetworkQosRule(self.app, None)
 
     def test_qos_policy_delete(self):
         arglist = [
@@ -774,9 +760,7 @@ class TestDeleteNetworkQosRuleBandwidthLimit(TestNetworkQosRule):
         )
 
         # Get the command object to test
-        self.cmd = network_qos_rule.DeleteNetworkQosRule(
-            self.app, self.namespace
-        )
+        self.cmd = network_qos_rule.DeleteNetworkQosRule(self.app, None)
 
     def test_qos_policy_delete(self):
         arglist = [
@@ -844,7 +828,7 @@ class TestSetNetworkQosRuleMinimumBandwidth(TestNetworkQosRule):
         )
 
         # Get the command object to test
-        self.cmd = network_qos_rule.SetNetworkQosRule(self.app, self.namespace)
+        self.cmd = network_qos_rule.SetNetworkQosRule(self.app, None)
 
     def test_set_nothing(self):
         arglist = [
@@ -948,7 +932,7 @@ class TestSetNetworkQosRuleMinimumPacketRate(TestNetworkQosRule):
         )
 
         # Get the command object to test
-        self.cmd = network_qos_rule.SetNetworkQosRule(self.app, self.namespace)
+        self.cmd = network_qos_rule.SetNetworkQosRule(self.app, None)
 
     def test_set_nothing(self):
         arglist = [
@@ -1052,7 +1036,7 @@ class TestSetNetworkQosRuleDSCPMarking(TestNetworkQosRule):
         )
 
         # Get the command object to test
-        self.cmd = network_qos_rule.SetNetworkQosRule(self.app, self.namespace)
+        self.cmd = network_qos_rule.SetNetworkQosRule(self.app, None)
 
     def test_set_nothing(self):
         arglist = [
@@ -1156,7 +1140,7 @@ class TestSetNetworkQosRuleBandwidthLimit(TestNetworkQosRule):
         )
 
         # Get the command object to test
-        self.cmd = network_qos_rule.SetNetworkQosRule(self.app, self.namespace)
+        self.cmd = network_qos_rule.SetNetworkQosRule(self.app, None)
 
     def test_set_nothing(self):
         arglist = [
@@ -1380,9 +1364,7 @@ class TestListNetworkQosRule(TestNetworkQosRule):
                 )
             )
         # Get the command object to test
-        self.cmd = network_qos_rule.ListNetworkQosRule(
-            self.app, self.namespace
-        )
+        self.cmd = network_qos_rule.ListNetworkQosRule(self.app, None)
 
     def test_qos_rule_list(self):
         arglist = [self.qos_policy.id]
@@ -1436,9 +1418,7 @@ class TestShowNetworkQosRuleMinimumBandwidth(TestNetworkQosRule):
         )
 
         # Get the command object to test
-        self.cmd = network_qos_rule.ShowNetworkQosRule(
-            self.app, self.namespace
-        )
+        self.cmd = network_qos_rule.ShowNetworkQosRule(self.app, None)
 
     def test_show_no_options(self):
         arglist = []
@@ -1506,9 +1486,7 @@ class TestShowNetworkQosRuleMinimumPacketRate(TestNetworkQosRule):
         )
 
         # Get the command object to test
-        self.cmd = network_qos_rule.ShowNetworkQosRule(
-            self.app, self.namespace
-        )
+        self.cmd = network_qos_rule.ShowNetworkQosRule(self.app, None)
 
     def test_show_no_options(self):
         arglist = []
@@ -1574,9 +1552,7 @@ class TestShowNetworkQosDSCPMarking(TestNetworkQosRule):
         )
 
         # Get the command object to test
-        self.cmd = network_qos_rule.ShowNetworkQosRule(
-            self.app, self.namespace
-        )
+        self.cmd = network_qos_rule.ShowNetworkQosRule(self.app, None)
 
     def test_show_no_options(self):
         arglist = []
@@ -1646,9 +1622,7 @@ class TestShowNetworkQosBandwidthLimit(TestNetworkQosRule):
         )
 
         # Get the command object to test
-        self.cmd = network_qos_rule.ShowNetworkQosRule(
-            self.app, self.namespace
-        )
+        self.cmd = network_qos_rule.ShowNetworkQosRule(self.app, None)
 
     def test_show_no_options(self):
         arglist = []

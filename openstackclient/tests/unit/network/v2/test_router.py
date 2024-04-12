@@ -44,7 +44,7 @@ class TestAddPortToRouter(TestRouter):
         self.network_client.find_router = mock.Mock(return_value=self._router)
         self.network_client.find_port = mock.Mock(return_value=self._port)
 
-        self.cmd = router.AddPortToRouter(self.app, self.namespace)
+        self.cmd = router.AddPortToRouter(self.app, None)
 
     def test_add_port_no_option(self):
         arglist = []
@@ -94,7 +94,7 @@ class TestAddSubnetToRouter(TestRouter):
         self.network_client.find_router = mock.Mock(return_value=self._router)
         self.network_client.find_subnet = mock.Mock(return_value=self._subnet)
 
-        self.cmd = router.AddSubnetToRouter(self.app, self.namespace)
+        self.cmd = router.AddSubnetToRouter(self.app, None)
 
     def test_add_subnet_no_option(self):
         arglist = []
@@ -174,7 +174,7 @@ class TestCreateRouter(TestRouter):
             side_effect=lambda name: self._extensions.get(name)
         )
         # Get the command object to test
-        self.cmd = router.CreateRouter(self.app, self.namespace)
+        self.cmd = router.CreateRouter(self.app, None)
 
     def test_create_no_options(self):
         arglist = []
@@ -493,7 +493,7 @@ class TestDeleteRouter(TestRouter):
         )
 
         # Get the command object to test
-        self.cmd = router.DeleteRouter(self.app, self.namespace)
+        self.cmd = router.DeleteRouter(self.app, None)
 
     def test_router_delete(self):
         arglist = [
@@ -645,7 +645,7 @@ class TestListRouter(TestRouter):
         super(TestListRouter, self).setUp()
 
         # Get the command object to test
-        self.cmd = router.ListRouter(self.app, self.namespace)
+        self.cmd = router.ListRouter(self.app, None)
 
         self.network_client.agent_hosted_routers = mock.Mock(
             return_value=self.routers
@@ -910,7 +910,7 @@ class TestRemovePortFromRouter(TestRouter):
         self.network_client.find_router = mock.Mock(return_value=self._router)
         self.network_client.find_port = mock.Mock(return_value=self._port)
 
-        self.cmd = router.RemovePortFromRouter(self.app, self.namespace)
+        self.cmd = router.RemovePortFromRouter(self.app, None)
 
     def test_remove_port_no_option(self):
         arglist = []
@@ -957,7 +957,7 @@ class TestRemoveSubnetFromRouter(TestRouter):
         self.network_client.find_router = mock.Mock(return_value=self._router)
         self.network_client.find_subnet = mock.Mock(return_value=self._subnet)
 
-        self.cmd = router.RemoveSubnetFromRouter(self.app, self.namespace)
+        self.cmd = router.RemoveSubnetFromRouter(self.app, None)
 
     def test_remove_subnet_no_option(self):
         arglist = []
@@ -997,7 +997,7 @@ class TestAddExtraRoutesToRouter(TestRouter):
         self.network_client.add_extra_routes_to_router = mock.Mock(
             return_value=self._router
         )
-        self.cmd = router.AddExtraRoutesToRouter(self.app, self.namespace)
+        self.cmd = router.AddExtraRoutesToRouter(self.app, None)
         self.network_client.find_router = mock.Mock(return_value=self._router)
 
     def test_add_no_extra_route(self):
@@ -1086,7 +1086,7 @@ class TestRemoveExtraRoutesFromRouter(TestRouter):
         self.network_client.remove_extra_routes_from_router = mock.Mock(
             return_value=self._router
         )
-        self.cmd = router.RemoveExtraRoutesFromRouter(self.app, self.namespace)
+        self.cmd = router.RemoveExtraRoutesFromRouter(self.app, None)
         self.network_client.find_router = mock.Mock(return_value=self._router)
 
     def test_remove_no_extra_route(self):
@@ -1192,7 +1192,7 @@ class TestSetRouter(TestRouter):
             side_effect=lambda name: self._extensions.get(name)
         )
         # Get the command object to test
-        self.cmd = router.SetRouter(self.app, self.namespace)
+        self.cmd = router.SetRouter(self.app, None)
 
     def test_set_this(self):
         arglist = [
@@ -1716,7 +1716,7 @@ class TestShowRouter(TestRouter):
         self.network_client.ports = mock.Mock(return_value=[self._port])
 
         # Get the command object to test
-        self.cmd = router.ShowRouter(self.app, self.namespace)
+        self.cmd = router.ShowRouter(self.app, None)
 
     def test_show_no_options(self):
         arglist = []
@@ -1831,7 +1831,7 @@ class TestUnsetRouter(TestRouter):
             return_value=None
         )
         # Get the command object to test
-        self.cmd = router.UnsetRouter(self.app, self.namespace)
+        self.cmd = router.UnsetRouter(self.app, None)
 
     def test_unset_router_params(self):
         arglist = [
@@ -2098,7 +2098,7 @@ class TestCreateMultipleGateways(TestGatewayOps):
             self._router.status,
             format_columns.ListColumn(self._router.tags),
         )
-        self.cmd = router.CreateRouter(self.app, self.namespace)
+        self.cmd = router.CreateRouter(self.app, None)
 
     def test_create_one_gateway(self):
         arglist = [
@@ -2204,7 +2204,7 @@ class TestUpdateMultipleGateways(TestGatewayOps):
         self.network_client.update_external_gateways = mock.Mock(
             return_value=None
         )
-        self.cmd = router.SetRouter(self.app, self.namespace)
+        self.cmd = router.SetRouter(self.app, None)
 
     def test_update_one_gateway(self):
         arglist = [
@@ -2297,7 +2297,7 @@ class TestAddGatewayRouter(TestGatewayOps):
     def setUp(self):
         super().setUp()
         # Get the command object to test
-        self.cmd = router.AddGatewayToRouter(self.app, self.namespace)
+        self.cmd = router.AddGatewayToRouter(self.app, None)
 
         self.network_client.add_external_gateways.return_value = self._router
 
@@ -2421,7 +2421,7 @@ class TestRemoveGatewayRouter(TestGatewayOps):
     def setUp(self):
         super().setUp()
         # Get the command object to test
-        self.cmd = router.RemoveGatewayFromRouter(self.app, self.namespace)
+        self.cmd = router.RemoveGatewayFromRouter(self.app, None)
 
         self.network_client.remove_external_gateways.return_value = (
             self._router
