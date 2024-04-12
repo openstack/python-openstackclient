@@ -27,15 +27,15 @@ class TestGroup(identity_fakes.TestIdentityv3):
         super(TestGroup, self).setUp()
 
         # Get a shortcut to the DomainManager Mock
-        self.domains_mock = self.app.client_manager.identity.domains
+        self.domains_mock = self.identity_client.domains
         self.domains_mock.reset_mock()
 
         # Get a shortcut to the GroupManager Mock
-        self.groups_mock = self.app.client_manager.identity.groups
+        self.groups_mock = self.identity_client.groups
         self.groups_mock.reset_mock()
 
         # Get a shortcut to the UserManager Mock
-        self.users_mock = self.app.client_manager.identity.users
+        self.users_mock = self.identity_client.users
         self.users_mock.reset_mock()
 
 

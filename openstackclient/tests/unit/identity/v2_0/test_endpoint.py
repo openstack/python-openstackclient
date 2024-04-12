@@ -27,11 +27,11 @@ class TestEndpoint(identity_fakes.TestIdentityv2):
         super(TestEndpoint, self).setUp()
 
         # Get a shortcut to the EndpointManager Mock
-        self.endpoints_mock = self.app.client_manager.identity.endpoints
+        self.endpoints_mock = self.identity_client.endpoints
         self.endpoints_mock.reset_mock()
 
         # Get a shortcut to the ServiceManager Mock
-        self.services_mock = self.app.client_manager.identity.services
+        self.services_mock = self.identity_client.services
         self.services_mock.reset_mock()
 
 

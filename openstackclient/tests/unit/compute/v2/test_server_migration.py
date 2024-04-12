@@ -476,10 +476,10 @@ class TestListMigrationV280(TestListMigration):
     def setUp(self):
         super().setUp()
 
-        self.projects_mock = self.app.client_manager.identity.projects
+        self.projects_mock = self.identity_client.projects
         self.projects_mock.reset_mock()
 
-        self.users_mock = self.app.client_manager.identity.users
+        self.users_mock = self.identity_client.users
         self.users_mock.reset_mock()
 
         self.projects_mock.get.return_value = self.project

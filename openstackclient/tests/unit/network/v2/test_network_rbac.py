@@ -28,7 +28,7 @@ class TestNetworkRBAC(network_fakes.TestNetworkV2):
         super(TestNetworkRBAC, self).setUp()
 
         # Get a shortcut to the ProjectManager Mock
-        self.projects_mock = self.app.client_manager.identity.projects
+        self.projects_mock = self.identity_client.projects
 
 
 @ddt.ddt

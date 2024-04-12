@@ -28,8 +28,8 @@ class TestMeter(network_fakes.TestNetworkV2):
     def setUp(self):
         super(TestMeter, self).setUp()
 
-        self.projects_mock = self.app.client_manager.identity.projects
-        self.domains_mock = self.app.client_manager.identity.domains
+        self.projects_mock = self.identity_client.projects
+        self.domains_mock = self.identity_client.domains
 
 
 class TestCreateMeter(TestMeter):

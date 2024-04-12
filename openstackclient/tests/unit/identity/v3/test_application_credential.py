@@ -29,7 +29,7 @@ class TestApplicationCredential(identity_fakes.TestIdentityv3):
     def setUp(self):
         super(TestApplicationCredential, self).setUp()
 
-        identity_manager = self.app.client_manager.identity
+        identity_manager = self.identity_client
         self.app_creds_mock = identity_manager.application_credentials
         self.app_creds_mock.reset_mock()
         self.roles_mock = identity_manager.roles

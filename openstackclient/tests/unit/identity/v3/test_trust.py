@@ -26,13 +26,13 @@ class TestTrust(identity_fakes.TestIdentityv3):
     def setUp(self):
         super(TestTrust, self).setUp()
 
-        self.trusts_mock = self.app.client_manager.identity.trusts
+        self.trusts_mock = self.identity_client.trusts
         self.trusts_mock.reset_mock()
-        self.projects_mock = self.app.client_manager.identity.projects
+        self.projects_mock = self.identity_client.projects
         self.projects_mock.reset_mock()
-        self.users_mock = self.app.client_manager.identity.users
+        self.users_mock = self.identity_client.users
         self.users_mock.reset_mock()
-        self.roles_mock = self.app.client_manager.identity.roles
+        self.roles_mock = self.identity_client.roles
         self.roles_mock.reset_mock()
 
 

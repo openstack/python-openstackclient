@@ -21,7 +21,7 @@ class TestUnscopedSAML(identity_fakes.TestFederatedIdentity):
     def setUp(self):
         super(TestUnscopedSAML, self).setUp()
 
-        federation_lib = self.app.client_manager.identity.federation
+        federation_lib = self.identity_client.federation
         self.projects_mock = federation_lib.projects
         self.projects_mock.reset_mock()
         self.domains_mock = federation_lib.domains

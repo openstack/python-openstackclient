@@ -1811,10 +1811,10 @@ class TestUserShow(identity_fakes.TestIdentityv3):
 
         # Get the command object to test
         self.cmd = user.ShowUser(self.app, None)
-        self.app.client_manager.identity.auth.client.get_user_id.return_value = (  # noqa: E501
+        self.identity_client.auth.client.get_user_id.return_value = (  # noqa: E501
             self.user.id
         )
-        self.app.client_manager.identity.tokens.get_token_data.return_value = {
+        self.identity_client.tokens.get_token_data.return_value = {
             'token': {
                 'user': {
                     'domain_id': {'id': self.user.domain_id},

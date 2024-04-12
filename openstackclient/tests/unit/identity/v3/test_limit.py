@@ -24,7 +24,7 @@ class TestLimit(identity_fakes.TestIdentityv3):
     def setUp(self):
         super(TestLimit, self).setUp()
 
-        identity_manager = self.app.client_manager.identity
+        identity_manager = self.identity_client
 
         self.limit_mock = identity_manager.limits
 

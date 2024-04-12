@@ -24,13 +24,12 @@ class TestRegisteredLimit(identity_fakes.TestIdentityv3):
     def setUp(self):
         super(TestRegisteredLimit, self).setUp()
 
-        identity_manager = self.app.client_manager.identity
-        self.registered_limit_mock = identity_manager.registered_limits
+        self.registered_limit_mock = self.identity_client.registered_limits
 
-        self.services_mock = identity_manager.services
+        self.services_mock = self.identity_client.services
         self.services_mock.reset_mock()
 
-        self.regions_mock = identity_manager.regions
+        self.regions_mock = self.identity_client.regions
         self.regions_mock.reset_mock()
 
 

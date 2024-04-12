@@ -24,9 +24,9 @@ class TestFlavorProfile(network_fakes.TestNetworkV2):
         super(TestFlavorProfile, self).setUp()
 
         # Get the ProjectManager Mock
-        self.projects_mock = self.app.client_manager.identity.projects
+        self.projects_mock = self.identity_client.projects
         # Get the DomainManager Mock
-        self.domains_mock = self.app.client_manager.identity.domains
+        self.domains_mock = self.identity_client.domains
 
 
 class TestCreateFlavorProfile(TestFlavorProfile):

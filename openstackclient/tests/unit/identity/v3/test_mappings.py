@@ -26,7 +26,7 @@ class TestMapping(identity_fakes.TestFederatedIdentity):
     def setUp(self):
         super(TestMapping, self).setUp()
 
-        federation_lib = self.app.client_manager.identity.federation
+        federation_lib = self.identity_client.federation
         self.mapping_mock = federation_lib.mappings
         self.mapping_mock.reset_mock()
 

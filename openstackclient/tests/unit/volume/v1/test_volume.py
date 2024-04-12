@@ -35,11 +35,11 @@ class TestVolume(volume_fakes.TestVolumev1):
         self.volumes_mock.reset_mock()
 
         # Get a shortcut to the TenantManager Mock
-        self.projects_mock = self.app.client_manager.identity.tenants
+        self.projects_mock = self.identity_client.tenants
         self.projects_mock.reset_mock()
 
         # Get a shortcut to the UserManager Mock
-        self.users_mock = self.app.client_manager.identity.users
+        self.users_mock = self.identity_client.users
         self.users_mock.reset_mock()
 
     def setup_volumes_mock(self, count):

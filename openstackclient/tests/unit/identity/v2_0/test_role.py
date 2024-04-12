@@ -43,15 +43,15 @@ class TestRole(identity_fakes.TestIdentityv2):
         super(TestRole, self).setUp()
 
         # Get a shortcut to the TenantManager Mock
-        self.projects_mock = self.app.client_manager.identity.tenants
+        self.projects_mock = self.identity_client.tenants
         self.projects_mock.reset_mock()
 
         # Get a shortcut to the UserManager Mock
-        self.users_mock = self.app.client_manager.identity.users
+        self.users_mock = self.identity_client.users
         self.users_mock.reset_mock()
 
         # Get a shortcut to the RoleManager Mock
-        self.roles_mock = self.app.client_manager.identity.roles
+        self.roles_mock = self.identity_client.roles
         self.roles_mock.reset_mock()
 
         auth_ref = identity_fakes.fake_auth_ref(

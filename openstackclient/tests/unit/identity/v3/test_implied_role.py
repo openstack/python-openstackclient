@@ -24,7 +24,7 @@ class TestRole(identity_fakes.TestIdentityv3):
     def setUp(self):
         super(TestRole, self).setUp()
 
-        identity_client = self.app.client_manager.identity
+        identity_client = self.identity_client
 
         # Get a shortcut to the UserManager Mock
         self.users_mock = identity_client.users

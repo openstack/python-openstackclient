@@ -33,7 +33,7 @@ class TestPort(network_fakes.TestNetworkV2):
         super(TestPort, self).setUp()
 
         # Get a shortcut to the ProjectManager Mock
-        self.projects_mock = self.app.client_manager.identity.projects
+        self.projects_mock = self.identity_client.projects
 
     @staticmethod
     def _get_common_cols_data(fake_port):

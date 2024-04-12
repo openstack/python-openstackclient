@@ -27,7 +27,7 @@ class TestAccessRule(identity_fakes.TestIdentityv3):
     def setUp(self):
         super(TestAccessRule, self).setUp()
 
-        identity_manager = self.app.client_manager.identity
+        identity_manager = self.identity_client
         self.access_rules_mock = identity_manager.access_rules
         self.access_rules_mock.reset_mock()
         self.roles_mock = identity_manager.roles

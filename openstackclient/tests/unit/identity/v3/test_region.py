@@ -23,7 +23,7 @@ class TestRegion(identity_fakes.TestIdentityv3):
         super(TestRegion, self).setUp()
 
         # Get a shortcut to the RegionManager Mock
-        self.regions_mock = self.app.client_manager.identity.regions
+        self.regions_mock = self.identity_client.regions
         self.regions_mock.reset_mock()
 
 
