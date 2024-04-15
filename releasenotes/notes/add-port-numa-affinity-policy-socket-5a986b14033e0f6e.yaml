@@ -1,0 +1,5 @@
+---
+features:
+  - |
+    Add a new NUMA affinity policy option: "socket". That applies to any new
+    port (using ``port create``) or any existing port (using ``port set``).
