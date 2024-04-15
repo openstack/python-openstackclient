@@ -378,3 +378,44 @@ def create_one_metadef_object(attrs=None):
     # Overwrite default attributes if there are some attributes set
     metadef_objects_list.update(attrs)
     return metadef_object.MetadefObject(**metadef_objects_list)
+
+
+def create_one_resource_type_association(attrs=None):
+    """Create a fake MetadefResourceTypeAssociation.
+
+    :param attrs: A dictionary with all attributes of
+        metadef_resource_type_association member
+    :type attrs: dict
+    :return: A fake MetadefResourceTypeAssociation object
+    :rtype: A `metadef_resource_type_association.
+        MetadefResourceTypeAssociation`
+    """
+    attrs = attrs or {}
+
+    metadef_resource_type_association_info = {
+        'namespace_name': 'OS::Compute::Quota',
+        'name': 'OS::Nova::Flavor',
+    }
+
+    metadef_resource_type_association_info.update(attrs)
+    return metadef_resource_type.MetadefResourceTypeAssociation(
+        **metadef_resource_type_association_info
+    )
+
+
+def create_resource_type_associations(attrs=None, count=2):
+    """Create mutiple fake resource type associations/
+
+    :param attrs: A dictionary with all attributes of
+        metadef_resource_type_association member
+    :type attrs: dict
+    :return: A list of fake MetadefResourceTypeAssociation objects
+    :rtype: list
+    """
+    resource_type_associations = []
+    for n in range(0, count):
+        resource_type_associations.append(
+            create_one_resource_type_association(attrs)
+        )
+
+    return resource_type_associations
