@@ -60,9 +60,16 @@ class HostRoutesColumn(cliff_columns.FormattableColumn):
         )
 
 
+class UnsortedListColumn(cliff_columns.FormattableColumn):
+    # format_columns.ListColumn sorts the output, but for things like
+    # DNS server addresses the order matters
+    def human_readable(self):
+        return ', '.join(self._value)
+
+
 _formatters = {
     'allocation_pools': AllocationPoolsColumn,
-    'dns_nameservers': format_columns.ListColumn,
+    'dns_nameservers': UnsortedListColumn,
     'host_routes': HostRoutesColumn,
     'service_types': format_columns.ListColumn,
     'tags': format_columns.ListColumn,

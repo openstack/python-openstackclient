@@ -167,7 +167,7 @@ class TestCreateSubnet(TestSubnet):
             subnet_v2.AllocationPoolsColumn(self._subnet.allocation_pools),
             self._subnet.cidr,
             self._subnet.description,
-            format_columns.ListColumn(self._subnet.dns_nameservers),
+            subnet_v2.UnsortedListColumn(self._subnet.dns_nameservers),
             self._subnet.enable_dhcp,
             self._subnet.gateway_ip,
             subnet_v2.HostRoutesColumn(self._subnet.host_routes),
@@ -190,7 +190,9 @@ class TestCreateSubnet(TestSubnet):
             ),
             self._subnet_from_pool.cidr,
             self._subnet_from_pool.description,
-            format_columns.ListColumn(self._subnet_from_pool.dns_nameservers),
+            subnet_v2.UnsortedListColumn(
+                self._subnet_from_pool.dns_nameservers
+            ),
             self._subnet_from_pool.enable_dhcp,
             self._subnet_from_pool.gateway_ip,
             subnet_v2.HostRoutesColumn(self._subnet_from_pool.host_routes),
@@ -213,7 +215,7 @@ class TestCreateSubnet(TestSubnet):
             ),
             self._subnet_ipv6.cidr,
             self._subnet_ipv6.description,
-            format_columns.ListColumn(self._subnet_ipv6.dns_nameservers),
+            subnet_v2.UnsortedListColumn(self._subnet_ipv6.dns_nameservers),
             self._subnet_ipv6.enable_dhcp,
             self._subnet_ipv6.gateway_ip,
             subnet_v2.HostRoutesColumn(self._subnet_ipv6.host_routes),
@@ -236,7 +238,7 @@ class TestCreateSubnet(TestSubnet):
             ),
             self._subnet_ipv6_pd.cidr,
             self._subnet_ipv6_pd.description,
-            format_columns.ListColumn(self._subnet_ipv6_pd.dns_nameservers),
+            subnet_v2.UnsortedListColumn(self._subnet_ipv6_pd.dns_nameservers),
             self._subnet_ipv6_pd.enable_dhcp,
             self._subnet_ipv6_pd.gateway_ip,
             subnet_v2.HostRoutesColumn(self._subnet_ipv6_pd.host_routes),
@@ -837,7 +839,7 @@ class TestListSubnet(TestSubnet):
                 subnet.cidr,
                 subnet.project_id,
                 subnet.enable_dhcp,
-                format_columns.ListColumn(subnet.dns_nameservers),
+                subnet_v2.UnsortedListColumn(subnet.dns_nameservers),
                 subnet_v2.AllocationPoolsColumn(subnet.allocation_pools),
                 subnet_v2.HostRoutesColumn(subnet.host_routes),
                 subnet.ip_version,
@@ -1489,7 +1491,7 @@ class TestShowSubnet(TestSubnet):
         subnet_v2.AllocationPoolsColumn(_subnet.allocation_pools),
         _subnet.cidr,
         _subnet.description,
-        format_columns.ListColumn(_subnet.dns_nameservers),
+        subnet_v2.UnsortedListColumn(_subnet.dns_nameservers),
         _subnet.enable_dhcp,
         _subnet.gateway_ip,
         subnet_v2.HostRoutesColumn(_subnet.host_routes),
@@ -1550,9 +1552,10 @@ class TestShowSubnet(TestSubnet):
 class TestUnsetSubnet(TestSubnet):
     def setUp(self):
         super(TestUnsetSubnet, self).setUp()
+        # Add three dns_nameserver entries so we can verify ordering
         self._testsubnet = network_fakes.FakeSubnet.create_one_subnet(
             {
-                'dns_nameservers': ['8.8.8.8', '8.8.8.4'],
+                'dns_nameservers': ['8.8.8.8', '8.8.8.4', '8.8.4.4'],
                 'host_routes': [
                     {'destination': '10.20.20.0/24', 'nexthop': '10.20.20.1'},
                     {'destination': '10.30.30.30/24', 'nexthop': '10.30.30.1'},
@@ -1578,9 +1581,10 @@ class TestUnsetSubnet(TestSubnet):
         self.cmd = subnet_v2.UnsetSubnet(self.app, None)
 
     def test_unset_subnet_params(self):
+        # Remove just the middle dns_nameserver entry, verify still in order
         arglist = [
             '--dns-nameserver',
-            '8.8.8.8',
+            '8.8.8.4',
             '--host-route',
             'destination=10.30.30.30/24,gateway=10.30.30.1',
             '--allocation-pool',
@@ -1591,7 +1595,7 @@ class TestUnsetSubnet(TestSubnet):
             self._testsubnet.name,
         ]
         verifylist = [
-            ('dns_nameservers', ['8.8.8.8']),
+            ('dns_nameservers', ['8.8.8.4']),
             (
                 'host_routes',
                 [{"destination": "10.30.30.30/24", "gateway": "10.30.30.1"}],
@@ -1605,7 +1609,7 @@ class TestUnsetSubnet(TestSubnet):
         result = self.cmd.take_action(parsed_args)
 
         attrs = {
-            'dns_nameservers': ['8.8.8.4'],
+            'dns_nameservers': ['8.8.8.8', '8.8.4.4'],
             'host_routes': [
                 {"destination": "10.20.20.0/24", "nexthop": "10.20.20.1"}
             ],
