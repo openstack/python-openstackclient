@@ -184,13 +184,13 @@ class TestCacheClear(fakes.TestImagev2):
     def test_cache_clear_no_option(self):
         arglist = []
 
-        verifylist = [('target', None)]
+        verifylist = [('target', 'both')]
 
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
         self.cmd.take_action(parsed_args)
 
         self.assertIsNone(
-            self.image_client.clear_cache.assert_called_with(None)
+            self.image_client.clear_cache.assert_called_with('both')
         )
 
     def test_cache_clear_queue_option(self):
