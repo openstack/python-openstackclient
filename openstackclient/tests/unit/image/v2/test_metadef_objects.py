@@ -12,6 +12,8 @@
 #   License for the specific language governing permissions and limitations
 #   under the License.
 
+from osc_lib import exceptions
+
 from openstackclient.image.v2 import metadef_objects
 from openstackclient.tests.unit.image.v2 import fakes
 
@@ -198,3 +200,63 @@ class TestMetadefObjectSet(fakes.TestImagev2):
         result = self.cmd.take_action(parsed_args)
 
         self.assertIsNone(result)
+
+
+class TestMetadefObjectPropertyShow(fakes.TestImagev2):
+    _metadef_namespace = fakes.create_one_metadef_namespace()
+    _metadef_objects = fakes.create_one_metadef_object()
+    md_property = _metadef_objects['properties']['quota:cpu_quota']
+    md_property['name'] = 'quota:cpu_quota'
+
+    expected_columns = (
+        'description',
+        'name',
+        'title',
+        'type',
+    )
+    expected_data = (
+        md_property['description'],
+        md_property['name'],
+        md_property['title'],
+        md_property['type'],
+    )
+
+    def setUp(self):
+        super().setUp()
+
+        self.image_client.get_metadef_object.return_value = (
+            self._metadef_objects
+        )
+        self.cmd = metadef_objects.ShowMetadefObjectProperty(self.app, None)
+
+    def test_object_property_show(self):
+        arglist = [
+            self._metadef_namespace.namespace,
+            self._metadef_objects.name,
+            'quota:cpu_quota',
+        ]
+        verifylist = []
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+        columns, data = self.cmd.take_action(parsed_args)
+
+        self.assertEqual(self.expected_columns, columns)
+        self.assertEqual(self.expected_data, data)
+
+    def test_neg_object_property_show(self):
+        arglist = [
+            self._metadef_namespace.namespace,
+            self._metadef_objects.name,
+            'prop1',
+        ]
+        verifylist = []
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+        exc = self.assertRaises(
+            exceptions.CommandError,
+            self.cmd.take_action,
+            parsed_args,
+        )
+        self.assertIn(
+            'Property %s not found in object %s.'
+            % (parsed_args.property, parsed_args.object),
+            str(exc),
+        )

@@ -36,7 +36,7 @@ md-object-create,image metadef object create,Create a new metadata definitions o
 md-object-show,image metadef object show,Describe a specific metadata definitions object inside a namespace.
 md-object-list,image metadef object list,List metadata definitions objects inside a specific namespace.
 md-object-delete,image metadef object delete,Delete a specific metadata definitions object inside a namespace.
-md-object-property-show,,Describe a specific metadata definitions property inside an object.
+md-object-property-show,image metadef object property show,Describe a specific metadata definitions property inside an object.
 md-object-update,image metadef object update,Update metadata definitions object inside a namespace.
 md-property-create,image metadef property create,Create a new metadata definitions property inside a namespace.
 md-property-delete,image metadef property delete,Delete a specific metadata definitions property inside a namespace.
