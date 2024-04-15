@@ -922,6 +922,7 @@ class TestUserList(identity_fakes.TestIdentityv3):
 
         self.identity_sdk_client.find_user.return_value = self.user
         self.identity_sdk_client.users.return_value = [self.user]
+        self.identity_sdk_client.group_users.return_value = [self.user]
         self.identity_sdk_client.find_domain.return_value = self.domain
         self.identity_sdk_client.find_group.return_value = self.group
         self.identity_sdk_client.find_project.return_value = self.project
@@ -945,7 +946,6 @@ class TestUserList(identity_fakes.TestIdentityv3):
         # Set expected values
         kwargs = {
             'domain_id': None,
-            'group': None,
         }
 
         self.identity_sdk_client.users.assert_called_with(**kwargs)
@@ -971,7 +971,6 @@ class TestUserList(identity_fakes.TestIdentityv3):
         # Set expected values
         kwargs = {
             'domain_id': self.domain.id,
-            'group': None,
         }
 
         self.identity_sdk_client.users.assert_called_with(**kwargs)
@@ -1000,7 +999,7 @@ class TestUserList(identity_fakes.TestIdentityv3):
             'group': self.group.id,
         }
 
-        self.identity_sdk_client.users.assert_called_with(**kwargs)
+        self.identity_sdk_client.group_users.assert_called_with(**kwargs)
 
         self.assertEqual(self.columns, columns)
         self.assertEqual(self.datalist, tuple(data))
@@ -1022,7 +1021,6 @@ class TestUserList(identity_fakes.TestIdentityv3):
         # Set expected values
         kwargs = {
             'domain_id': None,
-            'group': None,
         }
 
         self.identity_sdk_client.users.assert_called_with(**kwargs)

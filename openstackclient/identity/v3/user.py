@@ -442,10 +442,14 @@ class ListUser(command.Lister):
                 user = identity_client.find_user(user_id, ignore_missing=False)
                 data.append(user)
 
+        elif parsed_args.group:
+            data = identity_client.group_users(
+                domain_id=domain,
+                group=group,
+            )
         else:
             data = identity_client.users(
                 domain_id=domain,
-                group=group,
             )
 
         # Column handling
