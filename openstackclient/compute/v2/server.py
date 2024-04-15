@@ -180,6 +180,7 @@ def _prep_server_detail(compute_client, image_client, server, refresh=True):
         'updated_at': 'updated',
         'user_data': 'OS-EXT-SRV-ATTR:user_data',
         'vm_state': 'OS-EXT-STS:vm_state',
+        'pinned_availability_zone': 'pinned_availability_zone',
     }
     # Some columns returned by openstacksdk should not be shown because they're
     # either irrelevant or duplicates
@@ -2752,11 +2753,13 @@ class ListServer(command.Lister):
         if parsed_args.long:
             columns += (
                 'availability_zone',
+                'pinned_availability_zone',
                 'hypervisor_hostname',
                 'metadata',
             )
             column_headers += (
                 'Availability Zone',
+                'Pinned Availability Zone',
                 'Host',
                 'Properties',
             )
@@ -2791,6 +2794,12 @@ class ListServer(command.Lister):
                 if c in ('Availability Zone', "availability_zone"):
                     columns += ('availability_zone',)
                     column_headers += ('Availability Zone',)
+                if c in (
+                    'pinned_availability_zone',
+                    "Pinned Availability Zone",
+                ):
+                    columns += ('Pinned Availability Zone',)
+                    column_headers += ('Pinned Availability Zone',)
                 if c in ('Host', "host"):
                     columns += ('hypervisor_hostname',)
                     column_headers += ('Host',)

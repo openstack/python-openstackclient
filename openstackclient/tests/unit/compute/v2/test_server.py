@@ -4644,6 +4644,7 @@ class _TestServerList(TestServer):
         'Flavor Name',
         'Flavor ID',
         'Availability Zone',
+        'Pinned Availability Zone',
         'Host',
         'Properties',
     )
@@ -4785,6 +4786,7 @@ class TestServerList(_TestServerList):
                 self.flavor.name,
                 s.flavor['id'],
                 getattr(s, 'availability_zone'),
+                getattr(s, 'pinned_availability_zone', ''),
                 server.HostColumn(getattr(s, 'hypervisor_hostname')),
                 format_columns.DictColumn(s.metadata),
             )
@@ -4830,6 +4832,8 @@ class TestServerList(_TestServerList):
             '-c',
             'Availability Zone',
             '-c',
+            'Pinned Availability Zone',
+            '-c',
             'Host',
             '-c',
             'Properties',
@@ -4852,6 +4856,7 @@ class TestServerList(_TestServerList):
         self.assertIn('Image ID', columns)
         self.assertIn('Flavor ID', columns)
         self.assertIn('Availability Zone', columns)
+        self.assertIn('Pinned Availability Zone', columns)
         self.assertIn('Host', columns)
         self.assertIn('Properties', columns)
         self.assertCountEqual(columns, set(columns))
@@ -5264,6 +5269,7 @@ class TestServerList(_TestServerList):
                 self.flavor.name,
                 s.flavor['id'],
                 getattr(s, 'availability_zone'),
+                getattr(s, 'pinned_availability_zone', ''),
                 server.HostColumn(getattr(s, 'hypervisor_hostname')),
                 format_columns.DictColumn(s.metadata),
             )
@@ -5318,6 +5324,7 @@ class TestServerList(_TestServerList):
                 self.flavor.name,
                 s.flavor['id'],
                 getattr(s, 'availability_zone'),
+                getattr(s, 'pinned_availability_zone', ''),
                 server.HostColumn(getattr(s, 'hypervisor_hostname')),
                 format_columns.DictColumn(s.metadata),
                 s.host_status,
@@ -5354,6 +5361,7 @@ class TestServerListV273(_TestServerList):
         'Image ID',
         'Flavor',
         'Availability Zone',
+        'Pinned Availability Zone',
         'Host',
         'Properties',
     )
