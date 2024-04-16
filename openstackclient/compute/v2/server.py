@@ -3211,7 +3211,12 @@ revert to release the new server and restart the old one."""
                 success_status=['active', 'verify_resize'],
                 callback=_show_progress,
             ):
-                self.app.stdout.write(_('Complete\n'))
+                self.app.stdout.write(
+                    _(
+                        'Complete, check success/failure by '
+                        'openstack server migration/event list/show\n'
+                    )
+                )
             else:
                 msg = _('Error migrating server: %s') % server.id
                 raise exceptions.CommandError(msg)
