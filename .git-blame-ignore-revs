@@ -1,6 +1,7 @@
 # You can configure git to automatically use this file with the following config:
 # git config --global blame.ignoreRevsFile .git-blame-ignore-revs
 
+c5b772db76c071e493a81105c7d8c0def08b2264  # trivial: Prepare for pyupgrade pre-commit hook
 ed0314ac76ae58a6621077feb742efd5c14c3a62  # Blacken everything else
 ac64fdb93c32972575a4523ccb23d0279ef584f5  # Blacken openstackclient.api
 a3778109d0051a25901569e7bafe54915ab25f82  # Blacken openstack.common

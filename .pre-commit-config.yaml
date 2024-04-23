@@ -17,6 +17,11 @@ repos:
       - id: check-yaml
         files: .*\.(yaml|yml)$
         args: ['--unsafe']
+  - repo: https://github.com/asottile/pyupgrade
+    rev: v3.15.2
+    hooks:
+      - id: pyupgrade
+        args: ['--py38-plus']
   - repo: https://github.com/psf/black
     rev: 24.4.0
     hooks:
