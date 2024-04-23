@@ -246,9 +246,9 @@ class TestRegisteredLimitSet(TestRegisteredLimit):
 
     def test_registered_limit_set_description(self):
         registered_limit = copy.deepcopy(identity_fakes.REGISTERED_LIMIT)
-        registered_limit[
-            'description'
-        ] = identity_fakes.registered_limit_description
+        registered_limit['description'] = (
+            identity_fakes.registered_limit_description
+        )
         self.registered_limit_mock.update.return_value = fakes.FakeResource(
             None, registered_limit, loaded=True
         )

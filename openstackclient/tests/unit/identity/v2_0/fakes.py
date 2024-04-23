@@ -207,8 +207,7 @@ class FakeClientMixin:
 class TestIdentityv2(
     FakeClientMixin,
     utils.TestCommand,
-):
-    ...
+): ...
 
 
 class FakeExtension(object):

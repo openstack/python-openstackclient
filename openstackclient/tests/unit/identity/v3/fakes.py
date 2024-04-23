@@ -690,8 +690,7 @@ class FakeClientMixin:
 class TestIdentityv3(
     FakeClientMixin,
     utils.TestCommand,
-):
-    ...
+): ...
 
 
 # We don't use FakeClientMixin since we want a different fake legacy client

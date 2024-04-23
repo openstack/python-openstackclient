@@ -106,9 +106,9 @@ def _get_external_gateway_attrs(client_manager, parsed_args):
     attrs = {}
 
     if parsed_args.external_gateways:
-        external_gateways: collections.defaultdict[
-            str, list[dict]
-        ] = collections.defaultdict(list)
+        external_gateways: collections.defaultdict[str, list[dict]] = (
+            collections.defaultdict(list)
+        )
         n_client = client_manager.network
         first_network_id = None
 

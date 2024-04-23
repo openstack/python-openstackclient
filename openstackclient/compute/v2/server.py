@@ -1991,9 +1991,9 @@ class CreateServer(command.ShowOne):
                 )
                 raise exceptions.CommandError(msg)
 
-            boot_kwargs[
-                'hypervisor_hostname'
-            ] = parsed_args.hypervisor_hostname
+            boot_kwargs['hypervisor_hostname'] = (
+                parsed_args.hypervisor_hostname
+            )
 
         if parsed_args.hostname:
             if compute_client.api_version < api_versions.APIVersion("2.90"):

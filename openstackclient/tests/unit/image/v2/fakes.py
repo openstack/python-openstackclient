@@ -43,8 +43,7 @@ class TestImagev2(
     identity_fakes.FakeClientMixin,
     FakeClientMixin,
     utils.TestCommand,
-):
-    ...
+): ...
 
 
 def create_one_image(attrs=None):

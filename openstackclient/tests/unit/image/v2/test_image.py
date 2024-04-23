@@ -894,7 +894,7 @@ class TestImageList(TestImage):
         columns, data = self.cmd.take_action(parsed_args)
         self.image_client.images.assert_called_with(
             limit=ret_limit,
-            paginated=False
+            paginated=False,
             # marker=None
         )
 

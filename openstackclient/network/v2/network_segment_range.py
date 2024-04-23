@@ -43,8 +43,10 @@ def _get_ranges(item):
     item = sorted([int(i) for i in item])
     for a, b in itertools.groupby(enumerate(item), lambda xy: xy[1] - xy[0]):
         b = list(b)
-        yield "%s-%s" % (b[0][1], b[-1][1]) if b[0][1] != b[-1][1] else str(
-            b[0][1]
+        yield (
+            "%s-%s" % (b[0][1], b[-1][1])
+            if b[0][1] != b[-1][1]
+            else str(b[0][1])
         )
 
 
