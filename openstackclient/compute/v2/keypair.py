@@ -16,7 +16,6 @@
 """Keypair action implementations"""
 
 import collections
-import io
 import logging
 import os
 
@@ -77,7 +76,7 @@ class CreateKeypair(command.ShowOne):
     _description = _("Create new public or private key for server ssh access")
 
     def get_parser(self, prog_name):
-        parser = super(CreateKeypair, self).get_parser(prog_name)
+        parser = super().get_parser(prog_name)
         parser.add_argument(
             'name', metavar='<name>', help=_("New public or private key name")
         )
@@ -130,9 +129,9 @@ class CreateKeypair(command.ShowOne):
         if parsed_args.public_key:
             generated_keypair = None
             try:
-                with io.open(os.path.expanduser(parsed_args.public_key)) as p:
+                with open(os.path.expanduser(parsed_args.public_key)) as p:
                     public_key = p.read()
-            except IOError as e:
+            except OSError as e:
                 msg = _("Key file %(public_key)s not found: %(exception)s")
                 raise exceptions.CommandError(
                     msg
@@ -150,11 +149,11 @@ class CreateKeypair(command.ShowOne):
             # If user have us a file, save private key into specified file
             if parsed_args.private_key:
                 try:
-                    with io.open(
+                    with open(
                         os.path.expanduser(parsed_args.private_key), 'w+'
                     ) as p:
                         p.write(generated_keypair.private_key)
-                except IOError as e:
+                except OSError as e:
                     msg = _(
                         "Key file %(private_key)s can not be saved: "
                         "%(exception)s"
@@ -212,7 +211,7 @@ class DeleteKeypair(command.Command):
     _description = _("Delete public or private key(s)")
 
     def get_parser(self, prog_name):
-        parser = super(DeleteKeypair, self).get_parser(prog_name)
+        parser = super().get_parser(prog_name)
         parser.add_argument(
             'name',
             metavar='<key>',
@@ -388,7 +387,7 @@ class ShowKeypair(command.ShowOne):
     _description = _("Display key details")
 
     def get_parser(self, prog_name):
-        parser = super(ShowKeypair, self).get_parser(prog_name)
+        parser = super().get_parser(prog_name)
         parser.add_argument(
             'name',
             metavar='<key>',

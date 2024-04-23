@@ -29,7 +29,7 @@ class CreateRegion(command.ShowOne):
     _description = _("Create new region")
 
     def get_parser(self, prog_name):
-        parser = super(CreateRegion, self).get_parser(prog_name)
+        parser = super().get_parser(prog_name)
         # NOTE(stevemar): The API supports an optional region ID, but that
         # seems like poor UX, we will only support user-defined IDs.
         parser.add_argument(
@@ -68,7 +68,7 @@ class DeleteRegion(command.Command):
     _description = _("Delete region(s)")
 
     def get_parser(self, prog_name):
-        parser = super(DeleteRegion, self).get_parser(prog_name)
+        parser = super().get_parser(prog_name)
         parser.add_argument(
             'region',
             metavar='<region-id>',
@@ -106,7 +106,7 @@ class ListRegion(command.Lister):
     _description = _("List regions")
 
     def get_parser(self, prog_name):
-        parser = super(ListRegion, self).get_parser(prog_name)
+        parser = super().get_parser(prog_name)
         parser.add_argument(
             '--parent-region',
             metavar='<region-id>',
@@ -142,7 +142,7 @@ class SetRegion(command.Command):
     _description = _("Set region properties")
 
     def get_parser(self, prog_name):
-        parser = super(SetRegion, self).get_parser(prog_name)
+        parser = super().get_parser(prog_name)
         parser.add_argument(
             'region',
             metavar='<region-id>',
@@ -176,7 +176,7 @@ class ShowRegion(command.ShowOne):
     _description = _("Display region details")
 
     def get_parser(self, prog_name):
-        parser = super(ShowRegion, self).get_parser(prog_name)
+        parser = super().get_parser(prog_name)
         parser.add_argument(
             'region',
             metavar='<region-id>',

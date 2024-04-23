@@ -33,7 +33,7 @@ class CreateServerBackup(command.ShowOne):
     }
 
     def get_parser(self, prog_name):
-        parser = super(CreateServerBackup, self).get_parser(prog_name)
+        parser = super().get_parser(prog_name)
         parser.add_argument(
             'server',
             metavar='<server>',

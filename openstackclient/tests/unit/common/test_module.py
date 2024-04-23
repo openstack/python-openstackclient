@@ -53,7 +53,7 @@ MODULES = {
 
 class TestCommandList(utils.TestCommand):
     def setUp(self):
-        super(TestCommandList, self).setUp()
+        super().setUp()
 
         self.app.command_manager = mock.Mock()
         self.app.command_manager.get_command_groups.return_value = [
@@ -126,7 +126,7 @@ class TestCommandList(utils.TestCommand):
 )
 class TestModuleList(utils.TestCommand):
     def setUp(self):
-        super(TestModuleList, self).setUp()
+        super().setUp()
 
         # Get the command object to test
         self.cmd = osc_module.ListModule(self.app, None)

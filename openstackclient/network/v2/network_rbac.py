@@ -96,7 +96,7 @@ class CreateNetworkRBAC(command.ShowOne, common.NeutronCommandWithExtraArgs):
     _description = _("Create network RBAC policy")
 
     def get_parser(self, prog_name):
-        parser = super(CreateNetworkRBAC, self).get_parser(prog_name)
+        parser = super().get_parser(prog_name)
         parser.add_argument(
             'rbac_object',
             metavar="<rbac-object>",
@@ -182,7 +182,7 @@ class DeleteNetworkRBAC(command.Command):
     _description = _("Delete network RBAC policy(s)")
 
     def get_parser(self, prog_name):
-        parser = super(DeleteNetworkRBAC, self).get_parser(prog_name)
+        parser = super().get_parser(prog_name)
         parser.add_argument(
             'rbac_policy',
             metavar="<rbac-policy>",
@@ -221,7 +221,7 @@ class ListNetworkRBAC(command.Lister):
     _description = _("List network RBAC policies")
 
     def get_parser(self, prog_name):
-        parser = super(ListNetworkRBAC, self).get_parser(prog_name)
+        parser = super().get_parser(prog_name)
         parser.add_argument(
             '--type',
             metavar='<type>',
@@ -315,7 +315,7 @@ class SetNetworkRBAC(common.NeutronCommandWithExtraArgs):
     _description = _("Set network RBAC policy properties")
 
     def get_parser(self, prog_name):
-        parser = super(SetNetworkRBAC, self).get_parser(prog_name)
+        parser = super().get_parser(prog_name)
         parser.add_argument(
             'rbac_policy',
             metavar="<rbac-policy>",
@@ -364,7 +364,7 @@ class ShowNetworkRBAC(command.ShowOne):
     _description = _("Display network RBAC policy details")
 
     def get_parser(self, prog_name):
-        parser = super(ShowNetworkRBAC, self).get_parser(prog_name)
+        parser = super().get_parser(prog_name)
         parser.add_argument(
             'rbac_policy',
             metavar="<rbac-policy>",

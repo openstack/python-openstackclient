@@ -47,7 +47,7 @@ class PortTests(common.NetworkTagTests):
     def test_port_delete(self):
         """Test create, delete multiple"""
         json_output = self.openstack(
-            'port create --network %s %s' % (self.NETWORK_NAME, self.NAME),
+            f'port create --network {self.NETWORK_NAME} {self.NAME}',
             parse_output=True,
         )
         id1 = json_output.get('id')
@@ -56,7 +56,9 @@ class PortTests(common.NetworkTagTests):
         self.assertEqual(self.NAME, json_output.get('name'))
 
         json_output = self.openstack(
-            'port create --network %s %sx' % (self.NETWORK_NAME, self.NAME),
+            'port create --network {} {}x'.format(
+                self.NETWORK_NAME, self.NAME
+            ),
             parse_output=True,
         )
         id2 = json_output.get('id')
@@ -65,13 +67,13 @@ class PortTests(common.NetworkTagTests):
         self.assertEqual(self.NAME + 'x', json_output.get('name'))
 
         # Clean up after ourselves
-        raw_output = self.openstack('port delete %s %s' % (id1, id2))
+        raw_output = self.openstack(f'port delete {id1} {id2}')
         self.assertOutput('', raw_output)
 
     def test_port_list(self):
         """Test create defaults, list, delete"""
         json_output = self.openstack(
-            'port create --network %s %s' % (self.NETWORK_NAME, self.NAME),
+            f'port create --network {self.NETWORK_NAME} {self.NAME}',
             parse_output=True,
         )
         id1 = json_output.get('id')
@@ -82,7 +84,9 @@ class PortTests(common.NetworkTagTests):
         self.assertEqual(self.NAME, json_output.get('name'))
 
         json_output = self.openstack(
-            'port create --network %s %sx' % (self.NETWORK_NAME, self.NAME),
+            'port create --network {} {}x'.format(
+                self.NETWORK_NAME, self.NAME
+            ),
             parse_output=True,
         )
         id2 = json_output.get('id')
@@ -169,7 +173,7 @@ class PortTests(common.NetworkTagTests):
         self.assertIsNotNone(json_output.get('mac_address'))
 
         raw_output = self.openstack(
-            'port unset --security-group %s %s' % (sg_id, id1)
+            f'port unset --security-group {sg_id} {id1}'
         )
         self.assertOutput('', raw_output)
 
@@ -247,7 +251,7 @@ class PortTests(common.NetworkTagTests):
         )
 
         raw_output = self.openstack(
-            'port unset --security-group %s %s' % (sg_id1, id1)
+            f'port unset --security-group {sg_id1} {id1}'
         )
         self.assertOutput('', raw_output)
 

@@ -24,7 +24,7 @@ class SetAccount(command.Command):
     _description = _("Set account properties")
 
     def get_parser(self, prog_name):
-        parser = super(SetAccount, self).get_parser(prog_name)
+        parser = super().get_parser(prog_name)
         parser.add_argument(
             "--property",
             metavar="<key=value>",
@@ -59,7 +59,7 @@ class UnsetAccount(command.Command):
     _description = _("Unset account properties")
 
     def get_parser(self, prog_name):
-        parser = super(UnsetAccount, self).get_parser(prog_name)
+        parser = super().get_parser(prog_name)
         parser.add_argument(
             '--property',
             metavar='<key>',

@@ -155,7 +155,7 @@ class CreateSubnetPool(command.ShowOne, common.NeutronCommandWithExtraArgs):
     _description = _("Create subnet pool")
 
     def get_parser(self, prog_name):
-        parser = super(CreateSubnetPool, self).get_parser(prog_name)
+        parser = super().get_parser(prog_name)
         parser.add_argument(
             'name', metavar='<name>', help=_("Name of the new subnet pool")
         )
@@ -226,7 +226,7 @@ class DeleteSubnetPool(command.Command):
     _description = _("Delete subnet pool(s)")
 
     def get_parser(self, prog_name):
-        parser = super(DeleteSubnetPool, self).get_parser(prog_name)
+        parser = super().get_parser(prog_name)
         parser.add_argument(
             'subnet_pool',
             metavar='<subnet-pool>',
@@ -267,7 +267,7 @@ class ListSubnetPool(command.Lister):
     _description = _("List subnet pools")
 
     def get_parser(self, prog_name):
-        parser = super(ListSubnetPool, self).get_parser(prog_name)
+        parser = super().get_parser(prog_name)
         parser.add_argument(
             '--long',
             action='store_true',
@@ -393,7 +393,7 @@ class SetSubnetPool(common.NeutronCommandWithExtraArgs):
     _description = _("Set subnet pool properties")
 
     def get_parser(self, prog_name):
-        parser = super(SetSubnetPool, self).get_parser(prog_name)
+        parser = super().get_parser(prog_name)
         parser.add_argument(
             'subnet_pool',
             metavar='<subnet-pool>',
@@ -464,7 +464,7 @@ class ShowSubnetPool(command.ShowOne):
     _description = _("Display subnet pool details")
 
     def get_parser(self, prog_name):
-        parser = super(ShowSubnetPool, self).get_parser(prog_name)
+        parser = super().get_parser(prog_name)
         parser.add_argument(
             'subnet_pool',
             metavar='<subnet-pool>',
@@ -486,7 +486,7 @@ class UnsetSubnetPool(command.Command):
     _description = _("Unset subnet pool properties")
 
     def get_parser(self, prog_name):
-        parser = super(UnsetSubnetPool, self).get_parser(prog_name)
+        parser = super().get_parser(prog_name)
         parser.add_argument(
             'subnet_pool',
             metavar="<subnet-pool>",

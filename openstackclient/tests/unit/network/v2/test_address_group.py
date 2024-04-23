@@ -24,7 +24,7 @@ from openstackclient.tests.unit import utils as tests_utils
 
 class TestAddressGroup(network_fakes.TestNetworkV2):
     def setUp(self):
-        super(TestAddressGroup, self).setUp()
+        super().setUp()
 
         # Get a shortcut to the ProjectManager Mock
         self.projects_mock = self.identity_client.projects
@@ -57,7 +57,7 @@ class TestCreateAddressGroup(TestAddressGroup):
     )
 
     def setUp(self):
-        super(TestCreateAddressGroup, self).setUp()
+        super().setUp()
         self.network_client.create_address_group = mock.Mock(
             return_value=self.new_address_group
         )
@@ -144,7 +144,7 @@ class TestDeleteAddressGroup(TestAddressGroup):
     _address_groups = network_fakes.create_address_groups(count=2)
 
     def setUp(self):
-        super(TestDeleteAddressGroup, self).setUp()
+        super().setUp()
         self.network_client.delete_address_group = mock.Mock(return_value=None)
         self.network_client.find_address_group = (
             network_fakes.get_address_groups(
@@ -250,7 +250,7 @@ class TestListAddressGroup(TestAddressGroup):
         )
 
     def setUp(self):
-        super(TestListAddressGroup, self).setUp()
+        super().setUp()
         self.network_client.address_groups = mock.Mock(
             return_value=self.address_groups
         )
@@ -332,7 +332,7 @@ class TestSetAddressGroup(TestAddressGroup):
     _address_group = network_fakes.create_one_address_group()
 
     def setUp(self):
-        super(TestSetAddressGroup, self).setUp()
+        super().setUp()
         self.network_client.update_address_group = mock.Mock(return_value=None)
         self.network_client.find_address_group = mock.Mock(
             return_value=self._address_group
@@ -441,7 +441,7 @@ class TestShowAddressGroup(TestAddressGroup):
     )
 
     def setUp(self):
-        super(TestShowAddressGroup, self).setUp()
+        super().setUp()
         self.network_client.find_address_group = mock.Mock(
             return_value=self._address_group
         )
@@ -485,7 +485,7 @@ class TestUnsetAddressGroup(TestAddressGroup):
     _address_group = network_fakes.create_one_address_group()
 
     def setUp(self):
-        super(TestUnsetAddressGroup, self).setUp()
+        super().setUp()
         self.network_client.find_address_group = mock.Mock(
             return_value=self._address_group
         )

@@ -30,7 +30,7 @@ class EndpointTests(common.IdentityTests):
         endpoint_1 = self._create_dummy_endpoint(add_clean_up=False)
         endpoint_2 = self._create_dummy_endpoint(add_clean_up=False)
         raw_output = self.openstack(
-            'endpoint delete %s %s' % (endpoint_1, endpoint_2)
+            f'endpoint delete {endpoint_1} {endpoint_2}'
         )
         self.assertEqual(0, len(raw_output))
 

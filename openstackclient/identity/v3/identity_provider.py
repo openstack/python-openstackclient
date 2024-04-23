@@ -31,7 +31,7 @@ class CreateIdentityProvider(command.ShowOne):
     _description = _("Create new identity provider")
 
     def get_parser(self, prog_name):
-        parser = super(CreateIdentityProvider, self).get_parser(prog_name)
+        parser = super().get_parser(prog_name)
         parser.add_argument(
             'identity_provider_id',
             metavar='<name>',
@@ -146,7 +146,7 @@ class DeleteIdentityProvider(command.Command):
     _description = _("Delete identity provider(s)")
 
     def get_parser(self, prog_name):
-        parser = super(DeleteIdentityProvider, self).get_parser(prog_name)
+        parser = super().get_parser(prog_name)
         parser.add_argument(
             'identity_provider',
             metavar='<identity-provider>',
@@ -184,7 +184,7 @@ class ListIdentityProvider(command.Lister):
     _description = _("List identity providers")
 
     def get_parser(self, prog_name):
-        parser = super(ListIdentityProvider, self).get_parser(prog_name)
+        parser = super().get_parser(prog_name)
         parser.add_argument(
             '--id',
             metavar='<id>',
@@ -226,7 +226,7 @@ class SetIdentityProvider(command.Command):
     _description = _("Set identity provider properties")
 
     def get_parser(self, prog_name):
-        parser = super(SetIdentityProvider, self).get_parser(prog_name)
+        parser = super().get_parser(prog_name)
         parser.add_argument(
             'identity_provider',
             metavar='<identity-provider>',
@@ -326,7 +326,7 @@ class ShowIdentityProvider(command.ShowOne):
     _description = _("Display identity provider details")
 
     def get_parser(self, prog_name):
-        parser = super(ShowIdentityProvider, self).get_parser(prog_name)
+        parser = super().get_parser(prog_name)
         parser.add_argument(
             'identity_provider',
             metavar='<identity-provider>',

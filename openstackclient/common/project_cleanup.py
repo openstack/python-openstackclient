@@ -46,7 +46,7 @@ class ProjectCleanup(command.Command):
     _description = _("Clean resources associated with a project")
 
     def get_parser(self, prog_name):
-        parser = super(ProjectCleanup, self).get_parser(prog_name)
+        parser = super().get_parser(prog_name)
         action_group = parser.add_mutually_exclusive_group()
         action_group.add_argument(
             '--dry-run',

@@ -23,7 +23,7 @@ from openstackclient.tests.unit import utils as tests_utils
 
 class TestNetworkSegment(network_fakes.TestNetworkV2):
     def setUp(self):
-        super(TestNetworkSegment, self).setUp()
+        super().setUp()
 
 
 class TestCreateNetworkSegment(TestNetworkSegment):
@@ -56,7 +56,7 @@ class TestCreateNetworkSegment(TestNetworkSegment):
     )
 
     def setUp(self):
-        super(TestCreateNetworkSegment, self).setUp()
+        super().setUp()
 
         self.network_client.create_segment = mock.Mock(
             return_value=self._network_segment
@@ -170,7 +170,7 @@ class TestDeleteNetworkSegment(TestNetworkSegment):
     _network_segments = network_fakes.create_network_segments()
 
     def setUp(self):
-        super(TestDeleteNetworkSegment, self).setUp()
+        super().setUp()
 
         self.network_client.delete_segment = mock.Mock(return_value=None)
         self.network_client.find_segment = mock.Mock(
@@ -286,7 +286,7 @@ class TestListNetworkSegment(TestNetworkSegment):
         )
 
     def setUp(self):
-        super(TestListNetworkSegment, self).setUp()
+        super().setUp()
 
         # Get the command object to test
         self.cmd = network_segment.ListNetworkSegment(self.app, None)
@@ -350,7 +350,7 @@ class TestSetNetworkSegment(TestNetworkSegment):
     _network_segment = network_fakes.create_one_network_segment()
 
     def setUp(self):
-        super(TestSetNetworkSegment, self).setUp()
+        super().setUp()
 
         self.network_client.find_segment = mock.Mock(
             return_value=self._network_segment
@@ -430,7 +430,7 @@ class TestShowNetworkSegment(TestNetworkSegment):
     )
 
     def setUp(self):
-        super(TestShowNetworkSegment, self).setUp()
+        super().setUp()
 
         self.network_client.find_segment = mock.Mock(
             return_value=self._network_segment

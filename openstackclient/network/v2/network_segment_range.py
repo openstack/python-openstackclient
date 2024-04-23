@@ -44,9 +44,7 @@ def _get_ranges(item):
     for a, b in itertools.groupby(enumerate(item), lambda xy: xy[1] - xy[0]):
         b = list(b)
         yield (
-            "%s-%s" % (b[0][1], b[-1][1])
-            if b[0][1] != b[-1][1]
-            else str(b[0][1])
+            f"{b[0][1]}-{b[-1][1]}" if b[0][1] != b[-1][1] else str(b[0][1])
         )
 
 
@@ -100,7 +98,7 @@ class CreateNetworkSegmentRange(
     _description = _("Create new network segment range")
 
     def get_parser(self, prog_name):
-        parser = super(CreateNetworkSegmentRange, self).get_parser(prog_name)
+        parser = super().get_parser(prog_name)
         shared_group = parser.add_mutually_exclusive_group()
         shared_group.add_argument(
             "--private",
@@ -256,7 +254,7 @@ class DeleteNetworkSegmentRange(command.Command):
     _description = _("Delete network segment range(s)")
 
     def get_parser(self, prog_name):
-        parser = super(DeleteNetworkSegmentRange, self).get_parser(prog_name)
+        parser = super().get_parser(prog_name)
         parser.add_argument(
             'network_segment_range',
             metavar='<network-segment-range>',
@@ -309,7 +307,7 @@ class ListNetworkSegmentRange(command.Lister):
     _description = _("List network segment ranges")
 
     def get_parser(self, prog_name):
-        parser = super(ListNetworkSegmentRange, self).get_parser(prog_name)
+        parser = super().get_parser(prog_name)
         parser.add_argument(
             '--long',
             action='store_true',
@@ -425,7 +423,7 @@ class SetNetworkSegmentRange(common.NeutronCommandWithExtraArgs):
     _description = _("Set network segment range properties")
 
     def get_parser(self, prog_name):
-        parser = super(SetNetworkSegmentRange, self).get_parser(prog_name)
+        parser = super().get_parser(prog_name)
         parser.add_argument(
             'network_segment_range',
             metavar='<network-segment-range>',
@@ -490,7 +488,7 @@ class ShowNetworkSegmentRange(command.ShowOne):
     _description = _("Display network segment range details")
 
     def get_parser(self, prog_name):
-        parser = super(ShowNetworkSegmentRange, self).get_parser(prog_name)
+        parser = super().get_parser(prog_name)
         parser.add_argument(
             'network_segment_range',
             metavar='<network-segment-range>',

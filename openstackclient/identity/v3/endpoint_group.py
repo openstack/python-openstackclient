@@ -27,7 +27,7 @@ from openstackclient.identity import common
 LOG = logging.getLogger(__name__)
 
 
-class _FiltersReader(object):
+class _FiltersReader:
     _description = _("Helper class capable of reading filters from files")
 
     def _read_filters(self, path):
@@ -63,7 +63,7 @@ class AddProjectToEndpointGroup(command.Command):
     _description = _("Add a project to an endpoint group")
 
     def get_parser(self, prog_name):
-        parser = super(AddProjectToEndpointGroup, self).get_parser(prog_name)
+        parser = super().get_parser(prog_name)
         parser.add_argument(
             'endpointgroup',
             metavar='<endpoint-group>',
@@ -97,7 +97,7 @@ class CreateEndpointGroup(command.ShowOne, _FiltersReader):
     _description = _("Create new endpoint group")
 
     def get_parser(self, prog_name):
-        parser = super(CreateEndpointGroup, self).get_parser(prog_name)
+        parser = super().get_parser(prog_name)
         parser.add_argument(
             'name',
             metavar='<name>',
@@ -137,7 +137,7 @@ class DeleteEndpointGroup(command.Command):
     _description = _("Delete endpoint group(s)")
 
     def get_parser(self, prog_name):
-        parser = super(DeleteEndpointGroup, self).get_parser(prog_name)
+        parser = super().get_parser(prog_name)
         parser.add_argument(
             'endpointgroup',
             metavar='<endpoint-group>',
@@ -177,7 +177,7 @@ class ListEndpointGroup(command.Lister):
     _description = _("List endpoint groups")
 
     def get_parser(self, prog_name):
-        parser = super(ListEndpointGroup, self).get_parser(prog_name)
+        parser = super().get_parser(prog_name)
         list_group = parser.add_mutually_exclusive_group()
         list_group.add_argument(
             '--endpointgroup',
@@ -242,9 +242,7 @@ class RemoveProjectFromEndpointGroup(command.Command):
     _description = _("Remove project from endpoint group")
 
     def get_parser(self, prog_name):
-        parser = super(RemoveProjectFromEndpointGroup, self).get_parser(
-            prog_name
-        )
+        parser = super().get_parser(prog_name)
         parser.add_argument(
             'endpointgroup',
             metavar='<endpoint-group>',
@@ -278,7 +276,7 @@ class SetEndpointGroup(command.Command, _FiltersReader):
     _description = _("Set endpoint group properties")
 
     def get_parser(self, prog_name):
-        parser = super(SetEndpointGroup, self).get_parser(prog_name)
+        parser = super().get_parser(prog_name)
         parser.add_argument(
             'endpointgroup',
             metavar='<endpoint-group>',
@@ -324,7 +322,7 @@ class ShowEndpointGroup(command.ShowOne):
     _description = _("Display endpoint group details")
 
     def get_parser(self, prog_name):
-        parser = super(ShowEndpointGroup, self).get_parser(prog_name)
+        parser = super().get_parser(prog_name)
         parser.add_argument(
             'endpointgroup',
             metavar='<endpointgroup>',

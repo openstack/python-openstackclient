@@ -22,7 +22,7 @@ class TestCatalog(utils.TestCommand):
     service_catalog = identity_fakes.FakeCatalog.create_catalog()
 
     def setUp(self):
-        super(TestCatalog, self).setUp()
+        super().setUp()
 
         self.sc_mock = mock.Mock()
         self.sc_mock.service_catalog.catalog.return_value = [
@@ -43,7 +43,7 @@ class TestCatalogList(TestCatalog):
     )
 
     def setUp(self):
-        super(TestCatalogList, self).setUp()
+        super().setUp()
 
         # Get the command object to test
         self.cmd = catalog.ListCatalog(self.app, None)
@@ -126,7 +126,7 @@ class TestCatalogList(TestCatalog):
 
 class TestCatalogShow(TestCatalog):
     def setUp(self):
-        super(TestCatalogShow, self).setUp()
+        super().setUp()
 
         # Get the command object to test
         self.cmd = catalog.ShowCatalog(self.app, None)

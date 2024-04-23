@@ -28,7 +28,7 @@ from openstackclient.tests.unit import utils as tests_utils
 
 class TestFlavor(compute_fakes.TestComputev2):
     def setUp(self):
-        super(TestFlavor, self).setUp()
+        super().setUp()
 
         self.projects_mock = self.identity_client.projects
         self.projects_mock.reset_mock()
@@ -83,7 +83,7 @@ class TestFlavorCreate(TestFlavor):
     )
 
     def setUp(self):
-        super(TestFlavorCreate, self).setUp()
+        super().setUp()
 
         # Return a project
         self.projects_mock.get.return_value = self.project
@@ -403,7 +403,7 @@ class TestFlavorDelete(TestFlavor):
     flavors = compute_fakes.create_flavors(count=2)
 
     def setUp(self):
-        super(TestFlavorDelete, self).setUp()
+        super().setUp()
 
         self.compute_sdk_client.delete_flavor.return_value = None
 
@@ -513,7 +513,7 @@ class TestFlavorList(TestFlavor):
     )
 
     def setUp(self):
-        super(TestFlavorList, self).setUp()
+        super().setUp()
 
         self.api_mock = mock.Mock()
         self.api_mock.side_effect = [
@@ -756,7 +756,7 @@ class TestFlavorSet(TestFlavor):
     project = identity_fakes.FakeProject.create_one_project()
 
     def setUp(self):
-        super(TestFlavorSet, self).setUp()
+        super().setUp()
 
         self.compute_sdk_client.find_flavor.return_value = self.flavor
         # Return a project
@@ -1006,7 +1006,7 @@ class TestFlavorShow(TestFlavor):
     )
 
     def setUp(self):
-        super(TestFlavorShow, self).setUp()
+        super().setUp()
 
         # Return value of _find_resource()
         self.compute_sdk_client.find_flavor.return_value = self.flavor
@@ -1093,7 +1093,7 @@ class TestFlavorUnset(TestFlavor):
     project = identity_fakes.FakeProject.create_one_project()
 
     def setUp(self):
-        super(TestFlavorUnset, self).setUp()
+        super().setUp()
 
         self.compute_sdk_client.find_flavor.return_value = self.flavor
         # Return a project

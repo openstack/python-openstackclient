@@ -19,7 +19,7 @@ class VolumeBackupTests(common.BaseVolumeTests):
     """Functional tests for volume backups."""
 
     def setUp(self):
-        super(VolumeBackupTests, self).setUp()
+        super().setUp()
         self.backup_enabled = False
         serv_list = self.openstack('volume service list', parse_output=True)
         for service in serv_list:
@@ -48,7 +48,7 @@ class VolumeBackupTests(common.BaseVolumeTests):
 
         # restore the backup
         backup_restored = self.openstack(
-            'volume backup restore %s %s' % (backup['id'], vol_id),
+            'volume backup restore {} {}'.format(backup['id'], vol_id),
             parse_output=True,
         )
         self.assertEqual(backup_restored['backup_id'], backup['id'])

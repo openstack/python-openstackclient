@@ -23,7 +23,7 @@ from openstackclient.tests.unit import test_shell
 
 class TestIntegShellCliNoAuth(test_base.TestInteg):
     def setUp(self):
-        super(TestIntegShellCliNoAuth, self).setUp()
+        super().setUp()
         env = {}
         self.useFixture(osc_lib_utils.EnvFixture(copy.deepcopy(env)))
 
@@ -67,7 +67,7 @@ class TestIntegShellCliNoAuth(test_base.TestInteg):
 
 class TestIntegShellCliV2(test_base.TestInteg):
     def setUp(self):
-        super(TestIntegShellCliV2, self).setUp()
+        super().setUp()
         env = {
             "OS_AUTH_URL": test_base.V2_AUTH_URL,
             "OS_PROJECT_NAME": test_shell.DEFAULT_PROJECT_NAME,
@@ -154,7 +154,7 @@ class TestIntegShellCliV2(test_base.TestInteg):
 
 class TestIntegShellCliV2Ignore(test_base.TestInteg):
     def setUp(self):
-        super(TestIntegShellCliV2Ignore, self).setUp()
+        super().setUp()
         env = {
             "OS_AUTH_URL": test_base.V2_AUTH_URL,
             "OS_PROJECT_NAME": test_shell.DEFAULT_PROJECT_NAME,
@@ -200,7 +200,7 @@ class TestIntegShellCliV2Ignore(test_base.TestInteg):
 
 class TestIntegShellCliV3(test_base.TestInteg):
     def setUp(self):
-        super(TestIntegShellCliV3, self).setUp()
+        super().setUp()
         env = {
             "OS_AUTH_URL": test_base.V3_AUTH_URL,
             "OS_PROJECT_DOMAIN_ID": test_shell.DEFAULT_PROJECT_DOMAIN_ID,
@@ -290,7 +290,7 @@ class TestIntegShellCliV3(test_base.TestInteg):
 
 class TestIntegShellCliV3Prompt(test_base.TestInteg):
     def setUp(self):
-        super(TestIntegShellCliV3Prompt, self).setUp()
+        super().setUp()
         env = {
             "OS_AUTH_URL": test_base.V3_AUTH_URL,
             "OS_PROJECT_DOMAIN_ID": test_shell.DEFAULT_PROJECT_DOMAIN_ID,
@@ -339,7 +339,7 @@ class TestIntegShellCliPrecedence(test_base.TestInteg):
     """
 
     def setUp(self):
-        super(TestIntegShellCliPrecedence, self).setUp()
+        super().setUp()
         env = {
             "OS_AUTH_URL": test_base.V3_AUTH_URL,
             "OS_PROJECT_DOMAIN_ID": test_shell.DEFAULT_PROJECT_DOMAIN_ID,
@@ -412,7 +412,7 @@ class TestIntegShellCliPrecedenceOCC(test_base.TestInteg):
     """
 
     def setUp(self):
-        super(TestIntegShellCliPrecedenceOCC, self).setUp()
+        super().setUp()
         env = {
             "OS_CLOUD": "megacloud",
             "OS_AUTH_URL": test_base.V3_AUTH_URL,

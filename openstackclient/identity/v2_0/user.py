@@ -42,7 +42,7 @@ class ProjectColumn(cliff_columns.FormattableColumn):
     """
 
     def __init__(self, value, project_cache=None):
-        super(ProjectColumn, self).__init__(value)
+        super().__init__(value)
         self.project_cache = project_cache or {}
 
     def human_readable(self):
@@ -59,7 +59,7 @@ class CreateUser(command.ShowOne):
     _description = _("Create new user")
 
     def get_parser(self, prog_name):
-        parser = super(CreateUser, self).get_parser(prog_name)
+        parser = super().get_parser(prog_name)
         parser.add_argument(
             'name',
             metavar='<name>',
@@ -162,7 +162,7 @@ class DeleteUser(command.Command):
     _description = _("Delete user(s)")
 
     def get_parser(self, prog_name):
-        parser = super(DeleteUser, self).get_parser(prog_name)
+        parser = super().get_parser(prog_name)
         parser.add_argument(
             'users',
             metavar='<user>',
@@ -205,7 +205,7 @@ class ListUser(command.Lister):
     _description = _("List users")
 
     def get_parser(self, prog_name):
-        parser = super(ListUser, self).get_parser(prog_name)
+        parser = super().get_parser(prog_name)
         parser.add_argument(
             '--project',
             metavar='<project>',
@@ -294,7 +294,7 @@ class SetUser(command.Command):
     _description = _("Set user properties")
 
     def get_parser(self, prog_name):
-        parser = super(SetUser, self).get_parser(prog_name)
+        parser = super().get_parser(prog_name)
         parser.add_argument(
             'user',
             metavar='<user>',
@@ -392,7 +392,7 @@ class ShowUser(command.ShowOne):
     _description = _("Display user details")
 
     def get_parser(self, prog_name):
-        parser = super(ShowUser, self).get_parser(prog_name)
+        parser = super().get_parser(prog_name)
         parser.add_argument(
             'user',
             metavar='<user>',

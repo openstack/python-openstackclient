@@ -21,7 +21,7 @@ from openstackclient.tests.unit.object.v1 import fakes as object_fakes
 
 class TestContainerAll(object_fakes.TestObjectv1):
     def setUp(self):
-        super(TestContainerAll, self).setUp()
+        super().setUp()
 
         self.requests_mock = self.useFixture(fixture.Fixture())
 
@@ -34,7 +34,7 @@ class TestContainerCreate(TestContainerAll):
     )
 
     def setUp(self):
-        super(TestContainerCreate, self).setUp()
+        super().setUp()
 
         # Get the command object to test
         self.cmd = container_cmds.CreateContainer(self.app, None)
@@ -182,7 +182,7 @@ class TestContainerCreate(TestContainerAll):
 
 class TestContainerDelete(TestContainerAll):
     def setUp(self):
-        super(TestContainerDelete, self).setUp()
+        super().setUp()
 
         # Get the command object to test
         self.cmd = container_cmds.DeleteContainer(self.app, None)
@@ -242,7 +242,7 @@ class TestContainerList(TestContainerAll):
     columns = ('Name',)
 
     def setUp(self):
-        super(TestContainerList, self).setUp()
+        super().setUp()
 
         # Get the command object to test
         self.cmd = container_cmds.ListContainer(self.app, None)
@@ -309,7 +309,7 @@ class TestContainerList(TestContainerAll):
 
 class TestContainerSave(TestContainerAll):
     def setUp(self):
-        super(TestContainerSave, self).setUp()
+        super().setUp()
 
         # Get the command object to test
         self.cmd = container_cmds.SaveContainer(self.app, None)
@@ -357,7 +357,7 @@ class TestContainerSave(TestContainerAll):
 
 class TestContainerShow(TestContainerAll):
     def setUp(self):
-        super(TestContainerShow, self).setUp()
+        super().setUp()
 
         # Get the command object to test
         self.cmd = container_cmds.ShowContainer(self.app, None)

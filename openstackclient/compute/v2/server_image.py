@@ -38,7 +38,7 @@ class CreateServerImage(command.ShowOne):
     }
 
     def get_parser(self, prog_name):
-        parser = super(CreateServerImage, self).get_parser(prog_name)
+        parser = super().get_parser(prog_name)
         parser.add_argument(
             'server',
             metavar='<server>',

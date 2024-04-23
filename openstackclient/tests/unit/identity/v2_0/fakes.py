@@ -155,7 +155,7 @@ def fake_auth_ref(fake_token, fake_service=None):
     return auth_ref
 
 
-class FakeIdentityv2Client(object):
+class FakeIdentityv2Client:
     def __init__(self, **kwargs):
         self.roles = mock.Mock()
         self.roles.resource_class = fakes.FakeResource(None, {})
@@ -210,7 +210,7 @@ class TestIdentityv2(
 ): ...
 
 
-class FakeExtension(object):
+class FakeExtension:
     """Fake one or more extension."""
 
     @staticmethod
@@ -249,7 +249,7 @@ class FakeExtension(object):
         return extension
 
 
-class FakeCatalog(object):
+class FakeCatalog:
     """Fake one or more catalog."""
 
     @staticmethod
@@ -299,7 +299,7 @@ class FakeCatalog(object):
         return catalog
 
 
-class FakeProject(object):
+class FakeProject:
     """Fake one or more project."""
 
     @staticmethod
@@ -346,7 +346,7 @@ class FakeProject(object):
         return projects
 
 
-class FakeEndpoint(object):
+class FakeEndpoint:
     """Fake one or more endpoint."""
 
     @staticmethod
@@ -397,7 +397,7 @@ class FakeEndpoint(object):
         return endpoints
 
 
-class FakeService(object):
+class FakeService:
     """Fake one or more service."""
 
     @staticmethod
@@ -444,7 +444,7 @@ class FakeService(object):
         return services
 
 
-class FakeRole(object):
+class FakeRole:
     """Fake one or more role."""
 
     @staticmethod
@@ -487,7 +487,7 @@ class FakeRole(object):
         return roles
 
 
-class FakeUser(object):
+class FakeUser:
     """Fake one or more user."""
 
     @staticmethod

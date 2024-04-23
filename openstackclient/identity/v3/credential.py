@@ -32,7 +32,7 @@ class CreateCredential(command.ShowOne):
     _description = _("Create new credential")
 
     def get_parser(self, prog_name):
-        parser = super(CreateCredential, self).get_parser(prog_name)
+        parser = super().get_parser(prog_name)
         parser.add_argument(
             'user',
             metavar='<user>',
@@ -85,7 +85,7 @@ class DeleteCredential(command.Command):
     _description = _("Delete credential(s)")
 
     def get_parser(self, prog_name):
-        parser = super(DeleteCredential, self).get_parser(prog_name)
+        parser = super().get_parser(prog_name)
         parser.add_argument(
             'credential',
             metavar='<credential-id>',
@@ -122,7 +122,7 @@ class ListCredential(command.Lister):
     _description = _("List credentials")
 
     def get_parser(self, prog_name):
-        parser = super(ListCredential, self).get_parser(prog_name)
+        parser = super().get_parser(prog_name)
         parser.add_argument(
             '--user',
             metavar='<user>',
@@ -171,7 +171,7 @@ class SetCredential(command.Command):
     _description = _("Set credential properties")
 
     def get_parser(self, prog_name):
-        parser = super(SetCredential, self).get_parser(prog_name)
+        parser = super().get_parser(prog_name)
         parser.add_argument(
             'credential',
             metavar='<credential-id>',
@@ -232,7 +232,7 @@ class ShowCredential(command.ShowOne):
     _description = _("Display credential details")
 
     def get_parser(self, prog_name):
-        parser = super(ShowCredential, self).get_parser(prog_name)
+        parser = super().get_parser(prog_name)
         parser.add_argument(
             'credential',
             metavar='<credential-id>',

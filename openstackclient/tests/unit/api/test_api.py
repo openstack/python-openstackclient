@@ -21,7 +21,7 @@ from openstackclient.tests.unit.api import fakes as api_fakes
 
 class TestKeystoneSession(api_fakes.TestSession):
     def setUp(self):
-        super(TestKeystoneSession, self).setUp()
+        super().setUp()
         self.api = api.KeystoneSession(
             session=self.sess,
             endpoint=self.BASE_URL,
@@ -40,7 +40,7 @@ class TestKeystoneSession(api_fakes.TestSession):
 
 class TestBaseAPI(api_fakes.TestSession):
     def setUp(self):
-        super(TestBaseAPI, self).setUp()
+        super().setUp()
         self.api = api.BaseAPI(
             session=self.sess,
             endpoint=self.BASE_URL,

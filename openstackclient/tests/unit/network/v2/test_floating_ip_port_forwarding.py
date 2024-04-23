@@ -26,7 +26,7 @@ from openstackclient.tests.unit import utils as tests_utils
 
 class TestFloatingIPPortForwarding(network_fakes.TestNetworkV2):
     def setUp(self):
-        super(TestFloatingIPPortForwarding, self).setUp()
+        super().setUp()
 
         self.floating_ip = (
             network_fakes.FakeFloatingIP.create_one_floating_ip()
@@ -38,7 +38,7 @@ class TestFloatingIPPortForwarding(network_fakes.TestNetworkV2):
 
 class TestCreateFloatingIPPortForwarding(TestFloatingIPPortForwarding):
     def setUp(self):
-        super(TestCreateFloatingIPPortForwarding, self).setUp()
+        super().setUp()
         self.new_port_forwarding = network_fakes.FakeFloatingIPPortForwarding.create_one_port_forwarding(  # noqa: E501
             attrs={
                 'internal_port_id': self.port.id,
@@ -342,7 +342,7 @@ class TestCreateFloatingIPPortForwarding(TestFloatingIPPortForwarding):
 
 class TestDeleteFloatingIPPortForwarding(TestFloatingIPPortForwarding):
     def setUp(self):
-        super(TestDeleteFloatingIPPortForwarding, self).setUp()
+        super().setUp()
         self._port_forwarding = (
             network_fakes.FakeFloatingIPPortForwarding.create_port_forwardings(
                 count=2,
@@ -465,7 +465,7 @@ class TestListFloatingIPPortForwarding(TestFloatingIPPortForwarding):
     )
 
     def setUp(self):
-        super(TestListFloatingIPPortForwarding, self).setUp()
+        super().setUp()
         self.port_forwardings = (
             network_fakes.FakeFloatingIPPortForwarding.create_port_forwardings(
                 count=3,
@@ -551,7 +551,7 @@ class TestListFloatingIPPortForwarding(TestFloatingIPPortForwarding):
 class TestSetFloatingIPPortForwarding(TestFloatingIPPortForwarding):
     # The Port Forwarding to set.
     def setUp(self):
-        super(TestSetFloatingIPPortForwarding, self).setUp()
+        super().setUp()
         self._port_forwarding = network_fakes.FakeFloatingIPPortForwarding.create_one_port_forwarding(  # noqa: E501
             attrs={
                 'floatingip_id': self.floating_ip.id,
@@ -672,7 +672,7 @@ class TestShowFloatingIPPortForwarding(TestFloatingIPPortForwarding):
     )
 
     def setUp(self):
-        super(TestShowFloatingIPPortForwarding, self).setUp()
+        super().setUp()
         self._port_forwarding = network_fakes.FakeFloatingIPPortForwarding.create_one_port_forwarding(  # noqa: E501
             attrs={
                 'floatingip_id': self.floating_ip.id,

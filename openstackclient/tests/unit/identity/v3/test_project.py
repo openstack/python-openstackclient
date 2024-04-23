@@ -26,7 +26,7 @@ from openstackclient.tests.unit.identity.v3 import fakes as identity_fakes
 
 class TestProject(identity_fakes.TestIdentityv3):
     def setUp(self):
-        super(TestProject, self).setUp()
+        super().setUp()
 
         # Get a shortcut to the DomainManager Mock
         self.domains_mock = self.identity_client.domains
@@ -52,7 +52,7 @@ class TestProjectCreate(TestProject):
     )
 
     def setUp(self):
-        super(TestProjectCreate, self).setUp()
+        super().setUp()
 
         self.project = identity_fakes.FakeProject.create_one_project(
             attrs={'domain_id': self.domain.id}
@@ -676,7 +676,7 @@ class TestProjectDelete(TestProject):
     project = identity_fakes.FakeProject.create_one_project()
 
     def setUp(self):
-        super(TestProjectDelete, self).setUp()
+        super().setUp()
 
         # This is the return value for utils.find_resource()
         self.projects_mock.get.return_value = self.project
@@ -759,7 +759,7 @@ class TestProjectList(TestProject):
     )
 
     def setUp(self):
-        super(TestProjectList, self).setUp()
+        super().setUp()
 
         self.projects_mock.list.return_value = [self.project]
 
@@ -951,7 +951,7 @@ class TestProjectSet(TestProject):
     )
 
     def setUp(self):
-        super(TestProjectSet, self).setUp()
+        super().setUp()
 
         self.domains_mock.get.return_value = self.domain
 
@@ -1130,7 +1130,7 @@ class TestProjectSet(TestProject):
         # Set expected values. new tag is added to original tags for update.
         kwargs = {
             'name': 'qwerty',
-            'tags': sorted(set(['tag1', 'tag2', 'tag3', 'foo'])),
+            'tags': sorted({'tag1', 'tag2', 'tag3', 'foo'}),
         }
         # ProjectManager.update(project, name=, domain=, description=,
         #                       enabled=, **kwargs)
@@ -1155,7 +1155,7 @@ class TestProjectSet(TestProject):
 
         result = self.cmd.take_action(parsed_args)
 
-        kwargs = {'tags': list(set(['tag3']))}
+        kwargs = {'tags': list({'tag3'})}
         self.projects_mock.update.assert_called_with(self.project.id, **kwargs)
         self.assertIsNone(result)
 
@@ -1214,7 +1214,7 @@ class TestProjectShow(TestProject):
     domain = identity_fakes.FakeDomain.create_one_domain()
 
     def setUp(self):
-        super(TestProjectShow, self).setUp()
+        super().setUp()
 
         self.project = identity_fakes.FakeProject.create_one_project(
             attrs={'domain_id': self.domain.id}

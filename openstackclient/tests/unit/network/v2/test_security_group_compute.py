@@ -47,7 +47,7 @@ class TestCreateSecurityGroupCompute(compute_fakes.TestComputev2):
     )
 
     def setUp(self):
-        super(TestCreateSecurityGroupCompute, self).setUp()
+        super().setUp()
 
         self.app.client_manager.network_endpoint_enabled = False
 
@@ -107,7 +107,7 @@ class TestDeleteSecurityGroupCompute(compute_fakes.TestComputev2):
     _security_groups = compute_fakes.create_security_groups()
 
     def setUp(self):
-        super(TestDeleteSecurityGroupCompute, self).setUp()
+        super().setUp()
 
         self.app.client_manager.network_endpoint_enabled = False
 
@@ -221,7 +221,7 @@ class TestListSecurityGroupCompute(compute_fakes.TestComputev2):
         )
 
     def setUp(self):
-        super(TestListSecurityGroupCompute, self).setUp()
+        super().setUp()
 
         self.app.client_manager.network_endpoint_enabled = False
 
@@ -267,7 +267,7 @@ class TestSetSecurityGroupCompute(compute_fakes.TestComputev2):
     _security_group = compute_fakes.create_one_security_group()
 
     def setUp(self):
-        super(TestSetSecurityGroupCompute, self).setUp()
+        super().setUp()
 
         self.app.client_manager.network_endpoint_enabled = False
 
@@ -355,7 +355,7 @@ class TestShowSecurityGroupCompute(compute_fakes.TestComputev2):
     )
 
     def setUp(self):
-        super(TestShowSecurityGroupCompute, self).setUp()
+        super().setUp()
 
         self.app.client_manager.network_endpoint_enabled = False
 

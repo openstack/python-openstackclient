@@ -28,7 +28,7 @@ class ListMigration(command.Lister):
     _description = _("""List server migrations""")
 
     def get_parser(self, prog_name):
-        parser = super(ListMigration, self).get_parser(prog_name)
+        parser = super().get_parser(prog_name)
         parser.add_argument(
             '--server',
             metavar='<server>',
@@ -381,7 +381,7 @@ class AbortMigration(command.Command):
     """
 
     def get_parser(self, prog_name):
-        parser = super(AbortMigration, self).get_parser(prog_name)
+        parser = super().get_parser(prog_name)
         parser.add_argument(
             'server',
             metavar='<server>',
@@ -448,7 +448,7 @@ class ForceCompleteMigration(command.Command):
     """
 
     def get_parser(self, prog_name):
-        parser = super(ForceCompleteMigration, self).get_parser(prog_name)
+        parser = super().get_parser(prog_name)
         parser.add_argument(
             'server',
             metavar='<server>',

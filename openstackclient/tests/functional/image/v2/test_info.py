@@ -20,7 +20,7 @@ class InfoTests(base.BaseImageTests):
     """Functional tests for Info commands"""
 
     def setUp(self):
-        super(InfoTests, self).setUp()
+        super().setUp()
 
     def tearDown(self):
         super().tearDown()

@@ -32,7 +32,7 @@ class DeleteAccessRule(command.Command):
     _description = _("Delete access rule(s)")
 
     def get_parser(self, prog_name):
-        parser = super(DeleteAccessRule, self).get_parser(prog_name)
+        parser = super().get_parser(prog_name)
         parser.add_argument(
             'access_rule',
             metavar='<access-rule>',
@@ -73,7 +73,7 @@ class ListAccessRule(command.Lister):
     _description = _("List access rules")
 
     def get_parser(self, prog_name):
-        parser = super(ListAccessRule, self).get_parser(prog_name)
+        parser = super().get_parser(prog_name)
         parser.add_argument(
             '--user',
             metavar='<user>',
@@ -110,7 +110,7 @@ class ShowAccessRule(command.ShowOne):
     _description = _("Display access rule details")
 
     def get_parser(self, prog_name):
-        parser = super(ShowAccessRule, self).get_parser(prog_name)
+        parser = super().get_parser(prog_name)
         parser.add_argument(
             'access_rule',
             metavar='<access-rule>',

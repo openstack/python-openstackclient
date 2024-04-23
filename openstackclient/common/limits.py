@@ -28,7 +28,7 @@ class ShowLimits(command.Lister):
     _description = _("Show compute and block storage limits")
 
     def get_parser(self, prog_name):
-        parser = super(ShowLimits, self).get_parser(prog_name)
+        parser = super().get_parser(prog_name)
         type_group = parser.add_mutually_exclusive_group(required=True)
         type_group.add_argument(
             "--absolute",

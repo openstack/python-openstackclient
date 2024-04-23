@@ -98,9 +98,7 @@ class CreateFloatingIPPortForwarding(
     _description = _("Create floating IP port forwarding")
 
     def get_parser(self, prog_name):
-        parser = super(CreateFloatingIPPortForwarding, self).get_parser(
-            prog_name
-        )
+        parser = super().get_parser(prog_name)
         parser.add_argument(
             '--internal-ip-address',
             required=True,
@@ -201,9 +199,7 @@ class DeleteFloatingIPPortForwarding(command.Command):
     _description = _("Delete floating IP port forwarding")
 
     def get_parser(self, prog_name):
-        parser = super(DeleteFloatingIPPortForwarding, self).get_parser(
-            prog_name
-        )
+        parser = super().get_parser(prog_name)
         parser.add_argument(
             'floating_ip',
             metavar='<floating-ip>',
@@ -256,9 +252,7 @@ class ListFloatingIPPortForwarding(command.Lister):
     _description = _("List floating IP port forwarding")
 
     def get_parser(self, prog_name):
-        parser = super(ListFloatingIPPortForwarding, self).get_parser(
-            prog_name
-        )
+        parser = super().get_parser(prog_name)
         parser.add_argument(
             'floating_ip',
             metavar='<floating-ip>',
@@ -358,7 +352,7 @@ class SetFloatingIPPortForwarding(common.NeutronCommandWithExtraArgs):
     _description = _("Set floating IP Port Forwarding Properties")
 
     def get_parser(self, prog_name):
-        parser = super(SetFloatingIPPortForwarding, self).get_parser(prog_name)
+        parser = super().get_parser(prog_name)
         parser.add_argument(
             'floating_ip',
             metavar='<floating-ip>',
@@ -458,9 +452,7 @@ class ShowFloatingIPPortForwarding(command.ShowOne):
     _description = _("Display floating IP Port Forwarding details")
 
     def get_parser(self, prog_name):
-        parser = super(ShowFloatingIPPortForwarding, self).get_parser(
-            prog_name
-        )
+        parser = super().get_parser(prog_name)
         parser.add_argument(
             'floating_ip',
             metavar='<floating-ip>',

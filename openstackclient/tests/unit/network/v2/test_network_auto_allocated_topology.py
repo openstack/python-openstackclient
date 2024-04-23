@@ -22,7 +22,7 @@ from openstackclient.tests.unit.network.v2 import fakes as network_fakes
 
 class TestAutoAllocatedTopology(network_fakes.TestNetworkV2):
     def setUp(self):
-        super(TestAutoAllocatedTopology, self).setUp()
+        super().setUp()
         self.projects_mock = self.identity_client.projects
 
 
@@ -45,7 +45,7 @@ class TestCreateAutoAllocatedTopology(TestAutoAllocatedTopology):
     )
 
     def setUp(self):
-        super(TestCreateAutoAllocatedTopology, self).setUp()
+        super().setUp()
 
         self.cmd = network_auto_allocated_topology.CreateAutoAllocatedTopology(
             self.app, None
@@ -150,7 +150,7 @@ class TestValidateAutoAllocatedTopology(TestAutoAllocatedTopology):
     )
 
     def setUp(self):
-        super(TestValidateAutoAllocatedTopology, self).setUp()
+        super().setUp()
 
         self.cmd = network_auto_allocated_topology.CreateAutoAllocatedTopology(
             self.app, None
@@ -223,7 +223,7 @@ class TestDeleteAutoAllocatedTopology(TestAutoAllocatedTopology):
     )
 
     def setUp(self):
-        super(TestDeleteAutoAllocatedTopology, self).setUp()
+        super().setUp()
 
         self.cmd = network_auto_allocated_topology.DeleteAutoAllocatedTopology(
             self.app, None

@@ -69,7 +69,7 @@ class CreateMeterRule(command.ShowOne, common.NeutronCommandWithExtraArgs):
     _description = _("Create a new meter rule")
 
     def get_parser(self, prog_name):
-        parser = super(CreateMeterRule, self).get_parser(prog_name)
+        parser = super().get_parser(prog_name)
 
         parser.add_argument(
             '--project',
@@ -146,7 +146,7 @@ class DeleteMeterRule(command.Command):
     _description = _("Delete meter rule(s)")
 
     def get_parser(self, prog_name):
-        parser = super(DeleteMeterRule, self).get_parser(prog_name)
+        parser = super().get_parser(prog_name)
 
         parser.add_argument(
             'meter_rule_id',
@@ -222,7 +222,7 @@ class ShowMeterRule(command.ShowOne):
     _description = _("Display meter rules details")
 
     def get_parser(self, prog_name):
-        parser = super(ShowMeterRule, self).get_parser(prog_name)
+        parser = super().get_parser(prog_name)
         parser.add_argument(
             'meter_rule_id',
             metavar='<meter-rule-id>',

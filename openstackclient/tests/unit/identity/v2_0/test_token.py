@@ -24,7 +24,7 @@ class TestToken(identity_fakes.TestIdentityv2):
     fake_project = identity_fakes.FakeProject.create_one_project()
 
     def setUp(self):
-        super(TestToken, self).setUp()
+        super().setUp()
 
         # Get a shortcut to the Auth Ref Mock
         self.ar_mock = mock.PropertyMock()
@@ -33,7 +33,7 @@ class TestToken(identity_fakes.TestIdentityv2):
 
 class TestTokenIssue(TestToken):
     def setUp(self):
-        super(TestTokenIssue, self).setUp()
+        super().setUp()
 
         self.cmd = token.IssueToken(self.app, None)
 
@@ -95,7 +95,7 @@ class TestTokenRevoke(TestToken):
     TOKEN = 'fob'
 
     def setUp(self):
-        super(TestTokenRevoke, self).setUp()
+        super().setUp()
         self.tokens_mock = self.identity_client.tokens
         self.tokens_mock.reset_mock()
         self.tokens_mock.delete.return_value = True

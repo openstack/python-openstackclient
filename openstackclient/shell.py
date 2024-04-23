@@ -32,7 +32,7 @@ DEFAULT_DOMAIN = 'default'
 
 class OpenStackShell(shell.OpenStackShell):
     def __init__(self):
-        super(OpenStackShell, self).__init__(
+        super().__init__(
             description=__doc__.strip(),
             version=openstackclient.__version__,
             command_manager=commandmanager.CommandManager('openstack.cli'),
@@ -49,15 +49,13 @@ class OpenStackShell(shell.OpenStackShell):
         warnings.filterwarnings('ignore', module='openstack')
 
     def build_option_parser(self, description, version):
-        parser = super(OpenStackShell, self).build_option_parser(
-            description, version
-        )
+        parser = super().build_option_parser(description, version)
         parser = clientmanager.build_plugin_option_parser(parser)
         parser = auth.build_auth_plugins_option_parser(parser)
         return parser
 
     def _final_defaults(self):
-        super(OpenStackShell, self)._final_defaults()
+        super()._final_defaults()
 
         # Set the default plugin to admin_token if endpoint and token are given
         if self.options.endpoint and self.options.token:
@@ -132,7 +130,7 @@ class OpenStackShell(shell.OpenStackShell):
         self.command_manager.add_command_group('openstack.extension')
 
     def initialize_app(self, argv):
-        super(OpenStackShell, self).initialize_app(argv)
+        super().initialize_app(argv)
 
         # Re-create the client_manager with our subclass
         self.client_manager = clientmanager.ClientManager(

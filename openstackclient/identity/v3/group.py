@@ -33,7 +33,7 @@ class AddUserToGroup(command.Command):
     _description = _("Add user to group")
 
     def get_parser(self, prog_name):
-        parser = super(AddUserToGroup, self).get_parser(prog_name)
+        parser = super().get_parser(prog_name)
         parser.add_argument(
             'group',
             metavar='<group>',
@@ -93,7 +93,7 @@ class CheckUserInGroup(command.Command):
     _description = _("Check user membership in group")
 
     def get_parser(self, prog_name):
-        parser = super(CheckUserInGroup, self).get_parser(prog_name)
+        parser = super().get_parser(prog_name)
         parser.add_argument(
             'group',
             metavar='<group>',
@@ -141,7 +141,7 @@ class CreateGroup(command.ShowOne):
     _description = _("Create new group")
 
     def get_parser(self, prog_name):
-        parser = super(CreateGroup, self).get_parser(prog_name)
+        parser = super().get_parser(prog_name)
         parser.add_argument(
             'name',
             metavar='<group-name>',
@@ -194,7 +194,7 @@ class DeleteGroup(command.Command):
     _description = _("Delete group(s)")
 
     def get_parser(self, prog_name):
-        parser = super(DeleteGroup, self).get_parser(prog_name)
+        parser = super().get_parser(prog_name)
         parser.add_argument(
             'groups',
             metavar='<group>',
@@ -241,7 +241,7 @@ class ListGroup(command.Lister):
     _description = _("List groups")
 
     def get_parser(self, prog_name):
-        parser = super(ListGroup, self).get_parser(prog_name)
+        parser = super().get_parser(prog_name)
         parser.add_argument(
             '--domain',
             metavar='<domain>',
@@ -304,7 +304,7 @@ class RemoveUserFromGroup(command.Command):
     _description = _("Remove user from group")
 
     def get_parser(self, prog_name):
-        parser = super(RemoveUserFromGroup, self).get_parser(prog_name)
+        parser = super().get_parser(prog_name)
         parser.add_argument(
             'group',
             metavar='<group>',
@@ -364,7 +364,7 @@ class SetGroup(command.Command):
     _description = _("Set group properties")
 
     def get_parser(self, prog_name):
-        parser = super(SetGroup, self).get_parser(prog_name)
+        parser = super().get_parser(prog_name)
         parser.add_argument(
             'group',
             metavar='<group>',
@@ -405,7 +405,7 @@ class ShowGroup(command.ShowOne):
     _description = _("Display group details")
 
     def get_parser(self, prog_name):
-        parser = super(ShowGroup, self).get_parser(prog_name)
+        parser = super().get_parser(prog_name)
         parser.add_argument(
             'group',
             metavar='<group>',

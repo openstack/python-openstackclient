@@ -187,7 +187,7 @@ class QuotaTests(base.TestCase):
         self.assertTrue(cmd_output["snapshots"] >= 0)
 
     def _restore_quota_limit(self, resource, limit, project):
-        self.openstack('quota set --%s %s %s' % (resource, limit, project))
+        self.openstack(f'quota set --{resource} {limit} {project}')
 
     def test_quota_network_set_with_no_force(self):
         if not self.haz_network:

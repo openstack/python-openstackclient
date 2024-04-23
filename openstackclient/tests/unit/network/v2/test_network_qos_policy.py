@@ -26,7 +26,7 @@ from openstackclient.tests.unit import utils as tests_utils
 
 class TestQosPolicy(network_fakes.TestNetworkV2):
     def setUp(self):
-        super(TestQosPolicy, self).setUp()
+        super().setUp()
         # Get a shortcut to the ProjectManager Mock
         self.projects_mock = self.app.client_manager.identity.projects
 
@@ -61,7 +61,7 @@ class TestCreateNetworkQosPolicy(TestQosPolicy):
     )
 
     def setUp(self):
-        super(TestCreateNetworkQosPolicy, self).setUp()
+        super().setUp()
         self.network_client.create_qos_policy = mock.Mock(
             return_value=self.new_qos_policy
         )
@@ -163,7 +163,7 @@ class TestDeleteNetworkQosPolicy(TestQosPolicy):
     )
 
     def setUp(self):
-        super(TestDeleteNetworkQosPolicy, self).setUp()
+        super().setUp()
         self.network_client.delete_qos_policy = mock.Mock(return_value=None)
         self.network_client.find_qos_policy = (
             network_fakes.FakeNetworkQosPolicy.get_qos_policies(
@@ -268,7 +268,7 @@ class TestListNetworkQosPolicy(TestQosPolicy):
         )
 
     def setUp(self):
-        super(TestListNetworkQosPolicy, self).setUp()
+        super().setUp()
         self.network_client.qos_policies = mock.Mock(
             return_value=self.qos_policies
         )
@@ -348,7 +348,7 @@ class TestSetNetworkQosPolicy(TestQosPolicy):
     _qos_policy = network_fakes.FakeNetworkQosPolicy.create_one_qos_policy()
 
     def setUp(self):
-        super(TestSetNetworkQosPolicy, self).setUp()
+        super().setUp()
         self.network_client.update_qos_policy = mock.Mock(return_value=None)
         self.network_client.find_qos_policy = mock.Mock(
             return_value=self._qos_policy
@@ -449,7 +449,7 @@ class TestShowNetworkQosPolicy(TestQosPolicy):
     )
 
     def setUp(self):
-        super(TestShowNetworkQosPolicy, self).setUp()
+        super().setUp()
         self.network_client.find_qos_policy = mock.Mock(
             return_value=self._qos_policy
         )

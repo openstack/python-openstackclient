@@ -47,7 +47,7 @@ class TestCreateSecurityGroupRuleCompute(compute_fakes.TestComputev2):
         return expected_columns, expected_data
 
     def setUp(self):
-        super(TestCreateSecurityGroupRuleCompute, self).setUp()
+        super().setUp()
 
         self.app.client_manager.network_endpoint_enabled = False
 
@@ -302,7 +302,7 @@ class TestDeleteSecurityGroupRuleCompute(compute_fakes.TestComputev2):
     _security_group_rules = compute_fakes.create_security_group_rules(count=2)
 
     def setUp(self):
-        super(TestDeleteSecurityGroupRuleCompute, self).setUp()
+        super().setUp()
 
         self.app.client_manager.network_endpoint_enabled = False
 
@@ -428,7 +428,7 @@ class TestListSecurityGroupRuleCompute(compute_fakes.TestComputev2):
         expected_data_no_group.append(expected_rule_no_group)
 
     def setUp(self):
-        super(TestListSecurityGroupRuleCompute, self).setUp()
+        super().setUp()
 
         self.app.client_manager.network_endpoint_enabled = False
 
@@ -510,7 +510,7 @@ class TestShowSecurityGroupRuleCompute(compute_fakes.TestComputev2):
     )
 
     def setUp(self):
-        super(TestShowSecurityGroupRuleCompute, self).setUp()
+        super().setUp()
 
         self.app.client_manager.network_endpoint_enabled = False
 

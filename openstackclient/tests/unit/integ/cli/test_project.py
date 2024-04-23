@@ -21,7 +21,7 @@ from openstackclient.tests.unit import test_shell
 
 class TestIntegV2ProjectID(test_base.TestInteg):
     def setUp(self):
-        super(TestIntegV2ProjectID, self).setUp()
+        super().setUp()
         env = {
             "OS_AUTH_URL": test_base.V2_AUTH_URL,
             "OS_PROJECT_ID": test_shell.DEFAULT_PROJECT_ID,
@@ -78,7 +78,7 @@ class TestIntegV2ProjectID(test_base.TestInteg):
 
 class TestIntegV2ProjectName(test_base.TestInteg):
     def setUp(self):
-        super(TestIntegV2ProjectName, self).setUp()
+        super().setUp()
         env = {
             "OS_AUTH_URL": test_base.V2_AUTH_URL,
             "OS_PROJECT_NAME": test_shell.DEFAULT_PROJECT_NAME,
@@ -135,7 +135,7 @@ class TestIntegV2ProjectName(test_base.TestInteg):
 
 class TestIntegV3ProjectID(test_base.TestInteg):
     def setUp(self):
-        super(TestIntegV3ProjectID, self).setUp()
+        super().setUp()
         env = {
             "OS_AUTH_URL": test_base.V3_AUTH_URL,
             "OS_PROJECT_ID": test_shell.DEFAULT_PROJECT_NAME,
@@ -190,7 +190,7 @@ class TestIntegV3ProjectID(test_base.TestInteg):
 
 class TestIntegV3ProjectName(test_base.TestInteg):
     def setUp(self):
-        super(TestIntegV3ProjectName, self).setUp()
+        super().setUp()
         env = {
             "OS_AUTH_URL": test_base.V3_AUTH_URL,
             "OS_PROJECT_NAME": test_shell.DEFAULT_PROJECT_NAME,

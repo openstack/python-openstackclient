@@ -64,7 +64,7 @@ class ShowTask(command.ShowOne):
     _description = _('Display task details')
 
     def get_parser(self, prog_name):
-        parser = super(ShowTask, self).get_parser(prog_name)
+        parser = super().get_parser(prog_name)
 
         parser.add_argument(
             'task',

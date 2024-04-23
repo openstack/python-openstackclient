@@ -62,7 +62,7 @@ class CreateAddressScope(command.ShowOne, common.NeutronCommandWithExtraArgs):
     _description = _("Create a new Address Scope")
 
     def get_parser(self, prog_name):
-        parser = super(CreateAddressScope, self).get_parser(prog_name)
+        parser = super().get_parser(prog_name)
         parser.add_argument(
             'name', metavar="<name>", help=_("New address scope name")
         )
@@ -113,7 +113,7 @@ class DeleteAddressScope(command.Command):
     _description = _("Delete address scope(s)")
 
     def get_parser(self, prog_name):
-        parser = super(DeleteAddressScope, self).get_parser(prog_name)
+        parser = super().get_parser(prog_name)
         parser.add_argument(
             'address_scope',
             metavar="<address-scope>",
@@ -155,7 +155,7 @@ class ListAddressScope(command.Lister):
     _description = _("List address scopes")
 
     def get_parser(self, prog_name):
-        parser = super(ListAddressScope, self).get_parser(prog_name)
+        parser = super().get_parser(prog_name)
 
         parser.add_argument(
             '--name',
@@ -249,7 +249,7 @@ class SetAddressScope(common.NeutronCommandWithExtraArgs):
     _description = _("Set address scope properties")
 
     def get_parser(self, prog_name):
-        parser = super(SetAddressScope, self).get_parser(prog_name)
+        parser = super().get_parser(prog_name)
         parser.add_argument(
             'address_scope',
             metavar="<address-scope>",
@@ -294,7 +294,7 @@ class ShowAddressScope(command.ShowOne):
     _description = _("Display address scope details")
 
     def get_parser(self, prog_name):
-        parser = super(ShowAddressScope, self).get_parser(prog_name)
+        parser = super().get_parser(prog_name)
         parser.add_argument(
             'address_scope',
             metavar="<address-scope>",

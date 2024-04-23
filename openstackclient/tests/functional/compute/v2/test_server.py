@@ -211,7 +211,7 @@ class ServerTests(common.ComputeTestCase):
             flavor['name'],
         )
         self.assertEqual(
-            '%s (%s)' % (flavor['name'], flavor['id']),
+            '{} ({})'.format(flavor['name'], flavor['id']),
             cmd_output["flavor"],
         )
         image = self.openstack(
@@ -223,7 +223,7 @@ class ServerTests(common.ComputeTestCase):
             image['name'],
         )
         self.assertEqual(
-            '%s (%s)' % (image['name'], image['id']),
+            '{} ({})'.format(image['name'], image['id']),
             cmd_output["image"],
         )
 

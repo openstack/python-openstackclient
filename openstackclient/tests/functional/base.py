@@ -137,7 +137,7 @@ class TestCase(testtools.TestCase):
 
     @classmethod
     def get_opts(cls, fields, output_format='value'):
-        return ' -f {0} {1}'.format(
+        return ' -f {} {}'.format(
             output_format, ' '.join(['-c ' + it for it in fields])
         )
 

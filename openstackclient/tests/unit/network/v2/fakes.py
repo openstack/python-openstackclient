@@ -133,7 +133,7 @@ def create_one_extension(attrs=None):
     return extension
 
 
-class FakeNetworkQosPolicy(object):
+class FakeNetworkQosPolicy:
     """Fake one or more QoS policies."""
 
     @staticmethod
@@ -213,7 +213,7 @@ class FakeNetworkQosPolicy(object):
         return mock.Mock(side_effect=qos_policies)
 
 
-class FakeNetworkSecGroup(object):
+class FakeNetworkSecGroup:
     """Fake one security group."""
 
     @staticmethod
@@ -244,7 +244,7 @@ class FakeNetworkSecGroup(object):
         return security_group
 
 
-class FakeNetworkQosRule(object):
+class FakeNetworkQosRule:
     """Fake one or more Network QoS rules."""
 
     @staticmethod
@@ -325,7 +325,7 @@ class FakeNetworkQosRule(object):
         return mock.Mock(side_effect=qos_rules)
 
 
-class FakeNetworkQosRuleType(object):
+class FakeNetworkQosRuleType:
     """Fake one or more Network QoS rule types."""
 
     @staticmethod
@@ -372,7 +372,7 @@ class FakeNetworkQosRuleType(object):
         return qos_rule_types
 
 
-class FakeRouter(object):
+class FakeRouter:
     """Fake one or more routers."""
 
     @staticmethod
@@ -456,7 +456,7 @@ class FakeRouter(object):
         return mock.Mock(side_effect=routers)
 
 
-class FakeSecurityGroup(object):
+class FakeSecurityGroup:
     """Fake one or more security groups."""
 
     @staticmethod
@@ -530,7 +530,7 @@ class FakeSecurityGroup(object):
         return mock.Mock(side_effect=security_groups)
 
 
-class FakeSecurityGroupRule(object):
+class FakeSecurityGroupRule:
     """Fake one or more security group rules."""
 
     @staticmethod
@@ -612,7 +612,7 @@ class FakeSecurityGroupRule(object):
         return mock.Mock(side_effect=security_group_rules)
 
 
-class FakeSubnet(object):
+class FakeSubnet:
     """Fake one or more subnets."""
 
     @staticmethod
@@ -700,7 +700,7 @@ class FakeSubnet(object):
         return mock.Mock(side_effect=subnets)
 
 
-class FakeFloatingIP(object):
+class FakeFloatingIP:
     """Fake one or more floating ip."""
 
     @staticmethod
@@ -777,7 +777,7 @@ class FakeFloatingIP(object):
         return mock.Mock(side_effect=floating_ips)
 
 
-class FakeNetworkMeter(object):
+class FakeNetworkMeter:
     """Fake network meter"""
 
     @staticmethod
@@ -819,7 +819,7 @@ class FakeNetworkMeter(object):
         return mock.Mock(side_effect=meter)
 
 
-class FakeNetworkMeterRule(object):
+class FakeNetworkMeterRule:
     """Fake metering rule"""
 
     @staticmethod
@@ -864,7 +864,7 @@ class FakeNetworkMeterRule(object):
         return mock.Mock(side_effect=meter_rule)
 
 
-class FakeSubnetPool(object):
+class FakeSubnetPool:
     """Fake one or more subnet pools."""
 
     @staticmethod
@@ -951,7 +951,7 @@ class FakeSubnetPool(object):
         return mock.Mock(side_effect=subnet_pools)
 
 
-class FakeNetworkServiceProvider(object):
+class FakeNetworkServiceProvider:
     """Fake Network Service Providers"""
 
     @staticmethod
@@ -989,7 +989,7 @@ class FakeNetworkServiceProvider(object):
         return service_providers
 
 
-class FakeQuota(object):
+class FakeQuota:
     """Fake quota"""
 
     @staticmethod
@@ -1065,7 +1065,7 @@ class FakeQuota(object):
         return quota
 
 
-class FakeFloatingIPPortForwarding(object):
+class FakeFloatingIPPortForwarding:
     """Fake one or more Port forwarding"""
 
     @staticmethod
@@ -1169,7 +1169,7 @@ class FakeFloatingIPPortForwarding(object):
         return mock.Mock(side_effect=port_forwardings)
 
 
-class FakeL3ConntrackHelper(object):
+class FakeL3ConntrackHelper:
     """Fake one or more L3 conntrack helper"""
 
     @staticmethod

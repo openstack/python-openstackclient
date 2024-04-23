@@ -13,7 +13,6 @@
 
 """Object Store v1 API Library"""
 
-import io
 import logging
 import os
 import sys
@@ -33,7 +32,7 @@ class APIv1(api.BaseAPI):
     """Object Store v1 API"""
 
     def __init__(self, **kwargs):
-        super(APIv1, self).__init__(**kwargs)
+        super().__init__(**kwargs)
 
     def container_create(
         self, container=None, public=False, storage_policy=None
@@ -257,11 +256,11 @@ class APIv1(api.BaseAPI):
         # object's name in the container.
         object_name_str = name if name else object
 
-        full_url = "%s/%s" % (
+        full_url = "{}/{}".format(
             urllib.parse.quote(container),
             urllib.parse.quote(object_name_str),
         )
-        with io.open(object, 'rb') as f:
+        with open(object, 'rb') as f:
             response = self.create(
                 full_url,
                 method='PUT',

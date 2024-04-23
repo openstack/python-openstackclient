@@ -24,7 +24,7 @@ from openstackclient.tests.unit.identity.v3 import fakes as identity_fakes
 
 class TestTrust(identity_fakes.TestIdentityv3):
     def setUp(self):
-        super(TestTrust, self).setUp()
+        super().setUp()
 
         self.trusts_mock = self.identity_client.trusts
         self.trusts_mock.reset_mock()
@@ -38,7 +38,7 @@ class TestTrust(identity_fakes.TestIdentityv3):
 
 class TestTrustCreate(TestTrust):
     def setUp(self):
-        super(TestTrustCreate, self).setUp()
+        super().setUp()
 
         self.projects_mock.get.return_value = fakes.FakeResource(
             None,
@@ -127,7 +127,7 @@ class TestTrustCreate(TestTrust):
 
 class TestTrustDelete(TestTrust):
     def setUp(self):
-        super(TestTrustDelete, self).setUp()
+        super().setUp()
 
         # This is the return value for utils.find_resource()
         self.trusts_mock.get.return_value = fakes.FakeResource(
@@ -186,7 +186,7 @@ class TestTrustDelete(TestTrust):
 
 class TestTrustList(TestTrust):
     def setUp(self):
-        super(TestTrustList, self).setUp()
+        super().setUp()
 
         self.trusts_mock.list.return_value = [
             fakes.FakeResource(
@@ -363,7 +363,7 @@ class TestTrustList(TestTrust):
 
 class TestTrustShow(TestTrust):
     def setUp(self):
-        super(TestTrustShow, self).setUp()
+        super().setUp()
 
         self.trusts_mock.get.return_value = fakes.FakeResource(
             None,

@@ -27,7 +27,7 @@ from openstackclient.tests.unit.identity.v3 import fakes as identity_fakes
 
 class TestRole(identity_fakes.TestIdentityv3):
     def setUp(self):
-        super(TestRole, self).setUp()
+        super().setUp()
 
         # Get a shortcut to the UserManager Mock
         self.users_mock = self.identity_client.users
@@ -60,7 +60,7 @@ class TestRoleInherited(TestRole):
 
 class TestRoleAdd(TestRole):
     def setUp(self):
-        super(TestRoleAdd, self).setUp()
+        super().setUp()
 
         self.users_mock.get.return_value = fakes.FakeResource(
             None,
@@ -371,7 +371,7 @@ class TestRoleAddInherited(TestRoleAdd, TestRoleInherited):
 
 class TestRoleCreate(TestRole):
     def setUp(self):
-        super(TestRoleCreate, self).setUp()
+        super().setUp()
 
         self.domains_mock.get.return_value = fakes.FakeResource(
             None,
@@ -592,7 +592,7 @@ class TestRoleCreate(TestRole):
 
 class TestRoleDelete(TestRole):
     def setUp(self):
-        super(TestRoleDelete, self).setUp()
+        super().setUp()
 
         self.roles_mock.get.return_value = fakes.FakeResource(
             None,
@@ -691,7 +691,7 @@ class TestRoleList(TestRole):
     )
 
     def setUp(self):
-        super(TestRoleList, self).setUp()
+        super().setUp()
 
         self.roles_mock.list.return_value = [
             fakes.FakeResource(
@@ -766,7 +766,7 @@ class TestRoleList(TestRole):
 
 class TestRoleRemove(TestRole):
     def setUp(self):
-        super(TestRoleRemove, self).setUp()
+        super().setUp()
 
         self.users_mock.get.return_value = fakes.FakeResource(
             None,
@@ -1316,7 +1316,7 @@ class TestRoleRemove(TestRole):
 
 class TestRoleSet(TestRole):
     def setUp(self):
-        super(TestRoleSet, self).setUp()
+        super().setUp()
 
         self.roles_mock.get.return_value = fakes.FakeResource(
             None,
@@ -1491,7 +1491,7 @@ class TestRoleSet(TestRole):
 
 class TestRoleShow(TestRole):
     def setUp(self):
-        super(TestRoleShow, self).setUp()
+        super().setUp()
 
         self.roles_mock.get.return_value = fakes.FakeResource(
             None,

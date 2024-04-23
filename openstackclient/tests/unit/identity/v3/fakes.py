@@ -565,7 +565,7 @@ def fake_auth_ref(fake_token, fake_service=None):
     return auth_ref
 
 
-class FakeAuth(object):
+class FakeAuth:
     def __init__(self, auth_method_class=None):
         self._auth_method_class = auth_method_class
 
@@ -573,12 +573,12 @@ class FakeAuth(object):
         return token_id
 
 
-class FakeSession(object):
+class FakeSession:
     def __init__(self, **kwargs):
         self.auth = FakeAuth()
 
 
-class FakeIdentityv3Client(object):
+class FakeIdentityv3Client:
     def __init__(self, **kwargs):
         self.domains = mock.Mock()
         self.domains.resource_class = fakes.FakeResource(None, {})
@@ -633,7 +633,7 @@ class FakeIdentityv3Client(object):
         self.limits.resource_class = fakes.FakeResource(None, {})
 
 
-class FakeFederationManager(object):
+class FakeFederationManager:
     def __init__(self, **kwargs):
         self.identity_providers = mock.Mock()
         self.identity_providers.resource_class = fakes.FakeResource(None, {})
@@ -651,13 +651,13 @@ class FakeFederationManager(object):
 
 class FakeFederatedClient(FakeIdentityv3Client):
     def __init__(self, **kwargs):
-        super(FakeFederatedClient, self).__init__(**kwargs)
+        super().__init__(**kwargs)
         self.federation = FakeFederationManager()
 
 
 class FakeOAuth1Client(FakeIdentityv3Client):
     def __init__(self, **kwargs):
-        super(FakeOAuth1Client, self).__init__(**kwargs)
+        super().__init__(**kwargs)
 
         self.access_tokens = mock.Mock()
         self.access_tokens.resource_class = fakes.FakeResource(None, {})
@@ -696,7 +696,7 @@ class TestIdentityv3(
 # We don't use FakeClientMixin since we want a different fake legacy client
 class TestFederatedIdentity(utils.TestCommand):
     def setUp(self):
-        super(TestFederatedIdentity, self).setUp()
+        super().setUp()
 
         self.app.client_manager.identity = FakeFederatedClient(
             endpoint=fakes.AUTH_URL, token=fakes.AUTH_TOKEN
@@ -716,7 +716,7 @@ class TestFederatedIdentity(utils.TestCommand):
 # We don't use FakeClientMixin since we want a different fake legacy client
 class TestOAuth1(utils.TestCommand):
     def setUp(self):
-        super(TestOAuth1, self).setUp()
+        super().setUp()
 
         self.app.client_manager.identity = FakeOAuth1Client(
             endpoint=fakes.AUTH_URL, token=fakes.AUTH_TOKEN
@@ -733,7 +733,7 @@ class TestOAuth1(utils.TestCommand):
         )
 
 
-class FakeProject(object):
+class FakeProject:
     """Fake one or more project."""
 
     @staticmethod
@@ -785,7 +785,7 @@ class FakeProject(object):
         return projects
 
 
-class FakeDomain(object):
+class FakeDomain:
     """Fake one or more domain."""
 
     @staticmethod
@@ -817,7 +817,7 @@ class FakeDomain(object):
         return domain
 
 
-class FakeCredential(object):
+class FakeCredential:
     """Fake one or more credential."""
 
     @staticmethod
@@ -887,7 +887,7 @@ class FakeCredential(object):
         return mock.Mock(side_effect=credentials)
 
 
-class FakeUser(object):
+class FakeUser:
     """Fake one or more user."""
 
     @staticmethod
@@ -956,7 +956,7 @@ class FakeUser(object):
         return mock.Mock(side_effect=users)
 
 
-class FakeGroup(object):
+class FakeGroup:
     """Fake one or more group."""
 
     @staticmethod
@@ -1023,7 +1023,7 @@ class FakeGroup(object):
         return mock.Mock(side_effect=groups)
 
 
-class FakeEndpoint(object):
+class FakeEndpoint:
     """Fake one or more endpoint."""
 
     @staticmethod
@@ -1080,7 +1080,7 @@ class FakeEndpoint(object):
         return endpoint_filter
 
 
-class FakeEndpointGroup(object):
+class FakeEndpointGroup:
     """Fake one or more endpoint group."""
 
     @staticmethod
@@ -1140,7 +1140,7 @@ class FakeEndpointGroup(object):
         return endpointgroup_filter
 
 
-class FakeService(object):
+class FakeService:
     """Fake one or more service."""
 
     @staticmethod
@@ -1172,7 +1172,7 @@ class FakeService(object):
         return service
 
 
-class FakeRoleAssignment(object):
+class FakeRoleAssignment:
     """Fake one or more role assignment."""
 
     @staticmethod
@@ -1202,7 +1202,7 @@ class FakeRoleAssignment(object):
         return role_assignment
 
 
-class FakeImpliedRoleResponse(object):
+class FakeImpliedRoleResponse:
     """Fake one or more role assignment."""
 
     def __init__(self, prior_role, implied_roles):

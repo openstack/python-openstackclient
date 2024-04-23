@@ -52,7 +52,7 @@ class TestImageCreate(image_fakes.TestImagev1):
     )
 
     def setUp(self):
-        super(TestImageCreate, self).setUp()
+        super().setUp()
 
         self.image_client.create_image = mock.Mock(return_value=self.new_image)
         self.image_client.find_image = mock.Mock(return_value=self.new_image)
@@ -145,7 +145,7 @@ class TestImageCreate(image_fakes.TestImagev1):
         self.assertEqual(self.columns, columns)
         self.assertCountEqual(self.data, data)
 
-    @mock.patch('openstackclient.image.v1.image.io.open', name='Open')
+    @mock.patch('openstackclient.image.v1.image.open', name='Open')
     def test_image_create_file(self, mock_open):
         mock_file = mock.Mock(name='File')
         mock_open.return_value = mock_file
@@ -209,7 +209,7 @@ class TestImageDelete(image_fakes.TestImagev1):
     _image = image_fakes.create_one_image()
 
     def setUp(self):
-        super(TestImageDelete, self).setUp()
+        super().setUp()
 
         # This is the return value for utils.find_resource()
         self.image_client.find_image = mock.Mock(return_value=self._image)
@@ -259,7 +259,7 @@ class TestImageList(image_fakes.TestImagev1):
     image_info = copy.deepcopy(info)
 
     def setUp(self):
-        super(TestImageList, self).setUp()
+        super().setUp()
 
         self.image_client.images = mock.Mock()
         self.image_client.images.side_effect = [
@@ -438,7 +438,7 @@ class TestImageSet(image_fakes.TestImagev1):
     _image = image_fakes.create_one_image()
 
     def setUp(self):
-        super(TestImageSet, self).setUp()
+        super().setUp()
 
         # This is the return value for utils.find_resource()
         self.image_client.find_image = mock.Mock(return_value=self._image)
@@ -710,7 +710,7 @@ class TestImageShow(image_fakes.TestImagev1):
     )
 
     def setUp(self):
-        super(TestImageShow, self).setUp()
+        super().setUp()
 
         self.image_client.find_image = mock.Mock(return_value=self._image)
 

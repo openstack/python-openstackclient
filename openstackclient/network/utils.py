@@ -27,7 +27,7 @@ def transform_compute_security_group_rule(sg_rule):
     elif from_port is None and to_port is None:
         port_range = {'port_range': ""}
     else:
-        port_range = {'port_range': "%s:%s" % (from_port, to_port)}
+        port_range = {'port_range': f"{from_port}:{to_port}"}
     info.update(port_range)
     if 'cidr' in info['ip_range']:
         info['ip_range'] = info['ip_range']['cidr']
@@ -76,7 +76,7 @@ def str2dict(strdict):
             msg = _("missing value for key '%s'")
             raise exceptions.CommandError(msg % kv)
         else:
-            kvlist[i - 1] = "%s;%s" % (kvlist[i - 1], kv)
+            kvlist[i - 1] = f"{kvlist[i - 1]};{kv}"
     for kv in kvlist:
         key, sep, value = kv.partition(':')
         result[key] = value

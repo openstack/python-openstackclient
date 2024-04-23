@@ -29,7 +29,7 @@ class ListCommand(command.Lister):
     auth_required = False
 
     def get_parser(self, prog_name):
-        parser = super(ListCommand, self).get_parser(prog_name)
+        parser = super().get_parser(prog_name)
         parser.add_argument(
             '--group',
             metavar='<group-keyword>',
@@ -72,7 +72,7 @@ class ListModule(command.ShowOne):
     auth_required = False
 
     def get_parser(self, prog_name):
-        parser = super(ListModule, self).get_parser(prog_name)
+        parser = super().get_parser(prog_name)
         parser.add_argument(
             '--all',
             action='store_true',

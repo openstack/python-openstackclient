@@ -81,7 +81,7 @@ QUOTA_columns = tuple(sorted(QUOTA))
 QUOTA_data = tuple(QUOTA[x] for x in sorted(QUOTA))
 
 
-class FakeComputev2Client(object):
+class FakeComputev2Client:
     def __init__(self, **kwargs):
         self.agents = mock.Mock()
         self.agents.resource_class = fakes.FakeResource(None, {})
@@ -1210,7 +1210,7 @@ def create_one_comp_detailed_quota(attrs=None):
     return quota
 
 
-class FakeLimits(object):
+class FakeLimits:
     """Fake limits"""
 
     def __init__(self, absolute_attrs=None, rate_attrs=None):
@@ -1310,7 +1310,7 @@ class FakeLimits(object):
         return reference_data
 
 
-class FakeAbsoluteLimit(object):
+class FakeAbsoluteLimit:
     """Data model that represents an absolute limit"""
 
     def __init__(self, name, value):
@@ -1318,7 +1318,7 @@ class FakeAbsoluteLimit(object):
         self.value = value
 
 
-class FakeRateLimit(object):
+class FakeRateLimit:
     """Data model that represents a flattened view of a single rate limit"""
 
     def __init__(self, verb, uri, value, remain, unit, next_available):

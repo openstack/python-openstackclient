@@ -21,7 +21,7 @@ class ImageTests(base.BaseImageTests):
     """Functional tests for Image commands"""
 
     def setUp(self):
-        super(ImageTests, self).setUp()
+        super().setUp()
 
         ver_fixture = fixtures.EnvironmentVariable('OS_IMAGE_API_VERSION', '2')
         self.useFixture(ver_fixture)

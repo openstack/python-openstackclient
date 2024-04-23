@@ -148,7 +148,7 @@ class ShowExtension(command.ShowOne):
     _description = _("Show API extension")
 
     def get_parser(self, prog_name):
-        parser = super(ShowExtension, self).get_parser(prog_name)
+        parser = super().get_parser(prog_name)
         parser.add_argument(
             'extension',
             metavar='<extension>',

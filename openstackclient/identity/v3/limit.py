@@ -29,7 +29,7 @@ class CreateLimit(command.ShowOne):
     _description = _("Create a limit")
 
     def get_parser(self, prog_name):
-        parser = super(CreateLimit, self).get_parser(prog_name)
+        parser = super().get_parser(prog_name)
         parser.add_argument(
             '--description',
             metavar='<description>',
@@ -108,7 +108,7 @@ class ListLimit(command.Lister):
     _description = _("List limits")
 
     def get_parser(self, prog_name):
-        parser = super(ListLimit, self).get_parser(prog_name)
+        parser = super().get_parser(prog_name)
         parser.add_argument(
             '--service',
             metavar='<service>',
@@ -190,7 +190,7 @@ class ShowLimit(command.ShowOne):
     _description = _("Display limit details")
 
     def get_parser(self, prog_name):
-        parser = super(ShowLimit, self).get_parser(prog_name)
+        parser = super().get_parser(prog_name)
         parser.add_argument(
             'limit_id',
             metavar='<limit-id>',
@@ -209,7 +209,7 @@ class SetLimit(command.ShowOne):
     _description = _("Update information about a limit")
 
     def get_parser(self, prog_name):
-        parser = super(SetLimit, self).get_parser(prog_name)
+        parser = super().get_parser(prog_name)
         parser.add_argument(
             'limit_id',
             metavar='<limit-id>',
@@ -247,7 +247,7 @@ class DeleteLimit(command.Command):
     _description = _("Delete a limit")
 
     def get_parser(self, prog_name):
-        parser = super(DeleteLimit, self).get_parser(prog_name)
+        parser = super().get_parser(prog_name)
         parser.add_argument(
             'limit_id',
             metavar='<limit-id>',

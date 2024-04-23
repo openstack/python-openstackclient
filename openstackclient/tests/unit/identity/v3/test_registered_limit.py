@@ -22,7 +22,7 @@ from openstackclient.tests.unit.identity.v3 import fakes as identity_fakes
 
 class TestRegisteredLimit(identity_fakes.TestIdentityv3):
     def setUp(self):
-        super(TestRegisteredLimit, self).setUp()
+        super().setUp()
 
         self.registered_limit_mock = self.identity_client.registered_limits
 
@@ -35,7 +35,7 @@ class TestRegisteredLimit(identity_fakes.TestIdentityv3):
 
 class TestRegisteredLimitCreate(TestRegisteredLimit):
     def setUp(self):
-        super(TestRegisteredLimitCreate, self).setUp()
+        super().setUp()
 
         self.service = fakes.FakeResource(
             None, copy.deepcopy(identity_fakes.SERVICE), loaded=True
@@ -159,7 +159,7 @@ class TestRegisteredLimitCreate(TestRegisteredLimit):
 
 class TestRegisteredLimitDelete(TestRegisteredLimit):
     def setUp(self):
-        super(TestRegisteredLimitDelete, self).setUp()
+        super().setUp()
 
         self.cmd = registered_limit.DeleteRegisteredLimit(self.app, None)
 
@@ -198,7 +198,7 @@ class TestRegisteredLimitDelete(TestRegisteredLimit):
 
 class TestRegisteredLimitShow(TestRegisteredLimit):
     def setUp(self):
-        super(TestRegisteredLimitShow, self).setUp()
+        super().setUp()
 
         self.registered_limit_mock.get.return_value = fakes.FakeResource(
             None, copy.deepcopy(identity_fakes.REGISTERED_LIMIT), loaded=True
@@ -241,7 +241,7 @@ class TestRegisteredLimitShow(TestRegisteredLimit):
 
 class TestRegisteredLimitSet(TestRegisteredLimit):
     def setUp(self):
-        super(TestRegisteredLimitSet, self).setUp()
+        super().setUp()
         self.cmd = registered_limit.SetRegisteredLimit(self.app, None)
 
     def test_registered_limit_set_description(self):
@@ -489,7 +489,7 @@ class TestRegisteredLimitSet(TestRegisteredLimit):
 
 class TestRegisteredLimitList(TestRegisteredLimit):
     def setUp(self):
-        super(TestRegisteredLimitList, self).setUp()
+        super().setUp()
 
         self.registered_limit_mock.get.return_value = fakes.FakeResource(
             None, copy.deepcopy(identity_fakes.REGISTERED_LIMIT), loaded=True

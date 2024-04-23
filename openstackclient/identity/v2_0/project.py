@@ -34,7 +34,7 @@ class CreateProject(command.ShowOne):
     _description = _("Create new project")
 
     def get_parser(self, prog_name):
-        parser = super(CreateProject, self).get_parser(prog_name)
+        parser = super().get_parser(prog_name)
         parser.add_argument(
             'name',
             metavar='<project-name>',
@@ -108,7 +108,7 @@ class DeleteProject(command.Command):
     _description = _("Delete project(s)")
 
     def get_parser(self, prog_name):
-        parser = super(DeleteProject, self).get_parser(prog_name)
+        parser = super().get_parser(prog_name)
         parser.add_argument(
             'projects',
             metavar='<project>',
@@ -150,7 +150,7 @@ class ListProject(command.Lister):
     _description = _("List projects")
 
     def get_parser(self, prog_name):
-        parser = super(ListProject, self).get_parser(prog_name)
+        parser = super().get_parser(prog_name)
         parser.add_argument(
             '--long',
             action='store_true',
@@ -193,7 +193,7 @@ class SetProject(command.Command):
     _description = _("Set project properties")
 
     def get_parser(self, prog_name):
-        parser = super(SetProject, self).get_parser(prog_name)
+        parser = super().get_parser(prog_name)
         parser.add_argument(
             'project',
             metavar='<project>',
@@ -264,7 +264,7 @@ class ShowProject(command.ShowOne):
     _description = _("Display project details")
 
     def get_parser(self, prog_name):
-        parser = super(ShowProject, self).get_parser(prog_name)
+        parser = super().get_parser(prog_name)
         parser.add_argument(
             'project',
             metavar='<project>',
@@ -322,7 +322,7 @@ class UnsetProject(command.Command):
     _description = _("Unset project properties")
 
     def get_parser(self, prog_name):
-        parser = super(UnsetProject, self).get_parser(prog_name)
+        parser = super().get_parser(prog_name)
         parser.add_argument(
             'project',
             metavar='<project>',

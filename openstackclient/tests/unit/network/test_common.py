@@ -102,9 +102,7 @@ class FakeCreateNeutronCommandWithExtraArgs(
     common.NeutronCommandWithExtraArgs
 ):
     def get_parser(self, prog_name):
-        parser = super(FakeCreateNeutronCommandWithExtraArgs, self).get_parser(
-            prog_name
-        )
+        parser = super().get_parser(prog_name)
         parser.add_argument(
             '--known-attribute',
         )
@@ -164,19 +162,19 @@ class TestNetworkAndCompute(utils.TestCommand):
 
 class TestNetworkAndComputeCommand(TestNetworkAndCompute):
     def setUp(self):
-        super(TestNetworkAndComputeCommand, self).setUp()
+        super().setUp()
         self.cmd = FakeNetworkAndComputeCommand(self.app, None)
 
 
 class TestNetworkAndComputeLister(TestNetworkAndCompute):
     def setUp(self):
-        super(TestNetworkAndComputeLister, self).setUp()
+        super().setUp()
         self.cmd = FakeNetworkAndComputeLister(self.app, None)
 
 
 class TestNetworkAndComputeShowOne(TestNetworkAndCompute):
     def setUp(self):
-        super(TestNetworkAndComputeShowOne, self).setUp()
+        super().setUp()
         self.cmd = FakeNetworkAndComputeShowOne(self.app, None)
 
     def test_take_action_with_http_exception(self):
@@ -202,7 +200,7 @@ class TestNetworkAndComputeShowOne(TestNetworkAndCompute):
 
 class TestNeutronCommandWithExtraArgs(utils.TestCommand):
     def setUp(self):
-        super(TestNeutronCommandWithExtraArgs, self).setUp()
+        super().setUp()
 
         # Create client mocks. Note that we intentionally do not use specced
         # mocks since we want to test fake methods.

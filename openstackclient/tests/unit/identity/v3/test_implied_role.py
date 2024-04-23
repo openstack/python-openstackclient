@@ -22,7 +22,7 @@ from openstackclient.tests.unit.identity.v3 import fakes as identity_fakes
 
 class TestRole(identity_fakes.TestIdentityv3):
     def setUp(self):
-        super(TestRole, self).setUp()
+        super().setUp()
 
         identity_client = self.identity_client
 
@@ -56,7 +56,7 @@ class TestRole(identity_fakes.TestIdentityv3):
 
 class TestImpliedRoleCreate(TestRole):
     def setUp(self):
-        super(TestImpliedRoleCreate, self).setUp()
+        super().setUp()
 
         self.roles_mock.list.return_value = [
             fakes.FakeResource(
@@ -116,7 +116,7 @@ class TestImpliedRoleCreate(TestRole):
 
 class TestImpliedRoleDelete(TestRole):
     def setUp(self):
-        super(TestImpliedRoleDelete, self).setUp()
+        super().setUp()
 
         self.roles_mock.list.return_value = [
             fakes.FakeResource(
@@ -163,7 +163,7 @@ class TestImpliedRoleDelete(TestRole):
 
 class TestImpliedRoleList(TestRole):
     def setUp(self):
-        super(TestImpliedRoleList, self).setUp()
+        super().setUp()
 
         self.inference_rules_mock.list_inference_roles.return_value = (
             identity_fakes.FakeImpliedRoleResponse.create_list()

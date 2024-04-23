@@ -44,7 +44,7 @@ class VolumeIdColumn(cliff_columns.FormattableColumn):
     """
 
     def __init__(self, value, volume_cache=None):
-        super(VolumeIdColumn, self).__init__(value)
+        super().__init__(value)
         self._volume_cache = volume_cache or {}
 
     def human_readable(self):
@@ -184,7 +184,7 @@ class DeleteVolumeBackup(command.Command):
     _description = _("Delete volume backup(s)")
 
     def get_parser(self, prog_name):
-        parser = super(DeleteVolumeBackup, self).get_parser(prog_name)
+        parser = super().get_parser(prog_name)
         parser.add_argument(
             "backups",
             metavar="<backup>",
@@ -236,7 +236,7 @@ class ListVolumeBackup(command.Lister):
     _description = _("List volume backups")
 
     def get_parser(self, prog_name):
-        parser = super(ListVolumeBackup, self).get_parser(prog_name)
+        parser = super().get_parser(prog_name)
         parser.add_argument(
             "--long",
             action="store_true",
@@ -381,7 +381,7 @@ class RestoreVolumeBackup(command.ShowOne):
     _description = _("Restore volume backup")
 
     def get_parser(self, prog_name):
-        parser = super(RestoreVolumeBackup, self).get_parser(prog_name)
+        parser = super().get_parser(prog_name)
         parser.add_argument(
             "backup",
             metavar="<backup>",
@@ -633,7 +633,7 @@ class ShowVolumeBackup(command.ShowOne):
     _description = _("Display volume backup details")
 
     def get_parser(self, prog_name):
-        parser = super(ShowVolumeBackup, self).get_parser(prog_name)
+        parser = super().get_parser(prog_name)
         parser.add_argument(
             "backup",
             metavar="<backup>",

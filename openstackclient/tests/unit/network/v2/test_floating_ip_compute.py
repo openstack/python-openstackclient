@@ -46,7 +46,7 @@ class TestCreateFloatingIPCompute(compute_fakes.TestComputev2):
     )
 
     def setUp(self):
-        super(TestCreateFloatingIPCompute, self).setUp()
+        super().setUp()
 
         self.app.client_manager.network_endpoint_enabled = False
 
@@ -90,7 +90,7 @@ class TestDeleteFloatingIPCompute(compute_fakes.TestComputev2):
     _floating_ips = compute_fakes.create_floating_ips(count=2)
 
     def setUp(self):
-        super(TestDeleteFloatingIPCompute, self).setUp()
+        super().setUp()
 
         self.app.client_manager.network_endpoint_enabled = False
 
@@ -186,7 +186,7 @@ class TestListFloatingIPCompute(compute_fakes.TestComputev2):
         )
 
     def setUp(self):
-        super(TestListFloatingIPCompute, self).setUp()
+        super().setUp()
 
         self.app.client_manager.network_endpoint_enabled = False
 
@@ -228,7 +228,7 @@ class TestShowFloatingIPCompute(compute_fakes.TestComputev2):
     )
 
     def setUp(self):
-        super(TestShowFloatingIPCompute, self).setUp()
+        super().setUp()
 
         self.app.client_manager.network_endpoint_enabled = False
 

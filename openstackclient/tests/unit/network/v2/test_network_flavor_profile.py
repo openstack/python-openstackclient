@@ -21,7 +21,7 @@ from openstackclient.tests.unit.network.v2 import fakes as network_fakes
 
 class TestFlavorProfile(network_fakes.TestNetworkV2):
     def setUp(self):
-        super(TestFlavorProfile, self).setUp()
+        super().setUp()
 
         # Get the ProjectManager Mock
         self.projects_mock = self.identity_client.projects
@@ -53,7 +53,7 @@ class TestCreateFlavorProfile(TestFlavorProfile):
     )
 
     def setUp(self):
-        super(TestCreateFlavorProfile, self).setUp()
+        super().setUp()
         self.network_client.create_service_profile = mock.Mock(
             return_value=self.new_flavor_profile
         )
@@ -227,7 +227,7 @@ class TestDeleteFlavorProfile(TestFlavorProfile):
     _network_flavor_profiles = network_fakes.create_service_profile(count=2)
 
     def setUp(self):
-        super(TestDeleteFlavorProfile, self).setUp()
+        super().setUp()
         self.network_client.delete_service_profile = mock.Mock(
             return_value=None
         )
@@ -346,7 +346,7 @@ class TestListFlavorProfile(TestFlavorProfile):
         )
 
     def setUp(self):
-        super(TestListFlavorProfile, self).setUp()
+        super().setUp()
         self.network_client.service_profiles = mock.Mock(
             return_value=self._network_flavor_profiles
         )
@@ -389,7 +389,7 @@ class TestShowFlavorProfile(TestFlavorProfile):
     )
 
     def setUp(self):
-        super(TestShowFlavorProfile, self).setUp()
+        super().setUp()
         self.network_client.find_service_profile = mock.Mock(
             return_value=self.network_flavor_profile
         )
@@ -422,7 +422,7 @@ class TestSetFlavorProfile(TestFlavorProfile):
     network_flavor_profile = network_fakes.create_one_service_profile()
 
     def setUp(self):
-        super(TestSetFlavorProfile, self).setUp()
+        super().setUp()
         self.network_client.update_service_profile = mock.Mock(
             return_value=None
         )

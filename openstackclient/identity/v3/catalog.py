@@ -34,7 +34,7 @@ class EndpointsColumn(cliff_columns.FormattableColumn):
         for ep in self._value:
             region = ep.get('region_id') or ep.get('region') or '<none>'
             ret += region + '\n'
-            ret += "  %s: %s\n" % (ep['interface'], ep['url'])
+            ret += "  {}: {}\n".format(ep['interface'], ep['url'])
         return ret
 
 
@@ -70,7 +70,7 @@ class ShowCatalog(command.ShowOne):
     _description = _("Display service catalog details")
 
     def get_parser(self, prog_name):
-        parser = super(ShowCatalog, self).get_parser(prog_name)
+        parser = super().get_parser(prog_name)
         parser.add_argument(
             'service',
             metavar='<service>',

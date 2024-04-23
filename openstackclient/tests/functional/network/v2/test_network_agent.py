@@ -123,7 +123,9 @@ class TestAgentList(common.NetworkTests):
 
         # Add Agent to Network
         self.openstack(
-            'network agent add network --dhcp %s %s' % (agent_id, network_id)
+            'network agent add network --dhcp {} {}'.format(
+                agent_id, network_id
+            )
         )
 
         # Test network agent list --network
@@ -169,9 +171,7 @@ class TestAgentList(common.NetworkTests):
         agent_id = cmd_output[0]['ID']
 
         # Add router to agent
-        self.openstack(
-            'network agent add router --l3 %s %s' % (agent_id, router_id)
-        )
+        self.openstack(f'network agent add router --l3 {agent_id} {router_id}')
 
         # Test router list --agent
         cmd_output = self.openstack(
@@ -184,7 +184,9 @@ class TestAgentList(common.NetworkTests):
 
         # Remove router from agent
         self.openstack(
-            'network agent remove router --l3 %s %s' % (agent_id, router_id)
+            'network agent remove router --l3 {} {}'.format(
+                agent_id, router_id
+            )
         )
         cmd_output = self.openstack(
             'network agent list --router %s' % router_id,

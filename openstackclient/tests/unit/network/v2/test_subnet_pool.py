@@ -24,7 +24,7 @@ from openstackclient.tests.unit import utils as test_utils
 
 class TestSubnetPool(network_fakes.TestNetworkV2):
     def setUp(self):
-        super(TestSubnetPool, self).setUp()
+        super().setUp()
 
         # Get a shortcut to the ProjectManager Mock
         self.projects_mock = self.identity_client.projects
@@ -74,7 +74,7 @@ class TestCreateSubnetPool(TestSubnetPool):
     )
 
     def setUp(self):
-        super(TestCreateSubnetPool, self).setUp()
+        super().setUp()
 
         self.network_client.create_subnet_pool = mock.Mock(
             return_value=self._subnet_pool
@@ -385,7 +385,7 @@ class TestDeleteSubnetPool(TestSubnetPool):
     _subnet_pools = network_fakes.FakeSubnetPool.create_subnet_pools(count=2)
 
     def setUp(self):
-        super(TestDeleteSubnetPool, self).setUp()
+        super().setUp()
 
         self.network_client.delete_subnet_pool = mock.Mock(return_value=None)
 
@@ -509,7 +509,7 @@ class TestListSubnetPool(TestSubnetPool):
         )
 
     def setUp(self):
-        super(TestListSubnetPool, self).setUp()
+        super().setUp()
 
         # Get the command object to test
         self.cmd = subnet_pool.ListSubnetPool(self.app, None)
@@ -732,7 +732,7 @@ class TestSetSubnetPool(TestSubnetPool):
     _address_scope = network_fakes.create_one_address_scope()
 
     def setUp(self):
-        super(TestSetSubnetPool, self).setUp()
+        super().setUp()
 
         self.network_client.update_subnet_pool = mock.Mock(return_value=None)
         self.network_client.set_tags = mock.Mock(return_value=None)
@@ -1077,7 +1077,7 @@ class TestShowSubnetPool(TestSubnetPool):
     )
 
     def setUp(self):
-        super(TestShowSubnetPool, self).setUp()
+        super().setUp()
 
         self.network_client.find_subnet_pool = mock.Mock(
             return_value=self._subnet_pool
@@ -1118,7 +1118,7 @@ class TestShowSubnetPool(TestSubnetPool):
 
 class TestUnsetSubnetPool(TestSubnetPool):
     def setUp(self):
-        super(TestUnsetSubnetPool, self).setUp()
+        super().setUp()
         self._subnetpool = network_fakes.FakeSubnetPool.create_one_subnet_pool(
             {'tags': ['green', 'red']}
         )

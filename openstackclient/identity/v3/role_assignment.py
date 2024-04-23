@@ -24,7 +24,7 @@ class ListRoleAssignment(command.Lister):
     _description = _("List role assignments")
 
     def get_parser(self, prog_name):
-        parser = super(ListRoleAssignment, self).get_parser(prog_name)
+        parser = super().get_parser(prog_name)
         parser.add_argument(
             '--effective',
             action="store_true",

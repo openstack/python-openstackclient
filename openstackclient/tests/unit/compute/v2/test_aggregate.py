@@ -58,7 +58,7 @@ class TestAggregate(compute_fakes.TestComputev2):
 
 class TestAggregateAddHost(TestAggregate):
     def setUp(self):
-        super(TestAggregateAddHost, self).setUp()
+        super().setUp()
 
         self.compute_sdk_client.find_aggregate.return_value = self.fake_ag
         self.compute_sdk_client.add_host_to_aggregate.return_value = (
@@ -89,7 +89,7 @@ class TestAggregateAddHost(TestAggregate):
 
 class TestAggregateCreate(TestAggregate):
     def setUp(self):
-        super(TestAggregateCreate, self).setUp()
+        super().setUp()
 
         self.compute_sdk_client.create_aggregate.return_value = self.fake_ag
         self.compute_sdk_client.set_aggregate_metadata.return_value = (
@@ -159,7 +159,7 @@ class TestAggregateDelete(TestAggregate):
     fake_ags = compute_fakes.create_aggregates(count=2)
 
     def setUp(self):
-        super(TestAggregateDelete, self).setUp()
+        super().setUp()
 
         self.compute_sdk_client.find_aggregate = compute_fakes.get_aggregates(
             self.fake_ags
@@ -267,7 +267,7 @@ class TestAggregateList(TestAggregate):
     )
 
     def setUp(self):
-        super(TestAggregateList, self).setUp()
+        super().setUp()
 
         self.compute_sdk_client.aggregates.return_value = [self.fake_ag]
         self.cmd = aggregate.ListAggregate(self.app, None)
@@ -295,7 +295,7 @@ class TestAggregateList(TestAggregate):
 
 class TestAggregateRemoveHost(TestAggregate):
     def setUp(self):
-        super(TestAggregateRemoveHost, self).setUp()
+        super().setUp()
 
         self.compute_sdk_client.find_aggregate.return_value = self.fake_ag
         self.compute_sdk_client.remove_host_from_aggregate.return_value = (
@@ -326,7 +326,7 @@ class TestAggregateRemoveHost(TestAggregate):
 
 class TestAggregateSet(TestAggregate):
     def setUp(self):
-        super(TestAggregateSet, self).setUp()
+        super().setUp()
 
         self.compute_sdk_client.find_aggregate.return_value = self.fake_ag
         self.cmd = aggregate.SetAggregate(self.app, None)
@@ -513,7 +513,7 @@ class TestAggregateShow(TestAggregate):
     )
 
     def setUp(self):
-        super(TestAggregateShow, self).setUp()
+        super().setUp()
 
         self.compute_sdk_client.find_aggregate.return_value = self.fake_ag
         self.cmd = aggregate.ShowAggregate(self.app, None)
@@ -537,7 +537,7 @@ class TestAggregateShow(TestAggregate):
 
 class TestAggregateUnset(TestAggregate):
     def setUp(self):
-        super(TestAggregateUnset, self).setUp()
+        super().setUp()
 
         self.compute_sdk_client.find_aggregate.return_value = self.fake_ag
         self.cmd = aggregate.UnsetAggregate(self.app, None)
@@ -598,7 +598,7 @@ class TestAggregateCacheImage(TestAggregate):
     images = image_fakes.create_images(count=2)
 
     def setUp(self):
-        super(TestAggregateCacheImage, self).setUp()
+        super().setUp()
 
         self.compute_sdk_client.find_aggregate.return_value = self.fake_ag
         self.find_image_mock = mock.Mock(side_effect=self.images)

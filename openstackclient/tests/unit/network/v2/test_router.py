@@ -25,7 +25,7 @@ from openstackclient.tests.unit import utils as tests_utils
 
 class TestRouter(network_fakes.TestNetworkV2):
     def setUp(self):
-        super(TestRouter, self).setUp()
+        super().setUp()
 
         self.projects_mock = self.identity_client.projects
 
@@ -39,7 +39,7 @@ class TestAddPortToRouter(TestRouter):
     )
 
     def setUp(self):
-        super(TestAddPortToRouter, self).setUp()
+        super().setUp()
 
         self.network_client.find_router = mock.Mock(return_value=self._router)
         self.network_client.find_port = mock.Mock(return_value=self._port)
@@ -89,7 +89,7 @@ class TestAddSubnetToRouter(TestRouter):
     )
 
     def setUp(self):
-        super(TestAddSubnetToRouter, self).setUp()
+        super().setUp()
 
         self.network_client.find_router = mock.Mock(return_value=self._router)
         self.network_client.find_subnet = mock.Mock(return_value=self._subnet)
@@ -164,7 +164,7 @@ class TestCreateRouter(TestRouter):
     )
 
     def setUp(self):
-        super(TestCreateRouter, self).setUp()
+        super().setUp()
 
         self.network_client.create_router = mock.Mock(
             return_value=self.new_router
@@ -484,7 +484,7 @@ class TestDeleteRouter(TestRouter):
     _routers = network_fakes.FakeRouter.create_routers(count=2)
 
     def setUp(self):
-        super(TestDeleteRouter, self).setUp()
+        super().setUp()
 
         self.network_client.delete_router = mock.Mock(return_value=None)
 
@@ -642,7 +642,7 @@ class TestListRouter(TestRouter):
         )
 
     def setUp(self):
-        super(TestListRouter, self).setUp()
+        super().setUp()
 
         # Get the command object to test
         self.cmd = router.ListRouter(self.app, None)
@@ -905,7 +905,7 @@ class TestRemovePortFromRouter(TestRouter):
     )
 
     def setUp(self):
-        super(TestRemovePortFromRouter, self).setUp()
+        super().setUp()
 
         self.network_client.find_router = mock.Mock(return_value=self._router)
         self.network_client.find_port = mock.Mock(return_value=self._port)
@@ -952,7 +952,7 @@ class TestRemoveSubnetFromRouter(TestRouter):
     )
 
     def setUp(self):
-        super(TestRemoveSubnetFromRouter, self).setUp()
+        super().setUp()
 
         self.network_client.find_router = mock.Mock(return_value=self._router)
         self.network_client.find_subnet = mock.Mock(return_value=self._subnet)
@@ -993,7 +993,7 @@ class TestAddExtraRoutesToRouter(TestRouter):
     _router = network_fakes.FakeRouter.create_one_router()
 
     def setUp(self):
-        super(TestAddExtraRoutesToRouter, self).setUp()
+        super().setUp()
         self.network_client.add_extra_routes_to_router = mock.Mock(
             return_value=self._router
         )
@@ -1082,7 +1082,7 @@ class TestRemoveExtraRoutesFromRouter(TestRouter):
     _router = network_fakes.FakeRouter.create_one_router()
 
     def setUp(self):
-        super(TestRemoveExtraRoutesFromRouter, self).setUp()
+        super().setUp()
         self.network_client.remove_extra_routes_from_router = mock.Mock(
             return_value=self._router
         )
@@ -1180,7 +1180,7 @@ class TestSetRouter(TestRouter):
     _extensions = {'fake': network_fakes.create_one_extension()}
 
     def setUp(self):
-        super(TestSetRouter, self).setUp()
+        super().setUp()
         self.network_client.update_router = mock.Mock(return_value=None)
         self.network_client.set_tags = mock.Mock(return_value=None)
         self.network_client.find_router = mock.Mock(return_value=self._router)
@@ -1710,7 +1710,7 @@ class TestShowRouter(TestRouter):
     )
 
     def setUp(self):
-        super(TestShowRouter, self).setUp()
+        super().setUp()
 
         self.network_client.find_router = mock.Mock(return_value=self._router)
         self.network_client.ports = mock.Mock(return_value=[self._port])
@@ -1793,7 +1793,7 @@ class TestShowRouter(TestRouter):
 
 class TestUnsetRouter(TestRouter):
     def setUp(self):
-        super(TestUnsetRouter, self).setUp()
+        super().setUp()
         self.fake_network = network_fakes.create_one_network()
         self.fake_qos_policy = (
             network_fakes.FakeNetworkQosPolicy.create_one_qos_policy()
@@ -2138,9 +2138,9 @@ class TestCreateMultipleGateways(TestGatewayOps):
             "--external-gateway",
             self._second_network.id,
             '--fixed-ip',
-            'subnet={},ip-address=10.0.1.1'.format(self._subnet.id),
+            f'subnet={self._subnet.id},ip-address=10.0.1.1',
             '--fixed-ip',
-            'subnet={},ip-address=10.0.1.2'.format(self._subnet.id),
+            f'subnet={self._subnet.id},ip-address=10.0.1.2',
         ]
         verifylist = [
             ('name', self._router.name),
@@ -2242,9 +2242,9 @@ class TestUpdateMultipleGateways(TestGatewayOps):
             "--external-gateway",
             self._second_network.id,
             '--fixed-ip',
-            'subnet={},ip-address=10.0.1.1'.format(self._subnet.id),
+            f'subnet={self._subnet.id},ip-address=10.0.1.1',
             '--fixed-ip',
-            'subnet={},ip-address=10.0.1.2'.format(self._subnet.id),
+            f'subnet={self._subnet.id},ip-address=10.0.1.2',
             "--no-qos-policy",
         ]
         verifylist = [
@@ -2327,7 +2327,7 @@ class TestAddGatewayRouter(TestGatewayOps):
             self._router.name,
             self._network.id,
             '--fixed-ip',
-            'subnet={},ip-address=10.0.1.1'.format(self._subnet.id),
+            f'subnet={self._subnet.id},ip-address=10.0.1.1',
         ]
         verifylist = [
             ('router', self._router.name),
@@ -2360,9 +2360,9 @@ class TestAddGatewayRouter(TestGatewayOps):
             self._router.name,
             self._network.id,
             '--fixed-ip',
-            'subnet={},ip-address=10.0.1.1'.format(self._subnet.id),
+            f'subnet={self._subnet.id},ip-address=10.0.1.1',
             '--fixed-ip',
-            'subnet={},ip-address=10.0.1.2'.format(self._subnet.id),
+            f'subnet={self._subnet.id},ip-address=10.0.1.2',
         ]
         verifylist = [
             ('router', self._router.name),
@@ -2453,7 +2453,7 @@ class TestRemoveGatewayRouter(TestGatewayOps):
             self._router.name,
             self._network.id,
             '--fixed-ip',
-            'subnet={},ip-address=10.0.1.1'.format(self._subnet.id),
+            f'subnet={self._subnet.id},ip-address=10.0.1.1',
         ]
         verifylist = [
             ('router', self._router.name),
@@ -2486,9 +2486,9 @@ class TestRemoveGatewayRouter(TestGatewayOps):
             self._router.name,
             self._network.id,
             '--fixed-ip',
-            'subnet={},ip-address=10.0.1.1'.format(self._subnet.id),
+            f'subnet={self._subnet.id},ip-address=10.0.1.1',
             '--fixed-ip',
-            'subnet={},ip-address=10.0.1.2'.format(self._subnet.id),
+            f'subnet={self._subnet.id},ip-address=10.0.1.2',
         ]
         verifylist = [
             ('router', self._router.name),

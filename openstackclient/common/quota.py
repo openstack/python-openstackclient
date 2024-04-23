@@ -383,7 +383,7 @@ class ListQuota(command.Lister):
                         and ex.http_status <= 499
                     ):
                         # Project not found, move on to next one
-                        LOG.warning("Project %s not found: %s" % (p, ex))
+                        LOG.warning(f"Project {p} not found: {ex}")
                         continue
                     else:
                         raise
@@ -446,7 +446,7 @@ class ListQuota(command.Lister):
                 except Exception as ex:
                     if type(ex).__name__ == 'NotFound':
                         # Project not found, move on to next one
-                        LOG.warning("Project %s not found: %s" % (p, ex))
+                        LOG.warning(f"Project {p} not found: {ex}")
                         continue
                     else:
                         raise
@@ -500,7 +500,7 @@ class ListQuota(command.Lister):
                 except Exception as ex:
                     if type(ex).__name__ == 'NotFound':
                         # Project not found, move on to next one
-                        LOG.warning("Project %s not found: %s" % (p, ex))
+                        LOG.warning(f"Project {p} not found: {ex}")
                         continue
                     else:
                         raise
@@ -590,7 +590,7 @@ class SetQuota(common.NetDetectionMixin, command.Command):
         return rets
 
     def get_parser(self, prog_name):
-        parser = super(SetQuota, self).get_parser(prog_name)
+        parser = super().get_parser(prog_name)
         parser.add_argument(
             'project',
             metavar='<project/class>',

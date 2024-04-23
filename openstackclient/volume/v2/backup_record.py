@@ -34,7 +34,7 @@ restore."""
     )
 
     def get_parser(self, prog_name):
-        parser = super(ExportBackupRecord, self).get_parser(prog_name)
+        parser = super().get_parser(prog_name)
         parser.add_argument(
             "backup",
             metavar="<backup>",
@@ -65,7 +65,7 @@ rebuilt service instance"""
     )
 
     def get_parser(self, prog_name):
-        parser = super(ImportBackupRecord, self).get_parser(prog_name)
+        parser = super().get_parser(prog_name)
         parser.add_argument(
             "backup_service",
             metavar="<backup_service>",

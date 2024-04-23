@@ -23,7 +23,7 @@ class TransferRequestTests(common.BaseVolumeTests):
 
     @classmethod
     def setUpClass(cls):
-        super(TransferRequestTests, cls).setUpClass()
+        super().setUpClass()
         cmd_output = cls.openstack(
             'volume create --size 1 ' + cls.VOLUME_NAME,
             parse_output=True,
@@ -40,7 +40,7 @@ class TransferRequestTests(common.BaseVolumeTests):
             )
             cls.assertOutput('', raw_output_volume)
         finally:
-            super(TransferRequestTests, cls).tearDownClass()
+            super().tearDownClass()
 
     def test_volume_transfer_request_accept(self):
         volume_name = uuid.uuid4().hex

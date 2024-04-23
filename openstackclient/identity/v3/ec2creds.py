@@ -60,7 +60,7 @@ class CreateEC2Creds(command.ShowOne):
     _description = _("Create EC2 credentials")
 
     def get_parser(self, prog_name):
-        parser = super(CreateEC2Creds, self).get_parser(prog_name)
+        parser = super().get_parser(prog_name)
         parser.add_argument(
             '--project',
             metavar='<project>',
@@ -122,7 +122,7 @@ class DeleteEC2Creds(command.Command):
     _description = _("Delete EC2 credentials")
 
     def get_parser(self, prog_name):
-        parser = super(DeleteEC2Creds, self).get_parser(prog_name)
+        parser = super().get_parser(prog_name)
         parser.add_argument(
             'access_key',
             metavar='<access-key>',
@@ -166,7 +166,7 @@ class ListEC2Creds(command.Lister):
     _description = _("List EC2 credentials")
 
     def get_parser(self, prog_name):
-        parser = super(ListEC2Creds, self).get_parser(prog_name)
+        parser = super().get_parser(prog_name)
         parser.add_argument(
             '--user',
             metavar='<user>',
@@ -200,7 +200,7 @@ class ShowEC2Creds(command.ShowOne):
     _description = _("Display EC2 credentials details")
 
     def get_parser(self, prog_name):
-        parser = super(ShowEC2Creds, self).get_parser(prog_name)
+        parser = super().get_parser(prog_name)
         parser.add_argument(
             'access_key',
             metavar='<access-key>',

@@ -39,7 +39,7 @@ class ListIPAvailability(command.Lister):
     _description = _("List IP availability for network")
 
     def get_parser(self, prog_name):
-        parser = super(ListIPAvailability, self).get_parser(prog_name)
+        parser = super().get_parser(prog_name)
         parser.add_argument(
             '--ip-version',
             type=int,
@@ -105,7 +105,7 @@ class ShowIPAvailability(command.ShowOne):
     _description = _("Show network IP availability details")
 
     def get_parser(self, prog_name):
-        parser = super(ShowIPAvailability, self).get_parser(prog_name)
+        parser = super().get_parser(prog_name)
         parser.add_argument(
             'network',
             metavar="<network>",

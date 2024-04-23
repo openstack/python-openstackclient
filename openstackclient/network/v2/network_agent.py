@@ -60,7 +60,7 @@ class AddNetworkToAgent(command.Command):
     _description = _("Add network to an agent")
 
     def get_parser(self, prog_name):
-        parser = super(AddNetworkToAgent, self).get_parser(prog_name)
+        parser = super().get_parser(prog_name)
         parser.add_argument(
             '--dhcp',
             action='store_true',
@@ -99,7 +99,7 @@ class AddRouterToAgent(command.Command):
     _description = _("Add router to an agent")
 
     def get_parser(self, prog_name):
-        parser = super(AddRouterToAgent, self).get_parser(prog_name)
+        parser = super().get_parser(prog_name)
         parser.add_argument(
             '--l3', action='store_true', help=_('Add router to an L3 agent')
         )
@@ -128,7 +128,7 @@ class DeleteNetworkAgent(command.Command):
     _description = _("Delete network agent(s)")
 
     def get_parser(self, prog_name):
-        parser = super(DeleteNetworkAgent, self).get_parser(prog_name)
+        parser = super().get_parser(prog_name)
         parser.add_argument(
             'network_agent',
             metavar="<network-agent>",
@@ -168,7 +168,7 @@ class ListNetworkAgent(command.Lister):
     _description = _("List network agents")
 
     def get_parser(self, prog_name):
-        parser = super(ListNetworkAgent, self).get_parser(prog_name)
+        parser = super().get_parser(prog_name)
         parser.add_argument(
             '--agent-type',
             metavar='<agent-type>',
@@ -293,7 +293,7 @@ class RemoveNetworkFromAgent(command.Command):
     _description = _("Remove network from an agent.")
 
     def get_parser(self, prog_name):
-        parser = super(RemoveNetworkFromAgent, self).get_parser(prog_name)
+        parser = super().get_parser(prog_name)
         parser.add_argument(
             '--dhcp',
             action='store_true',
@@ -331,7 +331,7 @@ class RemoveRouterFromAgent(command.Command):
     _description = _("Remove router from an agent")
 
     def get_parser(self, prog_name):
-        parser = super(RemoveRouterFromAgent, self).get_parser(prog_name)
+        parser = super().get_parser(prog_name)
         parser.add_argument(
             '--l3',
             action='store_true',
@@ -364,7 +364,7 @@ class SetNetworkAgent(command.Command):
     _description = _("Set network agent properties")
 
     def get_parser(self, prog_name):
-        parser = super(SetNetworkAgent, self).get_parser(prog_name)
+        parser = super().get_parser(prog_name)
         parser.add_argument(
             'network_agent',
             metavar="<network-agent>",
@@ -403,7 +403,7 @@ class ShowNetworkAgent(command.ShowOne):
     _description = _("Display network agent details")
 
     def get_parser(self, prog_name):
-        parser = super(ShowNetworkAgent, self).get_parser(prog_name)
+        parser = super().get_parser(prog_name)
         parser.add_argument(
             'network_agent',
             metavar="<network-agent>",

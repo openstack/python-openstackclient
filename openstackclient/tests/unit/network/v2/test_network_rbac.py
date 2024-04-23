@@ -25,7 +25,7 @@ from openstackclient.tests.unit import utils as tests_utils
 
 class TestNetworkRBAC(network_fakes.TestNetworkV2):
     def setUp(self):
-        super(TestNetworkRBAC, self).setUp()
+        super().setUp()
 
         # Get a shortcut to the ProjectManager Mock
         self.projects_mock = self.identity_client.projects
@@ -67,7 +67,7 @@ class TestCreateNetworkRBAC(TestNetworkRBAC):
     ]
 
     def setUp(self):
-        super(TestCreateNetworkRBAC, self).setUp()
+        super().setUp()
 
         # Get the command object to test
         self.cmd = network_rbac.CreateNetworkRBAC(self.app, None)
@@ -342,7 +342,7 @@ class TestDeleteNetworkRBAC(TestNetworkRBAC):
     rbac_policies = network_fakes.create_network_rbacs(count=2)
 
     def setUp(self):
-        super(TestDeleteNetworkRBAC, self).setUp()
+        super().setUp()
         self.network_client.delete_rbac_policy = mock.Mock(return_value=None)
         self.network_client.find_rbac_policy = network_fakes.get_network_rbacs(
             rbac_policies=self.rbac_policies
@@ -457,7 +457,7 @@ class TestListNetworkRABC(TestNetworkRBAC):
         )
 
     def setUp(self):
-        super(TestListNetworkRABC, self).setUp()
+        super().setUp()
 
         # Get the command object to test
         self.cmd = network_rbac.ListNetworkRBAC(self.app, None)
@@ -559,7 +559,7 @@ class TestSetNetworkRBAC(TestNetworkRBAC):
     )
 
     def setUp(self):
-        super(TestSetNetworkRBAC, self).setUp()
+        super().setUp()
 
         # Get the command object to test
         self.cmd = network_rbac.SetNetworkRBAC(self.app, None)
@@ -634,7 +634,7 @@ class TestShowNetworkRBAC(TestNetworkRBAC):
     ]
 
     def setUp(self):
-        super(TestShowNetworkRBAC, self).setUp()
+        super().setUp()
 
         # Get the command object to test
         self.cmd = network_rbac.ShowNetworkRBAC(self.app, None)

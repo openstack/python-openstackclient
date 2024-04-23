@@ -22,7 +22,7 @@ class VolumeSnapshotTests(common.BaseVolumeTests):
 
     @classmethod
     def setUpClass(cls):
-        super(VolumeSnapshotTests, cls).setUpClass()
+        super().setUpClass()
         # create a volume for all tests to create snapshot
         cmd_output = cls.openstack(
             'volume create ' + '--size 1 ' + cls.VOLLY,
@@ -38,7 +38,7 @@ class VolumeSnapshotTests(common.BaseVolumeTests):
             raw_output = cls.openstack('volume delete --force ' + cls.VOLLY)
             cls.assertOutput('', raw_output)
         finally:
-            super(VolumeSnapshotTests, cls).tearDownClass()
+            super().tearDownClass()
 
     def test_volume_snapshot_delete(self):
         """Test create, delete multiple"""

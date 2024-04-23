@@ -43,7 +43,7 @@ class CreateNetworkTrunk(command.ShowOne):
     """Create a network trunk for a given project"""
 
     def get_parser(self, prog_name):
-        parser = super(CreateNetworkTrunk, self).get_parser(prog_name)
+        parser = super().get_parser(prog_name)
         parser.add_argument(
             'name', metavar='<name>', help=_("Name of the trunk to create")
         )
@@ -100,7 +100,7 @@ class DeleteNetworkTrunk(command.Command):
     """Delete a given network trunk"""
 
     def get_parser(self, prog_name):
-        parser = super(DeleteNetworkTrunk, self).get_parser(prog_name)
+        parser = super().get_parser(prog_name)
         parser.add_argument(
             'trunk',
             metavar="<trunk>",
@@ -138,7 +138,7 @@ class ListNetworkTrunk(command.Lister):
     """List all network trunks"""
 
     def get_parser(self, prog_name):
-        parser = super(ListNetworkTrunk, self).get_parser(prog_name)
+        parser = super().get_parser(prog_name)
         parser.add_argument(
             '--long',
             action='store_true',
@@ -177,7 +177,7 @@ class SetNetworkTrunk(command.Command):
     """Set network trunk properties"""
 
     def get_parser(self, prog_name):
-        parser = super(SetNetworkTrunk, self).get_parser(prog_name)
+        parser = super().get_parser(prog_name)
         parser.add_argument(
             'trunk', metavar="<trunk>", help=_("Trunk to modify (name or ID)")
         )
@@ -242,7 +242,7 @@ class ShowNetworkTrunk(command.ShowOne):
     """Show information of a given network trunk"""
 
     def get_parser(self, prog_name):
-        parser = super(ShowNetworkTrunk, self).get_parser(prog_name)
+        parser = super().get_parser(prog_name)
         parser.add_argument(
             'trunk', metavar="<trunk>", help=_("Trunk to display (name or ID)")
         )
@@ -263,7 +263,7 @@ class ListNetworkSubport(command.Lister):
     """List all subports for a given network trunk"""
 
     def get_parser(self, prog_name):
-        parser = super(ListNetworkSubport, self).get_parser(prog_name)
+        parser = super().get_parser(prog_name)
         parser.add_argument(
             '--trunk',
             required=True,
@@ -294,7 +294,7 @@ class UnsetNetworkTrunk(command.Command):
     """Unset subports from a given network trunk"""
 
     def get_parser(self, prog_name):
-        parser = super(UnsetNetworkTrunk, self).get_parser(prog_name)
+        parser = super().get_parser(prog_name)
         parser.add_argument(
             'trunk',
             metavar="<trunk>",

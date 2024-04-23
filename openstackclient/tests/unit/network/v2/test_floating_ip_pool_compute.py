@@ -32,7 +32,7 @@ class TestListFloatingIPPoolCompute(compute_fakes.TestComputev2):
         data.append((pool['name'],))
 
     def setUp(self):
-        super(TestListFloatingIPPoolCompute, self).setUp()
+        super().setUp()
 
         self.app.client_manager.network_endpoint_enabled = False
 

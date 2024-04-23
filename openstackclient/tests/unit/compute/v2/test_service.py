@@ -26,7 +26,7 @@ class TestServiceDelete(compute_fakes.TestComputev2):
     services = compute_fakes.create_services(count=2)
 
     def setUp(self):
-        super(TestServiceDelete, self).setUp()
+        super().setUp()
 
         self.compute_sdk_client.delete_service.return_value = None
 
@@ -123,7 +123,7 @@ class TestServiceList(compute_fakes.TestComputev2):
     data_long = [data[0] + (service.disabled_reason,)]
 
     def setUp(self):
-        super(TestServiceList, self).setUp()
+        super().setUp()
 
         self.compute_sdk_client.services.return_value = [self.service]
 
@@ -225,7 +225,7 @@ class TestServiceList(compute_fakes.TestComputev2):
 
 class TestServiceSet(compute_fakes.TestComputev2):
     def setUp(self):
-        super(TestServiceSet, self).setUp()
+        super().setUp()
 
         self.service = compute_fakes.create_one_service()
 

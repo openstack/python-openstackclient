@@ -26,7 +26,7 @@ FAKE_URL = 'http://gopher.dev20.com'
 
 class TestImageAPIv2(utils.TestCase):
     def setUp(self):
-        super(TestImageAPIv2, self).setUp()
+        super().setUp()
 
         sess = session.Session()
         self.api = image_v2.APIv2(session=sess, endpoint=FAKE_URL)

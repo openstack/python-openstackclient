@@ -22,7 +22,7 @@ from openstackclient.tests.unit.identity.v3 import fakes as identity_fakes
 
 class TestService(identity_fakes.TestIdentityv3):
     def setUp(self):
-        super(TestService, self).setUp()
+        super().setUp()
 
         # Get a shortcut to the ServiceManager Mock
         self.services_mock = self.identity_client.services
@@ -39,7 +39,7 @@ class TestServiceCreate(TestService):
     )
 
     def setUp(self):
-        super(TestServiceCreate, self).setUp()
+        super().setUp()
 
         self.service = identity_fakes.FakeService.create_one_service()
         self.datalist = (
@@ -181,7 +181,7 @@ class TestServiceDelete(TestService):
     service = identity_fakes.FakeService.create_one_service()
 
     def setUp(self):
-        super(TestServiceDelete, self).setUp()
+        super().setUp()
 
         self.services_mock.get.side_effect = identity_exc.NotFound(None)
         self.services_mock.find.return_value = self.service
@@ -211,7 +211,7 @@ class TestServiceList(TestService):
     service = identity_fakes.FakeService.create_one_service()
 
     def setUp(self):
-        super(TestServiceList, self).setUp()
+        super().setUp()
 
         self.services_mock.list.return_value = [self.service]
 
@@ -275,7 +275,7 @@ class TestServiceSet(TestService):
     service = identity_fakes.FakeService.create_one_service()
 
     def setUp(self):
-        super(TestServiceSet, self).setUp()
+        super().setUp()
 
         self.services_mock.get.side_effect = identity_exc.NotFound(None)
         self.services_mock.find.return_value = self.service
@@ -435,7 +435,7 @@ class TestServiceShow(TestService):
     service = identity_fakes.FakeService.create_one_service()
 
     def setUp(self):
-        super(TestServiceShow, self).setUp()
+        super().setUp()
 
         self.services_mock.get.side_effect = identity_exc.NotFound(None)
         self.services_mock.find.return_value = self.service

@@ -132,7 +132,7 @@ class NetDetectionMixin(metaclass=abc.ABCMeta):
 
     def get_parser(self, prog_name):
         LOG.debug('get_parser(%s)', prog_name)
-        parser = super(NetDetectionMixin, self).get_parser(prog_name)
+        parser = super().get_parser(prog_name)
         parser = self.update_parser_common(parser)
         LOG.debug('common parser: %s', parser)
         if self.is_neutron or self.is_docs_build:
@@ -318,7 +318,7 @@ class NeutronCommandWithExtraArgs(command.Command):
         return result
 
     def get_parser(self, prog_name):
-        parser = super(NeutronCommandWithExtraArgs, self).get_parser(prog_name)
+        parser = super().get_parser(prog_name)
         parser.add_argument(
             '--extra-property',
             metavar='type=<property_type>,name=<property_name>,'

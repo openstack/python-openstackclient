@@ -24,14 +24,14 @@ from openstackclient.tests.unit.object.v1 import fakes as object_fakes
 
 class TestObjectAll(object_fakes.TestObjectv1):
     def setUp(self):
-        super(TestObjectAll, self).setUp()
+        super().setUp()
 
         self.requests_mock = self.useFixture(fixture.Fixture())
 
 
 class TestObjectCreate(TestObjectAll):
     def setUp(self):
-        super(TestObjectCreate, self).setUp()
+        super().setUp()
 
         # Get the command object to test
         self.cmd = object_cmds.CreateObject(self.app, None)
@@ -65,7 +65,7 @@ class TestObjectList(TestObjectAll):
     columns = ('Name',)
 
     def setUp(self):
-        super(TestObjectList, self).setUp()
+        super().setUp()
 
         # Get the command object to test
         self.cmd = object_cmds.ListObject(self.app, None)
@@ -140,7 +140,7 @@ class TestObjectList(TestObjectAll):
 
 class TestObjectShow(TestObjectAll):
     def setUp(self):
-        super(TestObjectShow, self).setUp()
+        super().setUp()
 
         # Get the command object to test
         self.cmd = object_cmds.ShowObject(self.app, None)
@@ -208,7 +208,7 @@ class TestObjectShow(TestObjectAll):
 
 class TestObjectSave(TestObjectAll):
     def setUp(self):
-        super(TestObjectSave, self).setUp()
+        super().setUp()
 
         # Get the command object to test
         self.cmd = object_cmds.SaveObject(self.app, None)

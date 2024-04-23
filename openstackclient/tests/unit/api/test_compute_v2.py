@@ -27,7 +27,7 @@ FAKE_URL = 'http://gopher.com/v2'
 
 class TestComputeAPIv2(utils.TestCase):
     def setUp(self):
-        super(TestComputeAPIv2, self).setUp()
+        super().setUp()
         sess = session.Session()
         self.api = compute.APIv2(session=sess, endpoint=FAKE_URL)
         self.requests_mock = self.useFixture(fixture.Fixture())

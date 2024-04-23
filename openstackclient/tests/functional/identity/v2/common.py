@@ -59,7 +59,7 @@ class IdentityTests(base.TestCase):
 
     @classmethod
     def setUpClass(cls):
-        super(IdentityTests, cls).setUpClass()
+        super().setUpClass()
         # create dummy project
         cls.project_name = data_utils.rand_name('TestProject')
         cls.project_description = data_utils.rand_name('description')
@@ -90,10 +90,10 @@ class IdentityTests(base.TestCase):
                 'project delete %s' % cls.project_name
             )
         finally:
-            super(IdentityTests, cls).tearDownClass()
+            super().tearDownClass()
 
     def setUp(self):
-        super(IdentityTests, self).setUp()
+        super().setUp()
         # prepare v2 env
         ver_fixture = fixtures.EnvironmentVariable(
             'OS_IDENTITY_API_VERSION', '2.0'

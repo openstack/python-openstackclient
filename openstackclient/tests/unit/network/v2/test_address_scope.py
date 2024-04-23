@@ -24,7 +24,7 @@ from openstackclient.tests.unit import utils as tests_utils
 
 class TestAddressScope(network_fakes.TestNetworkV2):
     def setUp(self):
-        super(TestAddressScope, self).setUp()
+        super().setUp()
 
         # Get a shortcut to the ProjectManager Mock
         self.projects_mock = self.identity_client.projects
@@ -51,7 +51,7 @@ class TestCreateAddressScope(TestAddressScope):
     )
 
     def setUp(self):
-        super(TestCreateAddressScope, self).setUp()
+        super().setUp()
         self.network_client.create_address_scope = mock.Mock(
             return_value=self.new_address_scope
         )
@@ -159,7 +159,7 @@ class TestDeleteAddressScope(TestAddressScope):
     _address_scopes = network_fakes.create_address_scopes(count=2)
 
     def setUp(self):
-        super(TestDeleteAddressScope, self).setUp()
+        super().setUp()
         self.network_client.delete_address_scope = mock.Mock(return_value=None)
         self.network_client.find_address_scope = (
             network_fakes.get_address_scopes(
@@ -266,7 +266,7 @@ class TestListAddressScope(TestAddressScope):
         )
 
     def setUp(self):
-        super(TestListAddressScope, self).setUp()
+        super().setUp()
         self.network_client.address_scopes = mock.Mock(
             return_value=self.address_scopes
         )
@@ -397,7 +397,7 @@ class TestSetAddressScope(TestAddressScope):
     _address_scope = network_fakes.create_one_address_scope()
 
     def setUp(self):
-        super(TestSetAddressScope, self).setUp()
+        super().setUp()
         self.network_client.update_address_scope = mock.Mock(return_value=None)
         self.network_client.find_address_scope = mock.Mock(
             return_value=self._address_scope
@@ -487,7 +487,7 @@ class TestShowAddressScope(TestAddressScope):
     )
 
     def setUp(self):
-        super(TestShowAddressScope, self).setUp()
+        super().setUp()
         self.network_client.find_address_scope = mock.Mock(
             return_value=self._address_scope
         )

@@ -22,7 +22,7 @@ from openstackclient.tests.unit import utils as tests_utils
 
 class TestConntrackHelper(network_fakes.TestNetworkV2):
     def setUp(self):
-        super(TestConntrackHelper, self).setUp()
+        super().setUp()
 
         self.router = network_fakes.FakeRouter.create_one_router()
         self.network_client.find_router = mock.Mock(return_value=self.router)
@@ -30,7 +30,7 @@ class TestConntrackHelper(network_fakes.TestNetworkV2):
 
 class TestCreateL3ConntrackHelper(TestConntrackHelper):
     def setUp(self):
-        super(TestCreateL3ConntrackHelper, self).setUp()
+        super().setUp()
         attrs = {'router_id': self.router.id}
         self.ct_helper = (
             network_fakes.FakeL3ConntrackHelper.create_one_l3_conntrack_helper(
@@ -112,7 +112,7 @@ class TestCreateL3ConntrackHelper(TestConntrackHelper):
 
 class TestDeleteL3ConntrackHelper(TestConntrackHelper):
     def setUp(self):
-        super(TestDeleteL3ConntrackHelper, self).setUp()
+        super().setUp()
         attrs = {'router_id': self.router.id}
         self.ct_helper = (
             network_fakes.FakeL3ConntrackHelper.create_one_l3_conntrack_helper(
@@ -156,7 +156,7 @@ class TestDeleteL3ConntrackHelper(TestConntrackHelper):
 
 class TestListL3ConntrackHelper(TestConntrackHelper):
     def setUp(self):
-        super(TestListL3ConntrackHelper, self).setUp()
+        super().setUp()
         attrs = {'router_id': self.router.id}
         ct_helpers = (
             network_fakes.FakeL3ConntrackHelper.create_l3_conntrack_helpers(
@@ -209,7 +209,7 @@ class TestListL3ConntrackHelper(TestConntrackHelper):
 
 class TestSetL3ConntrackHelper(TestConntrackHelper):
     def setUp(self):
-        super(TestSetL3ConntrackHelper, self).setUp()
+        super().setUp()
         attrs = {'router_id': self.router.id}
         self.ct_helper = (
             network_fakes.FakeL3ConntrackHelper.create_one_l3_conntrack_helper(
@@ -265,7 +265,7 @@ class TestSetL3ConntrackHelper(TestConntrackHelper):
 
 class TestShowL3ConntrackHelper(TestConntrackHelper):
     def setUp(self):
-        super(TestShowL3ConntrackHelper, self).setUp()
+        super().setUp()
         attrs = {'router_id': self.router.id}
         self.ct_helper = (
             network_fakes.FakeL3ConntrackHelper.create_one_l3_conntrack_helper(

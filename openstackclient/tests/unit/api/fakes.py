@@ -50,6 +50,6 @@ class TestSession(utils.TestCase):
     BASE_URL = 'https://api.example.com:1234/vX'
 
     def setUp(self):
-        super(TestSession, self).setUp()
+        super().setUp()
         self.sess = session.Session()
         self.requests_mock = self.useFixture(fixture.Fixture())

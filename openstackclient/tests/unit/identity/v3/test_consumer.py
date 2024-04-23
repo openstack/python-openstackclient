@@ -19,14 +19,14 @@ from openstackclient.tests.unit.identity.v3 import fakes as identity_fakes
 
 class TestOAuth1(identity_fakes.TestOAuth1):
     def setUp(self):
-        super(TestOAuth1, self).setUp()
+        super().setUp()
         self.consumers_mock = self.identity_client.oauth1.consumers
         self.consumers_mock.reset_mock()
 
 
 class TestConsumerCreate(TestOAuth1):
     def setUp(self):
-        super(TestConsumerCreate, self).setUp()
+        super().setUp()
 
         self.consumers_mock.create.return_value = fakes.FakeResource(
             None,
@@ -63,7 +63,7 @@ class TestConsumerCreate(TestOAuth1):
 
 class TestConsumerDelete(TestOAuth1):
     def setUp(self):
-        super(TestConsumerDelete, self).setUp()
+        super().setUp()
 
         # This is the return value for utils.find_resource()
         self.consumers_mock.get.return_value = fakes.FakeResource(
@@ -94,7 +94,7 @@ class TestConsumerDelete(TestOAuth1):
 
 class TestConsumerList(TestOAuth1):
     def setUp(self):
-        super(TestConsumerList, self).setUp()
+        super().setUp()
 
         self.consumers_mock.get.return_value = fakes.FakeResource(
             None,
@@ -136,7 +136,7 @@ class TestConsumerList(TestOAuth1):
 
 class TestConsumerSet(TestOAuth1):
     def setUp(self):
-        super(TestConsumerSet, self).setUp()
+        super().setUp()
 
         self.consumers_mock.get.return_value = fakes.FakeResource(
             None,
@@ -179,7 +179,7 @@ class TestConsumerSet(TestOAuth1):
 
 class TestConsumerShow(TestOAuth1):
     def setUp(self):
-        super(TestConsumerShow, self).setUp()
+        super().setUp()
 
         consumer_no_secret = copy.deepcopy(identity_fakes.OAUTH_CONSUMER)
         del consumer_no_secret['secret']

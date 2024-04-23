@@ -40,7 +40,7 @@ class TestAuxiliaryFunctions(tests_utils.TestCase):
 
 class TestNetworkSegmentRange(network_fakes.TestNetworkV2):
     def setUp(self):
-        super(TestNetworkSegmentRange, self).setUp()
+        super().setUp()
 
 
 class TestCreateNetworkSegmentRange(TestNetworkSegmentRange):
@@ -76,7 +76,7 @@ class TestCreateNetworkSegmentRange(TestNetworkSegmentRange):
     )
 
     def setUp(self):
-        super(TestCreateNetworkSegmentRange, self).setUp()
+        super().setUp()
 
         self.network_client.create_network_segment_range = mock.Mock(
             return_value=self._network_segment_range
@@ -349,7 +349,7 @@ class TestDeleteNetworkSegmentRange(TestNetworkSegmentRange):
     _network_segment_ranges = network_fakes.create_network_segment_ranges()
 
     def setUp(self):
-        super(TestDeleteNetworkSegmentRange, self).setUp()
+        super().setUp()
 
         self.network_client.delete_network_segment_range = mock.Mock(
             return_value=None
@@ -491,7 +491,7 @@ class TestListNetworkSegmentRange(TestNetworkSegmentRange):
         )
 
     def setUp(self):
-        super(TestListNetworkSegmentRange, self).setUp()
+        super().setUp()
 
         self.network_client.network_segment_ranges = mock.Mock(
             return_value=self._network_segment_ranges
@@ -565,7 +565,7 @@ class TestSetNetworkSegmentRange(TestNetworkSegmentRange):
     )
 
     def setUp(self):
-        super(TestSetNetworkSegmentRange, self).setUp()
+        super().setUp()
 
         self.network_client.find_network_segment_range = mock.Mock(
             return_value=self._network_segment_range
@@ -660,7 +660,7 @@ class TestShowNetworkSegmentRange(TestNetworkSegmentRange):
     )
 
     def setUp(self):
-        super(TestShowNetworkSegmentRange, self).setUp()
+        super().setUp()
 
         self.network_client.find_network_segment_range = mock.Mock(
             return_value=self._network_segment_range

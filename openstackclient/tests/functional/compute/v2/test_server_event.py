@@ -20,7 +20,7 @@ class ServerEventTests(common.ComputeTestCase):
     """Functional tests for server event"""
 
     def setUp(self):
-        super(ServerEventTests, self).setUp()
+        super().setUp()
 
         # NOTE(dtroyer): As long as these tests are read-only we can get away
         #                with using the same server instance for all of them.

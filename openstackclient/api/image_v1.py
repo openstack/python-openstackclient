@@ -22,7 +22,7 @@ class APIv1(api.BaseAPI):
     _endpoint_suffix = '/v1'
 
     def __init__(self, endpoint=None, **kwargs):
-        super(APIv1, self).__init__(endpoint=endpoint, **kwargs)
+        super().__init__(endpoint=endpoint, **kwargs)
 
         self.endpoint = self.endpoint.rstrip('/')
         self._munge_url()

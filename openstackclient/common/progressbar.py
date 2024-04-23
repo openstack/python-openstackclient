@@ -16,7 +16,7 @@
 import sys
 
 
-class _ProgressBarBase(object):
+class _ProgressBarBase:
     """A progress bar provider for a wrapped object.
 
     Base abstract class used by specific class wrapper to show
@@ -39,7 +39,7 @@ class _ProgressBarBase(object):
             self._percent += size_read / self._totalsize
             # Output something like this: [==========>             ] 49%
             sys.stdout.write(
-                '\r[{0:<30}] {1:.0%}'.format(
+                '\r[{:<30}] {:.0%}'.format(
                     '=' * int(round(self._percent * 29)) + '>', self._percent
                 )
             )

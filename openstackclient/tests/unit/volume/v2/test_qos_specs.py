@@ -27,7 +27,7 @@ from openstackclient.volume.v2 import qos_specs
 
 class TestQos(volume_fakes.TestVolume):
     def setUp(self):
-        super(TestQos, self).setUp()
+        super().setUp()
 
         self.qos_mock = self.volume_client.qos_specs
         self.qos_mock.reset_mock()
@@ -41,7 +41,7 @@ class TestQosAssociate(TestQos):
     qos_spec = volume_fakes.create_one_qos()
 
     def setUp(self):
-        super(TestQosAssociate, self).setUp()
+        super().setUp()
 
         self.qos_mock.get.return_value = self.qos_spec
         self.types_mock.get.return_value = self.volume_type
@@ -68,7 +68,7 @@ class TestQosCreate(TestQos):
     columns = ('consumer', 'id', 'name', 'properties')
 
     def setUp(self):
-        super(TestQosCreate, self).setUp()
+        super().setUp()
 
         self.new_qos_spec = volume_fakes.create_one_qos()
         self.qos_mock.create.return_value = self.new_qos_spec
@@ -158,7 +158,7 @@ class TestQosDelete(TestQos):
     qos_specs = volume_fakes.create_qoses(count=2)
 
     def setUp(self):
-        super(TestQosDelete, self).setUp()
+        super().setUp()
 
         self.qos_mock.get = volume_fakes.get_qoses(self.qos_specs)
         # Get the command object to test
@@ -238,7 +238,7 @@ class TestQosDisassociate(TestQos):
     qos_spec = volume_fakes.create_one_qos()
 
     def setUp(self):
-        super(TestQosDisassociate, self).setUp()
+        super().setUp()
 
         self.qos_mock.get.return_value = self.qos_spec
         self.types_mock.get.return_value = self.volume_type
@@ -302,7 +302,7 @@ class TestQosList(TestQos):
         )
 
     def setUp(self):
-        super(TestQosList, self).setUp()
+        super().setUp()
 
         self.qos_mock.list.return_value = self.qos_specs
         self.qos_mock.get_associations.return_value = [self.qos_association]
@@ -354,7 +354,7 @@ class TestQosSet(TestQos):
     qos_spec = volume_fakes.create_one_qos()
 
     def setUp(self):
-        super(TestQosSet, self).setUp()
+        super().setUp()
 
         self.qos_mock.get.return_value = self.qos_spec
         # Get the command object to test
@@ -403,7 +403,7 @@ class TestQosShow(TestQos):
     )
 
     def setUp(self):
-        super(TestQosShow, self).setUp()
+        super().setUp()
 
         self.qos_mock.get.return_value = self.qos_spec
         self.qos_mock.get_associations.return_value = [self.qos_association]
@@ -428,7 +428,7 @@ class TestQosUnset(TestQos):
     qos_spec = volume_fakes.create_one_qos()
 
     def setUp(self):
-        super(TestQosUnset, self).setUp()
+        super().setUp()
 
         self.qos_mock.get.return_value = self.qos_spec
         # Get the command object to test

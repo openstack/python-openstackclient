@@ -17,7 +17,6 @@
 
 import argparse
 import getpass
-import io
 import json
 import logging
 import os
@@ -233,7 +232,7 @@ def _prep_server_detail(compute_client, image_client, server, refresh=True):
         image_id = image_info.get('id', '')
         try:
             image = image_client.get_image(image_id)
-            info['image'] = "%s (%s)" % (image.name, image_id)
+            info['image'] = f"{image.name} ({image_id})"
         except Exception:
             info['image'] = image_id
     else:
@@ -251,7 +250,7 @@ def _prep_server_detail(compute_client, image_client, server, refresh=True):
         flavor_id = flavor_info.get('id', '')
         try:
             flavor = utils.find_resource(compute_client.flavors, flavor_id)
-            info['flavor'] = "%s (%s)" % (flavor.name, flavor_id)
+            info['flavor'] = f"{flavor.name} ({flavor_id})"
         except Exception:
             info['flavor'] = flavor_id
     else:  # microversion >= 2.47
@@ -358,7 +357,7 @@ class AddFixedIP(command.ShowOne):
     _description = _("Add fixed IP address to server")
 
     def get_parser(self, prog_name):
-        parser = super(AddFixedIP, self).get_parser(prog_name)
+        parser = super().get_parser(prog_name)
         parser.add_argument(
             "server",
             metavar="<server>",
@@ -551,7 +550,7 @@ class AddPort(command.Command):
     _description = _("Add port to server")
 
     def get_parser(self, prog_name):
-        parser = super(AddPort, self).get_parser(prog_name)
+        parser = super().get_parser(prog_name)
         parser.add_argument(
             "server",
             metavar="<server>",
@@ -605,7 +604,7 @@ class AddNetwork(command.Command):
     _description = _("Add network to server")
 
     def get_parser(self, prog_name):
-        parser = super(AddNetwork, self).get_parser(prog_name)
+        parser = super().get_parser(prog_name)
         parser.add_argument(
             "server",
             metavar="<server>",
@@ -660,7 +659,7 @@ class AddServerSecurityGroup(command.Command):
     _description = _("Add security group to server")
 
     def get_parser(self, prog_name):
-        parser = super(AddServerSecurityGroup, self).get_parser(prog_name)
+        parser = super().get_parser(prog_name)
         parser.add_argument(
             'server',
             metavar='<server>',
@@ -696,7 +695,7 @@ with status ``SHELVED`` or ``SHELVED_OFFLOADED``."""
     )
 
     def get_parser(self, prog_name):
-        parser = super(AddServerVolume, self).get_parser(prog_name)
+        parser = super().get_parser(prog_name)
         parser.add_argument(
             'server',
             metavar='<server>',
@@ -1050,7 +1049,7 @@ class CreateServer(command.ShowOne):
     _description = _("Create a new server")
 
     def get_parser(self, prog_name):
-        parser = super(CreateServer, self).get_parser(prog_name)
+        parser = super().get_parser(prog_name)
         parser.add_argument(
             'server_name',
             metavar='<server-name>',
@@ -1519,7 +1518,7 @@ class CreateServer(command.ShowOne):
                         img_dict_items.extend(list(img.properties.items()))
                     for key, value in img_dict_items:
                         try:
-                            set([key, value])
+                            {key, value}
                         except TypeError:
                             if key != 'properties':
                                 LOG.debug(
@@ -1595,8 +1594,8 @@ class CreateServer(command.ShowOne):
         for f in parsed_args.file:
             dst, src = f.split('=', 1)
             try:
-                files[dst] = io.open(src, 'rb')
-            except IOError as e:
+                files[dst] = open(src, 'rb')
+            except OSError as e:
                 msg = _("Can't open '%(source)s': %(exception)s")
                 raise exceptions.CommandError(
                     msg % {'source': src, 'exception': e}
@@ -1617,8 +1616,8 @@ class CreateServer(command.ShowOne):
         userdata = None
         if parsed_args.user_data:
             try:
-                userdata = io.open(parsed_args.user_data)
-            except IOError as e:
+                userdata = open(parsed_args.user_data)
+            except OSError as e:
                 msg = _("Can't open '%(data)s': %(exception)s")
                 raise exceptions.CommandError(
                     msg % {'data': parsed_args.user_data, 'exception': e}
@@ -2065,7 +2064,7 @@ class CreateServerDump(command.Command):
     """
 
     def get_parser(self, prog_name):
-        parser = super(CreateServerDump, self).get_parser(prog_name)
+        parser = super().get_parser(prog_name)
         parser.add_argument(
             'server',
             metavar='<server>',
@@ -2085,7 +2084,7 @@ class DeleteServer(command.Command):
     _description = _("Delete server(s)")
 
     def get_parser(self, prog_name):
-        parser = super(DeleteServer, self).get_parser(prog_name)
+        parser = super().get_parser(prog_name)
         parser.add_argument(
             'server',
             metavar='<server>',
@@ -2190,7 +2189,7 @@ class ListServer(command.Lister):
     _description = _("List servers")
 
     def get_parser(self, prog_name):
-        parser = super(ListServer, self).get_parser(prog_name)
+        parser = super().get_parser(prog_name)
         parser.add_argument(
             '--reservation-id',
             metavar='<reservation-id>',
@@ -2876,11 +2875,11 @@ class ListServer(command.Lister):
             # present on microversion 2.47 or later and 'flavor' won't be
             # present if there are infra failures
             if parsed_args.name_lookup_one_by_one or flavor_id:
-                for f_id in set(
+                for f_id in {
                     s.flavor['id']
                     for s in data
                     if s.flavor and s.flavor.get('id')
-                ):
+                }:
                     try:
                         flavors[f_id] = compute_client.find_flavor(
                             f_id, ignore_missing=False
@@ -2988,7 +2987,7 @@ A non-admin user will not be able to execute actions."""
     )
 
     def get_parser(self, prog_name):
-        parser = super(LockServer, self).get_parser(prog_name)
+        parser = super().get_parser(prog_name)
         parser.add_argument(
             'server',
             metavar='<server>',
@@ -3052,7 +3051,7 @@ revert to release the new server and restart the old one."""
     )
 
     def get_parser(self, prog_name):
-        parser = super(MigrateServer, self).get_parser(prog_name)
+        parser = super().get_parser(prog_name)
         parser.add_argument(
             'server',
             metavar='<server>',
@@ -3226,7 +3225,7 @@ class PauseServer(command.Command):
     _description = _("Pause server(s)")
 
     def get_parser(self, prog_name):
-        parser = super(PauseServer, self).get_parser(prog_name)
+        parser = super().get_parser(prog_name)
         parser.add_argument(
             'server',
             metavar='<server>',
@@ -3309,7 +3308,7 @@ class RebuildServer(command.ShowOne):
     _description = _("Rebuild server")
 
     def get_parser(self, prog_name):
-        parser = super(RebuildServer, self).get_parser(prog_name)
+        parser = super().get_parser(prog_name)
         parser.add_argument(
             'server',
             metavar='<server>',
@@ -3564,8 +3563,8 @@ class RebuildServer(command.ShowOne):
                 raise exceptions.CommandError(msg)
 
             try:
-                userdata = io.open(parsed_args.user_data)
-            except IOError as e:
+                userdata = open(parsed_args.user_data)
+            except OSError as e:
                 msg = _("Can't open '%(data)s': %(exception)s")
                 raise exceptions.CommandError(
                     msg % {'data': parsed_args.user_data, 'exception': e}
@@ -3700,7 +3699,7 @@ host."""
     )
 
     def get_parser(self, prog_name):
-        parser = super(EvacuateServer, self).get_parser(prog_name)
+        parser = super().get_parser(prog_name)
         parser.add_argument(
             'server',
             metavar='<server>',
@@ -3807,7 +3806,7 @@ class RemoveFixedIP(command.Command):
     _description = _("Remove fixed IP address from server")
 
     def get_parser(self, prog_name):
-        parser = super(RemoveFixedIP, self).get_parser(prog_name)
+        parser = super().get_parser(prog_name)
         parser.add_argument(
             "server",
             metavar="<server>",
@@ -3869,7 +3868,7 @@ class RemovePort(command.Command):
     _description = _("Remove port from server")
 
     def get_parser(self, prog_name):
-        parser = super(RemovePort, self).get_parser(prog_name)
+        parser = super().get_parser(prog_name)
         parser.add_argument(
             "server",
             metavar="<server>",
@@ -3908,7 +3907,7 @@ class RemoveNetwork(command.Command):
     _description = _("Remove all ports of a network from server")
 
     def get_parser(self, prog_name):
-        parser = super(RemoveNetwork, self).get_parser(prog_name)
+        parser = super().get_parser(prog_name)
         parser.add_argument(
             "server",
             metavar="<server>",
@@ -3948,7 +3947,7 @@ class RemoveServerSecurityGroup(command.Command):
     _description = _("Remove security group from server")
 
     def get_parser(self, prog_name):
-        parser = super(RemoveServerSecurityGroup, self).get_parser(prog_name)
+        parser = super().get_parser(prog_name)
         parser.add_argument(
             'server',
             metavar='<server>',
@@ -3984,7 +3983,7 @@ volume from a server with status ``SHELVED`` or ``SHELVED_OFFLOADED``."""
     )
 
     def get_parser(self, prog_name):
-        parser = super(RemoveServerVolume, self).get_parser(prog_name)
+        parser = super().get_parser(prog_name)
         parser.add_argument(
             'server',
             metavar='<server>',
@@ -4026,7 +4025,7 @@ server booted from a volume."""
     )
 
     def get_parser(self, prog_name):
-        parser = super(RescueServer, self).get_parser(prog_name)
+        parser = super().get_parser(prog_name)
         parser.add_argument(
             'server',
             metavar='<server>',
@@ -4078,7 +4077,7 @@ release the new server and restart the old one."""
     )
 
     def get_parser(self, prog_name):
-        parser = super(ResizeServer, self).get_parser(prog_name)
+        parser = super().get_parser(prog_name)
         phase_group = parser.add_mutually_exclusive_group()
         parser.add_argument(
             'server',
@@ -4176,7 +4175,7 @@ Confirm (verify) success of resize operation and release the old server."""
     )
 
     def get_parser(self, prog_name):
-        parser = super(ResizeConfirm, self).get_parser(prog_name)
+        parser = super().get_parser(prog_name)
         parser.add_argument(
             'server',
             metavar='<server>',
@@ -4225,7 +4224,7 @@ one."""
     )
 
     def get_parser(self, prog_name):
-        parser = super(ResizeRevert, self).get_parser(prog_name)
+        parser = super().get_parser(prog_name)
         parser.add_argument(
             'server',
             metavar='<server>',
@@ -4269,7 +4268,7 @@ class RestoreServer(command.Command):
     _description = _("Restore server(s)")
 
     def get_parser(self, prog_name):
-        parser = super(RestoreServer, self).get_parser(prog_name)
+        parser = super().get_parser(prog_name)
         parser.add_argument(
             'server',
             metavar='<server>',
@@ -4292,7 +4291,7 @@ class ResumeServer(command.Command):
     _description = _("Resume server(s)")
 
     def get_parser(self, prog_name):
-        parser = super(ResumeServer, self).get_parser(prog_name)
+        parser = super().get_parser(prog_name)
         parser.add_argument(
             'server',
             metavar='<server>',
@@ -4315,7 +4314,7 @@ class SetServer(command.Command):
     _description = _("Set server properties")
 
     def get_parser(self, prog_name):
-        parser = super(SetServer, self).get_parser(prog_name)
+        parser = super().get_parser(prog_name)
         parser.add_argument(
             'server',
             metavar='<server>',
@@ -4589,7 +4588,7 @@ information for the server."""
     )
 
     def get_parser(self, prog_name):
-        parser = super(ShowServer, self).get_parser(prog_name)
+        parser = super().get_parser(prog_name)
         parser.add_argument(
             'server',
             metavar='<server>',
@@ -4657,7 +4656,7 @@ class SshServer(command.Command):
     _description = _("SSH to server")
 
     def get_parser(self, prog_name):
-        parser = super(SshServer, self).get_parser(prog_name)
+        parser = super().get_parser(prog_name)
         parser.add_argument(
             'server',
             metavar='<server>',
@@ -4809,7 +4808,7 @@ class SshServer(command.Command):
         )
 
         cmd = ' '.join(['ssh', ip_address] + args)
-        LOG.debug("ssh command: {cmd}".format(cmd=cmd))
+        LOG.debug(f"ssh command: {cmd}")
         # we intentionally pass through user-provided arguments and run this in
         # the user's shell
         os.system(cmd)  # nosec: B605
@@ -4899,7 +4898,7 @@ class SuspendServer(command.Command):
     _description = _("Suspend server(s)")
 
     def get_parser(self, prog_name):
-        parser = super(SuspendServer, self).get_parser(prog_name)
+        parser = super().get_parser(prog_name)
         parser.add_argument(
             'server',
             metavar='<server>',
@@ -4945,7 +4944,7 @@ class UnpauseServer(command.Command):
     _description = _("Unpause server(s)")
 
     def get_parser(self, prog_name):
-        parser = super(UnpauseServer, self).get_parser(prog_name)
+        parser = super().get_parser(prog_name)
         parser.add_argument(
             'server',
             metavar='<server>',
@@ -4968,7 +4967,7 @@ class UnrescueServer(command.Command):
     _description = _("Restore server from rescue mode")
 
     def get_parser(self, prog_name):
-        parser = super(UnrescueServer, self).get_parser(prog_name)
+        parser = super().get_parser(prog_name)
         parser.add_argument(
             'server',
             metavar='<server>',
@@ -4988,7 +4987,7 @@ class UnsetServer(command.Command):
     _description = _("Unset server properties and tags")
 
     def get_parser(self, prog_name):
-        parser = super(UnsetServer, self).get_parser(prog_name)
+        parser = super().get_parser(prog_name)
         parser.add_argument(
             'server',
             metavar='<server>',

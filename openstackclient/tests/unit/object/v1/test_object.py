@@ -27,7 +27,7 @@ AUTH_URL = "http://0.0.0.0"
 
 class TestObject(object_fakes.TestObjectv1):
     def setUp(self):
-        super(TestObject, self).setUp()
+        super().setUp()
         self.app.client_manager.object_store = object_store.APIv1(
             session=mock.Mock(),
             service_type="object-store",
@@ -41,7 +41,7 @@ class TestObjectList(TestObject):
     datalist = ((object_fakes.object_name_2,),)
 
     def setUp(self):
-        super(TestObjectList, self).setUp()
+        super().setUp()
 
         # Get the command object to test
         self.cmd = obj.ListObject(self.app, None)
@@ -323,7 +323,7 @@ class TestObjectList(TestObject):
 @mock.patch('openstackclient.api.object_store_v1.APIv1.object_show')
 class TestObjectShow(TestObject):
     def setUp(self):
-        super(TestObjectShow, self).setUp()
+        super().setUp()
 
         # Get the command object to test
         self.cmd = obj.ShowObject(self.app, None)

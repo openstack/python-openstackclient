@@ -30,7 +30,7 @@ from openstackclient.tests.unit import utils as tests_utils
 
 class TestDefaultSecurityGroupRule(network_fakes.TestNetworkV2):
     def setUp(self):
-        super(TestDefaultSecurityGroupRule, self).setUp()
+        super().setUp()
 
         self.app.client_manager.sdk_connection = mock.Mock()
         self.app.client_manager.sdk_connection.network = mock.Mock(
@@ -101,7 +101,7 @@ class TestCreateDefaultSecurityGroupRule(TestDefaultSecurityGroupRule):
         )
 
     def setUp(self):
-        super(TestCreateDefaultSecurityGroupRule, self).setUp()
+        super().setUp()
 
         # Get the command object to test
         self.cmd = default_security_group_rule.CreateDefaultSecurityGroupRule(
@@ -842,7 +842,7 @@ class TestDeleteDefaultSecurityGroupRule(TestDefaultSecurityGroupRule):
     )
 
     def setUp(self):
-        super(TestDeleteDefaultSecurityGroupRule, self).setUp()
+        super().setUp()
 
         self.sdk_client.delete_default_security_group_rule.return_value = None
 
@@ -977,7 +977,7 @@ class TestListDefaultSecurityGroupRule(TestDefaultSecurityGroupRule):
         )
 
     def setUp(self):
-        super(TestListDefaultSecurityGroupRule, self).setUp()
+        super().setUp()
 
         self.sdk_client.default_security_group_rules.return_value = (
             self._default_sg_rules
@@ -1099,7 +1099,7 @@ class TestShowDefaultSecurityGroupRule(TestDefaultSecurityGroupRule):
     )
 
     def setUp(self):
-        super(TestShowDefaultSecurityGroupRule, self).setUp()
+        super().setUp()
 
         self.sdk_client.find_default_security_group_rule.return_value = (
             self._default_sg_rule

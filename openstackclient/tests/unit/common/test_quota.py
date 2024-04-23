@@ -40,7 +40,7 @@ class FakeQuotaResource(fakes.FakeResource):
 
 class TestQuota(compute_fakes.TestComputev2):
     def setUp(self):
-        super(TestQuota, self).setUp()
+        super().setUp()
 
         # Set up common projects
         self.projects = identity_fakes_v3.FakeProject.create_projects(count=2)
@@ -109,7 +109,7 @@ class TestQuotaList(TestQuota):
     )
 
     def setUp(self):
-        super(TestQuotaList, self).setUp()
+        super().setUp()
 
         # Work with multiple projects in this class
         self.projects_mock.get.side_effect = self.projects
@@ -629,7 +629,7 @@ class TestQuotaList(TestQuota):
 
 class TestQuotaSet(TestQuota):
     def setUp(self):
-        super(TestQuotaSet, self).setUp()
+        super().setUp()
 
         self.compute_quotas_mock.update.return_value = FakeQuotaResource(
             None,

@@ -40,7 +40,7 @@ class TestRole(identity_fakes.TestIdentityv2):
     fake_user = identity_fakes.FakeUser.create_one_user(attr)
 
     def setUp(self):
-        super(TestRole, self).setUp()
+        super().setUp()
 
         # Get a shortcut to the TenantManager Mock
         self.projects_mock = self.identity_client.tenants
@@ -64,7 +64,7 @@ class TestRole(identity_fakes.TestIdentityv2):
 
 class TestRoleAdd(TestRole):
     def setUp(self):
-        super(TestRoleAdd, self).setUp()
+        super().setUp()
 
         self.projects_mock.get.return_value = self.fake_project
 
@@ -121,7 +121,7 @@ class TestRoleCreate(TestRole):
     )
 
     def setUp(self):
-        super(TestRoleCreate, self).setUp()
+        super().setUp()
 
         self.roles_mock.create.return_value = self.fake_role_c
 
@@ -212,7 +212,7 @@ class TestRoleCreate(TestRole):
 
 class TestRoleDelete(TestRole):
     def setUp(self):
-        super(TestRoleDelete, self).setUp()
+        super().setUp()
 
         self.roles_mock.get.return_value = self.fake_role
         self.roles_mock.delete.return_value = None
@@ -263,7 +263,7 @@ class TestRoleDelete(TestRole):
 
 class TestRoleList(TestRole):
     def setUp(self):
-        super(TestRoleList, self).setUp()
+        super().setUp()
 
         self.roles_mock.list.return_value = [self.fake_role]
 
@@ -295,7 +295,7 @@ class TestRoleList(TestRole):
 
 class TestRoleRemove(TestRole):
     def setUp(self):
-        super(TestRoleRemove, self).setUp()
+        super().setUp()
 
         self.projects_mock.get.return_value = self.fake_project
 
@@ -335,7 +335,7 @@ class TestRoleRemove(TestRole):
 
 class TestRoleShow(TestRole):
     def setUp(self):
-        super(TestRoleShow, self).setUp()
+        super().setUp()
 
         self.roles_mock.get.return_value = self.fake_role
 

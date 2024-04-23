@@ -51,7 +51,7 @@ class CreateImpliedRole(command.ShowOne):
     _description = _("Creates an association between prior and implied roles")
 
     def get_parser(self, prog_name):
-        parser = super(CreateImpliedRole, self).get_parser(prog_name)
+        parser = super().get_parser(prog_name)
         parser.add_argument(
             'role',
             metavar='<role>',
@@ -81,7 +81,7 @@ class DeleteImpliedRole(command.Command):
     _description = _("Deletes an association between prior and implied roles")
 
     def get_parser(self, prog_name):
-        parser = super(DeleteImpliedRole, self).get_parser(prog_name)
+        parser = super().get_parser(prog_name)
         parser.add_argument(
             'role',
             metavar='<role>',
@@ -113,7 +113,7 @@ class ListImpliedRole(command.Lister):
     ]
 
     def get_parser(self, prog_name):
-        parser = super(ListImpliedRole, self).get_parser(prog_name)
+        parser = super().get_parser(prog_name)
         return parser
 
     def take_action(self, parsed_args):

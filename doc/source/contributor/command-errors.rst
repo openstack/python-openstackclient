@@ -45,7 +45,7 @@ raised that includes the name of the file that was attempted to be opened.
             public_key = parsed_args.public_key
             if public_key:
                 try:
-                    with io.open(
+                    with open(
                         os.path.expanduser(parsed_args.public_key),
                         "rb"
                     ) as p:

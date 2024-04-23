@@ -19,7 +19,7 @@ from openstackclient.tests.unit.identity.v3 import fakes as identity_fakes
 
 class TestEndpointGroup(identity_fakes.TestIdentityv3):
     def setUp(self):
-        super(TestEndpointGroup, self).setUp()
+        super().setUp()
 
         # Get a shortcut to the EndpointManager Mock
         self.endpoint_groups_mock = self.identity_client.endpoint_groups
@@ -49,7 +49,7 @@ class TestEndpointGroupCreate(TestEndpointGroup):
     )
 
     def setUp(self):
-        super(TestEndpointGroupCreate, self).setUp()
+        super().setUp()
 
         self.endpoint_group = (
             identity_fakes.FakeEndpointGroup.create_one_endpointgroup(
@@ -110,7 +110,7 @@ class TestEndpointGroupDelete(TestEndpointGroup):
     )
 
     def setUp(self):
-        super(TestEndpointGroupDelete, self).setUp()
+        super().setUp()
 
         # This is the return value for utils.find_resource(endpoint)
         self.endpoint_groups_mock.get.return_value = self.endpoint_group
@@ -150,7 +150,7 @@ class TestEndpointGroupList(TestEndpointGroup):
     )
 
     def setUp(self):
-        super(TestEndpointGroupList, self).setUp()
+        super().setUp()
 
         self.endpoint_groups_mock.list.return_value = [self.endpoint_group]
         self.endpoint_groups_mock.get.return_value = self.endpoint_group
@@ -256,7 +256,7 @@ class TestEndpointGroupSet(TestEndpointGroup):
     )
 
     def setUp(self):
-        super(TestEndpointGroupSet, self).setUp()
+        super().setUp()
 
         # This is the return value for utils.find_resource(endpoint)
         self.endpoint_groups_mock.get.return_value = self.endpoint_group
@@ -371,7 +371,7 @@ class TestAddProjectToEndpointGroup(TestEndpointGroup):
     )
 
     def setUp(self):
-        super(TestAddProjectToEndpointGroup, self).setUp()
+        super().setUp()
 
         # This is the return value for utils.find_resource()
         self.endpoint_groups_mock.get.return_value = self.endpoint_group
@@ -432,7 +432,7 @@ class TestRemoveProjectEndpointGroup(TestEndpointGroup):
     )
 
     def setUp(self):
-        super(TestRemoveProjectEndpointGroup, self).setUp()
+        super().setUp()
 
         # This is the return value for utils.find_resource()
         self.endpoint_groups_mock.get.return_value = self.endpoint_group

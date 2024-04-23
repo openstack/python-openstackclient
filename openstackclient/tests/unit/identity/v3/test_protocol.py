@@ -21,7 +21,7 @@ from openstackclient.tests.unit.identity.v3 import fakes as identity_fakes
 
 class TestProtocol(identity_fakes.TestFederatedIdentity):
     def setUp(self):
-        super(TestProtocol, self).setUp()
+        super().setUp()
 
         federation_lib = self.identity_client.federation
         self.protocols_mock = federation_lib.protocols
@@ -30,7 +30,7 @@ class TestProtocol(identity_fakes.TestFederatedIdentity):
 
 class TestProtocolCreate(TestProtocol):
     def setUp(self):
-        super(TestProtocolCreate, self).setUp()
+        super().setUp()
 
         proto = copy.deepcopy(identity_fakes.PROTOCOL_OUTPUT)
         resource = fakes.FakeResource(None, proto, loaded=True)
@@ -72,7 +72,7 @@ class TestProtocolCreate(TestProtocol):
 
 class TestProtocolDelete(TestProtocol):
     def setUp(self):
-        super(TestProtocolDelete, self).setUp()
+        super().setUp()
 
         # This is the return value for utils.find_resource()
         self.protocols_mock.get.return_value = fakes.FakeResource(
@@ -106,7 +106,7 @@ class TestProtocolDelete(TestProtocol):
 
 class TestProtocolList(TestProtocol):
     def setUp(self):
-        super(TestProtocolList, self).setUp()
+        super().setUp()
 
         self.protocols_mock.get.return_value = fakes.FakeResource(
             None, identity_fakes.PROTOCOL_ID_MAPPING, loaded=True
@@ -132,7 +132,7 @@ class TestProtocolList(TestProtocol):
 
 class TestProtocolSet(TestProtocol):
     def setUp(self):
-        super(TestProtocolSet, self).setUp()
+        super().setUp()
         self.protocols_mock.get.return_value = fakes.FakeResource(
             None, identity_fakes.PROTOCOL_OUTPUT, loaded=True
         )
@@ -178,7 +178,7 @@ class TestProtocolSet(TestProtocol):
 
 class TestProtocolShow(TestProtocol):
     def setUp(self):
-        super(TestProtocolShow, self).setUp()
+        super().setUp()
         self.protocols_mock.get.return_value = fakes.FakeResource(
             None, identity_fakes.PROTOCOL_OUTPUT, loaded=False
         )

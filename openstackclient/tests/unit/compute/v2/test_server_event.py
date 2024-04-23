@@ -27,7 +27,7 @@ class TestServerEvent(compute_fakes.TestComputev2):
     fake_server = compute_fakes.create_one_server()
 
     def setUp(self):
-        super(TestServerEvent, self).setUp()
+        super().setUp()
 
         patcher = mock.patch.object(
             sdk_utils, 'supports_microversion', return_value=True

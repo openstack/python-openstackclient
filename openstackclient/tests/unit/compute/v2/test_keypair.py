@@ -29,7 +29,7 @@ from openstackclient.tests.unit import utils as tests_utils
 
 class TestKeypair(compute_fakes.TestComputev2):
     def setUp(self):
-        super(TestKeypair, self).setUp()
+        super().setUp()
 
         # Initialize the user mock
         self.users_mock = self.identity_client.users
@@ -118,7 +118,9 @@ class TestKeypairCreate(TestKeypair):
 
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
-        with mock.patch('io.open') as mock_open:
+        with mock.patch(
+            'openstackclient.compute.v2.keypair.open'
+        ) as mock_open:
             mock_open.return_value = mock.MagicMock()
             m_file = mock_open.return_value.__enter__.return_value
             m_file.read.return_value = 'dummy'
@@ -152,7 +154,9 @@ class TestKeypairCreate(TestKeypair):
 
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
-        with mock.patch('io.open') as mock_open:
+        with mock.patch(
+            'openstackclient.compute.v2.keypair.open'
+        ) as mock_open:
             mock_open.return_value = mock.MagicMock()
             m_file = mock_open.return_value.__enter__.return_value
 
@@ -199,7 +203,9 @@ class TestKeypairCreate(TestKeypair):
             ]
             parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
-            with mock.patch('io.open') as mock_open:
+            with mock.patch(
+                'openstackclient.compute.v2.keypair.open'
+            ) as mock_open:
                 mock_open.return_value = mock.MagicMock()
                 m_file = mock_open.return_value.__enter__.return_value
                 m_file.read.return_value = 'dummy'
@@ -231,7 +237,9 @@ class TestKeypairCreate(TestKeypair):
             ]
             parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
-            with mock.patch('io.open') as mock_open:
+            with mock.patch(
+                'openstackclient.compute.v2.keypair.open'
+            ) as mock_open:
                 mock_open.return_value = mock.MagicMock()
                 m_file = mock_open.return_value.__enter__.return_value
                 m_file.read.return_value = 'dummy'

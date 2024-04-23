@@ -19,12 +19,12 @@ from openstackclient.tests.unit.network.v2 import fakes as network_fakes
 
 class TestFloatingIPPoolNetwork(network_fakes.TestNetworkV2):
     def setUp(self):
-        super(TestFloatingIPPoolNetwork, self).setUp()
+        super().setUp()
 
 
 class TestListFloatingIPPoolNetwork(TestFloatingIPPoolNetwork):
     def setUp(self):
-        super(TestListFloatingIPPoolNetwork, self).setUp()
+        super().setUp()
 
         # Get the command object to test
         self.cmd = floating_ip_pool.ListFloatingIPPool(self.app, None)

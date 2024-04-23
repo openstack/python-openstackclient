@@ -49,7 +49,7 @@ class TestAgent(compute_fakes.TestComputev2):
     )
 
     def setUp(self):
-        super(TestAgent, self).setUp()
+        super().setUp()
 
         self.agents_mock = self.compute_client.agents
         self.agents_mock.reset_mock()
@@ -57,7 +57,7 @@ class TestAgent(compute_fakes.TestComputev2):
 
 class TestAgentCreate(TestAgent):
     def setUp(self):
-        super(TestAgentCreate, self).setUp()
+        super().setUp()
 
         self.agents_mock.create.return_value = self.fake_agent
         self.cmd = agent.CreateAgent(self.app, None)
@@ -99,7 +99,7 @@ class TestAgentDelete(TestAgent):
     fake_agents = compute_fakes.create_agents(count=2)
 
     def setUp(self):
-        super(TestAgentDelete, self).setUp()
+        super().setUp()
 
         self.agents_mock.get.return_value = self.fake_agents
         self.cmd = agent.DeleteAgent(self.app, None)
@@ -198,7 +198,7 @@ class TestAgentList(TestAgent):
         )
 
     def setUp(self):
-        super(TestAgentList, self).setUp()
+        super().setUp()
 
         self.agents_mock.list.return_value = self.agents
         self.cmd = agent.ListAgent(self.app, None)
@@ -231,7 +231,7 @@ class TestAgentList(TestAgent):
 
 class TestAgentSet(TestAgent):
     def setUp(self):
-        super(TestAgentSet, self).setUp()
+        super().setUp()
 
         self.agents_mock.update.return_value = self.fake_agent
         self.agents_mock.list.return_value = [self.fake_agent]

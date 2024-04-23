@@ -56,7 +56,7 @@ class CreateServerGroup(command.ShowOne):
     _description = _("Create a new server group.")
 
     def get_parser(self, prog_name):
-        parser = super(CreateServerGroup, self).get_parser(prog_name)
+        parser = super().get_parser(prog_name)
         parser.add_argument(
             'name',
             metavar='<name>',
@@ -143,7 +143,7 @@ class DeleteServerGroup(command.Command):
     _description = _("Delete existing server group(s).")
 
     def get_parser(self, prog_name):
-        parser = super(DeleteServerGroup, self).get_parser(prog_name)
+        parser = super().get_parser(prog_name)
         parser.add_argument(
             'server_group',
             metavar='<server-group>',
@@ -178,7 +178,7 @@ class ListServerGroup(command.Lister):
     _description = _("List all server groups.")
 
     def get_parser(self, prog_name):
-        parser = super(ListServerGroup, self).get_parser(prog_name)
+        parser = super().get_parser(prog_name)
         parser.add_argument(
             '--all-projects',
             action='store_true',
@@ -255,7 +255,7 @@ class ShowServerGroup(command.ShowOne):
     _description = _("Display server group details.")
 
     def get_parser(self, prog_name):
-        parser = super(ShowServerGroup, self).get_parser(prog_name)
+        parser = super().get_parser(prog_name)
         parser.add_argument(
             'server_group',
             metavar='<server-group>',

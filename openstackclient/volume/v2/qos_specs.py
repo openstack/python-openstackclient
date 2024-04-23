@@ -33,7 +33,7 @@ class AssociateQos(command.Command):
     _description = _("Associate a QoS specification to a volume type")
 
     def get_parser(self, prog_name):
-        parser = super(AssociateQos, self).get_parser(prog_name)
+        parser = super().get_parser(prog_name)
         parser.add_argument(
             'qos_spec',
             metavar='<qos-spec>',
@@ -62,7 +62,7 @@ class CreateQos(command.ShowOne):
     _description = _("Create new QoS specification")
 
     def get_parser(self, prog_name):
-        parser = super(CreateQos, self).get_parser(prog_name)
+        parser = super().get_parser(prog_name)
         parser.add_argument(
             'name',
             metavar='<name>',
@@ -117,7 +117,7 @@ class DeleteQos(command.Command):
     _description = _("Delete QoS specification")
 
     def get_parser(self, prog_name):
-        parser = super(DeleteQos, self).get_parser(prog_name)
+        parser = super().get_parser(prog_name)
         parser.add_argument(
             'qos_specs',
             metavar='<qos-spec>',
@@ -163,7 +163,7 @@ class DisassociateQos(command.Command):
     _description = _("Disassociate a QoS specification from a volume type")
 
     def get_parser(self, prog_name):
-        parser = super(DisassociateQos, self).get_parser(prog_name)
+        parser = super().get_parser(prog_name)
         parser.add_argument(
             'qos_spec',
             metavar='<qos-spec>',
@@ -251,7 +251,7 @@ class SetQos(command.Command):
     _description = _("Set QoS specification properties")
 
     def get_parser(self, prog_name):
-        parser = super(SetQos, self).get_parser(prog_name)
+        parser = super().get_parser(prog_name)
         parser.add_argument(
             'qos_spec',
             metavar='<qos-spec>',
@@ -313,7 +313,7 @@ class ShowQos(command.ShowOne):
     _description = _("Display QoS specification details")
 
     def get_parser(self, prog_name):
-        parser = super(ShowQos, self).get_parser(prog_name)
+        parser = super().get_parser(prog_name)
         parser.add_argument(
             'qos_spec',
             metavar='<qos-spec>',
@@ -350,7 +350,7 @@ class UnsetQos(command.Command):
     _description = _("Unset QoS specification properties")
 
     def get_parser(self, prog_name):
-        parser = super(UnsetQos, self).get_parser(prog_name)
+        parser = super().get_parser(prog_name)
         parser.add_argument(
             'qos_spec',
             metavar='<qos-spec>',

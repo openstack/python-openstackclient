@@ -918,7 +918,7 @@ class TestUserList(identity_fakes.TestIdentityv3):
     )
 
     def setUp(self):
-        super(TestUserList, self).setUp()
+        super().setUp()
 
         self.identity_sdk_client.find_user.return_value = self.user
         self.identity_sdk_client.users.return_value = [self.user]
@@ -1088,7 +1088,7 @@ class TestUserSet(identity_fakes.TestIdentityv3):
     )
 
     def setUp(self):
-        super(TestUserSet, self).setUp()
+        super().setUp()
 
         self.identity_sdk_client.find_project.return_value = self.project
         self.identity_sdk_client.find_user.return_value = self.user
@@ -1731,7 +1731,7 @@ class TestUserSet(identity_fakes.TestIdentityv3):
 
 class TestUserSetPassword(identity_fakes.TestIdentityv3):
     def setUp(self):
-        super(TestUserSetPassword, self).setUp()
+        super().setUp()
         self.cmd = user.SetPasswordUser(self.app, None)
 
     @staticmethod
@@ -1803,7 +1803,7 @@ class TestUserShow(identity_fakes.TestIdentityv3):
     user = sdk_fakes.generate_fake_resource(_user.User)
 
     def setUp(self):
-        super(TestUserShow, self).setUp()
+        super().setUp()
 
         self.identity_sdk_client.find_user.return_value = self.user
 

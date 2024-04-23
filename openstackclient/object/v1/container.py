@@ -32,7 +32,7 @@ class CreateContainer(command.Lister):
     _description = _("Create new container")
 
     def get_parser(self, prog_name):
-        parser = super(CreateContainer, self).get_parser(prog_name)
+        parser = super().get_parser(prog_name)
         parser.add_argument(
             '--public',
             action='store_true',
@@ -85,7 +85,7 @@ class DeleteContainer(command.Command):
     _description = _("Delete container")
 
     def get_parser(self, prog_name):
-        parser = super(DeleteContainer, self).get_parser(prog_name)
+        parser = super().get_parser(prog_name)
         parser.add_argument(
             '--recursive',
             '-r',
@@ -121,7 +121,7 @@ class ListContainer(command.Lister):
     _description = _("List containers")
 
     def get_parser(self, prog_name):
-        parser = super(ListContainer, self).get_parser(prog_name)
+        parser = super().get_parser(prog_name)
         parser.add_argument(
             "--prefix",
             metavar="<prefix>",
@@ -184,7 +184,7 @@ class SaveContainer(command.Command):
     _description = _("Save container contents locally")
 
     def get_parser(self, prog_name):
-        parser = super(SaveContainer, self).get_parser(prog_name)
+        parser = super().get_parser(prog_name)
         parser.add_argument(
             'container',
             metavar='<container>',
@@ -202,7 +202,7 @@ class SetContainer(command.Command):
     _description = _("Set container properties")
 
     def get_parser(self, prog_name):
-        parser = super(SetContainer, self).get_parser(prog_name)
+        parser = super().get_parser(prog_name)
         parser.add_argument(
             'container',
             metavar='<container>',
@@ -231,7 +231,7 @@ class ShowContainer(command.ShowOne):
     _description = _("Display container details")
 
     def get_parser(self, prog_name):
-        parser = super(ShowContainer, self).get_parser(prog_name)
+        parser = super().get_parser(prog_name)
         parser.add_argument(
             'container',
             metavar='<container>',
@@ -253,7 +253,7 @@ class UnsetContainer(command.Command):
     _description = _("Unset container properties")
 
     def get_parser(self, prog_name):
-        parser = super(UnsetContainer, self).get_parser(prog_name)
+        parser = super().get_parser(prog_name)
         parser.add_argument(
             'container',
             metavar='<container>',

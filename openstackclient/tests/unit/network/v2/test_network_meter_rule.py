@@ -26,7 +26,7 @@ from openstackclient.tests.unit import utils as tests_utils
 
 class TestMeterRule(network_fakes.TestNetworkV2):
     def setUp(self):
-        super(TestMeterRule, self).setUp()
+        super().setUp()
 
         self.projects_mock = self.identity_client.projects
         self.domains_mock = self.identity_client.domains
@@ -60,7 +60,7 @@ class TestCreateMeterRule(TestMeterRule):
     )
 
     def setUp(self):
-        super(TestCreateMeterRule, self).setUp()
+        super().setUp()
         fake_meter = network_fakes.FakeNetworkMeter.create_one_meter(
             {'id': self.new_rule.metering_label_id}
         )
@@ -142,7 +142,7 @@ class TestCreateMeterRule(TestMeterRule):
 
 class TestDeleteMeterRule(TestMeterRule):
     def setUp(self):
-        super(TestDeleteMeterRule, self).setUp()
+        super().setUp()
         self.rule_list = network_fakes.FakeNetworkMeterRule.create_meter_rule(
             count=2
         )
@@ -260,7 +260,7 @@ class TestListMeterRule(TestMeterRule):
         )
 
     def setUp(self):
-        super(TestListMeterRule, self).setUp()
+        super().setUp()
 
         self.network_client.metering_label_rules = mock.Mock(
             return_value=self.rule_list
@@ -307,7 +307,7 @@ class TestShowMeterRule(TestMeterRule):
     )
 
     def setUp(self):
-        super(TestShowMeterRule, self).setUp()
+        super().setUp()
 
         self.cmd = network_meter_rule.ShowMeterRule(self.app, None)
 

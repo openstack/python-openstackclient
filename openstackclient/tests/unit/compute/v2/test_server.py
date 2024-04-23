@@ -63,7 +63,7 @@ class TestPowerStateColumn(test_utils.TestCase):
 
 class TestServer(compute_fakes.TestComputev2):
     def setUp(self):
-        super(TestServer, self).setUp()
+        super().setUp()
 
         # Get a shortcut to the compute client ServerManager Mock
         self.servers_mock = self.compute_client.servers
@@ -452,7 +452,7 @@ class TestServerAddFixedIP(TestServer):
 @mock.patch('openstackclient.api.compute_v2.APIv2.floating_ip_add')
 class TestServerAddFloatingIPCompute(compute_fakes.TestComputev2):
     def setUp(self):
-        super(TestServerAddFloatingIPCompute, self).setUp()
+        super().setUp()
 
         self.app.client_manager.network_endpoint_enabled = False
 
@@ -721,7 +721,7 @@ class TestServerAddFloatingIPNetwork(
 
 class TestServerAddPort(TestServer):
     def setUp(self):
-        super(TestServerAddPort, self).setUp()
+        super().setUp()
 
         # Get the command object to test
         self.cmd = server.AddPort(self.app, None)
@@ -814,7 +814,7 @@ class TestServerAddPort(TestServer):
 
 class TestServerVolume(TestServer):
     def setUp(self):
-        super(TestServerVolume, self).setUp()
+        super().setUp()
 
         self.methods = {
             'create_volume_attachment': None,
@@ -838,7 +838,7 @@ class TestServerVolume(TestServer):
 
 class TestServerAddVolume(TestServerVolume):
     def setUp(self):
-        super(TestServerAddVolume, self).setUp()
+        super().setUp()
 
         # Get the command object to test
         self.cmd = server.AddServerVolume(self.app, None)
@@ -1142,7 +1142,7 @@ class TestServerAddVolume(TestServerVolume):
 
 class TestServerRemoveVolume(TestServerVolume):
     def setUp(self):
-        super(TestServerRemoveVolume, self).setUp()
+        super().setUp()
 
         # Get the command object to test
         self.cmd = server.RemoveServerVolume(self.app, None)
@@ -1172,7 +1172,7 @@ class TestServerRemoveVolume(TestServerVolume):
 
 class TestServerAddNetwork(TestServer):
     def setUp(self):
-        super(TestServerAddNetwork, self).setUp()
+        super().setUp()
 
         # Get the command object to test
         self.cmd = server.AddNetwork(self.app, None)
@@ -1268,7 +1268,7 @@ class TestServerAddNetwork(TestServer):
 @mock.patch('openstackclient.api.compute_v2.APIv2.security_group_find')
 class TestServerAddSecurityGroup(TestServer):
     def setUp(self):
-        super(TestServerAddSecurityGroup, self).setUp()
+        super().setUp()
 
         self.security_group = compute_fakes.create_one_security_group()
 
@@ -1331,7 +1331,7 @@ class TestServerCreate(TestServer):
         return datalist
 
     def setUp(self):
-        super(TestServerCreate, self).setUp()
+        super().setUp()
 
         attrs = {
             'networks': {},
@@ -2360,7 +2360,7 @@ class TestServerCreate(TestServer):
             self.new_server.name, self.image, self.flavor, **kwargs
         )
 
-    @mock.patch('openstackclient.compute.v2.server.io.open')
+    @mock.patch('openstackclient.compute.v2.server.open')
     def test_server_create_userdata(self, mock_open):
         mock_file = mock.Mock(name='File')
         mock_open.return_value = mock_file
@@ -4454,7 +4454,7 @@ class TestServerCreate(TestServer):
 
 class TestServerDelete(TestServer):
     def setUp(self):
-        super(TestServerDelete, self).setUp()
+        super().setUp()
 
         self.servers_mock.delete.return_value = None
         self.servers_mock.force_delete.return_value = None
@@ -4650,7 +4650,7 @@ class _TestServerList(TestServer):
     )
 
     def setUp(self):
-        super(_TestServerList, self).setUp()
+        super().setUp()
 
         # Default params of the core function of the command in the case of no
         # commandline option specified.
@@ -4677,7 +4677,7 @@ class _TestServerList(TestServer):
             'status': 'ACTIVE',
             'OS-EXT-STS:task_state': 'None',
             'OS-EXT-STS:power_state': 0x01,  # Running
-            'networks': {u'public': [u'10.20.30.40', u'2001:db8::5']},
+            'networks': {'public': ['10.20.30.40', '2001:db8::5']},
             'OS-EXT-AZ:availability_zone': 'availability-zone-xxx',
             'OS-EXT-SRV-ATTR:host': 'host-name-xxx',
             'Metadata': format_columns.DictColumn({}),
@@ -4702,7 +4702,7 @@ class _TestServerList(TestServer):
 
 class TestServerList(_TestServerList):
     def setUp(self):
-        super(TestServerList, self).setUp()
+        super().setUp()
 
         Image = collections.namedtuple('Image', 'id name')
         self.image_client.images.return_value = [
@@ -5367,7 +5367,7 @@ class TestServerListV273(_TestServerList):
     )
 
     def setUp(self):
-        super(TestServerListV273, self).setUp()
+        super().setUp()
 
         # The fake servers' attributes. Use the original attributes names in
         # nova, not the ones printed by "server list" command.
@@ -5658,7 +5658,7 @@ class TestServerLock(TestServer):
 
 class TestServerMigrate(TestServer):
     def setUp(self):
-        super(TestServerMigrate, self).setUp()
+        super().setUp()
 
         methods = {
             'migrate': None,
@@ -6138,7 +6138,7 @@ class TestServerPause(TestServer):
 
 class TestServerRebuild(TestServer):
     def setUp(self):
-        super(TestServerRebuild, self).setUp()
+        super().setUp()
 
         # Return value for utils.find_resource for image
         self.image = image_fakes.create_one_image()
@@ -6566,7 +6566,7 @@ class TestServerRebuild(TestServer):
             verifylist,
         )
 
-    @mock.patch('openstackclient.compute.v2.server.io.open')
+    @mock.patch('openstackclient.compute.v2.server.open')
     def test_rebuild_with_user_data(self, mock_open):
         self.compute_client.api_version = api_versions.APIVersion('2.57')
 
@@ -6878,7 +6878,7 @@ class TestServerRebuildVolumeBacked(TestServer):
 
 class TestEvacuateServer(TestServer):
     def setUp(self):
-        super(TestEvacuateServer, self).setUp()
+        super().setUp()
 
         # Return value for utils.find_resource for image
         self.image = image_fakes.create_one_image()
@@ -7035,7 +7035,7 @@ class TestEvacuateServer(TestServer):
 
 class TestServerRemoveFixedIP(TestServer):
     def setUp(self):
-        super(TestServerRemoveFixedIP, self).setUp()
+        super().setUp()
 
         # Get the command object to test
         self.cmd = server.RemoveFixedIP(self.app, None)
@@ -7066,7 +7066,7 @@ class TestServerRemoveFixedIP(TestServer):
 
 class TestServerRescue(TestServer):
     def setUp(self):
-        super(TestServerRescue, self).setUp()
+        super().setUp()
 
         # Return value for utils.find_resource for image
         self.image = image_fakes.create_one_image()
@@ -7155,7 +7155,7 @@ class TestServerRescue(TestServer):
 @mock.patch('openstackclient.api.compute_v2.APIv2.floating_ip_remove')
 class TestServerRemoveFloatingIPCompute(compute_fakes.TestComputev2):
     def setUp(self):
-        super(TestServerRemoveFloatingIPCompute, self).setUp()
+        super().setUp()
 
         self.app.client_manager.network_endpoint_enabled = False
 
@@ -7223,7 +7223,7 @@ class TestServerRemoveFloatingIPNetwork(network_fakes.TestNetworkV2):
 
 class TestServerRemovePort(TestServer):
     def setUp(self):
-        super(TestServerRemovePort, self).setUp()
+        super().setUp()
 
         # Get the command object to test
         self.cmd = server.RemovePort(self.app, None)
@@ -7271,7 +7271,7 @@ class TestServerRemovePort(TestServer):
 
 class TestServerRemoveNetwork(TestServer):
     def setUp(self):
-        super(TestServerRemoveNetwork, self).setUp()
+        super().setUp()
 
         # Get the command object to test
         self.cmd = server.RemoveNetwork(self.app, None)
@@ -7330,7 +7330,7 @@ class TestServerRemoveNetwork(TestServer):
 @mock.patch('openstackclient.api.compute_v2.APIv2.security_group_find')
 class TestServerRemoveSecurityGroup(TestServer):
     def setUp(self):
-        super(TestServerRemoveSecurityGroup, self).setUp()
+        super().setUp()
 
         self.security_group = compute_fakes.create_one_security_group()
 
@@ -7369,7 +7369,7 @@ class TestServerRemoveSecurityGroup(TestServer):
 
 class TestServerResize(TestServer):
     def setUp(self):
-        super(TestServerResize, self).setUp()
+        super().setUp()
 
         self.server = compute_fakes.create_one_server()
 
@@ -7568,7 +7568,7 @@ class TestServerResize(TestServer):
 
 class TestServerResizeConfirm(TestServer):
     def setUp(self):
-        super(TestServerResizeConfirm, self).setUp()
+        super().setUp()
 
         methods = {
             'confirm_resize': None,
@@ -7672,7 +7672,7 @@ class TestServerConfirmMigration(TestServerResizeConfirm):
 
 class TestServerResizeRevert(TestServer):
     def setUp(self):
-        super(TestServerResizeRevert, self).setUp()
+        super().setUp()
 
         methods = {
             'revert_resize': None,
@@ -7804,7 +7804,7 @@ class TestServerResume(TestServer):
 
 class TestServerSet(TestServer):
     def setUp(self):
-        super(TestServerSet, self).setUp()
+        super().setUp()
 
         self.attrs = {
             'api_version': None,
@@ -8205,7 +8205,7 @@ class TestServerShelve(TestServer):
 
 class TestServerShow(TestServer):
     def setUp(self):
-        super(TestServerShow, self).setUp()
+        super().setUp()
 
         self.image = image_fakes.create_one_image()
         self.flavor = compute_fakes.create_one_flavor()
@@ -8610,7 +8610,7 @@ class TestServerUnpause(TestServer):
 
 class TestServerUnset(TestServer):
     def setUp(self):
-        super(TestServerUnset, self).setUp()
+        super().setUp()
 
         self.fake_server = self.setup_servers_mock(1)[0]
 
@@ -9062,11 +9062,11 @@ class TestServerGeneral(TestServer):
         _image = image_fakes.create_one_image()
         _flavor = compute_fakes.create_one_flavor()
         server_info = {
-            'image': {u'id': _image.id},
-            'flavor': {u'id': _flavor.id},
-            'tenant_id': u'tenant-id-xxx',
-            'addresses': {u'public': [u'10.20.30.40', u'2001:db8::f']},
-            'links': u'http://xxx.yyy.com',
+            'image': {'id': _image.id},
+            'flavor': {'id': _flavor.id},
+            'tenant_id': 'tenant-id-xxx',
+            'addresses': {'public': ['10.20.30.40', '2001:db8::f']},
+            'links': 'http://xxx.yyy.com',
             'properties': '',
             'volumes_attached': [{"id": "6344fe9d-ef20-45b2-91a6"}],
         }
@@ -9078,8 +9078,8 @@ class TestServerGeneral(TestServer):
         info = {
             'id': _server.id,
             'name': _server.name,
-            'image': '%s (%s)' % (_image.name, _image.id),
-            'flavor': '%s (%s)' % (_flavor.name, _flavor.id),
+            'image': f'{_image.name} ({_image.id})',
+            'flavor': f'{_flavor.name} ({_flavor.id})',
             'OS-EXT-STS:power_state': server.PowerStateColumn(
                 getattr(_server, 'OS-EXT-STS:power_state')
             ),

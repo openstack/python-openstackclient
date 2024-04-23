@@ -25,7 +25,7 @@ from openstackclient.tests.unit import utils as tests_utils
 
 class TestSecurityGroupRuleNetwork(network_fakes.TestNetworkV2):
     def setUp(self):
-        super(TestSecurityGroupRuleNetwork, self).setUp()
+        super().setUp()
 
         # Get a shortcut to the ProjectManager Mock
         self.projects_mock = self.identity_client.projects
@@ -89,7 +89,7 @@ class TestCreateSecurityGroupRuleNetwork(TestSecurityGroupRuleNetwork):
         )
 
     def setUp(self):
-        super(TestCreateSecurityGroupRuleNetwork, self).setUp()
+        super().setUp()
 
         self.network_client.find_security_group = mock.Mock(
             return_value=self._security_group
@@ -970,7 +970,7 @@ class TestDeleteSecurityGroupRuleNetwork(TestSecurityGroupRuleNetwork):
     )
 
     def setUp(self):
-        super(TestDeleteSecurityGroupRuleNetwork, self).setUp()
+        super().setUp()
 
         self.network_client.delete_security_group_rule = mock.Mock(
             return_value=None
@@ -1142,7 +1142,7 @@ class TestListSecurityGroupRuleNetwork(TestSecurityGroupRuleNetwork):
         )
 
     def setUp(self):
-        super(TestListSecurityGroupRuleNetwork, self).setUp()
+        super().setUp()
 
         self.network_client.find_security_group = mock.Mock(
             return_value=self._security_group
@@ -1299,7 +1299,7 @@ class TestShowSecurityGroupRuleNetwork(TestSecurityGroupRuleNetwork):
     )
 
     def setUp(self):
-        super(TestShowSecurityGroupRuleNetwork, self).setUp()
+        super().setUp()
 
         self.network_client.find_security_group_rule = mock.Mock(
             return_value=self._security_group_rule

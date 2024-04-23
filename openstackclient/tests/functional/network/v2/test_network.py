@@ -192,7 +192,7 @@ class NetworkTests(common.NetworkTagTests):
             cmd_output["description"],
         )
 
-        del_output = self.openstack('network delete %s %s' % (name1, name2))
+        del_output = self.openstack(f'network delete {name1} {name2}')
         self.assertOutput('', del_output)
 
     def test_network_list(self):
@@ -237,7 +237,7 @@ class NetworkTests(common.NetworkTagTests):
         else:
             network_options = '--subnet 4.5.6.7/28 '
         cmd_output = self.openstack(
-            'network create --share %s%s' % (network_options, name2),
+            f'network create --share {network_options}{name2}',
             parse_output=True,
         )
         self.addCleanup(self.openstack, 'network delete ' + name2)
@@ -353,7 +353,9 @@ class NetworkTests(common.NetworkTagTests):
 
         # Add Agent to Network
         self.openstack(
-            'network agent add network --dhcp %s %s' % (agent_id, network_id)
+            'network agent add network --dhcp {} {}'.format(
+                agent_id, network_id
+            )
         )
 
         # Test network list --agent

@@ -83,7 +83,7 @@ class ShowNetworkQosRuleType(command.ShowOne):
     _description = _("Show details about supported QoS rule type")
 
     def get_parser(self, prog_name):
-        parser = super(ShowNetworkQosRuleType, self).get_parser(prog_name)
+        parser = super().get_parser(prog_name)
         parser.add_argument(
             'rule_type',
             metavar="<qos-rule-type-name>",

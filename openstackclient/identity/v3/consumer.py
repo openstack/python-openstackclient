@@ -31,7 +31,7 @@ class CreateConsumer(command.ShowOne):
     _description = _("Create new consumer")
 
     def get_parser(self, prog_name):
-        parser = super(CreateConsumer, self).get_parser(prog_name)
+        parser = super().get_parser(prog_name)
         parser.add_argument(
             '--description',
             metavar='<description>',
@@ -52,7 +52,7 @@ class DeleteConsumer(command.Command):
     _description = _("Delete consumer(s)")
 
     def get_parser(self, prog_name):
-        parser = super(DeleteConsumer, self).get_parser(prog_name)
+        parser = super().get_parser(prog_name)
         parser.add_argument(
             'consumer',
             metavar='<consumer>',
@@ -111,7 +111,7 @@ class SetConsumer(command.Command):
     _description = _("Set consumer properties")
 
     def get_parser(self, prog_name):
-        parser = super(SetConsumer, self).get_parser(prog_name)
+        parser = super().get_parser(prog_name)
         parser.add_argument(
             'consumer',
             metavar='<consumer>',
@@ -142,7 +142,7 @@ class ShowConsumer(command.ShowOne):
     _description = _("Display consumer details")
 
     def get_parser(self, prog_name):
-        parser = super(ShowConsumer, self).get_parser(prog_name)
+        parser = super().get_parser(prog_name)
         parser.add_argument(
             'consumer',
             metavar='<consumer>',

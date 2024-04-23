@@ -45,7 +45,7 @@ class AttachmentsColumn(cliff_columns.FormattableColumn):
     """
 
     def __init__(self, value, server_cache=None):
-        super(AttachmentsColumn, self).__init__(value)
+        super().__init__(value)
         self._server_cache = server_cache or {}
 
     def human_readable(self):
@@ -60,7 +60,7 @@ class AttachmentsColumn(cliff_columns.FormattableColumn):
             if server in self._server_cache.keys():
                 server = self._server_cache[server].name
             device = attachment['device']
-            msg += 'Attached to %s on %s ' % (server, device)
+            msg += f'Attached to {server} on {device} '
         return msg
 
 
@@ -83,7 +83,7 @@ class CreateVolume(command.ShowOne):
     _description = _("Create new volume")
 
     def get_parser(self, prog_name):
-        parser = super(CreateVolume, self).get_parser(prog_name)
+        parser = super().get_parser(prog_name)
         parser.add_argument(
             'name',
             metavar='<name>',
@@ -298,7 +298,7 @@ class DeleteVolume(command.Command):
     _description = _("Delete volume(s)")
 
     def get_parser(self, prog_name):
-        parser = super(DeleteVolume, self).get_parser(prog_name)
+        parser = super().get_parser(prog_name)
         parser.add_argument(
             'volumes',
             metavar='<volume>',
@@ -350,7 +350,7 @@ class ListVolume(command.Lister):
     _description = _("List volumes")
 
     def get_parser(self, prog_name):
-        parser = super(ListVolume, self).get_parser(prog_name)
+        parser = super().get_parser(prog_name)
         parser.add_argument(
             '--name',
             metavar='<name>',
@@ -466,7 +466,7 @@ class MigrateVolume(command.Command):
     _description = _("Migrate volume to a new host")
 
     def get_parser(self, prog_name):
-        parser = super(MigrateVolume, self).get_parser(prog_name)
+        parser = super().get_parser(prog_name)
         parser.add_argument(
             'volume',
             metavar="<volume>",
@@ -504,7 +504,7 @@ class SetVolume(command.Command):
     _description = _("Set volume properties")
 
     def get_parser(self, prog_name):
-        parser = super(SetVolume, self).get_parser(prog_name)
+        parser = super().get_parser(prog_name)
         parser.add_argument(
             'volume',
             metavar='<volume>',
@@ -663,7 +663,7 @@ class ShowVolume(command.ShowOne):
     _description = _("Show volume details")
 
     def get_parser(self, prog_name):
-        parser = super(ShowVolume, self).get_parser(prog_name)
+        parser = super().get_parser(prog_name)
         parser.add_argument(
             'volume',
             metavar='<volume>',
@@ -706,7 +706,7 @@ class UnsetVolume(command.Command):
     _description = _("Unset volume properties")
 
     def get_parser(self, prog_name):
-        parser = super(UnsetVolume, self).get_parser(prog_name)
+        parser = super().get_parser(prog_name)
         parser.add_argument(
             'volume',
             metavar='<volume>',

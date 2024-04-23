@@ -23,7 +23,7 @@ class ShowVersions(command.Lister):
     _description = _("Show available versions of services")
 
     def get_parser(self, prog_name):
-        parser = super(ShowVersions, self).get_parser(prog_name)
+        parser = super().get_parser(prog_name)
         interface_group = parser.add_mutually_exclusive_group()
         interface_group.add_argument(
             "--all-interfaces",

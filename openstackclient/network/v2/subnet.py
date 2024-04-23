@@ -46,7 +46,7 @@ def _update_arguments(obj_list, parsed_args_list, option):
 class AllocationPoolsColumn(cliff_columns.FormattableColumn):
     def human_readable(self):
         pool_formatted = [
-            '%s-%s' % (pool.get('start', ''), pool.get('end', ''))
+            '{}-{}'.format(pool.get('start', ''), pool.get('end', ''))
             for pool in self._value
         ]
         return ','.join(pool_formatted)
@@ -292,7 +292,7 @@ class CreateSubnet(command.ShowOne, common.NeutronCommandWithExtraArgs):
     _description = _("Create a subnet")
 
     def get_parser(self, prog_name):
-        parser = super(CreateSubnet, self).get_parser(prog_name)
+        parser = super().get_parser(prog_name)
         parser.add_argument(
             'name', metavar='<name>', help=_("New subnet name")
         )
@@ -436,7 +436,7 @@ class DeleteSubnet(command.Command):
     _description = _("Delete subnet(s)")
 
     def get_parser(self, prog_name):
-        parser = super(DeleteSubnet, self).get_parser(prog_name)
+        parser = super().get_parser(prog_name)
         parser.add_argument(
             'subnet',
             metavar="<subnet>",
@@ -478,7 +478,7 @@ class ListSubnet(command.Lister):
     _description = _("List subnets")
 
     def get_parser(self, prog_name):
-        parser = super(ListSubnet, self).get_parser(prog_name)
+        parser = super().get_parser(prog_name)
         parser.add_argument(
             '--long',
             action='store_true',
@@ -651,7 +651,7 @@ class SetSubnet(common.NeutronCommandWithExtraArgs):
     _description = _("Set subnet properties")
 
     def get_parser(self, prog_name):
-        parser = super(SetSubnet, self).get_parser(prog_name)
+        parser = super().get_parser(prog_name)
         parser.add_argument(
             'subnet',
             metavar="<subnet>",
@@ -744,7 +744,7 @@ class ShowSubnet(command.ShowOne):
     _description = _("Display subnet details")
 
     def get_parser(self, prog_name):
-        parser = super(ShowSubnet, self).get_parser(prog_name)
+        parser = super().get_parser(prog_name)
         parser.add_argument(
             'subnet',
             metavar="<subnet>",
@@ -765,7 +765,7 @@ class UnsetSubnet(common.NeutronUnsetCommandWithExtraArgs):
     _description = _("Unset subnet properties")
 
     def get_parser(self, prog_name):
-        parser = super(UnsetSubnet, self).get_parser(prog_name)
+        parser = super().get_parser(prog_name)
         parser.add_argument(
             '--allocation-pool',
             metavar='start=<ip-address>,end=<ip-address>',

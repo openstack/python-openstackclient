@@ -16,7 +16,7 @@ from openstackclient.tests.unit.identity.v3 import fakes as identity_fakes
 
 class TestDomain(identity_fakes.TestIdentityv3):
     def setUp(self):
-        super(TestDomain, self).setUp()
+        super().setUp()
 
         # Get a shortcut to the DomainManager Mock
         self.domains_mock = self.identity_client.domains
@@ -27,7 +27,7 @@ class TestDomainCreate(TestDomain):
     columns = ('description', 'enabled', 'id', 'name', 'tags')
 
     def setUp(self):
-        super(TestDomainCreate, self).setUp()
+        super().setUp()
 
         self.domain = identity_fakes.FakeDomain.create_one_domain()
         self.domains_mock.create.return_value = self.domain
@@ -214,7 +214,7 @@ class TestDomainDelete(TestDomain):
     domain = identity_fakes.FakeDomain.create_one_domain()
 
     def setUp(self):
-        super(TestDomainDelete, self).setUp()
+        super().setUp()
 
         # This is the return value for utils.find_resource()
         self.domains_mock.get.return_value = self.domain
@@ -244,7 +244,7 @@ class TestDomainList(TestDomain):
     domain = identity_fakes.FakeDomain.create_one_domain()
 
     def setUp(self):
-        super(TestDomainList, self).setUp()
+        super().setUp()
 
         self.domains_mock.list.return_value = [self.domain]
 
@@ -329,7 +329,7 @@ class TestDomainSet(TestDomain):
     domain = identity_fakes.FakeDomain.create_one_domain()
 
     def setUp(self):
-        super(TestDomainSet, self).setUp()
+        super().setUp()
 
         self.domains_mock.get.return_value = self.domain
 
@@ -478,7 +478,7 @@ class TestDomainSet(TestDomain):
 
 class TestDomainShow(TestDomain):
     def setUp(self):
-        super(TestDomainShow, self).setUp()
+        super().setUp()
 
         self.domain = identity_fakes.FakeDomain.create_one_domain()
         self.domains_mock.get.return_value = self.domain

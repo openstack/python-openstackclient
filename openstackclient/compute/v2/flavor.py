@@ -58,7 +58,7 @@ class CreateFlavor(command.ShowOne):
     _description = _("Create new flavor")
 
     def get_parser(self, prog_name):
-        parser = super(CreateFlavor, self).get_parser(prog_name)
+        parser = super().get_parser(prog_name)
         parser.add_argument(
             "name", metavar="<flavor-name>", help=_("New flavor name")
         )
@@ -214,7 +214,7 @@ class DeleteFlavor(command.Command):
     _description = _("Delete flavor(s)")
 
     def get_parser(self, prog_name):
-        parser = super(DeleteFlavor, self).get_parser(prog_name)
+        parser = super().get_parser(prog_name)
         parser.add_argument(
             "flavor",
             metavar="<flavor>",
@@ -253,7 +253,7 @@ class ListFlavor(command.Lister):
     _description = _("List flavors")
 
     def get_parser(self, prog_name):
-        parser = super(ListFlavor, self).get_parser(prog_name)
+        parser = super().get_parser(prog_name)
         public_group = parser.add_mutually_exclusive_group()
         public_group.add_argument(
             "--public",
@@ -375,7 +375,7 @@ class SetFlavor(command.Command):
     _description = _("Set flavor properties")
 
     def get_parser(self, prog_name):
-        parser = super(SetFlavor, self).get_parser(prog_name)
+        parser = super().get_parser(prog_name)
         parser.add_argument(
             "flavor",
             metavar="<flavor>",
@@ -491,7 +491,7 @@ class ShowFlavor(command.ShowOne):
     _description = _("Display flavor details")
 
     def get_parser(self, prog_name):
-        parser = super(ShowFlavor, self).get_parser(prog_name)
+        parser = super().get_parser(prog_name)
         parser.add_argument(
             "flavor",
             metavar="<flavor>",
@@ -540,7 +540,7 @@ class UnsetFlavor(command.Command):
     _description = _("Unset flavor properties")
 
     def get_parser(self, prog_name):
-        parser = super(UnsetFlavor, self).get_parser(prog_name)
+        parser = super().get_parser(prog_name)
         parser.add_argument(
             "flavor",
             metavar="<flavor>",

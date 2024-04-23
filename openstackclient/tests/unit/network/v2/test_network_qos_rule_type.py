@@ -22,7 +22,7 @@ from openstackclient.tests.unit import utils as tests_utils
 
 class TestNetworkQosRuleType(network_fakes.TestNetworkV2):
     def setUp(self):
-        super(TestNetworkQosRuleType, self).setUp()
+        super().setUp()
 
 
 class TestShowNetworkQosRuleType(TestNetworkQosRuleType):
@@ -35,7 +35,7 @@ class TestShowNetworkQosRuleType(TestNetworkQosRuleType):
     data = [qos_rule_type.drivers, qos_rule_type.type]
 
     def setUp(self):
-        super(TestShowNetworkQosRuleType, self).setUp()
+        super().setUp()
         self.network_client.get_qos_rule_type = mock.Mock(
             return_value=self.qos_rule_type
         )
@@ -85,7 +85,7 @@ class TestListNetworkQosRuleType(TestNetworkQosRuleType):
         data.append((qos_rule_type.type,))
 
     def setUp(self):
-        super(TestListNetworkQosRuleType, self).setUp()
+        super().setUp()
         self.network_client.qos_rule_types = mock.Mock(
             return_value=self.qos_rule_types
         )

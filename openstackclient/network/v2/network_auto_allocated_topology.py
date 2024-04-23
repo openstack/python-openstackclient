@@ -65,7 +65,7 @@ class CreateAutoAllocatedTopology(command.ShowOne):
     _description = _("Create the  auto allocated topology for project")
 
     def get_parser(self, prog_name):
-        parser = super(CreateAutoAllocatedTopology, self).get_parser(prog_name)
+        parser = super().get_parser(prog_name)
         parser.add_argument(
             '--project',
             metavar='<project>',
@@ -126,7 +126,7 @@ class DeleteAutoAllocatedTopology(command.Command):
     _description = _("Delete auto allocated topology for project")
 
     def get_parser(self, prog_name):
-        parser = super(DeleteAutoAllocatedTopology, self).get_parser(prog_name)
+        parser = super().get_parser(prog_name)
         parser.add_argument(
             '--project',
             metavar='<project>',

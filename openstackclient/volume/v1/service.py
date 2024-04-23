@@ -25,7 +25,7 @@ class ListService(command.Lister):
     _description = _("List service command")
 
     def get_parser(self, prog_name):
-        parser = super(ListService, self).get_parser(prog_name)
+        parser = super().get_parser(prog_name)
         parser.add_argument(
             "--host",
             metavar="<host>",
@@ -86,7 +86,7 @@ class SetService(command.Command):
     _description = _("Set volume service properties")
 
     def get_parser(self, prog_name):
-        parser = super(SetService, self).get_parser(prog_name)
+        parser = super().get_parser(prog_name)
         parser.add_argument("host", metavar="<host>", help=_("Name of host"))
         parser.add_argument(
             "service",

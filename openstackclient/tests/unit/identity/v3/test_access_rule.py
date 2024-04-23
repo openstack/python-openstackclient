@@ -25,7 +25,7 @@ from openstackclient.tests.unit.identity.v3 import fakes as identity_fakes
 
 class TestAccessRule(identity_fakes.TestIdentityv3):
     def setUp(self):
-        super(TestAccessRule, self).setUp()
+        super().setUp()
 
         identity_manager = self.identity_client
         self.access_rules_mock = identity_manager.access_rules
@@ -36,7 +36,7 @@ class TestAccessRule(identity_fakes.TestIdentityv3):
 
 class TestAccessRuleDelete(TestAccessRule):
     def setUp(self):
-        super(TestAccessRuleDelete, self).setUp()
+        super().setUp()
 
         # This is the return value for utils.find_resource()
         self.access_rules_mock.get.return_value = fakes.FakeResource(
@@ -98,7 +98,7 @@ class TestAccessRuleDelete(TestAccessRule):
 
 class TestAccessRuleList(TestAccessRule):
     def setUp(self):
-        super(TestAccessRuleList, self).setUp()
+        super().setUp()
 
         self.access_rules_mock.list.return_value = [
             fakes.FakeResource(
@@ -135,7 +135,7 @@ class TestAccessRuleList(TestAccessRule):
 
 class TestAccessRuleShow(TestAccessRule):
     def setUp(self):
-        super(TestAccessRuleShow, self).setUp()
+        super().setUp()
 
         self.access_rules_mock.get.return_value = fakes.FakeResource(
             None,

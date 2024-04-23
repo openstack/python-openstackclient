@@ -56,7 +56,7 @@ class TestProject(identity_fakes.TestIdentityv2):
     )
 
     def setUp(self):
-        super(TestProject, self).setUp()
+        super().setUp()
 
         # Get a shortcut to the TenantManager Mock
         self.projects_mock = self.identity_client.tenants
@@ -65,7 +65,7 @@ class TestProject(identity_fakes.TestIdentityv2):
 
 class TestProjectCreate(TestProject):
     def setUp(self):
-        super(TestProjectCreate, self).setUp()
+        super().setUp()
 
         self.projects_mock.create.return_value = self.fake_project
 
@@ -289,7 +289,7 @@ class TestProjectCreate(TestProject):
 
 class TestProjectDelete(TestProject):
     def setUp(self):
-        super(TestProjectDelete, self).setUp()
+        super().setUp()
 
         # This is the return value for utils.find_resource()
         self.projects_mock.get.return_value = self.fake_project
@@ -341,7 +341,7 @@ class TestProjectDelete(TestProject):
 
 class TestProjectList(TestProject):
     def setUp(self):
-        super(TestProjectList, self).setUp()
+        super().setUp()
 
         self.projects_mock.list.return_value = [self.fake_project]
 
@@ -431,7 +431,7 @@ class TestProjectList(TestProject):
 
 class TestProjectSet(TestProject):
     def setUp(self):
-        super(TestProjectSet, self).setUp()
+        super().setUp()
 
         self.projects_mock.get.return_value = self.fake_project
         self.projects_mock.update.return_value = self.fake_project
@@ -613,7 +613,7 @@ class TestProjectShow(TestProject):
     fake_proj_show = identity_fakes.FakeProject.create_one_project()
 
     def setUp(self):
-        super(TestProjectShow, self).setUp()
+        super().setUp()
 
         self.projects_mock.get.return_value = self.fake_proj_show
 
@@ -654,7 +654,7 @@ class TestProjectUnset(TestProject):
     fake_proj = identity_fakes.FakeProject.create_one_project(attr)
 
     def setUp(self):
-        super(TestProjectUnset, self).setUp()
+        super().setUp()
 
         self.projects_mock.get.return_value = self.fake_proj
 

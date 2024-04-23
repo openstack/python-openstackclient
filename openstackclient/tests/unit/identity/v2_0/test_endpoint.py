@@ -24,7 +24,7 @@ class TestEndpoint(identity_fakes.TestIdentityv2):
     fake_endpoint = identity_fakes.FakeEndpoint.create_one_endpoint(attr)
 
     def setUp(self):
-        super(TestEndpoint, self).setUp()
+        super().setUp()
 
         # Get a shortcut to the EndpointManager Mock
         self.endpoints_mock = self.identity_client.endpoints
@@ -37,7 +37,7 @@ class TestEndpoint(identity_fakes.TestIdentityv2):
 
 class TestEndpointCreate(TestEndpoint):
     def setUp(self):
-        super(TestEndpointCreate, self).setUp()
+        super().setUp()
 
         self.endpoints_mock.create.return_value = self.fake_endpoint
 
@@ -109,7 +109,7 @@ class TestEndpointCreate(TestEndpoint):
 
 class TestEndpointDelete(TestEndpoint):
     def setUp(self):
-        super(TestEndpointDelete, self).setUp()
+        super().setUp()
 
         self.endpoints_mock.get.return_value = self.fake_endpoint
         self.endpoints_mock.delete.return_value = None
@@ -136,7 +136,7 @@ class TestEndpointDelete(TestEndpoint):
 
 class TestEndpointList(TestEndpoint):
     def setUp(self):
-        super(TestEndpointList, self).setUp()
+        super().setUp()
 
         self.endpoints_mock.list.return_value = [self.fake_endpoint]
 
@@ -211,7 +211,7 @@ class TestEndpointList(TestEndpoint):
 
 class TestEndpointShow(TestEndpoint):
     def setUp(self):
-        super(TestEndpointShow, self).setUp()
+        super().setUp()
 
         self.endpoints_mock.list.return_value = [self.fake_endpoint]
 

@@ -31,7 +31,7 @@ class TestUser(identity_fakes.TestIdentityv2):
     fake_user = identity_fakes.FakeUser.create_one_user(attr)
 
     def setUp(self):
-        super(TestUser, self).setUp()
+        super().setUp()
 
         # Get a shortcut to the TenantManager Mock
         self.projects_mock = self.identity_client.tenants
@@ -65,7 +65,7 @@ class TestUserCreate(TestUser):
     )
 
     def setUp(self):
-        super(TestUserCreate, self).setUp()
+        super().setUp()
 
         self.projects_mock.get.return_value = self.fake_project_c
 
@@ -363,7 +363,7 @@ class TestUserCreate(TestUser):
 
 class TestUserDelete(TestUser):
     def setUp(self):
-        super(TestUserDelete, self).setUp()
+        super().setUp()
 
         # This is the return value for utils.find_resource()
         self.users_mock.get.return_value = self.fake_user
@@ -432,7 +432,7 @@ class TestUserList(TestUser):
     )
 
     def setUp(self):
-        super(TestUserList, self).setUp()
+        super().setUp()
 
         self.projects_mock.get.return_value = self.fake_project_l
         self.projects_mock.list.return_value = [self.fake_project_l]
@@ -513,7 +513,7 @@ class TestUserList(TestUser):
 
 class TestUserSet(TestUser):
     def setUp(self):
-        super(TestUserSet, self).setUp()
+        super().setUp()
 
         self.projects_mock.get.return_value = self.fake_project
         self.users_mock.get.return_value = self.fake_user
@@ -755,7 +755,7 @@ class TestUserSet(TestUser):
 
 class TestUserShow(TestUser):
     def setUp(self):
-        super(TestUserShow, self).setUp()
+        super().setUp()
 
         self.users_mock.get.return_value = self.fake_user
 

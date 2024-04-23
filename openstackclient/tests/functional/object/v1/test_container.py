@@ -23,7 +23,7 @@ class ContainerTests(common.ObjectStoreTests):
 
     @classmethod
     def setUpClass(cls):
-        super(ContainerTests, cls).setUpClass()
+        super().setUpClass()
         if cls.haz_object_store:
             opts = cls.get_opts(['container'])
             raw_output = cls.openstack('container create ' + cls.NAME + opts)
@@ -36,10 +36,10 @@ class ContainerTests(common.ObjectStoreTests):
                 raw_output = cls.openstack('container delete ' + cls.NAME)
                 cls.assertOutput('', raw_output)
         finally:
-            super(ContainerTests, cls).tearDownClass()
+            super().tearDownClass()
 
     def setUp(self):
-        super(ContainerTests, self).setUp()
+        super().setUp()
         # Skip tests if no object-store is present
         if not self.haz_object_store:
             self.skipTest("No object-store service present")

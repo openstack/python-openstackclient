@@ -25,7 +25,7 @@ class ShowCapability(command.Lister):
     _description = _("Show capability command")
 
     def get_parser(self, prog_name):
-        parser = super(ShowCapability, self).get_parser(prog_name)
+        parser = super().get_parser(prog_name)
         parser.add_argument(
             "host",
             metavar="<host>",
@@ -72,7 +72,7 @@ class ListPool(command.Lister):
     _description = _("List pool command")
 
     def get_parser(self, prog_name):
-        parser = super(ListPool, self).get_parser(prog_name)
+        parser = super().get_parser(prog_name)
         parser.add_argument(
             "--long",
             action="store_true",

@@ -22,7 +22,7 @@ from openstackclient.tests.unit.identity.v3 import fakes as identity_fakes
 
 class TestLimit(identity_fakes.TestIdentityv3):
     def setUp(self):
-        super(TestLimit, self).setUp()
+        super().setUp()
 
         identity_manager = self.identity_client
 
@@ -40,7 +40,7 @@ class TestLimit(identity_fakes.TestIdentityv3):
 
 class TestLimitCreate(TestLimit):
     def setUp(self):
-        super(TestLimitCreate, self).setUp()
+        super().setUp()
 
         self.service = fakes.FakeResource(
             None, copy.deepcopy(identity_fakes.SERVICE), loaded=True
@@ -181,7 +181,7 @@ class TestLimitCreate(TestLimit):
 
 class TestLimitDelete(TestLimit):
     def setUp(self):
-        super(TestLimitDelete, self).setUp()
+        super().setUp()
         self.cmd = limit.DeleteLimit(self.app, None)
 
     def test_limit_delete(self):
@@ -213,7 +213,7 @@ class TestLimitDelete(TestLimit):
 
 class TestLimitShow(TestLimit):
     def setUp(self):
-        super(TestLimitShow, self).setUp()
+        super().setUp()
 
         self.limit_mock.get.return_value = fakes.FakeResource(
             None, copy.deepcopy(identity_fakes.LIMIT), loaded=True
@@ -254,7 +254,7 @@ class TestLimitShow(TestLimit):
 
 class TestLimitSet(TestLimit):
     def setUp(self):
-        super(TestLimitSet, self).setUp()
+        super().setUp()
         self.cmd = limit.SetLimit(self.app, None)
 
     def test_limit_set_description(self):
@@ -355,7 +355,7 @@ class TestLimitSet(TestLimit):
 
 class TestLimitList(TestLimit):
     def setUp(self):
-        super(TestLimitList, self).setUp()
+        super().setUp()
 
         self.limit_mock.list.return_value = [
             fakes.FakeResource(

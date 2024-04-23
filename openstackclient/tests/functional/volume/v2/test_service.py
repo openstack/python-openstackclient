@@ -20,8 +20,8 @@ class VolumeServiceTests(common.BaseVolumeTests):
         cmd_output = self.openstack('volume service list', parse_output=True)
 
         # Get the nonredundant services and hosts
-        services = list(set([x['Binary'] for x in cmd_output]))
-        hosts = list(set([x['Host'] for x in cmd_output]))
+        services = list({x['Binary'] for x in cmd_output})
+        hosts = list({x['Host'] for x in cmd_output})
 
         # Test volume service list --service
         cmd_output = self.openstack(

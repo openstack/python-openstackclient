@@ -23,7 +23,7 @@ from openstackclient.tests.unit import utils as tests_utils
 
 class TestIPAvailability(network_fakes.TestNetworkV2):
     def setUp(self):
-        super(TestIPAvailability, self).setUp()
+        super().setUp()
 
         # Get a shortcut to the ProjectManager Mock
         self.projects_mock = self.identity_client.projects
@@ -52,7 +52,7 @@ class TestListIPAvailability(TestIPAvailability):
         )
 
     def setUp(self):
-        super(TestListIPAvailability, self).setUp()
+        super().setUp()
 
         self.cmd = ip_availability.ListIPAvailability(self.app, None)
         self.network_client.network_ip_availabilities = mock.Mock(
@@ -132,7 +132,7 @@ class TestShowIPAvailability(TestIPAvailability):
     )
 
     def setUp(self):
-        super(TestShowIPAvailability, self).setUp()
+        super().setUp()
 
         self.network_client.find_network_ip_availability = mock.Mock(
             return_value=self._ip_availability

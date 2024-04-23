@@ -440,7 +440,7 @@ class SetFloatingIP(common.NeutronCommandWithExtraArgs):
     _description = _("Set floating IP Properties")
 
     def get_parser(self, prog_name):
-        parser = super(SetFloatingIP, self).get_parser(prog_name)
+        parser = super().get_parser(prog_name)
         parser.add_argument(
             'floating_ip',
             metavar='<floating-ip>',
@@ -548,7 +548,7 @@ class UnsetFloatingIP(common.NeutronCommandWithExtraArgs):
     _description = _("Unset floating IP Properties")
 
     def get_parser(self, prog_name):
-        parser = super(UnsetFloatingIP, self).get_parser(prog_name)
+        parser = super().get_parser(prog_name)
         parser.add_argument(
             'floating_ip',
             metavar='<floating-ip>',

@@ -133,7 +133,7 @@ class ShowMessage(command.ShowOne):
     _description = _('Show a volume failure message')
 
     def get_parser(self, prog_name):
-        parser = super(ShowMessage, self).get_parser(prog_name)
+        parser = super().get_parser(prog_name)
         parser.add_argument(
             'message_id',
             metavar='<message-id>',

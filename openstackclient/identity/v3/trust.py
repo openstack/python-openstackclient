@@ -32,7 +32,7 @@ class CreateTrust(command.ShowOne):
     _description = _("Create new trust")
 
     def get_parser(self, prog_name):
-        parser = super(CreateTrust, self).get_parser(prog_name)
+        parser = super().get_parser(prog_name)
         parser.add_argument(
             'trustor',
             metavar='<trustor-user>',
@@ -150,7 +150,7 @@ class DeleteTrust(command.Command):
     _description = _("Delete trust(s)")
 
     def get_parser(self, prog_name):
-        parser = super(DeleteTrust, self).get_parser(prog_name)
+        parser = super().get_parser(prog_name)
         parser.add_argument(
             'trust',
             metavar='<trust>',
@@ -300,7 +300,7 @@ class ShowTrust(command.ShowOne):
     _description = _("Display trust details")
 
     def get_parser(self, prog_name):
-        parser = super(ShowTrust, self).get_parser(prog_name)
+        parser = super().get_parser(prog_name)
         parser.add_argument(
             'trust',
             metavar='<trust>',

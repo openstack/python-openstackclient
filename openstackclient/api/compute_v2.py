@@ -30,7 +30,7 @@ class APIv2(api.BaseAPI):
     """Compute v2 API"""
 
     def __init__(self, **kwargs):
-        super(APIv2, self).__init__(**kwargs)
+        super().__init__(**kwargs)
 
     # Overrides
 
@@ -76,7 +76,7 @@ class APIv2(api.BaseAPI):
         """
 
         try:
-            ret = self._request('GET', "/%s/%s" % (path, value)).json()
+            ret = self._request('GET', f"/{path}/{value}").json()
             if isinstance(ret, dict):
                 # strip off the enclosing dict
                 key = list(ret.keys())[0]
@@ -136,7 +136,7 @@ class APIv2(api.BaseAPI):
 
         return self._request(
             "POST",
-            "/%s/%s/action" % (url, server['id']),
+            "/{}/{}/action".format(url, server['id']),
             json={'addFloatingIp': body},
         )
 
@@ -180,7 +180,7 @@ class APIv2(api.BaseAPI):
         url = "/os-floating-ips"
 
         if floating_ip_id is not None:
-            return self.delete('/%s/%s' % (url, floating_ip_id))
+            return self.delete(f'/{url}/{floating_ip_id}')
 
         return None
 
@@ -248,7 +248,7 @@ class APIv2(api.BaseAPI):
 
         return self._request(
             "POST",
-            "/%s/%s/action" % (url, server['id']),
+            "/{}/{}/action".format(url, server['id']),
             json={'removeFloatingIp': body},
         )
 
@@ -316,7 +316,7 @@ class APIv2(api.BaseAPI):
         else:
             return self._request(
                 "PUT",
-                "/%s/%s" % (url, host),
+                f"/{url}/{host}",
                 json=params,
             ).json()
 
@@ -398,7 +398,7 @@ class APIv2(api.BaseAPI):
             value=network,
         )['id']
         if network is not None:
-            return self.delete('/%s/%s' % (url, network))
+            return self.delete(f'/{url}/{network}')
 
         return None
 
@@ -487,7 +487,7 @@ class APIv2(api.BaseAPI):
             value=security_group,
         )['id']
         if security_group is not None:
-            return self.delete('/%s/%s' % (url, security_group))
+            return self.delete(f'/{url}/{security_group}')
 
         return None
 
@@ -535,7 +535,7 @@ class APIv2(api.BaseAPI):
 
         params = {}
         if search_opts is not None:
-            params = dict((k, v) for (k, v) in search_opts.items() if v)
+            params = {k: v for (k, v) in search_opts.items() if v}
         if limit:
             params['limit'] = limit
         if marker:
@@ -549,7 +549,7 @@ class APIv2(api.BaseAPI):
         security_group=None,
         # name=None,
         # description=None,
-        **params
+        **params,
     ):
         """Update a security group
 
@@ -579,7 +579,7 @@ class APIv2(api.BaseAPI):
                     security_group[k] = v
             return self._request(
                 "PUT",
-                "/%s/%s" % (url, security_group['id']),
+                "/{}/{}".format(url, security_group['id']),
                 json={'security_group': security_group},
             ).json()['security_group']
         return None
@@ -648,6 +648,6 @@ class APIv2(api.BaseAPI):
 
         url = "/os-security-group-rules"
         if security_group_rule_id is not None:
-            return self.delete('/%s/%s' % (url, security_group_rule_id))
+            return self.delete(f'/{url}/{security_group_rule_id}')
 
         return None

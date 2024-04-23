@@ -70,7 +70,7 @@ class BaseVolumeTests(base.TestCase):
             result = cls.openstack(check_type + ' list', parse_output=True)
             names = [x[name_field] for x in result]
             if check_name not in names:
-                print('{} {} is now deleted'.format(check_type, check_name))
+                print(f'{check_type} {check_name} is now deleted')
                 return
             print(
                 'Checking {} {} Waiting for deleted'.format(

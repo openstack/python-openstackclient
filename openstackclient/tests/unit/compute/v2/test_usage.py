@@ -21,7 +21,7 @@ from openstackclient.tests.unit.identity.v3 import fakes as identity_fakes
 
 class TestUsage(compute_fakes.TestComputev2):
     def setUp(self):
-        super(TestUsage, self).setUp()
+        super().setUp()
 
         self.projects_mock = self.identity_client.projects
         self.projects_mock.reset_mock()
@@ -53,7 +53,7 @@ class TestUsageList(TestUsage):
     ]
 
     def setUp(self):
-        super(TestUsageList, self).setUp()
+        super().setUp()
 
         self.compute_sdk_client.usages.return_value = self.usages
 
@@ -144,7 +144,7 @@ class TestUsageShow(TestUsage):
     )
 
     def setUp(self):
-        super(TestUsageShow, self).setUp()
+        super().setUp()
 
         self.compute_sdk_client.get_usage.return_value = self.usage
 

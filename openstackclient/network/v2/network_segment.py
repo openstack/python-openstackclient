@@ -39,7 +39,7 @@ class CreateNetworkSegment(
     _description = _("Create new network segment")
 
     def get_parser(self, prog_name):
-        parser = super(CreateNetworkSegment, self).get_parser(prog_name)
+        parser = super().get_parser(prog_name)
         parser.add_argument(
             'name', metavar='<name>', help=_('New network segment name')
         )
@@ -109,7 +109,7 @@ class DeleteNetworkSegment(command.Command):
     _description = _("Delete network segment(s)")
 
     def get_parser(self, prog_name):
-        parser = super(DeleteNetworkSegment, self).get_parser(prog_name)
+        parser = super().get_parser(prog_name)
         parser.add_argument(
             'network_segment',
             metavar='<network-segment>',
@@ -150,7 +150,7 @@ class ListNetworkSegment(command.Lister):
     _description = _("List network segments")
 
     def get_parser(self, prog_name):
-        parser = super(ListNetworkSegment, self).get_parser(prog_name)
+        parser = super().get_parser(prog_name)
         parser.add_argument(
             '--long',
             action='store_true',
@@ -213,7 +213,7 @@ class SetNetworkSegment(common.NeutronCommandWithExtraArgs):
     _description = _("Set network segment properties")
 
     def get_parser(self, prog_name):
-        parser = super(SetNetworkSegment, self).get_parser(prog_name)
+        parser = super().get_parser(prog_name)
         parser.add_argument(
             'network_segment',
             metavar='<network-segment>',
@@ -251,7 +251,7 @@ class ShowNetworkSegment(command.ShowOne):
     _description = _("Display network segment details")
 
     def get_parser(self, prog_name):
-        parser = super(ShowNetworkSegment, self).get_parser(prog_name)
+        parser = super().get_parser(prog_name)
         parser.add_argument(
             'network_segment',
             metavar='<network-segment>',

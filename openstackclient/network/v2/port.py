@@ -444,7 +444,7 @@ class CreatePort(command.ShowOne, common.NeutronCommandWithExtraArgs):
     _description = _("Create a new port")
 
     def get_parser(self, prog_name):
-        parser = super(CreatePort, self).get_parser(prog_name)
+        parser = super().get_parser(prog_name)
 
         parser.add_argument(
             '--network',
@@ -681,7 +681,7 @@ class DeletePort(command.Command):
     _description = _("Delete port(s)")
 
     def get_parser(self, prog_name):
-        parser = super(DeletePort, self).get_parser(prog_name)
+        parser = super().get_parser(prog_name)
         parser.add_argument(
             'port',
             metavar="<port>",
@@ -723,7 +723,7 @@ class ListPort(command.Lister):
     _description = _("List ports")
 
     def get_parser(self, prog_name):
-        parser = super(ListPort, self).get_parser(prog_name)
+        parser = super().get_parser(prog_name)
         parser.add_argument(
             '--device-owner',
             metavar='<device-owner>',
@@ -896,7 +896,7 @@ class SetPort(common.NeutronCommandWithExtraArgs):
     _description = _("Set port properties")
 
     def get_parser(self, prog_name):
-        parser = super(SetPort, self).get_parser(prog_name)
+        parser = super().get_parser(prog_name)
         _add_updatable_args(parser)
         admin_group = parser.add_mutually_exclusive_group()
         admin_group.add_argument(
@@ -1135,7 +1135,7 @@ class ShowPort(command.ShowOne):
     _description = _("Display port details")
 
     def get_parser(self, prog_name):
-        parser = super(ShowPort, self).get_parser(prog_name)
+        parser = super().get_parser(prog_name)
         parser.add_argument(
             'port', metavar="<port>", help=_("Port to display (name or ID)")
         )
@@ -1155,7 +1155,7 @@ class UnsetPort(common.NeutronUnsetCommandWithExtraArgs):
     _description = _("Unset port properties")
 
     def get_parser(self, prog_name):
-        parser = super(UnsetPort, self).get_parser(prog_name)
+        parser = super().get_parser(prog_name)
         parser.add_argument(
             '--fixed-ip',
             metavar='subnet=<subnet>,ip-address=<ip-address>',

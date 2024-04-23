@@ -30,7 +30,7 @@ class CreateProtocol(command.ShowOne):
     _description = _("Create new federation protocol")
 
     def get_parser(self, prog_name):
-        parser = super(CreateProtocol, self).get_parser(prog_name)
+        parser = super().get_parser(prog_name)
         parser.add_argument(
             'federation_protocol',
             metavar='<name>',
@@ -79,7 +79,7 @@ class DeleteProtocol(command.Command):
     _description = _("Delete federation protocol(s)")
 
     def get_parser(self, prog_name):
-        parser = super(DeleteProtocol, self).get_parser(prog_name)
+        parser = super().get_parser(prog_name)
         parser.add_argument(
             'federation_protocol',
             metavar='<federation-protocol>',
@@ -129,7 +129,7 @@ class ListProtocols(command.Lister):
     _description = _("List federation protocols")
 
     def get_parser(self, prog_name):
-        parser = super(ListProtocols, self).get_parser(prog_name)
+        parser = super().get_parser(prog_name)
         parser.add_argument(
             '--identity-provider',
             metavar='<identity-provider>',
@@ -158,7 +158,7 @@ class SetProtocol(command.Command):
     _description = _("Set federation protocol properties")
 
     def get_parser(self, prog_name):
-        parser = super(SetProtocol, self).get_parser(prog_name)
+        parser = super().get_parser(prog_name)
         parser.add_argument(
             'federation_protocol',
             metavar='<name>',
@@ -202,7 +202,7 @@ class ShowProtocol(command.ShowOne):
     _description = _("Display federation protocol details")
 
     def get_parser(self, prog_name):
-        parser = super(ShowProtocol, self).get_parser(prog_name)
+        parser = super().get_parser(prog_name)
         parser.add_argument(
             'federation_protocol',
             metavar='<federation-protocol>',

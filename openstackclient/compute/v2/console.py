@@ -36,7 +36,7 @@ class ShowConsoleLog(command.Command):
     _description = _("Show server's console output")
 
     def get_parser(self, prog_name):
-        parser = super(ShowConsoleLog, self).get_parser(prog_name)
+        parser = super().get_parser(prog_name)
         parser.add_argument(
             'server',
             metavar='<server>',
@@ -78,7 +78,7 @@ class ShowConsoleURL(command.ShowOne):
     _description = _("Show server's remote console URL")
 
     def get_parser(self, prog_name):
-        parser = super(ShowConsoleURL, self).get_parser(prog_name)
+        parser = super().get_parser(prog_name)
         parser.add_argument(
             'server',
             metavar='<server>',

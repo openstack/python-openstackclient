@@ -134,7 +134,7 @@ class AddRole(command.Command):
     )
 
     def get_parser(self, prog_name):
-        parser = super(AddRole, self).get_parser(prog_name)
+        parser = super().get_parser(prog_name)
         parser.add_argument(
             'role',
             metavar='<role>',
@@ -179,7 +179,7 @@ class CreateRole(command.ShowOne):
     _description = _("Create new role")
 
     def get_parser(self, prog_name):
-        parser = super(CreateRole, self).get_parser(prog_name)
+        parser = super().get_parser(prog_name)
         parser.add_argument(
             'name',
             metavar='<role-name>',
@@ -241,7 +241,7 @@ class DeleteRole(command.Command):
     _description = _("Delete role(s)")
 
     def get_parser(self, prog_name):
-        parser = super(DeleteRole, self).get_parser(prog_name)
+        parser = super().get_parser(prog_name)
         parser.add_argument(
             'roles',
             metavar='<role>',
@@ -293,7 +293,7 @@ class ListRole(command.Lister):
     _description = _("List roles")
 
     def get_parser(self, prog_name):
-        parser = super(ListRole, self).get_parser(prog_name)
+        parser = super().get_parser(prog_name)
         parser.add_argument(
             '--domain',
             metavar='<domain>',
@@ -336,7 +336,7 @@ class RemoveRole(command.Command):
     )
 
     def get_parser(self, prog_name):
-        parser = super(RemoveRole, self).get_parser(prog_name)
+        parser = super().get_parser(prog_name)
         parser.add_argument(
             'role',
             metavar='<role>',
@@ -383,7 +383,7 @@ class SetRole(command.Command):
     _description = _("Set role properties")
 
     def get_parser(self, prog_name):
-        parser = super(SetRole, self).get_parser(prog_name)
+        parser = super().get_parser(prog_name)
         parser.add_argument(
             'role',
             metavar='<role>',
@@ -433,7 +433,7 @@ class ShowRole(command.ShowOne):
     _description = _("Display role details")
 
     def get_parser(self, prog_name):
-        parser = super(ShowRole, self).get_parser(prog_name)
+        parser = super().get_parser(prog_name)
         parser.add_argument(
             'role',
             metavar='<role>',

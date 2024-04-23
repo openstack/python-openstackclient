@@ -24,7 +24,7 @@ from openstackclient.tests.unit import utils as tests_utils
 
 class TestNDPProxy(network_fakes.TestNetworkV2):
     def setUp(self):
-        super(TestNDPProxy, self).setUp()
+        super().setUp()
         # Get a shortcut to the ProjectManager Mock
         self.projects_mock = self.identity_client.projects
         # Get a shortcut to the DomainManager Mock
@@ -40,7 +40,7 @@ class TestNDPProxy(network_fakes.TestNetworkV2):
 
 class TestCreateNDPProxy(TestNDPProxy):
     def setUp(self):
-        super(TestCreateNDPProxy, self).setUp()
+        super().setUp()
         attrs = {'router_id': self.router.id, 'port_id': self.port.id}
         self.ndp_proxy = network_fakes.create_one_ndp_proxy(attrs)
         self.columns = (
@@ -125,7 +125,7 @@ class TestCreateNDPProxy(TestNDPProxy):
 
 class TestDeleteNDPProxy(TestNDPProxy):
     def setUp(self):
-        super(TestDeleteNDPProxy, self).setUp()
+        super().setUp()
         attrs = {'router_id': self.router.id, 'port_id': self.port.id}
         self.ndp_proxies = network_fakes.create_ndp_proxies(attrs)
         self.ndp_proxy = self.ndp_proxies[0]
@@ -183,7 +183,7 @@ class TestDeleteNDPProxy(TestNDPProxy):
 
 class TestListNDPProxy(TestNDPProxy):
     def setUp(self):
-        super(TestListNDPProxy, self).setUp()
+        super().setUp()
         attrs = {'router_id': self.router.id, 'port_id': self.port.id}
         ndp_proxies = network_fakes.create_ndp_proxies(attrs, count=3)
         self.columns = (
@@ -339,7 +339,7 @@ class TestListNDPProxy(TestNDPProxy):
 
 class TestSetNDPProxy(TestNDPProxy):
     def setUp(self):
-        super(TestSetNDPProxy, self).setUp()
+        super().setUp()
         attrs = {'router_id': self.router.id, 'port_id': self.port.id}
         self.ndp_proxy = network_fakes.create_one_ndp_proxy(attrs)
         self.network_client.update_ndp_proxy = mock.Mock(return_value=None)
@@ -407,7 +407,7 @@ class TestSetNDPProxy(TestNDPProxy):
 
 class TestShowNDPProxy(TestNDPProxy):
     def setUp(self):
-        super(TestShowNDPProxy, self).setUp()
+        super().setUp()
         attrs = {'router_id': self.router.id, 'port_id': self.port.id}
         self.ndp_proxy = network_fakes.create_one_ndp_proxy(attrs)
 

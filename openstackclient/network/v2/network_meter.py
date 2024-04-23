@@ -65,7 +65,7 @@ class CreateMeter(command.ShowOne, common.NeutronCommandWithExtraArgs):
     _description = _("Create network meter")
 
     def get_parser(self, prog_name):
-        parser = super(CreateMeter, self).get_parser(prog_name)
+        parser = super().get_parser(prog_name)
 
         parser.add_argument(
             '--description',
@@ -118,7 +118,7 @@ class DeleteMeter(command.Command):
     _description = _("Delete network meter")
 
     def get_parser(self, prog_name):
-        parser = super(DeleteMeter, self).get_parser(prog_name)
+        parser = super().get_parser(prog_name)
 
         parser.add_argument(
             'meter',
@@ -187,7 +187,7 @@ class ShowMeter(command.ShowOne):
     _description = _("Show network meter")
 
     def get_parser(self, prog_name):
-        parser = super(ShowMeter, self).get_parser(prog_name)
+        parser = super().get_parser(prog_name)
         parser.add_argument(
             'meter', metavar='<meter>', help=_('Meter to display (name or ID)')
         )

@@ -27,7 +27,7 @@ class ShowConfiguration(command.ShowOne):
     auth_required = False
 
     def get_parser(self, prog_name):
-        parser = super(ShowConfiguration, self).get_parser(prog_name)
+        parser = super().get_parser(prog_name)
         mask_group = parser.add_mutually_exclusive_group()
         mask_group.add_argument(
             "--mask",

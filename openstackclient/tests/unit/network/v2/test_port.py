@@ -30,7 +30,7 @@ LIST_FIELDS_TO_RETRIEVE_LONG = ('security_group_ids', 'device_owner', 'tags')
 
 class TestPort(network_fakes.TestNetworkV2):
     def setUp(self):
-        super(TestPort, self).setUp()
+        super().setUp()
 
         # Get a shortcut to the ProjectManager Mock
         self.projects_mock = self.identity_client.projects
@@ -127,7 +127,7 @@ class TestCreatePort(TestPort):
     columns, data = TestPort._get_common_cols_data(_port)
 
     def setUp(self):
-        super(TestCreatePort, self).setUp()
+        super().setUp()
 
         self.network_client.create_port = mock.Mock(return_value=self._port)
         self.network_client.set_tags = mock.Mock(return_value=None)
@@ -1118,7 +1118,7 @@ class TestDeletePort(TestPort):
     _ports = network_fakes.create_ports(count=2)
 
     def setUp(self):
-        super(TestDeletePort, self).setUp()
+        super().setUp()
 
         self.network_client.delete_port = mock.Mock(return_value=None)
         self.network_client.find_port = network_fakes.get_ports(
@@ -1240,7 +1240,7 @@ class TestListPort(TestPort):
         )
 
     def setUp(self):
-        super(TestListPort, self).setUp()
+        super().setUp()
 
         self.network_client.ports = mock.Mock(return_value=self._ports)
         fake_router = network_fakes.FakeRouter.create_one_router(
@@ -1490,7 +1490,7 @@ class TestListPort(TestPort):
         ip_address = self._ports[0].fixed_ips[0]['ip_address']
         arglist = [
             '--fixed-ip',
-            "subnet=%s,ip-address=%s" % (subnet_id, ip_address),
+            f"subnet={subnet_id},ip-address={ip_address}",
         ]
         verifylist = [
             ('fixed_ip', [{'subnet': subnet_id, 'ip-address': ip_address}])
@@ -1720,7 +1720,7 @@ class TestSetPort(TestPort):
     _port = network_fakes.create_one_port({'tags': ['green', 'red']})
 
     def setUp(self):
-        super(TestSetPort, self).setUp()
+        super().setUp()
         self.fake_subnet = network_fakes.FakeSubnet.create_one_subnet()
         self.network_client.find_subnet = mock.Mock(
             return_value=self.fake_subnet
@@ -2507,7 +2507,7 @@ class TestShowPort(TestPort):
     columns, data = TestPort._get_common_cols_data(_port)
 
     def setUp(self):
-        super(TestShowPort, self).setUp()
+        super().setUp()
 
         self.network_client.find_port = mock.Mock(return_value=self._port)
 
@@ -2547,7 +2547,7 @@ class TestShowPort(TestPort):
 
 class TestUnsetPort(TestPort):
     def setUp(self):
-        super(TestUnsetPort, self).setUp()
+        super().setUp()
         self._testport = network_fakes.create_one_port(
             {
                 'fixed_ips': [

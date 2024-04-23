@@ -101,7 +101,7 @@ class TestCreateNetworkCompute(compute_fakes.TestComputev2):
     )
 
     def setUp(self):
-        super(TestCreateNetworkCompute, self).setUp()
+        super().setUp()
 
         self.app.client_manager.network_endpoint_enabled = False
 
@@ -168,7 +168,7 @@ class TestCreateNetworkCompute(compute_fakes.TestComputev2):
 @mock.patch('openstackclient.api.compute_v2.APIv2.network_delete')
 class TestDeleteNetworkCompute(compute_fakes.TestComputev2):
     def setUp(self):
-        super(TestDeleteNetworkCompute, self).setUp()
+        super().setUp()
 
         self.app.client_manager.network_endpoint_enabled = False
 
@@ -267,7 +267,7 @@ class TestListNetworkCompute(compute_fakes.TestComputev2):
         )
 
     def setUp(self):
-        super(TestListNetworkCompute, self).setUp()
+        super().setUp()
 
         self.app.client_manager.network_endpoint_enabled = False
 
@@ -366,7 +366,7 @@ class TestShowNetworkCompute(compute_fakes.TestComputev2):
     )
 
     def setUp(self):
-        super(TestShowNetworkCompute, self).setUp()
+        super().setUp()
 
         self.app.client_manager.network_endpoint_enabled = False
 

@@ -30,9 +30,7 @@ class CreateConsistencyGroupSnapshot(command.ShowOne):
     _description = _("Create new consistency group snapshot.")
 
     def get_parser(self, prog_name):
-        parser = super(CreateConsistencyGroupSnapshot, self).get_parser(
-            prog_name
-        )
+        parser = super().get_parser(prog_name)
         parser.add_argument(
             "snapshot_name",
             metavar="<snapshot-name>",
@@ -77,9 +75,7 @@ class DeleteConsistencyGroupSnapshot(command.Command):
     _description = _("Delete consistency group snapshot(s).")
 
     def get_parser(self, prog_name):
-        parser = super(DeleteConsistencyGroupSnapshot, self).get_parser(
-            prog_name
-        )
+        parser = super().get_parser(prog_name)
         parser.add_argument(
             "consistency_group_snapshot",
             metavar="<consistency-group-snapshot>",
@@ -122,9 +118,7 @@ class ListConsistencyGroupSnapshot(command.Lister):
     _description = _("List consistency group snapshots.")
 
     def get_parser(self, prog_name):
-        parser = super(ListConsistencyGroupSnapshot, self).get_parser(
-            prog_name
-        )
+        parser = super().get_parser(prog_name)
         parser.add_argument(
             '--all-projects',
             action="store_true",
@@ -202,9 +196,7 @@ class ShowConsistencyGroupSnapshot(command.ShowOne):
     _description = _("Display consistency group snapshot details")
 
     def get_parser(self, prog_name):
-        parser = super(ShowConsistencyGroupSnapshot, self).get_parser(
-            prog_name
-        )
+        parser = super().get_parser(prog_name)
         parser.add_argument(
             "consistency_group_snapshot",
             metavar="<consistency-group-snapshot>",

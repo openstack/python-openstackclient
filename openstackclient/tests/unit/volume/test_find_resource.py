@@ -37,7 +37,7 @@ NAME = 'PhilSpector'
 
 class TestFindResourceVolumes(test_utils.TestCase):
     def setUp(self):
-        super(TestFindResourceVolumes, self).setUp()
+        super().setUp()
         api = mock.Mock()
         api.client = mock.Mock()
         api.client.get = mock.Mock()
@@ -62,7 +62,7 @@ class TestFindResourceVolumes(test_utils.TestCase):
 
 class TestFindResourceVolumeSnapshots(test_utils.TestCase):
     def setUp(self):
-        super(TestFindResourceVolumeSnapshots, self).setUp()
+        super().setUp()
         api = mock.Mock()
         api.client = mock.Mock()
         api.client.get = mock.Mock()

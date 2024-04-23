@@ -51,7 +51,7 @@ class ClientManager(clientmanager.ClientManager):
         api_version=None,
         pw_func=None,
     ):
-        super(ClientManager, self).__init__(
+        super().__init__(
             cli_options=cli_options,
             api_version=api_version,
             pw_func=pw_func,
@@ -94,7 +94,7 @@ class ClientManager(clientmanager.ClientManager):
             except TypeError as e:
                 self._fallback_load_auth_plugin(e)
 
-        return super(ClientManager, self).setup_auth()
+        return super().setup_auth()
 
     def _fallback_load_auth_plugin(self, e):
         # NOTES(RuiChen): Hack to avoid auth plugins choking on data they don't
@@ -170,7 +170,9 @@ def get_plugin_modules(group):
             module = importlib.import_module(module_name)
         except Exception as err:
             sys.stderr.write(
-                "WARNING: Failed to import plugin %s: %s.\n" % (ep.name, err)
+                "WARNING: Failed to import plugin {}: {}.\n".format(
+                    ep.name, err
+                )
             )
             continue
 

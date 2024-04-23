@@ -28,7 +28,7 @@ from openstackclient.i18n import _
 LOG = logging.getLogger(__name__)
 
 
-class _RulesReader(object):
+class _RulesReader:
     _description = _("Helper class capable of reading rules from files")
 
     def _read_rules(self, path):
@@ -101,7 +101,7 @@ class CreateMapping(command.ShowOne, _RulesReader):
     _description = _("Create new mapping")
 
     def get_parser(self, prog_name):
-        parser = super(CreateMapping, self).get_parser(prog_name)
+        parser = super().get_parser(prog_name)
         parser.add_argument(
             'mapping',
             metavar='<name>',
@@ -134,7 +134,7 @@ class DeleteMapping(command.Command):
     _description = _("Delete mapping(s)")
 
     def get_parser(self, prog_name):
-        parser = super(DeleteMapping, self).get_parser(prog_name)
+        parser = super().get_parser(prog_name)
         parser.add_argument(
             'mapping',
             metavar='<mapping>',
@@ -185,7 +185,7 @@ class SetMapping(command.Command, _RulesReader):
     _description = _("Set mapping properties")
 
     def get_parser(self, prog_name):
-        parser = super(SetMapping, self).get_parser(prog_name)
+        parser = super().get_parser(prog_name)
         parser.add_argument(
             'mapping',
             metavar='<name>',
@@ -218,7 +218,7 @@ class ShowMapping(command.ShowOne):
     _description = _("Display mapping details")
 
     def get_parser(self, prog_name):
-        parser = super(ShowMapping, self).get_parser(prog_name)
+        parser = super().get_parser(prog_name)
         parser.add_argument(
             'mapping',
             metavar='<mapping>',

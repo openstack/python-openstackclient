@@ -63,7 +63,7 @@ class AddNetworkFlavorToProfile(command.Command):
     _description = _("Add a service profile to a network flavor")
 
     def get_parser(self, prog_name):
-        parser = super(AddNetworkFlavorToProfile, self).get_parser(prog_name)
+        parser = super().get_parser(prog_name)
         parser.add_argument(
             'flavor', metavar="<flavor>", help=_("Network flavor (name or ID)")
         )
@@ -93,7 +93,7 @@ class CreateNetworkFlavor(command.ShowOne, common.NeutronCommandWithExtraArgs):
     _description = _("Create new network flavor")
 
     def get_parser(self, prog_name):
-        parser = super(CreateNetworkFlavor, self).get_parser(prog_name)
+        parser = super().get_parser(prog_name)
         parser.add_argument(
             'name', metavar="<name>", help=_("Name for the flavor")
         )
@@ -146,7 +146,7 @@ class DeleteNetworkFlavor(command.Command):
     _description = _("Delete network flavors")
 
     def get_parser(self, prog_name):
-        parser = super(DeleteNetworkFlavor, self).get_parser(prog_name)
+        parser = super().get_parser(prog_name)
 
         parser.add_argument(
             'flavor',
@@ -214,9 +214,7 @@ class RemoveNetworkFlavorFromProfile(command.Command):
     _description = _("Remove service profile from network flavor")
 
     def get_parser(self, prog_name):
-        parser = super(RemoveNetworkFlavorFromProfile, self).get_parser(
-            prog_name
-        )
+        parser = super().get_parser(prog_name)
         parser.add_argument(
             'flavor', metavar="<flavor>", help=_("Network flavor (name or ID)")
         )
@@ -246,7 +244,7 @@ class SetNetworkFlavor(common.NeutronCommandWithExtraArgs):
     _description = _("Set network flavor properties")
 
     def get_parser(self, prog_name):
-        parser = super(SetNetworkFlavor, self).get_parser(prog_name)
+        parser = super().get_parser(prog_name)
         parser.add_argument(
             'flavor',
             metavar="<flavor>",
@@ -290,7 +288,7 @@ class ShowNetworkFlavor(command.ShowOne):
     _description = _("Display network flavor details")
 
     def get_parser(self, prog_name):
-        parser = super(ShowNetworkFlavor, self).get_parser(prog_name)
+        parser = super().get_parser(prog_name)
         parser.add_argument(
             'flavor',
             metavar='<flavor>',

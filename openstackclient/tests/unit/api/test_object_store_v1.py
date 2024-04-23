@@ -52,7 +52,7 @@ LIST_OBJECT_RESP = [
 
 class TestObjectAPIv1(utils.TestCase):
     def setUp(self):
-        super(TestObjectAPIv1, self).setUp()
+        super().setUp()
         sess = session.Session()
         self.api = object_store.APIv1(session=sess, endpoint=FAKE_URL)
         self.requests_mock = self.useFixture(fixture.Fixture())
@@ -60,7 +60,7 @@ class TestObjectAPIv1(utils.TestCase):
 
 class TestContainer(TestObjectAPIv1):
     def setUp(self):
-        super(TestContainer, self).setUp()
+        super().setUp()
 
     def test_container_create(self):
         headers = {
@@ -181,9 +181,9 @@ class TestContainer(TestObjectAPIv1):
 
 class TestObject(TestObjectAPIv1):
     def setUp(self):
-        super(TestObject, self).setUp()
+        super().setUp()
 
-    @mock.patch('openstackclient.api.object_store_v1.io.open')
+    @mock.patch('openstackclient.api.object_store_v1.open')
     def base_object_create(self, file_contents, mock_open):
         mock_open.read.return_value = file_contents
 

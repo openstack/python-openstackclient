@@ -55,7 +55,7 @@ class AddAggregateHost(command.ShowOne):
     _description = _("Add host to aggregate")
 
     def get_parser(self, prog_name):
-        parser = super(AddAggregateHost, self).get_parser(prog_name)
+        parser = super().get_parser(prog_name)
         parser.add_argument(
             'aggregate',
             metavar='<aggregate>',
@@ -88,7 +88,7 @@ class CreateAggregate(command.ShowOne):
     _description = _("Create a new aggregate")
 
     def get_parser(self, prog_name):
-        parser = super(CreateAggregate, self).get_parser(prog_name)
+        parser = super().get_parser(prog_name)
         parser.add_argument(
             "name", metavar="<name>", help=_("New aggregate name")
         )
@@ -136,7 +136,7 @@ class DeleteAggregate(command.Command):
     _description = _("Delete existing aggregate(s)")
 
     def get_parser(self, prog_name):
-        parser = super(DeleteAggregate, self).get_parser(prog_name)
+        parser = super().get_parser(prog_name)
         parser.add_argument(
             'aggregate',
             metavar='<aggregate>',
@@ -178,7 +178,7 @@ class ListAggregate(command.Lister):
     _description = _("List all aggregates")
 
     def get_parser(self, prog_name):
-        parser = super(ListAggregate, self).get_parser(prog_name)
+        parser = super().get_parser(prog_name)
         parser.add_argument(
             '--long',
             action='store_true',
@@ -232,7 +232,7 @@ class RemoveAggregateHost(command.ShowOne):
     _description = _("Remove host from aggregate")
 
     def get_parser(self, prog_name):
-        parser = super(RemoveAggregateHost, self).get_parser(prog_name)
+        parser = super().get_parser(prog_name)
         parser.add_argument(
             'aggregate',
             metavar='<aggregate>',
@@ -265,7 +265,7 @@ class SetAggregate(command.Command):
     _description = _("Set aggregate properties")
 
     def get_parser(self, prog_name):
-        parser = super(SetAggregate, self).get_parser(prog_name)
+        parser = super().get_parser(prog_name)
         parser.add_argument(
             'aggregate',
             metavar='<aggregate>',
@@ -337,7 +337,7 @@ class ShowAggregate(command.ShowOne):
     _description = _("Display aggregate details")
 
     def get_parser(self, prog_name):
-        parser = super(ShowAggregate, self).get_parser(prog_name)
+        parser = super().get_parser(prog_name)
         parser.add_argument(
             'aggregate',
             metavar='<aggregate>',
@@ -366,7 +366,7 @@ class UnsetAggregate(command.Command):
     _description = _("Unset aggregate properties")
 
     def get_parser(self, prog_name):
-        parser = super(UnsetAggregate, self).get_parser(prog_name)
+        parser = super().get_parser(prog_name)
         parser.add_argument(
             "aggregate",
             metavar="<aggregate>",
@@ -403,7 +403,7 @@ class CacheImageForAggregate(command.Command):
     # not be anything to return.
 
     def get_parser(self, prog_name):
-        parser = super(CacheImageForAggregate, self).get_parser(prog_name)
+        parser = super().get_parser(prog_name)
         parser.add_argument(
             'aggregate',
             metavar='<aggregate>',

@@ -25,7 +25,7 @@ from openstackclient.tests.unit import utils as tests_utils
 
 class TestSubnet(network_fakes.TestNetworkV2):
     def setUp(self):
-        super(TestSubnet, self).setUp()
+        super().setUp()
 
         # Get a shortcut to the ProjectManager Mock
         self.projects_mock = self.identity_client.projects
@@ -257,7 +257,7 @@ class TestCreateSubnet(TestSubnet):
 
     def setUp(self):
         self._init_subnet_variables()
-        super(TestCreateSubnet, self).setUp()
+        super().setUp()
 
         # Get the command object to test
         self.cmd = subnet_v2.CreateSubnet(self.app, None)
@@ -719,7 +719,7 @@ class TestDeleteSubnet(TestSubnet):
     _subnets = network_fakes.FakeSubnet.create_subnets(count=2)
 
     def setUp(self):
-        super(TestDeleteSubnet, self).setUp()
+        super().setUp()
 
         self.network_client.delete_subnet = mock.Mock(return_value=None)
 
@@ -850,7 +850,7 @@ class TestListSubnet(TestSubnet):
         )
 
     def setUp(self):
-        super(TestListSubnet, self).setUp()
+        super().setUp()
 
         # Get the command object to test
         self.cmd = subnet_v2.ListSubnet(self.app, None)
@@ -1181,7 +1181,7 @@ class TestSetSubnet(TestSubnet):
     )
 
     def setUp(self):
-        super(TestSetSubnet, self).setUp()
+        super().setUp()
         self.network_client.update_subnet = mock.Mock(return_value=None)
         self.network_client.set_tags = mock.Mock(return_value=None)
         self.network_client.find_subnet = mock.Mock(return_value=self._subnet)
@@ -1509,7 +1509,7 @@ class TestShowSubnet(TestSubnet):
     )
 
     def setUp(self):
-        super(TestShowSubnet, self).setUp()
+        super().setUp()
 
         # Get the command object to test
         self.cmd = subnet_v2.ShowSubnet(self.app, None)
@@ -1551,7 +1551,7 @@ class TestShowSubnet(TestSubnet):
 
 class TestUnsetSubnet(TestSubnet):
     def setUp(self):
-        super(TestUnsetSubnet, self).setUp()
+        super().setUp()
         # Add three dns_nameserver entries so we can verify ordering
         self._testsubnet = network_fakes.FakeSubnet.create_one_subnet(
             {

@@ -159,10 +159,10 @@ def _get_item_properties(item, fields):
 
 def _rule_action_call(client, action, rule_type):
     rule_type = rule_type.replace('-', '_')
-    func_name = '%(action)s_qos_%(rule_type)s_rule' % {
-        'action': action,
-        'rule_type': rule_type,
-    }
+    func_name = '{action}_qos_{rule_type}_rule'.format(
+        action=action,
+        rule_type=rule_type,
+    )
     return getattr(client, func_name)
 
 
@@ -243,7 +243,7 @@ class CreateNetworkQosRule(
     _description = _("Create new Network QoS rule")
 
     def get_parser(self, prog_name):
-        parser = super(CreateNetworkQosRule, self).get_parser(prog_name)
+        parser = super().get_parser(prog_name)
         parser.add_argument(
             'qos_policy',
             metavar='<qos-policy>',
@@ -289,7 +289,7 @@ class DeleteNetworkQosRule(command.Command):
     _description = _("Delete Network QoS rule")
 
     def get_parser(self, prog_name):
-        parser = super(DeleteNetworkQosRule, self).get_parser(prog_name)
+        parser = super().get_parser(prog_name)
         parser.add_argument(
             'qos_policy',
             metavar='<qos-policy>',
@@ -326,7 +326,7 @@ class ListNetworkQosRule(command.Lister):
     _description = _("List Network QoS rules")
 
     def get_parser(self, prog_name):
-        parser = super(ListNetworkQosRule, self).get_parser(prog_name)
+        parser = super().get_parser(prog_name)
         parser.add_argument(
             'qos_policy',
             metavar='<qos-policy>',
@@ -372,7 +372,7 @@ class SetNetworkQosRule(common.NeutronCommandWithExtraArgs):
     _description = _("Set Network QoS rule properties")
 
     def get_parser(self, prog_name):
-        parser = super(SetNetworkQosRule, self).get_parser(prog_name)
+        parser = super().get_parser(prog_name)
         parser.add_argument(
             'qos_policy',
             metavar='<qos-policy>',
@@ -418,7 +418,7 @@ class ShowNetworkQosRule(command.ShowOne):
     _description = _("Display Network QoS rule details")
 
     def get_parser(self, prog_name):
-        parser = super(ShowNetworkQosRule, self).get_parser(prog_name)
+        parser = super().get_parser(prog_name)
         parser.add_argument(
             'qos_policy',
             metavar='<qos-policy>',

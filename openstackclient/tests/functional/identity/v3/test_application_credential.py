@@ -39,12 +39,10 @@ class ApplicationCredentialTests(common.IdentityTests):
 
     def test_application_credential_create(self):
         name = data_utils.rand_name('name')
-        raw_output = self.openstack(
-            'application credential create %(name)s' % {'name': name}
-        )
+        raw_output = self.openstack(f'application credential create {name}')
         self.addCleanup(
             self.openstack,
-            'application credential delete %(name)s' % {'name': name},
+            f'application credential delete {name}',
         )
         items = self.parse_show(raw_output)
         self.assert_show_fields(items, self.APPLICATION_CREDENTIAL_FIELDS)
@@ -145,16 +143,14 @@ class ApplicationCredentialTests(common.IdentityTests):
         )
         self.addCleanup(
             self.openstack,
-            'application credential delete %(name)s' % {'name': name},
+            f'application credential delete {name}',
         )
         items = self.parse_show(raw_output)
         self.assert_show_fields(items, self.APPLICATION_CREDENTIAL_FIELDS)
 
     def test_application_credential_delete(self):
         name = data_utils.rand_name('name')
-        self.openstack(
-            'application credential create %(name)s' % {'name': name}
-        )
+        self.openstack(f'application credential create {name}')
         raw_output = self.openstack(
             'application credential delete ' '%(name)s' % {'name': name}
         )
@@ -169,12 +165,10 @@ class ApplicationCredentialTests(common.IdentityTests):
 
     def test_application_credential_show(self):
         name = data_utils.rand_name('name')
-        raw_output = self.openstack(
-            'application credential create %(name)s' % {'name': name}
-        )
+        raw_output = self.openstack(f'application credential create {name}')
         self.addCleanup(
             self.openstack,
-            'application credential delete %(name)s' % {'name': name},
+            f'application credential delete {name}',
         )
         raw_output = self.openstack(
             'application credential show ' '%(name)s' % {'name': name}

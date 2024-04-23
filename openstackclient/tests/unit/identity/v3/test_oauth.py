@@ -19,7 +19,7 @@ from openstackclient.tests.unit.identity.v3 import fakes as identity_fakes
 
 class TestOAuth1(identity_fakes.TestOAuth1):
     def setUp(self):
-        super(TestOAuth1, self).setUp()
+        super().setUp()
         identity_client = self.identity_client
         self.access_tokens_mock = identity_client.oauth1.access_tokens
         self.access_tokens_mock.reset_mock()
@@ -33,7 +33,7 @@ class TestOAuth1(identity_fakes.TestOAuth1):
 
 class TestAccessTokenCreate(TestOAuth1):
     def setUp(self):
-        super(TestAccessTokenCreate, self).setUp()
+        super().setUp()
 
         self.access_tokens_mock.create.return_value = fakes.FakeResource(
             None,
@@ -87,7 +87,7 @@ class TestAccessTokenCreate(TestOAuth1):
 
 class TestRequestTokenAuthorize(TestOAuth1):
     def setUp(self):
-        super(TestRequestTokenAuthorize, self).setUp()
+        super().setUp()
 
         self.roles_mock.get.return_value = fakes.FakeResource(
             None,
@@ -127,7 +127,7 @@ class TestRequestTokenAuthorize(TestOAuth1):
 
 class TestRequestTokenCreate(TestOAuth1):
     def setUp(self):
-        super(TestRequestTokenCreate, self).setUp()
+        super().setUp()
 
         self.request_tokens_mock.create.return_value = fakes.FakeResource(
             None,

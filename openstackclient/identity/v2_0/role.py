@@ -32,7 +32,7 @@ class AddRole(command.ShowOne):
     _description = _("Add role to project:user")
 
     def get_parser(self, prog_name):
-        parser = super(AddRole, self).get_parser(prog_name)
+        parser = super().get_parser(prog_name)
         parser.add_argument(
             'role',
             metavar='<role>',
@@ -75,7 +75,7 @@ class CreateRole(command.ShowOne):
     _description = _("Create new role")
 
     def get_parser(self, prog_name):
-        parser = super(CreateRole, self).get_parser(prog_name)
+        parser = super().get_parser(prog_name)
         parser.add_argument(
             'role_name',
             metavar='<name>',
@@ -111,7 +111,7 @@ class DeleteRole(command.Command):
     _description = _("Delete role(s)")
 
     def get_parser(self, prog_name):
-        parser = super(DeleteRole, self).get_parser(prog_name)
+        parser = super().get_parser(prog_name)
         parser.add_argument(
             'roles',
             metavar='<role>',
@@ -176,7 +176,7 @@ class RemoveRole(command.Command):
     _description = _("Remove role from project : user")
 
     def get_parser(self, prog_name):
-        parser = super(RemoveRole, self).get_parser(prog_name)
+        parser = super().get_parser(prog_name)
         parser.add_argument(
             'role',
             metavar='<role>',
@@ -211,7 +211,7 @@ class ShowRole(command.ShowOne):
     _description = _("Display role details")
 
     def get_parser(self, prog_name):
-        parser = super(ShowRole, self).get_parser(prog_name)
+        parser = super().get_parser(prog_name)
         parser.add_argument(
             'role',
             metavar='<role>',

@@ -29,7 +29,7 @@ class CreateRegisteredLimit(command.ShowOne):
     _description = _("Create a registered limit")
 
     def get_parser(self, prog_name):
-        parser = super(CreateRegisteredLimit, self).get_parser(prog_name)
+        parser = super().get_parser(prog_name)
         parser.add_argument(
             '--description',
             metavar='<description>',
@@ -98,7 +98,7 @@ class DeleteRegisteredLimit(command.Command):
     _description = _("Delete a registered limit")
 
     def get_parser(self, prog_name):
-        parser = super(DeleteRegisteredLimit, self).get_parser(prog_name)
+        parser = super().get_parser(prog_name)
         parser.add_argument(
             'registered_limit_id',
             metavar='<registered-limit-id>',
@@ -140,7 +140,7 @@ class ListRegisteredLimit(command.Lister):
     _description = _("List registered limits")
 
     def get_parser(self, prog_name):
-        parser = super(ListRegisteredLimit, self).get_parser(prog_name)
+        parser = super().get_parser(prog_name)
         parser.add_argument(
             '--service',
             metavar='<service>',
@@ -207,7 +207,7 @@ class SetRegisteredLimit(command.ShowOne):
     _description = _("Update information about a registered limit")
 
     def get_parser(self, prog_name):
-        parser = super(SetRegisteredLimit, self).get_parser(prog_name)
+        parser = super().get_parser(prog_name)
         parser.add_argument(
             'registered_limit_id',
             metavar='<registered-limit-id>',
@@ -298,7 +298,7 @@ class ShowRegisteredLimit(command.ShowOne):
     _description = _("Display registered limit details")
 
     def get_parser(self, prog_name):
-        parser = super(ShowRegisteredLimit, self).get_parser(prog_name)
+        parser = super().get_parser(prog_name)
         parser.add_argument(
             'registered_limit_id',
             metavar='<registered-limit-id>',

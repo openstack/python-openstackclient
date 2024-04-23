@@ -20,7 +20,7 @@ from openstackclient.tests.unit.identity.v3 import fakes as identity_fakes
 
 class TestRegion(identity_fakes.TestIdentityv3):
     def setUp(self):
-        super(TestRegion, self).setUp()
+        super().setUp()
 
         # Get a shortcut to the RegionManager Mock
         self.regions_mock = self.identity_client.regions
@@ -40,7 +40,7 @@ class TestRegionCreate(TestRegion):
     )
 
     def setUp(self):
-        super(TestRegionCreate, self).setUp()
+        super().setUp()
 
         self.regions_mock.create.return_value = fakes.FakeResource(
             None,
@@ -134,7 +134,7 @@ class TestRegionCreate(TestRegion):
 
 class TestRegionDelete(TestRegion):
     def setUp(self):
-        super(TestRegionDelete, self).setUp()
+        super().setUp()
 
         self.regions_mock.delete.return_value = None
 
@@ -173,7 +173,7 @@ class TestRegionList(TestRegion):
     )
 
     def setUp(self):
-        super(TestRegionList, self).setUp()
+        super().setUp()
 
         self.regions_mock.list.return_value = [
             fakes.FakeResource(
@@ -224,7 +224,7 @@ class TestRegionList(TestRegion):
 
 class TestRegionSet(TestRegion):
     def setUp(self):
-        super(TestRegionSet, self).setUp()
+        super().setUp()
 
         self.regions_mock.update.return_value = fakes.FakeResource(
             None,
@@ -301,7 +301,7 @@ class TestRegionSet(TestRegion):
 
 class TestRegionShow(TestRegion):
     def setUp(self):
-        super(TestRegionShow, self).setUp()
+        super().setUp()
 
         self.regions_mock.get.return_value = fakes.FakeResource(
             None,

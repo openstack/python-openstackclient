@@ -85,7 +85,7 @@ class CreateNetworkQosPolicy(
     _description = _("Create a QoS policy")
 
     def get_parser(self, prog_name):
-        parser = super(CreateNetworkQosPolicy, self).get_parser(prog_name)
+        parser = super().get_parser(prog_name)
         parser.add_argument(
             'name', metavar='<name>', help=_("Name of QoS policy to create")
         )
@@ -144,7 +144,7 @@ class DeleteNetworkQosPolicy(command.Command):
     _description = _("Delete Qos Policy(s)")
 
     def get_parser(self, prog_name):
-        parser = super(DeleteNetworkQosPolicy, self).get_parser(prog_name)
+        parser = super().get_parser(prog_name)
         parser.add_argument(
             'policy',
             metavar="<qos-policy>",
@@ -185,7 +185,7 @@ class ListNetworkQosPolicy(command.Lister):
     _description = _("List QoS policies")
 
     def get_parser(self, prog_name):
-        parser = super(ListNetworkQosPolicy, self).get_parser(prog_name)
+        parser = super().get_parser(prog_name)
         parser.add_argument(
             '--project',
             metavar='<project>',
@@ -244,7 +244,7 @@ class SetNetworkQosPolicy(common.NeutronCommandWithExtraArgs):
     _description = _("Set QoS policy properties")
 
     def get_parser(self, prog_name):
-        parser = super(SetNetworkQosPolicy, self).get_parser(prog_name)
+        parser = super().get_parser(prog_name)
         parser.add_argument(
             'policy',
             metavar="<qos-policy>",
@@ -296,7 +296,7 @@ class ShowNetworkQosPolicy(command.ShowOne):
     _description = _("Display QoS policy details")
 
     def get_parser(self, prog_name):
-        parser = super(ShowNetworkQosPolicy, self).get_parser(prog_name)
+        parser = super().get_parser(prog_name)
         parser.add_argument(
             'policy',
             metavar="<qos-policy>",

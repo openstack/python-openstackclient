@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 #
 # OpenStack Command Line Client documentation build configuration file, created
 # by sphinx-quickstart on Wed May 16 12:05:58 2012.

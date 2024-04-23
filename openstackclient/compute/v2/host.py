@@ -65,7 +65,7 @@ class SetHost(command.Command):
     _description = _("Set host properties")
 
     def get_parser(self, prog_name):
-        parser = super(SetHost, self).get_parser(prog_name)
+        parser = super().get_parser(prog_name)
         parser.add_argument(
             "host", metavar="<host>", help=_("Host to modify (name only)")
         )

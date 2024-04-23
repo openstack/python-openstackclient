@@ -140,7 +140,7 @@ class IdentityTests(base.TestCase):
 
     @classmethod
     def setUpClass(cls):
-        super(IdentityTests, cls).setUpClass()
+        super().setUpClass()
         # create dummy domain
         cls.domain_name = data_utils.rand_name('TestDomain')
         cls.domain_description = data_utils.rand_name('description')
@@ -188,10 +188,10 @@ class IdentityTests(base.TestCase):
                 'domain delete %s' % cls.domain_name
             )
         finally:
-            super(IdentityTests, cls).tearDownClass()
+            super().tearDownClass()
 
     def setUp(self):
-        super(IdentityTests, self).setUp()
+        super().setUp()
         # prepare v3 env
         ver_fixture = fixtures.EnvironmentVariable(
             'OS_IDENTITY_API_VERSION', '3'

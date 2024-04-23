@@ -19,7 +19,7 @@ from openstackclient.tests.unit.identity.v3 import fakes as identity_fakes
 
 class TestUnscopedSAML(identity_fakes.TestFederatedIdentity):
     def setUp(self):
-        super(TestUnscopedSAML, self).setUp()
+        super().setUp()
 
         federation_lib = self.identity_client.federation
         self.projects_mock = federation_lib.projects
@@ -30,7 +30,7 @@ class TestUnscopedSAML(identity_fakes.TestFederatedIdentity):
 
 class TestDomainList(TestUnscopedSAML):
     def setUp(self):
-        super(TestDomainList, self).setUp()
+        super().setUp()
 
         self.domains_mock.list.return_value = [
             fakes.FakeResource(
@@ -70,7 +70,7 @@ class TestDomainList(TestUnscopedSAML):
 
 class TestProjectList(TestUnscopedSAML):
     def setUp(self):
-        super(TestProjectList, self).setUp()
+        super().setUp()
 
         self.projects_mock.list.return_value = [
             fakes.FakeResource(

@@ -22,7 +22,7 @@ from openstackclient.tests.unit import utils
 
 class TestCredential(identity_fakes.TestIdentityv3):
     def setUp(self):
-        super(TestCredential, self).setUp()
+        super().setUp()
 
         # Get a shortcut to the CredentialManager Mock
         self.credentials_mock = self.identity_client.credentials
@@ -49,7 +49,7 @@ class TestCredentialCreate(TestCredential):
     )
 
     def setUp(self):
-        super(TestCredentialCreate, self).setUp()
+        super().setUp()
 
         self.credential = identity_fakes.FakeCredential.create_one_credential(
             attrs={'user_id': self.user.id, 'project_id': self.project.id}
@@ -126,7 +126,7 @@ class TestCredentialDelete(TestCredential):
     credentials = identity_fakes.FakeCredential.create_credentials(count=2)
 
     def setUp(self):
-        super(TestCredentialDelete, self).setUp()
+        super().setUp()
 
         self.credentials_mock.delete.return_value = None
 
@@ -206,7 +206,7 @@ class TestCredentialList(TestCredential):
     )
 
     def setUp(self):
-        super(TestCredentialList, self).setUp()
+        super().setUp()
 
         self.user = identity_fakes.FakeUser.create_one_user()
         self.users_mock.get.return_value = self.user
@@ -257,7 +257,7 @@ class TestCredentialSet(TestCredential):
     credential = identity_fakes.FakeCredential.create_one_credential()
 
     def setUp(self):
-        super(TestCredentialSet, self).setUp()
+        super().setUp()
         self.cmd = credential.SetCredential(self.app, None)
 
     def test_credential_set_no_options(self):
@@ -353,7 +353,7 @@ class TestCredentialShow(TestCredential):
     )
 
     def setUp(self):
-        super(TestCredentialShow, self).setUp()
+        super().setUp()
 
         self.credential = identity_fakes.FakeCredential.create_one_credential()
         self.credentials_mock.get.return_value = self.credential

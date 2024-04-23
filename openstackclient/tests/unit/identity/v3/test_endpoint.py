@@ -16,7 +16,7 @@ from openstackclient.tests.unit.identity.v3 import fakes as identity_fakes
 
 class TestEndpoint(identity_fakes.TestIdentityv3):
     def setUp(self):
-        super(TestEndpoint, self).setUp()
+        super().setUp()
 
         # Get a shortcut to the EndpointManager Mock
         self.endpoints_mock = self.identity_client.endpoints
@@ -52,7 +52,7 @@ class TestEndpointCreate(TestEndpoint):
     )
 
     def setUp(self):
-        super(TestEndpointCreate, self).setUp()
+        super().setUp()
 
         self.endpoint = identity_fakes.FakeEndpoint.create_one_endpoint(
             attrs={'service_id': self.service.id}
@@ -247,7 +247,7 @@ class TestEndpointDelete(TestEndpoint):
     endpoint = identity_fakes.FakeEndpoint.create_one_endpoint()
 
     def setUp(self):
-        super(TestEndpointDelete, self).setUp()
+        super().setUp()
 
         # This is the return value for utils.find_resource(endpoint)
         self.endpoints_mock.get.return_value = self.endpoint
@@ -290,7 +290,7 @@ class TestEndpointList(TestEndpoint):
     )
 
     def setUp(self):
-        super(TestEndpointList, self).setUp()
+        super().setUp()
 
         self.endpoints_mock.list.return_value = [self.endpoint]
 
@@ -477,7 +477,7 @@ class TestEndpointSet(TestEndpoint):
     )
 
     def setUp(self):
-        super(TestEndpointSet, self).setUp()
+        super().setUp()
 
         # This is the return value for utils.find_resource(endpoint)
         self.endpoints_mock.get.return_value = self.endpoint
@@ -659,7 +659,7 @@ class TestEndpointShow(TestEndpoint):
     )
 
     def setUp(self):
-        super(TestEndpointShow, self).setUp()
+        super().setUp()
 
         self.endpoints_mock.get.return_value = self.endpoint
 
@@ -785,7 +785,7 @@ class TestAddProjectToEndpoint(TestEndpoint):
     )
 
     def setUp(self):
-        super(TestAddProjectToEndpoint, self).setUp()
+        super().setUp()
 
         # This is the return value for utils.find_resource()
         self.endpoints_mock.get.return_value = self.endpoint
@@ -844,7 +844,7 @@ class TestRemoveProjectEndpoint(TestEndpoint):
     )
 
     def setUp(self):
-        super(TestRemoveProjectEndpoint, self).setUp()
+        super().setUp()
 
         # This is the return value for utils.find_resource()
         self.endpoints_mock.get.return_value = self.endpoint

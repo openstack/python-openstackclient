@@ -57,7 +57,7 @@ class KeypairTests(KeypairBase):
 
     def setUp(self):
         """Create keypair with randomized name for tests."""
-        super(KeypairTests, self).setUp()
+        super().setUp()
         self.KPName = data_utils.rand_name('TestKeyPair')
         self.keypair = self.keypair_create(self.KPName)
 

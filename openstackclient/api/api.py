@@ -21,7 +21,7 @@ import simplejson as json
 from openstackclient.i18n import _
 
 
-class KeystoneSession(object):
+class KeystoneSession:
     """Wrapper for the Keystone Session
 
     Restore some requests.session.Session compatibility;
@@ -40,7 +40,7 @@ class KeystoneSession(object):
             requests on this API.
         """
 
-        super(KeystoneSession, self).__init__()
+        super().__init__()
 
         # a requests.Session-style interface
         self.session = session
@@ -95,7 +95,7 @@ class BaseAPI(KeystoneSession):
             requests on this API.
         """
 
-        super(BaseAPI, self).__init__(session=session, endpoint=endpoint)
+        super().__init__(session=session, endpoint=endpoint)
 
         self.service_type = service_type
 
@@ -303,7 +303,7 @@ class BaseAPI(KeystoneSession):
         """
 
         try:
-            ret = self._request('GET', "/%s/%s" % (path, value)).json()
+            ret = self._request('GET', f"/{path}/{value}").json()
         except ks_exceptions.NotFound:
             kwargs = {attr: value}
             try:

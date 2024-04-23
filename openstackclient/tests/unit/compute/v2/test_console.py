@@ -24,7 +24,7 @@ class TestConsoleLog(compute_fakes.TestComputev2):
     _server = compute_fakes.create_one_server()
 
     def setUp(self):
-        super(TestConsoleLog, self).setUp()
+        super().setUp()
 
         self.compute_sdk_client.find_server.return_value = self._server
 
@@ -80,7 +80,7 @@ class TestConsoleUrlShow(compute_fakes.TestComputev2):
     _server = compute_fakes.create_one_server()
 
     def setUp(self):
-        super(TestConsoleUrlShow, self).setUp()
+        super().setUp()
         self.compute_sdk_client.find_server.return_value = self._server
         fake_console_data = {
             'url': 'http://localhost',

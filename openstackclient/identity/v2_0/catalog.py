@@ -39,7 +39,7 @@ class EndpointsColumn(cliff_columns.FormattableColumn):
             for endpoint_type in ['publicURL', 'internalURL', 'adminURL']:
                 url = ep.get(endpoint_type)
                 if url:
-                    ret += "  %s: %s\n" % (endpoint_type, url)
+                    ret += f"  {endpoint_type}: {url}\n"
         return ret
 
 
@@ -75,7 +75,7 @@ class ShowCatalog(command.ShowOne):
     _description = _("Display service catalog details")
 
     def get_parser(self, prog_name):
-        parser = super(ShowCatalog, self).get_parser(prog_name)
+        parser = super().get_parser(prog_name)
         parser.add_argument(
             'service',
             metavar='<service>',

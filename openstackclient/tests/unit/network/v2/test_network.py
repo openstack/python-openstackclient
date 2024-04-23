@@ -29,7 +29,7 @@ from openstackclient.tests.unit import utils as tests_utils
 #
 class TestNetwork(network_fakes.TestNetworkV2):
     def setUp(self):
-        super(TestNetwork, self).setUp()
+        super().setUp()
 
         # Get a shortcut to the ProjectManager Mock
         self.projects_mock = self.identity_client.projects
@@ -112,7 +112,7 @@ class TestCreateNetworkIdentityV3(TestNetwork):
     )
 
     def setUp(self):
-        super(TestCreateNetworkIdentityV3, self).setUp()
+        super().setUp()
 
         self.network_client.create_network = mock.Mock(
             return_value=self._network
@@ -381,7 +381,7 @@ class TestCreateNetworkIdentityV2(
     )
 
     def setUp(self):
-        super(TestCreateNetworkIdentityV2, self).setUp()
+        super().setUp()
 
         self.network_client.create_network = mock.Mock(
             return_value=self._network
@@ -453,7 +453,7 @@ class TestCreateNetworkIdentityV2(
 
 class TestDeleteNetwork(TestNetwork):
     def setUp(self):
-        super(TestDeleteNetwork, self).setUp()
+        super().setUp()
 
         # The networks to delete
         self._networks = network_fakes.create_networks(count=3)
@@ -591,7 +591,7 @@ class TestListNetwork(TestNetwork):
         )
 
     def setUp(self):
-        super(TestListNetwork, self).setUp()
+        super().setUp()
 
         # Get the command object to test
         self.cmd = network.ListNetwork(self.app, None)
@@ -949,7 +949,7 @@ class TestSetNetwork(TestNetwork):
     )
 
     def setUp(self):
-        super(TestSetNetwork, self).setUp()
+        super().setUp()
 
         self.network_client.update_network = mock.Mock(return_value=None)
         self.network_client.set_tags = mock.Mock(return_value=None)
@@ -1198,7 +1198,7 @@ class TestShowNetwork(TestNetwork):
     )
 
     def setUp(self):
-        super(TestShowNetwork, self).setUp()
+        super().setUp()
 
         self.network_client.find_network = mock.Mock(
             return_value=self._network
@@ -1246,7 +1246,7 @@ class TestUnsetNetwork(TestNetwork):
     )
 
     def setUp(self):
-        super(TestUnsetNetwork, self).setUp()
+        super().setUp()
 
         self.network_client.update_network = mock.Mock(return_value=None)
         self.network_client.set_tags = mock.Mock(return_value=None)

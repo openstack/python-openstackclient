@@ -26,7 +26,7 @@ from openstackclient.tests.unit import utils as tests_utils
 
 class TestNetworkFlavor(network_fakes.TestNetworkV2):
     def setUp(self):
-        super(TestNetworkFlavor, self).setUp()
+        super().setUp()
 
         # Get a shortcut to the ProjectManager Mock
         self.projects_mock = self.identity_client.projects
@@ -39,7 +39,7 @@ class TestAddNetworkFlavorToProfile(TestNetworkFlavor):
     service_profile = network_fakes.create_one_service_profile()
 
     def setUp(self):
-        super(TestAddNetworkFlavorToProfile, self).setUp()
+        super().setUp()
 
         self.network_client.find_flavor = mock.Mock(
             return_value=self.network_flavor
@@ -101,7 +101,7 @@ class TestCreateNetworkFlavor(TestNetworkFlavor):
     )
 
     def setUp(self):
-        super(TestCreateNetworkFlavor, self).setUp()
+        super().setUp()
         self.network_client.create_flavor = mock.Mock(
             return_value=self.new_network_flavor
         )
@@ -217,7 +217,7 @@ class TestDeleteNetworkFlavor(TestNetworkFlavor):
     _network_flavors = network_fakes.create_flavor(count=2)
 
     def setUp(self):
-        super(TestDeleteNetworkFlavor, self).setUp()
+        super().setUp()
         self.network_client.delete_flavor = mock.Mock(return_value=None)
         self.network_client.find_flavor = network_fakes.get_flavor(
             network_flavors=self._network_flavors
@@ -322,7 +322,7 @@ class TestListNetworkFlavor(TestNetworkFlavor):
         )
 
     def setUp(self):
-        super(TestListNetworkFlavor, self).setUp()
+        super().setUp()
         self.network_client.flavors = mock.Mock(
             return_value=self._network_flavors
         )
@@ -347,7 +347,7 @@ class TestRemoveNetworkFlavorFromProfile(TestNetworkFlavor):
     service_profile = network_fakes.create_one_service_profile()
 
     def setUp(self):
-        super(TestRemoveNetworkFlavorFromProfile, self).setUp()
+        super().setUp()
         self.network_client.find_flavor = mock.Mock(
             return_value=self.network_flavor
         )
@@ -411,7 +411,7 @@ class TestShowNetworkFlavor(TestNetworkFlavor):
     )
 
     def setUp(self):
-        super(TestShowNetworkFlavor, self).setUp()
+        super().setUp()
         self.network_client.find_flavor = mock.Mock(
             return_value=self.new_network_flavor
         )
@@ -455,7 +455,7 @@ class TestSetNetworkFlavor(TestNetworkFlavor):
     new_network_flavor = network_fakes.create_one_network_flavor()
 
     def setUp(self):
-        super(TestSetNetworkFlavor, self).setUp()
+        super().setUp()
         self.network_client.update_flavor = mock.Mock(return_value=None)
         self.network_client.find_flavor = mock.Mock(
             return_value=self.new_network_flavor

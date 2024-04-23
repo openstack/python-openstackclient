@@ -32,7 +32,7 @@ class DeleteService(command.Command):
     _description = _("Delete compute service(s)")
 
     def get_parser(self, prog_name):
-        parser = super(DeleteService, self).get_parser(prog_name)
+        parser = super().get_parser(prog_name)
         parser.add_argument(
             "service",
             metavar="<service>",
@@ -85,7 +85,7 @@ deployment."""
     )
 
     def get_parser(self, prog_name):
-        parser = super(ListService, self).get_parser(prog_name)
+        parser = super().get_parser(prog_name)
         parser.add_argument(
             "--host",
             metavar="<host>",
@@ -147,7 +147,7 @@ class SetService(command.Command):
     _description = _("Set compute service properties")
 
     def get_parser(self, prog_name):
-        parser = super(SetService, self).get_parser(prog_name)
+        parser = super().get_parser(prog_name)
         parser.add_argument("host", metavar="<host>", help=_("Name of host"))
         parser.add_argument(
             "service",

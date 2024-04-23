@@ -33,7 +33,7 @@ class CreateDomain(command.ShowOne):
     _description = _("Create new domain")
 
     def get_parser(self, prog_name):
-        parser = super(CreateDomain, self).get_parser(prog_name)
+        parser = super().get_parser(prog_name)
         parser.add_argument(
             'name',
             metavar='<domain-name>',
@@ -96,7 +96,7 @@ class DeleteDomain(command.Command):
     _description = _("Delete domain(s)")
 
     def get_parser(self, prog_name):
-        parser = super(DeleteDomain, self).get_parser(prog_name)
+        parser = super().get_parser(prog_name)
         parser.add_argument(
             'domain',
             metavar='<domain>',
@@ -135,7 +135,7 @@ class ListDomain(command.Lister):
     _description = _("List domains")
 
     def get_parser(self, prog_name):
-        parser = super(ListDomain, self).get_parser(prog_name)
+        parser = super().get_parser(prog_name)
         parser.add_argument(
             '--name',
             metavar='<name>',
@@ -175,7 +175,7 @@ class SetDomain(command.Command):
     _description = _("Set domain properties")
 
     def get_parser(self, prog_name):
-        parser = super(SetDomain, self).get_parser(prog_name)
+        parser = super().get_parser(prog_name)
         parser.add_argument(
             'domain',
             metavar='<domain>',
@@ -232,7 +232,7 @@ class ShowDomain(command.ShowOne):
     _description = _("Display domain details")
 
     def get_parser(self, prog_name):
-        parser = super(ShowDomain, self).get_parser(prog_name)
+        parser = super().get_parser(prog_name)
         parser.add_argument(
             'domain',
             metavar='<domain>',

@@ -29,7 +29,7 @@ class CreateServiceProvider(command.ShowOne):
     _description = _("Create new service provider")
 
     def get_parser(self, prog_name):
-        parser = super(CreateServiceProvider, self).get_parser(prog_name)
+        parser = super().get_parser(prog_name)
         parser.add_argument(
             'service_provider_id',
             metavar='<name>',
@@ -94,7 +94,7 @@ class DeleteServiceProvider(command.Command):
     _description = _("Delete service provider(s)")
 
     def get_parser(self, prog_name):
-        parser = super(DeleteServiceProvider, self).get_parser(prog_name)
+        parser = super().get_parser(prog_name)
         parser.add_argument(
             'service_provider',
             metavar='<service-provider>',
@@ -153,7 +153,7 @@ class SetServiceProvider(command.Command):
     _description = _("Set service provider properties")
 
     def get_parser(self, prog_name):
-        parser = super(SetServiceProvider, self).get_parser(prog_name)
+        parser = super().get_parser(prog_name)
         parser.add_argument(
             'service_provider',
             metavar='<service-provider>',
@@ -213,7 +213,7 @@ class ShowServiceProvider(command.ShowOne):
     _description = _("Display service provider details")
 
     def get_parser(self, prog_name):
-        parser = super(ShowServiceProvider, self).get_parser(prog_name)
+        parser = super().get_parser(prog_name)
         parser.add_argument(
             'service_provider',
             metavar='<service-provider>',

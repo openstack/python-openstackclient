@@ -233,7 +233,7 @@ class TestCreateNetworkTrunk(TestNetworkTrunk):
             '--parent-port',
             self.new_trunk.port_id,
             '--subport',
-            'port=%(port)s' % {'port': subport['port_id']},
+            'port={port}'.format(port=subport['port_id']),
             self.new_trunk.name,
         ]
         verifylist = [
@@ -712,7 +712,7 @@ class TestSetNetworkTrunk(TestNetworkTrunk):
         subport.pop('segmentation_id')
         arglist = [
             '--subport',
-            'port=%(port)s' % {'port': subport['port_id']},
+            'port={port}'.format(port=subport['port_id']),
             self._trunk['name'],
         ]
         verifylist = [

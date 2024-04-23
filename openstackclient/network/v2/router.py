@@ -301,7 +301,7 @@ class AddPortToRouter(command.Command):
     _description = _("Add a port to a router")
 
     def get_parser(self, prog_name):
-        parser = super(AddPortToRouter, self).get_parser(prog_name)
+        parser = super().get_parser(prog_name)
         parser.add_argument(
             'router',
             metavar='<router>',
@@ -325,7 +325,7 @@ class AddSubnetToRouter(command.Command):
     _description = _("Add a subnet to a router")
 
     def get_parser(self, prog_name):
-        parser = super(AddSubnetToRouter, self).get_parser(prog_name)
+        parser = super().get_parser(prog_name)
         parser.add_argument(
             'router',
             metavar='<router>',
@@ -351,7 +351,7 @@ class AddExtraRoutesToRouter(command.ShowOne):
     _description = _("Add extra static routes to a router's routing table.")
 
     def get_parser(self, prog_name):
-        parser = super(AddExtraRoutesToRouter, self).get_parser(prog_name)
+        parser = super().get_parser(prog_name)
         parser.add_argument(
             'router',
             metavar='<router>',
@@ -402,7 +402,7 @@ class RemoveExtraRoutesFromRouter(command.ShowOne):
     )
 
     def get_parser(self, prog_name):
-        parser = super(RemoveExtraRoutesFromRouter, self).get_parser(prog_name)
+        parser = super().get_parser(prog_name)
         parser.add_argument(
             'router',
             metavar='<router>',
@@ -453,7 +453,7 @@ class CreateRouter(command.ShowOne, common.NeutronCommandWithExtraArgs):
     _description = _("Create a new router")
 
     def get_parser(self, prog_name):
-        parser = super(CreateRouter, self).get_parser(prog_name)
+        parser = super().get_parser(prog_name)
         parser.add_argument(
             'name', metavar='<name>', help=_("New router name")
         )
@@ -627,7 +627,7 @@ class DeleteRouter(command.Command):
     _description = _("Delete router(s)")
 
     def get_parser(self, prog_name):
-        parser = super(DeleteRouter, self).get_parser(prog_name)
+        parser = super().get_parser(prog_name)
         parser.add_argument(
             'router',
             metavar="<router>",
@@ -669,7 +669,7 @@ class ListRouter(command.Lister):
     _description = _("List routers")
 
     def get_parser(self, prog_name):
-        parser = super(ListRouter, self).get_parser(prog_name)
+        parser = super().get_parser(prog_name)
         parser.add_argument(
             '--name',
             metavar='<name>',
@@ -813,7 +813,7 @@ class RemovePortFromRouter(command.Command):
     _description = _("Remove a port from a router")
 
     def get_parser(self, prog_name):
-        parser = super(RemovePortFromRouter, self).get_parser(prog_name)
+        parser = super().get_parser(prog_name)
         parser.add_argument(
             'router',
             metavar='<router>',
@@ -839,7 +839,7 @@ class RemoveSubnetFromRouter(command.Command):
     _description = _("Remove a subnet from a router")
 
     def get_parser(self, prog_name):
-        parser = super(RemoveSubnetFromRouter, self).get_parser(prog_name)
+        parser = super().get_parser(prog_name)
         parser.add_argument(
             'router',
             metavar='<router>',
@@ -869,7 +869,7 @@ class SetRouter(common.NeutronCommandWithExtraArgs):
     _description = _("Set router properties")
 
     def get_parser(self, prog_name):
-        parser = super(SetRouter, self).get_parser(prog_name)
+        parser = super().get_parser(prog_name)
         parser.add_argument(
             'router',
             metavar="<router>",
@@ -1103,7 +1103,7 @@ class ShowRouter(command.ShowOne):
     _description = _("Display router details")
 
     def get_parser(self, prog_name):
-        parser = super(ShowRouter, self).get_parser(prog_name)
+        parser = super().get_parser(prog_name)
         parser.add_argument(
             'router',
             metavar="<router>",
@@ -1139,7 +1139,7 @@ class UnsetRouter(common.NeutronUnsetCommandWithExtraArgs):
     _description = _("Unset router properties")
 
     def get_parser(self, prog_name):
-        parser = super(UnsetRouter, self).get_parser(prog_name)
+        parser = super().get_parser(prog_name)
         parser.add_argument(
             '--route',
             metavar='destination=<subnet>,gateway=<ip-address>',

@@ -50,9 +50,7 @@ class DomainTests(common.IdentityTests):
         self.assertEqual(0, len(raw_output))
         raw_output = self.openstack('domain set --disable %s' % domain_2)
         self.assertEqual(0, len(raw_output))
-        raw_output = self.openstack(
-            'domain delete %s %s' % (domain_1, domain_2)
-        )
+        raw_output = self.openstack(f'domain delete {domain_1} {domain_2}')
         self.assertEqual(0, len(raw_output))
 
     def test_domain_delete_failure(self):

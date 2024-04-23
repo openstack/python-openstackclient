@@ -30,7 +30,7 @@ class AcceptTransferRequest(command.ShowOne):
     _description = _("Accept volume transfer request.")
 
     def get_parser(self, prog_name):
-        parser = super(AcceptTransferRequest, self).get_parser(prog_name)
+        parser = super().get_parser(prog_name)
         parser.add_argument(
             'transfer_request',
             metavar="<transfer-request-id>",
@@ -72,7 +72,7 @@ class CreateTransferRequest(command.ShowOne):
     _description = _("Create volume transfer request.")
 
     def get_parser(self, prog_name):
-        parser = super(CreateTransferRequest, self).get_parser(prog_name)
+        parser = super().get_parser(prog_name)
         parser.add_argument(
             '--name',
             metavar="<name>",
@@ -104,7 +104,7 @@ class DeleteTransferRequest(command.Command):
     _description = _("Delete volume transfer request(s).")
 
     def get_parser(self, prog_name):
-        parser = super(DeleteTransferRequest, self).get_parser(prog_name)
+        parser = super().get_parser(prog_name)
         parser.add_argument(
             'transfer_request',
             metavar="<transfer-request>",
@@ -147,7 +147,7 @@ class ListTransferRequest(command.Lister):
     _description = _("Lists all volume transfer requests.")
 
     def get_parser(self, prog_name):
-        parser = super(ListTransferRequest, self).get_parser(prog_name)
+        parser = super().get_parser(prog_name)
         parser.add_argument(
             '--all-projects',
             dest='all_projects',
@@ -181,7 +181,7 @@ class ShowTransferRequest(command.ShowOne):
     _description = _("Show volume transfer request details.")
 
     def get_parser(self, prog_name):
-        parser = super(ShowTransferRequest, self).get_parser(prog_name)
+        parser = super().get_parser(prog_name)
         parser.add_argument(
             'transfer_request',
             metavar="<transfer-request>",

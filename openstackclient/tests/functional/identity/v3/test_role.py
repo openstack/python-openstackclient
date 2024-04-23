@@ -55,7 +55,7 @@ class RoleTests(common.IdentityTests):
         role_name = self._create_dummy_role()
         new_role_name = data_utils.rand_name('NewTestRole')
         raw_output = self.openstack(
-            'role set --name %s %s' % (new_role_name, role_name)
+            f'role set --name {new_role_name} {role_name}'
         )
         self.assertEqual(0, len(raw_output))
         raw_output = self.openstack('role show %s' % new_role_name)
@@ -66,7 +66,7 @@ class RoleTests(common.IdentityTests):
         role_name = self._create_dummy_role()
         description = data_utils.rand_name("NewDescription")
         raw_output = self.openstack(
-            'role set --description %s %s' % (description, role_name)
+            f'role set --description {description} {role_name}'
         )
         self.assertEqual(0, len(raw_output))
         raw_output = self.openstack('role show %s' % role_name)

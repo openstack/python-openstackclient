@@ -39,7 +39,7 @@ class AddProjectToEndpoint(command.Command):
     _description = _("Associate a project to an endpoint")
 
     def get_parser(self, prog_name):
-        parser = super(AddProjectToEndpoint, self).get_parser(prog_name)
+        parser = super().get_parser(prog_name)
         parser.add_argument(
             'endpoint',
             metavar='<endpoint>',
@@ -75,7 +75,7 @@ class CreateEndpoint(command.ShowOne):
     _description = _("Create new endpoint")
 
     def get_parser(self, prog_name):
-        parser = super(CreateEndpoint, self).get_parser(prog_name)
+        parser = super().get_parser(prog_name)
         parser.add_argument(
             'service',
             metavar='<service>',
@@ -137,7 +137,7 @@ class DeleteEndpoint(command.Command):
     _description = _("Delete endpoint(s)")
 
     def get_parser(self, prog_name):
-        parser = super(DeleteEndpoint, self).get_parser(prog_name)
+        parser = super().get_parser(prog_name)
         parser.add_argument(
             'endpoint',
             metavar='<endpoint-id>',
@@ -177,7 +177,7 @@ class ListEndpoint(command.Lister):
     _description = _("List endpoints")
 
     def get_parser(self, prog_name):
-        parser = super(ListEndpoint, self).get_parser(prog_name)
+        parser = super().get_parser(prog_name)
         parser.add_argument(
             '--service',
             metavar='<service>',
@@ -285,7 +285,7 @@ class RemoveProjectFromEndpoint(command.Command):
     _description = _("Dissociate a project from an endpoint")
 
     def get_parser(self, prog_name):
-        parser = super(RemoveProjectFromEndpoint, self).get_parser(prog_name)
+        parser = super().get_parser(prog_name)
         parser.add_argument(
             'endpoint',
             metavar='<endpoint>',
@@ -321,7 +321,7 @@ class SetEndpoint(command.Command):
     _description = _("Set endpoint properties")
 
     def get_parser(self, prog_name):
-        parser = super(SetEndpoint, self).get_parser(prog_name)
+        parser = super().get_parser(prog_name)
         parser.add_argument(
             'endpoint',
             metavar='<endpoint-id>',
@@ -393,7 +393,7 @@ class ShowEndpoint(command.ShowOne):
     _description = _("Display endpoint details")
 
     def get_parser(self, prog_name):
-        parser = super(ShowEndpoint, self).get_parser(prog_name)
+        parser = super().get_parser(prog_name)
         parser.add_argument(
             'endpoint',
             metavar='<endpoint>',

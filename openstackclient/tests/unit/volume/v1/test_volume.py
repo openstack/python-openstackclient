@@ -1425,7 +1425,8 @@ class TestColumns(TestVolume):
 
         col = volume.AttachmentsColumn(_volume.attachments, {})
         self.assertEqual(
-            'Attached to %s on %s ' % (server_id, device), col.human_readable()
+            f'Attached to {server_id} on {device} ',
+            col.human_readable(),
         )
         self.assertEqual(_volume.attachments, col.machine_readable())
 
@@ -1440,7 +1441,7 @@ class TestColumns(TestVolume):
 
         col = volume.AttachmentsColumn(_volume.attachments, server_cache)
         self.assertEqual(
-            'Attached to %s on %s ' % ('fake-server-name', device),
+            'Attached to {} on {} '.format('fake-server-name', device),
             col.human_readable(),
         )
         self.assertEqual(_volume.attachments, col.machine_readable())

@@ -25,7 +25,7 @@ AUTH_TOKEN = "foobar"
 AUTH_URL = "http://0.0.0.0"
 
 
-class FakeClient(object):
+class FakeClient:
     def __init__(self, endpoint=None, **kwargs):
         self.endpoint = AUTH_URL
         self.token = AUTH_TOKEN
@@ -35,7 +35,7 @@ class TestContainer(object_fakes.TestObjectv1):
     columns = ('Name',)
 
     def setUp(self):
-        super(TestContainer, self).setUp()
+        super().setUp()
         self.app.client_manager.object_store = object_store.APIv1(
             session=mock.Mock(),
             service_type="object-store",
@@ -48,7 +48,7 @@ class TestContainer(object_fakes.TestObjectv1):
 @mock.patch('openstackclient.api.object_store_v1.APIv1.container_delete')
 class TestContainerDelete(TestContainer):
     def setUp(self):
-        super(TestContainerDelete, self).setUp()
+        super().setUp()
 
         # Get the command object to test
         self.cmd = container.DeleteContainer(self.app, None)
@@ -132,7 +132,7 @@ class TestContainerDelete(TestContainer):
 @mock.patch('openstackclient.api.object_store_v1.APIv1.container_list')
 class TestContainerList(TestContainer):
     def setUp(self):
-        super(TestContainerList, self).setUp()
+        super().setUp()
 
         # Get the command object to test
         self.cmd = container.ListContainer(self.app, None)
@@ -345,7 +345,7 @@ class TestContainerList(TestContainer):
 @mock.patch('openstackclient.api.object_store_v1.APIv1.container_show')
 class TestContainerShow(TestContainer):
     def setUp(self):
-        super(TestContainerShow, self).setUp()
+        super().setUp()
 
         # Get the command object to test
         self.cmd = container.ShowContainer(self.app, None)

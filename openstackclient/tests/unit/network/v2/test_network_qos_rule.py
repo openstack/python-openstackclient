@@ -53,7 +53,7 @@ DSCP_VALID_MARKS = [
 
 class TestNetworkQosRule(network_fakes.TestNetworkV2):
     def setUp(self):
-        super(TestNetworkQosRule, self).setUp()
+        super().setUp()
         self.qos_policy = (
             network_fakes.FakeNetworkQosPolicy.create_one_qos_policy()
         )
@@ -67,7 +67,7 @@ class TestCreateNetworkQosRuleMinimumBandwidth(TestNetworkQosRule):
         pass
 
     def setUp(self):
-        super(TestCreateNetworkQosRuleMinimumBandwidth, self).setUp()
+        super().setUp()
         attrs = {
             'qos_policy_id': self.qos_policy.id,
             'type': RULE_TYPE_MINIMUM_BANDWIDTH,
@@ -174,7 +174,7 @@ class TestCreateNetworkQosRuleMinimumPacketRate(TestNetworkQosRule):
         pass
 
     def setUp(self):
-        super(TestCreateNetworkQosRuleMinimumPacketRate, self).setUp()
+        super().setUp()
         attrs = {
             'qos_policy_id': self.qos_policy.id,
             'type': RULE_TYPE_MINIMUM_PACKET_RATE,
@@ -281,7 +281,7 @@ class TestCreateNetworkQosRuleDSCPMarking(TestNetworkQosRule):
         pass
 
     def setUp(self):
-        super(TestCreateNetworkQosRuleDSCPMarking, self).setUp()
+        super().setUp()
         attrs = {
             'qos_policy_id': self.qos_policy.id,
             'type': RULE_TYPE_DSCP_MARKING,
@@ -379,7 +379,7 @@ class TestCreateNetworkQosRuleBandwidtLimit(TestNetworkQosRule):
         pass
 
     def setUp(self):
-        super(TestCreateNetworkQosRuleBandwidtLimit, self).setUp()
+        super().setUp()
         attrs = {
             'qos_policy_id': self.qos_policy.id,
             'type': RULE_TYPE_BANDWIDTH_LIMIT,
@@ -540,7 +540,7 @@ class TestCreateNetworkQosRuleBandwidtLimit(TestNetworkQosRule):
 
 class TestDeleteNetworkQosRuleMinimumBandwidth(TestNetworkQosRule):
     def setUp(self):
-        super(TestDeleteNetworkQosRuleMinimumBandwidth, self).setUp()
+        super().setUp()
         attrs = {
             'qos_policy_id': self.qos_policy.id,
             'type': RULE_TYPE_MINIMUM_BANDWIDTH,
@@ -598,16 +598,16 @@ class TestDeleteNetworkQosRuleMinimumBandwidth(TestNetworkQosRule):
             parsed_args = self.check_parser(self.cmd, arglist, verifylist)
             self.cmd.take_action(parsed_args)
         except exceptions.CommandError as e:
-            msg = 'Failed to delete Network QoS rule ID "%(rule)s": %(e)s' % {
-                'rule': self.new_rule.id,
-                'e': 'Error message',
-            }
+            msg = 'Failed to delete Network QoS rule ID "{rule}": {e}'.format(
+                rule=self.new_rule.id,
+                e='Error message',
+            )
             self.assertEqual(msg, str(e))
 
 
 class TestDeleteNetworkQosRuleMinimumPacketRate(TestNetworkQosRule):
     def setUp(self):
-        super(TestDeleteNetworkQosRuleMinimumPacketRate, self).setUp()
+        super().setUp()
         attrs = {
             'qos_policy_id': self.qos_policy.id,
             'type': RULE_TYPE_MINIMUM_PACKET_RATE,
@@ -665,16 +665,16 @@ class TestDeleteNetworkQosRuleMinimumPacketRate(TestNetworkQosRule):
             parsed_args = self.check_parser(self.cmd, arglist, verifylist)
             self.cmd.take_action(parsed_args)
         except exceptions.CommandError as e:
-            msg = 'Failed to delete Network QoS rule ID "%(rule)s": %(e)s' % {
-                'rule': self.new_rule.id,
-                'e': 'Error message',
-            }
+            msg = 'Failed to delete Network QoS rule ID "{rule}": {e}'.format(
+                rule=self.new_rule.id,
+                e='Error message',
+            )
             self.assertEqual(msg, str(e))
 
 
 class TestDeleteNetworkQosRuleDSCPMarking(TestNetworkQosRule):
     def setUp(self):
-        super(TestDeleteNetworkQosRuleDSCPMarking, self).setUp()
+        super().setUp()
         attrs = {
             'qos_policy_id': self.qos_policy.id,
             'type': RULE_TYPE_DSCP_MARKING,
@@ -732,16 +732,16 @@ class TestDeleteNetworkQosRuleDSCPMarking(TestNetworkQosRule):
             parsed_args = self.check_parser(self.cmd, arglist, verifylist)
             self.cmd.take_action(parsed_args)
         except exceptions.CommandError as e:
-            msg = 'Failed to delete Network QoS rule ID "%(rule)s": %(e)s' % {
-                'rule': self.new_rule.id,
-                'e': 'Error message',
-            }
+            msg = 'Failed to delete Network QoS rule ID "{rule}": {e}'.format(
+                rule=self.new_rule.id,
+                e='Error message',
+            )
             self.assertEqual(msg, str(e))
 
 
 class TestDeleteNetworkQosRuleBandwidthLimit(TestNetworkQosRule):
     def setUp(self):
-        super(TestDeleteNetworkQosRuleBandwidthLimit, self).setUp()
+        super().setUp()
         attrs = {
             'qos_policy_id': self.qos_policy.id,
             'type': RULE_TYPE_BANDWIDTH_LIMIT,
@@ -799,16 +799,16 @@ class TestDeleteNetworkQosRuleBandwidthLimit(TestNetworkQosRule):
             parsed_args = self.check_parser(self.cmd, arglist, verifylist)
             self.cmd.take_action(parsed_args)
         except exceptions.CommandError as e:
-            msg = 'Failed to delete Network QoS rule ID "%(rule)s": %(e)s' % {
-                'rule': self.new_rule.id,
-                'e': 'Error message',
-            }
+            msg = 'Failed to delete Network QoS rule ID "{rule}": {e}'.format(
+                rule=self.new_rule.id,
+                e='Error message',
+            )
             self.assertEqual(msg, str(e))
 
 
 class TestSetNetworkQosRuleMinimumBandwidth(TestNetworkQosRule):
     def setUp(self):
-        super(TestSetNetworkQosRuleMinimumBandwidth, self).setUp()
+        super().setUp()
         attrs = {
             'qos_policy_id': self.qos_policy.id,
             'type': RULE_TYPE_MINIMUM_BANDWIDTH,
@@ -912,7 +912,7 @@ class TestSetNetworkQosRuleMinimumBandwidth(TestNetworkQosRule):
 
 class TestSetNetworkQosRuleMinimumPacketRate(TestNetworkQosRule):
     def setUp(self):
-        super(TestSetNetworkQosRuleMinimumPacketRate, self).setUp()
+        super().setUp()
         attrs = {
             'qos_policy_id': self.qos_policy.id,
             'type': RULE_TYPE_MINIMUM_PACKET_RATE,
@@ -1016,7 +1016,7 @@ class TestSetNetworkQosRuleMinimumPacketRate(TestNetworkQosRule):
 
 class TestSetNetworkQosRuleDSCPMarking(TestNetworkQosRule):
     def setUp(self):
-        super(TestSetNetworkQosRuleDSCPMarking, self).setUp()
+        super().setUp()
         attrs = {
             'qos_policy_id': self.qos_policy.id,
             'type': RULE_TYPE_DSCP_MARKING,
@@ -1120,7 +1120,7 @@ class TestSetNetworkQosRuleDSCPMarking(TestNetworkQosRule):
 
 class TestSetNetworkQosRuleBandwidthLimit(TestNetworkQosRule):
     def setUp(self):
-        super(TestSetNetworkQosRuleBandwidthLimit, self).setUp()
+        super().setUp()
         attrs = {
             'qos_policy_id': self.qos_policy.id,
             'type': RULE_TYPE_BANDWIDTH_LIMIT,
@@ -1297,7 +1297,7 @@ class TestSetNetworkQosRuleBandwidthLimit(TestNetworkQosRule):
 
 class TestListNetworkQosRule(TestNetworkQosRule):
     def setUp(self):
-        super(TestListNetworkQosRule, self).setUp()
+        super().setUp()
         attrs = {
             'qos_policy_id': self.qos_policy.id,
             'type': RULE_TYPE_MINIMUM_BANDWIDTH,
@@ -1387,7 +1387,7 @@ class TestListNetworkQosRule(TestNetworkQosRule):
 
 class TestShowNetworkQosRuleMinimumBandwidth(TestNetworkQosRule):
     def setUp(self):
-        super(TestShowNetworkQosRuleMinimumBandwidth, self).setUp()
+        super().setUp()
         attrs = {
             'qos_policy_id': self.qos_policy.id,
             'type': RULE_TYPE_MINIMUM_BANDWIDTH,
@@ -1455,7 +1455,7 @@ class TestShowNetworkQosRuleMinimumBandwidth(TestNetworkQosRule):
 
 class TestShowNetworkQosRuleMinimumPacketRate(TestNetworkQosRule):
     def setUp(self):
-        super(TestShowNetworkQosRuleMinimumPacketRate, self).setUp()
+        super().setUp()
         attrs = {
             'qos_policy_id': self.qos_policy.id,
             'type': RULE_TYPE_MINIMUM_PACKET_RATE,
@@ -1523,7 +1523,7 @@ class TestShowNetworkQosRuleMinimumPacketRate(TestNetworkQosRule):
 
 class TestShowNetworkQosDSCPMarking(TestNetworkQosRule):
     def setUp(self):
-        super(TestShowNetworkQosDSCPMarking, self).setUp()
+        super().setUp()
         attrs = {
             'qos_policy_id': self.qos_policy.id,
             'type': RULE_TYPE_DSCP_MARKING,
@@ -1589,7 +1589,7 @@ class TestShowNetworkQosDSCPMarking(TestNetworkQosRule):
 
 class TestShowNetworkQosBandwidthLimit(TestNetworkQosRule):
     def setUp(self):
-        super(TestShowNetworkQosBandwidthLimit, self).setUp()
+        super().setUp()
         attrs = {
             'qos_policy_id': self.qos_policy.id,
             'type': RULE_TYPE_BANDWIDTH_LIMIT,

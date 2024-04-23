@@ -434,7 +434,7 @@ class UnsetSecurityGroup(command.Command):
     _description = _("Unset security group properties")
 
     def get_parser(self, prog_name):
-        parser = super(UnsetSecurityGroup, self).get_parser(prog_name)
+        parser = super().get_parser(prog_name)
         parser.add_argument(
             'group',
             metavar="<group>",

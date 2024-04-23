@@ -34,7 +34,7 @@ class CreateApplicationCredential(command.ShowOne):
     _description = _("Create new application credential")
 
     def get_parser(self, prog_name):
-        parser = super(CreateApplicationCredential, self).get_parser(prog_name)
+        parser = super().get_parser(prog_name)
         parser.add_argument(
             'name',
             metavar='<name>',
@@ -137,7 +137,7 @@ class CreateApplicationCredential(command.ShowOne):
                 try:
                     with open(parsed_args.access_rules) as f:
                         access_rules = json.load(f)
-                except IOError:
+                except OSError:
                     msg = _(
                         "Access rules is not valid JSON string or file does"
                         " not exist."
@@ -171,7 +171,7 @@ class DeleteApplicationCredential(command.Command):
     _description = _("Delete application credentials(s)")
 
     def get_parser(self, prog_name):
-        parser = super(DeleteApplicationCredential, self).get_parser(prog_name)
+        parser = super().get_parser(prog_name)
         parser.add_argument(
             'application_credential',
             metavar='<application-credential>',
@@ -213,7 +213,7 @@ class ListApplicationCredential(command.Lister):
     _description = _("List application credentials")
 
     def get_parser(self, prog_name):
-        parser = super(ListApplicationCredential, self).get_parser(prog_name)
+        parser = super().get_parser(prog_name)
         parser.add_argument(
             '--user',
             metavar='<user>',
@@ -250,7 +250,7 @@ class ShowApplicationCredential(command.ShowOne):
     _description = _("Display application credential details")
 
     def get_parser(self, prog_name):
-        parser = super(ShowApplicationCredential, self).get_parser(prog_name)
+        parser = super().get_parser(prog_name)
         parser.add_argument(
             'application_credential',
             metavar='<application-credential>',

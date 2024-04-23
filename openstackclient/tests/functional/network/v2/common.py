@@ -91,27 +91,25 @@ class NetworkTagTests(NetworkTests):
 
     def _create_resource_for_tag_test(self, name, args):
         return self.openstack(
-            '{} create {} {}'.format(self.base_command, args, name),
+            f'{self.base_command} create {args} {name}',
             parse_output=True,
         )
 
     def _create_resource_and_tag_check(self, args, expected):
         name = uuid.uuid4().hex
         cmd_output = self._create_resource_for_tag_test(name, args)
-        self.addCleanup(
-            self.openstack, '{} delete {}'.format(self.base_command, name)
-        )
+        self.addCleanup(self.openstack, f'{self.base_command} delete {name}')
         self.assertIsNotNone(cmd_output["id"])
         self.assertEqual(set(expected), set(cmd_output['tags']))
         return name
 
     def _set_resource_and_tag_check(self, command, name, args, expected):
         cmd_output = self.openstack(
-            '{} {} {} {}'.format(self.base_command, command, args, name)
+            f'{self.base_command} {command} {args} {name}'
         )
         self.assertFalse(cmd_output)
         cmd_output = self.openstack(
-            '{} show {}'.format(self.base_command, name),
+            f'{self.base_command} show {name}',
             parse_output=True,
         )
         self.assertEqual(set(expected), set(cmd_output['tags']))

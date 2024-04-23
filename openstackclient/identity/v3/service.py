@@ -32,7 +32,7 @@ class CreateService(command.ShowOne):
     _description = _("Create new service")
 
     def get_parser(self, prog_name):
-        parser = super(CreateService, self).get_parser(prog_name)
+        parser = super().get_parser(prog_name)
         parser.add_argument(
             'type',
             metavar='<type>',
@@ -83,7 +83,7 @@ class DeleteService(command.Command):
     _description = _("Delete service(s)")
 
     def get_parser(self, prog_name):
-        parser = super(DeleteService, self).get_parser(prog_name)
+        parser = super().get_parser(prog_name)
         parser.add_argument(
             'service',
             metavar='<service>',
@@ -121,7 +121,7 @@ class ListService(command.Lister):
     _description = _("List services")
 
     def get_parser(self, prog_name):
-        parser = super(ListService, self).get_parser(prog_name)
+        parser = super().get_parser(prog_name)
         parser.add_argument(
             '--long',
             action='store_true',
@@ -146,7 +146,7 @@ class SetService(command.Command):
     _description = _("Set service properties")
 
     def get_parser(self, prog_name):
-        parser = super(SetService, self).get_parser(prog_name)
+        parser = super().get_parser(prog_name)
         parser.add_argument(
             'service',
             metavar='<service>',
@@ -203,7 +203,7 @@ class ShowService(command.ShowOne):
     _description = _("Display service details")
 
     def get_parser(self, prog_name):
-        parser = super(ShowService, self).get_parser(prog_name)
+        parser = super().get_parser(prog_name)
         parser.add_argument(
             'service',
             metavar='<service>',

@@ -287,10 +287,10 @@ class RouterTests(common.NetworkTagTests):
         self.openstack('router create %s' % router_name)
         self.addCleanup(self.openstack, 'router delete %s' % router_name)
 
-        self.openstack('router add subnet %s %s' % (router_name, subnet_name))
+        self.openstack(f'router add subnet {router_name} {subnet_name}')
         self.addCleanup(
             self.openstack,
-            'router remove subnet %s %s' % (router_name, subnet_name),
+            f'router remove subnet {router_name} {subnet_name}',
         )
 
         out1 = (

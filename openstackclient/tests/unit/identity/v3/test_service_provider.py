@@ -21,7 +21,7 @@ from openstackclient.tests.unit.identity.v3 import fakes as service_fakes
 
 class TestServiceProvider(service_fakes.TestFederatedIdentity):
     def setUp(self):
-        super(TestServiceProvider, self).setUp()
+        super().setUp()
 
         federation_lib = self.identity_client.federation
         self.service_providers_mock = federation_lib.service_providers
@@ -45,7 +45,7 @@ class TestServiceProviderCreate(TestServiceProvider):
     )
 
     def setUp(self):
-        super(TestServiceProviderCreate, self).setUp()
+        super().setUp()
 
         copied_sp = copy.deepcopy(service_fakes.SERVICE_PROVIDER)
         resource = fakes.FakeResource(None, copied_sp, loaded=True)
@@ -166,7 +166,7 @@ class TestServiceProviderCreate(TestServiceProvider):
 
 class TestServiceProviderDelete(TestServiceProvider):
     def setUp(self):
-        super(TestServiceProviderDelete, self).setUp()
+        super().setUp()
 
         # This is the return value for utils.find_resource()
         self.service_providers_mock.get.return_value = fakes.FakeResource(
@@ -197,7 +197,7 @@ class TestServiceProviderDelete(TestServiceProvider):
 
 class TestServiceProviderList(TestServiceProvider):
     def setUp(self):
-        super(TestServiceProviderList, self).setUp()
+        super().setUp()
 
         self.service_providers_mock.get.return_value = fakes.FakeResource(
             None,
@@ -257,7 +257,7 @@ class TestServiceProviderSet(TestServiceProvider):
     )
 
     def setUp(self):
-        super(TestServiceProviderSet, self).setUp()
+        super().setUp()
         self.cmd = service_provider.SetServiceProvider(self.app, None)
 
     def test_service_provider_disable(self):
@@ -365,7 +365,7 @@ class TestServiceProviderSet(TestServiceProvider):
 
 class TestServiceProviderShow(TestServiceProvider):
     def setUp(self):
-        super(TestServiceProviderShow, self).setUp()
+        super().setUp()
 
         ret = fakes.FakeResource(
             None,

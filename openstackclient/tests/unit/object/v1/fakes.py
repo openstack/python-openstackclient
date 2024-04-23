@@ -82,7 +82,7 @@ object_upload_name = 'test-object-name'
 
 class TestObjectv1(utils.TestCommand):
     def setUp(self):
-        super(TestObjectv1, self).setUp()
+        super().setUp()
 
         self.app.client_manager.session = session.Session()
         self.app.client_manager.object_store = object_store.APIv1(

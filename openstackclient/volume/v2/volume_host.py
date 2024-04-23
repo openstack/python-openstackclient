@@ -23,7 +23,7 @@ class FailoverVolumeHost(command.Command):
     _description = _("Failover volume host to different backend")
 
     def get_parser(self, prog_name):
-        parser = super(FailoverVolumeHost, self).get_parser(prog_name)
+        parser = super().get_parser(prog_name)
         parser.add_argument(
             "host", metavar="<host-name>", help=_("Name of volume host")
         )
@@ -49,7 +49,7 @@ class SetVolumeHost(command.Command):
     _description = _("Set volume host properties")
 
     def get_parser(self, prog_name):
-        parser = super(SetVolumeHost, self).get_parser(prog_name)
+        parser = super().get_parser(prog_name)
         parser.add_argument(
             "host", metavar="<host-name>", help=_("Name of volume host")
         )

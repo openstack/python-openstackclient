@@ -69,7 +69,7 @@ class NetworkQosRuleTestsMinimumBandwidth(NetworkQosTests):
             parse_output=True,
         )
         raw_output = self.openstack(
-            'network qos rule delete %s %s' % (policy_name, rule['id'])
+            'network qos rule delete {} {}'.format(policy_name, rule['id'])
         )
         self.assertEqual('', raw_output)
 
@@ -144,7 +144,7 @@ class NetworkQosRuleTestsMinimumPacketRate(NetworkQosTests):
             parse_output=True,
         )
         raw_output = self.openstack(
-            'network qos rule delete %s %s' % (policy_name, rule['id'])
+            'network qos rule delete {} {}'.format(policy_name, rule['id'])
         )
         self.assertEqual('', raw_output)
 
@@ -217,7 +217,7 @@ class NetworkQosRuleTestsDSCPMarking(NetworkQosTests):
             parse_output=True,
         )
         raw_output = self.openstack(
-            'network qos rule delete %s %s' % (policy_name, rule['id'])
+            'network qos rule delete {} {}'.format(policy_name, rule['id'])
         )
         self.assertEqual('', raw_output)
 
@@ -292,7 +292,7 @@ class NetworkQosRuleTestsBandwidthLimit(NetworkQosTests):
             parse_output=True,
         )
         raw_output = self.openstack(
-            'network qos rule delete %s %s' % (policy_name, rule['id'])
+            'network qos rule delete {} {}'.format(policy_name, rule['id'])
         )
         self.assertEqual('', raw_output)
 

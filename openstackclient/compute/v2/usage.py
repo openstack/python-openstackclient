@@ -109,7 +109,7 @@ class ListUsage(command.Lister):
     _description = _("List resource usage per project")
 
     def get_parser(self, prog_name):
-        parser = super(ListUsage, self).get_parser(prog_name)
+        parser = super().get_parser(prog_name)
         parser.add_argument(
             "--start",
             metavar="<start>",
@@ -210,7 +210,7 @@ class ShowUsage(command.ShowOne):
     _description = _("Show resource usage for a single project")
 
     def get_parser(self, prog_name):
-        parser = super(ShowUsage, self).get_parser(prog_name)
+        parser = super().get_parser(prog_name)
         parser.add_argument(
             "--project",
             metavar="<project>",

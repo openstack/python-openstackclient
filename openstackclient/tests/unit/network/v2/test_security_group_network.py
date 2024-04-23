@@ -24,7 +24,7 @@ from openstackclient.tests.unit import utils as tests_utils
 
 class TestSecurityGroupNetwork(network_fakes.TestNetworkV2):
     def setUp(self):
-        super(TestSecurityGroupNetwork, self).setUp()
+        super().setUp()
 
         # Get a shortcut to the ProjectManager Mock
         self.projects_mock = self.identity_client.projects
@@ -61,7 +61,7 @@ class TestCreateSecurityGroupNetwork(TestSecurityGroupNetwork):
     )
 
     def setUp(self):
-        super(TestCreateSecurityGroupNetwork, self).setUp()
+        super().setUp()
 
         self.network_client.create_security_group = mock.Mock(
             return_value=self._security_group
@@ -177,7 +177,7 @@ class TestDeleteSecurityGroupNetwork(TestSecurityGroupNetwork):
     _security_groups = network_fakes.FakeSecurityGroup.create_security_groups()
 
     def setUp(self):
-        super(TestDeleteSecurityGroupNetwork, self).setUp()
+        super().setUp()
 
         self.network_client.delete_security_group = mock.Mock(
             return_value=None
@@ -289,7 +289,7 @@ class TestListSecurityGroupNetwork(TestSecurityGroupNetwork):
         )
 
     def setUp(self):
-        super(TestListSecurityGroupNetwork, self).setUp()
+        super().setUp()
 
         self.network_client.security_groups = mock.Mock(
             return_value=self._security_groups
@@ -419,7 +419,7 @@ class TestSetSecurityGroupNetwork(TestSecurityGroupNetwork):
     )
 
     def setUp(self):
-        super(TestSetSecurityGroupNetwork, self).setUp()
+        super().setUp()
 
         self.network_client.update_security_group = mock.Mock(
             return_value=None
@@ -549,7 +549,7 @@ class TestShowSecurityGroupNetwork(TestSecurityGroupNetwork):
     )
 
     def setUp(self):
-        super(TestShowSecurityGroupNetwork, self).setUp()
+        super().setUp()
 
         self.network_client.find_security_group = mock.Mock(
             return_value=self._security_group
@@ -590,7 +590,7 @@ class TestUnsetSecurityGroupNetwork(TestSecurityGroupNetwork):
     )
 
     def setUp(self):
-        super(TestUnsetSecurityGroupNetwork, self).setUp()
+        super().setUp()
 
         self.network_client.update_security_group = mock.Mock(
             return_value=None

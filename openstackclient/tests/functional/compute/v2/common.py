@@ -28,7 +28,7 @@ class ComputeTestCase(base.TestCase):
 
     def setUp(self):
         """Select common resources"""
-        super(ComputeTestCase, self).setUp()
+        super().setUp()
         self.flavor_name = self.get_flavor()
         self.image_name = self.get_image()
         self.network_arg = self.get_network()
@@ -129,7 +129,7 @@ class ComputeTestCase(base.TestCase):
             )
             status = cmd_output['status']
             if status == expected_status:
-                print('Server {} now has status {}'.format(name, status))
+                print(f'Server {name} now has status {status}')
                 break
             print(
                 'Server {}: Waiting for {}, current status: {}'.format(

@@ -36,7 +36,7 @@ class CreateAgent(command.ShowOne):
     """
 
     def get_parser(self, prog_name):
-        parser = super(CreateAgent, self).get_parser(prog_name)
+        parser = super().get_parser(prog_name)
         parser.add_argument("os", metavar="<os>", help=_("Type of OS"))
         parser.add_argument(
             "architecture",
@@ -77,7 +77,7 @@ class DeleteAgent(command.Command):
     """
 
     def get_parser(self, prog_name):
-        parser = super(DeleteAgent, self).get_parser(prog_name)
+        parser = super().get_parser(prog_name)
         parser.add_argument(
             "id", metavar="<id>", nargs='+', help=_("ID of agent(s) to delete")
         )
@@ -114,7 +114,7 @@ class ListAgent(command.Lister):
     """
 
     def get_parser(self, prog_name):
-        parser = super(ListAgent, self).get_parser(prog_name)
+        parser = super().get_parser(prog_name)
         parser.add_argument(
             "--hypervisor",
             metavar="<hypervisor>",
@@ -155,7 +155,7 @@ class SetAgent(command.Command):
     """
 
     def get_parser(self, prog_name):
-        parser = super(SetAgent, self).get_parser(prog_name)
+        parser = super().get_parser(prog_name)
         parser.add_argument("id", metavar="<id>", help=_("ID of the agent"))
         parser.add_argument(
             "--agent-version",

@@ -24,7 +24,7 @@ from openstackclient.tests.unit.identity.v3 import fakes as identity_fakes
 
 class TestGroup(identity_fakes.TestIdentityv3):
     def setUp(self):
-        super(TestGroup, self).setUp()
+        super().setUp()
 
         # Get a shortcut to the DomainManager Mock
         self.domains_mock = self.identity_client.domains
@@ -44,7 +44,7 @@ class TestGroupAddUser(TestGroup):
     users = identity_fakes.FakeUser.create_users(count=2)
 
     def setUp(self):
-        super(TestGroupAddUser, self).setUp()
+        super().setUp()
 
         self.groups_mock.get.return_value = self._group
         self.users_mock.get = identity_fakes.FakeUser.get_users(self.users)
@@ -123,7 +123,7 @@ class TestGroupCheckUser(TestGroup):
     user = identity_fakes.FakeUser.create_one_user()
 
     def setUp(self):
-        super(TestGroupCheckUser, self).setUp()
+        super().setUp()
 
         self.groups_mock.get.return_value = self.group
         self.users_mock.get.return_value = self.user
@@ -179,7 +179,7 @@ class TestGroupCreate(TestGroup):
     )
 
     def setUp(self):
-        super(TestGroupCreate, self).setUp()
+        super().setUp()
         self.group = identity_fakes.FakeGroup.create_one_group(
             attrs={'domain_id': self.domain.id}
         )
@@ -263,7 +263,7 @@ class TestGroupDelete(TestGroup):
     )
 
     def setUp(self):
-        super(TestGroupDelete, self).setUp()
+        super().setUp()
 
         self.groups_mock.get = identity_fakes.FakeGroup.get_groups(self.groups)
         self.groups_mock.delete.return_value = None
@@ -368,7 +368,7 @@ class TestGroupList(TestGroup):
     )
 
     def setUp(self):
-        super(TestGroupList, self).setUp()
+        super().setUp()
 
         self.groups_mock.get.return_value = self.group
         self.groups_mock.list.return_value = [self.group]
@@ -496,7 +496,7 @@ class TestGroupRemoveUser(TestGroup):
     users = identity_fakes.FakeUser.create_users(count=2)
 
     def setUp(self):
-        super(TestGroupRemoveUser, self).setUp()
+        super().setUp()
 
         self.groups_mock.get.return_value = self._group
         self.users_mock.get = identity_fakes.FakeUser.get_users(self.users)
@@ -577,7 +577,7 @@ class TestGroupSet(TestGroup):
     )
 
     def setUp(self):
-        super(TestGroupSet, self).setUp()
+        super().setUp()
 
         self.groups_mock.get.return_value = self.group
         self.domains_mock.get.return_value = self.domain
@@ -657,7 +657,7 @@ class TestGroupShow(TestGroup):
     )
 
     def setUp(self):
-        super(TestGroupShow, self).setUp()
+        super().setUp()
         self.group = identity_fakes.FakeGroup.create_one_group(
             attrs={'domain_id': self.domain.id}
         )

@@ -67,7 +67,7 @@ class CreateNetworkFlavorProfile(
     _description = _("Create new network flavor profile")
 
     def get_parser(self, prog_name):
-        parser = super(CreateNetworkFlavorProfile, self).get_parser(prog_name)
+        parser = super().get_parser(prog_name)
         parser.add_argument(
             '--project',
             metavar="<project>",
@@ -129,7 +129,7 @@ class DeleteNetworkFlavorProfile(command.Command):
     _description = _("Delete network flavor profile")
 
     def get_parser(self, prog_name):
-        parser = super(DeleteNetworkFlavorProfile, self).get_parser(prog_name)
+        parser = super().get_parser(prog_name)
 
         parser.add_argument(
             'flavor_profile',
@@ -206,7 +206,7 @@ class SetNetworkFlavorProfile(common.NeutronCommandWithExtraArgs):
     _description = _("Set network flavor profile properties")
 
     def get_parser(self, prog_name):
-        parser = super(SetNetworkFlavorProfile, self).get_parser(prog_name)
+        parser = super().get_parser(prog_name)
         parser.add_argument(
             'flavor_profile',
             metavar="<flavor-profile>",
@@ -263,7 +263,7 @@ class ShowNetworkFlavorProfile(command.ShowOne):
     _description = _("Display network flavor profile details")
 
     def get_parser(self, prog_name):
-        parser = super(ShowNetworkFlavorProfile, self).get_parser(prog_name)
+        parser = super().get_parser(prog_name)
         parser.add_argument(
             'flavor_profile',
             metavar='<flavor-profile>',

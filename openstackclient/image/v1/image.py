@@ -16,7 +16,6 @@
 """Image V1 Action Implementations"""
 
 import argparse
-import io
 import logging
 import os
 import sys
@@ -110,7 +109,7 @@ class CreateImage(command.ShowOne):
     _description = _("Create/upload an image")
 
     def get_parser(self, prog_name):
-        parser = super(CreateImage, self).get_parser(prog_name)
+        parser = super().get_parser(prog_name)
         parser.add_argument(
             "name",
             metavar="<image-name>",
@@ -320,7 +319,7 @@ class CreateImage(command.ShowOne):
             elif parsed_args.file:
                 # Send an open file handle to glanceclient so it will
                 # do a chunked transfer
-                kwargs["data"] = io.open(parsed_args.file, "rb")
+                kwargs["data"] = open(parsed_args.file, "rb")
             else:
                 # Read file from stdin
                 if not sys.stdin.isatty():
@@ -363,7 +362,7 @@ class DeleteImage(command.Command):
     _description = _("Delete image(s)")
 
     def get_parser(self, prog_name):
-        parser = super(DeleteImage, self).get_parser(prog_name)
+        parser = super().get_parser(prog_name)
         parser.add_argument(
             "images",
             metavar="<image>",
@@ -403,7 +402,7 @@ class ListImage(command.Lister):
     _description = _("List available images")
 
     def get_parser(self, prog_name):
-        parser = super(ListImage, self).get_parser(prog_name)
+        parser = super().get_parser(prog_name)
         public_group = parser.add_mutually_exclusive_group()
         public_group.add_argument(
             "--public",
@@ -534,7 +533,7 @@ class SaveImage(command.Command):
     _description = _("Save an image locally")
 
     def get_parser(self, prog_name):
-        parser = super(SaveImage, self).get_parser(prog_name)
+        parser = super().get_parser(prog_name)
         parser.add_argument(
             "--file",
             metavar="<filename>",
@@ -564,7 +563,7 @@ class SetImage(command.Command):
     _description = _("Set image properties")
 
     def get_parser(self, prog_name):
-        parser = super(SetImage, self).get_parser(prog_name)
+        parser = super().get_parser(prog_name)
         parser.add_argument(
             "image",
             metavar="<image>",
@@ -771,7 +770,7 @@ class SetImage(command.Command):
                 elif parsed_args.file:
                     # Send an open file handle to glanceclient so it will
                     # do a chunked transfer
-                    kwargs["data"] = io.open(parsed_args.file, "rb")
+                    kwargs["data"] = open(parsed_args.file, "rb")
                 else:
                     # Read file from stdin
                     if sys.stdin.isatty() is not True:
@@ -809,7 +808,7 @@ class ShowImage(command.ShowOne):
     _description = _("Display image details")
 
     def get_parser(self, prog_name):
-        parser = super(ShowImage, self).get_parser(prog_name)
+        parser = super().get_parser(prog_name)
         parser.add_argument(
             "--human-readable",
             default=False,

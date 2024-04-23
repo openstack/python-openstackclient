@@ -24,7 +24,7 @@ from openstackclient.tests.unit.identity.v3 import fakes as identity_fakes
 
 class TestMapping(identity_fakes.TestFederatedIdentity):
     def setUp(self):
-        super(TestMapping, self).setUp()
+        super().setUp()
 
         federation_lib = self.identity_client.federation
         self.mapping_mock = federation_lib.mappings
@@ -33,7 +33,7 @@ class TestMapping(identity_fakes.TestFederatedIdentity):
 
 class TestMappingCreate(TestMapping):
     def setUp(self):
-        super(TestMappingCreate, self).setUp()
+        super().setUp()
         self.mapping_mock.create.return_value = fakes.FakeResource(
             None, copy.deepcopy(identity_fakes.MAPPING_RESPONSE), loaded=True
         )
@@ -75,7 +75,7 @@ class TestMappingCreate(TestMapping):
 
 class TestMappingDelete(TestMapping):
     def setUp(self):
-        super(TestMappingDelete, self).setUp()
+        super().setUp()
         self.mapping_mock.get.return_value = fakes.FakeResource(
             None, copy.deepcopy(identity_fakes.MAPPING_RESPONSE), loaded=True
         )
@@ -96,7 +96,7 @@ class TestMappingDelete(TestMapping):
 
 class TestMappingList(TestMapping):
     def setUp(self):
-        super(TestMappingList, self).setUp()
+        super().setUp()
         self.mapping_mock.get.return_value = fakes.FakeResource(
             None, {'id': identity_fakes.mapping_id}, loaded=True
         )
@@ -141,7 +141,7 @@ class TestMappingList(TestMapping):
 
 class TestMappingSet(TestMapping):
     def setUp(self):
-        super(TestMappingSet, self).setUp()
+        super().setUp()
 
         self.mapping_mock.get.return_value = fakes.FakeResource(
             None, copy.deepcopy(identity_fakes.MAPPING_RESPONSE), loaded=True
@@ -201,7 +201,7 @@ class TestMappingSet(TestMapping):
 
 class TestMappingShow(TestMapping):
     def setUp(self):
-        super(TestMappingShow, self).setUp()
+        super().setUp()
 
         self.mapping_mock.get.return_value = fakes.FakeResource(
             None, copy.deepcopy(identity_fakes.MAPPING_RESPONSE), loaded=True

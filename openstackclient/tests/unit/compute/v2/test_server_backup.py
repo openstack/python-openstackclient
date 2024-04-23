@@ -64,7 +64,7 @@ class TestServerBackupCreate(TestServerBackup):
         return datalist
 
     def setUp(self):
-        super(TestServerBackupCreate, self).setUp()
+        super().setUp()
 
         # Get the command object to test
         self.cmd = server_backup.CreateServerBackup(self.app, None)

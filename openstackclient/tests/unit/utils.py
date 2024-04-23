@@ -67,7 +67,7 @@ class TestCommand(TestCase):
     """Test cliff command classes"""
 
     def setUp(self):
-        super(TestCommand, self).setUp()
+        super().setUp()
         # Build up a fake app
         self.fake_stdout = fakes.FakeStdout()
         self.fake_log = fakes.FakeLog()

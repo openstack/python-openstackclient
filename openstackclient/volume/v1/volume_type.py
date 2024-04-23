@@ -43,7 +43,7 @@ class EncryptionInfoColumn(cliff_columns.FormattableColumn):
     """
 
     def __init__(self, value, encryption_data=None):
-        super(EncryptionInfoColumn, self).__init__(value)
+        super().__init__(value)
         self._encryption_data = encryption_data or {}
 
     def _get_encryption_info(self):
@@ -88,7 +88,7 @@ class CreateVolumeType(command.ShowOne):
     _description = _("Create new volume type")
 
     def get_parser(self, prog_name):
-        parser = super(CreateVolumeType, self).get_parser(prog_name)
+        parser = super().get_parser(prog_name)
         parser.add_argument(
             'name',
             metavar='<name>',
@@ -191,7 +191,7 @@ class DeleteVolumeType(command.Command):
     _description = _("Delete volume type(s)")
 
     def get_parser(self, prog_name):
-        parser = super(DeleteVolumeType, self).get_parser(prog_name)
+        parser = super().get_parser(prog_name)
         parser.add_argument(
             'volume_types',
             metavar='<volume-type>',
@@ -233,7 +233,7 @@ class ListVolumeType(command.Lister):
     _description = _("List volume types")
 
     def get_parser(self, prog_name):
-        parser = super(ListVolumeType, self).get_parser(prog_name)
+        parser = super().get_parser(prog_name)
         parser.add_argument(
             '--long',
             action='store_true',
@@ -306,7 +306,7 @@ class SetVolumeType(command.Command):
     _description = _("Set volume type properties")
 
     def get_parser(self, prog_name):
-        parser = super(SetVolumeType, self).get_parser(prog_name)
+        parser = super().get_parser(prog_name)
         parser.add_argument(
             'volume_type',
             metavar='<volume-type>',
@@ -411,7 +411,7 @@ class ShowVolumeType(command.ShowOne):
     _description = _("Display volume type details")
 
     def get_parser(self, prog_name):
-        parser = super(ShowVolumeType, self).get_parser(prog_name)
+        parser = super().get_parser(prog_name)
         parser.add_argument(
             "volume_type",
             metavar="<volume-type>",
@@ -462,7 +462,7 @@ class UnsetVolumeType(command.Command):
     _description = _("Unset volume type properties")
 
     def get_parser(self, prog_name):
-        parser = super(UnsetVolumeType, self).get_parser(prog_name)
+        parser = super().get_parser(prog_name)
         parser.add_argument(
             'volume_type',
             metavar='<volume-type>',

@@ -22,7 +22,7 @@ class TestProjectCleanup(test_utils.TestCommand):
     project = identity_fakes.FakeProject.create_one_project()
 
     def setUp(self):
-        super(TestProjectCleanup, self).setUp()
+        super().setUp()
         self.cmd = project_cleanup.ProjectCleanup(self.app, None)
 
         self.project_cleanup_mock = mock.Mock()

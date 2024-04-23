@@ -119,6 +119,6 @@ def make_v3_token(req_mock):
 
 class TestInteg(utils.TestCase):
     def setUp(self):
-        super(TestInteg, self).setUp()
+        super().setUp()
 
         self.requests_mock = self.useFixture(fixture.Fixture())

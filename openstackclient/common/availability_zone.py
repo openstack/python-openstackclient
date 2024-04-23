@@ -47,7 +47,7 @@ def _xform_compute_availability_zone(az, include_extra):
             for svc, state in services.items():
                 info = copy.deepcopy(host_info)
                 info['service_name'] = svc
-                info['service_status'] = '%s %s %s' % (
+                info['service_status'] = '{} {} {}'.format(
                     'enabled' if state['active'] else 'disabled',
                     ':-)' if state['available'] else 'XXX',
                     state['updated_at'],

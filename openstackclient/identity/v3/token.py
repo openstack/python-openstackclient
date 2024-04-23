@@ -27,7 +27,7 @@ class AuthorizeRequestToken(command.ShowOne):
     _description = _("Authorize a request token")
 
     def get_parser(self, prog_name):
-        parser = super(AuthorizeRequestToken, self).get_parser(prog_name)
+        parser = super().get_parser(prog_name)
         parser.add_argument(
             '--request-key',
             metavar='<request-key>',
@@ -70,7 +70,7 @@ class CreateAccessToken(command.ShowOne):
     _description = _("Create an access token")
 
     def get_parser(self, prog_name):
-        parser = super(CreateAccessToken, self).get_parser(prog_name)
+        parser = super().get_parser(prog_name)
         parser.add_argument(
             '--consumer-key',
             metavar='<consumer-key>',
@@ -119,7 +119,7 @@ class CreateRequestToken(command.ShowOne):
     _description = _("Create a request token")
 
     def get_parser(self, prog_name):
-        parser = super(CreateRequestToken, self).get_parser(prog_name)
+        parser = super().get_parser(prog_name)
         parser.add_argument(
             '--consumer-key',
             metavar='<consumer-key>',
@@ -178,7 +178,7 @@ class IssueToken(command.ShowOne):
     required_scope = False
 
     def get_parser(self, prog_name):
-        parser = super(IssueToken, self).get_parser(prog_name)
+        parser = super().get_parser(prog_name)
         return parser
 
     def take_action(self, parsed_args):
@@ -214,7 +214,7 @@ class RevokeToken(command.Command):
     _description = _("Revoke existing token")
 
     def get_parser(self, prog_name):
-        parser = super(RevokeToken, self).get_parser(prog_name)
+        parser = super().get_parser(prog_name)
         parser.add_argument(
             'token',
             metavar='<token>',

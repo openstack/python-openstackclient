@@ -31,7 +31,7 @@ class CreatePolicy(command.ShowOne):
     _description = _("Create new policy")
 
     def get_parser(self, prog_name):
-        parser = super(CreatePolicy, self).get_parser(prog_name)
+        parser = super().get_parser(prog_name)
         parser.add_argument(
             '--type',
             metavar='<type>',
@@ -65,7 +65,7 @@ class DeletePolicy(command.Command):
     _description = _("Delete policy(s)")
 
     def get_parser(self, prog_name):
-        parser = super(DeletePolicy, self).get_parser(prog_name)
+        parser = super().get_parser(prog_name)
         parser.add_argument(
             'policy',
             metavar='<policy>',
@@ -105,7 +105,7 @@ class ListPolicy(command.Lister):
     _description = _("List policies")
 
     def get_parser(self, prog_name):
-        parser = super(ListPolicy, self).get_parser(prog_name)
+        parser = super().get_parser(prog_name)
         parser.add_argument(
             '--long',
             action='store_true',
@@ -139,7 +139,7 @@ class SetPolicy(command.Command):
     _description = _("Set policy properties")
 
     def get_parser(self, prog_name):
-        parser = super(SetPolicy, self).get_parser(prog_name)
+        parser = super().get_parser(prog_name)
         parser.add_argument(
             'policy',
             metavar='<policy>',
@@ -177,7 +177,7 @@ class ShowPolicy(command.ShowOne):
     _description = _("Display policy details")
 
     def get_parser(self, prog_name):
-        parser = super(ShowPolicy, self).get_parser(prog_name)
+        parser = super().get_parser(prog_name)
         parser.add_argument(
             'policy',
             metavar='<policy>',

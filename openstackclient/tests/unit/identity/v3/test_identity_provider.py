@@ -25,7 +25,7 @@ from openstackclient.tests.unit import utils as test_utils
 
 class TestIdentityProvider(identity_fakes.TestFederatedIdentity):
     def setUp(self):
-        super(TestIdentityProvider, self).setUp()
+        super().setUp()
 
         # Identity Provider mocks
         federation_lib = self.identity_client.federation
@@ -59,7 +59,7 @@ class TestIdentityProviderCreate(TestIdentityProvider):
     )
 
     def setUp(self):
-        super(TestIdentityProviderCreate, self).setUp()
+        super().setUp()
 
         copied_idp = copy.deepcopy(identity_fakes.IDENTITY_PROVIDER)
         resource = fakes.FakeResource(None, copied_idp, loaded=True)
@@ -401,7 +401,7 @@ class TestIdentityProviderCreate(TestIdentityProvider):
 
 class TestIdentityProviderDelete(TestIdentityProvider):
     def setUp(self):
-        super(TestIdentityProviderDelete, self).setUp()
+        super().setUp()
 
         # This is the return value for utils.find_resource()
         self.identity_providers_mock.get.return_value = fakes.FakeResource(
@@ -432,7 +432,7 @@ class TestIdentityProviderDelete(TestIdentityProvider):
 
 class TestIdentityProviderList(TestIdentityProvider):
     def setUp(self):
-        super(TestIdentityProviderList, self).setUp()
+        super().setUp()
 
         self.identity_providers_mock.get.return_value = fakes.FakeResource(
             None,
@@ -540,7 +540,7 @@ class TestIdentityProviderSet(TestIdentityProvider):
     )
 
     def setUp(self):
-        super(TestIdentityProviderSet, self).setUp()
+        super().setUp()
         self.cmd = identity_provider.SetIdentityProvider(self.app, None)
 
     def test_identity_provider_set_description(self):
@@ -838,7 +838,7 @@ class TestIdentityProviderSet(TestIdentityProvider):
 
 class TestIdentityProviderShow(TestIdentityProvider):
     def setUp(self):
-        super(TestIdentityProviderShow, self).setUp()
+        super().setUp()
 
         ret = fakes.FakeResource(
             None,

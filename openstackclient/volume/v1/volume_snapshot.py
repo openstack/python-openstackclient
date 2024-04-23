@@ -44,7 +44,7 @@ class VolumeIdColumn(cliff_columns.FormattableColumn):
     """
 
     def __init__(self, value, volume_cache=None):
-        super(VolumeIdColumn, self).__init__(value)
+        super().__init__(value)
         self._volume_cache = volume_cache or {}
 
     def human_readable(self):
@@ -63,7 +63,7 @@ class CreateVolumeSnapshot(command.ShowOne):
     _description = _("Create new volume snapshot")
 
     def get_parser(self, prog_name):
-        parser = super(CreateVolumeSnapshot, self).get_parser(prog_name)
+        parser = super().get_parser(prog_name)
         parser.add_argument(
             'snapshot_name',
             metavar='<snapshot-name>',
@@ -122,7 +122,7 @@ class DeleteVolumeSnapshot(command.Command):
     _description = _("Delete volume snapshot(s)")
 
     def get_parser(self, prog_name):
-        parser = super(DeleteVolumeSnapshot, self).get_parser(prog_name)
+        parser = super().get_parser(prog_name)
         parser.add_argument(
             'snapshots',
             metavar='<snapshot>',
@@ -163,7 +163,7 @@ class ListVolumeSnapshot(command.Lister):
     _description = _("List volume snapshots")
 
     def get_parser(self, prog_name):
-        parser = super(ListVolumeSnapshot, self).get_parser(prog_name)
+        parser = super().get_parser(prog_name)
         parser.add_argument(
             '--all-projects',
             action='store_true',
@@ -283,7 +283,7 @@ class SetVolumeSnapshot(command.Command):
     _description = _("Set volume snapshot properties")
 
     def get_parser(self, prog_name):
-        parser = super(SetVolumeSnapshot, self).get_parser(prog_name)
+        parser = super().get_parser(prog_name)
         parser.add_argument(
             'snapshot',
             metavar='<snapshot>',
@@ -374,7 +374,7 @@ class ShowVolumeSnapshot(command.ShowOne):
     _description = _("Display volume snapshot details")
 
     def get_parser(self, prog_name):
-        parser = super(ShowVolumeSnapshot, self).get_parser(prog_name)
+        parser = super().get_parser(prog_name)
         parser.add_argument(
             'snapshot',
             metavar='<snapshot>',
@@ -403,7 +403,7 @@ class UnsetVolumeSnapshot(command.Command):
     _description = _("Unset volume snapshot properties")
 
     def get_parser(self, prog_name):
-        parser = super(UnsetVolumeSnapshot, self).get_parser(prog_name)
+        parser = super().get_parser(prog_name)
         parser.add_argument(
             'snapshot',
             metavar='<snapshot>',

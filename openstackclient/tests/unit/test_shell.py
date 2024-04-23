@@ -142,7 +142,7 @@ class TestShell(osc_lib_test_utils.TestShell):
     shell_class_name = "openstackclient.shell.OpenStackShell"
 
     def setUp(self):
-        super(TestShell, self).setUp()
+        super().setUp()
         # TODO(dtroyer): remove this once the shell_class_patch patch is
         #                released in osc-lib
         mod_str, _sep, class_str = self.shell_class_name.rpartition('.')
@@ -228,7 +228,7 @@ class TestShell(osc_lib_test_utils.TestShell):
 
 class TestShellOptions(TestShell):
     def setUp(self):
-        super(TestShellOptions, self).setUp()
+        super().setUp()
         self.useFixture(osc_lib_test_utils.EnvFixture())
 
     def _test_options_init_app(self, test_opts):
@@ -290,7 +290,7 @@ class TestShellOptions(TestShell):
 
 class TestShellTokenAuthEnv(TestShell):
     def setUp(self):
-        super(TestShellTokenAuthEnv, self).setUp()
+        super().setUp()
         env = {
             "OS_TOKEN": DEFAULT_TOKEN,
             "OS_AUTH_URL": DEFAULT_AUTH_URL,
@@ -333,7 +333,7 @@ class TestShellTokenAuthEnv(TestShell):
 
 class TestShellTokenEndpointAuthEnv(TestShell):
     def setUp(self):
-        super(TestShellTokenEndpointAuthEnv, self).setUp()
+        super().setUp()
         env = {
             "OS_TOKEN": DEFAULT_TOKEN,
             "OS_ENDPOINT": DEFAULT_SERVICE_URL,
@@ -376,7 +376,7 @@ class TestShellTokenEndpointAuthEnv(TestShell):
 
 class TestShellCli(TestShell):
     def setUp(self):
-        super(TestShellCli, self).setUp()
+        super().setUp()
         env = {
             "OS_COMPUTE_API_VERSION": DEFAULT_COMPUTE_API_VERSION,
             "OS_IDENTITY_API_VERSION": DEFAULT_IDENTITY_API_VERSION,

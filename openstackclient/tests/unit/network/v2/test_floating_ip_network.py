@@ -24,7 +24,7 @@ from openstackclient.tests.unit import utils as tests_utils
 
 class TestFloatingIPNetwork(network_fakes.TestNetworkV2):
     def setUp(self):
-        super(TestFloatingIPNetwork, self).setUp()
+        super().setUp()
 
         # Get a shortcut to the ProjectManager Mock
         self.projects_mock = self.identity_client.projects
@@ -81,7 +81,7 @@ class TestCreateFloatingIPNetwork(TestFloatingIPNetwork):
     )
 
     def setUp(self):
-        super(TestCreateFloatingIPNetwork, self).setUp()
+        super().setUp()
 
         self.network_client.create_ip = mock.Mock(
             return_value=self.floating_ip
@@ -301,7 +301,7 @@ class TestDeleteFloatingIPNetwork(TestFloatingIPNetwork):
     floating_ips = network_fakes.FakeFloatingIP.create_floating_ips(count=2)
 
     def setUp(self):
-        super(TestDeleteFloatingIPNetwork, self).setUp()
+        super().setUp()
 
         self.network_client.delete_ip = mock.Mock(return_value=None)
 
@@ -467,7 +467,7 @@ class TestListFloatingIPNetwork(TestFloatingIPNetwork):
         )
 
     def setUp(self):
-        super(TestListFloatingIPNetwork, self).setUp()
+        super().setUp()
 
         self.network_client.ips = mock.Mock(return_value=self.floating_ips)
         self.network_client.find_network = mock.Mock(
@@ -742,7 +742,7 @@ class TestShowFloatingIPNetwork(TestFloatingIPNetwork):
     )
 
     def setUp(self):
-        super(TestShowFloatingIPNetwork, self).setUp()
+        super().setUp()
 
         self.network_client.find_ip = mock.Mock(return_value=self.floating_ip)
 
@@ -784,7 +784,7 @@ class TestSetFloatingIP(TestFloatingIPNetwork):
     )
 
     def setUp(self):
-        super(TestSetFloatingIP, self).setUp()
+        super().setUp()
         self.network_client.find_ip = mock.Mock(return_value=self.floating_ip)
         self.network_client.find_port = mock.Mock(return_value=self.port)
         self.network_client.update_ip = mock.Mock(return_value=None)
@@ -1035,7 +1035,7 @@ class TestUnsetFloatingIP(TestFloatingIPNetwork):
     )
 
     def setUp(self):
-        super(TestUnsetFloatingIP, self).setUp()
+        super().setUp()
         self.network_client.find_ip = mock.Mock(return_value=self.floating_ip)
         self.network_client.update_ip = mock.Mock(return_value=None)
         self.network_client.set_tags = mock.Mock(return_value=None)

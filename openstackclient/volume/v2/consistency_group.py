@@ -52,7 +52,7 @@ class AddVolumeToConsistencyGroup(command.Command):
     _description = _("Add volume(s) to consistency group")
 
     def get_parser(self, prog_name):
-        parser = super(AddVolumeToConsistencyGroup, self).get_parser(prog_name)
+        parser = super().get_parser(prog_name)
         parser.add_argument(
             'consistency_group',
             metavar="<consistency-group>",
@@ -94,7 +94,7 @@ class CreateConsistencyGroup(command.ShowOne):
     _description = _("Create new consistency group.")
 
     def get_parser(self, prog_name):
-        parser = super(CreateConsistencyGroup, self).get_parser(prog_name)
+        parser = super().get_parser(prog_name)
         parser.add_argument(
             "name",
             metavar="<name>",
@@ -196,7 +196,7 @@ class DeleteConsistencyGroup(command.Command):
     _description = _("Delete consistency group(s).")
 
     def get_parser(self, prog_name):
-        parser = super(DeleteConsistencyGroup, self).get_parser(prog_name)
+        parser = super().get_parser(prog_name)
         parser.add_argument(
             'consistency_groups',
             metavar='<consistency-group>',
@@ -246,7 +246,7 @@ class ListConsistencyGroup(command.Lister):
     _description = _("List consistency groups.")
 
     def get_parser(self, prog_name):
-        parser = super(ListConsistencyGroup, self).get_parser(prog_name)
+        parser = super().get_parser(prog_name)
         parser.add_argument(
             '--all-projects',
             action="store_true",
@@ -297,9 +297,7 @@ class RemoveVolumeFromConsistencyGroup(command.Command):
     _description = _("Remove volume(s) from consistency group")
 
     def get_parser(self, prog_name):
-        parser = super(RemoveVolumeFromConsistencyGroup, self).get_parser(
-            prog_name
-        )
+        parser = super().get_parser(prog_name)
         parser.add_argument(
             'consistency_group',
             metavar="<consistency-group>",
@@ -341,7 +339,7 @@ class SetConsistencyGroup(command.Command):
     _description = _("Set consistency group properties")
 
     def get_parser(self, prog_name):
-        parser = super(SetConsistencyGroup, self).get_parser(prog_name)
+        parser = super().get_parser(prog_name)
         parser.add_argument(
             'consistency_group',
             metavar='<consistency-group>',
@@ -379,7 +377,7 @@ class ShowConsistencyGroup(command.ShowOne):
     _description = _("Display consistency group details.")
 
     def get_parser(self, prog_name):
-        parser = super(ShowConsistencyGroup, self).get_parser(prog_name)
+        parser = super().get_parser(prog_name)
         parser.add_argument(
             "consistency_group",
             metavar="<consistency-group>",

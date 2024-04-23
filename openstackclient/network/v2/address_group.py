@@ -61,7 +61,7 @@ class CreateAddressGroup(command.ShowOne, common.NeutronCommandWithExtraArgs):
     _description = _("Create a new Address Group")
 
     def get_parser(self, prog_name):
-        parser = super(CreateAddressGroup, self).get_parser(prog_name)
+        parser = super().get_parser(prog_name)
         parser.add_argument(
             'name', metavar="<name>", help=_("New address group name")
         )
@@ -108,7 +108,7 @@ class DeleteAddressGroup(command.Command):
     _description = _("Delete address group(s)")
 
     def get_parser(self, prog_name):
-        parser = super(DeleteAddressGroup, self).get_parser(prog_name)
+        parser = super().get_parser(prog_name)
         parser.add_argument(
             'address_group',
             metavar="<address-group>",
@@ -148,7 +148,7 @@ class ListAddressGroup(command.Lister):
     _description = _("List address groups")
 
     def get_parser(self, prog_name):
-        parser = super(ListAddressGroup, self).get_parser(prog_name)
+        parser = super().get_parser(prog_name)
 
         parser.add_argument(
             '--name',
@@ -213,7 +213,7 @@ class SetAddressGroup(common.NeutronCommandWithExtraArgs):
     _description = _("Set address group properties")
 
     def get_parser(self, prog_name):
-        parser = super(SetAddressGroup, self).get_parser(prog_name)
+        parser = super().get_parser(prog_name)
         parser.add_argument(
             'address_group',
             metavar="<address-group>",
@@ -265,7 +265,7 @@ class ShowAddressGroup(command.ShowOne):
     _description = _("Display address group details")
 
     def get_parser(self, prog_name):
-        parser = super(ShowAddressGroup, self).get_parser(prog_name)
+        parser = super().get_parser(prog_name)
         parser.add_argument(
             'address_group',
             metavar="<address-group>",
@@ -289,7 +289,7 @@ class UnsetAddressGroup(command.Command):
     _description = _("Unset address group properties")
 
     def get_parser(self, prog_name):
-        parser = super(UnsetAddressGroup, self).get_parser(prog_name)
+        parser = super().get_parser(prog_name)
         parser.add_argument(
             'address_group',
             metavar="<address-group>",

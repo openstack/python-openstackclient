@@ -20,7 +20,7 @@ from openstackclient.volume.v2 import consistency_group_snapshot
 
 class TestConsistencyGroupSnapshot(volume_fakes.TestVolume):
     def setUp(self):
-        super(TestConsistencyGroupSnapshot, self).setUp()
+        super().setUp()
 
         # Get a shortcut to the TransferManager Mock
         self.cgsnapshots_mock = self.volume_client.cgsnapshots
@@ -53,7 +53,7 @@ class TestConsistencyGroupSnapshotCreate(TestConsistencyGroupSnapshot):
     )
 
     def setUp(self):
-        super(TestConsistencyGroupSnapshotCreate, self).setUp()
+        super().setUp()
         self.cgsnapshots_mock.create.return_value = (
             self._consistency_group_snapshot
         )
@@ -126,7 +126,7 @@ class TestConsistencyGroupSnapshotDelete(TestConsistencyGroupSnapshot):
     )
 
     def setUp(self):
-        super(TestConsistencyGroupSnapshotDelete, self).setUp()
+        super().setUp()
 
         self.cgsnapshots_mock.get = (
             volume_fakes.get_consistency_group_snapshots(
@@ -217,7 +217,7 @@ class TestConsistencyGroupSnapshotList(TestConsistencyGroupSnapshot):
         )
 
     def setUp(self):
-        super(TestConsistencyGroupSnapshotList, self).setUp()
+        super().setUp()
 
         self.cgsnapshots_mock.list.return_value = (
             self.consistency_group_snapshots
@@ -332,7 +332,7 @@ class TestConsistencyGroupSnapshotShow(TestConsistencyGroupSnapshot):
     )
 
     def setUp(self):
-        super(TestConsistencyGroupSnapshotShow, self).setUp()
+        super().setUp()
 
         self.cgsnapshots_mock.get.return_value = (
             self._consistency_group_snapshot

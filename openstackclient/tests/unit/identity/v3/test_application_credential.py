@@ -27,7 +27,7 @@ from openstackclient.tests.unit.identity.v3 import fakes as identity_fakes
 
 class TestApplicationCredential(identity_fakes.TestIdentityv3):
     def setUp(self):
-        super(TestApplicationCredential, self).setUp()
+        super().setUp()
 
         identity_manager = self.identity_client
         self.app_creds_mock = identity_manager.application_credentials
@@ -38,7 +38,7 @@ class TestApplicationCredential(identity_fakes.TestIdentityv3):
 
 class TestApplicationCredentialCreate(TestApplicationCredential):
     def setUp(self):
-        super(TestApplicationCredentialCreate, self).setUp()
+        super().setUp()
 
         self.roles_mock.get.return_value = fakes.FakeResource(
             None,
@@ -296,7 +296,7 @@ class TestApplicationCredentialCreate(TestApplicationCredential):
 
 class TestApplicationCredentialDelete(TestApplicationCredential):
     def setUp(self):
-        super(TestApplicationCredentialDelete, self).setUp()
+        super().setUp()
 
         # This is the return value for utils.find_resource()
         self.app_creds_mock.get.return_value = fakes.FakeResource(
@@ -361,7 +361,7 @@ class TestApplicationCredentialDelete(TestApplicationCredential):
 
 class TestApplicationCredentialList(TestApplicationCredential):
     def setUp(self):
-        super(TestApplicationCredentialList, self).setUp()
+        super().setUp()
 
         self.app_creds_mock.list.return_value = [
             fakes.FakeResource(
@@ -404,7 +404,7 @@ class TestApplicationCredentialList(TestApplicationCredential):
 
 class TestApplicationCredentialShow(TestApplicationCredential):
     def setUp(self):
-        super(TestApplicationCredentialShow, self).setUp()
+        super().setUp()
 
         self.app_creds_mock.get.return_value = fakes.FakeResource(
             None,

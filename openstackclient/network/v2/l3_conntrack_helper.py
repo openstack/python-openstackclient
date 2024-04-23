@@ -49,7 +49,7 @@ class CreateConntrackHelper(command.ShowOne):
     _description = _("Create a new L3 conntrack helper")
 
     def get_parser(self, prog_name):
-        parser = super(CreateConntrackHelper, self).get_parser(prog_name)
+        parser = super().get_parser(prog_name)
         parser.add_argument(
             'router',
             metavar='<router>',
@@ -95,7 +95,7 @@ class DeleteConntrackHelper(command.Command):
     _description = _("Delete L3 conntrack helper")
 
     def get_parser(self, prog_name):
-        parser = super(DeleteConntrackHelper, self).get_parser(prog_name)
+        parser = super().get_parser(prog_name)
         parser.add_argument(
             'router',
             metavar='<router>',
@@ -143,7 +143,7 @@ class ListConntrackHelper(command.Lister):
     _description = _("List L3 conntrack helpers")
 
     def get_parser(self, prog_name):
-        parser = super(ListConntrackHelper, self).get_parser(prog_name)
+        parser = super().get_parser(prog_name)
         parser.add_argument(
             'router',
             metavar='<router>',
@@ -206,7 +206,7 @@ class SetConntrackHelper(command.Command):
     _description = _("Set L3 conntrack helper properties")
 
     def get_parser(self, prog_name):
-        parser = super(SetConntrackHelper, self).get_parser(prog_name)
+        parser = super().get_parser(prog_name)
         parser.add_argument(
             'router',
             metavar='<router>',
@@ -253,7 +253,7 @@ class ShowConntrackHelper(command.ShowOne):
     _description = _("Display L3 conntrack helper details")
 
     def get_parser(self, prog_name):
-        parser = super(ShowConntrackHelper, self).get_parser(prog_name)
+        parser = super().get_parser(prog_name)
         parser.add_argument(
             'router',
             metavar='<router>',

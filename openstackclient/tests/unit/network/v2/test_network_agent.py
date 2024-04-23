@@ -24,7 +24,7 @@ from openstackclient.tests.unit import utils as tests_utils
 
 class TestNetworkAgent(network_fakes.TestNetworkV2):
     def setUp(self):
-        super(TestNetworkAgent, self).setUp()
+        super().setUp()
 
 
 class TestAddNetworkToAgent(TestNetworkAgent):
@@ -32,7 +32,7 @@ class TestAddNetworkToAgent(TestNetworkAgent):
     agent = network_fakes.create_one_network_agent()
 
     def setUp(self):
-        super(TestAddNetworkToAgent, self).setUp()
+        super().setUp()
 
         self.network_client.get_agent = mock.Mock(return_value=self.agent)
         self.network_client.find_network = mock.Mock(return_value=self.net)
@@ -74,7 +74,7 @@ class TestAddRouterAgent(TestNetworkAgent):
     _agent = network_fakes.create_one_network_agent()
 
     def setUp(self):
-        super(TestAddRouterAgent, self).setUp()
+        super().setUp()
 
         self.network_client.get_agent = mock.Mock(return_value=self._agent)
         self.network_client.find_router = mock.Mock(return_value=self._router)
@@ -119,7 +119,7 @@ class TestDeleteNetworkAgent(TestNetworkAgent):
     network_agents = network_fakes.create_network_agents(count=2)
 
     def setUp(self):
-        super(TestDeleteNetworkAgent, self).setUp()
+        super().setUp()
         self.network_client.delete_agent = mock.Mock(return_value=None)
 
         # Get the command object to test
@@ -218,7 +218,7 @@ class TestListNetworkAgent(TestNetworkAgent):
         )
 
     def setUp(self):
-        super(TestListNetworkAgent, self).setUp()
+        super().setUp()
         self.network_client.agents = mock.Mock(
             return_value=self.network_agents
         )
@@ -369,7 +369,7 @@ class TestRemoveNetworkFromAgent(TestNetworkAgent):
     agent = network_fakes.create_one_network_agent()
 
     def setUp(self):
-        super(TestRemoveNetworkFromAgent, self).setUp()
+        super().setUp()
 
         self.network_client.get_agent = mock.Mock(return_value=self.agent)
         self.network_client.find_network = mock.Mock(return_value=self.net)
@@ -426,7 +426,7 @@ class TestRemoveRouterAgent(TestNetworkAgent):
     _agent = network_fakes.create_one_network_agent()
 
     def setUp(self):
-        super(TestRemoveRouterAgent, self).setUp()
+        super().setUp()
 
         self.network_client.get_agent = mock.Mock(return_value=self._agent)
         self.network_client.find_router = mock.Mock(return_value=self._router)
@@ -471,7 +471,7 @@ class TestSetNetworkAgent(TestNetworkAgent):
     _network_agent = network_fakes.create_one_network_agent()
 
     def setUp(self):
-        super(TestSetNetworkAgent, self).setUp()
+        super().setUp()
         self.network_client.update_agent = mock.Mock(return_value=None)
         self.network_client.get_agent = mock.Mock(
             return_value=self._network_agent
@@ -587,7 +587,7 @@ class TestShowNetworkAgent(TestNetworkAgent):
     )
 
     def setUp(self):
-        super(TestShowNetworkAgent, self).setUp()
+        super().setUp()
         self.network_client.get_agent = mock.Mock(
             return_value=self._network_agent
         )

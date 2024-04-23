@@ -694,7 +694,7 @@ class SetNetwork(common.NeutronCommandWithExtraArgs):
     _description = _("Set network properties")
 
     def get_parser(self, prog_name):
-        parser = super(SetNetwork, self).get_parser(prog_name)
+        parser = super().get_parser(prog_name)
         parser.add_argument(
             'network',
             metavar="<network>",
@@ -838,7 +838,7 @@ class UnsetNetwork(common.NeutronUnsetCommandWithExtraArgs):
     _description = _("Unset network properties")
 
     def get_parser(self, prog_name):
-        parser = super(UnsetNetwork, self).get_parser(prog_name)
+        parser = super().get_parser(prog_name)
         parser.add_argument(
             'network',
             metavar="<network>",
