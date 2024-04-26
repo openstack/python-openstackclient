@@ -129,7 +129,7 @@ def update_tags_in_args(parsed_args, obj, args):
         args['tags'] = []
         obj.tags = []
     if parsed_args.remove_tag:
-        args['tags'] = list(set(obj.tags) - set(parsed_args.remove_tag))
+        args['tags'] = sorted(set(obj.tags) - set(parsed_args.remove_tag))
         return
     if parsed_args.tags:
-        args['tags'] = list(set(obj.tags).union(set(parsed_args.tags)))
+        args['tags'] = sorted(set(obj.tags).union(set(parsed_args.tags)))

@@ -1130,7 +1130,7 @@ class TestProjectSet(TestProject):
         # Set expected values. new tag is added to original tags for update.
         kwargs = {
             'name': 'qwerty',
-            'tags': list(set(['tag1', 'tag2', 'tag3', 'foo'])),
+            'tags': sorted(set(['tag1', 'tag2', 'tag3', 'foo'])),
         }
         # ProjectManager.update(project, name=, domain=, description=,
         #                       enabled=, **kwargs)
