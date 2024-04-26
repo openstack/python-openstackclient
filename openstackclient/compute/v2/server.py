@@ -2843,11 +2843,12 @@ class ListServer(command.Lister):
             # there are infra failures
             if parsed_args.name_lookup_one_by_one or image_id:
                 for image_id in image_ids:
-                    # "Image Name" is not crucial, so we swallow any exceptions
                     try:
                         images[image_id] = image_client.get_image(image_id)
                     except Exception:
-                        pass
+                        # retrieving image names is not crucial, so we swallow
+                        # any exceptions
+                        pass  # nosec: B110
             else:
                 try:
                     # some deployments can have *loads* of images so we only
@@ -2866,7 +2867,9 @@ class ListServer(command.Lister):
                     for i in images_list:
                         images[i.id] = i
                 except Exception:
-                    pass
+                    # retrieving image names is not crucial, so we swallow any
+                    # exceptions
+                    pass  # nosec: B110
 
             # create a dict that maps flavor_id to flavor object, which is used
             # to display the "Flavor Name" column. Note that 'flavor.id' is not
@@ -2878,21 +2881,23 @@ class ListServer(command.Lister):
                     for s in data
                     if s.flavor and s.flavor.get('id')
                 ):
-                    # "Flavor Name" is not crucial, so we swallow any
-                    # exceptions
                     try:
                         flavors[f_id] = compute_client.find_flavor(
                             f_id, ignore_missing=False
                         )
                     except Exception:
-                        pass
+                        # retrieving flavor names is not crucial, so we swallow
+                        # any exceptions
+                        pass  # nosec: B110
             else:
                 try:
                     flavors_list = compute_client.flavors(is_public=None)
                     for i in flavors_list:
                         flavors[i.id] = i
                 except Exception:
-                    pass
+                    # retrieving flavor names is not crucial, so we swallow any
+                    # exceptions
+                    pass  # nosec: B110
 
         # Populate image_name, image_id, flavor_name and flavor_id attributes
         # of server objects so that we can display those columns.
@@ -4805,7 +4810,9 @@ class SshServer(command.Command):
 
         cmd = ' '.join(['ssh', ip_address] + args)
         LOG.debug("ssh command: {cmd}".format(cmd=cmd))
-        os.system(cmd)
+        # we intentionally pass through user-provided arguments and run this in
+        # the user's shell
+        os.system(cmd)  # nosec: B605
 
 
 class StartServer(command.Command):

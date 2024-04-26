@@ -217,7 +217,7 @@ class ListVolumeBackup(command.Lister):
                 volume_cache[s.id] = s
         except Exception:
             # Just forget it if there's any trouble
-            pass
+            pass  # nosec: B110
         VolumeIdColumnWithCache = functools.partial(
             VolumeIdColumn, volume_cache=volume_cache
         )
