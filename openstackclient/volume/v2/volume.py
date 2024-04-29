@@ -88,27 +88,27 @@ class AttachmentsColumn(cliff_columns.FormattableColumn):
         return msg
 
 
-def _check_size_arg(args):
-    """Check whether --size option is required or not.
-
-    Require size parameter only in case when snapshot or source
-    volume is not specified.
-    """
-
-    if (
-        args.snapshot or args.source or args.backup
-    ) is None and args.size is None:
-        msg = _(
-            "--size is a required option if snapshot, backup "
-            "or source volume are not specified."
-        )
-        raise exceptions.CommandError(msg)
-
-
 class CreateVolume(command.ShowOne):
     _description = _("Create new volume")
 
-    def get_parser(self, prog_name):
+    @staticmethod
+    def _check_size_arg(args):
+        """Check whether --size option is required or not.
+
+        Require size parameter only in case when snapshot or source
+        volume is not specified.
+        """
+
+        if (
+            args.snapshot or args.source or args.backup
+        ) is None and args.size is None:
+            msg = _(
+                "--size is a required option if snapshot, backup "
+                "or source volume are not specified."
+            )
+            raise exceptions.CommandError(msg)
+
+    def _get_parser(self, prog_name):
         parser = super().get_parser(prog_name)
         parser.add_argument(
             "name",
@@ -216,10 +216,14 @@ class CreateVolume(command.ShowOne):
             action="store_true",
             help=_("Set volume to read-write access mode (default)"),
         )
+        return parser, source_group
+
+    def get_parser(self, prog_name):
+        parser, _ = self._get_parser(prog_name)
         return parser
 
-    def take_action(self, parsed_args):
-        _check_size_arg(parsed_args)
+    def _take_action(self, parsed_args):
+        CreateVolume._check_size_arg(parsed_args)
         # size is validated in the above call to
         # _check_size_arg where we check that size
         # should be passed if we are not creating a
@@ -354,6 +358,9 @@ class CreateVolume(command.ShowOne):
         )
         volume._info.pop("links", None)
         return zip(*sorted(volume._info.items()))
+
+    def take_action(self, parsed_args):
+        return self._take_action(parsed_args)
 
 
 class DeleteVolume(command.Command):

@@ -23,7 +23,7 @@ from osc_lib import exceptions
 from osc_lib import utils
 
 from openstackclient.i18n import _
-
+from openstackclient.volume.v2 import volume as volume_v2
 
 LOG = logging.getLogger(__name__)
 
@@ -113,3 +113,34 @@ class VolumeRevertToSnapshot(command.Command):
         )
 
         volume_client.revert_volume_to_snapshot(volume, snapshot)
+
+
+class CreateVolume(volume_v2.CreateVolume):
+    _description = _("Create new volume")
+
+    @staticmethod
+    def _check_size_arg(args):
+        """Check whether --size option is required or not.
+
+        Require size parameter in case if any of the following is not specified:
+        * snapshot
+        * source volume
+        * backup
+        * remote source (volume to be managed)
+        """
+
+        if (
+            args.snapshot or args.source or args.backup or args.remote_source
+        ) is None and args.size is None:
+            msg = _(
+                "--size is a required option if none of --snapshot, "
+                "--backup, --source, or --remote-source are provided."
+            )
+            raise exceptions.CommandError(msg)
+
+    def get_parser(self, prog_name):
+        parser, _ = self._get_parser(prog_name)
+        return parser
+
+    def take_action(self, parsed_args):
+        return self._take_action(parsed_args)
