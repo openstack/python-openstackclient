@@ -252,7 +252,7 @@ class ListUser(command.Lister):
                     project_cache[p.id] = p
             except Exception:
                 # Just forget it if there's any trouble
-                pass
+                pass  # nosec: B110
             formatters['tenantId'] = functools.partial(
                 ProjectColumn, project_cache=project_cache
             )

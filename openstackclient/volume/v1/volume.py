@@ -424,7 +424,7 @@ class ListVolume(command.Lister):
                 server_cache[s.id] = s
         except Exception:
             # Just forget it if there's any trouble
-            pass
+            pass  # nosec: B110
         AttachmentsColumnWithCache = functools.partial(
             AttachmentsColumn, server_cache=server_cache
         )

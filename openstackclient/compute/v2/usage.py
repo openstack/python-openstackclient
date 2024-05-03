@@ -182,7 +182,7 @@ class ListUsage(command.Lister):
                 project_cache[p.id] = p
         except Exception:
             # Just forget it if there's any trouble
-            pass
+            pass  # nosec: B110
 
         if parsed_args.formatter == 'table' and len(usage_list) > 0:
             self.app.stdout.write(

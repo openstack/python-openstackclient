@@ -113,6 +113,6 @@ class ListModule(command.ShowOne):
                             data[k] = mods[k].__version__
                     except Exception:
                         # Catch all exceptions, just skip it
-                        pass
+                        pass  # nosec: B110
 
         return zip(*sorted(data.items()))
