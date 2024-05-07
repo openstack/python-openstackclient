@@ -29,8 +29,9 @@ Example
 
 This example is taken from ``keypair create`` where the ``--public-key`` option
 specifies a file containing the public key to upload.  If the file is not found,
-the IOError exception is trapped and a more specific CommandError exception is
-raised that includes the name of the file that was attempted to be opened.
+the ``IOError`` exception is trapped and a more specific ``CommandError``
+exception is raised that includes the name of the file that was attempted to be
+opened.
 
 .. code-block:: python
 
@@ -40,7 +41,7 @@ raised that includes the name of the file that was attempted to be opened.
         ## ...
 
         def take_action(self, parsed_args):
-            compute_client = self.app.client_manager.compute
+            compute_client = self.app.client_manager.sdk_connection.compute
 
             public_key = parsed_args.public_key
             if public_key:
@@ -56,8 +57,8 @@ raised that includes the name of the file that was attempted to be opened.
                         msg % (parsed_args.public_key, e),
                     )
 
-            keypair = compute_client.keypairs.create(
-                parsed_args.name,
+            keypair = compute_client.create_keypair(
+                name=parsed_args.name,
                 public_key=public_key,
             )
 
