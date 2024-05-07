@@ -15,7 +15,6 @@ from unittest.mock import call
 
 from osc_lib.cli import format_columns
 from osc_lib import exceptions
-from osc_lib import utils
 
 from openstackclient.network.v2 import port
 from openstackclient.tests.unit.compute.v2 import fakes as compute_fakes
@@ -1190,7 +1189,7 @@ class TestDeletePort(TestPort):
         self.network_client.delete_port.assert_called_once_with(self._ports[0])
 
 
-class TestListPort(TestPort):
+class TestListPort(compute_fakes.FakeClientMixin, TestPort):
     _ports = network_fakes.create_ports(count=3)
 
     columns = (
@@ -1256,9 +1255,6 @@ class TestListPort(TestPort):
         self.network_client.find_router = mock.Mock(return_value=fake_router)
         self.network_client.find_network = mock.Mock(return_value=fake_network)
 
-        self.app.client_manager.compute = mock.Mock()
-        self.compute_client = self.app.client_manager.compute
-
         # Get the command object to test
         self.cmd = port.ListPort(self.app, None)
 
@@ -1297,10 +1293,9 @@ class TestListPort(TestPort):
         self.assertEqual(self.columns, columns)
         self.assertCountEqual(self.data, list(data))
 
-    @mock.patch.object(utils, 'find_resource')
-    def test_port_list_with_server_option(self, mock_find):
-        fake_server = compute_fakes.create_one_server()
-        mock_find.return_value = fake_server
+    def test_port_list_with_server_option(self):
+        fake_server = compute_fakes.create_one_sdk_server()
+        self.compute_sdk_client.find_server.return_value = fake_server
 
         arglist = [
             '--server',
@@ -1315,7 +1310,9 @@ class TestListPort(TestPort):
         self.network_client.ports.assert_called_once_with(
             device_id=fake_server.id, fields=LIST_FIELDS_TO_RETRIEVE
         )
-        mock_find.assert_called_once_with(mock.ANY, 'fake-server-name')
+        self.compute_sdk_client.find_server.aassert_called_once_with(
+            mock.ANY, 'fake-server-name'
+        )
         self.assertEqual(self.columns, columns)
         self.assertCountEqual(self.data, list(data))
 
