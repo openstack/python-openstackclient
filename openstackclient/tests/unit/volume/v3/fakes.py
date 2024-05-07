@@ -62,12 +62,18 @@ class FakeVolumeClient:
         self.resource_filters.resource_class = fakes.FakeResource(None, {})
         self.restores = mock.Mock()
         self.restores.resource_class = fakes.FakeResource(None, {})
-        self.volumes = mock.Mock()
-        self.volumes.resource_class = fakes.FakeResource(None, {})
+        self.volume_encryption_types = mock.Mock()
+        self.volume_encryption_types.resource_class = fakes.FakeResource(
+            None, {}
+        )
         self.volume_snapshots = mock.Mock()
         self.volume_snapshots.resource_class = fakes.FakeResource(None, {})
+        self.volume_type_access = mock.Mock()
+        self.volume_type_access.resource_class = fakes.FakeResource(None, {})
         self.volume_types = mock.Mock()
         self.volume_types.resource_class = fakes.FakeResource(None, {})
+        self.volumes = mock.Mock()
+        self.volumes.resource_class = fakes.FakeResource(None, {})
         self.services = mock.Mock()
         self.services.resource_class = fakes.FakeResource(None, {})
         self.workers = mock.Mock()
@@ -118,7 +124,6 @@ class TestVolume(
 
 # TODO(stephenfin): Check if the responses are actually the same
 create_one_snapshot = volume_v2_fakes.create_one_snapshot
-create_one_volume_type = volume_v2_fakes.create_one_volume_type
 
 
 def create_one_availability_zone(attrs=None):
@@ -364,6 +369,34 @@ def create_clusters(attrs=None, count=2):
     return clusters
 
 
+def create_one_encryption_volume_type(attrs=None):
+    """Create a fake encryption volume type.
+
+    :param dict attrs:
+        A dictionary with all attributes
+    :return:
+        A FakeResource object with volume_type_id etc.
+    """
+    attrs = attrs or {}
+
+    # Set default attributes.
+    encryption_info = {
+        "volume_type_id": 'type-id-' + uuid.uuid4().hex,
+        'provider': 'LuksEncryptor',
+        'cipher': None,
+        'key_size': None,
+        'control_location': 'front-end',
+    }
+
+    # Overwrite default attributes.
+    encryption_info.update(attrs)
+
+    encryption_type = fakes.FakeResource(
+        info=copy.deepcopy(encryption_info), loaded=True
+    )
+    return encryption_type
+
+
 def create_one_resource_filter(attrs=None):
     """Create a fake resource filter.
 
@@ -403,6 +436,31 @@ def create_resource_filters(attrs=None, count=2):
         resource_filters.append(create_one_resource_filter(attrs))
 
     return resource_filters
+
+
+def create_one_type_access(attrs=None):
+    """Create a fake volume type access for project.
+
+    :param dict attrs:
+        A dictionary with all attributes
+    :return:
+        A FakeResource object, with  Volume_type_ID and Project_ID.
+    """
+    if attrs is None:
+        attrs = {}
+
+    # Set default attributes.
+    type_access_attrs = {
+        'volume_type_id': 'volume-type-id-' + uuid.uuid4().hex,
+        'project_id': 'project-id-' + uuid.uuid4().hex,
+    }
+
+    # Overwrite default attributes.
+    type_access_attrs.update(attrs)
+
+    type_access = fakes.FakeResource(None, type_access_attrs, loaded=True)
+
+    return type_access
 
 
 def create_one_volume(attrs=None):
@@ -819,6 +877,75 @@ def get_volume_attachments(attachments=None, count=2):
         attachments = create_volume_attachments(count)
 
     return mock.Mock(side_effect=attachments)
+
+
+def create_one_volume_type(attrs=None, methods=None):
+    """Create a fake volume type.
+
+    :param dict attrs:
+        A dictionary with all attributes
+    :param dict methods:
+        A dictionary with all methods
+    :return:
+        A FakeResource object with id, name, description, etc.
+    """
+    attrs = attrs or {}
+    methods = methods or {}
+
+    # Set default attributes.
+    volume_type_info = {
+        "id": 'type-id-' + uuid.uuid4().hex,
+        "name": 'type-name-' + uuid.uuid4().hex,
+        "description": 'type-description-' + uuid.uuid4().hex,
+        "extra_specs": {"foo": "bar"},
+        "is_public": True,
+    }
+
+    # Overwrite default attributes.
+    volume_type_info.update(attrs)
+
+    volume_type = fakes.FakeResource(
+        info=copy.deepcopy(volume_type_info), methods=methods, loaded=True
+    )
+    return volume_type
+
+
+def create_volume_types(attrs=None, count=2):
+    """Create multiple fake volume_types.
+
+    :param dict attrs:
+        A dictionary with all attributes
+    :param int count:
+        The number of types to fake
+    :return:
+        A list of FakeResource objects faking the types
+    """
+    volume_types = []
+    for i in range(0, count):
+        volume_type = create_one_volume_type(attrs)
+        volume_types.append(volume_type)
+
+    return volume_types
+
+
+def get_volume_types(volume_types=None, count=2):
+    """Get an iterable MagicMock object with a list of faked volume types.
+
+    If volume_types list is provided, then initialize the Mock object with
+    the list. Otherwise create one.
+
+    :param List volume_types:
+        A list of FakeResource objects faking volume types
+    :param Integer count:
+        The number of volume types to be faked
+    :return
+        An iterable Mock object with side_effect set to a list of faked
+        volume types
+    """
+    if volume_types is None:
+        volume_types = create_volume_types(count)
+
+    return mock.Mock(side_effect=volume_types)
 
 
 def create_service_log_level_entry(attrs=None):

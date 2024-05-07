@@ -12,11 +12,12 @@
 #   under the License.
 #
 
-"""Volume v2 Type action implementations"""
+"""Volume v3 Type action implementations"""
 
 import functools
 import logging
 
+from cinderclient import api_versions
 from cliff import columns as cliff_columns
 from osc_lib.cli import format_columns
 from osc_lib.cli import parseractions
@@ -408,6 +409,59 @@ class ListVolumeType(command.Lister):
                 "(admin only)"
             ),
         )
+        parser.add_argument(
+            '--property',
+            metavar='<key=value>',
+            action=parseractions.KeyValueAction,
+            dest='properties',
+            help=_(
+                'Filter by a property on the volume types '
+                '(repeat option to filter by multiple properties) '
+                '(admin only except for user-visible extra specs) '
+                '(supported by --os-volume-api-version 3.52 or above)'
+            ),
+        )
+        parser.add_argument(
+            '--multiattach',
+            action='store_true',
+            default=False,
+            help=_(
+                "List only volume types with multi-attach enabled "
+                "(this is an alias for '--property multiattach=<is> True') "
+                "(supported by --os-volume-api-version 3.52 or above)"
+            ),
+        )
+        parser.add_argument(
+            '--cacheable',
+            action='store_true',
+            default=False,
+            help=_(
+                "List only volume types with caching enabled "
+                "(this is an alias for '--property cacheable=<is> True') "
+                "(admin only) "
+                "(supported by --os-volume-api-version 3.52 or above)"
+            ),
+        )
+        parser.add_argument(
+            '--replicated',
+            action='store_true',
+            default=False,
+            help=_(
+                "List only volume types with replication enabled "
+                "(this is an alias for '--property replication_enabled=<is> True') "  # noqa: E501
+                "(supported by --os-volume-api-version 3.52 or above)"
+            ),
+        )
+        parser.add_argument(
+            '--availability-zone',
+            action='append',
+            dest='availability_zones',
+            help=_(
+                "List only volume types with this availability configured "
+                "(this is an alias for '--property RESKEY:availability_zones:<az>') "  # noqa: E501
+                "(repeat option to filter on multiple availability zones)"
+            ),
+        )
         return parser
 
     def take_action(self, parsed_args):
@@ -419,12 +473,14 @@ class ListVolumeType(command.Lister):
                 'Name',
                 'Is Public',
                 'Description',
+                'Extra Specs',
             ]
             column_headers = [
                 'ID',
                 'Name',
                 'Is Public',
                 'Description',
+                'Properties',
             ]
         else:
             columns = ['ID', 'Name', 'Is Public']
@@ -433,7 +489,33 @@ class ListVolumeType(command.Lister):
         if parsed_args.default:
             data = [volume_client.volume_types.default()]
         else:
+            search_opts = {}
+            properties = {}
+            if parsed_args.properties:
+                properties.update(parsed_args.properties)
+            if parsed_args.multiattach:
+                properties['multiattach'] = '<is> True'
+            if parsed_args.cacheable:
+                properties['cacheable'] = '<is> True'
+            if parsed_args.replicated:
+                properties['replication_enabled'] = '<is> True'
+            if parsed_args.availability_zones:
+                properties['RESKEY:availability_zones'] = ','.join(
+                    parsed_args.availability_zones
+                )
+            if properties:
+                if volume_client.api_version < api_versions.APIVersion('3.52'):
+                    msg = _(
+                        "--os-volume-api-version 3.52 or greater is required "
+                        "to use the '--property' option or any of the alias "
+                        "options"
+                    )
+                    raise exceptions.CommandError(msg)
+
+                search_opts['extra_specs'] = properties
+
             data = volume_client.volume_types.list(
+                search_opts=search_opts,
                 is_public=parsed_args.is_public,
             )
 
