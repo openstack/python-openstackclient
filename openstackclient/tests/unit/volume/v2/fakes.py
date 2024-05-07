@@ -20,7 +20,7 @@ import uuid
 # FIXME(stephenfin): We are using v3 resource versions despite being v2 fakes
 from cinderclient import api_versions
 from openstack.block_storage.v2 import _proxy as block_storage_v2_proxy
-from openstack.block_storage.v3 import backup as _backup
+from openstack.block_storage.v2 import backup as _backup
 from openstack.block_storage.v3 import capabilities as _capabilities
 from openstack.block_storage.v3 import stats as _stats
 from openstack.block_storage.v3 import volume as _volume
@@ -514,34 +514,29 @@ def create_one_backup(attrs=None):
 
     :param dict attrs:
         A dictionary with all attributes
-    :return:
-        A FakeResource object with id, name, volume_id, etc.
+    :return: A fake
+        openstack.block_storage.v2.backup.Backup object
     """
     attrs = attrs or {}
 
     # Set default attributes.
     backup_info = {
+        "availability_zone": 'zone' + uuid.uuid4().hex,
+        "container": 'container-' + uuid.uuid4().hex,
         "created_at": 'time-' + uuid.uuid4().hex,
         "data_timestamp": 'time-' + uuid.uuid4().hex,
-        "id": 'backup-id-' + uuid.uuid4().hex,
-        "encryption_key_id": None,
+        "description": 'description-' + uuid.uuid4().hex,
         "fail_reason": "Service not found for creating backup.",
         "has_dependent_backups": False,
+        "id": 'backup-id-' + uuid.uuid4().hex,
         "is_incremental": False,
-        "metadata": {},
-        "project_id": uuid.uuid4().hex,
-        "updated_at": 'time-' + uuid.uuid4().hex,
-        "user_id": uuid.uuid4().hex,
         "name": 'backup-name-' + uuid.uuid4().hex,
-        "volume_id": 'volume-id-' + uuid.uuid4().hex,
-        "snapshot_id": 'snapshot-id' + uuid.uuid4().hex,
-        "description": 'description-' + uuid.uuid4().hex,
         "object_count": None,
-        "container": 'container-' + uuid.uuid4().hex,
         "size": random.randint(1, 20),
-        "is_incremental": False,
+        "snapshot_id": 'snapshot-id' + uuid.uuid4().hex,
         "status": "error",
-        "availability_zone": 'zone' + uuid.uuid4().hex,
+        "updated_at": 'time-' + uuid.uuid4().hex,
+        "volume_id": 'volume-id-' + uuid.uuid4().hex,
     }
 
     # Overwrite default attributes.
@@ -558,8 +553,8 @@ def create_backups(attrs=None, count=2):
         A dictionary with all attributes
     :param int count:
         The number of backups to fake
-    :return:
-        A list of FakeResource objects faking the backups
+    :return: A list of fake
+        openstack.block_storage.v2.backup.Backup objects
     """
     backups = []
     for i in range(0, count):

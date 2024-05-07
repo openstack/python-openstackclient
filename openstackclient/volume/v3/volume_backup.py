@@ -12,12 +12,16 @@
 #   under the License.
 #
 
-"""Volume v2 Backup action implementations"""
+"""Volume v3 Backup action implementations"""
 
+import copy
 import functools
 import logging
 
+from cinderclient import api_versions
 from cliff import columns as cliff_columns
+from openstack import utils as sdk_utils
+from osc_lib.cli import parseractions
 from osc_lib.command import command
 from osc_lib import exceptions
 from osc_lib import utils
@@ -100,6 +104,26 @@ class CreateVolumeBackup(command.ShowOne):
             action='store_false',
             help=_("Do not perform an incremental backup"),
         )
+        parser.add_argument(
+            '--property',
+            metavar='<key=value>',
+            action=parseractions.KeyValueAction,
+            dest='properties',
+            help=_(
+                'Set a property on this backup '
+                '(repeat option to remove multiple values) '
+                '(supported by --os-volume-api-version 3.43 or above)'
+            ),
+        )
+        parser.add_argument(
+            '--availability-zone',
+            metavar='<zone-name>',
+            help=_(
+                'AZ where the backup should be stored; by default it will be '
+                'the same as the source '
+                '(supported by --os-volume-api-version 3.51 or above)'
+            ),
+        )
         return parser
 
     def take_action(self, parsed_args):
@@ -117,6 +141,26 @@ class CreateVolumeBackup(command.ShowOne):
                 parsed_args.snapshot,
                 ignore_missing=False,
             ).id
+
+        if parsed_args.properties:
+            if not sdk_utils.supports_microversion(volume_client, '3.43'):
+                msg = _(
+                    '--os-volume-api-version 3.43 or greater is required to '
+                    'support the --property option'
+                )
+                raise exceptions.CommandError(msg)
+
+            kwargs['metadata'] = parsed_args.properties
+
+        if parsed_args.availability_zone:
+            if not sdk_utils.supports_microversion(volume_client, '3.51'):
+                msg = _(
+                    '--os-volume-api-version 3.51 or greater is required to '
+                    'support the --availability-zone option'
+                )
+                raise exceptions.CommandError(msg)
+
+            kwargs['availability_zone'] = parsed_args.availability_zone
 
         columns = (
             "id",
@@ -235,6 +279,20 @@ class ListVolumeBackup(command.Lister):
             default=False,
             help=_('Include all projects (admin only)'),
         )
+        # TODO(stephenfin): Add once we have an equivalent command for
+        # 'cinder list-filters'
+        # parser.add_argument(
+        #     '--filter',
+        #     metavar='<key=value>',
+        #     action=parseractions.KeyValueAction,
+        #     dest='filters',
+        #     help=_(
+        #         "Filter key and value pairs. Use 'foo' to "
+        #         "check enabled filters from server. Use 'key~=value' for "
+        #         "inexact filtering if the key supports "
+        #         "(supported by --os-volume-api-version 3.33 or above)"
+        #     ),
+        # )
         return parser
 
     def take_action(self, parsed_args):
@@ -394,6 +452,22 @@ class SetVolumeBackup(command.Command):
             help=_("Backup to modify (name or ID)"),
         )
         parser.add_argument(
+            '--name',
+            metavar='<name>',
+            help=_(
+                'New backup name'
+                '(supported by --os-volume-api-version 3.9 or above)'
+            ),
+        )
+        parser.add_argument(
+            '--description',
+            metavar='<description>',
+            help=_(
+                'New backup description '
+                '(supported by --os-volume-api-version 3.9 or above)'
+            ),
+        )
+        parser.add_argument(
             '--state',
             metavar='<state>',
             choices=['available', 'error'],
@@ -402,6 +476,27 @@ class SetVolumeBackup(command.Command):
                 '(This option simply changes the state of the backup '
                 'in the database with no regard to actual status; '
                 'exercise caution when using)'
+            ),
+        )
+        parser.add_argument(
+            '--no-property',
+            action='store_true',
+            help=_(
+                'Remove all properties from this backup '
+                '(specify both --no-property and --property to remove the '
+                'current properties before setting new properties)'
+            ),
+        )
+        parser.add_argument(
+            '--property',
+            metavar='<key=value>',
+            action=parseractions.KeyValueAction,
+            dest='properties',
+            default={},
+            help=_(
+                'Set a property on this backup '
+                '(repeat option to set multiple values) '
+                '(supported by --os-volume-api-version 3.43 or above)'
             ),
         )
         return parser
@@ -418,9 +513,120 @@ class SetVolumeBackup(command.Command):
                 LOG.error(_("Failed to set backup state: %s"), e)
                 result += 1
 
+        kwargs = {}
+
+        if parsed_args.name:
+            if volume_client.api_version < api_versions.APIVersion('3.9'):
+                msg = _(
+                    '--os-volume-api-version 3.9 or greater is required to '
+                    'support the --name option'
+                )
+                raise exceptions.CommandError(msg)
+
+            kwargs['name'] = parsed_args.name
+
+        if parsed_args.description:
+            if volume_client.api_version < api_versions.APIVersion('3.9'):
+                msg = _(
+                    '--os-volume-api-version 3.9 or greater is required to '
+                    'support the --description option'
+                )
+                raise exceptions.CommandError(msg)
+
+            kwargs['description'] = parsed_args.description
+
+        if parsed_args.no_property:
+            if volume_client.api_version < api_versions.APIVersion('3.43'):
+                msg = _(
+                    '--os-volume-api-version 3.43 or greater is required to '
+                    'support the --no-property option'
+                )
+                raise exceptions.CommandError(msg)
+
+        if parsed_args.properties:
+            if volume_client.api_version < api_versions.APIVersion('3.43'):
+                msg = _(
+                    '--os-volume-api-version 3.43 or greater is required to '
+                    'support the --property option'
+                )
+                raise exceptions.CommandError(msg)
+
+        if volume_client.api_version >= api_versions.APIVersion('3.43'):
+            metadata = copy.deepcopy(backup.metadata)
+
+            if parsed_args.no_property:
+                metadata = {}
+
+            metadata.update(parsed_args.properties)
+            kwargs['metadata'] = metadata
+
+        if kwargs:
+            try:
+                volume_client.backups.update(backup.id, **kwargs)
+            except Exception as e:
+                LOG.error("Failed to update backup: %s", e)
+                result += 1
+
         if result > 0:
             msg = _("One or more of the set operations failed")
             raise exceptions.CommandError(msg)
+
+
+class UnsetVolumeBackup(command.Command):
+    """Unset volume backup properties.
+
+    This command requires ``--os-volume-api-version`` 3.43 or greater.
+    """
+
+    def get_parser(self, prog_name):
+        parser = super().get_parser(prog_name)
+        parser.add_argument(
+            'backup',
+            metavar='<backup>',
+            help=_('Backup to modify (name or ID)'),
+        )
+        parser.add_argument(
+            '--property',
+            metavar='<key>',
+            action='append',
+            dest='properties',
+            help=_(
+                'Property to remove from this backup '
+                '(repeat option to unset multiple values) '
+            ),
+        )
+        return parser
+
+    def take_action(self, parsed_args):
+        volume_client = self.app.client_manager.volume
+
+        if volume_client.api_version < api_versions.APIVersion('3.43'):
+            msg = _(
+                '--os-volume-api-version 3.43 or greater is required to '
+                'support the --property option'
+            )
+            raise exceptions.CommandError(msg)
+
+        backup = utils.find_resource(volume_client.backups, parsed_args.backup)
+        metadata = copy.deepcopy(backup.metadata)
+
+        for key in parsed_args.properties:
+            if key not in metadata:
+                # ignore invalid properties but continue
+                LOG.warning(
+                    "'%s' is not a valid property for backup '%s'",
+                    key,
+                    parsed_args.backup,
+                )
+                continue
+
+            del metadata[key]
+
+        kwargs = {
+            'metadata': metadata,
+        }
+
+        volume_client.backups.update(backup.id, **kwargs)
 
 
 class ShowVolumeBackup(command.ShowOne):
@@ -444,16 +650,20 @@ class ShowVolumeBackup(command.ShowOne):
             "created_at",
             "data_timestamp",
             "description",
+            "encryption_key_id",
             "fail_reason",
             "has_dependent_backups",
             "id",
             "is_incremental",
+            "metadata",
             "name",
             "object_count",
+            "project_id",
             "size",
             "snapshot_id",
             "status",
             "updated_at",
+            "user_id",
             "volume_id",
         )
         data = utils.get_dict_properties(backup, columns)

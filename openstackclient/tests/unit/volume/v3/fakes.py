@@ -17,6 +17,7 @@ import uuid
 from cinderclient import api_versions
 from openstack.block_storage.v3 import _proxy
 from openstack.block_storage.v3 import availability_zone as _availability_zone
+from openstack.block_storage.v3 import backup as _backup
 from openstack.block_storage.v3 import extension as _extension
 from openstack.block_storage.v3 import resource_filter as _filters
 from openstack.block_storage.v3 import volume as _volume
@@ -35,6 +36,8 @@ class FakeVolumeClient:
 
         self.availability_zones = mock.Mock()
         self.availability_zones.resource_class = fakes.FakeResource(None, {})
+        self.backups = mock.Mock()
+        self.backups.resource_class = fakes.FakeResource(None, {})
         self.attachments = mock.Mock()
         self.attachments.resource_class = fakes.FakeResource(None, {})
         self.clusters = mock.Mock()
@@ -53,6 +56,8 @@ class FakeVolumeClient:
         self.quotas.resource_class = fakes.FakeResource(None, {})
         self.resource_filters = mock.Mock()
         self.resource_filters.resource_class = fakes.FakeResource(None, {})
+        self.restores = mock.Mock()
+        self.restores.resource_class = fakes.FakeResource(None, {})
         self.volumes = mock.Mock()
         self.volumes.resource_class = fakes.FakeResource(None, {})
         self.volume_snapshots = mock.Mock()
@@ -177,6 +182,85 @@ def create_one_extension(attrs=None):
 
     extension = _extension.Extension(**extension_info)
     return extension
+
+
+def create_one_backup(attrs=None):
+    """Create a fake backup.
+
+    :param dict attrs:
+        A dictionary with all attributes
+    :return: A fake
+        openstack.block_storage.v3.backup.Backup object
+    """
+    attrs = attrs or {}
+
+    # Set default attributes.
+    backup_info = {
+        "availability_zone": 'zone' + uuid.uuid4().hex,
+        "container": 'container-' + uuid.uuid4().hex,
+        "created_at": 'time-' + uuid.uuid4().hex,
+        "data_timestamp": 'time-' + uuid.uuid4().hex,
+        "description": 'description-' + uuid.uuid4().hex,
+        "encryption_key_id": None,
+        "fail_reason": "Service not found for creating backup.",
+        "has_dependent_backups": False,
+        "id": 'backup-id-' + uuid.uuid4().hex,
+        "is_incremental": False,
+        "metadata": {},
+        "name": 'backup-name-' + uuid.uuid4().hex,
+        "object_count": None,
+        "project_id": uuid.uuid4().hex,
+        "size": random.randint(1, 20),
+        "snapshot_id": 'snapshot-id' + uuid.uuid4().hex,
+        "status": "error",
+        "updated_at": 'time-' + uuid.uuid4().hex,
+        "user_id": uuid.uuid4().hex,
+        "volume_id": 'volume-id-' + uuid.uuid4().hex,
+    }
+
+    # Overwrite default attributes.
+    backup_info.update(attrs)
+
+    backup = _backup.Backup(**backup_info)
+    return backup
+
+
+def create_backups(attrs=None, count=2):
+    """Create multiple fake backups.
+
+    :param dict attrs:
+        A dictionary with all attributes
+    :param int count:
+        The number of backups to fake
+    :return: A list of fake
+        openstack.block_storage.v3.backup.Backup objects
+    """
+    backups = []
+    for i in range(0, count):
+        backup = create_one_backup(attrs)
+        backups.append(backup)
+
+    return backups
+
+
+def get_backups(backups=None, count=2):
+    """Get an iterable MagicMock object with a list of faked backups.
+
+    If backups list is provided, then initialize the Mock object with the
+    list. Otherwise create one.
+
+    :param List backups:
+        A list of FakeResource objects faking backups
+    :param Integer count:
+        The number of backups to be faked
+    :return
+        An iterable Mock object with side_effect set to a list of faked
+        backups
+    """
+    if backups is None:
+        backups = create_backups(count)
+
+    return mock.Mock(side_effect=backups)
 
 
 def create_one_cluster(attrs=None):
