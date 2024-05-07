@@ -16,7 +16,6 @@ from unittest import mock
 
 from openstack.compute.v2 import flavor as _flavor
 from openstack import exceptions as sdk_exceptions
-from openstack import utils as sdk_utils
 from osc_lib.cli import format_columns
 from osc_lib import exceptions
 
@@ -118,6 +117,8 @@ class TestFlavorCreate(TestFlavor):
         self.assertCountEqual(self.data, data)
 
     def test_flavor_create_all_options(self):
+        self.set_compute_api_version('2.55')
+
         arglist = [
             '--id',
             self.flavor.id,
@@ -184,22 +185,19 @@ class TestFlavorCreate(TestFlavor):
             expected_flavor
         )
 
-        with mock.patch.object(
-            sdk_utils, 'supports_microversion', return_value=True
-        ):
-            columns, data = self.cmd.take_action(parsed_args)
-            self.compute_sdk_client.create_flavor.assert_called_once_with(
-                **args
-            )
-            self.compute_sdk_client.create_flavor_extra_specs.assert_called_once_with(
-                create_flavor, props
-            )
-            self.compute_sdk_client.get_flavor_access.assert_not_called()
+        columns, data = self.cmd.take_action(parsed_args)
+        self.compute_sdk_client.create_flavor.assert_called_once_with(**args)
+        self.compute_sdk_client.create_flavor_extra_specs.assert_called_once_with(
+            create_flavor, props
+        )
+        self.compute_sdk_client.get_flavor_access.assert_not_called()
 
         self.assertEqual(self.columns, columns)
         self.assertCountEqual(tuple(cmp_data), data)
 
     def test_flavor_create_other_options(self):
+        self.set_compute_api_version('2.55')
+
         self.flavor.is_public = False
         arglist = [
             '--id',
@@ -272,10 +270,8 @@ class TestFlavorCreate(TestFlavor):
             expected_flavor
         )
 
-        with mock.patch.object(
-            sdk_utils, 'supports_microversion', return_value=True
-        ):
-            columns, data = self.cmd.take_action(parsed_args)
+        columns, data = self.cmd.take_action(parsed_args)
+
         self.compute_sdk_client.create_flavor.assert_called_once_with(**args)
         self.compute_sdk_client.flavor_add_tenant_access.assert_called_with(
             self.flavor.id,
@@ -314,7 +310,9 @@ class TestFlavorCreate(TestFlavor):
             verifylist,
         )
 
-    def test_flavor_create_with_description_api_newer(self):
+    def test_flavor_create_with_description(self):
+        self.set_compute_api_version('2.55')
+
         arglist = [
             '--id',
             self.flavor.id,
@@ -348,10 +346,8 @@ class TestFlavorCreate(TestFlavor):
             ('name', self.flavor.name),
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
-        with mock.patch.object(
-            sdk_utils, 'supports_microversion', return_value=True
-        ):
-            columns, data = self.cmd.take_action(parsed_args)
+
+        columns, data = self.cmd.take_action(parsed_args)
 
         args = {
             'name': self.flavor.name,
@@ -371,7 +367,9 @@ class TestFlavorCreate(TestFlavor):
         self.assertEqual(self.columns, columns)
         self.assertCountEqual(self.data_private, data)
 
-    def test_flavor_create_with_description_api_older(self):
+    def test_flavor_create_with_description_pre_v255(self):
+        self.set_compute_api_version('2.54')
+
         arglist = [
             '--id',
             self.flavor.id,
@@ -391,12 +389,9 @@ class TestFlavorCreate(TestFlavor):
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
-        with mock.patch.object(
-            sdk_utils, 'supports_microversion', return_value=False
-        ):
-            self.assertRaises(
-                exceptions.CommandError, self.cmd.take_action, parsed_args
-            )
+        self.assertRaises(
+            exceptions.CommandError, self.cmd.take_action, parsed_args
+        )
 
 
 class TestFlavorDelete(TestFlavor):
@@ -887,7 +882,9 @@ class TestFlavorSet(TestFlavor):
         self.compute_sdk_client.flavor_add_tenant_access.assert_not_called()
         self.assertIsNone(result)
 
-    def test_flavor_set_description_api_newer(self):
+    def test_flavor_set_description(self):
+        self.set_compute_api_version('2.55')
+
         arglist = [
             '--description',
             'description',
@@ -899,16 +896,15 @@ class TestFlavorSet(TestFlavor):
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
-        with mock.patch.object(
-            sdk_utils, 'supports_microversion', return_value=True
-        ):
-            result = self.cmd.take_action(parsed_args)
-            self.compute_sdk_client.update_flavor.assert_called_with(
-                flavor=self.flavor.id, description='description'
-            )
-            self.assertIsNone(result)
+        result = self.cmd.take_action(parsed_args)
+        self.compute_sdk_client.update_flavor.assert_called_with(
+            flavor=self.flavor.id, description='description'
+        )
+        self.assertIsNone(result)
 
-    def test_flavor_set_description_api_older(self):
+    def test_flavor_set_description_pre_v254(self):
+        self.set_compute_api_version('2.54')
+
         arglist = [
             '--description',
             'description',
@@ -920,14 +916,13 @@ class TestFlavorSet(TestFlavor):
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
-        with mock.patch.object(
-            sdk_utils, 'supports_microversion', return_value=False
-        ):
-            self.assertRaises(
-                exceptions.CommandError, self.cmd.take_action, parsed_args
-            )
+        self.assertRaises(
+            exceptions.CommandError, self.cmd.take_action, parsed_args
+        )
 
-    def test_flavor_set_description_using_name_api_newer(self):
+    def test_flavor_set_description_using_name(self):
+        self.set_compute_api_version('2.55')
+
         arglist = [
             '--description',
             'description',
@@ -939,16 +934,15 @@ class TestFlavorSet(TestFlavor):
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
-        with mock.patch.object(
-            sdk_utils, 'supports_microversion', return_value=True
-        ):
-            result = self.cmd.take_action(parsed_args)
-            self.compute_sdk_client.update_flavor.assert_called_with(
-                flavor=self.flavor.id, description='description'
-            )
-            self.assertIsNone(result)
+        result = self.cmd.take_action(parsed_args)
+        self.compute_sdk_client.update_flavor.assert_called_with(
+            flavor=self.flavor.id, description='description'
+        )
+        self.assertIsNone(result)
 
-    def test_flavor_set_description_using_name_api_older(self):
+    def test_flavor_set_description_using_name_pre_v255(self):
+        self.set_compute_api_version('2.54')
+
         arglist = [
             '--description',
             'description',
@@ -960,12 +954,9 @@ class TestFlavorSet(TestFlavor):
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
-        with mock.patch.object(
-            sdk_utils, 'supports_microversion', return_value=False
-        ):
-            self.assertRaises(
-                exceptions.CommandError, self.cmd.take_action, parsed_args
-            )
+        self.assertRaises(
+            exceptions.CommandError, self.cmd.take_action, parsed_args
+        )
 
 
 class TestFlavorShow(TestFlavor):

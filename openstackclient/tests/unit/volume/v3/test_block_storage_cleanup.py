@@ -12,7 +12,6 @@
 
 import uuid
 
-from cinderclient import api_versions
 from osc_lib import exceptions
 
 from openstackclient.tests.unit.volume.v3 import fakes as volume_fakes
@@ -40,7 +39,7 @@ class TestBlockStorageCleanup(TestBlockStorage):
         self.cmd = block_storage_cleanup.BlockStorageCleanup(self.app, None)
 
     def test_cleanup(self):
-        self.volume_client.api_version = api_versions.APIVersion('3.24')
+        self.set_volume_api_version('3.24')
 
         arglist = []
         verifylist = [
@@ -96,7 +95,7 @@ class TestBlockStorageCleanup(TestBlockStorage):
         )
 
     def test_cleanup_with_args(self):
-        self.volume_client.api_version = api_versions.APIVersion('3.24')
+        self.set_volume_api_version('3.24')
 
         fake_cluster = 'fake-cluster'
         fake_host = 'fake-host'

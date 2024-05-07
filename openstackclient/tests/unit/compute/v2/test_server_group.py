@@ -13,9 +13,6 @@
 #   under the License.
 #
 
-from unittest import mock
-
-from openstack import utils as sdk_utils
 from osc_lib.cli import format_columns
 from osc_lib import exceptions
 
@@ -57,8 +54,9 @@ class TestServerGroupCreate(TestServerGroup):
         )
         self.cmd = server_group.CreateServerGroup(self.app, None)
 
-    @mock.patch.object(sdk_utils, 'supports_microversion', return_value=True)
-    def test_server_group_create(self, sm_mock):
+    def test_server_group_create(self):
+        self.set_compute_api_version('2.64')
+
         arglist = [
             '--policy',
             'anti-affinity',
@@ -78,8 +76,9 @@ class TestServerGroupCreate(TestServerGroup):
         self.assertCountEqual(self.columns, columns)
         self.assertCountEqual(self.data, data)
 
-    @mock.patch.object(sdk_utils, 'supports_microversion', return_value=True)
-    def test_server_group_create_with_soft_policies(self, sm_mock):
+    def test_server_group_create_with_soft_policies(self):
+        self.set_compute_api_version('2.64')
+
         arglist = [
             '--policy',
             'soft-anti-affinity',
@@ -99,8 +98,9 @@ class TestServerGroupCreate(TestServerGroup):
         self.assertCountEqual(self.columns, columns)
         self.assertCountEqual(self.data, data)
 
-    @mock.patch.object(sdk_utils, 'supports_microversion', return_value=False)
-    def test_server_group_create_with_soft_policies_pre_v215(self, sm_mock):
+    def test_server_group_create_with_soft_policies_pre_v215(self):
+        self.set_compute_api_version('2.14')
+
         arglist = [
             '--policy',
             'soft-anti-affinity',
@@ -118,8 +118,9 @@ class TestServerGroupCreate(TestServerGroup):
             '--os-compute-api-version 2.15 or greater is required', str(ex)
         )
 
-    @mock.patch.object(sdk_utils, 'supports_microversion', return_value=True)
-    def test_server_group_create_with_rules(self, sm_mock):
+    def test_server_group_create_with_rules(self):
+        self.set_compute_api_version('2.64')
+
         arglist = [
             '--policy',
             'soft-anti-affinity',
@@ -143,10 +144,9 @@ class TestServerGroupCreate(TestServerGroup):
         self.assertCountEqual(self.columns, columns)
         self.assertCountEqual(self.data, data)
 
-    @mock.patch.object(
-        sdk_utils, 'supports_microversion', side_effect=[True, False]
-    )
-    def test_server_group_create_with_rules_pre_v264(self, sm_mock):
+    def test_server_group_create_with_rules_pre_v264(self):
+        self.set_compute_api_version('2.63')
+
         arglist = [
             '--policy',
             'soft-anti-affinity',
@@ -346,8 +346,7 @@ class TestServerGroupList(TestServerGroup):
         ]
         self.cmd = server_group.ListServerGroup(self.app, None)
 
-    @mock.patch.object(sdk_utils, 'supports_microversion', return_value=False)
-    def test_server_group_list(self, sm_mock):
+    def test_server_group_list(self):
         arglist = []
         verifylist = [
             ('all_projects', False),
@@ -363,8 +362,7 @@ class TestServerGroupList(TestServerGroup):
         self.assertCountEqual(self.list_columns, columns)
         self.assertCountEqual(self.list_data, tuple(data))
 
-    @mock.patch.object(sdk_utils, 'supports_microversion', return_value=False)
-    def test_server_group_list_with_all_projects_and_long(self, sm_mock):
+    def test_server_group_list_with_all_projects_and_long(self):
         arglist = [
             '--all-projects',
             '--long',
@@ -384,8 +382,7 @@ class TestServerGroupList(TestServerGroup):
         self.assertCountEqual(self.list_columns_long, columns)
         self.assertCountEqual(self.list_data_long, tuple(data))
 
-    @mock.patch.object(sdk_utils, 'supports_microversion', return_value=True)
-    def test_server_group_list_with_limit(self, sm_mock):
+    def test_server_group_list_with_limit(self):
         arglist = [
             '--limit',
             '1',
@@ -402,8 +399,7 @@ class TestServerGroupList(TestServerGroup):
 
         self.compute_sdk_client.server_groups.assert_called_once_with(limit=1)
 
-    @mock.patch.object(sdk_utils, 'supports_microversion', return_value=True)
-    def test_server_group_list_with_offset(self, sm_mock):
+    def test_server_group_list_with_offset(self):
         arglist = [
             '--offset',
             '5',
@@ -420,8 +416,9 @@ class TestServerGroupList(TestServerGroup):
 
         self.compute_sdk_client.server_groups.assert_called_once_with(offset=5)
 
-    @mock.patch.object(sdk_utils, 'supports_microversion', return_value=True)
-    def test_server_group_list_v264(self, sm_mock):
+    def test_server_group_list_v264(self):
+        self.set_compute_api_version('2.64')
+
         arglist = []
         verifylist = [
             ('all_projects', False),
@@ -434,8 +431,9 @@ class TestServerGroupList(TestServerGroup):
         self.assertCountEqual(self.list_columns_v264, columns)
         self.assertCountEqual(self.list_data_v264, tuple(data))
 
-    @mock.patch.object(sdk_utils, 'supports_microversion', return_value=True)
-    def test_server_group_list_with_all_projects_and_long_v264(self, sm_mock):
+    def test_server_group_list_with_all_projects_and_long_v264(self):
+        self.set_compute_api_version('2.64')
+
         arglist = [
             '--all-projects',
             '--long',
@@ -463,8 +461,9 @@ class TestServerGroupShow(TestServerGroup):
         )
         self.cmd = server_group.ShowServerGroup(self.app, None)
 
-    @mock.patch.object(sdk_utils, 'supports_microversion', return_value=True)
-    def test_server_group_show(self, sm_mock):
+    def test_server_group_show(self):
+        self.set_compute_api_version('2.64')
+
         arglist = [
             'affinity_group',
         ]

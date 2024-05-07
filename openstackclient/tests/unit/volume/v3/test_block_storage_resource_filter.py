@@ -10,10 +10,6 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
-from unittest import mock
-
-from cinderclient import api_versions
-from openstack import utils as sdk_utils
 from osc_lib.cli import format_columns
 from osc_lib import exceptions
 
@@ -21,29 +17,7 @@ from openstackclient.tests.unit.volume.v3 import fakes as volume_fakes
 from openstackclient.volume.v3 import block_storage_resource_filter
 
 
-class TestBlockStorageResourceFilter(volume_fakes.TestVolume):
-    def setUp(self):
-        super().setUp()
-
-        patcher = mock.patch.object(
-            sdk_utils, 'supports_microversion', return_value=True
-        )
-        self.addCleanup(patcher.stop)
-        self.supports_microversion_mock = patcher.start()
-        self._set_mock_microversion(
-            self.app.client_manager.volume.api_version.get_string()
-        )
-
-    def _set_mock_microversion(self, mock_v):
-        """Set a specific microversion for the mock supports_microversion()."""
-        self.supports_microversion_mock.reset_mock(return_value=True)
-        self.supports_microversion_mock.side_effect = (
-            lambda _, v: api_versions.APIVersion(v)
-            <= api_versions.APIVersion(mock_v)
-        )
-
-
-class TestBlockStorageResourceFilterList(TestBlockStorageResourceFilter):
+class TestBlockStorageResourceFilterList(volume_fakes.TestVolume):
     # The resource filters to be listed
     fake_resource_filters = volume_fakes.create_resource_filters()
 
@@ -62,7 +36,7 @@ class TestBlockStorageResourceFilterList(TestBlockStorageResourceFilter):
         )
 
     def test_resource_filter_list(self):
-        self._set_mock_microversion('3.33')
+        self.set_volume_api_version('3.33')
 
         arglist = []
         verifylist = []
@@ -85,7 +59,7 @@ class TestBlockStorageResourceFilterList(TestBlockStorageResourceFilter):
         self.volume_sdk_client.resource_filters.assert_called_with()
 
     def test_resource_filter_list_pre_v333(self):
-        self._set_mock_microversion('3.32')
+        self.set_volume_api_version('3.32')
 
         arglist = []
         verifylist = []
@@ -99,7 +73,7 @@ class TestBlockStorageResourceFilterList(TestBlockStorageResourceFilter):
         )
 
 
-class TestBlockStorageResourceFilterShow(TestBlockStorageResourceFilter):
+class TestBlockStorageResourceFilterShow(volume_fakes.TestVolume):
     # The resource filters to be listed
     fake_resource_filter = volume_fakes.create_one_resource_filter()
 
@@ -118,7 +92,7 @@ class TestBlockStorageResourceFilterShow(TestBlockStorageResourceFilter):
         )
 
     def test_resource_filter_show(self):
-        self._set_mock_microversion('3.33')
+        self.set_volume_api_version('3.33')
 
         arglist = [
             self.fake_resource_filter.resource,
@@ -144,7 +118,7 @@ class TestBlockStorageResourceFilterShow(TestBlockStorageResourceFilter):
         )
 
     def test_resource_filter_show_pre_v333(self):
-        self._set_mock_microversion('3.32')
+        self.set_volume_api_version('3.32')
 
         arglist = [
             self.fake_resource_filter.resource,

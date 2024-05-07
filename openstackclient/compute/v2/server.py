@@ -4418,7 +4418,7 @@ class SetServer(command.Command):
         )
 
         if parsed_args.description:
-            if server.api_version < api_versions.APIVersion("2.19"):
+            if compute_client.api_version < api_versions.APIVersion("2.19"):
                 msg = _(
                     '--os-compute-api-version 2.19 or greater is required to '
                     'support the --description option'
@@ -4426,7 +4426,7 @@ class SetServer(command.Command):
                 raise exceptions.CommandError(msg)
 
         if parsed_args.tags:
-            if server.api_version < api_versions.APIVersion('2.26'):
+            if compute_client.api_version < api_versions.APIVersion('2.26'):
                 msg = _(
                     '--os-compute-api-version 2.26 or greater is required to '
                     'support the --tag option'
@@ -4434,7 +4434,7 @@ class SetServer(command.Command):
                 raise exceptions.CommandError(msg)
 
         if parsed_args.hostname:
-            if server.api_version < api_versions.APIVersion('2.90'):
+            if compute_client.api_version < api_versions.APIVersion('2.90'):
                 msg = _(
                     '--os-compute-api-version 2.90 or greater is required to '
                     'support the --hostname option'

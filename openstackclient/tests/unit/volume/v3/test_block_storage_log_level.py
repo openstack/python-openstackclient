@@ -12,7 +12,6 @@
 #   under the License.
 #
 
-from cinderclient import api_versions
 import ddt
 from osc_lib import exceptions
 
@@ -42,7 +41,8 @@ class TestBlockStorageLogLevelList(TestService):
         self.cmd = service.BlockStorageLogLevelList(self.app, None)
 
     def test_block_storage_log_level_list(self):
-        self.volume_client.api_version = api_versions.APIVersion('3.32')
+        self.set_volume_api_version('3.32')
+
         arglist = [
             '--host',
             self.service_log.host,
@@ -113,7 +113,8 @@ class TestBlockStorageLogLevelList(TestService):
         )
 
     def test_block_storage_log_level_list_invalid_service_name(self):
-        self.volume_client.api_version = api_versions.APIVersion('3.32')
+        self.set_volume_api_version('3.32')
+
         arglist = [
             '--host',
             self.service_log.host,
@@ -148,7 +149,8 @@ class TestBlockStorageLogLevelSet(TestService):
         self.cmd = service.BlockStorageLogLevelSet(self.app, None)
 
     def test_block_storage_log_level_set(self):
-        self.volume_client.api_version = api_versions.APIVersion('3.32')
+        self.set_volume_api_version('3.32')
+
         arglist = [
             'ERROR',
             '--host',
@@ -202,7 +204,8 @@ class TestBlockStorageLogLevelSet(TestService):
         )
 
     def test_block_storage_log_level_set_invalid_service_name(self):
-        self.volume_client.api_version = api_versions.APIVersion('3.32')
+        self.set_volume_api_version('3.32')
+
         arglist = [
             'ERROR',
             '--host',
@@ -229,7 +232,8 @@ class TestBlockStorageLogLevelSet(TestService):
 
     @ddt.data('WARNING', 'info', 'Error', 'debuG', 'fake-log-level')
     def test_block_storage_log_level_set_log_level(self, log_level):
-        self.volume_client.api_version = api_versions.APIVersion('3.32')
+        self.set_volume_api_version('3.32')
+
         arglist = [
             log_level,
             '--host',

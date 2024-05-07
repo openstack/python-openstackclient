@@ -15,40 +15,14 @@
 from unittest import mock
 
 import iso8601
-from novaclient import api_versions
-from openstack import utils as sdk_utils
 from osc_lib import exceptions
 
 from openstackclient.compute.v2 import server_event
 from openstackclient.tests.unit.compute.v2 import fakes as compute_fakes
 
 
-class TestServerEvent(compute_fakes.TestComputev2):
+class TestListServerEvent(compute_fakes.TestComputev2):
     fake_server = compute_fakes.create_one_sdk_server()
-
-    def setUp(self):
-        super().setUp()
-
-        patcher = mock.patch.object(
-            sdk_utils, 'supports_microversion', return_value=True
-        )
-        self.addCleanup(patcher.stop)
-        self.supports_microversion_mock = patcher.start()
-        self._set_mock_microversion(
-            self.compute_client.api_version.get_string()
-        )
-
-    def _set_mock_microversion(self, mock_v):
-        """Set a specific microversion for the mock supports_microversion()."""
-        self.supports_microversion_mock.reset_mock(return_value=True)
-
-        self.supports_microversion_mock.side_effect = (
-            lambda _, v: api_versions.APIVersion(v)
-            <= api_versions.APIVersion(mock_v)
-        )
-
-
-class TestListServerEvent(TestServerEvent):
     fake_event = compute_fakes.create_one_server_action()
 
     columns = (
@@ -145,7 +119,7 @@ class TestListServerEvent(TestServerEvent):
         self.assertEqual(self.long_data, tuple(data))
 
     def test_server_event_list_with_changes_since(self):
-        self._set_mock_microversion('2.58')
+        self.set_compute_api_version('2.58')
 
         arglist = [
             '--changes-since',
@@ -177,7 +151,7 @@ class TestListServerEvent(TestServerEvent):
         self,
         mock_parse_isotime,
     ):
-        self._set_mock_microversion('2.58')
+        self.set_compute_api_version('2.58')
 
         arglist = [
             '--changes-since',
@@ -200,7 +174,7 @@ class TestListServerEvent(TestServerEvent):
         mock_parse_isotime.assert_called_once_with('Invalid time value')
 
     def test_server_event_list_with_changes_since_pre_v258(self):
-        self._set_mock_microversion('2.57')
+        self.set_compute_api_version('2.57')
 
         arglist = [
             '--changes-since',
@@ -225,7 +199,7 @@ class TestListServerEvent(TestServerEvent):
         )
 
     def test_server_event_list_with_changes_before(self):
-        self._set_mock_microversion('2.66')
+        self.set_compute_api_version('2.66')
 
         arglist = [
             '--changes-before',
@@ -257,7 +231,7 @@ class TestListServerEvent(TestServerEvent):
         self,
         mock_parse_isotime,
     ):
-        self._set_mock_microversion('2.66')
+        self.set_compute_api_version('2.66')
 
         arglist = [
             '--changes-before',
@@ -278,7 +252,7 @@ class TestListServerEvent(TestServerEvent):
         mock_parse_isotime.assert_called_once_with('Invalid time value')
 
     def test_server_event_list_with_changes_before_pre_v266(self):
-        self._set_mock_microversion('2.65')
+        self.set_compute_api_version('2.65')
 
         arglist = [
             '--changes-before',
@@ -301,7 +275,7 @@ class TestListServerEvent(TestServerEvent):
         )
 
     def test_server_event_list_with_limit(self):
-        self._set_mock_microversion('2.58')
+        self.set_compute_api_version('2.58')
 
         arglist = [
             '--limit',
@@ -323,7 +297,7 @@ class TestListServerEvent(TestServerEvent):
         )
 
     def test_server_event_list_with_limit_pre_v258(self):
-        self._set_mock_microversion('2.57')
+        self.set_compute_api_version('2.57')
 
         arglist = [
             '--limit',
@@ -348,7 +322,7 @@ class TestListServerEvent(TestServerEvent):
         )
 
     def test_server_event_list_with_marker(self):
-        self._set_mock_microversion('2.58')
+        self.set_compute_api_version('2.58')
 
         arglist = [
             '--marker',
@@ -369,7 +343,7 @@ class TestListServerEvent(TestServerEvent):
         )
 
     def test_server_event_list_with_marker_pre_v258(self):
-        self._set_mock_microversion('2.57')
+        self.set_compute_api_version('2.57')
 
         arglist = [
             '--marker',
@@ -391,7 +365,8 @@ class TestListServerEvent(TestServerEvent):
         )
 
 
-class TestShowServerEvent(TestServerEvent):
+class TestShowServerEvent(compute_fakes.TestComputev2):
+    fake_server = compute_fakes.create_one_sdk_server()
     fake_event = compute_fakes.create_one_server_action()
     columns = (
         'action',

@@ -10,13 +10,9 @@
 #   WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
 #   License for the specific language governing permissions and limitations
 #   under the License.
-#
 
-from unittest import mock
 from unittest.mock import call
 
-from cinderclient import api_versions
-from openstack import utils as sdk_utils
 from osc_lib import exceptions
 
 from openstackclient.tests.unit.volume.v3 import fakes as volume_fakes
@@ -37,29 +33,7 @@ class TestBackupLegacy(volume_fakes.TestVolume):
         self.restores_mock.reset_mock()
 
 
-class TestBackup(volume_fakes.TestVolume):
-    def setUp(self):
-        super().setUp()
-
-        patcher = mock.patch.object(
-            sdk_utils, 'supports_microversion', return_value=True
-        )
-        self.addCleanup(patcher.stop)
-        self.supports_microversion_mock = patcher.start()
-        self._set_mock_microversion(
-            self.app.client_manager.volume.api_version.get_string()
-        )
-
-    def _set_mock_microversion(self, mock_v):
-        """Set a specific microversion for the mock supports_microversion()."""
-        self.supports_microversion_mock.reset_mock(return_value=True)
-        self.supports_microversion_mock.side_effect = (
-            lambda _, v: api_versions.APIVersion(v)
-            <= api_versions.APIVersion(mock_v)
-        )
-
-
-class TestBackupCreate(TestBackup):
+class TestBackupCreate(volume_fakes.TestVolume):
     volume = volume_fakes.create_one_volume()
     snapshot = volume_fakes.create_one_snapshot()
     new_backup = volume_fakes.create_one_backup(
@@ -127,7 +101,7 @@ class TestBackupCreate(TestBackup):
         self.assertEqual(self.data, data)
 
     def test_backup_create_with_properties(self):
-        self._set_mock_microversion('3.43')
+        self.set_volume_api_version('3.43')
 
         arglist = [
             "--property",
@@ -157,7 +131,7 @@ class TestBackupCreate(TestBackup):
         self.assertEqual(self.data, data)
 
     def test_backup_create_with_properties_pre_v343(self):
-        self._set_mock_microversion('3.42')
+        self.set_volume_api_version('3.42')
 
         arglist = [
             "--property",
@@ -178,7 +152,7 @@ class TestBackupCreate(TestBackup):
         self.assertIn("--os-volume-api-version 3.43 or greater", str(exc))
 
     def test_backup_create_with_availability_zone(self):
-        self._set_mock_microversion('3.51')
+        self.set_volume_api_version('3.51')
 
         arglist = [
             "--availability-zone",
@@ -206,7 +180,7 @@ class TestBackupCreate(TestBackup):
         self.assertEqual(self.data, data)
 
     def test_backup_create_with_availability_zone_pre_v351(self):
-        self._set_mock_microversion('3.50')
+        self.set_volume_api_version('3.50')
 
         arglist = [
             "--availability-zone",
@@ -253,7 +227,7 @@ class TestBackupCreate(TestBackup):
         self.assertEqual(self.data, data)
 
 
-class TestBackupDelete(TestBackup):
+class TestBackupDelete(volume_fakes.TestVolume):
     backups = volume_fakes.create_backups(count=2)
 
     def setUp(self):
@@ -346,7 +320,7 @@ class TestBackupDelete(TestBackup):
         )
 
 
-class TestBackupList(TestBackup):
+class TestBackupList(volume_fakes.TestVolume):
     volume = volume_fakes.create_one_volume()
     backups = volume_fakes.create_backups(
         attrs={'volume_id': volume.name}, count=3
@@ -479,7 +453,7 @@ class TestBackupList(TestBackup):
         self.assertCountEqual(self.data_long, list(data))
 
 
-class TestBackupRestore(TestBackup):
+class TestBackupRestore(volume_fakes.TestVolume):
     volume = volume_fakes.create_one_volume()
     backup = volume_fakes.create_one_backup(
         attrs={'volume_id': volume.id},
@@ -593,7 +567,7 @@ class TestBackupSet(TestBackupLegacy):
         self.cmd = volume_backup.SetVolumeBackup(self.app, None)
 
     def test_backup_set_name(self):
-        self.volume_client.api_version = api_versions.APIVersion('3.9')
+        self.set_volume_api_version('3.9')
 
         arglist = [
             '--name',
@@ -615,7 +589,7 @@ class TestBackupSet(TestBackupLegacy):
         self.assertIsNone(result)
 
     def test_backup_set_name_pre_v39(self):
-        self.volume_client.api_version = api_versions.APIVersion('3.8')
+        self.set_volume_api_version('3.8')
 
         arglist = [
             '--name',
@@ -634,7 +608,7 @@ class TestBackupSet(TestBackupLegacy):
         self.assertIn("--os-volume-api-version 3.9 or greater", str(exc))
 
     def test_backup_set_description(self):
-        self.volume_client.api_version = api_versions.APIVersion('3.9')
+        self.set_volume_api_version('3.9')
 
         arglist = [
             '--description',
@@ -658,7 +632,7 @@ class TestBackupSet(TestBackupLegacy):
         self.assertIsNone(result)
 
     def test_backup_set_description_pre_v39(self):
-        self.volume_client.api_version = api_versions.APIVersion('3.8')
+        self.set_volume_api_version('3.8')
 
         arglist = [
             '--description',
@@ -707,7 +681,7 @@ class TestBackupSet(TestBackupLegacy):
         )
 
     def test_backup_set_no_property(self):
-        self.volume_client.api_version = api_versions.APIVersion('3.43')
+        self.set_volume_api_version('3.43')
 
         arglist = [
             '--no-property',
@@ -731,7 +705,7 @@ class TestBackupSet(TestBackupLegacy):
         self.assertIsNone(result)
 
     def test_backup_set_no_property_pre_v343(self):
-        self.volume_client.api_version = api_versions.APIVersion('3.42')
+        self.set_volume_api_version('3.42')
 
         arglist = [
             '--no-property',
@@ -749,7 +723,7 @@ class TestBackupSet(TestBackupLegacy):
         self.assertIn("--os-volume-api-version 3.43 or greater", str(exc))
 
     def test_backup_set_property(self):
-        self.volume_client.api_version = api_versions.APIVersion('3.43')
+        self.set_volume_api_version('3.43')
 
         arglist = [
             '--property',
@@ -774,7 +748,7 @@ class TestBackupSet(TestBackupLegacy):
         self.assertIsNone(result)
 
     def test_backup_set_property_pre_v343(self):
-        self.volume_client.api_version = api_versions.APIVersion('3.42')
+        self.set_volume_api_version('3.42')
 
         arglist = [
             '--property',
@@ -807,7 +781,7 @@ class TestBackupUnset(TestBackupLegacy):
         self.cmd = volume_backup.UnsetVolumeBackup(self.app, None)
 
     def test_backup_unset_property(self):
-        self.volume_client.api_version = api_versions.APIVersion('3.43')
+        self.set_volume_api_version('3.43')
 
         arglist = [
             '--property',
@@ -832,7 +806,7 @@ class TestBackupUnset(TestBackupLegacy):
         self.assertIsNone(result)
 
     def test_backup_unset_property_pre_v343(self):
-        self.volume_client.api_version = api_versions.APIVersion('3.42')
+        self.set_volume_api_version('3.42')
 
         arglist = [
             '--property',
@@ -851,7 +825,7 @@ class TestBackupUnset(TestBackupLegacy):
         self.assertIn("--os-volume-api-version 3.43 or greater", str(exc))
 
 
-class TestBackupShow(TestBackup):
+class TestBackupShow(volume_fakes.TestVolume):
     backup = volume_fakes.create_one_backup()
 
     columns = (

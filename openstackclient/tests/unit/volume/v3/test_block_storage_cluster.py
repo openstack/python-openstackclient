@@ -10,7 +10,6 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
-from cinderclient import api_versions
 from osc_lib import exceptions
 
 from openstackclient.tests.unit.volume.v3 import fakes as volume_fakes
@@ -41,7 +40,7 @@ class TestBlockStorageClusterList(TestBlockStorageCluster):
         )
 
     def test_cluster_list(self):
-        self.volume_client.api_version = api_versions.APIVersion('3.7')
+        self.set_volume_api_version('3.7')
 
         arglist = []
         verifylist = [
@@ -82,7 +81,7 @@ class TestBlockStorageClusterList(TestBlockStorageCluster):
         )
 
     def test_cluster_list_with_full_options(self):
-        self.volume_client.api_version = api_versions.APIVersion('3.7')
+        self.set_volume_api_version('3.7')
 
         arglist = [
             '--cluster',
@@ -152,7 +151,7 @@ class TestBlockStorageClusterList(TestBlockStorageCluster):
         )
 
     def test_cluster_list_pre_v37(self):
-        self.volume_client.api_version = api_versions.APIVersion('3.6')
+        self.set_volume_api_version('3.6')
 
         arglist = []
         verifylist = [
@@ -215,7 +214,7 @@ class TestBlockStorageClusterSet(TestBlockStorageCluster):
         self.cmd = block_storage_cluster.SetBlockStorageCluster(self.app, None)
 
     def test_cluster_set(self):
-        self.volume_client.api_version = api_versions.APIVersion('3.7')
+        self.set_volume_api_version('3.7')
 
         arglist = [
             '--enable',
@@ -242,7 +241,7 @@ class TestBlockStorageClusterSet(TestBlockStorageCluster):
         )
 
     def test_cluster_set_disable_with_reason(self):
-        self.volume_client.api_version = api_versions.APIVersion('3.7')
+        self.set_volume_api_version('3.7')
 
         arglist = [
             '--binary',
@@ -272,7 +271,7 @@ class TestBlockStorageClusterSet(TestBlockStorageCluster):
         )
 
     def test_cluster_set_only_with_disable_reason(self):
-        self.volume_client.api_version = api_versions.APIVersion('3.7')
+        self.set_volume_api_version('3.7')
 
         arglist = [
             '--disable-reason',
@@ -295,7 +294,7 @@ class TestBlockStorageClusterSet(TestBlockStorageCluster):
         )
 
     def test_cluster_set_enable_with_disable_reason(self):
-        self.volume_client.api_version = api_versions.APIVersion('3.7')
+        self.set_volume_api_version('3.7')
 
         arglist = [
             '--enable',
@@ -319,7 +318,7 @@ class TestBlockStorageClusterSet(TestBlockStorageCluster):
         )
 
     def test_cluster_set_pre_v37(self):
-        self.volume_client.api_version = api_versions.APIVersion('3.6')
+        self.set_volume_api_version('3.6')
 
         arglist = [
             '--enable',
@@ -385,7 +384,7 @@ class TestBlockStorageClusterShow(TestBlockStorageCluster):
         )
 
     def test_cluster_show(self):
-        self.volume_client.api_version = api_versions.APIVersion('3.7')
+        self.set_volume_api_version('3.7')
 
         arglist = [
             '--binary',
@@ -409,7 +408,7 @@ class TestBlockStorageClusterShow(TestBlockStorageCluster):
         )
 
     def test_cluster_show_pre_v37(self):
-        self.volume_client.api_version = api_versions.APIVersion('3.6')
+        self.set_volume_api_version('3.6')
 
         arglist = [
             '--binary',

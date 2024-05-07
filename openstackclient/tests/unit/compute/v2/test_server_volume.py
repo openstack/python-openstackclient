@@ -10,9 +10,6 @@
 #   License for the specific language governing permissions and limitations
 #   under the License.
 
-from unittest import mock
-
-from openstack import utils as sdk_utils
 from osc_lib import exceptions
 
 from openstackclient.compute.v2 import server_volume
@@ -35,10 +32,7 @@ class TestServerVolumeList(compute_fakes.TestComputev2):
         # Get the command object to test
         self.cmd = server_volume.ListServerVolume(self.app, None)
 
-    @mock.patch.object(sdk_utils, 'supports_microversion')
-    def test_server_volume_list(self, sm_mock):
-        sm_mock.side_effect = [False, False, False, False]
-
+    def test_server_volume_list(self):
         arglist = [
             self.server.id,
         ]
@@ -71,9 +65,8 @@ class TestServerVolumeList(compute_fakes.TestComputev2):
             self.server,
         )
 
-    @mock.patch.object(sdk_utils, 'supports_microversion')
-    def test_server_volume_list_with_tags(self, sm_mock):
-        sm_mock.side_effect = [False, True, False, False]
+    def test_server_volume_list_with_tags(self):
+        self.set_compute_api_version('2.70')
 
         arglist = [
             self.server.id,
@@ -118,9 +111,9 @@ class TestServerVolumeList(compute_fakes.TestComputev2):
             self.server,
         )
 
-    @mock.patch.object(sdk_utils, 'supports_microversion')
-    def test_server_volume_list_with_delete_on_attachment(self, sm_mock):
-        sm_mock.side_effect = [False, True, True, False]
+    def test_server_volume_list_with_delete_on_attachment(self):
+        self.set_compute_api_version('2.79')
+
         arglist = [
             self.server.id,
         ]
@@ -167,9 +160,9 @@ class TestServerVolumeList(compute_fakes.TestComputev2):
             self.server,
         )
 
-    @mock.patch.object(sdk_utils, 'supports_microversion')
-    def test_server_volume_list_with_attachment_ids(self, sm_mock):
-        sm_mock.side_effect = [True, True, True, True]
+    def test_server_volume_list_with_attachment_ids(self):
+        self.set_compute_api_version('2.89')
+
         arglist = [
             self.server.id,
         ]
@@ -251,9 +244,8 @@ class TestServerVolumeUpdate(compute_fakes.TestComputev2):
         self.compute_sdk_client.update_volume_attachment.assert_not_called()
         self.assertIsNone(result)
 
-    @mock.patch.object(sdk_utils, 'supports_microversion')
-    def test_server_volume_update_with_delete_on_termination(self, sm_mock):
-        sm_mock.return_value = True
+    def test_server_volume_update_with_delete_on_termination(self):
+        self.set_compute_api_version('2.85')
 
         arglist = [
             self.server.id,
@@ -276,9 +268,8 @@ class TestServerVolumeUpdate(compute_fakes.TestComputev2):
         )
         self.assertIsNone(result)
 
-    @mock.patch.object(sdk_utils, 'supports_microversion')
-    def test_server_volume_update_with_preserve_on_termination(self, sm_mock):
-        sm_mock.return_value = True
+    def test_server_volume_update_with_preserve_on_termination(self):
+        self.set_compute_api_version('2.85')
 
         arglist = [
             self.server.id,
@@ -299,12 +290,8 @@ class TestServerVolumeUpdate(compute_fakes.TestComputev2):
         )
         self.assertIsNone(result)
 
-    @mock.patch.object(sdk_utils, 'supports_microversion')
-    def test_server_volume_update_with_delete_on_termination_pre_v285(
-        self,
-        sm_mock,
-    ):
-        sm_mock.return_value = False
+    def test_server_volume_update_with_delete_on_termination_pre_v285(self):
+        self.set_compute_api_version('2.84')
 
         arglist = [
             self.server.id,
@@ -325,12 +312,8 @@ class TestServerVolumeUpdate(compute_fakes.TestComputev2):
         )
         self.compute_sdk_client.update_volume_attachment.assert_not_called()
 
-    @mock.patch.object(sdk_utils, 'supports_microversion')
-    def test_server_volume_update_with_preserve_on_termination_pre_v285(
-        self,
-        sm_mock,
-    ):
-        sm_mock.return_value = False
+    def test_server_volume_update_with_preserve_on_termination_pre_v285(self):
+        self.set_compute_api_version('2.84')
 
         arglist = [
             self.server.id,

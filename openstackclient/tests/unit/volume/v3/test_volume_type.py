@@ -14,7 +14,6 @@
 from unittest import mock
 from unittest.mock import call
 
-from cinderclient import api_versions
 from osc_lib.cli import format_columns
 from osc_lib import exceptions
 from osc_lib import utils
@@ -434,9 +433,7 @@ class TestTypeList(TestType):
         self.assertCountEqual(self.data_with_default_type, list(data))
 
     def test_type_list_with_properties(self):
-        self.app.client_manager.volume.api_version = api_versions.APIVersion(
-            '3.52'
-        )
+        self.set_volume_api_version('3.52')
 
         arglist = [
             "--property",
@@ -477,9 +474,7 @@ class TestTypeList(TestType):
         self.assertCountEqual(self.data, list(data))
 
     def test_type_list_with_properties_pre_v352(self):
-        self.app.client_manager.volume.api_version = api_versions.APIVersion(
-            '3.51'
-        )
+        self.set_volume_api_version('3.51')
 
         arglist = [
             "--property",

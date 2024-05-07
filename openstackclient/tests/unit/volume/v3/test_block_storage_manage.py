@@ -12,7 +12,6 @@
 
 from unittest import mock
 
-from cinderclient import api_versions
 from osc_lib import exceptions
 
 from openstackclient.tests.unit import utils as tests_utils
@@ -46,7 +45,8 @@ class TestBlockStorageVolumeManage(TestBlockStorageManage):
         )
 
     def test_block_storage_volume_manage_list(self):
-        self.volume_client.api_version = api_versions.APIVersion('3.8')
+        self.set_volume_api_version('3.8')
+
         arglist = [
             'fake_host',
         ]
@@ -87,6 +87,8 @@ class TestBlockStorageVolumeManage(TestBlockStorageManage):
         )
 
     def test_block_storage_volume_manage_list__pre_v38(self):
+        self.set_volume_api_version('3.7')
+
         arglist = [
             'fake_host',
         ]
@@ -103,7 +105,8 @@ class TestBlockStorageVolumeManage(TestBlockStorageManage):
         )
 
     def test_block_storage_volume_manage_list__pre_v317(self):
-        self.volume_client.api_version = api_versions.APIVersion('3.16')
+        self.set_volume_api_version('3.16')
+
         arglist = [
             '--cluster',
             'fake_cluster',
@@ -122,7 +125,8 @@ class TestBlockStorageVolumeManage(TestBlockStorageManage):
         self.assertIn('--cluster', str(exc))
 
     def test_block_storage_volume_manage_list__host_and_cluster(self):
-        self.volume_client.api_version = api_versions.APIVersion('3.17')
+        self.set_volume_api_version('3.17')
+
         arglist = [
             'fake_host',
             '--cluster',
@@ -145,7 +149,8 @@ class TestBlockStorageVolumeManage(TestBlockStorageManage):
 
     def test_block_storage_volume_manage_list__detailed(self):
         """This option is deprecated."""
-        self.volume_client.api_version = api_versions.APIVersion('3.8')
+        self.set_volume_api_version('3.8')
+
         arglist = [
             '--detailed',
             'True',
@@ -205,9 +210,8 @@ class TestBlockStorageVolumeManage(TestBlockStorageManage):
         )
 
     def test_block_storage_volume_manage_list__all_args(self):
-        self.app.client_manager.volume.api_version = api_versions.APIVersion(
-            '3.8'
-        )
+        self.set_volume_api_version('3.8')
+
         arglist = [
             'fake_host',
             '--long',
@@ -285,7 +289,8 @@ class TestBlockStorageSnapshotManage(TestBlockStorageManage):
         )
 
     def test_block_storage_snapshot_manage_list(self):
-        self.volume_client.api_version = api_versions.APIVersion('3.8')
+        self.set_volume_api_version('3.8')
+
         arglist = [
             'fake_host',
         ]
@@ -328,6 +333,8 @@ class TestBlockStorageSnapshotManage(TestBlockStorageManage):
         )
 
     def test_block_storage_snapshot_manage_list__pre_v38(self):
+        self.set_volume_api_version('3.7')
+
         arglist = [
             'fake_host',
         ]
@@ -344,7 +351,8 @@ class TestBlockStorageSnapshotManage(TestBlockStorageManage):
         )
 
     def test_block_storage_snapshot_manage_list__pre_v317(self):
-        self.volume_client.api_version = api_versions.APIVersion('3.16')
+        self.set_volume_api_version('3.16')
+
         arglist = [
             '--cluster',
             'fake_cluster',
@@ -363,7 +371,8 @@ class TestBlockStorageSnapshotManage(TestBlockStorageManage):
         self.assertIn('--cluster', str(exc))
 
     def test_block_storage_snapshot_manage_list__host_and_cluster(self):
-        self.volume_client.api_version = api_versions.APIVersion('3.17')
+        self.set_volume_api_version('3.17')
+
         arglist = [
             'fake_host',
             '--cluster',
@@ -385,7 +394,8 @@ class TestBlockStorageSnapshotManage(TestBlockStorageManage):
         )
 
     def test_block_storage_snapshot_manage_list__detailed(self):
-        self.volume_client.api_version = api_versions.APIVersion('3.8')
+        self.set_volume_api_version('3.8')
+
         arglist = [
             '--detailed',
             'True',
@@ -447,9 +457,8 @@ class TestBlockStorageSnapshotManage(TestBlockStorageManage):
         )
 
     def test_block_storage_snapshot_manage_list__all_args(self):
-        self.app.client_manager.volume.api_version = api_versions.APIVersion(
-            '3.8'
-        )
+        self.set_volume_api_version('3.8')
+
         arglist = [
             '--long',
             '--marker',

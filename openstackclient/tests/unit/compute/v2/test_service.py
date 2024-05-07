@@ -13,9 +13,7 @@
 #   under the License.
 
 from unittest import mock
-from unittest.mock import call
 
-from openstack import utils as sdk_utils
 from osc_lib import exceptions
 
 from openstackclient.compute.v2 import service
@@ -62,7 +60,7 @@ class TestServiceDelete(compute_fakes.TestComputev2):
 
         calls = []
         for s in self.services:
-            calls.append(call(s.binary, ignore_missing=False))
+            calls.append(mock.call(s.binary, ignore_missing=False))
         self.compute_sdk_client.delete_service.assert_has_calls(calls)
         self.assertIsNone(result)
 
@@ -156,10 +154,7 @@ class TestServiceList(compute_fakes.TestComputev2):
         self.assertEqual(self.columns, columns)
         self.assertEqual(self.data, list(data))
 
-    @mock.patch.object(sdk_utils, 'supports_microversion')
-    def test_service_list_with_long_option(self, sm_mock):
-        sm_mock.return_value = False
-
+    def test_service_list_with_long_option(self):
         arglist = [
             '--host',
             self.service.host,
@@ -187,9 +182,8 @@ class TestServiceList(compute_fakes.TestComputev2):
         self.assertEqual(self.columns_long, columns)
         self.assertEqual(self.data_long, list(data))
 
-    @mock.patch.object(sdk_utils, 'supports_microversion')
-    def test_service_list_with_long_option_2_11(self, sm_mock):
-        sm_mock.return_value = True
+    def test_service_list_with_long_option_2_11(self):
+        self.set_compute_api_version('2.11')
 
         arglist = [
             '--host',
@@ -234,9 +228,7 @@ class TestServiceSet(compute_fakes.TestComputev2):
 
         self.cmd = service.SetService(self.app, None)
 
-    @mock.patch.object(sdk_utils, 'supports_microversion')
-    def test_set_nothing(self, sm_mock):
-        sm_mock.return_value = False
+    def test_set_nothing(self):
         arglist = [
             self.service.host,
             self.service.binary,
@@ -252,9 +244,7 @@ class TestServiceSet(compute_fakes.TestComputev2):
         self.compute_sdk_client.disable_service.assert_not_called()
         self.assertIsNone(result)
 
-    @mock.patch.object(sdk_utils, 'supports_microversion')
-    def test_service_set_enable(self, sm_mock):
-        sm_mock.return_value = False
+    def test_service_set_enable(self):
         arglist = [
             '--enable',
             self.service.host,
@@ -274,9 +264,7 @@ class TestServiceSet(compute_fakes.TestComputev2):
         )
         self.assertIsNone(result)
 
-    @mock.patch.object(sdk_utils, 'supports_microversion')
-    def test_service_set_disable(self, sm_mock):
-        sm_mock.return_value = False
+    def test_service_set_disable(self):
         arglist = [
             '--disable',
             self.service.host,
@@ -296,9 +284,7 @@ class TestServiceSet(compute_fakes.TestComputev2):
         )
         self.assertIsNone(result)
 
-    @mock.patch.object(sdk_utils, 'supports_microversion')
-    def test_service_set_disable_with_reason(self, sm_mock):
-        sm_mock.return_value = False
+    def test_service_set_disable_with_reason(self):
         reason = 'earthquake'
         arglist = [
             '--disable',
@@ -322,9 +308,7 @@ class TestServiceSet(compute_fakes.TestComputev2):
         )
         self.assertIsNone(result)
 
-    @mock.patch.object(sdk_utils, 'supports_microversion')
-    def test_service_set_only_with_disable_reason(self, sm_mock):
-        sm_mock.return_value = False
+    def test_service_set_only_with_disable_reason(self):
         reason = 'earthquake'
         arglist = [
             '--disable-reason',
@@ -348,9 +332,7 @@ class TestServiceSet(compute_fakes.TestComputev2):
                 str(e),
             )
 
-    @mock.patch.object(sdk_utils, 'supports_microversion')
-    def test_service_set_enable_with_disable_reason(self, sm_mock):
-        sm_mock.return_value = False
+    def test_service_set_enable_with_disable_reason(self):
         reason = 'earthquake'
         arglist = [
             '--enable',
@@ -376,9 +358,9 @@ class TestServiceSet(compute_fakes.TestComputev2):
                 str(e),
             )
 
-    @mock.patch.object(sdk_utils, 'supports_microversion')
-    def test_service_set_state_up(self, sm_mock):
-        sm_mock.side_effect = [False, True]
+    def test_service_set_state_up(self):
+        self.set_compute_api_version('2.11')
+
         arglist = [
             '--up',
             self.service.host,
@@ -398,9 +380,9 @@ class TestServiceSet(compute_fakes.TestComputev2):
         self.assertNotCalled(self.compute_sdk_client.disable_service)
         self.assertIsNone(result)
 
-    @mock.patch.object(sdk_utils, 'supports_microversion')
-    def test_service_set_state_down(self, sm_mock):
-        sm_mock.side_effect = [False, True]
+    def test_service_set_state_down(self):
+        self.set_compute_api_version('2.11')
+
         arglist = [
             '--down',
             self.service.host,
@@ -420,9 +402,9 @@ class TestServiceSet(compute_fakes.TestComputev2):
         self.assertNotCalled(self.compute_sdk_client.disable_service)
         self.assertIsNone(result)
 
-    @mock.patch.object(sdk_utils, 'supports_microversion')
-    def test_service_set_enable_and_state_down(self, sm_mock):
-        sm_mock.side_effect = [False, True]
+    def test_service_set_enable_and_state_down(self):
+        self.set_compute_api_version('2.11')
+
         arglist = [
             '--enable',
             '--down',
@@ -445,9 +427,9 @@ class TestServiceSet(compute_fakes.TestComputev2):
         )
         self.assertIsNone(result)
 
-    @mock.patch.object(sdk_utils, 'supports_microversion')
-    def test_service_set_enable_and_state_down_with_exception(self, sm_mock):
-        sm_mock.side_effect = [False, True]
+    def test_service_set_enable_and_state_down_with_exception(self):
+        self.set_compute_api_version('2.11')
+
         arglist = [
             '--enable',
             '--down',
@@ -472,11 +454,11 @@ class TestServiceSet(compute_fakes.TestComputev2):
                 None, self.service.host, self.service.binary, True
             )
 
-    @mock.patch.object(sdk_utils, 'supports_microversion')
-    def test_service_set_2_53_disable_down(self, sm_mock):
+    def test_service_set_disable_down(self):
         # Tests disabling and forcing down a compute service with microversion
         # 2.53 which requires looking up the service by host and binary.
-        sm_mock.return_value = True
+        self.set_compute_api_version('2.53')
+
         arglist = [
             '--disable',
             '--down',
@@ -503,11 +485,11 @@ class TestServiceSet(compute_fakes.TestComputev2):
         )
         self.assertIsNone(result)
 
-    @mock.patch.object(sdk_utils, 'supports_microversion')
-    def test_service_set_2_53_disable_reason(self, sm_mock):
+    def test_service_set_disable_reason(self):
         # Tests disabling with reason a compute service with microversion
         # 2.53 which requires looking up the service by host and binary.
-        sm_mock.return_value = True
+        self.set_compute_api_version('2.53')
+
         reason = 'earthquake'
         arglist = [
             '--disable',
@@ -533,11 +515,11 @@ class TestServiceSet(compute_fakes.TestComputev2):
         )
         self.assertIsNone(result)
 
-    @mock.patch.object(sdk_utils, 'supports_microversion')
-    def test_service_set_2_53_enable_up(self, sm_mock):
+    def test_service_set_enable_up(self):
         # Tests enabling and bringing up a compute service with microversion
         # 2.53 which requires looking up the service by host and binary.
-        sm_mock.return_value = True
+        self.set_compute_api_version('2.53')
+
         arglist = [
             '--enable',
             '--up',

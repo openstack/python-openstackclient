@@ -15,7 +15,6 @@
 from unittest import mock
 from unittest.mock import call
 
-from cinderclient import api_versions
 from osc_lib import exceptions
 from osc_lib import utils
 
@@ -177,7 +176,7 @@ class TestTransferCreate(TestTransfer):
         self.assertEqual(self.data, data)
 
     def test_transfer_create_with_no_snapshots(self):
-        self.volume_client.api_version = api_versions.APIVersion('3.55')
+        self.set_volume_api_version('3.55')
 
         arglist = [
             '--no-snapshots',
@@ -199,7 +198,7 @@ class TestTransferCreate(TestTransfer):
         self.assertEqual(self.data, data)
 
     def test_transfer_create_pre_v355(self):
-        self.volume_client.api_version = api_versions.APIVersion('3.54')
+        self.set_volume_api_version('3.54')
 
         arglist = [
             '--no-snapshots',

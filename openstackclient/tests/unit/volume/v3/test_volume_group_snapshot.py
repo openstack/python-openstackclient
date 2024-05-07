@@ -10,26 +10,13 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
-from unittest import mock
-
-from keystoneauth1 import discover
 from openstack.block_storage.v3 import group as _group
 from openstack.block_storage.v3 import group_snapshot as _group_snapshot
 from openstack.test import fakes as sdk_fakes
-from openstack import utils as sdk_utils
 from osc_lib import exceptions
 
 from openstackclient.tests.unit.volume.v3 import fakes as volume_fakes
 from openstackclient.volume.v3 import volume_group_snapshot
-
-
-def fake_supports_microversion(mocked_version):
-    def supports_microversion(adapter, microversion, raise_exception=False):
-        required = discover.normalize_version_number(microversion)
-        candidate = discover.normalize_version_number(mocked_version)
-        return discover.version_match(required, candidate)
-
-    return supports_microversion
 
 
 class TestVolumeGroupSnapshotCreate(volume_fakes.TestVolume):
@@ -70,9 +57,8 @@ class TestVolumeGroupSnapshotCreate(volume_fakes.TestVolume):
             self.app, None
         )
 
-    @mock.patch.object(sdk_utils, 'supports_microversion')
-    def test_volume_group_snapshot_create(self, mock_mv):
-        mock_mv.side_effect = fake_supports_microversion('3.14')
+    def test_volume_group_snapshot_create(self):
+        self.set_volume_api_version('3.14')
 
         arglist = [
             self.fake_volume_group.id,
@@ -99,9 +85,8 @@ class TestVolumeGroupSnapshotCreate(volume_fakes.TestVolume):
         self.assertEqual(self.columns, columns)
         self.assertCountEqual(self.data, data)
 
-    @mock.patch.object(sdk_utils, 'supports_microversion')
-    def test_volume_group_snapshot_create_with_options(self, mock_mv):
-        mock_mv.side_effect = fake_supports_microversion('3.14')
+    def test_volume_group_snapshot_create_with_options(self):
+        self.set_volume_api_version('3.14')
 
         arglist = [
             self.fake_volume_group.id,
@@ -132,9 +117,8 @@ class TestVolumeGroupSnapshotCreate(volume_fakes.TestVolume):
         self.assertEqual(self.columns, columns)
         self.assertCountEqual(self.data, data)
 
-    @mock.patch.object(sdk_utils, 'supports_microversion')
-    def test_volume_group_snapshot_create_pre_v314(self, mock_mv):
-        mock_mv.side_effect = fake_supports_microversion('3.13')
+    def test_volume_group_snapshot_create_pre_v314(self):
+        self.set_volume_api_version('3.13')
 
         arglist = [
             self.fake_volume_group.id,
@@ -174,9 +158,8 @@ class TestVolumeGroupSnapshotDelete(volume_fakes.TestVolume):
             self.app, None
         )
 
-    @mock.patch.object(sdk_utils, 'supports_microversion')
-    def test_volume_group_snapshot_delete(self, mock_mv):
-        mock_mv.side_effect = fake_supports_microversion('3.14')
+    def test_volume_group_snapshot_delete(self):
+        self.set_volume_api_version('3.14')
 
         arglist = [
             self.fake_volume_group_snapshot.id,
@@ -193,9 +176,8 @@ class TestVolumeGroupSnapshotDelete(volume_fakes.TestVolume):
         )
         self.assertIsNone(result)
 
-    @mock.patch.object(sdk_utils, 'supports_microversion')
-    def test_volume_group_snapshot_delete_pre_v314(self, mock_mv):
-        mock_mv.side_effect = fake_supports_microversion('3.13')
+    def test_volume_group_snapshot_delete_pre_v314(self):
+        self.set_volume_api_version('3.13')
 
         arglist = [
             self.fake_volume_group_snapshot.id,
@@ -249,9 +231,8 @@ class TestVolumeGroupSnapshotList(volume_fakes.TestVolume):
             self.app, None
         )
 
-    @mock.patch.object(sdk_utils, 'supports_microversion')
-    def test_volume_group_snapshot_list(self, mock_mv):
-        mock_mv.side_effect = fake_supports_microversion('3.14')
+    def test_volume_group_snapshot_list(self):
+        self.set_volume_api_version('3.14')
 
         arglist = [
             '--all-projects',
@@ -269,9 +250,8 @@ class TestVolumeGroupSnapshotList(volume_fakes.TestVolume):
         self.assertEqual(self.columns, columns)
         self.assertCountEqual(tuple(self.data), data)
 
-    @mock.patch.object(sdk_utils, 'supports_microversion')
-    def test_volume_group_snapshot_list_pre_v314(self, mock_mv):
-        mock_mv.side_effect = fake_supports_microversion('3.13')
+    def test_volume_group_snapshot_list_pre_v314(self):
+        self.set_volume_api_version('3.13')
 
         arglist = []
         verifylist = [

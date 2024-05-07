@@ -10,7 +10,6 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
-from cinderclient import api_versions
 from osc_lib.cli import format_columns
 from osc_lib import exceptions
 
@@ -78,7 +77,7 @@ class TestVolumeAttachmentCreate(TestVolumeAttachment):
         self.cmd = volume_attachment.CreateVolumeAttachment(self.app, None)
 
     def test_volume_attachment_create(self):
-        self.volume_client.api_version = api_versions.APIVersion('3.27')
+        self.set_volume_api_version('3.27')
 
         arglist = [
             self.volume.id,
@@ -113,7 +112,7 @@ class TestVolumeAttachmentCreate(TestVolumeAttachment):
         self.assertCountEqual(self.data, data)
 
     def test_volume_attachment_create_with_connect(self):
-        self.volume_client.api_version = api_versions.APIVersion('3.54')
+        self.set_volume_api_version('3.54')
 
         arglist = [
             self.volume.id,
@@ -176,7 +175,7 @@ class TestVolumeAttachmentCreate(TestVolumeAttachment):
         self.assertCountEqual(self.data, data)
 
     def test_volume_attachment_create_pre_v327(self):
-        self.volume_client.api_version = api_versions.APIVersion('3.26')
+        self.set_volume_api_version('3.26')
 
         arglist = [
             self.volume.id,
@@ -196,7 +195,7 @@ class TestVolumeAttachmentCreate(TestVolumeAttachment):
         )
 
     def test_volume_attachment_create_with_mode_pre_v354(self):
-        self.volume_client.api_version = api_versions.APIVersion('3.53')
+        self.set_volume_api_version('3.53')
 
         arglist = [
             self.volume.id,
@@ -219,7 +218,7 @@ class TestVolumeAttachmentCreate(TestVolumeAttachment):
         )
 
     def test_volume_attachment_create_with_connect_missing_arg(self):
-        self.volume_client.api_version = api_versions.APIVersion('3.54')
+        self.set_volume_api_version('3.54')
 
         arglist = [
             self.volume.id,
@@ -254,7 +253,7 @@ class TestVolumeAttachmentDelete(TestVolumeAttachment):
         self.cmd = volume_attachment.DeleteVolumeAttachment(self.app, None)
 
     def test_volume_attachment_delete(self):
-        self.volume_client.api_version = api_versions.APIVersion('3.27')
+        self.set_volume_api_version('3.27')
 
         arglist = [
             self.volume_attachment.id,
@@ -272,7 +271,7 @@ class TestVolumeAttachmentDelete(TestVolumeAttachment):
         self.assertIsNone(result)
 
     def test_volume_attachment_delete_pre_v327(self):
-        self.volume_client.api_version = api_versions.APIVersion('3.26')
+        self.set_volume_api_version('3.26')
 
         arglist = [
             self.volume_attachment.id,
@@ -324,7 +323,7 @@ class TestVolumeAttachmentSet(TestVolumeAttachment):
         self.cmd = volume_attachment.SetVolumeAttachment(self.app, None)
 
     def test_volume_attachment_set(self):
-        self.volume_client.api_version = api_versions.APIVersion('3.27')
+        self.set_volume_api_version('3.27')
 
         arglist = [
             self.volume_attachment.id,
@@ -376,7 +375,7 @@ class TestVolumeAttachmentSet(TestVolumeAttachment):
         self.assertCountEqual(self.data, data)
 
     def test_volume_attachment_set_pre_v327(self):
-        self.volume_client.api_version = api_versions.APIVersion('3.26')
+        self.set_volume_api_version('3.26')
 
         arglist = [
             self.volume_attachment.id,
@@ -408,7 +407,7 @@ class TestVolumeAttachmentComplete(TestVolumeAttachment):
         self.cmd = volume_attachment.CompleteVolumeAttachment(self.app, None)
 
     def test_volume_attachment_complete(self):
-        self.volume_client.api_version = api_versions.APIVersion('3.44')
+        self.set_volume_api_version('3.44')
 
         arglist = [
             self.volume_attachment.id,
@@ -426,7 +425,7 @@ class TestVolumeAttachmentComplete(TestVolumeAttachment):
         self.assertIsNone(result)
 
     def test_volume_attachment_complete_pre_v344(self):
-        self.volume_client.api_version = api_versions.APIVersion('3.43')
+        self.set_volume_api_version('3.43')
 
         arglist = [
             self.volume_attachment.id,
@@ -475,7 +474,7 @@ class TestVolumeAttachmentList(TestVolumeAttachment):
         self.cmd = volume_attachment.ListVolumeAttachment(self.app, None)
 
     def test_volume_attachment_list(self):
-        self.volume_client.api_version = api_versions.APIVersion('3.27')
+        self.set_volume_api_version('3.27')
 
         arglist = []
         verifylist = [
@@ -504,7 +503,7 @@ class TestVolumeAttachmentList(TestVolumeAttachment):
         self.assertCountEqual(tuple(self.data), data)
 
     def test_volume_attachment_list_with_options(self):
-        self.volume_client.api_version = api_versions.APIVersion('3.27')
+        self.set_volume_api_version('3.27')
 
         arglist = [
             '--project',
@@ -544,7 +543,7 @@ class TestVolumeAttachmentList(TestVolumeAttachment):
         self.assertCountEqual(tuple(self.data), data)
 
     def test_volume_attachment_list_pre_v327(self):
-        self.volume_client.api_version = api_versions.APIVersion('3.26')
+        self.set_volume_api_version('3.26')
 
         arglist = []
         verifylist = [

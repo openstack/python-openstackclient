@@ -11,13 +11,10 @@
 #   WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
 #   License for the specific language governing permissions and limitations
 #   under the License.
-#
 
 import json
-from unittest import mock
 
 from novaclient import exceptions as nova_exceptions
-from openstack import utils as sdk_utils
 from osc_lib.cli import format_columns
 from osc_lib import exceptions
 
@@ -164,10 +161,7 @@ class TestHypervisorList(compute_fakes.TestComputev2):
             exceptions.NotFound, self.cmd.take_action, parsed_args
         )
 
-    @mock.patch.object(sdk_utils, 'supports_microversion', return_value=False)
-    def test_hypervisor_list_with_matching_and_pagination_options(
-        self, sm_mock
-    ):
+    def test_hypervisor_list_with_matching_and_pagination_options(self):
         arglist = [
             '--matching',
             self.hypervisors[0].name,
@@ -191,8 +185,7 @@ class TestHypervisorList(compute_fakes.TestComputev2):
             '--matching is not compatible with --marker or --limit', str(ex)
         )
 
-    @mock.patch.object(sdk_utils, 'supports_microversion', return_value=False)
-    def test_hypervisor_list_long_option(self, sm_mock):
+    def test_hypervisor_list_long_option(self):
         arglist = [
             '--long',
         ]
@@ -210,8 +203,9 @@ class TestHypervisorList(compute_fakes.TestComputev2):
         self.assertEqual(self.columns_long, columns)
         self.assertEqual(self.data_long, tuple(data))
 
-    @mock.patch.object(sdk_utils, 'supports_microversion', return_value=True)
-    def test_hypervisor_list_with_limit(self, sm_mock):
+    def test_hypervisor_list_with_limit(self):
+        self.set_compute_api_version('2.33')
+
         arglist = [
             '--limit',
             '1',
@@ -227,8 +221,9 @@ class TestHypervisorList(compute_fakes.TestComputev2):
             limit=1, details=True
         )
 
-    @mock.patch.object(sdk_utils, 'supports_microversion', return_value=False)
-    def test_hypervisor_list_with_limit_pre_v233(self, sm_mock):
+    def test_hypervisor_list_with_limit_pre_v233(self):
+        self.set_compute_api_version('2.32')
+
         arglist = [
             '--limit',
             '1',
@@ -246,8 +241,9 @@ class TestHypervisorList(compute_fakes.TestComputev2):
             '--os-compute-api-version 2.33 or greater is required', str(ex)
         )
 
-    @mock.patch.object(sdk_utils, 'supports_microversion', return_value=True)
-    def test_hypervisor_list_with_marker(self, sm_mock):
+    def test_hypervisor_list_with_marker(self):
+        self.set_compute_api_version('2.33')
+
         arglist = [
             '--marker',
             'test_hyp',
@@ -263,8 +259,9 @@ class TestHypervisorList(compute_fakes.TestComputev2):
             marker='test_hyp', details=True
         )
 
-    @mock.patch.object(sdk_utils, 'supports_microversion', return_value=False)
-    def test_hypervisor_list_with_marker_pre_v233(self, sm_mock):
+    def test_hypervisor_list_with_marker_pre_v233(self):
+        self.set_compute_api_version('2.32')
+
         arglist = [
             '--marker',
             'test_hyp',
@@ -413,8 +410,9 @@ class TestHypervisorShow(compute_fakes.TestComputev2):
         # Get the command object to test
         self.cmd = hypervisor.ShowHypervisor(self.app, None)
 
-    @mock.patch.object(sdk_utils, 'supports_microversion', return_value=True)
-    def test_hypervisor_show(self, sm_mock):
+    def test_hypervisor_show(self):
+        self.set_compute_api_version('2.88')
+
         arglist = [
             self.hypervisor.name,
         ]
@@ -431,10 +429,9 @@ class TestHypervisorShow(compute_fakes.TestComputev2):
         self.assertEqual(self.columns_v288, columns)
         self.assertCountEqual(self.data_v288, data)
 
-    @mock.patch.object(
-        sdk_utils, 'supports_microversion', side_effect=[False, True, False]
-    )
-    def test_hypervisor_show_pre_v288(self, sm_mock):
+    def test_hypervisor_show_pre_v288(self):
+        self.set_compute_api_version('2.87')
+
         arglist = [
             self.hypervisor.name,
         ]
@@ -451,8 +448,9 @@ class TestHypervisorShow(compute_fakes.TestComputev2):
         self.assertEqual(self.columns, columns)
         self.assertCountEqual(self.data, data)
 
-    @mock.patch.object(sdk_utils, 'supports_microversion', return_value=False)
-    def test_hypervisor_show_pre_v228(self, sm_mock):
+    def test_hypervisor_show_pre_v228(self):
+        self.set_compute_api_version('2.27')
+
         # before microversion 2.28, nova returned a stringified version of this
         # field
         self.hypervisor.cpu_info = json.dumps(self.hypervisor.cpu_info)
@@ -474,10 +472,9 @@ class TestHypervisorShow(compute_fakes.TestComputev2):
         self.assertEqual(self.columns, columns)
         self.assertCountEqual(self.data, data)
 
-    @mock.patch.object(
-        sdk_utils, 'supports_microversion', side_effect=[False, True, False]
-    )
-    def test_hypervisor_show_uptime_not_implemented(self, sm_mock):
+    def test_hypervisor_show_uptime_not_implemented(self):
+        self.set_compute_api_version('2.87')
+
         arglist = [
             self.hypervisor.name,
         ]

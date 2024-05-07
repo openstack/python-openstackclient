@@ -10,17 +10,14 @@
 #   WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
 #   License for the specific language governing permissions and limitations
 #   under the License.
-#
 
 import copy
 from unittest import mock
 
-from cinderclient import api_versions
 from openstack.block_storage.v3 import block_storage_summary as _summary
 from openstack.block_storage.v3 import snapshot as _snapshot
 from openstack.block_storage.v3 import volume as _volume
 from openstack.test import fakes as sdk_fakes
-from openstack import utils as sdk_utils
 from osc_lib.cli import format_columns
 from osc_lib import exceptions
 from osc_lib import utils
@@ -30,28 +27,6 @@ from openstackclient.tests.unit.image.v2 import fakes as image_fakes
 from openstackclient.tests.unit import utils as test_utils
 from openstackclient.tests.unit.volume.v3 import fakes as volume_fakes
 from openstackclient.volume.v3 import volume
-
-
-class BaseVolumeTest(volume_fakes.TestVolume):
-    def setUp(self):
-        super().setUp()
-
-        patcher = mock.patch.object(
-            sdk_utils, 'supports_microversion', return_value=True
-        )
-        self.addCleanup(patcher.stop)
-        self.supports_microversion_mock = patcher.start()
-        self._set_mock_microversion(
-            self.volume_client.api_version.get_string()
-        )
-
-    def _set_mock_microversion(self, mock_v):
-        """Set a specific microversion for the mock supports_microversion()."""
-        self.supports_microversion_mock.reset_mock(return_value=True)
-        self.supports_microversion_mock.side_effect = (
-            lambda _, v: api_versions.APIVersion(v)
-            <= api_versions.APIVersion(mock_v)
-        )
 
 
 # TODO(stephenfin): Combine these two test classes
@@ -355,6 +330,8 @@ class TestVolumeCreateLegacy(volume_fakes.TestVolume):
         self.assertCountEqual(self.datalist, data)
 
     def test_volume_create_with_backup(self):
+        self.set_volume_api_version('3.47')
+
         backup = volume_fakes.create_one_backup()
         self.new_volume.backup_id = backup.id
         arglist = [
@@ -369,8 +346,6 @@ class TestVolumeCreateLegacy(volume_fakes.TestVolume):
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
         self.backups_mock.get.return_value = backup
-
-        self.volume_client.api_version = api_versions.APIVersion('3.47')
 
         # In base command class ShowOne in cliff, abstract method take_action()
         # returns a two-part tuple with a tuple of column names and a tuple of
@@ -758,7 +733,7 @@ class TestVolumeCreateLegacy(volume_fakes.TestVolume):
         self.assertCountEqual(self.datalist, data)
 
 
-class TestVolumeCreate(BaseVolumeTest):
+class TestVolumeCreate(volume_fakes.TestVolume):
     columns = (
         'attachments',
         'availability_zone',
@@ -872,7 +847,7 @@ class TestVolumeCreate(BaseVolumeTest):
         self.assertCountEqual(self.datalist, data)
 
     def test_volume_create_remote_source_pre_v316(self):
-        self._set_mock_microversion('3.15')
+        self.set_volume_api_version('3.15')
         arglist = [
             '--remote-source',
             'key=val',
@@ -895,7 +870,7 @@ class TestVolumeCreate(BaseVolumeTest):
         )
 
     def test_volume_create_remote_source_host_and_cluster(self):
-        self._set_mock_microversion('3.16')
+        self.set_volume_api_version('3.16')
         arglist = [
             '--remote-source',
             'key=val',
@@ -987,7 +962,7 @@ class TestVolumeCreate(BaseVolumeTest):
         )
 
 
-class TestVolumeDeleteLegacy(BaseVolumeTest):
+class TestVolumeDeleteLegacy(volume_fakes.TestVolume):
     def setUp(self):
         super().setUp()
 
@@ -1101,7 +1076,7 @@ class TestVolumeDeleteLegacy(BaseVolumeTest):
         self.assertIsNone(result)
 
 
-class TestVolumeDelete(BaseVolumeTest):
+class TestVolumeDelete(volume_fakes.TestVolume):
     def setUp(self):
         super().setUp()
 
@@ -2189,7 +2164,7 @@ class TestVolumeUnset(volume_fakes.TestVolume):
         )
 
 
-class TestVolumeSummary(BaseVolumeTest):
+class TestVolumeSummary(volume_fakes.TestVolume):
     columns = [
         'Total Count',
         'Total Size',
@@ -2211,7 +2186,7 @@ class TestVolumeSummary(BaseVolumeTest):
         self.cmd = volume.VolumeSummary(self.app, None)
 
     def test_volume_summary(self):
-        self._set_mock_microversion('3.12')
+        self.set_volume_api_version('3.12')
         arglist = [
             '--all-projects',
         ]
@@ -2246,7 +2221,7 @@ class TestVolumeSummary(BaseVolumeTest):
         )
 
     def test_volume_summary_with_metadata(self):
-        self._set_mock_microversion('3.36')
+        self.set_volume_api_version('3.36')
 
         metadata = {**self.volume_a.metadata, **self.volume_b.metadata}
         self.summary = sdk_fakes.generate_fake_resource(
@@ -2282,7 +2257,7 @@ class TestVolumeSummary(BaseVolumeTest):
         self.assertCountEqual(datalist, tuple(data))
 
 
-class TestVolumeRevertToSnapshot(BaseVolumeTest):
+class TestVolumeRevertToSnapshot(volume_fakes.TestVolume):
     def setUp(self):
         super().setUp()
 
@@ -2314,7 +2289,7 @@ class TestVolumeRevertToSnapshot(BaseVolumeTest):
         )
 
     def test_volume_revert_to_snapshot(self):
-        self._set_mock_microversion('3.40')
+        self.set_volume_api_version('3.40')
         arglist = [
             self.snapshot.id,
         ]
