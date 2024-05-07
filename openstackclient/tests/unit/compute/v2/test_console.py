@@ -21,11 +21,10 @@ from openstackclient.tests.unit import utils
 
 
 class TestConsoleLog(compute_fakes.TestComputev2):
-    _server = compute_fakes.create_one_server()
-
     def setUp(self):
         super().setUp()
 
+        self._server = compute_fakes.create_one_sdk_server()
         self.compute_sdk_client.find_server.return_value = self._server
 
         self.cmd = console.ShowConsoleLog(self.app, None)
@@ -77,7 +76,7 @@ class TestConsoleLog(compute_fakes.TestComputev2):
 
 
 class TestConsoleUrlShow(compute_fakes.TestComputev2):
-    _server = compute_fakes.create_one_server()
+    _server = compute_fakes.create_one_sdk_server()
 
     def setUp(self):
         super().setUp()
