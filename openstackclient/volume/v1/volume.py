@@ -378,7 +378,6 @@ class ListVolume(command.Lister):
 
     def take_action(self, parsed_args):
         volume_client = self.app.client_manager.volume
-        compute_client = self.app.client_manager.compute
 
         if parsed_args.long:
             columns = (
@@ -420,7 +419,8 @@ class ListVolume(command.Lister):
         # Cache the server list
         server_cache = {}
         try:
-            for s in compute_client.servers.list():
+            compute_client = self.app.client_manager.sdk_connection.compute
+            for s in compute_client.servers():
                 server_cache[s.id] = s
         except Exception:
             # Just forget it if there's any trouble

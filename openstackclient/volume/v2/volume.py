@@ -20,6 +20,7 @@ import functools
 import logging
 
 from cliff import columns as cliff_columns
+from openstack import exceptions as sdk_exceptions
 from osc_lib.cli import format_columns
 from osc_lib.cli import parseractions
 from osc_lib.command import command
@@ -507,10 +508,10 @@ class ListVolume(command.Lister):
         server_cache = {}
         if do_server_list:
             try:
-                compute_client = self.app.client_manager.compute
-                for s in compute_client.servers.list():
+                compute_client = self.app.client_manager.sdk_connection.compute
+                for s in compute_client.servers():
                     server_cache[s.id] = s
-            except Exception:
+            except sdk_exceptions.SDKException:
                 # Just forget it if there's any trouble
                 pass  # nosec: B110
         AttachmentsColumnWithCache = functools.partial(
