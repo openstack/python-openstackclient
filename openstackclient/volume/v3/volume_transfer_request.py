@@ -12,10 +12,11 @@
 #   under the License.
 #
 
-"""Volume v2 transfer action implementations"""
+"""Volume v3 transfer action implementations"""
 
 import logging
 
+from cinderclient import api_versions
 from osc_lib.command import command
 from osc_lib import exceptions
 from osc_lib import utils
@@ -76,6 +77,25 @@ class CreateTransferRequest(command.ShowOne):
             help=_('New transfer request name (default to None)'),
         )
         parser.add_argument(
+            '--snapshots',
+            action='store_true',
+            dest='snapshots',
+            help=_(
+                'Allow transfer volumes without snapshots (default) '
+                '(supported by --os-volume-api-version 3.55 or later)'
+            ),
+            default=None,
+        )
+        parser.add_argument(
+            '--no-snapshots',
+            action='store_false',
+            dest='snapshots',
+            help=_(
+                'Disallow transfer volumes without snapshots '
+                '(supported by --os-volume-api-version 3.55 or later)'
+            ),
+        )
+        parser.add_argument(
             'volume',
             metavar="<volume>",
             help=_('Volume to transfer (name or ID)'),
@@ -86,6 +106,18 @@ class CreateTransferRequest(command.ShowOne):
         volume_client = self.app.client_manager.volume
 
         kwargs = {}
+
+        if parsed_args.snapshots is not None:
+            if volume_client.api_version < api_versions.APIVersion('3.55'):
+                msg = _(
+                    "--os-volume-api-version 3.55 or greater is required to "
+                    "support the '--(no-)snapshots' option"
+                )
+                raise exceptions.CommandError(msg)
+
+            # unfortunately this option is negative so we have to reverse
+            # things
+            kwargs['no_snapshots'] = not parsed_args.snapshots
 
         volume_id = utils.find_resource(
             volume_client.volumes,

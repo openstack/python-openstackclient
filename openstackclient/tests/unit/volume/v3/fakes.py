@@ -62,6 +62,8 @@ class FakeVolumeClient:
         self.resource_filters.resource_class = fakes.FakeResource(None, {})
         self.restores = mock.Mock()
         self.restores.resource_class = fakes.FakeResource(None, {})
+        self.transfers = mock.Mock()
+        self.transfers.resource_class = fakes.FakeResource(None, {})
         self.volume_encryption_types = mock.Mock()
         self.volume_encryption_types.resource_class = fakes.FakeResource(
             None, {}
@@ -436,6 +438,69 @@ def create_resource_filters(attrs=None, count=2):
         resource_filters.append(create_one_resource_filter(attrs))
 
     return resource_filters
+
+
+def create_one_transfer(attrs=None):
+    """Create a fake transfer.
+
+    :param dict attrs:
+        A dictionary with all attributes of Transfer Request
+    :return:
+        A FakeResource object with volume_id, name, id.
+    """
+    # Set default attribute
+    transfer_info = {
+        'volume_id': 'volume-id-' + uuid.uuid4().hex,
+        'name': 'fake_transfer_name',
+        'id': 'id-' + uuid.uuid4().hex,
+        'links': 'links-' + uuid.uuid4().hex,
+    }
+
+    # Overwrite default attributes if there are some attributes set
+    attrs = attrs or {}
+
+    transfer_info.update(attrs)
+
+    transfer = fakes.FakeResource(None, transfer_info, loaded=True)
+
+    return transfer
+
+
+def create_transfers(attrs=None, count=2):
+    """Create multiple fake transfers.
+
+    :param dict attrs:
+        A dictionary with all attributes of transfer
+    :param Integer count:
+        The number of transfers to be faked
+    :return:
+        A list of FakeResource objects
+    """
+    transfers = []
+    for n in range(0, count):
+        transfers.append(create_one_transfer(attrs))
+
+    return transfers
+
+
+def get_transfers(transfers=None, count=2):
+    """Get an iterable MagicMock object with a list of faked transfers.
+
+    If transfers list is provided, then initialize the Mock object with the
+    list. Otherwise create one.
+
+    :param List transfers:
+        A list of FakeResource objects faking transfers
+    :param Integer count:
+        The number of transfers to be faked
+    :return
+        An iterable Mock object with side_effect set to a list of faked
+        transfers
+    """
+    if transfers is None:
+        transfers = create_transfers(count)
+
+    return mock.Mock(side_effect=transfers)
 
 
 def create_one_type_access(attrs=None):
