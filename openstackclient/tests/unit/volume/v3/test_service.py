@@ -14,7 +14,7 @@
 
 from cinderclient import api_versions
 
-from openstackclient.tests.unit.volume.v2 import fakes as volume_fakes
+from openstackclient.tests.unit.volume.v3 import fakes as volume_fakes
 from openstackclient.volume.v3 import service
 
 

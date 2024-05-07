@@ -14,11 +14,13 @@
 
 import copy
 import random
+import typing as ty
 from unittest import mock
 import uuid
 
 # FIXME(stephenfin): We are using v3 resource versions despite being v2 fakes
 from cinderclient import api_versions
+from keystoneauth1 import discover
 from openstack.block_storage.v2 import _proxy as block_storage_v2_proxy
 from openstack.block_storage.v2 import backup as _backup
 from openstack.block_storage.v3 import capabilities as _capabilities
@@ -105,6 +107,26 @@ class FakeClientMixin:
             spec=block_storage_v2_proxy.Proxy,
         )
         self.volume_sdk_client = self.app.client_manager.sdk_connection.volume
+        self.set_volume_api_version()  # default to the lowest
+
+    def set_volume_api_version(self, version: ty.Optional[str] = None):
+        """Set a fake block storage API version.
+
+        :param version: The fake microversion to "support". This must be None
+            since cinder v2 didn't support microversions.
+        :returns: None
+        """
+        assert version is None
+
+        self.volume_client.api_version = None
+
+        self.volume_sdk_client.default_microversion = None
+        self.volume_sdk_client.get_endpoint_data.return_value = (
+            discover.EndpointData(
+                min_microversion=None,
+                max_microversion=None,
+            )
+        )
 
 
 class TestVolume(

@@ -15,9 +15,11 @@
 
 import copy
 import random
+import re
 from unittest import mock
 import uuid
 
+from keystoneauth1 import discover
 from novaclient import api_versions
 from openstack.compute.v2 import _proxy
 from openstack.compute.v2 import aggregate as _aggregate
@@ -143,8 +145,6 @@ class FakeComputev2Client:
 
         self.management_url = kwargs['endpoint']
 
-        self.api_version = api_versions.APIVersion('2.1')
-
 
 class FakeClientMixin:
     def setUp(self):
@@ -168,6 +168,26 @@ class FakeClientMixin:
         )
         self.compute_sdk_client = (
             self.app.client_manager.sdk_connection.compute
+        )
+        self.set_compute_api_version()  # default to the lowest
+
+    def set_compute_api_version(self, version: str = '2.1'):
+        """Set a fake server version.
+
+        :param version: The fake microversion to "support". This should be a
+            string of format '2.xx'.
+        :returns: None
+        """
+        assert re.match(r'2.\d+', version)
+
+        self.compute_client.api_version = api_versions.APIVersion(version)
+
+        self.compute_sdk_client.default_microversion = version
+        self.compute_sdk_client.get_endpoint_data.return_value = (
+            discover.EndpointData(
+                min_microversion='2.1',  # nova has not bumped this yet
+                max_microversion=version,
+            )
         )
 
 

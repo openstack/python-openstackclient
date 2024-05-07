@@ -12,10 +12,12 @@
 
 import copy
 import random
+import re
 from unittest import mock
 import uuid
 
 from cinderclient import api_versions
+from keystoneauth1 import discover
 from openstack.block_storage.v3 import _proxy
 from openstack.block_storage.v3 import availability_zone as _availability_zone
 from openstack.block_storage.v3 import backup as _backup
@@ -97,6 +99,26 @@ class FakeClientMixin:
             spec=_proxy.Proxy,
         )
         self.volume_sdk_client = self.app.client_manager.sdk_connection.volume
+        self.set_volume_api_version()  # default to the lowest
+
+    def set_volume_api_version(self, version: str = '3.0'):
+        """Set a fake block storage API version.
+
+        :param version: The fake microversion to "support". This should be a
+            string of format '3.xx'.
+        :returns: None
+        """
+        assert re.match(r'3.\d+', version)
+
+        self.volume_client.api_version = api_versions.APIVersion(version)
+
+        self.volume_sdk_client.default_microversion = version
+        self.volume_sdk_client.get_endpoint_data.return_value = (
+            discover.EndpointData(
+                min_microversion='3.0',  # cinder has not bumped this yet
+                max_microversion=version,
+            )
+        )
 
 
 class TestVolume(
@@ -126,6 +148,7 @@ class TestVolume(
 
 # TODO(stephenfin): Check if the responses are actually the same
 create_one_snapshot = volume_v2_fakes.create_one_snapshot
+create_one_service = volume_v2_fakes.create_one_service
 
 
 def create_one_availability_zone(attrs=None):
