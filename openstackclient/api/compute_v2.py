@@ -19,7 +19,7 @@ from osc_lib import exceptions
 from osc_lib.i18n import _
 
 
-# TODO(dtroyer): Mingrate this to osc-lib
+# TODO(dtroyer): Migrate this to osc-lib
 class InvalidValue(Exception):
     """An argument value is not valid: wrong type, out of range, etc"""
 
@@ -268,80 +268,6 @@ class APIv2(api.BaseAPI):
         url = "/os-floating-ip-pools"
 
         return self.list(url)["floating_ip_pools"]
-
-    # Hosts
-
-    def host_list(
-        self,
-        zone=None,
-    ):
-        """Lists hypervisor Hosts
-
-        https://docs.openstack.org/api-ref/compute/#list-hosts
-        Valid for Compute 2.0 - 2.42
-
-        :param string zone:
-            Availability zone
-        :returns: A dict of the floating IP attributes
-        """
-
-        url = "/os-hosts"
-        if zone:
-            url = '/os-hosts?zone=%s' % zone
-
-        return self.list(url)["hosts"]
-
-    def host_set(
-        self, host=None, status=None, maintenance_mode=None, **params
-    ):
-        """Modify host properties
-
-        https://docs.openstack.org/api-ref/compute/#update-host-status
-        Valid for Compute 2.0 - 2.42
-
-        status
-        maintenance_mode
-        """
-
-        url = "/os-hosts"
-
-        params = {}
-        if status:
-            params['status'] = status
-        if maintenance_mode:
-            params['maintenance_mode'] = maintenance_mode
-        if params == {}:
-            # Don't bother calling if nothing given
-            return None
-        else:
-            return self._request(
-                "PUT",
-                f"/{url}/{host}",
-                json=params,
-            ).json()
-
-    def host_show(
-        self,
-        host=None,
-    ):
-        """Show host
-
-        https://docs.openstack.org/api-ref/compute/#show-host-details
-        Valid for Compute 2.0 - 2.42
-        """
-
-        url = "/os-hosts"
-
-        r_host = self.find(
-            url,
-            attr='host_name',
-            value=host,
-        )
-
-        data = []
-        for h in r_host:
-            data.append(h['resource'])
-        return data
 
     # Networks
 

@@ -1,0 +1,4 @@
+---
+upgrade:
+  - |
+    The ``host set`` command has been migrated to SDK.

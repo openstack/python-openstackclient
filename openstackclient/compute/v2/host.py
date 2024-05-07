@@ -15,6 +15,7 @@
 
 """Host action implementations"""
 
+from openstack import exceptions as sdk_exceptions
 from osc_lib.command import command
 from osc_lib import utils
 
@@ -35,34 +36,26 @@ class ListHost(command.Lister):
 
     def take_action(self, parsed_args):
         compute_client = self.app.client_manager.sdk_connection.compute
-        columns = ("Host Name", "Service", "Zone")
 
         self.log.warning(
-            "API has been deprecated. "
-            "Please consider using 'hypervisor list' instead."
+            "API has been deprecated; "
+            "consider using 'hypervisor list' instead."
         )
 
         # doing this since openstacksdk has decided not to support this
         # deprecated command
-        hosts = (
-            compute_client.get('/os-hosts', microversion='2.1')
-            .json()
-            .get('hosts')
-        )
-
+        response = compute_client.get('/os-hosts', microversion='2.1')
+        sdk_exceptions.raise_from_response(response)
+        hosts = response.json().get('hosts')
         if parsed_args.zone is not None:
-            filtered_hosts = []
-            for host in hosts:
-                if host['zone'] == parsed_args.zone:
-                    filtered_hosts.append(host)
+            hosts = [h for h in hosts if h['zone'] == parsed_args.zone]
 
-            hosts = filtered_hosts
-
+        columns = ("Host Name", "Service", "Zone")
         return columns, (utils.get_dict_properties(s, columns) for s in hosts)
 
 
 class SetHost(command.Command):
-    _description = _("Set host properties")
+    _description = _("DEPRECATED: Set host properties")
 
     def get_parser(self, prog_name):
         parser = super().get_parser(prog_name)
@@ -90,20 +83,33 @@ class SetHost(command.Command):
         return parser
 
     def take_action(self, parsed_args):
-        kwargs = {}
+        compute_client = self.app.client_manager.sdk_connection.compute
 
+        self.log.warning(
+            "API has been deprecated; "
+            "consider using 'compute service set' instead."
+        )
+
+        data = {}
         if parsed_args.enable:
-            kwargs['status'] = 'enable'
+            data['status'] = 'enable'
         if parsed_args.disable:
-            kwargs['status'] = 'disable'
+            data['status'] = 'disable'
         if parsed_args.enable_maintenance:
-            kwargs['maintenance_mode'] = 'enable'
+            data['maintenance_mode'] = 'enable'
         if parsed_args.disable_maintenance:
-            kwargs['maintenance_mode'] = 'disable'
+            data['maintenance_mode'] = 'disable'
 
-        compute_client = self.app.client_manager.compute
+        if not data:
+            # don't bother calling if nothing given
+            return
 
-        compute_client.api.host_set(parsed_args.host, **kwargs)
+        # doing this since openstacksdk has decided not to support this
+        # deprecated command
+        response = compute_client.put(
+            f'/os-hosts/{parsed_args.host}', json=data, microversion='2.1'
+        )
+        sdk_exceptions.raise_from_response(response)
 
 
 class ShowHost(command.Lister):
@@ -116,26 +122,25 @@ class ShowHost(command.Lister):
 
     def take_action(self, parsed_args):
         compute_client = self.app.client_manager.sdk_connection.compute
-        columns = ("Host", "Project", "CPU", "Memory MB", "Disk GB")
 
         self.log.warning(
-            "API has been deprecated. "
-            "Please consider using 'hypervisor show' instead."
+            "API has been deprecated; "
+            "consider using 'hypervisor show' instead."
         )
 
         # doing this since openstacksdk has decided not to support this
         # deprecated command
-        resources = (
-            compute_client.get(
-                '/os-hosts/' + parsed_args.host, microversion='2.1'
-            )
-            .json()
-            .get('host')
+        response = compute_client.get(
+            f'/os-hosts/{parsed_args.host}', microversion='2.1'
         )
+        sdk_exceptions.raise_from_response(response)
+        resources = response.json().get('host')
 
         data = []
         if resources is not None:
             for resource in resources:
                 data.append(resource['resource'])
+
+        columns = ("Host", "Project", "CPU", "Memory MB", "Disk GB")
 
         return columns, (utils.get_dict_properties(s, columns) for s in data)

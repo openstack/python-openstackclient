@@ -127,9 +127,6 @@ class FakeComputev2Client:
         self.keypairs = mock.Mock()
         self.keypairs.resource_class = fakes.FakeResource(None, {})
 
-        self.hosts = mock.Mock()
-        self.hosts.resource_class = fakes.FakeResource(None, {})
-
         self.server_groups = mock.Mock()
         self.server_groups.resource_class = fakes.FakeResource(None, {})
 
@@ -1010,56 +1007,6 @@ def get_networks(networks=None, count=2):
     if networks is None:
         networks = create_networks(count=count)
     return mock.Mock(side_effect=networks)
-
-
-def create_one_host(attrs=None):
-    """Create a fake host.
-
-    :param dict attrs:
-        A dictionary with all attributes
-    :return:
-        A FakeResource object, with uuid and other attributes
-    """
-    attrs = attrs or {}
-
-    # Set default attributes.
-    host_info = {
-        "service_id": 1,
-        "host": "host1",
-        "uuid": 'host-id-' + uuid.uuid4().hex,
-        "vcpus": 10,
-        "memory_mb": 100,
-        "local_gb": 100,
-        "vcpus_used": 5,
-        "memory_mb_used": 50,
-        "local_gb_used": 10,
-        "hypervisor_type": "xen",
-        "hypervisor_version": 1,
-        "hypervisor_hostname": "devstack1",
-        "free_ram_mb": 50,
-        "free_disk_gb": 50,
-        "current_workload": 10,
-        "running_vms": 1,
-        "cpu_info": "",
-        "disk_available_least": 1,
-        "host_ip": "10.10.10.10",
-        "supported_instances": "",
-        "metrics": "",
-        "pci_stats": "",
-        "extra_resources": "",
-        "stats": "",
-        "numa_topology": "",
-        "ram_allocation_ratio": 1.0,
-        "cpu_allocation_ratio": 1.0,
-        "zone": 'zone-' + uuid.uuid4().hex,
-        "host_name": 'name-' + uuid.uuid4().hex,
-        "service": 'service-' + uuid.uuid4().hex,
-        "cpu": 4,
-        "disk_gb": 100,
-        'project': 'project-' + uuid.uuid4().hex,
-    }
-    host_info.update(attrs)
-    return host_info
 
 
 def create_one_usage(attrs=None):
