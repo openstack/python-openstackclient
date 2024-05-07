@@ -17,6 +17,7 @@
 
 import logging
 
+from openstack import exceptions as sdk_exceptions
 from osc_lib.command import command
 from osc_lib import exceptions
 from osc_lib import utils
@@ -55,16 +56,26 @@ class CreateAgent(command.ShowOne):
         return parser
 
     def take_action(self, parsed_args):
-        compute_client = self.app.client_manager.compute
-        args = (
-            parsed_args.os,
-            parsed_args.architecture,
-            parsed_args.version,
-            parsed_args.url,
-            parsed_args.md5hash,
-            parsed_args.hypervisor,
+        compute_client = self.app.client_manager.sdk_connection.compute
+
+        # doing this since openstacksdk has decided not to support this
+        # deprecated command
+        data = {
+            'agent': {
+                'hypervisor': parsed_args.hypervisor,
+                'os': parsed_args.os,
+                'architecture': parsed_args.architecture,
+                'version': parsed_args.version,
+                'url': parsed_args.url,
+                'md5hash': parsed_args.md5hash,
+            },
+        }
+        response = compute_client.post(
+            '/os-agents', json=data, microversion='2.1'
         )
-        agent = compute_client.agents.create(*args)._info.copy()
+        sdk_exceptions.raise_from_response(response)
+        agent = response.json().get('agent')
+
         return zip(*sorted(agent.items()))
 
 
@@ -84,11 +95,16 @@ class DeleteAgent(command.Command):
         return parser
 
     def take_action(self, parsed_args):
-        compute_client = self.app.client_manager.compute
+        compute_client = self.app.client_manager.sdk_connection.compute
         result = 0
         for id in parsed_args.id:
             try:
-                compute_client.agents.delete(id)
+                # doing this since openstacksdk has decided not to support this
+                # deprecated command
+                response = compute_client.delete(
+                    f'/os-agents/{id}', microversion='2.1'
+                )
+                sdk_exceptions.raise_from_response(response)
             except Exception as e:
                 result += 1
                 LOG.error(
@@ -123,7 +139,7 @@ class ListAgent(command.Lister):
         return parser
 
     def take_action(self, parsed_args):
-        compute_client = self.app.client_manager.compute
+        compute_client = self.app.client_manager.sdk_connection.compute
         columns = (
             "Agent ID",
             "Hypervisor",
@@ -133,30 +149,36 @@ class ListAgent(command.Lister):
             "Md5Hash",
             "URL",
         )
-        data = compute_client.agents.list(parsed_args.hypervisor)
-        return (
-            columns,
-            (
-                utils.get_item_properties(
-                    s,
-                    columns,
-                )
-                for s in data
-            ),
-        )
+
+        # doing this since openstacksdk has decided not to support this
+        # deprecated command
+        path = '/os-agents'
+        if parsed_args.hypervisor:
+            path += f'?hypervisor={parsed_args.hypervisor}'
+
+        response = compute_client.get(path, microversion='2.1')
+        sdk_exceptions.raise_from_response(response)
+        agents = response.json().get('agents')
+
+        return columns, (utils.get_dict_properties(s, columns) for s in agents)
 
 
 class SetAgent(command.Command):
     """Set compute agent properties.
 
-    The compute agent functionality is hypervisor specific and is only
+    The compute agent functionality is hypervisor-specific and is only
     supported by the XenAPI hypervisor driver. It was removed from nova in the
     23.0.0 (Wallaby) release.
     """
 
     def get_parser(self, prog_name):
         parser = super().get_parser(prog_name)
-        parser.add_argument("id", metavar="<id>", help=_("ID of the agent"))
+        parser.add_argument(
+            "id",
+            metavar="<id>",
+            type=int,
+            help=_("ID of the agent"),
+        )
         parser.add_argument(
             "--agent-version",
             dest="version",
@@ -172,30 +194,34 @@ class SetAgent(command.Command):
         return parser
 
     def take_action(self, parsed_args):
-        compute_client = self.app.client_manager.compute
-        data = compute_client.agents.list(hypervisor=None)
-        agent = {}
+        compute_client = self.app.client_manager.sdk_connection.compute
 
-        for s in data:
-            if s.agent_id == int(parsed_args.id):
-                agent['version'] = s.version
-                agent['url'] = s.url
-                agent['md5hash'] = s.md5hash
-        if agent == {}:
+        response = compute_client.get('/os-agents', microversion='2.1')
+        sdk_exceptions.raise_from_response(response)
+        agents = response.json().get('agents')
+        data = {}
+        for agent in agents:
+            if agent['agent_id'] == parsed_args.id:
+                data['version'] = agent['version']
+                data['url'] = agent['url']
+                data['md5hash'] = agent['md5hash']
+                break
+        else:
             msg = _("No agent with a ID of '%(id)s' exists.")
-            raise exceptions.CommandError(msg % parsed_args.id)
+            raise exceptions.CommandError(msg % {'id': parsed_args.id})
 
         if parsed_args.version:
-            agent['version'] = parsed_args.version
+            data['version'] = parsed_args.version
         if parsed_args.url:
-            agent['url'] = parsed_args.url
+            data['url'] = parsed_args.url
         if parsed_args.md5hash:
-            agent['md5hash'] = parsed_args.md5hash
+            data['md5hash'] = parsed_args.md5hash
 
-        args = (
-            parsed_args.id,
-            agent['version'],
-            agent['url'],
-            agent['md5hash'],
+        data = {'para': data}
+
+        # doing this since openstacksdk has decided not to support this
+        # deprecated command
+        response = compute_client.put(
+            f'/os-agents/{parsed_args.id}', json=data, microversion='2.1'
         )
-        compute_client.agents.update(*args)
+        sdk_exceptions.raise_from_response(response)

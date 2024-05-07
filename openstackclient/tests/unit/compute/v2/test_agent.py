@@ -11,153 +11,162 @@
 #   WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
 #   License for the specific language governing permissions and limitations
 #   under the License.
-#
 
+import http
+import random
 from unittest import mock
-from unittest.mock import call
+import uuid
 
 from osc_lib import exceptions
 
 from openstackclient.compute.v2 import agent
 from openstackclient.tests.unit.compute.v2 import fakes as compute_fakes
+from openstackclient.tests.unit import fakes
 from openstackclient.tests.unit import utils as tests_utils
 
 
-class TestAgent(compute_fakes.TestComputev2):
-    attr = {}
-    attr['agent_id'] = 1
-    fake_agent = compute_fakes.create_one_agent(attr)
+def _generate_fake_agent():
+    return {
+        'agent_id': random.randint(1, 1000),
+        'os': 'agent-os-' + uuid.uuid4().hex,
+        'architecture': 'agent-architecture',
+        'version': '8.0',
+        'url': 'http://127.0.0.1',
+        'md5hash': 'agent-md5hash',
+        'hypervisor': 'hypervisor',
+    }
 
-    columns = (
-        'agent_id',
-        'architecture',
-        'hypervisor',
-        'md5hash',
-        'os',
-        'url',
-        'version',
-    )
 
-    data = (
-        fake_agent.agent_id,
-        fake_agent.architecture,
-        fake_agent.hypervisor,
-        fake_agent.md5hash,
-        fake_agent.os,
-        fake_agent.url,
-        fake_agent.version,
-    )
-
+class TestAgentCreate(compute_fakes.TestComputev2):
     def setUp(self):
         super().setUp()
 
-        self.agents_mock = self.compute_client.agents
-        self.agents_mock.reset_mock()
+        self._agent = _generate_fake_agent()
+        self.columns = (
+            'agent_id',
+            'architecture',
+            'hypervisor',
+            'md5hash',
+            'os',
+            'url',
+            'version',
+        )
+        self.data = (
+            self._agent['agent_id'],
+            self._agent['architecture'],
+            self._agent['hypervisor'],
+            self._agent['md5hash'],
+            self._agent['os'],
+            self._agent['url'],
+            self._agent['version'],
+        )
 
-
-class TestAgentCreate(TestAgent):
-    def setUp(self):
-        super().setUp()
-
-        self.agents_mock.create.return_value = self.fake_agent
+        self.compute_sdk_client.post.return_value = fakes.FakeResponse(
+            data={'agent': self._agent}
+        )
         self.cmd = agent.CreateAgent(self.app, None)
 
     def test_agent_create(self):
         arglist = [
-            self.fake_agent.os,
-            self.fake_agent.architecture,
-            self.fake_agent.version,
-            self.fake_agent.url,
-            self.fake_agent.md5hash,
-            self.fake_agent.hypervisor,
+            self._agent['os'],
+            self._agent['architecture'],
+            self._agent['version'],
+            self._agent['url'],
+            self._agent['md5hash'],
+            self._agent['hypervisor'],
+        ]
+        verifylist = [
+            ('os', self._agent['os']),
+            ('architecture', self._agent['architecture']),
+            ('version', self._agent['version']),
+            ('url', self._agent['url']),
+            ('md5hash', self._agent['md5hash']),
+            ('hypervisor', self._agent['hypervisor']),
         ]
 
-        verifylist = [
-            ('os', self.fake_agent.os),
-            ('architecture', self.fake_agent.architecture),
-            ('version', self.fake_agent.version),
-            ('url', self.fake_agent.url),
-            ('md5hash', self.fake_agent.md5hash),
-            ('hypervisor', self.fake_agent.hypervisor),
-        ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
         columns, data = self.cmd.take_action(parsed_args)
-        self.agents_mock.create.assert_called_with(
-            parsed_args.os,
-            parsed_args.architecture,
-            parsed_args.version,
-            parsed_args.url,
-            parsed_args.md5hash,
-            parsed_args.hypervisor,
+
+        self.compute_sdk_client.post.assert_called_with(
+            '/os-agents',
+            json={
+                'agent': {
+                    'hypervisor': parsed_args.hypervisor,
+                    'os': parsed_args.os,
+                    'architecture': parsed_args.architecture,
+                    'version': parsed_args.version,
+                    'url': parsed_args.url,
+                    'md5hash': parsed_args.md5hash,
+                },
+            },
+            microversion='2.1',
         )
 
         self.assertEqual(self.columns, columns)
         self.assertEqual(self.data, data)
 
 
-class TestAgentDelete(TestAgent):
-    fake_agents = compute_fakes.create_agents(count=2)
-
+class TestAgentDelete(compute_fakes.TestComputev2):
     def setUp(self):
         super().setUp()
 
-        self.agents_mock.get.return_value = self.fake_agents
+        self.compute_sdk_client.delete.return_value = fakes.FakeResponse(
+            status_code=http.HTTPStatus.NO_CONTENT
+        )
+
         self.cmd = agent.DeleteAgent(self.app, None)
 
     def test_delete_one_agent(self):
-        arglist = [self.fake_agents[0].agent_id]
-
+        arglist = ['123']
         verifylist = [
-            ('id', [self.fake_agents[0].agent_id]),
+            ('id', ['123']),
         ]
 
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
         result = self.cmd.take_action(parsed_args)
-        self.agents_mock.delete.assert_called_with(
-            self.fake_agents[0].agent_id
+
+        self.compute_sdk_client.delete.assert_called_once_with(
+            '/os-agents/123',
+            microversion='2.1',
         )
         self.assertIsNone(result)
 
     def test_delete_multiple_agents(self):
-        arglist = []
-        for n in self.fake_agents:
-            arglist.append(n.agent_id)
+        arglist = ['1', '2', '3']
         verifylist = [
-            ('id', arglist),
+            ('id', ['1', '2', '3']),
         ]
 
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
         result = self.cmd.take_action(parsed_args)
 
-        calls = []
-        for n in self.fake_agents:
-            calls.append(call(n.agent_id))
-        self.agents_mock.delete.assert_has_calls(calls)
+        calls = [
+            mock.call(f'/os-agents/{x}', microversion='2.1') for x in arglist
+        ]
+        self.compute_sdk_client.delete.assert_has_calls(calls)
         self.assertIsNone(result)
 
     def test_delete_multiple_agents_exception(self):
-        arglist = [
-            self.fake_agents[0].agent_id,
-            self.fake_agents[1].agent_id,
-            'x-y-z',
-        ]
+        arglist = ['1', '2', '999']
         verifylist = [
-            ('id', arglist),
+            ('id', ['1', '2', '999']),
         ]
 
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
-        ret_delete = [None, None, exceptions.NotFound('404')]
-        self.agents_mock.delete = mock.Mock(side_effect=ret_delete)
+        self.compute_sdk_client.delete.side_effect = [
+            fakes.FakeResponse(status_code=http.HTTPStatus.NO_CONTENT),
+            fakes.FakeResponse(status_code=http.HTTPStatus.NO_CONTENT),
+            fakes.FakeResponse(status_code=http.HTTPStatus.NOT_FOUND),
+        ]
 
         self.assertRaises(
             exceptions.CommandError, self.cmd.take_action, parsed_args
         )
         calls = [
-            call(self.fake_agents[0].agent_id),
-            call(self.fake_agents[1].agent_id),
+            mock.call(f'/os-agents/{x}', microversion='2.1') for x in arglist
         ]
-        self.agents_mock.delete.assert_has_calls(calls)
+        self.compute_sdk_client.delete.assert_has_calls(calls)
 
     def test_agent_delete_no_input(self):
         arglist = []
@@ -171,36 +180,37 @@ class TestAgentDelete(TestAgent):
         )
 
 
-class TestAgentList(TestAgent):
-    agents = compute_fakes.create_agents(count=3)
-    list_columns = (
-        "Agent ID",
-        "Hypervisor",
-        "OS",
-        "Architecture",
-        "Version",
-        "Md5Hash",
-        "URL",
-    )
-
-    list_data = []
-    for _agent in agents:
-        list_data.append(
-            (
-                _agent.agent_id,
-                _agent.hypervisor,
-                _agent.os,
-                _agent.architecture,
-                _agent.version,
-                _agent.md5hash,
-                _agent.url,
-            )
-        )
-
+class TestAgentList(compute_fakes.TestComputev2):
     def setUp(self):
         super().setUp()
 
-        self.agents_mock.list.return_value = self.agents
+        _agents = [_generate_fake_agent() for _ in range(3)]
+
+        self.columns = (
+            "Agent ID",
+            "Hypervisor",
+            "OS",
+            "Architecture",
+            "Version",
+            "Md5Hash",
+            "URL",
+        )
+        self.data = [
+            (
+                _agent['agent_id'],
+                _agent['hypervisor'],
+                _agent['os'],
+                _agent['architecture'],
+                _agent['version'],
+                _agent['md5hash'],
+                _agent['url'],
+            )
+            for _agent in _agents
+        ]
+
+        self.compute_sdk_client.get.return_value = fakes.FakeResponse(
+            data={'agents': _agents},
+        )
         self.cmd = agent.ListAgent(self.app, None)
 
     def test_agent_list(self):
@@ -210,8 +220,12 @@ class TestAgentList(TestAgent):
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
         columns, data = self.cmd.take_action(parsed_args)
 
-        self.assertEqual(self.list_columns, columns)
-        self.assertEqual(self.list_data, list(data))
+        self.assertEqual(self.columns, columns)
+        self.assertEqual(self.data, list(data))
+        self.compute_sdk_client.get.assert_called_once_with(
+            '/os-agents',
+            microversion='2.1',
+        )
 
     def test_agent_list_with_hypervisor(self):
         arglist = [
@@ -225,101 +239,129 @@ class TestAgentList(TestAgent):
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
         columns, data = self.cmd.take_action(parsed_args)
 
-        self.assertEqual(self.list_columns, columns)
-        self.assertEqual(self.list_data, list(data))
+        self.assertEqual(self.columns, columns)
+        self.assertEqual(self.data, list(data))
+        self.compute_sdk_client.get.assert_called_once_with(
+            '/os-agents?hypervisor=hypervisor',
+            microversion='2.1',
+        )
 
 
-class TestAgentSet(TestAgent):
+class TestAgentSet(compute_fakes.TestComputev2):
     def setUp(self):
         super().setUp()
 
-        self.agents_mock.update.return_value = self.fake_agent
-        self.agents_mock.list.return_value = [self.fake_agent]
+        self.agent = _generate_fake_agent()
+        self.compute_sdk_client.get.return_value = fakes.FakeResponse(
+            data={'agents': [self.agent]},
+        )
+        self.compute_sdk_client.put.return_value = fakes.FakeResponse()
+
         self.cmd = agent.SetAgent(self.app, None)
 
     def test_agent_set_nothing(self):
         arglist = [
-            '1',
+            str(self.agent['agent_id']),
         ]
         verifylist = [
-            ('id', '1'),
+            ('id', self.agent['agent_id']),
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
         result = self.cmd.take_action(parsed_args)
 
-        self.agents_mock.update.assert_called_with(
-            parsed_args.id,
-            self.fake_agent.version,
-            self.fake_agent.url,
-            self.fake_agent.md5hash,
+        self.compute_sdk_client.put.assert_called_once_with(
+            f'/os-agents/{self.agent["agent_id"]}',
+            json={
+                'para': {
+                    'version': self.agent['version'],
+                    'url': self.agent['url'],
+                    'md5hash': self.agent['md5hash'],
+                },
+            },
+            microversion='2.1',
         )
         self.assertIsNone(result)
 
     def test_agent_set_version(self):
         arglist = [
-            '1',
+            str(self.agent['agent_id']),
             '--agent-version',
             'new-version',
         ]
 
         verifylist = [
-            ('id', '1'),
+            ('id', self.agent['agent_id']),
             ('version', 'new-version'),
         ]
 
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
         result = self.cmd.take_action(parsed_args)
 
-        self.agents_mock.update.assert_called_with(
-            parsed_args.id,
-            parsed_args.version,
-            self.fake_agent.url,
-            self.fake_agent.md5hash,
+        self.compute_sdk_client.put.assert_called_once_with(
+            f'/os-agents/{self.agent["agent_id"]}',
+            json={
+                'para': {
+                    'version': parsed_args.version,
+                    'url': self.agent['url'],
+                    'md5hash': self.agent['md5hash'],
+                },
+            },
+            microversion='2.1',
         )
         self.assertIsNone(result)
 
     def test_agent_set_url(self):
         arglist = [
-            '1',
+            str(self.agent['agent_id']),
             '--url',
             'new-url',
         ]
 
         verifylist = [
-            ('id', '1'),
+            ('id', self.agent['agent_id']),
             ('url', 'new-url'),
         ]
 
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
         result = self.cmd.take_action(parsed_args)
 
-        self.agents_mock.update.assert_called_with(
-            parsed_args.id,
-            self.fake_agent.version,
-            parsed_args.url,
-            self.fake_agent.md5hash,
+        self.compute_sdk_client.put.assert_called_once_with(
+            f'/os-agents/{self.agent["agent_id"]}',
+            json={
+                'para': {
+                    'version': self.agent['version'],
+                    'url': parsed_args.url,
+                    'md5hash': self.agent['md5hash'],
+                },
+            },
+            microversion='2.1',
         )
         self.assertIsNone(result)
 
     def test_agent_set_md5hash(self):
         arglist = [
-            '1',
+            str(self.agent['agent_id']),
             '--md5hash',
             'new-md5hash',
         ]
 
         verifylist = [
-            ('id', '1'),
+            ('id', self.agent['agent_id']),
             ('md5hash', 'new-md5hash'),
         ]
 
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
         result = self.cmd.take_action(parsed_args)
 
-        self.agents_mock.update.assert_called_with(
-            parsed_args.id,
-            self.fake_agent.version,
-            self.fake_agent.url,
-            parsed_args.md5hash,
+        self.compute_sdk_client.put.assert_called_once_with(
+            f'/os-agents/{self.agent["agent_id"]}',
+            json={
+                'para': {
+                    'version': self.agent['version'],
+                    'url': self.agent['url'],
+                    'md5hash': parsed_args.md5hash,
+                },
+            },
+            microversion='2.1',
         )
         self.assertIsNone(result)

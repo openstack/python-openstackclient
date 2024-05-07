@@ -1,0 +1,4 @@
+---
+upgrade:
+  - |
+    The ``compute agent *`` commands have been migrated to SDK.
