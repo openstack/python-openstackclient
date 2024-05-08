@@ -1,0 +1,4 @@
+---
+features:
+  - |
+    The ``server set`` and ``server unset`` commands have been migrated to SDK.

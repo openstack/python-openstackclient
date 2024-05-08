@@ -4415,14 +4415,13 @@ class SetServer(command.Command):
         return parser
 
     def take_action(self, parsed_args):
-        compute_client = self.app.client_manager.compute
-        server = utils.find_resource(
-            compute_client.servers,
-            parsed_args.server,
+        compute_client = self.app.client_manager.sdk_connection.compute
+        server = compute_client.find_server(
+            parsed_args.server, ignore_missing=False
         )
 
         if parsed_args.description:
-            if compute_client.api_version < api_versions.APIVersion("2.19"):
+            if not sdk_utils.supports_microversion(compute_client, '2.19'):
                 msg = _(
                     '--os-compute-api-version 2.19 or greater is required to '
                     'support the --description option'
@@ -4430,7 +4429,7 @@ class SetServer(command.Command):
                 raise exceptions.CommandError(msg)
 
         if parsed_args.tags:
-            if compute_client.api_version < api_versions.APIVersion('2.26'):
+            if not sdk_utils.supports_microversion(compute_client, '2.26'):
                 msg = _(
                     '--os-compute-api-version 2.26 or greater is required to '
                     'support the --tag option'
@@ -4438,7 +4437,7 @@ class SetServer(command.Command):
                 raise exceptions.CommandError(msg)
 
         if parsed_args.hostname:
-            if compute_client.api_version < api_versions.APIVersion('2.90'):
+            if not sdk_utils.supports_microversion(compute_client, '2.90'):
                 msg = _(
                     '--os-compute-api-version 2.90 or greater is required to '
                     'support the --hostname option'
@@ -4457,30 +4456,32 @@ class SetServer(command.Command):
             update_kwargs['hostname'] = parsed_args.hostname
 
         if update_kwargs:
-            server.update(**update_kwargs)
+            compute_client.update_server(server, **update_kwargs)
 
         if parsed_args.properties:
-            compute_client.servers.set_meta(server, parsed_args.properties)
+            compute_client.set_server_metadata(
+                server, **parsed_args.properties
+            )
 
         if parsed_args.state:
-            server.reset_state(state=parsed_args.state)
+            compute_client.reset_server_state(server, state=parsed_args.state)
 
         if parsed_args.root_password:
             p1 = getpass.getpass(_('New password: '))
             p2 = getpass.getpass(_('Retype new password: '))
             if p1 == p2:
-                server.change_password(p1)
+                compute_client.change_server_password(server, p1)
             else:
                 msg = _("Passwords do not match, password unchanged")
                 raise exceptions.CommandError(msg)
         elif parsed_args.password:
-            server.change_password(parsed_args.password)
+            compute_client.change_server_password(server, parsed_args.password)
         elif parsed_args.no_password:
-            server.clear_password()
+            compute_client.clear_server_password(server)
 
         if parsed_args.tags:
             for tag in parsed_args.tags:
-                server.add_tag(tag=tag)
+                compute_client.add_tag_to_server(server, tag=tag)
 
 
 class ShelveServer(command.Command):
@@ -4995,7 +4996,8 @@ class UnsetServer(command.Command):
             metavar='<server>',
             help=_('Server (name or ID)'),
         )
-        parser.add_argument(
+        property_group = parser.add_mutually_exclusive_group()
+        property_group.add_argument(
             '--property',
             metavar='<key>',
             action='append',
@@ -5006,16 +5008,22 @@ class UnsetServer(command.Command):
                 '(repeat option to remove multiple values)'
             ),
         )
+        property_group.add_argument(
+            '--all-properties',
+            action='store_true',
+            help=_('Remove all properties'),
+        )
         parser.add_argument(
             '--description',
             dest='description',
             action='store_true',
             help=_(
-                'Unset server description (supported by '
-                '--os-compute-api-version 2.19 or above)'
+                'Unset server description '
+                '(supported by --os-compute-api-version 2.19 or above)'
             ),
         )
-        parser.add_argument(
+        tag_group = parser.add_mutually_exclusive_group()
+        tag_group.add_argument(
             '--tag',
             metavar='<tag>',
             action='append',
@@ -5027,32 +5035,40 @@ class UnsetServer(command.Command):
                 '(supported by --os-compute-api-version 2.26 or above)'
             ),
         )
+        tag_group.add_argument(
+            '--all-tags',
+            action='store_true',
+            help=_(
+                'Remove all tags '
+                '(supported by --os-compute-api-version 2.26 or above)'
+            ),
+        )
         return parser
 
     def take_action(self, parsed_args):
-        compute_client = self.app.client_manager.compute
-        server = utils.find_resource(
-            compute_client.servers,
-            parsed_args.server,
+        compute_client = self.app.client_manager.sdk_connection.compute
+
+        server = compute_client.find_server(
+            parsed_args.server, ignore_missing=False
         )
 
-        if parsed_args.properties:
-            compute_client.servers.delete_meta(server, parsed_args.properties)
-
-        if parsed_args.description:
-            if compute_client.api_version < api_versions.APIVersion("2.19"):
-                msg = _(
-                    '--os-compute-api-version 2.19 or greater is '
-                    'required to support the --description option'
-                )
-                raise exceptions.CommandError(msg)
-            compute_client.servers.update(
-                server,
-                description="",
+        if parsed_args.properties or parsed_args.all_properties:
+            compute_client.delete_server_metadata(
+                server, parsed_args.properties or None
             )
 
-        if parsed_args.tags:
-            if compute_client.api_version < api_versions.APIVersion('2.26'):
+        if parsed_args.description:
+            if not sdk_utils.supports_microversion(compute_client, '2.19'):
+                msg = _(
+                    '--os-compute-api-version 2.19 or greater is required to '
+                    'support the --description option'
+                )
+                raise exceptions.CommandError(msg)
+
+            compute_client.update_server(server, description="")
+
+        if parsed_args.tags or parsed_args.all_tags:
+            if not sdk_utils.supports_microversion(compute_client, '2.26'):
                 msg = _(
                     '--os-compute-api-version 2.26 or greater is required to '
                     'support the --tag option'
@@ -5060,7 +5076,10 @@ class UnsetServer(command.Command):
                 raise exceptions.CommandError(msg)
 
             for tag in parsed_args.tags:
-                compute_client.servers.delete_tag(server, tag=tag)
+                compute_client.remove_tag_from_server(server, tag)
+
+            if parsed_args.all_tags:
+                compute_client.remove_tags_from_server(server)
 
 
 class UnshelveServer(command.Command):
