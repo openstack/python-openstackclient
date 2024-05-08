@@ -1,0 +1,6 @@
+---
+fixes:
+  - |
+    The ``router create --flavor-id`` parameter has been deprecated
+    in favour of the ``--flavor`` parameter, which accepts both
+    flavor names and flavor IDs.
