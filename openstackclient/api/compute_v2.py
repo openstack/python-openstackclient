@@ -11,9 +11,16 @@
 #   under the License.
 #
 
-"""Compute v2 API Library"""
+"""Compute v2 API Library
+
+A collection of wrappers for deprecated Compute v2 APIs that are not
+intentionally supported by SDK. Most of these are proxy APIs.
+"""
+
+import http
 
 from keystoneauth1 import exceptions as ksa_exceptions
+from openstack import exceptions as sdk_exceptions
 from osc_lib.api import api
 from osc_lib import exceptions
 from osc_lib.i18n import _
@@ -577,3 +584,40 @@ class APIv2(api.BaseAPI):
             return self.delete(f'/{url}/{security_group_rule_id}')
 
         return None
+
+
+def find_security_group(compute_client, name_or_id):
+    """Find the name for a given security group name or ID
+
+    https://docs.openstack.org/api-ref/compute/#show-security-group-details
+
+    :param compute_client: A compute client
+    :param name_or_id: The name or ID of the security group to look up
+    :returns: A security group object
+    :raises exception.NotFound: If a matching security group could not be
+        found or more than one match was found
+    """
+    response = compute_client.get(
+        f'/os-security-groups/{name_or_id}', microversion='2.1'
+    )
+    if response.status_code != http.HTTPStatus.NOT_FOUND:
+        # there might be other, non-404 errors
+        sdk_exceptions.raise_from_response(response)
+        return response.json()['security_group']
+
+    response = compute_client.get('/os-security-groups', microversion='2.1')
+    sdk_exceptions.raise_from_response(response)
+    found = None
+    security_groups = response.json()['security_groups']
+    for security_group in security_groups:
+        if security_group['name'] == name_or_id:
+            if found:
+                raise exceptions.NotFound(
+                    f'multiple matches found for {name_or_id}'
+                )
+            found = security_group
+
+    if not found:
+        raise exceptions.NotFound(f'{name_or_id} not found')
+
+    return found

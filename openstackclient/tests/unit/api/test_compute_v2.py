@@ -13,11 +13,17 @@
 
 """Compute v2 API Library Tests"""
 
+import http
+from unittest import mock
+import uuid
+
 from keystoneauth1 import session
+from openstack.compute.v2 import _proxy
 from osc_lib import exceptions as osc_lib_exceptions
 from requests_mock.contrib import fixture
 
 from openstackclient.api import compute_v2 as compute
+from openstackclient.tests.unit import fakes
 from openstackclient.tests.unit import utils
 
 
@@ -648,3 +654,112 @@ class TestSecurityGroupRule(TestComputeAPIv2):
         ret = self.api.security_group_rule_delete('1')
         self.assertEqual(202, ret.status_code)
         self.assertEqual("", ret.text)
+
+
+class TestFindSecurityGroup(utils.TestCase):
+
+    def setUp(self):
+        super().setUp()
+
+        self.compute_sdk_client = mock.Mock(_proxy.Proxy)
+
+    def test_find_security_group_by_id(self):
+        sg_id = uuid.uuid4().hex
+        sg_name = 'name-' + uuid.uuid4().hex
+        data = {
+            'security_group': {
+                'id': sg_id,
+                'name': sg_name,
+                'description': 'description-' + uuid.uuid4().hex,
+                'tenant_id': 'project-id-' + uuid.uuid4().hex,
+                'rules': [],
+            }
+        }
+        self.compute_sdk_client.get.side_effect = [
+            fakes.FakeResponse(data=data),
+        ]
+
+        result = compute.find_security_group(self.compute_sdk_client, sg_id)
+
+        self.compute_sdk_client.get.assert_has_calls(
+            [
+                mock.call(f'/os-security-groups/{sg_id}', microversion='2.1'),
+            ]
+        )
+        self.assertEqual(data['security_group'], result)
+
+    def test_find_security_group_by_name(self):
+        sg_id = uuid.uuid4().hex
+        sg_name = 'name-' + uuid.uuid4().hex
+        data = {
+            'security_groups': [
+                {
+                    'id': sg_id,
+                    'name': sg_name,
+                    'description': 'description-' + uuid.uuid4().hex,
+                    'tenant_id': 'project-id-' + uuid.uuid4().hex,
+                    'rules': [],
+                }
+            ],
+        }
+        self.compute_sdk_client.get.side_effect = [
+            fakes.FakeResponse(status_code=http.HTTPStatus.NOT_FOUND),
+            fakes.FakeResponse(data=data),
+        ]
+
+        result = compute.find_security_group(self.compute_sdk_client, sg_name)
+
+        self.compute_sdk_client.get.assert_has_calls(
+            [
+                mock.call(
+                    f'/os-security-groups/{sg_name}', microversion='2.1'
+                ),
+                mock.call('/os-security-groups', microversion='2.1'),
+            ]
+        )
+        self.assertEqual(data['security_groups'][0], result)
+
+    def test_find_security_group_not_found(self):
+        data = {'security_groups': []}
+        self.compute_sdk_client.get.side_effect = [
+            fakes.FakeResponse(status_code=http.HTTPStatus.NOT_FOUND),
+            fakes.FakeResponse(data=data),
+        ]
+        self.assertRaises(
+            osc_lib_exceptions.NotFound,
+            compute.find_security_group,
+            self.compute_sdk_client,
+            'invalid-sg',
+        )
+
+    def test_find_security_group_by_name_duplicate(self):
+        sg_name = 'name-' + uuid.uuid4().hex
+        data = {
+            'security_groups': [
+                {
+                    'id': uuid.uuid4().hex,
+                    'name': sg_name,
+                    'description': 'description-' + uuid.uuid4().hex,
+                    'tenant_id': 'project-id-' + uuid.uuid4().hex,
+                    'rules': [],
+                },
+                {
+                    'id': uuid.uuid4().hex,
+                    'name': sg_name,
+                    'description': 'description-' + uuid.uuid4().hex,
+                    'tenant_id': 'project-id-' + uuid.uuid4().hex,
+                    'rules': [],
+                },
+            ],
+        }
+        self.compute_sdk_client.get.side_effect = [
+            fakes.FakeResponse(status_code=http.HTTPStatus.NOT_FOUND),
+            fakes.FakeResponse(data=data),
+        ]
+
+        self.assertRaises(
+            osc_lib_exceptions.NotFound,
+            compute.find_security_group,
+            self.compute_sdk_client,
+            sg_name,
+        )
