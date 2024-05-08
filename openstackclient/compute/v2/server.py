@@ -493,16 +493,16 @@ class AddFloatingIP(network_common.NetworkAndComputeCommand):
         return parser
 
     def take_action_network(self, client, parsed_args):
-        compute_client = self.app.client_manager.compute
+        compute_client = self.app.client_manager.sdk_connection.compute
 
         attrs = {}
         obj = client.find_ip(
             parsed_args.ip_address,
             ignore_missing=False,
         )
-        server = utils.find_resource(
-            compute_client.servers,
-            parsed_args.server,
+
+        server = compute_client.find_server(
+            parsed_args.server, ignore_missing=False
         )
         ports = list(client.ports(device_id=server.id))
         if not ports:
@@ -1062,6 +1062,7 @@ class BDMAction(parseractions.MultiKeyValueAction):
             super().__call__(parser, namespace, values, option_string)
 
 
+# TODO(stephenfin): Migrate to SDK
 class CreateServer(command.ShowOne):
     _description = _("Create a new server")
 
@@ -2137,25 +2138,22 @@ class DeleteServer(command.Command):
                 self.app.stdout.write('\rProgress: %s' % progress)
                 self.app.stdout.flush()
 
-        compute_client = self.app.client_manager.compute
+        compute_client = self.app.client_manager.sdk_connection.compute
         for server in parsed_args.server:
-            server_obj = utils.find_resource(
-                compute_client.servers,
+            server_obj = compute_client.find_server(
                 server,
-                all_tenants=parsed_args.all_projects,
+                ignore_missing=False,
+                all_projects=parsed_args.all_projects,
             )
 
-            if parsed_args.force:
-                compute_client.servers.force_delete(server_obj.id)
-            else:
-                compute_client.servers.delete(server_obj.id)
+            compute_client.delete_server(server_obj, force=parsed_args.force)
 
             if parsed_args.wait:
-                if not utils.wait_for_delete(
-                    compute_client.servers,
-                    server_obj.id,
-                    callback=_show_progress,
-                ):
+                try:
+                    compute_client.wait_for_delete(
+                        server_obj, callback=_show_progress
+                    )
+                except sdk_exceptions.ResourceTimeout:
                     msg = _('Error deleting server: %s') % server_obj.id
                     raise exceptions.CommandError(msg)
 
@@ -2476,7 +2474,7 @@ class ListServer(command.Lister):
             action='store_true',
             default=False,
             help=_(
-                'When looking up flavor and image names, look them up'
+                'When looking up flavor and image names, look them up '
                 'one by one as needed instead of all together (default). '
                 'Mutually exclusive with "--no-name-lookup|-n" option.'
             ),
@@ -3695,6 +3693,7 @@ class RebuildServer(command.ShowOne):
         return zip(*sorted(data.items()))
 
 
+# TODO(stephenfin): Migrate to SDK
 class EvacuateServer(command.ShowOne):
     _description = _(
         """Evacuate a server to a different host.
@@ -3835,13 +3834,14 @@ class RemoveFixedIP(command.Command):
         return parser
 
     def take_action(self, parsed_args):
-        compute_client = self.app.client_manager.compute
+        compute_client = self.app.client_manager.sdk_connection.compute
 
-        server = utils.find_resource(
-            compute_client.servers, parsed_args.server
+        server = compute_client.find_server(
+            parsed_args.server, ignore_missing=False
         )
-
-        server.remove_fixed_ip(parsed_args.ip_address)
+        compute_client.remove_fixed_ip_from_server(
+            server, parsed_args.ip_address
+        )
 
 
 class RemoveFloatingIP(network_common.NetworkAndComputeCommand):
@@ -4056,34 +4056,36 @@ server booted from a volume."""
             '--image',
             metavar='<image>',
             help=_(
-                'Image (name or ID) to use for the rescue mode.'
-                ' Defaults to the currently used one.'
+                'Image (name or ID) to use for the rescue mode '
+                '(defaults to the currently used one)'
             ),
         )
         parser.add_argument(
             '--password',
             metavar='<password>',
             help=_(
-                'Set the password on the rescued instance. '
-                'This option requires cloud support.'
+                'Set the password on the rescued instance '
+                '(requires cloud support)'
             ),
         )
         return parser
 
     def take_action(self, parsed_args):
-        compute_client = self.app.client_manager.compute
+        compute_client = self.app.client_manager.sdk_connection.compute
         image_client = self.app.client_manager.image
 
-        image = None
+        image_ref = None
         if parsed_args.image:
-            image = image_client.find_image(
+            image_ref = image_client.find_image(
                 parsed_args.image, ignore_missing=False
-            )
+            ).id
 
-        utils.find_resource(
-            compute_client.servers,
-            parsed_args.server,
-        ).rescue(image=image, password=parsed_args.password)
+        server = compute_client.find_server(
+            parsed_args.server, ignore_missing=False
+        )
+        compute_client.rescue_server(
+            server, admin_pass=parsed_args.password, image_ref=image_ref
+        )
 
 
 class ResizeServer(command.Command):
@@ -4099,12 +4101,12 @@ release the new server and restart the old one."""
 
     def get_parser(self, prog_name):
         parser = super().get_parser(prog_name)
-        phase_group = parser.add_mutually_exclusive_group()
         parser.add_argument(
             'server',
             metavar='<server>',
             help=_('Server (name or ID)'),
         )
+        phase_group = parser.add_mutually_exclusive_group()
         phase_group.add_argument(
             '--flavor',
             metavar='<flavor>',
@@ -4141,16 +4143,11 @@ release the new server and restart the old one."""
                 self.app.stdout.write('\rProgress: %s' % progress)
                 self.app.stdout.flush()
 
-        compute_client = self.app.client_manager.compute
-        server = utils.find_resource(
-            compute_client.servers,
-            parsed_args.server,
+        compute_client = self.app.client_manager.sdk_connection.compute
+        server = compute_client.find_server(
+            parsed_args.server, ignore_missing=False
         )
         if parsed_args.flavor:
-            flavor = utils.find_resource(
-                compute_client.flavors,
-                parsed_args.flavor,
-            )
             if not server.image:
                 self.log.warning(
                     _(
@@ -4158,18 +4155,21 @@ release the new server and restart the old one."""
                         "while booting from a persistent volume."
                     )
                 )
-            compute_client.servers.resize(server, flavor)
+            flavor = compute_client.find_flavor(
+                parsed_args.flavor, ignore_missing=False
+            )
+            compute_client.resize_server(server, flavor)
             if parsed_args.wait:
-                if utils.wait_for_status(
-                    compute_client.servers.get,
+                if not utils.wait_for_status(
+                    compute_client.get_server,
                     server.id,
-                    success_status=['active', 'verify_resize'],
+                    success_status=('active', 'verify_resize'),
                     callback=_show_progress,
                 ):
-                    self.app.stdout.write(_('Complete\n'))
-                else:
                     msg = _('Error resizing server: %s') % server.id
                     raise exceptions.CommandError(msg)
+
+                self.app.stdout.write(_('Complete\n'))
         elif parsed_args.confirm:
             self.log.warning(
                 _(
@@ -4177,7 +4177,7 @@ release the new server and restart the old one."""
                     "'openstack server resize confirm' command instead."
                 )
             )
-            compute_client.servers.confirm_resize(server)
+            compute_client.confirm_server_resize(server)
         elif parsed_args.revert:
             self.log.warning(
                 _(
@@ -4185,7 +4185,7 @@ release the new server and restart the old one."""
                     "'openstack server resize revert' command instead."
                 )
             )
-            compute_client.servers.revert_resize(server)
+            compute_client.revert_server_resize(server)
 
 
 class ResizeConfirm(command.Command):
@@ -4205,12 +4205,11 @@ Confirm (verify) success of resize operation and release the old server."""
         return parser
 
     def take_action(self, parsed_args):
-        compute_client = self.app.client_manager.compute
-        server = utils.find_resource(
-            compute_client.servers,
-            parsed_args.server,
+        compute_client = self.app.client_manager.sdk_connection.compute
+        server = compute_client.find_server(
+            parsed_args.server, ignore_missing=False
         )
-        server.confirm_resize()
+        compute_client.confirm_server_resize(server)
 
 
 # TODO(stephenfin): Remove in OSC 7.0
@@ -4254,12 +4253,11 @@ one."""
         return parser
 
     def take_action(self, parsed_args):
-        compute_client = self.app.client_manager.compute
-        server = utils.find_resource(
-            compute_client.servers,
-            parsed_args.server,
+        compute_client = self.app.client_manager.sdk_connection.compute
+        server = compute_client.find_server(
+            parsed_args.server, ignore_missing=False
         )
-        server.revert_resize()
+        compute_client.revert_server_resize(server)
 
 
 # TODO(stephenfin): Remove in OSC 7.0
@@ -4766,11 +4764,10 @@ class SshServer(command.Command):
         return parser
 
     def take_action(self, parsed_args):
-        compute_client = self.app.client_manager.compute
+        compute_client = self.app.client_manager.sdk_connection.compute
 
-        server = utils.find_resource(
-            compute_client.servers,
-            parsed_args.server,
+        server = compute_client.find_server(
+            parsed_args.server, ignore_missing=False
         )
 
         # first, handle the deprecated options
@@ -4846,7 +4843,7 @@ class StartServer(command.Command):
             action='store_true',
             default=boolenv('ALL_PROJECTS'),
             help=_(
-                'Start server(s) in another project by name (admin only)'
+                'Start server(s) in another project by name (admin only) '
                 '(can be specified using the ALL_PROJECTS envvar)'
             ),
         )
@@ -4981,11 +4978,11 @@ class UnrescueServer(command.Command):
         return parser
 
     def take_action(self, parsed_args):
-        compute_client = self.app.client_manager.compute
-        utils.find_resource(
-            compute_client.servers,
-            parsed_args.server,
-        ).unrescue()
+        compute_client = self.app.client_manager.sdk_connection.compute
+        server = compute_client.find_server(
+            parsed_args.server, ignore_missing=False
+        )
+        compute_client.unrescue_server(server)
 
 
 class UnsetServer(command.Command):
