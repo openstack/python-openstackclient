@@ -4642,11 +4642,11 @@ information for the server."""
         compute_client = self.app.client_manager.sdk_connection.compute
         image_client = self.app.client_manager.image
 
-        # Find by name or ID, then get the full details of the server
         server = compute_client.find_server(
-            parsed_args.server, ignore_missing=False
+            parsed_args.server,
+            ignore_missing=False,
+            details=True,
         )
-        server = compute_client.get_server(server)
 
         if parsed_args.diagnostics:
             data = compute_client.get_server_diagnostics(server)
