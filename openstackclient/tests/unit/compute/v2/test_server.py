@@ -1286,42 +1286,102 @@ class TestServerAddSecurityGroup(compute_fakes.TestComputev2):
 
 class TestServerCreate(TestServer):
     columns = (
+        'OS-DCF:diskConfig',
+        'OS-EXT-AZ:availability_zone',
+        'OS-EXT-SRV-ATTR:host',
+        'OS-EXT-SRV-ATTR:hostname',
+        'OS-EXT-SRV-ATTR:hypervisor_hostname',
+        'OS-EXT-SRV-ATTR:instance_name',
+        'OS-EXT-SRV-ATTR:kernel_id',
+        'OS-EXT-SRV-ATTR:launch_index',
+        'OS-EXT-SRV-ATTR:ramdisk_id',
+        'OS-EXT-SRV-ATTR:reservation_id',
+        'OS-EXT-SRV-ATTR:root_device_name',
+        'OS-EXT-SRV-ATTR:user_data',
         'OS-EXT-STS:power_state',
+        'OS-EXT-STS:task_state',
+        'OS-EXT-STS:vm_state',
+        'OS-SRV-USG:launched_at',
+        'OS-SRV-USG:terminated_at',
+        'accessIPv4',
+        'accessIPv6',
         'addresses',
+        'config_drive',
+        'created',
+        'description',
         'flavor',
+        'hostId',
+        'host_status',
         'id',
         'image',
+        'key_name',
+        'locked',
+        'locked_reason',
         'name',
+        'pinned_availability_zone',
+        'progress',
+        'project_id',
         'properties',
+        'server_groups',
+        'status',
+        'tags',
+        'trusted_image_certificates',
+        'updated',
+        'user_id',
+        'volumes_attached',
     )
 
     def datalist(self):
-        datalist = (
+        return (
+            None,  # OS-DCF:diskConfig
+            None,  # OS-EXT-AZ:availability_zone
+            None,  # OS-EXT-SRV-ATTR:host
+            None,  # OS-EXT-SRV-ATTR:hostname
+            None,  # OS-EXT-SRV-ATTR:hypervisor_hostname
+            None,  # OS-EXT-SRV-ATTR:instance_name
+            None,  # OS-EXT-SRV-ATTR:kernel_id
+            None,  # OS-EXT-SRV-ATTR:launch_index
+            None,  # OS-EXT-SRV-ATTR:ramdisk_id
+            None,  # OS-EXT-SRV-ATTR:reservation_id
+            None,  # OS-EXT-SRV-ATTR:root_device_name
+            None,  # OS-EXT-SRV-ATTR:user_data
             server.PowerStateColumn(
-                getattr(self.new_server, 'OS-EXT-STS:power_state')
-            ),
-            format_columns.DictListColumn({}),
-            self.flavor.name + ' (' + self.new_server.flavor.get('id') + ')',
-            self.new_server.id,
-            self.image.name + ' (' + self.new_server.image.get('id') + ')',
-            self.new_server.name,
-            format_columns.DictColumn(self.new_server.metadata),
+                self.server.power_state
+            ),  # OS-EXT-STS:power_state  # noqa: E501
+            None,  # OS-EXT-STS:task_state
+            None,  # OS-EXT-STS:vm_state
+            None,  # OS-SRV-USG:launched_at
+            None,  # OS-SRV-USG:terminated_at
+            None,  # accessIPv4
+            None,  # accessIPv6
+            server.AddressesColumn({}),  # addresses
+            None,  # config_drive
+            None,  # created
+            None,  # description
+            self.flavor.name + " (" + self.flavor.id + ")",  # flavor
+            None,  # hostId
+            None,  # host_status
+            self.server.id,  # id
+            self.image.name + " (" + self.image.id + ")",  # image
+            None,  # key_name
+            None,  # locked
+            None,  # locked_reason
+            self.server.name,
+            None,  # pinned_availability_zone
+            None,  # progress
+            None,  # project_id
+            format_columns.DictColumn({}),  # properties
+            None,  # server_groups
+            None,  # status
+            format_columns.ListColumn([]),  # tags
+            None,  # trusted_image_certificates
+            None,  # updated
+            None,  # user_id
+            format_columns.ListDictColumn([]),  # volumes_attached
         )
-        return datalist
 
     def setUp(self):
         super().setUp()
-
-        attrs = {
-            'networks': {},
-        }
-        self.new_server = compute_fakes.create_one_server(attrs=attrs)
-
-        # This is the return value for utils.find_resource().
-        # This is for testing --wait option.
-        self.servers_mock.get.return_value = self.new_server
-
-        self.servers_mock.create.return_value = self.new_server
 
         self.image = image_fakes.create_one_image()
         self.image_client.find_image.return_value = self.image
@@ -1329,6 +1389,22 @@ class TestServerCreate(TestServer):
 
         self.flavor = compute_fakes.create_one_flavor()
         self.flavors_mock.get.return_value = self.flavor
+        self.compute_sdk_client.find_flavor.return_value = self.flavor
+
+        attrs = {
+            'addresses': {},
+            'networks': {},
+            'image': self.image,
+            'flavor': self.flavor,
+        }
+        self.new_server = compute_fakes.create_one_server(attrs=attrs)
+        self.servers_mock.create.return_value = self.new_server
+
+        # We need an SDK-style server object also for the get_server call in
+        # _prep_server_detail
+        # TODO(stephenfin): Remove when the whole command is using SDK
+        self.server = compute_fakes.create_one_sdk_server(attrs=attrs)
+        self.compute_sdk_client.get_server.return_value = self.server
 
         self.volume = volume_fakes.create_one_volume()
         self.volume_alt = volume_fakes.create_one_volume()
@@ -4706,9 +4782,6 @@ class TestServerList(_TestServerList):
         self.compute_sdk_client.servers.assert_called_with(**self.kwargs)
         self.image_client.images.assert_called()
         self.compute_sdk_client.flavors.assert_called()
-        # we did not pass image or flavor, so gets on those must be absent
-        self.assertFalse(self.flavors_mock.get.call_count)
-        self.assertFalse(self.image_client.get_image.call_count)
         self.assertEqual(self.columns, columns)
         self.assertEqual(self.data, tuple(data))
 
@@ -6890,7 +6963,7 @@ class TestServerRebuildVolumeBacked(TestServer):
         )
 
 
-class TestEvacuateServer(TestServer):
+class TestServerEvacuate(TestServer):
     def setUp(self):
         super().setUp()
 
@@ -6917,6 +6990,12 @@ class TestEvacuateServer(TestServer):
 
         # Return value for utils.find_resource for server.
         self.servers_mock.get.return_value = self.server
+
+        # We need an SDK-style server object also for the get_server call in
+        # _prep_server_detail
+        # TODO(stephenfin): Remove when the whole command is using SDK
+        self.sdk_server = compute_fakes.create_one_sdk_server(attrs=attrs)
+        self.compute_sdk_client.get_server.return_value = self.sdk_server
 
         self.cmd = server.EvacuateServer(self.app, None)
 
@@ -8300,7 +8379,11 @@ class TestServerShow(TestServer):
         super().setUp()
 
         self.image = image_fakes.create_one_image()
+        self.image_client.get_image.return_value = self.image
+
         self.flavor = compute_fakes.create_one_flavor()
+        self.compute_sdk_client.find_flavor.return_value = self.flavor
+
         self.topology = {
             'nodes': [{'vcpu_set': [0, 1]}, {'vcpu_set': [2, 3]}],
             'pagesize_kb': None,
@@ -8318,11 +8401,7 @@ class TestServerShow(TestServer):
             attrs=server_info,
         )
         self.server.fetch_topology = mock.MagicMock(return_value=self.topology)
-
-        # This is the return value for utils.find_resource()
         self.compute_sdk_client.get_server.return_value = self.server
-        self.image_client.get_image.return_value = self.image
-        self.flavors_mock.get.return_value = self.flavor
 
         # Get the command object to test
         self.cmd = server.ShowServer(self.app, None)
@@ -9241,15 +9320,13 @@ class TestServerGeneral(TestServer):
             [6],
         )
 
-    @mock.patch('osc_lib.utils.find_resource')
-    def test_prep_server_detail(self, find_resource):
-        # Setup mock method return value. utils.find_resource() will be called
-        # three times in _prep_server_detail():
-        # - The first time, return server info.
-        # - The second time, return image info.
-        # - The third time, return flavor info.
+    def test_prep_server_detail(self):
         _image = image_fakes.create_one_image()
+        self.image_client.get_image.return_value = _image
+
         _flavor = compute_fakes.create_one_flavor()
+        self.compute_sdk_client.find_flavor.return_value = _flavor
+
         server_info = {
             'image': {'id': _image.id},
             'flavor': {'id': _flavor.id},
@@ -9259,31 +9336,150 @@ class TestServerGeneral(TestServer):
             'properties': '',
             'volumes_attached': [{"id": "6344fe9d-ef20-45b2-91a6"}],
         }
-        _server = compute_fakes.create_one_server(attrs=server_info)
-        find_resource.side_effect = [_server, _flavor]
-        self.image_client.get_image.return_value = _image
+        _server = compute_fakes.create_one_sdk_server(server_info)
+        self.compute_sdk_client.get_server.return_value = _server
 
-        # Prepare result data.
-        info = {
-            'id': _server.id,
-            'name': _server.name,
-            'image': f'{_image.name} ({_image.id})',
-            'flavor': f'{_flavor.name} ({_flavor.id})',
+        expected = {
+            'OS-DCF:diskConfig': None,
+            'OS-EXT-AZ:availability_zone': None,
+            'OS-EXT-SRV-ATTR:host': None,
+            'OS-EXT-SRV-ATTR:hostname': None,
+            'OS-EXT-SRV-ATTR:hypervisor_hostname': None,
+            'OS-EXT-SRV-ATTR:instance_name': None,
+            'OS-EXT-SRV-ATTR:kernel_id': None,
+            'OS-EXT-SRV-ATTR:launch_index': None,
+            'OS-EXT-SRV-ATTR:ramdisk_id': None,
+            'OS-EXT-SRV-ATTR:reservation_id': None,
+            'OS-EXT-SRV-ATTR:root_device_name': None,
+            'OS-EXT-SRV-ATTR:user_data': None,
             'OS-EXT-STS:power_state': server.PowerStateColumn(
-                getattr(_server, 'OS-EXT-STS:power_state')
+                _server.power_state
             ),
-            'properties': '',
-            'volumes_attached': [{"id": "6344fe9d-ef20-45b2-91a6"}],
+            'OS-EXT-STS:task_state': None,
+            'OS-EXT-STS:vm_state': None,
+            'OS-SRV-USG:launched_at': None,
+            'OS-SRV-USG:terminated_at': None,
+            'accessIPv4': None,
+            'accessIPv6': None,
             'addresses': format_columns.DictListColumn(_server.addresses),
+            'config_drive': None,
+            'created': None,
+            'description': None,
+            'flavor': f'{_flavor.name} ({_flavor.id})',
+            'hostId': None,
+            'host_status': None,
+            'id': _server.id,
+            'image': f'{_image.name} ({_image.id})',
+            'key_name': None,
+            'locked': None,
+            'locked_reason': None,
+            'name': _server.name,
+            'pinned_availability_zone': None,
+            'progress': None,
             'project_id': 'tenant-id-xxx',
+            'properties': format_columns.DictColumn({}),
+            'server_groups': None,
+            'status': None,
+            'tags': format_columns.ListColumn([]),
+            'trusted_image_certificates': None,
+            'updated': None,
+            'user_id': None,
+            'volumes_attached': format_columns.ListDictColumn([]),
         }
 
-        # Call _prep_server_detail().
-        server_detail = server._prep_server_detail(
-            self.compute_client,
+        actual = server._prep_server_detail(
+            self.compute_sdk_client,
             self.image_client,
             _server,
         )
 
-        # Check the results.
-        self.assertCountEqual(info, server_detail)
+        self.assertCountEqual(expected, actual)
+        # this should be called since we need the flavor (< 2.47)
+        self.compute_sdk_client.find_flavor.assert_called_once_with(
+            _flavor.id, ignore_missing=False
+        )
+
+    def test_prep_server_detail_v247(self):
+        _image = image_fakes.create_one_image()
+        self.image_client.get_image.return_value = _image
+
+        _flavor = compute_fakes.create_one_flavor()
+        self.compute_sdk_client.find_flavor.return_value = _flavor
+
+        server_info = {
+            'image': {'id': _image.id},
+            'flavor': {
+                'vcpus': _flavor.vcpus,
+                'ram': _flavor.ram,
+                'disk': _flavor.disk,
+                'ephemeral': _flavor.ephemeral,
+                'swap': _flavor.swap,
+                'original_name': _flavor.name,
+                'extra_specs': {},
+            },
+            'tenant_id': 'tenant-id-xxx',
+            'addresses': {'public': ['10.20.30.40', '2001:db8::f']},
+            'links': 'http://xxx.yyy.com',
+            'properties': '',
+            'volumes_attached': [{"id": "6344fe9d-ef20-45b2-91a6"}],
+        }
+        _server = compute_fakes.create_one_sdk_server(server_info)
+        self.compute_sdk_client.get_server.return_value = _server
+
+        expected = {
+            'OS-DCF:diskConfig': None,
+            'OS-EXT-AZ:availability_zone': None,
+            'OS-EXT-SRV-ATTR:host': None,
+            'OS-EXT-SRV-ATTR:hostname': None,
+            'OS-EXT-SRV-ATTR:hypervisor_hostname': None,
+            'OS-EXT-SRV-ATTR:instance_name': None,
+            'OS-EXT-SRV-ATTR:kernel_id': None,
+            'OS-EXT-SRV-ATTR:launch_index': None,
+            'OS-EXT-SRV-ATTR:ramdisk_id': None,
+            'OS-EXT-SRV-ATTR:reservation_id': None,
+            'OS-EXT-SRV-ATTR:root_device_name': None,
+            'OS-EXT-SRV-ATTR:user_data': None,
+            'OS-EXT-STS:power_state': server.PowerStateColumn(
+                _server.power_state
+            ),
+            'OS-EXT-STS:task_state': None,
+            'OS-EXT-STS:vm_state': None,
+            'OS-SRV-USG:launched_at': None,
+            'OS-SRV-USG:terminated_at': None,
+            'accessIPv4': None,
+            'accessIPv6': None,
+            'addresses': format_columns.DictListColumn(_server.addresses),
+            'config_drive': None,
+            'created': None,
+            'description': None,
+            'flavor': f'{_flavor.name} ({_flavor.id})',
+            'hostId': None,
+            'host_status': None,
+            'id': _server.id,
+            'image': f'{_image.name} ({_image.id})',
+            'key_name': None,
+            'locked': None,
+            'locked_reason': None,
+            'name': _server.name,
+            'pinned_availability_zone': None,
+            'progress': None,
+            'project_id': 'tenant-id-xxx',
+            'properties': format_columns.DictColumn({}),
+            'server_groups': None,
+            'status': None,
+            'tags': format_columns.ListColumn([]),
+            'trusted_image_certificates': None,
+            'updated': None,
+            'user_id': None,
+            'volumes_attached': format_columns.ListDictColumn([]),
+        }
+
+        actual = server._prep_server_detail(
+            self.compute_sdk_client,
+            self.image_client,
+            _server,
+        )
+
+        self.assertCountEqual(expected, actual)
+        # this shouldn't be called since we have a full flavor (>= 2.47)
+        self.compute_sdk_client.find_flavor.assert_not_called()

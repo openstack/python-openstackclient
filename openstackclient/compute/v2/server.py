@@ -128,23 +128,26 @@ def _get_ip_address(addresses, address_type, ip_address_family):
     )
 
 
-def _prep_server_detail(compute_client, image_client, server, refresh=True):
+def _prep_server_detail(compute_client, image_client, server, *, refresh=True):
     """Prepare the detailed server dict for printing
 
     :param compute_client: a compute client instance
     :param image_client: an image client instance
     :param server: a Server resource
     :param refresh: Flag indicating if ``server`` is already the latest version
-                    or if it needs to be refreshed, for example when showing
-                    the latest details of a server after creating it.
+        or if it needs to be refreshed, for example when showing the latest
+        details of a server after creating it.
     :rtype: a dict of server details
     """
-    # Note: Some callers of this routine pass a novaclient server, and others
-    # pass an SDK server. Column names may be different across those cases.
     info = server.to_dict()
+
     if refresh:
-        server = utils.find_resource(compute_client.servers, info['id'])
-        info.update(server.to_dict())
+        server = compute_client.get_server(info['id'])
+        # we only update if the field is not empty, to avoid overwriting
+        # existing values
+        info.update(
+            **{x: y for x, y in server.to_dict().items() if x not in info or y}
+        )
 
     # Some commands using this routine were originally implemented with the
     # nova python wrappers, and were later migrated to use the SDK. Map the
@@ -159,7 +162,6 @@ def _prep_server_detail(compute_client, image_client, server, refresh=True):
         'compute_host': 'OS-EXT-SRV-ATTR:host',
         'created_at': 'created',
         'disk_config': 'OS-DCF:diskConfig',
-        'flavor_id': 'flavorRef',
         'has_config_drive': 'config_drive',
         'host_id': 'hostId',
         'fault': 'fault',
@@ -194,10 +196,12 @@ def _prep_server_detail(compute_client, image_client, server, refresh=True):
         'public_v6',
         # create-only columns
         'block_device_mapping',
+        'flavor_id',
         'host',
         'image_id',
         'max_count',
         'min_count',
+        'networks',
         'personality',
         'scheduler_hints',
         # aliases
@@ -208,11 +212,12 @@ def _prep_server_detail(compute_client, image_client, server, refresh=True):
     # Some columns are only present in certain responses and should not be
     # shown otherwise.
     optional_columns = {
-        'admin_password',  # removed in 2.14
-        'fault',  # only present in errored servers
-        'flavor_id',  # removed in 2.47
-        'networks',  # only present in create responses
-        'security_groups',  # only present in create, detail responses
+        # only in create responses if '[api] enable_instance_password' is set
+        'admin_password',
+        # only present in errored servers
+        'fault',
+        # only present in create, detail responses
+        'security_groups',
     }
 
     data = {}
@@ -252,7 +257,9 @@ def _prep_server_detail(compute_client, image_client, server, refresh=True):
     if flavor_info.get('original_name') is None:  # microversion < 2.47
         flavor_id = flavor_info.get('id', '')
         try:
-            flavor = utils.find_resource(compute_client.flavors, flavor_id)
+            flavor = compute_client.find_flavor(
+                flavor_id, ignore_missing=False
+            )
             info['flavor'] = f"{flavor.name} ({flavor_id})"
         except Exception:
             info['flavor'] = flavor_id
@@ -2056,8 +2063,10 @@ class CreateServer(command.ShowOne):
                 msg = _('Error creating server: %s') % parsed_args.server_name
                 raise exceptions.CommandError(msg)
 
-        details = _prep_server_detail(compute_client, image_client, server)
-        return zip(*sorted(details.items()))
+        # TODO(stephenfin): Remove when the whole command is using SDK
+        compute_client = self.app.client_manager.sdk_connection.compute
+        data = _prep_server_detail(compute_client, image_client, server)
+        return zip(*sorted(data.items()))
 
 
 class CreateServerDump(command.Command):
@@ -3681,10 +3690,12 @@ class RebuildServer(command.ShowOne):
                 msg = _('Error rebuilding server: %s') % server.id
                 raise exceptions.CommandError(msg)
 
-        details = _prep_server_detail(
+        # TODO(stephenfin): Remove when the whole command is using SDK
+        compute_client = self.app.client_manager.sdk_connection.compute
+        data = _prep_server_detail(
             compute_client, image_client, server, refresh=False
         )
-        return zip(*sorted(details.items()))
+        return zip(*sorted(data.items()))
 
 
 class EvacuateServer(command.ShowOne):
@@ -3803,10 +3814,10 @@ host."""
                 msg = _('Error evacuating server: %s') % server.id
                 raise exceptions.CommandError(msg)
 
-        details = _prep_server_detail(
-            compute_client, image_client, server, refresh=True
-        )
-        return zip(*sorted(details.items()))
+        # TODO(stephenfin): Remove when the whole command is using SDK
+        compute_client = self.app.client_manager.sdk_connection.compute
+        data = _prep_server_detail(compute_client, image_client, server)
+        return zip(*sorted(data.items()))
 
 
 class RemoveFixedIP(command.Command):
@@ -4629,6 +4640,7 @@ information for the server."""
 
     def take_action(self, parsed_args):
         compute_client = self.app.client_manager.sdk_connection.compute
+        image_client = self.app.client_manager.image
 
         # Find by name or ID, then get the full details of the server
         server = compute_client.find_server(
@@ -4652,17 +4664,10 @@ information for the server."""
             topology = server.fetch_topology(compute_client)
 
         data = _prep_server_detail(
-            # TODO(dannosliwcd): Replace these clients with SDK clients after
-            # all callers of _prep_server_detail() are using the SDK.
-            self.app.client_manager.compute,
-            self.app.client_manager.image,
-            server,
-            refresh=False,
+            compute_client, image_client, server, refresh=False
         )
-
         if topology:
             data['topology'] = format_columns.DictColumn(topology)
-
         return zip(*sorted(data.items()))
 
 
