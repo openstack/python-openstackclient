@@ -18,7 +18,7 @@ from openstackclient.tests.functional import base
 class ModuleTest(base.TestCase):
     """Functional tests for openstackclient module list output."""
 
-    CLIENTS = ['openstackclient', 'keystoneclient', 'novaclient', 'openstack']
+    CLIENTS = ['openstackclient', 'keystoneclient', 'openstack']
 
     LIBS = ['osc_lib', 'keystoneauth1']
 

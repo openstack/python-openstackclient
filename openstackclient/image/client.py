@@ -19,19 +19,19 @@ from osc_lib import utils
 
 from openstackclient.i18n import _
 
-
 LOG = logging.getLogger(__name__)
 
 DEFAULT_API_VERSION = '2'
 API_VERSION_OPTION = 'os_image_api_version'
-API_NAME = "image"
+API_NAME = 'image'
 API_VERSIONS = {
-    "1": "openstack.connection.Connection",
-    "2": "openstack.connection.Connection",
+    '1': 'openstack.connection.Connection',
+    '2': 'openstack.connection.Connection',
 }
 
 
 def make_client(instance):
+    """Returns an image service client."""
     LOG.debug(
         'Image client initialized using OpenStack SDK: %s',
         instance.sdk_connection.image,

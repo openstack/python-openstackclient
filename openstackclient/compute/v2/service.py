@@ -198,7 +198,7 @@ class SetService(command.Command):
 
         :param host: the name of the compute service host
         :param binary: the compute service binary, e.g. nova-compute
-        :returns: novaclient.v2.services.Service dict-like object
+        :returns: The service.
         :raises: CommandError if no or multiple results were found
         """
         services = list(compute_client.services(host=host, binary=binary))

@@ -14,7 +14,7 @@
 
 import json
 
-from novaclient import exceptions as nova_exceptions
+from openstack import exceptions as sdk_exceptions
 from osc_lib.cli import format_columns
 from osc_lib import exceptions
 
@@ -484,7 +484,7 @@ class TestHypervisorShow(compute_fakes.TestComputev2):
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
         self.compute_sdk_client.get_hypervisor_uptime.side_effect = (
-            nova_exceptions.HTTPNotImplemented(501)
+            sdk_exceptions.HttpException(http_status=501)
         )
 
         # In base command class ShowOne in cliff, abstract method take_action()

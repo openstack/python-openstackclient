@@ -18,7 +18,7 @@
 import json
 import re
 
-from novaclient import exceptions as nova_exceptions
+from openstack import exceptions as sdk_exceptions
 from openstack import utils as sdk_utils
 from osc_lib.cli import format_columns
 from osc_lib.command import command
@@ -223,8 +223,9 @@ class ShowHypervisor(command.ShowOne):
                 hypervisor['uptime'] = m.group(2)
                 hypervisor['users'] = m.group(3)
                 hypervisor['load_average'] = m.group(4)
-        except nova_exceptions.HTTPNotImplemented:
-            pass
+        except sdk_exceptions.HttpException as exc:
+            if exc.status_code != 501:
+                raise
 
         hypervisor['service_id'] = service_details['id']
         hypervisor['service_host'] = service_details['host']
