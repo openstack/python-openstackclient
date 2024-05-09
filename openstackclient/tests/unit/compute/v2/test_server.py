@@ -5616,17 +5616,10 @@ class TestServerMigrate(TestServer):
     def setUp(self):
         super().setUp()
 
-        methods = {
-            'migrate': None,
-            'live_migrate': None,
-        }
-        self.server = compute_fakes.create_one_server(methods=methods)
-
-        # This is the return value for utils.find_resource()
-        self.servers_mock.get.return_value = self.server
-
-        self.servers_mock.migrate.return_value = None
-        self.servers_mock.live_migrate.return_value = None
+        self.server = compute_fakes.create_one_sdk_server()
+        self.compute_sdk_client.find_server.return_value = self.server
+        self.compute_sdk_client.migrate_server.return_value = None
+        self.compute_sdk_client.live_migrate_server.return_value = None
 
         # Get the command object to test
         self.cmd = server.MigrateServer(self.app, None)
@@ -5641,18 +5634,24 @@ class TestServerMigrate(TestServer):
             ('disk_overcommit', None),
             ('wait', False),
         ]
-        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
         result = self.cmd.take_action(parsed_args)
 
-        self.servers_mock.get.assert_called_with(self.server.id)
-        self.server.migrate.assert_called_with()
-        self.assertNotCalled(self.servers_mock.live_migrate)
+        self.compute_sdk_client.find_server.assert_called_once_with(
+            self.server.id, ignore_missing=False
+        )
+        self.compute_sdk_client.migrate_server.assert_called_once_with(
+            self.server,
+        )
+        self.compute_sdk_client.live_migrate_server.assert_not_called()
         self.assertIsNone(result)
 
-    def test_server_migrate_with_host_2_56(self):
+    def test_server_migrate_with_host(self):
         # Tests that --host is allowed for a cold migration
         # for microversion 2.56 and greater.
+        self.set_compute_api_version('2.56')
+
         arglist = [
             '--host',
             'fakehost',
@@ -5665,15 +5664,17 @@ class TestServerMigrate(TestServer):
             ('disk_overcommit', None),
             ('wait', False),
         ]
+
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
-
-        self.set_compute_api_version('2.56')
-
         result = self.cmd.take_action(parsed_args)
 
-        self.servers_mock.get.assert_called_with(self.server.id)
-        self.server.migrate.assert_called_with(host='fakehost')
-        self.assertNotCalled(self.servers_mock.live_migrate)
+        self.compute_sdk_client.find_server.assert_called_once_with(
+            self.server.id, ignore_missing=False
+        )
+        self.compute_sdk_client.migrate_server.assert_called_once_with(
+            self.server, host='fakehost'
+        )
+        self.compute_sdk_client.live_migrate_server.assert_not_called()
         self.assertIsNone(result)
 
     def test_server_migrate_with_block_migration(self):
@@ -5687,15 +5688,17 @@ class TestServerMigrate(TestServer):
             ('disk_overcommit', None),
             ('wait', False),
         ]
-        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
         self.assertRaises(
             exceptions.CommandError, self.cmd.take_action, parsed_args
         )
 
-        self.servers_mock.get.assert_called_with(self.server.id)
-        self.assertNotCalled(self.servers_mock.live_migrate)
-        self.assertNotCalled(self.servers_mock.migrate)
+        self.compute_sdk_client.find_server.assert_called_once_with(
+            self.server.id, ignore_missing=False
+        )
+        self.compute_sdk_client.migrate_server.assert_not_called()
+        self.compute_sdk_client.live_migrate_server.assert_not_called()
 
     def test_server_migrate_with_disk_overcommit(self):
         arglist = [
@@ -5708,19 +5711,23 @@ class TestServerMigrate(TestServer):
             ('disk_overcommit', True),
             ('wait', False),
         ]
-        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
         self.assertRaises(
             exceptions.CommandError, self.cmd.take_action, parsed_args
         )
 
-        self.servers_mock.get.assert_called_with(self.server.id)
-        self.assertNotCalled(self.servers_mock.live_migrate)
-        self.assertNotCalled(self.servers_mock.migrate)
+        self.compute_sdk_client.find_server.assert_called_once_with(
+            self.server.id, ignore_missing=False
+        )
+        self.compute_sdk_client.migrate_server.assert_not_called()
+        self.compute_sdk_client.live_migrate_server.assert_not_called()
 
     def test_server_migrate_with_host_pre_v256(self):
         # Tests that --host is not allowed for a cold migration
         # before microversion 2.56 (the test defaults to 2.1).
+        self.set_compute_api_version('2.55')
+
         arglist = [
             '--host',
             'fakehost',
@@ -5746,9 +5753,11 @@ class TestServerMigrate(TestServer):
             str(ex),
         )
 
-        self.servers_mock.get.assert_called_with(self.server.id)
-        self.assertNotCalled(self.servers_mock.live_migrate)
-        self.assertNotCalled(self.servers_mock.migrate)
+        self.compute_sdk_client.find_server.assert_called_once_with(
+            self.server.id, ignore_missing=False
+        )
+        self.compute_sdk_client.migrate_server.assert_not_called()
+        self.compute_sdk_client.live_migrate_server.assert_not_called()
 
     def test_server_live_migrate(self):
         # Tests the --live-migration option without --host or --live.
@@ -5763,19 +5772,26 @@ class TestServerMigrate(TestServer):
             ('disk_overcommit', None),
             ('wait', False),
         ]
-        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
         result = self.cmd.take_action(parsed_args)
 
-        self.servers_mock.get.assert_called_with(self.server.id)
-        self.server.live_migrate.assert_called_with(
-            block_migration=False, disk_over_commit=False, host=None
+        self.compute_sdk_client.find_server.assert_called_once_with(
+            self.server.id, ignore_missing=False
         )
-        self.assertNotCalled(self.servers_mock.migrate)
+        self.compute_sdk_client.live_migrate_server.assert_called_once_with(
+            self.server,
+            block_migration=False,
+            host=None,
+            disk_overcommit=False,
+        )
+        self.compute_sdk_client.migrate_server.assert_not_called()
         self.assertIsNone(result)
 
     def test_server_live_migrate_with_host(self):
         # This requires --os-compute-api-version >= 2.30 so the test uses 2.30.
+        self.set_compute_api_version('2.30')
+
         arglist = [
             '--live-migration',
             '--host',
@@ -5789,24 +5805,28 @@ class TestServerMigrate(TestServer):
             ('disk_overcommit', None),
             ('wait', False),
         ]
+
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
-
-        self.set_compute_api_version('2.30')
-
         result = self.cmd.take_action(parsed_args)
 
-        self.servers_mock.get.assert_called_with(self.server.id)
+        self.compute_sdk_client.find_server.assert_called_once_with(
+            self.server.id, ignore_missing=False
+        )
         # No disk_overcommit and block_migration defaults to auto with
         # microversion >= 2.25
-        self.server.live_migrate.assert_called_with(
-            block_migration='auto', host='fakehost'
+        self.compute_sdk_client.live_migrate_server.assert_called_once_with(
+            self.server,
+            block_migration='auto',
+            host='fakehost',
         )
-        self.assertNotCalled(self.servers_mock.migrate)
+        self.compute_sdk_client.migrate_server.assert_not_called()
         self.assertIsNone(result)
 
     def test_server_live_migrate_with_host_pre_v230(self):
         # Tests that the --host option is not supported for --live-migration
         # before microversion 2.30 (the test defaults to 2.1).
+        self.set_compute_api_version('2.29')
+
         arglist = [
             '--live-migration',
             '--host',
@@ -5820,12 +5840,11 @@ class TestServerMigrate(TestServer):
             ('disk_overcommit', None),
             ('wait', False),
         ]
-        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
         ex = self.assertRaises(
             exceptions.CommandError, self.cmd.take_action, parsed_args
         )
-
         # Make sure it's the error we expect.
         self.assertIn(
             '--os-compute-api-version 2.30 or greater is required '
@@ -5833,11 +5852,15 @@ class TestServerMigrate(TestServer):
             str(ex),
         )
 
-        self.servers_mock.get.assert_called_with(self.server.id)
-        self.assertNotCalled(self.servers_mock.live_migrate)
-        self.assertNotCalled(self.servers_mock.migrate)
+        self.compute_sdk_client.find_server.assert_called_once_with(
+            self.server.id, ignore_missing=False
+        )
+        self.compute_sdk_client.migrate_server.assert_not_called()
+        self.compute_sdk_client.live_migrate_server.assert_not_called()
 
     def test_server_block_live_migrate(self):
+        self.set_compute_api_version('2.24')
+
         arglist = [
             '--live-migration',
             '--block-migration',
@@ -5851,18 +5874,25 @@ class TestServerMigrate(TestServer):
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
-        self.set_compute_api_version('2.24')
-
         result = self.cmd.take_action(parsed_args)
 
-        self.servers_mock.get.assert_called_with(self.server.id)
-        self.server.live_migrate.assert_called_with(
-            block_migration=True, disk_over_commit=False, host=None
+        self.compute_sdk_client.find_server.assert_called_once_with(
+            self.server.id, ignore_missing=False
         )
-        self.assertNotCalled(self.servers_mock.migrate)
+        # No disk_overcommit and block_migration defaults to auto with
+        # microversion >= 2.25
+        self.compute_sdk_client.live_migrate_server.assert_called_once_with(
+            self.server,
+            block_migration=True,
+            disk_overcommit=False,
+            host=None,
+        )
+        self.compute_sdk_client.migrate_server.assert_not_called()
         self.assertIsNone(result)
 
     def test_server_live_migrate_with_disk_overcommit(self):
+        self.set_compute_api_version('2.24')
+
         arglist = [
             '--live-migration',
             '--disk-overcommit',
@@ -5874,20 +5904,25 @@ class TestServerMigrate(TestServer):
             ('disk_overcommit', True),
             ('wait', False),
         ]
+
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
-
-        self.set_compute_api_version('2.24')
-
         result = self.cmd.take_action(parsed_args)
 
-        self.servers_mock.get.assert_called_with(self.server.id)
-        self.server.live_migrate.assert_called_with(
-            block_migration=False, disk_over_commit=True, host=None
+        self.compute_sdk_client.find_server.assert_called_once_with(
+            self.server.id, ignore_missing=False
         )
-        self.assertNotCalled(self.servers_mock.migrate)
+        self.compute_sdk_client.live_migrate_server.assert_called_once_with(
+            self.server,
+            block_migration=False,
+            disk_overcommit=True,
+            host=None,
+        )
+        self.compute_sdk_client.migrate_server.assert_not_called()
         self.assertIsNone(result)
 
     def test_server_live_migrate_with_disk_overcommit_post_v224(self):
+        self.set_compute_api_version('2.25')
+
         arglist = [
             '--live-migration',
             '--disk-overcommit',
@@ -5899,20 +5934,23 @@ class TestServerMigrate(TestServer):
             ('disk_overcommit', True),
             ('wait', False),
         ]
+
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
-
-        self.set_compute_api_version('2.25')
-
         with mock.patch.object(self.cmd.log, 'warning') as mock_warning:
             result = self.cmd.take_action(parsed_args)
 
-        self.servers_mock.get.assert_called_with(self.server.id)
-        # There should be no 'disk_over_commit' value present
-        self.server.live_migrate.assert_called_with(
-            block_migration='auto', host=None
+        self.compute_sdk_client.find_server.assert_called_once_with(
+            self.server.id, ignore_missing=False
         )
-        self.assertNotCalled(self.servers_mock.migrate)
+        # There should be no 'disk_over_commit' value present
+        self.compute_sdk_client.live_migrate_server.assert_called_once_with(
+            self.server,
+            block_migration='auto',
+            host=None,
+        )
+        self.compute_sdk_client.migrate_server.assert_not_called()
         self.assertIsNone(result)
+
         # A warning should have been logged for using --disk-overcommit.
         mock_warning.assert_called_once()
         self.assertIn(
@@ -5932,13 +5970,23 @@ class TestServerMigrate(TestServer):
             ('disk_overcommit', None),
             ('wait', True),
         ]
-        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
         result = self.cmd.take_action(parsed_args)
 
-        self.servers_mock.get.assert_called_with(self.server.id)
-        self.server.migrate.assert_called_with()
-        self.assertNotCalled(self.servers_mock.live_migrate)
+        self.compute_sdk_client.find_server.assert_called_once_with(
+            self.server.id, ignore_missing=False
+        )
+        self.compute_sdk_client.migrate_server.assert_called_once_with(
+            self.server,
+        )
+        self.compute_sdk_client.live_migrate_server.assert_not_called()
+        mock_wait_for_status.assert_called_once_with(
+            self.compute_sdk_client.get_server,
+            self.server.id,
+            success_status=('active', 'verify_resize'),
+            callback=mock.ANY,
+        )
         self.assertIsNone(result)
 
     @mock.patch.object(common_utils, 'wait_for_status', return_value=False)
@@ -5953,15 +6001,25 @@ class TestServerMigrate(TestServer):
             ('disk_overcommit', None),
             ('wait', True),
         ]
-        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
         self.assertRaises(
             exceptions.CommandError, self.cmd.take_action, parsed_args
         )
 
-        self.servers_mock.get.assert_called_with(self.server.id)
-        self.server.migrate.assert_called_with()
-        self.assertNotCalled(self.servers_mock.live_migrate)
+        self.compute_sdk_client.find_server.assert_called_once_with(
+            self.server.id, ignore_missing=False
+        )
+        self.compute_sdk_client.migrate_server.assert_called_once_with(
+            self.server,
+        )
+        self.compute_sdk_client.live_migrate_server.assert_not_called()
+        mock_wait_for_status.assert_called_once_with(
+            self.compute_sdk_client.get_server,
+            self.server.id,
+            success_status=('active', 'verify_resize'),
+            callback=mock.ANY,
+        )
 
 
 class TestServerReboot(TestServer):

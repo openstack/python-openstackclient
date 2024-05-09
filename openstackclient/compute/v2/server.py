@@ -3139,11 +3139,10 @@ revert to release the new server and restart the old one."""
                 self.app.stdout.write('\rProgress: %s' % progress)
                 self.app.stdout.flush()
 
-        compute_client = self.app.client_manager.compute
+        compute_client = self.app.client_manager.sdk_connection.compute
 
-        server = utils.find_resource(
-            compute_client.servers,
-            parsed_args.server,
+        server = compute_client.find_server(
+            parsed_args.server, ignore_missing=False
         )
 
         if parsed_args.live_migration:
@@ -3151,9 +3150,7 @@ revert to release the new server and restart the old one."""
 
             block_migration = parsed_args.block_migration
             if block_migration is None:
-                if compute_client.api_version < api_versions.APIVersion(
-                    '2.25'
-                ):
+                if not sdk_utils.supports_microversion(compute_client, '2.25'):
                     block_migration = False
                 else:
                     block_migration = 'auto'
@@ -3166,10 +3163,8 @@ revert to release the new server and restart the old one."""
             # want to support, so if the user is using --live-migration
             # and --host, we want to enforce that they are using version
             # 2.30 or greater.
-            if (
-                parsed_args.host
-                and compute_client.api_version
-                < api_versions.APIVersion('2.30')
+            if parsed_args.host and not sdk_utils.supports_microversion(
+                compute_client, '2.30'
             ):
                 raise exceptions.CommandError(
                     '--os-compute-api-version 2.30 or greater is required '
@@ -3179,13 +3174,13 @@ revert to release the new server and restart the old one."""
             # The host parameter is required in the API even if None.
             kwargs['host'] = parsed_args.host
 
-            if compute_client.api_version < api_versions.APIVersion('2.25'):
-                kwargs['disk_over_commit'] = parsed_args.disk_overcommit
+            if not sdk_utils.supports_microversion(compute_client, '2.25'):
+                kwargs['disk_overcommit'] = parsed_args.disk_overcommit
                 # We can't use an argparse default value because then we can't
                 # distinguish between explicit 'False' and unset for the below
                 # case (microversion >= 2.25)
-                if kwargs['disk_over_commit'] is None:
-                    kwargs['disk_over_commit'] = False
+                if kwargs['disk_overcommit'] is None:
+                    kwargs['disk_overcommit'] = False
             elif parsed_args.disk_overcommit is not None:
                 # TODO(stephenfin): Raise an error here in OSC 7.0
                 msg = _(
@@ -3196,7 +3191,7 @@ revert to release the new server and restart the old one."""
                 )
                 self.log.warning(msg)
 
-            server.live_migrate(**kwargs)
+            compute_client.live_migrate_server(server, **kwargs)
         else:  # cold migration
             if parsed_args.block_migration or parsed_args.disk_overcommit:
                 raise exceptions.CommandError(
@@ -3205,9 +3200,7 @@ revert to release the new server and restart the old one."""
                     "specified"
                 )
             if parsed_args.host:
-                if compute_client.api_version < api_versions.APIVersion(
-                    '2.56'
-                ):
+                if not sdk_utils.supports_microversion(compute_client, '2.56'):
                     msg = _(
                         '--os-compute-api-version 2.56 or greater is '
                         'required to use --host without --live-migration.'
@@ -3215,13 +3208,13 @@ revert to release the new server and restart the old one."""
                     raise exceptions.CommandError(msg)
 
             kwargs = {'host': parsed_args.host} if parsed_args.host else {}
-            server.migrate(**kwargs)
+            compute_client.migrate_server(server, **kwargs)
 
         if parsed_args.wait:
             if utils.wait_for_status(
-                compute_client.servers.get,
+                compute_client.get_server,
                 server.id,
-                success_status=['active', 'verify_resize'],
+                success_status=('active', 'verify_resize'),
                 callback=_show_progress,
             ):
                 self.app.stdout.write(
