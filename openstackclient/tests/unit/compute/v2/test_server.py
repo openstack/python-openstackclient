@@ -64,27 +64,8 @@ class TestServer(compute_fakes.TestComputev2):
     def setUp(self):
         super().setUp()
 
-        # Get a shortcut to the compute client ServerMigrationsManager Mock
-        self.server_migrations_mock = self.compute_client.server_migrations
-        self.server_migrations_mock.reset_mock()
-
-        # Get a shortcut to the compute client VolumeManager mock
-        self.servers_volumes_mock = self.compute_client.volumes
-        self.servers_volumes_mock.reset_mock()
-
-        # Get a shortcut to the compute client MigrationManager mock
-        self.migrations_mock = self.compute_client.migrations
-        self.migrations_mock.reset_mock()
-
-        # Get a shortcut to the compute client FlavorManager Mock
-        self.flavors_mock = self.compute_client.flavors
-        self.flavors_mock.reset_mock()
-
         # Set object attributes to be tested. Could be overwritten in subclass.
         self.attrs = {}
-
-        # Set object methods to be tested. Could be overwritten in subclass.
-        self.methods = {}
 
     def setup_sdk_servers_mock(self, count):
         servers = compute_fakes.create_sdk_servers(
@@ -662,11 +643,6 @@ class TestServerAddPort(TestServer):
         # Get the command object to test
         self.cmd = server.AddPort(self.app, None)
 
-        # Set add_fixed_ip method to be tested.
-        self.methods = {
-            'interface_attach': None,
-        }
-
         self.find_port = mock.Mock()
         self.app.client_manager.network.find_port = self.find_port
 
@@ -753,10 +729,6 @@ class TestServerAddPort(TestServer):
 class TestServerVolume(TestServer):
     def setUp(self):
         super().setUp()
-
-        self.methods = {
-            'create_volume_attachment': None,
-        }
 
         self.servers = self.setup_sdk_servers_mock(count=1)
         self.volumes = self.setup_sdk_volumes_mock(count=1)
@@ -1091,11 +1063,6 @@ class TestServerAddNetwork(TestServer):
 
         # Get the command object to test
         self.cmd = server.AddNetwork(self.app, None)
-
-        # Set add_fixed_ip method to be tested.
-        self.methods = {
-            'interface_attach': None,
-        }
 
         self.find_network = mock.Mock()
         self.app.client_manager.network.find_network = self.find_network
@@ -7342,11 +7309,6 @@ class TestServerRemovePort(TestServer):
         # Get the command object to test
         self.cmd = server.RemovePort(self.app, None)
 
-        # Set method to be tested.
-        self.methods = {
-            'delete_server_interface': None,
-        }
-
         self.find_port = mock.Mock()
         self.app.client_manager.network.find_port = self.find_port
 
@@ -7392,10 +7354,6 @@ class TestServerRemoveNetwork(TestServer):
 
         # Set method to be tested.
         self.fake_inf = mock.Mock()
-        self.methods = {
-            'server_interfaces': [self.fake_inf],
-            'delete_server_interface': None,
-        }
 
         self.find_network = mock.Mock()
         self.app.client_manager.network.find_network = self.find_network
