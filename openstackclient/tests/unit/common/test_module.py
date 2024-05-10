@@ -15,6 +15,7 @@
 
 """Test module module"""
 
+import sys
 from unittest import mock
 
 from openstackclient.common import module as osc_module
@@ -43,6 +44,7 @@ module_name_5 = '_private_module.lib'
 module_version_5 = '0.0.1'
 
 MODULES = {
+    'sys': sys,
     module_name_1: fakes.FakeModule(module_name_1, module_version_1),
     module_name_2: fakes.FakeModule(module_name_2, module_version_2),
     module_name_3: fakes.FakeModule(module_name_3, module_version_3),
