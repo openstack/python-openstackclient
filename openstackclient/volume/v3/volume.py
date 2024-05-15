@@ -237,3 +237,42 @@ class CreateVolume(volume_v2.CreateVolume):
             return zip(*sorted(volume.items()))
 
         return self._take_action(parsed_args)
+
+
+class DeleteVolume(volume_v2.DeleteVolume):
+    _description = _("Delete volume(s)")
+
+    def get_parser(self, prog_name):
+        parser = super().get_parser(prog_name)
+        return parser
+
+    def take_action(self, parsed_args):
+        volume_client = self.app.client_manager.volume
+        result = 0
+
+        for i in parsed_args.volumes:
+            try:
+                volume_obj = utils.find_resource(volume_client.volumes, i)
+                if parsed_args.force:
+                    volume_client.volumes.force_delete(volume_obj.id)
+                else:
+                    volume_client.volumes.delete(
+                        volume_obj.id, cascade=parsed_args.purge
+                    )
+            except Exception as e:
+                result += 1
+                LOG.error(
+                    _(
+                        "Failed to delete volume with "
+                        "name or ID '%(volume)s': %(e)s"
+                    ),
+                    {'volume': i, 'e': e},
+                )
+
+        if result > 0:
+            total = len(parsed_args.volumes)
+            msg = _("%(result)s of %(total)s volumes failed " "to delete.") % {
+                'result': result,
+                'total': total,
+            }
+            raise exceptions.CommandError(msg)
