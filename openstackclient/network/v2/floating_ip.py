@@ -9,17 +9,16 @@
 #   WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
 #   License for the specific language governing permissions and limitations
 #   under the License.
-#
 
 """IP Floating action implementations"""
 
 from osc_lib import utils
 from osc_lib.utils import tags as _tag
 
+from openstackclient.api import compute_v2
 from openstackclient.i18n import _
 from openstackclient.identity import common as identity_common
 from openstackclient.network import common
-
 
 _formatters = {
     'port_details': utils.format_dict,
@@ -200,7 +199,7 @@ class CreateFloatingIP(
         return (display_columns, data)
 
     def take_action_compute(self, client, parsed_args):
-        obj = client.api.floating_ip_create(parsed_args.network)
+        obj = compute_v2.create_floating_ip(client, parsed_args.network)
         columns = _get_columns(obj)
         data = utils.get_dict_properties(obj, columns)
         return (columns, data)
@@ -230,7 +229,7 @@ class DeleteFloatingIP(common.NetworkAndComputeDelete):
         client.delete_ip(obj)
 
     def take_action_compute(self, client, parsed_args):
-        client.api.floating_ip_delete(self.r)
+        compute_v2.delete_floating_ip(client, self.r)
 
 
 class ListFloatingIP(common.NetworkAndComputeLister):
@@ -421,8 +420,7 @@ class ListFloatingIP(common.NetworkAndComputeLister):
             'Pool',
         )
 
-        data = client.api.floating_ip_list()
-
+        objs = compute_v2.list_floating_ips(client)
         return (
             headers,
             (
@@ -431,7 +429,7 @@ class ListFloatingIP(common.NetworkAndComputeLister):
                     columns,
                     formatters={},
                 )
-                for s in data
+                for s in objs
             ),
         )
 
@@ -538,7 +536,7 @@ class ShowFloatingIP(common.NetworkAndComputeShowOne):
         return (display_columns, data)
 
     def take_action_compute(self, client, parsed_args):
-        obj = client.api.floating_ip_find(parsed_args.floating_ip)
+        obj = compute_v2.get_floating_ip(client, parsed_args.floating_ip)
         columns = _get_columns(obj)
         data = utils.get_dict_properties(obj, columns)
         return (columns, data)

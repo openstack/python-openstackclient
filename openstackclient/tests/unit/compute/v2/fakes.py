@@ -39,7 +39,6 @@ from openstack.compute.v2 import service as _service
 from openstack.compute.v2 import usage as _usage
 from openstack.compute.v2 import volume_attachment as _volume_attachment
 
-from openstackclient.api import compute_v2
 from openstackclient.tests.unit import fakes
 from openstackclient.tests.unit.identity.v2_0 import fakes as identity_fakes
 from openstackclient.tests.unit.image.v2 import fakes as image_fakes
@@ -153,11 +152,6 @@ class FakeClientMixin:
             token=fakes.AUTH_TOKEN,
         )
         self.compute_client = self.app.client_manager.compute
-
-        self.compute_client.api = compute_v2.APIv2(
-            session=self.app.client_manager.session,
-            endpoint=fakes.AUTH_URL,
-        )
 
         # TODO(stephenfin): Rename to 'compute_client' once all commands are
         # migrated to SDK

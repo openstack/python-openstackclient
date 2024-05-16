@@ -9,14 +9,12 @@
 #   WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
 #   License for the specific language governing permissions and limitations
 #   under the License.
-#
 
 """Floating IP Pool action implementations"""
 
-
 from osc_lib import exceptions
-from osc_lib import utils
 
+from openstackclient.api import compute_v2
 from openstackclient.i18n import _
 from openstackclient.network import common
 
@@ -33,15 +31,8 @@ class ListFloatingIPPool(common.NetworkAndComputeLister):
 
     def take_action_compute(self, client, parsed_args):
         columns = ('Name',)
-        data = client.api.floating_ip_pool_list()
+        data = [
+            (x['name'],) for x in compute_v2.list_floating_ip_pools(client)
+        ]
 
-        return (
-            columns,
-            (
-                utils.get_dict_properties(
-                    s,
-                    columns,
-                )
-                for s in data
-            ),
-        )
+        return (columns, data)

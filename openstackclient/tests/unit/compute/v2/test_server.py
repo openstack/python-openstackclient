@@ -392,57 +392,57 @@ class TestServerAddFixedIP(TestServer):
             )
 
 
-@mock.patch('openstackclient.api.compute_v2.APIv2.floating_ip_add')
 class TestServerAddFloatingIPCompute(compute_fakes.TestComputev2):
     def setUp(self):
         super().setUp()
 
         self.app.client_manager.network_endpoint_enabled = False
+        self.server = compute_fakes.create_one_sdk_server()
+        self.compute_sdk_client.find_server.return_value = self.server
 
-        # Get the command object to test
         self.cmd = server.AddFloatingIP(self.app, None)
 
-    def test_server_add_floating_ip_default(self, fip_mock):
-        _floating_ip = compute_fakes.create_one_floating_ip()
+    def test_server_add_floating_ip_default(self):
         arglist = [
-            'server1',
-            _floating_ip['ip'],
+            self.server.name,
+            '1.2.3.4',
         ]
         verifylist = [
-            ('server', 'server1'),
-            ('ip_address', _floating_ip['ip']),
+            ('server', self.server.name),
+            ('ip_address', '1.2.3.4'),
         ]
-        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
         self.cmd.take_action(parsed_args)
 
-        fip_mock.assert_called_once_with(
-            'server1',
-            _floating_ip['ip'],
-            fixed_address=None,
+        self.compute_sdk_client.find_server.assert_called_once_with(
+            self.server.name, ignore_missing=False
+        )
+        self.compute_sdk_client.add_floating_ip_to_server.assert_called_once_with(
+            self.server, '1.2.3.4', fixed_address=None
         )
 
-    def test_server_add_floating_ip_fixed(self, fip_mock):
-        _floating_ip = compute_fakes.create_one_floating_ip()
+    def test_server_add_floating_ip_fixed(self):
         arglist = [
             '--fixed-ip-address',
-            _floating_ip['fixed_ip'],
-            'server1',
-            _floating_ip['ip'],
+            '5.6.7.8',
+            self.server.name,
+            '1.2.3.4',
         ]
         verifylist = [
-            ('fixed_ip_address', _floating_ip['fixed_ip']),
-            ('server', 'server1'),
-            ('ip_address', _floating_ip['ip']),
+            ('fixed_ip_address', '5.6.7.8'),
+            ('server', self.server.name),
+            ('ip_address', '1.2.3.4'),
         ]
-        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
         self.cmd.take_action(parsed_args)
 
-        fip_mock.assert_called_once_with(
-            'server1',
-            _floating_ip['ip'],
-            fixed_address=_floating_ip['fixed_ip'],
+        self.compute_sdk_client.find_server.assert_called_once_with(
+            self.server.name, ignore_missing=False
+        )
+        self.compute_sdk_client.add_floating_ip_to_server.assert_called_once_with(
+            self.server, '1.2.3.4', fixed_address='5.6.7.8'
         )
 
 
@@ -7267,34 +7267,34 @@ class TestServerRescue(compute_fakes.TestComputev2):
         self.assertIsNone(result)
 
 
-@mock.patch('openstackclient.api.compute_v2.APIv2.floating_ip_remove')
 class TestServerRemoveFloatingIPCompute(compute_fakes.TestComputev2):
     def setUp(self):
         super().setUp()
 
         self.app.client_manager.network_endpoint_enabled = False
+        self.server = compute_fakes.create_one_sdk_server()
+        self.compute_sdk_client.find_server.return_value = self.server
 
-        # Get the command object to test
         self.cmd = server.RemoveFloatingIP(self.app, None)
 
-    def test_server_remove_floating_ip(self, fip_mock):
-        _floating_ip = compute_fakes.create_one_floating_ip()
-
+    def test_server_remove_floating_ip(self):
         arglist = [
-            'server1',
-            _floating_ip['ip'],
+            self.server.name,
+            '1.2.3.4',
         ]
         verifylist = [
-            ('server', 'server1'),
-            ('ip_address', _floating_ip['ip']),
+            ('server', self.server.name),
+            ('ip_address', '1.2.3.4'),
         ]
-        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
         self.cmd.take_action(parsed_args)
 
-        fip_mock.assert_called_once_with(
-            'server1',
-            _floating_ip['ip'],
+        self.compute_sdk_client.find_server.assert_called_once_with(
+            self.server.name, ignore_missing=False
+        )
+        self.compute_sdk_client.remove_floating_ip_from_server.assert_called_once_with(
+            self.server, '1.2.3.4'
         )
 
 

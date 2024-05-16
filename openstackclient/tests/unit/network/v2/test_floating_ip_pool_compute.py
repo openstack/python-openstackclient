@@ -13,14 +13,12 @@
 
 from unittest import mock
 
+from openstackclient.api import compute_v2
 from openstackclient.network.v2 import floating_ip_pool
 from openstackclient.tests.unit.compute.v2 import fakes as compute_fakes
 
 
-# Tests for Compute network
-
-
-@mock.patch('openstackclient.api.compute_v2.APIv2.floating_ip_pool_list')
+@mock.patch.object(compute_v2, 'list_floating_ip_pools')
 class TestListFloatingIPPoolCompute(compute_fakes.TestComputev2):
     # The floating ip pools to list up
     _floating_ip_pools = compute_fakes.create_floating_ip_pools(count=3)
@@ -36,7 +34,6 @@ class TestListFloatingIPPoolCompute(compute_fakes.TestComputev2):
 
         self.app.client_manager.network_endpoint_enabled = False
 
-        # Get the command object to test
         self.cmd = floating_ip_pool.ListFloatingIPPool(self.app, None)
 
     def test_floating_ip_list(self, fipp_mock):
@@ -47,6 +44,6 @@ class TestListFloatingIPPoolCompute(compute_fakes.TestComputev2):
 
         columns, data = self.cmd.take_action(parsed_args)
 
-        fipp_mock.assert_called_once_with()
+        fipp_mock.assert_called_once_with(self.compute_sdk_client)
         self.assertEqual(self.columns, columns)
         self.assertEqual(self.data, list(data))
