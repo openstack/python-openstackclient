@@ -21,8 +21,6 @@ Plugin Commands
    neutron
    octavia
    placement
-   sahara
-   senlin
    trove
    watcher
    zaqar
@@ -33,9 +31,4 @@ Plugin Commands
 .. cue
 .. # cueclient is not in global-requirements
 .. # list-plugins:: openstack.mb.v1
-.. #   :detailed:
-
-.. murano
-.. # the murano docs cause warnings and a broken docs build
-.. # .. list-plugins:: openstack.application_catalog.v1
 .. #   :detailed:
