@@ -7105,46 +7105,37 @@ class TestServerEvacuate(TestServer):
     def setUp(self):
         super().setUp()
 
-        # Return value for utils.find_resource for image
         self.image = image_fakes.create_one_image()
         self.image_client.get_image.return_value = self.image
 
-        # Fake the rebuilt new server.
         attrs = {
-            'image': {'id': self.image.id},
+            'image': self.image,
             'networks': {},
             'adminPass': 'passw0rd',
         }
-        new_server = compute_fakes.create_one_server(attrs=attrs)
-
-        # Fake the server to be rebuilt. The IDs of them should be the same.
-        attrs['id'] = new_server.id
-        methods = {
-            'evacuate': new_server,
-        }
-        self.server = compute_fakes.create_one_server(
-            attrs=attrs, methods=methods
-        )
+        self.server = compute_fakes.create_one_sdk_server(attrs=attrs)
+        attrs['id'] = self.server.id
+        self.new_server = compute_fakes.create_one_sdk_server(attrs=attrs)
 
         # Return value for utils.find_resource for server.
-        self.servers_mock.get.return_value = self.server
-
-        # We need an SDK-style server object also for the get_server call in
-        # _prep_server_detail
-        # TODO(stephenfin): Remove when the whole command is using SDK
-        self.sdk_server = compute_fakes.create_one_sdk_server(attrs=attrs)
-        self.compute_sdk_client.get_server.return_value = self.sdk_server
+        self.compute_sdk_client.find_server.return_value = self.server
+        self.compute_sdk_client.get_server.return_value = self.server
 
         self.cmd = server.EvacuateServer(self.app, None)
 
     def _test_evacuate(self, args, verify_args, evac_args):
         parsed_args = self.check_parser(self.cmd, args, verify_args)
-
-        # Get the command object to test
         self.cmd.take_action(parsed_args)
 
-        self.servers_mock.get.assert_called_with(self.server.id)
-        self.server.evacuate.assert_called_with(**evac_args)
+        self.compute_sdk_client.find_server.assert_called_once_with(
+            self.server.id, ignore_missing=False
+        )
+        self.compute_sdk_client.evacuate_server.assert_called_once_with(
+            self.server, **evac_args
+        )
+        self.compute_sdk_client.get_server.assert_called_once_with(
+            self.server.id
+        )
 
     def test_evacuate(self):
         args = [
@@ -7258,7 +7249,7 @@ class TestServerEvacuate(TestServer):
         }
         self._test_evacuate(args, verify_args, evac_args)
         mock_wait_for_status.assert_called_once_with(
-            self.servers_mock.get,
+            self.compute_sdk_client.get_server,
             self.server.id,
             callback=mock.ANY,
         )
