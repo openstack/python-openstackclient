@@ -16,6 +16,7 @@
 """Compute v2 Server action implementations"""
 
 import argparse
+import base64
 import getpass
 import json
 import logging
@@ -3505,11 +3506,11 @@ class RebuildServer(command.ShowOne):
                 self.app.stdout.write('\rProgress: %s' % progress)
                 self.app.stdout.flush()
 
-        compute_client = self.app.client_manager.compute
+        compute_client = self.app.client_manager.sdk_connection.compute
         image_client = self.app.client_manager.image
 
-        server = utils.find_resource(
-            compute_client.servers, parsed_args.server
+        server = compute_client.find_server(
+            parsed_args.server, ignore_missing=False
         )
 
         # If parsed_args.image is not set and if the instance is image backed,
@@ -3521,7 +3522,7 @@ class RebuildServer(command.ShowOne):
                 parsed_args.image, ignore_missing=False
             )
         else:
-            if not server.image:
+            if not server.image or not server.image.id:
                 msg = _(
                     'The --image option is required when rebuilding a '
                     'volume-backed server'
@@ -3538,10 +3539,10 @@ class RebuildServer(command.ShowOne):
             kwargs['preserve_ephemeral'] = parsed_args.preserve_ephemeral
 
         if parsed_args.properties:
-            kwargs['meta'] = parsed_args.properties
+            kwargs['metadata'] = parsed_args.properties
 
         if parsed_args.description:
-            if compute_client.api_version < api_versions.APIVersion('2.19'):
+            if not sdk_utils.supports_microversion(compute_client, '2.19'):
                 msg = _(
                     '--os-compute-api-version 2.19 or greater is required to '
                     'support the --description option'
@@ -3551,7 +3552,7 @@ class RebuildServer(command.ShowOne):
             kwargs['description'] = parsed_args.description
 
         if parsed_args.key_name:
-            if compute_client.api_version < api_versions.APIVersion('2.54'):
+            if not sdk_utils.supports_microversion(compute_client, '2.54'):
                 msg = _(
                     '--os-compute-api-version 2.54 or greater is required to '
                     'support the --key-name option'
@@ -3560,7 +3561,7 @@ class RebuildServer(command.ShowOne):
 
             kwargs['key_name'] = parsed_args.key_name
         elif parsed_args.no_key_name:
-            if compute_client.api_version < api_versions.APIVersion('2.54'):
+            if not sdk_utils.supports_microversion(compute_client, '2.54'):
                 msg = _(
                     '--os-compute-api-version 2.54 or greater is required to '
                     'support the --no-key-name option'
@@ -3569,9 +3570,8 @@ class RebuildServer(command.ShowOne):
 
             kwargs['key_name'] = None
 
-        userdata = None
         if parsed_args.user_data:
-            if compute_client.api_version < api_versions.APIVersion('2.54'):
+            if not sdk_utils.supports_microversion(compute_client, '2.54'):
                 msg = _(
                     '--os-compute-api-version 2.54 or greater is required to '
                     'support the --user-data option'
@@ -3579,27 +3579,29 @@ class RebuildServer(command.ShowOne):
                 raise exceptions.CommandError(msg)
 
             try:
-                userdata = open(parsed_args.user_data)
+                with open(parsed_args.user_data, 'rb') as fh:
+                    # TODO(stephenfin): SDK should do this for us
+                    user_data = base64.b64encode(fh.read()).decode('utf-8')
             except OSError as e:
                 msg = _("Can't open '%(data)s': %(exception)s")
                 raise exceptions.CommandError(
                     msg % {'data': parsed_args.user_data, 'exception': e}
                 )
 
-            kwargs['userdata'] = userdata
+            kwargs['user_data'] = user_data
         elif parsed_args.no_user_data:
-            if compute_client.api_version < api_versions.APIVersion('2.54'):
+            if not sdk_utils.supports_microversion(compute_client, '2.54'):
                 msg = _(
                     '--os-compute-api-version 2.54 or greater is required to '
                     'support the --no-user-data option'
                 )
                 raise exceptions.CommandError(msg)
 
-            kwargs['userdata'] = None
+            kwargs['user_data'] = None
 
         # TODO(stephenfin): Handle OS_TRUSTED_IMAGE_CERTIFICATE_IDS
         if parsed_args.trusted_image_certs:
-            if compute_client.api_version < api_versions.APIVersion('2.63'):
+            if not sdk_utils.supports_microversion(compute_client, '2.63'):
                 msg = _(
                     '--os-compute-api-version 2.63 or greater is required to '
                     'support the --trusted-certs option'
@@ -3609,7 +3611,7 @@ class RebuildServer(command.ShowOne):
             certs = parsed_args.trusted_image_certs
             kwargs['trusted_image_certificates'] = certs
         elif parsed_args.no_trusted_image_certs:
-            if compute_client.api_version < api_versions.APIVersion('2.63'):
+            if not sdk_utils.supports_microversion(compute_client, '2.63'):
                 msg = _(
                     '--os-compute-api-version 2.63 or greater is required to '
                     'support the --no-trusted-certs option'
@@ -3619,7 +3621,7 @@ class RebuildServer(command.ShowOne):
             kwargs['trusted_image_certificates'] = None
 
         if parsed_args.hostname:
-            if compute_client.api_version < api_versions.APIVersion('2.90'):
+            if not sdk_utils.supports_microversion(compute_client, '2.90'):
                 msg = _(
                     '--os-compute-api-version 2.90 or greater is required to '
                     'support the --hostname option'
@@ -3628,9 +3630,8 @@ class RebuildServer(command.ShowOne):
 
             kwargs['hostname'] = parsed_args.hostname
 
-        v2_93 = api_versions.APIVersion('2.93')
         if parsed_args.reimage_boot_volume:
-            if compute_client.api_version < v2_93:
+            if not sdk_utils.supports_microversion(compute_client, '2.93'):
                 msg = _(
                     '--os-compute-api-version 2.93 or greater is required to '
                     'support the --reimage-boot-volume option'
@@ -3639,8 +3640,8 @@ class RebuildServer(command.ShowOne):
         else:
             # force user to explicitly request reimaging of volume-backed
             # server
-            if not server.image:
-                if compute_client.api_version >= v2_93:
+            if not server.image or not server.image.id:
+                if sdk_utils.supports_microversion(compute_client, '2.93'):
                     msg = (
                         '--reimage-boot-volume is required to rebuild a '
                         'volume-backed server'
@@ -3672,15 +3673,13 @@ class RebuildServer(command.ShowOne):
             msg = _("The server status is not ACTIVE, SHUTOFF or ERROR.")
             raise exceptions.CommandError(msg)
 
-        try:
-            server = server.rebuild(image, parsed_args.password, **kwargs)
-        finally:
-            if userdata and hasattr(userdata, 'close'):
-                userdata.close()
+        server = compute_client.rebuild_server(
+            server, image, admin_password=parsed_args.password, **kwargs
+        )
 
         if parsed_args.wait:
             if utils.wait_for_status(
-                compute_client.servers.get,
+                compute_client.get_server,
                 server.id,
                 callback=_show_progress,
                 success_status=success_status,
@@ -3690,8 +3689,6 @@ class RebuildServer(command.ShowOne):
                 msg = _('Error rebuilding server: %s') % server.id
                 raise exceptions.CommandError(msg)
 
-        # TODO(stephenfin): Remove when the whole command is using SDK
-        compute_client = self.app.client_manager.sdk_connection.compute
         data = _prep_server_detail(
             compute_client, image_client, server, refresh=False
         )

@@ -12,6 +12,7 @@
 #   License for the specific language governing permissions and limitations
 #   under the License.
 
+import base64
 import collections
 import copy
 import getpass
@@ -6227,59 +6228,47 @@ class TestServerRebuild(TestServer):
     def setUp(self):
         super().setUp()
 
-        # Return value for utils.find_resource for image
         self.image = image_fakes.create_one_image()
         self.image_client.get_image.return_value = self.image
 
-        # Fake the rebuilt new server.
         attrs = {
+            'status': 'ACTIVE',
             'image': {'id': self.image.id},
-            'networks': {},
-            'adminPass': 'passw0rd',
         }
-        new_server = compute_fakes.create_one_server(attrs=attrs)
-
-        # Fake the server to be rebuilt. The IDs of them should be the same.
-        attrs['id'] = new_server.id
-        attrs['status'] = 'ACTIVE'
-        methods = {
-            'rebuild': new_server,
-        }
-        self.server = compute_fakes.create_one_server(
-            attrs=attrs, methods=methods
-        )
-
-        # Return value for utils.find_resource for server.
-        self.servers_mock.get.return_value = self.server
+        self.server = compute_fakes.create_one_sdk_server(attrs=attrs)
+        self.compute_sdk_client.find_server.return_value = self.server
+        self.compute_sdk_client.rebuild_server.return_value = self.server
 
         self.cmd = server.RebuildServer(self.app, None)
 
     def test_rebuild_with_image_name(self):
         image_name = 'my-custom-image'
-        user_image = image_fakes.create_one_image(attrs={'name': image_name})
-        self.image_client.find_image.return_value = user_image
+        image = image_fakes.create_one_image(attrs={'name': image_name})
+        self.image_client.find_image.return_value = image
 
-        attrs = {
-            'image': {'id': user_image.id},
-            'networks': {},
-            'adminPass': 'passw0rd',
-        }
-        new_server = compute_fakes.create_one_server(attrs=attrs)
-        self.server.rebuild.return_value = new_server
+        arglist = [
+            self.server.id,
+            '--image',
+            image_name,
+        ]
+        verifylist = [
+            ('server', self.server.id),
+            ('image', image_name),
+        ]
 
-        arglist = [self.server.id, '--image', image_name]
-        verifylist = [('server', self.server.id), ('image', image_name)]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
-
-        # Get the command object to test.
         self.cmd.take_action(parsed_args)
 
-        self.servers_mock.get.assert_called_with(self.server.id)
+        self.compute_sdk_client.find_server.assert_called_once_with(
+            self.server.id, ignore_missing=False
+        )
         self.image_client.find_image.assert_called_with(
             image_name, ignore_missing=False
         )
-        self.image_client.get_image.assert_called_with(user_image.id)
-        self.server.rebuild.assert_called_with(user_image, None)
+        self.image_client.get_image.assert_called_with(self.image.id)
+        self.compute_sdk_client.rebuild_server.assert_called_once_with(
+            self.server, image, admin_password=None
+        )
 
     def test_rebuild_with_current_image(self):
         arglist = [
@@ -6291,10 +6280,16 @@ class TestServerRebuild(TestServer):
         # Get the command object to test.
         self.cmd.take_action(parsed_args)
 
-        self.servers_mock.get.assert_called_with(self.server.id)
+        self.compute_sdk_client.find_server.assert_called_once_with(
+            self.server.id, ignore_missing=False
+        )
         self.image_client.find_image.assert_not_called()
-        self.image_client.get_image.assert_called_with(self.image.id)
-        self.server.rebuild.assert_called_with(self.image, None)
+        self.image_client.get_image.assert_has_calls(
+            [mock.call(self.image.id), mock.call(self.image.id)]
+        )
+        self.compute_sdk_client.rebuild_server.assert_called_once_with(
+            self.server, self.image, admin_password=None
+        )
 
     def test_rebuild_with_volume_backed_server_no_image(self):
         # the volume-backed server will have the image attribute set to an
@@ -6307,8 +6302,8 @@ class TestServerRebuild(TestServer):
         verifylist = [
             ('server', self.server.id),
         ]
-        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
         exc = self.assertRaises(
             exceptions.CommandError, self.cmd.take_action, parsed_args
         )
@@ -6325,14 +6320,20 @@ class TestServerRebuild(TestServer):
             ('server', self.server.id),
             ('name', name),
         ]
-        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
-        # Get the command object to test
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
         self.cmd.take_action(parsed_args)
 
-        self.servers_mock.get.assert_called_with(self.server.id)
-        self.image_client.get_image.assert_called_with(self.image.id)
-        self.server.rebuild.assert_called_with(self.image, None, name=name)
+        self.compute_sdk_client.find_server.assert_called_once_with(
+            self.server.id, ignore_missing=False
+        )
+        self.image_client.find_image.assert_not_called()
+        self.image_client.get_image.assert_has_calls(
+            [mock.call(self.image.id), mock.call(self.image.id)]
+        )
+        self.compute_sdk_client.rebuild_server.assert_called_once_with(
+            self.server, self.image, admin_password=None, name=name
+        )
 
     def test_rebuild_with_preserve_ephemeral(self):
         arglist = [
@@ -6343,15 +6344,22 @@ class TestServerRebuild(TestServer):
             ('server', self.server.id),
             ('preserve_ephemeral', True),
         ]
-        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
-        # Get the command object to test
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
         self.cmd.take_action(parsed_args)
 
-        self.servers_mock.get.assert_called_with(self.server.id)
-        self.image_client.get_image.assert_called_with(self.image.id)
-        self.server.rebuild.assert_called_with(
-            self.image, None, preserve_ephemeral=True
+        self.compute_sdk_client.find_server.assert_called_once_with(
+            self.server.id, ignore_missing=False
+        )
+        self.image_client.find_image.assert_not_called()
+        self.image_client.get_image.assert_has_calls(
+            [mock.call(self.image.id), mock.call(self.image.id)]
+        )
+        self.compute_sdk_client.rebuild_server.assert_called_once_with(
+            self.server,
+            self.image,
+            admin_password=None,
+            preserve_ephemeral=True,
         )
 
     def test_rebuild_with_no_preserve_ephemeral(self):
@@ -6368,24 +6376,40 @@ class TestServerRebuild(TestServer):
         # Get the command object to test
         self.cmd.take_action(parsed_args)
 
-        self.servers_mock.get.assert_called_with(self.server.id)
-        self.image_client.get_image.assert_called_with(self.image.id)
-        self.server.rebuild.assert_called_with(
-            self.image, None, preserve_ephemeral=False
+        self.compute_sdk_client.find_server.assert_called_once_with(
+            self.server.id, ignore_missing=False
+        )
+        self.image_client.find_image.assert_not_called()
+        self.image_client.get_image.assert_has_calls(
+            [mock.call(self.image.id), mock.call(self.image.id)]
+        )
+        self.compute_sdk_client.rebuild_server.assert_called_once_with(
+            self.server,
+            self.image,
+            admin_password=None,
+            preserve_ephemeral=False,
         )
 
     def test_rebuild_with_password(self):
         password = 'password-xxx'
         arglist = [self.server.id, '--password', password]
         verifylist = [('server', self.server.id), ('password', password)]
-        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
-        # Get the command object to test
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
         self.cmd.take_action(parsed_args)
 
-        self.servers_mock.get.assert_called_with(self.server.id)
-        self.image_client.get_image.assert_called_with(self.image.id)
-        self.server.rebuild.assert_called_with(self.image, password)
+        self.compute_sdk_client.find_server.assert_called_once_with(
+            self.server.id, ignore_missing=False
+        )
+        self.image_client.find_image.assert_not_called()
+        self.image_client.get_image.assert_has_calls(
+            [mock.call(self.image.id), mock.call(self.image.id)]
+        )
+        self.compute_sdk_client.rebuild_server.assert_called_once_with(
+            self.server,
+            self.image,
+            admin_password=password,
+        )
 
     def test_rebuild_with_description(self):
         self.set_compute_api_version('2.19')
@@ -6393,14 +6417,22 @@ class TestServerRebuild(TestServer):
         description = 'description1'
         arglist = [self.server.id, '--description', description]
         verifylist = [('server', self.server.id), ('description', description)]
-        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
         self.cmd.take_action(parsed_args)
 
-        self.servers_mock.get.assert_called_with(self.server.id)
-        self.image_client.get_image.assert_called_with(self.image.id)
-        self.server.rebuild.assert_called_with(
-            self.image, None, description=description
+        self.compute_sdk_client.find_server.assert_called_once_with(
+            self.server.id, ignore_missing=False
+        )
+        self.image_client.find_image.assert_not_called()
+        self.image_client.get_image.assert_has_calls(
+            [mock.call(self.image.id), mock.call(self.image.id)]
+        )
+        self.compute_sdk_client.rebuild_server.assert_called_once_with(
+            self.server,
+            self.image,
+            admin_password=None,
+            description=description,
         )
 
     def test_rebuild_with_description_pre_v219(self):
@@ -6409,8 +6441,8 @@ class TestServerRebuild(TestServer):
         description = 'description1'
         arglist = [self.server.id, '--description', description]
         verifylist = [('server', self.server.id), ('description', description)]
-        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
         self.assertRaises(
             exceptions.CommandError, self.cmd.take_action, parsed_args
         )
@@ -6425,24 +6457,29 @@ class TestServerRebuild(TestServer):
             ('wait', True),
             ('server', self.server.id),
         ]
-        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
-        # Get the command object to test.
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
         self.cmd.take_action(parsed_args)
 
-        # kwargs = dict(success_status=['active', 'verify_resize'],)
+        self.compute_sdk_client.find_server.assert_called_once_with(
+            self.server.id, ignore_missing=False
+        )
+        self.image_client.find_image.assert_not_called()
+        self.image_client.get_image.assert_has_calls(
+            [mock.call(self.image.id), mock.call(self.image.id)]
+        )
+        self.compute_sdk_client.rebuild_server.assert_called_once_with(
+            self.server,
+            self.image,
+            admin_password=None,
+        )
 
         mock_wait_for_status.assert_called_once_with(
-            self.servers_mock.get,
+            self.compute_sdk_client.get_server,
             self.server.id,
             callback=mock.ANY,
             success_status=['active'],
-            # **kwargs
         )
-
-        self.servers_mock.get.assert_called_with(self.server.id)
-        self.image_client.get_image.assert_called_with(self.image.id)
-        self.server.rebuild.assert_called_with(self.image, None)
 
     @mock.patch.object(common_utils, 'wait_for_status', return_value=False)
     def test_rebuild_with_wait_fails(self, mock_wait_for_status):
@@ -6454,22 +6491,29 @@ class TestServerRebuild(TestServer):
             ('wait', True),
             ('server', self.server.id),
         ]
-        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
         self.assertRaises(
             exceptions.CommandError, self.cmd.take_action, parsed_args
         )
 
+        self.compute_sdk_client.find_server.assert_called_once_with(
+            self.server.id, ignore_missing=False
+        )
+        self.image_client.find_image.assert_not_called()
+        self.image_client.get_image.assert_called_once_with(self.image.id)
+        self.compute_sdk_client.rebuild_server.assert_called_once_with(
+            self.server,
+            self.image,
+            admin_password=None,
+        )
+
         mock_wait_for_status.assert_called_once_with(
-            self.servers_mock.get,
+            self.compute_sdk_client.get_server,
             self.server.id,
             callback=mock.ANY,
             success_status=['active'],
         )
-
-        self.servers_mock.get.assert_called_with(self.server.id)
-        self.image_client.get_image.assert_called_with(self.image.id)
-        self.server.rebuild.assert_called_with(self.image, None)
 
     @mock.patch.object(common_utils, 'wait_for_status', return_value=True)
     def test_rebuild_with_wait_shutoff_status(self, mock_wait_for_status):
@@ -6482,24 +6526,29 @@ class TestServerRebuild(TestServer):
             ('wait', True),
             ('server', self.server.id),
         ]
-        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
-        # Get the command object to test.
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
         self.cmd.take_action(parsed_args)
 
-        # kwargs = dict(success_status=['active', 'verify_resize'],)
+        self.compute_sdk_client.find_server.assert_called_once_with(
+            self.server.id, ignore_missing=False
+        )
+        self.image_client.find_image.assert_not_called()
+        self.image_client.get_image.assert_has_calls(
+            [mock.call(self.image.id), mock.call(self.image.id)]
+        )
+        self.compute_sdk_client.rebuild_server.assert_called_once_with(
+            self.server,
+            self.image,
+            admin_password=None,
+        )
 
         mock_wait_for_status.assert_called_once_with(
-            self.servers_mock.get,
+            self.compute_sdk_client.get_server,
             self.server.id,
             callback=mock.ANY,
             success_status=['shutoff'],
-            # **kwargs
         )
-
-        self.servers_mock.get.assert_called_with(self.server.id)
-        self.image_client.get_image.assert_called_with(self.image.id)
-        self.server.rebuild.assert_called_with(self.image, None)
 
     @mock.patch.object(common_utils, 'wait_for_status', return_value=True)
     def test_rebuild_with_wait_error_status(self, mock_wait_for_status):
@@ -6512,24 +6561,29 @@ class TestServerRebuild(TestServer):
             ('wait', True),
             ('server', self.server.id),
         ]
-        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
-        # Get the command object to test.
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
         self.cmd.take_action(parsed_args)
 
-        # kwargs = dict(success_status=['active', 'verify_resize'],)
+        self.compute_sdk_client.find_server.assert_called_once_with(
+            self.server.id, ignore_missing=False
+        )
+        self.image_client.find_image.assert_not_called()
+        self.image_client.get_image.assert_has_calls(
+            [mock.call(self.image.id), mock.call(self.image.id)]
+        )
+        self.compute_sdk_client.rebuild_server.assert_called_once_with(
+            self.server,
+            self.image,
+            admin_password=None,
+        )
 
         mock_wait_for_status.assert_called_once_with(
-            self.servers_mock.get,
+            self.compute_sdk_client.get_server,
             self.server.id,
             callback=mock.ANY,
             success_status=['active'],
-            # **kwargs
         )
-
-        self.servers_mock.get.assert_called_with(self.server.id)
-        self.image_client.get_image.assert_called_with(self.image.id)
-        self.server.rebuild.assert_called_with(self.image, None)
 
     def test_rebuild_wrong_status_fails(self):
         self.server.status = 'SHELVED'
@@ -6539,15 +6593,18 @@ class TestServerRebuild(TestServer):
         verifylist = [
             ('server', self.server.id),
         ]
-        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
         self.assertRaises(
             exceptions.CommandError, self.cmd.take_action, parsed_args
         )
 
-        self.servers_mock.get.assert_called_with(self.server.id)
-        self.image_client.get_image.assert_called_with(self.image.id)
-        self.server.rebuild.assert_not_called()
+        self.compute_sdk_client.find_server.assert_called_once_with(
+            self.server.id, ignore_missing=False
+        )
+        self.image_client.find_image.assert_not_called()
+        self.image_client.get_image.assert_called_once_with(self.image.id)
+        self.compute_sdk_client.rebuild_server.assert_not_called()
 
     def test_rebuild_with_property(self):
         arglist = [
@@ -6562,15 +6619,22 @@ class TestServerRebuild(TestServer):
             ('server', self.server.id),
             ('properties', expected_properties),
         ]
-        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
-        # Get the command object to test
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
         self.cmd.take_action(parsed_args)
 
-        self.servers_mock.get.assert_called_with(self.server.id)
-        self.image_client.get_image.assert_called_with(self.image.id)
-        self.server.rebuild.assert_called_with(
-            self.image, None, meta=expected_properties
+        self.compute_sdk_client.find_server.assert_called_once_with(
+            self.server.id, ignore_missing=False
+        )
+        self.image_client.find_image.assert_not_called()
+        self.image_client.get_image.assert_has_calls(
+            [mock.call(self.image.id), mock.call(self.image.id)]
+        )
+        self.compute_sdk_client.rebuild_server.assert_called_once_with(
+            self.server,
+            self.image,
+            admin_password=None,
+            metadata=expected_properties,
         )
 
     def test_rebuild_with_keypair_name(self):
@@ -6586,14 +6650,22 @@ class TestServerRebuild(TestServer):
             ('server', self.server.id),
             ('key_name', self.server.key_name),
         ]
-        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
         self.cmd.take_action(parsed_args)
 
-        self.servers_mock.get.assert_called_with(self.server.id)
-        self.image_client.get_image.assert_called_with(self.image.id)
-        self.server.rebuild.assert_called_with(
-            self.image, None, key_name=self.server.key_name
+        self.compute_sdk_client.find_server.assert_called_once_with(
+            self.server.id, ignore_missing=False
+        )
+        self.image_client.find_image.assert_not_called()
+        self.image_client.get_image.assert_has_calls(
+            [mock.call(self.image.id), mock.call(self.image.id)]
+        )
+        self.compute_sdk_client.rebuild_server.assert_called_once_with(
+            self.server,
+            self.image,
+            admin_password=None,
+            key_name=self.server.key_name,
         )
 
     def test_rebuild_with_keypair_name_pre_v254(self):
@@ -6626,12 +6698,23 @@ class TestServerRebuild(TestServer):
         verifylist = [
             ('server', self.server.id),
         ]
-        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
         self.cmd.take_action(parsed_args)
-        self.servers_mock.get.assert_called_with(self.server.id)
-        self.image_client.get_image.assert_called_with(self.image.id)
-        self.server.rebuild.assert_called_with(self.image, None, key_name=None)
+
+        self.compute_sdk_client.find_server.assert_called_once_with(
+            self.server.id, ignore_missing=False
+        )
+        self.image_client.find_image.assert_not_called()
+        self.image_client.get_image.assert_has_calls(
+            [mock.call(self.image.id), mock.call(self.image.id)]
+        )
+        self.compute_sdk_client.rebuild_server.assert_called_once_with(
+            self.server,
+            self.image,
+            admin_password=None,
+            key_name=None,
+        )
 
     def test_rebuild_with_keypair_name_and_unset(self):
         self.server.key_name = 'mykey'
@@ -6653,14 +6736,10 @@ class TestServerRebuild(TestServer):
             verifylist,
         )
 
-    @mock.patch('openstackclient.compute.v2.server.open')
-    def test_rebuild_with_user_data(self, mock_open):
+    def test_rebuild_with_user_data(self):
         self.set_compute_api_version('2.57')
 
-        mock_file = mock.Mock(name='File')
-        mock_open.return_value = mock_file
-        mock_open.read.return_value = '#!/bin/sh'
-
+        user_data = b'#!/bin/sh'
         arglist = [
             self.server.id,
             '--user-data',
@@ -6670,22 +6749,29 @@ class TestServerRebuild(TestServer):
             ('server', self.server.id),
             ('user_data', 'userdata.sh'),
         ]
-        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
-        self.cmd.take_action(parsed_args)
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+        with mock.patch(
+            'openstackclient.compute.v2.server.open',
+            mock.mock_open(read_data=user_data),
+        ) as mock_file:
+            self.cmd.take_action(parsed_args)
 
         # Ensure the userdata file is opened
-        mock_open.assert_called_with('userdata.sh')
+        mock_file.assert_called_with('userdata.sh', 'rb')
 
-        # Ensure the userdata file is closed
-        mock_file.close.assert_called_with()
-
-        self.servers_mock.get.assert_called_with(self.server.id)
-        self.image_client.get_image.assert_called_with(self.image.id)
-        self.server.rebuild.assert_called_with(
+        self.compute_sdk_client.find_server.assert_called_once_with(
+            self.server.id, ignore_missing=False
+        )
+        self.image_client.find_image.assert_not_called()
+        self.image_client.get_image.assert_has_calls(
+            [mock.call(self.image.id), mock.call(self.image.id)]
+        )
+        self.compute_sdk_client.rebuild_server.assert_called_once_with(
+            self.server,
             self.image,
-            None,
-            userdata=mock_file,
+            admin_password=None,
+            user_data=base64.b64encode(user_data).decode('utf-8'),
         )
 
     def test_rebuild_with_user_data_pre_v257(self):
@@ -6700,8 +6786,8 @@ class TestServerRebuild(TestServer):
             ('server', self.server.id),
             ('user_data', 'userdata.sh'),
         ]
-        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
         self.assertRaises(
             exceptions.CommandError, self.cmd.take_action, parsed_args
         )
@@ -6718,12 +6804,23 @@ class TestServerRebuild(TestServer):
             ('server', self.server.id),
             ('no_user_data', True),
         ]
-        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
         self.cmd.take_action(parsed_args)
-        self.servers_mock.get.assert_called_with(self.server.id)
-        self.image_client.get_image.assert_called_with(self.image.id)
-        self.server.rebuild.assert_called_with(self.image, None, userdata=None)
+
+        self.compute_sdk_client.find_server.assert_called_once_with(
+            self.server.id, ignore_missing=False
+        )
+        self.image_client.find_image.assert_not_called()
+        self.image_client.get_image.assert_has_calls(
+            [mock.call(self.image.id), mock.call(self.image.id)]
+        )
+        self.compute_sdk_client.rebuild_server.assert_called_once_with(
+            self.server,
+            self.image,
+            admin_password=None,
+            user_data=None,
+        )
 
     def test_rebuild_with_no_user_data_pre_v254(self):
         self.set_compute_api_version('2.53')
@@ -6736,8 +6833,8 @@ class TestServerRebuild(TestServer):
             ('server', self.server.id),
             ('no_user_data', True),
         ]
-        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
         self.assertRaises(
             exceptions.CommandError, self.cmd.take_action, parsed_args
         )
@@ -6771,14 +6868,22 @@ class TestServerRebuild(TestServer):
             ('server', self.server.id),
             ('trusted_image_certs', ['foo', 'bar']),
         ]
-        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
         self.cmd.take_action(parsed_args)
 
-        self.servers_mock.get.assert_called_with(self.server.id)
-        self.image_client.get_image.assert_called_with(self.image.id)
-        self.server.rebuild.assert_called_with(
-            self.image, None, trusted_image_certificates=['foo', 'bar']
+        self.compute_sdk_client.find_server.assert_called_once_with(
+            self.server.id, ignore_missing=False
+        )
+        self.image_client.find_image.assert_not_called()
+        self.image_client.get_image.assert_has_calls(
+            [mock.call(self.image.id), mock.call(self.image.id)]
+        )
+        self.compute_sdk_client.rebuild_server.assert_called_once_with(
+            self.server,
+            self.image,
+            admin_password=None,
+            trusted_image_certificates=['foo', 'bar'],
         )
 
     def test_rebuild_with_trusted_image_cert_pre_v263(self):
@@ -6795,8 +6900,8 @@ class TestServerRebuild(TestServer):
             ('server', self.server.id),
             ('trusted_image_certs', ['foo', 'bar']),
         ]
-        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
         self.assertRaises(
             exceptions.CommandError, self.cmd.take_action, parsed_args
         )
@@ -6812,13 +6917,22 @@ class TestServerRebuild(TestServer):
             ('server', self.server.id),
             ('no_trusted_image_certs', True),
         ]
-        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
         self.cmd.take_action(parsed_args)
-        self.servers_mock.get.assert_called_with(self.server.id)
-        self.image_client.get_image.assert_called_with(self.image.id)
-        self.server.rebuild.assert_called_with(
-            self.image, None, trusted_image_certificates=None
+
+        self.compute_sdk_client.find_server.assert_called_once_with(
+            self.server.id, ignore_missing=False
+        )
+        self.image_client.find_image.assert_not_called()
+        self.image_client.get_image.assert_has_calls(
+            [mock.call(self.image.id), mock.call(self.image.id)]
+        )
+        self.compute_sdk_client.rebuild_server.assert_called_once_with(
+            self.server,
+            self.image,
+            admin_password=None,
+            trusted_image_certificates=None,
         )
 
     def test_rebuild_with_no_trusted_image_cert_pre_v263(self):
@@ -6841,16 +6955,31 @@ class TestServerRebuild(TestServer):
     def test_rebuild_with_hostname(self):
         self.set_compute_api_version('2.90')
 
-        arglist = [self.server.id, '--hostname', 'new-hostname']
-        verifylist = [('server', self.server.id), ('hostname', 'new-hostname')]
-        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+        arglist = [
+            self.server.id,
+            '--hostname',
+            'new-hostname',
+        ]
+        verifylist = [
+            ('server', self.server.id),
+            ('hostname', 'new-hostname'),
+        ]
 
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
         self.cmd.take_action(parsed_args)
 
-        self.servers_mock.get.assert_called_with(self.server.id)
-        self.image_client.get_image.assert_called_with(self.image.id)
-        self.server.rebuild.assert_called_with(
-            self.image, None, hostname='new-hostname'
+        self.compute_sdk_client.find_server.assert_called_once_with(
+            self.server.id, ignore_missing=False
+        )
+        self.image_client.find_image.assert_not_called()
+        self.image_client.get_image.assert_has_calls(
+            [mock.call(self.image.id), mock.call(self.image.id)]
+        )
+        self.compute_sdk_client.rebuild_server.assert_called_once_with(
+            self.server,
+            self.image,
+            admin_password=None,
+            hostname='new-hostname',
         )
 
     def test_rebuild_with_hostname_pre_v290(self):
@@ -6877,24 +7006,12 @@ class TestServerRebuildVolumeBacked(TestServer):
         self.image_client.find_image.return_value = self.new_image
 
         attrs = {
+            'status': 'ACTIVE',
             'image': '',
-            'networks': {},
-            'adminPass': 'passw0rd',
         }
-        new_server = compute_fakes.create_one_server(attrs=attrs)
-
-        # Fake the server to be rebuilt. The IDs of them should be the same.
-        attrs['id'] = new_server.id
-        attrs['status'] = 'ACTIVE'
-        methods = {
-            'rebuild': new_server,
-        }
-        self.server = compute_fakes.create_one_server(
-            attrs=attrs, methods=methods
-        )
-
-        # Return value for utils.find_resource for server.
-        self.servers_mock.get.return_value = self.server
+        self.server = compute_fakes.create_one_sdk_server(attrs=attrs)
+        self.compute_sdk_client.find_server.return_value = self.server
+        self.compute_sdk_client.rebuild_server.return_value = self.server
 
         self.cmd = server.RebuildServer(self.app, None)
 
@@ -6912,12 +7029,20 @@ class TestServerRebuildVolumeBacked(TestServer):
             ('reimage_boot_volume', True),
             ('image', self.new_image.id),
         ]
-        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
         self.cmd.take_action(parsed_args)
 
-        self.servers_mock.get.assert_called_with(self.server.id)
-        self.server.rebuild.assert_called_with(self.new_image, None)
+        self.compute_sdk_client.find_server.assert_called_once_with(
+            self.server.id, ignore_missing=False
+        )
+        self.image_client.find_image.assert_called_with(
+            self.new_image.id, ignore_missing=False
+        )
+        self.image_client.get_image.assert_not_called()
+        self.compute_sdk_client.rebuild_server.assert_called_once_with(
+            self.server, self.new_image, admin_password=None
+        )
 
     def test_rebuild_with_no_reimage_boot_volume(self):
         self.set_compute_api_version('2.93')
