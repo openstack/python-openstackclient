@@ -284,7 +284,7 @@ def _prepare_filter_fixed_ips(client_manager, parsed_args):
     return ips
 
 
-def _add_updatable_args(parser):
+def _add_updatable_args(parser, create=False):
     parser.add_argument(
         '--description',
         metavar='<description>',
@@ -296,7 +296,11 @@ def _add_updatable_args(parser):
     parser.add_argument(
         '--mac-address',
         metavar='<mac-address>',
-        help=_("MAC address of this port (admin only)"),
+        help=(
+            _("MAC address of this port")
+            if create
+            else _("MAC address of this port (admin only)")
+        ),
     )
     parser.add_argument(
         '--device-owner',
@@ -452,7 +456,7 @@ class CreatePort(command.ShowOne, common.NeutronCommandWithExtraArgs):
             required=True,
             help=_("Network this port belongs to (name or ID)"),
         )
-        _add_updatable_args(parser)
+        _add_updatable_args(parser, create=True)
         fixed_ip = parser.add_mutually_exclusive_group()
         fixed_ip.add_argument(
             '--fixed-ip',
