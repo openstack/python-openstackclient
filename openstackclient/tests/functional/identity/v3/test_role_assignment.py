@@ -151,6 +151,14 @@ class RoleAssignmentTests(common.IdentityTests):
             '--inherited '
             f'{role_name}'
         )
+        self.addCleanup(
+            self.openstack,
+            'role remove '
+            f'--project {self.project_name} '
+            f'--user {username} '
+            '--inherited '
+            f'{role_name}',
+        )
         self.assertEqual(0, len(raw_output))
 
         raw_output = self.openstack('role assignment list --inherited')
