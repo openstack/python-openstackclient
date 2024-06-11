@@ -244,16 +244,31 @@ class DeleteVolume(volume_v2.DeleteVolume):
 
     def get_parser(self, prog_name):
         parser = super().get_parser(prog_name)
+        parser.add_argument(
+            '--remote',
+            action='store_true',
+            help=_("Specify this parameter to unmanage a volume."),
+        )
         return parser
 
     def take_action(self, parsed_args):
         volume_client = self.app.client_manager.volume
+        volume_client_sdk = self.app.client_manager.sdk_connection.volume
         result = 0
+
+        if parsed_args.remote and (parsed_args.force or parsed_args.purge):
+            msg = _(
+                "The --force and --purge options are not "
+                "supported with the --remote parameter."
+            )
+            raise exceptions.CommandError(msg)
 
         for i in parsed_args.volumes:
             try:
                 volume_obj = utils.find_resource(volume_client.volumes, i)
-                if parsed_args.force:
+                if parsed_args.remote:
+                    volume_client_sdk.unmanage_volume(volume_obj.id)
+                elif parsed_args.force:
                     volume_client.volumes.force_delete(volume_obj.id)
                 else:
                     volume_client.volumes.delete(

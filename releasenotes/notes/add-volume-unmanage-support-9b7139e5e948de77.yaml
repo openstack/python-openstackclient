@@ -1,0 +1,5 @@
+---
+features:
+  - |
+    Add support for unmanaging volumes with
+    ``openstack volume delete --remote <volume>`` command.

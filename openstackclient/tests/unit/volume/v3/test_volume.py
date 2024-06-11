@@ -427,3 +427,104 @@ class TestVolumeCreate(BaseVolumeTest):
             '--host and --cluster options are only supported ',
             str(exc),
         )
+
+
+class TestVolumeDelete(BaseVolumeTest):
+    def setUp(self):
+        super().setUp()
+
+        self.volumes_mock = self.volume_client.volumes
+        self.volumes_mock.reset_mock()
+        self.volume_sdk_client.unmanage_volume.return_value = None
+
+        # Get the command object to mock
+        self.cmd = volume.DeleteVolume(self.app, None)
+
+    def test_volume_delete_remote(self):
+        vol = sdk_fakes.generate_fake_resource(_volume.Volume, **{'size': 1})
+        self.volumes_mock.get.return_value = vol
+
+        arglist = ['--remote', vol.id]
+        verifylist = [
+            ("remote", True),
+            ("force", False),
+            ("purge", False),
+            ("volumes", [vol.id]),
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        result = self.cmd.take_action(parsed_args)
+
+        self.volume_sdk_client.unmanage_volume.assert_called_once_with(vol.id)
+        self.assertIsNone(result)
+
+    def test_volume_delete_multi_volumes_remote(self):
+        volumes = sdk_fakes.generate_fake_resources(
+            _volume.Volume, count=3, attrs={'size': 1}
+        )
+
+        arglist = ['--remote']
+        arglist += [v.id for v in volumes]
+        verifylist = [
+            ('remote', True),
+            ('force', False),
+            ('purge', False),
+            ('volumes', arglist[1:]),
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        result = self.cmd.take_action(parsed_args)
+
+        calls = [mock.call(v.id) for v in volumes]
+        self.volume_sdk_client.unmanage_volume.assert_has_calls(calls)
+        self.assertIsNone(result)
+
+    def test_volume_delete_remote_with_purge(self):
+        vol = sdk_fakes.generate_fake_resource(_volume.Volume, **{'size': 1})
+
+        arglist = [
+            '--remote',
+            '--purge',
+            vol.id,
+        ]
+        verifylist = [
+            ('remote', True),
+            ('force', False),
+            ('purge', True),
+            ('volumes', [vol.id]),
+        ]
+
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+        exc = self.assertRaises(
+            exceptions.CommandError, self.cmd.take_action, parsed_args
+        )
+        self.assertIn(
+            "The --force and --purge options are not supported with the "
+            "--remote parameter.",
+            str(exc),
+        )
+
+    def test_volume_delete_remote_with_force(self):
+        vol = sdk_fakes.generate_fake_resource(_volume.Volume, **{'size': 1})
+
+        arglist = [
+            '--remote',
+            '--force',
+            vol.id,
+        ]
+        verifylist = [
+            ('remote', True),
+            ('force', True),
+            ('purge', False),
+            ('volumes', [vol.id]),
+        ]
+
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+        exc = self.assertRaises(
+            exceptions.CommandError, self.cmd.take_action, parsed_args
+        )
+        self.assertIn(
+            "The --force and --purge options are not supported with the "
+            "--remote parameter.",
+            str(exc),
+        )
