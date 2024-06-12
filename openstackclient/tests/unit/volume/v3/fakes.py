@@ -10,6 +10,7 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
+import copy
 import random
 from unittest import mock
 import uuid
@@ -21,6 +22,7 @@ from openstack.block_storage.v3 import backup as _backup
 from openstack.block_storage.v3 import extension as _extension
 from openstack.block_storage.v3 import resource_filter as _filters
 from openstack.block_storage.v3 import volume as _volume
+from openstack.image.v2 import _proxy as _image_proxy
 
 from openstackclient.tests.unit import fakes
 from openstackclient.tests.unit.identity.v3 import fakes as identity_fakes
@@ -34,12 +36,14 @@ class FakeVolumeClient:
         self.management_url = kwargs['endpoint']
         self.api_version = api_versions.APIVersion('3.0')
 
+        self.attachments = mock.Mock()
+        self.attachments.resource_class = fakes.FakeResource(None, {})
         self.availability_zones = mock.Mock()
         self.availability_zones.resource_class = fakes.FakeResource(None, {})
         self.backups = mock.Mock()
         self.backups.resource_class = fakes.FakeResource(None, {})
-        self.attachments = mock.Mock()
-        self.attachments.resource_class = fakes.FakeResource(None, {})
+        self.consistencygroups = mock.Mock()
+        self.consistencygroups.resource_class = fakes.FakeResource(None, {})
         self.clusters = mock.Mock()
         self.clusters.resource_class = fakes.FakeResource(None, {})
         self.groups = mock.Mock()
@@ -106,10 +110,14 @@ class TestVolume(
         )
         self.compute_client = self.app.client_manager.compute
 
+        # avoid circular imports by defining this manually rather than using
+        # openstackclient.tests.unit.image.v2.fakes.FakeClientMixin
+        self.app.client_manager.image = mock.Mock(spec=_image_proxy.Proxy)
+        self.image_client = self.app.client_manager.image
+
 
 # TODO(stephenfin): Check if the responses are actually the same
 create_one_snapshot = volume_v2_fakes.create_one_snapshot
-create_one_volume = volume_v2_fakes.create_one_volume
 create_one_volume_type = volume_v2_fakes.create_one_volume_type
 
 
@@ -151,6 +159,54 @@ def create_availability_zones(attrs=None, count=2):
         availability_zones.append(availability_zone)
 
     return availability_zones
+
+
+def create_one_consistency_group(attrs=None):
+    """Create a fake consistency group.
+
+    :param dict attrs:
+        A dictionary with all attributes
+    :return:
+        A FakeResource object with id, name, description, etc.
+    """
+    attrs = attrs or {}
+
+    # Set default attributes.
+    consistency_group_info = {
+        "id": 'backup-id-' + uuid.uuid4().hex,
+        "name": 'backup-name-' + uuid.uuid4().hex,
+        "description": 'description-' + uuid.uuid4().hex,
+        "status": "error",
+        "availability_zone": 'zone' + uuid.uuid4().hex,
+        "created_at": 'time-' + uuid.uuid4().hex,
+        "volume_types": ['volume-type1'],
+    }
+
+    # Overwrite default attributes.
+    consistency_group_info.update(attrs)
+
+    consistency_group = fakes.FakeResource(
+        info=copy.deepcopy(consistency_group_info), loaded=True
+    )
+    return consistency_group
+
+
+def create_consistency_groups(attrs=None, count=2):
+    """Create multiple fake consistency groups.
+
+    :param dict attrs:
+        A dictionary with all attributes
+    :param int count:
+        The number of consistency groups to fake
+    :return:
+        A list of FakeResource objects faking the consistency groups
+    """
+    consistency_groups = []
+    for i in range(0, count):
+        consistency_group = create_one_consistency_group(attrs)
+        consistency_groups.append(consistency_group)
+
+    return consistency_groups
 
 
 def create_one_extension(attrs=None):
@@ -347,6 +403,84 @@ def create_resource_filters(attrs=None, count=2):
         resource_filters.append(create_one_resource_filter(attrs))
 
     return resource_filters
+
+
+def create_one_volume(attrs=None):
+    """Create a fake volume.
+
+    :param dict attrs:
+        A dictionary with all attributes of volume
+    :return:
+        A FakeResource object with id, name, status, etc.
+    """
+    attrs = attrs or {}
+
+    # Set default attribute
+    volume_info = {
+        'id': 'volume-id' + uuid.uuid4().hex,
+        'name': 'volume-name' + uuid.uuid4().hex,
+        'description': 'description' + uuid.uuid4().hex,
+        'status': random.choice(['available', 'in_use']),
+        'size': random.randint(1, 20),
+        'volume_type': random.choice(['fake_lvmdriver-1', 'fake_lvmdriver-2']),
+        'bootable': random.randint(0, 1),
+        'metadata': {
+            'key' + uuid.uuid4().hex: 'val' + uuid.uuid4().hex,
+            'key' + uuid.uuid4().hex: 'val' + uuid.uuid4().hex,
+            'key' + uuid.uuid4().hex: 'val' + uuid.uuid4().hex,
+        },
+        'snapshot_id': random.randint(1, 5),
+        'availability_zone': 'zone' + uuid.uuid4().hex,
+        'attachments': [
+            {
+                'device': '/dev/' + uuid.uuid4().hex,
+                'server_id': uuid.uuid4().hex,
+            },
+        ],
+    }
+
+    # Overwrite default attributes if there are some attributes set
+    volume_info.update(attrs)
+
+    volume = fakes.FakeResource(None, volume_info, loaded=True)
+    return volume
+
+
+def create_volumes(attrs=None, count=2):
+    """Create multiple fake volumes.
+
+    :param dict attrs:
+        A dictionary with all attributes of volume
+    :param Integer count:
+        The number of volumes to be faked
+    :return:
+        A list of FakeResource objects
+    """
+    volumes = []
+    for n in range(0, count):
+        volumes.append(create_one_volume(attrs))
+
+    return volumes
+
+
+def get_volumes(volumes=None, count=2):
+    """Get an iterable MagicMock object with a list of faked volumes.
+
+    If volumes list is provided, then initialize the Mock object with the
+    list. Otherwise create one.
+
+    :param List volumes:
+        A list of FakeResource objects faking volumes
+    :param Integer count:
+        The number of volumes to be faked
+    :return
+        An iterable Mock object with side_effect set to a list of faked
+        volumes
+    """
+    if volumes is None:
+        volumes = create_volumes(count)
+
+    return mock.Mock(side_effect=volumes)
 
 
 def create_one_sdk_volume(attrs=None):
