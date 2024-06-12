@@ -42,15 +42,15 @@ class DeleteAccessRule(command.Command):
         return parser
 
     def take_action(self, parsed_args):
-        identity_client = self.app.client_manager.identity
+        identity_client = self.app.client_manager.sdk_connection.identity
+        conn = self.app.client_manager.sdk_connection
+        user_id = conn.config.get_auth().get_user_id(conn.identity)
 
         errors = 0
         for ac in parsed_args.access_rule:
             try:
-                access_rule = common.get_resource_by_id(
-                    identity_client.access_rules, ac
-                )
-                identity_client.access_rules.delete(access_rule.id)
+                access_rule = identity_client.get_access_rule(user_id, ac)
+                identity_client.delete_access_rule(user_id, access_rule.id)
             except Exception as e:
                 errors += 1
                 LOG.error(
@@ -83,16 +83,17 @@ class ListAccessRule(command.Lister):
         return parser
 
     def take_action(self, parsed_args):
-        identity_client = self.app.client_manager.identity
+        identity_client = self.app.client_manager.sdk_connection.identity
         if parsed_args.user:
             user_id = common.find_user(
                 identity_client, parsed_args.user, parsed_args.user_domain
             ).id
         else:
-            user_id = None
+            conn = self.app.client_manager.sdk_connection
+            user_id = conn.config.get_auth().get_user_id(conn.identity)
 
         columns = ('ID', 'Service', 'Method', 'Path')
-        data = identity_client.access_rules.list(user=user_id)
+        data = identity_client.access_rules(user=user_id)
         return (
             columns,
             (
@@ -119,11 +120,22 @@ class ShowAccessRule(command.ShowOne):
         return parser
 
     def take_action(self, parsed_args):
-        identity_client = self.app.client_manager.identity
-        access_rule = common.get_resource_by_id(
-            identity_client.access_rules, parsed_args.access_rule
+        identity_client = self.app.client_manager.sdk_connection.identity
+        conn = self.app.client_manager.sdk_connection
+        user_id = conn.config.get_auth().get_user_id(conn.identity)
+
+        access_rule = identity_client.get_access_rule(
+            user_id, parsed_args.access_rule
         )
 
-        access_rule._info.pop('links', None)
-
-        return zip(*sorted(access_rule._info.items()))
+        columns = ('ID', 'Method', 'Path', 'Service')
+        return (
+            columns,
+            (
+                utils.get_item_properties(
+                    access_rule,
+                    columns,
+                    formatters={},
+                )
+            ),
+        )

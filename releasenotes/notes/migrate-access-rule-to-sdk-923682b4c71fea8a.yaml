@@ -1,0 +1,8 @@
+---
+upgrade:
+  - |
+    The following commands have been migrated to SDK:
+
+    - ``access rule list``
+    - ``access rule delete``
+    - ``access rule show``

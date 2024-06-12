@@ -20,10 +20,10 @@ from openstackclient.tests.functional.identity.v3 import common
 
 class AccessRuleTests(common.IdentityTests):
     ACCESS_RULE_FIELDS = [
-        'id',
-        'service',
-        'method',
-        'path',
+        'ID',
+        'Service',
+        'Method',
+        'Path',
     ]
     ACCESS_RULE_LIST_HEADERS = [
         'ID',

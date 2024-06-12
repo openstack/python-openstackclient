@@ -13,71 +13,65 @@
 #   under the License.
 #
 
-import copy
+from unittest.mock import call
 
-from keystoneclient import exceptions as identity_exc
+from openstack import exceptions as sdk_exceptions
+from openstack.identity.v3 import access_rule as _access_rule
+from openstack.test import fakes as sdk_fakes
 from osc_lib import exceptions
 
 from openstackclient.identity.v3 import access_rule
-from openstackclient.tests.unit import fakes
 from openstackclient.tests.unit.identity.v3 import fakes as identity_fakes
 
 
-class TestAccessRule(identity_fakes.TestIdentityv3):
+class TestAccessRuleDelete(identity_fakes.TestIdentityv3):
+    access_rule = sdk_fakes.generate_fake_resource(_access_rule.AccessRule)
+
     def setUp(self):
         super().setUp()
 
-        identity_manager = self.identity_client
-        self.access_rules_mock = identity_manager.access_rules
-        self.access_rules_mock.reset_mock()
-        self.roles_mock = identity_manager.roles
-        self.roles_mock.reset_mock()
-
-
-class TestAccessRuleDelete(TestAccessRule):
-    def setUp(self):
-        super().setUp()
-
-        # This is the return value for utils.find_resource()
-        self.access_rules_mock.get.return_value = fakes.FakeResource(
-            None,
-            copy.deepcopy(identity_fakes.ACCESS_RULE),
-            loaded=True,
+        self.identity_sdk_client.get_access_rule.return_value = (
+            self.access_rule
         )
-        self.access_rules_mock.delete.return_value = None
+        self.identity_sdk_client.delete_access_rule.return_value = None
 
         # Get the command object to test
         self.cmd = access_rule.DeleteAccessRule(self.app, None)
 
     def test_access_rule_delete(self):
-        arglist = [
-            identity_fakes.access_rule_id,
-        ]
-        verifylist = [('access_rule', [identity_fakes.access_rule_id])]
+        arglist = [self.access_rule.id]
+        verifylist = [('access_rule', [self.access_rule.id])]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        conn = self.app.client_manager.sdk_connection
+        user_id = conn.config.get_auth().get_user_id(conn.identity)
 
         result = self.cmd.take_action(parsed_args)
 
-        self.access_rules_mock.delete.assert_called_with(
-            identity_fakes.access_rule_id,
+        self.identity_sdk_client.delete_access_rule.assert_called_with(
+            user_id,
+            self.access_rule.id,
         )
         self.assertIsNone(result)
 
     def test_delete_multi_access_rules_with_exception(self):
-        # mock returns for common.get_resource_by_id
-        mock_get = self.access_rules_mock.get
-        mock_get.side_effect = [
-            mock_get.return_value,
-            identity_exc.NotFound,
+        self.identity_sdk_client.get_access_rule.side_effect = [
+            self.access_rule,
+            sdk_exceptions.NotFoundException,
         ]
+
         arglist = [
-            identity_fakes.access_rule_id,
+            self.access_rule.id,
             'nonexistent_access_rule',
         ]
         verifylist = [
             ('access_rule', arglist),
         ]
+
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        conn = self.app.client_manager.sdk_connection
+        user_id = conn.config.get_auth().get_user_id(conn.identity)
 
         try:
             self.cmd.take_action(parsed_args)
@@ -87,26 +81,27 @@ class TestAccessRuleDelete(TestAccessRule):
                 '1 of 2 access rules failed to' ' delete.', str(e)
             )
 
-        mock_get.assert_any_call(identity_fakes.access_rule_id)
-        mock_get.assert_any_call('nonexistent_access_rule')
+        calls = []
+        for a in arglist:
+            calls.append(call(user_id, a))
 
-        self.assertEqual(2, mock_get.call_count)
-        self.access_rules_mock.delete.assert_called_once_with(
-            identity_fakes.access_rule_id
+        self.identity_sdk_client.get_access_rule.assert_has_calls(calls)
+
+        self.assertEqual(
+            2, self.identity_sdk_client.get_access_rule.call_count
+        )
+        self.identity_sdk_client.delete_access_rule.assert_called_once_with(
+            user_id, self.access_rule.id
         )
 
 
-class TestAccessRuleList(TestAccessRule):
+class TestAccessRuleList(identity_fakes.TestIdentityv3):
+    access_rule = sdk_fakes.generate_fake_resource(_access_rule.AccessRule)
+
     def setUp(self):
         super().setUp()
 
-        self.access_rules_mock.list.return_value = [
-            fakes.FakeResource(
-                None,
-                copy.deepcopy(identity_fakes.ACCESS_RULE),
-                loaded=True,
-            ),
-        ]
+        self.identity_sdk_client.access_rules.return_value = [self.access_rule]
 
         # Get the command object to test
         self.cmd = access_rule.ListAccessRule(self.app, None)
@@ -116,31 +111,34 @@ class TestAccessRuleList(TestAccessRule):
         verifylist = []
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
+        conn = self.app.client_manager.sdk_connection
+        user_id = conn.config.get_auth().get_user_id(conn.identity)
+
         columns, data = self.cmd.take_action(parsed_args)
 
-        self.access_rules_mock.list.assert_called_with(user=None)
+        self.identity_sdk_client.access_rules.assert_called_with(user=user_id)
 
         collist = ('ID', 'Service', 'Method', 'Path')
         self.assertEqual(collist, columns)
         datalist = (
             (
-                identity_fakes.access_rule_id,
-                identity_fakes.access_rule_service,
-                identity_fakes.access_rule_method,
-                identity_fakes.access_rule_path,
+                self.access_rule.id,
+                self.access_rule.service,
+                self.access_rule.method,
+                self.access_rule.path,
             ),
         )
         self.assertEqual(datalist, tuple(data))
 
 
-class TestAccessRuleShow(TestAccessRule):
+class TestAccessRuleShow(identity_fakes.TestIdentityv3):
+    access_rule = sdk_fakes.generate_fake_resource(_access_rule.AccessRule)
+
     def setUp(self):
         super().setUp()
 
-        self.access_rules_mock.get.return_value = fakes.FakeResource(
-            None,
-            copy.deepcopy(identity_fakes.ACCESS_RULE),
-            loaded=True,
+        self.identity_sdk_client.get_access_rule.return_value = (
+            self.access_rule
         )
 
         # Get the command object to test
@@ -148,25 +146,28 @@ class TestAccessRuleShow(TestAccessRule):
 
     def test_access_rule_show(self):
         arglist = [
-            identity_fakes.access_rule_id,
+            self.access_rule.id,
         ]
         verifylist = [
-            ('access_rule', identity_fakes.access_rule_id),
+            ('access_rule', self.access_rule.id),
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
+        conn = self.app.client_manager.sdk_connection
+        user_id = conn.config.get_auth().get_user_id(conn.identity)
+
         columns, data = self.cmd.take_action(parsed_args)
 
-        self.access_rules_mock.get.assert_called_with(
-            identity_fakes.access_rule_id
+        self.identity_sdk_client.get_access_rule.assert_called_with(
+            user_id, self.access_rule.id
         )
 
-        collist = ('id', 'method', 'path', 'service')
+        collist = ('ID', 'Method', 'Path', 'Service')
         self.assertEqual(collist, columns)
         datalist = (
-            identity_fakes.access_rule_id,
-            identity_fakes.access_rule_method,
-            identity_fakes.access_rule_path,
-            identity_fakes.access_rule_service,
+            self.access_rule.id,
+            self.access_rule.method,
+            self.access_rule.path,
+            self.access_rule.service,
         )
         self.assertEqual(datalist, data)
