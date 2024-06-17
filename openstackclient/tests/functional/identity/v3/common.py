@@ -103,6 +103,15 @@ class IdentityTests(base.TestCase):
         'Implied Role ID',
         'Implied Role Name',
     ]
+    ROLE_ASSIGNMENT_LIST_HEADERS = [
+        'Role',
+        'User',
+        'Group',
+        'Project',
+        'Domain',
+        'System',
+        'Inherited',
+    ]
     REGISTERED_LIMIT_FIELDS = [
         'id',
         'service_id',

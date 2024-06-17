@@ -13,11 +13,51 @@
 
 """Identity v3 Assignment action implementations"""
 
+from openstack import exceptions as sdk_exceptions
 from osc_lib.command import command
-from osc_lib import utils
 
 from openstackclient.i18n import _
 from openstackclient.identity import common
+
+
+def _format_role_assignment_(assignment, include_names):
+    def _get_names(attr):
+        return (
+            (
+                attr['name']
+                + (
+                    "@" + domain['name']
+                    if (domain := attr.get('domain'))
+                    else ''
+                )
+            )
+            or ''
+            if attr
+            else ''
+        )
+
+    def _get_ids(attr):
+        return attr['id'] or '' if attr else ''
+
+    func = _get_names if include_names else _get_ids
+    return (
+        func(assignment.role),
+        func(assignment.user),
+        func(assignment.group),
+        func(assignment.scope.get('project')),
+        func(assignment.scope.get('domain')),
+        'all' if assignment.scope.get("system") else '',
+        assignment.scope.get("OS-INHERIT:inherited_to") == 'projects',
+    )
+
+
+def _find_sdk_id(find_command, name_or_id, **kwargs):
+    try:
+        return find_command(
+            name_or_id=name_or_id, ignore_missing=False, **kwargs
+        ).id
+    except sdk_exceptions.ForbiddenException:
+        return name_or_id
 
 
 class ListRoleAssignment(command.Lister):
@@ -28,7 +68,7 @@ class ListRoleAssignment(command.Lister):
         parser.add_argument(
             '--effective',
             action="store_true",
-            default=False,
+            default=None,
             help=_('Returns only effective role assignments'),
         )
         parser.add_argument(
@@ -88,81 +128,74 @@ class ListRoleAssignment(command.Lister):
         )
         return parser
 
-    def _as_tuple(self, assignment):
-        return (
-            assignment.role,
-            assignment.user,
-            assignment.group,
-            assignment.project,
-            assignment.domain,
-            assignment.system,
-            assignment.inherited,
-        )
-
     def take_action(self, parsed_args):
-        identity_client = self.app.client_manager.identity
+        identity_client = self.app.client_manager.sdk_connection.identity
         auth_ref = self.app.client_manager.auth_ref
 
-        role = None
+        role_id = None
         role_domain_id = None
         if parsed_args.role_domain:
-            role_domain_id = common.find_domain(
-                identity_client, parsed_args.role_domain
-            ).id
+            role_domain_id = _find_sdk_id(
+                identity_client.find_domain,
+                name_or_id=parsed_args.role_domain,
+            )
         if parsed_args.role:
-            role = utils.find_resource(
-                identity_client.roles,
-                parsed_args.role,
+            role_id = _find_sdk_id(
+                identity_client.find_role,
+                name_or_id=parsed_args.role,
                 domain_id=role_domain_id,
             )
 
-        user = None
+        user_id = None
         if parsed_args.user:
-            user = common.find_user(
-                identity_client,
-                parsed_args.user,
-                parsed_args.user_domain,
+            user_id = _find_sdk_id(
+                identity_client.find_user,
+                name_or_id=parsed_args.user,
+                domain_id=parsed_args.user_domain,
             )
         elif parsed_args.authuser:
             if auth_ref:
-                user = common.find_user(identity_client, auth_ref.user_id)
+                user_id = _find_sdk_id(
+                    identity_client.find_user,
+                    name_or_id=auth_ref.user_id,
+                )
 
         system = None
         if parsed_args.system:
             system = parsed_args.system
 
-        domain = None
+        domain_id = None
         if parsed_args.domain:
-            domain = common.find_domain(
-                identity_client,
-                parsed_args.domain,
+            domain_id = _find_sdk_id(
+                identity_client.find_domain,
+                name_or_id=parsed_args.domain,
             )
 
-        project = None
+        project_id = None
         if parsed_args.project:
-            project = common.find_project(
-                identity_client,
-                common._get_token_resource(
+            project_id = _find_sdk_id(
+                identity_client.find_project,
+                name_or_id=common._get_token_resource(
                     identity_client, 'project', parsed_args.project
                 ),
-                parsed_args.project_domain,
+                domain_id=parsed_args.project_domain,
             )
         elif parsed_args.authproject:
             if auth_ref:
-                project = common.find_project(
-                    identity_client, auth_ref.project_id
+                project_id = _find_sdk_id(
+                    identity_client.find_project,
+                    name_or_id=auth_ref.project_id,
                 )
 
-        group = None
+        group_id = None
         if parsed_args.group:
-            group = common.find_group(
-                identity_client,
-                parsed_args.group,
-                parsed_args.group_domain,
+            group_id = _find_sdk_id(
+                identity_client.find_group,
+                name_or_id=parsed_args.group,
+                domain_id=parsed_args.group_domain,
             )
 
-        include_names = True if parsed_args.names else False
-        effective = True if parsed_args.effective else False
+        include_names = True if parsed_args.names else None
         columns = (
             'Role',
             'User',
@@ -174,104 +207,23 @@ class ListRoleAssignment(command.Lister):
         )
 
         inherited_to = 'projects' if parsed_args.inherited else None
-        data = identity_client.role_assignments.list(
-            domain=domain,
-            user=user,
-            group=group,
-            project=project,
-            system=system,
-            role=role,
-            effective=effective,
-            os_inherit_extension_inherited_to=inherited_to,
+
+        data = identity_client.role_assignments(
+            role_id=role_id,
+            user_id=user_id,
+            group_id=group_id,
+            scope_project_id=project_id,
+            scope_domain_id=domain_id,
+            scope_system=system,
+            effective=parsed_args.effective,
             include_names=include_names,
+            inherited_to=inherited_to,
         )
 
         data_parsed = []
         for assignment in data:
-            # Removing the extra "scope" layer in the assignment json
-            scope = assignment.scope
-            if 'project' in scope:
-                if include_names:
-                    prj = '@'.join(
-                        [
-                            scope['project']['name'],
-                            scope['project']['domain']['name'],
-                        ]
-                    )
-                    setattr(assignment, 'project', prj)
-                else:
-                    setattr(assignment, 'project', scope['project']['id'])
-                assignment.domain = ''
-                assignment.system = ''
-            elif 'domain' in scope:
-                if include_names:
-                    setattr(assignment, 'domain', scope['domain']['name'])
-                else:
-                    setattr(assignment, 'domain', scope['domain']['id'])
-                assignment.project = ''
-                assignment.system = ''
-            elif 'system' in scope:
-                # NOTE(lbragstad): If, or when, keystone supports role
-                # assignments on subsets of a system, this will have to evolve
-                # to handle that case instead of hardcoding to the entire
-                # system.
-                setattr(assignment, 'system', 'all')
-                assignment.domain = ''
-                assignment.project = ''
-            else:
-                assignment.system = ''
-                assignment.domain = ''
-                assignment.project = ''
-
-            inherited = scope.get('OS-INHERIT:inherited_to') == 'projects'
-            assignment.inherited = inherited
-
-            del assignment.scope
-
-            if hasattr(assignment, 'user'):
-                if include_names:
-                    usr = '@'.join(
-                        [
-                            assignment.user['name'],
-                            assignment.user['domain']['name'],
-                        ]
-                    )
-                    setattr(assignment, 'user', usr)
-                else:
-                    setattr(assignment, 'user', assignment.user['id'])
-                assignment.group = ''
-            elif hasattr(assignment, 'group'):
-                if include_names:
-                    grp = '@'.join(
-                        [
-                            assignment.group['name'],
-                            assignment.group['domain']['name'],
-                        ]
-                    )
-                    setattr(assignment, 'group', grp)
-                else:
-                    setattr(assignment, 'group', assignment.group['id'])
-                assignment.user = ''
-            else:
-                assignment.user = ''
-                assignment.group = ''
-
-            if hasattr(assignment, 'role'):
-                if include_names:
-                    # TODO(henry-nash): If this is a domain specific role it
-                    # would be good show this as role@domain, although this
-                    # domain info is not yet included in the response from the
-                    # server. Although we could get it by re-reading the role
-                    # from the ID, let's wait until the server does the right
-                    # thing.
-                    setattr(assignment, 'role', assignment.role['name'])
-                else:
-                    setattr(assignment, 'role', assignment.role['id'])
-            else:
-                assignment.role = ''
-
-            # Creating a tuple from data object fields
-            # (including the blank ones)
-            data_parsed.append(self._as_tuple(assignment))
+            data_parsed.append(
+                _format_role_assignment_(assignment, include_names)
+            )
 
         return columns, tuple(data_parsed)
