@@ -223,7 +223,9 @@ class TestCreateDefaultSecurityGroupRule(TestDefaultSecurityGroupRule):
         self.assertEqual(self.expected_columns, columns)
         self.assertEqual(self.expected_data, data)
 
-    def test_create_protocol_any(self):
+    def _test_create_protocol_any_helper(
+        self, for_default_sg=False, for_custom_sg=False
+    ):
         self._setup_default_security_group_rule(
             {
                 'protocol': None,
@@ -236,9 +238,15 @@ class TestCreateDefaultSecurityGroupRule(TestDefaultSecurityGroupRule):
             '--remote-ip',
             self._default_sg_rule.remote_ip_prefix,
         ]
+        if for_default_sg:
+            arglist.append('--for-default-sg')
+        if for_custom_sg:
+            arglist.append('--for-custom-sg')
         verifylist = [
             ('protocol', 'any'),
             ('remote_ip', self._default_sg_rule.remote_ip_prefix),
+            ('for_default_sg', for_default_sg),
+            ('for_custom_sg', for_custom_sg),
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
@@ -250,12 +258,26 @@ class TestCreateDefaultSecurityGroupRule(TestDefaultSecurityGroupRule):
                 'ethertype': self._default_sg_rule.ether_type,
                 'protocol': self._default_sg_rule.protocol,
                 'remote_ip_prefix': self._default_sg_rule.remote_ip_prefix,
-                'used_in_default_sg': False,
-                'used_in_non_default_sg': False,
+                'used_in_default_sg': for_default_sg,
+                'used_in_non_default_sg': for_custom_sg,
             }
         )
         self.assertEqual(self.expected_columns, columns)
         self.assertEqual(self.expected_data, data)
+
+    def test_create_protocol_any_not_for_default_sg(self):
+        self._test_create_protocol_any_helper()
+
+    def test_create_protocol_any_for_default_sg(self):
+        self._test_create_protocol_any_helper(for_default_sg=True)
+
+    def test_create_protocol_any_for_custom_sg(self):
+        self._test_create_protocol_any_helper(for_custom_sg=True)
+
+    def test_create_protocol_any_for_default_and_custom_sg(self):
+        self._test_create_protocol_any_helper(
+            for_default_sg=True, for_custom_sg=True
+        )
 
     def test_create_remote_address_group(self):
         self._setup_default_security_group_rule(
