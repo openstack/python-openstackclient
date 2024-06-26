@@ -21,13 +21,13 @@ from openstackclient.tests.functional.identity.v3 import common
 
 class ApplicationCredentialTests(common.IdentityTests):
     APPLICATION_CREDENTIAL_FIELDS = [
-        'id',
-        'name',
-        'project_id',
-        'description',
-        'roles',
-        'expires_at',
-        'unrestricted',
+        'ID',
+        'Name',
+        'Project ID',
+        'Description',
+        'Roles',
+        'Expires At',
+        'Unrestricted',
     ]
     APPLICATION_CREDENTIAL_LIST_HEADERS = [
         'ID',

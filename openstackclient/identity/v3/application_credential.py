@@ -18,6 +18,7 @@
 import datetime
 import json
 import logging
+import uuid
 
 from osc_lib.command import command
 from osc_lib import exceptions
@@ -28,6 +29,30 @@ from openstackclient.identity import common
 
 
 LOG = logging.getLogger(__name__)
+
+
+# TODO(stephenfin): Move this to osc_lib since it's useful elsewhere
+def is_uuid_like(value) -> bool:
+    """Returns validation of a value as a UUID.
+
+    :param val: Value to verify
+    :type val: string
+    :returns: bool
+
+    .. versionchanged:: 1.1.1
+       Support non-lowercase UUIDs.
+    """
+    try:
+        formatted_value = (
+            value.replace('urn:', '')
+            .replace('uuid:', '')
+            .strip('{}')
+            .replace('-', '')
+            .lower()
+        )
+        return str(uuid.UUID(value)).replace('-', '') == formatted_value
+    except (TypeError, ValueError, AttributeError):
+        return False
 
 
 class CreateApplicationCredential(command.ShowOne):
@@ -105,19 +130,16 @@ class CreateApplicationCredential(command.ShowOne):
         return parser
 
     def take_action(self, parsed_args):
-        identity_client = self.app.client_manager.identity
+        identity_client = self.app.client_manager.sdk_connection.identity
+        conn = self.app.client_manager.sdk_connection
+        user_id = conn.config.get_auth().get_user_id(conn.identity)
 
         role_ids = []
         for role in parsed_args.role:
-            # A user can only create an application credential for themself,
-            # not for another user even as an admin, and only on the project to
-            # which they are currently scoped with a subset of the role
-            # assignments they have on that project. Don't bother trying to
-            # look up roles via keystone, just introspect the token.
-            role_id = common._get_token_resource(
-                identity_client, "roles", role
-            )
-            role_ids.append(role_id)
+            if is_uuid_like(role):
+                role_ids.append({'id': role})
+            else:
+                role_ids.append({'name': role})
 
         expires_at = None
         if parsed_args.expiration:
@@ -144,10 +166,10 @@ class CreateApplicationCredential(command.ShowOne):
                     )
                     raise exceptions.CommandError(msg)
         else:
-            access_rules = None
+            access_rules = []
 
-        app_cred_manager = identity_client.application_credentials
-        application_credential = app_cred_manager.create(
+        application_credential = identity_client.create_application_credential(
+            user_id,
             parsed_args.name,
             roles=role_ids,
             expires_at=expires_at,
@@ -157,14 +179,32 @@ class CreateApplicationCredential(command.ShowOne):
             access_rules=access_rules,
         )
 
-        application_credential._info.pop('links', None)
-
         # Format roles into something sensible
-        roles = application_credential._info.pop('roles')
-        msg = ' '.join(r['name'] for r in roles)
-        application_credential._info['roles'] = msg
+        if application_credential['roles']:
+            roles = application_credential['roles']
+            msg = ' '.join(r['name'] for r in roles)
+            application_credential['roles'] = msg
 
-        return zip(*sorted(application_credential._info.items()))
+        columns = (
+            'ID',
+            'Name',
+            'Description',
+            'Project ID',
+            'Roles',
+            'Unrestricted',
+            'Access Rules',
+            'Expires At',
+            'Secret',
+        )
+        return (
+            columns,
+            (
+                utils.get_dict_properties(
+                    application_credential,
+                    columns,
+                )
+            ),
+        )
 
 
 class DeleteApplicationCredential(command.Command):
@@ -181,15 +221,19 @@ class DeleteApplicationCredential(command.Command):
         return parser
 
     def take_action(self, parsed_args):
-        identity_client = self.app.client_manager.identity
+        identity_client = self.app.client_manager.sdk_connection.identity
+        conn = self.app.client_manager.sdk_connection
+        user_id = conn.config.get_auth().get_user_id(conn.identity)
 
         errors = 0
         for ac in parsed_args.application_credential:
             try:
-                app_cred = utils.find_resource(
-                    identity_client.application_credentials, ac
+                app_cred = identity_client.find_application_credential(
+                    user_id, ac
                 )
-                identity_client.application_credentials.delete(app_cred.id)
+                identity_client.delete_application_credential(
+                    user_id, app_cred.id
+                )
             except Exception as e:
                 errors += 1
                 LOG.error(
@@ -223,16 +267,36 @@ class ListApplicationCredential(command.Lister):
         return parser
 
     def take_action(self, parsed_args):
-        identity_client = self.app.client_manager.identity
+        identity_client = self.app.client_manager.sdk_connection.identity
         if parsed_args.user:
             user_id = common.find_user(
                 identity_client, parsed_args.user, parsed_args.user_domain
             ).id
         else:
-            user_id = None
+            conn = self.app.client_manager.sdk_connection
+            user_id = conn.config.get_auth().get_user_id(conn.identity)
 
-        columns = ('ID', 'Name', 'Project ID', 'Description', 'Expires At')
-        data = identity_client.application_credentials.list(user=user_id)
+        data = identity_client.application_credentials(user=user_id)
+
+        data_formatted = []
+        for ac in data:
+            # Format roles into something sensible
+            roles = ac['roles']
+            msg = ' '.join(r['name'] for r in roles)
+            ac['roles'] = msg
+
+            data_formatted.append(ac)
+
+        columns = (
+            'ID',
+            'Name',
+            'Description',
+            'Project ID',
+            'Roles',
+            'Unrestricted',
+            'Access Rules',
+            'Expires At',
+        )
         return (
             columns,
             (
@@ -241,7 +305,7 @@ class ListApplicationCredential(command.Lister):
                     columns,
                     formatters={},
                 )
-                for s in data
+                for s in data_formatted
             ),
         )
 
@@ -259,17 +323,35 @@ class ShowApplicationCredential(command.ShowOne):
         return parser
 
     def take_action(self, parsed_args):
-        identity_client = self.app.client_manager.identity
-        app_cred = utils.find_resource(
-            identity_client.application_credentials,
-            parsed_args.application_credential,
+        identity_client = self.app.client_manager.sdk_connection.identity
+        conn = self.app.client_manager.sdk_connection
+        user_id = conn.config.get_auth().get_user_id(conn.identity)
+
+        app_cred = identity_client.find_application_credential(
+            user_id, parsed_args.application_credential
         )
 
-        app_cred._info.pop('links', None)
-
         # Format roles into something sensible
-        roles = app_cred._info.pop('roles')
+        roles = app_cred['roles']
         msg = ' '.join(r['name'] for r in roles)
-        app_cred._info['roles'] = msg
+        app_cred['roles'] = msg
 
-        return zip(*sorted(app_cred._info.items()))
+        columns = (
+            'ID',
+            'Name',
+            'Description',
+            'Project ID',
+            'Roles',
+            'Unrestricted',
+            'Access Rules',
+            'Expires At',
+        )
+        return (
+            columns,
+            (
+                utils.get_dict_properties(
+                    app_cred,
+                    columns,
+                )
+            ),
+        )
