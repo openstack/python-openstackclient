@@ -1,0 +1,8 @@
+---
+features:
+  - |
+    Added the ``Cluster`` and ``Backend State`` columns to
+    ``openstack volume service list`` command. Note that the
+    ``Cluster`` parameter is available since microversion 3.7
+    and ``Backend State`` parameter is available since
+    microversion 3.49.
