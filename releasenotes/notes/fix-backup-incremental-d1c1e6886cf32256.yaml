@@ -1,0 +1,7 @@
+---
+fixes:
+  - |
+    Fixed issue with creating incremental volume backup.
+    Previously, ``incremental`` value was not passed in the
+    API request which is now included in the backup
+    create request.
