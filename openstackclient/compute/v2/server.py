@@ -4844,17 +4844,12 @@ class StartServer(command.Command):
     def take_action(self, parsed_args):
         compute_client = self.app.client_manager.sdk_connection.compute
         for server in parsed_args.server:
-            try:
-                server_id = compute_client.find_server(
-                    server,
-                    ignore_missing=False,
-                    details=False,
-                    all_projects=parsed_args.all_projects,
-                ).id
-            except sdk_exceptions.HttpException as exc:
-                if exc.status_code == 403:
-                    msg = _("Policy doesn't allow passing all-projects")
-                    raise exceptions.Forbidden(msg)
+            server_id = compute_client.find_server(
+                server,
+                ignore_missing=False,
+                details=False,
+                all_projects=parsed_args.all_projects,
+            ).id
 
             compute_client.start_server(server_id)
 
@@ -4884,18 +4879,12 @@ class StopServer(command.Command):
     def take_action(self, parsed_args):
         compute_client = self.app.client_manager.sdk_connection.compute
         for server in parsed_args.server:
-            try:
-                server_id = compute_client.find_server(
-                    server,
-                    ignore_missing=False,
-                    details=False,
-                    all_projects=parsed_args.all_projects,
-                ).id
-            except sdk_exceptions.HttpException as exc:
-                if exc.status_code == 403:
-                    msg = _("Policy doesn't allow passing all-projects")
-                    raise exceptions.Forbidden(msg)
-
+            server_id = compute_client.find_server(
+                server,
+                ignore_missing=False,
+                details=False,
+                all_projects=parsed_args.all_projects,
+            ).id
             compute_client.stop_server(server_id)
 
 
