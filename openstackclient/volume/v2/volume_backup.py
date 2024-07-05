@@ -173,7 +173,7 @@ class CreateVolumeBackup(command.ShowOne):
             name=parsed_args.name,
             description=parsed_args.description,
             force=parsed_args.force,
-            incremental=parsed_args.incremental,
+            is_incremental=parsed_args.incremental,
             **kwargs,
         )
         data = utils.get_dict_properties(backup, columns)

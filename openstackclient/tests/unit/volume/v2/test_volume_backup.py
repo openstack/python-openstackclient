@@ -120,7 +120,7 @@ class TestBackupCreate(TestBackup):
             name=self.new_backup.name,
             description=self.new_backup.description,
             force=True,
-            incremental=True,
+            is_incremental=True,
             snapshot_id=self.new_backup.snapshot_id,
         )
         self.assertEqual(self.columns, columns)
@@ -150,7 +150,7 @@ class TestBackupCreate(TestBackup):
             name=None,
             description=None,
             force=False,
-            incremental=False,
+            is_incremental=False,
             metadata={"foo": "bar", "wow": "much-cool"},
         )
         self.assertEqual(self.columns, columns)
@@ -199,7 +199,7 @@ class TestBackupCreate(TestBackup):
             name=None,
             description=None,
             force=False,
-            incremental=False,
+            is_incremental=False,
             availability_zone="my-az",
         )
         self.assertEqual(self.columns, columns)
@@ -247,7 +247,7 @@ class TestBackupCreate(TestBackup):
             name=None,
             description=self.new_backup.description,
             force=False,
-            incremental=False,
+            is_incremental=False,
         )
         self.assertEqual(self.columns, columns)
         self.assertEqual(self.data, data)
