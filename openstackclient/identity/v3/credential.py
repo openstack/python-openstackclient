@@ -28,6 +28,23 @@ from openstackclient.identity import common
 LOG = logging.getLogger(__name__)
 
 
+def _format_credential(credential):
+    columns = (
+        'blob',
+        'id',
+        'project_id',
+        'type',
+        'user_id',
+    )
+    return (
+        columns,
+        utils.get_item_properties(
+            credential,
+            columns,
+        ),
+    )
+
+
 class CreateCredential(command.ShowOne):
     _description = _("Create new credential")
 
@@ -60,25 +77,24 @@ class CreateCredential(command.ShowOne):
         return parser
 
     def take_action(self, parsed_args):
-        identity_client = self.app.client_manager.identity
-        user_id = utils.find_resource(
-            identity_client.users, parsed_args.user
+        identity_client = self.app.client_manager.sdk_connection.identity
+        user_id = identity_client.find_user(
+            parsed_args.user, ignore_missing=False
         ).id
         if parsed_args.project:
-            project = utils.find_resource(
-                identity_client.projects, parsed_args.project
+            project = identity_client.find_project(
+                parsed_args.project, ignore_missing=False
             ).id
         else:
             project = None
-        credential = identity_client.credentials.create(
+        credential = identity_client.create_credential(
             user=user_id,
             type=parsed_args.type,
             blob=parsed_args.data,
             project=project,
         )
 
-        credential._info.pop('links')
-        return zip(*sorted(credential._info.items()))
+        return _format_credential(credential)
 
 
 class DeleteCredential(command.Command):
@@ -95,11 +111,11 @@ class DeleteCredential(command.Command):
         return parser
 
     def take_action(self, parsed_args):
-        identity_client = self.app.client_manager.identity
+        identity_client = self.app.client_manager.sdk_connection.identity
         result = 0
         for i in parsed_args.credential:
             try:
-                identity_client.credentials.delete(i)
+                identity_client.delete_credential(i)
             except Exception as e:
                 result += 1
                 LOG.error(
@@ -137,14 +153,17 @@ class ListCredential(command.Lister):
         return parser
 
     def take_action(self, parsed_args):
-        identity_client = self.app.client_manager.identity
+        identity_client = self.app.client_manager.sdk_connection.identity
 
         kwargs = {}
         if parsed_args.user:
-            user_id = common.find_user(
-                identity_client,
-                parsed_args.user,
-                parsed_args.user_domain,
+            domain_id = None
+            if parsed_args.user_domain:
+                domain_id = identity_client.find_domain(
+                    parsed_args.user_domain, ignore_missing=False
+                )
+            user_id = identity_client.find_user(
+                parsed_args.user, domain_id=domain_id, ignore_missing=False
             ).id
             kwargs["user_id"] = user_id
 
@@ -153,7 +172,8 @@ class ListCredential(command.Lister):
 
         columns = ('ID', 'Type', 'User ID', 'Blob', 'Project ID')
         column_headers = ('ID', 'Type', 'User ID', 'Data', 'Project ID')
-        data = self.app.client_manager.identity.credentials.list(**kwargs)
+        data = identity_client.credentials(**kwargs)
+
         return (
             column_headers,
             (
@@ -206,20 +226,20 @@ class SetCredential(command.Command):
         return parser
 
     def take_action(self, parsed_args):
-        identity_client = self.app.client_manager.identity
+        identity_client = self.app.client_manager.sdk_connection.identity
 
-        user_id = utils.find_resource(
-            identity_client.users, parsed_args.user
+        user_id = identity_client.find_user(
+            parsed_args.user, ignore_missing=False
         ).id
 
         if parsed_args.project:
-            project = utils.find_resource(
-                identity_client.projects, parsed_args.project
+            project = identity_client.find_project(
+                parsed_args.project, ignore_missing=False
             ).id
         else:
             project = None
 
-        identity_client.credentials.update(
+        identity_client.update_credential(
             parsed_args.credential,
             user=user_id,
             type=parsed_args.type,
@@ -241,10 +261,7 @@ class ShowCredential(command.ShowOne):
         return parser
 
     def take_action(self, parsed_args):
-        identity_client = self.app.client_manager.identity
-        credential = utils.find_resource(
-            identity_client.credentials, parsed_args.credential
-        )
+        identity_client = self.app.client_manager.sdk_connection.identity
+        credential = identity_client.get_credential(parsed_args.credential)
 
-        credential._info.pop('links')
-        return zip(*sorted(credential._info.items()))
+        return _format_credential(credential)
