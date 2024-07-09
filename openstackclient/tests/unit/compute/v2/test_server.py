@@ -2308,7 +2308,46 @@ class TestServerCreate(TestServer):
             arglist,
             [],
         )
+        self.assertNotCalled(self.servers_mock.create)
 
+    def test_server_create_with_conflicting_net_port_filters(self):
+        arglist = [
+            '--image',
+            'image1',
+            '--flavor',
+            'flavor1',
+            '--nic',
+            'net-id=abc,port-id=xyz',
+            self.new_server.name,
+        ]
+        exc = self.assertRaises(
+            test_utils.ParserException,
+            self.check_parser,
+            self.cmd,
+            arglist,
+            [],
+        )
+        self.assertIn("either 'network' or 'port'", str(exc))
+        self.assertNotCalled(self.servers_mock.create)
+
+    def test_server_create_with_conflicting_fixed_ip_filters(self):
+        arglist = [
+            '--image',
+            'image1',
+            '--flavor',
+            'flavor1',
+            '--nic',
+            'net-id=abc,v4-fixed-ip=1.2.3.4,v6-fixed-ip=2001:db8:abcd',
+            self.new_server.name,
+        ]
+        exc = self.assertRaises(
+            test_utils.ParserException,
+            self.check_parser,
+            self.cmd,
+            arglist,
+            [],
+        )
+        self.assertIn("either 'v4-fixed-ip' or 'v6-fixed-ip'", str(exc))
         self.assertNotCalled(self.servers_mock.create)
 
     @mock.patch.object(common_utils, 'wait_for_status', return_value=True)
