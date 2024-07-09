@@ -32,8 +32,9 @@ from openstack.network.v2 import network_ip_availability as _ip_availability
 from openstack.network.v2 import network_segment_range as _segment_range
 from openstack.network.v2 import port as _port
 from openstack.network.v2 import rbac_policy as network_rbac
+from openstack.network.v2 import security_group as _security_group
 from openstack.network.v2 import segment as _segment
-from openstack.network.v2 import service_profile as _flavor_profile
+from openstack.network.v2 import service_profile as _service_profile
 from openstack.network.v2 import trunk as _trunk
 
 from openstackclient.tests.unit import fakes
@@ -1943,11 +1944,44 @@ def get_network_rbacs(rbac_policies=None, count=2):
     return mock.Mock(side_effect=rbac_policies)
 
 
-def create_one_service_profile(attrs=None):
-    """Create flavor profile."""
+def create_one_security_group(attrs=None):
+    """Create a security group."""
     attrs = attrs or {}
 
-    flavor_profile_attrs = {
+    security_group_attrs = {
+        'name': 'security-group-name-' + uuid.uuid4().hex,
+        'id': 'security-group-id-' + uuid.uuid4().hex,
+        'project_id': 'project-id-' + uuid.uuid4().hex,
+        'description': 'security-group-description-' + uuid.uuid4().hex,
+        'location': 'MUNCHMUNCHMUNCH',
+    }
+
+    security_group_attrs.update(attrs)
+
+    security_group = _security_group.SecurityGroup(**security_group_attrs)
+
+    return security_group
+
+
+def create_security_groups(attrs=None, count=2):
+    """Create multiple fake security groups.
+
+    :param dict attrs: A dictionary with all attributes
+    :param int count: The number of security groups to fake
+    :return: A list of fake SecurityGroup objects
+    """
+    security_groups = []
+    for i in range(0, count):
+        security_groups.append(create_one_security_group(attrs))
+
+    return security_groups
+
+
+def create_one_service_profile(attrs=None):
+    """Create service profile."""
+    attrs = attrs or {}
+
+    service_profile_attrs = {
         'id': 'flavor-profile-id' + uuid.uuid4().hex,
         'description': 'flavor-profile-description-' + uuid.uuid4().hex,
         'project_id': 'project-id-' + uuid.uuid4().hex,
@@ -1957,20 +1991,20 @@ def create_one_service_profile(attrs=None):
         'location': 'MUNCHMUNCHMUNCH',
     }
 
-    flavor_profile_attrs.update(attrs)
+    service_profile_attrs.update(attrs)
 
-    flavor_profile = _flavor_profile.ServiceProfile(**flavor_profile_attrs)
+    flavor_profile = _service_profile.ServiceProfile(**service_profile_attrs)
 
     return flavor_profile
 
 
 def create_service_profile(attrs=None, count=2):
-    """Create multiple flavor profiles."""
+    """Create multiple service profiles."""
 
-    flavor_profiles = []
+    service_profiles = []
     for i in range(0, count):
-        flavor_profiles.append(create_one_service_profile(attrs))
-    return flavor_profiles
+        service_profiles.append(create_one_service_profile(attrs))
+    return service_profiles
 
 
 def get_service_profile(flavor_profile=None, count=2):

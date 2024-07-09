@@ -21,10 +21,10 @@ import getpass
 import json
 import logging
 import os
+import typing as ty
 
 from cliff import columns as cliff_columns
 import iso8601
-from novaclient import api_versions
 from openstack import exceptions as sdk_exceptions
 from openstack import utils as sdk_utils
 from osc_lib.cli import format_columns
@@ -82,7 +82,7 @@ class AddressesColumn(cliff_columns.FormattableColumn):
     def machine_readable(self):
         return {
             k: [i['addr'] for i in v if 'addr' in i]
-            for k, v in self._value.items()
+            for k, v in (self._value.items() if self._value else [])
         }
 
 
@@ -1069,7 +1069,6 @@ class BDMAction(parseractions.MultiKeyValueAction):
             super().__call__(parser, namespace, values, option_string)
 
 
-# TODO(stephenfin): Migrate to SDK
 class CreateServer(command.ShowOne):
     _description = _("Create a new server")
 
@@ -1173,7 +1172,7 @@ class CreateServer(command.ShowOne):
         )
         parser.add_argument(
             '--block-device',
-            metavar='',
+            metavar='<block-device>',
             action=BDMAction,
             dest='block_devices',
             default=[],
@@ -1507,7 +1506,7 @@ class CreateServer(command.ShowOne):
                 self.app.stdout.write('\rProgress: %s' % progress)
                 self.app.stdout.flush()
 
-        compute_client = self.app.client_manager.compute
+        compute_client = self.app.client_manager.sdk_connection.compute
         volume_client = self.app.client_manager.volume
         image_client = self.app.client_manager.image
 
@@ -1602,12 +1601,12 @@ class CreateServer(command.ShowOne):
                 parsed_args.snapshot,
             ).id
 
-        flavor = utils.find_resource(
-            compute_client.flavors, parsed_args.flavor
+        flavor = compute_client.find_flavor(
+            parsed_args.flavor, ignore_missing=False
         )
 
         if parsed_args.file:
-            if compute_client.api_version >= api_versions.APIVersion('2.57'):
+            if sdk_utils.supports_microversion(compute_client, '2.57'):
                 msg = _(
                     'Personality files are deprecated and are not supported '
                     'for --os-compute-api-version greater than 2.56; use '
@@ -1638,10 +1637,12 @@ class CreateServer(command.ShowOne):
             msg = _("max instances should be > 0")
             raise exceptions.CommandError(msg)
 
-        userdata = None
+        user_data = None
         if parsed_args.user_data:
             try:
-                userdata = open(parsed_args.user_data)
+                with open(parsed_args.user_data, 'rb') as fh:
+                    # TODO(stephenfin): SDK should do this for us
+                    user_data = base64.b64encode(fh.read()).decode('utf-8')
             except OSError as e:
                 msg = _("Can't open '%(data)s': %(exception)s")
                 raise exceptions.CommandError(
@@ -1649,7 +1650,7 @@ class CreateServer(command.ShowOne):
                 )
 
         if parsed_args.description:
-            if compute_client.api_version < api_versions.APIVersion("2.19"):
+            if not sdk_utils.supports_microversion(compute_client, '2.19'):
                 msg = _(
                     '--os-compute-api-version 2.19 or greater is '
                     'required to support the --description option'
@@ -1657,26 +1658,7 @@ class CreateServer(command.ShowOne):
                 raise exceptions.CommandError(msg)
 
         block_device_mapping_v2 = []
-        if volume:
-            block_device_mapping_v2 = [
-                {
-                    'uuid': volume,
-                    'boot_index': 0,
-                    'source_type': 'volume',
-                    'destination_type': 'volume',
-                }
-            ]
-        elif snapshot:
-            block_device_mapping_v2 = [
-                {
-                    'uuid': snapshot,
-                    'boot_index': 0,
-                    'source_type': 'snapshot',
-                    'destination_type': 'volume',
-                    'delete_on_termination': False,
-                }
-            ]
-        elif parsed_args.boot_from_volume:
+        if parsed_args.boot_from_volume:
             # Tell nova to create a root volume from the image provided.
             if not image:
                 msg = _(
@@ -1695,6 +1677,35 @@ class CreateServer(command.ShowOne):
             ]
             # If booting from volume we do not pass an image to compute.
             image = None
+        elif image:
+            block_device_mapping_v2 = [
+                {
+                    'uuid': image.id,
+                    'boot_index': 0,
+                    'source_type': 'image',
+                    'destination_type': 'local',
+                    'delete_on_termination': True,
+                }
+            ]
+        elif volume:
+            block_device_mapping_v2 = [
+                {
+                    'uuid': volume,
+                    'boot_index': 0,
+                    'source_type': 'volume',
+                    'destination_type': 'volume',
+                }
+            ]
+        elif snapshot:
+            block_device_mapping_v2 = [
+                {
+                    'uuid': snapshot,
+                    'boot_index': 0,
+                    'source_type': 'snapshot',
+                    'destination_type': 'volume',
+                    'delete_on_termination': False,
+                }
+            ]
 
         if parsed_args.swap:
             block_device_mapping_v2.append(
@@ -1770,7 +1781,7 @@ class CreateServer(command.ShowOne):
                     raise exceptions.CommandError(msg)
 
             if 'tag' in mapping and (
-                compute_client.api_version < api_versions.APIVersion('2.42')
+                not sdk_utils.supports_microversion(compute_client, '2.42')
             ):
                 msg = _(
                     '--os-compute-api-version 2.42 or greater is '
@@ -1779,7 +1790,7 @@ class CreateServer(command.ShowOne):
                 raise exceptions.CommandError(msg)
 
             if 'volume_type' in mapping and (
-                compute_client.api_version < api_versions.APIVersion('2.67')
+                not sdk_utils.supports_microversion(compute_client, '2.67')
             ):
                 msg = _(
                     '--os-compute-api-version 2.67 or greater is '
@@ -1835,7 +1846,7 @@ class CreateServer(command.ShowOne):
 
             block_device_mapping_v2.append(mapping)
 
-        if not image and not any(
+        if not any(
             [bdm.get('boot_index') == 0 for bdm in block_device_mapping_v2]
         ):
             msg = _(
@@ -1844,10 +1855,12 @@ class CreateServer(command.ShowOne):
             )
             raise exceptions.CommandError(msg)
 
-        nics = parsed_args.nics
+        # Default to empty list if nothing was specified and let nova
+        # decide the default behavior.
+        networks: ty.Union[str, ty.List[ty.Dict[str, str]], None] = []
 
-        if 'auto' in nics or 'none' in nics:
-            if len(nics) > 1:
+        if 'auto' in parsed_args.nics or 'none' in parsed_args.nics:
+            if len(parsed_args.nics) > 1:
                 msg = _(
                     'Specifying a --nic of auto or none cannot '
                     'be used with any other --nic, --network '
@@ -1855,7 +1868,7 @@ class CreateServer(command.ShowOne):
                 )
                 raise exceptions.CommandError(msg)
 
-            if compute_client.api_version < api_versions.APIVersion('2.37'):
+            if not sdk_utils.supports_microversion(compute_client, '2.37'):
                 msg = _(
                     '--os-compute-api-version 2.37 or greater is '
                     'required to support explicit auto-allocation of a '
@@ -1863,12 +1876,12 @@ class CreateServer(command.ShowOne):
                 )
                 raise exceptions.CommandError(msg)
 
-            nics = nics[0]
+            networks = parsed_args.nics[0]
         else:
-            for nic in nics:
+            for nic in parsed_args.nics:
                 if 'tag' in nic:
-                    if compute_client.api_version < api_versions.APIVersion(
-                        '2.43'
+                    if not sdk_utils.supports_microversion(
+                        compute_client, '2.43'
                     ):
                         msg = _(
                             '--os-compute-api-version 2.43 or greater is '
@@ -1894,9 +1907,11 @@ class CreateServer(command.ShowOne):
                         nic['port-id'] = port.id
                 else:
                     if nic['net-id']:
-                        nic['net-id'] = compute_client.api.network_find(
+                        net = compute_v2.find_network(
+                            compute_client,
                             nic['net-id'],
-                        )['id']
+                        )
+                        nic['net-id'] = net['id']
 
                     if nic['port-id']:
                         msg = _(
@@ -1905,18 +1920,35 @@ class CreateServer(command.ShowOne):
                         )
                         raise exceptions.CommandError(msg)
 
-        if not nics:
+                # convert from the novaclient-derived "NIC" view to the actual
+                # "network" view
+                network = {}
+
+                if nic['net-id']:
+                    network['uuid'] = nic['net-id']
+
+                if nic['port-id']:
+                    network['port'] = nic['port-id']
+
+                if nic['v4-fixed-ip']:
+                    network['fixed'] = nic['v4-fixed-ip']
+                elif nic['v6-fixed-ip']:
+                    network['fixed'] = nic['v6-fixed-ip']
+
+                if nic.get('tag'):  # tags are optional
+                    network['tag'] = nic['tag']
+
+                networks.append(network)
+
+        if not parsed_args.nics and sdk_utils.supports_microversion(
+            compute_client, '2.37'
+        ):
             # Compute API version >= 2.37 requires a value, so default to
             # 'auto' to maintain legacy behavior if a nic wasn't specified.
-            if compute_client.api_version >= api_versions.APIVersion('2.37'):
-                nics = 'auto'
-            else:
-                # Default to empty list if nothing was specified and let nova
-                # decide the default behavior.
-                nics = []
+            networks = 'auto'
 
         # Check security group exist and convert ID to name
-        security_group_names = []
+        security_groups = []
         if self.app.client_manager.is_network_endpoint_enabled():
             network_client = self.app.client_manager.network
             for each_sg in parsed_args.security_group:
@@ -1925,12 +1957,12 @@ class CreateServer(command.ShowOne):
                 )
                 # Use security group ID to avoid multiple security group have
                 # same name in neutron networking backend
-                security_group_names.append(sg.id)
+                security_groups.append({'name': sg.id})
         else:
             # Handle nova-network case
             for each_sg in parsed_args.security_group:
-                sg = compute_client.api.security_group_find(each_sg)
-                security_group_names.append(sg['name'])
+                sg = compute_v2.find_security_group(compute_client, each_sg)
+                security_groups.append({'name': sg['name']})
 
         hints = {}
         for key, values in parsed_args.hints.items():
@@ -1941,9 +1973,8 @@ class CreateServer(command.ShowOne):
                 hints[key] = values
 
         if parsed_args.server_group:
-            server_group_obj = utils.find_resource(
-                compute_client.server_groups,
-                parsed_args.server_group,
+            server_group_obj = compute_client.find_server_group(
+                parsed_args.server_group, ignore_missing=False
             )
             hints['group'] = server_group_obj.id
 
@@ -1965,69 +1996,89 @@ class CreateServer(command.ShowOne):
             else:
                 config_drive = parsed_args.config_drive
 
-        boot_args = [parsed_args.server_name, image, flavor]
-
-        boot_kwargs = dict(
-            meta=parsed_args.properties,
-            files=files,
-            reservation_id=None,
-            min_count=parsed_args.min,
-            max_count=parsed_args.max,
-            security_groups=security_group_names,
-            userdata=userdata,
-            key_name=parsed_args.key_name,
-            availability_zone=parsed_args.availability_zone,
-            admin_pass=parsed_args.password,
-            block_device_mapping_v2=block_device_mapping_v2,
-            nics=nics,
-            scheduler_hints=hints,
-            config_drive=config_drive,
-        )
+        kwargs = {
+            'name': parsed_args.server_name,
+            'image_id': image.id if image else '',
+            'flavor_id': flavor.id,
+            'min_count': parsed_args.min,
+            'max_count': parsed_args.max,
+        }
 
         if parsed_args.description:
-            boot_kwargs['description'] = parsed_args.description
+            kwargs['description'] = parsed_args.description
+
+        if parsed_args.availability_zone:
+            kwargs['availability_zone'] = parsed_args.availability_zone
+
+        if parsed_args.password:
+            kwargs['admin_password'] = parsed_args.password
+
+        if parsed_args.properties:
+            kwargs['metadata'] = parsed_args.properties
+
+        if parsed_args.key_name:
+            kwargs['key_name'] = parsed_args.key_name
+
+        if user_data:
+            kwargs['user_data'] = user_data
+
+        if files:
+            kwargs['personality'] = files
+
+        if security_groups:
+            kwargs['security_groups'] = security_groups
+
+        if block_device_mapping_v2:
+            kwargs['block_device_mapping'] = block_device_mapping_v2
+
+        if hints:
+            kwargs['scheduler_hints'] = hints
+
+        if networks is not None:
+            kwargs['networks'] = networks
+
+        if config_drive is not None:
+            kwargs['config_drive'] = config_drive
 
         if parsed_args.tags:
-            if compute_client.api_version < api_versions.APIVersion('2.52'):
+            if not sdk_utils.supports_microversion(compute_client, '2.52'):
                 msg = _(
                     '--os-compute-api-version 2.52 or greater is required to '
                     'support the --tag option'
                 )
                 raise exceptions.CommandError(msg)
 
-            boot_kwargs['tags'] = parsed_args.tags
+            kwargs['tags'] = parsed_args.tags
 
         if parsed_args.host:
-            if compute_client.api_version < api_versions.APIVersion("2.74"):
+            if not sdk_utils.supports_microversion(compute_client, '2.74'):
                 msg = _(
                     '--os-compute-api-version 2.74 or greater is required to '
                     'support the --host option'
                 )
                 raise exceptions.CommandError(msg)
 
-            boot_kwargs['host'] = parsed_args.host
+            kwargs['host'] = parsed_args.host
 
         if parsed_args.hypervisor_hostname:
-            if compute_client.api_version < api_versions.APIVersion("2.74"):
+            if not sdk_utils.supports_microversion(compute_client, '2.74'):
                 msg = _(
                     '--os-compute-api-version 2.74 or greater is required to '
                     'support the --hypervisor-hostname option'
                 )
                 raise exceptions.CommandError(msg)
 
-            boot_kwargs['hypervisor_hostname'] = (
-                parsed_args.hypervisor_hostname
-            )
+            kwargs['hypervisor_hostname'] = parsed_args.hypervisor_hostname
 
         if parsed_args.hostname:
-            if compute_client.api_version < api_versions.APIVersion("2.90"):
+            if not sdk_utils.supports_microversion(compute_client, '2.90'):
                 msg = _(
                     '--os-compute-api-version 2.90 or greater is required to '
                     'support the --hostname option'
                 )
                 raise exceptions.CommandError(msg)
 
-            boot_kwargs['hostname'] = parsed_args.hostname
+            kwargs['hostname'] = parsed_args.hostname
 
         # TODO(stephenfin): Handle OS_TRUSTED_IMAGE_CERTIFICATE_IDS
         if parsed_args.trusted_image_certs:
@@ -2037,7 +2088,7 @@ class CreateServer(command.ShowOne):
                     'servers booted directly from images'
                 )
                 raise exceptions.CommandError(msg)
-            if compute_client.api_version < api_versions.APIVersion('2.63'):
+            if not sdk_utils.supports_microversion(compute_client, '2.63'):
                 msg = _(
                     '--os-compute-api-version 2.63 or greater is required to '
                     'support the --trusted-image-cert option'
@@ -2045,25 +2096,22 @@ class CreateServer(command.ShowOne):
                 raise exceptions.CommandError(msg)
 
             certs = parsed_args.trusted_image_certs
-            boot_kwargs['trusted_image_certificates'] = certs
+            kwargs['trusted_image_certificates'] = certs
 
-        LOG.debug('boot_args: %s', boot_args)
-        LOG.debug('boot_kwargs: %s', boot_kwargs)
+        LOG.debug('boot_kwargs: %s', kwargs)
 
         # Wrap the call to catch exceptions in order to close files
         try:
-            server = compute_client.servers.create(*boot_args, **boot_kwargs)
+            server = compute_client.create_server(**kwargs)
         finally:
             # Clean up open files - make sure they are not strings
             for f in files:
                 if hasattr(f, 'close'):
                     f.close()
-            if hasattr(userdata, 'close'):
-                userdata.close()
 
         if parsed_args.wait:
             if utils.wait_for_status(
-                compute_client.servers.get,
+                compute_client.get_server,
                 server.id,
                 callback=_show_progress,
             ):
@@ -2072,8 +2120,6 @@ class CreateServer(command.ShowOne):
                 msg = _('Error creating server: %s') % parsed_args.server_name
                 raise exceptions.CommandError(msg)
 
-        # TODO(stephenfin): Remove when the whole command is using SDK
-        compute_client = self.app.client_manager.sdk_connection.compute
         data = _prep_server_detail(compute_client, image_client, server)
         return zip(*sorted(data.items()))
 

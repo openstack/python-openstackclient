@@ -763,3 +763,102 @@ class TestFindSecurityGroup(utils.TestCase):
             self.compute_sdk_client,
             sg_name,
         )
+
+
+class TestFindNetwork(utils.TestCase):
+
+    def setUp(self):
+        super().setUp()
+
+        self.compute_sdk_client = mock.Mock(_proxy.Proxy)
+
+    def test_find_network_by_id(self):
+        net_id = uuid.uuid4().hex
+        net_name = 'name-' + uuid.uuid4().hex
+        data = {
+            'network': {
+                'id': net_id,
+                'label': net_name,
+                # other fields omitted for brevity
+            }
+        }
+        self.compute_sdk_client.get.side_effect = [
+            fakes.FakeResponse(data=data),
+        ]
+
+        result = compute.find_network(self.compute_sdk_client, net_id)
+
+        self.compute_sdk_client.get.assert_has_calls(
+            [
+                mock.call(f'/os-networks/{net_id}', microversion='2.1'),
+            ]
+        )
+        self.assertEqual(data['network'], result)
+
+    def test_find_network_by_name(self):
+        net_id = uuid.uuid4().hex
+        net_name = 'name-' + uuid.uuid4().hex
+        data = {
+            'networks': [
+                {
+                    'id': net_id,
+                    'label': net_name,
+                    # other fields omitted for brevity
+                }
+            ],
+        }
+        self.compute_sdk_client.get.side_effect = [
+            fakes.FakeResponse(status_code=http.HTTPStatus.NOT_FOUND),
+            fakes.FakeResponse(data=data),
+        ]
+
+        result = compute.find_network(self.compute_sdk_client, net_name)
+
+        self.compute_sdk_client.get.assert_has_calls(
+            [
+                mock.call(f'/os-networks/{net_name}', microversion='2.1'),
+                mock.call('/os-networks', microversion='2.1'),
+            ]
+        )
+        self.assertEqual(data['networks'][0], result)
+
+    def test_find_network_not_found(self):
+        data = {'networks': []}
+        self.compute_sdk_client.get.side_effect = [
+            fakes.FakeResponse(status_code=http.HTTPStatus.NOT_FOUND),
+            fakes.FakeResponse(data=data),
+        ]
+        self.assertRaises(
+            osc_lib_exceptions.NotFound,
+            compute.find_network,
+            self.compute_sdk_client,
+            'invalid-net',
+        )
+
+    def test_find_network_by_name_duplicate(self):
+        net_name = 'name-' + uuid.uuid4().hex
+        data = {
+            'networks': [
+                {
+                    'id': uuid.uuid4().hex,
+                    'label': net_name,
+                    # other fields omitted for brevity
+                },
+                {
+                    'id': uuid.uuid4().hex,
+                    'label': net_name,
+                    # other fields omitted for brevity
+                },
+            ],
+        }
+        self.compute_sdk_client.get.side_effect = [
+            fakes.FakeResponse(status_code=http.HTTPStatus.NOT_FOUND),
+            fakes.FakeResponse(data=data),
+        ]
+
+        self.assertRaises(
+            osc_lib_exceptions.NotFound,
+            compute.find_network,
+            self.compute_sdk_client,
+            net_name,
+        )
