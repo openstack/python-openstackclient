@@ -17,7 +17,7 @@
 
 import logging
 
-from keystoneauth1 import exceptions as ks_exc
+from openstack import exceptions as sdk_exceptions
 from osc_lib.command import command
 from osc_lib import exceptions
 from osc_lib import utils
@@ -27,6 +27,31 @@ from openstackclient.identity import common
 
 
 LOG = logging.getLogger(__name__)
+
+
+def _format_domain(domain):
+    columns = (
+        'id',
+        'name',
+        'is_enabled',
+        'description',
+        'options',
+    )
+    column_headers = (
+        'id',
+        'name',
+        'enabled',
+        'description',
+        'options',
+    )
+
+    return (
+        column_headers,
+        utils.get_item_properties(
+            domain,
+            columns,
+        ),
+    )
 
 
 class CreateDomain(command.ShowOne):
@@ -47,12 +72,15 @@ class CreateDomain(command.ShowOne):
         enable_group = parser.add_mutually_exclusive_group()
         enable_group.add_argument(
             '--enable',
+            dest='is_enabled',
             action='store_true',
+            default=True,
             help=_('Enable domain (default)'),
         )
         enable_group.add_argument(
             '--disable',
-            action='store_true',
+            dest='is_enabled',
+            action='store_false',
             help=_('Disable domain'),
         )
         parser.add_argument(
@@ -64,32 +92,25 @@ class CreateDomain(command.ShowOne):
         return parser
 
     def take_action(self, parsed_args):
-        identity_client = self.app.client_manager.identity
-
-        enabled = True
-        if parsed_args.disable:
-            enabled = False
+        identity_client = self.app.client_manager.sdk_connection.identity
 
         options = common.get_immutable_options(parsed_args)
 
         try:
-            domain = identity_client.domains.create(
+            domain = identity_client.create_domain(
                 name=parsed_args.name,
                 description=parsed_args.description,
                 options=options,
-                enabled=enabled,
+                is_enabled=parsed_args.is_enabled,
             )
-        except ks_exc.Conflict:
+        except sdk_exceptions.ConflictException:
             if parsed_args.or_show:
-                domain = utils.find_resource(
-                    identity_client.domains, parsed_args.name
-                )
+                domain = identity_client.find_domain(parsed_args.name)
                 LOG.info(_('Returning existing domain %s'), domain.name)
             else:
                 raise
 
-        domain._info.pop('links')
-        return zip(*sorted(domain._info.items()))
+        return _format_domain(domain)
 
 
 class DeleteDomain(command.Command):
@@ -106,12 +127,12 @@ class DeleteDomain(command.Command):
         return parser
 
     def take_action(self, parsed_args):
-        identity_client = self.app.client_manager.identity
+        identity_client = self.app.client_manager.sdk_connection.identity
         result = 0
         for i in parsed_args.domain:
             try:
-                domain = utils.find_resource(identity_client.domains, i)
-                identity_client.domains.delete(domain.id)
+                domain = identity_client.find_domain(i, ignore_missing=False)
+                identity_client.delete_domain(domain.id)
             except Exception as e:
                 result += 1
                 LOG.error(
@@ -143,7 +164,7 @@ class ListDomain(command.Lister):
         )
         parser.add_argument(
             '--enabled',
-            dest='enabled',
+            dest='is_enabled',
             action='store_true',
             help=_('The domains that are enabled will be returned'),
         )
@@ -153,13 +174,17 @@ class ListDomain(command.Lister):
         kwargs = {}
         if parsed_args.name:
             kwargs['name'] = parsed_args.name
-        if parsed_args.enabled:
-            kwargs['enabled'] = True
+        if parsed_args.is_enabled:
+            kwargs['is_enabled'] = True
 
-        columns = ('ID', 'Name', 'Enabled', 'Description')
-        data = self.app.client_manager.identity.domains.list(**kwargs)
+        columns = ('id', 'name', 'is_enabled', 'description')
+        column_headers = ('ID', 'Name', 'Enabled', 'Description')
+        data = self.app.client_manager.sdk_connection.identity.domains(
+            **kwargs
+        )
+
         return (
-            columns,
+            column_headers,
             (
                 utils.get_item_properties(
                     s,
@@ -194,38 +219,38 @@ class SetDomain(command.Command):
         enable_group = parser.add_mutually_exclusive_group()
         enable_group.add_argument(
             '--enable',
+            dest='is_enabled',
             action='store_true',
+            default=None,
             help=_('Enable domain'),
         )
         enable_group.add_argument(
             '--disable',
-            action='store_true',
+            dest='is_enabled',
+            action='store_false',
+            default=None,
             help=_('Disable domain'),
         )
         common.add_resource_option_to_parser(parser)
         return parser
 
     def take_action(self, parsed_args):
-        identity_client = self.app.client_manager.identity
-        domain = utils.find_resource(
-            identity_client.domains, parsed_args.domain
-        )
+        identity_client = self.app.client_manager.sdk_connection.identity
+        domain = identity_client.find_domain(parsed_args.domain)
         kwargs = {}
         if parsed_args.name:
             kwargs['name'] = parsed_args.name
         if parsed_args.description:
             kwargs['description'] = parsed_args.description
 
-        if parsed_args.enable:
-            kwargs['enabled'] = True
-        if parsed_args.disable:
-            kwargs['enabled'] = False
+        if parsed_args.is_enabled is not None:
+            kwargs['is_enabled'] = parsed_args.is_enabled
 
         options = common.get_immutable_options(parsed_args)
         if options:
             kwargs['options'] = options
 
-        identity_client.domains.update(domain.id, **kwargs)
+        identity_client.update_domain(domain.id, **kwargs)
 
 
 class ShowDomain(command.ShowOne):
@@ -241,13 +266,7 @@ class ShowDomain(command.ShowOne):
         return parser
 
     def take_action(self, parsed_args):
-        identity_client = self.app.client_manager.identity
+        identity_client = self.app.client_manager.sdk_connection.identity
+        domain = identity_client.find_domain(parsed_args.domain)
 
-        domain_str = common._get_token_resource(
-            identity_client, 'domain', parsed_args.domain
-        )
-
-        domain = utils.find_resource(identity_client.domains, domain_str)
-
-        domain._info.pop('links')
-        return zip(*sorted(domain._info.items()))
+        return _format_domain(domain)
