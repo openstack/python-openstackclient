@@ -241,182 +241,194 @@ class ListQuota(command.Lister):
         )
         return parser
 
-    def take_action(self, parsed_args):
+    def _list_quota_compute(self, parsed_args, project_ids):
+        compute_client = self.app.client_manager.compute
         result = []
+
+        for p in project_ids:
+            try:
+                data = compute_client.quotas.get(p)
+            except Exception as ex:
+                if (
+                    type(ex).__name__ == 'NotFound'
+                    or ex.http_status >= 400
+                    and ex.http_status <= 499
+                ):
+                    # Project not found, move on to next one
+                    LOG.warning(f"Project {p} not found: {ex}")
+                    continue
+                else:
+                    raise
+
+            result_data = _xform_get_quota(
+                data,
+                p,
+                COMPUTE_QUOTAS.keys(),
+            )
+            default_data = compute_client.quotas.defaults(p)
+            result_default = _xform_get_quota(
+                default_data,
+                p,
+                COMPUTE_QUOTAS.keys(),
+            )
+            if result_default != result_data:
+                result += result_data
+
+        columns = (
+            'id',
+            'cores',
+            'injected_files',
+            'injected_file_content_bytes',
+            'injected_file_path_bytes',
+            'instances',
+            'key_pairs',
+            'metadata_items',
+            'ram',
+            'server_groups',
+            'server_group_members',
+        )
+        column_headers = (
+            'Project ID',
+            'Cores',
+            'Injected Files',
+            'Injected File Content Bytes',
+            'Injected File Path Bytes',
+            'Instances',
+            'Key Pairs',
+            'Metadata Items',
+            'Ram',
+            'Server Groups',
+            'Server Group Members',
+        )
+        return (
+            column_headers,
+            (utils.get_dict_properties(s, columns) for s in result),
+        )
+
+    def _list_quota_volume(self, parsed_args, project_ids):
+        volume_client = self.app.client_manager.volume
+        result = []
+
+        for p in project_ids:
+            try:
+                data = volume_client.quotas.get(p)
+            except Exception as ex:
+                if type(ex).__name__ == 'NotFound':
+                    # Project not found, move on to next one
+                    LOG.warning(f"Project {p} not found: {ex}")
+                    continue
+                else:
+                    raise
+
+            result_data = _xform_get_quota(
+                data,
+                p,
+                VOLUME_QUOTAS.keys(),
+            )
+            default_data = volume_client.quotas.defaults(p)
+            result_default = _xform_get_quota(
+                default_data,
+                p,
+                VOLUME_QUOTAS.keys(),
+            )
+            if result_default != result_data:
+                result += result_data
+
+        columns = (
+            'id',
+            'backups',
+            'backup_gigabytes',
+            'gigabytes',
+            'per_volume_gigabytes',
+            'snapshots',
+            'volumes',
+        )
+        column_headers = (
+            'Project ID',
+            'Backups',
+            'Backup Gigabytes',
+            'Gigabytes',
+            'Per Volume Gigabytes',
+            'Snapshots',
+            'Volumes',
+        )
+
+        return (
+            column_headers,
+            (utils.get_dict_properties(s, columns) for s in result),
+        )
+
+    def _list_quota_network(self, parsed_args, project_ids):
+        client = self.app.client_manager.network
+        result = []
+
+        for p in project_ids:
+            try:
+                data = client.get_quota(p)
+            except Exception as ex:
+                if type(ex).__name__ == 'NotFound':
+                    # Project not found, move on to next one
+                    LOG.warning(f"Project {p} not found: {ex}")
+                    continue
+                else:
+                    raise
+
+            result_data = _xform_get_quota(
+                data,
+                p,
+                NETWORK_KEYS,
+            )
+            default_data = client.get_quota_default(p)
+            result_default = _xform_get_quota(
+                default_data,
+                p,
+                NETWORK_KEYS,
+            )
+            if result_default != result_data:
+                result += result_data
+
+        columns = (
+            'id',
+            'floating_ips',
+            'networks',
+            'ports',
+            'rbac_policies',
+            'routers',
+            'security_groups',
+            'security_group_rules',
+            'subnets',
+            'subnet_pools',
+        )
+        column_headers = (
+            'Project ID',
+            'Floating IPs',
+            'Networks',
+            'Ports',
+            'RBAC Policies',
+            'Routers',
+            'Security Groups',
+            'Security Group Rules',
+            'Subnets',
+            'Subnet Pools',
+        )
+
+        return (
+            column_headers,
+            (utils.get_dict_properties(s, columns) for s in result),
+        )
+
+    def take_action(self, parsed_args):
         project_ids = [
             p.id for p in self.app.client_manager.identity.projects.list()
         ]
-
         if parsed_args.compute:
-            compute_client = self.app.client_manager.compute
-            for p in project_ids:
-                try:
-                    data = compute_client.quotas.get(p)
-                except Exception as ex:
-                    if (
-                        type(ex).__name__ == 'NotFound'
-                        or ex.http_status >= 400
-                        and ex.http_status <= 499
-                    ):
-                        # Project not found, move on to next one
-                        LOG.warning(f"Project {p} not found: {ex}")
-                        continue
-                    else:
-                        raise
+            return self._list_quota_compute(parsed_args, project_ids)
+        elif parsed_args.volume:
+            return self._list_quota_volume(parsed_args, project_ids)
+        elif parsed_args.network:
+            return self._list_quota_network(parsed_args, project_ids)
 
-                result_data = _xform_get_quota(
-                    data,
-                    p,
-                    COMPUTE_QUOTAS.keys(),
-                )
-                default_data = compute_client.quotas.defaults(p)
-                result_default = _xform_get_quota(
-                    default_data,
-                    p,
-                    COMPUTE_QUOTAS.keys(),
-                )
-                if result_default != result_data:
-                    result += result_data
-
-            columns = (
-                'id',
-                'cores',
-                'injected_files',
-                'injected_file_content_bytes',
-                'injected_file_path_bytes',
-                'instances',
-                'key_pairs',
-                'metadata_items',
-                'ram',
-                'server_groups',
-                'server_group_members',
-            )
-            column_headers = (
-                'Project ID',
-                'Cores',
-                'Injected Files',
-                'Injected File Content Bytes',
-                'Injected File Path Bytes',
-                'Instances',
-                'Key Pairs',
-                'Metadata Items',
-                'Ram',
-                'Server Groups',
-                'Server Group Members',
-            )
-            return (
-                column_headers,
-                (utils.get_dict_properties(s, columns) for s in result),
-            )
-
-        if parsed_args.volume:
-            volume_client = self.app.client_manager.volume
-            for p in project_ids:
-                try:
-                    data = volume_client.quotas.get(p)
-                except Exception as ex:
-                    if type(ex).__name__ == 'NotFound':
-                        # Project not found, move on to next one
-                        LOG.warning(f"Project {p} not found: {ex}")
-                        continue
-                    else:
-                        raise
-
-                result_data = _xform_get_quota(
-                    data,
-                    p,
-                    VOLUME_QUOTAS.keys(),
-                )
-                default_data = volume_client.quotas.defaults(p)
-                result_default = _xform_get_quota(
-                    default_data,
-                    p,
-                    VOLUME_QUOTAS.keys(),
-                )
-                if result_default != result_data:
-                    result += result_data
-
-            columns = (
-                'id',
-                'backups',
-                'backup_gigabytes',
-                'gigabytes',
-                'per_volume_gigabytes',
-                'snapshots',
-                'volumes',
-            )
-            column_headers = (
-                'Project ID',
-                'Backups',
-                'Backup Gigabytes',
-                'Gigabytes',
-                'Per Volume Gigabytes',
-                'Snapshots',
-                'Volumes',
-            )
-
-            return (
-                column_headers,
-                (utils.get_dict_properties(s, columns) for s in result),
-            )
-
-        if parsed_args.network:
-            client = self.app.client_manager.network
-            for p in project_ids:
-                try:
-                    data = client.get_quota(p)
-                except Exception as ex:
-                    if type(ex).__name__ == 'NotFound':
-                        # Project not found, move on to next one
-                        LOG.warning(f"Project {p} not found: {ex}")
-                        continue
-                    else:
-                        raise
-
-                result_data = _xform_get_quota(
-                    data,
-                    p,
-                    NETWORK_KEYS,
-                )
-                default_data = client.get_quota_default(p)
-                result_default = _xform_get_quota(
-                    default_data,
-                    p,
-                    NETWORK_KEYS,
-                )
-                if result_default != result_data:
-                    result += result_data
-
-            columns = (
-                'id',
-                'floating_ips',
-                'networks',
-                'ports',
-                'rbac_policies',
-                'routers',
-                'security_groups',
-                'security_group_rules',
-                'subnets',
-                'subnet_pools',
-            )
-            column_headers = (
-                'Project ID',
-                'Floating IPs',
-                'Networks',
-                'Ports',
-                'RBAC Policies',
-                'Routers',
-                'Security Groups',
-                'Security Group Rules',
-                'Subnets',
-                'Subnet Pools',
-            )
-
-            return (
-                column_headers,
-                (utils.get_dict_properties(s, columns) for s in result),
-            )
-
+        # will never get here
         return ((), ())
 
 
