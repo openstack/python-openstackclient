@@ -1,0 +1,6 @@
+---
+upgrade:
+  - The ``openstack quota set`` command previously defaulted to ``--force``
+    behavior for network quotas. This behavior has now changed and the command
+    now defaults to ``--no-force`` behavior. Users should specify the
+    ``--force`` option if they wish to retain previous behavior.
