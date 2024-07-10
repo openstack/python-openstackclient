@@ -1,0 +1,8 @@
+---
+upgrade:
+  - |
+    The ``--class`` options of the ``quota show`` command, which was deprecated
+    in 6.1.0 (Antelope), has now been removed in favour of the ``--default``
+    option. Quota classes were never fully implemented and the compute and
+    volume services only support a single ``default`` quota class while the
+    network service does not support quota classes at all.

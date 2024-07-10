@@ -39,40 +39,6 @@ class QuotaTests(base.TestCase):
         cls.openstack(f'project delete {cls.PROJECT_NAME}')
         super().tearDownClass()
 
-    def test_quota_list_details_compute(self):
-        expected_headers = ["Resource", "In Use", "Reserved", "Limit"]
-        cmd_output = self.openstack(
-            'quota list --detail --compute',
-            parse_output=True,
-        )
-        self.assertIsNotNone(cmd_output)
-        resources = []
-        for row in cmd_output:
-            row_headers = [str(r) for r in row.keys()]
-            self.assertEqual(sorted(expected_headers), sorted(row_headers))
-            resources.append(row['Resource'])
-        # Ensure that returned quota is compute quota
-        self.assertIn("instances", resources)
-        # and that there is no network quota here
-        self.assertNotIn("networks", resources)
-
-    def test_quota_list_details_network(self):
-        expected_headers = ["Resource", "In Use", "Reserved", "Limit"]
-        cmd_output = self.openstack(
-            'quota list --detail --network',
-            parse_output=True,
-        )
-        self.assertIsNotNone(cmd_output)
-        resources = []
-        for row in cmd_output:
-            row_headers = [str(r) for r in row.keys()]
-            self.assertEqual(sorted(expected_headers), sorted(row_headers))
-            resources.append(row['Resource'])
-        # Ensure that returned quota is network quota
-        self.assertIn("networks", resources)
-        # and that there is no compute quota here
-        self.assertNotIn("instances", resources)
-
     def test_quota_list_network_option(self):
         if not self.haz_network:
             self.skipTest("No Network service present")
@@ -155,41 +121,23 @@ class QuotaTests(base.TestCase):
         if self.haz_network:
             self.assertTrue(cmd_output["routers"] >= 0)
 
-    def test_quota_set_class(self):
+    def test_quota_set_default(self):
         self.openstack(
-            'quota set --key-pairs 33 --snapshots 43 ' + '--class default'
+            'quota set --key-pairs 33 --snapshots 43 --class default'
         )
         cmd_output = self.openstack(
-            'quota show --class default',
+            'quota show --default',
             parse_output=True,
         )
         self.assertIsNotNone(cmd_output)
         cmd_output = {x['Resource']: x['Limit'] for x in cmd_output}
-        self.assertEqual(
-            33,
-            cmd_output["key-pairs"],
-        )
-        self.assertEqual(
-            43,
-            cmd_output["snapshots"],
-        )
-
-        # Check default quota class
-        cmd_output = self.openstack(
-            'quota show --class',
-            parse_output=True,
-        )
-        self.assertIsNotNone(cmd_output)
-        # We don't necessarily know the default quotas, we're checking the
-        # returned attributes
-        cmd_output = {x['Resource']: x['Limit'] for x in cmd_output}
-        self.assertTrue(cmd_output["key-pairs"] >= 0)
-        self.assertTrue(cmd_output["snapshots"] >= 0)
+        self.assertEqual(33, cmd_output["key-pairs"])
+        self.assertEqual(43, cmd_output["snapshots"])
 
     def _restore_quota_limit(self, resource, limit, project):
         self.openstack(f'quota set --{resource} {limit} {project}')
 
-    def test_quota_network_set_with_no_force(self):
+    def test_quota_set_network_with_no_force(self):
         if not self.haz_network:
             self.skipTest('No Network service present')
         if not self.is_extension_enabled('quota-check-limit'):
@@ -227,7 +175,7 @@ class QuotaTests(base.TestCase):
             'quota set --networks 1 --no-force ' + self.PROJECT_NAME,
         )
 
-    def test_quota_network_set_with_force(self):
+    def test_quota_set_network_with_force(self):
         self.skipTest('story 2010110')
         if not self.haz_network:
             self.skipTest('No Network service present')
@@ -274,3 +222,37 @@ class QuotaTests(base.TestCase):
         )
         self.assertIsNotNone(cmd_output)
         self.assertEqual(1, cmd_output[0]['Networks'])
+
+    def test_quota_show(self):
+        expected_headers = ["Resource", "Limit"]
+        cmd_output = self.openstack(
+            'quota show',
+            parse_output=True,
+        )
+        self.assertIsNotNone(cmd_output)
+        resources = []
+        for row in cmd_output:
+            row_headers = [str(r) for r in row.keys()]
+            self.assertEqual(sorted(expected_headers), sorted(row_headers))
+            resources.append(row['Resource'])
+        # Ensure that returned quota has network quota...
+        self.assertIn("networks", resources)
+        # ...and compute quota
+        self.assertIn("instances", resources)
+
+    def test_quota_show_usage_option(self):
+        expected_headers = ["Resource", "Limit", "In Use", "Reserved"]
+        cmd_output = self.openstack(
+            'quota show --usage',
+            parse_output=True,
+        )
+        self.assertIsNotNone(cmd_output)
+        resources = []
+        for row in cmd_output:
+            row_headers = [str(r) for r in row.keys()]
+            self.assertEqual(sorted(expected_headers), sorted(row_headers))
+            resources.append(row['Resource'])
+        # Ensure that returned quota has network quota...
+        self.assertIn("networks", resources)
+        # ...and compute quota
+        self.assertIn("instances", resources)

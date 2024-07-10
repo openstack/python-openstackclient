@@ -189,115 +189,6 @@ class TestQuotaList(TestQuota):
 
         self.cmd = quota.ListQuota(self.app, None)
 
-    @staticmethod
-    def _get_detailed_reference_data(quota):
-        reference_data = []
-        for name, values in quota.to_dict().items():
-            if type(values) is dict:
-                if 'used' in values:
-                    # For network quota it's "used" key instead of "in_use"
-                    in_use = values['used']
-                else:
-                    in_use = values['in_use']
-                resource_values = [in_use, values['reserved'], values['limit']]
-                reference_data.append(tuple([name] + resource_values))
-        return reference_data
-
-    def test_quota_list_details_compute(self):
-        detailed_quota = compute_fakes.create_one_comp_detailed_quota()
-
-        detailed_column_header = (
-            'Resource',
-            'In Use',
-            'Reserved',
-            'Limit',
-        )
-        detailed_reference_data = self._get_detailed_reference_data(
-            detailed_quota
-        )
-
-        self.compute_client.quotas.get = mock.Mock(return_value=detailed_quota)
-
-        arglist = [
-            '--detail',
-            '--compute',
-        ]
-        verifylist = [
-            ('detail', True),
-            ('compute', True),
-        ]
-        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
-
-        columns, data = self.cmd.take_action(parsed_args)
-        ret_quotas = list(data)
-
-        self.assertEqual(detailed_column_header, columns)
-        self.assertEqual(sorted(detailed_reference_data), sorted(ret_quotas))
-
-    def test_quota_list_details_network(self):
-        detailed_quota = (
-            network_fakes.FakeQuota.create_one_net_detailed_quota()
-        )
-
-        detailed_column_header = (
-            'Resource',
-            'In Use',
-            'Reserved',
-            'Limit',
-        )
-        detailed_reference_data = self._get_detailed_reference_data(
-            detailed_quota
-        )
-
-        self.network_client.get_quota = mock.Mock(return_value=detailed_quota)
-
-        arglist = [
-            '--detail',
-            '--network',
-        ]
-        verifylist = [
-            ('detail', True),
-            ('network', True),
-        ]
-        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
-
-        columns, data = self.cmd.take_action(parsed_args)
-        ret_quotas = list(data)
-
-        self.assertEqual(detailed_column_header, columns)
-        self.assertEqual(sorted(detailed_reference_data), sorted(ret_quotas))
-
-    def test_quota_list_details_volume(self):
-        detailed_quota = volume_fakes.create_one_detailed_quota()
-
-        detailed_column_header = (
-            'Resource',
-            'In Use',
-            'Reserved',
-            'Limit',
-        )
-        detailed_reference_data = self._get_detailed_reference_data(
-            detailed_quota
-        )
-
-        self.volume_client.quotas.get = mock.Mock(return_value=detailed_quota)
-
-        arglist = [
-            '--detail',
-            '--volume',
-        ]
-        verifylist = [
-            ('detail', True),
-            ('volume', True),
-        ]
-        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
-
-        columns, data = self.cmd.take_action(parsed_args)
-        ret_quotas = list(data)
-
-        self.assertEqual(detailed_column_header, columns)
-        self.assertEqual(sorted(detailed_reference_data), sorted(ret_quotas))
-
     def test_quota_list_compute(self):
         # Two projects with non-default quotas
         self.compute_client.quotas.get = mock.Mock(
@@ -414,30 +305,6 @@ class TestQuotaList(TestQuota):
             parsed_args,
         )
 
-    def test_quota_list_compute_by_project(self):
-        # Two projects with non-default quotas
-        self.compute_client.quotas.get = mock.Mock(
-            side_effect=self.compute_quotas,
-        )
-
-        arglist = [
-            '--compute',
-            '--project',
-            self.projects[0].name,
-        ]
-        verifylist = [
-            ('compute', True),
-            ('project', self.projects[0].name),
-        ]
-        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
-
-        columns, data = self.cmd.take_action(parsed_args)
-        ret_quotas = list(data)
-
-        self.assertEqual(self.compute_column_header, columns)
-        self.assertEqual(self.compute_reference_data, ret_quotas[0])
-        self.assertEqual(1, len(ret_quotas))
-
     def test_quota_list_network(self):
         # Two projects with non-default quotas
         self.network_client.get_quota = mock.Mock(
@@ -507,30 +374,6 @@ class TestQuotaList(TestQuota):
         self.assertEqual(self.network_reference_data, ret_quotas[0])
         self.assertEqual(1, len(ret_quotas))
 
-    def test_quota_list_network_by_project(self):
-        # Two projects with non-default quotas
-        self.network_client.get_quota = mock.Mock(
-            side_effect=self.network_quotas,
-        )
-
-        arglist = [
-            '--network',
-            '--project',
-            self.projects[0].name,
-        ]
-        verifylist = [
-            ('network', True),
-            ('project', self.projects[0].name),
-        ]
-        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
-
-        columns, data = self.cmd.take_action(parsed_args)
-        ret_quotas = list(data)
-
-        self.assertEqual(self.network_column_header, columns)
-        self.assertEqual(self.network_reference_data, ret_quotas[0])
-        self.assertEqual(1, len(ret_quotas))
-
     def test_quota_list_volume(self):
         # Two projects with non-default quotas
         self.volume_client.quotas.get = mock.Mock(
@@ -590,30 +433,6 @@ class TestQuotaList(TestQuota):
         ]
         verifylist = [
             ('volume', True),
-        ]
-        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
-
-        columns, data = self.cmd.take_action(parsed_args)
-        ret_quotas = list(data)
-
-        self.assertEqual(self.volume_column_header, columns)
-        self.assertEqual(self.volume_reference_data, ret_quotas[0])
-        self.assertEqual(1, len(ret_quotas))
-
-    def test_quota_list_volume_by_project(self):
-        # Two projects with non-default quotas
-        self.volume_client.quotas.get = mock.Mock(
-            side_effect=self.volume_quotas,
-        )
-
-        arglist = [
-            '--volume',
-            '--project',
-            self.projects[0].name,
-        ]
-        verifylist = [
-            ('volume', True),
-            ('project', self.projects[0].name),
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
@@ -1226,25 +1045,6 @@ class TestQuotaShow(TestQuota):
             self.projects[0].id,
         )
         self.assertNotCalled(self.network_client.get_quota)
-
-    def test_quota_show__with_class(self):
-        arglist = [
-            '--class',
-            'default',
-        ]
-        verifylist = [
-            ('quota_class', True),
-            ('project', 'default'),  # project is actually a class here
-        ]
-        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
-
-        self.cmd.take_action(parsed_args)
-
-        self.compute_quotas_class_mock.get.assert_called_once_with('default')
-        self.volume_quotas_class_mock.get.assert_called_once_with('default')
-        # neutron doesn't have the concept of quota classes
-        self.assertNotCalled(self.network_client.get_quota)
-        self.assertNotCalled(self.network_client.get_quota_default)
 
     def test_quota_show__with_usage(self):
         # update mocks to return detailed quota instead
