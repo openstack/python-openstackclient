@@ -46,42 +46,6 @@ from openstackclient.tests.unit.network.v2 import fakes as network_fakes
 from openstackclient.tests.unit import utils
 from openstackclient.tests.unit.volume.v3 import fakes as volume_fakes
 
-floating_ip_num = 100
-fix_ip_num = 100
-injected_file_num = 100
-injected_file_size_num = 10240
-injected_path_size_num = 255
-key_pair_num = 100
-core_num = 20
-ram_num = 51200
-instance_num = 10
-property_num = 128
-secgroup_rule_num = 20
-secgroup_num = 10
-servgroup_num = 10
-servgroup_members_num = 10
-project_name = 'project_test'
-QUOTA = {
-    'project': project_name,
-    'floating-ips': floating_ip_num,
-    'fix-ips': fix_ip_num,
-    'injected-files': injected_file_num,
-    'injected-file-size': injected_file_size_num,
-    'injected-path-size': injected_path_size_num,
-    'key-pairs': key_pair_num,
-    'cores': core_num,
-    'ram': ram_num,
-    'instances': instance_num,
-    'properties': property_num,
-    'secgroup_rules': secgroup_rule_num,
-    'secgroups': secgroup_num,
-    'server-groups': servgroup_num,
-    'server-group-members': servgroup_members_num,
-}
-
-QUOTA_columns = tuple(sorted(QUOTA))
-QUOTA_data = tuple(QUOTA[x] for x in sorted(QUOTA))
-
 
 class FakeComputev2Client:
     def __init__(self, **kwargs):
@@ -104,12 +68,6 @@ class FakeComputev2Client:
 
         self.flavor_access = mock.Mock()
         self.flavor_access.resource_class = fakes.FakeResource(None, {})
-
-        self.quotas = mock.Mock()
-        self.quotas.resource_class = fakes.FakeResource(None, {})
-
-        self.quota_classes = mock.Mock()
-        self.quota_classes.resource_class = fakes.FakeResource(None, {})
 
         self.usage = mock.Mock()
         self.usage.resource_class = fakes.FakeResource(None, {})
@@ -1075,98 +1033,6 @@ def create_usages(attrs=None, count=2):
         usages.append(create_one_usage(attrs))
 
     return usages
-
-
-def create_one_comp_quota(attrs=None):
-    """Create one quota"""
-
-    attrs = attrs or {}
-
-    quota_attrs = {
-        'id': 'project-id-' + uuid.uuid4().hex,
-        'cores': 20,
-        'fixed_ips': 30,
-        'injected_files': 100,
-        'injected_file_content_bytes': 10240,
-        'injected_file_path_bytes': 255,
-        'instances': 50,
-        'key_pairs': 20,
-        'metadata_items': 10,
-        'ram': 51200,
-        'server_groups': 10,
-        'server_group_members': 10,
-    }
-
-    quota_attrs.update(attrs)
-    quota = fakes.FakeResource(info=copy.deepcopy(quota_attrs), loaded=True)
-
-    quota.project_id = quota_attrs['id']
-
-    return quota
-
-
-def create_one_default_comp_quota(attrs=None):
-    """Create one quota"""
-
-    attrs = attrs or {}
-
-    quota_attrs = {
-        'id': 'project-id-' + uuid.uuid4().hex,
-        'cores': 10,
-        'fixed_ips': 10,
-        'injected_files': 100,
-        'injected_file_content_bytes': 10240,
-        'injected_file_path_bytes': 255,
-        'instances': 20,
-        'key_pairs': 20,
-        'metadata_items': 10,
-        'ram': 51200,
-        'server_groups': 10,
-        'server_group_members': 10,
-    }
-
-    quota_attrs.update(attrs)
-    quota = fakes.FakeResource(info=copy.deepcopy(quota_attrs), loaded=True)
-
-    quota.project_id = quota_attrs['id']
-
-    return quota
-
-
-def create_one_comp_detailed_quota(attrs=None):
-    """Create one quota"""
-
-    attrs = attrs or {}
-
-    quota_attrs = {
-        'id': 'project-id-' + uuid.uuid4().hex,
-        'cores': {'reserved': 0, 'in_use': 0, 'limit': 20},
-        'fixed_ips': {'reserved': 0, 'in_use': 0, 'limit': 30},
-        'injected_files': {'reserved': 0, 'in_use': 0, 'limit': 100},
-        'injected_file_content_bytes': {
-            'reserved': 0,
-            'in_use': 0,
-            'limit': 10240,
-        },
-        'injected_file_path_bytes': {
-            'reserved': 0,
-            'in_use': 0,
-            'limit': 255,
-        },
-        'instances': {'reserved': 0, 'in_use': 0, 'limit': 50},
-        'key_pairs': {'reserved': 0, 'in_use': 0, 'limit': 20},
-        'metadata_items': {'reserved': 0, 'in_use': 0, 'limit': 10},
-        'ram': {'reserved': 0, 'in_use': 0, 'limit': 51200},
-        'server_groups': {'reserved': 0, 'in_use': 0, 'limit': 10},
-        'server_group_members': {'reserved': 0, 'in_use': 0, 'limit': 10},
-    }
-
-    quota_attrs.update(attrs)
-    quota = fakes.FakeResource(info=copy.deepcopy(quota_attrs), loaded=True)
-
-    quota.project_id = quota_attrs['id']
-
-    return quota
 
 
 def create_limits(attrs=None):

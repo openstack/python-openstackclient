@@ -33,19 +33,6 @@ from openstackclient.tests.unit.identity.v3 import fakes as identity_fakes
 from openstackclient.tests.unit import utils
 
 
-QUOTA = {
-    "gigabytes": 1000,
-    "volumes": 11,
-    "snapshots": 10,
-    "backups": 10,
-    "backup_gigabytes": 1000,
-    "per_volume_gigabytes": -1,
-    "gigabytes_volume_type_backend": -1,
-    "volumes_volume_type_backend": -1,
-    "snapshots_volume_type_backend": -1,
-}
-
-
 class FakeVolumeClient:
     def __init__(self, **kwargs):
         self.auth_token = kwargs['token']
@@ -68,10 +55,6 @@ class FakeVolumeClient:
         self.pools.resource_class = fakes.FakeResource(None, {})
         self.qos_specs = mock.Mock()
         self.qos_specs.resource_class = fakes.FakeResource(None, {})
-        self.quota_classes = mock.Mock()
-        self.quota_classes.resource_class = fakes.FakeResource(None, {})
-        self.quotas = mock.Mock()
-        self.quotas.resource_class = fakes.FakeResource(None, {})
         self.restores = mock.Mock()
         self.restores.resource_class = fakes.FakeResource(None, {})
         self.services = mock.Mock()
@@ -991,74 +974,3 @@ def create_one_encryption_volume_type(attrs=None):
         info=copy.deepcopy(encryption_info), loaded=True
     )
     return encryption_type
-
-
-def create_one_vol_quota(attrs=None):
-    """Create one quota"""
-    attrs = attrs or {}
-
-    quota_attrs = {
-        'id': 'project-id-' + uuid.uuid4().hex,
-        'backups': 100,
-        'backup_gigabytes': 100,
-        'gigabytes': 10,
-        'per_volume_gigabytes': 10,
-        'snapshots': 0,
-        'volumes': 10,
-    }
-
-    quota_attrs.update(attrs)
-
-    quota = fakes.FakeResource(info=copy.deepcopy(quota_attrs), loaded=True)
-    quota.project_id = quota_attrs['id']
-
-    return quota
-
-
-def create_one_default_vol_quota(attrs=None):
-    """Create one quota"""
-    attrs = attrs or {}
-
-    quota_attrs = {
-        'id': 'project-id-' + uuid.uuid4().hex,
-        'backups': 100,
-        'backup_gigabytes': 100,
-        'gigabytes': 100,
-        'per_volume_gigabytes': 100,
-        'snapshots': 100,
-        'volumes': 100,
-    }
-
-    quota_attrs.update(attrs)
-
-    quota = fakes.FakeResource(info=copy.deepcopy(quota_attrs), loaded=True)
-    quota.project_id = quota_attrs['id']
-
-    return quota
-
-
-def create_one_detailed_quota(attrs=None):
-    """Create one quota"""
-    attrs = attrs or {}
-
-    quota_attrs = {
-        'volumes': {'limit': 3, 'in_use': 1, 'reserved': 0},
-        'per_volume_gigabytes': {'limit': -1, 'in_use': 0, 'reserved': 0},
-        'snapshots': {'limit': 10, 'in_use': 0, 'reserved': 0},
-        'gigabytes': {'limit': 1000, 'in_use': 5, 'reserved': 0},
-        'backups': {'limit': 10, 'in_use': 0, 'reserved': 0},
-        'backup_gigabytes': {'limit': 1000, 'in_use': 0, 'reserved': 0},
-        'volumes_lvmdriver-1': {'limit': -1, 'in_use': 1, 'reserved': 0},
-        'gigabytes_lvmdriver-1': {'limit': -1, 'in_use': 5, 'reserved': 0},
-        'snapshots_lvmdriver-1': {'limit': -1, 'in_use': 0, 'reserved': 0},
-        'volumes___DEFAULT__': {'limit': -1, 'in_use': 0, 'reserved': 0},
-        'gigabytes___DEFAULT__': {'limit': -1, 'in_use': 0, 'reserved': 0},
-        'snapshots___DEFAULT__': {'limit': -1, 'in_use': 0, 'reserved': 0},
-        'groups': {'limit': 10, 'in_use': 0, 'reserved': 0},
-        'id': uuid.uuid4().hex,
-    }
-    quota_attrs.update(attrs)
-
-    quota = fakes.FakeResource(info=copy.deepcopy(quota_attrs), loaded=True)
-
-    return quota

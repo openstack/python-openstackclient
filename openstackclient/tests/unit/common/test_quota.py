@@ -10,61 +10,38 @@
 #   License for the specific language governing permissions and limitations
 #   under the License.
 
-import copy
 from unittest import mock
 
-from osc_lib import exceptions
+from openstack.block_storage.v3 import quota_set as _volume_quota_set
+from openstack.compute.v2 import quota_set as _compute_quota_set
+from openstack.identity.v3 import project as _project
+from openstack.network.v2 import quota as _network_quota_set
+from openstack.test import fakes as sdk_fakes
 
+from openstack import exceptions as sdk_exceptions
 from openstackclient.common import quota
 from openstackclient.tests.unit.compute.v2 import fakes as compute_fakes
-from openstackclient.tests.unit import fakes
-from openstackclient.tests.unit.identity.v2_0 import fakes as identity_fakes
-from openstackclient.tests.unit.identity.v3 import fakes as identity_fakes_v3
+from openstackclient.tests.unit.identity.v3 import fakes as identity_fakes
 from openstackclient.tests.unit.network.v2 import fakes as network_fakes
-from openstackclient.tests.unit.volume.v2 import fakes as volume_fakes
+from openstackclient.tests.unit import utils
+from openstackclient.tests.unit.volume.v3 import fakes as volume_fakes
 
 
-class FakeQuotaResource(fakes.FakeResource):
-    _keys = {'property': 'value'}
-
-    def set_keys(self, args):
-        self._keys.update(args)
-
-    def unset_keys(self, keys):
-        for key in keys:
-            self._keys.pop(key, None)
-
-    def get_keys(self):
-        return self._keys
-
-
-class TestQuota(compute_fakes.TestComputev2):
+class TestQuota(
+    identity_fakes.FakeClientMixin,
+    compute_fakes.FakeClientMixin,
+    network_fakes.FakeClientMixin,
+    volume_fakes.FakeClientMixin,
+    utils.TestCommand,
+):
     def setUp(self):
         super().setUp()
 
-        # Set up common projects
-        self.projects = identity_fakes_v3.FakeProject.create_projects(count=2)
-        self.projects_mock = self.identity_client.projects
-        self.projects_mock.reset_mock()
-        self.projects_mock.get.return_value = self.projects[0]
-
-        self.compute_quotas_mock = self.compute_client.quotas
-        self.compute_quotas_mock.reset_mock()
-        self.compute_quotas_class_mock = self.compute_client.quota_classes
-        self.compute_quotas_class_mock.reset_mock()
-
-        self.volume_quotas_mock = self.volume_client.quotas
-        self.volume_quotas_mock.reset_mock()
-        self.volume_quotas_class_mock = self.volume_client.quota_classes
-        self.volume_quotas_class_mock.reset_mock()
-
-        self.app.client_manager.auth_ref = mock.Mock()
-        self.app.client_manager.auth_ref.service_catalog = mock.Mock()
-        self.service_catalog_mock = (
-            self.app.client_manager.auth_ref.service_catalog
+        self.projects = list(
+            sdk_fakes.generate_fake_resources(_project.Project, count=2)
         )
-        self.service_catalog_mock.reset_mock()
-        self.app.client_manager.auth_ref.project_id = identity_fakes.project_id
+        self.app.client_manager.auth_ref = mock.Mock()
+        self.app.client_manager.auth_ref.project_id = self.projects[1].id
 
 
 class TestQuotaList(TestQuota):
@@ -110,22 +87,20 @@ class TestQuotaList(TestQuota):
     def setUp(self):
         super().setUp()
 
-        # Work with multiple projects in this class
-        self.projects_mock.get.side_effect = self.projects
-        self.projects_mock.list.return_value = self.projects
+        self.identity_sdk_client.get_project.side_effect = self.projects[0]
+        self.identity_sdk_client.projects.return_value = self.projects
 
         self.compute_quotas = [
-            compute_fakes.create_one_comp_quota(),
-            compute_fakes.create_one_comp_quota(),
+            sdk_fakes.generate_fake_resource(_compute_quota_set.QuotaSet),
+            sdk_fakes.generate_fake_resource(_compute_quota_set.QuotaSet),
         ]
-        self.compute_default_quotas = [
-            compute_fakes.create_one_default_comp_quota(),
-            compute_fakes.create_one_default_comp_quota(),
-        ]
-        self.compute_client.quotas.defaults = mock.Mock(
-            side_effect=self.compute_default_quotas,
+        self.default_compute_quotas = sdk_fakes.generate_fake_resource(
+            _compute_quota_set.QuotaSet
         )
-
+        # the defaults are global hence use of return_value here
+        self.compute_sdk_client.get_quota_set_defaults.return_value = (
+            self.default_compute_quotas
+        )
         self.compute_reference_data = (
             self.projects[0].id,
             self.compute_quotas[0].cores,
@@ -141,17 +116,16 @@ class TestQuotaList(TestQuota):
         )
 
         self.network_quotas = [
-            network_fakes.FakeQuota.create_one_net_quota(),
-            network_fakes.FakeQuota.create_one_net_quota(),
+            sdk_fakes.generate_fake_resource(_network_quota_set.Quota),
+            sdk_fakes.generate_fake_resource(_network_quota_set.Quota),
         ]
-        self.network_default_quotas = [
-            network_fakes.FakeQuota.create_one_default_net_quota(),
-            network_fakes.FakeQuota.create_one_default_net_quota(),
-        ]
-        self.network_client.get_quota_default = mock.Mock(
-            side_effect=self.network_default_quotas,
+        self.default_network_quotas = sdk_fakes.generate_fake_resource(
+            _network_quota_set.QuotaDefault
         )
-
+        # the defaults are global hence use of return_value here
+        self.network_client.get_quota_default.return_value = (
+            self.default_network_quotas
+        )
         self.network_reference_data = (
             self.projects[0].id,
             self.network_quotas[0].floating_ips,
@@ -166,17 +140,16 @@ class TestQuotaList(TestQuota):
         )
 
         self.volume_quotas = [
-            volume_fakes.create_one_vol_quota(),
-            volume_fakes.create_one_vol_quota(),
+            sdk_fakes.generate_fake_resource(_volume_quota_set.QuotaSet),
+            sdk_fakes.generate_fake_resource(_volume_quota_set.QuotaSet),
         ]
-        self.volume_default_quotas = [
-            volume_fakes.create_one_default_vol_quota(),
-            volume_fakes.create_one_default_vol_quota(),
-        ]
-        self.volume_client.quotas.defaults = mock.Mock(
-            side_effect=self.volume_default_quotas,
+        self.default_volume_quotas = sdk_fakes.generate_fake_resource(
+            _volume_quota_set.QuotaSet
         )
-
+        # the defaults are global hence use of return_value here
+        self.volume_sdk_client.get_quota_set_defaults.return_value = (
+            self.default_volume_quotas
+        )
         self.volume_reference_data = (
             self.projects[0].id,
             self.volume_quotas[0].backups,
@@ -191,9 +164,7 @@ class TestQuotaList(TestQuota):
 
     def test_quota_list_compute(self):
         # Two projects with non-default quotas
-        self.compute_client.quotas.get = mock.Mock(
-            side_effect=self.compute_quotas,
-        )
+        self.compute_sdk_client.get_quota_set.side_effect = self.compute_quotas
 
         arglist = [
             '--compute',
@@ -212,12 +183,10 @@ class TestQuotaList(TestQuota):
 
     def test_quota_list_compute_default(self):
         # One of the projects is at defaults
-        self.compute_client.quotas.get = mock.Mock(
-            side_effect=[
-                self.compute_quotas[0],
-                compute_fakes.create_one_default_comp_quota(),
-            ],
-        )
+        self.compute_sdk_client.get_quota_set.side_effect = [
+            self.compute_quotas[0],
+            self.default_compute_quotas,
+        ]
 
         arglist = [
             '--compute',
@@ -234,14 +203,12 @@ class TestQuotaList(TestQuota):
         self.assertEqual(self.compute_reference_data, ret_quotas[0])
         self.assertEqual(1, len(ret_quotas))
 
-    def test_quota_list_compute_no_project_not_found(self):
+    def test_quota_list_compute_project_not_found(self):
         # Make one of the projects disappear
-        self.compute_client.quotas.get = mock.Mock(
-            side_effect=[
-                self.compute_quotas[0],
-                exceptions.NotFound("NotFound"),
-            ],
-        )
+        self.compute_sdk_client.get_quota_set.side_effect = [
+            self.compute_quotas[0],
+            sdk_exceptions.NotFoundException("NotFound"),
+        ]
 
         arglist = [
             '--compute',
@@ -258,14 +225,12 @@ class TestQuotaList(TestQuota):
         self.assertEqual(self.compute_reference_data, ret_quotas[0])
         self.assertEqual(1, len(ret_quotas))
 
-    def test_quota_list_compute_no_project_4xx(self):
-        # Make one of the projects disappear
-        self.compute_client.quotas.get = mock.Mock(
-            side_effect=[
-                self.compute_quotas[0],
-                exceptions.BadRequest("Bad request"),
-            ],
-        )
+    def test_quota_list_compute_project_inaccessible(self):
+        # Make one of the projects inaccessible
+        self.compute_sdk_client.get_quota_set.side_effect = [
+            self.compute_quotas[0],
+            sdk_exceptions.ForbiddenException("Forbidden"),
+        ]
 
         arglist = [
             '--compute',
@@ -282,13 +247,10 @@ class TestQuotaList(TestQuota):
         self.assertEqual(self.compute_reference_data, ret_quotas[0])
         self.assertEqual(1, len(ret_quotas))
 
-    def test_quota_list_compute_no_project_5xx(self):
-        # Make one of the projects disappear
-        self.compute_client.quotas.get = mock.Mock(
-            side_effect=[
-                self.compute_quotas[0],
-                exceptions.HTTPNotImplemented("Not implemented??"),
-            ],
+    def test_quota_list_compute_server_error(self):
+        # Make the server "break"
+        self.compute_sdk_client.get_quota_set.side_effect = (
+            sdk_exceptions.HttpException("Not implemented?")
         )
 
         arglist = [
@@ -300,16 +262,14 @@ class TestQuotaList(TestQuota):
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
         self.assertRaises(
-            exceptions.HTTPNotImplemented,
+            sdk_exceptions.HttpException,
             self.cmd.take_action,
             parsed_args,
         )
 
     def test_quota_list_network(self):
         # Two projects with non-default quotas
-        self.network_client.get_quota = mock.Mock(
-            side_effect=self.network_quotas,
-        )
+        self.network_client.get_quota.side_effect = self.network_quotas
 
         arglist = [
             '--network',
@@ -328,12 +288,10 @@ class TestQuotaList(TestQuota):
 
     def test_quota_list_network_default(self):
         # Two projects with non-default quotas
-        self.network_client.get_quota = mock.Mock(
-            side_effect=[
-                self.network_quotas[0],
-                network_fakes.FakeQuota.create_one_default_net_quota(),
-            ],
-        )
+        self.network_client.get_quota.side_effect = [
+            self.network_quotas[0],
+            self.default_network_quotas,
+        ]
 
         arglist = [
             '--network',
@@ -352,12 +310,10 @@ class TestQuotaList(TestQuota):
 
     def test_quota_list_network_no_project(self):
         # Two projects with non-default quotas
-        self.network_client.get_quota = mock.Mock(
-            side_effect=[
-                self.network_quotas[0],
-                exceptions.NotFound("NotFound"),
-            ],
-        )
+        self.network_client.get_quota.side_effect = [
+            self.network_quotas[0],
+            sdk_exceptions.NotFoundException("NotFound"),
+        ]
 
         arglist = [
             '--network',
@@ -376,9 +332,7 @@ class TestQuotaList(TestQuota):
 
     def test_quota_list_volume(self):
         # Two projects with non-default quotas
-        self.volume_client.quotas.get = mock.Mock(
-            side_effect=self.volume_quotas,
-        )
+        self.volume_sdk_client.get_quota_set.side_effect = self.volume_quotas
 
         arglist = [
             '--volume',
@@ -397,36 +351,10 @@ class TestQuotaList(TestQuota):
 
     def test_quota_list_volume_default(self):
         # Two projects with non-default quotas
-        self.volume_client.quotas.get = mock.Mock(
-            side_effect=[
-                self.volume_quotas[0],
-                volume_fakes.create_one_default_vol_quota(),
-            ],
-        )
-
-        arglist = [
-            '--volume',
+        self.volume_sdk_client.get_quota_set.side_effect = [
+            self.volume_quotas[0],
+            self.default_volume_quotas,
         ]
-        verifylist = [
-            ('volume', True),
-        ]
-        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
-
-        columns, data = self.cmd.take_action(parsed_args)
-        ret_quotas = list(data)
-
-        self.assertEqual(self.volume_column_header, columns)
-        self.assertEqual(self.volume_reference_data, ret_quotas[0])
-        self.assertEqual(1, len(ret_quotas))
-
-    def test_quota_list_volume_no_project(self):
-        # Two projects with non-default quotas
-        self.volume_client.quotas.get = mock.Mock(
-            side_effect=[
-                self.volume_quotas[0],
-                volume_fakes.create_one_default_vol_quota(),
-            ],
-        )
 
         arglist = [
             '--volume',
@@ -448,80 +376,75 @@ class TestQuotaSet(TestQuota):
     def setUp(self):
         super().setUp()
 
-        self.compute_quotas_mock.update.return_value = FakeQuotaResource(
-            None,
-            copy.deepcopy(compute_fakes.QUOTA),
-            loaded=True,
-        )
-        self.compute_quotas_class_mock.update.return_value = FakeQuotaResource(
-            None,
-            copy.deepcopy(compute_fakes.QUOTA),
-            loaded=True,
-        )
-
-        self.volume_quotas_mock.update.return_value = FakeQuotaResource(
-            None,
-            copy.deepcopy(compute_fakes.QUOTA),
-            loaded=True,
-        )
-        self.volume_quotas_class_mock.update.return_value = FakeQuotaResource(
-            None,
-            copy.deepcopy(compute_fakes.QUOTA),
-            loaded=True,
-        )
+        self.identity_sdk_client.find_project.return_value = self.projects[0]
 
         self.cmd = quota.SetQuota(self.app, None)
 
     def test_quota_set(self):
+        floating_ip_num = 100
+        fix_ip_num = 100
+        injected_file_num = 100
+        injected_file_size_num = 10240
+        injected_path_size_num = 255
+        key_pair_num = 100
+        core_num = 20
+        ram_num = 51200
+        instance_num = 10
+        property_num = 128
+        secgroup_rule_num = 20
+        secgroup_num = 10
+        servgroup_num = 10
+        servgroup_members_num = 10
+
         arglist = [
             '--floating-ips',
-            str(compute_fakes.floating_ip_num),
+            str(floating_ip_num),
             '--fixed-ips',
-            str(compute_fakes.fix_ip_num),
+            str(fix_ip_num),
             '--injected-files',
-            str(compute_fakes.injected_file_num),
+            str(injected_file_num),
             '--injected-file-size',
-            str(compute_fakes.injected_file_size_num),
+            str(injected_file_size_num),
             '--injected-path-size',
-            str(compute_fakes.injected_path_size_num),
+            str(injected_path_size_num),
             '--key-pairs',
-            str(compute_fakes.key_pair_num),
+            str(key_pair_num),
             '--cores',
-            str(compute_fakes.core_num),
+            str(core_num),
             '--ram',
-            str(compute_fakes.ram_num),
+            str(ram_num),
             '--instances',
-            str(compute_fakes.instance_num),
+            str(instance_num),
             '--properties',
-            str(compute_fakes.property_num),
+            str(property_num),
             '--secgroup-rules',
-            str(compute_fakes.secgroup_rule_num),
+            str(secgroup_rule_num),
             '--secgroups',
-            str(compute_fakes.secgroup_num),
+            str(secgroup_num),
             '--server-groups',
-            str(compute_fakes.servgroup_num),
+            str(servgroup_num),
             '--server-group-members',
-            str(compute_fakes.servgroup_members_num),
+            str(servgroup_members_num),
             self.projects[0].name,
         ]
         verifylist = [
-            ('floating_ips', compute_fakes.floating_ip_num),
-            ('fixed_ips', compute_fakes.fix_ip_num),
-            ('injected_files', compute_fakes.injected_file_num),
+            ('floating_ips', floating_ip_num),
+            ('fixed_ips', fix_ip_num),
+            ('injected_files', injected_file_num),
             (
                 'injected_file_content_bytes',
-                compute_fakes.injected_file_size_num,
+                injected_file_size_num,
             ),
-            ('injected_file_path_bytes', compute_fakes.injected_path_size_num),
-            ('key_pairs', compute_fakes.key_pair_num),
-            ('cores', compute_fakes.core_num),
-            ('ram', compute_fakes.ram_num),
-            ('instances', compute_fakes.instance_num),
-            ('metadata_items', compute_fakes.property_num),
-            ('security_group_rules', compute_fakes.secgroup_rule_num),
-            ('security_groups', compute_fakes.secgroup_num),
-            ('server_groups', compute_fakes.servgroup_num),
-            ('server_group_members', compute_fakes.servgroup_members_num),
+            ('injected_file_path_bytes', injected_path_size_num),
+            ('key_pairs', key_pair_num),
+            ('cores', core_num),
+            ('ram', ram_num),
+            ('instances', instance_num),
+            ('metadata_items', property_num),
+            ('security_group_rules', secgroup_rule_num),
+            ('security_groups', secgroup_num),
+            ('server_groups', servgroup_num),
+            ('server_group_members', servgroup_members_num),
             ('force', False),
             ('project', self.projects[0].name),
         ]
@@ -531,52 +454,59 @@ class TestQuotaSet(TestQuota):
         result = self.cmd.take_action(parsed_args)
 
         kwargs = {
-            'floating_ips': compute_fakes.floating_ip_num,
-            'fixed_ips': compute_fakes.fix_ip_num,
-            'injected_files': compute_fakes.injected_file_num,
-            'injected_file_content_bytes': compute_fakes.injected_file_size_num,  # noqa: E501
-            'injected_file_path_bytes': compute_fakes.injected_path_size_num,
-            'key_pairs': compute_fakes.key_pair_num,
-            'cores': compute_fakes.core_num,
-            'ram': compute_fakes.ram_num,
-            'instances': compute_fakes.instance_num,
-            'metadata_items': compute_fakes.property_num,
-            'security_group_rules': compute_fakes.secgroup_rule_num,
-            'security_groups': compute_fakes.secgroup_num,
-            'server_groups': compute_fakes.servgroup_num,
-            'server_group_members': compute_fakes.servgroup_members_num,
+            'floating_ips': floating_ip_num,
+            'fixed_ips': fix_ip_num,
+            'injected_files': injected_file_num,
+            'injected_file_content_bytes': injected_file_size_num,  # noqa: E501
+            'injected_file_path_bytes': injected_path_size_num,
+            'key_pairs': key_pair_num,
+            'cores': core_num,
+            'ram': ram_num,
+            'instances': instance_num,
+            'metadata_items': property_num,
+            'security_group_rules': secgroup_rule_num,
+            'security_groups': secgroup_num,
+            'server_groups': servgroup_num,
+            'server_group_members': servgroup_members_num,
         }
 
-        self.compute_quotas_mock.update.assert_called_once_with(
+        self.compute_sdk_client.update_quota_set.assert_called_once_with(
             self.projects[0].id, **kwargs
         )
         self.assertIsNone(result)
 
     def test_quota_set_volume(self):
+        gigabytes = 1000
+        volumes = 11
+        snapshots = 10
+        backups = 10
+        backup_gigabytes = 1000
+        per_volume_gigabytes = -1
+
         arglist = [
             '--gigabytes',
-            str(volume_fakes.QUOTA['gigabytes']),
+            str(gigabytes),
             '--snapshots',
-            str(volume_fakes.QUOTA['snapshots']),
+            str(snapshots),
             '--volumes',
-            str(volume_fakes.QUOTA['volumes']),
+            str(volumes),
             '--backups',
-            str(volume_fakes.QUOTA['backups']),
+            str(backups),
             '--backup-gigabytes',
-            str(volume_fakes.QUOTA['backup_gigabytes']),
+            str(backup_gigabytes),
             '--per-volume-gigabytes',
-            str(volume_fakes.QUOTA['per_volume_gigabytes']),
+            str(per_volume_gigabytes),
             self.projects[0].name,
         ]
         verifylist = [
-            ('gigabytes', volume_fakes.QUOTA['gigabytes']),
-            ('snapshots', volume_fakes.QUOTA['snapshots']),
-            ('volumes', volume_fakes.QUOTA['volumes']),
-            ('backups', volume_fakes.QUOTA['backups']),
-            ('backup_gigabytes', volume_fakes.QUOTA['backup_gigabytes']),
+            ('gigabytes', gigabytes),
+            ('snapshots', snapshots),
+            ('volumes', volumes),
+            ('backups', backups),
+            ('backup_gigabytes', backup_gigabytes),
             (
                 'per_volume_gigabytes',
-                volume_fakes.QUOTA['per_volume_gigabytes'],
+                per_volume_gigabytes,
             ),
             ('project', self.projects[0].name),
         ]
@@ -585,47 +515,54 @@ class TestQuotaSet(TestQuota):
         result = self.cmd.take_action(parsed_args)
 
         kwargs = {
-            'gigabytes': volume_fakes.QUOTA['gigabytes'],
-            'snapshots': volume_fakes.QUOTA['snapshots'],
-            'volumes': volume_fakes.QUOTA['volumes'],
-            'backups': volume_fakes.QUOTA['backups'],
-            'backup_gigabytes': volume_fakes.QUOTA['backup_gigabytes'],
-            'per_volume_gigabytes': volume_fakes.QUOTA['per_volume_gigabytes'],
+            'gigabytes': gigabytes,
+            'snapshots': snapshots,
+            'volumes': volumes,
+            'backups': backups,
+            'backup_gigabytes': backup_gigabytes,
+            'per_volume_gigabytes': per_volume_gigabytes,
         }
 
-        self.volume_quotas_mock.update.assert_called_once_with(
+        self.volume_sdk_client.update_quota_set.assert_called_once_with(
             self.projects[0].id, **kwargs
         )
 
         self.assertIsNone(result)
 
     def test_quota_set_volume_with_volume_type(self):
+        gigabytes = 1000
+        volumes = 11
+        snapshots = 10
+        backups = 10
+        backup_gigabytes = 1000
+        per_volume_gigabytes = -1
+
         arglist = [
             '--gigabytes',
-            str(volume_fakes.QUOTA['gigabytes']),
+            str(gigabytes),
             '--snapshots',
-            str(volume_fakes.QUOTA['snapshots']),
+            str(snapshots),
             '--volumes',
-            str(volume_fakes.QUOTA['volumes']),
+            str(volumes),
             '--backups',
-            str(volume_fakes.QUOTA['backups']),
+            str(backups),
             '--backup-gigabytes',
-            str(volume_fakes.QUOTA['backup_gigabytes']),
+            str(backup_gigabytes),
             '--per-volume-gigabytes',
-            str(volume_fakes.QUOTA['per_volume_gigabytes']),
+            str(per_volume_gigabytes),
             '--volume-type',
             'volume_type_backend',
             self.projects[0].name,
         ]
         verifylist = [
-            ('gigabytes', volume_fakes.QUOTA['gigabytes']),
-            ('snapshots', volume_fakes.QUOTA['snapshots']),
-            ('volumes', volume_fakes.QUOTA['volumes']),
-            ('backups', volume_fakes.QUOTA['backups']),
-            ('backup_gigabytes', volume_fakes.QUOTA['backup_gigabytes']),
+            ('gigabytes', gigabytes),
+            ('snapshots', snapshots),
+            ('volumes', volumes),
+            ('backups', backups),
+            ('backup_gigabytes', backup_gigabytes),
             (
                 'per_volume_gigabytes',
-                volume_fakes.QUOTA['per_volume_gigabytes'],
+                per_volume_gigabytes,
             ),
             ('volume_type', 'volume_type_backend'),
             ('project', self.projects[0].name),
@@ -635,54 +572,64 @@ class TestQuotaSet(TestQuota):
         result = self.cmd.take_action(parsed_args)
 
         kwargs = {
-            'gigabytes_volume_type_backend': volume_fakes.QUOTA['gigabytes'],
-            'snapshots_volume_type_backend': volume_fakes.QUOTA['snapshots'],
-            'volumes_volume_type_backend': volume_fakes.QUOTA['volumes'],
-            'backups': volume_fakes.QUOTA['backups'],
-            'backup_gigabytes': volume_fakes.QUOTA['backup_gigabytes'],
-            'per_volume_gigabytes': volume_fakes.QUOTA['per_volume_gigabytes'],
+            'gigabytes_volume_type_backend': gigabytes,
+            'snapshots_volume_type_backend': snapshots,
+            'volumes_volume_type_backend': volumes,
+            'backups': backups,
+            'backup_gigabytes': backup_gigabytes,
+            'per_volume_gigabytes': per_volume_gigabytes,
         }
 
-        self.volume_quotas_mock.update.assert_called_once_with(
+        self.volume_sdk_client.update_quota_set.assert_called_once_with(
             self.projects[0].id, **kwargs
         )
         self.assertIsNone(result)
 
     def test_quota_set_network(self):
+        subnet = 10
+        network = 10
+        floatingip = 50
+        subnetpool = -1
+        security_group_rule = 100
+        security_group = 10
+        router = 10
+        rbac_policy = -1
+        port = 50
+
         arglist = [
             '--subnets',
-            str(network_fakes.QUOTA['subnet']),
+            str(subnet),
             '--networks',
-            str(network_fakes.QUOTA['network']),
+            str(network),
             '--floating-ips',
-            str(network_fakes.QUOTA['floatingip']),
+            str(floatingip),
             '--subnetpools',
-            str(network_fakes.QUOTA['subnetpool']),
+            str(subnetpool),
             '--secgroup-rules',
-            str(network_fakes.QUOTA['security_group_rule']),
+            str(security_group_rule),
             '--secgroups',
-            str(network_fakes.QUOTA['security_group']),
+            str(security_group),
             '--routers',
-            str(network_fakes.QUOTA['router']),
+            str(router),
             '--rbac-policies',
-            str(network_fakes.QUOTA['rbac_policy']),
+            str(rbac_policy),
             '--ports',
-            str(network_fakes.QUOTA['port']),
+            str(port),
             self.projects[0].name,
         ]
         verifylist = [
-            ('subnet', network_fakes.QUOTA['subnet']),
-            ('network', network_fakes.QUOTA['network']),
-            ('floatingip', network_fakes.QUOTA['floatingip']),
-            ('subnetpool', network_fakes.QUOTA['subnetpool']),
+            ('subnet', subnet),
+            ('network', network),
+            ('floatingip', floatingip),
+            ('subnetpool', subnetpool),
             (
                 'security_group_rule',
-                network_fakes.QUOTA['security_group_rule'],
+                security_group_rule,
             ),
-            ('security_group', network_fakes.QUOTA['security_group']),
-            ('router', network_fakes.QUOTA['router']),
-            ('rbac_policy', network_fakes.QUOTA['rbac_policy']),
-            ('port', network_fakes.QUOTA['port']),
+            ('security_group', security_group),
+            ('router', router),
+            ('rbac_policy', rbac_policy),
+            ('port', port),
             ('force', False),
             ('project', self.projects[0].name),
         ]
@@ -691,15 +638,15 @@ class TestQuotaSet(TestQuota):
         result = self.cmd.take_action(parsed_args)
         kwargs = {
             'check_limit': True,
-            'subnet': network_fakes.QUOTA['subnet'],
-            'network': network_fakes.QUOTA['network'],
-            'floatingip': network_fakes.QUOTA['floatingip'],
-            'subnetpool': network_fakes.QUOTA['subnetpool'],
-            'security_group_rule': network_fakes.QUOTA['security_group_rule'],
-            'security_group': network_fakes.QUOTA['security_group'],
-            'router': network_fakes.QUOTA['router'],
-            'rbac_policy': network_fakes.QUOTA['rbac_policy'],
-            'port': network_fakes.QUOTA['port'],
+            'subnet': subnet,
+            'network': network,
+            'floatingip': floatingip,
+            'subnetpool': subnetpool,
+            'security_group_rule': security_group_rule,
+            'security_group': security_group,
+            'router': router,
+            'rbac_policy': rbac_policy,
+            'port': port,
         }
         self.network_client.update_quota.assert_called_once_with(
             self.projects[0].id, **kwargs
@@ -707,56 +654,71 @@ class TestQuotaSet(TestQuota):
         self.assertIsNone(result)
 
     def test_quota_set_with_class(self):
+        floating_ip_num = 100
+        fix_ip_num = 100
+        injected_file_num = 100
+        injected_file_size_num = 10240
+        injected_path_size_num = 255
+        key_pair_num = 100
+        core_num = 20
+        ram_num = 51200
+        instance_num = 10
+        property_num = 128
+        servgroup_num = 10
+        servgroup_members_num = 10
+        volumes = 11
+        network = 10
+
         arglist = [
             '--injected-files',
-            str(compute_fakes.injected_file_num),
+            str(injected_file_num),
             '--injected-file-size',
-            str(compute_fakes.injected_file_size_num),
+            str(injected_file_size_num),
             '--injected-path-size',
-            str(compute_fakes.injected_path_size_num),
+            str(injected_path_size_num),
             '--key-pairs',
-            str(compute_fakes.key_pair_num),
+            str(key_pair_num),
             '--cores',
-            str(compute_fakes.core_num),
+            str(core_num),
             '--ram',
-            str(compute_fakes.ram_num),
+            str(ram_num),
             '--instances',
-            str(compute_fakes.instance_num),
+            str(instance_num),
             '--properties',
-            str(compute_fakes.property_num),
+            str(property_num),
             '--server-groups',
-            str(compute_fakes.servgroup_num),
+            str(servgroup_num),
             '--server-group-members',
-            str(compute_fakes.servgroup_members_num),
+            str(servgroup_members_num),
             '--gigabytes',
-            str(compute_fakes.floating_ip_num),
+            str(floating_ip_num),
             '--snapshots',
-            str(compute_fakes.fix_ip_num),
+            str(fix_ip_num),
             '--volumes',
-            str(volume_fakes.QUOTA['volumes']),
+            str(volumes),
             '--network',
-            str(network_fakes.QUOTA['network']),
+            str(network),
             '--class',
             self.projects[0].name,
         ]
         verifylist = [
-            ('injected_files', compute_fakes.injected_file_num),
+            ('injected_files', injected_file_num),
             (
                 'injected_file_content_bytes',
-                compute_fakes.injected_file_size_num,
+                injected_file_size_num,
             ),
-            ('injected_file_path_bytes', compute_fakes.injected_path_size_num),
-            ('key_pairs', compute_fakes.key_pair_num),
-            ('cores', compute_fakes.core_num),
-            ('ram', compute_fakes.ram_num),
-            ('instances', compute_fakes.instance_num),
-            ('metadata_items', compute_fakes.property_num),
-            ('server_groups', compute_fakes.servgroup_num),
-            ('server_group_members', compute_fakes.servgroup_members_num),
-            ('gigabytes', compute_fakes.floating_ip_num),
-            ('snapshots', compute_fakes.fix_ip_num),
-            ('volumes', volume_fakes.QUOTA['volumes']),
-            ('network', network_fakes.QUOTA['network']),
+            ('injected_file_path_bytes', injected_path_size_num),
+            ('key_pairs', key_pair_num),
+            ('cores', core_num),
+            ('ram', ram_num),
+            ('instances', instance_num),
+            ('metadata_items', property_num),
+            ('server_groups', servgroup_num),
+            ('server_group_members', servgroup_members_num),
+            ('gigabytes', floating_ip_num),
+            ('snapshots', fix_ip_num),
+            ('volumes', volumes),
+            ('network', network),
             ('quota_class', True),
             ('project', self.projects[0].name),
         ]
@@ -765,82 +727,97 @@ class TestQuotaSet(TestQuota):
         result = self.cmd.take_action(parsed_args)
 
         kwargs_compute = {
-            'injected_files': compute_fakes.injected_file_num,
-            'injected_file_content_bytes': compute_fakes.injected_file_size_num,  # noqa: E501
-            'injected_file_path_bytes': compute_fakes.injected_path_size_num,
-            'key_pairs': compute_fakes.key_pair_num,
-            'cores': compute_fakes.core_num,
-            'ram': compute_fakes.ram_num,
-            'instances': compute_fakes.instance_num,
-            'metadata_items': compute_fakes.property_num,
-            'server_groups': compute_fakes.servgroup_num,
-            'server_group_members': compute_fakes.servgroup_members_num,
+            'injected_files': injected_file_num,
+            'injected_file_content_bytes': injected_file_size_num,  # noqa: E501
+            'injected_file_path_bytes': injected_path_size_num,
+            'key_pairs': key_pair_num,
+            'cores': core_num,
+            'ram': ram_num,
+            'instances': instance_num,
+            'metadata_items': property_num,
+            'server_groups': servgroup_num,
+            'server_group_members': servgroup_members_num,
         }
         kwargs_volume = {
-            'gigabytes': compute_fakes.floating_ip_num,
-            'snapshots': compute_fakes.fix_ip_num,
-            'volumes': volume_fakes.QUOTA['volumes'],
+            'gigabytes': floating_ip_num,
+            'snapshots': fix_ip_num,
+            'volumes': volumes,
         }
 
-        self.compute_quotas_class_mock.update.assert_called_with(
+        self.compute_sdk_client.update_quota_class_set.assert_called_with(
             self.projects[0].name, **kwargs_compute
         )
-        self.volume_quotas_class_mock.update.assert_called_with(
+        self.volume_sdk_client.update_quota_class_set.assert_called_with(
             self.projects[0].name, **kwargs_volume
         )
         self.assertNotCalled(self.network_client.update_quota)
         self.assertIsNone(result)
 
     def test_quota_set_default(self):
+        floating_ip_num = 100
+        fix_ip_num = 100
+        injected_file_num = 100
+        injected_file_size_num = 10240
+        injected_path_size_num = 255
+        key_pair_num = 100
+        core_num = 20
+        ram_num = 51200
+        instance_num = 10
+        property_num = 128
+        servgroup_num = 10
+        servgroup_members_num = 10
+        volumes = 11
+        network = 10
+
         arglist = [
             '--injected-files',
-            str(compute_fakes.injected_file_num),
+            str(injected_file_num),
             '--injected-file-size',
-            str(compute_fakes.injected_file_size_num),
+            str(injected_file_size_num),
             '--injected-path-size',
-            str(compute_fakes.injected_path_size_num),
+            str(injected_path_size_num),
             '--key-pairs',
-            str(compute_fakes.key_pair_num),
+            str(key_pair_num),
             '--cores',
-            str(compute_fakes.core_num),
+            str(core_num),
             '--ram',
-            str(compute_fakes.ram_num),
+            str(ram_num),
             '--instances',
-            str(compute_fakes.instance_num),
+            str(instance_num),
             '--properties',
-            str(compute_fakes.property_num),
+            str(property_num),
             '--server-groups',
-            str(compute_fakes.servgroup_num),
+            str(servgroup_num),
             '--server-group-members',
-            str(compute_fakes.servgroup_members_num),
+            str(servgroup_members_num),
             '--gigabytes',
-            str(compute_fakes.floating_ip_num),
+            str(floating_ip_num),
             '--snapshots',
-            str(compute_fakes.fix_ip_num),
+            str(fix_ip_num),
             '--volumes',
-            str(volume_fakes.QUOTA['volumes']),
+            str(volumes),
             '--network',
-            str(network_fakes.QUOTA['network']),
+            str(network),
             '--default',
         ]
         verifylist = [
-            ('injected_files', compute_fakes.injected_file_num),
+            ('injected_files', injected_file_num),
             (
                 'injected_file_content_bytes',
-                compute_fakes.injected_file_size_num,
+                injected_file_size_num,
             ),
-            ('injected_file_path_bytes', compute_fakes.injected_path_size_num),
-            ('key_pairs', compute_fakes.key_pair_num),
-            ('cores', compute_fakes.core_num),
-            ('ram', compute_fakes.ram_num),
-            ('instances', compute_fakes.instance_num),
-            ('metadata_items', compute_fakes.property_num),
-            ('server_groups', compute_fakes.servgroup_num),
-            ('server_group_members', compute_fakes.servgroup_members_num),
-            ('gigabytes', compute_fakes.floating_ip_num),
-            ('snapshots', compute_fakes.fix_ip_num),
-            ('volumes', volume_fakes.QUOTA['volumes']),
-            ('network', network_fakes.QUOTA['network']),
+            ('injected_file_path_bytes', injected_path_size_num),
+            ('key_pairs', key_pair_num),
+            ('cores', core_num),
+            ('ram', ram_num),
+            ('instances', instance_num),
+            ('metadata_items', property_num),
+            ('server_groups', servgroup_num),
+            ('server_group_members', servgroup_members_num),
+            ('gigabytes', floating_ip_num),
+            ('snapshots', fix_ip_num),
+            ('volumes', volumes),
+            ('network', network),
             ('default', True),
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
@@ -848,53 +825,59 @@ class TestQuotaSet(TestQuota):
         result = self.cmd.take_action(parsed_args)
 
         kwargs_compute = {
-            'injected_files': compute_fakes.injected_file_num,
-            'injected_file_content_bytes': compute_fakes.injected_file_size_num,  # noqa: E501
-            'injected_file_path_bytes': compute_fakes.injected_path_size_num,
-            'key_pairs': compute_fakes.key_pair_num,
-            'cores': compute_fakes.core_num,
-            'ram': compute_fakes.ram_num,
-            'instances': compute_fakes.instance_num,
-            'metadata_items': compute_fakes.property_num,
-            'server_groups': compute_fakes.servgroup_num,
-            'server_group_members': compute_fakes.servgroup_members_num,
+            'injected_files': injected_file_num,
+            'injected_file_content_bytes': injected_file_size_num,  # noqa: E501
+            'injected_file_path_bytes': injected_path_size_num,
+            'key_pairs': key_pair_num,
+            'cores': core_num,
+            'ram': ram_num,
+            'instances': instance_num,
+            'metadata_items': property_num,
+            'server_groups': servgroup_num,
+            'server_group_members': servgroup_members_num,
         }
         kwargs_volume = {
-            'gigabytes': compute_fakes.floating_ip_num,
-            'snapshots': compute_fakes.fix_ip_num,
-            'volumes': volume_fakes.QUOTA['volumes'],
+            'gigabytes': floating_ip_num,
+            'snapshots': fix_ip_num,
+            'volumes': volumes,
         }
 
-        self.compute_quotas_class_mock.update.assert_called_with(
+        self.compute_sdk_client.update_quota_class_set.assert_called_with(
             'default', **kwargs_compute
         )
-        self.volume_quotas_class_mock.update.assert_called_with(
+        self.volume_sdk_client.update_quota_class_set.assert_called_with(
             'default', **kwargs_volume
         )
         self.assertNotCalled(self.network_client.update_quota)
         self.assertIsNone(result)
 
     def test_quota_set_with_force(self):
+        core_num = 20
+        ram_num = 51200
+        instance_num = 10
+        volumes = 11
+        subnet = 10
+
         arglist = [
             '--cores',
-            str(compute_fakes.core_num),
+            str(core_num),
             '--ram',
-            str(compute_fakes.ram_num),
+            str(ram_num),
             '--instances',
-            str(compute_fakes.instance_num),
+            str(instance_num),
             '--volumes',
-            str(volume_fakes.QUOTA['volumes']),
+            str(volumes),
             '--subnets',
-            str(network_fakes.QUOTA['subnet']),
+            str(subnet),
             '--force',
             self.projects[0].name,
         ]
         verifylist = [
-            ('cores', compute_fakes.core_num),
-            ('ram', compute_fakes.ram_num),
-            ('instances', compute_fakes.instance_num),
-            ('volumes', volume_fakes.QUOTA['volumes']),
-            ('subnet', network_fakes.QUOTA['subnet']),
+            ('cores', core_num),
+            ('ram', ram_num),
+            ('instances', instance_num),
+            ('volumes', volumes),
+            ('subnet', subnet),
             ('force', True),
             ('project', self.projects[0].name),
         ]
@@ -904,22 +887,22 @@ class TestQuotaSet(TestQuota):
         result = self.cmd.take_action(parsed_args)
 
         kwargs_compute = {
-            'cores': compute_fakes.core_num,
-            'ram': compute_fakes.ram_num,
-            'instances': compute_fakes.instance_num,
+            'cores': core_num,
+            'ram': ram_num,
+            'instances': instance_num,
             'force': True,
         }
         kwargs_volume = {
-            'volumes': volume_fakes.QUOTA['volumes'],
+            'volumes': volumes,
         }
         kwargs_network = {
-            'subnet': network_fakes.QUOTA['subnet'],
+            'subnet': subnet,
             'force': True,
         }
-        self.compute_quotas_mock.update.assert_called_once_with(
+        self.compute_sdk_client.update_quota_set.assert_called_once_with(
             self.projects[0].id, **kwargs_compute
         )
-        self.volume_quotas_mock.update.assert_called_once_with(
+        self.volume_sdk_client.update_quota_set.assert_called_once_with(
             self.projects[0].id, **kwargs_volume
         )
         self.network_client.update_quota.assert_called_once_with(
@@ -930,18 +913,18 @@ class TestQuotaSet(TestQuota):
     def test_quota_set_with_no_force(self):
         arglist = [
             '--subnets',
-            str(network_fakes.QUOTA['subnet']),
+            str(10),
             '--volumes',
-            str(volume_fakes.QUOTA['volumes']),
+            str(30),
             '--cores',
-            str(compute_fakes.core_num),
+            str(20),
             '--no-force',
             self.projects[0].name,
         ]
         verifylist = [
-            ('subnet', network_fakes.QUOTA['subnet']),
-            ('volumes', volume_fakes.QUOTA['volumes']),
-            ('cores', compute_fakes.core_num),
+            ('subnet', 10),
+            ('volumes', 30),
+            ('cores', 20),
             ('force', False),
             ('project', self.projects[0].name),
         ]
@@ -950,19 +933,19 @@ class TestQuotaSet(TestQuota):
         result = self.cmd.take_action(parsed_args)
 
         kwargs_compute = {
-            'cores': compute_fakes.core_num,
+            'cores': 20,
         }
         kwargs_volume = {
-            'volumes': volume_fakes.QUOTA['volumes'],
+            'volumes': 30,
         }
         kwargs_network = {
-            'subnet': network_fakes.QUOTA['subnet'],
+            'subnet': 10,
             'check_limit': True,
         }
-        self.compute_quotas_mock.update.assert_called_once_with(
+        self.compute_sdk_client.update_quota_set.assert_called_once_with(
             self.projects[0].id, **kwargs_compute
         )
-        self.volume_quotas_mock.update.assert_called_once_with(
+        self.volume_sdk_client.update_quota_set.assert_called_once_with(
             self.projects[0].id, **kwargs_volume
         )
         self.network_client.update_quota.assert_called_once_with(
@@ -975,47 +958,36 @@ class TestQuotaShow(TestQuota):
     def setUp(self):
         super().setUp()
 
-        self.compute_quota = compute_fakes.create_one_comp_quota()
-        self.compute_quotas_mock.get.return_value = self.compute_quota
-        self.compute_default_quota = (
-            compute_fakes.create_one_default_comp_quota()
+        self.identity_sdk_client.find_project.return_value = self.projects[0]
+
+        self.compute_sdk_client.get_quota_set.return_value = (
+            sdk_fakes.generate_fake_resource(_compute_quota_set.QuotaSet)
         )
-        self.compute_quotas_mock.defaults.return_value = (
-            self.compute_default_quota
+        self.default_compute_quotas = sdk_fakes.generate_fake_resource(
+            _compute_quota_set.QuotaSet
         )
-        self.compute_quotas_class_mock.get.return_value = FakeQuotaResource(
-            None,
-            copy.deepcopy(compute_fakes.QUOTA),
-            loaded=True,
+        self.compute_sdk_client.get_quota_set_defaults.return_value = (
+            self.default_compute_quotas
         )
 
-        self.volume_quota = volume_fakes.create_one_vol_quota()
-        self.volume_quotas_mock.get.return_value = self.volume_quota
-        self.volume_default_quota = volume_fakes.create_one_default_vol_quota()
-        self.volume_quotas_mock.defaults.return_value = (
-            self.volume_default_quota
+        self.volume_sdk_client.get_quota_set.return_value = (
+            sdk_fakes.generate_fake_resource(_volume_quota_set.QuotaSet)
         )
-        self.volume_quotas_class_mock.get.return_value = FakeQuotaResource(
-            None,
-            copy.deepcopy(volume_fakes.QUOTA),
-            loaded=True,
+        self.default_volume_quotas = sdk_fakes.generate_fake_resource(
+            _volume_quota_set.QuotaSet
+        )
+        self.volume_sdk_client.get_quota_set_defaults.return_value = (
+            self.default_volume_quotas
         )
 
-        fake_network_endpoint = fakes.FakeResource(
-            None,
-            copy.deepcopy(identity_fakes.ENDPOINT),
-            loaded=True,
+        self.network_client.get_quota.return_value = (
+            sdk_fakes.generate_fake_resource(_network_quota_set.Quota)
         )
-
-        self.service_catalog_mock.get_endpoints.return_value = {
-            'network': fake_network_endpoint
-        }
-
-        self.network_client.get_quota = mock.Mock(
-            return_value=network_fakes.QUOTA,
+        self.default_network_quotas = sdk_fakes.generate_fake_resource(
+            _network_quota_set.QuotaDefault
         )
-        self.network_client.get_quota_default = mock.Mock(
-            return_value=network_fakes.QUOTA,
+        self.network_client.get_quota_default.return_value = (
+            self.default_network_quotas
         )
 
         self.cmd = quota.ShowQuota(self.app, None)
@@ -1032,11 +1004,11 @@ class TestQuotaShow(TestQuota):
 
         self.cmd.take_action(parsed_args)
 
-        self.compute_quotas_mock.get.assert_called_once_with(
+        self.compute_sdk_client.get_quota_set.assert_called_once_with(
             self.projects[0].id,
-            detail=False,
+            usage=False,
         )
-        self.volume_quotas_mock.get.assert_called_once_with(
+        self.volume_sdk_client.get_quota_set.assert_called_once_with(
             self.projects[0].id,
             usage=False,
         )
@@ -1059,11 +1031,11 @@ class TestQuotaShow(TestQuota):
 
         self.cmd.take_action(parsed_args)
 
-        self.compute_quotas_mock.get.assert_called_once_with(
+        self.compute_sdk_client.get_quota_set.assert_called_once_with(
             self.projects[0].id,
-            detail=False,
+            usage=False,
         )
-        self.volume_quotas_mock.get.assert_not_called()
+        self.volume_sdk_client.get_quota_set.assert_not_called()
         self.network_client.get_quota.assert_not_called()
 
     def test_quota_show__with_volume(self):
@@ -1079,8 +1051,8 @@ class TestQuotaShow(TestQuota):
 
         self.cmd.take_action(parsed_args)
 
-        self.compute_quotas_mock.get.assert_not_called()
-        self.volume_quotas_mock.get.assert_called_once_with(
+        self.compute_sdk_client.get_quota_set.assert_not_called()
+        self.volume_sdk_client.get_quota_set.assert_called_once_with(
             self.projects[0].id,
             usage=False,
         )
@@ -1099,8 +1071,8 @@ class TestQuotaShow(TestQuota):
 
         self.cmd.take_action(parsed_args)
 
-        self.compute_quotas_mock.get.assert_not_called()
-        self.volume_quotas_mock.get.assert_not_called()
+        self.compute_sdk_client.get_quota_set.assert_not_called()
+        self.volume_sdk_client.get_quota_set.assert_not_called()
         self.network_client.get_quota.assert_called_once_with(
             self.projects[0].id,
             details=False,
@@ -1120,10 +1092,10 @@ class TestQuotaShow(TestQuota):
 
         self.cmd.take_action(parsed_args)
 
-        self.compute_quotas_mock.defaults.assert_called_once_with(
+        self.compute_sdk_client.get_quota_set_defaults.assert_called_once_with(
             self.projects[0].id,
         )
-        self.volume_quotas_mock.defaults.assert_called_once_with(
+        self.volume_sdk_client.get_quota_set_defaults.assert_called_once_with(
             self.projects[0].id,
         )
         self.network_client.get_quota_default.assert_called_once_with(
@@ -1132,15 +1104,6 @@ class TestQuotaShow(TestQuota):
         self.assertNotCalled(self.network_client.get_quota)
 
     def test_quota_show__with_usage(self):
-        # update mocks to return detailed quota instead
-        self.compute_quota = compute_fakes.create_one_comp_detailed_quota()
-        self.compute_quotas_mock.get.return_value = self.compute_quota
-        self.volume_quota = volume_fakes.create_one_detailed_quota()
-        self.volume_quotas_mock.get.return_value = self.volume_quota
-        self.network_client.get_quota.return_value = (
-            network_fakes.FakeQuota.create_one_net_detailed_quota()
-        )
-
         arglist = [
             '--usage',
             self.projects[0].name,
@@ -1153,11 +1116,11 @@ class TestQuotaShow(TestQuota):
 
         self.cmd.take_action(parsed_args)
 
-        self.compute_quotas_mock.get.assert_called_once_with(
+        self.compute_sdk_client.get_quota_set.assert_called_once_with(
             self.projects[0].id,
-            detail=True,
+            usage=True,
         )
-        self.volume_quotas_mock.get.assert_called_once_with(
+        self.volume_sdk_client.get_quota_set.assert_called_once_with(
             self.projects[0].id,
             usage=True,
         )
@@ -1175,14 +1138,14 @@ class TestQuotaShow(TestQuota):
 
         self.cmd.take_action(parsed_args)
 
-        self.compute_quotas_mock.get.assert_called_once_with(
-            identity_fakes.project_id, detail=False
+        self.compute_sdk_client.get_quota_set.assert_called_once_with(
+            self.projects[1].id, usage=False
         )
-        self.volume_quotas_mock.get.assert_called_once_with(
-            identity_fakes.project_id, usage=False
+        self.volume_sdk_client.get_quota_set.assert_called_once_with(
+            self.projects[1].id, usage=False
         )
         self.network_client.get_quota.assert_called_once_with(
-            identity_fakes.project_id, details=False
+            self.projects[1].id, details=False
         )
         self.assertNotCalled(self.network_client.get_quota_default)
 
@@ -1192,6 +1155,12 @@ class TestQuotaDelete(TestQuota):
 
     def setUp(self):
         super().setUp()
+
+        self.identity_sdk_client.find_project.return_value = self.projects[0]
+
+        self.compute_sdk_client.revert_quota_set.return_value = None
+        self.volume_sdk_client.revert_quota_set.return_value = None
+        self.network_client.delete_quota.return_value = None
 
         self.cmd = quota.DeleteQuota(self.app, None)
 
@@ -1210,11 +1179,13 @@ class TestQuotaDelete(TestQuota):
         result = self.cmd.take_action(parsed_args)
 
         self.assertIsNone(result)
-        self.projects_mock.get.assert_called_once_with(self.projects[0].id)
-        self.compute_quotas_mock.delete.assert_called_once_with(
+        self.identity_sdk_client.find_project.assert_called_once_with(
+            self.projects[0].id, ignore_missing=False
+        )
+        self.compute_sdk_client.revert_quota_set.assert_called_once_with(
             self.projects[0].id,
         )
-        self.volume_quotas_mock.delete.assert_called_once_with(
+        self.volume_sdk_client.revert_quota_set.assert_called_once_with(
             self.projects[0].id,
         )
         self.network_client.delete_quota.assert_called_once_with(
@@ -1237,11 +1208,13 @@ class TestQuotaDelete(TestQuota):
         result = self.cmd.take_action(parsed_args)
 
         self.assertIsNone(result)
-        self.projects_mock.get.assert_called_once_with(self.projects[0].id)
-        self.compute_quotas_mock.delete.assert_called_once_with(
+        self.identity_sdk_client.find_project.assert_called_once_with(
+            self.projects[0].id, ignore_missing=False
+        )
+        self.compute_sdk_client.revert_quota_set.assert_called_once_with(
             self.projects[0].id,
         )
-        self.volume_quotas_mock.delete.assert_not_called()
+        self.volume_sdk_client.revert_quota_set.assert_not_called()
         self.network_client.delete_quota.assert_not_called()
 
     def test_delete__volume(self):
@@ -1260,9 +1233,11 @@ class TestQuotaDelete(TestQuota):
         result = self.cmd.take_action(parsed_args)
 
         self.assertIsNone(result)
-        self.projects_mock.get.assert_called_once_with(self.projects[0].id)
-        self.compute_quotas_mock.delete.assert_not_called()
-        self.volume_quotas_mock.delete.assert_called_once_with(
+        self.identity_sdk_client.find_project.assert_called_once_with(
+            self.projects[0].id, ignore_missing=False
+        )
+        self.compute_sdk_client.revert_quota_set.assert_not_called()
+        self.volume_sdk_client.revert_quota_set.assert_called_once_with(
             self.projects[0].id,
         )
         self.network_client.delete_quota.assert_not_called()
@@ -1283,9 +1258,11 @@ class TestQuotaDelete(TestQuota):
         result = self.cmd.take_action(parsed_args)
 
         self.assertIsNone(result)
-        self.projects_mock.get.assert_called_once_with(self.projects[0].id)
-        self.compute_quotas_mock.delete.assert_not_called()
-        self.volume_quotas_mock.delete.assert_not_called()
+        self.identity_sdk_client.find_project.assert_called_once_with(
+            self.projects[0].id, ignore_missing=False
+        )
+        self.compute_sdk_client.revert_quota_set.assert_not_called()
+        self.volume_sdk_client.revert_quota_set.assert_not_called()
         self.network_client.delete_quota.assert_called_once_with(
             self.projects[0].id,
         )
