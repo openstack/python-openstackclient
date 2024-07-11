@@ -1,0 +1,7 @@
+---
+features:
+  - |
+    The ``quota set`` command now supports a ``--default`` option. When
+    provided, this will allow you to set quotas for the default quota class
+    which is the only quota class supported by the Compute and Block Storage
+    services. This replaces the deprecated ``quota set --class`` option.

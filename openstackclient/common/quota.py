@@ -461,10 +461,15 @@ class SetQuota(common.NetDetectionMixin, command.Command):
         parser.add_argument(
             'project',
             metavar='<project/class>',
-            help=_('Set quotas for this project or class (name or ID)'),
+            nargs='?',
+            help=_(
+                'Set quotas for this project or class (name or ID) '
+                '(defaults to current project)'
+            ),
         )
         # TODO(stephenfin): Remove in OSC 8.0
-        parser.add_argument(
+        type_group = parser.add_mutually_exclusive_group()
+        type_group.add_argument(
             '--class',
             dest='quota_class',
             action='store_true',
@@ -475,6 +480,13 @@ class SetQuota(common.NetDetectionMixin, command.Command):
                 'and only the default class is supported. '
                 '(compute and volume only)'
             ),
+        )
+        type_group.add_argument(
+            '--default',
+            dest='default',
+            action='store_true',
+            default=False,
+            help=_('Set default quotas for <project>'),
         )
         for k, v, h in self._build_options_list():
             parser.add_argument(
@@ -529,13 +541,13 @@ class SetQuota(common.NetDetectionMixin, command.Command):
                 "never fully implemented and the compute and volume services "
                 "only support a single 'default' quota class while the "
                 "network service does not support quota classes at all. "
-                "Please use 'openstack quota show --default' instead."
+                "Please use 'openstack quota set --default' instead."
             )
             self.log.warning(msg)
 
-        identity_client = self.app.client_manager.identity
         compute_client = self.app.client_manager.compute
         volume_client = self.app.client_manager.volume
+
         compute_kwargs = {}
         for k, v in COMPUTE_QUOTAS.items():
             value = getattr(parsed_args, k, None)
@@ -581,15 +593,15 @@ class SetQuota(common.NetDetectionMixin, command.Command):
                 if value is not None:
                     compute_kwargs[k] = value
 
-        if parsed_args.quota_class:
+        if parsed_args.quota_class or parsed_args.default:
             if compute_kwargs:
                 compute_client.quota_classes.update(
-                    parsed_args.project,
+                    parsed_args.project or 'default',
                     **compute_kwargs,
                 )
             if volume_kwargs:
                 volume_client.quota_classes.update(
-                    parsed_args.project,
+                    parsed_args.project or 'default',
                     **volume_kwargs,
                 )
             if network_kwargs:
@@ -600,10 +612,8 @@ class SetQuota(common.NetDetectionMixin, command.Command):
 
             return
 
-        project = utils.find_resource(
-            identity_client.projects,
-            parsed_args.project,
-        ).id
+        project_info = get_project(self.app, parsed_args.project)
+        project = project_info['id']
 
         if compute_kwargs:
             compute_client.quotas.update(project, **compute_kwargs)
