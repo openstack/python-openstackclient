@@ -28,6 +28,31 @@ from openstackclient.identity import common
 LOG = logging.getLogger(__name__)
 
 
+def _format_service(service):
+    columns = (
+        'id',
+        'name',
+        'type',
+        'is_enabled',
+        'description',
+    )
+    column_headers = (
+        'ID',
+        'Name',
+        'Type',
+        'Enabled',
+        'Description',
+    )
+
+    return (
+        column_headers,
+        utils.get_item_properties(
+            service,
+            columns,
+        ),
+    )
+
+
 class CreateService(command.ShowOne):
     _description = _("Create new service")
 
@@ -66,17 +91,16 @@ class CreateService(command.ShowOne):
         return parser
 
     def take_action(self, parsed_args):
-        identity_client = self.app.client_manager.identity
+        identity_client = self.app.client_manager.sdk_connection.identity
 
-        service = identity_client.services.create(
+        service = identity_client.create_service(
             name=parsed_args.name,
             type=parsed_args.type,
             description=parsed_args.description,
-            enabled=parsed_args.is_enabled,
+            is_enabled=parsed_args.is_enabled,
         )
 
-        service._info.pop('links')
-        return zip(*sorted(service._info.items()))
+        return _format_service(service)
 
 
 class DeleteService(command.Command):
@@ -93,12 +117,12 @@ class DeleteService(command.Command):
         return parser
 
     def take_action(self, parsed_args):
-        identity_client = self.app.client_manager.identity
+        identity_client = self.app.client_manager.sdk_connection.identity
         result = 0
         for i in parsed_args.service:
             try:
-                service = common.find_service(identity_client, i)
-                identity_client.services.delete(service.id)
+                service = common.find_service_sdk(identity_client, i)
+                identity_client.delete_service(service.id)
             except Exception as e:
                 result += 1
                 LOG.error(
@@ -131,13 +155,19 @@ class ListService(command.Lister):
         return parser
 
     def take_action(self, parsed_args):
+        identity_client = self.app.client_manager.sdk_connection.identity
+
         if parsed_args.long:
-            columns = ('ID', 'Name', 'Type', 'Description', 'Enabled')
+            columns = ('id', 'name', 'type', 'description', 'is_enabled')
+            column_headers = ('ID', 'Name', 'Type', 'Description', 'Enabled')
         else:
-            columns = ('ID', 'Name', 'Type')
-        data = self.app.client_manager.identity.services.list()
+            columns = ('id', 'name', 'type')
+            column_headers = ('ID', 'Name', 'Type')
+
+        data = identity_client.services()
+
         return (
-            columns,
+            column_headers,
             (utils.get_item_properties(s, columns) for s in data),
         )
 
@@ -185,9 +215,9 @@ class SetService(command.Command):
         return parser
 
     def take_action(self, parsed_args):
-        identity_client = self.app.client_manager.identity
+        identity_client = self.app.client_manager.sdk_connection.identity
 
-        service = common.find_service(identity_client, parsed_args.service)
+        service = common.find_service_sdk(identity_client, parsed_args.service)
         kwargs = {}
         if parsed_args.type:
             kwargs['type'] = parsed_args.type
@@ -195,10 +225,9 @@ class SetService(command.Command):
             kwargs['name'] = parsed_args.name
         if parsed_args.description:
             kwargs['description'] = parsed_args.description
-        if parsed_args.is_enabled is not None:
-            kwargs['enabled'] = parsed_args.is_enabled
+        kwargs['is_enabled'] = parsed_args.is_enabled
 
-        identity_client.services.update(service.id, **kwargs)
+        identity_client.update_service(service.id, **kwargs)
 
 
 class ShowService(command.ShowOne):
@@ -214,9 +243,8 @@ class ShowService(command.ShowOne):
         return parser
 
     def take_action(self, parsed_args):
-        identity_client = self.app.client_manager.identity
+        identity_client = self.app.client_manager.sdk_connection.identity
 
-        service = common.find_service(identity_client, parsed_args.service)
+        service = common.find_service_sdk(identity_client, parsed_args.service)
 
-        service._info.pop('links')
-        return zip(*sorted(service._info.items()))
+        return _format_service(service)

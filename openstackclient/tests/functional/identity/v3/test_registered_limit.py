@@ -29,7 +29,7 @@ class RegisteredLimitTestCase(common.IdentityTests):
             'service show' ' %(service_name)s' % {'service_name': service_name}
         )
         service_items = self.parse_show(raw_output)
-        service_id = self._extract_value_from_items('id', service_items)
+        service_id = self._extract_value_from_items('ID', service_items)
 
         raw_output = self.openstack(
             'registered limit create'
