@@ -210,10 +210,10 @@ class ServerTests(common.ComputeTestCase):
             self.flavor_name,
             flavor['name'],
         )
-        self.assertEqual(
-            '{} ({})'.format(flavor['name'], flavor['id']),
-            cmd_output["flavor"],
-        )
+        # assume the v2.47+ output format
+        self.assertIsInstance(cmd_output['flavor'], dict)
+        self.assertIn('name', cmd_output['flavor'])
+        self.assertEqual(flavor['name'], cmd_output['flavor']['name'])
         image = self.openstack(
             'image show ' + self.image_name,
             parse_output=True,
