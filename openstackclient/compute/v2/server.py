@@ -3693,7 +3693,6 @@ class RebuildServer(command.ShowOne):
         return zip(*sorted(data.items()))
 
 
-# TODO(stephenfin): Migrate to SDK
 class EvacuateServer(command.ShowOne):
     _description = _(
         """Evacuate a server to a different host.
@@ -3719,7 +3718,6 @@ host."""
             metavar='<server>',
             help=_('Server (name or ID)'),
         )
-
         parser.add_argument(
             '--wait',
             action='store_true',
@@ -3766,11 +3764,11 @@ host."""
                 self.app.stdout.write('\rProgress: %s' % progress)
                 self.app.stdout.flush()
 
-        compute_client = self.app.client_manager.compute
+        compute_client = self.app.client_manager.sdk_connection.compute
         image_client = self.app.client_manager.image
 
         if parsed_args.host:
-            if compute_client.api_version < api_versions.APIVersion('2.29'):
+            if not sdk_utils.supports_microversion(compute_client, '2.29'):
                 msg = _(
                     '--os-compute-api-version 2.29 or later is required '
                     'to specify a preferred host.'
@@ -3778,7 +3776,7 @@ host."""
                 raise exceptions.CommandError(msg)
 
         if parsed_args.shared_storage:
-            if compute_client.api_version > api_versions.APIVersion('2.13'):
+            if sdk_utils.supports_microversion(compute_client, '2.14'):
                 msg = _(
                     '--os-compute-api-version 2.13 or earlier is required '
                     'to specify shared-storage.'
@@ -3790,18 +3788,17 @@ host."""
             'password': parsed_args.password,
         }
 
-        if compute_client.api_version <= api_versions.APIVersion('2.13'):
+        if not sdk_utils.supports_microversion(compute_client, '2.14'):
             kwargs['on_shared_storage'] = parsed_args.shared_storage
 
-        server = utils.find_resource(
-            compute_client.servers, parsed_args.server
+        server = compute_client.find_server(
+            parsed_args.server, ignore_missing=False
         )
-
-        server.evacuate(**kwargs)
+        compute_client.evacuate_server(server, **kwargs)
 
         if parsed_args.wait:
             if utils.wait_for_status(
-                compute_client.servers.get,
+                compute_client.get_server,
                 server.id,
                 callback=_show_progress,
             ):
@@ -3810,8 +3807,6 @@ host."""
                 msg = _('Error evacuating server: %s') % server.id
                 raise exceptions.CommandError(msg)
 
-        # TODO(stephenfin): Remove when the whole command is using SDK
-        compute_client = self.app.client_manager.sdk_connection.compute
         data = _prep_server_detail(compute_client, image_client, server)
         return zip(*sorted(data.items()))
 
