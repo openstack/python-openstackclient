@@ -133,7 +133,17 @@ class ClientManager(clientmanager.ClientManager):
         # NOTE(jcross): Cinder did some interesting things with their service
         #               name so we need to figure out which version to look
         #               for when calling is_service_available()
-        volume_version = volume_client.api_version.ver_major
+        endpoint_data = volume_client.get_endpoint_data()
+        # Not sure how endpoint data stores the api version for v2 API,
+        # for v3 it is a tuple (3, 0)
+        if endpoint_data.api_version and isinstance(
+            endpoint_data.api_version, tuple
+        ):
+            volume_version = endpoint_data.api_version[0]
+        else:
+            # Setting volume_version as 2 here if it doesn't satisfy the
+            # conditions for version 3
+            volume_version = 2
         if (
             self.is_service_available("volumev%s" % volume_version)
             is not False

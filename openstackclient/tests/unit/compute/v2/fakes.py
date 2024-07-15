@@ -28,6 +28,7 @@ from openstack.compute.v2 import extension as _extension
 from openstack.compute.v2 import flavor as _flavor
 from openstack.compute.v2 import hypervisor as _hypervisor
 from openstack.compute.v2 import keypair as _keypair
+from openstack.compute.v2 import limits as _limits
 from openstack.compute.v2 import migration as _migration
 from openstack.compute.v2 import server as _server
 from openstack.compute.v2 import server_action as _server_action
@@ -90,9 +91,6 @@ class FakeComputev2Client:
 
         self.images = mock.Mock()
         self.images.resource_class = fakes.FakeResource(None, {})
-
-        self.limits = mock.Mock()
-        self.limits.resource_class = fakes.FakeResource(None, {})
 
         self.servers = mock.Mock()
         self.servers.resource_class = fakes.FakeResource(None, {})
@@ -1177,11 +1175,12 @@ def create_one_comp_detailed_quota(attrs=None):
     return quota
 
 
-class FakeLimits:
-    """Fake limits"""
+def create_limits(attrs=None):
+    """Create a fake limits object."""
+    attrs = attrs or {}
 
-    def __init__(self, absolute_attrs=None, rate_attrs=None):
-        self.absolute_limits_attrs = {
+    limits_attrs = {
+        'absolute': {
             'maxServerMeta': 128,
             'maxTotalInstances': 10,
             'maxPersonality': 5,
@@ -1201,11 +1200,8 @@ class FakeLimits:
             'maxTotalFloatingIps': 10,
             'totalSecurityGroupsUsed': 0,
             'maxTotalCores': 20,
-        }
-        absolute_attrs = absolute_attrs or {}
-        self.absolute_limits_attrs.update(absolute_attrs)
-
-        self.rate_limits_attrs = [
+        },
+        'rate': [
             {
                 "uri": "*",
                 "limit": [
@@ -1232,69 +1228,12 @@ class FakeLimits:
                     },
                 ],
             }
-        ]
+        ],
+    }
+    limits_attrs.update(attrs)
 
-    @property
-    def absolute(self):
-        for name, value in self.absolute_limits_attrs.items():
-            yield FakeAbsoluteLimit(name, value)
-
-    def absolute_limits(self):
-        reference_data = []
-        for name, value in self.absolute_limits_attrs.items():
-            reference_data.append((name, value))
-        return reference_data
-
-    @property
-    def rate(self):
-        for group in self.rate_limits_attrs:
-            uri = group['uri']
-            for rate in group['limit']:
-                yield FakeRateLimit(
-                    rate['verb'],
-                    uri,
-                    rate['value'],
-                    rate['remaining'],
-                    rate['unit'],
-                    rate['next-available'],
-                )
-
-    def rate_limits(self):
-        reference_data = []
-        for group in self.rate_limits_attrs:
-            uri = group['uri']
-            for rate in group['limit']:
-                reference_data.append(
-                    (
-                        rate['verb'],
-                        uri,
-                        rate['value'],
-                        rate['remaining'],
-                        rate['unit'],
-                        rate['next-available'],
-                    )
-                )
-        return reference_data
-
-
-class FakeAbsoluteLimit:
-    """Data model that represents an absolute limit"""
-
-    def __init__(self, name, value):
-        self.name = name
-        self.value = value
-
-
-class FakeRateLimit:
-    """Data model that represents a flattened view of a single rate limit"""
-
-    def __init__(self, verb, uri, value, remain, unit, next_available):
-        self.verb = verb
-        self.uri = uri
-        self.value = value
-        self.remain = remain
-        self.unit = unit
-        self.next_available = next_available
+    limits = _limits.Limits(**limits_attrs)
+    return limits
 
 
 def create_one_migration(attrs=None):
