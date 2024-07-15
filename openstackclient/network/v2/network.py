@@ -9,7 +9,6 @@
 #   WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
 #   License for the specific language governing permissions and limitations
 #   under the License.
-#
 
 """Network action implementations"""
 
@@ -18,6 +17,7 @@ from osc_lib.cli import format_columns
 from osc_lib import utils
 from osc_lib.utils import tags as _tag
 
+from openstackclient.api import compute_v2
 from openstackclient.i18n import _
 from openstackclient.identity import common as identity_common
 from openstackclient.network import common
@@ -388,7 +388,7 @@ class CreateNetwork(
 
     def take_action_compute(self, client, parsed_args):
         attrs = _get_attrs_compute(self.app.client_manager, parsed_args)
-        obj = client.api.network_create(**attrs)
+        obj = compute_v2.create_network(client, **attrs)
         display_columns, columns = _get_columns_compute(obj)
         data = utils.get_dict_properties(obj, columns)
         return (display_columns, data)
@@ -416,7 +416,8 @@ class DeleteNetwork(common.NetworkAndComputeDelete):
         client.delete_network(obj)
 
     def take_action_compute(self, client, parsed_args):
-        client.api.network_delete(self.r)
+        network = compute_v2.find_network(client, self.r)
+        compute_v2.delete_network(client, network['id'])
 
 
 # TODO(sindhu): Use the SDK resource mapped attribute names once the
@@ -673,7 +674,7 @@ class ListNetwork(common.NetworkAndComputeLister):
             'Subnet',
         )
 
-        data = client.api.network_list()
+        data = compute_v2.list_networks(client)
 
         return (
             column_headers,
@@ -828,7 +829,7 @@ class ShowNetwork(common.NetworkAndComputeShowOne):
         return (display_columns, data)
 
     def take_action_compute(self, client, parsed_args):
-        obj = client.api.network_find(parsed_args.network)
+        obj = compute_v2.find_network(client, parsed_args.network)
         display_columns, columns = _get_columns_compute(obj)
         data = utils.get_dict_properties(obj, columns)
         return (display_columns, data)

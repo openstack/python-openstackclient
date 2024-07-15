@@ -20,6 +20,7 @@ from osc_lib.cli import parseractions
 from osc_lib import exceptions
 from osc_lib import utils
 
+from openstackclient.api import compute_v2
 from openstackclient.i18n import _
 from openstackclient.identity import common as identity_common
 from openstackclient.network import common
@@ -91,7 +92,7 @@ class CreateSecurityGroupRule(
                 "ending port range: 137:139. Required for IP protocols TCP "
                 "and UDP. Ignored for ICMP IP protocols."
             ),
-            **dst_port_default
+            **dst_port_default,
         )
 
         # NOTE(rtheis): Support either protocol option name for now.
@@ -125,7 +126,7 @@ class CreateSecurityGroupRule(
             metavar='<protocol>',
             type=network_utils.convert_to_lowercase,
             help=protocol_help,
-            **proto_choices
+            **proto_choices,
         )
         if not self.is_docs_build:
             protocol_group.add_argument(
@@ -133,7 +134,7 @@ class CreateSecurityGroupRule(
                 metavar='<proto>',
                 type=network_utils.convert_to_lowercase,
                 help=argparse.SUPPRESS,
-                **proto_choices
+                **proto_choices,
             )
 
         return parser
@@ -292,7 +293,7 @@ class CreateSecurityGroupRule(
         return (display_columns, data)
 
     def take_action_compute(self, client, parsed_args):
-        group = client.api.security_group_find(parsed_args.group)
+        group = compute_v2.find_security_group(client, parsed_args.group)
         protocol = network_utils.get_protocol(
             parsed_args, default_protocol='tcp'
         )
@@ -303,15 +304,16 @@ class CreateSecurityGroupRule(
 
         remote_ip = None
         if parsed_args.remote_group is not None:
-            parsed_args.remote_group = client.api.security_group_find(
-                parsed_args.remote_group,
+            parsed_args.remote_group = compute_v2.find_security_group(
+                client, parsed_args.remote_group
             )['id']
         if parsed_args.remote_ip is not None:
             remote_ip = parsed_args.remote_ip
         else:
             remote_ip = '0.0.0.0/0'
 
-        obj = client.api.security_group_rule_create(
+        obj = compute_v2.create_security_group_rule(
+            client,
             security_group_id=group['id'],
             ip_protocol=protocol,
             from_port=from_port,
@@ -343,7 +345,7 @@ class DeleteSecurityGroupRule(common.NetworkAndComputeDelete):
         client.delete_security_group_rule(obj)
 
     def take_action_compute(self, client, parsed_args):
-        client.api.security_group_rule_delete(self.r)
+        compute_v2.delete_security_group_rule(client, self.r)
 
 
 class ListSecurityGroupRule(common.NetworkAndComputeLister):
@@ -532,15 +534,16 @@ class ListSecurityGroupRule(common.NetworkAndComputeLister):
 
         rules_to_list = []
         if parsed_args.group is not None:
-            group = client.api.security_group_find(
-                parsed_args.group,
+            security_group = compute_v2.find_security_group(
+                client, parsed_args.group
             )
-            rules_to_list = group['rules']
+            rules_to_list = security_group['rules']
         else:
             columns = columns + ('parent_group_id',)
-            search = {'all_tenants': parsed_args.all_projects}
-            for group in client.api.security_group_list(search_opts=search):
-                rules_to_list.extend(group['rules'])
+            for security_group in compute_v2.list_security_groups(
+                client, all_projects=parsed_args.all_projects
+            ):
+                rules_to_list.extend(security_group['rules'])
 
         # NOTE(rtheis): Turn the raw rules into resources.
         rules = []
@@ -596,7 +599,7 @@ class ShowSecurityGroupRule(common.NetworkAndComputeShowOne):
         # the requested rule.
         obj = None
         security_group_rules = []
-        for security_group in client.api.security_group_list():
+        for security_group in compute_v2.list_security_groups(client):
             security_group_rules.extend(security_group['rules'])
         for security_group_rule in security_group_rules:
             if parsed_args.rule == str(security_group_rule.get('id')):

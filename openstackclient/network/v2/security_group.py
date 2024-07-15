@@ -20,6 +20,7 @@ from osc_lib.command import command
 from osc_lib import utils
 from osc_lib.utils import tags as _tag
 
+from openstackclient.api import compute_v2
 from openstackclient.i18n import _
 from openstackclient.identity import common as identity_common
 from openstackclient.network import common
@@ -180,7 +181,8 @@ class CreateSecurityGroup(
 
     def take_action_compute(self, client, parsed_args):
         description = self._get_description(parsed_args)
-        obj = client.api.security_group_create(
+        obj = compute_v2.create_security_group(
+            client,
             parsed_args.name,
             description,
         )
@@ -212,7 +214,8 @@ class DeleteSecurityGroup(common.NetworkAndComputeDelete):
         client.delete_security_group(obj)
 
     def take_action_compute(self, client, parsed_args):
-        client.api.security_group_delete(self.r)
+        security_group = compute_v2.find_security_group(client, self.r)
+        compute_v2.delete_security_group(client, security_group['id'])
 
 
 # TODO(rauta): Use the SDK resource mapped attribute names once
@@ -291,10 +294,10 @@ class ListSecurityGroup(common.NetworkAndComputeLister):
         )
 
     def take_action_compute(self, client, parsed_args):
-        search = {'all_tenants': parsed_args.all_projects}
-        data = client.api.security_group_list(
+        data = compute_v2.list_security_groups(
             # TODO(dtroyer): add limit, marker
-            search_opts=search,
+            client,
+            all_projects=parsed_args.all_projects,
         )
 
         columns = (
@@ -383,20 +386,21 @@ class SetSecurityGroup(
         _tag.update_tags_for_set(client, obj, parsed_args)
 
     def take_action_compute(self, client, parsed_args):
-        data = client.api.security_group_find(parsed_args.group)
+        security_group = compute_v2.find_security_group(
+            client, parsed_args.group
+        )
 
+        params = {}
         if parsed_args.name is not None:
-            data['name'] = parsed_args.name
+            params['name'] = parsed_args.name
         if parsed_args.description is not None:
-            data['description'] = parsed_args.description
+            params['description'] = parsed_args.description
 
         # NOTE(rtheis): Previous behavior did not raise a CommandError
         # if there were no updates. Maintain this behavior and issue
         # the update.
-        client.api.security_group_set(
-            data,
-            data['name'],
-            data['description'],
+        compute_v2.update_security_group(
+            client, security_group['id'], **params
         )
 
 
@@ -422,7 +426,7 @@ class ShowSecurityGroup(common.NetworkAndComputeShowOne):
         return (display_columns, data)
 
     def take_action_compute(self, client, parsed_args):
-        obj = client.api.security_group_find(parsed_args.group)
+        obj = compute_v2.find_security_group(client, parsed_args.group)
         display_columns, property_columns = _get_columns(obj)
         data = utils.get_dict_properties(
             obj, property_columns, formatters=_formatters_compute

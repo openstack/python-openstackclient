@@ -31,7 +31,6 @@ API_VERSIONS = {
     "2.1": "novaclient.client",
 }
 
-COMPUTE_API_TYPE = 'compute'
 COMPUTE_API_VERSIONS = {
     '2': 'openstackclient.api.compute_v2.APIv2',
 }
@@ -63,15 +62,6 @@ def make_client(instance):
         #                fallback to use the max version of novaclient side.
         version = novaclient.API_MAX_VERSION
 
-    LOG.debug('Instantiating compute client for %s', version)
-
-    compute_api = utils.get_client_class(
-        API_NAME,
-        version.ver_major,
-        COMPUTE_API_VERSIONS,
-    )
-    LOG.debug('Instantiating compute api: %s', compute_api)
-
     # Set client http_log_debug to True if verbosity level is high enough
     http_log_debug = utils.get_effective_log_level() <= logging.DEBUG
 
@@ -92,16 +82,6 @@ def make_client(instance):
         timings=instance.timing,
         region_name=instance.region_name,
         **kwargs
-    )
-
-    client.api = compute_api(
-        session=instance.session,
-        service_type=COMPUTE_API_TYPE,
-        endpoint=instance.get_endpoint_for_service_type(
-            COMPUTE_API_TYPE,
-            region_name=instance.region_name,
-            interface=instance.interface,
-        ),
     )
 
     return client

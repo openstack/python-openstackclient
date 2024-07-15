@@ -552,8 +552,9 @@ class AddFloatingIP(network_common.NetworkAndComputeCommand):
                 raise error
 
     def take_action_compute(self, client, parsed_args):
-        client.api.floating_ip_add(
-            parsed_args.server,
+        server = client.find_server(parsed_args.server, ignore_missing=False)
+        client.add_floating_ip_to_server(
+            server,
             parsed_args.ip_address,
             fixed_address=parsed_args.fixed_ip_address,
         )
@@ -3921,10 +3922,8 @@ class RemoveFloatingIP(network_common.NetworkAndComputeCommand):
         client.update_ip(obj, **attrs)
 
     def take_action_compute(self, client, parsed_args):
-        client.api.floating_ip_remove(
-            parsed_args.server,
-            parsed_args.ip_address,
-        )
+        server = client.find_server(parsed_args.server, ignore_missing=False)
+        client.remove_floating_ip_from_server(server, parsed_args.ip_address)
 
 
 class RemovePort(command.Command):

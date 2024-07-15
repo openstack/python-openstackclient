@@ -12,21 +12,17 @@
 #
 
 from unittest import mock
-from unittest.mock import call
 
 from osc_lib import exceptions
 
+from openstackclient.api import compute_v2
 from openstackclient.network.v2 import floating_ip as fip
 from openstackclient.tests.unit.compute.v2 import fakes as compute_fakes
 from openstackclient.tests.unit import utils as tests_utils
 
 
-# Tests for Nova network
-
-
-@mock.patch('openstackclient.api.compute_v2.APIv2.floating_ip_create')
+@mock.patch.object(compute_v2, 'create_floating_ip')
 class TestCreateFloatingIPCompute(compute_fakes.TestComputev2):
-    # The floating ip to be deleted.
     _floating_ip = compute_fakes.create_one_floating_ip()
 
     columns = (
@@ -50,9 +46,6 @@ class TestCreateFloatingIPCompute(compute_fakes.TestComputev2):
 
         self.app.client_manager.network_endpoint_enabled = False
 
-        # self.compute_client.floating_ips.create.return_value = self.floating_ip
-
-        # Get the command object to test
         self.cmd = fip.CreateFloatingIP(self.app, None)
 
     def test_floating_ip_create_no_arg(self, fip_mock):
@@ -79,14 +72,15 @@ class TestCreateFloatingIPCompute(compute_fakes.TestComputev2):
 
         columns, data = self.cmd.take_action(parsed_args)
 
-        fip_mock.assert_called_once_with(self._floating_ip['pool'])
+        fip_mock.assert_called_once_with(
+            self.compute_sdk_client, self._floating_ip['pool']
+        )
         self.assertEqual(self.columns, columns)
         self.assertEqual(self.data, data)
 
 
-@mock.patch('openstackclient.api.compute_v2.APIv2.floating_ip_delete')
+@mock.patch.object(compute_v2, 'delete_floating_ip')
 class TestDeleteFloatingIPCompute(compute_fakes.TestComputev2):
-    # The floating ips to be deleted.
     _floating_ips = compute_fakes.create_floating_ips(count=2)
 
     def setUp(self):
@@ -94,7 +88,6 @@ class TestDeleteFloatingIPCompute(compute_fakes.TestComputev2):
 
         self.app.client_manager.network_endpoint_enabled = False
 
-        # Get the command object to test
         self.cmd = fip.DeleteFloatingIP(self.app, None)
 
     def test_floating_ip_delete(self, fip_mock):
@@ -109,27 +102,34 @@ class TestDeleteFloatingIPCompute(compute_fakes.TestComputev2):
 
         result = self.cmd.take_action(parsed_args)
 
-        fip_mock.assert_called_once_with(self._floating_ips[0]['id'])
+        fip_mock.assert_called_once_with(
+            self.compute_sdk_client, self._floating_ips[0]['id']
+        )
         self.assertIsNone(result)
 
     def test_floating_ip_delete_multi(self, fip_mock):
         fip_mock.return_value = mock.Mock(return_value=None)
-        arglist = []
-        verifylist = []
-
-        for f in self._floating_ips:
-            arglist.append(f['id'])
+        arglist = [
+            self._floating_ips[0]['id'],
+            self._floating_ips[1]['id'],
+        ]
         verifylist = [
             ('floating_ip', arglist),
         ]
-        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
         result = self.cmd.take_action(parsed_args)
 
-        calls = []
-        for f in self._floating_ips:
-            calls.append(call(f['id']))
-        fip_mock.assert_has_calls(calls)
+        fip_mock.assert_has_calls(
+            [
+                mock.call(
+                    self.compute_sdk_client, self._floating_ips[0]['id']
+                ),
+                mock.call(
+                    self.compute_sdk_client, self._floating_ips[1]['id']
+                ),
+            ]
+        )
         self.assertIsNone(result)
 
     def test_floating_ip_delete_multi_exception(self, fip_mock):
@@ -156,13 +156,16 @@ class TestDeleteFloatingIPCompute(compute_fakes.TestComputev2):
         except exceptions.CommandError as e:
             self.assertEqual('1 of 2 floating_ips failed to delete.', str(e))
 
-        fip_mock.assert_any_call(self._floating_ips[0]['id'])
-        fip_mock.assert_any_call('unexist_floating_ip')
+        fip_mock.assert_any_call(
+            self.compute_sdk_client, self._floating_ips[0]['id']
+        )
+        fip_mock.assert_any_call(
+            self.compute_sdk_client, 'unexist_floating_ip'
+        )
 
 
-@mock.patch('openstackclient.api.compute_v2.APIv2.floating_ip_list')
+@mock.patch.object(compute_v2, 'list_floating_ips')
 class TestListFloatingIPCompute(compute_fakes.TestComputev2):
-    # The floating ips to be list up
     _floating_ips = compute_fakes.create_floating_ips(count=3)
 
     columns = (
@@ -190,7 +193,6 @@ class TestListFloatingIPCompute(compute_fakes.TestComputev2):
 
         self.app.client_manager.network_endpoint_enabled = False
 
-        # Get the command object to test
         self.cmd = fip.ListFloatingIP(self.app, None)
 
     def test_floating_ip_list(self, fip_mock):
@@ -201,14 +203,13 @@ class TestListFloatingIPCompute(compute_fakes.TestComputev2):
 
         columns, data = self.cmd.take_action(parsed_args)
 
-        fip_mock.assert_called_once_with()
+        fip_mock.assert_called_once_with(self.compute_sdk_client)
         self.assertEqual(self.columns, columns)
         self.assertEqual(self.data, list(data))
 
 
-@mock.patch('openstackclient.api.compute_v2.APIv2.floating_ip_find')
+@mock.patch.object(compute_v2, 'get_floating_ip')
 class TestShowFloatingIPCompute(compute_fakes.TestComputev2):
-    # The floating ip to display.
     _floating_ip = compute_fakes.create_one_floating_ip()
 
     columns = (
@@ -232,7 +233,6 @@ class TestShowFloatingIPCompute(compute_fakes.TestComputev2):
 
         self.app.client_manager.network_endpoint_enabled = False
 
-        # Get the command object to test
         self.cmd = fip.ShowFloatingIP(self.app, None)
 
     def test_floating_ip_show(self, fip_mock):
@@ -247,6 +247,8 @@ class TestShowFloatingIPCompute(compute_fakes.TestComputev2):
 
         columns, data = self.cmd.take_action(parsed_args)
 
-        fip_mock.assert_called_once_with(self._floating_ip['id'])
+        fip_mock.assert_called_once_with(
+            self.compute_sdk_client, self._floating_ip['id']
+        )
         self.assertEqual(self.columns, columns)
         self.assertEqual(self.data, data)

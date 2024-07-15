@@ -9,13 +9,12 @@
 #   WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
 #   License for the specific language governing permissions and limitations
 #   under the License.
-#
 
 from unittest import mock
-from unittest.mock import call
 
 from osc_lib import exceptions
 
+from openstackclient.api import compute_v2
 from openstackclient.network import utils as network_utils
 from openstackclient.network.v2 import security_group_rule
 from openstackclient.tests.unit.compute.v2 import fakes as compute_fakes
@@ -23,7 +22,7 @@ from openstackclient.tests.unit.identity.v3 import fakes as identity_fakes
 from openstackclient.tests.unit import utils as tests_utils
 
 
-@mock.patch('openstackclient.api.compute_v2.APIv2.security_group_rule_create')
+@mock.patch.object(compute_v2, 'create_security_group_rule')
 class TestCreateSecurityGroupRuleCompute(compute_fakes.TestComputev2):
     project = identity_fakes.FakeProject.create_one_project()
     domain = identity_fakes.FakeDomain.create_one_domain()
@@ -51,7 +50,7 @@ class TestCreateSecurityGroupRuleCompute(compute_fakes.TestComputev2):
 
         self.app.client_manager.network_endpoint_enabled = False
 
-        self.compute_client.api.security_group_find = mock.Mock(
+        compute_v2.find_security_group = mock.Mock(
             return_value=self._security_group,
         )
 
@@ -159,9 +158,8 @@ class TestCreateSecurityGroupRuleCompute(compute_fakes.TestComputev2):
 
         columns, data = self.cmd.take_action(parsed_args)
 
-        # TODO(dtroyer): save this for the security group rule changes
-        # self.compute_client.api.security_group_rule_create.assert_called_once_with(
         sgr_mock.assert_called_once_with(
+            self.compute_sdk_client,
             security_group_id=self._security_group['id'],
             ip_protocol=self._security_group_rule['ip_protocol'],
             from_port=self._security_group_rule['from_port'],
@@ -203,9 +201,8 @@ class TestCreateSecurityGroupRuleCompute(compute_fakes.TestComputev2):
 
         columns, data = self.cmd.take_action(parsed_args)
 
-        # TODO(dtroyer): save this for the security group rule changes
-        # self.compute_client.api.security_group_rule_create.assert_called_once_with(
         sgr_mock.assert_called_once_with(
+            self.compute_sdk_client,
             security_group_id=self._security_group['id'],
             ip_protocol=self._security_group_rule['ip_protocol'],
             from_port=self._security_group_rule['from_port'],
@@ -242,9 +239,8 @@ class TestCreateSecurityGroupRuleCompute(compute_fakes.TestComputev2):
 
         columns, data = self.cmd.take_action(parsed_args)
 
-        # TODO(dtroyer): save this for the security group rule changes
-        # self.compute_client.api.security_group_rule_create.assert_called_once_with(
         sgr_mock.assert_called_once_with(
+            self.compute_sdk_client,
             security_group_id=self._security_group['id'],
             ip_protocol=self._security_group_rule['ip_protocol'],
             from_port=self._security_group_rule['from_port'],
@@ -282,9 +278,8 @@ class TestCreateSecurityGroupRuleCompute(compute_fakes.TestComputev2):
 
         columns, data = self.cmd.take_action(parsed_args)
 
-        # TODO(dtroyer): save this for the security group rule changes
-        # self.compute_client.api.security_group_rule_create.assert_called_once_with(
         sgr_mock.assert_called_once_with(
+            self.compute_sdk_client,
             security_group_id=self._security_group['id'],
             ip_protocol=self._security_group_rule['ip_protocol'],
             from_port=self._security_group_rule['from_port'],
@@ -296,7 +291,7 @@ class TestCreateSecurityGroupRuleCompute(compute_fakes.TestComputev2):
         self.assertEqual(expected_data, data)
 
 
-@mock.patch('openstackclient.api.compute_v2.APIv2.security_group_rule_delete')
+@mock.patch.object(compute_v2, 'delete_security_group_rule')
 class TestDeleteSecurityGroupRuleCompute(compute_fakes.TestComputev2):
     # The security group rule to be deleted.
     _security_group_rules = compute_fakes.create_security_group_rules(count=2)
@@ -320,26 +315,35 @@ class TestDeleteSecurityGroupRuleCompute(compute_fakes.TestComputev2):
 
         result = self.cmd.take_action(parsed_args)
 
-        sgr_mock.assert_called_once_with(self._security_group_rules[0]['id'])
+        sgr_mock.assert_called_once_with(
+            self.compute_sdk_client, self._security_group_rules[0]['id']
+        )
         self.assertIsNone(result)
 
     def test_security_group_rule_delete_multi(self, sgr_mock):
-        arglist = []
-        verifylist = []
-
-        for s in self._security_group_rules:
-            arglist.append(s['id'])
+        arglist = [
+            self._security_group_rules[0]['id'],
+            self._security_group_rules[1]['id'],
+        ]
         verifylist = [
             ('rule', arglist),
         ]
-        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
         result = self.cmd.take_action(parsed_args)
 
-        calls = []
-        for s in self._security_group_rules:
-            calls.append(call(s['id']))
-        sgr_mock.assert_has_calls(calls)
+        sgr_mock.assert_has_calls(
+            [
+                mock.call(
+                    self.compute_sdk_client,
+                    self._security_group_rules[0]['id'],
+                ),
+                mock.call(
+                    self.compute_sdk_client,
+                    self._security_group_rules[1]['id'],
+                ),
+            ]
+        )
         self.assertIsNone(result)
 
     def test_security_group_rule_delete_multi_with_exception(self, sgr_mock):
@@ -348,12 +352,11 @@ class TestDeleteSecurityGroupRuleCompute(compute_fakes.TestComputev2):
             'unexist_rule',
         ]
         verifylist = [
-            ('rule', [self._security_group_rules[0]['id'], 'unexist_rule']),
+            ('rule', arglist),
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
-        find_mock_result = [None, exceptions.CommandError]
-        sgr_mock.side_effect = find_mock_result
+        sgr_mock.side_effect = [None, exceptions.NotFound('foo')]
 
         try:
             self.cmd.take_action(parsed_args)
@@ -361,8 +364,15 @@ class TestDeleteSecurityGroupRuleCompute(compute_fakes.TestComputev2):
         except exceptions.CommandError as e:
             self.assertEqual('1 of 2 rules failed to delete.', str(e))
 
-        sgr_mock.assert_any_call(self._security_group_rules[0]['id'])
-        sgr_mock.assert_any_call('unexist_rule')
+        sgr_mock.assert_has_calls(
+            [
+                mock.call(
+                    self.compute_sdk_client,
+                    self._security_group_rules[0]['id'],
+                ),
+                mock.call(self.compute_sdk_client, 'unexist_rule'),
+            ]
+        )
 
 
 class TestListSecurityGroupRuleCompute(compute_fakes.TestComputev2):
@@ -432,10 +442,10 @@ class TestListSecurityGroupRuleCompute(compute_fakes.TestComputev2):
 
         self.app.client_manager.network_endpoint_enabled = False
 
-        self.compute_client.api.security_group_find = mock.Mock(
+        compute_v2.find_security_group = mock.Mock(
             return_value=self._security_group,
         )
-        self.compute_client.api.security_group_list = mock.Mock(
+        compute_v2.list_security_groups = mock.Mock(
             return_value=[self._security_group],
         )
 
@@ -446,8 +456,8 @@ class TestListSecurityGroupRuleCompute(compute_fakes.TestComputev2):
         parsed_args = self.check_parser(self.cmd, [], [])
 
         columns, data = self.cmd.take_action(parsed_args)
-        self.compute_client.api.security_group_list.assert_called_once_with(
-            search_opts={'all_tenants': False}
+        compute_v2.list_security_groups.assert_called_once_with(
+            self.compute_sdk_client, all_projects=False
         )
         self.assertEqual(self.expected_columns_no_group, columns)
         self.assertEqual(self.expected_data_no_group, list(data))
@@ -462,8 +472,8 @@ class TestListSecurityGroupRuleCompute(compute_fakes.TestComputev2):
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
         columns, data = self.cmd.take_action(parsed_args)
-        self.compute_client.api.security_group_find.assert_called_once_with(
-            self._security_group['id']
+        compute_v2.find_security_group.assert_called_once_with(
+            self.compute_sdk_client, self._security_group['id']
         )
         self.assertEqual(self.expected_columns_with_group, columns)
         self.assertEqual(self.expected_data_with_group, list(data))
@@ -478,8 +488,8 @@ class TestListSecurityGroupRuleCompute(compute_fakes.TestComputev2):
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
         columns, data = self.cmd.take_action(parsed_args)
-        self.compute_client.api.security_group_list.assert_called_once_with(
-            search_opts={'all_tenants': True}
+        compute_v2.list_security_groups.assert_called_once_with(
+            self.compute_sdk_client, all_projects=True
         )
         self.assertEqual(self.expected_columns_no_group, columns)
         self.assertEqual(self.expected_data_no_group, list(data))
@@ -494,8 +504,8 @@ class TestListSecurityGroupRuleCompute(compute_fakes.TestComputev2):
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
         columns, data = self.cmd.take_action(parsed_args)
-        self.compute_client.api.security_group_list.assert_called_once_with(
-            search_opts={'all_tenants': False}
+        compute_v2.list_security_groups.assert_called_once_with(
+            self.compute_sdk_client, all_projects=False
         )
         self.assertEqual(self.expected_columns_no_group, columns)
         self.assertEqual(self.expected_data_no_group, list(data))
@@ -517,7 +527,7 @@ class TestShowSecurityGroupRuleCompute(compute_fakes.TestComputev2):
         # Build a security group fake customized for this test.
         security_group_rules = [self._security_group_rule]
         security_group = {'rules': security_group_rules}
-        self.compute_client.api.security_group_list = mock.Mock(
+        compute_v2.list_security_groups = mock.Mock(
             return_value=[security_group],
         )
 
@@ -540,6 +550,8 @@ class TestShowSecurityGroupRuleCompute(compute_fakes.TestComputev2):
 
         columns, data = self.cmd.take_action(parsed_args)
 
-        self.compute_client.api.security_group_list.assert_called_once_with()
+        compute_v2.list_security_groups.assert_called_once_with(
+            self.compute_sdk_client
+        )
         self.assertEqual(self.columns, columns)
         self.assertEqual(self.data, data)

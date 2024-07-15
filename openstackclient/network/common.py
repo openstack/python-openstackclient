@@ -161,7 +161,7 @@ class NetDetectionMixin(metaclass=abc.ABCMeta):
             )
         elif self.is_nova_network:
             return self.take_action_compute(
-                self.app.client_manager.compute, parsed_args
+                self.app.client_manager.sdk_connection.compute, parsed_args
             )
 
     def take_action_network(self, client, parsed_args):
@@ -210,7 +210,8 @@ class NetworkAndComputeDelete(NetworkAndComputeCommand, metaclass=abc.ABCMeta):
                     )
                 else:
                     self.take_action_compute(
-                        self.app.client_manager.compute, parsed_args
+                        self.app.client_manager.sdk_connection.compute,
+                        parsed_args,
                     )
             except Exception as e:
                 msg = _(
@@ -267,7 +268,7 @@ class NetworkAndComputeShowOne(
                 )
             else:
                 return self.take_action_compute(
-                    self.app.client_manager.compute, parsed_args
+                    self.app.client_manager.sdk_connection.compute, parsed_args
                 )
         except openstack.exceptions.HttpException as exc:
             msg = _("Error while executing command: %s") % exc.message
