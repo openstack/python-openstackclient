@@ -73,7 +73,6 @@ class TestQuotaList(TestQuota):
     compute_column_header = (
         'Project ID',
         'Cores',
-        'Fixed IPs',
         'Injected Files',
         'Injected File Content Bytes',
         'Injected File Path Bytes',
@@ -130,7 +129,6 @@ class TestQuotaList(TestQuota):
         self.compute_reference_data = (
             self.projects[0].id,
             self.compute_quotas[0].cores,
-            self.compute_quotas[0].fixed_ips,
             self.compute_quotas[0].injected_files,
             self.compute_quotas[0].injected_file_content_bytes,
             self.compute_quotas[0].injected_file_path_bytes,

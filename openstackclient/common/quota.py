@@ -33,7 +33,6 @@ LOG = logging.getLogger(__name__)
 
 COMPUTE_QUOTAS = {
     'cores': 'cores',
-    'fixed_ips': 'fixed-ips',
     'injected_file_content_bytes': 'injected-file-size',
     'injected_file_path_bytes': 'injected-path-size',
     'injected_files': 'injected-files',
@@ -41,8 +40,8 @@ COMPUTE_QUOTAS = {
     'key_pairs': 'key-pairs',
     'metadata_items': 'properties',
     'ram': 'ram',
-    'server_groups': 'server-groups',
     'server_group_members': 'server-group-members',
+    'server_groups': 'server-groups',
 }
 
 VOLUME_QUOTAS = {
@@ -61,6 +60,7 @@ IMPACT_VOLUME_TYPE_QUOTAS = [
 ]
 
 NOVA_NETWORK_QUOTAS = {
+    'fixed_ips': 'fixed-ips',
     'floating_ips': 'floating-ips',
     'security_group_rules': 'secgroup-rules',
     'security_groups': 'secgroups',
@@ -405,7 +405,6 @@ class ListQuota(command.Lister):
             columns = (
                 'id',
                 'cores',
-                'fixed_ips',
                 'injected_files',
                 'injected_file_content_bytes',
                 'injected_file_path_bytes',
@@ -419,7 +418,6 @@ class ListQuota(command.Lister):
             column_headers = (
                 'Project ID',
                 'Cores',
-                'Fixed IPs',
                 'Injected Files',
                 'Injected File Content Bytes',
                 'Injected File Path Bytes',
