@@ -8401,7 +8401,7 @@ class TestServerShow(TestServer):
             attrs=server_info,
         )
         self.server.fetch_topology = mock.MagicMock(return_value=self.topology)
-        self.compute_sdk_client.get_server.return_value = self.server
+        self.compute_sdk_client.find_server.return_value = self.server
 
         # Get the command object to test
         self.cmd = server.ShowServer(self.app, None)
@@ -8530,6 +8530,10 @@ class TestServerShow(TestServer):
 
         self.assertTupleEqual(self.columns, columns)
         self.assertTupleEqual(self.data, data)
+        self.compute_sdk_client.find_server.assert_called_once_with(
+            self.server.name, ignore_missing=False, details=True
+        )
+        self.compute_sdk_client.get_server.assert_not_called()
 
     def test_show_embedded_flavor(self):
         # Tests using --os-compute-api-version >= 2.47 where the flavor
@@ -8558,6 +8562,10 @@ class TestServerShow(TestServer):
         # Since the flavor details are in a dict we can't be sure of the
         # ordering so just assert that one of the keys is in the output.
         self.assertIn('original_name', data[columns.index('flavor')]._value)
+        self.compute_sdk_client.find_server.assert_called_once_with(
+            self.server.name, ignore_missing=False, details=True
+        )
+        self.compute_sdk_client.get_server.assert_not_called()
 
     def test_show_diagnostics(self):
         arglist = [
@@ -8575,6 +8583,13 @@ class TestServerShow(TestServer):
 
         self.assertEqual(('test',), columns)
         self.assertEqual(('test',), data)
+        self.compute_sdk_client.find_server.assert_called_once_with(
+            self.server.name, ignore_missing=False, details=True
+        )
+        self.compute_sdk_client.get_server_diagnostics.assert_called_once_with(
+            self.server
+        )
+        self.compute_sdk_client.get_server.assert_not_called()
 
     def test_show_topology(self):
         self.set_compute_api_version('2.78')
@@ -8597,6 +8612,13 @@ class TestServerShow(TestServer):
 
         self.assertCountEqual(self.columns, columns)
         self.assertCountEqual(self.data, data)
+        self.compute_sdk_client.find_server.assert_called_once_with(
+            self.server.name, ignore_missing=False, details=True
+        )
+        self.server.fetch_topology.assert_called_once_with(
+            self.compute_sdk_client
+        )
+        self.compute_sdk_client.get_server.assert_not_called()
 
     def test_show_topology_pre_v278(self):
         self.set_compute_api_version('2.77')
@@ -8615,6 +8637,11 @@ class TestServerShow(TestServer):
         self.assertRaises(
             exceptions.CommandError, self.cmd.take_action, parsed_args
         )
+        self.compute_sdk_client.find_server.assert_called_once_with(
+            self.server.name, ignore_missing=False, details=True
+        )
+        self.server.fetch_topology.assert_not_called()
+        self.compute_sdk_client.get_server.assert_not_called()
 
 
 @mock.patch('openstackclient.compute.v2.server.os.system')
