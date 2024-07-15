@@ -7843,62 +7843,60 @@ class TestServerSet(TestServer):
     def setUp(self):
         super().setUp()
 
-        self.attrs = {
-            'api_version': None,
-        }
-
-        self.methods = {
-            'update': None,
-            'reset_state': None,
-            'change_password': None,
-            'clear_password': None,
-            'add_tag': None,
-            'set_tags': None,
-        }
-
-        self.fake_servers = self.setup_servers_mock(2)
+        self.server = compute_fakes.create_one_sdk_server()
+        self.compute_sdk_client.find_server.return_value = self.server
 
         # Get the command object to test
         self.cmd = server.SetServer(self.app, None)
 
     def test_server_set_no_option(self):
-        arglist = ['foo_vm']
-        verifylist = [('server', 'foo_vm')]
+        arglist = [self.server.id]
+        verifylist = [('server', self.server.id)]
+
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
         result = self.cmd.take_action(parsed_args)
-        self.assertNotCalled(self.fake_servers[0].update)
-        self.assertNotCalled(self.fake_servers[0].reset_state)
-        self.assertNotCalled(self.fake_servers[0].change_password)
-        self.assertNotCalled(self.servers_mock.set_meta)
+
+        self.compute_sdk_client.update_server.assert_not_called()
+        self.compute_sdk_client.set_server_metadata.assert_not_called()
+        self.compute_sdk_client.reset_server_state.assert_not_called()
+        self.compute_sdk_client.change_server_password.assert_not_called()
+        self.compute_sdk_client.clear_server_password.assert_not_called()
+        self.compute_sdk_client.add_tag_to_server.assert_not_called()
         self.assertIsNone(result)
 
     def test_server_set_with_state(self):
-        for index, state in enumerate(['active', 'error']):
-            arglist = [
-                '--state',
-                state,
-                'foo_vm',
-            ]
-            verifylist = [
-                ('state', state),
-                ('server', 'foo_vm'),
-            ]
-            parsed_args = self.check_parser(self.cmd, arglist, verifylist)
-            result = self.cmd.take_action(parsed_args)
-            self.fake_servers[index].reset_state.assert_called_once_with(
-                state=state
-            )
-            self.assertIsNone(result)
+        arglist = [
+            '--state',
+            'active',
+            self.server.id,
+        ]
+        verifylist = [
+            ('state', 'active'),
+            ('server', self.server.id),
+        ]
+
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+        result = self.cmd.take_action(parsed_args)
+
+        self.compute_sdk_client.reset_server_state.assert_called_once_with(
+            self.server, state='active'
+        )
+        self.compute_sdk_client.update_server.assert_not_called()
+        self.compute_sdk_client.set_server_metadata.assert_not_called()
+        self.compute_sdk_client.change_server_password.assert_not_called()
+        self.compute_sdk_client.clear_server_password.assert_not_called()
+        self.compute_sdk_client.add_tag_to_server.assert_not_called()
+        self.assertIsNone(result)
 
     def test_server_set_with_invalid_state(self):
         arglist = [
             '--state',
             'foo_state',
-            'foo_vm',
+            self.server.id,
         ]
         verifylist = [
             ('state', 'foo_state'),
-            ('server', 'foo_vm'),
+            ('server', self.server.id),
         ]
         self.assertRaises(
             test_utils.ParserException,
@@ -7912,15 +7910,24 @@ class TestServerSet(TestServer):
         arglist = [
             '--name',
             'foo_name',
-            'foo_vm',
+            self.server.id,
         ]
         verifylist = [
             ('name', 'foo_name'),
-            ('server', 'foo_vm'),
+            ('server', self.server.id),
         ]
+
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
         result = self.cmd.take_action(parsed_args)
-        self.fake_servers[0].update.assert_called_once_with(name='foo_name')
+
+        self.compute_sdk_client.update_server.assert_called_once_with(
+            self.server, name='foo_name'
+        )
+        self.compute_sdk_client.set_server_metadata.assert_not_called()
+        self.compute_sdk_client.reset_server_state.assert_not_called()
+        self.compute_sdk_client.change_server_password.assert_not_called()
+        self.compute_sdk_client.clear_server_password.assert_not_called()
+        self.compute_sdk_client.add_tag_to_server.assert_not_called()
         self.assertIsNone(result)
 
     def test_server_set_with_property(self):
@@ -7929,49 +7936,72 @@ class TestServerSet(TestServer):
             'key1=value1',
             '--property',
             'key2=value2',
-            'foo_vm',
+            self.server.id,
         ]
         verifylist = [
             ('properties', {'key1': 'value1', 'key2': 'value2'}),
-            ('server', 'foo_vm'),
+            ('server', self.server.id),
         ]
+
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
         result = self.cmd.take_action(parsed_args)
-        self.servers_mock.set_meta.assert_called_once_with(
-            self.fake_servers[0], parsed_args.properties
+
+        self.compute_sdk_client.set_server_metadata.assert_called_once_with(
+            self.server, key1='value1', key2='value2'
         )
+        self.compute_sdk_client.update_server.assert_not_called()
+        self.compute_sdk_client.reset_server_state.assert_not_called()
+        self.compute_sdk_client.change_server_password.assert_not_called()
+        self.compute_sdk_client.clear_server_password.assert_not_called()
+        self.compute_sdk_client.add_tag_to_server.assert_not_called()
         self.assertIsNone(result)
 
     def test_server_set_with_password(self):
         arglist = [
             '--password',
             'foo',
-            'foo_vm',
+            self.server.id,
         ]
         verifylist = [
             ('password', 'foo'),
-            ('server', 'foo_vm'),
+            ('server', self.server.id),
         ]
+
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+        result = self.cmd.take_action(parsed_args)
 
-        self.cmd.take_action(parsed_args)
-
-        self.fake_servers[0].change_password.assert_called_once_with('foo')
+        self.compute_sdk_client.change_server_password.assert_called_once_with(
+            self.server, 'foo'
+        )
+        self.compute_sdk_client.update_server.assert_not_called()
+        self.compute_sdk_client.set_server_metadata.assert_not_called()
+        self.compute_sdk_client.reset_server_state.assert_not_called()
+        self.compute_sdk_client.clear_server_password.assert_not_called()
+        self.compute_sdk_client.add_tag_to_server.assert_not_called()
+        self.assertIsNone(result)
 
     def test_server_set_with_no_password(self):
         arglist = [
             '--no-password',
-            'foo_vm',
+            self.server.id,
         ]
         verifylist = [
             ('no_password', True),
-            ('server', 'foo_vm'),
+            ('server', self.server.id),
         ]
+
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+        result = self.cmd.take_action(parsed_args)
 
-        self.cmd.take_action(parsed_args)
-
-        self.fake_servers[0].clear_password.assert_called_once_with()
+        self.compute_sdk_client.clear_server_password.assert_called_once_with(
+            self.server
+        )
+        self.compute_sdk_client.update_server.assert_not_called()
+        self.compute_sdk_client.set_server_metadata.assert_not_called()
+        self.compute_sdk_client.reset_server_state.assert_not_called()
+        self.compute_sdk_client.change_server_password.assert_not_called()
+        self.compute_sdk_client.add_tag_to_server.assert_not_called()
+        self.assertIsNone(result)
 
     # TODO(stephenfin): Remove this in a future major version
     @mock.patch.object(
@@ -7980,17 +8010,24 @@ class TestServerSet(TestServer):
     def test_server_set_with_root_password(self, mock_getpass):
         arglist = [
             '--root-password',
-            'foo_vm',
+            self.server.id,
         ]
         verifylist = [
             ('root_password', True),
-            ('server', 'foo_vm'),
+            ('server', self.server.id),
         ]
+
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
         result = self.cmd.take_action(parsed_args)
-        self.fake_servers[0].change_password.assert_called_once_with(
-            mock.sentinel.fake_pass
+
+        self.compute_sdk_client.change_server_password.assert_called_once_with(
+            self.server, mock.sentinel.fake_pass
         )
+        self.compute_sdk_client.update_server.assert_not_called()
+        self.compute_sdk_client.set_server_metadata.assert_not_called()
+        self.compute_sdk_client.reset_server_state.assert_not_called()
+        self.compute_sdk_client.clear_server_password.assert_not_called()
+        self.compute_sdk_client.add_tag_to_server.assert_not_called()
         self.assertIsNone(result)
 
     def test_server_set_with_description(self):
@@ -7999,17 +8036,24 @@ class TestServerSet(TestServer):
         arglist = [
             '--description',
             'foo_description',
-            'foo_vm',
+            self.server.id,
         ]
         verifylist = [
             ('description', 'foo_description'),
-            ('server', 'foo_vm'),
+            ('server', self.server.id),
         ]
+
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
         result = self.cmd.take_action(parsed_args)
-        self.fake_servers[0].update.assert_called_once_with(
-            description='foo_description'
+
+        self.compute_sdk_client.update_server.assert_called_once_with(
+            self.server, description='foo_description'
         )
+        self.compute_sdk_client.set_server_metadata.assert_not_called()
+        self.compute_sdk_client.reset_server_state.assert_not_called()
+        self.compute_sdk_client.change_server_password.assert_not_called()
+        self.compute_sdk_client.clear_server_password.assert_not_called()
+        self.compute_sdk_client.add_tag_to_server.assert_not_called()
         self.assertIsNone(result)
 
     def test_server_set_with_description_pre_v219(self):
@@ -8018,12 +8062,13 @@ class TestServerSet(TestServer):
         arglist = [
             '--description',
             'foo_description',
-            'foo_vm',
+            self.server.id,
         ]
         verifylist = [
             ('description', 'foo_description'),
-            ('server', 'foo_vm'),
+            ('server', self.server.id),
         ]
+
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
         self.assertRaises(
             exceptions.CommandError, self.cmd.take_action, parsed_args
@@ -8037,22 +8082,27 @@ class TestServerSet(TestServer):
             'tag1',
             '--tag',
             'tag2',
-            'foo_vm',
+            self.server.id,
         ]
         verifylist = [
             ('tags', ['tag1', 'tag2']),
-            ('server', 'foo_vm'),
+            ('server', self.server.id),
         ]
-        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
         result = self.cmd.take_action(parsed_args)
 
-        self.fake_servers[0].add_tag.assert_has_calls(
+        self.compute_sdk_client.add_tag_to_server.assert_has_calls(
             [
-                mock.call(tag='tag1'),
-                mock.call(tag='tag2'),
+                mock.call(self.server, tag='tag1'),
+                mock.call(self.server, tag='tag2'),
             ]
         )
+        self.compute_sdk_client.update_server.assert_not_called()
+        self.compute_sdk_client.set_server_metadata.assert_not_called()
+        self.compute_sdk_client.reset_server_state.assert_not_called()
+        self.compute_sdk_client.change_server_password.assert_not_called()
+        self.compute_sdk_client.clear_server_password.assert_not_called()
         self.assertIsNone(result)
 
     def test_server_set_with_tag_pre_v226(self):
@@ -8063,14 +8113,14 @@ class TestServerSet(TestServer):
             'tag1',
             '--tag',
             'tag2',
-            'foo_vm',
+            self.server.id,
         ]
         verifylist = [
             ('tags', ['tag1', 'tag2']),
-            ('server', 'foo_vm'),
+            ('server', self.server.id),
         ]
-        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
         ex = self.assertRaises(
             exceptions.CommandError, self.cmd.take_action, parsed_args
         )
@@ -8084,17 +8134,24 @@ class TestServerSet(TestServer):
         arglist = [
             '--hostname',
             'foo-hostname',
-            'foo_vm',
+            self.server.id,
         ]
         verifylist = [
             ('hostname', 'foo-hostname'),
-            ('server', 'foo_vm'),
+            ('server', self.server.id),
         ]
+
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
         result = self.cmd.take_action(parsed_args)
-        self.fake_servers[0].update.assert_called_once_with(
-            hostname='foo-hostname'
+
+        self.compute_sdk_client.update_server.assert_called_once_with(
+            self.server, hostname='foo-hostname'
         )
+        self.compute_sdk_client.set_server_metadata.assert_not_called()
+        self.compute_sdk_client.reset_server_state.assert_not_called()
+        self.compute_sdk_client.change_server_password.assert_not_called()
+        self.compute_sdk_client.clear_server_password.assert_not_called()
+        self.compute_sdk_client.add_tag_to_server.assert_not_called()
         self.assertIsNone(result)
 
     def test_server_set_with_hostname_pre_v290(self):
@@ -8103,11 +8160,11 @@ class TestServerSet(TestServer):
         arglist = [
             '--hostname',
             'foo-hostname',
-            'foo_vm',
+            self.server.id,
         ]
         verifylist = [
             ('hostname', 'foo-hostname'),
-            ('server', 'foo_vm'),
+            ('server', self.server.id),
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
         self.assertRaises(
@@ -8718,21 +8775,29 @@ class TestServerUnset(TestServer):
     def setUp(self):
         super().setUp()
 
-        self.fake_server = self.setup_servers_mock(1)[0]
+        self.server = compute_fakes.create_one_sdk_server()
+        self.compute_sdk_client.find_server.return_value = self.server
 
         # Get the command object to test
         self.cmd = server.UnsetServer(self.app, None)
 
     def test_server_unset_no_option(self):
         arglist = [
-            'foo_vm',
+            self.server.id,
         ]
         verifylist = [
-            ('server', 'foo_vm'),
+            ('server', self.server.id),
         ]
+
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
         result = self.cmd.take_action(parsed_args)
-        self.assertNotCalled(self.servers_mock.delete_meta)
+
+        self.compute_sdk_client.find_server(
+            self.server.id, ignore_missing=False
+        )
+        self.compute_sdk_client.delete_server_metadata.assert_not_called()
+        self.compute_sdk_client.update_server.assert_not_called()
+        self.compute_sdk_client.remove_tag_from_server.assert_not_called()
         self.assertIsNone(result)
 
     def test_server_unset_with_property(self):
@@ -8741,17 +8806,25 @@ class TestServerUnset(TestServer):
             'key1',
             '--property',
             'key2',
-            'foo_vm',
+            self.server.id,
         ]
         verifylist = [
             ('properties', ['key1', 'key2']),
-            ('server', 'foo_vm'),
+            ('server', self.server.id),
         ]
+
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
         result = self.cmd.take_action(parsed_args)
-        self.servers_mock.delete_meta.assert_called_once_with(
-            self.fake_server, ['key1', 'key2']
+
+        self.compute_sdk_client.find_server(
+            self.server.id, ignore_missing=False
         )
+        self.compute_sdk_client.delete_server_metadata.assert_called_once_with(
+            self.server,
+            ['key1', 'key2'],
+        )
+        self.compute_sdk_client.update_server.assert_not_called()
+        self.compute_sdk_client.remove_tag_from_server.assert_not_called()
         self.assertIsNone(result)
 
     def test_server_unset_with_description(self):
@@ -8760,19 +8833,24 @@ class TestServerUnset(TestServer):
 
         arglist = [
             '--description',
-            'foo_vm',
+            self.server.id,
         ]
         verifylist = [
             ('description', True),
-            ('server', 'foo_vm'),
+            ('server', self.server.id),
         ]
-        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
         result = self.cmd.take_action(parsed_args)
 
-        self.servers_mock.update.assert_called_once_with(
-            self.fake_server, description=""
+        self.compute_sdk_client.find_server(
+            self.server.id, ignore_missing=False
         )
+        self.compute_sdk_client.update_server.assert_called_once_with(
+            self.server, description=''
+        )
+        self.compute_sdk_client.delete_server_metadata.assert_not_called()
+        self.compute_sdk_client.remove_tag_from_server.assert_not_called()
         self.assertIsNone(result)
 
     def test_server_unset_with_description_pre_v219(self):
@@ -8781,11 +8859,11 @@ class TestServerUnset(TestServer):
 
         arglist = [
             '--description',
-            'foo_vm',
+            self.server.id,
         ]
         verifylist = [
             ('description', True),
-            ('server', 'foo_vm'),
+            ('server', self.server.id),
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
@@ -8804,23 +8882,28 @@ class TestServerUnset(TestServer):
             'tag1',
             '--tag',
             'tag2',
-            'foo_vm',
+            self.server.id,
         ]
         verifylist = [
             ('tags', ['tag1', 'tag2']),
-            ('server', 'foo_vm'),
+            ('server', self.server.id),
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
         result = self.cmd.take_action(parsed_args)
         self.assertIsNone(result)
 
-        self.servers_mock.delete_tag.assert_has_calls(
+        self.compute_sdk_client.find_server(
+            self.server.id, ignore_missing=False
+        )
+        self.compute_sdk_client.remove_tag_from_server.assert_has_calls(
             [
-                mock.call(self.fake_server, tag='tag1'),
-                mock.call(self.fake_server, tag='tag2'),
+                mock.call(self.server, 'tag1'),
+                mock.call(self.server, 'tag2'),
             ]
         )
+        self.compute_sdk_client.delete_server_metadata.assert_not_called()
+        self.compute_sdk_client.update_server.assert_not_called()
 
     def test_server_unset_with_tag_pre_v226(self):
         self.set_compute_api_version('2.25')
@@ -8830,11 +8913,11 @@ class TestServerUnset(TestServer):
             'tag1',
             '--tag',
             'tag2',
-            'foo_vm',
+            self.server.id,
         ]
         verifylist = [
             ('tags', ['tag1', 'tag2']),
-            ('server', 'foo_vm'),
+            ('server', self.server.id),
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
