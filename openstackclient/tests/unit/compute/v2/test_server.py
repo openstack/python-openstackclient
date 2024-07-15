@@ -14,11 +14,11 @@
 
 import base64
 import collections
-import copy
 import getpass
 import json
 import tempfile
 from unittest import mock
+import uuid
 
 import iso8601
 from openstack import exceptions as sdk_exceptions
@@ -64,10 +64,6 @@ class TestServer(compute_fakes.TestComputev2):
     def setUp(self):
         super().setUp()
 
-        # Get a shortcut to the compute client ServerManager Mock
-        self.servers_mock = self.compute_client.servers
-        self.servers_mock.reset_mock()
-
         # Get a shortcut to the compute client ServerMigrationsManager Mock
         self.server_migrations_mock = self.compute_client.server_migrations
         self.server_migrations_mock.reset_mock()
@@ -84,40 +80,11 @@ class TestServer(compute_fakes.TestComputev2):
         self.flavors_mock = self.compute_client.flavors
         self.flavors_mock.reset_mock()
 
-        # Get a shortcut to the volume client VolumeManager Mock
-        self.volumes_mock = self.volume_client.volumes
-        self.volumes_mock.reset_mock()
-
-        # Get a shortcut to the volume client VolumeManager Mock
-        self.snapshots_mock = self.volume_client.volume_snapshots
-        self.snapshots_mock.reset_mock()
-
         # Set object attributes to be tested. Could be overwritten in subclass.
         self.attrs = {}
 
         # Set object methods to be tested. Could be overwritten in subclass.
         self.methods = {}
-
-    def setup_servers_mock(self, count):
-        # If we are creating more than one server, make one of them
-        # boot-from-volume
-        include_bfv = count > 1
-        servers = compute_fakes.create_servers(
-            attrs=self.attrs,
-            methods=self.methods,
-            count=count - 1 if include_bfv else count,
-        )
-        if include_bfv:
-            attrs = copy.deepcopy(self.attrs)
-            attrs['image'] = ''
-            bfv_server = compute_fakes.create_one_server(
-                attrs=attrs, methods=self.methods
-            )
-            servers.append(bfv_server)
-
-        # This is the return value for utils.find_resource()
-        self.servers_mock.get = compute_fakes.get_servers(servers, 0)
-        return servers
 
     def setup_sdk_servers_mock(self, count):
         servers = compute_fakes.create_sdk_servers(
@@ -760,7 +727,7 @@ class TestServerAddPort(TestServer):
     def test_server_add_port_with_tag_pre_v249(self):
         self.set_compute_api_version('2.48')
 
-        servers = self.setup_servers_mock(count=1)
+        servers = self.setup_sdk_servers_mock(count=1)
         self.find_port.return_value.id = 'fake-port'
         arglist = [
             servers[0].id,
@@ -1341,7 +1308,7 @@ class TestServerCreate(TestServer):
             None,  # OS-EXT-SRV-ATTR:user_data
             server.PowerStateColumn(
                 self.server.power_state
-            ),  # OS-EXT-STS:power_state  # noqa: E501
+            ),  # OS-EXT-STS:power_state
             None,  # OS-EXT-STS:task_state
             None,  # OS-EXT-STS:vm_state
             None,  # OS-SRV-USG:launched_at
@@ -1382,7 +1349,6 @@ class TestServerCreate(TestServer):
         self.image_client.get_image.return_value = self.image
 
         self.flavor = compute_fakes.create_one_flavor()
-        self.flavors_mock.get.return_value = self.flavor
         self.compute_sdk_client.find_flavor.return_value = self.flavor
 
         attrs = {
@@ -1391,31 +1357,23 @@ class TestServerCreate(TestServer):
             'image': self.image,
             'flavor': self.flavor,
         }
-        self.new_server = compute_fakes.create_one_server(attrs=attrs)
-        self.servers_mock.create.return_value = self.new_server
-
-        # We need an SDK-style server object also for the get_server call in
-        # _prep_server_detail
-        # TODO(stephenfin): Remove when the whole command is using SDK
         self.server = compute_fakes.create_one_sdk_server(attrs=attrs)
+
+        self.compute_sdk_client.create_server.return_value = self.server
         self.compute_sdk_client.get_server.return_value = self.server
 
         self.volume = volume_fakes.create_one_volume()
-        self.volume_alt = volume_fakes.create_one_volume()
-        self.volumes_mock.get.return_value = self.volume
-
         self.snapshot = volume_fakes.create_one_snapshot()
-        self.snapshots_mock.get.return_value = self.snapshot
 
         # Get the command object to test
         self.cmd = server.CreateServer(self.app, None)
 
     def test_server_create_no_options(self):
         arglist = [
-            self.new_server.name,
+            self.server.name,
         ]
         verifylist = [
-            ('server_name', self.new_server.name),
+            ('server_name', self.server.name),
         ]
 
         self.assertRaises(
@@ -1429,63 +1387,65 @@ class TestServerCreate(TestServer):
     def test_server_create_minimal(self):
         arglist = [
             '--image',
-            'image1',
+            self.image.id,
             '--flavor',
-            'flavor1',
-            self.new_server.name,
+            self.flavor.id,
+            self.server.name,
         ]
         verifylist = [
-            ('image', 'image1'),
-            ('flavor', 'flavor1'),
+            ('image', self.image.id),
+            ('flavor', self.flavor.id),
             ('config_drive', False),
-            ('server_name', self.new_server.name),
+            ('server_name', self.server.name),
         ]
-        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
-        # In base command class ShowOne in cliff, abstract method take_action()
-        # returns a two-part tuple with a tuple of column names and a tuple of
-        # data to be shown.
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
         columns, data = self.cmd.take_action(parsed_args)
 
-        # Set expected values
-        kwargs = dict(
-            meta=None,
-            files={},
-            reservation_id=None,
+        self.compute_sdk_client.find_flavor.assert_has_calls(
+            [mock.call(self.flavor.id, ignore_missing=False)] * 2
+        )
+        self.image_client.find_image.assert_called_once_with(
+            self.image.id, ignore_missing=False
+        )
+        self.compute_sdk_client.create_server.assert_called_once_with(
+            name=self.server.name,
+            image_id=self.image.id,
+            flavor_id=self.flavor.id,
             min_count=1,
             max_count=1,
-            security_groups=[],
-            userdata=None,
-            key_name=None,
-            availability_zone=None,
-            admin_pass=None,
-            block_device_mapping_v2=[],
-            nics=[],
-            scheduler_hints={},
-            config_drive=None,
+            networks=[],
+            block_device_mapping=[
+                {
+                    'uuid': self.image.id,
+                    'boot_index': 0,
+                    'source_type': 'image',
+                    'destination_type': 'local',
+                    'delete_on_termination': True,
+                },
+            ],
         )
-        # ServerManager.create(name, image, flavor, **kwargs)
-        self.servers_mock.create.assert_called_with(
-            self.new_server.name, self.image, self.flavor, **kwargs
-        )
-
         self.assertEqual(self.columns, columns)
         self.assertEqual(self.datalist(), data)
-        self.assertFalse(self.image_client.images.called)
-        self.assertFalse(self.flavors_mock.called)
 
     def test_server_create_with_options(self):
+        server_group = compute_fakes.create_one_server_group()
+        self.compute_sdk_client.find_server_group.return_value = server_group
+
+        security_group = network_fakes.create_one_security_group()
+        self.network_client.find_security_group.return_value = security_group
+
         arglist = [
             '--image',
-            'image1',
+            self.image.id,
             '--flavor',
-            'flavor1',
+            self.flavor.id,
             '--key-name',
             'keyname',
             '--property',
             'Beta=b',
             '--security-group',
-            'securitygroup',
+            security_group.id,
             '--use-config-drive',
             '--password',
             'passw0rd',
@@ -1494,329 +1454,283 @@ class TestServerCreate(TestServer):
             '--hint',
             'a=c',
             '--server-group',
-            'servergroup',
-            self.new_server.name,
+            server_group.id,
+            self.server.name,
         ]
         verifylist = [
-            ('image', 'image1'),
-            ('flavor', 'flavor1'),
+            ('image', self.image.id),
+            ('flavor', self.flavor.id),
             ('key_name', 'keyname'),
             ('properties', {'Beta': 'b'}),
-            ('security_group', ['securitygroup']),
+            ('security_group', [security_group.id]),
             ('hints', {'a': ['b', 'c']}),
-            ('server_group', 'servergroup'),
+            ('server_group', server_group.id),
             ('config_drive', True),
             ('password', 'passw0rd'),
-            ('server_name', self.new_server.name),
+            ('server_name', self.server.name),
         ]
+
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
-
-        fake_server_group = compute_fakes.create_one_server_group()
-        self.compute_client.server_groups.get.return_value = fake_server_group
-
-        fake_sg = network_fakes.FakeSecurityGroup.create_security_groups()
-        mock_find_sg = network_fakes.FakeSecurityGroup.get_security_groups(
-            fake_sg
-        )
-        self.app.client_manager.network.find_security_group = mock_find_sg
-
-        # In base command class ShowOne in cliff, abstract method take_action()
-        # returns a two-part tuple with a tuple of column names and a tuple of
-        # data to be shown.
         columns, data = self.cmd.take_action(parsed_args)
 
-        mock_find_sg.assert_called_once_with(
-            'securitygroup', ignore_missing=False
+        self.compute_sdk_client.find_flavor.assert_has_calls(
+            [mock.call(self.flavor.id, ignore_missing=False)] * 2
         )
-        # Set expected values
-        kwargs = dict(
-            meta={'Beta': 'b'},
-            files={},
-            reservation_id=None,
+        self.network_client.find_security_group.assert_called_once_with(
+            security_group.id, ignore_missing=False
+        )
+        self.image_client.find_image.assert_called_once_with(
+            self.image.id, ignore_missing=False
+        )
+        self.compute_sdk_client.find_server_group.assert_called_once_with(
+            server_group.id, ignore_missing=False
+        )
+        self.compute_sdk_client.create_server.assert_called_once_with(
+            name=self.server.name,
+            image_id=self.image.id,
+            flavor_id=self.flavor.id,
+            metadata={'Beta': 'b'},
             min_count=1,
             max_count=1,
-            security_groups=[fake_sg[0].id],
-            userdata=None,
+            security_groups=[{'name': security_group.id}],
             key_name='keyname',
-            availability_zone=None,
-            admin_pass='passw0rd',
-            block_device_mapping_v2=[],
-            nics=[],
-            scheduler_hints={'a': ['b', 'c'], 'group': fake_server_group.id},
+            admin_password='passw0rd',
+            networks=[],
+            scheduler_hints={'a': ['b', 'c'], 'group': server_group.id},
             config_drive=True,
-        )
-        # ServerManager.create(name, image, flavor, **kwargs)
-        self.servers_mock.create.assert_called_with(
-            self.new_server.name, self.image, self.flavor, **kwargs
+            block_device_mapping=[
+                {
+                    'uuid': self.image.id,
+                    'boot_index': 0,
+                    'source_type': 'image',
+                    'destination_type': 'local',
+                    'delete_on_termination': True,
+                },
+            ],
         )
 
         self.assertEqual(self.columns, columns)
         self.assertEqual(self.datalist(), data)
 
     def test_server_create_with_not_exist_security_group(self):
+        self.network_client.find_security_group.side_effect = (
+            sdk_exceptions.NotFoundException()
+        )
+
         arglist = [
             '--image',
-            'image1',
+            self.image.id,
             '--flavor',
-            'flavor1',
+            self.flavor.id,
             '--key-name',
             'keyname',
-            '--security-group',
-            'securitygroup',
             '--security-group',
             'not_exist_sg',
-            self.new_server.name,
+            self.server.name,
         ]
         verifylist = [
-            ('image', 'image1'),
-            ('flavor', 'flavor1'),
+            ('image', self.image.id),
+            ('flavor', self.flavor.id),
             ('key_name', 'keyname'),
-            ('security_group', ['securitygroup', 'not_exist_sg']),
-            ('server_name', self.new_server.name),
+            ('security_group', ['not_exist_sg']),
+            ('server_name', self.server.name),
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
-
-        fake_sg = network_fakes.FakeSecurityGroup.create_security_groups(
-            count=1
-        )
-        fake_sg.append(exceptions.NotFound(code=404))
-        mock_find_sg = network_fakes.FakeSecurityGroup.get_security_groups(
-            fake_sg
-        )
-        self.app.client_manager.network.find_security_group = mock_find_sg
 
         self.assertRaises(
-            exceptions.NotFound, self.cmd.take_action, parsed_args
+            sdk_exceptions.NotFoundException, self.cmd.take_action, parsed_args
         )
-        mock_find_sg.assert_called_with('not_exist_sg', ignore_missing=False)
+        self.network_client.find_security_group.assert_called_once_with(
+            'not_exist_sg', ignore_missing=False
+        )
 
     def test_server_create_with_security_group_in_nova_network(self):
+        sg_name = 'nova-net-sec-group'
         arglist = [
             '--image',
-            'image1',
+            self.image.id,
             '--flavor',
-            'flavor1',
-            '--key-name',
-            'keyname',
+            self.flavor.id,
             '--security-group',
-            'securitygroup',
-            self.new_server.name,
+            sg_name,
+            self.server.name,
         ]
         verifylist = [
-            ('image', 'image1'),
-            ('flavor', 'flavor1'),
-            ('key_name', 'keyname'),
-            ('security_group', ['securitygroup']),
-            ('server_name', self.new_server.name),
+            ('image', self.image.id),
+            ('flavor', self.flavor.id),
+            ('security_group', [sg_name]),
+            ('server_name', self.server.name),
         ]
-        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
         with mock.patch.object(
             self.app.client_manager,
             'is_network_endpoint_enabled',
             return_value=False,
         ):
             with mock.patch.object(
-                self.compute_client.api,
-                'security_group_find',
-                return_value={'name': 'fake_sg'},
+                compute_v2,
+                'find_security_group',
+                return_value={'name': sg_name},
             ) as mock_find:
                 columns, data = self.cmd.take_action(parsed_args)
-                mock_find.assert_called_once_with('securitygroup')
 
-        # Set expected values
-        kwargs = dict(
-            meta=None,
-            files={},
-            reservation_id=None,
+        mock_find.assert_called_once_with(self.compute_sdk_client, sg_name)
+        self.compute_sdk_client.create_server.assert_called_once_with(
+            name=self.server.name,
+            image_id=self.image.id,
+            flavor_id=self.flavor.id,
             min_count=1,
             max_count=1,
-            security_groups=['fake_sg'],
-            userdata=None,
-            key_name='keyname',
-            availability_zone=None,
-            admin_pass=None,
-            block_device_mapping_v2=[],
-            nics=[],
-            scheduler_hints={},
-            config_drive=None,
-        )
-        # ServerManager.create(name, image, flavor, **kwargs)
-        self.servers_mock.create.assert_called_with(
-            self.new_server.name, self.image, self.flavor, **kwargs
+            security_groups=[{'name': sg_name}],
+            networks=[],
+            block_device_mapping=[
+                {
+                    'uuid': self.image.id,
+                    'boot_index': 0,
+                    'source_type': 'image',
+                    'destination_type': 'local',
+                    'delete_on_termination': True,
+                },
+            ],
         )
 
         self.assertEqual(self.columns, columns)
         self.assertEqual(self.datalist(), data)
 
     def test_server_create_with_network(self):
+        network_net1 = network_fakes.create_one_network()
+        network_net2 = network_fakes.create_one_network()
+        network_auto = network_fakes.create_one_network({'name': 'auto'})
+        port_port1 = network_fakes.create_one_port()
+        port_port2 = network_fakes.create_one_port()
+
+        def find_network(name_or_id, ignore_missing):
+            assert ignore_missing is False
+            return {
+                network_net1.id: network_net1,
+                network_net2.id: network_net2,
+                network_auto.name: network_auto,
+            }[name_or_id]
+
+        def find_port(name_or_id, ignore_missing):
+            assert ignore_missing is False
+            return {
+                port_port1.name: port_port1,
+                port_port2.id: port_port2,
+            }[name_or_id]
+
+        self.app.client_manager.network.find_network.side_effect = find_network
+        self.app.client_manager.network.find_port.side_effect = find_port
+
         arglist = [
             '--image',
-            'image1',
+            self.image.id,
             '--flavor',
-            'flavor1',
+            self.flavor.id,
             '--network',
-            'net1',
+            network_net1.id,
             '--nic',
-            'net-id=net1,v4-fixed-ip=10.0.0.2',
+            f'net-id={network_net2.id},v4-fixed-ip=10.0.0.2',
             '--port',
-            'port1',
+            port_port1.name,
             '--network',
-            'net1',
-            '--network',
-            'auto',  # this is a network called 'auto'
+            network_auto.name,
             '--nic',
-            'port-id=port2',
-            self.new_server.name,
+            f'port-id={port_port2.id}',
+            self.server.name,
         ]
         verifylist = [
-            ('image', 'image1'),
-            ('flavor', 'flavor1'),
+            ('image', self.image.id),
+            ('flavor', self.flavor.id),
             (
                 'nics',
                 [
                     {
-                        'net-id': 'net1',
+                        'net-id': network_net1.id,
                         'port-id': '',
                         'v4-fixed-ip': '',
                         'v6-fixed-ip': '',
                     },
                     {
-                        'net-id': 'net1',
+                        'net-id': network_net2.id,
                         'port-id': '',
                         'v4-fixed-ip': '10.0.0.2',
                         'v6-fixed-ip': '',
                     },
                     {
                         'net-id': '',
-                        'port-id': 'port1',
+                        'port-id': port_port1.name,
                         'v4-fixed-ip': '',
                         'v6-fixed-ip': '',
                     },
                     {
-                        'net-id': 'net1',
-                        'port-id': '',
-                        'v4-fixed-ip': '',
-                        'v6-fixed-ip': '',
-                    },
-                    {
-                        'net-id': 'auto',
+                        'net-id': network_auto.name,
                         'port-id': '',
                         'v4-fixed-ip': '',
                         'v6-fixed-ip': '',
                     },
                     {
                         'net-id': '',
-                        'port-id': 'port2',
+                        'port-id': port_port2.id,
                         'v4-fixed-ip': '',
                         'v6-fixed-ip': '',
                     },
                 ],
             ),
             ('config_drive', False),
-            ('server_name', self.new_server.name),
+            ('server_name', self.server.name),
         ]
+
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
-
-        get_endpoints = mock.Mock()
-        get_endpoints.return_value = {'network': []}
-        self.app.client_manager.auth_ref = mock.Mock()
-        self.app.client_manager.auth_ref.service_catalog = mock.Mock()
-        self.app.client_manager.auth_ref.service_catalog.get_endpoints = (
-            get_endpoints
-        )
-
-        network_resource = mock.Mock(id='net1_uuid')
-        port1_resource = mock.Mock(id='port1_uuid')
-        port2_resource = mock.Mock(id='port2_uuid')
-        self.network_client.find_network.return_value = network_resource
-        self.network_client.find_port.side_effect = (
-            lambda port_id, ignore_missing: {
-                "port1": port1_resource,
-                "port2": port2_resource,
-            }[port_id]
-        )
-
-        # Mock sdk APIs.
-        _network_1 = mock.Mock(id='net1_uuid')
-        _network_auto = mock.Mock(id='auto_uuid')
-        _port1 = mock.Mock(id='port1_uuid')
-        _port2 = mock.Mock(id='port2_uuid')
-        find_network = mock.Mock()
-        find_port = mock.Mock()
-        find_network.side_effect = lambda net_id, ignore_missing: {
-            "net1": _network_1,
-            "auto": _network_auto,
-        }[net_id]
-        find_port.side_effect = lambda port_id, ignore_missing: {
-            "port1": _port1,
-            "port2": _port2,
-        }[port_id]
-        self.app.client_manager.network.find_network = find_network
-        self.app.client_manager.network.find_port = find_port
-
-        # In base command class ShowOne in cliff, abstract method take_action()
-        # returns a two-part tuple with a tuple of column names and a tuple of
-        # data to be shown.
         columns, data = self.cmd.take_action(parsed_args)
 
-        # Set expected values
-        kwargs = dict(
-            meta=None,
-            files={},
-            reservation_id=None,
+        self.network_client.find_network.assert_has_calls(
+            [
+                mock.call(network_net1.id, ignore_missing=False),
+                mock.call(network_net2.id, ignore_missing=False),
+                mock.call(network_auto.name, ignore_missing=False),
+            ]
+        )
+        self.network_client.find_port.assert_has_calls(
+            [
+                mock.call(port_port1.name, ignore_missing=False),
+                mock.call(port_port2.id, ignore_missing=False),
+            ]
+        )
+        self.compute_sdk_client.create_server.assert_called_once_with(
+            name=self.server.name,
+            image_id=self.image.id,
+            flavor_id=self.flavor.id,
             min_count=1,
             max_count=1,
-            security_groups=[],
-            userdata=None,
-            key_name=None,
-            availability_zone=None,
-            admin_pass=None,
-            block_device_mapping_v2=[],
-            nics=[
+            networks=[
                 {
-                    'net-id': 'net1_uuid',
-                    'v4-fixed-ip': '',
-                    'v6-fixed-ip': '',
-                    'port-id': '',
+                    'uuid': network_net1.id,
                 },
                 {
-                    'net-id': 'net1_uuid',
-                    'v4-fixed-ip': '10.0.0.2',
-                    'v6-fixed-ip': '',
-                    'port-id': '',
+                    'uuid': network_net2.id,
+                    'fixed': '10.0.0.2',
                 },
                 {
-                    'net-id': '',
-                    'v4-fixed-ip': '',
-                    'v6-fixed-ip': '',
-                    'port-id': 'port1_uuid',
+                    'port': port_port1.id,
                 },
                 {
-                    'net-id': 'net1_uuid',
-                    'v4-fixed-ip': '',
-                    'v6-fixed-ip': '',
-                    'port-id': '',
+                    'uuid': network_auto.id,
                 },
                 {
-                    'net-id': 'auto_uuid',
-                    'v4-fixed-ip': '',
-                    'v6-fixed-ip': '',
-                    'port-id': '',
-                },
-                {
-                    'net-id': '',
-                    'v4-fixed-ip': '',
-                    'v6-fixed-ip': '',
-                    'port-id': 'port2_uuid',
+                    'port': port_port2.id,
                 },
             ],
-            scheduler_hints={},
-            config_drive=None,
-        )
-        # ServerManager.create(name, image, flavor, **kwargs)
-        self.servers_mock.create.assert_called_with(
-            self.new_server.name, self.image, self.flavor, **kwargs
+            block_device_mapping=[
+                {
+                    'uuid': self.image.id,
+                    'boot_index': 0,
+                    'source_type': 'image',
+                    'destination_type': 'local',
+                    'delete_on_termination': True,
+                },
+            ],
         )
 
         self.assertEqual(self.columns, columns)
@@ -1825,23 +1739,26 @@ class TestServerCreate(TestServer):
     def test_server_create_with_network_tag(self):
         self.set_compute_api_version('2.43')
 
+        network = network_fakes.create_one_network()
+        self.app.client_manager.network.find_network.return_value = network
+
         arglist = [
             '--image',
-            'image1',
+            self.image.id,
             '--flavor',
-            'flavor1',
+            self.flavor.id,
             '--nic',
-            'net-id=net1,tag=foo',
-            self.new_server.name,
+            f'net-id={network.id},tag=foo',
+            self.server.name,
         ]
         verifylist = [
-            ('image', 'image1'),
-            ('flavor', 'flavor1'),
+            ('image', self.image.id),
+            ('flavor', self.flavor.id),
             (
                 'nics',
                 [
                     {
-                        'net-id': 'net1',
+                        'net-id': network.id,
                         'port-id': '',
                         'v4-fixed-ip': '',
                         'v6-fixed-ip': '',
@@ -1849,70 +1766,55 @@ class TestServerCreate(TestServer):
                     },
                 ],
             ),
-            ('server_name', self.new_server.name),
+            ('server_name', self.server.name),
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
-
-        # Mock sdk APIs.
-        _network = mock.Mock(id='net1_uuid')
-        self.network_client.find_network.return_value = _network
-
-        # In base command class ShowOne in cliff, abstract method take_action()
-        # returns a two-part tuple with a tuple of column names and a tuple of
-        # data to be shown.
         columns, data = self.cmd.take_action(parsed_args)
 
-        # Set expected values
-        kwargs = dict(
-            meta=None,
-            files={},
-            reservation_id=None,
+        self.network_client.find_network.assert_called_once_with(
+            network.id, ignore_missing=False
+        )
+        self.compute_sdk_client.create_server.assert_called_once_with(
+            name=self.server.name,
+            image_id=self.image.id,
+            flavor_id=self.flavor.id,
             min_count=1,
             max_count=1,
-            security_groups=[],
-            userdata=None,
-            key_name=None,
-            availability_zone=None,
-            admin_pass=None,
-            block_device_mapping_v2=[],
-            nics=[
+            networks=[
                 {
-                    'net-id': 'net1_uuid',
-                    'v4-fixed-ip': '',
-                    'v6-fixed-ip': '',
-                    'port-id': '',
+                    'uuid': network.id,
                     'tag': 'foo',
                 },
             ],
-            scheduler_hints={},
-            config_drive=None,
-        )
-        # ServerManager.create(name, image, flavor, **kwargs)
-        self.servers_mock.create.assert_called_with(
-            self.new_server.name, self.image, self.flavor, **kwargs
+            block_device_mapping=[
+                {
+                    'uuid': self.image.id,
+                    'boot_index': 0,
+                    'source_type': 'image',
+                    'destination_type': 'local',
+                    'delete_on_termination': True,
+                },
+            ],
         )
 
         self.assertEqual(self.columns, columns)
         self.assertEqual(self.datalist(), data)
-
-        self.network_client.find_network.assert_called_once()
-        self.app.client_manager.network.find_network.assert_called_once()
 
     def test_server_create_with_network_tag_pre_v243(self):
         self.set_compute_api_version('2.42')
 
         arglist = [
             '--image',
-            'image1',
+            self.image.id,
             '--flavor',
-            'flavor1',
+            self.flavor.id,
             '--nic',
             'net-id=net1,tag=foo',
-            self.new_server.name,
+            self.server.name,
         ]
         verifylist = [
-            ('image', 'image1'),
-            ('flavor', 'flavor1'),
+            ('image', self.image.id),
+            ('flavor', self.flavor.id),
             (
                 'nics',
                 [
@@ -1925,49 +1827,48 @@ class TestServerCreate(TestServer):
                     },
                 ],
             ),
-            ('server_name', self.new_server.name),
+            ('server_name', self.server.name),
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
         self.assertRaises(
             exceptions.CommandError, self.cmd.take_action, parsed_args
         )
+        self.network_client.find_network.assert_not_called()
+        self.compute_sdk_client.create_server.assert_not_called()
 
     def _test_server_create_with_auto_network(self, arglist):
         # requires API microversion 2.37 or later
         self.set_compute_api_version('2.37')
 
         verifylist = [
-            ('image', 'image1'),
-            ('flavor', 'flavor1'),
+            ('image', self.image.id),
+            ('flavor', self.flavor.id),
             ('nics', ['auto']),
             ('config_drive', False),
-            ('server_name', self.new_server.name),
+            ('server_name', self.server.name),
         ]
-        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
         columns, data = self.cmd.take_action(parsed_args)
 
-        # Set expected values
-        kwargs = dict(
-            meta=None,
-            files={},
-            reservation_id=None,
+        self.network_client.find_network.assert_not_called()
+        self.compute_sdk_client.create_server.assert_called_once_with(
+            name=self.server.name,
+            image_id=self.image.id,
+            flavor_id=self.flavor.id,
             min_count=1,
             max_count=1,
-            security_groups=[],
-            userdata=None,
-            key_name=None,
-            availability_zone=None,
-            admin_pass=None,
-            block_device_mapping_v2=[],
-            nics='auto',
-            scheduler_hints={},
-            config_drive=None,
-        )
-        # ServerManager.create(name, image, flavor, **kwargs)
-        self.servers_mock.create.assert_called_with(
-            self.new_server.name, self.image, self.flavor, **kwargs
+            networks='auto',
+            block_device_mapping=[
+                {
+                    'uuid': self.image.id,
+                    'boot_index': 0,
+                    'source_type': 'image',
+                    'destination_type': 'local',
+                    'delete_on_termination': True,
+                },
+            ],
         )
 
         self.assertEqual(self.columns, columns)
@@ -1979,23 +1880,23 @@ class TestServerCreate(TestServer):
     def test_server_create_with_auto_network_legacy(self):
         arglist = [
             '--image',
-            'image1',
+            self.image.id,
             '--flavor',
-            'flavor1',
+            self.flavor.id,
             '--nic',
             'auto',
-            self.new_server.name,
+            self.server.name,
         ]
         self._test_server_create_with_auto_network(arglist)
 
     def test_server_create_with_auto_network(self):
         arglist = [
             '--image',
-            'image1',
+            self.image.id,
             '--flavor',
-            'flavor1',
+            self.flavor.id,
             '--auto-network',
-            self.new_server.name,
+            self.server.name,
         ]
         self._test_server_create_with_auto_network(arglist)
 
@@ -2005,19 +1906,19 @@ class TestServerCreate(TestServer):
 
         arglist = [
             '--image',
-            'image1',
+            self.image.id,
             '--flavor',
-            'flavor1',
+            self.flavor.id,
             '--nic',
             'auto',
-            self.new_server.name,
+            self.server.name,
         ]
         verifylist = [
-            ('image', 'image1'),
-            ('flavor', 'flavor1'),
+            ('image', self.image.id),
+            ('flavor', self.flavor.id),
             ('nics', ['auto']),
             ('config_drive', False),
-            ('server_name', self.new_server.name),
+            ('server_name', self.server.name),
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
@@ -2032,50 +1933,48 @@ class TestServerCreate(TestServer):
             'allocation',
             str(exc),
         )
-        self.assertNotCalled(self.servers_mock.create)
+        self.compute_sdk_client.create_server.assert_not_called()
 
-    def test_server_create_with_auto_network_default_v2_37(self):
+    def test_server_create_with_auto_network_default(self):
         """Tests creating a server without specifying --nic using 2.37."""
         # requires API microversion 2.37 or later
         self.set_compute_api_version('2.37')
 
         arglist = [
             '--image',
-            'image1',
+            self.image.id,
             '--flavor',
-            'flavor1',
-            self.new_server.name,
+            self.flavor.id,
+            self.server.name,
         ]
         verifylist = [
-            ('image', 'image1'),
-            ('flavor', 'flavor1'),
+            ('image', self.image.id),
+            ('flavor', self.flavor.id),
+            ('nics', []),
             ('config_drive', False),
-            ('server_name', self.new_server.name),
+            ('server_name', self.server.name),
         ]
-        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
         columns, data = self.cmd.take_action(parsed_args)
 
-        # Set expected values
-        kwargs = dict(
-            meta=None,
-            files={},
-            reservation_id=None,
+        self.network_client.find_network.assert_not_called()
+        self.compute_sdk_client.create_server.assert_called_once_with(
+            name=self.server.name,
+            image_id=self.image.id,
+            flavor_id=self.flavor.id,
             min_count=1,
             max_count=1,
-            security_groups=[],
-            userdata=None,
-            key_name=None,
-            availability_zone=None,
-            admin_pass=None,
-            block_device_mapping_v2=[],
-            nics='auto',
-            scheduler_hints={},
-            config_drive=None,
-        )
-        # ServerManager.create(name, image, flavor, **kwargs)
-        self.servers_mock.create.assert_called_with(
-            self.new_server.name, self.image, self.flavor, **kwargs
+            networks='auto',
+            block_device_mapping=[
+                {
+                    'uuid': self.image.id,
+                    'boot_index': 0,
+                    'source_type': 'image',
+                    'destination_type': 'local',
+                    'delete_on_termination': True,
+                },
+            ],
         )
 
         self.assertEqual(self.columns, columns)
@@ -2086,36 +1985,33 @@ class TestServerCreate(TestServer):
         self.set_compute_api_version('2.37')
 
         verifylist = [
-            ('image', 'image1'),
-            ('flavor', 'flavor1'),
+            ('image', self.image.id),
+            ('flavor', self.flavor.id),
             ('nics', ['none']),
             ('config_drive', False),
-            ('server_name', self.new_server.name),
+            ('server_name', self.server.name),
         ]
-        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
         columns, data = self.cmd.take_action(parsed_args)
 
-        # Set expected values
-        kwargs = dict(
-            meta=None,
-            files={},
-            reservation_id=None,
+        self.network_client.find_network.assert_not_called()
+        self.compute_sdk_client.create_server.assert_called_once_with(
+            name=self.server.name,
+            image_id=self.image.id,
+            flavor_id=self.flavor.id,
             min_count=1,
             max_count=1,
-            security_groups=[],
-            userdata=None,
-            key_name=None,
-            availability_zone=None,
-            admin_pass=None,
-            block_device_mapping_v2=[],
-            nics='none',
-            scheduler_hints={},
-            config_drive=None,
-        )
-        # ServerManager.create(name, image, flavor, **kwargs)
-        self.servers_mock.create.assert_called_with(
-            self.new_server.name, self.image, self.flavor, **kwargs
+            networks='none',
+            block_device_mapping=[
+                {
+                    'uuid': self.image.id,
+                    'boot_index': 0,
+                    'source_type': 'image',
+                    'destination_type': 'local',
+                    'delete_on_termination': True,
+                },
+            ],
         )
 
         self.assertEqual(self.columns, columns)
@@ -2127,23 +2023,23 @@ class TestServerCreate(TestServer):
     def test_server_create_with_none_network_legacy(self):
         arglist = [
             '--image',
-            'image1',
+            self.image.id,
             '--flavor',
-            'flavor1',
+            self.flavor.id,
             '--nic',
             'none',
-            self.new_server.name,
+            self.server.name,
         ]
         self._test_server_create_with_none_network(arglist)
 
     def test_server_create_with_none_network(self):
         arglist = [
             '--image',
-            'image1',
+            self.image.id,
             '--flavor',
-            'flavor1',
+            self.flavor.id,
             '--no-network',
-            self.new_server.name,
+            self.server.name,
         ]
         self._test_server_create_with_none_network(arglist)
 
@@ -2153,23 +2049,22 @@ class TestServerCreate(TestServer):
 
         arglist = [
             '--image',
-            'image1',
+            self.image.id,
             '--flavor',
-            'flavor1',
+            self.flavor.id,
             '--nic',
             'none',
-            self.new_server.name,
+            self.server.name,
         ]
-
         verifylist = [
-            ('image', 'image1'),
-            ('flavor', 'flavor1'),
+            ('image', self.image.id),
+            ('flavor', self.flavor.id),
             ('nics', ['none']),
             ('config_drive', False),
-            ('server_name', self.new_server.name),
+            ('server_name', self.server.name),
         ]
-        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
         exc = self.assertRaises(
             exceptions.CommandError,
             self.cmd.take_action,
@@ -2181,25 +2076,25 @@ class TestServerCreate(TestServer):
             'allocation',
             str(exc),
         )
-        self.assertNotCalled(self.servers_mock.create)
+        self.compute_sdk_client.create_server.assert_not_called()
 
-    def test_server_create_with_conflict_network_options(self):
+    def test_server_create_with_conflicting_network_options(self):
         arglist = [
             '--image',
-            'image1',
+            self.image.id,
             '--flavor',
-            'flavor1',
+            self.flavor.id,
             '--nic',
             'none',
             '--nic',
             'auto',
             '--nic',
             'port-id=port1',
-            self.new_server.name,
+            self.server.name,
         ]
         verifylist = [
-            ('image', 'image1'),
-            ('flavor', 'flavor1'),
+            ('image', self.image.id),
+            ('flavor', self.flavor.id),
             (
                 'nics',
                 [
@@ -2214,101 +2109,181 @@ class TestServerCreate(TestServer):
                 ],
             ),
             ('config_drive', False),
-            ('server_name', self.new_server.name),
+            ('server_name', self.server.name),
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
-        get_endpoints = mock.Mock()
-        get_endpoints.return_value = {'network': []}
-        self.app.client_manager.auth_ref = mock.Mock()
-        self.app.client_manager.auth_ref.service_catalog = mock.Mock()
-        self.app.client_manager.auth_ref.service_catalog.get_endpoints = (
-            get_endpoints
-        )
-
-        port_resource = mock.Mock(id='port1_uuid')
-        self.network_client.find_port.return_value = port_resource
-
-        self.assertRaises(
+        exc = self.assertRaises(
             exceptions.CommandError, self.cmd.take_action, parsed_args
         )
-        self.assertNotCalled(self.servers_mock.create)
+        self.assertIn(
+            'Specifying a --nic of auto or none cannot be used with any '
+            'other --nic, --network or --port value.',
+            str(exc),
+        )
+        self.compute_sdk_client.create_server.assert_not_called()
 
     def test_server_create_with_invalid_network_options(self):
         arglist = [
             '--image',
-            'image1',
+            self.image.id,
             '--flavor',
-            'flavor1',
+            self.flavor.id,
             '--nic',
             'abcdefgh',
-            self.new_server.name,
+            self.server.name,
         ]
-        self.assertRaises(
+        exc = self.assertRaises(
             test_utils.ParserException,
             self.check_parser,
             self.cmd,
             arglist,
             [],
         )
-        self.assertNotCalled(self.servers_mock.create)
+        self.assertIn(
+            'Invalid argument abcdefgh; argument must be of form ',
+            str(exc),
+        )
+        self.compute_sdk_client.create_server.assert_not_called()
 
     def test_server_create_with_invalid_network_key(self):
         arglist = [
             '--image',
-            'image1',
+            self.image.id,
             '--flavor',
-            'flavor1',
+            self.flavor.id,
             '--nic',
             'abcdefgh=12324',
-            self.new_server.name,
+            self.server.name,
         ]
-        self.assertRaises(
+        exc = self.assertRaises(
             test_utils.ParserException,
             self.check_parser,
             self.cmd,
             arglist,
             [],
         )
-        self.assertNotCalled(self.servers_mock.create)
+        self.assertIn(
+            'Invalid argument abcdefgh=12324; argument must be of form ',
+            str(exc),
+        )
+        self.compute_sdk_client.create_server.assert_not_called()
 
     def test_server_create_with_empty_network_key_value(self):
         arglist = [
             '--image',
-            'image1',
+            self.image.id,
             '--flavor',
-            'flavor1',
+            self.flavor.id,
             '--nic',
             'net-id=',
-            self.new_server.name,
+            self.server.name,
         ]
-        self.assertRaises(
+        exc = self.assertRaises(
             test_utils.ParserException,
             self.check_parser,
             self.cmd,
             arglist,
             [],
         )
-        self.assertNotCalled(self.servers_mock.create)
+        self.assertIn(
+            'Invalid argument net-id=; argument must be of form ',
+            str(exc),
+        )
+        self.compute_sdk_client.create_server.assert_not_called()
 
     def test_server_create_with_only_network_key(self):
         arglist = [
             '--image',
-            'image1',
+            self.image.id,
             '--flavor',
-            'flavor1',
+            self.flavor.id,
             '--nic',
             'net-id',
-            self.new_server.name,
+            self.server.name,
         ]
-        self.assertRaises(
+        exc = self.assertRaises(
             test_utils.ParserException,
             self.check_parser,
             self.cmd,
             arglist,
             [],
         )
-        self.assertNotCalled(self.servers_mock.create)
+        self.assertIn(
+            'Invalid argument net-id; argument must be of form ',
+            str(exc),
+        )
+        self.compute_sdk_client.create_server.assert_not_called()
+
+    def test_server_create_with_network_in_nova_network(self):
+        net_name = 'nova-net-net'
+        net_id = uuid.uuid4().hex
+
+        arglist = [
+            '--image',
+            self.image.id,
+            '--flavor',
+            self.flavor.id,
+            '--network',
+            net_name,
+            self.server.name,
+        ]
+        verifylist = [
+            ('image', self.image.id),
+            ('flavor', self.flavor.id),
+            (
+                'nics',
+                [
+                    {
+                        'net-id': net_name,
+                        'port-id': '',
+                        'v4-fixed-ip': '',
+                        'v6-fixed-ip': '',
+                    },
+                ],
+            ),
+            ('config_drive', False),
+            ('server_name', self.server.name),
+        ]
+
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+        with mock.patch.object(
+            self.app.client_manager,
+            'is_network_endpoint_enabled',
+            return_value=False,
+        ):
+            with mock.patch.object(
+                compute_v2,
+                'find_network',
+                return_value={'id': net_id, 'name': net_name},
+            ) as mock_find:
+                columns, data = self.cmd.take_action(parsed_args)
+
+        mock_find.assert_called_once_with(self.compute_sdk_client, net_name)
+        self.compute_sdk_client.create_server.assert_called_once_with(
+            name=self.server.name,
+            image_id=self.image.id,
+            flavor_id=self.flavor.id,
+            min_count=1,
+            max_count=1,
+            networks=[
+                {
+                    'uuid': net_id,
+                },
+            ],
+            block_device_mapping=[
+                {
+                    'uuid': self.image.id,
+                    'boot_index': 0,
+                    'source_type': 'image',
+                    'destination_type': 'local',
+                    'delete_on_termination': True,
+                },
+            ],
+        )
+
+        self.assertEqual(self.columns, columns)
+        self.assertEqual(self.datalist(), data)
 
     def test_server_create_with_conflicting_net_port_filters(self):
         arglist = [
@@ -2318,7 +2293,7 @@ class TestServerCreate(TestServer):
             'flavor1',
             '--nic',
             'net-id=abc,port-id=xyz',
-            self.new_server.name,
+            self.server.name,
         ]
         exc = self.assertRaises(
             test_utils.ParserException,
@@ -2328,7 +2303,7 @@ class TestServerCreate(TestServer):
             [],
         )
         self.assertIn("either 'network' or 'port'", str(exc))
-        self.assertNotCalled(self.servers_mock.create)
+        self.compute_sdk_client.create_server.assert_not_called()
 
     def test_server_create_with_conflicting_fixed_ip_filters(self):
         arglist = [
@@ -2338,7 +2313,7 @@ class TestServerCreate(TestServer):
             'flavor1',
             '--nic',
             'net-id=abc,v4-fixed-ip=1.2.3.4,v6-fixed-ip=2001:db8:abcd',
-            self.new_server.name,
+            self.server.name,
         ]
         exc = self.assertRaises(
             test_utils.ParserException,
@@ -2348,53 +2323,52 @@ class TestServerCreate(TestServer):
             [],
         )
         self.assertIn("either 'v4-fixed-ip' or 'v6-fixed-ip'", str(exc))
-        self.assertNotCalled(self.servers_mock.create)
+        self.compute_sdk_client.create_server.assert_not_called()
 
     @mock.patch.object(common_utils, 'wait_for_status', return_value=True)
     def test_server_create_with_wait_ok(self, mock_wait_for_status):
         arglist = [
             '--image',
-            'image1',
+            self.image.id,
             '--flavor',
-            'flavor1',
+            self.flavor.id,
             '--wait',
-            self.new_server.name,
+            self.server.name,
         ]
         verifylist = [
-            ('image', 'image1'),
-            ('flavor', 'flavor1'),
+            ('image', self.image.id),
+            ('flavor', self.flavor.id),
             ('config_drive', False),
             ('wait', True),
-            ('server_name', self.new_server.name),
+            ('server_name', self.server.name),
         ]
 
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
         columns, data = self.cmd.take_action(parsed_args)
+
+        self.compute_sdk_client.create_server.assert_called_once_with(
+            name=self.server.name,
+            image_id=self.image.id,
+            flavor_id=self.flavor.id,
+            min_count=1,
+            max_count=1,
+            networks=[],
+            block_device_mapping=[
+                {
+                    'uuid': self.image.id,
+                    'boot_index': 0,
+                    'source_type': 'image',
+                    'destination_type': 'local',
+                    'delete_on_termination': True,
+                },
+            ],
+        )
         mock_wait_for_status.assert_called_once_with(
-            self.servers_mock.get,
-            self.new_server.id,
+            self.compute_sdk_client.get_server,
+            self.server.id,
             callback=mock.ANY,
         )
 
-        kwargs = dict(
-            meta=None,
-            files={},
-            reservation_id=None,
-            min_count=1,
-            max_count=1,
-            security_groups=[],
-            userdata=None,
-            key_name=None,
-            availability_zone=None,
-            admin_pass=None,
-            block_device_mapping_v2=[],
-            nics=[],
-            scheduler_hints={},
-            config_drive=None,
-        )
-        self.servers_mock.create.assert_called_with(
-            self.new_server.name, self.image, self.flavor, **kwargs
-        )
         self.assertEqual(self.columns, columns)
         self.assertTupleEqual(self.datalist(), data)
 
@@ -2402,143 +2376,126 @@ class TestServerCreate(TestServer):
     def test_server_create_with_wait_fails(self, mock_wait_for_status):
         arglist = [
             '--image',
-            'image1',
+            self.image.id,
             '--flavor',
-            'flavor1',
+            self.flavor.id,
             '--wait',
-            self.new_server.name,
+            self.server.name,
         ]
         verifylist = [
-            ('image', 'image1'),
-            ('flavor', 'flavor1'),
+            ('image', self.image.id),
+            ('flavor', self.flavor.id),
             ('config_drive', False),
             ('wait', True),
-            ('server_name', self.new_server.name),
+            ('server_name', self.server.name),
         ]
 
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
-
         self.assertRaises(
             exceptions.CommandError, self.cmd.take_action, parsed_args
         )
 
+        self.compute_sdk_client.create_server.assert_called_once_with(
+            name=self.server.name,
+            image_id=self.image.id,
+            flavor_id=self.flavor.id,
+            min_count=1,
+            max_count=1,
+            networks=[],
+            block_device_mapping=[
+                {
+                    'uuid': self.image.id,
+                    'boot_index': 0,
+                    'source_type': 'image',
+                    'destination_type': 'local',
+                    'delete_on_termination': True,
+                },
+            ],
+        )
         mock_wait_for_status.assert_called_once_with(
-            self.servers_mock.get,
-            self.new_server.id,
+            self.compute_sdk_client.get_server,
+            self.server.id,
             callback=mock.ANY,
         )
 
-        kwargs = dict(
-            meta=None,
-            files={},
-            reservation_id=None,
-            min_count=1,
-            max_count=1,
-            security_groups=[],
-            userdata=None,
-            key_name=None,
-            availability_zone=None,
-            admin_pass=None,
-            block_device_mapping_v2=[],
-            nics=[],
-            scheduler_hints={},
-            config_drive=None,
-        )
-        self.servers_mock.create.assert_called_with(
-            self.new_server.name, self.image, self.flavor, **kwargs
-        )
-
-    @mock.patch('openstackclient.compute.v2.server.open')
-    def test_server_create_userdata(self, mock_open):
-        mock_file = mock.Mock(name='File')
-        mock_open.return_value = mock_file
-        mock_open.read.return_value = '#!/bin/sh'
-
+    def test_server_create_userdata(self):
+        user_data = b'#!/bin/sh'
         arglist = [
             '--image',
-            'image1',
+            self.image.id,
             '--flavor',
-            'flavor1',
+            self.flavor.id,
             '--user-data',
             'userdata.sh',
-            self.new_server.name,
+            self.server.name,
         ]
         verifylist = [
-            ('image', 'image1'),
-            ('flavor', 'flavor1'),
+            ('image', self.image.id),
+            ('flavor', self.flavor.id),
             ('user_data', 'userdata.sh'),
             ('config_drive', False),
-            ('server_name', self.new_server.name),
+            ('server_name', self.server.name),
         ]
+
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+        with mock.patch(
+            'openstackclient.compute.v2.server.open',
+            mock.mock_open(read_data=user_data),
+        ) as mock_file:
+            columns, data = self.cmd.take_action(parsed_args)
 
-        # In base command class ShowOne in cliff, abstract method take_action()
-        # returns a two-part tuple with a tuple of column names and a tuple of
-        # data to be shown.
-        columns, data = self.cmd.take_action(parsed_args)
-
-        # Ensure the userdata file is opened
-        mock_open.assert_called_with('userdata.sh')
-
-        # Ensure the userdata file is closed
-        mock_file.close.assert_called_with()
-
-        # Set expected values
-        kwargs = dict(
-            meta=None,
-            files={},
-            reservation_id=None,
+        mock_file.assert_called_with('userdata.sh', 'rb')
+        self.compute_sdk_client.create_server.assert_called_once_with(
+            name=self.server.name,
+            image_id=self.image.id,
+            flavor_id=self.flavor.id,
             min_count=1,
             max_count=1,
-            security_groups=[],
-            userdata=mock_file,
-            key_name=None,
-            availability_zone=None,
-            admin_pass=None,
-            block_device_mapping_v2=[],
-            nics=[],
-            scheduler_hints={},
-            config_drive=None,
-        )
-        # ServerManager.create(name, image, flavor, **kwargs)
-        self.servers_mock.create.assert_called_with(
-            self.new_server.name, self.image, self.flavor, **kwargs
+            networks=[],
+            user_data=base64.b64encode(user_data).decode('utf-8'),
+            block_device_mapping=[
+                {
+                    'uuid': self.image.id,
+                    'boot_index': 0,
+                    'source_type': 'image',
+                    'destination_type': 'local',
+                    'delete_on_termination': True,
+                },
+            ],
         )
 
         self.assertEqual(self.columns, columns)
         self.assertEqual(self.datalist(), data)
 
     def test_server_create_with_volume(self):
+        self.volume_client.volumes.get.return_value = self.volume
+
         arglist = [
             '--flavor',
             self.flavor.id,
             '--volume',
             self.volume.name,
-            self.new_server.name,
+            self.server.name,
         ]
         verifylist = [
             ('flavor', self.flavor.id),
             ('volume', self.volume.name),
-            ('server_name', self.new_server.name),
+            ('server_name', self.server.name),
         ]
-        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
-        # CreateServer.take_action() returns two tuples
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
         columns, data = self.cmd.take_action(parsed_args)
 
-        # Set expected values
-        kwargs = {
-            'meta': None,
-            'files': {},
-            'reservation_id': None,
-            'min_count': 1,
-            'max_count': 1,
-            'security_groups': [],
-            'userdata': None,
-            'key_name': None,
-            'availability_zone': None,
-            'admin_pass': None,
-            'block_device_mapping_v2': [
+        self.volume_client.volumes.get.assert_called_once_with(
+            self.volume.name
+        )
+        self.compute_sdk_client.create_server.assert_called_once_with(
+            name=self.server.name,
+            image_id='',
+            flavor_id=self.flavor.id,
+            min_count=1,
+            max_count=1,
+            block_device_mapping=[
                 {
                     'uuid': self.volume.id,
                     'boot_index': 0,
@@ -2546,50 +2503,41 @@ class TestServerCreate(TestServer):
                     'destination_type': 'volume',
                 }
             ],
-            'nics': [],
-            'scheduler_hints': {},
-            'config_drive': None,
-        }
-        # ServerManager.create(name, image, flavor, **kwargs)
-        self.servers_mock.create.assert_called_with(
-            self.new_server.name, None, self.flavor, **kwargs
+            networks=[],
         )
-        self.volumes_mock.get.assert_called_once_with(self.volume.name)
 
         self.assertEqual(self.columns, columns)
         self.assertEqual(self.datalist(), data)
 
     def test_server_create_with_snapshot(self):
+        self.volume_client.volume_snapshots.get.return_value = self.snapshot
+
         arglist = [
             '--flavor',
             self.flavor.id,
             '--snapshot',
             self.snapshot.name,
-            self.new_server.name,
+            self.server.name,
         ]
         verifylist = [
             ('flavor', self.flavor.id),
             ('snapshot', self.snapshot.name),
-            ('server_name', self.new_server.name),
+            ('server_name', self.server.name),
         ]
-        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
-        # CreateServer.take_action() returns two tuples
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
         columns, data = self.cmd.take_action(parsed_args)
 
-        # Set expected values
-        kwargs = {
-            'meta': None,
-            'files': {},
-            'reservation_id': None,
-            'min_count': 1,
-            'max_count': 1,
-            'security_groups': [],
-            'userdata': None,
-            'key_name': None,
-            'availability_zone': None,
-            'admin_pass': None,
-            'block_device_mapping_v2': [
+        self.volume_client.volume_snapshots.get.assert_called_once_with(
+            self.snapshot.name
+        )
+        self.compute_sdk_client.create_server.assert_called_once_with(
+            name=self.server.name,
+            image_id='',
+            flavor_id=self.flavor.id,
+            min_count=1,
+            max_count=1,
+            block_device_mapping=[
                 {
                     'uuid': self.snapshot.id,
                     'boot_index': 0,
@@ -2598,15 +2546,8 @@ class TestServerCreate(TestServer):
                     'delete_on_termination': False,
                 }
             ],
-            'nics': [],
-            'scheduler_hints': {},
-            'config_drive': None,
-        }
-        # ServerManager.create(name, image, flavor, **kwargs)
-        self.servers_mock.create.assert_called_with(
-            self.new_server.name, None, self.flavor, **kwargs
+            networks=[],
         )
-        self.snapshots_mock.get.assert_called_once_with(self.snapshot.name)
 
         self.assertEqual(self.columns, columns)
         self.assertEqual(self.datalist(), data)
@@ -2618,7 +2559,7 @@ class TestServerCreate(TestServer):
             self.flavor.id,
             '--block-device',
             block_device,
-            self.new_server.name,
+            self.server.name,
         ]
         verifylist = [
             ('image', None),
@@ -2633,40 +2574,29 @@ class TestServerCreate(TestServer):
                     },
                 ],
             ),
-            ('server_name', self.new_server.name),
+            ('server_name', self.server.name),
         ]
-        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
-        # CreateServer.take_action() returns two tuples
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
         columns, data = self.cmd.take_action(parsed_args)
 
-        # Set expected values
-        kwargs = {
-            'meta': None,
-            'files': {},
-            'reservation_id': None,
-            'min_count': 1,
-            'max_count': 1,
-            'security_groups': [],
-            'userdata': None,
-            'key_name': None,
-            'availability_zone': None,
-            'admin_pass': None,
-            'block_device_mapping_v2': [
+        # we don't do any validation of IDs when using the legacy option
+        self.volume_client.volumes.get.assert_not_called()
+        self.compute_sdk_client.create_server.assert_called_once_with(
+            name=self.server.name,
+            image_id='',
+            flavor_id=self.flavor.id,
+            min_count=1,
+            max_count=1,
+            block_device_mapping=[
                 {
                     'uuid': self.volume.id,
+                    'boot_index': 0,
                     'source_type': 'volume',
                     'destination_type': 'volume',
-                    'boot_index': 0,
-                },
+                }
             ],
-            'nics': [],
-            'scheduler_hints': {},
-            'config_drive': None,
-        }
-        # ServerManager.create(name, image, flavor, **kwargs)
-        self.servers_mock.create.assert_called_with(
-            self.new_server.name, None, self.flavor, **kwargs
+            networks=[],
         )
 
         self.assertEqual(self.columns, columns)
@@ -2675,6 +2605,7 @@ class TestServerCreate(TestServer):
     def test_server_create_with_block_device_full(self):
         self.set_compute_api_version('2.67')
 
+        self.volume_alt = volume_fakes.create_one_volume()
         block_device = (
             f'uuid={self.volume.id},source_type=volume,'
             f'destination_type=volume,disk_bus=ide,device_type=disk,'
@@ -2686,17 +2617,17 @@ class TestServerCreate(TestServer):
 
         arglist = [
             '--image',
-            'image1',
+            self.image.id,
             '--flavor',
             self.flavor.id,
             '--block-device',
             block_device,
             '--block-device',
             block_device_alt,
-            self.new_server.name,
+            self.server.name,
         ]
         verifylist = [
-            ('image', 'image1'),
+            ('image', self.image.id),
             ('flavor', self.flavor.id),
             (
                 'block_devices',
@@ -2721,26 +2652,28 @@ class TestServerCreate(TestServer):
                     },
                 ],
             ),
-            ('server_name', self.new_server.name),
+            ('server_name', self.server.name),
         ]
-        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
-        # CreateServer.take_action() returns two tuples
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
         columns, data = self.cmd.take_action(parsed_args)
 
-        # Set expected values
-        kwargs = {
-            'meta': None,
-            'files': {},
-            'reservation_id': None,
-            'min_count': 1,
-            'max_count': 1,
-            'security_groups': [],
-            'userdata': None,
-            'key_name': None,
-            'availability_zone': None,
-            'admin_pass': None,
-            'block_device_mapping_v2': [
+        # we don't do any validation of IDs when using the legacy option
+        self.volume_client.volumes.get.assert_not_called()
+        self.compute_sdk_client.create_server.assert_called_once_with(
+            name=self.server.name,
+            image_id=self.image.id,
+            flavor_id=self.flavor.id,
+            min_count=1,
+            max_count=1,
+            block_device_mapping=[
+                {
+                    'uuid': self.image.id,
+                    'boot_index': 0,
+                    'source_type': 'image',
+                    'destination_type': 'local',
+                    'delete_on_termination': True,
+                },
                 {
                     'uuid': self.volume.id,
                     'source_type': 'volume',
@@ -2761,13 +2694,7 @@ class TestServerCreate(TestServer):
                     'destination_type': 'volume',
                 },
             ],
-            'nics': 'auto',
-            'scheduler_hints': {},
-            'config_drive': None,
-        }
-        # ServerManager.create(name, image, flavor, **kwargs)
-        self.servers_mock.create.assert_called_with(
-            self.new_server.name, self.image, self.flavor, **kwargs
+            networks='auto',
         )
 
         self.assertEqual(self.columns, columns)
@@ -2797,37 +2724,38 @@ class TestServerCreate(TestServer):
 
             arglist = [
                 '--image',
-                'image1',
+                self.image.id,
                 '--flavor',
                 self.flavor.id,
                 '--block-device',
                 fp.name,
-                self.new_server.name,
+                self.server.name,
             ]
             verifylist = [
-                ('image', 'image1'),
+                ('image', self.image.id),
                 ('flavor', self.flavor.id),
                 ('block_devices', [block_device]),
-                ('server_name', self.new_server.name),
+                ('server_name', self.server.name),
             ]
             parsed_args = self.check_parser(self.cmd, arglist, verifylist)
-
-        # CreateServer.take_action() returns two tuples
         columns, data = self.cmd.take_action(parsed_args)
 
-        # Set expected values
-        kwargs = {
-            'meta': None,
-            'files': {},
-            'reservation_id': None,
-            'min_count': 1,
-            'max_count': 1,
-            'security_groups': [],
-            'userdata': None,
-            'key_name': None,
-            'availability_zone': None,
-            'admin_pass': None,
-            'block_device_mapping_v2': [
+        # we don't do any validation of IDs when using the legacy option
+        self.volume_client.volumes.get.assert_not_called()
+        self.compute_sdk_client.create_server.assert_called_once_with(
+            name=self.server.name,
+            image_id=self.image.id,
+            flavor_id=self.flavor.id,
+            min_count=1,
+            max_count=1,
+            block_device_mapping=[
+                {
+                    'uuid': self.image.id,
+                    'boot_index': 0,
+                    'source_type': 'image',
+                    'destination_type': 'local',
+                    'delete_on_termination': True,
+                },
                 {
                     'uuid': self.volume.id,
                     'source_type': 'volume',
@@ -2841,15 +2769,9 @@ class TestServerCreate(TestServer):
                     'delete_on_termination': True,
                     'tag': 'foo',
                     'volume_type': 'foo',
-                }
+                },
             ],
-            'nics': 'auto',
-            'scheduler_hints': {},
-            'config_drive': None,
-        }
-        # ServerManager.create(name, image, flavor, **kwargs)
-        self.servers_mock.create.assert_called_with(
-            self.new_server.name, self.image, self.flavor, **kwargs
+            networks='auto',
         )
 
         self.assertEqual(self.columns, columns)
@@ -2861,63 +2783,66 @@ class TestServerCreate(TestServer):
         )
         arglist = [
             '--image',
-            'image1',
+            self.image.id,
             '--flavor',
             self.flavor.id,
             '--block-device',
             block_device,
-            self.new_server.name,
+            self.server.name,
         ]
         parsed_args = self.check_parser(self.cmd, arglist, [])
         ex = self.assertRaises(
             exceptions.CommandError, self.cmd.take_action, parsed_args
         )
         self.assertIn('The boot_index key of --block-device ', str(ex))
+        self.compute_sdk_client.create_server.assert_not_called()
 
     def test_server_create_with_block_device_invalid_source_type(self):
         block_device = f'uuid={self.volume.name},source_type=foo'
         arglist = [
             '--image',
-            'image1',
+            self.image.id,
             '--flavor',
             self.flavor.id,
             '--block-device',
             block_device,
-            self.new_server.name,
+            self.server.name,
         ]
         parsed_args = self.check_parser(self.cmd, arglist, [])
         ex = self.assertRaises(
             exceptions.CommandError, self.cmd.take_action, parsed_args
         )
         self.assertIn('The source_type key of --block-device ', str(ex))
+        self.compute_sdk_client.create_server.assert_not_called()
 
     def test_server_create_with_block_device_invalid_destination_type(self):
         block_device = f'uuid={self.volume.name},destination_type=foo'
         arglist = [
             '--image',
-            'image1',
+            self.image.id,
             '--flavor',
             self.flavor.id,
             '--block-device',
             block_device,
-            self.new_server.name,
+            self.server.name,
         ]
         parsed_args = self.check_parser(self.cmd, arglist, [])
         ex = self.assertRaises(
             exceptions.CommandError, self.cmd.take_action, parsed_args
         )
         self.assertIn('The destination_type key of --block-device ', str(ex))
+        self.compute_sdk_client.create_server.assert_not_called()
 
     def test_server_create_with_block_device_invalid_shutdown(self):
         block_device = f'uuid={self.volume.name},delete_on_termination=foo'
         arglist = [
             '--image',
-            'image1',
+            self.image.id,
             '--flavor',
             self.flavor.id,
             '--block-device',
             block_device,
-            self.new_server.name,
+            self.server.name,
         ]
         parsed_args = self.check_parser(self.cmd, arglist, [])
         ex = self.assertRaises(
@@ -2926,6 +2851,7 @@ class TestServerCreate(TestServer):
         self.assertIn(
             'The delete_on_termination key of --block-device ', str(ex)
         )
+        self.compute_sdk_client.create_server.assert_not_called()
 
     def test_server_create_with_block_device_tag_pre_v242(self):
         self.set_compute_api_version('2.41')
@@ -2933,12 +2859,12 @@ class TestServerCreate(TestServer):
         block_device = f'uuid={self.volume.name},tag=foo'
         arglist = [
             '--image',
-            'image1',
+            self.image.id,
             '--flavor',
             self.flavor.id,
             '--block-device',
             block_device,
-            self.new_server.name,
+            self.server.name,
         ]
         parsed_args = self.check_parser(self.cmd, arglist, [])
         ex = self.assertRaises(
@@ -2947,6 +2873,7 @@ class TestServerCreate(TestServer):
         self.assertIn(
             '--os-compute-api-version 2.42 or greater is required', str(ex)
         )
+        self.compute_sdk_client.create_server.assert_not_called()
 
     def test_server_create_with_block_device_volume_type_pre_v267(self):
         self.set_compute_api_version('2.66')
@@ -2954,12 +2881,12 @@ class TestServerCreate(TestServer):
         block_device = f'uuid={self.volume.name},volume_type=foo'
         arglist = [
             '--image',
-            'image1',
+            self.image.id,
             '--flavor',
             self.flavor.id,
             '--block-device',
             block_device,
-            self.new_server.name,
+            self.server.name,
         ]
         parsed_args = self.check_parser(self.cmd, arglist, [])
         ex = self.assertRaises(
@@ -2968,19 +2895,22 @@ class TestServerCreate(TestServer):
         self.assertIn(
             '--os-compute-api-version 2.67 or greater is required', str(ex)
         )
+        self.compute_sdk_client.create_server.assert_not_called()
 
     def test_server_create_with_block_device_mapping(self):
+        self.volume_client.volumes.get.return_value = self.volume
+
         arglist = [
             '--image',
-            'image1',
+            self.image.id,
             '--flavor',
             self.flavor.id,
             '--block-device-mapping',
             'vda=' + self.volume.name + ':::false',
-            self.new_server.name,
+            self.server.name,
         ]
         verifylist = [
-            ('image', 'image1'),
+            ('image', self.image.id),
             ('flavor', self.flavor.id),
             (
                 'block_device_mapping',
@@ -2995,58 +2925,57 @@ class TestServerCreate(TestServer):
                 ],
             ),
             ('config_drive', False),
-            ('server_name', self.new_server.name),
+            ('server_name', self.server.name),
         ]
-        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
-        # CreateServer.take_action() returns two tuples
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
         columns, data = self.cmd.take_action(parsed_args)
 
-        # Set expected values
-        kwargs = dict(
-            meta=None,
-            files={},
-            reservation_id=None,
+        self.volume_client.volumes.get.assert_called_once_with(
+            self.volume.name
+        )
+        self.compute_sdk_client.create_server.assert_called_once_with(
+            name=self.server.name,
+            image_id=self.image.id,
+            flavor_id=self.flavor.id,
             min_count=1,
             max_count=1,
-            security_groups=[],
-            userdata=None,
-            key_name=None,
-            availability_zone=None,
-            admin_pass=None,
-            block_device_mapping_v2=[
+            block_device_mapping=[
+                {
+                    'uuid': self.image.id,
+                    'boot_index': 0,
+                    'source_type': 'image',
+                    'destination_type': 'local',
+                    'delete_on_termination': True,
+                },
                 {
                     'device_name': 'vda',
                     'uuid': self.volume.id,
                     'destination_type': 'volume',
                     'source_type': 'volume',
                     'delete_on_termination': 'false',
-                }
+                },
             ],
-            nics=[],
-            scheduler_hints={},
-            config_drive=None,
-        )
-        # ServerManager.create(name, image, flavor, **kwargs)
-        self.servers_mock.create.assert_called_with(
-            self.new_server.name, self.image, self.flavor, **kwargs
+            networks=[],
         )
 
         self.assertEqual(self.columns, columns)
         self.assertEqual(self.datalist(), data)
 
     def test_server_create_with_block_device_mapping_min_input(self):
+        self.volume_client.volumes.get.return_value = self.volume
+
         arglist = [
             '--image',
-            'image1',
+            self.image.id,
             '--flavor',
             self.flavor.id,
             '--block-device-mapping',
             'vdf=' + self.volume.name,
-            self.new_server.name,
+            self.server.name,
         ]
         verifylist = [
-            ('image', 'image1'),
+            ('image', self.image.id),
             ('flavor', self.flavor.id),
             (
                 'block_device_mapping',
@@ -3060,57 +2989,56 @@ class TestServerCreate(TestServer):
                 ],
             ),
             ('config_drive', False),
-            ('server_name', self.new_server.name),
+            ('server_name', self.server.name),
         ]
-        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
-        # CreateServer.take_action() returns two tuples
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
         columns, data = self.cmd.take_action(parsed_args)
 
-        # Set expected values
-        kwargs = dict(
-            meta=None,
-            files={},
-            reservation_id=None,
+        self.volume_client.volumes.get.assert_called_once_with(
+            self.volume.name
+        )
+        self.compute_sdk_client.create_server.assert_called_once_with(
+            name=self.server.name,
+            image_id=self.image.id,
+            flavor_id=self.flavor.id,
             min_count=1,
             max_count=1,
-            security_groups=[],
-            userdata=None,
-            key_name=None,
-            availability_zone=None,
-            admin_pass=None,
-            block_device_mapping_v2=[
+            block_device_mapping=[
+                {
+                    'uuid': self.image.id,
+                    'boot_index': 0,
+                    'source_type': 'image',
+                    'destination_type': 'local',
+                    'delete_on_termination': True,
+                },
                 {
                     'device_name': 'vdf',
                     'uuid': self.volume.id,
                     'destination_type': 'volume',
                     'source_type': 'volume',
-                }
+                },
             ],
-            nics=[],
-            scheduler_hints={},
-            config_drive=None,
-        )
-        # ServerManager.create(name, image, flavor, **kwargs)
-        self.servers_mock.create.assert_called_with(
-            self.new_server.name, self.image, self.flavor, **kwargs
+            networks=[],
         )
 
         self.assertEqual(self.columns, columns)
         self.assertEqual(self.datalist(), data)
 
     def test_server_create_with_block_device_mapping_default_input(self):
+        self.volume_client.volumes.get.return_value = self.volume
+
         arglist = [
             '--image',
-            'image1',
+            self.image.id,
             '--flavor',
             self.flavor.id,
             '--block-device-mapping',
             'vdf=' + self.volume.name + ':::',
-            self.new_server.name,
+            self.server.name,
         ]
         verifylist = [
-            ('image', 'image1'),
+            ('image', self.image.id),
             ('flavor', self.flavor.id),
             (
                 'block_device_mapping',
@@ -3124,57 +3052,56 @@ class TestServerCreate(TestServer):
                 ],
             ),
             ('config_drive', False),
-            ('server_name', self.new_server.name),
+            ('server_name', self.server.name),
         ]
-        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
-        # CreateServer.take_action() returns two tuples
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
         columns, data = self.cmd.take_action(parsed_args)
 
-        # Set expected values
-        kwargs = dict(
-            meta=None,
-            files={},
-            reservation_id=None,
+        self.volume_client.volumes.get.assert_called_once_with(
+            self.volume.name
+        )
+        self.compute_sdk_client.create_server.assert_called_once_with(
+            name=self.server.name,
+            image_id=self.image.id,
+            flavor_id=self.flavor.id,
             min_count=1,
             max_count=1,
-            security_groups=[],
-            userdata=None,
-            key_name=None,
-            availability_zone=None,
-            admin_pass=None,
-            block_device_mapping_v2=[
+            block_device_mapping=[
+                {
+                    'uuid': self.image.id,
+                    'boot_index': 0,
+                    'source_type': 'image',
+                    'destination_type': 'local',
+                    'delete_on_termination': True,
+                },
                 {
                     'device_name': 'vdf',
                     'uuid': self.volume.id,
                     'destination_type': 'volume',
                     'source_type': 'volume',
-                }
+                },
             ],
-            nics=[],
-            scheduler_hints={},
-            config_drive=None,
-        )
-        # ServerManager.create(name, image, flavor, **kwargs)
-        self.servers_mock.create.assert_called_with(
-            self.new_server.name, self.image, self.flavor, **kwargs
+            networks=[],
         )
 
         self.assertEqual(self.columns, columns)
         self.assertEqual(self.datalist(), data)
 
     def test_server_create_with_block_device_mapping_full_input(self):
+        self.volume_client.volumes.get.return_value = self.volume
+
         arglist = [
             '--image',
-            'image1',
+            self.image.id,
             '--flavor',
             self.flavor.id,
             '--block-device-mapping',
             'vde=' + self.volume.name + ':volume:3:true',
-            self.new_server.name,
+            self.server.name,
         ]
         verifylist = [
-            ('image', 'image1'),
+            ('image', self.image.id),
             ('flavor', self.flavor.id),
             (
                 'block_device_mapping',
@@ -3190,26 +3117,29 @@ class TestServerCreate(TestServer):
                 ],
             ),
             ('config_drive', False),
-            ('server_name', self.new_server.name),
+            ('server_name', self.server.name),
         ]
-        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
-        # CreateServer.take_action() returns two tuples
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
         columns, data = self.cmd.take_action(parsed_args)
 
-        # Set expected values
-        kwargs = dict(
-            meta=None,
-            files={},
-            reservation_id=None,
+        self.volume_client.volumes.get.assert_called_once_with(
+            self.volume.name
+        )
+        self.compute_sdk_client.create_server.assert_called_once_with(
+            name=self.server.name,
+            image_id=self.image.id,
+            flavor_id=self.flavor.id,
             min_count=1,
             max_count=1,
-            security_groups=[],
-            userdata=None,
-            key_name=None,
-            availability_zone=None,
-            admin_pass=None,
-            block_device_mapping_v2=[
+            block_device_mapping=[
+                {
+                    'uuid': self.image.id,
+                    'boot_index': 0,
+                    'source_type': 'image',
+                    'destination_type': 'local',
+                    'delete_on_termination': True,
+                },
                 {
                     'device_name': 'vde',
                     'uuid': self.volume.id,
@@ -3217,39 +3147,36 @@ class TestServerCreate(TestServer):
                     'source_type': 'volume',
                     'delete_on_termination': 'true',
                     'volume_size': '3',
-                }
+                },
             ],
-            nics=[],
-            scheduler_hints={},
-            config_drive=None,
-        )
-        # ServerManager.create(name, image, flavor, **kwargs)
-        self.servers_mock.create.assert_called_with(
-            self.new_server.name, self.image, self.flavor, **kwargs
+            networks=[],
         )
 
         self.assertEqual(self.columns, columns)
         self.assertEqual(self.datalist(), data)
 
     def test_server_create_with_block_device_mapping_snapshot(self):
+        self.snapshot = volume_fakes.create_one_snapshot()
+        self.volume_client.volume_snapshots.get.return_value = self.snapshot
+
         arglist = [
             '--image',
-            'image1',
+            self.image.id,
             '--flavor',
             self.flavor.id,
             '--block-device-mapping',
-            'vds=' + self.volume.name + ':snapshot:5:true',
-            self.new_server.name,
+            'vds=' + self.snapshot.name + ':snapshot:5:true',
+            self.server.name,
         ]
         verifylist = [
-            ('image', 'image1'),
+            ('image', self.image.id),
             ('flavor', self.flavor.id),
             (
                 'block_device_mapping',
                 [
                     {
                         'device_name': 'vds',
-                        'uuid': self.volume.name,
+                        'uuid': self.snapshot.name,
                         'source_type': 'snapshot',
                         'volume_size': '5',
                         'destination_type': 'volume',
@@ -3258,26 +3185,29 @@ class TestServerCreate(TestServer):
                 ],
             ),
             ('config_drive', False),
-            ('server_name', self.new_server.name),
+            ('server_name', self.server.name),
         ]
-        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
-        # CreateServer.take_action() returns two tuples
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
         columns, data = self.cmd.take_action(parsed_args)
 
-        # Set expected values
-        kwargs = dict(
-            meta=None,
-            files={},
-            reservation_id=None,
+        self.volume_client.volume_snapshots.get.assert_called_once_with(
+            self.snapshot.name
+        )
+        self.compute_sdk_client.create_server.assert_called_once_with(
+            name=self.server.name,
+            image_id=self.image.id,
+            flavor_id=self.flavor.id,
             min_count=1,
             max_count=1,
-            security_groups=[],
-            userdata=None,
-            key_name=None,
-            availability_zone=None,
-            admin_pass=None,
-            block_device_mapping_v2=[
+            block_device_mapping=[
+                {
+                    'uuid': self.image.id,
+                    'boot_index': 0,
+                    'source_type': 'image',
+                    'destination_type': 'local',
+                    'delete_on_termination': True,
+                },
                 {
                     'device_name': 'vds',
                     'uuid': self.snapshot.id,
@@ -3285,34 +3215,30 @@ class TestServerCreate(TestServer):
                     'source_type': 'snapshot',
                     'delete_on_termination': 'true',
                     'volume_size': '5',
-                }
+                },
             ],
-            nics=[],
-            scheduler_hints={},
-            config_drive=None,
-        )
-        # ServerManager.create(name, image, flavor, **kwargs)
-        self.servers_mock.create.assert_called_with(
-            self.new_server.name, self.image, self.flavor, **kwargs
+            networks=[],
         )
 
         self.assertEqual(self.columns, columns)
         self.assertEqual(self.datalist(), data)
 
     def test_server_create_with_block_device_mapping_multiple(self):
+        self.volume_client.volumes.get.return_value = self.volume
+
         arglist = [
             '--image',
-            'image1',
+            self.image.id,
             '--flavor',
             self.flavor.id,
             '--block-device-mapping',
             'vdb=' + self.volume.name + ':::false',
             '--block-device-mapping',
             'vdc=' + self.volume.name + ':::true',
-            self.new_server.name,
+            self.server.name,
         ]
         verifylist = [
-            ('image', 'image1'),
+            ('image', self.image.id),
             ('flavor', self.flavor.id),
             (
                 'block_device_mapping',
@@ -3334,26 +3260,29 @@ class TestServerCreate(TestServer):
                 ],
             ),
             ('config_drive', False),
-            ('server_name', self.new_server.name),
+            ('server_name', self.server.name),
         ]
-        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
-        # CreateServer.take_action() returns two tuples
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
         columns, data = self.cmd.take_action(parsed_args)
 
-        # Set expected values
-        kwargs = dict(
-            meta=None,
-            files={},
-            reservation_id=None,
+        self.volume_client.volumes.get.assert_has_calls(
+            [mock.call(self.volume.name)] * 2
+        )
+        self.compute_sdk_client.create_server.assert_called_once_with(
+            name=self.server.name,
+            image_id=self.image.id,
+            flavor_id=self.flavor.id,
             min_count=1,
             max_count=1,
-            security_groups=[],
-            userdata=None,
-            key_name=None,
-            availability_zone=None,
-            admin_pass=None,
-            block_device_mapping_v2=[
+            block_device_mapping=[
+                {
+                    'uuid': self.image.id,
+                    'boot_index': 0,
+                    'source_type': 'image',
+                    'destination_type': 'local',
+                    'delete_on_termination': True,
+                },
                 {
                     'device_name': 'vdb',
                     'uuid': self.volume.id,
@@ -3369,13 +3298,7 @@ class TestServerCreate(TestServer):
                     'delete_on_termination': 'true',
                 },
             ],
-            nics=[],
-            scheduler_hints={},
-            config_drive=None,
-        )
-        # ServerManager.create(name, image, flavor, **kwargs)
-        self.servers_mock.create.assert_called_with(
-            self.new_server.name, self.image, self.flavor, **kwargs
+            networks=[],
         )
 
         self.assertEqual(self.columns, columns)
@@ -3385,56 +3308,68 @@ class TestServerCreate(TestServer):
         # block device mapping don't contain equal sign "="
         arglist = [
             '--image',
-            'image1',
+            self.image.id,
             '--flavor',
             self.flavor.id,
             '--block-device-mapping',
             'not_contain_equal_sign',
-            self.new_server.name,
+            self.server.name,
         ]
-        self.assertRaises(
+        exc = self.assertRaises(
             test_utils.ParserException,
             self.check_parser,
             self.cmd,
             arglist,
             [],
         )
+        self.assertIn(
+            'argument --block-device-mapping: Invalid argument ', str(exc)
+        )
+        self.compute_sdk_client.create_server.assert_not_called()
 
         # block device mapping don't contain device name "=uuid:::true"
         arglist = [
             '--image',
-            'image1',
+            self.image.id,
             '--flavor',
             self.flavor.id,
             '--block-device-mapping',
             '=uuid:::true',
-            self.new_server.name,
+            self.server.name,
         ]
-        self.assertRaises(
+        exc = self.assertRaises(
             test_utils.ParserException,
             self.check_parser,
             self.cmd,
             arglist,
             [],
         )
+        self.assertIn(
+            'argument --block-device-mapping: Invalid argument ', str(exc)
+        )
+        self.compute_sdk_client.create_server.assert_not_called()
 
     def test_server_create_with_block_device_mapping_no_uuid(self):
         arglist = [
             '--image',
-            'image1',
+            self.image.id,
             '--flavor',
             self.flavor.id,
             '--block-device-mapping',
             'vdb=',
-            self.new_server.name,
+            self.server.name,
         ]
-        self.assertRaises(
+        exc = self.assertRaises(
             test_utils.ParserException,
             self.check_parser,
             self.cmd,
             arglist,
             [],
         )
+        self.assertIn(
+            'argument --block-device-mapping: Invalid argument ', str(exc)
+        )
+        self.compute_sdk_client.create_server.assert_not_called()
 
     def test_server_create_volume_boot_from_volume_conflict(self):
         # Tests that specifying --volume and --boot-from-volume results in
@@ -3449,14 +3384,14 @@ class TestServerCreate(TestServer):
             'volume1',
             '--boot-from-volume',
             '1',
-            self.new_server.name,
+            self.server.name,
         ]
         verifylist = [
             ('flavor', self.flavor.id),
             ('volume', 'volume1'),
             ('boot_from_volume', 1),
             ('config_drive', False),
-            ('server_name', self.new_server.name),
+            ('server_name', self.server.name),
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
@@ -3467,6 +3402,7 @@ class TestServerCreate(TestServer):
         self.assertIn(
             '--volume is not allowed with --boot-from-volume', str(ex)
         )
+        self.compute_sdk_client.create_server.assert_not_called()
 
     def test_server_create_boot_from_volume_no_image(self):
         # Test --boot-from-volume option without --image or
@@ -3476,218 +3412,202 @@ class TestServerCreate(TestServer):
             self.flavor.id,
             '--boot-from-volume',
             '1',
-            self.new_server.name,
+            self.server.name,
         ]
         verifylist = [
             ('flavor', self.flavor.id),
             ('boot_from_volume', 1),
             ('config_drive', False),
-            ('server_name', self.new_server.name),
+            ('server_name', self.server.name),
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
         ex = self.assertRaises(
             exceptions.CommandError, self.cmd.take_action, parsed_args
         )
-        # Assert it is the error we expect.
         self.assertIn(
             'An image (--image or --image-property) is required '
             'to support --boot-from-volume option',
             str(ex),
         )
+        self.compute_sdk_client.create_server.assert_not_called()
 
     def test_server_create_image_property(self):
+        image = image_fakes.create_one_image({'hypervisor_type': 'qemu'})
+        self.image_client.images.return_value = [image]
+
         arglist = [
             '--image-property',
             'hypervisor_type=qemu',
             '--flavor',
-            'flavor1',
-            self.new_server.name,
+            self.flavor.id,
+            self.server.name,
         ]
         verifylist = [
             ('image_properties', {'hypervisor_type': 'qemu'}),
-            ('flavor', 'flavor1'),
+            ('flavor', self.flavor.id),
             ('config_drive', False),
-            ('server_name', self.new_server.name),
+            ('server_name', self.server.name),
         ]
-        # create a image_info as the side_effect of the fake image_list()
-        image_info = {
-            'hypervisor_type': 'qemu',
-        }
-
-        _image = image_fakes.create_one_image(image_info)
-        self.image_client.images.return_value = [_image]
 
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
-
         columns, data = self.cmd.take_action(parsed_args)
 
-        # Set expected values
-        kwargs = dict(
-            files={},
-            reservation_id=None,
+        self.image_client.images.assert_called_once_with()
+        self.compute_sdk_client.create_server.assert_called_once_with(
+            name=self.server.name,
+            image_id=image.id,
+            flavor_id=self.flavor.id,
             min_count=1,
             max_count=1,
-            security_groups=[],
-            userdata=None,
-            key_name=None,
-            availability_zone=None,
-            admin_pass=None,
-            block_device_mapping_v2=[],
-            nics=[],
-            meta=None,
-            scheduler_hints={},
-            config_drive=None,
-        )
-        # ServerManager.create(name, image, flavor, **kwargs)
-        self.servers_mock.create.assert_called_with(
-            self.new_server.name, _image, self.flavor, **kwargs
+            networks=[],
+            block_device_mapping=[
+                {
+                    'uuid': image.id,
+                    'boot_index': 0,
+                    'source_type': 'image',
+                    'destination_type': 'local',
+                    'delete_on_termination': True,
+                },
+            ],
         )
 
         self.assertEqual(self.columns, columns)
         self.assertEqual(self.datalist(), data)
 
     def test_server_create_image_property_multi(self):
+        image = image_fakes.create_one_image(
+            {'hypervisor_type': 'qemu', 'hw_disk_bus': 'ide'}
+        )
+        self.image_client.images.return_value = [image]
+
         arglist = [
             '--image-property',
             'hypervisor_type=qemu',
             '--image-property',
             'hw_disk_bus=ide',
             '--flavor',
-            'flavor1',
-            self.new_server.name,
+            self.flavor.id,
+            self.server.name,
         ]
         verifylist = [
             (
                 'image_properties',
                 {'hypervisor_type': 'qemu', 'hw_disk_bus': 'ide'},
             ),
-            ('flavor', 'flavor1'),
+            ('flavor', self.flavor.id),
             ('config_drive', False),
-            ('server_name', self.new_server.name),
+            ('server_name', self.server.name),
         ]
-        # create a image_info as the side_effect of the fake image_list()
-        image_info = {
-            'hypervisor_type': 'qemu',
-            'hw_disk_bus': 'ide',
-        }
-        _image = image_fakes.create_one_image(image_info)
-        self.image_client.images.return_value = [_image]
 
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
-
         columns, data = self.cmd.take_action(parsed_args)
 
-        # Set expected values
-        kwargs = dict(
-            files={},
-            reservation_id=None,
+        self.image_client.images.assert_called_once_with()
+        self.compute_sdk_client.create_server.assert_called_once_with(
+            name=self.server.name,
+            image_id=image.id,
+            flavor_id=self.flavor.id,
             min_count=1,
             max_count=1,
-            security_groups=[],
-            userdata=None,
-            key_name=None,
-            availability_zone=None,
-            admin_pass=None,
-            block_device_mapping_v2=[],
-            nics=[],
-            meta=None,
-            scheduler_hints={},
-            config_drive=None,
-        )
-        # ServerManager.create(name, image, flavor, **kwargs)
-        self.servers_mock.create.assert_called_with(
-            self.new_server.name, _image, self.flavor, **kwargs
+            networks=[],
+            block_device_mapping=[
+                {
+                    'uuid': image.id,
+                    'boot_index': 0,
+                    'source_type': 'image',
+                    'destination_type': 'local',
+                    'delete_on_termination': True,
+                },
+            ],
         )
 
         self.assertEqual(self.columns, columns)
         self.assertEqual(self.datalist(), data)
 
     def test_server_create_image_property_missed(self):
+        image = image_fakes.create_one_image(
+            {'hypervisor_type': 'qemu', 'hw_disk_bus': 'ide'}
+        )
+        self.image_client.images.return_value = [image]
+
         arglist = [
             '--image-property',
             'hypervisor_type=qemu',
+            # note the mismatch in the 'hw_disk_bus' property
             '--image-property',
             'hw_disk_bus=virtio',
             '--flavor',
-            'flavor1',
-            self.new_server.name,
+            self.flavor.id,
+            self.server.name,
         ]
         verifylist = [
             (
                 'image_properties',
                 {'hypervisor_type': 'qemu', 'hw_disk_bus': 'virtio'},
             ),
-            ('flavor', 'flavor1'),
+            ('flavor', self.flavor.id),
             ('config_drive', False),
-            ('server_name', self.new_server.name),
+            ('server_name', self.server.name),
         ]
-        # create a image_info as the side_effect of the fake image_list()
-        image_info = {
-            'hypervisor_type': 'qemu',
-            'hw_disk_bus': 'ide',
-        }
-
-        _image = image_fakes.create_one_image(image_info)
-        self.image_client.images.return_value = [_image]
 
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
-
-        self.assertRaises(
+        exc = self.assertRaises(
             exceptions.CommandError, self.cmd.take_action, parsed_args
         )
+        self.assertIn(
+            'No images match the property expected by --image-property',
+            str(exc),
+        )
+        self.compute_sdk_client.create_server.assert_not_called()
 
     def test_server_create_image_property_with_image_list(self):
+        target_image = image_fakes.create_one_image(
+            {
+                'properties': {
+                    'owner_specified.openstack.object': 'image/cirros'
+                }
+            }
+        )
+        another_image = image_fakes.create_one_image()
+        self.image_client.images.return_value = [target_image, another_image]
+
         arglist = [
             '--image-property',
             'owner_specified.openstack.object=image/cirros',
             '--flavor',
-            'flavor1',
-            self.new_server.name,
+            self.flavor.id,
+            self.server.name,
         ]
-
         verifylist = [
             (
                 'image_properties',
                 {'owner_specified.openstack.object': 'image/cirros'},
             ),
-            ('flavor', 'flavor1'),
-            ('server_name', self.new_server.name),
+            ('flavor', self.flavor.id),
+            ('server_name', self.server.name),
         ]
-        # create a image_info as the side_effect of the fake image_list()
-        image_info = {
-            'properties': {'owner_specified.openstack.object': 'image/cirros'}
-        }
-
-        target_image = image_fakes.create_one_image(image_info)
-        another_image = image_fakes.create_one_image({})
-        self.image_client.images.return_value = [target_image, another_image]
 
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
-
         columns, data = self.cmd.take_action(parsed_args)
 
-        # Set expected values
-        kwargs = dict(
-            files={},
-            reservation_id=None,
+        self.image_client.images.assert_called_once_with()
+        self.compute_sdk_client.create_server.assert_called_once_with(
+            name=self.server.name,
+            image_id=target_image.id,
+            flavor_id=self.flavor.id,
             min_count=1,
             max_count=1,
-            security_groups=[],
-            userdata=None,
-            key_name=None,
-            availability_zone=None,
-            admin_pass=None,
-            block_device_mapping_v2=[],
-            nics=[],
-            meta=None,
-            scheduler_hints={},
-            config_drive=None,
-        )
-
-        # ServerManager.create(name, image, flavor, **kwargs)
-        self.servers_mock.create.assert_called_with(
-            self.new_server.name, target_image, self.flavor, **kwargs
+            networks=[],
+            block_device_mapping=[
+                {
+                    'uuid': target_image.id,
+                    'boot_index': 0,
+                    'source_type': 'image',
+                    'destination_type': 'local',
+                    'delete_on_termination': True,
+                },
+            ],
         )
 
         self.assertEqual(self.columns, columns)
@@ -3700,7 +3620,7 @@ class TestServerCreate(TestServer):
             block_device,
             '--flavor',
             self.flavor.id,
-            self.new_server.name,
+            self.server.name,
         ]
         verifylist = [
             ('image', None),
@@ -3715,7 +3635,7 @@ class TestServerCreate(TestServer):
                     },
                 ],
             ),
-            ('server_name', self.new_server.name),
+            ('server_name', self.server.name),
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
         exc = self.assertRaises(
@@ -3728,41 +3648,42 @@ class TestServerCreate(TestServer):
             '(--volume, --snapshot, --block-device) is required',
             str(exc),
         )
+        self.compute_sdk_client.create_server.assert_not_called()
 
     def test_server_create_with_swap(self):
         arglist = [
             '--image',
-            'image1',
+            self.image.id,
             '--flavor',
             self.flavor.id,
             '--swap',
             '1024',
-            self.new_server.name,
+            self.server.name,
         ]
         verifylist = [
-            ('image', 'image1'),
+            ('image', self.image.id),
             ('flavor', self.flavor.id),
             ('swap', 1024),
-            ('server_name', self.new_server.name),
+            ('server_name', self.server.name),
         ]
-        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
-        # CreateServer.take_action() returns two tuples
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
         columns, data = self.cmd.take_action(parsed_args)
 
-        # Set expected values
-        kwargs = {
-            'meta': None,
-            'files': {},
-            'reservation_id': None,
-            'min_count': 1,
-            'max_count': 1,
-            'security_groups': [],
-            'userdata': None,
-            'key_name': None,
-            'availability_zone': None,
-            'admin_pass': None,
-            'block_device_mapping_v2': [
+        self.compute_sdk_client.create_server.assert_called_once_with(
+            name=self.server.name,
+            image_id=self.image.id,
+            flavor_id=self.flavor.id,
+            min_count=1,
+            max_count=1,
+            block_device_mapping=[
+                {
+                    'uuid': self.image.id,
+                    'boot_index': 0,
+                    'source_type': 'image',
+                    'destination_type': 'local',
+                    'delete_on_termination': True,
+                },
                 {
                     'boot_index': -1,
                     'source_type': 'blank',
@@ -3770,15 +3691,9 @@ class TestServerCreate(TestServer):
                     'guest_format': 'swap',
                     'volume_size': 1024,
                     'delete_on_termination': True,
-                }
+                },
             ],
-            'nics': [],
-            'scheduler_hints': {},
-            'config_drive': None,
-        }
-        # ServerManager.create(name, image, flavor, **kwargs)
-        self.servers_mock.create.assert_called_with(
-            self.new_server.name, self.image, self.flavor, **kwargs
+            networks=[],
         )
 
         self.assertEqual(self.columns, columns)
@@ -3787,37 +3702,37 @@ class TestServerCreate(TestServer):
     def test_server_create_with_ephemeral(self):
         arglist = [
             '--image',
-            'image1',
+            self.image.id,
             '--flavor',
             self.flavor.id,
             '--ephemeral',
             'size=1024,format=ext4',
-            self.new_server.name,
+            self.server.name,
         ]
         verifylist = [
-            ('image', 'image1'),
+            ('image', self.image.id),
             ('flavor', self.flavor.id),
             ('ephemerals', [{'size': '1024', 'format': 'ext4'}]),
-            ('server_name', self.new_server.name),
+            ('server_name', self.server.name),
         ]
-        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
-        # CreateServer.take_action() returns two tuples
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
         columns, data = self.cmd.take_action(parsed_args)
 
-        # Set expected values
-        kwargs = {
-            'meta': None,
-            'files': {},
-            'reservation_id': None,
-            'min_count': 1,
-            'max_count': 1,
-            'security_groups': [],
-            'userdata': None,
-            'key_name': None,
-            'availability_zone': None,
-            'admin_pass': None,
-            'block_device_mapping_v2': [
+        self.compute_sdk_client.create_server.assert_called_once_with(
+            name=self.server.name,
+            image_id=self.image.id,
+            flavor_id=self.flavor.id,
+            min_count=1,
+            max_count=1,
+            block_device_mapping=[
+                {
+                    'uuid': self.image.id,
+                    'boot_index': 0,
+                    'source_type': 'image',
+                    'destination_type': 'local',
+                    'delete_on_termination': True,
+                },
                 {
                     'boot_index': -1,
                     'source_type': 'blank',
@@ -3825,15 +3740,9 @@ class TestServerCreate(TestServer):
                     'guest_format': 'ext4',
                     'volume_size': '1024',
                     'delete_on_termination': True,
-                }
+                },
             ],
-            'nics': [],
-            'scheduler_hints': {},
-            'config_drive': None,
-        }
-        # ServerManager.create(name, image, flavor, **kwargs)
-        self.servers_mock.create.assert_called_with(
-            self.new_server.name, self.image, self.flavor, **kwargs
+            networks=[],
         )
 
         self.assertEqual(self.columns, columns)
@@ -3842,75 +3751,83 @@ class TestServerCreate(TestServer):
     def test_server_create_with_ephemeral_missing_key(self):
         arglist = [
             '--image',
-            'image1',
+            self.image.id,
             '--flavor',
             self.flavor.id,
             '--ephemeral',
             'format=ext3',
-            self.new_server.name,
+            self.server.name,
         ]
-        self.assertRaises(
+        exc = self.assertRaises(
             test_utils.ParserException,
             self.check_parser,
             self.cmd,
             arglist,
             [],
         )
+        self.assertIn('Argument parse failed', str(exc))
+        self.compute_sdk_client.create_server.assert_not_called()
 
     def test_server_create_with_ephemeral_invalid_key(self):
         arglist = [
             '--image',
-            'image1',
+            self.image.id,
             '--flavor',
             self.flavor.id,
             '--ephemeral',
             'size=1024,foo=bar',
-            self.new_server.name,
+            self.server.name,
         ]
-        self.assertRaises(
+        exc = self.assertRaises(
             test_utils.ParserException,
             self.check_parser,
             self.cmd,
             arglist,
             [],
         )
+        self.assertIn('Argument parse failed', str(exc))
+        self.compute_sdk_client.create_server.assert_not_called()
 
     def test_server_create_invalid_hint(self):
         # Not a key-value pair
         arglist = [
             '--image',
-            'image1',
+            self.image.id,
             '--flavor',
-            'flavor1',
+            self.flavor.id,
             '--hint',
             'a0cf03a5-d921-4877-bb5c-86d26cf818e1',
-            self.new_server.name,
+            self.server.name,
         ]
-        self.assertRaises(
+        exc = self.assertRaises(
             test_utils.ParserException,
             self.check_parser,
             self.cmd,
             arglist,
             [],
         )
+        self.assertIn('Argument parse failed', str(exc))
+        self.compute_sdk_client.create_server.assert_not_called()
 
         # Empty key
         arglist = [
             '--image',
-            'image1',
+            self.image.id,
             '--flavor',
-            'flavor1',
+            self.flavor.id,
             '--hint',
             '=a0cf03a5-d921-4877-bb5c-86d26cf818e1',
-            self.new_server.name,
+            self.server.name,
         ]
-        self.assertRaises(
+        exc = self.assertRaises(
             test_utils.ParserException,
             self.check_parser,
             self.cmd,
             arglist,
             [],
         )
+        self.assertIn('Argument parse failed', str(exc))
+        self.compute_sdk_client.create_server.assert_not_called()
 
     def test_server_create_with_description(self):
         # Description is supported for nova api version 2.19 or above
@@ -3918,51 +3835,45 @@ class TestServerCreate(TestServer):
 
         arglist = [
             '--image',
-            'image1',
+            self.image.id,
             '--flavor',
-            'flavor1',
+            self.flavor.id,
             '--description',
             'description1',
-            self.new_server.name,
+            self.server.name,
         ]
         verifylist = [
-            ('image', 'image1'),
-            ('flavor', 'flavor1'),
+            ('image', self.image.id),
+            ('flavor', self.flavor.id),
             ('description', 'description1'),
             ('config_drive', False),
-            ('server_name', self.new_server.name),
+            ('server_name', self.server.name),
         ]
-        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
         columns, data = self.cmd.take_action(parsed_args)
 
-        # Set expected values
-        kwargs = dict(
-            meta=None,
-            files={},
-            reservation_id=None,
+        self.compute_sdk_client.create_server.assert_called_once_with(
+            name=self.server.name,
+            image_id=self.image.id,
+            flavor_id=self.flavor.id,
             min_count=1,
             max_count=1,
-            security_groups=[],
-            userdata=None,
-            key_name=None,
-            availability_zone=None,
-            admin_pass=None,
-            block_device_mapping_v2=[],
-            nics=[],
-            scheduler_hints={},
-            config_drive=None,
+            networks=[],
             description='description1',
-        )
-        # ServerManager.create(name, image, flavor, **kwargs)
-        self.servers_mock.create.assert_called_with(
-            self.new_server.name, self.image, self.flavor, **kwargs
+            block_device_mapping=[
+                {
+                    'uuid': self.image.id,
+                    'boot_index': 0,
+                    'source_type': 'image',
+                    'destination_type': 'local',
+                    'delete_on_termination': True,
+                },
+            ],
         )
 
         self.assertEqual(self.columns, columns)
         self.assertEqual(self.datalist(), data)
-        self.assertFalse(self.image_client.images.called)
-        self.assertFalse(self.flavors_mock.called)
 
     def test_server_create_with_description_pre_v219(self):
         # Description is not supported for nova api version below 2.19
@@ -3970,160 +3881,149 @@ class TestServerCreate(TestServer):
 
         arglist = [
             '--image',
-            'image1',
+            self.image.id,
             '--flavor',
-            'flavor1',
+            self.flavor.id,
             '--description',
             'description1',
-            self.new_server.name,
+            self.server.name,
         ]
         verifylist = [
-            ('image', 'image1'),
-            ('flavor', 'flavor1'),
+            ('image', self.image.id),
+            ('flavor', self.flavor.id),
             ('description', 'description1'),
             ('config_drive', False),
-            ('server_name', self.new_server.name),
+            ('server_name', self.server.name),
         ]
-        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
         self.assertRaises(
             exceptions.CommandError, self.cmd.take_action, parsed_args
         )
+        self.compute_sdk_client.create_server.assert_not_called()
 
     def test_server_create_with_tag(self):
         self.set_compute_api_version('2.52')
 
         arglist = [
             '--image',
-            'image1',
+            self.image.id,
             '--flavor',
-            'flavor1',
+            self.flavor.id,
             '--tag',
             'tag1',
             '--tag',
             'tag2',
-            self.new_server.name,
+            self.server.name,
         ]
         verifylist = [
-            ('image', 'image1'),
-            ('flavor', 'flavor1'),
+            ('image', self.image.id),
+            ('flavor', self.flavor.id),
             ('tags', ['tag1', 'tag2']),
             ('config_drive', False),
-            ('server_name', self.new_server.name),
+            ('server_name', self.server.name),
         ]
-        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
         columns, data = self.cmd.take_action(parsed_args)
 
-        # Set expected values
-        kwargs = {
-            'meta': None,
-            'files': {},
-            'reservation_id': None,
-            'min_count': 1,
-            'max_count': 1,
-            'security_groups': [],
-            'userdata': None,
-            'key_name': None,
-            'availability_zone': None,
-            'block_device_mapping_v2': [],
-            'admin_pass': None,
-            'nics': 'auto',
-            'scheduler_hints': {},
-            'config_drive': None,
-            'tags': ['tag1', 'tag2'],
-        }
-        # ServerManager.create(name, image, flavor, **kwargs)
-        self.servers_mock.create.assert_called_with(
-            self.new_server.name, self.image, self.flavor, **kwargs
+        self.compute_sdk_client.create_server.assert_called_once_with(
+            name=self.server.name,
+            image_id=self.image.id,
+            flavor_id=self.flavor.id,
+            min_count=1,
+            max_count=1,
+            networks='auto',
+            tags=['tag1', 'tag2'],
+            block_device_mapping=[
+                {
+                    'uuid': self.image.id,
+                    'boot_index': 0,
+                    'source_type': 'image',
+                    'destination_type': 'local',
+                    'delete_on_termination': True,
+                },
+            ],
         )
 
         self.assertEqual(self.columns, columns)
         self.assertEqual(self.datalist(), data)
-        self.assertFalse(self.image_client.images.called)
-        self.assertFalse(self.flavors_mock.called)
 
     def test_server_create_with_tag_pre_v252(self):
         self.set_compute_api_version('2.51')
 
         arglist = [
             '--image',
-            'image1',
+            self.image.id,
             '--flavor',
-            'flavor1',
+            self.flavor.id,
             '--tag',
             'tag1',
             '--tag',
             'tag2',
-            self.new_server.name,
+            self.server.name,
         ]
         verifylist = [
-            ('image', 'image1'),
-            ('flavor', 'flavor1'),
+            ('image', self.image.id),
+            ('flavor', self.flavor.id),
             ('tags', ['tag1', 'tag2']),
             ('config_drive', False),
-            ('server_name', self.new_server.name),
+            ('server_name', self.server.name),
         ]
-        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
-        ex = self.assertRaises(
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+        exc = self.assertRaises(
             exceptions.CommandError, self.cmd.take_action, parsed_args
         )
         self.assertIn(
-            '--os-compute-api-version 2.52 or greater is required', str(ex)
+            '--os-compute-api-version 2.52 or greater is required', str(exc)
         )
+        self.compute_sdk_client.create_server.assert_not_called()
 
-    def test_server_create_with_host_v274(self):
+    def test_server_create_with_host(self):
         # Explicit host is supported for nova api version 2.74 or above
         self.set_compute_api_version('2.74')
 
         arglist = [
             '--image',
-            'image1',
+            self.image.id,
             '--flavor',
-            'flavor1',
+            self.flavor.id,
             '--host',
             'host1',
-            self.new_server.name,
+            self.server.name,
         ]
         verifylist = [
-            ('image', 'image1'),
-            ('flavor', 'flavor1'),
+            ('image', self.image.id),
+            ('flavor', self.flavor.id),
             ('host', 'host1'),
             ('config_drive', False),
-            ('server_name', self.new_server.name),
+            ('server_name', self.server.name),
         ]
-        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
         columns, data = self.cmd.take_action(parsed_args)
 
-        # Set expected values
-        kwargs = dict(
-            meta=None,
-            files={},
-            reservation_id=None,
+        self.compute_sdk_client.create_server.assert_called_once_with(
+            name=self.server.name,
+            image_id=self.image.id,
+            flavor_id=self.flavor.id,
             min_count=1,
             max_count=1,
-            security_groups=[],
-            userdata=None,
-            key_name=None,
-            availability_zone=None,
-            admin_pass=None,
-            block_device_mapping_v2=[],
-            nics='auto',
-            scheduler_hints={},
-            config_drive=None,
+            networks='auto',
             host='host1',
+            block_device_mapping=[
+                {
+                    'uuid': self.image.id,
+                    'boot_index': 0,
+                    'source_type': 'image',
+                    'destination_type': 'local',
+                    'delete_on_termination': True,
+                },
+            ],
         )
-        # ServerManager.create(name, image, flavor, **kwargs)
-        self.servers_mock.create.assert_called_with(
-            self.new_server.name, self.image, self.flavor, **kwargs
-        )
-
         self.assertEqual(self.columns, columns)
         self.assertEqual(self.datalist(), data)
-        self.assertFalse(self.image_client.images.called)
-        self.assertFalse(self.flavors_mock.called)
 
     def test_server_create_with_host_pre_v274(self):
         # Host is not supported for nova api version below 2.74
@@ -4131,78 +4031,75 @@ class TestServerCreate(TestServer):
 
         arglist = [
             '--image',
-            'image1',
+            self.image.id,
             '--flavor',
-            'flavor1',
+            self.flavor.id,
             '--host',
             'host1',
-            self.new_server.name,
+            self.server.name,
         ]
         verifylist = [
-            ('image', 'image1'),
-            ('flavor', 'flavor1'),
+            ('image', self.image.id),
+            ('flavor', self.flavor.id),
             ('host', 'host1'),
             ('config_drive', False),
-            ('server_name', self.new_server.name),
+            ('server_name', self.server.name),
         ]
-        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
-        self.assertRaises(
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+        exc = self.assertRaises(
             exceptions.CommandError, self.cmd.take_action, parsed_args
         )
+        self.assertIn(
+            '--os-compute-api-version 2.74 or greater is required', str(exc)
+        )
+        self.compute_sdk_client.create_server.assert_not_called()
 
-    def test_server_create_with_hypervisor_hostname_v274(self):
+    def test_server_create_with_hypervisor_hostname(self):
         # Explicit hypervisor_hostname is supported for nova api version
         # 2.74 or above
         self.set_compute_api_version('2.74')
 
         arglist = [
             '--image',
-            'image1',
+            self.image.id,
             '--flavor',
-            'flavor1',
+            self.flavor.id,
             '--hypervisor-hostname',
             'node1',
-            self.new_server.name,
+            self.server.name,
         ]
         verifylist = [
-            ('image', 'image1'),
-            ('flavor', 'flavor1'),
+            ('image', self.image.id),
+            ('flavor', self.flavor.id),
             ('hypervisor_hostname', 'node1'),
             ('config_drive', False),
-            ('server_name', self.new_server.name),
+            ('server_name', self.server.name),
         ]
-        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
         columns, data = self.cmd.take_action(parsed_args)
 
-        # Set expected values
-        kwargs = dict(
-            meta=None,
-            files={},
-            reservation_id=None,
+        self.compute_sdk_client.create_server.assert_called_once_with(
+            name=self.server.name,
+            image_id=self.image.id,
+            flavor_id=self.flavor.id,
             min_count=1,
             max_count=1,
-            security_groups=[],
-            userdata=None,
-            key_name=None,
-            availability_zone=None,
-            admin_pass=None,
-            block_device_mapping_v2=[],
-            nics='auto',
-            scheduler_hints={},
-            config_drive=None,
+            networks='auto',
             hypervisor_hostname='node1',
+            block_device_mapping=[
+                {
+                    'uuid': self.image.id,
+                    'boot_index': 0,
+                    'source_type': 'image',
+                    'destination_type': 'local',
+                    'delete_on_termination': True,
+                },
+            ],
         )
-        # ServerManager.create(name, image, flavor, **kwargs)
-        self.servers_mock.create.assert_called_with(
-            self.new_server.name, self.image, self.flavor, **kwargs
-        )
-
         self.assertEqual(self.columns, columns)
         self.assertEqual(self.datalist(), data)
-        self.assertFalse(self.image_client.images.called)
-        self.assertFalse(self.flavors_mock.called)
 
     def test_server_create_with_hypervisor_hostname_pre_v274(self):
         # Hypervisor_hostname is not supported for nova api version below 2.74
@@ -4210,315 +4107,281 @@ class TestServerCreate(TestServer):
 
         arglist = [
             '--image',
-            'image1',
+            self.image.id,
             '--flavor',
-            'flavor1',
+            self.flavor.id,
             '--hypervisor-hostname',
             'node1',
-            self.new_server.name,
+            self.server.name,
         ]
         verifylist = [
-            ('image', 'image1'),
-            ('flavor', 'flavor1'),
+            ('image', self.image.id),
+            ('flavor', self.flavor.id),
             ('hypervisor_hostname', 'node1'),
             ('config_drive', False),
-            ('server_name', self.new_server.name),
+            ('server_name', self.server.name),
         ]
-        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
-        self.assertRaises(
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+        exc = self.assertRaises(
             exceptions.CommandError, self.cmd.take_action, parsed_args
         )
-
-    def test_server_create_with_host_and_hypervisor_hostname_v274(self):
-        # Explicit host and hypervisor_hostname is supported for nova api
-        # version 2.74 or above
-        self.set_compute_api_version('2.74')
-
-        arglist = [
-            '--image',
-            'image1',
-            '--flavor',
-            'flavor1',
-            '--host',
-            'host1',
-            '--hypervisor-hostname',
-            'node1',
-            self.new_server.name,
-        ]
-        verifylist = [
-            ('image', 'image1'),
-            ('flavor', 'flavor1'),
-            ('host', 'host1'),
-            ('hypervisor_hostname', 'node1'),
-            ('config_drive', False),
-            ('server_name', self.new_server.name),
-        ]
-        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
-
-        columns, data = self.cmd.take_action(parsed_args)
-
-        # Set expected values
-        kwargs = dict(
-            meta=None,
-            files={},
-            reservation_id=None,
-            min_count=1,
-            max_count=1,
-            security_groups=[],
-            userdata=None,
-            key_name=None,
-            availability_zone=None,
-            admin_pass=None,
-            block_device_mapping_v2=[],
-            nics='auto',
-            scheduler_hints={},
-            config_drive=None,
-            host='host1',
-            hypervisor_hostname='node1',
+        self.assertIn(
+            '--os-compute-api-version 2.74 or greater is required', str(exc)
         )
-        # ServerManager.create(name, image, flavor, **kwargs)
-        self.servers_mock.create.assert_called_with(
-            self.new_server.name, self.image, self.flavor, **kwargs
-        )
+        self.compute_sdk_client.create_server.assert_not_called()
 
-        self.assertEqual(self.columns, columns)
-        self.assertEqual(self.datalist(), data)
-        self.assertFalse(self.image_client.images.called)
-        self.assertFalse(self.flavors_mock.called)
-
-    def test_server_create_with_hostname_v290(self):
+    def test_server_create_with_hostname(self):
         self.set_compute_api_version('2.90')
 
         arglist = [
             '--image',
-            'image1',
+            self.image.id,
             '--flavor',
-            'flavor1',
+            self.flavor.id,
             '--hostname',
             'hostname',
-            self.new_server.name,
+            self.server.name,
         ]
         verifylist = [
-            ('image', 'image1'),
-            ('flavor', 'flavor1'),
+            ('image', self.image.id),
+            ('flavor', self.flavor.id),
             ('hostname', 'hostname'),
             ('config_drive', False),
-            ('server_name', self.new_server.name),
+            ('server_name', self.server.name),
         ]
+
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
         columns, data = self.cmd.take_action(parsed_args)
 
-        # ServerManager.create(name, image, flavor, **kwargs)
-        self.servers_mock.create.assert_called_with(
-            self.new_server.name,
-            self.image,
-            self.flavor,
-            meta=None,
-            files={},
-            reservation_id=None,
+        self.compute_sdk_client.create_server.assert_called_once_with(
+            name=self.server.name,
+            image_id=self.image.id,
+            flavor_id=self.flavor.id,
             min_count=1,
             max_count=1,
-            security_groups=[],
-            userdata=None,
-            key_name=None,
-            availability_zone=None,
-            admin_pass=None,
-            block_device_mapping_v2=[],
-            nics='auto',
-            scheduler_hints={},
-            config_drive=None,
+            networks='auto',
             hostname='hostname',
+            block_device_mapping=[
+                {
+                    'uuid': self.image.id,
+                    'boot_index': 0,
+                    'source_type': 'image',
+                    'destination_type': 'local',
+                    'delete_on_termination': True,
+                },
+            ],
         )
-
         self.assertEqual(self.columns, columns)
         self.assertEqual(self.datalist(), data)
-        self.assertFalse(self.image_client.images.called)
-        self.assertFalse(self.flavors_mock.called)
 
     def test_server_create_with_hostname_pre_v290(self):
         self.set_compute_api_version('2.89')
 
         arglist = [
             '--image',
-            'image1',
+            self.image.id,
             '--flavor',
-            'flavor1',
+            self.flavor.id,
             '--hostname',
             'hostname',
-            self.new_server.name,
+            self.server.name,
         ]
         verifylist = [
-            ('image', 'image1'),
-            ('flavor', 'flavor1'),
+            ('image', self.image.id),
+            ('flavor', self.flavor.id),
             ('hostname', 'hostname'),
             ('config_drive', False),
-            ('server_name', self.new_server.name),
+            ('server_name', self.server.name),
         ]
-        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
-        self.assertRaises(
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+        exc = self.assertRaises(
             exceptions.CommandError, self.cmd.take_action, parsed_args
         )
+        self.assertIn(
+            '--os-compute-api-version 2.90 or greater is required', str(exc)
+        )
+        self.compute_sdk_client.create_server.assert_not_called()
 
     def test_server_create_with_trusted_image_cert(self):
         self.set_compute_api_version('2.63')
 
         arglist = [
             '--image',
-            'image1',
+            self.image.id,
             '--flavor',
-            'flavor1',
+            self.flavor.id,
             '--trusted-image-cert',
             'foo',
             '--trusted-image-cert',
             'bar',
-            self.new_server.name,
+            self.server.name,
         ]
         verifylist = [
-            ('image', 'image1'),
-            ('flavor', 'flavor1'),
+            ('image', self.image.id),
+            ('flavor', self.flavor.id),
             ('config_drive', False),
             ('trusted_image_certs', ['foo', 'bar']),
-            ('server_name', self.new_server.name),
+            ('server_name', self.server.name),
         ]
+
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
         columns, data = self.cmd.take_action(parsed_args)
 
-        # Set expected values
-        kwargs = dict(
-            meta=None,
-            files={},
-            reservation_id=None,
+        self.compute_sdk_client.create_server.assert_called_once_with(
+            name=self.server.name,
+            image_id=self.image.id,
+            flavor_id=self.flavor.id,
             min_count=1,
             max_count=1,
-            security_groups=[],
-            userdata=None,
-            key_name=None,
-            availability_zone=None,
-            admin_pass=None,
-            block_device_mapping_v2=[],
-            nics='auto',
-            scheduler_hints={},
-            config_drive=None,
+            networks='auto',
             trusted_image_certificates=['foo', 'bar'],
-        )
-        # ServerManager.create(name, image, flavor, **kwargs)
-        self.servers_mock.create.assert_called_with(
-            self.new_server.name, self.image, self.flavor, **kwargs
+            block_device_mapping=[
+                {
+                    'uuid': self.image.id,
+                    'boot_index': 0,
+                    'source_type': 'image',
+                    'destination_type': 'local',
+                    'delete_on_termination': True,
+                },
+            ],
         )
         self.assertEqual(self.columns, columns)
         self.assertEqual(self.datalist(), data)
-        self.assertFalse(self.image_client.images.called)
-        self.assertFalse(self.flavors_mock.called)
 
-    def test_server_create_with_trusted_image_cert_prev263(self):
+    def test_server_create_with_trusted_image_cert_pre_v263(self):
         self.set_compute_api_version('2.62')
 
         arglist = [
             '--image',
-            'image1',
+            self.image.id,
             '--flavor',
-            'flavor1',
+            self.flavor.id,
             '--trusted-image-cert',
             'foo',
             '--trusted-image-cert',
             'bar',
-            self.new_server.name,
+            self.server.name,
         ]
         verifylist = [
-            ('image', 'image1'),
-            ('flavor', 'flavor1'),
+            ('image', self.image.id),
+            ('flavor', self.flavor.id),
             ('config_drive', False),
             ('trusted_image_certs', ['foo', 'bar']),
-            ('server_name', self.new_server.name),
+            ('server_name', self.server.name),
         ]
-        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
-        self.assertRaises(
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+        exc = self.assertRaises(
             exceptions.CommandError, self.cmd.take_action, parsed_args
         )
+        self.assertIn(
+            '--os-compute-api-version 2.63 or greater is required', str(exc)
+        )
+        self.compute_sdk_client.create_server.assert_not_called()
 
     def test_server_create_with_trusted_image_cert_from_volume(self):
         self.set_compute_api_version('2.63')
+
         arglist = [
             '--volume',
             'volume1',
             '--flavor',
-            'flavor1',
+            self.flavor.id,
             '--trusted-image-cert',
             'foo',
             '--trusted-image-cert',
             'bar',
-            self.new_server.name,
+            self.server.name,
         ]
         verifylist = [
             ('volume', 'volume1'),
-            ('flavor', 'flavor1'),
+            ('flavor', self.flavor.id),
             ('config_drive', False),
             ('trusted_image_certs', ['foo', 'bar']),
-            ('server_name', self.new_server.name),
+            ('server_name', self.server.name),
         ]
-        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
-        self.assertRaises(
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+        exc = self.assertRaises(
             exceptions.CommandError, self.cmd.take_action, parsed_args
         )
+        self.assertIn(
+            '--trusted-image-cert option is only supported for servers booted '
+            'directly from images',
+            str(exc),
+        )
+        self.compute_sdk_client.create_server.assert_not_called()
 
     def test_server_create_with_trusted_image_cert_from_snapshot(self):
         self.set_compute_api_version('2.63')
+
         arglist = [
             '--snapshot',
             'snapshot1',
             '--flavor',
-            'flavor1',
+            self.flavor.id,
             '--trusted-image-cert',
             'foo',
             '--trusted-image-cert',
             'bar',
-            self.new_server.name,
+            self.server.name,
         ]
         verifylist = [
             ('snapshot', 'snapshot1'),
-            ('flavor', 'flavor1'),
+            ('flavor', self.flavor.id),
             ('config_drive', False),
             ('trusted_image_certs', ['foo', 'bar']),
-            ('server_name', self.new_server.name),
+            ('server_name', self.server.name),
         ]
-        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
-        self.assertRaises(
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+        exc = self.assertRaises(
             exceptions.CommandError, self.cmd.take_action, parsed_args
         )
+        self.assertIn(
+            '--trusted-image-cert option is only supported for servers booted '
+            'directly from images',
+            str(exc),
+        )
+        self.compute_sdk_client.create_server.assert_not_called()
 
     def test_server_create_with_trusted_image_cert_boot_from_volume(self):
         self.set_compute_api_version('2.63')
+
         arglist = [
             '--image',
-            'image1',
+            self.image.id,
             '--flavor',
-            'flavor1',
+            self.flavor.id,
             '--boot-from-volume',
             '1',
             '--trusted-image-cert',
             'foo',
             '--trusted-image-cert',
             'bar',
-            self.new_server.name,
+            self.server.name,
         ]
         verifylist = [
-            ('image', 'image1'),
-            ('flavor', 'flavor1'),
+            ('image', self.image.id),
+            ('flavor', self.flavor.id),
             ('boot_from_volume', 1),
             ('config_drive', False),
             ('trusted_image_certs', ['foo', 'bar']),
-            ('server_name', self.new_server.name),
+            ('server_name', self.server.name),
         ]
-        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
-        self.assertRaises(
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+        exc = self.assertRaises(
             exceptions.CommandError, self.cmd.take_action, parsed_args
         )
+        self.assertIn(
+            '--trusted-image-cert option is only supported for servers booted '
+            'directly from images',
+            str(exc),
+        )
+        self.compute_sdk_client.create_server.assert_not_called()
 
 
 class TestServerDelete(compute_fakes.TestComputev2):
@@ -8983,7 +8846,7 @@ class TestServerStop(TestServer):
         self.run_method_with_sdk_servers('stop_server', 3)
 
     def test_server_start_with_all_projects(self):
-        servers = self.setup_servers_mock(count=1)
+        servers = self.setup_sdk_servers_mock(count=1)
 
         arglist = [
             servers[0].id,
@@ -9586,7 +9449,7 @@ class TestServerGeneral(TestServer):
             'OS-SRV-USG:terminated_at': None,
             'accessIPv4': None,
             'accessIPv6': None,
-            'addresses': format_columns.DictListColumn(_server.addresses),
+            'addresses': server.AddressesColumn(_server.addresses),
             'config_drive': None,
             'created': None,
             'description': None,
@@ -9673,7 +9536,7 @@ class TestServerGeneral(TestServer):
             'OS-SRV-USG:terminated_at': None,
             'accessIPv4': None,
             'accessIPv6': None,
-            'addresses': format_columns.DictListColumn(_server.addresses),
+            'addresses': server.AddressesColumn(_server.addresses),
             'config_drive': None,
             'created': None,
             'description': None,

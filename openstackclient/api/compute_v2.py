@@ -621,3 +621,40 @@ def find_security_group(compute_client, name_or_id):
         raise exceptions.NotFound(f'{name_or_id} not found')
 
     return found
+
+
+def find_network(compute_client, name_or_id):
+    """Find the ID for a given network name or ID
+
+    https://docs.openstack.org/api-ref/compute/#show-network-details
+
+    :param compute_client: A compute client
+    :param name_or_id: The name or ID of the network to look up
+    :returns: A network object
+    :raises exception.NotFound: If a matching network could not be found or
+        more than one match was found
+    """
+    response = compute_client.get(
+        f'/os-networks/{name_or_id}', microversion='2.1'
+    )
+    if response.status_code != http.HTTPStatus.NOT_FOUND:
+        # there might be other, non-404 errors
+        sdk_exceptions.raise_from_response(response)
+        return response.json()['network']
+
+    response = compute_client.get('/os-networks', microversion='2.1')
+    sdk_exceptions.raise_from_response(response)
+    found = None
+    networks = response.json()['networks']
+    for network in networks:
+        if network['label'] == name_or_id:
+            if found:
+                raise exceptions.NotFound(
+                    f'multiple matches found for {name_or_id}'
+                )
+            found = network
+
+    if not found:
+        raise exceptions.NotFound(f'{name_or_id} not found')
+
+    return found
