@@ -931,10 +931,17 @@ class NICAction(argparse.Action):
 
         if info['net-id'] and info['port-id']:
             msg = _(
-                'Invalid argument %s; either network or port should be '
-                'specified but not both'
+                "Invalid argument %s; either 'network' or 'port' should be "
+                "specified but not both"
             )
-            raise argparse.ArgumenteError(self, msg % values)
+            raise argparse.ArgumentError(self, msg % values)
+
+        if info['v4-fixed-ip'] and info['v6-fixed-ip']:
+            msg = _(
+                "Invalid argument %s; either 'v4-fixed-ip' or 'v6-fixed-ip' "
+                "should be specified but not both"
+            )
+            raise argparse.ArgumentError(self, msg % values)
 
         getattr(namespace, self.dest).append(info)
 
