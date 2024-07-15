@@ -18,7 +18,6 @@ import getpass
 import json
 import tempfile
 from unittest import mock
-from unittest.mock import call
 
 import iso8601
 from openstack import exceptions as sdk_exceptions
@@ -26,6 +25,7 @@ from osc_lib.cli import format_columns
 from osc_lib import exceptions
 from osc_lib import utils as common_utils
 
+from openstackclient.api import compute_v2
 from openstackclient.compute.v2 import server
 from openstackclient.tests.unit.compute.v2 import fakes as compute_fakes
 from openstackclient.tests.unit.image.v2 import fakes as image_fakes
@@ -148,7 +148,7 @@ class TestServer(compute_fakes.TestComputev2):
 
         result = self.cmd.take_action(parsed_args)
 
-        calls = [call(s.id) for s in servers]
+        calls = [mock.call(s.id) for s in servers]
         method = getattr(self.compute_sdk_client, method_name)
         method.assert_has_calls(calls)
         self.assertIsNone(result)
@@ -1221,42 +1221,65 @@ class TestServerAddNetwork(TestServer):
         )
 
 
-@mock.patch('openstackclient.api.compute_v2.APIv2.security_group_find')
-class TestServerAddSecurityGroup(TestServer):
+class TestServerAddSecurityGroup(compute_fakes.TestComputev2):
     def setUp(self):
         super().setUp()
 
-        self.security_group = compute_fakes.create_one_security_group()
-
-        attrs = {'security_groups': [{'name': self.security_group['id']}]}
-        methods = {
-            'add_security_group': None,
-        }
-
-        self.server = compute_fakes.create_one_server(
-            attrs=attrs, methods=methods
+        self.server = compute_fakes.create_one_sdk_server()
+        self.compute_sdk_client.find_server.return_value = self.server
+        self.compute_sdk_client.add_security_group_to_server.return_value = (
+            None
         )
-        # This is the return value for utils.find_resource() for server
-        self.servers_mock.get.return_value = self.server
 
         # Get the command object to test
         self.cmd = server.AddServerSecurityGroup(self.app, None)
 
-    def test_server_add_security_group(self, sg_find_mock):
-        sg_find_mock.return_value = self.security_group
-        arglist = [self.server.id, self.security_group['id']]
+    def test_server_add_security_group__nova_network(self):
+        arglist = [self.server.id, 'fake_sg']
         verifylist = [
             ('server', self.server.id),
-            ('group', self.security_group['id']),
+            ('group', 'fake_sg'),
         ]
+
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+        with mock.patch.object(
+            self.app.client_manager,
+            'is_network_endpoint_enabled',
+            return_value=False,
+        ):
+            with mock.patch.object(
+                compute_v2,
+                'find_security_group',
+                return_value={'name': 'fake_sg'},
+            ) as mock_find_nova_net_sg:
+                result = self.cmd.take_action(parsed_args)
+
+        self.compute_sdk_client.find_server.assert_called_once_with(
+            self.server.id, ignore_missing=False
+        )
+        self.compute_sdk_client.add_security_group_to_server.assert_called_once_with(
+            self.server, 'fake_sg'
+        )
+        mock_find_nova_net_sg.assert_called_once_with(
+            self.compute_sdk_client, 'fake_sg'
+        )
+        self.assertIsNone(result)
+
+    def test_server_add_security_group(self):
+        arglist = [self.server.id, 'fake_sg']
+        verifylist = [
+            ('server', self.server.id),
+            ('group', 'fake_sg'),
+        ]
+
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
         result = self.cmd.take_action(parsed_args)
-        sg_find_mock.assert_called_with(
-            self.security_group['id'],
+
+        self.compute_sdk_client.find_server.assert_called_once_with(
+            self.server.id, ignore_missing=False
         )
-        self.servers_mock.get.assert_called_with(self.server.id)
-        self.server.add_security_group.assert_called_with(
-            self.security_group['id'],
+        self.compute_sdk_client.add_security_group_to_server.assert_called_once_with(
+            self.server, 'fake_sg'
         )
         self.assertIsNone(result)
 
@@ -4452,7 +4475,7 @@ class TestServerDelete(TestServer):
 
         calls = []
         for s in servers:
-            calls.append(call(s.id))
+            calls.append(mock.call(s.id))
         self.servers_mock.delete.assert_has_calls(calls)
         self.assertIsNone(result)
 
@@ -7260,42 +7283,65 @@ class TestServerRemoveNetwork(TestServer):
         self.find_network.assert_not_called()
 
 
-@mock.patch('openstackclient.api.compute_v2.APIv2.security_group_find')
 class TestServerRemoveSecurityGroup(TestServer):
     def setUp(self):
         super().setUp()
 
-        self.security_group = compute_fakes.create_one_security_group()
-
-        attrs = {'security_groups': [{'name': self.security_group['id']}]}
-        methods = {
-            'remove_security_group': None,
-        }
-
-        self.server = compute_fakes.create_one_server(
-            attrs=attrs, methods=methods
+        self.server = compute_fakes.create_one_sdk_server()
+        self.compute_sdk_client.find_server.return_value = self.server
+        self.compute_sdk_client.remove_security_group_from_server.return_value = (
+            None
         )
-        # This is the return value for utils.find_resource() for server
-        self.servers_mock.get.return_value = self.server
 
         # Get the command object to test
         self.cmd = server.RemoveServerSecurityGroup(self.app, None)
 
-    def test_server_remove_security_group(self, sg_find_mock):
-        sg_find_mock.return_value = self.security_group
-        arglist = [self.server.id, self.security_group['id']]
+    def test_server_remove_security_group__nova_network(self):
+        arglist = [self.server.id, 'fake_sg']
         verifylist = [
             ('server', self.server.id),
-            ('group', self.security_group['id']),
+            ('group', 'fake_sg'),
         ]
+
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+        with mock.patch.object(
+            self.app.client_manager,
+            'is_network_endpoint_enabled',
+            return_value=False,
+        ):
+            with mock.patch.object(
+                compute_v2,
+                'find_security_group',
+                return_value={'name': 'fake_sg'},
+            ) as mock_find_nova_net_sg:
+                result = self.cmd.take_action(parsed_args)
+
+        self.compute_sdk_client.find_server.assert_called_once_with(
+            self.server.id, ignore_missing=False
+        )
+        self.compute_sdk_client.remove_security_group_from_server.assert_called_once_with(
+            self.server, 'fake_sg'
+        )
+        mock_find_nova_net_sg.assert_called_once_with(
+            self.compute_sdk_client, 'fake_sg'
+        )
+        self.assertIsNone(result)
+
+    def test_server_remove_security_group(self):
+        arglist = [self.server.id, 'fake_sg']
+        verifylist = [
+            ('server', self.server.id),
+            ('group', 'fake_sg'),
+        ]
+
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
         result = self.cmd.take_action(parsed_args)
-        sg_find_mock.assert_called_with(
-            self.security_group['id'],
+
+        self.compute_sdk_client.find_server.assert_called_once_with(
+            self.server.id, ignore_missing=False
         )
-        self.servers_mock.get.assert_called_with(self.server.id)
-        self.server.remove_security_group.assert_called_with(
-            self.security_group['id'],
+        self.compute_sdk_client.remove_security_group_from_server.assert_called_once_with(
+            self.server, 'fake_sg'
         )
         self.assertIsNone(result)
 

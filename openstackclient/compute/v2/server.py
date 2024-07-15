@@ -32,6 +32,7 @@ from osc_lib.command import command
 from osc_lib import exceptions
 from osc_lib import utils
 
+from openstackclient.api import compute_v2
 from openstackclient.common import pagination
 from openstackclient.i18n import _
 from openstackclient.identity import common as identity_common
@@ -677,17 +678,21 @@ class AddServerSecurityGroup(command.Command):
         return parser
 
     def take_action(self, parsed_args):
-        compute_client = self.app.client_manager.compute
+        compute_client = self.app.client_manager.sdk_connection.compute
 
-        server = utils.find_resource(
-            compute_client.servers,
-            parsed_args.server,
+        server = compute_client.find_server(
+            parsed_args.server, ignore_missing=False
         )
-        security_group = compute_client.api.security_group_find(
-            parsed_args.group,
-        )
-
-        server.add_security_group(security_group['id'])
+        if self.app.client_manager.is_network_endpoint_enabled():
+            # the server handles both names and IDs for neutron SGs, so just
+            # pass things through
+            security_group = parsed_args.group
+        else:
+            # however, if using nova-network then it needs a name, not an ID
+            security_group = compute_v2.find_security_group(
+                compute_client, parsed_args.group
+            )['name']
+        compute_client.add_security_group_to_server(server, security_group)
 
 
 class AddServerVolume(command.ShowOne):
@@ -3960,27 +3965,33 @@ class RemoveServerSecurityGroup(command.Command):
         parser.add_argument(
             'server',
             metavar='<server>',
-            help=_('Name or ID of server to use'),
+            help=_('Server (name or ID)'),
         )
         parser.add_argument(
             'group',
             metavar='<group>',
-            help=_('Name or ID of security group to remove from server'),
+            help=_('Security group to remove (name or ID)'),
         )
         return parser
 
     def take_action(self, parsed_args):
-        compute_client = self.app.client_manager.compute
+        compute_client = self.app.client_manager.sdk_connection.compute
 
-        server = utils.find_resource(
-            compute_client.servers,
-            parsed_args.server,
+        server = compute_client.find_server(
+            parsed_args.server, ignore_missing=False
         )
-        security_group = compute_client.api.security_group_find(
-            parsed_args.group,
+        if self.app.client_manager.is_network_endpoint_enabled():
+            # the server handles both names and IDs for neutron SGs, so just
+            # pass things through
+            security_group = parsed_args.group
+        else:
+            # however, if using nova-network then it needs a name, not an ID
+            security_group = compute_v2.find_security_group(
+                compute_client, parsed_args.group
+            )['name']
+        compute_client.remove_security_group_from_server(
+            server, security_group
         )
-
-        server.remove_security_group(security_group['id'])
 
 
 class RemoveServerVolume(command.Command):
