@@ -17,8 +17,9 @@ import io
 import tempfile
 from unittest import mock
 
-from cinderclient import api_versions
+from openstack.block_storage.v2 import volume as _volume
 from openstack import exceptions as sdk_exceptions
+from openstack.test import fakes as sdk_fakes
 from osc_lib.cli import format_columns
 from osc_lib import exceptions
 
@@ -37,12 +38,6 @@ class TestImage(image_fakes.TestImagev2, volume_fakes.TestVolume):
         self.project_mock.reset_mock()
         self.domain_mock = self.identity_client.domains
         self.domain_mock.reset_mock()
-        self.volumes_mock = self.volume_client.volumes
-        fake_body = {
-            'os-volume_upload_image': {'volume_type': {'name': 'fake_type'}}
-        }
-        self.volumes_mock.upload_to_image.return_value = (200, fake_body)
-        self.volumes_mock.reset_mock()
 
 
 class TestImageCreate(TestImage):
@@ -312,7 +307,6 @@ class TestImageCreate(TestImage):
 
         columns, data = self.cmd.take_action(parsed_args)
 
-        # ImageManager.create(name=, **)
         self.image_client.create_image.assert_called_with(
             name=self.new_image.name,
             allow_duplicates=True,
@@ -322,20 +316,19 @@ class TestImageCreate(TestImage):
         )
         self.image_client.get_image.assert_called_once_with(self.new_image)
 
-    @mock.patch('osc_lib.utils.find_resource')
     @mock.patch('openstackclient.image.v2.image.get_data_from_stdin')
-    def test_image_create_from_volume(self, mock_get_data_f, mock_get_vol):
-        fake_vol_id = 'fake-volume-id'
+    def test_image_create_from_volume(self, mock_get_data_f):
         mock_get_data_f.return_value = None
 
-        class FakeVolume:
-            id = fake_vol_id
-
-        mock_get_vol.return_value = FakeVolume()
+        volume = sdk_fakes.generate_fake_resource(_volume.Volume)
+        self.volume_sdk_client.find_volume.return_value = volume
+        self.volume_sdk_client.upload_volume_to_image.return_value = {
+            'volume_type': {'name': 'fake_type'}
+        }
 
         arglist = [
             '--volume',
-            fake_vol_id,
+            volume.id,
             self.new_image.name,
         ]
         verifylist = [
@@ -345,53 +338,60 @@ class TestImageCreate(TestImage):
 
         columns, data = self.cmd.take_action(parsed_args)
 
-        self.volumes_mock.upload_to_image.assert_called_with(
-            fake_vol_id,
-            False,
+        self.volume_sdk_client.upload_volume_to_image.assert_called_once_with(
+            volume.id,
             self.new_image.name,
-            'bare',
-            'raw',
+            force=False,
+            disk_format='raw',
+            container_format='bare',
             visibility=None,
             protected=None,
         )
 
-    @mock.patch('osc_lib.utils.find_resource')
     @mock.patch('openstackclient.image.v2.image.get_data_from_stdin')
-    def test_image_create_from_volume_fail(
-        self, mock_get_data_f, mock_get_vol
-    ):
-        fake_vol_id = 'fake-volume-id'
+    def test_image_create_from_volume_pre_v31(self, mock_get_data_f):
         mock_get_data_f.return_value = None
 
-        class FakeVolume:
-            id = fake_vol_id
+        volume = sdk_fakes.generate_fake_resource(_volume.Volume)
+        self.volume_sdk_client.find_volume.return_value = volume
+        self.volume_sdk_client.upload_volume_to_image.return_value = {
+            'volume_type': {'name': 'fake_type'}
+        }
 
-        mock_get_vol.return_value = FakeVolume()
-
-        arglist = ['--volume', fake_vol_id, self.new_image.name, '--public']
+        arglist = [
+            '--volume',
+            volume.id,
+            self.new_image.name,
+            '--public',
+        ]
         verifylist = [
             ('name', self.new_image.name),
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
-        self.assertRaises(
+        exc = self.assertRaises(
             exceptions.CommandError, self.cmd.take_action, parsed_args
         )
+        self.assertIn('--os-volume-api-version 3.1 or greater ', str(exc))
 
-    @mock.patch('osc_lib.utils.find_resource')
     @mock.patch('openstackclient.image.v2.image.get_data_from_stdin')
-    def test_image_create_from_volume_v31(self, mock_get_data_f, mock_get_vol):
-        self.volume_client.api_version = api_versions.APIVersion('3.1')
+    def test_image_create_from_volume_v31(self, mock_get_data_f):
+        self.set_volume_api_version('3.1')
 
-        fake_vol_id = 'fake-volume-id'
         mock_get_data_f.return_value = None
 
-        class FakeVolume:
-            id = fake_vol_id
+        volume = sdk_fakes.generate_fake_resource(_volume.Volume)
+        self.volume_sdk_client.find_volume.return_value = volume
+        self.volume_sdk_client.upload_volume_to_image.return_value = {
+            'volume_type': {'name': 'fake_type'}
+        }
 
-        mock_get_vol.return_value = FakeVolume()
-
-        arglist = ['--volume', fake_vol_id, self.new_image.name, '--public']
+        arglist = [
+            '--volume',
+            volume.id,
+            self.new_image.name,
+            '--public',
+        ]
         verifylist = [
             ('name', self.new_image.name),
         ]
@@ -399,12 +399,12 @@ class TestImageCreate(TestImage):
 
         columns, data = self.cmd.take_action(parsed_args)
 
-        self.volumes_mock.upload_to_image.assert_called_with(
-            fake_vol_id,
-            False,
+        self.volume_sdk_client.upload_volume_to_image.assert_called_once_with(
+            volume.id,
             self.new_image.name,
-            'bare',
-            'raw',
+            force=False,
+            disk_format='raw',
+            container_format='bare',
             visibility='public',
             protected=False,
         )

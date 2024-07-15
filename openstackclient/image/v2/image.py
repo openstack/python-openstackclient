@@ -17,14 +17,15 @@
 
 import argparse
 from base64 import b64encode
+import copy
 import logging
 import os
 import sys
 import typing as ty
 
-from cinderclient import api_versions
 from openstack import exceptions as sdk_exceptions
 from openstack.image import image_signer
+from openstack import utils as sdk_utils
 from osc_lib.api import utils as api_utils
 from osc_lib.cli import format_columns
 from osc_lib.cli import parseractions
@@ -576,7 +577,7 @@ class CreateImage(command.ShowOne):
         return _format_image(image)
 
     def _take_action_volume(self, parsed_args):
-        volume_client = self.app.client_manager.volume
+        volume_client = self.app.client_manager.sdk_connection.volume
 
         unsupported_opts = {
             # 'name',  # 'name' is a positional argument and will always exist
@@ -607,15 +608,14 @@ class CreateImage(command.ShowOne):
                 # version
                 LOG.warning(msg % opt_name)
 
-        source_volume = utils.find_resource(
-            volume_client.volumes,
-            parsed_args.volume,
+        source_volume = volume_client.find_volume(
+            parsed_args.volume, ignore_missing=False
         )
         kwargs: dict[str, ty.Any] = {
             'visibility': None,
             'protected': None,
         }
-        if volume_client.api_version < api_versions.APIVersion('3.1'):
+        if not sdk_utils.supports_microversion(volume_client, '3.1'):
             if parsed_args.visibility or parsed_args.is_protected is not None:
                 msg = _(
                     '--os-volume-api-version 3.1 or greater is required '
@@ -627,15 +627,15 @@ class CreateImage(command.ShowOne):
             kwargs['visibility'] = parsed_args.visibility or 'private'
             kwargs['protected'] = parsed_args.is_protected or False
 
-        response, body = volume_client.volumes.upload_to_image(
+        response = volume_client.upload_volume_to_image(
             source_volume.id,
-            parsed_args.force,
             parsed_args.name,
-            parsed_args.container_format,
-            parsed_args.disk_format,
+            force=parsed_args.force,
+            disk_format=parsed_args.disk_format,
+            container_format=parsed_args.container_format,
             **kwargs,
         )
-        info = body['os-volume_upload_image']
+        info = copy.deepcopy(response)
         try:
             info['volume_type'] = info['volume_type']['name']
         except TypeError:
