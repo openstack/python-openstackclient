@@ -5452,9 +5452,6 @@ class TestServerListV273(_TestServerList):
                 {"href": "http://fake/v2.1/", "rel": "self"},
                 {"href": "http://fake", "rel": "bookmark"},
             ],
-            # We need to pass networks as {} because its defined as a property
-            # of the novaclient Server class which gives {} by default. If not
-            # it will fail at formatting the networks info later on.
             "networks": {},
         }
         fake_server = compute_fakes.fakes.FakeResource(

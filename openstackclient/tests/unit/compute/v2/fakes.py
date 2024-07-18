@@ -20,7 +20,6 @@ from unittest import mock
 import uuid
 
 from keystoneauth1 import discover
-from novaclient import api_versions
 from openstack.compute.v2 import _proxy
 from openstack.compute.v2 import aggregate as _aggregate
 from openstack.compute.v2 import availability_zone as _availability_zone
@@ -105,12 +104,6 @@ class FakeClientMixin:
     def setUp(self):
         super().setUp()
 
-        self.app.client_manager.compute = FakeComputev2Client(
-            endpoint=fakes.AUTH_URL,
-            token=fakes.AUTH_TOKEN,
-        )
-        self.compute_client = self.app.client_manager.compute
-
         # TODO(stephenfin): Rename to 'compute_client' once all commands are
         # migrated to SDK
         self.app.client_manager.sdk_connection.compute = mock.Mock(
@@ -129,8 +122,6 @@ class FakeClientMixin:
         :returns: None
         """
         assert re.match(r'2.\d+', version)
-
-        self.compute_client.api_version = api_versions.APIVersion(version)
 
         self.compute_sdk_client.default_microversion = version
         self.compute_sdk_client.get_endpoint_data.return_value = (
