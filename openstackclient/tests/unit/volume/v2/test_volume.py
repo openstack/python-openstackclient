@@ -188,7 +188,7 @@ class TestVolumeCreate(TestVolume):
             self.new_volume.name,
         ]
         verifylist = [
-            ('property', {'Alpha': 'a', 'Beta': 'b'}),
+            ('properties', {'Alpha': 'a', 'Beta': 'b'}),
             ('size', self.new_volume.size),
             ('name', self.new_volume.name),
         ]
@@ -382,9 +382,7 @@ class TestVolumeCreate(TestVolume):
         ]
         verifylist = [
             ('bootable', True),
-            ('non_bootable', False),
             ('read_only', True),
-            ('read_write', False),
             ('size', self.new_volume.size),
             ('name', self.new_volume.name),
         ]
@@ -427,9 +425,7 @@ class TestVolumeCreate(TestVolume):
         ]
         verifylist = [
             ('bootable', False),
-            ('non_bootable', True),
             ('read_only', False),
-            ('read_write', True),
             ('size', self.new_volume.size),
             ('name', self.new_volume.name),
         ]
@@ -481,9 +477,7 @@ class TestVolumeCreate(TestVolume):
         ]
         verifylist = [
             ('bootable', True),
-            ('non_bootable', False),
             ('read_only', True),
-            ('read_write', False),
             ('size', self.new_volume.size),
             ('name', self.new_volume.name),
         ]
@@ -532,9 +526,7 @@ class TestVolumeCreate(TestVolume):
         ]
         verifylist = [
             ('bootable', False),
-            ('non_bootable', True),
             ('read_only', True),
-            ('read_write', False),
             ('size', self.new_volume.size),
             ('name', self.new_volume.name),
         ]
@@ -1407,16 +1399,16 @@ class TestVolumeSet(TestVolume):
             self.new_volume.id,
         ]
         verifylist = [
-            ('property', {'a': 'b', 'c': 'd'}),
+            ('properties', {'a': 'b', 'c': 'd'}),
             ('volume', self.new_volume.id),
-            ('bootable', False),
-            ('non_bootable', False),
+            ('bootable', None),
+            ('read_only', None),
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
         self.cmd.take_action(parsed_args)
         self.volumes_mock.set_metadata.assert_called_with(
-            self.new_volume.id, parsed_args.property
+            self.new_volume.id, parsed_args.properties
         )
 
     def test_volume_set_image_property(self):
@@ -1428,10 +1420,10 @@ class TestVolumeSet(TestVolume):
             self.new_volume.id,
         ]
         verifylist = [
-            ('image_property', {'Alpha': 'a', 'Beta': 'b'}),
+            ('image_properties', {'Alpha': 'a', 'Beta': 'b'}),
             ('volume', self.new_volume.id),
-            ('bootable', False),
-            ('non_bootable', False),
+            ('bootable', None),
+            ('read_only', None),
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
@@ -1439,14 +1431,13 @@ class TestVolumeSet(TestVolume):
         # returns nothing
         self.cmd.take_action(parsed_args)
         self.volumes_mock.set_image_metadata.assert_called_with(
-            self.new_volume.id, parsed_args.image_property
+            self.new_volume.id, parsed_args.image_properties
         )
 
     def test_volume_set_state(self):
         arglist = ['--state', 'error', self.new_volume.id]
         verifylist = [
-            ('read_only', False),
-            ('read_write', False),
+            ('read_only', None),
             ('state', 'error'),
             ('volume', self.new_volume.id),
         ]
@@ -1511,36 +1502,40 @@ class TestVolumeSet(TestVolume):
 
     def test_volume_set_bootable(self):
         arglist = [
-            ['--bootable', self.new_volume.id],
-            ['--non-bootable', self.new_volume.id],
+            '--bootable',
+            self.new_volume.id,
         ]
         verifylist = [
-            [
-                ('bootable', True),
-                ('non_bootable', False),
-                ('volume', self.new_volume.id),
-            ],
-            [
-                ('bootable', False),
-                ('non_bootable', True),
-                ('volume', self.new_volume.id),
-            ],
+            ('bootable', True),
+            ('volume', self.new_volume.id),
         ]
-        for index in range(len(arglist)):
-            parsed_args = self.check_parser(
-                self.cmd, arglist[index], verifylist[index]
-            )
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
-            self.cmd.take_action(parsed_args)
-            self.volumes_mock.set_bootable.assert_called_with(
-                self.new_volume.id, verifylist[index][0][1]
-            )
+        self.cmd.take_action(parsed_args)
+        self.volumes_mock.set_bootable.assert_called_with(
+            self.new_volume.id, verifylist[0][1]
+        )
 
-    def test_volume_set_readonly(self):
+    def test_volume_set_non_bootable(self):
+        arglist = [
+            '--non-bootable',
+            self.new_volume.id,
+        ]
+        verifylist = [
+            ('bootable', False),
+            ('volume', self.new_volume.id),
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        self.cmd.take_action(parsed_args)
+        self.volumes_mock.set_bootable.assert_called_with(
+            self.new_volume.id, verifylist[0][1]
+        )
+
+    def test_volume_set_read_only(self):
         arglist = ['--read-only', self.new_volume.id]
         verifylist = [
             ('read_only', True),
-            ('read_write', False),
             ('volume', self.new_volume.id),
         ]
 
@@ -1556,7 +1551,6 @@ class TestVolumeSet(TestVolume):
         arglist = ['--read-write', self.new_volume.id]
         verifylist = [
             ('read_only', False),
-            ('read_write', True),
             ('volume', self.new_volume.id),
         ]
 
@@ -1686,7 +1680,7 @@ class TestVolumeUnset(TestVolume):
             self.new_volume.id,
         ]
         verifylist = [
-            ('image_property', {'Alpha': 'a', 'Beta': 'b'}),
+            ('image_properties', {'Alpha': 'a', 'Beta': 'b'}),
             ('volume', self.new_volume.id),
         ]
         parsed_args = self.check_parser(self.cmd_set, arglist, verifylist)
@@ -1702,7 +1696,7 @@ class TestVolumeUnset(TestVolume):
             self.new_volume.id,
         ]
         verifylist_unset = [
-            ('image_property', ['Alpha']),
+            ('image_properties', ['Alpha']),
             ('volume', self.new_volume.id),
         ]
         parsed_args_unset = self.check_parser(
@@ -1714,7 +1708,7 @@ class TestVolumeUnset(TestVolume):
         self.cmd_unset.take_action(parsed_args_unset)
 
         self.volumes_mock.delete_image_metadata.assert_called_with(
-            self.new_volume.id, parsed_args_unset.image_property
+            self.new_volume.id, parsed_args_unset.image_properties
         )
 
     def test_volume_unset_image_property_fail(self):
@@ -1729,8 +1723,8 @@ class TestVolumeUnset(TestVolume):
             self.new_volume.id,
         ]
         verifylist = [
-            ('image_property', ['Alpha']),
-            ('property', ['Beta']),
+            ('image_properties', ['Alpha']),
+            ('properties', ['Beta']),
             ('volume', self.new_volume.id),
         ]
         parsed_args = self.check_parser(self.cmd_unset, arglist, verifylist)
@@ -1743,10 +1737,10 @@ class TestVolumeUnset(TestVolume):
                 'One or more of the unset operations failed', str(e)
             )
         self.volumes_mock.delete_image_metadata.assert_called_with(
-            self.new_volume.id, parsed_args.image_property
+            self.new_volume.id, parsed_args.image_properties
         )
         self.volumes_mock.delete_metadata.assert_called_with(
-            self.new_volume.id, parsed_args.property
+            self.new_volume.id, parsed_args.properties
         )
 
 
