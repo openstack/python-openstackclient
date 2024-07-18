@@ -19,6 +19,7 @@ import itertools
 import logging
 import sys
 
+from openstack import exceptions as sdk_exceptions
 from osc_lib.command import command
 from osc_lib import exceptions
 from osc_lib import utils
@@ -104,11 +105,8 @@ def _xform_get_quota(data, value, keys):
 
 def get_project(app, project):
     if project is not None:
-        identity_client = app.client_manager.identity
-        project = utils.find_resource(
-            identity_client.projects,
-            project,
-        )
+        identity_client = app.client_manager.sdk_connection.identity
+        project = identity_client.find_project(project, ignore_missing=False)
         project_id = project.id
         project_name = project.name
     elif app.client_manager.auth_ref:
@@ -134,16 +132,18 @@ def get_compute_quotas(
     default=False,
 ):
     try:
-        client = app.client_manager.compute
+        client = app.client_manager.sdk_connection.compute
         if default:
-            quota = client.quotas.defaults(project_id)
+            quota = client.get_quota_set_defaults(project_id)
         else:
-            quota = client.quotas.get(project_id, detail=detail)
-    except Exception as e:
-        if type(e).__name__ == 'EndpointNotFound':
-            return {}
-        raise
-    return quota._info
+            quota = client.get_quota_set(project_id, usage=detail)
+    except sdk_exceptions.EndpointNotFound:
+        return {}
+    data = quota.to_dict()
+    if not detail:
+        del data['usage']
+        del data['reservation']
+    return data
 
 
 def get_volume_quotas(
@@ -154,17 +154,18 @@ def get_volume_quotas(
     default=False,
 ):
     try:
-        client = app.client_manager.volume
+        client = app.client_manager.sdk_connection.volume
         if default:
-            quota = client.quotas.defaults(project_id)
+            quota = client.get_quota_set_defaults(project_id)
         else:
-            quota = client.quotas.get(project_id, usage=detail)
-    except Exception as e:
-        if type(e).__name__ == 'EndpointNotFound':
-            return {}
-        else:
-            raise
-    return quota._info
+            quota = client.get_quota_set(project_id, usage=detail)
+    except sdk_exceptions.EndpointNotFound:
+        return {}
+    data = quota.to_dict()
+    if not detail:
+        del data['usage']
+        del data['reservation']
+    return data
 
 
 def get_network_quotas(
@@ -242,37 +243,35 @@ class ListQuota(command.Lister):
         return parser
 
     def _list_quota_compute(self, parsed_args, project_ids):
-        compute_client = self.app.client_manager.compute
+        compute_client = self.app.client_manager.sdk_connection.compute
         result = []
 
-        for p in project_ids:
+        for project_id in project_ids:
             try:
-                data = compute_client.quotas.get(p)
-            except Exception as ex:
-                if (
-                    type(ex).__name__ == 'NotFound'
-                    or ex.http_status >= 400
-                    and ex.http_status <= 499
-                ):
-                    # Project not found, move on to next one
-                    LOG.warning(f"Project {p} not found: {ex}")
-                    continue
-                else:
-                    raise
+                project_data = compute_client.get_quota_set(project_id)
+            except (
+                sdk_exceptions.NotFoundException,
+                sdk_exceptions.ForbiddenException,
+            ) as exc:
+                # Project not found, move on to next one
+                LOG.warning(f"Project {project_id} not found: {exc}")
+                continue
 
-            result_data = _xform_get_quota(
-                data,
-                p,
+            project_result = _xform_get_quota(
+                project_data,
+                project_id,
                 COMPUTE_QUOTAS.keys(),
             )
-            default_data = compute_client.quotas.defaults(p)
-            result_default = _xform_get_quota(
+
+            default_data = compute_client.get_quota_set_defaults(project_id)
+            default_result = _xform_get_quota(
                 default_data,
-                p,
+                project_id,
                 COMPUTE_QUOTAS.keys(),
             )
-            if result_default != result_data:
-                result += result_data
+
+            if default_result != project_result:
+                result += project_result
 
         columns = (
             'id',
@@ -306,33 +305,35 @@ class ListQuota(command.Lister):
         )
 
     def _list_quota_volume(self, parsed_args, project_ids):
-        volume_client = self.app.client_manager.volume
+        volume_client = self.app.client_manager.sdk_connection.volume
         result = []
 
-        for p in project_ids:
+        for project_id in project_ids:
             try:
-                data = volume_client.quotas.get(p)
-            except Exception as ex:
-                if type(ex).__name__ == 'NotFound':
-                    # Project not found, move on to next one
-                    LOG.warning(f"Project {p} not found: {ex}")
-                    continue
-                else:
-                    raise
+                project_data = volume_client.get_quota_set(project_id)
+            except (
+                sdk_exceptions.NotFoundException,
+                sdk_exceptions.ForbiddenException,
+            ) as exc:
+                # Project not found, move on to next one
+                LOG.warning(f"Project {project_id} not found: {exc}")
+                continue
 
-            result_data = _xform_get_quota(
-                data,
-                p,
+            project_result = _xform_get_quota(
+                project_data,
+                project_id,
                 VOLUME_QUOTAS.keys(),
             )
-            default_data = volume_client.quotas.defaults(p)
-            result_default = _xform_get_quota(
+
+            default_data = volume_client.get_quota_set_defaults(project_id)
+            default_result = _xform_get_quota(
                 default_data,
-                p,
+                project_id,
                 VOLUME_QUOTAS.keys(),
             )
-            if result_default != result_data:
-                result += result_data
+
+            if default_result != project_result:
+                result += project_result
 
         columns = (
             'id',
@@ -359,33 +360,35 @@ class ListQuota(command.Lister):
         )
 
     def _list_quota_network(self, parsed_args, project_ids):
-        client = self.app.client_manager.network
+        network_client = self.app.client_manager.network
         result = []
 
-        for p in project_ids:
+        for project_id in project_ids:
             try:
-                data = client.get_quota(p)
-            except Exception as ex:
-                if type(ex).__name__ == 'NotFound':
-                    # Project not found, move on to next one
-                    LOG.warning(f"Project {p} not found: {ex}")
-                    continue
-                else:
-                    raise
+                project_data = network_client.get_quota(project_id)
+            except (
+                sdk_exceptions.NotFoundException,
+                sdk_exceptions.ForbiddenException,
+            ) as exc:
+                # Project not found, move on to next one
+                LOG.warning(f"Project {project_id} not found: {exc}")
+                continue
 
-            result_data = _xform_get_quota(
-                data,
-                p,
+            project_result = _xform_get_quota(
+                project_data,
+                project_id,
                 NETWORK_KEYS,
             )
-            default_data = client.get_quota_default(p)
-            result_default = _xform_get_quota(
+
+            default_data = network_client.get_quota_default(project_id)
+            default_result = _xform_get_quota(
                 default_data,
-                p,
+                project_id,
                 NETWORK_KEYS,
             )
-            if result_default != result_data:
-                result += result_data
+
+            if default_result != project_result:
+                result += project_result
 
         columns = (
             'id',
@@ -419,7 +422,8 @@ class ListQuota(command.Lister):
 
     def take_action(self, parsed_args):
         project_ids = [
-            p.id for p in self.app.client_manager.identity.projects.list()
+            p.id
+            for p in self.app.client_manager.sdk_connection.identity.projects()
         ]
         if parsed_args.compute:
             return self._list_quota_compute(parsed_args, project_ids)
@@ -561,8 +565,8 @@ class SetQuota(common.NetDetectionMixin, command.Command):
             msg = _('--force cannot be used with --class or --default')
             raise exceptions.CommandError(msg)
 
-        compute_client = self.app.client_manager.compute
-        volume_client = self.app.client_manager.volume
+        compute_client = self.app.client_manager.sdk_connection.compute
+        volume_client = self.app.client_manager.sdk_connection.volume
 
         compute_kwargs = {}
         for k, v in COMPUTE_QUOTAS.items():
@@ -570,7 +574,7 @@ class SetQuota(common.NetDetectionMixin, command.Command):
             if value is not None:
                 compute_kwargs[k] = value
 
-        if parsed_args.force is True:
+        if compute_kwargs and parsed_args.force is True:
             compute_kwargs['force'] = parsed_args.force
 
         volume_kwargs = {}
@@ -604,12 +608,12 @@ class SetQuota(common.NetDetectionMixin, command.Command):
 
         if parsed_args.quota_class or parsed_args.default:
             if compute_kwargs:
-                compute_client.quota_classes.update(
+                compute_client.update_quota_class_set(
                     parsed_args.project or 'default',
                     **compute_kwargs,
                 )
             if volume_kwargs:
-                volume_client.quota_classes.update(
+                volume_client.update_quota_class_set(
                     parsed_args.project or 'default',
                     **volume_kwargs,
                 )
@@ -625,9 +629,9 @@ class SetQuota(common.NetDetectionMixin, command.Command):
         project = project_info['id']
 
         if compute_kwargs:
-            compute_client.quotas.update(project, **compute_kwargs)
+            compute_client.update_quota_set(project, **compute_kwargs)
         if volume_kwargs:
-            volume_client.quotas.update(project, **volume_kwargs)
+            volume_client.update_quota_set(project, **volume_kwargs)
         if (
             network_kwargs
             and self.app.client_manager.is_network_endpoint_enabled()
@@ -765,14 +769,24 @@ and ``server-group-members`` output for a given quota class."""
         if 'id' in info:
             del info['id']
 
-        # Remove the 'location' field for resources from openstacksdk
-        if 'location' in info:
-            del info['location']
+        # Remove the sdk-derived fields
+        for field in ('location', 'name', 'force'):
+            if field in info:
+                del info[field]
 
         if not parsed_args.usage:
             result = [{'resource': k, 'limit': v} for k, v in info.items()]
         else:
-            result = [{'resource': k, **v} for k, v in info.items()]
+            result = [
+                {
+                    'resource': k,
+                    'limit': v or 0,
+                    'in_use': info['usage'].get(k, 0),
+                    'reserved': info['reservation'].get(k, 0),
+                }
+                for k, v in info.items()
+                if k not in ('usage', 'reservation')
+            ]
 
         columns = (
             'resource',
@@ -850,21 +864,20 @@ class DeleteQuota(command.Command):
         return parser
 
     def take_action(self, parsed_args):
-        identity_client = self.app.client_manager.identity
-        project = utils.find_resource(
-            identity_client.projects,
-            parsed_args.project,
+        identity_client = self.app.client_manager.sdk_connection.identity
+        project = identity_client.find_project(
+            parsed_args.project, ignore_missing=False
         )
 
         # compute quotas
         if parsed_args.service in {'all', 'compute'}:
-            compute_client = self.app.client_manager.compute
-            compute_client.quotas.delete(project.id)
+            compute_client = self.app.client_manager.sdk_connection.compute
+            compute_client.revert_quota_set(project.id)
 
         # volume quotas
         if parsed_args.service in {'all', 'volume'}:
-            volume_client = self.app.client_manager.volume
-            volume_client.quotas.delete(project.id)
+            volume_client = self.app.client_manager.sdk_connection.volume
+            volume_client.revert_quota_set(project.id)
 
         # network quotas (but only if we're not using nova-network, otherwise
         # we already deleted the quotas in the compute step)

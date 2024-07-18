@@ -42,22 +42,6 @@ from openstackclient.tests.unit.identity.v3 import fakes as identity_fakes
 from openstackclient.tests.unit import utils
 
 
-QUOTA = {
-    "subnet": 10,
-    "network": 10,
-    "floatingip": 50,
-    "subnetpool": -1,
-    "security_group_rule": 100,
-    "security_group": 10,
-    "router": 10,
-    "rbac_policy": -1,
-    "port": 50,
-    "vip": 10,
-    "member": 10,
-    "healthmonitor": 10,
-    "l7policy": 5,
-}
-
 RULE_TYPE_BANDWIDTH_LIMIT = 'bandwidth-limit'
 RULE_TYPE_DSCP_MARKING = 'dscp-marking'
 RULE_TYPE_MINIMUM_BANDWIDTH = 'minimum-bandwidth'
@@ -988,82 +972,6 @@ class FakeNetworkServiceProvider:
                 )
             )
         return service_providers
-
-
-class FakeQuota:
-    """Fake quota"""
-
-    @staticmethod
-    def create_one_net_quota(attrs=None):
-        """Create one quota"""
-        attrs = attrs or {}
-
-        quota_attrs = {
-            'floating_ips': 20,
-            'networks': 25,
-            'ports': 11,
-            'rbac_policies': 15,
-            'routers': 40,
-            'security_groups': 10,
-            'security_group_rules': 100,
-            'subnets': 20,
-            'subnet_pools': 30,
-        }
-
-        quota_attrs.update(attrs)
-
-        quota = fakes.FakeResource(
-            info=copy.deepcopy(quota_attrs), loaded=True
-        )
-        return quota
-
-    @staticmethod
-    def create_one_default_net_quota(attrs=None):
-        """Create one quota"""
-        attrs = attrs or {}
-
-        quota_attrs = {
-            'floatingip': 30,
-            'network': 20,
-            'port': 10,
-            'rbac_policy': 25,
-            'router': 30,
-            'security_group': 30,
-            'security_group_rule': 200,
-            'subnet': 10,
-            'subnetpool': 20,
-        }
-
-        quota_attrs.update(attrs)
-
-        quota = fakes.FakeResource(
-            info=copy.deepcopy(quota_attrs), loaded=True
-        )
-        return quota
-
-    @staticmethod
-    def create_one_net_detailed_quota(attrs=None):
-        """Create one quota"""
-        attrs = attrs or {}
-
-        quota_attrs = {
-            'floating_ips': {'used': 0, 'reserved': 0, 'limit': 20},
-            'networks': {'used': 0, 'reserved': 0, 'limit': 25},
-            'ports': {'used': 0, 'reserved': 0, 'limit': 11},
-            'rbac_policies': {'used': 0, 'reserved': 0, 'limit': 15},
-            'routers': {'used': 0, 'reserved': 0, 'limit': 40},
-            'security_groups': {'used': 0, 'reserved': 0, 'limit': 10},
-            'security_group_rules': {'used': 0, 'reserved': 0, 'limit': 100},
-            'subnets': {'used': 0, 'reserved': 0, 'limit': 20},
-            'subnet_pools': {'used': 0, 'reserved': 0, 'limit': 30},
-        }
-
-        quota_attrs.update(attrs)
-
-        quota = fakes.FakeResource(
-            info=copy.deepcopy(quota_attrs), loaded=True
-        )
-        return quota
 
 
 class FakeFloatingIPPortForwarding:
