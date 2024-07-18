@@ -522,6 +522,7 @@ class TestQuotaSet(TestQuota):
             ('security_groups', compute_fakes.secgroup_num),
             ('server_groups', compute_fakes.servgroup_num),
             ('server_group_members', compute_fakes.servgroup_members_num),
+            ('force', False),
             ('project', self.projects[0].name),
         ]
         self.app.client_manager.network_endpoint_enabled = False
@@ -682,12 +683,14 @@ class TestQuotaSet(TestQuota):
             ('router', network_fakes.QUOTA['router']),
             ('rbac_policy', network_fakes.QUOTA['rbac_policy']),
             ('port', network_fakes.QUOTA['port']),
+            ('force', False),
             ('project', self.projects[0].name),
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
         result = self.cmd.take_action(parsed_args)
         kwargs = {
+            'check_limit': True,
             'subnet': network_fakes.QUOTA['subnet'],
             'network': network_fakes.QUOTA['network'],
             'floatingip': network_fakes.QUOTA['floatingip'],
@@ -948,7 +951,6 @@ class TestQuotaSet(TestQuota):
 
         kwargs_compute = {
             'cores': compute_fakes.core_num,
-            'force': False,
         }
         kwargs_volume = {
             'volumes': volume_fakes.QUOTA['volumes'],

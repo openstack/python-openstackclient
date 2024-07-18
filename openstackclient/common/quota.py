@@ -20,6 +20,7 @@ import logging
 import sys
 
 from osc_lib.command import command
+from osc_lib import exceptions
 from osc_lib import utils
 
 from openstackclient.i18n import _
@@ -506,22 +507,19 @@ class SetQuota(common.NetDetectionMixin, command.Command):
             '--force',
             action='store_true',
             dest='force',
-            # TODO(stephenfin): Change the default to False in Z or later
-            default=None,
+            default=False,
             help=_(
-                'Force quota update (only supported by compute and network) '
-                '(default for network)'
+                'Force quota update (only supported by compute and network)'
             ),
         )
         force_group.add_argument(
             '--no-force',
             action='store_false',
             dest='force',
-            default=None,
+            default=False,
             help=_(
                 'Do not force quota update '
-                '(only supported by compute and network) '
-                '(default for compute)'
+                '(only supported by compute and network) (default)'
             ),
         )
         # kept here for backwards compatibility/to keep the neutron folks happy
@@ -529,7 +527,7 @@ class SetQuota(common.NetDetectionMixin, command.Command):
             '--check-limit',
             action='store_false',
             dest='force',
-            default=None,
+            default=False,
             help=argparse.SUPPRESS,
         )
         return parser
@@ -545,6 +543,12 @@ class SetQuota(common.NetDetectionMixin, command.Command):
             )
             self.log.warning(msg)
 
+        if (
+            parsed_args.quota_class or parsed_args.default
+        ) and parsed_args.force:
+            msg = _('--force cannot be used with --class or --default')
+            raise exceptions.CommandError(msg)
+
         compute_client = self.app.client_manager.compute
         volume_client = self.app.client_manager.volume
 
@@ -554,7 +558,7 @@ class SetQuota(common.NetDetectionMixin, command.Command):
             if value is not None:
                 compute_kwargs[k] = value
 
-        if parsed_args.force is not None:
+        if parsed_args.force is True:
             compute_kwargs['force'] = parsed_args.force
 
         volume_kwargs = {}
@@ -566,22 +570,6 @@ class SetQuota(common.NetDetectionMixin, command.Command):
                 volume_kwargs[k] = value
 
         network_kwargs = {}
-        if parsed_args.force is True:
-            # Unlike compute, network doesn't provide a simple boolean option.
-            # Instead, it provides two options: 'force' and 'check_limit'
-            # (a.k.a. 'not force')
-            network_kwargs['force'] = True
-        elif parsed_args.force is False:
-            network_kwargs['check_limit'] = True
-        else:
-            msg = _(
-                "This command currently defaults to '--force' when modifying "
-                "network quotas. This behavior will change in a future "
-                "release. Consider explicitly providing '--force' or "
-                "'--no-force' options to avoid changes in behavior."
-            )
-            self.log.warning(msg)
-
         if self.app.client_manager.is_network_endpoint_enabled():
             for k, v in NETWORK_QUOTAS.items():
                 value = getattr(parsed_args, k, None)
@@ -592,6 +580,15 @@ class SetQuota(common.NetDetectionMixin, command.Command):
                 value = getattr(parsed_args, k, None)
                 if value is not None:
                     compute_kwargs[k] = value
+
+        if network_kwargs:
+            if parsed_args.force is True:
+                # Unlike compute, network doesn't provide a simple boolean
+                # option. Instead, it provides two options: 'force' and
+                # 'check_limit' (a.k.a. 'not force')
+                network_kwargs['force'] = True
+            else:
+                network_kwargs['check_limit'] = True
 
         if parsed_args.quota_class or parsed_args.default:
             if compute_kwargs:
