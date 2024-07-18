@@ -52,7 +52,7 @@ class DeleteService(command.Command):
         return parser
 
     def take_action(self, parsed_args):
-        compute_client = self.app.client_manager.sdk_connection.compute
+        compute_client = self.app.client_manager.compute
         result = 0
         for s in parsed_args.service:
             try:
@@ -108,7 +108,7 @@ deployment."""
         return parser
 
     def take_action(self, parsed_args):
-        compute_client = self.app.client_manager.sdk_connection.compute
+        compute_client = self.app.client_manager.compute
         columns: tuple[str, ...] = (
             "id",
             "binary",
@@ -221,7 +221,7 @@ class SetService(command.Command):
         return services[0]
 
     def take_action(self, parsed_args):
-        compute_client = self.app.client_manager.sdk_connection.compute
+        compute_client = self.app.client_manager.compute
 
         if (
             parsed_args.enable or not parsed_args.disable

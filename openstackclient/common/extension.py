@@ -98,7 +98,7 @@ class ListExtension(command.Lister):
                 LOG.warning(message)
 
         if parsed_args.compute or show_all:
-            compute_client = self.app.client_manager.sdk_connection.compute
+            compute_client = self.app.client_manager.compute
             try:
                 data += compute_client.extensions()
             except Exception:

@@ -35,7 +35,7 @@ class ListHost(command.Lister):
         return parser
 
     def take_action(self, parsed_args):
-        compute_client = self.app.client_manager.sdk_connection.compute
+        compute_client = self.app.client_manager.compute
 
         self.log.warning(
             "API has been deprecated; "
@@ -83,7 +83,7 @@ class SetHost(command.Command):
         return parser
 
     def take_action(self, parsed_args):
-        compute_client = self.app.client_manager.sdk_connection.compute
+        compute_client = self.app.client_manager.compute
 
         self.log.warning(
             "API has been deprecated; "
@@ -121,7 +121,7 @@ class ShowHost(command.Lister):
         return parser
 
     def take_action(self, parsed_args):
-        compute_client = self.app.client_manager.sdk_connection.compute
+        compute_client = self.app.client_manager.compute
 
         self.log.warning(
             "API has been deprecated; "

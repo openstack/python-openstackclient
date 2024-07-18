@@ -122,7 +122,7 @@ class ShowLimits(command.Lister):
         volume_limits = None
 
         if self.app.client_manager.is_compute_endpoint_enabled():
-            compute_client = self.app.client_manager.sdk_connection.compute
+            compute_client = self.app.client_manager.compute
             compute_limits = compute_client.get_limits(
                 reserved=parsed_args.is_reserved, tenant_id=project_id
             )

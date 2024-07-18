@@ -139,7 +139,7 @@ class ListServerEvent(command.Lister):
         return parser
 
     def take_action(self, parsed_args):
-        compute_client = self.app.client_manager.sdk_connection.compute
+        compute_client = self.app.client_manager.compute
 
         kwargs = {}
 
@@ -266,7 +266,7 @@ class ShowServerEvent(command.ShowOne):
         return parser
 
     def take_action(self, parsed_args):
-        compute_client = self.app.client_manager.sdk_connection.compute
+        compute_client = self.app.client_manager.compute
 
         try:
             server_id = compute_client.find_server(

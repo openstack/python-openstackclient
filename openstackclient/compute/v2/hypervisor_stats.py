@@ -42,7 +42,7 @@ class ShowHypervisorStats(command.ShowOne):
     def take_action(self, parsed_args):
         # The command is deprecated since it is being dropped in Nova.
         self.log.warning(_("This command is deprecated."))
-        compute_client = self.app.client_manager.sdk_connection.compute
+        compute_client = self.app.client_manager.compute
         # We do API request directly cause this deprecated method is not and
         # will not be supported by OpenStackSDK.
         response = compute_client.get(

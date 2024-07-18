@@ -93,7 +93,7 @@ class CreateServerGroup(command.ShowOne):
         return parser
 
     def take_action(self, parsed_args):
-        compute_client = self.app.client_manager.sdk_connection.compute
+        compute_client = self.app.client_manager.compute
 
         if parsed_args.policy in ('soft-affinity', 'soft-anti-affinity'):
             if not sdk_utils.supports_microversion(compute_client, '2.15'):
@@ -153,7 +153,7 @@ class DeleteServerGroup(command.Command):
         return parser
 
     def take_action(self, parsed_args):
-        compute_client = self.app.client_manager.sdk_connection.compute
+        compute_client = self.app.client_manager.compute
         result = 0
         for group in parsed_args.server_group:
             try:
@@ -197,7 +197,7 @@ class ListServerGroup(command.Lister):
         return parser
 
     def take_action(self, parsed_args):
-        compute_client = self.app.client_manager.sdk_connection.compute
+        compute_client = self.app.client_manager.compute
 
         kwargs = {}
 
@@ -264,7 +264,7 @@ class ShowServerGroup(command.ShowOne):
         return parser
 
     def take_action(self, parsed_args):
-        compute_client = self.app.client_manager.sdk_connection.compute
+        compute_client = self.app.client_manager.compute
         group = compute_client.find_server_group(
             parsed_args.server_group, ignore_missing=False
         )

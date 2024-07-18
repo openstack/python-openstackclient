@@ -117,7 +117,7 @@ class ListAvailabilityZone(command.Lister):
         return parser
 
     def _get_compute_availability_zones(self, parsed_args):
-        compute_client = self.app.client_manager.sdk_connection.compute
+        compute_client = self.app.client_manager.compute
         try:
             data = list(compute_client.availability_zones(details=True))
         except sdk_exceptions.ForbiddenException:  # policy doesn't allow

@@ -132,8 +132,8 @@ class TestNetworkAndCompute(utils.TestCommand):
             return_value='take_action_network'
         )
 
-        self.app.client_manager.sdk_connection.compute = mock.Mock()
-        self.compute_client = self.app.client_manager.sdk_connection.compute
+        self.app.client_manager.compute = mock.Mock()
+        self.compute_client = self.app.client_manager.compute
         self.compute_client.compute_action = mock.Mock(
             return_value='take_action_compute'
         )

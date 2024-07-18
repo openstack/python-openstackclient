@@ -154,7 +154,7 @@ class ListMigration(command.Lister):
         )
 
     def take_action(self, parsed_args):
-        compute_client = self.app.client_manager.sdk_connection.compute
+        compute_client = self.app.client_manager.compute
         identity_client = self.app.client_manager.identity
 
         search_opts = {}
@@ -289,7 +289,7 @@ class ShowMigration(command.ShowOne):
         return parser
 
     def take_action(self, parsed_args):
-        compute_client = self.app.client_manager.sdk_connection.compute
+        compute_client = self.app.client_manager.compute
 
         if not sdk_utils.supports_microversion(compute_client, '2.24'):
             msg = _(
@@ -404,7 +404,7 @@ class AbortMigration(command.Command):
         return parser
 
     def take_action(self, parsed_args):
-        compute_client = self.app.client_manager.sdk_connection.compute
+        compute_client = self.app.client_manager.compute
 
         if not sdk_utils.supports_microversion(compute_client, '2.24'):
             msg = _(
@@ -469,7 +469,7 @@ class ForceCompleteMigration(command.Command):
         return parser
 
     def take_action(self, parsed_args):
-        compute_client = self.app.client_manager.sdk_connection.compute
+        compute_client = self.app.client_manager.compute
 
         if not sdk_utils.supports_microversion(compute_client, '2.22'):
             msg = _(

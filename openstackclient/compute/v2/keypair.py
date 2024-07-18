@@ -120,7 +120,7 @@ class CreateKeypair(command.ShowOne):
         return parser
 
     def take_action(self, parsed_args):
-        compute_client = self.app.client_manager.sdk_connection.compute
+        compute_client = self.app.client_manager.compute
         identity_client = self.app.client_manager.identity
 
         kwargs = {'name': parsed_args.name}
@@ -228,7 +228,7 @@ class DeleteKeypair(command.Command):
         return parser
 
     def take_action(self, parsed_args):
-        compute_client = self.app.client_manager.sdk_connection.compute
+        compute_client = self.app.client_manager.compute
         identity_client = self.app.client_manager.identity
 
         kwargs = {}
@@ -298,7 +298,7 @@ class ListKeypair(command.Lister):
         return parser
 
     def take_action(self, parsed_args):
-        compute_client = self.app.client_manager.sdk_connection.compute
+        compute_client = self.app.client_manager.compute
         identity_client = self.app.client_manager.identity
 
         kwargs = {}
@@ -409,7 +409,7 @@ class ShowKeypair(command.ShowOne):
         return parser
 
     def take_action(self, parsed_args):
-        compute_client = self.app.client_manager.sdk_connection.compute
+        compute_client = self.app.client_manager.compute
         identity_client = self.app.client_manager.identity
 
         kwargs = {}

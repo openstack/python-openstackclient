@@ -55,7 +55,7 @@ class ShowConsoleLog(command.Command):
         return parser
 
     def take_action(self, parsed_args):
-        compute_client = self.app.client_manager.sdk_connection.compute
+        compute_client = self.app.client_manager.compute
 
         server = compute_client.find_server(
             name_or_id=parsed_args.server, ignore_missing=False
@@ -130,7 +130,7 @@ class ShowConsoleURL(command.ShowOne):
         return parser
 
     def take_action(self, parsed_args):
-        compute_client = self.app.client_manager.sdk_connection.compute
+        compute_client = self.app.client_manager.compute
         server = compute_client.find_server(
             parsed_args.server, ignore_missing=False
         )

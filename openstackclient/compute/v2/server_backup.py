@@ -71,7 +71,7 @@ class CreateServerBackup(command.ShowOne):
                 self.app.stderr.write(f'\rProgress: {progress}')
                 self.app.stderr.flush()
 
-        compute_client = self.app.client_manager.sdk_connection.compute
+        compute_client = self.app.client_manager.compute
 
         server = compute_client.find_server(
             parsed_args.server, ignore_missing=False

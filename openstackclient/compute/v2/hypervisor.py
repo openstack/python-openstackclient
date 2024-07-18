@@ -90,7 +90,7 @@ class ListHypervisor(command.Lister):
         return parser
 
     def take_action(self, parsed_args):
-        compute_client = self.app.client_manager.sdk_connection.compute
+        compute_client = self.app.client_manager.compute
 
         list_opts = {}
 
@@ -170,7 +170,7 @@ class ShowHypervisor(command.ShowOne):
         return parser
 
     def take_action(self, parsed_args):
-        compute_client = self.app.client_manager.sdk_connection.compute
+        compute_client = self.app.client_manager.compute
 
         hypervisor_id = compute_client.find_hypervisor(
             parsed_args.hypervisor, ignore_missing=False, details=False
