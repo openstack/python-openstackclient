@@ -670,7 +670,7 @@ class AddNetwork(command.Command):
 
 
 class AddServerSecurityGroup(command.Command):
-    _description = _("Add security group to server")
+    _description = _("Add security group(s) to server")
 
     def get_parser(self, prog_name):
         parser = super().get_parser(prog_name)
@@ -680,9 +680,13 @@ class AddServerSecurityGroup(command.Command):
             help=_('Server (name or ID)'),
         )
         parser.add_argument(
-            'group',
-            metavar='<group>',
-            help=_('Security group to add (name or ID)'),
+            'security_groups',
+            metavar='<security-group>',
+            nargs='+',
+            help=_(
+                'Security group(s) to add to the server (name or ID) '
+                '(repeat option to add multiple groups)'
+            ),
         )
         return parser
 
@@ -694,14 +698,43 @@ class AddServerSecurityGroup(command.Command):
         )
         if self.app.client_manager.is_network_endpoint_enabled():
             # the server handles both names and IDs for neutron SGs, so just
-            # pass things through
-            security_group = parsed_args.group
+            # pass things through if using neutron
+            security_groups = parsed_args.security_groups
         else:
-            # however, if using nova-network then it needs a name, not an ID
-            security_group = compute_v2.find_security_group(
-                compute_client, parsed_args.group
-            )['name']
-        compute_client.add_security_group_to_server(server, security_group)
+            # however, if using nova-network then it needs names, not IDs
+            security_groups = []
+            for security_group in parsed_args.security_groups:
+                security_groups.append(
+                    compute_v2.find_security_group(
+                        compute_client, security_group
+                    )['name']
+                )
+
+        errors = 0
+        for security_group in security_groups:
+            try:
+                compute_client.add_security_group_to_server(
+                    server, security_group
+                )
+            except sdk_exceptions.HttpException as e:
+                errors += 1
+                LOG.error(
+                    _(
+                        "Failed to add security group with name or ID "
+                        "'%(security_group)s' to server '%(server)s': %(e)s"
+                    ),
+                    {
+                        'security_group': security_group,
+                        'server': server.id,
+                        'e': e,
+                    },
+                )
+
+        if errors > 0:
+            msg = _(
+                "%(errors)d of %(total)d security groups were not added."
+            ) % {'errors': errors, 'total': len(security_groups)}
+            raise exceptions.CommandError(msg)
 
 
 class AddServerVolume(command.ShowOne):
@@ -1328,6 +1361,7 @@ class CreateServer(command.ShowOne):
             metavar='<security-group>',
             action='append',
             default=[],
+            dest='security_groups',
             help=_(
                 'Security group to assign to this server (name or ID) '
                 '(repeat option to set multiple groups)'
@@ -1948,21 +1982,22 @@ class CreateServer(command.ShowOne):
             # 'auto' to maintain legacy behavior if a nic wasn't specified.
             networks = 'auto'
 
-        # Check security group exist and convert ID to name
+        # Check security group(s) exist and convert ID to name
         security_groups = []
         if self.app.client_manager.is_network_endpoint_enabled():
             network_client = self.app.client_manager.network
-            for each_sg in parsed_args.security_group:
+            for security_group in parsed_args.security_groups:
                 sg = network_client.find_security_group(
-                    each_sg, ignore_missing=False
+                    security_group, ignore_missing=False
                 )
                 # Use security group ID to avoid multiple security group have
                 # same name in neutron networking backend
                 security_groups.append({'name': sg.id})
-        else:
-            # Handle nova-network case
-            for each_sg in parsed_args.security_group:
-                sg = compute_v2.find_security_group(compute_client, each_sg)
+        else:  # nova-network
+            for security_group in parsed_args.security_groups:
+                sg = compute_v2.find_security_group(
+                    compute_client, security_group
+                )
                 security_groups.append({'name': sg['name']})
 
         hints = {}
@@ -4016,9 +4051,13 @@ class RemoveServerSecurityGroup(command.Command):
             help=_('Server (name or ID)'),
         )
         parser.add_argument(
-            'group',
-            metavar='<group>',
-            help=_('Security group to remove (name or ID)'),
+            'security_groups',
+            metavar='<security-group>',
+            nargs='+',
+            help=_(
+                'Security group(s) to remove from server (name or ID) '
+                '(repeat option to remove multiple groups)'
+            ),
         )
         return parser
 
@@ -4031,15 +4070,42 @@ class RemoveServerSecurityGroup(command.Command):
         if self.app.client_manager.is_network_endpoint_enabled():
             # the server handles both names and IDs for neutron SGs, so just
             # pass things through
-            security_group = parsed_args.group
+            security_groups = parsed_args.security_groups
         else:
-            # however, if using nova-network then it needs a name, not an ID
-            security_group = compute_v2.find_security_group(
-                compute_client, parsed_args.group
-            )['name']
-        compute_client.remove_security_group_from_server(
-            server, security_group
-        )
+            # however, if using nova-network then it needs names, not IDs
+            security_groups = []
+            for security_group in parsed_args.security_groups:
+                security_groups.append(
+                    compute_v2.find_security_group(
+                        compute_client, security_group
+                    )['name']
+                )
+
+        errors = 0
+        for security_group in security_groups:
+            try:
+                compute_client.remove_security_group_from_server(
+                    server, security_group
+                )
+            except sdk_exceptions.HttpException as e:
+                errors += 1
+                LOG.error(
+                    _(
+                        "Failed to remove security group with name or ID "
+                        "'%(security_group)s' from server '%(server)s': %(e)s"
+                    ),
+                    {
+                        'security_group': security_group,
+                        'server': server.id,
+                        'e': e,
+                    },
+                )
+
+        if errors > 0:
+            msg = _(
+                "%(errors)d of %(total)d security groups were not removed."
+            ) % {'errors': errors, 'total': len(security_groups)}
+            raise exceptions.CommandError(msg)
 
 
 class RemoveServerVolume(command.Command):
