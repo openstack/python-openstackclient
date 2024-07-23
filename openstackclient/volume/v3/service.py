@@ -25,30 +25,21 @@ class ListService(service_v2.ListService):
     def take_action(self, parsed_args):
         service_client = self.app.client_manager.volume
 
-        if parsed_args.long:
-            columns = [
-                "Binary",
-                "Host",
-                "Zone",
-                "Status",
-                "State",
-                "Updated At",
-                "Disabled Reason",
-            ]
-        else:
-            columns = [
-                "Binary",
-                "Host",
-                "Zone",
-                "Status",
-                "State",
-                "Updated At",
-            ]
+        columns = [
+            "Binary",
+            "Host",
+            "Zone",
+            "Status",
+            "State",
+            "Updated At",
+        ]
 
         if service_client.api_version >= api_versions.APIVersion('3.7'):
             columns.append("Cluster")
         if service_client.api_version >= api_versions.APIVersion('3.49'):
             columns.append("Backend State")
+        if parsed_args.long:
+            columns.append("Disabled Reason")
 
         data = service_client.services.list(
             parsed_args.host, parsed_args.service
