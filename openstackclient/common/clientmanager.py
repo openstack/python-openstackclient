@@ -158,10 +158,22 @@ class ClientManager(clientmanager.ClientManager):
 # Plugin Support
 
 
+def _on_load_failure_callback(
+    manager: stevedore.ExtensionManager,
+    ep: importlib.metadata.EntryPoint,
+    err: Exception,
+) -> None:
+    sys.stderr.write(
+        f"WARNING: Failed to import plugin {ep.group}:{ep.name}: {err}.\n"
+    )
+
+
 def get_plugin_modules(group):
     """Find plugin entry points"""
     mod_list = []
-    mgr = stevedore.ExtensionManager(group)
+    mgr = stevedore.ExtensionManager(
+        group, on_load_failure_callback=_on_load_failure_callback
+    )
     for ep in mgr:
         LOG.debug('Found plugin %s', ep.name)
 
@@ -180,9 +192,8 @@ def get_plugin_modules(group):
             module = importlib.import_module(module_name)
         except Exception as err:
             sys.stderr.write(
-                "WARNING: Failed to import plugin {}: {}.\n".format(
-                    ep.name, err
-                )
+                f"WARNING: Failed to import plugin {ep.group}:{ep.name}: "
+                f"{err}.\n"
             )
             continue
 
