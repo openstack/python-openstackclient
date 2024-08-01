@@ -83,7 +83,12 @@ class TestProjectCleanup(test_utils.TestCommand):
                 filters=filters,
                 skip_resources=None,
             ),
-            mock.call(dry_run=False, status_queue=mock.ANY, filters=filters),
+            mock.call(
+                dry_run=False,
+                status_queue=mock.ANY,
+                filters=filters,
+                skip_resources=None,
+            ),
         ]
         self.project_cleanup_mock.assert_has_calls(calls)
 
@@ -114,7 +119,12 @@ class TestProjectCleanup(test_utils.TestCommand):
                 filters={},
                 skip_resources=None,
             ),
-            mock.call(dry_run=False, status_queue=mock.ANY, filters={}),
+            mock.call(
+                dry_run=False,
+                status_queue=mock.ANY,
+                filters={},
+                skip_resources=None,
+            ),
         ]
         self.project_cleanup_mock.assert_has_calls(calls)
 
@@ -144,7 +154,12 @@ class TestProjectCleanup(test_utils.TestCommand):
                 filters={},
                 skip_resources=None,
             ),
-            mock.call(dry_run=False, status_queue=mock.ANY, filters={}),
+            mock.call(
+                dry_run=False,
+                status_queue=mock.ANY,
+                filters={},
+                skip_resources=None,
+            ),
         ]
         self.project_cleanup_mock.assert_has_calls(calls)
 
@@ -230,7 +245,12 @@ class TestProjectCleanup(test_utils.TestCommand):
                 filters={},
                 skip_resources=None,
             ),
-            mock.call(dry_run=False, status_queue=mock.ANY, filters={}),
+            mock.call(
+                dry_run=False,
+                status_queue=mock.ANY,
+                filters={},
+                skip_resources=None,
+            ),
         ]
         self.project_cleanup_mock.assert_has_calls(calls)
 
@@ -260,7 +280,12 @@ class TestProjectCleanup(test_utils.TestCommand):
                 filters={},
                 skip_resources=[skip_resource],
             ),
-            mock.call(dry_run=False, status_queue=mock.ANY, filters={}),
+            mock.call(
+                dry_run=False,
+                status_queue=mock.ANY,
+                filters={},
+                skip_resources=[skip_resource],
+            ),
         ]
         self.project_cleanup_mock.assert_has_calls(calls)
 

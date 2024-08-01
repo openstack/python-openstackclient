@@ -150,5 +150,8 @@ class ProjectCleanup(command.Command):
             self.log.warning(_('Deleting resources'))
 
             project_connect.project_cleanup(
-                dry_run=False, status_queue=status_queue, filters=filters
+                dry_run=False,
+                status_queue=status_queue,
+                filters=filters,
+                skip_resources=parsed_args.skip_resource,
             )
