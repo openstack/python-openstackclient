@@ -1679,6 +1679,7 @@ def create_one_port(attrs=None):
         'trusted': None,
         'propagate_uplink_status': False,
         'location': 'MUNCHMUNCHMUNCH',
+        'trunk_details': {},
     }
 
     # Overwrite default attributes.

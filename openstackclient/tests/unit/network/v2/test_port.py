@@ -12,6 +12,7 @@
 
 from unittest import mock
 from unittest.mock import call
+import uuid
 
 from osc_lib.cli import format_columns
 from osc_lib import exceptions
@@ -24,7 +25,12 @@ from openstackclient.tests.unit import utils as test_utils
 
 
 LIST_FIELDS_TO_RETRIEVE = ('id', 'name', 'mac_address', 'fixed_ips', 'status')
-LIST_FIELDS_TO_RETRIEVE_LONG = ('security_group_ids', 'device_owner', 'tags')
+LIST_FIELDS_TO_RETRIEVE_LONG = (
+    'security_group_ids',
+    'device_owner',
+    'tags',
+    'trunk_details',
+)
 
 
 class TestPort(network_fakes.TestNetworkV2):
@@ -116,7 +122,7 @@ class TestPort(network_fakes.TestNetworkV2):
             fake_port.status,
             format_columns.ListColumn(fake_port.tags),
             fake_port.trusted,
-            fake_port.trunk_details,
+            port.SubPortColumn(fake_port.trunk_details),
             fake_port.updated_at,
         )
 
@@ -1236,7 +1242,37 @@ class TestDeletePort(TestPort):
 
 
 class TestListPort(compute_fakes.FakeClientMixin, TestPort):
-    _ports = network_fakes.create_ports(count=3)
+    _project = identity_fakes.FakeProject.create_one_project()
+    _networks = network_fakes.create_networks(count=3)
+    _sport1 = network_fakes.create_one_port(
+        attrs={'project_id': _project.id, 'network_id': _networks[1]['id']}
+    )
+    _sport2 = network_fakes.create_one_port(
+        attrs={'project_id': _project.id, 'network_id': _networks[2]['id']}
+    )
+    _trunk_details = {
+        'trunk_id': str(uuid.uuid4()),
+        'sub_ports': [
+            {
+                'segmentation_id': 100,
+                'segmentation_type': 'vlan',
+                'port_id': _sport1.id,
+            },
+            {
+                'segmentation_id': 102,
+                'segmentation_type': 'vlan',
+                'port_id': _sport2.id,
+            },
+        ],
+    }
+    _pport = network_fakes.create_one_port(
+        attrs={
+            'project_id': _project.id,
+            'network_id': _networks[0]['id'],
+            'trunk_details': _trunk_details,
+        }
+    )
+    _ports = (_pport, _sport1, _sport2)
 
     columns = (
         'ID',
@@ -1255,6 +1291,7 @@ class TestListPort(compute_fakes.FakeClientMixin, TestPort):
         'Security Groups',
         'Device Owner',
         'Tags',
+        'Trunk subports',
     )
 
     data = []
@@ -1281,6 +1318,7 @@ class TestListPort(compute_fakes.FakeClientMixin, TestPort):
                 format_columns.ListColumn(prt.security_group_ids),
                 prt.device_owner,
                 format_columns.ListColumn(prt.tags),
+                port.SubPortColumn(prt.trunk_details),
             )
         )
 

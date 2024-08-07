@@ -38,6 +38,20 @@ class AdminStateColumn(cliff_columns.FormattableColumn):
         return 'UP' if self._value else 'DOWN'
 
 
+class SubPortColumn(format_columns.ListDictColumn):
+    def _retrieve_subports(self):
+        if isinstance(self._value, dict):
+            self._value = self._value['sub_ports']
+
+    def human_readable(self):
+        self._retrieve_subports()
+        return super().human_readable()
+
+    def machine_readable(self):
+        self._retrieve_subports()
+        return super().machine_readable()
+
+
 _formatters = {
     'admin_state_up': AdminStateColumn,
     'is_admin_state_up': AdminStateColumn,
@@ -51,6 +65,7 @@ _formatters = {
     'fixed_ips': format_columns.ListDictColumn,
     'security_group_ids': format_columns.ListColumn,
     'tags': format_columns.ListColumn,
+    'trunk_details': SubPortColumn,
 }
 
 
@@ -868,8 +883,18 @@ class ListPort(command.Lister):
 
         filters = {}
         if parsed_args.long:
-            columns += ('security_group_ids', 'device_owner', 'tags')
-            column_headers += ('Security Groups', 'Device Owner', 'Tags')
+            columns += (
+                'security_group_ids',
+                'device_owner',
+                'tags',
+                'trunk_details',
+            )
+            column_headers += (
+                'Security Groups',
+                'Device Owner',
+                'Tags',
+                'Trunk subports',
+            )
         if parsed_args.device_owner is not None:
             filters['device_owner'] = parsed_args.device_owner
         if parsed_args.device_id is not None:
