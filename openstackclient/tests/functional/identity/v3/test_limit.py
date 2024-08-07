@@ -32,7 +32,7 @@ class LimitTestCase(common.IdentityTests):
 
         raw_output = self.openstack('service show %s' % service_id)
         items = self.parse_show(raw_output)
-        service_name = self._extract_value_from_items('Name', items)
+        service_name = self._extract_value_from_items('name', items)
 
         project_name = self._create_dummy_project()
         raw_output = self.openstack('project show %s' % project_name)
@@ -73,7 +73,7 @@ class LimitTestCase(common.IdentityTests):
 
         raw_output = self.openstack('service show %s' % service_id)
         items = self.parse_show(raw_output)
-        service_name = self._extract_value_from_items('Name', items)
+        service_name = self._extract_value_from_items('name', items)
 
         project_name = self._create_dummy_project()
 

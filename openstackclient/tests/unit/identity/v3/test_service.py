@@ -24,11 +24,11 @@ from openstackclient.tests.unit.identity.v3 import fakes as identity_fakes
 
 class TestServiceCreate(identity_fakes.TestIdentityv3):
     columns = (
-        'ID',
-        'Name',
-        'Type',
-        'Enabled',
-        'Description',
+        'id',
+        'name',
+        'type',
+        'enabled',
+        'description',
     )
 
     def setUp(self):
@@ -455,7 +455,7 @@ class TestServiceShow(identity_fakes.TestIdentityv3):
             self.service.name, ignore_missing=False
         )
 
-        collist = ('ID', 'Name', 'Type', 'Enabled', 'Description')
+        collist = ('id', 'name', 'type', 'enabled', 'description')
         self.assertEqual(collist, columns)
         datalist = (
             self.service.id,
