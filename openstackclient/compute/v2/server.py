@@ -3587,6 +3587,9 @@ class RebuildServer(command.ShowOne):
         if parsed_args.name is not None:
             kwargs['name'] = parsed_args.name
 
+        if parsed_args.password is not None:
+            kwargs['admin_password'] = parsed_args.password
+
         if parsed_args.preserve_ephemeral is not None:
             kwargs['preserve_ephemeral'] = parsed_args.preserve_ephemeral
 
@@ -3725,9 +3728,7 @@ class RebuildServer(command.ShowOne):
             msg = _("The server status is not ACTIVE, SHUTOFF or ERROR.")
             raise exceptions.CommandError(msg)
 
-        server = compute_client.rebuild_server(
-            server, image, admin_password=parsed_args.password, **kwargs
-        )
+        server = compute_client.rebuild_server(server, image, **kwargs)
 
         if parsed_args.wait:
             if utils.wait_for_status(
