@@ -186,15 +186,15 @@ class CreateApplicationCredential(command.ShowOne):
             application_credential['roles'] = msg
 
         columns = (
-            'ID',
-            'Name',
-            'Description',
-            'Project ID',
-            'Roles',
-            'Unrestricted',
-            'Access Rules',
-            'Expires At',
-            'Secret',
+            'id',
+            'name',
+            'description',
+            'project_id',
+            'roles',
+            'unrestricted',
+            'access_rules',
+            'expires_at',
+            'secret',
         )
         return (
             columns,
@@ -337,14 +337,14 @@ class ShowApplicationCredential(command.ShowOne):
         app_cred['roles'] = msg
 
         columns = (
-            'ID',
-            'Name',
-            'Description',
-            'Project ID',
-            'Roles',
-            'Unrestricted',
-            'Access Rules',
-            'Expires At',
+            'id',
+            'name',
+            'description',
+            'project_id',
+            'roles',
+            'unrestricted',
+            'access_rules',
+            'expires_at',
         )
         return (
             columns,
