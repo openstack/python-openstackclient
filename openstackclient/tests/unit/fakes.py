@@ -154,7 +154,7 @@ class FakeClientManager:
     def is_compute_endpoint_enabled(self):
         return self.compute_endpoint_enabled
 
-    def is_volume_endpoint_enabled(self, client):
+    def is_volume_endpoint_enabled(self, client=None):
         return self.volume_endpoint_enabled
 
 

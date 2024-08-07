@@ -101,9 +101,6 @@ class ShowLimits(command.Lister):
         return parser
 
     def take_action(self, parsed_args):
-        compute_client = self.app.client_manager.sdk_connection.compute
-        volume_client = self.app.client_manager.sdk_connection.volume
-
         project_id = None
         if parsed_args.project is not None:
             identity_client = self.app.client_manager.identity
@@ -125,11 +122,13 @@ class ShowLimits(command.Lister):
         volume_limits = None
 
         if self.app.client_manager.is_compute_endpoint_enabled():
+            compute_client = self.app.client_manager.sdk_connection.compute
             compute_limits = compute_client.get_limits(
                 reserved=parsed_args.is_reserved, tenant_id=project_id
             )
 
-        if self.app.client_manager.is_volume_endpoint_enabled(volume_client):
+        if self.app.client_manager.is_volume_endpoint_enabled():
+            volume_client = self.app.client_manager.sdk_connection.volume
             volume_limits = volume_client.get_limits(
                 project_id=project_id,
             )
