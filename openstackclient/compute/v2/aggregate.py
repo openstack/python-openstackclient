@@ -192,40 +192,46 @@ class ListAggregate(command.Lister):
 
         aggregates = list(compute_client.aggregates())
 
+        if sdk_utils.supports_microversion(compute_client, '2.41'):
+            column_headers = ("ID", "UUID")
+            columns = ("id", "uuid")
+        else:
+            column_headers = ("ID",)
+            columns = ("id",)
+
+        column_headers += (
+            "Name",
+            "Availability Zone",
+        )
+        columns += (
+            "name",
+            "availability_zone",
+        )
+
         if parsed_args.long:
             # Remove availability_zone from metadata because Nova doesn't
             for aggregate in aggregates:
                 if 'availability_zone' in aggregate.metadata:
                     aggregate.metadata.pop('availability_zone')
-            # This is the easiest way to change column headers
-            column_headers = (
-                "ID",
-                "Name",
-                "Availability Zone",
+
+            column_headers += (
                 "Properties",
                 "Hosts",
             )
-            columns = (
-                "ID",
-                "Name",
-                "Availability Zone",
-                "Metadata",
-                "Hosts",
-            )
-        else:
-            column_headers = columns = (
-                "ID",
-                "Name",
-                "Availability Zone",
+            columns += (
+                "metadata",
+                "hosts",
             )
 
-        data = (
-            utils.get_item_properties(
-                s, columns, formatters=_aggregate_formatters
-            )
-            for s in aggregates
+        return (
+            column_headers,
+            (
+                utils.get_item_properties(
+                    s, columns, formatters=_aggregate_formatters
+                )
+                for s in aggregates
+            ),
         )
-        return (column_headers, data)
 
 
 class RemoveAggregateHost(command.ShowOne):
