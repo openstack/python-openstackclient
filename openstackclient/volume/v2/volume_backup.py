@@ -247,6 +247,7 @@ class ListVolumeBackup(command.Lister):
             'status',
             'size',
             'is_incremental',
+            'created_at',
         )
         column_headers = (
             'ID',
@@ -255,6 +256,7 @@ class ListVolumeBackup(command.Lister):
             'Status',
             'Size',
             'Incremental',
+            'Created At',
         )
         if parsed_args.long:
             columns += ('availability_zone', 'volume_id', 'container')
