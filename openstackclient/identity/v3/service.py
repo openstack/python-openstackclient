@@ -37,11 +37,11 @@ def _format_service(service):
         'description',
     )
     column_headers = (
-        'ID',
-        'Name',
-        'Type',
-        'Enabled',
-        'Description',
+        'id',
+        'name',
+        'type',
+        'enabled',
+        'description',
     )
 
     return (
