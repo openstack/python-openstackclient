@@ -6146,7 +6146,7 @@ class TestServerRebuild(TestServer):
         )
         self.image_client.get_image.assert_called_with(self.image.id)
         self.compute_sdk_client.rebuild_server.assert_called_once_with(
-            self.server, image, admin_password=None
+            self.server, image
         )
 
     def test_rebuild_with_current_image(self):
@@ -6167,7 +6167,7 @@ class TestServerRebuild(TestServer):
             [mock.call(self.image.id), mock.call(self.image.id)]
         )
         self.compute_sdk_client.rebuild_server.assert_called_once_with(
-            self.server, self.image, admin_password=None
+            self.server, self.image
         )
 
     def test_rebuild_with_volume_backed_server_no_image(self):
@@ -6211,7 +6211,7 @@ class TestServerRebuild(TestServer):
             [mock.call(self.image.id), mock.call(self.image.id)]
         )
         self.compute_sdk_client.rebuild_server.assert_called_once_with(
-            self.server, self.image, admin_password=None, name=name
+            self.server, self.image, name=name
         )
 
     def test_rebuild_with_preserve_ephemeral(self):
@@ -6235,10 +6235,7 @@ class TestServerRebuild(TestServer):
             [mock.call(self.image.id), mock.call(self.image.id)]
         )
         self.compute_sdk_client.rebuild_server.assert_called_once_with(
-            self.server,
-            self.image,
-            admin_password=None,
-            preserve_ephemeral=True,
+            self.server, self.image, preserve_ephemeral=True
         )
 
     def test_rebuild_with_no_preserve_ephemeral(self):
@@ -6263,10 +6260,7 @@ class TestServerRebuild(TestServer):
             [mock.call(self.image.id), mock.call(self.image.id)]
         )
         self.compute_sdk_client.rebuild_server.assert_called_once_with(
-            self.server,
-            self.image,
-            admin_password=None,
-            preserve_ephemeral=False,
+            self.server, self.image, preserve_ephemeral=False
         )
 
     def test_rebuild_with_password(self):
@@ -6308,10 +6302,7 @@ class TestServerRebuild(TestServer):
             [mock.call(self.image.id), mock.call(self.image.id)]
         )
         self.compute_sdk_client.rebuild_server.assert_called_once_with(
-            self.server,
-            self.image,
-            admin_password=None,
-            description=description,
+            self.server, self.image, description=description
         )
 
     def test_rebuild_with_description_pre_v219(self):
@@ -6348,9 +6339,7 @@ class TestServerRebuild(TestServer):
             [mock.call(self.image.id), mock.call(self.image.id)]
         )
         self.compute_sdk_client.rebuild_server.assert_called_once_with(
-            self.server,
-            self.image,
-            admin_password=None,
+            self.server, self.image
         )
 
         mock_wait_for_status.assert_called_once_with(
@@ -6382,9 +6371,7 @@ class TestServerRebuild(TestServer):
         self.image_client.find_image.assert_not_called()
         self.image_client.get_image.assert_called_once_with(self.image.id)
         self.compute_sdk_client.rebuild_server.assert_called_once_with(
-            self.server,
-            self.image,
-            admin_password=None,
+            self.server, self.image
         )
 
         mock_wait_for_status.assert_called_once_with(
@@ -6417,9 +6404,7 @@ class TestServerRebuild(TestServer):
             [mock.call(self.image.id), mock.call(self.image.id)]
         )
         self.compute_sdk_client.rebuild_server.assert_called_once_with(
-            self.server,
-            self.image,
-            admin_password=None,
+            self.server, self.image
         )
 
         mock_wait_for_status.assert_called_once_with(
@@ -6452,9 +6437,7 @@ class TestServerRebuild(TestServer):
             [mock.call(self.image.id), mock.call(self.image.id)]
         )
         self.compute_sdk_client.rebuild_server.assert_called_once_with(
-            self.server,
-            self.image,
-            admin_password=None,
+            self.server, self.image
         )
 
         mock_wait_for_status.assert_called_once_with(
@@ -6510,10 +6493,7 @@ class TestServerRebuild(TestServer):
             [mock.call(self.image.id), mock.call(self.image.id)]
         )
         self.compute_sdk_client.rebuild_server.assert_called_once_with(
-            self.server,
-            self.image,
-            admin_password=None,
-            metadata=expected_properties,
+            self.server, self.image, metadata=expected_properties
         )
 
     def test_rebuild_with_keypair_name(self):
@@ -6541,10 +6521,7 @@ class TestServerRebuild(TestServer):
             [mock.call(self.image.id), mock.call(self.image.id)]
         )
         self.compute_sdk_client.rebuild_server.assert_called_once_with(
-            self.server,
-            self.image,
-            admin_password=None,
-            key_name=self.server.key_name,
+            self.server, self.image, key_name=self.server.key_name
         )
 
     def test_rebuild_with_keypair_name_pre_v254(self):
@@ -6589,10 +6566,7 @@ class TestServerRebuild(TestServer):
             [mock.call(self.image.id), mock.call(self.image.id)]
         )
         self.compute_sdk_client.rebuild_server.assert_called_once_with(
-            self.server,
-            self.image,
-            admin_password=None,
-            key_name=None,
+            self.server, self.image, key_name=None
         )
 
     def test_rebuild_with_keypair_name_and_unset(self):
@@ -6649,7 +6623,6 @@ class TestServerRebuild(TestServer):
         self.compute_sdk_client.rebuild_server.assert_called_once_with(
             self.server,
             self.image,
-            admin_password=None,
             user_data=base64.b64encode(user_data).decode('utf-8'),
         )
 
@@ -6695,10 +6668,7 @@ class TestServerRebuild(TestServer):
             [mock.call(self.image.id), mock.call(self.image.id)]
         )
         self.compute_sdk_client.rebuild_server.assert_called_once_with(
-            self.server,
-            self.image,
-            admin_password=None,
-            user_data=None,
+            self.server, self.image, user_data=None
         )
 
     def test_rebuild_with_no_user_data_pre_v254(self):
@@ -6759,10 +6729,7 @@ class TestServerRebuild(TestServer):
             [mock.call(self.image.id), mock.call(self.image.id)]
         )
         self.compute_sdk_client.rebuild_server.assert_called_once_with(
-            self.server,
-            self.image,
-            admin_password=None,
-            trusted_image_certificates=['foo', 'bar'],
+            self.server, self.image, trusted_image_certificates=['foo', 'bar']
         )
 
     def test_rebuild_with_trusted_image_cert_pre_v263(self):
@@ -6808,10 +6775,7 @@ class TestServerRebuild(TestServer):
             [mock.call(self.image.id), mock.call(self.image.id)]
         )
         self.compute_sdk_client.rebuild_server.assert_called_once_with(
-            self.server,
-            self.image,
-            admin_password=None,
-            trusted_image_certificates=None,
+            self.server, self.image, trusted_image_certificates=None
         )
 
     def test_rebuild_with_no_trusted_image_cert_pre_v263(self):
@@ -6855,10 +6819,7 @@ class TestServerRebuild(TestServer):
             [mock.call(self.image.id), mock.call(self.image.id)]
         )
         self.compute_sdk_client.rebuild_server.assert_called_once_with(
-            self.server,
-            self.image,
-            admin_password=None,
-            hostname='new-hostname',
+            self.server, self.image, hostname='new-hostname'
         )
 
     def test_rebuild_with_hostname_pre_v290(self):
@@ -6920,7 +6881,7 @@ class TestServerRebuildVolumeBacked(TestServer):
         )
         self.image_client.get_image.assert_not_called()
         self.compute_sdk_client.rebuild_server.assert_called_once_with(
-            self.server, self.new_image, admin_password=None
+            self.server, self.new_image
         )
 
     def test_rebuild_with_no_reimage_boot_volume(self):
