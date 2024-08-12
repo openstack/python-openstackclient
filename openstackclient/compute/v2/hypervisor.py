@@ -165,9 +165,11 @@ class ShowHypervisor(command.ShowOne):
 
     def take_action(self, parsed_args):
         compute_client = self.app.client_manager.sdk_connection.compute
-        hypervisor = compute_client.find_hypervisor(
-            parsed_args.hypervisor, ignore_missing=False
-        ).copy()
+
+        hypervisor_id = compute_client.find_hypervisor(
+            parsed_args.hypervisor, ignore_missing=False, details=False
+        ).id
+        hypervisor = compute_client.get_hypervisor(hypervisor_id).copy()
 
         # Some of the properties in the hypervisor object need to be processed
         # before they get reported to the user. We spend this section

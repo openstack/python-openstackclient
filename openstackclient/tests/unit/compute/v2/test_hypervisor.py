@@ -296,13 +296,11 @@ class TestHypervisorShow(compute_fakes.TestComputev2):
             }
         )
 
-        # Return value of compute_client.find_hypervisor
         self.compute_sdk_client.find_hypervisor.return_value = self.hypervisor
+        self.compute_sdk_client.get_hypervisor.return_value = self.hypervisor
 
-        # Return value of compute_client.aggregates()
         self.compute_sdk_client.aggregates.return_value = []
 
-        # Return value of compute_client.get_hypervisor_uptime()
         uptime_info = {
             'status': self.hypervisor.status,
             'state': self.hypervisor.state,
@@ -429,6 +427,13 @@ class TestHypervisorShow(compute_fakes.TestComputev2):
         self.assertEqual(self.columns_v288, columns)
         self.assertCountEqual(self.data_v288, data)
 
+        self.compute_sdk_client.find_hypervisor.assert_called_once_with(
+            self.hypervisor.name, ignore_missing=False, details=False
+        )
+        self.compute_sdk_client.get_hypervisor.assert_called_once_with(
+            self.hypervisor.id
+        )
+
     def test_hypervisor_show_pre_v288(self):
         self.set_compute_api_version('2.87')
 
@@ -447,6 +452,13 @@ class TestHypervisorShow(compute_fakes.TestComputev2):
 
         self.assertEqual(self.columns, columns)
         self.assertCountEqual(self.data, data)
+
+        self.compute_sdk_client.find_hypervisor.assert_called_once_with(
+            self.hypervisor.name, ignore_missing=False, details=False
+        )
+        self.compute_sdk_client.get_hypervisor.assert_called_once_with(
+            self.hypervisor.id
+        )
 
     def test_hypervisor_show_pre_v228(self):
         self.set_compute_api_version('2.27')
@@ -471,6 +483,13 @@ class TestHypervisorShow(compute_fakes.TestComputev2):
 
         self.assertEqual(self.columns, columns)
         self.assertCountEqual(self.data, data)
+
+        self.compute_sdk_client.find_hypervisor.assert_called_once_with(
+            self.hypervisor.name, ignore_missing=False, details=False
+        )
+        self.compute_sdk_client.get_hypervisor.assert_called_once_with(
+            self.hypervisor.id
+        )
 
     def test_hypervisor_show_uptime_not_implemented(self):
         self.set_compute_api_version('2.87')
@@ -543,3 +562,10 @@ class TestHypervisorShow(compute_fakes.TestComputev2):
 
         self.assertEqual(expected_columns, columns)
         self.assertCountEqual(expected_data, data)
+
+        self.compute_sdk_client.find_hypervisor.assert_called_once_with(
+            self.hypervisor.name, ignore_missing=False, details=False
+        )
+        self.compute_sdk_client.get_hypervisor.assert_called_once_with(
+            self.hypervisor.id
+        )
