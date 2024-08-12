@@ -31,15 +31,15 @@ from openstackclient.tests.unit.identity.v3 import fakes as identity_fakes
 
 class TestApplicationCredentialCreate(identity_fakes.TestIdentityv3):
     columns = (
-        'ID',
-        'Name',
-        'Description',
-        'Project ID',
-        'Roles',
-        'Unrestricted',
-        'Access Rules',
-        'Expires At',
-        'Secret',
+        'id',
+        'name',
+        'description',
+        'project_id',
+        'roles',
+        'unrestricted',
+        'access_rules',
+        'expires_at',
+        'secret',
     )
 
     def setUp(self):
@@ -413,14 +413,14 @@ class TestApplicationCredentialShow(identity_fakes.TestIdentityv3):
         )
 
         collist = (
-            'ID',
-            'Name',
-            'Description',
-            'Project ID',
-            'Roles',
-            'Unrestricted',
-            'Access Rules',
-            'Expires At',
+            'id',
+            'name',
+            'description',
+            'project_id',
+            'roles',
+            'unrestricted',
+            'access_rules',
+            'expires_at',
         )
         self.assertEqual(collist, columns)
         datalist = (
