@@ -2648,7 +2648,7 @@ class ListServer(command.Lister):
             'status': parsed_args.status,
             'flavor': flavor_id,
             'image': image_id,
-            'host': parsed_args.host,
+            'compute_host': parsed_args.host,
             'project_id': project_id,
             'all_projects': parsed_args.all_projects,
             'user_id': user_id,
