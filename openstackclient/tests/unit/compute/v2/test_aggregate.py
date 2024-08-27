@@ -227,44 +227,6 @@ class TestAggregateDelete(TestAggregate):
 
 
 class TestAggregateList(TestAggregate):
-    list_columns = (
-        "ID",
-        "Name",
-        "Availability Zone",
-    )
-
-    list_columns_long = (
-        "ID",
-        "Name",
-        "Availability Zone",
-        "Properties",
-        "Hosts",
-    )
-
-    list_data = (
-        (
-            TestAggregate.fake_ag.id,
-            TestAggregate.fake_ag.name,
-            TestAggregate.fake_ag.availability_zone,
-        ),
-    )
-
-    list_data_long = (
-        (
-            TestAggregate.fake_ag.id,
-            TestAggregate.fake_ag.name,
-            TestAggregate.fake_ag.availability_zone,
-            format_columns.DictColumn(
-                {
-                    key: value
-                    for key, value in TestAggregate.fake_ag.metadata.items()
-                    if key != 'availability_zone'
-                }
-            ),
-            format_columns.ListColumn(TestAggregate.fake_ag.hosts),
-        ),
-    )
-
     def setUp(self):
         super().setUp()
 
@@ -272,13 +234,54 @@ class TestAggregateList(TestAggregate):
         self.cmd = aggregate.ListAggregate(self.app, None)
 
     def test_aggregate_list(self):
+        self.set_compute_api_version('2.41')
+
         parsed_args = self.check_parser(self.cmd, [], [])
         columns, data = self.cmd.take_action(parsed_args)
 
-        self.assertEqual(self.list_columns, columns)
-        self.assertCountEqual(self.list_data, tuple(data))
+        expected_columns = (
+            "ID",
+            "UUID",
+            "Name",
+            "Availability Zone",
+        )
+        expected_data = (
+            (
+                self.fake_ag.id,
+                self.fake_ag.uuid,
+                self.fake_ag.name,
+                self.fake_ag.availability_zone,
+            ),
+        )
+
+        self.assertEqual(expected_columns, columns)
+        self.assertCountEqual(expected_data, tuple(data))
+
+    def test_aggregate_list_pre_v241(self):
+        self.set_compute_api_version('2.40')
+
+        parsed_args = self.check_parser(self.cmd, [], [])
+        columns, data = self.cmd.take_action(parsed_args)
+
+        expected_columns = (
+            "ID",
+            "Name",
+            "Availability Zone",
+        )
+        expected_data = (
+            (
+                self.fake_ag.id,
+                self.fake_ag.name,
+                self.fake_ag.availability_zone,
+            ),
+        )
+
+        self.assertEqual(expected_columns, columns)
+        self.assertCountEqual(expected_data, tuple(data))
 
     def test_aggregate_list_with_long(self):
+        self.set_compute_api_version('2.41')
+
         arglist = [
             '--long',
         ]
@@ -288,8 +291,33 @@ class TestAggregateList(TestAggregate):
         parsed_args = self.check_parser(self.cmd, arglist, vertifylist)
         columns, data = self.cmd.take_action(parsed_args)
 
-        self.assertEqual(self.list_columns_long, columns)
-        self.assertCountEqual(self.list_data_long, tuple(data))
+        expected_columns = (
+            "ID",
+            "UUID",
+            "Name",
+            "Availability Zone",
+            "Properties",
+            "Hosts",
+        )
+        expected_data = (
+            (
+                self.fake_ag.id,
+                self.fake_ag.uuid,
+                self.fake_ag.name,
+                self.fake_ag.availability_zone,
+                format_columns.DictColumn(
+                    {
+                        key: value
+                        for key, value in self.fake_ag.metadata.items()
+                        if key != 'availability_zone'
+                    }
+                ),
+                format_columns.ListColumn(self.fake_ag.hosts),
+            ),
+        )
+
+        self.assertEqual(expected_columns, columns)
+        self.assertCountEqual(expected_data, tuple(data))
 
 
 class TestAggregateRemoveHost(TestAggregate):

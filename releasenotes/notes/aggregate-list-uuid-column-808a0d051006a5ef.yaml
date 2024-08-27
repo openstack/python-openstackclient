@@ -1,0 +1,5 @@
+---
+features:
+  - |
+    The ``aggregate list`` command will now include the UUIDs of the aggregates
+    when the cloud supports it.
