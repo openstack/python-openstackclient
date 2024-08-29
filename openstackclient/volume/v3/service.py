@@ -21,7 +21,6 @@ from openstackclient.volume.v2 import service as service_v2
 
 
 class ListService(service_v2.ListService):
-
     def take_action(self, parsed_args):
         service_client = self.app.client_manager.volume
 

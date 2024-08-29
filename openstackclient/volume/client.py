@@ -93,7 +93,7 @@ def make_client(instance):
         region_name=instance.region_name,
         endpoint_override=endpoint_override,
         api_version=version,
-        **kwargs
+        **kwargs,
     )
 
     return client

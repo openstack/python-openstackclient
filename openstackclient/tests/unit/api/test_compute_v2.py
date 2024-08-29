@@ -26,7 +26,6 @@ from openstackclient.tests.unit import utils
 
 
 class TestSecurityGroup(utils.TestCase):
-
     def setUp(self):
         super().setUp()
 
@@ -227,7 +226,6 @@ class TestSecurityGroup(utils.TestCase):
 
 
 class TestSecurityGroupRule(utils.TestCase):
-
     def setUp(self):
         super().setUp()
 
@@ -290,7 +288,6 @@ class TestSecurityGroupRule(utils.TestCase):
 
 
 class TestNetwork(utils.TestCase):
-
     def setUp(self):
         super().setUp()
 
@@ -457,7 +454,6 @@ class TestNetwork(utils.TestCase):
 
 
 class TestFloatingIP(utils.TestCase):
-
     def setUp(self):
         super().setUp()
 
@@ -547,7 +543,6 @@ class TestFloatingIP(utils.TestCase):
 
 
 class TestFloatingIPPool(utils.TestCase):
-
     def setUp(self):
         super().setUp()
 

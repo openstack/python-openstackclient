@@ -245,7 +245,7 @@ class SetConntrackHelper(command.Command):
             client.update_conntrack_helper(
                 parsed_args.conntrack_helper_id,
                 attrs.pop('router_id'),
-                **attrs
+                **attrs,
             )
 
 

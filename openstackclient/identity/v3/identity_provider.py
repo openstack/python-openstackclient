@@ -133,7 +133,7 @@ class CreateIdentityProvider(command.ShowOne):
             description=parsed_args.description,
             domain_id=domain_id,
             enabled=parsed_args.enabled,
-            **kwargs
+            **kwargs,
         )
 
         idp._info.pop('links', None)

@@ -137,7 +137,7 @@ class TestCreateNetworkQosRuleMinimumBandwidth(TestNetworkQosRule):
             **{
                 'min_kbps': self.new_rule.min_kbps,
                 'direction': self.new_rule.direction,
-            }
+            },
         )
         self.assertEqual(self.columns, columns)
         self.assertEqual(self.data, data)
@@ -244,7 +244,7 @@ class TestCreateNetworkQosRuleMinimumPacketRate(TestNetworkQosRule):
             **{
                 'min_kpps': self.new_rule.min_kpps,
                 'direction': self.new_rule.direction,
-            }
+            },
         )
         self.assertEqual(self.columns, columns)
         self.assertEqual(self.data, data)
@@ -473,7 +473,7 @@ class TestCreateNetworkQosRuleBandwidtLimit(TestNetworkQosRule):
             **{
                 'max_kbps': self.new_rule.max_kbps,
                 'direction': self.new_rule.direction,
-            }
+            },
         )
         self.assertEqual(self.columns, columns)
         self.assertEqual(expected_data, data)
@@ -507,7 +507,7 @@ class TestCreateNetworkQosRuleBandwidtLimit(TestNetworkQosRule):
                 'max_kbps': self.new_rule.max_kbps,
                 'max_burst_kbps': self.new_rule.max_burst_kbits,
                 'direction': self.new_rule.direction,
-            }
+            },
         )
         self.assertEqual(self.columns, columns)
         self.assertEqual(self.data, data)

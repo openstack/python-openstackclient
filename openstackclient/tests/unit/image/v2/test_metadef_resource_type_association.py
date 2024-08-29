@@ -42,9 +42,7 @@ class TestMetadefResourceTypeAssociationCreate(
     def setUp(self):
         super().setUp()
 
-        self.image_client.create_metadef_resource_type_association.return_value = (
-            self.resource_type_association
-        )
+        self.image_client.create_metadef_resource_type_association.return_value = self.resource_type_association
         self.cmd = metadef_resource_type_association.CreateMetadefResourceTypeAssociation(
             self.app, None
         )
@@ -74,9 +72,7 @@ class TestMetadefResourceTypeAssociationDelete(
     def setUp(self):
         super().setUp()
 
-        self.image_client.delete_metadef_resource_type_association.return_value = (
-            self.resource_type_association
-        )
+        self.image_client.delete_metadef_resource_type_association.return_value = self.resource_type_association
         self.cmd = metadef_resource_type_association.DeleteMetadefResourceTypeAssociation(
             self.app, None
         )

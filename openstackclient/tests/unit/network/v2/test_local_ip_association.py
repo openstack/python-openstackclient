@@ -86,7 +86,7 @@ class TestCreateLocalIPAssociation(TestLocalIPAssociation):
             self.new_local_ip_association.local_ip_id,
             **{
                 'fixed_port_id': self.new_local_ip_association.fixed_port_id,
-            }
+            },
         )
         self.assertEqual(set(self.columns), set(columns))
         self.assertEqual(set(self.data), set(data))
@@ -111,7 +111,7 @@ class TestCreateLocalIPAssociation(TestLocalIPAssociation):
             **{
                 'fixed_port_id': self.new_local_ip_association.fixed_port_id,
                 'fixed_ip': self.new_local_ip_association.fixed_ip,
-            }
+            },
         )
         self.assertEqual(set(self.columns), set(columns))
         self.assertEqual(set(self.data), set(data))

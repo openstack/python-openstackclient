@@ -352,7 +352,7 @@ class TestObjectShow(TestObject):
         c_mock.assert_called_with(
             container=object_fakes.container_name,
             object=object_fakes.object_name_1,
-            **kwargs
+            **kwargs,
         )
 
         collist = ('bytes', 'content_type', 'hash', 'last_modified', 'name')

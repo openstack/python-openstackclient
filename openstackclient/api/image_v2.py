@@ -33,7 +33,7 @@ class APIv2(image_v1.APIv1):
         private=False,
         community=False,
         shared=False,
-        **filter
+        **filter,
     ):
         """Get available images
 

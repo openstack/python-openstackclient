@@ -89,7 +89,7 @@ class APIv1(api.BaseAPI):
         marker=None,
         end_marker=None,
         prefix=None,
-        **params
+        **params,
     ):
         """Get containers in an account
 
@@ -116,7 +116,7 @@ class APIv1(api.BaseAPI):
                 marker=marker,
                 end_marker=end_marker,
                 prefix=prefix,
-                **params
+                **params,
             )
             while listing:
                 marker = listing[-1]['name']
@@ -125,7 +125,7 @@ class APIv1(api.BaseAPI):
                     marker=marker,
                     end_marker=end_marker,
                     prefix=prefix,
-                    **params
+                    **params,
                 )
                 if listing:
                     data.extend(listing)
@@ -306,7 +306,7 @@ class APIv1(api.BaseAPI):
         end_marker=None,
         delimiter=None,
         prefix=None,
-        **params
+        **params,
     ):
         """List objects in a container
 
@@ -341,7 +341,7 @@ class APIv1(api.BaseAPI):
                 end_marker=end_marker,
                 prefix=prefix,
                 delimiter=delimiter,
-                **params
+                **params,
             )
             while listing:
                 if delimiter:
@@ -355,7 +355,7 @@ class APIv1(api.BaseAPI):
                     end_marker=end_marker,
                     prefix=prefix,
                     delimiter=delimiter,
-                    **params
+                    **params,
                 )
                 if listing:
                     data.extend(listing)
