@@ -253,8 +253,17 @@ def _get_migration_by_uuid(compute_client, server_id, migration_uuid):
         if migration.uuid == migration_uuid:
             return migration
     else:
-        msg = _('In-progress live migration %s is not found for server %s.')
-        raise exceptions.CommandError(msg % (migration_uuid, server_id))
+        msg = _(
+            'In-progress live migration %(migration)s is not found for '
+            'server %(server)s'
+        )
+        raise exceptions.CommandError(
+            msg
+            % {
+                'migration': migration_uuid,
+                'server': server_id,
+            }
+        )
 
 
 class ShowMigration(command.ShowOne):

@@ -172,7 +172,7 @@ class CreateVolumeType(command.ShowOne):
             default=False,
             help=_(
                 "Enabled replication for this volume type "
-                "(this is an alias for '--property replication_enabled=<is> True') "  # noqa: E501
+                "(this is an alias for '--property replication_enabled=<is> True') "
                 "(requires driver support)"
             ),
         )
@@ -182,7 +182,7 @@ class CreateVolumeType(command.ShowOne):
             dest='availability_zones',
             help=_(
                 "Set an availability zone for this volume type "
-                "(this is an alias for '--property RESKEY:availability_zones:<az>') "  # noqa: E501
+                "(this is an alias for '--property RESKEY:availability_zones:<az>') "
                 "(repeat option to set multiple availability zones)"
             ),
         )
@@ -448,7 +448,7 @@ class ListVolumeType(command.Lister):
             default=False,
             help=_(
                 "List only volume types with replication enabled "
-                "(this is an alias for '--property replication_enabled=<is> True') "  # noqa: E501
+                "(this is an alias for '--property replication_enabled=<is> True') "
                 "(supported by --os-volume-api-version 3.52 or above)"
             ),
         )
@@ -458,7 +458,7 @@ class ListVolumeType(command.Lister):
             dest='availability_zones',
             help=_(
                 "List only volume types with this availability configured "
-                "(this is an alias for '--property RESKEY:availability_zones:<az>') "  # noqa: E501
+                "(this is an alias for '--property RESKEY:availability_zones:<az>') "
                 "(repeat option to filter on multiple availability zones)"
             ),
         )
@@ -617,7 +617,7 @@ class SetVolumeType(command.Command):
             default=False,
             help=_(
                 "Enabled replication for this volume type "
-                "(this is an alias for '--property replication_enabled=<is> True') "  # noqa: E501
+                "(this is an alias for '--property replication_enabled=<is> True') "
                 "(requires driver support)"
             ),
         )
@@ -627,7 +627,7 @@ class SetVolumeType(command.Command):
             dest='availability_zones',
             help=_(
                 "Set an availability zone for this volume type "
-                "(this is an alias for '--property RESKEY:availability_zones:<az>') "  # noqa: E501
+                "(this is an alias for '--property RESKEY:availability_zones:<az>') "
                 "(repeat option to set multiple availability zones)"
             ),
         )

@@ -154,7 +154,7 @@ class CreateVolume(volume_v2.CreateVolume):
                 "Cinder cluster on which the existing volume resides; "
                 "takes the form: cluster@backend-name#pool. This is only "
                 "used along with the --remote-source option. "
-                "(supported by --os-volume-api-version 3.16 or above)",
+                "(supported by --os-volume-api-version 3.16 or above)"
             ),
         )
         return parser

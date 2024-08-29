@@ -176,7 +176,7 @@ def get_network_quotas(
     default=False,
 ):
     def _network_quota_to_dict(network_quota, detail=False):
-        if type(network_quota) is not dict:
+        if not isinstance(network_quota, dict):
             dict_quota = network_quota.to_dict()
         else:
             dict_quota = network_quota
