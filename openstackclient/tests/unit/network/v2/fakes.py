@@ -1676,6 +1676,7 @@ def create_one_port(attrs=None):
         'qos_network_policy_id': 'qos-policy-id-' + uuid.uuid4().hex,
         'qos_policy_id': 'qos-policy-id-' + uuid.uuid4().hex,
         'tags': [],
+        'trusted': None,
         'propagate_uplink_status': False,
         'location': 'MUNCHMUNCHMUNCH',
     }

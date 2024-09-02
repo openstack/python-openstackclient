@@ -1,0 +1,7 @@
+---
+features:
+  - |
+    Add ``trusted`` attribute to the ``port create`` and ``port set`` commands.
+    It can be set to ``true`` with ``--trusted`` and to ``false`` with
+    ``--not-trusted`` CLI arguments passed to the ``port create`` and ``port
+    set`` commands``
