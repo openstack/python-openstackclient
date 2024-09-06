@@ -116,7 +116,6 @@ class ClientManager(clientmanager.ClientManager):
 
     def is_network_endpoint_enabled(self):
         """Check if the network endpoint is enabled"""
-
         # NOTE(dtroyer): is_service_available() can also return None if
         #                there is no Service Catalog, callers here are
         #                not expecting that so fold None into True to
@@ -125,34 +124,16 @@ class ClientManager(clientmanager.ClientManager):
 
     def is_compute_endpoint_enabled(self):
         """Check if Compute endpoint is enabled"""
-
         return self.is_service_available('compute') is not False
 
-    def is_volume_endpoint_enabled(self, volume_client):
+    # TODO(stephenfin): Drop volume_client argument in OSC 8.0 or later.
+    def is_volume_endpoint_enabled(self, volume_client=None):
         """Check if volume endpoint is enabled"""
-        # NOTE(jcross): Cinder did some interesting things with their service
-        #               name so we need to figure out which version to look
-        #               for when calling is_service_available()
-        endpoint_data = volume_client.get_endpoint_data()
-        # Not sure how endpoint data stores the api version for v2 API,
-        # for v3 it is a tuple (3, 0)
-        if endpoint_data.api_version and isinstance(
-            endpoint_data.api_version, tuple
-        ):
-            volume_version = endpoint_data.api_version[0]
-        else:
-            # Setting volume_version as 2 here if it doesn't satisfy the
-            # conditions for version 3
-            volume_version = 2
-        if (
-            self.is_service_available("volumev%s" % volume_version)
-            is not False
-        ):
-            return True
-        elif self.is_service_available('volume') is not False:
-            return True
-        else:
-            return False
+        return (
+            self.is_service_available('volume') is not False
+            or self.is_service_available('volumev3') is not False
+            or self.is_service_available('volumev2') is not False
+        )
 
 
 # Plugin Support

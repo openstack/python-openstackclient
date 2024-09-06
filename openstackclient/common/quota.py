@@ -565,33 +565,42 @@ class SetQuota(common.NetDetectionMixin, command.Command):
             msg = _('--force cannot be used with --class or --default')
             raise exceptions.CommandError(msg)
 
-        compute_client = self.app.client_manager.sdk_connection.compute
-        volume_client = self.app.client_manager.sdk_connection.volume
-
         compute_kwargs = {}
-        for k, v in COMPUTE_QUOTAS.items():
-            value = getattr(parsed_args, k, None)
-            if value is not None:
-                compute_kwargs[k] = value
-
-        if compute_kwargs and parsed_args.force is True:
-            compute_kwargs['force'] = parsed_args.force
-
         volume_kwargs = {}
-        for k, v in VOLUME_QUOTAS.items():
-            value = getattr(parsed_args, k, None)
-            if value is not None:
-                if parsed_args.volume_type and k in IMPACT_VOLUME_TYPE_QUOTAS:
-                    k = k + '_%s' % parsed_args.volume_type
-                volume_kwargs[k] = value
-
         network_kwargs = {}
+
+        if self.app.client_manager.is_compute_endpoint_enabled():
+            compute_client = self.app.client_manager.sdk_connection.compute
+
+            for k, v in COMPUTE_QUOTAS.items():
+                value = getattr(parsed_args, k, None)
+                if value is not None:
+                    compute_kwargs[k] = value
+
+            if compute_kwargs and parsed_args.force is True:
+                compute_kwargs['force'] = parsed_args.force
+
+        if self.app.client_manager.is_volume_endpoint_enabled():
+            volume_client = self.app.client_manager.sdk_connection.volume
+
+            for k, v in VOLUME_QUOTAS.items():
+                value = getattr(parsed_args, k, None)
+                if value is not None:
+                    if (
+                        parsed_args.volume_type
+                        and k in IMPACT_VOLUME_TYPE_QUOTAS
+                    ):
+                        k = k + '_%s' % parsed_args.volume_type
+                    volume_kwargs[k] = value
+
         if self.app.client_manager.is_network_endpoint_enabled():
+            network_client = self.app.client_manager.network
+
             for k, v in NETWORK_QUOTAS.items():
                 value = getattr(parsed_args, k, None)
                 if value is not None:
                     network_kwargs[k] = value
-        else:
+        elif self.app.client_manager.is_compute_endpoint_enabled():
             for k, v in NOVA_NETWORK_QUOTAS.items():
                 value = getattr(parsed_args, k, None)
                 if value is not None:
@@ -632,11 +641,7 @@ class SetQuota(common.NetDetectionMixin, command.Command):
             compute_client.update_quota_set(project, **compute_kwargs)
         if volume_kwargs:
             volume_client.update_quota_set(project, **volume_kwargs)
-        if (
-            network_kwargs
-            and self.app.client_manager.is_network_endpoint_enabled()
-        ):
-            network_client = self.app.client_manager.network
+        if network_kwargs:
             network_client.update_quota(project, **network_kwargs)
 
 
