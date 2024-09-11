@@ -260,10 +260,12 @@ class ShowMetadefObjectProperty(command.ShowOne):
             prop['name'] = parsed_args.property
 
         except KeyError:
-            msg = _('Property %s not found in object %s.') % (
-                parsed_args.property,
-                parsed_args.object,
-            )
+            msg = _(
+                'Property %(property)s not found in object %(object)s.'
+            ) % {
+                'property': parsed_args.property,
+                'object': parsed_args.object,
+            }
             raise exceptions.CommandError(msg)
 
         return zip(*sorted(prop.items()))

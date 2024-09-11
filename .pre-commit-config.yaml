@@ -24,6 +24,11 @@ repos:
     hooks:
       - id: black
         args: ['-S', '-l', '79']
+  - repo: https://github.com/astral-sh/ruff-pre-commit
+    rev: v0.6.2
+    hooks:
+      - id: ruff
+        args: ['--fix']
   - repo: https://github.com/PyCQA/bandit
     rev: 1.7.9
     hooks:

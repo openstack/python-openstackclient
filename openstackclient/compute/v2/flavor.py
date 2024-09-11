@@ -577,7 +577,7 @@ class UnsetFlavor(command.Command):
                 parsed_args.flavor, get_extra_specs=True, ignore_missing=False
             )
         except sdk_exceptions.ResourceNotFound as e:
-            raise exceptions.CommandError(_(e.message))
+            raise exceptions.CommandError(e.message)
 
         result = 0
         if parsed_args.properties:

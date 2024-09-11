@@ -288,7 +288,7 @@ class DeleteVolumeGroup(command.Command):
             default=False,
             help=_(
                 'Delete the volume group even if it contains volumes. '
-                'This will delete any remaining volumes in the group.',
+                'This will delete any remaining volumes in the group.'
             ),
         )
         return parser
@@ -582,18 +582,14 @@ class FailoverVolumeGroup(command.Command):
             action='store_true',
             dest='allow_attached_volume',
             default=False,
-            help=_(
-                'Allow group with attached volumes to be failed over.',
-            ),
+            help=_('Allow group with attached volumes to be failed over.'),
         )
         parser.add_argument(
             '--disallow-attached-volume',
             action='store_false',
             dest='allow_attached_volume',
             default=False,
-            help=_(
-                'Disallow group with attached volumes to be failed over.',
-            ),
+            help=_('Disallow group with attached volumes to be failed over.'),
         )
         parser.add_argument(
             '--secondary-backend-id',

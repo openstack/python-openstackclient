@@ -1614,8 +1614,6 @@ class ImportImage(command.ShowOne):
             metavar='<image>',
             help=_('Image to initiate import process for (name or ID)'),
         )
-        # TODO(stephenfin): Uncomment help text when we have this command
-        # implemented
         parser.add_argument(
             '--method',
             metavar='<method>',
@@ -1630,8 +1628,6 @@ class ImportImage(command.ShowOne):
             help=_(
                 "Import method used for image import process. "
                 "Not all deployments will support all methods. "
-                # "Valid values can be retrieved with the 'image import "
-                # "methods' command. "
                 "The 'glance-direct' method (default) requires images be "
                 "first staged using the 'image-stage' command."
             ),
@@ -1734,11 +1730,15 @@ class ImportImage(command.ShowOne):
 
         if parsed_args.import_method not in import_methods:
             msg = _(
-                "The '%s' import method is not supported by this deployment. "
-                "Supported: %s"
+                "The '%(method)s' import method is not supported by this "
+                "deployment. Supported: %(supported)s"
             )
             raise exceptions.CommandError(
-                msg % (parsed_args.import_method, ', '.join(import_methods)),
+                msg
+                % {
+                    'method': parsed_args.import_method,
+                    'supported': ', '.join(import_methods),
+                },
             )
 
         if parsed_args.import_method == 'web-download':
