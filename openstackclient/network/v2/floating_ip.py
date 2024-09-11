@@ -448,7 +448,7 @@ class SetFloatingIP(common.NeutronCommandWithExtraArgs):
             '--port',
             metavar='<port>',
             help=_("Associate the floating IP with port (name or ID)"),
-        ),
+        )
         parser.add_argument(
             '--fixed-ip-address',
             metavar='<ip-address>',

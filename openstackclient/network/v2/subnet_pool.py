@@ -201,7 +201,7 @@ class CreateSubnetPool(command.ShowOne, common.NeutronCommandWithExtraArgs):
                 "as the number of IP addresses that can be allocated "
                 "from the subnet pool"
             ),
-        ),
+        )
         _tag.add_tag_option_to_parser_for_create(parser, _('subnet pool'))
         return parser
 
@@ -433,7 +433,7 @@ class SetSubnetPool(common.NeutronCommandWithExtraArgs):
                 "as the number of IP addresses that can be allocated "
                 "from the subnet pool"
             ),
-        ),
+        )
         _tag.add_tag_option_to_parser_for_set(parser, _('subnet pool'))
 
         return parser
