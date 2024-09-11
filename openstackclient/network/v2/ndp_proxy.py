@@ -14,6 +14,7 @@
 #    under the License.
 
 """Router NDP proxy action implementations"""
+
 import logging
 
 from osc_lib.command import command

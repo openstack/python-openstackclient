@@ -87,7 +87,7 @@ class CreateProject(command.ShowOne):
                 parsed_args.name,
                 description=parsed_args.description,
                 enabled=enabled,
-                **kwargs
+                **kwargs,
             )
         except ks_exc.Conflict:
             if parsed_args.or_show:

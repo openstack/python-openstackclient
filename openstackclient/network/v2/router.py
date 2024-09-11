@@ -164,10 +164,13 @@ def _get_external_gateway_attrs(client_manager, parsed_args):
                     'subnet_id' in ip_spec
                     and ip_net_id not in external_gateways
                 ):
-                    msg = _(
-                        'Subnet %s does not belong to any of the networks '
-                        'provided for --external-gateway.'
-                    ) % (ip_spec['subnet_id'])
+                    msg = (
+                        _(
+                            'Subnet %s does not belong to any of the networks '
+                            'provided for --external-gateway.'
+                        )
+                        % (ip_spec['subnet_id'])
+                    )
                     raise exceptions.CommandError(msg)
                 for gw_info in external_gateways[ip_net_id]:
                     if 'external_fixed_ips' not in gw_info:

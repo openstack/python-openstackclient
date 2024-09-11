@@ -7363,9 +7363,7 @@ class TestServerRemoveSecurityGroup(TestServer):
 
         self.server = compute_fakes.create_one_sdk_server()
         self.compute_sdk_client.find_server.return_value = self.server
-        self.compute_sdk_client.remove_security_group_from_server.return_value = (
-            None
-        )
+        self.compute_sdk_client.remove_security_group_from_server.return_value = None
 
         # Get the command object to test
         self.cmd = server.RemoveServerSecurityGroup(self.app, None)

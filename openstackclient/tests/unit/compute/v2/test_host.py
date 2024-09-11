@@ -59,7 +59,6 @@ def _generate_fake_host():
 
 
 class TestHostList(compute_fakes.TestComputev2):
-
     def setUp(self):
         super().setUp()
 

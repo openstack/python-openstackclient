@@ -1006,7 +1006,7 @@ class TestSetSubnetPool(TestSubnetPool):
             self._subnet_pool,
             **{
                 'default_quota': 20,
-            }
+            },
         )
         self.assertIsNone(result)
 

@@ -15,6 +15,7 @@
 #
 
 """Network trunk and subports action implementations"""
+
 import logging
 
 from cliff import columns as cliff_columns
@@ -67,8 +68,8 @@ class CreateNetworkTrunk(command.ShowOne):
             required_keys=['port'],
             help=_(
                 "Subport to add. Subport is of form "
-                "\'port=<name or ID>,segmentation-type=<segmentation-type>,"
-                "segmentation-id=<segmentation-ID>\' (--subport) option "
+                "'port=<name or ID>,segmentation-type=<segmentation-type>,"
+                "segmentation-id=<segmentation-ID>' (--subport) option "
                 "can be repeated"
             ),
         )
@@ -198,8 +199,8 @@ class SetNetworkTrunk(command.Command):
             required_keys=['port'],
             help=_(
                 "Subport to add. Subport is of form "
-                "\'port=<name or ID>,segmentation-type=<segmentation-type>"
-                ",segmentation-id=<segmentation-ID>\' (--subport) option "
+                "'port=<name or ID>,segmentation-type=<segmentation-type>"
+                ",segmentation-id=<segmentation-ID>' (--subport) option "
                 "can be repeated"
             ),
         )

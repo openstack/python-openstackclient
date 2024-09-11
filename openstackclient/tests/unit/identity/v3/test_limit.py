@@ -90,7 +90,7 @@ class TestLimitCreate(TestLimit):
             self.service,
             identity_fakes.limit_resource_name,
             resource_limit,
-            **kwargs
+            **kwargs,
         )
 
         collist = (
@@ -154,7 +154,7 @@ class TestLimitCreate(TestLimit):
             self.service,
             identity_fakes.limit_resource_name,
             resource_limit,
-            **kwargs
+            **kwargs,
         )
 
         collist = (

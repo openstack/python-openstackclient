@@ -79,7 +79,7 @@ class TestCreateDefaultSecurityGroupRule(TestDefaultSecurityGroupRule):
         default_security_group_rule_attrs.update(attrs)
         self._default_sg_rule = sdk_fakes.generate_fake_resource(
             _default_security_group_rule.DefaultSecurityGroupRule,
-            **default_security_group_rule_attrs
+            **default_security_group_rule_attrs,
         )
 
         self.sdk_client.create_default_security_group_rule.return_value = (
@@ -956,11 +956,11 @@ class TestListDefaultSecurityGroupRule(TestDefaultSecurityGroupRule):
     # The security group rule to be listed.
     _default_sg_rule_tcp = sdk_fakes.generate_fake_resource(
         _default_security_group_rule.DefaultSecurityGroupRule,
-        **{'protocol': 'tcp', 'port_range_max': 80, 'port_range_min': 80}
+        **{'protocol': 'tcp', 'port_range_max': 80, 'port_range_min': 80},
     )
     _default_sg_rule_icmp = sdk_fakes.generate_fake_resource(
         _default_security_group_rule.DefaultSecurityGroupRule,
-        **{'protocol': 'icmp', 'remote_ip_prefix': '10.0.2.0/24'}
+        **{'protocol': 'icmp', 'remote_ip_prefix': '10.0.2.0/24'},
     )
     _default_sg_rules = [
         _default_sg_rule_tcp,

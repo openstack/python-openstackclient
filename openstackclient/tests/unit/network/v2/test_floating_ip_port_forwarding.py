@@ -153,7 +153,7 @@ class TestCreateFloatingIPPortForwarding(TestFloatingIPPortForwarding):
                 'internal_port_id': self.new_port_forwarding_with_ranges.internal_port_id,  # noqa: E501
                 'protocol': self.new_port_forwarding_with_ranges.protocol,
                 'description': self.new_port_forwarding_with_ranges.description,  # noqa: E501
-            }
+            },
         )
         self.assertEqual(self.columns, columns)
         self.assertEqual(self.data, data)
@@ -334,7 +334,7 @@ class TestCreateFloatingIPPortForwarding(TestFloatingIPPortForwarding):
                 'internal_port_id': self.new_port_forwarding.internal_port_id,
                 'protocol': self.new_port_forwarding.protocol,
                 'description': self.new_port_forwarding.description,
-            }
+            },
         )
         self.assertEqual(self.columns, columns)
         self.assertEqual(self.data, data)
@@ -587,7 +587,7 @@ class TestSetFloatingIPPortForwarding(TestFloatingIPPortForwarding):
         self.network_client.update_floating_ip_port_forwarding.assert_called_with(
             self._port_forwarding.floatingip_id,
             self._port_forwarding.id,
-            **attrs
+            **attrs,
         )
         self.assertIsNone(result)
 
@@ -648,7 +648,7 @@ class TestSetFloatingIPPortForwarding(TestFloatingIPPortForwarding):
             self.network_client.update_floating_ip_port_forwarding.assert_called_with(
                 self._port_forwarding.floatingip_id,
                 self._port_forwarding.id,
-                **attrs
+                **attrs,
             )
             self.assertIsNone(result)
 
