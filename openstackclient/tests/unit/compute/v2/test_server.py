@@ -4581,7 +4581,7 @@ class _TestServerList(TestServer):
             'status': None,
             'flavor': None,
             'image': None,
-            'host': None,
+            'compute_host': None,
             'project_id': None,
             'all_projects': False,
             'user_id': None,
