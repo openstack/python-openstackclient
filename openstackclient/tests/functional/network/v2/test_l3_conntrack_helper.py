@@ -41,15 +41,14 @@ class L3ConntrackHelperTests(common.NetworkTests):
         created_helpers = []
         for helper in helpers:
             output = self.openstack(
-                'network l3 conntrack helper create %(router)s '
-                '--helper %(helper)s --protocol %(protocol)s '
-                '--port %(port)s '
-                % {
-                    'router': router_id,
-                    'helper': helper['helper'],
-                    'protocol': helper['protocol'],
-                    'port': helper['port'],
-                },
+                'network l3 conntrack helper create {router} '
+                '--helper {helper} --protocol {protocol} '
+                '--port {port} '.format(
+                    router=router_id,
+                    helper=helper['helper'],
+                    protocol=helper['protocol'],
+                    port=helper['port'],
+                ),
                 parse_output=True,
             )
             self.assertEqual(helper['helper'], output['helper'])
@@ -70,8 +69,8 @@ class L3ConntrackHelperTests(common.NetworkTests):
         ct_ids = " ".join([ct['id'] for ct in created_helpers])
 
         raw_output = self.openstack(
-            '--debug network l3 conntrack helper delete %(router)s '
-            '%(ct_ids)s' % {'router': router_id, 'ct_ids': ct_ids}
+            f'--debug network l3 conntrack helper delete {router_id} '
+            f'{ct_ids}'
         )
         self.assertOutput('', raw_output)
 
@@ -87,7 +86,7 @@ class L3ConntrackHelperTests(common.NetworkTests):
         router_id = self._create_router()
         self._create_helpers(router_id, helpers)
         output = self.openstack(
-            'network l3 conntrack helper list %s ' % router_id,
+            f'network l3 conntrack helper list {router_id} ',
             parse_output=True,
         )
         for ct in output:
@@ -100,12 +99,11 @@ class L3ConntrackHelperTests(common.NetworkTests):
         router_id = self._create_router()
         created_helper = self._create_helpers(router_id, [helper])[0]
         output = self.openstack(
-            'network l3 conntrack helper show %(router_id)s %(ct_id)s '
-            '-f json'
-            % {
-                'router_id': router_id,
-                'ct_id': created_helper['id'],
-            },
+            'network l3 conntrack helper show {router_id} {ct_id} '
+            '-f json'.format(
+                router_id=router_id,
+                ct_id=created_helper['id'],
+            ),
             parse_output=True,
         )
         self.assertEqual(helper['helper'], output['helper'])
@@ -113,23 +111,21 @@ class L3ConntrackHelperTests(common.NetworkTests):
         self.assertEqual(helper['port'], output['port'])
 
         raw_output = self.openstack(
-            'network l3 conntrack helper set %(router_id)s %(ct_id)s '
-            '--port %(port)s '
-            % {
-                'router_id': router_id,
-                'ct_id': created_helper['id'],
-                'port': helper['port'] + 1,
-            }
+            'network l3 conntrack helper set {router_id} {ct_id} '
+            '--port {port} '.format(
+                router_id=router_id,
+                ct_id=created_helper['id'],
+                port=helper['port'] + 1,
+            )
         )
         self.assertOutput('', raw_output)
 
         output = self.openstack(
-            'network l3 conntrack helper show %(router_id)s %(ct_id)s '
-            '-f json'
-            % {
-                'router_id': router_id,
-                'ct_id': created_helper['id'],
-            },
+            'network l3 conntrack helper show {router_id} {ct_id} '
+            '-f json'.format(
+                router_id=router_id,
+                ct_id=created_helper['id'],
+            ),
             parse_output=True,
         )
         self.assertEqual(helper['port'] + 1, output['port'])

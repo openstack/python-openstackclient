@@ -85,34 +85,20 @@ class ApplicationCredentialTests(common.IdentityTests):
         for role in role1, role2:
             self.openstack(
                 'role add'
-                ' --user %(user)s'
-                ' --user-domain %(user_domain)s'
-                ' --project %(project)s'
-                ' --project-domain %(project_domain)s'
-                ' %(role)s'
-                % {
-                    'user': user,
-                    'user_domain': user_domain,
-                    'project': project,
-                    'project_domain': project_domain,
-                    'role': role,
-                }
+                f' --user {user}'
+                f' --user-domain {user_domain}'
+                f' --project {project}'
+                f' --project-domain {project_domain}'
+                f' {role}'
             )
             self.addCleanup(
                 self.openstack,
                 'role remove'
-                ' --user %(user)s'
-                ' --user-domain %(user_domain)s'
-                ' --project %(project)s'
-                ' --project-domain %(project_domain)s'
-                ' %(role)s'
-                % {
-                    'user': user,
-                    'user_domain': user_domain,
-                    'project': project,
-                    'project_domain': project_domain,
-                    'role': role,
-                },
+                f' --user {user}'
+                f' --user-domain {user_domain}'
+                f' --project {project}'
+                f' --project-domain {project_domain}'
+                f' {role}',
             )
         return role1, role2
 
@@ -125,21 +111,13 @@ class ApplicationCredentialTests(common.IdentityTests):
         ).strftime('%Y-%m-%dT%H:%M:%S%z')
         role1, role2 = self._create_role_assignments()
         raw_output = self.openstack(
-            'application credential create %(name)s'
-            ' --secret %(secret)s'
-            ' --description %(description)s'
-            ' --expiration %(tomorrow)s'
-            ' --role %(role1)s'
-            ' --role %(role2)s'
+            f'application credential create {name}'
+            f' --secret {secret}'
+            f' --description {description}'
+            f' --expiration {tomorrow}'
+            f' --role {role1}'
+            f' --role {role2}'
             ' --unrestricted'
-            % {
-                'name': name,
-                'secret': secret,
-                'description': description,
-                'tomorrow': tomorrow,
-                'role1': role1,
-                'role2': role2,
-            }
         )
         self.addCleanup(
             self.openstack,
@@ -151,9 +129,7 @@ class ApplicationCredentialTests(common.IdentityTests):
     def test_application_credential_delete(self):
         name = data_utils.rand_name('name')
         self.openstack(f'application credential create {name}')
-        raw_output = self.openstack(
-            'application credential delete ' '%(name)s' % {'name': name}
-        )
+        raw_output = self.openstack('application credential delete ' f'{name}')
         self.assertEqual(0, len(raw_output))
 
     def test_application_credential_list(self):
@@ -170,8 +146,6 @@ class ApplicationCredentialTests(common.IdentityTests):
             self.openstack,
             f'application credential delete {name}',
         )
-        raw_output = self.openstack(
-            'application credential show ' '%(name)s' % {'name': name}
-        )
+        raw_output = self.openstack('application credential show ' f'{name}')
         items = self.parse_show(raw_output)
         self.assert_show_fields(items, self.APPLICATION_CREDENTIAL_FIELDS)

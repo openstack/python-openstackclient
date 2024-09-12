@@ -68,7 +68,7 @@ class CreateServerBackup(command.ShowOne):
     def take_action(self, parsed_args):
         def _show_progress(progress):
             if progress:
-                self.app.stderr.write('\rProgress: %s' % progress)
+                self.app.stderr.write(f'\rProgress: {progress}')
                 self.app.stderr.flush()
 
         compute_client = self.app.client_manager.sdk_connection.compute

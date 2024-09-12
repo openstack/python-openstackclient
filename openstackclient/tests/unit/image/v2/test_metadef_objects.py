@@ -256,7 +256,6 @@ class TestMetadefObjectPropertyShow(fakes.TestImagev2):
             parsed_args,
         )
         self.assertIn(
-            'Property %s not found in object %s.'
-            % (parsed_args.property, parsed_args.object),
+            f'Property {parsed_args.property} not found in object {parsed_args.object}.',
             str(exc),
         )

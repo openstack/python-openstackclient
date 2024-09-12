@@ -22,7 +22,7 @@ class UserTests(common.IdentityTests):
 
     def test_user_delete(self):
         username = self._create_dummy_user(add_clean_up=False)
-        raw_output = self.openstack('user delete %s' % username)
+        raw_output = self.openstack(f'user delete {username}')
         self.assertEqual(0, len(raw_output))
 
     def test_user_list(self):
@@ -32,26 +32,24 @@ class UserTests(common.IdentityTests):
 
     def test_user_set(self):
         username = self._create_dummy_user()
-        raw_output = self.openstack('user show %s' % username)
+        raw_output = self.openstack(f'user show {username}')
         user = self.parse_show_as_object(raw_output)
         new_username = data_utils.rand_name('NewTestUser')
         new_email = data_utils.rand_name() + '@example.com'
         raw_output = self.openstack(
-            'user set '
-            '--email %(email)s '
-            '--name %(new_name)s '
-            '%(id)s'
-            % {'email': new_email, 'new_name': new_username, 'id': user['id']}
+            'user set ' '--email {email} ' '--name {new_name} ' '{id}'.format(
+                email=new_email, new_name=new_username, id=user['id']
+            )
         )
         self.assertEqual(0, len(raw_output))
-        raw_output = self.openstack('user show %s' % new_username)
+        raw_output = self.openstack(f'user show {new_username}')
         new_user = self.parse_show_as_object(raw_output)
         self.assertEqual(user['id'], new_user['id'])
         self.assertEqual(new_email, new_user['email'])
 
     def test_user_show(self):
         username = self._create_dummy_user()
-        raw_output = self.openstack('user show %s' % username)
+        raw_output = self.openstack(f'user show {username}')
         items = self.parse_show(raw_output)
         self.assert_show_fields(items, self.USER_FIELDS)
 

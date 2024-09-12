@@ -156,10 +156,9 @@ class IdentityTests(base.TestCase):
         cls.openstack(
             '--os-identity-api-version 3 '
             'domain create '
-            '--description %(description)s '
+            f'--description {cls.domain_description} '
             '--enable '
-            '%(name)s'
-            % {'description': cls.domain_description, 'name': cls.domain_name}
+            f'{cls.domain_name}'
         )
 
         # create dummy project
@@ -168,15 +167,10 @@ class IdentityTests(base.TestCase):
         cls.openstack(
             '--os-identity-api-version 3 '
             'project create '
-            '--domain %(domain)s '
-            '--description %(description)s '
+            f'--domain {cls.domain_name} '
+            f'--description {cls.project_description} '
             '--enable '
-            '%(name)s'
-            % {
-                'domain': cls.domain_name,
-                'description': cls.project_description,
-                'name': cls.project_name,
-            }
+            f'{cls.project_name}'
         )
 
     @classmethod
@@ -185,16 +179,16 @@ class IdentityTests(base.TestCase):
             # delete dummy project
             cls.openstack(
                 '--os-identity-api-version 3 '
-                'project delete %s' % cls.project_name
+                f'project delete {cls.project_name}'
             )
             # disable and delete dummy domain
             cls.openstack(
                 '--os-identity-api-version 3 '
-                'domain set --disable %s' % cls.domain_name
+                f'domain set --disable {cls.domain_name}'
             )
             cls.openstack(
                 '--os-identity-api-version 3 '
-                'domain delete %s' % cls.domain_name
+                f'domain delete {cls.domain_name}'
             )
         finally:
             super().tearDownClass()
@@ -220,28 +214,21 @@ class IdentityTests(base.TestCase):
         description = data_utils.rand_name('description')
         raw_output = self.openstack(
             'user create '
-            '--domain %(domain)s '
-            '--project %(project)s '
-            '--project-domain %(project_domain)s '
-            '--password %(password)s '
-            '--email %(email)s '
-            '--description %(description)s '
+            f'--domain {self.domain_name} '
+            f'--project {self.project_name} '
+            f'--project-domain {self.domain_name} '
+            f'--password {password} '
+            f'--email {email} '
+            f'--description {description} '
             '--enable '
-            '%(name)s'
-            % {
-                'domain': self.domain_name,
-                'project': self.project_name,
-                'project_domain': self.domain_name,
-                'email': email,
-                'password': password,
-                'description': description,
-                'name': username,
-            }
+            f'{username}'
         )
         if add_clean_up:
             self.addCleanup(
                 self.openstack,
-                'user delete %s' % self.parse_show_as_object(raw_output)['id'],
+                'user delete {}'.format(
+                    self.parse_show_as_object(raw_output)['id']
+                ),
             )
         items = self.parse_show(raw_output)
         self.assert_show_fields(items, self.USER_FIELDS)
@@ -249,10 +236,12 @@ class IdentityTests(base.TestCase):
 
     def _create_dummy_role(self, add_clean_up=True):
         role_name = data_utils.rand_name('TestRole')
-        raw_output = self.openstack('role create %s' % role_name)
+        raw_output = self.openstack(f'role create {role_name}')
         role = self.parse_show_as_object(raw_output)
         if add_clean_up:
-            self.addCleanup(self.openstack, 'role delete %s' % role['id'])
+            self.addCleanup(
+                self.openstack, 'role delete {}'.format(role['id'])
+            )
         items = self.parse_show(raw_output)
         self.assert_show_fields(items, self.ROLE_FIELDS)
         self.assertEqual(role_name, role['name'])
@@ -263,8 +252,8 @@ class IdentityTests(base.TestCase):
         implied_role_name = self._create_dummy_role(add_clean_up)
         self.openstack(
             'implied role create '
-            '--implied-role %(implied_role)s '
-            '%(role)s' % {'implied_role': implied_role_name, 'role': role_name}
+            f'--implied-role {implied_role_name} '
+            f'{role_name}'
         )
 
         return implied_role_name, role_name
@@ -274,21 +263,16 @@ class IdentityTests(base.TestCase):
         description = data_utils.rand_name('description')
         raw_output = self.openstack(
             'group create '
-            '--domain %(domain)s '
-            '--description %(description)s '
-            '%(name)s'
-            % {
-                'domain': self.domain_name,
-                'description': description,
-                'name': group_name,
-            }
+            f'--domain {self.domain_name} '
+            f'--description {description} '
+            f'{group_name}'
         )
         if add_clean_up:
             self.addCleanup(
                 self.openstack,
                 'group delete '
-                '--domain %(domain)s '
-                '%(name)s' % {'domain': self.domain_name, 'name': group_name},
+                f'--domain {self.domain_name} '
+                f'{group_name}',
             )
         items = self.parse_show(raw_output)
         self.assert_show_fields(items, self.GROUP_FIELDS)
@@ -299,14 +283,13 @@ class IdentityTests(base.TestCase):
         domain_description = data_utils.rand_name('description')
         self.openstack(
             'domain create '
-            '--description %(description)s '
-            '--enable %(name)s'
-            % {'description': domain_description, 'name': domain_name}
+            f'--description {domain_description} '
+            f'--enable {domain_name}'
         )
         if add_clean_up:
-            self.addCleanup(self.openstack, 'domain delete %s' % domain_name)
+            self.addCleanup(self.openstack, f'domain delete {domain_name}')
             self.addCleanup(
-                self.openstack, 'domain set --disable %s' % domain_name
+                self.openstack, f'domain set --disable {domain_name}'
             )
         return domain_name
 
@@ -315,22 +298,16 @@ class IdentityTests(base.TestCase):
         project_description = data_utils.rand_name('description')
         self.openstack(
             'project create '
-            '--domain %(domain)s '
-            '--description %(description)s '
-            '--enable %(name)s'
-            % {
-                'domain': self.domain_name,
-                'description': project_description,
-                'name': project_name,
-            }
+            f'--domain {self.domain_name} '
+            f'--description {project_description} '
+            f'--enable {project_name}'
         )
         if add_clean_up:
             self.addCleanup(
                 self.openstack,
                 'project delete '
-                '--domain %(domain)s '
-                '%(name)s'
-                % {'domain': self.domain_name, 'name': project_name},
+                f'--domain {self.domain_name} '
+                f'{project_name}',
             )
         return project_name
 
@@ -339,20 +316,15 @@ class IdentityTests(base.TestCase):
         description = data_utils.rand_name('description')
         parent_region_arg = ''
         if parent_region is not None:
-            parent_region_arg = '--parent-region %s' % parent_region
+            parent_region_arg = f'--parent-region {parent_region}'
         raw_output = self.openstack(
             'region create '
-            '%(parent_region_arg)s '
-            '--description %(description)s '
-            '%(id)s'
-            % {
-                'parent_region_arg': parent_region_arg,
-                'description': description,
-                'id': region_id,
-            }
+            f'{parent_region_arg} '
+            f'--description {description} '
+            f'{region_id}'
         )
         if add_clean_up:
-            self.addCleanup(self.openstack, 'region delete %s' % region_id)
+            self.addCleanup(self.openstack, f'region delete {region_id}')
         items = self.parse_show(raw_output)
         self.assert_show_fields(items, self.REGION_FIELDS)
         return region_id
@@ -363,20 +335,15 @@ class IdentityTests(base.TestCase):
         type_name = data_utils.rand_name('TestType')
         raw_output = self.openstack(
             'service create '
-            '--name %(name)s '
-            '--description %(description)s '
+            f'--name {service_name} '
+            f'--description {description} '
             '--enable '
-            '%(type)s'
-            % {
-                'name': service_name,
-                'description': description,
-                'type': type_name,
-            }
+            f'{type_name}'
         )
         if add_clean_up:
             service = self.parse_show_as_object(raw_output)
             self.addCleanup(
-                self.openstack, 'service delete %s' % service['id']
+                self.openstack, 'service delete {}'.format(service['id'])
             )
         items = self.parse_show(raw_output)
         self.assert_show_fields(items, self.SERVICE_FIELDS)
@@ -388,22 +355,16 @@ class IdentityTests(base.TestCase):
         endpoint_url = data_utils.rand_url()
         raw_output = self.openstack(
             'endpoint create '
-            '--region %(region)s '
+            f'--region {region_id} '
             '--enable '
-            '%(service)s '
-            '%(interface)s '
-            '%(url)s'
-            % {
-                'region': region_id,
-                'service': service_name,
-                'interface': interface,
-                'url': endpoint_url,
-            }
+            f'{service_name} '
+            f'{interface} '
+            f'{endpoint_url}'
         )
         endpoint = self.parse_show_as_object(raw_output)
         if add_clean_up:
             self.addCleanup(
-                self.openstack, 'endpoint delete %s' % endpoint['id']
+                self.openstack, 'endpoint delete {}'.format(endpoint['id'])
             )
         items = self.parse_show(raw_output)
         self.assert_show_fields(items, self.ENDPOINT_FIELDS)
@@ -414,15 +375,14 @@ class IdentityTests(base.TestCase):
         description = data_utils.rand_name('description')
         raw_output = self.openstack(
             'identity provider create '
-            ' %(name)s '
-            '--description %(description)s '
+            f' {identity_provider} '
+            f'--description {description} '
             '--enable '
-            % {'name': identity_provider, 'description': description}
         )
         if add_clean_up:
             self.addCleanup(
                 self.openstack,
-                'identity provider delete %s' % identity_provider,
+                f'identity provider delete {identity_provider}',
             )
         items = self.parse_show(raw_output)
         self.assert_show_fields(items, self.IDENTITY_PROVIDER_FIELDS)
@@ -433,16 +393,15 @@ class IdentityTests(base.TestCase):
         description = data_utils.rand_name('description')
         raw_output = self.openstack(
             'service provider create '
-            ' %(name)s '
-            '--description %(description)s '
+            f' {service_provider} '
+            f'--description {description} '
             '--auth-url https://sp.example.com:35357 '
             '--service-provider-url https://sp.example.com:5000 '
             '--enable '
-            % {'name': service_provider, 'description': description}
         )
         if add_clean_up:
             self.addCleanup(
-                self.openstack, 'service provider delete %s' % service_provider
+                self.openstack, f'service provider delete {service_provider}'
             )
         items = self.parse_show(raw_output)
         self.assert_show_fields(items, self.SERVICE_PROVIDER_FIELDS)
@@ -458,9 +417,9 @@ class IdentityTests(base.TestCase):
         }
         raw_output = self.openstack(
             'registered limit create'
-            ' --service %(service_name)s'
-            ' --default-limit %(default_limit)s'
-            ' %(resource_name)s' % params,
+            ' --service {service_name}'
+            ' --default-limit {default_limit}'
+            ' {resource_name}'.format(**params),
             cloud=SYSTEM_CLOUD,
         )
         items = self.parse_show(raw_output)
@@ -469,7 +428,7 @@ class IdentityTests(base.TestCase):
         if add_clean_up:
             self.addCleanup(
                 self.openstack,
-                'registered limit delete %s' % registered_limit_id,
+                f'registered limit delete {registered_limit_id}',
                 cloud=SYSTEM_CLOUD,
             )
 
@@ -486,7 +445,7 @@ class IdentityTests(base.TestCase):
         registered_limit_id = self._create_dummy_registered_limit()
 
         raw_output = self.openstack(
-            'registered limit show %s' % registered_limit_id,
+            f'registered limit show {registered_limit_id}',
             cloud=SYSTEM_CLOUD,
         )
         items = self.parse_show(raw_output)
@@ -495,7 +454,7 @@ class IdentityTests(base.TestCase):
         resource_limit = 15
 
         project_name = self._create_dummy_project()
-        raw_output = self.openstack('project show %s' % project_name)
+        raw_output = self.openstack(f'project show {project_name}')
         items = self.parse_show(raw_output)
         project_id = self._extract_value_from_items('id', items)
 
@@ -508,10 +467,10 @@ class IdentityTests(base.TestCase):
 
         raw_output = self.openstack(
             'limit create'
-            ' --project %(project_id)s'
-            ' --service %(service_id)s'
-            ' --resource-limit %(resource_limit)s'
-            ' %(resource_name)s' % params,
+            ' --project {project_id}'
+            ' --service {service_id}'
+            ' --resource-limit {resource_limit}'
+            ' {resource_name}'.format(**params),
             cloud=SYSTEM_CLOUD,
         )
         items = self.parse_show(raw_output)
@@ -520,7 +479,7 @@ class IdentityTests(base.TestCase):
         if add_clean_up:
             self.addCleanup(
                 self.openstack,
-                'limit delete %s' % limit_id,
+                f'limit delete {limit_id}',
                 cloud=SYSTEM_CLOUD,
             )
 

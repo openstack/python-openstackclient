@@ -111,7 +111,7 @@ class ServerTests(common.ComputeTestCase):
             )
         except exceptions.CommandFailed as e:
             self.assertIn(
-                'marker [%s] not found' % (name2), e.stderr.decode('utf-8')
+                f'marker [{name2}] not found', e.stderr.decode('utf-8')
             )
 
     def test_server_list_with_changes_before(self):

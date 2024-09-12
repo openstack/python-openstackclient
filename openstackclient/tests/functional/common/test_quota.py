@@ -165,8 +165,7 @@ class QuotaTests(base.TestCase):
         # That will ensure we have at least two networks in the system.
         for _ in range(2):
             self.openstack(
-                'network create --project %s %s'
-                % (self.PROJECT_NAME, uuid.uuid4().hex)
+                f'network create --project {self.PROJECT_NAME} {uuid.uuid4().hex}'
             )
 
         self.assertRaises(
@@ -211,8 +210,7 @@ class QuotaTests(base.TestCase):
         # That will ensure we have at least two networks in the system.
         for _ in range(2):
             self.openstack(
-                'network create --project %s %s'
-                % (self.PROJECT_NAME, uuid.uuid4().hex)
+                f'network create --project {self.PROJECT_NAME} {uuid.uuid4().hex}'
             )
 
         self.openstack('quota set --networks 1 --force ' + self.PROJECT_NAME)

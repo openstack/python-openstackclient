@@ -30,14 +30,9 @@ class SecurityGroupRuleTests(common.NetworkTests):
         # Create the default security group rule.
         cmd_output = self.openstack(
             'default security group rule create '
-            '--protocol %(protocol)s '
-            '--dst-port %(port)s:%(port)s '
-            '--%(direction)s --ethertype IPv4 '
-            % {
-                'protocol': self.protocol,
-                'port': self.port,
-                'direction': self.direction,
-            },
+            f'--protocol {self.protocol} '
+            f'--dst-port {self.port}:{self.port} '
+            f'--{self.direction} --ethertype IPv4 ',
             parse_output=True,
         )
         self.addCleanup(

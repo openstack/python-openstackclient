@@ -23,7 +23,7 @@ class RegionTests(common.IdentityTests):
 
     def test_region_delete(self):
         region_id = self._create_dummy_region(add_clean_up=False)
-        raw_output = self.openstack('region delete %s' % region_id)
+        raw_output = self.openstack(f'region delete {region_id}')
         self.assertEqual(0, len(raw_output))
 
     def test_region_multi_delete(self):
@@ -43,27 +43,26 @@ class RegionTests(common.IdentityTests):
         new_parent_region_id = self._create_dummy_region()
         region_id = self._create_dummy_region(parent_region_id)
         # check region details
-        raw_output = self.openstack('region show %s' % region_id)
+        raw_output = self.openstack(f'region show {region_id}')
         region = self.parse_show_as_object(raw_output)
         self.assertEqual(parent_region_id, region['parent_region'])
         self.assertEqual(region_id, region['region'])
         # update parent-region
         raw_output = self.openstack(
             'region set '
-            '--parent-region %(parent_region)s '
-            '%(region)s'
-            % {'parent_region': new_parent_region_id, 'region': region_id}
+            f'--parent-region {new_parent_region_id} '
+            f'{region_id}'
         )
         self.assertEqual(0, len(raw_output))
         # check updated region details
-        raw_output = self.openstack('region show %s' % region_id)
+        raw_output = self.openstack(f'region show {region_id}')
         region = self.parse_show_as_object(raw_output)
         self.assertEqual(new_parent_region_id, region['parent_region'])
         self.assertEqual(region_id, region['region'])
 
     def test_region_show(self):
         region_id = self._create_dummy_region()
-        raw_output = self.openstack('region show %s' % region_id)
+        raw_output = self.openstack(f'region show {region_id}')
         region = self.parse_show_as_object(raw_output)
         self.assertEqual(region_id, region['region'])
         self.assertEqual('None', region['parent_region'])

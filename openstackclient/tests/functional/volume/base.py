@@ -40,21 +40,15 @@ class BaseVolumeTests(base.TestCase):
             current_status = output['status']
             if current_status == desired_status:
                 print(
-                    '{} {} now has status {}'.format(
-                        check_type, check_name, current_status
-                    )
+                    f'{check_type} {check_name} now has status {current_status}'
                 )
                 return
             print(
-                'Checking {} {} Waiting for {} current status: {}'.format(
-                    check_type, check_name, desired_status, current_status
-                )
+                f'Checking {check_type} {check_name} Waiting for {desired_status} current status: {current_status}'
             )
             if current_status in failures:
                 raise Exception(
-                    'Current status {} of {} {} is one of failures {}'.format(
-                        current_status, check_type, check_name, failures
-                    )
+                    f'Current status {current_status} of {check_type} {check_name} is one of failures {failures}'
                 )
             time.sleep(interval)
             total_sleep += interval
@@ -72,15 +66,9 @@ class BaseVolumeTests(base.TestCase):
             if check_name not in names:
                 print(f'{check_type} {check_name} is now deleted')
                 return
-            print(
-                'Checking {} {} Waiting for deleted'.format(
-                    check_type, check_name
-                )
-            )
+            print(f'Checking {check_type} {check_name} Waiting for deleted')
             time.sleep(interval)
             total_sleep += interval
         raise Exception(
-            'Timeout: {} {} was not deleted in {} seconds'.format(
-                check_type, check_name, wait
-            )
+            f'Timeout: {check_type} {check_name} was not deleted in {wait} seconds'
         )

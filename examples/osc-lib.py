@@ -94,13 +94,13 @@ def run(opts):
         o_list = client_manager.object_store.object_list(c_list[0]['name'])
         print("\nObject")
         for o in o_list:
-            print("%s" % o)
+            print(f"{o}")
 
     # Look at the compute flavors
     flavor_list = client_manager.compute.flavors.list()
     print("\nFlavors:")
     for f in flavor_list:
-        print("%s" % f)
+        print(f"{f}")
 
 
 if __name__ == "__main__":

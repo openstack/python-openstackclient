@@ -67,7 +67,7 @@ class NetworkQosRuleTypeTests(common.NetworkTests):
     def test_qos_rule_type_details(self):
         for rule_type in self.AVAILABLE_RULE_TYPES:
             cmd_output = self.openstack(
-                'network qos rule type show %s -f json' % rule_type,
+                f'network qos rule type show {rule_type} -f json',
                 parse_output=True,
             )
             self.assertEqual(rule_type, cmd_output['rule_type_name'])

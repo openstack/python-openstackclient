@@ -120,13 +120,14 @@ class NetDetectionMixin(metaclass=abc.ABCMeta):
     @staticmethod
     def split_help(network_help, compute_help):
         return (
-            "*%(network_qualifier)s:*\n  %(network_help)s\n\n"
-            "*%(compute_qualifier)s:*\n  %(compute_help)s"
-            % dict(
-                network_qualifier=_("Network version 2"),
-                network_help=network_help,
-                compute_qualifier=_("Compute version 2"),
-                compute_help=compute_help,
+            "*{network_qualifier}:*\n  {network_help}\n\n"
+            "*{compute_qualifier}:*\n  {compute_help}".format(
+                **dict(
+                    network_qualifier=_("Network version 2"),
+                    network_help=network_help,
+                    compute_qualifier=_("Compute version 2"),
+                    compute_help=compute_help,
+                )
             )
         )
 

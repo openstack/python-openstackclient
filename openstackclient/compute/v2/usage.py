@@ -60,7 +60,7 @@ class CountColumn(cliff_columns.FormattableColumn):
 
 class FloatColumn(cliff_columns.FormattableColumn):
     def human_readable(self):
-        return float("%.2f" % self._value)
+        return float(f"{self._value:.2f}")
 
 
 def _formatters(project_cache):

@@ -307,7 +307,7 @@ class BaseAPI(KeystoneSession):
         except ks_exceptions.NotFound:
             kwargs = {attr: value}
             try:
-                ret = self.find_one("/%s/detail" % (path), **kwargs)
+                ret = self.find_one(f"/{path}/detail", **kwargs)
             except ks_exceptions.NotFound:
                 msg = _("%s not found") % value
                 raise exceptions.NotFound(msg)

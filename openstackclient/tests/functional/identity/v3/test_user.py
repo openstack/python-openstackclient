@@ -22,9 +22,7 @@ class UserTests(common.IdentityTests):
     def test_user_delete(self):
         username = self._create_dummy_user(add_clean_up=False)
         raw_output = self.openstack(
-            'user delete '
-            '--domain %(domain)s '
-            '%(name)s' % {'domain': self.domain_name, 'name': username}
+            'user delete ' f'--domain {self.domain_name} ' f'{username}'
         )
         self.assertEqual(0, len(raw_output))
 
@@ -36,25 +34,19 @@ class UserTests(common.IdentityTests):
     def test_user_set(self):
         username = self._create_dummy_user()
         raw_output = self.openstack(
-            'user show '
-            '--domain %(domain)s '
-            '%(name)s' % {'domain': self.domain_name, 'name': username}
+            'user show ' f'--domain {self.domain_name} ' f'{username}'
         )
         user = self.parse_show_as_object(raw_output)
         new_username = data_utils.rand_name('NewTestUser')
         new_email = data_utils.rand_name() + '@example.com'
         raw_output = self.openstack(
-            'user set '
-            '--email %(email)s '
-            '--name %(new_name)s '
-            '%(id)s'
-            % {'email': new_email, 'new_name': new_username, 'id': user['id']}
+            'user set ' '--email {email} ' '--name {new_name} ' '{id}'.format(
+                email=new_email, new_name=new_username, id=user['id']
+            )
         )
         self.assertEqual(0, len(raw_output))
         raw_output = self.openstack(
-            'user show '
-            '--domain %(domain)s '
-            '%(name)s' % {'domain': self.domain_name, 'name': new_username}
+            'user show ' f'--domain {self.domain_name} ' f'{new_username}'
         )
         updated_user = self.parse_show_as_object(raw_output)
         self.assertEqual(user['id'], updated_user['id'])
@@ -65,36 +57,29 @@ class UserTests(common.IdentityTests):
         project_name = self._create_dummy_project()
         # get original user details
         raw_output = self.openstack(
-            'user show '
-            '--domain %(domain)s '
-            '%(name)s' % {'domain': self.domain_name, 'name': username}
+            'user show ' f'--domain {self.domain_name} ' f'{username}'
         )
         user = self.parse_show_as_object(raw_output)
         # update user
         raw_output = self.openstack(
             'user set '
-            '--project %(project)s '
-            '--project-domain %(project_domain)s '
-            '%(id)s'
-            % {
-                'project': project_name,
-                'project_domain': self.domain_name,
-                'id': user['id'],
-            }
+            '--project {project} '
+            '--project-domain {project_domain} '
+            '{id}'.format(
+                project=project_name,
+                project_domain=self.domain_name,
+                id=user['id'],
+            )
         )
         self.assertEqual(0, len(raw_output))
         # get updated user details
         raw_output = self.openstack(
-            'user show '
-            '--domain %(domain)s '
-            '%(name)s' % {'domain': self.domain_name, 'name': username}
+            'user show ' f'--domain {self.domain_name} ' f'{username}'
         )
         updated_user = self.parse_show_as_object(raw_output)
         # get project details
         raw_output = self.openstack(
-            'project show '
-            '--domain %(domain)s '
-            '%(name)s' % {'domain': self.domain_name, 'name': project_name}
+            'project show ' f'--domain {self.domain_name} ' f'{project_name}'
         )
         project = self.parse_show_as_object(raw_output)
         # check updated user details
@@ -104,9 +89,7 @@ class UserTests(common.IdentityTests):
     def test_user_show(self):
         username = self._create_dummy_user()
         raw_output = self.openstack(
-            'user show '
-            '--domain %(domain)s '
-            '%(name)s' % {'domain': self.domain_name, 'name': username}
+            'user show ' f'--domain {self.domain_name} ' f'{username}'
         )
         items = self.parse_show(raw_output)
         self.assert_show_fields(items, self.USER_FIELDS)

@@ -59,7 +59,7 @@ class CommandTest(base.TestCase):
         input_groups = ['volume', 'network', 'image', 'identity', 'compute.v2']
         for each_input in input_groups:
             cmd_output = self.openstack(
-                'command list --group %s' % each_input,
+                f'command list --group {each_input}',
                 parse_output=True,
             )
             group_names = [each.get('Command Group') for each in cmd_output]

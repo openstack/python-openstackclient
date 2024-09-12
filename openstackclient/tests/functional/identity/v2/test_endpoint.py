@@ -19,7 +19,7 @@ class EndpointTests(common.IdentityTests):
 
     def test_endpoint_delete(self):
         endpoint_id = self._create_dummy_endpoint(add_clean_up=False)
-        raw_output = self.openstack('endpoint delete %s' % endpoint_id)
+        raw_output = self.openstack(f'endpoint delete {endpoint_id}')
         self.assertEqual(0, len(raw_output))
 
     def test_endpoint_multi_delete(self):
@@ -39,6 +39,6 @@ class EndpointTests(common.IdentityTests):
 
     def test_endpoint_show(self):
         endpoint_id = self._create_dummy_endpoint()
-        raw_output = self.openstack('endpoint show %s' % endpoint_id)
+        raw_output = self.openstack(f'endpoint show {endpoint_id}')
         items = self.parse_show(raw_output)
         self.assert_show_fields(items, self.ENDPOINT_FIELDS)

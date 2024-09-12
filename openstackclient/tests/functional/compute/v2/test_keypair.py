@@ -96,7 +96,7 @@ class KeypairTests(KeypairBase):
             f.flush()
 
             raw_output = self.openstack(
-                'keypair create --public-key %s tmpkey' % f.name,
+                f'keypair create --public-key {f.name} tmpkey',
             )
             self.addCleanup(
                 self.openstack,
@@ -113,7 +113,7 @@ class KeypairTests(KeypairBase):
         """
         with tempfile.NamedTemporaryFile(mode='w+') as f:
             cmd_output = self.openstack(
-                'keypair create --private-key %s tmpkey' % f.name,
+                f'keypair create --private-key {f.name} tmpkey',
                 parse_output=True,
             )
             self.addCleanup(self.openstack, 'keypair delete tmpkey')

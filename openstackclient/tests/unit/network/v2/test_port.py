@@ -179,7 +179,7 @@ class TestCreatePort(TestPort):
             '--mac-address',
             'aa:aa:aa:aa:aa:aa',
             '--fixed-ip',
-            'subnet=%s,ip-address=10.0.0.2' % self.fake_subnet.id,
+            f'subnet={self.fake_subnet.id},ip-address=10.0.0.2',
             '--description',
             self._port.description,
             '--device',
@@ -866,7 +866,7 @@ class TestCreatePort(TestPort):
             'test-port',
         ]
         if policy:
-            arglist += ['--numa-policy-%s' % policy]
+            arglist += [f'--numa-policy-{policy}']
 
         numa_affinity_policy = None if not policy else policy
         verifylist = [
@@ -877,7 +877,7 @@ class TestCreatePort(TestPort):
             ('name', 'test-port'),
         ]
         if policy:
-            verifylist.append(('numa_policy_%s' % policy, True))
+            verifylist.append((f'numa_policy_{policy}', True))
 
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
@@ -1418,7 +1418,7 @@ class TestListPort(compute_fakes.FakeClientMixin, TestPort):
         ip_address = self._ports[0].fixed_ips[0]['ip_address']
         arglist = [
             '--fixed-ip',
-            "ip-address=%s" % ip_address,
+            f"ip-address={ip_address}",
         ]
         verifylist = [('fixed_ip', [{'ip-address': ip_address}])]
 
@@ -1428,7 +1428,7 @@ class TestListPort(compute_fakes.FakeClientMixin, TestPort):
 
         self.network_client.ports.assert_called_once_with(
             **{
-                'fixed_ips': ['ip_address=%s' % ip_address],
+                'fixed_ips': [f'ip_address={ip_address}'],
                 'fields': LIST_FIELDS_TO_RETRIEVE,
             }
         )
@@ -1439,7 +1439,7 @@ class TestListPort(compute_fakes.FakeClientMixin, TestPort):
         ip_address_ss = self._ports[0].fixed_ips[0]['ip_address'][:-1]
         arglist = [
             '--fixed-ip',
-            "ip-substring=%s" % ip_address_ss,
+            f"ip-substring={ip_address_ss}",
         ]
         verifylist = [('fixed_ip', [{'ip-substring': ip_address_ss}])]
 
@@ -1449,7 +1449,7 @@ class TestListPort(compute_fakes.FakeClientMixin, TestPort):
 
         self.network_client.ports.assert_called_once_with(
             **{
-                'fixed_ips': ['ip_address_substr=%s' % ip_address_ss],
+                'fixed_ips': [f'ip_address_substr={ip_address_ss}'],
                 'fields': LIST_FIELDS_TO_RETRIEVE,
             }
         )
@@ -1460,7 +1460,7 @@ class TestListPort(compute_fakes.FakeClientMixin, TestPort):
         subnet_id = self._ports[0].fixed_ips[0]['subnet_id']
         arglist = [
             '--fixed-ip',
-            "subnet=%s" % subnet_id,
+            f"subnet={subnet_id}",
         ]
         verifylist = [('fixed_ip', [{'subnet': subnet_id}])]
 
@@ -1475,7 +1475,7 @@ class TestListPort(compute_fakes.FakeClientMixin, TestPort):
 
         self.network_client.ports.assert_called_once_with(
             **{
-                'fixed_ips': ['subnet_id=%s' % subnet_id],
+                'fixed_ips': [f'subnet_id={subnet_id}'],
                 'fields': LIST_FIELDS_TO_RETRIEVE,
             }
         )
@@ -1505,8 +1505,8 @@ class TestListPort(compute_fakes.FakeClientMixin, TestPort):
         self.network_client.ports.assert_called_once_with(
             **{
                 'fixed_ips': [
-                    'subnet_id=%s' % subnet_id,
-                    'ip_address=%s' % ip_address,
+                    f'subnet_id={subnet_id}',
+                    f'ip_address={ip_address}',
                 ],
                 'fields': LIST_FIELDS_TO_RETRIEVE,
             }
@@ -1519,9 +1519,9 @@ class TestListPort(compute_fakes.FakeClientMixin, TestPort):
         ip_address = self._ports[0].fixed_ips[0]['ip_address']
         arglist = [
             '--fixed-ip',
-            "subnet=%s" % subnet_id,
+            f"subnet={subnet_id}",
             '--fixed-ip',
-            "ip-address=%s" % ip_address,
+            f"ip-address={ip_address}",
         ]
         verifylist = [
             ('fixed_ip', [{'subnet': subnet_id}, {'ip-address': ip_address}])
@@ -1542,8 +1542,8 @@ class TestListPort(compute_fakes.FakeClientMixin, TestPort):
         self.network_client.ports.assert_called_once_with(
             **{
                 'fixed_ips': [
-                    'subnet_id=%s' % subnet_id,
-                    'ip_address=%s' % ip_address,
+                    f'subnet_id={subnet_id}',
+                    f'ip_address={ip_address}',
                 ],
                 'fields': LIST_FIELDS_TO_RETRIEVE,
             }
@@ -2360,11 +2360,11 @@ class TestSetPort(TestPort):
 
     def _test_create_with_numa_affinity_policy(self, policy):
         arglist = [
-            '--numa-policy-%s' % policy,
+            f'--numa-policy-{policy}',
             self._port.id,
         ]
         verifylist = [
-            ('numa_policy_%s' % policy, True),
+            (f'numa_policy_{policy}', True),
             (
                 'port',
                 self._port.id,

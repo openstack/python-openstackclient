@@ -25,43 +25,33 @@ class RoleAssignmentTests(common.IdentityTests):
         system = 'all'
         raw_output = self.openstack(
             'role add '
-            '--user %(user)s '
-            '--system %(system)s '
-            '%(role)s'
-            % {
-                'user': username,
-                'system': system,
-                'role': role_name,
-            }
+            f'--user {username} '
+            f'--system {system} '
+            f'{role_name}'
         )
         self.addCleanup(
             self.openstack,
             'role remove '
-            '--user %(user)s '
-            '--system  %(system)s '
-            '%(role)s'
-            % {
-                'user': username,
-                'system': system,
-                'role': role_name,
-            },
+            f'--user {username} '
+            f'--system  {system} '
+            f'{role_name}',
         )
         self.assertEqual(0, len(raw_output))
 
         raw_output = self.openstack(
-            'role assignment list ' '--user %(user)s ' % {'user': username}
+            'role assignment list ' f'--user {username} '
         )
         items = self.parse_listing(raw_output)
         self.assert_table_structure(items, self.ROLE_ASSIGNMENT_LIST_HEADERS)
 
         raw_output = self.openstack(
-            'role assignment list ' '--role %(role)s ' % {'role': role_name}
+            'role assignment list ' f'--role {role_name} '
         )
         items = self.parse_listing(raw_output)
         self.assert_table_structure(items, self.ROLE_ASSIGNMENT_LIST_HEADERS)
 
         raw_output = self.openstack(
-            'role assignment list ' '--system %(system)s ' % {'system': system}
+            'role assignment list ' f'--system {system} '
         )
         items = self.parse_listing(raw_output)
         self.assert_table_structure(items, self.ROLE_ASSIGNMENT_LIST_HEADERS)
@@ -72,30 +62,20 @@ class RoleAssignmentTests(common.IdentityTests):
         system = 'all'
         raw_output = self.openstack(
             'role add '
-            '--group %(group)s '
-            '--system %(system)s '
-            '%(role)s'
-            % {
-                'group': group,
-                'system': system,
-                'role': role_name,
-            }
+            f'--group {group} '
+            f'--system {system} '
+            f'{role_name}'
         )
         self.addCleanup(
             self.openstack,
             'role remove '
-            '--group %(group)s '
-            '--system %(system)s '
-            '%(role)s'
-            % {
-                'group': group,
-                'system': system,
-                'role': role_name,
-            },
+            f'--group {group} '
+            f'--system {system} '
+            f'{role_name}',
         )
         self.assertEqual(0, len(raw_output))
         raw_output = self.openstack(
-            'role assignment list ' '--group %(group)s ' % {'group': group}
+            'role assignment list ' f'--group {group} '
         )
         items = self.parse_listing(raw_output)
         self.assert_table_structure(items, self.ROLE_ASSIGNMENT_LIST_HEADERS)
@@ -105,31 +85,20 @@ class RoleAssignmentTests(common.IdentityTests):
         username = self._create_dummy_user()
         raw_output = self.openstack(
             'role add '
-            '--domain %(domain)s '
-            '--user %(user)s '
-            '%(role)s'
-            % {
-                'domain': self.domain_name,
-                'user': username,
-                'role': role_name,
-            }
+            f'--domain {self.domain_name} '
+            f'--user {username} '
+            f'{role_name}'
         )
         self.addCleanup(
             self.openstack,
             'role remove '
-            '--domain %(domain)s '
-            '--user %(user)s '
-            '%(role)s'
-            % {
-                'domain': self.domain_name,
-                'user': username,
-                'role': role_name,
-            },
+            f'--domain {self.domain_name} '
+            f'--user {username} '
+            f'{role_name}',
         )
         self.assertEqual(0, len(raw_output))
         raw_output = self.openstack(
-            'role assignment list '
-            '--domain %(domain)s ' % {'domain': self.domain_name}
+            'role assignment list ' f'--domain {self.domain_name} '
         )
         items = self.parse_listing(raw_output)
         self.assert_table_structure(items, self.ROLE_ASSIGNMENT_LIST_HEADERS)
@@ -139,31 +108,20 @@ class RoleAssignmentTests(common.IdentityTests):
         username = self._create_dummy_user()
         raw_output = self.openstack(
             'role add '
-            '--project %(project)s '
-            '--user %(user)s '
-            '%(role)s'
-            % {
-                'project': self.project_name,
-                'user': username,
-                'role': role_name,
-            }
+            f'--project {self.project_name} '
+            f'--user {username} '
+            f'{role_name}'
         )
         self.addCleanup(
             self.openstack,
             'role remove '
-            '--project %(project)s '
-            '--user %(user)s '
-            '%(role)s'
-            % {
-                'project': self.project_name,
-                'user': username,
-                'role': role_name,
-            },
+            f'--project {self.project_name} '
+            f'--user {username} '
+            f'{role_name}',
         )
         self.assertEqual(0, len(raw_output))
         raw_output = self.openstack(
-            'role assignment list '
-            '--project %(project)s ' % {'project': self.project_name}
+            'role assignment list ' f'--project {self.project_name} '
         )
         items = self.parse_listing(raw_output)
         self.assert_table_structure(items, self.ROLE_ASSIGNMENT_LIST_HEADERS)
@@ -188,15 +146,10 @@ class RoleAssignmentTests(common.IdentityTests):
         username = self._create_dummy_user()
         raw_output = self.openstack(
             'role add '
-            '--project %(project)s '
-            '--user %(user)s '
+            f'--project {self.project_name} '
+            f'--user {username} '
             '--inherited '
-            '%(role)s'
-            % {
-                'project': self.project_name,
-                'user': username,
-                'role': role_name,
-            }
+            f'{role_name}'
         )
         self.assertEqual(0, len(raw_output))
 

@@ -69,7 +69,7 @@ class CreateServerImage(command.ShowOne):
     def take_action(self, parsed_args):
         def _show_progress(progress):
             if progress:
-                self.app.stdout.write('\rProgress: %s' % progress)
+                self.app.stdout.write(f'\rProgress: {progress}')
                 self.app.stdout.flush()
 
         compute_client = self.app.client_manager.sdk_connection.compute

@@ -38,7 +38,7 @@ class CatalogTests(common.IdentityTests):
         | type      | identity                               |
         +-----------+----------------------------------------+
         """
-        raw_output = self.openstack('catalog show %s' % 'identity')
+        raw_output = self.openstack('catalog show {}'.format('identity'))
         items = self.parse_show(raw_output)
         # items may have multiple endpoint urls with empty key
         self.assert_show_fields(items, ['endpoints', 'name', 'type', '', 'id'])

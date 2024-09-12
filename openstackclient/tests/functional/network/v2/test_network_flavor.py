@@ -37,10 +37,10 @@ class NetworkFlavorTests(common.NetworkTests):
         )
         service_profile_id = cmd_output2.get('id')
 
-        self.addCleanup(self.openstack, 'network flavor delete %s' % flavor_id)
+        self.addCleanup(self.openstack, f'network flavor delete {flavor_id}')
         self.addCleanup(
             self.openstack,
-            'network flavor profile delete %s' % service_profile_id,
+            f'network flavor profile delete {service_profile_id}',
         )
         # Add flavor to service profile
         self.openstack(

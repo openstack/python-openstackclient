@@ -143,13 +143,12 @@ class TestCreateNetworkTrunk(TestNetworkTrunk):
             "--parent-port",
             self.new_trunk.port_id,
             "--subport",
-            'port=%(port)s,segmentation-type=%(seg_type)s,'
-            'segmentation-id=%(seg_id)s'
-            % {
-                'seg_id': subport['segmentation_id'],
-                'seg_type': subport['segmentation_type'],
-                'port': subport['port_id'],
-            },
+            'port={port},segmentation-type={seg_type},'
+            'segmentation-id={seg_id}'.format(
+                seg_id=subport['segmentation_id'],
+                seg_type=subport['segmentation_type'],
+                port=subport['port_id'],
+            ),
             self.new_trunk.name,
         ]
         verifylist = [
@@ -194,12 +193,11 @@ class TestCreateNetworkTrunk(TestNetworkTrunk):
             "--parent-port",
             self.new_trunk.port_id,
             "--subport",
-            "port=%(port)s,segmentation-type=%(seg_type)s,"
-            "segmentation-id=boom"
-            % {
-                'seg_type': subport['segmentation_type'],
-                'port': subport['port_id'],
-            },
+            "port={port},segmentation-type={seg_type},"
+            "segmentation-id=boom".format(
+                seg_type=subport['segmentation_type'],
+                port=subport['port_id'],
+            ),
             self.new_trunk.name,
         ]
         verifylist = [
@@ -265,12 +263,10 @@ class TestCreateNetworkTrunk(TestNetworkTrunk):
             '--parent-port',
             self.new_trunk.port_id,
             '--subport',
-            'segmentation-type=%(seg_type)s,'
-            'segmentation-id=%(seg_id)s'
-            % {
-                'seg_id': subport['segmentation_id'],
-                'seg_type': subport['segmentation_type'],
-            },
+            'segmentation-type={seg_type},' 'segmentation-id={seg_id}'.format(
+                seg_id=subport['segmentation_id'],
+                seg_type=subport['segmentation_type'],
+            ),
             self.new_trunk.name,
         ]
         verifylist = [
@@ -585,7 +581,7 @@ class TestSetNetworkTrunk(TestNetworkTrunk):
 
     def _test_set_network_trunk_attr(self, attr, value):
         arglist = [
-            '--%s' % attr,
+            f'--{attr}',
             value,
             self._trunk[attr],
         ]
@@ -674,13 +670,12 @@ class TestSetNetworkTrunk(TestNetworkTrunk):
         subport = self._trunk['sub_ports'][0]
         arglist = [
             '--subport',
-            'port=%(port)s,segmentation-type=%(seg_type)s,'
-            'segmentation-id=%(seg_id)s'
-            % {
-                'seg_id': subport['segmentation_id'],
-                'seg_type': subport['segmentation_type'],
-                'port': subport['port_id'],
-            },
+            'port={port},segmentation-type={seg_type},'
+            'segmentation-id={seg_id}'.format(
+                seg_id=subport['segmentation_id'],
+                seg_type=subport['segmentation_type'],
+                port=subport['port_id'],
+            ),
             self._trunk['name'],
         ]
         verifylist = [
@@ -732,12 +727,10 @@ class TestSetNetworkTrunk(TestNetworkTrunk):
         subport = self._trunk['sub_ports'][0]
         arglist = [
             '--subport',
-            'segmentation-type=%(seg_type)s,'
-            'segmentation-id=%(seg_id)s'
-            % {
-                'seg_id': subport['segmentation_id'],
-                'seg_type': subport['segmentation_type'],
-            },
+            'segmentation-type={seg_type},' 'segmentation-id={seg_id}'.format(
+                seg_id=subport['segmentation_id'],
+                seg_type=subport['segmentation_type'],
+            ),
             self._trunk['name'],
         ]
         verifylist = [
@@ -776,7 +769,8 @@ class TestSetNetworkTrunk(TestNetworkTrunk):
         with testtools.ExpectedException(exceptions.CommandError) as e:
             self.cmd.take_action(parsed_args)
             self.assertEqual(
-                "Failed to set trunk '%s': " % self._trunk['name'], str(e)
+                "Failed to set trunk '{}': ".format(self._trunk['name']),
+                str(e),
             )
         attrs = {'name': 'reallylongname'}
         self.network_client.update_trunk.assert_called_once_with(
@@ -805,7 +799,9 @@ class TestSetNetworkTrunk(TestNetworkTrunk):
         with testtools.ExpectedException(exceptions.CommandError) as e:
             self.cmd.take_action(parsed_args)
             self.assertEqual(
-                "Failed to add subports to trunk '%s': " % self._trunk['name'],
+                "Failed to add subports to trunk '{}': ".format(
+                    self._trunk['name']
+                ),
                 str(e),
             )
         self.network_client.update_trunk.assert_called_once_with(self._trunk)

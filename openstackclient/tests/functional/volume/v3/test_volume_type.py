@@ -32,7 +32,7 @@ class VolumeTypeTests(common.BaseVolumeTests):
         self.assertEqual(name, cmd_output['name'])
 
         cmd_output = self.openstack(
-            'volume type show %s' % name,
+            f'volume type show {name}',
             parse_output=True,
         )
         self.assertEqual(name, cmd_output['name'])
@@ -57,19 +57,19 @@ class VolumeTypeTests(common.BaseVolumeTests):
         self.assertEqual(name, cmd_output['name'])
 
         raw_output = self.openstack(
-            'volume type set --property a=b --property c=d %s' % name
+            f'volume type set --property a=b --property c=d {name}'
         )
         self.assertEqual("", raw_output)
         cmd_output = self.openstack(
-            'volume type show %s' % name,
+            f'volume type show {name}',
             parse_output=True,
         )
         self.assertEqual({'a': 'b', 'c': 'd'}, cmd_output['properties'])
 
-        raw_output = self.openstack('volume type unset --property a %s' % name)
+        raw_output = self.openstack(f'volume type unset --property a {name}')
         self.assertEqual("", raw_output)
         cmd_output = self.openstack(
-            'volume type show %s' % name,
+            f'volume type show {name}',
             parse_output=True,
         )
         self.assertEqual({'c': 'd'}, cmd_output['properties'])
@@ -84,21 +84,21 @@ class VolumeTypeTests(common.BaseVolumeTests):
         self.assertEqual(name, cmd_output['name'])
 
         raw_output = self.openstack(
-            'volume type set --property a=b --property c=d %s' % name
+            f'volume type set --property a=b --property c=d {name}'
         )
         self.assertEqual("", raw_output)
         cmd_output = self.openstack(
-            'volume type show %s' % name,
+            f'volume type show {name}',
             parse_output=True,
         )
         self.assertEqual({'a': 'b', 'c': 'd'}, cmd_output['properties'])
 
         raw_output = self.openstack(
-            'volume type unset --property a --property c %s' % name
+            f'volume type unset --property a --property c {name}'
         )
         self.assertEqual("", raw_output)
         cmd_output = self.openstack(
-            'volume type show %s' % name,
+            f'volume type show {name}',
             parse_output=True,
         )
         self.assertEqual({}, cmd_output['properties'])
@@ -112,22 +112,20 @@ class VolumeTypeTests(common.BaseVolumeTests):
         self.addCleanup(self.openstack, 'volume type delete ' + name)
         self.assertEqual(name, cmd_output['name'])
 
-        raw_output = self.openstack(
-            'volume type set --project admin %s' % name
-        )
+        raw_output = self.openstack(f'volume type set --project admin {name}')
         self.assertEqual("", raw_output)
 
         raw_output = self.openstack(
-            'volume type unset --project admin %s' % name
+            f'volume type unset --project admin {name}'
         )
         self.assertEqual("", raw_output)
 
     def test_multi_delete(self):
         vol_type1 = uuid.uuid4().hex
         vol_type2 = uuid.uuid4().hex
-        self.openstack('volume type create %s' % vol_type1)
+        self.openstack(f'volume type create {vol_type1}')
         time.sleep(5)
-        self.openstack('volume type create %s' % vol_type2)
+        self.openstack(f'volume type create {vol_type2}')
         time.sleep(5)
         cmd = f'volume type delete {vol_type1} {vol_type2}'
         raw_output = self.openstack(cmd)

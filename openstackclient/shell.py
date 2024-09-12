@@ -96,8 +96,9 @@ class OpenStackShell(shell.OpenStackShell):
                             key=lambda s: list(map(int, s.split('.'))),
                         )
                         self.log.warning(
-                            "%s version %s is not in supported versions: %s"
-                            % (api, version_opt, ', '.join(sorted_versions))
+                            "{} version {} is not in supported versions: {}".format(
+                                api, version_opt, ', '.join(sorted_versions)
+                            )
                         )
 
                 # Command groups deal only with major versions

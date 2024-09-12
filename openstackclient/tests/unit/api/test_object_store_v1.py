@@ -135,16 +135,18 @@ class TestContainer(TestObjectAPIv1):
         self.requests_mock.register_uri(
             'GET',
             FAKE_URL
-            + '?marker=%s&limit=1&format=json'
-            % LIST_CONTAINER_RESP[0]['name'],
+            + '?marker={}&limit=1&format=json'.format(
+                LIST_CONTAINER_RESP[0]['name']
+            ),
             json=[LIST_CONTAINER_RESP[1]],
             status_code=200,
         )
         self.requests_mock.register_uri(
             'GET',
             FAKE_URL
-            + '?marker=%s&limit=1&format=json'
-            % LIST_CONTAINER_RESP[1]['name'],
+            + '?marker={}&limit=1&format=json'.format(
+                LIST_CONTAINER_RESP[1]['name']
+            ),
             json=[],
             status_code=200,
         )

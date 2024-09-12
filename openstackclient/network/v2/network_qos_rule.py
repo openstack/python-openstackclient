@@ -159,10 +159,7 @@ def _get_item_properties(item, fields):
 
 def _rule_action_call(client, action, rule_type):
     rule_type = rule_type.replace('-', '_')
-    func_name = '{action}_qos_{rule_type}_rule'.format(
-        action=action,
-        rule_type=rule_type,
-    )
+    func_name = f'{action}_qos_{rule_type}_rule'
     return getattr(client, func_name)
 
 
@@ -311,7 +308,7 @@ class DeleteNetworkQosRule(command.Command):
             )
             rule_type = _find_rule_type(qos, rule_id)
             if not rule_type:
-                raise Exception('Rule %s not found' % rule_id)
+                raise Exception(f'Rule {rule_id} not found')
             _rule_action_call(network_client, ACTION_DELETE, rule_type)(
                 rule_id, qos.id
             )

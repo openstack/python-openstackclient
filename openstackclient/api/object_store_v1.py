@@ -256,10 +256,7 @@ class APIv1(api.BaseAPI):
         # object's name in the container.
         object_name_str = name if name else object
 
-        full_url = "{}/{}".format(
-            urllib.parse.quote(container),
-            urllib.parse.quote(object_name_str),
-        )
+        full_url = f"{urllib.parse.quote(container)}/{urllib.parse.quote(object_name_str)}"
         with open(object, 'rb') as f:
             response = self.create(
                 full_url,
@@ -293,8 +290,7 @@ class APIv1(api.BaseAPI):
             return
 
         self.delete(
-            "%s/%s"
-            % (urllib.parse.quote(container), urllib.parse.quote(object))
+            f"{urllib.parse.quote(container)}/{urllib.parse.quote(object)}"
         )
 
     def object_list(
@@ -395,8 +391,7 @@ class APIv1(api.BaseAPI):
 
         response = self._request(
             'GET',
-            "%s/%s"
-            % (urllib.parse.quote(container), urllib.parse.quote(object)),
+            f"{urllib.parse.quote(container)}/{urllib.parse.quote(object)}",
             stream=True,
         )
         if response.status_code == 200:
@@ -431,8 +426,7 @@ class APIv1(api.BaseAPI):
         headers = self._set_properties(properties, 'X-Object-Meta-%s')
         if headers:
             self.create(
-                "%s/%s"
-                % (urllib.parse.quote(container), urllib.parse.quote(object)),
+                f"{urllib.parse.quote(container)}/{urllib.parse.quote(object)}",
                 headers=headers,
             )
 
@@ -455,8 +449,7 @@ class APIv1(api.BaseAPI):
         headers = self._unset_properties(properties, 'X-Remove-Object-Meta-%s')
         if headers:
             self.create(
-                "%s/%s"
-                % (urllib.parse.quote(container), urllib.parse.quote(object)),
+                f"{urllib.parse.quote(container)}/{urllib.parse.quote(object)}",
                 headers=headers,
             )
 
@@ -480,8 +473,7 @@ class APIv1(api.BaseAPI):
 
         response = self._request(
             'HEAD',
-            "%s/%s"
-            % (urllib.parse.quote(container), urllib.parse.quote(object)),
+            f"{urllib.parse.quote(container)}/{urllib.parse.quote(object)}",
         )
 
         data = {

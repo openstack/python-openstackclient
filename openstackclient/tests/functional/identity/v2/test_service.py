@@ -19,7 +19,7 @@ class ServiceTests(common.IdentityTests):
 
     def test_service_delete(self):
         service_name = self._create_dummy_service(add_clean_up=False)
-        raw_output = self.openstack('service delete %s' % service_name)
+        raw_output = self.openstack(f'service delete {service_name}')
         self.assertEqual(0, len(raw_output))
 
     def test_service_multi_delete(self):
@@ -38,6 +38,6 @@ class ServiceTests(common.IdentityTests):
 
     def test_service_show(self):
         service_name = self._create_dummy_service()
-        raw_output = self.openstack('service show %s' % service_name)
+        raw_output = self.openstack(f'service show {service_name}')
         items = self.parse_show(raw_output)
         self.assert_show_fields(items, self.SERVICE_FIELDS)

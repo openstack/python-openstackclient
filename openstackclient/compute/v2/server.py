@@ -1504,7 +1504,7 @@ class CreateServer(command.ShowOne):
     def take_action(self, parsed_args):
         def _show_progress(progress):
             if progress:
-                self.app.stdout.write('\rProgress: %s' % progress)
+                self.app.stdout.write(f'\rProgress: {progress}')
                 self.app.stdout.flush()
 
         compute_client = self.app.client_manager.sdk_connection.compute
@@ -2189,7 +2189,7 @@ class DeleteServer(command.Command):
     def take_action(self, parsed_args):
         def _show_progress(progress):
             if progress:
-                self.app.stdout.write('\rProgress: %s' % progress)
+                self.app.stdout.write(f'\rProgress: {progress}')
                 self.app.stdout.flush()
 
         compute_client = self.app.client_manager.sdk_connection.compute
@@ -3198,7 +3198,7 @@ revert to release the new server and restart the old one."""
     def take_action(self, parsed_args):
         def _show_progress(progress):
             if progress:
-                self.app.stdout.write('\rProgress: %s' % progress)
+                self.app.stdout.write(f'\rProgress: {progress}')
                 self.app.stdout.flush()
 
         compute_client = self.app.client_manager.sdk_connection.compute
@@ -3350,7 +3350,7 @@ class RebootServer(command.Command):
     def take_action(self, parsed_args):
         def _show_progress(progress):
             if progress:
-                self.app.stdout.write('\rProgress: %s' % progress)
+                self.app.stdout.write(f'\rProgress: {progress}')
                 self.app.stdout.flush()
 
         compute_client = self.app.client_manager.sdk_connection.compute
@@ -3555,7 +3555,7 @@ class RebuildServer(command.ShowOne):
     def take_action(self, parsed_args):
         def _show_progress(progress):
             if progress:
-                self.app.stdout.write('\rProgress: %s' % progress)
+                self.app.stdout.write(f'\rProgress: {progress}')
                 self.app.stdout.flush()
 
         compute_client = self.app.client_manager.sdk_connection.compute
@@ -3816,7 +3816,7 @@ host."""
     def take_action(self, parsed_args):
         def _show_progress(progress):
             if progress:
-                self.app.stdout.write('\rProgress: %s' % progress)
+                self.app.stdout.write(f'\rProgress: {progress}')
                 self.app.stdout.flush()
 
         compute_client = self.app.client_manager.sdk_connection.compute
@@ -4188,7 +4188,7 @@ release the new server and restart the old one."""
     def take_action(self, parsed_args):
         def _show_progress(progress):
             if progress:
-                self.app.stdout.write('\rProgress: %s' % progress)
+                self.app.stdout.write(f'\rProgress: {progress}')
                 self.app.stdout.flush()
 
         compute_client = self.app.client_manager.sdk_connection.compute
@@ -4584,7 +4584,7 @@ class ShelveServer(command.Command):
     def take_action(self, parsed_args):
         def _show_progress(progress):
             if progress:
-                self.app.stdout.write('\rProgress: %s' % progress)
+                self.app.stdout.write(f'\rProgress: {progress}')
                 self.app.stdout.flush()
 
         compute_client = self.app.client_manager.sdk_connection.compute
@@ -5181,7 +5181,7 @@ class UnshelveServer(command.Command):
     def take_action(self, parsed_args):
         def _show_progress(progress):
             if progress:
-                self.app.stdout.write('\rProgress: %s' % progress)
+                self.app.stdout.write(f'\rProgress: {progress}')
                 self.app.stdout.flush()
 
         compute_client = self.app.client_manager.sdk_connection.compute

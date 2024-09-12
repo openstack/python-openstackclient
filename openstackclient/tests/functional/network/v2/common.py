@@ -80,9 +80,7 @@ class NetworkTagTests(NetworkTests):
 
     def _list_tag_check(self, project_id, expected):
         cmd_output = self.openstack(
-            '{} list --long --project {}'.format(
-                self.base_command, project_id
-            ),
+            f'{self.base_command} list --long --project {project_id}',
             parse_output=True,
         )
         for name, tags in expected:

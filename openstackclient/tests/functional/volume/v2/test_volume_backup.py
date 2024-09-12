@@ -56,4 +56,4 @@ class VolumeBackupTests(common.BaseVolumeTests):
         self.wait_for_status(
             "volume", backup_restored['volume_id'], "available"
         )
-        self.addCleanup(self.openstack, 'volume delete %s' % vol_id)
+        self.addCleanup(self.openstack, f'volume delete {vol_id}')

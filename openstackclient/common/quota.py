@@ -507,8 +507,8 @@ class SetQuota(common.NetDetectionMixin, command.Command):
         )
         for k, v, h in self._build_options_list():
             parser.add_argument(
-                '--%s' % v,
-                metavar='<%s>' % v,
+                f'--{v}',
+                metavar=f'<{v}>',
                 dest=k,
                 type=int,
                 help=h,
@@ -590,7 +590,7 @@ class SetQuota(common.NetDetectionMixin, command.Command):
                         parsed_args.volume_type
                         and k in IMPACT_VOLUME_TYPE_QUOTAS
                     ):
-                        k = k + '_%s' % parsed_args.volume_type
+                        k = k + f'_{parsed_args.volume_type}'
                     volume_kwargs[k] = value
 
         if self.app.client_manager.is_network_endpoint_enabled():

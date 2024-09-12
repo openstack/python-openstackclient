@@ -60,15 +60,9 @@ class HelpTests(base.TestCase):
         """Check server commands in main help message."""
         raw_output = self.openstack('help')
         for command, description in self.SERVER_COMMANDS:
-            msg = 'Command: {} not found in help output:\n{}'.format(
-                command,
-                raw_output,
-            )
+            msg = f'Command: {command} not found in help output:\n{raw_output}'
             self.assertIn(command, raw_output, msg)
-            msg = 'Description: {} not found in help output:\n{}'.format(
-                description,
-                raw_output,
-            )
+            msg = f'Description: {description} not found in help output:\n{raw_output}'
             self.assertIn(description, raw_output, msg)
 
     def test_server_only_help(self):

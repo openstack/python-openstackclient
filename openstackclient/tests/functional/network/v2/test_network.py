@@ -206,7 +206,7 @@ class NetworkTests(common.NetworkTagTests):
             'network create ' + network_options + name1,
             parse_output=True,
         )
-        self.addCleanup(self.openstack, 'network delete %s' % name1)
+        self.addCleanup(self.openstack, f'network delete {name1}')
         self.assertIsNotNone(cmd_output["id"])
         if self.haz_network:
             self.assertEqual(
@@ -342,33 +342,30 @@ class NetworkTests(common.NetworkTagTests):
 
         name1 = uuid.uuid4().hex
         cmd_output = self.openstack(
-            'network create --description aaaa %s' % name1,
+            f'network create --description aaaa {name1}',
             parse_output=True,
         )
 
-        self.addCleanup(self.openstack, 'network delete %s' % name1)
+        self.addCleanup(self.openstack, f'network delete {name1}')
 
         # Get network ID
         network_id = cmd_output['id']
 
         # Add Agent to Network
         self.openstack(
-            'network agent add network --dhcp {} {}'.format(
-                agent_id, network_id
-            )
+            f'network agent add network --dhcp {agent_id} {network_id}'
         )
 
         # Test network list --agent
         cmd_output = self.openstack(
-            'network list --agent %s' % agent_id,
+            f'network list --agent {agent_id}',
             parse_output=True,
         )
 
         # Cleanup
         # Remove Agent from Network
         self.openstack(
-            'network agent remove network --dhcp %s %s'
-            % (agent_id, network_id)
+            f'network agent remove network --dhcp {agent_id} {network_id}'
         )
 
         # Assert
@@ -388,10 +385,10 @@ class NetworkTests(common.NetworkTagTests):
             '--no-share '
             '--internal '
             '--no-default '
-            '--enable-port-security %s' % name,
+            f'--enable-port-security {name}',
             parse_output=True,
         )
-        self.addCleanup(self.openstack, 'network delete %s' % name)
+        self.addCleanup(self.openstack, f'network delete {name}')
         self.assertIsNotNone(cmd_output["id"])
         self.assertEqual(
             'aaaa',
@@ -416,7 +413,7 @@ class NetworkTests(common.NetworkTagTests):
             '--disable '
             '--share '
             '--external '
-            '--disable-port-security %s' % name
+            f'--disable-port-security {name}'
         )
         self.assertOutput('', raw_output)
 

@@ -21,7 +21,7 @@ class ServiceTests(common.IdentityTests):
 
     def test_service_delete(self):
         service_name = self._create_dummy_service(add_clean_up=False)
-        raw_output = self.openstack('service delete %s' % service_name)
+        raw_output = self.openstack(f'service delete {service_name}')
         self.assertEqual(0, len(raw_output))
 
     def test_service_multi_delete(self):
@@ -44,21 +44,15 @@ class ServiceTests(common.IdentityTests):
         new_service_type = data_utils.rand_name('NewTestType')
         raw_output = self.openstack(
             'service set '
-            '--type %(type)s '
-            '--name %(name)s '
-            '--description %(description)s '
+            f'--type {new_service_type} '
+            f'--name {new_service_name} '
+            f'--description {new_service_description} '
             '--disable '
-            '%(service)s'
-            % {
-                'type': new_service_type,
-                'name': new_service_name,
-                'description': new_service_description,
-                'service': service_name,
-            }
+            f'{service_name}'
         )
         self.assertEqual(0, len(raw_output))
         # get service details
-        raw_output = self.openstack('service show %s' % new_service_name)
+        raw_output = self.openstack(f'service show {new_service_name}')
         # assert service details
         service = self.parse_show_as_object(raw_output)
         self.assertEqual(new_service_type, service['type'])
@@ -67,6 +61,6 @@ class ServiceTests(common.IdentityTests):
 
     def test_service_show(self):
         service_name = self._create_dummy_service()
-        raw_output = self.openstack('service show %s' % service_name)
+        raw_output = self.openstack(f'service show {service_name}')
         items = self.parse_show(raw_output)
         self.assert_show_fields(items, self.SERVICE_FIELDS)

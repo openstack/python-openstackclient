@@ -37,8 +37,8 @@ class HypervisorTests(base.TestCase):
         for i in ids1:
             cmd_output = json.loads(
                 self.openstack(
-                    "hypervisor show %s -f json "
-                    " --os-compute-api-version 2.1" % (i)
+                    f"hypervisor show {i} -f json "
+                    " --os-compute-api-version 2.1"
                 )
             )
             self.assertIsNotNone(cmd_output)
@@ -47,6 +47,6 @@ class HypervisorTests(base.TestCase):
         # Show test - latest microversion
         for i in ids2:
             cmd_output = json.loads(
-                self.openstack("hypervisor show %s -f json" % (i))
+                self.openstack(f"hypervisor show {i} -f json")
             )
             self.assertIsNotNone(cmd_output)
