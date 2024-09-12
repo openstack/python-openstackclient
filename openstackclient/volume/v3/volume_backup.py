@@ -323,9 +323,9 @@ class ListVolumeBackup(command.Lister):
         try:
             for s in volume_client.volumes():
                 volume_cache[s.id] = s
-        except Exception:
+        except Exception:  # noqa: S110
             # Just forget it if there's any trouble
-            pass  # nosec: B110
+            pass
 
         _VolumeIdColumn = functools.partial(
             VolumeIdColumn, volume_cache=volume_cache

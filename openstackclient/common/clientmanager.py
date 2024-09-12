@@ -101,7 +101,7 @@ class ClientManager(clientmanager.ClientManager):
         #                 expect, delete fake token and endpoint, then try to
         #                 load auth plugin again with user specified options.
         #                 We know it looks ugly, but it's necessary.
-        if self._cli_options.config['auth']['token'] == 'x':
+        if self._cli_options.config['auth']['token'] == 'x':  # noqa: S105
             # restore original auth_type
             self._cli_options.config['auth_type'] = self._original_auth_type
             del self._cli_options.config['auth']['token']
