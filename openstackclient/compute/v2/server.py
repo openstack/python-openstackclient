@@ -1520,17 +1520,6 @@ class CreateServer(command.ShowOne):
 
         if not image and parsed_args.image_properties:
 
-            def emit_duplicated_warning(img):
-                img_uuid_list = [str(image.id) for image in img]
-                LOG.warning(
-                    'Multiple matching images: %(img_uuid_list)s\n'
-                    'Using image: %(chosen_one)s',
-                    {
-                        'img_uuid_list': img_uuid_list,
-                        'chosen_one': img_uuid_list[0],
-                    },
-                )
-
             def _match_image(image_api, wanted_properties):
                 image_list = image_api.images()
                 images_matched = []
@@ -1568,7 +1557,15 @@ class CreateServer(command.ShowOne):
 
             images = _match_image(image_client, parsed_args.image_properties)
             if len(images) > 1:
-                emit_duplicated_warning(images, parsed_args.image_properties)
+                img_uuid_list = [str(image.id) for image in images]
+                LOG.warning(
+                    'Multiple matching images: %(img_uuid_list)s\n'
+                    'Using image: %(chosen_one)s',
+                    {
+                        'img_uuid_list': img_uuid_list,
+                        'chosen_one': img_uuid_list[0],
+                    },
+                )
             if images:
                 image = images[0]
             else:
