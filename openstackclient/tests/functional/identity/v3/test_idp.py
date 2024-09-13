@@ -24,7 +24,7 @@ class IdentityProviderTests(common.IdentityTests):
     def test_idp_delete(self):
         identity_provider = self._create_dummy_idp(add_clean_up=False)
         raw_output = self.openstack(
-            'identity provider delete %s' % identity_provider
+            f'identity provider delete {identity_provider}'
         )
         self.assertEqual(0, len(raw_output))
 
@@ -39,7 +39,7 @@ class IdentityProviderTests(common.IdentityTests):
     def test_idp_show(self):
         identity_provider = self._create_dummy_idp(add_clean_up=True)
         raw_output = self.openstack(
-            'identity provider show %s' % identity_provider
+            f'identity provider show {identity_provider}'
         )
         items = self.parse_show(raw_output)
         self.assert_show_fields(items, self.IDENTITY_PROVIDER_FIELDS)
@@ -64,7 +64,7 @@ class IdentityProviderTests(common.IdentityTests):
         )
         self.assertEqual(0, len(raw_output))
         raw_output = self.openstack(
-            'identity provider show %s' % identity_provider
+            f'identity provider show {identity_provider}'
         )
         updated_value = self.parse_show_as_object(raw_output)
         self.assertIn(new_remoteid, updated_value['remote_ids'])

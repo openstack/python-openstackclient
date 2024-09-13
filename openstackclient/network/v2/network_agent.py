@@ -89,9 +89,7 @@ class AddNetworkToAgent(command.Command):
             try:
                 client.add_dhcp_agent_to_network(agent, network)
             except Exception:
-                msg = 'Failed to add {} to {}'.format(
-                    network.name, agent.agent_type
-                )
+                msg = f'Failed to add {network.name} to {agent.agent_type}'
                 exceptions.CommandError(msg)
 
 
@@ -321,9 +319,7 @@ class RemoveNetworkFromAgent(command.Command):
             try:
                 client.remove_dhcp_agent_from_network(agent, network)
             except Exception:
-                msg = 'Failed to remove {} to {}'.format(
-                    network.name, agent.agent_type
-                )
+                msg = f'Failed to remove {network.name} to {agent.agent_type}'
                 exceptions.CommandError(msg)
 
 

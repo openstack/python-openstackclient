@@ -101,7 +101,7 @@ def run(opts):
         o_list = obj_api.object_list(c_list[0]['name'])
         print("\nObject")
         for o in o_list:
-            print("%s" % o)
+            print(f"{o}")
 
 
 if __name__ == "__main__":

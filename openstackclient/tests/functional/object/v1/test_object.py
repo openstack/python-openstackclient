@@ -59,7 +59,7 @@ class ObjectTests(common.ObjectStoreTests):
         items = self.parse_listing(raw_output)
         self.assert_show_fields(items, OBJECT_FIELDS)
 
-        raw_output = self.openstack('object list %s' % self.CONTAINER_NAME)
+        raw_output = self.openstack(f'object list {self.CONTAINER_NAME}')
         items = self.parse_listing(raw_output)
         self.assert_table_structure(items, BASIC_LIST_HEADERS)
 
@@ -69,15 +69,12 @@ class ObjectTests(common.ObjectStoreTests):
         tmp_file = 'tmp.txt'
         self.addCleanup(os.remove, tmp_file)
         self.openstack(
-            'object save %s %s --file %s'
-            % (self.CONTAINER_NAME, object_file, tmp_file)
+            f'object save {self.CONTAINER_NAME} {object_file} --file {tmp_file}'
         )
         # TODO(stevemar): Assert returned fields
 
         raw_output = self.openstack(
-            'object save {} {} --file -'.format(
-                self.CONTAINER_NAME, object_file
-            )
+            f'object save {self.CONTAINER_NAME} {object_file} --file -'
         )
         self.assertEqual(raw_output, 'test content')
 
@@ -91,6 +88,6 @@ class ObjectTests(common.ObjectStoreTests):
 
         self.openstack(f'object create {self.CONTAINER_NAME} {object_file}')
         raw_output = self.openstack(
-            'container delete -r %s' % self.CONTAINER_NAME
+            f'container delete -r {self.CONTAINER_NAME}'
         )
         self.assertEqual(0, len(raw_output))

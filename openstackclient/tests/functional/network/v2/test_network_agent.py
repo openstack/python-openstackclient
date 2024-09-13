@@ -42,7 +42,7 @@ class TestAgent(common.NetworkTests):
 
         # agent show
         cmd_output = self.openstack(
-            'network agent show %s' % agent_ids[0],
+            f'network agent show {agent_ids[0]}',
             parse_output=True,
         )
         self.assertEqual(
@@ -57,12 +57,12 @@ class TestAgent(common.NetworkTests):
 
         # agent set
         raw_output = self.openstack(
-            'network agent set --disable %s' % agent_ids[0]
+            f'network agent set --disable {agent_ids[0]}'
         )
         self.assertOutput('', raw_output)
 
         cmd_output = self.openstack(
-            'network agent show %s' % agent_ids[0],
+            f'network agent show {agent_ids[0]}',
             parse_output=True,
         )
         self.assertEqual(
@@ -71,12 +71,12 @@ class TestAgent(common.NetworkTests):
         )
 
         raw_output = self.openstack(
-            'network agent set --enable %s' % agent_ids[0]
+            f'network agent set --enable {agent_ids[0]}'
         )
         self.assertOutput('', raw_output)
 
         cmd_output = self.openstack(
-            'network agent show %s' % agent_ids[0],
+            f'network agent show {agent_ids[0]}',
             parse_output=True,
         )
         self.assertEqual(
@@ -112,33 +112,30 @@ class TestAgentList(common.NetworkTests):
 
         name1 = uuid.uuid4().hex
         cmd_output = self.openstack(
-            'network create --description aaaa %s' % name1,
+            f'network create --description aaaa {name1}',
             parse_output=True,
         )
 
-        self.addCleanup(self.openstack, 'network delete %s' % name1)
+        self.addCleanup(self.openstack, f'network delete {name1}')
 
         # Get network ID
         network_id = cmd_output['id']
 
         # Add Agent to Network
         self.openstack(
-            'network agent add network --dhcp {} {}'.format(
-                agent_id, network_id
-            )
+            f'network agent add network --dhcp {agent_id} {network_id}'
         )
 
         # Test network agent list --network
         cmd_output = self.openstack(
-            'network agent list --network %s' % network_id,
+            f'network agent list --network {network_id}',
             parse_output=True,
         )
 
         # Cleanup
         # Remove Agent from Network
         self.openstack(
-            'network agent remove network --dhcp %s %s'
-            % (agent_id, network_id)
+            f'network agent remove network --dhcp {agent_id} {network_id}'
         )
 
         # Assert
@@ -153,11 +150,11 @@ class TestAgentList(common.NetworkTests):
 
         name = uuid.uuid4().hex
         cmd_output = self.openstack(
-            'router create %s' % name,
+            f'router create {name}',
             parse_output=True,
         )
 
-        self.addCleanup(self.openstack, 'router delete %s' % name)
+        self.addCleanup(self.openstack, f'router delete {name}')
         # Get router ID
         router_id = cmd_output['id']
         # Get l3 agent id
@@ -175,7 +172,7 @@ class TestAgentList(common.NetworkTests):
 
         # Test router list --agent
         cmd_output = self.openstack(
-            'network agent list --router %s' % router_id,
+            f'network agent list --router {router_id}',
             parse_output=True,
         )
 
@@ -184,12 +181,10 @@ class TestAgentList(common.NetworkTests):
 
         # Remove router from agent
         self.openstack(
-            'network agent remove router --l3 {} {}'.format(
-                agent_id, router_id
-            )
+            f'network agent remove router --l3 {agent_id} {router_id}'
         )
         cmd_output = self.openstack(
-            'network agent list --router %s' % router_id,
+            f'network agent list --router {router_id}',
             parse_output=True,
         )
         agent_ids = [x['ID'] for x in cmd_output]

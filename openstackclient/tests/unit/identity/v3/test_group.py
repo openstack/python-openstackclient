@@ -109,12 +109,9 @@ class TestGroupAddUser(TestGroup):
             self.cmd.take_action(parsed_args)
             self.fail('CommandError should be raised.')
         except exceptions.CommandError as e:
-            msg = "1 of 2 users not added to group %s." % self._group.name
+            msg = f"1 of 2 users not added to group {self._group.name}."
             self.assertEqual(msg, str(e))
-        msg = ("%(user)s not added to group %(group)s: ") % {
-            'user': self.users[0].name,
-            'group': self._group.name,
-        }
+        msg = f"{self.users[0].name} not added to group {self._group.name}: "
         mock_error.assert_called_once_with(msg)
 
 
@@ -561,12 +558,9 @@ class TestGroupRemoveUser(TestGroup):
             self.cmd.take_action(parsed_args)
             self.fail('CommandError should be raised.')
         except exceptions.CommandError as e:
-            msg = "1 of 2 users not removed from group %s." % self._group.id
+            msg = f"1 of 2 users not removed from group {self._group.id}."
             self.assertEqual(msg, str(e))
-        msg = ("%(user)s not removed from group %(group)s: ") % {
-            'user': self.users[0].id,
-            'group': self._group.id,
-        }
+        msg = f"{self.users[0].id} not removed from group {self._group.id}: "
         mock_error.assert_called_once_with(msg)
 
 

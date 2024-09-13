@@ -67,13 +67,9 @@ class IdentityTests(base.TestCase):
             cls.openstack(
                 '--os-identity-api-version 2 '
                 'project create '
-                '--description %(description)s '
+                f'--description {cls.project_description} '
                 '--enable '
-                '%(name)s'
-                % {
-                    'description': cls.project_description,
-                    'name': cls.project_name,
-                }
+                f'{cls.project_name}'
             )
         except tempest_exceptions.CommandFailed:
             # Good chance this is due to Identity v2 admin not being enabled
@@ -87,7 +83,7 @@ class IdentityTests(base.TestCase):
         try:
             cls.openstack(
                 '--os-identity-api-version 2 '
-                'project delete %s' % cls.project_name
+                f'project delete {cls.project_name}'
             )
         finally:
             super().tearDownClass()
@@ -111,14 +107,13 @@ class IdentityTests(base.TestCase):
         project_description = data_utils.rand_name('description')
         raw_output = self.openstack(
             'project create '
-            '--description %(description)s '
-            '--enable %(name)s'
-            % {'description': project_description, 'name': project_name}
+            f'--description {project_description} '
+            f'--enable {project_name}'
         )
         project = self.parse_show_as_object(raw_output)
         if add_clean_up:
             self.addCleanup(
-                self.openstack, 'project delete %s' % project['id']
+                self.openstack, 'project delete {}'.format(project['id'])
             )
         items = self.parse_show(raw_output)
         self.assert_show_fields(items, self.PROJECT_FIELDS)
@@ -130,22 +125,18 @@ class IdentityTests(base.TestCase):
         email = data_utils.rand_name() + '@example.com'
         raw_output = self.openstack(
             'user create '
-            '--project %(project)s '
-            '--password %(password)s '
-            '--email %(email)s '
+            f'--project {self.project_name} '
+            f'--password {password} '
+            f'--email {email} '
             '--enable '
-            '%(name)s'
-            % {
-                'project': self.project_name,
-                'email': email,
-                'password': password,
-                'name': username,
-            }
+            f'{username}'
         )
         if add_clean_up:
             self.addCleanup(
                 self.openstack,
-                'user delete %s' % self.parse_show_as_object(raw_output)['id'],
+                'user delete {}'.format(
+                    self.parse_show_as_object(raw_output)['id']
+                ),
             )
         items = self.parse_show(raw_output)
         self.assert_show_fields(items, self.USER_FIELDS)
@@ -153,10 +144,12 @@ class IdentityTests(base.TestCase):
 
     def _create_dummy_role(self, add_clean_up=True):
         role_name = data_utils.rand_name('TestRole')
-        raw_output = self.openstack('role create %s' % role_name)
+        raw_output = self.openstack(f'role create {role_name}')
         role = self.parse_show_as_object(raw_output)
         if add_clean_up:
-            self.addCleanup(self.openstack, 'role delete %s' % role['id'])
+            self.addCleanup(
+                self.openstack, 'role delete {}'.format(role['id'])
+            )
         items = self.parse_show(raw_output)
         self.assert_show_fields(items, self.ROLE_FIELDS)
         self.assertEqual(role_name, role['name'])
@@ -168,7 +161,7 @@ class IdentityTests(base.TestCase):
         access_key = ec2_credentials['access']
         if add_clean_up:
             self.addCleanup(
-                self.openstack, 'ec2 credentials delete %s' % access_key
+                self.openstack, f'ec2 credentials delete {access_key}'
             )
         items = self.parse_show(raw_output)
         self.assert_show_fields(items, self.EC2_CREDENTIALS_FIELDS)
@@ -178,7 +171,9 @@ class IdentityTests(base.TestCase):
         raw_output = self.openstack('token issue')
         token = self.parse_show_as_object(raw_output)
         if add_clean_up:
-            self.addCleanup(self.openstack, 'token revoke %s' % token['id'])
+            self.addCleanup(
+                self.openstack, 'token revoke {}'.format(token['id'])
+            )
         items = self.parse_show(raw_output)
         self.assert_show_fields(items, self.TOKEN_FIELDS)
         return token['id']
@@ -189,19 +184,14 @@ class IdentityTests(base.TestCase):
         type_name = data_utils.rand_name('TestType')
         raw_output = self.openstack(
             'service create '
-            '--name %(name)s '
-            '--description %(description)s '
-            '%(type)s'
-            % {
-                'name': service_name,
-                'description': description,
-                'type': type_name,
-            }
+            f'--name {service_name} '
+            f'--description {description} '
+            f'{type_name}'
         )
         if add_clean_up:
             service = self.parse_show_as_object(raw_output)
             self.addCleanup(
-                self.openstack, 'service delete %s' % service['id']
+                self.openstack, 'service delete {}'.format(service['id'])
             )
         items = self.parse_show(raw_output)
         self.assert_show_fields(items, self.SERVICE_FIELDS)
@@ -215,23 +205,16 @@ class IdentityTests(base.TestCase):
         internal_url = data_utils.rand_url()
         raw_output = self.openstack(
             'endpoint create '
-            '--publicurl %(publicurl)s '
-            '--adminurl %(adminurl)s '
-            '--internalurl %(internalurl)s '
-            '--region %(region)s '
-            '%(service)s'
-            % {
-                'publicurl': public_url,
-                'adminurl': admin_url,
-                'internalurl': internal_url,
-                'region': region_id,
-                'service': service_name,
-            }
+            f'--publicurl {public_url} '
+            f'--adminurl {admin_url} '
+            f'--internalurl {internal_url} '
+            f'--region {region_id} '
+            f'{service_name}'
         )
         endpoint = self.parse_show_as_object(raw_output)
         if add_clean_up:
             self.addCleanup(
-                self.openstack, 'endpoint delete %s' % endpoint['id']
+                self.openstack, 'endpoint delete {}'.format(endpoint['id'])
             )
         items = self.parse_show(raw_output)
         self.assert_show_fields(items, self.ENDPOINT_FIELDS)

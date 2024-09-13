@@ -128,8 +128,8 @@ class NetworkSegmentRangeTests(common.NetworkTests):
         new_minimum = 2020
         new_maximum = 2029
         cmd_output = self.openstack(
-            'network segment range set --minimum {min} --maximum {max} '
-            '{name}'.format(min=new_minimum, max=new_maximum, name=name)
+            f'network segment range set --minimum {new_minimum} --maximum {new_maximum} '
+            f'{name}'
         )
         self.assertOutput('', cmd_output)
 

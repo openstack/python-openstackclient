@@ -274,13 +274,13 @@ def _prepare_filter_fixed_ips(client_manager, parsed_args):
                 _subnet = client.find_subnet(
                     subnet_name_id, ignore_missing=False
                 )
-                ips.append('subnet_id=%s' % _subnet.id)
+                ips.append(f'subnet_id={_subnet.id}')
 
         if 'ip-address' in ip_spec:
-            ips.append('ip_address=%s' % ip_spec['ip-address'])
+            ips.append('ip_address={}'.format(ip_spec['ip-address']))
 
         if 'ip-substring' in ip_spec:
-            ips.append('ip_address_substr=%s' % ip_spec['ip-substring'])
+            ips.append('ip_address_substr={}'.format(ip_spec['ip-substring']))
     return ips
 
 

@@ -18,7 +18,7 @@ from openstackclient.tests.unit import utils
 
 
 HOST = "192.168.5.41"
-URL_BASE = "http://%s/identity" % HOST
+URL_BASE = f"http://{HOST}/identity"
 
 V2_AUTH_URL = URL_BASE + "/v2.0/"
 V2_VERSION_RESP = {

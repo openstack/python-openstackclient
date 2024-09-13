@@ -31,14 +31,14 @@ class PortTests(common.NetworkTagTests):
             cls.NETWORK_NAME = uuid.uuid4().hex
 
             # Create a network for the port tests
-            cls.openstack('network create %s' % cls.NETWORK_NAME)
+            cls.openstack(f'network create {cls.NETWORK_NAME}')
 
     @classmethod
     def tearDownClass(cls):
         try:
             if cls.haz_network:
                 raw_output = cls.openstack(
-                    'network delete %s' % cls.NETWORK_NAME
+                    f'network delete {cls.NETWORK_NAME}'
                 )
                 cls.assertOutput('', raw_output)
         finally:
@@ -56,9 +56,7 @@ class PortTests(common.NetworkTagTests):
         self.assertEqual(self.NAME, json_output.get('name'))
 
         json_output = self.openstack(
-            'port create --network {} {}x'.format(
-                self.NETWORK_NAME, self.NAME
-            ),
+            f'port create --network {self.NETWORK_NAME} {self.NAME}x',
             parse_output=True,
         )
         id2 = json_output.get('id')
@@ -80,20 +78,18 @@ class PortTests(common.NetworkTagTests):
         self.assertIsNotNone(id1)
         mac1 = json_output.get('mac_address')
         self.assertIsNotNone(mac1)
-        self.addCleanup(self.openstack, 'port delete %s' % id1)
+        self.addCleanup(self.openstack, f'port delete {id1}')
         self.assertEqual(self.NAME, json_output.get('name'))
 
         json_output = self.openstack(
-            'port create --network {} {}x'.format(
-                self.NETWORK_NAME, self.NAME
-            ),
+            f'port create --network {self.NETWORK_NAME} {self.NAME}x',
             parse_output=True,
         )
         id2 = json_output.get('id')
         self.assertIsNotNone(id2)
         mac2 = json_output.get('mac_address')
         self.assertIsNotNone(mac2)
-        self.addCleanup(self.openstack, 'port delete %s' % id2)
+        self.addCleanup(self.openstack, f'port delete {id2}')
         self.assertEqual(self.NAME + 'x', json_output.get('name'))
 
         # Test list
@@ -120,7 +116,7 @@ class PortTests(common.NetworkTagTests):
 
         # Test list --mac-address
         json_output = self.openstack(
-            'port list --mac-address %s' % mac2,
+            f'port list --mac-address {mac2}',
             parse_output=True,
         )
         item_map = {
@@ -147,22 +143,22 @@ class PortTests(common.NetworkTagTests):
         name = uuid.uuid4().hex
         json_output = self.openstack(
             'port create '
-            '--network %s '
+            f'--network {self.NETWORK_NAME} '
             '--description xyzpdq '
-            '--disable %s' % (self.NETWORK_NAME, name),
+            f'--disable {name}',
             parse_output=True,
         )
         id1 = json_output.get('id')
-        self.addCleanup(self.openstack, 'port delete %s' % id1)
+        self.addCleanup(self.openstack, f'port delete {id1}')
         self.assertEqual(name, json_output.get('name'))
         self.assertEqual('xyzpdq', json_output.get('description'))
         self.assertEqual(False, json_output.get('admin_state_up'))
 
-        raw_output = self.openstack('port set --enable %s' % name)
+        raw_output = self.openstack(f'port set --enable {name}')
         self.assertOutput('', raw_output)
 
         json_output = self.openstack(
-            'port show %s' % name,
+            f'port show {name}',
             parse_output=True,
         )
         sg_id = json_output.get('security_group_ids')[0]
@@ -178,7 +174,7 @@ class PortTests(common.NetworkTagTests):
         self.assertOutput('', raw_output)
 
         json_output = self.openstack(
-            'port show %s' % name,
+            f'port show {name}',
             parse_output=True,
         )
         self.assertEqual([], json_output.get('security_group_ids'))
@@ -186,19 +182,19 @@ class PortTests(common.NetworkTagTests):
     def test_port_admin_set(self):
         """Test create, set (as admin), show, delete"""
         json_output = self.openstack(
-            'port create ' '--network %s %s' % (self.NETWORK_NAME, self.NAME),
+            'port create ' f'--network {self.NETWORK_NAME} {self.NAME}',
             parse_output=True,
         )
         id_ = json_output.get('id')
-        self.addCleanup(self.openstack, 'port delete %s' % id_)
+        self.addCleanup(self.openstack, f'port delete {id_}')
 
         raw_output = self.openstack(
             '--os-username admin '
-            'port set --mac-address 11:22:33:44:55:66 %s' % self.NAME
+            f'port set --mac-address 11:22:33:44:55:66 {self.NAME}'
         )
         self.assertOutput('', raw_output)
         json_output = self.openstack(
-            'port show %s' % self.NAME,
+            f'port show {self.NAME}',
             parse_output=True,
         )
         self.assertEqual(json_output.get('mac_address'), '11:22:33:44:55:66')
@@ -207,39 +203,39 @@ class PortTests(common.NetworkTagTests):
         """Test create, set, show, delete"""
         sg_name1 = uuid.uuid4().hex
         json_output = self.openstack(
-            'security group create %s' % sg_name1,
+            f'security group create {sg_name1}',
             parse_output=True,
         )
         sg_id1 = json_output.get('id')
-        self.addCleanup(self.openstack, 'security group delete %s' % sg_id1)
+        self.addCleanup(self.openstack, f'security group delete {sg_id1}')
 
         sg_name2 = uuid.uuid4().hex
         json_output = self.openstack(
-            'security group create %s' % sg_name2,
+            f'security group create {sg_name2}',
             parse_output=True,
         )
         sg_id2 = json_output.get('id')
-        self.addCleanup(self.openstack, 'security group delete %s' % sg_id2)
+        self.addCleanup(self.openstack, f'security group delete {sg_id2}')
 
         name = uuid.uuid4().hex
         json_output = self.openstack(
             'port create '
-            '--network %s '
-            '--security-group %s %s' % (self.NETWORK_NAME, sg_name1, name),
+            f'--network {self.NETWORK_NAME} '
+            f'--security-group {sg_name1} {name}',
             parse_output=True,
         )
         id1 = json_output.get('id')
-        self.addCleanup(self.openstack, 'port delete %s' % id1)
+        self.addCleanup(self.openstack, f'port delete {id1}')
         self.assertEqual(name, json_output.get('name'))
         self.assertEqual([sg_id1], json_output.get('security_group_ids'))
 
         raw_output = self.openstack(
-            'port set ' '--security-group %s %s' % (sg_name2, name)
+            'port set ' f'--security-group {sg_name2} {name}'
         )
         self.assertOutput('', raw_output)
 
         json_output = self.openstack(
-            'port show %s' % name,
+            f'port show {name}',
             parse_output=True,
         )
         self.assertEqual(name, json_output.get('name'))
@@ -256,15 +252,13 @@ class PortTests(common.NetworkTagTests):
         self.assertOutput('', raw_output)
 
         json_output = self.openstack(
-            'port show %s' % name,
+            f'port show {name}',
             parse_output=True,
         )
         self.assertEqual([sg_id2], json_output.get('security_group_ids'))
 
     def _create_resource_for_tag_test(self, name, args):
         return self.openstack(
-            '{} create --network {} {} {}'.format(
-                self.base_command, self.NETWORK_NAME, args, name
-            ),
+            f'{self.base_command} create --network {self.NETWORK_NAME} {args} {name}',
             parse_output=True,
         )

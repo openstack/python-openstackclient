@@ -21,13 +21,13 @@ class ProjectTests(common.IdentityTests):
         description = data_utils.rand_name('description')
         raw_output = self.openstack(
             'project create '
-            '--description %(description)s '
+            f'--description {description} '
             '--enable '
             '--property k1=v1 '
             '--property k2=v2 '
-            '%(name)s' % {'description': description, 'name': project_name}
+            f'{project_name}'
         )
-        self.addCleanup(self.openstack, 'project delete %s' % project_name)
+        self.addCleanup(self.openstack, f'project delete {project_name}')
         items = self.parse_show(raw_output)
         show_fields = list(self.PROJECT_FIELDS)
         show_fields.extend(['k1', 'k2'])
@@ -38,7 +38,7 @@ class ProjectTests(common.IdentityTests):
 
     def test_project_delete(self):
         project_name = self._create_dummy_project(add_clean_up=False)
-        raw_output = self.openstack('project delete %s' % project_name)
+        raw_output = self.openstack(f'project delete {project_name}')
         self.assertEqual(0, len(raw_output))
 
     def test_project_list(self):
@@ -51,14 +51,14 @@ class ProjectTests(common.IdentityTests):
         new_project_name = data_utils.rand_name('NewTestProject')
         raw_output = self.openstack(
             'project set '
-            '--name %(new_name)s '
+            f'--name {new_project_name} '
             '--disable '
             '--property k0=v0 '
-            '%(name)s' % {'new_name': new_project_name, 'name': project_name}
+            f'{project_name}'
         )
         self.assertEqual(0, len(raw_output))
         # check project details
-        raw_output = self.openstack('project show %s' % new_project_name)
+        raw_output = self.openstack(f'project show {new_project_name}')
         items = self.parse_show(raw_output)
         fields = list(self.PROJECT_FIELDS)
         fields.extend(['properties'])
@@ -70,7 +70,7 @@ class ProjectTests(common.IdentityTests):
 
     def test_project_show(self):
         project_name = self._create_dummy_project()
-        raw_output = self.openstack('project show %s' % project_name)
+        raw_output = self.openstack(f'project show {project_name}')
         items = self.parse_show(raw_output)
         fields = list(self.PROJECT_FIELDS)
         fields.extend(['properties'])

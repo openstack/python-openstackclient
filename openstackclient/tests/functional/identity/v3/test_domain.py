@@ -19,12 +19,10 @@ from openstackclient.tests.functional.identity.v3 import common
 class DomainTests(common.IdentityTests):
     def test_domain_create(self):
         domain_name = data_utils.rand_name('TestDomain')
-        raw_output = self.openstack('domain create %s' % domain_name)
+        raw_output = self.openstack(f'domain create {domain_name}')
         # disable domain first before deleting it
-        self.addCleanup(self.openstack, 'domain delete %s' % domain_name)
-        self.addCleanup(
-            self.openstack, 'domain set --disable %s' % domain_name
-        )
+        self.addCleanup(self.openstack, f'domain delete {domain_name}')
+        self.addCleanup(self.openstack, f'domain set --disable {domain_name}')
         items = self.parse_show(raw_output)
         self.assert_show_fields(items, self.DOMAIN_FIELDS)
 
@@ -37,18 +35,18 @@ class DomainTests(common.IdentityTests):
     def test_domain_delete(self):
         domain_name = self._create_dummy_domain(add_clean_up=False)
         # cannot delete enabled domain, disable it first
-        raw_output = self.openstack('domain set --disable %s' % domain_name)
+        raw_output = self.openstack(f'domain set --disable {domain_name}')
         self.assertEqual(0, len(raw_output))
-        raw_output = self.openstack('domain delete %s' % domain_name)
+        raw_output = self.openstack(f'domain delete {domain_name}')
         self.assertEqual(0, len(raw_output))
 
     def test_domain_multi_delete(self):
         domain_1 = self._create_dummy_domain(add_clean_up=False)
         domain_2 = self._create_dummy_domain(add_clean_up=False)
         # cannot delete enabled domain, disable it first
-        raw_output = self.openstack('domain set --disable %s' % domain_1)
+        raw_output = self.openstack(f'domain set --disable {domain_1}')
         self.assertEqual(0, len(raw_output))
-        raw_output = self.openstack('domain set --disable %s' % domain_2)
+        raw_output = self.openstack(f'domain set --disable {domain_2}')
         self.assertEqual(0, len(raw_output))
         raw_output = self.openstack(f'domain delete {domain_1} {domain_2}')
         self.assertEqual(0, len(raw_output))
@@ -59,11 +57,11 @@ class DomainTests(common.IdentityTests):
         self.assertRaises(
             exceptions.CommandFailed,
             self.openstack,
-            'domain delete %s' % domain_name,
+            f'domain delete {domain_name}',
         )
 
     def test_domain_show(self):
         domain_name = self._create_dummy_domain()
-        raw_output = self.openstack('domain show %s' % domain_name)
+        raw_output = self.openstack(f'domain show {domain_name}')
         items = self.parse_show(raw_output)
         self.assert_show_fields(items, self.DOMAIN_FIELDS)

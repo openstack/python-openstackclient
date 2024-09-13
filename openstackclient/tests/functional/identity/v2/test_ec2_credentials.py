@@ -20,7 +20,7 @@ class EC2CredentialsTests(common.IdentityTests):
     def test_ec2_credentials_delete(self):
         access_key = self._create_dummy_ec2_credentials(add_clean_up=False)
         raw_output = self.openstack(
-            'ec2 credentials delete %s' % access_key,
+            f'ec2 credentials delete {access_key}',
         )
         self.assertEqual(0, len(raw_output))
 
@@ -41,7 +41,7 @@ class EC2CredentialsTests(common.IdentityTests):
     def test_ec2_credentials_show(self):
         access_key = self._create_dummy_ec2_credentials()
         show_output = self.openstack(
-            'ec2 credentials show %s' % access_key,
+            f'ec2 credentials show {access_key}',
         )
         items = self.parse_show(show_output)
         self.assert_show_fields(items, self.EC2_CREDENTIALS_FIELDS)

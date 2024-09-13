@@ -34,7 +34,7 @@ def find_service_in_list(service_list, service_id):
         if service.id == service_id:
             return service
     raise exceptions.CommandError(
-        "No service with a type, name or ID of '%s' exists." % service_id
+        f"No service with a type, name or ID of '{service_id}' exists."
     )
 
 

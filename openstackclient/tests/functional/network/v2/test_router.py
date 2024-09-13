@@ -275,17 +275,16 @@ class RouterTests(common.NetworkTagTests):
         subnet_name = uuid.uuid4().hex
         router_name = uuid.uuid4().hex
 
-        self.openstack('network create %s' % network_name)
-        self.addCleanup(self.openstack, 'network delete %s' % network_name)
+        self.openstack(f'network create {network_name}')
+        self.addCleanup(self.openstack, f'network delete {network_name}')
 
         self.openstack(
-            'subnet create %s '
-            '--network %s --subnet-range 10.0.0.0/24'
-            % (subnet_name, network_name)
+            f'subnet create {subnet_name} '
+            f'--network {network_name} --subnet-range 10.0.0.0/24'
         )
 
-        self.openstack('router create %s' % router_name)
-        self.addCleanup(self.openstack, 'router delete %s' % router_name)
+        self.openstack(f'router create {router_name}')
+        self.addCleanup(self.openstack, f'router delete {router_name}')
 
         self.openstack(f'router add subnet {router_name} {subnet_name}')
         self.addCleanup(
@@ -295,24 +294,20 @@ class RouterTests(common.NetworkTagTests):
 
         out1 = (
             self.openstack(
-                'router add route %s '
-                '--route destination=10.0.10.0/24,gateway=10.0.0.10'
-                % router_name,
+                f'router add route {router_name} '
+                '--route destination=10.0.10.0/24,gateway=10.0.0.10',
                 parse_output=True,
             ),
         )
         self.assertEqual(1, len(out1[0]['routes']))
 
-        self.addCleanup(
-            self.openstack, 'router set %s --no-route' % router_name
-        )
+        self.addCleanup(self.openstack, f'router set {router_name} --no-route')
 
         out2 = (
             self.openstack(
-                'router add route %s '
+                f'router add route {router_name} '
                 '--route destination=10.0.10.0/24,gateway=10.0.0.10 '
-                '--route destination=10.0.11.0/24,gateway=10.0.0.11'
-                % router_name,
+                '--route destination=10.0.11.0/24,gateway=10.0.0.11',
                 parse_output=True,
             ),
         )
@@ -320,10 +315,9 @@ class RouterTests(common.NetworkTagTests):
 
         out3 = (
             self.openstack(
-                'router remove route %s '
+                f'router remove route {router_name} '
                 '--route destination=10.0.11.0/24,gateway=10.0.0.11 '
-                '--route destination=10.0.12.0/24,gateway=10.0.0.12'
-                % router_name,
+                '--route destination=10.0.12.0/24,gateway=10.0.0.12',
                 parse_output=True,
             ),
         )

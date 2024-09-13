@@ -241,9 +241,9 @@ def run(opts):
 
     # Do some basic testing here
     sys.stdout.write("Default run command\n")
-    sys.stdout.write("Verbose level: %s\n" % opts.verbose_level)
-    sys.stdout.write("Debug: %s\n" % opts.debug)
-    sys.stdout.write("dump_stack_trace: %s\n" % dump_stack_trace)
+    sys.stdout.write(f"Verbose level: {opts.verbose_level}\n")
+    sys.stdout.write(f"Debug: {opts.debug}\n")
+    sys.stdout.write(f"dump_stack_trace: {dump_stack_trace}\n")
 
 
 def setup():

@@ -421,8 +421,8 @@ class CreateImage(command.ShowOne):
         identity_common.add_project_domain_option_to_parser(parser)
         for deadopt in self.deadopts:
             parser.add_argument(
-                "--%s" % deadopt,
-                metavar="<%s>" % deadopt,
+                f"--{deadopt}",
+                metavar=f"<{deadopt}>",
                 dest=deadopt.replace('-', '_'),
                 help=argparse.SUPPRESS,
             )
@@ -488,7 +488,7 @@ class CreateImage(command.ShowOne):
                 fp = open(parsed_args.filename, 'rb')
             except FileNotFoundError:
                 raise exceptions.CommandError(
-                    '%r is not a valid file' % parsed_args.filename,
+                    f'{parsed_args.filename!r} is not a valid file',
                 )
         else:
             fp = get_data_from_stdin()
@@ -1209,8 +1209,8 @@ class SetImage(command.Command):
         identity_common.add_project_domain_option_to_parser(parser)
         for deadopt in self.deadopts:
             parser.add_argument(
-                "--%s" % deadopt,
-                metavar="<%s>" % deadopt,
+                f"--{deadopt}",
+                metavar=f"<{deadopt}>",
                 dest=f"dead_{deadopt.replace('-', '_')}",
                 help=argparse.SUPPRESS,
             )
@@ -1575,7 +1575,7 @@ class StageImage(command.Command):
                 fp = open(parsed_args.filename, 'rb')
             except FileNotFoundError:
                 raise exceptions.CommandError(
-                    '%r is not a valid file' % parsed_args.filename,
+                    f'{parsed_args.filename!r} is not a valid file',
                 )
         else:
             fp = get_data_from_stdin()

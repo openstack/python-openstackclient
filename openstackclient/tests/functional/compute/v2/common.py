@@ -132,9 +132,7 @@ class ComputeTestCase(base.TestCase):
                 print(f'Server {name} now has status {status}')
                 break
             print(
-                'Server {}: Waiting for {}, current status: {}'.format(
-                    name, expected_status, status
-                )
+                f'Server {name}: Waiting for {expected_status}, current status: {status}'
             )
             self.assertNotIn(status, failures)
             time.sleep(interval)

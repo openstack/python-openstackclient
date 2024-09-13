@@ -30,9 +30,7 @@ class ImageTests(base.BaseImageTests):
         self.image_tag = 'my_tag'
         self.image_tag1 = 'random'
         output = self.openstack(
-            'image create --tag {tag} {name}'.format(
-                tag=self.image_tag, name=self.name
-            ),
+            f'image create --tag {self.image_tag} {self.name}',
             parse_output=True,
         )
         self.image_id = output["id"]

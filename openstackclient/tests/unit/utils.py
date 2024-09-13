@@ -62,7 +62,7 @@ class TestCase(testtools.TestCase):
 
         if m.called:
             if not msg:
-                msg = 'method %s should not have been called' % m
+                msg = f'method {m} should not have been called'
             self.fail(msg)
 
 
@@ -90,7 +90,7 @@ class TestCommand(TestCase):
                 argparse.ArgumentError,
             ):
                 raise ParserException(
-                    "Argument parse failed: %s" % stderr.getvalue()
+                    f"Argument parse failed: {stderr.getvalue()}"
                 )
         for av in verify_args:
             attr, value = av
