@@ -6982,7 +6982,7 @@ class TestServerEvacuate(TestServer):
         evac_args = {
             'host': None,
             'on_shared_storage': False,
-            'password': None,
+            'admin_password': None,
         }
         self._test_evacuate(args, verify_args, evac_args)
 
@@ -6999,7 +6999,7 @@ class TestServerEvacuate(TestServer):
         evac_args = {
             'host': None,
             'on_shared_storage': False,
-            'password': 'password',
+            'admin_password': 'password',
         }
         self._test_evacuate(args, verify_args, evac_args)
 
@@ -7016,7 +7016,7 @@ class TestServerEvacuate(TestServer):
             ('server', self.server.id),
             ('host', 'target-host'),
         ]
-        evac_args = {'host': host, 'password': None}
+        evac_args = {'host': host, 'admin_password': None}
 
         self._test_evacuate(args, verify_args, evac_args)
 
@@ -7049,7 +7049,7 @@ class TestServerEvacuate(TestServer):
         evac_args = {
             'host': None,
             'on_shared_storage': True,
-            'password': None,
+            'admin_password': None,
         }
         self._test_evacuate(args, verify_args, evac_args)
 
@@ -7080,7 +7080,7 @@ class TestServerEvacuate(TestServer):
         evac_args = {
             'host': None,
             'on_shared_storage': False,
-            'password': None,
+            'admin_password': None,
         }
         self._test_evacuate(args, verify_args, evac_args)
         mock_wait_for_status.assert_called_once_with(
