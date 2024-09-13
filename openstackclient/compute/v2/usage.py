@@ -180,9 +180,9 @@ class ListUsage(command.Lister):
         try:
             for p in self.app.client_manager.identity.projects.list():
                 project_cache[p.id] = p
-        except Exception:
+        except Exception:  # noqa: S110
             # Just forget it if there's any trouble
-            pass  # nosec: B110
+            pass
 
         if parsed_args.formatter == 'table' and len(usage_list) > 0:
             self.app.stdout.write(

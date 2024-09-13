@@ -526,9 +526,9 @@ class ListVolume(command.Lister):
                 compute_client = self.app.client_manager.sdk_connection.compute
                 for s in compute_client.servers():
                     server_cache[s.id] = s
-            except sdk_exceptions.SDKException:
+            except sdk_exceptions.SDKException:  # noqa: S110
                 # Just forget it if there's any trouble
-                pass  # nosec: B110
+                pass
         AttachmentsColumnWithCache = functools.partial(
             AttachmentsColumn, server_cache=server_cache
         )

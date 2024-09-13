@@ -250,9 +250,9 @@ class ListUser(command.Lister):
             try:
                 for p in identity_client.tenants.list():
                     project_cache[p.id] = p
-            except Exception:
+            except Exception:  # noqa: S110
                 # Just forget it if there's any trouble
-                pass  # nosec: B110
+                pass
             formatters['tenantId'] = functools.partial(
                 ProjectColumn, project_cache=project_cache
             )
