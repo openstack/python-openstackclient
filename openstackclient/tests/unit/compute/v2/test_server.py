@@ -78,30 +78,6 @@ class TestServer(compute_fakes.TestComputev2):
 
         return servers
 
-    def setup_sdk_volumes_mock(self, count):
-        volumes = volume_fakes.create_sdk_volumes(count=count)
-
-        # This is the return value for volume_client.find_volume()
-        self.volume_sdk_client.find_volume.side_effect = volumes
-
-        return volumes
-
-    def run_method_with_sdk_servers(self, method_name, server_count):
-        servers = self.setup_sdk_servers_mock(count=server_count)
-
-        arglist = [s.id for s in servers]
-        verifylist = [
-            ('server', arglist),
-        ]
-        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
-
-        result = self.cmd.take_action(parsed_args)
-
-        calls = [mock.call(s.id) for s in servers]
-        method = getattr(self.compute_sdk_client, method_name)
-        method.assert_has_calls(calls)
-        self.assertIsNone(result)
-
 
 class TestServerAddFixedIP(TestServer):
     def setUp(self):
@@ -730,12 +706,15 @@ class TestServerVolume(TestServer):
     def setUp(self):
         super().setUp()
 
-        self.servers = self.setup_sdk_servers_mock(count=1)
-        self.volumes = self.setup_sdk_volumes_mock(count=1)
+        self.server = compute_fakes.create_one_sdk_server()
+        self.compute_sdk_client.find_server.return_value = self.server
+
+        self.volume = volume_fakes.create_one_sdk_volume()
+        self.volume_sdk_client.find_volume.return_value = self.volume
 
         attrs = {
-            'server_id': self.servers[0].id,
-            'volume_id': self.volumes[0].id,
+            'server_id': self.server.id,
+            'volume_id': self.volume.id,
         }
         self.volume_attachment = compute_fakes.create_one_volume_attachment(
             attrs=attrs
@@ -758,12 +737,12 @@ class TestServerAddVolume(TestServerVolume):
         arglist = [
             '--device',
             '/dev/sdb',
-            self.servers[0].id,
-            self.volumes[0].id,
+            self.server.id,
+            self.volume.id,
         ]
         verifylist = [
-            ('server', self.servers[0].id),
-            ('volume', self.volumes[0].id),
+            ('server', self.server.id),
+            ('volume', self.volume.id),
             ('device', '/dev/sdb'),
         ]
 
@@ -782,7 +761,7 @@ class TestServerAddVolume(TestServerVolume):
         self.assertEqual(expected_columns, columns)
         self.assertEqual(expected_data, data)
         self.compute_sdk_client.create_volume_attachment.assert_called_once_with(
-            self.servers[0], volumeId=self.volumes[0].id, device='/dev/sdb'
+            self.server, volumeId=self.volume.id, device='/dev/sdb'
         )
 
     def test_server_add_volume_with_tag(self):
@@ -793,12 +772,12 @@ class TestServerAddVolume(TestServerVolume):
             '/dev/sdb',
             '--tag',
             'foo',
-            self.servers[0].id,
-            self.volumes[0].id,
+            self.server.id,
+            self.volume.id,
         ]
         verifylist = [
-            ('server', self.servers[0].id),
-            ('volume', self.volumes[0].id),
+            ('server', self.server.id),
+            ('volume', self.volume.id),
             ('device', '/dev/sdb'),
             ('tag', 'foo'),
         ]
@@ -819,8 +798,8 @@ class TestServerAddVolume(TestServerVolume):
         self.assertEqual(expected_columns, columns)
         self.assertEqual(expected_data, data)
         self.compute_sdk_client.create_volume_attachment.assert_called_once_with(
-            self.servers[0],
-            volumeId=self.volumes[0].id,
+            self.server,
+            volumeId=self.volume.id,
             device='/dev/sdb',
             tag='foo',
         )
@@ -829,14 +808,14 @@ class TestServerAddVolume(TestServerVolume):
         self.set_compute_api_version('2.48')
 
         arglist = [
-            self.servers[0].id,
-            self.volumes[0].id,
+            self.server.id,
+            self.volume.id,
             '--tag',
             'foo',
         ]
         verifylist = [
-            ('server', self.servers[0].id),
-            ('volume', self.volumes[0].id),
+            ('server', self.server.id),
+            ('volume', self.volume.id),
             ('tag', 'foo'),
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
@@ -856,13 +835,13 @@ class TestServerAddVolume(TestServerVolume):
             '--enable-delete-on-termination',
             '--device',
             '/dev/sdb',
-            self.servers[0].id,
-            self.volumes[0].id,
+            self.server.id,
+            self.volume.id,
         ]
 
         verifylist = [
-            ('server', self.servers[0].id),
-            ('volume', self.volumes[0].id),
+            ('server', self.server.id),
+            ('volume', self.volume.id),
             ('device', '/dev/sdb'),
             ('enable_delete_on_termination', True),
         ]
@@ -889,8 +868,8 @@ class TestServerAddVolume(TestServerVolume):
         self.assertEqual(expected_columns, columns)
         self.assertEqual(expected_data, data)
         self.compute_sdk_client.create_volume_attachment.assert_called_once_with(
-            self.servers[0],
-            volumeId=self.volumes[0].id,
+            self.server,
+            volumeId=self.volume.id,
             device='/dev/sdb',
             delete_on_termination=True,
         )
@@ -904,13 +883,13 @@ class TestServerAddVolume(TestServerVolume):
             '--disable-delete-on-termination',
             '--device',
             '/dev/sdb',
-            self.servers[0].id,
-            self.volumes[0].id,
+            self.server.id,
+            self.volume.id,
         ]
 
         verifylist = [
-            ('server', self.servers[0].id),
-            ('volume', self.volumes[0].id),
+            ('server', self.server.id),
+            ('volume', self.volume.id),
             ('device', '/dev/sdb'),
             ('disable_delete_on_termination', True),
         ]
@@ -938,8 +917,8 @@ class TestServerAddVolume(TestServerVolume):
         self.assertEqual(expected_columns, columns)
         self.assertEqual(expected_data, data)
         self.compute_sdk_client.create_volume_attachment.assert_called_once_with(
-            self.servers[0],
-            volumeId=self.volumes[0].id,
+            self.server,
+            volumeId=self.volume.id,
             device='/dev/sdb',
             delete_on_termination=False,
         )
@@ -950,13 +929,13 @@ class TestServerAddVolume(TestServerVolume):
         self.set_compute_api_version('2.78')
 
         arglist = [
-            self.servers[0].id,
-            self.volumes[0].id,
+            self.server.id,
+            self.volume.id,
             '--enable-delete-on-termination',
         ]
         verifylist = [
-            ('server', self.servers[0].id),
-            ('volume', self.volumes[0].id),
+            ('server', self.server.id),
+            ('volume', self.volume.id),
             ('enable_delete_on_termination', True),
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
@@ -974,13 +953,13 @@ class TestServerAddVolume(TestServerVolume):
         self.set_compute_api_version('2.78')
 
         arglist = [
-            self.servers[0].id,
-            self.volumes[0].id,
+            self.server.id,
+            self.volume.id,
             '--disable-delete-on-termination',
         ]
         verifylist = [
-            ('server', self.servers[0].id),
-            ('volume', self.volumes[0].id),
+            ('server', self.server.id),
+            ('volume', self.volume.id),
             ('disable_delete_on_termination', True),
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
@@ -1002,13 +981,13 @@ class TestServerAddVolume(TestServerVolume):
             '--disable-delete-on-termination',
             '--device',
             '/dev/sdb',
-            self.servers[0].id,
-            self.volumes[0].id,
+            self.server.id,
+            self.volume.id,
         ]
 
         verifylist = [
-            ('server', self.servers[0].id),
-            ('volume', self.volumes[0].id),
+            ('server', self.server.id),
+            ('volume', self.volume.id),
             ('device', '/dev/sdb'),
             ('enable_delete_on_termination', True),
             ('disable_delete_on_termination', True),
@@ -1036,13 +1015,13 @@ class TestServerRemoveVolume(TestServerVolume):
 
     def test_server_remove_volume(self):
         arglist = [
-            self.servers[0].id,
-            self.volumes[0].id,
+            self.server.id,
+            self.volume.id,
         ]
 
         verifylist = [
-            ('server', self.servers[0].id),
-            ('volume', self.volumes[0].id),
+            ('server', self.server.id),
+            ('volume', self.volume.id),
         ]
 
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
@@ -1051,8 +1030,8 @@ class TestServerRemoveVolume(TestServerVolume):
 
         self.assertIsNone(result)
         self.compute_sdk_client.delete_volume_attachment.assert_called_once_with(
-            self.volumes[0],
-            self.servers[0],
+            self.volume,
+            self.server,
             ignore_missing=False,
         )
 
@@ -5476,14 +5455,28 @@ class TestServerListV273(_TestServerList):
         self.assertEqual(expected_row, partial_server)
 
 
-class TestServerLock(TestServer):
+class TestServerAction(compute_fakes.TestComputev2):
+    def run_method_with_sdk_servers(self, method_name, server_count):
+        servers = compute_fakes.create_sdk_servers(count=server_count)
+        self.compute_sdk_client.find_server.side_effect = servers
+
+        arglist = [s.id for s in servers]
+        verifylist = [
+            ('server', arglist),
+        ]
+
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+        result = self.cmd.take_action(parsed_args)
+
+        calls = [mock.call(s.id) for s in servers]
+        method = getattr(self.compute_sdk_client, method_name)
+        method.assert_has_calls(calls)
+        self.assertIsNone(result)
+
+
+class TestServerLock(TestServerAction):
     def setUp(self):
         super().setUp()
-
-        self.server = compute_fakes.create_one_sdk_server()
-
-        self.compute_sdk_client.find_server.return_value = self.server
-        self.compute_sdk_client.lock_server.return_value = None
 
         # Get the command object to test
         self.cmd = server.LockServer(self.app, None)
@@ -5497,6 +5490,10 @@ class TestServerLock(TestServer):
     def test_server_lock_with_reason(self):
         self.set_compute_api_version('2.73')
 
+        self.server = compute_fakes.create_one_sdk_server()
+        self.compute_sdk_client.find_server.return_value = self.server
+        self.compute_sdk_client.lock_server.return_value = None
+
         arglist = [
             self.server.id,
             '--reason',
@@ -5506,8 +5503,10 @@ class TestServerLock(TestServer):
             ('server', [self.server.id]),
             ('reason', 'blah'),
         ]
+
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
         self.cmd.take_action(parsed_args)
+
         self.compute_sdk_client.find_server.assert_called_with(
             self.server.id,
             ignore_missing=False,
@@ -5520,30 +5519,38 @@ class TestServerLock(TestServer):
     def test_server_lock_with_reason_multi_servers(self):
         self.set_compute_api_version('2.73')
 
-        server2 = compute_fakes.create_one_sdk_server()
+        server_a = compute_fakes.create_one_sdk_server()
+        server_b = compute_fakes.create_one_sdk_server()
+
+        self.compute_sdk_client.find_server.side_effect = [server_a, server_b]
+        self.compute_sdk_client.lock_server.return_value = None
         arglist = [
-            self.server.id,
-            server2.id,
+            server_a.id,
+            server_b.id,
             '--reason',
             'choo..choo',
         ]
         verifylist = [
-            ('server', [self.server.id, server2.id]),
+            ('server', [server_a.id, server_b.id]),
             ('reason', 'choo..choo'),
         ]
+
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
         self.cmd.take_action(parsed_args)
+
         self.assertEqual(2, self.compute_sdk_client.find_server.call_count)
-        self.compute_sdk_client.lock_server.assert_called_with(
-            self.server.id,
-            locked_reason="choo..choo",
+        self.compute_sdk_client.lock_server.assert_has_calls(
+            [
+                mock.call(server_a.id, locked_reason="choo..choo"),
+                mock.call(server_b.id, locked_reason="choo..choo"),
+            ]
         )
-        self.assertEqual(2, self.compute_sdk_client.lock_server.call_count)
 
     def test_server_lock_with_reason_pre_v273(self):
         self.set_compute_api_version('2.72')
 
         server = compute_fakes.create_one_sdk_server()
+
         arglist = [
             server.id,
             '--reason',
@@ -5553,6 +5560,7 @@ class TestServerLock(TestServer):
             ('server', [server.id]),
             ('reason', "blah"),
         ]
+
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
         ex = self.assertRaises(
             exceptions.CommandError,
@@ -6089,7 +6097,7 @@ class TestServerReboot(TestServer):
         )
 
 
-class TestServerPause(TestServer):
+class TestServerPause(TestServerAction):
     def setUp(self):
         super().setUp()
 
@@ -7828,7 +7836,7 @@ class TestServerRevertMigration(compute_fakes.TestComputev2):
         self.assertIsNone(result)
 
 
-class TestServerRestore(TestServer):
+class TestServerRestore(TestServerAction):
     def setUp(self):
         super().setUp()
 
@@ -7842,7 +7850,7 @@ class TestServerRestore(TestServer):
         self.run_method_with_sdk_servers('restore_server', 3)
 
 
-class TestServerResume(TestServer):
+class TestServerResume(TestServerAction):
     def setUp(self):
         super().setUp()
 
@@ -8711,7 +8719,7 @@ class TestServerSsh(TestServer):
         )
 
 
-class TestServerStart(TestServer):
+class TestServerStart(TestServerAction):
     def setUp(self):
         super().setUp()
 
@@ -8725,28 +8733,29 @@ class TestServerStart(TestServer):
         self.run_method_with_sdk_servers('start_server', 3)
 
     def test_server_start_with_all_projects(self):
-        servers = self.setup_sdk_servers_mock(count=1)
+        server = compute_fakes.create_one_sdk_server()
+        self.compute_sdk_client.find_server.return_value = server
 
         arglist = [
-            servers[0].id,
+            server.id,
             '--all-projects',
         ]
         verifylist = [
-            ('server', [servers[0].id]),
+            ('server', [server.id]),
         ]
-        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
         self.cmd.take_action(parsed_args)
 
         self.compute_sdk_client.find_server.assert_called_once_with(
-            servers[0].id,
+            server.id,
             ignore_missing=False,
             details=False,
             all_projects=True,
         )
 
 
-class TestServerStop(TestServer):
+class TestServerStop(TestServerAction):
     def setUp(self):
         super().setUp()
 
@@ -8760,28 +8769,29 @@ class TestServerStop(TestServer):
         self.run_method_with_sdk_servers('stop_server', 3)
 
     def test_server_start_with_all_projects(self):
-        servers = self.setup_sdk_servers_mock(count=1)
+        server = compute_fakes.create_one_sdk_server()
+        self.compute_sdk_client.find_server.return_value = server
 
         arglist = [
-            servers[0].id,
+            server.id,
             '--all-projects',
         ]
         verifylist = [
-            ('server', [servers[0].id]),
+            ('server', [server.id]),
         ]
-        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
         self.cmd.take_action(parsed_args)
 
         self.compute_sdk_client.find_server.assert_called_once_with(
-            servers[0].id,
+            server.id,
             ignore_missing=False,
             details=False,
             all_projects=True,
         )
 
 
-class TestServerSuspend(TestServer):
+class TestServerSuspend(TestServerAction):
     def setUp(self):
         super().setUp()
 
@@ -8795,7 +8805,7 @@ class TestServerSuspend(TestServer):
         self.run_method_with_sdk_servers('suspend_server', 3)
 
 
-class TestServerUnlock(TestServer):
+class TestServerUnlock(TestServerAction):
     def setUp(self):
         super().setUp()
 
@@ -8809,7 +8819,7 @@ class TestServerUnlock(TestServer):
         self.run_method_with_sdk_servers('unlock_server', 3)
 
 
-class TestServerUnpause(TestServer):
+class TestServerUnpause(TestServerAction):
     def setUp(self):
         super().setUp()
 
