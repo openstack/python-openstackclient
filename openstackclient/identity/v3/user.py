@@ -249,26 +249,44 @@ class CreateUser(command.ShowOne):
     def take_action(self, parsed_args):
         identity_client = self.app.client_manager.sdk_connection.identity
 
+        kwargs = {}
+
         domain_id = None
         if parsed_args.domain:
             domain_id = identity_client.find_domain(
-                name_or_id=parsed_args.domain,
+                parsed_args.domain,
                 ignore_missing=False,
+            ).id
+            kwargs['domain_id'] = domain_id
+
+        if parsed_args.project:
+            project_domain_id = None
+            if parsed_args.project_domain:
+                project_domain_id = identity_client.find_domain(
+                    parsed_args.project_domain,
+                    ignore_missing=False,
+                ).id
+            kwargs['default_project_id'] = identity_client.find_project(
+                parsed_args.project,
+                ignore_missing=False,
+                domain_id=project_domain_id,
             ).id
 
-        project_id = None
-        if parsed_args.project:
-            project_id = identity_client.find_project(
-                name_or_id=parsed_args.project,
-                ignore_missing=False,
-                domain_id=domain_id,
-            ).id
+        if parsed_args.description:
+            kwargs['description'] = parsed_args.description
+
+        if parsed_args.email:
+            kwargs['email'] = parsed_args.email
 
         is_enabled = True
         if parsed_args.disable:
             is_enabled = False
-        if parsed_args.password_prompt:
-            parsed_args.password = utils.get_password(self.app.stdin)
+
+        password = None
+        if parsed_args.password:
+            password = parsed_args.password
+        elif parsed_args.password_prompt:
+            password = utils.get_password(self.app.stdin)
 
         if not parsed_args.password:
             LOG.warning(
@@ -278,24 +296,26 @@ class CreateUser(command.ShowOne):
                 )
             )
         options = _get_options_for_user(identity_client, parsed_args)
+        if options:
+            kwargs['options'] = options
 
         try:
             user = identity_client.create_user(
-                default_project_id=project_id,
-                description=parsed_args.description,
-                domain_id=domain_id,
-                email=parsed_args.email,
                 is_enabled=is_enabled,
                 name=parsed_args.name,
-                password=parsed_args.password,
-                options=options,
+                password=password,
+                **kwargs,
             )
         except sdk_exc.ConflictException:
             if parsed_args.or_show:
+                kwargs = {}
+                if domain_id:
+                    kwargs['domain_id'] = domain_id
+
                 user = identity_client.find_user(
-                    name_or_id=parsed_args.name,
-                    domain_id=domain_id,
+                    parsed_args.name,
                     ignore_missing=False,
+                    **kwargs,
                 )
                 LOG.info(_('Returning existing user %s'), user.name)
             else:
