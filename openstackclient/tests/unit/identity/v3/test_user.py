@@ -91,11 +91,6 @@ class TestUserCreate(identity_fakes.TestIdentityv3):
         # Set expected values
         kwargs = {
             'name': self.user.name,
-            'default_project_id': None,
-            'description': None,
-            'domain_id': None,
-            'email': None,
-            'options': {},
             'is_enabled': True,
             'password': None,
         }
@@ -127,11 +122,6 @@ class TestUserCreate(identity_fakes.TestIdentityv3):
         # Set expected values
         kwargs = {
             'name': self.user.name,
-            'default_project_id': None,
-            'description': None,
-            'domain_id': None,
-            'email': None,
-            'options': {},
             'is_enabled': True,
             'password': 'secret',
         }
@@ -165,11 +155,6 @@ class TestUserCreate(identity_fakes.TestIdentityv3):
         # Set expected values
         kwargs = {
             'name': self.user.name,
-            'default_project_id': None,
-            'description': None,
-            'domain_id': None,
-            'email': None,
-            'options': {},
             'is_enabled': True,
             'password': 'abc123',
         }
@@ -200,12 +185,8 @@ class TestUserCreate(identity_fakes.TestIdentityv3):
         # Set expected values
         kwargs = {
             'name': self.user.name,
-            'default_project_id': None,
-            'description': None,
-            'domain_id': None,
             'email': 'barney@example.com',
             'is_enabled': True,
-            'options': {},
             'password': None,
         }
         self.identity_sdk_client.create_user.assert_called_with(**kwargs)
@@ -236,11 +217,7 @@ class TestUserCreate(identity_fakes.TestIdentityv3):
         kwargs = {
             'name': self.user.name,
             'default_project_id': self.project.id,
-            'description': None,
-            'domain_id': None,
-            'email': None,
             'is_enabled': True,
-            'options': {},
             'password': None,
         }
         self.identity_sdk_client.create_user.assert_called_with(**kwargs)
@@ -284,14 +261,13 @@ class TestUserCreate(identity_fakes.TestIdentityv3):
         kwargs = {
             'name': self.user.name,
             'default_project_id': self.project.id,
-            'description': None,
-            'domain_id': None,
-            'email': None,
-            'options': {},
             'is_enabled': True,
             'password': None,
         }
-        self.identity_sdk_client.create_user.assert_called_with(**kwargs)
+        self.identity_sdk_client.create_user.assert_called_once_with(**kwargs)
+        self.identity_sdk_client.find_domain.assert_called_once_with(
+            self.project.domain_id, ignore_missing=False
+        )
 
         self.assertEqual(self.columns, columns)
         datalist = (
@@ -328,11 +304,7 @@ class TestUserCreate(identity_fakes.TestIdentityv3):
         # Set expected values
         kwargs = {
             'name': self.user.name,
-            'default_project_id': None,
-            'description': None,
             'domain_id': self.domain.id,
-            'email': None,
-            'options': {},
             'is_enabled': True,
             'password': None,
         }
@@ -361,11 +333,6 @@ class TestUserCreate(identity_fakes.TestIdentityv3):
         # Set expected values
         kwargs = {
             'name': self.user.name,
-            'default_project_id': None,
-            'description': None,
-            'domain_id': None,
-            'email': None,
-            'options': {},
             'is_enabled': True,
             'password': None,
         }
@@ -394,11 +361,6 @@ class TestUserCreate(identity_fakes.TestIdentityv3):
         # Set expected values
         kwargs = {
             'name': self.user.name,
-            'default_project_id': None,
-            'description': None,
-            'domain_id': None,
-            'email': None,
-            'options': {},
             'is_enabled': False,
             'password': None,
         }
@@ -428,10 +390,6 @@ class TestUserCreate(identity_fakes.TestIdentityv3):
         # Set expected values
         kwargs = {
             'name': self.user.name,
-            'default_project_id': None,
-            'description': None,
-            'domain_id': None,
-            'email': None,
             'is_enabled': True,
             'options': {'ignore_lockout_failure_attempts': True},
             'password': None,
@@ -462,10 +420,6 @@ class TestUserCreate(identity_fakes.TestIdentityv3):
         # Set expected values
         kwargs = {
             'name': self.user.name,
-            'default_project_id': None,
-            'description': None,
-            'domain_id': None,
-            'email': None,
             'is_enabled': True,
             'options': {'ignore_lockout_failure_attempts': False},
             'password': None,
@@ -496,10 +450,6 @@ class TestUserCreate(identity_fakes.TestIdentityv3):
         # Set expected values
         kwargs = {
             'name': self.user.name,
-            'default_project_id': None,
-            'description': None,
-            'domain_id': None,
-            'email': None,
             'is_enabled': True,
             'options': {'ignore_password_expiry': True},
             'password': None,
@@ -530,10 +480,6 @@ class TestUserCreate(identity_fakes.TestIdentityv3):
         # Set expected values
         kwargs = {
             'name': self.user.name,
-            'default_project_id': None,
-            'description': None,
-            'domain_id': None,
-            'email': None,
             'is_enabled': True,
             'options': {'ignore_password_expiry': False},
             'password': None,
@@ -564,10 +510,6 @@ class TestUserCreate(identity_fakes.TestIdentityv3):
         # Set expected values
         kwargs = {
             'name': self.user.name,
-            'default_project_id': None,
-            'description': None,
-            'domain_id': None,
-            'email': None,
             'is_enabled': True,
             'options': {'ignore_change_password_upon_first_use': True},
             'password': None,
@@ -598,10 +540,6 @@ class TestUserCreate(identity_fakes.TestIdentityv3):
         # Set expected values
         kwargs = {
             'name': self.user.name,
-            'default_project_id': None,
-            'description': None,
-            'domain_id': None,
-            'email': None,
             'is_enabled': True,
             'options': {'ignore_change_password_upon_first_use': False},
             'password': None,
@@ -632,10 +570,6 @@ class TestUserCreate(identity_fakes.TestIdentityv3):
         # Set expected values
         kwargs = {
             'name': self.user.name,
-            'default_project_id': None,
-            'description': None,
-            'domain_id': None,
-            'email': None,
             'is_enabled': True,
             'options': {'lock_password': True},
             'password': None,
@@ -666,10 +600,6 @@ class TestUserCreate(identity_fakes.TestIdentityv3):
         # Set expected values
         kwargs = {
             'name': self.user.name,
-            'default_project_id': None,
-            'description': None,
-            'domain_id': None,
-            'email': None,
             'is_enabled': True,
             'options': {'lock_password': False},
             'password': None,
@@ -700,10 +630,6 @@ class TestUserCreate(identity_fakes.TestIdentityv3):
         # Set expected values
         kwargs = {
             'name': self.user.name,
-            'default_project_id': None,
-            'description': None,
-            'domain_id': None,
-            'email': None,
             'is_enabled': True,
             'options': {'multi_factor_auth_enabled': True},
             'password': None,
@@ -734,10 +660,6 @@ class TestUserCreate(identity_fakes.TestIdentityv3):
         # Set expected values
         kwargs = {
             'name': self.user.name,
-            'default_project_id': None,
-            'description': None,
-            'domain_id': None,
-            'email': None,
             'is_enabled': True,
             'options': {'multi_factor_auth_enabled': False},
             'password': None,
@@ -774,10 +696,6 @@ class TestUserCreate(identity_fakes.TestIdentityv3):
         # Set expected values
         kwargs = {
             'name': self.user.name,
-            'default_project_id': None,
-            'description': None,
-            'domain_id': None,
-            'email': None,
             'is_enabled': True,
             'options': {
                 'multi_factor_auth_rules': [["password", "totp"], ["password"]]
@@ -815,10 +733,6 @@ class TestUserCreate(identity_fakes.TestIdentityv3):
         # Set expected values
         kwargs = {
             'name': self.user.name,
-            'default_project_id': None,
-            'description': None,
-            'domain_id': None,
-            'email': None,
             'is_enabled': True,
             'options': {
                 'ignore_password_expiry': True,
