@@ -1145,7 +1145,7 @@ class TestServerAddSecurityGroup(compute_fakes.TestComputev2):
         arglist = [self.server.id, 'fake_sg']
         verifylist = [
             ('server', self.server.id),
-            ('group', 'fake_sg'),
+            ('security_groups', ['fake_sg']),
         ]
 
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
@@ -1176,7 +1176,7 @@ class TestServerAddSecurityGroup(compute_fakes.TestComputev2):
         arglist = [self.server.id, 'fake_sg']
         verifylist = [
             ('server', self.server.id),
-            ('group', 'fake_sg'),
+            ('security_groups', ['fake_sg']),
         ]
 
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
@@ -1408,7 +1408,7 @@ class TestServerCreate(TestServer):
             ('flavor', self.flavor.id),
             ('key_name', 'keyname'),
             ('properties', {'Beta': 'b'}),
-            ('security_group', [security_group.id]),
+            ('security_groups', [security_group.id]),
             ('hints', {'a': ['b', 'c']}),
             ('server_group', server_group.id),
             ('config_drive', True),
@@ -1478,7 +1478,7 @@ class TestServerCreate(TestServer):
             ('image', self.image.id),
             ('flavor', self.flavor.id),
             ('key_name', 'keyname'),
-            ('security_group', ['not_exist_sg']),
+            ('security_groups', ['not_exist_sg']),
             ('server_name', self.server.name),
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
@@ -1504,7 +1504,7 @@ class TestServerCreate(TestServer):
         verifylist = [
             ('image', self.image.id),
             ('flavor', self.flavor.id),
-            ('security_group', [sg_name]),
+            ('security_groups', [sg_name]),
             ('server_name', self.server.name),
         ]
 
@@ -7380,7 +7380,7 @@ class TestServerRemoveSecurityGroup(TestServer):
         arglist = [self.server.id, 'fake_sg']
         verifylist = [
             ('server', self.server.id),
-            ('group', 'fake_sg'),
+            ('security_groups', ['fake_sg']),
         ]
 
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
@@ -7411,7 +7411,7 @@ class TestServerRemoveSecurityGroup(TestServer):
         arglist = [self.server.id, 'fake_sg']
         verifylist = [
             ('server', self.server.id),
-            ('group', 'fake_sg'),
+            ('security_groups', ['fake_sg']),
         ]
 
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)

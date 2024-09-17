@@ -21,7 +21,7 @@ class HelpTests(base.TestCase):
     """Functional tests for openstackclient help output."""
 
     SERVER_COMMANDS = [
-        ('server add security group', 'Add security group to server'),
+        ('server add security group', 'Add security group(s) to server'),
         ('server add volume', 'Add volume to server'),
         ('server backup create', 'Create a server backup image'),
         ('server create', 'Create a new server'),

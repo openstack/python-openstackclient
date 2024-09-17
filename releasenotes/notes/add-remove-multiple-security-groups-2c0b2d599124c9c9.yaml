@@ -1,0 +1,5 @@
+---
+features:
+  - |
+    The ``server add security group`` and ``server remove security group``
+    commands now accept multiple security groups.
