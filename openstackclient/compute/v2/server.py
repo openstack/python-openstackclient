@@ -3872,7 +3872,7 @@ host."""
 
         kwargs = {
             'host': parsed_args.host,
-            'admin_password': parsed_args.password,
+            'admin_pass': parsed_args.password,
         }
 
         if not sdk_utils.supports_microversion(compute_client, '2.14'):
