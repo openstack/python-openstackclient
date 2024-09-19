@@ -25,6 +25,29 @@ from openstackclient.i18n import _
 LOG = logging.getLogger(__name__)
 
 
+def _format_service_provider(sp):
+    column_headers = (
+        'id',
+        'enabled',
+        'description',
+        'auth_url',
+        'sp_url',
+        'relay_state_prefix',
+    )
+    columns = (
+        'id',
+        'is_enabled',
+        'description',
+        'auth_url',
+        'sp_url',
+        'relay_state_prefix',
+    )
+    return (
+        column_headers,
+        utils.get_item_properties(sp, columns),
+    )
+
+
 class CreateServiceProvider(command.ShowOne):
     _description = _("Create new service provider")
 
@@ -62,14 +85,14 @@ class CreateServiceProvider(command.ShowOne):
         enable_service_provider = parser.add_mutually_exclusive_group()
         enable_service_provider.add_argument(
             '--enable',
-            dest='enabled',
+            dest='is_enabled',
             action='store_true',
             default=True,
             help=_('Enable the service provider (default)'),
         )
         enable_service_provider.add_argument(
             '--disable',
-            dest='enabled',
+            dest='is_enabled',
             action='store_false',
             help=_('Disable the service provider'),
         )
@@ -77,17 +100,27 @@ class CreateServiceProvider(command.ShowOne):
         return parser
 
     def take_action(self, parsed_args):
-        service_client = self.app.client_manager.identity
-        sp = service_client.federation.service_providers.create(
-            id=parsed_args.service_provider_id,
-            auth_url=parsed_args.auth_url,
-            description=parsed_args.description,
-            enabled=parsed_args.enabled,
-            sp_url=parsed_args.service_provider_url,
-        )
+        service_client = self.app.client_manager.sdk_connection.identity
 
-        sp._info.pop('links', None)
-        return zip(*sorted(sp._info.items()))
+        kwargs = {}
+
+        kwargs = {'id': parsed_args.service_provider_id}
+
+        if parsed_args.is_enabled is not None:
+            kwargs['is_enabled'] = parsed_args.is_enabled
+
+        if parsed_args.description:
+            kwargs['description'] = parsed_args.description
+
+        if parsed_args.auth_url:
+            kwargs['auth_url'] = parsed_args.auth_url
+
+        if parsed_args.service_provider_url:
+            kwargs['sp_url'] = parsed_args.service_provider_url
+
+        sp = service_client.create_service_provider(**kwargs)
+
+        return _format_service_provider(sp)
 
 
 class DeleteServiceProvider(command.Command):
@@ -104,11 +137,11 @@ class DeleteServiceProvider(command.Command):
         return parser
 
     def take_action(self, parsed_args):
-        service_client = self.app.client_manager.identity
+        service_client = self.app.client_manager.sdk_connection.identity
         result = 0
         for i in parsed_args.service_provider:
             try:
-                service_client.federation.service_providers.delete(i)
+                service_client.delete_service_provider(i)
             except Exception as e:
                 result += 1
                 LOG.error(
@@ -132,24 +165,32 @@ class ListServiceProvider(command.Lister):
     _description = _("List service providers")
 
     def take_action(self, parsed_args):
-        service_client = self.app.client_manager.identity
-        data = service_client.federation.service_providers.list()
+        service_client = self.app.client_manager.sdk_connection.identity
+        data = service_client.service_providers()
 
-        column_headers = ('ID', 'Enabled', 'Description', 'Auth URL')
+        column_headers = (
+            'ID',
+            'Enabled',
+            'Description',
+            'Auth URL',
+            'Service Provider URL',
+            'Relay State Prefix',
+        )
+        columns = (
+            'id',
+            'is_enabled',
+            'description',
+            'auth_url',
+            'sp_url',
+            'relay_state_prefix',
+        )
         return (
             column_headers,
-            (
-                utils.get_item_properties(
-                    s,
-                    column_headers,
-                    formatters={},
-                )
-                for s in data
-            ),
+            (utils.get_item_properties(s, columns) for s in data),
         )
 
 
-class SetServiceProvider(command.Command):
+class SetServiceProvider(command.ShowOne):
     _description = _("Set service provider properties")
 
     def get_parser(self, prog_name):
@@ -181,32 +222,43 @@ class SetServiceProvider(command.Command):
         enable_service_provider = parser.add_mutually_exclusive_group()
         enable_service_provider.add_argument(
             '--enable',
+            dest='is_enabled',
             action='store_true',
+            default=None,
             help=_('Enable the service provider'),
         )
         enable_service_provider.add_argument(
             '--disable',
-            action='store_true',
+            dest='is_enabled',
+            action='store_false',
+            default=None,
             help=_('Disable the service provider'),
         )
         return parser
 
     def take_action(self, parsed_args):
-        federation_client = self.app.client_manager.identity.federation
+        service_client = self.app.client_manager.sdk_connection.identity
 
-        enabled = None
-        if parsed_args.enable is True:
-            enabled = True
-        elif parsed_args.disable is True:
-            enabled = False
+        kwargs = {}
 
-        federation_client.service_providers.update(
+        if parsed_args.is_enabled is not None:
+            kwargs['is_enabled'] = parsed_args.is_enabled
+
+        if parsed_args.description:
+            kwargs['description'] = parsed_args.description
+
+        if parsed_args.auth_url:
+            kwargs['auth_url'] = parsed_args.auth_url
+
+        if parsed_args.service_provider_url:
+            kwargs['sp_url'] = parsed_args.service_provider_url
+
+        service_provider = service_client.update_service_provider(
             parsed_args.service_provider,
-            enabled=enabled,
-            description=parsed_args.description,
-            auth_url=parsed_args.auth_url,
-            sp_url=parsed_args.service_provider_url,
+            **kwargs,
         )
+
+        return _format_service_provider(service_provider)
 
 
 class ShowServiceProvider(command.ShowOne):
@@ -222,12 +274,10 @@ class ShowServiceProvider(command.ShowOne):
         return parser
 
     def take_action(self, parsed_args):
-        service_client = self.app.client_manager.identity
-        service_provider = utils.find_resource(
-            service_client.federation.service_providers,
+        service_client = self.app.client_manager.sdk_connection.identity
+        service_provider = service_client.find_service_provider(
             parsed_args.service_provider,
-            id=parsed_args.service_provider,
+            ignore_missing=False,
         )
 
-        service_provider._info.pop('links', None)
-        return zip(*sorted(service_provider._info.items()))
+        return _format_service_provider(service_provider)

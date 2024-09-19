@@ -12,92 +12,88 @@
 #   License for the specific language governing permissions and limitations
 #   under the License.
 
-import copy
+
+from openstack.identity.v3 import service_provider as _service_provider
+from openstack.test import fakes as sdk_fakes
 
 from openstackclient.identity.v3 import service_provider
-from openstackclient.tests.unit import fakes
 from openstackclient.tests.unit.identity.v3 import fakes as service_fakes
 
 
-class TestServiceProvider(service_fakes.TestFederatedIdentity):
-    def setUp(self):
-        super().setUp()
-
-        federation_lib = self.identity_client.federation
-        self.service_providers_mock = federation_lib.service_providers
-        self.service_providers_mock.reset_mock()
-
-
-class TestServiceProviderCreate(TestServiceProvider):
+class TestServiceProviderCreate(service_fakes.TestFederatedIdentity):
     columns = (
-        'auth_url',
-        'description',
-        'enabled',
         'id',
+        'enabled',
+        'description',
+        'auth_url',
         'sp_url',
-    )
-    datalist = (
-        service_fakes.sp_auth_url,
-        service_fakes.sp_description,
-        True,
-        service_fakes.sp_id,
-        service_fakes.service_provider_url,
+        'relay_state_prefix',
     )
 
     def setUp(self):
         super().setUp()
 
-        copied_sp = copy.deepcopy(service_fakes.SERVICE_PROVIDER)
-        resource = fakes.FakeResource(None, copied_sp, loaded=True)
-        self.service_providers_mock.create.return_value = resource
+        self.service_provider = sdk_fakes.generate_fake_resource(
+            _service_provider.ServiceProvider
+        )
+        self.identity_sdk_client.create_service_provider.return_value = (
+            self.service_provider
+        )
+        self.data = (
+            self.service_provider.id,
+            self.service_provider.is_enabled,
+            self.service_provider.description,
+            self.service_provider.auth_url,
+            self.service_provider.sp_url,
+            self.service_provider.relay_state_prefix,
+        )
         self.cmd = service_provider.CreateServiceProvider(self.app, None)
 
     def test_create_service_provider_required_options_only(self):
         arglist = [
             '--auth-url',
-            service_fakes.sp_auth_url,
+            self.service_provider.auth_url,
             '--service-provider-url',
-            service_fakes.service_provider_url,
-            service_fakes.sp_id,
+            self.service_provider.sp_url,
+            self.service_provider.id,
         ]
         verifylist = [
-            ('auth_url', service_fakes.sp_auth_url),
-            ('service_provider_url', service_fakes.service_provider_url),
-            ('service_provider_id', service_fakes.sp_id),
+            ('auth_url', self.service_provider.auth_url),
+            ('service_provider_url', self.service_provider.sp_url),
+            ('service_provider_id', self.service_provider.id),
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
         columns, data = self.cmd.take_action(parsed_args)
 
         # Set expected values
         kwargs = {
-            'enabled': True,
-            'description': None,
-            'auth_url': service_fakes.sp_auth_url,
-            'sp_url': service_fakes.service_provider_url,
+            'is_enabled': True,
+            'auth_url': self.service_provider.auth_url,
+            'sp_url': self.service_provider.sp_url,
         }
 
-        self.service_providers_mock.create.assert_called_with(
-            id=service_fakes.sp_id, **kwargs
+        self.identity_sdk_client.create_service_provider.assert_called_with(
+            id=self.service_provider.id, **kwargs
         )
 
         self.assertEqual(self.columns, columns)
-        self.assertEqual(self.datalist, data)
+        self.assertEqual(self.data, data)
 
     def test_create_service_provider_description(self):
         arglist = [
             '--description',
-            service_fakes.sp_description,
+            self.service_provider.description,
             '--auth-url',
-            service_fakes.sp_auth_url,
+            self.service_provider.auth_url,
             '--service-provider-url',
-            service_fakes.service_provider_url,
-            service_fakes.sp_id,
+            self.service_provider.sp_url,
+            self.service_provider.id,
         ]
         verifylist = [
-            ('description', service_fakes.sp_description),
-            ('auth_url', service_fakes.sp_auth_url),
-            ('service_provider_url', service_fakes.service_provider_url),
-            ('service_provider_id', service_fakes.sp_id),
+            ('description', self.service_provider.description),
+            ('auth_url', self.service_provider.auth_url),
+            ('service_provider_url', self.service_provider.sp_url),
+            ('service_provider_id', self.service_provider.id),
         ]
 
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
@@ -105,111 +101,85 @@ class TestServiceProviderCreate(TestServiceProvider):
 
         # Set expected values
         kwargs = {
-            'description': service_fakes.sp_description,
-            'auth_url': service_fakes.sp_auth_url,
-            'sp_url': service_fakes.service_provider_url,
-            'enabled': True,
+            'description': self.service_provider.description,
+            'auth_url': self.service_provider.auth_url,
+            'sp_url': self.service_provider.sp_url,
+            'is_enabled': self.service_provider.is_enabled,
         }
 
-        self.service_providers_mock.create.assert_called_with(
-            id=service_fakes.sp_id, **kwargs
+        self.identity_sdk_client.create_service_provider.assert_called_with(
+            id=self.service_provider.id, **kwargs
         )
 
         self.assertEqual(self.columns, columns)
-        self.assertEqual(self.datalist, data)
+        self.assertEqual(self.data, data)
 
     def test_create_service_provider_disabled(self):
-        # Prepare FakeResource object
-        service_provider = copy.deepcopy(service_fakes.SERVICE_PROVIDER)
-        service_provider['enabled'] = False
-        service_provider['description'] = None
-
-        resource = fakes.FakeResource(None, service_provider, loaded=True)
-        self.service_providers_mock.create.return_value = resource
-
         arglist = [
             '--auth-url',
-            service_fakes.sp_auth_url,
+            self.service_provider.auth_url,
             '--service-provider-url',
-            service_fakes.service_provider_url,
+            self.service_provider.sp_url,
             '--disable',
-            service_fakes.sp_id,
+            self.service_provider.id,
         ]
         verifylist = [
-            ('auth_url', service_fakes.sp_auth_url),
-            ('service_provider_url', service_fakes.service_provider_url),
-            ('service_provider_id', service_fakes.sp_id),
+            ('auth_url', self.service_provider.auth_url),
+            ('service_provider_url', self.service_provider.sp_url),
+            ('service_provider_id', self.service_provider.id),
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
         columns, data = self.cmd.take_action(parsed_args)
         # Set expected values
         kwargs = {
-            'auth_url': service_fakes.sp_auth_url,
-            'sp_url': service_fakes.service_provider_url,
-            'enabled': False,
-            'description': None,
+            'auth_url': self.service_provider.auth_url,
+            'sp_url': self.service_provider.sp_url,
+            'is_enabled': False,
         }
 
-        self.service_providers_mock.create.assert_called_with(
-            id=service_fakes.sp_id, **kwargs
+        self.identity_sdk_client.create_service_provider.assert_called_with(
+            id=self.service_provider.id, **kwargs
         )
         self.assertEqual(self.columns, columns)
-        datalist = (
-            service_fakes.sp_auth_url,
-            None,
-            False,
-            service_fakes.sp_id,
-            service_fakes.service_provider_url,
-        )
-        self.assertEqual(datalist, data)
+        self.assertEqual(self.data, data)
 
 
-class TestServiceProviderDelete(TestServiceProvider):
+class TestServiceProviderDelete(service_fakes.TestFederatedIdentity):
     def setUp(self):
         super().setUp()
 
-        # This is the return value for utils.find_resource()
-        self.service_providers_mock.get.return_value = fakes.FakeResource(
-            None,
-            copy.deepcopy(service_fakes.SERVICE_PROVIDER),
-            loaded=True,
+        self.service_provider = sdk_fakes.generate_fake_resource(
+            _service_provider.ServiceProvider
         )
-
-        self.service_providers_mock.delete.return_value = None
+        self.identity_sdk_client.delete_service_provider.return_value = None
         self.cmd = service_provider.DeleteServiceProvider(self.app, None)
 
     def test_delete_service_provider(self):
         arglist = [
-            service_fakes.sp_id,
+            self.service_provider.id,
         ]
         verifylist = [
-            ('service_provider', [service_fakes.sp_id]),
+            ('service_provider', [self.service_provider.id]),
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
         result = self.cmd.take_action(parsed_args)
 
-        self.service_providers_mock.delete.assert_called_with(
-            service_fakes.sp_id,
+        self.identity_sdk_client.delete_service_provider.assert_called_with(
+            self.service_provider.id,
         )
         self.assertIsNone(result)
 
 
-class TestServiceProviderList(TestServiceProvider):
+class TestServiceProviderList(service_fakes.TestFederatedIdentity):
     def setUp(self):
         super().setUp()
 
-        self.service_providers_mock.get.return_value = fakes.FakeResource(
-            None,
-            copy.deepcopy(service_fakes.SERVICE_PROVIDER),
-            loaded=True,
+        self.service_provider = sdk_fakes.generate_fake_resource(
+            _service_provider.ServiceProvider
         )
-        self.service_providers_mock.list.return_value = [
-            fakes.FakeResource(
-                None,
-                copy.deepcopy(service_fakes.SERVICE_PROVIDER),
-                loaded=True,
-            ),
+        self.identity_sdk_client.service_providers.return_value = [
+            self.service_provider
         ]
 
         # Get the command object to test
@@ -225,39 +195,56 @@ class TestServiceProviderList(TestServiceProvider):
         # containing the data to be listed.
         columns, data = self.cmd.take_action(parsed_args)
 
-        self.service_providers_mock.list.assert_called_with()
+        self.identity_sdk_client.service_providers.assert_called_with()
 
-        collist = ('ID', 'Enabled', 'Description', 'Auth URL')
+        collist = (
+            'ID',
+            'Enabled',
+            'Description',
+            'Auth URL',
+            'Service Provider URL',
+            'Relay State Prefix',
+        )
         self.assertEqual(collist, columns)
         datalist = (
             (
-                service_fakes.sp_id,
+                self.service_provider.id,
                 True,
-                service_fakes.sp_description,
-                service_fakes.sp_auth_url,
+                self.service_provider.description,
+                self.service_provider.auth_url,
+                self.service_provider.sp_url,
+                self.service_provider.relay_state_prefix,
             ),
         )
         self.assertEqual(tuple(data), datalist)
 
 
-class TestServiceProviderSet(TestServiceProvider):
+class TestServiceProviderSet(service_fakes.TestFederatedIdentity):
     columns = (
-        'auth_url',
-        'description',
-        'enabled',
         'id',
+        'enabled',
+        'description',
+        'auth_url',
         'sp_url',
-    )
-    datalist = (
-        service_fakes.sp_auth_url,
-        service_fakes.sp_description,
-        False,
-        service_fakes.sp_id,
-        service_fakes.service_provider_url,
+        'relay_state_prefix',
     )
 
     def setUp(self):
         super().setUp()
+        self.service_provider = sdk_fakes.generate_fake_resource(
+            _service_provider.ServiceProvider
+        )
+        self.identity_sdk_client.update_service_provider.return_value = (
+            self.service_provider
+        )
+        self.data = (
+            self.service_provider.id,
+            self.service_provider.is_enabled,
+            self.service_provider.description,
+            self.service_provider.auth_url,
+            self.service_provider.sp_url,
+            self.service_provider.relay_state_prefix,
+        )
         self.cmd = service_provider.SetServiceProvider(self.app, None)
 
     def test_service_provider_disable(self):
@@ -265,144 +252,107 @@ class TestServiceProviderSet(TestServiceProvider):
 
         Set Service Provider's ``enabled`` attribute to False.
         """
-
-        def prepare(self):
-            """Prepare fake return objects before the test is executed"""
-            updated_sp = copy.deepcopy(service_fakes.SERVICE_PROVIDER)
-            updated_sp['enabled'] = False
-            resources = fakes.FakeResource(None, updated_sp, loaded=True)
-            self.service_providers_mock.update.return_value = resources
-
-        prepare(self)
         arglist = [
             '--disable',
-            service_fakes.sp_id,
+            self.service_provider.id,
         ]
         verifylist = [
-            ('service_provider', service_fakes.sp_id),
-            ('enable', False),
-            ('disable', True),
+            ('service_provider', self.service_provider.id),
+            ('is_enabled', False),
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
-        self.cmd.take_action(parsed_args)
-        self.service_providers_mock.update.assert_called_with(
-            service_fakes.sp_id,
-            enabled=False,
-            description=None,
-            auth_url=None,
-            sp_url=None,
+        columns, data = self.cmd.take_action(parsed_args)
+        self.identity_sdk_client.update_service_provider.assert_called_with(
+            self.service_provider.id,
+            is_enabled=False,
         )
+        self.assertEqual(columns, self.columns)
+        self.assertEqual(data, self.data)
 
     def test_service_provider_enable(self):
         """Enable Service Provider.
 
         Set Service Provider's ``enabled`` attribute to True.
         """
-
-        def prepare(self):
-            """Prepare fake return objects before the test is executed"""
-            resources = fakes.FakeResource(
-                None,
-                copy.deepcopy(service_fakes.SERVICE_PROVIDER),
-                loaded=True,
-            )
-            self.service_providers_mock.update.return_value = resources
-
-        prepare(self)
         arglist = [
             '--enable',
-            service_fakes.sp_id,
+            self.service_provider.id,
         ]
         verifylist = [
-            ('service_provider', service_fakes.sp_id),
-            ('enable', True),
-            ('disable', False),
+            ('service_provider', self.service_provider.id),
+            ('is_enabled', True),
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
-
-        self.cmd.take_action(parsed_args)
-        self.service_providers_mock.update.assert_called_with(
-            service_fakes.sp_id,
-            enabled=True,
-            description=None,
-            auth_url=None,
-            sp_url=None,
+        columns, data = self.cmd.take_action(parsed_args)
+        self.identity_sdk_client.update_service_provider.assert_called_with(
+            self.service_provider.id,
+            is_enabled=True,
         )
+        self.assertEqual(columns, self.columns)
+        self.assertEqual(data, self.data)
 
     def test_service_provider_no_options(self):
-        def prepare(self):
-            """Prepare fake return objects before the test is executed"""
-            resources = fakes.FakeResource(
-                None,
-                copy.deepcopy(service_fakes.SERVICE_PROVIDER),
-                loaded=True,
-            )
-            self.service_providers_mock.get.return_value = resources
-
-            resources = fakes.FakeResource(
-                None,
-                copy.deepcopy(service_fakes.SERVICE_PROVIDER),
-                loaded=True,
-            )
-            self.service_providers_mock.update.return_value = resources
-
-        prepare(self)
         arglist = [
-            service_fakes.sp_id,
+            self.service_provider.id,
         ]
         verifylist = [
-            ('service_provider', service_fakes.sp_id),
+            ('service_provider', self.service_provider.id),
             ('description', None),
-            ('enable', False),
-            ('disable', False),
+            ('is_enabled', None),
             ('auth_url', None),
             ('service_provider_url', None),
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+        columns, data = self.cmd.take_action(parsed_args)
+        self.assertEqual(columns, self.columns)
+        self.assertEqual(data, self.data)
 
-        self.cmd.take_action(parsed_args)
 
-
-class TestServiceProviderShow(TestServiceProvider):
+class TestServiceProviderShow(service_fakes.TestFederatedIdentity):
     def setUp(self):
         super().setUp()
 
-        ret = fakes.FakeResource(
-            None,
-            copy.deepcopy(service_fakes.SERVICE_PROVIDER),
-            loaded=True,
+        self.service_provider = sdk_fakes.generate_fake_resource(
+            _service_provider.ServiceProvider
         )
-        self.service_providers_mock.get.side_effect = [
-            Exception("Not found"),
-            ret,
-        ]
-        self.service_providers_mock.get.return_value = ret
+        self.identity_sdk_client.find_service_provider.return_value = (
+            self.service_provider
+        )
+        self.data = (
+            self.service_provider.id,
+            self.service_provider.is_enabled,
+            self.service_provider.description,
+            self.service_provider.auth_url,
+            self.service_provider.sp_url,
+            self.service_provider.relay_state_prefix,
+        )
 
         # Get the command object to test
         self.cmd = service_provider.ShowServiceProvider(self.app, None)
 
     def test_service_provider_show(self):
         arglist = [
-            service_fakes.sp_id,
+            self.service_provider.id,
         ]
         verifylist = [
-            ('service_provider', service_fakes.sp_id),
+            ('service_provider', self.service_provider.id),
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
         columns, data = self.cmd.take_action(parsed_args)
 
-        self.service_providers_mock.get.assert_called_with(
-            service_fakes.sp_id, id='BETA'
+        self.identity_sdk_client.find_service_provider.assert_called_with(
+            self.service_provider.id,
+            ignore_missing=False,
         )
 
-        collist = ('auth_url', 'description', 'enabled', 'id', 'sp_url')
-        self.assertEqual(collist, columns)
-        datalist = (
-            service_fakes.sp_auth_url,
-            service_fakes.sp_description,
-            True,
-            service_fakes.sp_id,
-            service_fakes.service_provider_url,
+        collist = (
+            'id',
+            'enabled',
+            'description',
+            'auth_url',
+            'sp_url',
+            'relay_state_prefix',
         )
-        self.assertEqual(data, datalist)
+        self.assertEqual(collist, columns)
+        self.assertEqual(data, self.data)
