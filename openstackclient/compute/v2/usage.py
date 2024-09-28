@@ -153,7 +153,7 @@ class ListUsage(command.Lister):
         )
 
         date_cli_format = "%Y-%m-%d"
-        now = datetime.datetime.utcnow()
+        now = datetime.datetime.now(datetime.timezone.utc).replace(tzinfo=None)
 
         if parsed_args.start:
             start = datetime.datetime.strptime(
@@ -238,7 +238,7 @@ class ShowUsage(command.ShowOne):
         identity_client = self.app.client_manager.identity
         compute_client = self.app.client_manager.sdk_connection.compute
         date_cli_format = "%Y-%m-%d"
-        now = datetime.datetime.utcnow()
+        now = datetime.datetime.now(datetime.timezone.utc).replace(tzinfo=None)
 
         if parsed_args.start:
             start = datetime.datetime.strptime(
