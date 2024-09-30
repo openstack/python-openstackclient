@@ -1,0 +1,10 @@
+---
+upgrade:
+  - |
+    The following commands have been migrated to SDK:
+
+    - ``region create``
+    - ``region list``
+    - ``region delete``
+    - ``region set``
+    - ``region show``
