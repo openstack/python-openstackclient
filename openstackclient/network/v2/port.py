@@ -792,6 +792,19 @@ class ListPort(command.Lister):
             metavar='<security-group>',
             help=_("List only ports associated with this security group"),
         )
+        # the API sadly reports these in upper case and while it would be
+        # wonderful to plaster over this ugliness client-side, there are
+        # already users in the wild doing this in upper case that we need to
+        # support
+        parser.add_argument(
+            '--status',
+            metavar='<status>',
+            choices=('ACTIVE', 'BUILD', 'DOWN', 'ERROR'),
+            help=_(
+                "List ports according to their status "
+                "('ACTIVE', 'BUILD', 'DOWN', 'ERROR')"
+            ),
+        )
         identity_common.add_project_domain_option_to_parser(parser)
         parser.add_argument(
             '--fixed-ip',
@@ -859,6 +872,8 @@ class ListPort(command.Lister):
             filters['network_id'] = network.id
         if parsed_args.mac_address:
             filters['mac_address'] = parsed_args.mac_address
+        if parsed_args.status:
+            filters['status'] = parsed_args.status
         if parsed_args.project:
             project_id = identity_common.find_project(
                 identity_client,
