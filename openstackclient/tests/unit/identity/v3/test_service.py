@@ -311,7 +311,6 @@ class TestServiceSet(identity_fakes.TestIdentityv3):
         # Set expected values
         kwargs = {
             'type': self.service.type,
-            'is_enabled': None,
         }
         self.identity_sdk_client.update_service.assert_called_with(
             self.service.id, **kwargs
@@ -338,7 +337,6 @@ class TestServiceSet(identity_fakes.TestIdentityv3):
         # Set expected values
         kwargs = {
             'name': self.service.name,
-            'is_enabled': None,
         }
         self.identity_sdk_client.update_service.assert_called_with(
             self.service.id, **kwargs
@@ -365,7 +363,6 @@ class TestServiceSet(identity_fakes.TestIdentityv3):
         # Set expected values
         kwargs = {
             'description': self.service.description,
-            'is_enabled': None,
         }
         self.identity_sdk_client.update_service.assert_called_with(
             self.service.id, **kwargs

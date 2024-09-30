@@ -225,7 +225,8 @@ class SetService(command.Command):
             kwargs['name'] = parsed_args.name
         if parsed_args.description:
             kwargs['description'] = parsed_args.description
-        kwargs['is_enabled'] = parsed_args.is_enabled
+        if parsed_args.is_enabled is not None:
+            kwargs['is_enabled'] = parsed_args.is_enabled
 
         identity_client.update_service(service.id, **kwargs)
 
