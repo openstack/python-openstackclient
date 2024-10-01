@@ -146,12 +146,19 @@ class ListRoleAssignment(command.Lister):
                 domain_id=role_domain_id,
             )
 
+        user_domain_id = None
+        if parsed_args.user_domain:
+            project_domain_id = _find_sdk_id(
+                identity_client.find_domain,
+                name_or_id=parsed_args.user_domain,
+            )
+
         user_id = None
         if parsed_args.user:
             user_id = _find_sdk_id(
                 identity_client.find_user,
                 name_or_id=parsed_args.user,
-                domain_id=parsed_args.user_domain,
+                domain_id=user_domain_id,
             )
         elif parsed_args.authuser:
             if auth_ref:
@@ -171,6 +178,13 @@ class ListRoleAssignment(command.Lister):
                 name_or_id=parsed_args.domain,
             )
 
+        project_domain_id = None
+        if parsed_args.project_domain:
+            project_domain_id = _find_sdk_id(
+                identity_client.find_domain,
+                name_or_id=parsed_args.project_domain,
+            )
+
         project_id = None
         if parsed_args.project:
             project_id = _find_sdk_id(
@@ -178,7 +192,7 @@ class ListRoleAssignment(command.Lister):
                 name_or_id=common._get_token_resource(
                     identity_client, 'project', parsed_args.project
                 ),
-                domain_id=parsed_args.project_domain,
+                domain_id=project_domain_id,
             )
         elif parsed_args.authproject:
             if auth_ref:
@@ -187,12 +201,19 @@ class ListRoleAssignment(command.Lister):
                     name_or_id=auth_ref.project_id,
                 )
 
+        group_domain_id = None
+        if parsed_args.group_domain:
+            group_domain_id = _find_sdk_id(
+                identity_client.find_domain,
+                name_or_id=parsed_args.group_domain,
+            )
+
         group_id = None
         if parsed_args.group:
             group_id = _find_sdk_id(
                 identity_client.find_group,
                 name_or_id=parsed_args.group,
-                domain_id=parsed_args.group_domain,
+                domain_id=group_domain_id,
             )
 
         include_names = True if parsed_args.names else None

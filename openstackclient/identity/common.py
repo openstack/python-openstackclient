@@ -204,6 +204,7 @@ def find_group(identity_client, name_or_id, domain_name_or_id=None):
             identity_client.groups, name_or_id, groups.Group
         )
     else:
+        domain_id = find_domain(identity_client, domain_id).id
         return _find_identity_resource(
             identity_client.groups,
             name_or_id,
@@ -219,6 +220,7 @@ def find_project(identity_client, name_or_id, domain_name_or_id=None):
             identity_client.projects, name_or_id, projects.Project
         )
     else:
+        domain_id = find_domain(identity_client, domain_id).id
         return _find_identity_resource(
             identity_client.projects,
             name_or_id,
@@ -234,6 +236,7 @@ def find_user(identity_client, name_or_id, domain_name_or_id=None):
             identity_client.users, name_or_id, users.User
         )
     else:
+        domain_id = find_domain(identity_client, domain_id).id
         return _find_identity_resource(
             identity_client.users, name_or_id, users.User, domain_id=domain_id
         )
