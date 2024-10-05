@@ -4594,6 +4594,15 @@ class _TestServerList(TestServer):
         'Properties',
         'Scheduler Hints',
     )
+    columns_all_projects = (
+        'ID',
+        'Name',
+        'Status',
+        'Networks',
+        'Image',
+        'Flavor',
+        'Project ID',
+    )
 
     def setUp(self):
         super().setUp()
@@ -4753,6 +4762,36 @@ class TestServerList(_TestServerList):
         )
         self.compute_client.flavors.assert_called_once_with(is_public=None)
         self.assertEqual(self.columns_long, columns)
+        self.assertEqual(self.data, tuple(data))
+
+    def test_server_list_all_projects_option(self):
+        self.data = tuple(
+            (
+                s.id,
+                s.name,
+                s.status,
+                server.AddressesColumn(s.addresses),
+                # Image will be an empty string if boot-from-volume
+                self.image.name if s.image else server.IMAGE_STRING_FOR_BFV,
+                self.flavor.name,
+                s.project_id,
+            )
+            for s in self.servers
+        )
+        arglist = [
+            '--all-projects',
+        ]
+        verifylist = [
+            ('all_projects', True),
+            ('long', False),
+            ('deleted', False),
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+        columns, data = self.cmd.take_action(parsed_args)
+
+        self.image_client.images.assert_called()
+        self.compute_client.flavors.assert_called()
+        self.assertEqual(self.columns_all_projects, columns)
         self.assertEqual(self.data, tuple(data))
 
     def test_server_list_column_option(self):

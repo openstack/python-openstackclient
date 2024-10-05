@@ -2853,6 +2853,10 @@ class ListServer(command.Lister):
                 'Scheduler Hints',
             )
 
+        if parsed_args.all_projects:
+            columns += ('project_id',)
+            column_headers += ('Project ID',)
+
         # support for additional columns
         if parsed_args.columns:
             for c in parsed_args.columns:
