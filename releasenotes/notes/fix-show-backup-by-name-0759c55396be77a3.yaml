@@ -1,0 +1,5 @@
+---
+fixes:
+  - |
+    Fixed the ``openstack volume backup show`` command
+    to show a backup by name.
