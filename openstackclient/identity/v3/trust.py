@@ -14,9 +14,10 @@
 """Identity v3 Trust action implementations"""
 
 import datetime
+import itertools
 import logging
 
-from keystoneclient import exceptions as identity_exc
+from openstack import exceptions as sdk_exceptions
 from osc_lib.command import command
 from osc_lib import exceptions
 from osc_lib import utils
@@ -26,6 +27,25 @@ from openstackclient.identity import common
 
 
 LOG = logging.getLogger(__name__)
+
+
+def _format_trust(trust):
+    columns = (
+        'expires_at',
+        'id',
+        'is_impersonation',
+        'project_id',
+        'redelegated_trust_id',
+        'redelegation_count',
+        'remaining_uses',
+        'roles',
+        'trustee_user_id',
+        'trustor_user_id',
+    )
+    return (
+        columns,
+        utils.get_item_properties(trust, columns),
+    )
 
 
 class CreateTrust(command.ShowOne):
@@ -52,6 +72,7 @@ class CreateTrust(command.ShowOne):
         parser.add_argument(
             '--role',
             metavar='<role>',
+            dest='roles',
             action='append',
             default=[],
             help=_(
@@ -62,7 +83,7 @@ class CreateTrust(command.ShowOne):
         )
         parser.add_argument(
             '--impersonate',
-            dest='impersonate',
+            dest='is_impersonation',
             action='store_true',
             default=False,
             help=_(
@@ -92,58 +113,60 @@ class CreateTrust(command.ShowOne):
         return parser
 
     def take_action(self, parsed_args):
-        identity_client = self.app.client_manager.identity
+        identity_client = self.app.client_manager.sdk_connection.identity
+
+        kwargs = {}
 
         # NOTE(stevemar): Find the two users, project and roles that
         # are necessary for making a trust usable, the API dictates that
         # trustee, project and role are optional, but that makes the trust
         # pointless, and trusts are immutable, so let's enforce it at the
         # client level.
-        trustor_id = common.find_user(
-            identity_client, parsed_args.trustor, parsed_args.trustor_domain
-        ).id
-        trustee_id = common.find_user(
-            identity_client, parsed_args.trustee, parsed_args.trustee_domain
-        ).id
-        project_id = common.find_project(
-            identity_client, parsed_args.project, parsed_args.project_domain
-        ).id
+        try:
+            trustor_id = identity_client.find_user(
+                parsed_args.trustor, parsed_args.trustor_domain
+            ).id
+            kwargs['trustor_id'] = trustor_id
+        except sdk_exceptions.ForbiddenException:
+            kwargs['trustor_id'] = parsed_args.trustor
+
+        try:
+            trustee_id = identity_client.find_user(
+                parsed_args.trustee, parsed_args.trustee_domain
+            ).id
+            kwargs['trustee_id'] = trustee_id
+        except sdk_exceptions.ForbiddenException:
+            kwargs['trustee_id'] = parsed_args.trustee
+
+        try:
+            project_id = identity_client.find_project(
+                parsed_args.project, parsed_args.project_domain
+            ).id
+            kwargs['project_id'] = project_id
+        except sdk_exceptions.ForbiddenException:
+            kwargs['project_id'] = parsed_args.project
 
         role_ids = []
-        for role in parsed_args.role:
+        for role in parsed_args.roles:
             try:
-                role_id = utils.find_resource(
-                    identity_client.roles,
-                    role,
-                ).id
-            except identity_exc.Forbidden:
+                role_id = identity_client.find_role(role).id
+            except sdk_exceptions.ForbiddenException:
                 role_id = role
             role_ids.append(role_id)
+        kwargs['roles'] = role_ids
 
-        expires_at = None
         if parsed_args.expiration:
             expires_at = datetime.datetime.strptime(
                 parsed_args.expiration, '%Y-%m-%dT%H:%M:%S'
             )
+            kwargs['expires_at'] = expires_at
 
-        trust = identity_client.trusts.create(
-            trustee_id,
-            trustor_id,
-            impersonation=parsed_args.impersonate,
-            project=project_id,
-            role_ids=role_ids,
-            expires_at=expires_at,
-        )
+        if parsed_args.is_impersonation:
+            kwargs['is_impersonation'] = parsed_args.is_impersonation
 
-        trust._info.pop('roles_links', None)
-        trust._info.pop('links', None)
+        trust = identity_client.create_trust(**kwargs)
 
-        # Format roles into something sensible
-        roles = trust._info.pop('roles')
-        msg = ' '.join(r['name'] for r in roles)
-        trust._info['roles'] = msg
-
-        return zip(*sorted(trust._info.items()))
+        return _format_trust(trust)
 
 
 class DeleteTrust(command.Command):
@@ -160,13 +183,15 @@ class DeleteTrust(command.Command):
         return parser
 
     def take_action(self, parsed_args):
-        identity_client = self.app.client_manager.identity
+        identity_client = self.app.client_manager.sdk_connection.identity
 
         errors = 0
         for trust in parsed_args.trust:
             try:
-                trust_obj = utils.find_resource(identity_client.trusts, trust)
-                identity_client.trusts.delete(trust_obj.id)
+                trust_obj = identity_client.find_trust(
+                    trust, ignore_missing=False
+                )
+                identity_client.delete_trust(trust_obj.id)
             except Exception as e:
                 errors += 1
                 LOG.error(
@@ -220,7 +245,7 @@ class ListTrust(command.Lister):
         return parser
 
     def take_action(self, parsed_args):
-        identity_client = self.app.client_manager.identity
+        identity_client = self.app.client_manager.sdk_connection.identity
         auth_ref = self.app.client_manager.auth_ref
 
         if parsed_args.authuser and any(
@@ -243,38 +268,50 @@ class ListTrust(command.Lister):
             raise exceptions.CommandError(msg)
 
         if parsed_args.authuser:
-            if auth_ref:
-                user = common.find_user(identity_client, auth_ref.user_id)
-                # We need two calls here as we want trusts with
-                # either the trustor or the trustee set to current user
-                # using a single call would give us trusts with both
-                # trustee and trustor set to current user
-                data1 = identity_client.trusts.list(trustor_user=user)
-                data2 = identity_client.trusts.list(trustee_user=user)
-                data = set(data1 + data2)
+            # We need two calls here as we want trusts with
+            # either the trustor or the trustee set to current user
+            # using a single call would give us trusts with both
+            # trustee and trustor set to current user
+            data = list(
+                {
+                    x.id: x
+                    for x in itertools.chain(
+                        identity_client.trusts(
+                            trustor_user_id=auth_ref.user_id
+                        ),
+                        identity_client.trusts(
+                            trustee_user_id=auth_ref.user_id
+                        ),
+                    )
+                }.values()
+            )
         else:
             trustor = None
             if parsed_args.trustor:
-                trustor = common.find_user(
-                    identity_client,
-                    parsed_args.trustor,
-                    parsed_args.trustor_domain,
-                )
+                try:
+                    trustor_id = identity_client.find_user(
+                        parsed_args.trustor, parsed_args.trustor_domain
+                    ).id
+                    trustor = trustor_id
+                except sdk_exceptions.ForbiddenException:
+                    trustor = parsed_args.trustor
 
             trustee = None
             if parsed_args.trustee:
-                trustee = common.find_user(
-                    identity_client,
-                    parsed_args.trustor,
-                    parsed_args.trustor_domain,
-                )
+                try:
+                    trustee_id = identity_client.find_user(
+                        parsed_args.trustee, parsed_args.trustee_domain
+                    ).id
+                    trustee = trustee_id
+                except sdk_exceptions.ForbiddenException:
+                    trustee = parsed_args.trustee
 
-            data = self.app.client_manager.identity.trusts.list(
-                trustor_user=trustor,
-                trustee_user=trustee,
+            data = identity_client.trusts(
+                trustor_user_id=trustor,
+                trustee_user_id=trustee,
             )
 
-        columns = (
+        column_headers = (
             'ID',
             'Expires At',
             'Impersonation',
@@ -282,9 +319,17 @@ class ListTrust(command.Lister):
             'Trustee User ID',
             'Trustor User ID',
         )
+        columns = (
+            'id',
+            'expires_at',
+            'is_impersonation',
+            'project_id',
+            'trustee_user_id',
+            'trustor_user_id',
+        )
 
         return (
-            columns,
+            column_headers,
             (
                 utils.get_item_properties(
                     s,
@@ -309,15 +354,9 @@ class ShowTrust(command.ShowOne):
         return parser
 
     def take_action(self, parsed_args):
-        identity_client = self.app.client_manager.identity
-        trust = utils.find_resource(identity_client.trusts, parsed_args.trust)
+        identity_client = self.app.client_manager.sdk_connection.identity
+        trust = identity_client.find_trust(
+            parsed_args.trust, ignore_missing=False
+        )
 
-        trust._info.pop('roles_links', None)
-        trust._info.pop('links', None)
-
-        # Format roles into something sensible
-        roles = trust._info.pop('roles')
-        msg = ' '.join(r['name'] for r in roles)
-        trust._info['roles'] = msg
-
-        return zip(*sorted(trust._info.items()))
+        return _format_trust(trust)
