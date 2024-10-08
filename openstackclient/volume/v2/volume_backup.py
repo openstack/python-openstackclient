@@ -359,6 +359,12 @@ class RestoreVolumeBackup(command.ShowOne):
             ignore_missing=False,
         )
 
+        columns = (
+            'id',
+            'volume_id',
+            'volume_name',
+        )
+
         volume_name = None
         volume_id = None
         try:
@@ -378,11 +384,14 @@ class RestoreVolumeBackup(command.ShowOne):
                 )
                 raise exceptions.CommandError(msg % parsed_args.volume)
 
-        return volume_client.restore_backup(
+        restore = volume_client.restore_backup(
             backup.id,
             volume_id=volume_id,
             name=volume_name,
         )
+
+        data = utils.get_dict_properties(restore, columns)
+        return (columns, data)
 
 
 class SetVolumeBackup(command.Command):

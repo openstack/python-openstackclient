@@ -364,16 +364,28 @@ class TestBackupRestore(volume_fakes.TestVolume):
         attrs={'volume_id': volume.id},
     )
 
+    columns = (
+        "id",
+        "volume_id",
+        "volume_name",
+    )
+
+    data = (
+        backup.id,
+        volume.id,
+        volume.name,
+    )
+
     def setUp(self):
         super().setUp()
 
         self.volume_sdk_client.find_backup.return_value = self.backup
         self.volume_sdk_client.find_volume.return_value = self.volume
-        self.volume_sdk_client.restore_backup.return_value = (
-            volume_fakes.create_one_volume(
-                {'id': self.volume['id']},
-            )
-        )
+        self.volume_sdk_client.restore_backup.return_value = {
+            'id': self.backup['id'],
+            'volume_id': self.volume['id'],
+            'volume_name': self.volume['name'],
+        }
 
         # Get the command object to mock
         self.cmd = volume_backup.RestoreVolumeBackup(self.app, None)
@@ -389,13 +401,15 @@ class TestBackupRestore(volume_fakes.TestVolume):
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
-        result = self.cmd.take_action(parsed_args)
+        columns, data = self.cmd.take_action(parsed_args)
         self.volume_sdk_client.restore_backup.assert_called_with(
             self.backup.id,
             volume_id=None,
             name=None,
         )
-        self.assertIsNotNone(result)
+
+        self.assertEqual(self.columns, columns)
+        self.assertEqual(self.data, data)
 
     def test_backup_restore_with_volume(self):
         self.volume_sdk_client.find_volume.side_effect = (
@@ -411,13 +425,15 @@ class TestBackupRestore(volume_fakes.TestVolume):
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
-        result = self.cmd.take_action(parsed_args)
+        columns, data = self.cmd.take_action(parsed_args)
         self.volume_sdk_client.restore_backup.assert_called_with(
             self.backup.id,
             volume_id=None,
             name=self.backup.volume_id,
         )
-        self.assertIsNotNone(result)
+
+        self.assertEqual(self.columns, columns)
+        self.assertEqual(self.data, data)
 
     def test_backup_restore_with_volume_force(self):
         arglist = [
@@ -432,13 +448,15 @@ class TestBackupRestore(volume_fakes.TestVolume):
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
-        result = self.cmd.take_action(parsed_args)
+        columns, data = self.cmd.take_action(parsed_args)
         self.volume_sdk_client.restore_backup.assert_called_with(
             self.backup.id,
             volume_id=self.volume.id,
             name=None,
         )
-        self.assertIsNotNone(result)
+
+        self.assertEqual(self.columns, columns)
+        self.assertEqual(self.data, data)
 
     def test_backup_restore_with_volume_existing(self):
         arglist = [
