@@ -18,7 +18,6 @@ from osc_lib import exceptions
 from osc_lib import utils
 
 from openstackclient.i18n import _
-from openstackclient.identity import common as identity_common
 from openstackclient.network import common
 
 LOG = logging.getLogger(__name__)
@@ -29,7 +28,7 @@ def _get_columns(item):
         'is_enabled': 'enabled',
     }
 
-    hidden_columns = ['location', 'name', 'tenant_id']
+    hidden_columns = ['location', 'name', 'tenant_id', 'project_id']
     return utils.get_osc_show_columns_for_sdk_resource(
         item, column_map, hidden_columns
     )
@@ -47,14 +46,6 @@ def _get_attrs(client_manager, parsed_args):
         attrs['enabled'] = True
     if parsed_args.disable:
         attrs['enabled'] = False
-    if 'project' in parsed_args and parsed_args.project is not None:
-        identity_client = client_manager.identity
-        project_id = identity_common.find_project(
-            identity_client,
-            parsed_args.project,
-            parsed_args.project_domain,
-        ).id
-        attrs['project_id'] = project_id
 
     return attrs
 
@@ -68,12 +59,6 @@ class CreateNetworkFlavorProfile(
 
     def get_parser(self, prog_name):
         parser = super().get_parser(prog_name)
-        parser.add_argument(
-            '--project',
-            metavar="<project>",
-            help=_("Owner's project (name or ID)"),
-        )
-        identity_common.add_project_domain_option_to_parser(parser)
         parser.add_argument(
             '--description',
             metavar="<description>",
@@ -212,7 +197,6 @@ class SetNetworkFlavorProfile(common.NeutronCommandWithExtraArgs):
             metavar="<flavor-profile>",
             help=_("Flavor profile to update (ID only)"),
         )
-        identity_common.add_project_domain_option_to_parser(parser)
         parser.add_argument(
             '--description',
             metavar="<description>",

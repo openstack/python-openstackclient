@@ -23,14 +23,11 @@ class TestFlavorProfile(network_fakes.TestNetworkV2):
     def setUp(self):
         super().setUp()
 
-        # Get the ProjectManager Mock
-        self.projects_mock = self.identity_client.projects
         # Get the DomainManager Mock
         self.domains_mock = self.identity_client.domains
 
 
 class TestCreateFlavorProfile(TestFlavorProfile):
-    project = identity_fakes_v3.FakeProject.create_one_project()
     domain = identity_fakes_v3.FakeDomain.create_one_domain()
     new_flavor_profile = network_fakes.create_one_service_profile()
 
@@ -40,7 +37,6 @@ class TestCreateFlavorProfile(TestFlavorProfile):
         'enabled',
         'id',
         'meta_info',
-        'project_id',
     )
 
     data = (
@@ -49,7 +45,6 @@ class TestCreateFlavorProfile(TestFlavorProfile):
         new_flavor_profile.is_enabled,
         new_flavor_profile.id,
         new_flavor_profile.meta_info,
-        new_flavor_profile.project_id,
     )
 
     def setUp(self):
@@ -57,7 +52,6 @@ class TestCreateFlavorProfile(TestFlavorProfile):
         self.network_client.create_service_profile = mock.Mock(
             return_value=self.new_flavor_profile
         )
-        self.projects_mock.get.return_value = self.project
         # Get the command object to test
         self.cmd = network_flavor_profile.CreateNetworkFlavorProfile(
             self.app, None
@@ -67,10 +61,6 @@ class TestCreateFlavorProfile(TestFlavorProfile):
         arglist = [
             "--description",
             self.new_flavor_profile.description,
-            "--project",
-            self.new_flavor_profile.project_id,
-            '--project-domain',
-            self.domain.name,
             "--enable",
             "--driver",
             self.new_flavor_profile.driver,
@@ -80,8 +70,6 @@ class TestCreateFlavorProfile(TestFlavorProfile):
 
         verifylist = [
             ('description', self.new_flavor_profile.description),
-            ('project', self.new_flavor_profile.project_id),
-            ('project_domain', self.domain.name),
             ('enable', True),
             ('driver', self.new_flavor_profile.driver),
             ('metainfo', self.new_flavor_profile.meta_info),
@@ -93,7 +81,6 @@ class TestCreateFlavorProfile(TestFlavorProfile):
         self.network_client.create_service_profile.assert_called_once_with(
             **{
                 'description': self.new_flavor_profile.description,
-                'project_id': self.project.id,
                 'enabled': self.new_flavor_profile.is_enabled,
                 'driver': self.new_flavor_profile.driver,
                 'metainfo': self.new_flavor_profile.meta_info,
@@ -106,10 +93,6 @@ class TestCreateFlavorProfile(TestFlavorProfile):
         arglist = [
             "--description",
             self.new_flavor_profile.description,
-            "--project",
-            self.new_flavor_profile.project_id,
-            '--project-domain',
-            self.domain.name,
             "--enable",
             "--metainfo",
             self.new_flavor_profile.meta_info,
@@ -117,8 +100,6 @@ class TestCreateFlavorProfile(TestFlavorProfile):
 
         verifylist = [
             ('description', self.new_flavor_profile.description),
-            ('project', self.new_flavor_profile.project_id),
-            ('project_domain', self.domain.name),
             ('enable', True),
             ('metainfo', self.new_flavor_profile.meta_info),
         ]
@@ -129,7 +110,6 @@ class TestCreateFlavorProfile(TestFlavorProfile):
         self.network_client.create_service_profile.assert_called_once_with(
             **{
                 'description': self.new_flavor_profile.description,
-                'project_id': self.project.id,
                 'enabled': self.new_flavor_profile.is_enabled,
                 'metainfo': self.new_flavor_profile.meta_info,
             }
@@ -141,10 +121,6 @@ class TestCreateFlavorProfile(TestFlavorProfile):
         arglist = [
             "--description",
             self.new_flavor_profile.description,
-            "--project",
-            self.new_flavor_profile.project_id,
-            '--project-domain',
-            self.domain.name,
             "--enable",
             "--driver",
             self.new_flavor_profile.driver,
@@ -152,8 +128,6 @@ class TestCreateFlavorProfile(TestFlavorProfile):
 
         verifylist = [
             ('description', self.new_flavor_profile.description),
-            ('project', self.new_flavor_profile.project_id),
-            ('project_domain', self.domain.name),
             ('enable', True),
             ('driver', self.new_flavor_profile.driver),
         ]
@@ -164,7 +138,6 @@ class TestCreateFlavorProfile(TestFlavorProfile):
         self.network_client.create_service_profile.assert_called_once_with(
             **{
                 'description': self.new_flavor_profile.description,
-                'project_id': self.project.id,
                 'enabled': self.new_flavor_profile.is_enabled,
                 'driver': self.new_flavor_profile.driver,
             }
@@ -176,17 +149,11 @@ class TestCreateFlavorProfile(TestFlavorProfile):
         arglist = [
             "--description",
             self.new_flavor_profile.description,
-            "--project",
-            self.new_flavor_profile.project_id,
-            '--project-domain',
-            self.domain.name,
             "--enable",
         ]
 
         verifylist = [
             ('description', self.new_flavor_profile.description),
-            ('project', self.new_flavor_profile.project_id),
-            ('project_domain', self.domain.name),
             ('enable', True),
         ]
 
@@ -377,7 +344,6 @@ class TestShowFlavorProfile(TestFlavorProfile):
         'enabled',
         'id',
         'meta_info',
-        'project_id',
     )
     data = (
         network_flavor_profile.description,
@@ -385,7 +351,6 @@ class TestShowFlavorProfile(TestFlavorProfile):
         network_flavor_profile.is_enabled,
         network_flavor_profile.id,
         network_flavor_profile.meta_info,
-        network_flavor_profile.project_id,
     )
 
     def setUp(self):
