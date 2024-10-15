@@ -1,0 +1,8 @@
+---
+fixes:
+  - |
+    The ``quota set`` and ``limits show`` commands will now check for the
+    ``block-storage`` and ``block-store`` service types along with ``volume``,
+    ``volumev2`` and ``volumev3``.
+
+    [Bug `2084580 <https://bugs.launchpad.net/python-openstackclient/+bug/2084580>`_]
