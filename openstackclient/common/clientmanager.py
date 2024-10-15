@@ -129,10 +129,15 @@ class ClientManager(clientmanager.ClientManager):
     # TODO(stephenfin): Drop volume_client argument in OSC 8.0 or later.
     def is_volume_endpoint_enabled(self, volume_client=None):
         """Check if volume endpoint is enabled"""
+        # We check against the service type and all aliases defined by the
+        # Service Types Authority
+        # https://service-types.openstack.org/service-types.json
         return (
-            self.is_service_available('volume') is not False
+            self.is_service_available('block-storage') is not False
+            or self.is_service_available('volume') is not False
             or self.is_service_available('volumev3') is not False
             or self.is_service_available('volumev2') is not False
+            or self.is_service_available('block-store') is not False
         )
 
 
