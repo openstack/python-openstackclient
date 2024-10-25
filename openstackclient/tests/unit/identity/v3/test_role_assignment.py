@@ -165,7 +165,75 @@ class TestRoleAssignmentList(identity_fakes.TestIdentityv3):
         arglist = ['--user', self.user.name]
         verifylist = [
             ('user', self.user.name),
+            ('user_domain', None),
             ('group', None),
+            ('group_domain', None),
+            ('system', None),
+            ('domain', None),
+            ('project', None),
+            ('project_domain', None),
+            ('role', None),
+            ('effective', None),
+            ('inherited', False),
+            ('names', False),
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        # In base command class Lister in cliff, abstract method take_action()
+        # returns a tuple containing the column names and an iterable
+        # containing the data to be listed.
+        columns, data = self.cmd.take_action(parsed_args)
+
+        self.identity_sdk_client.find_user.assert_called_with(
+            name_or_id=self.user.name, ignore_missing=False, domain_id=None
+        )
+        self.identity_sdk_client.role_assignments.assert_called_with(
+            role_id=None,
+            user_id=self.user.id,
+            group_id=None,
+            scope_project_id=None,
+            scope_domain_id=None,
+            scope_system=None,
+            effective=None,
+            include_names=None,
+            inherited_to=None,
+        )
+
+        self.assertEqual(self.columns, columns)
+        datalist = (
+            (
+                self.role.id,
+                self.user.id,
+                '',
+                '',
+                self.domain.id,
+                '',
+                False,
+            ),
+            (
+                self.role.id,
+                self.user.id,
+                '',
+                self.project.id,
+                '',
+                '',
+                False,
+            ),
+        )
+        self.assertEqual(datalist, tuple(data))
+
+    def test_role_assignment_list_user_with_domain(self):
+        self.identity_sdk_client.role_assignments.return_value = [
+            self.assignment_with_domain_id_and_user_id,
+            self.assignment_with_project_id_and_user_id,
+        ]
+
+        arglist = ['--user', self.user.name, '--user-domain', self.domain.name]
+        verifylist = [
+            ('user', self.user.name),
+            ('user_domain', self.domain.name),
+            ('group', None),
+            ('group_domain', None),
             ('system', None),
             ('domain', None),
             ('project', None),
@@ -181,6 +249,14 @@ class TestRoleAssignmentList(identity_fakes.TestIdentityv3):
         # containing the data to be listed.
         columns, data = self.cmd.take_action(parsed_args)
 
+        self.identity_sdk_client.find_domain.assert_called_with(
+            name_or_id=self.domain.name, ignore_missing=False
+        )
+        self.identity_sdk_client.find_user.assert_called_with(
+            name_or_id=self.user.name,
+            ignore_missing=False,
+            domain_id=self.domain.id,
+        )
         self.identity_sdk_client.role_assignments.assert_called_with(
             role_id=None,
             user_id=self.user.id,
@@ -230,10 +306,13 @@ class TestRoleAssignmentList(identity_fakes.TestIdentityv3):
         arglist = ['--user', self.user.id]
         verifylist = [
             ('user', self.user.id),
+            ('user_domain', None),
             ('group', None),
+            ('group_domain', None),
             ('system', None),
             ('domain', None),
             ('project', None),
+            ('project_domain', None),
             ('role', None),
             ('effective', None),
             ('inherited', False),
@@ -290,10 +369,13 @@ class TestRoleAssignmentList(identity_fakes.TestIdentityv3):
         arglist = ['--group', self.group.name]
         verifylist = [
             ('user', None),
+            ('user_domain', None),
             ('group', self.group.name),
+            ('group_domain', None),
             ('system', None),
             ('domain', None),
             ('project', None),
+            ('project_domain', None),
             ('role', None),
             ('effective', None),
             ('inherited', False),
@@ -306,6 +388,85 @@ class TestRoleAssignmentList(identity_fakes.TestIdentityv3):
         # containing the data to be listed.
         columns, data = self.cmd.take_action(parsed_args)
 
+        self.identity_sdk_client.find_group.assert_called_with(
+            name_or_id=self.group.name, ignore_missing=False, domain_id=None
+        )
+        self.identity_sdk_client.role_assignments.assert_called_with(
+            role_id=None,
+            user_id=None,
+            group_id=self.group.id,
+            scope_project_id=None,
+            scope_domain_id=None,
+            scope_system=None,
+            effective=None,
+            include_names=None,
+            inherited_to=None,
+        )
+
+        self.assertEqual(self.columns, columns)
+        datalist = (
+            (
+                self.role.id,
+                '',
+                self.group.id,
+                '',
+                self.domain.id,
+                '',
+                False,
+            ),
+            (
+                self.role.id,
+                '',
+                self.group.id,
+                self.project.id,
+                '',
+                '',
+                False,
+            ),
+        )
+        self.assertEqual(datalist, tuple(data))
+
+    def test_role_assignment_list_group_with_domain(self):
+        self.identity_sdk_client.role_assignments.return_value = [
+            self.assignment_with_domain_id_and_group_id,
+            self.assignment_with_project_id_and_group_id,
+        ]
+
+        arglist = [
+            '--group',
+            self.group.name,
+            '--group-domain',
+            self.domain.name,
+        ]
+        verifylist = [
+            ('user', None),
+            ('user_domain', None),
+            ('group', self.group.name),
+            ('group_domain', self.domain.name),
+            ('system', None),
+            ('domain', None),
+            ('project', None),
+            ('project_domain', None),
+            ('role', None),
+            ('effective', None),
+            ('inherited', False),
+            ('names', False),
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        # In base command class Lister in cliff, abstract method take_action()
+        # returns a tuple containing the column names and an iterable
+        # containing the data to be listed.
+        columns, data = self.cmd.take_action(parsed_args)
+
+        self.identity_sdk_client.find_domain.assert_called_with(
+            name_or_id=self.domain.name, ignore_missing=False
+        )
+        self.identity_sdk_client.find_group.assert_called_with(
+            name_or_id=self.group.name,
+            ignore_missing=False,
+            domain_id=self.domain.id,
+        )
         self.identity_sdk_client.role_assignments.assert_called_with(
             role_id=None,
             user_id=None,
@@ -350,10 +511,13 @@ class TestRoleAssignmentList(identity_fakes.TestIdentityv3):
         arglist = ['--domain', self.domain.name]
         verifylist = [
             ('user', None),
+            ('user_domain', None),
             ('group', None),
+            ('group_domain', None),
             ('system', None),
             ('domain', self.domain.name),
             ('project', None),
+            ('project_domain', None),
             ('role', None),
             ('effective', None),
             ('inherited', False),
@@ -410,10 +574,13 @@ class TestRoleAssignmentList(identity_fakes.TestIdentityv3):
         arglist = ['--project', self.project.name]
         verifylist = [
             ('user', None),
+            ('user_domain', None),
             ('group', None),
+            ('group_domain', None),
             ('system', None),
             ('domain', None),
             ('project', self.project.name),
+            ('project_domain', None),
             ('role', None),
             ('effective', None),
             ('inherited', False),
@@ -426,6 +593,85 @@ class TestRoleAssignmentList(identity_fakes.TestIdentityv3):
         # containing the data to be listed.
         columns, data = self.cmd.take_action(parsed_args)
 
+        self.identity_sdk_client.find_project.assert_called_with(
+            name_or_id=self.project.name, ignore_missing=False, domain_id=None
+        )
+        self.identity_sdk_client.role_assignments.assert_called_with(
+            role_id=None,
+            user_id=None,
+            group_id=None,
+            scope_project_id=self.project.id,
+            scope_domain_id=None,
+            scope_system=None,
+            effective=None,
+            include_names=None,
+            inherited_to=None,
+        )
+
+        self.assertEqual(self.columns, columns)
+        datalist = (
+            (
+                self.role.id,
+                self.user.id,
+                '',
+                self.project.id,
+                '',
+                '',
+                False,
+            ),
+            (
+                self.role.id,
+                '',
+                self.group.id,
+                self.project.id,
+                '',
+                '',
+                False,
+            ),
+        )
+        self.assertEqual(datalist, tuple(data))
+
+    def test_role_assignment_list_project_with_domain(self):
+        self.identity_sdk_client.role_assignments.return_value = [
+            self.assignment_with_project_id_and_user_id,
+            self.assignment_with_project_id_and_group_id,
+        ]
+
+        arglist = [
+            '--project',
+            self.project.name,
+            '--project-domain',
+            self.domain.name,
+        ]
+        verifylist = [
+            ('user', None),
+            ('user_domain', None),
+            ('group', None),
+            ('group_domain', None),
+            ('system', None),
+            ('domain', None),
+            ('project', self.project.name),
+            ('project_domain', self.domain.name),
+            ('role', None),
+            ('effective', None),
+            ('inherited', False),
+            ('names', False),
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        # In base command class Lister in cliff, abstract method take_action()
+        # returns a tuple containing the column names and an iterable
+        # containing the data to be listed.
+        columns, data = self.cmd.take_action(parsed_args)
+
+        self.identity_sdk_client.find_domain.assert_called_with(
+            name_or_id=self.domain.name, ignore_missing=False
+        )
+        self.identity_sdk_client.find_project.assert_called_with(
+            name_or_id=self.project.name,
+            ignore_missing=False,
+            domain_id=self.domain.id,
+        )
         self.identity_sdk_client.role_assignments.assert_called_with(
             role_id=None,
             user_id=None,
@@ -476,10 +722,13 @@ class TestRoleAssignmentList(identity_fakes.TestIdentityv3):
         ]
         verifylist = [
             ('user', None),
+            ('user_domain', None),
             ('group', None),
+            ('group_domain', None),
             ('system', None),
             ('domain', None),
             ('project', None),
+            ('project_domain', None),
             ('role', None),
             ('effective', None),
             ('inherited', False),
@@ -529,10 +778,13 @@ class TestRoleAssignmentList(identity_fakes.TestIdentityv3):
         arglist = ['--effective']
         verifylist = [
             ('user', None),
+            ('user_domain', None),
             ('group', None),
+            ('group_domain', None),
             ('system', None),
             ('domain', None),
             ('project', None),
+            ('project_domain', None),
             ('role', None),
             ('effective', True),
             ('inherited', False),
@@ -611,10 +863,13 @@ class TestRoleAssignmentList(identity_fakes.TestIdentityv3):
         arglist = ['--inherited']
         verifylist = [
             ('user', None),
+            ('user_domain', None),
             ('group', None),
+            ('group_domain', None),
             ('system', None),
             ('domain', None),
             ('project', None),
+            ('project_domain', None),
             ('role', None),
             ('effective', None),
             ('inherited', True),
@@ -707,10 +962,13 @@ class TestRoleAssignmentList(identity_fakes.TestIdentityv3):
         arglist = ['--names']
         verifylist = [
             ('user', None),
+            ('user_domain', None),
             ('group', None),
+            ('group_domain', None),
             ('system', None),
             ('domain', None),
             ('project', None),
+            ('project_domain', None),
             ('role', None),
             ('effective', None),
             ('inherited', False),
@@ -799,10 +1057,13 @@ class TestRoleAssignmentList(identity_fakes.TestIdentityv3):
         ]
         verifylist = [
             ('user', None),
+            ('user_domain', None),
             ('group', None),
+            ('group_domain', None),
             ('system', None),
             ('domain', None),
             ('project', None),
+            ('project_domain', None),
             ('role', role_2.name),
             ('effective', None),
             ('inherited', False),

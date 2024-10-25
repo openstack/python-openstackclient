@@ -148,7 +148,7 @@ class ListRoleAssignment(command.Lister):
 
         user_domain_id = None
         if parsed_args.user_domain:
-            project_domain_id = _find_sdk_id(
+            user_domain_id = _find_sdk_id(
                 identity_client.find_domain,
                 name_or_id=parsed_args.user_domain,
             )
