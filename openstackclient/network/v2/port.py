@@ -93,6 +93,7 @@ def _get_columns(item):
         'status': 'status',
         'tags': 'tags',
         'trunk_details': 'trunk_details',
+        'trusted': 'trusted',
         'updated_at': 'updated_at',
     }
     return (
@@ -222,6 +223,10 @@ def _get_attrs(client_manager, parsed_args):
         and parsed_args.hardware_offload_type
     ):
         attrs['hardware_offload_type'] = parsed_args.hardware_offload_type
+    if parsed_args.not_trusted:
+        attrs['trusted'] = False
+    if parsed_args.trusted:
+        attrs['trusted'] = True
 
     return attrs
 
@@ -386,6 +391,25 @@ def _add_updatable_args(parser, create=False):
             '(requires port-hint-ovs-tx-steering extension for alias: '
             'ovs-tx-steering) '
             '(repeat option to set multiple hints)'
+        ),
+    )
+    port_trusted = parser.add_mutually_exclusive_group()
+    port_trusted.add_argument(
+        '--trusted',
+        action='store_true',
+        help=_(
+            "Set port to be trusted. This will be populated into the "
+            "'binding:profile' dictionary and passed to the services "
+            "which expect it in this dictionary (for example, Nova)"
+        ),
+    )
+    port_trusted.add_argument(
+        '--not-trusted',
+        action='store_true',
+        help=_(
+            "Set port to be not trusted. This will be populated into the "
+            "'binding:profile' dictionary and passed to the services "
+            "which expect it in this dictionary (for example, Nova)"
         ),
     )
 
@@ -1136,6 +1160,11 @@ class SetPort(common.NeutronCommandWithExtraArgs):
                     msg = _('Not supported by Network API: %(e)s') % {'e': e}
                     raise exceptions.CommandError(msg)
             attrs['hints'] = expanded_hints
+
+        if parsed_args.not_trusted:
+            attrs['trusted'] = False
+        if parsed_args.trusted:
+            attrs['trusted'] = True
 
         attrs.update(
             self._parse_extra_properties(parsed_args.extra_properties)

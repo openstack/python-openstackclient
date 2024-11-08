@@ -73,6 +73,7 @@ class TestPort(network_fakes.TestNetworkV2):
             'security_group_ids',
             'status',
             'tags',
+            'trusted',
             'trunk_details',
             'updated_at',
         )
@@ -114,6 +115,7 @@ class TestPort(network_fakes.TestNetworkV2):
             format_columns.ListColumn(fake_port.security_group_ids),
             fake_port.status,
             format_columns.ListColumn(fake_port.tags),
+            fake_port.trusted,
             fake_port.trunk_details,
             fake_port.updated_at,
         )
@@ -1110,6 +1112,50 @@ class TestCreatePort(TestPort):
 
     def test_create_with_hardware_offload_type_null(self):
         self._test_create_with_hardware_offload_type()
+
+    def _test_create_with_trusted_field(self, trusted):
+        arglist = [
+            '--network',
+            self._port.network_id,
+            'test-port',
+        ]
+        if trusted:
+            arglist += ['--trusted']
+        else:
+            arglist += ['--not-trusted']
+
+        verifylist = [
+            (
+                'network',
+                self._port.network_id,
+            ),
+            ('name', 'test-port'),
+        ]
+        if trusted:
+            verifylist.append(('trusted', True))
+        else:
+            verifylist.append(('trusted', False))
+
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        columns, data = self.cmd.take_action(parsed_args)
+
+        create_args = {
+            'admin_state_up': True,
+            'network_id': self._port.network_id,
+            'name': 'test-port',
+        }
+        create_args['trusted'] = trusted
+        self.network_client.create_port.assert_called_once_with(**create_args)
+
+        self.assertEqual(set(self.columns), set(columns))
+        self.assertCountEqual(self.data, data)
+
+    def test_create_with_trusted_true(self):
+        self._test_create_with_trusted_field(True)
+
+    def test_create_with_trusted_false(self):
+        self._test_create_with_trusted_field(False)
 
 
 class TestDeletePort(TestPort):
@@ -2519,6 +2565,35 @@ class TestSetPort(TestPort):
             },
         )
         self.assertIsNone(result)
+
+    def _test_set_trusted_field(self, trusted):
+        arglist = [self._port.id]
+        if trusted:
+            arglist += ['--trusted']
+        else:
+            arglist += ['--not-trusted']
+
+        verifylist = [
+            ('port', self._port.id),
+        ]
+        if trusted:
+            verifylist.append(('trusted', True))
+        else:
+            verifylist.append(('trusted', False))
+
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        result = self.cmd.take_action(parsed_args)
+        self.network_client.update_port.assert_called_once_with(
+            self._port, **{'trusted': trusted}
+        )
+        self.assertIsNone(result)
+
+    def test_set_trusted_true(self):
+        self._test_set_trusted_field(True)
+
+    def test_set_trusted_false(self):
+        self._test_set_trusted_field(False)
 
 
 class TestShowPort(TestPort):
