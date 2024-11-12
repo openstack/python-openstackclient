@@ -6,6 +6,11 @@
       Run unit tests for OpenStackClient with master branch of important libs.
 
       Takes advantage of the base tox job's install-siblings feature.
+    irrelevant-files: &common-irrelevant-files
+      - ^.*\.rst$
+      - ^doc/.*$
+      - ^releasenotes/.*$
+      - ^\.pre-commit-config\.yaml$
     required-projects:
       - openstack/cliff
       - openstack/keystoneauth
