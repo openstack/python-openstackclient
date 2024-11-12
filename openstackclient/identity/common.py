@@ -88,23 +88,22 @@ def find_service_sdk(identity_client, name_type_or_id):
         raise exceptions.CommandError(e.message)
 
     # search for service type
-    services = identity_client.services()
-    result = None
-    for service in services:
-        if name_type_or_id == service.type:
-            if result:
-                msg = _(
-                    "Multiple service matches found for '%s', "
-                    "use an ID or name to be more specific."
-                )
-                raise exceptions.CommandError(msg % name_type_or_id)
-            result = service
+    services = identity_client.services(type=name_type_or_id)
+    try:
+        service = next(services)
+    except StopIteration:
+        msg = _(
+            "No service with a type, name or ID of '%(query)s' exists."
+        ) % {"query": name_type_or_id}
+        raise exceptions.CommandError(msg)
 
-    if result is None:
-        msg = _("No service with a type, name or ID of '%s' exists.")
-        raise exceptions.CommandError(msg % name_type_or_id)
+    if next(services, None):
+        msg = _(
+            "Multiple service matches found for '%(query)s', use an ID to be more specific."
+        ) % {"query": name_type_or_id}
+        raise exceptions.CommandError(msg)
 
-    return result
+    return service
 
 
 def get_resource(manager, name_type_or_id):

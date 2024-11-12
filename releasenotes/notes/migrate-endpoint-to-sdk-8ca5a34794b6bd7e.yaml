@@ -1,0 +1,10 @@
+---
+upgrade:
+  - |
+    The following commands have been migrated to SDK:
+
+    - ``endpoint create``
+    - ``endpoint delete``
+    - ``endpoint list``
+    - ``endpoint show``
+    - ``endpoint set``

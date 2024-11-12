@@ -28,11 +28,31 @@ from openstackclient.identity import common
 LOG = logging.getLogger(__name__)
 
 
-def get_service_name(service):
-    if hasattr(service, 'name'):
-        return service.name
-    else:
-        return ''
+def _format_endpoint(endpoint, service):
+    columns = (
+        'is_enabled',
+        'id',
+        'interface',
+        'region_id',
+        'region_id',
+        'service_id',
+        'url',
+    )
+    column_headers = (
+        'enabled',
+        'id',
+        'interface',
+        'region',
+        'region_id',
+        'service_id',
+        'url',
+        'service_name',
+        'service_type',
+    )
+
+    data = utils.get_item_properties(endpoint, columns)
+    data += (getattr(service, 'name', ''), service.type)
+    return column_headers, data
 
 
 class AddProjectToEndpoint(command.Command):
@@ -112,23 +132,23 @@ class CreateEndpoint(command.ShowOne):
         return parser
 
     def take_action(self, parsed_args):
-        identity_client = self.app.client_manager.identity
-        service = common.find_service(identity_client, parsed_args.service)
+        identity_client = self.app.client_manager.sdk_connection.identity
+        service = common.find_service_sdk(identity_client, parsed_args.service)
 
-        endpoint = identity_client.endpoints.create(
-            service=service.id,
-            url=parsed_args.url,
-            interface=parsed_args.interface,
-            region=parsed_args.region,
-            enabled=parsed_args.enabled,
-        )
+        kwargs = {}
 
-        info = {}
-        endpoint._info.pop('links')
-        info.update(endpoint._info)
-        info['service_name'] = get_service_name(service)
-        info['service_type'] = service.type
-        return zip(*sorted(info.items()))
+        kwargs['service_id'] = service.id
+        kwargs['url'] = parsed_args.url
+        kwargs['interface'] = parsed_args.interface
+        kwargs['is_enabled'] = parsed_args.enabled
+
+        if parsed_args.region:
+            region = identity_client.get_region(parsed_args.region)
+            kwargs['region_id'] = region.id
+
+        endpoint = identity_client.create_endpoint(**kwargs)
+
+        return _format_endpoint(endpoint, service=service)
 
 
 class DeleteEndpoint(command.Command):
@@ -145,14 +165,12 @@ class DeleteEndpoint(command.Command):
         return parser
 
     def take_action(self, parsed_args):
-        identity_client = self.app.client_manager.identity
+        identity_client = self.app.client_manager.sdk_connection.identity
         result = 0
         for i in parsed_args.endpoint:
             try:
-                endpoint_id = utils.find_resource(
-                    identity_client.endpoints, i
-                ).id
-                identity_client.endpoints.delete(endpoint_id)
+                endpoint_id = identity_client.find_endpoint(i).id
+                identity_client.delete_endpoint(endpoint_id)
             except Exception as e:
                 result += 1
                 LOG.error(
@@ -208,28 +226,24 @@ class ListEndpoint(command.Lister):
         return parser
 
     def take_action(self, parsed_args):
-        identity_client = self.app.client_manager.identity
+        identity_client = self.app.client_manager.sdk_connection.identity
 
         endpoint = None
         if parsed_args.endpoint:
-            endpoint = utils.find_resource(
-                identity_client.endpoints, parsed_args.endpoint
-            )
+            endpoint = identity_client.find_endpoint(parsed_args.endpoint)
         project = None
         if parsed_args.project:
-            project = common.find_project(
-                identity_client,
+            project = identity_client.find_project(
                 parsed_args.project,
                 parsed_args.project_domain,
             )
 
         if endpoint:
-            columns: tuple[str, ...] = ('ID', 'Name')
-            data = identity_client.endpoint_filter.list_projects_for_endpoint(
-                endpoint=endpoint.id
-            )
+            column_headers = ('ID', 'Name')
+            columns: tuple[str, ...] = ('id', 'name')
+            data = identity_client.endpoint_projects(endpoint=endpoint.id)
         else:
-            columns = (
+            column_headers = (
                 'ID',
                 'Region',
                 'Service Name',
@@ -238,37 +252,41 @@ class ListEndpoint(command.Lister):
                 'Interface',
                 'URL',
             )
+            columns = (
+                'id',
+                'region_id',
+                'service_name',
+                'service_type',
+                'is_enabled',
+                'interface',
+                'url',
+            )
             kwargs = {}
             if parsed_args.service:
-                service = common.find_service(
+                service = common.find_service_sdk(
                     identity_client, parsed_args.service
                 )
-                kwargs['service'] = service.id
+                kwargs['service_id'] = service.id
             if parsed_args.interface:
                 kwargs['interface'] = parsed_args.interface
             if parsed_args.region:
-                kwargs['region'] = parsed_args.region
+                region = identity_client.get_region(parsed_args.region)
+                kwargs['region_id'] = region.id
 
             if project:
-                data = (
-                    identity_client.endpoint_filter.list_endpoints_for_project(
-                        project=project.id
-                    )
+                data = list(
+                    identity_client.project_endpoints(project=project.id)
                 )
             else:
-                data = identity_client.endpoints.list(**kwargs)
-
-            service_list = identity_client.services.list()
+                data = list(identity_client.endpoints(**kwargs))
 
             for ep in data:
-                service = common.find_service_in_list(
-                    service_list, ep.service_id
-                )
-                ep.service_name = get_service_name(service)
+                service = identity_client.find_service(ep.service_id)
+                ep.service_name = getattr(service, 'name', '')
                 ep.service_type = service.type
 
         return (
-            columns,
+            column_headers,
             (
                 utils.get_item_properties(
                     s,
@@ -363,28 +381,34 @@ class SetEndpoint(command.Command):
         return parser
 
     def take_action(self, parsed_args):
-        identity_client = self.app.client_manager.identity
-        endpoint = utils.find_resource(
-            identity_client.endpoints, parsed_args.endpoint
-        )
+        identity_client = self.app.client_manager.sdk_connection.identity
+        endpoint = identity_client.find_endpoint(parsed_args.endpoint)
 
-        service_id = None
+        kwargs = {}
+
         if parsed_args.service:
-            service = common.find_service(identity_client, parsed_args.service)
-            service_id = service.id
-        enabled = None
-        if parsed_args.enabled:
-            enabled = True
-        if parsed_args.disabled:
-            enabled = False
+            service = common.find_service_sdk(
+                identity_client, parsed_args.service
+            )
+            kwargs['service_id'] = service.id
 
-        identity_client.endpoints.update(
+        if parsed_args.enabled:
+            kwargs['is_enabled'] = True
+        if parsed_args.disabled:
+            kwargs['is_enabled'] = False
+
+        if parsed_args.url:
+            kwargs['url'] = parsed_args.url
+
+        if parsed_args.interface:
+            kwargs['interface'] = parsed_args.interface
+
+        if parsed_args.region:
+            kwargs['region_id'] = parsed_args.region
+
+        identity_client.update_endpoint(
             endpoint.id,
-            service=service_id,
-            url=parsed_args.url,
-            interface=parsed_args.interface,
-            region=parsed_args.region,
-            enabled=enabled,
+            **kwargs,
         )
 
 
@@ -404,16 +428,9 @@ class ShowEndpoint(command.ShowOne):
         return parser
 
     def take_action(self, parsed_args):
-        identity_client = self.app.client_manager.identity
-        endpoint = utils.find_resource(
-            identity_client.endpoints, parsed_args.endpoint
-        )
+        identity_client = self.app.client_manager.sdk_connection.identity
+        endpoint = identity_client.find_endpoint(parsed_args.endpoint)
 
-        service = common.find_service(identity_client, endpoint.service_id)
+        service = common.find_service_sdk(identity_client, endpoint.service_id)
 
-        info = {}
-        endpoint._info.pop('links')
-        info.update(endpoint._info)
-        info['service_name'] = get_service_name(service)
-        info['service_type'] = service.type
-        return zip(*sorted(info.items()))
+        return _format_endpoint(endpoint, service)
