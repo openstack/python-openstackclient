@@ -86,13 +86,6 @@
         # NOTE(amotoki): Some neutron features are enabled by devstack plugin
         neutron: https://opendev.org/openstack/neutron
       devstack_services:
-        ceilometer-acentral: false
-        ceilometer-acompute: false
-        ceilometer-alarm-evaluator: false
-        ceilometer-alarm-notifier: false
-        ceilometer-anotification: false
-        ceilometer-api: false
-        ceilometer-collector: false
         s-account: true
         s-container: true
         s-object: true
