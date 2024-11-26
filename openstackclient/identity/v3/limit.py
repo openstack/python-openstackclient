@@ -25,6 +25,28 @@ from openstackclient.identity import common as common_utils
 LOG = logging.getLogger(__name__)
 
 
+def _format_limit(limit):
+    columns = (
+        "description",
+        "id",
+        "project_id",
+        "region_id",
+        "resource_limit",
+        "resource_name",
+        "service_id",
+    )
+    column_headers = (
+        "description",
+        "id",
+        "project_id",
+        "region_id",
+        "resource_limit",
+        "resource_name",
+        "service_id",
+    )
+    return (column_headers, utils.get_item_properties(limit, columns))
+
+
 class CreateLimit(command.ShowOne):
     _description = _("Create a limit")
 
@@ -67,47 +89,33 @@ class CreateLimit(command.ShowOne):
         return parser
 
     def take_action(self, parsed_args):
-        identity_client = self.app.client_manager.identity
+        identity_client = self.app.client_manager.sdk_connection.identity
 
-        project = common_utils.find_project(
-            identity_client, parsed_args.project
+        kwargs = {
+            "resource_name": parsed_args.resource_name,
+            "resource_limit": parsed_args.resource_limit,
+        }
+        if parsed_args.description:
+            kwargs["description"] = parsed_args.description
+
+        # TODO(0weng): Add --project-domain option
+        # to support filtering project domain
+        kwargs["project_id"] = common_utils._find_sdk_id(
+            identity_client.find_project,
+            name_or_id=parsed_args.project,
         )
-        service = common_utils.find_service(
+        kwargs["service_id"] = common_utils.find_service_sdk(
             identity_client, parsed_args.service
-        )
-        region = None
+        ).id
+
         if parsed_args.region:
-            if 'None' not in parsed_args.region:
-                # NOTE (vishakha): Due to bug #1799153 and for any another
-                # related case where GET resource API does not support the
-                # filter by name, osc_lib.utils.find_resource() method cannot
-                # be used because that method try to fall back to list all the
-                # resource if requested resource cannot be get via name. Which
-                # ends up with NoUniqueMatch error.
-                # So osc_lib.utils.find_resource() function cannot be used for
-                # 'regions', using common_utils.get_resource() instead.
-                region = common_utils.get_resource(
-                    identity_client.regions, parsed_args.region
-                )
-            else:
-                self.log.warning(
-                    _(
-                        "Passing 'None' to indicate no region is deprecated. "
-                        "Instead, don't pass --region."
-                    )
-                )
+            kwargs["region_id"] = identity_client.get_region(
+                parsed_args.region
+            ).id
 
-        limit = identity_client.limits.create(
-            project,
-            service,
-            parsed_args.resource_name,
-            parsed_args.resource_limit,
-            description=parsed_args.description,
-            region=region,
-        )
+        limit = identity_client.create_limit(**kwargs)
 
-        limit._info.pop('links', None)
-        return zip(*sorted(limit._info.items()))
+        return _format_limit(limit)
 
 
 class ListLimit(command.Lister):
@@ -139,47 +147,31 @@ class ListLimit(command.Lister):
         return parser
 
     def take_action(self, parsed_args):
-        identity_client = self.app.client_manager.identity
+        identity_client = self.app.client_manager.sdk_connection.identity
 
-        service = None
+        kwargs = {}
         if parsed_args.service:
-            service = common_utils.find_service(
+            kwargs["service_id"] = common_utils.find_service_sdk(
                 identity_client, parsed_args.service
             )
-        region = None
-        if parsed_args.region:
-            if 'None' not in parsed_args.region:
-                # NOTE (vishakha): Due to bug #1799153 and for any another
-                # related case where GET resource API does not support the
-                # filter by name, osc_lib.utils.find_resource() method cannot
-                # be used because that method try to fall back to list all the
-                # resource if requested resource cannot be get via name. Which
-                # ends up with NoUniqueMatch error.
-                # So osc_lib.utils.find_resource() function cannot be used for
-                # 'regions', using common_utils.get_resource() instead.
-                region = common_utils.get_resource(
-                    identity_client.regions, parsed_args.region
-                )
-            else:
-                self.log.warning(
-                    _(
-                        "Passing 'None' to indicate no region is deprecated. "
-                        "Instead, don't pass --region."
-                    )
-                )
 
-        project = None
+        if parsed_args.region:
+            kwargs["region_id"] = identity_client.get_region(
+                parsed_args.region
+            ).id
+
+        # TODO(0weng): Add --project-domain option
+        # to support filtering project domain
         if parsed_args.project:
-            project = utils.find_resource(
-                identity_client.projects, parsed_args.project
+            kwargs["project_id"] = common_utils._find_sdk_id(
+                identity_client.find_project,
+                name_or_id=parsed_args.project,
             )
 
-        limits = identity_client.limits.list(
-            service=service,
-            resource_name=parsed_args.resource_name,
-            region=region,
-            project=project,
-        )
+        if parsed_args.resource_name:
+            kwargs["resource_name"] = parsed_args.resource_name
+
+        limits = identity_client.limits(**kwargs)
 
         columns = (
             'ID',
@@ -209,10 +201,9 @@ class ShowLimit(command.ShowOne):
         return parser
 
     def take_action(self, parsed_args):
-        identity_client = self.app.client_manager.identity
-        limit = identity_client.limits.get(parsed_args.limit_id)
-        limit._info.pop('links', None)
-        return zip(*sorted(limit._info.items()))
+        identity_client = self.app.client_manager.sdk_connection.identity
+        limit = identity_client.get_limit(parsed_args.limit_id)
+        return _format_limit(limit)
 
 
 class SetLimit(command.ShowOne):
@@ -240,17 +231,16 @@ class SetLimit(command.ShowOne):
         return parser
 
     def take_action(self, parsed_args):
-        identity_client = self.app.client_manager.identity
+        identity_client = self.app.client_manager.sdk_connection.identity
 
-        limit = identity_client.limits.update(
-            parsed_args.limit_id,
-            description=parsed_args.description,
-            resource_limit=parsed_args.resource_limit,
-        )
+        kwargs = {}
+        if parsed_args.description:
+            kwargs["description"] = parsed_args.description
+        if parsed_args.resource_limit:
+            kwargs["resource_limit"] = parsed_args.resource_limit
+        limit = identity_client.update_limit(parsed_args.limit_id, **kwargs)
 
-        limit._info.pop('links', None)
-
-        return zip(*sorted(limit._info.items()))
+        return _format_limit(limit)
 
 
 class DeleteLimit(command.Command):
@@ -262,17 +252,20 @@ class DeleteLimit(command.Command):
             'limit_id',
             metavar='<limit-id>',
             nargs="+",
-            help=_('Limit to delete (ID)'),
+            help=_(
+                'Limit to delete (ID) '
+                '(repeat option to remove multiple limits)'
+            ),
         )
         return parser
 
     def take_action(self, parsed_args):
-        identity_client = self.app.client_manager.identity
+        identity_client = self.app.client_manager.sdk_connection.identity
 
         errors = 0
         for limit_id in parsed_args.limit_id:
             try:
-                identity_client.limits.delete(limit_id)
+                identity_client.delete_limit(limit_id)
             except Exception as e:
                 errors += 1
                 LOG.error(

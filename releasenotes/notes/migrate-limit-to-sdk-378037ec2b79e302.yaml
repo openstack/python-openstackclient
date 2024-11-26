@@ -1,0 +1,9 @@
+---
+features:
+  - |
+    Migrate ``limit`` commands from keystoneclient to SDK.
+upgrade:
+  - |
+    Filtering in ``limit`` commands is now case sensitive.
+  - |
+    Specifying ``--region None`` is no longer supported for ``limit`` commands.
