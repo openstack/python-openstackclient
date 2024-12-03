@@ -1295,7 +1295,7 @@ class ServerTests(common.ComputeTestCase):
             )
             if ip_address in cmd_output['addresses']['private']:
                 # Hang out for a bit and try again
-                print('retrying add port check')
+                print('retrying remove port check')
                 wait_time += 10
                 time.sleep(10)
             else:
@@ -1366,6 +1366,92 @@ class ServerTests(common.ComputeTestCase):
                 break
         addresses = cmd_output['addresses']['private']
         self.assertIn(ip_address, addresses)
+
+    def test_server_add_remove_security_group(self):
+        name = uuid.uuid4().hex
+        cmd_output = self.openstack(
+            'server create '
+            + '--network private '
+            + '--flavor '
+            + self.flavor_name
+            + ' '
+            + '--image '
+            + self.image_name
+            + ' '
+            + '--wait '
+            + name,
+            parse_output=True,
+        )
+
+        self.assertIsNotNone(cmd_output['id'])
+        self.assertEqual(name, cmd_output['name'])
+        self.addCleanup(self.openstack, 'server delete --wait ' + name)
+
+        # create security group
+        security_group_name = uuid.uuid4().hex
+
+        cmd_output = self.openstack(
+            'security group list',
+            parse_output=True,
+        )
+        self.assertNotIn(security_group_name, cmd_output)
+
+        cmd_output = self.openstack(
+            'security group create ' + security_group_name,
+            parse_output=True,
+        )
+        self.assertIsNotNone(cmd_output['id'])
+        self.addCleanup(
+            self.openstack, 'security group delete ' + security_group_name
+        )
+
+        # add security group to server, assert the name of the security group
+        # appears
+        self.openstack(
+            'server add security group ' + name + ' ' + security_group_name
+        )
+
+        wait_time = 0
+        while wait_time < 60:
+            cmd_output = self.openstack(
+                'server show ' + name,
+                parse_output=True,
+            )
+            if security_group_name not in [
+                x['name'] for x in cmd_output['security_groups']
+            ]:
+                # Hang out for a bit and try again
+                print('retrying add security group check')
+                wait_time += 10
+                time.sleep(10)
+            else:
+                break
+        security_groups = [x['name'] for x in cmd_output['security_groups']]
+        self.assertIn(security_group_name, security_groups)
+
+        # remove security group, assert the name of the security group doesn't
+        # appear
+        self.openstack(
+            'server remove security group ' + name + ' ' + security_group_name
+        )
+
+        wait_time = 0
+        while wait_time < 60:
+            cmd_output = self.openstack(
+                'server show ' + name,
+                parse_output=True,
+            )
+            if security_group_name not in [
+                x['name'] for x in cmd_output['security_groups']
+            ]:
+                # Hang out for a bit and try again
+                print('retrying remove security group check')
+                wait_time += 10
+                time.sleep(10)
+            else:
+                break
+        security_groups = [x['name'] for x in cmd_output['security_groups']]
+        self.assertNotIn(security_group_name, security_groups)
 
     def test_server_add_remove_volume(self):
         volume_wait_for = volume_common.BaseVolumeTests.wait_for_status
