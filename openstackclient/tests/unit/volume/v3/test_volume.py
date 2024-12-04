@@ -912,7 +912,7 @@ class TestVolumeDelete(volume_fakes.TestVolume):
         arglist = [self.volumes[0].id]
         verifylist = [
             ("force", False),
-            ("purge", False),
+            ("cascade", False),
             ("volumes", [self.volumes[0].id]),
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
@@ -931,7 +931,7 @@ class TestVolumeDelete(volume_fakes.TestVolume):
         arglist = [v.id for v in self.volumes]
         verifylist = [
             ('force', False),
-            ('purge', False),
+            ('cascade', False),
             ('volumes', arglist),
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
@@ -958,7 +958,7 @@ class TestVolumeDelete(volume_fakes.TestVolume):
         ]
         verifylist = [
             ('force', False),
-            ('purge', False),
+            ('cascade', False),
             ('volumes', [self.volumes[0].id, 'unexist_volume']),
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
@@ -989,7 +989,29 @@ class TestVolumeDelete(volume_fakes.TestVolume):
         ]
         verifylist = [
             ('force', False),
-            ('purge', True),
+            ('cascade', True),
+            ('volumes', [self.volumes[0].id]),
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        result = self.cmd.take_action(parsed_args)
+        self.assertIsNone(result)
+
+        self.volume_sdk_client.find_volume.assert_called_once_with(
+            self.volumes[0].id, ignore_missing=False
+        )
+        self.volume_sdk_client.delete_volume.assert_called_once_with(
+            self.volumes[0].id, cascade=True, force=False
+        )
+
+    def test_volume_delete_with_cascade(self):
+        arglist = [
+            '--cascade',
+            self.volumes[0].id,
+        ]
+        verifylist = [
+            ('force', False),
+            ('cascade', True),
             ('volumes', [self.volumes[0].id]),
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
@@ -1011,7 +1033,7 @@ class TestVolumeDelete(volume_fakes.TestVolume):
         ]
         verifylist = [
             ('force', True),
-            ('purge', False),
+            ('cascade', False),
             ('volumes', [self.volumes[0].id]),
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
@@ -1031,7 +1053,7 @@ class TestVolumeDelete(volume_fakes.TestVolume):
         verifylist = [
             ("remote", True),
             ("force", False),
-            ("purge", False),
+            ("cascade", False),
             ("volumes", [self.volumes[0].id]),
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
@@ -1052,7 +1074,7 @@ class TestVolumeDelete(volume_fakes.TestVolume):
         verifylist = [
             ('remote', True),
             ('force', False),
-            ('purge', False),
+            ('cascade', False),
             ('volumes', arglist[1:]),
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
@@ -1077,7 +1099,6 @@ class TestVolumeDelete(volume_fakes.TestVolume):
         verifylist = [
             ('remote', True),
             ('force', False),
-            ('purge', True),
             ('volumes', [self.volumes[0].id]),
         ]
 
@@ -1086,7 +1107,7 @@ class TestVolumeDelete(volume_fakes.TestVolume):
             exceptions.CommandError, self.cmd.take_action, parsed_args
         )
         self.assertIn(
-            "The --force and --purge options are not supported with the "
+            "The --force and --cascade options are not supported with the "
             "--remote parameter.",
             str(exc),
         )
@@ -1104,7 +1125,7 @@ class TestVolumeDelete(volume_fakes.TestVolume):
         verifylist = [
             ('remote', True),
             ('force', True),
-            ('purge', False),
+            ('cascade', False),
             ('volumes', [self.volumes[0].id]),
         ]
 
@@ -1113,7 +1134,7 @@ class TestVolumeDelete(volume_fakes.TestVolume):
             exceptions.CommandError, self.cmd.take_action, parsed_args
         )
         self.assertIn(
-            "The --force and --purge options are not supported with the "
+            "The --force and --cascade options are not supported with the "
             "--remote parameter.",
             str(exc),
         )

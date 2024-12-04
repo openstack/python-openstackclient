@@ -390,11 +390,18 @@ class DeleteVolume(command.Command):
             ),
         )
         group.add_argument(
-            "--purge",
+            "--cascade",
             action="store_true",
             help=_(
                 "Remove any snapshots along with volume(s) (defaults to False)"
             ),
+        )
+        group.add_argument(
+            # now called "cascade", accept old arg for compatibility
+            "--purge",
+            action="store_true",
+            help=argparse.SUPPRESS,
+            dest='cascade',
         )
         return parser
 
@@ -410,7 +417,7 @@ class DeleteVolume(command.Command):
                 volume_client.delete_volume(
                     volume_obj.id,
                     force=parsed_args.force,
-                    cascade=parsed_args.purge,
+                    cascade=parsed_args.cascade,
                 )
             except Exception as e:
                 result += 1

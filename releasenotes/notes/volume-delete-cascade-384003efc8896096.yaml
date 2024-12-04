@@ -1,0 +1,6 @@
+---
+upgrade:
+  - |
+    The ``--purge`` argument to the ``volume delete`` command has been renamed
+    to ``--cascade`` to better match the Cinder API and the meaning of what
+    this argument does. An alias is provided for backwards compatibility.
