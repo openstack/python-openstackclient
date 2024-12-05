@@ -249,9 +249,14 @@ class ListQuota(command.Lister):
         for project_id in project_ids:
             try:
                 project_data = compute_client.get_quota_set(project_id)
+            # NOTE(stephenfin): Unfortunately, Nova raises a HTTP 400 (Bad
+            # Request) if the project ID is invalid, even though the project
+            # ID is actually the resource's identifier which would normally
+            # lead us to expect a HTTP 404 (Not Found).
             except (
-                sdk_exceptions.NotFoundException,
+                sdk_exceptions.BadRequestException,
                 sdk_exceptions.ForbiddenException,
+                sdk_exceptions.NotFoundException,
             ) as exc:
                 # Project not found, move on to next one
                 LOG.warning(f"Project {project_id} not found: {exc}")
@@ -312,8 +317,8 @@ class ListQuota(command.Lister):
             try:
                 project_data = volume_client.get_quota_set(project_id)
             except (
-                sdk_exceptions.NotFoundException,
                 sdk_exceptions.ForbiddenException,
+                sdk_exceptions.NotFoundException,
             ) as exc:
                 # Project not found, move on to next one
                 LOG.warning(f"Project {project_id} not found: {exc}")
