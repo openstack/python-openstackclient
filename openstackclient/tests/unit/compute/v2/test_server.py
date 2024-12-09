@@ -1165,7 +1165,7 @@ class TestServerAddSecurityGroup(compute_fakes.TestComputev2):
             self.server.id, ignore_missing=False
         )
         self.compute_sdk_client.add_security_group_to_server.assert_called_once_with(
-            self.server, 'fake_sg'
+            self.server, {'name': 'fake_sg'}
         )
         mock_find_nova_net_sg.assert_called_once_with(
             self.compute_sdk_client, 'fake_sg'
@@ -1186,7 +1186,7 @@ class TestServerAddSecurityGroup(compute_fakes.TestComputev2):
             self.server.id, ignore_missing=False
         )
         self.compute_sdk_client.add_security_group_to_server.assert_called_once_with(
-            self.server, 'fake_sg'
+            self.server, {'name': 'fake_sg'}
         )
         self.assertIsNone(result)
 
@@ -7400,7 +7400,7 @@ class TestServerRemoveSecurityGroup(TestServer):
             self.server.id, ignore_missing=False
         )
         self.compute_sdk_client.remove_security_group_from_server.assert_called_once_with(
-            self.server, 'fake_sg'
+            self.server, {'name': 'fake_sg'}
         )
         mock_find_nova_net_sg.assert_called_once_with(
             self.compute_sdk_client, 'fake_sg'
@@ -7421,7 +7421,7 @@ class TestServerRemoveSecurityGroup(TestServer):
             self.server.id, ignore_missing=False
         )
         self.compute_sdk_client.remove_security_group_from_server.assert_called_once_with(
-            self.server, 'fake_sg'
+            self.server, {'name': 'fake_sg'}
         )
         self.assertIsNone(result)
 
