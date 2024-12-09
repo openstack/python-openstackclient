@@ -701,7 +701,10 @@ class AddServerSecurityGroup(command.Command):
             security_group = compute_v2.find_security_group(
                 compute_client, parsed_args.group
             )['name']
-        compute_client.add_security_group_to_server(server, security_group)
+        compute_client.add_security_group_to_server(
+            server,
+            {'name': security_group},
+        )
 
 
 class AddServerVolume(command.ShowOne):
@@ -4039,7 +4042,8 @@ class RemoveServerSecurityGroup(command.Command):
                 compute_client, parsed_args.group
             )['name']
         compute_client.remove_security_group_from_server(
-            server, security_group
+            server,
+            {'name': security_group},
         )
 
 
