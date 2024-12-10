@@ -25,6 +25,15 @@ from openstackclient.i18n import _
 LOG = logging.getLogger(__name__)
 
 
+def _format_region(region):
+    columns = ('id', 'description', 'parent_region_id')
+    column_headers = ('region', 'description', 'parent_region')
+    return (
+        column_headers,
+        utils.get_item_properties(region, columns),
+    )
+
+
 class CreateRegion(command.ShowOne):
     _description = _("Create new region")
 
@@ -50,18 +59,15 @@ class CreateRegion(command.ShowOne):
         return parser
 
     def take_action(self, parsed_args):
-        identity_client = self.app.client_manager.identity
+        identity_client = self.app.client_manager.sdk_connection.identity
 
-        region = identity_client.regions.create(
+        region = identity_client.create_region(
             id=parsed_args.region,
-            parent_region=parsed_args.parent_region,
+            parent_region_id=parsed_args.parent_region,
             description=parsed_args.description,
         )
 
-        region._info['region'] = region._info.pop('id')
-        region._info['parent_region'] = region._info.pop('parent_region_id')
-        region._info.pop('links', None)
-        return zip(*sorted(region._info.items()))
+        return _format_region(region)
 
 
 class DeleteRegion(command.Command):
@@ -78,11 +84,11 @@ class DeleteRegion(command.Command):
         return parser
 
     def take_action(self, parsed_args):
-        identity_client = self.app.client_manager.identity
+        identity_client = self.app.client_manager.sdk_connection.identity
         result = 0
         for i in parsed_args.region:
             try:
-                identity_client.regions.delete(i)
+                identity_client.delete_region(i)
             except Exception as e:
                 result += 1
                 LOG.error(
@@ -115,7 +121,7 @@ class ListRegion(command.Lister):
         return parser
 
     def take_action(self, parsed_args):
-        identity_client = self.app.client_manager.identity
+        identity_client = self.app.client_manager.sdk_connection.identity
 
         kwargs = {}
         if parsed_args.parent_region:
@@ -124,7 +130,7 @@ class ListRegion(command.Lister):
         columns_headers = ('Region', 'Parent Region', 'Description')
         columns = ('ID', 'Parent Region Id', 'Description')
 
-        data = identity_client.regions.list(**kwargs)
+        data = identity_client.regions(**kwargs)
         return (
             columns_headers,
             (
@@ -161,15 +167,15 @@ class SetRegion(command.Command):
         return parser
 
     def take_action(self, parsed_args):
-        identity_client = self.app.client_manager.identity
+        identity_client = self.app.client_manager.sdk_connection.identity
 
         kwargs = {}
         if parsed_args.description:
             kwargs['description'] = parsed_args.description
         if parsed_args.parent_region:
-            kwargs['parent_region'] = parsed_args.parent_region
+            kwargs['parent_region_id'] = parsed_args.parent_region
 
-        identity_client.regions.update(parsed_args.region, **kwargs)
+        identity_client.update_region(parsed_args.region, **kwargs)
 
 
 class ShowRegion(command.ShowOne):
@@ -185,13 +191,8 @@ class ShowRegion(command.ShowOne):
         return parser
 
     def take_action(self, parsed_args):
-        identity_client = self.app.client_manager.identity
+        identity_client = self.app.client_manager.sdk_connection.identity
 
-        region = utils.find_resource(
-            identity_client.regions, parsed_args.region
-        )
+        region = identity_client.get_region(parsed_args.region)
 
-        region._info['region'] = region._info.pop('id')
-        region._info['parent_region'] = region._info.pop('parent_region_id')
-        region._info.pop('links', None)
-        return zip(*sorted(region._info.items()))
+        return _format_region(region)

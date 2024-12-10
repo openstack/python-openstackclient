@@ -11,55 +11,44 @@
 #   under the License.
 #
 
-import copy
+
+from openstack.identity.v3 import region as _region
+from openstack.test import fakes as sdk_fakes
 
 from openstackclient.identity.v3 import region
-from openstackclient.tests.unit import fakes
 from openstackclient.tests.unit.identity.v3 import fakes as identity_fakes
 
 
-class TestRegion(identity_fakes.TestIdentityv3):
-    def setUp(self):
-        super().setUp()
-
-        # Get a shortcut to the RegionManager Mock
-        self.regions_mock = self.identity_client.regions
-        self.regions_mock.reset_mock()
-
-
-class TestRegionCreate(TestRegion):
+class TestRegionCreate(identity_fakes.TestIdentityv3):
+    region = sdk_fakes.generate_fake_resource(_region.Region)
     columns = (
+        'region',
         'description',
         'parent_region',
-        'region',
     )
     datalist = (
-        identity_fakes.region_description,
-        identity_fakes.region_parent_region_id,
-        identity_fakes.region_id,
+        region.id,
+        region.description,
+        region.parent_region_id,
     )
 
     def setUp(self):
         super().setUp()
 
-        self.regions_mock.create.return_value = fakes.FakeResource(
-            None,
-            copy.deepcopy(identity_fakes.REGION),
-            loaded=True,
-        )
+        self.identity_sdk_client.create_region.return_value = self.region
 
         # Get the command object to test
         self.cmd = region.CreateRegion(self.app, None)
 
     def test_region_create_description(self):
         arglist = [
-            identity_fakes.region_id,
+            self.region.id,
             '--description',
-            identity_fakes.region_description,
+            self.region.description,
         ]
         verifylist = [
-            ('region', identity_fakes.region_id),
-            ('description', identity_fakes.region_description),
+            ('region', self.region.id),
+            ('description', self.region.description),
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
@@ -70,21 +59,21 @@ class TestRegionCreate(TestRegion):
 
         # Set expected values
         kwargs = {
-            'description': identity_fakes.region_description,
-            'id': identity_fakes.region_id,
-            'parent_region': None,
+            'description': self.region.description,
+            'id': self.region.id,
+            'parent_region_id': None,
         }
-        self.regions_mock.create.assert_called_with(**kwargs)
+        self.identity_sdk_client.create_region.assert_called_with(**kwargs)
 
         self.assertEqual(self.columns, columns)
         self.assertEqual(self.datalist, data)
 
     def test_region_create_no_options(self):
         arglist = [
-            identity_fakes.region_id,
+            self.region.id,
         ]
         verifylist = [
-            ('region', identity_fakes.region_id),
+            ('region', self.region.id),
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
@@ -96,23 +85,23 @@ class TestRegionCreate(TestRegion):
         # Set expected values
         kwargs = {
             'description': None,
-            'id': identity_fakes.region_id,
-            'parent_region': None,
+            'id': self.region.id,
+            'parent_region_id': None,
         }
-        self.regions_mock.create.assert_called_with(**kwargs)
+        self.identity_sdk_client.create_region.assert_called_with(**kwargs)
 
         self.assertEqual(self.columns, columns)
         self.assertEqual(self.datalist, data)
 
     def test_region_create_parent_region_id(self):
         arglist = [
-            identity_fakes.region_id,
+            self.region.id,
             '--parent-region',
-            identity_fakes.region_parent_region_id,
+            self.region.parent_region_id,
         ]
         verifylist = [
-            ('region', identity_fakes.region_id),
-            ('parent_region', identity_fakes.region_parent_region_id),
+            ('region', self.region.id),
+            ('parent_region', self.region.parent_region_id),
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
@@ -124,41 +113,43 @@ class TestRegionCreate(TestRegion):
         # Set expected values
         kwargs = {
             'description': None,
-            'id': identity_fakes.region_id,
-            'parent_region': identity_fakes.region_parent_region_id,
+            'id': self.region.id,
+            'parent_region_id': self.region.parent_region_id,
         }
-        self.regions_mock.create.assert_called_with(**kwargs)
+        self.identity_sdk_client.create_region.assert_called_with(**kwargs)
         self.assertEqual(self.columns, columns)
         self.assertEqual(self.datalist, data)
 
 
-class TestRegionDelete(TestRegion):
+class TestRegionDelete(identity_fakes.TestIdentityv3):
     def setUp(self):
         super().setUp()
 
-        self.regions_mock.delete.return_value = None
+        self.region = sdk_fakes.generate_fake_resource(_region.Region)
+        self.identity_sdk_client.delete_region.return_value = None
 
         # Get the command object to test
         self.cmd = region.DeleteRegion(self.app, None)
 
     def test_region_delete_no_options(self):
         arglist = [
-            identity_fakes.region_id,
+            self.region.id,
         ]
         verifylist = [
-            ('region', [identity_fakes.region_id]),
+            ('region', [self.region.id]),
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
         result = self.cmd.take_action(parsed_args)
 
-        self.regions_mock.delete.assert_called_with(
-            identity_fakes.region_id,
+        self.identity_sdk_client.delete_region.assert_called_with(
+            self.region.id,
         )
         self.assertIsNone(result)
 
 
-class TestRegionList(TestRegion):
+class TestRegionList(identity_fakes.TestIdentityv3):
+    region = sdk_fakes.generate_fake_resource(_region.Region)
     columns = (
         'Region',
         'Parent Region',
@@ -166,22 +157,16 @@ class TestRegionList(TestRegion):
     )
     datalist = (
         (
-            identity_fakes.region_id,
-            identity_fakes.region_parent_region_id,
-            identity_fakes.region_description,
+            region.id,
+            region.parent_region_id,
+            region.description,
         ),
     )
 
     def setUp(self):
         super().setUp()
 
-        self.regions_mock.list.return_value = [
-            fakes.FakeResource(
-                None,
-                copy.deepcopy(identity_fakes.REGION),
-                loaded=True,
-            ),
-        ]
+        self.identity_sdk_client.regions.return_value = [self.region]
 
         # Get the command object to test
         self.cmd = region.ListRegion(self.app, None)
@@ -195,7 +180,7 @@ class TestRegionList(TestRegion):
         # returns a tuple containing the column names and an iterable
         # containing the data to be listed.
         columns, data = self.cmd.take_action(parsed_args)
-        self.regions_mock.list.assert_called_with()
+        self.identity_sdk_client.regions.assert_called_with()
 
         self.assertEqual(self.columns, columns)
         self.assertEqual(self.datalist, tuple(data))
@@ -203,10 +188,10 @@ class TestRegionList(TestRegion):
     def test_region_list_parent_region_id(self):
         arglist = [
             '--parent-region',
-            identity_fakes.region_parent_region_id,
+            self.region.parent_region_id,
         ]
         verifylist = [
-            ('parent_region', identity_fakes.region_parent_region_id),
+            ('parent_region', self.region.parent_region_id),
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
@@ -214,41 +199,37 @@ class TestRegionList(TestRegion):
         # returns a tuple containing the column names and an iterable
         # containing the data to be listed.
         columns, data = self.cmd.take_action(parsed_args)
-        self.regions_mock.list.assert_called_with(
-            parent_region_id=identity_fakes.region_parent_region_id
+        self.identity_sdk_client.regions.assert_called_with(
+            parent_region_id=self.region.parent_region_id
         )
 
         self.assertEqual(self.columns, columns)
         self.assertEqual(self.datalist, tuple(data))
 
 
-class TestRegionSet(TestRegion):
+class TestRegionSet(identity_fakes.TestIdentityv3):
     def setUp(self):
         super().setUp()
 
-        self.regions_mock.update.return_value = fakes.FakeResource(
-            None,
-            copy.deepcopy(identity_fakes.REGION),
-            loaded=True,
-        )
+        self.region = sdk_fakes.generate_fake_resource(_region.Region)
 
         # Get the command object to test
         self.cmd = region.SetRegion(self.app, None)
 
     def test_region_set_no_options(self):
         arglist = [
-            identity_fakes.region_id,
+            self.region.id,
         ]
         verifylist = [
-            ('region', identity_fakes.region_id),
+            ('region', self.region.id),
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
         result = self.cmd.take_action(parsed_args)
 
         kwargs = {}
-        self.regions_mock.update.assert_called_with(
-            identity_fakes.region_id, **kwargs
+        self.identity_sdk_client.update_region.assert_called_with(
+            self.region.id, **kwargs
         )
         self.assertIsNone(result)
 
@@ -256,11 +237,11 @@ class TestRegionSet(TestRegion):
         arglist = [
             '--description',
             'qwerty',
-            identity_fakes.region_id,
+            self.region.id,
         ]
         verifylist = [
             ('description', 'qwerty'),
-            ('region', identity_fakes.region_id),
+            ('region', self.region.id),
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
@@ -270,8 +251,8 @@ class TestRegionSet(TestRegion):
         kwargs = {
             'description': 'qwerty',
         }
-        self.regions_mock.update.assert_called_with(
-            identity_fakes.region_id, **kwargs
+        self.identity_sdk_client.update_region.assert_called_with(
+            self.region.id, **kwargs
         )
         self.assertIsNone(result)
 
@@ -279,11 +260,11 @@ class TestRegionSet(TestRegion):
         arglist = [
             '--parent-region',
             'new_parent',
-            identity_fakes.region_id,
+            self.region.id,
         ]
         verifylist = [
             ('parent_region', 'new_parent'),
-            ('region', identity_fakes.region_id),
+            ('region', self.region.id),
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
@@ -291,33 +272,30 @@ class TestRegionSet(TestRegion):
 
         # Set expected values
         kwargs = {
-            'parent_region': 'new_parent',
+            'parent_region_id': 'new_parent',
         }
-        self.regions_mock.update.assert_called_with(
-            identity_fakes.region_id, **kwargs
+        self.identity_sdk_client.update_region.assert_called_with(
+            self.region.id, **kwargs
         )
         self.assertIsNone(result)
 
 
-class TestRegionShow(TestRegion):
+class TestRegionShow(identity_fakes.TestIdentityv3):
     def setUp(self):
         super().setUp()
 
-        self.regions_mock.get.return_value = fakes.FakeResource(
-            None,
-            copy.deepcopy(identity_fakes.REGION),
-            loaded=True,
-        )
+        self.region = sdk_fakes.generate_fake_resource(_region.Region)
+        self.identity_sdk_client.get_region.return_value = self.region
 
         # Get the command object to test
         self.cmd = region.ShowRegion(self.app, None)
 
     def test_region_show(self):
         arglist = [
-            identity_fakes.region_id,
+            self.region.id,
         ]
         verifylist = [
-            ('region', identity_fakes.region_id),
+            ('region', self.region.id),
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
@@ -325,15 +303,15 @@ class TestRegionShow(TestRegion):
         # returns a two-part tuple with a tuple of column names and a tuple of
         # data to be shown.
         columns, data = self.cmd.take_action(parsed_args)
-        self.regions_mock.get.assert_called_with(
-            identity_fakes.region_id,
+        self.identity_sdk_client.get_region.assert_called_with(
+            self.region.id,
         )
 
-        collist = ('description', 'parent_region', 'region')
+        collist = ('region', 'description', 'parent_region')
         self.assertEqual(collist, columns)
         datalist = (
-            identity_fakes.region_description,
-            identity_fakes.region_parent_region_id,
-            identity_fakes.region_id,
+            self.region.id,
+            self.region.description,
+            self.region.parent_region_id,
         )
         self.assertEqual(datalist, data)
