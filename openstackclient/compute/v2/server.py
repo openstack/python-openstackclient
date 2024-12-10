@@ -714,7 +714,8 @@ class AddServerSecurityGroup(command.Command):
         for security_group in security_groups:
             try:
                 compute_client.add_security_group_to_server(
-                    server, security_group
+                    server,
+                    {'name': security_group},
                 )
             except sdk_exceptions.HttpException as e:
                 errors += 1
@@ -4097,7 +4098,8 @@ class RemoveServerSecurityGroup(command.Command):
         for security_group in security_groups:
             try:
                 compute_client.remove_security_group_from_server(
-                    server, security_group
+                    server,
+                    {'name': security_group},
                 )
             except sdk_exceptions.HttpException as e:
                 errors += 1
