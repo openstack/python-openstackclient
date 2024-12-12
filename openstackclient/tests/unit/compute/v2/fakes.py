@@ -32,7 +32,6 @@ from openstack.compute.v2 import server_action as _server_action
 from openstack.compute.v2 import server_group as _server_group
 from openstack.compute.v2 import server_interface as _server_interface
 from openstack.compute.v2 import server_migration as _server_migration
-from openstack.compute.v2 import service as _service
 from openstack.compute.v2 import usage as _usage
 from openstack.compute.v2 import volume_attachment as _volume_attachment
 
@@ -483,51 +482,6 @@ def create_one_server_action(attrs=None):
         events=events,
     )
     return server_action
-
-
-def create_one_service(attrs=None):
-    """Create a fake service.
-
-    :param dict attrs: A dictionary with all attributes
-    :return: A fake openstack.compute.v2.service.Service object
-    """
-    attrs = attrs or {}
-
-    # Set default attributes.
-    service_info = {
-        'id': 'id-' + uuid.uuid4().hex,
-        'host': 'host-' + uuid.uuid4().hex,
-        'binary': 'binary-' + uuid.uuid4().hex,
-        'status': 'enabled',
-        'availability_zone': 'zone-' + uuid.uuid4().hex,
-        'state': 'state-' + uuid.uuid4().hex,
-        'updated_at': 'time-' + uuid.uuid4().hex,
-        'disabled_reason': 'earthquake',
-        # Introduced in API microversion 2.11
-        'is_forced_down': False,
-    }
-
-    # Overwrite default attributes.
-    service_info.update(attrs)
-
-    return _service.Service(**service_info)
-
-
-def create_services(attrs=None, count=2):
-    """Create multiple fake services.
-
-    :param dict attrs:
-        A dictionary with all attributes
-    :param int count:
-        The number of services to fake
-    :return:
-        A list of FakeResource objects faking the services
-    """
-    services = []
-    for i in range(0, count):
-        services.append(create_one_service(attrs))
-
-    return services
 
 
 def create_one_flavor(attrs=None):
