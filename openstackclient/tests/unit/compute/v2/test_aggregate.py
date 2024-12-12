@@ -16,7 +16,9 @@
 from unittest import mock
 from unittest.mock import call
 
+from openstack.compute.v2 import aggregate as _aggregate
 from openstack import exceptions as sdk_exceptions
+from openstack.test import fakes as sdk_fakes
 from osc_lib.cli import format_columns
 from osc_lib import exceptions
 
@@ -26,8 +28,6 @@ from openstackclient.tests.unit.image.v2 import fakes as image_fakes
 
 
 class TestAggregate(compute_fakes.TestComputev2):
-    fake_ag = compute_fakes.create_one_aggregate()
-
     columns = (
         'availability_zone',
         'created_at',
@@ -41,18 +41,25 @@ class TestAggregate(compute_fakes.TestComputev2):
         'uuid',
     )
 
-    data = (
-        fake_ag.availability_zone,
-        fake_ag.created_at,
-        fake_ag.deleted_at,
-        format_columns.ListColumn(fake_ag.hosts),
-        fake_ag.id,
-        fake_ag.is_deleted,
-        fake_ag.name,
-        format_columns.DictColumn(fake_ag.metadata),
-        fake_ag.updated_at,
-        fake_ag.uuid,
-    )
+    def setUp(self):
+        super().setUp()
+
+        self.fake_ag = sdk_fakes.generate_fake_resource(
+            _aggregate.Aggregate,
+            metadata={'availability_zone': 'ag_zone', 'key1': 'value1'},
+        )
+        self.data = (
+            self.fake_ag.availability_zone,
+            self.fake_ag.created_at,
+            self.fake_ag.deleted_at,
+            format_columns.ListColumn(self.fake_ag.hosts),
+            self.fake_ag.id,
+            self.fake_ag.is_deleted,
+            self.fake_ag.name,
+            format_columns.DictColumn(self.fake_ag.metadata),
+            self.fake_ag.updated_at,
+            self.fake_ag.uuid,
+        )
 
 
 class TestAggregateAddHost(TestAggregate):
@@ -155,13 +162,15 @@ class TestAggregateCreate(TestAggregate):
 
 
 class TestAggregateDelete(TestAggregate):
-    fake_ags = compute_fakes.create_aggregates(count=2)
-
     def setUp(self):
         super().setUp()
 
-        self.compute_sdk_client.find_aggregate = compute_fakes.get_aggregates(
-            self.fake_ags
+        self.fake_ags = list(
+            sdk_fakes.generate_fake_resources(_aggregate.Aggregate, 2)
+        )
+
+        self.compute_sdk_client.find_aggregate = mock.Mock(
+            side_effect=[self.fake_ags[0], self.fake_ags[1]]
         )
         self.cmd = aggregate.DeleteAggregate(self.app, None)
 
@@ -526,24 +535,24 @@ class TestAggregateShow(TestAggregate):
         'uuid',
     )
 
-    data = (
-        TestAggregate.fake_ag.availability_zone,
-        TestAggregate.fake_ag.created_at,
-        TestAggregate.fake_ag.deleted_at,
-        format_columns.ListColumn(TestAggregate.fake_ag.hosts),
-        TestAggregate.fake_ag.id,
-        TestAggregate.fake_ag.is_deleted,
-        TestAggregate.fake_ag.name,
-        format_columns.DictColumn(TestAggregate.fake_ag.metadata),
-        TestAggregate.fake_ag.updated_at,
-        TestAggregate.fake_ag.uuid,
-    )
-
     def setUp(self):
         super().setUp()
 
         self.compute_sdk_client.find_aggregate.return_value = self.fake_ag
         self.cmd = aggregate.ShowAggregate(self.app, None)
+
+        self.data = (
+            self.fake_ag.availability_zone,
+            self.fake_ag.created_at,
+            self.fake_ag.deleted_at,
+            format_columns.ListColumn(self.fake_ag.hosts),
+            self.fake_ag.id,
+            self.fake_ag.is_deleted,
+            self.fake_ag.name,
+            format_columns.DictColumn(self.fake_ag.metadata),
+            self.fake_ag.updated_at,
+            self.fake_ag.uuid,
+        )
 
     def test_aggregate_show(self):
         arglist = [

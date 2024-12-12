@@ -21,7 +21,6 @@ import uuid
 
 from keystoneauth1 import discover
 from openstack.compute.v2 import _proxy
-from openstack.compute.v2 import aggregate as _aggregate
 from openstack.compute.v2 import availability_zone as _availability_zone
 from openstack.compute.v2 import extension as _extension
 from openstack.compute.v2 import flavor as _flavor
@@ -140,63 +139,6 @@ class TestComputev2(
     FakeClientMixin,
     utils.TestCommand,
 ): ...
-
-
-def create_one_aggregate(attrs=None):
-    """Create a fake aggregate.
-
-    :param dict attrs: A dictionary with all attributes
-    :return: A fake openstack.compute.v2.aggregate.Aggregate object
-    """
-    attrs = attrs or {}
-
-    # Set default attribute
-    aggregate_info = {
-        "name": "aggregate-name-" + uuid.uuid4().hex,
-        "availability_zone": "ag_zone",
-        "hosts": [],
-        "id": "aggregate-id-" + uuid.uuid4().hex,
-        "metadata": {
-            "availability_zone": "ag_zone",
-            "key1": "value1",
-        },
-    }
-
-    # Overwrite default attributes.
-    aggregate_info.update(attrs)
-
-    aggregate = _aggregate.Aggregate(**aggregate_info)
-    return aggregate
-
-
-def create_aggregates(attrs=None, count=2):
-    """Create multiple fake aggregates.
-
-    :param dict attrs: A dictionary with all attributes
-    :param int count: The number of aggregates to fake
-    :return: A list of fake openstack.compute.v2.aggregate.Aggregate objects
-    """
-    aggregates = []
-    for i in range(0, count):
-        aggregates.append(create_one_aggregate(attrs))
-
-    return aggregates
-
-
-def get_aggregates(aggregates=None, count=2):
-    """Get an iterable MagicMock object with a list of faked aggregates.
-
-    If aggregates list is provided, then initialize the Mock object
-    with the list. Otherwise create one.
-
-    :return: A list of fake openstack.compute.v2.aggregate.Aggregate objects
-    :param int count: The number of aggregates to fake
-    :return: An iterable Mock object with side_effect set to a list of faked
-        aggregates
-    """
-    if aggregates is None:
-        aggregates = create_aggregates(count)
-    return mock.Mock(side_effect=aggregates)
 
 
 def create_one_agent(attrs=None):
