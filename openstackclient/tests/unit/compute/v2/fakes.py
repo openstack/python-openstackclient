@@ -24,7 +24,6 @@ from openstack.compute.v2 import _proxy
 from openstack.compute.v2 import availability_zone as _availability_zone
 from openstack.compute.v2 import extension as _extension
 from openstack.compute.v2 import flavor as _flavor
-from openstack.compute.v2 import hypervisor as _hypervisor
 from openstack.compute.v2 import limits as _limits
 from openstack.compute.v2 import migration as _migration
 from openstack.compute.v2 import server as _server
@@ -1018,65 +1017,6 @@ def create_volume_attachments(attrs=None, count=2):
         volume_attachments.append(create_one_volume_attachment(attrs))
 
     return volume_attachments
-
-
-def create_one_hypervisor(attrs=None):
-    """Create a fake hypervisor.
-
-    :param dict attrs: A dictionary with all attributes
-    :return: A fake openstack.compute.v2.hypervisor.Hypervisor object
-    """
-    attrs = attrs or {}
-
-    # Set default attributes.
-    hypervisor_info = {
-        'id': 'hypervisor-id-' + uuid.uuid4().hex,
-        'hypervisor_hostname': 'hypervisor-hostname-' + uuid.uuid4().hex,
-        'status': 'enabled',
-        'host_ip': '192.168.0.10',
-        'cpu_info': {
-            'aaa': 'aaa',
-        },
-        'free_disk_gb': 50,
-        'hypervisor_version': 2004001,
-        'disk_available_least': 50,
-        'local_gb': 50,
-        'free_ram_mb': 1024,
-        'service': {
-            'host': 'aaa',
-            'disabled_reason': None,
-            'id': 1,
-        },
-        'vcpus_used': 0,
-        'hypervisor_type': 'QEMU',
-        'local_gb_used': 0,
-        'vcpus': 4,
-        'memory_mb_used': 512,
-        'memory_mb': 1024,
-        'current_workload': 0,
-        'state': 'up',
-        'running_vms': 0,
-    }
-
-    # Overwrite default attributes.
-    hypervisor_info.update(attrs)
-
-    hypervisor = _hypervisor.Hypervisor(**hypervisor_info, loaded=True)
-    return hypervisor
-
-
-def create_hypervisors(attrs=None, count=2):
-    """Create multiple fake hypervisors.
-
-    :param dict attrs: A dictionary with all attributes
-    :param int count: The number of hypervisors to fake
-    :return: A list of fake openstack.compute.v2.hypervisor.Hypervisor objects
-    """
-    hypervisors = []
-    for i in range(0, count):
-        hypervisors.append(create_one_hypervisor(attrs))
-
-    return hypervisors
 
 
 def create_one_server_group(attrs=None):

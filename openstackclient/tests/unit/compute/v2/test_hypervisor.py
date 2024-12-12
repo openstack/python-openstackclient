@@ -14,7 +14,9 @@
 
 import json
 
+from openstack.compute.v2 import hypervisor as _hypervisor
 from openstack import exceptions as sdk_exceptions
+from openstack.test import fakes as sdk_fakes
 from osc_lib.cli import format_columns
 from osc_lib import exceptions
 
@@ -27,8 +29,12 @@ class TestHypervisorList(compute_fakes.TestComputev2):
         super().setUp()
 
         # Fake hypervisors to be listed up
-        self.hypervisors = compute_fakes.create_hypervisors()
-        self.compute_sdk_client.hypervisors.return_value = self.hypervisors
+        self.hypervisors = list(
+            sdk_fakes.generate_fake_resources(_hypervisor.Hypervisor, count=2)
+        )
+        self.compute_sdk_client.hypervisors.return_value = iter(
+            self.hypervisors
+        )
 
         self.columns = (
             "ID",
@@ -125,9 +131,9 @@ class TestHypervisorList(compute_fakes.TestComputev2):
             (
                 self.hypervisors[0].id,
                 self.hypervisors[0].name,
-                self.hypervisors[1].hypervisor_type,
-                self.hypervisors[1].host_ip,
-                self.hypervisors[1].state,
+                self.hypervisors[0].hypervisor_type,
+                self.hypervisors[0].host_ip,
+                self.hypervisors[0].state,
             ),
         )
 
@@ -290,10 +296,11 @@ class TestHypervisorShow(compute_fakes.TestComputev2):
         )
 
         # Fake hypervisors to be listed up
-        self.hypervisor = compute_fakes.create_one_hypervisor(
-            attrs={
-                'uptime': uptime_string,
-            }
+        self.hypervisor = sdk_fakes.generate_fake_resource(
+            _hypervisor.Hypervisor,
+            uptime=uptime_string,
+            service={"id": 1, "host": "aaa"},
+            cpu_info={"aaa": "aaa"},
         )
 
         self.compute_sdk_client.find_hypervisor.return_value = self.hypervisor
@@ -332,18 +339,18 @@ class TestHypervisorShow(compute_fakes.TestComputev2):
 
         self.data_v288 = (
             [],
-            format_columns.DictColumn({'aaa': 'aaa'}),
-            '192.168.0.10',
+            format_columns.DictColumn(self.hypervisor.cpu_info),
+            self.hypervisor.host_ip,
             '01:28:24',
             self.hypervisor.name,
-            'QEMU',
-            2004001,
+            self.hypervisor.hypervisor_type,
+            self.hypervisor.hypervisor_version,
             self.hypervisor.id,
             '0.94, 0.62, 0.50',
-            'aaa',
-            1,
-            'up',
-            'enabled',
+            self.hypervisor.service_details["host"],
+            self.hypervisor.service_details["id"],
+            self.hypervisor.state,
+            self.hypervisor.status,
             '3 days, 11:15',
             '1',
         )
@@ -378,31 +385,31 @@ class TestHypervisorShow(compute_fakes.TestComputev2):
         )
         self.data = (
             [],
-            format_columns.DictColumn({'aaa': 'aaa'}),
-            0,
-            50,
-            50,
-            1024,
-            '192.168.0.10',
+            format_columns.DictColumn(self.hypervisor.cpu_info),
+            self.hypervisor.current_workload,
+            self.hypervisor.disk_available,
+            self.hypervisor.local_disk_free,
+            self.hypervisor.memory_free,
+            self.hypervisor.host_ip,
             '01:28:24',
             self.hypervisor.name,
-            'QEMU',
-            2004001,
+            self.hypervisor.hypervisor_type,
+            self.hypervisor.hypervisor_version,
             self.hypervisor.id,
             '0.94, 0.62, 0.50',
-            50,
-            0,
-            1024,
-            512,
-            0,
-            'aaa',
+            self.hypervisor.local_disk_size,
+            self.hypervisor.local_disk_used,
+            self.hypervisor.memory_size,
+            self.hypervisor.memory_used,
+            self.hypervisor.running_vms,
+            self.hypervisor.service_details["host"],
             1,
-            'up',
-            'enabled',
+            self.hypervisor.state,
+            self.hypervisor.status,
             '3 days, 11:15',
             '1',
-            4,
-            0,
+            self.hypervisor.vcpus,
+            self.hypervisor.vcpus_used,
         )
 
         # Get the command object to test
@@ -537,27 +544,27 @@ class TestHypervisorShow(compute_fakes.TestComputev2):
         )
         expected_data = (
             [],
-            format_columns.DictColumn({'aaa': 'aaa'}),
-            0,
-            50,
-            50,
-            1024,
-            '192.168.0.10',
+            format_columns.DictColumn(self.hypervisor.cpu_info),
+            self.hypervisor.current_workload,
+            self.hypervisor.disk_available,
+            self.hypervisor.local_disk_free,
+            self.hypervisor.memory_free,
+            self.hypervisor.host_ip,
             self.hypervisor.name,
-            'QEMU',
-            2004001,
+            self.hypervisor.hypervisor_type,
+            self.hypervisor.hypervisor_version,
             self.hypervisor.id,
-            50,
-            0,
-            1024,
-            512,
-            0,
-            'aaa',
+            self.hypervisor.local_disk_size,
+            self.hypervisor.local_disk_used,
+            self.hypervisor.memory_size,
+            self.hypervisor.memory_used,
+            self.hypervisor.running_vms,
+            self.hypervisor.service_details["host"],
             1,
-            'up',
-            'enabled',
-            4,
-            0,
+            self.hypervisor.state,
+            self.hypervisor.status,
+            self.hypervisor.vcpus,
+            self.hypervisor.vcpus_used,
         )
 
         self.assertEqual(expected_columns, columns)
