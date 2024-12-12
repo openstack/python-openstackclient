@@ -10,19 +10,26 @@
 #   License for the specific language governing permissions and limitations
 #   under the License.
 
+from openstack.block_storage.v3 import volume as _volume
+from openstack.compute.v2 import server as _server
+from openstack.compute.v2 import volume_attachment as _volume_attachment
+from openstack.test import fakes as sdk_fakes
 from osc_lib import exceptions
 
 from openstackclient.compute.v2 import server_volume
 from openstackclient.tests.unit.compute.v2 import fakes as compute_fakes
-from openstackclient.tests.unit.volume.v2 import fakes as volume_fakes
 
 
 class TestServerVolumeList(compute_fakes.TestComputev2):
     def setUp(self):
         super().setUp()
 
-        self.server = compute_fakes.create_one_sdk_server()
-        self.volume_attachments = compute_fakes.create_volume_attachments()
+        self.server = sdk_fakes.generate_fake_resource(_server.Server)
+        self.volume_attachments = list(
+            sdk_fakes.generate_fake_resources(
+                _volume_attachment.VolumeAttachment, count=2
+            )
+        )
 
         self.compute_sdk_client.find_server.return_value = self.server
         self.compute_sdk_client.volume_attachments.return_value = (
@@ -217,10 +224,10 @@ class TestServerVolumeUpdate(compute_fakes.TestComputev2):
     def setUp(self):
         super().setUp()
 
-        self.server = compute_fakes.create_one_sdk_server()
+        self.server = sdk_fakes.generate_fake_resource(_server.Server)
         self.compute_sdk_client.find_server.return_value = self.server
 
-        self.volume = volume_fakes.create_one_sdk_volume()
+        self.volume = sdk_fakes.generate_fake_resource(_volume.Volume)
         self.volume_sdk_client.find_volume.return_value = self.volume
 
         # Get the command object to test
