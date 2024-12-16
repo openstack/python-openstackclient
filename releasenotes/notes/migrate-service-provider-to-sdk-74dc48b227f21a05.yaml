@@ -1,0 +1,10 @@
+---
+upgrade:
+  - |
+    The following commands have been migrated to SDK:
+
+    - ``service provider create``
+    - ``service provider delete``
+    - ``service provider set``
+    - ``service provider list``
+    - ``service provider show``

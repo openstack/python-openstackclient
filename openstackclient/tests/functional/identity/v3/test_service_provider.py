@@ -60,9 +60,5 @@ class ServiceProviderTests(common.IdentityTests):
                 'description': new_description,
             }
         )
-        self.assertEqual(0, len(raw_output))
-        raw_output = self.openstack(
-            f'service provider show {service_provider}'
-        )
         updated_value = self.parse_show_as_object(raw_output)
-        self.assertIn(new_description, updated_value['description'])
+        self.assertEqual(new_description, updated_value.get('description'))
