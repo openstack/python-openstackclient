@@ -10,9 +10,13 @@
 #   License for the specific language governing permissions and limitations
 #   under the License.
 
-from unittest import mock
 from unittest.mock import call
 
+from openstack import exceptions as sdk_exceptions
+from openstack.identity.v3 import credential as _credential
+from openstack.identity.v3 import project as _project
+from openstack.identity.v3 import user as _user
+from openstack.test import fakes as sdk_fakes
 from osc_lib import exceptions
 
 from openstackclient.identity.v3 import credential
@@ -20,26 +24,9 @@ from openstackclient.tests.unit.identity.v3 import fakes as identity_fakes
 from openstackclient.tests.unit import utils
 
 
-class TestCredential(identity_fakes.TestIdentityv3):
-    def setUp(self):
-        super().setUp()
-
-        # Get a shortcut to the CredentialManager Mock
-        self.credentials_mock = self.identity_client.credentials
-        self.credentials_mock.reset_mock()
-
-        # Get a shortcut to the UserManager Mock
-        self.users_mock = self.identity_client.users
-        self.users_mock.reset_mock()
-
-        # Get a shortcut to the ProjectManager Mock
-        self.projects_mock = self.identity_client.projects
-        self.projects_mock.reset_mock()
-
-
-class TestCredentialCreate(TestCredential):
-    user = identity_fakes.FakeUser.create_one_user()
-    project = identity_fakes.FakeProject.create_one_project()
+class TestCredentialCreate(identity_fakes.TestIdentityv3):
+    user = sdk_fakes.generate_fake_resource(_user.User)
+    project = sdk_fakes.generate_fake_resource(_project.Project)
     columns = (
         'blob',
         'id',
@@ -51,12 +38,17 @@ class TestCredentialCreate(TestCredential):
     def setUp(self):
         super().setUp()
 
-        self.credential = identity_fakes.FakeCredential.create_one_credential(
-            attrs={'user_id': self.user.id, 'project_id': self.project.id}
+        self.credential = sdk_fakes.generate_fake_resource(
+            resource_type=_credential.Credential,
+            user_id=self.user.id,
+            project_id=self.project.id,
+            type='cert',
         )
-        self.credentials_mock.create.return_value = self.credential
-        self.users_mock.get.return_value = self.user
-        self.projects_mock.get.return_value = self.project
+        self.identity_sdk_client.create_credential.return_value = (
+            self.credential
+        )
+        self.identity_sdk_client.find_user.return_value = self.user
+        self.identity_sdk_client.find_project.return_value = self.project
         self.data = (
             self.credential.blob,
             self.credential.id,
@@ -86,7 +78,9 @@ class TestCredentialCreate(TestCredential):
             'blob': self.credential.blob,
             'project': None,
         }
-        self.credentials_mock.create.assert_called_once_with(**kwargs)
+        self.identity_sdk_client.create_credential.assert_called_once_with(
+            **kwargs
+        )
 
         self.assertEqual(self.columns, columns)
         self.assertEqual(self.data, data)
@@ -116,42 +110,48 @@ class TestCredentialCreate(TestCredential):
             'blob': self.credential.blob,
             'project': self.credential.project_id,
         }
-        self.credentials_mock.create.assert_called_once_with(**kwargs)
+        self.identity_sdk_client.create_credential.assert_called_once_with(
+            **kwargs
+        )
 
         self.assertEqual(self.columns, columns)
         self.assertEqual(self.data, data)
 
 
-class TestCredentialDelete(TestCredential):
-    credentials = identity_fakes.FakeCredential.create_credentials(count=2)
-
+class TestCredentialDelete(identity_fakes.TestIdentityv3):
     def setUp(self):
         super().setUp()
 
-        self.credentials_mock.delete.return_value = None
+        self.identity_sdk_client.delete_credential.return_value = None
 
         # Get the command object to test
         self.cmd = credential.DeleteCredential(self.app, None)
 
     def test_credential_delete(self):
+        credential = sdk_fakes.generate_fake_resource(
+            _credential.Credential,
+        )
         arglist = [
-            self.credentials[0].id,
+            credential.id,
         ]
         verifylist = [
-            ('credential', [self.credentials[0].id]),
+            ('credential', [credential.id]),
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
         result = self.cmd.take_action(parsed_args)
 
-        self.credentials_mock.delete.assert_called_with(
-            self.credentials[0].id,
+        self.identity_sdk_client.delete_credential.assert_called_with(
+            credential.id,
         )
         self.assertIsNone(result)
 
     def test_credential_multi_delete(self):
+        credentials = sdk_fakes.generate_fake_resources(
+            _credential.Credential, count=2
+        )
         arglist = []
-        for c in self.credentials:
+        for c in credentials:
             arglist.append(c.id)
         verifylist = [
             ('credential', arglist),
@@ -161,25 +161,26 @@ class TestCredentialDelete(TestCredential):
         result = self.cmd.take_action(parsed_args)
 
         calls = []
-        for c in self.credentials:
+        for c in credentials:
             calls.append(call(c.id))
-        self.credentials_mock.delete.assert_has_calls(calls)
+        self.identity_sdk_client.delete_credential.assert_has_calls(calls)
         self.assertIsNone(result)
 
     def test_credential_multi_delete_with_exception(self):
+        credential = sdk_fakes.generate_fake_resource(
+            _credential.Credential,
+        )
         arglist = [
-            self.credentials[0].id,
+            credential.id,
             'unexist_credential',
         ]
-        verifylist = [
-            ('credential', [self.credentials[0].id, 'unexist_credential'])
-        ]
+        verifylist = [('credential', [credential.id, 'unexist_credential'])]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
-        delete_mock_result = [None, exceptions.CommandError]
-        self.credentials_mock.delete = mock.Mock(
-            side_effect=delete_mock_result
-        )
+        self.identity_sdk_client.delete_credential.side_effect = [
+            None,
+            sdk_exceptions.NotFoundException,
+        ]
 
         try:
             self.cmd.take_action(parsed_args)
@@ -187,12 +188,16 @@ class TestCredentialDelete(TestCredential):
         except exceptions.CommandError as e:
             self.assertEqual('1 of 2 credential failed to delete.', str(e))
 
-        self.credentials_mock.delete.assert_any_call(self.credentials[0].id)
-        self.credentials_mock.delete.assert_any_call('unexist_credential')
+        self.identity_sdk_client.delete_credential.assert_any_call(
+            credential.id
+        )
+        self.identity_sdk_client.delete_credential.assert_any_call(
+            'unexist_credential'
+        )
 
 
-class TestCredentialList(TestCredential):
-    credential = identity_fakes.FakeCredential.create_one_credential()
+class TestCredentialList(identity_fakes.TestIdentityv3):
+    credential = sdk_fakes.generate_fake_resource(_credential.Credential)
 
     columns = ('ID', 'Type', 'User ID', 'Data', 'Project ID')
     data = (
@@ -208,10 +213,10 @@ class TestCredentialList(TestCredential):
     def setUp(self):
         super().setUp()
 
-        self.user = identity_fakes.FakeUser.create_one_user()
-        self.users_mock.get.return_value = self.user
+        self.user = sdk_fakes.generate_fake_resource(_user.User)
+        self.identity_sdk_client.find_user.return_value = self.user
 
-        self.credentials_mock.list.return_value = [self.credential]
+        self.identity_sdk_client.credentials.return_value = [self.credential]
 
         # Get the command object to test
         self.cmd = credential.ListCredential(self.app, None)
@@ -223,7 +228,7 @@ class TestCredentialList(TestCredential):
 
         columns, data = self.cmd.take_action(parsed_args)
 
-        self.credentials_mock.list.assert_called_with()
+        self.identity_sdk_client.credentials.assert_called_with()
         self.assertEqual(self.columns, columns)
         self.assertEqual(self.data, tuple(data))
 
@@ -246,15 +251,17 @@ class TestCredentialList(TestCredential):
             'user_id': self.user.id,
             'type': self.credential.type,
         }
-        self.users_mock.get.assert_called_with(self.credential.user_id)
-        self.credentials_mock.list.assert_called_with(**kwargs)
+        self.identity_sdk_client.find_user.assert_called_with(
+            self.credential.user_id, domain_id=None, ignore_missing=False
+        )
+        self.identity_sdk_client.credentials.assert_called_with(**kwargs)
 
         self.assertEqual(self.columns, columns)
         self.assertEqual(self.data, tuple(data))
 
 
-class TestCredentialSet(TestCredential):
-    credential = identity_fakes.FakeCredential.create_one_credential()
+class TestCredentialSet(identity_fakes.TestIdentityv3):
+    credential = sdk_fakes.generate_fake_resource(_credential.Credential)
 
     def setUp(self):
         super().setUp()
@@ -343,7 +350,7 @@ class TestCredentialSet(TestCredential):
         self.assertIsNone(result)
 
 
-class TestCredentialShow(TestCredential):
+class TestCredentialShow(identity_fakes.TestIdentityv3):
     columns = (
         'blob',
         'id',
@@ -355,8 +362,10 @@ class TestCredentialShow(TestCredential):
     def setUp(self):
         super().setUp()
 
-        self.credential = identity_fakes.FakeCredential.create_one_credential()
-        self.credentials_mock.get.return_value = self.credential
+        self.credential = sdk_fakes.generate_fake_resource(
+            _credential.Credential
+        )
+        self.identity_sdk_client.get_credential.return_value = self.credential
         self.data = (
             self.credential.blob,
             self.credential.id,
@@ -378,6 +387,8 @@ class TestCredentialShow(TestCredential):
 
         columns, data = self.cmd.take_action(parsed_args)
 
-        self.credentials_mock.get.assert_called_once_with(self.credential.id)
+        self.identity_sdk_client.get_credential.assert_called_once_with(
+            self.credential.id
+        )
         self.assertEqual(self.columns, columns)
         self.assertEqual(self.data, data)
