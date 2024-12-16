@@ -169,7 +169,8 @@ class TestRoleAssignmentList(TestRoleAssignment):
         self.assertEqual(datalist, tuple(data))
 
     def test_role_assignment_list_def_creds(self):
-        auth_ref = self.app.client_manager.auth_ref = mock.Mock()
+        self.app.client_manager.auth_ref = mock.Mock()
+        auth_ref = self.app.client_manager.auth_ref
         auth_ref.project_id.return_value = identity_fakes.project_id
         auth_ref.user_id.return_value = identity_fakes.user_id
 

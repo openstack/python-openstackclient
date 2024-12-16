@@ -11,7 +11,6 @@
 #   WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
 #   License for the specific language governing permissions and limitations
 #   under the License.
-#
 
 from unittest import mock
 from unittest.mock import call
@@ -914,8 +913,7 @@ class TestProjectList(TestProject):
         auth_ref = identity_fakes.fake_auth_ref(
             identity_fakes.TOKEN_WITH_PROJECT_ID,
         )
-        ar_mock = mock.PropertyMock(return_value=auth_ref)
-        type(self.app.client_manager).auth_ref = ar_mock
+        self.app.client_manager.auth_ref = auth_ref
 
         arglist = [
             '--my-projects',

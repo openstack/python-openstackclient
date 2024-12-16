@@ -58,8 +58,7 @@ class TestRole(identity_fakes.TestIdentityv2):
             identity_fakes.TOKEN,
             fake_service=self.fake_service,
         )
-        self.ar_mock = mock.PropertyMock(return_value=auth_ref)
-        type(self.app.client_manager).auth_ref = self.ar_mock
+        self.app.client_manager.auth_ref = auth_ref
 
 
 class TestRoleAdd(TestRole):

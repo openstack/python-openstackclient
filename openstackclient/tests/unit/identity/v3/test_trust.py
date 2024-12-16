@@ -236,7 +236,8 @@ class TestTrustList(TestTrust):
         self.assertEqual(datalist, tuple(data))
 
     def test_trust_list_auth_user(self):
-        auth_ref = self.app.client_manager.auth_ref = mock.Mock()
+        self.app.client_manager.auth_ref = mock.Mock()
+        auth_ref = self.app.client_manager.auth_ref
         auth_ref.user_id.return_value = identity_fakes.user_id
 
         arglist = ['--auth-user']
