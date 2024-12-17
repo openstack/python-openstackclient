@@ -11,24 +11,12 @@
 #   WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
 #   License for the specific language governing permissions and limitations
 #   under the License.
-#
-
-from unittest import mock
 
 from openstackclient.identity.v3 import token
 from openstackclient.tests.unit.identity.v3 import fakes as identity_fakes
 
 
-class TestToken(identity_fakes.TestIdentityv3):
-    def setUp(self):
-        super().setUp()
-
-        # Get a shortcut to the Auth Ref Mock
-        self.ar_mock = mock.PropertyMock()
-        type(self.app.client_manager).auth_ref = self.ar_mock
-
-
-class TestTokenIssue(TestToken):
+class TestTokenIssue(identity_fakes.TestIdentityv3):
     def setUp(self):
         super().setUp()
 
@@ -38,8 +26,7 @@ class TestTokenIssue(TestToken):
         auth_ref = identity_fakes.fake_auth_ref(
             identity_fakes.TOKEN_WITH_PROJECT_ID,
         )
-        self.ar_mock = mock.PropertyMock(return_value=auth_ref)
-        type(self.app.client_manager).auth_ref = self.ar_mock
+        self.app.client_manager.auth_ref = auth_ref
 
         arglist = []
         verifylist = []
@@ -64,8 +51,7 @@ class TestTokenIssue(TestToken):
         auth_ref = identity_fakes.fake_auth_ref(
             identity_fakes.TOKEN_WITH_DOMAIN_ID,
         )
-        self.ar_mock = mock.PropertyMock(return_value=auth_ref)
-        type(self.app.client_manager).auth_ref = self.ar_mock
+        self.app.client_manager.auth_ref = auth_ref
 
         arglist = []
         verifylist = []
@@ -90,8 +76,7 @@ class TestTokenIssue(TestToken):
         auth_ref = identity_fakes.fake_auth_ref(
             identity_fakes.UNSCOPED_TOKEN,
         )
-        self.ar_mock = mock.PropertyMock(return_value=auth_ref)
-        type(self.app.client_manager).auth_ref = self.ar_mock
+        self.app.client_manager.auth_ref = auth_ref
 
         arglist = []
         verifylist = []
@@ -114,7 +99,7 @@ class TestTokenIssue(TestToken):
         self.assertEqual(datalist, data)
 
 
-class TestTokenRevoke(TestToken):
+class TestTokenRevoke(identity_fakes.TestIdentityv3):
     TOKEN = 'fob'
 
     def setUp(self):

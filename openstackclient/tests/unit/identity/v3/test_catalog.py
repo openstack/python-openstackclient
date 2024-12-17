@@ -9,7 +9,6 @@
 #   WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
 #   License for the specific language governing permissions and limitations
 #   under the License.
-#
 
 from unittest import mock
 
@@ -72,8 +71,7 @@ class TestCatalogList(TestCatalog):
             identity_fakes.TOKEN_WITH_PROJECT_ID,
             fake_service=self.fake_service,
         )
-        self.ar_mock = mock.PropertyMock(return_value=auth_ref)
-        type(self.app.client_manager).auth_ref = self.ar_mock
+        self.app.client_manager.auth_ref = auth_ref
 
         arglist = []
         verifylist = []
@@ -110,8 +108,7 @@ class TestCatalogShow(TestCatalog):
             identity_fakes.TOKEN_WITH_PROJECT_ID,
             fake_service=self.fake_service,
         )
-        self.ar_mock = mock.PropertyMock(return_value=auth_ref)
-        type(self.app.client_manager).auth_ref = self.ar_mock
+        self.app.client_manager.auth_ref = auth_ref
 
         arglist = [
             'compute',

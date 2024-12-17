@@ -53,8 +53,7 @@ class TestCatalogList(TestCatalog):
             identity_fakes.TOKEN,
             fake_service=self.service_catalog,
         )
-        self.ar_mock = mock.PropertyMock(return_value=auth_ref)
-        type(self.app.client_manager).auth_ref = self.ar_mock
+        self.app.client_manager.auth_ref = auth_ref
 
         arglist = []
         verifylist = []
@@ -99,8 +98,7 @@ class TestCatalogList(TestCatalog):
             identity_fakes.TOKEN,
             fake_service=service_catalog,
         )
-        self.ar_mock = mock.PropertyMock(return_value=auth_ref)
-        type(self.app.client_manager).auth_ref = self.ar_mock
+        self.app.client_manager.auth_ref = auth_ref
 
         arglist = []
         verifylist = []
@@ -136,8 +134,7 @@ class TestCatalogShow(TestCatalog):
             identity_fakes.UNSCOPED_TOKEN,
             fake_service=self.service_catalog,
         )
-        self.ar_mock = mock.PropertyMock(return_value=auth_ref)
-        type(self.app.client_manager).auth_ref = self.ar_mock
+        self.app.client_manager.auth_ref = auth_ref
 
         arglist = [
             'compute',

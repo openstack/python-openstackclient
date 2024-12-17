@@ -11,29 +11,17 @@
 #   WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
 #   License for the specific language governing permissions and limitations
 #   under the License.
-#
-
-from unittest import mock
 
 from openstackclient.identity.v2_0 import token
 from openstackclient.tests.unit.identity.v2_0 import fakes as identity_fakes
 
 
-class TestToken(identity_fakes.TestIdentityv2):
-    fake_user = identity_fakes.FakeUser.create_one_user()
-    fake_project = identity_fakes.FakeProject.create_one_project()
-
+class TestTokenIssue(identity_fakes.TestIdentityv2):
     def setUp(self):
         super().setUp()
 
-        # Get a shortcut to the Auth Ref Mock
-        self.ar_mock = mock.PropertyMock()
-        type(self.app.client_manager).auth_ref = self.ar_mock
-
-
-class TestTokenIssue(TestToken):
-    def setUp(self):
-        super().setUp()
+        self.fake_user = identity_fakes.FakeUser.create_one_user()
+        self.fake_project = identity_fakes.FakeProject.create_one_project()
 
         self.cmd = token.IssueToken(self.app, None)
 
@@ -41,8 +29,7 @@ class TestTokenIssue(TestToken):
         auth_ref = identity_fakes.fake_auth_ref(
             identity_fakes.TOKEN,
         )
-        self.ar_mock = mock.PropertyMock(return_value=auth_ref)
-        type(self.app.client_manager).auth_ref = self.ar_mock
+        self.app.client_manager.auth_ref = auth_ref
 
         arglist = []
         verifylist = []
@@ -67,8 +54,7 @@ class TestTokenIssue(TestToken):
         auth_ref = identity_fakes.fake_auth_ref(
             identity_fakes.UNSCOPED_TOKEN,
         )
-        self.ar_mock = mock.PropertyMock(return_value=auth_ref)
-        type(self.app.client_manager).auth_ref = self.ar_mock
+        self.app.client_manager.auth_ref = auth_ref
 
         arglist = []
         verifylist = []
@@ -91,7 +77,7 @@ class TestTokenIssue(TestToken):
         self.assertEqual(datalist, data)
 
 
-class TestTokenRevoke(TestToken):
+class TestTokenRevoke(identity_fakes.TestIdentityv2):
     TOKEN = 'fob'
 
     def setUp(self):
