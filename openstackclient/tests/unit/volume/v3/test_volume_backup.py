@@ -879,7 +879,7 @@ class TestBackupShow(volume_fakes.TestVolume):
     def setUp(self):
         super().setUp()
 
-        self.volume_sdk_client.get_backup.return_value = self.backup
+        self.volume_sdk_client.find_backup.return_value = self.backup
         # Get the command object to test
         self.cmd = volume_backup.ShowVolumeBackup(self.app, None)
 
@@ -889,7 +889,7 @@ class TestBackupShow(volume_fakes.TestVolume):
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
         columns, data = self.cmd.take_action(parsed_args)
-        self.volume_sdk_client.get_backup.assert_called_with(self.backup.id)
+        self.volume_sdk_client.find_backup.assert_called_with(self.backup.id)
 
         self.assertEqual(self.columns, columns)
         self.assertEqual(self.data, data)
