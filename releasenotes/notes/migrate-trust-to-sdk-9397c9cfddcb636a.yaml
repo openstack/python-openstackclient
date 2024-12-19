@@ -1,0 +1,9 @@
+---
+upgrade:
+  - |
+    The following commands have been migrated to SDK:
+
+    - ``trust create``
+    - ``trust list``
+    - ``trust delete``
+    - ``trust show``

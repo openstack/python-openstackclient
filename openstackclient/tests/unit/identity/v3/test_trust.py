@@ -11,58 +11,36 @@
 #   under the License.
 #
 
-import copy
 from unittest import mock
 
 from osc_lib import exceptions
-from osc_lib import utils
+
+from openstack import exceptions as sdk_exceptions
+from openstack.identity.v3 import project as _project
+from openstack.identity.v3 import role as _role
+from openstack.identity.v3 import trust as _trust
+from openstack.identity.v3 import user as _user
+from openstack.test import fakes as sdk_fakes
 
 from openstackclient.identity.v3 import trust
-from openstackclient.tests.unit import fakes
 from openstackclient.tests.unit.identity.v3 import fakes as identity_fakes
 
 
-class TestTrust(identity_fakes.TestIdentityv3):
+class TestTrustCreate(identity_fakes.TestIdentityv3):
     def setUp(self):
         super().setUp()
 
-        self.trusts_mock = self.identity_client.trusts
-        self.trusts_mock.reset_mock()
-        self.projects_mock = self.identity_client.projects
-        self.projects_mock.reset_mock()
-        self.users_mock = self.identity_client.users
-        self.users_mock.reset_mock()
-        self.roles_mock = self.identity_client.roles
-        self.roles_mock.reset_mock()
+        self.trust = sdk_fakes.generate_fake_resource(_trust.Trust)
+        self.identity_sdk_client.create_trust.return_value = self.trust
 
+        self.project = sdk_fakes.generate_fake_resource(_project.Project)
+        self.identity_sdk_client.find_project.return_value = self.project
 
-class TestTrustCreate(TestTrust):
-    def setUp(self):
-        super().setUp()
+        self.user = sdk_fakes.generate_fake_resource(_user.User)
+        self.identity_sdk_client.find_user.return_value = self.user
 
-        self.projects_mock.get.return_value = fakes.FakeResource(
-            None,
-            copy.deepcopy(identity_fakes.PROJECT),
-            loaded=True,
-        )
-
-        self.users_mock.get.return_value = fakes.FakeResource(
-            None,
-            copy.deepcopy(identity_fakes.USER),
-            loaded=True,
-        )
-
-        self.roles_mock.get.return_value = fakes.FakeResource(
-            None,
-            copy.deepcopy(identity_fakes.ROLE),
-            loaded=True,
-        )
-
-        self.trusts_mock.create.return_value = fakes.FakeResource(
-            None,
-            copy.deepcopy(identity_fakes.TRUST),
-            loaded=True,
-        )
+        self.role = sdk_fakes.generate_fake_resource(_role.Role)
+        self.identity_sdk_client.find_role.return_value = self.role
 
         # Get the command object to test
         self.cmd = trust.CreateTrust(self.app, None)
@@ -70,18 +48,17 @@ class TestTrustCreate(TestTrust):
     def test_trust_create_basic(self):
         arglist = [
             '--project',
-            identity_fakes.project_id,
+            self.project.id,
             '--role',
-            identity_fakes.role_id,
-            identity_fakes.user_id,
-            identity_fakes.user_id,
+            self.role.id,
+            self.user.id,
+            self.user.id,
         ]
         verifylist = [
-            ('project', identity_fakes.project_id),
-            ('impersonate', False),
-            ('role', [identity_fakes.role_id]),
-            ('trustor', identity_fakes.user_id),
-            ('trustee', identity_fakes.user_id),
+            ('project', self.project.id),
+            ('roles', [self.role.id]),
+            ('trustor', self.user.id),
+            ('trustee', self.user.id),
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
@@ -92,76 +69,71 @@ class TestTrustCreate(TestTrust):
 
         # Set expected values
         kwargs = {
-            'impersonation': False,
-            'project': identity_fakes.project_id,
-            'role_ids': [identity_fakes.role_id],
-            'expires_at': None,
+            'project_id': self.project.id,
+            'roles': [self.role.id],
         }
         # TrustManager.create(trustee_id, trustor_id, impersonation=,
         #   project=, role_names=, expires_at=)
-        self.trusts_mock.create.assert_called_with(
-            identity_fakes.user_id, identity_fakes.user_id, **kwargs
+        self.identity_sdk_client.create_trust.assert_called_with(
+            trustor_id=self.user.id, trustee_id=self.user.id, **kwargs
         )
 
         collist = (
             'expires_at',
             'id',
-            'impersonation',
+            'is_impersonation',
             'project_id',
+            'redelegated_trust_id',
+            'redelegation_count',
+            'remaining_uses',
             'roles',
             'trustee_user_id',
             'trustor_user_id',
         )
         self.assertEqual(collist, columns)
         datalist = (
-            identity_fakes.trust_expires,
-            identity_fakes.trust_id,
-            identity_fakes.trust_impersonation,
-            identity_fakes.project_id,
-            identity_fakes.role_name,
-            identity_fakes.user_id,
-            identity_fakes.user_id,
+            self.trust.expires_at,
+            self.trust.id,
+            self.trust.is_impersonation,
+            self.trust.project_id,
+            self.trust.redelegated_trust_id,
+            self.trust.redelegation_count,
+            self.trust.remaining_uses,
+            self.trust.roles,
+            self.trust.trustee_user_id,
+            self.trust.trustor_user_id,
         )
         self.assertEqual(datalist, data)
 
 
-class TestTrustDelete(TestTrust):
+class TestTrustDelete(identity_fakes.TestIdentityv3):
     def setUp(self):
         super().setUp()
 
-        # This is the return value for utils.find_resource()
-        self.trusts_mock.get.return_value = fakes.FakeResource(
-            None,
-            copy.deepcopy(identity_fakes.TRUST),
-            loaded=True,
-        )
-        self.trusts_mock.delete.return_value = None
+        self.trust = sdk_fakes.generate_fake_resource(_trust.Trust)
+        self.identity_sdk_client.delete_trust.return_value = None
+        self.identity_sdk_client.find_trust.return_value = self.trust
 
         # Get the command object to test
         self.cmd = trust.DeleteTrust(self.app, None)
 
     def test_trust_delete(self):
         arglist = [
-            identity_fakes.trust_id,
+            self.trust.id,
         ]
-        verifylist = [('trust', [identity_fakes.trust_id])]
+        verifylist = [('trust', [self.trust.id])]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
         result = self.cmd.take_action(parsed_args)
 
-        self.trusts_mock.delete.assert_called_with(
-            identity_fakes.trust_id,
+        self.identity_sdk_client.delete_trust.assert_called_with(
+            self.trust.id,
         )
         self.assertIsNone(result)
 
-    @mock.patch.object(utils, 'find_resource')
-    def test_delete_multi_trusts_with_exception(self, find_mock):
-        find_mock.side_effect = [
-            self.trusts_mock.get.return_value,
-            exceptions.CommandError,
-        ]
+    def test_delete_multi_trusts_with_exception(self):
         arglist = [
-            identity_fakes.trust_id,
+            self.trust.id,
             'unexist_trust',
         ]
         verifylist = [
@@ -169,32 +141,37 @@ class TestTrustDelete(TestTrust):
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
+        self.identity_sdk_client.find_trust.side_effect = [
+            self.trust,
+            sdk_exceptions.ResourceNotFound,
+        ]
+
         try:
             self.cmd.take_action(parsed_args)
             self.fail('CommandError should be raised.')
         except exceptions.CommandError as e:
             self.assertEqual('1 of 2 trusts failed to delete.', str(e))
 
-        find_mock.assert_any_call(self.trusts_mock, identity_fakes.trust_id)
-        find_mock.assert_any_call(self.trusts_mock, 'unexist_trust')
-
-        self.assertEqual(2, find_mock.call_count)
-        self.trusts_mock.delete.assert_called_once_with(
-            identity_fakes.trust_id
+        self.identity_sdk_client.find_trust.assert_has_calls(
+            [
+                mock.call(self.trust.id, ignore_missing=False),
+                mock.call('unexist_trust', ignore_missing=False),
+            ]
+        )
+        self.identity_sdk_client.delete_trust.assert_called_once_with(
+            self.trust.id
         )
 
 
-class TestTrustList(TestTrust):
+class TestTrustList(identity_fakes.TestIdentityv3):
     def setUp(self):
         super().setUp()
 
-        self.trusts_mock.list.return_value = [
-            fakes.FakeResource(
-                None,
-                copy.deepcopy(identity_fakes.TRUST),
-                loaded=True,
-            ),
-        ]
+        self.trust = sdk_fakes.generate_fake_resource(_trust.Trust)
+        self.identity_sdk_client.trusts.return_value = [self.trust]
+
+        self.user = sdk_fakes.generate_fake_resource(_user.User)
+        self.identity_sdk_client.find_user.return_value = self.user
 
         # Get the command object to test
         self.cmd = trust.ListTrust(self.app, None)
@@ -209,9 +186,9 @@ class TestTrustList(TestTrust):
         # containing the data to be listed.
         columns, data = self.cmd.take_action(parsed_args)
 
-        self.trusts_mock.list.assert_called_with(
-            trustor_user=None,
-            trustee_user=None,
+        self.identity_sdk_client.trusts.assert_called_with(
+            trustor_user_id=None,
+            trustee_user_id=None,
         )
 
         collist = (
@@ -225,12 +202,12 @@ class TestTrustList(TestTrust):
         self.assertEqual(collist, columns)
         datalist = (
             (
-                identity_fakes.trust_id,
-                identity_fakes.trust_expires,
-                identity_fakes.trust_impersonation,
-                identity_fakes.project_id,
-                identity_fakes.user_id,
-                identity_fakes.user_id,
+                self.trust.id,
+                self.trust.expires_at,
+                self.trust.is_impersonation,
+                self.trust.project_id,
+                self.trust.trustee_user_id,
+                self.trust.trustor_user_id,
             ),
         )
         self.assertEqual(datalist, tuple(data))
@@ -238,7 +215,6 @@ class TestTrustList(TestTrust):
     def test_trust_list_auth_user(self):
         self.app.client_manager.auth_ref = mock.Mock()
         auth_ref = self.app.client_manager.auth_ref
-        auth_ref.user_id.return_value = identity_fakes.user_id
 
         arglist = ['--auth-user']
         verifylist = [
@@ -253,11 +229,11 @@ class TestTrustList(TestTrust):
         # containing the data to be listed.
         columns, data = self.cmd.take_action(parsed_args)
 
-        self.trusts_mock.list.assert_any_call(
-            trustor_user=self.users_mock.get()
-        )
-        self.trusts_mock.list.assert_any_call(
-            trustee_user=self.users_mock.get()
+        self.identity_sdk_client.trusts.assert_has_calls(
+            [
+                mock.call(trustor_user_id=auth_ref.user_id),
+                mock.call(trustee_user_id=auth_ref.user_id),
+            ]
         )
 
         collist = (
@@ -271,21 +247,21 @@ class TestTrustList(TestTrust):
         self.assertEqual(collist, columns)
         datalist = (
             (
-                identity_fakes.trust_id,
-                identity_fakes.trust_expires,
-                identity_fakes.trust_impersonation,
-                identity_fakes.project_id,
-                identity_fakes.user_id,
-                identity_fakes.user_id,
+                self.trust.id,
+                self.trust.expires_at,
+                self.trust.is_impersonation,
+                self.trust.project_id,
+                self.trust.trustee_user_id,
+                self.trust.trustor_user_id,
             ),
         )
         self.assertEqual(datalist, tuple(data))
 
     def test_trust_list_trustee(self):
-        arglist = ['--trustee', identity_fakes.user_name]
+        arglist = ['--trustee', self.user.name]
         verifylist = [
             ('trustor', None),
-            ('trustee', identity_fakes.user_name),
+            ('trustee', self.user.name),
             ('authuser', False),
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
@@ -295,9 +271,9 @@ class TestTrustList(TestTrust):
         # containing the data to be listed.
         columns, data = self.cmd.take_action(parsed_args)
 
-        self.trusts_mock.list.assert_any_call(
-            trustee_user=self.users_mock.get(),
-            trustor_user=None,
+        self.identity_sdk_client.trusts.assert_called_with(
+            trustee_user_id=self.user.id,
+            trustor_user_id=None,
         )
 
         collist = (
@@ -311,21 +287,21 @@ class TestTrustList(TestTrust):
         self.assertEqual(collist, columns)
         datalist = (
             (
-                identity_fakes.trust_id,
-                identity_fakes.trust_expires,
-                identity_fakes.trust_impersonation,
-                identity_fakes.project_id,
-                identity_fakes.user_id,
-                identity_fakes.user_id,
+                self.trust.id,
+                self.trust.expires_at,
+                self.trust.is_impersonation,
+                self.trust.project_id,
+                self.trust.trustee_user_id,
+                self.trust.trustor_user_id,
             ),
         )
         self.assertEqual(datalist, tuple(data))
 
     def test_trust_list_trustor(self):
-        arglist = ['--trustor', identity_fakes.user_name]
+        arglist = ['--trustor', self.user.name]
         verifylist = [
             ('trustee', None),
-            ('trustor', identity_fakes.user_name),
+            ('trustor', self.user.name),
             ('authuser', False),
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
@@ -335,9 +311,9 @@ class TestTrustList(TestTrust):
         # containing the data to be listed.
         columns, data = self.cmd.take_action(parsed_args)
 
-        self.trusts_mock.list.assert_any_call(
-            trustor_user=self.users_mock.get(),
-            trustee_user=None,
+        self.identity_sdk_client.trusts.assert_called_once_with(
+            trustor_user_id=self.user.id,
+            trustee_user_id=None,
         )
 
         collist = (
@@ -351,36 +327,33 @@ class TestTrustList(TestTrust):
         self.assertEqual(collist, columns)
         datalist = (
             (
-                identity_fakes.trust_id,
-                identity_fakes.trust_expires,
-                identity_fakes.trust_impersonation,
-                identity_fakes.project_id,
-                identity_fakes.user_id,
-                identity_fakes.user_id,
+                self.trust.id,
+                self.trust.expires_at,
+                self.trust.is_impersonation,
+                self.trust.project_id,
+                self.trust.trustee_user_id,
+                self.trust.trustor_user_id,
             ),
         )
         self.assertEqual(datalist, tuple(data))
 
 
-class TestTrustShow(TestTrust):
+class TestTrustShow(identity_fakes.TestIdentityv3):
     def setUp(self):
         super().setUp()
 
-        self.trusts_mock.get.return_value = fakes.FakeResource(
-            None,
-            copy.deepcopy(identity_fakes.TRUST),
-            loaded=True,
-        )
+        self.trust = sdk_fakes.generate_fake_resource(_trust.Trust)
+        self.identity_sdk_client.find_trust.return_value = self.trust
 
         # Get the command object to test
         self.cmd = trust.ShowTrust(self.app, None)
 
     def test_trust_show(self):
         arglist = [
-            identity_fakes.trust_id,
+            self.trust.id,
         ]
         verifylist = [
-            ('trust', identity_fakes.trust_id),
+            ('trust', self.trust.id),
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
@@ -389,25 +362,33 @@ class TestTrustShow(TestTrust):
         # data to be shown.
         columns, data = self.cmd.take_action(parsed_args)
 
-        self.trusts_mock.get.assert_called_with(identity_fakes.trust_id)
+        self.identity_sdk_client.find_trust.assert_called_with(
+            self.trust.id, ignore_missing=False
+        )
 
         collist = (
             'expires_at',
             'id',
-            'impersonation',
+            'is_impersonation',
             'project_id',
+            'redelegated_trust_id',
+            'redelegation_count',
+            'remaining_uses',
             'roles',
             'trustee_user_id',
             'trustor_user_id',
         )
         self.assertEqual(collist, columns)
         datalist = (
-            identity_fakes.trust_expires,
-            identity_fakes.trust_id,
-            identity_fakes.trust_impersonation,
-            identity_fakes.project_id,
-            identity_fakes.role_name,
-            identity_fakes.user_id,
-            identity_fakes.user_id,
+            self.trust.expires_at,
+            self.trust.id,
+            self.trust.is_impersonation,
+            self.trust.project_id,
+            self.trust.redelegated_trust_id,
+            self.trust.redelegation_count,
+            self.trust.remaining_uses,
+            self.trust.roles,
+            self.trust.trustee_user_id,
+            self.trust.trustor_user_id,
         )
         self.assertEqual(datalist, data)
