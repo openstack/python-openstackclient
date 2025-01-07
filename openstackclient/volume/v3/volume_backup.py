@@ -412,6 +412,12 @@ class RestoreVolumeBackup(command.ShowOne):
     def take_action(self, parsed_args):
         volume_client = self.app.client_manager.sdk_connection.volume
 
+        columns = (
+            'id',
+            'volume_id',
+            'volume_name',
+        )
+
         backup = volume_client.find_backup(
             parsed_args.backup,
             ignore_missing=False,
@@ -436,11 +442,14 @@ class RestoreVolumeBackup(command.ShowOne):
                 )
                 raise exceptions.CommandError(msg % parsed_args.volume)
 
-        return volume_client.restore_backup(
+        restore = volume_client.restore_backup(
             backup.id,
             volume_id=volume_id,
             name=volume_name,
         )
+
+        data = utils.get_dict_properties(restore, columns)
+        return (columns, data)
 
 
 class SetVolumeBackup(command.Command):

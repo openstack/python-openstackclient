@@ -1,0 +1,4 @@
+---
+fixes:
+  - |
+    Fixed the output of ``volume backup restore`` command.
