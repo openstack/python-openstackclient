@@ -184,6 +184,7 @@ def _prep_server_detail(compute_client, image_client, server, *, refresh=True):
         'user_data': 'OS-EXT-SRV-ATTR:user_data',
         'vm_state': 'OS-EXT-STS:vm_state',
         'pinned_availability_zone': 'pinned_availability_zone',
+        'scheduler_hints': 'scheduler_hints',
     }
     # Some columns returned by openstacksdk should not be shown because they're
     # either irrelevant or duplicates
@@ -204,7 +205,6 @@ def _prep_server_detail(compute_client, image_client, server, *, refresh=True):
         'min_count',
         'networks',
         'personality',
-        'scheduler_hints',
         # aliases
         'volumes',
         # unnecessary
@@ -234,6 +234,11 @@ def _prep_server_detail(compute_client, image_client, server, *, refresh=True):
         data[alias or key] = value
 
     info = data
+
+    # NOTE(dviroel): microversion 2.100 is now retrieving scheduler_hints
+    #  content from request_spec on detailed responses
+    if not sdk_utils.supports_microversion(compute_client, '2.100'):
+        info.pop('scheduler_hints', None)
 
     # Convert the image blob to a name
     image_info = info.get('image', {})
@@ -319,6 +324,11 @@ def _prep_server_detail(compute_client, image_client, server, *, refresh=True):
     if 'OS-EXT-STS:power_state' in info:
         info['OS-EXT-STS:power_state'] = PowerStateColumn(
             info['OS-EXT-STS:power_state']
+        )
+
+    if 'scheduler_hints' in info:
+        info['scheduler_hints'] = format_columns.DictListColumn(
+            info.pop('scheduler_hints', {}),
         )
 
     return info
@@ -2873,12 +2883,14 @@ class ListServer(command.Lister):
                 'pinned_availability_zone',
                 'hypervisor_hostname',
                 'metadata',
+                'scheduler_hints',
             )
             column_headers += (
                 'Availability Zone',
                 'Pinned Availability Zone',
                 'Host',
                 'Properties',
+                'Scheduler Hints',
             )
 
         # support for additional columns
@@ -2923,6 +2935,12 @@ class ListServer(command.Lister):
                 if c in ('Properties', "properties"):
                     columns += ('Metadata',)
                     column_headers += ('Properties',)
+                if c in (
+                    'scheduler_hints',
+                    "Scheduler Hints",
+                ):
+                    columns += ('scheduler_hints',)
+                    column_headers += ('Scheduler Hints',)
 
             # remove duplicates
             column_headers = tuple(dict.fromkeys(column_headers))
@@ -3089,6 +3107,7 @@ class ListServer(command.Lister):
                         'metadata': format_columns.DictColumn,
                         'security_groups_name': format_columns.ListColumn,
                         'hypervisor_hostname': HostColumn,
+                        'scheduler_hints': format_columns.DictListColumn,
                     },
                 )
                 for s in data
