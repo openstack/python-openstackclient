@@ -576,6 +576,9 @@ class CreateImage(command.ShowOne):
         if parsed_args.filename:
             fp.close()
 
+        # NOTE(pas-ha): create_image returns the image object as it was created
+        # before the data was uploaded, need a refresh to show the final state
+        image = image_client.get_image(image)
         return _format_image(image)
 
     def _take_action_volume(self, parsed_args):
