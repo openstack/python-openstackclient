@@ -24,13 +24,13 @@ from openstackclient.tests.unit.network.v2 import fakes as network_fakes
 from openstackclient.tests.unit import utils as test_utils
 
 
-LIST_FIELDS_TO_RETRIEVE = ('id', 'name', 'mac_address', 'fixed_ips', 'status')
-LIST_FIELDS_TO_RETRIEVE_LONG = (
-    'security_group_ids',
+LIST_FIELDS_TO_RETRIEVE = ['id', 'name', 'mac_address', 'fixed_ips', 'status']
+LIST_FIELDS_TO_RETRIEVE_LONG = [
+    'security_groups',
     'device_owner',
     'tags',
     'trunk_details',
-)
+]
 
 
 class TestPort(network_fakes.TestNetworkV2):
@@ -1274,15 +1274,15 @@ class TestListPort(compute_fakes.FakeClientMixin, TestPort):
     )
     _ports = (_pport, _sport1, _sport2)
 
-    columns = (
+    columns = [
         'ID',
         'Name',
         'MAC Address',
         'Fixed IP Addresses',
         'Status',
-    )
+    ]
 
-    columns_long = (
+    columns_long = [
         'ID',
         'Name',
         'MAC Address',
@@ -1292,7 +1292,7 @@ class TestListPort(compute_fakes.FakeClientMixin, TestPort):
         'Device Owner',
         'Tags',
         'Trunk subports',
-    )
+    ]
 
     data = []
     for prt in _ports:

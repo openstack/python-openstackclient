@@ -866,35 +866,30 @@ class ListPort(command.Lister):
         network_client = self.app.client_manager.network
         identity_client = self.app.client_manager.identity
 
-        columns = (
+        columns = [
             'id',
             'name',
             'mac_address',
             'fixed_ips',
             'status',
-        )
-        column_headers = (
+        ]
+        column_headers = [
             'ID',
             'Name',
             'MAC Address',
             'Fixed IP Addresses',
             'Status',
-        )
+        ]
 
         filters = {}
         if parsed_args.long:
-            columns += (
-                'security_group_ids',
-                'device_owner',
-                'tags',
-                'trunk_details',
+            columns.extend(
+                ['security_groups', 'device_owner', 'tags', 'trunk_details']
             )
-            column_headers += (
-                'Security Groups',
-                'Device Owner',
-                'Tags',
-                'Trunk subports',
+            column_headers.extend(
+                ['Security Groups', 'Device Owner', 'Tags', 'Trunk subports']
             )
+
         if parsed_args.device_owner is not None:
             filters['device_owner'] = parsed_args.device_owner
         if parsed_args.device_id is not None:
@@ -941,6 +936,12 @@ class ListPort(command.Lister):
         _tag.get_tag_filtering_args(parsed_args, filters)
 
         data = network_client.ports(fields=columns, **filters)
+
+        if parsed_args.long:
+            columns = [
+                'security_group_ids' if item == 'security_groups' else item
+                for item in columns
+            ]
 
         headers, attrs = utils.calculate_header_and_attrs(
             column_headers, columns, parsed_args

@@ -81,10 +81,20 @@ class PortTests(common.NetworkTagTests):
         self.addCleanup(self.openstack, f'port delete {id1}')
         self.assertEqual(self.NAME, json_output.get('name'))
 
+        # sg for port2
+        sg_name1 = uuid.uuid4().hex
         json_output = self.openstack(
-            f'port create --network {self.NETWORK_NAME} {self.NAME}x',
+            f'security group create {sg_name1}',
             parse_output=True,
         )
+        sg_id1 = json_output.get('id')
+        self.addCleanup(self.openstack, f'security group delete {sg_id1}')
+        json_output = self.openstack(
+            f'port create --network {self.NETWORK_NAME} '
+            f'--security-group {sg_name1} {self.NAME}x',
+            parse_output=True,
+        )
+
         id2 = json_output.get('id')
         self.assertIsNotNone(id2)
         mac2 = json_output.get('mac_address')
@@ -113,6 +123,12 @@ class PortTests(common.NetworkTagTests):
         id_list = [item.get('ID') for item in json_output]
         self.assertIn(id1, id_list)
         self.assertIn(id2, id_list)
+        item_sg_map = {
+            item.get('ID'): item.get('Security Groups') for item in json_output
+        }
+        self.assertIn(id1, item_sg_map.keys())
+        self.assertIn(id2, item_sg_map.keys())
+        self.assertIn([sg_id1], item_sg_map.values())
 
         # Test list --mac-address
         json_output = self.openstack(
@@ -126,6 +142,17 @@ class PortTests(common.NetworkTagTests):
         self.assertIn(id2, item_map.keys())
         self.assertNotIn(mac1, item_map.values())
         self.assertIn(mac2, item_map.values())
+
+        # Test list --security-group
+        json_output = self.openstack(
+            f'port list --security-group {sg_id1}',
+            parse_output=True,
+        )
+        item_map = {
+            item.get('ID'): item.get('Security Groups') for item in json_output
+        }
+        self.assertNotIn(id1, item_map.keys())
+        self.assertIn(id2, item_map.keys())
 
         # Test list with unknown fields
         json_output = self.openstack(
