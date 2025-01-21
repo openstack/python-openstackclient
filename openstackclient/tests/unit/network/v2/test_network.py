@@ -63,6 +63,7 @@ class TestCreateNetworkIdentityV3(TestNetwork):
         'ipv6_address_scope',
         'is_default',
         'is_vlan_transparent',
+        'is_vlan_qinq',
         'mtu',
         'name',
         'port_security_enabled',
@@ -103,6 +104,7 @@ class TestCreateNetworkIdentityV3(TestNetwork):
         network.RouterExternalColumn(_network.is_router_external),
         _network.is_shared,
         _network.is_vlan_transparent,
+        _network.is_vlan_qinq,
         _network.status,
         _network.segments,
         format_columns.ListColumn(_network.subnet_ids),
@@ -190,6 +192,7 @@ class TestCreateNetworkIdentityV3(TestNetwork):
             "--qos-policy",
             self.qos_policy.id,
             "--transparent-vlan",
+            "--no-qinq-vlan",
             "--enable-port-security",
             "--dns-domain",
             "example.org.",
@@ -210,6 +213,7 @@ class TestCreateNetworkIdentityV3(TestNetwork):
             ('segmentation_id', '400'),
             ('qos_policy', self.qos_policy.id),
             ('transparent_vlan', True),
+            ('qinq_vlan', False),
             ('enable_port_security', True),
             ('name', self._network.name),
             ('dns_domain', 'example.org.'),
@@ -234,6 +238,7 @@ class TestCreateNetworkIdentityV3(TestNetwork):
                 'provider:segmentation_id': '400',
                 'qos_policy_id': self.qos_policy.id,
                 'vlan_transparent': True,
+                'vlan_qinq': False,
                 'port_security_enabled': True,
                 'dns_domain': 'example.org.',
             }
@@ -246,6 +251,7 @@ class TestCreateNetworkIdentityV3(TestNetwork):
             "--enable",
             "--no-share",
             "--disable-port-security",
+            "--qinq-vlan",
             self._network.name,
         ]
         verifylist = [
@@ -253,6 +259,7 @@ class TestCreateNetworkIdentityV3(TestNetwork):
             ('no_share', True),
             ('name', self._network.name),
             ('external', False),
+            ('qinq_vlan', True),
             ('disable_port_security', True),
         ]
 
@@ -264,6 +271,7 @@ class TestCreateNetworkIdentityV3(TestNetwork):
                 'admin_state_up': True,
                 'name': self._network.name,
                 'shared': False,
+                'vlan_qinq': True,
                 'port_security_enabled': False,
             }
         )
@@ -309,6 +317,19 @@ class TestCreateNetworkIdentityV3(TestNetwork):
     def test_create_with_no_tag(self):
         self._test_create_with_tag(add_tags=False)
 
+    def test_create_with_vlan_qinq_and_transparency_enabled(self):
+        arglist = [
+            "--transparent-vlan",
+            "--qinq-vlan",
+            self._network.name,
+        ]
+        verifylist = []
+
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+        self.assertRaises(
+            exceptions.CommandError, self.cmd.take_action, parsed_args
+        )
+
 
 class TestCreateNetworkIdentityV2(
     identity_fakes_v2.FakeClientMixin,
@@ -332,6 +353,7 @@ class TestCreateNetworkIdentityV2(
         'ipv6_address_scope',
         'is_default',
         'is_vlan_transparent',
+        'is_vlan_qinq',
         'mtu',
         'name',
         'port_security_enabled',
@@ -372,6 +394,7 @@ class TestCreateNetworkIdentityV2(
         network.RouterExternalColumn(_network.is_router_external),
         _network.is_shared,
         _network.is_vlan_transparent,
+        _network.is_vlan_qinq,
         _network.status,
         _network.segments,
         format_columns.ListColumn(_network.subnet_ids),
@@ -1149,6 +1172,7 @@ class TestShowNetwork(TestNetwork):
         'ipv6_address_scope',
         'is_default',
         'is_vlan_transparent',
+        'is_vlan_qinq',
         'mtu',
         'name',
         'port_security_enabled',
@@ -1189,6 +1213,7 @@ class TestShowNetwork(TestNetwork):
         network.RouterExternalColumn(_network.is_router_external),
         _network.is_shared,
         _network.is_vlan_transparent,
+        _network.is_vlan_qinq,
         _network.status,
         _network.segments,
         format_columns.ListColumn(_network.subnet_ids),

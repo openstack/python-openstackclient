@@ -1419,6 +1419,7 @@ def create_one_network(attrs=None):
         'availability_zone_hints': [],
         'is_default': False,
         'is_vlan_transparent': True,
+        'is_vlan_qinq': False,
         'port_security_enabled': True,
         'qos_policy_id': 'qos-policy-id-' + uuid.uuid4().hex,
         'ipv4_address_scope': 'ipv4' + uuid.uuid4().hex,

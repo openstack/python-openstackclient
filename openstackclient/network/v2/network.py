@@ -14,6 +14,7 @@
 
 from cliff import columns as cliff_columns
 from osc_lib.cli import format_columns
+from osc_lib import exceptions
 from osc_lib import utils
 from osc_lib.utils import tags as _tag
 
@@ -60,11 +61,7 @@ def _get_columns_network(item):
         'ipv6_address_scope_id': 'ipv6_address_scope',
         'tags': 'tags',
     }
-    # TODO(slaweq): temporary, until
-    # https://review.opendev.org/c/openstack/openstacksdk/+/939703 will be
-    # merged this new column should be hidden from the output (it is just to
-    # make unit tests in the openstacksdk patch happy)
-    hidden_columns = ['location', 'tenant_id', 'is_vlan_qinq']
+    hidden_columns = ['location', 'tenant_id']
     return utils.get_osc_show_columns_for_sdk_resource(
         item, column_map, hidden_columns
     )
@@ -353,6 +350,25 @@ class CreateNetwork(
             ),
         )
 
+        vlan_qinq_grp = parser.add_mutually_exclusive_group()
+        vlan_qinq_grp.add_argument(
+            '--qinq-vlan',
+            action='store_true',
+            help=self.enhance_help_neutron(
+                _("Enable VLAN QinQ (S-Tag ethtype 0x8a88) " "for the network")
+            ),
+        )
+        vlan_qinq_grp.add_argument(
+            '--no-qinq-vlan',
+            action='store_true',
+            help=self.enhance_help_neutron(
+                _(
+                    "Disable VLAN QinQ (S-Tag ethtype 0x8a88) "
+                    "for the network"
+                )
+            ),
+        )
+
         _add_additional_network_options(parser)
         _tag.add_tag_option_to_parser_for_create(
             parser, _('network'), enhance_help=self.enhance_help_neutron
@@ -376,6 +392,19 @@ class CreateNetwork(
             attrs['vlan_transparent'] = True
         if parsed_args.no_transparent_vlan:
             attrs['vlan_transparent'] = False
+
+        if parsed_args.qinq_vlan:
+            attrs['vlan_qinq'] = True
+        if parsed_args.no_qinq_vlan:
+            attrs['vlan_qinq'] = False
+
+        if attrs.get('vlan_transparent') and attrs.get('vlan_qinq'):
+            msg = _(
+                "--transparent-vlan and --qinq-vlan can not be both enabled "
+                "for the network."
+            )
+            raise exceptions.CommandError(msg)
+
         attrs.update(
             self._parse_extra_properties(parsed_args.extra_properties)
         )

@@ -1,0 +1,7 @@
+---
+features:
+  - |
+    Add ``qinq-vlan`` and ``no-qinq-vlan`` arguments to the ``network create``
+    command. It will enable/disable QinQ feature for the created network.
+    This new argument is mutually exclusive with the ``transparent-vlan`` - only
+    one of them can be set to ``True`` for the network.
