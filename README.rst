@@ -48,12 +48,12 @@ Getting Started
 
 OpenStack Client can be installed from PyPI using pip::
 
-    pip install python-openstackclient
+    python3 -m pip install python-openstackclient
 
 There are a few variants on getting help.  A list of global options and supported
 commands is shown with ``--help``::
 
-   openstack --help
+    openstack --help
 
 There is also a ``help`` command that can be used to get help text for a specific
 command::
@@ -64,11 +64,9 @@ command::
 If you want to make changes to the OpenStackClient for testing and contribution,
 make any changes and then run::
 
-    python setup.py develop
-
-or::
-
-    pip install -e .
+    git clone https://opendev.org/openstack/python-openstackclient
+    cd python-openstackclient
+    python3 -m pip install -e .
 
 Configuration
 =============
