@@ -1689,7 +1689,8 @@ class ImportImage(command.ShowOne):
                 "'copy-image' import method)"
             ),
         )
-        parser.add_argument(
+        allow_failure_group = parser.add_mutually_exclusive_group()
+        allow_failure_group.add_argument(
             '--allow-failure',
             action='store_true',
             dest='allow_failure',
@@ -1700,9 +1701,9 @@ class ImportImage(command.ShowOne):
                 'Only usable with --stores or --all-stores'
             ),
         )
-        parser.add_argument(
+        allow_failure_group.add_argument(
             '--disallow-failure',
-            action='store_true',
+            action='store_false',
             dest='allow_failure',
             default=True,
             help=_(

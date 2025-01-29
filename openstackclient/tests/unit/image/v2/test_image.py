@@ -2092,6 +2092,38 @@ class TestImageImport(TestImage):
             all_stores_must_succeed=False,
         )
 
+    def test_import_image__copy_image_disallow_failure(self):
+        self.image.status = 'active'
+        arglist = [
+            self.image.name,
+            '--method',
+            'copy-image',
+            '--store',
+            'fast',
+            '--disallow-failure',
+        ]
+        verifylist = [
+            ('image', self.image.name),
+            ('import_method', 'copy-image'),
+            ('stores', ['fast']),
+            ('allow_failure', False),
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        self.cmd.take_action(parsed_args)
+
+        self.image_client.import_image.assert_called_once_with(
+            self.image,
+            method='copy-image',
+            uri=None,
+            remote_region=None,
+            remote_image_id=None,
+            remote_service_interface=None,
+            stores=['fast'],
+            all_stores=None,
+            all_stores_must_succeed=True,
+        )
+
     def test_import_image__glance_download(self):
         arglist = [
             self.image.name,
