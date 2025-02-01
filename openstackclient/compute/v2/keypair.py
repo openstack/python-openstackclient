@@ -300,6 +300,7 @@ class ListKeypair(command.Lister):
     def take_action(self, parsed_args):
         compute_client = self.app.client_manager.compute
         identity_client = self.app.client_manager.identity
+        identity_sdk_client = self.app.client_manager.sdk_connection.identity
 
         kwargs = {}
 
@@ -345,11 +346,17 @@ class ListKeypair(command.Lister):
                 parsed_args.project,
                 parsed_args.project_domain,
             ).id
-            users = identity_client.users.list(tenant_id=project)
+            assignments = identity_sdk_client.role_assignments(
+                scope_project_id=project
+            )
+            user_ids = set()
+            for assignment in assignments:
+                if assignment.user:
+                    user_ids.add(assignment.user['id'])
 
             data = []
-            for user in users:
-                kwargs['user_id'] = user.id
+            for user_id in user_ids:
+                kwargs['user_id'] = user_id
                 data.extend(compute_client.keypairs(**kwargs))
         elif parsed_args.user:
             if not sdk_utils.supports_microversion(compute_client, '2.10'):

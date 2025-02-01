@@ -33,7 +33,7 @@ from openstack.compute.v2 import server_migration as _server_migration
 from openstack.compute.v2 import volume_attachment as _volume_attachment
 
 from openstackclient.tests.unit import fakes
-from openstackclient.tests.unit.identity.v2_0 import fakes as identity_fakes
+from openstackclient.tests.unit.identity.v3 import fakes as identity_fakes
 from openstackclient.tests.unit.image.v2 import fakes as image_fakes
 from openstackclient.tests.unit.network.v2 import fakes as network_fakes
 from openstackclient.tests.unit import utils
@@ -121,10 +121,10 @@ class FakeClientMixin:
 
 
 class TestComputev2(
+    identity_fakes.FakeClientMixin,
     network_fakes.FakeClientMixin,
     image_fakes.FakeClientMixin,
     volume_fakes.FakeClientMixin,
-    identity_fakes.FakeClientMixin,
     FakeClientMixin,
     utils.TestCommand,
 ): ...

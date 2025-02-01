@@ -18,6 +18,7 @@ import uuid
 
 from openstack.compute.v2 import keypair as _keypair
 from openstack.identity.v3 import project as _project
+from openstack.identity.v3 import role_assignment as _role_assignment
 from openstack.identity.v3 import user as _user
 from openstack.test import fakes as sdk_fakes
 from osc_lib import exceptions
@@ -529,13 +530,17 @@ class TestKeypairList(TestKeypair):
     def test_keypair_list_with_project(self):
         self.set_compute_api_version('2.35')
 
-        projects_mock = self.identity_client.tenants
+        projects_mock = self.identity_client.projects
         projects_mock.reset_mock()
         projects_mock.get.return_value = self._project
 
-        users_mock = self.identity_client.users
-        users_mock.reset_mock()
-        users_mock.list.return_value = [self._user]
+        role_assignments_mock = self.identity_sdk_client.role_assignments
+        role_assignments_mock.reset_mock()
+        assignment = sdk_fakes.generate_fake_resource(
+            _role_assignment.RoleAssignment
+        )
+        assignment.user = self._user
+        role_assignments_mock.return_value = [assignment]
 
         arglist = ['--project', self._project.name]
         verifylist = [('project', self._project.name)]
@@ -544,7 +549,9 @@ class TestKeypairList(TestKeypair):
         columns, data = self.cmd.take_action(parsed_args)
 
         projects_mock.get.assert_called_with(self._project.name)
-        users_mock.list.assert_called_with(tenant_id=self._project.id)
+        role_assignments_mock.assert_called_with(
+            scope_project_id=self._project.id
+        )
         self.compute_client.keypairs.assert_called_with(
             user_id=self._user.id,
         )

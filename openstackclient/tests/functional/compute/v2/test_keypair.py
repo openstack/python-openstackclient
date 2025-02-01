@@ -21,12 +21,18 @@ from openstackclient.tests.functional import base
 class KeypairBase(base.TestCase):
     """Methods for functional tests."""
 
-    def keypair_create(self, name=data_utils.rand_uuid()):
+    def keypair_create(self, name=data_utils.rand_uuid(), user=None):
         """Create keypair and add cleanup."""
-        raw_output = self.openstack('keypair create ' + name)
-        self.addCleanup(self.keypair_delete, name, True)
+        cmd = 'keypair create ' + name
+        if user is not None:
+            cmd += ' --user ' + user
+        raw_output = self.openstack(cmd)
+        self.addCleanup(
+            self.keypair_delete, name, ignore_exceptions=True, user=user
+        )
         if not raw_output:
             self.fail('Keypair has not been created!')
+        return name
 
     def keypair_list(self, params=''):
         """Return dictionary with list of keypairs."""
@@ -34,10 +40,13 @@ class KeypairBase(base.TestCase):
         keypairs = self.parse_show_as_object(raw_output)
         return keypairs
 
-    def keypair_delete(self, name, ignore_exceptions=False):
+    def keypair_delete(self, name, ignore_exceptions=False, user=None):
         """Try to delete keypair by name."""
         try:
-            self.openstack('keypair delete ' + name)
+            cmd = 'keypair delete ' + name
+            if user is not None:
+                cmd += ' --user ' + user
+            self.openstack(cmd)
         except exceptions.CommandFailed:
             if not ignore_exceptions:
                 raise
@@ -200,3 +209,30 @@ class KeypairTests(KeypairBase):
         items = self.parse_listing(raw_output)
         self.assert_table_structure(items, HEADERS)
         self.assertInOutput(self.KPName, raw_output)
+
+    def test_keypair_list_by_project(self):
+        """Test keypair list by project.
+
+        Test steps:
+        1) Create keypair for admin project in setUp
+        2) Create a new project
+        3) Create a new user
+        4) Associate the new user with the new project
+        5) Create keypair for the new user
+        6) List keypairs by the new project
+        7) Check that only the keypair from step 5 is returned
+        """
+        project_name = data_utils.rand_name('TestProject')
+        self.openstack(f'project create {project_name}')
+        self.addCleanup(self.openstack, f'project delete {project_name}')
+        user_name = data_utils.rand_name('TestUser')
+        self.openstack(f'user create {user_name}')
+        self.addCleanup(self.openstack, f'user delete {user_name}')
+        self.openstack(
+            f'role add --user {user_name} --project {project_name} member'
+        )
+        keypair_name = self.keypair_create(user=user_name)
+        raw_output = self.openstack(f'keypair list --project {project_name}')
+        items = self.parse_listing(raw_output)
+        self.assertEqual(1, len(items))
+        self.assertEqual(keypair_name, items[0]['Name'])
