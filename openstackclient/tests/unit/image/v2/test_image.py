@@ -55,6 +55,7 @@ class TestImageCreate(TestImage):
         self.new_image = image_fakes.create_one_image()
         self.image_client.create_image.return_value = self.new_image
         self.image_client.update_image.return_value = self.new_image
+        self.image_client.get_image.return_value = self.new_image
 
         self.project_mock.get.return_value = self.project
 
@@ -89,6 +90,7 @@ class TestImageCreate(TestImage):
             container_format=_image.DEFAULT_CONTAINER_FORMAT,
             disk_format=_image.DEFAULT_DISK_FORMAT,
         )
+        self.image_client.get_image.assert_called_once_with(self.new_image)
 
         self.assertEqual(self.expected_columns, columns)
         self.assertCountEqual(self.expected_data, data)
@@ -146,6 +148,7 @@ class TestImageCreate(TestImage):
             is_protected=self.new_image.is_protected,
             visibility=self.new_image.visibility,
         )
+        self.image_client.get_image.assert_called_once_with(self.new_image)
 
         self.assertEqual(self.expected_columns, columns)
         self.assertCountEqual(self.expected_data, data)
@@ -243,6 +246,7 @@ class TestImageCreate(TestImage):
             tags=self.new_image.tags,
             filename=imagefile.name,
         )
+        self.image_client.get_image.assert_called_once_with(self.new_image)
 
         self.assertEqual(self.expected_columns, columns)
         self.assertCountEqual(self.expected_data, data)
@@ -275,6 +279,7 @@ class TestImageCreate(TestImage):
             data=fake_stdin,
             validate_checksum=False,
         )
+        self.image_client.get_image.assert_called_once_with(self.new_image)
 
         self.assertEqual(self.expected_columns, columns)
         self.assertCountEqual(self.expected_data, data)
@@ -315,6 +320,7 @@ class TestImageCreate(TestImage):
             disk_format=_image.DEFAULT_DISK_FORMAT,
             use_import=True,
         )
+        self.image_client.get_image.assert_called_once_with(self.new_image)
 
     @mock.patch('osc_lib.utils.find_resource')
     @mock.patch('openstackclient.image.v2.image.get_data_from_stdin')
