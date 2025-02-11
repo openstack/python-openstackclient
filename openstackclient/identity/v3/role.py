@@ -17,7 +17,7 @@
 
 import logging
 
-from keystoneauth1 import exceptions as ks_exc
+from openstack import exceptions as sdk_exc
 from osc_lib.command import command
 from osc_lib import exceptions
 from osc_lib import utils
@@ -27,6 +27,25 @@ from openstackclient.identity import common
 
 
 LOG = logging.getLogger(__name__)
+
+
+def _format_role(role):
+    columns = (
+        "id",
+        "name",
+        "domain_id",
+        "description",
+    )
+    column_headers = (
+        "id",
+        "name",
+        "domain_id",
+        "description",
+    )
+    return (
+        column_headers,
+        utils.get_item_properties(role, columns),
+    )
 
 
 def _add_identity_and_resource_options_to_parser(parser):
@@ -63,32 +82,79 @@ def _add_identity_and_resource_options_to_parser(parser):
     common.add_inherited_option_to_parser(parser)
 
 
+def _find_sdk_id(
+    find_command, name_or_id, validate_actor_existence=True, **kwargs
+):
+    try:
+        resource = find_command(
+            name_or_id=name_or_id, ignore_missing=False, **kwargs
+        )
+
+    # Mimic the behavior of
+    # openstackclient.identity.common._find_identity_resource()
+    # and ignore if we don't have permission to find a resource.
+    except sdk_exc.ForbiddenException:
+        return name_or_id
+    except sdk_exc.ResourceNotFound as exc:
+        if not validate_actor_existence:
+            return name_or_id
+        raise exceptions.CommandError from exc
+    return resource.id
+
+
 def _process_identity_and_resource_options(
-    parsed_args, identity_client_manager, validate_actor_existence=True
+    parsed_args, identity_client, validate_actor_existence=True
 ):
     def _find_user():
-        try:
-            return common.find_user(
-                identity_client_manager,
-                parsed_args.user,
-                parsed_args.user_domain,
-            ).id
-        except exceptions.CommandError:
-            if not validate_actor_existence:
-                return parsed_args.user
-            raise
+        domain_id = (
+            _find_sdk_id(
+                identity_client.find_domain,
+                name_or_id=parsed_args.user_domain,
+                validate_actor_existence=validate_actor_existence,
+            )
+            if parsed_args.user_domain
+            else None
+        )
+        return _find_sdk_id(
+            identity_client.find_user,
+            name_or_id=parsed_args.user,
+            validate_actor_existence=validate_actor_existence,
+            domain_id=domain_id,
+        )
 
     def _find_group():
-        try:
-            return common.find_group(
-                identity_client_manager,
-                parsed_args.group,
-                parsed_args.group_domain,
-            ).id
-        except exceptions.CommandError:
-            if not validate_actor_existence:
-                return parsed_args.group
-            raise
+        domain_id = (
+            _find_sdk_id(
+                identity_client.find_domain,
+                name_or_id=parsed_args.group_domain,
+                validate_actor_existence=validate_actor_existence,
+            )
+            if parsed_args.group_domain
+            else None
+        )
+        return _find_sdk_id(
+            identity_client.find_group,
+            name_or_id=parsed_args.group,
+            validate_actor_existence=validate_actor_existence,
+            domain_id=domain_id,
+        )
+
+    def _find_project():
+        domain_id = (
+            _find_sdk_id(
+                identity_client.find_domain,
+                name_or_id=parsed_args.project_domain,
+                validate_actor_existence=validate_actor_existence,
+            )
+            if parsed_args.project_domain
+            else None
+        )
+        return _find_sdk_id(
+            identity_client.find_project,
+            name_or_id=parsed_args.project,
+            validate_actor_existence=validate_actor_existence,
+            domain_id=domain_id,
+        )
 
     kwargs = {}
     if parsed_args.user and parsed_args.system:
@@ -96,34 +162,35 @@ def _process_identity_and_resource_options(
         kwargs['system'] = parsed_args.system
     elif parsed_args.user and parsed_args.domain:
         kwargs['user'] = _find_user()
-        kwargs['domain'] = common.find_domain(
-            identity_client_manager,
-            parsed_args.domain,
-        ).id
+        kwargs['domain'] = _find_sdk_id(
+            identity_client.find_domain,
+            name_or_id=parsed_args.domain,
+            validate_actor_existence=validate_actor_existence,
+        )
     elif parsed_args.user and parsed_args.project:
         kwargs['user'] = _find_user()
-        kwargs['project'] = common.find_project(
-            identity_client_manager,
-            parsed_args.project,
-            parsed_args.project_domain,
-        ).id
+        kwargs['project'] = _find_project()
     elif parsed_args.group and parsed_args.system:
         kwargs['group'] = _find_group()
         kwargs['system'] = parsed_args.system
     elif parsed_args.group and parsed_args.domain:
         kwargs['group'] = _find_group()
-        kwargs['domain'] = common.find_domain(
-            identity_client_manager,
-            parsed_args.domain,
-        ).id
+        kwargs['domain'] = _find_sdk_id(
+            identity_client.find_domain,
+            name_or_id=parsed_args.domain,
+            validate_actor_existence=validate_actor_existence,
+        )
     elif parsed_args.group and parsed_args.project:
         kwargs['group'] = _find_group()
-        kwargs['project'] = common.find_project(
-            identity_client_manager,
-            parsed_args.project,
-            parsed_args.project_domain,
-        ).id
-    kwargs['os_inherit_extension_inherited'] = parsed_args.inherited
+        kwargs['project'] = _find_project()
+    else:
+        msg = _(
+            "Role not added, incorrect set of arguments "
+            "provided. See openstack --help for more details"
+        )
+        raise exceptions.CommandError(msg)
+
+    kwargs['inherited'] = parsed_args.inherited
     return kwargs
 
 
@@ -145,7 +212,7 @@ class AddRole(command.Command):
         return parser
 
     def take_action(self, parsed_args):
-        identity_client = self.app.client_manager.identity
+        identity_client = self.app.client_manager.sdk_connection.identity
 
         if (
             not parsed_args.user
@@ -161,18 +228,71 @@ class AddRole(command.Command):
 
         domain_id = None
         if parsed_args.role_domain:
-            domain_id = common.find_domain(
-                identity_client, parsed_args.role_domain
-            ).id
-        role = utils.find_resource(
-            identity_client.roles, parsed_args.role, domain_id=domain_id
+            domain_id = _find_sdk_id(
+                identity_client.find_domain, name_or_id=parsed_args.role_domain
+            )
+        role = _find_sdk_id(
+            identity_client.find_role,
+            name_or_id=parsed_args.role,
+            domain_id=domain_id,
         )
 
-        kwargs = _process_identity_and_resource_options(
-            parsed_args, self.app.client_manager.identity
+        add_kwargs = _process_identity_and_resource_options(
+            parsed_args, identity_client
         )
 
-        identity_client.roles.grant(role.id, **kwargs)
+        if add_kwargs.get("domain"):
+            if add_kwargs.get("user"):
+                identity_client.assign_domain_role_to_user(
+                    domain=add_kwargs["domain"],
+                    user=add_kwargs["user"],
+                    role=role,
+                    inherited=add_kwargs["inherited"],
+                )
+            if add_kwargs.get("group"):
+                identity_client.assign_domain_role_to_group(
+                    domain=add_kwargs["domain"],
+                    group=add_kwargs["group"],
+                    role=role,
+                    inherited=add_kwargs["inherited"],
+                )
+        elif add_kwargs.get("project"):
+            if add_kwargs.get("user"):
+                identity_client.assign_project_role_to_user(
+                    project=add_kwargs["project"],
+                    user=add_kwargs["user"],
+                    role=role,
+                    inherited=add_kwargs["inherited"],
+                )
+            if add_kwargs.get("group"):
+                identity_client.assign_project_role_to_group(
+                    project=add_kwargs["project"],
+                    group=add_kwargs["group"],
+                    role=role,
+                    inherited=add_kwargs["inherited"],
+                )
+        elif add_kwargs.get("system"):
+            if add_kwargs["inherited"]:
+                LOG.warning(
+                    _(
+                        "'--inherited' was given, which is not supported "
+                        "when adding a system role. This will be an error "
+                        "in a future release."
+                    )
+                )
+                # TODO(0weng): This should be an error in a future release
+            if add_kwargs.get("user"):
+                identity_client.assign_system_role_to_user(
+                    system=add_kwargs["system"],
+                    user=add_kwargs["user"],
+                    role=role,
+                )
+            if add_kwargs.get("group"):
+                identity_client.assign_system_role_to_group(
+                    system=add_kwargs["system"],
+                    group=add_kwargs["group"],
+                    role=role,
+                )
 
 
 class CreateRole(command.ShowOne):
@@ -204,37 +324,35 @@ class CreateRole(command.ShowOne):
         return parser
 
     def take_action(self, parsed_args):
-        identity_client = self.app.client_manager.identity
+        identity_client = self.app.client_manager.sdk_connection.identity
 
-        domain_id = None
+        create_kwargs = {}
         if parsed_args.domain:
-            domain_id = common.find_domain(
-                identity_client, parsed_args.domain
-            ).id
-
-        options = common.get_immutable_options(parsed_args)
-
-        try:
-            role = identity_client.roles.create(
-                name=parsed_args.name,
-                domain=domain_id,
-                description=parsed_args.description,
-                options=options,
+            create_kwargs['domain_id'] = _find_sdk_id(
+                identity_client.find_domain, name_or_id=parsed_args.domain
             )
 
-        except ks_exc.Conflict:
+        if parsed_args.name:
+            create_kwargs['name'] = parsed_args.name
+        if parsed_args.description:
+            create_kwargs['description'] = parsed_args.description
+        create_kwargs['options'] = common.get_immutable_options(parsed_args)
+
+        try:
+            role = identity_client.create_role(**create_kwargs)
+
+        except sdk_exc.ConflictException:
             if parsed_args.or_show:
-                role = utils.find_resource(
-                    identity_client.roles,
-                    parsed_args.name,
-                    domain_id=domain_id,
+                role = identity_client.find_role(
+                    name_or_id=parsed_args.name,
+                    domain_id=parsed_args.domain,
+                    ignore_missing=False,
                 )
                 LOG.info(_('Returning existing role %s'), role.name)
             else:
                 raise
 
-        role._info.pop('links')
-        return zip(*sorted(role._info.items()))
+        return _format_role(role)
 
 
 class DeleteRole(command.Command):
@@ -245,7 +363,7 @@ class DeleteRole(command.Command):
         parser.add_argument(
             'roles',
             metavar='<role>',
-            nargs="+",
+            nargs='+',
             help=_('Role(s) to delete (name or ID)'),
         )
         parser.add_argument(
@@ -256,20 +374,22 @@ class DeleteRole(command.Command):
         return parser
 
     def take_action(self, parsed_args):
-        identity_client = self.app.client_manager.identity
+        identity_client = self.app.client_manager.sdk_connection.identity
 
         domain_id = None
         if parsed_args.domain:
-            domain_id = common.find_domain(
-                identity_client, parsed_args.domain
-            ).id
+            domain_id = _find_sdk_id(
+                identity_client.find_domain, parsed_args.domain
+            )
         errors = 0
         for role in parsed_args.roles:
             try:
-                role_obj = utils.find_resource(
-                    identity_client.roles, role, domain_id=domain_id
+                role_id = _find_sdk_id(
+                    identity_client.find_role,
+                    name_or_id=role,
+                    domain_id=domain_id,
                 )
-                identity_client.roles.delete(role_obj.id)
+                identity_client.delete_role(role=role_id, ignore_missing=False)
             except Exception as e:
                 errors += 1
                 LOG.error(
@@ -302,20 +422,17 @@ class ListRole(command.Lister):
         return parser
 
     def take_action(self, parsed_args):
-        identity_client = self.app.client_manager.identity
+        identity_client = self.app.client_manager.sdk_connection.identity
 
         if parsed_args.domain:
-            domain = common.find_domain(
-                identity_client,
-                parsed_args.domain,
+            domain = identity_client.find_domain(
+                name_or_id=parsed_args.domain,
             )
             columns = ('ID', 'Name', 'Domain')
-            data = identity_client.roles.list(domain_id=domain.id)
-            for role in data:
-                role.domain = domain.name
+            data = identity_client.roles(domain_id=domain.id)
         else:
             columns = ('ID', 'Name')
-            data = identity_client.roles.list()
+            data = identity_client.roles()
 
         return (
             columns,
@@ -323,7 +440,7 @@ class ListRole(command.Lister):
                 utils.get_item_properties(
                     s,
                     columns,
-                    formatters={},
+                    formatters={'Domain': lambda _: domain.name},
                 )
                 for s in data
             ),
@@ -348,8 +465,7 @@ class RemoveRole(command.Command):
         return parser
 
     def take_action(self, parsed_args):
-        identity_client = self.app.client_manager.identity
-
+        identity_client = self.app.client_manager.sdk_connection.identity
         if (
             not parsed_args.user
             and not parsed_args.domain
@@ -364,19 +480,65 @@ class RemoveRole(command.Command):
 
         domain_id = None
         if parsed_args.role_domain:
-            domain_id = common.find_domain(
-                identity_client, parsed_args.role_domain
-            ).id
-        role = utils.find_resource(
-            identity_client.roles, parsed_args.role, domain_id=domain_id
+            domain_id = _find_sdk_id(
+                identity_client.find_domain,
+                name_or_id=parsed_args.role_domain,
+            )
+        role = _find_sdk_id(
+            identity_client.find_role,
+            name_or_id=parsed_args.role,
+            domain_id=domain_id,
         )
 
-        kwargs = _process_identity_and_resource_options(
+        remove_kwargs = _process_identity_and_resource_options(
             parsed_args,
-            self.app.client_manager.identity,
+            identity_client,
             validate_actor_existence=False,
         )
-        identity_client.roles.revoke(role.id, **kwargs)
+
+        if remove_kwargs.get("domain"):
+            if remove_kwargs.get("user"):
+                identity_client.unassign_domain_role_from_user(
+                    domain=remove_kwargs["domain"],
+                    user=remove_kwargs["user"],
+                    role=role,
+                    inherited=remove_kwargs["inherited"],
+                )
+            if remove_kwargs.get("group"):
+                identity_client.unassign_domain_role_from_group(
+                    domain=remove_kwargs["domain"],
+                    group=remove_kwargs["group"],
+                    role=role,
+                    inherited=remove_kwargs["inherited"],
+                )
+        elif remove_kwargs.get("project"):
+            if remove_kwargs.get("user"):
+                identity_client.unassign_project_role_from_user(
+                    project=remove_kwargs["project"],
+                    user=remove_kwargs["user"],
+                    role=role,
+                    inherited=remove_kwargs["inherited"],
+                )
+            if remove_kwargs.get("group"):
+                identity_client.unassign_project_role_from_group(
+                    project=remove_kwargs["project"],
+                    group=remove_kwargs["group"],
+                    role=role,
+                    inherited=remove_kwargs["inherited"],
+                )
+        elif remove_kwargs.get("system"):
+            if remove_kwargs.get("user"):
+                identity_client.unassign_system_role_from_user(
+                    system=remove_kwargs["system"],
+                    user=remove_kwargs["user"],
+                    role=role,
+                )
+            if remove_kwargs.get("group"):
+                identity_client.unassign_system_role_from_group(
+                    system=remove_kwargs["system"],
+                    group=remove_kwargs["group"],
+                    role=role,
+                )
 
 
 class SetRole(command.Command):
@@ -408,25 +570,31 @@ class SetRole(command.Command):
         return parser
 
     def take_action(self, parsed_args):
-        identity_client = self.app.client_manager.identity
+        identity_client = self.app.client_manager.sdk_connection.identity
+
+        update_kwargs = {}
+        if parsed_args.description:
+            update_kwargs["description"] = parsed_args.description
+        if parsed_args.name:
+            update_kwargs["name"] = parsed_args.name
 
         domain_id = None
         if parsed_args.domain:
-            domain_id = common.find_domain(
-                identity_client, parsed_args.domain
-            ).id
+            domain_id = _find_sdk_id(
+                identity_client.find_domain,
+                name_or_id=parsed_args.domain,
+            )
+            update_kwargs["domain_id"] = domain_id
 
-        options = common.get_immutable_options(parsed_args)
-        role = utils.find_resource(
-            identity_client.roles, parsed_args.role, domain_id=domain_id
+        update_kwargs["options"] = common.get_immutable_options(parsed_args)
+        role = _find_sdk_id(
+            identity_client.find_role,
+            name_or_id=parsed_args.role,
+            domain_id=domain_id,
         )
+        update_kwargs["role"] = role
 
-        identity_client.roles.update(
-            role.id,
-            name=parsed_args.name,
-            description=parsed_args.description,
-            options=options,
-        )
+        identity_client.update_role(**update_kwargs)
 
 
 class ShowRole(command.ShowOne):
@@ -447,17 +615,19 @@ class ShowRole(command.ShowOne):
         return parser
 
     def take_action(self, parsed_args):
-        identity_client = self.app.client_manager.identity
+        identity_client = self.app.client_manager.sdk_connection.identity
 
         domain_id = None
         if parsed_args.domain:
-            domain_id = common.find_domain(
-                identity_client, parsed_args.domain
-            ).id
+            domain_id = _find_sdk_id(
+                identity_client.find_domain,
+                name_or_id=parsed_args.domain,
+            )
 
-        role = utils.find_resource(
-            identity_client.roles, parsed_args.role, domain_id=domain_id
+        role = identity_client.find_role(
+            name_or_id=parsed_args.role,
+            domain_id=domain_id,
+            ignore_missing=False,
         )
 
-        role._info.pop('links')
-        return zip(*sorted(role._info.items()))
+        return _format_role(role)

@@ -93,6 +93,30 @@ class RoleTests(common.IdentityTests):
         )
         self.assertEqual(0, len(raw_output))
 
+    def test_role_add_inherited(self):
+        role_name = self._create_dummy_role()
+        username = self._create_dummy_user()
+        raw_output = self.openstack(
+            'role add '
+            f'--project {self.project_name} '
+            f'--project-domain {self.domain_name} '
+            f'--user {username} '
+            f'--user-domain {self.domain_name} '
+            '--inherited '
+            f'{role_name}'
+        )
+        self.addCleanup(
+            self.openstack,
+            'role remove '
+            f'--project {self.project_name} '
+            f'--project-domain {self.domain_name} '
+            f'--user {username} '
+            f'--user-domain {self.domain_name} '
+            '--inherited '
+            f'{role_name}',
+        )
+        self.assertEqual(0, len(raw_output))
+
     def test_role_remove(self):
         role_name = self._create_dummy_role()
         username = self._create_dummy_user()
