@@ -81,6 +81,13 @@ class CreateRegisteredLimit(command.ShowOne):
                 region = common_utils.get_resource(
                     identity_client.regions, parsed_args.region
                 )
+            else:
+                self.log.warning(
+                    _(
+                        "Passing 'None' to indicate no region is deprecated. "
+                        "Instead, don't pass --region."
+                    )
+                )
 
         registered_limit = identity_client.registered_limits.create(
             service,
@@ -182,6 +189,13 @@ class ListRegisteredLimit(command.Lister):
                 region = common_utils.get_resource(
                     identity_client.regions, parsed_args.region
                 )
+            else:
+                self.log.warning(
+                    _(
+                        "Passing 'None' to indicate no region is deprecated. "
+                        "Instead, don't pass --region."
+                    )
+                )
 
         registered_limits = identity_client.registered_limits.list(
             service=service,
@@ -279,6 +293,10 @@ class SetRegisteredLimit(command.ShowOne):
                 # 'regions', using common_utils.get_resource() instead.
                 region = common_utils.get_resource(
                     identity_client.regions, parsed_args.region
+                )
+            else:
+                self.log.warning(
+                    _("Passing 'None' to indicate no region is deprecated.")
                 )
 
         registered_limit = identity_client.registered_limits.update(

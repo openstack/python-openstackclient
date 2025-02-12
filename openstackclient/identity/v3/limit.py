@@ -90,6 +90,13 @@ class CreateLimit(command.ShowOne):
                 region = common_utils.get_resource(
                     identity_client.regions, parsed_args.region
                 )
+            else:
+                self.log.warning(
+                    _(
+                        "Passing 'None' to indicate no region is deprecated. "
+                        "Instead, don't pass --region."
+                    )
+                )
 
         limit = identity_client.limits.create(
             project,
@@ -158,6 +165,14 @@ class ListLimit(command.Lister):
                 region = common_utils.get_resource(
                     identity_client.regions, parsed_args.region
                 )
+            else:
+                self.log.warning(
+                    _(
+                        "Passing 'None' to indicate no region is deprecated. "
+                        "Instead, don't pass --region."
+                    )
+                )
+
         project = None
         if parsed_args.project:
             project = utils.find_resource(
