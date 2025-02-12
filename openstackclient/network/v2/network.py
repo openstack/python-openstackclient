@@ -60,7 +60,11 @@ def _get_columns_network(item):
         'ipv6_address_scope_id': 'ipv6_address_scope',
         'tags': 'tags',
     }
-    hidden_columns = ['location', 'tenant_id']
+    # TODO(slaweq): temporary, until
+    # https://review.opendev.org/c/openstack/openstacksdk/+/939703 will be
+    # merged this new column should be hidden from the output (it is just to
+    # make unit tests in the openstacksdk patch happy)
+    hidden_columns = ['location', 'tenant_id', 'is_vlan_qinq']
     return utils.get_osc_show_columns_for_sdk_resource(
         item, column_map, hidden_columns
     )
