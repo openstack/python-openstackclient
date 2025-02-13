@@ -537,12 +537,12 @@ class CreatePort(command.ShowOne, common.NeutronCommandWithExtraArgs):
         uplink_status_group.add_argument(
             '--enable-uplink-status-propagation',
             action='store_true',
-            help=_("Enable uplink status propagate"),
+            help=_("Enable uplink status propagation (default)"),
         )
         uplink_status_group.add_argument(
             '--disable-uplink-status-propagation',
             action='store_true',
-            help=_("Disable uplink status propagate (default)"),
+            help=_("Disable uplink status propagation"),
         )
         parser.add_argument(
             '--project',
