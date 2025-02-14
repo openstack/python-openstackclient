@@ -11,7 +11,6 @@
 #   WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
 #   License for the specific language governing permissions and limitations
 #   under the License.
-#
 
 import logging
 
@@ -21,13 +20,11 @@ from openstackclient.i18n import _
 
 LOG = logging.getLogger(__name__)
 
+# global variables used when building the shell
 DEFAULT_API_VERSION = '2.1'
 API_VERSION_OPTION = 'os_compute_api_version'
 API_NAME = 'compute'
-API_VERSIONS = {
-    '2': 'openstack.connection.Connection',
-    '2.1': 'openstack.connection.Connection',
-}
+API_VERSIONS = ('2', '2.1')
 
 
 def make_client(instance):

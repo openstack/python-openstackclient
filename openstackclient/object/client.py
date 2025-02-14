@@ -19,12 +19,11 @@ from osc_lib import utils
 
 from openstackclient.api import object_store_v1
 
+# global variables used when building the shell
 DEFAULT_API_VERSION = '1'
 API_VERSION_OPTION = 'os_object_api_version'
 API_NAME = 'object_store'
-API_VERSIONS = {
-    '1': 'openstackclient.object.client.ObjectClientv1',
-}
+API_VERSIONS = ('1',)
 
 
 def make_client(instance):

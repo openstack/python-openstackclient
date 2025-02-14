@@ -88,17 +88,34 @@ class OpenStackShell(shell.OpenStackShell):
                     # this throws an exception if invalid
                     skip_old_check = mod_check_api_version(version_opt)
 
+                # NOTE(stephenfin): API_VERSIONS has traditionally been a
+                # dictionary but the values are only used internally and are
+                # ignored for the modules using SDK. So we now support tuples
+                # instead.
                 mod_versions = getattr(mod, 'API_VERSIONS', None)
-                if not skip_old_check and mod_versions:
+                if mod_versions is not None and not isinstance(
+                    mod_versions, (dict, tuple)
+                ):
+                    raise TypeError(
+                        f'Plugin {mod} has incompatible API_VERSIONS. '
+                        f'Expected: tuple, dict. Got: {type(mod_versions)}. '
+                        f'Please report this to your package maintainer.'
+                    )
+
+                if mod_versions and not skip_old_check:
                     if version_opt not in mod_versions:
                         sorted_versions = sorted(
-                            mod.API_VERSIONS.keys(),
+                            list(mod.API_VERSIONS),
                             key=lambda s: list(map(int, s.split('.'))),
                         )
                         self.log.warning(
-                            "{} version {} is not in supported versions: {}".format(
-                                api, version_opt, ', '.join(sorted_versions)
-                            )
+                            "%(name)s API version %(version)s is not in "
+                            "supported versions: %(supported)s",
+                            {
+                                'name': api,
+                                'version': version_opt,
+                                'supported': ', '.join(sorted_versions),
+                            },
                         )
 
                 # Command groups deal only with major versions

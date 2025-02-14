@@ -11,7 +11,6 @@
 #   WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
 #   License for the specific language governing permissions and limitations
 #   under the License.
-#
 
 import logging
 
@@ -20,9 +19,9 @@ from osc_lib import utils
 
 from openstackclient.i18n import _
 
-
 LOG = logging.getLogger(__name__)
 
+# global variables used when building the shell
 DEFAULT_API_VERSION = '3'
 API_VERSION_OPTION = 'os_identity_api_version'
 API_NAME = 'identity'
