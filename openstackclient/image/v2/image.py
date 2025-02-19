@@ -428,7 +428,7 @@ class CreateImage(command.ShowOne):
 
         # Build an attribute dict from the parsed args, only include
         # attributes that were actually set on the command line
-        kwargs = {'allow_duplicates': True}
+        kwargs: dict[str, ty.Any] = {'allow_duplicates': True}
         copy_attrs = (
             'name',
             'id',
@@ -611,7 +611,7 @@ class CreateImage(command.ShowOne):
             volume_client.volumes,
             parsed_args.volume,
         )
-        kwargs = {
+        kwargs: dict[str, ty.Any] = {
             'visibility': None,
             'protected': None,
         }
@@ -1575,7 +1575,7 @@ class StageImage(command.Command):
         else:
             fp = get_data_from_stdin()
 
-        kwargs = {}
+        kwargs: dict[str, ty.Any] = {}
 
         if parsed_args.progress and parsed_args.filename:
             # NOTE(stephenfin): we only show a progress bar if the user

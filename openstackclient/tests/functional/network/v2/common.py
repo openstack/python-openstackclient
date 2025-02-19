@@ -33,7 +33,7 @@ class NetworkTests(base.TestCase):
 class NetworkTagTests(NetworkTests):
     """Functional tests with tag operation"""
 
-    base_command = None
+    base_command: str
 
     def test_tag_operation(self):
         # Get project IDs
@@ -56,7 +56,7 @@ class NetworkTagTests(NetworkTests):
             'set', name1, '--tag red --tag green', ['red', 'green']
         )
 
-        list_expected: tuple[tuple[str, list[str]]] = (
+        list_expected: tuple[tuple[str, list[str]], ...] = (
             (name1, ['red', 'green']),
             (name2, ['red', 'blue']),
             (name3, []),
@@ -93,7 +93,11 @@ class NetworkTagTests(NetworkTests):
             parse_output=True,
         )
 
-    def _create_resource_and_tag_check(self, args, expected):
+    def _create_resource_and_tag_check(
+        self,
+        args: str,
+        expected: list[str],
+    ) -> str:
         name = uuid.uuid4().hex
         cmd_output = self._create_resource_for_tag_test(name, args)
         self.addCleanup(self.openstack, f'{self.base_command} delete {name}')

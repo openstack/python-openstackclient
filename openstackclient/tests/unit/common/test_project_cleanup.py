@@ -10,7 +10,6 @@
 #   License for the specific language governing permissions and limitations
 #   under the License.
 
-from io import StringIO
 from unittest import mock
 
 from openstackclient.common import project_cleanup
@@ -70,7 +69,7 @@ class TestProjectCleanup(test_utils.TestCommand):
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
         result = None
 
-        with mock.patch('sys.stdin', StringIO('y')):
+        with mock.patch('getpass.getpass', return_value='y'):
             result = self.cmd.take_action(parsed_args)
 
         self.sdk_connect_as_project_mock.assert_called_with(self.project)
@@ -143,7 +142,7 @@ class TestProjectCleanup(test_utils.TestCommand):
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
         result = None
 
-        with mock.patch('sys.stdin', StringIO('y')):
+        with mock.patch('getpass.getpass', return_value='y'):
             result = self.cmd.take_action(parsed_args)
 
         self.sdk_connect_as_project_mock.assert_called_with(self.project)
@@ -178,7 +177,7 @@ class TestProjectCleanup(test_utils.TestCommand):
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
         result = None
 
-        with mock.patch('sys.stdin', StringIO('n')):
+        with mock.patch('getpass.getpass', return_value='y'):
             result = self.cmd.take_action(parsed_args)
 
         self.sdk_connect_as_project_mock.assert_called_with(self.project)
@@ -234,7 +233,7 @@ class TestProjectCleanup(test_utils.TestCommand):
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
         result = None
 
-        with mock.patch('sys.stdin', StringIO('y')):
+        with mock.patch('getpass.getpass', return_value='y'):
             result = self.cmd.take_action(parsed_args)
 
         self.sdk_connect_as_project_mock.assert_not_called()
@@ -268,7 +267,7 @@ class TestProjectCleanup(test_utils.TestCommand):
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
         result = None
 
-        with mock.patch('sys.stdin', StringIO('y')):
+        with mock.patch('getpass.getpass', return_value='y'):
             result = self.cmd.take_action(parsed_args)
 
         self.sdk_connect_as_project_mock.assert_called_with(self.project)

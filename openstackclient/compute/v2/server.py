@@ -1970,7 +1970,7 @@ class CreateServer(command.ShowOne):
 
                 # convert from the novaclient-derived "NIC" view to the actual
                 # "network" view
-                network = {}
+                network: dict[str, str] = {}
 
                 if nic['net-id']:
                     network['uuid'] = nic['net-id']
@@ -1986,7 +1986,7 @@ class CreateServer(command.ShowOne):
                 if nic.get('tag'):  # tags are optional
                     network['tag'] = nic['tag']
 
-                networks.append(network)
+                networks.append(network)  # type: ignore[union-attr]
 
         if not parsed_args.nics and sdk_utils.supports_microversion(
             compute_client, '2.37'
