@@ -25,7 +25,7 @@ class QuotaTests(base.TestCase):
     test runs as these may run in parallel and otherwise step on each other.
     """
 
-    PROJECT_NAME = None
+    PROJECT_NAME: str
 
     @classmethod
     def setUpClass(cls):

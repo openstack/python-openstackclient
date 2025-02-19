@@ -18,8 +18,8 @@ from openstackclient.tests.functional.network.v2 import common
 class NetworkRBACTests(common.NetworkTests):
     """Functional tests for network rbac"""
 
-    OBJECT_ID = None
-    ID = None
+    OBJECT_ID: str
+    ID: str
     HEADERS = ['ID']
     FIELDS = ['id']
 
