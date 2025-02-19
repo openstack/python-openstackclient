@@ -1,0 +1,6 @@
+---
+features:
+  - |
+    Added four new network agent types to the list method filter:
+    ``ovn-controller``, ``ovn-controller-gateway``, ``ovn-metadata`` and
+    ``ovn-agent``.

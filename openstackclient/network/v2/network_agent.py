@@ -164,32 +164,37 @@ class DeleteNetworkAgent(command.Command):
 # OSC minimum requirements include SDK 1.0.
 class ListNetworkAgent(command.Lister):
     _description = _("List network agents")
+    _supported_agents = {
+        'bgp': 'BGP dynamic routing agent',
+        'dhcp': 'DHCP agent',
+        'open-vswitch': 'Open vSwitch agent',
+        'linux-bridge': 'Linux bridge agent',
+        'ofa': 'OFA driver agent',
+        'l3': 'L3 agent',
+        'loadbalancer': 'Loadbalancer agent',
+        'metering': 'Metering agent',
+        'metadata': 'Metadata agent',
+        'macvtap': 'Macvtap agent',
+        'nic': 'NIC Switch agent',
+        'baremetal': 'Baremetal Node',
+        'ovn-controller': 'OVN Controller agent',
+        'ovn-controller-gateway': 'OVN Controller Gateway agent',
+        'ovn-metadata': 'OVN Metadata agent',
+        'ovn-agent': 'OVN Neutron agent',
+    }
 
     def get_parser(self, prog_name):
         parser = super().get_parser(prog_name)
+        supported_agents = ','.join(self._supported_agents.keys())
         parser.add_argument(
             '--agent-type',
             metavar='<agent-type>',
-            choices=[
-                "bgp",
-                "dhcp",
-                "open-vswitch",
-                "linux-bridge",
-                "ofa",
-                "l3",
-                "loadbalancer",
-                "metering",
-                "metadata",
-                "macvtap",
-                "nic",
-                "baremetal",
-            ],
+            choices=list(self._supported_agents.keys()),
             help=_(
                 "List only agents with the specified agent type. "
-                "The supported agent types are: bgp, dhcp, open-vswitch, "
-                "linux-bridge, ofa, l3, loadbalancer, metering, "
-                "metadata, macvtap, nic, baremetal."
-            ),
+                "The supported agent types are: %(supported_agents)s."
+            )
+            % {'supported_agents': supported_agents},
         )
         parser.add_argument(
             '--host',
@@ -237,21 +242,6 @@ class ListNetworkAgent(command.Lister):
             'Binary',
         )
 
-        key_value = {
-            'bgp': 'BGP dynamic routing agent',
-            'dhcp': 'DHCP agent',
-            'open-vswitch': 'Open vSwitch agent',
-            'linux-bridge': 'Linux bridge agent',
-            'ofa': 'OFA driver agent',
-            'l3': 'L3 agent',
-            'loadbalancer': 'Loadbalancer agent',
-            'metering': 'Metering agent',
-            'metadata': 'Metadata agent',
-            'macvtap': 'Macvtap agent',
-            'nic': 'NIC Switch agent',
-            'baremetal': 'Baremetal Node',
-        }
-
         filters = {}
 
         if parsed_args.network is not None:
@@ -269,7 +259,9 @@ class ListNetworkAgent(command.Lister):
             data = client.routers_hosting_l3_agents(router)
         else:
             if parsed_args.agent_type is not None:
-                filters['agent_type'] = key_value[parsed_args.agent_type]
+                filters['agent_type'] = self._supported_agents[
+                    parsed_args.agent_type
+                ]
             if parsed_args.host is not None:
                 filters['host'] = parsed_args.host
 
