@@ -220,13 +220,13 @@ class ListServerEvent(command.Lister):
 
         data = compute_client.server_actions(server_id, **kwargs)
 
-        columns = (
+        columns: tuple[str, ...] = (
             'request_id',
             'server_id',
             'action',
             'start_time',
         )
-        column_headers = (
+        column_headers: tuple[str, ...] = (
             'Request ID',
             'Server ID',
             'Action',

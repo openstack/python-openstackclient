@@ -109,7 +109,7 @@ deployment."""
 
     def take_action(self, parsed_args):
         compute_client = self.app.client_manager.sdk_connection.compute
-        columns = (
+        columns: tuple[str, ...] = (
             "id",
             "binary",
             "host",
@@ -118,7 +118,7 @@ deployment."""
             "state",
             "updated_at",
         )
-        column_headers = (
+        column_headers: tuple[str, ...] = (
             "ID",
             "Binary",
             "Host",

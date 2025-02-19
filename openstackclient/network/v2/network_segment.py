@@ -178,14 +178,14 @@ class ListNetworkSegment(command.Lister):
             filters = {'network_id': _network.id}
         data = network_client.segments(**filters)
 
-        headers = (
+        headers: tuple[str, ...] = (
             'ID',
             'Name',
             'Network',
             'Network Type',
             'Segment',
         )
-        columns = (
+        columns: tuple[str, ...] = (
             'id',
             'name',
             'network_id',
@@ -193,8 +193,8 @@ class ListNetworkSegment(command.Lister):
             'segmentation_id',
         )
         if parsed_args.long:
-            headers = headers + ('Physical Network',)
-            columns = columns + ('physical_network',)
+            headers += ('Physical Network',)
+            columns += ('physical_network',)
 
         return (
             headers,

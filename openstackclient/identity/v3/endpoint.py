@@ -224,7 +224,7 @@ class ListEndpoint(command.Lister):
             )
 
         if endpoint:
-            columns = ('ID', 'Name')
+            columns: tuple[str, ...] = ('ID', 'Name')
             data = identity_client.endpoint_filter.list_projects_for_endpoint(
                 endpoint=endpoint.id
             )

@@ -265,12 +265,12 @@ class ListNetworkRBAC(command.Lister):
     def take_action(self, parsed_args):
         client = self.app.client_manager.network
 
-        columns = (
+        columns: tuple[str, ...] = (
             'id',
             'object_type',
             'object_id',
         )
-        column_headers = (
+        column_headers: tuple[str, ...] = (
             'ID',
             'Object Type',
             'Object ID',

@@ -606,8 +606,8 @@ class ListSubnet(command.Lister):
         _tag.get_tag_filtering_args(parsed_args, filters)
         data = network_client.subnets(**filters)
 
-        headers = ('ID', 'Name', 'Network', 'Subnet')
-        columns = ('id', 'name', 'network_id', 'cidr')
+        headers: tuple[str, ...] = ('ID', 'Name', 'Network', 'Subnet')
+        columns: tuple[str, ...] = ('id', 'name', 'network_id', 'cidr')
         if parsed_args.long:
             headers += (
                 'Project',

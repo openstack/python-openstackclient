@@ -467,7 +467,7 @@ class ListImage(command.Lister):
             kwargs['is_private'] = True
 
         if parsed_args.long:
-            columns = (
+            columns: tuple[str, ...] = (
                 'ID',
                 'Name',
                 'Disk Format',
@@ -480,7 +480,7 @@ class ListImage(command.Lister):
                 'owner_id',
                 'properties',
             )
-            column_headers = (
+            column_headers: tuple[str, ...] = (
                 'ID',
                 'Name',
                 'Disk Format',

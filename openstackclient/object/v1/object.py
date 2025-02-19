@@ -162,16 +162,9 @@ class ListObject(command.Lister):
         return parser
 
     def take_action(self, parsed_args):
+        columns: tuple[str, ...] = ('Name',)
         if parsed_args.long:
-            columns = (
-                'Name',
-                'Bytes',
-                'Hash',
-                'Content Type',
-                'Last Modified',
-            )
-        else:
-            columns = ('Name',)
+            columns += ('Bytes', 'Hash', 'Content Type', 'Last Modified')
 
         kwargs = {}
         if parsed_args.prefix:

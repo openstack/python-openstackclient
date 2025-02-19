@@ -42,9 +42,9 @@ def _get_columns(item):
 def _get_ranges(item):
     item = sorted([int(i) for i in item])
     for a, b in itertools.groupby(enumerate(item), lambda xy: xy[1] - xy[0]):
-        b = list(b)
+        c = list(b)
         yield (
-            f"{b[0][1]}-{b[-1][1]}" if b[0][1] != b[-1][1] else str(b[0][1])
+            f"{c[0][1]}-{c[-1][1]}" if c[0][1] != c[-1][1] else str(c[0][1])
         )
 
 
@@ -354,7 +354,7 @@ class ListNetworkSegmentRange(command.Lister):
         filters = {}
         data = network_client.network_segment_ranges(**filters)
 
-        headers = (
+        headers: tuple[str, ...] = (
             'ID',
             'Name',
             'Default',
@@ -365,7 +365,7 @@ class ListNetworkSegmentRange(command.Lister):
             'Minimum ID',
             'Maximum ID',
         )
-        columns = (
+        columns: tuple[str, ...] = (
             'id',
             'name',
             'default',
@@ -387,11 +387,11 @@ class ListNetworkSegmentRange(command.Lister):
             # should be listed in output.
             parsed_args.long = True
         if parsed_args.long:
-            headers = headers + (
+            headers += (
                 'Used',
                 'Available',
             )
-            columns = columns + (
+            columns += (
                 'used',
                 'available',
             )

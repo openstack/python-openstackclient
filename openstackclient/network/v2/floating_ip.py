@@ -318,7 +318,7 @@ class ListFloatingIP(common.NetworkAndComputeLister):
         network_client = self.app.client_manager.network
         identity_client = self.app.client_manager.identity
 
-        columns = (
+        columns: tuple[str, ...] = (
             'id',
             'floating_ip_address',
             'fixed_ip_address',
@@ -326,7 +326,7 @@ class ListFloatingIP(common.NetworkAndComputeLister):
             'floating_network_id',
             'project_id',
         )
-        headers = (
+        headers: tuple[str, ...] = (
             'ID',
             'Floating IP Address',
             'Fixed IP Address',
@@ -335,7 +335,7 @@ class ListFloatingIP(common.NetworkAndComputeLister):
             'Project',
         )
         if parsed_args.long:
-            columns = columns + (
+            columns += (
                 'router_id',
                 'status',
                 'description',
@@ -343,7 +343,7 @@ class ListFloatingIP(common.NetworkAndComputeLister):
                 'dns_name',
                 'dns_domain',
             )
-            headers = headers + (
+            headers += (
                 'Router',
                 'Status',
                 'Description',
@@ -403,14 +403,14 @@ class ListFloatingIP(common.NetworkAndComputeLister):
         )
 
     def take_action_compute(self, client, parsed_args):
-        columns = (
+        columns: tuple[str, ...] = (
             'ID',
             'IP',
             'Fixed IP',
             'Instance ID',
             'Pool',
         )
-        headers = (
+        headers: tuple[str, ...] = (
             'ID',
             'Floating IP Address',
             'Fixed IP Address',

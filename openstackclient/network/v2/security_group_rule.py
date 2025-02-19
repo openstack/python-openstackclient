@@ -451,7 +451,7 @@ class ListSecurityGroupRule(common.NetworkAndComputeLister):
         return parser
 
     def _get_column_headers(self, parsed_args):
-        column_headers = (
+        column_headers: tuple[str, ...] = (
             'ID',
             'IP Protocol',
             'Ethertype',
@@ -461,9 +461,9 @@ class ListSecurityGroupRule(common.NetworkAndComputeLister):
             'Remote Security Group',
         )
         if self.is_neutron:
-            column_headers = column_headers + ('Remote Address Group',)
+            column_headers += ('Remote Address Group',)
         if parsed_args.group is None:
-            column_headers = column_headers + ('Security Group',)
+            column_headers += ('Security Group',)
         return column_headers
 
     def take_action_network(self, client, parsed_args):
@@ -474,7 +474,7 @@ class ListSecurityGroupRule(common.NetworkAndComputeLister):
             self.log.warning(msg)
 
         column_headers = self._get_column_headers(parsed_args)
-        columns = (
+        columns: tuple[str, ...] = (
             'id',
             'protocol',
             'ether_type',
@@ -496,7 +496,7 @@ class ListSecurityGroupRule(common.NetworkAndComputeLister):
             ).id
             query = {'security_group_id': security_group_id}
         else:
-            columns = columns + ('security_group_id',)
+            columns += ('security_group_id',)
 
         if parsed_args.ingress:
             query['direction'] = 'ingress'
@@ -523,7 +523,7 @@ class ListSecurityGroupRule(common.NetworkAndComputeLister):
 
     def take_action_compute(self, client, parsed_args):
         column_headers = self._get_column_headers(parsed_args)
-        columns = (
+        columns: tuple[str, ...] = (
             "ID",
             "IP Protocol",
             "Ethertype",
@@ -539,7 +539,7 @@ class ListSecurityGroupRule(common.NetworkAndComputeLister):
             )
             rules_to_list = security_group['rules']
         else:
-            columns = columns + ('parent_group_id',)
+            columns += ('parent_group_id',)
             for security_group in compute_v2.list_security_groups(
                 client, all_projects=parsed_args.all_projects
             ):

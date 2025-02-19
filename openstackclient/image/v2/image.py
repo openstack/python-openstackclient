@@ -881,7 +881,7 @@ class ListImage(command.Lister):
         if parsed_args.is_hidden:
             kwargs['is_hidden'] = parsed_args.is_hidden
         if parsed_args.long:
-            columns = (
+            columns: tuple[str, ...] = (
                 'ID',
                 'Name',
                 'Disk Format',
@@ -894,7 +894,7 @@ class ListImage(command.Lister):
                 'owner_id',
                 'tags',
             )
-            column_headers = (
+            column_headers: tuple[str, ...] = (
                 'ID',
                 'Name',
                 'Disk Format',
@@ -956,7 +956,7 @@ class ListImageProjects(command.Lister):
 
     def take_action(self, parsed_args):
         image_client = self.app.client_manager.image
-        columns = ("Image ID", "Member ID", "Status")
+        columns: tuple[str, ...] = ("Image ID", "Member ID", "Status")
 
         image_id = image_client.find_image(
             parsed_args.image,
@@ -1862,8 +1862,8 @@ class StoresInfo(command.Lister):
     def take_action(self, parsed_args):
         image_client = self.app.client_manager.image
         try:
-            columns = ("id", "description", "is_default")
-            column_headers = ("ID", "Description", "Default")
+            columns: tuple[str, ...] = ("id", "description", "is_default")
+            column_headers: tuple[str, ...] = ("ID", "Description", "Default")
             if parsed_args.detail:
                 columns += ("properties",)
                 column_headers += ("Properties",)

@@ -42,8 +42,8 @@ class ListServerVolume(command.Lister):
         )
         volumes = compute_client.volume_attachments(server)
 
-        columns = ()
-        column_headers = ()
+        columns: tuple[str, ...] = ()
+        column_headers: tuple[str, ...] = ()
 
         if not sdk_utils.supports_microversion(compute_client, '2.89'):
             columns += ('id',)

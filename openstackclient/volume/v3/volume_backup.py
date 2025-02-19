@@ -162,7 +162,7 @@ class CreateVolumeBackup(command.ShowOne):
 
             kwargs['availability_zone'] = parsed_args.availability_zone
 
-        columns = (
+        columns: tuple[str, ...] = (
             "id",
             "name",
             "volume_id",
@@ -298,7 +298,7 @@ class ListVolumeBackup(command.Lister):
     def take_action(self, parsed_args):
         volume_client = self.app.client_manager.sdk_connection.volume
 
-        columns = (
+        columns: tuple[str, ...] = (
             'id',
             'name',
             'description',
@@ -307,7 +307,7 @@ class ListVolumeBackup(command.Lister):
             'is_incremental',
             'created_at',
         )
-        column_headers = (
+        column_headers: tuple[str, ...] = (
             'ID',
             'Name',
             'Description',
@@ -411,7 +411,7 @@ class RestoreVolumeBackup(command.ShowOne):
     def take_action(self, parsed_args):
         volume_client = self.app.client_manager.sdk_connection.volume
 
-        columns = (
+        columns: tuple[str, ...] = (
             'id',
             'volume_id',
             'volume_name',
@@ -654,7 +654,7 @@ class ShowVolumeBackup(command.ShowOne):
     def take_action(self, parsed_args):
         volume_client = self.app.client_manager.sdk_connection.volume
         backup = volume_client.find_backup(parsed_args.backup)
-        columns = (
+        columns: tuple[str, ...] = (
             "availability_zone",
             "container",
             "created_at",

@@ -148,10 +148,9 @@ class ListContainer(command.Lister):
         return parser
 
     def take_action(self, parsed_args):
+        columns: tuple[str, ...] = ('Name',)
         if parsed_args.long:
-            columns = ('Name', 'Bytes', 'Count')
-        else:
-            columns = ('Name',)
+            columns += ('Bytes', 'Count')
 
         kwargs = {}
         if parsed_args.prefix:

@@ -278,10 +278,9 @@ class ListGroup(command.Lister):
             user = None
 
         # List groups
+        columns: tuple[str, ...] = ('ID', 'Name')
         if parsed_args.long:
-            columns = ('ID', 'Name', 'Domain ID', 'Description')
-        else:
-            columns = ('ID', 'Name')
+            columns += ('Domain ID', 'Description')
         data = identity_client.groups.list(
             domain=domain,
             user=user,

@@ -216,12 +216,12 @@ class ListServerGroup(command.Lister):
         if sdk_utils.supports_microversion(compute_client, '2.64'):
             policy_key = 'Policy'
 
-        columns = (
+        columns: tuple[str, ...] = (
             'id',
             'name',
             policy_key.lower(),
         )
-        column_headers = (
+        column_headers: tuple[str, ...] = (
             'ID',
             'Name',
             policy_key,

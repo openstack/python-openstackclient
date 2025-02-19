@@ -376,7 +376,7 @@ class ListVolume(command.Lister):
         volume_client = self.app.client_manager.volume
 
         if parsed_args.long:
-            columns = (
+            columns: tuple[str, ...] = (
                 'ID',
                 'Display Name',
                 'Status',
@@ -386,7 +386,7 @@ class ListVolume(command.Lister):
                 'Attachments',
                 'Metadata',
             )
-            column_headers = (
+            column_headers: tuple[str, ...] = (
                 'ID',
                 'Name',
                 'Status',

@@ -119,14 +119,20 @@ class ListHypervisor(command.Lister):
         if parsed_args.matching:
             list_opts['hypervisor_hostname_pattern'] = parsed_args.matching
 
-        column_headers = (
+        column_headers: tuple[str, ...] = (
             "ID",
             "Hypervisor Hostname",
             "Hypervisor Type",
             "Host IP",
             "State",
         )
-        columns = ('id', 'name', 'hypervisor_type', 'host_ip', 'state')
+        columns: tuple[str, ...] = (
+            'id',
+            'name',
+            'hypervisor_type',
+            'host_ip',
+            'state',
+        )
 
         if parsed_args.long:
             if not sdk_utils.supports_microversion(compute_client, '2.88'):

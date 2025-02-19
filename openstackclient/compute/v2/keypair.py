@@ -372,7 +372,7 @@ class ListKeypair(command.Lister):
         else:
             data = compute_client.keypairs(**kwargs)
 
-        columns = ("Name", "Fingerprint")
+        columns: tuple[str, ...] = ("Name", "Fingerprint")
 
         if sdk_utils.supports_microversion(compute_client, '2.2'):
             columns += ("Type",)

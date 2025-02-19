@@ -245,10 +245,9 @@ class ListProject(command.Lister):
 
     def take_action(self, parsed_args):
         identity_client = self.app.client_manager.identity
+        columns: tuple[str, ...] = ('ID', 'Name')
         if parsed_args.long:
-            columns = ('ID', 'Name', 'Domain ID', 'Description', 'Enabled')
-        else:
-            columns = ('ID', 'Name')
+            columns += ('Domain ID', 'Description', 'Enabled')
         kwargs = {}
 
         domain_id = None

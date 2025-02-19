@@ -230,21 +230,11 @@ class ListUser(command.Lister):
             )
             project = project.id
 
+        columns: tuple[str, ...] = ('id', 'name')
+        column_headers: tuple[str, ...] = ('ID', 'Name')
         if parsed_args.long:
-            columns = (
-                'ID',
-                'Name',
-                'tenantId',
-                'Email',
-                'Enabled',
-            )
-            column_headers = (
-                'ID',
-                'Name',
-                'Project',
-                'Email',
-                'Enabled',
-            )
+            columns += ('tenantId', 'email', 'enabled')
+            column_headers += ('Project', 'Email', 'Enabled')
             # Cache the project list
             project_cache = {}
             try:
@@ -256,8 +246,6 @@ class ListUser(command.Lister):
             formatters['tenantId'] = functools.partial(
                 ProjectColumn, project_cache=project_cache
             )
-        else:
-            columns = column_headers = ('ID', 'Name')
         data = identity_client.users.list(tenant_id=project)
 
         if parsed_args.project:

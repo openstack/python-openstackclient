@@ -158,12 +158,11 @@ class ListService(command.Lister):
     def take_action(self, parsed_args):
         identity_client = self.app.client_manager.sdk_connection.identity
 
+        columns: tuple[str, ...] = ('id', 'name', 'type')
+        column_headers: tuple[str, ...] = ('ID', 'Name', 'Type')
         if parsed_args.long:
-            columns = ('id', 'name', 'type', 'description', 'is_enabled')
-            column_headers = ('ID', 'Name', 'Type', 'Description', 'Enabled')
-        else:
-            columns = ('id', 'name', 'type')
-            column_headers = ('ID', 'Name', 'Type')
+            columns += ('description', 'is_enabled')
+            column_headers += ('Description', 'Enabled')
 
         data = identity_client.services()
 

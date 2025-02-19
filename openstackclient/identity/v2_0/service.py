@@ -121,10 +121,9 @@ class ListService(command.Lister):
         return parser
 
     def take_action(self, parsed_args):
+        columns: tuple[str, ...] = ('ID', 'Name', 'Type')
         if parsed_args.long:
-            columns = ('ID', 'Name', 'Type', 'Description')
-        else:
-            columns = ('ID', 'Name', 'Type')
+            columns += ('Description',)
         data = self.app.client_manager.identity.services.list()
         return (
             columns,

@@ -133,18 +133,19 @@ class ListEndpoint(command.Lister):
 
     def take_action(self, parsed_args):
         identity_client = self.app.client_manager.identity
+
+        columns: tuple[str, ...] = (
+            'ID',
+            'Region',
+            'Service Name',
+            'Service Type',
+        )
         if parsed_args.long:
-            columns = (
-                'ID',
-                'Region',
-                'Service Name',
-                'Service Type',
+            columns += (
                 'PublicURL',
                 'AdminURL',
                 'InternalURL',
             )
-        else:
-            columns = ('ID', 'Region', 'Service Name', 'Service Type')
         data = identity_client.endpoints.list()
 
         for ep in data:

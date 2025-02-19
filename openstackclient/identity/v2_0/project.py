@@ -170,10 +170,9 @@ class ListProject(command.Lister):
         return parser
 
     def take_action(self, parsed_args):
+        columns: tuple[str, ...] = ('ID', 'Name')
         if parsed_args.long:
-            columns = ('ID', 'Name', 'Description', 'Enabled')
-        else:
-            columns = ('ID', 'Name')
+            columns += ('Description', 'Enabled')
         data = self.app.client_manager.identity.tenants.list()
         if parsed_args.sort:
             data = utils.sort_items(data, parsed_args.sort)

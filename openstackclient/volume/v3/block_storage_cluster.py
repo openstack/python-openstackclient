@@ -19,13 +19,13 @@ from openstackclient.i18n import _
 
 
 def _format_cluster(cluster, detailed=False):
-    columns = (
+    columns: tuple[str, ...] = (
         'name',
         'binary',
         'state',
         'status',
     )
-    column_headers = (
+    column_headers: tuple[str, ...] = (
         'Name',
         'Binary',
         'State',
@@ -147,7 +147,7 @@ class ListBlockStorageCluster(command.Lister):
             )
             raise exceptions.CommandError(msg)
 
-        columns = ('Name', 'Binary', 'State', 'Status')
+        columns: tuple[str, ...] = ('Name', 'Binary', 'State', 'Status')
         if parsed_args.long:
             columns += (
                 'Num Hosts',

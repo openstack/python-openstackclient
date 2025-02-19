@@ -734,14 +734,14 @@ class ListRouter(command.Lister):
         identity_client = self.app.client_manager.identity
         client = self.app.client_manager.network
 
-        columns = (
+        columns: tuple[str, ...] = (
             'id',
             'name',
             'status',
             'is_admin_state_up',
             'project_id',
         )
-        column_headers = (
+        column_headers: tuple[str, ...] = (
             'ID',
             'Name',
             'Status',
@@ -787,27 +787,27 @@ class ListRouter(command.Lister):
                 d.is_distributed is not None
                 and 'is_distributed' not in columns
             ):
-                columns = columns + ('is_distributed',)
-                column_headers = column_headers + ('Distributed',)
+                columns += ('is_distributed',)
+                column_headers += ('Distributed',)
             if d.is_ha is not None and 'is_ha' not in columns:
-                columns = columns + ('is_ha',)
-                column_headers = column_headers + ('HA',)
+                columns += ('is_ha',)
+                column_headers += ('HA',)
         if parsed_args.long:
-            columns = columns + (
+            columns += (
                 'routes',
                 'external_gateway_info',
             )
-            column_headers = column_headers + (
+            column_headers += (
                 'Routes',
                 'External gateway info',
             )
             # availability zone will be available only when
             # router_availability_zone extension is enabled
             if client.find_extension("router_availability_zone"):
-                columns = columns + ('availability_zones',)
-                column_headers = column_headers + ('Availability zones',)
-            columns = columns + ('tags',)
-            column_headers = column_headers + ('Tags',)
+                columns += ('availability_zones',)
+                column_headers += ('Availability zones',)
+            columns += ('tags',)
+            column_headers += ('Tags',)
 
         return (
             column_headers,

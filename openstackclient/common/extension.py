@@ -73,17 +73,9 @@ class ListExtension(command.Lister):
         return parser
 
     def take_action(self, parsed_args):
+        columns: tuple[str, ...] = ('Name', 'Alias', 'Description')
         if parsed_args.long:
-            columns = (
-                'Name',
-                'Alias',
-                'Description',
-                'Namespace',
-                'Updated At',
-                'Links',
-            )
-        else:
-            columns = ('Name', 'Alias', 'Description')
+            columns += ('Namespace', 'Updated At', 'Links')
 
         data = []
 

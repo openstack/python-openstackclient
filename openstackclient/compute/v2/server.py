@@ -430,7 +430,7 @@ class AddFixedIP(command.ShowOne):
 
         interface = compute_client.create_server_interface(server.id, **kwargs)
 
-        columns = (
+        columns: tuple[str, ...] = (
             'port_id',
             'server_id',
             'net_id',
@@ -438,7 +438,7 @@ class AddFixedIP(command.ShowOne):
             'port_state',
             'fixed_ips',
         )
-        column_headers = (
+        column_headers: tuple[str, ...] = (
             'Port ID',
             'Server ID',
             'Network ID',
@@ -842,8 +842,13 @@ with status ``SHELVED`` or ``SHELVED_OFFLOADED``."""
             **kwargs,
         )
 
-        columns = ('id', 'server id', 'volume id', 'device')
-        column_headers = ('ID', 'Server ID', 'Volume ID', 'Device')
+        columns: tuple[str, ...] = ('id', 'server id', 'volume id', 'device')
+        column_headers: tuple[str, ...] = (
+            'ID',
+            'Server ID',
+            'Volume ID',
+            'Device',
+        )
         if sdk_utils.supports_microversion(compute_client, '2.49'):
             columns += ('tag',)
             column_headers += ('Tag',)
@@ -2802,12 +2807,12 @@ class ListServer(command.Lister):
                     msg % search_opts['changes-since']
                 )
 
-        columns = (
+        columns: tuple[str, ...] = (
             'id',
             'name',
             'status',
         )
-        column_headers = (
+        column_headers: tuple[str, ...] = (
             'ID',
             'Name',
             'Status',

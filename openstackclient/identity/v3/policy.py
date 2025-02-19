@@ -113,12 +113,11 @@ class ListPolicy(command.Lister):
         return parser
 
     def take_action(self, parsed_args):
+        columns: tuple[str, ...] = ('ID', 'Type')
+        column_headers: tuple[str, ...] = columns
         if parsed_args.long:
-            columns = ('ID', 'Type', 'Blob')
-            column_headers = ('ID', 'Type', 'Rules')
-        else:
-            columns = ('ID', 'Type')
-            column_headers = columns
+            columns += ('Blob',)
+            column_headers += ('Rules',)
         data = self.app.client_manager.identity.policies.list()
         return (
             column_headers,

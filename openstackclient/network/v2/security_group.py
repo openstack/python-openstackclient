@@ -277,7 +277,7 @@ class ListSecurityGroup(common.NetworkAndComputeLister):
             fields=self.FIELDS_TO_RETRIEVE, **filters
         )
 
-        columns = ("ID", "Name", "Description", "Project ID", "tags")
+        columns = ("id", "name", "description", "project_id", "tags")
         column_headers = ("ID", "Name", "Description", "Project", "Tags")
         return (
             column_headers,
@@ -297,15 +297,11 @@ class ListSecurityGroup(common.NetworkAndComputeLister):
             all_projects=parsed_args.all_projects,
         )
 
-        columns = (
-            "ID",
-            "Name",
-            "Description",
-        )
-        column_headers = columns
+        columns: tuple[str, ...] = ("id", "name", "description")
+        column_headers: tuple[str, ...] = ("ID", "Name", "Description")
         if parsed_args.all_projects:
-            columns = columns + ('Tenant ID',)
-            column_headers = column_headers + ('Project',)
+            columns += ('tenant_id',)
+            column_headers += ('Project',)
         return (
             column_headers,
             (

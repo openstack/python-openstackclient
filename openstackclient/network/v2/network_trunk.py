@@ -151,8 +151,8 @@ class ListNetworkTrunk(command.Lister):
     def take_action(self, parsed_args):
         client = self.app.client_manager.network
         data = client.trunks()
-        headers = ('ID', 'Name', 'Parent Port', 'Description')
-        columns = ('id', 'name', 'port_id', 'description')
+        headers: tuple[str, ...] = ('ID', 'Name', 'Parent Port', 'Description')
+        columns: tuple[str, ...] = ('id', 'name', 'port_id', 'description')
         if parsed_args.long:
             headers += (
                 'Status',
@@ -277,8 +277,16 @@ class ListNetworkSubport(command.Lister):
         client = self.app.client_manager.network
         trunk_id = client.find_trunk(parsed_args.trunk)
         data = client.get_trunk_subports(trunk_id)
-        headers = ('Port', 'Segmentation Type', 'Segmentation ID')
-        columns = ('port_id', 'segmentation_type', 'segmentation_id')
+        headers: tuple[str, ...] = (
+            'Port',
+            'Segmentation Type',
+            'Segmentation ID',
+        )
+        columns: tuple[str, ...] = (
+            'port_id',
+            'segmentation_type',
+            'segmentation_id',
+        )
         return (
             headers,
             (

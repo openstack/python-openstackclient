@@ -428,7 +428,7 @@ class ListRole(command.Lister):
             domain = identity_client.find_domain(
                 name_or_id=parsed_args.domain,
             )
-            columns = ('ID', 'Name', 'Domain')
+            columns: tuple[str, ...] = ('ID', 'Name', 'Domain')
             data = identity_client.roles(domain_id=domain.id)
         else:
             columns = ('ID', 'Name')

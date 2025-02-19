@@ -194,8 +194,8 @@ class ListAggregate(command.Lister):
         aggregates = list(compute_client.aggregates())
 
         if sdk_utils.supports_microversion(compute_client, '2.41'):
-            column_headers = ("ID", "UUID")
-            columns = ("id", "uuid")
+            column_headers: tuple[str, ...] = ("ID", "UUID")
+            columns: tuple[str, ...] = ("id", "uuid")
         else:
             column_headers = ("ID",)
             columns = ("id",)

@@ -223,7 +223,7 @@ class ListNetworkAgent(command.Lister):
 
     def take_action(self, parsed_args):
         client = self.app.client_manager.network
-        columns = (
+        columns: tuple[str, ...] = (
             'id',
             'agent_type',
             'host',
@@ -232,7 +232,7 @@ class ListNetworkAgent(command.Lister):
             'is_admin_state_up',
             'binary',
         )
-        column_headers = (
+        column_headers: tuple[str, ...] = (
             'ID',
             'Agent Type',
             'Host',

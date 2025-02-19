@@ -356,8 +356,8 @@ class ListSubnetPool(command.Lister):
         _tag.get_tag_filtering_args(parsed_args, filters)
         data = network_client.subnet_pools(**filters)
 
-        headers = ('ID', 'Name', 'Prefixes')
-        columns = ('id', 'name', 'prefixes')
+        headers: tuple[str, ...] = ('ID', 'Name', 'Prefixes')
+        columns: tuple[str, ...] = ('id', 'name', 'prefixes')
         if parsed_args.long:
             headers += (
                 'Default Prefix Length',

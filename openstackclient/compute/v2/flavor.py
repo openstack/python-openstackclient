@@ -329,7 +329,7 @@ class ListFlavor(command.Lister):
             if parsed_args.long and not f.extra_specs:
                 compute_client.fetch_flavor_extra_specs(f)
 
-        columns = (
+        columns: tuple[str, ...] = (
             "id",
             "name",
             "ram",
@@ -345,7 +345,7 @@ class ListFlavor(command.Lister):
                 "extra_specs",
             )
 
-        column_headers = (
+        column_headers: tuple[str, ...] = (
             "ID",
             "Name",
             "RAM",

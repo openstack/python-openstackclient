@@ -573,7 +573,7 @@ class ListNetwork(common.NetworkAndComputeLister):
     def take_action_network(self, client, parsed_args):
         identity_client = self.app.client_manager.identity
         if parsed_args.long:
-            columns = (
+            columns: tuple[str, ...] = (
                 'id',
                 'name',
                 'status',
@@ -586,7 +586,7 @@ class ListNetwork(common.NetworkAndComputeLister):
                 'availability_zones',
                 'tags',
             )
-            column_headers = (
+            column_headers: tuple[str, ...] = (
                 'ID',
                 'Name',
                 'Status',

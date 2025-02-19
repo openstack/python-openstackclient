@@ -172,17 +172,14 @@ class ListAvailabilityZone(command.Lister):
         return result
 
     def take_action(self, parsed_args):
+        columns: tuple[str, ...] = ('Zone Name', 'Zone Status')
         if parsed_args.long:
-            columns = (
-                'Zone Name',
-                'Zone Status',
+            columns += (
                 'Zone Resource',
                 'Host Name',
                 'Service Name',
                 'Service Status',
             )
-        else:
-            columns = ('Zone Name', 'Zone Status')
 
         # Show everything by default.
         show_all = (

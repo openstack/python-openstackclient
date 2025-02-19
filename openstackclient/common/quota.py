@@ -290,7 +290,7 @@ class ListQuota(command.Lister):
             if default_result != project_result:
                 result += project_result
 
-        columns = (
+        columns: tuple[str, ...] = (
             'id',
             'cores',
             'injected_files',
@@ -303,7 +303,7 @@ class ListQuota(command.Lister):
             'server_groups',
             'server_group_members',
         )
-        column_headers = (
+        column_headers: tuple[str, ...] = (
             'Project ID',
             'Cores',
             'Injected Files',
@@ -352,7 +352,7 @@ class ListQuota(command.Lister):
             if default_result != project_result:
                 result += project_result
 
-        columns = (
+        columns: tuple[str, ...] = (
             'id',
             'backups',
             'backup_gigabytes',
@@ -361,7 +361,7 @@ class ListQuota(command.Lister):
             'snapshots',
             'volumes',
         )
-        column_headers = (
+        column_headers: tuple[str, ...] = (
             'Project ID',
             'Backups',
             'Backup Gigabytes',
@@ -407,7 +407,7 @@ class ListQuota(command.Lister):
             if default_result != project_result:
                 result += project_result
 
-        columns = (
+        columns: tuple[str, ...] = (
             'id',
             'floating_ips',
             'networks',
@@ -419,7 +419,7 @@ class ListQuota(command.Lister):
             'subnets',
             'subnet_pools',
         )
-        column_headers = (
+        column_headers: tuple[str, ...] = (
             'Project ID',
             'Floating IPs',
             'Networks',
@@ -823,11 +823,11 @@ and ``server-group-members`` output for a given quota class."""
                 if k not in ('usage', 'reservation')
             ]
 
-        columns = (
+        columns: tuple[str, ...] = (
             'resource',
             'limit',
         )
-        column_headers = (
+        column_headers: tuple[str, ...] = (
             'Resource',
             'Limit',
         )

@@ -333,7 +333,7 @@ class ShowMigration(command.ShowOne):
                 ignore_missing=False,
             )
 
-        column_headers = (
+        column_headers: tuple[str, ...] = (
             'ID',
             'Server UUID',
             'Status',
@@ -352,7 +352,7 @@ class ShowMigration(command.ShowOne):
             'Updated At',
         )
 
-        columns = (
+        columns: tuple[str, ...] = (
             'id',
             'server_id',
             'status',
