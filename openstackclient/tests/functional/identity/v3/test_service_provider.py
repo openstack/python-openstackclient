@@ -52,13 +52,9 @@ class ServiceProviderTests(common.IdentityTests):
         service_provider = self._create_dummy_sp(add_clean_up=True)
         new_description = data_utils.rand_name('newDescription')
         raw_output = self.openstack(
-            'service provider set '
-            '%(service-provider)s '
-            '--description %(description)s '
-            % {
-                'service-provider': service_provider,
-                'description': new_description,
-            }
+            f'service provider set '
+            f'{service_provider} '
+            f'--description {new_description}'
         )
         updated_value = self.parse_show_as_object(raw_output)
         self.assertEqual(new_description, updated_value.get('description'))

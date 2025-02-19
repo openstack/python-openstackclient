@@ -54,13 +54,9 @@ class IdentityProviderTests(common.IdentityTests):
         identity_provider = self._create_dummy_idp(add_clean_up=True)
         new_remoteid = data_utils.rand_name('newRemoteId')
         raw_output = self.openstack(
-            'identity provider set '
-            '%(identity-provider)s '
-            '--remote-id %(remote-id)s '
-            % {
-                'identity-provider': identity_provider,
-                'remote-id': new_remoteid,
-            }
+            f'identity provider set '
+            f'{identity_provider} '
+            f'--remote-id {new_remoteid}'
         )
         self.assertEqual(0, len(raw_output))
         raw_output = self.openstack(

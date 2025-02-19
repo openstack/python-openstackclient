@@ -23,7 +23,7 @@ def transform_compute_security_group_rule(sg_rule):
     from_port = info.pop('from_port')
     to_port = info.pop('to_port')
     if isinstance(from_port, int) and isinstance(to_port, int):
-        port_range = {'port_range': "%u:%u" % (from_port, to_port)}
+        port_range = {'port_range': f"{from_port}:{to_port}"}
     elif from_port is None and to_port is None:
         port_range = {'port_range': ""}
     else:

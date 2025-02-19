@@ -1270,8 +1270,7 @@ class AddGatewayToRouter(command.ShowOne):
         parser.add_argument(
             metavar="<network>",
             help=_(
-                "External Network to a attach a router gateway to (name or "
-                "ID)"
+                "External Network to a attach a router gateway to (name or ID)"
             ),
             dest='external_gateways',
             # The argument is stored in a list in order to reuse the
@@ -1338,8 +1337,7 @@ class RemoveGatewayFromRouter(command.ShowOne):
         parser.add_argument(
             metavar="<network>",
             help=_(
-                "External Network to remove a router gateway from (name or "
-                "ID)"
+                "External Network to remove a router gateway from (name or ID)"
             ),
             dest='external_gateways',
             # The argument is stored in a list in order to reuse the

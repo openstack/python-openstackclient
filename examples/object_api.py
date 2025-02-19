@@ -94,7 +94,7 @@ def run(opts):
     c_list = obj_api.container_list()
     print("Name\tCount\tBytes")
     for c in c_list:
-        print("%s\t%d\t%d" % (c['name'], c['count'], c['bytes']))
+        print(f"{c['name']}\t{c['count']}\t{c['bytes']}")
 
     if len(c_list) > 0:
         # See what is in the first container
