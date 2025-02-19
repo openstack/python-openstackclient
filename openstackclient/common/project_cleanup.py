@@ -17,6 +17,7 @@ import getpass
 import logging
 import os
 import queue
+import typing as ty
 
 from cliff.formatters import table
 from osc_lib.command import command
@@ -100,7 +101,7 @@ class ProjectCleanup(command.Command):
             project_connect = sdk.connect_as_project(project)
 
         if project_connect:
-            status_queue = queue.Queue()
+            status_queue: queue.Queue[ty.Any] = queue.Queue()
             parsed_args.max_width = int(
                 os.environ.get('CLIFF_MAX_TERM_WIDTH', 0)
             )

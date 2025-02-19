@@ -15,6 +15,7 @@
 
 import copy
 import logging
+import typing as ty
 
 from cliff import columns as cliff_columns
 from osc_lib.cli import format_columns
@@ -831,7 +832,7 @@ class UnsetSubnet(common.NeutronUnsetCommandWithExtraArgs):
         client = self.app.client_manager.network
         obj = client.find_subnet(parsed_args.subnet, ignore_missing=False)
 
-        attrs = {}
+        attrs: dict[str, ty.Any] = {}
         if parsed_args.gateway:
             attrs['gateway_ip'] = None
         if parsed_args.dns_nameservers:

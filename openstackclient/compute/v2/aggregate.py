@@ -17,6 +17,7 @@
 """Compute v2 Aggregate action implementations"""
 
 import logging
+import typing as ty
 
 from openstack import utils as sdk_utils
 from osc_lib.cli import format_columns
@@ -321,7 +322,7 @@ class SetAggregate(command.Command):
         if kwargs:
             compute_client.update_aggregate(aggregate.id, **kwargs)
 
-        properties = {}
+        properties: dict[str, ty.Any] = {}
         if parsed_args.no_property:
             # NOTE(RuiChen): "availability_zone" can not be unset from
             # properties. It is already excluded from show and create output.

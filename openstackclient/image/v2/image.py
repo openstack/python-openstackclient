@@ -20,6 +20,7 @@ from base64 import b64encode
 import logging
 import os
 import sys
+import typing as ty
 
 from cinderclient import api_versions
 from openstack import exceptions as sdk_exceptions
@@ -615,7 +616,10 @@ class CreateImage(command.ShowOne):
             volume_client.volumes,
             parsed_args.volume,
         )
-        kwargs = {}
+        kwargs = {
+            'visibility': None,
+            'protected': None,
+        }
         if volume_client.api_version < api_versions.APIVersion('3.1'):
             if parsed_args.visibility or parsed_args.is_protected is not None:
                 msg = _(
@@ -625,10 +629,8 @@ class CreateImage(command.ShowOne):
                 )
                 raise exceptions.CommandError(msg)
         else:
-            kwargs.update(
-                visibility=parsed_args.visibility or 'private',
-                protected=parsed_args.is_protected or False,
-            )
+            kwargs['visibility'] = parsed_args.visibility or 'private'
+            kwargs['protected'] = parsed_args.is_protected or False
 
         response, body = volume_client.volumes.upload_to_image(
             source_volume.id,
@@ -1453,7 +1455,6 @@ class UnsetImage(command.Command):
             ignore_missing=False,
         )
 
-        kwargs = {}
         tagret = 0
         propret = 0
         if parsed_args.tags:
@@ -1466,6 +1467,7 @@ class UnsetImage(command.Command):
                     )
                     tagret += 1
 
+        kwargs: dict[str, ty.Any] = {}
         if parsed_args.properties:
             for k in parsed_args.properties:
                 if k in image:

@@ -23,8 +23,7 @@ class ListMetadefResourceTypes(command.Lister):
 
     def take_action(self, parsed_args):
         image_client = self.app.client_manager.image
-        kwargs = {}
-        data = image_client.metadef_resource_types(**kwargs)
+        data = image_client.metadef_resource_types()
         columns = ['Name']
         column_headers = columns
         return (

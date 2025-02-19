@@ -25,10 +25,9 @@ from openstackclient.i18n import _
 def _get_console_columns(item):
     # To maintain backwards compatibility we need to rename sdk props to
     # whatever OSC was using before
-    column_map = {}
     hidden_columns = ['id', 'links', 'location', 'name']
     return utils.get_osc_show_columns_for_sdk_resource(
-        item, column_map, hidden_columns
+        item, {}, hidden_columns
     )
 
 

@@ -18,6 +18,7 @@
 import importlib
 import logging
 import sys
+import typing as ty
 
 from osc_lib import clientmanager
 from osc_lib import shell
@@ -26,7 +27,7 @@ import stevedore
 
 LOG = logging.getLogger(__name__)
 
-PLUGIN_MODULES = []
+PLUGIN_MODULES: list[ty.Any] = []
 
 USER_AGENT = 'python-openstackclient'
 

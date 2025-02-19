@@ -731,9 +731,7 @@ class SetVolumeType(command.Command):
                 )
                 result += 1
 
-        properties = {}
-
-        properties = {}
+        properties: dict[str, str] = {}
         if parsed_args.properties:
             properties.update(parsed_args.properties)
         if parsed_args.multiattach:

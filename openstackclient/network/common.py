@@ -14,6 +14,7 @@
 import abc
 import contextlib
 import logging
+import typing as ty
 
 import openstack.exceptions
 from osc_lib.cli import parseractions
@@ -295,10 +296,10 @@ class NeutronCommandWithExtraArgs(command.Command):
     }
 
     def _get_property_converter(self, _property):
-        if 'type' not in _property:
-            converter = str
-        else:
+        if 'type' in _property:
             converter = self._allowed_types_dict.get(_property['type'])
+        else:
+            converter = str
 
         if not converter:
             raise exceptions.CommandError(
@@ -311,7 +312,7 @@ class NeutronCommandWithExtraArgs(command.Command):
         return converter
 
     def _parse_extra_properties(self, extra_properties):
-        result = {}
+        result: dict[str, ty.Any] = {}
         if extra_properties:
             for _property in extra_properties:
                 converter = self._get_property_converter(_property)
@@ -344,7 +345,7 @@ class NeutronCommandWithExtraArgs(command.Command):
 
 class NeutronUnsetCommandWithExtraArgs(NeutronCommandWithExtraArgs):
     def _parse_extra_properties(self, extra_properties):
-        result = {}
+        result: dict[str, ty.Any] = {}
         if extra_properties:
             for _property in extra_properties:
                 result[_property['name']] = None

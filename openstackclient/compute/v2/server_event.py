@@ -65,17 +65,11 @@ class ServerActionEventColumn(columns.FormattableColumn):
     """
 
     def _format_event(self, event):
-        column_map = {}
         hidden_columns = ['id', 'name', 'location']
         _, columns = utils.get_osc_show_columns_for_sdk_resource(
-            event,
-            column_map,
-            hidden_columns,
+            event, {}, hidden_columns
         )
-        data = utils.get_item_properties(
-            event,
-            columns,
-        )
+        data = utils.get_item_properties(event, columns)
         return dict(zip(columns, data))
 
     def human_readable(self):
@@ -88,7 +82,6 @@ class ServerActionEventColumn(columns.FormattableColumn):
 
 
 def _get_server_event_columns(item, client):
-    column_map = {}
     hidden_columns = ['name', 'server_id', 'links', 'location']
 
     if not sdk_utils.supports_microversion(client, '2.58'):
@@ -96,9 +89,7 @@ def _get_server_event_columns(item, client):
         hidden_columns.append('updated_at')
 
     return utils.get_osc_show_columns_for_sdk_resource(
-        item,
-        column_map,
-        hidden_columns,
+        item, {}, hidden_columns
     )
 
 

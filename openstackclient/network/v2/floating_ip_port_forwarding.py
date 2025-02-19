@@ -14,6 +14,7 @@
 """Floating IP Port Forwarding action implementations"""
 
 import logging
+import typing as ty
 
 from osc_lib.command import command
 from osc_lib import exceptions
@@ -85,10 +86,9 @@ def validate_port(port):
 
 
 def _get_columns(item):
-    column_map = {}
     hidden_columns = ['location', 'tenant_id']
     return utils.get_osc_show_columns_for_sdk_resource(
-        item, column_map, hidden_columns
+        item, {}, hidden_columns
     )
 
 
@@ -165,7 +165,7 @@ class CreateFloatingIPPortForwarding(
         return parser
 
     def take_action(self, parsed_args):
-        attrs = {}
+        attrs: dict[str, ty.Any] = {}
         client = self.app.client_manager.network
         floating_ip = client.find_ip(
             parsed_args.floating_ip,

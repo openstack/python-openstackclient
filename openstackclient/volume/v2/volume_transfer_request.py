@@ -85,8 +85,6 @@ class CreateTransferRequest(command.ShowOne):
     def take_action(self, parsed_args):
         volume_client = self.app.client_manager.volume
 
-        kwargs = {}
-
         volume_id = utils.find_resource(
             volume_client.volumes,
             parsed_args.volume,
@@ -94,7 +92,6 @@ class CreateTransferRequest(command.ShowOne):
         volume_transfer_request = volume_client.transfers.create(
             volume_id,
             parsed_args.name,
-            **kwargs,
         )
         volume_transfer_request._info.pop("links", None)
 

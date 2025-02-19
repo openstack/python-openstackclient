@@ -58,12 +58,12 @@ def str2list(strlist):
     return result
 
 
-def str2dict(strdict):
+def str2dict(strdict: str) -> dict[str, str]:
     """Convert key1:value1;key2:value2;... string into dictionary.
 
     :param strdict: string in the form of key1:value1;key2:value2
     """
-    result = {}
+    result: dict[str, str] = {}
     if not strdict:
         return result
     i = 0

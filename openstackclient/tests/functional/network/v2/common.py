@@ -56,7 +56,7 @@ class NetworkTagTests(NetworkTests):
             'set', name1, '--tag red --tag green', ['red', 'green']
         )
 
-        list_expected = (
+        list_expected: tuple[tuple[str, list[str]]] = (
             (name1, ['red', 'green']),
             (name2, ['red', 'blue']),
             (name3, []),

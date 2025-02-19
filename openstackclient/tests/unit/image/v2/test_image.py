@@ -346,7 +346,13 @@ class TestImageCreate(TestImage):
         columns, data = self.cmd.take_action(parsed_args)
 
         self.volumes_mock.upload_to_image.assert_called_with(
-            fake_vol_id, False, self.new_image.name, 'bare', 'raw'
+            fake_vol_id,
+            False,
+            self.new_image.name,
+            'bare',
+            'raw',
+            visibility=None,
+            protected=None,
         )
 
     @mock.patch('osc_lib.utils.find_resource')

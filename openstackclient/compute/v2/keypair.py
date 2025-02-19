@@ -61,14 +61,13 @@ def _generate_keypair():
 def _get_keypair_columns(item, hide_pub_key=False, hide_priv_key=False):
     # To maintain backwards compatibility we need to rename sdk props to
     # whatever OSC was using before
-    column_map = {}
     hidden_columns = ['links', 'location']
     if hide_pub_key:
         hidden_columns.append('public_key')
     if hide_priv_key:
         hidden_columns.append('private_key')
     return utils.get_osc_show_columns_for_sdk_resource(
-        item, column_map, hidden_columns
+        item, {}, hidden_columns
     )
 
 

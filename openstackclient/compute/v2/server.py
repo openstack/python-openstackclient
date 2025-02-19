@@ -1032,7 +1032,6 @@ class BDMLegacyAction(argparse.Action):
 
 class BDMAction(parseractions.MultiKeyValueAction):
     def __init__(self, option_strings, dest, **kwargs):
-        required_keys = []
         optional_keys = [
             'uuid',
             'source_type',
@@ -1050,7 +1049,7 @@ class BDMAction(parseractions.MultiKeyValueAction):
         super().__init__(
             option_strings,
             dest,
-            required_keys=required_keys,
+            required_keys=[],
             optional_keys=optional_keys,
             **kwargs,
         )
@@ -3963,14 +3962,12 @@ class RemoveFloatingIP(network_common.NetworkAndComputeCommand):
         return parser
 
     def take_action_network(self, client, parsed_args):
-        attrs = {}
         obj = client.find_ip(
             parsed_args.ip_address,
             ignore_missing=False,
         )
-        attrs['port_id'] = None
 
-        client.update_ip(obj, **attrs)
+        client.update_ip(obj, port_id=None)
 
     def take_action_compute(self, client, parsed_args):
         server = client.find_server(parsed_args.server, ignore_missing=False)
