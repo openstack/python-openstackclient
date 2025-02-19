@@ -37,12 +37,6 @@ from openstackclient.common import progressbar
 from openstackclient.i18n import _
 from openstackclient.identity import common as identity_common
 
-if os.name == "nt":
-    import msvcrt
-else:
-    msvcrt = None
-
-
 CONTAINER_CHOICES = ["ami", "ari", "aki", "bare", "docker", "ova", "ovf"]
 DEFAULT_CONTAINER_FORMAT = 'bare'
 DEFAULT_DISK_FORMAT = 'raw'
@@ -60,7 +54,6 @@ DISK_CHOICES = [
     "ploop",
 ]
 MEMBER_STATUS_CHOICES = ["accepted", "pending", "rejected", "all"]
-
 
 LOG = logging.getLogger(__name__)
 
@@ -155,8 +148,10 @@ def get_data_from_stdin():
         image = sys.stdin
         if hasattr(sys.stdin, 'buffer'):
             image = sys.stdin.buffer
-        if msvcrt:
-            msvcrt.setmode(sys.stdin.fileno(), os.O_BINARY)
+        if os.name == "nt":
+            import msvcrt
+
+            msvcrt.setmode(sys.stdin.fileno(), os.O_BINARY)  # type: ignore
 
         return image
     else:
