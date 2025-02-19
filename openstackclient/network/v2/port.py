@@ -65,8 +65,9 @@ _formatters = {
     'fixed_ips': format_columns.ListDictColumn,
     'security_group_ids': format_columns.ListColumn,
     'tags': format_columns.ListColumn,
-    'trunk_details': SubPortColumn,
 }
+_list_formatters = copy.deepcopy(_formatters)
+_list_formatters.update({'trunk_details': SubPortColumn})
 
 
 def _get_columns(item):
@@ -952,7 +953,7 @@ class ListPort(command.Lister):
                 utils.get_item_properties(
                     s,
                     attrs,
-                    formatters=_formatters,
+                    formatters=_list_formatters,
                 )
                 for s in data
             ),

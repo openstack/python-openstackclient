@@ -289,3 +289,82 @@ class PortTests(common.NetworkTagTests):
             f'{self.base_command} create --network {self.NETWORK_NAME} {args} {name}',
             parse_output=True,
         )
+
+    def _trunk_creation(self):
+        pport = uuid.uuid4().hex
+        sport1 = uuid.uuid4().hex
+        sport2 = uuid.uuid4().hex
+        trunk = uuid.uuid4().hex
+        json_output = self.openstack(
+            'port create ' f'--network {self.NETWORK_NAME} {pport}',
+            parse_output=True,
+        )
+        pport_id = json_output.get('id')
+        json_output = self.openstack(
+            'port create ' f'--network {self.NETWORK_NAME} {sport1}',
+            parse_output=True,
+        )
+        sport1_id = json_output.get('id')
+        json_output = self.openstack(
+            'port create ' f'--network {self.NETWORK_NAME} {sport2}',
+            parse_output=True,
+        )
+        sport2_id = json_output.get('id')
+
+        self.openstack(
+            f'network trunk create --parent-port {pport} {trunk}',
+        )
+        self.openstack(
+            f'network trunk set --subport port={sport1},'
+            f'segmentation-type=vlan,segmentation-id=100 {trunk}',
+        )
+        self.openstack(
+            f'network trunk set --subport port={sport2},'
+            f'segmentation-type=vlan,segmentation-id=101 {trunk}',
+        )
+
+        # NOTE(ralonsoh): keep this order to first delete the trunk and then
+        # the ports.
+        self.addCleanup(self.openstack, f'port delete {pport_id}')
+        self.addCleanup(self.openstack, f'port delete {sport1_id}')
+        self.addCleanup(self.openstack, f'port delete {sport2_id}')
+        self.addCleanup(self.openstack, f'network trunk delete {trunk}')
+
+        return pport_id, sport1_id, sport2_id
+
+    def check_subports(self, subports, pport_id, sport1_id, sport2_id):
+        self.assertEqual(2, len(subports))
+        for subport in subports:
+            if subport['port_id'] == sport1_id:
+                self.assertEqual(100, subport['segmentation_id'])
+            elif subport['port_id'] == sport2_id:
+                self.assertEqual(101, subport['segmentation_id'])
+            else:
+                self.fail(
+                    f'Port {pport_id} does not have subport '
+                    f'{subport["port_id"]}'
+                )
+            self.assertEqual('vlan', subport['segmentation_type'])
+
+    def test_port_list_with_trunk(self):
+        pport_id, sport1_id, sport2_id = self._trunk_creation()
+
+        # List all ports with "--long" flag to retrieve the trunk details
+        json_output = self.openstack(
+            'port list --long',
+            parse_output=True,
+        )
+        port = next(port for port in json_output if port['ID'] == pport_id)
+        subports = port['Trunk subports']
+        self.check_subports(subports, pport_id, sport1_id, sport2_id)
+
+    def test_port_show_with_trunk(self):
+        pport_id, sport1_id, sport2_id = self._trunk_creation()
+
+        # List all ports with "--long" flag to retrieve the trunk details
+        port = self.openstack(
+            f'port show {pport_id}',
+            parse_output=True,
+        )
+        subports = port['trunk_details']['sub_ports']
+        self.check_subports(subports, pport_id, sport1_id, sport2_id)

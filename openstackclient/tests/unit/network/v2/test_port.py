@@ -122,7 +122,7 @@ class TestPort(network_fakes.TestNetworkV2):
             fake_port.status,
             format_columns.ListColumn(fake_port.tags),
             fake_port.trusted,
-            port.SubPortColumn(fake_port.trunk_details),
+            fake_port.trunk_details,
             fake_port.updated_at,
         )
 
