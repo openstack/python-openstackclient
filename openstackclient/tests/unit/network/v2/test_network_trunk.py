@@ -263,7 +263,7 @@ class TestCreateNetworkTrunk(TestNetworkTrunk):
             '--parent-port',
             self.new_trunk.port_id,
             '--subport',
-            'segmentation-type={seg_type},' 'segmentation-id={seg_id}'.format(
+            'segmentation-type={seg_type},segmentation-id={seg_id}'.format(
                 seg_id=subport['segmentation_id'],
                 seg_type=subport['segmentation_type'],
             ),
@@ -727,7 +727,7 @@ class TestSetNetworkTrunk(TestNetworkTrunk):
         subport = self._trunk['sub_ports'][0]
         arglist = [
             '--subport',
-            'segmentation-type={seg_type},' 'segmentation-id={seg_id}'.format(
+            'segmentation-type={seg_type},segmentation-id={seg_id}'.format(
                 seg_id=subport['segmentation_id'],
                 seg_type=subport['segmentation_type'],
             ),

@@ -194,7 +194,7 @@ class DeleteUser(command.Command):
 
         if errors > 0:
             total = len(parsed_args.users)
-            msg = _("%(errors)s of %(total)s users failed " "to delete.") % {
+            msg = _("%(errors)s of %(total)s users failed to delete.") % {
                 'errors': errors,
                 'total': total,
             }

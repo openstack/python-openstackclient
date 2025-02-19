@@ -135,9 +135,10 @@ class DeleteService(command.Command):
 
         if result > 0:
             total = len(parsed_args.service)
-            msg = _(
-                "%(result)s of %(total)s services failed " "to delete."
-            ) % {'result': result, 'total': total}
+            msg = _("%(result)s of %(total)s services failed to delete.") % {
+                'result': result,
+                'total': total,
+            }
             raise exceptions.CommandError(msg)
 
 

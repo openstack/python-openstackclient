@@ -50,35 +50,35 @@ class ApplicationCredentialTests(common.IdentityTests):
     def _create_role_assignments(self):
         try:
             user = self.openstack(
-                'configuration show -f value' ' -c auth.username'
+                'configuration show -f value -c auth.username'
             )
         except Exception:
             user = self.openstack(
-                'configuration show -f value' ' -c auth.user_id'
+                'configuration show -f value -c auth.user_id'
             )
         try:
             user_domain = self.openstack(
-                'configuration show -f value' ' -c auth.user_domain_name'
+                'configuration show -f value -c auth.user_domain_name'
             )
         except Exception:
             user_domain = self.openstack(
-                'configuration show -f value' ' -c auth.user_domain_id'
+                'configuration show -f value -c auth.user_domain_id'
             )
         try:
             project = self.openstack(
-                'configuration show -f value' ' -c auth.project_name'
+                'configuration show -f value -c auth.project_name'
             )
         except Exception:
             project = self.openstack(
-                'configuration show -f value' ' -c auth.project_id'
+                'configuration show -f value -c auth.project_id'
             )
         try:
             project_domain = self.openstack(
-                'configuration show -f value' ' -c auth.project_domain_name'
+                'configuration show -f value -c auth.project_domain_name'
             )
         except Exception:
             project_domain = self.openstack(
-                'configuration show -f value' ' -c auth.project_domain_id'
+                'configuration show -f value -c auth.project_domain_id'
             )
         role1 = self._create_dummy_role()
         role2 = self._create_dummy_role()
@@ -130,7 +130,7 @@ class ApplicationCredentialTests(common.IdentityTests):
     def test_application_credential_delete(self):
         name = data_utils.rand_name('name')
         self.openstack(f'application credential create {name}')
-        raw_output = self.openstack('application credential delete ' f'{name}')
+        raw_output = self.openstack(f'application credential delete {name}')
         self.assertEqual(0, len(raw_output))
 
     def test_application_credential_list(self):
@@ -147,6 +147,6 @@ class ApplicationCredentialTests(common.IdentityTests):
             self.openstack,
             f'application credential delete {name}',
         )
-        raw_output = self.openstack('application credential show ' f'{name}')
+        raw_output = self.openstack(f'application credential show {name}')
         items = self.parse_show(raw_output)
         self.assert_show_fields(items, self.APPLICATION_CREDENTIAL_FIELDS)

@@ -402,7 +402,7 @@ class DeleteRole(command.Command):
 
         if errors > 0:
             total = len(parsed_args.roles)
-            msg = _("%(errors)s of %(total)s roles failed " "to delete.") % {
+            msg = _("%(errors)s of %(total)s roles failed to delete.") % {
                 'errors': errors,
                 'total': total,
             }
@@ -449,7 +449,7 @@ class ListRole(command.Lister):
 
 class RemoveRole(command.Command):
     _description = _(
-        "Removes a role assignment from system/domain/project : " "user/group"
+        "Removes a role assignment from system/domain/project : user/group"
     )
 
     def get_parser(self, prog_name):

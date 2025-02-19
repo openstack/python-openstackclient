@@ -111,9 +111,10 @@ class DeleteEndpoint(command.Command):
 
         if result > 0:
             total = len(parsed_args.endpoints)
-            msg = _(
-                "%(result)s of %(total)s endpoints failed " "to delete."
-            ) % {'result': result, 'total': total}
+            msg = _("%(result)s of %(total)s endpoints failed to delete.") % {
+                'result': result,
+                'total': total,
+            }
             raise exceptions.CommandError(msg)
 
 

@@ -31,7 +31,7 @@ class TestCommand(test_utils.TestCase):
         cmd = FakeCommand(mock.Mock(), mock.Mock())
         self.assertTrue(hasattr(cmd, 'log'))
         self.assertEqual(
-            'openstackclient.tests.unit.common.test_command.' 'FakeCommand',
+            'openstackclient.tests.unit.common.test_command.FakeCommand',
             cmd.log.name,
         )
 

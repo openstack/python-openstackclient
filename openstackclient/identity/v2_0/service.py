@@ -100,9 +100,10 @@ class DeleteService(command.Command):
 
         if result > 0:
             total = len(parsed_args.services)
-            msg = _(
-                "%(result)s of %(total)s services failed " "to delete."
-            ) % {'result': result, 'total': total}
+            msg = _("%(result)s of %(total)s services failed to delete.") % {
+                'result': result,
+                'total': total,
+            }
             raise exceptions.CommandError(msg)
 
 
@@ -164,7 +165,7 @@ class ShowService(command.ShowOne):
                     return zip(*sorted(info.items()))
 
             msg = _(
-                "No service catalog with a type, name or ID of '%s' " "exists."
+                "No service catalog with a type, name or ID of '%s' exists."
             ) % (parsed_args.service)
             raise exceptions.CommandError(msg)
         else:

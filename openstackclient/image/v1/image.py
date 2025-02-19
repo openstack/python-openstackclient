@@ -384,8 +384,7 @@ class DeleteImage(command.Command):
             except Exception as e:
                 result += 1
                 msg = _(
-                    "Failed to delete image with name or "
-                    "ID '%(image)s': %(e)s"
+                    "Failed to delete image with name or ID '%(image)s': %(e)s"
                 )
                 LOG.error(msg, {'image': image, 'e': e})
 

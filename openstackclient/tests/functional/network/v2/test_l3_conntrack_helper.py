@@ -69,8 +69,7 @@ class L3ConntrackHelperTests(common.NetworkTests):
         ct_ids = " ".join([ct['id'] for ct in created_helpers])
 
         raw_output = self.openstack(
-            f'--debug network l3 conntrack helper delete {router_id} '
-            f'{ct_ids}'
+            f'--debug network l3 conntrack helper delete {router_id} {ct_ids}'
         )
         self.assertOutput('', raw_output)
 

@@ -123,8 +123,7 @@ class ListConsistencyGroupSnapshot(command.Lister):
             '--all-projects',
             action="store_true",
             help=_(
-                'Show detail for all projects (admin only) '
-                '(defaults to False)'
+                'Show detail for all projects (admin only) (defaults to False)'
             ),
         )
         parser.add_argument(

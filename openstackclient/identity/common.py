@@ -335,7 +335,7 @@ def add_inherited_option_to_parser(parser):
         action='store_true',
         default=False,
         help=_(
-            'Specifies if the role grant is inheritable to the sub ' 'projects'
+            'Specifies if the role grant is inheritable to the sub projects'
         ),
     )
 

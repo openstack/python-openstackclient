@@ -228,7 +228,7 @@ class FakeExtension:
         extension_info = {
             'name': 'name-' + uuid.uuid4().hex,
             'namespace': (
-                'http://docs.openstack.org/identity/' 'api/ext/OS-KSCRUD/v1.0'
+                'http://docs.openstack.org/identity/api/ext/OS-KSCRUD/v1.0'
             ),
             'description': 'description-' + uuid.uuid4().hex,
             'updated': '2013-07-07T12:00:0-00:00',

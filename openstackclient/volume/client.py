@@ -105,9 +105,7 @@ def build_option_parser(parser):
         '--os-volume-api-version',
         metavar='<volume-api-version>',
         default=utils.env('OS_VOLUME_API_VERSION'),
-        help=_(
-            'Volume API version, default=%s ' '(Env: OS_VOLUME_API_VERSION)'
-        )
+        help=_('Volume API version, default=%s (Env: OS_VOLUME_API_VERSION)')
         % DEFAULT_API_VERSION,
     )
     return parser

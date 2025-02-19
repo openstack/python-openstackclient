@@ -243,7 +243,7 @@ class DeleteFloatingIPPortForwarding(command.Command):
         if result > 0:
             total = len(parsed_args.port_forwarding_id)
             msg = _(
-                "%(result)s of %(total)s Port forwarding failed " "to delete."
+                "%(result)s of %(total)s Port forwarding failed to delete."
             ) % {'result': result, 'total': total}
             raise exceptions.CommandError(msg)
 

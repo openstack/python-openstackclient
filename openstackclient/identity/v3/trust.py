@@ -233,7 +233,7 @@ class DeleteTrust(command.Command):
 
         if errors > 0:
             total = len(parsed_args.trust)
-            msg = _("%(errors)s of %(total)s trusts failed " "to delete.") % {
+            msg = _("%(errors)s of %(total)s trusts failed to delete.") % {
                 'errors': errors,
                 'total': total,
             }

@@ -30,9 +30,7 @@ class ProjectTests(common.IdentityTests):
         )
         self.addCleanup(
             self.openstack,
-            'project delete '
-            f'--domain {self.domain_name} '
-            f'{project_name}',
+            f'project delete --domain {self.domain_name} {project_name}',
         )
         items = self.parse_show(raw_output)
         show_fields = list(self.PROJECT_FIELDS)
@@ -45,7 +43,7 @@ class ProjectTests(common.IdentityTests):
     def test_project_delete(self):
         project_name = self._create_dummy_project(add_clean_up=False)
         raw_output = self.openstack(
-            'project delete ' f'--domain {self.domain_name} ' f'{project_name}'
+            f'project delete --domain {self.domain_name} {project_name}'
         )
         self.assertEqual(0, len(raw_output))
 
@@ -77,9 +75,7 @@ class ProjectTests(common.IdentityTests):
         self.assertEqual(0, len(raw_output))
         # check project details
         raw_output = self.openstack(
-            'project show '
-            f'--domain {self.domain_name} '
-            f'{new_project_name}'
+            f'project show --domain {self.domain_name} {new_project_name}'
         )
         items = self.parse_show(raw_output)
         fields = list(self.PROJECT_FIELDS)
@@ -91,17 +87,12 @@ class ProjectTests(common.IdentityTests):
         self.assertEqual('v0', project['k0'])
         # reset project to make sure it will be cleaned up
         self.openstack(
-            'project set '
-            f'--name {project_name} '
-            '--enable '
-            f'{new_project_name}'
+            f'project set --name {project_name} --enable {new_project_name}'
         )
 
     def test_project_show(self):
         raw_output = self.openstack(
-            'project show '
-            f'--domain {self.domain_name} '
-            f'{self.project_name}'
+            f'project show --domain {self.domain_name} {self.project_name}'
         )
         items = self.parse_show(raw_output)
         self.assert_show_fields(items, self.PROJECT_FIELDS)

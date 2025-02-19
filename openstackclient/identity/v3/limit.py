@@ -281,13 +281,13 @@ class DeleteLimit(command.Command):
             except Exception as e:
                 errors += 1
                 LOG.error(
-                    _("Failed to delete limit with ID " "'%(id)s': %(e)s"),
+                    _("Failed to delete limit with ID '%(id)s': %(e)s"),
                     {'id': limit_id, 'e': e},
                 )
 
         if errors > 0:
             total = len(parsed_args.limit_id)
-            msg = _("%(errors)s of %(total)s limits failed to " "delete.") % {
+            msg = _("%(errors)s of %(total)s limits failed to delete.") % {
                 'errors': errors,
                 'total': total,
             }

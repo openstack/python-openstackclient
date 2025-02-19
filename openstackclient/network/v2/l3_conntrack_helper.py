@@ -66,8 +66,7 @@ class CreateConntrackHelper(command.ShowOne):
             required=True,
             metavar='<protocol>',
             help=_(
-                'The network protocol for the netfilter conntrack target '
-                'rule'
+                'The network protocol for the netfilter conntrack target rule'
             ),
         )
         parser.add_argument(
@@ -158,8 +157,7 @@ class ListConntrackHelper(command.Lister):
             '--protocol',
             metavar='<protocol>',
             help=_(
-                'The network protocol for the netfilter conntrack target '
-                'rule'
+                'The network protocol for the netfilter conntrack target rule'
             ),
         )
         parser.add_argument(
@@ -226,8 +224,7 @@ class SetConntrackHelper(command.Command):
             '--protocol',
             metavar='<protocol>',
             help=_(
-                'The network protocol for the netfilter conntrack target '
-                'rule'
+                'The network protocol for the netfilter conntrack target rule'
             ),
         )
         parser.add_argument(

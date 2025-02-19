@@ -190,8 +190,7 @@ class CreateFlavor(command.ShowOne):
                 compute_client.flavor_add_tenant_access(flavor.id, project_id)
             except Exception as e:
                 msg = _(
-                    "Failed to add project %(project)s access to "
-                    "flavor: %(e)s"
+                    "Failed to add project %(project)s access to flavor: %(e)s"
                 )
                 LOG.error(msg, {'project': parsed_args.project, 'e': e})
         if parsed_args.properties:
@@ -242,7 +241,7 @@ class DeleteFlavor(command.Command):
 
         if result > 0:
             total = len(parsed_args.flavor)
-            msg = _("%(result)s of %(total)s flavors failed " "to delete.") % {
+            msg = _("%(result)s of %(total)s flavors failed to delete.") % {
                 'result': result,
                 'total': total,
             }
@@ -404,9 +403,7 @@ class SetFlavor(command.Command):
         parser.add_argument(
             '--project',
             metavar='<project>',
-            help=_(
-                'Set flavor access to project (name or ID) ' '(admin only)'
-            ),
+            help=_('Set flavor access to project (name or ID) (admin only)'),
         )
         identity_common.add_project_domain_option_to_parser(parser)
         parser.add_argument(
@@ -483,7 +480,7 @@ class SetFlavor(command.Command):
 
         if result > 0:
             raise exceptions.CommandError(
-                _("Command Failed: One or more of" " the operations failed")
+                _("Command Failed: One or more of the operations failed")
             )
 
 
@@ -560,8 +557,7 @@ class UnsetFlavor(command.Command):
             '--project',
             metavar='<project>',
             help=_(
-                'Remove flavor access from project (name or ID) '
-                '(admin only)'
+                'Remove flavor access from project (name or ID) (admin only)'
             ),
         )
         identity_common.add_project_domain_option_to_parser(parser)
@@ -612,5 +608,5 @@ class UnsetFlavor(command.Command):
 
         if result > 0:
             raise exceptions.CommandError(
-                _("Command Failed: One or more of" " the operations failed")
+                _("Command Failed: One or more of the operations failed")
             )

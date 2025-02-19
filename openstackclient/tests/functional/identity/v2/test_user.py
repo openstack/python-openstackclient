@@ -37,7 +37,7 @@ class UserTests(common.IdentityTests):
         new_username = data_utils.rand_name('NewTestUser')
         new_email = data_utils.rand_name() + '@example.com'
         raw_output = self.openstack(
-            'user set ' '--email {email} ' '--name {new_name} ' '{id}'.format(
+            'user set --email {email} --name {new_name} {id}'.format(
                 email=new_email, new_name=new_username, id=user['id']
             )
         )

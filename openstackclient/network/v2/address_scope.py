@@ -144,7 +144,7 @@ class DeleteAddressScope(command.Command):
         if result > 0:
             total = len(parsed_args.address_scope)
             msg = _(
-                "%(result)s of %(total)s address scopes failed " "to delete."
+                "%(result)s of %(total)s address scopes failed to delete."
             ) % {'result': result, 'total': total}
             raise exceptions.CommandError(msg)
 
@@ -176,8 +176,7 @@ class ListAddressScope(command.Lister):
             '--project',
             metavar="<project>",
             help=_(
-                "List address scopes according to their project "
-                "(name or ID)"
+                "List address scopes according to their project (name or ID)"
             ),
         )
         identity_common.add_project_domain_option_to_parser(parser)

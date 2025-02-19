@@ -174,8 +174,7 @@ class DeleteIdentityProvider(command.Command):
         if result > 0:
             total = len(parsed_args.identity_provider)
             msg = _(
-                "%(result)s of %(total)s identity providers failed"
-                " to delete."
+                "%(result)s of %(total)s identity providers failed to delete."
             ) % {'result': result, 'total': total}
             raise exceptions.CommandError(msg)
 

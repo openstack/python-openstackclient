@@ -807,8 +807,7 @@ class TestCreatePort(TestPort):
         extra_dhcp_options = [
             {
                 'opt_name': 'classless-static-route',
-                'opt_value': '169.254.169.254/32,22.2.0.2,'
-                '0.0.0.0/0,22.2.0.1',
+                'opt_value': '169.254.169.254/32,22.2.0.2,0.0.0.0/0,22.2.0.1',
                 'ip_version': '4',
             },
             {
@@ -826,7 +825,7 @@ class TestCreatePort(TestPort):
             '0.0.0.0/0,22.2.0.1,'
             'ip-version=4',
             '--extra-dhcp-option',
-            'name=dns-server,value=240C::6666,' 'ip-version=6',
+            'name=dns-server,value=240C::6666,ip-version=6',
             'test-port',
         ]
 

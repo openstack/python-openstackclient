@@ -115,8 +115,7 @@ class ListUsage(command.Lister):
             metavar="<start>",
             default=None,
             help=_(
-                "Usage range start date, ex 2012-01-20"
-                " (default: 4 weeks ago)"
+                "Usage range start date, ex 2012-01-20 (default: 4 weeks ago)"
             ),
         )
         parser.add_argument(
@@ -222,8 +221,7 @@ class ShowUsage(command.ShowOne):
             metavar="<start>",
             default=None,
             help=_(
-                "Usage range start date, ex 2012-01-20"
-                " (default: 4 weeks ago)"
+                "Usage range start date, ex 2012-01-20 (default: 4 weeks ago)"
             ),
         )
         parser.add_argument(

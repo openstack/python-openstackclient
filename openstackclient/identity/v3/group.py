@@ -230,7 +230,7 @@ class DeleteGroup(command.Command):
 
         if errors > 0:
             total = len(parsed_args.groups)
-            msg = _("%(errors)s of %(total)s groups failed " "to delete.") % {
+            msg = _("%(errors)s of %(total)s groups failed to delete.") % {
                 'errors': errors,
                 'total': total,
             }

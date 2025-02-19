@@ -241,7 +241,7 @@ class TestTransferDelete(TestTransfer):
                 self.fail('CommandError should be raised.')
             except exceptions.CommandError as e:
                 self.assertEqual(
-                    '1 of 2 volume transfer requests failed ' 'to delete',
+                    '1 of 2 volume transfer requests failed to delete',
                     str(e),
                 )
 

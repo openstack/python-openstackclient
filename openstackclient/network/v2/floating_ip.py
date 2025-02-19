@@ -123,7 +123,7 @@ class CreateFloatingIP(
             '--port',
             metavar='<port>',
             help=self.enhance_help_neutron(
-                _("Port to be associated with the floating IP " "(name or ID)")
+                _("Port to be associated with the floating IP (name or ID)")
             ),
         )
         parser.add_argument(
@@ -268,10 +268,7 @@ class ListFloatingIP(common.NetworkAndComputeLister):
             '--floating-ip-address',
             metavar='<ip-address>',
             help=self.enhance_help_neutron(
-                _(
-                    "List floating IP(s) according to given floating IP "
-                    "address"
-                )
+                _("List floating IP(s) according to given floating IP address")
             ),
         )
         parser.add_argument(
@@ -308,10 +305,7 @@ class ListFloatingIP(common.NetworkAndComputeLister):
             '--router',
             metavar='<router>',
             help=self.enhance_help_neutron(
-                _(
-                    "List floating IP(s) according to given router (name or "
-                    "ID)"
-                )
+                _("List floating IP(s) according to given router (name or ID)")
             ),
         )
         _tag.add_tag_filtering_option_to_parser(
@@ -458,8 +452,7 @@ class SetFloatingIP(common.NeutronCommandWithExtraArgs):
             metavar='<ip-address>',
             dest='fixed_ip_address',
             help=_(
-                "Fixed IP of the port "
-                "(required only if port has multiple IPs)"
+                "Fixed IP of the port (required only if port has multiple IPs)"
             ),
         )
         parser.add_argument(

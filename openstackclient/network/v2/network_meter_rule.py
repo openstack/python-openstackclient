@@ -168,17 +168,14 @@ class DeleteMeterRule(command.Command):
             except Exception as e:
                 result += 1
                 LOG.error(
-                    _(
-                        "Failed to delete meter rule with "
-                        "ID '%(id)s': %(e)s"
-                    ),
+                    _("Failed to delete meter rule with ID '%(id)s': %(e)s"),
                     {"id": id, "e": e},
                 )
 
         if result > 0:
             total = len(parsed_args.meter_rule_id)
             msg = _(
-                "%(result)s of %(total)s meter rules failed " "to delete."
+                "%(result)s of %(total)s meter rules failed to delete."
             ) % {"result": result, "total": total}
             raise exceptions.CommandError(msg)
 

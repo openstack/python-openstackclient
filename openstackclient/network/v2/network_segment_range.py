@@ -105,8 +105,7 @@ class CreateNetworkSegmentRange(
             dest="private",
             action="store_true",
             help=_(
-                'Network segment range is assigned specifically to the '
-                'project'
+                'Network segment range is assigned specifically to the project'
             ),
         )
         shared_group.add_argument(
@@ -196,8 +195,7 @@ class CreateNetworkSegmentRange(
             and parsed_args.physical_network
         ):
             msg = _(
-                "--physical-network is only allowed with --network-type "
-                "vlan"
+                "--physical-network is only allowed with --network-type vlan"
             )
             raise exceptions.CommandError(msg)
 
@@ -323,7 +321,7 @@ class ListNetworkSegmentRange(command.Lister):
             '--unused',
             action='store_true',
             help=_(
-                'List network segment ranges that have segments ' 'not in use'
+                'List network segment ranges that have segments not in use'
             ),
         )
         available_group = parser.add_mutually_exclusive_group()
@@ -457,8 +455,7 @@ class SetNetworkSegmentRange(common.NeutronCommandWithExtraArgs):
             )
         except Exception as e:
             msg = _(
-                'Network segment range set not supported by '
-                'Network API: %(e)s'
+                'Network segment range set not supported by Network API: %(e)s'
             ) % {'e': e}
             raise exceptions.CommandError(msg)
 

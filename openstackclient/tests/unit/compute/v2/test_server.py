@@ -4967,7 +4967,7 @@ class TestServerList(_TestServerList):
             self.fail('CommandError should be raised.')
         except exceptions.CommandError as e:
             self.assertEqual(
-                'Invalid changes-since value: Invalid time ' 'value', str(e)
+                'Invalid changes-since value: Invalid time value', str(e)
             )
         mock_parse_isotime.assert_called_once_with('Invalid time value')
 
@@ -5454,7 +5454,7 @@ class TestServerListV273(_TestServerList):
             self.fail('CommandError should be raised.')
         except exceptions.CommandError as e:
             self.assertEqual(
-                'Invalid changes-before value: Invalid time ' 'value', str(e)
+                'Invalid changes-before value: Invalid time value', str(e)
             )
         mock_parse_isotime.assert_called_once_with('Invalid time value')
 

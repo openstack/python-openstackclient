@@ -156,7 +156,7 @@ class ServerTests(common.ComputeTestCase):
         server_name3 = cmd_output['name']
 
         cmd_output = self.openstack(
-            'server list ' '--changes-since ' + updated_at2,
+            'server list --changes-since ' + updated_at2,
             parse_output=True,
         )
 
@@ -852,8 +852,7 @@ class ServerTests(common.ComputeTestCase):
             # it to the server at /dev/vdb and delete the volume when the
             # server is deleted.
             bdm_arg = (
-                f'--block-device-mapping '
-                f'vdb={self.image_name}:image:1:true '
+                f'--block-device-mapping vdb={self.image_name}:image:1:true '
             )
         else:
             # get image ID

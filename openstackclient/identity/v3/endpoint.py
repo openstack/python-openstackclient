@@ -44,15 +44,13 @@ class AddProjectToEndpoint(command.Command):
             'endpoint',
             metavar='<endpoint>',
             help=_(
-                'Endpoint to associate with ' 'specified project (name or ID)'
+                'Endpoint to associate with specified project (name or ID)'
             ),
         )
         parser.add_argument(
             'project',
             metavar='<project>',
-            help=_(
-                'Project to associate with ' 'specified endpoint name or ID)'
-            ),
+            help=_('Project to associate with specified endpoint name or ID)'),
         )
         common.add_project_domain_option_to_parser(parser)
         return parser
@@ -167,9 +165,10 @@ class DeleteEndpoint(command.Command):
 
         if result > 0:
             total = len(parsed_args.endpoint)
-            msg = _(
-                "%(result)s of %(total)s endpoints failed " "to delete."
-            ) % {'result': result, 'total': total}
+            msg = _("%(result)s of %(total)s endpoints failed to delete.") % {
+                'result': result,
+                'total': total,
+            }
             raise exceptions.CommandError(msg)
 
 
@@ -290,14 +289,14 @@ class RemoveProjectFromEndpoint(command.Command):
             'endpoint',
             metavar='<endpoint>',
             help=_(
-                'Endpoint to dissociate from ' 'specified project (name or ID)'
+                'Endpoint to dissociate from specified project (name or ID)'
             ),
         )
         parser.add_argument(
             'project',
             metavar='<project>',
             help=_(
-                'Project to dissociate from ' 'specified endpoint name or ID)'
+                'Project to dissociate from specified endpoint name or ID)'
             ),
         )
         common.add_project_domain_option_to_parser(parser)

@@ -152,8 +152,7 @@ class DeleteQos(command.Command):
         if result > 0:
             total = len(parsed_args.qos_specs)
             msg = _(
-                "%(result)s of %(total)s QoS specifications failed"
-                " to delete."
+                "%(result)s of %(total)s QoS specifications failed to delete."
             ) % {'result': result, 'total': total}
             raise exceptions.CommandError(msg)
 

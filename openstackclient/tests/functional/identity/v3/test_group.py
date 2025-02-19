@@ -36,14 +36,14 @@ class GroupTests(common.IdentityTests):
     def test_group_delete(self):
         group_name = self._create_dummy_group(add_clean_up=False)
         raw_output = self.openstack(
-            'group delete ' f'--domain {self.domain_name} ' f'{group_name}'
+            f'group delete --domain {self.domain_name} {group_name}'
         )
         self.assertEqual(0, len(raw_output))
 
     def test_group_show(self):
         group_name = self._create_dummy_group()
         raw_output = self.openstack(
-            'group show ' f'--domain {self.domain_name} ' f'{group_name}'
+            f'group show --domain {self.domain_name} {group_name}'
         )
         items = self.parse_show(raw_output)
         self.assert_show_fields(items, self.GROUP_FIELDS)
@@ -59,7 +59,7 @@ class GroupTests(common.IdentityTests):
         )
         self.assertEqual(0, len(raw_output))
         raw_output = self.openstack(
-            'group show ' f'--domain {self.domain_name} ' f'{new_group_name}'
+            f'group show --domain {self.domain_name} {new_group_name}'
         )
         group = self.parse_show_as_object(raw_output)
         self.assertEqual(new_group_name, group['name'])

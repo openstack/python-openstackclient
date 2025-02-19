@@ -361,8 +361,7 @@ class TestIntegShellCliPrecedence(test_base.TestInteg):
 
         _shell = shell.OpenStackShell()
         _shell.run(
-            "--os-username zarquon --os-password qaz "
-            "extension list".split(),
+            "--os-username zarquon --os-password qaz extension list".split(),
         )
 
         # Check general calls

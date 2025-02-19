@@ -295,7 +295,7 @@ class TestApplicationCredentialDelete(identity_fakes.TestIdentityv3):
             self.fail('CommandError should be raised.')
         except exceptions.CommandError as e:
             self.assertEqual(
-                '1 of 2 application credentials failed to' ' delete.', str(e)
+                '1 of 2 application credentials failed to delete.', str(e)
             )
 
         calls = []

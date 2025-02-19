@@ -355,17 +355,14 @@ class CreateNetwork(
             '--qinq-vlan',
             action='store_true',
             help=self.enhance_help_neutron(
-                _("Enable VLAN QinQ (S-Tag ethtype 0x8a88) " "for the network")
+                _("Enable VLAN QinQ (S-Tag ethtype 0x8a88) for the network")
             ),
         )
         vlan_qinq_grp.add_argument(
             '--no-qinq-vlan',
             action='store_true',
             help=self.enhance_help_neutron(
-                _(
-                    "Disable VLAN QinQ (S-Tag ethtype 0x8a88) "
-                    "for the network"
-                )
+                _("Disable VLAN QinQ (S-Tag ethtype 0x8a88) for the network")
             ),
         )
 

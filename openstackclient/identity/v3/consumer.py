@@ -82,9 +82,10 @@ class DeleteConsumer(command.Command):
 
         if result > 0:
             total = len(parsed_args.consumer)
-            msg = _(
-                "%(result)s of %(total)s consumers failed " "to delete."
-            ) % {'result': result, 'total': total}
+            msg = _("%(result)s of %(total)s consumers failed to delete.") % {
+                'result': result,
+                'total': total,
+            }
             raise exceptions.CommandError(msg)
 
 

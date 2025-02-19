@@ -212,7 +212,7 @@ class DeleteNetworkRBAC(command.Command):
         if result > 0:
             total = len(parsed_args.rbac_policy)
             msg = _(
-                "%(result)s of %(total)s RBAC policies failed " "to delete."
+                "%(result)s of %(total)s RBAC policies failed to delete."
             ) % {'result': result, 'total': total}
             raise exceptions.CommandError(msg)
 

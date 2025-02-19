@@ -31,7 +31,7 @@ class L3NDPProxyTests(common.NetworkTests):
         self.created_ndp_proxies = []
 
         json_output = self.openstack(
-            'address scope create --ip-version 6 ' f'{self.ADDR_SCOPE_NAME}',
+            f'address scope create --ip-version 6 {self.ADDR_SCOPE_NAME}',
             parse_output=True,
         )
         self.assertIsNotNone(json_output['id'])
@@ -88,8 +88,7 @@ class L3NDPProxyTests(common.NetworkTests):
         self.assertIsNotNone(json_output['id'])
         self.INT_SUB_ID = json_output['id']
         json_output = self.openstack(
-            f'port create --network {self.INT_NET_ID} '
-            f'{self.INT_PORT_NAME}',
+            f'port create --network {self.INT_NET_ID} {self.INT_PORT_NAME}',
             parse_output=True,
         )
         self.assertIsNotNone(json_output['id'])

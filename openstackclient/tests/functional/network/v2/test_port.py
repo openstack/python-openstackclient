@@ -209,7 +209,7 @@ class PortTests(common.NetworkTagTests):
     def test_port_admin_set(self):
         """Test create, set (as admin), show, delete"""
         json_output = self.openstack(
-            'port create ' f'--network {self.NETWORK_NAME} {self.NAME}',
+            f'port create --network {self.NETWORK_NAME} {self.NAME}',
             parse_output=True,
         )
         id_ = json_output.get('id')
@@ -257,7 +257,7 @@ class PortTests(common.NetworkTagTests):
         self.assertEqual([sg_id1], json_output.get('security_group_ids'))
 
         raw_output = self.openstack(
-            'port set ' f'--security-group {sg_name2} {name}'
+            f'port set --security-group {sg_name2} {name}'
         )
         self.assertOutput('', raw_output)
 
@@ -296,17 +296,17 @@ class PortTests(common.NetworkTagTests):
         sport2 = uuid.uuid4().hex
         trunk = uuid.uuid4().hex
         json_output = self.openstack(
-            'port create ' f'--network {self.NETWORK_NAME} {pport}',
+            f'port create --network {self.NETWORK_NAME} {pport}',
             parse_output=True,
         )
         pport_id = json_output.get('id')
         json_output = self.openstack(
-            'port create ' f'--network {self.NETWORK_NAME} {sport1}',
+            f'port create --network {self.NETWORK_NAME} {sport1}',
             parse_output=True,
         )
         sport1_id = json_output.get('id')
         json_output = self.openstack(
-            'port create ' f'--network {self.NETWORK_NAME} {sport2}',
+            f'port create --network {self.NETWORK_NAME} {sport2}',
             parse_output=True,
         )
         sport2_id = json_output.get('id')

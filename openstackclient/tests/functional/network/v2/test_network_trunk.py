@@ -80,7 +80,7 @@ class NetworkTrunkTests(common.NetworkTests):
         self.addCleanup(self.openstack, 'network trunk delete ' + trunk_name)
         self.assertEqual(trunk_name, json_output['name'])
 
-        self.openstack('network trunk set ' '--enable ' + trunk_name)
+        self.openstack('network trunk set --enable ' + trunk_name)
 
         json_output = json.loads(
             self.openstack('network trunk show -f json ' + trunk_name)

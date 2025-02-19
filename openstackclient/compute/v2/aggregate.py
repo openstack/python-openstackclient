@@ -168,9 +168,10 @@ class DeleteAggregate(command.Command):
 
         if result > 0:
             total = len(parsed_args.aggregate)
-            msg = _(
-                "%(result)s of %(total)s aggregates failed " "to delete."
-            ) % {'result': result, 'total': total}
+            msg = _("%(result)s of %(total)s aggregates failed to delete.") % {
+                'result': result,
+                'total': total,
+            }
             raise exceptions.CommandError(msg)
 
 

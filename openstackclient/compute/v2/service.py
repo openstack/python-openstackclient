@@ -70,7 +70,7 @@ class DeleteService(command.Command):
         if result > 0:
             total = len(parsed_args.service)
             msg = _(
-                "%(result)s of %(total)s compute services failed " "to delete."
+                "%(result)s of %(total)s compute services failed to delete."
             ) % {'result': result, 'total': total}
             raise exceptions.CommandError(msg)
 
@@ -153,8 +153,7 @@ class SetService(command.Command):
             "service",
             metavar="<service>",
             help=_(
-                "Name of service (Binary name), for example "
-                "``nova-compute``"
+                "Name of service (Binary name), for example ``nova-compute``"
             ),
         )
         enabled_group = parser.add_mutually_exclusive_group()
@@ -281,9 +280,7 @@ class SetService(command.Command):
             force_down = False
         if force_down is not None:
             if not sdk_utils.supports_microversion(compute_client, '2.11'):
-                msg = _(
-                    '--os-compute-api-version 2.11 or later is ' 'required'
-                )
+                msg = _('--os-compute-api-version 2.11 or later is required')
                 raise exceptions.CommandError(msg)
             try:
                 compute_client.update_service_forced_down(
@@ -299,7 +296,6 @@ class SetService(command.Command):
 
         if result > 0:
             msg = _(
-                "Compute service %(service)s of host %(host)s failed to "
-                "set."
+                "Compute service %(service)s of host %(host)s failed to set."
             ) % {"service": parsed_args.service, "host": parsed_args.host}
             raise exceptions.CommandError(msg)

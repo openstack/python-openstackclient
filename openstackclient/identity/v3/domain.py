@@ -124,7 +124,7 @@ class DeleteDomain(command.Command):
 
         if result > 0:
             total = len(parsed_args.domain)
-            msg = _("%(result)s of %(total)s domains failed " "to delete.") % {
+            msg = _("%(result)s of %(total)s domains failed to delete.") % {
                 'result': result,
                 'total': total,
             }

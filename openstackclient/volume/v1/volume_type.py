@@ -224,7 +224,7 @@ class DeleteVolumeType(command.Command):
         if result > 0:
             total = len(parsed_args.volume_types)
             msg = _(
-                "%(result)s of %(total)s volume types failed " "to delete."
+                "%(result)s of %(total)s volume types failed to delete."
             ) % {'result': result, 'total': total}
             raise exceptions.CommandError(msg)
 
@@ -403,7 +403,7 @@ class SetVolumeType(command.Command):
 
         if result > 0:
             raise exceptions.CommandError(
-                _("Command Failed: One or more of" " the operations failed")
+                _("Command Failed: One or more of the operations failed")
             )
 
 
@@ -481,8 +481,7 @@ class UnsetVolumeType(command.Command):
             "--encryption-type",
             action="store_true",
             help=_(
-                "Remove the encryption type for this volume type "
-                "(admin only)"
+                "Remove the encryption type for this volume type (admin only)"
             ),
         )
         return parser
@@ -516,5 +515,5 @@ class UnsetVolumeType(command.Command):
 
         if result > 0:
             raise exceptions.CommandError(
-                _("Command Failed: One or more of" " the operations failed")
+                _("Command Failed: One or more of the operations failed")
             )

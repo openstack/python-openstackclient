@@ -24,35 +24,25 @@ class RoleAssignmentTests(common.IdentityTests):
         username = self._create_dummy_user()
         system = 'all'
         raw_output = self.openstack(
-            'role add '
-            f'--user {username} '
-            f'--system {system} '
-            f'{role_name}'
+            f'role add --user {username} --system {system} {role_name}'
         )
         self.addCleanup(
             self.openstack,
-            'role remove '
-            f'--user {username} '
-            f'--system  {system} '
-            f'{role_name}',
+            f'role remove --user {username} --system  {system} {role_name}',
         )
         self.assertEqual(0, len(raw_output))
 
-        raw_output = self.openstack(
-            'role assignment list ' f'--user {username} '
-        )
+        raw_output = self.openstack(f'role assignment list --user {username} ')
         items = self.parse_listing(raw_output)
         self.assert_table_structure(items, self.ROLE_ASSIGNMENT_LIST_HEADERS)
 
         raw_output = self.openstack(
-            'role assignment list ' f'--role {role_name} '
+            f'role assignment list --role {role_name} '
         )
         items = self.parse_listing(raw_output)
         self.assert_table_structure(items, self.ROLE_ASSIGNMENT_LIST_HEADERS)
 
-        raw_output = self.openstack(
-            'role assignment list ' f'--system {system} '
-        )
+        raw_output = self.openstack(f'role assignment list --system {system} ')
         items = self.parse_listing(raw_output)
         self.assert_table_structure(items, self.ROLE_ASSIGNMENT_LIST_HEADERS)
 
@@ -61,22 +51,14 @@ class RoleAssignmentTests(common.IdentityTests):
         group = self._create_dummy_group()
         system = 'all'
         raw_output = self.openstack(
-            'role add '
-            f'--group {group} '
-            f'--system {system} '
-            f'{role_name}'
+            f'role add --group {group} --system {system} {role_name}'
         )
         self.addCleanup(
             self.openstack,
-            'role remove '
-            f'--group {group} '
-            f'--system {system} '
-            f'{role_name}',
+            f'role remove --group {group} --system {system} {role_name}',
         )
         self.assertEqual(0, len(raw_output))
-        raw_output = self.openstack(
-            'role assignment list ' f'--group {group} '
-        )
+        raw_output = self.openstack(f'role assignment list --group {group} ')
         items = self.parse_listing(raw_output)
         self.assert_table_structure(items, self.ROLE_ASSIGNMENT_LIST_HEADERS)
 
@@ -98,7 +80,7 @@ class RoleAssignmentTests(common.IdentityTests):
         )
         self.assertEqual(0, len(raw_output))
         raw_output = self.openstack(
-            'role assignment list ' f'--domain {self.domain_name} '
+            f'role assignment list --domain {self.domain_name} '
         )
         items = self.parse_listing(raw_output)
         self.assert_table_structure(items, self.ROLE_ASSIGNMENT_LIST_HEADERS)
@@ -121,23 +103,23 @@ class RoleAssignmentTests(common.IdentityTests):
         )
         self.assertEqual(0, len(raw_output))
         raw_output = self.openstack(
-            'role assignment list ' f'--project {self.project_name} '
+            f'role assignment list --project {self.project_name} '
         )
         items = self.parse_listing(raw_output)
         self.assert_table_structure(items, self.ROLE_ASSIGNMENT_LIST_HEADERS)
 
     def test_role_assignment_list_effective(self):
-        raw_output = self.openstack('role assignment list ' '--effective')
+        raw_output = self.openstack('role assignment list --effective')
         items = self.parse_listing(raw_output)
         self.assert_table_structure(items, self.ROLE_ASSIGNMENT_LIST_HEADERS)
 
     def test_role_assignment_list_auth_user(self):
-        raw_output = self.openstack('role assignment list ' '--auth-user')
+        raw_output = self.openstack('role assignment list --auth-user')
         items = self.parse_listing(raw_output)
         self.assert_table_structure(items, self.ROLE_ASSIGNMENT_LIST_HEADERS)
 
     def test_role_assignment_list_auth_project(self):
-        raw_output = self.openstack('role assignment list ' '--auth-project')
+        raw_output = self.openstack('role assignment list --auth-project')
         items = self.parse_listing(raw_output)
         self.assert_table_structure(items, self.ROLE_ASSIGNMENT_LIST_HEADERS)
 

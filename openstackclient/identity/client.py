@@ -64,8 +64,7 @@ def build_option_parser(parser):
         metavar='<identity-api-version>',
         default=utils.env('OS_IDENTITY_API_VERSION'),
         help=_(
-            'Identity API version, default=%s '
-            '(Env: OS_IDENTITY_API_VERSION)'
+            'Identity API version, default=%s (Env: OS_IDENTITY_API_VERSION)'
         )
         % DEFAULT_API_VERSION,
     )

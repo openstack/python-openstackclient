@@ -239,10 +239,7 @@ class ListSecurityGroup(common.NetworkAndComputeLister):
             '--project',
             metavar='<project>',
             help=self.enhance_help_neutron(
-                _(
-                    "List security groups according to the project (name or "
-                    "ID)"
-                )
+                _("List security groups according to the project (name or ID)")
             ),
         )
         identity_common.add_project_domain_option_to_parser(

@@ -345,8 +345,7 @@ class RestoreVolumeBackup(command.ShowOne):
             "--force",
             action="store_true",
             help=_(
-                "Restore the backup to an existing volume "
-                "(default to False)"
+                "Restore the backup to an existing volume (default to False)"
             ),
         )
         return parser

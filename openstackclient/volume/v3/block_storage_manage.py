@@ -317,9 +317,7 @@ class BlockStorageManageSnapshots(command.Lister):
                 # if the user requested e.g. '--detailed false' then they
                 # should simply stop requesting this since the default has
                 # changed
-                msg = _(
-                    "The --detailed option has been deprecated. " "Unset it."
-                )
+                msg = _("The --detailed option has been deprecated. Unset it.")
                 self.log.warning(msg)
 
         columns = [
