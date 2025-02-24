@@ -2633,6 +2633,35 @@ class TestSetPort(TestPort):
     def test_set_trusted_false(self):
         self._test_set_trusted_field(False)
 
+    def _test_set_uplink_status_propagation(self, uspropagation):
+        arglist = [self._port.id]
+        if uspropagation:
+            arglist += ['--enable-uplink-status-propagation']
+        else:
+            arglist += ['--disable-uplink-status-propagation']
+
+        verifylist = [
+            ('port', self._port.id),
+        ]
+        if uspropagation:
+            verifylist.append(('enable_uplink_status_propagation', True))
+        else:
+            verifylist.append(('enable_uplink_status_propagation', False))
+
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        result = self.cmd.take_action(parsed_args)
+        self.network_client.update_port.assert_called_once_with(
+            self._port, **{'propagate_uplink_status': uspropagation}
+        )
+        self.assertIsNone(result)
+
+    def test_set_uplink_status_propagation_true(self):
+        self._test_set_uplink_status_propagation(True)
+
+    def test_set_uplink_status_propagation_false(self):
+        self._test_set_uplink_status_propagation(False)
+
 
 class TestShowPort(TestPort):
     # The port to show.

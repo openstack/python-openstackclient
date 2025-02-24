@@ -1103,6 +1103,18 @@ class SetPort(common.NeutronCommandWithExtraArgs):
                 "(requires data plane status extension)"
             ),
         )
+        uplink_status_group = parser.add_mutually_exclusive_group()
+        uplink_status_group.add_argument(
+            '--enable-uplink-status-propagation',
+            action='store_true',
+            help=_('Enable uplink status propagation'),
+        )
+        uplink_status_group.add_argument(
+            '--disable-uplink-status-propagation',
+            action='store_true',
+            help=_('Disable uplink status propagation'),
+        )
+
         _tag.add_tag_option_to_parser_for_set(parser, _('port'))
 
         return parser
