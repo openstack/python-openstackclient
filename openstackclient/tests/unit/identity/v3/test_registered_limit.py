@@ -10,72 +10,79 @@
 #   License for the specific language governing permissions and limitations
 #   under the License.
 
-import copy
-
-from keystoneauth1.exceptions import http as ksa_exceptions
+from openstack import exceptions as sdk_exc
+from openstack.identity.v3 import region as _region
+from openstack.identity.v3 import registered_limit as _registered_limit
+from openstack.identity.v3 import service as _service
+from openstack.test import fakes as sdk_fakes
 from osc_lib import exceptions
 
 from openstackclient.identity.v3 import registered_limit
-from openstackclient.tests.unit import fakes
 from openstackclient.tests.unit.identity.v3 import fakes as identity_fakes
 
 
-class TestRegisteredLimit(identity_fakes.TestIdentityv3):
+class TestRegisteredLimitCreate(identity_fakes.TestIdentityv3):
     def setUp(self):
         super().setUp()
 
-        self.registered_limit_mock = self.identity_client.registered_limits
+        self.service = sdk_fakes.generate_fake_resource(_service.Service)
+        self.region = sdk_fakes.generate_fake_resource(_region.Region)
 
-        self.services_mock = self.identity_client.services
-        self.services_mock.reset_mock()
+        self.description = 'default limit of foobars'
+        self.default_limit = 10
+        self.resource_name = 'foobars'
 
-        self.regions_mock = self.identity_client.regions
-        self.regions_mock.reset_mock()
+        self.identity_sdk_client.find_service.return_value = self.service
+        self.identity_sdk_client.get_region.return_value = self.region
 
-
-class TestRegisteredLimitCreate(TestRegisteredLimit):
-    def setUp(self):
-        super().setUp()
-
-        self.service = fakes.FakeResource(
-            None, copy.deepcopy(identity_fakes.SERVICE), loaded=True
+        self.registered_limit = sdk_fakes.generate_fake_resource(
+            resource_type=_registered_limit.RegisteredLimit,
+            description=None,
+            region_id=None,
+            service_id=self.service.id,
+            default_limit=self.default_limit,
+            resource_name=self.resource_name,
         )
-        self.services_mock.get.return_value = self.service
-
-        self.region = fakes.FakeResource(
-            None, copy.deepcopy(identity_fakes.REGION), loaded=True
+        self.registered_limit_with_options = sdk_fakes.generate_fake_resource(
+            resource_type=_registered_limit.RegisteredLimit,
+            description=self.description,
+            region_id=self.region.id,
+            service_id=self.service.id,
+            default_limit=self.default_limit,
+            resource_name=self.resource_name,
         )
-        self.regions_mock.get.return_value = self.region
 
         self.cmd = registered_limit.CreateRegisteredLimit(self.app, None)
 
     def test_registered_limit_create_without_options(self):
-        self.registered_limit_mock.create.return_value = fakes.FakeResource(
-            None, copy.deepcopy(identity_fakes.REGISTERED_LIMIT), loaded=True
+        self.identity_sdk_client.create_registered_limit.return_value = (
+            self.registered_limit
         )
 
-        resource_name = identity_fakes.registered_limit_resource_name
-        default_limit = identity_fakes.registered_limit_default_limit
         arglist = [
             '--service',
-            identity_fakes.service_id,
+            self.service.id,
             '--default-limit',
-            '10',
-            resource_name,
+            str(self.default_limit),
+            self.resource_name,
         ]
 
         verifylist = [
-            ('service', identity_fakes.service_id),
-            ('default_limit', default_limit),
-            ('resource_name', resource_name),
+            ('service', self.service.id),
+            ('default_limit', self.default_limit),
+            ('resource_name', self.resource_name),
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
         columns, data = self.cmd.take_action(parsed_args)
 
-        kwargs = {'description': None, 'region': None}
-        self.registered_limit_mock.create.assert_called_with(
-            self.service, resource_name, default_limit, **kwargs
+        kwargs = {
+            'service_id': self.service.id,
+            'default_limit': self.default_limit,
+            'resource_name': self.resource_name,
+        }
+        self.identity_sdk_client.create_registered_limit.assert_called_with(
+            **kwargs
         )
 
         collist = (
@@ -89,51 +96,52 @@ class TestRegisteredLimitCreate(TestRegisteredLimit):
 
         self.assertEqual(collist, columns)
         datalist = (
-            identity_fakes.registered_limit_default_limit,
+            self.default_limit,
             None,
-            identity_fakes.registered_limit_id,
+            self.registered_limit.id,
             None,
-            identity_fakes.registered_limit_resource_name,
-            identity_fakes.service_id,
+            self.resource_name,
+            self.service.id,
         )
         self.assertEqual(datalist, data)
 
     def test_registered_limit_create_with_options(self):
-        self.registered_limit_mock.create.return_value = fakes.FakeResource(
-            None,
-            copy.deepcopy(identity_fakes.REGISTERED_LIMIT_OPTIONS),
-            loaded=True,
+        self.identity_sdk_client.create_registered_limit.return_value = (
+            self.registered_limit_with_options
         )
 
-        resource_name = identity_fakes.registered_limit_resource_name
-        default_limit = identity_fakes.registered_limit_default_limit
-        description = identity_fakes.registered_limit_description
         arglist = [
             '--region',
-            identity_fakes.region_id,
+            self.region.id,
             '--description',
-            description,
+            self.description,
             '--service',
-            identity_fakes.service_id,
+            self.service.id,
             '--default-limit',
-            '10',
-            resource_name,
+            str(self.default_limit),
+            self.resource_name,
         ]
 
         verifylist = [
-            ('region', identity_fakes.region_id),
-            ('description', description),
-            ('service', identity_fakes.service_id),
-            ('default_limit', default_limit),
-            ('resource_name', resource_name),
+            ('region', self.region.id),
+            ('description', self.description),
+            ('service', self.service.id),
+            ('default_limit', self.default_limit),
+            ('resource_name', self.resource_name),
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
         columns, data = self.cmd.take_action(parsed_args)
 
-        kwargs = {'description': description, 'region': self.region}
-        self.registered_limit_mock.create.assert_called_with(
-            self.service, resource_name, default_limit, **kwargs
+        kwargs = {
+            'description': self.description,
+            'region_id': self.region.id,
+            'service_id': self.service.id,
+            'default_limit': self.default_limit,
+            'resource_name': self.resource_name,
+        }
+        self.identity_sdk_client.create_registered_limit.assert_called_with(
+            **kwargs
         )
 
         collist = (
@@ -147,41 +155,44 @@ class TestRegisteredLimitCreate(TestRegisteredLimit):
 
         self.assertEqual(collist, columns)
         datalist = (
-            identity_fakes.registered_limit_default_limit,
-            description,
-            identity_fakes.registered_limit_id,
-            identity_fakes.region_id,
-            identity_fakes.registered_limit_resource_name,
-            identity_fakes.service_id,
+            self.default_limit,
+            self.description,
+            self.registered_limit_with_options.id,
+            self.region.id,
+            self.resource_name,
+            self.service.id,
         )
         self.assertEqual(datalist, data)
 
 
-class TestRegisteredLimitDelete(TestRegisteredLimit):
+class TestRegisteredLimitDelete(identity_fakes.TestIdentityv3):
     def setUp(self):
         super().setUp()
 
         self.cmd = registered_limit.DeleteRegisteredLimit(self.app, None)
 
     def test_registered_limit_delete(self):
-        self.registered_limit_mock.delete.return_value = None
+        self.registered_limit = sdk_fakes.generate_fake_resource(
+            resource_type=_registered_limit.RegisteredLimit,
+        )
+        self.identity_sdk_client.delete_registered_limit.return_value = None
 
-        arglist = [identity_fakes.registered_limit_id]
-        verifylist = [
-            ('registered_limits', [identity_fakes.registered_limit_id])
-        ]
+        arglist = [self.registered_limit.id]
+        verifylist = [('registered_limits', [self.registered_limit.id])]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
         result = self.cmd.take_action(parsed_args)
 
-        self.registered_limit_mock.delete.assert_called_with(
-            identity_fakes.registered_limit_id
+        self.identity_sdk_client.delete_registered_limit.assert_called_with(
+            self.registered_limit.id,
+            ignore_missing=False,
         )
         self.assertIsNone(result)
 
     def test_registered_limit_delete_with_exception(self):
-        return_value = ksa_exceptions.NotFound()
-        self.registered_limit_mock.delete.side_effect = return_value
+        self.identity_sdk_client.delete_registered_limit.side_effect = (
+            sdk_exc.ResourceNotFound
+        )
 
         arglist = ['fake-registered-limit-id']
         verifylist = [('registered_limits', ['fake-registered-limit-id'])]
@@ -196,27 +207,52 @@ class TestRegisteredLimitDelete(TestRegisteredLimit):
             )
 
 
-class TestRegisteredLimitShow(TestRegisteredLimit):
+class TestRegisteredLimitShow(identity_fakes.TestIdentityv3):
     def setUp(self):
         super().setUp()
 
-        self.registered_limit_mock.get.return_value = fakes.FakeResource(
-            None, copy.deepcopy(identity_fakes.REGISTERED_LIMIT), loaded=True
+        self.service = sdk_fakes.generate_fake_resource(_service.Service)
+        self.region = sdk_fakes.generate_fake_resource(_region.Region)
+
+        self.description = 'default limit of foobars'
+        self.default_limit = 10
+        self.resource_name = 'foobars'
+
+        self.identity_sdk_client.find_service.return_value = self.service
+        self.identity_sdk_client.get_region.return_value = self.region
+
+        self.registered_limit = sdk_fakes.generate_fake_resource(
+            resource_type=_registered_limit.RegisteredLimit,
+            description=None,
+            region_id=None,
+            service_id=self.service.id,
+            default_limit=self.default_limit,
+            resource_name=self.resource_name,
+        )
+        self.registered_limit_with_options = sdk_fakes.generate_fake_resource(
+            resource_type=_registered_limit.RegisteredLimit,
+            description=self.description,
+            region_id=self.region.id,
+            service_id=self.service.id,
+            default_limit=self.default_limit,
+            resource_name=self.resource_name,
         )
 
         self.cmd = registered_limit.ShowRegisteredLimit(self.app, None)
 
     def test_registered_limit_show(self):
-        arglist = [identity_fakes.registered_limit_id]
-        verifylist = [
-            ('registered_limit_id', identity_fakes.registered_limit_id)
-        ]
+        self.identity_sdk_client.get_registered_limit.return_value = (
+            self.registered_limit
+        )
+
+        arglist = [self.registered_limit.id]
+        verifylist = [('registered_limit_id', self.registered_limit.id)]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
         columns, data = self.cmd.take_action(parsed_args)
 
-        self.registered_limit_mock.get.assert_called_with(
-            identity_fakes.registered_limit_id
+        self.identity_sdk_client.get_registered_limit.assert_called_with(
+            self.registered_limit.id
         )
 
         collist = (
@@ -229,50 +265,107 @@ class TestRegisteredLimitShow(TestRegisteredLimit):
         )
         self.assertEqual(collist, columns)
         datalist = (
-            identity_fakes.registered_limit_default_limit,
+            self.default_limit,
             None,
-            identity_fakes.registered_limit_id,
+            self.registered_limit.id,
             None,
-            identity_fakes.registered_limit_resource_name,
-            identity_fakes.service_id,
+            self.resource_name,
+            self.service.id,
+        )
+        self.assertEqual(datalist, data)
+
+    def test_registered_limit_show_with_options(self):
+        self.identity_sdk_client.get_registered_limit.return_value = (
+            self.registered_limit_with_options
+        )
+
+        arglist = [self.registered_limit_with_options.id]
+        verifylist = [
+            ('registered_limit_id', self.registered_limit_with_options.id)
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        columns, data = self.cmd.take_action(parsed_args)
+
+        self.identity_sdk_client.get_registered_limit.assert_called_with(
+            self.registered_limit_with_options.id
+        )
+
+        collist = (
+            'default_limit',
+            'description',
+            'id',
+            'region_id',
+            'resource_name',
+            'service_id',
+        )
+        self.assertEqual(collist, columns)
+        datalist = (
+            self.default_limit,
+            self.description,
+            self.registered_limit_with_options.id,
+            self.region.id,
+            self.resource_name,
+            self.service.id,
         )
         self.assertEqual(datalist, data)
 
 
-class TestRegisteredLimitSet(TestRegisteredLimit):
+class TestRegisteredLimitSet(identity_fakes.TestIdentityv3):
     def setUp(self):
         super().setUp()
+
+        self.service = sdk_fakes.generate_fake_resource(_service.Service)
+        self.region = sdk_fakes.generate_fake_resource(_region.Region)
+
+        self.default_limit = 10
+        self.resource_name = 'foobars'
+
+        self.identity_sdk_client.find_service.return_value = self.service
+        self.identity_sdk_client.get_region.return_value = self.region
+
+        self.registered_limit = sdk_fakes.generate_fake_resource(
+            resource_type=_registered_limit.RegisteredLimit,
+            description=None,
+            region_id=None,
+            service_id=self.service.id,
+            default_limit=self.default_limit,
+            resource_name=self.resource_name,
+        )
+
         self.cmd = registered_limit.SetRegisteredLimit(self.app, None)
 
     def test_registered_limit_set_description(self):
-        registered_limit = copy.deepcopy(identity_fakes.REGISTERED_LIMIT)
-        registered_limit['description'] = (
-            identity_fakes.registered_limit_description
+        updated_description = 'default limit of foobars'
+        updated_registered_limit = sdk_fakes.generate_fake_resource(
+            resource_type=_registered_limit.RegisteredLimit,
+            id=self.registered_limit.id,
+            description=updated_description,
+            region_id=None,
+            service_id=self.service.id,
+            default_limit=self.default_limit,
+            resource_name=self.resource_name,
         )
-        self.registered_limit_mock.update.return_value = fakes.FakeResource(
-            None, registered_limit, loaded=True
+        self.identity_sdk_client.update_registered_limit.return_value = (
+            updated_registered_limit
         )
 
         arglist = [
             '--description',
-            identity_fakes.registered_limit_description,
-            identity_fakes.registered_limit_id,
+            updated_description,
+            self.registered_limit.id,
         ]
         verifylist = [
-            ('description', identity_fakes.registered_limit_description),
-            ('registered_limit_id', identity_fakes.registered_limit_id),
+            ('description', updated_description),
+            ('registered_limit_id', self.registered_limit.id),
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
         columns, data = self.cmd.take_action(parsed_args)
 
-        self.registered_limit_mock.update.assert_called_with(
-            identity_fakes.registered_limit_id,
-            service=None,
-            resource_name=None,
-            default_limit=None,
-            description=identity_fakes.registered_limit_description,
-            region=None,
+        self.identity_sdk_client.update_registered_limit.assert_called_with(
+            self.registered_limit.id,
+            description=updated_description,
         )
 
         collist = (
@@ -285,43 +378,46 @@ class TestRegisteredLimitSet(TestRegisteredLimit):
         )
         self.assertEqual(collist, columns)
         datalist = (
-            identity_fakes.registered_limit_default_limit,
-            identity_fakes.registered_limit_description,
-            identity_fakes.registered_limit_id,
+            self.default_limit,
+            updated_description,
+            self.registered_limit.id,
             None,
-            identity_fakes.registered_limit_resource_name,
-            identity_fakes.service_id,
+            self.resource_name,
+            self.service.id,
         )
         self.assertEqual(datalist, data)
 
     def test_registered_limit_set_default_limit(self):
-        registered_limit = copy.deepcopy(identity_fakes.REGISTERED_LIMIT)
-        default_limit = 20
-        registered_limit['default_limit'] = default_limit
-        self.registered_limit_mock.update.return_value = fakes.FakeResource(
-            None, registered_limit, loaded=True
+        updated_default_limit = 20
+        updated_registered_limit = sdk_fakes.generate_fake_resource(
+            resource_type=_registered_limit.RegisteredLimit,
+            id=self.registered_limit.id,
+            description=None,
+            region_id=None,
+            service_id=self.service.id,
+            default_limit=updated_default_limit,
+            resource_name=self.resource_name,
+        )
+        self.identity_sdk_client.update_registered_limit.return_value = (
+            updated_registered_limit
         )
 
         arglist = [
             '--default-limit',
-            str(default_limit),
-            identity_fakes.registered_limit_id,
+            str(updated_default_limit),
+            self.registered_limit.id,
         ]
         verifylist = [
-            ('default_limit', default_limit),
-            ('registered_limit_id', identity_fakes.registered_limit_id),
+            ('default_limit', updated_default_limit),
+            ('registered_limit_id', self.registered_limit.id),
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
         columns, data = self.cmd.take_action(parsed_args)
 
-        self.registered_limit_mock.update.assert_called_with(
-            identity_fakes.registered_limit_id,
-            service=None,
-            resource_name=None,
-            default_limit=default_limit,
-            description=None,
-            region=None,
+        self.identity_sdk_client.update_registered_limit.assert_called_with(
+            self.registered_limit.id,
+            default_limit=updated_default_limit,
         )
 
         collist = (
@@ -334,43 +430,46 @@ class TestRegisteredLimitSet(TestRegisteredLimit):
         )
         self.assertEqual(collist, columns)
         datalist = (
-            default_limit,
+            updated_default_limit,
             None,
-            identity_fakes.registered_limit_id,
+            self.registered_limit.id,
             None,
-            identity_fakes.registered_limit_resource_name,
-            identity_fakes.service_id,
+            self.resource_name,
+            self.service.id,
         )
         self.assertEqual(datalist, data)
 
     def test_registered_limit_set_resource_name(self):
-        registered_limit = copy.deepcopy(identity_fakes.REGISTERED_LIMIT)
-        resource_name = 'volumes'
-        registered_limit['resource_name'] = resource_name
-        self.registered_limit_mock.update.return_value = fakes.FakeResource(
-            None, registered_limit, loaded=True
+        updated_resource_name = 'volumes'
+        updated_registered_limit = sdk_fakes.generate_fake_resource(
+            resource_type=_registered_limit.RegisteredLimit,
+            id=self.registered_limit.id,
+            description=None,
+            region_id=None,
+            service_id=self.service.id,
+            default_limit=self.default_limit,
+            resource_name=updated_resource_name,
+        )
+        self.identity_sdk_client.update_registered_limit.return_value = (
+            updated_registered_limit
         )
 
         arglist = [
             '--resource-name',
-            resource_name,
-            identity_fakes.registered_limit_id,
+            updated_resource_name,
+            self.registered_limit.id,
         ]
         verifylist = [
-            ('resource_name', resource_name),
-            ('registered_limit_id', identity_fakes.registered_limit_id),
+            ('resource_name', updated_resource_name),
+            ('registered_limit_id', self.registered_limit.id),
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
         columns, data = self.cmd.take_action(parsed_args)
 
-        self.registered_limit_mock.update.assert_called_with(
-            identity_fakes.registered_limit_id,
-            service=None,
-            resource_name=resource_name,
-            default_limit=None,
-            description=None,
-            region=None,
+        self.identity_sdk_client.update_registered_limit.assert_called_with(
+            self.registered_limit.id,
+            resource_name=updated_resource_name,
         )
 
         collist = (
@@ -383,40 +482,43 @@ class TestRegisteredLimitSet(TestRegisteredLimit):
         )
         self.assertEqual(collist, columns)
         datalist = (
-            identity_fakes.registered_limit_default_limit,
+            self.default_limit,
             None,
-            identity_fakes.registered_limit_id,
+            self.registered_limit.id,
             None,
-            resource_name,
-            identity_fakes.service_id,
+            updated_resource_name,
+            self.service.id,
         )
         self.assertEqual(datalist, data)
 
     def test_registered_limit_set_service(self):
-        registered_limit = copy.deepcopy(identity_fakes.REGISTERED_LIMIT)
-        service = identity_fakes.FakeService.create_one_service()
-        registered_limit['service_id'] = service.id
-        self.registered_limit_mock.update.return_value = fakes.FakeResource(
-            None, registered_limit, loaded=True
+        updated_service = sdk_fakes.generate_fake_resource(_service.Service)
+        self.identity_sdk_client.find_service.return_value = updated_service
+        updated_registered_limit = sdk_fakes.generate_fake_resource(
+            resource_type=_registered_limit.RegisteredLimit,
+            id=self.registered_limit.id,
+            description=None,
+            region_id=None,
+            service_id=updated_service.id,
+            default_limit=self.default_limit,
+            resource_name=self.resource_name,
         )
-        self.services_mock.get.return_value = service
+        self.identity_sdk_client.update_registered_limit.return_value = (
+            updated_registered_limit
+        )
 
-        arglist = ['--service', service.id, identity_fakes.registered_limit_id]
+        arglist = ['--service', updated_service.id, self.registered_limit.id]
         verifylist = [
-            ('service', service.id),
-            ('registered_limit_id', identity_fakes.registered_limit_id),
+            ('service', updated_service.id),
+            ('registered_limit_id', self.registered_limit.id),
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
         columns, data = self.cmd.take_action(parsed_args)
 
-        self.registered_limit_mock.update.assert_called_with(
-            identity_fakes.registered_limit_id,
-            service=service,
-            resource_name=None,
-            default_limit=None,
-            description=None,
-            region=None,
+        self.identity_sdk_client.update_registered_limit.assert_called_with(
+            self.registered_limit.id,
+            service_id=updated_service.id,
         )
 
         collist = (
@@ -429,42 +531,43 @@ class TestRegisteredLimitSet(TestRegisteredLimit):
         )
         self.assertEqual(collist, columns)
         datalist = (
-            identity_fakes.registered_limit_default_limit,
+            self.default_limit,
             None,
-            identity_fakes.registered_limit_id,
+            self.registered_limit.id,
             None,
-            identity_fakes.registered_limit_resource_name,
-            service.id,
+            self.resource_name,
+            updated_service.id,
         )
         self.assertEqual(datalist, data)
 
     def test_registered_limit_set_region(self):
-        registered_limit = copy.deepcopy(identity_fakes.REGISTERED_LIMIT)
-        region = identity_fakes.REGION
-        region['id'] = 'RegionTwo'
-        region = fakes.FakeResource(None, copy.deepcopy(region), loaded=True)
-        registered_limit['region_id'] = region.id
-        self.registered_limit_mock.update.return_value = fakes.FakeResource(
-            None, registered_limit, loaded=True
+        updated_region = sdk_fakes.generate_fake_resource(_region.Region)
+        self.identity_sdk_client.get_region.return_value = updated_region
+        updated_registered_limit = sdk_fakes.generate_fake_resource(
+            resource_type=_registered_limit.RegisteredLimit,
+            id=self.registered_limit.id,
+            description=None,
+            region_id=updated_region.id,
+            service_id=self.service.id,
+            default_limit=self.default_limit,
+            resource_name=self.resource_name,
         )
-        self.regions_mock.get.return_value = region
+        self.identity_sdk_client.update_registered_limit.return_value = (
+            updated_registered_limit
+        )
 
-        arglist = ['--region', region.id, identity_fakes.registered_limit_id]
+        arglist = ['--region', updated_region.id, self.registered_limit.id]
         verifylist = [
-            ('region', region.id),
-            ('registered_limit_id', identity_fakes.registered_limit_id),
+            ('region', updated_region.id),
+            ('registered_limit_id', self.registered_limit.id),
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
         columns, data = self.cmd.take_action(parsed_args)
 
-        self.registered_limit_mock.update.assert_called_with(
-            identity_fakes.registered_limit_id,
-            service=None,
-            resource_name=None,
-            default_limit=None,
-            description=None,
-            region=region,
+        self.identity_sdk_client.update_registered_limit.assert_called_with(
+            self.registered_limit.id,
+            region_id=updated_region.id,
         )
 
         collist = (
@@ -477,54 +580,86 @@ class TestRegisteredLimitSet(TestRegisteredLimit):
         )
         self.assertEqual(collist, columns)
         datalist = (
-            identity_fakes.registered_limit_default_limit,
+            self.default_limit,
             None,
-            identity_fakes.registered_limit_id,
-            region.id,
-            identity_fakes.registered_limit_resource_name,
-            identity_fakes.service_id,
+            self.registered_limit.id,
+            updated_region.id,
+            self.resource_name,
+            self.service.id,
         )
         self.assertEqual(datalist, data)
 
 
-class TestRegisteredLimitList(TestRegisteredLimit):
+class TestRegisteredLimitList(identity_fakes.TestIdentityv3):
     def setUp(self):
         super().setUp()
 
-        self.registered_limit_mock.get.return_value = fakes.FakeResource(
-            None, copy.deepcopy(identity_fakes.REGISTERED_LIMIT), loaded=True
+        self.service = sdk_fakes.generate_fake_resource(_service.Service)
+        self.region = sdk_fakes.generate_fake_resource(_region.Region)
+
+        self.description = 'default limit of foobars'
+        self.default_limit = 10
+        self.resource_name = 'foobars'
+
+        self.identity_sdk_client.find_service.return_value = self.service
+        self.identity_sdk_client.get_region.return_value = self.region
+
+        self.registered_limit = sdk_fakes.generate_fake_resource(
+            resource_type=_registered_limit.RegisteredLimit,
+            description=None,
+            region_id=None,
+            service_id=self.service.id,
+            default_limit=self.default_limit,
+            resource_name=self.resource_name,
         )
-
-        self.cmd = registered_limit.ShowRegisteredLimit(self.app, None)
-
-    def test_limit_show(self):
-        arglist = [identity_fakes.registered_limit_id]
-        verifylist = [
-            ('registered_limit_id', identity_fakes.registered_limit_id)
+        self.registered_limit_with_options = sdk_fakes.generate_fake_resource(
+            resource_type=_registered_limit.RegisteredLimit,
+            description=self.description,
+            region_id=self.region.id,
+            service_id=self.service.id,
+            default_limit=self.default_limit,
+            resource_name=self.resource_name,
+        )
+        self.identity_sdk_client.registered_limits.return_value = [
+            self.registered_limit,
+            self.registered_limit_with_options,
         ]
+
+        self.cmd = registered_limit.ListRegisteredLimit(self.app, None)
+
+    def test_registered_limit_list(self):
+        arglist = []
+        verifylist = []
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
         columns, data = self.cmd.take_action(parsed_args)
 
-        self.registered_limit_mock.get.assert_called_with(
-            identity_fakes.registered_limit_id
-        )
-
+        self.identity_sdk_client.registered_limits.assert_called_with()
         collist = (
-            'default_limit',
-            'description',
-            'id',
-            'region_id',
-            'resource_name',
-            'service_id',
+            "ID",
+            "Service ID",
+            "Resource Name",
+            "Default Limit",
+            "Description",
+            "Region ID",
         )
         self.assertEqual(collist, columns)
         datalist = (
-            identity_fakes.registered_limit_default_limit,
-            None,
-            identity_fakes.registered_limit_id,
-            None,
-            identity_fakes.registered_limit_resource_name,
-            identity_fakes.service_id,
+            (
+                self.registered_limit.id,
+                self.service.id,
+                self.resource_name,
+                self.default_limit,
+                None,
+                None,
+            ),
+            (
+                self.registered_limit_with_options.id,
+                self.service.id,
+                self.resource_name,
+                self.default_limit,
+                self.description,
+                self.region.id,
+            ),
         )
-        self.assertEqual(datalist, data)
+        self.assertEqual(datalist, tuple(data))
