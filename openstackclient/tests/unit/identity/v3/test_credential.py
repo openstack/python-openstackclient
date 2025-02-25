@@ -73,10 +73,10 @@ class TestCredentialCreate(identity_fakes.TestIdentityv3):
         columns, data = self.cmd.take_action(parsed_args)
 
         kwargs = {
-            'user': self.credential.user_id,
+            'user_id': self.credential.user_id,
             'type': self.credential.type,
             'blob': self.credential.blob,
-            'project': None,
+            'project_id': None,
         }
         self.identity_sdk_client.create_credential.assert_called_once_with(
             **kwargs
@@ -105,10 +105,10 @@ class TestCredentialCreate(identity_fakes.TestIdentityv3):
         columns, data = self.cmd.take_action(parsed_args)
 
         kwargs = {
-            'user': self.credential.user_id,
+            'user_id': self.credential.user_id,
             'type': self.credential.type,
             'blob': self.credential.blob,
-            'project': self.credential.project_id,
+            'project_id': self.credential.project_id,
         }
         self.identity_sdk_client.create_credential.assert_called_once_with(
             **kwargs

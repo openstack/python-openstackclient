@@ -88,10 +88,10 @@ class CreateCredential(command.ShowOne):
         else:
             project = None
         credential = identity_client.create_credential(
-            user=user_id,
+            user_id=user_id,
             type=parsed_args.type,
             blob=parsed_args.data,
-            project=project,
+            project_id=project,
         )
 
         return _format_credential(credential)
