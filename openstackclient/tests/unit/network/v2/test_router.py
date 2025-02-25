@@ -384,7 +384,7 @@ class TestCreateRouter(TestRouter):
     def test_create_with_no_tag(self):
         self._test_create_with_tag(add_tags=False)
 
-    def test_create_with_flavor_id_or_name(self):
+    def test_create_with_flavor_id_id(self):
         _flavor = network_fakes.create_one_network_flavor()
         self.network_client.find_flavor = mock.Mock(return_value=_flavor)
         arglist = [
@@ -392,7 +392,6 @@ class TestCreateRouter(TestRouter):
             '--flavor-id',
             _flavor.id,
         ]
-        arglist_with_name = [self.new_router.name, '--flavor-id', _flavor.name]
         verifylist = [
             ('name', self.new_router.name),
             ('enable', True),
@@ -412,18 +411,69 @@ class TestCreateRouter(TestRouter):
         self.assertEqual(self.columns, columns)
         self.assertCountEqual(self.data, data)
 
-        self.network_client.create_router.reset_mock()
-        verifylist_w_name = [
+    def test_create_with_flavor_id_name(self):
+        _flavor = network_fakes.create_one_network_flavor()
+        self.network_client.find_flavor = mock.Mock(return_value=_flavor)
+        arglist = [self.new_router.name, '--flavor-id', _flavor.name]
+        verifylist = [
             ('name', self.new_router.name),
             ('enable', True),
             ('distributed', False),
             ('ha', False),
             ('flavor_id', _flavor.name),
         ]
-        parsed_args_w_name = self.check_parser(
-            self.cmd, arglist_with_name, verifylist_w_name
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+        columns, data = self.cmd.take_action(parsed_args)
+        self.network_client.create_router.assert_called_once_with(
+            **{
+                'admin_state_up': True,
+                'name': self.new_router.name,
+                'flavor_id': _flavor.id,
+            }
         )
-        columns, data = self.cmd.take_action(parsed_args_w_name)
+        self.assertEqual(self.columns, columns)
+        self.assertCountEqual(self.data, data)
+
+    def test_create_with_flavor_id(self):
+        _flavor = network_fakes.create_one_network_flavor()
+        self.network_client.find_flavor = mock.Mock(return_value=_flavor)
+        arglist = [
+            self.new_router.name,
+            '--flavor',
+            _flavor.id,
+        ]
+        verifylist = [
+            ('name', self.new_router.name),
+            ('enable', True),
+            ('distributed', False),
+            ('ha', False),
+            ('flavor', _flavor.id),
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+        columns, data = self.cmd.take_action(parsed_args)
+        self.network_client.create_router.assert_called_once_with(
+            **{
+                'admin_state_up': True,
+                'name': self.new_router.name,
+                'flavor_id': _flavor.id,
+            }
+        )
+        self.assertEqual(self.columns, columns)
+        self.assertCountEqual(self.data, data)
+
+    def test_create_with_flavor_name(self):
+        _flavor = network_fakes.create_one_network_flavor()
+        self.network_client.find_flavor = mock.Mock(return_value=_flavor)
+        arglist = [self.new_router.name, '--flavor', _flavor.name]
+        verifylist = [
+            ('name', self.new_router.name),
+            ('enable', True),
+            ('distributed', False),
+            ('ha', False),
+            ('flavor', _flavor.name),
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+        columns, data = self.cmd.take_action(parsed_args)
         self.network_client.create_router.assert_called_once_with(
             **{
                 'admin_state_up': True,

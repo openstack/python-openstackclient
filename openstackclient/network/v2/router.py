@@ -237,6 +237,9 @@ def _get_attrs(client_manager, parsed_args):
     if 'flavor_id' in parsed_args and parsed_args.flavor_id is not None:
         flavor = n_client.find_flavor(parsed_args.flavor_id)
         attrs['flavor_id'] = flavor.id
+    elif 'flavor' in parsed_args and parsed_args.flavor is not None:
+        flavor = n_client.find_flavor(parsed_args.flavor, ignore_missing=False)
+        attrs['flavor_id'] = flavor.id
 
     for attr in ('enable_default_route_bfd', 'enable_default_route_ecmp'):
         value = getattr(parsed_args, attr, None)
