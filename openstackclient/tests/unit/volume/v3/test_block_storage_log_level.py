@@ -10,9 +10,10 @@
 #   WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
 #   License for the specific language governing permissions and limitations
 #   under the License.
-#
 
 import ddt
+from openstack.block_storage.v3 import service as _service
+from openstack.test import fakes as sdk_fakes
 from osc_lib import exceptions
 
 from openstackclient.tests.unit import utils as tests_utils
@@ -20,24 +21,17 @@ from openstackclient.tests.unit.volume.v3 import fakes as volume_fakes
 from openstackclient.volume.v3 import block_storage_log_level as service
 
 
-class TestService(volume_fakes.TestVolume):
+class TestBlockStorageLogLevelList(volume_fakes.TestVolume):
     def setUp(self):
         super().setUp()
 
-        # Get a shortcut to the ServiceManager Mock
-        self.service_mock = self.volume_client.services
-        self.service_mock.reset_mock()
+        self.log_level = sdk_fakes.generate_fake_resource(
+            _service.LogLevel, binary='cinder-scheduler'
+        )
+        self.volume_sdk_client.get_service_log_levels.return_value = [
+            self.log_level
+        ]
 
-
-class TestBlockStorageLogLevelList(TestService):
-    service_log = volume_fakes.create_service_log_level_entry()
-
-    def setUp(self):
-        super().setUp()
-
-        self.service_mock.get_log_levels.return_value = [self.service_log]
-
-        # Get the command object to test
         self.cmd = service.BlockStorageLogLevelList(self.app, None)
 
     def test_block_storage_log_level_list(self):
@@ -45,16 +39,16 @@ class TestBlockStorageLogLevelList(TestService):
 
         arglist = [
             '--host',
-            self.service_log.host,
+            self.log_level.host,
             '--service',
-            self.service_log.binary,
+            self.log_level.binary,
             '--log-prefix',
-            self.service_log.prefix,
+            'cinder.',
         ]
         verifylist = [
-            ('host', self.service_log.host),
-            ('service', self.service_log.binary),
-            ('log_prefix', self.service_log.prefix),
+            ('host', self.log_level.host),
+            ('service', self.log_level.binary),
+            ('log_prefix', 'cinder.'),
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
@@ -66,40 +60,35 @@ class TestBlockStorageLogLevelList(TestService):
             'Prefix',
             'Level',
         ]
-
-        # confirming if all expected columns are present in the result.
-        self.assertEqual(expected_columns, columns)
-
-        datalist = (
+        datalist = tuple(
             (
-                self.service_log.binary,
-                self.service_log.host,
-                self.service_log.prefix,
-                self.service_log.level,
-            ),
+                self.log_level.binary,
+                self.log_level.host,
+                prefix,
+                level,
+            )
+            for prefix, level in self.log_level.levels.values()
         )
-
-        # confirming if all expected values are present in the result.
+        self.assertEqual(expected_columns, columns)
         self.assertEqual(datalist, tuple(data))
 
-        # checking if proper call was made to get log level of services
-        self.service_mock.get_log_levels.assert_called_with(
-            server=self.service_log.host,
-            binary=self.service_log.binary,
-            prefix=self.service_log.prefix,
+        self.volume_sdk_client.get_service_log_levels.assert_called_with(
+            server=self.log_level.host,
+            binary=self.log_level.binary,
+            prefix='cinder.',
         )
 
     def test_block_storage_log_level_list_pre_332(self):
         arglist = [
             '--host',
-            self.service_log.host,
+            self.log_level.host,
             '--service',
             'cinder-api',
             '--log-prefix',
             'cinder_test.api.common',
         ]
         verifylist = [
-            ('host', self.service_log.host),
+            ('host', self.log_level.host),
             ('service', 'cinder-api'),
             ('log_prefix', 'cinder_test.api.common'),
         ]
@@ -117,14 +106,14 @@ class TestBlockStorageLogLevelList(TestService):
 
         arglist = [
             '--host',
-            self.service_log.host,
+            self.log_level.host,
             '--service',
             'nova-api',
             '--log-prefix',
             'cinder_test.api.common',
         ]
         verifylist = [
-            ('host', self.service_log.host),
+            ('host', self.log_level.host),
             ('service', 'nova-api'),
             ('log_prefix', 'cinder_test.api.common'),
         ]
@@ -139,13 +128,15 @@ class TestBlockStorageLogLevelList(TestService):
 
 
 @ddt.ddt
-class TestBlockStorageLogLevelSet(TestService):
-    service_log = volume_fakes.create_service_log_level_entry()
-
+class TestBlockStorageLogLevelSet(volume_fakes.TestVolume):
     def setUp(self):
         super().setUp()
 
-        # Get the command object to test
+        self.log_level = sdk_fakes.generate_fake_resource(
+            _service.LogLevel, binary='cinder-api'
+        )
+        self.volume_sdk_client.set_service_log_levels.return_value = None
+
         self.cmd = service.BlockStorageLogLevelSet(self.app, None)
 
     def test_block_storage_log_level_set(self):
@@ -154,45 +145,45 @@ class TestBlockStorageLogLevelSet(TestService):
         arglist = [
             'ERROR',
             '--host',
-            self.service_log.host,
+            self.log_level.host,
             '--service',
-            self.service_log.binary,
+            self.log_level.binary,
             '--log-prefix',
-            self.service_log.prefix,
+            'cinder.api.common',
         ]
         verifylist = [
             ('level', 'ERROR'),
-            ('host', self.service_log.host),
-            ('service', self.service_log.binary),
-            ('log_prefix', self.service_log.prefix),
+            ('host', self.log_level.host),
+            ('service', self.log_level.binary),
+            ('log_prefix', 'cinder.api.common'),
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
-        self.cmd.take_action(parsed_args)
+        ret = self.cmd.take_action(parsed_args)
 
-        # checking if proper call was made to set log level of services
-        self.service_mock.set_log_levels.assert_called_with(
+        self.assertIsNone(ret)
+        self.volume_sdk_client.set_service_log_levels.assert_called_with(
             level='ERROR',
-            server=self.service_log.host,
-            binary=self.service_log.binary,
-            prefix=self.service_log.prefix,
+            server=self.log_level.host,
+            binary=self.log_level.binary,
+            prefix='cinder.api.common',
         )
 
     def test_block_storage_log_level_set_pre_332(self):
         arglist = [
             'ERROR',
             '--host',
-            self.service_log.host,
+            self.log_level.host,
             '--service',
             'cinder-api',
             '--log-prefix',
-            'cinder_test.api.common',
+            'cinder.api.common',
         ]
         verifylist = [
             ('level', 'ERROR'),
-            ('host', self.service_log.host),
+            ('host', self.log_level.host),
             ('service', 'cinder-api'),
-            ('log_prefix', 'cinder_test.api.common'),
+            ('log_prefix', 'cinder.api.common'),
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
@@ -209,7 +200,7 @@ class TestBlockStorageLogLevelSet(TestService):
         arglist = [
             'ERROR',
             '--host',
-            self.service_log.host,
+            self.log_level.host,
             '--service',
             'nova-api',
             '--log-prefix',
@@ -217,7 +208,7 @@ class TestBlockStorageLogLevelSet(TestService):
         ]
         verifylist = [
             ('level', 'ERROR'),
-            ('host', self.service_log.host),
+            ('host', self.log_level.host),
             ('service', 'nova-api'),
             ('log_prefix', 'cinder.api.common'),
         ]
@@ -237,7 +228,7 @@ class TestBlockStorageLogLevelSet(TestService):
         arglist = [
             log_level,
             '--host',
-            self.service_log.host,
+            self.log_level.host,
             '--service',
             'cinder-api',
             '--log-prefix',
@@ -245,7 +236,7 @@ class TestBlockStorageLogLevelSet(TestService):
         ]
         verifylist = [
             ('level', log_level.upper()),
-            ('host', self.service_log.host),
+            ('host', self.log_level.host),
             ('service', 'cinder-api'),
             ('log_prefix', 'cinder.api.common'),
         ]
@@ -263,10 +254,9 @@ class TestBlockStorageLogLevelSet(TestService):
 
             self.cmd.take_action(parsed_args)
 
-            # checking if proper call was made to set log level of services
-            self.service_mock.set_log_levels.assert_called_with(
+            self.volume_sdk_client.set_service_log_levels.assert_called_with(
                 level=log_level.upper(),
-                server=self.service_log.host,
-                binary=self.service_log.binary,
-                prefix=self.service_log.prefix,
+                server=self.log_level.host,
+                binary=self.log_level.binary,
+                prefix='cinder.api.common',
             )
