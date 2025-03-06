@@ -14,7 +14,7 @@
 
 """Service action implementations"""
 
-from cinderclient import api_versions
+from openstack import utils as sdk_utils
 from osc_lib.command import command
 from osc_lib import exceptions
 from osc_lib import utils
@@ -46,29 +46,40 @@ class ListService(command.Lister):
         return parser
 
     def take_action(self, parsed_args):
-        service_client = self.app.client_manager.volume
+        volume_client = self.app.client_manager.sdk_connection.volume
 
-        columns = [
+        columns: tuple[str, ...] = (
+            "binary",
+            "host",
+            "availability_zone",
+            "status",
+            "state",
+            "updated_at",
+        )
+        column_names: tuple[str, ...] = (
             "Binary",
             "Host",
             "Zone",
             "Status",
             "State",
             "Updated At",
-        ]
+        )
 
-        if service_client.api_version >= api_versions.APIVersion('3.7'):
-            columns.append("Cluster")
-        if service_client.api_version >= api_versions.APIVersion('3.49'):
-            columns.append("Backend State")
+        if sdk_utils.supports_microversion(volume_client, '3.7'):
+            columns += ("cluster",)
+            column_names += ("Cluster",)
+        if sdk_utils.supports_microversion(volume_client, '3.49'):
+            columns += ("backend_state",)
+            column_names += ("Backend State",)
         if parsed_args.long:
-            columns.append("Disabled Reason")
+            columns += ("disabled_reason",)
+            column_names += ("Disabled Reason",)
 
-        data = service_client.services.list(
-            parsed_args.host, parsed_args.service
+        data = volume_client.services(
+            host=parsed_args.host, binary=parsed_args.service
         )
         return (
-            columns,
+            column_names,
             (
                 utils.get_item_properties(
                     s,
@@ -84,7 +95,11 @@ class SetService(command.Command):
 
     def get_parser(self, prog_name):
         parser = super().get_parser(prog_name)
-        parser.add_argument("host", metavar="<host>", help=_("Name of host"))
+        parser.add_argument(
+            "host",
+            metavar="<host>",
+            help=_("Name of host"),
+        )
         parser.add_argument(
             "service",
             metavar="<service>",
@@ -115,19 +130,17 @@ class SetService(command.Command):
             )
             raise exceptions.CommandError(msg)
 
-        service_client = self.app.client_manager.volume
+        volume_client = self.app.client_manager.sdk_connection.volume
+
+        service = volume_client.find_service(
+            host=parsed_args.host, service=parsed_args.service
+        )
+
         if parsed_args.enable:
-            service_client.services.enable(
-                parsed_args.host, parsed_args.service
-            )
+            service.enable(volume_client)
+
         if parsed_args.disable:
-            if parsed_args.disable_reason:
-                service_client.services.disable_log_reason(
-                    parsed_args.host,
-                    parsed_args.service,
-                    parsed_args.disable_reason,
-                )
-            else:
-                service_client.services.disable(
-                    parsed_args.host, parsed_args.service
-                )
+            service.disable(
+                volume_client,
+                reason=parsed_args.disable_reason,
+            )
