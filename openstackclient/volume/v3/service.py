@@ -15,12 +15,36 @@
 """Service action implementations"""
 
 from cinderclient import api_versions
+from osc_lib.command import command
+from osc_lib import exceptions
 from osc_lib import utils
 
-from openstackclient.volume.v2 import service as service_v2
+from openstackclient.i18n import _
 
 
-class ListService(service_v2.ListService):
+class ListService(command.Lister):
+    _description = _("List service command")
+
+    def get_parser(self, prog_name):
+        parser = super().get_parser(prog_name)
+        parser.add_argument(
+            "--host",
+            metavar="<host>",
+            help=_("List services on specified host (name only)"),
+        )
+        parser.add_argument(
+            "--service",
+            metavar="<service>",
+            help=_("List only specified service (name only)"),
+        )
+        parser.add_argument(
+            "--long",
+            action="store_true",
+            default=False,
+            help=_("List additional fields in output"),
+        )
+        return parser
+
     def take_action(self, parsed_args):
         service_client = self.app.client_manager.volume
 
@@ -53,3 +77,57 @@ class ListService(service_v2.ListService):
                 for s in data
             ),
         )
+
+
+class SetService(command.Command):
+    _description = _("Set volume service properties")
+
+    def get_parser(self, prog_name):
+        parser = super().get_parser(prog_name)
+        parser.add_argument("host", metavar="<host>", help=_("Name of host"))
+        parser.add_argument(
+            "service",
+            metavar="<service>",
+            help=_("Name of service (Binary name)"),
+        )
+        enabled_group = parser.add_mutually_exclusive_group()
+        enabled_group.add_argument(
+            "--enable", action="store_true", help=_("Enable volume service")
+        )
+        enabled_group.add_argument(
+            "--disable", action="store_true", help=_("Disable volume service")
+        )
+        parser.add_argument(
+            "--disable-reason",
+            metavar="<reason>",
+            help=_(
+                "Reason for disabling the service "
+                "(should be used with --disable option)"
+            ),
+        )
+        return parser
+
+    def take_action(self, parsed_args):
+        if parsed_args.disable_reason and not parsed_args.disable:
+            msg = _(
+                "Cannot specify option --disable-reason without "
+                "--disable specified."
+            )
+            raise exceptions.CommandError(msg)
+
+        service_client = self.app.client_manager.volume
+        if parsed_args.enable:
+            service_client.services.enable(
+                parsed_args.host, parsed_args.service
+            )
+        if parsed_args.disable:
+            if parsed_args.disable_reason:
+                service_client.services.disable_log_reason(
+                    parsed_args.host,
+                    parsed_args.service,
+                    parsed_args.disable_reason,
+                )
+            else:
+                service_client.services.disable(
+                    parsed_args.host, parsed_args.service
+                )

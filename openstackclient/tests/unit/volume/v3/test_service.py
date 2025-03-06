@@ -13,6 +13,7 @@
 #
 
 from cinderclient import api_versions
+from osc_lib import exceptions
 
 from openstackclient.tests.unit.volume.v3 import fakes as volume_fakes
 from openstackclient.volume.v3 import service
@@ -269,3 +270,151 @@ class TestServiceList(TestService):
         # checking if prohibited columns are present in output
         self.assertNotIn("Disabled Reason", columns)
         self.assertNotIn(backend_service.disabled_reason, tuple(data))
+
+
+class TestServiceSet(TestService):
+    service = volume_fakes.create_one_service()
+
+    def setUp(self):
+        super().setUp()
+
+        self.service_mock.enable.return_value = self.service
+        self.service_mock.disable.return_value = self.service
+        self.service_mock.disable_log_reason.return_value = self.service
+
+        self.cmd = service.SetService(self.app, None)
+
+    def test_service_set_nothing(self):
+        arglist = [
+            self.service.host,
+            self.service.binary,
+        ]
+        verifylist = [
+            ('host', self.service.host),
+            ('service', self.service.binary),
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+        result = self.cmd.take_action(parsed_args)
+
+        self.service_mock.enable.assert_not_called()
+        self.service_mock.disable.assert_not_called()
+        self.service_mock.disable_log_reason.assert_not_called()
+        self.assertIsNone(result)
+
+    def test_service_set_enable(self):
+        arglist = [
+            '--enable',
+            self.service.host,
+            self.service.binary,
+        ]
+        verifylist = [
+            ('enable', True),
+            ('host', self.service.host),
+            ('service', self.service.binary),
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        result = self.cmd.take_action(parsed_args)
+
+        self.service_mock.enable.assert_called_with(
+            self.service.host, self.service.binary
+        )
+        self.service_mock.disable.assert_not_called()
+        self.service_mock.disable_log_reason.assert_not_called()
+        self.assertIsNone(result)
+
+    def test_service_set_disable(self):
+        arglist = [
+            '--disable',
+            self.service.host,
+            self.service.binary,
+        ]
+        verifylist = [
+            ('disable', True),
+            ('host', self.service.host),
+            ('service', self.service.binary),
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        result = self.cmd.take_action(parsed_args)
+
+        self.service_mock.disable.assert_called_with(
+            self.service.host, self.service.binary
+        )
+        self.service_mock.enable.assert_not_called()
+        self.service_mock.disable_log_reason.assert_not_called()
+        self.assertIsNone(result)
+
+    def test_service_set_disable_with_reason(self):
+        reason = 'earthquake'
+        arglist = [
+            '--disable',
+            '--disable-reason',
+            reason,
+            self.service.host,
+            self.service.binary,
+        ]
+        verifylist = [
+            ('disable', True),
+            ('disable_reason', reason),
+            ('host', self.service.host),
+            ('service', self.service.binary),
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        result = self.cmd.take_action(parsed_args)
+
+        self.service_mock.disable_log_reason.assert_called_with(
+            self.service.host, self.service.binary, reason
+        )
+        self.assertIsNone(result)
+
+    def test_service_set_only_with_disable_reason(self):
+        reason = 'earthquake'
+        arglist = [
+            '--disable-reason',
+            reason,
+            self.service.host,
+            self.service.binary,
+        ]
+        verifylist = [
+            ('disable_reason', reason),
+            ('host', self.service.host),
+            ('service', self.service.binary),
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+        try:
+            self.cmd.take_action(parsed_args)
+            self.fail("CommandError should be raised.")
+        except exceptions.CommandError as e:
+            self.assertEqual(
+                "Cannot specify option --disable-reason without "
+                "--disable specified.",
+                str(e),
+            )
+
+    def test_service_set_enable_with_disable_reason(self):
+        reason = 'earthquake'
+        arglist = [
+            '--enable',
+            '--disable-reason',
+            reason,
+            self.service.host,
+            self.service.binary,
+        ]
+        verifylist = [
+            ('enable', True),
+            ('disable_reason', reason),
+            ('host', self.service.host),
+            ('service', self.service.binary),
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+        try:
+            self.cmd.take_action(parsed_args)
+            self.fail("CommandError should be raised.")
+        except exceptions.CommandError as e:
+            self.assertEqual(
+                "Cannot specify option --disable-reason without "
+                "--disable specified.",
+                str(e),
+            )
