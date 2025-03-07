@@ -17,6 +17,7 @@ from unittest import mock
 from openstack.block_storage.v3 import block_storage_summary as _summary
 from openstack.block_storage.v3 import snapshot as _snapshot
 from openstack.block_storage.v3 import volume as _volume
+from openstack import exceptions as sdk_exceptions
 from openstack.test import fakes as sdk_fakes
 from osc_lib.cli import format_columns
 from osc_lib import exceptions
@@ -954,16 +955,17 @@ class TestVolumeCreate(volume_fakes.TestVolume):
         )
 
 
-class TestVolumeDeleteLegacy(volume_fakes.TestVolume):
+class TestVolumeDelete(volume_fakes.TestVolume):
     def setUp(self):
         super().setUp()
 
         self.volumes_mock = self.volume_client.volumes
         self.volumes_mock.reset_mock()
 
-        self.volumes_mock.delete.return_value = None
-        self.volumes = volume_fakes.create_volumes(count=1)
-        self.volumes_mock.get = volume_fakes.get_volumes(self.volumes, 0)
+        self.volumes = list(sdk_fakes.generate_fake_resources(_volume.Volume))
+        self.volume_sdk_client.find_volume.side_effect = self.volumes
+        self.volume_sdk_client.delete_volume.return_value = None
+        self.volume_sdk_client.unmanage_volume.return_value = None
 
         # Get the command object to mock
         self.cmd = volume.DeleteVolume(self.app, None)
@@ -978,11 +980,14 @@ class TestVolumeDeleteLegacy(volume_fakes.TestVolume):
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
         result = self.cmd.take_action(parsed_args)
-
-        self.volumes_mock.delete.assert_called_once_with(
-            self.volumes[0].id, cascade=False
-        )
         self.assertIsNone(result)
+
+        self.volume_sdk_client.find_volume.assert_called_once_with(
+            self.volumes[0].id, ignore_missing=False
+        )
+        self.volume_sdk_client.delete_volume.assert_called_once_with(
+            self.volumes[0].id, cascade=False, force=False
+        )
 
     def test_volume_delete_multi_volumes(self):
         arglist = [v.id for v in self.volumes]
@@ -994,12 +999,21 @@ class TestVolumeDeleteLegacy(volume_fakes.TestVolume):
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
         result = self.cmd.take_action(parsed_args)
-
-        calls = [mock.call(v.id, cascade=False) for v in self.volumes]
-        self.volumes_mock.delete.assert_has_calls(calls)
         self.assertIsNone(result)
 
+        self.volume_sdk_client.find_volume.assert_has_calls(
+            [mock.call(v.id, ignore_missing=False) for v in self.volumes]
+        )
+        self.volume_sdk_client.delete_volume.assert_has_calls(
+            [mock.call(v.id, cascade=False, force=False) for v in self.volumes]
+        )
+
     def test_volume_delete_multi_volumes_with_exception(self):
+        self.volume_sdk_client.find_volume.side_effect = [
+            self.volumes[0],
+            sdk_exceptions.NotFoundException(),
+        ]
+
         arglist = [
             self.volumes[0].id,
             'unexist_volume',
@@ -1007,27 +1021,28 @@ class TestVolumeDeleteLegacy(volume_fakes.TestVolume):
         verifylist = [
             ('force', False),
             ('purge', False),
-            ('volumes', arglist),
+            ('volumes', [self.volumes[0].id, 'unexist_volume']),
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
-        find_mock_result = [self.volumes[0], exceptions.CommandError]
-        with mock.patch.object(
-            utils, 'find_resource', side_effect=find_mock_result
-        ) as find_mock:
-            try:
-                self.cmd.take_action(parsed_args)
-                self.fail('CommandError should be raised.')
-            except exceptions.CommandError as e:
-                self.assertEqual('1 of 2 volumes failed to delete.', str(e))
+        exc = self.assertRaises(
+            exceptions.CommandError,
+            self.cmd.take_action,
+            parsed_args,
+        )
+        self.assertEqual('1 of 2 volumes failed to delete.', str(exc))
 
-            find_mock.assert_any_call(self.volumes_mock, self.volumes[0].id)
-            find_mock.assert_any_call(self.volumes_mock, 'unexist_volume')
-
-            self.assertEqual(2, find_mock.call_count)
-            self.volumes_mock.delete.assert_called_once_with(
-                self.volumes[0].id, cascade=False
-            )
+        self.volume_sdk_client.find_volume.assert_has_calls(
+            [
+                mock.call(self.volumes[0].id, ignore_missing=False),
+                mock.call('unexist_volume', ignore_missing=False),
+            ]
+        )
+        self.volume_sdk_client.delete_volume.assert_has_calls(
+            [
+                mock.call(self.volumes[0].id, cascade=False, force=False),
+            ]
+        )
 
     def test_volume_delete_with_purge(self):
         arglist = [
@@ -1042,11 +1057,14 @@ class TestVolumeDeleteLegacy(volume_fakes.TestVolume):
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
         result = self.cmd.take_action(parsed_args)
-
-        self.volumes_mock.delete.assert_called_once_with(
-            self.volumes[0].id, cascade=True
-        )
         self.assertIsNone(result)
+
+        self.volume_sdk_client.find_volume.assert_called_once_with(
+            self.volumes[0].id, ignore_missing=False
+        )
+        self.volume_sdk_client.delete_volume.assert_called_once_with(
+            self.volumes[0].id, cascade=True, force=False
+        )
 
     def test_volume_delete_with_force(self):
         arglist = [
@@ -1061,49 +1079,38 @@ class TestVolumeDeleteLegacy(volume_fakes.TestVolume):
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
         result = self.cmd.take_action(parsed_args)
-
-        self.volumes_mock.force_delete.assert_called_once_with(
-            self.volumes[0].id
-        )
         self.assertIsNone(result)
 
-
-class TestVolumeDelete(volume_fakes.TestVolume):
-    def setUp(self):
-        super().setUp()
-
-        self.volumes_mock = self.volume_client.volumes
-        self.volumes_mock.reset_mock()
-        self.volume_sdk_client.unmanage_volume.return_value = None
-
-        # Get the command object to mock
-        self.cmd = volume.DeleteVolume(self.app, None)
+        self.volume_sdk_client.find_volume.assert_called_once_with(
+            self.volumes[0].id, ignore_missing=False
+        )
+        self.volume_sdk_client.delete_volume.assert_called_once_with(
+            self.volumes[0].id, cascade=False, force=True
+        )
 
     def test_volume_delete_remote(self):
-        vol = sdk_fakes.generate_fake_resource(_volume.Volume, **{'size': 1})
-        self.volumes_mock.get.return_value = vol
-
-        arglist = ['--remote', vol.id]
+        arglist = ['--remote', self.volumes[0].id]
         verifylist = [
             ("remote", True),
             ("force", False),
             ("purge", False),
-            ("volumes", [vol.id]),
+            ("volumes", [self.volumes[0].id]),
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
         result = self.cmd.take_action(parsed_args)
-
-        self.volume_sdk_client.unmanage_volume.assert_called_once_with(vol.id)
         self.assertIsNone(result)
 
-    def test_volume_delete_multi_volumes_remote(self):
-        volumes = sdk_fakes.generate_fake_resources(
-            _volume.Volume, count=3, attrs={'size': 1}
+        self.volume_sdk_client.find_volume.assert_called_once_with(
+            self.volumes[0].id, ignore_missing=False
+        )
+        self.volume_sdk_client.delete_volume.assert_not_called()
+        self.volume_sdk_client.unmanage_volume.assert_called_once_with(
+            self.volumes[0].id
         )
 
-        arglist = ['--remote']
-        arglist += [v.id for v in volumes]
+    def test_volume_delete_multi_volumes_remote(self):
+        arglist = ['--remote'] + [v.id for v in self.volumes]
         verifylist = [
             ('remote', True),
             ('force', False),
@@ -1113,24 +1120,27 @@ class TestVolumeDelete(volume_fakes.TestVolume):
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
         result = self.cmd.take_action(parsed_args)
-
-        calls = [mock.call(v.id) for v in volumes]
-        self.volume_sdk_client.unmanage_volume.assert_has_calls(calls)
         self.assertIsNone(result)
 
-    def test_volume_delete_remote_with_purge(self):
-        vol = sdk_fakes.generate_fake_resource(_volume.Volume, **{'size': 1})
+        self.volume_sdk_client.find_volume.assert_has_calls(
+            [mock.call(v.id, ignore_missing=False) for v in self.volumes]
+        )
+        self.volume_sdk_client.delete_volume.assert_not_called()
+        self.volume_sdk_client.unmanage_volume.assert_has_calls(
+            [mock.call(v.id) for v in self.volumes]
+        )
 
+    def test_volume_delete_remote_with_purge(self):
         arglist = [
             '--remote',
             '--purge',
-            vol.id,
+            self.volumes[0].id,
         ]
         verifylist = [
             ('remote', True),
             ('force', False),
             ('purge', True),
-            ('volumes', [vol.id]),
+            ('volumes', [self.volumes[0].id]),
         ]
 
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
@@ -1143,19 +1153,21 @@ class TestVolumeDelete(volume_fakes.TestVolume):
             str(exc),
         )
 
-    def test_volume_delete_remote_with_force(self):
-        vol = sdk_fakes.generate_fake_resource(_volume.Volume, **{'size': 1})
+        self.volume_sdk_client.find_volume.assert_not_called()
+        self.volume_sdk_client.delete_volume.assert_not_called()
+        self.volume_sdk_client.unmanage_volume.assert_not_called()
 
+    def test_volume_delete_remote_with_force(self):
         arglist = [
             '--remote',
             '--force',
-            vol.id,
+            self.volumes[0].id,
         ]
         verifylist = [
             ('remote', True),
             ('force', True),
             ('purge', False),
-            ('volumes', [vol.id]),
+            ('volumes', [self.volumes[0].id]),
         ]
 
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
@@ -1167,6 +1179,10 @@ class TestVolumeDelete(volume_fakes.TestVolume):
             "--remote parameter.",
             str(exc),
         )
+
+        self.volume_sdk_client.find_volume.assert_not_called()
+        self.volume_sdk_client.delete_volume.assert_not_called()
+        self.volume_sdk_client.unmanage_volume.assert_not_called()
 
 
 class TestVolumeList(volume_fakes.TestVolume):
