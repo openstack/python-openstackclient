@@ -1293,37 +1293,42 @@ class TestVolumeList(TestVolume):
             self.assertIn(self.mock_volume.name, each_volume)
 
 
-class TestVolumeMigrate(TestVolume):
-    _volume = volume_fakes.create_one_volume()
-
+class TestVolumeMigrate(volume_fakes.TestVolume):
     def setUp(self):
         super().setUp()
 
-        self.volumes_mock.get.return_value = self._volume
-        self.volumes_mock.migrate_volume.return_value = None
-        # Get the command object to test
+        self.volume = sdk_fakes.generate_fake_resource(_volume.Volume)
+        self.volume_sdk_client.find_volume.return_value = self.volume
+        self.volume_sdk_client.migrate_volume.return_value = None
+
         self.cmd = volume.MigrateVolume(self.app, None)
 
     def test_volume_migrate(self):
         arglist = [
             "--host",
             "host@backend-name#pool",
-            self._volume.id,
+            self.volume.id,
         ]
         verifylist = [
             ("force_host_copy", False),
             ("lock_volume", False),
             ("host", "host@backend-name#pool"),
-            ("volume", self._volume.id),
+            ("volume", self.volume.id),
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
         result = self.cmd.take_action(parsed_args)
-        self.volumes_mock.get.assert_called_once_with(self._volume.id)
-        self.volumes_mock.migrate_volume.assert_called_once_with(
-            self._volume.id, "host@backend-name#pool", False, False
-        )
         self.assertIsNone(result)
+
+        self.volume_sdk_client.find_volume.assert_called_with(
+            self.volume.id, ignore_missing=False
+        )
+        self.volume_sdk_client.migrate_volume.assert_called_once_with(
+            self.volume.id,
+            host="host@backend-name#pool",
+            force_host_copy=False,
+            lock_volume=False,
+        )
 
     def test_volume_migrate_with_option(self):
         arglist = [
@@ -1331,31 +1336,37 @@ class TestVolumeMigrate(TestVolume):
             "--lock-volume",
             "--host",
             "host@backend-name#pool",
-            self._volume.id,
+            self.volume.id,
         ]
         verifylist = [
             ("force_host_copy", True),
             ("lock_volume", True),
             ("host", "host@backend-name#pool"),
-            ("volume", self._volume.id),
+            ("volume", self.volume.id),
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
         result = self.cmd.take_action(parsed_args)
-        self.volumes_mock.get.assert_called_once_with(self._volume.id)
-        self.volumes_mock.migrate_volume.assert_called_once_with(
-            self._volume.id, "host@backend-name#pool", True, True
-        )
         self.assertIsNone(result)
+
+        self.volume_sdk_client.find_volume.assert_called_with(
+            self.volume.id, ignore_missing=False
+        )
+        self.volume_sdk_client.migrate_volume.assert_called_once_with(
+            self.volume.id,
+            host="host@backend-name#pool",
+            force_host_copy=True,
+            lock_volume=True,
+        )
 
     def test_volume_migrate_without_host(self):
         arglist = [
-            self._volume.id,
+            self.volume.id,
         ]
         verifylist = [
             ("force_host_copy", False),
             ("lock_volume", False),
-            ("volume", self._volume.id),
+            ("volume", self.volume.id),
         ]
 
         self.assertRaises(
@@ -1365,6 +1376,9 @@ class TestVolumeMigrate(TestVolume):
             arglist,
             verifylist,
         )
+
+        self.volume_sdk_client.find_volume.assert_not_called()
+        self.volume_sdk_client.migrate_volume.assert_not_called()
 
 
 class TestVolumeSet(TestVolume):

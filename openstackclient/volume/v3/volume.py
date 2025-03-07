@@ -761,16 +761,19 @@ class MigrateVolume(command.Command):
                 "(possibly by another operation)"
             ),
         )
+        # TODO(stephenfin): Add --cluster argument
         return parser
 
     def take_action(self, parsed_args):
-        volume_client = self.app.client_manager.volume
-        volume = utils.find_resource(volume_client.volumes, parsed_args.volume)
-        volume_client.volumes.migrate_volume(
+        volume_client = self.app.client_manager.sdk_connection.volume
+        volume = volume_client.find_volume(
+            parsed_args.volume, ignore_missing=False
+        )
+        volume_client.migrate_volume(
             volume.id,
-            parsed_args.host,
-            parsed_args.force_host_copy,
-            parsed_args.lock_volume,
+            host=parsed_args.host,
+            force_host_copy=parsed_args.force_host_copy,
+            lock_volume=parsed_args.lock_volume,
         )
 
 
