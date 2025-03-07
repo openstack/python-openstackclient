@@ -171,7 +171,7 @@ class VolumeTests(common.BaseVolumeTests):
             cmd_output["volume_image_metadata"],
         )
         self.assertEqual(
-            'true',
+            True,
             cmd_output["bootable"],
         )
 

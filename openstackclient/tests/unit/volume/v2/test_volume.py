@@ -12,6 +12,7 @@
 #   under the License.
 
 from unittest import mock
+import uuid
 
 from openstack.block_storage.v2 import snapshot as _snapshot
 from openstack.block_storage.v2 import volume as _volume
@@ -1622,42 +1623,83 @@ class TestVolumeSet(TestVolume):
         self.assertIsNone(result)
 
 
-class TestVolumeShow(TestVolume):
+class TestVolumeShow(volume_fakes.TestVolume):
     def setUp(self):
         super().setUp()
 
-        self._volume = volume_fakes.create_one_volume()
-        self.volumes_mock.get.return_value = self._volume
-        # Get the command object to test
+        self.volume = sdk_fakes.generate_fake_resource(_volume.Volume)
+        self.volume_sdk_client.find_volume.return_value = self.volume
+
+        self.columns = (
+            'attachments',
+            'availability_zone',
+            'bootable',
+            'consistencygroup_id',
+            'created_at',
+            'description',
+            'encrypted',
+            'id',
+            'multiattach',
+            'name',
+            'os-vol-host-attr:host',
+            'os-vol-mig-status-attr:migstat',
+            'os-vol-mig-status-attr:name_id',
+            'os-vol-tenant-attr:tenant_id',
+            'os-volume-replication:driver_data',
+            'os-volume-replication:extended_status',
+            'properties',
+            'replication_status',
+            'size',
+            'snapshot_id',
+            'source_volid',
+            'status',
+            'type',
+            'updated_at',
+            'user_id',
+            'volume_image_metadata',
+        )
+        self.data = (
+            self.volume.attachments,
+            self.volume.availability_zone,
+            self.volume.is_bootable,
+            self.volume.consistency_group_id,
+            self.volume.created_at,
+            self.volume.description,
+            self.volume.is_encrypted,
+            self.volume.id,
+            self.volume.is_multiattach,
+            self.volume.name,
+            self.volume.host,
+            self.volume.migration_status,
+            self.volume.migration_id,
+            self.volume.project_id,
+            self.volume.replication_driver_data,
+            self.volume.extended_replication_status,
+            format_columns.DictColumn(self.volume.metadata),
+            self.volume.replication_status,
+            self.volume.size,
+            self.volume.snapshot_id,
+            self.volume.source_volume_id,
+            self.volume.status,
+            self.volume.volume_type,
+            self.volume.updated_at,
+            self.volume.user_id,
+            self.volume.volume_image_metadata,
+        )
+
         self.cmd = volume.ShowVolume(self.app, None)
 
     def test_volume_show(self):
-        arglist = [self._volume.id]
-        verifylist = [("volume", self._volume.id)]
+        arglist = [self.volume.id]
+        verifylist = [("volume", self.volume.id)]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
         columns, data = self.cmd.take_action(parsed_args)
-        self.volumes_mock.get.assert_called_with(self._volume.id)
 
-        self.assertEqual(
-            tuple(sorted(self._volume.keys())),
-            columns,
-        )
-        self.assertTupleEqual(
-            (
-                self._volume.attachments,
-                self._volume.availability_zone,
-                self._volume.bootable,
-                self._volume.description,
-                self._volume.id,
-                self._volume.name,
-                format_columns.DictColumn(self._volume.metadata),
-                self._volume.size,
-                self._volume.snapshot_id,
-                self._volume.status,
-                self._volume.volume_type,
-            ),
-            data,
+        self.assertEqual(self.columns, columns)
+        self.assertEqual(self.data, data)
+        self.volume_sdk_client.find_volume.assert_called_with(
+            self.volume.id, ignore_missing=False
         )
 
 
@@ -1748,31 +1790,47 @@ class TestVolumeUnset(TestVolume):
         )
 
 
-class TestColumns(TestVolume):
+class TestColumns(volume_fakes.TestVolume):
     def test_attachments_column_without_server_cache(self):
-        _volume = volume_fakes.create_one_volume()
-        server_id = _volume.attachments[0]['server_id']
-        device = _volume.attachments[0]['device']
+        vol = sdk_fakes.generate_fake_resource(
+            _volume.Volume,
+            attachments=[
+                {
+                    'device': '/dev/' + uuid.uuid4().hex,
+                    'server_id': uuid.uuid4().hex,
+                },
+            ],
+        )
+        server_id = vol.attachments[0]['server_id']
+        device = vol.attachments[0]['device']
 
-        col = volume.AttachmentsColumn(_volume.attachments, {})
+        col = volume.AttachmentsColumn(vol.attachments, {})
         self.assertEqual(
             f'Attached to {server_id} on {device} ',
             col.human_readable(),
         )
-        self.assertEqual(_volume.attachments, col.machine_readable())
+        self.assertEqual(vol.attachments, col.machine_readable())
 
     def test_attachments_column_with_server_cache(self):
-        _volume = volume_fakes.create_one_volume()
+        vol = sdk_fakes.generate_fake_resource(
+            _volume.Volume,
+            attachments=[
+                {
+                    'device': '/dev/' + uuid.uuid4().hex,
+                    'server_id': uuid.uuid4().hex,
+                },
+            ],
+        )
 
-        server_id = _volume.attachments[0]['server_id']
-        device = _volume.attachments[0]['device']
+        server_id = vol.attachments[0]['server_id']
+        device = vol.attachments[0]['device']
         fake_server = mock.Mock()
         fake_server.name = 'fake-server-name'
         server_cache = {server_id: fake_server}
 
-        col = volume.AttachmentsColumn(_volume.attachments, server_cache)
+        col = volume.AttachmentsColumn(vol.attachments, server_cache)
         self.assertEqual(
             'Attached to {} on {} '.format('fake-server-name', device),
             col.human_readable(),
         )
-        self.assertEqual(_volume.attachments, col.machine_readable())
+        self.assertEqual(vol.attachments, col.machine_readable())
