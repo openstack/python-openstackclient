@@ -417,13 +417,19 @@ class SetVolumeBackup(command.Command):
         return parser
 
     def take_action(self, parsed_args):
-        volume_client = self.app.client_manager.volume
-        backup = utils.find_resource(volume_client.backups, parsed_args.backup)
+        volume_client = self.app.client_manager.sdk_connection.volume
+
+        backup = volume_client.find_backup(
+            parsed_args.backup,
+            ignore_missing=False,
+        )
 
         result = 0
         if parsed_args.state:
             try:
-                volume_client.backups.reset_state(backup.id, parsed_args.state)
+                volume_client.reset_backup_status(
+                    backup, status=parsed_args.state
+                )
             except Exception as e:
                 LOG.error(_("Failed to set backup state: %s"), e)
                 result += 1

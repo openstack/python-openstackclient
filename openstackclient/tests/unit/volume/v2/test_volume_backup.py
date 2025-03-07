@@ -13,24 +13,13 @@
 
 from unittest.mock import call
 
+from openstack.block_storage.v2 import backup as _backup
+from openstack import exceptions as sdk_exceptions
+from openstack.test import fakes as sdk_fakes
 from osc_lib import exceptions
 
 from openstackclient.tests.unit.volume.v2 import fakes as volume_fakes
 from openstackclient.volume.v2 import volume_backup
-
-
-class TestBackupLegacy(volume_fakes.TestVolume):
-    def setUp(self):
-        super().setUp()
-
-        self.backups_mock = self.volume_client.backups
-        self.backups_mock.reset_mock()
-        self.volumes_mock = self.volume_client.volumes
-        self.volumes_mock.reset_mock()
-        self.snapshots_mock = self.volume_client.volume_snapshots
-        self.snapshots_mock.reset_mock()
-        self.restores_mock = self.volume_client.restores
-        self.restores_mock.reset_mock()
 
 
 class TestBackupCreate(volume_fakes.TestVolume):
@@ -476,17 +465,15 @@ class TestBackupRestore(volume_fakes.TestVolume):
         )
 
 
-class TestBackupSet(TestBackupLegacy):
-    backup = volume_fakes.create_one_backup(
-        attrs={'metadata': {'wow': 'cool'}},
-    )
-
+class TestBackupSet(volume_fakes.TestVolume):
     def setUp(self):
         super().setUp()
 
-        self.backups_mock.get.return_value = self.backup
+        self.backup = sdk_fakes.generate_fake_resource(
+            _backup.Backup, metadata={'wow': 'cool'}
+        )
+        self.volume_sdk_client.find_backup.return_value = self.backup
 
-        # Get the command object to test
         self.cmd = volume_backup.SetVolumeBackup(self.app, None)
 
     def test_backup_set_state(self):
@@ -496,26 +483,34 @@ class TestBackupSet(TestBackupLegacy):
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
         result = self.cmd.take_action(parsed_args)
-        self.backups_mock.reset_state.assert_called_once_with(
-            self.backup.id, 'error'
-        )
         self.assertIsNone(result)
 
+        self.volume_sdk_client.find_backup.assert_called_with(
+            self.backup.id, ignore_missing=False
+        )
+        self.volume_sdk_client.reset_backup_status.assert_called_with(
+            self.backup, status='error'
+        )
+
     def test_backup_set_state_failed(self):
-        self.backups_mock.reset_state.side_effect = exceptions.CommandError()
+        self.volume_sdk_client.reset_backup_status.side_effect = (
+            sdk_exceptions.NotFoundException('foo')
+        )
+
         arglist = ['--state', 'error', self.backup.id]
         verifylist = [('state', 'error'), ('backup', self.backup.id)]
 
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
-        try:
-            self.cmd.take_action(parsed_args)
-            self.fail('CommandError should be raised.')
-        except exceptions.CommandError as e:
-            self.assertEqual(
-                'One or more of the set operations failed', str(e)
-            )
-        self.backups_mock.reset_state.assert_called_with(
-            self.backup.id, 'error'
+        exc = self.assertRaises(
+            exceptions.CommandError, self.cmd.take_action, parsed_args
+        )
+        self.assertEqual('One or more of the set operations failed', str(exc))
+
+        self.volume_sdk_client.find_backup.assert_called_with(
+            self.backup.id, ignore_missing=False
+        )
+        self.volume_sdk_client.reset_backup_status.assert_called_with(
+            self.backup, status='error'
         )
 
 
