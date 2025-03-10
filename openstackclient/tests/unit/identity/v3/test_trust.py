@@ -70,12 +70,15 @@ class TestTrustCreate(identity_fakes.TestIdentityv3):
         # Set expected values
         kwargs = {
             'project_id': self.project.id,
-            'roles': [self.role.id],
+            'roles': [{'id': self.role.id}],
+            'impersonation': False,
         }
         # TrustManager.create(trustee_id, trustor_id, impersonation=,
         #   project=, role_names=, expires_at=)
         self.identity_sdk_client.create_trust.assert_called_with(
-            trustor_id=self.user.id, trustee_id=self.user.id, **kwargs
+            trustor_user_id=self.user.id,
+            trustee_user_id=self.user.id,
+            **kwargs,
         )
 
         collist = (

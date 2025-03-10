@@ -123,37 +123,67 @@ class CreateTrust(command.ShowOne):
         # pointless, and trusts are immutable, so let's enforce it at the
         # client level.
         try:
-            trustor_id = identity_client.find_user(
-                parsed_args.trustor, parsed_args.trustor_domain
-            ).id
-            kwargs['trustor_id'] = trustor_id
+            if parsed_args.trustor_domain:
+                trustor_domain_id = identity_client.find_domain(
+                    parsed_args.trustor_domain, ignore_missing=False
+                ).id
+                trustor_id = identity_client.find_user(
+                    parsed_args.trustor,
+                    ignore_missing=False,
+                    domain_id=trustor_domain_id,
+                ).id
+            else:
+                trustor_id = identity_client.find_user(
+                    parsed_args.trustor, ignore_missing=False
+                ).id
+            kwargs['trustor_user_id'] = trustor_id
         except sdk_exceptions.ForbiddenException:
-            kwargs['trustor_id'] = parsed_args.trustor
+            kwargs['trustor_user_id'] = parsed_args.trustor
 
         try:
-            trustee_id = identity_client.find_user(
-                parsed_args.trustee, parsed_args.trustee_domain
-            ).id
-            kwargs['trustee_id'] = trustee_id
+            if parsed_args.trustee_domain:
+                trustee_domain_id = identity_client.find_domain(
+                    parsed_args.trustee_domain, ignore_missing=False
+                ).id
+                trustee_id = identity_client.find_user(
+                    parsed_args.trustee,
+                    ignore_missing=False,
+                    domain_id=trustee_domain_id,
+                ).id
+            else:
+                trustee_id = identity_client.find_user(
+                    parsed_args.trustee, ignore_missing=False
+                ).id
+            kwargs['trustee_user_id'] = trustee_id
         except sdk_exceptions.ForbiddenException:
-            kwargs['trustee_id'] = parsed_args.trustee
+            kwargs['trustee_user_id'] = parsed_args.trustee
 
         try:
-            project_id = identity_client.find_project(
-                parsed_args.project, parsed_args.project_domain
-            ).id
+            if parsed_args.project_domain:
+                project_domain_id = identity_client.find_domain(
+                    parsed_args.project_domain, ignore_missing=False
+                ).id
+                project_id = identity_client.find_project(
+                    parsed_args.project,
+                    ignore_missing=False,
+                    domain_id=project_domain_id,
+                ).id
+            else:
+                project_id = identity_client.find_project(
+                    parsed_args.project, ignore_missing=False
+                ).id
             kwargs['project_id'] = project_id
         except sdk_exceptions.ForbiddenException:
             kwargs['project_id'] = parsed_args.project
 
-        role_ids = []
+        roles = []
         for role in parsed_args.roles:
             try:
                 role_id = identity_client.find_role(role).id
             except sdk_exceptions.ForbiddenException:
                 role_id = role
-            role_ids.append(role_id)
-        kwargs['roles'] = role_ids
+            roles.append({"id": role_id})
+        kwargs['roles'] = roles
 
         if parsed_args.expiration:
             expires_at = datetime.datetime.strptime(
@@ -161,8 +191,7 @@ class CreateTrust(command.ShowOne):
             )
             kwargs['expires_at'] = expires_at
 
-        if parsed_args.is_impersonation:
-            kwargs['is_impersonation'] = parsed_args.is_impersonation
+        kwargs['impersonation'] = bool(parsed_args.is_impersonation)
 
         trust = identity_client.create_trust(**kwargs)
 
@@ -289,9 +318,19 @@ class ListTrust(command.Lister):
             trustor = None
             if parsed_args.trustor:
                 try:
-                    trustor_id = identity_client.find_user(
-                        parsed_args.trustor, parsed_args.trustor_domain
-                    ).id
+                    if parsed_args.trustor_domain:
+                        trustor_domain_id = identity_client.find_domain(
+                            parsed_args.trustor_domain, ignore_missing=False
+                        ).id
+                        trustor_id = identity_client.find_user(
+                            parsed_args.trustor,
+                            ignore_missing=False,
+                            domain_id=trustor_domain_id,
+                        ).id
+                    else:
+                        trustor_id = identity_client.find_user(
+                            parsed_args.trustor, ignore_missing=False
+                        ).id
                     trustor = trustor_id
                 except sdk_exceptions.ForbiddenException:
                     trustor = parsed_args.trustor
@@ -299,9 +338,19 @@ class ListTrust(command.Lister):
             trustee = None
             if parsed_args.trustee:
                 try:
-                    trustee_id = identity_client.find_user(
-                        parsed_args.trustee, parsed_args.trustee_domain
-                    ).id
+                    if parsed_args.trustee_domain:
+                        trustee_domain_id = identity_client.find_domain(
+                            parsed_args.trustee_domain, ignore_missing=False
+                        ).id
+                        trustee_id = identity_client.find_user(
+                            parsed_args.trustee,
+                            ignore_missing=False,
+                            domain_id=trustee_domain_id,
+                        ).id
+                    else:
+                        trustee_id = identity_client.find_user(
+                            parsed_args.trustee, ignore_missing=False
+                        ).id
                     trustee = trustee_id
                 except sdk_exceptions.ForbiddenException:
                     trustee = parsed_args.trustee
