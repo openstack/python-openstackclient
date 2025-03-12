@@ -1,0 +1,5 @@
+---
+features:
+  - |
+    Added ``--device`` and ``--device-owner`` parameter to the
+    ``port unset`` command.
