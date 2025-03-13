@@ -11,7 +11,6 @@
    command-wrappers
    command-errors
    command-logs
-   specs/commands
    plugins
    humaninterfaceguide
    api/modules
