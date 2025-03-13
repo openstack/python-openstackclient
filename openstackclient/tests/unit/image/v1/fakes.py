@@ -20,7 +20,7 @@ from openstack.image.v1 import image
 
 from openstackclient.tests.unit import fakes
 from openstackclient.tests.unit import utils
-from openstackclient.tests.unit.volume.v1 import fakes as volume_fakes
+from openstackclient.tests.unit.volume.v2 import fakes as volume_fakes
 
 
 class FakeClientMixin:
@@ -35,7 +35,7 @@ class TestImagev1(FakeClientMixin, utils.TestCommand):
     def setUp(self):
         super().setUp()
 
-        self.app.client_manager.volume = volume_fakes.FakeVolumev1Client(
+        self.app.client_manager.volume = volume_fakes.FakeVolumeClient(
             endpoint=fakes.AUTH_URL,
             token=fakes.AUTH_TOKEN,
         )
