@@ -25,10 +25,3 @@ Plugin Commands
    watcher
    zaqar
    zun
-
-.. TODO(efried): Make pages for the following once they're fixed.
-
-.. cue
-.. # cueclient is not in global-requirements
-.. # list-plugins:: openstack.mb.v1
-.. #   :detailed:
