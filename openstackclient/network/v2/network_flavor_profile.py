@@ -79,14 +79,14 @@ class CreateNetworkFlavorProfile(
             '--driver',
             help=_(
                 "Python module path to driver. This becomes "
-                "required if --metainfo is missing and vice versa"
+                "required if --metainfo is missing and vice-versa."
             ),
         )
         parser.add_argument(
             '--metainfo',
             help=_(
                 "Metainfo for the flavor profile. This becomes "
-                "required if --driver is missing and vice versa"
+                "required if --driver is missing and vice-versa."
             ),
         )
 
@@ -217,14 +217,14 @@ class SetNetworkFlavorProfile(common.NeutronCommandWithExtraArgs):
             '--driver',
             help=_(
                 "Python module path to driver. This becomes "
-                "required if --metainfo is missing and vice versa"
+                "required if --metainfo is missing and vice-versa."
             ),
         )
         parser.add_argument(
             '--metainfo',
             help=_(
                 "Metainfo for the flavor profile. This becomes "
-                "required if --driver is missing and vice versa"
+                "required if --driver is missing and vice-versa."
             ),
         )
 

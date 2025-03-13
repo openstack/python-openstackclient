@@ -99,7 +99,7 @@ class DeleteConntrackHelper(command.Command):
         parser.add_argument(
             'router',
             metavar='<router>',
-            help=_('Router that the conntrack helper belong to'),
+            help=_('Router that the conntrack helper belongs to'),
         )
         parser.add_argument(
             'conntrack_helper_id',
@@ -147,7 +147,7 @@ class ListConntrackHelper(command.Lister):
         parser.add_argument(
             'router',
             metavar='<router>',
-            help=_('Router that the conntrack helper belong to'),
+            help=_('Router that the conntrack helper belongs to'),
         )
         parser.add_argument(
             '--helper',
@@ -210,7 +210,7 @@ class SetConntrackHelper(command.Command):
         parser.add_argument(
             'router',
             metavar='<router>',
-            help=_('Router that the conntrack helper belong to'),
+            help=_('Router that the conntrack helper belongs to'),
         )
         parser.add_argument(
             'conntrack_helper_id',
@@ -257,7 +257,7 @@ class ShowConntrackHelper(command.ShowOne):
         parser.add_argument(
             'router',
             metavar='<router>',
-            help=_('Router that the conntrack helper belong to'),
+            help=_('Router that the conntrack helper belongs to'),
         )
         parser.add_argument(
             'conntrack_helper_id',

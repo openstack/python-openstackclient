@@ -69,8 +69,8 @@ class CreateNetworkTrunk(command.ShowOne):
             help=_(
                 "Subport to add. Subport is of form "
                 "'port=<name or ID>,segmentation-type=<segmentation-type>,"
-                "segmentation-id=<segmentation-ID>' (--subport) option "
-                "can be repeated"
+                "segmentation-id=<segmentation-ID>' (repeat option "
+                "to add multiple subports)"
             ),
         )
         admin_group = parser.add_mutually_exclusive_group()
@@ -199,9 +199,9 @@ class SetNetworkTrunk(command.Command):
             required_keys=['port'],
             help=_(
                 "Subport to add. Subport is of form "
-                "'port=<name or ID>,segmentation-type=<segmentation-type>"
-                ",segmentation-id=<segmentation-ID>' (--subport) option "
-                "can be repeated"
+                "'port=<name or ID>,segmentation-type=<segmentation-type>,"
+                "segmentation-id=<segmentation-ID>' (repeat option "
+                "to add multiple subports)"
             ),
         )
         admin_group = parser.add_mutually_exclusive_group()
@@ -308,8 +308,8 @@ class UnsetNetworkTrunk(command.Command):
             action='append',
             dest='unset_subports',
             help=_(
-                "Subport to delete (name or ID of the port) "
-                "(--subport) option can be repeated"
+                "Subport to unset (name or ID of the port) "
+                "(repeat option to unset multiple subports)"
             ),
         )
         return parser

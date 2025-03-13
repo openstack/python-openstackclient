@@ -74,30 +74,32 @@ class CreateLocalIP(command.ShowOne):
     def get_parser(self, prog_name):
         parser = super().get_parser(prog_name)
         parser.add_argument(
-            '--name', metavar="<name>", help=_("New local IP name")
+            '--name', metavar="<name>", help=_("New Local IP name")
         )
         parser.add_argument(
             '--description',
             metavar="<description>",
-            help=_("New local IP description"),
+            help=_("Description for Local IP"),
         )
         parser.add_argument(
             '--network',
             metavar='<network>',
-            help=_("Network to allocate Local IP (name or ID)"),
+            help=_("Network to allocate Local IP from (name or ID)"),
         )
         parser.add_argument(
             '--local-port',
             metavar='<local-port>',
-            help=_("Port to allocate Local IP (name or ID)"),
+            help=_("Port to allocate Local IP from (name or ID)"),
         )
         parser.add_argument(
             "--local-ip-address",
             metavar="<local-ip-address>",
-            help=_("IP address or CIDR "),
+            help=_("IP address or CIDR for Local IP"),
         )
         parser.add_argument(
-            '--ip-mode', metavar='<ip-mode>', help=_("local IP ip mode")
+            '--ip-mode',
+            metavar='<ip-mode>',
+            help=_("IP mode to use for Local IP"),
         )
 
         identity_common.add_project_domain_option_to_parser(parser)
@@ -116,7 +118,7 @@ class CreateLocalIP(command.ShowOne):
 
 
 class DeleteLocalIP(command.Command):
-    _description = _("Delete local IP(s)")
+    _description = _("Delete Local IP(s)")
 
     def get_parser(self, prog_name):
         parser = super().get_parser(prog_name)
@@ -156,7 +158,7 @@ class DeleteLocalIP(command.Command):
 
 
 class SetLocalIP(command.Command):
-    _description = _("Set local ip properties")
+    _description = _("Set Local IP properties")
 
     def get_parser(self, prog_name):
         parser = super().get_parser(prog_name)
@@ -171,7 +173,7 @@ class SetLocalIP(command.Command):
         parser.add_argument(
             '--description',
             metavar="<description>",
-            help=_('Set local IP description'),
+            help=_('Set Local IP description'),
         )
         return parser
 
@@ -188,7 +190,7 @@ class SetLocalIP(command.Command):
 
 
 class ListLocalIP(command.Lister):
-    _description = _("List local IPs")
+    _description = _("List Local IPs")
 
     def get_parser(self, prog_name):
         parser = super().get_parser(prog_name)
@@ -196,7 +198,7 @@ class ListLocalIP(command.Lister):
         parser.add_argument(
             '--name',
             metavar='<name>',
-            help=_("List only local IPs of given name in output"),
+            help=_("List only Local IPs of given name in output"),
         )
         parser.add_argument(
             '--project',
@@ -295,7 +297,7 @@ class ListLocalIP(command.Lister):
 
 
 class ShowLocalIP(command.ShowOne):
-    _description = _("Display local IP details")
+    _description = _("Display Local IP details")
 
     def get_parser(self, prog_name):
         parser = super().get_parser(prog_name)

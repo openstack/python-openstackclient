@@ -258,7 +258,7 @@ def _parser_add_bfd_ecmp_arguments(parser):
         action='store_true',
         help=_(
             "Enable BFD sessions for default routes inferred from "
-            "the external gateway port subnets for this router."
+            "the external gateway port subnets for this router"
         ),
     )
     parser.add_argument(
@@ -268,7 +268,7 @@ def _parser_add_bfd_ecmp_arguments(parser):
         action='store_false',
         help=_(
             "Disable BFD sessions for default routes inferred from "
-            "the external gateway port subnets for this router."
+            "the external gateway port subnets for this router"
         ),
     )
     parser.add_argument(
@@ -278,7 +278,7 @@ def _parser_add_bfd_ecmp_arguments(parser):
         action='store_true',
         help=_(
             "Add ECMP default routes if multiple are available via "
-            "different gateway ports."
+            "different gateway ports"
         ),
     )
     parser.add_argument(
@@ -286,7 +286,7 @@ def _parser_add_bfd_ecmp_arguments(parser):
         dest='enable_default_route_ecmp',
         default=None,
         action='store_false',
-        help=_("Add default route only for first gateway port."),
+        help=_("Add default route only for first gateway port"),
     )
 
 
@@ -367,7 +367,7 @@ class AddExtraRoutesToRouter(command.ShowOne):
             metavar='<router>',
             help=_(
                 "Router to which extra static routes "
-                "will be added (name or ID)."
+                "will be added (name or ID)"
             ),
         )
         parser.add_argument(
@@ -382,7 +382,7 @@ class AddExtraRoutesToRouter(command.ShowOne):
                 "destination: destination subnet (in CIDR notation), "
                 "gateway: nexthop IP address. "
                 "Repeat option to add multiple routes. "
-                "Trying to add a route that's already present "
+                "Trying to add a route that is already present "
                 "(exactly, including destination and nexthop) "
                 "in the routing table is allowed and is considered "
                 "a successful operation."
@@ -418,7 +418,7 @@ class RemoveExtraRoutesFromRouter(command.ShowOne):
             metavar='<router>',
             help=_(
                 "Router from which extra static routes "
-                "will be removed (name or ID)."
+                "will be removed (name or ID)"
             ),
         )
         parser.add_argument(
@@ -433,7 +433,7 @@ class RemoveExtraRoutesFromRouter(command.ShowOne):
                 "destination: destination subnet (in CIDR notation), "
                 "gateway: nexthop IP address. "
                 "Repeat option to remove multiple routes. "
-                "Trying to remove a route that's already missing "
+                "Trying to remove a route that is already missing "
                 "(fully, including destination and nexthop) "
                 "from the routing table is allowed and is considered "
                 "a successful operation."
@@ -525,9 +525,9 @@ class CreateRouter(command.ShowOne, common.NeutronCommandWithExtraArgs):
             metavar="<network>",
             action='append',
             help=_(
-                "External Network used as router's gateway (name or ID). "
+                "External Network used as router's gateway (name or ID) "
                 "(repeat option to set multiple gateways per router "
-                "if the L3 service plugin in use supports it)."
+                "if the L3 service plugin in use supports it)"
             ),
             dest='external_gateways',
         )
@@ -541,7 +541,7 @@ class CreateRouter(command.ShowOne, common.NeutronCommandWithExtraArgs):
                 "Desired IP and/or subnet (name or ID) "
                 "on external gateway: "
                 "subnet=<subnet>,ip-address=<ip-address> "
-                "(repeat option to set multiple fixed IP addresses)."
+                "(repeat option to set multiple fixed IP addresses)"
             ),
         )
         snat_group = parser.add_mutually_exclusive_group()
@@ -927,7 +927,7 @@ class SetRouter(common.NeutronCommandWithExtraArgs):
             default=None,
             required_keys=['destination', 'gateway'],
             help=_(
-                "Add routes to the router "
+                "Add routes to the router. "
                 "destination: destination subnet (in CIDR notation) "
                 "gateway: nexthop IP address "
                 "(repeat option to add multiple routes). "
@@ -967,7 +967,7 @@ class SetRouter(common.NeutronCommandWithExtraArgs):
             metavar="<network>",
             action='append',
             help=_(
-                "External Network used as router's gateway (name or ID). "
+                "External Network used as router's gateway (name or ID) "
                 "(repeat option to set multiple gateways per router "
                 "if the L3 service plugin in use supports it)."
             ),
@@ -983,7 +983,7 @@ class SetRouter(common.NeutronCommandWithExtraArgs):
                 "Desired IP and/or subnet (name or ID) "
                 "on external gateway: "
                 "subnet=<subnet>,ip-address=<ip-address> "
-                "(repeat option to set multiple fixed IP addresses)."
+                "(repeat option to set multiple fixed IP addresses)"
             ),
         )
         snat_group = parser.add_mutually_exclusive_group()
@@ -1163,7 +1163,7 @@ class UnsetRouter(common.NeutronUnsetCommandWithExtraArgs):
             default=None,
             required_keys=['destination', 'gateway'],
             help=_(
-                "Routes to be removed from the router "
+                "Routes to be removed from the router. "
                 "destination: destination subnet (in CIDR notation) "
                 "gateway: nexthop IP address "
                 "(repeat option to unset multiple routes)"
@@ -1216,7 +1216,7 @@ class UnsetRouter(common.NeutronUnsetCommandWithExtraArgs):
                 ):
                     pass
             except (KeyError, TypeError):
-                msg = _("Router does not have external network or qos policy")
+                msg = _("Router does not have external network or QoS policy")
                 raise exceptions.CommandError(msg)
             else:
                 attrs['external_gateway_info'] = {
@@ -1253,13 +1253,13 @@ class AddGatewayToRouter(command.ShowOne):
         parser.add_argument(
             'router',
             metavar="<router>",
-            help=_("Router to modify (name or ID)."),
+            help=_("Router to modify (name or ID)"),
         )
         parser.add_argument(
             metavar="<network>",
             help=_(
                 "External Network to a attach a router gateway to (name or "
-                "ID)."
+                "ID)"
             ),
             dest='external_gateways',
             # The argument is stored in a list in order to reuse the
@@ -1276,7 +1276,7 @@ class AddGatewayToRouter(command.ShowOne):
                 "Desired IP and/or subnet (name or ID) "
                 "on external gateway: "
                 "subnet=<subnet>,ip-address=<ip-address> "
-                "(repeat option to set multiple fixed IP addresses)."
+                "(repeat option to set multiple fixed IP addresses)"
             ),
         )
         return parser
@@ -1327,7 +1327,7 @@ class RemoveGatewayFromRouter(command.ShowOne):
             metavar="<network>",
             help=_(
                 "External Network to remove a router gateway from (name or "
-                "ID)."
+                "ID)"
             ),
             dest='external_gateways',
             # The argument is stored in a list in order to reuse the
@@ -1344,7 +1344,7 @@ class RemoveGatewayFromRouter(command.ShowOne):
                 "IP and/or subnet (name or ID) on the external gateway "
                 "which is used to identify a particular gateway if multiple "
                 "are attached to the same network: subnet=<subnet>,"
-                "ip-address=<ip-address>."
+                "ip-address=<ip-address>"
             ),
         )
         return parser

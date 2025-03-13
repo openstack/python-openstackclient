@@ -71,7 +71,7 @@ class CreateAutoAllocatedTopology(command.ShowOne):
             metavar='<project>',
             help=_(
                 "Return the auto allocated topology for a given project. "
-                "Default is current project"
+                "Default is current project."
             ),
         )
         identity_common.add_project_domain_option_to_parser(parser)
@@ -89,7 +89,7 @@ class CreateAutoAllocatedTopology(command.ShowOne):
             default=True,
             help=_(
                 "If topology exists returns the topology's "
-                "information (Default)"
+                "information (default)"
             ),
         )
 
@@ -132,7 +132,7 @@ class DeleteAutoAllocatedTopology(command.Command):
             metavar='<project>',
             help=_(
                 'Delete auto allocated topology for a given project. '
-                'Default is the current project'
+                'Default is the current project.'
             ),
         )
         identity_common.add_project_domain_option_to_parser(parser)

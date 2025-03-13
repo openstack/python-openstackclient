@@ -378,7 +378,7 @@ class SetNetworkQosRule(common.NeutronCommandWithExtraArgs):
         parser.add_argument(
             'id',
             metavar='<rule-id>',
-            help=_('Network QoS rule to delete (ID)'),
+            help=_('Network QoS rule to set (ID)'),
         )
         _add_rule_arguments(parser)
         return parser
@@ -424,7 +424,7 @@ class ShowNetworkQosRule(command.ShowOne):
         parser.add_argument(
             'id',
             metavar='<rule-id>',
-            help=_('Network QoS rule to delete (ID)'),
+            help=_('Network QoS rule to show (ID)'),
         )
         return parser
 
@@ -442,7 +442,7 @@ class ShowNetworkQosRule(command.ShowOne):
                 rule_id, qos.id
             )
         except Exception as e:
-            msg = _('Failed to set Network QoS rule ID "%(rule)s": %(e)s') % {
+            msg = _('Failed to show Network QoS rule ID "%(rule)s": %(e)s') % {
                 'rule': rule_id,
                 'e': e,
             }

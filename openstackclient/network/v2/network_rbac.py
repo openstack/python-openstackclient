@@ -147,7 +147,7 @@ class CreateNetworkRBAC(command.ShowOne, common.NeutronCommandWithExtraArgs):
         target_project_group.add_argument(
             '--target-all-projects',
             action='store_true',
-            help=_('Allow creating RBAC policy for all projects.'),
+            help=_('Allow creating RBAC policy for all projects'),
         )
         parser.add_argument(
             '--target-project-domain',

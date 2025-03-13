@@ -149,7 +149,7 @@ class CreateFloatingIPPortForwarding(
             '--description',
             metavar='<description>',
             help=_(
-                "A text to describe/contextualize the use of the "
+                "Text to describe/contextualize the use of the "
                 "port forwarding configuration"
             ),
         )
@@ -280,7 +280,7 @@ class ListFloatingIPPortForwarding(command.Lister):
         )
         parser.add_argument(
             '--protocol',
-            metavar='protocol',
+            metavar='<protocol>',
             help=_("Filter the list result by the port protocol"),
         )
 
@@ -409,7 +409,7 @@ class SetFloatingIPPortForwarding(common.NeutronCommandWithExtraArgs):
             '--description',
             metavar='<description>',
             help=_(
-                "A text to describe/contextualize the use of "
+                "Text to describe/contextualize the use of "
                 "the port forwarding configuration"
             ),
         )

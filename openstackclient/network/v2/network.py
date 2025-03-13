@@ -166,7 +166,7 @@ def _add_additional_network_options(parser):
         help=_(
             "The physical mechanism by which the virtual network "
             "is implemented. For example: "
-            "flat, geneve, gre, local, vlan, vxlan."
+            "flat, geneve, gre, local, vlan or vxlan."
         ),
     )
     parser.add_argument(
@@ -292,8 +292,8 @@ class CreateNetwork(
             action='store_true',
             help=self.enhance_help_neutron(
                 _(
-                    "The network has an external routing facility that's not "
-                    "managed by Neutron and can be used as in: "
+                    "The network has an external routing facility that is not "
+                    "managed by Neutron and can be used. For example: "
                     "openstack router set --external-gateway NETWORK "
                     "(external-net extension required)"
                 )
@@ -537,7 +537,7 @@ class ListNetwork(common.NetworkAndComputeLister):
                 _(
                     "List networks according to their physical mechanisms. "
                     "The supported options are: flat, geneve, gre, local, "
-                    "vlan, vxlan."
+                    "vlan and vxlan."
                 )
             ),
         )
@@ -789,10 +789,10 @@ class SetNetwork(common.NeutronCommandWithExtraArgs):
             '--external',
             action='store_true',
             help=_(
-                "The network has an external routing facility that's not "
-                "managed by Neutron and can be used as in: "
+                "The network has an external routing facility that is not "
+                "managed by Neutron and can be used. For example: "
                 "openstack router set --external-gateway NETWORK "
-                "(external-net extension required)"
+                "(external-net extension required)."
             ),
         )
         external_router_grp.add_argument(

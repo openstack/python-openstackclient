@@ -347,8 +347,8 @@ def _add_updatable_args(parser, create=False):
         help=_(
             "VNIC type for this port (direct | direct-physical | "
             "macvtap | normal | baremetal | virtio-forwarder | vdpa | "
-            "remote-managed, "
-            "default: normal)"
+            "remote-managed) "
+            "(default: normal)"
         ),
     )
     parser.add_argument(
@@ -406,7 +406,7 @@ def _add_updatable_args(parser, create=False):
             '(requires port-hints extension) '
             '(requires port-hint-ovs-tx-steering extension for alias: '
             'ovs-tx-steering) '
-            '(repeat option to set multiple hints)'
+            '(repeat option to set multiple hints).'
         ),
     )
     port_trusted = parser.add_mutually_exclusive_group()
@@ -416,7 +416,7 @@ def _add_updatable_args(parser, create=False):
         help=_(
             "Set port to be trusted. This will be populated into the "
             "'binding:profile' dictionary and passed to the services "
-            "which expect it in this dictionary (for example, Nova)"
+            "which expect it in this dictionary (for example, Nova)."
         ),
     )
     port_trusted.add_argument(
@@ -425,7 +425,7 @@ def _add_updatable_args(parser, create=False):
         help=_(
             "Set port to be not trusted. This will be populated into the "
             "'binding:profile' dictionary and passed to the services "
-            "which expect it in this dictionary (for example, Nova)"
+            "which expect it in this dictionary (for example, Nova)."
         ),
     )
 
@@ -512,7 +512,7 @@ class CreatePort(command.ShowOne, common.NeutronCommandWithExtraArgs):
         fixed_ip.add_argument(
             '--no-fixed-ip',
             action='store_true',
-            help=_("No IP or subnet for this port."),
+            help=_("No IP or subnet set for this port"),
         )
         parser.add_argument(
             '--binding-profile',
@@ -520,8 +520,8 @@ class CreatePort(command.ShowOne, common.NeutronCommandWithExtraArgs):
             action=JSONKeyValueAction,
             help=_(
                 "Custom data to be passed as binding:profile. Data may "
-                "be passed as <key>=<value> or JSON. "
-                "(repeat option to set multiple binding:profile data)"
+                "be passed as <key>=<value> or JSON "
+                "(repeat option to set multiple binding:profile data)."
             ),
         )
         admin_group = parser.add_mutually_exclusive_group()
@@ -596,7 +596,7 @@ class CreatePort(command.ShowOne, common.NeutronCommandWithExtraArgs):
         port_security.add_argument(
             '--enable-port-security',
             action='store_true',
-            help=_("Enable port security for this port (Default)"),
+            help=_("Enable port security for this port (default)"),
         )
         port_security.add_argument(
             '--disable-port-security',
@@ -619,7 +619,7 @@ class CreatePort(command.ShowOne, common.NeutronCommandWithExtraArgs):
         parser.add_argument(
             '--device-profile',
             metavar='<device-profile>',
-            help=_('Cyborg port device profile'),
+            help=_('Port device profile'),
         )
         parser.add_argument(
             '--hardware-offload-type',
@@ -996,7 +996,7 @@ class SetPort(common.NeutronCommandWithExtraArgs):
             '--no-fixed-ip',
             action='store_true',
             help=_(
-                "Clear existing information of fixed IP addresses."
+                "Clear existing information of fixed IP addresses. "
                 "Specify both --fixed-ip and --no-fixed-ip "
                 "to overwrite the current fixed IP addresses."
             ),
@@ -1007,8 +1007,8 @@ class SetPort(common.NeutronCommandWithExtraArgs):
             action=JSONKeyValueAction,
             help=_(
                 "Custom data to be passed as binding:profile. Data may "
-                "be passed as <key>=<value> or JSON. "
-                "(repeat option to set multiple binding:profile data)"
+                "be passed as <key>=<value> or JSON "
+                "(repeat option to set multiple binding:profile data)."
             ),
         )
         parser.add_argument(
@@ -1075,8 +1075,8 @@ class SetPort(common.NeutronCommandWithExtraArgs):
             help=_(
                 "Clear existing allowed-address pairs associated "
                 "with this port. "
-                "(Specify both --allowed-address and --no-allowed-address "
-                "to overwrite the current allowed-address pairs)"
+                "Specify both --allowed-address and --no-allowed-address "
+                "to overwrite the current allowed-address pairs."
             ),
         )
         parser.add_argument(
@@ -1100,7 +1100,7 @@ class SetPort(common.NeutronCommandWithExtraArgs):
             help=_(
                 "Set data plane status of this port (ACTIVE | DOWN). "
                 "Unset it to None with the 'port unset' command "
-                "(requires data plane status extension)"
+                "(requires data plane status extension)."
             ),
         )
         uplink_status_group = parser.add_mutually_exclusive_group()
@@ -1262,7 +1262,7 @@ class UnsetPort(common.NeutronUnsetCommandWithExtraArgs):
             action='append',
             help=_(
                 "Desired key which should be removed from binding:profile "
-                "(repeat option to unset multiple binding:profile data)"
+                "(repeat option to unset multiple binding:profile keys)"
             ),
         )
         parser.add_argument(
@@ -1298,7 +1298,7 @@ class UnsetPort(common.NeutronUnsetCommandWithExtraArgs):
         parser.add_argument(
             '--data-plane-status',
             action='store_true',
-            help=_("Clear existing information of data plane status"),
+            help=_("Clear existing data plane status information"),
         )
         parser.add_argument(
             '--numa-policy',
@@ -1309,13 +1309,13 @@ class UnsetPort(common.NeutronUnsetCommandWithExtraArgs):
             '--host',
             action='store_true',
             default=False,
-            help=_("Clear host binding for the port."),
+            help=_("Clear host binding for the port"),
         )
         parser.add_argument(
             '--hints',
             action='store_true',
             default=False,
-            help=_("Clear hints for the port."),
+            help=_("Clear hints for the port"),
         )
         _tag.add_tag_option_to_parser_for_unset(parser, _('port'))
         parser.add_argument(

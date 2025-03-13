@@ -125,7 +125,7 @@ class CreateNetworkSegmentRange(
             metavar='<project>',
             help=_(
                 'Network segment range owner (name or ID). Optional when '
-                'the segment range is shared'
+                'the segment range is shared.'
             ),
         )
         identity_common.add_project_domain_option_to_parser(parser)

@@ -70,7 +70,7 @@ class CreateMeter(command.ShowOne, common.NeutronCommandWithExtraArgs):
         parser.add_argument(
             '--description',
             metavar='<description>',
-            help=_("Create description for meter"),
+            help=_("Description for meter"),
         )
         parser.add_argument(
             '--project',

@@ -102,7 +102,7 @@ class CreateNetworkFlavor(command.ShowOne, common.NeutronCommandWithExtraArgs):
             metavar="<service-type>",
             required=True,
             help=_(
-                'Service type to which the flavor applies to: e.g. VPN '
+                'Service type to which the flavor applies. For example: VPN '
                 '(See openstack network service provider list for loaded '
                 'examples.)'
             ),

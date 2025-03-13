@@ -69,7 +69,7 @@ class CreateNDPProxy(command.ShowOne):
             '--description',
             metavar='<description>',
             help=_(
-                "A text to describe/contextualize the use of the "
+                "Text to describe/contextualize the use of the "
                 "NDP proxy configuration"
             ),
         )
@@ -156,18 +156,18 @@ class ListNDPProxy(command.Lister):
         )
         parser.add_argument(
             '--ip-address',
-            metavar='ip-address',
-            help=_("List only NDP proxies according to their IPv6 address"),
+            metavar='<ip-address>',
+            help=_("List only NDP proxies associated to this IPv6 address"),
         )
         parser.add_argument(
             '--project',
             metavar='<project>',
-            help=_("List NDP proxies according to their project (name or ID)"),
+            help=_("List only NDP proxies of given project (name or ID)"),
         )
         parser.add_argument(
             '--name',
             metavar='<name>',
-            help=_("List NDP proxies according to their name"),
+            help=_("List only NDP proxies of given name"),
         )
 
         identity_common.add_project_domain_option_to_parser(parser)
@@ -247,7 +247,7 @@ class SetNDPProxy(command.Command):
             '--description',
             metavar='<description>',
             help=_(
-                "A text to describe/contextualize the use of "
+                "Text to describe/contextualize the use of "
                 "the NDP proxy configuration"
             ),
         )

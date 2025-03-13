@@ -84,8 +84,8 @@ def _get_common_parse_arguments(parser, is_create=True):
         action=parseractions.MultiKeyValueAction,
         required_keys=['start', 'end'],
         help=_(
-            "Allocation pool IP addresses for this subnet "
-            "e.g.: start=192.168.199.2,end=192.168.199.254 "
+            "Allocation pool IP addresses for this subnet, "
+            "for example, start=192.168.199.2,end=192.168.199.254 "
             "(repeat option to add multiple IP addresses)"
         ),
     )
@@ -127,10 +127,10 @@ def _get_common_parse_arguments(parser, is_create=True):
         action=parseractions.MultiKeyValueAction,
         required_keys=['destination', 'gateway'],
         help=_(
-            "Additional route for this subnet "
-            "e.g.: destination=10.10.0.0/16,gateway=192.168.71.254 "
+            "Additional route for this subnet, "
+            "for example, destination=10.10.0.0/16,gateway=192.168.71.254 "
             "destination: destination subnet (in CIDR notation) "
-            "gateway: nexthop IP address "
+            "gateway: next-hop IP address "
             "(repeat option to add multiple routes)"
         ),
     )
@@ -150,8 +150,8 @@ def _get_common_parse_arguments(parser, is_create=True):
         action='append',
         dest='service_types',
         help=_(
-            "Service type for this subnet "
-            "e.g.: network:floatingip_agent_gateway. "
+            "Service type for this subnet, "
+            "for example, network:floatingip_agent_gateway. "
             "Must be a valid device owner value for a network port "
             "(repeat option to set multiple service types)"
         ),
@@ -365,8 +365,8 @@ class CreateSubnet(command.ShowOne, common.NeutronCommandWithExtraArgs):
                 "<ip-address>: Specific IP address to use as the gateway, "
                 "'auto': Gateway address should automatically be chosen "
                 "from within the subnet itself, 'none': This subnet will "
-                "not use a gateway, e.g.: --gateway 192.168.9.1, "
-                "--gateway auto, --gateway none (default is 'auto')."
+                "not use a gateway. For example, --gateway 192.168.9.1, "
+                "--gateway auto or --gateway none (default is 'auto')."
             ),
         )
         parser.add_argument(
@@ -375,7 +375,7 @@ class CreateSubnet(command.ShowOne, common.NeutronCommandWithExtraArgs):
             default=4,
             choices=[4, 6],
             help=_(
-                "IP version (default is 4).  Note that when subnet pool is "
+                "IP version (default is 4). Note that when subnet pool is "
                 "specified, IP version is determined from the subnet pool "
                 "and this option is ignored."
             ),
@@ -513,10 +513,10 @@ class ListSubnet(command.Lister):
             action='append',
             dest='service_types',
             help=_(
-                "List only subnets of a given service type in output "
-                "e.g.: network:floatingip_agent_gateway. "
+                "List only subnets of a given service type in output, "
+                "for example, network:floatingip_agent_gateway. "
                 "Must be a valid device owner value for a network port "
-                "(repeat option to list multiple service types)"
+                "(repeat option to list multiple service types)."
             ),
         )
         parser.add_argument(
@@ -551,8 +551,8 @@ class ListSubnet(command.Lister):
             metavar='<subnet-range>',
             help=_(
                 "List only subnets of given subnet range "
-                "(in CIDR notation) in output "
-                "e.g.: --subnet-range 10.10.0.0/16"
+                "(in CIDR notation) in output. "
+                "For example, --subnet-range 10.10.0.0/16"
             ),
         )
         parser.add_argument(
@@ -560,7 +560,7 @@ class ListSubnet(command.Lister):
             metavar='<subnet-pool>',
             help=_(
                 "List only subnets which belong to a given subnet pool "
-                "in output (Name or ID)"
+                "in output (name or ID)"
             ),
         )
         _tag.add_tag_filtering_option_to_parser(parser, _('subnets'))
@@ -684,8 +684,8 @@ class SetSubnet(common.NeutronCommandWithExtraArgs):
             help=_(
                 "Specify a gateway for the subnet. The options are: "
                 "<ip-address>: Specific IP address to use as the gateway, "
-                "'none': This subnet will not use a gateway, "
-                "e.g.: --gateway 192.168.9.1, --gateway none."
+                "'none': This subnet will not use a gateway. "
+                "For example, --gateway 192.168.9.1 or --gateway none."
             ),
         )
         parser.add_argument(
@@ -694,7 +694,7 @@ class SetSubnet(common.NeutronCommandWithExtraArgs):
             help=_(
                 "Network segment to associate with this subnet (name or "
                 "ID). It is only allowed to set the segment if the current "
-                "value is `None`, the network must also have only one "
+                "value is `None`. The network must also have only one "
                 "segment and only one subnet can exist on the network."
             ),
         )
@@ -774,7 +774,7 @@ class UnsetSubnet(common.NeutronUnsetCommandWithExtraArgs):
             required_keys=['start', 'end'],
             help=_(
                 'Allocation pool IP addresses to be removed from this '
-                'subnet e.g.: start=192.168.199.2,end=192.168.199.254 '
+                'subnet, for example, start=192.168.199.2,end=192.168.199.254 '
                 '(repeat option to unset multiple allocation pools)'
             ),
         )
@@ -800,10 +800,10 @@ class UnsetSubnet(common.NeutronUnsetCommandWithExtraArgs):
             action=parseractions.MultiKeyValueAction,
             required_keys=['destination', 'gateway'],
             help=_(
-                'Route to be removed from this subnet '
-                'e.g.: destination=10.10.0.0/16,gateway=192.168.71.254 '
+                'Route to be removed from this subnet, '
+                'for example, destination=10.10.0.0/16,gateway=192.168.71.254 '
                 'destination: destination subnet (in CIDR notation) '
-                'gateway: nexthop IP address '
+                'gateway: next-hop IP address '
                 '(repeat option to unset multiple host routes)'
             ),
         )
@@ -813,8 +813,8 @@ class UnsetSubnet(common.NeutronUnsetCommandWithExtraArgs):
             action='append',
             dest='service_types',
             help=_(
-                'Service type to be removed from this subnet '
-                'e.g.: network:floatingip_agent_gateway. '
+                'Service type to be removed from this subnet, '
+                'for example, network:floatingip_agent_gateway. '
                 'Must be a valid device owner value for a network port '
                 '(repeat option to unset multiple service types)'
             ),

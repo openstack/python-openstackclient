@@ -126,7 +126,7 @@ class CreateSecurityGroup(
             "--stateful",
             action='store_true',
             default=None,
-            help=_("Security group is stateful (Default)"),
+            help=_("Security group is stateful (default)"),
         )
         stateful_group.add_argument(
             "--stateless",
@@ -345,7 +345,7 @@ class SetSecurityGroup(
             "--stateful",
             action='store_true',
             default=None,
-            help=_("Security group is stateful (Default)"),
+            help=_("Security group is stateful (default)"),
         )
         stateful_group.add_argument(
             "--stateless",
