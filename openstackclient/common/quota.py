@@ -176,25 +176,37 @@ def get_network_quotas(
     default=False,
 ):
     def _network_quota_to_dict(network_quota, detail=False):
-        if not isinstance(network_quota, dict):
-            dict_quota = network_quota.to_dict()
-        else:
-            dict_quota = network_quota
+        dict_quota = network_quota.to_dict(computed=False)
 
-        result = {}
+        if not detail:
+            return dict_quota
 
+        # Neutron returns quota details in dict which is in format like:
+        # {'resource_name': {'in_use': X, 'limit': Y, 'reserved': Z},
+        #  'resource_name_2': {'in_use': X2, 'limit': Y2, 'reserved': Z2}}
+        #
+        # but Nova and Cinder returns quota in different format, like:
+        # {'resource_name': X,
+        #  'resource_name_2': X2,
+        #  'usage': {
+        #     'resource_name': Y,
+        #     'resource_name_2': Y2
+        #  },
+        #  'reserved': {
+        #     'resource_name': Z,
+        #     'resource_name_2': Z2
+        #  }}
+        #
+        # so we need to make conversion to have data in same format from
+        # all of the services
+        result = {"usage": {}, "reservation": {}}
         for key, values in dict_quota.items():
             if values is None:
                 continue
-
-            # NOTE(slaweq): Neutron returns values with key "used" but Nova for
-            # example returns same data with key "in_use" instead. Because of
-            # that we need to convert Neutron key to the same as is returned
-            # from Nova to make result more consistent
-            if isinstance(values, dict) and 'used' in values:
-                values['in_use'] = values.pop("used")
-
-            result[key] = values
+            if isinstance(values, dict):
+                result[key] = values['limit']
+                result["reservation"][key] = values['reserved']
+                result["usage"][key] = values['used']
 
         return result
 
@@ -756,6 +768,19 @@ and ``server-group-members`` output for a given quota class."""
             )
 
         info = {}
+        if parsed_args.usage:
+            info["reservation"] = compute_quota_info.pop("reservation", {})
+            info["reservation"].update(
+                volume_quota_info.pop("reservation", {})
+            )
+            info["reservation"].update(
+                network_quota_info.pop("reservation", {})
+            )
+
+            info["usage"] = compute_quota_info.pop("usage", {})
+            info["usage"].update(volume_quota_info.pop("usage", {}))
+            info["usage"].update(network_quota_info.pop("usage", {}))
+
         info.update(compute_quota_info)
         info.update(volume_quota_info)
         info.update(network_quota_info)
