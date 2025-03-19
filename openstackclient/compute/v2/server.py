@@ -1402,7 +1402,7 @@ class CreateServer(command.ShowOne):
             default=[],
             help=_(
                 'File(s) to inject into image before boot '
-                '(repeat option to set multiple files)'
+                '(repeat option to set multiple files) '
                 '(supported by --os-compute-api-version 2.57 or below)'
             ),
         )
@@ -3222,7 +3222,7 @@ revert to release the new server and restart the old one."""
             action='store_true',
             default=None,
             help=_(
-                'Allow disk over-commit on the destination host'
+                'Allow disk over-commit on the destination host '
                 '(supported with --os-compute-api-version 2.24 or below)'
             ),
         )
@@ -3231,7 +3231,7 @@ revert to release the new server and restart the old one."""
             dest='disk_overcommit',
             action='store_false',
             help=_(
-                'Do not over-commit disk on the destination host (default)'
+                'Do not over-commit disk on the destination host (default) '
                 '(supported with --os-compute-api-version 2.24 or below)'
             ),
         )
@@ -3434,7 +3434,7 @@ class RebuildServer(command.ShowOne):
             '--image',
             metavar='<image>',
             help=_(
-                'Recreate server from the specified image (name or ID).'
+                'Recreate server from the specified image (name or ID). '
                 'Defaults to the currently used one.'
             ),
         )
@@ -4252,7 +4252,7 @@ release the new server and restart the old one."""
             '--revert',
             action="store_true",
             help=_(
-                '**Deprecated** Restore server state before resize'
+                '**Deprecated** Restore server state before resize. '
                 "Replaced by the 'openstack server resize revert' and "
                 "'openstack server migration revert' commands"
             ),
@@ -5005,7 +5005,7 @@ class StopServer(command.Command):
             action='store_true',
             default=boolenv('ALL_PROJECTS'),
             help=_(
-                'Stop server(s) in another project by name (admin only)'
+                'Stop server(s) in another project by name (admin only) '
                 '(can be specified using the ALL_PROJECTS envvar)'
             ),
         )

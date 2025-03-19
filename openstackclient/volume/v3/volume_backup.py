@@ -466,7 +466,7 @@ class SetVolumeBackup(command.Command):
             '--name',
             metavar='<name>',
             help=_(
-                'New backup name'
+                'New backup name '
                 '(supported by --os-volume-api-version 3.9 or above)'
             ),
         )
