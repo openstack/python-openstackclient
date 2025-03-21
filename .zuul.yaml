@@ -219,7 +219,8 @@
       - release-notes-jobs-python3
     check:
       jobs:
-        - osc-build-image
+        - osc-build-image:
+            voting: false
         - osc-functional-devstack
         - osc-functional-devstack-tips:
             # The functional-tips job only tests the latest and shouldn't be run
