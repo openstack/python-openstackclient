@@ -552,6 +552,69 @@ class TestCreateRouter(TestRouter):
             parsed_args,
         )
 
+    def test_create_with_qos_policy(self):
+        _network = network_fakes.create_one_network()
+        self.network_client.find_network = mock.Mock(return_value=_network)
+        _qos_policy = (
+            network_fakes.FakeNetworkQosPolicy.create_one_qos_policy()
+        )
+        self.network_client.find_qos_policy = mock.Mock(
+            return_value=_qos_policy
+        )
+        arglist = [
+            self.new_router.name,
+            '--external-gateway',
+            _network.id,
+            '--qos-policy',
+            _qos_policy.id,
+        ]
+        verifylist = [
+            ('name', self.new_router.name),
+            ('enable', True),
+            ('distributed', False),
+            ('ha', False),
+            ('qos_policy', _qos_policy.id),
+            ('external_gateways', [_network.id]),
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+        columns, data = self.cmd.take_action(parsed_args)
+        gw_info = {'network_id': _network.id, 'qos_policy_id': _qos_policy.id}
+        self.network_client.create_router.assert_called_once_with(
+            **{
+                'admin_state_up': True,
+                'name': self.new_router.name,
+                **{'external_gateway_info': gw_info},
+            }
+        )
+        self.assertEqual(self.columns, columns)
+        self.assertCountEqual(self.data, data)
+
+    def test_create_with_qos_policy_no_external_gateway(self):
+        _qos_policy = (
+            network_fakes.FakeNetworkQosPolicy.create_one_qos_policy()
+        )
+        self.network_client.find_qos_policy = mock.Mock(
+            return_value=_qos_policy
+        )
+        arglist = [
+            self.new_router.name,
+            '--qos-policy',
+            _qos_policy.id,
+        ]
+        verifylist = [
+            ('name', self.new_router.name),
+            ('enable', True),
+            ('distributed', False),
+            ('ha', False),
+            ('qos_policy', _qos_policy.id),
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+        self.assertRaises(
+            exceptions.CommandError,
+            self.cmd.take_action,
+            parsed_args,
+        )
+
 
 class TestDeleteRouter(TestRouter):
     # The routers to delete.

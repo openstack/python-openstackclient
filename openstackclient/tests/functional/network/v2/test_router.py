@@ -44,6 +44,44 @@ class RouterTests(common.NetworkTagTests):
         del_output = self.openstack('router delete ' + name1 + ' ' + name2)
         self.assertOutput('', del_output)
 
+    def test_router_create_with_external_gateway(self):
+        network_name = uuid.uuid4().hex
+        subnet_name = uuid.uuid4().hex
+        qos_policy = uuid.uuid4().hex
+        router_name = uuid.uuid4().hex
+
+        cmd_net = self.openstack(
+            f'network create --external {network_name}', parse_output=True
+        )
+        self.addCleanup(self.openstack, f'network delete {network_name}')
+        network_id = cmd_net['id']
+
+        self.openstack(
+            f'subnet create {subnet_name} '
+            f'--network {network_name} --subnet-range 10.0.0.0/24'
+        )
+
+        cmd_qos = self.openstack(
+            f'network qos policy create {qos_policy}', parse_output=True
+        )
+        self.addCleanup(
+            self.openstack, f'network qos policy delete {qos_policy}'
+        )
+        qos_id = cmd_qos['id']
+
+        self.openstack(
+            f'router create --external-gateway {network_name} '
+            f'--qos-policy {qos_policy} {router_name}'
+        )
+        self.addCleanup(self.openstack, f'router delete {router_name}')
+
+        cmd_output = self.openstack(
+            f'router show {router_name}', parse_output=True
+        )
+        gw_info = cmd_output['external_gateway_info']
+        self.assertEqual(network_id, gw_info['network_id'])
+        self.assertEqual(qos_id, gw_info['qos_policy_id'])
+
     def test_router_list(self):
         """Test create, list filter"""
         # Get project IDs

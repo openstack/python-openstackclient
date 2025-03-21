@@ -581,6 +581,11 @@ class CreateRouter(command.ShowOne, common.NeutronCommandWithExtraArgs):
             help=argparse.SUPPRESS,
         )
         _parser_add_bfd_ecmp_arguments(parser)
+        parser.add_argument(
+            '--qos-policy',
+            metavar='<qos-policy>',
+            help=_('Attach QoS policy to router gateway IPs'),
+        )
 
         return parser
 
@@ -600,6 +605,13 @@ class CreateRouter(command.ShowOne, common.NeutronCommandWithExtraArgs):
             msg = _(
                 "You must specify '--external-gateway' in order "
                 "to enable router's NDP proxy"
+            )
+            raise exceptions.CommandError(msg)
+
+        if parsed_args.qos_policy and not parsed_args.external_gateways:
+            msg = _(
+                "You must specify '--external-gateway' in order "
+                "to define a QoS policy"
             )
             raise exceptions.CommandError(msg)
 
