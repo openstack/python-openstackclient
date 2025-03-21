@@ -1206,6 +1206,17 @@ class TestUserSet(identity_fakes.TestIdentityv3):
         self.identity_sdk_client.update_user.assert_called_with(
             user=self.user, **kwargs
         )
+        self.identity_sdk_client.find_domain.assert_not_called()
+
+        # Set expected values
+        kwargs = {
+            'ignore_missing': False,
+            'domain_id': None,
+        }
+        self.identity_sdk_client.find_project.assert_called_once_with(
+            name_or_id=self.project.id, **kwargs
+        )
+
         self.assertIsNone(result)
 
     def test_user_set_project_domain(self):
@@ -1238,6 +1249,11 @@ class TestUserSet(identity_fakes.TestIdentityv3):
         self.identity_sdk_client.update_user.assert_called_with(
             user=self.user, **kwargs
         )
+
+        self.identity_sdk_client.find_domain.assert_called_once_with(
+            name_or_id=self.project.domain_id, ignore_missing=False
+        )
+
         self.assertIsNone(result)
 
     def test_user_set_enable(self):
