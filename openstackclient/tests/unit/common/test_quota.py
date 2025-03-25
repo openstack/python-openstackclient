@@ -955,6 +955,23 @@ class TestQuotaSet(TestQuota):
 
 
 class TestQuotaShow(TestQuota):
+    _network_quota_details = {
+        'floating_ips': {'limit': 0, 'reserved': 0, 'used': 0},
+        'health_monitors': {'limit': 0, 'reserved': 0, 'used': 0},
+        'l7_policies': {'limit': 0, 'reserved': 0, 'used': 0},
+        'listeners': {'limit': 0, 'reserved': 0, 'used': 0},
+        'load_balancers': {'limit': 0, 'reserved': 0, 'used': 0},
+        'networks': {'limit': 0, 'reserved': 0, 'used': 0},
+        'pools': {'limit': 0, 'reserved': 0, 'used': 0},
+        'ports': {'limit': 0, 'reserved': 0, 'used': 0},
+        'rbac_policies': {'limit': 0, 'reserved': 0, 'used': 0},
+        'routers': {'limit': 0, 'reserved': 0, 'used': 0},
+        'security_group_rules': {'limit': 0, 'reserved': 0, 'used': 0},
+        'security_groups': {'limit': 0, 'reserved': 0, 'used': 0},
+        'subnet_pools': {'limit': 0, 'reserved': 0, 'used': 0},
+        'subnets': {'limit': 0, 'reserved': 0, 'used': 0},
+    }
+
     def setUp(self):
         super().setUp()
 
@@ -980,9 +997,15 @@ class TestQuotaShow(TestQuota):
             self.default_volume_quotas
         )
 
-        self.network_client.get_quota.return_value = (
-            sdk_fakes.generate_fake_resource(_network_quota_set.Quota)
-        )
+        def get_network_quota_mock(*args, **kwargs):
+            if kwargs.get("details"):
+                return sdk_fakes.generate_fake_resource(
+                    _network_quota_set.QuotaDetails,
+                    **self._network_quota_details,
+                )
+            return sdk_fakes.generate_fake_resource(_network_quota_set.Quota)
+
+        self.network_client.get_quota.side_effect = get_network_quota_mock
         self.default_network_quotas = sdk_fakes.generate_fake_resource(
             _network_quota_set.QuotaDefault
         )
