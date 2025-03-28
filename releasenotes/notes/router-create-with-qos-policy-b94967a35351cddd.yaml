@@ -1,0 +1,7 @@
+---
+features:
+  - |
+    The router creation command now has the parameter ``--qos-policy``, that
+    allows to set a QoS policy for the provided external gateways (one or
+    many). It is mandatory to define an external gateway if the QoS policy is
+    set.
