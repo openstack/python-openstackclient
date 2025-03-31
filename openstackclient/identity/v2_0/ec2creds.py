@@ -128,9 +128,10 @@ class DeleteEC2Creds(command.Command):
 
         if result > 0:
             total = len(parsed_args.access_keys)
-            msg = _(
-                "%(result)s of %(total)s EC2 keys failed " "to delete."
-            ) % {'result': result, 'total': total}
+            msg = _("%(result)s of %(total)s EC2 keys failed to delete.") % {
+                'result': result,
+                'total': total,
+            }
             raise exceptions.CommandError(msg)
 
 

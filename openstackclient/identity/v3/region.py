@@ -92,16 +92,13 @@ class DeleteRegion(command.Command):
             except Exception as e:
                 result += 1
                 LOG.error(
-                    _(
-                        "Failed to delete region with "
-                        "ID '%(region)s': %(e)s"
-                    ),
+                    _("Failed to delete region with ID '%(region)s': %(e)s"),
                     {'region': i, 'e': e},
                 )
 
         if result > 0:
             total = len(parsed_args.region)
-            msg = _("%(result)s of %(total)s regions failed " "to delete.") % {
+            msg = _("%(result)s of %(total)s regions failed to delete.") % {
                 'result': result,
                 'total': total,
             }

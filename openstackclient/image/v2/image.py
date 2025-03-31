@@ -359,8 +359,7 @@ class CreateImage(command.ShowOne):
             action="store_true",
             default=False,
             help=_(
-                "Show upload progress bar "
-                "(ignored if passing data via stdin)"
+                "Show upload progress bar (ignored if passing data via stdin)"
             ),
         )
         parser.add_argument(
@@ -401,8 +400,7 @@ class CreateImage(command.ShowOne):
             metavar="<tag>",
             action='append',
             help=_(
-                "Set a tag on this image "
-                "(repeat option to set multiple tags)"
+                "Set a tag on this image (repeat option to set multiple tags)"
             ),
         )
         parser.add_argument(
@@ -705,8 +703,7 @@ class DeleteImage(command.Command):
             except Exception as e:
                 result += 1
                 msg = _(
-                    "Failed to delete image with name or "
-                    "ID '%(image)s': %(e)s"
+                    "Failed to delete image with name or ID '%(image)s': %(e)s"
                 )
                 LOG.error(msg, {'image': image, 'e': e})
 
@@ -1153,8 +1150,7 @@ class SetImage(command.Command):
             default=None,
             action='append',
             help=_(
-                "Set a tag on this image "
-                "(repeat option to set multiple tags)"
+                "Set a tag on this image (repeat option to set multiple tags)"
             ),
         )
         parser.add_argument(
@@ -1466,7 +1462,7 @@ class UnsetImage(command.Command):
                     image_client.remove_tag(image.id, k)
                 except Exception:
                     LOG.error(
-                        _("tag unset failed, '%s' is a " "nonexistent tag "), k
+                        _("tag unset failed, '%s' is a nonexistent tag "), k
                     )
                     tagret += 1
 
@@ -1519,7 +1515,7 @@ class UnsetImage(command.Command):
             raise exceptions.CommandError(msg)
         elif propret > 0:
             msg = _(
-                "Failed to unset %(propret)s of %(proptotal)s" " properties."
+                "Failed to unset %(propret)s of %(proptotal)s properties."
             ) % {'propret': propret, 'proptotal': proptotal}
             raise exceptions.CommandError(msg)
 
@@ -1551,8 +1547,7 @@ class StageImage(command.Command):
             action='store_true',
             default=False,
             help=_(
-                'Show upload progress bar '
-                '(ignored if passing data via stdin)'
+                'Show upload progress bar (ignored if passing data via stdin)'
             ),
         )
         parser.add_argument(

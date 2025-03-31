@@ -74,8 +74,7 @@ class CreateVolumeSnapshot(command.ShowOne):
             "--volume",
             metavar="<volume>",
             help=_(
-                "Volume to snapshot (name or ID) "
-                "(default is <snapshot-name>)"
+                "Volume to snapshot (name or ID) (default is <snapshot-name>)"
             ),
         )
         parser.add_argument(
@@ -88,8 +87,7 @@ class CreateVolumeSnapshot(command.ShowOne):
             action="store_true",
             default=False,
             help=_(
-                "Create a snapshot attached to an instance. "
-                "Default is False"
+                "Create a snapshot attached to an instance. Default is False"
             ),
         )
         parser.add_argument(
@@ -200,9 +198,10 @@ class DeleteVolumeSnapshot(command.Command):
 
         if result > 0:
             total = len(parsed_args.snapshots)
-            msg = _(
-                "%(result)s of %(total)s snapshots failed " "to delete."
-            ) % {'result': result, 'total': total}
+            msg = _("%(result)s of %(total)s snapshots failed to delete.") % {
+                'result': result,
+                'total': total,
+            }
             raise exceptions.CommandError(msg)
 
 
@@ -446,14 +445,14 @@ class SetVolumeSnapshot(command.Command):
                 volume_client.volume_snapshots.update(snapshot.id, **kwargs)
             except Exception as e:
                 LOG.error(
-                    _("Failed to update snapshot name " "or description: %s"),
+                    _("Failed to update snapshot name or description: %s"),
                     e,
                 )
                 result += 1
 
         if result > 0:
             raise exceptions.CommandError(
-                _("One or more of the " "set operations failed")
+                _("One or more of the set operations failed")
             )
 
 

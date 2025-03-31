@@ -252,9 +252,10 @@ class TestObjectSave(TestObjectAll):
             def __exit__(self, *a):
                 self.context_manager_calls.append('__exit__')
 
-        with mock.patch('sys.stdout') as fake_stdout, mock.patch(
-            'os.fdopen', return_value=FakeStdout()
-        ) as fake_fdopen:
+        with (
+            mock.patch('sys.stdout') as fake_stdout,
+            mock.patch('os.fdopen', return_value=FakeStdout()) as fake_fdopen,
+        ):
             fake_stdout.fileno.return_value = 123
             self.cmd.take_action(parsed_args)
 

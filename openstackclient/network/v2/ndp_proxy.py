@@ -124,13 +124,13 @@ class DeleteNDPProxy(command.Command):
             except Exception as e:
                 result += 1
                 LOG.error(
-                    _("Failed to delete NDP proxy " "'%(ndp_proxy)s': %(e)s"),
+                    _("Failed to delete NDP proxy '%(ndp_proxy)s': %(e)s"),
                     {'ndp_proxy': ndp_proxy, 'e': e},
                 )
         if result > 0:
             total = len(parsed_args.ndp_proxy)
             msg = _(
-                "%(result)s of %(total)s NDP proxies failed " "to delete."
+                "%(result)s of %(total)s NDP proxies failed to delete."
             ) % {'result': result, 'total': total}
             raise exceptions.CommandError(msg)
 

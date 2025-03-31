@@ -134,7 +134,7 @@ class DeleteVolumeBackup(command.Command):
 
         if result > 0:
             total = len(parsed_args.backups)
-            msg = _("%(result)s of %(total)s backups failed " "to delete.") % {
+            msg = _("%(result)s of %(total)s backups failed to delete.") % {
                 'result': result,
                 'total': total,
             }
@@ -178,8 +178,7 @@ class ListVolumeBackup(command.Lister):
             "--volume",
             metavar="<volume>",
             help=_(
-                "Filters results by the volume which they "
-                "backup (name or ID)"
+                "Filters results by the volume which they backup (name or ID)"
             ),
         )
         parser.add_argument(

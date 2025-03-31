@@ -309,8 +309,7 @@ class CreateVolume(volume_v2.CreateVolume):
                     )
                 else:
                     msg = _(
-                        "Volume status is not available for setting boot "
-                        "state"
+                        "Volume status is not available for setting boot state"
                     )
                     raise exceptions.CommandError(msg)
             except Exception as e:
@@ -335,10 +334,7 @@ class CreateVolume(volume_v2.CreateVolume):
                     raise exceptions.CommandError(msg)
             except Exception as e:
                 LOG.error(
-                    _(
-                        "Failed to set volume read-only access "
-                        "mode flag: %s"
-                    ),
+                    _("Failed to set volume read-only access mode flag: %s"),
                     e,
                 )
 
@@ -402,7 +398,7 @@ class DeleteVolume(volume_v2.DeleteVolume):
 
         if result > 0:
             total = len(parsed_args.volumes)
-            msg = _("%(result)s of %(total)s volumes failed " "to delete.") % {
+            msg = _("%(result)s of %(total)s volumes failed to delete.") % {
                 'result': result,
                 'total': total,
             }
@@ -847,10 +843,7 @@ class SetVolume(command.Command):
                 )
             except Exception as e:
                 LOG.error(
-                    _(
-                        "Failed to set volume read-only access "
-                        "mode flag: %s"
-                    ),
+                    _("Failed to set volume read-only access mode flag: %s"),
                     e,
                 )
                 result += 1
@@ -903,7 +896,7 @@ class SetVolume(command.Command):
 
         if result > 0:
             raise exceptions.CommandError(
-                _("One or more of the " "set operations failed")
+                _("One or more of the set operations failed")
             )
 
 
@@ -995,7 +988,7 @@ class UnsetVolume(command.Command):
 
         if result > 0:
             raise exceptions.CommandError(
-                _("One or more of the " "unset operations failed")
+                _("One or more of the unset operations failed")
             )
 
 

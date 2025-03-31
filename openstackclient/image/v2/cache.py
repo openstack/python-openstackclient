@@ -131,8 +131,7 @@ class QueueCachedImage(command.Command):
             except Exception as e:
                 failures += 1
                 msg = _(
-                    "Failed to queue image with name or "
-                    "ID '%(image)s': %(e)s"
+                    "Failed to queue image with name or ID '%(image)s': %(e)s"
                 )
                 LOG.error(msg, {'image': image, 'e': e})
 
@@ -171,8 +170,7 @@ class DeleteCachedImage(command.Command):
             except Exception as e:
                 failures += 1
                 msg = _(
-                    "Failed to delete image with name or "
-                    "ID '%(image)s': %(e)s"
+                    "Failed to delete image with name or ID '%(image)s': %(e)s"
                 )
                 LOG.error(msg, {'image': image, 'e': e})
 

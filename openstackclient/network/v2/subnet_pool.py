@@ -256,7 +256,7 @@ class DeleteSubnetPool(command.Command):
         if result > 0:
             total = len(parsed_args.subnet_pool)
             msg = _(
-                "%(result)s of %(total)s subnet pools failed " "to delete."
+                "%(result)s of %(total)s subnet pools failed to delete."
             ) % {'result': result, 'total': total}
             raise exceptions.CommandError(msg)
 
@@ -290,7 +290,7 @@ class ListSubnetPool(command.Lister):
             '--default',
             action='store_true',
             help=_(
-                "List subnet pools used as the default external " "subnet pool"
+                "List subnet pools used as the default external subnet pool"
             ),
         )
         default_group.add_argument(

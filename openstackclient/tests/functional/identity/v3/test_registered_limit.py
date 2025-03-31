@@ -25,7 +25,7 @@ class RegisteredLimitTestCase(common.IdentityTests):
 
     def test_registered_limit_create_with_service_id(self):
         service_name = self._create_dummy_service()
-        raw_output = self.openstack('service show' f' {service_name}')
+        raw_output = self.openstack(f'service show {service_name}')
         service_items = self.parse_show(raw_output)
         service_id = self._extract_value_from_items('id', service_items)
 
@@ -44,7 +44,7 @@ class RegisteredLimitTestCase(common.IdentityTests):
         registered_limit_id = self._extract_value_from_items('id', items)
         self.addCleanup(
             self.openstack,
-            'registered limit delete' f' {registered_limit_id}',
+            f'registered limit delete {registered_limit_id}',
             cloud=SYSTEM_CLOUD,
         )
 
@@ -178,7 +178,7 @@ class RegisteredLimitTestCase(common.IdentityTests):
             add_clean_up=False
         )
         raw_output = self.openstack(
-            'registered limit delete' f' {registered_limit_id}',
+            f'registered limit delete {registered_limit_id}',
             cloud=SYSTEM_CLOUD,
         )
         self.assertEqual(0, len(raw_output))

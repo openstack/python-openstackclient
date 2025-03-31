@@ -38,10 +38,7 @@ def _find_volumes(parsed_args_volumes, volume_client):
         except Exception as e:
             result += 1
             LOG.error(
-                _(
-                    "Failed to find volume with "
-                    "name or ID '%(volume)s':%(e)s"
-                )
+                _("Failed to find volume with name or ID '%(volume)s':%(e)s")
                 % {'volume': volume, 'e': e}
             )
 
@@ -76,7 +73,7 @@ class AddVolumeToConsistencyGroup(command.Command):
         if result > 0:
             total = len(parsed_args.volumes)
             LOG.error(
-                _("%(result)s of %(total)s volumes failed " "to add.")
+                _("%(result)s of %(total)s volumes failed to add.")
                 % {'result': result, 'total': total}
             )
 
@@ -236,8 +233,7 @@ class DeleteConsistencyGroup(command.Command):
         if result > 0:
             total = len(parsed_args.consistency_groups)
             msg = _(
-                "%(result)s of %(total)s consistency groups failed "
-                "to delete."
+                "%(result)s of %(total)s consistency groups failed to delete."
             ) % {'result': result, 'total': total}
             raise exceptions.CommandError(msg)
 
@@ -321,7 +317,7 @@ class RemoveVolumeFromConsistencyGroup(command.Command):
         if result > 0:
             total = len(parsed_args.volumes)
             LOG.error(
-                _("%(result)s of %(total)s volumes failed " "to remove.")
+                _("%(result)s of %(total)s volumes failed to remove.")
                 % {'result': result, 'total': total}
             )
 

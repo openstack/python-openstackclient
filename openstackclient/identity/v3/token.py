@@ -136,8 +136,7 @@ class CreateRequestToken(command.ShowOne):
             '--project',
             metavar='<project>',
             help=_(
-                'Project that consumer wants to access (name or ID)'
-                ' (required)'
+                'Project that consumer wants to access (name or ID) (required)'
             ),
             required=True,
         )

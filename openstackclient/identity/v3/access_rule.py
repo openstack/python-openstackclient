@@ -54,17 +54,14 @@ class DeleteAccessRule(command.Command):
             except Exception as e:
                 errors += 1
                 LOG.error(
-                    _(
-                        "Failed to delete access rule with "
-                        "ID '%(ac)s': %(e)s"
-                    ),
+                    _("Failed to delete access rule with ID '%(ac)s': %(e)s"),
                     {'ac': ac, 'e': e},
                 )
 
         if errors > 0:
             total = len(parsed_args.access_rule)
             msg = _(
-                "%(errors)s of %(total)s access rules failed " "to delete."
+                "%(errors)s of %(total)s access rules failed to delete."
             ) % {'errors': errors, 'total': total}
             raise exceptions.CommandError(msg)
 

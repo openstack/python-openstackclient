@@ -683,7 +683,7 @@ class DeleteRouter(command.Command):
 
         if result > 0:
             total = len(parsed_args.router)
-            msg = _("%(result)s of %(total)s routers failed " "to delete.") % {
+            msg = _("%(result)s of %(total)s routers failed to delete.") % {
                 'result': result,
                 'total': total,
             }
@@ -963,7 +963,7 @@ class SetRouter(common.NeutronCommandWithExtraArgs):
             '--ha',
             action='store_true',
             help=_(
-                "Set the router as highly available " "(disabled router only)"
+                "Set the router as highly available (disabled router only)"
             ),
         )
         routes_ha.add_argument(

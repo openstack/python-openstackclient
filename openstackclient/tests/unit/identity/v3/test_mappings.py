@@ -55,7 +55,7 @@ class TestMappingCreate(TestMapping):
         mocker = mock.Mock()
         mocker.return_value = identity_fakes.MAPPING_RULES
         with mock.patch(
-            "openstackclient.identity.v3.mapping." "CreateMapping._read_rules",
+            "openstackclient.identity.v3.mapping.CreateMapping._read_rules",
             mocker,
         ):
             columns, data = self.cmd.take_action(parsed_args)
@@ -170,7 +170,7 @@ class TestMappingSet(TestMapping):
         mocker = mock.Mock()
         mocker.return_value = identity_fakes.MAPPING_RULES_2
         with mock.patch(
-            "openstackclient.identity.v3.mapping." "SetMapping._read_rules",
+            "openstackclient.identity.v3.mapping.SetMapping._read_rules",
             mocker,
         ):
             result = self.cmd.take_action(parsed_args)

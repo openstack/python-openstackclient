@@ -187,8 +187,7 @@ class IdentityTests(base.TestCase):
                 f'domain set --disable {cls.domain_name}'
             )
             cls.openstack(
-                '--os-identity-api-version 3 '
-                f'domain delete {cls.domain_name}'
+                f'--os-identity-api-version 3 domain delete {cls.domain_name}'
             )
         finally:
             super().tearDownClass()
@@ -270,9 +269,7 @@ class IdentityTests(base.TestCase):
         if add_clean_up:
             self.addCleanup(
                 self.openstack,
-                'group delete '
-                f'--domain {self.domain_name} '
-                f'{group_name}',
+                f'group delete --domain {self.domain_name} {group_name}',
             )
         items = self.parse_show(raw_output)
         self.assert_show_fields(items, self.GROUP_FIELDS)
@@ -305,9 +302,7 @@ class IdentityTests(base.TestCase):
         if add_clean_up:
             self.addCleanup(
                 self.openstack,
-                'project delete '
-                f'--domain {self.domain_name} '
-                f'{project_name}',
+                f'project delete --domain {self.domain_name} {project_name}',
             )
         return project_name
 

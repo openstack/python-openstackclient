@@ -1617,8 +1617,7 @@ class CreateServer(command.ShowOne):
                 image = images[0]
             else:
                 msg = _(
-                    'No images match the property expected by '
-                    '--image-property'
+                    'No images match the property expected by --image-property'
                 )
                 raise exceptions.CommandError(msg)
 
@@ -1902,7 +1901,7 @@ class CreateServer(command.ShowOne):
 
         # Default to empty list if nothing was specified and let nova
         # decide the default behavior.
-        networks: ty.Union[str, ty.List[ty.Dict[str, str]], None] = []
+        networks: ty.Union[str, list[dict[str, str]], None] = []
 
         if 'auto' in parsed_args.nics or 'none' in parsed_args.nics:
             if len(parsed_args.nics) > 1:
@@ -2424,8 +2423,7 @@ class ListServer(command.Lister):
         parser.add_argument(
             '--key-name',
             help=_(
-                'Search by keypair name '
-                '(admin only before microversion 2.83)'
+                'Search by keypair name (admin only before microversion 2.83)'
             ),
         )
         config_drive_group = parser.add_mutually_exclusive_group()
@@ -4475,8 +4473,7 @@ class SetServer(command.Command):
         password_group.add_argument(
             '--password',
             help=_(
-                'Set the server password. '
-                'This option requires cloud support.'
+                'Set the server password. This option requires cloud support.'
             ),
         )
         password_group.add_argument(

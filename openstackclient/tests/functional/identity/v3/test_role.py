@@ -23,7 +23,7 @@ class RoleTests(common.IdentityTests):
         role_name = data_utils.rand_name('TestRole')
         description = data_utils.rand_name('description')
         raw_output = self.openstack(
-            'role create ' f'--description {description} ' f'{role_name}'
+            f'role create --description {description} {role_name}'
         )
         role = self.parse_show_as_object(raw_output)
         self.addCleanup(self.openstack, 'role delete {}'.format(role['id']))

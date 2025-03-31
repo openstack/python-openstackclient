@@ -91,7 +91,8 @@ class DeleteVolumeSnapshot(command.Command):
 
         if result > 0:
             total = len(parsed_args.snapshots)
-            msg = _(
-                "%(result)s of %(total)s snapshots failed " "to delete."
-            ) % {'result': result, 'total': total}
+            msg = _("%(result)s of %(total)s snapshots failed to delete.") % {
+                'result': result,
+                'total': total,
+            }
             raise exceptions.CommandError(msg)

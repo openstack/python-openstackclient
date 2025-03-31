@@ -431,7 +431,7 @@ class TestTypeSet(TestType):
             self.fail('CommandError should be raised.')
         except exceptions.CommandError as e:
             self.assertEqual(
-                "Command Failed: One or more of" " the operations failed",
+                "Command Failed: One or more of the operations failed",
                 str(e),
             )
         self.encryption_types_mock.create.assert_not_called()

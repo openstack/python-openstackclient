@@ -174,7 +174,7 @@ class DeleteNetworkQosPolicy(command.Command):
         if result > 0:
             total = len(parsed_args.policy)
             msg = _(
-                "%(result)s of %(total)s QoS policies failed " "to delete."
+                "%(result)s of %(total)s QoS policies failed to delete."
             ) % {'result': result, 'total': total}
             raise exceptions.CommandError(msg)
 

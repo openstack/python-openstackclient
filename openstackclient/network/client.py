@@ -50,9 +50,7 @@ def build_option_parser(parser):
         '--os-network-api-version',
         metavar='<network-api-version>',
         default=utils.env('OS_NETWORK_API_VERSION'),
-        help=_(
-            "Network API version, default=%s " "(Env: OS_NETWORK_API_VERSION)"
-        )
+        help=_("Network API version, default=%s (Env: OS_NETWORK_API_VERSION)")
         % DEFAULT_API_VERSION,
     )
     return parser

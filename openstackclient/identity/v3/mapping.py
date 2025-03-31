@@ -161,9 +161,10 @@ class DeleteMapping(command.Command):
 
         if result > 0:
             total = len(parsed_args.mapping)
-            msg = _(
-                "%(result)s of %(total)s mappings failed " "to delete."
-            ) % {'result': result, 'total': total}
+            msg = _("%(result)s of %(total)s mappings failed to delete.") % {
+                'result': result,
+                'total': total,
+            }
             raise exceptions.CommandError(msg)
 
 

@@ -140,8 +140,7 @@ class TestVolumeSnapshotDelete(TestVolumeSnapshot):
             exceptions.CommandError, self.cmd.take_action, parsed_args
         )
         self.assertIn(
-            "The --force option is not supported with the --remote "
-            "parameter.",
+            "The --force option is not supported with the --remote parameter.",
             str(exc),
         )
 

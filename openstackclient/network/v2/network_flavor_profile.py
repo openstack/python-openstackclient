@@ -146,7 +146,7 @@ class DeleteNetworkFlavorProfile(command.Command):
         if result > 0:
             total = len(parsed_args.flavor_profile)
             msg = _(
-                "%(result)s of %(total)s flavor_profiles failed " "to delete."
+                "%(result)s of %(total)s flavor_profiles failed to delete."
             ) % {"result": result, "total": total}
             raise exceptions.CommandError(msg)
 

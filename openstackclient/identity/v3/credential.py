@@ -70,8 +70,7 @@ class CreateCredential(command.ShowOne):
             '--project',
             metavar='<project>',
             help=_(
-                'Project which limits the scope of '
-                'the credential (name or ID)'
+                'Project which limits the scope of the credential (name or ID)'
             ),
         )
         return parser
@@ -128,9 +127,10 @@ class DeleteCredential(command.Command):
 
         if result > 0:
             total = len(parsed_args.credential)
-            msg = _(
-                "%(result)s of %(total)s credential failed " "to delete."
-            ) % {'result': result, 'total': total}
+            msg = _("%(result)s of %(total)s credential failed to delete.") % {
+                'result': result,
+                'total': total,
+            }
             raise exceptions.CommandError(msg)
 
 
@@ -219,8 +219,7 @@ class SetCredential(command.Command):
             '--project',
             metavar='<project>',
             help=_(
-                'Project which limits the scope of '
-                'the credential (name or ID)'
+                'Project which limits the scope of the credential (name or ID)'
             ),
         )
         return parser

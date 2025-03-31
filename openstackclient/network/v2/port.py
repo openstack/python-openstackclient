@@ -368,8 +368,7 @@ def _add_updatable_args(parser, create=False):
         '--dns-name',
         metavar='<dns-name>',
         help=_(
-            "Set DNS name for this port "
-            "(requires DNS integration extension)"
+            "Set DNS name for this port (requires DNS integration extension)"
         ),
     )
     numa_affinity_policy_group = parser.add_mutually_exclusive_group()
@@ -753,7 +752,7 @@ class DeletePort(command.Command):
 
         if result > 0:
             total = len(parsed_args.port)
-            msg = _("%(result)s of %(total)s ports failed " "to delete.") % {
+            msg = _("%(result)s of %(total)s ports failed to delete.") % {
                 'result': result,
                 'total': total,
             }

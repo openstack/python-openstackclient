@@ -45,7 +45,7 @@ class EndpointTests(common.IdentityTests):
         endpoint_id = self._create_dummy_endpoint(add_clean_up=False)
         project_id = self._create_dummy_project(add_clean_up=False)
         raw_output = self.openstack(
-            'endpoint add project ' f'{endpoint_id} ' f'{project_id}'
+            f'endpoint add project {endpoint_id} {project_id}'
         )
         self.assertEqual(0, len(raw_output))
         raw_output = self.openstack(f'endpoint list --endpoint {endpoint_id}')
@@ -89,11 +89,11 @@ class EndpointTests(common.IdentityTests):
         endpoint_id = self._create_dummy_endpoint(add_clean_up=False)
         project_id = self._create_dummy_project(add_clean_up=False)
         raw_output = self.openstack(
-            'endpoint add project ' f'{endpoint_id} ' f'{project_id}'
+            f'endpoint add project {endpoint_id} {project_id}'
         )
         self.assertEqual(0, len(raw_output))
 
         raw_output = self.openstack(
-            'endpoint remove project ' f'{endpoint_id} ' f'{project_id}'
+            f'endpoint remove project {endpoint_id} {project_id}'
         )
         self.assertEqual(0, len(raw_output))

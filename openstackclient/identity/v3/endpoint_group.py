@@ -168,7 +168,7 @@ class DeleteEndpointGroup(command.Command):
         if result > 0:
             total = len(parsed_args.endpointgroup)
             msg = _(
-                "%(result)s of %(total)s endpointgroups failed " "to delete."
+                "%(result)s of %(total)s endpointgroups failed to delete."
             ) % {'result': result, 'total': total}
             raise exceptions.CommandError(msg)
 

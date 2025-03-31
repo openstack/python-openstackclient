@@ -272,8 +272,7 @@ class CreateVolumeType(command.ShowOne):
                 )
             except Exception as e:
                 msg = _(
-                    "Failed to add project %(project)s access to "
-                    "type: %(e)s"
+                    "Failed to add project %(project)s access to type: %(e)s"
                 )
                 LOG.error(msg % {'project': parsed_args.project, 'e': e})
 
@@ -363,7 +362,7 @@ class DeleteVolumeType(command.Command):
         if result > 0:
             total = len(parsed_args.volume_types)
             msg = _(
-                "%(result)s of %(total)s volume types failed " "to delete."
+                "%(result)s of %(total)s volume types failed to delete."
             ) % {'result': result, 'total': total}
             raise exceptions.CommandError(msg)
 
@@ -553,8 +552,7 @@ class SetVolumeType(command.Command):
             '--project',
             metavar='<project>',
             help=_(
-                'Set volume type access to project (name or ID) '
-                '(admin only)'
+                'Set volume type access to project (name or ID) (admin only)'
             ),
         )
         public_group = parser.add_mutually_exclusive_group()
@@ -646,10 +644,7 @@ class SetVolumeType(command.Command):
                 volume_client.volume_types.update(volume_type.id, **kwargs)
             except Exception as e:
                 LOG.error(
-                    _(
-                        "Failed to update volume type name or"
-                        " description: %s"
-                    ),
+                    _("Failed to update volume type name or description: %s"),
                     e,
                 )
                 result += 1
@@ -690,7 +685,7 @@ class SetVolumeType(command.Command):
                 )
             except Exception as e:
                 LOG.error(
-                    _("Failed to set volume type access to " "project: %s"), e
+                    _("Failed to set volume type access to project: %s"), e
                 )
                 result += 1
 
@@ -714,7 +709,7 @@ class SetVolumeType(command.Command):
 
         if result > 0:
             raise exceptions.CommandError(
-                _("Command Failed: One or more of" " the operations failed")
+                _("Command Failed: One or more of the operations failed")
             )
 
 
@@ -822,8 +817,7 @@ class UnsetVolumeType(command.Command):
             "--encryption-type",
             action="store_true",
             help=_(
-                "Remove the encryption type for this volume type "
-                "(admin only)"
+                "Remove the encryption type for this volume type (admin only)"
             ),
         )
         return parser
@@ -859,10 +853,7 @@ class UnsetVolumeType(command.Command):
                 )
             except Exception as e:
                 LOG.error(
-                    _(
-                        "Failed to remove volume type access from "
-                        "project: %s"
-                    ),
+                    _("Failed to remove volume type access from project: %s"),
                     e,
                 )
                 result += 1
@@ -881,5 +872,5 @@ class UnsetVolumeType(command.Command):
 
         if result > 0:
             raise exceptions.CommandError(
-                _("Command Failed: One or more of" " the operations failed")
+                _("Command Failed: One or more of the operations failed")
             )

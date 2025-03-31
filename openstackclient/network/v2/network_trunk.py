@@ -128,7 +128,7 @@ class DeleteNetworkTrunk(command.Command):
                 )
         if result > 0:
             total = len(parsed_args.trunk)
-            msg = _("%(result)s of %(total)s trunks failed " "to delete.") % {
+            msg = _("%(result)s of %(total)s trunks failed to delete.") % {
                 'result': result,
                 'total': total,
             }

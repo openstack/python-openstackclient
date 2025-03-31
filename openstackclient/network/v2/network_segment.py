@@ -141,7 +141,7 @@ class DeleteNetworkSegment(command.Command):
         if result > 0:
             total = len(parsed_args.network_segment)
             msg = _(
-                "%(result)s of %(total)s network segments failed " "to delete."
+                "%(result)s of %(total)s network segments failed to delete."
             ) % {'result': result, 'total': total}
             raise exceptions.CommandError(msg)
 

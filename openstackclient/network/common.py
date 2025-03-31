@@ -303,8 +303,7 @@ class NeutronCommandWithExtraArgs(command.Command):
         if not converter:
             raise exceptions.CommandError(
                 _(
-                    "Type {property_type} of property {name} "
-                    "is not supported"
+                    "Type {property_type} of property {name} is not supported"
                 ).format(
                     property_type=_property['type'], name=_property['name']
                 )

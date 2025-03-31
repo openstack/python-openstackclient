@@ -77,9 +77,7 @@ class TestAccessRuleDelete(identity_fakes.TestIdentityv3):
             self.cmd.take_action(parsed_args)
             self.fail('CommandError should be raised.')
         except exceptions.CommandError as e:
-            self.assertEqual(
-                '1 of 2 access rules failed to' ' delete.', str(e)
-            )
+            self.assertEqual('1 of 2 access rules failed to delete.', str(e))
 
         calls = []
         for a in arglist:

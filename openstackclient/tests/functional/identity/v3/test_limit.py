@@ -174,7 +174,7 @@ class LimitTestCase(common.IdentityTests):
         }
 
         raw_output = self.openstack(
-            'limit set' ' --description {description}' ' {limit_id}'.format(
+            'limit set --description {description} {limit_id}'.format(
                 **params
             ),
             cloud=SYSTEM_CLOUD,
@@ -188,9 +188,9 @@ class LimitTestCase(common.IdentityTests):
         params = {'resource_limit': 5, 'limit_id': limit_id}
 
         raw_output = self.openstack(
-            'limit set'
-            ' --resource-limit {resource_limit}'
-            ' {limit_id}'.format(**params),
+            'limit set --resource-limit {resource_limit} {limit_id}'.format(
+                **params
+            ),
             cloud=SYSTEM_CLOUD,
         )
         items = self.parse_show(raw_output)

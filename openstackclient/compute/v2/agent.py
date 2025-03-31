@@ -114,7 +114,7 @@ class DeleteAgent(command.Command):
 
         if result > 0:
             total = len(parsed_args.id)
-            msg = _("%(result)s of %(total)s agents failed " "to delete.") % {
+            msg = _("%(result)s of %(total)s agents failed to delete.") % {
                 'result': result,
                 'total': total,
             }

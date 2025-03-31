@@ -76,8 +76,7 @@ class CreateAddressGroup(command.ShowOne, common.NeutronCommandWithExtraArgs):
             action='append',
             default=[],
             help=_(
-                "IP address or CIDR "
-                "(repeat option to set multiple addresses)"
+                "IP address or CIDR (repeat option to set multiple addresses)"
             ),
         )
         parser.add_argument(
@@ -139,7 +138,7 @@ class DeleteAddressGroup(command.Command):
         if result > 0:
             total = len(parsed_args.address_group)
             msg = _(
-                "%(result)s of %(total)s address groups failed " "to delete."
+                "%(result)s of %(total)s address groups failed to delete."
             ) % {'result': result, 'total': total}
             raise exceptions.CommandError(msg)
 
@@ -159,8 +158,7 @@ class ListAddressGroup(command.Lister):
             '--project',
             metavar="<project>",
             help=_(
-                "List address groups according to their project "
-                "(name or ID)"
+                "List address groups according to their project (name or ID)"
             ),
         )
         identity_common.add_project_domain_option_to_parser(parser)
@@ -233,8 +231,7 @@ class SetAddressGroup(common.NeutronCommandWithExtraArgs):
             action='append',
             default=[],
             help=_(
-                "IP address or CIDR "
-                "(repeat option to set multiple addresses)"
+                "IP address or CIDR (repeat option to set multiple addresses)"
             ),
         )
         return parser

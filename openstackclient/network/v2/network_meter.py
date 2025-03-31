@@ -139,12 +139,12 @@ class DeleteMeter(command.Command):
             except Exception as e:
                 result += 1
                 LOG.error(
-                    _("Failed to delete meter with " "ID '%(meter)s': %(e)s"),
+                    _("Failed to delete meter with ID '%(meter)s': %(e)s"),
                     {"meter": meter, "e": e},
                 )
         if result > 0:
             total = len(parsed_args.meter)
-            msg = _("%(result)s of %(total)s meters failed " "to delete.") % {
+            msg = _("%(result)s of %(total)s meters failed to delete.") % {
                 "result": result,
                 "total": total,
             }

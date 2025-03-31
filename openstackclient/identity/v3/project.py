@@ -190,9 +190,10 @@ class DeleteProject(command.Command):
 
         if errors > 0:
             total = len(parsed_args.projects)
-            msg = _(
-                "%(errors)s of %(total)s projects failed " "to delete."
-            ) % {'errors': errors, 'total': total}
+            msg = _("%(errors)s of %(total)s projects failed to delete.") % {
+                'errors': errors,
+                'total': total,
+            }
             raise exceptions.CommandError(msg)
 
 

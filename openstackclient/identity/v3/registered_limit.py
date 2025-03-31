@@ -137,8 +137,7 @@ class DeleteRegisteredLimit(command.Command):
         if errors > 0:
             total = len(parsed_args.registered_limit_id)
             msg = _(
-                "%(errors)s of %(total)s registered limits failed to "
-                "delete."
+                "%(errors)s of %(total)s registered limits failed to delete."
             ) % {'errors': errors, 'total': total}
             raise exceptions.CommandError(msg)
 

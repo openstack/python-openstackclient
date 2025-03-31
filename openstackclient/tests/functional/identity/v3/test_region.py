@@ -49,9 +49,7 @@ class RegionTests(common.IdentityTests):
         self.assertEqual(region_id, region['region'])
         # update parent-region
         raw_output = self.openstack(
-            'region set '
-            f'--parent-region {new_parent_region_id} '
-            f'{region_id}'
+            f'region set --parent-region {new_parent_region_id} {region_id}'
         )
         self.assertEqual(0, len(raw_output))
         # check updated region details

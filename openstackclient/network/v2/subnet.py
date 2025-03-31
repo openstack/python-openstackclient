@@ -400,7 +400,7 @@ class CreateSubnet(command.ShowOne, common.NeutronCommandWithExtraArgs):
             '--network-segment',
             metavar='<network-segment>',
             help=_(
-                "Network segment to associate with this subnet " "(name or ID)"
+                "Network segment to associate with this subnet (name or ID)"
             ),
         )
         parser.add_argument(
@@ -465,7 +465,7 @@ class DeleteSubnet(command.Command):
 
         if result > 0:
             total = len(parsed_args.subnet)
-            msg = _("%(result)s of %(total)s subnets failed " "to delete.") % {
+            msg = _("%(result)s of %(total)s subnets failed to delete.") % {
                 'result': result,
                 'total': total,
             }

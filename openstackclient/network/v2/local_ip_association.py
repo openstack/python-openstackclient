@@ -44,7 +44,7 @@ class CreateLocalIPAssociation(command.ShowOne):
             'local_ip',
             metavar='<local-ip>',
             help=_(
-                "Local IP that the port association belongs to " "(Name or ID)"
+                "Local IP that the port association belongs to (Name or ID)"
             ),
         )
         parser.add_argument(
@@ -90,7 +90,7 @@ class DeleteLocalIPAssociation(command.Command):
             'local_ip',
             metavar="<local-ip>",
             help=_(
-                "Local IP that the port association belongs to " "(Name or ID)"
+                "Local IP that the port association belongs to (Name or ID)"
             ),
         )
         parser.add_argument(
@@ -151,7 +151,7 @@ class ListLocalIPAssociation(command.Lister):
             '--fixed-port',
             metavar='<fixed-port>',
             help=_(
-                "Filter the list result by the ID or name of " "the fixed port"
+                "Filter the list result by the ID or name of the fixed port"
             ),
         )
         parser.add_argument(

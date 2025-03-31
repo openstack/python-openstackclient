@@ -77,8 +77,7 @@ class CreateServiceProvider(command.ShowOne):
             metavar='<sp-url>',
             required=True,
             help=_(
-                'A service URL where SAML assertions are being sent '
-                '(required)'
+                'A service URL where SAML assertions are being sent (required)'
             ),
         )
 
@@ -155,8 +154,7 @@ class DeleteServiceProvider(command.Command):
         if result > 0:
             total = len(parsed_args.service_provider)
             msg = _(
-                "%(result)s of %(total)s service providers failed"
-                " to delete."
+                "%(result)s of %(total)s service providers failed to delete."
             ) % {'result': result, 'total': total}
             raise exceptions.CommandError(msg)
 
@@ -204,8 +202,7 @@ class SetServiceProvider(command.ShowOne):
             '--auth-url',
             metavar='<auth-url>',
             help=_(
-                'New Authentication URL of remote '
-                'federated service provider'
+                'New Authentication URL of remote federated service provider'
             ),
         )
 
