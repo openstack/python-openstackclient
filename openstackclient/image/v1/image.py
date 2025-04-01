@@ -30,12 +30,6 @@ from osc_lib import utils
 
 from openstackclient.i18n import _
 
-if os.name == "nt":
-    import msvcrt
-else:
-    msvcrt = None
-
-
 CONTAINER_CHOICES = ["ami", "ari", "aki", "bare", "docker", "ova", "ovf"]
 DEFAULT_CONTAINER_FORMAT = 'bare'
 DEFAULT_DISK_FORMAT = 'raw'
@@ -52,7 +46,6 @@ DISK_CHOICES = [
     "iso",
     "ploop",
 ]
-
 
 LOG = logging.getLogger(__name__)
 
@@ -323,8 +316,10 @@ class CreateImage(command.ShowOne):
             else:
                 # Read file from stdin
                 if not sys.stdin.isatty():
-                    if msvcrt:
-                        msvcrt.setmode(sys.stdin.fileno(), os.O_BINARY)
+                    if os.name == "nt":
+                        import msvcrt
+
+                        msvcrt.setmode(sys.stdin.fileno(), os.O_BINARY)  # type: ignore
                     if hasattr(sys.stdin, 'buffer'):
                         kwargs['data'] = sys.stdin.buffer
                     else:
@@ -774,8 +769,10 @@ class SetImage(command.Command):
                     # Read file from stdin
                     if sys.stdin.isatty() is not True:
                         if parsed_args.stdin:
-                            if msvcrt:
-                                msvcrt.setmode(sys.stdin.fileno(), os.O_BINARY)
+                            if os.name == "nt":
+                                import msvcrt
+
+                                msvcrt.setmode(sys.stdin.fileno(), os.O_BINARY)  # type: ignore
                             if hasattr(sys.stdin, 'buffer'):
                                 kwargs['data'] = sys.stdin.buffer
                             else:
