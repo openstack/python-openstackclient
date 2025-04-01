@@ -12,6 +12,8 @@
 
 import uuid
 
+from tempest.lib import exceptions as tempest_exc
+
 from openstackclient.tests.functional.network.v2 import common
 
 
@@ -162,8 +164,16 @@ class PortTests(common.NetworkTagTests):
         id_list = [p['ID'] for p in json_output]
         self.assertIn(id1, id_list)
         self.assertIn(id2, id_list)
-        # Check an unknown field exists
-        self.assertIn('device_id', json_output[0])
+        # Check an unknown field does not exist
+        self.assertNotIn('device_id', json_output[0])
+
+        # Test list with only unknown fields
+        exc = self.assertRaises(
+            tempest_exc.CommandFailed,
+            self.openstack,
+            'port list -c device_id',
+        )
+        self.assertIn("No recognized column names in ['device_id']", str(exc))
 
     def test_port_set(self):
         """Test create, set, show, delete"""

@@ -943,15 +943,12 @@ class ListPort(command.Lister):
                 for item in columns
             ]
 
-        headers, attrs = utils.calculate_header_and_attrs(
-            column_headers, columns, parsed_args
-        )
         return (
-            headers,
+            column_headers,
             (
                 utils.get_item_properties(
                     s,
-                    attrs,
+                    columns,
                     formatters=_list_formatters,
                 )
                 for s in data
