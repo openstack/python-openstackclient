@@ -17,6 +17,7 @@ from osc_lib.command import command
 from osc_lib import exceptions
 from osc_lib import utils
 
+from openstackclient.common import envvars
 from openstackclient.i18n import _
 
 
@@ -410,7 +411,7 @@ class ListVolumeGroup(command.Lister):
             '--all-projects',
             dest='all_projects',
             action='store_true',
-            default=utils.env('ALL_PROJECTS', default=False),
+            default=envvars.boolenv('ALL_PROJECTS'),
             help=_('Shows details for all projects (admin only).'),
         )
         # TODO(stephenfin): Add once we have an equivalent command for

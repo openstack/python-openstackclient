@@ -183,14 +183,14 @@ class TestShell(osc_lib_test_utils.TestShell):
             osc_lib_test_utils.fake_execute(_shell, _cmd)
 
             self.app.assert_called_with(["list", "role"])
-            self.assertEqual(
-                default_args.get("token", ''), _shell.options.token, "token"
-            )
-            self.assertEqual(
-                default_args.get("auth_url", ''),
-                _shell.options.auth_url,
-                "auth_url",
-            )
+
+            if default_args.get('token'):
+                self.assertEqual(default_args['token'], _shell.options.token)
+
+            if default_args.get('auth_url'):
+                self.assertEqual(
+                    default_args['auth_url'], _shell.options.auth_url
+                )
 
     def _assert_cli(self, cmd_options, default_args):
         with mock.patch(
@@ -204,25 +204,28 @@ class TestShell(osc_lib_test_utils.TestShell):
             osc_lib_test_utils.fake_execute(_shell, _cmd)
 
             self.app.assert_called_with(["list", "server"])
+
+            # TODO(stephenfin): Remove "or ''" when we bump osc-lib minimum to
+            # a version that includes I1d26133c9d9ed299d1035f207059aa8fe463a001
             self.assertEqual(
                 default_args["compute_api_version"],
-                _shell.options.os_compute_api_version,
+                _shell.options.os_compute_api_version or '',
             )
             self.assertEqual(
                 default_args["identity_api_version"],
-                _shell.options.os_identity_api_version,
+                _shell.options.os_identity_api_version or '',
             )
             self.assertEqual(
                 default_args["image_api_version"],
-                _shell.options.os_image_api_version,
+                _shell.options.os_image_api_version or '',
             )
             self.assertEqual(
                 default_args["volume_api_version"],
-                _shell.options.os_volume_api_version,
+                _shell.options.os_volume_api_version or '',
             )
             self.assertEqual(
                 default_args["network_api_version"],
-                _shell.options.os_network_api_version,
+                _shell.options.os_network_api_version or '',
             )
 
 
