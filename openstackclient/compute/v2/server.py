@@ -34,6 +34,7 @@ from osc_lib import exceptions
 from osc_lib import utils
 
 from openstackclient.api import compute_v2
+from openstackclient.common import envvars
 from openstackclient.common import pagination
 from openstackclient.i18n import _
 from openstackclient.identity import common as identity_common
@@ -322,48 +323,6 @@ def _prep_server_detail(compute_client, image_client, server, *, refresh=True):
         )
 
     return info
-
-
-def bool_from_str(value, strict=False):
-    true_strings = ('1', 't', 'true', 'on', 'y', 'yes')
-    false_strings = ('0', 'f', 'false', 'off', 'n', 'no')
-
-    if isinstance(value, bool):
-        return value
-
-    lowered = value.strip().lower()
-    if lowered in true_strings:
-        return True
-    elif lowered in false_strings or not strict:
-        return False
-
-    msg = _(
-        "Unrecognized value '%(value)s'; acceptable values are: %(valid)s"
-    ) % {
-        'value': value,
-        'valid': ', '.join(
-            f"'{s}'" for s in sorted(true_strings + false_strings)
-        ),
-    }
-    raise ValueError(msg)
-
-
-def boolenv(*vars, default=False):
-    """Search for the first defined of possibly many bool-like env vars.
-
-    Returns the first environment variable defined in vars, or returns the
-    default.
-
-    :param vars: Arbitrary strings to search for. Case sensitive.
-    :param default: The default to return if no value found.
-    :returns: A boolean corresponding to the value found, else the default if
-        no value found.
-    """
-    for v in vars:
-        value = os.environ.get(v, None)
-        if value:
-            return bool_from_str(value)
-    return default
 
 
 class AddFixedIP(command.ShowOne):
@@ -1876,7 +1835,7 @@ class CreateServer(command.ShowOne):
 
             if 'delete_on_termination' in mapping:
                 try:
-                    value = bool_from_str(
+                    value = envvars.bool_from_str(
                         mapping['delete_on_termination'],
                         strict=True,
                     )
@@ -2223,7 +2182,7 @@ class DeleteServer(command.Command):
         parser.add_argument(
             '--all-projects',
             action='store_true',
-            default=boolenv('ALL_PROJECTS'),
+            default=envvars.boolenv('ALL_PROJECTS'),
             help=_(
                 'Delete server(s) in another project by name (admin only)'
                 '(can be specified using the ALL_PROJECTS envvar)'
@@ -2389,7 +2348,7 @@ class ListServer(command.Lister):
         parser.add_argument(
             '--all-projects',
             action='store_true',
-            default=boolenv('ALL_PROJECTS'),
+            default=envvars.boolenv('ALL_PROJECTS'),
             help=_(
                 'Include all projects (admin only) '
                 '(can be specified using the ALL_PROJECTS envvar)'
@@ -4967,7 +4926,7 @@ class StartServer(command.Command):
         parser.add_argument(
             '--all-projects',
             action='store_true',
-            default=boolenv('ALL_PROJECTS'),
+            default=envvars.boolenv('ALL_PROJECTS'),
             help=_(
                 'Start server(s) in another project by name (admin only) '
                 '(can be specified using the ALL_PROJECTS envvar)'
@@ -5002,7 +4961,7 @@ class StopServer(command.Command):
         parser.add_argument(
             '--all-projects',
             action='store_true',
-            default=boolenv('ALL_PROJECTS'),
+            default=envvars.boolenv('ALL_PROJECTS'),
             help=_(
                 'Stop server(s) in another project by name (admin only) '
                 '(can be specified using the ALL_PROJECTS envvar)'
