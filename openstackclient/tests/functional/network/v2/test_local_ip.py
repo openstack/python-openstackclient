@@ -77,6 +77,10 @@ class LocalIPTests(common.NetworkTests):
         self.assertNotEqual(admin_project_id, demo_project_id)
         self.assertEqual(admin_project_id, auth_project_id)
 
+        # type narrow
+        assert admin_project_id is not None
+        assert demo_project_id is not None
+
         name1 = uuid.uuid4().hex
         cmd_output = self.openstack(
             'local ip create ' + name1,

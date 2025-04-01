@@ -22,9 +22,9 @@ from openstackclient.tests.functional import base
 class ComputeTestCase(base.TestCase):
     """Common functional test bits for Compute commands"""
 
-    flavor_name = None
-    image_name = None
-    network_arg = None
+    flavor_name: str
+    image_name: str
+    network_arg: str
 
     def setUp(self):
         """Select common resources"""
@@ -34,7 +34,7 @@ class ComputeTestCase(base.TestCase):
         self.network_arg = self.get_network()
 
     @classmethod
-    def get_flavor(cls):
+    def get_flavor(cls) -> str:
         # NOTE(rtheis): Get cirros256 or m1.tiny flavors since functional
         #               tests may create other flavors.
         flavors = cls.openstack("flavor list", parse_output=True)
@@ -43,10 +43,13 @@ class ComputeTestCase(base.TestCase):
             if flavor['Name'] in ['m1.tiny', 'cirros256']:
                 server_flavor = flavor['Name']
                 break
+
+        assert server_flavor is not None
+
         return server_flavor
 
     @classmethod
-    def get_image(cls):
+    def get_image(cls) -> str:
         # NOTE(rtheis): Get first Cirros image since functional tests may
         #               create other images.  Image may be named '-uec' or
         #               '-disk'.
@@ -59,10 +62,13 @@ class ComputeTestCase(base.TestCase):
             ):
                 server_image = image['Name']
                 break
+
+        assert server_image is not None
+
         return server_image
 
     @classmethod
-    def get_network(cls):
+    def get_network(cls) -> str:
         try:
             # NOTE(rtheis): Get private network since functional tests may
             #               create other networks.

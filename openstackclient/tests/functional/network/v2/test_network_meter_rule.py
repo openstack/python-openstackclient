@@ -22,8 +22,8 @@ from openstackclient.tests.functional.network.v2 import common
 class TestMeterRule(common.NetworkTests):
     """Functional tests for meter rule"""
 
-    METER_ID = None
-    METER_RULE_ID = None
+    METER_ID: str
+    METER_RULE_ID: str
 
     @classmethod
     def setUpClass(cls):

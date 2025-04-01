@@ -17,6 +17,7 @@ import argparse
 import copy
 import json
 import logging
+import typing as ty
 
 from cliff import columns as cliff_columns
 from osc_lib.cli import format_columns
@@ -39,6 +40,8 @@ class AdminStateColumn(cliff_columns.FormattableColumn):
 
 
 class SubPortColumn(format_columns.ListDictColumn):
+    _value: ty.Any
+
     def _retrieve_subports(self):
         if isinstance(self._value, dict):
             self._value = self._value['sub_ports']

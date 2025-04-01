@@ -77,8 +77,7 @@ class CreateLimit(command.ShowOne):
         )
         region = None
         if parsed_args.region:
-            val = getattr(parsed_args, 'region', None)
-            if 'None' not in val:
+            if 'None' not in parsed_args.region:
                 # NOTE (vishakha): Due to bug #1799153 and for any another
                 # related case where GET resource API does not support the
                 # filter by name, osc_lib.utils.find_resource() method cannot
@@ -149,11 +148,7 @@ class ListLimit(command.Lister):
             )
         region = None
         if parsed_args.region:
-            region = utils.find_resource(
-                identity_client.regions, parsed_args.region
-            )
-            val = getattr(parsed_args, 'region', None)
-            if 'None' not in val:
+            if 'None' not in parsed_args.region:
                 # NOTE (vishakha): Due to bug #1799153 and for any another
                 # related case where GET resource API does not support the
                 # filter by name, osc_lib.utils.find_resource() method cannot
