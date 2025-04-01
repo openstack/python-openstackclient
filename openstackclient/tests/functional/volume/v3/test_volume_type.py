@@ -138,6 +138,7 @@ class VolumeTypeTests(common.BaseVolumeTests):
     def test_encryption_type(self):
         name = uuid.uuid4().hex
         encryption_type = uuid.uuid4().hex
+
         # test create new encryption type
         cmd_output = self.openstack(
             'volume type create '
@@ -155,6 +156,7 @@ class VolumeTypeTests(common.BaseVolumeTests):
         }
         for attr, value in expected.items():
             self.assertEqual(value, cmd_output['encryption'][attr])
+
         # test show encryption type
         cmd_output = self.openstack(
             'volume type show --encryption-type ' + encryption_type,
@@ -168,6 +170,7 @@ class VolumeTypeTests(common.BaseVolumeTests):
         }
         for attr, value in expected.items():
             self.assertEqual(value, cmd_output['encryption'][attr])
+
         # test list encryption type
         cmd_output = self.openstack(
             'volume type list --encryption-type',
@@ -184,6 +187,7 @@ class VolumeTypeTests(common.BaseVolumeTests):
         }
         for attr, value in expected.items():
             self.assertEqual(value, encryption_output[attr])
+
         # test set existing encryption type
         raw_output = self.openstack(
             'volume type set '
@@ -203,6 +207,7 @@ class VolumeTypeTests(common.BaseVolumeTests):
         }
         for attr, value in expected.items():
             self.assertEqual(value, cmd_output['encryption'][attr])
+
         # test set new encryption type
         cmd_output = self.openstack(
             'volume type create --private ' + name,
@@ -235,6 +240,7 @@ class VolumeTypeTests(common.BaseVolumeTests):
         }
         for attr, value in expected.items():
             self.assertEqual(value, cmd_output['encryption'][attr])
+
         # test unset encryption type
         raw_output = self.openstack(
             'volume type unset --encryption-type ' + name
@@ -245,6 +251,7 @@ class VolumeTypeTests(common.BaseVolumeTests):
             parse_output=True,
         )
         self.assertEqual({}, cmd_output['encryption'])
+
         # test delete encryption type
         raw_output = self.openstack('volume type delete ' + encryption_type)
         self.assertEqual('', raw_output)
