@@ -61,7 +61,7 @@ class TestVolumeAttachmentCreate(TestVolumeAttachment):
         self.volume_sdk_client.create_attachment.return_value = (
             self.volume_attachment.to_dict()
         )
-        self.compute_sdk_client.find_server.return_value = self.server
+        self.compute_client.find_server.return_value = self.server
 
         self.cmd = volume_attachment.CreateVolumeAttachment(self.app, None)
 
@@ -92,7 +92,7 @@ class TestVolumeAttachmentCreate(TestVolumeAttachment):
         self.volume_sdk_client.find_volume.assert_called_once_with(
             self.volume.id, ignore_missing=False
         )
-        self.compute_sdk_client.find_server.assert_called_once_with(
+        self.compute_client.find_server.assert_called_once_with(
             self.server.id, ignore_missing=False
         )
         self.volume_sdk_client.create_attachment.assert_called_once_with(
@@ -159,7 +159,7 @@ class TestVolumeAttachmentCreate(TestVolumeAttachment):
         self.volume_sdk_client.find_volume.assert_called_once_with(
             self.volume.id, ignore_missing=False
         )
-        self.compute_sdk_client.find_server.assert_called_once_with(
+        self.compute_client.find_server.assert_called_once_with(
             self.server.id, ignore_missing=False
         )
         self.volume_sdk_client.create_attachment.assert_called_once_with(

@@ -99,9 +99,7 @@ class TestAvailabilityZoneList(
     def setUp(self):
         super().setUp()
 
-        self.compute_sdk_client.availability_zones.return_value = (
-            self.compute_azs
-        )
+        self.compute_client.availability_zones.return_value = self.compute_azs
         self.volume_sdk_client.availability_zones.return_value = (
             self.volume_azs
         )
@@ -120,9 +118,7 @@ class TestAvailabilityZoneList(
         # containing the data to be listed.
         columns, data = self.cmd.take_action(parsed_args)
 
-        self.compute_sdk_client.availability_zones.assert_called_with(
-            details=True
-        )
+        self.compute_client.availability_zones.assert_called_with(details=True)
         self.volume_sdk_client.availability_zones.assert_called_with()
         self.network_client.availability_zones.assert_called_with()
 
@@ -150,9 +146,7 @@ class TestAvailabilityZoneList(
         # containing the data to be listed.
         columns, data = self.cmd.take_action(parsed_args)
 
-        self.compute_sdk_client.availability_zones.assert_called_with(
-            details=True
-        )
+        self.compute_client.availability_zones.assert_called_with(details=True)
         self.volume_sdk_client.availability_zones.assert_called_with()
         self.network_client.availability_zones.assert_called_with()
 
@@ -186,9 +180,7 @@ class TestAvailabilityZoneList(
         # containing the data to be listed.
         columns, data = self.cmd.take_action(parsed_args)
 
-        self.compute_sdk_client.availability_zones.assert_called_with(
-            details=True
-        )
+        self.compute_client.availability_zones.assert_called_with(details=True)
         self.volume_sdk_client.availability_zones.assert_not_called()
         self.network_client.availability_zones.assert_not_called()
 
@@ -212,7 +204,7 @@ class TestAvailabilityZoneList(
         # containing the data to be listed.
         columns, data = self.cmd.take_action(parsed_args)
 
-        self.compute_sdk_client.availability_zones.assert_not_called()
+        self.compute_client.availability_zones.assert_not_called()
         self.volume_sdk_client.availability_zones.assert_called_with()
         self.network_client.availability_zones.assert_not_called()
 
@@ -236,7 +228,7 @@ class TestAvailabilityZoneList(
         # containing the data to be listed.
         columns, data = self.cmd.take_action(parsed_args)
 
-        self.compute_sdk_client.availability_zones.assert_not_called()
+        self.compute_client.availability_zones.assert_not_called()
         self.volume_sdk_client.availability_zones.assert_not_called()
         self.network_client.availability_zones.assert_called_with()
 

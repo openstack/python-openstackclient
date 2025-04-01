@@ -72,7 +72,7 @@ class TestHostList(compute_fakes.TestComputev2):
             )
         ]
 
-        self.compute_sdk_client.get.return_value = fakes.FakeResponse(
+        self.compute_client.get.return_value = fakes.FakeResponse(
             data={'hosts': [self._host]}
         )
         self.cmd = host.ListHost(self.app, None)
@@ -85,7 +85,7 @@ class TestHostList(compute_fakes.TestComputev2):
 
         columns, data = self.cmd.take_action(parsed_args)
 
-        self.compute_sdk_client.get.assert_called_with(
+        self.compute_client.get.assert_called_with(
             '/os-hosts', microversion='2.1'
         )
         self.assertEqual(self.columns, columns)
@@ -104,7 +104,7 @@ class TestHostList(compute_fakes.TestComputev2):
 
         columns, data = self.cmd.take_action(parsed_args)
 
-        self.compute_sdk_client.get.assert_called_with(
+        self.compute_client.get.assert_called_with(
             '/os-hosts', microversion='2.1'
         )
         self.assertEqual(self.columns, columns)
@@ -116,7 +116,7 @@ class TestHostSet(compute_fakes.TestComputev2):
         super().setUp()
 
         self._host = _generate_fake_host()
-        self.compute_sdk_client.put.return_value = fakes.FakeResponse()
+        self.compute_client.put.return_value = fakes.FakeResponse()
 
         self.cmd = host.SetHost(self.app, None)
 
@@ -132,7 +132,7 @@ class TestHostSet(compute_fakes.TestComputev2):
 
         result = self.cmd.take_action(parsed_args)
         self.assertIsNone(result)
-        self.compute_sdk_client.put.assert_not_called()
+        self.compute_client.put.assert_not_called()
 
     def test_host_set(self):
         arglist = [
@@ -150,7 +150,7 @@ class TestHostSet(compute_fakes.TestComputev2):
 
         result = self.cmd.take_action(parsed_args)
         self.assertIsNone(result)
-        self.compute_sdk_client.put.assert_called_with(
+        self.compute_client.put.assert_called_with(
             f'/os-hosts/{self._host["host"]}',
             json={
                 'maintenance_mode': 'disable',
@@ -183,7 +183,7 @@ class TestHostShow(compute_fakes.TestComputev2):
             )
         ]
 
-        self.compute_sdk_client.get.return_value = fakes.FakeResponse(
+        self.compute_client.get.return_value = fakes.FakeResponse(
             data={
                 'host': [
                     {
@@ -226,7 +226,7 @@ class TestHostShow(compute_fakes.TestComputev2):
 
         columns, data = self.cmd.take_action(parsed_args)
 
-        self.compute_sdk_client.get.assert_called_with(
+        self.compute_client.get.assert_called_with(
             '/os-hosts/' + self._host['host_name'], microversion='2.1'
         )
         self.assertEqual(self.columns, columns)

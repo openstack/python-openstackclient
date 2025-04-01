@@ -28,7 +28,7 @@ class TestConsoleLog(compute_fakes.TestComputev2):
         super().setUp()
 
         self._server = sdk_fakes.generate_fake_resource(_server.Server)
-        self.compute_sdk_client.find_server.return_value = self._server
+        self.compute_client.find_server.return_value = self._server
 
         self.cmd = console.ShowConsoleLog(self.app, None)
 
@@ -49,13 +49,13 @@ class TestConsoleLog(compute_fakes.TestComputev2):
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
         output = {'output': '1st line\n2nd line\n'}
-        self.compute_sdk_client.get_server_console_output.return_value = output
+        self.compute_client.get_server_console_output.return_value = output
         self.cmd.take_action(parsed_args)
 
-        self.compute_sdk_client.find_server.assert_called_with(
+        self.compute_client.find_server.assert_called_with(
             name_or_id='fake_server', ignore_missing=False
         )
-        self.compute_sdk_client.get_server_console_output.assert_called_with(
+        self.compute_client.get_server_console_output.assert_called_with(
             self._server.id, length=None
         )
         stdout = self.app.stdout.content
@@ -67,13 +67,13 @@ class TestConsoleLog(compute_fakes.TestComputev2):
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
         output = {'output': '1st line\n2nd line'}
-        self.compute_sdk_client.get_server_console_output.return_value = output
+        self.compute_client.get_server_console_output.return_value = output
         self.cmd.take_action(parsed_args)
 
-        self.compute_sdk_client.find_server.assert_called_with(
+        self.compute_client.find_server.assert_called_with(
             name_or_id='fake_server', ignore_missing=False
         )
-        self.compute_sdk_client.get_server_console_output.assert_called_with(
+        self.compute_client.get_server_console_output.assert_called_with(
             self._server.id, length=15
         )
 
@@ -83,14 +83,14 @@ class TestConsoleUrlShow(compute_fakes.TestComputev2):
         super().setUp()
 
         self._server = sdk_fakes.generate_fake_resource(_server.Server)
-        self.compute_sdk_client.find_server.return_value = self._server
+        self.compute_client.find_server.return_value = self._server
 
         fake_console_data = {
             'url': 'http://localhost',
             'protocol': 'fake_protocol',
             'type': 'fake_type',
         }
-        self.compute_sdk_client.create_console = mock.Mock(
+        self.compute_client.create_console = mock.Mock(
             return_value=fake_console_data
         )
 
@@ -117,7 +117,7 @@ class TestConsoleUrlShow(compute_fakes.TestComputev2):
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
         columns, data = self.cmd.take_action(parsed_args)
-        self.compute_sdk_client.create_console.assert_called_once_with(
+        self.compute_client.create_console.assert_called_once_with(
             self._server.id, console_type='novnc'
         )
         self.assertEqual(self.columns, columns)
@@ -134,7 +134,7 @@ class TestConsoleUrlShow(compute_fakes.TestComputev2):
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
         columns, data = self.cmd.take_action(parsed_args)
-        self.compute_sdk_client.create_console.assert_called_once_with(
+        self.compute_client.create_console.assert_called_once_with(
             self._server.id, console_type='novnc'
         )
         self.assertEqual(self.columns, columns)
@@ -151,7 +151,7 @@ class TestConsoleUrlShow(compute_fakes.TestComputev2):
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
         columns, data = self.cmd.take_action(parsed_args)
-        self.compute_sdk_client.create_console.assert_called_once_with(
+        self.compute_client.create_console.assert_called_once_with(
             self._server.id, console_type='xvpvnc'
         )
         self.assertEqual(self.columns, columns)
@@ -168,7 +168,7 @@ class TestConsoleUrlShow(compute_fakes.TestComputev2):
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
         columns, data = self.cmd.take_action(parsed_args)
-        self.compute_sdk_client.create_console.assert_called_once_with(
+        self.compute_client.create_console.assert_called_once_with(
             self._server.id, console_type='spice-html5'
         )
         self.assertEqual(self.columns, columns)
@@ -185,7 +185,7 @@ class TestConsoleUrlShow(compute_fakes.TestComputev2):
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
         columns, data = self.cmd.take_action(parsed_args)
-        self.compute_sdk_client.create_console.assert_called_once_with(
+        self.compute_client.create_console.assert_called_once_with(
             self._server.id, console_type='rdp-html5'
         )
         self.assertEqual(self.columns, columns)
@@ -202,7 +202,7 @@ class TestConsoleUrlShow(compute_fakes.TestComputev2):
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
         columns, data = self.cmd.take_action(parsed_args)
-        self.compute_sdk_client.create_console.assert_called_once_with(
+        self.compute_client.create_console.assert_called_once_with(
             self._server.id, console_type='serial'
         )
         self.assertEqual(self.columns, columns)
@@ -219,7 +219,7 @@ class TestConsoleUrlShow(compute_fakes.TestComputev2):
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
         columns, data = self.cmd.take_action(parsed_args)
-        self.compute_sdk_client.create_console.assert_called_once_with(
+        self.compute_client.create_console.assert_called_once_with(
             self._server.id, console_type='webmks'
         )
         self.assertEqual(self.columns, columns)

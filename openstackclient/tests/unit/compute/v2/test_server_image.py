@@ -26,9 +26,7 @@ class TestServerImage(compute_fakes.TestComputev2):
         servers = compute_fakes.create_sdk_servers(
             count=count,
         )
-
-        # This is the return value for compute_client.find_server()
-        self.compute_sdk_client.find_server = compute_fakes.get_servers(
+        self.compute_client.find_server = compute_fakes.get_servers(
             servers,
             0,
         )
@@ -85,7 +83,7 @@ class TestServerImageCreate(TestServerImage):
             )
 
         self.image_client.find_image = mock.Mock(side_effect=images)
-        self.compute_sdk_client.create_server_image = mock.Mock(
+        self.compute_client.create_server_image = mock.Mock(
             return_value=images[0],
         )
         return images
@@ -107,7 +105,7 @@ class TestServerImageCreate(TestServerImage):
         # data to be shown.
         columns, data = self.cmd.take_action(parsed_args)
 
-        self.compute_sdk_client.create_server_image.assert_called_with(
+        self.compute_client.create_server_image.assert_called_with(
             servers[0].id,
             servers[0].name,
             None,
@@ -139,7 +137,7 @@ class TestServerImageCreate(TestServerImage):
         # data to be shown.
         columns, data = self.cmd.take_action(parsed_args)
 
-        self.compute_sdk_client.create_server_image.assert_called_with(
+        self.compute_client.create_server_image.assert_called_with(
             servers[0].id,
             'img-nam',
             {'key': 'value'},
@@ -169,7 +167,7 @@ class TestServerImageCreate(TestServerImage):
             parsed_args,
         )
 
-        self.compute_sdk_client.create_server_image.assert_called_with(
+        self.compute_client.create_server_image.assert_called_with(
             servers[0].id,
             servers[0].name,
             None,
@@ -199,7 +197,7 @@ class TestServerImageCreate(TestServerImage):
         # data to be shown.
         columns, data = self.cmd.take_action(parsed_args)
 
-        self.compute_sdk_client.create_server_image.assert_called_with(
+        self.compute_client.create_server_image.assert_called_with(
             servers[0].id,
             servers[0].name,
             None,

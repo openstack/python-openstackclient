@@ -27,9 +27,7 @@ class TestServerBackup(compute_fakes.TestComputev2):
         servers = compute_fakes.create_sdk_servers(
             count=count,
         )
-
-        # This is the return value for compute_client.find_server()
-        self.compute_sdk_client.find_server = compute_fakes.get_servers(
+        self.compute_client.find_server = compute_fakes.get_servers(
             servers,
             0,
         )
@@ -110,7 +108,7 @@ class TestServerBackupCreate(TestServerBackup):
         # data to be shown.
         columns, data = self.cmd.take_action(parsed_args)
 
-        self.compute_sdk_client.backup_server.assert_called_with(
+        self.compute_client.backup_server.assert_called_with(
             servers[0].id,
             servers[0].name,
             '',
@@ -146,7 +144,7 @@ class TestServerBackupCreate(TestServerBackup):
         # data to be shown.
         columns, data = self.cmd.take_action(parsed_args)
 
-        self.compute_sdk_client.backup_server.assert_called_with(
+        self.compute_client.backup_server.assert_called_with(
             servers[0].id,
             'image',
             'daily',
@@ -186,7 +184,7 @@ class TestServerBackupCreate(TestServerBackup):
             parsed_args,
         )
 
-        self.compute_sdk_client.backup_server.assert_called_with(
+        self.compute_client.backup_server.assert_called_with(
             servers[0].id,
             'image',
             'daily',
@@ -227,7 +225,7 @@ class TestServerBackupCreate(TestServerBackup):
         # data to be shown.
         columns, data = self.cmd.take_action(parsed_args)
 
-        self.compute_sdk_client.backup_server.assert_called_with(
+        self.compute_client.backup_server.assert_called_with(
             servers[0].id,
             'image',
             'daily',

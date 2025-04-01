@@ -52,9 +52,7 @@ class TestExtensionList(TestExtension):
         self.identity_client.extensions.list.return_value = [
             self.identity_extension
         ]
-        self.compute_sdk_client.extensions.return_value = [
-            self.compute_extension
-        ]
+        self.compute_client.extensions.return_value = [self.compute_extension]
         self.volume_sdk_client.extensions.return_value = [
             self.volume_extension
         ]
@@ -106,7 +104,7 @@ class TestExtensionList(TestExtension):
         )
         self._test_extension_list_helper(arglist, verifylist, datalist)
         self.identity_client.extensions.list.assert_called_with()
-        self.compute_sdk_client.extensions.assert_called_with()
+        self.compute_client.extensions.assert_called_with()
         self.volume_sdk_client.extensions.assert_called_with()
         self.network_client.extensions.assert_called_with()
 
@@ -153,7 +151,7 @@ class TestExtensionList(TestExtension):
         )
         self._test_extension_list_helper(arglist, verifylist, datalist, True)
         self.identity_client.extensions.list.assert_called_with()
-        self.compute_sdk_client.extensions.assert_called_with()
+        self.compute_client.extensions.assert_called_with()
         self.volume_sdk_client.extensions.assert_called_with()
         self.network_client.extensions.assert_called_with()
 
@@ -230,7 +228,7 @@ class TestExtensionList(TestExtension):
             ),
         )
         self._test_extension_list_helper(arglist, verifylist, datalist)
-        self.compute_sdk_client.extensions.assert_called_with()
+        self.compute_client.extensions.assert_called_with()
 
     def test_extension_list_compute_and_network(self):
         arglist = [
@@ -254,7 +252,7 @@ class TestExtensionList(TestExtension):
             ),
         )
         self._test_extension_list_helper(arglist, verifylist, datalist)
-        self.compute_sdk_client.extensions.assert_called_with()
+        self.compute_client.extensions.assert_called_with()
         self.network_client.extensions.assert_called_with()
 
     def test_extension_list_volume(self):

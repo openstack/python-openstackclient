@@ -98,10 +98,8 @@ class FakeClientMixin:
     def setUp(self):
         super().setUp()
 
-        # TODO(stephenfin): Rename to 'compute_client' once all commands are
-        # migrated to SDK
         self.app.client_manager.compute = mock.Mock(_proxy.Proxy)
-        self.compute_sdk_client = self.app.client_manager.compute
+        self.compute_client = self.app.client_manager.compute
         self.set_compute_api_version()  # default to the lowest
 
     def set_compute_api_version(self, version: str = '2.1'):
@@ -113,8 +111,8 @@ class FakeClientMixin:
         """
         assert re.match(r'2.\d+', version)
 
-        self.compute_sdk_client.default_microversion = version
-        self.compute_sdk_client.get_endpoint_data.return_value = (
+        self.compute_client.default_microversion = version
+        self.compute_client.get_endpoint_data.return_value = (
             discover.EndpointData(
                 min_microversion='2.1',  # nova has not bumped this yet
                 max_microversion=version,

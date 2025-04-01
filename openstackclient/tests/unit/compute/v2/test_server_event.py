@@ -64,8 +64,8 @@ class TestListServerEvent(compute_fakes.TestComputev2):
     def setUp(self):
         super().setUp()
 
-        self.compute_sdk_client.find_server.return_value = self.fake_server
-        self.compute_sdk_client.server_actions.return_value = [
+        self.compute_client.find_server.return_value = self.fake_server
+        self.compute_client.server_actions.return_value = [
             self.fake_event,
         ]
 
@@ -83,11 +83,11 @@ class TestListServerEvent(compute_fakes.TestComputev2):
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
         columns, data = self.cmd.take_action(parsed_args)
 
-        self.compute_sdk_client.find_server.assert_called_with(
+        self.compute_client.find_server.assert_called_with(
             self.fake_server.name,
             ignore_missing=False,
         )
-        self.compute_sdk_client.server_actions.assert_called_with(
+        self.compute_client.server_actions.assert_called_with(
             self.fake_server.id
         )
 
@@ -107,11 +107,11 @@ class TestListServerEvent(compute_fakes.TestComputev2):
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
         columns, data = self.cmd.take_action(parsed_args)
 
-        self.compute_sdk_client.find_server.assert_called_with(
+        self.compute_client.find_server.assert_called_with(
             self.fake_server.name,
             ignore_missing=False,
         )
-        self.compute_sdk_client.server_actions.assert_called_with(
+        self.compute_client.server_actions.assert_called_with(
             self.fake_server.id
         )
 
@@ -134,11 +134,11 @@ class TestListServerEvent(compute_fakes.TestComputev2):
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
         columns, data = self.cmd.take_action(parsed_args)
 
-        self.compute_sdk_client.find_server.assert_called_with(
+        self.compute_client.find_server.assert_called_with(
             self.fake_server.name,
             ignore_missing=False,
         )
-        self.compute_sdk_client.server_actions.assert_called_with(
+        self.compute_client.server_actions.assert_called_with(
             self.fake_server.id,
             changes_since='2016-03-04T06:27:59Z',
         )
@@ -214,11 +214,11 @@ class TestListServerEvent(compute_fakes.TestComputev2):
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
         columns, data = self.cmd.take_action(parsed_args)
 
-        self.compute_sdk_client.find_server.assert_called_with(
+        self.compute_client.find_server.assert_called_with(
             self.fake_server.name,
             ignore_missing=False,
         )
-        self.compute_sdk_client.server_actions.assert_called_with(
+        self.compute_client.server_actions.assert_called_with(
             self.fake_server.id,
             changes_before='2016-03-04T06:27:59Z',
         )
@@ -290,7 +290,7 @@ class TestListServerEvent(compute_fakes.TestComputev2):
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
         self.cmd.take_action(parsed_args)
 
-        self.compute_sdk_client.server_actions.assert_called_with(
+        self.compute_client.server_actions.assert_called_with(
             self.fake_server.id,
             limit=1,
             paginated=False,
@@ -337,7 +337,7 @@ class TestListServerEvent(compute_fakes.TestComputev2):
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
         self.cmd.take_action(parsed_args)
 
-        self.compute_sdk_client.server_actions.assert_called_with(
+        self.compute_client.server_actions.assert_called_with(
             self.fake_server.id,
             marker='test_event',
         )
@@ -392,10 +392,8 @@ class TestShowServerEvent(compute_fakes.TestComputev2):
     def setUp(self):
         super().setUp()
 
-        self.compute_sdk_client.find_server.return_value = self.fake_server
-        self.compute_sdk_client.get_server_action.return_value = (
-            self.fake_event
-        )
+        self.compute_client.find_server.return_value = self.fake_server
+        self.compute_client.get_server_action.return_value = self.fake_event
 
         self.cmd = server_event.ShowServerEvent(self.app, None)
 
@@ -412,11 +410,11 @@ class TestShowServerEvent(compute_fakes.TestComputev2):
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
         columns, data = self.cmd.take_action(parsed_args)
 
-        self.compute_sdk_client.find_server.assert_called_with(
+        self.compute_client.find_server.assert_called_with(
             self.fake_server.name,
             ignore_missing=False,
         )
-        self.compute_sdk_client.get_server_action.assert_called_with(
+        self.compute_client.get_server_action.assert_called_with(
             self.fake_event.request_id,
             self.fake_server.id,
         )

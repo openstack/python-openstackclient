@@ -44,6 +44,6 @@ class TestListFloatingIPPoolCompute(compute_fakes.TestComputev2):
 
         columns, data = self.cmd.take_action(parsed_args)
 
-        fipp_mock.assert_called_once_with(self.compute_sdk_client)
+        fipp_mock.assert_called_once_with(self.compute_client)
         self.assertEqual(self.columns, columns)
         self.assertEqual(self.data, list(data))

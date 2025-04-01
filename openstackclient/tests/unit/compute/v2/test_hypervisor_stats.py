@@ -23,7 +23,7 @@ class TestHypervisorStats(compute_fakes.TestComputev2):
     def setUp(self):
         super().setUp()
 
-        self.compute_sdk_client.get = mock.Mock()
+        self.compute_client.get = mock.Mock()
 
 
 # Not in fakes.py because hypervisor stats has been deprecated
@@ -67,7 +67,7 @@ class TestHypervisorStatsShow(TestHypervisorStats):
     def setUp(self):
         super().setUp()
 
-        self.compute_sdk_client.get.return_value = fakes.FakeResponse(
+        self.compute_client.get.return_value = fakes.FakeResponse(
             data={'hypervisor_statistics': self._stats}
         )
 

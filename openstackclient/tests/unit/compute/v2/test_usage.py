@@ -58,7 +58,7 @@ class TestUsageList(TestUsage):
     def setUp(self):
         super().setUp()
 
-        self.compute_sdk_client.usages.return_value = self.usages
+        self.compute_client.usages.return_value = self.usages
 
         self.projects_mock.list.return_value = [self.project]
         # Get the command object to test
@@ -97,7 +97,7 @@ class TestUsageList(TestUsage):
         columns, data = self.cmd.take_action(parsed_args)
 
         self.projects_mock.list.assert_called_with()
-        self.compute_sdk_client.usages.assert_called_with(
+        self.compute_client.usages.assert_called_with(
             start=datetime.datetime(2016, 11, 11, 0, 0),
             end=datetime.datetime(2016, 12, 20, 0, 0),
             detailed=True,
@@ -118,7 +118,7 @@ class TestUsageList(TestUsage):
         columns, data = self.cmd.take_action(parsed_args)
 
         self.projects_mock.list.assert_called_with()
-        self.compute_sdk_client.usages.assert_has_calls(
+        self.compute_client.usages.assert_has_calls(
             [mock.call(start=mock.ANY, end=mock.ANY, detailed=True)]
         )
         self.assertCountEqual(self.columns, columns)
@@ -151,7 +151,7 @@ class TestUsageShow(TestUsage):
     def setUp(self):
         super().setUp()
 
-        self.compute_sdk_client.get_usage.return_value = self.usage
+        self.compute_client.get_usage.return_value = self.usage
 
         self.projects_mock.get.return_value = self.project
         # Get the command object to test
@@ -194,7 +194,7 @@ class TestUsageShow(TestUsage):
 
         columns, data = self.cmd.take_action(parsed_args)
 
-        self.compute_sdk_client.get_usage.assert_called_with(
+        self.compute_client.get_usage.assert_called_with(
             project=self.project.id,
             start=datetime.datetime(2016, 11, 11, 0, 0),
             end=datetime.datetime(2016, 12, 20, 0, 0),

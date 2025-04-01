@@ -61,7 +61,7 @@ class TestAgentCreate(compute_fakes.TestComputev2):
             self._agent['version'],
         )
 
-        self.compute_sdk_client.post.return_value = fakes.FakeResponse(
+        self.compute_client.post.return_value = fakes.FakeResponse(
             data={'agent': self._agent}
         )
         self.cmd = agent.CreateAgent(self.app, None)
@@ -87,7 +87,7 @@ class TestAgentCreate(compute_fakes.TestComputev2):
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
         columns, data = self.cmd.take_action(parsed_args)
 
-        self.compute_sdk_client.post.assert_called_with(
+        self.compute_client.post.assert_called_with(
             '/os-agents',
             json={
                 'agent': {
@@ -110,7 +110,7 @@ class TestAgentDelete(compute_fakes.TestComputev2):
     def setUp(self):
         super().setUp()
 
-        self.compute_sdk_client.delete.return_value = fakes.FakeResponse(
+        self.compute_client.delete.return_value = fakes.FakeResponse(
             status_code=http.HTTPStatus.NO_CONTENT
         )
 
@@ -125,7 +125,7 @@ class TestAgentDelete(compute_fakes.TestComputev2):
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
         result = self.cmd.take_action(parsed_args)
 
-        self.compute_sdk_client.delete.assert_called_once_with(
+        self.compute_client.delete.assert_called_once_with(
             '/os-agents/123',
             microversion='2.1',
         )
@@ -143,7 +143,7 @@ class TestAgentDelete(compute_fakes.TestComputev2):
         calls = [
             mock.call(f'/os-agents/{x}', microversion='2.1') for x in arglist
         ]
-        self.compute_sdk_client.delete.assert_has_calls(calls)
+        self.compute_client.delete.assert_has_calls(calls)
         self.assertIsNone(result)
 
     def test_delete_multiple_agents_exception(self):
@@ -154,7 +154,7 @@ class TestAgentDelete(compute_fakes.TestComputev2):
 
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
-        self.compute_sdk_client.delete.side_effect = [
+        self.compute_client.delete.side_effect = [
             fakes.FakeResponse(status_code=http.HTTPStatus.NO_CONTENT),
             fakes.FakeResponse(status_code=http.HTTPStatus.NO_CONTENT),
             fakes.FakeResponse(status_code=http.HTTPStatus.NOT_FOUND),
@@ -166,7 +166,7 @@ class TestAgentDelete(compute_fakes.TestComputev2):
         calls = [
             mock.call(f'/os-agents/{x}', microversion='2.1') for x in arglist
         ]
-        self.compute_sdk_client.delete.assert_has_calls(calls)
+        self.compute_client.delete.assert_has_calls(calls)
 
     def test_agent_delete_no_input(self):
         arglist = []
@@ -208,7 +208,7 @@ class TestAgentList(compute_fakes.TestComputev2):
             for _agent in _agents
         ]
 
-        self.compute_sdk_client.get.return_value = fakes.FakeResponse(
+        self.compute_client.get.return_value = fakes.FakeResponse(
             data={'agents': _agents},
         )
         self.cmd = agent.ListAgent(self.app, None)
@@ -222,7 +222,7 @@ class TestAgentList(compute_fakes.TestComputev2):
 
         self.assertEqual(self.columns, columns)
         self.assertEqual(self.data, list(data))
-        self.compute_sdk_client.get.assert_called_once_with(
+        self.compute_client.get.assert_called_once_with(
             '/os-agents',
             microversion='2.1',
         )
@@ -241,7 +241,7 @@ class TestAgentList(compute_fakes.TestComputev2):
 
         self.assertEqual(self.columns, columns)
         self.assertEqual(self.data, list(data))
-        self.compute_sdk_client.get.assert_called_once_with(
+        self.compute_client.get.assert_called_once_with(
             '/os-agents?hypervisor=hypervisor',
             microversion='2.1',
         )
@@ -252,10 +252,10 @@ class TestAgentSet(compute_fakes.TestComputev2):
         super().setUp()
 
         self.agent = _generate_fake_agent()
-        self.compute_sdk_client.get.return_value = fakes.FakeResponse(
+        self.compute_client.get.return_value = fakes.FakeResponse(
             data={'agents': [self.agent]},
         )
-        self.compute_sdk_client.put.return_value = fakes.FakeResponse()
+        self.compute_client.put.return_value = fakes.FakeResponse()
 
         self.cmd = agent.SetAgent(self.app, None)
 
@@ -269,7 +269,7 @@ class TestAgentSet(compute_fakes.TestComputev2):
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
         result = self.cmd.take_action(parsed_args)
 
-        self.compute_sdk_client.put.assert_called_once_with(
+        self.compute_client.put.assert_called_once_with(
             f'/os-agents/{self.agent["agent_id"]}',
             json={
                 'para': {
@@ -297,7 +297,7 @@ class TestAgentSet(compute_fakes.TestComputev2):
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
         result = self.cmd.take_action(parsed_args)
 
-        self.compute_sdk_client.put.assert_called_once_with(
+        self.compute_client.put.assert_called_once_with(
             f'/os-agents/{self.agent["agent_id"]}',
             json={
                 'para': {
@@ -325,7 +325,7 @@ class TestAgentSet(compute_fakes.TestComputev2):
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
         result = self.cmd.take_action(parsed_args)
 
-        self.compute_sdk_client.put.assert_called_once_with(
+        self.compute_client.put.assert_called_once_with(
             f'/os-agents/{self.agent["agent_id"]}',
             json={
                 'para': {
@@ -353,7 +353,7 @@ class TestAgentSet(compute_fakes.TestComputev2):
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
         result = self.cmd.take_action(parsed_args)
 
-        self.compute_sdk_client.put.assert_called_once_with(
+        self.compute_client.put.assert_called_once_with(
             f'/os-agents/{self.agent["agent_id"]}',
             json={
                 'para': {

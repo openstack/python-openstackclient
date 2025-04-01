@@ -30,7 +30,7 @@ class TestServiceDelete(compute_fakes.TestComputev2):
             sdk_fakes.generate_fake_resources(_service.Service, count=2)
         )
 
-        self.compute_sdk_client.delete_service.return_value = None
+        self.compute_client.delete_service.return_value = None
 
         # Get the command object to test
         self.cmd = service.DeleteService(self.app, None)
@@ -46,7 +46,7 @@ class TestServiceDelete(compute_fakes.TestComputev2):
 
         result = self.cmd.take_action(parsed_args)
 
-        self.compute_sdk_client.delete_service.assert_called_with(
+        self.compute_client.delete_service.assert_called_with(
             self.services[0].binary, ignore_missing=False
         )
         self.assertIsNone(result)
@@ -65,7 +65,7 @@ class TestServiceDelete(compute_fakes.TestComputev2):
         calls = []
         for s in self.services:
             calls.append(mock.call(s.binary, ignore_missing=False))
-        self.compute_sdk_client.delete_service.assert_has_calls(calls)
+        self.compute_client.delete_service.assert_has_calls(calls)
         self.assertIsNone(result)
 
     def test_multi_services_delete_with_exception(self):
@@ -77,7 +77,7 @@ class TestServiceDelete(compute_fakes.TestComputev2):
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
         delete_mock_result = [None, exceptions.CommandError]
-        self.compute_sdk_client.delete_service = mock.Mock(
+        self.compute_client.delete_service = mock.Mock(
             side_effect=delete_mock_result
         )
 
@@ -89,10 +89,10 @@ class TestServiceDelete(compute_fakes.TestComputev2):
                 '1 of 2 compute services failed to delete.', str(e)
             )
 
-        self.compute_sdk_client.delete_service.assert_any_call(
+        self.compute_client.delete_service.assert_any_call(
             self.services[0].binary, ignore_missing=False
         )
-        self.compute_sdk_client.delete_service.assert_any_call(
+        self.compute_client.delete_service.assert_any_call(
             'unexist_service', ignore_missing=False
         )
 
@@ -103,7 +103,7 @@ class TestServiceList(compute_fakes.TestComputev2):
 
         self.service = sdk_fakes.generate_fake_resource(_service.Service)
 
-        self.compute_sdk_client.services.return_value = [self.service]
+        self.compute_client.services.return_value = [self.service]
 
         # Get the command object to test
         self.cmd = service.ListService(self.app, None)
@@ -126,7 +126,7 @@ class TestServiceList(compute_fakes.TestComputev2):
         # containing the data to be listed.
         columns, data = self.cmd.take_action(parsed_args)
 
-        self.compute_sdk_client.services.assert_called_with(
+        self.compute_client.services.assert_called_with(
             host=self.service.host,
             binary=self.service.binary,
         )
@@ -175,7 +175,7 @@ class TestServiceList(compute_fakes.TestComputev2):
         # containing the data to be listed.
         columns, data = self.cmd.take_action(parsed_args)
 
-        self.compute_sdk_client.services.assert_called_with(
+        self.compute_client.services.assert_called_with(
             host=self.service.host,
             binary=self.service.binary,
         )
@@ -228,7 +228,7 @@ class TestServiceList(compute_fakes.TestComputev2):
         # containing the data to be listed.
         columns, data = self.cmd.take_action(parsed_args)
 
-        self.compute_sdk_client.services.assert_called_with(
+        self.compute_client.services.assert_called_with(
             host=self.service.host,
             binary=self.service.binary,
         )
@@ -269,8 +269,8 @@ class TestServiceSet(compute_fakes.TestComputev2):
 
         self.service = sdk_fakes.generate_fake_resource(_service.Service)
 
-        self.compute_sdk_client.enable_service.return_value = self.service
-        self.compute_sdk_client.disable_service.return_value = self.service
+        self.compute_client.enable_service.return_value = self.service
+        self.compute_client.disable_service.return_value = self.service
 
         self.cmd = service.SetService(self.app, None)
 
@@ -286,8 +286,8 @@ class TestServiceSet(compute_fakes.TestComputev2):
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
         result = self.cmd.take_action(parsed_args)
 
-        self.compute_sdk_client.enable_service.assert_not_called()
-        self.compute_sdk_client.disable_service.assert_not_called()
+        self.compute_client.enable_service.assert_not_called()
+        self.compute_client.disable_service.assert_not_called()
         self.assertIsNone(result)
 
     def test_service_set_enable(self):
@@ -305,7 +305,7 @@ class TestServiceSet(compute_fakes.TestComputev2):
 
         result = self.cmd.take_action(parsed_args)
 
-        self.compute_sdk_client.enable_service.assert_called_with(
+        self.compute_client.enable_service.assert_called_with(
             None, self.service.host, self.service.binary
         )
         self.assertIsNone(result)
@@ -325,7 +325,7 @@ class TestServiceSet(compute_fakes.TestComputev2):
 
         result = self.cmd.take_action(parsed_args)
 
-        self.compute_sdk_client.disable_service.assert_called_with(
+        self.compute_client.disable_service.assert_called_with(
             None, self.service.host, self.service.binary, None
         )
         self.assertIsNone(result)
@@ -349,7 +349,7 @@ class TestServiceSet(compute_fakes.TestComputev2):
 
         result = self.cmd.take_action(parsed_args)
 
-        self.compute_sdk_client.disable_service.assert_called_with(
+        self.compute_client.disable_service.assert_called_with(
             None, self.service.host, self.service.binary, reason
         )
         self.assertIsNone(result)
@@ -419,11 +419,11 @@ class TestServiceSet(compute_fakes.TestComputev2):
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
         result = self.cmd.take_action(parsed_args)
-        self.compute_sdk_client.update_service_forced_down.assert_called_once_with(
+        self.compute_client.update_service_forced_down.assert_called_once_with(
             None, self.service.host, self.service.binary, False
         )
-        self.assertNotCalled(self.compute_sdk_client.enable_service)
-        self.assertNotCalled(self.compute_sdk_client.disable_service)
+        self.assertNotCalled(self.compute_client.enable_service)
+        self.assertNotCalled(self.compute_client.disable_service)
         self.assertIsNone(result)
 
     def test_service_set_state_down(self):
@@ -441,11 +441,11 @@ class TestServiceSet(compute_fakes.TestComputev2):
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
         result = self.cmd.take_action(parsed_args)
-        self.compute_sdk_client.update_service_forced_down.assert_called_once_with(
+        self.compute_client.update_service_forced_down.assert_called_once_with(
             None, self.service.host, self.service.binary, True
         )
-        self.assertNotCalled(self.compute_sdk_client.enable_service)
-        self.assertNotCalled(self.compute_sdk_client.disable_service)
+        self.assertNotCalled(self.compute_client.enable_service)
+        self.assertNotCalled(self.compute_client.disable_service)
         self.assertIsNone(result)
 
     def test_service_set_enable_and_state_down(self):
@@ -465,10 +465,10 @@ class TestServiceSet(compute_fakes.TestComputev2):
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
         result = self.cmd.take_action(parsed_args)
-        self.compute_sdk_client.enable_service.assert_called_once_with(
+        self.compute_client.enable_service.assert_called_once_with(
             None, self.service.host, self.service.binary
         )
-        self.compute_sdk_client.update_service_forced_down.assert_called_once_with(
+        self.compute_client.update_service_forced_down.assert_called_once_with(
             None, self.service.host, self.service.binary, True
         )
         self.assertIsNone(result)
@@ -491,12 +491,12 @@ class TestServiceSet(compute_fakes.TestComputev2):
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
         with mock.patch.object(
-            self.compute_sdk_client, 'enable_service', side_effect=Exception()
+            self.compute_client, 'enable_service', side_effect=Exception()
         ):
             self.assertRaises(
                 exceptions.CommandError, self.cmd.take_action, parsed_args
             )
-            self.compute_sdk_client.update_service_forced_down.assert_called_once_with(
+            self.compute_client.update_service_forced_down.assert_called_once_with(
                 None, self.service.host, self.service.binary, True
             )
 
@@ -519,14 +519,12 @@ class TestServiceSet(compute_fakes.TestComputev2):
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
         service_id = '339478d0-0b95-4a94-be63-d5be05dfeb1c'
-        self.compute_sdk_client.services.return_value = [
-            mock.Mock(id=service_id)
-        ]
+        self.compute_client.services.return_value = [mock.Mock(id=service_id)]
         result = self.cmd.take_action(parsed_args)
-        self.compute_sdk_client.disable_service.assert_called_once_with(
+        self.compute_client.disable_service.assert_called_once_with(
             service_id, self.service.host, self.service.binary, None
         )
-        self.compute_sdk_client.update_service_forced_down.assert_called_once_with(
+        self.compute_client.update_service_forced_down.assert_called_once_with(
             service_id, self.service.host, self.service.binary, True
         )
         self.assertIsNone(result)
@@ -552,11 +550,9 @@ class TestServiceSet(compute_fakes.TestComputev2):
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
         service_id = '339478d0-0b95-4a94-be63-d5be05dfeb1c'
-        self.compute_sdk_client.services.return_value = [
-            mock.Mock(id=service_id)
-        ]
+        self.compute_client.services.return_value = [mock.Mock(id=service_id)]
         result = self.cmd.take_action(parsed_args)
-        self.compute_sdk_client.disable_service.assert_called_once_with(
+        self.compute_client.disable_service.assert_called_once_with(
             service_id, self.service.host, self.service.binary, reason
         )
         self.assertIsNone(result)
@@ -580,25 +576,23 @@ class TestServiceSet(compute_fakes.TestComputev2):
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
         service_id = '339478d0-0b95-4a94-be63-d5be05dfeb1c'
-        self.compute_sdk_client.services.return_value = [
-            mock.Mock(id=service_id)
-        ]
+        self.compute_client.services.return_value = [mock.Mock(id=service_id)]
         result = self.cmd.take_action(parsed_args)
-        self.compute_sdk_client.enable_service.assert_called_once_with(
+        self.compute_client.enable_service.assert_called_once_with(
             service_id, self.service.host, self.service.binary
         )
-        self.compute_sdk_client.update_service_forced_down.assert_called_once_with(
+        self.compute_client.update_service_forced_down.assert_called_once_with(
             service_id, self.service.host, self.service.binary, False
         )
         self.assertIsNone(result)
 
     def test_service_set_find_service_by_host_and_binary_no_results(self):
         # Tests that no compute services are found by host and binary.
-        self.compute_sdk_client.services.return_value = []
+        self.compute_client.services.return_value = []
         ex = self.assertRaises(
             exceptions.CommandError,
             self.cmd._find_service_by_host_and_binary,
-            self.compute_sdk_client,
+            self.compute_client,
             'fake-host',
             'nova-compute',
         )
@@ -610,14 +604,14 @@ class TestServiceSet(compute_fakes.TestComputev2):
 
     def test_service_set_find_service_by_host_and_binary_many_results(self):
         # Tests that more than one compute service is found by host and binary.
-        self.compute_sdk_client.services.return_value = [
+        self.compute_client.services.return_value = [
             mock.Mock(),
             mock.Mock(),
         ]
         ex = self.assertRaises(
             exceptions.CommandError,
             self.cmd._find_service_by_host_and_binary,
-            self.compute_sdk_client,
+            self.compute_client,
             'fake-host',
             'nova-compute',
         )

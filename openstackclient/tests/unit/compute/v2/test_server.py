@@ -76,7 +76,7 @@ class TestServer(compute_fakes.TestComputev2):
         )
 
         # This is the return value for compute_client.find_server()
-        self.compute_sdk_client.find_server.side_effect = servers
+        self.compute_client.find_server.side_effect = servers
 
         return servers
 
@@ -132,9 +132,7 @@ class TestServerAddFixedIP(TestServer):
         servers = self.setup_sdk_servers_mock(count=1)
         network = compute_fakes.create_one_network()
         interface = compute_fakes.create_one_server_interface()
-        self.compute_sdk_client.create_server_interface.return_value = (
-            interface
-        )
+        self.compute_client.create_server_interface.return_value = interface
 
         with mock.patch.object(
             self.app.client_manager,
@@ -169,7 +167,7 @@ class TestServerAddFixedIP(TestServer):
 
             self.assertEqual(expected_columns, columns)
             self.assertEqual(expected_data, tuple(data))
-            self.compute_sdk_client.create_server_interface.assert_called_once_with(
+            self.compute_client.create_server_interface.assert_called_once_with(
                 servers[0].id, net_id=network['id']
             )
 
@@ -179,9 +177,7 @@ class TestServerAddFixedIP(TestServer):
         servers = self.setup_sdk_servers_mock(count=1)
         network = compute_fakes.create_one_network()
         interface = compute_fakes.create_one_server_interface()
-        self.compute_sdk_client.create_server_interface.return_value = (
-            interface
-        )
+        self.compute_client.create_server_interface.return_value = interface
 
         with mock.patch.object(
             self.app.client_manager,
@@ -222,7 +218,7 @@ class TestServerAddFixedIP(TestServer):
 
             self.assertEqual(expected_columns, columns)
             self.assertEqual(expected_data, tuple(data))
-            self.compute_sdk_client.create_server_interface.assert_called_once_with(
+            self.compute_client.create_server_interface.assert_called_once_with(
                 servers[0].id,
                 net_id=network['id'],
                 fixed_ips=[{'ip_address': '5.6.7.8'}],
@@ -234,9 +230,7 @@ class TestServerAddFixedIP(TestServer):
         servers = self.setup_sdk_servers_mock(count=1)
         network = compute_fakes.create_one_network()
         interface = compute_fakes.create_one_server_interface()
-        self.compute_sdk_client.create_server_interface.return_value = (
-            interface
-        )
+        self.compute_client.create_server_interface.return_value = interface
 
         with mock.patch.object(
             self.app.client_manager,
@@ -282,7 +276,7 @@ class TestServerAddFixedIP(TestServer):
 
             self.assertEqual(expected_columns, columns)
             self.assertEqual(expected_data, tuple(data))
-            self.compute_sdk_client.create_server_interface.assert_called_once_with(
+            self.compute_client.create_server_interface.assert_called_once_with(
                 servers[0].id,
                 net_id=network['id'],
                 fixed_ips=[{'ip_address': '5.6.7.8'}],
@@ -295,9 +289,7 @@ class TestServerAddFixedIP(TestServer):
         servers = self.setup_sdk_servers_mock(count=1)
         network = compute_fakes.create_one_network()
         interface = compute_fakes.create_one_server_interface()
-        self.compute_sdk_client.create_server_interface.return_value = (
-            interface
-        )
+        self.compute_client.create_server_interface.return_value = interface
 
         with mock.patch.object(
             self.app.client_manager,
@@ -343,7 +335,7 @@ class TestServerAddFixedIP(TestServer):
 
             self.assertEqual(expected_columns, columns)
             self.assertEqual(expected_data, tuple(data))
-            self.compute_sdk_client.create_server_interface.assert_called_once_with(
+            self.compute_client.create_server_interface.assert_called_once_with(
                 servers[0].id,
                 net_id=network['id'],
                 fixed_ips=[{'ip_address': '5.6.7.8'}],
@@ -357,7 +349,7 @@ class TestServerAddFloatingIPCompute(compute_fakes.TestComputev2):
 
         self.app.client_manager.network_endpoint_enabled = False
         self.server = compute_fakes.create_one_sdk_server()
-        self.compute_sdk_client.find_server.return_value = self.server
+        self.compute_client.find_server.return_value = self.server
 
         self.cmd = server.AddFloatingIP(self.app, None)
 
@@ -374,10 +366,10 @@ class TestServerAddFloatingIPCompute(compute_fakes.TestComputev2):
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
         self.cmd.take_action(parsed_args)
 
-        self.compute_sdk_client.find_server.assert_called_once_with(
+        self.compute_client.find_server.assert_called_once_with(
             self.server.name, ignore_missing=False
         )
-        self.compute_sdk_client.add_floating_ip_to_server.assert_called_once_with(
+        self.compute_client.add_floating_ip_to_server.assert_called_once_with(
             self.server, '1.2.3.4', fixed_address=None
         )
 
@@ -397,10 +389,10 @@ class TestServerAddFloatingIPCompute(compute_fakes.TestComputev2):
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
         self.cmd.take_action(parsed_args)
 
-        self.compute_sdk_client.find_server.assert_called_once_with(
+        self.compute_client.find_server.assert_called_once_with(
             self.server.name, ignore_missing=False
         )
-        self.compute_sdk_client.add_floating_ip_to_server.assert_called_once_with(
+        self.compute_client.add_floating_ip_to_server.assert_called_once_with(
             self.server, '1.2.3.4', fixed_address='5.6.7.8'
         )
 
@@ -413,7 +405,7 @@ class TestServerAddFloatingIPNetwork(
         super().setUp()
 
         self.server = compute_fakes.create_one_sdk_server()
-        self.compute_sdk_client.find_server.return_value = self.server
+        self.compute_client.find_server.return_value = self.server
 
         self.network_client.update_ip = mock.Mock(return_value=None)
 
@@ -637,7 +629,7 @@ class TestServerAddPort(TestServer):
 
         result = self.cmd.take_action(parsed_args)
 
-        self.compute_sdk_client.create_server_interface.assert_called_once_with(
+        self.compute_client.create_server_interface.assert_called_once_with(
             servers[0], port_id=port_id
         )
         self.assertIsNone(result)
@@ -674,7 +666,7 @@ class TestServerAddPort(TestServer):
         result = self.cmd.take_action(parsed_args)
         self.assertIsNone(result)
 
-        self.compute_sdk_client.create_server_interface.assert_called_once_with(
+        self.compute_client.create_server_interface.assert_called_once_with(
             servers[0], port_id='fake-port', tag='tag1'
         )
 
@@ -709,7 +701,7 @@ class TestServerVolume(TestServer):
         super().setUp()
 
         self.server = compute_fakes.create_one_sdk_server()
-        self.compute_sdk_client.find_server.return_value = self.server
+        self.compute_client.find_server.return_value = self.server
 
         self.volume = volume_fakes.create_one_sdk_volume()
         self.volume_sdk_client.find_volume.return_value = self.volume
@@ -722,7 +714,7 @@ class TestServerVolume(TestServer):
             attrs=attrs
         )
 
-        self.compute_sdk_client.create_volume_attachment.return_value = (
+        self.compute_client.create_volume_attachment.return_value = (
             self.volume_attachment
         )
 
@@ -762,7 +754,7 @@ class TestServerAddVolume(TestServerVolume):
 
         self.assertEqual(expected_columns, columns)
         self.assertEqual(expected_data, data)
-        self.compute_sdk_client.create_volume_attachment.assert_called_once_with(
+        self.compute_client.create_volume_attachment.assert_called_once_with(
             self.server, volumeId=self.volume.id, device='/dev/sdb'
         )
 
@@ -799,7 +791,7 @@ class TestServerAddVolume(TestServerVolume):
 
         self.assertEqual(expected_columns, columns)
         self.assertEqual(expected_data, data)
-        self.compute_sdk_client.create_volume_attachment.assert_called_once_with(
+        self.compute_client.create_volume_attachment.assert_called_once_with(
             self.server,
             volumeId=self.volume.id,
             device='/dev/sdb',
@@ -869,7 +861,7 @@ class TestServerAddVolume(TestServerVolume):
         columns, data = self.cmd.take_action(parsed_args)
         self.assertEqual(expected_columns, columns)
         self.assertEqual(expected_data, data)
-        self.compute_sdk_client.create_volume_attachment.assert_called_once_with(
+        self.compute_client.create_volume_attachment.assert_called_once_with(
             self.server,
             volumeId=self.volume.id,
             device='/dev/sdb',
@@ -918,7 +910,7 @@ class TestServerAddVolume(TestServerVolume):
 
         self.assertEqual(expected_columns, columns)
         self.assertEqual(expected_data, data)
-        self.compute_sdk_client.create_volume_attachment.assert_called_once_with(
+        self.compute_client.create_volume_attachment.assert_called_once_with(
             self.server,
             volumeId=self.volume.id,
             device='/dev/sdb',
@@ -1031,7 +1023,7 @@ class TestServerRemoveVolume(TestServerVolume):
         result = self.cmd.take_action(parsed_args)
 
         self.assertIsNone(result)
-        self.compute_sdk_client.delete_volume_attachment.assert_called_once_with(
+        self.compute_client.delete_volume_attachment.assert_called_once_with(
             self.volume,
             self.server,
             ignore_missing=False,
@@ -1061,7 +1053,7 @@ class TestServerAddNetwork(TestServer):
 
         result = self.cmd.take_action(parsed_args)
 
-        self.compute_sdk_client.create_server_interface.assert_called_once_with(
+        self.compute_client.create_server_interface.assert_called_once_with(
             servers[0], net_id=net_id
         )
         self.assertIsNone(result)
@@ -1099,7 +1091,7 @@ class TestServerAddNetwork(TestServer):
         result = self.cmd.take_action(parsed_args)
         self.assertIsNone(result)
 
-        self.compute_sdk_client.create_server_interface.assert_called_once_with(
+        self.compute_client.create_server_interface.assert_called_once_with(
             servers[0], net_id='fake-network', tag='tag1'
         )
 
@@ -1135,10 +1127,8 @@ class TestServerAddSecurityGroup(compute_fakes.TestComputev2):
         super().setUp()
 
         self.server = compute_fakes.create_one_sdk_server()
-        self.compute_sdk_client.find_server.return_value = self.server
-        self.compute_sdk_client.add_security_group_to_server.return_value = (
-            None
-        )
+        self.compute_client.find_server.return_value = self.server
+        self.compute_client.add_security_group_to_server.return_value = None
 
         # Get the command object to test
         self.cmd = server.AddServerSecurityGroup(self.app, None)
@@ -1163,14 +1153,14 @@ class TestServerAddSecurityGroup(compute_fakes.TestComputev2):
             ) as mock_find_nova_net_sg:
                 result = self.cmd.take_action(parsed_args)
 
-        self.compute_sdk_client.find_server.assert_called_once_with(
+        self.compute_client.find_server.assert_called_once_with(
             self.server.id, ignore_missing=False
         )
-        self.compute_sdk_client.add_security_group_to_server.assert_called_once_with(
+        self.compute_client.add_security_group_to_server.assert_called_once_with(
             self.server, {'name': 'fake_sg'}
         )
         mock_find_nova_net_sg.assert_called_once_with(
-            self.compute_sdk_client, 'fake_sg'
+            self.compute_client, 'fake_sg'
         )
         self.assertIsNone(result)
 
@@ -1184,10 +1174,10 @@ class TestServerAddSecurityGroup(compute_fakes.TestComputev2):
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
         result = self.cmd.take_action(parsed_args)
 
-        self.compute_sdk_client.find_server.assert_called_once_with(
+        self.compute_client.find_server.assert_called_once_with(
             self.server.id, ignore_missing=False
         )
-        self.compute_sdk_client.add_security_group_to_server.assert_called_once_with(
+        self.compute_client.add_security_group_to_server.assert_called_once_with(
             self.server, {'name': 'fake_sg'}
         )
         self.assertIsNone(result)
@@ -1297,7 +1287,7 @@ class TestServerCreate(TestServer):
         self.image_client.get_image.return_value = self.image
 
         self.flavor = compute_fakes.create_one_flavor()
-        self.compute_sdk_client.find_flavor.return_value = self.flavor
+        self.compute_client.find_flavor.return_value = self.flavor
 
         attrs = {
             'addresses': {},
@@ -1307,8 +1297,8 @@ class TestServerCreate(TestServer):
         }
         self.server = compute_fakes.create_one_sdk_server(attrs=attrs)
 
-        self.compute_sdk_client.create_server.return_value = self.server
-        self.compute_sdk_client.get_server.return_value = self.server
+        self.compute_client.create_server.return_value = self.server
+        self.compute_client.get_server.return_value = self.server
 
         self.volume = volume_fakes.create_one_volume()
         self.snapshot = volume_fakes.create_one_snapshot()
@@ -1350,13 +1340,13 @@ class TestServerCreate(TestServer):
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
         columns, data = self.cmd.take_action(parsed_args)
 
-        self.compute_sdk_client.find_flavor.assert_has_calls(
+        self.compute_client.find_flavor.assert_has_calls(
             [mock.call(self.flavor.id, ignore_missing=False)] * 2
         )
         self.image_client.find_image.assert_called_once_with(
             self.image.id, ignore_missing=False
         )
-        self.compute_sdk_client.create_server.assert_called_once_with(
+        self.compute_client.create_server.assert_called_once_with(
             name=self.server.name,
             image_id=self.image.id,
             flavor_id=self.flavor.id,
@@ -1380,7 +1370,7 @@ class TestServerCreate(TestServer):
         server_group = sdk_fakes.generate_fake_resource(
             _server_group.ServerGroup
         )
-        self.compute_sdk_client.find_server_group.return_value = server_group
+        self.compute_client.find_server_group.return_value = server_group
 
         security_group = network_fakes.create_one_security_group()
         self.network_client.find_security_group.return_value = security_group
@@ -1423,7 +1413,7 @@ class TestServerCreate(TestServer):
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
         columns, data = self.cmd.take_action(parsed_args)
 
-        self.compute_sdk_client.find_flavor.assert_has_calls(
+        self.compute_client.find_flavor.assert_has_calls(
             [mock.call(self.flavor.id, ignore_missing=False)] * 2
         )
         self.network_client.find_security_group.assert_called_once_with(
@@ -1432,10 +1422,10 @@ class TestServerCreate(TestServer):
         self.image_client.find_image.assert_called_once_with(
             self.image.id, ignore_missing=False
         )
-        self.compute_sdk_client.find_server_group.assert_called_once_with(
+        self.compute_client.find_server_group.assert_called_once_with(
             server_group.id, ignore_missing=False
         )
-        self.compute_sdk_client.create_server.assert_called_once_with(
+        self.compute_client.create_server.assert_called_once_with(
             name=self.server.name,
             image_id=self.image.id,
             flavor_id=self.flavor.id,
@@ -1525,8 +1515,8 @@ class TestServerCreate(TestServer):
             ) as mock_find:
                 columns, data = self.cmd.take_action(parsed_args)
 
-        mock_find.assert_called_once_with(self.compute_sdk_client, sg_name)
-        self.compute_sdk_client.create_server.assert_called_once_with(
+        mock_find.assert_called_once_with(self.compute_client, sg_name)
+        self.compute_client.create_server.assert_called_once_with(
             name=self.server.name,
             image_id=self.image.id,
             flavor_id=self.flavor.id,
@@ -1573,14 +1563,14 @@ class TestServerCreate(TestServer):
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
         columns, data = self.cmd.take_action(parsed_args)
 
-        self.compute_sdk_client.find_flavor.assert_has_calls(
+        self.compute_client.find_flavor.assert_has_calls(
             [mock.call(self.flavor.id, ignore_missing=False)] * 2
         )
         self.network_client.find_security_group.assert_not_called()
         self.image_client.find_image.assert_called_once_with(
             self.image.id, ignore_missing=False
         )
-        self.compute_sdk_client.create_server.assert_called_once_with(
+        self.compute_client.create_server.assert_called_once_with(
             name=self.server.name,
             image_id=self.image.id,
             flavor_id=self.flavor.id,
@@ -1702,7 +1692,7 @@ class TestServerCreate(TestServer):
                 mock.call(port_port2.id, ignore_missing=False),
             ]
         )
-        self.compute_sdk_client.create_server.assert_called_once_with(
+        self.compute_client.create_server.assert_called_once_with(
             name=self.server.name,
             image_id=self.image.id,
             flavor_id=self.flavor.id,
@@ -1778,7 +1768,7 @@ class TestServerCreate(TestServer):
         self.network_client.find_network.assert_called_once_with(
             network.id, ignore_missing=False
         )
-        self.compute_sdk_client.create_server.assert_called_once_with(
+        self.compute_client.create_server.assert_called_once_with(
             name=self.server.name,
             image_id=self.image.id,
             flavor_id=self.flavor.id,
@@ -1839,7 +1829,7 @@ class TestServerCreate(TestServer):
             exceptions.CommandError, self.cmd.take_action, parsed_args
         )
         self.network_client.find_network.assert_not_called()
-        self.compute_sdk_client.create_server.assert_not_called()
+        self.compute_client.create_server.assert_not_called()
 
     def _test_server_create_with_auto_network(self, arglist):
         # requires API microversion 2.37 or later
@@ -1857,7 +1847,7 @@ class TestServerCreate(TestServer):
         columns, data = self.cmd.take_action(parsed_args)
 
         self.network_client.find_network.assert_not_called()
-        self.compute_sdk_client.create_server.assert_called_once_with(
+        self.compute_client.create_server.assert_called_once_with(
             name=self.server.name,
             image_id=self.image.id,
             flavor_id=self.flavor.id,
@@ -1937,7 +1927,7 @@ class TestServerCreate(TestServer):
             'allocation',
             str(exc),
         )
-        self.compute_sdk_client.create_server.assert_not_called()
+        self.compute_client.create_server.assert_not_called()
 
     def test_server_create_with_auto_network_default(self):
         """Tests creating a server without specifying --nic using 2.37."""
@@ -1963,7 +1953,7 @@ class TestServerCreate(TestServer):
         columns, data = self.cmd.take_action(parsed_args)
 
         self.network_client.find_network.assert_not_called()
-        self.compute_sdk_client.create_server.assert_called_once_with(
+        self.compute_client.create_server.assert_called_once_with(
             name=self.server.name,
             image_id=self.image.id,
             flavor_id=self.flavor.id,
@@ -2000,7 +1990,7 @@ class TestServerCreate(TestServer):
         columns, data = self.cmd.take_action(parsed_args)
 
         self.network_client.find_network.assert_not_called()
-        self.compute_sdk_client.create_server.assert_called_once_with(
+        self.compute_client.create_server.assert_called_once_with(
             name=self.server.name,
             image_id=self.image.id,
             flavor_id=self.flavor.id,
@@ -2080,7 +2070,7 @@ class TestServerCreate(TestServer):
             'allocation',
             str(exc),
         )
-        self.compute_sdk_client.create_server.assert_not_called()
+        self.compute_client.create_server.assert_not_called()
 
     def test_server_create_with_conflicting_network_options(self):
         arglist = [
@@ -2125,7 +2115,7 @@ class TestServerCreate(TestServer):
             'other --nic, --network or --port value.',
             str(exc),
         )
-        self.compute_sdk_client.create_server.assert_not_called()
+        self.compute_client.create_server.assert_not_called()
 
     def test_server_create_with_invalid_network_options(self):
         arglist = [
@@ -2148,7 +2138,7 @@ class TestServerCreate(TestServer):
             'Invalid argument abcdefgh; argument must be of form ',
             str(exc),
         )
-        self.compute_sdk_client.create_server.assert_not_called()
+        self.compute_client.create_server.assert_not_called()
 
     def test_server_create_with_invalid_network_key(self):
         arglist = [
@@ -2171,7 +2161,7 @@ class TestServerCreate(TestServer):
             'Invalid argument abcdefgh=12324; argument must be of form ',
             str(exc),
         )
-        self.compute_sdk_client.create_server.assert_not_called()
+        self.compute_client.create_server.assert_not_called()
 
     def test_server_create_with_empty_network_key_value(self):
         arglist = [
@@ -2194,7 +2184,7 @@ class TestServerCreate(TestServer):
             'Invalid argument net-id=; argument must be of form ',
             str(exc),
         )
-        self.compute_sdk_client.create_server.assert_not_called()
+        self.compute_client.create_server.assert_not_called()
 
     def test_server_create_with_only_network_key(self):
         arglist = [
@@ -2217,7 +2207,7 @@ class TestServerCreate(TestServer):
             'Invalid argument net-id; argument must be of form ',
             str(exc),
         )
-        self.compute_sdk_client.create_server.assert_not_called()
+        self.compute_client.create_server.assert_not_called()
 
     def test_server_create_with_network_in_nova_network(self):
         net_name = 'nova-net-net'
@@ -2263,8 +2253,8 @@ class TestServerCreate(TestServer):
             ) as mock_find:
                 columns, data = self.cmd.take_action(parsed_args)
 
-        mock_find.assert_called_once_with(self.compute_sdk_client, net_name)
-        self.compute_sdk_client.create_server.assert_called_once_with(
+        mock_find.assert_called_once_with(self.compute_client, net_name)
+        self.compute_client.create_server.assert_called_once_with(
             name=self.server.name,
             image_id=self.image.id,
             flavor_id=self.flavor.id,
@@ -2307,7 +2297,7 @@ class TestServerCreate(TestServer):
             [],
         )
         self.assertIn("either 'network' or 'port'", str(exc))
-        self.compute_sdk_client.create_server.assert_not_called()
+        self.compute_client.create_server.assert_not_called()
 
     def test_server_create_with_conflicting_fixed_ip_filters(self):
         arglist = [
@@ -2327,7 +2317,7 @@ class TestServerCreate(TestServer):
             [],
         )
         self.assertIn("either 'v4-fixed-ip' or 'v6-fixed-ip'", str(exc))
-        self.compute_sdk_client.create_server.assert_not_called()
+        self.compute_client.create_server.assert_not_called()
 
     @mock.patch.object(common_utils, 'wait_for_status', return_value=True)
     def test_server_create_with_wait_ok(self, mock_wait_for_status):
@@ -2350,7 +2340,7 @@ class TestServerCreate(TestServer):
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
         columns, data = self.cmd.take_action(parsed_args)
 
-        self.compute_sdk_client.create_server.assert_called_once_with(
+        self.compute_client.create_server.assert_called_once_with(
             name=self.server.name,
             image_id=self.image.id,
             flavor_id=self.flavor.id,
@@ -2368,7 +2358,7 @@ class TestServerCreate(TestServer):
             ],
         )
         mock_wait_for_status.assert_called_once_with(
-            self.compute_sdk_client.get_server,
+            self.compute_client.get_server,
             self.server.id,
             callback=mock.ANY,
         )
@@ -2399,7 +2389,7 @@ class TestServerCreate(TestServer):
             exceptions.CommandError, self.cmd.take_action, parsed_args
         )
 
-        self.compute_sdk_client.create_server.assert_called_once_with(
+        self.compute_client.create_server.assert_called_once_with(
             name=self.server.name,
             image_id=self.image.id,
             flavor_id=self.flavor.id,
@@ -2417,7 +2407,7 @@ class TestServerCreate(TestServer):
             ],
         )
         mock_wait_for_status.assert_called_once_with(
-            self.compute_sdk_client.get_server,
+            self.compute_client.get_server,
             self.server.id,
             callback=mock.ANY,
         )
@@ -2449,7 +2439,7 @@ class TestServerCreate(TestServer):
             columns, data = self.cmd.take_action(parsed_args)
 
         mock_file.assert_called_with('userdata.sh', 'rb')
-        self.compute_sdk_client.create_server.assert_called_once_with(
+        self.compute_client.create_server.assert_called_once_with(
             name=self.server.name,
             image_id=self.image.id,
             flavor_id=self.flavor.id,
@@ -2493,7 +2483,7 @@ class TestServerCreate(TestServer):
         self.volume_client.volumes.get.assert_called_once_with(
             self.volume.name
         )
-        self.compute_sdk_client.create_server.assert_called_once_with(
+        self.compute_client.create_server.assert_called_once_with(
             name=self.server.name,
             image_id='',
             flavor_id=self.flavor.id,
@@ -2535,7 +2525,7 @@ class TestServerCreate(TestServer):
         self.volume_client.volume_snapshots.get.assert_called_once_with(
             self.snapshot.name
         )
-        self.compute_sdk_client.create_server.assert_called_once_with(
+        self.compute_client.create_server.assert_called_once_with(
             name=self.server.name,
             image_id='',
             flavor_id=self.flavor.id,
@@ -2586,7 +2576,7 @@ class TestServerCreate(TestServer):
 
         # we don't do any validation of IDs when using the legacy option
         self.volume_client.volumes.get.assert_not_called()
-        self.compute_sdk_client.create_server.assert_called_once_with(
+        self.compute_client.create_server.assert_called_once_with(
             name=self.server.name,
             image_id='',
             flavor_id=self.flavor.id,
@@ -2664,7 +2654,7 @@ class TestServerCreate(TestServer):
 
         # we don't do any validation of IDs when using the legacy option
         self.volume_client.volumes.get.assert_not_called()
-        self.compute_sdk_client.create_server.assert_called_once_with(
+        self.compute_client.create_server.assert_called_once_with(
             name=self.server.name,
             image_id=self.image.id,
             flavor_id=self.flavor.id,
@@ -2746,7 +2736,7 @@ class TestServerCreate(TestServer):
 
         # we don't do any validation of IDs when using the legacy option
         self.volume_client.volumes.get.assert_not_called()
-        self.compute_sdk_client.create_server.assert_called_once_with(
+        self.compute_client.create_server.assert_called_once_with(
             name=self.server.name,
             image_id=self.image.id,
             flavor_id=self.flavor.id,
@@ -2799,7 +2789,7 @@ class TestServerCreate(TestServer):
             exceptions.CommandError, self.cmd.take_action, parsed_args
         )
         self.assertIn('The boot_index key of --block-device ', str(ex))
-        self.compute_sdk_client.create_server.assert_not_called()
+        self.compute_client.create_server.assert_not_called()
 
     def test_server_create_with_block_device_invalid_source_type(self):
         block_device = f'uuid={self.volume.name},source_type=foo'
@@ -2817,7 +2807,7 @@ class TestServerCreate(TestServer):
             exceptions.CommandError, self.cmd.take_action, parsed_args
         )
         self.assertIn('The source_type key of --block-device ', str(ex))
-        self.compute_sdk_client.create_server.assert_not_called()
+        self.compute_client.create_server.assert_not_called()
 
     def test_server_create_with_block_device_invalid_destination_type(self):
         block_device = f'uuid={self.volume.name},destination_type=foo'
@@ -2835,7 +2825,7 @@ class TestServerCreate(TestServer):
             exceptions.CommandError, self.cmd.take_action, parsed_args
         )
         self.assertIn('The destination_type key of --block-device ', str(ex))
-        self.compute_sdk_client.create_server.assert_not_called()
+        self.compute_client.create_server.assert_not_called()
 
     def test_server_create_with_block_device_invalid_shutdown(self):
         block_device = f'uuid={self.volume.name},delete_on_termination=foo'
@@ -2855,7 +2845,7 @@ class TestServerCreate(TestServer):
         self.assertIn(
             'The delete_on_termination key of --block-device ', str(ex)
         )
-        self.compute_sdk_client.create_server.assert_not_called()
+        self.compute_client.create_server.assert_not_called()
 
     def test_server_create_with_block_device_tag_pre_v242(self):
         self.set_compute_api_version('2.41')
@@ -2877,7 +2867,7 @@ class TestServerCreate(TestServer):
         self.assertIn(
             '--os-compute-api-version 2.42 or greater is required', str(ex)
         )
-        self.compute_sdk_client.create_server.assert_not_called()
+        self.compute_client.create_server.assert_not_called()
 
     def test_server_create_with_block_device_volume_type_pre_v267(self):
         self.set_compute_api_version('2.66')
@@ -2899,7 +2889,7 @@ class TestServerCreate(TestServer):
         self.assertIn(
             '--os-compute-api-version 2.67 or greater is required', str(ex)
         )
-        self.compute_sdk_client.create_server.assert_not_called()
+        self.compute_client.create_server.assert_not_called()
 
     def test_server_create_with_block_device_mapping(self):
         self.volume_client.volumes.get.return_value = self.volume
@@ -2938,7 +2928,7 @@ class TestServerCreate(TestServer):
         self.volume_client.volumes.get.assert_called_once_with(
             self.volume.name
         )
-        self.compute_sdk_client.create_server.assert_called_once_with(
+        self.compute_client.create_server.assert_called_once_with(
             name=self.server.name,
             image_id=self.image.id,
             flavor_id=self.flavor.id,
@@ -3002,7 +2992,7 @@ class TestServerCreate(TestServer):
         self.volume_client.volumes.get.assert_called_once_with(
             self.volume.name
         )
-        self.compute_sdk_client.create_server.assert_called_once_with(
+        self.compute_client.create_server.assert_called_once_with(
             name=self.server.name,
             image_id=self.image.id,
             flavor_id=self.flavor.id,
@@ -3065,7 +3055,7 @@ class TestServerCreate(TestServer):
         self.volume_client.volumes.get.assert_called_once_with(
             self.volume.name
         )
-        self.compute_sdk_client.create_server.assert_called_once_with(
+        self.compute_client.create_server.assert_called_once_with(
             name=self.server.name,
             image_id=self.image.id,
             flavor_id=self.flavor.id,
@@ -3130,7 +3120,7 @@ class TestServerCreate(TestServer):
         self.volume_client.volumes.get.assert_called_once_with(
             self.volume.name
         )
-        self.compute_sdk_client.create_server.assert_called_once_with(
+        self.compute_client.create_server.assert_called_once_with(
             name=self.server.name,
             image_id=self.image.id,
             flavor_id=self.flavor.id,
@@ -3198,7 +3188,7 @@ class TestServerCreate(TestServer):
         self.volume_client.volume_snapshots.get.assert_called_once_with(
             self.snapshot.name
         )
-        self.compute_sdk_client.create_server.assert_called_once_with(
+        self.compute_client.create_server.assert_called_once_with(
             name=self.server.name,
             image_id=self.image.id,
             flavor_id=self.flavor.id,
@@ -3273,7 +3263,7 @@ class TestServerCreate(TestServer):
         self.volume_client.volumes.get.assert_has_calls(
             [mock.call(self.volume.name)] * 2
         )
-        self.compute_sdk_client.create_server.assert_called_once_with(
+        self.compute_client.create_server.assert_called_once_with(
             name=self.server.name,
             image_id=self.image.id,
             flavor_id=self.flavor.id,
@@ -3329,7 +3319,7 @@ class TestServerCreate(TestServer):
         self.assertIn(
             'argument --block-device-mapping: Invalid argument ', str(exc)
         )
-        self.compute_sdk_client.create_server.assert_not_called()
+        self.compute_client.create_server.assert_not_called()
 
         # block device mapping don't contain device name "=uuid:::true"
         arglist = [
@@ -3351,7 +3341,7 @@ class TestServerCreate(TestServer):
         self.assertIn(
             'argument --block-device-mapping: Invalid argument ', str(exc)
         )
-        self.compute_sdk_client.create_server.assert_not_called()
+        self.compute_client.create_server.assert_not_called()
 
     def test_server_create_with_block_device_mapping_no_uuid(self):
         arglist = [
@@ -3373,7 +3363,7 @@ class TestServerCreate(TestServer):
         self.assertIn(
             'argument --block-device-mapping: Invalid argument ', str(exc)
         )
-        self.compute_sdk_client.create_server.assert_not_called()
+        self.compute_client.create_server.assert_not_called()
 
     def test_server_create_volume_boot_from_volume_conflict(self):
         # Tests that specifying --volume and --boot-from-volume results in
@@ -3406,7 +3396,7 @@ class TestServerCreate(TestServer):
         self.assertIn(
             '--volume is not allowed with --boot-from-volume', str(ex)
         )
-        self.compute_sdk_client.create_server.assert_not_called()
+        self.compute_client.create_server.assert_not_called()
 
     def test_server_create_boot_from_volume_no_image(self):
         # Test --boot-from-volume option without --image or
@@ -3434,7 +3424,7 @@ class TestServerCreate(TestServer):
             'to support --boot-from-volume option',
             str(ex),
         )
-        self.compute_sdk_client.create_server.assert_not_called()
+        self.compute_client.create_server.assert_not_called()
 
     def test_server_create_image_property(self):
         image = image_fakes.create_one_image({'hypervisor_type': 'qemu'})
@@ -3458,7 +3448,7 @@ class TestServerCreate(TestServer):
         columns, data = self.cmd.take_action(parsed_args)
 
         self.image_client.images.assert_called_once_with()
-        self.compute_sdk_client.create_server.assert_called_once_with(
+        self.compute_client.create_server.assert_called_once_with(
             name=self.server.name,
             image_id=image.id,
             flavor_id=self.flavor.id,
@@ -3508,7 +3498,7 @@ class TestServerCreate(TestServer):
         columns, data = self.cmd.take_action(parsed_args)
 
         self.image_client.images.assert_called_once_with()
-        self.compute_sdk_client.create_server.assert_called_once_with(
+        self.compute_client.create_server.assert_called_once_with(
             name=self.server.name,
             image_id=image.id,
             flavor_id=self.flavor.id,
@@ -3563,7 +3553,7 @@ class TestServerCreate(TestServer):
             'No images match the property expected by --image-property',
             str(exc),
         )
-        self.compute_sdk_client.create_server.assert_not_called()
+        self.compute_client.create_server.assert_not_called()
 
     def test_server_create_image_property_with_image_list(self):
         target_image = image_fakes.create_one_image(
@@ -3596,7 +3586,7 @@ class TestServerCreate(TestServer):
         columns, data = self.cmd.take_action(parsed_args)
 
         self.image_client.images.assert_called_once_with()
-        self.compute_sdk_client.create_server.assert_called_once_with(
+        self.compute_client.create_server.assert_called_once_with(
             name=self.server.name,
             image_id=target_image.id,
             flavor_id=self.flavor.id,
@@ -3652,7 +3642,7 @@ class TestServerCreate(TestServer):
             '(--volume, --snapshot, --block-device) is required',
             str(exc),
         )
-        self.compute_sdk_client.create_server.assert_not_called()
+        self.compute_client.create_server.assert_not_called()
 
     def test_server_create_with_swap(self):
         arglist = [
@@ -3674,7 +3664,7 @@ class TestServerCreate(TestServer):
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
         columns, data = self.cmd.take_action(parsed_args)
 
-        self.compute_sdk_client.create_server.assert_called_once_with(
+        self.compute_client.create_server.assert_called_once_with(
             name=self.server.name,
             image_id=self.image.id,
             flavor_id=self.flavor.id,
@@ -3723,7 +3713,7 @@ class TestServerCreate(TestServer):
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
         columns, data = self.cmd.take_action(parsed_args)
 
-        self.compute_sdk_client.create_server.assert_called_once_with(
+        self.compute_client.create_server.assert_called_once_with(
             name=self.server.name,
             image_id=self.image.id,
             flavor_id=self.flavor.id,
@@ -3770,7 +3760,7 @@ class TestServerCreate(TestServer):
             [],
         )
         self.assertIn('Argument parse failed', str(exc))
-        self.compute_sdk_client.create_server.assert_not_called()
+        self.compute_client.create_server.assert_not_called()
 
     def test_server_create_with_ephemeral_invalid_key(self):
         arglist = [
@@ -3790,7 +3780,7 @@ class TestServerCreate(TestServer):
             [],
         )
         self.assertIn('Argument parse failed', str(exc))
-        self.compute_sdk_client.create_server.assert_not_called()
+        self.compute_client.create_server.assert_not_called()
 
     def test_server_create_invalid_hint(self):
         # Not a key-value pair
@@ -3811,7 +3801,7 @@ class TestServerCreate(TestServer):
             [],
         )
         self.assertIn('Argument parse failed', str(exc))
-        self.compute_sdk_client.create_server.assert_not_called()
+        self.compute_client.create_server.assert_not_called()
 
         # Empty key
         arglist = [
@@ -3831,7 +3821,7 @@ class TestServerCreate(TestServer):
             [],
         )
         self.assertIn('Argument parse failed', str(exc))
-        self.compute_sdk_client.create_server.assert_not_called()
+        self.compute_client.create_server.assert_not_called()
 
     def test_server_create_with_description(self):
         # Description is supported for nova api version 2.19 or above
@@ -3857,7 +3847,7 @@ class TestServerCreate(TestServer):
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
         columns, data = self.cmd.take_action(parsed_args)
 
-        self.compute_sdk_client.create_server.assert_called_once_with(
+        self.compute_client.create_server.assert_called_once_with(
             name=self.server.name,
             image_id=self.image.id,
             flavor_id=self.flavor.id,
@@ -3904,7 +3894,7 @@ class TestServerCreate(TestServer):
         self.assertRaises(
             exceptions.CommandError, self.cmd.take_action, parsed_args
         )
-        self.compute_sdk_client.create_server.assert_not_called()
+        self.compute_client.create_server.assert_not_called()
 
     def test_server_create_with_tag(self):
         self.set_compute_api_version('2.52')
@@ -3931,7 +3921,7 @@ class TestServerCreate(TestServer):
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
         columns, data = self.cmd.take_action(parsed_args)
 
-        self.compute_sdk_client.create_server.assert_called_once_with(
+        self.compute_client.create_server.assert_called_once_with(
             name=self.server.name,
             image_id=self.image.id,
             flavor_id=self.flavor.id,
@@ -3982,7 +3972,7 @@ class TestServerCreate(TestServer):
         self.assertIn(
             '--os-compute-api-version 2.52 or greater is required', str(exc)
         )
-        self.compute_sdk_client.create_server.assert_not_called()
+        self.compute_client.create_server.assert_not_called()
 
     def test_server_create_with_host(self):
         # Explicit host is supported for nova api version 2.74 or above
@@ -4008,7 +3998,7 @@ class TestServerCreate(TestServer):
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
         columns, data = self.cmd.take_action(parsed_args)
 
-        self.compute_sdk_client.create_server.assert_called_once_with(
+        self.compute_client.create_server.assert_called_once_with(
             name=self.server.name,
             image_id=self.image.id,
             flavor_id=self.flavor.id,
@@ -4057,7 +4047,7 @@ class TestServerCreate(TestServer):
         self.assertIn(
             '--os-compute-api-version 2.74 or greater is required', str(exc)
         )
-        self.compute_sdk_client.create_server.assert_not_called()
+        self.compute_client.create_server.assert_not_called()
 
     def test_server_create_with_hypervisor_hostname(self):
         # Explicit hypervisor_hostname is supported for nova api version
@@ -4084,7 +4074,7 @@ class TestServerCreate(TestServer):
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
         columns, data = self.cmd.take_action(parsed_args)
 
-        self.compute_sdk_client.create_server.assert_called_once_with(
+        self.compute_client.create_server.assert_called_once_with(
             name=self.server.name,
             image_id=self.image.id,
             flavor_id=self.flavor.id,
@@ -4133,7 +4123,7 @@ class TestServerCreate(TestServer):
         self.assertIn(
             '--os-compute-api-version 2.74 or greater is required', str(exc)
         )
-        self.compute_sdk_client.create_server.assert_not_called()
+        self.compute_client.create_server.assert_not_called()
 
     def test_server_create_with_hostname(self):
         self.set_compute_api_version('2.90')
@@ -4158,7 +4148,7 @@ class TestServerCreate(TestServer):
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
         columns, data = self.cmd.take_action(parsed_args)
 
-        self.compute_sdk_client.create_server.assert_called_once_with(
+        self.compute_client.create_server.assert_called_once_with(
             name=self.server.name,
             image_id=self.image.id,
             flavor_id=self.flavor.id,
@@ -4206,7 +4196,7 @@ class TestServerCreate(TestServer):
         self.assertIn(
             '--os-compute-api-version 2.90 or greater is required', str(exc)
         )
-        self.compute_sdk_client.create_server.assert_not_called()
+        self.compute_client.create_server.assert_not_called()
 
     def test_server_create_with_trusted_image_cert(self):
         self.set_compute_api_version('2.63')
@@ -4233,7 +4223,7 @@ class TestServerCreate(TestServer):
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
         columns, data = self.cmd.take_action(parsed_args)
 
-        self.compute_sdk_client.create_server.assert_called_once_with(
+        self.compute_client.create_server.assert_called_once_with(
             name=self.server.name,
             image_id=self.image.id,
             flavor_id=self.flavor.id,
@@ -4283,7 +4273,7 @@ class TestServerCreate(TestServer):
         self.assertIn(
             '--os-compute-api-version 2.63 or greater is required', str(exc)
         )
-        self.compute_sdk_client.create_server.assert_not_called()
+        self.compute_client.create_server.assert_not_called()
 
     def test_server_create_with_trusted_image_cert_from_volume(self):
         self.set_compute_api_version('2.63')
@@ -4316,7 +4306,7 @@ class TestServerCreate(TestServer):
             'directly from images',
             str(exc),
         )
-        self.compute_sdk_client.create_server.assert_not_called()
+        self.compute_client.create_server.assert_not_called()
 
     def test_server_create_with_trusted_image_cert_from_snapshot(self):
         self.set_compute_api_version('2.63')
@@ -4349,7 +4339,7 @@ class TestServerCreate(TestServer):
             'directly from images',
             str(exc),
         )
-        self.compute_sdk_client.create_server.assert_not_called()
+        self.compute_client.create_server.assert_not_called()
 
     def test_server_create_with_trusted_image_cert_boot_from_volume(self):
         self.set_compute_api_version('2.63')
@@ -4385,7 +4375,7 @@ class TestServerCreate(TestServer):
             'directly from images',
             str(exc),
         )
-        self.compute_sdk_client.create_server.assert_not_called()
+        self.compute_client.create_server.assert_not_called()
 
 
 class TestServerDelete(compute_fakes.TestComputev2):
@@ -4393,8 +4383,8 @@ class TestServerDelete(compute_fakes.TestComputev2):
         super().setUp()
 
         self.server = compute_fakes.create_one_sdk_server()
-        self.compute_sdk_client.find_server.return_value = self.server
-        self.compute_sdk_client.delete_server.return_value = None
+        self.compute_client.find_server.return_value = self.server
+        self.compute_client.delete_server.return_value = None
 
         # Get the command object to test
         self.cmd = server.DeleteServer(self.app, None)
@@ -4410,10 +4400,10 @@ class TestServerDelete(compute_fakes.TestComputev2):
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
         result = self.cmd.take_action(parsed_args)
 
-        self.compute_sdk_client.find_server.assert_called_once_with(
+        self.compute_client.find_server.assert_called_once_with(
             self.server.id, ignore_missing=False, all_projects=False
         )
-        self.compute_sdk_client.delete_server.assert_called_once_with(
+        self.compute_client.delete_server.assert_called_once_with(
             self.server, force=False
         )
         self.assertIsNone(result)
@@ -4430,18 +4420,18 @@ class TestServerDelete(compute_fakes.TestComputev2):
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
         result = self.cmd.take_action(parsed_args)
 
-        self.compute_sdk_client.find_server.assert_called_once_with(
+        self.compute_client.find_server.assert_called_once_with(
             self.server.id, ignore_missing=False, all_projects=False
         )
-        self.compute_sdk_client.delete_server.assert_called_once_with(
+        self.compute_client.delete_server.assert_called_once_with(
             self.server, force=True
         )
         self.assertIsNone(result)
 
     def test_server_delete_multi_servers(self):
         servers = compute_fakes.create_sdk_servers(count=3)
-        self.compute_sdk_client.find_server.return_value = None
-        self.compute_sdk_client.find_server.side_effect = servers
+        self.compute_client.find_server.return_value = None
+        self.compute_client.find_server.side_effect = servers
 
         arglist = []
         verifylist = []
@@ -4454,13 +4444,13 @@ class TestServerDelete(compute_fakes.TestComputev2):
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
         result = self.cmd.take_action(parsed_args)
 
-        self.compute_sdk_client.find_server.assert_has_calls(
+        self.compute_client.find_server.assert_has_calls(
             [
                 mock.call(s.id, ignore_missing=False, all_projects=False)
                 for s in servers
             ]
         )
-        self.compute_sdk_client.delete_server.assert_has_calls(
+        self.compute_client.delete_server.assert_has_calls(
             [mock.call(s, force=False) for s in servers]
         )
         self.assertIsNone(result)
@@ -4478,10 +4468,10 @@ class TestServerDelete(compute_fakes.TestComputev2):
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
         result = self.cmd.take_action(parsed_args)
 
-        self.compute_sdk_client.find_server.assert_called_once_with(
+        self.compute_client.find_server.assert_called_once_with(
             self.server.id, ignore_missing=False, all_projects=True
         )
-        self.compute_sdk_client.delete_server.assert_called_once_with(
+        self.compute_client.delete_server.assert_called_once_with(
             self.server, force=False
         )
         self.assertIsNone(result)
@@ -4499,20 +4489,20 @@ class TestServerDelete(compute_fakes.TestComputev2):
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
         result = self.cmd.take_action(parsed_args)
 
-        self.compute_sdk_client.find_server.assert_called_once_with(
+        self.compute_client.find_server.assert_called_once_with(
             self.server.id, ignore_missing=False, all_projects=False
         )
-        self.compute_sdk_client.delete_server.assert_called_once_with(
+        self.compute_client.delete_server.assert_called_once_with(
             self.server, force=False
         )
-        self.compute_sdk_client.wait_for_delete.assert_called_once_with(
+        self.compute_client.wait_for_delete.assert_called_once_with(
             self.server,
             callback=mock.ANY,
         )
         self.assertIsNone(result)
 
     def test_server_delete_wait_fails(self):
-        self.compute_sdk_client.wait_for_delete.side_effect = (
+        self.compute_client.wait_for_delete.side_effect = (
             sdk_exceptions.ResourceTimeout()
         )
 
@@ -4530,13 +4520,13 @@ class TestServerDelete(compute_fakes.TestComputev2):
             exceptions.CommandError, self.cmd.take_action, parsed_args
         )
 
-        self.compute_sdk_client.find_server.assert_called_once_with(
+        self.compute_client.find_server.assert_called_once_with(
             self.server.id, ignore_missing=False, all_projects=False
         )
-        self.compute_sdk_client.delete_server.assert_called_once_with(
+        self.compute_client.delete_server.assert_called_once_with(
             self.server, force=False
         )
-        self.compute_sdk_client.wait_for_delete.assert_called_once_with(
+        self.compute_client.wait_for_delete.assert_called_once_with(
             self.server,
             callback=mock.ANY,
         )
@@ -4567,9 +4557,7 @@ class TestServerDumpCreate(TestServer):
 
         self.assertIsNone(result)
         for s in servers:
-            s.trigger_crash_dump.assert_called_once_with(
-                self.compute_sdk_client
-            )
+            s.trigger_crash_dump.assert_called_once_with(self.compute_client)
 
     def test_server_dump_one_server(self):
         self.run_test_server_dump(1)
@@ -4645,12 +4633,12 @@ class _TestServerList(TestServer):
         self.image_client.get_image.return_value = self.image
 
         self.flavor = compute_fakes.create_one_flavor()
-        self.compute_sdk_client.find_flavor.return_value = self.flavor
+        self.compute_client.find_flavor.return_value = self.flavor
         self.attrs['flavor'] = {'original_name': self.flavor.name}
 
         # The servers to be listed.
         self.servers = self.setup_sdk_servers_mock(3)
-        self.compute_sdk_client.servers.return_value = self.servers
+        self.compute_client.servers.return_value = self.servers
 
         # Get the command object to test
         self.cmd = server.ListServer(self.app, None)
@@ -4669,7 +4657,7 @@ class TestServerList(_TestServerList):
         ]
 
         Flavor = collections.namedtuple('Flavor', 'id name')
-        self.compute_sdk_client.flavors.return_value = [
+        self.compute_client.flavors.return_value = [
             Flavor(id=s.flavor['id'], name=self.flavor.name)
             for s in self.servers
         ]
@@ -4699,9 +4687,9 @@ class TestServerList(_TestServerList):
 
         columns, data = self.cmd.take_action(parsed_args)
 
-        self.compute_sdk_client.servers.assert_called_with(**self.kwargs)
+        self.compute_client.servers.assert_called_with(**self.kwargs)
         self.image_client.images.assert_called()
-        self.compute_sdk_client.flavors.assert_called()
+        self.compute_client.flavors.assert_called()
         self.assertEqual(self.columns, columns)
         self.assertEqual(self.data, tuple(data))
 
@@ -4713,14 +4701,14 @@ class TestServerList(_TestServerList):
             ('deleted', False),
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
-        self.compute_sdk_client.servers.return_value = []
+        self.compute_client.servers.return_value = []
         self.data = ()
 
         columns, data = self.cmd.take_action(parsed_args)
 
-        self.compute_sdk_client.servers.assert_called_with(**self.kwargs)
+        self.compute_client.servers.assert_called_with(**self.kwargs)
         self.image_client.images.assert_not_called()
-        self.compute_sdk_client.flavors.assert_not_called()
+        self.compute_client.flavors.assert_not_called()
         self.assertEqual(self.columns, columns)
         self.assertEqual(self.data, tuple(data))
 
@@ -4755,12 +4743,12 @@ class TestServerList(_TestServerList):
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
         columns, data = self.cmd.take_action(parsed_args)
-        self.compute_sdk_client.servers.assert_called_with(**self.kwargs)
+        self.compute_client.servers.assert_called_with(**self.kwargs)
         image_ids = {s.image['id'] for s in self.servers if s.image}
         self.image_client.images.assert_called_once_with(
             id=f'in:{",".join(image_ids)}',
         )
-        self.compute_sdk_client.flavors.assert_called_once_with(is_public=None)
+        self.compute_client.flavors.assert_called_once_with(is_public=None)
         self.assertEqual(self.columns_long, columns)
         self.assertEqual(self.data, tuple(data))
 
@@ -4799,7 +4787,7 @@ class TestServerList(_TestServerList):
 
         columns, data = self.cmd.take_action(parsed_args)
 
-        self.compute_sdk_client.servers.assert_called_with(**self.kwargs)
+        self.compute_client.servers.assert_called_with(**self.kwargs)
         self.assertIn('Project ID', columns)
         self.assertIn('User ID', columns)
         self.assertIn('Created At', columns)
@@ -4839,9 +4827,9 @@ class TestServerList(_TestServerList):
 
         columns, data = self.cmd.take_action(parsed_args)
 
-        self.compute_sdk_client.servers.assert_called_with(**self.kwargs)
+        self.compute_client.servers.assert_called_with(**self.kwargs)
         self.image_client.images.assert_not_called()
-        self.compute_sdk_client.flavors.assert_not_called()
+        self.compute_client.flavors.assert_not_called()
         self.assertEqual(self.columns, columns)
         self.assertEqual(self.data, tuple(data))
 
@@ -4870,9 +4858,9 @@ class TestServerList(_TestServerList):
 
         columns, data = self.cmd.take_action(parsed_args)
 
-        self.compute_sdk_client.servers.assert_called_with(**self.kwargs)
+        self.compute_client.servers.assert_called_with(**self.kwargs)
         self.image_client.images.assert_not_called()
-        self.compute_sdk_client.flavors.assert_not_called()
+        self.compute_client.flavors.assert_not_called()
         self.assertEqual(self.columns, columns)
         self.assertEqual(self.data, tuple(data))
 
@@ -4887,11 +4875,11 @@ class TestServerList(_TestServerList):
 
         columns, data = self.cmd.take_action(parsed_args)
 
-        self.compute_sdk_client.servers.assert_called_with(**self.kwargs)
+        self.compute_client.servers.assert_called_with(**self.kwargs)
         self.image_client.images.assert_not_called()
-        self.compute_sdk_client.flavors.assert_not_called()
+        self.compute_client.flavors.assert_not_called()
         self.image_client.get_image.assert_called()
-        self.compute_sdk_client.find_flavor.assert_called()
+        self.compute_client.find_flavor.assert_called()
 
         self.assertEqual(self.columns, columns)
         self.assertEqual(self.data, tuple(data))
@@ -4908,9 +4896,9 @@ class TestServerList(_TestServerList):
         )
 
         self.kwargs['image'] = self.image.id
-        self.compute_sdk_client.servers.assert_called_with(**self.kwargs)
+        self.compute_client.servers.assert_called_with(**self.kwargs)
         self.image_client.images.assert_not_called()
-        self.compute_sdk_client.flavors.assert_called_once()
+        self.compute_client.flavors.assert_called_once()
 
         self.assertEqual(self.columns, columns)
         self.assertEqual(self.data, tuple(data))
@@ -4922,14 +4910,14 @@ class TestServerList(_TestServerList):
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
         columns, data = self.cmd.take_action(parsed_args)
 
-        self.compute_sdk_client.find_flavor.assert_has_calls(
+        self.compute_client.find_flavor.assert_has_calls(
             [mock.call(self.flavor.id, ignore_missing=False)]
         )
 
         self.kwargs['flavor'] = self.flavor.id
-        self.compute_sdk_client.servers.assert_called_with(**self.kwargs)
+        self.compute_client.servers.assert_called_with(**self.kwargs)
         self.image_client.images.assert_called_once()
-        self.compute_sdk_client.flavors.assert_not_called()
+        self.compute_client.flavors.assert_not_called()
 
         self.assertEqual(self.columns, columns)
         self.assertEqual(self.data, tuple(data))
@@ -4946,7 +4934,7 @@ class TestServerList(_TestServerList):
 
         self.kwargs['changes-since'] = '2016-03-04T06:27:59Z'
         self.kwargs['deleted'] = True
-        self.compute_sdk_client.servers.assert_called_with(**self.kwargs)
+        self.compute_client.servers.assert_called_with(**self.kwargs)
 
         self.assertEqual(self.columns, columns)
         self.assertEqual(self.data, tuple(data))
@@ -4989,7 +4977,7 @@ class TestServerList(_TestServerList):
 
         self.kwargs['tags'] = 'tag1,tag2'
 
-        self.compute_sdk_client.servers.assert_called_with(**self.kwargs)
+        self.compute_client.servers.assert_called_with(**self.kwargs)
 
         self.assertEqual(self.columns, columns)
         self.assertEqual(self.data, tuple(data))
@@ -5032,7 +5020,7 @@ class TestServerList(_TestServerList):
 
         self.kwargs['not-tags'] = 'tag1,tag2'
 
-        self.compute_sdk_client.servers.assert_called_with(**self.kwargs)
+        self.compute_client.servers.assert_called_with(**self.kwargs)
 
         self.assertEqual(self.columns, columns)
         self.assertEqual(self.data, tuple(data))
@@ -5071,7 +5059,7 @@ class TestServerList(_TestServerList):
         columns, data = self.cmd.take_action(parsed_args)
 
         self.kwargs['availability_zone'] = 'test-az'
-        self.compute_sdk_client.servers.assert_called_with(**self.kwargs)
+        self.compute_client.servers.assert_called_with(**self.kwargs)
         self.assertEqual(self.columns, columns)
         self.assertEqual(tuple(self.data), tuple(data))
 
@@ -5088,7 +5076,7 @@ class TestServerList(_TestServerList):
         columns, data = self.cmd.take_action(parsed_args)
 
         self.kwargs['key_name'] = 'test-key'
-        self.compute_sdk_client.servers.assert_called_with(**self.kwargs)
+        self.compute_client.servers.assert_called_with(**self.kwargs)
         self.assertEqual(self.columns, columns)
         self.assertEqual(tuple(self.data), tuple(data))
 
@@ -5104,7 +5092,7 @@ class TestServerList(_TestServerList):
         columns, data = self.cmd.take_action(parsed_args)
 
         self.kwargs['config_drive'] = True
-        self.compute_sdk_client.servers.assert_called_with(**self.kwargs)
+        self.compute_client.servers.assert_called_with(**self.kwargs)
         self.assertEqual(self.columns, columns)
         self.assertEqual(tuple(self.data), tuple(data))
 
@@ -5120,7 +5108,7 @@ class TestServerList(_TestServerList):
         columns, data = self.cmd.take_action(parsed_args)
 
         self.kwargs['config_drive'] = False
-        self.compute_sdk_client.servers.assert_called_with(**self.kwargs)
+        self.compute_client.servers.assert_called_with(**self.kwargs)
         self.assertEqual(self.columns, columns)
         self.assertEqual(tuple(self.data), tuple(data))
 
@@ -5137,7 +5125,7 @@ class TestServerList(_TestServerList):
         columns, data = self.cmd.take_action(parsed_args)
 
         self.kwargs['progress'] = '100'
-        self.compute_sdk_client.servers.assert_called_with(**self.kwargs)
+        self.compute_client.servers.assert_called_with(**self.kwargs)
         self.assertEqual(self.columns, columns)
         self.assertEqual(tuple(self.data), tuple(data))
 
@@ -5168,7 +5156,7 @@ class TestServerList(_TestServerList):
         columns, data = self.cmd.take_action(parsed_args)
 
         self.kwargs['vm_state'] = 'active'
-        self.compute_sdk_client.servers.assert_called_with(**self.kwargs)
+        self.compute_client.servers.assert_called_with(**self.kwargs)
         self.assertEqual(self.columns, columns)
         self.assertEqual(tuple(self.data), tuple(data))
 
@@ -5185,7 +5173,7 @@ class TestServerList(_TestServerList):
         columns, data = self.cmd.take_action(parsed_args)
 
         self.kwargs['task_state'] = 'deleting'
-        self.compute_sdk_client.servers.assert_called_with(**self.kwargs)
+        self.compute_client.servers.assert_called_with(**self.kwargs)
         self.assertEqual(self.columns, columns)
         self.assertEqual(tuple(self.data), tuple(data))
 
@@ -5202,7 +5190,7 @@ class TestServerList(_TestServerList):
         columns, data = self.cmd.take_action(parsed_args)
 
         self.kwargs['power_state'] = 1
-        self.compute_sdk_client.servers.assert_called_with(**self.kwargs)
+        self.compute_client.servers.assert_called_with(**self.kwargs)
         self.assertEqual(self.columns, columns)
         self.assertEqual(tuple(self.data), tuple(data))
 
@@ -5239,18 +5227,18 @@ class TestServerList(_TestServerList):
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
         columns, data = self.cmd.take_action(parsed_args)
 
-        self.compute_sdk_client.servers.assert_called_with(**self.kwargs)
+        self.compute_client.servers.assert_called_with(**self.kwargs)
 
         self.assertEqual(self.columns_long, columns)
         self.assertEqual(tuple(self.data1), tuple(data))
 
         # Next test with host_status in the data -- the column should be
         # present in this case.
-        self.compute_sdk_client.servers.reset_mock()
+        self.compute_client.servers.reset_mock()
 
         self.attrs['host_status'] = 'UP'
         servers = self.setup_sdk_servers_mock(3)
-        self.compute_sdk_client.servers.return_value = servers
+        self.compute_client.servers.return_value = servers
 
         # Make sure the returned image and flavor IDs match the servers.
         Image = collections.namedtuple('Image', 'id name')
@@ -5287,7 +5275,7 @@ class TestServerList(_TestServerList):
 
         columns, data = self.cmd.take_action(parsed_args)
 
-        self.compute_sdk_client.servers.assert_called_with(**self.kwargs)
+        self.compute_client.servers.assert_called_with(**self.kwargs)
 
         self.assertEqual(columns_long, columns)
         self.assertEqual(tuple(self.data2), tuple(data))
@@ -5336,7 +5324,7 @@ class TestServerListV273(_TestServerList):
 
         # The servers to be listed.
         self.servers = self.setup_sdk_servers_mock(3)
-        self.compute_sdk_client.servers.return_value = self.servers
+        self.compute_client.servers.return_value = self.servers
 
         Image = collections.namedtuple('Image', 'id name')
         self.image_client.images.return_value = [
@@ -5348,7 +5336,7 @@ class TestServerListV273(_TestServerList):
 
         # The flavor information is embedded, so now reason for this to be
         # called
-        self.compute_sdk_client.flavors = mock.NonCallableMock()
+        self.compute_client.flavors = mock.NonCallableMock()
 
         self.data = tuple(
             (
@@ -5384,7 +5372,7 @@ class TestServerListV273(_TestServerList):
         columns, data = self.cmd.take_action(parsed_args)
 
         self.kwargs['locked'] = True
-        self.compute_sdk_client.servers.assert_called_with(**self.kwargs)
+        self.compute_client.servers.assert_called_with(**self.kwargs)
 
         self.assertCountEqual(self.columns, columns)
         self.assertCountEqual(self.data, tuple(data))
@@ -5399,7 +5387,7 @@ class TestServerListV273(_TestServerList):
         columns, data = self.cmd.take_action(parsed_args)
 
         self.kwargs['locked'] = False
-        self.compute_sdk_client.servers.assert_called_with(**self.kwargs)
+        self.compute_client.servers.assert_called_with(**self.kwargs)
 
         self.assertCountEqual(self.columns, columns)
         self.assertCountEqual(self.data, tuple(data))
@@ -5432,7 +5420,7 @@ class TestServerListV273(_TestServerList):
         self.kwargs['changes-before'] = '2016-03-05T06:27:59Z'
         self.kwargs['deleted'] = True
 
-        self.compute_sdk_client.servers.assert_called_with(**self.kwargs)
+        self.compute_client.servers.assert_called_with(**self.kwargs)
 
         self.assertCountEqual(self.columns, columns)
         self.assertCountEqual(self.data, tuple(data))
@@ -5516,7 +5504,7 @@ class TestServerListV273(_TestServerList):
 class TestServerAction(compute_fakes.TestComputev2):
     def run_method_with_sdk_servers(self, method_name, server_count):
         servers = compute_fakes.create_sdk_servers(count=server_count)
-        self.compute_sdk_client.find_server.side_effect = servers
+        self.compute_client.find_server.side_effect = servers
 
         arglist = [s.id for s in servers]
         verifylist = [
@@ -5527,7 +5515,7 @@ class TestServerAction(compute_fakes.TestComputev2):
         result = self.cmd.take_action(parsed_args)
 
         calls = [mock.call(s.id) for s in servers]
-        method = getattr(self.compute_sdk_client, method_name)
+        method = getattr(self.compute_client, method_name)
         method.assert_has_calls(calls)
         self.assertIsNone(result)
 
@@ -5549,8 +5537,8 @@ class TestServerLock(TestServerAction):
         self.set_compute_api_version('2.73')
 
         self.server = compute_fakes.create_one_sdk_server()
-        self.compute_sdk_client.find_server.return_value = self.server
-        self.compute_sdk_client.lock_server.return_value = None
+        self.compute_client.find_server.return_value = self.server
+        self.compute_client.lock_server.return_value = None
 
         arglist = [
             self.server.id,
@@ -5565,11 +5553,11 @@ class TestServerLock(TestServerAction):
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
         self.cmd.take_action(parsed_args)
 
-        self.compute_sdk_client.find_server.assert_called_with(
+        self.compute_client.find_server.assert_called_with(
             self.server.id,
             ignore_missing=False,
         )
-        self.compute_sdk_client.lock_server.assert_called_with(
+        self.compute_client.lock_server.assert_called_with(
             self.server.id,
             locked_reason="blah",
         )
@@ -5580,8 +5568,8 @@ class TestServerLock(TestServerAction):
         server_a = compute_fakes.create_one_sdk_server()
         server_b = compute_fakes.create_one_sdk_server()
 
-        self.compute_sdk_client.find_server.side_effect = [server_a, server_b]
-        self.compute_sdk_client.lock_server.return_value = None
+        self.compute_client.find_server.side_effect = [server_a, server_b]
+        self.compute_client.lock_server.return_value = None
         arglist = [
             server_a.id,
             server_b.id,
@@ -5596,8 +5584,8 @@ class TestServerLock(TestServerAction):
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
         self.cmd.take_action(parsed_args)
 
-        self.assertEqual(2, self.compute_sdk_client.find_server.call_count)
-        self.compute_sdk_client.lock_server.assert_has_calls(
+        self.assertEqual(2, self.compute_client.find_server.call_count)
+        self.compute_client.lock_server.assert_has_calls(
             [
                 mock.call(server_a.id, locked_reason="choo..choo"),
                 mock.call(server_b.id, locked_reason="choo..choo"),
@@ -5636,9 +5624,9 @@ class TestServerMigrate(TestServer):
         super().setUp()
 
         self.server = compute_fakes.create_one_sdk_server()
-        self.compute_sdk_client.find_server.return_value = self.server
-        self.compute_sdk_client.migrate_server.return_value = None
-        self.compute_sdk_client.live_migrate_server.return_value = None
+        self.compute_client.find_server.return_value = self.server
+        self.compute_client.migrate_server.return_value = None
+        self.compute_client.live_migrate_server.return_value = None
 
         # Get the command object to test
         self.cmd = server.MigrateServer(self.app, None)
@@ -5657,13 +5645,13 @@ class TestServerMigrate(TestServer):
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
         result = self.cmd.take_action(parsed_args)
 
-        self.compute_sdk_client.find_server.assert_called_once_with(
+        self.compute_client.find_server.assert_called_once_with(
             self.server.id, ignore_missing=False
         )
-        self.compute_sdk_client.migrate_server.assert_called_once_with(
+        self.compute_client.migrate_server.assert_called_once_with(
             self.server,
         )
-        self.compute_sdk_client.live_migrate_server.assert_not_called()
+        self.compute_client.live_migrate_server.assert_not_called()
         self.assertIsNone(result)
 
     def test_server_migrate_with_host(self):
@@ -5687,13 +5675,13 @@ class TestServerMigrate(TestServer):
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
         result = self.cmd.take_action(parsed_args)
 
-        self.compute_sdk_client.find_server.assert_called_once_with(
+        self.compute_client.find_server.assert_called_once_with(
             self.server.id, ignore_missing=False
         )
-        self.compute_sdk_client.migrate_server.assert_called_once_with(
+        self.compute_client.migrate_server.assert_called_once_with(
             self.server, host='fakehost'
         )
-        self.compute_sdk_client.live_migrate_server.assert_not_called()
+        self.compute_client.live_migrate_server.assert_not_called()
         self.assertIsNone(result)
 
     def test_server_migrate_with_block_migration(self):
@@ -5713,11 +5701,11 @@ class TestServerMigrate(TestServer):
             exceptions.CommandError, self.cmd.take_action, parsed_args
         )
 
-        self.compute_sdk_client.find_server.assert_called_once_with(
+        self.compute_client.find_server.assert_called_once_with(
             self.server.id, ignore_missing=False
         )
-        self.compute_sdk_client.migrate_server.assert_not_called()
-        self.compute_sdk_client.live_migrate_server.assert_not_called()
+        self.compute_client.migrate_server.assert_not_called()
+        self.compute_client.live_migrate_server.assert_not_called()
 
     def test_server_migrate_with_disk_overcommit(self):
         arglist = [
@@ -5736,11 +5724,11 @@ class TestServerMigrate(TestServer):
             exceptions.CommandError, self.cmd.take_action, parsed_args
         )
 
-        self.compute_sdk_client.find_server.assert_called_once_with(
+        self.compute_client.find_server.assert_called_once_with(
             self.server.id, ignore_missing=False
         )
-        self.compute_sdk_client.migrate_server.assert_not_called()
-        self.compute_sdk_client.live_migrate_server.assert_not_called()
+        self.compute_client.migrate_server.assert_not_called()
+        self.compute_client.live_migrate_server.assert_not_called()
 
     def test_server_migrate_with_host_pre_v256(self):
         # Tests that --host is not allowed for a cold migration
@@ -5772,11 +5760,11 @@ class TestServerMigrate(TestServer):
             str(ex),
         )
 
-        self.compute_sdk_client.find_server.assert_called_once_with(
+        self.compute_client.find_server.assert_called_once_with(
             self.server.id, ignore_missing=False
         )
-        self.compute_sdk_client.migrate_server.assert_not_called()
-        self.compute_sdk_client.live_migrate_server.assert_not_called()
+        self.compute_client.migrate_server.assert_not_called()
+        self.compute_client.live_migrate_server.assert_not_called()
 
     def test_server_live_migrate(self):
         # Tests the --live-migration option without --host or --live.
@@ -5795,16 +5783,16 @@ class TestServerMigrate(TestServer):
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
         result = self.cmd.take_action(parsed_args)
 
-        self.compute_sdk_client.find_server.assert_called_once_with(
+        self.compute_client.find_server.assert_called_once_with(
             self.server.id, ignore_missing=False
         )
-        self.compute_sdk_client.live_migrate_server.assert_called_once_with(
+        self.compute_client.live_migrate_server.assert_called_once_with(
             self.server,
             block_migration=False,
             host=None,
             disk_overcommit=False,
         )
-        self.compute_sdk_client.migrate_server.assert_not_called()
+        self.compute_client.migrate_server.assert_not_called()
         self.assertIsNone(result)
 
     def test_server_live_migrate_with_host(self):
@@ -5828,17 +5816,17 @@ class TestServerMigrate(TestServer):
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
         result = self.cmd.take_action(parsed_args)
 
-        self.compute_sdk_client.find_server.assert_called_once_with(
+        self.compute_client.find_server.assert_called_once_with(
             self.server.id, ignore_missing=False
         )
         # No disk_overcommit and block_migration defaults to auto with
         # microversion >= 2.25
-        self.compute_sdk_client.live_migrate_server.assert_called_once_with(
+        self.compute_client.live_migrate_server.assert_called_once_with(
             self.server,
             block_migration='auto',
             host='fakehost',
         )
-        self.compute_sdk_client.migrate_server.assert_not_called()
+        self.compute_client.migrate_server.assert_not_called()
         self.assertIsNone(result)
 
     def test_server_live_migrate_with_host_pre_v230(self):
@@ -5871,11 +5859,11 @@ class TestServerMigrate(TestServer):
             str(ex),
         )
 
-        self.compute_sdk_client.find_server.assert_called_once_with(
+        self.compute_client.find_server.assert_called_once_with(
             self.server.id, ignore_missing=False
         )
-        self.compute_sdk_client.migrate_server.assert_not_called()
-        self.compute_sdk_client.live_migrate_server.assert_not_called()
+        self.compute_client.migrate_server.assert_not_called()
+        self.compute_client.live_migrate_server.assert_not_called()
 
     def test_server_block_live_migrate(self):
         self.set_compute_api_version('2.24')
@@ -5895,18 +5883,18 @@ class TestServerMigrate(TestServer):
 
         result = self.cmd.take_action(parsed_args)
 
-        self.compute_sdk_client.find_server.assert_called_once_with(
+        self.compute_client.find_server.assert_called_once_with(
             self.server.id, ignore_missing=False
         )
         # No disk_overcommit and block_migration defaults to auto with
         # microversion >= 2.25
-        self.compute_sdk_client.live_migrate_server.assert_called_once_with(
+        self.compute_client.live_migrate_server.assert_called_once_with(
             self.server,
             block_migration=True,
             disk_overcommit=False,
             host=None,
         )
-        self.compute_sdk_client.migrate_server.assert_not_called()
+        self.compute_client.migrate_server.assert_not_called()
         self.assertIsNone(result)
 
     def test_server_live_migrate_with_disk_overcommit(self):
@@ -5927,16 +5915,16 @@ class TestServerMigrate(TestServer):
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
         result = self.cmd.take_action(parsed_args)
 
-        self.compute_sdk_client.find_server.assert_called_once_with(
+        self.compute_client.find_server.assert_called_once_with(
             self.server.id, ignore_missing=False
         )
-        self.compute_sdk_client.live_migrate_server.assert_called_once_with(
+        self.compute_client.live_migrate_server.assert_called_once_with(
             self.server,
             block_migration=False,
             disk_overcommit=True,
             host=None,
         )
-        self.compute_sdk_client.migrate_server.assert_not_called()
+        self.compute_client.migrate_server.assert_not_called()
         self.assertIsNone(result)
 
     def test_server_live_migrate_with_disk_overcommit_post_v224(self):
@@ -5958,16 +5946,16 @@ class TestServerMigrate(TestServer):
         with mock.patch.object(self.cmd.log, 'warning') as mock_warning:
             result = self.cmd.take_action(parsed_args)
 
-        self.compute_sdk_client.find_server.assert_called_once_with(
+        self.compute_client.find_server.assert_called_once_with(
             self.server.id, ignore_missing=False
         )
         # There should be no 'disk_over_commit' value present
-        self.compute_sdk_client.live_migrate_server.assert_called_once_with(
+        self.compute_client.live_migrate_server.assert_called_once_with(
             self.server,
             block_migration='auto',
             host=None,
         )
-        self.compute_sdk_client.migrate_server.assert_not_called()
+        self.compute_client.migrate_server.assert_not_called()
         self.assertIsNone(result)
 
         # A warning should have been logged for using --disk-overcommit.
@@ -5993,15 +5981,15 @@ class TestServerMigrate(TestServer):
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
         result = self.cmd.take_action(parsed_args)
 
-        self.compute_sdk_client.find_server.assert_called_once_with(
+        self.compute_client.find_server.assert_called_once_with(
             self.server.id, ignore_missing=False
         )
-        self.compute_sdk_client.migrate_server.assert_called_once_with(
+        self.compute_client.migrate_server.assert_called_once_with(
             self.server,
         )
-        self.compute_sdk_client.live_migrate_server.assert_not_called()
+        self.compute_client.live_migrate_server.assert_not_called()
         mock_wait_for_status.assert_called_once_with(
-            self.compute_sdk_client.get_server,
+            self.compute_client.get_server,
             self.server.id,
             success_status=('active', 'verify_resize'),
             callback=mock.ANY,
@@ -6026,15 +6014,15 @@ class TestServerMigrate(TestServer):
             exceptions.CommandError, self.cmd.take_action, parsed_args
         )
 
-        self.compute_sdk_client.find_server.assert_called_once_with(
+        self.compute_client.find_server.assert_called_once_with(
             self.server.id, ignore_missing=False
         )
-        self.compute_sdk_client.migrate_server.assert_called_once_with(
+        self.compute_client.migrate_server.assert_called_once_with(
             self.server,
         )
-        self.compute_sdk_client.live_migrate_server.assert_not_called()
+        self.compute_client.live_migrate_server.assert_not_called()
         mock_wait_for_status.assert_called_once_with(
-            self.compute_sdk_client.get_server,
+            self.compute_client.get_server,
             self.server.id,
             success_status=('active', 'verify_resize'),
             callback=mock.ANY,
@@ -6045,7 +6033,7 @@ class TestServerReboot(TestServer):
     def setUp(self):
         super().setUp()
 
-        self.compute_sdk_client.reboot_server.return_value = None
+        self.compute_client.reboot_server.return_value = None
 
         self.cmd = server.RebootServer(self.app, None)
 
@@ -6064,7 +6052,7 @@ class TestServerReboot(TestServer):
 
         result = self.cmd.take_action(parsed_args)
 
-        self.compute_sdk_client.reboot_server.assert_called_once_with(
+        self.compute_client.reboot_server.assert_called_once_with(
             servers[0].id,
             'SOFT',
         )
@@ -6086,7 +6074,7 @@ class TestServerReboot(TestServer):
 
         result = self.cmd.take_action(parsed_args)
 
-        self.compute_sdk_client.reboot_server.assert_called_once_with(
+        self.compute_client.reboot_server.assert_called_once_with(
             servers[0].id,
             'HARD',
         )
@@ -6110,12 +6098,12 @@ class TestServerReboot(TestServer):
         result = self.cmd.take_action(parsed_args)
 
         self.assertIsNone(result)
-        self.compute_sdk_client.reboot_server.assert_called_once_with(
+        self.compute_client.reboot_server.assert_called_once_with(
             servers[0].id,
             'SOFT',
         )
         mock_wait_for_status.assert_called_once_with(
-            self.compute_sdk_client.get_server,
+            self.compute_client.get_server,
             servers[0].id,
             callback=mock.ANY,
         )
@@ -6144,12 +6132,12 @@ class TestServerReboot(TestServer):
             exceptions.CommandError, self.cmd.take_action, parsed_args
         )
 
-        self.compute_sdk_client.reboot_server.assert_called_once_with(
+        self.compute_client.reboot_server.assert_called_once_with(
             servers[0].id,
             'SOFT',
         )
         mock_wait_for_status.assert_called_once_with(
-            self.compute_sdk_client.get_server,
+            self.compute_client.get_server,
             servers[0].id,
             callback=mock.ANY,
         )
@@ -6181,8 +6169,8 @@ class TestServerRebuild(TestServer):
             'image': {'id': self.image.id},
         }
         self.server = compute_fakes.create_one_sdk_server(attrs=attrs)
-        self.compute_sdk_client.find_server.return_value = self.server
-        self.compute_sdk_client.rebuild_server.return_value = self.server
+        self.compute_client.find_server.return_value = self.server
+        self.compute_client.rebuild_server.return_value = self.server
 
         self.cmd = server.RebuildServer(self.app, None)
 
@@ -6204,14 +6192,14 @@ class TestServerRebuild(TestServer):
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
         self.cmd.take_action(parsed_args)
 
-        self.compute_sdk_client.find_server.assert_called_once_with(
+        self.compute_client.find_server.assert_called_once_with(
             self.server.id, ignore_missing=False
         )
         self.image_client.find_image.assert_called_with(
             image_name, ignore_missing=False
         )
         self.image_client.get_image.assert_called_with(self.image.id)
-        self.compute_sdk_client.rebuild_server.assert_called_once_with(
+        self.compute_client.rebuild_server.assert_called_once_with(
             self.server, image
         )
 
@@ -6225,14 +6213,14 @@ class TestServerRebuild(TestServer):
         # Get the command object to test.
         self.cmd.take_action(parsed_args)
 
-        self.compute_sdk_client.find_server.assert_called_once_with(
+        self.compute_client.find_server.assert_called_once_with(
             self.server.id, ignore_missing=False
         )
         self.image_client.find_image.assert_not_called()
         self.image_client.get_image.assert_has_calls(
             [mock.call(self.image.id), mock.call(self.image.id)]
         )
-        self.compute_sdk_client.rebuild_server.assert_called_once_with(
+        self.compute_client.rebuild_server.assert_called_once_with(
             self.server, self.image
         )
 
@@ -6269,14 +6257,14 @@ class TestServerRebuild(TestServer):
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
         self.cmd.take_action(parsed_args)
 
-        self.compute_sdk_client.find_server.assert_called_once_with(
+        self.compute_client.find_server.assert_called_once_with(
             self.server.id, ignore_missing=False
         )
         self.image_client.find_image.assert_not_called()
         self.image_client.get_image.assert_has_calls(
             [mock.call(self.image.id), mock.call(self.image.id)]
         )
-        self.compute_sdk_client.rebuild_server.assert_called_once_with(
+        self.compute_client.rebuild_server.assert_called_once_with(
             self.server, self.image, name=name
         )
 
@@ -6293,14 +6281,14 @@ class TestServerRebuild(TestServer):
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
         self.cmd.take_action(parsed_args)
 
-        self.compute_sdk_client.find_server.assert_called_once_with(
+        self.compute_client.find_server.assert_called_once_with(
             self.server.id, ignore_missing=False
         )
         self.image_client.find_image.assert_not_called()
         self.image_client.get_image.assert_has_calls(
             [mock.call(self.image.id), mock.call(self.image.id)]
         )
-        self.compute_sdk_client.rebuild_server.assert_called_once_with(
+        self.compute_client.rebuild_server.assert_called_once_with(
             self.server, self.image, preserve_ephemeral=True
         )
 
@@ -6318,14 +6306,14 @@ class TestServerRebuild(TestServer):
         # Get the command object to test
         self.cmd.take_action(parsed_args)
 
-        self.compute_sdk_client.find_server.assert_called_once_with(
+        self.compute_client.find_server.assert_called_once_with(
             self.server.id, ignore_missing=False
         )
         self.image_client.find_image.assert_not_called()
         self.image_client.get_image.assert_has_calls(
             [mock.call(self.image.id), mock.call(self.image.id)]
         )
-        self.compute_sdk_client.rebuild_server.assert_called_once_with(
+        self.compute_client.rebuild_server.assert_called_once_with(
             self.server, self.image, preserve_ephemeral=False
         )
 
@@ -6337,14 +6325,14 @@ class TestServerRebuild(TestServer):
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
         self.cmd.take_action(parsed_args)
 
-        self.compute_sdk_client.find_server.assert_called_once_with(
+        self.compute_client.find_server.assert_called_once_with(
             self.server.id, ignore_missing=False
         )
         self.image_client.find_image.assert_not_called()
         self.image_client.get_image.assert_has_calls(
             [mock.call(self.image.id), mock.call(self.image.id)]
         )
-        self.compute_sdk_client.rebuild_server.assert_called_once_with(
+        self.compute_client.rebuild_server.assert_called_once_with(
             self.server,
             self.image,
             admin_password=password,
@@ -6360,14 +6348,14 @@ class TestServerRebuild(TestServer):
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
         self.cmd.take_action(parsed_args)
 
-        self.compute_sdk_client.find_server.assert_called_once_with(
+        self.compute_client.find_server.assert_called_once_with(
             self.server.id, ignore_missing=False
         )
         self.image_client.find_image.assert_not_called()
         self.image_client.get_image.assert_has_calls(
             [mock.call(self.image.id), mock.call(self.image.id)]
         )
-        self.compute_sdk_client.rebuild_server.assert_called_once_with(
+        self.compute_client.rebuild_server.assert_called_once_with(
             self.server, self.image, description=description
         )
 
@@ -6397,19 +6385,19 @@ class TestServerRebuild(TestServer):
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
         self.cmd.take_action(parsed_args)
 
-        self.compute_sdk_client.find_server.assert_called_once_with(
+        self.compute_client.find_server.assert_called_once_with(
             self.server.id, ignore_missing=False
         )
         self.image_client.find_image.assert_not_called()
         self.image_client.get_image.assert_has_calls(
             [mock.call(self.image.id), mock.call(self.image.id)]
         )
-        self.compute_sdk_client.rebuild_server.assert_called_once_with(
+        self.compute_client.rebuild_server.assert_called_once_with(
             self.server, self.image
         )
 
         mock_wait_for_status.assert_called_once_with(
-            self.compute_sdk_client.get_server,
+            self.compute_client.get_server,
             self.server.id,
             callback=mock.ANY,
             success_status=['active'],
@@ -6431,17 +6419,17 @@ class TestServerRebuild(TestServer):
             exceptions.CommandError, self.cmd.take_action, parsed_args
         )
 
-        self.compute_sdk_client.find_server.assert_called_once_with(
+        self.compute_client.find_server.assert_called_once_with(
             self.server.id, ignore_missing=False
         )
         self.image_client.find_image.assert_not_called()
         self.image_client.get_image.assert_called_once_with(self.image.id)
-        self.compute_sdk_client.rebuild_server.assert_called_once_with(
+        self.compute_client.rebuild_server.assert_called_once_with(
             self.server, self.image
         )
 
         mock_wait_for_status.assert_called_once_with(
-            self.compute_sdk_client.get_server,
+            self.compute_client.get_server,
             self.server.id,
             callback=mock.ANY,
             success_status=['active'],
@@ -6462,19 +6450,19 @@ class TestServerRebuild(TestServer):
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
         self.cmd.take_action(parsed_args)
 
-        self.compute_sdk_client.find_server.assert_called_once_with(
+        self.compute_client.find_server.assert_called_once_with(
             self.server.id, ignore_missing=False
         )
         self.image_client.find_image.assert_not_called()
         self.image_client.get_image.assert_has_calls(
             [mock.call(self.image.id), mock.call(self.image.id)]
         )
-        self.compute_sdk_client.rebuild_server.assert_called_once_with(
+        self.compute_client.rebuild_server.assert_called_once_with(
             self.server, self.image
         )
 
         mock_wait_for_status.assert_called_once_with(
-            self.compute_sdk_client.get_server,
+            self.compute_client.get_server,
             self.server.id,
             callback=mock.ANY,
             success_status=['shutoff'],
@@ -6495,19 +6483,19 @@ class TestServerRebuild(TestServer):
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
         self.cmd.take_action(parsed_args)
 
-        self.compute_sdk_client.find_server.assert_called_once_with(
+        self.compute_client.find_server.assert_called_once_with(
             self.server.id, ignore_missing=False
         )
         self.image_client.find_image.assert_not_called()
         self.image_client.get_image.assert_has_calls(
             [mock.call(self.image.id), mock.call(self.image.id)]
         )
-        self.compute_sdk_client.rebuild_server.assert_called_once_with(
+        self.compute_client.rebuild_server.assert_called_once_with(
             self.server, self.image
         )
 
         mock_wait_for_status.assert_called_once_with(
-            self.compute_sdk_client.get_server,
+            self.compute_client.get_server,
             self.server.id,
             callback=mock.ANY,
             success_status=['active'],
@@ -6527,12 +6515,12 @@ class TestServerRebuild(TestServer):
             exceptions.CommandError, self.cmd.take_action, parsed_args
         )
 
-        self.compute_sdk_client.find_server.assert_called_once_with(
+        self.compute_client.find_server.assert_called_once_with(
             self.server.id, ignore_missing=False
         )
         self.image_client.find_image.assert_not_called()
         self.image_client.get_image.assert_called_once_with(self.image.id)
-        self.compute_sdk_client.rebuild_server.assert_not_called()
+        self.compute_client.rebuild_server.assert_not_called()
 
     def test_rebuild_with_property(self):
         arglist = [
@@ -6551,14 +6539,14 @@ class TestServerRebuild(TestServer):
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
         self.cmd.take_action(parsed_args)
 
-        self.compute_sdk_client.find_server.assert_called_once_with(
+        self.compute_client.find_server.assert_called_once_with(
             self.server.id, ignore_missing=False
         )
         self.image_client.find_image.assert_not_called()
         self.image_client.get_image.assert_has_calls(
             [mock.call(self.image.id), mock.call(self.image.id)]
         )
-        self.compute_sdk_client.rebuild_server.assert_called_once_with(
+        self.compute_client.rebuild_server.assert_called_once_with(
             self.server, self.image, metadata=expected_properties
         )
 
@@ -6579,14 +6567,14 @@ class TestServerRebuild(TestServer):
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
         self.cmd.take_action(parsed_args)
 
-        self.compute_sdk_client.find_server.assert_called_once_with(
+        self.compute_client.find_server.assert_called_once_with(
             self.server.id, ignore_missing=False
         )
         self.image_client.find_image.assert_not_called()
         self.image_client.get_image.assert_has_calls(
             [mock.call(self.image.id), mock.call(self.image.id)]
         )
-        self.compute_sdk_client.rebuild_server.assert_called_once_with(
+        self.compute_client.rebuild_server.assert_called_once_with(
             self.server, self.image, key_name=self.server.key_name
         )
 
@@ -6624,14 +6612,14 @@ class TestServerRebuild(TestServer):
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
         self.cmd.take_action(parsed_args)
 
-        self.compute_sdk_client.find_server.assert_called_once_with(
+        self.compute_client.find_server.assert_called_once_with(
             self.server.id, ignore_missing=False
         )
         self.image_client.find_image.assert_not_called()
         self.image_client.get_image.assert_has_calls(
             [mock.call(self.image.id), mock.call(self.image.id)]
         )
-        self.compute_sdk_client.rebuild_server.assert_called_once_with(
+        self.compute_client.rebuild_server.assert_called_once_with(
             self.server, self.image, key_name=None
         )
 
@@ -6679,14 +6667,14 @@ class TestServerRebuild(TestServer):
         # Ensure the userdata file is opened
         mock_file.assert_called_with('userdata.sh', 'rb')
 
-        self.compute_sdk_client.find_server.assert_called_once_with(
+        self.compute_client.find_server.assert_called_once_with(
             self.server.id, ignore_missing=False
         )
         self.image_client.find_image.assert_not_called()
         self.image_client.get_image.assert_has_calls(
             [mock.call(self.image.id), mock.call(self.image.id)]
         )
-        self.compute_sdk_client.rebuild_server.assert_called_once_with(
+        self.compute_client.rebuild_server.assert_called_once_with(
             self.server,
             self.image,
             user_data=base64.b64encode(user_data).decode('utf-8'),
@@ -6726,14 +6714,14 @@ class TestServerRebuild(TestServer):
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
         self.cmd.take_action(parsed_args)
 
-        self.compute_sdk_client.find_server.assert_called_once_with(
+        self.compute_client.find_server.assert_called_once_with(
             self.server.id, ignore_missing=False
         )
         self.image_client.find_image.assert_not_called()
         self.image_client.get_image.assert_has_calls(
             [mock.call(self.image.id), mock.call(self.image.id)]
         )
-        self.compute_sdk_client.rebuild_server.assert_called_once_with(
+        self.compute_client.rebuild_server.assert_called_once_with(
             self.server, self.image, user_data=None
         )
 
@@ -6787,14 +6775,14 @@ class TestServerRebuild(TestServer):
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
         self.cmd.take_action(parsed_args)
 
-        self.compute_sdk_client.find_server.assert_called_once_with(
+        self.compute_client.find_server.assert_called_once_with(
             self.server.id, ignore_missing=False
         )
         self.image_client.find_image.assert_not_called()
         self.image_client.get_image.assert_has_calls(
             [mock.call(self.image.id), mock.call(self.image.id)]
         )
-        self.compute_sdk_client.rebuild_server.assert_called_once_with(
+        self.compute_client.rebuild_server.assert_called_once_with(
             self.server, self.image, trusted_image_certificates=['foo', 'bar']
         )
 
@@ -6833,14 +6821,14 @@ class TestServerRebuild(TestServer):
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
         self.cmd.take_action(parsed_args)
 
-        self.compute_sdk_client.find_server.assert_called_once_with(
+        self.compute_client.find_server.assert_called_once_with(
             self.server.id, ignore_missing=False
         )
         self.image_client.find_image.assert_not_called()
         self.image_client.get_image.assert_has_calls(
             [mock.call(self.image.id), mock.call(self.image.id)]
         )
-        self.compute_sdk_client.rebuild_server.assert_called_once_with(
+        self.compute_client.rebuild_server.assert_called_once_with(
             self.server, self.image, trusted_image_certificates=None
         )
 
@@ -6877,14 +6865,14 @@ class TestServerRebuild(TestServer):
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
         self.cmd.take_action(parsed_args)
 
-        self.compute_sdk_client.find_server.assert_called_once_with(
+        self.compute_client.find_server.assert_called_once_with(
             self.server.id, ignore_missing=False
         )
         self.image_client.find_image.assert_not_called()
         self.image_client.get_image.assert_has_calls(
             [mock.call(self.image.id), mock.call(self.image.id)]
         )
-        self.compute_sdk_client.rebuild_server.assert_called_once_with(
+        self.compute_client.rebuild_server.assert_called_once_with(
             self.server, self.image, hostname='new-hostname'
         )
 
@@ -6916,8 +6904,8 @@ class TestServerRebuildVolumeBacked(TestServer):
             'image': '',
         }
         self.server = compute_fakes.create_one_sdk_server(attrs=attrs)
-        self.compute_sdk_client.find_server.return_value = self.server
-        self.compute_sdk_client.rebuild_server.return_value = self.server
+        self.compute_client.find_server.return_value = self.server
+        self.compute_client.rebuild_server.return_value = self.server
 
         self.cmd = server.RebuildServer(self.app, None)
 
@@ -6939,14 +6927,14 @@ class TestServerRebuildVolumeBacked(TestServer):
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
         self.cmd.take_action(parsed_args)
 
-        self.compute_sdk_client.find_server.assert_called_once_with(
+        self.compute_client.find_server.assert_called_once_with(
             self.server.id, ignore_missing=False
         )
         self.image_client.find_image.assert_called_with(
             self.new_image.id, ignore_missing=False
         )
         self.image_client.get_image.assert_not_called()
-        self.compute_sdk_client.rebuild_server.assert_called_once_with(
+        self.compute_client.rebuild_server.assert_called_once_with(
             self.server, self.new_image
         )
 
@@ -7011,8 +6999,8 @@ class TestServerEvacuate(TestServer):
         self.new_server = compute_fakes.create_one_sdk_server(attrs=attrs)
 
         # Return value for utils.find_resource for server.
-        self.compute_sdk_client.find_server.return_value = self.server
-        self.compute_sdk_client.get_server.return_value = self.server
+        self.compute_client.find_server.return_value = self.server
+        self.compute_client.get_server.return_value = self.server
 
         self.cmd = server.EvacuateServer(self.app, None)
 
@@ -7020,15 +7008,13 @@ class TestServerEvacuate(TestServer):
         parsed_args = self.check_parser(self.cmd, args, verify_args)
         self.cmd.take_action(parsed_args)
 
-        self.compute_sdk_client.find_server.assert_called_once_with(
+        self.compute_client.find_server.assert_called_once_with(
             self.server.id, ignore_missing=False
         )
-        self.compute_sdk_client.evacuate_server.assert_called_once_with(
+        self.compute_client.evacuate_server.assert_called_once_with(
             self.server, **evac_args
         )
-        self.compute_sdk_client.get_server.assert_called_once_with(
-            self.server.id
-        )
+        self.compute_client.get_server.assert_called_once_with(self.server.id)
 
     def test_evacuate(self):
         args = [
@@ -7142,7 +7128,7 @@ class TestServerEvacuate(TestServer):
         }
         self._test_evacuate(args, verify_args, evac_args)
         mock_wait_for_status.assert_called_once_with(
-            self.compute_sdk_client.get_server,
+            self.compute_client.get_server,
             self.server.id,
             callback=mock.ANY,
         )
@@ -7170,12 +7156,10 @@ class TestServerRemoveFixedIP(compute_fakes.TestComputev2):
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
         result = self.cmd.take_action(parsed_args)
 
-        self.compute_sdk_client.find_server.assert_called_once_with(
+        self.compute_client.find_server.assert_called_once_with(
             self.server.id, ignore_missing=False
         )
-        self.compute_sdk_client.remove_fixed_ip_from_server(
-            self.server, '1.2.3.4'
-        )
+        self.compute_client.remove_fixed_ip_from_server(self.server, '1.2.3.4')
         self.assertIsNone(result)
 
 
@@ -7184,7 +7168,7 @@ class TestServerRescue(compute_fakes.TestComputev2):
         super().setUp()
 
         self.server = compute_fakes.create_one_sdk_server()
-        self.compute_sdk_client.find_server.return_value = self.server
+        self.compute_client.find_server.return_value = self.server
 
         self.cmd = server.RescueServer(self.app, None)
 
@@ -7199,10 +7183,10 @@ class TestServerRescue(compute_fakes.TestComputev2):
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
         result = self.cmd.take_action(parsed_args)
 
-        self.compute_sdk_client.find_server.assert_called_once_with(
+        self.compute_client.find_server.assert_called_once_with(
             self.server.id, ignore_missing=False
         )
-        self.compute_sdk_client.rescue_server.assert_called_once_with(
+        self.compute_client.rescue_server.assert_called_once_with(
             self.server, admin_pass=None, image_ref=None
         )
         self.assertIsNone(result)
@@ -7226,10 +7210,10 @@ class TestServerRescue(compute_fakes.TestComputev2):
         self.image_client.find_image.assert_called_with(
             new_image.id, ignore_missing=False
         )
-        self.compute_sdk_client.find_server.assert_called_once_with(
+        self.compute_client.find_server.assert_called_once_with(
             self.server.id, ignore_missing=False
         )
-        self.compute_sdk_client.rescue_server.assert_called_once_with(
+        self.compute_client.rescue_server.assert_called_once_with(
             self.server, admin_pass=None, image_ref=new_image.id
         )
         self.assertIsNone(result)
@@ -7249,10 +7233,10 @@ class TestServerRescue(compute_fakes.TestComputev2):
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
         result = self.cmd.take_action(parsed_args)
 
-        self.compute_sdk_client.find_server.assert_called_once_with(
+        self.compute_client.find_server.assert_called_once_with(
             self.server.id, ignore_missing=False
         )
-        self.compute_sdk_client.rescue_server.assert_called_once_with(
+        self.compute_client.rescue_server.assert_called_once_with(
             self.server, admin_pass=password, image_ref=None
         )
         self.assertIsNone(result)
@@ -7264,7 +7248,7 @@ class TestServerRemoveFloatingIPCompute(compute_fakes.TestComputev2):
 
         self.app.client_manager.network_endpoint_enabled = False
         self.server = compute_fakes.create_one_sdk_server()
-        self.compute_sdk_client.find_server.return_value = self.server
+        self.compute_client.find_server.return_value = self.server
 
         self.cmd = server.RemoveFloatingIP(self.app, None)
 
@@ -7281,10 +7265,10 @@ class TestServerRemoveFloatingIPCompute(compute_fakes.TestComputev2):
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
         self.cmd.take_action(parsed_args)
 
-        self.compute_sdk_client.find_server.assert_called_once_with(
+        self.compute_client.find_server.assert_called_once_with(
             self.server.name, ignore_missing=False
         )
-        self.compute_sdk_client.remove_floating_ip_from_server.assert_called_once_with(
+        self.compute_client.remove_floating_ip_from_server.assert_called_once_with(
             self.server, '1.2.3.4'
         )
 
@@ -7352,7 +7336,7 @@ class TestServerRemovePort(TestServer):
 
         result = self.cmd.take_action(parsed_args)
 
-        self.compute_sdk_client.delete_server_interface.assert_called_with(
+        self.compute_client.delete_server_interface.assert_called_with(
             port_id, server=servers[0], ignore_missing=False
         )
         self.assertIsNone(result)
@@ -7381,9 +7365,7 @@ class TestServerRemoveNetwork(TestServer):
 
         self.find_network = mock.Mock()
         self.app.client_manager.network.find_network = self.find_network
-        self.compute_sdk_client.server_interfaces.return_value = [
-            self.fake_inf
-        ]
+        self.compute_client.server_interfaces.return_value = [self.fake_inf]
 
     def _test_server_remove_network(self, network_id):
         self.fake_inf.net_id = network_id
@@ -7403,10 +7385,10 @@ class TestServerRemoveNetwork(TestServer):
 
         result = self.cmd.take_action(parsed_args)
 
-        self.compute_sdk_client.server_interfaces.assert_called_once_with(
+        self.compute_client.server_interfaces.assert_called_once_with(
             servers[0]
         )
-        self.compute_sdk_client.delete_server_interface.assert_called_once_with(
+        self.compute_client.delete_server_interface.assert_called_once_with(
             'fake-port', server=servers[0]
         )
         self.assertIsNone(result)
@@ -7428,8 +7410,10 @@ class TestServerRemoveSecurityGroup(TestServer):
         super().setUp()
 
         self.server = compute_fakes.create_one_sdk_server()
-        self.compute_sdk_client.find_server.return_value = self.server
-        self.compute_sdk_client.remove_security_group_from_server.return_value = None
+        self.compute_client.find_server.return_value = self.server
+        self.compute_client.remove_security_group_from_server.return_value = (
+            None
+        )
 
         # Get the command object to test
         self.cmd = server.RemoveServerSecurityGroup(self.app, None)
@@ -7454,14 +7438,14 @@ class TestServerRemoveSecurityGroup(TestServer):
             ) as mock_find_nova_net_sg:
                 result = self.cmd.take_action(parsed_args)
 
-        self.compute_sdk_client.find_server.assert_called_once_with(
+        self.compute_client.find_server.assert_called_once_with(
             self.server.id, ignore_missing=False
         )
-        self.compute_sdk_client.remove_security_group_from_server.assert_called_once_with(
+        self.compute_client.remove_security_group_from_server.assert_called_once_with(
             self.server, {'name': 'fake_sg'}
         )
         mock_find_nova_net_sg.assert_called_once_with(
-            self.compute_sdk_client, 'fake_sg'
+            self.compute_client, 'fake_sg'
         )
         self.assertIsNone(result)
 
@@ -7475,10 +7459,10 @@ class TestServerRemoveSecurityGroup(TestServer):
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
         result = self.cmd.take_action(parsed_args)
 
-        self.compute_sdk_client.find_server.assert_called_once_with(
+        self.compute_client.find_server.assert_called_once_with(
             self.server.id, ignore_missing=False
         )
-        self.compute_sdk_client.remove_security_group_from_server.assert_called_once_with(
+        self.compute_client.remove_security_group_from_server.assert_called_once_with(
             self.server, {'name': 'fake_sg'}
         )
         self.assertIsNone(result)
@@ -7489,12 +7473,12 @@ class TestServerResize(compute_fakes.TestComputev2):
         super().setUp()
 
         self.server = compute_fakes.create_one_sdk_server()
-        self.compute_sdk_client.find_server.return_value = self.server
+        self.compute_client.find_server.return_value = self.server
         self.flavor = compute_fakes.create_one_flavor()
-        self.compute_sdk_client.find_flavor.return_value = self.flavor
-        self.compute_sdk_client.resize_server.return_value = None
-        self.compute_sdk_client.revert_server_resize.return_value = None
-        self.compute_sdk_client.confirm_server_resize.return_value = None
+        self.compute_client.find_flavor.return_value = self.flavor
+        self.compute_client.resize_server.return_value = None
+        self.compute_client.revert_server_resize.return_value = None
+        self.compute_client.confirm_server_resize.return_value = None
 
         # Get the command object to test
         self.cmd = server.ResizeServer(self.app, None)
@@ -7512,11 +7496,11 @@ class TestServerResize(compute_fakes.TestComputev2):
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
         result = self.cmd.take_action(parsed_args)
 
-        self.compute_sdk_client.find_server.assert_called_once_with(
+        self.compute_client.find_server.assert_called_once_with(
             self.server.id, ignore_missing=False
         )
-        self.compute_sdk_client.find_flavor.assert_not_called()
-        self.compute_sdk_client.resize_server.assert_not_called()
+        self.compute_client.find_flavor.assert_not_called()
+        self.compute_client.resize_server.assert_not_called()
         self.assertIsNone(result)
 
     def test_server_resize(self):
@@ -7535,17 +7519,17 @@ class TestServerResize(compute_fakes.TestComputev2):
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
         result = self.cmd.take_action(parsed_args)
 
-        self.compute_sdk_client.find_server.assert_called_once_with(
+        self.compute_client.find_server.assert_called_once_with(
             self.server.id, ignore_missing=False
         )
-        self.compute_sdk_client.find_flavor.assert_called_once_with(
+        self.compute_client.find_flavor.assert_called_once_with(
             self.flavor.id, ignore_missing=False
         )
-        self.compute_sdk_client.resize_server.assert_called_once_with(
+        self.compute_client.resize_server.assert_called_once_with(
             self.server, self.flavor
         )
-        self.compute_sdk_client.confirm_server_resize.assert_not_called()
-        self.compute_sdk_client.revert_server_resize.assert_not_called()
+        self.compute_client.confirm_server_resize.assert_not_called()
+        self.compute_client.revert_server_resize.assert_not_called()
         self.assertIsNone(result)
 
     def test_server_resize_confirm(self):
@@ -7563,15 +7547,15 @@ class TestServerResize(compute_fakes.TestComputev2):
         with mock.patch.object(self.cmd.log, 'warning') as mock_warning:
             result = self.cmd.take_action(parsed_args)
 
-        self.compute_sdk_client.find_server.assert_called_once_with(
+        self.compute_client.find_server.assert_called_once_with(
             self.server.id, ignore_missing=False
         )
-        self.compute_sdk_client.find_flavor.assert_not_called()
-        self.compute_sdk_client.resize_server.assert_not_called()
-        self.compute_sdk_client.confirm_server_resize.assert_called_once_with(
+        self.compute_client.find_flavor.assert_not_called()
+        self.compute_client.resize_server.assert_not_called()
+        self.compute_client.confirm_server_resize.assert_called_once_with(
             self.server
         )
-        self.compute_sdk_client.revert_server_resize.assert_not_called()
+        self.compute_client.revert_server_resize.assert_not_called()
         self.assertIsNone(result)
 
         # A warning should have been logged for using --confirm.
@@ -7596,13 +7580,13 @@ class TestServerResize(compute_fakes.TestComputev2):
         with mock.patch.object(self.cmd.log, 'warning') as mock_warning:
             result = self.cmd.take_action(parsed_args)
 
-        self.compute_sdk_client.find_server.assert_called_once_with(
+        self.compute_client.find_server.assert_called_once_with(
             self.server.id, ignore_missing=False
         )
-        self.compute_sdk_client.find_flavor.assert_not_called()
-        self.compute_sdk_client.resize_server.assert_not_called()
-        self.compute_sdk_client.confirm_server_resize.assert_not_called()
-        self.compute_sdk_client.revert_server_resize.assert_called_once_with(
+        self.compute_client.find_flavor.assert_not_called()
+        self.compute_client.resize_server.assert_not_called()
+        self.compute_client.confirm_server_resize.assert_not_called()
+        self.compute_client.revert_server_resize.assert_called_once_with(
             self.server
         )
         self.assertIsNone(result)
@@ -7632,20 +7616,20 @@ class TestServerResize(compute_fakes.TestComputev2):
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
         self.cmd.take_action(parsed_args)
 
-        self.compute_sdk_client.find_server.assert_called_once_with(
+        self.compute_client.find_server.assert_called_once_with(
             self.server.id, ignore_missing=False
         )
-        self.compute_sdk_client.find_flavor.assert_called_once_with(
+        self.compute_client.find_flavor.assert_called_once_with(
             self.flavor.id, ignore_missing=False
         )
-        self.compute_sdk_client.resize_server.assert_called_once_with(
+        self.compute_client.resize_server.assert_called_once_with(
             self.server, self.flavor
         )
-        self.compute_sdk_client.confirm_server_resize.assert_not_called()
-        self.compute_sdk_client.revert_server_resize.assert_not_called()
+        self.compute_client.confirm_server_resize.assert_not_called()
+        self.compute_client.revert_server_resize.assert_not_called()
 
         mock_wait_for_status.assert_called_once_with(
-            self.compute_sdk_client.get_server,
+            self.compute_client.get_server,
             self.server.id,
             success_status=('active', 'verify_resize'),
             callback=mock.ANY,
@@ -7672,20 +7656,20 @@ class TestServerResize(compute_fakes.TestComputev2):
             exceptions.CommandError, self.cmd.take_action, parsed_args
         )
 
-        self.compute_sdk_client.find_server.assert_called_once_with(
+        self.compute_client.find_server.assert_called_once_with(
             self.server.id, ignore_missing=False
         )
-        self.compute_sdk_client.find_flavor.assert_called_once_with(
+        self.compute_client.find_flavor.assert_called_once_with(
             self.flavor.id, ignore_missing=False
         )
-        self.compute_sdk_client.resize_server.assert_called_once_with(
+        self.compute_client.resize_server.assert_called_once_with(
             self.server, self.flavor
         )
-        self.compute_sdk_client.confirm_server_resize.assert_not_called()
-        self.compute_sdk_client.revert_server_resize.assert_not_called()
+        self.compute_client.confirm_server_resize.assert_not_called()
+        self.compute_client.revert_server_resize.assert_not_called()
 
         mock_wait_for_status.assert_called_once_with(
-            self.compute_sdk_client.get_server,
+            self.compute_client.get_server,
             self.server.id,
             success_status=('active', 'verify_resize'),
             callback=mock.ANY,
@@ -7697,8 +7681,8 @@ class TestServerResizeConfirm(compute_fakes.TestComputev2):
         super().setUp()
 
         self.server = compute_fakes.create_one_sdk_server()
-        self.compute_sdk_client.find_server.return_value = self.server
-        self.compute_sdk_client.confirm_server_resize.return_value = None
+        self.compute_client.find_server.return_value = self.server
+        self.compute_client.confirm_server_resize.return_value = None
 
         # Get the command object to test
         self.cmd = server.ResizeConfirm(self.app, None)
@@ -7714,10 +7698,10 @@ class TestServerResizeConfirm(compute_fakes.TestComputev2):
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
         result = self.cmd.take_action(parsed_args)
 
-        self.compute_sdk_client.find_server.assert_called_once_with(
+        self.compute_client.find_server.assert_called_once_with(
             self.server.id, ignore_missing=False
         )
-        self.compute_sdk_client.confirm_server_resize.assert_called_once_with(
+        self.compute_client.confirm_server_resize.assert_called_once_with(
             self.server
         )
         self.assertIsNone(result)
@@ -7729,8 +7713,8 @@ class TestServerMigrateConfirm(compute_fakes.TestComputev2):
         super().setUp()
 
         self.server = compute_fakes.create_one_sdk_server()
-        self.compute_sdk_client.find_server.return_value = self.server
-        self.compute_sdk_client.confirm_server_resize.return_value = None
+        self.compute_client.find_server.return_value = self.server
+        self.compute_client.confirm_server_resize.return_value = None
 
         # Get the command object to test
         self.cmd = server.MigrateConfirm(self.app, None)
@@ -7747,10 +7731,10 @@ class TestServerMigrateConfirm(compute_fakes.TestComputev2):
         with mock.patch.object(self.cmd.log, 'warning') as mock_warning:
             result = self.cmd.take_action(parsed_args)
 
-        self.compute_sdk_client.find_server.assert_called_once_with(
+        self.compute_client.find_server.assert_called_once_with(
             self.server.id, ignore_missing=False
         )
-        self.compute_sdk_client.confirm_server_resize.assert_called_once_with(
+        self.compute_client.confirm_server_resize.assert_called_once_with(
             self.server
         )
         self.assertIsNone(result)
@@ -7767,8 +7751,8 @@ class TestServerConfirmMigration(compute_fakes.TestComputev2):
         super().setUp()
 
         self.server = compute_fakes.create_one_sdk_server()
-        self.compute_sdk_client.find_server.return_value = self.server
-        self.compute_sdk_client.confirm_server_resize.return_value = None
+        self.compute_client.find_server.return_value = self.server
+        self.compute_client.confirm_server_resize.return_value = None
 
         # Get the command object to test
         self.cmd = server.ConfirmMigration(self.app, None)
@@ -7784,10 +7768,10 @@ class TestServerConfirmMigration(compute_fakes.TestComputev2):
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
         result = self.cmd.take_action(parsed_args)
 
-        self.compute_sdk_client.find_server.assert_called_once_with(
+        self.compute_client.find_server.assert_called_once_with(
             self.server.id, ignore_missing=False
         )
-        self.compute_sdk_client.confirm_server_resize.assert_called_once_with(
+        self.compute_client.confirm_server_resize.assert_called_once_with(
             self.server
         )
         self.assertIsNone(result)
@@ -7798,8 +7782,8 @@ class TestServerResizeRevert(compute_fakes.TestComputev2):
         super().setUp()
 
         self.server = compute_fakes.create_one_sdk_server()
-        self.compute_sdk_client.find_server.return_value = self.server
-        self.compute_sdk_client.revert_server_resize.return_value = None
+        self.compute_client.find_server.return_value = self.server
+        self.compute_client.revert_server_resize.return_value = None
 
         # Get the command object to test
         self.cmd = server.ResizeRevert(self.app, None)
@@ -7815,10 +7799,10 @@ class TestServerResizeRevert(compute_fakes.TestComputev2):
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
         result = self.cmd.take_action(parsed_args)
 
-        self.compute_sdk_client.find_server.assert_called_once_with(
+        self.compute_client.find_server.assert_called_once_with(
             self.server.id, ignore_missing=False
         )
-        self.compute_sdk_client.revert_server_resize.assert_called_once_with(
+        self.compute_client.revert_server_resize.assert_called_once_with(
             self.server
         )
         self.assertIsNone(result)
@@ -7830,8 +7814,8 @@ class TestServerMigrateRevert(compute_fakes.TestComputev2):
         super().setUp()
 
         self.server = compute_fakes.create_one_sdk_server()
-        self.compute_sdk_client.find_server.return_value = self.server
-        self.compute_sdk_client.revert_server_resize.return_value = None
+        self.compute_client.find_server.return_value = self.server
+        self.compute_client.revert_server_resize.return_value = None
 
         # Get the command object to test
         self.cmd = server.MigrateRevert(self.app, None)
@@ -7848,10 +7832,10 @@ class TestServerMigrateRevert(compute_fakes.TestComputev2):
         with mock.patch.object(self.cmd.log, 'warning') as mock_warning:
             result = self.cmd.take_action(parsed_args)
 
-        self.compute_sdk_client.find_server.assert_called_once_with(
+        self.compute_client.find_server.assert_called_once_with(
             self.server.id, ignore_missing=False
         )
-        self.compute_sdk_client.revert_server_resize.assert_called_once_with(
+        self.compute_client.revert_server_resize.assert_called_once_with(
             self.server
         )
         self.assertIsNone(result)
@@ -7868,8 +7852,8 @@ class TestServerRevertMigration(compute_fakes.TestComputev2):
         super().setUp()
 
         self.server = compute_fakes.create_one_sdk_server()
-        self.compute_sdk_client.find_server.return_value = self.server
-        self.compute_sdk_client.revert_server_resize.return_value = None
+        self.compute_client.find_server.return_value = self.server
+        self.compute_client.revert_server_resize.return_value = None
 
         # Get the command object to test
         self.cmd = server.RevertMigration(self.app, None)
@@ -7885,10 +7869,10 @@ class TestServerRevertMigration(compute_fakes.TestComputev2):
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
         result = self.cmd.take_action(parsed_args)
 
-        self.compute_sdk_client.find_server.assert_called_once_with(
+        self.compute_client.find_server.assert_called_once_with(
             self.server.id, ignore_missing=False
         )
-        self.compute_sdk_client.revert_server_resize.assert_called_once_with(
+        self.compute_client.revert_server_resize.assert_called_once_with(
             self.server
         )
         self.assertIsNone(result)
@@ -7927,7 +7911,7 @@ class TestServerSet(TestServer):
         super().setUp()
 
         self.server = compute_fakes.create_one_sdk_server()
-        self.compute_sdk_client.find_server.return_value = self.server
+        self.compute_client.find_server.return_value = self.server
 
         # Get the command object to test
         self.cmd = server.SetServer(self.app, None)
@@ -7939,12 +7923,12 @@ class TestServerSet(TestServer):
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
         result = self.cmd.take_action(parsed_args)
 
-        self.compute_sdk_client.update_server.assert_not_called()
-        self.compute_sdk_client.set_server_metadata.assert_not_called()
-        self.compute_sdk_client.reset_server_state.assert_not_called()
-        self.compute_sdk_client.change_server_password.assert_not_called()
-        self.compute_sdk_client.clear_server_password.assert_not_called()
-        self.compute_sdk_client.add_tag_to_server.assert_not_called()
+        self.compute_client.update_server.assert_not_called()
+        self.compute_client.set_server_metadata.assert_not_called()
+        self.compute_client.reset_server_state.assert_not_called()
+        self.compute_client.change_server_password.assert_not_called()
+        self.compute_client.clear_server_password.assert_not_called()
+        self.compute_client.add_tag_to_server.assert_not_called()
         self.assertIsNone(result)
 
     def test_server_set_with_state(self):
@@ -7961,14 +7945,14 @@ class TestServerSet(TestServer):
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
         result = self.cmd.take_action(parsed_args)
 
-        self.compute_sdk_client.reset_server_state.assert_called_once_with(
+        self.compute_client.reset_server_state.assert_called_once_with(
             self.server, state='active'
         )
-        self.compute_sdk_client.update_server.assert_not_called()
-        self.compute_sdk_client.set_server_metadata.assert_not_called()
-        self.compute_sdk_client.change_server_password.assert_not_called()
-        self.compute_sdk_client.clear_server_password.assert_not_called()
-        self.compute_sdk_client.add_tag_to_server.assert_not_called()
+        self.compute_client.update_server.assert_not_called()
+        self.compute_client.set_server_metadata.assert_not_called()
+        self.compute_client.change_server_password.assert_not_called()
+        self.compute_client.clear_server_password.assert_not_called()
+        self.compute_client.add_tag_to_server.assert_not_called()
         self.assertIsNone(result)
 
     def test_server_set_with_invalid_state(self):
@@ -8003,14 +7987,14 @@ class TestServerSet(TestServer):
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
         result = self.cmd.take_action(parsed_args)
 
-        self.compute_sdk_client.update_server.assert_called_once_with(
+        self.compute_client.update_server.assert_called_once_with(
             self.server, name='foo_name'
         )
-        self.compute_sdk_client.set_server_metadata.assert_not_called()
-        self.compute_sdk_client.reset_server_state.assert_not_called()
-        self.compute_sdk_client.change_server_password.assert_not_called()
-        self.compute_sdk_client.clear_server_password.assert_not_called()
-        self.compute_sdk_client.add_tag_to_server.assert_not_called()
+        self.compute_client.set_server_metadata.assert_not_called()
+        self.compute_client.reset_server_state.assert_not_called()
+        self.compute_client.change_server_password.assert_not_called()
+        self.compute_client.clear_server_password.assert_not_called()
+        self.compute_client.add_tag_to_server.assert_not_called()
         self.assertIsNone(result)
 
     def test_server_set_with_property(self):
@@ -8029,14 +8013,14 @@ class TestServerSet(TestServer):
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
         result = self.cmd.take_action(parsed_args)
 
-        self.compute_sdk_client.set_server_metadata.assert_called_once_with(
+        self.compute_client.set_server_metadata.assert_called_once_with(
             self.server, key1='value1', key2='value2'
         )
-        self.compute_sdk_client.update_server.assert_not_called()
-        self.compute_sdk_client.reset_server_state.assert_not_called()
-        self.compute_sdk_client.change_server_password.assert_not_called()
-        self.compute_sdk_client.clear_server_password.assert_not_called()
-        self.compute_sdk_client.add_tag_to_server.assert_not_called()
+        self.compute_client.update_server.assert_not_called()
+        self.compute_client.reset_server_state.assert_not_called()
+        self.compute_client.change_server_password.assert_not_called()
+        self.compute_client.clear_server_password.assert_not_called()
+        self.compute_client.add_tag_to_server.assert_not_called()
         self.assertIsNone(result)
 
     def test_server_set_with_password(self):
@@ -8053,14 +8037,14 @@ class TestServerSet(TestServer):
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
         result = self.cmd.take_action(parsed_args)
 
-        self.compute_sdk_client.change_server_password.assert_called_once_with(
+        self.compute_client.change_server_password.assert_called_once_with(
             self.server, 'foo'
         )
-        self.compute_sdk_client.update_server.assert_not_called()
-        self.compute_sdk_client.set_server_metadata.assert_not_called()
-        self.compute_sdk_client.reset_server_state.assert_not_called()
-        self.compute_sdk_client.clear_server_password.assert_not_called()
-        self.compute_sdk_client.add_tag_to_server.assert_not_called()
+        self.compute_client.update_server.assert_not_called()
+        self.compute_client.set_server_metadata.assert_not_called()
+        self.compute_client.reset_server_state.assert_not_called()
+        self.compute_client.clear_server_password.assert_not_called()
+        self.compute_client.add_tag_to_server.assert_not_called()
         self.assertIsNone(result)
 
     def test_server_set_with_no_password(self):
@@ -8076,14 +8060,14 @@ class TestServerSet(TestServer):
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
         result = self.cmd.take_action(parsed_args)
 
-        self.compute_sdk_client.clear_server_password.assert_called_once_with(
+        self.compute_client.clear_server_password.assert_called_once_with(
             self.server
         )
-        self.compute_sdk_client.update_server.assert_not_called()
-        self.compute_sdk_client.set_server_metadata.assert_not_called()
-        self.compute_sdk_client.reset_server_state.assert_not_called()
-        self.compute_sdk_client.change_server_password.assert_not_called()
-        self.compute_sdk_client.add_tag_to_server.assert_not_called()
+        self.compute_client.update_server.assert_not_called()
+        self.compute_client.set_server_metadata.assert_not_called()
+        self.compute_client.reset_server_state.assert_not_called()
+        self.compute_client.change_server_password.assert_not_called()
+        self.compute_client.add_tag_to_server.assert_not_called()
         self.assertIsNone(result)
 
     # TODO(stephenfin): Remove this in a future major version
@@ -8103,14 +8087,14 @@ class TestServerSet(TestServer):
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
         result = self.cmd.take_action(parsed_args)
 
-        self.compute_sdk_client.change_server_password.assert_called_once_with(
+        self.compute_client.change_server_password.assert_called_once_with(
             self.server, mock.sentinel.fake_pass
         )
-        self.compute_sdk_client.update_server.assert_not_called()
-        self.compute_sdk_client.set_server_metadata.assert_not_called()
-        self.compute_sdk_client.reset_server_state.assert_not_called()
-        self.compute_sdk_client.clear_server_password.assert_not_called()
-        self.compute_sdk_client.add_tag_to_server.assert_not_called()
+        self.compute_client.update_server.assert_not_called()
+        self.compute_client.set_server_metadata.assert_not_called()
+        self.compute_client.reset_server_state.assert_not_called()
+        self.compute_client.clear_server_password.assert_not_called()
+        self.compute_client.add_tag_to_server.assert_not_called()
         self.assertIsNone(result)
 
     def test_server_set_with_description(self):
@@ -8129,14 +8113,14 @@ class TestServerSet(TestServer):
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
         result = self.cmd.take_action(parsed_args)
 
-        self.compute_sdk_client.update_server.assert_called_once_with(
+        self.compute_client.update_server.assert_called_once_with(
             self.server, description='foo_description'
         )
-        self.compute_sdk_client.set_server_metadata.assert_not_called()
-        self.compute_sdk_client.reset_server_state.assert_not_called()
-        self.compute_sdk_client.change_server_password.assert_not_called()
-        self.compute_sdk_client.clear_server_password.assert_not_called()
-        self.compute_sdk_client.add_tag_to_server.assert_not_called()
+        self.compute_client.set_server_metadata.assert_not_called()
+        self.compute_client.reset_server_state.assert_not_called()
+        self.compute_client.change_server_password.assert_not_called()
+        self.compute_client.clear_server_password.assert_not_called()
+        self.compute_client.add_tag_to_server.assert_not_called()
         self.assertIsNone(result)
 
     def test_server_set_with_description_pre_v219(self):
@@ -8175,17 +8159,17 @@ class TestServerSet(TestServer):
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
         result = self.cmd.take_action(parsed_args)
 
-        self.compute_sdk_client.add_tag_to_server.assert_has_calls(
+        self.compute_client.add_tag_to_server.assert_has_calls(
             [
                 mock.call(self.server, tag='tag1'),
                 mock.call(self.server, tag='tag2'),
             ]
         )
-        self.compute_sdk_client.update_server.assert_not_called()
-        self.compute_sdk_client.set_server_metadata.assert_not_called()
-        self.compute_sdk_client.reset_server_state.assert_not_called()
-        self.compute_sdk_client.change_server_password.assert_not_called()
-        self.compute_sdk_client.clear_server_password.assert_not_called()
+        self.compute_client.update_server.assert_not_called()
+        self.compute_client.set_server_metadata.assert_not_called()
+        self.compute_client.reset_server_state.assert_not_called()
+        self.compute_client.change_server_password.assert_not_called()
+        self.compute_client.clear_server_password.assert_not_called()
         self.assertIsNone(result)
 
     def test_server_set_with_tag_pre_v226(self):
@@ -8227,14 +8211,14 @@ class TestServerSet(TestServer):
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
         result = self.cmd.take_action(parsed_args)
 
-        self.compute_sdk_client.update_server.assert_called_once_with(
+        self.compute_client.update_server.assert_called_once_with(
             self.server, hostname='foo-hostname'
         )
-        self.compute_sdk_client.set_server_metadata.assert_not_called()
-        self.compute_sdk_client.reset_server_state.assert_not_called()
-        self.compute_sdk_client.change_server_password.assert_not_called()
-        self.compute_sdk_client.clear_server_password.assert_not_called()
-        self.compute_sdk_client.add_tag_to_server.assert_not_called()
+        self.compute_client.set_server_metadata.assert_not_called()
+        self.compute_client.reset_server_state.assert_not_called()
+        self.compute_client.change_server_password.assert_not_called()
+        self.compute_client.clear_server_password.assert_not_called()
+        self.compute_client.add_tag_to_server.assert_not_called()
         self.assertIsNone(result)
 
     def test_server_set_with_hostname_pre_v290(self):
@@ -8263,8 +8247,8 @@ class TestServerShelve(TestServer):
             attrs={'status': 'ACTIVE'},
         )
 
-        self.compute_sdk_client.find_server.return_value = self.server
-        self.compute_sdk_client.shelve_server.return_value = None
+        self.compute_client.find_server.return_value = self.server
+        self.compute_client.shelve_server.return_value = None
 
         # Get the command object to test
         self.cmd = server.ShelveServer(self.app, None)
@@ -8281,14 +8265,12 @@ class TestServerShelve(TestServer):
         result = self.cmd.take_action(parsed_args)
         self.assertIsNone(result)
 
-        self.compute_sdk_client.find_server.assert_called_with(
+        self.compute_client.find_server.assert_called_with(
             self.server.name,
             ignore_missing=False,
         )
-        self.compute_sdk_client.shelve_server.assert_called_with(
-            self.server.id
-        )
-        self.compute_sdk_client.shelve_offload_server.assert_not_called()
+        self.compute_client.shelve_server.assert_called_with(self.server.id)
+        self.compute_client.shelve_offload_server.assert_not_called()
 
     def test_shelve_already_shelved(self):
         self.server.status = 'SHELVED'
@@ -8304,12 +8286,12 @@ class TestServerShelve(TestServer):
         result = self.cmd.take_action(parsed_args)
         self.assertIsNone(result)
 
-        self.compute_sdk_client.find_server.assert_called_with(
+        self.compute_client.find_server.assert_called_with(
             self.server.name,
             ignore_missing=False,
         )
-        self.compute_sdk_client.shelve_server.assert_not_called()
-        self.compute_sdk_client.shelve_offload_server.assert_not_called()
+        self.compute_client.shelve_server.assert_not_called()
+        self.compute_client.shelve_offload_server.assert_not_called()
 
     @mock.patch.object(common_utils, 'wait_for_status', return_value=True)
     def test_shelve_with_wait(self, mock_wait_for_status):
@@ -8324,16 +8306,14 @@ class TestServerShelve(TestServer):
         result = self.cmd.take_action(parsed_args)
         self.assertIsNone(result)
 
-        self.compute_sdk_client.find_server.assert_called_with(
+        self.compute_client.find_server.assert_called_with(
             self.server.name,
             ignore_missing=False,
         )
-        self.compute_sdk_client.shelve_server.assert_called_with(
-            self.server.id
-        )
-        self.compute_sdk_client.shelve_offload_server.assert_not_called()
+        self.compute_client.shelve_server.assert_called_with(self.server.id)
+        self.compute_client.shelve_offload_server.assert_not_called()
         mock_wait_for_status.assert_called_once_with(
-            self.compute_sdk_client.get_server,
+            self.compute_client.get_server,
             self.server.id,
             callback=mock.ANY,
             success_status=('shelved', 'shelved_offloaded'),
@@ -8353,25 +8333,21 @@ class TestServerShelve(TestServer):
         self.assertIsNone(result)
 
         # one call to retrieve to retrieve the server state before shelving
-        self.compute_sdk_client.find_server.assert_called_once_with(
+        self.compute_client.find_server.assert_called_once_with(
             self.server.name,
             ignore_missing=False,
         )
         # one call to retrieve the server state before offloading
-        self.compute_sdk_client.get_server.assert_called_once_with(
-            self.server.id
-        )
+        self.compute_client.get_server.assert_called_once_with(self.server.id)
         # one call to shelve the server
-        self.compute_sdk_client.shelve_server.assert_called_with(
-            self.server.id
-        )
+        self.compute_client.shelve_server.assert_called_with(self.server.id)
         # one call to shelve offload the server
-        self.compute_sdk_client.shelve_offload_server.assert_called_once_with(
+        self.compute_client.shelve_offload_server.assert_called_once_with(
             self.server.id,
         )
         # one call to wait for the shelve offload to complete
         mock_wait_for_status.assert_called_once_with(
-            self.compute_sdk_client.get_server,
+            self.compute_client.get_server,
             self.server.id,
             callback=mock.ANY,
             success_status=('shelved', 'shelved_offloaded'),
@@ -8386,7 +8362,7 @@ class TestServerShow(TestServer):
         self.image_client.get_image.return_value = self.image
 
         self.flavor = compute_fakes.create_one_flavor()
-        self.compute_sdk_client.find_flavor.return_value = self.flavor
+        self.compute_client.find_flavor.return_value = self.flavor
 
         self.topology = {
             'nodes': [{'vcpu_set': [0, 1]}, {'vcpu_set': [2, 3]}],
@@ -8398,14 +8374,14 @@ class TestServerShow(TestServer):
             'tenant_id': 'tenant-id-xxx',
             'addresses': {'public': ['10.20.30.40', '2001:db8::f']},
         }
-        self.compute_sdk_client.get_server_diagnostics.return_value = {
+        self.compute_client.get_server_diagnostics.return_value = {
             'test': 'test'
         }
         self.server = compute_fakes.create_one_sdk_server(
             attrs=server_info,
         )
         self.server.fetch_topology = mock.MagicMock(return_value=self.topology)
-        self.compute_sdk_client.find_server.return_value = self.server
+        self.compute_client.find_server.return_value = self.server
 
         # Get the command object to test
         self.cmd = server.ShowServer(self.app, None)
@@ -8534,10 +8510,10 @@ class TestServerShow(TestServer):
 
         self.assertTupleEqual(self.columns, columns)
         self.assertTupleEqual(self.data, data)
-        self.compute_sdk_client.find_server.assert_called_once_with(
+        self.compute_client.find_server.assert_called_once_with(
             self.server.name, ignore_missing=False, details=True
         )
-        self.compute_sdk_client.get_server.assert_not_called()
+        self.compute_client.get_server.assert_not_called()
 
     def test_show_embedded_flavor(self):
         # Tests using --os-compute-api-version >= 2.47 where the flavor
@@ -8566,10 +8542,10 @@ class TestServerShow(TestServer):
         # Since the flavor details are in a dict we can't be sure of the
         # ordering so just assert that one of the keys is in the output.
         self.assertIn('original_name', data[columns.index('flavor')]._value)
-        self.compute_sdk_client.find_server.assert_called_once_with(
+        self.compute_client.find_server.assert_called_once_with(
             self.server.name, ignore_missing=False, details=True
         )
-        self.compute_sdk_client.get_server.assert_not_called()
+        self.compute_client.get_server.assert_not_called()
 
     def test_show_diagnostics(self):
         arglist = [
@@ -8587,13 +8563,13 @@ class TestServerShow(TestServer):
 
         self.assertEqual(('test',), columns)
         self.assertEqual(('test',), data)
-        self.compute_sdk_client.find_server.assert_called_once_with(
+        self.compute_client.find_server.assert_called_once_with(
             self.server.name, ignore_missing=False, details=True
         )
-        self.compute_sdk_client.get_server_diagnostics.assert_called_once_with(
+        self.compute_client.get_server_diagnostics.assert_called_once_with(
             self.server
         )
-        self.compute_sdk_client.get_server.assert_not_called()
+        self.compute_client.get_server.assert_not_called()
 
     def test_show_topology(self):
         self.set_compute_api_version('2.78')
@@ -8616,13 +8592,11 @@ class TestServerShow(TestServer):
 
         self.assertCountEqual(self.columns, columns)
         self.assertCountEqual(self.data, data)
-        self.compute_sdk_client.find_server.assert_called_once_with(
+        self.compute_client.find_server.assert_called_once_with(
             self.server.name, ignore_missing=False, details=True
         )
-        self.server.fetch_topology.assert_called_once_with(
-            self.compute_sdk_client
-        )
-        self.compute_sdk_client.get_server.assert_not_called()
+        self.server.fetch_topology.assert_called_once_with(self.compute_client)
+        self.compute_client.get_server.assert_not_called()
 
     def test_show_topology_pre_v278(self):
         self.set_compute_api_version('2.77')
@@ -8641,11 +8615,11 @@ class TestServerShow(TestServer):
         self.assertRaises(
             exceptions.CommandError, self.cmd.take_action, parsed_args
         )
-        self.compute_sdk_client.find_server.assert_called_once_with(
+        self.compute_client.find_server.assert_called_once_with(
             self.server.name, ignore_missing=False, details=True
         )
         self.server.fetch_topology.assert_not_called()
-        self.compute_sdk_client.get_server.assert_not_called()
+        self.compute_client.get_server.assert_not_called()
 
 
 @mock.patch('openstackclient.compute.v2.server.os.system')
@@ -8673,7 +8647,7 @@ class TestServerSsh(TestServer):
         self.server = compute_fakes.create_one_sdk_server(
             attrs=self.attrs,
         )
-        self.compute_sdk_client.find_server.return_value = self.server
+        self.compute_client.find_server.return_value = self.server
 
     def test_server_ssh_no_opts(self, mock_exec):
         arglist = [
@@ -8696,7 +8670,7 @@ class TestServerSsh(TestServer):
         with mock.patch.object(self.cmd.log, 'warning') as mock_warning:
             result = self.cmd.take_action(parsed_args)
 
-        self.compute_sdk_client.find_server.assert_called_once_with(
+        self.compute_client.find_server.assert_called_once_with(
             self.server.name, ignore_missing=False
         )
         self.assertIsNone(result)
@@ -8729,7 +8703,7 @@ class TestServerSsh(TestServer):
         with mock.patch.object(self.cmd.log, 'warning') as mock_warning:
             result = self.cmd.take_action(parsed_args)
 
-        self.compute_sdk_client.find_server.assert_called_once_with(
+        self.compute_client.find_server.assert_called_once_with(
             self.server.name, ignore_missing=False
         )
         self.assertIsNone(result)
@@ -8763,7 +8737,7 @@ class TestServerSsh(TestServer):
         with mock.patch.object(self.cmd.log, 'warning') as mock_warning:
             result = self.cmd.take_action(parsed_args)
 
-        self.compute_sdk_client.find_server.assert_called_once_with(
+        self.compute_client.find_server.assert_called_once_with(
             self.server.name, ignore_missing=False
         )
         self.assertIsNone(result)
@@ -8792,7 +8766,7 @@ class TestServerStart(TestServerAction):
 
     def test_server_start_with_all_projects(self):
         server = compute_fakes.create_one_sdk_server()
-        self.compute_sdk_client.find_server.return_value = server
+        self.compute_client.find_server.return_value = server
 
         arglist = [
             server.id,
@@ -8805,7 +8779,7 @@ class TestServerStart(TestServerAction):
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
         self.cmd.take_action(parsed_args)
 
-        self.compute_sdk_client.find_server.assert_called_once_with(
+        self.compute_client.find_server.assert_called_once_with(
             server.id,
             ignore_missing=False,
             details=False,
@@ -8828,7 +8802,7 @@ class TestServerStop(TestServerAction):
 
     def test_server_start_with_all_projects(self):
         server = compute_fakes.create_one_sdk_server()
-        self.compute_sdk_client.find_server.return_value = server
+        self.compute_client.find_server.return_value = server
 
         arglist = [
             server.id,
@@ -8841,7 +8815,7 @@ class TestServerStop(TestServerAction):
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
         self.cmd.take_action(parsed_args)
 
-        self.compute_sdk_client.find_server.assert_called_once_with(
+        self.compute_client.find_server.assert_called_once_with(
             server.id,
             ignore_missing=False,
             details=False,
@@ -8896,7 +8870,7 @@ class TestServerUnrescue(compute_fakes.TestComputev2):
         super().setUp()
 
         self.server = compute_fakes.create_one_sdk_server()
-        self.compute_sdk_client.find_server.return_value = self.server
+        self.compute_client.find_server.return_value = self.server
 
         self.cmd = server.UnrescueServer(self.app, None)
 
@@ -8911,10 +8885,10 @@ class TestServerUnrescue(compute_fakes.TestComputev2):
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
         result = self.cmd.take_action(parsed_args)
 
-        self.compute_sdk_client.find_server.assert_called_once_with(
+        self.compute_client.find_server.assert_called_once_with(
             self.server.id, ignore_missing=False
         )
-        self.compute_sdk_client.unrescue_server.assert_called_once_with(
+        self.compute_client.unrescue_server.assert_called_once_with(
             self.server
         )
         self.assertIsNone(result)
@@ -8925,7 +8899,7 @@ class TestServerUnset(TestServer):
         super().setUp()
 
         self.server = compute_fakes.create_one_sdk_server()
-        self.compute_sdk_client.find_server.return_value = self.server
+        self.compute_client.find_server.return_value = self.server
 
         # Get the command object to test
         self.cmd = server.UnsetServer(self.app, None)
@@ -8941,12 +8915,10 @@ class TestServerUnset(TestServer):
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
         result = self.cmd.take_action(parsed_args)
 
-        self.compute_sdk_client.find_server(
-            self.server.id, ignore_missing=False
-        )
-        self.compute_sdk_client.delete_server_metadata.assert_not_called()
-        self.compute_sdk_client.update_server.assert_not_called()
-        self.compute_sdk_client.remove_tag_from_server.assert_not_called()
+        self.compute_client.find_server(self.server.id, ignore_missing=False)
+        self.compute_client.delete_server_metadata.assert_not_called()
+        self.compute_client.update_server.assert_not_called()
+        self.compute_client.remove_tag_from_server.assert_not_called()
         self.assertIsNone(result)
 
     def test_server_unset_with_property(self):
@@ -8965,15 +8937,13 @@ class TestServerUnset(TestServer):
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
         result = self.cmd.take_action(parsed_args)
 
-        self.compute_sdk_client.find_server(
-            self.server.id, ignore_missing=False
-        )
-        self.compute_sdk_client.delete_server_metadata.assert_called_once_with(
+        self.compute_client.find_server(self.server.id, ignore_missing=False)
+        self.compute_client.delete_server_metadata.assert_called_once_with(
             self.server,
             ['key1', 'key2'],
         )
-        self.compute_sdk_client.update_server.assert_not_called()
-        self.compute_sdk_client.remove_tag_from_server.assert_not_called()
+        self.compute_client.update_server.assert_not_called()
+        self.compute_client.remove_tag_from_server.assert_not_called()
         self.assertIsNone(result)
 
     def test_server_unset_with_description(self):
@@ -8992,14 +8962,12 @@ class TestServerUnset(TestServer):
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
         result = self.cmd.take_action(parsed_args)
 
-        self.compute_sdk_client.find_server(
-            self.server.id, ignore_missing=False
-        )
-        self.compute_sdk_client.update_server.assert_called_once_with(
+        self.compute_client.find_server(self.server.id, ignore_missing=False)
+        self.compute_client.update_server.assert_called_once_with(
             self.server, description=''
         )
-        self.compute_sdk_client.delete_server_metadata.assert_not_called()
-        self.compute_sdk_client.remove_tag_from_server.assert_not_called()
+        self.compute_client.delete_server_metadata.assert_not_called()
+        self.compute_client.remove_tag_from_server.assert_not_called()
         self.assertIsNone(result)
 
     def test_server_unset_with_description_pre_v219(self):
@@ -9042,17 +9010,15 @@ class TestServerUnset(TestServer):
         result = self.cmd.take_action(parsed_args)
         self.assertIsNone(result)
 
-        self.compute_sdk_client.find_server(
-            self.server.id, ignore_missing=False
-        )
-        self.compute_sdk_client.remove_tag_from_server.assert_has_calls(
+        self.compute_client.find_server(self.server.id, ignore_missing=False)
+        self.compute_client.remove_tag_from_server.assert_has_calls(
             [
                 mock.call(self.server, 'tag1'),
                 mock.call(self.server, 'tag2'),
             ]
         )
-        self.compute_sdk_client.delete_server_metadata.assert_not_called()
-        self.compute_sdk_client.update_server.assert_not_called()
+        self.compute_client.delete_server_metadata.assert_not_called()
+        self.compute_client.update_server.assert_not_called()
 
     def test_server_unset_with_tag_pre_v226(self):
         self.set_compute_api_version('2.25')
@@ -9086,8 +9052,8 @@ class TestServerUnshelve(TestServer):
             attrs={'status': 'SHELVED'},
         )
 
-        self.compute_sdk_client.find_server.return_value = self.server
-        self.compute_sdk_client.unshelve_server.return_value = None
+        self.compute_client.find_server.return_value = self.server
+        self.compute_client.unshelve_server.return_value = None
 
         # Get the command object to test
         self.cmd = server.UnshelveServer(self.app, None)
@@ -9103,11 +9069,11 @@ class TestServerUnshelve(TestServer):
 
         self.cmd.take_action(parsed_args)
 
-        self.compute_sdk_client.find_server.assert_called_once_with(
+        self.compute_client.find_server.assert_called_once_with(
             self.server.id,
             ignore_missing=False,
         )
-        self.compute_sdk_client.unshelve_server.assert_called_once_with(
+        self.compute_client.unshelve_server.assert_called_once_with(
             self.server.id
         )
 
@@ -9127,11 +9093,11 @@ class TestServerUnshelve(TestServer):
 
         self.cmd.take_action(parsed_args)
 
-        self.compute_sdk_client.find_server.assert_called_once_with(
+        self.compute_client.find_server.assert_called_once_with(
             self.server.id,
             ignore_missing=False,
         )
-        self.compute_sdk_client.unshelve_server.assert_called_once_with(
+        self.compute_client.unshelve_server.assert_called_once_with(
             self.server.id,
             availability_zone='foo-az',
         )
@@ -9173,11 +9139,11 @@ class TestServerUnshelve(TestServer):
 
         self.cmd.take_action(parsed_args)
 
-        self.compute_sdk_client.find_server.assert_called_once_with(
+        self.compute_client.find_server.assert_called_once_with(
             self.server.id,
             ignore_missing=False,
         )
-        self.compute_sdk_client.unshelve_server.assert_called_once_with(
+        self.compute_client.unshelve_server.assert_called_once_with(
             self.server.id,
             host='server1',
         )
@@ -9219,11 +9185,11 @@ class TestServerUnshelve(TestServer):
 
         self.cmd.take_action(parsed_args)
 
-        self.compute_sdk_client.find_server.assert_called_once_with(
+        self.compute_client.find_server.assert_called_once_with(
             self.server.id,
             ignore_missing=False,
         )
-        self.compute_sdk_client.unshelve_server.assert_called_once_with(
+        self.compute_client.unshelve_server.assert_called_once_with(
             self.server.id,
             availability_zone=None,
         )
@@ -9295,15 +9261,13 @@ class TestServerUnshelve(TestServer):
         result = self.cmd.take_action(parsed_args)
         self.assertIsNone(result)
 
-        self.compute_sdk_client.find_server.assert_called_with(
+        self.compute_client.find_server.assert_called_with(
             self.server.name,
             ignore_missing=False,
         )
-        self.compute_sdk_client.unshelve_server.assert_called_with(
-            self.server.id
-        )
+        self.compute_client.unshelve_server.assert_called_with(self.server.id)
         mock_wait_for_status.assert_called_once_with(
-            self.compute_sdk_client.get_server,
+            self.compute_client.get_server,
             self.server.id,
             callback=mock.ANY,
             success_status=('active', 'shutoff'),
@@ -9395,7 +9359,7 @@ class TestServerGeneral(TestServer):
         self.image_client.get_image.return_value = _image
 
         _flavor = compute_fakes.create_one_flavor()
-        self.compute_sdk_client.find_flavor.return_value = _flavor
+        self.compute_client.find_flavor.return_value = _flavor
 
         server_info = {
             'image': {'id': _image.id},
@@ -9407,7 +9371,7 @@ class TestServerGeneral(TestServer):
             'volumes_attached': [{"id": "6344fe9d-ef20-45b2-91a6"}],
         }
         _server = compute_fakes.create_one_sdk_server(server_info)
-        self.compute_sdk_client.get_server.return_value = _server
+        self.compute_client.get_server.return_value = _server
 
         expected = {
             'OS-DCF:diskConfig': None,
@@ -9458,14 +9422,14 @@ class TestServerGeneral(TestServer):
         }
 
         actual = server._prep_server_detail(
-            self.compute_sdk_client,
+            self.compute_client,
             self.image_client,
             _server,
         )
 
         self.assertCountEqual(expected, actual)
         # this should be called since we need the flavor (< 2.47)
-        self.compute_sdk_client.find_flavor.assert_called_once_with(
+        self.compute_client.find_flavor.assert_called_once_with(
             _flavor.id, ignore_missing=False
         )
 
@@ -9474,7 +9438,7 @@ class TestServerGeneral(TestServer):
         self.image_client.get_image.return_value = _image
 
         _flavor = compute_fakes.create_one_flavor()
-        self.compute_sdk_client.find_flavor.return_value = _flavor
+        self.compute_client.find_flavor.return_value = _flavor
 
         server_info = {
             'image': {'id': _image.id},
@@ -9494,7 +9458,7 @@ class TestServerGeneral(TestServer):
             'volumes_attached': [{"id": "6344fe9d-ef20-45b2-91a6"}],
         }
         _server = compute_fakes.create_one_sdk_server(server_info)
-        self.compute_sdk_client.get_server.return_value = _server
+        self.compute_client.get_server.return_value = _server
 
         expected = {
             'OS-DCF:diskConfig': None,
@@ -9545,11 +9509,11 @@ class TestServerGeneral(TestServer):
         }
 
         actual = server._prep_server_detail(
-            self.compute_sdk_client,
+            self.compute_client,
             self.image_client,
             _server,
         )
 
         self.assertCountEqual(expected, actual)
         # this shouldn't be called since we have a full flavor (>= 2.47)
-        self.compute_sdk_client.find_flavor.assert_not_called()
+        self.compute_client.find_flavor.assert_not_called()

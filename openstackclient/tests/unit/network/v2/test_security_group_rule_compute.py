@@ -159,7 +159,7 @@ class TestCreateSecurityGroupRuleCompute(compute_fakes.TestComputev2):
         columns, data = self.cmd.take_action(parsed_args)
 
         sgr_mock.assert_called_once_with(
-            self.compute_sdk_client,
+            self.compute_client,
             security_group_id=self._security_group['id'],
             ip_protocol=self._security_group_rule['ip_protocol'],
             from_port=self._security_group_rule['from_port'],
@@ -202,7 +202,7 @@ class TestCreateSecurityGroupRuleCompute(compute_fakes.TestComputev2):
         columns, data = self.cmd.take_action(parsed_args)
 
         sgr_mock.assert_called_once_with(
-            self.compute_sdk_client,
+            self.compute_client,
             security_group_id=self._security_group['id'],
             ip_protocol=self._security_group_rule['ip_protocol'],
             from_port=self._security_group_rule['from_port'],
@@ -240,7 +240,7 @@ class TestCreateSecurityGroupRuleCompute(compute_fakes.TestComputev2):
         columns, data = self.cmd.take_action(parsed_args)
 
         sgr_mock.assert_called_once_with(
-            self.compute_sdk_client,
+            self.compute_client,
             security_group_id=self._security_group['id'],
             ip_protocol=self._security_group_rule['ip_protocol'],
             from_port=self._security_group_rule['from_port'],
@@ -279,7 +279,7 @@ class TestCreateSecurityGroupRuleCompute(compute_fakes.TestComputev2):
         columns, data = self.cmd.take_action(parsed_args)
 
         sgr_mock.assert_called_once_with(
-            self.compute_sdk_client,
+            self.compute_client,
             security_group_id=self._security_group['id'],
             ip_protocol=self._security_group_rule['ip_protocol'],
             from_port=self._security_group_rule['from_port'],
@@ -316,7 +316,7 @@ class TestDeleteSecurityGroupRuleCompute(compute_fakes.TestComputev2):
         result = self.cmd.take_action(parsed_args)
 
         sgr_mock.assert_called_once_with(
-            self.compute_sdk_client, self._security_group_rules[0]['id']
+            self.compute_client, self._security_group_rules[0]['id']
         )
         self.assertIsNone(result)
 
@@ -335,11 +335,11 @@ class TestDeleteSecurityGroupRuleCompute(compute_fakes.TestComputev2):
         sgr_mock.assert_has_calls(
             [
                 mock.call(
-                    self.compute_sdk_client,
+                    self.compute_client,
                     self._security_group_rules[0]['id'],
                 ),
                 mock.call(
-                    self.compute_sdk_client,
+                    self.compute_client,
                     self._security_group_rules[1]['id'],
                 ),
             ]
@@ -367,10 +367,10 @@ class TestDeleteSecurityGroupRuleCompute(compute_fakes.TestComputev2):
         sgr_mock.assert_has_calls(
             [
                 mock.call(
-                    self.compute_sdk_client,
+                    self.compute_client,
                     self._security_group_rules[0]['id'],
                 ),
-                mock.call(self.compute_sdk_client, 'unexist_rule'),
+                mock.call(self.compute_client, 'unexist_rule'),
             ]
         )
 
@@ -457,7 +457,7 @@ class TestListSecurityGroupRuleCompute(compute_fakes.TestComputev2):
 
         columns, data = self.cmd.take_action(parsed_args)
         compute_v2.list_security_groups.assert_called_once_with(
-            self.compute_sdk_client, all_projects=False
+            self.compute_client, all_projects=False
         )
         self.assertEqual(self.expected_columns_no_group, columns)
         self.assertEqual(self.expected_data_no_group, list(data))
@@ -473,7 +473,7 @@ class TestListSecurityGroupRuleCompute(compute_fakes.TestComputev2):
 
         columns, data = self.cmd.take_action(parsed_args)
         compute_v2.find_security_group.assert_called_once_with(
-            self.compute_sdk_client, self._security_group['id']
+            self.compute_client, self._security_group['id']
         )
         self.assertEqual(self.expected_columns_with_group, columns)
         self.assertEqual(self.expected_data_with_group, list(data))
@@ -489,7 +489,7 @@ class TestListSecurityGroupRuleCompute(compute_fakes.TestComputev2):
 
         columns, data = self.cmd.take_action(parsed_args)
         compute_v2.list_security_groups.assert_called_once_with(
-            self.compute_sdk_client, all_projects=True
+            self.compute_client, all_projects=True
         )
         self.assertEqual(self.expected_columns_no_group, columns)
         self.assertEqual(self.expected_data_no_group, list(data))
@@ -505,7 +505,7 @@ class TestListSecurityGroupRuleCompute(compute_fakes.TestComputev2):
 
         columns, data = self.cmd.take_action(parsed_args)
         compute_v2.list_security_groups.assert_called_once_with(
-            self.compute_sdk_client, all_projects=False
+            self.compute_client, all_projects=False
         )
         self.assertEqual(self.expected_columns_no_group, columns)
         self.assertEqual(self.expected_data_no_group, list(data))
@@ -551,7 +551,7 @@ class TestShowSecurityGroupRuleCompute(compute_fakes.TestComputev2):
         columns, data = self.cmd.take_action(parsed_args)
 
         compute_v2.list_security_groups.assert_called_once_with(
-            self.compute_sdk_client
+            self.compute_client
         )
         self.assertEqual(self.columns, columns)
         self.assertEqual(self.data, data)
