@@ -428,23 +428,22 @@ class ListRole(command.Lister):
             domain = identity_client.find_domain(
                 name_or_id=parsed_args.domain,
             )
-            columns: tuple[str, ...] = ('ID', 'Name', 'Domain')
             data = identity_client.roles(domain_id=domain.id)
-        else:
-            columns = ('ID', 'Name')
-            data = identity_client.roles()
+            return (
+                ('ID', 'Name', 'Domain'),
+                (
+                    utils.get_item_properties(s, ('id', 'name'))
+                    + (domain.name,)
+                    for s in data
+                ),
+            )
 
-        return (
-            columns,
-            (
-                utils.get_item_properties(
-                    s,
-                    columns,
-                    formatters={'Domain': lambda _: domain.name},
-                )
-                for s in data
-            ),
-        )
+        else:
+            data = identity_client.roles()
+            return (
+                ('ID', 'Name'),
+                (utils.get_item_properties(s, ('id', 'name')) for s in data),
+            )
 
 
 class RemoveRole(command.Command):
