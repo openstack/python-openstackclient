@@ -1,0 +1,35 @@
+---
+upgrade:
+  - |
+    Support for the Block Storage (Cinder) v1 API has been officially removed
+    as it had been broken for some time. If you haven't noticed then you likely
+    don't need to do anything. However, in the unlikely event that your cloud
+    is using the Block Storage v1 API - or incorrectly advertises the Block
+    Storage v1 API - consider overriding the API version to use v2 as this
+    behaves very similarly. It may also be necessary to set an endpoint
+    override for the Block Storage API if your clouds service catalog is not
+    configured correctly. For example:
+
+    .. code-block:: yaml
+
+        example:
+          regions:
+            - name: regionOne
+              values:
+                block_storage_endpoint_override: 'https://blockstorage.api.cloud.example/'
+          volume_api_version: 2
+
+    If using a public cloud provider, there may also be a profile already
+    published that sets these. These are listed in the `Vendor Support`__
+    doc. For example:
+
+    .. code-block:: yaml
+
+        example:
+          profile: rackspace
+
+    Alternatively, consider use versions of OSC < 3.19 and python-cinderclient
+    < 5.0 (both Stein), since these were the last versions to fully support
+    Cinder v1.
+
+    .. __: https://docs.openstack.org/openstacksdk/latest/user/config/vendor-support.html
