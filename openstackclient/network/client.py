@@ -9,7 +9,6 @@
 #   WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
 #   License for the specific language governing permissions and limitations
 #   under the License.
-#
 
 import logging
 
@@ -17,16 +16,13 @@ from osc_lib import utils
 
 from openstackclient.i18n import _
 
-
 LOG = logging.getLogger(__name__)
 
+# global variables used when building the shell
 DEFAULT_API_VERSION = '2.0'
 API_VERSION_OPTION = 'os_network_api_version'
-API_NAME = "network"
-API_VERSIONS = {
-    "2.0": "openstack.connection.Connection",
-    "2": "openstack.connection.Connection",
-}
+API_NAME = 'network'
+API_VERSIONS = ('2.0', '2')
 
 
 def make_client(instance):
