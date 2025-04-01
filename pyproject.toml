@@ -1,3 +1,25 @@
+[tool.mypy]
+python_version = "3.9"
+show_column_numbers = true
+show_error_context = true
+ignore_missing_imports = true
+follow_imports = "normal"
+incremental = true
+check_untyped_defs = true
+warn_unused_ignores = true
+# keep this in-sync with 'mypy.exclude' in '.pre-commit-config.yaml'
+exclude = '''
+(?x)(
+    doc
+    | examples
+    | releasenotes
+  )
+'''
+
+[[tool.mypy.overrides]]
+module = ["openstackclient.tests.unit.*"]
+ignore_errors = true
+
 [tool.ruff]
 line-length = 79
 
