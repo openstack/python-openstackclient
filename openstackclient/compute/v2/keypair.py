@@ -126,7 +126,6 @@ class CreateKeypair(command.ShowOne):
         kwargs = {'name': parsed_args.name}
 
         if parsed_args.public_key:
-            generated_keypair = None
             try:
                 with open(os.path.expanduser(parsed_args.public_key)) as p:
                     public_key = p.read()

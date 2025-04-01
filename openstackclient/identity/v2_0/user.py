@@ -249,10 +249,7 @@ class ListUser(command.Lister):
         data = identity_client.users.list(tenant_id=project)
 
         if parsed_args.project:
-            d = {}
-            for s in data:
-                d[s.id] = s
-            data = d.values()
+            data = {s.id: s for s in data}.values()
 
         if parsed_args.long:
             # FIXME(dtroyer): Sometimes user objects have 'tenant_id' instead

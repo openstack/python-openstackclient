@@ -36,7 +36,7 @@ def ask_user_yesno(msg):
     :return bool: User choice
     """
     while True:
-        answer = getpass._raw_input('{} [{}]: '.format(msg, 'y/n'))
+        answer = getpass.getpass('{} [{}]: '.format(msg, 'y/n'))
         if answer in ('y', 'Y', 'yes'):
             return True
         elif answer in ('n', 'N', 'no'):

@@ -17,6 +17,7 @@
 
 import copy
 import logging
+import typing as ty
 
 from openstack import exceptions as sdk_exc
 from osc_lib.command import command
@@ -58,7 +59,7 @@ def _format_user(user):
 
 
 def _get_options_for_user(identity_client, parsed_args):
-    options = {}
+    options: dict[str, ty.Any] = {}
     if parsed_args.ignore_lockout_failure_attempts:
         options['ignore_lockout_failure_attempts'] = True
     if parsed_args.no_ignore_lockout_failure_attempts:

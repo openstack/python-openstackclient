@@ -18,6 +18,7 @@ import collections
 import copy
 import json
 import logging
+import typing as ty
 
 from cliff import columns as cliff_columns
 from osc_lib.cli import format_columns
@@ -104,21 +105,21 @@ def _passed_multiple_gateways(extension_supported, external_gateways):
 
 
 def _get_external_gateway_attrs(client_manager, parsed_args):
-    attrs = {}
+    attrs: dict[str, ty.Any] = {}
 
     if parsed_args.external_gateways:
         external_gateways: collections.defaultdict[str, list[dict]] = (
             collections.defaultdict(list)
         )
         n_client = client_manager.network
-        first_network_id = None
+        first_network_id = ''
 
         for gw_net_name_or_id in parsed_args.external_gateways:
             gateway_info = {}
             gw_net = n_client.find_network(
                 gw_net_name_or_id, ignore_missing=False
             )
-            if first_network_id is None:
+            if not first_network_id:
                 first_network_id = gw_net.id
             gateway_info['network_id'] = gw_net.id
             if 'disable_snat' in parsed_args and parsed_args.disable_snat:
@@ -146,7 +147,7 @@ def _get_external_gateway_attrs(client_manager, parsed_args):
             for ip_spec in parsed_args.fixed_ips:
                 # If there is only one gateway, this value will represent the
                 # network ID for it, otherwise it will be overridden.
-                ip_net_id = first_network_id
+                ip_net_id: str = first_network_id
 
                 if ip_spec.get('subnet', False):
                     subnet_name_id = ip_spec.pop('subnet')

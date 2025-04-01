@@ -12,10 +12,12 @@
 #
 
 import abc
+import argparse
 import contextlib
 import logging
 import typing as ty
 
+import cliff.app
 import openstack.exceptions
 from osc_lib.cli import parseractions
 from osc_lib.command import command
@@ -65,6 +67,8 @@ class NetDetectionMixin(metaclass=abc.ABCMeta):
     But the command classes are used for docs builds as well, and docs must
     present the options for both network types, often qualified accordingly.
     """
+
+    app: cliff.app.App
 
     @property
     def _network_type(self):
@@ -132,9 +136,9 @@ class NetDetectionMixin(metaclass=abc.ABCMeta):
             )
         )
 
-    def get_parser(self, prog_name):
+    def get_parser(self, prog_name: str) -> argparse.ArgumentParser:
         LOG.debug('get_parser(%s)', prog_name)
-        parser = super().get_parser(prog_name)
+        parser = super().get_parser(prog_name)  # type: ignore
         parser = self.update_parser_common(parser)
         LOG.debug('common parser: %s', parser)
         if self.is_neutron or self.is_docs_build:
