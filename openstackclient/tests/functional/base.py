@@ -36,8 +36,8 @@ def execute(cmd, *, fail_ok=False):
 
     proc = subprocess.Popen(cmdlist, stdout=stdout, stderr=stderr, env=env)
 
-    result_out, result_err = proc.communicate()
-    result_out = result_out.decode('utf-8')
+    result_out_b, result_err = proc.communicate()
+    result_out = result_out_b.decode('utf-8')
     LOG.debug('stdout: %s', result_out)
     LOG.debug('stderr: %s', result_err)
 
