@@ -612,10 +612,12 @@ class SetUser(command.Command):
         if parsed_args.description:
             kwargs['description'] = parsed_args.description
         if parsed_args.project:
-            project_domain_id = identity_client.find_domain(
-                name_or_id=parsed_args.project_domain,
-                ignore_missing=False,
-            ).id
+            project_domain_id = None
+            if parsed_args.project_domain:
+                project_domain_id = identity_client.find_domain(
+                    name_or_id=parsed_args.project_domain,
+                    ignore_missing=False,
+                ).id
             project_id = identity_client.find_project(
                 name_or_id=parsed_args.project,
                 ignore_missing=False,
