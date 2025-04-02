@@ -14,6 +14,9 @@
 from unittest import mock
 from unittest.mock import call
 
+from openstack.network.v2 import floating_ip as _floating_ip
+from openstack.test import fakes as sdk_fakes
+from osc_lib.cli import format_columns
 from osc_lib import exceptions
 
 from openstackclient.network.v2 import floating_ip as fip
@@ -706,45 +709,56 @@ class TestListFloatingIPNetwork(TestFloatingIPNetwork):
 
 
 class TestShowFloatingIPNetwork(TestFloatingIPNetwork):
-    # The floating ip to display.
-    floating_ip = network_fakes.FakeFloatingIP.create_one_floating_ip()
-
-    columns = (
-        'description',
-        'dns_domain',
-        'dns_name',
-        'fixed_ip_address',
-        'floating_ip_address',
-        'floating_network_id',
-        'id',
-        'port_id',
-        'project_id',
-        'qos_policy_id',
-        'router_id',
-        'status',
-        'tags',
-    )
-
-    data = (
-        floating_ip.description,
-        floating_ip.dns_domain,
-        floating_ip.dns_name,
-        floating_ip.fixed_ip_address,
-        floating_ip.floating_ip_address,
-        floating_ip.floating_network_id,
-        floating_ip.id,
-        floating_ip.port_id,
-        floating_ip.project_id,
-        floating_ip.qos_policy_id,
-        floating_ip.router_id,
-        floating_ip.status,
-        floating_ip.tags,
-    )
-
     def setUp(self):
         super().setUp()
 
+        self.floating_ip = sdk_fakes.generate_fake_resource(
+            _floating_ip.FloatingIP
+        )
         self.network_client.find_ip = mock.Mock(return_value=self.floating_ip)
+
+        self.columns = (
+            'created_at',
+            'description',
+            'dns_domain',
+            'dns_name',
+            'fixed_ip_address',
+            'floating_ip_address',
+            'floating_network_id',
+            'id',
+            'name',
+            'port_details',
+            'port_id',
+            'project_id',
+            'qos_policy_id',
+            'revision_number',
+            'router_id',
+            'status',
+            'subnet_id',
+            'tags',
+            'updated_at',
+        )
+        self.data = (
+            self.floating_ip.created_at,
+            self.floating_ip.description,
+            self.floating_ip.dns_domain,
+            self.floating_ip.dns_name,
+            self.floating_ip.fixed_ip_address,
+            self.floating_ip.floating_ip_address,
+            self.floating_ip.floating_network_id,
+            self.floating_ip.id,
+            self.floating_ip.name,
+            format_columns.DictColumn(self.floating_ip.port_details),
+            self.floating_ip.port_id,
+            self.floating_ip.project_id,
+            self.floating_ip.qos_policy_id,
+            self.floating_ip.revision_number,
+            self.floating_ip.router_id,
+            self.floating_ip.status,
+            self.floating_ip.subnet_id,
+            self.floating_ip.tags,
+            self.floating_ip.updated_at,
+        )
 
         # Get the command object to test
         self.cmd = fip.ShowFloatingIP(self.app, None)
