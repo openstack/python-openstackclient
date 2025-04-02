@@ -35,11 +35,10 @@ class TestCreateNetworkQosPolicy(TestQosPolicy):
     project = identity_fakes_v3.FakeProject.create_one_project()
 
     # The new qos policy created.
-    new_qos_policy = network_fakes.FakeNetworkQosPolicy.create_one_qos_policy(
-        attrs={
-            'project_id': project.id,
-        }
+    new_qos_policy = network_fakes.create_one_qos_policy(
+        attrs={'project_id': project.id}
     )
+
     columns = (
         'description',
         'id',
@@ -48,6 +47,7 @@ class TestCreateNetworkQosPolicy(TestQosPolicy):
         'project_id',
         'rules',
         'shared',
+        'tags',
     )
 
     data = (
@@ -57,7 +57,8 @@ class TestCreateNetworkQosPolicy(TestQosPolicy):
         new_qos_policy.name,
         new_qos_policy.project_id,
         new_qos_policy.rules,
-        new_qos_policy.shared,
+        new_qos_policy.is_shared,
+        new_qos_policy.tags,
     )
 
     def setUp(self):
@@ -158,17 +159,13 @@ class TestCreateNetworkQosPolicy(TestQosPolicy):
 
 class TestDeleteNetworkQosPolicy(TestQosPolicy):
     # The address scope to delete.
-    _qos_policies = network_fakes.FakeNetworkQosPolicy.create_qos_policies(
-        count=2
-    )
+    _qos_policies = network_fakes.create_qos_policies(count=2)
 
     def setUp(self):
         super().setUp()
         self.network_client.delete_qos_policy = mock.Mock(return_value=None)
-        self.network_client.find_qos_policy = (
-            network_fakes.FakeNetworkQosPolicy.get_qos_policies(
-                qos_policies=self._qos_policies
-            )
+        self.network_client.find_qos_policy = network_fakes.get_qos_policies(
+            qos_policies=self._qos_policies
         )
 
         # Get the command object to test
@@ -245,9 +242,7 @@ class TestDeleteNetworkQosPolicy(TestQosPolicy):
 
 class TestListNetworkQosPolicy(TestQosPolicy):
     # The QoS policies to list up.
-    qos_policies = network_fakes.FakeNetworkQosPolicy.create_qos_policies(
-        count=3
-    )
+    qos_policies = network_fakes.create_qos_policies(count=3)
     columns = (
         'ID',
         'Name',
@@ -261,7 +256,7 @@ class TestListNetworkQosPolicy(TestQosPolicy):
             (
                 qos_policy.id,
                 qos_policy.name,
-                qos_policy.shared,
+                qos_policy.is_shared,
                 qos_policy.is_default,
                 qos_policy.project_id,
             )
@@ -345,7 +340,7 @@ class TestListNetworkQosPolicy(TestQosPolicy):
 
 class TestSetNetworkQosPolicy(TestQosPolicy):
     # The QoS policy to set.
-    _qos_policy = network_fakes.FakeNetworkQosPolicy.create_one_qos_policy()
+    _qos_policy = network_fakes.create_one_qos_policy()
 
     def setUp(self):
         super().setUp()
@@ -428,7 +423,7 @@ class TestSetNetworkQosPolicy(TestQosPolicy):
 
 class TestShowNetworkQosPolicy(TestQosPolicy):
     # The QoS policy to show.
-    _qos_policy = network_fakes.FakeNetworkQosPolicy.create_one_qos_policy()
+    _qos_policy = network_fakes.create_one_qos_policy()
     columns = (
         'description',
         'id',
@@ -437,6 +432,7 @@ class TestShowNetworkQosPolicy(TestQosPolicy):
         'project_id',
         'rules',
         'shared',
+        'tags',
     )
     data = (
         _qos_policy.description,
@@ -445,7 +441,8 @@ class TestShowNetworkQosPolicy(TestQosPolicy):
         _qos_policy.name,
         _qos_policy.project_id,
         network_qos_policy.RulesColumn(_qos_policy.rules),
-        _qos_policy.shared,
+        _qos_policy.is_shared,
+        _qos_policy.tags,
     )
 
     def setUp(self):

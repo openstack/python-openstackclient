@@ -31,6 +31,20 @@ from openstack.network.v2 import network as _network
 from openstack.network.v2 import network_ip_availability as _ip_availability
 from openstack.network.v2 import network_segment_range as _segment_range
 from openstack.network.v2 import port as _port
+from openstack.network.v2 import (
+    qos_bandwidth_limit_rule as _qos_bandwidth_limit_rule,
+)
+from openstack.network.v2 import (
+    qos_dscp_marking_rule as _qos_dscp_marking_rule,
+)
+from openstack.network.v2 import (
+    qos_minimum_bandwidth_rule as _qos_minimum_bandwidth_rule,
+)
+from openstack.network.v2 import (
+    qos_minimum_packet_rate_rule as _qos_minimum_packet_rate_rule,
+)
+from openstack.network.v2 import qos_policy as _qos_policy
+from openstack.network.v2 import qos_rule_type as _qos_rule_type
 from openstack.network.v2 import rbac_policy as network_rbac
 from openstack.network.v2 import security_group as _security_group
 from openstack.network.v2 import segment as _segment
@@ -116,245 +130,6 @@ def create_one_extension(attrs=None):
 
     extension = _extension.Extension(**extension_info)
     return extension
-
-
-class FakeNetworkQosPolicy:
-    """Fake one or more QoS policies."""
-
-    @staticmethod
-    def create_one_qos_policy(attrs=None):
-        """Create a fake QoS policy.
-
-        :param Dictionary attrs:
-            A dictionary with all attributes
-        :return:
-            A FakeResource object with name, id, etc.
-        """
-        attrs = attrs or {}
-        qos_id = attrs.get('id') or 'qos-policy-id-' + uuid.uuid4().hex
-        rule_attrs = {'qos_policy_id': qos_id}
-        rules = [FakeNetworkQosRule.create_one_qos_rule(rule_attrs)]
-
-        # Set default attributes.
-        qos_policy_attrs = {
-            'name': 'qos-policy-name-' + uuid.uuid4().hex,
-            'id': qos_id,
-            'is_default': False,
-            'project_id': 'project-id-' + uuid.uuid4().hex,
-            'shared': False,
-            'description': 'qos-policy-description-' + uuid.uuid4().hex,
-            'rules': rules,
-            'location': 'MUNCHMUNCHMUNCH',
-        }
-
-        # Overwrite default attributes.
-        qos_policy_attrs.update(attrs)
-
-        qos_policy = fakes.FakeResource(
-            info=copy.deepcopy(qos_policy_attrs), loaded=True
-        )
-
-        # Set attributes with special mapping in OpenStack SDK.
-        qos_policy.is_shared = qos_policy_attrs['shared']
-
-        return qos_policy
-
-    @staticmethod
-    def create_qos_policies(attrs=None, count=2):
-        """Create multiple fake QoS policies.
-
-        :param Dictionary attrs:
-            A dictionary with all attributes
-        :param int count:
-            The number of QoS policies to fake
-        :return:
-            A list of FakeResource objects faking the QoS policies
-        """
-        qos_policies = []
-        for i in range(0, count):
-            qos_policies.append(
-                FakeNetworkQosPolicy.create_one_qos_policy(attrs)
-            )
-
-        return qos_policies
-
-    @staticmethod
-    def get_qos_policies(qos_policies=None, count=2):
-        """Get an iterable MagicMock object with a list of faked QoS policies.
-
-        If qos policies list is provided, then initialize the Mock object
-        with the list. Otherwise create one.
-
-        :param List qos_policies:
-            A list of FakeResource objects faking qos policies
-        :param int count:
-            The number of QoS policies to fake
-        :return:
-            An iterable Mock object with side_effect set to a list of faked
-            QoS policies
-        """
-        if qos_policies is None:
-            qos_policies = FakeNetworkQosPolicy.create_qos_policies(count)
-        return mock.Mock(side_effect=qos_policies)
-
-
-class FakeNetworkSecGroup:
-    """Fake one security group."""
-
-    @staticmethod
-    def create_one_security_group(attrs=None):
-        """Create a fake security group.
-
-        :param Dictionary attrs:
-            A dictionary with all attributes
-        :return:
-            A FakeResource object with name, id, etc.
-        """
-        attrs = attrs or {}
-        sg_id = attrs.get('id') or 'security-group-id-' + uuid.uuid4().hex
-
-        # Set default attributes.
-        security_group_attrs = {
-            'name': 'security-group-name-' + uuid.uuid4().hex,
-            'id': sg_id,
-            'project_id': 'project-id-' + uuid.uuid4().hex,
-            'description': 'security-group-description-' + uuid.uuid4().hex,
-            'location': 'MUNCHMUNCHMUNCH',
-        }
-
-        security_group = fakes.FakeResource(
-            info=copy.deepcopy(security_group_attrs), loaded=True
-        )
-
-        return security_group
-
-
-class FakeNetworkQosRule:
-    """Fake one or more Network QoS rules."""
-
-    @staticmethod
-    def create_one_qos_rule(attrs=None):
-        """Create a fake Network QoS rule.
-
-        :param Dictionary attrs:
-            A dictionary with all attributes
-        :return:
-            A FakeResource object with name, id, etc.
-        """
-        attrs = attrs or {}
-
-        # Set default attributes.
-        type = attrs.get('type') or choice(VALID_QOS_RULES)
-        qos_rule_attrs = {
-            'id': 'qos-rule-id-' + uuid.uuid4().hex,
-            'qos_policy_id': 'qos-policy-id-' + uuid.uuid4().hex,
-            'project_id': 'project-id-' + uuid.uuid4().hex,
-            'type': type,
-            'location': 'MUNCHMUNCHMUNCH',
-        }
-        if type == RULE_TYPE_BANDWIDTH_LIMIT:
-            qos_rule_attrs['max_kbps'] = randint(1, 10000)
-            qos_rule_attrs['max_burst_kbits'] = randint(1, 10000)
-            qos_rule_attrs['direction'] = 'egress'
-        elif type == RULE_TYPE_DSCP_MARKING:
-            qos_rule_attrs['dscp_mark'] = choice(VALID_DSCP_MARKS)
-        elif type == RULE_TYPE_MINIMUM_BANDWIDTH:
-            qos_rule_attrs['min_kbps'] = randint(1, 10000)
-            qos_rule_attrs['direction'] = 'egress'
-        elif type == RULE_TYPE_MINIMUM_PACKET_RATE:
-            qos_rule_attrs['min_kpps'] = randint(1, 10000)
-            qos_rule_attrs['direction'] = 'egress'
-
-        # Overwrite default attributes.
-        qos_rule_attrs.update(attrs)
-
-        qos_rule = fakes.FakeResource(
-            info=copy.deepcopy(qos_rule_attrs), loaded=True
-        )
-
-        return qos_rule
-
-    @staticmethod
-    def create_qos_rules(attrs=None, count=2):
-        """Create multiple fake Network QoS rules.
-
-        :param Dictionary attrs:
-            A dictionary with all attributes
-        :param int count:
-            The number of Network QoS rule to fake
-        :return:
-            A list of FakeResource objects faking the Network QoS rules
-        """
-        qos_rules = []
-        for i in range(0, count):
-            qos_rules.append(FakeNetworkQosRule.create_one_qos_rule(attrs))
-        return qos_rules
-
-    @staticmethod
-    def get_qos_rules(qos_rules=None, count=2):
-        """Get a list of faked Network QoS rules.
-
-        If Network QoS rules list is provided, then initialize the Mock
-        object with the list. Otherwise create one.
-
-        :param List qos_rules:
-            A list of FakeResource objects faking Network QoS rules
-        :param int count:
-            The number of QoS minimum bandwidth rules to fake
-        :return:
-            An iterable Mock object with side_effect set to a list of faked
-            qos minimum bandwidth rules
-        """
-        if qos_rules is None:
-            qos_rules = FakeNetworkQosRule.create_qos_rules(count)
-        return mock.Mock(side_effect=qos_rules)
-
-
-class FakeNetworkQosRuleType:
-    """Fake one or more Network QoS rule types."""
-
-    @staticmethod
-    def create_one_qos_rule_type(attrs=None):
-        """Create a fake Network QoS rule type.
-
-        :param Dictionary attrs:
-            A dictionary with all attributes
-        :return:
-            A FakeResource object with name, id, etc.
-        """
-        attrs = attrs or {}
-
-        # Set default attributes.
-        qos_rule_type_attrs = {
-            'type': 'rule-type-' + uuid.uuid4().hex,
-            'location': 'MUNCHMUNCHMUNCH',
-        }
-
-        # Overwrite default attributes.
-        qos_rule_type_attrs.update(attrs)
-
-        return fakes.FakeResource(
-            info=copy.deepcopy(qos_rule_type_attrs), loaded=True
-        )
-
-    @staticmethod
-    def create_qos_rule_types(attrs=None, count=2):
-        """Create multiple fake Network QoS rule types.
-
-        :param Dictionary attrs:
-            A dictionary with all attributes
-        :param int count:
-            The number of QoS rule types to fake
-        :return:
-            A list of FakeResource objects faking the QoS rule types
-        """
-        qos_rule_types = []
-        for i in range(0, count):
-            qos_rule_types.append(
-                FakeNetworkQosRuleType.create_one_qos_rule_type(attrs)
-            )
-
-        return qos_rule_types
 
 
 class FakeRouter:
@@ -1924,6 +1699,207 @@ def get_service_profile(flavor_profile=None, count=2):
         flavor_profile = create_service_profile(count)
 
     return mock.Mock(side_effect=flavor_profile)
+
+
+def create_one_qos_policy(attrs=None):
+    """Create a fake QoS policy.
+
+    :param Dictionary attrs:
+        A dictionary with all attributes
+    :return:
+        A QoSPolicy object with name, id, etc.
+    """
+    attrs = attrs or {}
+    qos_id = attrs.get('id') or 'qos-policy-id-' + uuid.uuid4().hex
+    rules = []
+
+    # Set default attributes.
+    qos_policy_attrs = {
+        'name': 'qos-policy-name-' + uuid.uuid4().hex,
+        'id': qos_id,
+        'is_default': False,
+        'project_id': 'project-id-' + uuid.uuid4().hex,
+        'shared': False,
+        'description': 'qos-policy-description-' + uuid.uuid4().hex,
+        'rules': rules,
+        'location': 'MUNCHMUNCHMUNCH',
+    }
+
+    # Overwrite default attributes.
+    qos_policy_attrs.update(attrs)
+
+    qos_policy = _qos_policy.QoSPolicy(**qos_policy_attrs)
+
+    return qos_policy
+
+
+def create_qos_policies(attrs=None, count=2):
+    """Create multiple fake QoS policies.
+
+    :param Dictionary attrs:
+        A dictionary with all attributes
+    :param int count:
+        The number of QoS policies to fake
+    :return:
+        A list of QoSPolicy objects faking the QoS policies
+    """
+    qos_policies = []
+    for i in range(0, count):
+        qos_policies.append(create_one_qos_policy(attrs))
+
+    return qos_policies
+
+
+def get_qos_policies(qos_policies=None, count=2):
+    """Get an iterable MagicMock object with a list of faked QoS policies.
+
+    If qos policies list is provided, then initialize the Mock object
+    with the list. Otherwise create one.
+
+    :param List qos_policies:
+        A list of QoSPolicy objects faking qos policies
+    :param int count:
+        The number of QoS policies to fake
+    :return:
+        An iterable Mock object with side_effect set to a list of faked
+        QoS policies
+    """
+    if qos_policies is None:
+        qos_policies = create_qos_policies(count)
+    return mock.Mock(side_effect=qos_policies)
+
+
+def create_one_qos_rule(attrs=None):
+    """Create a fake Network QoS rule.
+
+    :param Dictionary attrs:
+        A dictionary with all attributes
+    :return:
+        A QoSRule object with  id, type, etc.
+    """
+    attrs = attrs or {}
+
+    # Set default attributes.
+    type = attrs.get('type') or choice(VALID_QOS_RULES)
+    qos_rule_attrs = {
+        'id': 'qos-rule-id-' + uuid.uuid4().hex,
+        'qos_policy_id': 'qos-policy-id-' + uuid.uuid4().hex,
+        'project_id': 'project-id-' + uuid.uuid4().hex,
+        'type': type,
+        'location': 'MUNCHMUNCHMUNCH',
+    }
+
+    if type == RULE_TYPE_BANDWIDTH_LIMIT:
+        qos_rule_attrs['max_kbps'] = randint(1, 10000)
+        qos_rule_attrs['max_burst_kbps'] = randint(1, 10000)
+        qos_rule_attrs['direction'] = 'egress'
+
+        qos_rule_attrs.update(attrs)
+        qos_rule = _qos_bandwidth_limit_rule.QoSBandwidthLimitRule(
+            **qos_rule_attrs
+        )
+
+    elif type == RULE_TYPE_DSCP_MARKING:
+        qos_rule_attrs['dscp_mark'] = choice(VALID_DSCP_MARKS)
+
+        qos_rule_attrs.update(attrs)
+        qos_rule = _qos_dscp_marking_rule.QoSDSCPMarkingRule(**qos_rule_attrs)
+
+    elif type == RULE_TYPE_MINIMUM_BANDWIDTH:
+        qos_rule_attrs['min_kbps'] = randint(1, 10000)
+        qos_rule_attrs['direction'] = 'egress'
+
+        qos_rule_attrs.update(attrs)
+
+        qos_rule = _qos_minimum_bandwidth_rule.QoSMinimumBandwidthRule(
+            **qos_rule_attrs
+        )
+    else:  # type == RULE_TYPE_MINIMUM_PACKET_RATE:
+        qos_rule_attrs['min_kpps'] = randint(1, 10000)
+        qos_rule_attrs['direction'] = 'egress'
+
+        qos_rule_attrs.update(attrs)
+
+        qos_rule = _qos_minimum_packet_rate_rule.QoSMinimumPacketRateRule(
+            **qos_rule_attrs
+        )
+
+    return qos_rule
+
+
+def create_qos_rules(attrs=None, count=2):
+    """Create multiple fake Network QoS rules.
+
+    :param Dictionary attrs:
+        A dictionary with all attributes
+    :param int count:
+        The number of Network QoS rule to fake
+    :return:
+        A list of QoS Rules objects faking the Network QoS rules
+    """
+    qos_rules = []
+    for i in range(0, count):
+        qos_rules.append(create_one_qos_rule(attrs))
+    return qos_rules
+
+
+def get_qos_rules(qos_rules=None, count=2):
+    """Get a list of faked Network QoS rules.
+
+    If Network QoS rules list is provided, then initialize the Mock
+    object with the list. Otherwise create one.
+
+    :param List qos_rules:
+        A list of FakeResource objects faking Network QoS rules
+    :param int count:
+        The number of QoS minimum bandwidth rules to fake
+    :return:
+        An iterable Mock object with side_effect set to a list of faked
+        qos minimum bandwidth rules
+    """
+    if qos_rules is None:
+        qos_rules = create_qos_rules(count)
+    return mock.Mock(side_effect=qos_rules)
+
+
+def create_one_qos_rule_type(attrs=None):
+    """Create a fake Network QoS rule type.
+
+    :param Dictionary attrs:
+        A dictionary with all attributes
+    :return:
+        A QoSRuleType object with name, id, etc.
+    """
+    attrs = attrs or {}
+
+    # Set default attributes.
+    qos_rule_type_attrs = {
+        'type': 'rule-type-' + uuid.uuid4().hex,
+        'location': 'MUNCHMUNCHMUNCH',
+    }
+
+    # Overwrite default attributes.
+    qos_rule_type_attrs.update(attrs)
+    qos_rule_type = _qos_rule_type.QoSRuleType(**qos_rule_type_attrs)
+
+    return qos_rule_type
+
+
+def create_qos_rule_types(attrs=None, count=2):
+    """Create multiple fake Network QoS rule types.
+
+    :param Dictionary attrs:
+        A dictionary with all attributes
+    :param int count:
+        The number of QoS rule types to fake
+    :return:
+        A list of QoSRuleType objects faking the QoS rule types
+    """
+    qos_rule_types = []
+    for i in range(0, count):
+        qos_rule_types.append(create_one_qos_rule_type(attrs))
+
+    return qos_rule_types
 
 
 def create_one_local_ip(attrs=None):

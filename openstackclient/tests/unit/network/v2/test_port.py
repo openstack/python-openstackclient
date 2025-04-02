@@ -582,7 +582,7 @@ class TestCreatePort(TestPort):
         self.assertCountEqual(self.data, data)
 
     def test_create_port_with_qos(self):
-        qos_policy = network_fakes.FakeNetworkQosPolicy.create_one_qos_policy()
+        qos_policy = network_fakes.create_one_qos_policy()
         self.network_client.find_qos_policy = mock.Mock(
             return_value=qos_policy
         )
@@ -2371,7 +2371,7 @@ class TestSetPort(TestPort):
         )
 
     def test_set_port_with_qos(self):
-        qos_policy = network_fakes.FakeNetworkQosPolicy.create_one_qos_policy()
+        qos_policy = network_fakes.create_one_qos_policy()
         self.network_client.find_qos_policy = mock.Mock(
             return_value=qos_policy
         )

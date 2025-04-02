@@ -28,9 +28,8 @@ class TestNetworkQosRuleType(network_fakes.TestNetworkV2):
 class TestShowNetworkQosRuleType(TestNetworkQosRuleType):
     attrs = {'drivers': [{'name': 'driver 1', 'supported_parameters': []}]}
     # The QoS policies to show.
-    qos_rule_type = (
-        network_fakes.FakeNetworkQosRuleType.create_one_qos_rule_type(attrs)
-    )
+    qos_rule_type = network_fakes.create_one_qos_rule_type(attrs)
+    columns = ('drivers', 'rule_type_name')
     columns = ('drivers', 'rule_type_name')
     data = [qos_rule_type.drivers, qos_rule_type.type]
 
@@ -76,9 +75,8 @@ class TestShowNetworkQosRuleType(TestNetworkQosRuleType):
 
 class TestListNetworkQosRuleType(TestNetworkQosRuleType):
     # The QoS policies to list up.
-    qos_rule_types = (
-        network_fakes.FakeNetworkQosRuleType.create_qos_rule_types(count=3)
-    )
+    qos_rule_types = network_fakes.create_qos_rule_types(count=3)
+
     columns = ('Type',)
     data = []
     for qos_rule_type in qos_rule_types:

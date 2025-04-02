@@ -234,10 +234,8 @@ class TestCreateFloatingIPNetwork(TestFloatingIPNetwork):
         self.assertEqual(self.data, data)
 
     def test_create_floating_ip_with_qos(self):
-        qos_policy = network_fakes.FakeNetworkQosPolicy.create_one_qos_policy()
-        self.network_client.find_qos_policy = mock.Mock(
-            return_value=qos_policy
-        )
+        qos_policy = network_fakes.create_one_qos_policy()
+        self.network_client.find_qos_policy.return_value = qos_policy
         arglist = [
             '--qos-policy',
             qos_policy.id,
@@ -893,10 +891,8 @@ class TestSetFloatingIP(TestFloatingIPNetwork):
         )
 
     def test_qos_policy_option(self):
-        qos_policy = network_fakes.FakeNetworkQosPolicy.create_one_qos_policy()
-        self.network_client.find_qos_policy = mock.Mock(
-            return_value=qos_policy
-        )
+        qos_policy = network_fakes.create_one_qos_policy()
+        self.network_client.find_qos_policy.return_value = qos_policy
         arglist = [
             "--qos-policy",
             qos_policy.id,
@@ -922,10 +918,8 @@ class TestSetFloatingIP(TestFloatingIPNetwork):
         )
 
     def test_port_and_qos_policy_option(self):
-        qos_policy = network_fakes.FakeNetworkQosPolicy.create_one_qos_policy()
-        self.network_client.find_qos_policy = mock.Mock(
-            return_value=qos_policy
-        )
+        qos_policy = network_fakes.create_one_qos_policy()
+        self.network_client.find_qos_policy.return_value = qos_policy
         arglist = [
             "--qos-policy",
             qos_policy.id,

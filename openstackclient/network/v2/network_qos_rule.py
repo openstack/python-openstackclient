@@ -73,7 +73,7 @@ ACTION_SHOW = 'get'
 
 
 def _get_columns(item):
-    hidden_columns = ['location', 'tenant_id']
+    hidden_columns = ['location', 'name', 'tenant_id']
     return utils.get_osc_show_columns_for_sdk_resource(
         item, {}, hidden_columns
     )
@@ -146,14 +146,6 @@ def _get_attrs(network_client, parsed_args, is_create=False):
             raise exceptions.CommandError(msg)
     _check_type_parameters(attrs, rule_type, is_create)
     return attrs
-
-
-def _get_item_properties(item, fields):
-    """Return a tuple containing the item properties."""
-    row = []
-    for field in fields:
-        row.append(item.get(field, ''))
-    return tuple(row)
 
 
 def _rule_action_call(client, action, rule_type):
@@ -357,10 +349,10 @@ class ListNetworkQosRule(command.Lister):
         qos = client.find_qos_policy(
             parsed_args.qos_policy, ignore_missing=False
         )
-        data = qos.rules
+
         return (
             column_headers,
-            (_get_item_properties(s, columns) for s in data),
+            (utils.get_dict_properties(s, columns) for s in qos.rules),
         )
 
 
