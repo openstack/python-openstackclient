@@ -13,6 +13,7 @@
 """IP Floating action implementations"""
 
 from openstack import exceptions as sdk_exceptions
+from osc_lib.cli import format_columns
 from osc_lib import utils
 from osc_lib.utils import tags as _tag
 
@@ -22,7 +23,7 @@ from openstackclient.identity import common as identity_common
 from openstackclient.network import common
 
 _formatters = {
-    'port_details': utils.format_dict,
+    'port_details': format_columns.DictColumn,
 }
 
 
