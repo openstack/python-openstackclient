@@ -68,7 +68,7 @@ class TestComputeLimits(compute_fakes.TestComputev2):
             ('DELETE', '*', 100, 100, 'MINUTE', '2011-12-15T22:42:45Z'),
         ]
 
-        self.compute_sdk_client.get_limits.return_value = self.fake_limits
+        self.compute_client.get_limits.return_value = self.fake_limits
 
     def test_compute_show_absolute(self):
         arglist = ['--absolute']

@@ -72,7 +72,7 @@ class TestCreateSecurityGroupCompute(compute_fakes.TestComputev2):
         columns, data = self.cmd.take_action(parsed_args)
 
         sg_mock.assert_called_once_with(
-            self.compute_sdk_client,
+            self.compute_client,
             self._security_group['name'],
             self._security_group['name'],
         )
@@ -95,7 +95,7 @@ class TestCreateSecurityGroupCompute(compute_fakes.TestComputev2):
         columns, data = self.cmd.take_action(parsed_args)
 
         sg_mock.assert_called_once_with(
-            self.compute_sdk_client,
+            self.compute_client,
             self._security_group['name'],
             self._security_group['description'],
         )
@@ -133,7 +133,7 @@ class TestDeleteSecurityGroupCompute(compute_fakes.TestComputev2):
         result = self.cmd.take_action(parsed_args)
 
         sg_mock.assert_called_once_with(
-            self.compute_sdk_client,
+            self.compute_client,
             self._security_groups[0]['id'],
         )
         self.assertIsNone(result)
@@ -153,12 +153,8 @@ class TestDeleteSecurityGroupCompute(compute_fakes.TestComputev2):
 
         sg_mock.assert_has_calls(
             [
-                mock.call(
-                    self.compute_sdk_client, self._security_groups[0]['id']
-                ),
-                mock.call(
-                    self.compute_sdk_client, self._security_groups[1]['id']
-                ),
+                mock.call(self.compute_client, self._security_groups[0]['id']),
+                mock.call(self.compute_client, self._security_groups[1]['id']),
             ]
         )
         self.assertIsNone(result)
@@ -187,9 +183,7 @@ class TestDeleteSecurityGroupCompute(compute_fakes.TestComputev2):
 
         sg_mock.assert_has_calls(
             [
-                mock.call(
-                    self.compute_sdk_client, self._security_groups[0]['id']
-                ),
+                mock.call(self.compute_client, self._security_groups[0]['id']),
             ]
         )
 
@@ -250,7 +244,7 @@ class TestListSecurityGroupCompute(compute_fakes.TestComputev2):
         columns, data = self.cmd.take_action(parsed_args)
 
         sg_mock.assert_called_once_with(
-            self.compute_sdk_client, all_projects=False
+            self.compute_client, all_projects=False
         )
         self.assertEqual(self.columns, columns)
         self.assertCountEqual(self.data, list(data))
@@ -267,9 +261,7 @@ class TestListSecurityGroupCompute(compute_fakes.TestComputev2):
 
         columns, data = self.cmd.take_action(parsed_args)
 
-        sg_mock.assert_called_once_with(
-            self.compute_sdk_client, all_projects=True
-        )
+        sg_mock.assert_called_once_with(self.compute_client, all_projects=True)
         self.assertEqual(self.columns_all_projects, columns)
         self.assertCountEqual(self.data_all_projects, list(data))
 
@@ -309,7 +301,7 @@ class TestSetSecurityGroupCompute(compute_fakes.TestComputev2):
         result = self.cmd.take_action(parsed_args)
 
         sg_mock.assert_called_once_with(
-            self.compute_sdk_client, self._security_group['id']
+            self.compute_client, self._security_group['id']
         )
         self.assertIsNone(result)
 
@@ -334,7 +326,7 @@ class TestSetSecurityGroupCompute(compute_fakes.TestComputev2):
         result = self.cmd.take_action(parsed_args)
 
         sg_mock.assert_called_once_with(
-            self.compute_sdk_client,
+            self.compute_client,
             self._security_group['id'],
             name=new_name,
             description=new_description,
@@ -394,7 +386,7 @@ class TestShowSecurityGroupCompute(compute_fakes.TestComputev2):
         columns, data = self.cmd.take_action(parsed_args)
 
         sg_mock.assert_called_once_with(
-            self.compute_sdk_client, self._security_group['id']
+            self.compute_client, self._security_group['id']
         )
         self.assertEqual(self.columns, columns)
         self.assertCountEqual(self.data, data)

@@ -148,7 +148,7 @@ class TestCreateNetworkCompute(compute_fakes.TestComputev2):
         columns, data = self.cmd.take_action(parsed_args)
 
         net_mock.assert_called_once_with(
-            self.compute_sdk_client,
+            self.compute_client,
             subnet=self._network['cidr'],
             name=self._network['label'],
         )
@@ -182,7 +182,7 @@ class TestDeleteNetworkCompute(compute_fakes.TestComputev2):
         result = self.cmd.take_action(parsed_args)
 
         delete_net_mock.assert_called_once_with(
-            self.compute_sdk_client,
+            self.compute_client,
             self._networks[0]['id'],
         )
         self.assertIsNone(result)
@@ -203,8 +203,8 @@ class TestDeleteNetworkCompute(compute_fakes.TestComputev2):
 
         delete_net_mock.assert_has_calls(
             [
-                mock.call(self.compute_sdk_client, self._networks[0]['id']),
-                mock.call(self.compute_sdk_client, self._networks[1]['id']),
+                mock.call(self.compute_client, self._networks[0]['id']),
+                mock.call(self.compute_client, self._networks[1]['id']),
             ]
         )
         self.assertIsNone(result)
@@ -238,15 +238,15 @@ class TestDeleteNetworkCompute(compute_fakes.TestComputev2):
 
         find_net_mock.assert_has_calls(
             [
-                mock.call(self.compute_sdk_client, self._networks[0]['id']),
-                mock.call(self.compute_sdk_client, 'xxxx-yyyy-zzzz'),
-                mock.call(self.compute_sdk_client, self._networks[1]['id']),
+                mock.call(self.compute_client, self._networks[0]['id']),
+                mock.call(self.compute_client, 'xxxx-yyyy-zzzz'),
+                mock.call(self.compute_client, self._networks[1]['id']),
             ]
         )
         delete_net_mock.assert_has_calls(
             [
-                mock.call(self.compute_sdk_client, self._networks[0]['id']),
-                mock.call(self.compute_sdk_client, self._networks[1]['id']),
+                mock.call(self.compute_client, self._networks[0]['id']),
+                mock.call(self.compute_client, self._networks[1]['id']),
             ]
         )
 
@@ -286,7 +286,7 @@ class TestListNetworkCompute(compute_fakes.TestComputev2):
 
         columns, data = self.cmd.take_action(parsed_args)
 
-        net_mock.assert_called_once_with(self.compute_sdk_client)
+        net_mock.assert_called_once_with(self.compute_client)
         self.assertEqual(self.columns, columns)
         self.assertEqual(self.data, list(data))
 
@@ -398,7 +398,7 @@ class TestShowNetworkCompute(compute_fakes.TestComputev2):
         columns, data = self.cmd.take_action(parsed_args)
 
         net_mock.assert_called_once_with(
-            self.compute_sdk_client, self._network['label']
+            self.compute_client, self._network['label']
         )
         self.assertEqual(self.columns, columns)
         self.assertEqual(self.data, data)

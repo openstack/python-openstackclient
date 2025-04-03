@@ -1378,7 +1378,7 @@ class TestListPort(compute_fakes.FakeClientMixin, TestPort):
 
     def test_port_list_with_server_option(self):
         fake_server = compute_fakes.create_one_sdk_server()
-        self.compute_sdk_client.find_server.return_value = fake_server
+        self.compute_client.find_server.return_value = fake_server
 
         arglist = [
             '--server',
@@ -1393,7 +1393,7 @@ class TestListPort(compute_fakes.FakeClientMixin, TestPort):
         self.network_client.ports.assert_called_once_with(
             device_id=fake_server.id, fields=LIST_FIELDS_TO_RETRIEVE
         )
-        self.compute_sdk_client.find_server.aassert_called_once_with(
+        self.compute_client.find_server.aassert_called_once_with(
             mock.ANY, 'fake-server-name'
         )
         self.assertEqual(self.columns, columns)

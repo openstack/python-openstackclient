@@ -32,9 +32,7 @@ class TestHypervisorList(compute_fakes.TestComputev2):
         self.hypervisors = list(
             sdk_fakes.generate_fake_resources(_hypervisor.Hypervisor, count=2)
         )
-        self.compute_sdk_client.hypervisors.return_value = iter(
-            self.hypervisors
-        )
+        self.compute_client.hypervisors.return_value = iter(self.hypervisors)
 
         self.columns = (
             "ID",
@@ -108,7 +106,7 @@ class TestHypervisorList(compute_fakes.TestComputev2):
         # containing the data to be listed.
         columns, data = self.cmd.take_action(parsed_args)
 
-        self.compute_sdk_client.hypervisors.assert_called_with(details=True)
+        self.compute_client.hypervisors.assert_called_with(details=True)
         self.assertEqual(self.columns, columns)
         self.assertEqual(self.data, tuple(data))
 
@@ -123,9 +121,7 @@ class TestHypervisorList(compute_fakes.TestComputev2):
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
         # Fake the return value of search()
-        self.compute_sdk_client.hypervisors.return_value = [
-            self.hypervisors[0]
-        ]
+        self.compute_client.hypervisors.return_value = [self.hypervisors[0]]
 
         self.data = (
             (
@@ -142,7 +138,7 @@ class TestHypervisorList(compute_fakes.TestComputev2):
         # containing the data to be listed.
         columns, data = self.cmd.take_action(parsed_args)
 
-        self.compute_sdk_client.hypervisors.assert_called_with(
+        self.compute_client.hypervisors.assert_called_with(
             hypervisor_hostname_pattern=self.hypervisors[0].name, details=True
         )
         self.assertEqual(self.columns, columns)
@@ -159,9 +155,7 @@ class TestHypervisorList(compute_fakes.TestComputev2):
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
         # Fake exception raised from search()
-        self.compute_sdk_client.hypervisors.side_effect = exceptions.NotFound(
-            None
-        )
+        self.compute_client.hypervisors.side_effect = exceptions.NotFound(None)
 
         self.assertRaises(
             exceptions.NotFound, self.cmd.take_action, parsed_args
@@ -205,7 +199,7 @@ class TestHypervisorList(compute_fakes.TestComputev2):
         # containing the data to be listed.
         columns, data = self.cmd.take_action(parsed_args)
 
-        self.compute_sdk_client.hypervisors.assert_called_with(details=True)
+        self.compute_client.hypervisors.assert_called_with(details=True)
         self.assertEqual(self.columns_long, columns)
         self.assertEqual(self.data_long, tuple(data))
 
@@ -223,7 +217,7 @@ class TestHypervisorList(compute_fakes.TestComputev2):
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
         self.cmd.take_action(parsed_args)
 
-        self.compute_sdk_client.hypervisors.assert_called_with(
+        self.compute_client.hypervisors.assert_called_with(
             limit=1, details=True
         )
 
@@ -261,7 +255,7 @@ class TestHypervisorList(compute_fakes.TestComputev2):
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
         self.cmd.take_action(parsed_args)
 
-        self.compute_sdk_client.hypervisors.assert_called_with(
+        self.compute_client.hypervisors.assert_called_with(
             marker='test_hyp', details=True
         )
 
@@ -303,10 +297,10 @@ class TestHypervisorShow(compute_fakes.TestComputev2):
             cpu_info={"aaa": "aaa"},
         )
 
-        self.compute_sdk_client.find_hypervisor.return_value = self.hypervisor
-        self.compute_sdk_client.get_hypervisor.return_value = self.hypervisor
+        self.compute_client.find_hypervisor.return_value = self.hypervisor
+        self.compute_client.get_hypervisor.return_value = self.hypervisor
 
-        self.compute_sdk_client.aggregates.return_value = []
+        self.compute_client.aggregates.return_value = []
 
         uptime_info = {
             'status': self.hypervisor.status,
@@ -315,9 +309,7 @@ class TestHypervisorShow(compute_fakes.TestComputev2):
             'hypervisor_hostname': self.hypervisor.name,
             'uptime': uptime_string,
         }
-        self.compute_sdk_client.get_hypervisor_uptime.return_value = (
-            uptime_info
-        )
+        self.compute_client.get_hypervisor_uptime.return_value = uptime_info
 
         self.columns_v288 = (
             'aggregates',
@@ -434,10 +426,10 @@ class TestHypervisorShow(compute_fakes.TestComputev2):
         self.assertEqual(self.columns_v288, columns)
         self.assertCountEqual(self.data_v288, data)
 
-        self.compute_sdk_client.find_hypervisor.assert_called_once_with(
+        self.compute_client.find_hypervisor.assert_called_once_with(
             self.hypervisor.name, ignore_missing=False, details=False
         )
-        self.compute_sdk_client.get_hypervisor.assert_called_once_with(
+        self.compute_client.get_hypervisor.assert_called_once_with(
             self.hypervisor.id
         )
 
@@ -460,10 +452,10 @@ class TestHypervisorShow(compute_fakes.TestComputev2):
         self.assertEqual(self.columns, columns)
         self.assertCountEqual(self.data, data)
 
-        self.compute_sdk_client.find_hypervisor.assert_called_once_with(
+        self.compute_client.find_hypervisor.assert_called_once_with(
             self.hypervisor.name, ignore_missing=False, details=False
         )
-        self.compute_sdk_client.get_hypervisor.assert_called_once_with(
+        self.compute_client.get_hypervisor.assert_called_once_with(
             self.hypervisor.id
         )
 
@@ -473,7 +465,7 @@ class TestHypervisorShow(compute_fakes.TestComputev2):
         # before microversion 2.28, nova returned a stringified version of this
         # field
         self.hypervisor.cpu_info = json.dumps(self.hypervisor.cpu_info)
-        self.compute_sdk_client.find_hypervisor.return_value = self.hypervisor
+        self.compute_client.find_hypervisor.return_value = self.hypervisor
 
         arglist = [
             self.hypervisor.name,
@@ -491,10 +483,10 @@ class TestHypervisorShow(compute_fakes.TestComputev2):
         self.assertEqual(self.columns, columns)
         self.assertCountEqual(self.data, data)
 
-        self.compute_sdk_client.find_hypervisor.assert_called_once_with(
+        self.compute_client.find_hypervisor.assert_called_once_with(
             self.hypervisor.name, ignore_missing=False, details=False
         )
-        self.compute_sdk_client.get_hypervisor.assert_called_once_with(
+        self.compute_client.get_hypervisor.assert_called_once_with(
             self.hypervisor.id
         )
 
@@ -509,7 +501,7 @@ class TestHypervisorShow(compute_fakes.TestComputev2):
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
-        self.compute_sdk_client.get_hypervisor_uptime.side_effect = (
+        self.compute_client.get_hypervisor_uptime.side_effect = (
             sdk_exceptions.HttpException(http_status=501)
         )
 
@@ -570,9 +562,9 @@ class TestHypervisorShow(compute_fakes.TestComputev2):
         self.assertEqual(expected_columns, columns)
         self.assertCountEqual(expected_data, data)
 
-        self.compute_sdk_client.find_hypervisor.assert_called_once_with(
+        self.compute_client.find_hypervisor.assert_called_once_with(
             self.hypervisor.name, ignore_missing=False, details=False
         )
-        self.compute_sdk_client.get_hypervisor.assert_called_once_with(
+        self.compute_client.get_hypervisor.assert_called_once_with(
             self.hypervisor.id
         )

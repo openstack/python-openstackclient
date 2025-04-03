@@ -29,7 +29,7 @@ class TestSecurityGroup(utils.TestCase):
     def setUp(self):
         super().setUp()
 
-        self.compute_sdk_client = mock.Mock(_proxy.Proxy)
+        self.compute_client = mock.Mock(_proxy.Proxy)
 
     def test_create_security_group(self):
         sg_name = 'name-' + uuid.uuid4().hex
@@ -43,15 +43,13 @@ class TestSecurityGroup(utils.TestCase):
                 'rules': [],
             }
         }
-        self.compute_sdk_client.post.return_value = fakes.FakeResponse(
-            data=data
-        )
+        self.compute_client.post.return_value = fakes.FakeResponse(data=data)
 
         result = compute.create_security_group(
-            self.compute_sdk_client, sg_name, sg_description
+            self.compute_client, sg_name, sg_description
         )
 
-        self.compute_sdk_client.post.assert_called_once_with(
+        self.compute_client.post.assert_called_once_with(
             '/os-security-groups',
             data={'name': sg_name, 'description': sg_description},
             microversion='2.1',
@@ -70,13 +68,11 @@ class TestSecurityGroup(utils.TestCase):
                 }
             ],
         }
-        self.compute_sdk_client.get.return_value = fakes.FakeResponse(
-            data=data
-        )
+        self.compute_client.get.return_value = fakes.FakeResponse(data=data)
 
-        result = compute.list_security_groups(self.compute_sdk_client)
+        result = compute.list_security_groups(self.compute_client)
 
-        self.compute_sdk_client.get.assert_called_once_with(
+        self.compute_client.get.assert_called_once_with(
             '/os-security-groups', microversion='2.1'
         )
         self.assertEqual(data['security_groups'], result)
@@ -93,13 +89,13 @@ class TestSecurityGroup(utils.TestCase):
                 'rules': [],
             }
         }
-        self.compute_sdk_client.get.side_effect = [
+        self.compute_client.get.side_effect = [
             fakes.FakeResponse(data=data),
         ]
 
-        result = compute.find_security_group(self.compute_sdk_client, sg_id)
+        result = compute.find_security_group(self.compute_client, sg_id)
 
-        self.compute_sdk_client.get.assert_has_calls(
+        self.compute_client.get.assert_has_calls(
             [
                 mock.call(f'/os-security-groups/{sg_id}', microversion='2.1'),
             ]
@@ -120,14 +116,14 @@ class TestSecurityGroup(utils.TestCase):
                 }
             ],
         }
-        self.compute_sdk_client.get.side_effect = [
+        self.compute_client.get.side_effect = [
             fakes.FakeResponse(status_code=http.HTTPStatus.NOT_FOUND),
             fakes.FakeResponse(data=data),
         ]
 
-        result = compute.find_security_group(self.compute_sdk_client, sg_name)
+        result = compute.find_security_group(self.compute_client, sg_name)
 
-        self.compute_sdk_client.get.assert_has_calls(
+        self.compute_client.get.assert_has_calls(
             [
                 mock.call(
                     f'/os-security-groups/{sg_name}', microversion='2.1'
@@ -139,14 +135,14 @@ class TestSecurityGroup(utils.TestCase):
 
     def test_find_security_group_not_found(self):
         data = {'security_groups': []}
-        self.compute_sdk_client.get.side_effect = [
+        self.compute_client.get.side_effect = [
             fakes.FakeResponse(status_code=http.HTTPStatus.NOT_FOUND),
             fakes.FakeResponse(data=data),
         ]
         self.assertRaises(
             osc_lib_exceptions.NotFound,
             compute.find_security_group,
-            self.compute_sdk_client,
+            self.compute_client,
             'invalid-sg',
         )
 
@@ -170,7 +166,7 @@ class TestSecurityGroup(utils.TestCase):
                 },
             ],
         }
-        self.compute_sdk_client.get.side_effect = [
+        self.compute_client.get.side_effect = [
             fakes.FakeResponse(status_code=http.HTTPStatus.NOT_FOUND),
             fakes.FakeResponse(data=data),
         ]
@@ -178,7 +174,7 @@ class TestSecurityGroup(utils.TestCase):
         self.assertRaises(
             osc_lib_exceptions.NotFound,
             compute.find_security_group,
-            self.compute_sdk_client,
+            self.compute_client,
             sg_name,
         )
 
@@ -195,15 +191,13 @@ class TestSecurityGroup(utils.TestCase):
                 'rules': [],
             }
         }
-        self.compute_sdk_client.put.return_value = fakes.FakeResponse(
-            data=data
-        )
+        self.compute_client.put.return_value = fakes.FakeResponse(data=data)
 
         result = compute.update_security_group(
-            self.compute_sdk_client, sg_id, sg_name, sg_description
+            self.compute_client, sg_id, sg_name, sg_description
         )
 
-        self.compute_sdk_client.put.assert_called_once_with(
+        self.compute_client.put.assert_called_once_with(
             f'/os-security-groups/{sg_id}',
             data={'name': sg_name, 'description': sg_description},
             microversion='2.1',
@@ -212,13 +206,13 @@ class TestSecurityGroup(utils.TestCase):
 
     def test_delete_security_group(self):
         sg_id = uuid.uuid4().hex
-        self.compute_sdk_client.delete.return_value = fakes.FakeResponse(
+        self.compute_client.delete.return_value = fakes.FakeResponse(
             status_code=http.HTTPStatus.NO_CONTENT
         )
 
-        result = compute.delete_security_group(self.compute_sdk_client, sg_id)
+        result = compute.delete_security_group(self.compute_client, sg_id)
 
-        self.compute_sdk_client.delete.assert_called_once_with(
+        self.compute_client.delete.assert_called_once_with(
             f'/os-security-groups/{sg_id}',
             microversion='2.1',
         )
@@ -229,7 +223,7 @@ class TestSecurityGroupRule(utils.TestCase):
     def setUp(self):
         super().setUp()
 
-        self.compute_sdk_client = mock.Mock(_proxy.Proxy)
+        self.compute_client = mock.Mock(_proxy.Proxy)
 
     def test_create_security_group_rule(self):
         sg_id = uuid.uuid4().hex
@@ -242,12 +236,10 @@ class TestSecurityGroupRule(utils.TestCase):
                 'cidr': '10.0.0.0/24',
             }
         }
-        self.compute_sdk_client.post.return_value = fakes.FakeResponse(
-            data=data
-        )
+        self.compute_client.post.return_value = fakes.FakeResponse(data=data)
 
         result = compute.create_security_group_rule(
-            self.compute_sdk_client,
+            self.compute_client,
             security_group_id=sg_id,
             ip_protocol='tcp',
             from_port=22,
@@ -256,7 +248,7 @@ class TestSecurityGroupRule(utils.TestCase):
             remote_group=None,
         )
 
-        self.compute_sdk_client.post.assert_called_once_with(
+        self.compute_client.post.assert_called_once_with(
             '/os-security-group-rules',
             data={
                 'parent_group_id': sg_id,
@@ -272,15 +264,13 @@ class TestSecurityGroupRule(utils.TestCase):
 
     def test_delete_security_group_rule(self):
         sg_id = uuid.uuid4().hex
-        self.compute_sdk_client.delete.return_value = fakes.FakeResponse(
+        self.compute_client.delete.return_value = fakes.FakeResponse(
             status_code=http.HTTPStatus.NO_CONTENT
         )
 
-        result = compute.delete_security_group_rule(
-            self.compute_sdk_client, sg_id
-        )
+        result = compute.delete_security_group_rule(self.compute_client, sg_id)
 
-        self.compute_sdk_client.delete.assert_called_once_with(
+        self.compute_client.delete.assert_called_once_with(
             f'/os-security-group-rules/{sg_id}',
             microversion='2.1',
         )
@@ -291,7 +281,7 @@ class TestNetwork(utils.TestCase):
     def setUp(self):
         super().setUp()
 
-        self.compute_sdk_client = mock.Mock(_proxy.Proxy)
+        self.compute_client = mock.Mock(_proxy.Proxy)
 
     def test_create_network(self):
         net_name = 'name-' + uuid.uuid4().hex
@@ -305,18 +295,16 @@ class TestNetwork(utils.TestCase):
                 # other fields omitted for brevity
             }
         }
-        self.compute_sdk_client.post.return_value = fakes.FakeResponse(
-            data=data
-        )
+        self.compute_client.post.return_value = fakes.FakeResponse(data=data)
 
         result = compute.create_network(
-            self.compute_sdk_client,
+            self.compute_client,
             name=net_name,
             subnet=net_subnet,
             share_subnet=True,
         )
 
-        self.compute_sdk_client.post.assert_called_once_with(
+        self.compute_client.post.assert_called_once_with(
             '/os-networks',
             data={
                 'label': net_name,
@@ -337,13 +325,11 @@ class TestNetwork(utils.TestCase):
                 }
             ],
         }
-        self.compute_sdk_client.get.return_value = fakes.FakeResponse(
-            data=data
-        )
+        self.compute_client.get.return_value = fakes.FakeResponse(data=data)
 
-        result = compute.list_networks(self.compute_sdk_client)
+        result = compute.list_networks(self.compute_client)
 
-        self.compute_sdk_client.get.assert_called_once_with(
+        self.compute_client.get.assert_called_once_with(
             '/os-networks', microversion='2.1'
         )
         self.assertEqual(data['networks'], result)
@@ -358,13 +344,13 @@ class TestNetwork(utils.TestCase):
                 # other fields omitted for brevity
             }
         }
-        self.compute_sdk_client.get.side_effect = [
+        self.compute_client.get.side_effect = [
             fakes.FakeResponse(data=data),
         ]
 
-        result = compute.find_network(self.compute_sdk_client, net_id)
+        result = compute.find_network(self.compute_client, net_id)
 
-        self.compute_sdk_client.get.assert_has_calls(
+        self.compute_client.get.assert_has_calls(
             [
                 mock.call(f'/os-networks/{net_id}', microversion='2.1'),
             ]
@@ -383,14 +369,14 @@ class TestNetwork(utils.TestCase):
                 }
             ],
         }
-        self.compute_sdk_client.get.side_effect = [
+        self.compute_client.get.side_effect = [
             fakes.FakeResponse(status_code=http.HTTPStatus.NOT_FOUND),
             fakes.FakeResponse(data=data),
         ]
 
-        result = compute.find_network(self.compute_sdk_client, net_name)
+        result = compute.find_network(self.compute_client, net_name)
 
-        self.compute_sdk_client.get.assert_has_calls(
+        self.compute_client.get.assert_has_calls(
             [
                 mock.call(f'/os-networks/{net_name}', microversion='2.1'),
                 mock.call('/os-networks', microversion='2.1'),
@@ -400,14 +386,14 @@ class TestNetwork(utils.TestCase):
 
     def test_find_network_not_found(self):
         data = {'networks': []}
-        self.compute_sdk_client.get.side_effect = [
+        self.compute_client.get.side_effect = [
             fakes.FakeResponse(status_code=http.HTTPStatus.NOT_FOUND),
             fakes.FakeResponse(data=data),
         ]
         self.assertRaises(
             osc_lib_exceptions.NotFound,
             compute.find_network,
-            self.compute_sdk_client,
+            self.compute_client,
             'invalid-net',
         )
 
@@ -427,7 +413,7 @@ class TestNetwork(utils.TestCase):
                 },
             ],
         }
-        self.compute_sdk_client.get.side_effect = [
+        self.compute_client.get.side_effect = [
             fakes.FakeResponse(status_code=http.HTTPStatus.NOT_FOUND),
             fakes.FakeResponse(data=data),
         ]
@@ -435,19 +421,19 @@ class TestNetwork(utils.TestCase):
         self.assertRaises(
             osc_lib_exceptions.NotFound,
             compute.find_network,
-            self.compute_sdk_client,
+            self.compute_client,
             net_name,
         )
 
     def test_delete_network(self):
         net_id = uuid.uuid4().hex
-        self.compute_sdk_client.delete.return_value = fakes.FakeResponse(
+        self.compute_client.delete.return_value = fakes.FakeResponse(
             status_code=http.HTTPStatus.NO_CONTENT
         )
 
-        result = compute.delete_network(self.compute_sdk_client, net_id)
+        result = compute.delete_network(self.compute_client, net_id)
 
-        self.compute_sdk_client.delete.assert_called_once_with(
+        self.compute_client.delete.assert_called_once_with(
             f'/os-networks/{net_id}', microversion='2.1'
         )
         self.assertIsNone(result)
@@ -457,7 +443,7 @@ class TestFloatingIP(utils.TestCase):
     def setUp(self):
         super().setUp()
 
-        self.compute_sdk_client = mock.Mock(_proxy.Proxy)
+        self.compute_client = mock.Mock(_proxy.Proxy)
 
     def test_create_floating_ip(self):
         network = 'network-' + uuid.uuid4().hex
@@ -470,15 +456,13 @@ class TestFloatingIP(utils.TestCase):
                 'pool': network,
             }
         }
-        self.compute_sdk_client.post.return_value = fakes.FakeResponse(
-            data=data
-        )
+        self.compute_client.post.return_value = fakes.FakeResponse(data=data)
 
         result = compute.create_floating_ip(
-            self.compute_sdk_client, network=network
+            self.compute_client, network=network
         )
 
-        self.compute_sdk_client.post.assert_called_once_with(
+        self.compute_client.post.assert_called_once_with(
             '/os-floating-ips', data={'pool': network}, microversion='2.1'
         )
         self.assertEqual(data['floating_ip'], result)
@@ -495,13 +479,11 @@ class TestFloatingIP(utils.TestCase):
                 }
             ],
         }
-        self.compute_sdk_client.get.return_value = fakes.FakeResponse(
-            data=data
-        )
+        self.compute_client.get.return_value = fakes.FakeResponse(data=data)
 
-        result = compute.list_floating_ips(self.compute_sdk_client)
+        result = compute.list_floating_ips(self.compute_client)
 
-        self.compute_sdk_client.get.assert_called_once_with(
+        self.compute_client.get.assert_called_once_with(
             '/os-floating-ips', microversion='2.1'
         )
         self.assertEqual(data['floating_ips'], result)
@@ -517,26 +499,26 @@ class TestFloatingIP(utils.TestCase):
                 'pool': f'network-{uuid.uuid4().hex}',
             }
         }
-        self.compute_sdk_client.get.side_effect = [
+        self.compute_client.get.side_effect = [
             fakes.FakeResponse(data=data),
         ]
 
-        result = compute.get_floating_ip(self.compute_sdk_client, fip_id)
+        result = compute.get_floating_ip(self.compute_client, fip_id)
 
-        self.compute_sdk_client.get.assert_called_once_with(
+        self.compute_client.get.assert_called_once_with(
             f'/os-floating-ips/{fip_id}', microversion='2.1'
         )
         self.assertEqual(data['floating_ip'], result)
 
     def test_delete_floating_ip(self):
         fip_id = uuid.uuid4().hex
-        self.compute_sdk_client.delete.return_value = fakes.FakeResponse(
+        self.compute_client.delete.return_value = fakes.FakeResponse(
             status_code=http.HTTPStatus.NO_CONTENT
         )
 
-        result = compute.delete_floating_ip(self.compute_sdk_client, fip_id)
+        result = compute.delete_floating_ip(self.compute_client, fip_id)
 
-        self.compute_sdk_client.delete.assert_called_once_with(
+        self.compute_client.delete.assert_called_once_with(
             f'/os-floating-ips/{fip_id}', microversion='2.1'
         )
         self.assertIsNone(result)
@@ -546,7 +528,7 @@ class TestFloatingIPPool(utils.TestCase):
     def setUp(self):
         super().setUp()
 
-        self.compute_sdk_client = mock.Mock(_proxy.Proxy)
+        self.compute_client = mock.Mock(_proxy.Proxy)
 
     def test_list_floating_ip_pools(self):
         data = {
@@ -556,13 +538,11 @@ class TestFloatingIPPool(utils.TestCase):
                 }
             ],
         }
-        self.compute_sdk_client.get.return_value = fakes.FakeResponse(
-            data=data
-        )
+        self.compute_client.get.return_value = fakes.FakeResponse(data=data)
 
-        result = compute.list_floating_ip_pools(self.compute_sdk_client)
+        result = compute.list_floating_ip_pools(self.compute_client)
 
-        self.compute_sdk_client.get.assert_called_once_with(
+        self.compute_client.get.assert_called_once_with(
             '/os-floating-ip-pools', microversion='2.1'
         )
         self.assertEqual(data['floating_ip_pools'], result)

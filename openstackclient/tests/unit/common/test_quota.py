@@ -98,7 +98,7 @@ class TestQuotaList(TestQuota):
             _compute_quota_set.QuotaSet
         )
         # the defaults are global hence use of return_value here
-        self.compute_sdk_client.get_quota_set_defaults.return_value = (
+        self.compute_client.get_quota_set_defaults.return_value = (
             self.default_compute_quotas
         )
         self.compute_reference_data = (
@@ -164,7 +164,7 @@ class TestQuotaList(TestQuota):
 
     def test_quota_list_compute(self):
         # Two projects with non-default quotas
-        self.compute_sdk_client.get_quota_set.side_effect = self.compute_quotas
+        self.compute_client.get_quota_set.side_effect = self.compute_quotas
 
         arglist = [
             '--compute',
@@ -183,7 +183,7 @@ class TestQuotaList(TestQuota):
 
     def test_quota_list_compute_default(self):
         # One of the projects is at defaults
-        self.compute_sdk_client.get_quota_set.side_effect = [
+        self.compute_client.get_quota_set.side_effect = [
             self.compute_quotas[0],
             self.default_compute_quotas,
         ]
@@ -205,7 +205,7 @@ class TestQuotaList(TestQuota):
 
     def test_quota_list_compute_project_not_found(self):
         # Make one of the projects disappear
-        self.compute_sdk_client.get_quota_set.side_effect = [
+        self.compute_client.get_quota_set.side_effect = [
             self.compute_quotas[0],
             sdk_exceptions.NotFoundException("NotFound"),
         ]
@@ -227,7 +227,7 @@ class TestQuotaList(TestQuota):
 
     def test_quota_list_compute_project_inaccessible(self):
         # Make one of the projects inaccessible
-        self.compute_sdk_client.get_quota_set.side_effect = [
+        self.compute_client.get_quota_set.side_effect = [
             self.compute_quotas[0],
             sdk_exceptions.ForbiddenException("Forbidden"),
         ]
@@ -249,7 +249,7 @@ class TestQuotaList(TestQuota):
 
     def test_quota_list_compute_server_error(self):
         # Make the server "break"
-        self.compute_sdk_client.get_quota_set.side_effect = (
+        self.compute_client.get_quota_set.side_effect = (
             sdk_exceptions.HttpException("Not implemented?")
         )
 
@@ -470,7 +470,7 @@ class TestQuotaSet(TestQuota):
             'server_group_members': servgroup_members_num,
         }
 
-        self.compute_sdk_client.update_quota_set.assert_called_once_with(
+        self.compute_client.update_quota_set.assert_called_once_with(
             self.projects[0].id, **kwargs
         )
         self.assertIsNone(result)
@@ -744,7 +744,7 @@ class TestQuotaSet(TestQuota):
             'volumes': volumes,
         }
 
-        self.compute_sdk_client.update_quota_class_set.assert_called_with(
+        self.compute_client.update_quota_class_set.assert_called_with(
             self.projects[0].name, **kwargs_compute
         )
         self.volume_sdk_client.update_quota_class_set.assert_called_with(
@@ -842,7 +842,7 @@ class TestQuotaSet(TestQuota):
             'volumes': volumes,
         }
 
-        self.compute_sdk_client.update_quota_class_set.assert_called_with(
+        self.compute_client.update_quota_class_set.assert_called_with(
             'default', **kwargs_compute
         )
         self.volume_sdk_client.update_quota_class_set.assert_called_with(
@@ -899,7 +899,7 @@ class TestQuotaSet(TestQuota):
             'subnet': subnet,
             'force': True,
         }
-        self.compute_sdk_client.update_quota_set.assert_called_once_with(
+        self.compute_client.update_quota_set.assert_called_once_with(
             self.projects[0].id, **kwargs_compute
         )
         self.volume_sdk_client.update_quota_set.assert_called_once_with(
@@ -942,7 +942,7 @@ class TestQuotaSet(TestQuota):
             'subnet': 10,
             'check_limit': True,
         }
-        self.compute_sdk_client.update_quota_set.assert_called_once_with(
+        self.compute_client.update_quota_set.assert_called_once_with(
             self.projects[0].id, **kwargs_compute
         )
         self.volume_sdk_client.update_quota_set.assert_called_once_with(
@@ -977,13 +977,13 @@ class TestQuotaShow(TestQuota):
 
         self.identity_sdk_client.find_project.return_value = self.projects[0]
 
-        self.compute_sdk_client.get_quota_set.return_value = (
+        self.compute_client.get_quota_set.return_value = (
             sdk_fakes.generate_fake_resource(_compute_quota_set.QuotaSet)
         )
         self.default_compute_quotas = sdk_fakes.generate_fake_resource(
             _compute_quota_set.QuotaSet
         )
-        self.compute_sdk_client.get_quota_set_defaults.return_value = (
+        self.compute_client.get_quota_set_defaults.return_value = (
             self.default_compute_quotas
         )
 
@@ -1027,7 +1027,7 @@ class TestQuotaShow(TestQuota):
 
         self.cmd.take_action(parsed_args)
 
-        self.compute_sdk_client.get_quota_set.assert_called_once_with(
+        self.compute_client.get_quota_set.assert_called_once_with(
             self.projects[0].id,
             usage=False,
         )
@@ -1054,7 +1054,7 @@ class TestQuotaShow(TestQuota):
 
         self.cmd.take_action(parsed_args)
 
-        self.compute_sdk_client.get_quota_set.assert_called_once_with(
+        self.compute_client.get_quota_set.assert_called_once_with(
             self.projects[0].id,
             usage=False,
         )
@@ -1074,7 +1074,7 @@ class TestQuotaShow(TestQuota):
 
         self.cmd.take_action(parsed_args)
 
-        self.compute_sdk_client.get_quota_set.assert_not_called()
+        self.compute_client.get_quota_set.assert_not_called()
         self.volume_sdk_client.get_quota_set.assert_called_once_with(
             self.projects[0].id,
             usage=False,
@@ -1094,7 +1094,7 @@ class TestQuotaShow(TestQuota):
 
         self.cmd.take_action(parsed_args)
 
-        self.compute_sdk_client.get_quota_set.assert_not_called()
+        self.compute_client.get_quota_set.assert_not_called()
         self.volume_sdk_client.get_quota_set.assert_not_called()
         self.network_client.get_quota.assert_called_once_with(
             self.projects[0].id,
@@ -1115,7 +1115,7 @@ class TestQuotaShow(TestQuota):
 
         self.cmd.take_action(parsed_args)
 
-        self.compute_sdk_client.get_quota_set_defaults.assert_called_once_with(
+        self.compute_client.get_quota_set_defaults.assert_called_once_with(
             self.projects[0].id,
         )
         self.volume_sdk_client.get_quota_set_defaults.assert_called_once_with(
@@ -1139,7 +1139,7 @@ class TestQuotaShow(TestQuota):
 
         self.cmd.take_action(parsed_args)
 
-        self.compute_sdk_client.get_quota_set.assert_called_once_with(
+        self.compute_client.get_quota_set.assert_called_once_with(
             self.projects[0].id,
             usage=True,
         )
@@ -1161,7 +1161,7 @@ class TestQuotaShow(TestQuota):
 
         self.cmd.take_action(parsed_args)
 
-        self.compute_sdk_client.get_quota_set.assert_called_once_with(
+        self.compute_client.get_quota_set.assert_called_once_with(
             self.projects[1].id, usage=False
         )
         self.volume_sdk_client.get_quota_set.assert_called_once_with(
@@ -1181,7 +1181,7 @@ class TestQuotaDelete(TestQuota):
 
         self.identity_sdk_client.find_project.return_value = self.projects[0]
 
-        self.compute_sdk_client.revert_quota_set.return_value = None
+        self.compute_client.revert_quota_set.return_value = None
         self.volume_sdk_client.revert_quota_set.return_value = None
         self.network_client.delete_quota.return_value = None
 
@@ -1205,7 +1205,7 @@ class TestQuotaDelete(TestQuota):
         self.identity_sdk_client.find_project.assert_called_once_with(
             self.projects[0].id, ignore_missing=False
         )
-        self.compute_sdk_client.revert_quota_set.assert_called_once_with(
+        self.compute_client.revert_quota_set.assert_called_once_with(
             self.projects[0].id,
         )
         self.volume_sdk_client.revert_quota_set.assert_called_once_with(
@@ -1234,7 +1234,7 @@ class TestQuotaDelete(TestQuota):
         self.identity_sdk_client.find_project.assert_called_once_with(
             self.projects[0].id, ignore_missing=False
         )
-        self.compute_sdk_client.revert_quota_set.assert_called_once_with(
+        self.compute_client.revert_quota_set.assert_called_once_with(
             self.projects[0].id,
         )
         self.volume_sdk_client.revert_quota_set.assert_not_called()
@@ -1259,7 +1259,7 @@ class TestQuotaDelete(TestQuota):
         self.identity_sdk_client.find_project.assert_called_once_with(
             self.projects[0].id, ignore_missing=False
         )
-        self.compute_sdk_client.revert_quota_set.assert_not_called()
+        self.compute_client.revert_quota_set.assert_not_called()
         self.volume_sdk_client.revert_quota_set.assert_called_once_with(
             self.projects[0].id,
         )
@@ -1284,7 +1284,7 @@ class TestQuotaDelete(TestQuota):
         self.identity_sdk_client.find_project.assert_called_once_with(
             self.projects[0].id, ignore_missing=False
         )
-        self.compute_sdk_client.revert_quota_set.assert_not_called()
+        self.compute_client.revert_quota_set.assert_not_called()
         self.volume_sdk_client.revert_quota_set.assert_not_called()
         self.network_client.delete_quota.assert_called_once_with(
             self.projects[0].id,

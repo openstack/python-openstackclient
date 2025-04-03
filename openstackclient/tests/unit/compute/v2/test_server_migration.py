@@ -53,10 +53,10 @@ class TestListMigration(compute_fakes.TestComputev2):
         super().setUp()
 
         self.server = compute_fakes.create_one_sdk_server()
-        self.compute_sdk_client.find_server.return_value = self.server
+        self.compute_client.find_server.return_value = self.server
 
         self.migrations = compute_fakes.create_migrations(count=3)
-        self.compute_sdk_client.migrations.return_value = self.migrations
+        self.compute_client.migrations.return_value = self.migrations
 
         self.data = (
             common_utils.get_item_properties(s, self.MIGRATION_FIELDS)
@@ -76,7 +76,7 @@ class TestListMigration(compute_fakes.TestComputev2):
         # Set expected values
         kwargs = {}
 
-        self.compute_sdk_client.migrations.assert_called_with(**kwargs)
+        self.compute_client.migrations.assert_called_with(**kwargs)
 
         self.assertEqual(self.MIGRATION_COLUMNS, columns)
         self.assertEqual(tuple(self.data), tuple(data))
@@ -108,10 +108,10 @@ class TestListMigration(compute_fakes.TestComputev2):
             'migration_type': 'migration',
         }
 
-        self.compute_sdk_client.find_server.assert_called_with(
+        self.compute_client.find_server.assert_called_with(
             'server1', ignore_missing=False
         )
-        self.compute_sdk_client.migrations.assert_called_with(**kwargs)
+        self.compute_client.migrations.assert_called_with(**kwargs)
 
         self.assertEqual(self.MIGRATION_COLUMNS, columns)
         self.assertEqual(tuple(self.data), tuple(data))
@@ -169,7 +169,7 @@ class TestListMigrationV223(TestListMigration):
             'status': 'migrating',
         }
 
-        self.compute_sdk_client.migrations.assert_called_with(**kwargs)
+        self.compute_client.migrations.assert_called_with(**kwargs)
 
         self.assertEqual(self.MIGRATION_COLUMNS, columns)
         self.assertEqual(tuple(self.data), tuple(data))
@@ -247,7 +247,7 @@ class TestListMigrationV259(TestListMigration):
             'changes_since': '2019-08-09T08:03:25Z',
         }
 
-        self.compute_sdk_client.migrations.assert_called_with(**kwargs)
+        self.compute_client.migrations.assert_called_with(**kwargs)
 
         self.assertEqual(self.MIGRATION_COLUMNS, columns)
         self.assertEqual(tuple(self.data), tuple(data))
@@ -376,7 +376,7 @@ class TestListMigrationV266(TestListMigration):
             'changes_before': '2019-08-09T08:03:25Z',
         }
 
-        self.compute_sdk_client.migrations.assert_called_with(**kwargs)
+        self.compute_client.migrations.assert_called_with(**kwargs)
 
         self.assertEqual(self.MIGRATION_COLUMNS, columns)
         self.assertEqual(tuple(self.data), tuple(data))
@@ -495,7 +495,7 @@ class TestListMigrationV280(TestListMigration):
             'changes_before': "2019-08-09T08:03:25Z",
         }
 
-        self.compute_sdk_client.migrations.assert_called_with(**kwargs)
+        self.compute_client.migrations.assert_called_with(**kwargs)
 
         self.MIGRATION_COLUMNS.insert(
             len(self.MIGRATION_COLUMNS) - 2, "Project"
@@ -572,7 +572,7 @@ class TestListMigrationV280(TestListMigration):
             'changes_before': "2019-08-09T08:03:25Z",
         }
 
-        self.compute_sdk_client.migrations.assert_called_with(**kwargs)
+        self.compute_client.migrations.assert_called_with(**kwargs)
 
         self.MIGRATION_COLUMNS.insert(len(self.MIGRATION_COLUMNS) - 2, "User")
         self.MIGRATION_FIELDS.insert(len(self.MIGRATION_FIELDS) - 2, "user_id")
@@ -644,7 +644,7 @@ class TestListMigrationV280(TestListMigration):
             'changes_before': "2019-08-09T08:03:25Z",
         }
 
-        self.compute_sdk_client.migrations.assert_called_with(**kwargs)
+        self.compute_client.migrations.assert_called_with(**kwargs)
 
         self.MIGRATION_COLUMNS.insert(
             len(self.MIGRATION_COLUMNS) - 2, "Project"
@@ -695,13 +695,13 @@ class TestServerMigrationShow(compute_fakes.TestComputev2):
         super().setUp()
 
         self.server = compute_fakes.create_one_sdk_server()
-        self.compute_sdk_client.find_server.return_value = self.server
+        self.compute_client.find_server.return_value = self.server
 
         self.server_migration = compute_fakes.create_one_server_migration()
-        self.compute_sdk_client.get_server_migration.return_value = (
+        self.compute_client.get_server_migration.return_value = (
             self.server_migration
         )
-        self.compute_sdk_client.server_migrations.return_value = iter(
+        self.compute_client.server_migrations.return_value = iter(
             [self.server_migration]
         )
 
@@ -759,10 +759,10 @@ class TestServerMigrationShow(compute_fakes.TestComputev2):
         self.assertEqual(self.columns, columns)
         self.assertEqual(self.data, data)
 
-        self.compute_sdk_client.find_server.assert_called_with(
+        self.compute_client.find_server.assert_called_with(
             self.server.id, ignore_missing=False
         )
-        self.compute_sdk_client.get_server_migration.assert_called_with(
+        self.compute_client.get_server_migration.assert_called_with(
             self.server.id, '2', ignore_missing=False
         )
 
@@ -811,7 +811,7 @@ class TestServerMigrationShow(compute_fakes.TestComputev2):
     def test_server_migration_show_by_uuid(self):
         self.set_compute_api_version('2.59')
 
-        self.compute_sdk_client.server_migrations.return_value = iter(
+        self.compute_client.server_migrations.return_value = iter(
             [self.server_migration]
         )
 
@@ -830,18 +830,18 @@ class TestServerMigrationShow(compute_fakes.TestComputev2):
         self.assertEqual(self.columns, columns)
         self.assertEqual(self.data, data)
 
-        self.compute_sdk_client.find_server.assert_called_with(
+        self.compute_client.find_server.assert_called_with(
             self.server.id, ignore_missing=False
         )
-        self.compute_sdk_client.server_migrations.assert_called_with(
+        self.compute_client.server_migrations.assert_called_with(
             self.server.id
         )
-        self.compute_sdk_client.get_server_migration.assert_not_called()
+        self.compute_client.get_server_migration.assert_not_called()
 
     def test_server_migration_show_by_uuid_no_matches(self):
         self.set_compute_api_version('2.59')
 
-        self.compute_sdk_client.server_migrations.return_value = iter([])
+        self.compute_client.server_migrations.return_value = iter([])
 
         arglist = [
             self.server.id,
@@ -900,7 +900,7 @@ class TestServerMigrationAbort(compute_fakes.TestComputev2):
         self.server = compute_fakes.create_one_sdk_server()
 
         # Return value for utils.find_resource for server.
-        self.compute_sdk_client.find_server.return_value = self.server
+        self.compute_client.find_server.return_value = self.server
 
         # Get the command object to test
         self.cmd = server_migration.AbortMigration(self.app, None)
@@ -917,10 +917,10 @@ class TestServerMigrationAbort(compute_fakes.TestComputev2):
 
         result = self.cmd.take_action(parsed_args)
 
-        self.compute_sdk_client.find_server.assert_called_with(
+        self.compute_client.find_server.assert_called_with(
             self.server.id, ignore_missing=False
         )
-        self.compute_sdk_client.abort_server_migration.assert_called_with(
+        self.compute_client.abort_server_migration.assert_called_with(
             '2', self.server.id, ignore_missing=False
         )
         self.assertIsNone(result)
@@ -946,7 +946,7 @@ class TestServerMigrationAbort(compute_fakes.TestComputev2):
         self.set_compute_api_version('2.59')
 
         self.server_migration = compute_fakes.create_one_server_migration()
-        self.compute_sdk_client.server_migrations.return_value = iter(
+        self.compute_client.server_migrations.return_value = iter(
             [self.server_migration]
         )
 
@@ -959,13 +959,13 @@ class TestServerMigrationAbort(compute_fakes.TestComputev2):
 
         result = self.cmd.take_action(parsed_args)
 
-        self.compute_sdk_client.find_server.assert_called_with(
+        self.compute_client.find_server.assert_called_with(
             self.server.id, ignore_missing=False
         )
-        self.compute_sdk_client.server_migrations.assert_called_with(
+        self.compute_client.server_migrations.assert_called_with(
             self.server.id
         )
-        self.compute_sdk_client.abort_server_migration.assert_called_with(
+        self.compute_client.abort_server_migration.assert_called_with(
             self.server_migration.id, self.server.id, ignore_missing=False
         )
         self.assertIsNone(result)
@@ -973,7 +973,7 @@ class TestServerMigrationAbort(compute_fakes.TestComputev2):
     def test_server_migration_abort_by_uuid_no_matches(self):
         self.set_compute_api_version('2.59')
 
-        self.compute_sdk_client.server_migrations.return_value = iter([])
+        self.compute_client.server_migrations.return_value = iter([])
 
         arglist = [
             self.server.id,
@@ -1015,7 +1015,7 @@ class TestServerMigrationForceComplete(compute_fakes.TestComputev2):
         self.server = compute_fakes.create_one_sdk_server()
 
         # Return value for utils.find_resource for server.
-        self.compute_sdk_client.find_server.return_value = self.server
+        self.compute_client.find_server.return_value = self.server
 
         # Get the command object to test
         self.cmd = server_migration.ForceCompleteMigration(self.app, None)
@@ -1032,10 +1032,10 @@ class TestServerMigrationForceComplete(compute_fakes.TestComputev2):
 
         result = self.cmd.take_action(parsed_args)
 
-        self.compute_sdk_client.find_server.assert_called_with(
+        self.compute_client.find_server.assert_called_with(
             self.server.id, ignore_missing=False
         )
-        self.compute_sdk_client.force_complete_server_migration.assert_called_with(
+        self.compute_client.force_complete_server_migration.assert_called_with(
             '2', self.server.id
         )
         self.assertIsNone(result)
@@ -1061,7 +1061,7 @@ class TestServerMigrationForceComplete(compute_fakes.TestComputev2):
         self.set_compute_api_version('2.59')
 
         self.server_migration = compute_fakes.create_one_server_migration()
-        self.compute_sdk_client.server_migrations.return_value = iter(
+        self.compute_client.server_migrations.return_value = iter(
             [self.server_migration]
         )
 
@@ -1074,13 +1074,13 @@ class TestServerMigrationForceComplete(compute_fakes.TestComputev2):
 
         result = self.cmd.take_action(parsed_args)
 
-        self.compute_sdk_client.find_server.assert_called_with(
+        self.compute_client.find_server.assert_called_with(
             self.server.id, ignore_missing=False
         )
-        self.compute_sdk_client.server_migrations.assert_called_with(
+        self.compute_client.server_migrations.assert_called_with(
             self.server.id
         )
-        self.compute_sdk_client.force_complete_server_migration.assert_called_with(
+        self.compute_client.force_complete_server_migration.assert_called_with(
             self.server_migration.id, self.server.id
         )
         self.assertIsNone(result)
@@ -1088,7 +1088,7 @@ class TestServerMigrationForceComplete(compute_fakes.TestComputev2):
     def test_server_migration_force_complete_by_uuid_no_matches(self):
         self.set_compute_api_version('2.59')
 
-        self.compute_sdk_client.server_migrations.return_value = iter([])
+        self.compute_client.server_migrations.return_value = iter([])
 
         arglist = [
             self.server.id,

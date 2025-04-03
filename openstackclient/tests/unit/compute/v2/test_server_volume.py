@@ -31,8 +31,8 @@ class TestServerVolumeList(compute_fakes.TestComputev2):
             )
         )
 
-        self.compute_sdk_client.find_server.return_value = self.server
-        self.compute_sdk_client.volume_attachments.return_value = (
+        self.compute_client.find_server.return_value = self.server
+        self.compute_client.volume_attachments.return_value = (
             self.volume_attachments
         )
 
@@ -68,7 +68,7 @@ class TestServerVolumeList(compute_fakes.TestComputev2):
             ),
             tuple(data),
         )
-        self.compute_sdk_client.volume_attachments.assert_called_once_with(
+        self.compute_client.volume_attachments.assert_called_once_with(
             self.server,
         )
 
@@ -114,7 +114,7 @@ class TestServerVolumeList(compute_fakes.TestComputev2):
             ),
             tuple(data),
         )
-        self.compute_sdk_client.volume_attachments.assert_called_once_with(
+        self.compute_client.volume_attachments.assert_called_once_with(
             self.server,
         )
 
@@ -163,7 +163,7 @@ class TestServerVolumeList(compute_fakes.TestComputev2):
             ),
             tuple(data),
         )
-        self.compute_sdk_client.volume_attachments.assert_called_once_with(
+        self.compute_client.volume_attachments.assert_called_once_with(
             self.server,
         )
 
@@ -215,7 +215,7 @@ class TestServerVolumeList(compute_fakes.TestComputev2):
             ),
             tuple(data),
         )
-        self.compute_sdk_client.volume_attachments.assert_called_once_with(
+        self.compute_client.volume_attachments.assert_called_once_with(
             self.server,
         )
 
@@ -225,7 +225,7 @@ class TestServerVolumeUpdate(compute_fakes.TestComputev2):
         super().setUp()
 
         self.server = sdk_fakes.generate_fake_resource(_server.Server)
-        self.compute_sdk_client.find_server.return_value = self.server
+        self.compute_client.find_server.return_value = self.server
 
         self.volume = sdk_fakes.generate_fake_resource(_volume.Volume)
         self.volume_sdk_client.find_volume.return_value = self.volume
@@ -248,7 +248,7 @@ class TestServerVolumeUpdate(compute_fakes.TestComputev2):
         result = self.cmd.take_action(parsed_args)
 
         # This is a no-op
-        self.compute_sdk_client.update_volume_attachment.assert_not_called()
+        self.compute_client.update_volume_attachment.assert_not_called()
         self.assertIsNone(result)
 
     def test_server_volume_update_with_delete_on_termination(self):
@@ -268,7 +268,7 @@ class TestServerVolumeUpdate(compute_fakes.TestComputev2):
 
         result = self.cmd.take_action(parsed_args)
 
-        self.compute_sdk_client.update_volume_attachment.assert_called_once_with(
+        self.compute_client.update_volume_attachment.assert_called_once_with(
             self.server,
             self.volume,
             delete_on_termination=True,
@@ -292,7 +292,7 @@ class TestServerVolumeUpdate(compute_fakes.TestComputev2):
 
         result = self.cmd.take_action(parsed_args)
 
-        self.compute_sdk_client.update_volume_attachment.assert_called_once_with(
+        self.compute_client.update_volume_attachment.assert_called_once_with(
             self.server, self.volume, delete_on_termination=False
         )
         self.assertIsNone(result)
@@ -317,7 +317,7 @@ class TestServerVolumeUpdate(compute_fakes.TestComputev2):
             self.cmd.take_action,
             parsed_args,
         )
-        self.compute_sdk_client.update_volume_attachment.assert_not_called()
+        self.compute_client.update_volume_attachment.assert_not_called()
 
     def test_server_volume_update_with_preserve_on_termination_pre_v285(self):
         self.set_compute_api_version('2.84')
@@ -339,4 +339,4 @@ class TestServerVolumeUpdate(compute_fakes.TestComputev2):
             self.cmd.take_action,
             parsed_args,
         )
-        self.compute_sdk_client.update_volume_attachment.assert_not_called()
+        self.compute_client.update_volume_attachment.assert_not_called()
