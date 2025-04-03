@@ -72,7 +72,7 @@ class CreateServerImage(command.ShowOne):
                 self.app.stdout.write(f'\rProgress: {progress}')
                 self.app.stdout.flush()
 
-        compute_client = self.app.client_manager.sdk_connection.compute
+        compute_client = self.app.client_manager.compute
         image_client = self.app.client_manager.image
 
         server = compute_client.find_server(

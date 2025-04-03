@@ -149,7 +149,7 @@ class CreateFlavor(command.ShowOne):
         return parser
 
     def take_action(self, parsed_args):
-        compute_client = self.app.client_manager.sdk_connection.compute
+        compute_client = self.app.client_manager.compute
         identity_client = self.app.client_manager.identity
 
         if parsed_args.project and parsed_args.public:
@@ -223,7 +223,7 @@ class DeleteFlavor(command.Command):
         return parser
 
     def take_action(self, parsed_args):
-        compute_client = self.app.client_manager.sdk_connection.compute
+        compute_client = self.app.client_manager.compute
         result = 0
         for f in parsed_args.flavor:
             try:
@@ -296,7 +296,7 @@ class ListFlavor(command.Lister):
         return parser
 
     def take_action(self, parsed_args):
-        compute_client = self.app.client_manager.sdk_connection.compute
+        compute_client = self.app.client_manager.compute
         # is_public is ternary - None means give all flavors,
         # True is public only and False is private only
         # By default Nova assumes True and gives admins public flavors
@@ -418,7 +418,7 @@ class SetFlavor(command.Command):
         return parser
 
     def take_action(self, parsed_args):
-        compute_client = self.app.client_manager.sdk_connection.compute
+        compute_client = self.app.client_manager.compute
         identity_client = self.app.client_manager.identity
 
         try:
@@ -497,7 +497,7 @@ class ShowFlavor(command.ShowOne):
         return parser
 
     def take_action(self, parsed_args):
-        compute_client = self.app.client_manager.sdk_connection.compute
+        compute_client = self.app.client_manager.compute
         flavor = compute_client.find_flavor(
             parsed_args.flavor, get_extra_specs=True, ignore_missing=False
         )
@@ -565,7 +565,7 @@ class UnsetFlavor(command.Command):
         return parser
 
     def take_action(self, parsed_args):
-        compute_client = self.app.client_manager.sdk_connection.compute
+        compute_client = self.app.client_manager.compute
         identity_client = self.app.client_manager.identity
 
         try:

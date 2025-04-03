@@ -68,7 +68,7 @@ class AddAggregateHost(command.ShowOne):
         return parser
 
     def take_action(self, parsed_args):
-        compute_client = self.app.client_manager.sdk_connection.compute
+        compute_client = self.app.client_manager.compute
 
         aggregate = compute_client.find_aggregate(
             parsed_args.aggregate, ignore_missing=False
@@ -111,7 +111,7 @@ class CreateAggregate(command.ShowOne):
         return parser
 
     def take_action(self, parsed_args):
-        compute_client = self.app.client_manager.sdk_connection.compute
+        compute_client = self.app.client_manager.compute
 
         attrs = {'name': parsed_args.name}
 
@@ -147,7 +147,7 @@ class DeleteAggregate(command.Command):
         return parser
 
     def take_action(self, parsed_args):
-        compute_client = self.app.client_manager.sdk_connection.compute
+        compute_client = self.app.client_manager.compute
         result = 0
         for a in parsed_args.aggregate:
             try:
@@ -190,7 +190,7 @@ class ListAggregate(command.Lister):
         return parser
 
     def take_action(self, parsed_args):
-        compute_client = self.app.client_manager.sdk_connection.compute
+        compute_client = self.app.client_manager.compute
 
         aggregates = list(compute_client.aggregates())
 
@@ -252,7 +252,7 @@ class RemoveAggregateHost(command.ShowOne):
         return parser
 
     def take_action(self, parsed_args):
-        compute_client = self.app.client_manager.sdk_connection.compute
+        compute_client = self.app.client_manager.compute
 
         aggregate = compute_client.find_aggregate(
             parsed_args.aggregate, ignore_missing=False
@@ -309,7 +309,7 @@ class SetAggregate(command.Command):
         return parser
 
     def take_action(self, parsed_args):
-        compute_client = self.app.client_manager.sdk_connection.compute
+        compute_client = self.app.client_manager.compute
         aggregate = compute_client.find_aggregate(
             parsed_args.aggregate, ignore_missing=False
         )
@@ -354,7 +354,7 @@ class ShowAggregate(command.ShowOne):
         return parser
 
     def take_action(self, parsed_args):
-        compute_client = self.app.client_manager.sdk_connection.compute
+        compute_client = self.app.client_manager.compute
         aggregate = compute_client.find_aggregate(
             parsed_args.aggregate, ignore_missing=False
         )
@@ -394,7 +394,7 @@ class UnsetAggregate(command.Command):
         return parser
 
     def take_action(self, parsed_args):
-        compute_client = self.app.client_manager.sdk_connection.compute
+        compute_client = self.app.client_manager.compute
         aggregate = compute_client.find_aggregate(
             parsed_args.aggregate, ignore_missing=False
         )
@@ -429,7 +429,7 @@ class CacheImageForAggregate(command.Command):
         return parser
 
     def take_action(self, parsed_args):
-        compute_client = self.app.client_manager.sdk_connection.compute
+        compute_client = self.app.client_manager.compute
 
         if not sdk_utils.supports_microversion(compute_client, '2.81'):
             msg = _(

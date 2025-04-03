@@ -903,7 +903,7 @@ class ListPort(command.Lister):
             )
             filters['device_id'] = _router.id
         if parsed_args.server:
-            compute_client = self.app.client_manager.sdk_connection.compute
+            compute_client = self.app.client_manager.compute
             server = compute_client.find_server(
                 parsed_args.server,
                 ignore_missing=False,

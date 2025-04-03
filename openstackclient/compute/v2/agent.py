@@ -56,7 +56,7 @@ class CreateAgent(command.ShowOne):
         return parser
 
     def take_action(self, parsed_args):
-        compute_client = self.app.client_manager.sdk_connection.compute
+        compute_client = self.app.client_manager.compute
 
         # doing this since openstacksdk has decided not to support this
         # deprecated command
@@ -95,7 +95,7 @@ class DeleteAgent(command.Command):
         return parser
 
     def take_action(self, parsed_args):
-        compute_client = self.app.client_manager.sdk_connection.compute
+        compute_client = self.app.client_manager.compute
         result = 0
         for id in parsed_args.id:
             try:
@@ -139,7 +139,7 @@ class ListAgent(command.Lister):
         return parser
 
     def take_action(self, parsed_args):
-        compute_client = self.app.client_manager.sdk_connection.compute
+        compute_client = self.app.client_manager.compute
         columns = (
             "Agent ID",
             "Hypervisor",
@@ -194,7 +194,7 @@ class SetAgent(command.Command):
         return parser
 
     def take_action(self, parsed_args):
-        compute_client = self.app.client_manager.sdk_connection.compute
+        compute_client = self.app.client_manager.compute
 
         response = compute_client.get('/os-agents', microversion='2.1')
         sdk_exceptions.raise_from_response(response)

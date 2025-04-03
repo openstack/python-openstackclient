@@ -100,12 +100,8 @@ class FakeClientMixin:
 
         # TODO(stephenfin): Rename to 'compute_client' once all commands are
         # migrated to SDK
-        self.app.client_manager.sdk_connection.compute = mock.Mock(
-            _proxy.Proxy
-        )
-        self.compute_sdk_client = (
-            self.app.client_manager.sdk_connection.compute
-        )
+        self.app.client_manager.compute = mock.Mock(_proxy.Proxy)
+        self.compute_sdk_client = self.app.client_manager.compute
         self.set_compute_api_version()  # default to the lowest
 
     def set_compute_api_version(self, version: str = '2.1'):

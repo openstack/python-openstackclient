@@ -503,7 +503,7 @@ class ListVolume(command.Lister):
         server_cache = {}
         if do_server_list:
             try:
-                compute_client = self.app.client_manager.sdk_connection.compute
+                compute_client = self.app.client_manager.compute
                 for s in compute_client.servers():
                     server_cache[s.id] = s
             except sdk_exceptions.SDKException:  # noqa: S110

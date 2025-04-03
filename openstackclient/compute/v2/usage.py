@@ -135,7 +135,7 @@ class ListUsage(command.Lister):
             else:
                 return project
 
-        compute_client = self.app.client_manager.sdk_connection.compute
+        compute_client = self.app.client_manager.compute
         columns = (
             "project_id",
             "server_usages",
@@ -234,7 +234,7 @@ class ShowUsage(command.ShowOne):
 
     def take_action(self, parsed_args):
         identity_client = self.app.client_manager.identity
-        compute_client = self.app.client_manager.sdk_connection.compute
+        compute_client = self.app.client_manager.compute
         date_cli_format = "%Y-%m-%d"
         now = datetime.datetime.now(datetime.timezone.utc).replace(tzinfo=None)
 

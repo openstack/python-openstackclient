@@ -358,7 +358,7 @@ class AddFixedIP(command.ShowOne):
         return parser
 
     def take_action(self, parsed_args):
-        compute_client = self.app.client_manager.sdk_connection.compute
+        compute_client = self.app.client_manager.compute
         server = compute_client.find_server(
             parsed_args.server, ignore_missing=False
         )
@@ -452,7 +452,7 @@ class AddFloatingIP(network_common.NetworkAndComputeCommand):
         return parser
 
     def take_action_network(self, client, parsed_args):
-        compute_client = self.app.client_manager.sdk_connection.compute
+        compute_client = self.app.client_manager.compute
 
         attrs = {}
         obj = client.find_ip(
@@ -545,7 +545,7 @@ class AddPort(command.Command):
         return parser
 
     def take_action(self, parsed_args):
-        compute_client = self.app.client_manager.sdk_connection.compute
+        compute_client = self.app.client_manager.compute
 
         server = compute_client.find_server(
             parsed_args.server, ignore_missing=False
@@ -599,7 +599,7 @@ class AddNetwork(command.Command):
         return parser
 
     def take_action(self, parsed_args):
-        compute_client = self.app.client_manager.sdk_connection.compute
+        compute_client = self.app.client_manager.compute
 
         server = compute_client.find_server(
             parsed_args.server, ignore_missing=False
@@ -650,7 +650,7 @@ class AddServerSecurityGroup(command.Command):
         return parser
 
     def take_action(self, parsed_args):
-        compute_client = self.app.client_manager.sdk_connection.compute
+        compute_client = self.app.client_manager.compute
 
         server = compute_client.find_server(
             parsed_args.server, ignore_missing=False
@@ -752,7 +752,7 @@ with status ``SHELVED`` or ``SHELVED_OFFLOADED``."""
         return parser
 
     def take_action(self, parsed_args):
-        compute_client = self.app.client_manager.sdk_connection.compute
+        compute_client = self.app.client_manager.compute
         volume_client = self.app.client_manager.sdk_connection.volume
 
         server = compute_client.find_server(
@@ -1517,7 +1517,7 @@ class CreateServer(command.ShowOne):
                 self.app.stdout.write(f'\rProgress: {progress}')
                 self.app.stdout.flush()
 
-        compute_client = self.app.client_manager.sdk_connection.compute
+        compute_client = self.app.client_manager.compute
         volume_client = self.app.client_manager.volume
         image_client = self.app.client_manager.image
 
@@ -2157,7 +2157,7 @@ class CreateServerDump(command.Command):
         return parser
 
     def take_action(self, parsed_args):
-        compute_client = self.app.client_manager.sdk_connection.compute
+        compute_client = self.app.client_manager.compute
         for name_or_id in parsed_args.server:
             server = compute_client.find_server(name_or_id)
             server.trigger_crash_dump(compute_client)
@@ -2201,7 +2201,7 @@ class DeleteServer(command.Command):
                 self.app.stdout.write(f'\rProgress: {progress}')
                 self.app.stdout.flush()
 
-        compute_client = self.app.client_manager.sdk_connection.compute
+        compute_client = self.app.client_manager.compute
         for server in parsed_args.server:
             server_obj = compute_client.find_server(
                 server,
@@ -2609,7 +2609,7 @@ class ListServer(command.Lister):
         return parser
 
     def take_action(self, parsed_args):
-        compute_client = self.app.client_manager.sdk_connection.compute
+        compute_client = self.app.client_manager.compute
         identity_client = self.app.client_manager.identity
         image_client = self.app.client_manager.image
 
@@ -3085,7 +3085,7 @@ A non-admin user will not be able to execute actions."""
         return parser
 
     def take_action(self, parsed_args):
-        compute_client = self.app.client_manager.sdk_connection.compute
+        compute_client = self.app.client_manager.compute
 
         kwargs = {}
         if parsed_args.reason:
@@ -3209,7 +3209,7 @@ revert to release the new server and restart the old one."""
                 self.app.stdout.write(f'\rProgress: {progress}')
                 self.app.stdout.flush()
 
-        compute_client = self.app.client_manager.sdk_connection.compute
+        compute_client = self.app.client_manager.compute
 
         server = compute_client.find_server(
             parsed_args.server, ignore_missing=False
@@ -3312,7 +3312,7 @@ class PauseServer(command.Command):
         return parser
 
     def take_action(self, parsed_args):
-        compute_client = self.app.client_manager.sdk_connection.compute
+        compute_client = self.app.client_manager.compute
         for server in parsed_args.server:
             server_id = compute_client.find_server(
                 server,
@@ -3361,7 +3361,7 @@ class RebootServer(command.Command):
                 self.app.stdout.write(f'\rProgress: {progress}')
                 self.app.stdout.flush()
 
-        compute_client = self.app.client_manager.sdk_connection.compute
+        compute_client = self.app.client_manager.compute
         server_id = compute_client.find_server(
             parsed_args.server,
             ignore_missing=False,
@@ -3566,7 +3566,7 @@ class RebuildServer(command.ShowOne):
                 self.app.stdout.write(f'\rProgress: {progress}')
                 self.app.stdout.flush()
 
-        compute_client = self.app.client_manager.sdk_connection.compute
+        compute_client = self.app.client_manager.compute
         image_client = self.app.client_manager.image
 
         server = compute_client.find_server(
@@ -3827,7 +3827,7 @@ host."""
                 self.app.stdout.write(f'\rProgress: {progress}')
                 self.app.stdout.flush()
 
-        compute_client = self.app.client_manager.sdk_connection.compute
+        compute_client = self.app.client_manager.compute
         image_client = self.app.client_manager.image
 
         if parsed_args.host:
@@ -3892,7 +3892,7 @@ class RemoveFixedIP(command.Command):
         return parser
 
     def take_action(self, parsed_args):
-        compute_client = self.app.client_manager.sdk_connection.compute
+        compute_client = self.app.client_manager.compute
 
         server = compute_client.find_server(
             parsed_args.server, ignore_missing=False
@@ -3951,7 +3951,7 @@ class RemovePort(command.Command):
         return parser
 
     def take_action(self, parsed_args):
-        compute_client = self.app.client_manager.sdk_connection.compute
+        compute_client = self.app.client_manager.compute
 
         server = compute_client.find_server(
             parsed_args.server, ignore_missing=False
@@ -3990,7 +3990,7 @@ class RemoveNetwork(command.Command):
         return parser
 
     def take_action(self, parsed_args):
-        compute_client = self.app.client_manager.sdk_connection.compute
+        compute_client = self.app.client_manager.compute
 
         server = compute_client.find_server(
             parsed_args.server, ignore_missing=False
@@ -4034,7 +4034,7 @@ class RemoveServerSecurityGroup(command.Command):
         return parser
 
     def take_action(self, parsed_args):
-        compute_client = self.app.client_manager.sdk_connection.compute
+        compute_client = self.app.client_manager.compute
 
         server = compute_client.find_server(
             parsed_args.server, ignore_missing=False
@@ -4104,7 +4104,7 @@ volume from a server with status ``SHELVED`` or ``SHELVED_OFFLOADED``."""
         return parser
 
     def take_action(self, parsed_args):
-        compute_client = self.app.client_manager.sdk_connection.compute
+        compute_client = self.app.client_manager.compute
         volume_client = self.app.client_manager.sdk_connection.volume
 
         server = compute_client.find_server(
@@ -4157,7 +4157,7 @@ server booted from a volume."""
         return parser
 
     def take_action(self, parsed_args):
-        compute_client = self.app.client_manager.sdk_connection.compute
+        compute_client = self.app.client_manager.compute
         image_client = self.app.client_manager.image
 
         image_ref = None
@@ -4229,7 +4229,7 @@ release the new server and restart the old one."""
                 self.app.stdout.write(f'\rProgress: {progress}')
                 self.app.stdout.flush()
 
-        compute_client = self.app.client_manager.sdk_connection.compute
+        compute_client = self.app.client_manager.compute
         server = compute_client.find_server(
             parsed_args.server, ignore_missing=False
         )
@@ -4291,7 +4291,7 @@ Confirm (verify) success of resize operation and release the old server."""
         return parser
 
     def take_action(self, parsed_args):
-        compute_client = self.app.client_manager.sdk_connection.compute
+        compute_client = self.app.client_manager.compute
         server = compute_client.find_server(
             parsed_args.server, ignore_missing=False
         )
@@ -4339,7 +4339,7 @@ one."""
         return parser
 
     def take_action(self, parsed_args):
-        compute_client = self.app.client_manager.sdk_connection.compute
+        compute_client = self.app.client_manager.compute
         server = compute_client.find_server(
             parsed_args.server, ignore_missing=False
         )
@@ -4383,7 +4383,7 @@ class RestoreServer(command.Command):
         return parser
 
     def take_action(self, parsed_args):
-        compute_client = self.app.client_manager.sdk_connection.compute
+        compute_client = self.app.client_manager.compute
         for server in parsed_args.server:
             server_id = compute_client.find_server(
                 server,
@@ -4406,7 +4406,7 @@ class ResumeServer(command.Command):
         return parser
 
     def take_action(self, parsed_args):
-        compute_client = self.app.client_manager.sdk_connection.compute
+        compute_client = self.app.client_manager.compute
         for server in parsed_args.server:
             server_id = compute_client.find_server(
                 server,
@@ -4506,7 +4506,7 @@ class SetServer(command.Command):
         return parser
 
     def take_action(self, parsed_args):
-        compute_client = self.app.client_manager.sdk_connection.compute
+        compute_client = self.app.client_manager.compute
         server = compute_client.find_server(
             parsed_args.server, ignore_missing=False
         )
@@ -4624,7 +4624,7 @@ class ShelveServer(command.Command):
                 self.app.stdout.write(f'\rProgress: {progress}')
                 self.app.stdout.flush()
 
-        compute_client = self.app.client_manager.sdk_connection.compute
+        compute_client = self.app.client_manager.compute
         server_ids = []
 
         for server in parsed_args.servers:
@@ -4719,7 +4719,7 @@ information for the server."""
         return parser
 
     def take_action(self, parsed_args):
-        compute_client = self.app.client_manager.sdk_connection.compute
+        compute_client = self.app.client_manager.compute
         image_client = self.app.client_manager.image
 
         server = compute_client.find_server(
@@ -4849,7 +4849,7 @@ class SshServer(command.Command):
         return parser
 
     def take_action(self, parsed_args):
-        compute_client = self.app.client_manager.sdk_connection.compute
+        compute_client = self.app.client_manager.compute
 
         server = compute_client.find_server(
             parsed_args.server, ignore_missing=False
@@ -4935,7 +4935,7 @@ class StartServer(command.Command):
         return parser
 
     def take_action(self, parsed_args):
-        compute_client = self.app.client_manager.sdk_connection.compute
+        compute_client = self.app.client_manager.compute
         for server in parsed_args.server:
             server_id = compute_client.find_server(
                 server,
@@ -4970,7 +4970,7 @@ class StopServer(command.Command):
         return parser
 
     def take_action(self, parsed_args):
-        compute_client = self.app.client_manager.sdk_connection.compute
+        compute_client = self.app.client_manager.compute
         for server in parsed_args.server:
             server_id = compute_client.find_server(
                 server,
@@ -4995,7 +4995,7 @@ class SuspendServer(command.Command):
         return parser
 
     def take_action(self, parsed_args):
-        compute_client = self.app.client_manager.sdk_connection.compute
+        compute_client = self.app.client_manager.compute
         for server in parsed_args.server:
             server_id = compute_client.find_server(
                 server,
@@ -5018,7 +5018,7 @@ class UnlockServer(command.Command):
         return parser
 
     def take_action(self, parsed_args):
-        compute_client = self.app.client_manager.sdk_connection.compute
+        compute_client = self.app.client_manager.compute
         for server in parsed_args.server:
             server_id = compute_client.find_server(
                 server,
@@ -5041,7 +5041,7 @@ class UnpauseServer(command.Command):
         return parser
 
     def take_action(self, parsed_args):
-        compute_client = self.app.client_manager.sdk_connection.compute
+        compute_client = self.app.client_manager.compute
         for server in parsed_args.server:
             server_id = compute_client.find_server(
                 server,
@@ -5063,7 +5063,7 @@ class UnrescueServer(command.Command):
         return parser
 
     def take_action(self, parsed_args):
-        compute_client = self.app.client_manager.sdk_connection.compute
+        compute_client = self.app.client_manager.compute
         server = compute_client.find_server(
             parsed_args.server, ignore_missing=False
         )
@@ -5130,7 +5130,7 @@ class UnsetServer(command.Command):
         return parser
 
     def take_action(self, parsed_args):
-        compute_client = self.app.client_manager.sdk_connection.compute
+        compute_client = self.app.client_manager.compute
 
         server = compute_client.find_server(
             parsed_args.server, ignore_missing=False
@@ -5221,7 +5221,7 @@ class UnshelveServer(command.Command):
                 self.app.stdout.write(f'\rProgress: {progress}')
                 self.app.stdout.flush()
 
-        compute_client = self.app.client_manager.sdk_connection.compute
+        compute_client = self.app.client_manager.compute
         kwargs = {}
 
         if parsed_args.availability_zone:

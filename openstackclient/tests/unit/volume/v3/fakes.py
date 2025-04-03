@@ -131,12 +131,8 @@ class TestVolume(
         # openstackclient.tests.unit.compute.v2.fakes.FakeClientMixin
         # TODO(stephenfin): Rename to 'compute_client' once all commands are
         # migrated to SDK
-        self.app.client_manager.sdk_connection.compute = mock.Mock(
-            _compute_proxy.Proxy
-        )
-        self.compute_sdk_client = (
-            self.app.client_manager.sdk_connection.compute
-        )
+        self.app.client_manager.compute = mock.Mock(_compute_proxy.Proxy)
+        self.compute_sdk_client = self.app.client_manager.compute
 
         # avoid circular imports by defining this manually rather than using
         # openstackclient.tests.unit.image.v2.fakes.FakeClientMixin

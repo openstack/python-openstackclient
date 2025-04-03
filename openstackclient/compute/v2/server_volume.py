@@ -34,7 +34,7 @@ class ListServerVolume(command.Lister):
         return parser
 
     def take_action(self, parsed_args):
-        compute_client = self.app.client_manager.sdk_connection.compute
+        compute_client = self.app.client_manager.compute
 
         server = compute_client.find_server(
             parsed_args.server,
@@ -114,7 +114,7 @@ class SetServerVolume(command.Command):
         return parser
 
     def take_action(self, parsed_args):
-        compute_client = self.app.client_manager.sdk_connection.compute
+        compute_client = self.app.client_manager.compute
         volume_client = self.app.client_manager.sdk_connection.volume
 
         if parsed_args.delete_on_termination is not None:

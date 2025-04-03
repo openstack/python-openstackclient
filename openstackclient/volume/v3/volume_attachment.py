@@ -172,7 +172,7 @@ class CreateVolumeAttachment(command.ShowOne):
 
     def take_action(self, parsed_args):
         volume_client = self.app.client_manager.sdk_connection.volume
-        compute_client = self.app.client_manager.sdk_connection.compute
+        compute_client = self.app.client_manager.compute
 
         if not sdk_utils.supports_microversion(volume_client, '3.27'):
             msg = _(

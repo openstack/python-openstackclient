@@ -133,7 +133,7 @@ def get_compute_quotas(
     default=False,
 ):
     try:
-        client = app.client_manager.sdk_connection.compute
+        client = app.client_manager.compute
         if default:
             quota = client.get_quota_set_defaults(project_id)
         else:
@@ -256,7 +256,7 @@ class ListQuota(command.Lister):
         return parser
 
     def _list_quota_compute(self, parsed_args, project_ids):
-        compute_client = self.app.client_manager.sdk_connection.compute
+        compute_client = self.app.client_manager.compute
         result = []
 
         for project_id in project_ids:
@@ -588,7 +588,7 @@ class SetQuota(common.NetDetectionMixin, command.Command):
         network_kwargs = {}
 
         if self.app.client_manager.is_compute_endpoint_enabled():
-            compute_client = self.app.client_manager.sdk_connection.compute
+            compute_client = self.app.client_manager.compute
 
             for k, v in COMPUTE_QUOTAS.items():
                 value = getattr(parsed_args, k, None)
@@ -907,7 +907,7 @@ class DeleteQuota(command.Command):
 
         # compute quotas
         if parsed_args.service in {'all', 'compute'}:
-            compute_client = self.app.client_manager.sdk_connection.compute
+            compute_client = self.app.client_manager.compute
             compute_client.revert_quota_set(project.id)
 
         # volume quotas

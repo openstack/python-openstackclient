@@ -41,7 +41,7 @@ opened.
         ## ...
 
         def take_action(self, parsed_args):
-            compute_client = self.app.client_manager.sdk_connection.compute
+            compute_client = self.app.client_manager.compute
 
             public_key = parsed_args.public_key
             if public_key:
