@@ -764,16 +764,22 @@ class SetVolume(command.Command):
                         _("New size must be greater than %s GB") % volume.size
                     )
                     raise exceptions.CommandError(msg)
-                if (
-                    volume.status != 'available'
-                    and not volume_client.api_version.matches('3.42')
-                ):
+                if volume.status not in ('available', 'in-use'):
                     msg = (
                         _(
                             "Volume is in %s state, it must be available "
-                            "before size can be extended"
+                            "or in-use before size can be extended."
                         )
                         % volume.status
+                    )
+                    raise exceptions.CommandError(msg)
+                if (
+                    volume.status == 'in-use'
+                    and not volume_client.api_version.matches('3.42')
+                ):
+                    msg = _(
+                        "--os-volume-api-version 3.42 or greater is "
+                        "required to extend in-use volumes."
                     )
                     raise exceptions.CommandError(msg)
                 volume_client.volumes.extend(volume.id, parsed_args.size)
