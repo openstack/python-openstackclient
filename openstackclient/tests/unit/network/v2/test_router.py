@@ -34,9 +34,7 @@ class TestAddPortToRouter(TestRouter):
     '''Add port to Router'''
 
     _port = network_fakes.create_one_port()
-    _router = network_fakes.FakeRouter.create_one_router(
-        attrs={'port': _port.id}
-    )
+    _router = network_fakes.create_one_router(attrs={'port': _port.id})
 
     def setUp(self):
         super().setUp()
@@ -84,9 +82,7 @@ class TestAddSubnetToRouter(TestRouter):
     '''Add subnet to Router'''
 
     _subnet = network_fakes.FakeSubnet.create_one_subnet()
-    _router = network_fakes.FakeRouter.create_one_router(
-        attrs={'subnet': _subnet.id}
-    )
+    _router = network_fakes.create_one_router(attrs={'subnet': _subnet.id})
 
     def setUp(self):
         super().setUp()
@@ -129,38 +125,48 @@ class TestAddSubnetToRouter(TestRouter):
 
 class TestCreateRouter(TestRouter):
     # The new router created.
-    new_router = network_fakes.FakeRouter.create_one_router()
+    new_router = network_fakes.create_one_router()
     _extensions = {'fake': network_fakes.create_one_extension()}
 
     columns = (
         'admin_state_up',
         'availability_zone_hints',
         'availability_zones',
+        'created_at',
         'description',
         'distributed',
+        'enable_ndp_proxy',
         'external_gateway_info',
+        'flavor_id',
         'ha',
         'id',
         'name',
         'project_id',
+        'revision_number',
         'routes',
         'status',
         'tags',
+        'updated_at',
     )
     data = (
-        router.AdminStateColumn(new_router.admin_state_up),
+        router.AdminStateColumn(new_router.is_admin_state_up),
         format_columns.ListColumn(new_router.availability_zone_hints),
         format_columns.ListColumn(new_router.availability_zones),
+        new_router.created_at,
         new_router.description,
-        new_router.distributed,
+        new_router.is_distributed,
+        new_router.enable_ndp_proxy,
         router.RouterInfoColumn(new_router.external_gateway_info),
-        new_router.ha,
+        new_router.flavor_id,
+        new_router.is_ha,
         new_router.id,
         new_router.name,
         new_router.project_id,
+        new_router.revision_number,
         router.RoutesColumn(new_router.routes),
         new_router.status,
         format_columns.ListColumn(new_router.tags),
+        new_router.updated_at,
     )
 
     def setUp(self):
@@ -614,14 +620,14 @@ class TestCreateRouter(TestRouter):
 
 class TestDeleteRouter(TestRouter):
     # The routers to delete.
-    _routers = network_fakes.FakeRouter.create_routers(count=2)
+    _routers = network_fakes.create_routers(count=2)
 
     def setUp(self):
         super().setUp()
 
         self.network_client.delete_router = mock.Mock(return_value=None)
 
-        self.network_client.find_router = network_fakes.FakeRouter.get_routers(
+        self.network_client.find_router = network_fakes.get_routers(
             self._routers
         )
 
@@ -696,7 +702,7 @@ class TestDeleteRouter(TestRouter):
 
 class TestListRouter(TestRouter):
     # The routers going to be listed up.
-    routers = network_fakes.FakeRouter.create_routers(count=3)
+    routers = network_fakes.create_routers(count=3)
     extensions = network_fakes.create_one_extension()
 
     columns = (
@@ -727,10 +733,10 @@ class TestListRouter(TestRouter):
                 r.id,
                 r.name,
                 r.status,
-                router.AdminStateColumn(r.admin_state_up),
+                router.AdminStateColumn(r.is_admin_state_up),
                 r.project_id,
-                r.distributed,
-                r.ha,
+                r.is_distributed,
+                r.is_ha,
             )
         )
 
@@ -813,7 +819,7 @@ class TestListRouter(TestRouter):
         self.assertCountEqual(self.data, list(data))
 
     def test_router_list_no_ha_no_distributed(self):
-        _routers = network_fakes.FakeRouter.create_routers(
+        _routers = network_fakes.create_routers(
             {'ha': None, 'distributed': None}, count=3
         )
 
@@ -1033,9 +1039,7 @@ class TestRemovePortFromRouter(TestRouter):
     '''Remove port from a Router'''
 
     _port = network_fakes.create_one_port()
-    _router = network_fakes.FakeRouter.create_one_router(
-        attrs={'port': _port.id}
-    )
+    _router = network_fakes.create_one_router(attrs={'port': _port.id})
 
     def setUp(self):
         super().setUp()
@@ -1080,9 +1084,7 @@ class TestRemoveSubnetFromRouter(TestRouter):
     '''Remove subnet from Router'''
 
     _subnet = network_fakes.FakeSubnet.create_one_subnet()
-    _router = network_fakes.FakeRouter.create_one_router(
-        attrs={'subnet': _subnet.id}
-    )
+    _router = network_fakes.create_one_router(attrs={'subnet': _subnet.id})
 
     def setUp(self):
         super().setUp()
@@ -1123,7 +1125,7 @@ class TestRemoveSubnetFromRouter(TestRouter):
 
 
 class TestAddExtraRoutesToRouter(TestRouter):
-    _router = network_fakes.FakeRouter.create_one_router()
+    _router = network_fakes.create_one_router()
 
     def setUp(self):
         super().setUp()
@@ -1212,7 +1214,7 @@ class TestAddExtraRoutesToRouter(TestRouter):
 
 
 class TestRemoveExtraRoutesFromRouter(TestRouter):
-    _router = network_fakes.FakeRouter.create_one_router()
+    _router = network_fakes.create_one_router()
 
     def setUp(self):
         super().setUp()
@@ -1307,7 +1309,7 @@ class TestSetRouter(TestRouter):
     _subnet = network_fakes.FakeSubnet.create_one_subnet(
         attrs={'network_id': _network.id}
     )
-    _router = network_fakes.FakeRouter.create_one_router(
+    _router = network_fakes.create_one_router(
         attrs={'routes': [_default_route], 'tags': ['green', 'red']}
     )
     _extensions = {'fake': network_fakes.create_one_extension()}
@@ -1454,7 +1456,7 @@ class TestSetRouter(TestRouter):
         self.assertIsNone(result)
 
     def test_set_route_overwrite_route(self):
-        _testrouter = network_fakes.FakeRouter.create_one_router(
+        _testrouter = network_fakes.create_one_router(
             {'routes': [{"destination": "10.0.0.2", "nexthop": "1.1.1.1"}]}
         )
         self.network_client.find_router = mock.Mock(return_value=_testrouter)
@@ -1753,7 +1755,7 @@ class TestSetRouter(TestRouter):
         self.network_client.find_qos_policy = mock.Mock(
             return_value=qos_policy
         )
-        router = network_fakes.FakeRouter.create_one_router()
+        router = network_fakes.create_one_router()
         self.network_client.find_router = mock.Mock(return_value=router)
         arglist = [
             "--qos-policy",
@@ -1775,7 +1777,7 @@ class TestSetRouter(TestRouter):
         self.network_client.find_qos_policy = mock.Mock(
             return_value=qos_policy
         )
-        router = network_fakes.FakeRouter.create_one_router()
+        router = network_fakes.create_one_router()
         self.network_client.find_router = mock.Mock(return_value=router)
         arglist = [
             "--no-qos-policy",
@@ -1793,7 +1795,7 @@ class TestSetRouter(TestRouter):
 
 class TestShowRouter(TestRouter):
     # The router to set.
-    _router = network_fakes.FakeRouter.create_one_router()
+    _router = network_fakes.create_one_router()
     _port = network_fakes.create_one_port(
         {'device_owner': 'network:router_interface', 'device_id': _router.id}
     )
@@ -1813,33 +1815,43 @@ class TestShowRouter(TestRouter):
         'admin_state_up',
         'availability_zone_hints',
         'availability_zones',
+        'created_at',
         'description',
         'distributed',
+        'enable_ndp_proxy',
         'external_gateway_info',
+        'flavor_id',
         'ha',
         'id',
         'interfaces_info',
         'name',
         'project_id',
+        'revision_number',
         'routes',
         'status',
         'tags',
+        'updated_at',
     )
     data = (
-        router.AdminStateColumn(_router.admin_state_up),
+        router.AdminStateColumn(_router.is_admin_state_up),
         format_columns.ListColumn(_router.availability_zone_hints),
         format_columns.ListColumn(_router.availability_zones),
+        _router.created_at,
         _router.description,
-        _router.distributed,
+        _router.is_distributed,
+        _router.enable_ndp_proxy,
         router.RouterInfoColumn(_router.external_gateway_info),
-        _router.ha,
+        _router.flavor_id,
+        _router.is_ha,
         _router.id,
         router.RouterInfoColumn(_router.interfaces_info),
         _router.name,
         _router.project_id,
+        _router.revision_number,
         router.RoutesColumn(_router.routes),
         _router.status,
         format_columns.ListColumn(_router.tags),
+        _router.updated_at,
     )
 
     def setUp(self):
@@ -1884,7 +1896,7 @@ class TestShowRouter(TestRouter):
         self.assertCountEqual(self.data, data)
 
     def test_show_no_ha_no_distributed(self):
-        _router = network_fakes.FakeRouter.create_one_router(
+        _router = network_fakes.create_one_router(
             {'ha': None, 'distributed': None}
         )
 
@@ -1905,7 +1917,7 @@ class TestShowRouter(TestRouter):
         self.assertNotIn("is_ha", columns)
 
     def test_show_no_extra_route_extension(self):
-        _router = network_fakes.FakeRouter.create_one_router({'routes': None})
+        _router = network_fakes.create_one_router({'routes': None})
 
         arglist = [
             _router.name,
@@ -1929,7 +1941,7 @@ class TestUnsetRouter(TestRouter):
         super().setUp()
         self.fake_network = network_fakes.create_one_network()
         self.fake_qos_policy = network_fakes.create_one_qos_policy()
-        self._testrouter = network_fakes.FakeRouter.create_one_router(
+        self._testrouter = network_fakes.create_one_router(
             {
                 'routes': [
                     {
@@ -2100,7 +2112,7 @@ class TestUnsetRouter(TestRouter):
         self.network_client.find_qos_policy = mock.Mock(
             return_value=qos_policy
         )
-        router = network_fakes.FakeRouter.create_one_router()
+        router = network_fakes.create_one_router()
         self.network_client.find_router = mock.Mock(return_value=router)
         arglist = [
             "--qos-policy",
@@ -2120,7 +2132,7 @@ class TestUnsetRouter(TestRouter):
         self.network_client.find_qos_policy = mock.Mock(
             return_value=qos_policy
         )
-        router = network_fakes.FakeRouter.create_one_router(
+        router = network_fakes.create_one_router(
             {"external_gateway_info": {"network_id": "fake-id"}}
         )
         self.network_client.find_router = mock.Mock(return_value=router)
@@ -2145,7 +2157,7 @@ class TestGatewayOps(TestRouter):
         self._network = network_fakes.create_one_network()
         self._networks.append(self._network)
 
-        self._router = network_fakes.FakeRouter.create_one_router(
+        self._router = network_fakes.create_one_router(
             {
                 'external_gateway_info': {
                     'network_id': self._network.id,
@@ -2189,16 +2201,21 @@ class TestCreateMultipleGateways(TestGatewayOps):
         'admin_state_up',
         'availability_zone_hints',
         'availability_zones',
+        'created_at',
         'description',
         'distributed',
+        'enable_ndp_proxy',
         'external_gateway_info',
+        'flavor_id',
         'ha',
         'id',
         'name',
         'project_id',
+        'revision_number',
         'routes',
         'status',
         'tags',
+        'updated_at',
     )
 
     def setUp(self):
@@ -2215,19 +2232,24 @@ class TestCreateMultipleGateways(TestGatewayOps):
         )
 
         self._data = (
-            router.AdminStateColumn(self._router.admin_state_up),
+            router.AdminStateColumn(self._router.is_admin_state_up),
             format_columns.ListColumn(self._router.availability_zone_hints),
             format_columns.ListColumn(self._router.availability_zones),
+            self._router.created_at,
             self._router.description,
-            self._router.distributed,
+            self._router.is_distributed,
+            self._router.enable_ndp_proxy,
             router.RouterInfoColumn(self._router.external_gateway_info),
-            self._router.ha,
+            self._router.flavor_id,
+            self._router.is_ha,
             self._router.id,
             self._router.name,
             self._router.project_id,
+            self._router.revision_number,
             router.RoutesColumn(self._router.routes),
             self._router.status,
             format_columns.ListColumn(self._router.tags),
+            self._router.updated_at,
         )
         self.cmd = router.CreateRouter(self.app, None)
 

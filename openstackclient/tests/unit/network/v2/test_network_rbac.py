@@ -35,7 +35,7 @@ class TestNetworkRBAC(network_fakes.TestNetworkV2):
 class TestCreateNetworkRBAC(TestNetworkRBAC):
     network_object = network_fakes.create_one_network()
     qos_object = network_fakes.create_one_qos_policy()
-    sg_object = network_fakes.FakeSecurityGroup.create_one_security_group()
+    sg_object = network_fakes.create_one_security_group()
     as_object = network_fakes.create_one_address_scope()
     snp_object = network_fakes.FakeSubnetPool.create_one_subnet_pool()
     ag_object = network_fakes.create_one_address_group()

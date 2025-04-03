@@ -30,9 +30,7 @@ class TestNDPProxy(network_fakes.TestNetworkV2):
         # Get a shortcut to the DomainManager Mock
         self.domains_mock = self.identity_client.domains
 
-        self.router = network_fakes.FakeRouter.create_one_router(
-            {'id': 'fake-router-id'}
-        )
+        self.router = network_fakes.create_one_router({'id': 'fake-router-id'})
         self.network_client.find_router = mock.Mock(return_value=self.router)
         self.port = network_fakes.create_one_port()
         self.network_client.find_port = mock.Mock(return_value=self.port)

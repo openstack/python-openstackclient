@@ -40,14 +40,13 @@ class TestCreateSecurityGroupRuleNetwork(TestSecurityGroupRuleNetwork):
     _security_group_rule = None
 
     # The security group that will contain the rule created.
-    _security_group = (
-        network_fakes.FakeSecurityGroup.create_one_security_group()
-    )
+    _security_group = network_fakes.create_one_security_group()
 
     # The address group to be used in security group rules
     _address_group = network_fakes.create_one_address_group()
 
     expected_columns = (
+        'created_at',
         'description',
         'direction',
         'ether_type',
@@ -59,21 +58,22 @@ class TestCreateSecurityGroupRuleNetwork(TestSecurityGroupRuleNetwork):
         'remote_address_group_id',
         'remote_group_id',
         'remote_ip_prefix',
+        'revision_number',
         'security_group_id',
+        'updated_at',
     )
 
     expected_data = None
 
     def _setup_security_group_rule(self, attrs=None):
         self._security_group_rule = (
-            network_fakes.FakeSecurityGroupRule.create_one_security_group_rule(
-                attrs
-            )
+            network_fakes.create_one_security_group_rule(attrs)
         )
         self.network_client.create_security_group_rule = mock.Mock(
             return_value=self._security_group_rule
         )
         self.expected_data = (
+            self._security_group_rule.created_at,
             self._security_group_rule.description,
             self._security_group_rule.direction,
             self._security_group_rule.ether_type,
@@ -85,7 +85,9 @@ class TestCreateSecurityGroupRuleNetwork(TestSecurityGroupRuleNetwork):
             self._security_group_rule.remote_address_group_id,
             self._security_group_rule.remote_group_id,
             self._security_group_rule.remote_ip_prefix,
+            self._security_group_rule.revision_number,
             self._security_group_rule.security_group_id,
+            self._security_group_rule.updated_at,
         )
 
     def setUp(self):
@@ -963,11 +965,7 @@ class TestCreateSecurityGroupRuleNetwork(TestSecurityGroupRuleNetwork):
 
 class TestDeleteSecurityGroupRuleNetwork(TestSecurityGroupRuleNetwork):
     # The security group rules to be deleted.
-    _security_group_rules = (
-        network_fakes.FakeSecurityGroupRule.create_security_group_rules(
-            count=2
-        )
-    )
+    _security_group_rules = network_fakes.create_security_group_rules(count=2)
 
     def setUp(self):
         super().setUp()
@@ -977,9 +975,7 @@ class TestDeleteSecurityGroupRuleNetwork(TestSecurityGroupRuleNetwork):
         )
 
         self.network_client.find_security_group_rule = (
-            network_fakes.FakeSecurityGroupRule.get_security_group_rules(
-                self._security_group_rules
-            )
+            network_fakes.get_security_group_rules(self._security_group_rules)
         )
 
         # Get the command object to test
@@ -1057,33 +1053,27 @@ class TestDeleteSecurityGroupRuleNetwork(TestSecurityGroupRuleNetwork):
 
 class TestListSecurityGroupRuleNetwork(TestSecurityGroupRuleNetwork):
     # The security group to hold the rules.
-    _security_group = (
-        network_fakes.FakeSecurityGroup.create_one_security_group()
-    )
+    _security_group = network_fakes.create_one_security_group()
 
     # The security group rule to be listed.
-    _security_group_rule_tcp = (
-        network_fakes.FakeSecurityGroupRule.create_one_security_group_rule(
-            {
-                'protocol': 'tcp',
-                'port_range_max': 80,
-                'port_range_min': 80,
-                'security_group_id': _security_group.id,
-            }
-        )
+    _security_group_rule_tcp = network_fakes.create_one_security_group_rule(
+        {
+            'protocol': 'tcp',
+            'port_range_max': 80,
+            'port_range_min': 80,
+            'security_group_id': _security_group.id,
+        }
     )
-    _security_group_rule_icmp = (
-        network_fakes.FakeSecurityGroupRule.create_one_security_group_rule(
-            {
-                'protocol': 'icmp',
-                'remote_ip_prefix': '10.0.2.0/24',
-                'security_group_id': _security_group.id,
-            }
-        )
+    _security_group_rule_icmp = network_fakes.create_one_security_group_rule(
+        {
+            'protocol': 'icmp',
+            'remote_ip_prefix': '10.0.2.0/24',
+            'security_group_id': _security_group.id,
+        }
     )
     _security_group.security_group_rules = [
-        _security_group_rule_tcp._info,
-        _security_group_rule_icmp._info,
+        dict(_security_group_rule_tcp),
+        dict(_security_group_rule_icmp),
     ]
     _security_group_rules = [
         _security_group_rule_tcp,
@@ -1264,11 +1254,10 @@ class TestListSecurityGroupRuleNetwork(TestSecurityGroupRuleNetwork):
 
 class TestShowSecurityGroupRuleNetwork(TestSecurityGroupRuleNetwork):
     # The security group rule to be shown.
-    _security_group_rule = (
-        network_fakes.FakeSecurityGroupRule.create_one_security_group_rule()
-    )
+    _security_group_rule = network_fakes.create_one_security_group_rule()
 
     columns = (
+        'created_at',
         'description',
         'direction',
         'ether_type',
@@ -1280,10 +1269,13 @@ class TestShowSecurityGroupRuleNetwork(TestSecurityGroupRuleNetwork):
         'remote_address_group_id',
         'remote_group_id',
         'remote_ip_prefix',
+        'revision_number',
         'security_group_id',
+        'updated_at',
     )
 
     data = (
+        _security_group_rule.created_at,
         _security_group_rule.description,
         _security_group_rule.direction,
         _security_group_rule.ether_type,
@@ -1295,7 +1287,9 @@ class TestShowSecurityGroupRuleNetwork(TestSecurityGroupRuleNetwork):
         _security_group_rule.remote_address_group_id,
         _security_group_rule.remote_group_id,
         _security_group_rule.remote_ip_prefix,
+        _security_group_rule.revision_number,
         _security_group_rule.security_group_id,
+        _security_group_rule.updated_at,
     )
 
     def setUp(self):

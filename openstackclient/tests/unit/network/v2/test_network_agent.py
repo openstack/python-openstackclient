@@ -70,7 +70,7 @@ class TestAddNetworkToAgent(TestNetworkAgent):
 
 
 class TestAddRouterAgent(TestNetworkAgent):
-    _router = network_fakes.FakeRouter.create_one_router()
+    _router = network_fakes.create_one_router()
     _agent = network_fakes.create_one_network_agent()
 
     def setUp(self):
@@ -219,30 +219,24 @@ class TestListNetworkAgent(TestNetworkAgent):
 
     def setUp(self):
         super().setUp()
-        self.network_client.agents = mock.Mock(
-            return_value=self.network_agents
+
+        self.network_client.agents.return_value = self.network_agents
+        self.network_client.routers_hosting_l3_agents.return_value = (
+            self.network_agents
         )
 
         _testagent = network_fakes.create_one_network_agent()
-        self.network_client.get_agent = mock.Mock(return_value=_testagent)
+        self.network_client.get_agent.return_value = _testagent
+        self.network_client.get_agent.return_value = _testagent
 
         self._testnetwork = network_fakes.create_one_network()
-        self.network_client.find_network = mock.Mock(
-            return_value=self._testnetwork
-        )
-        self.network_client.network_hosting_dhcp_agents = mock.Mock(
-            return_value=self.network_agents
+        self.network_client.find_network.return_value = self._testnetwork
+        self.network_client.network_hosting_dhcp_agents.return_value = (
+            self.network_agents
         )
 
-        self.network_client.get_agent = mock.Mock(return_value=_testagent)
-
-        self._testrouter = network_fakes.FakeRouter.create_one_router()
-        self.network_client.find_router = mock.Mock(
-            return_value=self._testrouter
-        )
-        self.network_client.routers_hosting_l3_agents = mock.Mock(
-            return_value=self.network_agents
-        )
+        self._testrouter = network_fakes.create_one_router()
+        self.network_client.find_router.return_value = self._testrouter
 
         # Get the command object to test
         self.cmd = network_agent.ListNetworkAgent(self.app, None)
@@ -323,15 +317,11 @@ class TestListNetworkAgent(TestNetworkAgent):
         ]
         verifylist = [('router', self._testrouter.id), ('long', False)]
 
-        attrs = {
-            self._testrouter,
-        }
-
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
         columns, data = self.cmd.take_action(parsed_args)
 
         self.network_client.routers_hosting_l3_agents.assert_called_once_with(
-            *attrs
+            self._testrouter
         )
 
         self.assertEqual(self.columns, columns)
@@ -345,15 +335,11 @@ class TestListNetworkAgent(TestNetworkAgent):
         ]
         verifylist = [('router', self._testrouter.id), ('long', True)]
 
-        attrs = {
-            self._testrouter,
-        }
-
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
         columns, data = self.cmd.take_action(parsed_args)
 
         self.network_client.routers_hosting_l3_agents.assert_called_once_with(
-            *attrs
+            self._testrouter
         )
 
         # Add a column 'HA State' and corresponding data.
@@ -422,7 +408,7 @@ class TestRemoveNetworkFromAgent(TestNetworkAgent):
 
 
 class TestRemoveRouterAgent(TestNetworkAgent):
-    _router = network_fakes.FakeRouter.create_one_router()
+    _router = network_fakes.create_one_router()
     _agent = network_fakes.create_one_network_agent()
 
     def setUp(self):
