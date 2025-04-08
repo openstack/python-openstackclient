@@ -36,28 +36,32 @@ class TestCreateSecurityGroupNetwork(TestSecurityGroupNetwork):
     project = identity_fakes.FakeProject.create_one_project()
     domain = identity_fakes.FakeDomain.create_one_domain()
     # The security group to be created.
-    _security_group = (
-        network_fakes.FakeSecurityGroup.create_one_security_group()
-    )
+    _security_group = network_fakes.create_one_security_group()
 
     columns = (
+        'created_at',
         'description',
         'id',
         'name',
         'project_id',
+        'revision_number',
         'rules',
         'stateful',
         'tags',
+        'updated_at',
     )
 
     data = (
+        _security_group.created_at,
         _security_group.description,
         _security_group.id,
         _security_group.name,
         _security_group.project_id,
+        _security_group.revision_number,
         security_group.NetworkSecurityGroupRulesColumn([]),
         _security_group.stateful,
         _security_group.tags,
+        _security_group.updated_at,
     )
 
     def setUp(self):
@@ -163,7 +167,7 @@ class TestCreateSecurityGroupNetwork(TestSecurityGroupNetwork):
         else:
             self.assertFalse(self.network_client.set_tags.called)
         self.assertEqual(self.columns, columns)
-        self.assertCountEqual(self.data, data)
+        self.assertEqual(self.data, data)
 
     def test_create_with_tags(self):
         self._test_create_with_tag(add_tags=True)
@@ -174,7 +178,7 @@ class TestCreateSecurityGroupNetwork(TestSecurityGroupNetwork):
 
 class TestDeleteSecurityGroupNetwork(TestSecurityGroupNetwork):
     # The security groups to be deleted.
-    _security_groups = network_fakes.FakeSecurityGroup.create_security_groups()
+    _security_groups = network_fakes.create_security_groups()
 
     def setUp(self):
         super().setUp()
@@ -184,9 +188,7 @@ class TestDeleteSecurityGroupNetwork(TestSecurityGroupNetwork):
         )
 
         self.network_client.find_security_group = (
-            network_fakes.FakeSecurityGroup.get_security_groups(
-                self._security_groups
-            )
+            network_fakes.get_security_groups(self._security_groups)
         )
 
         # Get the command object to test
@@ -264,9 +266,7 @@ class TestDeleteSecurityGroupNetwork(TestSecurityGroupNetwork):
 
 class TestListSecurityGroupNetwork(TestSecurityGroupNetwork):
     # The security group to be listed.
-    _security_groups = network_fakes.FakeSecurityGroup.create_security_groups(
-        count=3
-    )
+    _security_groups = network_fakes.create_security_groups(count=3)
 
     columns = (
         'ID',
@@ -412,10 +412,8 @@ class TestListSecurityGroupNetwork(TestSecurityGroupNetwork):
 
 class TestSetSecurityGroupNetwork(TestSecurityGroupNetwork):
     # The security group to be set.
-    _security_group = (
-        network_fakes.FakeSecurityGroup.create_one_security_group(
-            attrs={'tags': ['green', 'red']}
-        )
+    _security_group = network_fakes.create_one_security_group(
+        attrs={'tags': ['green', 'red']}
     )
 
     def setUp(self):
@@ -515,37 +513,39 @@ class TestSetSecurityGroupNetwork(TestSecurityGroupNetwork):
 
 class TestShowSecurityGroupNetwork(TestSecurityGroupNetwork):
     # The security group rule to be shown with the group.
-    _security_group_rule = (
-        network_fakes.FakeSecurityGroupRule.create_one_security_group_rule()
-    )
+    _security_group_rule = network_fakes.create_one_security_group_rule()
 
     # The security group to be shown.
-    _security_group = (
-        network_fakes.FakeSecurityGroup.create_one_security_group(
-            attrs={'security_group_rules': [_security_group_rule._info]}
-        )
+    _security_group = network_fakes.create_one_security_group(
+        attrs={'security_group_rules': [dict(_security_group_rule)]}
     )
 
     columns = (
+        'created_at',
         'description',
         'id',
         'name',
         'project_id',
+        'revision_number',
         'rules',
         'stateful',
         'tags',
+        'updated_at',
     )
 
     data = (
+        _security_group.created_at,
         _security_group.description,
         _security_group.id,
         _security_group.name,
         _security_group.project_id,
+        _security_group.revision_number,
         security_group.NetworkSecurityGroupRulesColumn(
-            [_security_group_rule._info]
+            [dict(_security_group_rule)]
         ),
         _security_group.stateful,
         _security_group.tags,
+        _security_group.updated_at,
     )
 
     def setUp(self):
@@ -583,10 +583,8 @@ class TestShowSecurityGroupNetwork(TestSecurityGroupNetwork):
 
 class TestUnsetSecurityGroupNetwork(TestSecurityGroupNetwork):
     # The security group to be unset.
-    _security_group = (
-        network_fakes.FakeSecurityGroup.create_one_security_group(
-            attrs={'tags': ['green', 'red']}
-        )
+    _security_group = network_fakes.create_one_security_group(
+        attrs={'tags': ['green', 'red']}
     )
 
     def setUp(self):

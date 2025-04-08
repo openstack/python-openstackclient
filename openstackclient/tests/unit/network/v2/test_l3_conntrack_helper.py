@@ -24,8 +24,8 @@ class TestConntrackHelper(network_fakes.TestNetworkV2):
     def setUp(self):
         super().setUp()
 
-        self.router = network_fakes.FakeRouter.create_one_router()
-        self.network_client.find_router = mock.Mock(return_value=self.router)
+        self.router = network_fakes.create_one_router()
+        self.network_client.find_router.return_value = self.router
 
 
 class TestCreateL3ConntrackHelper(TestConntrackHelper):

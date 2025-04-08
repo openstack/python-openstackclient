@@ -320,7 +320,7 @@ class TestCreatePort(TestPort):
         self.assertCountEqual(self.data, data)
 
     def test_create_with_security_group(self):
-        secgroup = network_fakes.FakeSecurityGroup.create_one_security_group()
+        secgroup = network_fakes.create_one_security_group()
         self.network_client.find_security_group = mock.Mock(
             return_value=secgroup
         )
@@ -391,8 +391,8 @@ class TestCreatePort(TestPort):
         self.assertCountEqual(self.data, data)
 
     def test_create_with_security_groups(self):
-        sg_1 = network_fakes.FakeSecurityGroup.create_one_security_group()
-        sg_2 = network_fakes.FakeSecurityGroup.create_one_security_group()
+        sg_1 = network_fakes.create_one_security_group()
+        sg_2 = network_fakes.create_one_security_group()
         self.network_client.find_security_group = mock.Mock(
             side_effect=[sg_1, sg_2]
         )
@@ -1325,7 +1325,7 @@ class TestListPort(compute_fakes.FakeClientMixin, TestPort):
         super().setUp()
 
         self.network_client.ports = mock.Mock(return_value=self._ports)
-        fake_router = network_fakes.FakeRouter.create_one_router(
+        fake_router = network_fakes.create_one_router(
             {
                 'id': 'fake-router-id',
             }
@@ -2096,7 +2096,7 @@ class TestSetPort(TestPort):
         self.assertIsNone(result)
 
     def test_set_port_security_group(self):
-        sg = network_fakes.FakeSecurityGroup.create_one_security_group()
+        sg = network_fakes.create_one_security_group()
         self.network_client.find_security_group = mock.Mock(return_value=sg)
         arglist = [
             '--security-group',
@@ -2119,9 +2119,9 @@ class TestSetPort(TestPort):
         self.assertIsNone(result)
 
     def test_set_port_security_group_append(self):
-        sg_1 = network_fakes.FakeSecurityGroup.create_one_security_group()
-        sg_2 = network_fakes.FakeSecurityGroup.create_one_security_group()
-        sg_3 = network_fakes.FakeSecurityGroup.create_one_security_group()
+        sg_1 = network_fakes.create_one_security_group()
+        sg_2 = network_fakes.create_one_security_group()
+        sg_3 = network_fakes.create_one_security_group()
         self.network_client.find_security_group = mock.Mock(
             side_effect=[sg_2, sg_3]
         )
@@ -2172,8 +2172,8 @@ class TestSetPort(TestPort):
         self.assertIsNone(result)
 
     def test_set_port_security_group_replace(self):
-        sg1 = network_fakes.FakeSecurityGroup.create_one_security_group()
-        sg2 = network_fakes.FakeSecurityGroup.create_one_security_group()
+        sg1 = network_fakes.create_one_security_group()
+        sg2 = network_fakes.create_one_security_group()
         _testport = network_fakes.create_one_port(
             {'security_group_ids': [sg1.id]}
         )
@@ -2821,8 +2821,8 @@ class TestUnsetPort(TestPort):
         )
 
     def test_unset_security_group(self):
-        _fake_sg1 = network_fakes.FakeSecurityGroup.create_one_security_group()
-        _fake_sg2 = network_fakes.FakeSecurityGroup.create_one_security_group()
+        _fake_sg1 = network_fakes.create_one_security_group()
+        _fake_sg2 = network_fakes.create_one_security_group()
         _fake_port = network_fakes.create_one_port(
             {'security_group_ids': [_fake_sg1.id, _fake_sg2.id]}
         )
@@ -2849,8 +2849,8 @@ class TestUnsetPort(TestPort):
         self.assertIsNone(result)
 
     def test_unset_port_security_group_not_existent(self):
-        _fake_sg1 = network_fakes.FakeSecurityGroup.create_one_security_group()
-        _fake_sg2 = network_fakes.FakeSecurityGroup.create_one_security_group()
+        _fake_sg1 = network_fakes.create_one_security_group()
+        _fake_sg2 = network_fakes.create_one_security_group()
         _fake_port = network_fakes.create_one_port(
             {'security_group_ids': [_fake_sg1.id]}
         )

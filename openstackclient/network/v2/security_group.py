@@ -89,9 +89,8 @@ def _get_columns(item):
     # We still support Nova managed security groups, where we have tenant_id.
     column_map = {
         'security_group_rules': 'rules',
-        'tenant_id': 'project_id',
     }
-    hidden_columns = ['location']
+    hidden_columns = ['location', 'tenant_id']
     return utils.get_osc_show_columns_for_sdk_resource(
         item, column_map, hidden_columns
     )
@@ -186,7 +185,8 @@ class CreateSecurityGroup(
             parsed_args.name,
             description,
         )
-        display_columns, property_columns = _get_columns(obj)
+        display_columns = ('description', 'id', 'name', 'project_id', 'rules')
+        property_columns = ('description', 'id', 'name', 'tenant_id', 'rules')
         data = utils.get_dict_properties(
             obj, property_columns, formatters=_formatters_compute
         )
@@ -420,7 +420,8 @@ class ShowSecurityGroup(common.NetworkAndComputeShowOne):
 
     def take_action_compute(self, client, parsed_args):
         obj = compute_v2.find_security_group(client, parsed_args.group)
-        display_columns, property_columns = _get_columns(obj)
+        display_columns = ('description', 'id', 'name', 'project_id', 'rules')
+        property_columns = ('description', 'id', 'name', 'tenant_id', 'rules')
         data = utils.get_dict_properties(
             obj, property_columns, formatters=_formatters_compute
         )

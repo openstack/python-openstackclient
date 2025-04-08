@@ -46,7 +46,9 @@ from openstack.network.v2 import (
 from openstack.network.v2 import qos_policy as _qos_policy
 from openstack.network.v2 import qos_rule_type as _qos_rule_type
 from openstack.network.v2 import rbac_policy as network_rbac
+from openstack.network.v2 import router as _router
 from openstack.network.v2 import security_group as _security_group
+from openstack.network.v2 import security_group_rule as _security_group_rule
 from openstack.network.v2 import segment as _segment
 from openstack.network.v2 import service_profile as _service_profile
 from openstack.network.v2 import trunk as _trunk
@@ -130,246 +132,6 @@ def create_one_extension(attrs=None):
 
     extension = _extension.Extension(**extension_info)
     return extension
-
-
-class FakeRouter:
-    """Fake one or more routers."""
-
-    @staticmethod
-    def create_one_router(attrs=None):
-        """Create a fake router.
-
-        :param Dictionary attrs:
-            A dictionary with all attributes
-        :return:
-            A FakeResource object, with id, name, admin_state_up,
-            status, project_id
-        """
-        attrs = attrs or {}
-
-        # Set default attributes.
-        router_attrs = {
-            'id': 'router-id-' + uuid.uuid4().hex,
-            'name': 'router-name-' + uuid.uuid4().hex,
-            'status': 'ACTIVE',
-            'admin_state_up': True,
-            'description': 'router-description-' + uuid.uuid4().hex,
-            'distributed': False,
-            'ha': False,
-            'project_id': 'project-id-' + uuid.uuid4().hex,
-            'routes': [],
-            'external_gateway_info': {},
-            'availability_zone_hints': [],
-            'availability_zones': [],
-            'tags': [],
-            'location': 'MUNCHMUNCHMUNCH',
-        }
-
-        # Overwrite default attributes.
-        router_attrs.update(attrs)
-
-        router = fakes.FakeResource(
-            info=copy.deepcopy(router_attrs), loaded=True
-        )
-
-        # Set attributes with special mapping in OpenStack SDK.
-        router.is_admin_state_up = router_attrs['admin_state_up']
-        router.is_distributed = router_attrs['distributed']
-        router.is_ha = router_attrs['ha']
-
-        return router
-
-    @staticmethod
-    def create_routers(attrs=None, count=2):
-        """Create multiple fake routers.
-
-        :param Dictionary attrs:
-            A dictionary with all attributes
-        :param int count:
-            The number of routers to fake
-        :return:
-            A list of FakeResource objects faking the routers
-        """
-        routers = []
-        for i in range(0, count):
-            routers.append(FakeRouter.create_one_router(attrs))
-
-        return routers
-
-    @staticmethod
-    def get_routers(routers=None, count=2):
-        """Get an iterable Mock object with a list of faked routers.
-
-        If routers list is provided, then initialize the Mock object with the
-        list. Otherwise create one.
-
-        :param List routers:
-            A list of FakeResource objects faking routers
-        :param int count:
-            The number of routers to fake
-        :return:
-            An iterable Mock object with side_effect set to a list of faked
-            routers
-        """
-        if routers is None:
-            routers = FakeRouter.create_routers(count)
-        return mock.Mock(side_effect=routers)
-
-
-class FakeSecurityGroup:
-    """Fake one or more security groups."""
-
-    @staticmethod
-    def create_one_security_group(attrs=None):
-        """Create a fake security group.
-
-        :param Dictionary attrs:
-            A dictionary with all attributes
-        :return:
-            A FakeResource object, with id, name, etc.
-        """
-        attrs = attrs or {}
-
-        # Set default attributes.
-        security_group_attrs = {
-            'id': 'security-group-id-' + uuid.uuid4().hex,
-            'name': 'security-group-name-' + uuid.uuid4().hex,
-            'description': 'security-group-description-' + uuid.uuid4().hex,
-            'stateful': True,
-            'project_id': 'project-id-' + uuid.uuid4().hex,
-            'security_group_rules': [],
-            'tags': [],
-            'location': 'MUNCHMUNCHMUNCH',
-        }
-
-        # Overwrite default attributes.
-        security_group_attrs.update(attrs)
-
-        security_group = fakes.FakeResource(
-            info=copy.deepcopy(security_group_attrs), loaded=True
-        )
-
-        return security_group
-
-    @staticmethod
-    def create_security_groups(attrs=None, count=2):
-        """Create multiple fake security groups.
-
-        :param Dictionary attrs:
-            A dictionary with all attributes
-        :param int count:
-            The number of security groups to fake
-        :return:
-            A list of FakeResource objects faking the security groups
-        """
-        security_groups = []
-        for i in range(0, count):
-            security_groups.append(
-                FakeSecurityGroup.create_one_security_group(attrs)
-            )
-
-        return security_groups
-
-    @staticmethod
-    def get_security_groups(security_groups=None, count=2):
-        """Get an iterable Mock object with a list of faked security groups.
-
-        If security groups list is provided, then initialize the Mock object
-        with the list. Otherwise create one.
-
-        :param List security_groups:
-            A list of FakeResource objects faking security groups
-        :param int count:
-            The number of security groups to fake
-        :return:
-            An iterable Mock object with side_effect set to a list of faked
-            security groups
-        """
-        if security_groups is None:
-            security_groups = FakeSecurityGroup.create_security_groups(count)
-        return mock.Mock(side_effect=security_groups)
-
-
-class FakeSecurityGroupRule:
-    """Fake one or more security group rules."""
-
-    @staticmethod
-    def create_one_security_group_rule(attrs=None):
-        """Create a fake security group rule.
-
-        :param Dictionary attrs:
-            A dictionary with all attributes
-        :return:
-            A FakeResource object, with id, etc.
-        """
-        attrs = attrs or {}
-
-        # Set default attributes.
-        security_group_rule_attrs = {
-            'description': 'security-group-rule-description-'
-            + uuid.uuid4().hex,
-            'direction': 'ingress',
-            'ether_type': 'IPv4',
-            'id': 'security-group-rule-id-' + uuid.uuid4().hex,
-            'port_range_max': None,
-            'port_range_min': None,
-            'protocol': None,
-            'remote_group_id': None,
-            'remote_address_group_id': None,
-            'remote_ip_prefix': '0.0.0.0/0',
-            'security_group_id': 'security-group-id-' + uuid.uuid4().hex,
-            'project_id': 'project-id-' + uuid.uuid4().hex,
-            'location': 'MUNCHMUNCHMUNCH',
-        }
-
-        # Overwrite default attributes.
-        security_group_rule_attrs.update(attrs)
-
-        security_group_rule = fakes.FakeResource(
-            info=copy.deepcopy(security_group_rule_attrs), loaded=True
-        )
-
-        return security_group_rule
-
-    @staticmethod
-    def create_security_group_rules(attrs=None, count=2):
-        """Create multiple fake security group rules.
-
-        :param Dictionary attrs:
-            A dictionary with all attributes
-        :param int count:
-            The number of security group rules to fake
-        :return:
-            A list of FakeResource objects faking the security group rules
-        """
-        security_group_rules = []
-        for i in range(0, count):
-            security_group_rules.append(
-                FakeSecurityGroupRule.create_one_security_group_rule(attrs)
-            )
-
-        return security_group_rules
-
-    @staticmethod
-    def get_security_group_rules(security_group_rules=None, count=2):
-        """Get an iterable Mock with a list of faked security group rules.
-
-        If security group rules list is provided, then initialize the Mock
-        object with the list. Otherwise create one.
-
-        :param List security_group_rules:
-            A list of FakeResource objects faking security group rules
-        :param int count:
-            The number of security group rules to fake
-        :return:
-            An iterable Mock object with side_effect set to a list of faked
-            security group rules
-        """
-        if security_group_rules is None:
-            security_group_rules = (
-                FakeSecurityGroupRule.create_security_group_rules(count)
-            )
-        return mock.Mock(side_effect=security_group_rules)
 
 
 class FakeSubnet:
@@ -1631,20 +1393,32 @@ def get_network_rbacs(rbac_policies=None, count=2):
 
 
 def create_one_security_group(attrs=None):
-    """Create a security group."""
+    """Create a fake security group.
+
+    :param Dictionary attrs:
+        A dictionary with all attributes
+    :return:
+        A SecurityGroup object, with id, name, etc.
+    """
     attrs = attrs or {}
 
+    # Set default attributes.
     security_group_attrs = {
-        'name': 'security-group-name-' + uuid.uuid4().hex,
         'id': 'security-group-id-' + uuid.uuid4().hex,
-        'project_id': 'project-id-' + uuid.uuid4().hex,
+        'name': 'security-group-name-' + uuid.uuid4().hex,
         'description': 'security-group-description-' + uuid.uuid4().hex,
+        'stateful': True,
+        'project_id': 'project-id-' + uuid.uuid4().hex,
+        'security_group_rules': [],
+        'tags': [],
         'location': 'MUNCHMUNCHMUNCH',
     }
 
+    # Overwrite default attributes.
     security_group_attrs.update(attrs)
 
     security_group = _security_group.SecurityGroup(**security_group_attrs)
+    security_group.tenant_id = None  # unset deprecated opts
 
     return security_group
 
@@ -1652,15 +1426,111 @@ def create_one_security_group(attrs=None):
 def create_security_groups(attrs=None, count=2):
     """Create multiple fake security groups.
 
-    :param dict attrs: A dictionary with all attributes
-    :param int count: The number of security groups to fake
-    :return: A list of fake SecurityGroup objects
+    :param Dictionary attrs:
+        A dictionary with all attributes
+    :param int count:
+        The number of security groups to fake
+    :return:
+        A list of SecurityGroup objects faking the security groups
     """
     security_groups = []
     for i in range(0, count):
         security_groups.append(create_one_security_group(attrs))
 
     return security_groups
+
+
+def get_security_groups(security_groups=None, count=2):
+    """Get an iterable Mock object with a list of faked security groups.
+
+    If security groups list is provided, then initialize the Mock object
+    with the list. Otherwise create one.
+
+    :param List security_groups:
+        A list of SecurityGroup objects faking security groups
+    :param int count:
+        The number of security groups to fake
+    :return:
+        An iterable Mock object with side_effect set to a list of faked
+        security groups
+    """
+    if security_groups is None:
+        security_groups = create_security_groups(count)
+    return mock.Mock(side_effect=security_groups)
+
+
+def create_one_security_group_rule(attrs=None):
+    """Create a fake security group rule.
+
+    :param Dictionary attrs:
+        A dictionary with all attributes
+    :return:
+        A FakeResource object, with id, etc.
+    """
+    attrs = attrs or {}
+
+    # Set default attributes.
+    security_group_rule_attrs = {
+        'description': 'security-group-rule-description-' + uuid.uuid4().hex,
+        'direction': 'ingress',
+        'ether_type': 'IPv4',
+        'id': 'security-group-rule-id-' + uuid.uuid4().hex,
+        'port_range_max': None,
+        'port_range_min': None,
+        'protocol': None,
+        'remote_group_id': None,
+        'remote_address_group_id': None,
+        'remote_ip_prefix': '0.0.0.0/0',
+        'security_group_id': 'security-group-id-' + uuid.uuid4().hex,
+        'project_id': 'project-id-' + uuid.uuid4().hex,
+        'location': 'MUNCHMUNCHMUNCH',
+    }
+
+    # Overwrite default attributes.
+    security_group_rule_attrs.update(attrs)
+
+    security_group_rule = _security_group_rule.SecurityGroupRule(
+        **security_group_rule_attrs
+    )
+    security_group_rule.tenant_id = None  # unset deprecated opts
+
+    return security_group_rule
+
+
+def create_security_group_rules(attrs=None, count=2):
+    """Create multiple fake security group rules.
+
+    :param Dictionary attrs:
+        A dictionary with all attributes
+    :param int count:
+        The number of security group rules to fake
+    :return:
+        A list of SecurityGroupRule objects faking the security group rules
+    """
+    security_group_rules = []
+    for i in range(0, count):
+        security_group_rules.append(create_one_security_group_rule(attrs))
+
+    return security_group_rules
+
+
+def get_security_group_rules(security_group_rules=None, count=2):
+    """Get an iterable Mock with a list of faked security group rules.
+
+    If security group rules list is provided, then initialize the Mock
+    object with the list. Otherwise create one.
+
+    :param List security_group_rules:
+        A list of SecurityGroupRule objects faking security group rules
+    :param int count:
+        The number of security group rules to fake
+    :return:
+        An iterable Mock object with side_effect set to a list of faked
+        security group rules
+    """
+    if security_group_rules is None:
+        security_group_rules = create_security_group_rules(count)
+    return mock.Mock(side_effect=security_group_rules)
 
 
 def create_one_service_profile(attrs=None):
@@ -1900,6 +1770,80 @@ def create_qos_rule_types(attrs=None, count=2):
         qos_rule_types.append(create_one_qos_rule_type(attrs))
 
     return qos_rule_types
+
+
+def create_one_router(attrs=None):
+    """Create a fake router.
+
+    :param Dictionary attrs:
+        A dictionary with all attributes
+    :return:
+        A Router object, with id, name, admin_state_up,
+        status, project_id
+    """
+    attrs = attrs or {}
+
+    # Set default attributes.
+    router_attrs = {
+        'id': 'router-id-' + uuid.uuid4().hex,
+        'name': 'router-name-' + uuid.uuid4().hex,
+        'status': 'ACTIVE',
+        'is_admin_state_up': True,
+        'description': 'router-description-' + uuid.uuid4().hex,
+        'distributed': False,
+        'ha': False,
+        'project_id': 'project-id-' + uuid.uuid4().hex,
+        'routes': [],
+        'external_gateway_info': {},
+        'availability_zone_hints': [],
+        'availability_zones': [],
+        'tags': [],
+        'location': 'MUNCHMUNCHMUNCH',
+    }
+
+    # Overwrite default attributes.
+    router_attrs.update(attrs)
+
+    router = _router.Router(**router_attrs)
+    router.tenant_id = None  # unset deprecated opts
+
+    return router
+
+
+def create_routers(attrs=None, count=2):
+    """Create multiple fake routers.
+
+    :param Dictionary attrs:
+        A dictionary with all attributes
+    :param int count:
+        The number of routers to fake
+    :return:
+        A list of Router objects faking the routers
+    """
+    routers = []
+    for i in range(0, count):
+        routers.append(create_one_router(attrs))
+
+    return routers
+
+
+def get_routers(routers=None, count=2):
+    """Get an iterable Mock object with a list of faked routers.
+
+    If routers list is provided, then initialize the Mock object with the
+    list. Otherwise create one.
+
+    :param List routers:
+        A list of Router objects faking routers
+    :param int count:
+        The number of routers to fake
+    :return:
+        An iterable Mock object with side_effect set to a list of faked
+        routers
+    """
+    if routers is None:
+        routers = create_routers(count)
+    return mock.Mock(side_effect=routers)
 
 
 def create_one_local_ip(attrs=None):

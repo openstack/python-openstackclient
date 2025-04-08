@@ -414,7 +414,7 @@ class TestListFloatingIPNetwork(TestFloatingIPNetwork):
             'id': 'fake_port_id',
         }
     )
-    fake_router = network_fakes.FakeRouter.create_one_router(
+    fake_router = network_fakes.create_one_router(
         {
             'id': 'fake_router_id',
         }

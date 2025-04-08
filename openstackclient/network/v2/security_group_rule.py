@@ -30,7 +30,7 @@ LOG = logging.getLogger(__name__)
 
 
 def _get_columns(item):
-    hidden_columns = ['location', 'tenant_id']
+    hidden_columns = ['location', 'name', 'tenant_id', 'tags']
     return utils.get_osc_show_columns_for_sdk_resource(
         item, {}, hidden_columns
     )
