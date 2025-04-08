@@ -555,9 +555,7 @@ class TestCreateRouter(TestRouter):
     def test_create_with_qos_policy(self):
         _network = network_fakes.create_one_network()
         self.network_client.find_network = mock.Mock(return_value=_network)
-        _qos_policy = (
-            network_fakes.FakeNetworkQosPolicy.create_one_qos_policy()
-        )
+        _qos_policy = network_fakes.create_one_qos_policy()
         self.network_client.find_qos_policy = mock.Mock(
             return_value=_qos_policy
         )
@@ -590,9 +588,7 @@ class TestCreateRouter(TestRouter):
         self.assertCountEqual(self.data, data)
 
     def test_create_with_qos_policy_no_external_gateway(self):
-        _qos_policy = (
-            network_fakes.FakeNetworkQosPolicy.create_one_qos_policy()
-        )
+        _qos_policy = network_fakes.create_one_qos_policy()
         self.network_client.find_qos_policy = mock.Mock(
             return_value=_qos_policy
         )
@@ -1668,7 +1664,7 @@ class TestSetRouter(TestRouter):
         self._test_set_tags(with_tags=False)
 
     def test_set_gateway_ip_qos(self):
-        qos_policy = network_fakes.FakeNetworkQosPolicy.create_one_qos_policy()
+        qos_policy = network_fakes.create_one_qos_policy()
         self.network_client.find_qos_policy = mock.Mock(
             return_value=qos_policy
         )
@@ -1725,7 +1721,7 @@ class TestSetRouter(TestRouter):
         self.assertIsNone(result)
 
     def test_set_unset_gateway_ip_qos(self):
-        qos_policy = network_fakes.FakeNetworkQosPolicy.create_one_qos_policy()
+        qos_policy = network_fakes.create_one_qos_policy()
         self.network_client.find_qos_policy = mock.Mock(
             return_value=qos_policy
         )
@@ -1753,7 +1749,7 @@ class TestSetRouter(TestRouter):
         )
 
     def test_set_gateway_ip_qos_no_gateway(self):
-        qos_policy = network_fakes.FakeNetworkQosPolicy.create_one_qos_policy()
+        qos_policy = network_fakes.create_one_qos_policy()
         self.network_client.find_qos_policy = mock.Mock(
             return_value=qos_policy
         )
@@ -1775,7 +1771,7 @@ class TestSetRouter(TestRouter):
         )
 
     def test_unset_gateway_ip_qos_no_gateway(self):
-        qos_policy = network_fakes.FakeNetworkQosPolicy.create_one_qos_policy()
+        qos_policy = network_fakes.create_one_qos_policy()
         self.network_client.find_qos_policy = mock.Mock(
             return_value=qos_policy
         )
@@ -1932,9 +1928,7 @@ class TestUnsetRouter(TestRouter):
     def setUp(self):
         super().setUp()
         self.fake_network = network_fakes.create_one_network()
-        self.fake_qos_policy = (
-            network_fakes.FakeNetworkQosPolicy.create_one_qos_policy()
-        )
+        self.fake_qos_policy = network_fakes.create_one_qos_policy()
         self._testrouter = network_fakes.FakeRouter.create_one_router(
             {
                 'routes': [
@@ -2102,7 +2096,7 @@ class TestUnsetRouter(TestRouter):
         self.assertIsNone(result)
 
     def test_unset_gateway_ip_qos_no_network(self):
-        qos_policy = network_fakes.FakeNetworkQosPolicy.create_one_qos_policy()
+        qos_policy = network_fakes.create_one_qos_policy()
         self.network_client.find_qos_policy = mock.Mock(
             return_value=qos_policy
         )
@@ -2122,7 +2116,7 @@ class TestUnsetRouter(TestRouter):
         )
 
     def test_unset_gateway_ip_qos_no_qos(self):
-        qos_policy = network_fakes.FakeNetworkQosPolicy.create_one_qos_policy()
+        qos_policy = network_fakes.create_one_qos_policy()
         self.network_client.find_qos_policy = mock.Mock(
             return_value=qos_policy
         )

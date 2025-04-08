@@ -47,7 +47,7 @@ class TestCreateNetworkIdentityV3(TestNetwork):
             'availability_zone_hints': ["nova"],
         }
     )
-    qos_policy = network_fakes.FakeNetworkQosPolicy.create_one_qos_policy(
+    qos_policy = network_fakes.create_one_qos_policy(
         attrs={'id': _network.qos_policy_id}
     )
 
@@ -622,7 +622,7 @@ class TestListNetwork(TestNetwork):
         self.network_client.networks = mock.Mock(return_value=self._network)
 
         self._agent = network_fakes.create_one_network_agent()
-        self.network_client.get_agent = mock.Mock(return_value=self._agent)
+        self.network_client.get_agent.return_value = self._agent
 
         self.network_client.dhcp_agent_hosting_networks = mock.Mock(
             return_value=self._network
@@ -967,7 +967,7 @@ class TestListNetwork(TestNetwork):
 class TestSetNetwork(TestNetwork):
     # The network to set.
     _network = network_fakes.create_one_network({'tags': ['green', 'red']})
-    qos_policy = network_fakes.FakeNetworkQosPolicy.create_one_qos_policy(
+    qos_policy = network_fakes.create_one_qos_policy(
         attrs={'id': _network.qos_policy_id}
     )
 
@@ -1266,7 +1266,7 @@ class TestShowNetwork(TestNetwork):
 class TestUnsetNetwork(TestNetwork):
     # The network to set.
     _network = network_fakes.create_one_network({'tags': ['green', 'red']})
-    qos_policy = network_fakes.FakeNetworkQosPolicy.create_one_qos_policy(
+    qos_policy = network_fakes.create_one_qos_policy(
         attrs={'id': _network.qos_policy_id}
     )
 

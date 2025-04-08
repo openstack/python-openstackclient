@@ -97,7 +97,11 @@ class TestCase(testtools.TestCase):
         )
 
         if parse_output:
-            return json.loads(output)
+            try:
+                return json.loads(output)
+            except json.JSONDecodeError:
+                print(f'failed to decode: {output}')
+                raise
         else:
             return output
 
