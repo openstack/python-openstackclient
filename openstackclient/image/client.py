@@ -46,3 +46,8 @@ def build_option_parser(parser):
         % DEFAULT_API_VERSION,
     )
     return parser
+
+
+def check_api_version(check_version):
+    # SDK supports auto-negotiation for us: always return True
+    return True
