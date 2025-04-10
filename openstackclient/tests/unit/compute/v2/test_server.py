@@ -4591,6 +4591,7 @@ class _TestServerList(TestServer):
         'Pinned Availability Zone',
         'Host',
         'Properties',
+        'Scheduler Hints',
     )
 
     def setUp(self):
@@ -4730,6 +4731,7 @@ class TestServerList(_TestServerList):
                 getattr(s, 'pinned_availability_zone', ''),
                 server.HostColumn(getattr(s, 'hypervisor_hostname')),
                 format_columns.DictColumn(s.metadata),
+                format_columns.DictListColumn(None),
             )
             for s in self.servers
         )
@@ -4778,6 +4780,8 @@ class TestServerList(_TestServerList):
             'Host',
             '-c',
             'Properties',
+            '-c',
+            'Scheduler Hints',
             '--long',
         ]
         verifylist = [
@@ -4800,6 +4804,7 @@ class TestServerList(_TestServerList):
         self.assertIn('Pinned Availability Zone', columns)
         self.assertIn('Host', columns)
         self.assertIn('Properties', columns)
+        self.assertIn('Scheduler Hints', columns)
         self.assertCountEqual(columns, set(columns))
 
     def test_server_list_no_name_lookup_option(self):
@@ -5213,6 +5218,7 @@ class TestServerList(_TestServerList):
                 getattr(s, 'pinned_availability_zone', ''),
                 server.HostColumn(getattr(s, 'hypervisor_hostname')),
                 format_columns.DictColumn(s.metadata),
+                format_columns.DictListColumn(s.scheduler_hints),
             )
             for s in self.servers
         )
@@ -5268,6 +5274,7 @@ class TestServerList(_TestServerList):
                 getattr(s, 'pinned_availability_zone', ''),
                 server.HostColumn(getattr(s, 'hypervisor_hostname')),
                 format_columns.DictColumn(s.metadata),
+                format_columns.DictListColumn(s.scheduler_hints),
                 s.host_status,
             )
             for s in servers
@@ -5305,6 +5312,7 @@ class TestServerListV273(_TestServerList):
         'Pinned Availability Zone',
         'Host',
         'Properties',
+        'Scheduler Hints',
     )
 
     def setUp(self):
