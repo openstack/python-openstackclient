@@ -1,0 +1,6 @@
+---
+upgrade:
+  - |
+    The ``openstack server set`` command has been extended with a new
+    parameter ``--auto-approve`` and the existing ``--state`` parameter
+    has been modified to require confirmation before resetting the state.

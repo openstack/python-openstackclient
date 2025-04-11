@@ -4482,14 +4482,26 @@ class SetServer(command.Command):
             ),
         )
         parser.add_argument(
+            '--auto-approve',
+            action='store_true',
+            help=_(
+                "Allow server state override without asking for confirmation"
+            ),
+        )
+        parser.add_argument(
             '--state',
             metavar='<state>',
             choices=['active', 'error'],
             help=_(
-                'New server state '
-                '**WARNING** This can result in instances that are no longer '
-                'usable and should be used with caution '
-                '(admin only)'
+                'New server state.'
+                '**WARNING** Resetting the state is intended to work around '
+                'servers stuck in an intermediate state, such as deleting. '
+                'If the server is in an error state then this is almost '
+                'never the correct command to run and you should prefer hard '
+                'reboot where possible. In particular, if the server is in '
+                'an error state due to a move operation, setting the state '
+                'can result in instances that are no longer usable. Proceed '
+                'with caution. (admin only)'
             ),
         )
         parser.add_argument(
@@ -4523,6 +4535,20 @@ class SetServer(command.Command):
             ),
         )
         return parser
+
+    @staticmethod
+    def ask_user_yesno(msg):
+        """Ask user Y/N question
+
+        :param str msg: question text
+        :return bool: User choice
+        """
+        while True:
+            answer = getpass.getpass('{} [{}]: '.format(msg, 'y/n'))
+            if answer in ('y', 'Y', 'yes'):
+                return True
+            elif answer in ('n', 'N', 'no'):
+                return False
 
     def take_action(self, parsed_args):
         compute_client = self.app.client_manager.compute
@@ -4574,6 +4600,17 @@ class SetServer(command.Command):
             )
 
         if parsed_args.state:
+            if not parsed_args.auto_approve:
+                if not self.ask_user_yesno(
+                    _(
+                        "Resetting the server state can make it much harder "
+                        "to recover a server from an error state. If the "
+                        "server is in error status due to a failed move "
+                        "operation then this is likely not the correct "
+                        "approach to fix the problem. Do you wish to continue?"
+                    )
+                ):
+                    return
             compute_client.reset_server_state(server, state=parsed_args.state)
 
         if parsed_args.root_password:

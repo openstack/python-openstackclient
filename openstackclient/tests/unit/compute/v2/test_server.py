@@ -7943,6 +7943,7 @@ class TestServerSet(TestServer):
         arglist = [
             '--state',
             'active',
+            '--auto-approve',
             self.server.id,
         ]
         verifylist = [
@@ -7956,6 +7957,54 @@ class TestServerSet(TestServer):
         self.compute_client.reset_server_state.assert_called_once_with(
             self.server, state='active'
         )
+        self.compute_client.update_server.assert_not_called()
+        self.compute_client.set_server_metadata.assert_not_called()
+        self.compute_client.change_server_password.assert_not_called()
+        self.compute_client.clear_server_password.assert_not_called()
+        self.compute_client.add_tag_to_server.assert_not_called()
+        self.assertIsNone(result)
+
+    def test_server_set_with_state_prompt_y(self):
+        arglist = [
+            '--state',
+            'active',
+            self.server.id,
+        ]
+        verifylist = [
+            ('state', 'active'),
+            ('server', self.server.id),
+        ]
+
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+        with mock.patch('getpass.getpass', return_value='y'):
+            result = self.cmd.take_action(parsed_args)
+
+        self.compute_client.reset_server_state.assert_called_once_with(
+            self.server, state='active'
+        )
+        self.compute_client.update_server.assert_not_called()
+        self.compute_client.set_server_metadata.assert_not_called()
+        self.compute_client.change_server_password.assert_not_called()
+        self.compute_client.clear_server_password.assert_not_called()
+        self.compute_client.add_tag_to_server.assert_not_called()
+        self.assertIsNone(result)
+
+    def test_server_set_with_state_prompt_n(self):
+        arglist = [
+            '--state',
+            'active',
+            self.server.id,
+        ]
+        verifylist = [
+            ('state', 'active'),
+            ('server', self.server.id),
+        ]
+
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+        with mock.patch('getpass.getpass', return_value='n'):
+            result = self.cmd.take_action(parsed_args)
+
+        self.compute_client.reset_server_state.assert_not_called()
         self.compute_client.update_server.assert_not_called()
         self.compute_client.set_server_metadata.assert_not_called()
         self.compute_client.change_server_password.assert_not_called()
