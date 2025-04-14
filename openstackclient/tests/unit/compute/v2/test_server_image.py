@@ -49,7 +49,7 @@ class TestServerImageCreate(compute_fakes.TestComputev2):
     def setUp(self):
         super().setUp()
 
-        self.server = compute_fakes.create_one_sdk_server()
+        self.server = compute_fakes.create_one_server()
         self.compute_client.find_server.return_value = self.server
 
         self.image = image_fakes.create_one_image(

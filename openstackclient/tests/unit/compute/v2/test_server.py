@@ -70,7 +70,7 @@ class TestServer(compute_fakes.TestComputev2):
         self.attrs = {}
 
     def setup_sdk_servers_mock(self, count):
-        servers = compute_fakes.create_sdk_servers(
+        servers = compute_fakes.create_servers(
             attrs=self.attrs,
             count=count,
         )
@@ -348,7 +348,7 @@ class TestServerAddFloatingIPCompute(compute_fakes.TestComputev2):
         super().setUp()
 
         self.app.client_manager.network_endpoint_enabled = False
-        self.server = compute_fakes.create_one_sdk_server()
+        self.server = compute_fakes.create_one_server()
         self.compute_client.find_server.return_value = self.server
 
         self.cmd = server.AddFloatingIP(self.app, None)
@@ -404,7 +404,7 @@ class TestServerAddFloatingIPNetwork(
     def setUp(self):
         super().setUp()
 
-        self.server = compute_fakes.create_one_sdk_server()
+        self.server = compute_fakes.create_one_server()
         self.compute_client.find_server.return_value = self.server
 
         self.network_client.update_ip = mock.Mock(return_value=None)
@@ -700,7 +700,7 @@ class TestServerVolume(TestServer):
     def setUp(self):
         super().setUp()
 
-        self.server = compute_fakes.create_one_sdk_server()
+        self.server = compute_fakes.create_one_server()
         self.compute_client.find_server.return_value = self.server
 
         self.volume = volume_fakes.create_one_sdk_volume()
@@ -1126,7 +1126,7 @@ class TestServerAddSecurityGroup(compute_fakes.TestComputev2):
     def setUp(self):
         super().setUp()
 
-        self.server = compute_fakes.create_one_sdk_server()
+        self.server = compute_fakes.create_one_server()
         self.compute_client.find_server.return_value = self.server
         self.compute_client.add_security_group_to_server.return_value = None
 
@@ -1295,7 +1295,7 @@ class TestServerCreate(TestServer):
             'image': self.image,
             'flavor': self.flavor,
         }
-        self.server = compute_fakes.create_one_sdk_server(attrs=attrs)
+        self.server = compute_fakes.create_one_server(attrs=attrs)
 
         self.compute_client.create_server.return_value = self.server
         self.compute_client.get_server.return_value = self.server
@@ -4382,7 +4382,7 @@ class TestServerDelete(compute_fakes.TestComputev2):
     def setUp(self):
         super().setUp()
 
-        self.server = compute_fakes.create_one_sdk_server()
+        self.server = compute_fakes.create_one_server()
         self.compute_client.find_server.return_value = self.server
         self.compute_client.delete_server.return_value = None
 
@@ -4429,7 +4429,7 @@ class TestServerDelete(compute_fakes.TestComputev2):
         self.assertIsNone(result)
 
     def test_server_delete_multi_servers(self):
-        servers = compute_fakes.create_sdk_servers(count=3)
+        servers = compute_fakes.create_servers(count=3)
         self.compute_client.find_server.return_value = None
         self.compute_client.find_server.side_effect = servers
 
@@ -5511,7 +5511,7 @@ class TestServerListV273(_TestServerList):
 
 class TestServerAction(compute_fakes.TestComputev2):
     def run_method_with_sdk_servers(self, method_name, server_count):
-        servers = compute_fakes.create_sdk_servers(count=server_count)
+        servers = compute_fakes.create_servers(count=server_count)
         self.compute_client.find_server.side_effect = servers
 
         arglist = [s.id for s in servers]
@@ -5544,7 +5544,7 @@ class TestServerLock(TestServerAction):
     def test_server_lock_with_reason(self):
         self.set_compute_api_version('2.73')
 
-        self.server = compute_fakes.create_one_sdk_server()
+        self.server = compute_fakes.create_one_server()
         self.compute_client.find_server.return_value = self.server
         self.compute_client.lock_server.return_value = None
 
@@ -5573,8 +5573,8 @@ class TestServerLock(TestServerAction):
     def test_server_lock_with_reason_multi_servers(self):
         self.set_compute_api_version('2.73')
 
-        server_a = compute_fakes.create_one_sdk_server()
-        server_b = compute_fakes.create_one_sdk_server()
+        server_a = compute_fakes.create_one_server()
+        server_b = compute_fakes.create_one_server()
 
         self.compute_client.find_server.side_effect = [server_a, server_b]
         self.compute_client.lock_server.return_value = None
@@ -5603,7 +5603,7 @@ class TestServerLock(TestServerAction):
     def test_server_lock_with_reason_pre_v273(self):
         self.set_compute_api_version('2.72')
 
-        server = compute_fakes.create_one_sdk_server()
+        server = compute_fakes.create_one_server()
 
         arglist = [
             server.id,
@@ -5631,7 +5631,7 @@ class TestServerMigrate(TestServer):
     def setUp(self):
         super().setUp()
 
-        self.server = compute_fakes.create_one_sdk_server()
+        self.server = compute_fakes.create_one_server()
         self.compute_client.find_server.return_value = self.server
         self.compute_client.migrate_server.return_value = None
         self.compute_client.live_migrate_server.return_value = None
@@ -6176,7 +6176,7 @@ class TestServerRebuild(TestServer):
             'status': 'ACTIVE',
             'image': {'id': self.image.id},
         }
-        self.server = compute_fakes.create_one_sdk_server(attrs=attrs)
+        self.server = compute_fakes.create_one_server(attrs=attrs)
         self.compute_client.find_server.return_value = self.server
         self.compute_client.rebuild_server.return_value = self.server
 
@@ -6911,7 +6911,7 @@ class TestServerRebuildVolumeBacked(TestServer):
             'status': 'ACTIVE',
             'image': '',
         }
-        self.server = compute_fakes.create_one_sdk_server(attrs=attrs)
+        self.server = compute_fakes.create_one_server(attrs=attrs)
         self.compute_client.find_server.return_value = self.server
         self.compute_client.rebuild_server.return_value = self.server
 
@@ -7002,9 +7002,9 @@ class TestServerEvacuate(TestServer):
             'networks': {},
             'adminPass': 'passw0rd',
         }
-        self.server = compute_fakes.create_one_sdk_server(attrs=attrs)
+        self.server = compute_fakes.create_one_server(attrs=attrs)
         attrs['id'] = self.server.id
-        self.new_server = compute_fakes.create_one_sdk_server(attrs=attrs)
+        self.new_server = compute_fakes.create_one_server(attrs=attrs)
 
         # Return value for utils.find_resource for server.
         self.compute_client.find_server.return_value = self.server
@@ -7146,7 +7146,7 @@ class TestServerRemoveFixedIP(compute_fakes.TestComputev2):
     def setUp(self):
         super().setUp()
 
-        self.server = compute_fakes.create_one_sdk_server()
+        self.server = compute_fakes.create_one_server()
 
         # Get the command object to test
         self.cmd = server.RemoveFixedIP(self.app, None)
@@ -7175,7 +7175,7 @@ class TestServerRescue(compute_fakes.TestComputev2):
     def setUp(self):
         super().setUp()
 
-        self.server = compute_fakes.create_one_sdk_server()
+        self.server = compute_fakes.create_one_server()
         self.compute_client.find_server.return_value = self.server
 
         self.cmd = server.RescueServer(self.app, None)
@@ -7255,7 +7255,7 @@ class TestServerRemoveFloatingIPCompute(compute_fakes.TestComputev2):
         super().setUp()
 
         self.app.client_manager.network_endpoint_enabled = False
-        self.server = compute_fakes.create_one_sdk_server()
+        self.server = compute_fakes.create_one_server()
         self.compute_client.find_server.return_value = self.server
 
         self.cmd = server.RemoveFloatingIP(self.app, None)
@@ -7417,7 +7417,7 @@ class TestServerRemoveSecurityGroup(TestServer):
     def setUp(self):
         super().setUp()
 
-        self.server = compute_fakes.create_one_sdk_server()
+        self.server = compute_fakes.create_one_server()
         self.compute_client.find_server.return_value = self.server
         self.compute_client.remove_security_group_from_server.return_value = (
             None
@@ -7480,7 +7480,7 @@ class TestServerResize(compute_fakes.TestComputev2):
     def setUp(self):
         super().setUp()
 
-        self.server = compute_fakes.create_one_sdk_server()
+        self.server = compute_fakes.create_one_server()
         self.compute_client.find_server.return_value = self.server
         self.flavor = compute_fakes.create_one_flavor()
         self.compute_client.find_flavor.return_value = self.flavor
@@ -7688,7 +7688,7 @@ class TestServerResizeConfirm(compute_fakes.TestComputev2):
     def setUp(self):
         super().setUp()
 
-        self.server = compute_fakes.create_one_sdk_server()
+        self.server = compute_fakes.create_one_server()
         self.compute_client.find_server.return_value = self.server
         self.compute_client.confirm_server_resize.return_value = None
 
@@ -7720,7 +7720,7 @@ class TestServerMigrateConfirm(compute_fakes.TestComputev2):
     def setUp(self):
         super().setUp()
 
-        self.server = compute_fakes.create_one_sdk_server()
+        self.server = compute_fakes.create_one_server()
         self.compute_client.find_server.return_value = self.server
         self.compute_client.confirm_server_resize.return_value = None
 
@@ -7758,7 +7758,7 @@ class TestServerConfirmMigration(compute_fakes.TestComputev2):
     def setUp(self):
         super().setUp()
 
-        self.server = compute_fakes.create_one_sdk_server()
+        self.server = compute_fakes.create_one_server()
         self.compute_client.find_server.return_value = self.server
         self.compute_client.confirm_server_resize.return_value = None
 
@@ -7789,7 +7789,7 @@ class TestServerResizeRevert(compute_fakes.TestComputev2):
     def setUp(self):
         super().setUp()
 
-        self.server = compute_fakes.create_one_sdk_server()
+        self.server = compute_fakes.create_one_server()
         self.compute_client.find_server.return_value = self.server
         self.compute_client.revert_server_resize.return_value = None
 
@@ -7821,7 +7821,7 @@ class TestServerMigrateRevert(compute_fakes.TestComputev2):
     def setUp(self):
         super().setUp()
 
-        self.server = compute_fakes.create_one_sdk_server()
+        self.server = compute_fakes.create_one_server()
         self.compute_client.find_server.return_value = self.server
         self.compute_client.revert_server_resize.return_value = None
 
@@ -7859,7 +7859,7 @@ class TestServerRevertMigration(compute_fakes.TestComputev2):
     def setUp(self):
         super().setUp()
 
-        self.server = compute_fakes.create_one_sdk_server()
+        self.server = compute_fakes.create_one_server()
         self.compute_client.find_server.return_value = self.server
         self.compute_client.revert_server_resize.return_value = None
 
@@ -7918,7 +7918,7 @@ class TestServerSet(TestServer):
     def setUp(self):
         super().setUp()
 
-        self.server = compute_fakes.create_one_sdk_server()
+        self.server = compute_fakes.create_one_server()
         self.compute_client.find_server.return_value = self.server
 
         # Get the command object to test
@@ -8300,7 +8300,7 @@ class TestServerShelve(TestServer):
     def setUp(self):
         super().setUp()
 
-        self.server = compute_fakes.create_one_sdk_server(
+        self.server = compute_fakes.create_one_server(
             attrs={'status': 'ACTIVE'},
         )
 
@@ -8434,7 +8434,7 @@ class TestServerShow(TestServer):
         self.compute_client.get_server_diagnostics.return_value = {
             'test': 'test'
         }
-        self.server = compute_fakes.create_one_sdk_server(
+        self.server = compute_fakes.create_one_server(
             attrs=server_info,
         )
         self.server.fetch_topology = mock.MagicMock(return_value=self.topology)
@@ -8701,7 +8701,7 @@ class TestServerSsh(TestServer):
                 ],
             },
         }
-        self.server = compute_fakes.create_one_sdk_server(
+        self.server = compute_fakes.create_one_server(
             attrs=self.attrs,
         )
         self.compute_client.find_server.return_value = self.server
@@ -8822,7 +8822,7 @@ class TestServerStart(TestServerAction):
         self.run_method_with_sdk_servers('start_server', 3)
 
     def test_server_start_with_all_projects(self):
-        server = compute_fakes.create_one_sdk_server()
+        server = compute_fakes.create_one_server()
         self.compute_client.find_server.return_value = server
 
         arglist = [
@@ -8858,7 +8858,7 @@ class TestServerStop(TestServerAction):
         self.run_method_with_sdk_servers('stop_server', 3)
 
     def test_server_start_with_all_projects(self):
-        server = compute_fakes.create_one_sdk_server()
+        server = compute_fakes.create_one_server()
         self.compute_client.find_server.return_value = server
 
         arglist = [
@@ -8926,7 +8926,7 @@ class TestServerUnrescue(compute_fakes.TestComputev2):
     def setUp(self):
         super().setUp()
 
-        self.server = compute_fakes.create_one_sdk_server()
+        self.server = compute_fakes.create_one_server()
         self.compute_client.find_server.return_value = self.server
 
         self.cmd = server.UnrescueServer(self.app, None)
@@ -8955,7 +8955,7 @@ class TestServerUnset(TestServer):
     def setUp(self):
         super().setUp()
 
-        self.server = compute_fakes.create_one_sdk_server()
+        self.server = compute_fakes.create_one_server()
         self.compute_client.find_server.return_value = self.server
 
         # Get the command object to test
@@ -9105,7 +9105,7 @@ class TestServerUnshelve(TestServer):
     def setUp(self):
         super().setUp()
 
-        self.server = compute_fakes.create_one_sdk_server(
+        self.server = compute_fakes.create_one_server(
             attrs={'status': 'SHELVED'},
         )
 
@@ -9427,7 +9427,7 @@ class TestServerGeneral(TestServer):
             'properties': '',
             'volumes_attached': [{"id": "6344fe9d-ef20-45b2-91a6"}],
         }
-        _server = compute_fakes.create_one_sdk_server(server_info)
+        _server = compute_fakes.create_one_server(server_info)
         self.compute_client.get_server.return_value = _server
 
         expected = {
@@ -9514,7 +9514,7 @@ class TestServerGeneral(TestServer):
             'properties': '',
             'volumes_attached': [{"id": "6344fe9d-ef20-45b2-91a6"}],
         }
-        _server = compute_fakes.create_one_sdk_server(server_info)
+        _server = compute_fakes.create_one_server(server_info)
         self.compute_client.get_server.return_value = _server
 
         expected = {

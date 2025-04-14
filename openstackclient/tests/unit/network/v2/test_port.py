@@ -1377,7 +1377,7 @@ class TestListPort(compute_fakes.FakeClientMixin, TestPort):
         self.assertCountEqual(self.data, list(data))
 
     def test_port_list_with_server_option(self):
-        fake_server = compute_fakes.create_one_sdk_server()
+        fake_server = compute_fakes.create_one_server()
         self.compute_client.find_server.return_value = fake_server
 
         arglist = [

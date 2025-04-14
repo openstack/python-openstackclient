@@ -126,7 +126,7 @@ def create_one_extension(attrs=None):
     """Create a fake extension.
 
     :param dict attrs: A dictionary with all attributes
-    :return: A fake openstack.compute.v2.extension.Extension object
+    :return: A fake :class:`~openstack.compute.v2.extension.Extension` object
     """
     attrs = attrs or {}
 
@@ -240,11 +240,11 @@ def create_security_group_rules(attrs=None, count=2):
     return security_group_rules
 
 
-def create_one_sdk_server(attrs=None):
-    """Create a fake server for testing migration to sdk
+def create_one_server(attrs=None):
+    """Create a fake server
 
     :param dict attrs: A dictionary with all attributes
-    :return: A fake openstack.compute.v2.server.Server object,
+    :return: A fake :class:`~openstack.compute.v2.server.Server` object,
     """
     attrs = attrs or {}
 
@@ -272,16 +272,16 @@ def create_one_sdk_server(attrs=None):
     return server
 
 
-def create_sdk_servers(attrs=None, count=2):
-    """Create multiple fake servers for testing migration to sdk
+def create_servers(attrs=None, count=2):
+    """Create multiple fake servers
 
     :param dict attrs: A dictionary with all attributes
     :param int count: The number of servers to fake
-    :return: A list of fake openstack.compute.v2.server.Server objects
+    :return: A list of fake :class:`openstack.compute.v2.server.Server` objects
     """
     servers = []
     for i in range(0, count):
-        servers.append(create_one_sdk_server(attrs))
+        servers.append(create_one_server(attrs))
 
     return servers
 
@@ -290,7 +290,8 @@ def create_one_server_action(attrs=None):
     """Create a fake server action.
 
     :param attrs: A dictionary with all attributes
-    :return: A fake openstack.compute.v2.server_action.ServerAction object
+    :return: A fake :class:`~openstack.compute.v2.server_action.ServerAction`
+        object
     """
     attrs = attrs or {}
 
@@ -333,7 +334,7 @@ def create_one_flavor(attrs=None):
     """Create a fake flavor.
 
     :param dict attrs: A dictionary with all attributes
-    :return: A fake openstack.compute.v2.flavor.Flavor object
+    :return: A fake :class:`~openstack.compute.v2.flavor.Flavor` object
     """
     attrs = attrs or {}
 
@@ -366,7 +367,7 @@ def create_flavors(attrs=None, count=2):
 
     :param dict attrs: A dictionary with all attributes
     :param int count: The number of flavors to fake
-    :return: A list of fake openstack.compute.v2.flavor.Flavor objects
+    :return: A list of fake :class:`openstack.compute.v2.flavor.Flavor` objects
     """
     flavors = []
     for i in range(0, count):
@@ -405,8 +406,8 @@ def create_one_availability_zone(attrs=None):
     """Create a fake AZ.
 
     :param dict attrs: A dictionary with all attributes
-    :return: A fake openstack.compute.v2.availability_zone.AvailabilityZone
-        object
+    :return: A fake
+        :class:`~openstack.compute.v2.availability_zone.AvailabilityZone` object
     """
     attrs = attrs or {}
 
@@ -684,7 +685,7 @@ def create_one_migration(attrs=None):
     """Create a fake migration.
 
     :param dict attrs: A dictionary with all attributes
-    :return: A fake openstack.compute.v2.migration.Migration object
+    :return: A fake :class:`~openstack.compute.v2.migration.Migration` object
     """
     attrs = attrs or {}
 
@@ -720,7 +721,7 @@ def create_migrations(attrs=None, count=2):
 
     :param dict attrs: A dictionary with all attributes
     :param int count: The number of migrations to fake
-    :return: A list of fake openstack.compute.v2.migration.Migration objects
+    :return: A list of fake :class:`openstack.compute.v2.migration.Migration` objects
     """
     migrations = []
     for i in range(0, count):
@@ -733,7 +734,8 @@ def create_one_server_migration(attrs=None):
     """Create a fake server migration.
 
     :param dict attrs: A dictionary with all attributes
-    :return A fake openstack.compute.v2.server_migration.ServerMigration object
+    :return: A fake
+        :class:`~openstack.compute.v2.server_migration.ServerMigration` object
     """
     attrs = attrs or {}
 
@@ -789,8 +791,8 @@ def create_one_volume_attachment(attrs=None):
     """Create a fake volume attachment.
 
     :param dict attrs: A dictionary with all attributes
-    :return: A fake openstack.compute.v2.volume_attachment.VolumeAttachment
-        object
+    :return: A fake
+        :class:`~openstack.compute.v2.volume_attachment.VolumeAttachment` object
     """
     attrs = attrs or {}
 
@@ -831,12 +833,12 @@ def create_volume_attachments(attrs=None, count=2):
 
 
 def create_one_server_interface(attrs=None):
-    """Create a fake SDK ServerInterface.
+    """Create a fake ServerInterface.
 
     :param dict attrs: A dictionary with all attributes
     :param dict methods: A dictionary with all methods
-    :return: A fake openstack.compute.v2.server_interface.ServerInterface
-        object
+    :return: A fake
+        :class:`~openstack.compute.v2.server_interface.ServerInterface` object
     """
     attrs = attrs or {}
 

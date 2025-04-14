@@ -52,7 +52,7 @@ class TestListMigration(compute_fakes.TestComputev2):
     def setUp(self):
         super().setUp()
 
-        self.server = compute_fakes.create_one_sdk_server()
+        self.server = compute_fakes.create_one_server()
         self.compute_client.find_server.return_value = self.server
 
         self.migrations = compute_fakes.create_migrations(count=3)
@@ -694,7 +694,7 @@ class TestServerMigrationShow(compute_fakes.TestComputev2):
     def setUp(self):
         super().setUp()
 
-        self.server = compute_fakes.create_one_sdk_server()
+        self.server = compute_fakes.create_one_server()
         self.compute_client.find_server.return_value = self.server
 
         self.server_migration = compute_fakes.create_one_server_migration()
@@ -897,7 +897,7 @@ class TestServerMigrationAbort(compute_fakes.TestComputev2):
     def setUp(self):
         super().setUp()
 
-        self.server = compute_fakes.create_one_sdk_server()
+        self.server = compute_fakes.create_one_server()
 
         # Return value for utils.find_resource for server.
         self.compute_client.find_server.return_value = self.server
@@ -1012,7 +1012,7 @@ class TestServerMigrationForceComplete(compute_fakes.TestComputev2):
     def setUp(self):
         super().setUp()
 
-        self.server = compute_fakes.create_one_sdk_server()
+        self.server = compute_fakes.create_one_server()
 
         # Return value for utils.find_resource for server.
         self.compute_client.find_server.return_value = self.server
