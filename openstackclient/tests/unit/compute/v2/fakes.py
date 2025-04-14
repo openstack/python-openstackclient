@@ -40,60 +40,6 @@ from openstackclient.tests.unit import utils
 from openstackclient.tests.unit.volume.v3 import fakes as volume_fakes
 
 
-class FakeComputev2Client:
-    def __init__(self, **kwargs):
-        self.agents = mock.Mock()
-        self.agents.resource_class = fakes.FakeResource(None, {})
-
-        self.images = mock.Mock()
-        self.images.resource_class = fakes.FakeResource(None, {})
-
-        self.servers = mock.Mock()
-        self.servers.resource_class = fakes.FakeResource(None, {})
-
-        self.services = mock.Mock()
-        self.services.resource_class = fakes.FakeResource(None, {})
-
-        self.extensions = mock.Mock()
-        self.extensions.resource_class = fakes.FakeResource(None, {})
-
-        self.flavors = mock.Mock()
-
-        self.flavor_access = mock.Mock()
-        self.flavor_access.resource_class = fakes.FakeResource(None, {})
-
-        self.usage = mock.Mock()
-        self.usage.resource_class = fakes.FakeResource(None, {})
-
-        self.volumes = mock.Mock()
-        self.volumes.resource_class = fakes.FakeResource(None, {})
-
-        self.hypervisors = mock.Mock()
-        self.hypervisors.resource_class = fakes.FakeResource(None, {})
-
-        self.hypervisors_stats = mock.Mock()
-        self.hypervisors_stats.resource_class = fakes.FakeResource(None, {})
-
-        self.keypairs = mock.Mock()
-        self.keypairs.resource_class = fakes.FakeResource(None, {})
-
-        self.server_groups = mock.Mock()
-        self.server_groups.resource_class = fakes.FakeResource(None, {})
-
-        self.server_migrations = mock.Mock()
-        self.server_migrations.resource_class = fakes.FakeResource(None, {})
-
-        self.instance_action = mock.Mock()
-        self.instance_action.resource_class = fakes.FakeResource(None, {})
-
-        self.migrations = mock.Mock()
-        self.migrations.resource_class = fakes.FakeResource(None, {})
-
-        self.auth_token = kwargs['token']
-
-        self.management_url = kwargs['endpoint']
-
-
 class FakeClientMixin:
     def setUp(self):
         super().setUp()
@@ -248,25 +194,6 @@ def create_security_groups(attrs=None, count=2):
         security_groups.append(create_one_security_group(attrs))
 
     return security_groups
-
-
-def get_security_groups(security_groups=None, count=2):
-    """Get an iterable MagicMock with a list of faked security groups.
-
-    If security groups list is provided, then initialize the Mock object
-    with the list. Otherwise create one.
-
-    :param List security_groups:
-        A list of FakeResource objects faking security groups
-    :param int count:
-        The number of security groups to fake
-    :return:
-        An iterable Mock object with side_effect set to a list of faked
-        security groups
-    """
-    if security_groups is None:
-        security_groups = create_security_groups(count)
-    return mock.Mock(side_effect=security_groups)
 
 
 def create_one_security_group_rule(attrs=None):
@@ -446,23 +373,6 @@ def create_flavors(attrs=None, count=2):
         flavors.append(create_one_flavor(attrs))
 
     return flavors
-
-
-def get_flavors(flavors=None, count=2):
-    """Get an iterable MagicMock object with a list of faked flavors.
-
-    If flavors list is provided, then initialize the Mock object with the
-    list. Otherwise create one.
-
-    :param list flavors: A list of fake openstack.compute.v2.flavor.Flavor
-        objects
-    :param int count: The number of flavors to fake
-    :return: An iterable Mock object with side_effect set to a list of faked
-        flavors
-    """
-    if flavors is None:
-        flavors = create_flavors(count)
-    return mock.Mock(side_effect=flavors)
 
 
 def create_one_flavor_access(attrs=None):
@@ -707,25 +617,6 @@ def create_networks(attrs=None, count=2):
         networks.append(create_one_network(attrs))
 
     return networks
-
-
-def get_networks(networks=None, count=2):
-    """Get an iterable MagicMock object with a list of faked networks.
-
-    If networks list is provided, then initialize the Mock object with the
-    list. Otherwise create one.
-
-    :param List networks:
-        A list of FakeResource objects faking networks
-    :param int count:
-        The number of networks to fake
-    :return:
-        An iterable Mock object with side_effect set to a list of faked
-        networks
-    """
-    if networks is None:
-        networks = create_networks(count=count)
-    return mock.Mock(side_effect=networks)
 
 
 def create_limits(attrs=None):
