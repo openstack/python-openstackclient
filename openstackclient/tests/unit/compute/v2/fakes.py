@@ -313,61 +313,6 @@ def create_security_group_rules(attrs=None, count=2):
     return security_group_rules
 
 
-def create_one_server(attrs=None, methods=None):
-    """Create a fake server.
-
-    :param dict attrs:
-        A dictionary with all attributes
-    :param dict methods:
-        A dictionary with all methods
-    :return:
-        A FakeResource object, with id, name, metadata, and so on
-    """
-    attrs = attrs or {}
-    methods = methods or {}
-
-    # Set default attributes.
-    server_info = {
-        'id': 'server-id-' + uuid.uuid4().hex,
-        'name': 'server-name-' + uuid.uuid4().hex,
-        'metadata': {},
-        'image': {
-            'id': 'image-id-' + uuid.uuid4().hex,
-        },
-        'flavor': {
-            'id': 'flavor-id-' + uuid.uuid4().hex,
-        },
-        'OS-EXT-STS:power_state': 1,
-    }
-
-    # Overwrite default attributes.
-    server_info.update(attrs)
-
-    server = fakes.FakeResource(
-        info=copy.deepcopy(server_info), methods=methods, loaded=True
-    )
-    return server
-
-
-def create_servers(attrs=None, methods=None, count=2):
-    """Create multiple fake servers.
-
-    :param dict attrs:
-        A dictionary with all attributes
-    :param dict methods:
-        A dictionary with all methods
-    :param int count:
-        The number of servers to fake
-    :return:
-        A list of FakeResource objects faking the servers
-    """
-    servers = []
-    for i in range(0, count):
-        servers.append(create_one_server(attrs, methods))
-
-    return servers
-
-
 def create_one_sdk_server(attrs=None):
     """Create a fake server for testing migration to sdk
 
@@ -412,24 +357,6 @@ def create_sdk_servers(attrs=None, count=2):
         servers.append(create_one_sdk_server(attrs))
 
     return servers
-
-
-def get_servers(servers=None, count=2):
-    """Get an iterable MagicMock object with a list of faked servers.
-
-    If servers list is provided, then initialize the Mock object with the
-    list. Otherwise create one.
-
-    :param list servers: A list of fake openstack.compute.v2.server.Server
-        objects
-    :param int count:
-        The number of servers to fake
-    :return: An iterable Mock object with side_effect set to a list of faked
-        servers
-    """
-    if servers is None:
-        servers = create_servers(count)
-    return mock.Mock(side_effect=servers)
 
 
 def create_one_server_action(attrs=None):
