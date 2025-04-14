@@ -13,7 +13,6 @@
 #   under the License.
 #
 
-import copy
 import random
 import re
 from unittest import mock
@@ -32,7 +31,6 @@ from openstack.compute.v2 import server_interface as _server_interface
 from openstack.compute.v2 import server_migration as _server_migration
 from openstack.compute.v2 import volume_attachment as _volume_attachment
 
-from openstackclient.tests.unit import fakes
 from openstackclient.tests.unit.identity.v3 import fakes as identity_fakes
 from openstackclient.tests.unit.image.v2 import fakes as image_fakes
 from openstackclient.tests.unit.network.v2 import fakes as network_fakes
@@ -79,16 +77,14 @@ class TestComputev2(
 def create_one_agent(attrs=None):
     """Create a fake agent.
 
-    :param dict attrs:
-        A dictionary with all attributes
-    :return:
-        A FakeResource object, with agent_id, os, and so on
+    :param dict attrs: A dictionary with all attributes
+    :return: A dicionarty faking the agent
     """
 
     attrs = attrs or {}
 
     # set default attributes.
-    agent_info = {
+    agent_attrs = {
         'agent_id': 'agent-id-' + uuid.uuid4().hex,
         'os': 'agent-os-' + uuid.uuid4().hex,
         'architecture': 'agent-architecture',
@@ -98,22 +94,20 @@ def create_one_agent(attrs=None):
         'hypervisor': 'hypervisor',
     }
 
-    # Overwrite default attributes.
-    agent_info.update(attrs)
+    assert not set(attrs) - set(agent_attrs), 'unknown keys'
 
-    agent = fakes.FakeResource(info=copy.deepcopy(agent_info), loaded=True)
-    return agent
+    # Overwrite default attributes.
+    agent_attrs.update(attrs)
+
+    return agent_attrs
 
 
 def create_agents(attrs=None, count=2):
     """Create multiple fake agents.
 
-    :param dict attrs:
-        A dictionary with all attributes
-    :param int count:
-        The number of agents to fake
-    :return:
-        A list of FakeResource objects faking the agents
+    :param dict attrs: A dictionary with all attributes
+    :param int count: The number of agents to fake
+    :return: A list of dictionaries faking the agents
     """
     agents = []
     for i in range(0, count):
@@ -158,10 +152,8 @@ def create_one_extension(attrs=None):
 def create_one_security_group(attrs=None):
     """Create a fake security group.
 
-    :param dict attrs:
-        A dictionary with all attributes
-    :return:
-        A FakeResource object, with id, name, etc.
+    :param dict attrs: A dictionary with all attributes
+    :return: A dictionary faking the security group
     """
     attrs = attrs or {}
 
@@ -174,6 +166,8 @@ def create_one_security_group(attrs=None):
         'rules': [],
     }
 
+    assert not set(attrs) - set(security_group_attrs), 'unknown keys'
+
     # Overwrite default attributes.
     security_group_attrs.update(attrs)
     return security_group_attrs
@@ -182,12 +176,9 @@ def create_one_security_group(attrs=None):
 def create_security_groups(attrs=None, count=2):
     """Create multiple fake security groups.
 
-    :param dict attrs:
-        A dictionary with all attributes
-    :param int count:
-        The number of security groups to fake
-    :return:
-        A list of FakeResource objects faking the security groups
+    :param dict attrs: A dictionary with all attributes
+    :param int count: The number of security groups to fake
+    :return: A list of dictionaries faking the security groups
     """
     security_groups = []
     for i in range(0, count):
@@ -199,10 +190,8 @@ def create_security_groups(attrs=None, count=2):
 def create_one_security_group_rule(attrs=None):
     """Create a fake security group rule.
 
-    :param dict attrs:
-        A dictionary with all attributes
-    :return:
-        A FakeResource object, with id, etc.
+    :param dict attrs: A dictionary with all attributes
+    :return: A dictionary faking the security group rule
     """
     attrs = attrs or {}
 
@@ -217,6 +206,8 @@ def create_one_security_group_rule(attrs=None):
         'to_port': 0,
     }
 
+    assert not set(attrs) - set(security_group_rule_attrs), 'unknown keys'
+
     # Overwrite default attributes.
     security_group_rule_attrs.update(attrs)
 
@@ -226,12 +217,9 @@ def create_one_security_group_rule(attrs=None):
 def create_security_group_rules(attrs=None, count=2):
     """Create multiple fake security group rules.
 
-    :param dict attrs:
-        A dictionary with all attributes
-    :param int count:
-        The number of security group rules to fake
-    :return:
-        A list of FakeResource objects faking the security group rules
+    :param dict attrs: A dictionary with all attributes
+    :param int count: The number of security group rules to fake
+    :return: A list of dictionaries faking the security group rules
     """
     security_group_rules = []
     for i in range(0, count):
@@ -379,10 +367,8 @@ def create_flavors(attrs=None, count=2):
 def create_one_flavor_access(attrs=None):
     """Create a fake flavor access.
 
-    :param dict attrs:
-        A dictionary with all attributes
-    :return:
-        A FakeResource object, with flavor_id, tenat_id
+    :param dict attrs: A dictionary with all attributes
+    :return: A dictionary faking the flavor access
     """
     attrs = attrs or {}
 
@@ -392,14 +378,12 @@ def create_one_flavor_access(attrs=None):
         'tenant_id': 'tenant-id-' + uuid.uuid4().hex,
     }
 
+    assert not set(attrs) - set(flavor_access_info), 'unknown keys'
+
     # Overwrite default attributes.
     flavor_access_info.update(attrs)
 
-    flavor_access = fakes.FakeResource(
-        info=copy.deepcopy(flavor_access_info), loaded=True
-    )
-
-    return flavor_access
+    return flavor_access_info
 
 
 def create_one_availability_zone(attrs=None):
@@ -454,12 +438,10 @@ def create_availability_zones(attrs=None, count=2):
 
 
 def create_one_floating_ip(attrs=None):
-    """Create a fake floating ip.
+    """Create a fake floating IP.
 
-    :param dict attrs:
-        A dictionary with all attributes
-    :return:
-        A FakeResource object, with id, ip, and so on
+    :param dict attrs: A dictionary with all attributes
+    :return: A dictionary faking the floating IP
     """
     attrs = attrs or {}
 
@@ -472,6 +454,8 @@ def create_one_floating_ip(attrs=None):
         'pool': 'public',
     }
 
+    assert not set(attrs) - set(floating_ip_attrs), 'unknown keys'
+
     # Overwrite default attributes.
     floating_ip_attrs.update(attrs)
 
@@ -479,14 +463,11 @@ def create_one_floating_ip(attrs=None):
 
 
 def create_floating_ips(attrs=None, count=2):
-    """Create multiple fake floating ips.
+    """Create multiple fake floating IPs.
 
-    :param dict attrs:
-        A dictionary with all attributes
-    :param int count:
-        The number of floating ips to fake
-    :return:
-        A list of FakeResource objects faking the floating ips
+    :param dict attrs: A dictionary with all attributes
+    :param int count: The number of floating IPs to fake
+    :return: A list of dictionaries faking the floating IPs
     """
     floating_ips = []
     for i in range(0, count):
@@ -494,32 +475,11 @@ def create_floating_ips(attrs=None, count=2):
     return floating_ips
 
 
-def get_floating_ips(floating_ips=None, count=2):
-    """Get an iterable MagicMock object with a list of faked floating ips.
-
-    If floating_ips list is provided, then initialize the Mock object
-    with the list. Otherwise create one.
-
-    :param List floating_ips:
-        A list of FakeResource objects faking floating ips
-    :param int count:
-        The number of floating ips to fake
-    :return:
-        An iterable Mock object with side_effect set to a list of faked
-        floating ips
-    """
-    if floating_ips is None:
-        floating_ips = create_floating_ips(count)
-    return mock.Mock(side_effect=floating_ips)
-
-
 def create_one_floating_ip_pool(attrs=None):
-    """Create a fake floating ip pool.
+    """Create a fake floating IP pool.
 
-    :param dict attrs:
-        A dictionary with all attributes
-    :return:
-        A FakeResource object, with name, etc
+    :param dict attrs: A dictionary with all attributes
+    :return: A dictionary faking the floating IP pool
     """
     if attrs is None:
         attrs = {}
@@ -529,6 +489,8 @@ def create_one_floating_ip_pool(attrs=None):
         'name': 'floating-ip-pool-name-' + uuid.uuid4().hex,
     }
 
+    assert not set(attrs) - set(floating_ip_pool_attrs), 'unknown keys'
+
     # Overwrite default attributes.
     floating_ip_pool_attrs.update(attrs)
 
@@ -536,14 +498,11 @@ def create_one_floating_ip_pool(attrs=None):
 
 
 def create_floating_ip_pools(attrs=None, count=2):
-    """Create multiple fake floating ip pools.
+    """Create multiple fake floating IP pools.
 
-    :param dict attrs:
-        A dictionary with all attributes
-    :param int count:
-        The number of floating ip pools to fake
-    :return:
-        A list of FakeResource objects faking the floating ip pools
+    :param dict attrs: A dictionary with all attributes
+    :param int count: The number of floating IP pools to fake
+    :return: A list of dictionaries faking the floating IP pools
     """
     floating_ip_pools = []
     for i in range(0, count):
@@ -554,10 +513,8 @@ def create_floating_ip_pools(attrs=None, count=2):
 def create_one_network(attrs=None):
     """Create a fake network.
 
-    :param dict attrs:
-        A dictionary with all attributes
-    :return:
-        A FakeResource object, with id, label, cidr and so on
+    :param dict attrs: A dictionary with all attributes
+    :return: A dictionary faking the network
     """
     attrs = attrs or {}
 
@@ -597,6 +554,8 @@ def create_one_network(attrs=None):
         'vpn_public_port': None,
     }
 
+    assert not set(attrs) - set(network_attrs), 'unknown keys'
+
     # Overwrite default attributes.
     network_attrs.update(attrs)
 
@@ -606,12 +565,9 @@ def create_one_network(attrs=None):
 def create_networks(attrs=None, count=2):
     """Create multiple fake networks.
 
-    :param dict attrs:
-        A dictionary with all attributes
-    :param int count:
-        The number of networks to fake
-    :return:
-        A list of FakeResource objects faking the networks
+    :param dict attrs: A dictionary with all attributes
+    :param int count: The number of networks to fake
+    :return: A list of dictionaries faking the networks
     """
     networks = []
     for i in range(0, count):

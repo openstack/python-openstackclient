@@ -3004,7 +3004,7 @@ class ListServer(command.Lister):
                 # infrastructure failure situations.
                 # For those servers with partial constructs we just skip the
                 # processing of the image and flavor information.
-                if not hasattr(s, 'image') or not hasattr(s, 'flavor'):
+                if getattr(s, 'status') == 'UNKNOWN':
                     continue
 
             if 'id' in s.image and s.image.id is not None:

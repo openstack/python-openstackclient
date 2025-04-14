@@ -21,6 +21,7 @@ from unittest import mock
 import uuid
 
 import iso8601
+from openstack.compute.v2 import server as _server
 from openstack.compute.v2 import server_group as _server_group
 from openstack import exceptions as sdk_exceptions
 from openstack.test import fakes as sdk_fakes
@@ -5487,9 +5488,7 @@ class TestServerListV273(_TestServerList):
             ],
             "networks": {},
         }
-        fake_server = compute_fakes.fakes.FakeResource(
-            info=server_dict,
-        )
+        fake_server = _server.Server(**server_dict)
         self.servers.append(fake_server)
         columns, data = self.cmd.take_action(parsed_args)
         # get the first three servers out since our interest is in the partial
@@ -5500,9 +5499,9 @@ class TestServerListV273(_TestServerList):
         partial_server = next(data)
         expected_row = (
             'server-id-95a56bfc4xxxxxx28d7e418bfd97813a',
-            '',
+            None,
             'UNKNOWN',
-            server.AddressesColumn(''),
+            server.AddressesColumn(None),
             '',
             '',
         )

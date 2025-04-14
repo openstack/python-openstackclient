@@ -383,7 +383,6 @@ class TestListSecurityGroupRuleCompute(compute_fakes.TestComputev2):
     _security_group_rule_tcp = compute_fakes.create_one_security_group_rule(
         {
             'ip_protocol': 'tcp',
-            'ethertype': 'IPv4',
             'from_port': 80,
             'to_port': 80,
             'group': {'name': _security_group['name']},
@@ -392,7 +391,6 @@ class TestListSecurityGroupRuleCompute(compute_fakes.TestComputev2):
     _security_group_rule_icmp = compute_fakes.create_one_security_group_rule(
         {
             'ip_protocol': 'icmp',
-            'ethertype': 'IPv4',
             'from_port': -1,
             'to_port': -1,
             'ip_range': {'cidr': '10.0.2.0/24'},
@@ -426,7 +424,7 @@ class TestListSecurityGroupRuleCompute(compute_fakes.TestComputev2):
         expected_rule_with_group = (
             rule['id'],
             rule['ip_protocol'],
-            rule['ethertype'],
+            '',  # ethertype is a neutron-only thing
             rule['ip_range'],
             rule['port_range'],
             rule['remote_security_group'],

@@ -1052,7 +1052,7 @@ class TestFlavorShow(TestFlavor):
         data_with_project = (
             private_flavor.is_disabled,
             private_flavor.ephemeral,
-            [self.flavor_access.tenant_id],
+            [self.flavor_access['tenant_id']],
             private_flavor.description,
             private_flavor.disk,
             private_flavor.id,
