@@ -13,12 +13,12 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-FROM docker.io/opendevorg/python-builder:3.11-bookworm as builder
+FROM docker.io/opendevorg/python-builder:3.12-bookworm AS builder
 
 COPY . /tmp/src
 RUN assemble
 
-FROM docker.io/opendevorg/python-base:3.11-bookworm
+FROM docker.io/opendevorg/python-base:3.12-bookworm
 
 COPY --from=builder /output/ /output
 RUN /output/install-from-bindep
