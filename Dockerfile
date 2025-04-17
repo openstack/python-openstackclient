@@ -20,6 +20,13 @@ RUN assemble
 
 FROM docker.io/opendevorg/python-base:3.12-bookworm
 
+LABEL org.opencontainers.image.title="python-openstackclient"
+LABEL org.opencontainers.image.description="Client for OpenStack services."
+LABEL org.opencontainers.image.licenses="Apache License 2.0"
+LABEL org.opencontainers.image.url="https://www.openstack.org/"
+LABEL org.opencontainers.image.documentation="https://docs.openstack.org/python-openstackclient/latest/"
+LABEL org.opencontainers.image.source="https://opendev.org/openstack/python-openstackclient"
+
 COPY --from=builder /output/ /output
 RUN /output/install-from-bindep
 
