@@ -137,22 +137,6 @@
       tox_envlist: functional
       tox_install_siblings: true
 
-- secret:
-    name: osc-dockerhub
-    data:
-      username: osclientzuul
-      password: !encrypted/pkcs1-oaep
-        - LbIZjJiVstRVXMpoLQ3+/JcNB6lKVUWJXXo5+Outf+PKAaO7mNnv8XLiFMKnJ6ftopLyu
-          hWbX9rA+NddvplLQkf1xxkh7QBBU8PToLr58quI2SENUclt4tpjxbZfZu451kFSNJvNvR
-          E58cHHpfJZpyRnS2htXmN/Qy24gbV2w7CQxSZD2YhlcrerD8uQ8rWEnlY1wcJEaEGomtS
-          ZTGxsdK2TsZC2cd4b7TG7+xbl2i+hjADzwSQAgUzlLlwuG71667+IWk4SOZ7OycJTv9NN
-          ZTak8+CGfiMKdmsxZ1Z8uD7DC+RIklDjMWyly6zuhWzfhOmsmU0CesR50moodRUvbK79p
-          NZM8u0hBex5cl2EpUEwJL/FSPJXUhDMPoMoTZT/SAuXf25R9eZ9JGrKsIAlmVhpl8ifoE
-          8TpPyvIHGS3YelTQjhqOX0wGb9T4ZauQCcI5Ajzy9NuCTyD9xxme9OX1zz7gMACRnVHvz
-          q7U7Ue90MnmGH6E2SgKjIZhyzy9Efwb7JUvH1Zb3hlrjCjEhwi9MV5FnABTEeXyYwE10s
-          3o/KZg2zvdWkVG6x0dEkjpoQaNuaB7T2Na7Sm421n/z3LCzhiQGuTUjENnL6cMEtuA6Pp
-          BfI5+Qlg7HMwkBXNB73EPfWHzbCR3VNrzGYTy9FvhGud0/cXsuBXgps4WH63ic=
-
 - job:
     name: osc-build-image
     parent: opendev-build-docker-image
@@ -162,38 +146,10 @@
       - python-builder-3.11-bookworm-container-image
       - python-base-3.11-bookworm-container-image
     provides: osc-container-image
-    vars: &osc_image_vars
+    vars:
       docker_images:
         - context: .
-          repository: osclient/python-openstackclient
-
-- job:
-    name: osc-upload-image
-    parent: opendev-upload-docker-image
-    description: Build Docker images and upload to Docker Hub.
-    allowed-projects: openstack/python-openstackclient
-    requires:
-      - python-builder-3.11-bookworm-container-image
-      - python-base-3.11-bookworm-container-image
-    provides: osc-container-image
-    secrets:
-      - name: docker_credentials
-        secret: osc-dockerhub
-        pass-to-parent: true
-    vars: *osc_image_vars
-
-- job:
-    name: osc-promote-image
-    parent: opendev-promote-docker-image
-    allowed-projects: openstack/python-openstackclient
-    description: Promote previously uploaded Docker images.
-    secrets:
-      - name: docker_credentials
-        secret: osc-dockerhub
-        pass-to-parent: true
-    nodeset:
-      nodes: []
-    vars: *osc_image_vars
+          tags: []
 
 - project-template:
     name: osc-tox-unit-tips
@@ -226,8 +182,4 @@
             branches: ^master$
     gate:
       jobs:
-        - osc-upload-image
         - osc-functional-devstack
-    promote:
-      jobs:
-        - osc-promote-image
