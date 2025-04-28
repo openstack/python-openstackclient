@@ -14,45 +14,33 @@
 from unittest import mock
 from unittest.mock import call
 
-from keystoneauth1 import exceptions as ks_exc
+from openstack import exceptions as sdk_exc
+from openstack.identity.v3 import domain as _domain
+from openstack.identity.v3 import group as _group
+from openstack.identity.v3 import user as _user
+from openstack.test import fakes as sdk_fakes
 from osc_lib import exceptions
-from osc_lib import utils
 
 from openstackclient.identity.v3 import group
 from openstackclient.tests.unit.identity.v3 import fakes as identity_fakes
 
 
-class TestGroup(identity_fakes.TestIdentityv3):
+class TestGroupAddUser(identity_fakes.TestIdentityv3):
     def setUp(self):
         super().setUp()
 
-        # Get a shortcut to the DomainManager Mock
-        self.domains_mock = self.identity_client.domains
-        self.domains_mock.reset_mock()
+        self._group = sdk_fakes.generate_fake_resource(_group.Group)
+        self.users = tuple(
+            sdk_fakes.generate_fake_resources(_user.User, count=2)
+        )
 
-        # Get a shortcut to the GroupManager Mock
-        self.groups_mock = self.identity_client.groups
-        self.groups_mock.reset_mock()
-
-        # Get a shortcut to the UserManager Mock
-        self.users_mock = self.identity_client.users
-        self.users_mock.reset_mock()
-
-
-class TestGroupAddUser(TestGroup):
-    _group = identity_fakes.FakeGroup.create_one_group()
-    users = identity_fakes.FakeUser.create_users(count=2)
-
-    def setUp(self):
-        super().setUp()
-
-        self.groups_mock.get.return_value = self._group
-        self.users_mock.get = identity_fakes.FakeUser.get_users(self.users)
-        self.users_mock.add_to_group.return_value = None
+        self.identity_sdk_client.find_group.return_value = self._group
+        self.identity_sdk_client.add_user_to_group.return_value = None
 
         self.cmd = group.AddUserToGroup(self.app, None)
 
     def test_group_add_user(self):
+        self.identity_sdk_client.find_user.return_value = self.users[0]
         arglist = [
             self._group.name,
             self.users[0].name,
@@ -64,12 +52,16 @@ class TestGroupAddUser(TestGroup):
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
         result = self.cmd.take_action(parsed_args)
-        self.users_mock.add_to_group.assert_called_once_with(
+        self.identity_sdk_client.add_user_to_group.assert_called_once_with(
             self.users[0].id, self._group.id
         )
         self.assertIsNone(result)
 
     def test_group_add_multi_users(self):
+        self.identity_sdk_client.find_user.side_effect = [
+            self.users[0],
+            self.users[1],
+        ]
         arglist = [
             self._group.name,
             self.users[0].name,
@@ -86,13 +78,13 @@ class TestGroupAddUser(TestGroup):
             call(self.users[0].id, self._group.id),
             call(self.users[1].id, self._group.id),
         ]
-        self.users_mock.add_to_group.assert_has_calls(calls)
+        self.identity_sdk_client.add_user_to_group.assert_has_calls(calls)
         self.assertIsNone(result)
 
     @mock.patch.object(group.LOG, 'error')
     def test_group_add_user_with_error(self, mock_error):
-        self.users_mock.add_to_group.side_effect = [
-            exceptions.CommandError(),
+        self.identity_sdk_client.add_user_to_group.side_effect = [
+            sdk_exc.ResourceNotFound,
             None,
         ]
         arglist = [
@@ -111,20 +103,20 @@ class TestGroupAddUser(TestGroup):
         except exceptions.CommandError as e:
             msg = f"1 of 2 users not added to group {self._group.name}."
             self.assertEqual(msg, str(e))
-        msg = f"{self.users[0].name} not added to group {self._group.name}: "
+        msg = f"{self.users[0].name} not added to group {self._group.name}: {str(sdk_exc.ResourceNotFound())}"
         mock_error.assert_called_once_with(msg)
 
 
-class TestGroupCheckUser(TestGroup):
-    group = identity_fakes.FakeGroup.create_one_group()
-    user = identity_fakes.FakeUser.create_one_user()
-
+class TestGroupCheckUser(identity_fakes.TestIdentityv3):
     def setUp(self):
         super().setUp()
 
-        self.groups_mock.get.return_value = self.group
-        self.users_mock.get.return_value = self.user
-        self.users_mock.check_in_group.return_value = None
+        self.group = sdk_fakes.generate_fake_resource(_group.Group)
+        self.user = sdk_fakes.generate_fake_resource(_user.User)
+
+        self.identity_sdk_client.find_group.return_value = self.group
+        self.identity_sdk_client.find_user.return_value = self.user
+        self.identity_sdk_client.check_user_in_group.return_value = True
 
         self.cmd = group.CheckUserInGroup(self.app, None)
 
@@ -140,16 +132,15 @@ class TestGroupCheckUser(TestGroup):
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
         result = self.cmd.take_action(parsed_args)
-        self.users_mock.check_in_group.assert_called_once_with(
+        self.identity_sdk_client.check_user_in_group.assert_called_once_with(
             self.user.id, self.group.id
         )
         self.assertIsNone(result)
 
     def test_group_check_user_server_error(self):
-        def server_error(*args):
-            raise ks_exc.http.InternalServerError
-
-        self.users_mock.check_in_group.side_effect = server_error
+        self.identity_sdk_client.check_user_in_group.side_effect = (
+            sdk_exc.SDKException
+        )
         arglist = [
             self.group.name,
             self.user.name,
@@ -161,12 +152,12 @@ class TestGroupCheckUser(TestGroup):
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
         self.assertRaises(
-            ks_exc.http.InternalServerError, self.cmd.take_action, parsed_args
+            sdk_exc.SDKException, self.cmd.take_action, parsed_args
         )
 
 
-class TestGroupCreate(TestGroup):
-    domain = identity_fakes.FakeDomain.create_one_domain()
+class TestGroupCreate(identity_fakes.TestIdentityv3):
+    domain = sdk_fakes.generate_fake_resource(_domain.Domain)
 
     columns = (
         'description',
@@ -177,23 +168,20 @@ class TestGroupCreate(TestGroup):
 
     def setUp(self):
         super().setUp()
-        self.group = identity_fakes.FakeGroup.create_one_group(
-            attrs={'domain_id': self.domain.id}
+        self.group = sdk_fakes.generate_fake_resource(
+            _group.Group, description=None, domain_id=None
         )
-        self.data = (
-            self.group.description,
-            self.group.domain_id,
-            self.group.id,
-            self.group.name,
+        self.group_with_options = sdk_fakes.generate_fake_resource(
+            _group.Group, domain_id=self.domain.id
         )
 
-        self.groups_mock.create.return_value = self.group
-        self.groups_mock.get.return_value = self.group
-        self.domains_mock.get.return_value = self.domain
+        self.identity_sdk_client.find_group.return_value = self.group
+        self.identity_sdk_client.find_domain.return_value = self.domain
 
         self.cmd = group.CreateGroup(self.app, None)
 
     def test_group_create(self):
+        self.identity_sdk_client.create_group.return_value = self.group
         arglist = [
             self.group.name,
         ]
@@ -203,40 +191,56 @@ class TestGroupCreate(TestGroup):
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
         columns, data = self.cmd.take_action(parsed_args)
-        self.groups_mock.create.assert_called_once_with(
+        self.identity_sdk_client.create_group.assert_called_once_with(
             name=self.group.name,
-            domain=None,
-            description=None,
         )
         self.assertEqual(self.columns, columns)
-        self.assertEqual(self.data, data)
+        datalist = (
+            self.group.description,
+            None,
+            self.group.id,
+            self.group.name,
+        )
+        self.assertEqual(datalist, data)
 
     def test_group_create_with_options(self):
+        self.identity_sdk_client.create_group.return_value = (
+            self.group_with_options
+        )
         arglist = [
             '--domain',
             self.domain.name,
             '--description',
-            self.group.description,
-            self.group.name,
+            self.group_with_options.description,
+            self.group_with_options.name,
         ]
         verifylist = [
             ('domain', self.domain.name),
-            ('description', self.group.description),
-            ('name', self.group.name),
+            ('description', self.group_with_options.description),
+            ('name', self.group_with_options.name),
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
         columns, data = self.cmd.take_action(parsed_args)
-        self.groups_mock.create.assert_called_once_with(
-            name=self.group.name,
-            domain=self.domain.id,
-            description=self.group.description,
+        self.identity_sdk_client.create_group.assert_called_once_with(
+            name=self.group_with_options.name,
+            domain_id=self.domain.id,
+            description=self.group_with_options.description,
         )
         self.assertEqual(self.columns, columns)
-        self.assertEqual(self.data, data)
+        datalist = (
+            self.group_with_options.description,
+            self.domain.id,
+            self.group_with_options.id,
+            self.group_with_options.name,
+        )
+        self.assertEqual(datalist, data)
 
     def test_group_create_or_show(self):
-        self.groups_mock.create.side_effect = ks_exc.Conflict()
+        self.identity_sdk_client.find_group.return_value = self.group
+        self.identity_sdk_client.create_group.side_effect = (
+            sdk_exc.ConflictException
+        )
         arglist = [
             '--or-show',
             self.group.name,
@@ -248,46 +252,97 @@ class TestGroupCreate(TestGroup):
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
         columns, data = self.cmd.take_action(parsed_args)
-        self.groups_mock.get.assert_called_once_with(self.group.name)
+        self.identity_sdk_client.find_group.assert_called_once_with(
+            self.group.name
+        )
         self.assertEqual(self.columns, columns)
-        self.assertEqual(self.data, data)
+        datalist = (
+            self.group.description,
+            None,
+            self.group.id,
+            self.group.name,
+        )
+        self.assertEqual(datalist, data)
+
+    def test_group_create_or_show_with_domain(self):
+        self.identity_sdk_client.find_group.return_value = (
+            self.group_with_options
+        )
+        self.identity_sdk_client.create_group.side_effect = (
+            sdk_exc.ConflictException
+        )
+        arglist = [
+            '--or-show',
+            self.group_with_options.name,
+            '--domain',
+            self.domain.id,
+        ]
+        verifylist = [
+            ('or_show', True),
+            ('name', self.group_with_options.name),
+            ('domain', self.domain.id),
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        columns, data = self.cmd.take_action(parsed_args)
+        self.identity_sdk_client.find_group.assert_called_once_with(
+            self.group_with_options.name, domain_id=self.domain.id
+        )
+        self.assertEqual(self.columns, columns)
+        datalist = (
+            self.group_with_options.description,
+            self.domain.id,
+            self.group_with_options.id,
+            self.group_with_options.name,
+        )
+        self.assertEqual(datalist, data)
 
 
-class TestGroupDelete(TestGroup):
-    domain = identity_fakes.FakeDomain.create_one_domain()
-    groups = identity_fakes.FakeGroup.create_groups(
-        attrs={'domain_id': domain.id}, count=2
-    )
+class TestGroupDelete(identity_fakes.TestIdentityv3):
+    domain = sdk_fakes.generate_fake_resource(_domain.Domain)
 
     def setUp(self):
         super().setUp()
 
-        self.groups_mock.get = identity_fakes.FakeGroup.get_groups(self.groups)
-        self.groups_mock.delete.return_value = None
-        self.domains_mock.get.return_value = self.domain
+        self.group = sdk_fakes.generate_fake_resource(
+            _group.Group,
+            domain_id=None,
+        )
+        self.group_with_domain = sdk_fakes.generate_fake_resource(
+            _group.Group,
+            name=self.group.name,
+            domain_id=self.domain.id,
+        )
+        self.identity_sdk_client.delete_group.return_value = None
+        self.identity_sdk_client.find_domain.return_value = self.domain
 
         self.cmd = group.DeleteGroup(self.app, None)
 
     def test_group_delete(self):
+        self.identity_sdk_client.find_group.return_value = self.group
         arglist = [
-            self.groups[0].id,
+            self.group.id,
         ]
         verifylist = [
-            ('groups', [self.groups[0].id]),
+            ('groups', [self.group.id]),
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
         result = self.cmd.take_action(parsed_args)
-        self.groups_mock.get.assert_called_once_with(self.groups[0].id)
-        self.groups_mock.delete.assert_called_once_with(self.groups[0].id)
+        self.identity_sdk_client.find_group.assert_called_once_with(
+            name_or_id=self.group.id, ignore_missing=False
+        )
+        self.identity_sdk_client.delete_group.assert_called_once_with(
+            self.group.id
+        )
         self.assertIsNone(result)
 
     def test_group_multi_delete(self):
-        arglist = []
-        verifylist = []
-
-        for g in self.groups:
-            arglist.append(g.id)
+        self.identity_sdk_client.find_group.side_effect = [
+            self.group,
+            self.group_with_domain,
+        ]
+        arglist = [self.group.id, self.group_with_domain.id]
         verifylist = [
             ('groups', arglist),
         ]
@@ -295,39 +350,50 @@ class TestGroupDelete(TestGroup):
 
         result = self.cmd.take_action(parsed_args)
 
-        calls = []
-        for g in self.groups:
-            calls.append(call(g.id))
-        self.groups_mock.delete.assert_has_calls(calls)
+        self.identity_sdk_client.delete_group.assert_has_calls(
+            [mock.call(self.group.id), mock.call(self.group_with_domain.id)]
+        )
         self.assertIsNone(result)
 
     def test_group_delete_with_domain(self):
-        get_mock_result = [exceptions.CommandError, self.groups[0]]
-        self.groups_mock.get = mock.Mock(side_effect=get_mock_result)
+        self.identity_sdk_client.find_domain.side_effect = [
+            sdk_exc.ForbiddenException
+        ]
+        self.identity_sdk_client.find_group.return_value = (
+            self.group_with_domain
+        )
 
         arglist = [
             '--domain',
-            self.domain.id,
-            self.groups[0].id,
+            self.group_with_domain.domain_id,
+            self.group_with_domain.name,
         ]
         verifylist = [
-            ('domain', self.groups[0].domain_id),
-            ('groups', [self.groups[0].id]),
+            ('domain', self.domain.id),
+            ('groups', [self.group_with_domain.name]),
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
         result = self.cmd.take_action(parsed_args)
-        self.groups_mock.get.assert_any_call(
-            self.groups[0].id, domain_id=self.domain.id
+        self.identity_sdk_client.find_group.assert_called_with(
+            name_or_id=self.group_with_domain.name,
+            ignore_missing=False,
+            domain_id=self.domain.id,
         )
-        self.groups_mock.delete.assert_called_once_with(self.groups[0].id)
+        self.identity_sdk_client.delete_group.assert_called_once_with(
+            self.group_with_domain.id
+        )
         self.assertIsNone(result)
 
-    @mock.patch.object(utils, 'find_resource')
-    def test_delete_multi_groups_with_exception(self, find_mock):
-        find_mock.side_effect = [self.groups[0], exceptions.CommandError]
+    def test_delete_multi_groups_with_exception(self):
+        self.identity_sdk_client.find_group.side_effect = [
+            self.group,
+            self.group_with_domain,
+            exceptions.CommandError,
+        ]
         arglist = [
-            self.groups[0].id,
+            self.group.id,
+            self.group_with_domain.id,
             'unexist_group',
         ]
         verifylist = [
@@ -339,45 +405,57 @@ class TestGroupDelete(TestGroup):
             self.cmd.take_action(parsed_args)
             self.fail('CommandError should be raised.')
         except exceptions.CommandError as e:
-            self.assertEqual('1 of 2 groups failed to delete.', str(e))
+            self.assertEqual('1 of 3 groups failed to delete.', str(e))
 
-        find_mock.assert_any_call(self.groups_mock, self.groups[0].id)
-        find_mock.assert_any_call(self.groups_mock, 'unexist_group')
+        self.identity_sdk_client.find_group.assert_has_calls(
+            [
+                mock.call(name_or_id=self.group.id, ignore_missing=False),
+                mock.call(
+                    name_or_id=self.group_with_domain.id, ignore_missing=False
+                ),
+                mock.call(name_or_id='unexist_group', ignore_missing=False),
+            ]
+        )
 
-        self.assertEqual(2, find_mock.call_count)
-        self.groups_mock.delete.assert_called_once_with(self.groups[0].id)
+        self.assertEqual(3, self.identity_sdk_client.find_group.call_count)
+        self.identity_sdk_client.delete_group.assert_has_calls(
+            [
+                mock.call(self.group.id),
+                mock.call(self.group_with_domain.id),
+            ]
+        )
 
 
-class TestGroupList(TestGroup):
-    domain = identity_fakes.FakeDomain.create_one_domain()
-    group = identity_fakes.FakeGroup.create_one_group()
-    user = identity_fakes.FakeUser.create_one_user()
+class TestGroupList(identity_fakes.TestIdentityv3):
+    domain = sdk_fakes.generate_fake_resource(_domain.Domain)
 
     columns = (
         'ID',
         'Name',
     )
-    datalist = (
-        (
-            group.id,
-            group.name,
-        ),
-    )
 
     def setUp(self):
         super().setUp()
 
-        self.groups_mock.get.return_value = self.group
-        self.groups_mock.list.return_value = [self.group]
+        self.group = sdk_fakes.generate_fake_resource(
+            _group.Group, description=None, domain_id=None
+        )
+        self.group_with_domain = sdk_fakes.generate_fake_resource(
+            _group.Group, domain_id=self.domain.id
+        )
+        self.user = sdk_fakes.generate_fake_resource(_user.User)
 
-        self.domains_mock.get.return_value = self.domain
-
-        self.users_mock.get.return_value = self.user
+        self.identity_sdk_client.find_user.return_value = self.user
+        self.identity_sdk_client.find_domain.return_value = self.domain
 
         # Get the command object to test
         self.cmd = group.ListGroup(self.app, None)
 
     def test_group_list_no_options(self):
+        self.identity_sdk_client.groups.return_value = [
+            self.group,
+            self.group_with_domain,
+        ]
         arglist = []
         verifylist = []
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
@@ -387,18 +465,23 @@ class TestGroupList(TestGroup):
         # containing the data to be listed.
         columns, data = self.cmd.take_action(parsed_args)
 
-        # Set expected values
-        kwargs = {
-            'domain': None,
-            'user': None,
-        }
-
-        self.groups_mock.list.assert_called_with(**kwargs)
+        self.identity_sdk_client.groups.assert_called_with()
 
         self.assertEqual(self.columns, columns)
-        self.assertEqual(self.datalist, tuple(data))
+        datalist = (
+            (
+                self.group.id,
+                self.group.name,
+            ),
+            (
+                self.group_with_domain.id,
+                self.group_with_domain.name,
+            ),
+        )
+        self.assertEqual(datalist, tuple(data))
 
     def test_group_list_domain(self):
+        self.identity_sdk_client.groups.return_value = [self.group_with_domain]
         arglist = [
             '--domain',
             self.domain.id,
@@ -415,16 +498,17 @@ class TestGroupList(TestGroup):
 
         # Set expected values
         kwargs = {
-            'domain': self.domain.id,
-            'user': None,
+            'domain_id': self.domain.id,
         }
 
-        self.groups_mock.list.assert_called_with(**kwargs)
+        self.identity_sdk_client.groups.assert_called_with(**kwargs)
 
         self.assertEqual(self.columns, columns)
-        self.assertEqual(self.datalist, tuple(data))
+        datalist = ((self.group_with_domain.id, self.group_with_domain.name),)
+        self.assertEqual(datalist, tuple(data))
 
     def test_group_list_user(self):
+        self.identity_sdk_client.user_groups.return_value = [self.group]
         arglist = [
             '--user',
             self.user.name,
@@ -439,18 +523,53 @@ class TestGroupList(TestGroup):
         # containing the data to be listed.
         columns, data = self.cmd.take_action(parsed_args)
 
-        # Set expected values
-        kwargs = {
-            'domain': None,
-            'user': self.user.id,
-        }
-
-        self.groups_mock.list.assert_called_with(**kwargs)
+        self.identity_sdk_client.user_groups.assert_called_with(self.user.id)
 
         self.assertEqual(self.columns, columns)
-        self.assertEqual(self.datalist, tuple(data))
+
+        datalist = ((self.group.id, self.group.name),)
+        self.assertEqual(datalist, tuple(data))
+
+    def test_group_list_user_domain(self):
+        self.identity_sdk_client.user_groups.return_value = [
+            self.group_with_domain
+        ]
+        arglist = [
+            '--user',
+            self.user.name,
+            '--domain',
+            self.domain.name,
+        ]
+        verifylist = [
+            ('user', self.user.name),
+            ('domain', self.domain.name),
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        # In base command class Lister in cliff, abstract method take_action()
+        # returns a tuple containing the column names and an iterable
+        # containing the data to be listed.
+        columns, data = self.cmd.take_action(parsed_args)
+
+        # Set expected values
+        kwargs = {
+            'domain_id': self.domain.id,
+        }
+
+        self.identity_sdk_client.user_groups.assert_called_with(
+            self.user.id, **kwargs
+        )
+
+        self.assertEqual(self.columns, columns)
+
+        datalist = ((self.group_with_domain.id, self.group_with_domain.name),)
+        self.assertEqual(datalist, tuple(data))
 
     def test_group_list_long(self):
+        self.identity_sdk_client.groups.return_value = [
+            self.group,
+            self.group_with_domain,
+        ]
         arglist = [
             '--long',
         ]
@@ -464,15 +583,9 @@ class TestGroupList(TestGroup):
         # containing the data to be listed.
         columns, data = self.cmd.take_action(parsed_args)
 
-        # Set expected values
-        kwargs = {
-            'domain': None,
-            'user': None,
-        }
+        self.identity_sdk_client.groups.assert_called_with()
 
-        self.groups_mock.list.assert_called_with(**kwargs)
-
-        columns = self.columns + (
+        long_columns = self.columns + (
             'Domain ID',
             'Description',
         )
@@ -483,25 +596,33 @@ class TestGroupList(TestGroup):
                 self.group.domain_id,
                 self.group.description,
             ),
+            (
+                self.group_with_domain.id,
+                self.group_with_domain.name,
+                self.group_with_domain.domain_id,
+                self.group_with_domain.description,
+            ),
         )
-        self.assertEqual(columns, columns)
+        self.assertEqual(long_columns, columns)
         self.assertEqual(datalist, tuple(data))
 
 
-class TestGroupRemoveUser(TestGroup):
-    _group = identity_fakes.FakeGroup.create_one_group()
-    users = identity_fakes.FakeUser.create_users(count=2)
-
+class TestGroupRemoveUser(identity_fakes.TestIdentityv3):
     def setUp(self):
         super().setUp()
 
-        self.groups_mock.get.return_value = self._group
-        self.users_mock.get = identity_fakes.FakeUser.get_users(self.users)
-        self.users_mock.remove_from_group.return_value = None
+        self._group = sdk_fakes.generate_fake_resource(_group.Group)
+        self.users = tuple(
+            sdk_fakes.generate_fake_resources(_user.User, count=2)
+        )
+
+        self.identity_sdk_client.find_group.return_value = self._group
+        self.identity_sdk_client.remove_user_from_group.return_value = None
 
         self.cmd = group.RemoveUserFromGroup(self.app, None)
 
     def test_group_remove_user(self):
+        self.identity_sdk_client.find_user.return_value = self.users[0]
         arglist = [
             self._group.id,
             self.users[0].id,
@@ -513,12 +634,16 @@ class TestGroupRemoveUser(TestGroup):
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
         result = self.cmd.take_action(parsed_args)
-        self.users_mock.remove_from_group.assert_called_once_with(
+        self.identity_sdk_client.remove_user_from_group.assert_called_once_with(
             self.users[0].id, self._group.id
         )
         self.assertIsNone(result)
 
     def test_group_remove_multi_users(self):
+        self.identity_sdk_client.find_user.side_effect = [
+            self.users[0],
+            self.users[1],
+        ]
         arglist = [
             self._group.name,
             self.users[0].name,
@@ -535,13 +660,13 @@ class TestGroupRemoveUser(TestGroup):
             call(self.users[0].id, self._group.id),
             call(self.users[1].id, self._group.id),
         ]
-        self.users_mock.remove_from_group.assert_has_calls(calls)
+        self.identity_sdk_client.remove_user_from_group.assert_has_calls(calls)
         self.assertIsNone(result)
 
     @mock.patch.object(group.LOG, 'error')
     def test_group_remove_user_with_error(self, mock_error):
-        self.users_mock.remove_from_group.side_effect = [
-            exceptions.CommandError(),
+        self.identity_sdk_client.remove_user_from_group.side_effect = [
+            sdk_exc.ResourceNotFound(),
             None,
         ]
         arglist = [
@@ -560,26 +685,29 @@ class TestGroupRemoveUser(TestGroup):
         except exceptions.CommandError as e:
             msg = f"1 of 2 users not removed from group {self._group.id}."
             self.assertEqual(msg, str(e))
-        msg = f"{self.users[0].id} not removed from group {self._group.id}: "
+        msg = f"{self.users[0].id} not removed from group {self._group.id}: {str(sdk_exc.ResourceNotFound())}"
         mock_error.assert_called_once_with(msg)
 
 
-class TestGroupSet(TestGroup):
-    domain = identity_fakes.FakeDomain.create_one_domain()
-    group = identity_fakes.FakeGroup.create_one_group(
-        attrs={'domain_id': domain.id}
-    )
+class TestGroupSet(identity_fakes.TestIdentityv3):
+    domain = sdk_fakes.generate_fake_resource(_domain.Domain)
 
     def setUp(self):
         super().setUp()
+        self.group = sdk_fakes.generate_fake_resource(
+            _group.Group, domain_id=self.domain.id
+        )
+        self.group_with_domain = sdk_fakes.generate_fake_resource(
+            _group.Group, name=self.group.name, domain_id=self.domain.id
+        )
 
-        self.groups_mock.get.return_value = self.group
-        self.domains_mock.get.return_value = self.domain
-        self.groups_mock.update.return_value = None
+        self.identity_sdk_client.find_group.return_value = self.group
+        self.identity_sdk_client.find_domain.return_value = self.domain
 
         self.cmd = group.SetGroup(self.app, None)
 
     def test_group_set_nothing(self):
+        self.identity_sdk_client.update_group.return_value = self.group
         arglist = [
             self.group.id,
         ]
@@ -589,10 +717,13 @@ class TestGroupSet(TestGroup):
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
         result = self.cmd.take_action(parsed_args)
-        self.groups_mock.update.assert_called_once_with(self.group.id)
+        self.identity_sdk_client.update_group.assert_called_once_with(
+            self.group.id
+        )
         self.assertIsNone(result)
 
     def test_group_set_name_and_description(self):
+        self.identity_sdk_client.update_group.return_value = self.group
         arglist = [
             '--name',
             'new_name',
@@ -612,36 +743,43 @@ class TestGroupSet(TestGroup):
             'name': 'new_name',
             'description': 'new_description',
         }
-        self.groups_mock.update.assert_called_once_with(
+        self.identity_sdk_client.update_group.assert_called_once_with(
             self.group.id, **kwargs
         )
         self.assertIsNone(result)
 
     def test_group_set_with_domain(self):
-        get_mock_result = [exceptions.CommandError, self.group]
-        self.groups_mock.get = mock.Mock(side_effect=get_mock_result)
-
+        self.identity_sdk_client.find_domain.side_effect = [
+            sdk_exc.ForbiddenException
+        ]
+        self.identity_sdk_client.find_group.return_value = (
+            self.group_with_domain
+        )
         arglist = [
             '--domain',
             self.domain.id,
-            self.group.id,
+            self.group_with_domain.name,
         ]
         verifylist = [
             ('domain', self.domain.id),
-            ('group', self.group.id),
+            ('group', self.group_with_domain.name),
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
         result = self.cmd.take_action(parsed_args)
-        self.groups_mock.get.assert_any_call(
-            self.group.id, domain_id=self.domain.id
+        self.identity_sdk_client.find_group.assert_called_once_with(
+            name_or_id=self.group_with_domain.name,
+            ignore_missing=False,
+            domain_id=self.domain.id,
         )
-        self.groups_mock.update.assert_called_once_with(self.group.id)
+        self.identity_sdk_client.update_group.assert_called_once_with(
+            self.group_with_domain.id
+        )
         self.assertIsNone(result)
 
 
-class TestGroupShow(TestGroup):
-    domain = identity_fakes.FakeDomain.create_one_domain()
+class TestGroupShow(identity_fakes.TestIdentityv3):
+    domain = sdk_fakes.generate_fake_resource(_domain.Domain)
 
     columns = (
         'description',
@@ -652,22 +790,19 @@ class TestGroupShow(TestGroup):
 
     def setUp(self):
         super().setUp()
-        self.group = identity_fakes.FakeGroup.create_one_group(
-            attrs={'domain_id': self.domain.id}
+        self.group = sdk_fakes.generate_fake_resource(
+            _group.Group, description=None, domain_id=None
         )
-        self.data = (
-            self.group.description,
-            self.group.domain_id,
-            self.group.id,
-            self.group.name,
+        self.group_with_domain = sdk_fakes.generate_fake_resource(
+            _group.Group, name=self.group.name, domain_id=self.domain.id
         )
 
-        self.groups_mock.get.return_value = self.group
-        self.domains_mock.get.return_value = self.domain
+        self.identity_sdk_client.find_domain.return_value = self.domain
 
         self.cmd = group.ShowGroup(self.app, None)
 
     def test_group_show(self):
+        self.identity_sdk_client.find_group.return_value = self.group
         arglist = [
             self.group.id,
         ]
@@ -677,28 +812,44 @@ class TestGroupShow(TestGroup):
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
         columns, data = self.cmd.take_action(parsed_args)
-        self.groups_mock.get.assert_called_once_with(self.group.id)
+        self.identity_sdk_client.find_group.assert_called_once_with(
+            self.group.id, ignore_missing=False
+        )
         self.assertEqual(self.columns, columns)
-        self.assertEqual(self.data, data)
+        datalist = (
+            None,
+            None,
+            self.group.id,
+            self.group.name,
+        )
+        self.assertEqual(datalist, data)
 
     def test_group_show_with_domain(self):
-        get_mock_result = [exceptions.CommandError, self.group]
-        self.groups_mock.get = mock.Mock(side_effect=get_mock_result)
-
+        self.identity_sdk_client.find_group.return_value = (
+            self.group_with_domain
+        )
         arglist = [
             '--domain',
             self.domain.id,
-            self.group.id,
+            self.group_with_domain.name,
         ]
         verifylist = [
             ('domain', self.domain.id),
-            ('group', self.group.id),
+            ('group', self.group_with_domain.name),
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
         columns, data = self.cmd.take_action(parsed_args)
-        self.groups_mock.get.assert_any_call(
-            self.group.id, domain_id=self.domain.id
+        self.identity_sdk_client.find_group.assert_called_once_with(
+            self.group_with_domain.name,
+            domain_id=self.domain.id,
+            ignore_missing=False,
         )
         self.assertEqual(self.columns, columns)
-        self.assertEqual(self.data, data)
+        datalist = (
+            self.group_with_domain.description,
+            self.domain.id,
+            self.group_with_domain.id,
+            self.group_with_domain.name,
+        )
+        self.assertEqual(datalist, data)

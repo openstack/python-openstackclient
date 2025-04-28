@@ -1,0 +1,4 @@
+---
+upgrade:
+  - |
+    Migrate ``group`` commands from keystoneclient to SDK.

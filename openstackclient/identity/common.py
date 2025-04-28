@@ -214,6 +214,33 @@ def find_group(identity_client, name_or_id, domain_name_or_id=None):
     )
 
 
+def find_group_id_sdk(
+    identity_client,
+    name_or_id,
+    domain_name_or_id=None,
+    *,
+    validate_actor_existence=True,
+):
+    if domain_name_or_id is None:
+        return _find_sdk_id(
+            identity_client.find_group,
+            name_or_id=name_or_id,
+            validate_actor_existence=validate_actor_existence,
+        )
+
+    domain_id = find_domain_id_sdk(
+        identity_client,
+        name_or_id=domain_name_or_id,
+        validate_actor_existence=validate_actor_existence,
+    )
+    return _find_sdk_id(
+        identity_client.find_group,
+        name_or_id=name_or_id,
+        validate_actor_existence=validate_actor_existence,
+        domain_id=domain_id,
+    )
+
+
 def find_project(identity_client, name_or_id, domain_name_or_id=None):
     if domain_name_or_id is None:
         return _find_identity_resource(

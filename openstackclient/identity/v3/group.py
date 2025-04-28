@@ -17,7 +17,7 @@
 
 import logging
 
-from keystoneauth1 import exceptions as ks_exc
+from openstack import exceptions as sdk_exc
 from osc_lib.command import command
 from osc_lib import exceptions
 from osc_lib import utils
@@ -27,6 +27,25 @@ from openstackclient.identity import common
 
 
 LOG = logging.getLogger(__name__)
+
+
+def _format_group(group):
+    columns = (
+        'description',
+        'domain_id',
+        'id',
+        'name',
+    )
+    column_headers = (
+        'description',
+        'domain_id',
+        'id',
+        'name',
+    )
+    return (
+        column_headers,
+        utils.get_item_properties(group, columns),
+    )
 
 
 class AddUserToGroup(command.Command):
@@ -53,19 +72,19 @@ class AddUserToGroup(command.Command):
         return parser
 
     def take_action(self, parsed_args):
-        identity_client = self.app.client_manager.identity
+        identity_client = self.app.client_manager.sdk_connection.identity
 
-        group_id = common.find_group(
+        group_id = common.find_group_id_sdk(
             identity_client, parsed_args.group, parsed_args.group_domain
-        ).id
+        )
 
         result = 0
         for i in parsed_args.user:
             try:
-                user_id = common.find_user(
+                user_id = common.find_user_id_sdk(
                     identity_client, i, parsed_args.user_domain
-                ).id
-                identity_client.users.add_to_group(user_id, group_id)
+                )
+                identity_client.add_user_to_group(user_id, group_id)
             except Exception as e:
                 result += 1
                 msg = _("%(user)s not added to group %(group)s: %(e)s") % {
@@ -109,32 +128,41 @@ class CheckUserInGroup(command.Command):
         return parser
 
     def take_action(self, parsed_args):
-        identity_client = self.app.client_manager.identity
+        identity_client = self.app.client_manager.sdk_connection.identity
 
-        user_id = common.find_user(
-            identity_client, parsed_args.user, parsed_args.user_domain
-        ).id
-        group_id = common.find_group(
-            identity_client, parsed_args.group, parsed_args.group_domain
-        ).id
+        user_id = common.find_user_id_sdk(
+            identity_client,
+            parsed_args.user,
+            parsed_args.user_domain,
+            validate_actor_existence=False,
+        )
+        group_id = common.find_group_id_sdk(
+            identity_client,
+            parsed_args.group,
+            parsed_args.group_domain,
+            validate_actor_existence=False,
+        )
 
+        user_in_group = False
         try:
-            identity_client.users.check_in_group(user_id, group_id)
-        except ks_exc.http.HTTPClientError as e:
-            if e.http_status == 403 or e.http_status == 404:
-                msg = _("%(user)s not in group %(group)s\n") % {
-                    'user': parsed_args.user,
-                    'group': parsed_args.group,
-                }
-                self.app.stderr.write(msg)
-            else:
-                raise e
-        else:
+            user_in_group = identity_client.check_user_in_group(
+                user_id, group_id
+            )
+        except sdk_exc.ForbiddenException:
+            # Assume False if forbidden
+            pass
+        if user_in_group:
             msg = _("%(user)s in group %(group)s\n") % {
                 'user': parsed_args.user,
                 'group': parsed_args.group,
             }
             self.app.stdout.write(msg)
+        else:
+            msg = _("%(user)s not in group %(group)s\n") % {
+                'user': parsed_args.user,
+                'group': parsed_args.group,
+            }
+            self.app.stderr.write(msg)
 
 
 class CreateGroup(command.ShowOne):
@@ -165,29 +193,33 @@ class CreateGroup(command.ShowOne):
         return parser
 
     def take_action(self, parsed_args):
-        identity_client = self.app.client_manager.identity
+        identity_client = self.app.client_manager.sdk_connection.identity
 
-        domain = None
+        kwargs = {}
+        if parsed_args.name:
+            kwargs['name'] = parsed_args.name
+        if parsed_args.description:
+            kwargs['description'] = parsed_args.description
         if parsed_args.domain:
-            domain = common.find_domain(identity_client, parsed_args.domain).id
+            kwargs['domain_id'] = common.find_domain_id_sdk(
+                identity_client, parsed_args.domain
+            )
 
         try:
-            group = identity_client.groups.create(
-                name=parsed_args.name,
-                domain=domain,
-                description=parsed_args.description,
-            )
-        except ks_exc.Conflict:
+            group = identity_client.create_group(**kwargs)
+        except sdk_exc.ConflictException:
             if parsed_args.or_show:
-                group = utils.find_resource(
-                    identity_client.groups, parsed_args.name, domain_id=domain
-                )
+                if parsed_args.domain:
+                    group = identity_client.find_group(
+                        parsed_args.name, domain_id=parsed_args.domain
+                    )
+                else:
+                    group = identity_client.find_group(parsed_args.name)
                 LOG.info(_('Returning existing group %s'), group.name)
             else:
                 raise
 
-        group._info.pop('links')
-        return zip(*sorted(group._info.items()))
+        return _format_group(group)
 
 
 class DeleteGroup(command.Command):
@@ -209,15 +241,15 @@ class DeleteGroup(command.Command):
         return parser
 
     def take_action(self, parsed_args):
-        identity_client = self.app.client_manager.identity
+        identity_client = self.app.client_manager.sdk_connection.identity
 
         errors = 0
         for group in parsed_args.groups:
             try:
-                group_obj = common.find_group(
+                group_id = common.find_group_id_sdk(
                     identity_client, group, parsed_args.domain
                 )
-                identity_client.groups.delete(group_obj.id)
+                identity_client.delete_group(group_id)
             except Exception as e:
                 errors += 1
                 LOG.error(
@@ -262,29 +294,37 @@ class ListGroup(command.Lister):
         return parser
 
     def take_action(self, parsed_args):
-        identity_client = self.app.client_manager.identity
+        identity_client = self.app.client_manager.sdk_connection.identity
 
         domain = None
         if parsed_args.domain:
-            domain = common.find_domain(identity_client, parsed_args.domain).id
+            domain = common.find_domain_id_sdk(
+                identity_client, parsed_args.domain
+            )
 
+        data = []
         if parsed_args.user:
-            user = common.find_user(
+            user = common.find_user_id_sdk(
                 identity_client,
                 parsed_args.user,
                 parsed_args.user_domain,
-            ).id
+            )
+            if domain:
+                # NOTE(0weng): The API doesn't actually support filtering additionally by domain_id,
+                # so this doesn't really do anything.
+                data = identity_client.user_groups(user, domain_id=domain)
+            else:
+                data = identity_client.user_groups(user)
         else:
-            user = None
+            if domain:
+                data = identity_client.groups(domain_id=domain)
+            else:
+                data = identity_client.groups()
 
         # List groups
         columns: tuple[str, ...] = ('ID', 'Name')
         if parsed_args.long:
             columns += ('Domain ID', 'Description')
-        data = identity_client.groups.list(
-            domain=domain,
-            user=user,
-        )
 
         return (
             columns,
@@ -323,19 +363,19 @@ class RemoveUserFromGroup(command.Command):
         return parser
 
     def take_action(self, parsed_args):
-        identity_client = self.app.client_manager.identity
+        identity_client = self.app.client_manager.sdk_connection.identity
 
-        group_id = common.find_group(
+        group_id = common.find_group_id_sdk(
             identity_client, parsed_args.group, parsed_args.group_domain
-        ).id
+        )
 
         result = 0
         for i in parsed_args.user:
             try:
-                user_id = common.find_user(
+                user_id = common.find_user_id_sdk(
                     identity_client, i, parsed_args.user_domain
-                ).id
-                identity_client.users.remove_from_group(user_id, group_id)
+                )
+                identity_client.remove_user_from_group(user_id, group_id)
             except Exception as e:
                 result += 1
                 msg = _("%(user)s not removed from group %(group)s: %(e)s") % {
@@ -387,8 +427,8 @@ class SetGroup(command.Command):
         return parser
 
     def take_action(self, parsed_args):
-        identity_client = self.app.client_manager.identity
-        group = common.find_group(
+        identity_client = self.app.client_manager.sdk_connection.identity
+        group = common.find_group_id_sdk(
             identity_client, parsed_args.group, parsed_args.domain
         )
         kwargs = {}
@@ -397,7 +437,7 @@ class SetGroup(command.Command):
         if parsed_args.description:
             kwargs['description'] = parsed_args.description
 
-        identity_client.groups.update(group.id, **kwargs)
+        identity_client.update_group(group, **kwargs)
 
 
 class ShowGroup(command.ShowOne):
@@ -418,13 +458,18 @@ class ShowGroup(command.ShowOne):
         return parser
 
     def take_action(self, parsed_args):
-        identity_client = self.app.client_manager.identity
+        identity_client = self.app.client_manager.sdk_connection.identity
 
-        group = common.find_group(
-            identity_client,
-            parsed_args.group,
-            domain_name_or_id=parsed_args.domain,
-        )
+        if parsed_args.domain:
+            domain = common.find_domain_id_sdk(
+                identity_client, parsed_args.domain
+            )
+            group = identity_client.find_group(
+                parsed_args.group, domain_id=domain, ignore_missing=False
+            )
+        else:
+            group = identity_client.find_group(
+                parsed_args.group, ignore_missing=False
+            )
 
-        group._info.pop('links')
-        return zip(*sorted(group._info.items()))
+        return _format_group(group)
