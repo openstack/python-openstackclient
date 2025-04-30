@@ -1,0 +1,9 @@
+---
+fixes:
+  - |
+    Fixed ``openstack server backup create`` failing when used with
+    ``--rotate`` and multiple backups share the same name. The command
+    previously looked up the created image by name, which fails when
+    multiple images have identical names. It now uses the image ID
+    returned directly by the Nova API (via openstacksdk).
+    Closes-Bug: #2110035
