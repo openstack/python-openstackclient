@@ -107,6 +107,13 @@ class ShowConsoleURL(command.ShowOne):
             help=_("Show SPICE console URL"),
         )
         type_group.add_argument(
+            '--spice-direct',
+            dest='url_type',
+            action='store_const',
+            const='spice-direct',
+            help=_("Show SPICE direct protocol native console URL"),
+        )
+        type_group.add_argument(
             '--rdp',
             dest='url_type',
             action='store_const',

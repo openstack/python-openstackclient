@@ -157,7 +157,7 @@ class TestConsoleUrlShow(compute_fakes.TestComputev2):
         self.assertEqual(self.columns, columns)
         self.assertEqual(self.data, data)
 
-    def test_console_url_show_with_spice(self):
+    def test_console_url_show_with_spice_html5(self):
         arglist = [
             '--spice',
             'foo_vm',
@@ -170,6 +170,23 @@ class TestConsoleUrlShow(compute_fakes.TestComputev2):
         columns, data = self.cmd.take_action(parsed_args)
         self.compute_client.create_console.assert_called_once_with(
             self._server.id, console_type='spice-html5'
+        )
+        self.assertEqual(self.columns, columns)
+        self.assertEqual(self.data, data)
+
+    def test_console_url_show_with_spice_direct(self):
+        arglist = [
+            '--spice-direct',
+            'foo_vm',
+        ]
+        verifylist = [
+            ('url_type', 'spice-direct'),
+            ('server', 'foo_vm'),
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+        columns, data = self.cmd.take_action(parsed_args)
+        self.compute_client.create_console.assert_called_once_with(
+            self._server.id, console_type='spice-direct'
         )
         self.assertEqual(self.columns, columns)
         self.assertEqual(self.data, data)

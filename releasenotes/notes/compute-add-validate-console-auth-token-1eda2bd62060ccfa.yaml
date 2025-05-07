@@ -1,0 +1,6 @@
+---
+features:
+  - |
+    Add support for the new ``spice-direct`` console type, as well as the
+    exposing the ability for admins to lookup console connection information
+    via the new ``console connection show`` command.
