@@ -14,7 +14,6 @@
 
 import copy
 import random
-import typing as ty
 from unittest import mock
 import uuid
 
@@ -92,7 +91,7 @@ class FakeClientMixin:
         self.volume_sdk_client = self.app.client_manager.sdk_connection.volume
         self.set_volume_api_version()  # default to the lowest
 
-    def set_volume_api_version(self, version: ty.Optional[str] = None):
+    def set_volume_api_version(self, version: str | None = None):
         """Set a fake block storage API version.
 
         :param version: The fake microversion to "support". This must be None
