@@ -23,8 +23,8 @@
       zuul_work_dir: src/opendev.org/openstack/python-openstackclient
 
 - job:
-    name: osc-tox-py39-tips
-    parent: openstack-tox-py39
+    name: osc-tox-py310-tips
+    parent: openstack-tox-py310
     description: |
       Run unit tests for OpenStackClient with master branch of important libs.
 
@@ -43,8 +43,8 @@
       zuul_work_dir: src/opendev.org/openstack/python-openstackclient
 
 - job:
-    name: osc-tox-py312-tips
-    parent: openstack-tox-py312
+    name: osc-tox-py313-tips
+    parent: openstack-tox-py313
     description: |
       Run unit tests for OpenStackClient with master branch of important libs.
 
@@ -155,12 +155,12 @@
     name: osc-tox-unit-tips
     check:
       jobs:
-        - osc-tox-py39-tips
-        - osc-tox-py312-tips
+        - osc-tox-py310-tips
+        - osc-tox-py313-tips
     gate:
       jobs:
-        - osc-tox-py39-tips
-        - osc-tox-py312-tips
+        - osc-tox-py310-tips
+        - osc-tox-py313-tips
 
 - project:
     templates:
