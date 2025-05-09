@@ -94,7 +94,7 @@ class OpenStackShell(shell.OpenStackShell):
                 # instead.
                 mod_versions = getattr(mod, 'API_VERSIONS', None)
                 if mod_versions is not None and not isinstance(
-                    mod_versions, (dict, tuple)
+                    mod_versions, dict | tuple
                 ):
                     raise TypeError(
                         f'Plugin {mod} has incompatible API_VERSIONS. '

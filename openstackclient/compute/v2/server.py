@@ -21,7 +21,6 @@ import getpass
 import json
 import logging
 import os
-import typing as ty
 
 from cliff import columns as cliff_columns
 import iso8601
@@ -1874,7 +1873,7 @@ class CreateServer(command.ShowOne):
 
         # Default to empty list if nothing was specified and let nova
         # decide the default behavior.
-        networks: ty.Union[str, list[dict[str, str]], None] = []
+        networks: str | list[dict[str, str]] | None = []
 
         if 'auto' in parsed_args.nics or 'none' in parsed_args.nics:
             if len(parsed_args.nics) > 1:
