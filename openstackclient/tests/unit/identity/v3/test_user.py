@@ -1686,11 +1686,14 @@ class TestUserSetPassword(identity_fakes.TestIdentityv3):
         # Mock getting user current password.
         with self._mock_get_password(current_pass):
             result = self.cmd.take_action(parsed_args)
+        self.assertIsNone(result)
+
+        conn = self.app.client_manager.sdk_connection
+        user_id = conn.config.get_auth().get_user_id(conn.identity)
 
         self.identity_sdk_client.update_user.assert_called_with(
-            current_password=current_pass, password=new_pass
+            user=user_id, current_password=current_pass, password=new_pass
         )
-        self.assertIsNone(result)
 
     def test_user_create_password_prompt(self):
         current_pass = 'old_pass'
@@ -1700,11 +1703,14 @@ class TestUserSetPassword(identity_fakes.TestIdentityv3):
         # Mock getting user current and new password.
         with self._mock_get_password(current_pass, new_pass):
             result = self.cmd.take_action(parsed_args)
+        self.assertIsNone(result)
+
+        conn = self.app.client_manager.sdk_connection
+        user_id = conn.config.get_auth().get_user_id(conn.identity)
 
         self.identity_sdk_client.update_user.assert_called_with(
-            current_password=current_pass, password=new_pass
+            user=user_id, current_password=current_pass, password=new_pass
         )
-        self.assertIsNone(result)
 
     def test_user_password_change_no_prompt(self):
         current_pass = 'old_pass'
@@ -1722,11 +1728,14 @@ class TestUserSetPassword(identity_fakes.TestIdentityv3):
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
         result = self.cmd.take_action(parsed_args)
+        self.assertIsNone(result)
+
+        conn = self.app.client_manager.sdk_connection
+        user_id = conn.config.get_auth().get_user_id(conn.identity)
 
         self.identity_sdk_client.update_user.assert_called_with(
-            current_password=current_pass, password=new_pass
+            user=user_id, current_password=current_pass, password=new_pass
         )
-        self.assertIsNone(result)
 
 
 class TestUserShow(identity_fakes.TestIdentityv3):
