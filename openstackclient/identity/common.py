@@ -189,6 +189,16 @@ def find_domain(identity_client, name_or_id):
     )
 
 
+def find_domain_id_sdk(
+    identity_client, name_or_id, *, validate_actor_existence=True
+):
+    return _find_sdk_id(
+        identity_client.find_domain,
+        name_or_id=name_or_id,
+        validate_actor_existence=validate_actor_existence,
+    )
+
+
 def find_group(identity_client, name_or_id, domain_name_or_id=None):
     if domain_name_or_id is None:
         return _find_identity_resource(
@@ -226,6 +236,32 @@ def find_user(identity_client, name_or_id, domain_name_or_id=None):
     domain_id = find_domain(identity_client, domain_name_or_id).id
     return _find_identity_resource(
         identity_client.users, name_or_id, users.User, domain_id=domain_id
+    )
+
+
+def find_user_id_sdk(
+    identity_client,
+    name_or_id,
+    domain_name_or_id=None,
+    *,
+    validate_actor_existence=True,
+):
+    if domain_name_or_id is None:
+        return _find_sdk_id(
+            identity_client.find_user,
+            name_or_id=name_or_id,
+            validate_actor_existence=validate_actor_existence,
+        )
+    domain_id = find_domain_id_sdk(
+        identity_client,
+        name_or_id=domain_name_or_id,
+        validate_actor_existence=validate_actor_existence,
+    )
+    return _find_sdk_id(
+        identity_client.find_user,
+        name_or_id=name_or_id,
+        validate_actor_existence=validate_actor_existence,
+        domain_id=domain_id,
     )
 
 
@@ -267,6 +303,22 @@ def _find_identity_resource(
         pass
 
     return resource_type(None, {'id': name_or_id, 'name': name_or_id})
+
+
+def _find_sdk_id(
+    find_command, name_or_id, *, validate_actor_existence=True, **kwargs
+):
+    try:
+        resource = find_command(
+            name_or_id=name_or_id, ignore_missing=False, **kwargs
+        )
+    except sdk_exceptions.ForbiddenException:
+        return name_or_id
+    except sdk_exceptions.ResourceNotFound as exc:
+        if not validate_actor_existence:
+            return name_or_id
+        raise exceptions.CommandError from exc
+    return resource.id
 
 
 def get_immutable_options(parsed_args):

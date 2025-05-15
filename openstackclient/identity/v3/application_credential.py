@@ -269,9 +269,9 @@ class ListApplicationCredential(command.Lister):
     def take_action(self, parsed_args):
         identity_client = self.app.client_manager.sdk_connection.identity
         if parsed_args.user:
-            user_id = common.find_user(
+            user_id = common.find_user_id_sdk(
                 identity_client, parsed_args.user, parsed_args.user_domain
-            ).id
+            )
         else:
             conn = self.app.client_manager.sdk_connection
             user_id = conn.config.get_auth().get_user_id(conn.identity)
