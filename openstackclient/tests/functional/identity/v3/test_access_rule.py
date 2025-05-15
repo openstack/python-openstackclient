@@ -62,7 +62,7 @@ class AccessRuleTests(common.IdentityTests):
 
         items = self.parse_show_as_object(raw_output)
         self.access_rule_ids = [
-            x['id'] for x in ast.literal_eval(items['access_rules'])
+            x['id'] for x in ast.literal_eval(items['Access Rules'])
         ]
         self.addCleanup(
             self.openstack,

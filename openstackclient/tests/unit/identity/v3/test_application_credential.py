@@ -31,18 +31,6 @@ from openstackclient.tests.unit.identity.v3 import fakes as identity_fakes
 
 
 class TestApplicationCredentialCreate(identity_fakes.TestIdentityv3):
-    columns = (
-        'id',
-        'name',
-        'description',
-        'project_id',
-        'roles',
-        'unrestricted',
-        'access_rules',
-        'expires_at',
-        'secret',
-    )
-
     def setUp(self):
         super().setUp()
 
@@ -52,12 +40,25 @@ class TestApplicationCredentialCreate(identity_fakes.TestIdentityv3):
             roles=[],
         )
 
-        self.datalist = (
+        self.columns = (
+            'ID',
+            'Name',
+            'Description',
+            'Project ID',
+            'Roles',
+            'Unrestricted',
+            'Access Rules',
+            'Expires At',
+            'Secret',
+        )
+        self.data = (
             self.application_credential.id,
             self.application_credential.name,
             self.application_credential.description,
             self.application_credential.project_id,
-            self.application_credential.roles,
+            application_credential.RolesColumn(
+                self.application_credential.roles
+            ),
             self.application_credential.unrestricted,
             self.application_credential.access_rules,
             self.application_credential.expires_at,
@@ -101,7 +102,7 @@ class TestApplicationCredentialCreate(identity_fakes.TestIdentityv3):
         )
 
         self.assertEqual(self.columns, columns)
-        self.assertEqual(self.datalist, data)
+        self.assertEqual(self.data, data)
 
     def test_application_credential_create_with_options(self):
         name = self.application_credential.name
@@ -147,7 +148,7 @@ class TestApplicationCredentialCreate(identity_fakes.TestIdentityv3):
         )
 
         self.assertEqual(self.columns, columns)
-        self.assertEqual(self.datalist, data)
+        self.assertEqual(self.data, data)
 
     def test_application_credential_create_with_access_rules_string(self):
         name = self.application_credential.name
@@ -191,7 +192,7 @@ class TestApplicationCredentialCreate(identity_fakes.TestIdentityv3):
         )
 
         self.assertEqual(self.columns, columns)
-        self.assertEqual(self.datalist, data)
+        self.assertEqual(self.data, data)
 
     @mock.patch('openstackclient.identity.v3.application_credential.json.load')
     @mock.patch('openstackclient.identity.v3.application_credential.open')
@@ -231,7 +232,7 @@ class TestApplicationCredentialCreate(identity_fakes.TestIdentityv3):
         )
 
         self.assertEqual(self.columns, columns)
-        self.assertEqual(self.datalist, data)
+        self.assertEqual(self.data, data)
 
 
 class TestApplicationCredentialDelete(identity_fakes.TestIdentityv3):
@@ -345,7 +346,9 @@ class TestApplicationCredentialList(identity_fakes.TestIdentityv3):
                 self.application_credential.name,
                 self.application_credential.description,
                 self.application_credential.project_id,
-                '',
+                application_credential.RolesColumn(
+                    self.application_credential.roles
+                ),
                 self.application_credential.unrestricted,
                 self.application_credential.access_rules,
                 self.application_credential.expires_at,
@@ -408,6 +411,29 @@ class TestApplicationCredentialShow(identity_fakes.TestIdentityv3):
             self.application_credential
         )
 
+        self.columns = (
+            'ID',
+            'Name',
+            'Description',
+            'Project ID',
+            'Roles',
+            'Unrestricted',
+            'Access Rules',
+            'Expires At',
+        )
+        self.data = (
+            self.application_credential.id,
+            self.application_credential.name,
+            self.application_credential.description,
+            self.application_credential.project_id,
+            application_credential.RolesColumn(
+                self.application_credential.roles
+            ),
+            self.application_credential.unrestricted,
+            self.application_credential.access_rules,
+            self.application_credential.expires_at,
+        )
+
         # Get the command object to test
         self.cmd = application_credential.ShowApplicationCredential(
             self.app, None
@@ -434,25 +460,5 @@ class TestApplicationCredentialShow(identity_fakes.TestIdentityv3):
             user_id, self.application_credential.id
         )
 
-        collist = (
-            'id',
-            'name',
-            'description',
-            'project_id',
-            'roles',
-            'unrestricted',
-            'access_rules',
-            'expires_at',
-        )
-        self.assertEqual(collist, columns)
-        datalist = (
-            self.application_credential.id,
-            self.application_credential.name,
-            self.application_credential.description,
-            self.application_credential.project_id,
-            self.application_credential.roles,
-            self.application_credential.unrestricted,
-            self.application_credential.access_rules,
-            self.application_credential.expires_at,
-        )
-        self.assertEqual(datalist, data)
+        self.assertEqual(self.columns, columns)
+        self.assertEqual(self.data, data)

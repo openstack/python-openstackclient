@@ -20,6 +20,7 @@ import json
 import logging
 import uuid
 
+from cliff import columns as cliff_columns
 from osc_lib.command import command
 from osc_lib import exceptions
 from osc_lib import utils
@@ -27,8 +28,82 @@ from osc_lib import utils
 from openstackclient.i18n import _
 from openstackclient.identity import common
 
-
 LOG = logging.getLogger(__name__)
+
+
+class RolesColumn(cliff_columns.FormattableColumn):
+    """Generate a formatted string of role names."""
+
+    def human_readable(self):
+        return utils.format_list(r['name'] for r in self._value)
+
+
+def _format_application_credential(
+    application_credential, *, include_secret=False
+):
+    column_headers: tuple[str, ...] = (
+        'ID',
+        'Name',
+        'Description',
+        'Project ID',
+        'Roles',
+        'Unrestricted',
+        'Access Rules',
+        'Expires At',
+    )
+    columns: tuple[str, ...] = (
+        'id',
+        'name',
+        'description',
+        'project_id',
+        'roles',
+        'unrestricted',
+        'access_rules',
+        'expires_at',
+    )
+    if include_secret:
+        column_headers += ('Secret',)
+        columns += ('secret',)
+
+    return (
+        column_headers,
+        utils.get_item_properties(
+            application_credential, columns, formatters={'roles': RolesColumn}
+        ),
+    )
+
+
+def _format_application_credentials(application_credentials):
+    column_headers = (
+        'ID',
+        'Name',
+        'Description',
+        'Project ID',
+        'Roles',
+        'Unrestricted',
+        'Access Rules',
+        'Expires At',
+    )
+    columns = (
+        'id',
+        'name',
+        'description',
+        'project_id',
+        'roles',
+        'unrestricted',
+        'access_rules',
+        'expires_at',
+    )
+
+    return (
+        column_headers,
+        (
+            utils.get_item_properties(
+                x, columns, formatters={'roles': RolesColumn}
+            )
+            for x in application_credentials
+        ),
+    )
 
 
 # TODO(stephenfin): Move this to osc_lib since it's useful elsewhere
@@ -38,9 +113,6 @@ def is_uuid_like(value) -> bool:
     :param val: Value to verify
     :type val: string
     :returns: bool
-
-    .. versionchanged:: 1.1.1
-       Support non-lowercase UUIDs.
     """
     try:
         formatted_value = (
@@ -179,31 +251,8 @@ class CreateApplicationCredential(command.ShowOne):
             access_rules=access_rules,
         )
 
-        # Format roles into something sensible
-        if application_credential['roles']:
-            roles = application_credential['roles']
-            msg = ' '.join(r['name'] for r in roles)
-            application_credential['roles'] = msg
-
-        columns = (
-            'id',
-            'name',
-            'description',
-            'project_id',
-            'roles',
-            'unrestricted',
-            'access_rules',
-            'expires_at',
-            'secret',
-        )
-        return (
-            columns,
-            (
-                utils.get_dict_properties(
-                    application_credential,
-                    columns,
-                )
-            ),
+        return _format_application_credential(
+            application_credential, include_secret=True
         )
 
 
@@ -252,6 +301,8 @@ class DeleteApplicationCredential(command.Command):
             ) % {'errors': errors, 'total': total}
             raise exceptions.CommandError(msg)
 
+        return None
+
 
 class ListApplicationCredential(command.Lister):
     _description = _("List application credentials")
@@ -276,38 +327,11 @@ class ListApplicationCredential(command.Lister):
             conn = self.app.client_manager.sdk_connection
             user_id = conn.config.get_auth().get_user_id(conn.identity)
 
-        data = identity_client.application_credentials(user=user_id)
-
-        data_formatted = []
-        for ac in data:
-            # Format roles into something sensible
-            roles = ac['roles']
-            msg = ' '.join(r['name'] for r in roles)
-            ac['roles'] = msg
-
-            data_formatted.append(ac)
-
-        columns = (
-            'ID',
-            'Name',
-            'Description',
-            'Project ID',
-            'Roles',
-            'Unrestricted',
-            'Access Rules',
-            'Expires At',
+        application_credentials = identity_client.application_credentials(
+            user=user_id
         )
-        return (
-            columns,
-            (
-                utils.get_item_properties(
-                    s,
-                    columns,
-                    formatters={},
-                )
-                for s in data_formatted
-            ),
-        )
+
+        return _format_application_credentials(application_credentials)
 
 
 class ShowApplicationCredential(command.ShowOne):
@@ -327,31 +351,8 @@ class ShowApplicationCredential(command.ShowOne):
         conn = self.app.client_manager.sdk_connection
         user_id = conn.config.get_auth().get_user_id(conn.identity)
 
-        app_cred = identity_client.find_application_credential(
+        application_credential = identity_client.find_application_credential(
             user_id, parsed_args.application_credential
         )
 
-        # Format roles into something sensible
-        roles = app_cred['roles']
-        msg = ' '.join(r['name'] for r in roles)
-        app_cred['roles'] = msg
-
-        columns = (
-            'id',
-            'name',
-            'description',
-            'project_id',
-            'roles',
-            'unrestricted',
-            'access_rules',
-            'expires_at',
-        )
-        return (
-            columns,
-            (
-                utils.get_dict_properties(
-                    app_cred,
-                    columns,
-                )
-            ),
-        )
+        return _format_application_credential(application_credential)
