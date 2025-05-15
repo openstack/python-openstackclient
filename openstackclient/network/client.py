@@ -27,12 +27,6 @@ API_VERSIONS = ('2.0', '2')
 
 def make_client(instance):
     """Returns a network proxy"""
-    # NOTE(dtroyer): As of osc-lib 1.8.0 and OpenStackSDK 0.10.0 the
-    #                old Profile interface and separate client creation
-    #                for each API that uses the SDK is unnecessary.  This
-    #                callback remains as a remnant of the original plugin
-    #                interface and to avoid the code churn of changing all
-    #                of the existing references.
     LOG.debug(
         'Network client initialized using OpenStack SDK: %s',
         instance.sdk_connection.network,
