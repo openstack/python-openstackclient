@@ -659,6 +659,8 @@ class SetPasswordUser(command.Command):
 
     def take_action(self, parsed_args):
         identity_client = self.app.client_manager.sdk_connection.identity
+        conn = self.app.client_manager.sdk_connection
+        user_id = conn.config.get_auth().get_user_id(conn.identity)
 
         # FIXME(gyee): there are two scenarios:
         #
@@ -701,7 +703,9 @@ class SetPasswordUser(command.Command):
             )
 
         identity_client.update_user(
-            current_password=current_password, password=password
+            user=user_id,
+            current_password=current_password,
+            password=password,
         )
 
 
