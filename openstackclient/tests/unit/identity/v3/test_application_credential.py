@@ -24,6 +24,7 @@ from openstack.identity.v3 import (
     application_credential as _application_credential,
 )
 from openstack.identity.v3 import role as _role
+from openstack.identity.v3 import user as _user
 from openstack.test import fakes as sdk_fakes
 from openstackclient.identity.v3 import application_credential
 from openstackclient.tests.unit.identity.v3 import fakes as identity_fakes
@@ -325,6 +326,31 @@ class TestApplicationCredentialList(identity_fakes.TestIdentityv3):
         self.identity_sdk_client.application_credentials.return_value = [
             self.application_credential
         ]
+        self.user = sdk_fakes.generate_fake_resource(resource_type=_user.User)
+        self.identity_sdk_client.find_user.return_value = self.user
+
+        self.columns = (
+            'ID',
+            'Name',
+            'Description',
+            'Project ID',
+            'Roles',
+            'Unrestricted',
+            'Access Rules',
+            'Expires At',
+        )
+        self.data = (
+            (
+                self.application_credential.id,
+                self.application_credential.name,
+                self.application_credential.description,
+                self.application_credential.project_id,
+                '',
+                self.application_credential.unrestricted,
+                self.application_credential.access_rules,
+                self.application_credential.expires_at,
+            ),
+        )
 
         # Get the command object to test
         self.cmd = application_credential.ListApplicationCredential(
@@ -339,39 +365,35 @@ class TestApplicationCredentialList(identity_fakes.TestIdentityv3):
         conn = self.app.client_manager.sdk_connection
         user_id = conn.config.get_auth().get_user_id(conn.identity)
 
-        # In base command class Lister in cliff, abstract method take_action()
-        # returns a tuple containing the column names and an iterable
-        # containing the data to be listed.
         columns, data = self.cmd.take_action(parsed_args)
 
+        self.assertEqual(self.columns, columns)
+        self.assertEqual(self.data, tuple(data))
+
+        self.identity_sdk_client.find_user.assert_not_called()
         self.identity_sdk_client.application_credentials.assert_called_with(
             user=user_id
         )
 
-        collist = (
-            'ID',
-            'Name',
-            'Description',
-            'Project ID',
-            'Roles',
-            'Unrestricted',
-            'Access Rules',
-            'Expires At',
+    def test_application_credential_list_user(self):
+        arglist = ['--user', self.user.name]
+        verifylist = []
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        conn = self.app.client_manager.sdk_connection
+        conn.config.get_auth().get_user_id(conn.identity)
+
+        columns, data = self.cmd.take_action(parsed_args)
+
+        self.assertEqual(self.columns, columns)
+        self.assertEqual(self.data, tuple(data))
+
+        self.identity_sdk_client.find_user.assert_called_once_with(
+            name_or_id=self.user.name, ignore_missing=False
         )
-        self.assertEqual(collist, columns)
-        datalist = (
-            (
-                self.application_credential.id,
-                self.application_credential.name,
-                self.application_credential.description,
-                self.application_credential.project_id,
-                self.application_credential.roles,
-                self.application_credential.unrestricted,
-                self.application_credential.access_rules,
-                self.application_credential.expires_at,
-            ),
+        self.identity_sdk_client.application_credentials.assert_called_with(
+            user=self.user.id
         )
-        self.assertEqual(datalist, tuple(data))
 
 
 class TestApplicationCredentialShow(identity_fakes.TestIdentityv3):
