@@ -1705,7 +1705,7 @@ class TestServerCreate(TestServer):
                 },
                 {
                     'uuid': network_net2.id,
-                    'fixed': '10.0.0.2',
+                    'fixed_ip': '10.0.0.2',
                 },
                 {
                     'port': port_port1.id,

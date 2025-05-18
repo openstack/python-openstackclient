@@ -1947,9 +1947,9 @@ class CreateServer(command.ShowOne):
                     network['port'] = nic['port-id']
 
                 if nic['v4-fixed-ip']:
-                    network['fixed'] = nic['v4-fixed-ip']
+                    network['fixed_ip'] = nic['v4-fixed-ip']
                 elif nic['v6-fixed-ip']:
-                    network['fixed'] = nic['v6-fixed-ip']
+                    network['fixed_ip'] = nic['v6-fixed-ip']
 
                 if nic.get('tag'):  # tags are optional
                     network['tag'] = nic['tag']
