@@ -18,8 +18,10 @@ import argparse
 import copy
 import functools
 import logging
+import typing as ty
 
 from cliff import columns as cliff_columns
+from openstack.block_storage.v3 import volume as _volume
 from openstack import exceptions as sdk_exceptions
 from openstack import utils as sdk_utils
 from osc_lib.cli import format_columns
@@ -28,6 +30,7 @@ from osc_lib.command import command
 from osc_lib import exceptions
 from osc_lib import utils
 
+from openstackclient.api import volume_v3
 from openstackclient.common import pagination
 from openstackclient.i18n import _
 from openstackclient.identity import common as identity_common
@@ -88,6 +91,52 @@ class AttachmentsColumn(cliff_columns.FormattableColumn):
             device = attachment['device']
             msg += f'Attached to {server} on {device} '
         return msg
+
+
+def _format_volume(volume: _volume.Volume) -> dict[str, ty.Any]:
+    # Some columns returned by openstacksdk should not be shown because they're
+    # either irrelevant or duplicates
+    ignored_columns = {
+        # computed columns
+        'location',
+        # create-only columns
+        'OS-SCH-HNT:scheduler_hints',
+        'imageRef',
+        # removed columns
+        'os-volume-replication:driver_data',
+        'os-volume-replication:extended_status',
+        # unnecessary columns
+        'links',
+    }
+    optional_columns = {
+        # only present if part of a consistency group
+        'consistencygroup_id',
+        # only present if the volume is encrypted
+        'encryption_key_id',
+        # only present if there are image properties associated
+        'volume_image_metadata',
+    }
+
+    info = volume.to_dict(original_names=True)
+    data = {}
+    for key, value in info.items():
+        if key in ignored_columns:
+            continue
+
+        if key in optional_columns:
+            if info[key] is None:
+                continue
+
+        data[key] = value
+
+    data.update(
+        {
+            'properties': format_columns.DictColumn(data.pop('metadata')),
+            'type': data.pop('volume_type'),
+        }
+    )
+
+    return data
 
 
 class CreateVolume(command.ShowOne):
@@ -272,8 +321,7 @@ class CreateVolume(command.ShowOne):
         # volume from snapshot, backup or source volume
         size = parsed_args.size
 
-        volume_client_sdk = self.app.client_manager.sdk_connection.volume
-        volume_client = self.app.client_manager.volume
+        volume_client = self.app.client_manager.sdk_connection.volume
         image_client = self.app.client_manager.image
 
         if (
@@ -285,8 +333,8 @@ class CreateVolume(command.ShowOne):
             )
             raise exceptions.CommandError(msg)
 
-        if parsed_args.backup and not (
-            volume_client.api_version.matches('3.47')
+        if parsed_args.backup and not sdk_utils.supports_microversion(
+            volume_client, '3.47'
         ):
             msg = _(
                 "--os-volume-api-version 3.47 or greater is required "
@@ -308,9 +356,7 @@ class CreateVolume(command.ShowOne):
                 )
                 raise exceptions.CommandError(msg)
             if parsed_args.cluster:
-                if not sdk_utils.supports_microversion(
-                    volume_client_sdk, '3.16'
-                ):
+                if not sdk_utils.supports_microversion(volume_client, '3.16'):
                     msg = _(
                         "--os-volume-api-version 3.16 or greater is required "
                         "to support the cluster parameter."
@@ -328,7 +374,7 @@ class CreateVolume(command.ShowOne):
                     "manage a volume."
                 )
                 raise exceptions.CommandError(msg)
-            volume = volume_client_sdk.manage_volume(
+            volume = volume_client.manage_volume(
                 host=parsed_args.host,
                 cluster=parsed_args.cluster,
                 ref=parsed_args.remote_source,
@@ -339,35 +385,22 @@ class CreateVolume(command.ShowOne):
                 metadata=parsed_args.properties,
                 bootable=parsed_args.bootable,
             )
-            data = {}
-            for key, value in volume.to_dict().items():
-                # FIXME(stephenfin): Stop ignoring these once we bump SDK
-                # https://review.opendev.org/c/openstack/openstacksdk/+/945836/
-                if key in (
-                    'cluster_name',
-                    'consumes_quota',
-                    'encryption_key_id',
-                    'service_uuid',
-                    'shared_targets',
-                    'volume_type_id',
-                ):
-                    continue
-                data[key] = value
+            data = _format_volume(volume)
             return zip(*sorted(data.items()))
 
         source_volume = None
         if parsed_args.source:
-            source_volume_obj = utils.find_resource(
-                volume_client.volumes, parsed_args.source
+            source_volume_obj = volume_client.find_volume(
+                parsed_args.source, ignore_missing=False
             )
             source_volume = source_volume_obj.id
             size = max(size or 0, source_volume_obj.size)
 
         consistency_group = None
         if parsed_args.consistency_group:
-            consistency_group = utils.find_resource(
-                volume_client.consistencygroups, parsed_args.consistency_group
-            ).id
+            consistency_group = volume_v3.find_consistency_group(
+                volume_client, parsed_args.consistency_group
+            )['id']
 
         image = None
         if parsed_args.image:
@@ -377,8 +410,8 @@ class CreateVolume(command.ShowOne):
 
         snapshot = None
         if parsed_args.snapshot:
-            snapshot_obj = utils.find_resource(
-                volume_client.volume_snapshots, parsed_args.snapshot
+            snapshot_obj = volume_client.find_snapshot(
+                parsed_args.snapshot, ignore_missing=False
             )
             snapshot = snapshot_obj.id
             # Cinder requires a value for size when creating a volume
@@ -391,14 +424,14 @@ class CreateVolume(command.ShowOne):
 
         backup = None
         if parsed_args.backup:
-            backup_obj = utils.find_resource(
-                volume_client.backups, parsed_args.backup
+            backup_obj = volume_client.find_backup(
+                parsed_args.backup, ignore_missing=False
             )
             backup = backup_obj.id
             # As above
             size = max(size or 0, backup_obj.size)
 
-        volume = volume_client.volumes.create(
+        volume = volume_client.create_volume(
             size=size,
             snapshot_id=snapshot,
             name=parsed_args.name,
@@ -406,9 +439,9 @@ class CreateVolume(command.ShowOne):
             volume_type=parsed_args.type,
             availability_zone=parsed_args.availability_zone,
             metadata=parsed_args.properties,
-            imageRef=image,
-            source_volid=source_volume,
-            consistencygroup_id=consistency_group,
+            image_id=image,
+            source_volume_id=source_volume,
+            consistency_group_id=consistency_group,
             scheduler_hints=parsed_args.hint,
             backup_id=backup,
         )
@@ -416,14 +449,14 @@ class CreateVolume(command.ShowOne):
         if parsed_args.bootable is not None:
             try:
                 if utils.wait_for_status(
-                    volume_client.volumes.get,
+                    volume_client.get_volume,
                     volume.id,
                     success_status=['available'],
                     error_status=['error'],
                     sleep_time=1,
                 ):
-                    volume_client.volumes.set_bootable(
-                        volume.id, parsed_args.bootable
+                    volume_client.set_volume_bootable_status(
+                        volume, parsed_args.bootable
                     )
                 else:
                     msg = _(
@@ -436,14 +469,14 @@ class CreateVolume(command.ShowOne):
         if parsed_args.read_only is not None:
             try:
                 if utils.wait_for_status(
-                    volume_client.volumes.get,
+                    volume_client.get_volume,
                     volume.id,
                     success_status=['available'],
                     error_status=['error'],
                     sleep_time=1,
                 ):
-                    volume_client.volumes.update_readonly_flag(
-                        volume.id, parsed_args.read_only
+                    volume_client.set_volume_readonly(
+                        volume, parsed_args.read_only
                     )
                 else:
                     msg = _(
@@ -457,17 +490,8 @@ class CreateVolume(command.ShowOne):
                     e,
                 )
 
-        # Remove key links from being displayed
-        volume._info.update(
-            {
-                'properties': format_columns.DictColumn(
-                    volume._info.pop('metadata')
-                ),
-                'type': volume._info.pop('volume_type'),
-            }
-        )
-        volume._info.pop("links", None)
-        return zip(*sorted(volume._info.items()))
+        data = _format_volume(volume)
+        return zip(*sorted(data.items()))
 
 
 class DeleteVolume(command.Command):

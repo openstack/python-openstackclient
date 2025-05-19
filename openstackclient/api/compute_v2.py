@@ -64,7 +64,7 @@ def list_security_groups(compute_client, all_projects=None):
 
 
 def find_security_group(compute_client, name_or_id):
-    """Find the name for a given security group name or ID
+    """Find the security group for a given name or ID
 
     https://docs.openstack.org/api-ref/compute/#show-security-group-details
 
@@ -240,7 +240,7 @@ def list_networks(compute_client):
 
 
 def find_network(compute_client, name_or_id):
-    """Find the ID for a given network name or ID
+    """Find the network for a given name or ID
 
     https://docs.openstack.org/api-ref/compute/#show-network-details
 
