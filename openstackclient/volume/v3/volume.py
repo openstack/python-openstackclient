@@ -339,7 +339,21 @@ class CreateVolume(command.ShowOne):
                 metadata=parsed_args.properties,
                 bootable=parsed_args.bootable,
             )
-            return zip(*sorted(volume.items()))
+            data = {}
+            for key, value in volume.to_dict().items():
+                # FIXME(stephenfin): Stop ignoring these once we bump SDK
+                # https://review.opendev.org/c/openstack/openstacksdk/+/945836/
+                if key in (
+                    'cluster_name',
+                    'consumes_quota',
+                    'encryption_key_id',
+                    'service_uuid',
+                    'shared_targets',
+                    'volume_type_id',
+                ):
+                    continue
+                data[key] = value
+            return zip(*sorted(data.items()))
 
         source_volume = None
         if parsed_args.source:
