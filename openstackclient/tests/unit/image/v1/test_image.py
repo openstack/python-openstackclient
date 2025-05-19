@@ -54,9 +54,9 @@ class TestImageCreate(image_fakes.TestImagev1):
     def setUp(self):
         super().setUp()
 
-        self.image_client.create_image = mock.Mock(return_value=self.new_image)
-        self.image_client.find_image = mock.Mock(return_value=self.new_image)
-        self.image_client.update_image = mock.Mock(return_image=self.new_image)
+        self.image_client.create_image.return_value = self.new_image
+        self.image_client.find_image.return_value = self.new_image
+        self.image_client.update_image.return_value = self.new_image
 
         # Get the command object to test
         self.cmd = image.CreateImage(self.app, None)
@@ -212,8 +212,8 @@ class TestImageDelete(image_fakes.TestImagev1):
         super().setUp()
 
         # This is the return value for utils.find_resource()
-        self.image_client.find_image = mock.Mock(return_value=self._image)
-        self.image_client.delete_image = mock.Mock(return_value=None)
+        self.image_client.find_image.return_value = self._image
+        self.image_client.delete_image.return_value = None
 
         # Get the command object to test
         self.cmd = image.DeleteImage(self.app, None)
@@ -261,7 +261,6 @@ class TestImageList(image_fakes.TestImagev1):
     def setUp(self):
         super().setUp()
 
-        self.image_client.images = mock.Mock()
         self.image_client.images.side_effect = [
             [self._image],
             [],
@@ -441,8 +440,8 @@ class TestImageSet(image_fakes.TestImagev1):
         super().setUp()
 
         # This is the return value for utils.find_resource()
-        self.image_client.find_image = mock.Mock(return_value=self._image)
-        self.image_client.update_image = mock.Mock(return_value=self._image)
+        self.image_client.find_image.return_value = self._image
+        self.image_client.update_image.return_value = self._image
 
         # Get the command object to test
         self.cmd = image.SetImage(self.app, None)
@@ -712,7 +711,7 @@ class TestImageShow(image_fakes.TestImagev1):
     def setUp(self):
         super().setUp()
 
-        self.image_client.find_image = mock.Mock(return_value=self._image)
+        self.image_client.find_image.return_value = self._image
 
         # Get the command object to test
         self.cmd = image.ShowImage(self.app, None)

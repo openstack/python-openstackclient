@@ -914,7 +914,7 @@ class TestImageList(TestImage):
         self.assertEqual(ret_limit, len(tuple(data)))
 
     def test_image_list_project_option(self):
-        self.image_client.find_image = mock.Mock(return_value=self._image)
+        self.image_client.find_image.return_value = self._image
         arglist = [
             '--project',
             'nova',
@@ -931,7 +931,7 @@ class TestImageList(TestImage):
 
     @mock.patch('osc_lib.utils.find_resource')
     def test_image_list_marker_option(self, fr_mock):
-        self.image_client.find_image = mock.Mock(return_value=self._image)
+        self.image_client.find_image.return_value = self._image
 
         arglist = [
             '--marker',
@@ -1721,7 +1721,7 @@ class TestImageShow(TestImage):
     def setUp(self):
         super().setUp()
 
-        self.image_client.find_image = mock.Mock(return_value=self._data)
+        self.image_client.find_image.return_value = self._data
 
         # Get the command object to test
         self.cmd = _image.ShowImage(self.app, None)
