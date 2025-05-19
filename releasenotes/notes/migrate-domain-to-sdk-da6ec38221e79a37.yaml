@@ -1,0 +1,10 @@
+---
+upgrade:
+  - |
+    The following commands have been migrated to SDK:
+
+    - ``domain create``
+    - ``domain delete``
+    - ``domain list``
+    - ``domain set``
+    - ``domain show``
