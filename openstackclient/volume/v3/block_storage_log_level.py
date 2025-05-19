@@ -14,10 +14,9 @@
 
 """Block Storage Service action implementations"""
 
-from cinderclient import api_versions
+from openstack import utils as sdk_utils
 from osc_lib.command import command
 from osc_lib import exceptions
-from osc_lib import utils
 
 from openstackclient.i18n import _
 
@@ -33,7 +32,7 @@ class BlockStorageLogLevelList(command.Lister):
         parser.add_argument(
             "--host",
             metavar="<host>",
-            default="",
+            default=None,
             help=_(
                 "List block storage service log level of specified host "
                 "(name only)"
@@ -42,9 +41,9 @@ class BlockStorageLogLevelList(command.Lister):
         parser.add_argument(
             "--service",
             metavar="<service>",
-            default="",
+            default=None,
             choices=(
-                '',
+                None,
                 '*',
                 'cinder-api',
                 'cinder-volume',
@@ -59,13 +58,13 @@ class BlockStorageLogLevelList(command.Lister):
         parser.add_argument(
             "--log-prefix",
             metavar="<log-prefix>",
-            default="",
+            default=None,
             help="Prefix for the log, e.g. 'sqlalchemy'",
         )
         return parser
 
     def take_action(self, parsed_args):
-        service_client = self.app.client_manager.volume
+        volume_client = self.app.client_manager.sdk_connection.volume
         columns = [
             "Binary",
             "Host",
@@ -73,29 +72,24 @@ class BlockStorageLogLevelList(command.Lister):
             "Level",
         ]
 
-        if service_client.api_version < api_versions.APIVersion('3.32'):
+        if not sdk_utils.supports_microversion(volume_client, '3.32'):
             msg = _(
                 "--os-volume-api-version 3.32 or greater is required to "
                 "support the 'block storage log level list' command"
             )
             raise exceptions.CommandError(msg)
 
-        data = service_client.services.get_log_levels(
+        data = []
+        for entry in volume_client.get_service_log_levels(
             binary=parsed_args.service,
             server=parsed_args.host,
             prefix=parsed_args.log_prefix,
-        )
+        ):
+            entry_levels = sorted(entry.levels.items(), key=lambda x: x[0])
+            for prefix, level in entry_levels:
+                data.append((entry.binary, entry.host, prefix, level))
 
-        return (
-            columns,
-            (
-                utils.get_item_properties(
-                    s,
-                    columns,
-                )
-                for s in data
-            ),
-        )
+        return (columns, data)
 
 
 class BlockStorageLogLevelSet(command.Command):
@@ -111,12 +105,12 @@ class BlockStorageLogLevelSet(command.Command):
             metavar="<log-level>",
             choices=('INFO', 'WARNING', 'ERROR', 'DEBUG'),
             type=str.upper,
-            help=_("Desired log level."),
+            help=_("Desired log level"),
         )
         parser.add_argument(
             "--host",
             metavar="<host>",
-            default="",
+            default=None,
             help=_(
                 "Set block storage service log level of specified host "
                 "(name only)"
@@ -125,9 +119,9 @@ class BlockStorageLogLevelSet(command.Command):
         parser.add_argument(
             "--service",
             metavar="<service>",
-            default="",
+            default=None,
             choices=(
-                '',
+                None,
                 '*',
                 'cinder-api',
                 'cinder-volume',
@@ -142,22 +136,22 @@ class BlockStorageLogLevelSet(command.Command):
         parser.add_argument(
             "--log-prefix",
             metavar="<log-prefix>",
-            default="",
+            default=None,
             help="Prefix for the log, e.g. 'sqlalchemy'",
         )
         return parser
 
     def take_action(self, parsed_args):
-        service_client = self.app.client_manager.volume
+        volume_client = self.app.client_manager.sdk_connection.volume
 
-        if service_client.api_version < api_versions.APIVersion('3.32'):
+        if not sdk_utils.supports_microversion(volume_client, '3.32'):
             msg = _(
                 "--os-volume-api-version 3.32 or greater is required to "
                 "support the 'block storage log level set' command"
             )
             raise exceptions.CommandError(msg)
 
-        service_client.services.set_log_levels(
+        volume_client.set_service_log_levels(
             level=parsed_args.level,
             binary=parsed_args.service,
             server=parsed_args.host,
