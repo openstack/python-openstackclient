@@ -499,7 +499,7 @@ class TestListFloatingIPNetwork(TestFloatingIPNetwork):
             'fake_network_id',
         ]
         verifylist = [
-            ('network', 'fake_network_id'),
+            ('networks', ['fake_network_id']),
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
@@ -507,7 +507,7 @@ class TestListFloatingIPNetwork(TestFloatingIPNetwork):
 
         self.network_client.ips.assert_called_once_with(
             **{
-                'floating_network_id': 'fake_network_id',
+                'floating_network_id': ['fake_network_id'],
             }
         )
         self.assertEqual(self.columns, columns)
@@ -519,7 +519,7 @@ class TestListFloatingIPNetwork(TestFloatingIPNetwork):
             'fake_port_id',
         ]
         verifylist = [
-            ('port', 'fake_port_id'),
+            ('ports', ['fake_port_id']),
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
@@ -527,7 +527,7 @@ class TestListFloatingIPNetwork(TestFloatingIPNetwork):
 
         self.network_client.ips.assert_called_once_with(
             **{
-                'port_id': 'fake_port_id',
+                'port_id': ['fake_port_id'],
             }
         )
         self.assertEqual(self.columns, columns)
@@ -660,7 +660,7 @@ class TestListFloatingIPNetwork(TestFloatingIPNetwork):
             '--long',
         ]
         verifylist = [
-            ('router', 'fake_router_id'),
+            ('routers', ['fake_router_id']),
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
@@ -668,7 +668,7 @@ class TestListFloatingIPNetwork(TestFloatingIPNetwork):
 
         self.network_client.ips.assert_called_once_with(
             **{
-                'router_id': 'fake_router_id',
+                'router_id': ['fake_router_id'],
             }
         )
         self.assertEqual(self.columns_long, columns)

@@ -1,0 +1,5 @@
+---
+features:
+  - |
+    The ``--network``, ``--port``, and ``--router`` options of the ``floating
+    ip list`` command can now be specified multiple times.

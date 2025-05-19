@@ -243,18 +243,26 @@ class ListFloatingIP(common.NetworkAndComputeLister):
         parser.add_argument(
             '--network',
             metavar='<network>',
+            dest='networks',
+            action='append',
             help=self.enhance_help_neutron(
                 _(
-                    "List floating IP(s) according to "
-                    "given network (name or ID)"
+                    "List floating IP(s) according to given network "
+                    "(name or ID) "
+                    "(repeat option to fiter on multiple networks)"
                 )
             ),
         )
         parser.add_argument(
             '--port',
             metavar='<port>',
+            dest='ports',
+            action='append',
             help=self.enhance_help_neutron(
-                _("List floating IP(s) according to given port (name or ID)")
+                _(
+                    "List floating IP(s) according to given port (name or ID) "
+                    "(repeat option to fiter on multiple ports)"
+                )
             ),
         )
         parser.add_argument(
@@ -269,14 +277,6 @@ class ListFloatingIP(common.NetworkAndComputeLister):
             metavar='<ip-address>',
             help=self.enhance_help_neutron(
                 _("List floating IP(s) according to given floating IP address")
-            ),
-        )
-        parser.add_argument(
-            '--long',
-            action='store_true',
-            default=False,
-            help=self.enhance_help_neutron(
-                _("List additional fields in output")
             ),
         )
         parser.add_argument(
@@ -295,8 +295,8 @@ class ListFloatingIP(common.NetworkAndComputeLister):
             metavar='<project>',
             help=self.enhance_help_neutron(
                 _(
-                    "List floating IP(s) according to given project (name or "
-                    "ID)"
+                    "List floating IP(s) according to given project "
+                    "(name or ID) "
                 )
             ),
         )
@@ -304,12 +304,26 @@ class ListFloatingIP(common.NetworkAndComputeLister):
         parser.add_argument(
             '--router',
             metavar='<router>',
+            dest='routers',
+            action='append',
             help=self.enhance_help_neutron(
-                _("List floating IP(s) according to given router (name or ID)")
+                _(
+                    "List floating IP(s) according to given router "
+                    "(name or ID) "
+                    "(repeat option to fiter on multiple routers)"
+                )
             ),
         )
         _tag.add_tag_filtering_option_to_parser(
             parser, _('floating IP'), enhance_help=self.enhance_help_neutron
+        )
+        parser.add_argument(
+            '--long',
+            action='store_true',
+            default=False,
+            help=self.enhance_help_neutron(
+                _("List additional fields in output")
+            ),
         )
 
         return parser
@@ -354,22 +368,33 @@ class ListFloatingIP(common.NetworkAndComputeLister):
 
         query = {}
 
-        if parsed_args.network is not None:
-            network = network_client.find_network(
-                parsed_args.network, ignore_missing=False
-            )
-            query['floating_network_id'] = network.id
-        if parsed_args.port is not None:
-            port = network_client.find_port(
-                parsed_args.port, ignore_missing=False
-            )
-            query['port_id'] = port.id
+        if parsed_args.networks is not None:
+            network_ids = []
+            for network in parsed_args.networks:
+                network_id = network_client.find_network(
+                    network, ignore_missing=False
+                ).id
+                network_ids.append(network_id)
+            query['floating_network_id'] = network_ids
+
+        if parsed_args.ports is not None:
+            port_ids = []
+            for port in parsed_args.ports:
+                port_id = network_client.find_port(
+                    port, ignore_missing=False
+                ).id
+                port_ids.append(port_id)
+            query['port_id'] = port_ids
+
         if parsed_args.fixed_ip_address is not None:
             query['fixed_ip_address'] = parsed_args.fixed_ip_address
+
         if parsed_args.floating_ip_address is not None:
             query['floating_ip_address'] = parsed_args.floating_ip_address
+
         if parsed_args.status:
             query['status'] = parsed_args.status
+
         if parsed_args.project is not None:
             project = identity_common.find_project(
                 identity_client,
@@ -377,11 +402,15 @@ class ListFloatingIP(common.NetworkAndComputeLister):
                 parsed_args.project_domain,
             )
             query['project_id'] = project.id
-        if parsed_args.router is not None:
-            router = network_client.find_router(
-                parsed_args.router, ignore_missing=False
-            )
-            query['router_id'] = router.id
+
+        if parsed_args.routers is not None:
+            router_ids = []
+            for router in parsed_args.routers:
+                router_id = network_client.find_router(
+                    router, ignore_missing=False
+                ).id
+                router_ids.append(router_id)
+            query['router_id'] = router_ids
 
         _tag.get_tag_filtering_args(parsed_args, query)
 
