@@ -14,7 +14,6 @@
 
 """Volume v2 snapshot action implementations"""
 
-import copy
 import functools
 import logging
 import typing as ty
@@ -297,31 +296,39 @@ class ListVolumeSnapshot(command.Lister):
         return parser
 
     def take_action(self, parsed_args):
-        volume_client = self.app.client_manager.volume
+        volume_client = self.app.client_manager.sdk_connection.volume
         identity_client = self.app.client_manager.identity
 
+        columns: tuple[str, ...] = (
+            'id',
+            'name',
+            'description',
+            'status',
+            'size',
+        )
+        column_headers: tuple[str, ...] = (
+            'ID',
+            'Name',
+            'Description',
+            'Status',
+            'Size',
+        )
         if parsed_args.long:
-            columns = [
-                'ID',
-                'Name',
-                'Description',
-                'Status',
-                'Size',
+            columns += (
+                'created_at',
+                'volume_id',
+                'metadata',
+            )
+            column_headers += (
                 'Created At',
-                'Volume ID',
-                'Metadata',
-            ]
-            column_headers = copy.deepcopy(columns)
-            column_headers[6] = 'Volume'
-            column_headers[7] = 'Properties'
-        else:
-            columns = ['ID', 'Name', 'Description', 'Status', 'Size']
-            column_headers = copy.deepcopy(columns)
+                'Volume',
+                'Properties',
+            )
 
         # Cache the volume list
         volume_cache = {}
         try:
-            for s in volume_client.volumes.list():
+            for s in volume_client.volumes():
                 volume_cache[s.id] = s
         except Exception:  # noqa: S110
             # Just forget it if there's any trouble
@@ -332,8 +339,8 @@ class ListVolumeSnapshot(command.Lister):
 
         volume_id = None
         if parsed_args.volume:
-            volume_id = utils.find_resource(
-                volume_client.volumes, parsed_args.volume
+            volume_id = volume_client.find_volume(
+                parsed_args.volume, ignore_missing=False
             ).id
 
         project_id = None
@@ -349,18 +356,14 @@ class ListVolumeSnapshot(command.Lister):
             True if parsed_args.project else parsed_args.all_projects
         )
 
-        search_opts = {
-            'all_tenants': all_projects,
-            'project_id': project_id,
-            'name': parsed_args.name,
-            'status': parsed_args.status,
-            'volume_id': volume_id,
-        }
-
-        data = volume_client.volume_snapshots.list(
-            search_opts=search_opts,
+        data = volume_client.snapshots(
             marker=parsed_args.marker,
             limit=parsed_args.limit,
+            all_projects=all_projects,
+            project_id=project_id,
+            name=parsed_args.name,
+            status=parsed_args.status,
+            volume_id=volume_id,
         )
         return (
             column_headers,
@@ -369,8 +372,8 @@ class ListVolumeSnapshot(command.Lister):
                     s,
                     columns,
                     formatters={
-                        'Metadata': format_columns.DictColumn,
-                        'Volume ID': _VolumeIdColumn,
+                        'metadata': format_columns.DictColumn,
+                        'volume_id': _VolumeIdColumn,
                     },
                 )
                 for s in data
@@ -506,18 +509,14 @@ class ShowVolumeSnapshot(command.ShowOne):
         return parser
 
     def take_action(self, parsed_args):
-        volume_client = self.app.client_manager.volume
-        snapshot = utils.find_resource(
-            volume_client.volume_snapshots, parsed_args.snapshot
+        volume_client = self.app.client_manager.sdk_connection.volume
+
+        snapshot = volume_client.find_snapshot(
+            parsed_args.snapshot, ignore_missing=False
         )
-        snapshot._info.update(
-            {
-                'properties': format_columns.DictColumn(
-                    snapshot._info.pop('metadata')
-                )
-            }
-        )
-        return zip(*sorted(snapshot._info.items()))
+
+        data = _format_snapshot(snapshot)
+        return zip(*sorted(data.items()))
 
 
 class UnsetVolumeSnapshot(command.Command):
