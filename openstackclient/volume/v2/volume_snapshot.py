@@ -175,16 +175,16 @@ class DeleteVolumeSnapshot(command.Command):
         return parser
 
     def take_action(self, parsed_args):
-        volume_client = self.app.client_manager.volume
+        volume_client = self.app.client_manager.sdk_connection.volume
         result = 0
 
-        for i in parsed_args.snapshots:
+        for snapshot in parsed_args.snapshots:
             try:
-                snapshot_id = utils.find_resource(
-                    volume_client.volume_snapshots, i
+                snapshot_id = volume_client.find_snapshot(
+                    snapshot, ignore_missing=False
                 ).id
-                volume_client.volume_snapshots.delete(
-                    snapshot_id, parsed_args.force
+                volume_client.delete_snapshot(
+                    snapshot_id, force=parsed_args.force
                 )
             except Exception as e:
                 result += 1
@@ -193,7 +193,7 @@ class DeleteVolumeSnapshot(command.Command):
                         "Failed to delete snapshot with "
                         "name or ID '%(snapshot)s': %(e)s"
                     )
-                    % {'snapshot': i, 'e': e}
+                    % {'snapshot': snapshot, 'e': e}
                 )
 
         if result > 0:
