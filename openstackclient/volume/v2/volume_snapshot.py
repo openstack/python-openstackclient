@@ -17,8 +17,10 @@
 import copy
 import functools
 import logging
+import typing as ty
 
 from cliff import columns as cliff_columns
+from openstack.block_storage.v2 import snapshot as _snapshot
 from osc_lib.cli import format_columns
 from osc_lib.cli import parseractions
 from osc_lib.command import command
@@ -60,6 +62,42 @@ class VolumeIdColumn(cliff_columns.FormattableColumn):
         return volume
 
 
+def _format_snapshot(snapshot: _snapshot.Snapshot) -> dict[str, ty.Any]:
+    # Some columns returned by openstacksdk should not be shown because they're
+    # either irrelevant or duplicates
+    ignored_columns = {
+        # computed columns
+        'location',
+        # create-only columns
+        'consumes_quota',
+        'force',
+        'group_snapshot_id',
+        # ignored columns
+        'os-extended-snapshot-attributes:progress',
+        'os-extended-snapshot-attributes:project_id',
+        'updated_at',
+        'user_id',
+        # unnecessary columns
+        'links',
+    }
+
+    info = snapshot.to_dict(original_names=True)
+    data = {}
+    for key, value in info.items():
+        if key in ignored_columns:
+            continue
+
+        data[key] = value
+
+    data.update(
+        {
+            'properties': format_columns.DictColumn(data.pop('metadata')),
+        }
+    )
+
+    return data
+
+
 class CreateVolumeSnapshot(command.ShowOne):
     _description = _("Create new volume snapshot")
 
@@ -94,6 +132,7 @@ class CreateVolumeSnapshot(command.ShowOne):
             "--property",
             metavar="<key=value>",
             action=parseractions.KeyValueAction,
+            dest="properties",
             help=_(
                 "Set a property to this snapshot "
                 "(repeat option to set multiple properties)"
@@ -113,11 +152,13 @@ class CreateVolumeSnapshot(command.ShowOne):
         return parser
 
     def take_action(self, parsed_args):
-        volume_client = self.app.client_manager.volume
+        volume_client = self.app.client_manager.sdk_connection.volume
+
         volume = parsed_args.volume
         if not parsed_args.volume:
             volume = parsed_args.snapshot_name
-        volume_id = utils.find_resource(volume_client.volumes, volume).id
+        volume_id = volume_client.find_volume(volume, ignore_missing=False).id
+
         if parsed_args.remote_source:
             # Create a new snapshot from an existing remote snapshot source
             if parsed_args.force:
@@ -127,30 +168,26 @@ class CreateVolumeSnapshot(command.ShowOne):
                     "volume snapshot"
                 )
                 LOG.warning(msg)
-            snapshot = volume_client.volume_snapshots.manage(
+
+            snapshot = volume_client.manage_snapshot(
                 volume_id=volume_id,
                 ref=parsed_args.remote_source,
                 name=parsed_args.snapshot_name,
                 description=parsed_args.description,
-                metadata=parsed_args.property,
+                metadata=parsed_args.properties,
             )
         else:
             # create a new snapshot from scratch
-            snapshot = volume_client.volume_snapshots.create(
-                volume_id,
+            snapshot = volume_client.create_snapshot(
+                volume_id=volume_id,
                 force=parsed_args.force,
                 name=parsed_args.snapshot_name,
                 description=parsed_args.description,
-                metadata=parsed_args.property,
+                metadata=parsed_args.properties,
             )
-        snapshot._info.update(
-            {
-                'properties': format_columns.DictColumn(
-                    snapshot._info.pop('metadata')
-                )
-            }
-        )
-        return zip(*sorted(snapshot._info.items()))
+
+        data = _format_snapshot(snapshot)
+        return zip(*sorted(data.items()))
 
 
 class DeleteVolumeSnapshot(command.Command):

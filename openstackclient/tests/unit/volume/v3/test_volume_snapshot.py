@@ -14,6 +14,7 @@
 from unittest import mock
 
 from openstack.block_storage.v3 import snapshot as _snapshot
+from openstack.block_storage.v3 import volume as _volume
 from openstack import exceptions as sdk_exceptions
 from openstack.test import fakes as sdk_fakes
 from osc_lib.cli import format_columns
@@ -40,7 +41,7 @@ class TestVolumeSnapshot(volume_fakes_v3.TestVolume):
         self.volume_sdk_client.unmanage_snapshot.return_value = None
 
 
-class TestVolumeSnapshotCreate(TestVolumeSnapshot):
+class TestVolumeSnapshotCreate(volume_fakes_v3.TestVolume):
     columns = (
         'created_at',
         'description',
@@ -55,57 +56,59 @@ class TestVolumeSnapshotCreate(TestVolumeSnapshot):
     def setUp(self):
         super().setUp()
 
-        self.volume = volume_fakes.create_one_volume()
-        self.new_snapshot = volume_fakes.create_one_snapshot(
-            attrs={'volume_id': self.volume.id}
+        self.volume = sdk_fakes.generate_fake_resource(_volume.Volume)
+        self.volume_sdk_client.find_volume.return_value = self.volume
+        self.snapshot = sdk_fakes.generate_fake_resource(
+            _snapshot.Snapshot, volume_id=self.volume.id
         )
+        self.volume_sdk_client.create_snapshot.return_value = self.snapshot
+        self.volume_sdk_client.manage_snapshot.return_value = self.snapshot
 
         self.data = (
-            self.new_snapshot.created_at,
-            self.new_snapshot.description,
-            self.new_snapshot.id,
-            self.new_snapshot.name,
-            format_columns.DictColumn(self.new_snapshot.metadata),
-            self.new_snapshot.size,
-            self.new_snapshot.status,
-            self.new_snapshot.volume_id,
+            self.snapshot.created_at,
+            self.snapshot.description,
+            self.snapshot.id,
+            self.snapshot.name,
+            format_columns.DictColumn(self.snapshot.metadata),
+            self.snapshot.size,
+            self.snapshot.status,
+            self.snapshot.volume_id,
         )
 
-        self.volumes_mock.get.return_value = self.volume
-        self.snapshots_mock.create.return_value = self.new_snapshot
-        self.snapshots_mock.manage.return_value = self.new_snapshot
-        # Get the command object to test
         self.cmd = volume_snapshot.CreateVolumeSnapshot(self.app, None)
 
     def test_snapshot_create(self):
         arglist = [
             "--volume",
-            self.new_snapshot.volume_id,
+            self.snapshot.volume_id,
             "--description",
-            self.new_snapshot.description,
+            self.snapshot.description,
             "--force",
             '--property',
             'Alpha=a',
             '--property',
             'Beta=b',
-            self.new_snapshot.name,
+            self.snapshot.name,
         ]
         verifylist = [
-            ("volume", self.new_snapshot.volume_id),
-            ("description", self.new_snapshot.description),
+            ("volume", self.snapshot.volume_id),
+            ("description", self.snapshot.description),
             ("force", True),
-            ('property', {'Alpha': 'a', 'Beta': 'b'}),
-            ("snapshot_name", self.new_snapshot.name),
+            ('properties', {'Alpha': 'a', 'Beta': 'b'}),
+            ("snapshot_name", self.snapshot.name),
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
         columns, data = self.cmd.take_action(parsed_args)
 
-        self.snapshots_mock.create.assert_called_with(
-            self.new_snapshot.volume_id,
+        self.volume_sdk_client.find_volume.assert_called_once_with(
+            self.snapshot.volume_id, ignore_missing=False
+        )
+        self.volume_sdk_client.create_snapshot.assert_called_with(
+            volume_id=self.snapshot.volume_id,
             force=True,
-            name=self.new_snapshot.name,
-            description=self.new_snapshot.description,
+            name=self.snapshot.name,
+            description=self.snapshot.description,
             metadata={'Alpha': 'a', 'Beta': 'b'},
         )
         self.assertEqual(self.columns, columns)
@@ -114,10 +117,10 @@ class TestVolumeSnapshotCreate(TestVolumeSnapshot):
     def test_snapshot_create_without_name(self):
         arglist = [
             "--volume",
-            self.new_snapshot.volume_id,
+            self.snapshot.volume_id,
         ]
         verifylist = [
-            ("volume", self.new_snapshot.volume_id),
+            ("volume", self.snapshot.volume_id),
         ]
         self.assertRaises(
             test_utils.ParserException,
@@ -130,25 +133,27 @@ class TestVolumeSnapshotCreate(TestVolumeSnapshot):
     def test_snapshot_create_without_volume(self):
         arglist = [
             "--description",
-            self.new_snapshot.description,
+            self.snapshot.description,
             "--force",
-            self.new_snapshot.name,
+            self.snapshot.name,
         ]
         verifylist = [
-            ("description", self.new_snapshot.description),
+            ("description", self.snapshot.description),
             ("force", True),
-            ("snapshot_name", self.new_snapshot.name),
+            ("snapshot_name", self.snapshot.name),
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
         columns, data = self.cmd.take_action(parsed_args)
 
-        self.volumes_mock.get.assert_called_once_with(self.new_snapshot.name)
-        self.snapshots_mock.create.assert_called_once_with(
-            self.new_snapshot.volume_id,
+        self.volume_sdk_client.find_volume.assert_called_once_with(
+            self.snapshot.name, ignore_missing=False
+        )
+        self.volume_sdk_client.create_snapshot.assert_called_with(
+            volume_id=self.snapshot.volume_id,
             force=True,
-            name=self.new_snapshot.name,
-            description=self.new_snapshot.description,
+            name=self.snapshot.name,
+            description=self.snapshot.description,
             metadata=None,
         )
         self.assertEqual(self.columns, columns)
@@ -161,8 +166,8 @@ class TestVolumeSnapshotCreate(TestVolumeSnapshot):
             '--remote-source',
             'source-id=test_source_id',
             '--volume',
-            self.new_snapshot.volume_id,
-            self.new_snapshot.name,
+            self.snapshot.volume_id,
+            self.snapshot.name,
         ]
         ref_dict = {
             'source-name': 'test_source_name',
@@ -170,23 +175,26 @@ class TestVolumeSnapshotCreate(TestVolumeSnapshot):
         }
         verifylist = [
             ('remote_source', ref_dict),
-            ('volume', self.new_snapshot.volume_id),
-            ("snapshot_name", self.new_snapshot.name),
+            ('volume', self.snapshot.volume_id),
+            ("snapshot_name", self.snapshot.name),
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
         columns, data = self.cmd.take_action(parsed_args)
 
-        self.snapshots_mock.manage.assert_called_with(
-            volume_id=self.new_snapshot.volume_id,
+        self.assertEqual(self.columns, columns)
+        self.assertEqual(self.data, data)
+        self.volume_sdk_client.find_volume.assert_called_once_with(
+            self.snapshot.volume_id, ignore_missing=False
+        )
+        self.volume_sdk_client.manage_snapshot.assert_called_with(
+            volume_id=self.snapshot.volume_id,
             ref=ref_dict,
-            name=self.new_snapshot.name,
+            name=self.snapshot.name,
             description=None,
             metadata=None,
         )
-        self.snapshots_mock.create.assert_not_called()
-        self.assertEqual(self.columns, columns)
-        self.assertEqual(self.data, data)
+        self.volume_sdk_client.create_snapshot.assert_not_called()
 
 
 class TestVolumeSnapshotDelete(volume_fakes_v3.TestVolume):
