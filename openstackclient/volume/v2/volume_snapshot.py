@@ -411,6 +411,7 @@ class SetVolumeSnapshot(command.Command):
             '--property',
             metavar='<key=value>',
             action=parseractions.KeyValueAction,
+            dest='properties',
             help=_(
                 'Property to add/change for this snapshot '
                 '(repeat option to set multiple properties)'
@@ -437,27 +438,26 @@ class SetVolumeSnapshot(command.Command):
         return parser
 
     def take_action(self, parsed_args):
-        volume_client = self.app.client_manager.volume
-        snapshot = utils.find_resource(
-            volume_client.volume_snapshots, parsed_args.snapshot
+        volume_client = self.app.client_manager.sdk_connection.volume
+
+        snapshot = volume_client.find_snapshot(
+            parsed_args.snapshot, ignore_missing=False
         )
 
         result = 0
         if parsed_args.no_property:
             try:
-                key_list = snapshot.metadata.keys()
-                volume_client.volume_snapshots.delete_metadata(
-                    snapshot.id,
-                    list(key_list),
+                volume_client.delete_snapshot_metadata(
+                    snapshot.id, keys=list(snapshot.metadata)
                 )
             except Exception as e:
                 LOG.error(_("Failed to clean snapshot properties: %s"), e)
                 result += 1
 
-        if parsed_args.property:
+        if parsed_args.properties:
             try:
-                volume_client.volume_snapshots.set_metadata(
-                    snapshot.id, parsed_args.property
+                volume_client.set_snapshot_metadata(
+                    snapshot.id, **parsed_args.properties
                 )
             except Exception as e:
                 LOG.error(_("Failed to set snapshot property: %s"), e)
@@ -465,7 +465,7 @@ class SetVolumeSnapshot(command.Command):
 
         if parsed_args.state:
             try:
-                volume_client.volume_snapshots.reset_state(
+                volume_client.reset_snapshot_status(
                     snapshot.id, parsed_args.state
                 )
             except Exception as e:
@@ -479,7 +479,7 @@ class SetVolumeSnapshot(command.Command):
             kwargs['description'] = parsed_args.description
         if kwargs:
             try:
-                volume_client.volume_snapshots.update(snapshot.id, **kwargs)
+                volume_client.update_snapshot(snapshot.id, **kwargs)
             except Exception as e:
                 LOG.error(
                     _("Failed to update snapshot name or description: %s"),
@@ -535,6 +535,7 @@ class UnsetVolumeSnapshot(command.Command):
             metavar='<key>',
             action='append',
             default=[],
+            dest='properties',
             help=_(
                 'Property to remove from snapshot '
                 '(repeat option to remove multiple properties)'
@@ -543,13 +544,13 @@ class UnsetVolumeSnapshot(command.Command):
         return parser
 
     def take_action(self, parsed_args):
-        volume_client = self.app.client_manager.volume
-        snapshot = utils.find_resource(
-            volume_client.volume_snapshots, parsed_args.snapshot
+        volume_client = self.app.client_manager.sdk_connection.volume
+
+        snapshot = volume_client.find_snapshot(
+            parsed_args.snapshot, ignore_missing=False
         )
 
-        if parsed_args.property:
-            volume_client.volume_snapshots.delete_metadata(
-                snapshot.id,
-                parsed_args.property,
+        if parsed_args.properties:
+            volume_client.delete_snapshot_metadata(
+                snapshot.id, keys=parsed_args.properties
             )

@@ -566,15 +566,16 @@ class TestVolumeSnapshotList(TestVolumeSnapshot):
         )
 
 
-class TestVolumeSnapshotSet(TestVolumeSnapshot):
-    snapshot = volume_fakes.create_one_snapshot()
-
+class TestVolumeSnapshotSet(volume_fakes_v3.TestVolume):
     def setUp(self):
         super().setUp()
 
-        self.snapshots_mock.get.return_value = self.snapshot
-        self.snapshots_mock.set_metadata.return_value = None
-        self.snapshots_mock.update.return_value = None
+        self.snapshot = sdk_fakes.generate_fake_resource(
+            _snapshot.Snapshot, metadata={'foo': 'bar'}
+        )
+        self.volume_sdk_client.find_snapshot.return_value = self.snapshot
+        self.volume_sdk_client.set_snapshot_metadata.return_value = None
+        self.volume_sdk_client.update_snapshot.return_value = None
         # Get the command object to mock
         self.cmd = volume_snapshot.SetVolumeSnapshot(self.app, None)
 
@@ -588,11 +589,14 @@ class TestVolumeSnapshotSet(TestVolumeSnapshot):
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
         result = self.cmd.take_action(parsed_args)
-        self.snapshots_mock.get.assert_called_once_with(parsed_args.snapshot)
-        self.assertNotCalled(self.snapshots_mock.reset_state)
-        self.assertNotCalled(self.snapshots_mock.update)
-        self.assertNotCalled(self.snapshots_mock.set_metadata)
+
         self.assertIsNone(result)
+        self.volume_sdk_client.find_snapshot.assert_called_once_with(
+            parsed_args.snapshot, ignore_missing=False
+        )
+        self.volume_sdk_client.reset_snapshot_status.assert_not_called()
+        self.volume_sdk_client.update_snapshot.assert_not_called()
+        self.volume_sdk_client.set_snapshot_metadata.assert_not_called()
 
     def test_snapshot_set_name_and_property(self):
         arglist = [
@@ -604,26 +608,22 @@ class TestVolumeSnapshotSet(TestVolumeSnapshot):
             "foo=foo",
             self.snapshot.id,
         ]
-        new_property = {"x": "y", "foo": "foo"}
         verifylist = [
             ("name", "new_snapshot"),
-            ("property", new_property),
+            ("properties", {"x": "y", "foo": "foo"}),
             ("snapshot", self.snapshot.id),
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
         result = self.cmd.take_action(parsed_args)
 
-        kwargs = {
-            "name": "new_snapshot",
-        }
-        self.snapshots_mock.update.assert_called_with(
-            self.snapshot.id, **kwargs
-        )
-        self.snapshots_mock.set_metadata.assert_called_with(
-            self.snapshot.id, new_property
-        )
         self.assertIsNone(result)
+        self.volume_sdk_client.update_snapshot.assert_called_with(
+            self.snapshot.id, name="new_snapshot"
+        )
+        self.volume_sdk_client.set_snapshot_metadata.assert_called_with(
+            self.snapshot.id, x="y", foo="foo"
+        )
 
     def test_snapshot_set_with_no_property(self):
         arglist = [
@@ -637,14 +637,17 @@ class TestVolumeSnapshotSet(TestVolumeSnapshot):
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
         result = self.cmd.take_action(parsed_args)
-        self.snapshots_mock.get.assert_called_once_with(parsed_args.snapshot)
-        self.assertNotCalled(self.snapshots_mock.reset_state)
-        self.assertNotCalled(self.snapshots_mock.update)
-        self.assertNotCalled(self.snapshots_mock.set_metadata)
-        self.snapshots_mock.delete_metadata.assert_called_with(
-            self.snapshot.id, ["foo"]
-        )
+
         self.assertIsNone(result)
+        self.volume_sdk_client.find_snapshot.assert_called_once_with(
+            parsed_args.snapshot, ignore_missing=False
+        )
+        self.volume_sdk_client.reset_snapshot_status.assert_not_called()
+        self.volume_sdk_client.update_snapshot.assert_not_called()
+        self.volume_sdk_client.set_snapshot_metadata.assert_not_called()
+        self.volume_sdk_client.delete_snapshot_metadata.assert_called_with(
+            self.snapshot.id, keys=["foo"]
+        )
 
     def test_snapshot_set_with_no_property_and_property(self):
         arglist = [
@@ -655,22 +658,26 @@ class TestVolumeSnapshotSet(TestVolumeSnapshot):
         ]
         verifylist = [
             ("no_property", True),
-            ("property", {"foo_1": "bar_1"}),
+            ("properties", {"foo_1": "bar_1"}),
             ("snapshot", self.snapshot.id),
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
         result = self.cmd.take_action(parsed_args)
-        self.snapshots_mock.get.assert_called_once_with(parsed_args.snapshot)
-        self.assertNotCalled(self.snapshots_mock.reset_state)
-        self.assertNotCalled(self.snapshots_mock.update)
-        self.snapshots_mock.delete_metadata.assert_called_with(
-            self.snapshot.id, ["foo"]
-        )
-        self.snapshots_mock.set_metadata.assert_called_once_with(
-            self.snapshot.id, {"foo_1": "bar_1"}
-        )
+
         self.assertIsNone(result)
+        self.volume_sdk_client.find_snapshot.assert_called_once_with(
+            parsed_args.snapshot, ignore_missing=False
+        )
+        self.volume_sdk_client.reset_snapshot_status.assert_not_called()
+        self.volume_sdk_client.update_snapshot.assert_not_called()
+        self.volume_sdk_client.delete_snapshot_metadata.assert_called_with(
+            self.snapshot.id, keys=["foo"]
+        )
+        self.volume_sdk_client.set_snapshot_metadata.assert_called_once_with(
+            self.snapshot.id,
+            foo_1="bar_1",
+        )
 
     def test_snapshot_set_state_to_error(self):
         arglist = ["--state", "error", self.snapshot.id]
@@ -679,30 +686,34 @@ class TestVolumeSnapshotSet(TestVolumeSnapshot):
 
         result = self.cmd.take_action(parsed_args)
 
-        self.snapshots_mock.reset_state.assert_called_with(
+        self.assertIsNone(result)
+        self.volume_sdk_client.reset_snapshot_status.assert_called_with(
             self.snapshot.id, "error"
         )
-        self.assertIsNone(result)
 
     def test_volume_set_state_failed(self):
-        self.snapshots_mock.reset_state.side_effect = exceptions.CommandError()
+        self.volume_sdk_client.reset_snapshot_status.side_effect = (
+            exceptions.CommandError()
+        )
         arglist = ['--state', 'error', self.snapshot.id]
         verifylist = [('state', 'error'), ('snapshot', self.snapshot.id)]
-
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
-        try:
-            self.cmd.take_action(parsed_args)
-            self.fail('CommandError should be raised.')
-        except exceptions.CommandError as e:
-            self.assertEqual(
-                'One or more of the set operations failed', str(e)
-            )
-        self.snapshots_mock.reset_state.assert_called_once_with(
+
+        exc = self.assertRaises(
+            exceptions.CommandError,
+            self.cmd.take_action,
+            parsed_args,
+        )
+
+        self.assertEqual('One or more of the set operations failed', str(exc))
+        self.volume_sdk_client.reset_snapshot_status.assert_called_once_with(
             self.snapshot.id, 'error'
         )
 
     def test_volume_set_name_and_state_failed(self):
-        self.snapshots_mock.reset_state.side_effect = exceptions.CommandError()
+        self.volume_sdk_client.reset_snapshot_status.side_effect = (
+            exceptions.CommandError()
+        )
         arglist = [
             '--state',
             'error',
@@ -715,22 +726,19 @@ class TestVolumeSnapshotSet(TestVolumeSnapshot):
             ("name", "new_snapshot"),
             ('snapshot', self.snapshot.id),
         ]
-
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
-        try:
-            self.cmd.take_action(parsed_args)
-            self.fail('CommandError should be raised.')
-        except exceptions.CommandError as e:
-            self.assertEqual(
-                'One or more of the set operations failed', str(e)
-            )
-        kwargs = {
-            "name": "new_snapshot",
-        }
-        self.snapshots_mock.update.assert_called_once_with(
-            self.snapshot.id, **kwargs
+
+        exc = self.assertRaises(
+            exceptions.CommandError,
+            self.cmd.take_action,
+            parsed_args,
         )
-        self.snapshots_mock.reset_state.assert_called_once_with(
+
+        self.assertEqual('One or more of the set operations failed', str(exc))
+        self.volume_sdk_client.update_snapshot.assert_called_once_with(
+            self.snapshot.id, name="new_snapshot"
+        )
+        self.volume_sdk_client.reset_snapshot_status.assert_called_once_with(
             self.snapshot.id, 'error'
         )
 
@@ -779,15 +787,14 @@ class TestVolumeSnapshotShow(TestVolumeSnapshot):
         self.assertCountEqual(self.data, data)
 
 
-class TestVolumeSnapshotUnset(TestVolumeSnapshot):
-    snapshot = volume_fakes.create_one_snapshot()
-
+class TestVolumeSnapshotUnset(volume_fakes_v3.TestVolume):
     def setUp(self):
         super().setUp()
 
-        self.snapshots_mock.get.return_value = self.snapshot
-        self.snapshots_mock.delete_metadata.return_value = None
-        # Get the command object to mock
+        self.snapshot = sdk_fakes.generate_fake_resource(_snapshot.Snapshot)
+        self.volume_sdk_client.find_snapshot.return_value = self.snapshot
+        self.volume_sdk_client.delete_snapshot_metadata.return_value = None
+
         self.cmd = volume_snapshot.UnsetVolumeSnapshot(self.app, None)
 
     def test_snapshot_unset(self):
@@ -797,15 +804,14 @@ class TestVolumeSnapshotUnset(TestVolumeSnapshot):
             self.snapshot.id,
         ]
         verifylist = [
-            ("property", ["foo"]),
+            ("properties", ["foo"]),
             ("snapshot", self.snapshot.id),
         ]
-
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
         result = self.cmd.take_action(parsed_args)
 
-        self.snapshots_mock.delete_metadata.assert_called_with(
-            self.snapshot.id, ["foo"]
-        )
         self.assertIsNone(result)
+        self.volume_sdk_client.delete_snapshot_metadata.assert_called_with(
+            self.snapshot.id, keys=["foo"]
+        )
