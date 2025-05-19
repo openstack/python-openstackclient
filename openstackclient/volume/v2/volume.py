@@ -107,7 +107,7 @@ class CreateVolume(command.ShowOne):
             )
             raise exceptions.CommandError(msg)
 
-    def _get_parser(self, prog_name):
+    def get_parser(self, prog_name):
         parser = super().get_parser(prog_name)
         parser.add_argument(
             "name",
@@ -216,14 +216,10 @@ class CreateVolume(command.ShowOne):
             default=None,
             help=_("Set volume to read-write access mode (default)"),
         )
-        return parser, source_group
-
-    def get_parser(self, prog_name):
-        parser, _ = self._get_parser(prog_name)
         return parser
 
     def take_action(self, parsed_args):
-        CreateVolume._check_size_arg(parsed_args)
+        self._check_size_arg(parsed_args)
         # size is validated in the above call to
         # _check_size_arg where we check that size
         # should be passed if we are not creating a

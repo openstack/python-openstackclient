@@ -31,7 +31,6 @@ from osc_lib import utils
 from openstackclient.common import pagination
 from openstackclient.i18n import _
 from openstackclient.identity import common as identity_common
-from openstackclient.volume.v2 import volume as volume_v2
 
 
 LOG = logging.getLogger(__name__)
@@ -91,7 +90,7 @@ class AttachmentsColumn(cliff_columns.FormattableColumn):
         return msg
 
 
-class CreateVolume(volume_v2.CreateVolume):
+class CreateVolume(command.ShowOne):
     _description = _("Create new volume")
 
     @staticmethod
@@ -117,8 +116,48 @@ class CreateVolume(volume_v2.CreateVolume):
             raise exceptions.CommandError(msg)
 
     def get_parser(self, prog_name):
-        parser, source_group = self._get_parser(prog_name)
-
+        parser = super().get_parser(prog_name)
+        parser.add_argument(
+            "name",
+            metavar="<name>",
+            nargs="?",
+            help=_("Volume name"),
+        )
+        parser.add_argument(
+            "--size",
+            metavar="<size>",
+            type=int,
+            help=_(
+                "Volume size in GB (required unless --snapshot or "
+                "--source specified)"
+            ),
+        )
+        parser.add_argument(
+            "--type",
+            metavar="<volume-type>",
+            help=_("Set the type of volume"),
+        )
+        source_group = parser.add_mutually_exclusive_group()
+        source_group.add_argument(
+            "--image",
+            metavar="<image>",
+            help=_("Use <image> as source of volume (name or ID)"),
+        )
+        source_group.add_argument(
+            "--snapshot",
+            metavar="<snapshot>",
+            help=_("Use <snapshot> as source of volume (name or ID)"),
+        )
+        source_group.add_argument(
+            "--source",
+            metavar="<volume>",
+            help=_("Volume to clone (name or ID)"),
+        )
+        source_group.add_argument(
+            "--source-replicated",
+            metavar="<replicated-volume>",
+            help=argparse.SUPPRESS,
+        )
         source_group.add_argument(
             "--backup",
             metavar="<backup>",
@@ -137,6 +176,72 @@ class CreateVolume(volume_v2.CreateVolume):
                 "attributes, e.g.: '--remote-source source-name=test_name "
                 "--remote-source source-id=test_id')"
             ),
+        )
+        parser.add_argument(
+            "--description",
+            metavar="<description>",
+            help=_("Volume description"),
+        )
+        parser.add_argument(
+            "--availability-zone",
+            metavar="<availability-zone>",
+            help=_("Create volume in <availability-zone>"),
+        )
+        parser.add_argument(
+            "--consistency-group",
+            metavar="consistency-group>",
+            help=_("Consistency group where the new volume belongs to"),
+        )
+        parser.add_argument(
+            "--property",
+            metavar="<key=value>",
+            action=parseractions.KeyValueAction,
+            dest="properties",
+            help=_(
+                "Set a property to this volume "
+                "(repeat option to set multiple properties)"
+            ),
+        )
+        parser.add_argument(
+            "--hint",
+            metavar="<key=value>",
+            action=KeyValueHintAction,
+            help=_(
+                "Arbitrary scheduler hint key-value pairs to help creating "
+                "a volume. Repeat the option to set multiple hints. "
+                "'same_host' and 'different_host' get values appended when "
+                "repeated, all other keys take the last given value"
+            ),
+        )
+        bootable_group = parser.add_mutually_exclusive_group()
+        bootable_group.add_argument(
+            "--bootable",
+            action="store_true",
+            dest="bootable",
+            default=None,
+            help=_("Mark volume as bootable"),
+        )
+        bootable_group.add_argument(
+            "--non-bootable",
+            action="store_false",
+            dest="bootable",
+            default=None,
+            help=_("Mark volume as non-bootable (default)"),
+        )
+        readonly_group = parser.add_mutually_exclusive_group()
+        readonly_group.add_argument(
+            "--read-only",
+            action="store_true",
+            dest="read_only",
+            default=None,
+            help=_("Set volume to read-only access mode"),
+        )
+        readonly_group.add_argument(
+            "--read-write",
+            action="store_false",
+            dest="read_only",
+            default=None,
+            help=_("Set volume to read-write access mode (default)"),
         )
         parser.add_argument(
             "--host",
@@ -160,7 +265,7 @@ class CreateVolume(volume_v2.CreateVolume):
         return parser
 
     def take_action(self, parsed_args):
-        CreateVolume._check_size_arg(parsed_args)
+        self._check_size_arg(parsed_args)
         # size is validated in the above call to
         # _check_size_arg where we check that size
         # should be passed if we are not creating a
@@ -351,11 +456,33 @@ class CreateVolume(volume_v2.CreateVolume):
         return zip(*sorted(volume._info.items()))
 
 
-class DeleteVolume(volume_v2.DeleteVolume):
+class DeleteVolume(command.Command):
     _description = _("Delete volume(s)")
 
     def get_parser(self, prog_name):
         parser = super().get_parser(prog_name)
+        parser.add_argument(
+            "volumes",
+            metavar="<volume>",
+            nargs="+",
+            help=_("Volume(s) to delete (name or ID)"),
+        )
+        group = parser.add_mutually_exclusive_group()
+        group.add_argument(
+            "--force",
+            action="store_true",
+            help=_(
+                "Attempt forced removal of volume(s), regardless of state "
+                "(defaults to False)"
+            ),
+        )
+        group.add_argument(
+            "--purge",
+            action="store_true",
+            help=_(
+                "Remove any snapshots along with volume(s) (defaults to False)"
+            ),
+        )
         parser.add_argument(
             '--remote',
             action='store_true',
