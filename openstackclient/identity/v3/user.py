@@ -289,7 +289,7 @@ class CreateUser(command.ShowOne):
         elif parsed_args.password_prompt:
             password = utils.get_password(self.app.stdin)
 
-        if not parsed_args.password:
+        if not password:
             LOG.warning(
                 _(
                     "No password was supplied, authentication will fail "

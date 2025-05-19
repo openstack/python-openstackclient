@@ -163,6 +163,53 @@ class TestUserCreate(identity_fakes.TestIdentityv3):
         self.assertEqual(self.columns, columns)
         self.assertEqual(self.datalist, data)
 
+    def test_user_create_password_prompt_no_warning(self):
+        arglist = [
+            '--password-prompt',
+            self.user.name,
+        ]
+        verifylist = [
+            ('password', None),
+            ('password_prompt', True),
+            ('enable', False),
+            ('disable', False),
+            ('name', self.user.name),
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+        import logging
+
+        # Mock the password prompt
+        mocker = mock.Mock()
+        mocker.return_value = 'abc123'
+
+        # Use assertLogs to verify no warnings are logged
+        logger = 'openstackclient.identity.v3.user'
+        with mock.patch("osc_lib.utils.get_password", mocker):
+            with self.assertLogs(logger, level='WARNING') as log_ctx:
+                logging.getLogger(logger).warning(
+                    "Dummy warning for test setup"
+                )
+                columns, data = self.cmd.take_action(parsed_args)
+
+                self.assertEqual(1, len(log_ctx.records))
+                self.assertIn(
+                    "Dummy warning for test setup", log_ctx.output[0]
+                )
+                self.assertNotIn(
+                    "No password was supplied", ''.join(log_ctx.output)
+                )
+
+        # Set expected values
+        kwargs = {
+            'name': self.user.name,
+            'is_enabled': True,
+            'password': 'abc123',
+        }
+        self.identity_sdk_client.create_user.assert_called_with(**kwargs)
+
+        self.assertEqual(self.columns, columns)
+        self.assertEqual(self.datalist, data)
+
     def test_user_create_email(self):
         arglist = [
             '--email',
