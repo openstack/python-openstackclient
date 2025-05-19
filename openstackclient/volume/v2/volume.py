@@ -364,18 +364,19 @@ class DeleteVolume(command.Command):
         return parser
 
     def take_action(self, parsed_args):
-        volume_client = self.app.client_manager.volume
+        volume_client = self.app.client_manager.sdk_connection.volume
         result = 0
 
-        for i in parsed_args.volumes:
+        for volume in parsed_args.volumes:
             try:
-                volume_obj = utils.find_resource(volume_client.volumes, i)
-                if parsed_args.force:
-                    volume_client.volumes.force_delete(volume_obj.id)
-                else:
-                    volume_client.volumes.delete(
-                        volume_obj.id, cascade=parsed_args.purge
-                    )
+                volume_obj = volume_client.find_volume(
+                    volume, ignore_missing=False
+                )
+                volume_client.delete_volume(
+                    volume_obj.id,
+                    force=parsed_args.force,
+                    cascade=parsed_args.purge,
+                )
             except Exception as e:
                 result += 1
                 LOG.error(
@@ -383,7 +384,7 @@ class DeleteVolume(command.Command):
                         "Failed to delete volume with "
                         "name or ID '%(volume)s': %(e)s"
                     ),
-                    {'volume': i, 'e': e},
+                    {'volume': volume, 'e': e},
                 )
 
         if result > 0:
