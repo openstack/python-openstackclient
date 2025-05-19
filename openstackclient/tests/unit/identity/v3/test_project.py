@@ -941,6 +941,22 @@ class TestProjectList(TestProject):
         )
         self.assertEqual(datalist, tuple(data))
 
+    def test_project_list_with_option_enabled(self):
+        arglist = ['--enabled']
+        verifylist = [('is_enabled', True)]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        # In base command class Lister in cliff, abstract method take_action()
+        # returns a tuple containing the column names and an iterable
+        # containing the data to be listed.
+        columns, data = self.cmd.take_action(parsed_args)
+
+        kwargs = {'is_enabled': True}
+        self.projects_mock.list.assert_called_with(**kwargs)
+
+        self.assertEqual(self.columns, columns)
+        self.assertEqual(self.datalist, tuple(data))
+
 
 class TestProjectSet(TestProject):
     domain = identity_fakes.FakeDomain.create_one_domain()

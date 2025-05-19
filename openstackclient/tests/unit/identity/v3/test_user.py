@@ -1035,6 +1035,24 @@ class TestUserList(identity_fakes.TestIdentityv3):
         self.assertEqual(self.columns, columns)
         self.assertEqual(self.datalist, tuple(data))
 
+    def test_user_list_with_option_enabled(self):
+        arglist = ['--enabled']
+        verifylist = [('is_enabled', True)]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        # In base command class Lister in cliff, abstract method take_action()
+        # returns a tuple containing the column names and an iterable
+        # containing the data to be listed.
+        columns, data = self.cmd.take_action(parsed_args)
+
+        kwargs = {'domain_id': None, 'is_enabled': True}
+        self.identity_sdk_client.users.assert_called_with(**kwargs)
+        self.identity_sdk_client.find_user.assert_not_called()
+        self.identity_sdk_client.group_users.assert_not_called()
+
+        self.assertEqual(self.columns, columns)
+        self.assertEqual(self.datalist, tuple(data))
+
 
 class TestUserSet(identity_fakes.TestIdentityv3):
     project = sdk_fakes.generate_fake_resource(_project.Project)

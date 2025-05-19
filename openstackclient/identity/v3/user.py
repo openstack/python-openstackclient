@@ -412,6 +412,24 @@ class ListUser(command.Lister):
             default=False,
             help=_('List additional fields in output'),
         )
+        parser.add_argument(
+            '--enabled',
+            action='store_true',
+            dest='is_enabled',
+            default=None,
+            help=_(
+                'List only enabled users, does nothing with --project and --group'
+            ),
+        )
+        parser.add_argument(
+            '--disabled',
+            action='store_false',
+            dest='is_enabled',
+            default=None,
+            help=_(
+                'List only disabled users, does nothing with --project and --group'
+            ),
+        )
         return parser
 
     def take_action(self, parsed_args):
@@ -430,6 +448,9 @@ class ListUser(command.Lister):
                 domain_id=parsed_args.domain,
                 ignore_missing=False,
             ).id
+
+        if parsed_args.is_enabled is not None:
+            enabled = parsed_args.is_enabled
 
         if parsed_args.project:
             if domain is not None:
@@ -469,9 +490,15 @@ class ListUser(command.Lister):
                 group=group,
             )
         else:
-            data = identity_client.users(
-                domain_id=domain,
-            )
+            if parsed_args.is_enabled is not None:
+                data = identity_client.users(
+                    domain_id=domain,
+                    is_enabled=enabled,
+                )
+            else:
+                data = identity_client.users(
+                    domain_id=domain,
+                )
 
         # Column handling
         if parsed_args.long:

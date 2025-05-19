@@ -240,6 +240,20 @@ class ListProject(command.Lister):
                 'keys and directions.'
             ),
         )
+        parser.add_argument(
+            '--enabled',
+            action='store_true',
+            dest='is_enabled',
+            default=None,
+            help=_('List only enabled projects'),
+        )
+        parser.add_argument(
+            '--disabled',
+            action='store_false',
+            dest='is_enabled',
+            default=None,
+            help=_('List only disabled projects'),
+        )
         tag.add_tag_filtering_option_to_parser(parser, _('projects'))
         return parser
 
@@ -276,6 +290,9 @@ class ListProject(command.Lister):
                 ).id
 
             kwargs['user'] = user_id
+
+        if parsed_args.is_enabled is not None:
+            kwargs['is_enabled'] = parsed_args.is_enabled
 
         tag.get_tag_filtering_args(parsed_args, kwargs)
 
