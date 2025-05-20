@@ -44,6 +44,7 @@ class TestUserCreate(identity_fakes.TestIdentityv3):
         'name',
         'description',
         'password_expires_at',
+        'options',
     )
 
     def setUp(self):
@@ -63,6 +64,7 @@ class TestUserCreate(identity_fakes.TestIdentityv3):
             self.user.name,
             self.user.description,
             self.user.password_expires_at,
+            getattr(self.user, 'options', {}),
         )
 
         self.identity_sdk_client.find_domain.return_value = self.domain
@@ -279,6 +281,7 @@ class TestUserCreate(identity_fakes.TestIdentityv3):
             self.user.name,
             self.user.description,
             self.user.password_expires_at,
+            getattr(self.user, 'options', {}),
         )
         self.assertEqual(datalist, data)
 
@@ -326,6 +329,7 @@ class TestUserCreate(identity_fakes.TestIdentityv3):
             self.user.name,
             self.user.description,
             self.user.password_expires_at,
+            getattr(self.user, 'options', {}),
         )
         self.assertEqual(datalist, data)
 
@@ -1853,6 +1857,7 @@ class TestUserShow(identity_fakes.TestIdentityv3):
             'name',
             'description',
             'password_expires_at',
+            'options',
         )
         self.assertEqual(collist, columns)
         datalist = (
@@ -1864,6 +1869,7 @@ class TestUserShow(identity_fakes.TestIdentityv3):
             self.user.name,
             self.user.description,
             self.user.password_expires_at,
+            getattr(self.user, 'options', {}),
         )
         self.assertEqual(datalist, data)
 

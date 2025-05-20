@@ -41,6 +41,7 @@ def _format_user(user):
         'name',
         'description',
         'password_expires_at',
+        'options',
     )
     column_headers = (
         'default_project_id',
@@ -51,6 +52,7 @@ def _format_user(user):
         'name',
         'description',
         'password_expires_at',
+        'options',
     )
     return (
         column_headers,
