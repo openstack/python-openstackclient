@@ -7000,6 +7000,7 @@ class TestServerEvacuate(TestServer):
             'image': self.image,
             'networks': {},
             'adminPass': 'passw0rd',
+            'status': 'ACTIVE',
         }
         self.server = compute_fakes.create_one_server(attrs=attrs)
         attrs['id'] = self.server.id
@@ -7137,6 +7138,33 @@ class TestServerEvacuate(TestServer):
         mock_wait_for_status.assert_called_once_with(
             self.compute_client.get_server,
             self.server.id,
+            success_status=['ACTIVE'],
+            callback=mock.ANY,
+        )
+
+    @mock.patch.object(common_utils, 'wait_for_status', return_value=True)
+    def test_evacuate_with_wait_ok_shutoff(self, mock_wait_for_status):
+        self.server.status = 'SHUTOFF'
+        self.compute_client.get_server.return_value = self.server
+
+        args = [
+            self.server.id,
+            '--wait',
+        ]
+        verify_args = [
+            ('server', self.server.id),
+            ('wait', True),
+        ]
+        evac_args = {
+            'host': None,
+            'on_shared_storage': False,
+            'admin_pass': None,
+        }
+        self._test_evacuate(args, verify_args, evac_args)
+        mock_wait_for_status.assert_called_once_with(
+            self.compute_client.get_server,
+            self.server.id,
+            success_status=['ACTIVE', 'SHUTOFF'],
             callback=mock.ANY,
         )
 

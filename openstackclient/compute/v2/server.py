@@ -3879,9 +3879,15 @@ host."""
         compute_client.evacuate_server(server, **kwargs)
 
         if parsed_args.wait:
+            orig_status = server.status
+            success = ['ACTIVE']
+            if orig_status == 'SHUTOFF':
+                success.append('SHUTOFF')
+
             if utils.wait_for_status(
                 compute_client.get_server,
                 server.id,
+                success_status=success,
                 callback=_show_progress,
             ):
                 self.app.stdout.write(_('Complete\n'))
