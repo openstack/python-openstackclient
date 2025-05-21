@@ -42,6 +42,7 @@ class TestCreateSecurityGroupNetwork(TestSecurityGroupNetwork):
         'created_at',
         'description',
         'id',
+        'is_shared',
         'name',
         'project_id',
         'revision_number',
@@ -55,6 +56,7 @@ class TestCreateSecurityGroupNetwork(TestSecurityGroupNetwork):
         _security_group.created_at,
         _security_group.description,
         _security_group.id,
+        _security_group.is_shared,
         _security_group.name,
         _security_group.project_id,
         _security_group.revision_number,
@@ -274,6 +276,7 @@ class TestListSecurityGroupNetwork(TestSecurityGroupNetwork):
         'Description',
         'Project',
         'Tags',
+        'Shared',
     )
 
     data = []
@@ -285,6 +288,7 @@ class TestListSecurityGroupNetwork(TestSecurityGroupNetwork):
                 grp.description,
                 grp.project_id,
                 grp.tags,
+                grp.is_shared,
             )
         )
 
@@ -524,6 +528,7 @@ class TestShowSecurityGroupNetwork(TestSecurityGroupNetwork):
         'created_at',
         'description',
         'id',
+        'is_shared',
         'name',
         'project_id',
         'revision_number',
@@ -537,6 +542,7 @@ class TestShowSecurityGroupNetwork(TestSecurityGroupNetwork):
         _security_group.created_at,
         _security_group.description,
         _security_group.id,
+        _security_group.is_shared,
         _security_group.name,
         _security_group.project_id,
         _security_group.revision_number,

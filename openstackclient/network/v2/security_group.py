@@ -90,10 +90,7 @@ def _get_columns(item):
     column_map = {
         'security_group_rules': 'rules',
     }
-    # FIXME(lajoskatona): Stop hiding is_shared when
-    # https://review.opendev.org/c/openstack/openstacksdk/+/950305
-    # is released and SDK version is bumped
-    hidden_columns = ['location', 'tenant_id', 'is_shared']
+    hidden_columns = ['location', 'tenant_id']
     return utils.get_osc_show_columns_for_sdk_resource(
         item, column_map, hidden_columns
     )
@@ -225,7 +222,14 @@ class DeleteSecurityGroup(common.NetworkAndComputeDelete):
 # the OSC minimum requirements include SDK 1.0.
 class ListSecurityGroup(common.NetworkAndComputeLister):
     _description = _("List security groups")
-    FIELDS_TO_RETRIEVE = ['id', 'name', 'description', 'project_id', 'tags']
+    FIELDS_TO_RETRIEVE = [
+        'id',
+        'name',
+        'description',
+        'project_id',
+        'tags',
+        'shared',
+    ]
 
     def update_parser_network(self, parser):
         if not self.is_docs_build:
@@ -248,6 +252,23 @@ class ListSecurityGroup(common.NetworkAndComputeLister):
         identity_common.add_project_domain_option_to_parser(
             parser, enhance_help=self.enhance_help_neutron
         )
+
+        shared_group = parser.add_mutually_exclusive_group()
+        shared_group.add_argument(
+            '--share',
+            action='store_true',
+            dest='shared',
+            default=None,
+            help=_("List security groups shared between projects"),
+        )
+        shared_group.add_argument(
+            '--no-share',
+            action='store_false',
+            dest='shared',
+            default=None,
+            help=_("List security groups not shared between projects"),
+        )
+
         _tag.add_tag_filtering_option_to_parser(
             parser, _('security group'), enhance_help=self.enhance_help_neutron
         )
@@ -275,13 +296,30 @@ class ListSecurityGroup(common.NetworkAndComputeLister):
             ).id
             filters['project_id'] = project_id
 
+        if parsed_args.shared is not None:
+            filters['shared'] = parsed_args.shared
+
         _tag.get_tag_filtering_args(parsed_args, filters)
         data = client.security_groups(
             fields=self.FIELDS_TO_RETRIEVE, **filters
         )
 
-        columns = ("id", "name", "description", "project_id", "tags")
-        column_headers = ("ID", "Name", "Description", "Project", "Tags")
+        columns = (
+            "id",
+            "name",
+            "description",
+            "project_id",
+            "tags",
+            "is_shared",
+        )
+        column_headers = (
+            "ID",
+            "Name",
+            "Description",
+            "Project",
+            "Tags",
+            "Shared",
+        )
         return (
             column_headers,
             (
