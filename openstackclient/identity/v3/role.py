@@ -334,9 +334,12 @@ class CreateRole(command.ShowOne):
 
         if parsed_args.name:
             create_kwargs['name'] = parsed_args.name
+
         if parsed_args.description:
             create_kwargs['description'] = parsed_args.description
-        create_kwargs['options'] = common.get_immutable_options(parsed_args)
+
+        if parsed_args.immutable is not None:
+            create_kwargs['options'] = {"immutable": parsed_args.immutable}
 
         try:
             role = identity_client.create_role(**create_kwargs)
@@ -585,7 +588,9 @@ class SetRole(command.Command):
             )
             update_kwargs["domain_id"] = domain_id
 
-        update_kwargs["options"] = common.get_immutable_options(parsed_args)
+        if parsed_args.immutable is not None:
+            update_kwargs["options"] = {"immutable": parsed_args.immutable}
+
         role = _find_sdk_id(
             identity_client.find_role,
             name_or_id=parsed_args.role,

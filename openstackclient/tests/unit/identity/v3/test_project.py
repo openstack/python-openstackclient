@@ -77,8 +77,7 @@ class TestProjectCreate(TestProject):
         ]
         verifylist = [
             ('parent', None),
-            ('enable', False),
-            ('disable', False),
+            ('enabled', True),
             ('name', self.project.name),
             ('tags', []),
         ]
@@ -134,8 +133,7 @@ class TestProjectCreate(TestProject):
         ]
         verifylist = [
             ('description', 'new desc'),
-            ('enable', False),
-            ('disable', False),
+            ('enabled', True),
             ('name', self.project.name),
             ('parent', None),
             ('tags', []),
@@ -172,8 +170,7 @@ class TestProjectCreate(TestProject):
         ]
         verifylist = [
             ('domain', self.project.domain_id),
-            ('enable', False),
-            ('disable', False),
+            ('enabled', True),
             ('name', self.project.name),
             ('parent', None),
             ('tags', []),
@@ -210,8 +207,7 @@ class TestProjectCreate(TestProject):
         ]
         verifylist = [
             ('domain', self.project.domain_id),
-            ('enable', False),
-            ('disable', False),
+            ('enabled', True),
             ('name', self.project.name),
             ('parent', None),
             ('tags', []),
@@ -243,8 +239,7 @@ class TestProjectCreate(TestProject):
             self.project.name,
         ]
         verifylist = [
-            ('enable', True),
-            ('disable', False),
+            ('enabled', True),
             ('name', self.project.name),
             ('parent', None),
             ('tags', []),
@@ -279,8 +274,7 @@ class TestProjectCreate(TestProject):
             self.project.name,
         ]
         verifylist = [
-            ('enable', False),
-            ('disable', True),
+            ('enabled', False),
             ('name', self.project.name),
             ('parent', None),
         ]
@@ -317,7 +311,7 @@ class TestProjectCreate(TestProject):
             self.project.name,
         ]
         verifylist = [
-            ('property', {'fee': 'fi', 'fo': 'fum'}),
+            ('properties', {'fee': 'fi', 'fo': 'fum'}),
             ('name', self.project.name),
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
@@ -354,11 +348,10 @@ class TestProjectCreate(TestProject):
         ]
         verifylist = [
             ('parent', None),
-            ('enable', False),
-            ('disable', False),
+            ('enabled', True),
             ('name', self.project.name),
             ('tags', []),
-            ('property', {'is_domain': 'false'}),
+            ('properties', {'is_domain': 'false'}),
             ('name', self.project.name),
         ]
 
@@ -393,11 +386,10 @@ class TestProjectCreate(TestProject):
         ]
         verifylist = [
             ('parent', None),
-            ('enable', False),
-            ('disable', False),
+            ('enabled', True),
             ('name', self.project.name),
             ('tags', []),
-            ('property', {'is_domain': 'true'}),
+            ('properties', {'is_domain': 'true'}),
             ('name', self.project.name),
         ]
 
@@ -432,11 +424,10 @@ class TestProjectCreate(TestProject):
         ]
         verifylist = [
             ('parent', None),
-            ('enable', False),
-            ('disable', False),
+            ('enabled', True),
             ('name', self.project.name),
             ('tags', []),
-            ('property', {'is_domain': 'none'}),
+            ('properties', {'is_domain': 'none'}),
             ('name', self.project.name),
         ]
 
@@ -481,8 +472,7 @@ class TestProjectCreate(TestProject):
         verifylist = [
             ('domain', self.project.domain_id),
             ('parent', self.parent.name),
-            ('enable', False),
-            ('disable', False),
+            ('enabled', True),
             ('name', self.project.name),
             ('tags', []),
         ]
@@ -544,8 +534,7 @@ class TestProjectCreate(TestProject):
         verifylist = [
             ('domain', self.project.domain_id),
             ('parent', 'invalid'),
-            ('enable', False),
-            ('disable', False),
+            ('enabled', True),
             ('name', self.project.name),
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
@@ -566,8 +555,7 @@ class TestProjectCreate(TestProject):
         ]
         verifylist = [
             ('domain', self.project.domain_id),
-            ('enable', False),
-            ('disable', False),
+            ('enabled', True),
             ('name', self.project.name),
             ('parent', None),
             ('tags', ['foo']),
@@ -602,8 +590,7 @@ class TestProjectCreate(TestProject):
         verifylist = [
             ('immutable', True),
             ('description', None),
-            ('enable', False),
-            ('disable', False),
+            ('enabled', True),
             ('name', self.project.name),
             ('parent', None),
             ('tags', []),
@@ -638,10 +625,9 @@ class TestProjectCreate(TestProject):
             self.project.name,
         ]
         verifylist = [
-            ('no_immutable', True),
+            ('immutable', False),
             ('description', None),
-            ('enable', False),
-            ('disable', False),
+            ('enabled', True),
             ('name', self.project.name),
             ('parent', None),
             ('tags', []),
@@ -981,8 +967,7 @@ class TestProjectSet(TestProject):
         ]
         verifylist = [
             ('project', self.project.name),
-            ('enable', False),
-            ('disable', False),
+            ('enabled', None),
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
@@ -1001,8 +986,7 @@ class TestProjectSet(TestProject):
         verifylist = [
             ('name', 'qwerty'),
             ('domain', self.project.domain_id),
-            ('enable', False),
-            ('disable', False),
+            ('enabled', None),
             ('project', self.project.name),
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
@@ -1029,8 +1013,7 @@ class TestProjectSet(TestProject):
         verifylist = [
             ('domain', self.project.domain_id),
             ('description', 'new desc'),
-            ('enable', False),
-            ('disable', False),
+            ('enabled', None),
             ('project', self.project.name),
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
@@ -1053,8 +1036,7 @@ class TestProjectSet(TestProject):
         ]
         verifylist = [
             ('domain', self.project.domain_id),
-            ('enable', True),
-            ('disable', False),
+            ('enabled', True),
             ('project', self.project.name),
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
@@ -1077,8 +1059,7 @@ class TestProjectSet(TestProject):
         ]
         verifylist = [
             ('domain', self.project.domain_id),
-            ('enable', False),
-            ('disable', True),
+            ('enabled', False),
             ('project', self.project.name),
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
@@ -1104,7 +1085,7 @@ class TestProjectSet(TestProject):
         ]
         verifylist = [
             ('domain', self.project.domain_id),
-            ('property', {'fee': 'fi', 'fo': 'fum'}),
+            ('properties', {'fee': 'fi', 'fo': 'fum'}),
             ('project', self.project.name),
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
@@ -1132,8 +1113,7 @@ class TestProjectSet(TestProject):
         verifylist = [
             ('name', 'qwerty'),
             ('domain', self.project.domain_id),
-            ('enable', False),
-            ('disable', False),
+            ('enabled', None),
             ('project', self.project.name),
             ('tags', ['foo']),
         ]
@@ -1160,8 +1140,7 @@ class TestProjectSet(TestProject):
             self.project.name,
         ]
         verifylist = [
-            ('enable', False),
-            ('disable', False),
+            ('enabled', None),
             ('project', self.project.name),
             ('remove_tag', ['tag1', 'tag2']),
         ]
@@ -1183,8 +1162,7 @@ class TestProjectSet(TestProject):
         verifylist = [
             ('domain', self.project.domain_id),
             ('immutable', True),
-            ('enable', False),
-            ('disable', False),
+            ('enabled', None),
             ('project', self.project.name),
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
@@ -1207,9 +1185,8 @@ class TestProjectSet(TestProject):
         ]
         verifylist = [
             ('domain', self.project.domain_id),
-            ('no_immutable', True),
-            ('enable', False),
-            ('disable', False),
+            ('immutable', False),
+            ('enabled', None),
             ('project', self.project.name),
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)

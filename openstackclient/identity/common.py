@@ -348,15 +348,6 @@ def _find_sdk_id(
     return resource.id
 
 
-def get_immutable_options(parsed_args):
-    options = {}
-    if parsed_args.immutable:
-        options['immutable'] = True
-    if parsed_args.no_immutable:
-        options['immutable'] = False
-    return options
-
-
 def add_user_domain_option_to_parser(parser):
     parser.add_argument(
         '--user-domain',
@@ -419,17 +410,21 @@ def add_inherited_option_to_parser(parser):
 
 
 def add_resource_option_to_parser(parser):
-    enable_group = parser.add_mutually_exclusive_group()
-    enable_group.add_argument(
+    immutable_group = parser.add_mutually_exclusive_group()
+    immutable_group.add_argument(
         '--immutable',
         action='store_true',
+        dest='immutable',
+        default=None,
         help=_(
             'Make resource immutable. An immutable project may not '
             'be deleted or modified except to remove the immutable flag'
         ),
     )
-    enable_group.add_argument(
+    immutable_group.add_argument(
         '--no-immutable',
-        action='store_true',
+        action='store_false',
+        dest='immutable',
+        default=None,
         help=_('Make resource mutable (default)'),
     )

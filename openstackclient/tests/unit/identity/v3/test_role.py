@@ -494,7 +494,6 @@ class TestRoleCreate(identity_fakes.TestIdentityv3):
         # Set expected values
         kwargs = {
             'name': self.role.name,
-            'options': {},
         }
 
         self.identity_sdk_client.create_role.assert_called_with(**kwargs)
@@ -533,7 +532,6 @@ class TestRoleCreate(identity_fakes.TestIdentityv3):
         kwargs = {
             'domain_id': self.domain.id,
             'name': self.role_with_domain.name,
-            'options': {},
         }
 
         self.identity_sdk_client.create_role.assert_called_with(**kwargs)
@@ -572,7 +570,6 @@ class TestRoleCreate(identity_fakes.TestIdentityv3):
         kwargs = {
             'name': self.role_with_description.name,
             'description': self.role_with_description.description,
-            'options': {},
         }
 
         self.identity_sdk_client.create_role.assert_called_with(**kwargs)
@@ -629,7 +626,7 @@ class TestRoleCreate(identity_fakes.TestIdentityv3):
             self.role.name,
         ]
         verifylist = [
-            ('no_immutable', True),
+            ('immutable', False),
             ('name', self.role.name),
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
@@ -1437,7 +1434,6 @@ class TestRoleSet(identity_fakes.TestIdentityv3):
         kwargs = {
             'name': 'over',
             'role': self.role.id,
-            'options': {},
         }
         self.identity_sdk_client.update_role.assert_called_with(**kwargs)
         self.assertIsNone(result)
@@ -1472,7 +1468,6 @@ class TestRoleSet(identity_fakes.TestIdentityv3):
             'name': 'over',
             'role': self.role_with_domain.id,
             'domain_id': self.domain2.id,
-            'options': {},
         }
         self.identity_sdk_client.update_role.assert_called_with(**kwargs)
         self.assertIsNone(result)
@@ -1501,7 +1496,6 @@ class TestRoleSet(identity_fakes.TestIdentityv3):
             'name': 'over',
             'description': 'role description',
             'role': self.role_with_domain.id,
-            'options': {},
         }
         self.identity_sdk_client.update_role.assert_called_with(**kwargs)
         self.assertIsNone(result)
@@ -1544,7 +1538,7 @@ class TestRoleSet(identity_fakes.TestIdentityv3):
         ]
         verifylist = [
             ('name', 'over'),
-            ('no_immutable', True),
+            ('immutable', False),
             ('role', self.role_with_domain.name),
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
