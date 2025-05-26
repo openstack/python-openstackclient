@@ -552,7 +552,7 @@ class ShowVolumeGroup(command.ShowOne):
             parsed_args.group,
         )
 
-        group = volume_client.groups.show(group.id, **kwargs)
+        group = volume_client.groups.get(group.id, **kwargs)
 
         if parsed_args.show_replication_targets:
             replication_targets = (
