@@ -2039,6 +2039,36 @@ class TestImageImport(TestImage):
 
         self.image_client.import_image.assert_not_called()
 
+    def test_import_image__web_download_invalid_url(self):
+        arglist = [
+            self.image.name,
+            '--method',
+            'web-download',
+            '--uri',
+            'invalid:1234',
+        ]
+
+        verifylist = [
+            ('image', self.image.name),
+            ('import_method', 'web-download'),
+            ('uri', 'invalid:1234'),
+        ]
+
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        exc = self.assertRaises(
+            exceptions.CommandError,
+            self.cmd.take_action,
+            parsed_args,
+        )
+
+        self.assertIn(
+            "'invalid:1234' is not a valid url",
+            str(exc),
+        )
+
+        self.image_client.import_image.assert_not_called()
+
     def test_import_image__web_download_invalid_image_state(self):
         self.image.status = 'uploading'  # != 'queued'
         arglist = [

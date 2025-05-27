@@ -22,6 +22,7 @@ import logging
 import os
 import sys
 import typing as ty
+import urllib.parse
 
 from openstack import exceptions as sdk_exceptions
 from openstack.image import image_signer
@@ -1744,6 +1745,12 @@ class ImportImage(command.ShowOne):
                     "'--method=web-download'"
                 )
                 raise exceptions.CommandError(msg)
+            _parsed = urllib.parse.urlparse(parsed_args.uri)
+            if not all({_parsed.scheme, _parsed.netloc}):
+                msg = _("'%(uri)s' is not a valid url")
+                raise exceptions.CommandError(
+                    msg % {'uri': parsed_args.uri},
+                )
         else:
             if parsed_args.uri:
                 msg = _(
