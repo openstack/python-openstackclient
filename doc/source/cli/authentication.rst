@@ -295,6 +295,15 @@ or, using environment variables:
 
        $ TOKEN=$(openstack token issue -f value -c id)
 
+.. note::
+
+    The above examples assume you require a project-scoped token. You can omit
+    the project-related configuration if your user has a default project ID set.
+    Conversely, if requesting domain-scoped or system-scoped, you should update
+    these examples accordingly. If the user does not have a default project
+    configured and no scoping information is provided, the resulting token will
+    be unscoped.
+
 ``v3totp``
 ~~~~~~~~~~
 
