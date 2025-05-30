@@ -59,17 +59,22 @@ class CreateProject(command.ShowOne):
         enable_group.add_argument(
             '--enable',
             action='store_true',
+            dest='enabled',
+            default=True,
             help=_('Enable project'),
         )
         enable_group.add_argument(
             '--disable',
-            action='store_true',
+            action='store_false',
+            dest='enabled',
+            default=True,
             help=_('Disable project'),
         )
         parser.add_argument(
             '--property',
             metavar='<key=value>',
             action=parseractions.KeyValueAction,
+            dest='properties',
             help=_(
                 'Add a property to <name> '
                 '(repeat option to set multiple properties)'
@@ -98,15 +103,9 @@ class CreateProject(command.ShowOne):
                 parsed_args.parent,
             ).id
 
-        enabled = True
-        if parsed_args.disable:
-            enabled = False
-
-        options = common.get_immutable_options(parsed_args)
-
         kwargs = {}
-        if parsed_args.property:
-            kwargs = parsed_args.property.copy()
+        if parsed_args.properties:
+            kwargs = parsed_args.properties.copy()
         if 'is_domain' in kwargs.keys():
             if kwargs['is_domain'].lower() == "true":
                 kwargs['is_domain'] = True
@@ -117,13 +116,17 @@ class CreateProject(command.ShowOne):
 
         kwargs['tags'] = list(set(parsed_args.tags))
 
+        options = {}
+        if parsed_args.immutable is not None:
+            options['immutable'] = parsed_args.immutable
+
         try:
             project = identity_client.projects.create(
                 name=parsed_args.name,
                 domain=domain,
                 parent=parent,
                 description=parsed_args.description,
-                enabled=enabled,
+                enabled=parsed_args.enabled,
                 options=options,
                 **kwargs,
             )
@@ -356,16 +359,21 @@ class SetProject(command.Command):
         enable_group.add_argument(
             '--enable',
             action='store_true',
+            dest='enabled',
+            default=None,
             help=_('Enable project'),
         )
         enable_group.add_argument(
             '--disable',
-            action='store_true',
+            action='store_false',
+            dest='enabled',
+            default=None,
             help=_('Disable project'),
         )
         parser.add_argument(
             '--property',
             metavar='<key=value>',
+            dest='properties',
             action=parseractions.KeyValueAction,
             help=_(
                 'Set a property on <project> '
@@ -388,15 +396,12 @@ class SetProject(command.Command):
             kwargs['name'] = parsed_args.name
         if parsed_args.description:
             kwargs['description'] = parsed_args.description
-        if parsed_args.enable:
-            kwargs['enabled'] = True
-        if parsed_args.disable:
-            kwargs['enabled'] = False
-        options = common.get_immutable_options(parsed_args)
-        if options:
-            kwargs['options'] = options
-        if parsed_args.property:
-            kwargs.update(parsed_args.property)
+        if parsed_args.enabled is not None:
+            kwargs['enabled'] = parsed_args.enabled
+        if parsed_args.immutable is not None:
+            kwargs['options'] = {'immutable': parsed_args.immutable}
+        if parsed_args.properties:
+            kwargs.update(parsed_args.properties)
         tag.update_tags_in_args(parsed_args, project, kwargs)
 
         identity_client.projects.update(project.id, **kwargs)

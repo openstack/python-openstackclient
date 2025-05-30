@@ -186,7 +186,7 @@ class TestDomainCreate(identity_fakes.TestIdentityv3):
             self.domain.name,
         ]
         verifylist = [
-            ('no_immutable', True),
+            ('immutable', False),
             ('name', self.domain.name),
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
@@ -461,7 +461,7 @@ class TestDomainSet(identity_fakes.TestIdentityv3):
             self.domain.id,
         ]
         verifylist = [
-            ('no_immutable', True),
+            ('immutable', False),
             ('domain', self.domain.id),
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)

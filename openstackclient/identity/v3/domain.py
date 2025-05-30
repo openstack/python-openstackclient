@@ -94,7 +94,9 @@ class CreateDomain(command.ShowOne):
     def take_action(self, parsed_args):
         identity_client = self.app.client_manager.sdk_connection.identity
 
-        options = common.get_immutable_options(parsed_args)
+        options = {}
+        if parsed_args.immutable is not None:
+            options['immutable'] = parsed_args.immutable
 
         try:
             domain = identity_client.create_domain(
@@ -242,13 +244,10 @@ class SetDomain(command.Command):
             kwargs['name'] = parsed_args.name
         if parsed_args.description:
             kwargs['description'] = parsed_args.description
-
         if parsed_args.is_enabled is not None:
             kwargs['is_enabled'] = parsed_args.is_enabled
-
-        options = common.get_immutable_options(parsed_args)
-        if options:
-            kwargs['options'] = options
+        if parsed_args.immutable is not None:
+            kwargs['options'] = {'immutable': parsed_args.immutable}
 
         identity_client.update_domain(domain.id, **kwargs)
 
