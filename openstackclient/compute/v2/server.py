@@ -2129,13 +2129,11 @@ class CreateServer(command.ShowOne):
                     f.close()
 
         if parsed_args.wait:
-            if utils.wait_for_status(
+            if not utils.wait_for_status(
                 compute_client.get_server,
                 server.id,
                 callback=_show_progress,
             ):
-                self.app.stdout.write('\n')
-            else:
                 msg = _('Error creating server: %s') % parsed_args.server_name
                 raise exceptions.CommandError(msg)
 
