@@ -37,14 +37,18 @@ def _format_image_cache(cached_images):
                 image_obj = copy.deepcopy(image)
                 image_obj['state'] = 'cached'
                 image_obj['last_accessed'] = (
-                    datetime.datetime.utcfromtimestamp(
-                        image['last_accessed']
-                    ).isoformat()
+                    datetime.datetime.fromtimestamp(
+                        image['last_accessed'], tz=datetime.timezone.utc
+                    )
+                    .replace(tzinfo=None)
+                    .isoformat()
                 )
                 image_obj['last_modified'] = (
-                    datetime.datetime.utcfromtimestamp(
-                        image['last_modified']
-                    ).isoformat()
+                    datetime.datetime.fromtimestamp(
+                        image['last_modified'], tz=datetime.timezone.utc
+                    )
+                    .replace(tzinfo=None)
+                    .isoformat()
                 )
                 image_list.append(image_obj)
         elif item == "queued_images":
