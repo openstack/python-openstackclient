@@ -183,9 +183,13 @@ def _prep_server_detail(compute_client, image_client, server, *, refresh=True):
         'updated_at': 'updated',
         'user_data': 'OS-EXT-SRV-ATTR:user_data',
         'vm_state': 'OS-EXT-STS:vm_state',
-        'pinned_availability_zone': 'pinned_availability_zone',
         'scheduler_hints': 'scheduler_hints',
     }
+    # NOTE(ratailor): microversion 2.96 introduces
+    # pinned_availability_zone support
+    if sdk_utils.supports_microversion(compute_client, '2.96'):
+        column_map['pinned_availability_zone'] = 'pinned_availability_zone'
+
     # Some columns returned by openstacksdk should not be shown because they're
     # either irrelevant or duplicates
     ignored_columns = {
@@ -239,6 +243,11 @@ def _prep_server_detail(compute_client, image_client, server, *, refresh=True):
     #  content from request_spec on detailed responses
     if not sdk_utils.supports_microversion(compute_client, '2.100'):
         info.pop('scheduler_hints', None)
+
+    # NOTE(ratailor): microversion 2.96 introduces
+    # pinned_availability_zone support
+    if not sdk_utils.supports_microversion(compute_client, '2.96'):
+        info.pop('pinned_availability_zone', None)
 
     # Convert the image blob to a name
     image_info = info.get('image', {})
@@ -2838,18 +2847,19 @@ class ListServer(command.Lister):
         if parsed_args.long:
             columns += (
                 'availability_zone',
-                'pinned_availability_zone',
                 'hypervisor_hostname',
                 'metadata',
                 'scheduler_hints',
             )
             column_headers += (
                 'Availability Zone',
-                'Pinned Availability Zone',
                 'Host',
                 'Properties',
                 'Scheduler Hints',
             )
+            if sdk_utils.supports_microversion(compute_client, '2.96'):
+                columns += ('pinned_availability_zone',)
+                column_headers += ('Pinned Availability Zone',)
 
         if parsed_args.all_projects:
             columns += ('project_id',)
@@ -2887,10 +2897,11 @@ class ListServer(command.Lister):
                     column_headers += ('Availability Zone',)
                 if c in (
                     'pinned_availability_zone',
-                    "Pinned Availability Zone",
+                    'Pinned Availability Zone',
                 ):
-                    columns += ('Pinned Availability Zone',)
-                    column_headers += ('Pinned Availability Zone',)
+                    if sdk_utils.supports_microversion(compute_client, '2.96'):
+                        columns += ('pinned_availability_zone',)
+                        column_headers += ('Pinned Availability Zone',)
                 if c in ('Host', "host"):
                     columns += ('hypervisor_hostname',)
                     column_headers += ('Host',)
