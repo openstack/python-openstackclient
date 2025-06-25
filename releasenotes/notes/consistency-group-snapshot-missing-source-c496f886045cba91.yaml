@@ -1,0 +1,7 @@
+---
+fixes:
+  - |
+    The ``consistency group snapshot create`` command now reports a clear
+    error when neither ``--consistency-group`` nor ``<snapshot-name>`` is
+    supplied, instead of attempting to look up a consistency group with no
+    name or ID. This applies to both Block Storage API v2 and v3.
