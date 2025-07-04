@@ -1239,6 +1239,7 @@ class TestVolumeList(volume_fakes.TestVolume):
             'user_id': None,
             'name': None,
             'status': None,
+            'metadata': None,
         }
         self.volumes_mock.list.assert_called_once_with(
             search_opts=search_opts,
@@ -1282,6 +1283,7 @@ class TestVolumeList(volume_fakes.TestVolume):
             'user_id': None,
             'name': None,
             'status': None,
+            'metadata': None,
         }
         self.volumes_mock.list.assert_called_once_with(
             search_opts=search_opts,
@@ -1328,6 +1330,7 @@ class TestVolumeList(volume_fakes.TestVolume):
             'user_id': None,
             'name': None,
             'status': None,
+            'metadata': None,
         }
         self.volumes_mock.list.assert_called_once_with(
             search_opts=search_opts,
@@ -1371,6 +1374,7 @@ class TestVolumeList(volume_fakes.TestVolume):
             'user_id': self.user.id,
             'name': None,
             'status': None,
+            'metadata': None,
         }
         self.volumes_mock.list.assert_called_once_with(
             search_opts=search_opts,
@@ -1416,6 +1420,7 @@ class TestVolumeList(volume_fakes.TestVolume):
             'user_id': self.user.id,
             'name': None,
             'status': None,
+            'metadata': None,
         }
         self.volumes_mock.list.assert_called_once_with(
             search_opts=search_opts,
@@ -1459,6 +1464,7 @@ class TestVolumeList(volume_fakes.TestVolume):
             'user_id': None,
             'name': self.mock_volume.name,
             'status': None,
+            'metadata': None,
         }
         self.volumes_mock.list.assert_called_once_with(
             search_opts=search_opts,
@@ -1502,6 +1508,7 @@ class TestVolumeList(volume_fakes.TestVolume):
             'user_id': None,
             'name': None,
             'status': self.mock_volume.status,
+            'metadata': None,
         }
         self.volumes_mock.list.assert_called_once_with(
             search_opts=search_opts,
@@ -1544,6 +1551,7 @@ class TestVolumeList(volume_fakes.TestVolume):
             'user_id': None,
             'name': None,
             'status': None,
+            'metadata': None,
         }
         self.volumes_mock.list.assert_called_once_with(
             search_opts=search_opts,
@@ -1587,6 +1595,7 @@ class TestVolumeList(volume_fakes.TestVolume):
             'user_id': None,
             'name': None,
             'status': None,
+            'metadata': None,
         }
         self.volumes_mock.list.assert_called_once_with(
             search_opts=search_opts,
@@ -1660,6 +1669,7 @@ class TestVolumeList(volume_fakes.TestVolume):
                 'user_id': None,
                 'name': None,
                 'all_tenants': False,
+                'metadata': None,
             },
         )
         self.assertCountEqual(datalist, tuple(data))
@@ -1704,6 +1714,7 @@ class TestVolumeList(volume_fakes.TestVolume):
             'user_id': None,
             'name': None,
             'status': None,
+            'metadata': None,
         }
         self.volumes_mock.list.assert_called_once_with(
             search_opts=search_opts,

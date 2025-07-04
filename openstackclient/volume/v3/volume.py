@@ -575,6 +575,16 @@ class ListVolume(command.Lister):
             help=_('Filter results by status'),
         )
         parser.add_argument(
+            '--property',
+            metavar='<key=value>',
+            action=parseractions.KeyValueAction,
+            dest='properties',
+            help=_(
+                'Filter by a property on the volume list '
+                '(repeat option to filter by multiple properties) '
+            ),
+        )
+        parser.add_argument(
             '--all-projects',
             action='store_true',
             default=False,
@@ -642,6 +652,7 @@ class ListVolume(command.Lister):
             'user_id': user_id,
             'name': parsed_args.name,
             'status': parsed_args.status,
+            'metadata': parsed_args.properties,
         }
 
         data = volume_client.volumes.list(
