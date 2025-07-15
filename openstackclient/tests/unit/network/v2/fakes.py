@@ -1412,6 +1412,7 @@ def create_one_security_group(attrs=None):
         'security_group_rules': [],
         'tags': [],
         'location': 'MUNCHMUNCHMUNCH',
+        'is_shared': False,
     }
 
     # Overwrite default attributes.
