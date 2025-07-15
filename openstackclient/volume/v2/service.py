@@ -126,7 +126,7 @@ class SetService(command.Command):
         volume_client = self.app.client_manager.sdk_connection.volume
 
         service = volume_client.find_service(
-            host=parsed_args.host, service=parsed_args.service
+            parsed_args.service, ignore_missing=False, host=parsed_args.host
         )
 
         if parsed_args.enable:

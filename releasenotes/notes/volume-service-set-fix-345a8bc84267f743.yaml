@@ -1,0 +1,5 @@
+---
+fixes:
+  - |
+    The 'volume service set' command could not work due to a bad API call.
+    [Bug `2116969 <https://bugs.launchpad.net/bugs/2116969>`_]
