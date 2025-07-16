@@ -1,0 +1,5 @@
+---
+features:
+  - |
+    Add ``--project`` option to ``volume backup list`` command,
+    to allow filtering for projects when listing volume backups.
