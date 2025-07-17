@@ -1146,37 +1146,26 @@ class TestVolumeDelete(volume_fakes.TestVolume):
 
 
 class TestVolumeList(volume_fakes.TestVolume):
-    project = identity_fakes.FakeProject.create_one_project()
-    user = identity_fakes.FakeUser.create_one_user()
-
-    columns = [
+    columns = (
         'ID',
         'Name',
         'Status',
         'Size',
         'Attached to',
-    ]
+    )
 
     def setUp(self):
         super().setUp()
 
-        self.volumes_mock = self.volume_client.volumes
-        self.volumes_mock.reset_mock()
+        self.volume = sdk_fakes.generate_fake_resource(_volume.Volume)
+        self.volume_sdk_client.volumes.return_value = [self.volume]
 
-        self.projects_mock = self.identity_client.projects
-        self.projects_mock.reset_mock()
+        self.user = identity_fakes.FakeUser.create_one_user()
+        self.identity_client.users.get.return_value = self.user
 
-        self.users_mock = self.identity_client.users
-        self.users_mock.reset_mock()
+        self.project = identity_fakes.FakeProject.create_one_project()
+        self.identity_client.projects.get.return_value = self.project
 
-        self.mock_volume = volume_fakes.create_one_volume()
-        self.volumes_mock.list.return_value = [self.mock_volume]
-
-        self.users_mock.get.return_value = self.user
-
-        self.projects_mock.get.return_value = self.project
-
-        # Get the command object to test
         self.cmd = volume.ListVolume(self.app, None)
 
     def test_volume_list_no_options(self):
@@ -1193,29 +1182,17 @@ class TestVolumeList(volume_fakes.TestVolume):
 
         columns, data = self.cmd.take_action(parsed_args)
 
-        search_opts = {
-            'all_tenants': False,
-            'project_id': None,
-            'user_id': None,
-            'name': None,
-            'status': None,
-            'metadata': None,
-        }
-        self.volumes_mock.list.assert_called_once_with(
-            search_opts=search_opts,
-            marker=None,
-            limit=None,
+        self.volume_sdk_client.volumes.assert_called_once_with(
+            all_projects=False
         )
-
         self.assertEqual(self.columns, columns)
-
         datalist = (
             (
-                self.mock_volume.id,
-                self.mock_volume.name,
-                self.mock_volume.status,
-                self.mock_volume.size,
-                volume.AttachmentsColumn(self.mock_volume.attachments),
+                self.volume.id,
+                self.volume.name,
+                self.volume.status,
+                self.volume.size,
+                volume.AttachmentsColumn(self.volume.attachments),
             ),
         )
         self.assertCountEqual(datalist, tuple(data))
@@ -1237,29 +1214,17 @@ class TestVolumeList(volume_fakes.TestVolume):
 
         columns, data = self.cmd.take_action(parsed_args)
 
-        search_opts = {
-            'all_tenants': True,
-            'project_id': self.project.id,
-            'user_id': None,
-            'name': None,
-            'status': None,
-            'metadata': None,
-        }
-        self.volumes_mock.list.assert_called_once_with(
-            search_opts=search_opts,
-            marker=None,
-            limit=None,
+        self.volume_sdk_client.volumes.assert_called_once_with(
+            project_id=self.project.id, all_projects=True
         )
-
         self.assertEqual(self.columns, columns)
-
         datalist = (
             (
-                self.mock_volume.id,
-                self.mock_volume.name,
-                self.mock_volume.status,
-                self.mock_volume.size,
-                volume.AttachmentsColumn(self.mock_volume.attachments),
+                self.volume.id,
+                self.volume.name,
+                self.volume.status,
+                self.volume.size,
+                volume.AttachmentsColumn(self.volume.attachments),
             ),
         )
         self.assertCountEqual(datalist, tuple(data))
@@ -1284,29 +1249,17 @@ class TestVolumeList(volume_fakes.TestVolume):
 
         columns, data = self.cmd.take_action(parsed_args)
 
-        search_opts = {
-            'all_tenants': True,
-            'project_id': self.project.id,
-            'user_id': None,
-            'name': None,
-            'status': None,
-            'metadata': None,
-        }
-        self.volumes_mock.list.assert_called_once_with(
-            search_opts=search_opts,
-            marker=None,
-            limit=None,
+        self.volume_sdk_client.volumes.assert_called_once_with(
+            project_id=self.project.id, all_projects=True
         )
-
         self.assertEqual(self.columns, columns)
-
         datalist = (
             (
-                self.mock_volume.id,
-                self.mock_volume.name,
-                self.mock_volume.status,
-                self.mock_volume.size,
-                volume.AttachmentsColumn(self.mock_volume.attachments),
+                self.volume.id,
+                self.volume.name,
+                self.volume.status,
+                self.volume.size,
+                volume.AttachmentsColumn(self.volume.attachments),
             ),
         )
         self.assertCountEqual(datalist, tuple(data))
@@ -1328,28 +1281,17 @@ class TestVolumeList(volume_fakes.TestVolume):
 
         columns, data = self.cmd.take_action(parsed_args)
 
-        search_opts = {
-            'all_tenants': False,
-            'project_id': None,
-            'user_id': self.user.id,
-            'name': None,
-            'status': None,
-            'metadata': None,
-        }
-        self.volumes_mock.list.assert_called_once_with(
-            search_opts=search_opts,
-            marker=None,
-            limit=None,
+        self.volume_sdk_client.volumes.assert_called_once_with(
+            user_id=self.user.id, all_projects=False
         )
         self.assertEqual(self.columns, columns)
-
         datalist = (
             (
-                self.mock_volume.id,
-                self.mock_volume.name,
-                self.mock_volume.status,
-                self.mock_volume.size,
-                volume.AttachmentsColumn(self.mock_volume.attachments),
+                self.volume.id,
+                self.volume.name,
+                self.volume.status,
+                self.volume.size,
+                volume.AttachmentsColumn(self.volume.attachments),
             ),
         )
         self.assertCountEqual(datalist, tuple(data))
@@ -1374,29 +1316,17 @@ class TestVolumeList(volume_fakes.TestVolume):
 
         columns, data = self.cmd.take_action(parsed_args)
 
-        search_opts = {
-            'all_tenants': False,
-            'project_id': None,
-            'user_id': self.user.id,
-            'name': None,
-            'status': None,
-            'metadata': None,
-        }
-        self.volumes_mock.list.assert_called_once_with(
-            search_opts=search_opts,
-            marker=None,
-            limit=None,
+        self.volume_sdk_client.volumes.assert_called_once_with(
+            user_id=self.user.id, all_projects=False
         )
-
         self.assertEqual(self.columns, columns)
-
         datalist = (
             (
-                self.mock_volume.id,
-                self.mock_volume.name,
-                self.mock_volume.status,
-                self.mock_volume.size,
-                volume.AttachmentsColumn(self.mock_volume.attachments),
+                self.volume.id,
+                self.volume.name,
+                self.volume.status,
+                self.volume.size,
+                volume.AttachmentsColumn(self.volume.attachments),
             ),
         )
         self.assertCountEqual(datalist, tuple(data))
@@ -1404,12 +1334,12 @@ class TestVolumeList(volume_fakes.TestVolume):
     def test_volume_list_name(self):
         arglist = [
             '--name',
-            self.mock_volume.name,
+            self.volume.name,
         ]
         verifylist = [
             ('long', False),
             ('all_projects', False),
-            ('name', self.mock_volume.name),
+            ('name', self.volume.name),
             ('status', None),
             ('marker', None),
             ('limit', None),
@@ -1418,29 +1348,17 @@ class TestVolumeList(volume_fakes.TestVolume):
 
         columns, data = self.cmd.take_action(parsed_args)
 
-        search_opts = {
-            'all_tenants': False,
-            'project_id': None,
-            'user_id': None,
-            'name': self.mock_volume.name,
-            'status': None,
-            'metadata': None,
-        }
-        self.volumes_mock.list.assert_called_once_with(
-            search_opts=search_opts,
-            marker=None,
-            limit=None,
+        self.volume_sdk_client.volumes.assert_called_once_with(
+            name=self.volume.name, all_projects=False
         )
-
         self.assertEqual(self.columns, columns)
-
         datalist = (
             (
-                self.mock_volume.id,
-                self.mock_volume.name,
-                self.mock_volume.status,
-                self.mock_volume.size,
-                volume.AttachmentsColumn(self.mock_volume.attachments),
+                self.volume.id,
+                self.volume.name,
+                self.volume.status,
+                self.volume.size,
+                volume.AttachmentsColumn(self.volume.attachments),
             ),
         )
         self.assertCountEqual(datalist, tuple(data))
@@ -1448,13 +1366,13 @@ class TestVolumeList(volume_fakes.TestVolume):
     def test_volume_list_status(self):
         arglist = [
             '--status',
-            self.mock_volume.status,
+            self.volume.status,
         ]
         verifylist = [
             ('long', False),
             ('all_projects', False),
             ('name', None),
-            ('status', self.mock_volume.status),
+            ('status', self.volume.status),
             ('marker', None),
             ('limit', None),
         ]
@@ -1462,29 +1380,17 @@ class TestVolumeList(volume_fakes.TestVolume):
 
         columns, data = self.cmd.take_action(parsed_args)
 
-        search_opts = {
-            'all_tenants': False,
-            'project_id': None,
-            'user_id': None,
-            'name': None,
-            'status': self.mock_volume.status,
-            'metadata': None,
-        }
-        self.volumes_mock.list.assert_called_once_with(
-            search_opts=search_opts,
-            marker=None,
-            limit=None,
+        self.volume_sdk_client.volumes.assert_called_once_with(
+            status=self.volume.status, all_projects=False
         )
-
         self.assertEqual(self.columns, columns)
-
         datalist = (
             (
-                self.mock_volume.id,
-                self.mock_volume.name,
-                self.mock_volume.status,
-                self.mock_volume.size,
-                volume.AttachmentsColumn(self.mock_volume.attachments),
+                self.volume.id,
+                self.volume.name,
+                self.volume.status,
+                self.volume.size,
+                volume.AttachmentsColumn(self.volume.attachments),
             ),
         )
         self.assertCountEqual(datalist, tuple(data))
@@ -1505,29 +1411,17 @@ class TestVolumeList(volume_fakes.TestVolume):
 
         columns, data = self.cmd.take_action(parsed_args)
 
-        search_opts = {
-            'all_tenants': True,
-            'project_id': None,
-            'user_id': None,
-            'name': None,
-            'status': None,
-            'metadata': None,
-        }
-        self.volumes_mock.list.assert_called_once_with(
-            search_opts=search_opts,
-            marker=None,
-            limit=None,
+        self.volume_sdk_client.volumes.assert_called_once_with(
+            all_projects=True
         )
-
         self.assertEqual(self.columns, columns)
-
         datalist = (
             (
-                self.mock_volume.id,
-                self.mock_volume.name,
-                self.mock_volume.status,
-                self.mock_volume.size,
-                volume.AttachmentsColumn(self.mock_volume.attachments),
+                self.volume.id,
+                self.volume.name,
+                self.volume.status,
+                self.volume.size,
+                volume.AttachmentsColumn(self.volume.attachments),
             ),
         )
         self.assertCountEqual(datalist, tuple(data))
@@ -1549,21 +1443,10 @@ class TestVolumeList(volume_fakes.TestVolume):
 
         columns, data = self.cmd.take_action(parsed_args)
 
-        search_opts = {
-            'all_tenants': False,
-            'project_id': None,
-            'user_id': None,
-            'name': None,
-            'status': None,
-            'metadata': None,
-        }
-        self.volumes_mock.list.assert_called_once_with(
-            search_opts=search_opts,
-            marker=None,
-            limit=None,
+        self.volume_sdk_client.volumes.assert_called_once_with(
+            all_projects=False
         )
-
-        collist = [
+        columns_long = (
             'ID',
             'Name',
             'Status',
@@ -1572,27 +1455,27 @@ class TestVolumeList(volume_fakes.TestVolume):
             'Bootable',
             'Attached to',
             'Properties',
-        ]
-        self.assertEqual(collist, columns)
-
-        datalist = (
+        )
+        data_long = (
             (
-                self.mock_volume.id,
-                self.mock_volume.name,
-                self.mock_volume.status,
-                self.mock_volume.size,
-                self.mock_volume.volume_type,
-                self.mock_volume.bootable,
-                volume.AttachmentsColumn(self.mock_volume.attachments),
-                format_columns.DictColumn(self.mock_volume.metadata),
+                self.volume.id,
+                self.volume.name,
+                self.volume.status,
+                self.volume.size,
+                self.volume.volume_type,
+                self.volume.is_bootable,
+                volume.AttachmentsColumn(self.volume.attachments),
+                format_columns.DictColumn(self.volume.metadata),
             ),
         )
-        self.assertCountEqual(datalist, tuple(data))
+        print(self.volume.is_bootable)
+        self.assertEqual(columns_long, columns)
+        self.assertCountEqual(data_long, tuple(data))
 
     def test_volume_list_with_marker_and_limit(self):
         arglist = [
             "--marker",
-            self.mock_volume.id,
+            self.volume.id,
             "--limit",
             "2",
         ]
@@ -1601,36 +1484,25 @@ class TestVolumeList(volume_fakes.TestVolume):
             ('all_projects', False),
             ('name', None),
             ('status', None),
-            ('marker', self.mock_volume.id),
+            ('marker', self.volume.id),
             ('limit', 2),
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
         columns, data = self.cmd.take_action(parsed_args)
 
+        self.volume_sdk_client.volumes.assert_called_once_with(
+            limit=2, marker=self.volume.id, all_projects=False
+        )
         self.assertEqual(self.columns, columns)
-
         datalist = (
             (
-                self.mock_volume.id,
-                self.mock_volume.name,
-                self.mock_volume.status,
-                self.mock_volume.size,
-                volume.AttachmentsColumn(self.mock_volume.attachments),
+                self.volume.id,
+                self.volume.name,
+                self.volume.status,
+                self.volume.size,
+                volume.AttachmentsColumn(self.volume.attachments),
             ),
-        )
-
-        self.volumes_mock.list.assert_called_once_with(
-            marker=self.mock_volume.id,
-            limit=2,
-            search_opts={
-                'status': None,
-                'project_id': None,
-                'user_id': None,
-                'name': None,
-                'all_tenants': False,
-                'metadata': None,
-            },
         )
         self.assertCountEqual(datalist, tuple(data))
 
@@ -1649,44 +1521,6 @@ class TestVolumeList(volume_fakes.TestVolume):
             arglist,
             verifylist,
         )
-
-    def test_volume_list_backward_compatibility(self):
-        arglist = [
-            '-c',
-            'Display Name',
-        ]
-        verifylist = [
-            ('columns', ['Display Name']),
-            ('long', False),
-            ('all_projects', False),
-            ('name', None),
-            ('status', None),
-            ('marker', None),
-            ('limit', None),
-        ]
-        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
-
-        columns, data = self.cmd.take_action(parsed_args)
-
-        search_opts = {
-            'all_tenants': False,
-            'project_id': None,
-            'user_id': None,
-            'name': None,
-            'status': None,
-            'metadata': None,
-        }
-        self.volumes_mock.list.assert_called_once_with(
-            search_opts=search_opts,
-            marker=None,
-            limit=None,
-        )
-
-        self.assertIn('Display Name', columns)
-        self.assertNotIn('Name', columns)
-
-        for each_volume in data:
-            self.assertIn(self.mock_volume.name, each_volume)
 
 
 class TestVolumeMigrate(volume_fakes.TestVolume):

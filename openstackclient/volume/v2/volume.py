@@ -15,7 +15,6 @@
 """Volume V2 Volume action implementations"""
 
 import argparse
-import copy
 import functools
 import logging
 from collections.abc import Iterable, Sequence
@@ -502,65 +501,56 @@ class ListVolume(command.Lister):
     def take_action(
         self, parsed_args: argparse.Namespace
     ) -> tuple[Sequence[str], Iterable[tuple[Any, ...]]]:
-        volume_client = self.app.client_manager.volume
+        volume_client = sdk_utils.ensure_service_version(
+            self.app.client_manager.sdk_connection.volume, '2'
+        )
         identity_client = self.app.client_manager.identity
 
+        columns: tuple[str, ...] = ('id', 'name', 'status', 'size')
+        column_headers: tuple[str, ...] = ('ID', 'Name', 'Status', 'Size')
         if parsed_args.long:
-            columns = [
-                'ID',
-                'Name',
-                'Status',
-                'Size',
-                'Volume Type',
-                'Bootable',
-                'Attachments',
-                'Metadata',
-            ]
-            column_headers = copy.deepcopy(columns)
-            column_headers[4] = 'Type'
-            column_headers[6] = 'Attached to'
-            column_headers[7] = 'Properties'
-        else:
-            columns = [
-                'ID',
-                'Name',
-                'Status',
-                'Size',
-                'Attachments',
-            ]
-            column_headers = copy.deepcopy(columns)
-            column_headers[4] = 'Attached to'
+            columns += ('volume_type', 'is_bootable')
+            column_headers += ('Type', 'Bootable')
+        columns += ('attachments',)
+        column_headers += ('Attached to',)
+        if parsed_args.long:
+            columns += ('metadata',)
+            column_headers += ('Properties',)
 
-        project_id = None
+        kwargs = {}
+
+        if parsed_args.name:
+            kwargs['name'] = parsed_args.name
+
+        if parsed_args.status:
+            kwargs['status'] = parsed_args.status
+
+        if parsed_args.limit:
+            kwargs['limit'] = parsed_args.limit
+
+        if parsed_args.marker:
+            kwargs['marker'] = parsed_args.marker
+
         if parsed_args.project:
             project_id = identity_common.find_project(
                 identity_client,
                 parsed_args.project,
                 parsed_args.project_domain,
             ).id
+            kwargs['project_id'] = project_id
 
         user_id = None
         if parsed_args.user:
             user_id = identity_common.find_user(
                 identity_client, parsed_args.user, parsed_args.user_domain
             ).id
+            kwargs['user_id'] = user_id
 
         # set value of 'all_tenants' when using project option
         all_projects = bool(parsed_args.project) or parsed_args.all_projects
+        kwargs['all_projects'] = all_projects
 
-        search_opts = {
-            'all_tenants': all_projects,
-            'project_id': project_id,
-            'user_id': user_id,
-            'name': parsed_args.name,
-            'status': parsed_args.status,
-        }
-
-        data = volume_client.volumes.list(
-            search_opts=search_opts,
-            marker=parsed_args.marker,
-            limit=parsed_args.limit,
-        )
+        data = list(volume_client.volumes(**kwargs))
 
         do_server_list = False
 
@@ -579,12 +569,9 @@ class ListVolume(command.Lister):
             except sdk_exceptions.SDKException:
                 # Just forget it if there's any trouble
                 pass
+
         AttachmentsColumnWithCache = functools.partial(
             AttachmentsColumn, server_cache=server_cache
-        )
-
-        column_headers = utils.backward_compat_col_lister(
-            column_headers, parsed_args.columns, {'Display Name': 'Name'}
         )
 
         return (
@@ -594,8 +581,8 @@ class ListVolume(command.Lister):
                     s,
                     columns,
                     formatters={
-                        'Metadata': format_columns.DictColumn,
-                        'Attachments': AttachmentsColumnWithCache,
+                        'metadata': format_columns.DictColumn,
+                        'attachments': AttachmentsColumnWithCache,
                     },
                 )
                 for s in data
