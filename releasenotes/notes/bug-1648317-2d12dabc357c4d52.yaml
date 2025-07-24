@@ -1,0 +1,10 @@
+---
+features:
+  - |
+    Add ``--project`` and --project-domain`` options to the following network
+    commands:
+
+    - ``openstack security group rule list``
+
+    [Bug `1648317 <https://bugs.launchpad.net/bugs/1648317>`_]
+

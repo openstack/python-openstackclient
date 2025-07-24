@@ -1251,6 +1251,55 @@ class TestListSecurityGroupRuleNetwork(TestSecurityGroupRuleNetwork):
         self.assertEqual(self.expected_columns_no_group, columns)
         self.assertEqual(self.expected_data_no_group, list(data))
 
+    def test_list_with_project(self):
+        project = identity_fakes.FakeProject.create_one_project()
+        self._security_group_rule_tcp.port_range_min = 80
+        self.projects_mock.get.return_value = project
+
+        arglist = [
+            '--project',
+            project.id,
+        ]
+        verifylist = [
+            ('project', project.id),
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        columns, data = self.cmd.take_action(parsed_args)
+        filters = {'tenant_id': project.id, 'project_id': project.id}
+
+        self.network_client.security_group_rules.assert_called_once_with(
+            **filters
+        )
+        self.assertEqual(self.expected_columns_no_group, columns)
+        self.assertEqual(self.expected_data_no_group, list(data))
+
+    def test_list_with_project_domain(self):
+        project = identity_fakes.FakeProject.create_one_project()
+        self._security_group_rule_tcp.port_range_min = 80
+        self.projects_mock.get.return_value = project
+
+        arglist = [
+            '--project',
+            project.id,
+            '--project-domain',
+            project.domain_id,
+        ]
+        verifylist = [
+            ('project', project.id),
+            ('project_domain', project.domain_id),
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        columns, data = self.cmd.take_action(parsed_args)
+        filters = {'tenant_id': project.id, 'project_id': project.id}
+
+        self.network_client.security_group_rules.assert_called_once_with(
+            **filters
+        )
+        self.assertEqual(self.expected_columns_no_group, columns)
+        self.assertEqual(self.expected_data_no_group, list(data))
+
 
 class TestShowSecurityGroupRuleNetwork(TestSecurityGroupRuleNetwork):
     # The security group rule to be shown.

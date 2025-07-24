@@ -427,6 +427,14 @@ class ListSecurityGroupRule(common.NetworkAndComputeLister):
                 _("**Deprecated** This argument is no longer needed")
             ),
         )
+        parser.add_argument(
+            '--project',
+            metavar='<project>',
+            help=self.enhance_help_neutron(_("Owner's project (name or ID)")),
+        )
+        identity_common.add_project_domain_option_to_parser(
+            parser, enhance_help=self.enhance_help_neutron
+        )
         return parser
 
     def update_parser_compute(self, parser):
@@ -503,6 +511,15 @@ class ListSecurityGroupRule(common.NetworkAndComputeLister):
             query['direction'] = 'egress'
         if parsed_args.protocol is not None:
             query['protocol'] = parsed_args.protocol
+        if parsed_args.project is not None:
+            identity_client = self.app.client_manager.identity
+            project_id = identity_common.find_project(
+                identity_client,
+                parsed_args.project,
+                parsed_args.project_domain,
+            ).id
+            query['tenant_id'] = project_id
+            query['project_id'] = project_id
 
         rules = [
             self._format_network_security_group_rule(r)
