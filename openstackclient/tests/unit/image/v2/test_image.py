@@ -1779,6 +1779,7 @@ class TestImageUnset(TestImage):
         attrs['hw_rng_model'] = 'virtio'
         attrs['prop'] = 'test'
         attrs['prop2'] = 'fake'
+        attrs['os_secure_boot'] = 'required'
         self.image = image_fakes.create_one_image(attrs)
 
         self.image_client.find_image.return_value = self.image
@@ -1822,11 +1823,18 @@ class TestImageUnset(TestImage):
             'hw_rng_model',
             '--property',
             'prop',
+            '--property',
+            'os_secure_boot',
             self.image.id,
         ]
 
+        # openstacksdk translates 'os_secure_boot' property to
+        # 'needs_secure_boot' Image attribute. This is true for
+        # all IMAGE_ATTRIBUTES_CUSTOM_NAMES keys
+        self.assertEqual(self.image.needs_secure_boot, 'required')
+        self.assertFalse(hasattr(self.image, 'os_secure_boot'))
         verifylist = [
-            ('properties', ['hw_rng_model', 'prop']),
+            ('properties', ['hw_rng_model', 'prop', 'os_secure_boot']),
             ('image', self.image.id),
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
