@@ -311,7 +311,7 @@ class TestListNDPProxy(TestNDPProxy):
             **{'project_id': project.id}
         )
         self.assertEqual(self.columns, columns)
-        self.assertItemsEqual(self.data, list(data))
+        self.assertCountEqual(self.data, list(data))
 
     def test_ndp_proxy_list_project_domain(self):
         project = identity_fakes_v3.FakeProject.create_one_project()
@@ -332,7 +332,7 @@ class TestListNDPProxy(TestNDPProxy):
 
         self.network_client.ndp_proxies.assert_called_once_with(**filters)
         self.assertEqual(self.columns, columns)
-        self.assertItemsEqual(self.data, list(data))
+        self.assertCountEqual(self.data, list(data))
 
 
 class TestSetNDPProxy(TestNDPProxy):
