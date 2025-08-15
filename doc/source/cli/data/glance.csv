@@ -24,7 +24,7 @@ location-delete,,Remove locations (and related metadata) from an image.
 location-update,,Update metadata of an image's location.
 md-namespace-create,image metadef namespace create,Create a new metadata definitions namespace.
 md-namespace-delete,image metadef namespace delete,Delete specified metadata definitions namespace with its contents.
-md-namespace-import,,Import a metadata definitions namespace from file or standard input.
+md-namespace-import,WONTFIX,Import a metadata definitions namespace from file or standard input.
 md-namespace-list,image metadef namespace list,List metadata definitions namespaces.
 md-namespace-objects-delete,image metadef object delete,Delete all metadata definitions objects inside a specific namespace.
 md-namespace-properties-delete,,Delete all metadata definitions property inside a specific namespace.
