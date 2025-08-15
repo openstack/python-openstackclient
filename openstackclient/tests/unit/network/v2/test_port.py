@@ -3014,3 +3014,43 @@ class TestUnsetPort(TestPort):
             **{'hints': None},
         )
         self.assertIsNone(result)
+
+    def test_unset_device(self):
+        testport = network_fakes.create_one_port()
+        self.network_client.find_port = mock.Mock(return_value=testport)
+        arglist = [
+            '--device',
+            testport.name,
+        ]
+        verifylist = [
+            ('device', True),
+            ('port', testport.name),
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+        result = self.cmd.take_action(parsed_args)
+
+        self.network_client.update_port.assert_called_once_with(
+            testport,
+            **{'device_id': ''},
+        )
+        self.assertIsNone(result)
+
+    def test_unset_device_owner(self):
+        testport = network_fakes.create_one_port()
+        self.network_client.find_port = mock.Mock(return_value=testport)
+        arglist = [
+            '--device-owner',
+            testport.name,
+        ]
+        verifylist = [
+            ('device_owner', True),
+            ('port', testport.name),
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+        result = self.cmd.take_action(parsed_args)
+
+        self.network_client.update_port.assert_called_once_with(
+            testport,
+            **{'device_owner': ''},
+        )
+        self.assertIsNone(result)

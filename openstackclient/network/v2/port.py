@@ -1316,6 +1316,18 @@ class UnsetPort(common.NeutronUnsetCommandWithExtraArgs):
             default=False,
             help=_("Clear hints for the port"),
         )
+        parser.add_argument(
+            '--device',
+            action='store_true',
+            default=False,
+            help=_("Clear device ID for the port."),
+        )
+        parser.add_argument(
+            '--device-owner',
+            action='store_true',
+            default=False,
+            help=_("Clear device owner for the port."),
+        )
         _tag.add_tag_option_to_parser_for_unset(parser, _('port'))
         parser.add_argument(
             'port',
@@ -1382,6 +1394,10 @@ class UnsetPort(common.NeutronUnsetCommandWithExtraArgs):
             attrs['binding:host_id'] = None
         if parsed_args.hints:
             attrs['hints'] = None
+        if parsed_args.device:
+            attrs['device_id'] = ''
+        if parsed_args.device_owner:
+            attrs['device_owner'] = ''
 
         attrs.update(
             self._parse_extra_properties(parsed_args.extra_properties)
