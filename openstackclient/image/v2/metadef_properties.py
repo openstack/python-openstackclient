@@ -124,13 +124,20 @@ class DeleteMetadefProperty(command.Command):
         parser.add_argument(
             "properties",
             metavar="<property>",
-            nargs="+",
-            help=_("Metadef propert(ies) to delete (name)"),
+            nargs="*",
+            help=_(
+                "Metadef properties to delete (name) "
+                "(omit this argument to delete all properties in the namespace)"
+            ),
         )
         return parser
 
     def take_action(self, parsed_args):
         image_client = self.app.client_manager.image
+
+        if not parsed_args.properties:
+            image_client.delete_all_metadef_properties(parsed_args.namespace)
+            return
 
         result = 0
         for prop in parsed_args.properties:
