@@ -408,7 +408,7 @@ class TestServerAddFloatingIPNetwork(
         self.server = compute_fakes.create_one_server()
         self.compute_client.find_server.return_value = self.server
 
-        self.network_client.update_ip = mock.Mock(return_value=None)
+        self.network_client.update_ip.return_value = None
 
         # Get the command object to test
         self.cmd = server.AddFloatingIP(self.app, None)
@@ -416,8 +416,8 @@ class TestServerAddFloatingIPNetwork(
     def test_server_add_floating_ip(self):
         _port = network_fakes.create_one_port()
         _floating_ip = network_fakes.FakeFloatingIP.create_one_floating_ip()
-        self.network_client.find_ip = mock.Mock(return_value=_floating_ip)
-        self.network_client.ports = mock.Mock(return_value=[_port])
+        self.network_client.find_ip.return_value = _floating_ip
+        self.network_client.ports.return_value = [_port]
         arglist = [
             self.server.id,
             _floating_ip['floating_ip_address'],
@@ -448,8 +448,8 @@ class TestServerAddFloatingIPNetwork(
     def test_server_add_floating_ip_no_ports(self):
         floating_ip = network_fakes.FakeFloatingIP.create_one_floating_ip()
 
-        self.network_client.find_ip = mock.Mock(return_value=floating_ip)
-        self.network_client.ports = mock.Mock(return_value=[])
+        self.network_client.find_ip.return_value = floating_ip
+        self.network_client.ports.return_value = []
 
         arglist = [
             self.server.id,
@@ -479,17 +479,17 @@ class TestServerAddFloatingIPNetwork(
     def test_server_add_floating_ip_no_external_gateway(self, success=False):
         _port = network_fakes.create_one_port()
         _floating_ip = network_fakes.FakeFloatingIP.create_one_floating_ip()
-        self.network_client.find_ip = mock.Mock(return_value=_floating_ip)
+        self.network_client.find_ip.return_value = _floating_ip
         return_value = [_port]
         # In the success case, we'll have two ports, where the first port is
         # not attached to an external gateway but the second port is.
         if success:
             return_value.append(_port)
-        self.network_client.ports = mock.Mock(return_value=return_value)
+        self.network_client.ports.return_value = return_value
         side_effect = [sdk_exceptions.NotFoundException()]
         if success:
             side_effect.append(None)
-        self.network_client.update_ip = mock.Mock(side_effect=side_effect)
+        self.network_client.update_ip.side_effect = side_effect
         arglist = [
             self.server.id,
             _floating_ip['floating_ip_address'],
@@ -535,8 +535,8 @@ class TestServerAddFloatingIPNetwork(
     def test_server_add_floating_ip_with_fixed_ip(self):
         _port = network_fakes.create_one_port()
         _floating_ip = network_fakes.FakeFloatingIP.create_one_floating_ip()
-        self.network_client.find_ip = mock.Mock(return_value=_floating_ip)
-        self.network_client.ports = mock.Mock(return_value=[_port])
+        self.network_client.find_ip.return_value = _floating_ip
+        self.network_client.ports.return_value = [_port]
         # The user has specified a fixed ip that matches one of the ports
         # already attached to the instance.
         arglist = [
@@ -575,8 +575,8 @@ class TestServerAddFloatingIPNetwork(
     def test_server_add_floating_ip_with_fixed_ip_no_port_found(self):
         _port = network_fakes.create_one_port()
         _floating_ip = network_fakes.FakeFloatingIP.create_one_floating_ip()
-        self.network_client.find_ip = mock.Mock(return_value=_floating_ip)
-        self.network_client.ports = mock.Mock(return_value=[_port])
+        self.network_client.find_ip.return_value = _floating_ip
+        self.network_client.ports.return_value = [_port]
         # The user has specified a fixed ip that does not match any of the
         # ports already attached to the instance.
         nonexistent_ip = '10.0.0.9'
@@ -7351,14 +7351,14 @@ class TestServerRemoveFloatingIPNetwork(network_fakes.TestNetworkV2):
     def setUp(self):
         super().setUp()
 
-        self.network_client.update_ip = mock.Mock(return_value=None)
+        self.network_client.update_ip.return_value = None
 
         # Get the command object to test
         self.cmd = server.RemoveFloatingIP(self.app, None)
 
     def test_server_remove_floating_ip_default(self):
         _floating_ip = network_fakes.FakeFloatingIP.create_one_floating_ip()
-        self.network_client.find_ip = mock.Mock(return_value=_floating_ip)
+        self.network_client.find_ip.return_value = _floating_ip
         arglist = [
             'fake_server',
             _floating_ip['ip'],
