@@ -55,6 +55,19 @@ DISK_CHOICES = [
     "iso",
     "ploop",
 ]
+# A list of openstacksdk Image object attributes (values) that named
+# differently from actual properties stored by Glance (keys).
+IMAGE_ATTRIBUTES_CUSTOM_NAMES = {
+    'os_hidden': 'is_hidden',
+    'protected': 'is_protected',
+    'os_hash_algo': 'hash_algo',
+    'os_hash_value': 'hash_value',
+    'img_config_drive': 'needs_config_drive',
+    'os_secure_boot': 'needs_secure_boot',
+    'hw_vif_multiqueue_enabled': 'is_hw_vif_multiqueue_enabled',
+    'hw_boot_menu': 'is_hw_boot_menu_enabled',
+    'auto_disk_config': 'has_auto_disk_config',
+}
 MEMBER_STATUS_CHOICES = ["accepted", "pending", "rejected", "all"]
 
 LOG = logging.getLogger(__name__)
@@ -1478,6 +1491,11 @@ class UnsetImage(command.Command):
                     )
                     new_props.pop(k, None)
                     kwargs['properties'] = new_props
+                elif (
+                    k in IMAGE_ATTRIBUTES_CUSTOM_NAMES
+                    and IMAGE_ATTRIBUTES_CUSTOM_NAMES[k] in image
+                ):
+                    delattr(image, IMAGE_ATTRIBUTES_CUSTOM_NAMES[k])
                 else:
                     LOG.error(
                         _(
