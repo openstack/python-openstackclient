@@ -2238,7 +2238,29 @@ class TestImageSave(TestImage):
         self.cmd.take_action(parsed_args)
 
         self.image_client.download_image.assert_called_once_with(
-            self.image.id, stream=True, output='/path/to/file'
+            self.image.id, output='/path/to/file', stream=True, chunk_size=1024
+        )
+
+    def test_save_data_with_chunk_size(self):
+        arglist = [
+            '--file',
+            '/path/to/file',
+            '--chunk-size',
+            '2048',
+            self.image.id,
+        ]
+
+        verifylist = [
+            ('filename', '/path/to/file'),
+            ('chunk_size', 2048),
+            ('image', self.image.id),
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        self.cmd.take_action(parsed_args)
+
+        self.image_client.download_image.assert_called_once_with(
+            self.image.id, output='/path/to/file', stream=True, chunk_size=2048
         )
 
 

@@ -1074,6 +1074,16 @@ class SaveImage(command.Command):
     def get_parser(self, prog_name):
         parser = super().get_parser(prog_name)
         parser.add_argument(
+            "--chunk-size",
+            type=int,
+            default=1024,
+            metavar="<chunk-size>",
+            help=_(
+                "Size in bytes to read from the wire and buffer at one "
+                "time (default: 1024)"
+            ),
+        )
+        parser.add_argument(
             "--file",
             metavar="<filename>",
             dest="filename",
@@ -1097,7 +1107,12 @@ class SaveImage(command.Command):
         if output_file is None:
             output_file = getattr(sys.stdout, "buffer", sys.stdout)
 
-        image_client.download_image(image.id, stream=True, output=output_file)
+        image_client.download_image(
+            image.id,
+            stream=True,
+            output=output_file,
+            chunk_size=parsed_args.chunk_size,
+        )
 
 
 class SetImage(command.Command):

@@ -1,0 +1,5 @@
+---
+features:
+  - |
+    Add ``--chunk-size`` option to ``image save`` command to  control the size
+    of bytes to read at one time.
