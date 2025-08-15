@@ -218,17 +218,39 @@ class ImageTests(base.BaseImageTests):
                 'image remove project ' + self.name + ' ' + my_project_id
             )
 
-        # else:
-        #     # Test not shared
-        #     self.assertRaises(
-        #         image_exceptions.HTTPForbidden,
-        #         self.openstack,
-        #         'image add project ' +
-        #         self.name + ' ' +
-        #         my_project_id
-        #     )
-        #     self.openstack(
-        #         'image set ' +
-        #         '--share ' +
-        #         self.name
-        #     )
+    def test_image_hidden(self):
+        # Test image is shown in list
+        output = self.openstack(
+            'image list',
+            parse_output=True,
+        )
+        self.assertIn(
+            self.name,
+            [img['Name'] for img in output],
+        )
+
+        # Hide the image and test image not show in the list
+        self.openstack('image set ' + '--hidden ' + self.name)
+        output = self.openstack(
+            'image list',
+            parse_output=True,
+        )
+        self.assertNotIn(self.name, [img['Name'] for img in output])
+
+        # Test image show in the list with flag
+        output = self.openstack(
+            'image list',
+            parse_output=True,
+        )
+        self.assertNotIn(self.name, [img['Name'] for img in output])
+
+        # Unhide the image and test image is again visible in regular list
+        self.openstack('image set ' + '--unhidden ' + self.name)
+        output = self.openstack(
+            'image list',
+            parse_output=True,
+        )
+        self.assertIn(
+            self.name,
+            [img['Name'] for img in output],
+        )
