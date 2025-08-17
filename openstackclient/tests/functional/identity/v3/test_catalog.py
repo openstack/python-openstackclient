@@ -10,35 +10,54 @@
 #    License for the specific language governing permissions and limitations
 #    under the License.
 
+
 from openstackclient.tests.functional.identity.v3 import common
 
 
 class CatalogTests(common.IdentityTests):
-    def test_catalog_list(self):
+    """Functional tests for catalog commands"""
+
+    def test_catalog(self):
+        """Test catalog list and show functionality"""
+        # Create a test service for isolated testing
+        _dummy_service_name = self._create_dummy_service(add_clean_up=True)
+
+        # list catalogs
         raw_output = self.openstack('catalog list')
         items = self.parse_listing(raw_output)
         self.assert_table_structure(items, ['Name', 'Type', 'Endpoints'])
 
-    def test_catalog_show(self):
-        """test catalog show command
+        # Verify created service appears in catalog
+        service_names = [
+            item.get('Name') for item in items if item.get('Name')
+        ]
+        self.assertIn(
+            _dummy_service_name,
+            service_names,
+            "Created dummy service should be present in catalog",
+        )
 
-        The output example:
-        +-----------+----------------------------------------+
-        | Field     | Value                                  |
-        +-----------+----------------------------------------+
-        | endpoints | test1                                  |
-        |           |   public: http://localhost:5000/v2.0   |
-        |           | test1                                  |
-        |           |   internal: http://localhost:5000/v2.0 |
-        |           | test1                                  |
-        |           |   admin: http://localhost:35357/v2.0   |
-        |           |                                        |
-        | id        | e1e68b5ba21a43a39ff1cf58e736c3aa       |
-        | name      | keystone                               |
-        | type      | identity                               |
-        +-----------+----------------------------------------+
-        """
-        raw_output = self.openstack('catalog show {}'.format('identity'))
+        # show service (by name)
+        raw_output = self.openstack(f'catalog show {_dummy_service_name}')
         items = self.parse_show(raw_output)
-        # items may have multiple endpoint urls with empty key
-        self.assert_show_fields(items, ['endpoints', 'name', 'type', '', 'id'])
+        self.assert_show_fields(items, ['endpoints', 'name', 'type', 'id'])
+
+        # Extract the type from the dummy service
+        _dummy_service_type = next(
+            (item['type'] for item in items if 'type' in item), None
+        )
+
+        # show service (by type)
+        raw_output = self.openstack(f'catalog show {_dummy_service_type}')
+        items = self.parse_show(raw_output)
+        self.assert_show_fields(items, ['endpoints', 'name', 'type', 'id'])
+
+        # show service (non-existent)
+        result = self.openstack(
+            'catalog show nonexistent-service-xyz', fail_ok=True
+        )
+        self.assertEqual(
+            '',
+            result.strip(),
+            "Non-existent service should return empty result",
+        )
