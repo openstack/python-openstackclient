@@ -1,0 +1,6 @@
+---
+deprecations:
+  - |
+    The ``--id auto`` alias for the ``flavor create`` command is deprecated
+    for removal. Omit the option entirely to ensure the server creates the
+    ID for you.

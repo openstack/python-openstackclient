@@ -247,7 +247,7 @@ class TestFlavorCreate(TestFlavor):
             'ram': self.flavor.ram,
             'vcpus': self.flavor.vcpus,
             'disk': self.flavor.disk,
-            'id': 'auto',
+            'id': None,
             'ephemeral': self.flavor.ephemeral,
             'swap': self.flavor.swap,
             'rxtx_factor': self.flavor.rxtx_factor,
