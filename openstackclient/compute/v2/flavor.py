@@ -156,12 +156,25 @@ class CreateFlavor(command.ShowOne):
             msg = _("--project is only allowed with --private")
             raise exceptions.CommandError(msg)
 
+        flavor_id = parsed_args.id
+        if parsed_args.id == 'auto':
+            # novaclient aliased 'auto' to mean "generate a UUID for me": we
+            # do the same to avoid breaking existing users
+            flavor_id = None
+
+            msg = _(
+                "Passing '--id auto' is deprecated. Nova will automatically "
+                "assign a UUID-like ID if no ID is provided. Omit the '--id' "
+                "parameter instead."
+            )
+            self.log.warning(msg)
+
         args = {
             'name': parsed_args.name,
             'ram': parsed_args.ram,
             'vcpus': parsed_args.vcpus,
             'disk': parsed_args.disk,
-            'id': parsed_args.id,
+            'id': flavor_id,
             'ephemeral': parsed_args.ephemeral,
             'swap': parsed_args.swap,
             'rxtx_factor': parsed_args.rxtx_factor,
