@@ -13,7 +13,6 @@
 #   under the License.
 
 import base64
-import collections
 import getpass
 import json
 import tempfile
@@ -21,9 +20,11 @@ from unittest import mock
 import uuid
 
 import iso8601
+from openstack.compute.v2 import flavor as _flavor
 from openstack.compute.v2 import server as _server
 from openstack.compute.v2 import server_group as _server_group
 from openstack import exceptions as sdk_exceptions
+from openstack.image.v2 import image as _image
 from openstack.test import fakes as sdk_fakes
 from osc_lib.cli import format_columns
 from osc_lib import exceptions
@@ -4653,17 +4654,19 @@ class TestServerList(_TestServerList):
     def setUp(self):
         super().setUp()
 
-        Image = collections.namedtuple('Image', 'id name')
         self.image_client.images.return_value = [
-            Image(id=s.image['id'], name=self.image.name)
+            sdk_fakes.generate_fake_resource(
+                _image.Image, id=s.image['id'], name=self.image.name
+            )
             # Image will be an empty string if boot-from-volume
             for s in self.servers
             if s.image
         ]
 
-        Flavor = collections.namedtuple('Flavor', 'id name')
         self.compute_client.flavors.return_value = [
-            Flavor(id=s.flavor['id'], name=self.flavor.name)
+            sdk_fakes.generate_fake_resource(
+                _flavor.Flavor, id=s.flavor['id'], name=self.flavor.name
+            )
             for s in self.servers
         ]
 
@@ -5281,9 +5284,10 @@ class TestServerList(_TestServerList):
         self.compute_client.servers.return_value = servers
 
         # Make sure the returned image and flavor IDs match the servers.
-        Image = collections.namedtuple('Image', 'id name')
         self.image_client.images.return_value = [
-            Image(id=s.image['id'], name=self.image.name)
+            sdk_fakes.generate_fake_resource(
+                _image.Image, id=s.image['id'], name=self.image.name
+            )
             # Image will be an empty string if boot-from-volume
             for s in servers
             if s.image
@@ -5368,9 +5372,10 @@ class TestServerListV273(_TestServerList):
         self.servers = self.setup_sdk_servers_mock(3)
         self.compute_client.servers.return_value = self.servers
 
-        Image = collections.namedtuple('Image', 'id name')
         self.image_client.images.return_value = [
-            Image(id=s.image['id'], name=self.image.name)
+            sdk_fakes.generate_fake_resource(
+                _image.Image, id=s.image['id'], name=self.image.name
+            )
             # Image will be an empty string if boot-from-volume
             for s in self.servers
             if s.image
