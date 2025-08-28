@@ -37,6 +37,7 @@ class TestVolumeCreate(volume_fakes.TestVolume):
     columns = (
         'attachments',
         'availability_zone',
+        'backup_id',
         'bootable',
         'cluster_name',
         'consistencygroup_id',
@@ -78,6 +79,7 @@ class TestVolumeCreate(volume_fakes.TestVolume):
         self.datalist = (
             self.volume.attachments,
             self.volume.availability_zone,
+            self.volume.backup_id,
             self.volume.is_bootable,
             self.volume.cluster_name,
             self.volume.consistency_group_id,
@@ -2011,6 +2013,7 @@ class TestVolumeShow(volume_fakes.TestVolume):
         self.columns = (
             'attachments',
             'availability_zone',
+            'backup_id',
             'bootable',
             'cluster_name',
             'consistencygroup_id',
@@ -2045,6 +2048,7 @@ class TestVolumeShow(volume_fakes.TestVolume):
         self.data = (
             self.volume.attachments,
             self.volume.availability_zone,
+            self.volume.backup_id,
             self.volume.is_bootable,
             self.volume.cluster_name,
             self.volume.consistency_group_id,
