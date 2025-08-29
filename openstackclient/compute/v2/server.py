@@ -184,8 +184,13 @@ def _prep_server_detail(compute_client, image_client, server, *, refresh=True):
         'user_data': 'OS-EXT-SRV-ATTR:user_data',
         'vm_state': 'OS-EXT-STS:vm_state',
         'pinned_availability_zone': 'pinned_availability_zone',
-        'scheduler_hints': 'scheduler_hints',
     }
+
+    # NOTE(ratailor): microversion 2.100 introduces
+    # scheduler_hints support
+    if sdk_utils.supports_microversion(compute_client, '2.100'):
+        column_map['scheduler_hints'] = 'scheduler_hints'
+
     # Some columns returned by openstacksdk should not be shown because they're
     # either irrelevant or duplicates
     ignored_columns = {
@@ -326,10 +331,11 @@ def _prep_server_detail(compute_client, image_client, server, *, refresh=True):
             info['OS-EXT-STS:power_state']
         )
 
-    if 'scheduler_hints' in info:
-        info['scheduler_hints'] = format_columns.DictListColumn(
-            info.pop('scheduler_hints', {}),
-        )
+    if sdk_utils.supports_microversion(compute_client, '2.100'):
+        if 'scheduler_hints' in info:
+            info['scheduler_hints'] = format_columns.DictListColumn(
+                info.pop('scheduler_hints', {}),
+            )
 
     return info
 
@@ -2841,15 +2847,17 @@ class ListServer(command.Lister):
                 'pinned_availability_zone',
                 'hypervisor_hostname',
                 'metadata',
-                'scheduler_hints',
             )
             column_headers += (
                 'Availability Zone',
                 'Pinned Availability Zone',
                 'Host',
                 'Properties',
-                'Scheduler Hints',
             )
+
+            if sdk_utils.supports_microversion(compute_client, '2.100'):
+                columns += ('scheduler_hints',)
+                column_headers += ('Scheduler Hints',)
 
         if parsed_args.all_projects:
             columns += ('project_id',)
@@ -2901,8 +2909,11 @@ class ListServer(command.Lister):
                     'scheduler_hints',
                     "Scheduler Hints",
                 ):
-                    columns += ('scheduler_hints',)
-                    column_headers += ('Scheduler Hints',)
+                    if sdk_utils.supports_microversion(
+                        compute_client, '2.100'
+                    ):
+                        columns += ('scheduler_hints',)
+                        column_headers += ('Scheduler Hints',)
 
             # remove duplicates
             column_headers = tuple(dict.fromkeys(column_headers))
