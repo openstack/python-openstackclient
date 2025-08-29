@@ -107,6 +107,8 @@ def _format_volume(volume: _volume.Volume) -> dict[str, ty.Any]:
         'os-volume-replication:extended_status',
         # unnecessary columns
         'links',
+        # temporarily ignored columns
+        'backup_id',
     }
     optional_columns = {
         # only present if part of a consistency group
