@@ -4449,6 +4449,55 @@ class TestServerDelete(compute_fakes.TestComputev2):
         )
         self.assertIsNone(result)
 
+    def test_server_delete_multi_servers_with_exceptions(self):
+        servers = compute_fakes.create_servers(count=2)
+        self.compute_client.find_server.side_effect = [
+            servers[0],
+            sdk_exceptions.ResourceNotFound(),
+            servers[1],
+        ]
+
+        arglist = [servers[0].id, 'unexist_server', servers[1].id]
+
+        verifylist = [
+            ('force', False),
+            ('all_projects', False),
+            ('wait', False),
+            (
+                'server',
+                [servers[0].id, 'unexist_server', servers[1].id],
+            ),
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        exc = self.assertRaises(
+            exceptions.CommandError,
+            self.cmd.take_action,
+            parsed_args,
+        )
+        self.assertEqual('1 of 3 servers failed to delete.', str(exc))
+
+        self.compute_client.find_server.assert_has_calls(
+            [
+                mock.call(
+                    servers[0].id, ignore_missing=False, all_projects=False
+                ),
+                mock.call(
+                    'unexist_server', ignore_missing=False, all_projects=False
+                ),
+                mock.call(
+                    servers[1].id, ignore_missing=False, all_projects=False
+                ),
+            ]
+        )
+
+        self.compute_client.delete_server.assert_has_calls(
+            [
+                mock.call(servers[0], force=False),
+                mock.call(servers[1], force=False),
+            ]
+        )
+
     def test_server_delete_with_all_projects(self):
         arglist = [
             self.server.id,
