@@ -2223,23 +2223,48 @@ class DeleteServer(command.Command):
                 self.app.stdout.flush()
 
         compute_client = self.app.client_manager.compute
+
+        deleted_servers = []
         for server in parsed_args.server:
-            server_obj = compute_client.find_server(
-                server,
-                ignore_missing=False,
-                all_projects=parsed_args.all_projects,
-            )
+            try:
+                server_obj = compute_client.find_server(
+                    server,
+                    ignore_missing=False,
+                    all_projects=parsed_args.all_projects,
+                )
 
-            compute_client.delete_server(server_obj, force=parsed_args.force)
+                compute_client.delete_server(
+                    server_obj, force=parsed_args.force
+                )
+                deleted_servers.append(server_obj)
+            except Exception as e:
+                LOG.error(
+                    _(
+                        "Failed to delete server with "
+                        "name or ID '%(server)s': %(e)s"
+                    ),
+                    {'server': server, 'e': e},
+                )
 
-            if parsed_args.wait:
+        if parsed_args.wait:
+            for server_obj in deleted_servers:
                 try:
                     compute_client.wait_for_delete(
                         server_obj, callback=_show_progress
                     )
                 except sdk_exceptions.ResourceTimeout:
                     msg = _('Error deleting server: %s') % server_obj.id
+                    deleted_servers.remove(server_obj)
                     raise exceptions.CommandError(msg)
+
+        fails = len(parsed_args.server) - len(deleted_servers)
+        if fails > 0:
+            total = len(parsed_args.server)
+            msg = _("%(fails)s of %(total)s servers failed to delete.") % {
+                'fails': fails,
+                'total': total,
+            }
+            raise exceptions.CommandError(msg)
 
 
 class PercentAction(argparse.Action):
