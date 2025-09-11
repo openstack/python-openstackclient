@@ -330,6 +330,23 @@ class TestCreateNetworkIdentityV3(TestNetwork):
             exceptions.CommandError, self.cmd.take_action, parsed_args
         )
 
+    def test_create_with_provider_segment_without_provider_type(self):
+        arglist = [
+            "--provider-segment",
+            "123",
+            self._network.name,
+        ]
+        verifylist = [
+            ('provider_network_type', None),
+            ('segmentation_id', "123"),
+            ('name', self._network.name),
+        ]
+
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+        self.assertRaises(
+            exceptions.CommandError, self.cmd.take_action, parsed_args
+        )
+
 
 class TestCreateNetworkIdentityV2(
     identity_fakes_v2.FakeClientMixin,
