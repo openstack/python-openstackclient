@@ -401,6 +401,16 @@ class CreateNetwork(
             )
             raise exceptions.CommandError(msg)
 
+        if (
+            parsed_args.segmentation_id
+            and not parsed_args.provider_network_type
+        ):
+            msg = _(
+                "--provider-segment requires --provider-network-type "
+                "to be specified."
+            )
+            raise exceptions.CommandError(msg)
+
         attrs.update(
             self._parse_extra_properties(parsed_args.extra_properties)
         )
