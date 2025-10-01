@@ -891,7 +891,7 @@ class TestUserList(identity_fakes.TestIdentityv3):
         self.identity_sdk_client.find_domain.return_value = self.domain
         self.identity_sdk_client.find_group.return_value = self.group
         self.identity_sdk_client.find_project.return_value = self.project
-        self.identity_sdk_client.role_assignments_filter.return_value = [
+        self.identity_sdk_client.role_assignments.return_value = [
             self.role_assignment
         ]
 
@@ -1029,12 +1029,10 @@ class TestUserList(identity_fakes.TestIdentityv3):
         columns, data = self.cmd.take_action(parsed_args)
 
         kwargs = {
-            'project': self.project.id,
+            'scope_project_id': self.project.id,
         }
 
-        self.identity_sdk_client.role_assignments_filter.assert_called_with(
-            **kwargs
-        )
+        self.identity_sdk_client.role_assignments.assert_called_with(**kwargs)
 
         self.assertEqual(self.columns, columns)
         self.assertEqual(self.datalist, tuple(data))
