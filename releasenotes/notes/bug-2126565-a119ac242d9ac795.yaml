@@ -1,0 +1,8 @@
+---
+fixes:
+  - |
+    Running ``openstack application credential show`` on
+    a non-existent application credential does not
+    raise an exception.
+
+    [Bug `2126565 <https://bugs.launchpad.net/python-openstackclient/+bug/2126565>`_]
