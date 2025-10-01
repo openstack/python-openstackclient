@@ -457,7 +457,7 @@ class TestApplicationCredentialShow(identity_fakes.TestIdentityv3):
         columns, data = self.cmd.take_action(parsed_args)
 
         self.identity_sdk_client.find_application_credential.assert_called_with(
-            user_id, self.application_credential.id
+            user_id, self.application_credential.id, ignore_missing=False
         )
 
         self.assertEqual(self.columns, columns)

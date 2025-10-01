@@ -352,7 +352,7 @@ class ShowApplicationCredential(command.ShowOne):
         user_id = conn.config.get_auth().get_user_id(conn.identity)
 
         application_credential = identity_client.find_application_credential(
-            user_id, parsed_args.application_credential
+            user_id, parsed_args.application_credential, ignore_missing=False
         )
 
         return _format_application_credential(application_credential)
