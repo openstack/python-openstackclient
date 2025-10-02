@@ -746,21 +746,32 @@ and ``server-group-members`` output for a given quota class."""
         # values if the project or class does not exist. This is expected
         # behavior. However, we have already checked for the presence of the
         # project above so it shouldn't be an issue.
-        if parsed_args.service in {'all', 'compute'}:
+        if parsed_args.service == 'compute' or (
+            parsed_args.service == 'all'
+            and self.app.client_manager.is_compute_endpoint_enabled()
+        ):
             compute_quota_info = get_compute_quotas(
                 self.app,
                 project,
                 detail=parsed_args.usage,
                 default=parsed_args.default,
             )
-        if parsed_args.service in {'all', 'volume'}:
+
+        if parsed_args.service == 'volume' or (
+            parsed_args.service == 'all'
+            and self.app.client_manager.is_volume_endpoint_enabled()
+        ):
             volume_quota_info = get_volume_quotas(
                 self.app,
                 project,
                 detail=parsed_args.usage,
                 default=parsed_args.default,
             )
-        if parsed_args.service in {'all', 'network'}:
+
+        if parsed_args.service == 'network' or (
+            parsed_args.service == 'all'
+            and self.app.client_manager.is_network_endpoint_enabled()
+        ):
             network_quota_info = get_network_quotas(
                 self.app,
                 project,
@@ -906,12 +917,18 @@ class DeleteQuota(command.Command):
         )
 
         # compute quotas
-        if parsed_args.service in {'all', 'compute'}:
+        if parsed_args.service == 'compute' or (
+            parsed_args.service == 'all'
+            and self.app.client_manager.is_compute_endpoint_enabled()
+        ):
             compute_client = self.app.client_manager.compute
             compute_client.revert_quota_set(project.id)
 
         # volume quotas
-        if parsed_args.service in {'all', 'volume'}:
+        if parsed_args.service == 'volume' or (
+            parsed_args.service == 'all'
+            and self.app.client_manager.is_volume_endpoint_enabled()
+        ):
             volume_client = self.app.client_manager.sdk_connection.volume
             volume_client.revert_quota_set(project.id)
 
