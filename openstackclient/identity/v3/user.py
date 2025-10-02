@@ -467,15 +467,13 @@ class ListUser(command.Lister):
                     ignore_missing=False,
                 ).id
 
-            assignments = identity_client.role_assignments_filter(
-                project=project
-            )
-
             # NOTE(stevemar): If a user has more than one role on a project
             # then they will have two entries in the returned data. Since we
             # are looking for any role, let's just track unique user IDs.
             user_ids = set()
-            for assignment in assignments:
+            for assignment in identity_client.role_assignments(
+                scope_project_id=project
+            ):
                 if assignment.user:
                     user_ids.add(assignment.user['id'])
 
