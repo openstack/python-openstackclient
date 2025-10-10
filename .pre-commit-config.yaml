@@ -1,13 +1,13 @@
 ---
 repos:
   - repo: https://github.com/pre-commit/pre-commit-hooks
-    rev: v5.0.0
+    rev: v6.0.0
     hooks:
       - id: trailing-whitespace
       - id: mixed-line-ending
         args: ['--fix', 'lf']
         exclude: '.*\.(svg)$'
-      - id: check-byte-order-marker
+      - id: fix-byte-order-marker
       - id: check-executables-have-shebangs
       - id: check-merge-conflict
       - id: debug-statements
@@ -15,9 +15,9 @@ repos:
         files: .*\.(yaml|yml)$
         args: ['--unsafe']
   - repo: https://github.com/astral-sh/ruff-pre-commit
-    rev: v0.11.8
+    rev: v0.14.0
     hooks:
-      - id: ruff
+      - id: ruff-check
         args: ['--fix', '--unsafe-fixes']
       - id: ruff-format
   - repo: https://opendev.org/openstack/hacking
@@ -27,7 +27,7 @@ repos:
         additional_dependencies: []
         exclude: '^(doc|releasenotes)/.*$'
   - repo: https://github.com/pre-commit/mirrors-mypy
-    rev: v1.15.0
+    rev: v1.18.2
     hooks:
       - id: mypy
         additional_dependencies:
