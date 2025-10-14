@@ -146,7 +146,14 @@ class CreateProject(command.ShowOne):
 
 
 class DeleteProject(command.Command):
-    _description = _("Delete project(s)")
+    _description = _(
+        "Delete project(s). This command will remove specified "
+        "existing project(s) if an active user is authorized to do "
+        "this. If there are resources managed by other services "
+        "(for example, Nova, Neutron, Cinder) associated with "
+        "specified project(s), delete operation will proceed "
+        "regardless."
+    )
 
     def get_parser(self, prog_name):
         parser = super().get_parser(prog_name)
