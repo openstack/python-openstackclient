@@ -83,8 +83,7 @@ class TestCreateLocalIPAssociation(TestLocalIPAssociation):
                 'fixed_port_id': self.new_local_ip_association.fixed_port_id,
             },
         )
-        self.assertEqual(set(self.columns), set(columns))
-        self.assertEqual(set(self.data), set(data))
+        self.assertColumnsDataSubset(self.columns, self.data, columns, data)
 
     def test_create_all_options(self):
         arglist = [
@@ -108,8 +107,7 @@ class TestCreateLocalIPAssociation(TestLocalIPAssociation):
                 'fixed_ip': self.new_local_ip_association.fixed_ip,
             },
         )
-        self.assertEqual(set(self.columns), set(columns))
-        self.assertEqual(set(self.data), set(data))
+        self.assertColumnsDataSubset(self.columns, self.data, columns, data)
 
 
 class TestDeleteLocalIPAssociation(TestLocalIPAssociation):
@@ -274,8 +272,10 @@ class TestListLocalIPAssociation(TestLocalIPAssociation):
         self.network_client.local_ip_associations.assert_called_once_with(
             self.local_ip, **{}
         )
-        self.assertEqual(set(self.columns), set(columns))
-        self.assertEqual(set(self.data), set(list(data)))
+        for expected_row, row in zip(self.data, data):
+            self.assertColumnsDataSubset(
+                self.columns, expected_row, columns, row
+            )
 
     def test_local_ip_association_list_all_options(self):
         arglist = [
@@ -307,5 +307,7 @@ class TestListLocalIPAssociation(TestLocalIPAssociation):
         self.network_client.local_ip_associations.assert_called_once_with(
             self.local_ip, **attrs
         )
-        self.assertEqual(set(self.columns), set(columns))
-        self.assertEqual(set(self.data), set(list(data)))
+        for expected_row, row in zip(self.data, data):
+            self.assertColumnsDataSubset(
+                self.columns, expected_row, columns, row
+            )

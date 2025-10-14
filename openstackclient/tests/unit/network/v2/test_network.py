@@ -81,6 +81,8 @@ class TestCreateNetworkIdentityV3(network_fakes.TestNetworkV2):
         _network.ipv4_address_scope_id,
         _network.ipv6_address_scope_id,
         _network.is_default,
+        _network.is_vlan_transparent,
+        _network.is_vlan_qinq,
         _network.mtu,
         _network.name,
         _network.is_port_security_enabled,
@@ -92,8 +94,6 @@ class TestCreateNetworkIdentityV3(network_fakes.TestNetworkV2):
         _network.qos_policy_id,
         network.RouterExternalColumn(_network.is_router_external),
         _network.is_shared,
-        _network.is_vlan_transparent,
-        _network.is_vlan_qinq,
         _network.status,
         _network.segments,
         format_columns.ListColumn(_network.subnet_ids),
@@ -149,8 +149,7 @@ class TestCreateNetworkIdentityV3(network_fakes.TestNetworkV2):
             }
         )
         self.assertFalse(self.network_client.set_tags.called)
-        self.assertEqual(set(self.columns), set(columns))
-        self.assertCountEqual(self.data, data)
+        self.assertColumnsDataSubset(self.columns, self.data, columns, data)
 
     def test_create_all_options(self):
         arglist = [
@@ -231,8 +230,7 @@ class TestCreateNetworkIdentityV3(network_fakes.TestNetworkV2):
                 'dns_domain': 'example.org.',
             }
         )
-        self.assertEqual(set(self.columns), set(columns))
-        self.assertCountEqual(self.data, data)
+        self.assertColumnsDataSubset(self.columns, self.data, columns, data)
 
     def test_create_other_options(self):
         arglist = [
@@ -263,8 +261,7 @@ class TestCreateNetworkIdentityV3(network_fakes.TestNetworkV2):
                 'port_security_enabled': False,
             }
         )
-        self.assertEqual(set(self.columns), set(columns))
-        self.assertCountEqual(self.data, data)
+        self.assertColumnsDataSubset(self.columns, self.data, columns, data)
 
     def _test_create_with_tag(self, add_tags=True):
         arglist = [self._network.name]
@@ -296,8 +293,7 @@ class TestCreateNetworkIdentityV3(network_fakes.TestNetworkV2):
             )
         else:
             self.assertFalse(self.network_client.set_tags.called)
-        self.assertEqual(set(self.columns), set(columns))
-        self.assertCountEqual(self.data, data)
+        self.assertColumnsDataSubset(self.columns, self.data, columns, data)
 
     def test_create_with_tags(self):
         self._test_create_with_tag(add_tags=True)
@@ -1148,6 +1144,8 @@ class TestShowNetwork(network_fakes.TestNetworkV2):
         _network.ipv4_address_scope_id,
         _network.ipv6_address_scope_id,
         _network.is_default,
+        _network.is_vlan_transparent,
+        _network.is_vlan_qinq,
         _network.mtu,
         _network.name,
         _network.is_port_security_enabled,
@@ -1159,8 +1157,6 @@ class TestShowNetwork(network_fakes.TestNetworkV2):
         _network.qos_policy_id,
         network.RouterExternalColumn(_network.is_router_external),
         _network.is_shared,
-        _network.is_vlan_transparent,
-        _network.is_vlan_qinq,
         _network.status,
         _network.segments,
         format_columns.ListColumn(_network.subnet_ids),
@@ -1203,8 +1199,7 @@ class TestShowNetwork(network_fakes.TestNetworkV2):
         self.network_client.find_network.assert_called_once_with(
             self._network.name, ignore_missing=False
         )
-        self.assertEqual(set(self.columns), set(columns))
-        self.assertCountEqual(self.data, data)
+        self.assertColumnsDataSubset(self.columns, self.data, columns, data)
 
 
 class TestUnsetNetwork(network_fakes.TestNetworkV2):

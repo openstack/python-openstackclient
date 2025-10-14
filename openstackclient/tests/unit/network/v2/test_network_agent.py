@@ -12,7 +12,6 @@
 
 from unittest.mock import call
 
-from osc_lib.cli import format_columns
 from osc_lib import exceptions
 
 from openstackclient.network.v2 import network_agent
@@ -664,7 +663,7 @@ class TestShowNetworkAgent(TestNetworkAgent):
         network_agent.AliveColumn(_network_agent.is_alive),
         _network_agent.availability_zone,
         _network_agent.binary,
-        format_columns.DictColumn(_network_agent.configuration),
+        _network_agent.configuration,
         _network_agent.created_at,
         _network_agent.description,
         # NOTE(ralonsoh): `ha_chassis_priority` column is still not supported
@@ -713,5 +712,4 @@ class TestShowNetworkAgent(TestNetworkAgent):
         self.network_client.get_agent.assert_called_once_with(
             self._network_agent.id
         )
-        self.assertCountEqual(self.columns, columns)
-        self.assertEqual(len(list(self.data)), len(list(data)))
+        self.assertColumnsDataSubset(self.columns, self.data, columns, data)

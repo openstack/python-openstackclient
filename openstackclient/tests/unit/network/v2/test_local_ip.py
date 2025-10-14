@@ -83,8 +83,7 @@ class TestCreateLocalIP(network_fakes.TestNetworkV2):
         columns, data = self.cmd.take_action(parsed_args)
 
         self.network_client.create_local_ip.assert_called_once_with(**{})
-        self.assertEqual(set(self.columns), set(columns))
-        self.assertCountEqual(self.data, data)
+        self.assertColumnsDataSubset(self.columns, self.data, columns, data)
 
     def test_create_all_options(self):
         arglist = [
@@ -126,8 +125,7 @@ class TestCreateLocalIP(network_fakes.TestNetworkV2):
                 'ip_mode': self.new_local_ip.ip_mode,
             }
         )
-        self.assertEqual(set(self.columns), set(columns))
-        self.assertCountEqual(self.data, data)
+        self.assertColumnsDataSubset(self.columns, self.data, columns, data)
 
 
 class TestDeleteLocalIP(network_fakes.TestNetworkV2):
@@ -495,5 +493,6 @@ class TestShowLocalIP(network_fakes.TestNetworkV2):
         self.network_client.find_local_ip.assert_called_once_with(
             self._local_ip.name, ignore_missing=False
         )
-        self.assertEqual(set(self.columns), set(columns))
-        self.assertCountEqual(self.data, list(data))
+        self.assertColumnsDataSubset(
+            self.columns, self.data, columns, list(data)
+        )

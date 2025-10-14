@@ -1113,8 +1113,7 @@ class TestCreatePort(TestPort):
             create_args['hardware_offload_type'] = hardware_offload_type
         self.network_client.create_port.assert_called_once_with(**create_args)
 
-        self.assertEqual(set(self.columns), set(columns))
-        self.assertCountEqual(self.data, data)
+        self.assertColumnsDataSubset(self.columns, self.data, columns, data)
 
     def test_create_with_hardware_offload_type_switchdev(self):
         self._test_create_with_hardware_offload_type(hwol_type='switchdev')
@@ -1157,8 +1156,7 @@ class TestCreatePort(TestPort):
         create_args['trusted'] = trusted
         self.network_client.create_port.assert_called_once_with(**create_args)
 
-        self.assertEqual(set(self.columns), set(columns))
-        self.assertCountEqual(self.data, data)
+        self.assertColumnsDataSubset(self.columns, self.data, columns, data)
 
     def test_create_with_trusted_true(self):
         self._test_create_with_trusted_field(True)

@@ -133,8 +133,7 @@ class TestCreateNetworkFlavor(network_fakes.TestNetworkV2):
                 'name': self.new_network_flavor.name,
             }
         )
-        self.assertEqual(set(self.columns), set(columns))
-        self.assertEqual(set(self.data), set(data))
+        self.assertColumnsDataSubset(self.columns, self.data, columns, data)
 
     def test_create_all_options(self):
         arglist = [
@@ -170,8 +169,7 @@ class TestCreateNetworkFlavor(network_fakes.TestNetworkV2):
                 'name': self.new_network_flavor.name,
             }
         )
-        self.assertEqual(set(self.columns), set(columns))
-        self.assertEqual(set(self.data), set(data))
+        self.assertColumnsDataSubset(self.columns, self.data, columns, data)
 
     def test_create_disable(self):
         arglist = [
@@ -196,8 +194,7 @@ class TestCreateNetworkFlavor(network_fakes.TestNetworkV2):
                 'name': self.new_network_flavor.name,
             }
         )
-        self.assertEqual(set(self.columns), set(columns))
-        self.assertEqual(set(self.data), set(data))
+        self.assertColumnsDataSubset(self.columns, self.data, columns, data)
 
 
 class TestDeleteNetworkFlavor(network_fakes.TestNetworkV2):
@@ -322,8 +319,10 @@ class TestListNetworkFlavor(network_fakes.TestNetworkV2):
         columns, data = self.cmd.take_action(parsed_args)
 
         self.network_client.flavors.assert_called_once_with(**{})
-        self.assertEqual(set(self.columns), set(columns))
-        self.assertEqual(self.data, list(data))
+        for expected_row, row in zip(self.data, data):
+            self.assertColumnsDataSubset(
+                self.columns, expected_row, columns, row
+            )
 
     def test_network_flavor_list_pagination(self):
         arglist = [
@@ -450,8 +449,7 @@ class TestShowNetworkFlavor(network_fakes.TestNetworkV2):
         self.network_client.find_flavor.assert_called_once_with(
             self.new_network_flavor.name, ignore_missing=False
         )
-        self.assertEqual(set(self.columns), set(columns))
-        self.assertEqual(set(self.data), set(data))
+        self.assertColumnsDataSubset(self.columns, self.data, columns, data)
 
 
 class TestSetNetworkFlavor(network_fakes.TestNetworkV2):
