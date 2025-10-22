@@ -17,6 +17,7 @@ from openstack.block_storage.v3 import backup as _backup
 from openstack.block_storage.v3 import snapshot as _snapshot
 from openstack.block_storage.v3 import volume as _volume
 from openstack import exceptions as sdk_exceptions
+from openstack.identity.v3 import project as _project
 from openstack.test import fakes as sdk_fakes
 from osc_lib import exceptions
 
@@ -381,6 +382,7 @@ class TestBackupList(volume_fakes.TestVolume):
             ("marker", None),
             ("limit", None),
             ('all_projects', False),
+            ("project", None),
         ]
 
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
@@ -395,11 +397,14 @@ class TestBackupList(volume_fakes.TestVolume):
             all_tenants=False,
             marker=None,
             limit=None,
+            project_id=None,
         )
         self.assertEqual(self.columns, columns)
         self.assertCountEqual(self.data, list(data))
 
     def test_backup_list_with_options(self):
+        project = sdk_fakes.generate_fake_resource(_project.Project)
+        self.identity_sdk_client.find_project.return_value = project
         arglist = [
             "--long",
             "--name",
@@ -413,6 +418,8 @@ class TestBackupList(volume_fakes.TestVolume):
             "--all-projects",
             "--limit",
             "3",
+            "--project",
+            project.id,
         ]
         verifylist = [
             ("long", True),
@@ -422,6 +429,7 @@ class TestBackupList(volume_fakes.TestVolume):
             ("marker", self.backups[0].id),
             ('all_projects', True),
             ("limit", 3),
+            ("project", project.id),
         ]
 
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
@@ -440,6 +448,7 @@ class TestBackupList(volume_fakes.TestVolume):
             all_tenants=True,
             marker=self.backups[0].id,
             limit=3,
+            project_id=project.id,
         )
         self.assertEqual(self.columns_long, columns)
         self.assertCountEqual(self.data_long, list(data))

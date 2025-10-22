@@ -237,6 +237,11 @@ class ListVolumeBackup(command.Lister):
     def get_parser(self, prog_name):
         parser = super().get_parser(prog_name)
         parser.add_argument(
+            '--project',
+            metavar='<project>',
+            help=_('Filter results by project (name or ID) (admin only)'),
+        )
+        parser.add_argument(
             "--long",
             action="store_true",
             default=False,
@@ -296,6 +301,7 @@ class ListVolumeBackup(command.Lister):
 
     def take_action(self, parsed_args):
         volume_client = self.app.client_manager.sdk_connection.volume
+        identity_client = self.app.client_manager.sdk_connection.identity
 
         columns: tuple[str, ...] = (
             'id',
@@ -332,6 +338,14 @@ class ListVolumeBackup(command.Lister):
             VolumeIdColumn, volume_cache=volume_cache
         )
 
+        all_tenants = parsed_args.all_projects
+        project_id = None
+        if parsed_args.project:
+            all_tenants = True
+            project_id = identity_client.find_project(
+                parsed_args.project, ignore_missing=False
+            ).id
+
         filter_volume_id = None
         if parsed_args.volume:
             try:
@@ -360,9 +374,10 @@ class ListVolumeBackup(command.Lister):
             name=parsed_args.name,
             status=parsed_args.status,
             volume_id=filter_volume_id,
-            all_tenants=parsed_args.all_projects,
+            all_tenants=all_tenants,
             marker=marker_backup_id,
             limit=parsed_args.limit,
+            project_id=project_id,
         )
 
         return (
