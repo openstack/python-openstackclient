@@ -13,31 +13,20 @@
 #   under the License.
 
 from unittest import mock
-from unittest.mock import call
 
+from openstack import exceptions as sdk_exc
+from openstack.identity.v3 import domain as _domain
+from openstack.identity.v3 import project as _project
+from openstack.identity.v3 import user as _user
+from openstack.test import fakes as sdk_fakes
 from osc_lib import exceptions
-from osc_lib import utils
 
-from openstackclient.identity import common
 from openstackclient.identity.v3 import project
 from openstackclient.tests.unit.identity.v3 import fakes as identity_fakes
 
 
-class TestProject(identity_fakes.TestIdentityv3):
-    def setUp(self):
-        super().setUp()
-
-        # Get a shortcut to the DomainManager Mock
-        self.domains_mock = self.identity_client.domains
-        self.domains_mock.reset_mock()
-
-        # Get a shortcut to the ProjectManager Mock
-        self.projects_mock = self.identity_client.projects
-        self.projects_mock.reset_mock()
-
-
-class TestProjectCreate(TestProject):
-    domain = identity_fakes.FakeDomain.create_one_domain()
+class TestProjectCreate(identity_fakes.TestIdentityv3):
+    domain = sdk_fakes.generate_fake_resource(_domain.Domain)
 
     columns = (
         'description',
@@ -46,39 +35,41 @@ class TestProjectCreate(TestProject):
         'id',
         'is_domain',
         'name',
+        'options',
         'parent_id',
         'tags',
     )
 
+    project_kwargs_no_options = {
+        'description': None,
+        'domain_id': None,
+        'enabled': True,
+        'is_domain': False,
+        'parent_id': None,
+        'tags': [],
+    }
+
     def setUp(self):
         super().setUp()
 
-        self.project = identity_fakes.FakeProject.create_one_project(
-            attrs={'domain_id': self.domain.id}
-        )
-        self.domains_mock.get.return_value = self.domain
-        self.projects_mock.create.return_value = self.project
-        self.datalist = (
-            self.project.description,
-            self.project.domain_id,
-            True,
-            self.project.id,
-            False,
-            self.project.name,
-            self.project.parent_id,
-            self.project.tags,
-        )
+        self.identity_sdk_client.find_domain.return_value = self.domain
+
         # Get the command object to test
         self.cmd = project.CreateProject(self.app, None)
 
     def test_project_create_no_options(self):
+        project = sdk_fakes.generate_fake_resource(
+            _project.Project, **self.project_kwargs_no_options
+        )
+        self.identity_sdk_client.create_project.return_value = project
+
         arglist = [
-            self.project.name,
+            project.name,
         ]
         verifylist = [
             ('parent', None),
             ('enabled', True),
-            ('name', self.project.name),
+            ('name', project.name),
             ('tags', []),
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
@@ -88,53 +79,43 @@ class TestProjectCreate(TestProject):
         # data to be shown.
         columns, data = self.cmd.take_action(parsed_args)
 
-        # Set expected values
         kwargs = {
-            'name': self.project.name,
-            'domain': None,
-            'description': None,
-            'enabled': True,
-            'parent': None,
-            'tags': [],
-            'options': {},
+            'name': project.name,
+            'is_enabled': True,
         }
-        # ProjectManager.create(name=, domain=, description=,
-        #                       enabled=, **kwargs)
-        self.projects_mock.create.assert_called_with(**kwargs)
+        self.identity_sdk_client.create_project.assert_called_with(**kwargs)
 
-        collist = (
-            'description',
-            'domain_id',
-            'enabled',
-            'id',
-            'is_domain',
-            'name',
-            'parent_id',
-            'tags',
-        )
-        self.assertEqual(collist, columns)
+        self.assertEqual(self.columns, columns)
+
         datalist = (
-            self.project.description,
-            self.project.domain_id,
+            None,
+            None,
             True,
-            self.project.id,
+            project.id,
             False,
-            self.project.name,
-            self.project.parent_id,
-            self.project.tags,
+            project.name,
+            {},
+            None,
+            [],
         )
         self.assertEqual(datalist, data)
 
     def test_project_create_description(self):
+        project = sdk_fakes.generate_fake_resource(
+            _project.Project,
+            **dict(self.project_kwargs_no_options, description='new desc'),
+        )
+        self.identity_sdk_client.create_project.return_value = project
+
         arglist = [
             '--description',
             'new desc',
-            self.project.name,
+            project.name,
         ]
         verifylist = [
             ('description', 'new desc'),
             ('enabled', True),
-            ('name', self.project.name),
+            ('name', project.name),
             ('parent', None),
             ('tags', []),
         ]
@@ -145,33 +126,43 @@ class TestProjectCreate(TestProject):
         # data to be shown.
         columns, data = self.cmd.take_action(parsed_args)
 
-        # Set expected values
         kwargs = {
-            'name': self.project.name,
-            'domain': None,
+            'name': project.name,
             'description': 'new desc',
-            'enabled': True,
-            'parent': None,
-            'tags': [],
-            'options': {},
+            'is_enabled': True,
         }
-        # ProjectManager.create(name=, domain=, description=,
-        #                       enabled=, **kwargs)
-        self.projects_mock.create.assert_called_with(**kwargs)
+        self.identity_sdk_client.create_project.assert_called_with(**kwargs)
 
         self.assertEqual(self.columns, columns)
-        self.assertEqual(self.datalist, data)
+        datalist = (
+            'new desc',
+            None,
+            True,
+            project.id,
+            False,
+            project.name,
+            {},
+            None,
+            [],
+        )
+        self.assertEqual(datalist, data)
 
     def test_project_create_domain(self):
+        project = sdk_fakes.generate_fake_resource(
+            _project.Project,
+            **dict(self.project_kwargs_no_options, domain_id=self.domain.id),
+        )
+        self.identity_sdk_client.create_project.return_value = project
+
         arglist = [
             '--domain',
-            self.project.domain_id,
-            self.project.name,
+            project.domain_id,
+            project.name,
         ]
         verifylist = [
-            ('domain', self.project.domain_id),
+            ('domain', project.domain_id),
             ('enabled', True),
-            ('name', self.project.name),
+            ('name', project.name),
             ('parent', None),
             ('tags', []),
         ]
@@ -184,63 +175,90 @@ class TestProjectCreate(TestProject):
 
         # Set expected values
         kwargs = {
-            'name': self.project.name,
-            'domain': self.project.domain_id,
-            'description': None,
-            'enabled': True,
-            'parent': None,
-            'tags': [],
-            'options': {},
+            'name': project.name,
+            'domain_id': project.domain_id,
+            'is_enabled': True,
         }
-        # ProjectManager.create(name=, domain=, description=,
-        #                       enabled=, **kwargs)
-        self.projects_mock.create.assert_called_with(**kwargs)
+        self.identity_sdk_client.create_project.assert_called_with(**kwargs)
 
         self.assertEqual(self.columns, columns)
-        self.assertEqual(self.datalist, data)
+        datalist = (
+            None,
+            self.domain.id,
+            True,
+            project.id,
+            False,
+            project.name,
+            {},
+            None,
+            [],
+        )
+        self.assertEqual(datalist, data)
 
     def test_project_create_domain_no_perms(self):
+        project = sdk_fakes.generate_fake_resource(
+            _project.Project,
+            **dict(self.project_kwargs_no_options, domain_id=self.domain.id),
+        )
+        self.identity_sdk_client.create_project.return_value = project
+
         arglist = [
             '--domain',
-            self.project.domain_id,
-            self.project.name,
+            project.domain_id,
+            project.name,
         ]
         verifylist = [
-            ('domain', self.project.domain_id),
+            ('domain', project.domain_id),
             ('enabled', True),
-            ('name', self.project.name),
+            ('name', project.name),
             ('parent', None),
             ('tags', []),
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
-        mocker = mock.Mock()
-        mocker.return_value = None
 
-        with mock.patch("osc_lib.utils.find_resource", mocker):
-            columns, data = self.cmd.take_action(parsed_args)
+        self.identity_sdk_client.find_domain.side_effect = (
+            sdk_exc.ForbiddenException
+        )
+        self.identity_sdk_client.find_domain.return_value = None
+
+        columns, data = self.cmd.take_action(parsed_args)
 
         # Set expected values
         kwargs = {
-            'name': self.project.name,
-            'domain': self.project.domain_id,
-            'description': None,
-            'enabled': True,
-            'parent': None,
-            'tags': [],
-            'options': {},
+            'name': project.name,
+            'domain_id': project.domain_id,
+            'is_enabled': True,
         }
-        self.projects_mock.create.assert_called_with(**kwargs)
+        self.identity_sdk_client.create_project.assert_called_with(**kwargs)
+
         self.assertEqual(self.columns, columns)
-        self.assertEqual(self.datalist, data)
+        datalist = (
+            None,
+            self.domain.id,
+            True,
+            project.id,
+            False,
+            project.name,
+            {},
+            None,
+            [],
+        )
+        self.assertEqual(datalist, data)
 
     def test_project_create_enable(self):
+        project = sdk_fakes.generate_fake_resource(
+            _project.Project,
+            **dict(self.project_kwargs_no_options, enabled=True),
+        )
+        self.identity_sdk_client.create_project.return_value = project
+
         arglist = [
             '--enable',
-            self.project.name,
+            project.name,
         ]
         verifylist = [
             ('enabled', True),
-            ('name', self.project.name),
+            ('name', project.name),
             ('parent', None),
             ('tags', []),
         ]
@@ -253,29 +271,39 @@ class TestProjectCreate(TestProject):
 
         # Set expected values
         kwargs = {
-            'name': self.project.name,
-            'domain': None,
-            'description': None,
-            'enabled': True,
-            'parent': None,
-            'tags': [],
-            'options': {},
+            'name': project.name,
+            'is_enabled': True,
         }
-        # ProjectManager.create(name=, domain=, description=,
-        #                       enabled=, **kwargs)
-        self.projects_mock.create.assert_called_with(**kwargs)
+        self.identity_sdk_client.create_project.assert_called_with(**kwargs)
 
         self.assertEqual(self.columns, columns)
-        self.assertEqual(self.datalist, data)
+        datalist = (
+            None,
+            None,
+            True,
+            project.id,
+            False,
+            project.name,
+            {},
+            None,
+            [],
+        )
+        self.assertEqual(datalist, data)
 
     def test_project_create_disable(self):
+        project = sdk_fakes.generate_fake_resource(
+            _project.Project,
+            **dict(self.project_kwargs_no_options, enabled=False),
+        )
+        self.identity_sdk_client.create_project.return_value = project
+
         arglist = [
             '--disable',
-            self.project.name,
+            project.name,
         ]
         verifylist = [
             ('enabled', False),
-            ('name', self.project.name),
+            ('name', project.name),
             ('parent', None),
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
@@ -287,32 +315,42 @@ class TestProjectCreate(TestProject):
 
         # Set expected values
         kwargs = {
-            'name': self.project.name,
-            'domain': None,
-            'description': None,
-            'enabled': False,
-            'parent': None,
-            'tags': [],
-            'options': {},
+            'name': project.name,
+            'is_enabled': False,
         }
-        # ProjectManager.create(name=, domain=,
-        #                       description=, enabled=, **kwargs)
-        self.projects_mock.create.assert_called_with(**kwargs)
+        self.identity_sdk_client.create_project.assert_called_with(**kwargs)
 
         self.assertEqual(self.columns, columns)
-        self.assertEqual(self.datalist, data)
+        datalist = (
+            None,
+            None,
+            False,
+            project.id,
+            False,
+            project.name,
+            {},
+            None,
+            [],
+        )
+        self.assertEqual(datalist, data)
 
     def test_project_create_property(self):
+        project = sdk_fakes.generate_fake_resource(
+            _project.Project,
+            **dict(self.project_kwargs_no_options, fee='fi', fo='fum'),
+        )
+        self.identity_sdk_client.create_project.return_value = project
+
         arglist = [
             '--property',
             'fee=fi',
             '--property',
             'fo=fum',
-            self.project.name,
+            project.name,
         ]
         verifylist = [
+            ('name', project.name),
             ('properties', {'fee': 'fi', 'fo': 'fum'}),
-            ('name', self.project.name),
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
@@ -323,36 +361,62 @@ class TestProjectCreate(TestProject):
 
         # Set expected values
         kwargs = {
-            'name': self.project.name,
-            'domain': None,
-            'description': None,
-            'enabled': True,
-            'parent': None,
+            'name': project.name,
+            'is_enabled': True,
             'fee': 'fi',
             'fo': 'fum',
-            'tags': [],
-            'options': {},
         }
-        # ProjectManager.create(name=, domain=, description=,
-        #                       enabled=, **kwargs)
-        self.projects_mock.create.assert_called_with(**kwargs)
+        self.identity_sdk_client.create_project.assert_called_with(**kwargs)
 
-        self.assertEqual(self.columns, columns)
-        self.assertEqual(self.datalist, data)
+        self.assertEqual(
+            (
+                'description',
+                'domain_id',
+                'enabled',
+                'fee',
+                'fo',
+                'id',
+                'is_domain',
+                'name',
+                'options',
+                'parent_id',
+                'tags',
+            ),
+            columns,
+        )
+        datalist = (
+            None,
+            None,
+            True,
+            'fi',
+            'fum',
+            project.id,
+            False,
+            project.name,
+            {},
+            None,
+            [],
+        )
+        self.assertEqual(datalist, data)
 
     def test_project_create_is_domain_false_property(self):
+        project = sdk_fakes.generate_fake_resource(
+            _project.Project,
+            **dict(self.project_kwargs_no_options, is_domain=False),
+        )
+        self.identity_sdk_client.create_project.return_value = project
+
         arglist = [
             '--property',
             'is_domain=false',
-            self.project.name,
+            project.name,
         ]
         verifylist = [
             ('parent', None),
             ('enabled', True),
-            ('name', self.project.name),
+            ('name', project.name),
             ('tags', []),
             ('properties', {'is_domain': 'false'}),
-            ('name', self.project.name),
         ]
 
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
@@ -364,33 +428,44 @@ class TestProjectCreate(TestProject):
 
         # Set expected values
         kwargs = {
-            'name': self.project.name,
-            'domain': None,
-            'description': None,
-            'enabled': True,
-            'parent': None,
+            'name': project.name,
+            'is_enabled': True,
             'is_domain': False,
-            'tags': [],
-            'options': {},
         }
-        self.projects_mock.create.assert_called_with(**kwargs)
+        self.identity_sdk_client.create_project.assert_called_with(**kwargs)
 
         self.assertEqual(self.columns, columns)
-        self.assertEqual(self.datalist, data)
+        datalist = (
+            None,
+            None,
+            True,
+            project.id,
+            False,
+            project.name,
+            {},
+            None,
+            [],
+        )
+        self.assertEqual(datalist, data)
 
     def test_project_create_is_domain_true_property(self):
+        project = sdk_fakes.generate_fake_resource(
+            _project.Project,
+            **dict(self.project_kwargs_no_options, is_domain=True),
+        )
+        self.identity_sdk_client.create_project.return_value = project
+
         arglist = [
             '--property',
             'is_domain=true',
-            self.project.name,
+            project.name,
         ]
         verifylist = [
             ('parent', None),
             ('enabled', True),
-            ('name', self.project.name),
+            ('name', project.name),
             ('tags', []),
             ('properties', {'is_domain': 'true'}),
-            ('name', self.project.name),
         ]
 
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
@@ -402,33 +477,44 @@ class TestProjectCreate(TestProject):
 
         # Set expected values
         kwargs = {
-            'name': self.project.name,
-            'domain': None,
-            'description': None,
-            'enabled': True,
-            'parent': None,
+            'name': project.name,
+            'is_enabled': True,
             'is_domain': True,
-            'tags': [],
-            'options': {},
         }
-        self.projects_mock.create.assert_called_with(**kwargs)
+        self.identity_sdk_client.create_project.assert_called_with(**kwargs)
 
         self.assertEqual(self.columns, columns)
-        self.assertEqual(self.datalist, data)
+        datalist = (
+            None,
+            None,
+            True,
+            project.id,
+            True,
+            project.name,
+            {},
+            None,
+            [],
+        )
+        self.assertEqual(datalist, data)
 
     def test_project_create_is_domain_none_property(self):
+        project = sdk_fakes.generate_fake_resource(
+            _project.Project,
+            **dict(self.project_kwargs_no_options, is_domain=None),
+        )
+        self.identity_sdk_client.create_project.return_value = project
+
         arglist = [
             '--property',
             'is_domain=none',
-            self.project.name,
+            project.name,
         ]
         verifylist = [
             ('parent', None),
             ('enabled', True),
-            ('name', self.project.name),
+            ('name', project.name),
             ('tags', []),
             ('properties', {'is_domain': 'none'}),
-            ('name', self.project.name),
         ]
 
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
@@ -440,40 +526,51 @@ class TestProjectCreate(TestProject):
 
         # Set expected values
         kwargs = {
-            'name': self.project.name,
-            'domain': None,
-            'description': None,
-            'enabled': True,
-            'parent': None,
+            'name': project.name,
+            'is_enabled': True,
             'is_domain': None,
-            'tags': [],
-            'options': {},
         }
-        self.projects_mock.create.assert_called_with(**kwargs)
+        self.identity_sdk_client.create_project.assert_called_with(**kwargs)
 
         self.assertEqual(self.columns, columns)
-        self.assertEqual(self.datalist, data)
+        datalist = (
+            None,
+            None,
+            True,
+            project.id,
+            None,
+            project.name,
+            {},
+            None,
+            [],
+        )
+        self.assertEqual(datalist, data)
 
     def test_project_create_parent(self):
-        self.parent = identity_fakes.FakeProject.create_one_project()
-        self.project = identity_fakes.FakeProject.create_one_project(
-            attrs={'domain_id': self.domain.id, 'parent_id': self.parent.id}
+        parent = sdk_fakes.generate_fake_resource(_project.Project)
+        project = sdk_fakes.generate_fake_resource(
+            _project.Project,
+            **dict(
+                self.project_kwargs_no_options,
+                domain_id=self.domain.id,
+                parent_id=parent.id,
+            ),
         )
-        self.projects_mock.get.return_value = self.parent
-        self.projects_mock.create.return_value = self.project
+        self.identity_sdk_client.find_project.return_value = parent
+        self.identity_sdk_client.create_project.return_value = project
 
         arglist = [
             '--domain',
-            self.project.domain_id,
+            project.domain_id,
             '--parent',
-            self.parent.name,
-            self.project.name,
+            parent.name,
+            project.name,
         ]
         verifylist = [
-            ('domain', self.project.domain_id),
-            ('parent', self.parent.name),
+            ('domain', project.domain_id),
+            ('parent', parent.name),
             ('enabled', True),
-            ('name', self.project.name),
+            ('name', project.name),
             ('tags', []),
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
@@ -481,61 +578,52 @@ class TestProjectCreate(TestProject):
         columns, data = self.cmd.take_action(parsed_args)
 
         kwargs = {
-            'name': self.project.name,
-            'domain': self.project.domain_id,
-            'parent': self.parent.id,
-            'description': None,
-            'enabled': True,
-            'tags': [],
-            'options': {},
+            'name': project.name,
+            'domain_id': project.domain_id,
+            'parent_id': parent.id,
+            'is_enabled': True,
         }
+        self.identity_sdk_client.create_project.assert_called_with(**kwargs)
 
-        self.projects_mock.create.assert_called_with(**kwargs)
-
-        collist = (
-            'description',
-            'domain_id',
-            'enabled',
-            'id',
-            'is_domain',
-            'name',
-            'parent_id',
-            'tags',
-        )
-        self.assertEqual(columns, collist)
+        self.assertEqual(self.columns, columns)
         datalist = (
-            self.project.description,
-            self.project.domain_id,
-            self.project.enabled,
-            self.project.id,
-            self.project.is_domain,
-            self.project.name,
-            self.parent.id,
-            self.project.tags,
+            None,
+            self.domain.id,
+            True,
+            project.id,
+            False,
+            project.name,
+            {},
+            parent.id,
+            [],
         )
         self.assertEqual(data, datalist)
 
     def test_project_create_invalid_parent(self):
-        self.projects_mock.resource_class.__name__ = 'Project'
-        self.projects_mock.get.side_effect = exceptions.NotFound(
-            'Invalid parent'
+        self.identity_sdk_client.find_project.side_effect = (
+            sdk_exc.ResourceNotFound
         )
-        self.projects_mock.find.side_effect = exceptions.NotFound(
-            'Invalid parent'
+        project = sdk_fakes.generate_fake_resource(
+            _project.Project,
+            **dict(
+                self.project_kwargs_no_options,
+                domain_id=self.domain.id,
+                parent_id='invalid',
+            ),
         )
 
         arglist = [
             '--domain',
-            self.project.domain_id,
+            project.domain_id,
             '--parent',
             'invalid',
-            self.project.name,
+            project.name,
         ]
         verifylist = [
-            ('domain', self.project.domain_id),
+            ('domain', project.domain_id),
             ('parent', 'invalid'),
             ('enabled', True),
-            ('name', self.project.name),
+            ('name', project.name),
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
@@ -546,17 +634,27 @@ class TestProjectCreate(TestProject):
         )
 
     def test_project_create_with_tags(self):
+        project = sdk_fakes.generate_fake_resource(
+            _project.Project,
+            **dict(
+                self.project_kwargs_no_options,
+                domain_id=self.domain.id,
+                tags=['foo'],
+            ),
+        )
+        self.identity_sdk_client.create_project.return_value = project
+
         arglist = [
             '--domain',
-            self.project.domain_id,
+            project.domain_id,
             '--tag',
             'foo',
-            self.project.name,
+            project.name,
         ]
         verifylist = [
-            ('domain', self.project.domain_id),
+            ('domain', project.domain_id),
             ('enabled', True),
-            ('name', self.project.name),
+            ('name', project.name),
             ('parent', None),
             ('tags', ['foo']),
         ]
@@ -569,29 +667,45 @@ class TestProjectCreate(TestProject):
 
         # Set expected values
         kwargs = {
-            'name': self.project.name,
-            'domain': self.project.domain_id,
-            'description': None,
-            'enabled': True,
-            'parent': None,
+            'name': project.name,
+            'domain_id': project.domain_id,
+            'is_enabled': True,
             'tags': ['foo'],
-            'options': {},
         }
-        self.projects_mock.create.assert_called_with(**kwargs)
+        self.identity_sdk_client.create_project.assert_called_with(**kwargs)
 
         self.assertEqual(self.columns, columns)
-        self.assertEqual(self.datalist, data)
+        datalist = (
+            None,
+            self.domain.id,
+            True,
+            project.id,
+            False,
+            project.name,
+            {},
+            None,
+            ['foo'],
+        )
+        self.assertEqual(datalist, data)
 
     def test_project_create_with_immutable_option(self):
+        project = sdk_fakes.generate_fake_resource(
+            _project.Project,
+            **dict(
+                self.project_kwargs_no_options, options={'immutable': True}
+            ),
+        )
+        self.identity_sdk_client.create_project.return_value = project
+
         arglist = [
             '--immutable',
-            self.project.name,
+            project.name,
         ]
         verifylist = [
             ('immutable', True),
             ('description', None),
             ('enabled', True),
-            ('name', self.project.name),
+            ('name', project.name),
             ('parent', None),
             ('tags', []),
         ]
@@ -604,31 +718,44 @@ class TestProjectCreate(TestProject):
 
         # Set expected values
         kwargs = {
-            'name': self.project.name,
-            'domain': None,
-            'description': None,
-            'enabled': True,
-            'parent': None,
-            'tags': [],
+            'name': project.name,
+            'is_enabled': True,
             'options': {'immutable': True},
         }
-        # ProjectManager.create(name=, domain=, description=,
-        #                       enabled=, **kwargs)
-        self.projects_mock.create.assert_called_with(**kwargs)
+        self.identity_sdk_client.create_project.assert_called_with(**kwargs)
 
         self.assertEqual(self.columns, columns)
-        self.assertEqual(self.datalist, data)
+        datalist = (
+            None,
+            None,
+            True,
+            project.id,
+            False,
+            project.name,
+            {'immutable': True},
+            None,
+            [],
+        )
+        self.assertEqual(datalist, data)
 
     def test_project_create_with_no_immutable_option(self):
+        project = sdk_fakes.generate_fake_resource(
+            _project.Project,
+            **dict(
+                self.project_kwargs_no_options, options={'immutable': False}
+            ),
+        )
+        self.identity_sdk_client.create_project.return_value = project
+
         arglist = [
             '--no-immutable',
-            self.project.name,
+            project.name,
         ]
         verifylist = [
             ('immutable', False),
             ('description', None),
             ('enabled', True),
-            ('name', self.project.name),
+            ('name', project.name),
             ('parent', None),
             ('tags', []),
         ]
@@ -641,36 +768,121 @@ class TestProjectCreate(TestProject):
 
         # Set expected values
         kwargs = {
-            'name': self.project.name,
-            'domain': None,
-            'description': None,
-            'enabled': True,
-            'parent': None,
-            'tags': [],
+            'name': project.name,
+            'is_enabled': True,
             'options': {'immutable': False},
         }
-        # ProjectManager.create(name=, domain=, description=,
-        #                       enabled=, **kwargs)
-        self.projects_mock.create.assert_called_with(**kwargs)
+        self.identity_sdk_client.create_project.assert_called_with(**kwargs)
 
         self.assertEqual(self.columns, columns)
-        self.assertEqual(self.datalist, data)
+        datalist = (
+            None,
+            None,
+            True,
+            project.id,
+            False,
+            project.name,
+            {'immutable': False},
+            None,
+            [],
+        )
+        self.assertEqual(datalist, data)
+
+    def test_project_create_conflict_with_or_show(self):
+        project = sdk_fakes.generate_fake_resource(
+            _project.Project, **self.project_kwargs_no_options
+        )
+        self.identity_sdk_client.create_project.side_effect = (
+            sdk_exc.ConflictException
+        )
+        self.identity_sdk_client.find_project.return_value = project
+
+        arglist = [
+            '--or-show',
+            project.name,
+        ]
+        verifylist = [
+            ('or_show', True),
+            ('description', None),
+            ('enabled', True),
+            ('name', project.name),
+            ('parent', None),
+            ('tags', []),
+        ]
+
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        columns, data = self.cmd.take_action(parsed_args)
+
+        kwargs = {
+            'name': project.name,
+            'is_enabled': True,
+        }
+        self.identity_sdk_client.create_project.assert_called_with(**kwargs)
+
+        self.assertEqual(self.columns, columns)
+        datalist = (
+            None,
+            None,
+            True,
+            project.id,
+            False,
+            project.name,
+            {},
+            None,
+            [],
+        )
+        self.assertEqual(datalist, data)
+
+    def test_project_create_conflict_without_or_show(self):
+        self.identity_sdk_client.create_project.side_effect = (
+            sdk_exc.ConflictException
+        )
+        project = sdk_fakes.generate_fake_resource(
+            _project.Project, **self.project_kwargs_no_options
+        )
+
+        arglist = [
+            project.name,
+        ]
+        verifylist = [
+            ('or_show', False),
+            ('description', None),
+            ('enabled', True),
+            ('name', project.name),
+            ('parent', None),
+            ('tags', []),
+        ]
+
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        self.assertRaises(
+            sdk_exc.ConflictException,
+            self.cmd.take_action,
+            parsed_args,
+        )
 
 
-class TestProjectDelete(TestProject):
-    project = identity_fakes.FakeProject.create_one_project()
+class TestProjectDelete(identity_fakes.TestIdentityv3):
+    domain = sdk_fakes.generate_fake_resource(_domain.Domain)
 
     def setUp(self):
         super().setUp()
 
-        # This is the return value for utils.find_resource()
-        self.projects_mock.get.return_value = self.project
-        self.projects_mock.delete.return_value = None
+        self.project = sdk_fakes.generate_fake_resource(_project.Project)
+        self.project_with_domain = sdk_fakes.generate_fake_resource(
+            _project.Project,
+            name=self.project.name,
+            domain_id=self.domain.id,
+        )
+        self.identity_sdk_client.delete_project.return_value = None
 
         # Get the command object to test
         self.cmd = project.DeleteProject(self.app, None)
 
     def test_project_delete_no_options(self):
+        self.identity_sdk_client.find_project.return_value = self.project
+
         arglist = [
             self.project.id,
         ]
@@ -681,16 +893,72 @@ class TestProjectDelete(TestProject):
 
         result = self.cmd.take_action(parsed_args)
 
-        self.projects_mock.delete.assert_called_with(
+        self.identity_sdk_client.delete_project.assert_called_with(
             self.project.id,
         )
         self.assertIsNone(result)
 
-    @mock.patch.object(utils, 'find_resource')
-    def test_delete_multi_projects_with_exception(self, find_mock):
-        find_mock.side_effect = [self.project, exceptions.CommandError]
+    def test_project_multi_delete(self):
+        self.identity_sdk_client.find_project.side_effect = [
+            self.project,
+            self.project_with_domain,
+        ]
+        arglist = [self.project.id, self.project_with_domain.id]
+        verifylist = [
+            ('projects', arglist),
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        result = self.cmd.take_action(parsed_args)
+
+        self.identity_sdk_client.delete_project.assert_has_calls(
+            [
+                mock.call(self.project.id),
+                mock.call(self.project_with_domain.id),
+            ]
+        )
+        self.assertIsNone(result)
+
+    def test_project_delete_with_forbidden_domain(self):
+        self.identity_sdk_client.find_domain.side_effect = [
+            sdk_exc.ForbiddenException
+        ]
+        self.identity_sdk_client.find_project.return_value = (
+            self.project_with_domain
+        )
+
+        arglist = [
+            '--domain',
+            self.project_with_domain.domain_id,
+            self.project_with_domain.name,
+        ]
+        verifylist = [
+            ('domain', self.domain.id),
+            ('projects', [self.project_with_domain.name]),
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        result = self.cmd.take_action(parsed_args)
+        self.identity_sdk_client.find_project.assert_called_with(
+            name_or_id=self.project_with_domain.name,
+            ignore_missing=False,
+            domain_id=self.domain.id,
+        )
+        self.identity_sdk_client.delete_project.assert_called_once_with(
+            self.project_with_domain.id
+        )
+        self.assertIsNone(result)
+
+    def test_delete_multi_projects_with_exception(self):
+        self.identity_sdk_client.find_project.side_effect = [
+            self.project,
+            self.project_with_domain,
+            sdk_exc.NotFoundException,
+        ]
+
         arglist = [
             self.project.id,
+            self.project_with_domain.id,
             'unexist_project',
         ]
         verifylist = [
@@ -702,21 +970,36 @@ class TestProjectDelete(TestProject):
             self.cmd.take_action(parsed_args)
             self.fail('CommandError should be raised.')
         except exceptions.CommandError as e:
-            self.assertEqual('1 of 2 projects failed to delete.', str(e))
+            self.assertEqual('1 of 3 projects failed to delete.', str(e))
 
-        find_mock.assert_any_call(self.projects_mock, self.project.id)
-        find_mock.assert_any_call(self.projects_mock, 'unexist_project')
+        self.identity_sdk_client.find_project.assert_has_calls(
+            [
+                mock.call(name_or_id=self.project.id, ignore_missing=False),
+                mock.call(
+                    name_or_id=self.project_with_domain.id,
+                    ignore_missing=False,
+                ),
+                mock.call(name_or_id='unexist_project', ignore_missing=False),
+            ]
+        )
 
-        self.assertEqual(2, find_mock.call_count)
-        self.projects_mock.delete.assert_called_once_with(self.project.id)
+        self.assertEqual(3, self.identity_sdk_client.find_project.call_count)
+        self.identity_sdk_client.delete_project.assert_has_calls(
+            [
+                mock.call(self.project.id),
+                mock.call(self.project_with_domain.id),
+            ]
+        )
 
 
-class TestProjectList(TestProject):
-    domain = identity_fakes.FakeDomain.create_one_domain()
-    project = identity_fakes.FakeProject.create_one_project(
-        attrs={'domain_id': domain.id}
+class TestProjectList(identity_fakes.TestIdentityv3):
+    domain = sdk_fakes.generate_fake_resource(_domain.Domain)
+    project = sdk_fakes.generate_fake_resource(
+        _project.Project, domain_id=domain.id
     )
-    projects = identity_fakes.FakeProject.create_projects()
+    projects = list(
+        sdk_fakes.generate_fake_resources(_project.Project, count=2)
+    )
 
     columns = (
         'ID',
@@ -746,12 +1029,12 @@ class TestProjectList(TestProject):
     def setUp(self):
         super().setUp()
 
-        self.projects_mock.list.return_value = [self.project]
-
         # Get the command object to test
         self.cmd = project.ListProject(self.app, None)
 
     def test_project_list_no_options(self):
+        self.identity_sdk_client.projects.return_value = [self.project]
+
         arglist = []
         verifylist = []
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
@@ -760,12 +1043,14 @@ class TestProjectList(TestProject):
         # returns a tuple containing the column names and an iterable
         # containing the data to be listed.
         columns, data = self.cmd.take_action(parsed_args)
-        self.projects_mock.list.assert_called_with()
+        self.identity_sdk_client.projects.assert_called_with()
 
         self.assertEqual(self.columns, columns)
         self.assertEqual(self.datalist, tuple(data))
 
     def test_project_list_long(self):
+        self.identity_sdk_client.projects.return_value = [self.project]
+
         arglist = [
             '--long',
         ]
@@ -778,7 +1063,7 @@ class TestProjectList(TestProject):
         # returns a tuple containing the column names and an iterable
         # containing the data to be listed.
         columns, data = self.cmd.take_action(parsed_args)
-        self.projects_mock.list.assert_called_with()
+        self.identity_sdk_client.projects.assert_called_with()
 
         collist = ('ID', 'Name', 'Domain ID', 'Description', 'Enabled')
         self.assertEqual(collist, columns)
@@ -794,6 +1079,8 @@ class TestProjectList(TestProject):
         self.assertEqual(datalist, tuple(data))
 
     def test_project_list_domain(self):
+        self.identity_sdk_client.projects.return_value = [self.project]
+
         arglist = [
             '--domain',
             self.project.domain_id,
@@ -802,7 +1089,7 @@ class TestProjectList(TestProject):
             ('domain', self.project.domain_id),
         ]
 
-        self.domains_mock.get.return_value = self.domain
+        self.identity_sdk_client.find_domain.return_value = self.domain
 
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
@@ -810,14 +1097,16 @@ class TestProjectList(TestProject):
         # returns a tuple containing the column names and an iterable
         # containing the data to be listed.
         columns, data = self.cmd.take_action(parsed_args)
-        self.projects_mock.list.assert_called_with(
-            domain=self.project.domain_id
+        self.identity_sdk_client.projects.assert_called_with(
+            domain_id=self.project.domain_id
         )
 
         self.assertEqual(self.columns, columns)
         self.assertEqual(self.datalist, tuple(data))
 
     def test_project_list_domain_no_perms(self):
+        self.identity_sdk_client.projects.return_value = [self.project]
+
         arglist = [
             '--domain',
             self.project.domain_id,
@@ -826,23 +1115,30 @@ class TestProjectList(TestProject):
             ('domain', self.project.domain_id),
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
-        mocker = mock.Mock()
-        mocker.return_value = None
 
-        with mock.patch("osc_lib.utils.find_resource", mocker):
-            columns, data = self.cmd.take_action(parsed_args)
+        self.identity_sdk_client.find_project.side_effect = (
+            sdk_exc.ResourceNotFound
+        )
+        self.identity_sdk_client.find_domain.return_value = self.domain
 
-        self.projects_mock.list.assert_called_with(
-            domain=self.project.domain_id
+        columns, data = self.cmd.take_action(parsed_args)
+
+        self.identity_sdk_client.projects.assert_called_with(
+            domain_id=self.project.domain_id
         )
         self.assertEqual(self.columns, columns)
         self.assertEqual(self.datalist, tuple(data))
 
     def test_project_list_parent(self):
-        self.parent = identity_fakes.FakeProject.create_one_project()
-        self.project = identity_fakes.FakeProject.create_one_project(
-            attrs={'domain_id': self.domain.id, 'parent_id': self.parent.id}
+        self.parent = sdk_fakes.generate_fake_resource(_project.Project)
+        self.project = sdk_fakes.generate_fake_resource(
+            _project.Project,
+            id=self.project.id,
+            name=self.project.name,
+            domain_id=self.domain.id,
+            parent_id=self.parent.id,
         )
+        self.identity_sdk_client.projects.return_value = [self.project]
 
         arglist = [
             '--parent',
@@ -852,18 +1148,48 @@ class TestProjectList(TestProject):
             ('parent', self.parent.id),
         ]
 
-        self.projects_mock.get.return_value = self.parent
+        self.identity_sdk_client.find_project.return_value = self.parent
 
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
         columns, data = self.cmd.take_action(parsed_args)
-        self.projects_mock.list.assert_called_with(parent=self.parent.id)
+        self.identity_sdk_client.projects.assert_called_with(
+            parent_id=self.parent.id
+        )
+
+        self.assertEqual(self.columns, columns)
+        self.assertEqual(self.datalist, tuple(data))
+
+    def test_project_list_user(self):
+        self.user = sdk_fakes.generate_fake_resource(_user.User)
+        self.project = sdk_fakes.generate_fake_resource(
+            _project.UserProject,
+            id=self.project.id,
+            name=self.project.name,
+            user_id=self.user.id,
+        )
+        self.identity_sdk_client.user_projects.return_value = [self.project]
+
+        arglist = [
+            '--user',
+            self.user.id,
+        ]
+        verifylist = [
+            ('user', self.user.id),
+        ]
+
+        self.identity_sdk_client.find_user.return_value = self.user
+
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        columns, data = self.cmd.take_action(parsed_args)
+        self.identity_sdk_client.user_projects.assert_called_with(self.user.id)
 
         self.assertEqual(self.columns, columns)
         self.assertEqual(self.datalist, tuple(data))
 
     def test_project_list_sort(self):
-        self.projects_mock.list.return_value = self.projects
+        self.identity_sdk_client.projects.return_value = self.projects
 
         arglist = [
             '--sort',
@@ -877,7 +1203,7 @@ class TestProjectList(TestProject):
         # returns a tuple containing the column names and an iterable
         # containing the data to be listed.
         (columns, data) = self.cmd.take_action(parsed_args)
-        self.projects_mock.list.assert_called_with()
+        self.identity_sdk_client.projects.assert_called_with()
 
         collist = ('ID', 'Name')
         self.assertEqual(collist, columns)
@@ -896,6 +1222,8 @@ class TestProjectList(TestProject):
         self.assertEqual(datalists, tuple(data))
 
     def test_project_list_my_projects(self):
+        self.identity_sdk_client.user_projects.return_value = [self.project]
+
         auth_ref = identity_fakes.fake_auth_ref(
             identity_fakes.TOKEN_WITH_PROJECT_ID,
         )
@@ -913,8 +1241,8 @@ class TestProjectList(TestProject):
         # returns a tuple containing the column names and an iterable
         # containing the data to be listed.
         columns, data = self.cmd.take_action(parsed_args)
-        self.projects_mock.list.assert_called_with(
-            user=self.app.client_manager.auth_ref.user_id
+        self.identity_sdk_client.user_projects.assert_called_with(
+            self.app.client_manager.auth_ref.user_id
         )
 
         collist = ('ID', 'Name')
@@ -928,6 +1256,8 @@ class TestProjectList(TestProject):
         self.assertEqual(datalist, tuple(data))
 
     def test_project_list_with_option_enabled(self):
+        self.identity_sdk_client.projects.return_value = [self.project]
+
         arglist = ['--enabled']
         verifylist = [('is_enabled', True)]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
@@ -938,25 +1268,28 @@ class TestProjectList(TestProject):
         columns, data = self.cmd.take_action(parsed_args)
 
         kwargs = {'is_enabled': True}
-        self.projects_mock.list.assert_called_with(**kwargs)
+        self.identity_sdk_client.projects.assert_called_with(**kwargs)
 
         self.assertEqual(self.columns, columns)
         self.assertEqual(self.datalist, tuple(data))
 
 
-class TestProjectSet(TestProject):
-    domain = identity_fakes.FakeDomain.create_one_domain()
-    project = identity_fakes.FakeProject.create_one_project(
-        attrs={'domain_id': domain.id, 'tags': ['tag1', 'tag2', 'tag3']}
+class TestProjectSet(identity_fakes.TestIdentityv3):
+    domain = sdk_fakes.generate_fake_resource(_domain.Domain)
+
+    project_kwargs_no_options = {
+        'domain_id': domain.id,
+        'tags': ['tag1', 'tag2', 'tag3'],
+    }
+    project = sdk_fakes.generate_fake_resource(
+        _project.Project, **project_kwargs_no_options
     )
 
     def setUp(self):
         super().setUp()
 
-        self.domains_mock.get.return_value = self.domain
-
-        self.projects_mock.get.return_value = self.project
-        self.projects_mock.update.return_value = self.project
+        self.identity_sdk_client.find_domain.return_value = self.domain
+        self.identity_sdk_client.find_project.return_value = self.project
 
         # Get the command object to test
         self.cmd = project.SetProject(self.app, None)
@@ -997,9 +1330,10 @@ class TestProjectSet(TestProject):
         kwargs = {
             'name': 'qwerty',
         }
-        # ProjectManager.update(project, name=, domain=, description=,
-        #                       enabled=, **kwargs)
-        self.projects_mock.update.assert_called_with(self.project.id, **kwargs)
+
+        self.identity_sdk_client.update_project.assert_called_with(
+            self.project.id, **kwargs
+        )
         self.assertIsNone(result)
 
     def test_project_set_description(self):
@@ -1024,7 +1358,9 @@ class TestProjectSet(TestProject):
         kwargs = {
             'description': 'new desc',
         }
-        self.projects_mock.update.assert_called_with(self.project.id, **kwargs)
+        self.identity_sdk_client.update_project.assert_called_with(
+            self.project.id, **kwargs
+        )
         self.assertIsNone(result)
 
     def test_project_set_enable(self):
@@ -1047,7 +1383,9 @@ class TestProjectSet(TestProject):
         kwargs = {
             'enabled': True,
         }
-        self.projects_mock.update.assert_called_with(self.project.id, **kwargs)
+        self.identity_sdk_client.update_project.assert_called_with(
+            self.project.id, **kwargs
+        )
         self.assertIsNone(result)
 
     def test_project_set_disable(self):
@@ -1070,7 +1408,9 @@ class TestProjectSet(TestProject):
         kwargs = {
             'enabled': False,
         }
-        self.projects_mock.update.assert_called_with(self.project.id, **kwargs)
+        self.identity_sdk_client.update_project.assert_called_with(
+            self.project.id, **kwargs
+        )
         self.assertIsNone(result)
 
     def test_project_set_property(self):
@@ -1097,7 +1437,9 @@ class TestProjectSet(TestProject):
             'fee': 'fi',
             'fo': 'fum',
         }
-        self.projects_mock.update.assert_called_with(self.project.id, **kwargs)
+        self.identity_sdk_client.update_project.assert_called_with(
+            self.project.id, **kwargs
+        )
         self.assertIsNone(result)
 
     def test_project_set_tags(self):
@@ -1112,7 +1454,7 @@ class TestProjectSet(TestProject):
         ]
         verifylist = [
             ('name', 'qwerty'),
-            ('domain', self.project.domain_id),
+            ('domain', self.domain.id),
             ('enabled', None),
             ('project', self.project.name),
             ('tags', ['foo']),
@@ -1126,9 +1468,9 @@ class TestProjectSet(TestProject):
             'name': 'qwerty',
             'tags': sorted({'tag1', 'tag2', 'tag3', 'foo'}),
         }
-        # ProjectManager.update(project, name=, domain=, description=,
-        #                       enabled=, **kwargs)
-        self.projects_mock.update.assert_called_with(self.project.id, **kwargs)
+        self.identity_sdk_client.update_project.assert_called_with(
+            self.project.id, **kwargs
+        )
         self.assertIsNone(result)
 
     def test_project_remove_tags(self):
@@ -1149,7 +1491,9 @@ class TestProjectSet(TestProject):
         result = self.cmd.take_action(parsed_args)
 
         kwargs = {'tags': list({'tag3'})}
-        self.projects_mock.update.assert_called_with(self.project.id, **kwargs)
+        self.identity_sdk_client.update_project.assert_called_with(
+            self.project.id, **kwargs
+        )
         self.assertIsNone(result)
 
     def test_project_set_with_immutable_option(self):
@@ -1173,7 +1517,9 @@ class TestProjectSet(TestProject):
         kwargs = {
             'options': {'immutable': True},
         }
-        self.projects_mock.update.assert_called_with(self.project.id, **kwargs)
+        self.identity_sdk_client.update_project.assert_called_with(
+            self.project.id, **kwargs
+        )
         self.assertIsNone(result)
 
     def test_project_set_with_no_immutable_option(self):
@@ -1197,114 +1543,108 @@ class TestProjectSet(TestProject):
         kwargs = {
             'options': {'immutable': False},
         }
-        self.projects_mock.update.assert_called_with(self.project.id, **kwargs)
+        self.identity_sdk_client.update_project.assert_called_with(
+            self.project.id, **kwargs
+        )
         self.assertIsNone(result)
 
 
-class TestProjectShow(TestProject):
-    domain = identity_fakes.FakeDomain.create_one_domain()
+class TestProjectShow(identity_fakes.TestIdentityv3):
+    domain = sdk_fakes.generate_fake_resource(_domain.Domain)
+
+    columns = (
+        'description',
+        'domain_id',
+        'enabled',
+        'id',
+        'is_domain',
+        'name',
+        'options',
+        'parent_id',
+        'tags',
+    )
+
+    project_kwargs_no_options = {
+        'description': None,
+        'domain_id': None,
+        'enabled': True,
+        'is_domain': False,
+        'parent_id': None,
+        'tags': [],
+    }
 
     def setUp(self):
         super().setUp()
-
-        self.project = identity_fakes.FakeProject.create_one_project(
-            attrs={'domain_id': self.domain.id}
-        )
 
         # Get the command object to test
         self.cmd = project.ShowProject(self.app, None)
 
     def test_project_show(self):
-        self.projects_mock.get.return_value = self.project
+        project = sdk_fakes.generate_fake_resource(
+            _project.Project, **self.project_kwargs_no_options
+        )
+        self.identity_sdk_client.find_project.return_value = project
 
         arglist = [
-            self.project.id,
+            project.id,
         ]
         verifylist = [
-            ('project', self.project.id),
+            ('project', project.id),
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
-
-        self.identity_client.tokens.get_token_data.return_value = {
-            'token': {
-                'project': {
-                    'domain': {},
-                    'name': parsed_args.project,
-                    'id': parsed_args.project,
-                }
-            }
-        }
 
         # In base command class ShowOne in cliff, abstract method take_action()
         # returns a two-part tuple with a tuple of column names and a tuple of
         # data to be shown.
         columns, data = self.cmd.take_action(parsed_args)
 
-        self.projects_mock.get.assert_called_once_with(self.project.id)
-
-        collist = (
-            'description',
-            'domain_id',
-            'enabled',
-            'id',
-            'is_domain',
-            'name',
-            'parent_id',
-            'tags',
+        self.identity_sdk_client.find_project.assert_called_with(
+            project.id, ignore_missing=False
         )
-        self.assertEqual(collist, columns)
+
+        self.assertEqual(self.columns, columns)
         datalist = (
-            self.project.description,
-            self.project.domain_id,
+            None,
+            None,
             True,
-            self.project.id,
+            project.id,
             False,
-            self.project.name,
-            self.project.parent_id,
-            self.project.tags,
+            project.name,
+            {},
+            None,
+            [],
         )
         self.assertEqual(datalist, data)
 
     def test_project_show_parents(self):
-        self.project = identity_fakes.FakeProject.create_one_project(
-            attrs={
-                'parent_id': self.project.parent_id,
-                'parents': [{'project': {'id': self.project.parent_id}}],
-            }
+        parent = sdk_fakes.generate_fake_resource(
+            _project.Project, parent_id='default'
         )
-        self.projects_mock.get.return_value = self.project
+        project = sdk_fakes.generate_fake_resource(
+            _project.Project,
+            **dict(
+                self.project_kwargs_no_options,
+                parent_id=parent.id,
+                parents={parent.id: {parent.parent_id: None}},
+            ),
+        )
+        self.identity_sdk_client.find_project.return_value = project
 
         arglist = [
-            self.project.id,
+            project.id,
             '--parents',
         ]
         verifylist = [
-            ('project', self.project.id),
+            ('project', project.id),
             ('parents', True),
             ('children', False),
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
-        self.identity_client.tokens.get_token_data.return_value = {
-            'token': {
-                'project': {
-                    'domain': {},
-                    'name': parsed_args.project,
-                    'id': parsed_args.project,
-                }
-            }
-        }
 
         columns, data = self.cmd.take_action(parsed_args)
 
-        self.projects_mock.get.assert_has_calls(
-            [
-                call(self.project.id),
-                call(
-                    self.project.id,
-                    parents_as_ids=True,
-                    subtree_as_ids=False,
-                ),
-            ]
+        self.identity_sdk_client.find_project.assert_called_with(
+            project.id, parents_as_ids=True, ignore_missing=False
         )
 
         collist = (
@@ -1314,63 +1654,51 @@ class TestProjectShow(TestProject):
             'id',
             'is_domain',
             'name',
+            'options',
             'parent_id',
             'parents',
             'tags',
         )
-        self.assertEqual(columns, collist)
+        self.assertEqual(collist, columns)
         datalist = (
-            self.project.description,
-            self.project.domain_id,
-            self.project.enabled,
-            self.project.id,
-            self.project.is_domain,
-            self.project.name,
-            self.project.parent_id,
-            [{'project': {'id': self.project.parent_id}}],
-            self.project.tags,
+            None,
+            None,
+            True,
+            project.id,
+            False,
+            project.name,
+            {},
+            parent.id,
+            {parent.id: {'default': None}},
+            [],
         )
-        self.assertEqual(data, datalist)
+        self.assertEqual(datalist, data)
 
     def test_project_show_subtree(self):
-        self.project = identity_fakes.FakeProject.create_one_project(
-            attrs={
-                'parent_id': self.project.parent_id,
-                'subtree': [{'project': {'id': 'children-id'}}],
-            }
+        child = sdk_fakes.generate_fake_resource(
+            _project.Project, subtree=None
         )
-        self.projects_mock.get.return_value = self.project
+        project = sdk_fakes.generate_fake_resource(
+            _project.Project,
+            **dict(self.project_kwargs_no_options, subtree={child.id: None}),
+        )
+        self.identity_sdk_client.find_project.return_value = project
 
         arglist = [
-            self.project.id,
+            project.id,
             '--children',
         ]
         verifylist = [
-            ('project', self.project.id),
+            ('project', project.id),
             ('parents', False),
             ('children', True),
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
-        self.identity_client.tokens.get_token_data.return_value = {
-            'token': {
-                'project': {
-                    'domain': {},
-                    'name': parsed_args.project,
-                    'id': parsed_args.project,
-                }
-            }
-        }
 
         columns, data = self.cmd.take_action(parsed_args)
-        self.projects_mock.get.assert_has_calls(
-            [
-                call(self.project.id),
-                call(
-                    self.project.id,
-                    parents_as_ids=False,
-                    subtree_as_ids=True,
-                ),
-            ]
+
+        self.identity_sdk_client.find_project.assert_called_with(
+            project.id, subtree_as_ids=True, ignore_missing=False
         )
 
         collist = (
@@ -1380,65 +1708,63 @@ class TestProjectShow(TestProject):
             'id',
             'is_domain',
             'name',
+            'options',
             'parent_id',
             'subtree',
             'tags',
         )
-        self.assertEqual(columns, collist)
+        self.assertEqual(collist, columns)
         datalist = (
-            self.project.description,
-            self.project.domain_id,
-            self.project.enabled,
-            self.project.id,
-            self.project.is_domain,
-            self.project.name,
-            self.project.parent_id,
-            [{'project': {'id': 'children-id'}}],
-            self.project.tags,
+            None,
+            None,
+            True,
+            project.id,
+            False,
+            project.name,
+            {},
+            None,
+            {child.id: None},
+            [],
         )
-        self.assertEqual(data, datalist)
+        self.assertEqual(datalist, data)
 
     def test_project_show_parents_and_children(self):
-        self.project = identity_fakes.FakeProject.create_one_project(
-            attrs={
-                'parent_id': self.project.parent_id,
-                'parents': [{'project': {'id': self.project.parent_id}}],
-                'subtree': [{'project': {'id': 'children-id'}}],
-            }
+        parent = sdk_fakes.generate_fake_resource(
+            _project.Project, parent_id='default'
         )
-        self.projects_mock.get.return_value = self.project
+        child = sdk_fakes.generate_fake_resource(
+            _project.Project, subtree=None
+        )
+        project = sdk_fakes.generate_fake_resource(
+            _project.Project,
+            **dict(
+                self.project_kwargs_no_options,
+                parent_id=parent.id,
+                parents={parent.id: {parent.parent_id: None}},
+                subtree={child.id: None},
+            ),
+        )
+        self.identity_sdk_client.find_project.return_value = project
 
         arglist = [
-            self.project.id,
+            project.id,
             '--parents',
             '--children',
         ]
         verifylist = [
-            ('project', self.project.id),
+            ('project', project.id),
             ('parents', True),
             ('children', True),
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
-        self.identity_client.tokens.get_token_data.return_value = {
-            'token': {
-                'project': {
-                    'domain': {},
-                    'name': parsed_args.project,
-                    'id': parsed_args.project,
-                }
-            }
-        }
 
         columns, data = self.cmd.take_action(parsed_args)
-        self.projects_mock.get.assert_has_calls(
-            [
-                call(self.project.id),
-                call(
-                    self.project.id,
-                    parents_as_ids=True,
-                    subtree_as_ids=True,
-                ),
-            ]
+
+        self.identity_sdk_client.find_project.assert_called_with(
+            project.id,
+            parents_as_ids=True,
+            subtree_as_ids=True,
+            ignore_missing=False,
         )
 
         collist = (
@@ -1448,42 +1774,36 @@ class TestProjectShow(TestProject):
             'id',
             'is_domain',
             'name',
+            'options',
             'parent_id',
             'parents',
             'subtree',
             'tags',
         )
-        self.assertEqual(columns, collist)
+        self.assertEqual(collist, columns)
         datalist = (
-            self.project.description,
-            self.project.domain_id,
-            self.project.enabled,
-            self.project.id,
-            self.project.is_domain,
-            self.project.name,
-            self.project.parent_id,
-            [{'project': {'id': self.project.parent_id}}],
-            [{'project': {'id': 'children-id'}}],
-            self.project.tags,
+            None,
+            None,
+            True,
+            project.id,
+            False,
+            project.name,
+            {},
+            parent.id,
+            {parent.id: {'default': None}},
+            {child.id: None},
+            [],
         )
-        self.assertEqual(data, datalist)
+        self.assertEqual(datalist, data)
 
     def test_project_show_with_domain(self):
-        project = identity_fakes.FakeProject.create_one_project(
-            {"name": self.project.name}
+        project = sdk_fakes.generate_fake_resource(
+            _project.Project,
+            **dict(self.project_kwargs_no_options, domain_id=self.domain.id),
         )
+        self.identity_sdk_client.find_domain.return_value = self.domain
+        self.identity_sdk_client.find_project.return_value = project
 
-        self.identity_client.tokens.get_token_data.return_value = {
-            'token': {
-                'project': {
-                    'domain': {"id": self.project.domain_id},
-                    'name': self.project.name,
-                    'id': self.project.id,
-                }
-            }
-        }
-
-        identity_client = self.identity_client
         arglist = [
             "--domain",
             self.domain.id,
@@ -1495,23 +1815,22 @@ class TestProjectShow(TestProject):
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
-        project_str = common._get_token_resource(
-            identity_client, 'project', parsed_args.project, parsed_args.domain
-        )
-        self.assertEqual(self.project.id, project_str)
+        columns, data = self.cmd.take_action(parsed_args)
 
-        arglist = [
-            "--domain",
-            project.domain_id,
+        self.identity_sdk_client.find_project.assert_called_with(
+            project.id, domain_id=self.domain.id, ignore_missing=False
+        )
+
+        self.assertEqual(self.columns, columns)
+        datalist = (
+            None,
+            self.domain.id,
+            True,
+            project.id,
+            False,
             project.name,
-        ]
-        verifylist = [
-            ('domain', project.domain_id),
-            ('project', project.name),
-        ]
-        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
-
-        project_str = common._get_token_resource(
-            identity_client, 'project', parsed_args.project, parsed_args.domain
+            {},
+            None,
+            [],
         )
-        self.assertEqual(project.name, project_str)
+        self.assertEqual(datalist, data)

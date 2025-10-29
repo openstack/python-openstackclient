@@ -1,0 +1,7 @@
+---
+features:
+  - |
+    Migrate ``project`` commands from keystoneclient to SDK.
+upgrade:
+  - |
+    Filtering in ``project`` commands is now case sensitive.
