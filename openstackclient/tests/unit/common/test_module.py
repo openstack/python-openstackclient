@@ -11,7 +11,6 @@
 #   WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
 #   License for the specific language governing permissions and limitations
 #   under the License.
-#
 
 """Test module module"""
 
@@ -19,8 +18,16 @@ import sys
 from unittest import mock
 
 from openstackclient.common import module as osc_module
-from openstackclient.tests.unit import fakes
 from openstackclient.tests.unit import utils
+
+
+class FakeModule:
+    def __init__(self, name, version):
+        self.name = name
+        self.__version__ = version
+        # Workaround for openstacksdk case
+        self.version = mock.Mock()
+        self.version.__version__ = version
 
 
 # NOTE(dtroyer): module_1 must match the version list filter (not --all)
@@ -45,11 +52,11 @@ module_version_5 = '0.0.1'
 
 MODULES = {
     'sys': sys,
-    module_name_1: fakes.FakeModule(module_name_1, module_version_1),
-    module_name_2: fakes.FakeModule(module_name_2, module_version_2),
-    module_name_3: fakes.FakeModule(module_name_3, module_version_3),
-    module_name_4: fakes.FakeModule(module_name_4, module_version_4),
-    module_name_5: fakes.FakeModule(module_name_5, module_version_5),
+    module_name_1: FakeModule(module_name_1, module_version_1),
+    module_name_2: FakeModule(module_name_2, module_version_2),
+    module_name_3: FakeModule(module_name_3, module_version_3),
+    module_name_4: FakeModule(module_name_4, module_version_4),
+    module_name_5: FakeModule(module_name_5, module_version_5),
 }
 
 

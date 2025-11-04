@@ -693,6 +693,14 @@ class TestIdentityv3(
 ): ...
 
 
+class FakeModel(dict):
+    def __getattr__(self, key):
+        try:
+            return self[key]
+        except KeyError:
+            raise AttributeError(key)
+
+
 # We don't use FakeClientMixin since we want a different fake legacy client
 class TestFederatedIdentity(utils.TestCommand):
     def setUp(self):
@@ -1075,7 +1083,7 @@ class FakeEndpoint:
         # Overwrite default attributes if there are some attributes set
         endpoint_filter_info.update(attrs)
 
-        endpoint_filter = fakes.FakeModel(copy.deepcopy(endpoint_filter_info))
+        endpoint_filter = FakeModel(copy.deepcopy(endpoint_filter_info))
 
         return endpoint_filter
 
@@ -1133,7 +1141,7 @@ class FakeEndpointGroup:
         # Overwrite default attributes if there are some attributes set
         endpointgroup_filter_info.update(attrs)
 
-        endpointgroup_filter = fakes.FakeModel(
+        endpointgroup_filter = FakeModel(
             copy.deepcopy(endpointgroup_filter_info)
         )
 

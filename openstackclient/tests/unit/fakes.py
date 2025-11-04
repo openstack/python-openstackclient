@@ -12,13 +12,43 @@
 #   License for the specific language governing permissions and limitations
 #   under the License.
 
+# TODO(stephenfin): Remove the contents of this module in favour of the osc_lib
+# version once our min version is bumped to 4.3.0
+
 import json
-import sys
 from unittest import mock
 
 from keystoneauth1 import fixture
+from osc_lib.tests.fakes import (
+    FakeApp,
+    FakeClientManager as BaseFakeClientManager,
+    FakeLog,
+    FakeOptions,
+    FakeResource as BaseFakeResource,
+    FakeStdout,
+)
 import requests
 
+__all__ = [
+    'AUTH_TOKEN',
+    'AUTH_URL',
+    'INTERFACE',
+    'PASSWORD',
+    'PROJECT_NAME',
+    'REGION_NAME',
+    'TEST_RESPONSE_DICT',
+    'TEST_RESPONSE_DICT_V3',
+    'TEST_VERSIONS',
+    'USERNAME',
+    'VERSION',
+    'FakeApp',
+    'FakeClientManager',
+    'FakeLog',
+    'FakeOptions',
+    'FakeResource',
+    'FakeResponse',
+    'FakeStdout',
+]
 
 AUTH_TOKEN = "foobar"
 AUTH_URL = "http://0.0.0.0"
@@ -47,79 +77,15 @@ TEST_RESPONSE_DICT_V3.set_project_scope()
 TEST_VERSIONS = fixture.DiscoveryList(href=AUTH_URL)
 
 
-class FakeStdout:
-    def __init__(self):
-        self.content = []
-
-    def write(self, text):
-        self.content.append(text)
-
-    def make_string(self):
-        result = ''
-        for line in self.content:
-            result = result + line
-        return result
-
-
-class FakeLog:
-    def __init__(self):
-        self.messages = {}
-
-    def debug(self, msg):
-        self.messages['debug'] = msg
-
-    def info(self, msg):
-        self.messages['info'] = msg
-
-    def warning(self, msg):
-        self.messages['warning'] = msg
-
-    def error(self, msg):
-        self.messages['error'] = msg
-
-    def critical(self, msg):
-        self.messages['critical'] = msg
-
-
-class FakeApp:
-    def __init__(self, _stdout, _log):
-        self.stdout = _stdout
-        self.client_manager = None
-        self.api_version = {}
-        self.stdin = sys.stdin
-        self.stdout = _stdout or sys.stdout
-        self.stderr = sys.stderr
-        self.log = _log
-
-
-class FakeOptions:
-    def __init__(self, **kwargs):
-        self.os_beta_command = False
-
-
-class FakeClient:
-    def __init__(self, **kwargs):
-        self.endpoint = kwargs['endpoint']
-        self.token = kwargs['token']
-
-
-class FakeClientManager:
+class FakeClientManager(BaseFakeClientManager):
     _api_version = {
         'image': '2',
     }
 
     def __init__(self):
-        self.compute = None
-        self.identity = None
-        self.image = None
-        self.object_store = None
-        self.volume = None
-        self.network = None
-        self.sdk_connection = mock.Mock()
+        super().__init__()
 
-        self.session = None
-        self.auth_ref = None
-        self.auth_plugin_name = None
+        self.sdk_connection = mock.Mock()
 
         self.network_endpoint_enabled = True
         self.compute_endpoint_enabled = True
@@ -158,64 +124,7 @@ class FakeClientManager:
         return self.volume_endpoint_enabled
 
 
-class FakeModule:
-    def __init__(self, name, version):
-        self.name = name
-        self.__version__ = version
-        # Workaround for openstacksdk case
-        self.version = mock.Mock()
-        self.version.__version__ = version
-
-
-class FakeResource:
-    def __init__(self, manager=None, info=None, loaded=False, methods=None):
-        """Set attributes and methods for a resource.
-
-        :param manager:
-            The resource manager
-        :param Dictionary info:
-            A dictionary with all attributes
-        :param bool loaded:
-            True if the resource is loaded in memory
-        :param Dictionary methods:
-            A dictionary with all methods
-        """
-        info = info or {}
-        methods = methods or {}
-
-        self.__name__ = type(self).__name__
-        self.manager = manager
-        self._info = info
-        self._add_details(info)
-        self._add_methods(methods)
-        self._loaded = loaded
-
-    def _add_details(self, info):
-        for k, v in info.items():
-            setattr(self, k, v)
-
-    def _add_methods(self, methods):
-        """Fake methods with MagicMock objects.
-
-        For each <@key, @value> pairs in methods, add an callable MagicMock
-        object named @key as an attribute, and set the mock's return_value to
-        @value. When users access the attribute with (), @value will be
-        returned, which looks like a function call.
-        """
-        for name, ret in methods.items():
-            method = mock.Mock(return_value=ret)
-            setattr(self, name, method)
-
-    def __repr__(self):
-        reprkeys = sorted(
-            k for k in self.__dict__.keys() if k[0] != '_' and k != 'manager'
-        )
-        info = ", ".join(f"{k}={getattr(self, k)}" for k in reprkeys)
-        return f"<{self.__class__.__name__} {info}>"
-
-    def keys(self):
-        return self._info.keys()
-
+class FakeResource(BaseFakeResource):
     def to_dict(self):
         return self._info
 
@@ -247,11 +156,3 @@ class FakeResponse(requests.Response):
         self._content = json.dumps(data)
         if not isinstance(self._content, bytes):
             self._content = self._content.encode()
-
-
-class FakeModel(dict):
-    def __getattr__(self, key):
-        try:
-            return self[key]
-        except KeyError:
-            raise AttributeError(key)
