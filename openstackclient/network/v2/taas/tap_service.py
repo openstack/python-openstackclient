@@ -79,7 +79,7 @@ class CreateTapService(command.ShowOne):
         if parsed_args.port_id is not None:
             port_id = client.find_port(
                 parsed_args.port_id, ignore_missing=False
-            )['id']
+            ).id
             attrs['port_id'] = port_id
         if 'project' in parsed_args and parsed_args.project is not None:
             attrs['project_id'] = common.find_project(

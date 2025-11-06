@@ -101,12 +101,12 @@ class CreateTapFlow(command.ShowOne):
         if parsed_args.port is not None:
             source_port = client.find_port(
                 parsed_args.port, ignore_missing=False
-            )['id']
+            ).id
             attrs['source_port'] = source_port
         if parsed_args.tap_service is not None:
             tap_service_id = client.find_tap_service(
                 parsed_args.tap_service, ignore_missing=False
-            )['id']
+            ).id
             attrs['tap_service_id'] = tap_service_id
         if parsed_args.direction is not None:
             attrs['direction'] = parsed_args.direction

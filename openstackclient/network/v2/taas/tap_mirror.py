@@ -99,7 +99,7 @@ class CreateTapMirror(command.ShowOne):
         if parsed_args.port_id is not None:
             port_id = client.find_port(
                 parsed_args.port_id, ignore_missing=False
-            )['id']
+            ).id
             attrs['port_id'] = port_id
         if parsed_args.directions is not None:
             attrs['directions'] = parsed_args.directions

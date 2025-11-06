@@ -17,13 +17,14 @@ import operator
 import uuid
 
 from openstack.network.v2 import tap_flow as _tap_flow
+from openstack.network.v2 import tap_service as _tap_service
+from openstack.test import fakes as sdk_fakes
 from osc_lib import utils as osc_utils
 from osc_lib.utils import columns as column_util
 
 from openstackclient.network.v2.taas import tap_flow as osc_tap_flow
 from openstackclient.network.v2.taas import tap_service as osc_tap_service
 from openstackclient.tests.unit.network.v2 import fakes as network_fakes
-from openstackclient.tests.unit.network.v2.taas import fakes
 
 
 columns_long = tuple(
@@ -47,9 +48,11 @@ def _get_data(attrs, columns=sorted_columns):
 
 class TestCreateTapFlow(network_fakes.TestNetworkV2):
     columns = (
+        'description',
         'direction',
         'id',
         'name',
+        'project_id',
         'source_port',
         'status',
         'tap_service_id',
@@ -61,22 +64,23 @@ class TestCreateTapFlow(network_fakes.TestNetworkV2):
 
     def test_create_tap_flow(self):
         """Test Create Tap Flow."""
-        fake_tap_service = fakes.FakeTapService.create_tap_service(
-            attrs={'port_id': str(uuid.uuid4())}
+        fake_tap_service = sdk_fakes.generate_fake_resource(
+            _tap_service.TapService
         )
         port_id = str(uuid.uuid4())
-        fake_tap_flow = fakes.FakeTapFlow.create_tap_flow(
-            attrs={
+        fake_port = network_fakes.create_one_port(attrs={'id': port_id})
+        fake_tap_flow = sdk_fakes.generate_fake_resource(
+            _tap_flow.TapFlow,
+            **{
                 'source_port': port_id,
                 'tap_service_id': fake_tap_service['id'],
-            }
+                'direction': 'BOTH',
+            },
         )
         self.app.client_manager.network.create_tap_flow.return_value = (
             fake_tap_flow
         )
-        self.app.client_manager.network.find_port.return_value = {
-            'id': port_id
-        }
+        self.app.client_manager.network.find_port.return_value = fake_port
         self.app.client_manager.network.find_tap_service.return_value = (
             fake_tap_service
         )
@@ -122,12 +126,8 @@ class TestListTapFlow(network_fakes.TestNetworkV2):
 
     def test_list_tap_flows(self):
         """Test List Tap Flow."""
-        fake_tap_flows = fakes.FakeTapFlow.create_tap_flows(
-            attrs={
-                'source_port': str(uuid.uuid4()),
-                'tap_service_id': str(uuid.uuid4()),
-            },
-            count=2,
+        fake_tap_flows = list(
+            sdk_fakes.generate_fake_resources(_tap_flow.TapFlow, count=2)
         )
         self.app.client_manager.network.tap_flows.return_value = fake_tap_flows
         arg_list = []
@@ -159,13 +159,7 @@ class TestDeleteTapFlow(network_fakes.TestNetworkV2):
     def test_delete_tap_flow(self):
         """Test Delete tap flow."""
 
-        fake_tap_flow = fakes.FakeTapFlow.create_tap_flow(
-            attrs={
-                'source_port': str(uuid.uuid4()),
-                'tap_service_id': str(uuid.uuid4()),
-            }
-        )
-
+        fake_tap_flow = sdk_fakes.generate_fake_resource(_tap_flow.TapFlow)
         arg_list = [
             fake_tap_flow['id'],
         ]
@@ -184,9 +178,11 @@ class TestDeleteTapFlow(network_fakes.TestNetworkV2):
 
 class TestShowTapFlow(network_fakes.TestNetworkV2):
     columns = (
+        'description',
         'direction',
         'id',
         'name',
+        'project_id',
         'source_port',
         'status',
         'tap_service_id',
@@ -201,12 +197,7 @@ class TestShowTapFlow(network_fakes.TestNetworkV2):
 
     def test_show_tap_flow(self):
         """Test Show tap flow."""
-        fake_tap_flow = fakes.FakeTapFlow.create_tap_flow(
-            attrs={
-                'source_port': str(uuid.uuid4()),
-                'tap_service_id': str(uuid.uuid4()),
-            }
-        )
+        fake_tap_flow = sdk_fakes.generate_fake_resource(_tap_flow.TapFlow)
         self.app.client_manager.network.get_tap_flow.return_value = (
             fake_tap_flow
         )
@@ -234,12 +225,19 @@ class TestShowTapFlow(network_fakes.TestNetworkV2):
 class TestUpdateTapFlow(network_fakes.TestNetworkV2):
     _new_name = 'new_name'
 
+    # NOTE(mtomaska): The Resource class from which TapFlow inherits from
+    # returns duplicate `ID and `Name` keys.
     columns = (
         'Direction',
         'ID',
+        'ID',
+        'Name',
         'Name',
         'Status',
         'Tenant',
+        'description',
+        'location',
+        'project_id',
         'source_port',
         'tap_service_id',
     )
@@ -253,12 +251,7 @@ class TestUpdateTapFlow(network_fakes.TestNetworkV2):
 
     def test_update_tap_flow(self):
         """Test update tap service"""
-        fake_tap_flow = fakes.FakeTapFlow.create_tap_flow(
-            attrs={
-                'source_port': str(uuid.uuid4()),
-                'tap_service_id': str(uuid.uuid4()),
-            }
-        )
+        fake_tap_flow = sdk_fakes.generate_fake_resource(_tap_flow.TapFlow)
         new_tap_flow = copy.deepcopy(fake_tap_flow)
         new_tap_flow['name'] = self._new_name
 
@@ -280,4 +273,4 @@ class TestUpdateTapFlow(network_fakes.TestNetworkV2):
         mock_update_t_f = self.app.client_manager.network.update_tap_flow
         mock_update_t_f.assert_called_once_with(new_tap_flow['id'], **attrs)
         self.assertEqual(self.columns, columns)
-        self.assertEqual(_get_data(new_tap_flow), data)
+        self.assertEqual(_get_data(new_tap_flow, self.columns), data)
