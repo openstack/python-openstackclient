@@ -11,7 +11,6 @@
 #   under the License.
 #
 
-from unittest import mock
 from unittest.mock import call
 
 from osc_lib import exceptions
@@ -69,13 +68,13 @@ class TestCreateSecurityGroupNetwork(TestSecurityGroupNetwork):
     def setUp(self):
         super().setUp()
 
-        self.network_client.create_security_group = mock.Mock(
-            return_value=self._security_group
+        self.network_client.create_security_group.return_value = (
+            self._security_group
         )
 
         self.projects_mock.get.return_value = self.project
         self.domains_mock.get.return_value = self.domain
-        self.network_client.set_tags = mock.Mock(return_value=None)
+        self.network_client.set_tags.return_value = None
 
         # Get the command object to test
         self.cmd = security_group.CreateSecurityGroup(self.app, None)
@@ -185,9 +184,7 @@ class TestDeleteSecurityGroupNetwork(TestSecurityGroupNetwork):
     def setUp(self):
         super().setUp()
 
-        self.network_client.delete_security_group = mock.Mock(
-            return_value=None
-        )
+        self.network_client.delete_security_group.return_value = None
 
         self.network_client.find_security_group = (
             network_fakes.get_security_groups(self._security_groups)
@@ -245,9 +242,7 @@ class TestDeleteSecurityGroupNetwork(TestSecurityGroupNetwork):
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
         find_mock_result = [self._security_groups[0], exceptions.CommandError]
-        self.network_client.find_security_group = mock.Mock(
-            side_effect=find_mock_result
-        )
+        self.network_client.find_security_group.side_effect = find_mock_result
 
         try:
             self.cmd.take_action(parsed_args)
@@ -295,8 +290,8 @@ class TestListSecurityGroupNetwork(TestSecurityGroupNetwork):
     def setUp(self):
         super().setUp()
 
-        self.network_client.security_groups = mock.Mock(
-            return_value=self._security_groups
+        self.network_client.security_groups.return_value = (
+            self._security_groups
         )
 
         # Get the command object to test
@@ -423,14 +418,13 @@ class TestSetSecurityGroupNetwork(TestSecurityGroupNetwork):
     def setUp(self):
         super().setUp()
 
-        self.network_client.update_security_group = mock.Mock(
-            return_value=None
+        self.network_client.update_security_group.return_value = None
+
+        self.network_client.find_security_group.return_value = (
+            self._security_group
         )
 
-        self.network_client.find_security_group = mock.Mock(
-            return_value=self._security_group
-        )
-        self.network_client.set_tags = mock.Mock(return_value=None)
+        self.network_client.set_tags.return_value = None
 
         # Get the command object to test
         self.cmd = security_group.SetSecurityGroup(self.app, None)
@@ -557,8 +551,8 @@ class TestShowSecurityGroupNetwork(TestSecurityGroupNetwork):
     def setUp(self):
         super().setUp()
 
-        self.network_client.find_security_group = mock.Mock(
-            return_value=self._security_group
+        self.network_client.find_security_group.return_value = (
+            self._security_group
         )
 
         # Get the command object to test
@@ -596,14 +590,13 @@ class TestUnsetSecurityGroupNetwork(TestSecurityGroupNetwork):
     def setUp(self):
         super().setUp()
 
-        self.network_client.update_security_group = mock.Mock(
-            return_value=None
+        self.network_client.update_security_group.return_value = None
+
+        self.network_client.find_security_group.return_value = (
+            self._security_group
         )
 
-        self.network_client.find_security_group = mock.Mock(
-            return_value=self._security_group
-        )
-        self.network_client.set_tags = mock.Mock(return_value=None)
+        self.network_client.set_tags.return_value = None
 
         # Get the command object to test
         self.cmd = security_group.UnsetSecurityGroup(self.app, None)

@@ -39,8 +39,8 @@ class TestAddPortToRouter(TestRouter):
     def setUp(self):
         super().setUp()
 
-        self.network_client.find_router = mock.Mock(return_value=self._router)
-        self.network_client.find_port = mock.Mock(return_value=self._port)
+        self.network_client.find_router.return_value = self._router
+        self.network_client.find_port.return_value = self._port
 
         self.cmd = router.AddPortToRouter(self.app, None)
 
@@ -87,8 +87,8 @@ class TestAddSubnetToRouter(TestRouter):
     def setUp(self):
         super().setUp()
 
-        self.network_client.find_router = mock.Mock(return_value=self._router)
-        self.network_client.find_subnet = mock.Mock(return_value=self._subnet)
+        self.network_client.find_router.return_value = self._router
+        self.network_client.find_subnet.return_value = self._subnet
 
         self.cmd = router.AddSubnetToRouter(self.app, None)
 
@@ -172,12 +172,11 @@ class TestCreateRouter(TestRouter):
     def setUp(self):
         super().setUp()
 
-        self.network_client.create_router = mock.Mock(
-            return_value=self.new_router
-        )
-        self.network_client.set_tags = mock.Mock(return_value=None)
-        self.network_client.find_extension = mock.Mock(
-            side_effect=lambda name: self._extensions.get(name)
+        self.network_client.create_router.return_value = self.new_router
+
+        self.network_client.set_tags.return_value = None
+        self.network_client.find_extension.side_effect = (
+            lambda name: self._extensions.get(name)
         )
         # Get the command object to test
         self.cmd = router.CreateRouter(self.app, None)
@@ -222,8 +221,8 @@ class TestCreateRouter(TestRouter):
     def test_create_with_gateway(self):
         _network = network_fakes.create_one_network()
         _subnet = network_fakes.FakeSubnet.create_one_subnet()
-        self.network_client.find_network = mock.Mock(return_value=_network)
-        self.network_client.find_subnet = mock.Mock(return_value=_subnet)
+        self.network_client.find_network.return_value = _network
+        self.network_client.find_subnet.return_value = _subnet
         arglist = [
             self.new_router.name,
             '--external-gateway',
@@ -392,7 +391,7 @@ class TestCreateRouter(TestRouter):
 
     def test_create_with_flavor_id_id(self):
         _flavor = network_fakes.create_one_network_flavor()
-        self.network_client.find_flavor = mock.Mock(return_value=_flavor)
+        self.network_client.find_flavor.return_value = _flavor
         arglist = [
             self.new_router.name,
             '--flavor-id',
@@ -419,7 +418,7 @@ class TestCreateRouter(TestRouter):
 
     def test_create_with_flavor_id_name(self):
         _flavor = network_fakes.create_one_network_flavor()
-        self.network_client.find_flavor = mock.Mock(return_value=_flavor)
+        self.network_client.find_flavor.return_value = _flavor
         arglist = [self.new_router.name, '--flavor-id', _flavor.name]
         verifylist = [
             ('name', self.new_router.name),
@@ -442,7 +441,7 @@ class TestCreateRouter(TestRouter):
 
     def test_create_with_flavor_id(self):
         _flavor = network_fakes.create_one_network_flavor()
-        self.network_client.find_flavor = mock.Mock(return_value=_flavor)
+        self.network_client.find_flavor.return_value = _flavor
         arglist = [
             self.new_router.name,
             '--flavor',
@@ -469,7 +468,7 @@ class TestCreateRouter(TestRouter):
 
     def test_create_with_flavor_name(self):
         _flavor = network_fakes.create_one_network_flavor()
-        self.network_client.find_flavor = mock.Mock(return_value=_flavor)
+        self.network_client.find_flavor.return_value = _flavor
         arglist = [self.new_router.name, '--flavor', _flavor.name]
         verifylist = [
             ('name', self.new_router.name),
@@ -491,11 +490,12 @@ class TestCreateRouter(TestRouter):
         self.assertCountEqual(self.data, data)
 
     def test_create_with_enable_default_route_bfd(self):
-        self.network_client.find_extension = mock.Mock(
-            return_value=network_fakes.create_one_extension(
+        self._extensions = {
+            'external-gateway-multihoming': network_fakes.create_one_extension(
                 attrs={'name': 'external-gateway-multihoming'}
-            )
-        )
+            ),
+        }
+
         arglist = [self.new_router.name, '--enable-default-route-bfd']
         verifylist = [
             ('name', self.new_router.name),
@@ -525,11 +525,12 @@ class TestCreateRouter(TestRouter):
         )
 
     def test_create_with_enable_default_route_ecmp(self):
-        self.network_client.find_extension = mock.Mock(
-            return_value=network_fakes.create_one_extension(
+        self._extensions = {
+            'external-gateway-multihoming': network_fakes.create_one_extension(
                 attrs={'name': 'external-gateway-multihoming'}
-            )
-        )
+            ),
+        }
+
         arglist = [self.new_router.name, '--enable-default-route-ecmp']
         verifylist = [
             ('name', self.new_router.name),
@@ -560,11 +561,10 @@ class TestCreateRouter(TestRouter):
 
     def test_create_with_qos_policy(self):
         _network = network_fakes.create_one_network()
-        self.network_client.find_network = mock.Mock(return_value=_network)
+        self.network_client.find_network.return_value = _network
         _qos_policy = network_fakes.create_one_qos_policy()
-        self.network_client.find_qos_policy = mock.Mock(
-            return_value=_qos_policy
-        )
+        self.network_client.find_qos_policy.return_value = _qos_policy
+
         arglist = [
             self.new_router.name,
             '--external-gateway',
@@ -595,9 +595,8 @@ class TestCreateRouter(TestRouter):
 
     def test_create_with_qos_policy_no_external_gateway(self):
         _qos_policy = network_fakes.create_one_qos_policy()
-        self.network_client.find_qos_policy = mock.Mock(
-            return_value=_qos_policy
-        )
+        self.network_client.find_qos_policy.return_value = _qos_policy
+
         arglist = [
             self.new_router.name,
             '--qos-policy',
@@ -625,7 +624,7 @@ class TestDeleteRouter(TestRouter):
     def setUp(self):
         super().setUp()
 
-        self.network_client.delete_router = mock.Mock(return_value=None)
+        self.network_client.delete_router.return_value = None
 
         self.network_client.find_router = network_fakes.get_routers(
             self._routers
@@ -679,9 +678,7 @@ class TestDeleteRouter(TestRouter):
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
         find_mock_result = [self._routers[0], exceptions.CommandError]
-        self.network_client.find_router = mock.Mock(
-            side_effect=find_mock_result
-        )
+        self.network_client.find_router.side_effect = find_mock_result
 
         try:
             self.cmd.take_action(parsed_args)
@@ -786,21 +783,16 @@ class TestListRouter(TestRouter):
         # Get the command object to test
         self.cmd = router.ListRouter(self.app, None)
 
-        self.network_client.agent_hosted_routers = mock.Mock(
-            return_value=self.routers
-        )
-        self.network_client.routers = mock.Mock(return_value=self.routers)
-        self.network_client.find_extension = mock.Mock(
-            return_value=self.extensions
-        )
-        self.network_client.find_router = mock.Mock(
-            return_value=self.routers[0]
-        )
+        self.network_client.agent_hosted_routers.return_value = self.routers
+
+        self.network_client.routers.return_value = self.routers
+        self.network_client.find_extension.return_value = self.extensions
+
+        self.network_client.find_router.return_value = self.routers[0]
+
         self._testagent = network_fakes.create_one_network_agent()
-        self.network_client.get_agent = mock.Mock(return_value=self._testagent)
-        self.network_client.get_router = mock.Mock(
-            return_value=self.routers[0]
-        )
+        self.network_client.get_agent.return_value = self._testagent
+        self.network_client.get_router.return_value = self.routers[0]
 
     def test_router_list_no_options(self):
         arglist = []
@@ -865,7 +857,7 @@ class TestListRouter(TestRouter):
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
         # to mock, that no availability zone
-        self.network_client.find_extension = mock.Mock(return_value=None)
+        self.network_client.find_extension.return_value = None
 
         # In base command class Lister in cliff, abstract method take_action()
         # returns a tuple containing the column names and an iterable
@@ -1044,8 +1036,8 @@ class TestRemovePortFromRouter(TestRouter):
     def setUp(self):
         super().setUp()
 
-        self.network_client.find_router = mock.Mock(return_value=self._router)
-        self.network_client.find_port = mock.Mock(return_value=self._port)
+        self.network_client.find_router.return_value = self._router
+        self.network_client.find_port.return_value = self._port
 
         self.cmd = router.RemovePortFromRouter(self.app, None)
 
@@ -1089,8 +1081,8 @@ class TestRemoveSubnetFromRouter(TestRouter):
     def setUp(self):
         super().setUp()
 
-        self.network_client.find_router = mock.Mock(return_value=self._router)
-        self.network_client.find_subnet = mock.Mock(return_value=self._subnet)
+        self.network_client.find_router.return_value = self._router
+        self.network_client.find_subnet.return_value = self._subnet
 
         self.cmd = router.RemoveSubnetFromRouter(self.app, None)
 
@@ -1129,11 +1121,12 @@ class TestAddExtraRoutesToRouter(TestRouter):
 
     def setUp(self):
         super().setUp()
-        self.network_client.add_extra_routes_to_router = mock.Mock(
-            return_value=self._router
+        self.network_client.add_extra_routes_to_router.return_value = (
+            self._router
         )
+
         self.cmd = router.AddExtraRoutesToRouter(self.app, None)
-        self.network_client.find_router = mock.Mock(return_value=self._router)
+        self.network_client.find_router.return_value = self._router
 
     def test_add_no_extra_route(self):
         arglist = [
@@ -1218,11 +1211,12 @@ class TestRemoveExtraRoutesFromRouter(TestRouter):
 
     def setUp(self):
         super().setUp()
-        self.network_client.remove_extra_routes_from_router = mock.Mock(
-            return_value=self._router
+        self.network_client.remove_extra_routes_from_router.return_value = (
+            self._router
         )
+
         self.cmd = router.RemoveExtraRoutesFromRouter(self.app, None)
-        self.network_client.find_router = mock.Mock(return_value=self._router)
+        self.network_client.find_router.return_value = self._router
 
     def test_remove_no_extra_route(self):
         arglist = [
@@ -1316,15 +1310,14 @@ class TestSetRouter(TestRouter):
 
     def setUp(self):
         super().setUp()
-        self.network_client.update_router = mock.Mock(return_value=None)
-        self.network_client.set_tags = mock.Mock(return_value=None)
-        self.network_client.find_router = mock.Mock(return_value=self._router)
-        self.network_client.find_network = mock.Mock(
-            return_value=self._network
-        )
-        self.network_client.find_subnet = mock.Mock(return_value=self._subnet)
-        self.network_client.find_extension = mock.Mock(
-            side_effect=lambda name: self._extensions.get(name)
+        self.network_client.update_router.return_value = None
+        self.network_client.set_tags.return_value = None
+        self.network_client.find_router.return_value = self._router
+        self.network_client.find_network.return_value = self._network
+
+        self.network_client.find_subnet.return_value = self._subnet
+        self.network_client.find_extension.side_effect = (
+            lambda name: self._extensions.get(name)
         )
         # Get the command object to test
         self.cmd = router.SetRouter(self.app, None)
@@ -1459,7 +1452,7 @@ class TestSetRouter(TestRouter):
         _testrouter = network_fakes.create_one_router(
             {'routes': [{"destination": "10.0.0.2", "nexthop": "1.1.1.1"}]}
         )
-        self.network_client.find_router = mock.Mock(return_value=_testrouter)
+        self.network_client.find_router.return_value = _testrouter
         arglist = [
             _testrouter.name,
             '--route',
@@ -1667,9 +1660,8 @@ class TestSetRouter(TestRouter):
 
     def test_set_gateway_ip_qos(self):
         qos_policy = network_fakes.create_one_qos_policy()
-        self.network_client.find_qos_policy = mock.Mock(
-            return_value=qos_policy
-        )
+        self.network_client.find_qos_policy.return_value = qos_policy
+
         arglist = [
             "--external-gateway",
             self._network.id,
@@ -1724,9 +1716,8 @@ class TestSetRouter(TestRouter):
 
     def test_set_unset_gateway_ip_qos(self):
         qos_policy = network_fakes.create_one_qos_policy()
-        self.network_client.find_qos_policy = mock.Mock(
-            return_value=qos_policy
-        )
+        self.network_client.find_qos_policy.return_value = qos_policy
+
         arglist = [
             "--external-gateway",
             self._network.id,
@@ -1752,11 +1743,10 @@ class TestSetRouter(TestRouter):
 
     def test_set_gateway_ip_qos_no_gateway(self):
         qos_policy = network_fakes.create_one_qos_policy()
-        self.network_client.find_qos_policy = mock.Mock(
-            return_value=qos_policy
-        )
+        self.network_client.find_qos_policy.return_value = qos_policy
+
         router = network_fakes.create_one_router()
-        self.network_client.find_router = mock.Mock(return_value=router)
+        self.network_client.find_router.return_value = router
         arglist = [
             "--qos-policy",
             qos_policy.id,
@@ -1774,11 +1764,10 @@ class TestSetRouter(TestRouter):
 
     def test_unset_gateway_ip_qos_no_gateway(self):
         qos_policy = network_fakes.create_one_qos_policy()
-        self.network_client.find_qos_policy = mock.Mock(
-            return_value=qos_policy
-        )
+        self.network_client.find_qos_policy.return_value = qos_policy
+
         router = network_fakes.create_one_router()
-        self.network_client.find_router = mock.Mock(return_value=router)
+        self.network_client.find_router.return_value = router
         arglist = [
             "--no-qos-policy",
             router.id,
@@ -1857,8 +1846,8 @@ class TestShowRouter(TestRouter):
     def setUp(self):
         super().setUp()
 
-        self.network_client.find_router = mock.Mock(return_value=self._router)
-        self.network_client.ports = mock.Mock(return_value=[self._port])
+        self.network_client.find_router.return_value = self._router
+        self.network_client.ports.return_value = [self._port]
 
         # Get the command object to test
         self.cmd = router.ShowRouter(self.app, None)
@@ -1961,18 +1950,16 @@ class TestUnsetRouter(TestRouter):
             }
         )
         self.fake_subnet = network_fakes.FakeSubnet.create_one_subnet()
-        self.network_client.find_router = mock.Mock(
-            return_value=self._testrouter
-        )
-        self.network_client.update_router = mock.Mock(return_value=None)
-        self.network_client.set_tags = mock.Mock(return_value=None)
+        self.network_client.find_router.return_value = self._testrouter
+
+        self.network_client.update_router.return_value = None
+        self.network_client.set_tags.return_value = None
         self._extensions = {'fake': network_fakes.create_one_extension()}
-        self.network_client.find_extension = mock.Mock(
-            side_effect=lambda name: self._extensions.get(name)
+        self.network_client.find_extension.side_effect = (
+            lambda name: self._extensions.get(name)
         )
-        self.network_client.remove_external_gateways = mock.Mock(
-            return_value=None
-        )
+        self.network_client.remove_external_gateways.return_value = None
+
         # Get the command object to test
         self.cmd = router.UnsetRouter(self.app, None)
 
@@ -2109,11 +2096,10 @@ class TestUnsetRouter(TestRouter):
 
     def test_unset_gateway_ip_qos_no_network(self):
         qos_policy = network_fakes.create_one_qos_policy()
-        self.network_client.find_qos_policy = mock.Mock(
-            return_value=qos_policy
-        )
+        self.network_client.find_qos_policy.return_value = qos_policy
+
         router = network_fakes.create_one_router()
-        self.network_client.find_router = mock.Mock(return_value=router)
+        self.network_client.find_router.return_value = router
         arglist = [
             "--qos-policy",
             router.id,
@@ -2129,13 +2115,12 @@ class TestUnsetRouter(TestRouter):
 
     def test_unset_gateway_ip_qos_no_qos(self):
         qos_policy = network_fakes.create_one_qos_policy()
-        self.network_client.find_qos_policy = mock.Mock(
-            return_value=qos_policy
-        )
+        self.network_client.find_qos_policy.return_value = qos_policy
+
         router = network_fakes.create_one_router(
             {"external_gateway_info": {"network_id": "fake-id"}}
         )
-        self.network_client.find_router = mock.Mock(return_value=router)
+        self.network_client.find_router.return_value = router
         arglist = [
             "--qos-policy",
             router.id,
@@ -2172,10 +2157,10 @@ class TestGatewayOps(TestRouter):
                 attrs={'name': 'external-gateway-multihoming'}
             )
         }
-        self.network_client.find_extension = mock.Mock(
-            side_effect=lambda name: self._extensions.get(name)
+        self.network_client.find_extension.side_effect = (
+            lambda name: self._extensions.get(name)
         )
-        self.network_client.find_router = mock.Mock(return_value=self._router)
+        self.network_client.find_router.return_value = self._router
 
         def _find_network(name_or_id, ignore_missing):
             for network in self._networks:
@@ -2185,15 +2170,12 @@ class TestGatewayOps(TestRouter):
                 return None
             raise Exception('Test resource not found')
 
-        self.network_client.find_network = mock.Mock(side_effect=_find_network)
+        self.network_client.find_network.side_effect = _find_network
 
-        self.network_client.find_subnet = mock.Mock(return_value=self._subnet)
-        self.network_client.add_external_gateways = mock.Mock(
-            return_value=None
-        )
-        self.network_client.remove_external_gateways = mock.Mock(
-            return_value=None
-        )
+        self.network_client.find_subnet.return_value = self._subnet
+        self.network_client.add_external_gateways.return_value = None
+
+        self.network_client.remove_external_gateways.return_value = None
 
 
 class TestCreateMultipleGateways(TestGatewayOps):
@@ -2223,13 +2205,10 @@ class TestCreateMultipleGateways(TestGatewayOps):
         self._second_network = network_fakes.create_one_network()
         self._networks.append(self._second_network)
 
-        self.network_client.create_router = mock.Mock(
-            return_value=self._router
-        )
-        self.network_client.update_router = mock.Mock(return_value=None)
-        self.network_client.update_external_gateways = mock.Mock(
-            return_value=None
-        )
+        self.network_client.create_router.return_value = self._router
+
+        self.network_client.update_router.return_value = None
+        self.network_client.update_external_gateways.return_value = None
 
         self._data = (
             router.AdminStateColumn(self._router.is_admin_state_up),
@@ -2353,10 +2332,9 @@ class TestUpdateMultipleGateways(TestGatewayOps):
         self._second_network = network_fakes.create_one_network()
         self._networks.append(self._second_network)
 
-        self.network_client.update_router = mock.Mock(return_value=None)
-        self.network_client.update_external_gateways = mock.Mock(
-            return_value=None
-        )
+        self.network_client.update_router.return_value = None
+        self.network_client.update_external_gateways.return_value = None
+
         self.cmd = router.SetRouter(self.app, None)
 
     def test_update_one_gateway(self):

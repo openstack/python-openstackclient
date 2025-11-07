@@ -11,7 +11,6 @@
 #   under the License.
 #
 
-from unittest import mock
 
 from osc_lib import exceptions
 
@@ -46,8 +45,8 @@ class TestCreateL3ConntrackHelper(TestConntrackHelper):
             self.ct_helper.protocol,
             self.ct_helper.router_id,
         )
-        self.network_client.create_conntrack_helper = mock.Mock(
-            return_value=self.ct_helper
+        self.network_client.create_conntrack_helper.return_value = (
+            self.ct_helper
         )
 
         # Get the command object to test
@@ -119,9 +118,7 @@ class TestDeleteL3ConntrackHelper(TestConntrackHelper):
                 attrs
             )
         )
-        self.network_client.delete_conntrack_helper = mock.Mock(
-            return_value=None
-        )
+        self.network_client.delete_conntrack_helper.return_value = None
 
         # Get the command object to test
         self.cmd = l3_conntrack_helper.DeleteConntrackHelper(self.app, None)
@@ -181,9 +178,7 @@ class TestListL3ConntrackHelper(TestConntrackHelper):
                     ct_helper.port,
                 )
             )
-        self.network_client.conntrack_helpers = mock.Mock(
-            return_value=ct_helpers
-        )
+        self.network_client.conntrack_helpers.return_value = ct_helpers
 
         # Get the command object to test
         self.cmd = l3_conntrack_helper.ListConntrackHelper(self.app, None)
@@ -216,9 +211,7 @@ class TestSetL3ConntrackHelper(TestConntrackHelper):
                 attrs
             )
         )
-        self.network_client.update_conntrack_helper = mock.Mock(
-            return_value=None
-        )
+        self.network_client.update_conntrack_helper.return_value = None
 
         # Get the command object to test
         self.cmd = l3_conntrack_helper.SetConntrackHelper(self.app, None)
@@ -281,9 +274,7 @@ class TestShowL3ConntrackHelper(TestConntrackHelper):
             self.ct_helper.protocol,
             self.ct_helper.router_id,
         )
-        self.network_client.get_conntrack_helper = mock.Mock(
-            return_value=self.ct_helper
-        )
+        self.network_client.get_conntrack_helper.return_value = self.ct_helper
 
         # Get the command object to test
         self.cmd = l3_conntrack_helper.ShowConntrackHelper(self.app, None)

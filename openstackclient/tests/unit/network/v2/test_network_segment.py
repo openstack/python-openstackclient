@@ -11,7 +11,6 @@
 #   under the License.
 #
 
-from unittest import mock
 from unittest.mock import call
 
 from osc_lib import exceptions
@@ -58,12 +57,9 @@ class TestCreateNetworkSegment(TestNetworkSegment):
     def setUp(self):
         super().setUp()
 
-        self.network_client.create_segment = mock.Mock(
-            return_value=self._network_segment
-        )
-        self.network_client.find_network = mock.Mock(
-            return_value=self._network
-        )
+        self.network_client.create_segment.return_value = self._network_segment
+
+        self.network_client.find_network.return_value = self._network
 
         # Get the command object to test
         self.cmd = network_segment.CreateNetworkSegment(self.app, None)
@@ -172,10 +168,8 @@ class TestDeleteNetworkSegment(TestNetworkSegment):
     def setUp(self):
         super().setUp()
 
-        self.network_client.delete_segment = mock.Mock(return_value=None)
-        self.network_client.find_segment = mock.Mock(
-            side_effect=self._network_segments
-        )
+        self.network_client.delete_segment.return_value = None
+        self.network_client.find_segment.side_effect = self._network_segments
 
         # Get the command object to test
         self.cmd = network_segment.DeleteNetworkSegment(self.app, None)
@@ -224,9 +218,7 @@ class TestDeleteNetworkSegment(TestNetworkSegment):
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
         find_mock_result = [self._network_segments[0], exceptions.CommandError]
-        self.network_client.find_segment = mock.Mock(
-            side_effect=find_mock_result
-        )
+        self.network_client.find_segment.side_effect = find_mock_result
 
         try:
             self.cmd.take_action(parsed_args)
@@ -291,12 +283,9 @@ class TestListNetworkSegment(TestNetworkSegment):
         # Get the command object to test
         self.cmd = network_segment.ListNetworkSegment(self.app, None)
 
-        self.network_client.find_network = mock.Mock(
-            return_value=self._network
-        )
-        self.network_client.segments = mock.Mock(
-            return_value=self._network_segments
-        )
+        self.network_client.find_network.return_value = self._network
+
+        self.network_client.segments.return_value = self._network_segments
 
     def test_list_no_option(self):
         arglist = []
@@ -352,12 +341,9 @@ class TestSetNetworkSegment(TestNetworkSegment):
     def setUp(self):
         super().setUp()
 
-        self.network_client.find_segment = mock.Mock(
-            return_value=self._network_segment
-        )
-        self.network_client.update_segment = mock.Mock(
-            return_value=self._network_segment
-        )
+        self.network_client.find_segment.return_value = self._network_segment
+
+        self.network_client.update_segment.return_value = self._network_segment
 
         # Get the command object to test
         self.cmd = network_segment.SetNetworkSegment(self.app, None)
@@ -432,9 +418,7 @@ class TestShowNetworkSegment(TestNetworkSegment):
     def setUp(self):
         super().setUp()
 
-        self.network_client.find_segment = mock.Mock(
-            return_value=self._network_segment
-        )
+        self.network_client.find_segment.return_value = self._network_segment
 
         # Get the command object to test
         self.cmd = network_segment.ShowNetworkSegment(self.app, None)

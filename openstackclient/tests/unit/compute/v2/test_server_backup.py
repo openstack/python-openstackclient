@@ -161,9 +161,7 @@ class TestServerBackupCreate(compute_fakes.TestComputev2):
 
     @mock.patch.object(common_utils, 'wait_for_status', return_value=True)
     def test_server_backup_wait_ok(self, mock_wait_for_status):
-        self.image_client.get_image = mock.Mock(
-            side_effect=self.image,
-        )
+        self.image_client.get_image.side_effect = (self.image,)
 
         arglist = [
             '--name',

@@ -12,7 +12,6 @@
 #
 
 import random
-from unittest import mock
 from unittest.mock import call
 
 from osc_lib.cli import format_columns
@@ -116,19 +115,16 @@ class TestCreateNetworkIdentityV3(TestNetwork):
     def setUp(self):
         super().setUp()
 
-        self.network_client.create_network = mock.Mock(
-            return_value=self._network
-        )
-        self.network_client.set_tags = mock.Mock(return_value=None)
+        self.network_client.create_network.return_value = self._network
+
+        self.network_client.set_tags.return_value = None
 
         # Get the command object to test
         self.cmd = network.CreateNetwork(self.app, None)
 
         self.projects_mock.get.return_value = self.project
         self.domains_mock.get.return_value = self.domain
-        self.network_client.find_qos_policy = mock.Mock(
-            return_value=self.qos_policy
-        )
+        self.network_client.find_qos_policy.return_value = self.qos_policy
 
     def test_create_no_options(self):
         arglist = []
@@ -423,10 +419,9 @@ class TestCreateNetworkIdentityV2(
     def setUp(self):
         super().setUp()
 
-        self.network_client.create_network = mock.Mock(
-            return_value=self._network
-        )
-        self.network_client.set_tags = mock.Mock(return_value=None)
+        self.network_client.create_network.return_value = self._network
+
+        self.network_client.set_tags.return_value = None
 
         # Get the command object to test
         self.cmd = network.CreateNetwork(self.app, None)
@@ -498,7 +493,7 @@ class TestDeleteNetwork(TestNetwork):
         # The networks to delete
         self._networks = network_fakes.create_networks(count=3)
 
-        self.network_client.delete_network = mock.Mock(return_value=None)
+        self.network_client.delete_network.return_value = None
 
         self.network_client.find_network = network_fakes.get_networks(
             networks=self._networks
@@ -557,14 +552,14 @@ class TestDeleteNetwork(TestNetwork):
             exceptions.NotFound('404'),
             self._networks[1],
         ]
-        self.network_client.find_network = mock.Mock(side_effect=ret_find)
+        self.network_client.find_network.side_effect = ret_find
 
         # Fake exception in delete_network()
         ret_delete = [
             None,
             exceptions.NotFound('404'),
         ]
-        self.network_client.delete_network = mock.Mock(side_effect=ret_delete)
+        self.network_client.delete_network.side_effect = ret_delete
 
         self.assertRaises(
             exceptions.CommandError, self.cmd.take_action, parsed_args
@@ -636,13 +631,13 @@ class TestListNetwork(TestNetwork):
         # Get the command object to test
         self.cmd = network.ListNetwork(self.app, None)
 
-        self.network_client.networks = mock.Mock(return_value=self._network)
+        self.network_client.networks.return_value = self._network
 
         self._agent = network_fakes.create_one_network_agent()
         self.network_client.get_agent.return_value = self._agent
 
-        self.network_client.dhcp_agent_hosting_networks = mock.Mock(
-            return_value=self._network
+        self.network_client.dhcp_agent_hosting_networks.return_value = (
+            self._network
         )
 
         # TestListTagMixin
@@ -991,15 +986,12 @@ class TestSetNetwork(TestNetwork):
     def setUp(self):
         super().setUp()
 
-        self.network_client.update_network = mock.Mock(return_value=None)
-        self.network_client.set_tags = mock.Mock(return_value=None)
+        self.network_client.update_network.return_value = None
+        self.network_client.set_tags.return_value = None
 
-        self.network_client.find_network = mock.Mock(
-            return_value=self._network
-        )
-        self.network_client.find_qos_policy = mock.Mock(
-            return_value=self.qos_policy
-        )
+        self.network_client.find_network.return_value = self._network
+
+        self.network_client.find_qos_policy.return_value = self.qos_policy
 
         # Get the command object to test
         self.cmd = network.SetNetwork(self.app, None)
@@ -1242,9 +1234,7 @@ class TestShowNetwork(TestNetwork):
     def setUp(self):
         super().setUp()
 
-        self.network_client.find_network = mock.Mock(
-            return_value=self._network
-        )
+        self.network_client.find_network.return_value = self._network
 
         # Get the command object to test
         self.cmd = network.ShowNetwork(self.app, None)
@@ -1290,15 +1280,12 @@ class TestUnsetNetwork(TestNetwork):
     def setUp(self):
         super().setUp()
 
-        self.network_client.update_network = mock.Mock(return_value=None)
-        self.network_client.set_tags = mock.Mock(return_value=None)
+        self.network_client.update_network.return_value = None
+        self.network_client.set_tags.return_value = None
 
-        self.network_client.find_network = mock.Mock(
-            return_value=self._network
-        )
-        self.network_client.find_qos_policy = mock.Mock(
-            return_value=self.qos_policy
-        )
+        self.network_client.find_network.return_value = self._network
+
+        self.network_client.find_qos_policy.return_value = self.qos_policy
 
         # Get the command object to test
         self.cmd = network.UnsetNetwork(self.app, None)

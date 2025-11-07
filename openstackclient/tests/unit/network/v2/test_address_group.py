@@ -11,7 +11,6 @@
 #   under the License.
 #
 
-from unittest import mock
 from unittest.mock import call
 
 from osc_lib import exceptions
@@ -58,8 +57,8 @@ class TestCreateAddressGroup(TestAddressGroup):
 
     def setUp(self):
         super().setUp()
-        self.network_client.create_address_group = mock.Mock(
-            return_value=self.new_address_group
+        self.network_client.create_address_group.return_value = (
+            self.new_address_group
         )
 
         # Get the command object to test
@@ -145,7 +144,7 @@ class TestDeleteAddressGroup(TestAddressGroup):
 
     def setUp(self):
         super().setUp()
-        self.network_client.delete_address_group = mock.Mock(return_value=None)
+        self.network_client.delete_address_group.return_value = None
         self.network_client.find_address_group = (
             network_fakes.get_address_groups(
                 address_groups=self._address_groups
@@ -206,9 +205,7 @@ class TestDeleteAddressGroup(TestAddressGroup):
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
         find_mock_result = [self._address_groups[0], exceptions.CommandError]
-        self.network_client.find_address_group = mock.Mock(
-            side_effect=find_mock_result
-        )
+        self.network_client.find_address_group.side_effect = find_mock_result
 
         try:
             self.cmd.take_action(parsed_args)
@@ -251,9 +248,7 @@ class TestListAddressGroup(TestAddressGroup):
 
     def setUp(self):
         super().setUp()
-        self.network_client.address_groups = mock.Mock(
-            return_value=self.address_groups
-        )
+        self.network_client.address_groups.return_value = self.address_groups
 
         # Get the command object to test
         self.cmd = address_group.ListAddressGroup(self.app, None)
@@ -333,13 +328,15 @@ class TestSetAddressGroup(TestAddressGroup):
 
     def setUp(self):
         super().setUp()
-        self.network_client.update_address_group = mock.Mock(return_value=None)
-        self.network_client.find_address_group = mock.Mock(
-            return_value=self._address_group
+        self.network_client.update_address_group.return_value = None
+        self.network_client.find_address_group.return_value = (
+            self._address_group
         )
-        self.network_client.add_addresses_to_address_group = mock.Mock(
-            return_value=self._address_group
+
+        self.network_client.add_addresses_to_address_group.return_value = (
+            self._address_group
         )
+
         # Get the command object to test
         self.cmd = address_group.SetAddressGroup(self.app, None)
 
@@ -442,8 +439,8 @@ class TestShowAddressGroup(TestAddressGroup):
 
     def setUp(self):
         super().setUp()
-        self.network_client.find_address_group = mock.Mock(
-            return_value=self._address_group
+        self.network_client.find_address_group.return_value = (
+            self._address_group
         )
 
         # Get the command object to test
@@ -486,12 +483,12 @@ class TestUnsetAddressGroup(TestAddressGroup):
 
     def setUp(self):
         super().setUp()
-        self.network_client.find_address_group = mock.Mock(
-            return_value=self._address_group
+        self.network_client.find_address_group.return_value = (
+            self._address_group
         )
-        self.network_client.remove_addresses_from_address_group = mock.Mock(
-            return_value=self._address_group
-        )
+
+        self.network_client.remove_addresses_from_address_group.return_value = self._address_group
+
         # Get the command object to test
         self.cmd = address_group.UnsetAddressGroup(self.app, None)
 

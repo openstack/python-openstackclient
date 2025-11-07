@@ -33,7 +33,7 @@ class TestFloatingIPPortForwarding(network_fakes.TestNetworkV2):
         )
         self.port = network_fakes.create_one_port()
         self.project = identity_fakes_v2.FakeProject.create_one_project()
-        self.network_client.find_port = mock.Mock(return_value=self.port)
+        self.network_client.find_port.return_value = self.port
 
 
 class TestCreateFloatingIPPortForwarding(TestFloatingIPPortForwarding):
@@ -54,11 +54,11 @@ class TestCreateFloatingIPPortForwarding(TestFloatingIPPortForwarding):
             },
         )
 
-        self.network_client.create_floating_ip_port_forwarding = mock.Mock(
-            return_value=self.new_port_forwarding
+        self.network_client.create_floating_ip_port_forwarding.return_value = (
+            self.new_port_forwarding
         )
 
-        self.network_client.find_ip = mock.Mock(return_value=self.floating_ip)
+        self.network_client.find_ip.return_value = self.floating_ip
 
         # Get the command object to test
         self.cmd = floating_ip_port_forwarding.CreateFloatingIPPortForwarding(
@@ -351,11 +351,11 @@ class TestDeleteFloatingIPPortForwarding(TestFloatingIPPortForwarding):
                 },
             )
         )
-        self.network_client.delete_floating_ip_port_forwarding = mock.Mock(
-            return_value=None
+        self.network_client.delete_floating_ip_port_forwarding.return_value = (
+            None
         )
 
-        self.network_client.find_ip = mock.Mock(return_value=self.floating_ip)
+        self.network_client.find_ip.return_value = self.floating_ip
         # Get the command object to test
         self.cmd = floating_ip_port_forwarding.DeleteFloatingIPPortForwarding(
             self.app, None
@@ -490,10 +490,11 @@ class TestListFloatingIPPortForwarding(TestFloatingIPPortForwarding):
                     port_forwarding.description,
                 )
             )
-        self.network_client.floating_ip_port_forwardings = mock.Mock(
-            return_value=self.port_forwardings
+        self.network_client.floating_ip_port_forwardings.return_value = (
+            self.port_forwardings
         )
-        self.network_client.find_ip = mock.Mock(return_value=self.floating_ip)
+
+        self.network_client.find_ip.return_value = self.floating_ip
         # Get the command object to test
         self.cmd = floating_ip_port_forwarding.ListFloatingIPPortForwarding(
             self.app, None
@@ -557,14 +558,15 @@ class TestSetFloatingIPPortForwarding(TestFloatingIPPortForwarding):
                 'floatingip_id': self.floating_ip.id,
             }
         )
-        self.network_client.update_floating_ip_port_forwarding = mock.Mock(
-            return_value=None
+        self.network_client.update_floating_ip_port_forwarding.return_value = (
+            None
         )
 
-        self.network_client.find_floating_ip_port_forwarding = mock.Mock(
-            return_value=self._port_forwarding
+        self.network_client.find_floating_ip_port_forwarding.return_value = (
+            self._port_forwarding
         )
-        self.network_client.find_ip = mock.Mock(return_value=self.floating_ip)
+
+        self.network_client.find_ip.return_value = self.floating_ip
         # Get the command object to test
         self.cmd = floating_ip_port_forwarding.SetFloatingIPPortForwarding(
             self.app, None
@@ -690,10 +692,11 @@ class TestShowFloatingIPPortForwarding(TestFloatingIPPortForwarding):
             self._port_forwarding.internal_port_range,
             self._port_forwarding.protocol,
         )
-        self.network_client.find_floating_ip_port_forwarding = mock.Mock(
-            return_value=self._port_forwarding
+        self.network_client.find_floating_ip_port_forwarding.return_value = (
+            self._port_forwarding
         )
-        self.network_client.find_ip = mock.Mock(return_value=self.floating_ip)
+
+        self.network_client.find_ip.return_value = self.floating_ip
         # Get the command object to test
         self.cmd = floating_ip_port_forwarding.ShowFloatingIPPortForwarding(
             self.app, None

@@ -12,18 +12,10 @@
 #   License for the specific language governing permissions and limitations
 #   under the License.
 #
-from unittest import mock
 
 from openstackclient.compute.v2 import hypervisor_stats
 from openstackclient.tests.unit.compute.v2 import fakes as compute_fakes
 from openstackclient.tests.unit import fakes
-
-
-class TestHypervisorStats(compute_fakes.TestComputev2):
-    def setUp(self):
-        super().setUp()
-
-        self.compute_client.get = mock.Mock()
 
 
 # Not in fakes.py because hypervisor stats has been deprecated
@@ -61,7 +53,7 @@ def create_one_hypervisor_stats(attrs=None):
     return stats_info
 
 
-class TestHypervisorStatsShow(TestHypervisorStats):
+class TestHypervisorStatsShow(compute_fakes.TestComputev2):
     _stats = create_one_hypervisor_stats()
 
     def setUp(self):

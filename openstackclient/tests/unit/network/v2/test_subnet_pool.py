@@ -10,7 +10,6 @@
 #   License for the specific language governing permissions and limitations
 #   under the License.
 
-from unittest import mock
 from unittest.mock import call
 
 from osc_lib.cli import format_columns
@@ -76,16 +75,15 @@ class TestCreateSubnetPool(TestSubnetPool):
     def setUp(self):
         super().setUp()
 
-        self.network_client.create_subnet_pool = mock.Mock(
-            return_value=self._subnet_pool
-        )
-        self.network_client.set_tags = mock.Mock(return_value=None)
+        self.network_client.create_subnet_pool.return_value = self._subnet_pool
+
+        self.network_client.set_tags.return_value = None
 
         # Get the command object to test
         self.cmd = subnet_pool.CreateSubnetPool(self.app, None)
 
-        self.network_client.find_address_scope = mock.Mock(
-            return_value=self._address_scope
+        self.network_client.find_address_scope.return_value = (
+            self._address_scope
         )
 
         self.projects_mock.get.return_value = self.project
@@ -387,7 +385,7 @@ class TestDeleteSubnetPool(TestSubnetPool):
     def setUp(self):
         super().setUp()
 
-        self.network_client.delete_subnet_pool = mock.Mock(return_value=None)
+        self.network_client.delete_subnet_pool.return_value = None
 
         self.network_client.find_subnet_pool = (
             network_fakes.FakeSubnetPool.get_subnet_pools(self._subnet_pools)
@@ -445,9 +443,7 @@ class TestDeleteSubnetPool(TestSubnetPool):
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
         find_mock_result = [self._subnet_pools[0], exceptions.CommandError]
-        self.network_client.find_subnet_pool = mock.Mock(
-            side_effect=find_mock_result
-        )
+        self.network_client.find_subnet_pool.side_effect = find_mock_result
 
         try:
             self.cmd.take_action(parsed_args)
@@ -514,9 +510,7 @@ class TestListSubnetPool(TestSubnetPool):
         # Get the command object to test
         self.cmd = subnet_pool.ListSubnetPool(self.app, None)
 
-        self.network_client.subnet_pools = mock.Mock(
-            return_value=self._subnet_pools
-        )
+        self.network_client.subnet_pools.return_value = self._subnet_pools
 
     def test_subnet_pool_list_no_option(self):
         arglist = []
@@ -653,7 +647,7 @@ class TestListSubnetPool(TestSubnetPool):
 
     def test_subnet_pool_list_name(self):
         subnet_pool = network_fakes.FakeSubnetPool.create_one_subnet_pool()
-        self.network_client.find_network = mock.Mock(return_value=subnet_pool)
+        self.network_client.find_network.return_value = subnet_pool
         arglist = [
             '--name',
             subnet_pool.name,
@@ -672,9 +666,8 @@ class TestListSubnetPool(TestSubnetPool):
 
     def test_subnet_pool_list_address_scope(self):
         addr_scope = network_fakes.create_one_address_scope()
-        self.network_client.find_address_scope = mock.Mock(
-            return_value=addr_scope
-        )
+        self.network_client.find_address_scope.return_value = addr_scope
+
         arglist = [
             '--address-scope',
             addr_scope.id,
@@ -734,15 +727,13 @@ class TestSetSubnetPool(TestSubnetPool):
     def setUp(self):
         super().setUp()
 
-        self.network_client.update_subnet_pool = mock.Mock(return_value=None)
-        self.network_client.set_tags = mock.Mock(return_value=None)
+        self.network_client.update_subnet_pool.return_value = None
+        self.network_client.set_tags.return_value = None
 
-        self.network_client.find_subnet_pool = mock.Mock(
-            return_value=self._subnet_pool
-        )
+        self.network_client.find_subnet_pool.return_value = self._subnet_pool
 
-        self.network_client.find_address_scope = mock.Mock(
-            return_value=self._address_scope
+        self.network_client.find_address_scope.return_value = (
+            self._address_scope
         )
 
         # Get the command object to test
@@ -1079,9 +1070,7 @@ class TestShowSubnetPool(TestSubnetPool):
     def setUp(self):
         super().setUp()
 
-        self.network_client.find_subnet_pool = mock.Mock(
-            return_value=self._subnet_pool
-        )
+        self.network_client.find_subnet_pool.return_value = self._subnet_pool
 
         # Get the command object to test
         self.cmd = subnet_pool.ShowSubnetPool(self.app, None)
@@ -1122,11 +1111,10 @@ class TestUnsetSubnetPool(TestSubnetPool):
         self._subnetpool = network_fakes.FakeSubnetPool.create_one_subnet_pool(
             {'tags': ['green', 'red']}
         )
-        self.network_client.find_subnet_pool = mock.Mock(
-            return_value=self._subnetpool
-        )
-        self.network_client.update_subnet_pool = mock.Mock(return_value=None)
-        self.network_client.set_tags = mock.Mock(return_value=None)
+        self.network_client.find_subnet_pool.return_value = self._subnetpool
+
+        self.network_client.update_subnet_pool.return_value = None
+        self.network_client.set_tags.return_value = None
         # Get the command object to test
         self.cmd = subnet_pool.UnsetSubnetPool(self.app, None)
 

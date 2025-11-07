@@ -13,7 +13,6 @@
 #    License for the specific language governing permissions and limitations
 #    under the License.
 
-from unittest import mock
 
 from openstackclient.network.v2 import network_auto_allocated_topology
 from openstackclient.tests.unit.identity.v3 import fakes as identity_fakes
@@ -50,8 +49,8 @@ class TestCreateAutoAllocatedTopology(TestAutoAllocatedTopology):
         self.cmd = network_auto_allocated_topology.CreateAutoAllocatedTopology(
             self.app, None
         )
-        self.network_client.get_auto_allocated_topology = mock.Mock(
-            return_value=self.topology
+        self.network_client.get_auto_allocated_topology.return_value = (
+            self.topology
         )
 
     def test_create_no_options(self):
@@ -155,8 +154,8 @@ class TestValidateAutoAllocatedTopology(TestAutoAllocatedTopology):
         self.cmd = network_auto_allocated_topology.CreateAutoAllocatedTopology(
             self.app, None
         )
-        self.network_client.validate_auto_allocated_topology = mock.Mock(
-            return_value=self.topology
+        self.network_client.validate_auto_allocated_topology.return_value = (
+            self.topology
         )
 
     def test_show_dry_run_no_project(self):
@@ -228,9 +227,7 @@ class TestDeleteAutoAllocatedTopology(TestAutoAllocatedTopology):
         self.cmd = network_auto_allocated_topology.DeleteAutoAllocatedTopology(
             self.app, None
         )
-        self.network_client.delete_auto_allocated_topology = mock.Mock(
-            return_value=None
-        )
+        self.network_client.delete_auto_allocated_topology.return_value = None
 
     def test_delete_no_project(self):
         arglist = []

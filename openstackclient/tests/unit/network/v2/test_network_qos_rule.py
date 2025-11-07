@@ -56,9 +56,7 @@ class TestNetworkQosRule(network_fakes.TestNetworkV2):
     def setUp(self):
         super().setUp()
         self.qos_policy = network_fakes.create_one_qos_policy()
-        self.network_client.find_qos_policy = mock.Mock(
-            return_value=self.qos_policy
-        )
+        self.network_client.find_qos_policy.return_value = self.qos_policy
 
 
 class TestCreateNetworkQosRuleMinimumBandwidth(TestNetworkQosRule):
@@ -87,8 +85,8 @@ class TestCreateNetworkQosRuleMinimumBandwidth(TestNetworkQosRule):
             self.new_rule.project_id,
             self.new_rule.type,
         )
-        self.network_client.create_qos_minimum_bandwidth_rule = mock.Mock(
-            return_value=self.new_rule
+        self.network_client.create_qos_minimum_bandwidth_rule.return_value = (
+            self.new_rule
         )
 
         # Get the command object to test
@@ -190,9 +188,7 @@ class TestCreateNetworkQosRuleMinimumPacketRate(TestNetworkQosRule):
             self.new_rule.project_id,
             self.new_rule.type,
         )
-        self.network_client.create_qos_minimum_packet_rate_rule = mock.Mock(
-            return_value=self.new_rule
-        )
+        self.network_client.create_qos_minimum_packet_rate_rule.return_value = self.new_rule
 
         # Get the command object to test
         self.cmd = network_qos_rule.CreateNetworkQosRule(self.app, None)
@@ -291,8 +287,8 @@ class TestCreateNetworkQosRuleDSCPMarking(TestNetworkQosRule):
             self.new_rule.project_id,
             self.new_rule.type,
         )
-        self.network_client.create_qos_dscp_marking_rule = mock.Mock(
-            return_value=self.new_rule
+        self.network_client.create_qos_dscp_marking_rule.return_value = (
+            self.new_rule
         )
 
         # Get the command object to test
@@ -389,8 +385,8 @@ class TestCreateNetworkQosRuleBandwidtLimit(TestNetworkQosRule):
             self.new_rule.project_id,
             self.new_rule.type,
         )
-        self.network_client.create_qos_bandwidth_limit_rule = mock.Mock(
-            return_value=self.new_rule
+        self.network_client.create_qos_bandwidth_limit_rule.return_value = (
+            self.new_rule
         )
 
         # Get the command object to test
@@ -529,9 +525,10 @@ class TestDeleteNetworkQosRuleMinimumBandwidth(TestNetworkQosRule):
         }
         self.new_rule = network_fakes.create_one_qos_rule(attrs)
         self.qos_policy.rules = [self.new_rule]
-        self.network_client.delete_qos_minimum_bandwidth_rule = mock.Mock(
-            return_value=None
+        self.network_client.delete_qos_minimum_bandwidth_rule.return_value = (
+            None
         )
+
         self.network_client.find_qos_minimum_bandwidth_rule = (
             network_fakes.get_qos_rules(qos_rules=self.new_rule)
         )
@@ -592,9 +589,8 @@ class TestDeleteNetworkQosRuleMinimumPacketRate(TestNetworkQosRule):
         }
         self.new_rule = network_fakes.create_one_qos_rule(attrs)
         self.qos_policy.rules = [self.new_rule]
-        self.network_client.delete_qos_minimum_packet_rate_rule = mock.Mock(
-            return_value=None
-        )
+        self.network_client.delete_qos_minimum_packet_rate_rule.return_value = None
+
         self.network_client.find_qos_minimum_packet_rate_rule = (
             network_fakes.get_qos_rules(qos_rules=self.new_rule)
         )
@@ -655,9 +651,8 @@ class TestDeleteNetworkQosRuleDSCPMarking(TestNetworkQosRule):
         }
         self.new_rule = network_fakes.create_one_qos_rule(attrs)
         self.qos_policy.rules = [self.new_rule]
-        self.network_client.delete_qos_dscp_marking_rule = mock.Mock(
-            return_value=None
-        )
+        self.network_client.delete_qos_dscp_marking_rule.return_value = None
+
         self.network_client.find_qos_dscp_marking_rule = (
             network_fakes.get_qos_rules(qos_rules=self.new_rule)
         )
@@ -718,9 +713,8 @@ class TestDeleteNetworkQosRuleBandwidthLimit(TestNetworkQosRule):
         }
         self.new_rule = network_fakes.create_one_qos_rule(attrs)
         self.qos_policy.rules = [self.new_rule]
-        self.network_client.delete_qos_bandwidth_limit_rule = mock.Mock(
-            return_value=None
-        )
+        self.network_client.delete_qos_bandwidth_limit_rule.return_value = None
+
         self.network_client.find_qos_bandwidth_limit_rule = (
             network_fakes.get_qos_rules(qos_rules=self.new_rule)
         )
@@ -781,15 +775,15 @@ class TestSetNetworkQosRuleMinimumBandwidth(TestNetworkQosRule):
         }
         self.new_rule = network_fakes.create_one_qos_rule(attrs)
         self.qos_policy.rules = [self.new_rule]
-        self.network_client.update_qos_minimum_bandwidth_rule = mock.Mock(
-            return_value=None
+        self.network_client.update_qos_minimum_bandwidth_rule.return_value = (
+            None
         )
-        self.network_client.find_qos_minimum_bandwidth_rule = mock.Mock(
-            return_value=self.new_rule
+
+        self.network_client.find_qos_minimum_bandwidth_rule.return_value = (
+            self.new_rule
         )
-        self.network_client.find_qos_policy = mock.Mock(
-            return_value=self.qos_policy
-        )
+
+        self.network_client.find_qos_policy.return_value = self.qos_policy
 
         # Get the command object to test
         self.cmd = network_qos_rule.SetNetworkQosRule(self.app, None)
@@ -883,15 +877,13 @@ class TestSetNetworkQosRuleMinimumPacketRate(TestNetworkQosRule):
         }
         self.new_rule = network_fakes.create_one_qos_rule(attrs)
         self.qos_policy.rules = [self.new_rule]
-        self.network_client.update_qos_minimum_packet_rate_rule = mock.Mock(
-            return_value=None
+        self.network_client.update_qos_minimum_packet_rate_rule.return_value = None
+
+        self.network_client.find_qos_minimum_packet_rate_rule.return_value = (
+            self.new_rule
         )
-        self.network_client.find_qos_minimum_packet_rate_rule = mock.Mock(
-            return_value=self.new_rule
-        )
-        self.network_client.find_qos_policy = mock.Mock(
-            return_value=self.qos_policy
-        )
+
+        self.network_client.find_qos_policy.return_value = self.qos_policy
 
         # Get the command object to test
         self.cmd = network_qos_rule.SetNetworkQosRule(self.app, None)
@@ -985,15 +977,13 @@ class TestSetNetworkQosRuleDSCPMarking(TestNetworkQosRule):
         }
         self.new_rule = network_fakes.create_one_qos_rule(attrs)
         self.qos_policy.rules = [self.new_rule]
-        self.network_client.update_qos_dscp_marking_rule = mock.Mock(
-            return_value=None
+        self.network_client.update_qos_dscp_marking_rule.return_value = None
+
+        self.network_client.find_qos_dscp_marking_rule.return_value = (
+            self.new_rule
         )
-        self.network_client.find_qos_dscp_marking_rule = mock.Mock(
-            return_value=self.new_rule
-        )
-        self.network_client.find_qos_policy = mock.Mock(
-            return_value=self.qos_policy
-        )
+
+        self.network_client.find_qos_policy.return_value = self.qos_policy
 
         # Get the command object to test
         self.cmd = network_qos_rule.SetNetworkQosRule(self.app, None)
@@ -1351,8 +1341,8 @@ class TestShowNetworkQosRuleMinimumBandwidth(TestNetworkQosRule):
             self.new_rule.type,
         )
 
-        self.network_client.get_qos_minimum_bandwidth_rule = mock.Mock(
-            return_value=self.new_rule
+        self.network_client.get_qos_minimum_bandwidth_rule.return_value = (
+            self.new_rule
         )
 
         # Get the command object to test
@@ -1415,8 +1405,8 @@ class TestShowNetworkQosRuleMinimumPacketRate(TestNetworkQosRule):
             self.new_rule.type,
         )
 
-        self.network_client.get_qos_minimum_packet_rate_rule = mock.Mock(
-            return_value=self.new_rule
+        self.network_client.get_qos_minimum_packet_rate_rule.return_value = (
+            self.new_rule
         )
 
         # Get the command object to test
@@ -1477,8 +1467,8 @@ class TestShowNetworkQosDSCPMarking(TestNetworkQosRule):
             self.new_rule.type,
         )
 
-        self.network_client.get_qos_dscp_marking_rule = mock.Mock(
-            return_value=self.new_rule
+        self.network_client.get_qos_dscp_marking_rule.return_value = (
+            self.new_rule
         )
 
         # Get the command object to test
@@ -1543,8 +1533,8 @@ class TestShowNetworkQosBandwidthLimit(TestNetworkQosRule):
             self.new_rule.type,
         )
 
-        self.network_client.get_qos_bandwidth_limit_rule = mock.Mock(
-            return_value=self.new_rule
+        self.network_client.get_qos_bandwidth_limit_rule.return_value = (
+            self.new_rule
         )
 
         # Get the command object to test

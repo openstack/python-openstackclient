@@ -13,7 +13,6 @@
 #    License for the specific language governing permissions and limitations
 #    under the License.
 
-from unittest import mock
 
 from openstackclient.network.v2 import network_qos_rule_type as _qos_rule_type
 from openstackclient.tests.unit.network.v2 import fakes as network_fakes
@@ -35,9 +34,7 @@ class TestShowNetworkQosRuleType(TestNetworkQosRuleType):
 
     def setUp(self):
         super().setUp()
-        self.network_client.get_qos_rule_type = mock.Mock(
-            return_value=self.qos_rule_type
-        )
+        self.network_client.get_qos_rule_type.return_value = self.qos_rule_type
 
         # Get the command object to test
         self.cmd = _qos_rule_type.ShowNetworkQosRuleType(self.app, None)
@@ -84,9 +81,7 @@ class TestListNetworkQosRuleType(TestNetworkQosRuleType):
 
     def setUp(self):
         super().setUp()
-        self.network_client.qos_rule_types = mock.Mock(
-            return_value=self.qos_rule_types
-        )
+        self.network_client.qos_rule_types.return_value = self.qos_rule_types
 
         # Get the command object to test
         self.cmd = _qos_rule_type.ListNetworkQosRuleType(self.app, None)

@@ -11,7 +11,6 @@
 #   under the License.
 #
 
-from unittest import mock
 from unittest.mock import call
 
 from osc_lib.cli import format_columns
@@ -266,19 +265,14 @@ class TestCreateSubnet(TestSubnet):
         self.domains_mock.get.return_value = self.domain
 
         # Mock SDK calls for all tests.
-        self.network_client.create_subnet = mock.Mock(
-            return_value=self._subnet
-        )
-        self.network_client.set_tags = mock.Mock(return_value=None)
-        self.network_client.find_network = mock.Mock(
-            return_value=self._network
-        )
-        self.network_client.find_segment = mock.Mock(
-            return_value=self._network_segment
-        )
-        self.network_client.find_subnet_pool = mock.Mock(
-            return_value=self._subnet_pool
-        )
+        self.network_client.create_subnet.return_value = self._subnet
+
+        self.network_client.set_tags.return_value = None
+        self.network_client.find_network.return_value = self._network
+
+        self.network_client.find_segment.return_value = self._network_segment
+
+        self.network_client.find_subnet_pool.return_value = self._subnet_pool
 
     def test_create_no_options(self):
         arglist = []
@@ -333,7 +327,7 @@ class TestCreateSubnet(TestSubnet):
     def test_create_from_subnet_pool_options(self):
         # Mock SDK calls for this test.
         self.network_client.create_subnet.return_value = self._subnet_from_pool
-        self.network_client.set_tags = mock.Mock(return_value=None)
+        self.network_client.set_tags.return_value = None
         self._network.id = self._subnet_from_pool.network_id
 
         arglist = [
@@ -721,7 +715,7 @@ class TestDeleteSubnet(TestSubnet):
     def setUp(self):
         super().setUp()
 
-        self.network_client.delete_subnet = mock.Mock(return_value=None)
+        self.network_client.delete_subnet.return_value = None
 
         self.network_client.find_subnet = network_fakes.FakeSubnet.get_subnets(
             self._subnets
@@ -775,9 +769,7 @@ class TestDeleteSubnet(TestSubnet):
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
         find_mock_result = [self._subnets[0], exceptions.CommandError]
-        self.network_client.find_subnet = mock.Mock(
-            side_effect=find_mock_result
-        )
+        self.network_client.find_subnet.side_effect = find_mock_result
 
         try:
             self.cmd.take_action(parsed_args)
@@ -855,7 +847,7 @@ class TestListSubnet(TestSubnet):
         # Get the command object to test
         self.cmd = subnet_v2.ListSubnet(self.app, None)
 
-        self.network_client.subnets = mock.Mock(return_value=self._subnet)
+        self.network_client.subnets.return_value = self._subnet
 
     def test_subnet_list_no_options(self):
         arglist = []
@@ -1019,7 +1011,7 @@ class TestListSubnet(TestSubnet):
 
     def test_subnet_list_network(self):
         network = network_fakes.create_one_network()
-        self.network_client.find_network = mock.Mock(return_value=network)
+        self.network_client.find_network.return_value = network
         arglist = [
             '--network',
             network.id,
@@ -1038,7 +1030,7 @@ class TestListSubnet(TestSubnet):
 
     def test_subnet_list_gateway(self):
         subnet = network_fakes.FakeSubnet.create_one_subnet()
-        self.network_client.find_network = mock.Mock(return_value=subnet)
+        self.network_client.find_network.return_value = subnet
         arglist = [
             '--gateway',
             subnet.gateway_ip,
@@ -1057,7 +1049,7 @@ class TestListSubnet(TestSubnet):
 
     def test_subnet_list_name(self):
         subnet = network_fakes.FakeSubnet.create_one_subnet()
-        self.network_client.find_network = mock.Mock(return_value=subnet)
+        self.network_client.find_network.return_value = subnet
         arglist = [
             '--name',
             subnet.name,
@@ -1076,7 +1068,7 @@ class TestListSubnet(TestSubnet):
 
     def test_subnet_list_subnet_range(self):
         subnet = network_fakes.FakeSubnet.create_one_subnet()
-        self.network_client.find_network = mock.Mock(return_value=subnet)
+        self.network_client.find_network.return_value = subnet
         arglist = [
             '--subnet-range',
             subnet.cidr,
@@ -1098,10 +1090,9 @@ class TestListSubnet(TestSubnet):
         subnet = network_fakes.FakeSubnet.create_one_subnet(
             {'subnetpool_id': subnet_pool.id}
         )
-        self.network_client.find_network = mock.Mock(return_value=subnet)
-        self.network_client.find_subnet_pool = mock.Mock(
-            return_value=subnet_pool
-        )
+        self.network_client.find_network.return_value = subnet
+        self.network_client.find_subnet_pool.return_value = subnet_pool
+
         arglist = [
             '--subnet-pool',
             subnet_pool.name,
@@ -1123,10 +1114,9 @@ class TestListSubnet(TestSubnet):
         subnet = network_fakes.FakeSubnet.create_one_subnet(
             {'subnetpool_id': subnet_pool.id}
         )
-        self.network_client.find_network = mock.Mock(return_value=subnet)
-        self.network_client.find_subnet_pool = mock.Mock(
-            return_value=subnet_pool
-        )
+        self.network_client.find_network.return_value = subnet
+        self.network_client.find_subnet_pool.return_value = subnet_pool
+
         arglist = [
             '--subnet-pool',
             subnet_pool.id,
@@ -1182,9 +1172,9 @@ class TestSetSubnet(TestSubnet):
 
     def setUp(self):
         super().setUp()
-        self.network_client.update_subnet = mock.Mock(return_value=None)
-        self.network_client.set_tags = mock.Mock(return_value=None)
-        self.network_client.find_subnet = mock.Mock(return_value=self._subnet)
+        self.network_client.update_subnet.return_value = None
+        self.network_client.set_tags.return_value = None
+        self.network_client.find_subnet.return_value = self._subnet
         self.cmd = subnet_v2.SetSubnet(self.app, None)
 
     def test_set_this(self):
@@ -1263,7 +1253,7 @@ class TestSetSubnet(TestSubnet):
                 'service_types': ["network:router_gateway"],
             }
         )
-        self.network_client.find_subnet = mock.Mock(return_value=_testsubnet)
+        self.network_client.find_subnet.return_value = _testsubnet
         arglist = [
             '--dns-nameserver',
             '10.0.0.2',
@@ -1329,7 +1319,7 @@ class TestSetSubnet(TestSubnet):
                 'dns_nameservers': ["10.0.0.1"],
             }
         )
-        self.network_client.find_subnet = mock.Mock(return_value=_testsubnet)
+        self.network_client.find_subnet.return_value = _testsubnet
         arglist = [
             '--host-route',
             'destination=10.30.30.30/24,gateway=10.30.30.1',
@@ -1379,7 +1369,7 @@ class TestSetSubnet(TestSubnet):
                 'dns_nameservers': ['10.0.0.1'],
             }
         )
-        self.network_client.find_subnet = mock.Mock(return_value=_testsubnet)
+        self.network_client.find_subnet.return_value = _testsubnet
         arglist = [
             '--no-host-route',
             '--no-allocation-pool',
@@ -1448,8 +1438,8 @@ class TestSetSubnet(TestSubnet):
                 'segment_id': None,
             }
         )
-        self.network_client.find_subnet = mock.Mock(return_value=_subnet)
-        self.network_client.find_segment = mock.Mock(return_value=_segment)
+        self.network_client.find_subnet.return_value = _subnet
+        self.network_client.find_segment.return_value = _segment
         arglist = ['--network-segment', _segment.id, _subnet.name]
         verifylist = [('network_segment', _segment.id)]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
@@ -1514,7 +1504,7 @@ class TestShowSubnet(TestSubnet):
         # Get the command object to test
         self.cmd = subnet_v2.ShowSubnet(self.app, None)
 
-        self.network_client.find_subnet = mock.Mock(return_value=self._subnet)
+        self.network_client.find_subnet.return_value = self._subnet
 
     def test_show_no_options(self):
         arglist = []
@@ -1572,11 +1562,10 @@ class TestUnsetSubnet(TestSubnet):
                 'tags': ['green', 'red'],
             }
         )
-        self.network_client.find_subnet = mock.Mock(
-            return_value=self._testsubnet
-        )
-        self.network_client.update_subnet = mock.Mock(return_value=None)
-        self.network_client.set_tags = mock.Mock(return_value=None)
+        self.network_client.find_subnet.return_value = self._testsubnet
+
+        self.network_client.update_subnet.return_value = None
+        self.network_client.set_tags.return_value = None
         # Get the command object to test
         self.cmd = subnet_v2.UnsetSubnet(self.app, None)
 

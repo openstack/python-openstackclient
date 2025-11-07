@@ -11,7 +11,6 @@
 #   under the License.
 #
 
-from unittest import mock
 from unittest.mock import call
 
 from osc_lib import exceptions
@@ -69,9 +68,10 @@ class TestCreateSecurityGroupRuleNetwork(TestSecurityGroupRuleNetwork):
         self._security_group_rule = (
             network_fakes.create_one_security_group_rule(attrs)
         )
-        self.network_client.create_security_group_rule = mock.Mock(
-            return_value=self._security_group_rule
+        self.network_client.create_security_group_rule.return_value = (
+            self._security_group_rule
         )
+
         self.expected_data = (
             self._security_group_rule.created_at,
             self._security_group_rule.description,
@@ -93,12 +93,12 @@ class TestCreateSecurityGroupRuleNetwork(TestSecurityGroupRuleNetwork):
     def setUp(self):
         super().setUp()
 
-        self.network_client.find_security_group = mock.Mock(
-            return_value=self._security_group
+        self.network_client.find_security_group.return_value = (
+            self._security_group
         )
 
-        self.network_client.find_address_group = mock.Mock(
-            return_value=self._address_group
+        self.network_client.find_address_group.return_value = (
+            self._address_group
         )
 
         self.projects_mock.get.return_value = self.project
@@ -970,9 +970,7 @@ class TestDeleteSecurityGroupRuleNetwork(TestSecurityGroupRuleNetwork):
     def setUp(self):
         super().setUp()
 
-        self.network_client.delete_security_group_rule = mock.Mock(
-            return_value=None
-        )
+        self.network_client.delete_security_group_rule.return_value = None
 
         self.network_client.find_security_group_rule = (
             network_fakes.get_security_group_rules(self._security_group_rules)
@@ -1030,8 +1028,8 @@ class TestDeleteSecurityGroupRuleNetwork(TestSecurityGroupRuleNetwork):
             self._security_group_rules[0],
             exceptions.CommandError,
         ]
-        self.network_client.find_security_group_rule = mock.Mock(
-            side_effect=find_mock_result
+        self.network_client.find_security_group_rule.side_effect = (
+            find_mock_result
         )
 
         try:
@@ -1134,11 +1132,12 @@ class TestListSecurityGroupRuleNetwork(TestSecurityGroupRuleNetwork):
     def setUp(self):
         super().setUp()
 
-        self.network_client.find_security_group = mock.Mock(
-            return_value=self._security_group
+        self.network_client.find_security_group.return_value = (
+            self._security_group
         )
-        self.network_client.security_group_rules = mock.Mock(
-            return_value=self._security_group_rules
+
+        self.network_client.security_group_rules.return_value = (
+            self._security_group_rules
         )
 
         # Get the command object to test
@@ -1344,8 +1343,8 @@ class TestShowSecurityGroupRuleNetwork(TestSecurityGroupRuleNetwork):
     def setUp(self):
         super().setUp()
 
-        self.network_client.find_security_group_rule = mock.Mock(
-            return_value=self._security_group_rule
+        self.network_client.find_security_group_rule.return_value = (
+            self._security_group_rule
         )
 
         # Get the command object to test

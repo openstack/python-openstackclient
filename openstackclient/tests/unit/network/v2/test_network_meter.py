@@ -13,7 +13,6 @@
 #    License for the specific language governing permissions and limitations
 #    under the License.
 
-from unittest import mock
 from unittest.mock import call
 
 from osc_lib import exceptions
@@ -55,9 +54,8 @@ class TestCreateMeter(TestMeter):
 
     def setUp(self):
         super().setUp()
-        self.network_client.create_metering_label = mock.Mock(
-            return_value=self.new_meter
-        )
+        self.network_client.create_metering_label.return_value = self.new_meter
+
         self.projects_mock.get.return_value = self.project
         self.cmd = network_meter.CreateMeter(self.app, None)
 
@@ -132,9 +130,7 @@ class TestDeleteMeter(TestMeter):
 
         self.meter_list = network_fakes.FakeNetworkMeter.create_meter(count=2)
 
-        self.network_client.delete_metering_label = mock.Mock(
-            return_value=None
-        )
+        self.network_client.delete_metering_label.return_value = None
 
         self.network_client.find_metering_label = (
             network_fakes.FakeNetworkMeter.get_meter(meter=self.meter_list)
@@ -194,15 +190,13 @@ class TestDeleteMeter(TestMeter):
             exceptions.NotFound('404'),
             self.meter_list[1],
         ]
-        self.network_client.find_meter = mock.Mock(side_effect=return_find)
+        self.network_client.find_metering_label.side_effect = return_find
 
         ret_delete = [
             None,
             exceptions.NotFound('404'),
         ]
-        self.network_client.delete_metering_label = mock.Mock(
-            side_effect=ret_delete
-        )
+        self.network_client.delete_metering_label.side_effect = ret_delete
 
         self.assertRaises(
             exceptions.CommandError, self.cmd.take_action, parsed_args
@@ -240,9 +234,7 @@ class TestListMeter(TestMeter):
     def setUp(self):
         super().setUp()
 
-        self.network_client.metering_labels = mock.Mock(
-            return_value=self.meter_list
-        )
+        self.network_client.metering_labels.return_value = self.meter_list
 
         self.cmd = network_meter.ListMeter(self.app, None)
 
@@ -282,9 +274,7 @@ class TestShowMeter(TestMeter):
 
         self.cmd = network_meter.ShowMeter(self.app, None)
 
-        self.network_client.find_metering_label = mock.Mock(
-            return_value=self.new_meter
-        )
+        self.network_client.find_metering_label.return_value = self.new_meter
 
     def test_show_no_options(self):
         arglist = []

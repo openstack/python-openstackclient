@@ -11,7 +11,6 @@
 #   under the License.
 #
 
-from unittest import mock
 from unittest.mock import call
 
 from openstack.network.v2 import floating_ip as _floating_ip
@@ -86,16 +85,14 @@ class TestCreateFloatingIPNetwork(TestFloatingIPNetwork):
     def setUp(self):
         super().setUp()
 
-        self.network_client.create_ip = mock.Mock(
-            return_value=self.floating_ip
-        )
-        self.network_client.set_tags = mock.Mock(return_value=None)
+        self.network_client.create_ip.return_value = self.floating_ip
 
-        self.network_client.find_network = mock.Mock(
-            return_value=self.floating_network
-        )
-        self.network_client.find_subnet = mock.Mock(return_value=self.subnet)
-        self.network_client.find_port = mock.Mock(return_value=self.port)
+        self.network_client.set_tags.return_value = None
+
+        self.network_client.find_network.return_value = self.floating_network
+
+        self.network_client.find_subnet.return_value = self.subnet
+        self.network_client.find_port.return_value = self.port
 
         # Get the command object to test
         self.cmd = fip.CreateFloatingIP(self.app, None)
@@ -304,7 +301,7 @@ class TestDeleteFloatingIPNetwork(TestFloatingIPNetwork):
     def setUp(self):
         super().setUp()
 
-        self.network_client.delete_ip = mock.Mock(return_value=None)
+        self.network_client.delete_ip.return_value = None
 
         # Get the command object to test
         self.cmd = fip.DeleteFloatingIP(self.app, None)
@@ -470,14 +467,11 @@ class TestListFloatingIPNetwork(TestFloatingIPNetwork):
     def setUp(self):
         super().setUp()
 
-        self.network_client.ips = mock.Mock(return_value=self.floating_ips)
-        self.network_client.find_network = mock.Mock(
-            return_value=self.fake_network
-        )
-        self.network_client.find_port = mock.Mock(return_value=self.fake_port)
-        self.network_client.find_router = mock.Mock(
-            return_value=self.fake_router
-        )
+        self.network_client.ips.return_value = self.floating_ips
+        self.network_client.find_network.return_value = self.fake_network
+
+        self.network_client.find_port.return_value = self.fake_port
+        self.network_client.find_router.return_value = self.fake_router
 
         # Get the command object to test
         self.cmd = fip.ListFloatingIP(self.app, None)
@@ -713,7 +707,7 @@ class TestShowFloatingIPNetwork(TestFloatingIPNetwork):
         self.floating_ip = sdk_fakes.generate_fake_resource(
             _floating_ip.FloatingIP
         )
-        self.network_client.find_ip = mock.Mock(return_value=self.floating_ip)
+        self.network_client.find_ip.return_value = self.floating_ip
 
         self.columns = (
             'created_at',
@@ -797,10 +791,10 @@ class TestSetFloatingIP(TestFloatingIPNetwork):
 
     def setUp(self):
         super().setUp()
-        self.network_client.find_ip = mock.Mock(return_value=self.floating_ip)
-        self.network_client.find_port = mock.Mock(return_value=self.port)
-        self.network_client.update_ip = mock.Mock(return_value=None)
-        self.network_client.set_tags = mock.Mock(return_value=None)
+        self.network_client.find_ip.return_value = self.floating_ip
+        self.network_client.find_port.return_value = self.port
+        self.network_client.update_ip.return_value = None
+        self.network_client.set_tags.return_value = None
 
         # Get the command object to test
         self.cmd = fip.SetFloatingIP(self.app, None)
@@ -1044,9 +1038,9 @@ class TestUnsetFloatingIP(TestFloatingIPNetwork):
 
     def setUp(self):
         super().setUp()
-        self.network_client.find_ip = mock.Mock(return_value=self.floating_ip)
-        self.network_client.update_ip = mock.Mock(return_value=None)
-        self.network_client.set_tags = mock.Mock(return_value=None)
+        self.network_client.find_ip.return_value = self.floating_ip
+        self.network_client.update_ip.return_value = None
+        self.network_client.set_tags.return_value = None
 
         # Get the command object to test
         self.cmd = fip.UnsetFloatingIP(self.app, None)

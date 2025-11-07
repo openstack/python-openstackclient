@@ -11,7 +11,6 @@
 #   under the License.
 
 import copy
-from unittest import mock
 from unittest.mock import call
 
 from osc_lib.cli import format_columns
@@ -84,12 +83,12 @@ class TestCreateNetworkTrunk(TestNetworkTrunk):
 
     def setUp(self):
         super().setUp()
-        self.network_client.create_trunk = mock.Mock(
-            return_value=self.new_trunk
-        )
-        self.network_client.find_port = mock.Mock(
-            side_effect=[self.parent_port, self.sub_port]
-        )
+        self.network_client.create_trunk.return_value = self.new_trunk
+
+        self.network_client.find_port.side_effect = [
+            self.parent_port,
+            self.sub_port,
+        ]
 
         # Get the command object to test
         self.cmd = network_trunk.CreateNetworkTrunk(self.app, None)
@@ -313,13 +312,16 @@ class TestDeleteNetworkTrunk(TestNetworkTrunk):
 
     def setUp(self):
         super().setUp()
-        self.network_client.find_trunk = mock.Mock(
-            side_effect=[self.new_trunks[0], self.new_trunks[1]]
-        )
-        self.network_client.delete_trunk = mock.Mock(return_value=None)
-        self.network_client.find_port = mock.Mock(
-            side_effect=[self.parent_port, self.sub_port]
-        )
+        self.network_client.find_trunk.side_effect = [
+            self.new_trunks[0],
+            self.new_trunks[1],
+        ]
+
+        self.network_client.delete_trunk.return_value = None
+        self.network_client.find_port.side_effect = [
+            self.parent_port,
+            self.sub_port,
+        ]
 
         self.projects_mock.get.return_value = self.project
         self.domains_mock.get.return_value = self.domain
@@ -371,9 +373,11 @@ class TestDeleteNetworkTrunk(TestNetworkTrunk):
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
-        self.network_client.find_trunk = mock.Mock(
-            side_effect=[self.new_trunks[0], exceptions.CommandError]
-        )
+        self.network_client.find_trunk.side_effect = [
+            self.new_trunks[0],
+            exceptions.CommandError,
+        ]
+
         with testtools.ExpectedException(exceptions.CommandError) as e:
             self.cmd.take_action(parsed_args)
             self.assertEqual('1 of 2 trunks failed to delete.', str(e))
@@ -412,8 +416,8 @@ class TestShowNetworkTrunk(TestNetworkTrunk):
 
     def setUp(self):
         super().setUp()
-        self.network_client.find_trunk = mock.Mock(return_value=self.new_trunk)
-        self.network_client.get_trunk = mock.Mock(return_value=self.new_trunk)
+        self.network_client.find_trunk.return_value = self.new_trunk
+        self.network_client.get_trunk.return_value = self.new_trunk
 
         self.projects_mock.get.return_value = self.project
         self.domains_mock.get.return_value = self.domain
@@ -485,7 +489,7 @@ class TestListNetworkTrunk(TestNetworkTrunk):
 
     def setUp(self):
         super().setUp()
-        self.network_client.trunks = mock.Mock(return_value=self.new_trunks)
+        self.network_client.trunks.return_value = self.new_trunks
 
         self.projects_mock.get.return_value = self.project
         self.domains_mock.get.return_value = self.domain
@@ -564,14 +568,14 @@ class TestSetNetworkTrunk(TestNetworkTrunk):
 
     def setUp(self):
         super().setUp()
-        self.network_client.update_trunk = mock.Mock(return_value=self._trunk)
-        self.network_client.add_trunk_subports = mock.Mock(
-            return_value=self._trunk
-        )
-        self.network_client.find_trunk = mock.Mock(return_value=self._trunk)
-        self.network_client.find_port = mock.Mock(
-            side_effect=[self.sub_port, self.sub_port]
-        )
+        self.network_client.update_trunk.return_value = self._trunk
+        self.network_client.add_trunk_subports.return_value = self._trunk
+
+        self.network_client.find_trunk.return_value = self._trunk
+        self.network_client.find_port.side_effect = [
+            self.sub_port,
+            self.sub_port,
+        ]
 
         self.projects_mock.get.return_value = self.project
         self.domains_mock.get.return_value = self.domain
@@ -763,9 +767,8 @@ class TestSetNetworkTrunk(TestNetworkTrunk):
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
-        self.network_client.update_trunk = mock.Mock(
-            side_effect=exceptions.CommandError
-        )
+        self.network_client.update_trunk.side_effect = exceptions.CommandError
+
         with testtools.ExpectedException(exceptions.CommandError) as e:
             self.cmd.take_action(parsed_args)
             self.assertEqual(
@@ -790,12 +793,12 @@ class TestSetNetworkTrunk(TestNetworkTrunk):
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
-        self.network_client.add_trunk_subports = mock.Mock(
-            side_effect=exceptions.CommandError
+        self.network_client.add_trunk_subports.side_effect = (
+            exceptions.CommandError
         )
-        self.network_client.find_port = mock.Mock(
-            return_value={'id': 'invalid_subport'}
-        )
+
+        self.network_client.find_port.side_effect = [{'id': 'invalid_subport'}]
+
         with testtools.ExpectedException(exceptions.CommandError) as e:
             self.cmd.take_action(parsed_args)
             self.assertEqual(
@@ -832,10 +835,10 @@ class TestListNetworkSubport(TestNetworkTrunk):
     def setUp(self):
         super().setUp()
 
-        self.network_client.find_trunk = mock.Mock(return_value=self._trunk)
-        self.network_client.get_trunk_subports = mock.Mock(
-            return_value={network_trunk.SUB_PORTS: self._subports}
-        )
+        self.network_client.find_trunk.return_value = self._trunk
+        self.network_client.get_trunk_subports.return_value = {
+            network_trunk.SUB_PORTS: self._subports
+        }
 
         # Get the command object to test
         self.cmd = network_trunk.ListNetworkSubport(self.app, None)
@@ -902,13 +905,13 @@ class TestUnsetNetworkTrunk(TestNetworkTrunk):
     def setUp(self):
         super().setUp()
 
-        self.network_client.find_trunk = mock.Mock(return_value=self._trunk)
-        self.network_client.find_port = mock.Mock(
-            side_effect=[self.sub_port, self.sub_port]
-        )
-        self.network_client.delete_trunk_subports = mock.Mock(
-            return_value=None
-        )
+        self.network_client.find_trunk.return_value = self._trunk
+        self.network_client.find_port.side_effect = [
+            self.sub_port,
+            self.sub_port,
+        ]
+
+        self.network_client.delete_trunk_subports.return_value = None
 
         # Get the command object to test
         self.cmd = network_trunk.UnsetNetworkTrunk(self.app, None)

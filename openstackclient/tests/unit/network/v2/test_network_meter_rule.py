@@ -13,7 +13,6 @@
 #    License for the specific language governing permissions and limitations
 #    under the License.
 
-from unittest import mock
 from unittest.mock import call
 
 from osc_lib import exceptions
@@ -65,14 +64,13 @@ class TestCreateMeterRule(TestMeterRule):
             {'id': self.new_rule.metering_label_id}
         )
 
-        self.network_client.create_metering_label_rule = mock.Mock(
-            return_value=self.new_rule
+        self.network_client.create_metering_label_rule.return_value = (
+            self.new_rule
         )
+
         self.projects_mock.get.return_value = self.project
         self.cmd = network_meter_rule.CreateMeterRule(self.app, None)
-        self.network_client.find_metering_label = mock.Mock(
-            return_value=fake_meter
-        )
+        self.network_client.find_metering_label.return_value = fake_meter
 
     def test_create_no_options(self):
         arglist = []
@@ -146,9 +144,7 @@ class TestDeleteMeterRule(TestMeterRule):
         self.rule_list = network_fakes.FakeNetworkMeterRule.create_meter_rule(
             count=2
         )
-        self.network_client.delete_metering_label_rule = mock.Mock(
-            return_value=None
-        )
+        self.network_client.delete_metering_label_rule.return_value = None
 
         self.network_client.find_metering_label_rule = (
             network_fakes.FakeNetworkMeterRule.get_meter_rule(
@@ -210,17 +206,13 @@ class TestDeleteMeterRule(TestMeterRule):
             exceptions.NotFound('404'),
             self.rule_list[1],
         ]
-        self.network_client.find_metering_label_rule = mock.Mock(
-            side_effect=return_find
-        )
+        self.network_client.find_metering_label_rule.side_effect = return_find
 
         ret_delete = [
             None,
             exceptions.NotFound('404'),
         ]
-        self.network_client.delete_metering_label_rule = mock.Mock(
-            side_effect=ret_delete
-        )
+        self.network_client.delete_metering_label_rule.side_effect = ret_delete
 
         self.assertRaises(
             exceptions.CommandError, self.cmd.take_action, parsed_args
@@ -262,9 +254,7 @@ class TestListMeterRule(TestMeterRule):
     def setUp(self):
         super().setUp()
 
-        self.network_client.metering_label_rules = mock.Mock(
-            return_value=self.rule_list
-        )
+        self.network_client.metering_label_rules.return_value = self.rule_list
 
         self.cmd = network_meter_rule.ListMeterRule(self.app, None)
 
@@ -311,8 +301,8 @@ class TestShowMeterRule(TestMeterRule):
 
         self.cmd = network_meter_rule.ShowMeterRule(self.app, None)
 
-        self.network_client.find_metering_label_rule = mock.Mock(
-            return_value=self.new_rule
+        self.network_client.find_metering_label_rule.return_value = (
+            self.new_rule
         )
 
     def test_show_no_options(self):

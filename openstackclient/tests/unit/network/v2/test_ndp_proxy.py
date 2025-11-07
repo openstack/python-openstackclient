@@ -11,7 +11,6 @@
 #   under the License.
 #
 
-from unittest import mock
 from unittest.mock import call
 
 from osc_lib import exceptions
@@ -31,9 +30,9 @@ class TestNDPProxy(network_fakes.TestNetworkV2):
         self.domains_mock = self.identity_client.domains
 
         self.router = network_fakes.create_one_router({'id': 'fake-router-id'})
-        self.network_client.find_router = mock.Mock(return_value=self.router)
+        self.network_client.find_router.return_value = self.router
         self.port = network_fakes.create_one_port()
-        self.network_client.find_port = mock.Mock(return_value=self.port)
+        self.network_client.find_port.return_value = self.port
 
 
 class TestCreateNDPProxy(TestNDPProxy):
@@ -66,9 +65,7 @@ class TestCreateNDPProxy(TestNDPProxy):
             self.ndp_proxy.router_id,
             self.ndp_proxy.updated_at,
         )
-        self.network_client.create_ndp_proxy = mock.Mock(
-            return_value=self.ndp_proxy
-        )
+        self.network_client.create_ndp_proxy.return_value = self.ndp_proxy
 
         # Get the command object to test
         self.cmd = ndp_proxy.CreateNDPProxy(self.app, None)
@@ -127,10 +124,8 @@ class TestDeleteNDPProxy(TestNDPProxy):
         attrs = {'router_id': self.router.id, 'port_id': self.port.id}
         self.ndp_proxies = network_fakes.create_ndp_proxies(attrs)
         self.ndp_proxy = self.ndp_proxies[0]
-        self.network_client.delete_ndp_proxy = mock.Mock(return_value=None)
-        self.network_client.find_ndp_proxy = mock.Mock(
-            return_value=self.ndp_proxy
-        )
+        self.network_client.delete_ndp_proxy.return_value = None
+        self.network_client.find_ndp_proxy.return_value = self.ndp_proxy
 
         # Get the command object to test
         self.cmd = ndp_proxy.DeleteNDPProxy(self.app, None)
@@ -203,7 +198,7 @@ class TestListNDPProxy(TestNDPProxy):
                 )
             )
 
-        self.network_client.ndp_proxies = mock.Mock(return_value=ndp_proxies)
+        self.network_client.ndp_proxies.return_value = ndp_proxies
 
         # Get the command object to test
         self.cmd = ndp_proxy.ListNDPProxy(self.app, None)
@@ -340,10 +335,8 @@ class TestSetNDPProxy(TestNDPProxy):
         super().setUp()
         attrs = {'router_id': self.router.id, 'port_id': self.port.id}
         self.ndp_proxy = network_fakes.create_one_ndp_proxy(attrs)
-        self.network_client.update_ndp_proxy = mock.Mock(return_value=None)
-        self.network_client.find_ndp_proxy = mock.Mock(
-            return_value=self.ndp_proxy
-        )
+        self.network_client.update_ndp_proxy.return_value = None
+        self.network_client.find_ndp_proxy.return_value = self.ndp_proxy
 
         # Get the command object to test
         self.cmd = ndp_proxy.SetNDPProxy(self.app, None)
@@ -434,12 +427,9 @@ class TestShowNDPProxy(TestNDPProxy):
             self.ndp_proxy.router_id,
             self.ndp_proxy.updated_at,
         )
-        self.network_client.get_ndp_proxy = mock.Mock(
-            return_value=self.ndp_proxy
-        )
-        self.network_client.find_ndp_proxy = mock.Mock(
-            return_value=self.ndp_proxy
-        )
+        self.network_client.get_ndp_proxy.return_value = self.ndp_proxy
+
+        self.network_client.find_ndp_proxy.return_value = self.ndp_proxy
 
         # Get the command object to test
         self.cmd = ndp_proxy.ShowNDPProxy(self.app, None)

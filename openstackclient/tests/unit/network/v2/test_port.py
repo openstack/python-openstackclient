@@ -136,19 +136,18 @@ class TestCreatePort(TestPort):
     def setUp(self):
         super().setUp()
 
-        self.network_client.create_port = mock.Mock(return_value=self._port)
-        self.network_client.set_tags = mock.Mock(return_value=None)
+        self.network_client.create_port.return_value = self._port
+        self.network_client.set_tags.return_value = None
         fake_net = network_fakes.create_one_network(
             {
                 'id': self._port.network_id,
             }
         )
-        self.network_client.find_network = mock.Mock(return_value=fake_net)
+        self.network_client.find_network.return_value = fake_net
         self.fake_subnet = network_fakes.FakeSubnet.create_one_subnet()
-        self.network_client.find_subnet = mock.Mock(
-            return_value=self.fake_subnet
-        )
-        self.network_client.find_extension = mock.Mock(return_value=[])
+        self.network_client.find_subnet.return_value = self.fake_subnet
+
+        self.network_client.find_extension.return_value = []
         # Get the command object to test
         self.cmd = port.CreatePort(self.app, None)
 
@@ -321,9 +320,8 @@ class TestCreatePort(TestPort):
 
     def test_create_with_security_group(self):
         secgroup = network_fakes.create_one_security_group()
-        self.network_client.find_security_group = mock.Mock(
-            return_value=secgroup
-        )
+        self.network_client.find_security_group.return_value = secgroup
+
         arglist = [
             '--network',
             self._port.network_id,
@@ -393,9 +391,8 @@ class TestCreatePort(TestPort):
     def test_create_with_security_groups(self):
         sg_1 = network_fakes.create_one_security_group()
         sg_2 = network_fakes.create_one_security_group()
-        self.network_client.find_security_group = mock.Mock(
-            side_effect=[sg_1, sg_2]
-        )
+        self.network_client.find_security_group.side_effect = [sg_1, sg_2]
+
         arglist = [
             '--network',
             self._port.network_id,
@@ -583,9 +580,8 @@ class TestCreatePort(TestPort):
 
     def test_create_port_with_qos(self):
         qos_policy = network_fakes.create_one_qos_policy()
-        self.network_client.find_qos_policy = mock.Mock(
-            return_value=qos_policy
-        )
+        self.network_client.find_qos_policy.return_value = qos_policy
+
         arglist = [
             '--network',
             self._port.network_id,
@@ -701,9 +697,7 @@ class TestCreatePort(TestPort):
         else:
             verifylist.append(('no_tag', True))
 
-        self.network_client.find_extension = mock.Mock(
-            return_value=add_tags_in_post
-        )
+        self.network_client.find_extension.return_value = add_tags_in_post
 
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
         columns, data = self.cmd.take_action(parsed_args)
@@ -1170,7 +1164,7 @@ class TestDeletePort(TestPort):
     def setUp(self):
         super().setUp()
 
-        self.network_client.delete_port = mock.Mock(return_value=None)
+        self.network_client.delete_port.return_value = None
         self.network_client.find_port = network_fakes.get_ports(
             ports=self._ports
         )
@@ -1223,7 +1217,7 @@ class TestDeletePort(TestPort):
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
         find_mock_result = [self._ports[0], exceptions.CommandError]
-        self.network_client.find_port = mock.Mock(side_effect=find_mock_result)
+        self.network_client.find_port.side_effect = find_mock_result
 
         try:
             self.cmd.take_action(parsed_args)
@@ -1324,7 +1318,7 @@ class TestListPort(compute_fakes.FakeClientMixin, TestPort):
     def setUp(self):
         super().setUp()
 
-        self.network_client.ports = mock.Mock(return_value=self._ports)
+        self.network_client.ports.return_value = self._ports
         fake_router = network_fakes.create_one_router(
             {
                 'id': 'fake-router-id',
@@ -1335,8 +1329,8 @@ class TestListPort(compute_fakes.FakeClientMixin, TestPort):
                 'id': 'fake-network-id',
             }
         )
-        self.network_client.find_router = mock.Mock(return_value=fake_router)
-        self.network_client.find_network = mock.Mock(return_value=fake_network)
+        self.network_client.find_router.return_value = fake_router
+        self.network_client.find_network.return_value = fake_network
 
         # Get the command object to test
         self.cmd = port.ListPort(self.app, None)
@@ -1550,9 +1544,8 @@ class TestListPort(compute_fakes.FakeClientMixin, TestPort):
         self.fake_subnet = network_fakes.FakeSubnet.create_one_subnet(
             {'id': subnet_id}
         )
-        self.network_client.find_subnet = mock.Mock(
-            return_value=self.fake_subnet
-        )
+        self.network_client.find_subnet.return_value = self.fake_subnet
+
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
         columns, data = self.cmd.take_action(parsed_args)
 
@@ -1579,9 +1572,8 @@ class TestListPort(compute_fakes.FakeClientMixin, TestPort):
         self.fake_subnet = network_fakes.FakeSubnet.create_one_subnet(
             {'id': subnet_id}
         )
-        self.network_client.find_subnet = mock.Mock(
-            return_value=self.fake_subnet
-        )
+        self.network_client.find_subnet.return_value = self.fake_subnet
+
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
         columns, data = self.cmd.take_action(parsed_args)
 
@@ -1616,9 +1608,8 @@ class TestListPort(compute_fakes.FakeClientMixin, TestPort):
                 'fields': LIST_FIELDS_TO_RETRIEVE,
             }
         )
-        self.network_client.find_subnet = mock.Mock(
-            return_value=self.fake_subnet
-        )
+        self.network_client.find_subnet.return_value = self.fake_subnet
+
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
         columns, data = self.cmd.take_action(parsed_args)
 
@@ -1825,12 +1816,11 @@ class TestSetPort(TestPort):
     def setUp(self):
         super().setUp()
         self.fake_subnet = network_fakes.FakeSubnet.create_one_subnet()
-        self.network_client.find_subnet = mock.Mock(
-            return_value=self.fake_subnet
-        )
-        self.network_client.find_port = mock.Mock(return_value=self._port)
-        self.network_client.update_port = mock.Mock(return_value=None)
-        self.network_client.set_tags = mock.Mock(return_value=None)
+        self.network_client.find_subnet.return_value = self.fake_subnet
+
+        self.network_client.find_port.return_value = self._port
+        self.network_client.update_port.return_value = None
+        self.network_client.set_tags.return_value = None
 
         # Get the command object to test
         self.cmd = port.SetPort(self.app, None)
@@ -1853,7 +1843,7 @@ class TestSetPort(TestPort):
         _testport = network_fakes.create_one_port(
             {'fixed_ips': [{'ip_address': '0.0.0.1'}]}
         )
-        self.network_client.find_port = mock.Mock(return_value=_testport)
+        self.network_client.find_port.return_value = _testport
         arglist = [
             '--fixed-ip',
             'ip-address=10.0.0.12',
@@ -1881,7 +1871,7 @@ class TestSetPort(TestPort):
         _testport = network_fakes.create_one_port(
             {'fixed_ips': [{'ip_address': '0.0.0.1'}]}
         )
-        self.network_client.find_port = mock.Mock(return_value=_testport)
+        self.network_client.find_port.return_value = _testport
         arglist = [
             '--fixed-ip',
             'ip-address=10.0.0.12',
@@ -1931,7 +1921,7 @@ class TestSetPort(TestPort):
         _testport = network_fakes.create_one_port(
             {'binding_profile': {'lok_i': 'visi_on'}}
         )
-        self.network_client.find_port = mock.Mock(return_value=_testport)
+        self.network_client.find_port.return_value = _testport
         arglist = [
             '--binding-profile',
             'lok_i=than_os',
@@ -1956,7 +1946,7 @@ class TestSetPort(TestPort):
         _testport = network_fakes.create_one_port(
             {'mac_address': '11:22:33:44:55:66'}
         )
-        self.network_client.find_port = mock.Mock(return_value=_testport)
+        self.network_client.find_port.return_value = _testport
         arglist = [
             '--mac-address',
             '66:55:44:33:22:11',
@@ -2097,7 +2087,7 @@ class TestSetPort(TestPort):
 
     def test_set_port_security_group(self):
         sg = network_fakes.create_one_security_group()
-        self.network_client.find_security_group = mock.Mock(return_value=sg)
+        self.network_client.find_security_group.return_value = sg
         arglist = [
             '--security-group',
             sg.id,
@@ -2122,13 +2112,12 @@ class TestSetPort(TestPort):
         sg_1 = network_fakes.create_one_security_group()
         sg_2 = network_fakes.create_one_security_group()
         sg_3 = network_fakes.create_one_security_group()
-        self.network_client.find_security_group = mock.Mock(
-            side_effect=[sg_2, sg_3]
-        )
+        self.network_client.find_security_group.side_effect = [sg_2, sg_3]
+
         _testport = network_fakes.create_one_port(
             {'security_group_ids': [sg_1.id]}
         )
-        self.network_client.find_port = mock.Mock(return_value=_testport)
+        self.network_client.find_port.return_value = _testport
         arglist = [
             '--security-group',
             sg_2.id,
@@ -2177,8 +2166,8 @@ class TestSetPort(TestPort):
         _testport = network_fakes.create_one_port(
             {'security_group_ids': [sg1.id]}
         )
-        self.network_client.find_port = mock.Mock(return_value=_testport)
-        self.network_client.find_security_group = mock.Mock(return_value=sg2)
+        self.network_client.find_port.return_value = _testport
+        self.network_client.find_security_group.return_value = sg2
         arglist = [
             '--security-group',
             sg2.id,
@@ -2226,7 +2215,7 @@ class TestSetPort(TestPort):
         _testport = network_fakes.create_one_port(
             {'allowed_address_pairs': [{'ip_address': '192.168.1.123'}]}
         )
-        self.network_client.find_port = mock.Mock(return_value=_testport)
+        self.network_client.find_port.return_value = _testport
         arglist = [
             '--allowed-address',
             'ip-address=192.168.1.45',
@@ -2255,7 +2244,7 @@ class TestSetPort(TestPort):
         _testport = network_fakes.create_one_port(
             {'allowed_address_pairs': [{'ip_address': '192.168.1.123'}]}
         )
-        self.network_client.find_port = mock.Mock(return_value=_testport)
+        self.network_client.find_port.return_value = _testport
         arglist = [
             '--allowed-address',
             'ip-address=192.168.1.45',
@@ -2372,11 +2361,10 @@ class TestSetPort(TestPort):
 
     def test_set_port_with_qos(self):
         qos_policy = network_fakes.create_one_qos_policy()
-        self.network_client.find_qos_policy = mock.Mock(
-            return_value=qos_policy
-        )
+        self.network_client.find_qos_policy.return_value = qos_policy
+
         _testport = network_fakes.create_one_port({'qos_policy_id': None})
-        self.network_client.find_port = mock.Mock(return_value=_testport)
+        self.network_client.find_port.return_value = _testport
         arglist = [
             '--qos-policy',
             qos_policy.id,
@@ -2400,7 +2388,7 @@ class TestSetPort(TestPort):
 
     def test_set_port_data_plane_status(self):
         _testport = network_fakes.create_one_port({'data_plane_status': None})
-        self.network_client.find_port = mock.Mock(return_value=_testport)
+        self.network_client.find_port.return_value = _testport
         arglist = [
             '--data-plane-status',
             'ACTIVE',
@@ -2546,10 +2534,12 @@ class TestSetPort(TestPort):
 
     def test_set_hints_valid_alias_value(self):
         testport = network_fakes.create_one_port()
-        self.network_client.find_port = mock.Mock(return_value=testport)
-        self.network_client.find_extension = mock.Mock(
-            return_value=['port-hints', 'port-hint-ovs-tx-steering']
-        )
+        self.network_client.find_port.return_value = testport
+        self.network_client.find_extension.return_value = [
+            'port-hints',
+            'port-hint-ovs-tx-steering',
+        ]
+
         arglist = [
             '--hint',
             'ovs-tx-steering=hash',
@@ -2574,10 +2564,12 @@ class TestSetPort(TestPort):
 
     def test_set_hints_valid_json(self):
         testport = network_fakes.create_one_port()
-        self.network_client.find_port = mock.Mock(return_value=testport)
-        self.network_client.find_extension = mock.Mock(
-            return_value=['port-hints', 'port-hint-ovs-tx-steering']
-        )
+        self.network_client.find_port.return_value = testport
+        self.network_client.find_extension.return_value = [
+            'port-hints',
+            'port-hint-ovs-tx-steering',
+        ]
+
         arglist = [
             '--hint',
             '{"openvswitch": {"other_config": {"tx-steering": "hash"}}}',
@@ -2670,7 +2662,7 @@ class TestShowPort(TestPort):
     def setUp(self):
         super().setUp()
 
-        self.network_client.find_port = mock.Mock(return_value=self._port)
+        self.network_client.find_port.return_value = self._port
 
         # Get the command object to test
         self.cmd = port.ShowPort(self.app, None)
@@ -2731,12 +2723,11 @@ class TestUnsetPort(TestPort):
         self.fake_subnet = network_fakes.FakeSubnet.create_one_subnet(
             {'id': '042eb10a-3a18-4658-ab-cf47c8d03152'}
         )
-        self.network_client.find_subnet = mock.Mock(
-            return_value=self.fake_subnet
-        )
-        self.network_client.find_port = mock.Mock(return_value=self._testport)
-        self.network_client.update_port = mock.Mock(return_value=None)
-        self.network_client.set_tags = mock.Mock(return_value=None)
+        self.network_client.find_subnet.return_value = self.fake_subnet
+
+        self.network_client.find_port.return_value = self._testport
+        self.network_client.update_port.return_value = None
+        self.network_client.set_tags.return_value = None
         # Get the command object to test
         self.cmd = port.UnsetPort(self.app, None)
 
@@ -2826,10 +2817,9 @@ class TestUnsetPort(TestPort):
         _fake_port = network_fakes.create_one_port(
             {'security_group_ids': [_fake_sg1.id, _fake_sg2.id]}
         )
-        self.network_client.find_port = mock.Mock(return_value=_fake_port)
-        self.network_client.find_security_group = mock.Mock(
-            return_value=_fake_sg2
-        )
+        self.network_client.find_port.return_value = _fake_port
+        self.network_client.find_security_group.return_value = _fake_sg2
+
         arglist = [
             '--security-group',
             _fake_sg2.id,
@@ -2854,9 +2844,8 @@ class TestUnsetPort(TestPort):
         _fake_port = network_fakes.create_one_port(
             {'security_group_ids': [_fake_sg1.id]}
         )
-        self.network_client.find_security_group = mock.Mock(
-            return_value=_fake_sg2
-        )
+        self.network_client.find_security_group.return_value = _fake_sg2
+
         arglist = [
             '--security-group',
             _fake_sg2.id,
@@ -2875,7 +2864,7 @@ class TestUnsetPort(TestPort):
         _fake_port = network_fakes.create_one_port(
             {'allowed_address_pairs': [{'ip_address': '192.168.1.123'}]}
         )
-        self.network_client.find_port = mock.Mock(return_value=_fake_port)
+        self.network_client.find_port.return_value = _fake_port
         arglist = [
             '--allowed-address',
             'ip-address=192.168.1.123',
@@ -2901,7 +2890,7 @@ class TestUnsetPort(TestPort):
         _fake_port = network_fakes.create_one_port(
             {'allowed_address_pairs': [{'ip_address': '192.168.1.123'}]}
         )
-        self.network_client.find_port = mock.Mock(return_value=_fake_port)
+        self.network_client.find_port.return_value = _fake_port
         arglist = [
             '--allowed-address',
             'ip-address=192.168.1.45',
@@ -2920,7 +2909,7 @@ class TestUnsetPort(TestPort):
         _fake_port = network_fakes.create_one_port(
             {'data_plane_status': 'ACTIVE'}
         )
-        self.network_client.find_port = mock.Mock(return_value=_fake_port)
+        self.network_client.find_port.return_value = _fake_port
         arglist = [
             '--data-plane-status',
             _fake_port.name,
@@ -2973,7 +2962,7 @@ class TestUnsetPort(TestPort):
         _fake_port = network_fakes.create_one_port(
             {'numa_affinity_policy': 'required'}
         )
-        self.network_client.find_port = mock.Mock(return_value=_fake_port)
+        self.network_client.find_port.return_value = _fake_port
         arglist = [
             '--numa-policy',
             _fake_port.name,
@@ -2997,7 +2986,7 @@ class TestUnsetPort(TestPort):
 
     def test_unset_hints(self):
         testport = network_fakes.create_one_port()
-        self.network_client.find_port = mock.Mock(return_value=testport)
+        self.network_client.find_port.return_value = testport
         arglist = [
             '--hints',
             testport.name,
@@ -3017,7 +3006,7 @@ class TestUnsetPort(TestPort):
 
     def test_unset_device(self):
         testport = network_fakes.create_one_port()
-        self.network_client.find_port = mock.Mock(return_value=testport)
+        self.network_client.find_port.return_value = testport
         arglist = [
             '--device',
             testport.name,
@@ -3037,7 +3026,7 @@ class TestUnsetPort(TestPort):
 
     def test_unset_device_owner(self):
         testport = network_fakes.create_one_port()
-        self.network_client.find_port = mock.Mock(return_value=testport)
+        self.network_client.find_port.return_value = testport
         arglist = [
             '--device-owner',
             testport.name,

@@ -11,7 +11,6 @@
 #   under the License.
 #
 
-from unittest import mock
 from unittest.mock import call
 import uuid
 
@@ -921,8 +920,8 @@ class TestDeleteDefaultSecurityGroupRule(network_fakes.TestNetworkV2):
             self._default_sg_rules[0],
             exceptions.CommandError,
         ]
-        self.network_client.find_default_security_group_rule = mock.Mock(
-            side_effect=find_mock_result
+        self.network_client.find_default_security_group_rule.side_effect = (
+            find_mock_result
         )
 
         try:

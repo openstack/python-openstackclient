@@ -77,9 +77,7 @@ class TestServiceDelete(compute_fakes.TestComputev2):
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
         delete_mock_result = [None, exceptions.CommandError]
-        self.compute_client.delete_service = mock.Mock(
-            side_effect=delete_mock_result
-        )
+        self.compute_client.delete_service.side_effect = delete_mock_result
 
         try:
             self.cmd.take_action(parsed_args)

@@ -13,7 +13,6 @@
 #   under the License.
 #
 
-from unittest import mock
 
 from openstack.compute.v2 import server as _server
 from openstack.test import fakes as sdk_fakes
@@ -90,9 +89,7 @@ class TestConsoleUrlShow(compute_fakes.TestComputev2):
             'protocol': 'fake_protocol',
             'type': 'fake_type',
         }
-        self.compute_client.create_console = mock.Mock(
-            return_value=fake_console_data
-        )
+        self.compute_client.create_console.return_value = fake_console_data
 
         self.columns = (
             'protocol',
