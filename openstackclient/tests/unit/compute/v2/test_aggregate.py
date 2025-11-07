@@ -165,9 +165,11 @@ class TestAggregateDelete(TestAggregate):
             sdk_fakes.generate_fake_resources(_aggregate.Aggregate, 2)
         )
 
-        self.compute_client.find_aggregate = mock.Mock(
-            side_effect=[self.fake_ags[0], self.fake_ags[1]]
-        )
+        self.compute_client.find_aggregate.side_effect = [
+            self.fake_ags[0],
+            self.fake_ags[1],
+        ]
+
         self.cmd = aggregate.DeleteAggregate(self.app, None)
 
     def test_aggregate_delete(self):

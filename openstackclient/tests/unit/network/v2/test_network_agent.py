@@ -11,7 +11,6 @@
 #   under the License.
 #
 
-from unittest import mock
 from unittest.mock import call
 
 from osc_lib.cli import format_columns
@@ -34,8 +33,8 @@ class TestAddNetworkToAgent(TestNetworkAgent):
     def setUp(self):
         super().setUp()
 
-        self.network_client.get_agent = mock.Mock(return_value=self.agent)
-        self.network_client.find_network = mock.Mock(return_value=self.net)
+        self.network_client.get_agent.return_value = self.agent
+        self.network_client.find_network.return_value = self.net
         self.network_client.name = self.network_client.find_network.name
 
         self.cmd = network_agent.AddNetworkToAgent(self.app, None)
@@ -76,8 +75,8 @@ class TestAddRouterAgent(TestNetworkAgent):
     def setUp(self):
         super().setUp()
 
-        self.network_client.get_agent = mock.Mock(return_value=self._agent)
-        self.network_client.find_router = mock.Mock(return_value=self._router)
+        self.network_client.get_agent.return_value = self._agent
+        self.network_client.find_router.return_value = self._router
 
         self.cmd = network_agent.AddRouterToAgent(self.app, None)
 
@@ -120,7 +119,7 @@ class TestDeleteNetworkAgent(TestNetworkAgent):
 
     def setUp(self):
         super().setUp()
-        self.network_client.delete_agent = mock.Mock(return_value=None)
+        self.network_client.delete_agent.return_value = None
 
         # Get the command object to test
         self.cmd = network_agent.DeleteNetworkAgent(self.app, None)
@@ -173,9 +172,7 @@ class TestDeleteNetworkAgent(TestNetworkAgent):
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
         delete_mock_result = [True, exceptions.CommandError]
-        self.network_client.delete_agent = mock.Mock(
-            side_effect=delete_mock_result
-        )
+        self.network_client.delete_agent.side_effect = delete_mock_result
 
         try:
             self.cmd.take_action(parsed_args)
@@ -357,8 +354,8 @@ class TestRemoveNetworkFromAgent(TestNetworkAgent):
     def setUp(self):
         super().setUp()
 
-        self.network_client.get_agent = mock.Mock(return_value=self.agent)
-        self.network_client.find_network = mock.Mock(return_value=self.net)
+        self.network_client.get_agent.return_value = self.agent
+        self.network_client.find_network.return_value = self.net
         self.network_client.name = self.network_client.find_network.name
 
         self.cmd = network_agent.RemoveNetworkFromAgent(self.app, None)
@@ -414,8 +411,8 @@ class TestRemoveRouterAgent(TestNetworkAgent):
     def setUp(self):
         super().setUp()
 
-        self.network_client.get_agent = mock.Mock(return_value=self._agent)
-        self.network_client.find_router = mock.Mock(return_value=self._router)
+        self.network_client.get_agent.return_value = self._agent
+        self.network_client.find_router.return_value = self._router
 
         self.cmd = network_agent.RemoveRouterFromAgent(self.app, None)
 
@@ -458,10 +455,8 @@ class TestSetNetworkAgent(TestNetworkAgent):
 
     def setUp(self):
         super().setUp()
-        self.network_client.update_agent = mock.Mock(return_value=None)
-        self.network_client.get_agent = mock.Mock(
-            return_value=self._network_agent
-        )
+        self.network_client.update_agent.return_value = None
+        self.network_client.get_agent.return_value = self._network_agent
 
         # Get the command object to test
         self.cmd = network_agent.SetNetworkAgent(self.app, None)
@@ -574,9 +569,7 @@ class TestShowNetworkAgent(TestNetworkAgent):
 
     def setUp(self):
         super().setUp()
-        self.network_client.get_agent = mock.Mock(
-            return_value=self._network_agent
-        )
+        self.network_client.get_agent.return_value = self._network_agent
 
         # Get the command object to test
         self.cmd = network_agent.ShowNetworkAgent(self.app, None)

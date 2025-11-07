@@ -11,7 +11,6 @@
 #   under the License.
 #
 
-from unittest import mock
 
 from osc_lib.cli import format_columns
 
@@ -55,8 +54,8 @@ class TestListIPAvailability(TestIPAvailability):
         super().setUp()
 
         self.cmd = ip_availability.ListIPAvailability(self.app, None)
-        self.network_client.network_ip_availabilities = mock.Mock(
-            return_value=self._ip_availability
+        self.network_client.network_ip_availabilities.return_value = (
+            self._ip_availability
         )
 
     def test_list_no_options(self):
@@ -134,12 +133,11 @@ class TestShowIPAvailability(TestIPAvailability):
     def setUp(self):
         super().setUp()
 
-        self.network_client.find_network_ip_availability = mock.Mock(
-            return_value=self._ip_availability
+        self.network_client.find_network_ip_availability.return_value = (
+            self._ip_availability
         )
-        self.network_client.find_network = mock.Mock(
-            return_value=self._network
-        )
+
+        self.network_client.find_network.return_value = self._network
 
         # Get the command object to test
         self.cmd = ip_availability.ShowIPAvailability(self.app, None)

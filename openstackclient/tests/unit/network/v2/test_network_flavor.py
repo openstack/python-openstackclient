@@ -41,11 +41,9 @@ class TestAddNetworkFlavorToProfile(TestNetworkFlavor):
     def setUp(self):
         super().setUp()
 
-        self.network_client.find_flavor = mock.Mock(
-            return_value=self.network_flavor
-        )
-        self.network_client.find_service_profile = mock.Mock(
-            return_value=self.service_profile
+        self.network_client.find_flavor.return_value = self.network_flavor
+        self.network_client.find_service_profile.return_value = (
+            self.service_profile
         )
 
         self.cmd = network_flavor.AddNetworkFlavorToProfile(self.app, None)
@@ -102,8 +100,8 @@ class TestCreateNetworkFlavor(TestNetworkFlavor):
 
     def setUp(self):
         super().setUp()
-        self.network_client.create_flavor = mock.Mock(
-            return_value=self.new_network_flavor
+        self.network_client.create_flavor.return_value = (
+            self.new_network_flavor
         )
 
         # Get the command object to test
@@ -218,7 +216,7 @@ class TestDeleteNetworkFlavor(TestNetworkFlavor):
 
     def setUp(self):
         super().setUp()
-        self.network_client.delete_flavor = mock.Mock(return_value=None)
+        self.network_client.delete_flavor.return_value = None
         self.network_client.find_flavor = network_fakes.get_flavor(
             network_flavors=self._network_flavors
         )
@@ -278,9 +276,7 @@ class TestDeleteNetworkFlavor(TestNetworkFlavor):
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
         find_mock_result = [self._network_flavors[0], exceptions.CommandError]
-        self.network_client.find_flavor = mock.Mock(
-            side_effect=find_mock_result
-        )
+        self.network_client.find_flavor.side_effect = find_mock_result
 
         try:
             self.cmd.take_action(parsed_args)
@@ -323,9 +319,7 @@ class TestListNetworkFlavor(TestNetworkFlavor):
 
     def setUp(self):
         super().setUp()
-        self.network_client.flavors = mock.Mock(
-            return_value=self._network_flavors
-        )
+        self.network_client.flavors.return_value = self._network_flavors
 
         # Get the command object to test
         self.cmd = network_flavor.ListNetworkFlavor(self.app, None)
@@ -348,11 +342,9 @@ class TestRemoveNetworkFlavorFromProfile(TestNetworkFlavor):
 
     def setUp(self):
         super().setUp()
-        self.network_client.find_flavor = mock.Mock(
-            return_value=self.network_flavor
-        )
-        self.network_client.find_service_profile = mock.Mock(
-            return_value=self.service_profile
+        self.network_client.find_flavor.return_value = self.network_flavor
+        self.network_client.find_service_profile.return_value = (
+            self.service_profile
         )
         self.network_client.disassociate_flavor_from_service_profile = (
             mock.Mock()
@@ -412,9 +404,7 @@ class TestShowNetworkFlavor(TestNetworkFlavor):
 
     def setUp(self):
         super().setUp()
-        self.network_client.find_flavor = mock.Mock(
-            return_value=self.new_network_flavor
-        )
+        self.network_client.find_flavor.return_value = self.new_network_flavor
 
         # Get the command object to test
         self.cmd = network_flavor.ShowNetworkFlavor(self.app, None)
@@ -456,10 +446,8 @@ class TestSetNetworkFlavor(TestNetworkFlavor):
 
     def setUp(self):
         super().setUp()
-        self.network_client.update_flavor = mock.Mock(return_value=None)
-        self.network_client.find_flavor = mock.Mock(
-            return_value=self.new_network_flavor
-        )
+        self.network_client.update_flavor.return_value = None
+        self.network_client.find_flavor.return_value = self.new_network_flavor
 
         # Get the command object to test
         self.cmd = network_flavor.SetNetworkFlavor(self.app, None)

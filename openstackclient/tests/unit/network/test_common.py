@@ -128,15 +128,11 @@ class TestNetworkAndCompute(utils.TestCommand):
 
         self.app.client_manager.network = mock.Mock()
         self.network_client = self.app.client_manager.network
-        self.network_client.network_action = mock.Mock(
-            return_value='take_action_network'
-        )
+        self.network_client.network_action.return_value = 'take_action_network'
 
         self.app.client_manager.compute = mock.Mock()
         self.compute_client = self.app.client_manager.compute
-        self.compute_client.compute_action = mock.Mock(
-            return_value='take_action_compute'
-        )
+        self.compute_client.compute_action.return_value = 'take_action_compute'
 
         self.cmd = FakeNetworkAndComputeCommand(self.app, None)
 

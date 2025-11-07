@@ -13,7 +13,6 @@
 #   under the License.
 #
 
-from unittest import mock
 from unittest.mock import call
 
 from osc_lib import exceptions
@@ -77,13 +76,11 @@ class TestCreateLocalIP(TestLocalIP):
 
     def setUp(self):
         super().setUp()
-        self.network_client.create_local_ip = mock.Mock(
-            return_value=self.new_local_ip
-        )
-        self.network_client.find_network = mock.Mock(
-            return_value=self.local_ip_network
-        )
-        self.network_client.find_port = mock.Mock(return_value=self.port)
+        self.network_client.create_local_ip.return_value = self.new_local_ip
+
+        self.network_client.find_network.return_value = self.local_ip_network
+
+        self.network_client.find_port.return_value = self.port
 
         # Get the command object to test
         self.cmd = local_ip.CreateLocalIP(self.app, None)
@@ -149,7 +146,7 @@ class TestDeleteLocalIP(TestLocalIP):
 
     def setUp(self):
         super().setUp()
-        self.network_client.delete_local_ip = mock.Mock(return_value=None)
+        self.network_client.delete_local_ip.return_value = None
         self.network_client.find_local_ip = network_fakes.get_local_ips(
             local_ips=self._local_ips
         )
@@ -205,9 +202,7 @@ class TestDeleteLocalIP(TestLocalIP):
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
         find_mock_result = [self._local_ips[0], exceptions.CommandError]
-        self.network_client.find_local_ip = mock.Mock(
-            side_effect=find_mock_result
-        )
+        self.network_client.find_local_ip.side_effect = find_mock_result
 
         try:
             self.cmd.take_action(parsed_args)
@@ -258,10 +253,8 @@ class TestListLocalIP(TestLocalIP):
 
     def setUp(self):
         super().setUp()
-        self.network_client.local_ips = mock.Mock(return_value=self.local_ips)
-        self.network_client.find_network = mock.Mock(
-            return_value=self.fake_network
-        )
+        self.network_client.local_ips.return_value = self.local_ips
+        self.network_client.find_network.return_value = self.fake_network
 
         # Get the command object to test
         self.cmd = local_ip.ListLocalIP(self.app, None)
@@ -402,10 +395,8 @@ class TestSetLocalIP(TestLocalIP):
 
     def setUp(self):
         super().setUp()
-        self.network_client.update_local_ip = mock.Mock(return_value=None)
-        self.network_client.find_local_ip = mock.Mock(
-            return_value=self._local_ip
-        )
+        self.network_client.update_local_ip.return_value = None
+        self.network_client.find_local_ip.return_value = self._local_ip
 
         # Get the command object to test
         self.cmd = local_ip.SetLocalIP(self.app, None)
@@ -482,9 +473,7 @@ class TestShowLocalIP(TestLocalIP):
 
     def setUp(self):
         super().setUp()
-        self.network_client.find_local_ip = mock.Mock(
-            return_value=self._local_ip
-        )
+        self.network_client.find_local_ip.return_value = self._local_ip
 
         # Get the command object to test
         self.cmd = local_ip.ShowLocalIP(self.app, None)

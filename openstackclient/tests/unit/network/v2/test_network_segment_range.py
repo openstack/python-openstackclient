@@ -78,8 +78,8 @@ class TestCreateNetworkSegmentRange(TestNetworkSegmentRange):
     def setUp(self):
         super().setUp()
 
-        self.network_client.create_network_segment_range = mock.Mock(
-            return_value=self._network_segment_range
+        self.network_client.create_network_segment_range.return_value = (
+            self._network_segment_range
         )
 
         # Get the command object to test
@@ -351,11 +351,10 @@ class TestDeleteNetworkSegmentRange(TestNetworkSegmentRange):
     def setUp(self):
         super().setUp()
 
-        self.network_client.delete_network_segment_range = mock.Mock(
-            return_value=None
-        )
-        self.network_client.find_network_segment_range = mock.Mock(
-            side_effect=self._network_segment_ranges
+        self.network_client.delete_network_segment_range.return_value = None
+
+        self.network_client.find_network_segment_range.side_effect = (
+            self._network_segment_ranges
         )
 
         # Get the command object to test
@@ -412,8 +411,8 @@ class TestDeleteNetworkSegmentRange(TestNetworkSegmentRange):
             self._network_segment_ranges[0],
             exceptions.CommandError,
         ]
-        self.network_client.find_network_segment_range = mock.Mock(
-            side_effect=find_mock_result
+        self.network_client.find_network_segment_range.side_effect = (
+            find_mock_result
         )
 
         try:
@@ -493,8 +492,8 @@ class TestListNetworkSegmentRange(TestNetworkSegmentRange):
     def setUp(self):
         super().setUp()
 
-        self.network_client.network_segment_ranges = mock.Mock(
-            return_value=self._network_segment_ranges
+        self.network_client.network_segment_ranges.return_value = (
+            self._network_segment_ranges
         )
 
         # Get the command object to test
@@ -567,8 +566,8 @@ class TestSetNetworkSegmentRange(TestNetworkSegmentRange):
     def setUp(self):
         super().setUp()
 
-        self.network_client.find_network_segment_range = mock.Mock(
-            return_value=self._network_segment_range
+        self.network_client.find_network_segment_range.return_value = (
+            self._network_segment_range
         )
 
         # Get the command object to test
@@ -583,9 +582,10 @@ class TestSetNetworkSegmentRange(TestNetworkSegmentRange):
         ]
 
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
-        self.network_client.update_network_segment_range = mock.Mock(
-            return_value=self._network_segment_range
+        self.network_client.update_network_segment_range.return_value = (
+            self._network_segment_range
         )
+
         result = self.cmd.take_action(parsed_args)
 
         self.network_client.update_network_segment_range.assert_called_once_with(
@@ -611,9 +611,10 @@ class TestSetNetworkSegmentRange(TestNetworkSegmentRange):
         ]
 
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
-        self.network_client.update_network_segment_range = mock.Mock(
-            return_value=self._network_segment_range_updated
+        self.network_client.update_network_segment_range.return_value = (
+            self._network_segment_range_updated
         )
+
         result = self.cmd.take_action(parsed_args)
 
         attrs = {
@@ -662,8 +663,8 @@ class TestShowNetworkSegmentRange(TestNetworkSegmentRange):
     def setUp(self):
         super().setUp()
 
-        self.network_client.find_network_segment_range = mock.Mock(
-            return_value=self._network_segment_range
+        self.network_client.find_network_segment_range.return_value = (
+            self._network_segment_range
         )
 
         # Get the command object to test

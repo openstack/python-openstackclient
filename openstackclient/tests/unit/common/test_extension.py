@@ -10,7 +10,6 @@
 #   License for the specific language governing permissions and limitations
 #   under the License.
 
-from unittest import mock
 
 from openstackclient.common import extension
 from openstackclient.tests.unit.compute.v2 import fakes as compute_fakes
@@ -295,8 +294,8 @@ class TestExtensionShow(TestExtension):
 
         self.cmd = extension.ShowExtension(self.app, None)
 
-        self.app.client_manager.network.find_extension = mock.Mock(
-            return_value=self.extension_details
+        self.app.client_manager.network.find_extension.return_value = (
+            self.extension_details
         )
 
     def test_show_no_options(self):

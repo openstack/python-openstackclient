@@ -11,7 +11,6 @@
 #   under the License.
 #
 
-from unittest import mock
 from unittest.mock import call
 
 from osc_lib import exceptions
@@ -52,8 +51,8 @@ class TestCreateAddressScope(TestAddressScope):
 
     def setUp(self):
         super().setUp()
-        self.network_client.create_address_scope = mock.Mock(
-            return_value=self.new_address_scope
+        self.network_client.create_address_scope.return_value = (
+            self.new_address_scope
         )
 
         # Get the command object to test
@@ -160,7 +159,7 @@ class TestDeleteAddressScope(TestAddressScope):
 
     def setUp(self):
         super().setUp()
-        self.network_client.delete_address_scope = mock.Mock(return_value=None)
+        self.network_client.delete_address_scope.return_value = None
         self.network_client.find_address_scope = (
             network_fakes.get_address_scopes(
                 address_scopes=self._address_scopes
@@ -222,9 +221,7 @@ class TestDeleteAddressScope(TestAddressScope):
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
         find_mock_result = [self._address_scopes[0], exceptions.CommandError]
-        self.network_client.find_address_scope = mock.Mock(
-            side_effect=find_mock_result
-        )
+        self.network_client.find_address_scope.side_effect = find_mock_result
 
         try:
             self.cmd.take_action(parsed_args)
@@ -267,9 +264,7 @@ class TestListAddressScope(TestAddressScope):
 
     def setUp(self):
         super().setUp()
-        self.network_client.address_scopes = mock.Mock(
-            return_value=self.address_scopes
-        )
+        self.network_client.address_scopes.return_value = self.address_scopes
 
         # Get the command object to test
         self.cmd = address_scope.ListAddressScope(self.app, None)
@@ -398,9 +393,9 @@ class TestSetAddressScope(TestAddressScope):
 
     def setUp(self):
         super().setUp()
-        self.network_client.update_address_scope = mock.Mock(return_value=None)
-        self.network_client.find_address_scope = mock.Mock(
-            return_value=self._address_scope
+        self.network_client.update_address_scope.return_value = None
+        self.network_client.find_address_scope.return_value = (
+            self._address_scope
         )
 
         # Get the command object to test
@@ -488,8 +483,8 @@ class TestShowAddressScope(TestAddressScope):
 
     def setUp(self):
         super().setUp()
-        self.network_client.find_address_scope = mock.Mock(
-            return_value=self._address_scope
+        self.network_client.find_address_scope.return_value = (
+            self._address_scope
         )
 
         # Get the command object to test

@@ -13,7 +13,6 @@
 #    License for the specific language governing permissions and limitations
 #    under the License.
 
-from unittest import mock
 
 from openstackclient.network.v2 import (
     network_service_provider as service_provider,
@@ -52,9 +51,7 @@ class TestListNetworkServiceProvider(TestNetworkServiceProvider):
 
     def setUp(self):
         super().setUp()
-        self.network_client.service_providers = mock.Mock(
-            return_value=self.provider_list
-        )
+        self.network_client.service_providers.return_value = self.provider_list
 
         self.cmd = service_provider.ListNetworkServiceProvider(self.app, None)
 

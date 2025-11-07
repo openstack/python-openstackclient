@@ -29,7 +29,7 @@ class TestLocalIPAssociation(network_fakes.TestNetworkV2):
         self.local_ip = network_fakes.create_one_local_ip()
         self.fixed_port = network_fakes.create_one_port()
         self.project = identity_fakes_v2.FakeProject.create_one_project()
-        self.network_client.find_port = mock.Mock(return_value=self.fixed_port)
+        self.network_client.find_port.return_value = self.fixed_port
 
 
 class TestCreateLocalIPAssociation(TestLocalIPAssociation):
@@ -43,13 +43,11 @@ class TestCreateLocalIPAssociation(TestLocalIPAssociation):
                 }
             )
         )
-        self.network_client.create_local_ip_association = mock.Mock(
-            return_value=self.new_local_ip_association
+        self.network_client.create_local_ip_association.return_value = (
+            self.new_local_ip_association
         )
 
-        self.network_client.find_local_ip = mock.Mock(
-            return_value=self.local_ip
-        )
+        self.network_client.find_local_ip.return_value = self.local_ip
 
         # Get the command object to test
         self.cmd = local_ip_association.CreateLocalIPAssociation(
@@ -128,13 +126,10 @@ class TestDeleteLocalIPAssociation(TestLocalIPAssociation):
                 },
             )
         )
-        self.network_client.delete_local_ip_association = mock.Mock(
-            return_value=None
-        )
+        self.network_client.delete_local_ip_association.return_value = None
 
-        self.network_client.find_local_ip = mock.Mock(
-            return_value=self.local_ip
-        )
+        self.network_client.find_local_ip.return_value = self.local_ip
+
         # Get the command object to test
         self.cmd = local_ip_association.DeleteLocalIPAssociation(
             self.app, None
@@ -262,13 +257,13 @@ class TestListLocalIPAssociation(TestLocalIPAssociation):
                     lip_assoc.host,
                 )
             )
-        self.network_client.local_ip_associations = mock.Mock(
-            return_value=self.local_ip_associations
+        self.network_client.local_ip_associations.return_value = (
+            self.local_ip_associations
         )
-        self.network_client.find_local_ip = mock.Mock(
-            return_value=self.local_ip
-        )
-        self.network_client.find_port = mock.Mock(return_value=self.fixed_port)
+
+        self.network_client.find_local_ip.return_value = self.local_ip
+
+        self.network_client.find_port.return_value = self.fixed_port
         # Get the command object to test
         self.cmd = local_ip_association.ListLocalIPAssociation(self.app, None)
 

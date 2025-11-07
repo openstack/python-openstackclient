@@ -680,9 +680,7 @@ class TestFlavorList(TestFlavor):
         )
 
         self.compute_client.flavors.side_effect = [[flavor], []]
-        self.compute_client.fetch_flavor_extra_specs = mock.Mock(
-            return_value=None
-        )
+        self.compute_client.fetch_flavor_extra_specs.return_value = None
 
         arglist = [
             '--long',

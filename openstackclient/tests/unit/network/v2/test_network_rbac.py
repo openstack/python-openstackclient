@@ -11,7 +11,6 @@
 #   under the License.
 #
 
-from unittest import mock
 from unittest.mock import call
 
 import ddt
@@ -72,27 +71,20 @@ class TestCreateNetworkRBAC(TestNetworkRBAC):
         # Get the command object to test
         self.cmd = network_rbac.CreateNetworkRBAC(self.app, None)
 
-        self.network_client.create_rbac_policy = mock.Mock(
-            return_value=self.rbac_policy
-        )
-        self.network_client.find_network = mock.Mock(
-            return_value=self.network_object
-        )
-        self.network_client.find_qos_policy = mock.Mock(
-            return_value=self.qos_object
-        )
-        self.network_client.find_security_group = mock.Mock(
-            return_value=self.sg_object
-        )
-        self.network_client.find_address_scope = mock.Mock(
-            return_value=self.as_object
-        )
-        self.network_client.find_subnet_pool = mock.Mock(
-            return_value=self.snp_object
-        )
-        self.network_client.find_address_group = mock.Mock(
-            return_value=self.ag_object
-        )
+        self.network_client.create_rbac_policy.return_value = self.rbac_policy
+
+        self.network_client.find_network.return_value = self.network_object
+
+        self.network_client.find_qos_policy.return_value = self.qos_object
+
+        self.network_client.find_security_group.return_value = self.sg_object
+
+        self.network_client.find_address_scope.return_value = self.as_object
+
+        self.network_client.find_subnet_pool.return_value = self.snp_object
+
+        self.network_client.find_address_group.return_value = self.ag_object
+
         self.projects_mock.get.return_value = self.project
 
     def test_network_rbac_create_no_type(self):
@@ -343,7 +335,7 @@ class TestDeleteNetworkRBAC(TestNetworkRBAC):
 
     def setUp(self):
         super().setUp()
-        self.network_client.delete_rbac_policy = mock.Mock(return_value=None)
+        self.network_client.delete_rbac_policy.return_value = None
         self.network_client.find_rbac_policy = network_fakes.get_network_rbacs(
             rbac_policies=self.rbac_policies
         )
@@ -400,9 +392,7 @@ class TestDeleteNetworkRBAC(TestNetworkRBAC):
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
         find_mock_result = [self.rbac_policies[0], exceptions.CommandError]
-        self.network_client.find_rbac_policy = mock.Mock(
-            side_effect=find_mock_result
-        )
+        self.network_client.find_rbac_policy.side_effect = find_mock_result
 
         try:
             self.cmd.take_action(parsed_args)
@@ -462,9 +452,7 @@ class TestListNetworkRABC(TestNetworkRBAC):
         # Get the command object to test
         self.cmd = network_rbac.ListNetworkRBAC(self.app, None)
 
-        self.network_client.rbac_policies = mock.Mock(
-            return_value=self.rbac_policies
-        )
+        self.network_client.rbac_policies.return_value = self.rbac_policies
 
         self.project = identity_fakes_v3.FakeProject.create_one_project()
         self.projects_mock.get.return_value = self.project
@@ -564,10 +552,9 @@ class TestSetNetworkRBAC(TestNetworkRBAC):
         # Get the command object to test
         self.cmd = network_rbac.SetNetworkRBAC(self.app, None)
 
-        self.network_client.find_rbac_policy = mock.Mock(
-            return_value=self.rbac_policy
-        )
-        self.network_client.update_rbac_policy = mock.Mock(return_value=None)
+        self.network_client.find_rbac_policy.return_value = self.rbac_policy
+
+        self.network_client.update_rbac_policy.return_value = None
         self.projects_mock.get.return_value = self.project
 
     def test_network_rbac_set_nothing(self):
@@ -639,9 +626,7 @@ class TestShowNetworkRBAC(TestNetworkRBAC):
         # Get the command object to test
         self.cmd = network_rbac.ShowNetworkRBAC(self.app, None)
 
-        self.network_client.find_rbac_policy = mock.Mock(
-            return_value=self.rbac_policy
-        )
+        self.network_client.find_rbac_policy.return_value = self.rbac_policy
 
     def test_show_no_options(self):
         arglist = []

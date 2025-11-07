@@ -63,8 +63,8 @@ class TestCreateNetworkQosPolicy(TestQosPolicy):
 
     def setUp(self):
         super().setUp()
-        self.network_client.create_qos_policy = mock.Mock(
-            return_value=self.new_qos_policy
+        self.network_client.create_qos_policy.return_value = (
+            self.new_qos_policy
         )
 
         # Get the command object to test
@@ -163,7 +163,7 @@ class TestDeleteNetworkQosPolicy(TestQosPolicy):
 
     def setUp(self):
         super().setUp()
-        self.network_client.delete_qos_policy = mock.Mock(return_value=None)
+        self.network_client.delete_qos_policy.return_value = None
         self.network_client.find_qos_policy = network_fakes.get_qos_policies(
             qos_policies=self._qos_policies
         )
@@ -264,9 +264,7 @@ class TestListNetworkQosPolicy(TestQosPolicy):
 
     def setUp(self):
         super().setUp()
-        self.network_client.qos_policies = mock.Mock(
-            return_value=self.qos_policies
-        )
+        self.network_client.qos_policies.return_value = self.qos_policies
 
         # Get the command object to test
         self.cmd = network_qos_policy.ListNetworkQosPolicy(self.app, None)
@@ -344,10 +342,8 @@ class TestSetNetworkQosPolicy(TestQosPolicy):
 
     def setUp(self):
         super().setUp()
-        self.network_client.update_qos_policy = mock.Mock(return_value=None)
-        self.network_client.find_qos_policy = mock.Mock(
-            return_value=self._qos_policy
-        )
+        self.network_client.update_qos_policy.return_value = None
+        self.network_client.find_qos_policy.return_value = self._qos_policy
 
         # Get the command object to test
         self.cmd = network_qos_policy.SetNetworkQosPolicy(self.app, None)
@@ -447,9 +443,7 @@ class TestShowNetworkQosPolicy(TestQosPolicy):
 
     def setUp(self):
         super().setUp()
-        self.network_client.find_qos_policy = mock.Mock(
-            return_value=self._qos_policy
-        )
+        self.network_client.find_qos_policy.return_value = self._qos_policy
 
         # Get the command object to test
         self.cmd = network_qos_policy.ShowNetworkQosPolicy(self.app, None)
