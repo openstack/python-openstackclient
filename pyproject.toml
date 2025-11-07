@@ -732,6 +732,7 @@ exclude = '''
 (?x)(
     doc
     | examples
+    | hacking
     | releasenotes
   )
 '''

@@ -32,10 +32,11 @@ repos:
       - id: mypy
         additional_dependencies:
           - types-requests
-        # keep this in-sync with '[mypy] exclude' in 'setup.cfg'
+        # keep this in-sync with '[tool.mypy] exclude' in 'pyproject.toml'
         exclude: |
           (?x)(
             doc/.*
             | examples/.*
+            | hacking/.*
             | releasenotes/.*
           )
