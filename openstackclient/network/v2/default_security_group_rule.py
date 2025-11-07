@@ -150,7 +150,7 @@ class CreateDefaultSecurityGroupRule(
         return parser
 
     def take_action(self, parsed_args):
-        client = self.app.client_manager.sdk_connection.network
+        client = self.app.client_manager.network
         # Build the create attributes.
         attrs = {}
         attrs['protocol'] = network_utils.get_protocol(parsed_args)
@@ -248,7 +248,7 @@ class DeleteDefaultSecurityGroupRule(command.Command):
 
     def take_action(self, parsed_args):
         result = 0
-        client = self.app.client_manager.sdk_connection.network
+        client = self.app.client_manager.network
         for r in parsed_args.rule:
             try:
                 obj = client.find_default_security_group_rule(
@@ -334,7 +334,7 @@ class ListDefaultSecurityGroupRule(command.Lister):
         return parser
 
     def take_action(self, parsed_args):
-        client = self.app.client_manager.sdk_connection.network
+        client = self.app.client_manager.network
         column_headers = (
             'ID',
             'IP Protocol',
@@ -403,7 +403,7 @@ class ShowDefaultSecurityGroupRule(command.ShowOne):
         return parser
 
     def take_action(self, parsed_args):
-        client = self.app.client_manager.sdk_connection.network
+        client = self.app.client_manager.network
         obj = client.find_default_security_group_rule(
             parsed_args.rule, ignore_missing=False
         )

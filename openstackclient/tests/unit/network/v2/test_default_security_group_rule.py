@@ -15,7 +15,6 @@ from unittest import mock
 from unittest.mock import call
 import uuid
 
-from openstack.network.v2 import _proxy
 from openstack.network.v2 import (
     default_security_group_rule as _default_security_group_rule,
 )
@@ -28,18 +27,7 @@ from openstackclient.tests.unit.network.v2 import fakes as network_fakes
 from openstackclient.tests.unit import utils as tests_utils
 
 
-class TestDefaultSecurityGroupRule(network_fakes.TestNetworkV2):
-    def setUp(self):
-        super().setUp()
-
-        self.app.client_manager.sdk_connection = mock.Mock()
-        self.app.client_manager.sdk_connection.network = mock.Mock(
-            spec=_proxy.Proxy,
-        )
-        self.sdk_client = self.app.client_manager.sdk_connection.network
-
-
-class TestCreateDefaultSecurityGroupRule(TestDefaultSecurityGroupRule):
+class TestCreateDefaultSecurityGroupRule(network_fakes.TestNetworkV2):
     expected_columns = (
         'description',
         'direction',
@@ -82,7 +70,7 @@ class TestCreateDefaultSecurityGroupRule(TestDefaultSecurityGroupRule):
             **default_security_group_rule_attrs,
         )
 
-        self.sdk_client.create_default_security_group_rule.return_value = (
+        self.network_client.create_default_security_group_rule.return_value = (
             self._default_sg_rule
         )
         self.expected_data = (
@@ -208,7 +196,7 @@ class TestCreateDefaultSecurityGroupRule(TestDefaultSecurityGroupRule):
 
         columns, data = self.cmd.take_action(parsed_args)
 
-        self.sdk_client.create_default_security_group_rule.assert_called_once_with(
+        self.network_client.create_default_security_group_rule.assert_called_once_with(
             **{
                 'direction': self._default_sg_rule.direction,
                 'ethertype': self._default_sg_rule.ether_type,
@@ -252,7 +240,7 @@ class TestCreateDefaultSecurityGroupRule(TestDefaultSecurityGroupRule):
 
         columns, data = self.cmd.take_action(parsed_args)
 
-        self.sdk_client.create_default_security_group_rule.assert_called_once_with(
+        self.network_client.create_default_security_group_rule.assert_called_once_with(
             **{
                 'direction': self._default_sg_rule.direction,
                 'ethertype': self._default_sg_rule.ether_type,
@@ -302,7 +290,7 @@ class TestCreateDefaultSecurityGroupRule(TestDefaultSecurityGroupRule):
 
         columns, data = self.cmd.take_action(parsed_args)
 
-        self.sdk_client.create_default_security_group_rule.assert_called_once_with(
+        self.network_client.create_default_security_group_rule.assert_called_once_with(
             **{
                 'direction': self._default_sg_rule.direction,
                 'ethertype': self._default_sg_rule.ether_type,
@@ -347,7 +335,7 @@ class TestCreateDefaultSecurityGroupRule(TestDefaultSecurityGroupRule):
 
         columns, data = self.cmd.take_action(parsed_args)
 
-        self.sdk_client.create_default_security_group_rule.assert_called_once_with(
+        self.network_client.create_default_security_group_rule.assert_called_once_with(
             **{
                 'direction': self._default_sg_rule.direction,
                 'ethertype': self._default_sg_rule.ether_type,
@@ -381,7 +369,7 @@ class TestCreateDefaultSecurityGroupRule(TestDefaultSecurityGroupRule):
 
         columns, data = self.cmd.take_action(parsed_args)
 
-        self.sdk_client.create_default_security_group_rule.assert_called_once_with(
+        self.network_client.create_default_security_group_rule.assert_called_once_with(
             **{
                 'direction': self._default_sg_rule.direction,
                 'ethertype': self._default_sg_rule.ether_type,
@@ -415,7 +403,7 @@ class TestCreateDefaultSecurityGroupRule(TestDefaultSecurityGroupRule):
 
         columns, data = self.cmd.take_action(parsed_args)
 
-        self.sdk_client.create_default_security_group_rule.assert_called_once_with(
+        self.network_client.create_default_security_group_rule.assert_called_once_with(
             **{
                 'direction': self._default_sg_rule.direction,
                 'ethertype': self._default_sg_rule.ether_type,
@@ -449,7 +437,7 @@ class TestCreateDefaultSecurityGroupRule(TestDefaultSecurityGroupRule):
 
         columns, data = self.cmd.take_action(parsed_args)
 
-        self.sdk_client.create_default_security_group_rule.assert_called_once_with(
+        self.network_client.create_default_security_group_rule.assert_called_once_with(
             **{
                 'direction': self._default_sg_rule.direction,
                 'ethertype': self._default_sg_rule.ether_type,
@@ -599,7 +587,7 @@ class TestCreateDefaultSecurityGroupRule(TestDefaultSecurityGroupRule):
 
         columns, data = self.cmd.take_action(parsed_args)
 
-        self.sdk_client.create_default_security_group_rule.assert_called_once_with(
+        self.network_client.create_default_security_group_rule.assert_called_once_with(
             **{
                 'direction': self._default_sg_rule.direction,
                 'ethertype': self._default_sg_rule.ether_type,
@@ -637,7 +625,7 @@ class TestCreateDefaultSecurityGroupRule(TestDefaultSecurityGroupRule):
 
         columns, data = self.cmd.take_action(parsed_args)
 
-        self.sdk_client.create_default_security_group_rule.assert_called_once_with(
+        self.network_client.create_default_security_group_rule.assert_called_once_with(
             **{
                 'direction': self._default_sg_rule.direction,
                 'ethertype': self._default_sg_rule.ether_type,
@@ -675,7 +663,7 @@ class TestCreateDefaultSecurityGroupRule(TestDefaultSecurityGroupRule):
 
         columns, data = self.cmd.take_action(parsed_args)
 
-        self.sdk_client.create_default_security_group_rule.assert_called_once_with(
+        self.network_client.create_default_security_group_rule.assert_called_once_with(
             **{
                 'direction': self._default_sg_rule.direction,
                 'ethertype': self._default_sg_rule.ether_type,
@@ -713,7 +701,7 @@ class TestCreateDefaultSecurityGroupRule(TestDefaultSecurityGroupRule):
 
         columns, data = self.cmd.take_action(parsed_args)
 
-        self.sdk_client.create_default_security_group_rule.assert_called_once_with(
+        self.network_client.create_default_security_group_rule.assert_called_once_with(
             **{
                 'direction': self._default_sg_rule.direction,
                 'ethertype': self._default_sg_rule.ether_type,
@@ -754,7 +742,7 @@ class TestCreateDefaultSecurityGroupRule(TestDefaultSecurityGroupRule):
 
         columns, data = self.cmd.take_action(parsed_args)
 
-        self.sdk_client.create_default_security_group_rule.assert_called_once_with(
+        self.network_client.create_default_security_group_rule.assert_called_once_with(
             **{
                 'direction': self._default_sg_rule.direction,
                 'ethertype': self._default_sg_rule.ether_type,
@@ -794,7 +782,7 @@ class TestCreateDefaultSecurityGroupRule(TestDefaultSecurityGroupRule):
 
         columns, data = self.cmd.take_action(parsed_args)
 
-        self.sdk_client.create_default_security_group_rule.assert_called_once_with(
+        self.network_client.create_default_security_group_rule.assert_called_once_with(
             **{
                 'direction': self._default_sg_rule.direction,
                 'ethertype': self._default_sg_rule.ether_type,
@@ -825,7 +813,7 @@ class TestCreateDefaultSecurityGroupRule(TestDefaultSecurityGroupRule):
 
         columns, data = self.cmd.take_action(parsed_args)
 
-        self.sdk_client.create_default_security_group_rule.assert_called_once_with(
+        self.network_client.create_default_security_group_rule.assert_called_once_with(
             **{
                 'description': self._default_sg_rule.description,
                 'direction': self._default_sg_rule.direction,
@@ -840,7 +828,7 @@ class TestCreateDefaultSecurityGroupRule(TestDefaultSecurityGroupRule):
         self.assertEqual(self.expected_data, data)
 
 
-class TestDeleteDefaultSecurityGroupRule(TestDefaultSecurityGroupRule):
+class TestDeleteDefaultSecurityGroupRule(network_fakes.TestNetworkV2):
     # The default security group rules to be deleted.
     default_security_group_rule_attrs = {
         'direction': 'ingress',
@@ -866,7 +854,9 @@ class TestDeleteDefaultSecurityGroupRule(TestDefaultSecurityGroupRule):
     def setUp(self):
         super().setUp()
 
-        self.sdk_client.delete_default_security_group_rule.return_value = None
+        self.network_client.delete_default_security_group_rule.return_value = (
+            None
+        )
 
         # Get the command object to test
         self.cmd = default_security_group_rule.DeleteDefaultSecurityGroupRule(
@@ -880,7 +870,7 @@ class TestDeleteDefaultSecurityGroupRule(TestDefaultSecurityGroupRule):
         verifylist = [
             ('rule', [self._default_sg_rules[0].id]),
         ]
-        self.sdk_client.find_default_security_group_rule.return_value = (
+        self.network_client.find_default_security_group_rule.return_value = (
             self._default_sg_rules[0]
         )
 
@@ -888,7 +878,7 @@ class TestDeleteDefaultSecurityGroupRule(TestDefaultSecurityGroupRule):
 
         result = self.cmd.take_action(parsed_args)
 
-        self.sdk_client.delete_default_security_group_rule.assert_called_once_with(
+        self.network_client.delete_default_security_group_rule.assert_called_once_with(
             self._default_sg_rules[0]
         )
         self.assertIsNone(result)
@@ -902,7 +892,7 @@ class TestDeleteDefaultSecurityGroupRule(TestDefaultSecurityGroupRule):
         verifylist = [
             ('rule', arglist),
         ]
-        self.sdk_client.find_default_security_group_rule.side_effect = (
+        self.network_client.find_default_security_group_rule.side_effect = (
             self._default_sg_rules
         )
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
@@ -912,7 +902,7 @@ class TestDeleteDefaultSecurityGroupRule(TestDefaultSecurityGroupRule):
         calls = []
         for s in self._default_sg_rules:
             calls.append(call(s))
-        self.sdk_client.delete_default_security_group_rule.assert_has_calls(
+        self.network_client.delete_default_security_group_rule.assert_has_calls(
             calls
         )
         self.assertIsNone(result)
@@ -931,7 +921,7 @@ class TestDeleteDefaultSecurityGroupRule(TestDefaultSecurityGroupRule):
             self._default_sg_rules[0],
             exceptions.CommandError,
         ]
-        self.sdk_client.find_default_security_group_rule = mock.Mock(
+        self.network_client.find_default_security_group_rule = mock.Mock(
             side_effect=find_mock_result
         )
 
@@ -941,18 +931,18 @@ class TestDeleteDefaultSecurityGroupRule(TestDefaultSecurityGroupRule):
         except exceptions.CommandError as e:
             self.assertEqual('1 of 2 default rules failed to delete.', str(e))
 
-        self.sdk_client.find_default_security_group_rule.assert_any_call(
+        self.network_client.find_default_security_group_rule.assert_any_call(
             self._default_sg_rules[0].id, ignore_missing=False
         )
-        self.sdk_client.find_default_security_group_rule.assert_any_call(
+        self.network_client.find_default_security_group_rule.assert_any_call(
             'unexist_rule', ignore_missing=False
         )
-        self.sdk_client.delete_default_security_group_rule.assert_called_once_with(
+        self.network_client.delete_default_security_group_rule.assert_called_once_with(
             self._default_sg_rules[0]
         )
 
 
-class TestListDefaultSecurityGroupRule(TestDefaultSecurityGroupRule):
+class TestListDefaultSecurityGroupRule(network_fakes.TestNetworkV2):
     # The security group rule to be listed.
     _default_sg_rule_tcp = sdk_fakes.generate_fake_resource(
         _default_security_group_rule.DefaultSecurityGroupRule,
@@ -1001,7 +991,7 @@ class TestListDefaultSecurityGroupRule(TestDefaultSecurityGroupRule):
     def setUp(self):
         super().setUp()
 
-        self.sdk_client.default_security_group_rules.return_value = (
+        self.network_client.default_security_group_rules.return_value = (
             self._default_sg_rules
         )
 
@@ -1016,7 +1006,7 @@ class TestListDefaultSecurityGroupRule(TestDefaultSecurityGroupRule):
 
         columns, data = self.cmd.take_action(parsed_args)
 
-        self.sdk_client.default_security_group_rules.assert_called_once_with(
+        self.network_client.default_security_group_rules.assert_called_once_with(
             **{}
         )
         self.assertEqual(self.expected_columns, columns)
@@ -1035,7 +1025,7 @@ class TestListDefaultSecurityGroupRule(TestDefaultSecurityGroupRule):
 
         columns, data = self.cmd.take_action(parsed_args)
 
-        self.sdk_client.default_security_group_rules.assert_called_once_with(
+        self.network_client.default_security_group_rules.assert_called_once_with(
             **{
                 'protocol': 'tcp',
             }
@@ -1055,7 +1045,7 @@ class TestListDefaultSecurityGroupRule(TestDefaultSecurityGroupRule):
 
         columns, data = self.cmd.take_action(parsed_args)
 
-        self.sdk_client.default_security_group_rules.assert_called_once_with(
+        self.network_client.default_security_group_rules.assert_called_once_with(
             **{
                 'direction': 'ingress',
             }
@@ -1075,7 +1065,7 @@ class TestListDefaultSecurityGroupRule(TestDefaultSecurityGroupRule):
 
         columns, data = self.cmd.take_action(parsed_args)
 
-        self.sdk_client.default_security_group_rules.assert_called_once_with(
+        self.network_client.default_security_group_rules.assert_called_once_with(
             **{
                 'direction': 'egress',
             }
@@ -1084,7 +1074,7 @@ class TestListDefaultSecurityGroupRule(TestDefaultSecurityGroupRule):
         self.assertEqual(self.expected_data, list(data))
 
 
-class TestShowDefaultSecurityGroupRule(TestDefaultSecurityGroupRule):
+class TestShowDefaultSecurityGroupRule(network_fakes.TestNetworkV2):
     # The default security group rule to be shown.
     _default_sg_rule = sdk_fakes.generate_fake_resource(
         _default_security_group_rule.DefaultSecurityGroupRule
@@ -1123,7 +1113,7 @@ class TestShowDefaultSecurityGroupRule(TestDefaultSecurityGroupRule):
     def setUp(self):
         super().setUp()
 
-        self.sdk_client.find_default_security_group_rule.return_value = (
+        self.network_client.find_default_security_group_rule.return_value = (
             self._default_sg_rule
         )
 
@@ -1148,7 +1138,7 @@ class TestShowDefaultSecurityGroupRule(TestDefaultSecurityGroupRule):
 
         columns, data = self.cmd.take_action(parsed_args)
 
-        self.sdk_client.find_default_security_group_rule.assert_called_once_with(
+        self.network_client.find_default_security_group_rule.assert_called_once_with(
             self._default_sg_rule.id, ignore_missing=False
         )
         self.assertEqual(self.columns, columns)
