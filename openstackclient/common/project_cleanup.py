@@ -90,17 +90,19 @@ class ProjectCleanup(command.Command):
         return parser
 
     def take_action(self, parsed_args):
-        sdk = self.app.client_manager.sdk_connection
+        connection = self.app.client_manager.sdk_connection
 
         if parsed_args.auth_project:
-            project_connect = sdk
+            # is we've got a project already configured, use the connection
+            # as-is
+            pass
         elif parsed_args.project:
-            project = sdk.identity.find_project(
+            project = connection.identity.find_project(
                 name_or_id=parsed_args.project, ignore_missing=False
             )
-            project_connect = sdk.connect_as_project(project)
+            connection = connection.connect_as_project(project)
 
-        if project_connect:
+        if connection:
             status_queue: queue.Queue[ty.Any] = queue.Queue()
             parsed_args.max_width = int(
                 os.environ.get('CLIFF_MAX_TERM_WIDTH', 0)
@@ -120,7 +122,7 @@ class ProjectCleanup(command.Command):
             if parsed_args.updated_before:
                 filters['updated_at'] = parsed_args.updated_before
 
-            project_connect.project_cleanup(
+            connection.project_cleanup(
                 dry_run=True,
                 status_queue=status_queue,
                 filters=filters,
@@ -150,7 +152,7 @@ class ProjectCleanup(command.Command):
 
             self.log.warning(_('Deleting resources'))
 
-            project_connect.project_cleanup(
+            connection.project_cleanup(
                 dry_run=False,
                 status_queue=status_queue,
                 filters=filters,

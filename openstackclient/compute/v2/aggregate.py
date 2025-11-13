@@ -438,15 +438,15 @@ class CacheImageForAggregate(command.Command):
             )
             raise exceptions.CommandError(msg)
 
+        image_client = self.app.client_manager.sdk_connection.image
+
         aggregate = compute_client.find_aggregate(
             parsed_args.aggregate, ignore_missing=False
         )
 
         images = []
         for img in parsed_args.image:
-            image = self.app.client_manager.sdk_connection.image.find_image(
-                img, ignore_missing=False
-            )
+            image = image_client.find_image(img, ignore_missing=False)
             images.append(image.id)
 
         compute_client.aggregate_precache_images(aggregate.id, images)
