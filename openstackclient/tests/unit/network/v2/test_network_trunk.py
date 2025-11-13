@@ -797,7 +797,9 @@ class TestSetNetworkTrunk(TestNetworkTrunk):
             exceptions.CommandError
         )
 
-        self.network_client.find_port.side_effect = [{'id': 'invalid_subport'}]
+        self.network_client.find_port.side_effect = [
+            network_fakes.create_one_port({'id': 'invalid_subport'})
+        ]
 
         with testtools.ExpectedException(exceptions.CommandError) as e:
             self.cmd.take_action(parsed_args)

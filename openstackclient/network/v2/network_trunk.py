@@ -119,7 +119,10 @@ class DeleteNetworkTrunk(command.Command):
         result = 0
         for trunk in parsed_args.trunk:
             try:
-                trunk_id = network_client.find_trunk(trunk).id
+                trunk_id = network_client.find_trunk(
+                    trunk,
+                    ignore_missing=False,
+                ).id
                 network_client.delete_trunk(trunk_id)
             except Exception as e:
                 result += 1
@@ -220,7 +223,10 @@ class SetNetworkTrunk(command.Command):
     def take_action(self, parsed_args):
         network_client = self.app.client_manager.network
         identity_client = self.app.client_manager.identity
-        trunk_id = network_client.find_trunk(parsed_args.trunk)
+        trunk_id = network_client.find_trunk(
+            parsed_args.trunk,
+            ignore_missing=False,
+        )
         attrs = _get_attrs_for_trunk(
             network_client, identity_client, parsed_args
         )
@@ -258,7 +264,10 @@ class ShowNetworkTrunk(command.ShowOne):
 
     def take_action(self, parsed_args):
         network_client = self.app.client_manager.network
-        trunk_id = network_client.find_trunk(parsed_args.trunk).id
+        trunk_id = network_client.find_trunk(
+            parsed_args.trunk,
+            ignore_missing=False,
+        ).id
         obj = network_client.get_trunk(trunk_id)
         display_columns, columns = _get_columns(obj)
         data = osc_utils.get_dict_properties(
@@ -282,7 +291,10 @@ class ListNetworkSubport(command.Lister):
 
     def take_action(self, parsed_args):
         network_client = self.app.client_manager.network
-        trunk_id = network_client.find_trunk(parsed_args.trunk)
+        trunk_id = network_client.find_trunk(
+            parsed_args.trunk,
+            ignore_missing=False,
+        )
         data = network_client.get_trunk_subports(trunk_id)
         headers: tuple[str, ...] = (
             'Port',
@@ -332,7 +344,10 @@ class UnsetNetworkTrunk(command.Command):
     def take_action(self, parsed_args):
         network_client = self.app.client_manager.network
         attrs = _get_attrs_for_subports(network_client, parsed_args)
-        trunk_id = network_client.find_trunk(parsed_args.trunk)
+        trunk_id = network_client.find_trunk(
+            parsed_args.trunk,
+            ignore_missing=False,
+        )
         network_client.delete_trunk_subports(trunk_id, attrs)
 
 
@@ -360,7 +375,10 @@ def _get_attrs_for_trunk(network_client, identity_client, parsed_args):
     if parsed_args.disable:
         attrs['admin_state_up'] = False
     if 'parent_port' in parsed_args and parsed_args.parent_port is not None:
-        port_id = network_client.find_port(parsed_args.parent_port)['id']
+        port_id = network_client.find_port(
+            parsed_args.parent_port,
+            ignore_missing=False,
+        ).id
         attrs['port_id'] = port_id
     if 'add_subports' in parsed_args and parsed_args.add_subports is not None:
         attrs[SUB_PORTS] = _format_subports(
@@ -384,7 +402,10 @@ def _format_subports(network_client, subports):
     for subport in subports:
         subport_attrs = {}
         if subport.get('port'):
-            port_id = network_client.find_port(subport['port'])['id']
+            port_id = network_client.find_port(
+                subport['port'],
+                ignore_missing=False,
+            ).id
             subport_attrs['port_id'] = port_id
         if subport.get('segmentation-id'):
             try:
@@ -413,11 +434,10 @@ def _get_attrs_for_subports(network_client, parsed_args):
     ):
         subports_list = []
         for subport in parsed_args.unset_subports:
-            port_id = network_client.find_port(subport)['id']
+            port_id = network_client.find_port(
+                subport,
+                ignore_missing=False,
+            )['id']
             subports_list.append({'port_id': port_id})
         attrs = subports_list
     return attrs
-
-
-def _get_id(client, id_or_name, resource):
-    return client.find_resource(resource, str(id_or_name))['id']

@@ -441,6 +441,7 @@ class ListUser(command.Lister):
         if parsed_args.domain:
             domain = identity_client.find_domain(
                 name_or_id=parsed_args.domain,
+                ignore_missing=False,
             ).id
 
         group = None

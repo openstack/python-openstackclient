@@ -453,7 +453,9 @@ class ShowVolumeBackup(command.ShowOne):
 
     def take_action(self, parsed_args):
         volume_client = self.app.client_manager.sdk_connection.volume
-        backup = volume_client.find_backup(parsed_args.backup)
+        backup = volume_client.find_backup(
+            parsed_args.backup, ignore_missing=False
+        )
         columns: tuple[str, ...] = (
             "availability_zone",
             "container",

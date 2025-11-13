@@ -89,7 +89,12 @@ def _get_columns(item):
 
 
 def is_multiple_gateways_supported(n_client):
-    return n_client.find_extension("external-gateway-multihoming") is not None
+    return (
+        n_client.find_extension(
+            "external-gateway-multihoming", ignore_missing=True
+        )
+        is not None
+    )
 
 
 def _passed_multiple_gateways(extension_supported, external_gateways):
@@ -236,7 +241,9 @@ def _get_attrs(client_manager, parsed_args):
 
     # "router set" command doesn't support setting flavor_id.
     if 'flavor_id' in parsed_args and parsed_args.flavor_id is not None:
-        flavor = n_client.find_flavor(parsed_args.flavor_id)
+        flavor = n_client.find_flavor(
+            parsed_args.flavor_id, ignore_missing=False
+        )
         attrs['flavor_id'] = flavor.id
     elif 'flavor' in parsed_args and parsed_args.flavor is not None:
         flavor = n_client.find_flavor(parsed_args.flavor, ignore_missing=False)

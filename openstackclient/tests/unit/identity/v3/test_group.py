@@ -253,7 +253,7 @@ class TestGroupCreate(identity_fakes.TestIdentityv3):
 
         columns, data = self.cmd.take_action(parsed_args)
         self.identity_sdk_client.find_group.assert_called_once_with(
-            self.group.name
+            self.group.name, ignore_missing=False
         )
         self.assertEqual(self.columns, columns)
         datalist = (
@@ -286,7 +286,9 @@ class TestGroupCreate(identity_fakes.TestIdentityv3):
 
         columns, data = self.cmd.take_action(parsed_args)
         self.identity_sdk_client.find_group.assert_called_once_with(
-            self.group_with_options.name, domain_id=self.domain.id
+            self.group_with_options.name,
+            domain_id=self.domain.id,
+            ignore_missing=False,
         )
         self.assertEqual(self.columns, columns)
         datalist = (

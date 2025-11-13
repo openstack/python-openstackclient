@@ -179,7 +179,9 @@ class CreateTrust(command.ShowOne):
         roles = []
         for role in parsed_args.roles:
             try:
-                role_id = identity_client.find_role(role).id
+                role_id = identity_client.find_role(
+                    role, ignore_missing=False
+                ).id
             except sdk_exceptions.ForbiddenException:
                 role_id = role
             roles.append({"id": role_id})

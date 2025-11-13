@@ -176,7 +176,7 @@ class TestCreateRouter(TestRouter):
 
         self.network_client.set_tags.return_value = None
         self.network_client.find_extension.side_effect = (
-            lambda name: self._extensions.get(name)
+            lambda name, ignore_missing=True: self._extensions.get(name)
         )
         # Get the command object to test
         self.cmd = router.CreateRouter(self.app, None)
@@ -1317,7 +1317,7 @@ class TestSetRouter(TestRouter):
 
         self.network_client.find_subnet.return_value = self._subnet
         self.network_client.find_extension.side_effect = (
-            lambda name: self._extensions.get(name)
+            lambda name, ignore_missing=True: self._extensions.get(name)
         )
         # Get the command object to test
         self.cmd = router.SetRouter(self.app, None)
@@ -1956,7 +1956,7 @@ class TestUnsetRouter(TestRouter):
         self.network_client.set_tags.return_value = None
         self._extensions = {'fake': network_fakes.create_one_extension()}
         self.network_client.find_extension.side_effect = (
-            lambda name: self._extensions.get(name)
+            lambda name, ignore_missing=True: self._extensions.get(name)
         )
         self.network_client.remove_external_gateways.return_value = None
 
@@ -2158,7 +2158,7 @@ class TestGatewayOps(TestRouter):
             )
         }
         self.network_client.find_extension.side_effect = (
-            lambda name: self._extensions.get(name)
+            lambda name, ignore_missing=True: self._extensions.get(name)
         )
         self.network_client.find_router.return_value = self._router
 

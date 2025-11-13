@@ -107,7 +107,9 @@ class CreateDomain(command.ShowOne):
             )
         except sdk_exceptions.ConflictException:
             if parsed_args.or_show:
-                domain = identity_client.find_domain(parsed_args.name)
+                domain = identity_client.find_domain(
+                    parsed_args.name, ignore_missing=False
+                )
                 LOG.info(_('Returning existing domain %s'), domain.name)
             else:
                 raise
@@ -238,7 +240,9 @@ class SetDomain(command.Command):
 
     def take_action(self, parsed_args):
         identity_client = self.app.client_manager.sdk_connection.identity
-        domain = identity_client.find_domain(parsed_args.domain)
+        domain = identity_client.find_domain(
+            parsed_args.domain, ignore_missing=False
+        )
         kwargs = {}
         if parsed_args.name:
             kwargs['name'] = parsed_args.name
@@ -266,6 +270,8 @@ class ShowDomain(command.ShowOne):
 
     def take_action(self, parsed_args):
         identity_client = self.app.client_manager.sdk_connection.identity
-        domain = identity_client.find_domain(parsed_args.domain)
+        domain = identity_client.find_domain(
+            parsed_args.domain, ignore_missing=False
+        )
 
         return _format_domain(domain)

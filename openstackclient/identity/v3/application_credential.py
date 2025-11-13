@@ -278,7 +278,7 @@ class DeleteApplicationCredential(command.Command):
         for ac in parsed_args.application_credential:
             try:
                 app_cred = identity_client.find_application_credential(
-                    user_id, ac
+                    user_id, ac, ignore_missing=False
                 )
                 identity_client.delete_application_credential(
                     user_id, app_cred.id
