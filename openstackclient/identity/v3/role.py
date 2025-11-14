@@ -82,32 +82,12 @@ def _add_identity_and_resource_options_to_parser(parser):
     common.add_inherited_option_to_parser(parser)
 
 
-def _find_sdk_id(
-    find_command, name_or_id, validate_actor_existence=True, **kwargs
-):
-    try:
-        resource = find_command(
-            name_or_id=name_or_id, ignore_missing=False, **kwargs
-        )
-
-    # Mimic the behavior of
-    # openstackclient.identity.common._find_identity_resource()
-    # and ignore if we don't have permission to find a resource.
-    except sdk_exc.ForbiddenException:
-        return name_or_id
-    except sdk_exc.ResourceNotFound as exc:
-        if not validate_actor_existence:
-            return name_or_id
-        raise exceptions.CommandError from exc
-    return resource.id
-
-
 def _process_identity_and_resource_options(
     parsed_args, identity_client, validate_actor_existence=True
 ):
     def _find_user():
         domain_id = (
-            _find_sdk_id(
+            common._find_sdk_id(
                 identity_client.find_domain,
                 name_or_id=parsed_args.user_domain,
                 validate_actor_existence=validate_actor_existence,
@@ -115,7 +95,7 @@ def _process_identity_and_resource_options(
             if parsed_args.user_domain
             else None
         )
-        return _find_sdk_id(
+        return common._find_sdk_id(
             identity_client.find_user,
             name_or_id=parsed_args.user,
             validate_actor_existence=validate_actor_existence,
@@ -124,7 +104,7 @@ def _process_identity_and_resource_options(
 
     def _find_group():
         domain_id = (
-            _find_sdk_id(
+            common._find_sdk_id(
                 identity_client.find_domain,
                 name_or_id=parsed_args.group_domain,
                 validate_actor_existence=validate_actor_existence,
@@ -132,7 +112,7 @@ def _process_identity_and_resource_options(
             if parsed_args.group_domain
             else None
         )
-        return _find_sdk_id(
+        return common._find_sdk_id(
             identity_client.find_group,
             name_or_id=parsed_args.group,
             validate_actor_existence=validate_actor_existence,
@@ -141,7 +121,7 @@ def _process_identity_and_resource_options(
 
     def _find_project():
         domain_id = (
-            _find_sdk_id(
+            common._find_sdk_id(
                 identity_client.find_domain,
                 name_or_id=parsed_args.project_domain,
                 validate_actor_existence=validate_actor_existence,
@@ -149,7 +129,7 @@ def _process_identity_and_resource_options(
             if parsed_args.project_domain
             else None
         )
-        return _find_sdk_id(
+        return common._find_sdk_id(
             identity_client.find_project,
             name_or_id=parsed_args.project,
             validate_actor_existence=validate_actor_existence,
@@ -162,7 +142,7 @@ def _process_identity_and_resource_options(
         kwargs['system'] = parsed_args.system
     elif parsed_args.user and parsed_args.domain:
         kwargs['user'] = _find_user()
-        kwargs['domain'] = _find_sdk_id(
+        kwargs['domain'] = common._find_sdk_id(
             identity_client.find_domain,
             name_or_id=parsed_args.domain,
             validate_actor_existence=validate_actor_existence,
@@ -175,7 +155,7 @@ def _process_identity_and_resource_options(
         kwargs['system'] = parsed_args.system
     elif parsed_args.group and parsed_args.domain:
         kwargs['group'] = _find_group()
-        kwargs['domain'] = _find_sdk_id(
+        kwargs['domain'] = common._find_sdk_id(
             identity_client.find_domain,
             name_or_id=parsed_args.domain,
             validate_actor_existence=validate_actor_existence,
@@ -228,10 +208,10 @@ class AddRole(command.Command):
 
         domain_id = None
         if parsed_args.role_domain:
-            domain_id = _find_sdk_id(
+            domain_id = common._find_sdk_id(
                 identity_client.find_domain, name_or_id=parsed_args.role_domain
             )
-        role = _find_sdk_id(
+        role = common._find_sdk_id(
             identity_client.find_role,
             name_or_id=parsed_args.role,
             domain_id=domain_id,
@@ -328,7 +308,7 @@ class CreateRole(command.ShowOne):
 
         create_kwargs = {}
         if parsed_args.domain:
-            create_kwargs['domain_id'] = _find_sdk_id(
+            create_kwargs['domain_id'] = common._find_sdk_id(
                 identity_client.find_domain, name_or_id=parsed_args.domain
             )
 
@@ -381,13 +361,13 @@ class DeleteRole(command.Command):
 
         domain_id = None
         if parsed_args.domain:
-            domain_id = _find_sdk_id(
+            domain_id = common._find_sdk_id(
                 identity_client.find_domain, parsed_args.domain
             )
         errors = 0
         for role in parsed_args.roles:
             try:
-                role_id = _find_sdk_id(
+                role_id = common._find_sdk_id(
                     identity_client.find_role,
                     name_or_id=role,
                     domain_id=domain_id,
@@ -482,11 +462,11 @@ class RemoveRole(command.Command):
 
         domain_id = None
         if parsed_args.role_domain:
-            domain_id = _find_sdk_id(
+            domain_id = common._find_sdk_id(
                 identity_client.find_domain,
                 name_or_id=parsed_args.role_domain,
             )
-        role = _find_sdk_id(
+        role = common._find_sdk_id(
             identity_client.find_role,
             name_or_id=parsed_args.role,
             domain_id=domain_id,
@@ -582,7 +562,7 @@ class SetRole(command.Command):
 
         domain_id = None
         if parsed_args.domain:
-            domain_id = _find_sdk_id(
+            domain_id = common._find_sdk_id(
                 identity_client.find_domain,
                 name_or_id=parsed_args.domain,
             )
@@ -591,7 +571,7 @@ class SetRole(command.Command):
         if parsed_args.immutable is not None:
             update_kwargs["options"] = {"immutable": parsed_args.immutable}
 
-        role = _find_sdk_id(
+        role = common._find_sdk_id(
             identity_client.find_role,
             name_or_id=parsed_args.role,
             domain_id=domain_id,
@@ -623,7 +603,7 @@ class ShowRole(command.ShowOne):
 
         domain_id = None
         if parsed_args.domain:
-            domain_id = _find_sdk_id(
+            domain_id = common._find_sdk_id(
                 identity_client.find_domain,
                 name_or_id=parsed_args.domain,
             )
