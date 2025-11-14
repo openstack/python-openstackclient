@@ -231,11 +231,22 @@ class ListEndpoint(command.Lister):
         endpoint = None
         if parsed_args.endpoint:
             endpoint = identity_client.find_endpoint(parsed_args.endpoint)
-        project = None
+
+        project_domain_id = None
+        if parsed_args.project_domain:
+            project_domain_id = common._find_sdk_id(
+                identity_client.find_domain,
+                name_or_id=parsed_args.project_domain,
+            )
+
+        project_id = None
         if parsed_args.project:
-            project = identity_client.find_project(
-                parsed_args.project,
-                parsed_args.project_domain,
+            project_id = common._find_sdk_id(
+                identity_client.find_project,
+                name_or_id=common._get_token_resource(
+                    identity_client, 'project', parsed_args.project
+                ),
+                domain_id=project_domain_id,
             )
 
         if endpoint:
@@ -273,9 +284,9 @@ class ListEndpoint(command.Lister):
                 region = identity_client.get_region(parsed_args.region)
                 kwargs['region_id'] = region.id
 
-            if project:
+            if project_id:
                 data = list(
-                    identity_client.project_endpoints(project=project.id)
+                    identity_client.project_endpoints(project=project_id)
                 )
             else:
                 data = list(identity_client.endpoints(**kwargs))
