@@ -88,9 +88,12 @@ class CreateNetworkTrunk(command.ShowOne):
         return parser
 
     def take_action(self, parsed_args):
-        client = self.app.client_manager.network
-        attrs = _get_attrs_for_trunk(self.app.client_manager, parsed_args)
-        obj = client.create_trunk(**attrs)
+        network_client = self.app.client_manager.network
+        identity_client = self.app.client_manager.identity
+        attrs = _get_attrs_for_trunk(
+            network_client, identity_client, parsed_args
+        )
+        obj = network_client.create_trunk(**attrs)
         display_columns, columns = _get_columns(obj)
         data = osc_utils.get_dict_properties(
             obj, columns, formatters=_formatters
@@ -112,12 +115,12 @@ class DeleteNetworkTrunk(command.Command):
         return parser
 
     def take_action(self, parsed_args):
-        client = self.app.client_manager.network
+        network_client = self.app.client_manager.network
         result = 0
         for trunk in parsed_args.trunk:
             try:
-                trunk_id = client.find_trunk(trunk).id
-                client.delete_trunk(trunk_id)
+                trunk_id = network_client.find_trunk(trunk).id
+                network_client.delete_trunk(trunk_id)
             except Exception as e:
                 result += 1
                 LOG.error(
@@ -150,8 +153,8 @@ class ListNetworkTrunk(command.Lister):
         return parser
 
     def take_action(self, parsed_args):
-        client = self.app.client_manager.network
-        data = client.trunks()
+        network_client = self.app.client_manager.network
+        data = network_client.trunks()
         headers: tuple[str, ...] = ('ID', 'Name', 'Parent Port', 'Description')
         columns: tuple[str, ...] = ('id', 'name', 'port_id', 'description')
         if parsed_args.long:
@@ -215,11 +218,14 @@ class SetNetworkTrunk(command.Command):
         return parser
 
     def take_action(self, parsed_args):
-        client = self.app.client_manager.network
-        trunk_id = client.find_trunk(parsed_args.trunk)
-        attrs = _get_attrs_for_trunk(self.app.client_manager, parsed_args)
+        network_client = self.app.client_manager.network
+        identity_client = self.app.client_manager.identity
+        trunk_id = network_client.find_trunk(parsed_args.trunk)
+        attrs = _get_attrs_for_trunk(
+            network_client, identity_client, parsed_args
+        )
         try:
-            client.update_trunk(trunk_id, **attrs)
+            network_client.update_trunk(trunk_id, **attrs)
         except Exception as e:
             msg = _("Failed to set trunk '%(t)s': %(e)s") % {
                 't': parsed_args.trunk,
@@ -228,10 +234,10 @@ class SetNetworkTrunk(command.Command):
             raise exceptions.CommandError(msg)
         if parsed_args.set_subports:
             subport_attrs = _get_attrs_for_subports(
-                self.app.client_manager, parsed_args
+                network_client, parsed_args
             )
             try:
-                client.add_trunk_subports(trunk_id, subport_attrs)
+                network_client.add_trunk_subports(trunk_id, subport_attrs)
             except Exception as e:
                 msg = _("Failed to add subports to trunk '%(t)s': %(e)s") % {
                     't': parsed_args.trunk,
@@ -251,9 +257,9 @@ class ShowNetworkTrunk(command.ShowOne):
         return parser
 
     def take_action(self, parsed_args):
-        client = self.app.client_manager.network
-        trunk_id = client.find_trunk(parsed_args.trunk).id
-        obj = client.get_trunk(trunk_id)
+        network_client = self.app.client_manager.network
+        trunk_id = network_client.find_trunk(parsed_args.trunk).id
+        obj = network_client.get_trunk(trunk_id)
         display_columns, columns = _get_columns(obj)
         data = osc_utils.get_dict_properties(
             obj, columns, formatters=_formatters
@@ -275,9 +281,9 @@ class ListNetworkSubport(command.Lister):
         return parser
 
     def take_action(self, parsed_args):
-        client = self.app.client_manager.network
-        trunk_id = client.find_trunk(parsed_args.trunk)
-        data = client.get_trunk_subports(trunk_id)
+        network_client = self.app.client_manager.network
+        trunk_id = network_client.find_trunk(parsed_args.trunk)
+        data = network_client.get_trunk_subports(trunk_id)
         headers: tuple[str, ...] = (
             'Port',
             'Segmentation Type',
@@ -324,10 +330,10 @@ class UnsetNetworkTrunk(command.Command):
         return parser
 
     def take_action(self, parsed_args):
-        client = self.app.client_manager.network
-        attrs = _get_attrs_for_subports(self.app.client_manager, parsed_args)
-        trunk_id = client.find_trunk(parsed_args.trunk)
-        client.delete_trunk_subports(trunk_id, attrs)
+        network_client = self.app.client_manager.network
+        attrs = _get_attrs_for_subports(network_client, parsed_args)
+        trunk_id = network_client.find_trunk(parsed_args.trunk)
+        network_client.delete_trunk_subports(trunk_id, attrs)
 
 
 _formatters = {
@@ -343,7 +349,7 @@ def _get_columns(item):
     )
 
 
-def _get_attrs_for_trunk(client_manager, parsed_args):
+def _get_attrs_for_trunk(network_client, identity_client, parsed_args):
     attrs: dict[str, ty.Any] = {}
     if parsed_args.name is not None:
         attrs['name'] = str(parsed_args.name)
@@ -354,18 +360,15 @@ def _get_attrs_for_trunk(client_manager, parsed_args):
     if parsed_args.disable:
         attrs['admin_state_up'] = False
     if 'parent_port' in parsed_args and parsed_args.parent_port is not None:
-        port_id = client_manager.network.find_port(parsed_args.parent_port)[
-            'id'
-        ]
+        port_id = network_client.find_port(parsed_args.parent_port)['id']
         attrs['port_id'] = port_id
     if 'add_subports' in parsed_args and parsed_args.add_subports is not None:
         attrs[SUB_PORTS] = _format_subports(
-            client_manager, parsed_args.add_subports
+            network_client, parsed_args.add_subports
         )
 
     # "trunk set" command doesn't support setting project.
     if 'project' in parsed_args and parsed_args.project is not None:
-        identity_client = client_manager.identity
         project_id = identity_utils.find_project(
             identity_client,
             parsed_args.project,
@@ -376,12 +379,12 @@ def _get_attrs_for_trunk(client_manager, parsed_args):
     return attrs
 
 
-def _format_subports(client_manager, subports):
+def _format_subports(network_client, subports):
     attrs = []
     for subport in subports:
         subport_attrs = {}
         if subport.get('port'):
-            port_id = client_manager.network.find_port(subport['port'])['id']
+            port_id = network_client.find_port(subport['port'])['id']
             subport_attrs['port_id'] = port_id
         if subport.get('segmentation-id'):
             try:
@@ -400,17 +403,17 @@ def _format_subports(client_manager, subports):
     return attrs
 
 
-def _get_attrs_for_subports(client_manager, parsed_args):
+def _get_attrs_for_subports(network_client, parsed_args):
     attrs = []
     if 'set_subports' in parsed_args and parsed_args.set_subports is not None:
-        attrs = _format_subports(client_manager, parsed_args.set_subports)
+        attrs = _format_subports(network_client, parsed_args.set_subports)
     if (
         'unset_subports' in parsed_args
         and parsed_args.unset_subports is not None
     ):
         subports_list = []
         for subport in parsed_args.unset_subports:
-            port_id = client_manager.network.find_port(subport)['id']
+            port_id = network_client.find_port(subport)['id']
             subports_list.append({'port_id': port_id})
         attrs = subports_list
     return attrs
