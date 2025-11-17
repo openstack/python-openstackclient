@@ -15,8 +15,6 @@
 
 from unittest import mock
 
-from osc_lib import exceptions
-
 from openstack import exceptions as sdk_exc
 from openstack.identity.v3 import domain as _domain
 from openstack.identity.v3 import group as _group
@@ -25,94 +23,15 @@ from openstack.identity.v3 import role as _role
 from openstack.identity.v3 import system as _system
 from openstack.identity.v3 import user as _user
 from openstack.test import fakes as sdk_fakes
+from osc_lib import exceptions
 
 from openstackclient.identity.v3 import role
 from openstackclient.tests.unit.identity.v3 import fakes as identity_fakes
-from openstackclient.tests.unit import utils as test_utils
 
 
 class TestRoleInherited(identity_fakes.TestIdentityv3):
     def _is_inheritance_testcase(self):
         return True
-
-
-class TestFindSDKId(test_utils.TestCase):
-    def setUp(self):
-        super().setUp()
-        self.user = sdk_fakes.generate_fake_resource(_user.User)
-        self.identity_sdk_client = mock.Mock()
-        self.identity_sdk_client.find_user = mock.Mock()
-
-    def test_find_sdk_id_validate(self):
-        self.identity_sdk_client.find_user.side_effect = [self.user]
-
-        result = role._find_sdk_id(
-            self.identity_sdk_client.find_user,
-            name_or_id=self.user.id,
-            validate_actor_existence=True,
-        )
-        self.assertEqual(self.user.id, result)
-
-    def test_find_sdk_id_no_validate(self):
-        self.identity_sdk_client.find_user.side_effect = [self.user]
-
-        result = role._find_sdk_id(
-            self.identity_sdk_client.find_user,
-            name_or_id=self.user.id,
-            validate_actor_existence=False,
-        )
-        self.assertEqual(self.user.id, result)
-
-    def test_find_sdk_id_not_found_validate(self):
-        self.identity_sdk_client.find_user.side_effect = [
-            sdk_exc.ResourceNotFound,
-        ]
-
-        self.assertRaises(
-            exceptions.CommandError,
-            role._find_sdk_id,
-            self.identity_sdk_client.find_user,
-            name_or_id=self.user.id,
-            validate_actor_existence=True,
-        )
-
-    def test_find_sdk_id_not_found_no_validate(self):
-        self.identity_sdk_client.find_user.side_effect = [
-            sdk_exc.ResourceNotFound,
-        ]
-
-        result = role._find_sdk_id(
-            self.identity_sdk_client.find_user,
-            name_or_id=self.user.id,
-            validate_actor_existence=False,
-        )
-        self.assertEqual(self.user.id, result)
-
-    def test_find_sdk_id_forbidden_validate(self):
-        self.identity_sdk_client.find_user.side_effect = [
-            sdk_exc.ForbiddenException,
-        ]
-
-        result = role._find_sdk_id(
-            self.identity_sdk_client.find_user,
-            name_or_id=self.user.id,
-            validate_actor_existence=True,
-        )
-
-        self.assertEqual(self.user.id, result)
-
-    def test_find_sdk_id_forbidden_no_validate(self):
-        self.identity_sdk_client.find_user.side_effect = [
-            sdk_exc.ForbiddenException,
-        ]
-
-        result = role._find_sdk_id(
-            self.identity_sdk_client.find_user,
-            name_or_id=self.user.id,
-            validate_actor_existence=False,
-        )
-
-        self.assertEqual(self.user.id, result)
 
 
 class TestRoleAdd(identity_fakes.TestIdentityv3):

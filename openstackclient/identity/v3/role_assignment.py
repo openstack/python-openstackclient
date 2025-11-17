@@ -13,7 +13,6 @@
 
 """Identity v3 Assignment action implementations"""
 
-from openstack import exceptions as sdk_exceptions
 from osc_lib.command import command
 
 from openstackclient.i18n import _
@@ -49,15 +48,6 @@ def _format_role_assignment_(assignment, include_names):
         'all' if assignment.scope.get("system") else '',
         assignment.scope.get("OS-INHERIT:inherited_to") == 'projects',
     )
-
-
-def _find_sdk_id(find_command, name_or_id, **kwargs):
-    try:
-        return find_command(
-            name_or_id=name_or_id, ignore_missing=False, **kwargs
-        ).id
-    except sdk_exceptions.ForbiddenException:
-        return name_or_id
 
 
 class ListRoleAssignment(command.Lister):
@@ -135,12 +125,12 @@ class ListRoleAssignment(command.Lister):
         role_id = None
         role_domain_id = None
         if parsed_args.role_domain:
-            role_domain_id = _find_sdk_id(
+            role_domain_id = common._find_sdk_id(
                 identity_client.find_domain,
                 name_or_id=parsed_args.role_domain,
             )
         if parsed_args.role:
-            role_id = _find_sdk_id(
+            role_id = common._find_sdk_id(
                 identity_client.find_role,
                 name_or_id=parsed_args.role,
                 domain_id=role_domain_id,
@@ -148,21 +138,21 @@ class ListRoleAssignment(command.Lister):
 
         user_domain_id = None
         if parsed_args.user_domain:
-            user_domain_id = _find_sdk_id(
+            user_domain_id = common._find_sdk_id(
                 identity_client.find_domain,
                 name_or_id=parsed_args.user_domain,
             )
 
         user_id = None
         if parsed_args.user:
-            user_id = _find_sdk_id(
+            user_id = common._find_sdk_id(
                 identity_client.find_user,
                 name_or_id=parsed_args.user,
                 domain_id=user_domain_id,
             )
         elif parsed_args.authuser:
             if auth_ref:
-                user_id = _find_sdk_id(
+                user_id = common._find_sdk_id(
                     identity_client.find_user,
                     name_or_id=auth_ref.user_id,
                 )
@@ -173,21 +163,21 @@ class ListRoleAssignment(command.Lister):
 
         domain_id = None
         if parsed_args.domain:
-            domain_id = _find_sdk_id(
+            domain_id = common._find_sdk_id(
                 identity_client.find_domain,
                 name_or_id=parsed_args.domain,
             )
 
         project_domain_id = None
         if parsed_args.project_domain:
-            project_domain_id = _find_sdk_id(
+            project_domain_id = common._find_sdk_id(
                 identity_client.find_domain,
                 name_or_id=parsed_args.project_domain,
             )
 
         project_id = None
         if parsed_args.project:
-            project_id = _find_sdk_id(
+            project_id = common._find_sdk_id(
                 identity_client.find_project,
                 name_or_id=common._get_token_resource(
                     identity_client, 'project', parsed_args.project
@@ -196,21 +186,21 @@ class ListRoleAssignment(command.Lister):
             )
         elif parsed_args.authproject:
             if auth_ref:
-                project_id = _find_sdk_id(
+                project_id = common._find_sdk_id(
                     identity_client.find_project,
                     name_or_id=auth_ref.project_id,
                 )
 
         group_domain_id = None
         if parsed_args.group_domain:
-            group_domain_id = _find_sdk_id(
+            group_domain_id = common._find_sdk_id(
                 identity_client.find_domain,
                 name_or_id=parsed_args.group_domain,
             )
 
         group_id = None
         if parsed_args.group:
-            group_id = _find_sdk_id(
+            group_id = common._find_sdk_id(
                 identity_client.find_group,
                 name_or_id=parsed_args.group,
                 domain_id=group_domain_id,
