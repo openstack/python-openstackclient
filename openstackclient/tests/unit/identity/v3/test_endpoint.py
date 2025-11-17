@@ -678,7 +678,7 @@ class TestEndpointShow(identity_fakes.TestIdentityv3):
         # data to be shown.
         columns, data = self.cmd.take_action(parsed_args)
         self.identity_sdk_client.find_endpoint.assert_called_with(
-            self.endpoint.id,
+            self.endpoint.id, ignore_missing=False
         )
 
         collist = (

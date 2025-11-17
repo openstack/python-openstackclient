@@ -211,10 +211,15 @@ class CreateGroup(command.ShowOne):
             if parsed_args.or_show:
                 if parsed_args.domain:
                     group = identity_client.find_group(
-                        parsed_args.name, domain_id=parsed_args.domain
+                        parsed_args.name,
+                        domain_id=parsed_args.domain,
+                        ignore_missing=False,
                     )
                 else:
-                    group = identity_client.find_group(parsed_args.name)
+                    group = identity_client.find_group(
+                        parsed_args.name,
+                        ignore_missing=False,
+                    )
                 LOG.info(_('Returning existing group %s'), group.name)
             else:
                 raise

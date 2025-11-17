@@ -2180,7 +2180,9 @@ class CreateServerDump(command.Command):
     def take_action(self, parsed_args):
         compute_client = self.app.client_manager.compute
         for name_or_id in parsed_args.server:
-            server = compute_client.find_server(name_or_id)
+            server = compute_client.find_server(
+                name_or_id, ignore_missing=False
+            )
             server.trigger_crash_dump(compute_client)
 
 

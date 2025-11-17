@@ -169,7 +169,9 @@ class DeleteEndpoint(command.Command):
         result = 0
         for i in parsed_args.endpoint:
             try:
-                endpoint_id = identity_client.find_endpoint(i).id
+                endpoint_id = identity_client.find_endpoint(
+                    i, ignore_missing=False
+                ).id
                 identity_client.delete_endpoint(endpoint_id)
             except Exception as e:
                 result += 1
@@ -230,7 +232,9 @@ class ListEndpoint(command.Lister):
 
         endpoint = None
         if parsed_args.endpoint:
-            endpoint = identity_client.find_endpoint(parsed_args.endpoint)
+            endpoint = identity_client.find_endpoint(
+                parsed_args.endpoint, ignore_missing=False
+            )
 
         project_domain_id = None
         if parsed_args.project_domain:
@@ -292,7 +296,9 @@ class ListEndpoint(command.Lister):
                 data = list(identity_client.endpoints(**kwargs))
 
             for ep in data:
-                service = identity_client.find_service(ep.service_id)
+                service = identity_client.find_service(
+                    ep.service_id, ignore_missing=False
+                )
                 ep.service_name = getattr(service, 'name', '')
                 ep.service_type = service.type
 
@@ -393,7 +399,9 @@ class SetEndpoint(command.Command):
 
     def take_action(self, parsed_args):
         identity_client = self.app.client_manager.sdk_connection.identity
-        endpoint = identity_client.find_endpoint(parsed_args.endpoint)
+        endpoint = identity_client.find_endpoint(
+            parsed_args.endpoint, ignore_missing=False
+        )
 
         kwargs = {}
 
@@ -440,7 +448,9 @@ class ShowEndpoint(command.ShowOne):
 
     def take_action(self, parsed_args):
         identity_client = self.app.client_manager.sdk_connection.identity
-        endpoint = identity_client.find_endpoint(parsed_args.endpoint)
+        endpoint = identity_client.find_endpoint(
+            parsed_args.endpoint, ignore_missing=False
+        )
 
         service = common.find_service_sdk(identity_client, endpoint.service_id)
 

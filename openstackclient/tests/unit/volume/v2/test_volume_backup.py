@@ -565,7 +565,9 @@ class TestBackupShow(volume_fakes.TestVolume):
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
         columns, data = self.cmd.take_action(parsed_args)
-        self.volume_sdk_client.find_backup.assert_called_with(self.backup.id)
+        self.volume_sdk_client.find_backup.assert_called_with(
+            self.backup.id, ignore_missing=False
+        )
 
         self.assertEqual(self.columns, columns)
         self.assertEqual(self.data, data)

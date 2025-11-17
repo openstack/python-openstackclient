@@ -302,7 +302,7 @@ class TestApplicationCredentialDelete(identity_fakes.TestIdentityv3):
 
         calls = []
         for a in arglist:
-            calls.append(call(user_id, a))
+            calls.append(call(user_id, a, ignore_missing=False))
 
         self.identity_sdk_client.find_application_credential.assert_has_calls(
             calls

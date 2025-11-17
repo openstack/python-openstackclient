@@ -520,7 +520,7 @@ class TestDomainShow(identity_fakes.TestIdentityv3):
         # data to be shown.
         columns, data = self.cmd.take_action(parsed_args)
         self.identity_sdk_client.find_domain.assert_called_with(
-            self.domain.id,
+            self.domain.id, ignore_missing=False
         )
 
         self.assertEqual(self.columns, columns)

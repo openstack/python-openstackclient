@@ -636,11 +636,11 @@ class CreatePort(command.ShowOne, common.NeutronCommandWithExtraArgs):
         return parser
 
     def take_action(self, parsed_args):
-        client = self.app.client_manager.network
-        _network = client.find_network(
+        network_client = self.app.client_manager.network
+        network = network_client.find_network(
             parsed_args.network, ignore_missing=False
         )
-        parsed_args.network = _network.id
+        parsed_args.network = network.id
         _prepare_fixed_ips(self.app.client_manager, parsed_args)
         attrs = _get_attrs(self.app.client_manager, parsed_args)
 
@@ -654,7 +654,7 @@ class CreatePort(command.ShowOne, common.NeutronCommandWithExtraArgs):
 
         if parsed_args.security_groups is not None:
             attrs['security_group_ids'] = [
-                client.find_security_group(sg, ignore_missing=False).id
+                network_client.find_security_group(sg, ignore_missing=False).id
                 for sg in parsed_args.security_groups
             ]
 
@@ -667,7 +667,7 @@ class CreatePort(command.ShowOne, common.NeutronCommandWithExtraArgs):
             attrs["extra_dhcp_opts"] = _convert_extra_dhcp_options(parsed_args)
 
         if parsed_args.qos_policy:
-            attrs['qos_policy_id'] = client.find_qos_policy(
+            attrs['qos_policy_id'] = network_client.find_qos_policy(
                 parsed_args.qos_policy, ignore_missing=False
             ).id
 
@@ -675,7 +675,9 @@ class CreatePort(command.ShowOne, common.NeutronCommandWithExtraArgs):
             _validate_port_hints(parsed_args.hint)
             expanded_hints = _expand_port_hint_aliases(parsed_args.hint)
             try:
-                client.find_extension('port-hints', ignore_missing=False)
+                network_client.find_extension(
+                    'port-hints', ignore_missing=False
+                )
             except Exception as e:
                 msg = _('Not supported by Network API: %(e)s') % {'e': e}
                 raise exceptions.CommandError(msg)
@@ -686,7 +688,7 @@ class CreatePort(command.ShowOne, common.NeutronCommandWithExtraArgs):
                 in expanded_hints['openvswitch']['other_config']
             ):
                 try:
-                    client.find_extension(
+                    network_client.find_extension(
                         'port-hint-ovs-tx-steering', ignore_missing=False
                     )
                 except Exception as e:
@@ -695,7 +697,9 @@ class CreatePort(command.ShowOne, common.NeutronCommandWithExtraArgs):
             attrs['hints'] = expanded_hints
 
         set_tags_in_post = bool(
-            client.find_extension('tag-ports-during-bulk-creation')
+            network_client.find_extension(
+                'tag-ports-during-bulk-creation', ignore_missing=True
+            )
         )
         if set_tags_in_post:
             if parsed_args.no_tag:
@@ -707,14 +711,12 @@ class CreatePort(command.ShowOne, common.NeutronCommandWithExtraArgs):
             self._parse_extra_properties(parsed_args.extra_properties)
         )
 
-        with common.check_missing_extension_if_error(
-            self.app.client_manager.network, attrs
-        ):
-            obj = client.create_port(**attrs)
+        with common.check_missing_extension_if_error(network_client, attrs):
+            obj = network_client.create_port(**attrs)
 
         if not set_tags_in_post:
             # tags cannot be set when created, so tags need to be set later.
-            _tag.update_tags_for_set(client, obj, parsed_args)
+            _tag.update_tags_for_set(network_client, obj, parsed_args)
 
         display_columns, columns = _get_columns(obj)
         data = utils.get_item_properties(obj, columns, formatters=_formatters)
