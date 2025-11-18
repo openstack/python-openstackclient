@@ -168,7 +168,7 @@ class TestRegisteredLimitDelete(TestRegisteredLimit):
 
         arglist = [identity_fakes.registered_limit_id]
         verifylist = [
-            ('registered_limit_id', [identity_fakes.registered_limit_id])
+            ('registered_limits', [identity_fakes.registered_limit_id])
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
@@ -184,7 +184,7 @@ class TestRegisteredLimitDelete(TestRegisteredLimit):
         self.registered_limit_mock.delete.side_effect = return_value
 
         arglist = ['fake-registered-limit-id']
-        verifylist = [('registered_limit_id', ['fake-registered-limit-id'])]
+        verifylist = [('registered_limits', ['fake-registered-limit-id'])]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
         try:
