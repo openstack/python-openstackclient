@@ -150,18 +150,21 @@ class ListLocalIPAssociation(command.Lister):
             '--fixed-port',
             metavar='<fixed-port>',
             help=_(
-                "Filter the list result by the ID or name of the fixed port"
+                "List only local IP assocations with the specified fixed IP "
+                "port (name or ID)"
             ),
         )
         parser.add_argument(
             '--fixed-ip',
             metavar='<fixed-ip>',
-            help=_("Filter the list result by fixed ip"),
+            help=_(
+                "List only local IP associations with the specified fixed IP"
+            ),
         )
         parser.add_argument(
             '--host',
             metavar='<host>',
-            help=_("Filter the list result by given host"),
+            help=_("List only local IP associations with the specified host"),
         )
         identity_common.add_project_domain_option_to_parser(parser)
 

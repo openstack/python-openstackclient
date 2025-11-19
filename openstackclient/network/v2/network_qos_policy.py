@@ -190,7 +190,8 @@ class ListNetworkQosPolicy(command.Lister):
             '--project',
             metavar='<project>',
             help=_(
-                "List QoS policies according to their project (name or ID)"
+                "List only QoS policies with the specified project "
+                "(name or ID)"
             ),
         )
         identity_common.add_project_domain_option_to_parser(parser)
@@ -198,12 +199,12 @@ class ListNetworkQosPolicy(command.Lister):
         shared_group.add_argument(
             '--share',
             action='store_true',
-            help=_("List QoS policies shared between projects"),
+            help=_("List only QoS policies shared between projects"),
         )
         shared_group.add_argument(
             '--no-share',
             action='store_true',
-            help=_("List QoS policies not shared between projects"),
+            help=_("List only QoS policies not shared between projects"),
         )
         return parser
 

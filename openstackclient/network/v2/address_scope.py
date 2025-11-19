@@ -160,7 +160,7 @@ class ListAddressScope(command.Lister):
         parser.add_argument(
             '--name',
             metavar='<name>',
-            help=_("List only address scopes of given name in output"),
+            help=_("List only address scopes with the specified name"),
         )
         parser.add_argument(
             '--ip-version',
@@ -169,14 +169,16 @@ class ListAddressScope(command.Lister):
             metavar='<ip-version>',
             dest='ip_version',
             help=_(
-                "List address scopes of given IP version networks (4 or 6)"
+                "List only address scopes with the specified IP version "
+                "networks (4 or 6)"
             ),
         )
         parser.add_argument(
             '--project',
             metavar="<project>",
             help=_(
-                "List address scopes according to their project (name or ID)"
+                "List only address scopes with the specified project "
+                "(name or ID)"
             ),
         )
         identity_common.add_project_domain_option_to_parser(parser)
@@ -185,12 +187,12 @@ class ListAddressScope(command.Lister):
         shared_group.add_argument(
             '--share',
             action='store_true',
-            help=_("List address scopes shared between projects"),
+            help=_("List only address scopes shared between projects"),
         )
         shared_group.add_argument(
             '--no-share',
             action='store_true',
-            help=_("List address scopes not shared between projects"),
+            help=_("List only address scopes not shared between projects"),
         )
         return parser
 

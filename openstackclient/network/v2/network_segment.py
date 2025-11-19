@@ -160,7 +160,7 @@ class ListNetworkSegment(command.Lister):
             '--network',
             metavar='<network>',
             help=_(
-                'List network segments that belong to this '
+                'List only network segments associated with the specified '
                 'network (name or ID)'
             ),
         )

@@ -246,7 +246,10 @@ class ListSecurityGroup(common.NetworkAndComputeLister):
             '--project',
             metavar='<project>',
             help=self.enhance_help_neutron(
-                _("List security groups according to the project (name or ID)")
+                _(
+                    "List only security groups with the specified project "
+                    "(name or ID)"
+                )
             ),
         )
         identity_common.add_project_domain_option_to_parser(
@@ -259,14 +262,14 @@ class ListSecurityGroup(common.NetworkAndComputeLister):
             action='store_true',
             dest='shared',
             default=None,
-            help=_("List security groups shared between projects"),
+            help=_("List only security groups shared between projects"),
         )
         shared_group.add_argument(
             '--no-share',
             action='store_false',
             dest='shared',
             default=None,
-            help=_("List security groups not shared between projects"),
+            help=_("List only security groups not shared between projects"),
         )
 
         _tag.add_tag_filtering_option_to_parser(

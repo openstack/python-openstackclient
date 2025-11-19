@@ -469,12 +469,12 @@ class ListNetwork(common.NetworkAndComputeLister):
         router_ext_group.add_argument(
             '--external',
             action='store_true',
-            help=self.enhance_help_neutron(_("List external networks")),
+            help=self.enhance_help_neutron(_("List only external networks")),
         )
         router_ext_group.add_argument(
             '--internal',
             action='store_true',
-            help=self.enhance_help_neutron(_("List internal networks")),
+            help=self.enhance_help_neutron(_("List only internal networks")),
         )
         parser.add_argument(
             '--long',
@@ -487,24 +487,26 @@ class ListNetwork(common.NetworkAndComputeLister):
             '--name',
             metavar='<name>',
             help=self.enhance_help_neutron(
-                _("List networks according to their name")
+                _("List only networks with the specified name")
             ),
         )
         admin_state_group = parser.add_mutually_exclusive_group()
         admin_state_group.add_argument(
             '--enable',
             action='store_true',
-            help=self.enhance_help_neutron(_("List enabled networks")),
+            help=self.enhance_help_neutron(_("List only enabled networks")),
         )
         admin_state_group.add_argument(
             '--disable',
             action='store_true',
-            help=self.enhance_help_neutron(_("List disabled networks")),
+            help=self.enhance_help_neutron(_("List only disabled networks")),
         )
         parser.add_argument(
             '--project',
             metavar='<project>',
-            help=_("List networks according to their project (name or ID)"),
+            help=_(
+                "List only networks with the specified project (name or ID)"
+            ),
         )
         identity_common.add_project_domain_option_to_parser(
             parser, enhance_help=self.enhance_help_neutron
@@ -514,14 +516,14 @@ class ListNetwork(common.NetworkAndComputeLister):
             '--share',
             action='store_true',
             help=self.enhance_help_neutron(
-                _("List networks shared between projects")
+                _("List only networks shared between projects")
             ),
         )
         shared_group.add_argument(
             '--no-share',
             action='store_true',
             help=self.enhance_help_neutron(
-                _("List networks not shared between projects")
+                _("List only networks not shared between projects")
             ),
         )
         parser.add_argument(
@@ -530,7 +532,7 @@ class ListNetwork(common.NetworkAndComputeLister):
             choices=['ACTIVE', 'BUILD', 'DOWN', 'ERROR'],
             help=self.enhance_help_neutron(
                 _(
-                    "List networks according to their status "
+                    "List only networks with the specified status "
                     "('ACTIVE', 'BUILD', 'DOWN', 'ERROR')"
                 )
             ),
@@ -541,7 +543,8 @@ class ListNetwork(common.NetworkAndComputeLister):
             choices=['flat', 'geneve', 'gre', 'local', 'vlan', 'vxlan'],
             help=self.enhance_help_neutron(
                 _(
-                    "List networks according to their physical mechanisms. "
+                    "List only networks with the specified physical "
+                    "mechanisms. "
                     "The supported options are: flat, geneve, gre, local, "
                     "vlan and vxlan."
                 )
@@ -552,7 +555,10 @@ class ListNetwork(common.NetworkAndComputeLister):
             metavar='<provider-physical-network>',
             dest='physical_network',
             help=self.enhance_help_neutron(
-                _("List networks according to name of the physical network")
+                _(
+                    "List only networks with the specified physical network "
+                    "name"
+                )
             ),
         )
         parser.add_argument(
@@ -561,8 +567,9 @@ class ListNetwork(common.NetworkAndComputeLister):
             dest='segmentation_id',
             help=self.enhance_help_neutron(
                 _(
-                    "List networks according to VLAN ID for VLAN networks or "
-                    "Tunnel ID for GENEVE/GRE/VXLAN networks"
+                    "List only networks with the specified provider segment "
+                    "ID (VLAN ID for VLAN networks or "
+                    "Tunnel ID for GENEVE/GRE/VXLAN networks)"
                 )
             ),
         )
@@ -571,7 +578,7 @@ class ListNetwork(common.NetworkAndComputeLister):
             metavar='<agent-id>',
             dest='agent_id',
             help=self.enhance_help_neutron(
-                _('List networks hosted by agent (ID only)')
+                _('List only networks hosted the specified agent (ID only)')
             ),
         )
         _tag.add_tag_filtering_option_to_parser(

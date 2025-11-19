@@ -198,32 +198,38 @@ class ListLocalIP(command.Lister):
         parser.add_argument(
             '--name',
             metavar='<name>',
-            help=_("List only Local IPs of given name in output"),
+            help=_("List only local IP(s) with the specified name"),
         )
         parser.add_argument(
             '--project',
             metavar="<project>",
-            help=_("List Local IPs according to their project (name or ID)"),
+            help=_(
+                "List only local IP(s) with the specified project (name or ID)"
+            ),
         )
         parser.add_argument(
             '--network',
             metavar='<network>',
-            help=_("List Local IP(s) according to given network (name or ID)"),
+            help=_(
+                "List only local IP(s) with the specified network (name or ID)"
+            ),
         )
         parser.add_argument(
             '--local-port',
             metavar='<local-port>',
-            help=_("List Local IP(s) according to given port (name or ID)"),
+            help=_(
+                "List only local IP(s) with the specified port (name or ID)"
+            ),
         )
         parser.add_argument(
             '--local-ip-address',
             metavar='<local-ip-address>',
-            help=_("List Local IP(s) according to given Local IP Address"),
+            help=_("List only local IP(s) with the specified IP address"),
         )
         parser.add_argument(
             '--ip-mode',
             metavar='<ip_mode>',
-            help=_("List Local IP(s) according to given IP mode"),
+            help=_("List only local IP(s) with the specified IP mode"),
         )
 
         identity_common.add_project_domain_option_to_parser(parser)

@@ -247,7 +247,7 @@ class ListFloatingIP(common.NetworkAndComputeLister):
             action='append',
             help=self.enhance_help_neutron(
                 _(
-                    "List floating IP(s) according to given network "
+                    "List only floating IP(s) with the specified network "
                     "(name or ID) "
                     "(repeat option to fiter on multiple networks)"
                 )
@@ -260,7 +260,8 @@ class ListFloatingIP(common.NetworkAndComputeLister):
             action='append',
             help=self.enhance_help_neutron(
                 _(
-                    "List floating IP(s) according to given port (name or ID) "
+                    "List only floating IP(s) with the specified port "
+                    "(name or ID) "
                     "(repeat option to fiter on multiple ports)"
                 )
             ),
@@ -269,14 +270,20 @@ class ListFloatingIP(common.NetworkAndComputeLister):
             '--fixed-ip-address',
             metavar='<ip-address>',
             help=self.enhance_help_neutron(
-                _("List floating IP(s) according to given fixed IP address")
+                _(
+                    "List only floating IP(s) with the specified fixed IP "
+                    "address"
+                )
             ),
         )
         parser.add_argument(
             '--floating-ip-address',
             metavar='<ip-address>',
             help=self.enhance_help_neutron(
-                _("List floating IP(s) according to given floating IP address")
+                _(
+                    "List only floating IP(s) with the specified floating IP "
+                    "address"
+                )
             ),
         )
         parser.add_argument(
@@ -285,8 +292,8 @@ class ListFloatingIP(common.NetworkAndComputeLister):
             choices=['ACTIVE', 'DOWN'],
             help=self.enhance_help_neutron(
                 _(
-                    "List floating IP(s) according to given status ('ACTIVE', "
-                    "'DOWN')"
+                    "List only floating IP(s) with the specified status "
+                    "('ACTIVE', 'DOWN')"
                 )
             ),
         )
@@ -295,8 +302,8 @@ class ListFloatingIP(common.NetworkAndComputeLister):
             metavar='<project>',
             help=self.enhance_help_neutron(
                 _(
-                    "List floating IP(s) according to given project "
-                    "(name or ID) "
+                    "List only floating IP(s) with the specified project "
+                    "(name or ID)"
                 )
             ),
         )
@@ -308,7 +315,7 @@ class ListFloatingIP(common.NetworkAndComputeLister):
             action='append',
             help=self.enhance_help_neutron(
                 _(
-                    "List floating IP(s) according to given router "
+                    "List only floating IP(s) with the specified router "
                     "(name or ID) "
                     "(repeat option to fiter on multiple routers)"
                 )

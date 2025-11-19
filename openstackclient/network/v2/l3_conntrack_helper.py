@@ -150,19 +150,26 @@ class ListConntrackHelper(command.Lister):
         parser.add_argument(
             '--helper',
             metavar='<helper>',
-            help=_('The netfilter conntrack helper module'),
+            help=_(
+                'List only helpers using the specified netfilter conntrack '
+                'helper module'
+            ),
         )
         parser.add_argument(
             '--protocol',
             metavar='<protocol>',
             help=_(
-                'The network protocol for the netfilter conntrack target rule'
+                'List only helpers with the specified network protocol for '
+                'the netfilter conntrack target rule'
             ),
         )
         parser.add_argument(
             '--port',
             metavar='<port>',
-            help=_('The network port for the netfilter conntrack target rule'),
+            help=_(
+                'List only helpers with the specified network port for '
+                'the netfilter conntrack target rule (name or ID)'
+            ),
         )
 
         return parser

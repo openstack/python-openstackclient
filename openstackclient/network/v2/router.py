@@ -726,13 +726,17 @@ class ListRouter(command.Lister):
         parser.add_argument(
             '--project',
             metavar='<project>',
-            help=_("List routers according to their project (name or ID)"),
+            help=_(
+                "List only routers with the specified project (name or ID)"
+            ),
         )
         identity_common.add_project_domain_option_to_parser(parser)
         parser.add_argument(
             '--agent',
             metavar='<agent-id>',
-            help=_("List routers hosted by an agent (ID only)"),
+            help=_(
+                "List only routers hosted by the specified agent (ID only)"
+            ),
         )
         _tag.add_tag_filtering_option_to_parser(parser, _('routers'))
 

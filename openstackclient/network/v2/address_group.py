@@ -151,13 +151,14 @@ class ListAddressGroup(command.Lister):
         parser.add_argument(
             '--name',
             metavar='<name>',
-            help=_("List only address groups of given name in output"),
+            help=_("List only address groups with the specified name"),
         )
         parser.add_argument(
             '--project',
             metavar="<project>",
             help=_(
-                "List address groups according to their project (name or ID)"
+                "List only address groups with the specified project "
+                "(name or ID)"
             ),
         )
         identity_common.add_project_domain_option_to_parser(parser)

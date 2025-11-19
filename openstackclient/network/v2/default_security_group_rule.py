@@ -300,7 +300,8 @@ class ListDefaultSecurityGroupRule(command.Lister):
             metavar='<protocol>',
             type=network_utils.convert_to_lowercase,
             help=_(
-                "List rules by the IP protocol (ah, dhcp, egp, esp, gre, "
+                "List only default rules with the specified IP protocol "
+                "(ah, dhcp, egp, esp, gre, "
                 "icmp, igmp, ipv6-encap, ipv6-frag, ipv6-icmp, "
                 "ipv6-nonxt, ipv6-opts, ipv6-route, ospf, pgm, rsvp, "
                 "sctp, tcp, udp, udplite, vrrp and integer "
@@ -319,7 +320,7 @@ class ListDefaultSecurityGroupRule(command.Lister):
             '--ingress',
             action='store_true',
             help=_(
-                "List default rules which will be applied to incoming "
+                "List only default rules which will be applied to incoming "
                 "network traffic"
             ),
         )
@@ -327,7 +328,7 @@ class ListDefaultSecurityGroupRule(command.Lister):
             '--egress',
             action='store_true',
             help=_(
-                "List default rules which will be applied to outgoing "
+                "List only default rules which will be applied to outgoing "
                 "network traffic"
             ),
         )

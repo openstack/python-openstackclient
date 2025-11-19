@@ -278,26 +278,27 @@ class ListSubnetPool(command.Lister):
         shared_group.add_argument(
             '--share',
             action='store_true',
-            help=_("List subnet pools shared between projects"),
+            help=_("List only subnet pools shared between projects"),
         )
         shared_group.add_argument(
             '--no-share',
             action='store_true',
-            help=_("List subnet pools not shared between projects"),
+            help=_("List only subnet pools not shared between projects"),
         )
         default_group = parser.add_mutually_exclusive_group()
         default_group.add_argument(
             '--default',
             action='store_true',
             help=_(
-                "List subnet pools used as the default external subnet pool"
+                "List only subnet pools used as the default external "
+                "subnet pool"
             ),
         )
         default_group.add_argument(
             '--no-default',
             action='store_true',
             help=_(
-                "List subnet pools not used as the default external "
+                "List only subnet pools not used as the default external "
                 "subnet pool"
             ),
         )
@@ -305,21 +306,22 @@ class ListSubnetPool(command.Lister):
             '--project',
             metavar='<project>',
             help=_(
-                "List subnet pools according to their project (name or ID)"
+                "List only subnet pools with the specified project "
+                "(name or ID)"
             ),
         )
         identity_common.add_project_domain_option_to_parser(parser)
         parser.add_argument(
             '--name',
             metavar='<name>',
-            help=_("List only subnet pools of given name in output"),
+            help=_("List only subnet pools with the specified name"),
         )
         parser.add_argument(
             '--address-scope',
             metavar='<address-scope>',
             help=_(
-                "List only subnet pools of given address scope "
-                "in output (name or ID)"
+                "List only subnet pools with the specified address scope "
+                "(name or ID)"
             ),
         )
         _tag.add_tag_filtering_option_to_parser(parser, _('subnet pools'))

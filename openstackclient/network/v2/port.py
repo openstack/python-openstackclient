@@ -810,7 +810,7 @@ class ListPort(command.Lister):
         parser.add_argument(
             '--mac-address',
             metavar='<mac-address>',
-            help=_("List only ports with this MAC address"),
+            help=_("List only ports with the specified MAC address"),
         )
         parser.add_argument(
             '--long',
@@ -821,12 +821,12 @@ class ListPort(command.Lister):
         parser.add_argument(
             '--project',
             metavar='<project>',
-            help=_("List ports according to their project (name or ID)"),
+            help=_("List only ports with the specified project (name or ID)"),
         )
         parser.add_argument(
             '--name',
             metavar='<name>',
-            help=_("List ports according to their name"),
+            help=_("List only ports with the specified name"),
         )
         parser.add_argument(
             '--security-group',
@@ -844,7 +844,7 @@ class ListPort(command.Lister):
             metavar='<status>',
             choices=('ACTIVE', 'BUILD', 'DOWN', 'ERROR'),
             help=_(
-                "List ports according to their status "
+                "List only ports with the specified status "
                 "('ACTIVE', 'BUILD', 'DOWN', 'ERROR')"
             ),
         )
@@ -861,7 +861,7 @@ class ListPort(command.Lister):
                 "Desired IP and/or subnet for filtering ports "
                 "(name or ID): subnet=<subnet>,ip-address=<ip-address>,"
                 "ip-substring=<ip-substring> "
-                "(repeat option to set multiple fixed IP addresses)"
+                "(repeat option to filter multiple fixed IP addresses)"
             ),
         )
         _tag.add_tag_filtering_option_to_parser(parser, _('ports'))

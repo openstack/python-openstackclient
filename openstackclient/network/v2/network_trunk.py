@@ -285,7 +285,7 @@ class ListNetworkSubport(command.Lister):
             '--trunk',
             required=True,
             metavar="<trunk>",
-            help=_("List subports belonging to this trunk (name or ID)"),
+            help=_("List only subports belonging to this trunk (name or ID)"),
         )
         return parser
 

@@ -265,8 +265,8 @@ class ListFloatingIPPortForwarding(command.Lister):
             '--port',
             metavar='<port>',
             help=_(
-                "Filter the list result by the ID or name of "
-                "the internal network port"
+                "List only floating IP port forwardings with the "
+                "specified internal network port (name or ID)"
             ),
         )
         parser.add_argument(
@@ -274,14 +274,17 @@ class ListFloatingIPPortForwarding(command.Lister):
             metavar='<port-number>',
             dest='external_protocol_port',
             help=_(
-                "Filter the list result by the "
-                "protocol port number of the floating IP"
+                "List only floating IP port forwardings with the "
+                "specified external protocol port number"
             ),
         )
         parser.add_argument(
             '--protocol',
             metavar='<protocol>',
-            help=_("Filter the list result by the port protocol"),
+            help=_(
+                "List only floating IP port forwardings with the "
+                "specified protocol number"
+            ),
         )
 
         return parser

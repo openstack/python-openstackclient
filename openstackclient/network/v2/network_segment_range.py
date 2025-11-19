@@ -315,25 +315,32 @@ class ListNetworkSegmentRange(command.Lister):
         used_group.add_argument(
             '--used',
             action='store_true',
-            help=_('List network segment ranges that have segments in use'),
+            help=_(
+                'List only network segment ranges that have segments in use'
+            ),
         )
         used_group.add_argument(
             '--unused',
             action='store_true',
             help=_(
-                'List network segment ranges that have segments not in use'
+                'List only network segment ranges that have segments '
+                'not in use'
             ),
         )
         available_group = parser.add_mutually_exclusive_group()
         available_group.add_argument(
             '--available',
             action='store_true',
-            help=_('List network segment ranges that have available segments'),
+            help=_(
+                'List only network segment ranges that have available segments'
+            ),
         )
         available_group.add_argument(
             '--unavailable',
             action='store_true',
-            help=_('List network segment ranges without available segments'),
+            help=_(
+                'List only network segment ranges without available segments'
+            ),
         )
         return parser
 

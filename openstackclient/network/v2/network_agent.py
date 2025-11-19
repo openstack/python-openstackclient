@@ -205,12 +205,12 @@ class ListNetworkAgent(command.Lister):
         agent_type_group.add_argument(
             '--network',
             metavar='<network>',
-            help=_('List agents hosting a network (name or ID)'),
+            help=_('List agents hosting the specified network (name or ID)'),
         )
         agent_type_group.add_argument(
             '--router',
             metavar='<router>',
-            help=_('List agents hosting this router (name or ID)'),
+            help=_('List agents hosting the specified router (name or ID)'),
         )
         parser.add_argument(
             '--long',

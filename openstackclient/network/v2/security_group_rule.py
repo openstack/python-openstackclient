@@ -387,7 +387,8 @@ class ListSecurityGroupRule(common.NetworkAndComputeLister):
             type=network_utils.convert_to_lowercase,
             help=self.enhance_help_neutron(
                 _(
-                    "List rules by the IP protocol (ah, dhcp, egp, esp, gre, "
+                    "List only rules with the specified IP protocol "
+                    "(ah, dhcp, egp, esp, gre, "
                     "icmp, igmp, ipv6-encap, ipv6-frag, ipv6-icmp, "
                     "ipv6-nonxt, ipv6-opts, ipv6-route, ospf, pgm, rsvp, "
                     "sctp, tcp, udp, udplite, vrrp and integer "
@@ -401,7 +402,10 @@ class ListSecurityGroupRule(common.NetworkAndComputeLister):
             metavar='<ethertype>',
             type=network_utils.convert_to_lowercase,
             help=self.enhance_help_neutron(
-                _("List rules by the Ethertype (IPv4 or IPv6)")
+                _(
+                    "List only rules with the specified Ethertype "
+                    "(IPv4 or IPv6)"
+                )
             ),
         )
         direction_group = parser.add_mutually_exclusive_group()
@@ -409,14 +413,14 @@ class ListSecurityGroupRule(common.NetworkAndComputeLister):
             '--ingress',
             action='store_true',
             help=self.enhance_help_neutron(
-                _("List rules applied to incoming network traffic")
+                _("List only rules applied to incoming network traffic")
             ),
         )
         direction_group.add_argument(
             '--egress',
             action='store_true',
             help=self.enhance_help_neutron(
-                _("List rules applied to outgoing network traffic")
+                _("List only rules applied to outgoing network traffic")
             ),
         )
         parser.add_argument(
@@ -430,7 +434,9 @@ class ListSecurityGroupRule(common.NetworkAndComputeLister):
         parser.add_argument(
             '--project',
             metavar='<project>',
-            help=self.enhance_help_neutron(_("Owner's project (name or ID)")),
+            help=self.enhance_help_neutron(
+                _("List only rules with the specified project (name or ID)")
+            ),
         )
         identity_common.add_project_domain_option_to_parser(
             parser, enhance_help=self.enhance_help_neutron

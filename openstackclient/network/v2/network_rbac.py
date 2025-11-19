@@ -234,8 +234,8 @@ class ListNetworkRBAC(command.Lister):
                 'network',
             ],
             help=_(
-                'List network RBAC policies according to '
-                'given object type ("address_group", "address_scope", '
+                'List only network RBAC policies with the specified '
+                'object type ("address_group", "address_scope", '
                 '"security_group", "subnetpool", "qos_policy" or '
                 '"network")'
             ),
@@ -245,14 +245,17 @@ class ListNetworkRBAC(command.Lister):
             metavar='<action>',
             choices=['access_as_external', 'access_as_shared'],
             help=_(
-                'List network RBAC policies according to given '
+                'List only network RBAC policies with the specified '
                 'action ("access_as_external" or "access_as_shared")'
             ),
         )
         parser.add_argument(
             '--target-project',
             metavar='<target-project>',
-            help=_('List network RBAC policies for a specific target project'),
+            help=_(
+                'List only network RBAC policies with the specified '
+                'target project (name or ID)'
+            ),
         )
         parser.add_argument(
             '--long',

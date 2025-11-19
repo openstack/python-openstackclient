@@ -143,30 +143,37 @@ class ListNDPProxy(command.Lister):
             '--router',
             metavar='<router>',
             help=_(
-                "List only NDP proxies belonging to this router (name or ID)"
+                "List only NDP proxies associated with the specifed router "
+                "(name or ID)"
             ),
         )
         parser.add_argument(
             '--port',
             metavar='<port>',
             help=_(
-                "List only NDP proxies associated to this port (name or ID)"
+                "List only NDP proxies associated with the specified port "
+                "(name or ID)"
             ),
         )
         parser.add_argument(
             '--ip-address',
             metavar='<ip-address>',
-            help=_("List only NDP proxies associated to this IPv6 address"),
+            help=_(
+                "List only NDP proxies associated with the specified "
+                "IPv6 address"
+            ),
         )
         parser.add_argument(
             '--project',
             metavar='<project>',
-            help=_("List only NDP proxies of given project (name or ID)"),
+            help=_(
+                "List only NDP proxies with the specified project (name or ID)"
+            ),
         )
         parser.add_argument(
             '--name',
             metavar='<name>',
-            help=_("List only NDP proxies of given name"),
+            help=_("List only NDP proxies with the specified name"),
         )
 
         identity_common.add_project_domain_option_to_parser(parser)
