@@ -40,12 +40,6 @@ class ClientManager(clientmanager.ClientManager):
     in osc-lib so we need to maintain a transition period.
     """
 
-    # A simple incrementing version for the plugin to know what is available
-    PLUGIN_INTERFACE_VERSION = "2"
-
-    # Let the commands set this
-    _auth_required = False
-
     def __init__(
         self,
         cli_options=None,
@@ -185,9 +179,6 @@ def get_plugin_modules(group):
             continue
 
         mod_list.append(module)
-        init_func = getattr(module, 'Initialize', None)
-        if init_func:
-            init_func('x')
 
         # Add the plugin to the ClientManager
         setattr(
