@@ -23,13 +23,12 @@ from openstackclient.identity import common
 from openstackclient.network.v2 import port as osc_port
 from openstackclient.network.v2.taas import tap_service
 
-
 LOG = logging.getLogger(__name__)
 
 TAP_MIRROR = 'tap_mirror'
 TAP_MIRRORS = f'{TAP_MIRROR}s'
 
-_attr_map = (
+_attr_map = [
     ('id', 'ID', column_util.LIST_BOTH),
     ('tenant_id', 'Tenant', column_util.LIST_LONG_ONLY),
     ('name', 'Name', column_util.LIST_BOTH),
@@ -37,7 +36,7 @@ _attr_map = (
     ('directions', 'Directions', column_util.LIST_LONG_ONLY),
     ('remote_ip', 'Remote IP', column_util.LIST_BOTH),
     ('mirror_type', 'Mirror Type', column_util.LIST_LONG_ONLY),
-)
+]
 
 
 def _get_columns(item):

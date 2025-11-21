@@ -551,7 +551,7 @@ class CreateImage(command.ShowOne):
             sign_cert_id = parsed_args.sign_cert_id
             signer = image_signer.ImageSigner()
             try:
-                pw = utils.get_password(
+                pw: str | None = utils.get_password(
                     self.app.stdin,
                     prompt=(
                         "Please enter private key password, leave "
@@ -562,12 +562,11 @@ class CreateImage(command.ShowOne):
 
                 if not pw or len(pw) < 1:
                     pw = None
-                else:
-                    # load_private_key() requires the password to be
-                    # passed as bytes
-                    pw = pw.encode()
 
-                signer.load_private_key(sign_key_path, password=pw)
+                signer.load_private_key(
+                    sign_key_path,
+                    password=pw.encode() if pw else None,
+                )
             except Exception:
                 msg = _(
                     "Error during sign operation: private key "
@@ -933,18 +932,19 @@ class ListImage(command.Lister):
         if 'limit' in kwargs:
             # Disable automatic pagination in SDK
             kwargs['paginated'] = False
-        data = list(image_client.images(**kwargs))
+
+        images = list(image_client.images(**kwargs))
 
         if parsed_args.property:
             for attr, value in parsed_args.property.items():
                 api_utils.simple_filter(
-                    data,
+                    images,
                     attr=attr,
                     value=value,
                     property_field='properties',
                 )
 
-        data = utils.sort_items(data, parsed_args.sort, str)
+        data = utils.sort_items(images, parsed_args.sort, str)
 
         return (
             column_headers,

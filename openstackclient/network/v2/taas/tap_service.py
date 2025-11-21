@@ -23,19 +23,18 @@ from openstackclient import command
 from openstackclient.i18n import _
 from openstackclient.identity import common
 
-
 LOG = logging.getLogger(__name__)
 
 TAP_SERVICE = 'tap_service'
 TAP_SERVICES = f'{TAP_SERVICE}s'
 
-_attr_map = (
+_attr_map = [
     ('id', 'ID', column_util.LIST_BOTH),
     ('tenant_id', 'Tenant', column_util.LIST_LONG_ONLY),
     ('name', 'Name', column_util.LIST_BOTH),
     ('port_id', 'Port', column_util.LIST_BOTH),
     ('status', 'Status', column_util.LIST_BOTH),
-)
+]
 
 
 def _add_updatable_args(parser):

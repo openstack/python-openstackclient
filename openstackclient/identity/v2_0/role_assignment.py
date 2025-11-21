@@ -68,7 +68,7 @@ class ListRoleAssignment(command.Lister):
                 parsed_args.user,
             )
         elif parsed_args.authuser:
-            if auth_ref:
+            if auth_ref and auth_ref.user_id:
                 user = utils.find_resource(
                     identity_client.users, auth_ref.user_id
                 )

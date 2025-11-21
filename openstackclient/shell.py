@@ -36,6 +36,8 @@ IGNORED_MODULES = (
 
 
 class OpenStackShell(shell.OpenStackShell):
+    client_manager: clientmanager.ClientManager
+
     def __init__(self):
         command_manager = commandmanager.CommandManager(
             'openstack.cli', ignored_modules=IGNORED_MODULES
@@ -57,8 +59,10 @@ class OpenStackShell(shell.OpenStackShell):
         # about them
         warnings.filterwarnings('ignore', module='openstack')
 
-    def build_option_parser(self, description, version):
-        parser = super().build_option_parser(description, version)
+    def build_option_parser(self, description, version, argparse_kwargs=None):
+        parser = super().build_option_parser(
+            description, version, argparse_kwargs
+        )
         parser = clientmanager.build_plugin_option_parser(parser)
         parser = auth.build_auth_plugins_option_parser(parser)
         return parser

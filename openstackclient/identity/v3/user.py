@@ -691,7 +691,12 @@ class SetPasswordUser(command.Command):
     def take_action(self, parsed_args):
         identity_client = self.app.client_manager.sdk_connection.identity
         conn = self.app.client_manager.sdk_connection
-        user_id = conn.config.get_auth().get_user_id(conn.identity)
+        auth = conn.config.get_auth()
+        if auth is None:
+            # this will never happen
+            raise exceptions.CommandError('invalid authentication info')
+
+        user_id = auth.get_user_id(conn.identity)
 
         # FIXME(gyee): there are two scenarios:
         #

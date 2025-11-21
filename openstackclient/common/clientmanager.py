@@ -15,15 +15,25 @@
 
 """Manage access to the clients, including authenticating when needed."""
 
+import argparse
+from collections.abc import Callable
 import importlib
 import logging
 import sys
 import typing as ty
 
+from osc_lib.cli import client_config
 from osc_lib import clientmanager
 from osc_lib import shell
 import stevedore
 
+if ty.TYPE_CHECKING:
+    from keystoneauth1 import access as ksa_access
+    from openstack.compute.v2 import _proxy as compute_proxy
+    from openstack.image.v2 import _proxy as image_proxy
+    from openstack.network.v2 import _proxy as network_proxy
+
+    from openstackclient.api import object_store_v1
 
 LOG = logging.getLogger(__name__)
 
@@ -39,6 +49,24 @@ class ClientManager(clientmanager.ClientManager):
     plugin V2 interface.  Some currently private attributes become public
     in osc-lib so we need to maintain a transition period.
     """
+
+    if ty.TYPE_CHECKING:
+        # we know this will be set by us and will not be nullable
+        auth_ref: ksa_access.AccessInfo
+
+        # this is a hack to keep mypy happy: the actual attributes are set in
+        # get_plugin_modules below
+        # TODO(stephenfin): Change the types of identity and volume once we've
+        # migrated everything to SDK. Hopefully by then we'll have figured out
+        # how to statically distinguish between the v2 and v3 versions of both
+        # services...
+        # TODO(stephenfin): We also need to migrate object storage...
+        compute: compute_proxy.Proxy
+        identity: ty.Any
+        image: image_proxy.Proxy
+        network: network_proxy.Proxy
+        object_store: object_store_v1.APIv1
+        volume: ty.Any
 
     def __init__(
         self,
@@ -75,6 +103,12 @@ class ClientManager(clientmanager.ClientManager):
             self._auth_required
             and self._cli_options._openstack_config is not None
         ):
+            if not isinstance(
+                self._cli_options._openstack_config, client_config.OSC_Config
+            ):
+                # programmer error
+                raise TypeError('unexpected type for _openstack_config')
+
             self._cli_options._openstack_config._pw_callback = (
                 shell.prompt_for_password
             )
@@ -101,6 +135,13 @@ class ClientManager(clientmanager.ClientManager):
             self._cli_options.config['auth_type'] = self._original_auth_type
             del self._cli_options.config['auth']['token']
             del self._cli_options.config['auth']['endpoint']
+
+            if not isinstance(
+                self._cli_options._openstack_config, client_config.OSC_Config
+            ):
+                # programmer error
+                raise TypeError('unexpected type for _openstack_config')
+
             self._cli_options._auth = (
                 self._cli_options._openstack_config.load_auth_plugin(
                     self._cli_options.config,
@@ -138,11 +179,25 @@ class ClientManager(clientmanager.ClientManager):
 
 # Plugin Support
 
+ArgumentParserT = ty.TypeVar('ArgumentParserT', bound=argparse.ArgumentParser)
+
+
+@ty.runtime_checkable  # Optional: allows usage with isinstance()
+class PluginModule(ty.Protocol):
+    DEFAULT_API_VERSION: str
+    API_VERSION_OPTION: str
+    API_NAME: str
+    API_VERSIONS: tuple[str]
+
+    make_client: Callable[..., ty.Any]
+    build_option_parser: Callable[[ArgumentParserT], ArgumentParserT]
+    check_api_version: Callable[[str], bool]
+
 
 def _on_load_failure_callback(
     manager: stevedore.ExtensionManager,
     ep: importlib.metadata.EntryPoint,
-    err: Exception,
+    err: BaseException,
 ) -> None:
     sys.stderr.write(
         f"WARNING: Failed to import plugin {ep.group}:{ep.name}: {err}.\n"
@@ -152,6 +207,7 @@ def _on_load_failure_callback(
 def get_plugin_modules(group):
     """Find plugin entry points"""
     mod_list = []
+    mgr: stevedore.ExtensionManager[PluginModule]
     mgr = stevedore.ExtensionManager(
         group, on_load_failure_callback=_on_load_failure_callback
     )
@@ -164,8 +220,8 @@ def get_plugin_modules(group):
             module = importlib.import_module(module_name)
         except Exception as err:
             sys.stderr.write(
-                f"WARNING: Failed to import plugin {ep.group}:{ep.name}: "
-                f"{err}.\n"
+                f"WARNING: Failed to import plugin "
+                f"{ep.module_name}:{ep.name}: {err}.\n"
             )
             continue
 

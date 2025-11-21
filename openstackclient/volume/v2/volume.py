@@ -61,7 +61,7 @@ class KeyValueHintAction(argparse.Action):
             )
 
 
-class AttachmentsColumn(cliff_columns.FormattableColumn[list[str]]):
+class AttachmentsColumn(cliff_columns.FormattableColumn[list[ty.Any]]):
     """Formattable column for attachments column.
 
     Unlike the parent FormattableColumn class, the initializer of the
