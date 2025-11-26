@@ -44,7 +44,10 @@ class CreateRegisteredLimit(command.ShowOne):
             '--service',
             metavar='<service>',
             required=True,
-            help=_('Service responsible for the resource to limit (required)'),
+            help=_(
+                'Service responsible for the resource to limit (required) '
+                '(name or ID)'
+            ),
         )
         parser.add_argument(
             '--default-limit',
@@ -106,10 +109,10 @@ class DeleteRegisteredLimit(command.Command):
     def get_parser(self, prog_name):
         parser = super().get_parser(prog_name)
         parser.add_argument(
-            'registered_limit_id',
-            metavar='<registered-limit-id>',
+            'registered_limits',
+            metavar='<registered-limits>',
             nargs="+",
-            help=_('Registered limit to delete (ID)'),
+            help=_('Registered limit(s) to delete (ID)'),
         )
         return parser
 
@@ -117,7 +120,7 @@ class DeleteRegisteredLimit(command.Command):
         identity_client = self.app.client_manager.identity
 
         errors = 0
-        for registered_limit_id in parsed_args.registered_limit_id:
+        for registered_limit_id in parsed_args.registered_limits:
             try:
                 identity_client.registered_limits.delete(registered_limit_id)
             except Exception as e:
@@ -134,7 +137,7 @@ class DeleteRegisteredLimit(command.Command):
                 )
 
         if errors > 0:
-            total = len(parsed_args.registered_limit_id)
+            total = len(parsed_args.registered_limits)
             msg = _(
                 "%(errors)s of %(total)s registered limits failed to delete."
             ) % {'errors': errors, 'total': total}
@@ -149,7 +152,9 @@ class ListRegisteredLimit(command.Lister):
         parser.add_argument(
             '--service',
             metavar='<service>',
-            help=_('Service responsible for the resource to limit'),
+            help=_(
+                'Service responsible for the resource to limit (name or ID)'
+            ),
         )
         parser.add_argument(
             '--resource-name',
@@ -228,9 +233,9 @@ class SetRegisteredLimit(command.ShowOne):
             '--service',
             metavar='<service>',
             help=_(
-                'Service to be updated responsible for the resource to '
-                'limit. Either --service, --resource-name or --region must '
-                'be different than existing value otherwise it will be '
+                'Service to be updated responsible for the resource to limit '
+                '(name or ID). Either --service, --resource-name or --region '
+                'must be different than existing value otherwise it will be '
                 'duplicate entry'
             ),
         )
