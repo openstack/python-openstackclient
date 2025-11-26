@@ -49,7 +49,7 @@ def _get_columns(item):
 
 
 class CreateTapMirror(command.ShowOne):
-    _description = _("Create a Tap Mirror")
+    _description = _("Create a new tap mirror.")
 
     def get_parser(self, prog_name):
         parser = super().get_parser(prog_name)
@@ -60,7 +60,7 @@ class CreateTapMirror(command.ShowOne):
             dest='port_id',
             required=True,
             metavar="PORT",
-            help=_('Port to which the Tap Mirror is connected.'),
+            help=_('Port (name or ID) to which the Tap Mirror is connected.'),
         )
         parser.add_argument(
             '--directions',
@@ -68,8 +68,8 @@ class CreateTapMirror(command.ShowOne):
             action=osc_port.JSONKeyValueAction,
             required=True,
             help=_(
-                'A dictionary of direction and tunnel_id. Direction can '
-                'be IN and OUT.'
+                'Dictionary of direction and tunnel_id. Valid directions are: '
+                'IN and OUT.'
             ),
         )
         parser.add_argument(
@@ -77,15 +77,15 @@ class CreateTapMirror(command.ShowOne):
             dest='remote_ip',
             required=True,
             help=_(
-                'The remote IP of the Tap Mirror, this will be the '
-                'remote end of the GRE or ERSPAN v1 tunnel'
+                'Remote IP address for the tap mirror (remote end of the '
+                'GRE or ERSPAN v1 tunnel).'
             ),
         )
         parser.add_argument(
             '--mirror-type',
             dest='mirror_type',
             required=True,
-            help=_('The type of the mirroring, it can be gre or erspanv1'),
+            help=_('Mirror type. Valid values are: gre and erspanv1.'),
         )
         return parser
 
@@ -120,7 +120,7 @@ class CreateTapMirror(command.ShowOne):
 
 
 class ListTapMirror(command.Lister):
-    _description = _("List Tap Mirrors that belong to a given tenant")
+    _description = _("List tap mirrors.")
 
     def get_parser(self, prog_name):
         parser = super().get_parser(prog_name)
@@ -148,14 +148,14 @@ class ListTapMirror(command.Lister):
 
 
 class ShowTapMirror(command.ShowOne):
-    _description = _("Show information of a given Tap Mirror")
+    _description = _("Show tap mirror details.")
 
     def get_parser(self, prog_name):
         parser = super().get_parser(prog_name)
         parser.add_argument(
             TAP_MIRROR,
             metavar=f"<{TAP_MIRROR}>",
-            help=_("ID or name of Tap Mirror to look up."),
+            help=_("Tap mirror to display (name or ID)."),
         )
         return parser
 
@@ -171,7 +171,7 @@ class ShowTapMirror(command.ShowOne):
 
 
 class DeleteTapMirror(command.Command):
-    _description = _("Delete a Tap Mirror")
+    _description = _("Delete a tap mirror.")
 
     def get_parser(self, prog_name):
         parser = super().get_parser(prog_name)
@@ -179,7 +179,7 @@ class DeleteTapMirror(command.Command):
             TAP_MIRROR,
             metavar=f"<{TAP_MIRROR}>",
             nargs="+",
-            help=_("ID(s) or name(s) of the Tap Mirror to delete."),
+            help=_("Tap mirror to delete (name or ID)."),
         )
         return parser
 
@@ -210,14 +210,14 @@ class DeleteTapMirror(command.Command):
 
 
 class UpdateTapMirror(command.ShowOne):
-    _description = _("Update a Tap Mirror.")
+    _description = _("Update a tap mirror.")
 
     def get_parser(self, prog_name):
         parser = super().get_parser(prog_name)
         parser.add_argument(
             TAP_MIRROR,
             metavar=f"<{TAP_MIRROR}>",
-            help=_("ID or name of the Tap Mirror to update."),
+            help=_("Tap mirror to modify (name or ID)."),
         )
         tap_service._add_updatable_args(parser)
         return parser

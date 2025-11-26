@@ -47,14 +47,14 @@ _formatters = {
 
 
 def _add_updatable_args(parser):
-    parser.add_argument('--name', help=_('Name of this Tap service.'))
+    parser.add_argument('--name', help=_('Name of the tap flow.'))
     parser.add_argument(
-        '--description', help=_('Description for this Tap service.')
+        '--description', help=_('Description of the tap flow.')
     )
 
 
 class CreateTapFlow(command.ShowOne):
-    _description = _("Create a tap flow")
+    _description = _("Create a new tap flow.")
 
     def get_parser(self, prog_name):
         parser = super().get_parser(prog_name)
@@ -64,13 +64,15 @@ class CreateTapFlow(command.ShowOne):
             '--port',
             required=True,
             metavar="SOURCE_PORT",
-            help=_('Source port to which the Tap Flow is connected.'),
+            help=_('Source port (name or ID) to monitor.'),
         )
         parser.add_argument(
             '--tap-service',
             required=True,
             metavar="TAP_SERVICE",
-            help=_('Tap Service to which the Tap Flow belongs.'),
+            help=_(
+                'Tap service (name or ID) to associate with this tap flow.'
+            ),
         )
         parser.add_argument(
             '--direction',
@@ -79,15 +81,15 @@ class CreateTapFlow(command.ShowOne):
             choices=['IN', 'OUT', 'BOTH'],
             type=lambda s: s.upper(),
             help=_(
-                'Direction of the Tap flow. Possible options are: '
-                'IN, OUT, BOTH'
+                'Direction of the Tap flow. Valid options are: '
+                'IN, OUT and BOTH'
             ),
         )
         parser.add_argument(
             '--vlan-filter',
             required=False,
             metavar="VLAN_FILTER",
-            help=_('VLAN Ids to be mirrored in the form of range string.'),
+            help=_('VLAN IDs to mirror in the form of range string.'),
         )
         return parser
 
@@ -125,7 +127,7 @@ class CreateTapFlow(command.ShowOne):
 
 
 class ListTapFlow(command.Lister):
-    _description = _("List tap flows that belong to a given tenant")
+    _description = _("List tap flows.")
 
     def get_parser(self, prog_name):
         parser = super().get_parser(prog_name)
@@ -158,14 +160,14 @@ class ListTapFlow(command.Lister):
 
 
 class ShowTapFlow(command.ShowOne):
-    _description = _("Show information of a given tap flow")
+    _description = _("Show tap flow details.")
 
     def get_parser(self, prog_name):
         parser = super().get_parser(prog_name)
         parser.add_argument(
             TAP_FLOW,
             metavar=f"<{TAP_FLOW}>",
-            help=_("ID or name of tap flow to look up."),
+            help=_("Tap flow to display (name or ID)."),
         )
         return parser
 
@@ -181,7 +183,7 @@ class ShowTapFlow(command.ShowOne):
 
 
 class DeleteTapFlow(command.Command):
-    _description = _("Delete a tap flow")
+    _description = _("Delete a tap flow.")
 
     def get_parser(self, prog_name):
         parser = super().get_parser(prog_name)
@@ -189,7 +191,7 @@ class DeleteTapFlow(command.Command):
             TAP_FLOW,
             metavar=f"<{TAP_FLOW}>",
             nargs="+",
-            help=_("ID(s) or name(s) of tap flow to delete."),
+            help=_("Tap flow to delete (name or ID)."),
         )
         return parser
 
@@ -200,7 +202,6 @@ class DeleteTapFlow(command.Command):
             try:
                 id = client.find_tap_flow(id_or_name, ignore_missing=False).id
                 client.delete_tap_flow(id)
-                LOG.warning("Tap flow %(id)s deleted", {'id': id})
             except Exception as e:
                 fails += 1
                 LOG.error(
@@ -224,7 +225,7 @@ class UpdateTapFlow(command.ShowOne):
         parser.add_argument(
             TAP_FLOW,
             metavar=f"<{TAP_FLOW}>",
-            help=_("ID or name of tap flow to update."),
+            help=_("Tap flow to modify (name or ID)."),
         )
         _add_updatable_args(parser)
         return parser
