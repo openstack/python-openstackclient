@@ -13,10 +13,13 @@
 import uuid
 
 from openstack.block_storage.v3 import availability_zone as _volume_az
+from openstack.shared_file_system.v2 import availability_zone as _share_az
+from openstack.test import fakes
 
 from openstackclient.common import availability_zone
 from openstackclient.tests.unit.compute.v2 import fakes as compute_fakes
 from openstackclient.tests.unit.network.v2 import fakes as network_fakes
+from openstackclient.tests.unit.share.v2 import fakes as share_fakes
 from openstackclient.tests.unit import utils
 from openstackclient.tests.unit.volume.v3 import fakes as volume_fakes
 
@@ -30,10 +33,7 @@ def _create_fake_volume_az():
 def _build_compute_az_datalist(compute_az, long_datalist=False):
     datalist = ()
     if not long_datalist:
-        datalist = (
-            compute_az.name,
-            'available',
-        )
+        datalist = (compute_az.name, 'available')
     else:
         for host, services in compute_az.hosts.items():
             for service, state in services.items():
@@ -64,6 +64,15 @@ def _build_network_az_datalist(network_az, long_datalist=False):
     return (datalist,)
 
 
+def _build_share_az_datalist(share_az, long_datalist=False):
+    datalist = ()
+    if not long_datalist:
+        datalist = (share_az.name, 'available')
+    else:
+        datalist = (share_az.name, 'available', '', '', '', '')
+    return (datalist,)
+
+
 def _build_volume_az_datalist(volume_az, long_datalist=False):
     datalist = ()
     if not long_datalist:
@@ -77,6 +86,7 @@ class TestAvailabilityZoneList(
     network_fakes.FakeClientMixin,
     volume_fakes.FakeClientMixin,
     compute_fakes.FakeClientMixin,
+    share_fakes.FakeClientMixin,
     utils.TestCommand,
 ):
     short_columnslist = ('Zone Name', 'Zone Status')
@@ -94,8 +104,15 @@ class TestAvailabilityZoneList(
 
         self.compute_azs = compute_fakes.create_availability_zones()
         self.compute_client.availability_zones.return_value = self.compute_azs
+
         self.network_azs = network_fakes.create_availability_zones()
         self.network_client.availability_zones.return_value = self.network_azs
+
+        self.share_azs = list(
+            fakes.generate_fake_resources(_share_az.AvailabilityZone)
+        )
+        self.share_sdk_client.availability_zones.return_value = self.share_azs
+
         self.volume_azs = [_create_fake_volume_az()]
         self.volume_client.availability_zones.return_value = self.volume_azs
 
@@ -114,6 +131,7 @@ class TestAvailabilityZoneList(
 
         self.compute_client.availability_zones.assert_called_with(details=True)
         self.network_client.availability_zones.assert_called_with()
+        self.share_sdk_client.availability_zones.assert_called_with()
         self.volume_client.availability_zones.assert_called_with()
 
         self.assertEqual(self.short_columnslist, columns)
@@ -122,6 +140,8 @@ class TestAvailabilityZoneList(
             datalist += _build_compute_az_datalist(compute_az)
         for network_az in self.network_azs:
             datalist += _build_network_az_datalist(network_az)
+        for share_az in self.share_azs:
+            datalist += _build_share_az_datalist(share_az)
         for volume_az in self.volume_azs:
             datalist += _build_volume_az_datalist(volume_az)
         self.assertEqual(datalist, tuple(data))
@@ -135,13 +155,11 @@ class TestAvailabilityZoneList(
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
-        # In base command class Lister in cliff, abstract method take_action()
-        # returns a tuple containing the column names and an iterable
-        # containing the data to be listed.
         columns, data = self.cmd.take_action(parsed_args)
 
         self.compute_client.availability_zones.assert_called_with(details=True)
         self.network_client.availability_zones.assert_called_with()
+        self.share_sdk_client.availability_zones.assert_called_with()
         self.volume_client.availability_zones.assert_called_with()
 
         self.assertEqual(self.long_columnslist, columns)
@@ -154,6 +172,8 @@ class TestAvailabilityZoneList(
             datalist += _build_network_az_datalist(
                 network_az, long_datalist=True
             )
+        for share_az in self.share_azs:
+            datalist += _build_share_az_datalist(share_az, long_datalist=True)
         for volume_az in self.volume_azs:
             datalist += _build_volume_az_datalist(
                 volume_az, long_datalist=True
@@ -169,13 +189,11 @@ class TestAvailabilityZoneList(
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
-        # In base command class Lister in cliff, abstract method take_action()
-        # returns a tuple containing the column names and an iterable
-        # containing the data to be listed.
         columns, data = self.cmd.take_action(parsed_args)
 
         self.compute_client.availability_zones.assert_called_with(details=True)
         self.network_client.availability_zones.assert_not_called()
+        self.share_sdk_client.availability_zones.assert_not_called()
         self.volume_client.availability_zones.assert_not_called()
 
         self.assertEqual(self.short_columnslist, columns)
@@ -193,19 +211,39 @@ class TestAvailabilityZoneList(
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
-        # In base command class Lister in cliff, abstract method take_action()
-        # returns a tuple containing the column names and an iterable
-        # containing the data to be listed.
         columns, data = self.cmd.take_action(parsed_args)
 
         self.compute_client.availability_zones.assert_not_called()
         self.network_client.availability_zones.assert_called_with()
+        self.share_sdk_client.availability_zones.assert_not_called()
         self.volume_client.availability_zones.assert_not_called()
 
         self.assertEqual(self.short_columnslist, columns)
         datalist = ()
         for network_az in self.network_azs:
             datalist += _build_network_az_datalist(network_az)
+        self.assertEqual(datalist, tuple(data))
+
+    def test_availability_zone_list_share(self):
+        arglist = [
+            '--share',
+        ]
+        verifylist = [
+            ('share', True),
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        columns, data = self.cmd.take_action(parsed_args)
+
+        self.compute_client.availability_zones.assert_not_called()
+        self.network_client.availability_zones.assert_not_called()
+        self.share_sdk_client.availability_zones.assert_called_with()
+        self.volume_client.availability_zones.assert_not_called()
+
+        self.assertEqual(self.short_columnslist, columns)
+        datalist = ()
+        for share_az in self.share_azs:
+            datalist += _build_share_az_datalist(share_az)
         self.assertEqual(datalist, tuple(data))
 
     def test_availability_zone_list_volume(self):
@@ -217,13 +255,11 @@ class TestAvailabilityZoneList(
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
-        # In base command class Lister in cliff, abstract method take_action()
-        # returns a tuple containing the column names and an iterable
-        # containing the data to be listed.
         columns, data = self.cmd.take_action(parsed_args)
 
         self.compute_client.availability_zones.assert_not_called()
         self.network_client.availability_zones.assert_not_called()
+        self.share_sdk_client.availability_zones.assert_not_called()
         self.volume_client.availability_zones.assert_called_with()
 
         self.assertEqual(self.short_columnslist, columns)

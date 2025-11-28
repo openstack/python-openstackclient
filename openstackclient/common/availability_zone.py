@@ -67,6 +67,18 @@ def _xform_compute_availability_zone(
     return result
 
 
+def _xform_share_availability_zone(az: Any) -> list[dict[str, str]]:
+    result = []
+    zone_info = {
+        'zone_name': az.name,
+        # manila doesn't have the concept of availability zone statuses so we
+        # show zones as always "available"
+        'zone_status': 'available',
+    }
+    result.append(zone_info)
+    return result
+
+
 def _xform_network_availability_zone(az: Any) -> list[dict[str, str]]:
     result: list[dict[str, str]] = []
     zone_info = {}
@@ -113,6 +125,12 @@ class ListAvailabilityZone(command.Lister):
             action='store_true',
             default=False,
             help=_('List volume availability zones'),
+        )
+        parser.add_argument(
+            '--share',
+            action='store_true',
+            default=False,
+            help=_('List share availability zones'),
         )
         parser.add_argument(
             '--long',
@@ -162,6 +180,28 @@ class ListAvailabilityZone(command.Lister):
             result += _xform_network_availability_zone(zone)
         return result
 
+    def _get_share_availability_zone(
+        self, parsed_args: argparse.Namespace
+    ) -> list[dict[str, str]]:
+        data = []
+        try:
+            share_client = self.app.client_manager.sdk_connection.share
+            data = list(share_client.availability_zones())
+        except Exception as e:
+            if parsed_args.share:
+                message = _(
+                    "Availability zones list not supported by "
+                    "Shared File System API"
+                )
+                LOG.warning(message)
+            else:
+                LOG.debug('Share availability zone not available: %s', e)
+
+        result = []
+        for zone in data:
+            result += _xform_share_availability_zone(zone)
+        return result
+
     def _get_volume_availability_zones(
         self, parsed_args: argparse.Namespace
     ) -> list[dict[str, str]]:
@@ -201,6 +241,7 @@ class ListAvailabilityZone(command.Lister):
         show_all = (
             not parsed_args.compute
             and not parsed_args.network
+            and not parsed_args.share
             and not parsed_args.volume
         )
 
@@ -209,6 +250,8 @@ class ListAvailabilityZone(command.Lister):
             result += self._get_compute_availability_zones(parsed_args)
         if parsed_args.network or show_all:
             result += self._get_network_availability_zones(parsed_args)
+        if parsed_args.share or show_all:
+            result += self._get_share_availability_zone(parsed_args)
         if parsed_args.volume or show_all:
             result += self._get_volume_availability_zones(parsed_args)
 
