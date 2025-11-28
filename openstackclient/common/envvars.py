@@ -15,6 +15,7 @@ import os
 from openstackclient.i18n import _
 
 
+# TODO(stephenfin): Move this to osc-lib
 def bool_from_str(value: bool | str, strict: bool = False) -> bool:
     true_strings = ('1', 't', 'true', 'on', 'y', 'yes')
     false_strings = ('0', 'f', 'false', 'off', 'n', 'no')
