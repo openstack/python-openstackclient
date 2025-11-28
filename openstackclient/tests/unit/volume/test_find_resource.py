@@ -21,15 +21,6 @@ from osc_lib import exceptions
 from osc_lib import utils
 
 from openstackclient.tests.unit import utils as test_utils
-from openstackclient.volume import client  # noqa
-
-
-# Monkey patch for v1 cinderclient
-# NOTE(dtroyer): Do here because openstackclient.volume.client
-# doesn't do it until the client object is created now.
-volumes.Volume.NAME_ATTR = 'display_name'
-volume_snapshots.Snapshot.NAME_ATTR = 'display_name'
-
 
 ID = '1after909'
 NAME = 'PhilSpector'
@@ -42,14 +33,14 @@ class TestFindResourceVolumes(test_utils.TestCase):
         api.client = mock.Mock()
         api.client.get = mock.Mock()
         resp = mock.Mock()
-        body = {"volumes": [{"id": ID, 'display_name': NAME}]}
+        body = {"volumes": [{"id": ID, 'name': NAME}]}
         api.client.get.side_effect = [Exception("Not found"), (resp, body)]
         self.manager = volumes.VolumeManager(api)
 
     def test_find(self):
         result = utils.find_resource(self.manager, NAME)
         self.assertEqual(ID, result.id)
-        self.assertEqual(NAME, result.display_name)
+        self.assertEqual(NAME, result.name)
 
     def test_not_find(self):
         self.assertRaises(
@@ -67,14 +58,14 @@ class TestFindResourceVolumeSnapshots(test_utils.TestCase):
         api.client = mock.Mock()
         api.client.get = mock.Mock()
         resp = mock.Mock()
-        body = {"snapshots": [{"id": ID, 'display_name': NAME}]}
+        body = {"snapshots": [{"id": ID, 'name': NAME}]}
         api.client.get.side_effect = [Exception("Not found"), (resp, body)]
         self.manager = volume_snapshots.SnapshotManager(api)
 
     def test_find(self):
         result = utils.find_resource(self.manager, NAME)
         self.assertEqual(ID, result.id)
-        self.assertEqual(NAME, result.display_name)
+        self.assertEqual(NAME, result.name)
 
     def test_not_find(self):
         self.assertRaises(

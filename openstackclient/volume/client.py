@@ -20,16 +20,14 @@ from osc_lib import utils
 
 from openstackclient.i18n import _
 
-
 LOG = logging.getLogger(__name__)
 
 DEFAULT_API_VERSION = '3'
 API_VERSION_OPTION = 'os_volume_api_version'
-API_NAME = "volume"
+API_NAME = 'volume'
 API_VERSIONS = {
-    "1": "cinderclient.v1.client.Client",
-    "2": "cinderclient.v2.client.Client",
-    "3": "cinderclient.v3.client.Client",
+    '2': 'cinderclient.v2.client.Client',
+    '3': 'cinderclient.v3.client.Client',
 }
 
 # Save the microversion if in use
@@ -45,11 +43,6 @@ def make_client(instance):
     from cinderclient.v3 import volume_snapshots
     from cinderclient.v3 import volumes
 
-    # Check whether the available cinderclient supports v1 or v2
-    try:
-        from cinderclient.v1 import services  # noqa
-    except Exception:
-        del API_VERSIONS['1']
     try:
         from cinderclient.v2 import services  # noqa
     except Exception:
@@ -127,21 +120,18 @@ def check_api_version(check_version):
 
     global _volume_api_version
 
-    # Copy some logic from novaclient 3.3.0 for basic version detection
-    # NOTE(dtroyer): This is only enough to resume operations using API
-    # version 3.0 or any valid version supplied by the user.
     _volume_api_version = api_versions.get_api_version(check_version)
 
     # Bypass X.latest format microversion
     if not _volume_api_version.is_latest():
-        if _volume_api_version > api_versions.APIVersion("3.0"):
+        if _volume_api_version > api_versions.APIVersion('3.0'):
             if not _volume_api_version.matches(
                 api_versions.MIN_VERSION,
                 api_versions.MAX_VERSION,
             ):
-                msg = _("versions supported by client: %(min)s - %(max)s") % {
-                    "min": api_versions.MIN_VERSION,
-                    "max": api_versions.MAX_VERSION,
+                msg = _('versions supported by client: %(min)s - %(max)s') % {
+                    'min': api_versions.MIN_VERSION,
+                    'max': api_versions.MAX_VERSION,
                 }
                 raise exceptions.CommandError(msg)
 
