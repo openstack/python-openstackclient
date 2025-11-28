@@ -74,10 +74,7 @@ class OpenStackShell(shell.OpenStackShell):
             self._auth_type = 'password'
 
     def _load_plugins(self):
-        """Load plugins via stevedore
-
-        osc-lib has no opinion on what plugins should be loaded
-        """
+        """Load plugins via stevedore."""
         # Loop through extensions to get API versions
         for mod in clientmanager.PLUGIN_MODULES:
             default_version = getattr(mod, 'DEFAULT_API_VERSION', None)

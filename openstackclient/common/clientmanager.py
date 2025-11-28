@@ -158,16 +158,7 @@ def get_plugin_modules(group):
     for ep in mgr:
         LOG.debug('Found plugin %s', ep.name)
 
-        # Different versions of stevedore use different
-        # implementations of EntryPoint from other libraries, which
-        # are not API-compatible.
-        try:
-            module_name = ep.entry_point.module_name
-        except AttributeError:
-            try:
-                module_name = ep.entry_point.module
-            except AttributeError:
-                module_name = ep.entry_point.value
+        module_name = ep.entry_point.module
 
         try:
             module = importlib.import_module(module_name)
