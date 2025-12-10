@@ -256,7 +256,10 @@ class APIv1(api.BaseAPI):
         # object's name in the container.
         object_name_str = name if name else object
 
-        full_url = f"{urllib.parse.quote(container)}/{urllib.parse.quote(object_name_str)}"
+        full_url = (
+            f"{urllib.parse.quote(container)}/"
+            f"{urllib.parse.quote(object_name_str)}"
+        )
         with open(object, 'rb') as f:
             response = self.create(
                 full_url,

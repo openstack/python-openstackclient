@@ -420,7 +420,8 @@ class ListUser(command.Lister):
             dest='is_enabled',
             default=None,
             help=_(
-                'List only enabled users, does nothing with --project and --group'
+                'List only enabled users, does nothing with '
+                '--project and --group'
             ),
         )
         parser.add_argument(
@@ -429,7 +430,8 @@ class ListUser(command.Lister):
             dest='is_enabled',
             default=None,
             help=_(
-                'List only disabled users, does nothing with --project and --group'
+                'List only disabled users, does nothing with '
+                '--project and --group'
             ),
         )
         return parser

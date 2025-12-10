@@ -315,8 +315,9 @@ class ListGroup(command.Lister):
                 parsed_args.user_domain,
             )
             if domain:
-                # NOTE(0weng): The API doesn't actually support filtering additionally by domain_id,
-                # so this doesn't really do anything.
+                # NOTE(0weng): The API doesn't actually support filtering
+                # additionally by domain_id, so this doesn't really do
+                # anything.
                 data = identity_client.user_groups(user, domain_id=domain)
             else:
                 data = identity_client.user_groups(user)

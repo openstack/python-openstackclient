@@ -127,7 +127,8 @@ class DeleteMetadefProperty(command.Command):
             nargs="*",
             help=_(
                 "Metadef properties to delete (name) "
-                "(omit this argument to delete all properties in the namespace)"
+                "(omit this argument to delete all properties "
+                "in the namespace)"
             ),
         )
         return parser

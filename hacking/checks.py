@@ -69,8 +69,8 @@ def assert_no_duplicated_setup(logical_line, filename):
                 return
             yield (
                 0,
-                f"O401: client_manager.{service} mocks are already provided by "
-                f"the {service} service's FakeClientMixin class",
+                f"O401: client_manager.{service} mocks are already provided "
+                f"by the {service} service's FakeClientMixin class",
             )
 
 
@@ -89,7 +89,7 @@ def assert_use_of_client_aliases(logical_line):
         yield (0, f"0402: prefer {service}_client to sdk_connection.{service}")
 
     if match := re.match(
-        r'(self\.app\.client_manager\.(compute|network|image)+\.[a-z_]+) = mock.Mock',
+        r'(self\.app\.client_manager\.(compute|network|image)+\.[a-z_]+) = mock.Mock',  # noqa: E501
         logical_line,
     ):
         yield (

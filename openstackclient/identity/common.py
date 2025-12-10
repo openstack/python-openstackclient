@@ -99,7 +99,8 @@ def find_service_sdk(identity_client, name_type_or_id):
 
     if next(services, None):
         msg = _(
-            "Multiple service matches found for '%(query)s', use an ID to be more specific."
+            "Multiple service matches found for '%(query)s', "
+            "use an ID to be more specific."
         ) % {"query": name_type_or_id}
         raise exceptions.CommandError(msg)
 

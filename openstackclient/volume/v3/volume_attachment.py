@@ -458,7 +458,7 @@ class ListVolumeAttachment(command.Lister):
         }
         # Update search option with `filters`
         # if AppendFilters.filters:
-        #     search_opts.update(shell_utils.extract_filters(AppendFilters.filters))
+        #     search_opts.update(shell_utils.extract_filters(AppendFilters.filters))  # noqa: E501
 
         # TODO(stephenfin): Implement sorting
         attachments = volume_client.attachments(
