@@ -28,11 +28,11 @@ from openstack import exceptions as sdk_exceptions
 from openstack import utils as sdk_utils
 from osc_lib.cli import format_columns
 from osc_lib.cli import parseractions
-from osc_lib.command import command
 from osc_lib import exceptions
 from osc_lib import utils
 
 from openstackclient.api import compute_v2
+from openstackclient import command
 from openstackclient.common import envvars
 from openstackclient.common import pagination
 from openstackclient.i18n import _

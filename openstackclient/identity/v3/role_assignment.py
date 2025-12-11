@@ -13,8 +13,7 @@
 
 """Identity v3 Assignment action implementations"""
 
-from osc_lib.command import command
-
+from openstackclient import command
 from openstackclient.i18n import _
 from openstackclient.identity import common
 

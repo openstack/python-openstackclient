@@ -14,10 +14,10 @@ import logging
 
 from openstack import utils as sdk_utils
 from osc_lib.cli import format_columns
-from osc_lib.command import command
 from osc_lib import exceptions
 from osc_lib import utils
 
+from openstackclient import command
 from openstackclient.common import envvars
 from openstackclient.common import pagination
 from openstackclient.i18n import _

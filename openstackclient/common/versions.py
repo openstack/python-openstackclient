@@ -14,8 +14,7 @@
 
 """Versions Action Implementation"""
 
-from osc_lib.command import command
-
+from openstackclient import command
 from openstackclient.i18n import _
 
 

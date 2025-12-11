@@ -20,8 +20,8 @@ import queue
 import typing as ty
 
 from cliff.formatters import table
-from osc_lib.command import command
 
+from openstackclient import command
 from openstackclient.i18n import _
 from openstackclient.identity import common as identity_common
 

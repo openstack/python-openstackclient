@@ -20,10 +20,10 @@ import itertools
 import logging
 import typing as ty
 
-from osc_lib.command import command
 from osc_lib import exceptions
 from osc_lib import utils
 
+from openstackclient import command
 from openstackclient.i18n import _
 from openstackclient.identity import common as identity_common
 from openstackclient.network import common
@@ -402,7 +402,7 @@ class ListNetworkSegmentRange(command.Lister):
                 'available',
             )
 
-        display_props: tuple[str, ...] = tuple()
+        display_props: tuple[ty.Any, ...] = tuple()
         for s in data:
             props = utils.get_item_properties(s, columns)
             if (
