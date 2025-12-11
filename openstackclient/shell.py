@@ -26,16 +26,25 @@ from osc_lib import shell
 import openstackclient
 from openstackclient.common import clientmanager
 
-
 DEFAULT_DOMAIN = 'default'
+# list of modules that were originally out-of-tree and are now in
+# core OSC
+IGNORED_MODULES = (
+    'neutron_taas.taas_client.osc',
+    'neutronclient.osc.v2.taas',
+)
 
 
 class OpenStackShell(shell.OpenStackShell):
     def __init__(self):
+        command_manager = commandmanager.CommandManager(
+            'openstack.cli', ignored_modules=IGNORED_MODULES
+        )
+
         super().__init__(
             description=__doc__.strip(),
             version=openstackclient.__version__,
-            command_manager=commandmanager.CommandManager('openstack.cli'),
+            command_manager=command_manager,
             deferred_help=True,
         )
 
