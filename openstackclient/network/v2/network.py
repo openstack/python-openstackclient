@@ -24,12 +24,12 @@ from openstackclient.identity import common as identity_common
 from openstackclient.network import common
 
 
-class AdminStateColumn(cliff_columns.FormattableColumn):
+class AdminStateColumn(cliff_columns.FormattableColumn[bool]):
     def human_readable(self):
         return 'UP' if self._value else 'DOWN'
 
 
-class RouterExternalColumn(cliff_columns.FormattableColumn):
+class RouterExternalColumn(cliff_columns.FormattableColumn[bool]):
     def human_readable(self):
         return 'External' if self._value else 'Internal'
 

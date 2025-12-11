@@ -15,8 +15,10 @@
 
 """Usage action implementations"""
 
+from collections.abc import Collection
 import datetime
 import functools
+import typing as ty
 
 from cliff import columns as cliff_columns
 from osc_lib import utils
@@ -27,7 +29,7 @@ from openstackclient.i18n import _
 
 # TODO(stephenfin): This exists in a couple of places and should be moved to a
 # common module
-class ProjectColumn(cliff_columns.FormattableColumn):
+class ProjectColumn(cliff_columns.FormattableColumn[str]):
     """Formattable column for project column.
 
     Unlike the parent FormattableColumn class, the initializer of the class
@@ -53,12 +55,12 @@ class ProjectColumn(cliff_columns.FormattableColumn):
         return project
 
 
-class CountColumn(cliff_columns.FormattableColumn):
+class CountColumn(cliff_columns.FormattableColumn[Collection[ty.Any]]):
     def human_readable(self):
         return len(self._value) if self._value is not None else None
 
 
-class FloatColumn(cliff_columns.FormattableColumn):
+class FloatColumn(cliff_columns.FormattableColumn[float]):
     def human_readable(self):
         return float(f"{self._value:.2f}")
 

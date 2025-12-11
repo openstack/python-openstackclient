@@ -44,7 +44,7 @@ def _update_arguments(obj_list, parsed_args_list, option):
             raise exceptions.CommandError(msg)
 
 
-class AllocationPoolsColumn(cliff_columns.FormattableColumn):
+class AllocationPoolsColumn(cliff_columns.FormattableColumn[ty.Any]):
     def human_readable(self):
         pool_formatted = [
             '{}-{}'.format(pool.get('start', ''), pool.get('end', ''))
@@ -53,7 +53,7 @@ class AllocationPoolsColumn(cliff_columns.FormattableColumn):
         return ','.join(pool_formatted)
 
 
-class HostRoutesColumn(cliff_columns.FormattableColumn):
+class HostRoutesColumn(cliff_columns.FormattableColumn[ty.Any]):
     def human_readable(self):
         # Map the host route keys to match --host-route option.
         return utils.format_list_of_dicts(
@@ -61,7 +61,7 @@ class HostRoutesColumn(cliff_columns.FormattableColumn):
         )
 
 
-class UnsortedListColumn(cliff_columns.FormattableColumn):
+class UnsortedListColumn(cliff_columns.FormattableColumn[list[ty.Any]]):
     # format_columns.ListColumn sorts the output, but for things like
     # DNS server addresses the order matters
     def human_readable(self):

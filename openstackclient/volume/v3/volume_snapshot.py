@@ -33,7 +33,7 @@ from openstackclient.identity import common as identity_common
 LOG = logging.getLogger(__name__)
 
 
-class VolumeIdColumn(cliff_columns.FormattableColumn):
+class VolumeIdColumn(cliff_columns.FormattableColumn[str]):
     """Formattable column for volume ID column.
 
     Unlike the parent FormattableColumn class, the initializer of the

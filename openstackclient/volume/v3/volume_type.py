@@ -10,12 +10,12 @@
 #   WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
 #   License for the specific language governing permissions and limitations
 #   under the License.
-#
 
 """Volume v3 Type action implementations"""
 
 import functools
 import logging
+import typing as ty
 
 from cinderclient import api_versions
 from cliff import columns as cliff_columns
@@ -32,7 +32,7 @@ from openstackclient.identity import common as identity_common
 LOG = logging.getLogger(__name__)
 
 
-class EncryptionInfoColumn(cliff_columns.FormattableColumn):
+class EncryptionInfoColumn(cliff_columns.FormattableColumn[ty.Any]):
     """Formattable column for encryption info column.
 
     Unlike the parent FormattableColumn class, the initializer of the

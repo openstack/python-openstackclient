@@ -35,12 +35,12 @@ from openstackclient.network import common
 LOG = logging.getLogger(__name__)
 
 
-class AdminStateColumn(cliff_columns.FormattableColumn):
+class AdminStateColumn(cliff_columns.FormattableColumn[bool]):
     def human_readable(self):
         return 'UP' if self._value else 'DOWN'
 
 
-class RouterInfoColumn(cliff_columns.FormattableColumn):
+class RouterInfoColumn(cliff_columns.FormattableColumn[ty.Any]):
     def human_readable(self):
         try:
             return json.dumps(self._value)
@@ -48,7 +48,7 @@ class RouterInfoColumn(cliff_columns.FormattableColumn):
             return ''
 
 
-class RoutesColumn(cliff_columns.FormattableColumn):
+class RoutesColumn(cliff_columns.FormattableColumn[ty.Any]):
     def human_readable(self):
         # Map the route keys to match --route option.
         for route in self._value or []:
