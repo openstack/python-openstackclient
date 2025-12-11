@@ -160,7 +160,9 @@ class ShowService(command.ShowOne):
             for service, service_endpoints in endpoints.items():
                 if service_endpoints:
                     info = {"type": service}
-                    info.update(service_endpoints[0])
+                    # FIXME(stephenfin): The return type for this in ksa is
+                    # wrong
+                    info.update(service_endpoints[0])  # type: ignore
                     return zip(*sorted(info.items()))
 
             msg = _(

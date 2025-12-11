@@ -744,15 +744,7 @@ follow_imports = "normal"
 incremental = true
 check_untyped_defs = true
 warn_unused_ignores = true
-# keep this in-sync with 'mypy.exclude' in '.pre-commit-config.yaml'
-exclude = '''
-(?x)(
-    doc
-    | examples
-    | hacking
-    | releasenotes
-  )
-'''
+exclude = '(?x)(doc | examples | hacking | releasenotes)'
 
 [[tool.mypy.overrides]]
 module = ["openstackclient.tests.unit.*"]
