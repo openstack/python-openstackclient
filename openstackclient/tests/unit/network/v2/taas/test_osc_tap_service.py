@@ -17,12 +17,12 @@ import operator
 import uuid
 
 from openstack.network.v2 import tap_service
+from openstack.test import fakes as sdk_fakes
 from osc_lib import utils as osc_utils
 from osc_lib.utils import columns as column_util
 
 from openstackclient.network.v2.taas import tap_service as osc_tap_service
 from openstackclient.tests.unit.network.v2 import fakes as network_fakes
-from openstackclient.tests.unit.network.v2.taas import fakes
 
 
 columns_long = tuple(
@@ -46,9 +46,11 @@ def _get_data(attrs, columns=sorted_columns):
 
 class TestCreateTapService(network_fakes.TestNetworkV2):
     columns = (
+        'description',
         'id',
         'name',
         'port_id',
+        'project_id',
         'status',
     )
 
@@ -59,15 +61,14 @@ class TestCreateTapService(network_fakes.TestNetworkV2):
     def test_create_tap_service(self):
         """Test Create Tap Service."""
         port_id = str(uuid.uuid4())
-        fake_tap_service = fakes.FakeTapService.create_tap_service(
-            attrs={'port_id': port_id}
+        fake_port = network_fakes.create_one_port(attrs={'id': port_id})
+        fake_tap_service = sdk_fakes.generate_fake_resource(
+            tap_service.TapService, **{'port_id': port_id}
         )
         self.app.client_manager.network.create_tap_service.return_value = (
             fake_tap_service
         )
-        self.app.client_manager.network.find_port.return_value = {
-            'id': port_id
-        }
+        self.app.client_manager.network.find_port.return_value = fake_port
         self.app.client_manager.network.find_tap_service.side_effect = (
             lambda _, name_or_id: {'id': name_or_id}
         )
@@ -110,8 +111,8 @@ class TestListTapService(network_fakes.TestNetworkV2):
 
     def test_list_tap_service(self):
         """Test List Tap Service."""
-        fake_tap_services = fakes.FakeTapService.create_tap_services(
-            attrs={'port_id': str(uuid.uuid4())}, count=4
+        fake_tap_services = list(
+            sdk_fakes.generate_fake_resources(tap_service.TapService, count=4)
         )
         self.app.client_manager.network.tap_services.return_value = (
             fake_tap_services
@@ -148,8 +149,8 @@ class TestDeleteTapService(network_fakes.TestNetworkV2):
     def test_delete_tap_service(self):
         """Test Delete tap service."""
 
-        fake_tap_service = fakes.FakeTapService.create_tap_service(
-            attrs={'port_id': str(uuid.uuid4())}
+        fake_tap_service = sdk_fakes.generate_fake_resource(
+            tap_service.TapService
         )
 
         arg_list = [
@@ -169,9 +170,11 @@ class TestDeleteTapService(network_fakes.TestNetworkV2):
 
 class TestShowTapService(network_fakes.TestNetworkV2):
     columns = (
+        'description',
         'id',
         'name',
         'port_id',
+        'project_id',
         'status',
     )
 
@@ -187,8 +190,8 @@ class TestShowTapService(network_fakes.TestNetworkV2):
     def test_show_tap_service(self):
         """Test Show tap service."""
 
-        fake_tap_service = fakes.FakeTapService.create_tap_service(
-            attrs={'port_id': str(uuid.uuid4())}
+        fake_tap_service = sdk_fakes.generate_fake_resource(
+            tap_service.TapService
         )
         self.app.client_manager.network.get_tap_service.return_value = (
             fake_tap_service
@@ -217,9 +220,11 @@ class TestUpdateTapService(network_fakes.TestNetworkV2):
     _new_name = 'new_name'
 
     columns = (
+        'description',
         'id',
         'name',
         'port_id',
+        'project_id',
         'status',
     )
 
@@ -234,8 +239,8 @@ class TestUpdateTapService(network_fakes.TestNetworkV2):
 
     def test_update_tap_service(self):
         """Test update tap service"""
-        fake_tap_service = fakes.FakeTapService.create_tap_service(
-            attrs={'port_id': str(uuid.uuid4())}
+        fake_tap_service = sdk_fakes.generate_fake_resource(
+            tap_service.TapService
         )
         new_tap_service = copy.deepcopy(fake_tap_service)
         new_tap_service['name'] = self._new_name

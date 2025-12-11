@@ -15,12 +15,12 @@ import operator
 import uuid
 
 from openstack.network.v2 import tap_mirror
+from openstack.test import fakes as sdk_fakes
 from osc_lib import utils as osc_utils
 from osc_lib.utils import columns as column_util
 
 from openstackclient.network.v2.taas import tap_mirror as osc_tap_mirror
 from openstackclient.tests.unit.network.v2 import fakes as network_fakes
-from openstackclient.tests.unit.network.v2.taas import fakes
 
 
 columns_long = tuple(
@@ -44,11 +44,13 @@ def _get_data(attrs, columns=sorted_columns):
 
 class TestCreateTapMirror(network_fakes.TestNetworkV2):
     columns = (
+        'description',
         'directions',
         'id',
         'mirror_type',
         'name',
         'port_id',
+        'project_id',
         'remote_ip',
     )
 
@@ -58,15 +60,14 @@ class TestCreateTapMirror(network_fakes.TestNetworkV2):
 
     def test_create_tap_mirror(self):
         port_id = str(uuid.uuid4())
-        fake_tap_mirror = fakes.FakeTapMirror.create_tap_mirror(
-            attrs={'port_id': port_id}
+        fake_port = network_fakes.create_one_port(attrs={'id': port_id})
+        fake_tap_mirror = sdk_fakes.generate_fake_resource(
+            tap_mirror.TapMirror, **{'port_id': port_id, 'directions': 'IN=99'}
         )
         self.app.client_manager.network.create_tap_mirror.return_value = (
             fake_tap_mirror
         )
-        self.app.client_manager.network.find_port.return_value = {
-            'id': port_id
-        }
+        self.app.client_manager.network.find_port.return_value = fake_port
         self.app.client_manager.network.find_tap_mirror.side_effect = (
             lambda _, name_or_id: {'id': name_or_id}
         )
@@ -124,8 +125,8 @@ class TestListTapMirror(network_fakes.TestNetworkV2):
 
     def test_list_tap_mirror(self):
         """Test List Tap Mirror."""
-        fake_tap_mirrors = fakes.FakeTapMirror.create_tap_mirrors(
-            attrs={'port_id': str(uuid.uuid4())}, count=4
+        fake_tap_mirrors = list(
+            sdk_fakes.generate_fake_resources(tap_mirror.TapMirror, count=4)
         )
         self.app.client_manager.network.tap_mirrors.return_value = (
             fake_tap_mirrors
@@ -162,8 +163,8 @@ class TestDeleteTapMirror(network_fakes.TestNetworkV2):
     def test_delete_tap_mirror(self):
         """Test Delete Tap Mirror."""
 
-        fake_tap_mirror = fakes.FakeTapMirror.create_tap_mirror(
-            attrs={'port_id': str(uuid.uuid4())}
+        fake_tap_mirror = sdk_fakes.generate_fake_resource(
+            tap_mirror.TapMirror
         )
 
         arg_list = [
@@ -183,11 +184,13 @@ class TestDeleteTapMirror(network_fakes.TestNetworkV2):
 
 class TestShowTapMirror(network_fakes.TestNetworkV2):
     columns = (
+        'description',
         'directions',
         'id',
         'mirror_type',
         'name',
         'port_id',
+        'project_id',
         'remote_ip',
     )
 
@@ -203,8 +206,8 @@ class TestShowTapMirror(network_fakes.TestNetworkV2):
     def test_show_tap_mirror(self):
         """Test Show Tap Mirror."""
 
-        fake_tap_mirror = fakes.FakeTapMirror.create_tap_mirror(
-            attrs={'port_id': str(uuid.uuid4())}
+        fake_tap_mirror = sdk_fakes.generate_fake_resource(
+            tap_mirror.TapMirror
         )
         self.app.client_manager.network.get_tap_mirror.return_value = (
             fake_tap_mirror
@@ -232,11 +235,13 @@ class TestShowTapMirror(network_fakes.TestNetworkV2):
 class TestUpdateTapMirror(network_fakes.TestNetworkV2):
     _new_name = 'new_name'
     columns = (
+        'description',
         'directions',
         'id',
         'mirror_type',
         'name',
         'port_id',
+        'project_id',
         'remote_ip',
     )
 
@@ -251,8 +256,8 @@ class TestUpdateTapMirror(network_fakes.TestNetworkV2):
 
     def test_update_tap_mirror(self):
         """Test update Tap Mirror"""
-        fake_tap_mirror = fakes.FakeTapMirror.create_tap_mirror(
-            attrs={'port_id': str(uuid.uuid4())}
+        fake_tap_mirror = sdk_fakes.generate_fake_resource(
+            tap_mirror.TapMirror
         )
         new_tap_mirror = copy.deepcopy(fake_tap_mirror)
         new_tap_mirror['name'] = self._new_name
