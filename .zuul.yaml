@@ -173,6 +173,8 @@
       - release-notes-jobs-python3
     check:
       jobs:
+        - openstackclient-check-plugins:
+            voting: true
         - osc-build-image:
             voting: false
         - osc-functional-devstack
