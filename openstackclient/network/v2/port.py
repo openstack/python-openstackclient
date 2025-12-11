@@ -34,7 +34,7 @@ from openstackclient.network import common
 LOG = logging.getLogger(__name__)
 
 
-class AdminStateColumn(cliff_columns.FormattableColumn):
+class AdminStateColumn(cliff_columns.FormattableColumn[bool]):
     def human_readable(self):
         return 'UP' if self._value else 'DOWN'
 

@@ -21,6 +21,7 @@ import getpass
 import json
 import logging
 import os
+import typing as ty
 
 from cliff import columns as cliff_columns
 import iso8601
@@ -44,7 +45,7 @@ LOG = logging.getLogger(__name__)
 IMAGE_STRING_FOR_BFV = 'N/A (booted from volume)'
 
 
-class PowerStateColumn(cliff_columns.FormattableColumn):
+class PowerStateColumn(cliff_columns.FormattableColumn[int]):
     """Generate a formatted string of a server's power state."""
 
     power_states = [
@@ -65,7 +66,7 @@ class PowerStateColumn(cliff_columns.FormattableColumn):
             return 'N/A'
 
 
-class AddressesColumn(cliff_columns.FormattableColumn):
+class AddressesColumn(cliff_columns.FormattableColumn[ty.Any]):
     """Generate a formatted string of a server's addresses."""
 
     def human_readable(self):
@@ -86,7 +87,7 @@ class AddressesColumn(cliff_columns.FormattableColumn):
         }
 
 
-class HostColumn(cliff_columns.FormattableColumn):
+class HostColumn(cliff_columns.FormattableColumn[str | None]):
     """Generate a formatted string of a hostname."""
 
     def human_readable(self):

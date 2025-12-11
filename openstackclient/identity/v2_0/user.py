@@ -30,7 +30,7 @@ from openstackclient.i18n import _
 LOG = logging.getLogger(__name__)
 
 
-class ProjectColumn(cliff_columns.FormattableColumn):
+class ProjectColumn(cliff_columns.FormattableColumn[str]):
     """Formattable column for project column.
 
     Unlike the parent FormattableColumn class, the initializer of the

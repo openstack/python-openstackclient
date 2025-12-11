@@ -70,7 +70,7 @@ def _get_columns(item):
 _formatters = {}
 
 
-class HumanReadableSizeColumn(cliff_columns.FormattableColumn):
+class HumanReadableSizeColumn(cliff_columns.FormattableColumn[int]):
     def human_readable(self):
         """Return a formatted visibility string
 
@@ -84,7 +84,7 @@ class HumanReadableSizeColumn(cliff_columns.FormattableColumn):
             return ''
 
 
-class VisibilityColumn(cliff_columns.FormattableColumn):
+class VisibilityColumn(cliff_columns.FormattableColumn[bool]):
     def human_readable(self):
         """Return a formatted visibility string
 

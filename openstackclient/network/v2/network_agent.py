@@ -26,12 +26,12 @@ from openstackclient.i18n import _
 LOG = logging.getLogger(__name__)
 
 
-class AliveColumn(cliff_columns.FormattableColumn):
+class AliveColumn(cliff_columns.FormattableColumn[bool]):
     def human_readable(self):
         return ":-)" if self._value else "XXX"
 
 
-class AdminStateColumn(cliff_columns.FormattableColumn):
+class AdminStateColumn(cliff_columns.FormattableColumn[bool]):
     def human_readable(self):
         return 'UP' if self._value else 'DOWN'
 

@@ -14,6 +14,7 @@
 """Identity v2 Service Catalog action implementations"""
 
 import logging
+import typing as ty
 
 from cliff import columns as cliff_columns
 from osc_lib import exceptions
@@ -26,7 +27,7 @@ from openstackclient.i18n import _
 LOG = logging.getLogger(__name__)
 
 
-class EndpointsColumn(cliff_columns.FormattableColumn):
+class EndpointsColumn(cliff_columns.FormattableColumn[ty.Any]):
     def human_readable(self):
         if not self._value:
             return ""
