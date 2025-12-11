@@ -39,9 +39,9 @@ _attr_map = (
 
 
 def _add_updatable_args(parser):
-    parser.add_argument('--name', help=_('Name of this Tap service.'))
+    parser.add_argument('--name', help=_('Name of the tap service.'))
     parser.add_argument(
-        '--description', help=_('Description for this Tap service.')
+        '--description', help=_('Description of the tap service.')
     )
 
 
@@ -54,7 +54,7 @@ def _get_columns(item):
 
 
 class CreateTapService(command.ShowOne):
-    _description = _("Create a tap service")
+    _description = _("Create a new tap service.")
 
     def get_parser(self, prog_name):
         parser = super().get_parser(prog_name)
@@ -65,7 +65,7 @@ class CreateTapService(command.ShowOne):
             dest='port_id',
             required=True,
             metavar="PORT",
-            help=_('Port to which the Tap service is connected.'),
+            help=_('Port (name or ID) to connect to the tap service.'),
         )
         return parser
 
@@ -94,7 +94,7 @@ class CreateTapService(command.ShowOne):
 
 
 class ListTapService(command.Lister):
-    _description = _("List tap services that belong to a given project")
+    _description = _("List tap services.")
 
     def get_parser(self, prog_name):
         parser = super().get_parser(prog_name)
@@ -122,14 +122,14 @@ class ListTapService(command.Lister):
 
 
 class ShowTapService(command.ShowOne):
-    _description = _("Show information of a given tap service")
+    _description = _("Show tap service details.")
 
     def get_parser(self, prog_name):
         parser = super().get_parser(prog_name)
         parser.add_argument(
             TAP_SERVICE,
             metavar=f"<{TAP_SERVICE}>",
-            help=_("ID or name of tap service to look up."),
+            help=_("Tap service to display (name or ID)."),
         )
         return parser
 
@@ -145,7 +145,7 @@ class ShowTapService(command.ShowOne):
 
 
 class DeleteTapService(command.Command):
-    _description = _("Delete a tap service")
+    _description = _("Delete a tap service.")
 
     def get_parser(self, prog_name):
         parser = super().get_parser(prog_name)
@@ -153,7 +153,7 @@ class DeleteTapService(command.Command):
             TAP_SERVICE,
             metavar=f"<{TAP_SERVICE}>",
             nargs="+",
-            help=_("ID(s) or name(s) of tap service to delete."),
+            help=_("Tap service to delete (name or ID)."),
         )
         return parser
 
@@ -191,7 +191,7 @@ class UpdateTapService(command.ShowOne):
         parser.add_argument(
             TAP_SERVICE,
             metavar=f"<{TAP_SERVICE}>",
-            help=_("ID or name of tap service to update."),
+            help=_("Tap service to modify (name or ID)."),
         )
         _add_updatable_args(parser)
         return parser
