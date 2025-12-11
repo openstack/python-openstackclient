@@ -21,10 +21,10 @@ import sys
 import typing as ty
 
 from openstack import exceptions as sdk_exceptions
-from osc_lib.command import command
 from osc_lib import exceptions
 from osc_lib import utils
 
+from openstackclient import command
 from openstackclient.i18n import _
 from openstackclient.network import common
 

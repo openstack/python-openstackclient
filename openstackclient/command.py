@@ -10,22 +10,18 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
+from cliff import lister
+from cliff import show
+from osc_lib.command import command
 
-from osc_lib.cli import format_columns
-
-from openstackclient import command
-from openstackclient.i18n import _
+from openstackclient import shell
 
 
-class ImportInfo(command.ShowOne):
-    _description = _("Show available import methods")
+class Command(command.Command):
+    app: shell.OpenStackShell
 
-    def take_action(self, parsed_args):
-        image_client = self.app.client_manager.image
 
-        import_info = image_client.get_import_info()
-        import_methods = import_info.import_methods or {}
-        return (
-            ('import-methods',),
-            (format_columns.ListColumn(import_methods.get('value', [])),),
-        )
+class Lister(Command, lister.Lister): ...
+
+
+class ShowOne(Command, show.ShowOne): ...

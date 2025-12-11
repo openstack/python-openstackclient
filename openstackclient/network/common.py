@@ -12,19 +12,19 @@
 #
 
 import abc
-import argparse
 import contextlib
 import logging
 import typing as ty
 
-import cliff.app
+from cliff import _argparse
 import openstack.exceptions
 from osc_lib.cli import parseractions
-from osc_lib.command import command
 from osc_lib import exceptions
 
+from openstackclient import command
 from openstackclient.i18n import _
 from openstackclient.network import utils
+from openstackclient import shell
 
 
 LOG = logging.getLogger(__name__)
@@ -68,7 +68,7 @@ class NetDetectionMixin(metaclass=abc.ABCMeta):
     present the options for both network types, often qualified accordingly.
     """
 
-    app: cliff.app.App
+    app: shell.OpenStackShell
 
     @property
     def _network_type(self):
@@ -136,7 +136,7 @@ class NetDetectionMixin(metaclass=abc.ABCMeta):
             )
         )
 
-    def get_parser(self, prog_name: str) -> argparse.ArgumentParser:
+    def get_parser(self, prog_name: str) -> _argparse.ArgumentParser:
         LOG.debug('get_parser(%s)', prog_name)
         parser = super().get_parser(prog_name)  # type: ignore
         parser = self.update_parser_common(parser)
@@ -202,6 +202,8 @@ class NetworkAndComputeDelete(NetworkAndComputeCommand, metaclass=abc.ABCMeta):
     arguments. This class supports bulk deletion, and error handling
     following the rules in doc/source/command-errors.rst.
     """
+
+    resource: str
 
     def take_action(self, parsed_args):
         ret = 0

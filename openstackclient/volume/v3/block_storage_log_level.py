@@ -15,9 +15,9 @@
 """Block Storage Service action implementations"""
 
 from openstack import utils as sdk_utils
-from osc_lib.command import command
 from osc_lib import exceptions
 
+from openstackclient import command
 from openstackclient.i18n import _
 
 

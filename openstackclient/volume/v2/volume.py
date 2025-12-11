@@ -25,11 +25,11 @@ from openstack.block_storage.v2 import volume as _volume
 from openstack import exceptions as sdk_exceptions
 from osc_lib.cli import format_columns
 from osc_lib.cli import parseractions
-from osc_lib.command import command
 from osc_lib import exceptions
 from osc_lib import utils
 
 from openstackclient.api import volume_v2
+from openstackclient import command
 from openstackclient.common import pagination
 from openstackclient.i18n import _
 from openstackclient.identity import common as identity_common

@@ -20,10 +20,10 @@ import logging
 from keystoneauth1 import exceptions as ks_exc
 from osc_lib.cli import format_columns
 from osc_lib.cli import parseractions
-from osc_lib.command import command
 from osc_lib import exceptions
 from osc_lib import utils
 
+from openstackclient import command
 from openstackclient.i18n import _
 
 
