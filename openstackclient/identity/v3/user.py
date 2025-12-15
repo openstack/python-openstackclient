@@ -298,6 +298,9 @@ class CreateUser(command.ShowOne):
                     "when a user does not have a password."
                 )
             )
+        else:
+            kwargs['password'] = password
+
         options = _get_options_for_user(identity_client, parsed_args)
         if options:
             kwargs['options'] = options
@@ -306,7 +309,6 @@ class CreateUser(command.ShowOne):
             user = identity_client.create_user(
                 is_enabled=is_enabled,
                 name=parsed_args.name,
-                password=password,
                 **kwargs,
             )
         except sdk_exc.ConflictException:
